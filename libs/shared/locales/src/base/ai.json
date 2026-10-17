@@ -219,6 +219,31 @@
     "en": "Anomaly explanations",
     "pt": "Explicação de anomalias"
   },
+  "ai.admin.usage_feature.bill_capture": {
+    "es": "Facturas de proveedor desde foto",
+    "en": "Vendor bills from photo",
+    "pt": "Faturas de fornecedor a partir de foto"
+  },
+  "ai.admin.usage_feature.column_mapping": {
+    "es": "Mapeo de columnas",
+    "en": "Column mapping",
+    "pt": "Mapeamento de colunas"
+  },
+  "ai.admin.usage_feature.compose": {
+    "es": "Redacción",
+    "en": "Writing",
+    "pt": "Redação"
+  },
+  "ai.admin.usage_feature.copilot": {
+    "es": "Asistente",
+    "en": "Assistant",
+    "pt": "Assistente"
+  },
+  "ai.admin.usage_feature.deep_analysis": {
+    "es": "Análisis profundo",
+    "en": "Deep analysis",
+    "pt": "Análise aprofundada"
+  },
   "ai.admin.usage_feature.product_image_embedding": {
     "es": "Búsqueda de duplicados por imagen",
     "en": "Duplicate search by image",
@@ -228,6 +253,11 @@
     "es": "Producto desde foto",
     "en": "Product from photo",
     "pt": "Produto a partir de foto"
+  },
+  "ai.admin.usage_feature.reconcile_ambiguous": {
+    "es": "Conciliación (casos dudosos)",
+    "en": "Reconciliation (ambiguous cases)",
+    "pt": "Reconciliação (casos ambíguos)"
   },
   "ai.anomalies.all": {
     "es": "Todas",
@@ -938,6 +968,351 @@
     "es": "El código de barras no es válido.",
     "en": "The barcode is not valid.",
     "pt": "O código de barras não é válido."
+  },
+  "ai.copilot.back": {
+    "es": "Volver",
+    "en": "Back",
+    "pt": "Voltar"
+  },
+  "ai.copilot.close": {
+    "es": "Cerrar el asistente",
+    "en": "Close the assistant",
+    "pt": "Fechar o assistente"
+  },
+  "ai.copilot.confirm": {
+    "es": "Crear borrador",
+    "en": "Create draft",
+    "pt": "Criar rascunho"
+  },
+  "ai.copilot.consulting": {
+    "es": "Consultando {{tool}}…",
+    "en": "Checking {{tool}}…",
+    "pt": "A consultar {{tool}}…"
+  },
+  "ai.copilot.conversation_not_found": {
+    "es": "No se encontró la conversación.",
+    "en": "The conversation was not found.",
+    "pt": "A conversa não foi encontrada."
+  },
+  "ai.copilot.delete": {
+    "es": "Eliminar conversación",
+    "en": "Delete conversation",
+    "pt": "Eliminar conversa"
+  },
+  "ai.copilot.discard": {
+    "es": "Descartar",
+    "en": "Discard",
+    "pt": "Descartar"
+  },
+  "ai.copilot.disclaimer": {
+    "es": "Las cifras salen de tus datos; revisa los borradores antes de emitirlos.",
+    "en": "Figures come from your data; review drafts before issuing them.",
+    "pt": "Os valores vêm dos seus dados; reveja os rascunhos antes de os emitir."
+  },
+  "ai.copilot.empty_message": {
+    "es": "Escribe una pregunta.",
+    "en": "Type a question.",
+    "pt": "Escreva uma pergunta."
+  },
+  "ai.copilot.failed": {
+    "es": "No se pudo obtener una respuesta. Inténtalo de nuevo.",
+    "en": "Could not get an answer. Please try again.",
+    "pt": "Não foi possível obter uma resposta. Tente novamente."
+  },
+  "ai.copilot.history": {
+    "es": "Conversaciones",
+    "en": "Conversations",
+    "pt": "Conversas"
+  },
+  "ai.copilot.message_too_long": {
+    "es": "El mensaje es demasiado largo (máximo 4.000 caracteres).",
+    "en": "The message is too long (4,000 characters at most).",
+    "pt": "A mensagem é longa demais (máximo de 4.000 caracteres)."
+  },
+  "ai.copilot.new": {
+    "es": "Nueva conversación",
+    "en": "New conversation",
+    "pt": "Nova conversa"
+  },
+  "ai.copilot.no_history": {
+    "es": "Aún no hay conversaciones.",
+    "en": "No conversations yet.",
+    "pt": "Ainda não há conversas."
+  },
+  "ai.copilot.open": {
+    "es": "Asistente del ERP",
+    "en": "ERP assistant",
+    "pt": "Assistente do ERP"
+  },
+  "ai.copilot.open_draft": {
+    "es": "Abrir el borrador {{number}}",
+    "en": "Open draft {{number}}",
+    "pt": "Abrir o rascunho {{number}}"
+  },
+  "ai.copilot.placeholder": {
+    "es": "Escribe tu pregunta…",
+    "en": "Type your question…",
+    "pt": "Escreva a sua pergunta…"
+  },
+  "ai.copilot.proposal.draft_invoice": {
+    "es": "Factura en borrador",
+    "en": "Draft invoice",
+    "pt": "Fatura em rascunho"
+  },
+  "ai.copilot.proposal.draft_purchase_order": {
+    "es": "Orden de compra en borrador",
+    "en": "Draft purchase order",
+    "pt": "Ordem de compra em rascunho"
+  },
+  "ai.copilot.proposal.draft_quote": {
+    "es": "Cotización en borrador",
+    "en": "Draft quote",
+    "pt": "Orçamento em rascunho"
+  },
+  "ai.copilot.proposal_already_decided": {
+    "es": "Esta propuesta ya fue confirmada o descartada.",
+    "en": "This proposal was already confirmed or discarded.",
+    "pt": "Esta proposta já foi confirmada ou descartada."
+  },
+  "ai.copilot.proposal_expired": {
+    "es": "La propuesta caducó: pídela de nuevo para ver cifras actuales.",
+    "en": "The proposal expired: ask again to see current figures.",
+    "pt": "A proposta expirou: peça novamente para ver os valores atuais."
+  },
+  "ai.copilot.proposal_not_found": {
+    "es": "No se encontró la propuesta.",
+    "en": "The proposal was not found.",
+    "pt": "A proposta não foi encontrada."
+  },
+  "ai.copilot.proposal_note": {
+    "es": "Aún no se ha creado nada. Se creará como borrador para que lo revises.",
+    "en": "Nothing has been created yet. It will be created as a draft for you to review.",
+    "pt": "Ainda não foi criado nada. Será criado como rascunho para rever."
+  },
+  "ai.copilot.proposal_status.confirmed": {
+    "es": "Creada como borrador.",
+    "en": "Created as a draft.",
+    "pt": "Criada como rascunho."
+  },
+  "ai.copilot.proposal_status.expired": {
+    "es": "Caducada: pídela de nuevo.",
+    "en": "Expired: ask for it again.",
+    "pt": "Expirada: peça-a novamente."
+  },
+  "ai.copilot.proposal_status.failed": {
+    "es": "No se pudo crear.",
+    "en": "Could not be created.",
+    "pt": "Não foi possível criar."
+  },
+  "ai.copilot.proposal_status.proposed": {
+    "es": "Pendiente de confirmar.",
+    "en": "Waiting for confirmation.",
+    "pt": "A aguardar confirmação."
+  },
+  "ai.copilot.proposal_status.rejected": {
+    "es": "Descartada.",
+    "en": "Discarded.",
+    "pt": "Descartada."
+  },
+  "ai.copilot.refused": {
+    "es": "El asistente no puede ayudar con esta petición.",
+    "en": "The assistant cannot help with this request.",
+    "pt": "O assistente não pode ajudar com este pedido."
+  },
+  "ai.copilot.send": {
+    "es": "Enviar",
+    "en": "Send",
+    "pt": "Enviar"
+  },
+  "ai.copilot.sources": {
+    "es": "Fuentes consultadas",
+    "en": "Sources checked",
+    "pt": "Fontes consultadas"
+  },
+  "ai.copilot.stop": {
+    "es": "Dejar de leer la respuesta",
+    "en": "Stop reading the answer",
+    "pt": "Deixar de ler a resposta"
+  },
+  "ai.copilot.subtotal": {
+    "es": "Subtotal",
+    "en": "Subtotal",
+    "pt": "Subtotal"
+  },
+  "ai.copilot.suggestion.income": {
+    "es": "Resume el estado de resultados del último trimestre.",
+    "en": "Summarise last quarter's income statement.",
+    "pt": "Resuma a demonstração de resultados do último trimestre."
+  },
+  "ai.copilot.suggestion.quote": {
+    "es": "Prepara una cotización para un cliente.",
+    "en": "Prepare a quote for a customer.",
+    "pt": "Prepare um orçamento para um cliente."
+  },
+  "ai.copilot.suggestion.receivables": {
+    "es": "¿Quién me debe más y desde cuándo?",
+    "en": "Who owes me the most, and since when?",
+    "pt": "Quem me deve mais e desde quando?"
+  },
+  "ai.copilot.suggestion.stockouts": {
+    "es": "¿Qué productos se van a agotar pronto?",
+    "en": "Which products will run out soon?",
+    "pt": "Que produtos vão esgotar em breve?"
+  },
+  "ai.copilot.suggestion.summary": {
+    "es": "¿Cómo va el negocio este mes?",
+    "en": "How is the business doing this month?",
+    "pt": "Como está o negócio este mês?"
+  },
+  "ai.copilot.suggestion.top_sellers": {
+    "es": "¿Qué se vende más en cada sucursal?",
+    "en": "What sells best at each branch?",
+    "pt": "O que vende mais em cada filial?"
+  },
+  "ai.copilot.thinking": {
+    "es": "Pensando…",
+    "en": "Thinking…",
+    "pt": "A pensar…"
+  },
+  "ai.copilot.title": {
+    "es": "Asistente",
+    "en": "Assistant",
+    "pt": "Assistente"
+  },
+  "ai.copilot.tool.anomalies": {
+    "es": "Anomalías",
+    "en": "Anomalies",
+    "pt": "Anomalias"
+  },
+  "ai.copilot.tool.balance_sheet": {
+    "es": "Balance general",
+    "en": "Balance sheet",
+    "pt": "Balanço"
+  },
+  "ai.copilot.tool.business_summary": {
+    "es": "Resumen del negocio",
+    "en": "Business summary",
+    "pt": "Resumo do negócio"
+  },
+  "ai.copilot.tool.cash_position": {
+    "es": "Posición de caja",
+    "en": "Cash position",
+    "pt": "Posição de caixa"
+  },
+  "ai.copilot.tool.draft_invoice": {
+    "es": "Borrador de factura",
+    "en": "Invoice draft",
+    "pt": "Rascunho de fatura"
+  },
+  "ai.copilot.tool.draft_purchase_order": {
+    "es": "Borrador de orden de compra",
+    "en": "Purchase order draft",
+    "pt": "Rascunho de ordem de compra"
+  },
+  "ai.copilot.tool.draft_quote": {
+    "es": "Borrador de cotización",
+    "en": "Quote draft",
+    "pt": "Rascunho de orçamento"
+  },
+  "ai.copilot.tool.forecast_summary": {
+    "es": "Resumen del pronóstico",
+    "en": "Forecast summary",
+    "pt": "Resumo da previsão"
+  },
+  "ai.copilot.tool.get_invoice": {
+    "es": "Detalle de factura",
+    "en": "Invoice detail",
+    "pt": "Detalhe da fatura"
+  },
+  "ai.copilot.tool.income_statement": {
+    "es": "Estado de resultados",
+    "en": "Income statement",
+    "pt": "Demonstração de resultados"
+  },
+  "ai.copilot.tool.inventory_forecast": {
+    "es": "Pronóstico de inventario",
+    "en": "Stock forecast",
+    "pt": "Previsão de stock"
+  },
+  "ai.copilot.tool.list_invoices": {
+    "es": "Facturas",
+    "en": "Invoices",
+    "pt": "Faturas"
+  },
+  "ai.copilot.tool.list_purchase_orders": {
+    "es": "Órdenes de compra",
+    "en": "Purchase orders",
+    "pt": "Ordens de compra"
+  },
+  "ai.copilot.tool.list_quotes": {
+    "es": "Cotizaciones",
+    "en": "Quotes",
+    "pt": "Orçamentos"
+  },
+  "ai.copilot.tool.payables_aging": {
+    "es": "Antigüedad de cuentas por pagar",
+    "en": "Payables ageing",
+    "pt": "Antiguidade de contas a pagar"
+  },
+  "ai.copilot.tool.receivables_aging": {
+    "es": "Antigüedad de cuentas por cobrar",
+    "en": "Receivables ageing",
+    "pt": "Antiguidade de contas a receber"
+  },
+  "ai.copilot.tool.sales_trend": {
+    "es": "Tendencia de ventas",
+    "en": "Sales trend",
+    "pt": "Tendência de vendas"
+  },
+  "ai.copilot.tool.search_customers": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "ai.copilot.tool.search_products": {
+    "es": "Productos",
+    "en": "Products",
+    "pt": "Produtos"
+  },
+  "ai.copilot.tool.search_suppliers": {
+    "es": "Proveedores",
+    "en": "Suppliers",
+    "pt": "Fornecedores"
+  },
+  "ai.copilot.tool.stock_on_hand": {
+    "es": "Existencias",
+    "en": "Stock on hand",
+    "pt": "Stock disponível"
+  },
+  "ai.copilot.tool.supplier_lead_times": {
+    "es": "Plazos de proveedores",
+    "en": "Supplier lead times",
+    "pt": "Prazos dos fornecedores"
+  },
+  "ai.copilot.tool.top_sellers_by_branch": {
+    "es": "Más vendidos por sucursal",
+    "en": "Top sellers by branch",
+    "pt": "Mais vendidos por filial"
+  },
+  "ai.copilot.total": {
+    "es": "Total",
+    "en": "Total",
+    "pt": "Total"
+  },
+  "ai.copilot.untitled": {
+    "es": "Conversación sin título",
+    "en": "Untitled conversation",
+    "pt": "Conversa sem título"
+  },
+  "ai.copilot.welcome_help": {
+    "es": "Pregunta por tus ventas, cobros, inventario o finanzas, o pide que prepare una cotización, factura u orden de compra. Solo veo lo que tus permisos te dejan ver, y nada se crea sin que lo confirmes.",
+    "en": "Ask about your sales, receivables, stock or finances, or ask me to prepare a quote, invoice or purchase order. I only see what your permissions let you see, and nothing is created until you confirm it.",
+    "pt": "Pergunte pelas suas vendas, cobranças, stock ou finanças, ou peça para preparar um orçamento, fatura ou ordem de compra. Só vejo o que as suas permissões lhe deixam ver, e nada é criado sem a sua confirmação."
+  },
+  "ai.copilot.welcome_title": {
+    "es": "¿En qué te ayudo?",
+    "en": "How can I help?",
+    "pt": "Em que posso ajudar?"
   },
   "ai.not_configured": {
     "es": "La inteligencia artificial no está configurada en este servidor. Puedes continuar manualmente.",

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
 import { AiRequest } from './entities/ai-request.entity';
@@ -7,6 +7,13 @@ import { AiForecast } from './entities/ai-forecast.entity';
 import { AiInventoryInsight } from './entities/ai-inventory-insight.entity';
 import { AiAnomaly } from './entities/ai-anomaly.entity';
 import { AiAnomalyFeedback } from './entities/ai-anomaly-feedback.entity';
+import { AiConversation } from './entities/ai-conversation.entity';
+import { AiMessage } from './entities/ai-message.entity';
+import { AiPendingAction } from './entities/ai-pending-action.entity';
+import { CopilotService } from './copilot/copilot.service';
+import { CopilotController } from './copilot/copilot.controller';
+import { AiCopilotTools } from './copilot/ai.copilot-tools';
+import { AiAssistPort } from '../contracts/ai/ai-assist.contract';
 import { AiGatewayService } from './gateway/ai-gateway.service';
 import { EmbeddingsService } from './embeddings/embeddings.service';
 import { ProductVisionService } from './product-vision/product-vision.service';
@@ -27,13 +34,19 @@ import { InventoryModule } from '../inventory/inventory.module';
  * It owns only the `ai_*` tables. The catalogue is reached through `ProductCatalogPort`, and the
  * plan through `EntitlementsPort`, so nothing here depends on how either is implemented.
  */
+// Global for one export: `AiAssistPort`, which domain modules inject without importing this module
+// (they may not — see contracts/ai/ai-assist.contract.ts).
+@Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AiRequest, AiModelRun, AiForecast, AiInventoryInsight, AiAnomaly, AiAnomalyFeedback]),
+    TypeOrmModule.forFeature([
+      AiRequest, AiModelRun, AiForecast, AiInventoryInsight, AiAnomaly, AiAnomalyFeedback,
+      AiConversation, AiMessage, AiPendingAction,
+    ]),
     BullModule.registerQueue({ name: AI_ENGINE_QUEUE }),
     InventoryModule,
   ],
-  controllers: [AiController],
+  controllers: [AiController, CopilotController],
   providers: [
     AiGatewayService,
     EmbeddingsService,
@@ -45,7 +58,10 @@ import { InventoryModule } from '../inventory/inventory.module';
     AiEngineEventsListener,
     ForecastingService,
     AnomaliesService,
+    CopilotService,
+    AiCopilotTools,
+    { provide: AiAssistPort, useExisting: AiGatewayService },
   ],
-  exports: [AiGatewayService],
+  exports: [AiGatewayService, AiAssistPort],
 })
 export class AiModule {}

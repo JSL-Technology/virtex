@@ -78,6 +78,7 @@ import {
   MessageSquare, // ✅ Feedback (abre submenú)
   Bug, // ✅ Reportar un problema
   Lightbulb, // ✅ Sugerir una mejora
+  Sparkles, // Copiloto
   Star, // ✅ Dejar una valoración
   ChevronLeft, // ✅ Indicador del submenú de Feedback (se abre a la izquierda)
   Minus, // ✅ Control de ventana: minimizar (escritorio)
@@ -101,6 +102,7 @@ import { DesktopWindowService } from '../../core/windows/desktop-window.service'
 import { VxSpinnerComponent } from '../../shared/components/feedback';
 import { VxKbdComponent } from '../../shared/components/kbd';
 import { ShortcutsDialogComponent } from '../../shared/components/shortcuts-dialog';
+import { CopilotPanelComponent } from '../../features/ai/copilot/copilot-panel.component';
 import { VxResizeHandleComponent } from '../../shared/components/resize-handle';
 import { ShortcutsService } from '../../core/keyboard/shortcuts.service';
 import { SidebarResizeService } from '../../core/services/sidebar-resize.service';
@@ -128,7 +130,7 @@ import { resolveRoute } from '../../core/modules/module-registry';
     StatusBarComponent,
     ModuleRailComponent,
     CanOpenDirective,
-    ...FORMAT_PIPES, VxSpinnerComponent, VxKbdComponent, ShortcutsDialogComponent, VxResizeHandleComponent], // ✅ Directiva añadida a los imports
+    ...FORMAT_PIPES, VxSpinnerComponent, VxKbdComponent, ShortcutsDialogComponent, VxResizeHandleComponent, CopilotPanelComponent], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })
@@ -377,6 +379,7 @@ export class MainLayout implements OnInit {
   protected readonly MenuIcon = Menu; // ✅ Toggle de sidebar
   protected readonly HelpCircleIcon = HelpCircle;
   protected readonly KeyboardIcon = Keyboard;
+  protected readonly CopilotIcon = Sparkles;
   protected readonly MessageSquareIcon = MessageSquare;
   protected readonly BugIcon = Bug;
   protected readonly LightbulbIcon = Lightbulb;
@@ -416,6 +419,22 @@ export class MainLayout implements OnInit {
     this.closeUserMenu();
   }
 
+  /**
+   * The copilot panel. Offered to whoever holds `ai_copilot:use`; whether the plan includes it is
+   * the server's answer, which the panel shows when it opens.
+   */
+  readonly isCopilotOpen = signal(false);
+  readonly canUseCopilot = computed(() => this.authService.hasPermissions(['ai_copilot:use']));
+
+  toggleCopilot(): void {
+    this.isCopilotOpen.update((open) => !open);
+    this.closeUserMenu();
+  }
+
+  closeCopilot(): void {
+    this.isCopilotOpen.set(false);
+  }
+
   /** The keyboard-shortcuts help window. */
   readonly isShortcutsOpen = signal(false);
 
@@ -449,6 +468,7 @@ export class MainLayout implements OnInit {
     if (this.shortcuts.matches(event, 'app.back')) return run(() => this.location.back());
     if (this.shortcuts.matches(event, 'app.forward')) return run(() => this.location.forward());
     if (this.shortcuts.matches(event, 'app.report_problem')) return run(() => this.comingSoon());
+    if (this.shortcuts.matches(event, 'app.copilot') && this.canUseCopilot()) return run(() => this.toggleCopilot());
     return false;
   }
 

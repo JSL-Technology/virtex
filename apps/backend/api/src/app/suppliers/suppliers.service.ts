@@ -150,6 +150,21 @@ export class SuppliersService {
     return query.getMany();
   }
 
+  /**
+   * The supplier with this tax id, compared on its characters alone (`101-01234-5` is `101012345`).
+   * A bill read from a photo names its issuer by RNC, and a name is not an identity.
+   */
+  async findByTaxId(organizationId: string, taxId: string): Promise<Supplier | null> {
+    const key = (taxId ?? '').replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+    if (!key) return null;
+    return this.supplierRepository
+      .createQueryBuilder('supplier')
+      .where('supplier.organizationId = :organizationId', { organizationId })
+      .andWhere(`upper(regexp_replace(coalesce(supplier.taxId, ''), '[^0-9A-Za-z]', '', 'g')) = :key`, { key })
+      .orderBy('supplier.createdAt', 'ASC')
+      .getOne();
+  }
+
   async findOne(id: string, organizationId: string): Promise<Supplier> {
     const supplier = await this.supplierRepository.findOne({
       where: { id, organizationId },

@@ -1,6 +1,7 @@
 
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
   IsArray,
   IsDateString,
   IsNotEmpty,
@@ -193,6 +194,16 @@ export class CreateVendorBillDto {
   @IsOptional()
   @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   isrRetentionType?: string;
+
+  /**
+   * The supplier's documents uploaded while the bill was entered (`POST /accounts-payable/capture`
+   * or `/attachments`). They become the bill's evidence when it is saved.
+   */
+  @IsArray()
+  @ArrayMaxSize(10)
+  @IsUUID('4', { each: true })
+  @IsOptional()
+  attachmentIds?: string[];
 
   /** DGII "Forma de Pago". */
   @IsString()

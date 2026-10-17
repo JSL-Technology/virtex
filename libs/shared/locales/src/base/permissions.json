@@ -334,6 +334,16 @@
     "en": "Detected anomalies (AI)",
     "pt": "Anomalias detetadas (IA)"
   },
+  "permissions.groups.ai_bill_capture": {
+    "es": "Facturas de proveedor desde foto (IA)",
+    "en": "Vendor bills from photo (AI)",
+    "pt": "Faturas de fornecedor a partir de foto (IA)"
+  },
+  "permissions.groups.ai_copilot": {
+    "es": "Asistente del ERP (IA)",
+    "en": "ERP assistant (AI)",
+    "pt": "Assistente do ERP (IA)"
+  },
   "permissions.groups.ai_forecasts": {
     "es": "Predicciones de demanda (IA)",
     "en": "Demand forecasts (AI)",

@@ -130,6 +130,69 @@ export interface CreateVendorBillDto {
   purchaseCategory?: string;
   isrRetentionType?: string;
   paymentForm?: string;
+  /** The supplier's documents uploaded while entering the bill; they become its evidence. */
+  attachmentIds?: string[];
+}
+
+/** A supplier's document kept with a bill (or staged for one still being entered). */
+export interface VendorBillAttachment {
+  id: string;
+  vendorBillId: string | null;
+  fileName: string;
+  mimeType: string;
+  fileSize: number;
+  createdAt: string;
+}
+
+export type ArithmeticIssue =
+  | { kind: 'lines_vs_subtotal'; lines: number; subtotal: number }
+  | { kind: 'subtotal_tax_vs_total'; computed: number; total: number };
+
+/** What the server read from a supplier's document. Nothing has been recorded. */
+export interface BillCaptureSuggestion {
+  attachment: { id: string; fileName: string; mimeType: string };
+  documentKind: 'invoice' | 'credit_note' | 'debit_note' | 'receipt' | 'not_a_bill';
+  supplier: {
+    match: { id: string; name: string; taxId: string | null } | null;
+    name: string | null;
+    taxId: string | null;
+    taxIdValid: boolean | null;
+    registry: { legalName: string | null; status: string | null } | null;
+  };
+  bill: {
+    ncf: string | null;
+    ncfModified: string | null;
+    date: string | null;
+    dueDate: string | null;
+    currencyCode: string | null;
+    paymentForm: string | null;
+    purchaseCategory: string | null;
+    taxAmount: number | null;
+    serviceCharge: number | null;
+    subtotal: number | null;
+    total: number | null;
+  };
+  lines: Array<{
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+    productId: string | null;
+    expenseAccountId: string | null;
+    matchedBy: 'history' | 'code' | 'name' | null;
+  }>;
+  checks: {
+    ncf: {
+      status: 'ok' | 'missing' | 'invalid';
+      error: 'format' | 'unknown_type' | null;
+      type: string | null;
+      warnings: Array<'no_tax_credit' | 'credit_note_on_bill' | 'sales_only_type'>;
+    };
+    arithmetic: ArithmeticIssue[];
+    duplicateBillId: string | null;
+    sameFileBillId: string | null;
+  };
+  confidence: { supplier: number; ncf: number; dates: number; amounts: number; lines: number };
 }
 
 /** `lines` cannot be patched: the server refuses it and says to raise a note instead. */
@@ -351,6 +414,29 @@ export class AccountsPayableService {
     return this.http.patch<VendorBill>(`${this.apiUrl}/${id}`, dto);
   }
 
+  /** Read a supplier's invoice (photo or PDF) into a suggested bill. The file is kept for the bill. */
+  captureBill(file: File): Observable<BillCaptureSuggestion> {
+    return this.http.post<BillCaptureSuggestion>(`${this.apiUrl}/capture`, fileForm(file));
+  }
+
+  /** Keep a supplier's document for the bill being entered, without reading it. */
+  stageAttachment(file: File): Observable<VendorBillAttachment> {
+    return this.http.post<VendorBillAttachment>(`${this.apiUrl}/attachments`, fileForm(file));
+  }
+
+  attachToBill(billId: string, file: File): Observable<VendorBillAttachment> {
+    return this.http.post<VendorBillAttachment>(`${this.apiUrl}/${billId}/attachments`, fileForm(file));
+  }
+
+  billAttachments(billId: string): Observable<VendorBillAttachment[]> {
+    return this.http.get<VendorBillAttachment[]>(`${this.apiUrl}/${billId}/attachments`);
+  }
+
+  /** The file itself, through the authenticated client (a plain link would not carry the session rules). */
+  downloadAttachment(attachmentId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/attachments/${attachmentId}/download`, { responseType: 'blob' });
+  }
+
   /**
    * Settle one or more bills.
    *
@@ -403,4 +489,10 @@ export class AccountsPayableService {
   submitForApproval(id: string): Observable<VendorBill> {
     return this.http.post<VendorBill>(`${this.apiUrl}/${id}/submit-for-approval`, {});
   }
+}
+
+function fileForm(file: File): FormData {
+  const form = new FormData();
+  form.append('file', file, file.name);
+  return form;
 }

@@ -1,0 +1,174 @@
+<section class="cp" role="complementary" [attr.aria-label]="'ai.copilot.title' | translate">
+  <header class="cp__header">
+    @if (showHistory()) {
+      <button type="button" class="icon-button" [title]="'ai.copilot.back' | translate" [attr.aria-label]="'ai.copilot.back' | translate" (click)="showHistory.set(false)">
+        <lucide-icon [img]="BackIcon" size="18" aria-hidden="true"></lucide-icon>
+      </button>
+      <h2 class="cp__title">{{ 'ai.copilot.history' | translate }}</h2>
+    } @else {
+      <lucide-icon class="cp__mark" [img]="CopilotIcon" size="18" aria-hidden="true"></lucide-icon>
+      <h2 class="cp__title">{{ 'ai.copilot.title' | translate }}</h2>
+      <button type="button" class="icon-button" [title]="'ai.copilot.history' | translate" [attr.aria-label]="'ai.copilot.history' | translate" (click)="showHistory.set(true); loadConversations()">
+        <lucide-icon [img]="HistoryIcon" size="18" aria-hidden="true"></lucide-icon>
+      </button>
+      <button type="button" class="icon-button" [title]="'ai.copilot.new' | translate" [attr.aria-label]="'ai.copilot.new' | translate" (click)="newConversation()">
+        <lucide-icon [img]="NewIcon" size="18" aria-hidden="true"></lucide-icon>
+      </button>
+    }
+    <button type="button" class="icon-button" [title]="'ai.copilot.close' | translate" [attr.aria-label]="'ai.copilot.close' | translate" (click)="dismissed.emit()">
+      <lucide-icon [img]="CloseIcon" size="18" aria-hidden="true"></lucide-icon>
+    </button>
+  </header>
+
+  @if (showHistory()) {
+    <ul class="cp__history">
+      @for (conversation of conversations(); track conversation.id) {
+        <li>
+          <button type="button" class="cp__history-item" [class.cp__history-item--current]="conversation.id === conversationId()" (click)="open(conversation)">
+            <span class="cp__history-title">{{ conversation.title || ('ai.copilot.untitled' | translate) }}</span>
+            <span class="cp__history-when">{{ conversation.updatedAt | vxRelativeTime }}</span>
+          </button>
+          <button type="button" class="icon-button" [title]="'ai.copilot.delete' | translate" [attr.aria-label]="'ai.copilot.delete' | translate" (click)="remove(conversation, $event)">
+            <lucide-icon [img]="DeleteIcon" size="16" aria-hidden="true"></lucide-icon>
+          </button>
+        </li>
+      } @empty {
+        <li class="cp__muted">{{ 'ai.copilot.no_history' | translate }}</li>
+      }
+    </ul>
+  } @else {
+    <div class="cp__messages" #scroller aria-live="polite">
+      @if (unavailable(); as reason) {
+        <p class="cp__notice">{{ reason }}</p>
+      } @else if (!messages().length && !loading()) {
+        <div class="cp__welcome">
+          <p class="cp__welcome-title">{{ 'ai.copilot.welcome_title' | translate }}</p>
+          <p class="cp__muted">{{ 'ai.copilot.welcome_help' | translate }}</p>
+          @if (suggestions().length) {
+            <ul class="cp__suggestions">
+              @for (suggestion of suggestions(); track suggestion.key) {
+                <li>
+                  <button type="button" class="cp__suggestion" (click)="askSuggestion(suggestion.key)">{{ suggestion.key | translate }}</button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      }
+
+      @for (message of messages(); track message.key) {
+        @if (message.role === 'user') {
+          <div class="cp__bubble cp__bubble--user">{{ message.text }}</div>
+        } @else {
+          <div class="cp__answer">
+            @if (message.toolsUsed.length) {
+              <ul class="cp__sources" [attr.aria-label]="'ai.copilot.sources' | translate">
+                @for (tool of message.toolsUsed; track tool) {
+                  <li class="cp__source" [class.cp__source--active]="message.activeTool === tool">{{ k('ai.copilot.tool', tool) | translate }}</li>
+                }
+              </ul>
+            }
+            @if (message.text) {
+              <div class="cp__bubble cp__bubble--assistant" [innerHTML]="markdown(message.text)"></div>
+            } @else if (message.streaming) {
+              <p class="cp__muted cp__thinking">
+                {{ (message.activeTool ? 'ai.copilot.consulting' : 'ai.copilot.thinking') | translate: { tool: (message.activeTool ? (k('ai.copilot.tool', message.activeTool) | translate) : '') } }}
+              </p>
+            }
+
+            @for (id of message.proposals; track id) {
+              @if (proposal(id); as draft) {
+                <article class="cp__proposal" [class.cp__proposal--decided]="draft.status !== 'PROPOSED'">
+                  <header class="cp__proposal-header">
+                    <h3 class="cp__proposal-title">{{ k('ai.copilot.proposal', draft.tool) | translate }}</h3>
+                    <span class="cp__proposal-party">{{ previewValue(draft, 'customerName') ?? previewValue(draft, 'supplierName') }}</span>
+                  </header>
+                  @if (previewLines(draft).length) {
+                    <table class="cp__lines">
+                      <tbody>
+                        @for (line of previewLines(draft); track $index) {
+                          <tr>
+                            <td>{{ line.description }}</td>
+                            <td class="cp__num">{{ line.quantity | vxNumber }}</td>
+                            <td class="cp__num">{{ line.amount | vxMoney }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  }
+                  <dl class="cp__totals">
+                    @if (previewValue(draft, 'total') !== null) {
+                      <dt>{{ 'ai.copilot.total' | translate }}</dt>
+                      <dd>{{ previewValue(draft, 'total') | vxMoney }}</dd>
+                    } @else if (previewValue(draft, 'subtotal') !== null) {
+                      <dt>{{ 'ai.copilot.subtotal' | translate }}</dt>
+                      <dd>{{ previewValue(draft, 'subtotal') | vxMoney }}</dd>
+                    }
+                  </dl>
+
+                  @switch (draft.status) {
+                    @case ('PROPOSED') {
+                      <p class="cp__muted">{{ 'ai.copilot.proposal_note' | translate }}</p>
+                      <div class="cp__proposal-actions">
+                        <button type="button" class="primary-button" [disabled]="deciding() === draft.id" (click)="confirm(draft)">
+                          <lucide-icon [img]="ConfirmIcon" size="16" aria-hidden="true"></lucide-icon>
+                          <span>{{ 'ai.copilot.confirm' | translate }}</span>
+                        </button>
+                        <button type="button" class="secondary-button" [disabled]="deciding() === draft.id" (click)="reject(draft)">
+                          {{ 'ai.copilot.discard' | translate }}
+                        </button>
+                      </div>
+                    }
+                    @case ('CONFIRMED') {
+                      @if (draft.result; as created) {
+                        <a class="cp__created" [routerLink]="created.link">
+                          {{ 'ai.copilot.open_draft' | translate: { number: created.label } }}
+                        </a>
+                      }
+                    }
+                    @default {
+                      <p class="cp__muted">{{ k('ai.copilot.proposal_status', draft.status) | translate }}</p>
+                    }
+                  }
+                  @if (draft.error) {
+                    <p class="cp__error" role="alert">{{ draft.error }}</p>
+                  }
+                </article>
+              }
+            }
+
+            @if (message.error) {
+              <p class="cp__error" role="alert">{{ message.error }}</p>
+            }
+          </div>
+        }
+      }
+    </div>
+
+    <form class="cp__composer" (ngSubmit)="send()">
+      <label class="sr-only" for="cp-input">{{ 'ai.copilot.placeholder' | translate }}</label>
+      <textarea
+        id="cp-input"
+        #input
+        name="message"
+        rows="2"
+        [maxlength]="MAX_MESSAGE_CHARS"
+        [placeholder]="'ai.copilot.placeholder' | translate"
+        [disabled]="!!unavailable()"
+        [ngModel]="draft()"
+        (ngModelChange)="draft.set($event)"
+        (keydown)="onKeydown($event)"
+      ></textarea>
+      @if (streaming()) {
+        <button type="button" class="icon-button" [title]="'ai.copilot.stop' | translate" [attr.aria-label]="'ai.copilot.stop' | translate" (click)="stop()">
+          <lucide-icon [img]="StopIcon" size="18" aria-hidden="true"></lucide-icon>
+        </button>
+      } @else {
+        <button type="submit" class="icon-button" [disabled]="!canSend()" [title]="'ai.copilot.send' | translate" [attr.aria-label]="'ai.copilot.send' | translate">
+          <lucide-icon [img]="SendIcon" size="18" aria-hidden="true"></lucide-icon>
+        </button>
+      }
+    </form>
+    <p class="cp__disclaimer">{{ 'ai.copilot.disclaimer' | translate }}</p>
+  }
+</section>

@@ -259,6 +259,7 @@
   "main.shortcuts.apply": "Aplicar",
   "main.shortcuts.close_tab": "Fechar a aba ativa",
   "main.shortcuts.conflict": "Já usado por “{{name}}”",
+  "main.shortcuts.copilot": "Abrir o assistente",
   "main.shortcuts.dismiss": "Fechar menus e caixas de diálogo",
   "main.shortcuts.edit": "Editar atalho",
   "main.shortcuts.filter_placeholder": "Filtrar atalhos",

@@ -1,3 +1,5 @@
+import { AccessAuditAdapter } from './access-audit.adapter';
+import { AccessAuditPort } from '../contracts/audit/access-audit.contract';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditLog } from './entities/audit-log.entity';
@@ -18,10 +20,10 @@ import { AuditAccessInterceptor } from './audit-access.interceptor';
   imports: [
     TypeOrmModule.forFeature([AuditLog]),
   ],
-  providers: [AuditTrailService, AuditAccessInterceptor],
+  providers: [AuditTrailService, AuditAccessInterceptor, AccessAuditAdapter, { provide: AccessAuditPort, useExisting: AccessAuditAdapter }],
   controllers: [AuditController],
   // The interceptor is exported so the modules whose reports and exports are audited can apply it
   // with `@UseInterceptors` without each declaring its own copy — one instance, one audit service.
-  exports: [AuditTrailService, AuditAccessInterceptor],
+  exports: [AuditTrailService, AuditAccessInterceptor, AccessAuditPort],
 })
 export class AuditModule {}

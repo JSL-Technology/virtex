@@ -97,3 +97,67 @@
     .strong { font-weight: var(--font-semibold); }
   }
 }
+
+//  ── El documento del proveedor ──────────────────────────────────────────────
+.bill-document .card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.bill-document__pick {
+  cursor: pointer;
+
+  &.is-busy { opacity: 0.7; cursor: progress; }
+}
+
+.bill-document__status {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+.bill-document__files {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
+}
+
+.bill-document__note {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-inline-start: 3px solid var(--border-default);
+  font-size: var(--text-sm);
+
+  a { margin-inline-start: var(--space-2); color: var(--accent-text); }
+}
+
+.bill-document__note--warning {
+  border-inline-start-color: var(--warning-border);
+  background: var(--warning-surface);
+}
+
+.bill-document__note--info {
+  border-inline-start-color: var(--info-border);
+  background: var(--info-surface);
+}
+
+//  Lo sugerido por la lectura del documento, igual que en el producto desde foto.
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: var(--space-1);
+  padding: 0 var(--space-1);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-sm);
+  background: var(--info-surface);
+  color: var(--info-text);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+}

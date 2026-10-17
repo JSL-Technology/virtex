@@ -1,3 +1,4 @@
+import { DashboardCopilotTools } from './dashboard.copilot-tools';
 
 import { Module } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
@@ -22,7 +23,7 @@ import { Organization } from '../organizations/entities/organization.entity';
   ],
 
   controllers: [DashboardController],
-  providers: [DashboardService, DashboardChartsService],
+  providers: [DashboardCopilotTools, DashboardService, DashboardChartsService],
     exports: [DashboardService],
 })
 export class DashboardModule {}

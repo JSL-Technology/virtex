@@ -259,6 +259,7 @@
   "main.shortcuts.apply": "Apply",
   "main.shortcuts.close_tab": "Close the active tab",
   "main.shortcuts.conflict": "Already used by “{{name}}”",
+  "main.shortcuts.copilot": "Open the assistant",
   "main.shortcuts.dismiss": "Close menus and dialogs",
   "main.shortcuts.edit": "Edit shortcut",
   "main.shortcuts.filter_placeholder": "Filter shortcuts",

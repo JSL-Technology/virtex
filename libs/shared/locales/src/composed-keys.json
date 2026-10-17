@@ -70,6 +70,19 @@
       "FAILED",
       "RECONCILED"
     ],
+    "accounts_payable.capture.arithmetic": [
+      "lines_vs_subtotal",
+      "subtotal_tax_vs_total"
+    ],
+    "accounts_payable.capture.ncf_error": [
+      "format",
+      "unknown_type"
+    ],
+    "accounts_payable.capture.ncf_warning": [
+      "no_tax_credit",
+      "credit_note_on_bill",
+      "sales_only_type"
+    ],
     "accounts_payable.debit_notes.status": [
       "POSTED",
       "VOIDED"
@@ -111,9 +124,15 @@
       "provider_missing"
     ],
     "ai.admin.usage_feature": [
-      "product_vision",
       "anomaly_narrative",
-      "product_image_embedding"
+      "bill_capture",
+      "column_mapping",
+      "compose",
+      "copilot",
+      "deep_analysis",
+      "product_image_embedding",
+      "product_vision",
+      "reconcile_ambiguous"
     ],
     "ai.anomalies.category_label": [
       "sales",
@@ -241,6 +260,43 @@
       "DELETE",
       "true",
       "false"
+    ],
+    "ai.copilot.proposal": [
+      "draft_invoice",
+      "draft_quote",
+      "draft_purchase_order"
+    ],
+    "ai.copilot.proposal_status": [
+      "PROPOSED",
+      "CONFIRMED",
+      "REJECTED",
+      "FAILED",
+      "EXPIRED"
+    ],
+    "ai.copilot.tool": [
+      "inventory_forecast",
+      "forecast_summary",
+      "top_sellers_by_branch",
+      "supplier_lead_times",
+      "anomalies",
+      "search_customers",
+      "receivables_aging",
+      "search_suppliers",
+      "payables_aging",
+      "search_products",
+      "stock_on_hand",
+      "income_statement",
+      "balance_sheet",
+      "cash_position",
+      "business_summary",
+      "sales_trend",
+      "list_invoices",
+      "get_invoice",
+      "draft_invoice",
+      "list_quotes",
+      "draft_quote",
+      "list_purchase_orders",
+      "draft_purchase_order"
     ],
     "ai.photo.match_reason": [
       "barcode",

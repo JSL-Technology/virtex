@@ -63,6 +63,9 @@ export const SAAS_FEATURE_KEYS = [
   'ai_vision',
   'ai_forecasting',
   'ai_anomalies',
+  // The copilot: a conversation that reads and drafts through the user's own permissions. Every
+  // model turn is metered by `AI_CREDITS`.
+  'ai_assistant',
 ] as const;
 export type SaasFeatureKey = (typeof SAAS_FEATURE_KEYS)[number];
 
@@ -201,6 +204,7 @@ export const SAAS_PLANS: PlanConfig[] = [
       { featureKey: 'ai_vision', isEnabled: true },
       { featureKey: 'ai_forecasting', isEnabled: false },
       { featureKey: 'ai_anomalies', isEnabled: false },
+      { featureKey: 'ai_assistant', isEnabled: false },
     ]
   },
   {
@@ -227,6 +231,7 @@ export const SAAS_PLANS: PlanConfig[] = [
       { featureKey: 'ai_vision', isEnabled: true },
       { featureKey: 'ai_forecasting', isEnabled: true },
       { featureKey: 'ai_anomalies', isEnabled: true },
+      { featureKey: 'ai_assistant', isEnabled: true },
     ]
   },
   {
@@ -253,6 +258,7 @@ export const SAAS_PLANS: PlanConfig[] = [
       { featureKey: 'ai_vision', isEnabled: true },
       { featureKey: 'ai_forecasting', isEnabled: true },
       { featureKey: 'ai_anomalies', isEnabled: true },
+      { featureKey: 'ai_assistant', isEnabled: true },
     ]
   }
 ];

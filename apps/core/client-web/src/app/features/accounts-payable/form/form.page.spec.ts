@@ -323,4 +323,43 @@ describe('VendorBillFormPage', () => {
     flushPickers();
     expect(component.canSave()).toBe(false);
   });
+
+  /**
+   * A bill read from the supplier's document is a suggestion. It fills only what nobody has typed,
+   * writes nothing that failed its check (an NCF of the wrong shape), and the file goes with the
+   * bill as its evidence.
+   */
+  it('fills untouched fields from a read document, keeps the person\'s own, and saves the file with the bill', () => {
+    flushPickers();
+    component.form.get('date')?.setValue('2026-10-02');
+    component.form.get('date')?.markAsDirty();
+
+    const capture = {
+      attachment: { id: 'att-1', fileName: 'factura.jpg', mimeType: 'image/jpeg' },
+      documentKind: 'invoice',
+      supplier: { match: { id: 's1', name: 'Suplidora del Caribe', taxId: '131246753' }, name: 'Suplidora', taxId: '131246753', taxIdValid: true, registry: null },
+      bill: { ncf: 'B01-123', ncfModified: null, date: '2026-10-01', dueDate: '2026-10-31', currencyCode: 'DOP', paymentForm: '04', purchaseCategory: '06', taxAmount: 180, serviceCharge: null, subtotal: 1000, total: 1180 },
+      lines: [{ description: 'Café', quantity: 4, unitPrice: 250, total: 1000, productId: null, expenseAccountId: 'a1', matchedBy: 'history' }],
+      checks: { ncf: { status: 'invalid', error: 'format', type: null, warnings: [] }, arithmetic: [], duplicateBillId: null, sameFileBillId: null },
+      confidence: { supplier: 0.9, ncf: 0.4, dates: 0.9, amounts: 0.9, lines: 0.8 },
+    };
+    (component as any).keepAttachment({ ...capture.attachment, vendorBillId: null, fileSize: 10, createdAt: '' });
+    component.capture.set(capture as any);
+    (component as any).applyCapture(capture);
+
+    expect(component.form.get('vendorId')?.value).toBe('s1');
+    expect(component.form.get('date')?.value).toBe('2026-10-02'); // typed by the person: kept
+    expect(component.form.get('dueDate')?.value).toBe('2026-10-31');
+    expect(component.form.get('ncf')?.value).toBe(''); // failed its check: not written in
+    expect(component.captureNotes().map((note) => note.key)).toContain('accounts_payable.capture.ncf_error.format');
+    expect(component.confidenceOf('vendorId')).toBe(0.9);
+    expect(component.confidenceOf('date')).toBeNull();
+    expect(component.totals().total).toBe(1180);
+
+    component.save();
+    const request = httpMock.expectOne(`${API}/accounts-payable`);
+    expect(request.request.body.attachmentIds).toEqual(['att-1']);
+    expect(request.request.body.lines[0]).toMatchObject({ product: 'Café', quantity: 4, unitPrice: 250, expenseAccountId: 'a1' });
+    request.flush({ id: 'bill-1' });
+  });
 });

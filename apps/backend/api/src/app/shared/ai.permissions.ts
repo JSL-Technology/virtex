@@ -16,4 +16,11 @@ export const AI_PERMISSIONS = {
   AI_ANOMALIES_RESOLVE: 'ai_anomalies:resolve',
   AI_VISION_USE: 'ai_vision:use',
   AI_USAGE_VIEW: 'ai_usage:view',
+  /**
+   * Talking to the copilot. What it can then see or draft is still governed, tool by tool, by the
+   * user's own permissions — this only opens the conversation.
+   */
+  AI_COPILOT_USE: 'ai_copilot:use',
+  /** Reading a supplier's invoice from a photo or PDF into a draft bill. Spends credits. */
+  AI_BILL_CAPTURE_USE: 'ai_bill_capture:use',
 } as const;

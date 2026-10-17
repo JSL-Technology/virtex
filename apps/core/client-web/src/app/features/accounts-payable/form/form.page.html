@@ -14,13 +14,91 @@
   (cancelled)="cancel()"
 >
   <div class="form-body" [formGroup]="form">
+    <!-- El documento del proveedor: se lee para llenar el formulario, o solo se guarda como evidencia. -->
+    <div class="card bill-document">
+      <div class="form-section-head">
+        <h2>{{ 'accounts_payable.capture.title' | translate }}</h2>
+      </div>
+      <div class="card-body">
+        <p class="hint">
+          {{ (canRead() ? 'accounts_payable.capture.intro_read' : 'accounts_payable.capture.intro_attach') | translate }}
+        </p>
+        <input
+          type="file"
+          id="billDocument"
+          class="sr-only"
+          accept="image/*,application/pdf"
+          [disabled]="documentState() === 'reading' || documentState() === 'uploading'"
+          (change)="onDocumentSelected($event)"
+        />
+        <label for="billDocument" class="secondary-button bill-document__pick" [class.is-busy]="documentState() === 'reading'">
+          <lucide-icon [img]="canRead() ? ReadIcon : AttachIcon" [size]="16" aria-hidden="true"></lucide-icon>
+          <span>{{ (canRead() ? 'accounts_payable.capture.read_document' : 'accounts_payable.capture.attach_document') | translate }}</span>
+        </label>
+        <p class="bill-document__status" role="status" aria-live="polite">
+          @switch (documentState()) {
+            @case ('reading') { {{ 'accounts_payable.capture.reading' | translate }} }
+            @case ('uploading') { {{ 'accounts_payable.capture.uploading' | translate }} }
+            @case ('done') {
+              @if (capture()) { {{ 'accounts_payable.capture.filled' | translate }} }
+            }
+          }
+        </p>
+
+        @if (attachments().length) {
+          <ul class="bill-document__files">
+            @for (file of attachments(); track file.id) {
+              <li>
+                <lucide-icon [img]="DocumentIcon" [size]="14" aria-hidden="true"></lucide-icon>
+                <button type="button" class="link-button" (click)="openAttachment(file)">{{ file.fileName }}</button>
+                @if (!billId()) {
+                  <button type="button" class="icon-button" [attr.aria-label]="'accounts_payable.capture.remove_file' | translate" (click)="removeAttachment(file.id)">
+                    <lucide-icon [img]="RemoveIcon" [size]="14" aria-hidden="true"></lucide-icon>
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        }
+
+        @if (capture(); as read) {
+          @if (!read.supplier.match && read.supplier.taxId) {
+            <p class="bill-document__note bill-document__note--info">
+              {{ 'accounts_payable.capture.supplier_unknown' | translate: { name: (read.supplier.registry?.legalName ?? read.supplier.name ?? ''), taxId: read.supplier.taxId } }}
+              @if (newSupplierQuery(); as query) {
+                <a [routerLink]="['/contacts/suppliers/new']" [queryParams]="query">{{ 'accounts_payable.capture.register_supplier' | translate }}</a>
+              }
+            </p>
+          }
+          @if (read.checks.duplicateBillId; as duplicate) {
+            <p class="bill-document__note bill-document__note--warning" role="alert">
+              {{ 'accounts_payable.capture.duplicate' | translate: { ncf: read.bill.ncf } }}
+              <a [routerLink]="['/accounts-payable', duplicate]">{{ 'accounts_payable.capture.open_duplicate' | translate }}</a>
+            </p>
+          }
+          @if (read.checks.sameFileBillId; as same) {
+            <p class="bill-document__note bill-document__note--warning">
+              {{ 'accounts_payable.capture.same_file' | translate }}
+              <a [routerLink]="['/accounts-payable', same]">{{ 'accounts_payable.capture.open_duplicate' | translate }}</a>
+            </p>
+          }
+          @for (note of captureNotes(); track note.key) {
+            <p class="bill-document__note" [class.bill-document__note--warning]="note.tone === 'warning'" [class.bill-document__note--info]="note.tone === 'info'">
+              {{ note.key | translate: note.params }}
+            </p>
+          }
+          <p class="hint">{{ 'accounts_payable.capture.review_hint' | translate }}</p>
+        }
+      </div>
+    </div>
+
     <div class="card">
       <div class="form-section-head">
         <h2>{{ 'accounts_payable.form.general_information' | translate }}</h2>
       </div>
       <div class="card-body grid-form">
         <div class="form-field">
-          <label for="vendorId">{{ 'accounts_payable.form.supplier' | translate }} *</label>
+          <label for="vendorId">{{ 'accounts_payable.form.supplier' | translate }} *@if (confidenceOf('vendorId'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
           <!-- Era la lista entera de proveedores dentro de un `<select>`, sin buscador. -->
           <vx-select
             inputId="vendorId"
@@ -39,17 +117,17 @@
         </div>
 
         <div class="form-field">
-          <label for="ncf">{{ 'accounts_payable.form.ncf' | translate }}</label>
+          <label for="ncf">{{ 'accounts_payable.form.ncf' | translate }}@if (confidenceOf('ncf'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
           <input type="text" id="ncf" formControlName="ncf" autocomplete="off">
         </div>
 
         <div class="form-field">
-          <label for="date">{{ 'accounts_payable.form.issue_date' | translate }}</label>
+          <label for="date">{{ 'accounts_payable.form.issue_date' | translate }}@if (confidenceOf('date'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
           <vx-date-field inputId="date" formControlName="date" />
         </div>
 
         <div class="form-field">
-          <label for="dueDate">{{ 'accounts_payable.form.due_date' | translate }}</label>
+          <label for="dueDate">{{ 'accounts_payable.form.due_date' | translate }}@if (confidenceOf('dueDate'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
           <vx-date-field inputId="dueDate" formControlName="dueDate" />
         </div>
 
@@ -84,7 +162,7 @@
 
     <div class="card" formArrayName="lines">
       <div class="form-section-head">
-        <h2>{{ 'accounts_payable.form.invoice_details' | translate }}</h2>
+        <h2>{{ 'accounts_payable.form.invoice_details' | translate }}@if (confidenceOf('lines'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</h2>
       </div>
       @if (sourceOrder(); as order) {
         <p class="source-order" role="status">
