@@ -33,7 +33,11 @@ export interface WorkflowIssue {
 export interface WorkflowActionParam {
   name: string;
   labelKey: string;
-  type: 'string' | 'text' | 'number' | 'boolean' | 'url' | 'user' | 'select' | 'json';
+  type: 'string' | 'text' | 'number' | 'boolean' | 'url' | 'user' | 'select' | 'json' | 'process' | 'variable';
+  /** For `select`: catalogue keys for each option's label (`option` → key). */
+  optionLabelKeys?: Record<string, string>;
+  /** A default the designer pre-fills. */
+  defaultValue?: string;
   required?: boolean;
   options?: string[];
   /** For `string`/`text`: `{{variable}}` placeholders are rendered from the context at runtime. */
@@ -48,7 +52,57 @@ export interface WorkflowValidationContext {
   isKnownEvent: (event: string) => boolean;
   userIds: ReadonlySet<string>;
   roleIds: ReadonlySet<string>;
+  /** Outcomes an action may return (`webhook` → ok/error). Absent: the action returns none. */
+  actionOutcomes?: (key: string) => readonly string[] | undefined;
+  /**
+   * The variables a catalogued event delivers. `undefined` for an event whose payload is not known
+   * in advance (a `custom.*` integration event): then an undeclared variable can only be a warning.
+   */
+  eventFields?: (event: string) => readonly string[] | undefined;
+  /** Variables an action writes into the context when it runs (`set_variable` → its target name). */
+  actionWrites?: (key: string, params: Record<string, unknown>) => readonly string[];
+  /**
+   * Roles and users that hold the grant to answer a task. A task assigned outside these sets can
+   * never be completed: the person is notified, opens it and is refused, and the run stalls.
+   */
+  actingRoleIds?: ReadonlySet<string>;
+  actingUserIds?: ReadonlySet<string>;
+  /** Active members per role, to warn about a task assigned to a role nobody holds. */
+  roleMemberCounts?: ReadonlyMap<string, number>;
+  /** Whether plain `http://` webhooks are accepted (development only). */
+  allowHttpWebhooks?: boolean;
 }
+
+/**
+ * Codes after which the rest of the checks cannot run meaningfully (ids, references, types). Any
+ * other structural problem — a malformed variable, an over-long text — is reported TOGETHER with
+ * the semantic ones, so fixing one issue never reveals three more that were there all along.
+ */
+const FATAL_STRUCTURAL: ReadonlySet<string> = new Set([
+  'graph_malformed',
+  'too_many_nodes',
+  'too_many_edges',
+  'node_malformed',
+  'node_bad_id',
+  'node_bad_type',
+  'duplicate_node_id',
+  'edge_malformed',
+  'edge_dangling',
+  'duplicate_edge_id',
+  'config_malformed',
+]);
+
+/** Variables the engine itself writes into every instance context. */
+export const ENGINE_VARIABLES: readonly string[] = [
+  'lastOutcome',
+  'lastComment',
+  'lastActorUserId',
+  'event',
+  'webhook',
+  'subprocess',
+  'document',
+  'parentInstanceId',
+];
 
 const ID = /^[A-Za-z0-9_-]{1,64}$/;
 const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*){0,4}$/;
@@ -262,6 +316,10 @@ function variableIssues(variables: WorkflowVariable[], scope: 'variable' | 'form
     if (!WORKFLOW_VARIABLE_TYPES.includes(variable.type)) issues.push({ code, severity: 'error' });
     if (variable.label !== undefined && !isText(variable.label, WORKFLOW_LIMITS.maxNameLength)) issues.push({ code, severity: 'error' });
     if (variable.description !== undefined && !isText(variable.description, 500)) issues.push({ code, severity: 'error' });
+    if (variable.min !== undefined && !isFiniteNumber(variable.min)) issues.push({ code, severity: 'error' });
+    if (variable.max !== undefined && !isFiniteNumber(variable.max)) issues.push({ code, severity: 'error' });
+    if (isFiniteNumber(variable.min) && isFiniteNumber(variable.max) && variable.min > variable.max)
+      issues.push({ code: 'variable_range_invalid', severity: 'error', params: { name: variable.name } });
     if (variable.type === 'select' && !(Array.isArray(variable.options) && variable.options.length > 0 && variable.options.every((o) => isText(o, 120))))
       issues.push({ code: 'select_needs_options', severity: 'error', params: { name: variable.name } });
   }
@@ -309,7 +367,7 @@ export function semanticIssues(
   ctx: WorkflowValidationContext,
 ): WorkflowIssue[] {
   const issues: WorkflowIssue[] = [...structuralIssues(graph, trigger)];
-  if (issues.length) return issues;
+  if (issues.some((issue) => FATAL_STRUCTURAL.has(issue.code))) return issues;
 
   const err = (code: string, extra: Partial<WorkflowIssue> = {}) => issues.push({ code, severity: 'error', ...extra });
   const warn = (code: string, extra: Partial<WorkflowIssue> = {}) => issues.push({ code, severity: 'warning', ...extra });
@@ -351,11 +409,21 @@ export function semanticIssues(
       case WorkflowNodeType.TASK:
       case WorkflowNodeType.APPROVAL: {
         const config = node.config ?? {};
+        // The node's name becomes the task's title in every inbox and notification: without one
+        // a person would be asked to act on an opaque identifier.
+        if (!node.name?.trim()) err('task_needs_name', { nodeId: node.id });
         if (!config.assigneeUserId && !config.assigneeRoleId) err('task_no_assignee', { nodeId: node.id, params: { node: name } });
         if (config.assigneeUserId && !ctx.userIds.has(config.assigneeUserId))
           err('assignee_user_unknown', { nodeId: node.id, params: { node: name } });
-        if (config.assigneeRoleId && !ctx.roleIds.has(config.assigneeRoleId))
-          err('assignee_role_unknown', { nodeId: node.id, params: { node: name } });
+        else if (config.assigneeUserId && ctx.actingUserIds && !ctx.actingUserIds.has(config.assigneeUserId))
+          err('assignee_user_cannot_act', { nodeId: node.id, params: { node: name } });
+        if (!config.assigneeUserId && config.assigneeRoleId) {
+          if (!ctx.roleIds.has(config.assigneeRoleId)) err('assignee_role_unknown', { nodeId: node.id, params: { node: name } });
+          else if (ctx.actingRoleIds && !ctx.actingRoleIds.has(config.assigneeRoleId))
+            err('assignee_role_cannot_act', { nodeId: node.id, params: { node: name } });
+          else if (ctx.roleMemberCounts && (ctx.roleMemberCounts.get(config.assigneeRoleId) ?? 0) === 0)
+            warn('assignee_role_empty', { nodeId: node.id, params: { node: name } });
+        }
         if (config.escalateToUserId && !ctx.userIds.has(config.escalateToUserId))
           err('assignee_user_unknown', { nodeId: node.id, params: { node: name } });
         const outcomes = effectiveOutcomes(node);
@@ -391,6 +459,28 @@ export function semanticIssues(
           err('unknown_action', { nodeId: node.id, params: { node: name } });
           break;
         }
+        // An action that reports an outcome (a webhook's ok/error) must say where each one goes.
+        // Falling through to «the only connection» once sent a failed call down the success path.
+        const actionOutcomes = ctx.actionOutcomes?.(key) ?? [];
+        if (actionOutcomes.length) {
+          const routed = new Set(out.map((edge) => edge.outcome).filter(Boolean));
+          const fallback = defaults.length === 1 || (out.length === 1 && !out[0].outcome);
+          for (const outcome of actionOutcomes) {
+            if (routed.has(outcome)) continue;
+            if (!fallback) err('outcome_unrouted', { nodeId: node.id, params: { node: name, outcome } });
+            else if (outcome === 'error') warn('action_error_unhandled', { nodeId: node.id, params: { node: name } });
+          }
+          for (const edge of out) {
+            if (edge.outcome && !actionOutcomes.includes(edge.outcome))
+              err('edge_unknown_outcome', { nodeId: node.id, edgeId: edge.id, params: { node: name, outcome: edge.outcome } });
+          }
+        } else {
+          for (const edge of out) {
+            if (edge.outcome) err('edge_unknown_outcome', { nodeId: node.id, edgeId: edge.id, params: { node: name, outcome: edge.outcome } });
+          }
+          if (out.length > 1 && !out.some((edge) => edge.default))
+            err('action_ambiguous_exit', { nodeId: node.id, params: { node: name } });
+        }
         const params = node.config?.actionParams ?? {};
         for (const param of schema) {
           const value = params[param.name];
@@ -400,7 +490,12 @@ export function semanticIssues(
             continue;
           }
           if (empty) continue;
-          if (param.type === 'url' && !isHttpUrl(value)) err('action_param_url', { nodeId: node.id, params: { node: name, param: param.name } });
+          if (param.type === 'url') {
+            if (!isHttpUrl(value)) err('action_param_url', { nodeId: node.id, params: { node: name, param: param.name } });
+            else if (isPrivateUrl(String(value))) err('action_param_url_private', { nodeId: node.id, params: { node: name } });
+            else if (!ctx.allowHttpWebhooks && String(value).toLowerCase().startsWith('http:'))
+              err('action_param_url_https', { nodeId: node.id, params: { node: name } });
+          }
           if (param.type === 'number' && !isFiniteNumber(Number(value))) err('action_param_number', { nodeId: node.id, params: { node: name, param: param.name } });
           if (param.type === 'user' && !ctx.userIds.has(String(value))) err('assignee_user_unknown', { nodeId: node.id, params: { node: name } });
           if (param.type === 'select' && param.options && !param.options.includes(String(value)))
@@ -414,6 +509,7 @@ export function semanticIssues(
         const config = node.config ?? {};
         if (!config.timerUntilVar && !(isFiniteNumber(config.timerMinutes) && config.timerMinutes > 0))
           err('timer_needs_duration', { nodeId: node.id, params: { node: name } });
+        if (out.length > 1 && !out.some((edge) => edge.default)) err('action_ambiguous_exit', { nodeId: node.id, params: { node: name } });
         break;
       }
       default:
@@ -443,23 +539,41 @@ export function semanticIssues(
   }
 
   // ── Variables ──────────────────────────────────────────────────────────────
+  // A condition reading a variable nothing ever writes is not a style problem: the comparison is
+  // always false, so the branch it guards can never be taken. On an approval threshold that means
+  // every document is waved through. When the process's data is fully known (a manual start, or a
+  // catalogued event whose payload is declared) that is an error; only for an integration event
+  // whose payload nobody declared can it still be a warning.
+  const eventFields = trigger.mode === 'event' && trigger.event ? ctx.eventFields?.(trigger.event) : [];
+  const dataKnown = trigger.mode === 'manual' || eventFields !== undefined;
   const declared = new Set<string>([
     ...(graph.variables ?? []).map((variable) => variable.name),
     ...nodes.flatMap((node) => (node.config?.form ?? []).map((field) => field.name)),
     ...nodes.map((node) => node.id),
-    'lastOutcome',
-    'event',
+    ...(eventFields ?? []),
+    ...nodes.flatMap((node) =>
+      node.type === WorkflowNodeType.ACTION && node.config?.action
+        ? [...(ctx.actionWrites?.(node.config.action, node.config.actionParams ?? {}) ?? [])]
+        : [],
+    ),
+    ...ENGINE_VARIABLES,
   ]);
   const isDeclared = (path: string) => declared.has(path) || declared.has(path.split('.')[0]);
+  const undeclared = (variable: string, extra: Partial<WorkflowIssue>) =>
+    (dataKnown ? err : warn)('variable_undeclared', { ...extra, params: { variable } });
   for (const edge of edges) {
     for (const variable of predicateVariables(edge.condition)) {
-      if (!isDeclared(variable))
-        warn('variable_undeclared', { edgeId: edge.id, nodeId: edge.from, params: { variable } });
+      if (!isDeclared(variable)) undeclared(variable, { edgeId: edge.id, nodeId: edge.from });
     }
   }
   for (const node of nodes) {
     if (node.config?.timerUntilVar && !isDeclared(node.config.timerUntilVar))
-      warn('variable_undeclared', { nodeId: node.id, params: { variable: node.config.timerUntilVar } });
+      undeclared(node.config.timerUntilVar, { nodeId: node.id });
+  }
+  if (trigger.filter) {
+    for (const variable of predicateVariables(trigger.filter)) {
+      if (!isDeclared(variable)) undeclared(variable, {});
+    }
   }
 
   // ── Trigger ───────────────────────────────────────────────────────────────
@@ -557,6 +671,23 @@ function isPoint(value: unknown): boolean {
     Math.abs(point.x) < 1e6 &&
     Math.abs(point.y) < 1e6
   );
+}
+
+/** A literal loopback/private/link-local address or a local host name — never reachable safely. */
+export function isPrivateUrl(value: string): boolean {
+  let host: string;
+  try {
+    host = new URL(value).hostname.replace(/^\[|\]$/g, '').toLowerCase();
+  } catch {
+    return false;
+  }
+  if (host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host.endsWith('.internal')) return true;
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(host)) {
+    const [a, b] = host.split('.').map(Number);
+    return a === 0 || a === 10 || a === 127 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127) || a >= 224;
+  }
+  if (host.includes(':')) return host === '::1' || host === '::' || /^f[cd]/.test(host) || /^fe[89ab]/.test(host);
+  return false;
 }
 
 function isHttpUrl(value: unknown): boolean {

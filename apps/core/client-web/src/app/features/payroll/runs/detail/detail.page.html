@@ -52,7 +52,7 @@
             <span>{{ 'payroll.runs.pay_from' | translate }}</span>
             <select [value]="payFromAccountId() ?? ''" (change)="payFromAccountId.set($any($event.target).value || null)">
               @for (account of payingAccounts(); track account.bankAccountId) {
-                <option [value]="account.bankAccountId">
+                <option [value]="account.bankAccountId" [selected]="account.bankAccountId == (payFromAccountId() ?? '')">
                   {{ account.name }}{{ account.accountNumberMasked ? ' · ' + account.accountNumberMasked : '' }} —
                   {{ account.balanceInBaseCurrency | vxMoney: payrollRun.currencyCode }}
                 </option>
@@ -138,7 +138,7 @@
                         (change)="setInput(i, { employeeId: $any($event.target).value })"
                       >
                         @for (employee of employees(); track employee.id) {
-                          <option [value]="employee.id">{{ employee.lastName }}, {{ employee.firstName }}</option>
+                          <option [value]="employee.id" [selected]="employee.id == (input.employeeId)">{{ employee.lastName }}, {{ employee.firstName }}</option>
                         }
                       </select>
                     </td>
@@ -149,7 +149,7 @@
                         (change)="setInput(i, { conceptCode: $any($event.target).value })"
                       >
                         @for (concept of enterableConcepts(); track concept.id) {
-                          <option [value]="concept.code">{{ concept.name }}</option>
+                          <option [value]="concept.code" [selected]="concept.code == (input.conceptCode)">{{ concept.name }}</option>
                         }
                       </select>
                     </td>

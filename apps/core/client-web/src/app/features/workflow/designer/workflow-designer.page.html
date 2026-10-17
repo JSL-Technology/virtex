@@ -56,28 +56,36 @@
               <lucide-icon [img]="LayoutIcon" [size]="16" />
               <span class="wd-label">{{ 'workflow_engine.designer.auto_layout' | translate }}</span>
             </button>
-            <select class="wd-select" [attr.aria-label]="'workflow_engine.designer.layout_options' | translate" [disabled]="layoutBusy()"
-              (change)="$any($event.target).value && autoLayout($any($event.target).value); $any($event.target).value = ''">
-              <option value="">▾</option>
-              <option value="dagre">{{ 'workflow_engine.designer.layout_dagre' | translate }}</option>
-              <option value="elk">{{ 'workflow_engine.designer.layout_elk' | translate }}</option>
-            </select>
+            <button type="button" class="wd-menu__toggle" [disabled]="layoutBusy()" aria-haspopup="menu"
+              [attr.aria-expanded]="layoutMenuOpen()" (click)="togglePopover('layout')"
+              [attr.aria-label]="'workflow_engine.designer.layout_options' | translate" [title]="'workflow_engine.designer.layout_options' | translate">
+              <lucide-icon [img]="ChevronIcon" [size]="14" />
+            </button>
+            @if (layoutMenuOpen()) {
+              <div class="wd-layout-menu" role="menu">
+                <button type="button" role="menuitem" (click)="closePopovers(); autoLayout('dagre')">{{ 'workflow_engine.designer.layout_dagre' | translate }}</button>
+                <button type="button" role="menuitem" (click)="closePopovers(); autoLayout('elk')">{{ 'workflow_engine.designer.layout_elk' | translate }}</button>
+              </div>
+            }
           </div>
         }
         <button type="button" class="wd-icon" (click)="searchOpen() ? closeSearch() : openSearch()" [attr.aria-pressed]="searchOpen()"
           [attr.aria-label]="'workflow_engine.shortcut.search' | translate" [title]="'workflow_engine.shortcut.search' | translate">
           <lucide-icon [img]="SearchIcon" [size]="16" />
         </button>
-        <button type="button" class="wd-icon" (click)="showSettings.set(!showSettings())" [attr.aria-pressed]="showSettings()"
+        <button type="button" class="wd-icon" (click)="togglePopover('settings')" [attr.aria-pressed]="showSettings()"
           [attr.aria-label]="'workflow_engine.designer.canvas_settings' | translate" [title]="'workflow_engine.designer.canvas_settings' | translate">
           <lucide-icon [img]="SettingsIcon" [size]="16" />
         </button>
-        <button type="button" class="wd-icon" (click)="showShortcuts.set(true)" [attr.aria-label]="'workflow_engine.shortcut.help' | translate" [title]="'workflow_engine.shortcut.help' | translate">
+        <button type="button" class="wd-icon" (click)="closePopovers(); showShortcuts.set(true)" [attr.aria-label]="'workflow_engine.shortcut.help' | translate" [title]="'workflow_engine.shortcut.help' | translate">
           <lucide-icon [img]="KeyboardIcon" [size]="16" />
         </button>
       </div>
 
       <div class="wd-toolbar__group" role="group" [attr.aria-label]="'workflow_engine.designer.file' | translate">
+        <button type="button" class="wd-icon" (click)="openVersions()" [attr.aria-label]="'workflow_engine.versions.title' | translate" [title]="'workflow_engine.versions.title' | translate">
+          <lucide-icon [img]="HistoryIcon" [size]="16" />
+        </button>
         <button type="button" class="wd-icon" (click)="exportJson()" [attr.aria-label]="'workflow_engine.designer.export' | translate" [title]="'workflow_engine.designer.export' | translate">
           <lucide-icon [img]="ExportIcon" [size]="16" />
         </button>
@@ -99,7 +107,7 @@
               @case ('dirty') { {{ 'workflow_engine.designer.unsaved' | translate }} }
               @case ('error') { {{ 'workflow_engine.designer.save_error' | translate }} }
               @default {
-                {{ 'workflow_engine.designer.saved_at' | translate: { time: (lastSavedAt() | date: 'shortTime') } }}
+                {{ 'workflow_engine.designer.saved_at' | translate: { time: (lastSavedAt() | vxDate: 'time') } }}
               }
             }
           </span>
@@ -112,6 +120,12 @@
             <span class="wd-label">{{ (publishing() ? 'workflow_engine.publishing' : 'workflow_engine.publish') | translate }}</span>
           </button>
         } @else if (canDesign()) {
+          @if (def.status === 'ARCHIVED' && !hasLiveVersion()) {
+            <button type="button" class="secondary-button wd-button" (click)="reactivate()">
+              <lucide-icon [img]="PublishIcon" [size]="16" />
+              <span class="wd-label">{{ 'workflow_engine.reactivate.action' | translate }}</span>
+            </button>
+          }
           @if (def.status === 'PUBLISHED') {
             <button type="button" class="secondary-button wd-button" (click)="unpublish()">
               <lucide-icon [img]="UnpublishIcon" [size]="16" />
@@ -217,7 +231,7 @@
           <div class="wd-settings" role="dialog" [attr.aria-label]="'workflow_engine.designer.canvas_settings' | translate">
             <div class="wd-settings__head">
               <strong>{{ 'workflow_engine.designer.canvas_settings' | translate }}</strong>
-              <button type="button" class="wd-icon" (click)="showSettings.set(false)" [attr.aria-label]="'workflow_engine.designer.close' | translate">
+              <button type="button" class="wd-icon" (click)="closePopovers()" [attr.aria-label]="'workflow_engine.designer.close' | translate">
                 <lucide-icon [img]="CloseIcon" [size]="14" />
               </button>
             </div>
@@ -351,6 +365,58 @@
       <span>{{ zoomPercent() }}%</span>
     </footer>
   </div>
+
+  @if (versionsOpen()) {
+    <vx-dialog titleKey="workflow_engine.versions.title" size="md" (dismissed)="versionsOpen.set(false)">
+      @if (versions(); as list) {
+        @if (!list.length) {
+          <p>{{ 'workflow_engine.versions.empty' | translate }}</p>
+        } @else {
+          <ul class="wd-versions">
+            @for (version of list; track version.id) {
+              <li [attr.aria-current]="version.id === def.id">
+                <strong>{{ 'workflow_engine.version' | translate: { version: version.version } }}</strong>
+                <vx-badge [tone]="versionTone(version.status)">{{ versionStatusKey(version.status) | translate }}</vx-badge>
+                <span class="wd-versions__meta">
+                  @if (version.publishedAt) {
+                    {{ 'workflow_engine.versions.published_on' | translate: { date: (version.publishedAt | vxDate: 'dateTime') } }}
+                  } @else {
+                    {{ 'workflow_engine.versions.updated_on' | translate: { date: (version.updatedAt | vxDate: 'dateTime') } }}
+                  }
+                </span>
+                @if (version.id !== def.id) {
+                  <button type="button" class="secondary-button wd-button" (click)="openVersion(version.id)">{{ 'workflow_engine.versions.open' | translate }}</button>
+                }
+                @if (canDesign() && version.status !== 'DRAFT' && version.status !== 'PUBLISHED') {
+                  <button type="button" class="secondary-button wd-button" (click)="restoreVersion(version.id)">{{ 'workflow_engine.versions.restore' | translate }}</button>
+                }
+              </li>
+            }
+          </ul>
+        }
+      } @else {
+        <p role="status">{{ 'workflow_engine.loading' | translate }}</p>
+      }
+      <div dialogActions>
+        <button type="button" class="primary-button" (click)="versionsOpen.set(false)">{{ 'workflow_engine.designer.close' | translate }}</button>
+      </div>
+    </vx-dialog>
+  }
+
+  @if (publishWarnings(); as warnings) {
+    <vx-dialog titleKey="workflow_engine.publish_warnings.title" size="md" (dismissed)="publishWarnings.set(null)">
+      <p>{{ 'workflow_engine.publish_warnings.message' | translate: { count: warnings.length } }}</p>
+      <ul class="wd-warnings">
+        @for (issue of warnings; track $index) {
+          <li><lucide-icon [img]="WarnIcon" [size]="14" /> <span><strong>{{ issueTarget(issue) }}</strong> {{ issueText(issue) }}</span></li>
+        }
+      </ul>
+      <div dialogActions>
+        <button type="button" class="secondary-button" (click)="publishWarnings.set(null); inspectorTab.set('issues'); setPref('inspector', true)">{{ 'workflow_engine.publish_warnings.review' | translate }}</button>
+        <button type="button" class="primary-button" (click)="confirmPublishWithWarnings()">{{ 'workflow_engine.publish_warnings.confirm' | translate }}</button>
+      </div>
+    </vx-dialog>
+  }
 
   @if (showShortcuts()) {
     <vx-dialog titleKey="workflow_engine.shortcut.title" size="md" (dismissed)="showShortcuts.set(false)">

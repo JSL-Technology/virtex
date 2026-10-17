@@ -134,8 +134,8 @@ export class DialogHostComponent {
     // A dialog that opened carrying the previous one's text would offer the last reason as the
     // answer to this question.
     effect(() => {
-      this.dialog();
-      this.draft.set('');
+      const dialog = this.dialog();
+      this.draft.set(dialog?.kind === 'prompt' ? (dialog.defaultValue ?? '') : '');
       this.promptError.set(false);
     });
   }

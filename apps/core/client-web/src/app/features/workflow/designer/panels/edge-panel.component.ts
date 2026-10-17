@@ -55,6 +55,9 @@ import { DesignerStore, outcomesOf } from '../designer-store';
         <input id="edge-label" type="text" maxlength="80" [value]="e.label ?? ''" [readOnly]="readonly()"
           [placeholder]="'workflow_engine.designer.label_placeholder' | translate"
           (input)="store.patchEdge(e.id, { label: $any($event.target).value || undefined }, 'label')" />
+        @if (e.condition) {
+          <p class="insp-hint">{{ 'workflow_engine.designer.condition_label_hint' | translate }}</p>
+        }
       </div>
     </section>
 
@@ -66,11 +69,11 @@ import { DesignerStore, outcomesOf } from '../designer-store';
           <select id="edge-outcome" [value]="e.default ? '__default' : (e.outcome ?? '')" [disabled]="readonly()" (change)="setOutcome($any($event.target).value)">
             <option value="">{{ 'workflow_engine.designer.choose_outcome' | translate }}</option>
             @for (outcome of offered(); track outcome.id) {
-              <option [value]="outcome.id" [disabled]="outcome.taken && outcome.id !== e.outcome">
+              <option [value]="outcome.id" [selected]="!e.default && outcome.id === e.outcome" [disabled]="outcome.taken && outcome.id !== e.outcome">
                 {{ outcome.label }}{{ outcome.taken && outcome.id !== e.outcome ? ' · ' + ('workflow_engine.designer.already_routed' | translate) : '' }}
               </option>
             }
-            <option value="__default">{{ 'workflow_engine.designer.any_other_outcome' | translate }}</option>
+            <option value="__default" [selected]="!!e.default">{{ 'workflow_engine.designer.any_other_outcome' | translate }}</option>
           </select>
         </div>
       </section>

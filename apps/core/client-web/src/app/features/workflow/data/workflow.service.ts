@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, shareReplay, tap, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 // ── Graph model (mirrors the backend `workflow-graph` contracts) ───────────────
@@ -45,6 +45,9 @@ export interface WorkflowVariable {
   required?: boolean;
   options?: string[];
   description?: string;
+  /** For `number`: the accepted range. */
+  min?: number;
+  max?: number;
 }
 
 export interface WorkflowNodeConfig {
@@ -265,9 +268,11 @@ export interface WorkflowInstanceDetail {
 export interface WorkflowActionParam {
   name: string;
   labelKey: string;
-  type: 'string' | 'text' | 'number' | 'boolean' | 'url' | 'user' | 'select' | 'json';
+  type: 'string' | 'text' | 'number' | 'boolean' | 'url' | 'user' | 'select' | 'json' | 'process' | 'variable';
   required?: boolean;
   options?: string[];
+  optionLabelKeys?: Record<string, string>;
+  defaultValue?: string;
   templated?: boolean;
   maxLength?: number;
   hintKey?: string;
@@ -285,6 +290,7 @@ export interface WorkflowEventCatalogueItem {
   key: string;
   group: string;
   fields: WorkflowVariable[];
+  subjectType?: string | null;
 }
 
 export interface WorkflowEventCatalogue {
@@ -293,8 +299,9 @@ export interface WorkflowEventCatalogue {
 }
 
 export interface WorkflowAssignees {
-  users: Array<{ id: string; name: string; email: string }>;
-  roles: Array<{ id: string; name: string; isSystem: boolean }>;
+  /** `canAct`: holds the grant to answer tasks. A task assigned to someone without it can never be completed. */
+  users: Array<{ id: string; name: string; email: string; canAct?: boolean }>;
+  roles: Array<{ id: string; name: string; isSystem: boolean; canAct?: boolean; members?: number }>;
 }
 
 export interface WorkflowIssue {
@@ -317,17 +324,66 @@ export interface ListInstancesFilter {
   pageSize?: number;
 }
 
-/** The Business Workflow engine API, against `/workflow-engine`. */
+/** How long reference data stays fresh in the browser, per kind. */
+const TTL = {
+  /** Actions and events change only with a deployment. */
+  reference: 10 * 60_000,
+  /** People and roles change rarely; a minute keeps a new hire from waiting long. */
+  assignees: 60_000,
+  /**
+   * The process catalogue is read by the list, the runs filter and every open designer. A short
+   * window collapses the burst of identical reads a page with many tabs makes on load into one;
+   * every write below invalidates it, so nobody ever sees their own change missing.
+   */
+  catalogue: 5_000,
+} as const;
+
+/**
+ * The Business Workflow engine API, against `/workflow-engine`.
+ *
+ * Reads of reference data go through one shared, de-duplicated cache: each open designer tab used
+ * to fetch the catalogue, actions, events and assignees for itself, so a workspace restored with a
+ * dozen tabs fired fifty identical requests at once and was throttled (QA C-05). Now concurrent
+ * readers share the request in flight, and results are reused for the window above.
+ */
 @Injectable({ providedIn: 'root' })
 export class WorkflowService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/workflow-engine`;
   private readonly options = { withCredentials: true as const };
+  private readonly cache = new Map<string, { at: number; ttl: number; value: Observable<unknown> }>();
+
+  private cached<T>(key: string, ttl: number, load: () => Observable<T>): Observable<T> {
+    const hit = this.cache.get(key);
+    if (hit && Date.now() - hit.at < hit.ttl) return hit.value as Observable<T>;
+    const value = load().pipe(
+      catchError((error: unknown) => {
+        // A failure is never cached: the next reader tries again.
+        this.cache.delete(key);
+        return throwError(() => error);
+      }),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+    this.cache.set(key, { at: Date.now(), ttl, value });
+    return value;
+  }
+
+  /** Forget cached reads whose key starts with `prefix` (all of them when omitted). */
+  invalidate(prefix = ''): void {
+    for (const key of [...this.cache.keys()]) if (key.startsWith(prefix)) this.cache.delete(key);
+  }
+
+  private mutation<T>(request: Observable<T>): Observable<T> {
+    return request.pipe(tap({ next: () => this.invalidate('catalogue'), error: () => this.invalidate('catalogue') }));
+  }
 
   // Definitions
   catalogue(search?: string): Observable<WorkflowDefinitionSummary[]> {
-    const params = search?.trim() ? new HttpParams().set('search', search.trim()) : undefined;
-    return this.http.get<WorkflowDefinitionSummary[]>(`${this.apiUrl}/definitions/catalogue`, { ...this.options, params });
+    const term = search?.trim() ?? '';
+    const params = term ? new HttpParams().set('search', term) : undefined;
+    return this.cached(`catalogue:${term}`, TTL.catalogue, () =>
+      this.http.get<WorkflowDefinitionSummary[]>(`${this.apiUrl}/definitions/catalogue`, { ...this.options, params }),
+    );
   }
 
   getDefinition(id: string): Observable<WorkflowDefinition> {
@@ -335,53 +391,61 @@ export class WorkflowService {
   }
 
   createDefinition(body: { name: string; description?: string | null; graph?: WorkflowGraph; trigger?: WorkflowTrigger }): Observable<WorkflowDefinition> {
-    return this.http.post<WorkflowDefinition>(`${this.apiUrl}/definitions`, body, this.options);
+    return this.mutation(this.http.post<WorkflowDefinition>(`${this.apiUrl}/definitions`, body, this.options));
   }
 
   updateDefinition(
     id: string,
     body: { name?: string; description?: string | null; graph?: WorkflowGraph; trigger?: WorkflowTrigger; expectedUpdatedAt?: string },
   ): Observable<WorkflowDefinition> {
-    return this.http.patch<WorkflowDefinition>(`${this.apiUrl}/definitions/${id}`, body, this.options);
+    return this.mutation(this.http.patch<WorkflowDefinition>(`${this.apiUrl}/definitions/${id}`, body, this.options));
   }
 
-  validate(graph: WorkflowGraph, trigger: WorkflowTrigger): Observable<{ issues: WorkflowIssue[] }> {
-    return this.http.post<{ issues: WorkflowIssue[] }>(`${this.apiUrl}/definitions/validate`, { graph, trigger }, this.options);
+  validate(graph: WorkflowGraph, trigger: WorkflowTrigger, definitionId?: string): Observable<{ issues: WorkflowIssue[] }> {
+    return this.http.post<{ issues: WorkflowIssue[] }>(`${this.apiUrl}/definitions/validate`, { graph, trigger, definitionId }, this.options);
   }
 
-  publish(id: string, rollback = false): Observable<WorkflowDefinition> {
-    return this.http.post<WorkflowDefinition>(`${this.apiUrl}/definitions/${id}/publish`, { rollback }, this.options);
+  /**
+   * Publish a version. The server answers 409 `workflow_engine.publish_has_warnings` with the list
+   * when the design has warnings the publisher has not acknowledged; the caller shows them and
+   * repeats with `acknowledgeWarnings`.
+   */
+  publish(id: string, rollback = false, acknowledgeWarnings = false): Observable<WorkflowDefinition> {
+    return this.mutation(
+      this.http.post<WorkflowDefinition>(`${this.apiUrl}/definitions/${id}/publish`, { rollback, acknowledgeWarnings }, this.options),
+    );
   }
 
   unpublish(id: string): Observable<WorkflowDefinition> {
-    return this.http.post<WorkflowDefinition>(`${this.apiUrl}/definitions/${id}/unpublish`, {}, this.options);
+    return this.mutation(this.http.post<WorkflowDefinition>(`${this.apiUrl}/definitions/${id}/unpublish`, {}, this.options));
   }
 
   newVersion(id: string): Observable<WorkflowDefinition> {
-    return this.http.post<WorkflowDefinition>(`${this.apiUrl}/definitions/${id}/versions`, {}, this.options);
+    return this.mutation(this.http.post<WorkflowDefinition>(`${this.apiUrl}/definitions/${id}/versions`, {}, this.options));
   }
 
   duplicate(id: string, name?: string): Observable<WorkflowDefinition> {
-    return this.http.post<WorkflowDefinition>(`${this.apiUrl}/definitions/${id}/duplicate`, { name }, this.options);
+    return this.mutation(this.http.post<WorkflowDefinition>(`${this.apiUrl}/definitions/${id}/duplicate`, { name }, this.options));
   }
 
   deleteDefinition(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/definitions/${id}`, this.options);
+    return this.mutation(this.http.delete<void>(`${this.apiUrl}/definitions/${id}`, this.options));
   }
 
   actions(): Observable<WorkflowActionCatalogueItem[]> {
-    return this.http.get<WorkflowActionCatalogueItem[]>(`${this.apiUrl}/actions`, this.options);
+    return this.cached('ref:actions', TTL.reference, () => this.http.get<WorkflowActionCatalogueItem[]>(`${this.apiUrl}/actions`, this.options));
   }
 
   events(): Observable<WorkflowEventCatalogue> {
-    return this.http.get<WorkflowEventCatalogue>(`${this.apiUrl}/events`, this.options);
+    return this.cached('ref:events', TTL.reference, () => this.http.get<WorkflowEventCatalogue>(`${this.apiUrl}/events`, this.options));
   }
 
   assignees(search?: string, ids?: readonly string[]): Observable<WorkflowAssignees> {
     let params = new HttpParams();
     if (search?.trim()) params = params.set('search', search.trim());
     if (ids?.length) params = params.set('ids', ids.join(','));
-    return this.http.get<WorkflowAssignees>(`${this.apiUrl}/assignees`, { ...this.options, params });
+    const key = `ref:assignees:${search?.trim() ?? ''}:${(ids ?? []).join(',')}`;
+    return this.cached(key, TTL.assignees, () => this.http.get<WorkflowAssignees>(`${this.apiUrl}/assignees`, { ...this.options, params }));
   }
 
   /** People of the company, for «person» fields in start and task forms (any workflow grant). */
@@ -389,7 +453,10 @@ export class WorkflowService {
     let params = new HttpParams();
     if (search?.trim()) params = params.set('search', search.trim());
     if (ids?.length) params = params.set('ids', ids.join(','));
-    return this.http.get<Array<{ id: string; name: string; email: string }>>(`${this.apiUrl}/people`, { ...this.options, params });
+    const key = `ref:people:${search?.trim() ?? ''}:${(ids ?? []).join(',')}`;
+    return this.cached(key, TTL.assignees, () =>
+      this.http.get<Array<{ id: string; name: string; email: string }>>(`${this.apiUrl}/people`, { ...this.options, params }),
+    );
   }
 
   // Instances
@@ -406,15 +473,15 @@ export class WorkflowService {
   }
 
   startInstance(definitionId: string, body: { context?: Record<string, unknown>; subject?: WorkflowSubject }): Observable<WorkflowInstance> {
-    return this.http.post<WorkflowInstance>(`${this.apiUrl}/definitions/${definitionId}/start`, body, this.options);
+    return this.mutation(this.http.post<WorkflowInstance>(`${this.apiUrl}/definitions/${definitionId}/start`, body, this.options));
   }
 
   cancelInstance(id: string, reason: string): Observable<WorkflowInstance> {
-    return this.http.post<WorkflowInstance>(`${this.apiUrl}/instances/${id}/cancel`, { reason }, this.options);
+    return this.mutation(this.http.post<WorkflowInstance>(`${this.apiUrl}/instances/${id}/cancel`, { reason }, this.options));
   }
 
   retryInstance(id: string): Observable<WorkflowInstance> {
-    return this.http.post<WorkflowInstance>(`${this.apiUrl}/instances/${id}/retry`, {}, this.options);
+    return this.mutation(this.http.post<WorkflowInstance>(`${this.apiUrl}/instances/${id}/retry`, {}, this.options));
   }
 
   // Tasks
@@ -427,6 +494,6 @@ export class WorkflowService {
   }
 
   completeTask(id: string, body: { outcome: string; formData?: Record<string, unknown>; comment?: string }): Observable<WorkflowInstance> {
-    return this.http.post<WorkflowInstance>(`${this.apiUrl}/tasks/${id}/complete`, body, this.options);
+    return this.mutation(this.http.post<WorkflowInstance>(`${this.apiUrl}/tasks/${id}/complete`, body, this.options));
   }
 }

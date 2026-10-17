@@ -35,6 +35,8 @@ export interface PromptConfig {
    */
   minLength?: number;
   tooShort?: string;
+  /** Text the field starts with — a suggestion the reader can accept as is (literal, not a key). */
+  defaultValue?: string;
 }
 
 export interface ConfirmCloseConfig {
@@ -82,6 +84,7 @@ export interface ActiveDialog {
   // prompt
   placeholder: string;
   minLength: number;
+  defaultValue?: string;
   tooShort: string;
   resolve: (value: boolean | CloseDecision | string | null) => void;
 }
@@ -217,6 +220,7 @@ export class DialogService {
         allowSave: false,
         placeholder: config.placeholder ? this.t(config.placeholder) : '',
         minLength: config.minLength ?? 1,
+        defaultValue: config.defaultValue ?? '',
         // Never an empty reason: a refused answer with no explanation reads as a broken button.
         tooShort: this.t(config.tooShort ?? 'dialog.prompt.required'),
         resolve: (v) => resolve(typeof v === 'string' ? v : null),

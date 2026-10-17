@@ -18,6 +18,8 @@ interface Leaf {
   var: string;
   op: PredicateOp;
   value: string;
+  /** Typing a path by hand (a nested field such as `webhook.status`) instead of picking one. */
+  custom?: boolean;
 }
 
 interface Group {
@@ -56,9 +58,9 @@ let nextId = 1;
         <div class="ce-group__head">
           <label class="ce-switch">
             <span class="sr-only">{{ 'workflow_engine.condition.combine' | translate }}</span>
-            <select [value]="group.mode" (change)="setMode(group, $any($event.target).value)" [disabled]="readonly()">
-              <option value="all">{{ 'workflow_engine.condition.all' | translate }}</option>
-              <option value="any">{{ 'workflow_engine.condition.any' | translate }}</option>
+            <select (change)="setMode(group, $any($event.target).value)" [disabled]="readonly()">
+              <option value="all" [selected]="group.mode === 'all'">{{ 'workflow_engine.condition.all' | translate }}</option>
+              <option value="any" [selected]="group.mode === 'any'">{{ 'workflow_engine.condition.any' | translate }}</option>
             </select>
           </label>
           <label class="ce-negate">
@@ -74,46 +76,68 @@ let nextId = 1;
 
         @for (item of group.items; track item.id) {
           @if (item.kind === 'leaf') {
-            <div class="ce-leaf">
-              <input
-                class="ce-leaf__var"
-                [attr.list]="listId"
-                [value]="item.var"
-                (input)="patch(item, { var: $any($event.target).value })"
-                [attr.aria-label]="'workflow_engine.field.variable' | translate"
-                [placeholder]="'workflow_engine.field.variable' | translate"
-                [disabled]="readonly()"
-              />
-              <select class="ce-leaf__op" [value]="item.op" (change)="patch(item, { op: $any($event.target).value })" [attr.aria-label]="'workflow_engine.condition.operator' | translate" [disabled]="readonly()">
-                @for (op of opsFor(item); track op) {
-                  <option [value]="op">{{ opKey(op) | translate }}</option>
+            <div class="ce-leaf" [class.ce-leaf--unknown]="!!item.var && !isKnown(item.var)">
+              <div class="ce-leaf__row">
+                @if (item.custom) {
+                  <input
+                    class="ce-leaf__var"
+                    [attr.list]="listId"
+                    [value]="item.var"
+                    (input)="patch(item, { var: $any($event.target).value })"
+                    [attr.aria-label]="'workflow_engine.field.variable' | translate"
+                    [placeholder]="'workflow_engine.condition.custom_variable_placeholder' | translate"
+                    [disabled]="readonly()"
+                  />
+                } @else {
+                  <select class="ce-leaf__var" (change)="chooseVariable(item, $any($event.target).value)" [attr.aria-label]="'workflow_engine.field.variable' | translate" [disabled]="readonly()">
+                    @if (!item.var) {
+                      <option value="" selected disabled>{{ 'workflow_engine.condition.choose_variable' | translate }}</option>
+                    }
+                    @for (variable of variables(); track variable.name) {
+                      <option [value]="variable.name" [selected]="variable.name === item.var">{{ variable.label }}</option>
+                    }
+                    @if (item.var && !isKnown(item.var)) {
+                      <option [value]="item.var" selected>{{ 'workflow_engine.condition.unknown_variable' | translate: { name: item.var } }}</option>
+                    }
+                    <option value="__custom">{{ 'workflow_engine.condition.custom_variable' | translate }}</option>
+                  </select>
                 }
-              </select>
-              @if (!isUnary(item.op)) {
-                @switch (inputType(item)) {
-                  @case ('boolean') {
-                    <select class="ce-leaf__value" [value]="item.value" (change)="patch(item, { value: $any($event.target).value })" [disabled]="readonly()">
-                      <option value="true">{{ 'workflow_engine.common.yes' | translate }}</option>
-                      <option value="false">{{ 'workflow_engine.common.no' | translate }}</option>
-                    </select>
+                @if (!readonly()) {
+                  <button type="button" class="ce-icon" (click)="remove(item)" [attr.aria-label]="'workflow_engine.condition.remove' | translate" [title]="'workflow_engine.condition.remove' | translate">
+                    <lucide-icon [img]="TrashIcon" [size]="14" />
+                  </button>
+                }
+              </div>
+              <div class="ce-leaf__row">
+                <select class="ce-leaf__op" (change)="patch(item, { op: $any($event.target).value })" [attr.aria-label]="'workflow_engine.condition.operator' | translate" [disabled]="readonly()">
+                  @for (op of opsFor(item); track op) {
+                    <option [value]="op" [selected]="op === item.op">{{ opKey(op) | translate }}</option>
                   }
-                  @default {
-                    <input
-                      class="ce-leaf__value"
-                      [type]="inputType(item)"
-                      [value]="item.value"
-                      (input)="patch(item, { value: $any($event.target).value })"
-                      [attr.aria-label]="'workflow_engine.field.value' | translate"
-                      [placeholder]="(isList(item.op) ? 'workflow_engine.condition.list_placeholder' : 'workflow_engine.field.value') | translate"
-                      [disabled]="readonly()"
-                    />
+                </select>
+                @if (!isUnary(item.op)) {
+                  @switch (inputType(item)) {
+                    @case ('boolean') {
+                      <select class="ce-leaf__value" (change)="patch(item, { value: $any($event.target).value })" [disabled]="readonly()">
+                        <option value="true" [selected]="item.value === 'true'">{{ 'workflow_engine.common.yes' | translate }}</option>
+                        <option value="false" [selected]="item.value === 'false'">{{ 'workflow_engine.common.no' | translate }}</option>
+                      </select>
+                    }
+                    @default {
+                      <input
+                        class="ce-leaf__value"
+                        [type]="inputType(item)"
+                        [value]="item.value"
+                        (input)="patch(item, { value: $any($event.target).value })"
+                        [attr.aria-label]="'workflow_engine.field.value' | translate"
+                        [placeholder]="(isList(item.op) ? 'workflow_engine.condition.list_placeholder' : 'workflow_engine.field.value') | translate"
+                        [disabled]="readonly()"
+                      />
+                    }
                   }
                 }
-              }
-              @if (!readonly()) {
-                <button type="button" class="ce-icon" (click)="remove(item)" [attr.aria-label]="'workflow_engine.condition.remove' | translate" [title]="'workflow_engine.condition.remove' | translate">
-                  <lucide-icon [img]="TrashIcon" [size]="14" />
-                </button>
+              </div>
+              @if (item.var && !isKnown(item.var)) {
+                <p class="ce-leaf__warning" role="alert">{{ 'workflow_engine.condition.unknown_variable_hint' | translate: { name: item.var } }}</p>
               }
             </div>
           } @else {
@@ -171,6 +195,20 @@ export class ConditionEditorComponent {
     });
   }
 
+  isKnown(name: string): boolean {
+    const root = name.split('.')[0];
+    return this.typeOf().has(name) || this.typeOf().has(root);
+  }
+
+  chooseVariable(leaf: Leaf, value: string): void {
+    if (value === '__custom') {
+      leaf.custom = true;
+      this.root.set({ ...this.root() });
+      return;
+    }
+    this.patch(leaf, { var: value });
+  }
+
   opKey(op: PredicateOp): string {
     return composeKey('workflow_engine.op', op);
   }
@@ -223,6 +261,7 @@ export class ConditionEditorComponent {
   patch(leaf: Leaf, patch: Partial<Leaf>): void {
     Object.assign(leaf, patch);
     if (patch.var !== undefined && !this.opsFor(leaf).includes(leaf.op)) leaf.op = this.opsFor(leaf)[0];
+    this.root.set({ ...this.root() });
     this.emit();
   }
 

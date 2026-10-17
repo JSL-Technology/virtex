@@ -31,7 +31,7 @@
         <span>{{ 'payroll.concepts.type' | translate }}</span>
         <select [value]="draft().type" (change)="patch({ type: $any($event.target).value })">
           @for (type of types; track type) {
-            <option [value]="type">{{ 'payroll.concepts.type_label.' + type | translate }}</option>
+            <option [value]="type" [selected]="type == (draft().type)">{{ 'payroll.concepts.type_label.' + type | translate }}</option>
           }
         </select>
       </label>
@@ -39,7 +39,7 @@
         <span>{{ 'payroll.concepts.calculation' | translate }}</span>
         <select [value]="draft().calculation" (change)="patch({ calculation: $any($event.target).value })">
           @for (calculation of calculations; track calculation) {
-            <option [value]="calculation">
+            <option [value]="calculation" [selected]="calculation == (draft().calculation)">
               {{ 'payroll.concepts.calc_label.' + calculation | translate }}
             </option>
           }

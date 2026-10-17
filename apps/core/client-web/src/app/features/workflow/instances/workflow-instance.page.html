@@ -105,9 +105,9 @@
             @case ('summary') {
               <dl class="wri__facts">
                 <div><dt>{{ 'workflow_engine.instances.started_by' | translate }}</dt><dd>{{ run.startedByName || ('workflow_engine.instances.automatic' | translate) }}</dd></div>
-                <div><dt>{{ 'workflow_engine.instance.started' | translate }}</dt><dd>{{ run.createdAt | vxDate: 'datetime' }}</dd></div>
+                <div><dt>{{ 'workflow_engine.instance.started' | translate }}</dt><dd>{{ run.createdAt | vxDate: 'dateTime' }}</dd></div>
                 @if (run.completedAt) {
-                  <div><dt>{{ 'workflow_engine.instance.completed' | translate }}</dt><dd>{{ run.completedAt | vxDate: 'datetime' }}</dd></div>
+                  <div><dt>{{ 'workflow_engine.instance.completed' | translate }}</dt><dd>{{ run.completedAt | vxDate: 'dateTime' }}</dd></div>
                 }
                 @if (run.result) {
                   <div><dt>{{ 'workflow_engine.instance.result' | translate }}</dt><dd>{{ run.result }}</dd></div>
@@ -115,7 +115,7 @@
                 @if (run.status === 'RUNNING') {
                   <div><dt>{{ 'workflow_engine.instances.where' | translate }}</dt><dd>{{ (run.currentSteps ?? []).join(', ') || '—' }}</dd></div>
                   @if (run.nextWakeAt) {
-                    <div><dt>{{ 'workflow_engine.instance.next_wake' | translate }}</dt><dd>{{ run.nextWakeAt | vxDate: 'datetime' }}</dd></div>
+                    <div><dt>{{ 'workflow_engine.instance.next_wake' | translate }}</dt><dd>{{ run.nextWakeAt | vxDate: 'dateTime' }}</dd></div>
                   }
                 }
               </dl>
@@ -136,7 +136,7 @@
                           @if (task.status === 'OPEN') {
                             {{ 'workflow_engine.instance.waiting_on' | translate: { who: taskAssignee(task) } }}
                             @if (task.dueAt) {
-                              · {{ 'workflow_engine.instance.due' | translate: { date: (task.dueAt | vxDate: 'datetime') } }}
+                              · {{ 'workflow_engine.instance.due' | translate: { date: (task.dueAt | vxDate: 'dateTime') } }}
                             }
                           } @else if (task.status === 'COMPLETED') {
                             {{ 'workflow_engine.instance.answered' | translate: { who: person(task.completedByUserId), outcome: taskOutcome(task) } }}
@@ -191,7 +191,7 @@
                       @if (entry.comment) {
                         <q class="wri__comment">{{ entry.comment }}</q>
                       }
-                      <time class="wri__event-time" [attr.datetime]="entry.at">{{ entry.at | vxDate: 'datetime' }}</time>
+                      <time class="wri__event-time" [attr.datetime]="entry.at">{{ entry.at | vxDate: 'dateTime' }}</time>
                     </button>
                   </li>
                 }

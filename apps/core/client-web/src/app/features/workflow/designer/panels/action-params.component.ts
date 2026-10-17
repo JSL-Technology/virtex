@@ -55,7 +55,19 @@ import { DesignerCatalogs, PersonOption } from '../designer-catalogs';
               <select [id]="idFor(param)" [value]="text(param)" [disabled]="readonly()" (change)="set(param, $any($event.target).value || undefined)">
                 <option value="">—</option>
                 @for (option of param.options ?? []; track option) {
-                  <option [value]="option">{{ option }}</option>
+                  <option [value]="option" [selected]="option === text(param)">{{ param.optionLabelKeys?.[option] ? (param.optionLabelKeys![option] | translate) : option }}</option>
+                }
+              </select>
+            }
+            @case ('process') {
+              <select [id]="idFor(param)" [disabled]="readonly()" [attr.aria-required]="param.required || null"
+                [attr.aria-invalid]="missing(param) || null" (change)="set(param, $any($event.target).value || undefined)">
+                <option value="" [selected]="!text(param)">{{ 'workflow_engine.designer.choose_process' | translate }}</option>
+                @for (process of catalogs.processes(); track process.key) {
+                  <option [value]="process.key" [selected]="process.key === text(param)">{{ process.name }}</option>
+                }
+                @if (text(param) && !knownProcess(text(param))) {
+                  <option [value]="text(param)" selected>{{ 'workflow_engine.designer.unknown_process' | translate: { key: text(param) } }}</option>
                 }
               </select>
             }
@@ -67,15 +79,7 @@ import { DesignerCatalogs, PersonOption } from '../designer-catalogs';
             @default {
               <input [id]="idFor(param)" [type]="param.type === 'url' ? 'url' : 'text'" [attr.maxlength]="param.maxLength ?? null" [value]="text(param)"
                 [readOnly]="readonly()" [attr.aria-required]="param.required || null" [attr.aria-invalid]="missing(param) || null"
-                [attr.inputmode]="param.type === 'url' ? 'url' : null" spellcheck="false" (input)="set(param, $any($event.target).value, true)"
-                [attr.list]="param.name === 'workflowKey' ? idFor(param) + '-list' : null" />
-              @if (param.name === 'workflowKey') {
-                <datalist [id]="idFor(param) + '-list'">
-                  @for (process of catalogs.processes(); track process.key) {
-                    <option [value]="process.key">{{ process.name }}</option>
-                  }
-                </datalist>
-              }
+                [attr.inputmode]="param.type === 'url' ? 'url' : null" spellcheck="false" (input)="set(param, $any($event.target).value, true)" />
             }
           }
         }
@@ -99,6 +103,10 @@ export class ActionParamsComponent {
   readonly readonly = input(false);
   readonly idPrefix = input('param');
   readonly valueChange = output<{ value: Record<string, unknown>; coalesce?: string }>();
+
+  protected knownProcess(key: string): boolean {
+    return this.catalogs.processes().some((process) => process.key === key);
+  }
 
   protected readonly personName = (p: PersonOption) => p.name;
   protected readonly personEmail = (p: PersonOption) => p.email;

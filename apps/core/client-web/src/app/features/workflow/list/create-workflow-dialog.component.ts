@@ -118,6 +118,7 @@ const IMPORT_LIMIT_BYTES = 2 * 1024 * 1024;
         border: 0;
       }
       .wfc__templates legend {
+        padding: 0;
         margin-bottom: var(--space-2);
         font-size: var(--text-sm);
         font-weight: var(--font-semibold);

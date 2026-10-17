@@ -43,10 +43,36 @@
 }
 
 .ce-leaf {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+}
+
+// Variable on its own line, operator and value on the next: in a 300-pixel inspector three columns
+// left «es igual a» clipped to «es igu» (QA).
+.ce-leaf__row {
+  display: flex;
   gap: var(--space-1);
   align-items: center;
+
+  > select,
+  > input {
+    flex: 1 1 0;
+  }
+}
+
+.ce-leaf--unknown {
+  border-color: var(--status-danger-border, var(--color-danger, #c0392b));
+}
+
+.ce-leaf__warning {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--status-danger-fg, var(--color-danger, #c0392b));
 }
 
 .ce-icon {

@@ -1,5 +1,5 @@
 import { composeKey } from '@virteex/shared/types';
-import { DatePipe } from '@angular/common';
+import { VxDatePipe } from '@virteex/shared/ui-i18n';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -31,7 +31,9 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   AlertTriangle,
+  ChevronDown,
   CircleAlert,
+  History,
   CircleCheck,
   Copy,
   Download,
@@ -80,6 +82,7 @@ import {
   WorkflowIssue,
   WorkflowNodeType,
   WorkflowService,
+  WorkflowVersionSummary,
 } from '../data/workflow.service';
 import { DesignerCatalogs } from './designer-catalogs';
 import { computeLayout, LayoutEngineName } from './designer-layout';
@@ -89,7 +92,8 @@ import { EdgePanelComponent } from './panels/edge-panel.component';
 import { GroupPanelComponent } from './panels/group-panel.component';
 import { NodePanelComponent } from './panels/node-panel.component';
 import { ProcessPanelComponent } from './panels/process-panel.component';
-import { summarizePredicate } from './predicate-summary';
+import { setSummaryLocale, summarizePredicate } from './predicate-summary';
+import { LocaleStore } from '@virteex/shared/ui-i18n';
 import {
   CanvasEdge,
   CanvasGroup,
@@ -136,7 +140,7 @@ let sessionClipboard: DesignerClipboard | null = null;
   selector: 'app-workflow-designer-page',
   standalone: true,
   imports: [
-    DatePipe,
+    VxDatePipe,
     TranslateModule,
     LucideAngularModule,
     VxBadgeComponent,
@@ -222,6 +226,7 @@ export class WorkflowDesignerPage {
   private readonly scheme = inject(FControlSchemeController);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
+  private readonly localeStore = inject(LocaleStore);
 
   readonly id = input<string>('');
 
@@ -249,6 +254,14 @@ export class WorkflowDesignerPage {
   readonly typeFilter = signal<Set<WorkflowNodeType>>(new Set());
 
   readonly prefs = signal<StoredPrefs>(loadPrefs());
+  readonly layoutMenuOpen = signal(false);
+  readonly versionsOpen = signal(false);
+  readonly versions = signal<WorkflowVersionSummary[] | null>(null);
+  /** Warnings the server wants acknowledged before publishing; the dialog is open while set. */
+  readonly publishWarnings = signal<WorkflowIssue[] | null>(null);
+  /** Whether the process has a live version other than this one (an archived one can be reactivated when not). */
+  readonly hasLiveVersion = signal(true);
+  private pendingRollback = false;
 
   readonly canDesign = computed(() => this.auth.hasPermissions(['workflow_engine:design']));
   readonly readOnly = computed(() => {
@@ -327,7 +340,10 @@ export class WorkflowDesignerPage {
         label ||= this.translate.instant('workflow_engine.designer.otherwise');
         tone = 'fallback';
       } else if (edge.condition) {
-        label ||= summarizePredicate(this.translate, edge.condition, (v) => labels.get(v) ?? v, 40);
+        // A condition branch always shows its rule as it is now. A typed caption («> 10 000») went
+        // stale the moment someone changed the threshold, and the canvas then lied (QA M-01).
+        this.localeStore.locale();
+        label = summarizePredicate(this.translate, edge.condition, (v) => labels.get(v) ?? v, 40);
         tone = 'condition';
       }
       const own = issues.get(edge.id) ?? [];
@@ -417,6 +433,8 @@ export class WorkflowDesignerPage {
   protected readonly CopyIcon = Copy;
   protected readonly DeleteIcon = Trash2;
   protected readonly UnpublishIcon = EyeOff;
+  protected readonly HistoryIcon = History;
+  protected readonly ChevronIcon = ChevronDown;
 
   private autosaveTimer: ReturnType<typeof setTimeout> | null = null;
   private validateTimer: ReturnType<typeof setTimeout> | null = null;
@@ -426,6 +444,7 @@ export class WorkflowDesignerPage {
 
   constructor() {
     this.catalogs.load();
+    effect(() => setSummaryLocale(this.localeStore.locale()));
     this.applyScheme(this.prefs().scheme);
 
     effect(() => {
@@ -504,6 +523,7 @@ export class WorkflowDesignerPage {
     this.tab?.setTitle(definition.name);
     this.tab?.markClean();
     this.validateNow();
+    if (definition.status === 'ARCHIVED') this.refreshVersions();
   }
 
   resyncTab(): void {
@@ -611,7 +631,7 @@ export class WorkflowDesignerPage {
   validateNow(): void {
     const seq = ++this.validateSeq;
     this.validating.set(true);
-    this.service.validate(this.store.toGraph(), this.store.trigger()).subscribe({
+    this.service.validate(this.store.toGraph(), this.store.trigger(), this.definition()?.id).subscribe({
       next: ({ issues }) => {
         if (seq !== this.validateSeq) return;
         this.issues.set(issues);
@@ -657,7 +677,7 @@ export class WorkflowDesignerPage {
 
   // ── Publishing and versions ─────────────────────────────────────────────────
 
-  async publish(rollback = false): Promise<void> {
+  async publish(rollback = false, acknowledgeWarnings = false): Promise<void> {
     const definition = this.definition();
     if (!definition || this.publishing()) return;
     if (this.store.dirty() && !(await this.save({ silent: true }))) return;
@@ -668,10 +688,12 @@ export class WorkflowDesignerPage {
       return;
     }
     this.publishing.set(true);
-    this.service.publish(definition.id, rollback).subscribe({
+    this.service.publish(definition.id, rollback, acknowledgeWarnings).subscribe({
       next: (published) => {
         this.publishing.set(false);
+        this.publishWarnings.set(null);
         this.definition.set(published);
+        this.hasLiveVersion.set(true);
         this.store.clearSelection();
         this.notifications.showSuccess('workflow_engine.published', { version: published.version });
         this.tab?.emit({ type: TabEvent.RECORD_SAVED, entity: 'workflow_definition', id: published.id });
@@ -679,6 +701,14 @@ export class WorkflowDesignerPage {
       error: async (err: unknown) => {
         this.publishing.set(false);
         const key = messageKeyOf(err);
+        if (key === 'workflow_engine.publish_has_warnings') {
+          // The server found warnings: the author reads each one and decides, in one dialog,
+          // instead of publishing past a yellow badge they may never have opened (QA C-01).
+          const warnings = paramsOf(err)['issues'];
+          this.pendingRollback = rollback;
+          this.publishWarnings.set(Array.isArray(warnings) ? (warnings as WorkflowIssue[]) : []);
+          return;
+        }
         if (key === 'workflow_engine.stale_version') {
           const params = paramsOf(err);
           const confirmed = await this.dialog.confirm({
@@ -688,7 +718,7 @@ export class WorkflowDesignerPage {
             confirmText: 'workflow_engine.rollback.confirm',
             variant: 'warning',
           });
-          if (confirmed) void this.publish(true);
+          if (confirmed) void this.publish(true, acknowledgeWarnings);
           return;
         }
         const issues = paramsOf(err)['issues'];
@@ -700,6 +730,76 @@ export class WorkflowDesignerPage {
         this.notifications.showHttpError(err, 'workflow_engine.publish_failed');
       },
     });
+  }
+
+  confirmPublishWithWarnings(): void {
+    this.publishWarnings.set(null);
+    void this.publish(this.pendingRollback, true);
+  }
+
+  /** An archived version with nothing live in its place: make it live again (QA A-07). */
+  async reactivate(): Promise<void> {
+    const definition = this.definition();
+    if (!definition) return;
+    const confirmed = await this.dialog.confirm({
+      title: 'workflow_engine.reactivate.title',
+      message: 'workflow_engine.reactivate.message',
+      messageParams: { name: definition.name, version: definition.version },
+      confirmText: 'workflow_engine.reactivate.confirm',
+    });
+    if (confirmed) void this.publish(true);
+  }
+
+  // ── Versions ────────────────────────────────────────────────────────────────
+
+  openVersions(): void {
+    this.closePopovers();
+    this.versionsOpen.set(true);
+    this.refreshVersions();
+  }
+
+  private refreshVersions(): void {
+    const definition = this.definition();
+    if (!definition) return;
+    this.versions.set(null);
+    this.service.catalogue().subscribe({
+      next: (catalogue) => {
+        const entry = catalogue.find((item) => item.key === definition.key);
+        this.versions.set(entry?.versions ?? []);
+        this.hasLiveVersion.set(!!entry?.published);
+      },
+      error: () => this.versions.set([]),
+    });
+  }
+
+  openVersion(id: string): void {
+    this.versionsOpen.set(false);
+    const definition = this.definition();
+    if (this.tab) this.tab.replaceRoute(`/workflows/${id}/edit`, { title: definition?.name ?? '' });
+    else void this.router.navigateByUrl(this.tenancy.urlFor(`workflows/${id}/edit`));
+    if (id !== this.id()) this.load(id);
+  }
+
+  /** Make an earlier version live again. It is validated like any publish; warnings are shown. */
+  async restoreVersion(id: string): Promise<void> {
+    const version = this.versions()?.find((v) => v.id === id);
+    const confirmed = await this.dialog.confirm({
+      title: 'workflow_engine.versions.restore_title',
+      message: 'workflow_engine.versions.restore_message',
+      messageParams: { version: version?.version ?? '' },
+      confirmText: 'workflow_engine.versions.restore',
+      variant: 'warning',
+    });
+    if (!confirmed) return;
+    this.openVersion(id);
+    // The version loads read-only; publishing it as a rollback is the restore.
+    const wait = setInterval(() => {
+      if (this.definition()?.id === id && !this.loading()) {
+        clearInterval(wait);
+        void this.publish(true);
+      }
+    }, 100);
+    setTimeout(() => clearInterval(wait), 10_000);
   }
 
   async unpublish(): Promise<void> {
@@ -784,8 +884,7 @@ export class WorkflowDesignerPage {
   addFromPalette(item: PaletteItem): void {
     if (this.readOnly()) return;
     const center = this.canvas()?.viewportCenter() ?? { x: 200, y: 200 };
-    const jitter = (this.store.nodes().length % 5) * 24;
-    this.addItem(item, { x: center.x - NODE_WIDTH / 2 + jitter, y: center.y - NODE_HEIGHT / 2 + jitter });
+    this.addItem(item, freeSpot(this.store.nodes(), { x: center.x - NODE_WIDTH / 2, y: center.y - NODE_HEIGHT / 2 }));
   }
 
   private addItem(item: PaletteItem, position: { x: number; y: number }, groupId?: string): void {
@@ -796,6 +895,9 @@ export class WorkflowDesignerPage {
     if (!item.type) return;
     const preset = structuredClone(item.preset ?? {});
     if (groupId) preset.parentId = groupId;
+    // Every step is born with a name: a task's name is its title in every inbox and notice, and an
+    // unnamed one was shown to people as its internal identifier (QA A-04).
+    if (!preset.name?.trim() && item.type !== 'start') preset.name = uniqueName(this.store.nodes(), item.label || this.translate.instant(nodeTypeKey(item.type)));
     this.store.addNode(item.type, position, preset);
     this.inspectorTab.set('properties');
   }
@@ -896,7 +998,8 @@ export class WorkflowDesignerPage {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${definition?.key ?? 'workflow'}-v${definition?.version ?? 1}.json`;
+    // Named after what the author calls the process now, not the key minted from its first name.
+    link.download = `${fileSlug(doc.name) || definition?.key || 'workflow'}-v${definition?.version ?? 1}.json`;
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
@@ -951,8 +1054,25 @@ export class WorkflowDesignerPage {
   // ── Search ──────────────────────────────────────────────────────────────────
 
   openSearch(): void {
+    this.closePopovers();
     this.searchOpen.set(true);
-    queueMicrotask(() => this.searchInput()?.nativeElement.focus());
+    // The field exists only after the next render; focusing it any sooner lost the first keys typed.
+    setTimeout(() => this.searchInput()?.nativeElement.focus(), 0);
+  }
+
+  /** One floating panel at a time: settings, the layout menu and search never stack. */
+  togglePopover(kind: 'settings' | 'layout'): void {
+    const open = kind === 'settings' ? this.showSettings() : this.layoutMenuOpen();
+    this.closePopovers();
+    if (this.searchOpen()) this.closeSearch();
+    if (open) return;
+    if (kind === 'settings') this.showSettings.set(true);
+    else this.layoutMenuOpen.set(true);
+  }
+
+  closePopovers(): void {
+    this.showSettings.set(false);
+    this.layoutMenuOpen.set(false);
   }
 
   closeSearch(): void {
@@ -996,6 +1116,8 @@ export class WorkflowDesignerPage {
     const editing = isEditable(event.target);
 
     if (mod && key === 's') return this.handled(event, () => void this.save({ silent: false }));
+    // Escape closes a floating panel even from one of its own fields.
+    if (key === 'escape' && (this.showSettings() || this.layoutMenuOpen())) return this.handled(event, () => this.closePopovers());
     if (editing) return;
 
     if (mod && key === 'z' && !event.shiftKey) return this.handled(event, () => this.undo());
@@ -1011,6 +1133,7 @@ export class WorkflowDesignerPage {
     if (event.shiftKey && (event.key === '!' || event.code === 'Digit1')) return this.handled(event, () => this.fit());
     if (event.key === '?') return this.handled(event, () => this.showShortcuts.set(true));
     if (key === 'escape') {
+      if (this.showSettings() || this.layoutMenuOpen()) return this.handled(event, () => this.closePopovers());
       if (this.searchOpen()) return this.handled(event, () => this.closeSearch());
       if (this.store.hasSelection()) return this.handled(event, () => this.store.clearSelection());
     }
@@ -1066,6 +1189,14 @@ export class WorkflowDesignerPage {
     }
   }
 
+  versionStatusKey(status: WorkflowDefinition['status']): string {
+    return definitionStatusKey(status);
+  }
+
+  versionTone(status: WorkflowDefinition['status']) {
+    return definitionStatusTone(status);
+  }
+
   statusKey(definition: WorkflowDefinition): string {
     return definitionStatusKey(definition.status);
   }
@@ -1099,6 +1230,45 @@ function loadPrefs(): StoredPrefs {
   } catch {
     return defaults;
   }
+}
+
+/** The nearest free place to `wanted`, so steps added one after another never land on each other. */
+function freeSpot(nodes: WorkflowGraphNode[], wanted: { x: number; y: number }): { x: number; y: number } {
+  const gapX = NODE_WIDTH + 40;
+  const gapY = NODE_HEIGHT + 32;
+  const overlaps = (x: number, y: number) =>
+    nodes.some((node) => {
+      const p = node.position ?? { x: 0, y: 0 };
+      return Math.abs(p.x - x) < gapX && Math.abs(p.y - y) < gapY;
+    });
+  for (let ring = 0; ring < 12; ring += 1) {
+    for (let step = 0; step <= ring; step += 1) {
+      for (const [dx, dy] of [[0, ring], [ring, step], [step, ring], [-ring, step], [step, -ring], [0, -ring]]) {
+        const x = wanted.x + dx * gapX;
+        const y = wanted.y + dy * gapY;
+        if (!overlaps(x, y)) return { x, y };
+      }
+    }
+  }
+  return { x: wanted.x, y: wanted.y + nodes.length * 24 };
+}
+
+/** «Tarea», then «Tarea 2», «Tarea 3»… so two steps never share a name in inboxes and timelines. */
+function uniqueName(nodes: WorkflowGraphNode[], base: string): string {
+  const taken = new Set(nodes.map((node) => node.name?.trim().toLowerCase()).filter(Boolean));
+  if (!taken.has(base.toLowerCase())) return base;
+  for (let n = 2; ; n += 1) if (!taken.has(`${base} ${n}`.toLowerCase())) return `${base} ${n}`;
+}
+
+function fileSlug(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-')
+    .slice(0, 80);
 }
 
 function groupIssues(issues: WorkflowIssue[], key: 'nodeId' | 'edgeId'): Map<string, WorkflowIssue[]> {

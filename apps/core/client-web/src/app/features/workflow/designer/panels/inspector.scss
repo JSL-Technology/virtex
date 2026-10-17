@@ -282,3 +282,12 @@
 .sr-only {
   @include ds.visually-hidden;
 }
+
+// A value the author cannot change (a step's type) reads as text, not as a field that refuses input.
+.insp-static {
+  margin: 0;
+  padding: var(--space-1) 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--content-primary);
+}

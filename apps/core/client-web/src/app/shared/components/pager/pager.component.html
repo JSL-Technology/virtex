@@ -56,7 +56,7 @@
       <label for="vx-pager-size">{{ 'common.rows_per_page' | translate }}</label>
       <select id="vx-pager-size" [value]="pageSize()" [disabled]="disabled()" (change)="changeSize($event)">
         @for (size of pageSizes(); track size) {
-          <option [value]="size">{{ size }}</option>
+          <option [value]="size" [selected]="size === pageSize()">{{ size }}</option>
         }
       </select>
     </div>

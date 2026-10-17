@@ -14,7 +14,7 @@
       [disabled]="disabled()"
       [attr.aria-label]="'register.phone_country' | translate">
       @for (c of countries(); track c.countryCode) {
-        <option [value]="c.countryCode">{{ c.name }} (+{{ c.callingCode }})</option>
+        <option [value]="c.countryCode" [selected]="c.countryCode == (region())">{{ c.name }} (+{{ c.callingCode }})</option>
       }
     </select>
 

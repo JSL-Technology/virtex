@@ -92,6 +92,11 @@ export class ValidateDefinitionDto {
 
   @IsObject()
   trigger: WorkflowTrigger;
+
+  /** The definition being edited, so a self-referencing subprocess is recognised. */
+  @IsUUID()
+  @IsOptional()
+  definitionId?: string;
 }
 
 export class PublishDefinitionDto {
@@ -99,6 +104,11 @@ export class PublishDefinitionDto {
   @IsBoolean()
   @IsOptional()
   rollback?: boolean;
+
+  /** The publisher has seen the server's warnings and publishes anyway. */
+  @IsBoolean()
+  @IsOptional()
+  acknowledgeWarnings?: boolean;
 }
 
 export class DuplicateDefinitionDto {
