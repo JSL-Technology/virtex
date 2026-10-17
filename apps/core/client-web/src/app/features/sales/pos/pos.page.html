@@ -2,7 +2,7 @@
     <div class="product-catalog">
         <div class="catalog-header">
             <div class="search-bar">
-                <lucide-icon [img]="SearchIcon" size="20"></lucide-icon>
+                <lucide-icon [img]="SearchIcon" size="18" aria-hidden="true"></lucide-icon>
                 <input type="search" [placeholder]="'sales.pos.search_products_name_sku' | translate"
                        [attr.aria-label]="'sales.pos.search_products_name_sku' | translate"
                        [value]="query()" (input)="query.set($any($event.target).value)">
@@ -10,7 +10,7 @@
         </div>
         <div class="product-grid">
             @for (product of visibleProducts(); track product.id) {
-            <div class="product-card" (click)="addToCart(product)" [class.disabled]="product.stock === 0" tabindex="0" role="button" (keydown.enter)="addToCart(product)" (keydown.space)="$event.preventDefault(); addToCart(product)">
+            <div class="product-card" (click)="addToCart(product)" [class.disabled]="isOutOfStock(product)" tabindex="0" role="button" (keydown.enter)="addToCart(product)" (keydown.space)="$event.preventDefault(); addToCart(product)">
                 @if (product.imageUrl && !brokenImages().has(product.id)) {
                   <img [src]="product.imageUrl" [alt]="product.name" class="product-image" loading="lazy"
                        (error)="markImageBroken(product.id)">
@@ -22,7 +22,7 @@
                     <span class="product-name">{{ product.name }}</span>
                     <span class="product-price">{{ product.price | vxNumber:'1.2-2' }}</span>
                 </div>
-                @if(product.stock === 0) {
+                @if (isOutOfStock(product)) {
                 <div class="stock-overlay">{{ 'sales.pos.out_stock' | translate }}</div>
                 }
             </div>
@@ -37,7 +37,7 @@
     <div class="sale-ticket card" [formGroup]="saleForm">
         <div class="ticket-header">
             <h3>{{ 'sales.pos.current_order' | translate }}</h3>
-            <div class="customer-info">{{ 'sales.pos.customer' | translate }} <strong>{{ saleForm.get('customer')?.value }}</strong></div>
+            <div class="customer-info">{{ 'sales.pos.customer' | translate }} <strong>{{ customerLabel() }}</strong></div>
             @if (shiftReady() && shiftBranchId()) {
               <div class="customer-info">{{ 'branches.picker.label' | translate }}: <strong><vx-branch-label [branchId]="shiftBranchId()" /></strong></div>
             }
@@ -52,14 +52,14 @@
                         <span class="item-price-unit">{{ item.get('price')?.value | vxNumber:'1.2-2' }}</span>
                     </div>
                     <div class="item-controls">
-                        <button type="button" class="quantity-btn" (click)="updateQuantity($index, -1)"><lucide-icon
+                        <button type="button" class="quantity-btn" (click)="updateQuantity($index, -1)" [attr.aria-label]="'sales.pos.decrease_qty' | translate: { name: item.get('name')?.value }"><lucide-icon
                                 [img]="MinusIcon" size="14"></lucide-icon></button>
-                        <input type="number" class="quantity-input" formControlName="quantity">
-                        <button type="button" class="quantity-btn" (click)="updateQuantity($index, 1)"><lucide-icon
+                        <input type="number" class="quantity-input" formControlName="quantity" min="1" inputmode="numeric" [attr.aria-label]="'sales.pos.quantity_of' | translate: { name: item.get('name')?.value }">
+                        <button type="button" class="quantity-btn" (click)="updateQuantity($index, 1)" [attr.aria-label]="'sales.pos.increase_qty' | translate: { name: item.get('name')?.value }"><lucide-icon
                                 [img]="PlusIcon" size="14"></lucide-icon></button>
                     </div>
                     <span class="item-total">{{ getItemTotal(item) | vxNumber:'1.2-2' }}</span>
-                    <button type="button" class="remove-btn" (click)="removeItem($index)"><lucide-icon [img]="TrashIcon"
+                    <button type="button" class="remove-btn" (click)="removeItem($index)" [attr.aria-label]="'sales.pos.remove_item' | translate: { name: item.get('name')?.value }"><lucide-icon [img]="TrashIcon"
                             size="16"></lucide-icon></button>
                 </div>
                 }
@@ -109,8 +109,9 @@
               </div>
             }
             <button
+              type="button"
               class="primary-button charge-btn"
-              (click)="completeSale()"
+              (click)="openPayment()"
               [disabled]="cartItems.length === 0 || !shiftReady()"
             >
                 <lucide-icon [img]="CreditCardIcon" size="18"></lucide-icon>
@@ -119,3 +120,111 @@
         </div>
     </div>
 </div>
+
+<!--
+  QA C-04: el cobro. Antes «Cobrar» registraba la venta al instante, sin forma de pago, sin efectivo
+  recibido, sin cambio y sin ticket.
+-->
+@if (paying()) {
+  <div class="pos-dialog-backdrop">
+    <div class="pos-dialog" cdkTrapFocus cdkTrapFocusAutoCapture role="dialog" aria-modal="true" aria-labelledby="pos-pay-title" (keydown.escape)="cancelPayment()">
+      <header class="pos-dialog__header">
+        <h2 id="pos-pay-title">{{ 'sales.pos.pay.title' | translate }}</h2>
+        <button type="button" class="pos-dialog__close" (click)="cancelPayment()" [attr.aria-label]="'common.close' | translate">
+          <lucide-icon [img]="XIcon" size="18" aria-hidden="true"></lucide-icon>
+        </button>
+      </header>
+
+      <div class="pos-dialog__total">
+        <span>{{ 'sales.pos.amount_due' | translate }}</span>
+        <strong>{{ total() | vxMoney: currencyCode() }}</strong>
+      </div>
+
+      <div class="pay-methods" role="radiogroup" [attr.aria-label]="'sales.pos.pay.method_label' | translate">
+        <button type="button" role="radio" [attr.aria-checked]="payMethod() === 'cash'" [class.active]="payMethod() === 'cash'" (click)="choosePayMethod('cash')">
+          <lucide-icon [img]="CashIcon" size="20" aria-hidden="true"></lucide-icon>{{ 'sales.pos.pay.method.cash' | translate }}
+        </button>
+        <button type="button" role="radio" [attr.aria-checked]="payMethod() === 'card'" [class.active]="payMethod() === 'card'" (click)="choosePayMethod('card')">
+          <lucide-icon [img]="CreditCardIcon" size="20" aria-hidden="true"></lucide-icon>{{ 'sales.pos.pay.method.card' | translate }}
+        </button>
+        <button type="button" role="radio" [attr.aria-checked]="payMethod() === 'transfer'" [class.active]="payMethod() === 'transfer'" (click)="choosePayMethod('transfer')">
+          <lucide-icon [img]="TransferIcon" size="20" aria-hidden="true"></lucide-icon>{{ 'sales.pos.pay.method.transfer' | translate }}
+        </button>
+        <button type="button" role="radio" [attr.aria-checked]="payMethod() === 'mixed'" [class.active]="payMethod() === 'mixed'" (click)="choosePayMethod('mixed')">
+          <lucide-icon [img]="MixedIcon" size="20" aria-hidden="true"></lucide-icon>{{ 'sales.pos.pay.method.mixed' | translate }}
+        </button>
+      </div>
+
+      @if (payMethod() === 'mixed') {
+        <label class="pos-field">
+          <span>{{ 'sales.pos.pay.card_part' | translate }}</span>
+          <input type="number" min="0" step="0.01" inputmode="decimal" [value]="cardPart() ?? ''" (input)="cardPart.set($any($event.target).valueAsNumber || 0)" />
+        </label>
+      }
+
+      @if (payMethod() === 'cash' || payMethod() === 'mixed') {
+        <label class="pos-field">
+          <span>{{ (payMethod() === 'cash' ? 'sales.pos.pay.cash_received' : 'sales.pos.pay.cash_part') | translate }}</span>
+          <input type="number" min="0" step="0.01" inputmode="decimal" [value]="cashTendered() ?? ''" (input)="cashTendered.set($any($event.target).valueAsNumber || 0)" />
+        </label>
+        @if (payMethod() === 'cash') {
+          <div class="cash-suggestions" role="group" [attr.aria-label]="'sales.pos.pay.quick_amounts' | translate">
+            @for (amount of cashSuggestions(); track amount) {
+              <button type="button" [class.active]="cashTendered() === amount" (click)="cashTendered.set(amount)">{{ amount | vxMoney: currencyCode() }}</button>
+            }
+          </div>
+        }
+      }
+
+      @if (payMethod() !== 'cash') {
+        <label class="pos-field">
+          <span>{{ 'sales.pos.pay.reference' | translate }}</span>
+          <input type="text" maxlength="80" [value]="payReference()" (input)="payReference.set($any($event.target).value)" />
+        </label>
+      }
+
+      <dl class="pay-summary">
+        <div><dt>{{ 'sales.pos.pay.paid' | translate }}</dt><dd>{{ paidSoFar() | vxMoney: currencyCode() }}</dd></div>
+        @if (stillOwed() > 0) {
+          <div class="pay-summary__owed"><dt>{{ 'sales.pos.pay.still_owed' | translate }}</dt><dd>{{ stillOwed() | vxMoney: currencyCode() }}</dd></div>
+        } @else {
+          <div class="pay-summary__change"><dt>{{ 'sales.pos.pay.change' | translate }}</dt><dd>{{ changeDue() | vxMoney: currencyCode() }}</dd></div>
+        }
+      </dl>
+      @if (payError(); as error) {
+        <p class="pay-error" role="alert">{{ error | translate }}</p>
+      }
+
+      <footer class="pos-dialog__footer">
+        <button type="button" class="secondary-button" (click)="cancelPayment()">{{ 'common.cancel' | translate }}</button>
+        <button type="button" class="primary-button" [disabled]="!!payError() || saving()" (click)="completeSale()">
+          {{ (saving() ? 'sales.pos.pay.charging' : 'sales.pos.pay.confirm') | translate: { amount: (total() | vxMoney: currencyCode()) } }}
+        </button>
+      </footer>
+    </div>
+  </div>
+}
+
+@if (lastSale(); as sale) {
+  <div class="pos-dialog-backdrop">
+    <div class="pos-dialog pos-dialog--done" cdkTrapFocus cdkTrapFocusAutoCapture role="dialog" aria-modal="true" aria-labelledby="pos-done-title">
+      <lucide-icon class="done-icon" [img]="DoneIcon" size="44" aria-hidden="true"></lucide-icon>
+      <h2 id="pos-done-title">{{ 'sales.pos.pay.done' | translate }}</h2>
+      <dl class="pay-summary">
+        <div><dt>{{ 'sales.pos.amount_due' | translate }}</dt><dd>{{ sale.total | vxMoney: sale.currency }}</dd></div>
+        @for (payment of sale.payments; track $index) {
+          <div><dt>{{ ('sales.pos.pay.method.' + payment.method) | translate }}</dt><dd>{{ payment.amount | vxMoney: sale.currency }}</dd></div>
+        }
+        @if (sale.changeDue > 0) {
+          <div class="pay-summary__change pay-summary__change--big"><dt>{{ 'sales.pos.pay.change' | translate }}</dt><dd>{{ sale.changeDue | vxMoney: sale.currency }}</dd></div>
+        }
+      </dl>
+      <footer class="pos-dialog__footer">
+        <button type="button" class="secondary-button" (click)="printTicket()">
+          <lucide-icon [img]="PrintIcon" size="16" aria-hidden="true"></lucide-icon>{{ 'sales.pos.ticket.print' | translate }}
+        </button>
+        <button type="button" class="primary-button" (click)="newSale()">{{ 'sales.pos.pay.new_sale' | translate }}</button>
+      </footer>
+    </div>
+  </div>
+}

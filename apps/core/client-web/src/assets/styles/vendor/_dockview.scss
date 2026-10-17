@@ -119,7 +119,10 @@
   .dv-tabs-container > .dv-tab {
     position: relative;
     flex: 0 1 200px;
-    min-width: 120px;
+    //  184 px y no 120: a 120 el icono y el botón de cerrar dejaban seis letras de título
+    //  («Factu…», «Hojas…»), que no distinguen una factura de otra (QA A-04). Con el tope de
+    //  pestañas, el desbordamiento se desplaza en vez de comprimir.
+    min-width: 184px;
     max-width: 240px;
     height: 100%;
     padding: 0;

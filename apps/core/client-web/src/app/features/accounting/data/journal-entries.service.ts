@@ -66,9 +66,23 @@ export class JournalEntriesApiService {
    * caller has to say which page it wants and what came back has to say whether there is more.
    */
   list(
-    query: { page?: number; pageSize?: number; sort?: string; direction?: 'asc' | 'desc' } = {},
+    query: {
+      page?: number;
+      pageSize?: number;
+      sort?: string;
+      direction?: 'asc' | 'desc';
+      /** `YYYY-MM-DD`, inclusive. */
+      from?: string | null;
+      to?: string | null;
+      status?: string | null;
+      search?: string | null;
+    } = {},
   ): Observable<Page<JournalEntry>> {
     let params = new HttpParams();
+    if (query.from) params = params.set('from', query.from);
+    if (query.to) params = params.set('to', query.to);
+    if (query.status) params = params.set('status', query.status);
+    if (query.search?.trim()) params = params.set('search', query.search.trim());
     if (query.page) params = params.set('page', String(query.page));
     if (query.pageSize) params = params.set('pageSize', String(query.pageSize));
     if (query.sort) params = params.set('sort', query.sort).set('direction', query.direction ?? 'asc');

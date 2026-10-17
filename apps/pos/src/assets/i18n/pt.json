@@ -201,6 +201,8 @@
   "pos.open_shift": "Abrir turno",
   "pos.open_shift_error": "Não foi possível abrir o turno.",
   "pos.password": "Senha",
+  "pos.payment_overpaid_non_cash": "Somente o dinheiro pode ultrapassar o total: cartão e transferência são cobrados pelo valor exato.",
+  "pos.payment_short": "O pagamento ({{paid}}) não cobre o total da venda ({{total}}).",
   "pos.prices_changed": "O preço de um produto mudou. Os preços foram recarregados: confira o total antes de cobrar.",
   "pos.product_not_available": "Um dos produtos não está mais disponível para venda.",
   "pos.remove_line": "Remover linha",

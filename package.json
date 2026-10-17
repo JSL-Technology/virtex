@@ -93,6 +93,7 @@
     "@types/web-push": "^3.6.4",
     "@typescript-eslint/utils": "^8.40.0",
     "angular-eslint": "^20.3.0",
+    "axe-core": "^4.10.2",
     "baseline-browser-mapping": "^2.11.26",
     "electron": "^44.4.5",
     "eslint": "^9.8.0",

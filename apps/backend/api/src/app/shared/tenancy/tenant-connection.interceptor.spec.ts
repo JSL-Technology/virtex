@@ -134,9 +134,8 @@ describe('TenantConnectionInterceptor', () => {
         manejadorAplazado({}),
       ) as Observable<unknown>,
     );
-    // `finalize` programa el RESET; se resuelve en el siguiente microtask.
-    await Promise.resolve();
-    await Promise.resolve();
+    // `finalize` programa la devolución al pool; se resuelve en los siguientes ciclos.
+    await new Promise((resolve) => setImmediate(resolve));
 
     expect(ejecutado[0]).toContain("set_config('app.current_organization'");
     // Dejar el ajuste puesto sería que el siguiente en coger la conexión del pool leyera los datos
@@ -160,5 +159,88 @@ describe('TenantConnectionInterceptor', () => {
 
     expect(visto.organizationId).toBeUndefined();
     expect(ejecutado).toEqual([]);
+  });
+
+  /**
+   * QA C-01: la API dejaba de responder a todas las empresas.
+   *
+   * Un trabajo que sobrevivía a su petición (la auditoría de lectura, disparada con `void` después
+   * de responder) abría una transacción en la conexión fijada justo mientras se devolvía al pool.
+   * La conexión volvía «idle in transaction», sus bloqueos de fila quedaban tomados y cada
+   * `PUT /me/workspace` posterior esperaba para siempre hasta agotar el pool.
+   */
+  describe('al devolver la conexión al pool', () => {
+    function runnerConTransaccion() {
+      const ejecutado: string[] = [];
+      let liberado = false;
+      const runner = {
+        isTransactionActive: false,
+        connect: () => Promise.resolve(),
+        query: (sql: string) => {
+          ejecutado.push(sql.trim().split('\n')[0]);
+          return Promise.resolve([]);
+        },
+        rollbackTransaction: () => {
+          ejecutado.push('ROLLBACK');
+          runner.isTransactionActive = false;
+          return Promise.resolve();
+        },
+        release: () => {
+          liberado = true;
+          return Promise.resolve();
+        },
+      };
+      const dataSource = {
+        createQueryRunner: () => runner,
+        createEntityManager: () => ({}) as EntityManager,
+      } as unknown as DataSource;
+      return { runner, dataSource, ejecutado, liberado: () => liberado };
+    }
+
+    it('espera a que termine una transacción tardía antes de liberar, sin revertirla', async () => {
+      const { runner, dataSource, ejecutado, liberado } = runnerConTransaccion();
+      await firstValueFrom(
+        new TenantConnectionInterceptor(dataSource).intercept(contexto({ organizationId: ORGANIZACION }), {
+          handle: () => {
+            // Trabajo que sigue vivo cuando la respuesta ya salió: abre una transacción y la
+            // confirma 60 ms después.
+            runner.isTransactionActive = true;
+            setTimeout(() => (runner.isTransactionActive = false), 60);
+            return of('listo');
+          },
+        }) as Observable<unknown>,
+      );
+      await new Promise((resolve) => setImmediate(resolve));
+      expect(liberado()).toBe(false);
+
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      expect(ejecutado).not.toContain('ROLLBACK');
+      expect(ejecutado).toContain('RESET app.current_organization');
+      expect(liberado()).toBe(true);
+    });
+
+    it('revierte una transacción que sigue abierta tras el margen, y solo entonces libera', async () => {
+      jest.useFakeTimers({ doNotFake: ['setImmediate', 'nextTick'] });
+      try {
+        const { runner, dataSource, ejecutado, liberado } = runnerConTransaccion();
+        await firstValueFrom(
+          new TenantConnectionInterceptor(dataSource).intercept(contexto({ organizationId: ORGANIZACION }), {
+            handle: () => {
+              runner.isTransactionActive = true; // nunca se confirma
+              return of('listo');
+            },
+          }) as Observable<unknown>,
+        );
+        for (let i = 0; i < 300 && !liberado(); i++) {
+          await jest.advanceTimersByTimeAsync(25);
+        }
+        expect(ejecutado).toContain('ROLLBACK');
+        expect(ejecutado.indexOf('ROLLBACK')).toBeLessThan(ejecutado.indexOf('RESET app.current_organization'));
+        expect(runner.isTransactionActive).toBe(false);
+        expect(liberado()).toBe(true);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
   });
 });

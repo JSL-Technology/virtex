@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, QueryFailedError, Repository } from 'typeorm';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { PosShift, PosShiftStatus } from './entities/pos-shift.entity';
-import { PosSale, PosSaleItem, PosSaleStatus } from './entities/pos-sale.entity';
+import { PosPayment, PosSale, PosSaleItem, PosSaleStatus } from './entities/pos-sale.entity';
 import { InventoryService } from '../inventory/inventory.service';
 import { findSellableProduct } from '../inventory/contracts/sellable-product.contract';
 import { OpenShiftDto } from './dto/open-shift.dto';
@@ -218,7 +218,8 @@ export class PosService {
         throw new ConflictError('pos.totals_changed', { subtotal, tax, total });
       }
 
-      const paymentMethod = dto.paymentMethod?.trim().toLowerCase() || null;
+      const tender = PosService.settleTenders(dto, total);
+      const paymentMethod = tender.method ?? (dto.paymentMethod?.trim().toLowerCase() || null);
       const sale = manager.create(PosSale, {
         id: saleId,
         organizationId,
@@ -233,14 +234,24 @@ export class PosService {
         total,
         paymentMethod,
         customerName: dto.customerName?.trim() || null,
+        payments: tender.payments,
+        amountTendered: tender.amountTendered,
+        changeDue: tender.changeDue,
         status: PosSaleStatus.PAID,
       });
       const saved = await manager.save(PosSale, sale);
 
       shift.salesTotal = sumAmounts([Number(shift.salesTotal), total]);
       shift.salesCount += 1;
-      if (paymentMethod === null || CASH_METHODS.has(paymentMethod)) {
-        shift.cashSalesTotal = sumAmounts([Number(shift.cashSalesTotal), total]);
+      // Only what stays in the drawer counts as cash: the cash tendered minus the change. A mixed
+      // sale paid partly by card used to be counted whole as cash, and the drawer never squared.
+      const cashKept = tender.payments.length
+        ? tender.cashKept
+        : paymentMethod === null || CASH_METHODS.has(paymentMethod)
+          ? total
+          : 0;
+      if (cashKept > 0) {
+        shift.cashSalesTotal = sumAmounts([Number(shift.cashSalesTotal), cashKept]);
       }
       await manager.save(PosShift, shift);
 
@@ -288,6 +299,44 @@ export class PosService {
     if (shift.userId === actor.id) return;
     if (hasPermission(actor.permissions ?? [], [PERMISSIONS.POS_MANAGE_SHIFTS])) return;
     throw new ForbiddenError('pos.shift_belongs_to_another_cashier');
+  }
+
+  /**
+   * Checks the tenders against the total and works out the change (QA C-04).
+   *
+   * The tenders must cover the sale; only cash may exceed it, and the excess is the change — card
+   * and transfer are charged for the exact amount, so an overpayment on them is a keying mistake.
+   * With no tenders (an older till) nothing is computed and the sale behaves as before.
+   */
+  static settleTenders(
+    dto: Pick<ProcessSaleDto, 'payments'>,
+    total: number,
+  ): { method: string | null; payments: PosPayment[]; amountTendered: number | null; changeDue: number; cashKept: number } {
+    const payments = (dto.payments ?? []).map((payment) => ({
+      method: payment.method,
+      amount: roundAmount(payment.amount),
+      reference: payment.reference?.trim() || null,
+    }));
+    if (payments.length === 0) {
+      return { method: null, payments: [], amountTendered: null, changeDue: 0, cashKept: 0 };
+    }
+    const paid = sumAmounts(payments.map((payment) => payment.amount));
+    const cash = sumAmounts(payments.filter((payment) => payment.method === 'cash').map((p) => p.amount));
+    if (paid + AMOUNT_TOLERANCE < total) {
+      throw new BadRequestError('pos.payment_short', { total, paid });
+    }
+    const changeDue = roundAmount(Math.max(paid - total, 0));
+    if (changeDue > cash + AMOUNT_TOLERANCE) {
+      throw new BadRequestError('pos.payment_overpaid_non_cash', { total, paid });
+    }
+    const methods = [...new Set(payments.map((payment) => payment.method))];
+    return {
+      method: methods.length > 1 ? 'mixed' : methods[0],
+      payments,
+      amountTendered: cash > 0 ? cash : null,
+      changeDue,
+      cashKept: roundAmount(cash - changeDue),
+    };
   }
 
   private static isUniqueViolation(error: unknown): boolean {

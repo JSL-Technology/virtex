@@ -1,0 +1,3044 @@
+[
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/virtex-dev/overview",
+  "label": "Inicio",
+  "ms": 4237,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/overview",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "moderate:heading-order(1) e.g. h6",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Buenos días, Dev👋"
+  ],
+  "title": "Inicio | Virtex",
+  "lang": "es",
+  "shot": "es-dark-01-overview"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/virtex-dev/approvals",
+  "label": "Aprobaciones",
+  "ms": 4006,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/approvals",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Centro de aprobaciones"
+  ],
+  "title": "Aprobaciones | Virtex",
+  "lang": "es",
+  "shot": "es-dark-02-approvals"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/virtex-dev/workflow-tasks",
+  "label": "Mis tareas",
+  "ms": 4017,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/workflow-tasks",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Mis tareas"
+  ],
+  "title": "Mis tareas | Virtex",
+  "lang": "es",
+  "shot": "es-dark-03-workflow-tasks"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/virtex-dev/documents/repository",
+  "label": "Todos los documentos",
+  "ms": 4005,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/documents/repository",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 48,
+  "h1": [
+   "Repositorio de archivos"
+  ],
+  "title": "Repositorio de documentos | Virtex",
+  "lang": "es",
+  "shot": "es-dark-04-documents_repository"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/virtex-dev/workflows",
+  "label": "Flujos de trabajo",
+  "ms": 4016,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/workflows",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Flujos de trabajo"
+  ],
+  "title": "Flujos de trabajo | Virtex",
+  "lang": "es",
+  "shot": "es-dark-05-workflows"
+ },
+ {
+  "mod": "Mi trabajo",
+  "href": "/e/virtex-dev/workflow-instances",
+  "label": "Ejecuciones",
+  "ms": 4007,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/workflow-instances",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Ejecuciones"
+  ],
+  "title": "Ejecuciones | Virtex",
+  "lang": "es",
+  "shot": "es-dark-06-workflow-instances"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/virtex-dev/invoices",
+  "label": "Facturas",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/invoices",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 54,
+  "h1": [
+   "Facturas\n1"
+  ],
+  "title": "Facturas | Virtex",
+  "lang": "es",
+  "shot": "es-dark-07-invoices"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/virtex-dev/quotes",
+  "label": "Cotizaciones",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/quotes",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Cotizaciones"
+  ],
+  "title": "Cotizaciones | Virtex",
+  "lang": "es",
+  "shot": "es-dark-08-quotes"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/virtex-dev/customer-receipts",
+  "label": "Recibos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/customer-receipts",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 53,
+  "h1": [
+   "Recibos de cliente\n1"
+  ],
+  "title": "Recibos de cliente | Virtex",
+  "lang": "es",
+  "shot": "es-dark-09-customer-receipts"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/virtex-dev/sales/history",
+  "label": "Tickets de punto de venta",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/sales/history",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Tickets de punto de venta"
+  ],
+  "title": "Tickets de punto de venta | Virtex",
+  "lang": "es",
+  "shot": "es-dark-10-sales_history"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/virtex-dev/sales/pos",
+  "label": "Punto de venta",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/sales/pos",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(2) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [],
+  "title": "Punto de venta | Virtex",
+  "lang": "es",
+  "shot": "es-dark-11-sales_pos"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/virtex-dev/contacts/customers",
+  "label": "Clientes",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/contacts/customers",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 52,
+  "h1": [
+   "Clientes\n2"
+  ],
+  "title": "Clientes | Virtex",
+  "lang": "es",
+  "shot": "es-dark-12-contacts_customers"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/virtex-dev/masters/price-lists",
+  "label": "Listas de precios",
+  "ms": 4014,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/masters/price-lists",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Listas de precios"
+  ],
+  "title": "Listas de precios | Virtex",
+  "lang": "es",
+  "shot": "es-dark-13-masters_price-lists"
+ },
+ {
+  "mod": "Ventas",
+  "href": "/e/virtex-dev/reports/aging/receivables",
+  "label": "Antigüedad de saldos",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/invoices/e2fc72aa-c2dc-45a9-a5de-3273537af2aa",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Factura de venta #FAC-00000001\nPOR COBRAR"
+  ],
+  "title": "Factura | Virtex",
+  "lang": "es",
+  "shot": "es-dark-14-reports_aging_receivables"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/virtex-dev/accounts-payable",
+  "label": "Facturas",
+  "ms": 4010,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounts-payable",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Facturas de proveedor"
+  ],
+  "title": "Facturas de proveedor | Virtex",
+  "lang": "es",
+  "shot": "es-dark-15-accounts-payable"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/virtex-dev/accounts-payable/payments",
+  "label": "Pagos a proveedores",
+  "ms": 4007,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounts-payable/payments",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Pagos a proveedores"
+  ],
+  "title": "Pagos a proveedores | Virtex",
+  "lang": "es",
+  "shot": "es-dark-16-accounts-payable_payments"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/virtex-dev/accounts-payable/debit-notes",
+  "label": "Notas de débito",
+  "ms": 4019,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounts-payable/debit-notes",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Notas de débito a proveedores"
+  ],
+  "title": "Notas de débito | Virtex",
+  "lang": "es",
+  "shot": "es-dark-17-accounts-payable_debit-notes"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/virtex-dev/purchasing/orders",
+  "label": "Órdenes de compra",
+  "ms": 4006,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/purchasing/orders",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Órdenes de compra"
+  ],
+  "title": "Órdenes de compra | Virtex",
+  "lang": "es",
+  "shot": "es-dark-18-purchasing_orders"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/virtex-dev/purchasing/receipts",
+  "label": "Recepciones",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/purchasing/receipts",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Recepciones de mercancía"
+  ],
+  "title": "Recepciones | Virtex",
+  "lang": "es",
+  "shot": "es-dark-19-purchasing_receipts"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/virtex-dev/purchasing/requisitions",
+  "label": "Requisiciones",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/purchasing/requisitions",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Requisiciones de compra"
+  ],
+  "title": "Requisiciones de compra | Virtex",
+  "lang": "es",
+  "shot": "es-dark-20-purchasing_requisitions"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/virtex-dev/contacts/suppliers",
+  "label": "Proveedores",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/contacts/suppliers",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Proveedores"
+  ],
+  "title": "Proveedores | Virtex",
+  "lang": "es",
+  "shot": "es-dark-21-contacts_suppliers"
+ },
+ {
+  "mod": "Compras",
+  "href": "/e/virtex-dev/reports/aging/payables",
+  "label": "Antigüedad de saldos",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/invoices/e2fc72aa-c2dc-45a9-a5de-3273537af2aa",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Factura de venta #FAC-00000001\nPOR COBRAR"
+  ],
+  "title": "Factura | Virtex",
+  "lang": "es",
+  "shot": "es-dark-22-reports_aging_payables"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/virtex-dev/inventory/adjustments",
+  "label": "Ajustes de inventario",
+  "ms": 4022,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/inventory/adjustments",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Ajustes de inventario"
+  ],
+  "title": "Ajustes de inventario | Virtex",
+  "lang": "es",
+  "shot": "es-dark-23-inventory_adjustments"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/virtex-dev/inventory/transfers",
+  "label": "Transferencias",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/inventory/transfers",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Transferencias de inventario"
+  ],
+  "title": "Transferencias | Virtex",
+  "lang": "es",
+  "shot": "es-dark-24-inventory_transfers"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/virtex-dev/inventory/products",
+  "label": "Productos",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/inventory/products",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "minor:empty-table-header(1) e.g. thead > tr > .actions-column",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 55,
+  "h1": [
+   "Productos\n2"
+  ],
+  "title": "Productos | Virtex",
+  "lang": "es",
+  "shot": "es-dark-25-inventory_products"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/virtex-dev/inventory/stock",
+  "label": "Existencias",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/inventory/stock",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 49,
+  "h1": [
+   "Existencias\n1"
+  ],
+  "title": "Existencias | Virtex",
+  "lang": "es",
+  "shot": "es-dark-26-inventory_stock"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/virtex-dev/inventory/movements",
+  "label": "Kárdex",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/inventory/movements",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 51,
+  "h1": [
+   "Kárdex de inventario\n2"
+  ],
+  "title": "Kárdex | Virtex",
+  "lang": "es",
+  "shot": "es-dark-27-inventory_movements"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/virtex-dev/inventory/categories",
+  "label": "Categorías",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/inventory/categories",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 48,
+  "h1": [
+   "Categorías\n1"
+  ],
+  "title": "Categorías | Virtex",
+  "lang": "es",
+  "shot": "es-dark-28-inventory_categories"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/virtex-dev/masters/warehouses",
+  "label": "Almacenes",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/masters/warehouses",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 52,
+  "h1": [
+   "Almacenes\n1"
+  ],
+  "title": "Almacenes | Virtex",
+  "lang": "es",
+  "shot": "es-dark-29-masters_warehouses"
+ },
+ {
+  "mod": "Inventario",
+  "href": "/e/virtex-dev/masters/units-of-measure",
+  "label": "Unidades de medida",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/masters/units-of-measure",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 50,
+  "h1": [
+   "Unidades de medida\n26"
+  ],
+  "title": "Unidades de medida | Virtex",
+  "lang": "es",
+  "shot": "es-dark-30-masters_units-of-measure"
+ },
+ {
+  "mod": "Tesorería",
+  "href": "/e/virtex-dev/accounting/treasury",
+  "label": "Tablero",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/invoices/e2fc72aa-c2dc-45a9-a5de-3273537af2aa",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Factura de venta #FAC-00000001\nPOR COBRAR"
+  ],
+  "title": "Factura | Virtex",
+  "lang": "es",
+  "shot": "es-dark-31-accounting_treasury"
+ },
+ {
+  "mod": "Tesorería",
+  "href": "/e/virtex-dev/accounting/reconciliation",
+  "label": "Conciliación — manual",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/invoices/e2fc72aa-c2dc-45a9-a5de-3273537af2aa",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Factura de venta #FAC-00000001\nPOR COBRAR"
+  ],
+  "title": "Factura | Virtex",
+  "lang": "es",
+  "shot": "es-dark-32-accounting_reconciliation"
+ },
+ {
+  "mod": "Tesorería",
+  "href": "/e/virtex-dev/masters/banks",
+  "label": "Bancos",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/masters/banks",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Bancos"
+  ],
+  "title": "Bancos | Virtex",
+  "lang": "es",
+  "shot": "es-dark-33-masters_banks"
+ },
+ {
+  "mod": "Tesorería",
+  "href": "/e/virtex-dev/masters/payment-methods",
+  "label": "Formas de pago",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/masters/payment-methods",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 49,
+  "h1": [
+   "Formas de pago\n7"
+  ],
+  "title": "Métodos de pago | Virtex",
+  "lang": "es",
+  "shot": "es-dark-34-masters_payment-methods"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/journal-entries",
+  "label": "Asientos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/journal-entries",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "minor:empty-table-header(1) e.g. thead > tr > .actions-column",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 51,
+  "h1": [
+   "Asientos contables\n4"
+  ],
+  "title": "Asientos contables | Virtex",
+  "lang": "es",
+  "shot": "es-dark-35-accounting_journal-entries"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/recurring-entries",
+  "label": "Asientos recurrentes",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/recurring-entries",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Asientos recurrentes"
+  ],
+  "title": "Asientos recurrentes | Virtex",
+  "lang": "es",
+  "shot": "es-dark-36-accounting_recurring-entries"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/entry-templates",
+  "label": "Plantillas de asiento",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/entry-templates",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Plantillas de asiento"
+  ],
+  "title": "Plantillas de asiento | Virtex",
+  "lang": "es",
+  "shot": "es-dark-37-accounting_entry-templates"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/fixed-assets",
+  "label": "Activos fijos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/fixed-assets",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Activos fijos"
+  ],
+  "title": "Activos fijos | Virtex",
+  "lang": "es",
+  "shot": "es-dark-38-accounting_fixed-assets"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/fixed-assets/depreciation",
+  "label": "Ejecutar depreciación",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/fixed-assets/depreciation",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Ejecutar depreciación"
+  ],
+  "title": "Ejecutar depreciación | Virtex",
+  "lang": "es",
+  "shot": "es-dark-39-accounting_fixed-assets_depreciation"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/budgets",
+  "label": "Presupuestos",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/budgets",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Presupuestos"
+  ],
+  "title": "Presupuestos | Virtex",
+  "lang": "es",
+  "shot": "es-dark-40-accounting_budgets"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/closing/annual-close",
+  "label": "Cierre — anual",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/invoices/e2fc72aa-c2dc-45a9-a5de-3273537af2aa",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Factura de venta #FAC-00000001\nPOR COBRAR"
+  ],
+  "title": "Factura | Virtex",
+  "lang": "es",
+  "shot": "es-dark-41-accounting_closing_annual-close"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/audit-adjustments",
+  "label": "Ajustes de auditoría",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/audit-adjustments",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Ajustes de auditoría"
+  ],
+  "title": "Ajustes de auditoría | Virtex",
+  "lang": "es",
+  "shot": "es-dark-42-accounting_audit-adjustments"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/closing/checklist",
+  "label": "Cierre de período",
+  "ms": 4006,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/invoices/e2fc72aa-c2dc-45a9-a5de-3273537af2aa",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Factura de venta #FAC-00000001\nPOR COBRAR"
+  ],
+  "title": "Factura | Virtex",
+  "lang": "es",
+  "shot": "es-dark-43-accounting_closing_checklist"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/chart-of-accounts",
+  "label": "Plan de cuentas",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/chart-of-accounts",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 56,
+  "h1": [
+   "Catálogo de cuentas\n5"
+  ],
+  "title": "Catálogo de cuentas | Virtex",
+  "lang": "es",
+  "shot": "es-dark-44-accounting_chart-of-accounts"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/daily-journal",
+  "label": "Libro: diario",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/daily-journal",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Libro diario\n4"
+  ],
+  "title": "Libro diario | Virtex",
+  "lang": "es",
+  "shot": "es-dark-45-accounting_daily-journal"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/general-ledger",
+  "label": "Libro: mayor",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/general-ledger",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Libro mayor"
+  ],
+  "title": "Libro mayor | Virtex",
+  "lang": "es",
+  "shot": "es-dark-46-accounting_general-ledger"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/partner-ledger",
+  "label": "Mayor de terceros",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/partner-ledger",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Mayor de terceros\n0"
+  ],
+  "title": "Mayor de terceros | Virtex",
+  "lang": "es",
+  "shot": "es-dark-47-accounting_partner-ledger"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/variance-analysis",
+  "label": "Análisis de variaciones",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/invoices/e2fc72aa-c2dc-45a9-a5de-3273537af2aa",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Factura de venta #FAC-00000001\nPOR COBRAR"
+  ],
+  "title": "Factura | Virtex",
+  "lang": "es",
+  "shot": "es-dark-48-accounting_variance-analysis"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/reports/financial-statements/balance-sheet",
+  "label": "Balance general",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/invoices/e2fc72aa-c2dc-45a9-a5de-3273537af2aa",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Factura de venta #FAC-00000001\nPOR COBRAR"
+  ],
+  "title": "Factura | Virtex",
+  "lang": "es",
+  "shot": "es-dark-49-reports_financial-statements_balance-sheet"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/reports/financial-statements/income-statement",
+  "label": "Estado de resultados",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/invoices/e2fc72aa-c2dc-45a9-a5de-3273537af2aa",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Factura de venta #FAC-00000001\nPOR COBRAR"
+  ],
+  "title": "Factura | Virtex",
+  "lang": "es",
+  "shot": "es-dark-50-reports_financial-statements_income-statement"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/reports/financial-statements/trial-balance",
+  "label": "Balanza de comprobación",
+  "ms": 4001,
+  "idleTx": 1,
+  "url": "/e/virtex-dev/reports/financial-statements/trial-balance",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:nested-interactive(47) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 54,
+  "h1": [],
+  "title": "Balanza de comprobación | Virtex",
+  "lang": "es",
+  "shot": "es-dark-51-reports_financial-statements_trial-balance"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/reports/financial-statements/cash-flow",
+  "label": "Flujo de efectivo",
+  "ms": 4027,
+  "idleTx": 1,
+  "url": "/e/virtex-dev/reports/financial-statements/cash-flow",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:nested-interactive(47) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [],
+  "title": "Flujo de efectivo | Virtex",
+  "lang": "es",
+  "shot": "es-dark-52-reports_financial-statements_cash-flow"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/reports/fiscal-returns",
+  "label": "Declaraciones fiscales",
+  "ms": 4003,
+  "idleTx": 1,
+  "url": "/e/virtex-dev/reports/fiscal-returns",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Declaraciones fiscales\n10"
+  ],
+  "title": "Declaraciones fiscales | Virtex",
+  "lang": "es",
+  "shot": "es-dark-53-reports_fiscal-returns"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/dimensions",
+  "label": "Dimensiones analíticas",
+  "ms": 4004,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/dimensions",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Dimensiones analíticas"
+  ],
+  "title": "Dimensiones analíticas | Virtex",
+  "lang": "es",
+  "shot": "es-dark-54-accounting_dimensions"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/ledgers",
+  "label": "Multilibros",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/ledgers",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "minor:empty-table-header(1) e.g. thead > tr > .actions-column",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 50,
+  "h1": [
+   "Libros contables\n1"
+  ],
+  "title": "Libros contables | Virtex",
+  "lang": "es",
+  "shot": "es-dark-55-accounting_ledgers"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/journals",
+  "label": "Diarios",
+  "ms": 4007,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/journals",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 62,
+  "h1": [
+   "Diarios\n11"
+  ],
+  "title": "Diarios | Virtex",
+  "lang": "es",
+  "shot": "es-dark-56-accounting_journals"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/accounting/periods",
+  "label": "Periodos contables",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/accounting/periods",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 51,
+  "h1": [
+   "Períodos contables\n12"
+  ],
+  "title": "Periodos contables | Virtex",
+  "lang": "es",
+  "shot": "es-dark-57-accounting_periods"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/masters/taxes",
+  "label": "Impuestos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/masters/taxes",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "minor:empty-table-header(1) e.g. thead > tr > .actions-column",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Mis tareas",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente"
+  ],
+  "tiny": 51,
+  "h1": [
+   "Tasas de impuesto\n3"
+  ],
+  "title": "Impuestos | Virtex",
+  "lang": "es",
+  "shot": "es-dark-58-masters_taxes"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/masters/currencies",
+  "label": "Monedas",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/masters/currencies",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Repositorio de documentos",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente",
+   "Listas de precios"
+  ],
+  "tiny": 51,
+  "h1": [
+   "Monedas\n23"
+  ],
+  "title": "Monedas | Virtex",
+  "lang": "es",
+  "shot": "es-dark-59-masters_currencies"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/masters/currencies/exchange-rates",
+  "label": "Tipos de cambio",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/masters/currencies/exchange-rates",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Flujos de trabajo",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente",
+   "Listas de precios",
+   "Flujo de efectivo"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Tipos de cambio"
+  ],
+  "title": "Tipos de cambio | Virtex",
+  "lang": "es",
+  "shot": "es-dark-60-masters_currencies_exchange-rates"
+ },
+ {
+  "mod": "Contabilidad",
+  "href": "/e/virtex-dev/masters/payment-terms",
+  "label": "Condiciones de pago",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/masters/payment-terms",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Ejecuciones",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente",
+   "Listas de precios",
+   "Flujo de efectivo",
+   "Facturas de proveedor"
+  ],
+  "tiny": 50,
+  "h1": [
+   "Condiciones de pago\n2"
+  ],
+  "title": "Términos de pago | Virtex",
+  "lang": "es",
+  "shot": "es-dark-61-masters_payment-terms"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/virtex-dev/payroll/my-payslips",
+  "label": "Mis volantes",
+  "ms": 4001,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/payroll/my-payslips",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Facturas",
+   "Cotizaciones",
+   "Recibos de cliente",
+   "Listas de precios",
+   "Flujo de efectivo",
+   "Facturas de proveedor",
+   "Pagos a proveedores"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Mis volantes de pago"
+  ],
+  "title": "Mis volantes de pago | Virtex",
+  "lang": "es",
+  "shot": "es-dark-62-payroll_my-payslips"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/virtex-dev/payroll/runs",
+  "label": "Nóminas",
+  "ms": 4005,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/payroll/runs",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Cotizaciones",
+   "Recibos de cliente",
+   "Listas de precios",
+   "Flujo de efectivo",
+   "Facturas de proveedor",
+   "Pagos a proveedores",
+   "Recepciones"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Nóminas"
+  ],
+  "title": "Nóminas | Virtex",
+  "lang": "es",
+  "shot": "es-dark-63-payroll_runs"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/virtex-dev/hcm/employees",
+  "label": "Empleados",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/hcm/employees",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Recibos de cliente",
+   "Listas de precios",
+   "Flujo de efectivo",
+   "Facturas de proveedor",
+   "Pagos a proveedores",
+   "Recepciones",
+   "Requisiciones de compra"
+  ],
+  "tiny": 48,
+  "h1": [
+   "Empleados"
+  ],
+  "title": "Empleados | Virtex",
+  "lang": "es",
+  "shot": "es-dark-64-hcm_employees"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/virtex-dev/hcm/departments",
+  "label": "Departamentos",
+  "ms": 4003,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/hcm/departments",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Listas de precios",
+   "Flujo de efectivo",
+   "Facturas de proveedor",
+   "Pagos a proveedores",
+   "Recepciones",
+   "Requisiciones de compra",
+   "Proveedores"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Departamentos"
+  ],
+  "title": "Departamentos | Virtex",
+  "lang": "es",
+  "shot": "es-dark-65-hcm_departments"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/virtex-dev/payroll/concepts",
+  "label": "Conceptos",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/payroll/concepts",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Listas de precios",
+   "Flujo de efectivo",
+   "Facturas de proveedor",
+   "Pagos a proveedores",
+   "Recepciones",
+   "Requisiciones de compra",
+   "Proveedores"
+  ],
+  "tiny": 54,
+  "h1": [
+   "Conceptos de nómina\n10"
+  ],
+  "title": "Conceptos de nómina | Virtex",
+  "lang": "es",
+  "shot": "es-dark-66-payroll_concepts"
+ },
+ {
+  "mod": "RR.HH. y nómina",
+  "href": "/e/virtex-dev/payroll/parameters",
+  "label": "Parámetros de ley",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/payroll/parameters",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned",
+   "serious:scrollable-region-focusable(1) e.g. .tab-scroll"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Listas de precios",
+   "Parámetros de ley",
+   "Facturas de proveedor",
+   "Pagos a proveedores",
+   "Recepciones",
+   "Requisiciones de compra",
+   "Proveedores"
+  ],
+  "tiny": 47,
+  "h1": [
+   "Parámetros de ley"
+  ],
+  "title": "Parámetros de ley | Virtex",
+  "lang": "es",
+  "shot": "es-dark-67-payroll_parameters"
+ },
+ {
+  "mod": "Análisis",
+  "href": "/e/virtex-dev/reports/profitability-by-product",
+  "label": "Rentabilidad por producto",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/reports/profitability-by-product",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Listas de precios",
+   "Rentabilidad por producto",
+   "Facturas de proveedor",
+   "Pagos a proveedores",
+   "Recepciones",
+   "Requisiciones de compra",
+   "Proveedores"
+  ],
+  "tiny": 53,
+  "h1": [],
+  "title": "Rentabilidad por producto | Virtex",
+  "lang": "es",
+  "shot": "es-dark-68-reports_profitability-by-product"
+ },
+ {
+  "mod": "Análisis",
+  "href": "/e/virtex-dev/reports/profitability-by-customer",
+  "label": "Rentabilidad por cliente",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/reports/profitability-by-customer",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Listas de precios",
+   "Rentabilidad por cliente",
+   "Facturas de proveedor",
+   "Pagos a proveedores",
+   "Recepciones",
+   "Requisiciones de compra",
+   "Proveedores"
+  ],
+  "tiny": 53,
+  "h1": [],
+  "title": "Rentabilidad por cliente | Virtex",
+  "lang": "es",
+  "shot": "es-dark-69-reports_profitability-by-customer"
+ },
+ {
+  "mod": "Análisis",
+  "href": "/e/virtex-dev/reports/relationship-map",
+  "label": "Mapa de relaciones",
+  "ms": 4002,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/reports/relationship-map",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned",
+   "moderate:page-has-heading-one(1) e.g. html"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Listas de precios",
+   "Rentabilidad por cliente",
+   "Facturas de proveedor",
+   "Pagos a proveedores",
+   "Recepciones",
+   "Requisiciones de compra",
+   "Proveedores"
+  ],
+  "tiny": 47,
+  "h1": [],
+  "title": "Mapa de relaciones | Virtex",
+  "lang": "es",
+  "shot": "es-dark-70-reports_relationship-map"
+ },
+ {
+  "mod": "Análisis",
+  "href": "/e/virtex-dev/datasheets",
+  "label": "DataSheets",
+  "ms": 4001,
+  "idleTx": 0,
+  "url": "/e/virtex-dev/datasheets",
+  "viol": [
+   "minor:aria-allowed-role(1) e.g. footer",
+   "critical:aria-required-children(1) e.g. .dv-tabs-container",
+   "serious:color-contrast(1) e.g. .active > .label[_ngcontent-ng-c3141353902=\"\"]",
+   "serious:nested-interactive(47) e.g. .is-pinned"
+  ],
+  "keys": [],
+  "overflowX": false,
+  "small": [
+   "10px \"Mi trabajo\"",
+   "10px \"Ventas\"",
+   "10px \"Compras\"",
+   "10px \"Inventario\"",
+   "10px \"Tesorería\"",
+   "10px \"Contabilidad\"",
+   "10px \"RR.HH. y nómina\"",
+   "10px \"Análisis\""
+  ],
+  "clipped": [
+   "Virtex",
+   "Listas de precios",
+   "Rentabilidad por cliente",
+   "Facturas de proveedor",
+   "Pagos a proveedores",
+   "Recepciones",
+   "Requisiciones de compra",
+   "Proveedores"
+  ],
+  "tiny": 47,
+  "h1": [
+   "DataSheets"
+  ],
+  "title": "Hojas de datos | Virtex",
+  "lang": "es",
+  "shot": "es-dark-71-datasheets"
+ }
+]

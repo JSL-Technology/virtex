@@ -1,6 +1,6 @@
 <div class="subview-container">
   <div class="subview-header">
-    <h3>{{ 'reports.cash_flow.statement_cash_flows' | translate }}</h3>
+    <h1>{{ 'reports.cash_flow.statement_cash_flows' | translate }}</h1>
     <div class="header-actions">
       <!--
         Los dos extremos eran dos `<input type="date">` sueltos: ninguno acotaba al otro y nadie
@@ -77,7 +77,7 @@
               <div class="subsection-title">{{ 'reports.cash_flow.items_did_not_move_cash' | translate }}</div>
               @for (movement of data.operating.nonCashAdjustments; track movement.accountId) {
                 <div class="report-line">
-                  <span class="account-code">{{ movement.code }}</span>
+                  <span class="account-label"><span class="account-code">{{ movement.code }}</span> {{ movement.name | vxName }}</span>
                   <vx-amount class="amount" [value]="movement.amount" />
                 </div>
               }
@@ -89,7 +89,7 @@
               <div class="subsection-title">{{ 'reports.cash_flow.changes_working_capital' | translate }}</div>
               @for (movement of data.operating.workingCapitalChanges; track movement.accountId) {
                 <div class="report-line">
-                  <span class="account-code">{{ movement.code }}</span>
+                  <span class="account-label"><span class="account-code">{{ movement.code }}</span> {{ movement.name | vxName }}</span>
                   <vx-amount class="amount" [value]="movement.amount" />
                 </div>
               }
@@ -118,7 +118,7 @@
           </div>
           @for (movement of data.investing.movements; track movement.accountId) {
             <div class="report-line gross-line">
-              <span class="account-code">{{ movement.code }}</span>
+              <span class="account-label"><span class="account-code">{{ movement.code }}</span> {{ movement.name | vxName }}</span>
               <vx-amount class="amount" [value]="movement.inflow" />
               <vx-amount class="amount" [value]="movement.outflow" />
               <vx-amount class="amount" [value]="movement.amount" />
@@ -143,7 +143,7 @@
           </div>
           @for (movement of data.financing.movements; track movement.accountId) {
             <div class="report-line gross-line">
-              <span class="account-code">{{ movement.code }}</span>
+              <span class="account-label"><span class="account-code">{{ movement.code }}</span> {{ movement.name | vxName }}</span>
               <vx-amount class="amount" [value]="movement.inflow" />
               <vx-amount class="amount" [value]="movement.outflow" />
               <vx-amount class="amount" [value]="movement.amount" />
@@ -195,7 +195,7 @@
           <p class="section-note">{{ 'reports.cash_flow.excluded_from_statement_because_no_cash' | translate }}</p>
           @for (line of data.nonCashTransactions; track line.accountId) {
             <div class="report-line gross-line">
-              <span class="account-code">{{ line.code }}</span>
+              <span class="account-label"><span class="account-code">{{ line.code }}</span> {{ line.name | vxName }}</span>
               <vx-amount class="amount" [value]="line.debit" />
               <vx-amount class="amount" [value]="line.credit" />
               <span class="amount"></span>

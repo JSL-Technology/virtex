@@ -9,7 +9,7 @@ export const SESSION_CHANNEL_NAME = 'vx-session';
 /** What one tab tells the others. */
 export type SessionBroadcast =
   | { type: 'activity'; at: number }
-  | { type: 'signed-out'; reason?: 'expired' | 'idle' };
+  | { type: 'signed-out'; reason?: 'expired' | 'idle' | 'unverified' };
 
 /**
  * When the person last did something, across every tab of the application.

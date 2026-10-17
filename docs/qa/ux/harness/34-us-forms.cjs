@@ -1,0 +1,23 @@
+const { launch, login, shot, instrument, nav, fields } = require('./flow-lib.cjs');
+(async () => {
+  const { browser, context } = await launch({ locale: 'en-US' });
+  const page = await context.newPage(); const log = instrument(page);
+  await login(page, { email: 'qa.ux.en-us.869854@example.com', password: 'Sup3r-Segura-2026!' }, 'en');
+  await nav(page, 'Sales', 'Customers');
+  const P = page.locator('.dv-active-group .dv-content-container');
+  await P.locator('a, button').filter({ hasText: /Add customer|New customer/ }).first().click(); await page.waitForTimeout(2500);
+  await shot(page, 'US-cliente-form');
+  const t = await P.innerText(); console.log('CUSTOMER FORM:', t.slice(0, 900).replace(/\n+/g, ' | '));
+  await nav(page, 'Sales', 'Invoices');
+  await P.locator('a, button').filter({ hasText: /New (sales )?invoice/ }).first().click(); await page.waitForTimeout(3000);
+  await shot(page, 'US-factura-form');
+  console.log('INVOICE FORM:', (await P.innerText()).slice(0, 1500).replace(/\n+/g, ' | '));
+  await P.getByText('Tax & payment', { exact: false }).first().click().catch(()=>P.getByRole('tab').nth(1).click()); await page.waitForTimeout(1200);
+  await shot(page, 'US-factura-fiscal');
+  console.log('FISCAL TAB:', (await P.innerText()).slice(0, 2000).replace(/\n+/g, ' | '));
+  await nav(page, 'Inventory', 'Products');
+  await P.locator('a, button').filter({ hasText: /New product|Add product/ }).first().click(); await page.waitForTimeout(2500);
+  await shot(page, 'US-producto-form', true);
+  console.log('PRODUCT FORM:', (await P.innerText()).slice(0, 1500).replace(/\n+/g, ' | '));
+  await browser.close();
+})();

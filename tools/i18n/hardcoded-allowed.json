@@ -3,7 +3,8 @@
   "$reasons": {
     "brand names": "The product's own name is the same in every language, and a <title> element is read by the browser before any catalogue could load.",
     "acronyms and format names": "CSV and SSO are the same three letters in Spanish, English and Portuguese. Translating them would be inventing a local name for something nobody calls anything else.",
-    "the noscript message": "It appears only when JavaScript is off, which is exactly when there is no i18n runtime to ask. All three languages are written out side by side instead — the one place in this product where that is the correct answer rather than a shortcut."
+    "the noscript message": "It appears only when JavaScript is off, which is exactly when there is no i18n runtime to ask. All three languages are written out side by side instead — the one place in this product where that is the correct answer rather than a shortcut.",
+    "the boot splash": "It is painted before Angular or any catalogue exists. public/boot.js swaps in the English or Portuguese text from navigator.language, the same way the noscript message carries all three languages; Spanish is the markup's default."
   },
   "allowed": [
     "apps/core/client-web/src/app/features/data-exports/data-exports.page.html:text:CSV",
@@ -16,6 +17,11 @@
     "apps/pos/src/index.html:text:Virtex POS necesita JavaScript. Actívalo en tu navegador para continuar.",
     "apps/core/client-web/src/app/shared/components/card-brand/card-brand.component.html:text:VISA",
     "apps/core/client-web/src/app/shared/components/card-brand/card-brand.component.html:text:AMEX",
-    "apps/core/client-web/src/app/shared/components/card-brand/card-brand.component.html:text:DISCOVER"
+    "apps/core/client-web/src/app/shared/components/card-brand/card-brand.component.html:text:DISCOVER",
+    "apps/core/client-web/src/index.html:text:Cargando…",
+    "apps/core/client-web/src/index.html:text:No pudimos conectar con el servidor",
+    "apps/core/client-web/src/index.html:text:Revisa tu conexión. Si el problema continúa, puede que el servicio esté en mantenimiento.",
+    "apps/core/client-web/src/index.html:text:Reintentar",
+    "apps/core/client-web/src/index.html:attribute alt:Virtex"
   ]
 }

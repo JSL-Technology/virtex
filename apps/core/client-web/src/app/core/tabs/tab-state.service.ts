@@ -49,8 +49,10 @@ export class TabStateService {
   private readonly closedTabs = signal<ClosedTab[]>([]);
   private static readonly CLOSED_STACK_MAX = 15;
 
-  /** Límite configurable de pestañas (§10). */
-  maxTabs = 20;
+  /** Límite configurable de pestañas (§10). Lo elige el usuario; ver `TabPreferencesService`. */
+  get maxTabs(): number {
+    return this.prefs.maxTabs();
+  }
 
   readonly tabs = this.tabsSignal.asReadonly();
   readonly activeTabId = this.activeTabIdSignal.asReadonly();
@@ -529,6 +531,8 @@ export class TabStateService {
   enforceMaxTabs(): boolean {
     const tabs = this.tabsSignal();
     if (tabs.length < this.maxTabs) return true;
+    if (tabs.length > this.maxTabs) this.trimToLimit();
+    if (this.tabsSignal().length < this.maxTabs) return true;
 
     const candidate = [...tabs]
       .filter((t) => !t.isPinned && !t.isDirty && t.isCloseable)
@@ -578,6 +582,10 @@ export class TabStateService {
    *    claiming the same entity into the first: every lookup assumes one of each.
    *  - A window that may not be a preview stops being one, and at most one preview survives — the
    *    preview slot is, by definition, a single reusable tab.
+   *
+   * The tab limit is applied last: a workspace saved before the cap existed, or merged from another
+   * device, could come back over the limit (QA A-04). The tabs kept are the ones the user would
+   * miss: pinned, unsaved, and the most recently used.
    */
   setTabs(tabs: TabModel[]): void {
     const seen = new Set<string>();
@@ -600,6 +608,29 @@ export class TabStateService {
       normalised.push({ ...tab, entityKey, isPreview });
     }
     this.tabsSignal.set(this.sortPinned(normalised));
+    this.trimToLimit();
+  }
+
+  /** Lowers the tab count to the limit when the user picks a smaller one. */
+  setMaxTabs(value: number): void {
+    this.prefs.setMaxTabs(value);
+    this.trimToLimit();
+  }
+
+  /** Closes the least recently used tabs that can go until the list fits the limit. */
+  private trimToLimit(): void {
+    const tabs = this.tabsSignal();
+    const excess = tabs.length - this.maxTabs;
+    if (excess <= 0) return;
+    const activeId = this.activeTabIdSignal();
+    const evictable = tabs
+      .filter((t) => !t.isPinned && !t.isDirty && t.isCloseable && t.id !== activeId)
+      .sort((a, b) => a.lastActivatedAt.getTime() - b.lastActivatedAt.getTime())
+      .slice(0, excess);
+    if (evictable.length === 0) return;
+    const drop = new Set(evictable.map((t) => t.id));
+    for (const id of drop) this.closeHandlers.delete(id);
+    this.tabsSignal.set(this.sortPinned(tabs.filter((t) => !drop.has(t.id))));
   }
 
   // ── Navegación por teclado / reabrir cerrada ────────────────────────────

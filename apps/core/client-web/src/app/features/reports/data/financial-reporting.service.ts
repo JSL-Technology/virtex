@@ -92,6 +92,8 @@ export interface TrialBalanceReport {
 export interface CashFlowAdjustment {
   accountId: string;
   code: string;
+  /** Localized account name; a line reads «1130 · Cuentas por cobrar», never a bare code. */
+  name: Record<string, string> | string;
   amount: number;
 }
 
@@ -120,6 +122,7 @@ export interface CashFlowSection {
 export interface NonCashTransactionLine {
   accountId: string;
   code: string;
+  name: Record<string, string> | string;
   debit: number;
   credit: number;
 }

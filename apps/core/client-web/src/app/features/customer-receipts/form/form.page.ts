@@ -2,7 +2,7 @@ import { VxBranchPickerComponent } from '../../../shared/components/branch-picke
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule, Plus } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
@@ -13,6 +13,7 @@ import { CustomersService } from '../../../core/api/customers.service';
 import { Customer } from '../../../core/models/customer.model';
 import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
 import { NotificationService } from '../../../core/services/notification';
+import { DialogService } from '../../../core/services/dialog.service';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
@@ -71,6 +72,22 @@ export class CustomerReceiptFormPage implements OnInit {
   private readonly customersApi = inject(CustomersService);
   private readonly treasury = inject(TreasuryService);
   private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(DialogService);
+  private readonly route = inject(ActivatedRoute);
+
+  /**
+   * Whether the receipt is still distributing itself (QA A-07).
+   *
+   * A receipt used to be applied to nothing unless the person discovered that the invoice chips
+   * had to be pressed; the money was saved as an «unapplied advance» and the invoice stayed «Por
+   * cobrar». Now the amount received is spread over the open invoices, oldest due date first,
+   * until the person adds or removes a line by hand — from then on the lines are theirs.
+   */
+  private autoAllocate = true;
+  /** The invoice the receipt was opened for («Registrar cobro» on an invoice), if any. */
+  private presetInvoiceId: string | null = null;
+  /** Until a customer is chosen there is nothing to say about their invoices. */
+  readonly customerChosen = signal(false);
 
   form!: FormGroup;
   /**
@@ -151,6 +168,28 @@ export class CustomerReceiptFormPage implements OnInit {
     });
 
     this.form.valueChanges.subscribe(() => this.recomputeTotals());
+    this.form.get('amountReceived')?.valueChanges.subscribe(() => {
+      if (this.autoAllocate) this.allocate();
+    });
+
+    // «Registrar cobro» on an invoice opens this page with the customer and the invoice already
+    // chosen, so the most common receipt — one invoice, paid in full — is a single click on Save.
+    const query = this.route.snapshot?.queryParamMap;
+    const presetCustomer = query?.get('customerId');
+    this.presetInvoiceId = query?.get('invoiceId') ?? null;
+    if (presetCustomer) {
+      this.form.patchValue({ customerId: presetCustomer });
+      this.onCustomerChange(presetCustomer);
+    } else if (this.presetInvoiceId) {
+      // Opened from «Próximos vencimientos», which knows the invoice but not its customer.
+      this.invoicesApi.getInvoiceById(this.presetInvoiceId).subscribe({
+        next: (invoice) => {
+          this.form.patchValue({ customerId: invoice.customerId });
+          this.onCustomerChange(invoice.customerId);
+        },
+        error: () => (this.presetInvoiceId = null),
+      });
+    }
   }
 
   get lines(): FormArray {
@@ -178,17 +217,30 @@ export class CustomerReceiptFormPage implements OnInit {
     this.openInvoices.set([]);
     this.advances.set([]);
     this.form.patchValue({ advanceApplied: 0 });
+    this.customerChosen.set(!!customerId);
     if (!customerId) return;
 
     this.invoicesApi.getInvoices({ customerId, limit: 200 }).subscribe({
       next: (page) => {
         // A draft is not a receivable. Offering one led to a receipt the server refuses, with the
         // user left staring at an invoice the page had just shown them as collectible.
-        this.openInvoices.set(
-          page.items.filter(
-            (invoice) => invoice.balance > 0 && COLLECTIBLE.includes(invoice.status),
-          ),
-        );
+        const open = page.items
+          .filter((invoice) => invoice.balance > 0 && COLLECTIBLE.includes(invoice.status))
+          .sort((a, b) => (a.dueDate || a.issueDate).localeCompare(b.dueDate || b.issueDate));
+        this.openInvoices.set(open);
+
+        const preset = this.presetInvoiceId ? open.find((invoice) => invoice.id === this.presetInvoiceId) : null;
+        this.presetInvoiceId = null;
+        if (preset) {
+          this.autoAllocate = false;
+          this.pushLine(preset, preset.balance);
+          if (!Number(this.form.get('amountReceived')?.value)) {
+            this.form.patchValue({ amountReceived: preset.balance });
+          }
+          this.recomputeTotals();
+        } else if (this.autoAllocate) {
+          this.allocate();
+        }
       },
       error: () => this.openInvoices.set([]),
     });
@@ -208,15 +260,22 @@ export class CustomerReceiptFormPage implements OnInit {
     this.form.patchValue({ advanceApplied: Math.min(needed, this.availableAdvance()) });
   }
 
-  addInvoice(invoice: Invoice): void {
-    if (this.lines.controls.some((line) => line.value.invoiceId === invoice.id)) return;
-    // What is left of the money received, not the invoice's whole balance (QA M-07): applying
-    // 5,000 against a 3,640 receipt showed «No aplicado −1,360» the moment the line appeared. With
-    // nothing received entered yet, the balance is the sensible starting point.
-    const received = Number(this.form.get('amountReceived')?.value || 0);
-    const drawn = Number(this.form.get('advanceApplied')?.value || 0);
-    const left = round(Math.max(received + drawn - this.totals().applied, 0));
-    const amount = received + drawn > 0 ? Math.min(invoice.balance, left) : invoice.balance;
+  /** Spreads what was received over the open invoices, oldest due date first. */
+  private allocate(): void {
+    this.lines.clear();
+    let left = round(
+      Number(this.form.get('amountReceived')?.value || 0) + Number(this.form.get('advanceApplied')?.value || 0),
+    );
+    for (const invoice of this.openInvoices()) {
+      if (left <= 0) break;
+      const amount = round(Math.min(invoice.balance, left));
+      this.pushLine(invoice, amount);
+      left = round(left - amount);
+    }
+    this.recomputeTotals();
+  }
+
+  private pushLine(invoice: Invoice, amount: number): void {
     this.lines.push(
       this.fb.group({
         invoiceId: [invoice.id],
@@ -228,10 +287,24 @@ export class CustomerReceiptFormPage implements OnInit {
         discount: [0, [Validators.min(0)]],
       }),
     );
+  }
+
+  addInvoice(invoice: Invoice): void {
+    if (this.lines.controls.some((line) => line.value.invoiceId === invoice.id)) return;
+    this.autoAllocate = false;
+    // What is left of the money received, not the invoice's whole balance (QA M-07): applying
+    // 5,000 against a 3,640 receipt showed «No aplicado −1,360» the moment the line appeared. With
+    // nothing received entered yet, the balance is the sensible starting point.
+    const received = Number(this.form.get('amountReceived')?.value || 0);
+    const drawn = Number(this.form.get('advanceApplied')?.value || 0);
+    const left = round(Math.max(received + drawn - this.totals().applied, 0));
+    const amount = received + drawn > 0 ? Math.min(invoice.balance, left) : invoice.balance;
+    this.pushLine(invoice, amount);
     this.recomputeTotals();
   }
 
   removeLine(index: number): void {
+    this.autoAllocate = false;
     this.lines.removeAt(index);
     this.recomputeTotals();
   }
@@ -268,7 +341,7 @@ export class CustomerReceiptFormPage implements OnInit {
     void this.router.navigate(['/customer-receipts']);
   }
 
-  save(): void {
+  async save(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.problems.set(
@@ -304,6 +377,20 @@ export class CustomerReceiptFormPage implements OnInit {
     if (drawn > 0 && this.totals().unapplied > 0) {
       this.notifications.showError('customer_receipts.form.you_drawing_more_advance_than_receipt');
       return;
+    }
+
+    // Money left unapplied while the customer still owes invoices is almost always a slip, not an
+    // advance. Saying so before posting is cheaper than a credit note afterwards (QA A-07).
+    if (this.totals().unapplied > 0 && this.openInvoices().length > 0) {
+      const confirmed = await this.dialog.confirm({
+        title: 'customer_receipts.form.unapplied_confirm_title',
+        message: 'customer_receipts.form.unapplied_confirm_message',
+        messageParams: { amount: this.totals().unapplied.toFixed(2), currency: raw0.currencyCode },
+        confirmText: 'customer_receipts.form.save_as_advance',
+        cancelText: 'customer_receipts.form.review_application',
+        variant: 'warning',
+      });
+      if (!confirmed) return;
     }
 
     this.saving.set(true);

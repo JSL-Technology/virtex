@@ -107,7 +107,9 @@
         {{ 'customer_receipts.form.invoices_apply' | translate }}
       </h2>
 
-    @if (openInvoices().length === 0) {
+    @if (!customerChosen()) {
+      <p class="section-note">{{ 'customer_receipts.form.choose_customer_to_see_invoices' | translate }}</p>
+    } @else if (openInvoices().length === 0) {
       <p class="section-note">{{ 'customer_receipts.form.customer_has_no_invoices_with_outstanding' | translate }}</p>
     } @else {
       <!--

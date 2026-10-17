@@ -12,7 +12,7 @@ import type {
 } from 'dockview-angular';
 import { TabStateService } from '../tab-state.service';
 import { TabPersistenceService } from '../tab-persistence.service';
-import { TabPreferencesService } from '../tab-preferences.service';
+import { TAB_LIMIT_CHOICES, TabPreferencesService } from '../tab-preferences.service';
 import { TabModel, TabType } from '../tab.model';
 import { TabWrapperComponent } from './tab-wrapper.component';
 import { TabHeaderComponent } from './tab-header.component';
@@ -119,7 +119,7 @@ export class TabContainerComponent implements TabLayoutController, OnDestroy {
     //  pestaña pertenece a un grupo ya flotante o en pop-out, maximizarlo reventaba con «Invalid grid
     //  element»: en ese caso solo tiene sentido sacarla a otra ventana.
     const inGrid = panel.group?.api?.location?.type === 'grid';
-    const t = (key: string) => this.translate.instant(key);
+    const t = (key: string, params?: Record<string, unknown>) => this.translate.instant(key, params);
 
     //  Las acciones de ventana viven SIEMPRE en el menú contextual, sin importar el modo: esconderlas
     //  hasta que se pulse el conmutador de «Taller» hacía que parecieran inexistentes. Dividir y flotar
@@ -195,6 +195,14 @@ export class TabContainerComponent implements TabLayoutController, OnDestroy {
         chord: this.shortcuts.primaryChord('tabs.preview_toggle'),
         run: () => this.prefs.toggleEnablePreview(),
       }),
+      //  Cuántas pestañas quedan abiertas antes de cerrar la menos usada (QA A-04).
+      ...TAB_LIMIT_CHOICES.map((limit) =>
+        this.menuItem({
+          label: t('tabs.max_tabs_option', { count: limit }),
+          checked: this.prefs.maxTabs() === limit,
+          run: () => this.tabState.setMaxTabs(limit),
+        }),
+      ),
       ...windowActions,
     ];
   };

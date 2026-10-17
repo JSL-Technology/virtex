@@ -472,3 +472,17 @@
   .ov-skeleton { animation: none; }
   .ov-quick:hover { transform: none; }
 }
+
+// QA C-03: cobrar desde «Próximos vencimientos».
+.ov-event__action {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

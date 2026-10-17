@@ -115,16 +115,15 @@
                 } @else {
                   <span class="expand-placeholder" aria-hidden="true"></span>
                 }
-                <div class="account-info">
-                  <!--
-                    El código aparecía dos veces: una como texto y otra como enlace justo debajo.
-                    Queda una sola vez, y es el enlace — que es lo que se pulsa para ver el mayor.
-                  -->
+                <!--
+                  Código primero y en gris, nombre después como enlace al mayor (QA M-19). Antes el
+                  código iba debajo del nombre en el color de enlace, así que lo que parecía pulsable
+                  era el dato secundario y la jerarquía se leía al revés.
+                -->
+                <a [routerLink]="['/accounting/general-ledger', account.id]" class="account-info table-link">
+                  <span class="account-code">{{ account.code }}</span>
                   <span class="account-title">{{ account.name | vxName }}</span>
-                  <a [routerLink]="['/accounting/general-ledger', account.id]" class="table-link">
-                    {{ account.code }}
-                  </a>
-                </div>
+                </a>
               </div>
             </td>
             <!-- El tipo es un enum del backend en inglés; `titlecase` solo lo capitalizaba, así
@@ -149,19 +148,24 @@
                   type="button"
                   class="icon-button"
                   (click)="goToAccountForm(account.id)"
-                  [attr.aria-label]="'accounting.chart_of_accounts.edit' | translate"
+                  [attr.aria-label]="'accounting.chart_of_accounts.edit_named' | translate: { name: (account.name | vxName) }"
                 >
                   <lucide-icon [img]="EditIcon" size="16" aria-hidden="true"></lucide-icon>
                 </button>
-                <button
-                  type="button"
-                  class="icon-button delete"
-                  (click)="deleteAccount(account)"
-                  [attr.aria-label]="'accounting.chart_of_accounts.delete' | translate"
-                  [disabled]="account.isSystemAccount"
-                >
-                  <lucide-icon [img]="TrashIcon" size="16" aria-hidden="true"></lucide-icon>
-                </button>
+                <!--
+                  Solo donde borrar es posible. Una cuenta con subcuentas o del sistema no se puede
+                  eliminar, y la papelera en una cuenta raíz con hijas invitaba a intentarlo (QA M-19).
+                -->
+                @if (!account.hasChildren && !account.isSystemAccount) {
+                  <button
+                    type="button"
+                    class="icon-button delete"
+                    (click)="deleteAccount(account)"
+                    [attr.aria-label]="'accounting.chart_of_accounts.delete_named' | translate: { name: (account.name | vxName) }"
+                  >
+                    <lucide-icon [img]="TrashIcon" size="16" aria-hidden="true"></lucide-icon>
+                  </button>
+                }
               </div>
             </td>
           </tr>

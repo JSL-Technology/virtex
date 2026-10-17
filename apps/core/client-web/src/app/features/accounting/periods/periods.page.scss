@@ -14,3 +14,10 @@
     color: var(--content-secondary);
   }
 }
+
+//  Why an open period has no button: it is not the next one to close.
+.period-hint {
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+  white-space: nowrap;
+}

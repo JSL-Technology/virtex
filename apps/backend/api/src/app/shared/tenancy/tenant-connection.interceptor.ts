@@ -1,6 +1,6 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 import { Observable, defer, from, switchMap } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { AuthenticatedRequest } from '@virteex/shared/util-auth';
@@ -38,8 +38,13 @@ import { runInTenantContext } from './tenant-context';
  * inquilino no viajaba. Envolver la suscripción cubre a cualquier interceptor que aplace, no
  * solo al que lo hacía hoy.
  */
+/** How long a transaction left open by late work may run before it is rolled back. */
+const TRANSACTION_GRACE_MS = 5_000;
+
 @Injectable()
 export class TenantConnectionInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(TenantConnectionInterceptor.name);
+
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
@@ -89,17 +94,64 @@ export class TenantConnectionInterceptor implements NestInterceptor {
             runInTenantContext(store, () => next.handle().subscribe(subscriber)),
           ).pipe(
             finalize(() => {
-              // RESET, not set_config to '': it returns the variable to unset, which is what the
-              // policies read as "no tenant". Assigning an empty string leaves a value behind that
-              // is not a uuid.
-              void runner
-                .query(`RESET app.current_organization`)
-                .catch(() => undefined)
-                .finally(() => void runner.release().catch(() => undefined));
+              void this.returnToPool(runner, organizationId);
             }),
           );
         }),
       );
     });
+  }
+
+  /**
+   * Hands the pinned connection back clean: no tenant variable and, above all, no open transaction.
+   *
+   * A transaction still active at this point belongs to work that outlived its request — a write
+   * fired without being awaited, or a handler interrupted by an aborted request. Releasing the
+   * connection as it was (which is what happened before) gave the pool a connection that was
+   * "idle in transaction": its row locks stayed held, every later request that touched those rows
+   * waited, the pool drained, and the whole API stopped answering every tenant (QA C-01). Rolling
+   * back is the only safe choice here — the work that owned the transaction can no longer finish
+   * on a released runner anyway — and it is logged loudly so the caller that leaked gets fixed.
+   */
+  /**
+   * Lets a transaction that outlived its request finish — a late audit row is legitimate work —
+   * and rolls it back only if it is still open after a short grace period.
+   */
+  private async settleTransaction(runner: QueryRunner, organizationId: string): Promise<void> {
+    if (!runner.isTransactionActive) return;
+    const deadline = Date.now() + TRANSACTION_GRACE_MS;
+    while (runner.isTransactionActive && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    if (!runner.isTransactionActive) return;
+    this.logger.error(
+      `Conexión devuelta con una transacción abierta (organización ${organizationId}); ` +
+        'se revierte para no dejar bloqueos. Algún trabajo de la petición no se esperó.',
+    );
+    await runner.rollbackTransaction().catch(() => runner.query('ROLLBACK'));
+  }
+
+  private async returnToPool(runner: QueryRunner, organizationId: string): Promise<void> {
+    try {
+      await this.settleTransaction(runner, organizationId);
+      // RESET, not set_config to '': it returns the variable to unset, which is what the
+      // policies read as "no tenant". Assigning an empty string leaves a value behind that
+      // is not a uuid.
+      await runner.query(`RESET app.current_organization`);
+      // Checked again with no `await` between the check and the release below: work that started
+      // a transaction while RESET was in flight is caught here, before the pool can hand the
+      // connection to anyone else (`startTransaction` sets the flag synchronously).
+      await this.settleTransaction(runner, organizationId);
+    } catch (error) {
+      // A connection whose state could not be verified must not be reused by another tenant:
+      // releasing it WITH an error makes pg-pool destroy it instead of returning it.
+      const discard = (runner as unknown as { releasePostgresConnection?: (err: unknown) => Promise<void> })
+        .releasePostgresConnection;
+      if (discard) {
+        await discard.call(runner, error).catch(() => undefined);
+        return;
+      }
+    }
+    await runner.release().catch(() => undefined);
   }
 }

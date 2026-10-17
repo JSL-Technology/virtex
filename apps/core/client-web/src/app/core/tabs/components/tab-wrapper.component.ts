@@ -113,6 +113,9 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
   private reloadRef?: EffectRef;
   /** Firma del contenido montado, para no recargar ante cambios irrelevantes. */
   private mountedSig = '';
+  /** Waiting for the first activation of a tab that opened hidden. */
+  private pendingMount?: { dispose: () => void };
+  private destroyed = false;
 
   private get tabId(): string {
     return this.params?.tabId ?? this.api?.id ?? '';
@@ -130,8 +133,26 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    await this.mount(tab);
-    this.mountedSig = this.signature(tab);
+    // Mounted on first sight, not at birth (QA A-04). A restored workspace created every page at
+    // once, hidden ones included, so opening «Nueva factura» fired the requests of twelve other
+    // screens and pushed the API into rate limiting. A hidden tab now waits until it is shown.
+    if (this.api?.isVisible === false && typeof this.api.onDidVisibilityChange === 'function') {
+      this.loading.set(true);
+      await new Promise<void>((resolve) => {
+        const sub = this.api.onDidVisibilityChange((e: { isVisible: boolean }) => {
+          if (!e.isVisible) return;
+          sub?.dispose?.();
+          this.pendingMount = undefined;
+          resolve();
+        });
+        this.pendingMount = sub;
+      });
+      if (this.destroyed) return;
+    }
+
+    const current = this.currentTab() ?? tab;
+    await this.mount(current);
+    this.mountedSig = this.signature(current);
 
     // Recarga reactiva: al reutilizar la vista previa, la MISMA pestaña cambia de
     // ruta/entidad. Se recarga el componente en su sitio (sin crear otro panel).
@@ -200,6 +221,8 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
+    this.pendingMount?.dispose?.();
     this.saveScroll();
     const scroll = this.scrollRef?.nativeElement;
     if (scroll) {

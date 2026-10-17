@@ -1,6 +1,18 @@
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, In, Repository, DataSource, QueryRunner, FindOptionsOrder } from 'typeorm';
+import {
+  Between,
+  DataSource,
+  EntityManager,
+  FindOptionsOrder,
+  FindOptionsWhere,
+  ILike,
+  In,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  QueryRunner,
+  Repository,
+} from 'typeorm';
 import {
   JournalEntry,
   JournalEntryStatus,
@@ -1299,7 +1311,16 @@ export class JournalEntriesService {
    */
   async findAll(
     organizationId: string,
-    query: { page?: number; pageSize?: number; sort?: JournalEntryListSort; direction?: 'asc' | 'desc' } = {},
+    query: {
+      page?: number;
+      pageSize?: number;
+      sort?: JournalEntryListSort;
+      direction?: 'asc' | 'desc';
+      from?: string;
+      to?: string;
+      status?: JournalEntryStatus;
+      search?: string;
+    } = {},
   ): Promise<Page<JournalEntry>> {
     const paging = resolvePaging(query.page, query.pageSize);
     // The chosen column first; the default order breaks ties, so a page boundary never splits
@@ -1315,8 +1336,21 @@ export class JournalEntriesService {
           }
         : fallback
     ) as FindOptionsOrder<JournalEntry>;
+    const base: FindOptionsWhere<JournalEntry> = { organizationId };
+    if (query.from && query.to) base.date = Between(query.from, query.to) as never;
+    else if (query.from) base.date = MoreThanOrEqual(query.from) as never;
+    else if (query.to) base.date = LessThanOrEqual(query.to) as never;
+    if (query.status) base.status = query.status;
+    const term = query.search?.trim();
+    // An OR across two columns is two `where` objects sharing the same filters.
+    const where = term
+      ? [
+          { ...base, entryNumber: ILike(`%${escapeLike(term)}%`) },
+          { ...base, description: ILike(`%${escapeLike(term)}%`) },
+        ]
+      : base;
     const [rows, total] = await this.journalEntryRepository.findAndCount({
-      where: { organizationId },
+      where,
       order,
       skip: paging.skip,
       take: paging.take,
@@ -1431,4 +1465,9 @@ export class JournalEntriesService {
       this.logger.warn(`No se pudo borrar el objeto ${attachment.storageKey}: ${error.message}`);
     });
   }
+}
+
+/** Escapes LIKE wildcards so a search for «50%» matches the text, not everything. */
+function escapeLike(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
 }

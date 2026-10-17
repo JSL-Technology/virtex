@@ -11,6 +11,7 @@ import {
   of,
   take,
   firstValueFrom,
+  timeout,
 } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
@@ -111,11 +112,18 @@ function isTwoFactorRequired(res: LoginResult): res is TwoFactorRequiredResponse
  *
  * `'expired'`: the refresh token was refused, so the session is gone server-side.
  * `'idle'`: the client signed the user out after a period without activity.
+ * `'unverified'`: the API did not answer the session check (down or timed out), so the person is
+ *   sent to sign in with an explanation instead of being left on a blank page.
  *
  * A deliberate sign-out passes none of these: there is nothing to explain to someone who pressed
  * "Sign out".
  */
-export type SignOutReason = 'expired' | 'idle';
+export type SignOutReason = 'expired' | 'idle' | 'unverified';
+
+/** How long the bootstrap waits for `GET /auth/session` before treating the API as unreachable. */
+const SESSION_RESOLUTION_TIMEOUT_MS = 15_000;
+/** How long a failed session check is trusted before the next navigation asks the API again. */
+const SESSION_RETRY_AFTER_MS = 5_000;
 
 @Injectable({
   providedIn: 'root',
@@ -475,6 +483,10 @@ export class AuthService {
         context: new HttpContext().set(IS_PUBLIC_API, true),
       })
       .pipe(
+        // A server that never answers used to hold the bootstrap forever: the app initializer
+        // waits on this observable, so the page stayed blank with no message (QA C-02). After the
+        // limit the error path below takes over, exactly as for an unreachable API.
+        timeout(SESSION_RESOLUTION_TIMEOUT_MS),
         switchMap((snapshot) => {
           if (snapshot.authenticated && snapshot.user) {
             if (this.idledOut(snapshot.session)) return of(this.endIdleSessionOnLoad());
@@ -502,16 +514,23 @@ export class AuthService {
 
           return of(this.applySignedOut());
         }),
-        catchError((error: HttpErrorResponse) => {
+        catchError((error: HttpErrorResponse | Error) => {
           // The API is unreachable or failing. We do not KNOW that the user is signed out — we
           // only know we could not find out. Unlike every other outcome above, that IS an
           // anomaly, so it gets one line in the console; and unlike them it is not an answer
-          // worth keeping, so the memo is dropped and the next navigation asks again rather than
+          // worth keeping for long, so the memo is dropped shortly after and the next navigation asks again rather than
           // pinning the app to the login screen for the rest of the session over one bad
           // response. The order matters: `applySignedOut` pins the memo, so it is cleared after.
-          console.warn(`No se pudo resolver la sesión (HTTP ${error.status}).`);
+          const status = error instanceof HttpErrorResponse ? `HTTP ${error.status}` : error.name;
+          console.warn(`No se pudo resolver la sesión (${status}).`);
           const signedOut = this.applySignedOut();
-          this.sessionResolution = null;
+          // Said on the sign-in page the guard sends them to; without it a dead API looked like a
+          // silent sign-out, or — when the guard asked again and hung — like a blank page (C-02).
+          this.pendingSignOutReason = 'unverified';
+          // Kept for a moment so the guard that runs right now redirects at once instead of asking
+          // a dead API again (which used to hang the navigation); dropped after that so the next
+          // navigation does ask, and a recovered API is noticed.
+          setTimeout(() => (this.sessionResolution = null), SESSION_RETRY_AFTER_MS);
           return of(signedOut);
         }),
       );

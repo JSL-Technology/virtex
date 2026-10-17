@@ -26,6 +26,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 const SIGN_OUT_NOTICE: Record<string, string | undefined> = {
   expired: 'login.notice.session_expired',
   idle: 'login.notice.signed_out_idle',
+  unverified: 'login.notice.session_unverified',
 };
 
 @Component({

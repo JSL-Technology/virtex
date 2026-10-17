@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
@@ -41,7 +42,7 @@ type SectionStatus = 'loading' | 'ready' | 'error';
 @Component({
   selector: 'app-overview-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DashboardPage],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DashboardPage],
   templateUrl: './overview.page.html',
   styleUrls: ['./overview.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

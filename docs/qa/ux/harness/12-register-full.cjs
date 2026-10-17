@@ -1,0 +1,77 @@
+const { launch, shot, instrument } = require('./lib.cjs');
+const fs = require('fs'); const path = require('path');
+const P = process.argv[2] || 'en/us'; const tag = P.replace('/','-');
+const OUT = '/home/user/virtex/tmp/mail-outbox';
+const latestCode = () => { const f = fs.readdirSync(OUT).filter(x => x.endsWith('.html')).sort().pop(); const t = fs.readFileSync(path.join(OUT, f), 'utf8').replace(/<[^>]*>/g, ' '); return (t.match(/\b(\d{6})\b/) || [])[1]; };
+const dump = async (page, n) => { await shot(page, `auth/RF-${tag}-${n}`, true); const t = await page.locator('form').first().innerText().catch(() => page.locator('body').innerText()); console.log(`\n=== ${n} ===\n` + t.slice(0, 1200)); };
+(async () => {
+  const { browser, context } = await launch({ locale: P.startsWith('en') ? 'en-US' : P.startsWith('pt') ? 'pt-BR' : 'es-419' });
+  const page = await context.newPage(); const log = instrument(page); page.on('response', async r => { if (/phone|otp|verif|register|signup|checkout|subscri/i.test(r.url()) && !/\.ts|@fs|@ng/.test(r.url())) console.log('API', r.request().method(), r.url().replace(/.*v1/,''), r.status(), (await r.text().catch(()=>'')).slice(0,250), (/checkout/.test(r.url()) ? r.request().postData() : r.request().postData()?.slice(0,150))); });
+  await page.goto(`http://localhost:4200/${P}/auth/register`, { waitUntil: 'load' }); await page.waitForTimeout(3000);
+  const next = () => page.locator('button', { hasText: /^\s*(Next|Siguiente|Próximo|Avançar|Continuar)\s*$/ }).last().click();
+  const stamp = Date.now().toString().slice(-6); const email = `qa.ux.${tag}.${stamp}@example.com`;
+  await page.locator('form input[type=text]').nth(0).fill('María José');
+  await page.locator('form input[type=text]').nth(1).fill("O'Connor-Núñez");
+  await page.locator('input[type=email]').fill(email);
+  const cc = { 'en/us': 'US', 'es/do': 'DO', 'pt/br': 'BR', 'es/cl': 'CL', 'es/ar': 'AR', 'es/pe': 'PE', 'es/gt': 'GT', 'es/pa': 'PA', 'es/cr': 'CR' }[P];
+  await page.locator('select').first().selectOption(cc).catch(e => console.log('no cc', cc));
+  const phones = { US: '2025550147', DO: '8095550147', BR: '11987654321', CL: '912345678', AR: '1123456789', PE: '912345678', GT: '51234567', PA: '61234567', CR: '81234567' };
+  await page.locator('input[type=tel]').fill(phones[cc].slice(0,-3) + String(Math.floor(Math.random()*900)+100));
+  const pw = page.locator('input[type=password]'); await pw.nth(0).fill('Sup3r-Segura-2026!'); await pw.nth(1).fill('Sup3r-Segura-2026!');
+  await next(); await page.waitForTimeout(3000);
+  await dump(page, '2-email');
+  const code = latestCode(); console.log('CODE', code);
+  await page.locator('input[inputmode=numeric], input[maxlength="1"], .otp input').first().click();
+  await page.keyboard.type(code, { delay: 80 }); await page.waitForTimeout(2500);
+  await dump(page, '2b-email-typed');
+  if (await page.locator('button', { hasText: /Verify|Verificar/ }).isEnabled().catch(()=>false)) { await page.locator('button', { hasText: /Verify|Verificar/ }).click(); await page.waitForTimeout(2500); }
+  await next().catch(()=>{}); await page.waitForTimeout(3000);
+  await dump(page, '3-phone');
+  fs.writeFileSync(__dirname + `/reg-${tag}.json`, JSON.stringify({ email }));
+  const SMS='/home/user/virtex/tmp/sms-outbox'; const smsCode = () => { const f = fs.readdirSync(SMS).sort().pop(); return (fs.readFileSync(path.join(SMS,f),'utf8').match(/\b(\d{6})\b/)||[])[1]; };
+  await page.waitForTimeout(1500); const sc = smsCode(); console.log('SMS CODE', sc);
+  await page.locator('input[inputmode=numeric], input[maxlength="1"], .otp input').first().click();
+  await page.keyboard.type(sc, { delay: 80 }); await page.waitForTimeout(2500);
+  if (await page.locator('button', { hasText: /Verify|Verificar/ }).isEnabled().catch(()=>false)) { await page.locator('button', { hasText: /Verify|Verificar/ }).click(); await page.waitForTimeout(2500); }
+  await dump(page, '3c-phone-ok');
+  await next().catch(()=>{}); await page.waitForTimeout(3000);
+  await dump(page, '4-fiscal');
+  const fields = await page.locator('form input, form select, form textarea').evaluateAll(els => els.filter(e=>e.offsetParent).map(e => `${e.tagName}/${e.type}|name=${e.name}|ph=${e.placeholder}|lbl=${(e.labels&&e.labels[0]?.innerText)||e.getAttribute('aria-label')||''}`));
+  console.log('FISCAL FIELDS', fields);
+  await next().catch(()=>{}); await page.waitForTimeout(1500);
+  await dump(page, '4b-fiscal-vacio');
+  if (cc === 'US') {
+    await page.getByPlaceholder('12-3456789').fill('12-' + String(Math.floor(Math.random()*9000000)+1000000));
+    await page.getByPlaceholder('Street and number').fill('1600 Pennsylvania Ave NW');
+    const txt = page.locator('form input[type=text]:visible');
+    const n = await txt.count(); console.log('text inputs', n);
+    await page.locator('form').getByText('City').locator('xpath=following::input[1]').fill('Washington');
+    await page.locator('form').getByText('ZIP code').locator('xpath=following::input[1]').fill('20500');
+    const st = page.locator('form').getByText('Status', { exact: true }).locator('xpath=following::*[self::select or @role="combobox" or self::button][1]');
+    await st.click(); await page.waitForTimeout(500);
+    await page.getByText('District of Columbia', { exact: true }).last().click().catch(async () => { await st.selectOption({ label: 'District of Columbia' }).catch(e=>console.log('state fail', e.message.slice(0,80))); });
+  }
+  await page.waitForTimeout(800);
+  await dump(page, '4c-fiscal-lleno');
+  await next(); await page.waitForTimeout(3000);
+  await dump(page, '5-empresa');
+  const f5 = await page.locator('form input, form select, form textarea').evaluateAll(els => els.filter(e=>e.offsetParent).map(e => `${e.tagName}/${e.type}|ph=${e.placeholder}|lbl=${(e.labels&&e.labels[0]?.innerText)||e.getAttribute('aria-label')||''}`));
+  console.log('EMPRESA FIELDS', f5);
+  await page.getByPlaceholder('e.g. Acme corp').fill('QA Ñandú & Sons LLC');
+  await page.locator('form select').nth(0).selectOption({ index: 1 });
+  await page.locator('form select').nth(1).selectOption({ index: 2 });
+  await next(); await page.waitForTimeout(3500);
+  await dump(page, '6-plan');
+  const planBtns = await page.locator('form button, main button').allInnerTexts(); console.log('PLAN BUTTONS', planBtns);
+  await page.locator('button', { hasText: /^\s*Sign up\s*$|^\s*Registrarme\s*$|Crear cuenta$/ }).last().click(); await page.waitForTimeout(1500);
+  await dump(page, '6a-sin-aceptar-terminos');
+  await page.locator('input[type=checkbox]').last().check({ force: true }); await page.waitForTimeout(500);
+  await page.locator('button', { hasText: /^\s*Sign up\s*$|^\s*Registrarme\s*$/ }).last().click();
+  for (let k = 0; k < 6; k++) { await page.waitForTimeout(2000); await shot(page, `auth/RF-${tag}-6c-enviando-${k}`); if (!page.url().includes('/register')) break; }
+  console.log('URL after finish', page.url());
+  await shot(page, `auth/RF-${tag}-7-final`, true);
+  console.log((await page.locator('body').innerText()).slice(0, 1500));
+  await context.storageState({ path: __dirname + `/reg-${tag}-state.json` });
+  console.log(log.req.filter(r => !/geo|localization/.test(r)).join('\n')); console.log(log.errors.join('\n'));
+  await browser.close();
+})();

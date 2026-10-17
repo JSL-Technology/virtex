@@ -310,4 +310,9 @@ export class InvoicesListPage implements OnInit {
         error: () => this.notificationService.showError('invoices.list.list_could_not_exported'),
       });
   }
+
+  /** «Registrar cobro» from the row: an issued invoice that still has something owed. */
+  canCollect(invoice: Invoice): boolean {
+    return ['Pending', 'Partially Paid'].includes(invoice.status) && Number(invoice.balance ?? 0) > 0;
+  }
 }

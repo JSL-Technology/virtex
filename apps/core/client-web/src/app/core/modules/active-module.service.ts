@@ -64,9 +64,23 @@ export class ActiveModuleService {
    */
   private readonly modulePath = computed(() => pathWithoutOrganization(this.url()));
 
+  /**
+   * The module the user was last in. Kept so a page that two panels both offer does not move them.
+   *
+   * Ventas › «Antigüedad de saldos» opens `/reports/aging/receivables`, a URL Contabilidad's report
+   * panel also lists. Resolving the owner from the URL alone switched the rail to Contabilidad the
+   * moment the page opened, so the user clicked a Sales entry and found themselves in another
+   * module with a different menu (QA C-05). The URL still decides — this only breaks the tie when
+   * the module you are already in lists the page too.
+   */
+  private readonly previous = signal<ModuleManifest | null>(null);
+
   /** The module that owns the current URL, or the workspace module as the resting place. */
   readonly active = computed<ModuleManifest | null>(() => {
-    const match = resolveRoute(this.modulePath());
+    const path = this.modulePath().split('?')[0].split('#')[0];
+    const previous = this.previous();
+    if (previous && menuOffers(previous, path)) return previous;
+    const match = resolveRoute(path);
     // A satellite resolves to its owner: `/masters/warehouses` is an Inventory screen that happens
     // to live under another prefix, and the panel beside it must be Inventory's.
     if (match) return ownerOf(match.entry.module);
@@ -149,7 +163,10 @@ export class ActiveModuleService {
   constructor() {
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe((event) => this.url.set(event.urlAfterRedirects));
+      .subscribe((event) => {
+        this.previous.set(this.active());
+        this.url.set(event.urlAfterRedirects);
+      });
   }
 
   isActive(module: ModuleManifest): boolean {
@@ -160,4 +177,14 @@ export class ActiveModuleService {
   entryPointOf(module: ModuleManifest): string | null {
     return this.visibleMenu(module)[0]?.entries[0]?.path ?? null;
   }
+}
+
+/** Does the module's own panel list this exact page (or a page beneath one of its entries)? */
+function menuOffers(module: ModuleManifest, path: string): boolean {
+  return buildMenu(module).some((section) =>
+    section.entries.some((entry) => {
+      const target = entry.path.startsWith('/') ? entry.path : `/${entry.path}`;
+      return path === target;
+    }),
+  );
 }

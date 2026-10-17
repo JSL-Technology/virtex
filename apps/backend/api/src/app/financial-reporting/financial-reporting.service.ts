@@ -117,6 +117,8 @@ export interface TrialBalanceReport {
 export interface CashFlowMovement {
   accountId: string;
   code: string;
+  /** The account's name, so a line reads «1130 · Cuentas por cobrar» rather than a bare code. */
+  name: Record<string, string> | string;
   /** Cash received through this account over the period, as a positive amount. */
   inflow: number;
   /** Cash paid through this account over the period, as a positive amount. */
@@ -144,6 +146,7 @@ export interface CashFlowSection {
 export interface NonCashTransactionLine {
   accountId: string;
   code: string;
+  name: Record<string, string> | string;
   debit: number;
   credit: number;
 }
@@ -154,8 +157,8 @@ export interface CashFlowStatementReport {
   openingCash: number;
   operating: {
     netIncome: number;
-    nonCashAdjustments: { accountId: string; code: string; amount: number }[];
-    workingCapitalChanges: { accountId: string; code: string; amount: number }[];
+    nonCashAdjustments: { accountId: string; code: string; name: Record<string, string> | string; amount: number }[];
+    workingCapitalChanges: { accountId: string; code: string; name: Record<string, string> | string; amount: number }[];
     total: number;
   };
   investing: CashFlowSection;
@@ -713,8 +716,8 @@ export class FinancialReportingService {
     const openingCash = sumOf(openingBalances);
     const closingCash = sumOf(closingBalances);
 
-    const nonCashAdjustments: { accountId: string; code: string; amount: number }[] = [];
-    const workingCapitalChanges: { accountId: string; code: string; amount: number }[] = [];
+    const nonCashAdjustments: { accountId: string; code: string; name: Record<string, string> | string; amount: number }[] = [];
+    const workingCapitalChanges: { accountId: string; code: string; name: Record<string, string> | string; amount: number }[] = [];
     const investingMovements = new Map<string, CashFlowMovement>();
     const financingMovements = new Map<string, CashFlowMovement>();
     const nonCashTransactions: NonCashTransactionLine[] = [];
@@ -730,7 +733,7 @@ export class FinancialReportingService {
     ) => {
       const existing =
         section.get(account.id) ??
-        { accountId: account.id, code: account.code, inflow: 0, outflow: 0, amount: 0 };
+        { accountId: account.id, code: account.code, name: account.name, inflow: 0, outflow: 0, amount: 0 };
       existing.inflow = roundAmount(existing.inflow + inflow);
       existing.outflow = roundAmount(existing.outflow + outflow);
       existing.amount = roundAmount(existing.inflow - existing.outflow);
@@ -759,6 +762,7 @@ export class FinancialReportingService {
           nonCashAdjustments.push({
             accountId: account.id,
             code: account.code,
+            name: account.name,
             amount: roundAmount(-cashEffect),
           });
         }
@@ -776,7 +780,7 @@ export class FinancialReportingService {
       // The cash effect of a non-cash account is the negation of its own movement. Receivables
       // going up (a debit) consumes cash; revenue (a credit) provides it.
       const cashEffect = roundAmount(-signed);
-      const entry = { accountId: account.id, code: account.code, amount: cashEffect };
+      const entry = { accountId: account.id, code: account.code, name: account.name, amount: cashEffect };
 
       if (
         account.type === AccountType.REVENUE ||
@@ -804,6 +808,7 @@ export class FinancialReportingService {
           nonCashTransactions.push({
             accountId: account.id,
             code: account.code,
+            name: account.name,
             debit: roundAmount(movement.debit),
             credit: roundAmount(movement.credit),
           });
