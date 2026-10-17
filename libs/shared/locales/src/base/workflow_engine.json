@@ -114,6 +114,11 @@
     "en": "Zoom {{percent}}%",
     "pt": "Zoom {{percent}} %"
   },
+  "workflow_engine.action.document_decision": {
+    "es": "Aprobar o rechazar el documento",
+    "en": "Approve or reject the document",
+    "pt": "Aprovar ou rejeitar o documento"
+  },
   "workflow_engine.action.log": {
     "es": "Registrar en la bitácora",
     "en": "Write to the log",
@@ -139,6 +144,11 @@
     "en": "Call a webhook",
     "pt": "Chamar um webhook"
   },
+  "workflow_engine.action_help.document_decision": {
+    "es": "Decide sobre el documento que inició el proceso (p. ej. la orden de compra) en nombre de quien respondió el último paso.",
+    "en": "Decides on the document that started the process (e.g. the purchase order) on behalf of whoever answered the last step.",
+    "pt": "Decide sobre o documento que iniciou o processo (p. ex. a ordem de compra) em nome de quem respondeu ao último passo."
+  },
   "workflow_engine.action_help.log": {
     "es": "Deja una nota en la cronología de la ejecución.",
     "en": "Writes a note on the run timeline.",
@@ -163,6 +173,21 @@
     "es": "Llama a un sistema externo por HTTPS. Las direcciones internas están bloqueadas. Ofrece los resultados «ok» y «error».",
     "en": "Calls an external system over HTTPS. Internal addresses are blocked. Offers the “ok” and “error” outcomes.",
     "pt": "Chama um sistema externo por HTTPS. Os endereços internos estão bloqueados. Oferece os resultados «ok» e «error»."
+  },
+  "workflow_engine.action_result.notified": {
+    "es": "Aviso enviado a {{name}}.",
+    "en": "Notice sent to {{name}}.",
+    "pt": "Aviso enviado a {{name}}."
+  },
+  "workflow_engine.action_result.notify_no_recipient": {
+    "es": "No había nadie a quien avisar.",
+    "en": "There was nobody to notify.",
+    "pt": "Não havia ninguém a quem avisar."
+  },
+  "workflow_engine.action_result.subprocess_started": {
+    "es": "Se inició el proceso «{{key}}».",
+    "en": "The process “{{key}}” was started.",
+    "pt": "Foi iniciado o processo «{{key}}»."
   },
   "workflow_engine.already_published": {
     "es": "Esta versión ya está publicada.",
@@ -264,10 +289,25 @@
     "en": "Any of these holds",
     "pt": "Alguma se cumpre"
   },
+  "workflow_engine.condition.choose_variable": {
+    "es": "Elige un dato…",
+    "en": "Choose a field…",
+    "pt": "Escolha um dado…"
+  },
   "workflow_engine.condition.combine": {
     "es": "Cómo combinar",
     "en": "How to combine",
     "pt": "Como combinar"
+  },
+  "workflow_engine.condition.custom_variable": {
+    "es": "Otro dato (escribir nombre)…",
+    "en": "Another field (type its name)…",
+    "pt": "Outro dado (escrever o nome)…"
+  },
+  "workflow_engine.condition.custom_variable_placeholder": {
+    "es": "Nombre del dato, p. ej. importe",
+    "en": "Field name, e.g. amount",
+    "pt": "Nome do dado, p. ex. montante"
   },
   "workflow_engine.condition.list_placeholder": {
     "es": "valor1, valor2",
@@ -303,6 +343,16 @@
     "es": "Quitar grupo",
     "en": "Remove group",
     "pt": "Remover grupo"
+  },
+  "workflow_engine.condition.unknown_variable": {
+    "es": "«{{name}}» (no declarado)",
+    "en": "“{{name}}” (not declared)",
+    "pt": "«{{name}}» (não declarado)"
+  },
+  "workflow_engine.condition.unknown_variable_hint": {
+    "es": "«{{name}}» no es un dato del proceso: decláralo en Variables o elige otro, o la condición nunca se cumplirá.",
+    "en": "“{{name}}” is not a field of the process: declare it under Variables or choose another, or the condition will never hold.",
+    "pt": "«{{name}}» não é um dado do processo: declare-o em Variáveis ou escolha outro, ou a condição nunca se cumprirá."
   },
   "workflow_engine.conflict.later": {
     "es": "Decidir después",
@@ -415,9 +465,9 @@
     "pt": "O processo tem de estar publicado para ser iniciado."
   },
   "workflow_engine.definition_status.archived": {
-    "es": "Archivado",
-    "en": "Archived",
-    "pt": "Arquivado"
+    "es": "Desactivado",
+    "en": "Inactive",
+    "pt": "Desativado"
   },
   "workflow_engine.definition_status.draft": {
     "es": "Borrador",
@@ -554,6 +604,16 @@
     "en": "Button text",
     "pt": "Texto do botão"
   },
+  "workflow_engine.designer.can_act_hint": {
+    "es": "Solo aparecen quienes tienen permiso para responder tareas de flujos de trabajo.",
+    "en": "Only people allowed to answer workflow tasks are listed.",
+    "pt": "Só aparecem as pessoas com permissão para responder a tarefas de fluxos de trabalho."
+  },
+  "workflow_engine.designer.cannot_act": {
+    "es": "sin permiso para responder",
+    "en": "not allowed to answer",
+    "pt": "sem permissão para responder"
+  },
   "workflow_engine.designer.canvas_label": {
     "es": "Diagrama del proceso: {{nodes}} pasos y {{edges}} conexiones",
     "en": "Process diagram: {{nodes}} steps and {{edges}} connections",
@@ -574,6 +634,11 @@
     "en": "Choose an answer…",
     "pt": "Escolha uma resposta…"
   },
+  "workflow_engine.designer.choose_process": {
+    "es": "Elige un proceso…",
+    "en": "Choose a process…",
+    "pt": "Escolha um processo…"
+  },
   "workflow_engine.designer.close": {
     "es": "Cerrar",
     "en": "Close",
@@ -593,6 +658,11 @@
     "es": "Exigir comentario",
     "en": "Require a comment",
     "pt": "Exigir comentário"
+  },
+  "workflow_engine.designer.condition_label_hint": {
+    "es": "El texto que se ve sobre la conexión. Si lo dejas vacío se muestra la condición.",
+    "en": "The text shown on the connection. Leave it empty to show the condition.",
+    "pt": "O texto mostrado sobre a ligação. Se ficar vazio, mostra-se a condição."
   },
   "workflow_engine.designer.connect.all_routed": {
     "es": "Todas las respuestas de este paso ya están conectadas.",
@@ -999,6 +1069,16 @@
     "en": "Anyone with this role can answer; all of them are notified.",
     "pt": "Qualquer pessoa com esta função pode responder; todas são avisadas."
   },
+  "workflow_engine.designer.role_members.one": {
+    "es": "{{count}} miembro",
+    "en": "{{count}} member",
+    "pt": "{{count}} membro"
+  },
+  "workflow_engine.designer.role_members.other": {
+    "es": "{{count}} miembros",
+    "en": "{{count}} members",
+    "pt": "{{count}} membros"
+  },
   "workflow_engine.designer.route": {
     "es": "Trazado",
     "en": "Route",
@@ -1104,6 +1184,11 @@
     "en": "Unit",
     "pt": "Unidade"
   },
+  "workflow_engine.designer.unknown_process": {
+    "es": "«{{key}}» (no encontrado)",
+    "en": "“{{key}}” (not found)",
+    "pt": "«{{key}}» (não encontrado)"
+  },
   "workflow_engine.designer.unrouted": {
     "es": "Sin destino",
     "en": "Not connected",
@@ -1169,6 +1254,36 @@
     "en": "Taken when the answer is",
     "pt": "Seguida quando a resposta é"
   },
+  "workflow_engine.document_result.approved": {
+    "es": "{{name}} aprobó {{document}}.",
+    "en": "{{name}} approved {{document}}.",
+    "pt": "{{name}} aprovou {{document}}."
+  },
+  "workflow_engine.document_result.failed": {
+    "es": "No se pudo decidir sobre {{document}}.",
+    "en": "Could not decide on {{document}}.",
+    "pt": "Não foi possível decidir sobre {{document}}."
+  },
+  "workflow_engine.document_result.no_actor": {
+    "es": "No hay nadie en cuyo nombre decidir sobre el documento.",
+    "en": "There is nobody on whose behalf to decide on the document.",
+    "pt": "Não há ninguém em cujo nome decidir sobre o documento."
+  },
+  "workflow_engine.document_result.no_document": {
+    "es": "Este proceso no se inició desde un documento.",
+    "en": "This process was not started from a document.",
+    "pt": "Este processo não foi iniciado a partir de um documento."
+  },
+  "workflow_engine.document_result.rejected": {
+    "es": "{{name}} rechazó {{document}}.",
+    "en": "{{name}} rejected {{document}}.",
+    "pt": "{{name}} rejeitou {{document}}."
+  },
+  "workflow_engine.document_result.unsupported": {
+    "es": "Los documentos de tipo «{{type}}» no admiten aprobación desde un proceso.",
+    "en": "Documents of type “{{type}}” cannot be approved from a process.",
+    "pt": "Os documentos do tipo «{{type}}» não admitem aprovação a partir de um processo."
+  },
   "workflow_engine.draft_ready": {
     "es": "Borrador v{{version}} listo para editar.",
     "en": "Draft v{{version}} ready to edit.",
@@ -1188,6 +1303,11 @@
     "es": "Se creará un borrador nuevo a partir de «{{name}}». ¿Cómo se llamará?",
     "en": "A new draft will be created from “{{name}}”. What will it be called?",
     "pt": "Será criado um novo rascunho a partir de «{{name}}». Como se vai chamar?"
+  },
+  "workflow_engine.duplicate.suggested_name": {
+    "es": "{{name}} (copia)",
+    "en": "{{name}} (copy)",
+    "pt": "{{name}} (cópia)"
   },
   "workflow_engine.duplicate.title": {
     "es": "Duplicar proceso",
@@ -1474,6 +1594,126 @@
     "en": "Sales",
     "pt": "Vendas"
   },
+  "workflow_engine.fact.document": {
+    "es": "Decisión sobre el documento",
+    "en": "Decision on the document",
+    "pt": "Decisão sobre o documento"
+  },
+  "workflow_engine.fact.event": {
+    "es": "Evento que lo inició",
+    "en": "Event that started it",
+    "pt": "Evento que o iniciou"
+  },
+  "workflow_engine.fact.last_actor_user_id": {
+    "es": "Respondió por última vez",
+    "en": "Last answered by",
+    "pt": "Respondeu por último"
+  },
+  "workflow_engine.fact.last_comment": {
+    "es": "Último comentario",
+    "en": "Last comment",
+    "pt": "Último comentário"
+  },
+  "workflow_engine.fact.last_outcome": {
+    "es": "Última respuesta",
+    "en": "Last answer",
+    "pt": "Última resposta"
+  },
+  "workflow_engine.fact.parent_instance_id": {
+    "es": "Proceso que lo inició",
+    "en": "Process that started it",
+    "pt": "Processo que o iniciou"
+  },
+  "workflow_engine.fact.reference": {
+    "es": "(referencia interna)",
+    "en": "(internal reference)",
+    "pt": "(referência interna)"
+  },
+  "workflow_engine.fact.step_result": {
+    "es": "Respuesta en «{{step}}»",
+    "en": "Answer at “{{step}}”",
+    "pt": "Resposta em «{{step}}»"
+  },
+  "workflow_engine.fact.subprocess": {
+    "es": "Subproceso iniciado",
+    "en": "Subprocess started",
+    "pt": "Subprocesso iniciado"
+  },
+  "workflow_engine.fact.webhook": {
+    "es": "Respuesta del webhook",
+    "en": "Webhook reply",
+    "pt": "Resposta do webhook"
+  },
+  "workflow_engine.fact_field.at": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "workflow_engine.fact_field.by": {
+    "es": "Por",
+    "en": "By",
+    "pt": "Por"
+  },
+  "workflow_engine.fact_field.comment": {
+    "es": "Comentario",
+    "en": "Comment",
+    "pt": "Comentário"
+  },
+  "workflow_engine.fact_field.decision": {
+    "es": "Decisión",
+    "en": "Decision",
+    "pt": "Decisão"
+  },
+  "workflow_engine.fact_field.instance_id": {
+    "es": "Ejecución",
+    "en": "Run",
+    "pt": "Execução"
+  },
+  "workflow_engine.fact_field.key": {
+    "es": "Proceso",
+    "en": "Process",
+    "pt": "Processo"
+  },
+  "workflow_engine.fact_field.ok": {
+    "es": "Correcto",
+    "en": "Succeeded",
+    "pt": "Correto"
+  },
+  "workflow_engine.fact_field.outcome": {
+    "es": "Respuesta",
+    "en": "Answer",
+    "pt": "Resposta"
+  },
+  "workflow_engine.fact_field.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "workflow_engine.fact_field.response": {
+    "es": "Respuesta",
+    "en": "Response",
+    "pt": "Resposta"
+  },
+  "workflow_engine.fact_field.status": {
+    "es": "Código HTTP",
+    "en": "HTTP status",
+    "pt": "Código HTTP"
+  },
+  "workflow_engine.fact_group.data": {
+    "es": "Datos del proceso",
+    "en": "Process data",
+    "pt": "Dados do processo"
+  },
+  "workflow_engine.fact_group.steps": {
+    "es": "Respuestas",
+    "en": "Answers",
+    "pt": "Respostas"
+  },
+  "workflow_engine.fact_group.system": {
+    "es": "Registrado por el motor",
+    "en": "Recorded by the engine",
+    "pt": "Registado pelo motor"
+  },
   "workflow_engine.field.action": {
     "es": "Acción",
     "en": "Action",
@@ -1544,6 +1784,16 @@
     "en": "Variable",
     "pt": "Variável"
   },
+  "workflow_engine.form.max": {
+    "es": "El valor máximo es {{max}}.",
+    "en": "The maximum is {{max}}.",
+    "pt": "O valor máximo é {{max}}."
+  },
+  "workflow_engine.form.min": {
+    "es": "El valor mínimo es {{min}}.",
+    "en": "The minimum is {{min}}.",
+    "pt": "O valor mínimo é {{min}}."
+  },
   "workflow_engine.form.number": {
     "es": "Escribe un número.",
     "en": "Enter a number.",
@@ -1588,6 +1838,21 @@
     "es": "El archivo supera 2 MB.",
     "en": "The file is larger than 2 MB.",
     "pt": "O ficheiro excede 2 MB."
+  },
+  "workflow_engine.inbox.answer_by": {
+    "es": "Respuesta de {{name}}",
+    "en": "Answer by {{name}}",
+    "pt": "Resposta de {{name}}"
+  },
+  "workflow_engine.inbox.cancelled_body": {
+    "es": "El proceso se canceló o cambió el {{date}}; esta tarea ya no necesita respuesta.",
+    "en": "The process was cancelled or moved on on {{date}}; this task no longer needs an answer.",
+    "pt": "O processo foi cancelado ou avançou em {{date}}; esta tarefa já não precisa de resposta."
+  },
+  "workflow_engine.inbox.cancelled_title": {
+    "es": "Tarea anulada",
+    "en": "Task withdrawn",
+    "pt": "Tarefa anulada"
   },
   "workflow_engine.inbox.comment": {
     "es": "Comentario",
@@ -1914,7 +2179,12 @@
     "en": "No run matches the filters.",
     "pt": "Nenhuma execução corresponde aos filtros."
   },
-  "workflow_engine.instances.open_tasks": {
+  "workflow_engine.instances.open_tasks.one": {
+    "es": "{{count}} tarea abierta",
+    "en": "{{count}} open task",
+    "pt": "{{count}} tarefa aberta"
+  },
+  "workflow_engine.instances.open_tasks.other": {
     "es": "{{count}} tareas abiertas",
     "en": "{{count}} open tasks",
     "pt": "{{count}} tarefas abertas"
@@ -1969,6 +2239,16 @@
     "en": "«{{outcome}}» is not a valid outcome for this task.",
     "pt": "«{{outcome}}» não é um resultado válido para esta tarefa."
   },
+  "workflow_engine.issue.action_ambiguous_exit": {
+    "es": "«{{node}}» tiene varias salidas sin resultado: no se sabría cuál tomar.",
+    "en": "“{{node}}” has several exits without an outcome: there is no telling which to take.",
+    "pt": "«{{node}}» tem várias saídas sem resultado: não se saberia qual seguir."
+  },
+  "workflow_engine.issue.action_error_unhandled": {
+    "es": "Si «{{node}}» falla, el proceso se detendrá: conecta su resultado «Error».",
+    "en": "If “{{node}}” fails the process will stop: connect its “Error” outcome.",
+    "pt": "Se «{{node}}» falhar, o processo para: ligue o seu resultado «Erro»."
+  },
   "workflow_engine.issue.action_param_number": {
     "es": "«{{param}}» de «{{node}}» debe ser un número.",
     "en": "“{{param}}” in “{{node}}” must be a number.",
@@ -1994,6 +2274,26 @@
     "en": "“{{param}}” in “{{node}}” is not a valid http(s) URL.",
     "pt": "«{{param}}» de «{{node}}» não é um URL http(s) válido."
   },
+  "workflow_engine.issue.action_param_url_https": {
+    "es": "La URL de «{{node}}» debe usar https.",
+    "en": "The URL in “{{node}}” must use https.",
+    "pt": "O URL de «{{node}}» deve usar https."
+  },
+  "workflow_engine.issue.action_param_url_private": {
+    "es": "La URL de «{{node}}» apunta a una red interna; no está permitido.",
+    "en": "The URL in “{{node}}” points to an internal network; not allowed.",
+    "pt": "O URL de «{{node}}» aponta para uma rede interna; não é permitido."
+  },
+  "workflow_engine.issue.assignee_role_cannot_act": {
+    "es": "El rol asignado a «{{node}}» no tiene permiso para responder tareas: nadie podría resolverla.",
+    "en": "The role assigned to “{{node}}” is not allowed to answer tasks: nobody could resolve it.",
+    "pt": "A função atribuída a «{{node}}» não tem permissão para responder a tarefas: ninguém a poderia resolver."
+  },
+  "workflow_engine.issue.assignee_role_empty": {
+    "es": "El rol asignado a «{{node}}» no tiene miembros: la tarea quedaría sin nadie que la vea.",
+    "en": "The role assigned to “{{node}}” has no members: nobody would see the task.",
+    "pt": "A função atribuída a «{{node}}» não tem membros: ninguém veria a tarefa."
+  },
   "workflow_engine.issue.assignee_role_invalid": {
     "es": "El rol asignado no es válido.",
     "en": "The assigned role is invalid.",
@@ -2003,6 +2303,11 @@
     "es": "El rol asignado en «{{node}}» no existe en la empresa.",
     "en": "The role assigned in “{{node}}” does not exist in the company.",
     "pt": "A função atribuída em «{{node}}» não existe na empresa."
+  },
+  "workflow_engine.issue.assignee_user_cannot_act": {
+    "es": "La persona asignada a «{{node}}» no tiene permiso para responder tareas.",
+    "en": "The person assigned to “{{node}}” is not allowed to answer tasks.",
+    "pt": "A pessoa atribuída a «{{node}}» não tem permissão para responder a tarefas."
   },
   "workflow_engine.issue.assignee_user_invalid": {
     "es": "La persona asignada no es válida.",
@@ -2078,6 +2383,11 @@
     "es": "La configuración del paso no es válida.",
     "en": "The step configuration is invalid.",
     "pt": "A configuração do passo não é válida."
+  },
+  "workflow_engine.issue.document_action_without_document": {
+    "es": "«{{node}}» decide sobre un documento, pero el proceso no se inicia desde uno.",
+    "en": "“{{node}}” decides on a document, but the process is not started from one.",
+    "pt": "«{{node}}» decide sobre um documento, mas o processo não é iniciado a partir de um."
   },
   "workflow_engine.issue.due_hours_invalid": {
     "es": "El vencimiento debe ser un número de horas mayor que 0 (máximo {{max}}).",
@@ -2239,10 +2549,20 @@
     "en": "No connection can lead into the start.",
     "pt": "Nenhuma ligação pode chegar ao início."
   },
+  "workflow_engine.issue.subprocess_cycle": {
+    "es": "El subproceso «{{key}}» acaba llamando a este mismo proceso: sería un bucle infinito.",
+    "en": "The subprocess “{{key}}” ends up calling this very process: an endless loop.",
+    "pt": "O subprocesso «{{key}}» acaba por chamar este mesmo processo: seria um ciclo infinito."
+  },
   "workflow_engine.issue.subprocess_unknown": {
     "es": "No hay ningún proceso publicado con la clave «{{key}}».",
     "en": "There is no published process with the key “{{key}}”.",
     "pt": "Não há nenhum processo publicado com a chave «{{key}}»."
+  },
+  "workflow_engine.issue.task_needs_name": {
+    "es": "Pon un nombre a la tarea: es lo que verá quien la reciba.",
+    "en": "Give the task a name: it is what the assignee will see.",
+    "pt": "Dê um nome à tarefa: é o que verá quem a receber."
   },
   "workflow_engine.issue.task_no_assignee": {
     "es": "«{{node}}» no tiene responsable: asigna una persona o un rol.",
@@ -2274,6 +2594,11 @@
     "en": "The process exceeds the maximum of {{max}} steps.",
     "pt": "O processo excede o máximo de {{max}} passos."
   },
+  "workflow_engine.issue.trigger_event_shared": {
+    "es": "Este evento también inicia {{names}}: se ejecutarán todos.",
+    "en": "This event also starts {{names}}: all of them will run.",
+    "pt": "Este evento também inicia {{names}}: todos serão executados."
+  },
   "workflow_engine.issue.trigger_malformed": {
     "es": "El disparador no es válido.",
     "en": "The trigger is invalid.",
@@ -2304,6 +2629,11 @@
     "en": "The variable name is invalid (letters, digits and “_”, no spaces).",
     "pt": "O nome da variável não é válido (letras, números e «_», sem espaços)."
   },
+  "workflow_engine.issue.variable_range_invalid": {
+    "es": "En «{{name}}» el mínimo es mayor que el máximo.",
+    "en": "In “{{name}}” the minimum is greater than the maximum.",
+    "pt": "Em «{{name}}» o mínimo é maior que o máximo."
+  },
   "workflow_engine.issue.variable_undeclared": {
     "es": "«{{variable}}» no está declarada en las variables del proceso.",
     "en": "“{{variable}}” is not declared in the process variables.",
@@ -2329,11 +2659,6 @@
     "en": "Delete draft",
     "pt": "Eliminar rascunho"
   },
-  "workflow_engine.list.delete_named": {
-    "es": "Eliminar el borrador de {{name}}",
-    "en": "Delete the draft of {{name}}",
-    "pt": "Eliminar o rascunho de {{name}}"
-  },
   "workflow_engine.list.draft": {
     "es": "Borrador",
     "en": "Draft",
@@ -2343,11 +2668,6 @@
     "es": "Duplicar",
     "en": "Duplicate",
     "pt": "Duplicar"
-  },
-  "workflow_engine.list.duplicate_named": {
-    "es": "Duplicar {{name}}",
-    "en": "Duplicate {{name}}",
-    "pt": "Duplicar {{name}}"
   },
   "workflow_engine.list.edit_named": {
     "es": "Editar {{name}}",
@@ -2364,11 +2684,6 @@
     "en": "Create the first one from a template: purchase approval, invoices, customer onboarding…",
     "pt": "Crie o primeiro a partir de um modelo: aprovação de compras, faturas, integração de clientes…"
   },
-  "workflow_engine.list.export_named": {
-    "es": "Exportar {{name}}",
-    "en": "Export {{name}}",
-    "pt": "Exportar {{name}}"
-  },
   "workflow_engine.list.filter_status": {
     "es": "Filtrar por estado",
     "en": "Filter by status",
@@ -2379,10 +2694,25 @@
     "en": "Filter by trigger",
     "pt": "Filtrar por início"
   },
+  "workflow_engine.list.inactive": {
+    "es": "Desactivado",
+    "en": "Inactive",
+    "pt": "Desativado"
+  },
   "workflow_engine.list.live_version": {
     "es": "En uso",
     "en": "Live",
     "pt": "Em uso"
+  },
+  "workflow_engine.list.more": {
+    "es": "Más acciones",
+    "en": "More actions",
+    "pt": "Mais ações"
+  },
+  "workflow_engine.list.more_named": {
+    "es": "Más acciones para «{{name}}»",
+    "en": "More actions for “{{name}}”",
+    "pt": "Mais ações para «{{name}}»"
   },
   "workflow_engine.list.name": {
     "es": "Nombre",
@@ -2399,6 +2729,11 @@
     "en": "Not live",
     "pt": "Não publicado"
   },
+  "workflow_engine.list.reactivate_named": {
+    "es": "Reactivar «{{name}}»",
+    "en": "Reactivate “{{name}}”",
+    "pt": "Reativar «{{name}}»"
+  },
   "workflow_engine.list.run_named": {
     "es": "Iniciar {{name}}",
     "en": "Start {{name}}",
@@ -2408,11 +2743,6 @@
     "es": "En curso",
     "en": "Running",
     "pt": "Em curso"
-  },
-  "workflow_engine.list.runs_named": {
-    "es": "Ejecuciones de {{name}}",
-    "en": "Runs of {{name}}",
-    "pt": "Execuções de {{name}}"
   },
   "workflow_engine.list.search": {
     "es": "Buscar procesos",
@@ -2463,11 +2793,6 @@
     "es": "Cualquier inicio",
     "en": "Any trigger",
     "pt": "Qualquer início"
-  },
-  "workflow_engine.list.unpublish_named": {
-    "es": "Desactivar {{name}}",
-    "en": "Deactivate {{name}}",
-    "pt": "Desativar {{name}}"
   },
   "workflow_engine.list.updated": {
     "es": "Actualizado",
@@ -2523,6 +2848,11 @@
     "es": "Nueva versión",
     "en": "New version",
     "pt": "Nova versão"
+  },
+  "workflow_engine.no": {
+    "es": "No",
+    "en": "No",
+    "pt": "Não"
   },
   "workflow_engine.no_access": {
     "es": "No tienes acceso a los procesos de negocio.",
@@ -2854,6 +3184,21 @@
     "en": "Accepts {{variable}}. Empty sends every variable.",
     "pt": "Admite {{variable}}. Vazio envia todas as variáveis."
   },
+  "workflow_engine.param.decision": {
+    "es": "Decisión",
+    "en": "Decision",
+    "pt": "Decisão"
+  },
+  "workflow_engine.param.decision_approve": {
+    "es": "Aprobar",
+    "en": "Approve",
+    "pt": "Aprovar"
+  },
+  "workflow_engine.param.decision_reject": {
+    "es": "Rechazar",
+    "en": "Reject",
+    "pt": "Rejeitar"
+  },
   "workflow_engine.param.message": {
     "es": "Mensaje",
     "en": "Message",
@@ -2863,6 +3208,16 @@
     "es": "Método",
     "en": "Method",
     "pt": "Método"
+  },
+  "workflow_engine.param.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "workflow_engine.param.reason_hint": {
+    "es": "Si lo dejas vacío se usa el comentario del último paso.",
+    "en": "Leave it empty to use the last step's comment.",
+    "pt": "Se ficar vazio, usa-se o comentário do último passo."
   },
   "workflow_engine.param.recipient": {
     "es": "Destinatario",
@@ -2919,6 +3274,31 @@
     "en": "It could not be published.",
     "pt": "Não foi possível publicar."
   },
+  "workflow_engine.publish_has_warnings": {
+    "es": "El diseño tiene {{count}} advertencias: revísalas antes de publicar.",
+    "en": "The design has {{count}} warnings: review them before publishing.",
+    "pt": "O desenho tem {{count}} avisos: reveja-os antes de publicar."
+  },
+  "workflow_engine.publish_warnings.confirm": {
+    "es": "Publicar igualmente",
+    "en": "Publish anyway",
+    "pt": "Publicar mesmo assim"
+  },
+  "workflow_engine.publish_warnings.message": {
+    "es": "El proceso funciona, pero hay {{count}} puntos que conviene revisar:",
+    "en": "The process works, but {{count}} points are worth reviewing:",
+    "pt": "O processo funciona, mas há {{count}} pontos que convém rever:"
+  },
+  "workflow_engine.publish_warnings.review": {
+    "es": "Revisar",
+    "en": "Review",
+    "pt": "Rever"
+  },
+  "workflow_engine.publish_warnings.title": {
+    "es": "¿Publicar con advertencias?",
+    "en": "Publish with warnings?",
+    "pt": "Publicar com avisos?"
+  },
   "workflow_engine.published": {
     "es": "Flujo publicado.",
     "en": "Workflow published.",
@@ -2928,6 +3308,36 @@
     "es": "Publicando…",
     "en": "Publishing…",
     "pt": "A publicar…"
+  },
+  "workflow_engine.reactivate.action": {
+    "es": "Reactivar",
+    "en": "Reactivate",
+    "pt": "Reativar"
+  },
+  "workflow_engine.reactivate.confirm": {
+    "es": "Reactivar",
+    "en": "Reactivate",
+    "pt": "Reativar"
+  },
+  "workflow_engine.reactivate.done": {
+    "es": "«{{name}}» está activo de nuevo.",
+    "en": "“{{name}}” is live again.",
+    "pt": "«{{name}}» está ativo de novo."
+  },
+  "workflow_engine.reactivate.message": {
+    "es": "«{{name}}» volverá a iniciarse con su versión {{version}}.",
+    "en": "“{{name}}” will start again with its version {{version}}.",
+    "pt": "«{{name}}» voltará a iniciar-se com a sua versão {{version}}."
+  },
+  "workflow_engine.reactivate.review": {
+    "es": "El diseño necesita revisión antes de reactivarse; lo abrimos para que lo veas.",
+    "en": "The design needs a review before it can be reactivated; it is open for you.",
+    "pt": "O desenho precisa de revisão antes de ser reativado; abrimo-lo para o ver."
+  },
+  "workflow_engine.reactivate.title": {
+    "es": "¿Reactivar el proceso?",
+    "en": "Reactivate the process?",
+    "pt": "Reativar o processo?"
   },
   "workflow_engine.retried": {
     "es": "Ejecución reanudada.",
@@ -2964,6 +3374,11 @@
     "en": "In progress",
     "pt": "Em curso"
   },
+  "workflow_engine.run_state.cancelled": {
+    "es": "Interrumpido",
+    "en": "Interrupted",
+    "pt": "Interrompido"
+  },
   "workflow_engine.run_state.done": {
     "es": "Completado",
     "en": "Done",
@@ -2988,6 +3403,41 @@
     "es": "Ejecuciones",
     "en": "Runs",
     "pt": "Execuções"
+  },
+  "workflow_engine.runtime.action_missing": {
+    "es": "La acción «{{action}}» ya no existe.",
+    "en": "The action “{{action}}” no longer exists.",
+    "pt": "A ação «{{action}}» já não existe."
+  },
+  "workflow_engine.runtime.no_branch": {
+    "es": "Ninguna rama de «{{node}}» se cumplió y no tiene rama «En otro caso».",
+    "en": "No branch of “{{node}}” held and it has no “Otherwise” branch.",
+    "pt": "Nenhum ramo de «{{node}}» se cumpriu e não tem ramo «Caso contrário»."
+  },
+  "workflow_engine.runtime.no_exit": {
+    "es": "«{{node}}» no tiene salida para la respuesta «{{outcome}}».",
+    "en": "“{{node}}” has no way out for the answer “{{outcome}}”.",
+    "pt": "«{{node}}» não tem saída para a resposta «{{outcome}}»."
+  },
+  "workflow_engine.runtime.node_missing": {
+    "es": "La ejecución apunta a un paso que ya no existe en el diseño.",
+    "en": "The run points to a step that no longer exists in the design.",
+    "pt": "A execução aponta para um passo que já não existe no desenho."
+  },
+  "workflow_engine.runtime.step_limit": {
+    "es": "Se superaron {{max}} pasos automáticos seguidos: posible bucle.",
+    "en": "More than {{max}} automatic steps in a row: a likely loop.",
+    "pt": "Foram ultrapassados {{max}} passos automáticos seguidos: possível ciclo."
+  },
+  "workflow_engine.runtime.unexpected": {
+    "es": "Error inesperado: {{detail}}",
+    "en": "Unexpected error: {{detail}}",
+    "pt": "Erro inesperado: {{detail}}"
+  },
+  "workflow_engine.runtime.unknown_node": {
+    "es": "Tipo de paso desconocido: «{{type}}».",
+    "en": "Unknown step type: “{{type}}”.",
+    "pt": "Tipo de passo desconhecido: «{{type}}»."
   },
   "workflow_engine.save": {
     "es": "Guardar",
@@ -3394,15 +3844,30 @@
     "en": "“{{step}}” ran. {{summary}}",
     "pt": "«{{step}}» executado. {{summary}}"
   },
+  "workflow_engine.timeline.action_plain": {
+    "es": "«{{step}}» ejecutado.",
+    "en": "“{{step}}” ran.",
+    "pt": "«{{step}}» executado."
+  },
   "workflow_engine.timeline.cancelled": {
     "es": "Cancelada por {{actor}}",
     "en": "Cancelled by {{actor}}",
     "pt": "Cancelada por {{actor}}"
   },
+  "workflow_engine.timeline.cancelled_auto": {
+    "es": "Cancelada automáticamente",
+    "en": "Cancelled automatically",
+    "pt": "Cancelada automaticamente"
+  },
   "workflow_engine.timeline.completed": {
     "es": "Proceso terminado: {{result}}",
     "en": "Process finished: {{result}}",
     "pt": "Processo terminado: {{result}}"
+  },
+  "workflow_engine.timeline.completed_plain": {
+    "es": "Proceso terminado",
+    "en": "Process finished",
+    "pt": "Processo terminado"
   },
   "workflow_engine.timeline.condition": {
     "es": "«{{step}}»: {{branch}} → {{next}}",
@@ -3584,6 +4049,11 @@
     "en": "The process no longer starts: it is now inactive.",
     "pt": "O processo já não se inicia: fica desativado."
   },
+  "workflow_engine.variable.document_ok": {
+    "es": "Documento decidido correctamente",
+    "en": "Document decided successfully",
+    "pt": "Documento decidido corretamente"
+  },
   "workflow_engine.variable.last_comment": {
     "es": "Último comentario",
     "en": "Last comment",
@@ -3593,6 +4063,16 @@
     "es": "Última respuesta",
     "en": "Last answer",
     "pt": "Última resposta"
+  },
+  "workflow_engine.variable.webhook_ok": {
+    "es": "Webhook correcto",
+    "en": "Webhook succeeded",
+    "pt": "Webhook correto"
+  },
+  "workflow_engine.variable.webhook_status": {
+    "es": "Código HTTP del webhook",
+    "en": "Webhook HTTP status",
+    "pt": "Código HTTP do webhook"
   },
   "workflow_engine.variable_type.boolean": {
     "es": "Sí / No",
@@ -3654,6 +4134,11 @@
     "en": "A list needs at least one option.",
     "pt": "Uma lista precisa de pelo menos uma opção."
   },
+  "workflow_engine.variables.error_range": {
+    "es": "El mínimo no puede ser mayor que el máximo.",
+    "en": "The minimum cannot be greater than the maximum.",
+    "pt": "O mínimo não pode ser maior que o máximo."
+  },
   "workflow_engine.variables.error_required": {
     "es": "Escribe un nombre técnico.",
     "en": "Enter a technical name.",
@@ -3668,6 +4153,16 @@
     "es": "Etiqueta",
     "en": "Label",
     "pt": "Etiqueta"
+  },
+  "workflow_engine.variables.max": {
+    "es": "Máximo",
+    "en": "Maximum",
+    "pt": "Máximo"
+  },
+  "workflow_engine.variables.min": {
+    "es": "Mínimo",
+    "en": "Minimum",
+    "pt": "Mínimo"
   },
   "workflow_engine.variables.move_down": {
     "es": "Bajar",
@@ -3718,5 +4213,105 @@
     "es": "v{{version}}",
     "en": "v{{version}}",
     "pt": "v{{version}}"
+  },
+  "workflow_engine.versions.empty": {
+    "es": "Aún no hay versiones publicadas.",
+    "en": "No versions published yet.",
+    "pt": "Ainda não há versões publicadas."
+  },
+  "workflow_engine.versions.open": {
+    "es": "Abrir",
+    "en": "Open",
+    "pt": "Abrir"
+  },
+  "workflow_engine.versions.published_on": {
+    "es": "Publicada el {{date}}",
+    "en": "Published on {{date}}",
+    "pt": "Publicada em {{date}}"
+  },
+  "workflow_engine.versions.restore": {
+    "es": "Restaurar como borrador",
+    "en": "Restore as draft",
+    "pt": "Restaurar como rascunho"
+  },
+  "workflow_engine.versions.restore_message": {
+    "es": "El borrador actual se sustituirá por el diseño de la versión {{version}}. Lo publicado no cambia hasta que publiques.",
+    "en": "The current draft will be replaced by the design of version {{version}}. What is live does not change until you publish.",
+    "pt": "O rascunho atual será substituído pelo desenho da versão {{version}}. O publicado não muda até publicar."
+  },
+  "workflow_engine.versions.restore_title": {
+    "es": "¿Restaurar esta versión?",
+    "en": "Restore this version?",
+    "pt": "Restaurar esta versão?"
+  },
+  "workflow_engine.versions.title": {
+    "es": "Historial de versiones",
+    "en": "Version history",
+    "pt": "Histórico de versões"
+  },
+  "workflow_engine.versions.updated_on": {
+    "es": "Modificada el {{date}}",
+    "en": "Changed on {{date}}",
+    "pt": "Alterada em {{date}}"
+  },
+  "workflow_engine.webhook_result.credentials_in_url": {
+    "es": "La URL no puede llevar usuario ni contraseña.",
+    "en": "The URL cannot carry a user or password.",
+    "pt": "O URL não pode levar utilizador nem palavra-passe."
+  },
+  "workflow_engine.webhook_result.host_unresolvable": {
+    "es": "No se encontró el servidor.",
+    "en": "The server could not be found.",
+    "pt": "Não foi encontrado o servidor."
+  },
+  "workflow_engine.webhook_result.http_error": {
+    "es": "Respondió con error HTTP {{status}}.",
+    "en": "Replied with HTTP error {{status}}.",
+    "pt": "Respondeu com erro HTTP {{status}}."
+  },
+  "workflow_engine.webhook_result.invalid_url": {
+    "es": "La URL no es válida.",
+    "en": "The URL is invalid.",
+    "pt": "O URL não é válido."
+  },
+  "workflow_engine.webhook_result.method_not_allowed": {
+    "es": "Ese método HTTP no está permitido.",
+    "en": "That HTTP method is not allowed.",
+    "pt": "Esse método HTTP não é permitido."
+  },
+  "workflow_engine.webhook_result.network_error": {
+    "es": "No se pudo conectar.",
+    "en": "Could not connect.",
+    "pt": "Não foi possível ligar."
+  },
+  "workflow_engine.webhook_result.ok": {
+    "es": "Respondió HTTP {{status}}.",
+    "en": "Replied HTTP {{status}}.",
+    "pt": "Respondeu HTTP {{status}}."
+  },
+  "workflow_engine.webhook_result.port_not_allowed": {
+    "es": "Ese puerto no está permitido.",
+    "en": "That port is not allowed.",
+    "pt": "Essa porta não é permitida."
+  },
+  "workflow_engine.webhook_result.private_address": {
+    "es": "La URL apunta a una red interna; no está permitido.",
+    "en": "The URL points to an internal network; not allowed.",
+    "pt": "O URL aponta para uma rede interna; não é permitido."
+  },
+  "workflow_engine.webhook_result.scheme_not_allowed": {
+    "es": "Solo se permiten URL https.",
+    "en": "Only https URLs are allowed.",
+    "pt": "Só são permitidos URL https."
+  },
+  "workflow_engine.webhook_result.timeout": {
+    "es": "No respondió a tiempo.",
+    "en": "Did not reply in time.",
+    "pt": "Não respondeu a tempo."
+  },
+  "workflow_engine.yes": {
+    "es": "Sí",
+    "en": "Yes",
+    "pt": "Sim"
   }
 }

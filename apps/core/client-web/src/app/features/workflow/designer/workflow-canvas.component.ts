@@ -55,7 +55,7 @@ export interface CanvasNode {
   /** Faded by a search or filter. */
   dim?: boolean;
   /** Runtime view: how far the instance got here. */
-  state?: 'done' | 'active' | 'waiting' | 'failed' | null;
+  state?: 'done' | 'active' | 'waiting' | 'failed' | 'cancelled' | null;
   ariaLabel: string;
 }
 
@@ -272,8 +272,11 @@ const CACHE_THRESHOLD = 60;
         }
       </f-canvas>
 
+      <!-- One projectable node per @if: Foblex projects each into its own slot (NG8011). -->
       @if (!readonly()) {
         <f-selection-area />
+      }
+      @if (!readonly()) {
         <f-auto-pan [fEdgeThreshold]="48" [fSpeed]="12" />
       }
       @if (prefs().guides && !readonly()) {

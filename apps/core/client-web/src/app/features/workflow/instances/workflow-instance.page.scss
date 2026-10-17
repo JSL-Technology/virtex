@@ -168,6 +168,11 @@
     border-color: var(--error-solid);
     background: var(--error-solid);
   }
+
+  &--cancelled {
+    border-style: dashed;
+    border-color: var(--warning-solid);
+  }
 }
 
 .wri__side {

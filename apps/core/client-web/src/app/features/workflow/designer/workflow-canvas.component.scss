@@ -197,6 +197,17 @@ f-flow {
   box-shadow: 0 0 0 3px var(--error-border);
 }
 
+// Interrupted by a cancellation: it never finished, and it does not pulse as if it still might.
+.wf-node--cancelled {
+  border-style: dashed;
+  border-color: var(--warning-solid);
+
+  .wf-node__icon {
+    background: var(--warning-surface);
+    color: var(--warning-text);
+  }
+}
+
 @keyframes wf-pulse {
   0%,
   100% {

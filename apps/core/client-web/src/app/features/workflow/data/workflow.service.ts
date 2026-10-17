@@ -199,8 +199,10 @@ export interface WorkflowInstance {
   definitionName?: string | null;
   definitionKey?: string | null;
   currentSteps?: string[];
+  currentNodes?: Array<{ id: string; name: string | null; type: WorkflowNodeType }>;
   startedByName?: string | null;
   openTaskCount?: number;
+  errorParams?: Record<string, unknown> | null;
 }
 
 export interface WorkflowInstancePage {

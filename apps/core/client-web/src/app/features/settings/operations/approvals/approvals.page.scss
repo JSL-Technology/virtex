@@ -6,6 +6,7 @@
 .s-header__subtitle { font-size: .875rem; color: var(--text-secondary); }
 
 .ap__state { color: var(--text-secondary); margin-bottom: var(--space-4); }
+.ap__workflows { margin: 0 0 var(--space-4); padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--surface-sunken); font-size: var(--text-sm); color: var(--text-secondary); }
 .ap__state--error { color: var(--error-text); }
 .ap__hint, .ap__note { font-size: var(--text-sm); color: var(--text-secondary); }
 .ap__note { margin-top: var(--space-6); }

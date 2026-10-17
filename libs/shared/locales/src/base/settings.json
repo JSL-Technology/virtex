@@ -4512,5 +4512,15 @@
     "es": "Elige el tipo",
     "en": "Choose the type",
     "pt": "Escolha o tipo"
+  },
+  "settings.approvals.workflows_note": {
+    "es": "Aquí defines políticas simples: quién aprueba según el importe. Si necesitas varios pasos, condiciones, plazos o acciones automáticas, diseña un flujo de trabajo. Ambos conviven: si un flujo también decide sobre un tipo de documento con política, se aplican los dos, así que evita duplicar la aprobación.",
+    "en": "Here you set simple policies: who approves by amount. If you need several steps, conditions, deadlines or automatic actions, design a workflow. Both coexist: if a workflow also decides on a document type that has a policy, both apply, so avoid approving twice.",
+    "pt": "Aqui define políticas simples: quem aprova segundo o montante. Se precisar de vários passos, condições, prazos ou ações automáticas, desenhe um fluxo de trabalho. Ambos coexistem: se um fluxo também decide sobre um tipo de documento com política, aplicam-se os dois, por isso evite aprovar duas vezes."
+  },
+  "settings.approvals.go_workflows": {
+    "es": "Ir a Flujos de trabajo",
+    "en": "Go to Workflows",
+    "pt": "Ir para Fluxos de trabalho"
   }
 }

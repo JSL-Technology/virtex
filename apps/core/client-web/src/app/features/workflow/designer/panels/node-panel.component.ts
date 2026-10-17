@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormatService } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { AlertTriangle, Copy, CircleAlert, LucideAngularModule, Plus, Trash2, ArrowRight } from 'lucide-angular';
 import { VX_SELECT } from '../../../../shared/components/select';
@@ -326,6 +327,7 @@ export class NodePanelComponent {
   protected readonly store = inject(DesignerStore);
   protected readonly catalogs = inject(DesignerCatalogs);
   private readonly translate = inject(TranslateService);
+  private readonly format = inject(FormatService);
 
   readonly node = input.required<WorkflowGraphNode>();
   readonly readonly = input(false);
@@ -351,7 +353,7 @@ export class NodePanelComponent {
   protected readonly roleDescription = (r: RoleOption) =>
     r.canAct === false
       ? this.translate.instant('workflow_engine.designer.cannot_act')
-      : this.translate.instant('workflow_engine.designer.role_members', { count: r.members ?? 0 });
+      : this.translate.instant(`workflow_engine.designer.role_members.${this.format.pluralCategory(r.members ?? 0) === 'one' ? 'one' : 'other'}`, { count: r.members ?? 0 });
   protected readonly personDescription = (p: PersonOption) =>
     p.canAct === false ? `${p.email} · ${this.translate.instant('workflow_engine.designer.cannot_act')}` : p.email;
   protected readonly cannotAct = (option: RoleOption | PersonOption) => option.canAct === false;

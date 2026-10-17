@@ -78,6 +78,17 @@ export function runFailureText(translate: TranslateService, error: string | null
   return translate.instant('workflow_engine.runtime.unexpected', { detail: error });
 }
 
+/** The steps a running instance waits on, by name or, for an unnamed step, by its kind — never `timer`. */
+export function currentStepsText(
+  translate: TranslateService,
+  run: { currentNodes?: Array<{ name: string | null; type: string }>; currentSteps?: string[] },
+): string {
+  const steps = run.currentNodes?.length
+    ? run.currentNodes.map((node) => node.name || translate.instant(composeKey('workflow_engine.node', node.type)))
+    : (run.currentSteps ?? []);
+  return steps.join(', ') || '—';
+}
+
 /**
  * A validation problem in the reader's words. The server names a step by its name, or by its id
  * when it has none; `nameOf` lets the screen put the label the reader sees on the canvas instead.

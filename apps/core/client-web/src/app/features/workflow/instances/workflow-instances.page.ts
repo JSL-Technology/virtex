@@ -7,7 +7,7 @@ import { ActiveOrganizationService } from '../../../core/tenancy/active-organiza
 import { NotificationService } from '../../../core/services/notification';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VxDateRangeComponent } from '../../../shared/components/date';
-import { runFailureText } from '../data/workflow-labels';
+import { currentStepsText, runFailureText } from '../data/workflow-labels';
 import { VX_UI } from '../../../shared/components';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
@@ -128,7 +128,7 @@ const SEARCH_DEBOUNCE_MS = 300;
                 <td class="wfr__where">
                   @switch (run.status) {
                     @case ('RUNNING') {
-                      {{ (run.currentSteps ?? []).join(', ') || '—' }}
+                      {{ steps(run) }}
                       @if (run.openTaskCount) {
                         <span class="wfr__sub">{{ 'workflow_engine.instances.open_tasks' | vxPluralKey: run.openTaskCount | translate: { count: run.openTaskCount } }}</span>
                       }
@@ -280,7 +280,11 @@ export class WorkflowInstancesPage {
 
   /** A failure in the reader's language: the engine stores a catalogue key for the known ones. */
   failure(run: WorkflowInstance): string {
-    return runFailureText(this.translate, run.error);
+    return runFailureText(this.translate, run.error, run.errorParams ?? undefined);
+  }
+
+  steps(run: WorkflowInstance): string {
+    return currentStepsText(this.translate, run);
   }
 
   setPage(page: number): void {

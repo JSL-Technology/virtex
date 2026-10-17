@@ -2,7 +2,7 @@ import { composeKey } from '@virteex/shared/types';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, FormatService, translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { Ban, ExternalLink, LucideAngularModule, Pause, Play, RefreshCw, RotateCcw } from 'lucide-angular';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { AuthService } from '../../../core/services/auth';
@@ -11,9 +11,10 @@ import { NotificationService } from '../../../core/services/notification';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { roleLabel } from '../../../shared/pipes/role-name.pipe';
 import { VX_UI } from '../../../shared/components';
-import { eventFieldLabel, instanceStatusKey, instanceStatusTone, nodeTypeKey, outcomeLabel, taskStatusTone } from '../data/workflow-labels';
+import { currentStepsText, eventFieldLabel, eventLabel, instanceStatusKey, instanceStatusTone, nodeTypeKey, outcomeLabel, runFailureText, taskStatusTone } from '../data/workflow-labels';
 import {
   WorkflowGraphEdge,
+  WorkflowInstance,
   WorkflowInstanceDetail,
   WorkflowService,
   WorkflowTask,
@@ -24,6 +25,20 @@ import { CanvasEdge, CanvasNode, CanvasPrefs, WorkflowCanvasComponent } from '..
 const REFRESH_MS = 15000;
 const REPLAY_STEP_MS = 650;
 const RUNTIME_PREFS: CanvasPrefs = { snap: false, guides: false, minimap: true, background: 'dots', connectionsOnTop: false };
+
+/** Context keys the engine writes itself; each has its own words in the catalogue. */
+const ENGINE_FACTS = new Set(['lastOutcome', 'lastComment', 'lastActorUserId', 'event', 'webhook', 'subprocess', 'document', 'parentInstanceId']);
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
+
+export interface RunFact {
+  key: string;
+  label: string;
+  value: string;
+  /** A comment or a reason that belongs to the value, shown as a quote under it. */
+  note?: string | null;
+  group: 'data' | 'steps' | 'system';
+}
 
 interface TimelineEntry {
   id: string;
@@ -60,6 +75,7 @@ export class WorkflowInstancePage {
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(DialogService);
   private readonly translate = inject(TranslateService);
+  private readonly format = inject(FormatService);
   private readonly auth = inject(AuthService);
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
@@ -135,10 +151,20 @@ export class WorkflowInstancePage {
     for (const token of instance.tokens ?? []) {
       if (token.state !== 'done') states.set(token.nodeId, token.state === 'waiting' ? 'waiting' : 'active');
     }
+    // An automatic step that answered «error» failed even when the run went on along its error path.
+    for (const t of this.visibleTransitions()) {
+      if (t.kind === 'action' && t.fromNodeId && (t.detail as { failed?: boolean } | null)?.failed) states.set(t.fromNodeId, 'failed');
+    }
     if (instance.status === 'FAILED') {
       const last = (this.detail()?.transitions ?? []).filter((t) => t.toNodeId).at(-1);
       const failedAt = instance.tokens?.find((t) => t.state !== 'done')?.nodeId ?? last?.toNodeId;
       if (failedAt) states.set(failedAt, 'failed');
+    }
+    if (instance.status === 'CANCELLED') {
+      // The steps the run was waiting on when it was cancelled: they never finished, and they say so.
+      const cancelled = (this.detail()?.transitions ?? []).find((t) => t.kind === 'cancelled');
+      const interrupted = ((cancelled?.detail as { interruptedNodes?: string[] } | null)?.interruptedNodes ?? []) as string[];
+      for (const nodeId of interrupted) states.set(nodeId, 'cancelled');
     }
     return states;
   });
@@ -190,20 +216,52 @@ export class WorkflowInstancePage {
     })),
   );
 
-  /** The run's data, labelled with the process's declared variables; internal keys hidden. */
-  readonly facts = computed(() => {
+  /**
+   * The run's data in the reader's words: the process's variables by their labels, the answers its
+   * steps collected by the step's name, and what the engine itself recorded (the last decision, a
+   * webhook's reply) by catalogue labels. Never a raw key, a UUID or a JSON dump; internal keys hidden.
+   */
+  readonly facts = computed<RunFact[]>(() => {
     const instance = this.instance();
     if (!instance) return [];
-    const declared = new Map((this.graph().variables ?? []).map((v) => [v.name, v.label || v.name]));
-    return Object.entries(instance.context ?? {})
-      .filter(([key]) => !key.startsWith('__'))
-      .map(([key, value]) => ({
-        key,
-        label: declared.get(key) ?? eventFieldLabel(this.translate, key),
-        value: formatValue(value),
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label));
+    const graph = this.graph();
+    const labels = new Map<string, string>();
+    for (const variable of graph.variables ?? []) labels.set(variable.name, variable.label || variable.name);
+    for (const node of graph.nodes) {
+      for (const field of node.config?.form ?? []) if (!labels.has(field.name)) labels.set(field.name, field.label || field.name);
+    }
+    const nodes = new Map(graph.nodes.map((n) => [n.id, n]));
+    const order = { data: 0, steps: 1, system: 2 } as const;
+    const facts: RunFact[] = [];
+    for (const [key, value] of Object.entries(instance.context ?? {})) {
+      if (key.startsWith('__')) continue;
+      const node = nodes.get(key);
+      if (node && value && typeof value === 'object') {
+        const answer = value as { outcome?: string; comment?: string | null; by?: string; at?: string };
+        const step = node.name?.trim() || this.translate.instant(nodeTypeKey(node.type));
+        const parts = [answer.outcome ? outcomeLabel(this.translate, answer.outcome, node.config?.outcomeLabels) : null, answer.by ? this.person(answer.by) : null, answer.at ? this.format.date(answer.at, 'dateTime') : null];
+        facts.push({
+          key,
+          label: this.translate.instant('workflow_engine.fact.step_result', { step }),
+          value: parts.filter(Boolean).join(' · ') || '—',
+          note: answer.comment || null,
+          group: 'steps',
+        });
+        continue;
+      }
+      if (ENGINE_FACTS.has(key)) {
+        facts.push({ key, label: this.translate.instant(composeKey('workflow_engine.fact', key)), value: this.engineValue(key, value), group: 'system' });
+        continue;
+      }
+      facts.push({ key, label: labels.get(key) ?? eventFieldLabel(this.translate, key), value: this.formatValue(value), group: 'data' });
+    }
+    const compare = this.format.comparator();
+    return facts.sort((a, b) => order[a.group] - order[b.group] || compare(a.label, b.label));
   });
+
+  factsIn(group: string): RunFact[] {
+    return this.facts().filter((fact) => fact.group === group);
+  }
 
   readonly timeline = computed<TimelineEntry[]>(() => {
     const detail = this.detail();
@@ -253,9 +311,9 @@ export class WorkflowInstancePage {
       next: (detail) => {
         this.detail.set(detail);
         this.loading.set(false);
-        this.tab?.setTitle(
-          `${detail.definition?.name ?? this.translate.instant('workflow_engine.nav.instances')}${detail.instance.subject?.label ? ' · ' + detail.instance.subject.label : ''}`,
-        );
+        // Two runs of the same process open side by side must not read the same: the subject, else when it started.
+        const what = detail.instance.subject?.label || this.format.date(detail.instance.createdAt, 'dateTime');
+        this.tab?.setTitle(`${detail.definition?.name ?? this.translate.instant('workflow_engine.nav.instances')} · ${what}`);
       },
       error: (err: unknown) => {
         if (!quiet) this.error.set(this.notifications.httpErrorMessage(err, 'workflow_engine.load_failed'));
@@ -345,6 +403,63 @@ export class WorkflowInstancePage {
     return '—';
   }
 
+  /**
+   * Why the run failed, worded from the last error the engine recorded (it carries the catalogue key
+   * and its parameters); the instance's own `error` is the fallback for runs recorded before that.
+   */
+  readonly failure = computed(() => {
+    const instance = this.instance();
+    if (!instance || instance.status !== 'FAILED') return null;
+    const last = [...(this.detail()?.transitions ?? [])].reverse().find((t) => t.kind === 'error');
+    return last ? this.failureOf((last.detail ?? {}) as Record<string, unknown>) : runFailureText(this.translate, instance.error);
+  });
+
+  currentSteps(run: WorkflowInstance): string {
+    return currentStepsText(this.translate, run);
+  }
+
+  private failureOf(d: Record<string, unknown>): string {
+    const key = d['messageKey'] as string | undefined;
+    const params = { ...((d['params'] as Record<string, unknown> | null) ?? {}) };
+    if (key && key !== 'workflow_engine.runtime.unexpected') return runFailureText(this.translate, key, params);
+    return runFailureText(this.translate, (d['message'] as string | null) ?? (params['detail'] as string | null) ?? null);
+  }
+
+  private engineValue(key: string, value: unknown): string {
+    switch (key) {
+      case 'lastOutcome':
+        return typeof value === 'string' ? outcomeLabel(this.translate, value) : this.formatValue(value);
+      case 'lastActorUserId':
+        return typeof value === 'string' ? this.person(value) || '—' : '—';
+      case 'event':
+        return typeof value === 'string' ? eventLabel(this.translate, value) : this.formatValue(value);
+      default:
+        return this.formatValue(value);
+    }
+  }
+
+  /** A value as the reader writes it: numbers and instants in their locale, people by name, objects as «label: value». */
+  private formatValue(value: unknown, depth = 0): string {
+    if (value === null || value === undefined || value === '') return '—';
+    if (typeof value === 'boolean') return this.translate.instant(value ? 'workflow_engine.yes' : 'workflow_engine.no');
+    if (typeof value === 'number') return this.format.number(value);
+    if (typeof value === 'string') {
+      if (UUID.test(value)) return this.detail()?.people[value] ?? this.translate.instant('workflow_engine.fact.reference');
+      if (ISO_INSTANT.test(value) && !Number.isNaN(Date.parse(value))) return this.format.date(value, 'dateTime');
+      return value;
+    }
+    if (Array.isArray(value)) return value.length ? this.format.list(value.map((item) => this.formatValue(item, depth + 1))) : '—';
+    if (typeof value === 'object') {
+      if (depth > 1) return '…';
+      const entries = Object.entries(value as Record<string, unknown>).filter(([k, v]) => v !== null && v !== undefined && v !== '' && !UUID.test(String(k)));
+      if (!entries.length) return '—';
+      return entries
+        .map(([k, v]) => `${translateOrLiteral(this.translate, composeKey('workflow_engine.fact_field', k), undefined, eventFieldLabel(this.translate, k))}: ${this.formatValue(v, depth + 1)}`)
+        .join(' · ');
+    }
+    return String(value);
+  }
+
   focusNode(nodeId: string | null): void {
     if (nodeId) this.canvas()?.center(nodeId);
   }
@@ -377,10 +492,16 @@ export class WorkflowInstancePage {
         tone = /reject|deny|error|return/.test(outcome) ? 'warning' : 'ok';
         break;
       }
-      case 'action':
-        text = tr('action', { step: name, summary: (d['summary'] as string | null) ?? '' });
-        if (d['outcome']) text += ` (${outcomeLabel(this.translate, String(d['outcome']))})`;
+      case 'action': {
+        const summaryKey = d['summaryKey'] as string | null;
+        const summary = summaryKey
+          ? translateOrLiteral(this.translate, summaryKey, (d['summaryParams'] as Record<string, unknown> | null) ?? undefined, (d['summary'] as string | null) ?? '')
+          : ((d['summary'] as string | null) ?? '');
+        text = summary ? tr('action', { step: name, summary }) : tr('action_plain', { step: name });
+        if (d['outcome'] && d['outcome'] !== 'ok') text += ` (${outcomeLabel(this.translate, String(d['outcome']))})`;
+        if (d['failed']) tone = 'warning';
         break;
+      }
       case 'condition':
         text = tr('condition', {
           step: name,
@@ -389,7 +510,7 @@ export class WorkflowInstancePage {
         });
         break;
       case 'timer_set':
-        text = tr('timer_set', { step: name, until: d['wakeAt'] ? new Date(String(d['wakeAt'])).toLocaleString(this.translate.currentLang) : '—' });
+        text = tr('timer_set', { step: name, until: d['wakeAt'] ? this.format.date(String(d['wakeAt']), 'dateTime') : '—' });
         break;
       case 'timer_fired':
         text = tr('timer_fired', { step: name });
@@ -399,11 +520,11 @@ export class WorkflowInstancePage {
         tone = 'warning';
         break;
       case 'completed':
-        text = tr('completed', { result: (d['result'] as string | null) || '—' });
+        text = d['result'] ? tr('completed', { result: d['result'] as string }) : tr('completed_plain');
         tone = 'ok';
         break;
       case 'cancelled':
-        text = tr('cancelled', { actor: actor ?? '—' });
+        text = actor ? tr('cancelled', { actor }) : tr('cancelled_auto');
         comment = (d['reason'] as string | null) ?? null;
         tone = 'danger';
         break;
@@ -412,7 +533,7 @@ export class WorkflowInstancePage {
         tone = 'info';
         break;
       case 'error':
-        text = tr('error', { message: (d['message'] as string | null) ?? '—' });
+        text = tr('error', { message: this.failureOf(d) });
         tone = 'danger';
         break;
       default:
@@ -426,11 +547,4 @@ function matchEdge(edges: WorkflowGraphEdge[], t: WorkflowTransition): WorkflowG
   const outcome = (t.detail as { outcome?: string } | null)?.outcome;
   const candidates = edges.filter((e) => e.from === t.fromNodeId && e.to === t.toNodeId);
   return candidates.find((e) => outcome && e.outcome === outcome) ?? candidates[0];
-}
-
-function formatValue(value: unknown): string {
-  if (value === null || value === undefined || value === '') return '—';
-  if (typeof value === 'boolean') return value ? '✓' : '✗';
-  if (typeof value === 'object') return JSON.stringify(value);
-  return String(value);
 }
