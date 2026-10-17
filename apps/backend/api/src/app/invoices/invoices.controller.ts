@@ -35,6 +35,9 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 import { MailService } from '../mail/mail.service';
 import { SendInvoiceDto } from './dto/send-invoice.dto';
+import { ComposeInvoiceMessageDto, MessageTone } from './dto/compose-invoice-message.dto';
+import { AiAssistPort } from '../contracts/ai/ai-assist.contract';
+import { CheckFeature } from '../saas/contracts/entitlements.contract';
 import { Throttle } from '@nestjs/throttler';
 import { BadRequestError } from '../i18n/localized.exception';
 /**
@@ -55,6 +58,7 @@ export class InvoicesController {
     private readonly invoicesService: InvoicesService,
     private readonly renderer: InvoiceRendererService,
     private readonly mail: MailService,
+    private readonly ai: AiAssistPort,
   ) {}
 
   @Post()
@@ -274,6 +278,48 @@ export class InvoicesController {
     return { queued: true, to };
   }
 
+  /**
+   * A covering note for the invoice e-mail, written in the customer's language and the tone asked
+   * for. The figures come from the invoice, not from the model: it is given them as facts, and an
+   * answer stating any other figure is refused. The note is shown to the person, who edits it and
+   * sends it themselves.
+   */
+  @Post(':id/compose-message')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.INVOICES_VIEW, PERMISSIONS.AI_COPILOT_USE)
+  @CheckFeature('ai_assistant')
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  async composeMessage(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: ComposeInvoiceMessageDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    const { invoice, context } = await this.invoicesService.renderContext(id, user.organizationId);
+    if (invoice.status === InvoiceStatus.DRAFT) {
+      throw new BadRequestError('invoices.draft_cannot_be_sent');
+    }
+    const summary = this.renderer.emailSummary(context);
+    const balance = Number(invoice.balance ?? 0);
+    const overdue = !!invoice.dueDate && balance > 0 && new Date(invoice.dueDate).getTime() < Date.now();
+    const { value } = await this.ai.compose({
+      feature: 'compose',
+      organizationId: user.organizationId,
+      userId: user.id,
+      system: INVOICE_NOTE_SYSTEM,
+      instructions: `${TONE_INSTRUCTIONS[dto.tone]}${overdue ? ' The invoice is past its due date: say so plainly and ask when payment can be expected.' : ''}`,
+      facts: {
+        invoiceNumber: invoice.fiscalNumber ?? invoice.invoiceNumber,
+        customer: invoice.customer?.contactPerson?.trim() || invoice.customer?.companyName || null,
+        company: context.organization.legalName,
+        total: summary.total,
+        dueDate: summary.dueDate,
+        sender: user.firstName ?? null,
+      },
+      language: summary.language ?? 'es',
+    });
+    return { message: value.body.slice(0, 1000) };
+  }
+
   /** The same representation as HTML, for on-screen printing without a round trip to Chromium. */
   @Get(':id/print')
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
@@ -287,3 +333,17 @@ export class InvoicesController {
     res.header('Content-Type', 'text/html; charset=utf-8').send(html);
   }
 }
+
+/** Stable, so it is served from the prompt cache; everything per-invoice travels as facts. */
+const INVOICE_NOTE_SYSTEM =
+  'You write the short personal note that goes in the body of an e-mail carrying an invoice PDF from a ' +
+  'company to its customer. At most 600 characters, two short paragraphs at most, no greeting line (the ' +
+  'e-mail template already greets the customer) and no signature block beyond the sender\'s first name if ' +
+  'given. Mention the invoice number and, when relevant, the total and the due date. The subject is ignored; ' +
+  'return an empty subject.';
+
+const TONE_INSTRUCTIONS: Record<MessageTone, string> = {
+  cordial: 'Tone: warm and friendly, thanking the customer for their business.',
+  formal: 'Tone: formal and courteous, as in business correspondence.',
+  firm: 'Tone: firm but respectful: clear about the amount and the due date, without threats.',
+};

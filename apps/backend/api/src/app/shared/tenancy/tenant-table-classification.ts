@@ -145,6 +145,7 @@ export const GLOBAL_TABLES: readonly UnscopedTable[] = [
   { table: 'tax_schemes', why: 'Esquemas de impuesto por región fiscal.' },
   { table: 'tax_templates', why: 'Plantillas de impuesto por región fiscal.' },
   { table: 'unit_of_measure', why: 'Catálogo de unidades de medida; solo símbolo, categoría y clave de traducción.' },
+  { table: 'ai_knowledge_chunks', why: 'Artículos de ayuda del producto que consulta el asistente; los escribe la API al arrancar, iguales para todos.' },
 
   // El catálogo de extensiones es global POR DISEÑO: una extensión se publica una vez y se ofrece
   // a todos los inquilinos. Quién puede escribir en él lo decide el nivel de permisos de

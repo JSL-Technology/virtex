@@ -3,6 +3,7 @@ import { CopilotToolRegistry, opt, s } from '../../contracts/copilot/copilot-too
 import { AI_PERMISSIONS } from '../../shared/ai.permissions';
 import { ForecastingService } from '../forecasting/forecasting.service';
 import { AnomaliesService } from '../anomalies/anomalies.service';
+import { HelpService } from '../help/help.service';
 
 /** The AI module's own findings, as copilot tools: forecasts, stock risks, anomalies, lead times. */
 @Injectable()
@@ -11,10 +12,23 @@ export class AiCopilotTools implements OnModuleInit {
     private readonly registry: CopilotToolRegistry,
     private readonly forecasting: ForecastingService,
     private readonly anomalies: AnomaliesService,
+    private readonly help: HelpService,
   ) {}
 
   onModuleInit(): void {
     this.registry.register(
+      {
+        kind: 'read',
+        name: 'search_help',
+        description:
+          "Search the product's in-app help articles for how to do something in the ERP or what a screen or rule " +
+          'means (e.g. registering a supplier bill from a photo, NCF rules, the assistant, credits). The articles are ' +
+          'in Spanish: search with Spanish keywords. Answer from the passages returned and name the article; if ' +
+          'nothing relevant comes back, say the help does not cover it rather than guessing.',
+        permissions: [AI_PERMISSIONS.AI_COPILOT_USE],
+        inputSchema: s.object({ query: s.string('Spanish keywords, e.g. "factura proveedor foto NCF"') }),
+        run: async (_ctx, input) => ({ results: await this.help.search(String(input['query'] ?? ''), 4) }),
+      },
       {
         kind: 'read',
         name: 'inventory_forecast',

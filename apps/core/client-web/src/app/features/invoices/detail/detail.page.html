@@ -383,3 +383,15 @@
     </div>
   </div>
 }
+
+@if (isEmailOpen() && invoice(); as inv) {
+  <app-invoice-email-dialog
+    [invoiceId]="inv.id"
+    [number]="inv.fiscalNumber ?? inv.invoiceNumber"
+    [customer]="inv.customerName ?? ''"
+    [canCompose]="canComposeEmail()"
+    [busy]="sendingEmail()"
+    (sent)="sendEmail($event)"
+    (dismissed)="isEmailOpen.set(false)"
+  />
+}

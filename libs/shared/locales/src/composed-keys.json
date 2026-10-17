@@ -528,6 +528,11 @@
       "TRANSFER_OUT",
       "TRANSFER_IN"
     ],
+    "invoices.email.tone": [
+      "cordial",
+      "formal",
+      "firm"
+    ],
     "invoices.payment_method": [
       "CASH",
       "CHECK",

@@ -13,6 +13,8 @@ import { AiPendingAction } from './entities/ai-pending-action.entity';
 import { CopilotService } from './copilot/copilot.service';
 import { CopilotController } from './copilot/copilot.controller';
 import { AiCopilotTools } from './copilot/ai.copilot-tools';
+import { HelpService } from './help/help.service';
+import { AiKnowledgeChunk } from './entities/ai-knowledge-chunk.entity';
 import { AiAssistPort } from '../contracts/ai/ai-assist.contract';
 import { AiGatewayService } from './gateway/ai-gateway.service';
 import { EmbeddingsService } from './embeddings/embeddings.service';
@@ -41,7 +43,7 @@ import { InventoryModule } from '../inventory/inventory.module';
   imports: [
     TypeOrmModule.forFeature([
       AiRequest, AiModelRun, AiForecast, AiInventoryInsight, AiAnomaly, AiAnomalyFeedback,
-      AiConversation, AiMessage, AiPendingAction,
+      AiConversation, AiMessage, AiPendingAction, AiKnowledgeChunk,
     ]),
     BullModule.registerQueue({ name: AI_ENGINE_QUEUE }),
     InventoryModule,
@@ -59,6 +61,7 @@ import { InventoryModule } from '../inventory/inventory.module';
     ForecastingService,
     AnomaliesService,
     CopilotService,
+    HelpService,
     AiCopilotTools,
     { provide: AiAssistPort, useExisting: AiGatewayService },
   ],

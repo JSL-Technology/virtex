@@ -25,6 +25,7 @@ import { saveAs } from 'file-saver';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth';
+import { InvoiceEmailDialogComponent } from '../components/invoice-email-dialog/invoice-email-dialog.component';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 import { TransitionPreviewComponent } from '../../../shared/components/transition-preview/transition-preview.component';
 import { TransitionPreview } from '../../../shared/components/transition-preview/transition-preview.model';
@@ -58,7 +59,7 @@ const ECF_STATUS: Record<string, { label: string; hint: string }> = {
   imports: [TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
     // a text link instead, while `angularx-qrcode` was already a dependency of the project.
     QRCodeComponent, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent,
-    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxTabsComponent],
+    ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxTabsComponent, InvoiceEmailDialogComponent],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -449,38 +450,37 @@ export class InvoiceDetailPage implements OnInit {
   /** True while a send is in flight; a second request waits for the first. */
   readonly sendingEmail = signal(false);
 
+  /** The send dialog: to whom, and a personal note the assistant can draft. */
+  readonly isEmailOpen = signal(false);
+  readonly canComposeEmail = computed(() => this.auth.hasPermissions(['ai_copilot:use']));
+
   /** Send the document to the customer, with its PDF attached. */
-  async emailInvoice(): Promise<void> {
+  emailInvoice(): void {
     const invoice = this.invoice();
     if (!invoice || this.sendingEmail()) return;
     if (invoice.status === 'Draft') {
       this.notificationService.showError('invoices.draft_cannot_be_sent');
       return;
     }
-    const to = await this.dialog.prompt({
-      title: 'invoices.detail.email_title',
-      message: 'invoices.detail.email_message',
-      messageParams: { number: invoice.fiscalNumber ?? invoice.invoiceNumber, customer: invoice.customerName },
-      placeholder: 'invoices.detail.email_placeholder',
-      confirmText: 'invoices.detail.email_send',
-      minLength: 0,
-    });
-    if (to === null || to === undefined) return;
-    const address = String(to).trim();
-    if (address && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)) {
-      this.notificationService.showError('invoices.detail.email_invalid');
-      return;
-    }
+    this.isEmailOpen.set(true);
+  }
+
+  sendEmail(body: { to?: string; message?: string }): void {
+    const invoice = this.invoice();
+    if (!invoice || this.sendingEmail()) return;
     // The PDF is rendered before the message is queued, which can take several seconds. With
     // nothing on screen meanwhile, the confirmation arrived after the reader had moved on and the
     // send looked like it had done nothing (QA M6) — and a second click sent it twice.
     this.sendingEmail.set(true);
     this.notificationService.showInfo('invoices.detail.email_sending');
     this.invoicesService
-      .sendInvoice(invoice.id, { to: address || undefined })
+      .sendInvoice(invoice.id, body)
       .pipe(finalize(() => this.sendingEmail.set(false)))
       .subscribe({
-        next: (result) => this.notificationService.showSuccess('invoices.detail.email_queued', { to: result.to }),
+        next: (result) => {
+          this.isEmailOpen.set(false);
+          this.notificationService.showSuccess('invoices.detail.email_queued', { to: result.to });
+        },
         error: (err) => this.notificationService.showHttpError(err, 'invoices.detail.email_failed'),
       });
   }
