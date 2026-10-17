@@ -77,6 +77,7 @@ import { OverviewModule } from './overview/overview.module';
 import { DocumentsModule } from './documents/documents.module';
 import { RelationshipMapModule } from './relationship-map/relationship-map.module';
 import { WorkflowEngineModule } from './workflow-engine/workflow-engine.module';
+import { AiModule } from './ai/ai.module';
 import { LocalizationModule } from './localization/localization.module';
 import { UnitsOfMeasureModule } from './units-of-measure/units-of-measure.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -362,7 +363,8 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
     ExtensionsModule,
     PosModule,
     RelationshipMapModule,
-    WorkflowEngineModule
+    WorkflowEngineModule,
+    AiModule,
   ],
   providers: [
     {

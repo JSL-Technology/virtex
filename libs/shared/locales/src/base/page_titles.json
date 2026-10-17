@@ -34,6 +34,21 @@
     "en": "Accounts receivable aging",
     "pt": "Aging de contas a receber"
   },
+  "page_titles.ai_anomalies": {
+    "es": "Anomalías",
+    "en": "Anomalies",
+    "pt": "Anomalias"
+  },
+  "page_titles.ai_cashflow": {
+    "es": "Flujo de caja proyectado",
+    "en": "Projected cash flow",
+    "pt": "Fluxo de caixa projetado"
+  },
+  "page_titles.ai_predictions": {
+    "es": "Predicciones de demanda",
+    "en": "Demand predictions",
+    "pt": "Previsões de procura"
+  },
   "page_titles.approvals": {
     "es": "Aprobaciones",
     "en": "Approvals",

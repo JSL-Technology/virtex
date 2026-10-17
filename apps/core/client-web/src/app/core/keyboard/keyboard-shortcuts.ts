@@ -69,6 +69,7 @@ export type ShortcutId =
   | 'app.back'
   | 'app.forward'
   | 'app.report_problem'
+  | 'app.copilot'
   | 'general.dismiss';
 
 export interface ShortcutDefinition {
@@ -150,6 +151,7 @@ export const SHORTCUT_DEFINITIONS: readonly ShortcutDefinition[] = [
   { id: 'app.help', descriptionKey: 'user.help', groupId: 'general', editable: true, defaults: [{ key: 'F1', code: 'F1' }] },
   { id: 'app.back', descriptionKey: 'main.shortcuts.go_back', groupId: 'general', editable: true, defaults: [{ mod: true, key: '[', code: 'BracketLeft' }] },
   { id: 'app.forward', descriptionKey: 'main.shortcuts.go_forward', groupId: 'general', editable: true, defaults: [{ mod: true, key: ']', code: 'BracketRight' }] },
+  { id: 'app.copilot', descriptionKey: 'main.shortcuts.copilot', groupId: 'general', editable: true, defaults: [{ mod: true, key: 'J', code: 'KeyJ' }] },
   { id: 'app.report_problem', descriptionKey: 'main.shortcuts.report_problem', groupId: 'general', editable: true, defaults: [{ mod: true, alt: true, shift: true, key: 'R', code: 'KeyR' }] },
 
   { id: 'general.dismiss', descriptionKey: 'main.shortcuts.dismiss', groupId: 'general', editable: false, defaults: [{ key: 'Esc', code: 'Escape' }] },

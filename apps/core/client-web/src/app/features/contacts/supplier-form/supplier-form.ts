@@ -154,6 +154,13 @@ export class SupplierForm implements OnInit {
       this.isEditMode.set(true);
       this.loadSupplierData(this.supplierId);
     } else {
+      // Opened from a bill read from a photo: the name and RNC printed on it (the RNC already
+      // passed its check digit). Only these two, and only as a starting point to review.
+      const query = this.route.snapshot.queryParamMap;
+      const name = query?.get('name')?.slice(0, 200);
+      const taxId = query?.get('taxId')?.replace(/[^0-9]/g, '').slice(0, 11);
+      if (name) this.supplierForm.patchValue({ name });
+      if (taxId) this.supplierForm.patchValue({ taxId });
       this.isLoading.set(false);
     }
   }

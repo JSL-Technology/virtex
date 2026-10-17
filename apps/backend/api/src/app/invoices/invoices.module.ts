@@ -1,3 +1,4 @@
+import { InvoicesCopilotTools } from './invoices.copilot-tools';
 import { InvoicesDataTransferProvider, SalesLinesDataTransferProvider } from './invoices-data-transfer.provider';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -65,7 +66,7 @@ import { MailModule } from '../mail/mail.module';
     SharedModule,
   ],
   controllers: [InvoicesController],
-  providers: [
+  providers: [InvoicesCopilotTools, 
     SalesInboxProvider,
     InvoicesDataTransferProvider,
     SalesLinesDataTransferProvider,

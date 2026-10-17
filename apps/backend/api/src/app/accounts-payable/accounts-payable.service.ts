@@ -3,7 +3,7 @@ import { PurchaseOrder } from '../procurement/entities/purchase-order.entity';
 import { VendorBillLine } from './entities/vendor-bill-line.entity';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, DataSource, EntityManager, FindOperator } from 'typeorm';
+import { Repository, In, IsNull, DataSource, EntityManager, FindOperator } from 'typeorm';
 import { VendorBill, VendorBillStatus } from './entities/vendor-bill.entity';
 import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
 import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
@@ -34,6 +34,7 @@ import { BankAccount } from '../treasury/entities/bank-account.entity';
 import { AccountRole } from '../chart-of-accounts/enums/account-enums';
 import {
   BadRequestError,
+  ConflictError,
   ForbiddenError,
   NotFoundError,
 } from '../i18n/localized.exception';
@@ -42,6 +43,8 @@ import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { toIsoDate } from '../common/dates';
 import { isValidDominicanTaxId } from '../localization/contracts/tax-id.contract';
+import { checkReceivedNcf } from '../localization/contracts/ncf.contract';
+import { VendorBillAttachment } from './entities/vendor-bill-attachment.entity';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 export interface AgingBucket {
@@ -205,6 +208,7 @@ export class AccountsPayableService {
     organizationId: string,
     actorUserId: string | null = null,
   ): Promise<VendorBill> {
+    const { attachmentIds, ...billFields } = dto;
     return this.dataSource.transaction(async (manager) => {
       const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
       const baseCurrency = settings?.baseCurrency ?? 'USD';
@@ -242,7 +246,7 @@ export class AccountsPayableService {
       if (!supplier) {
         throw new NotFoundError('accounts_payable.supplier_id_not_found', { id: dto.vendorId });
       }
-      await this.assertFiscalIdentity(manager, organizationId, dto.ncf, supplier);
+      const ncf = await this.assertFiscalIdentity(manager, organizationId, dto.ncf, supplier);
 
       await this.assertPurchaseOrderLinks(manager, organizationId, dto, lines);
 
@@ -306,7 +310,8 @@ export class AccountsPayableService {
 
       const bill = manager.create(VendorBill, {
         branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
-        ...dto,
+        ...billFields,
+        ncf: ncf ?? dto.ncf,
         organizationId,
         lines,
         total: expectedTotal,
@@ -330,35 +335,96 @@ export class AccountsPayableService {
       });
 
       const saved = await manager.save(bill);
+      await this.claimAttachments(manager, organizationId, saved.id, attachmentIds ?? []);
       this.logger.log(`Factura de proveedor ${saved.id} registrada en borrador.`);
       return saved;
     });
   }
 
   /**
-   * A purchase with a Dominican NCF names a supplier the DGII can identify (QA B-02).
+   * Give a bill the supplier's documents staged while it was entered. Only this tenant's files that
+   * no bill has claimed: an id from another tenant is invisible, and a file already on a bill cannot
+   * be moved by naming it.
+   */
+  async claimAttachments(
+    manager: EntityManager,
+    organizationId: string,
+    vendorBillId: string,
+    attachmentIds: string[],
+  ): Promise<void> {
+    const unique = [...new Set(attachmentIds)];
+    if (!unique.length) return;
+    const staged = await manager.find(VendorBillAttachment, {
+      where: { organizationId, id: In(unique), vendorBillId: IsNull() },
+      lock: { mode: 'pessimistic_write' },
+    });
+    if (staged.length !== unique.length) {
+      throw new BadRequestError('accounts_payable.attachment_not_available');
+    }
+    await manager.update(VendorBillAttachment, { organizationId, id: In(unique) }, { vendorBillId });
+  }
+
+  /**
+   * A Dominican NCF is checked as the DGII will check it, and the normalised number is returned.
    *
-   * The 606 reports every such purchase against the supplier's RNC or cédula, and a line without
-   * one is rejected by the DGII — so a bill was accepted that the month's 606 could not file, and
-   * the ITBIS on it could not be claimed. Checked by algorithm, not by presence: a mistyped RNC
-   * fails at the DGII just the same. Outside the Dominican Republic the NCF field is not a DGII
-   * comprobante and nothing here applies.
+   *  - **Shape and type.** `B` + type + 8 digits or `E` + type + 10, of a type the DGII defines. A
+   *    malformed number cannot be filed in the 606, so it is refused here rather than at month end.
+   *  - **The supplier's identity (QA B-02).** The 606 reports the purchase against the supplier's
+   *    RNC or cédula, and the DGII rejects a line without one — checked by algorithm, since a
+   *    mistyped RNC fails just the same. Not for the comprobantes the company issues itself for a
+   *    counterparty that has none: minor expenses (B13/E43) and payments abroad (B17/E47).
+   *  - **Once per supplier.** An NCF is unique for its issuer; the same one on two live bills is
+   *    the same purchase recorded twice (or a typo that will collide in the 606).
+   *
+   * Outside the Dominican Republic the field is not a DGII comprobante and nothing here applies.
    */
   private async assertFiscalIdentity(
     manager: EntityManager,
     organizationId: string,
     ncf: string | null | undefined,
-    supplier: Pick<Supplier, 'name' | 'taxId'> | null | undefined,
-  ): Promise<void> {
-    if (!ncf?.trim()) return;
+    supplier: Pick<Supplier, 'name' | 'taxId'> & { id?: string } | null | undefined,
+    billId: string | null = null,
+  ): Promise<string | null> {
+    if (!ncf?.trim()) return null;
     const [organization] = await manager.query('SELECT country FROM organizations WHERE id = $1', [organizationId]);
-    if ((organization?.country ?? '').toUpperCase() !== 'DO') return;
-    if (!supplier?.taxId || !isValidDominicanTaxId(supplier.taxId)) {
+    if ((organization?.country ?? '').toUpperCase() !== 'DO') return null;
+
+    const checked = checkReceivedNcf(ncf);
+    if (!checked.ok) {
+      throw new BadRequestError(
+        checked.error === 'format' ? 'accounts_payable.ncf_invalid_format' : 'accounts_payable.ncf_unknown_type',
+        { ncf: ncf.trim() },
+      );
+    }
+    if (checked.ncf.requiresSupplierTaxId && (!supplier?.taxId || !isValidDominicanTaxId(supplier.taxId))) {
       throw new BadRequestError('accounts_payable.ncf_requires_supplier_tax_id', {
         supplier: supplier?.name ?? '',
-        ncf: ncf.trim(),
+        ncf: checked.ncf.normalized,
       });
     }
+    if (supplier?.id) {
+      // Two people saving the same bill at once must not both pass the check: the second waits for
+      // the first's transaction, then sees its row.
+      await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
+        `vendor-bill-ncf:${organizationId}:${supplier.id}:${checked.ncf.normalized}`,
+      ]);
+      const [duplicate] = await manager.query(
+        `SELECT "id" FROM "vendor_bills"
+          WHERE "organization_id" = $1 AND "vendor_id" = $2
+            AND upper(regexp_replace(coalesce("ncf", ''), '[\\s-]', '', 'g')) = $3
+            AND "status" NOT IN ('VOID', 'REJECTED')
+            AND ($4::uuid IS NULL OR "id" <> $4::uuid)
+          LIMIT 1`,
+        [organizationId, supplier.id, checked.ncf.normalized, billId],
+      );
+      if (duplicate) {
+        throw new ConflictError('accounts_payable.ncf_already_recorded', {
+          ncf: checked.ncf.normalized,
+          supplier: supplier.name ?? '',
+        });
+      }
+    }
+    return checked.ncf.normalized;
   }
 
   async update(
@@ -379,6 +445,17 @@ export class AccountsPayableService {
     // The branch is not merged as sent: a new one must be a branch the editor may use.
     const { branchId, ...changes } = dto;
     const merged = this.vendorBillRepository.merge(bill, changes);
+    // A corrected NCF (or a different supplier) is checked now, not first at submission.
+    if (changes.ncf !== undefined || changes.vendorId !== undefined) {
+      const supplier = await this.dataSource.manager.findOne(Supplier, {
+        where: { id: merged.vendorId, organizationId },
+        select: ['id', 'name', 'taxId'],
+      });
+      if (!supplier) {
+        throw new NotFoundError('accounts_payable.supplier_id_not_found', { id: merged.vendorId });
+      }
+      merged.ncf = (await this.assertFiscalIdentity(this.dataSource.manager, organizationId, merged.ncf, supplier, bill.id)) ?? merged.ncf;
+    }
     merged.branchId = await reassignDocumentBranch(
       this.dataSource.manager,
       organizationId,
@@ -416,7 +493,7 @@ export class AccountsPayableService {
         );
       }
       // Again here: a draft's supplier and NCF can both change after it was created.
-      await this.assertFiscalIdentity(manager, organizationId, bill.ncf, bill.vendor);
+      await this.assertFiscalIdentity(manager, organizationId, bill.ncf, bill.vendor, bill.id);
 
       for (const line of bill.lines) {
         if (!line.expenseAccountId) continue;

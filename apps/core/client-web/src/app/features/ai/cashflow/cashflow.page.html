@@ -1,0 +1,240 @@
+<section class="cf">
+  <header class="cf__header">
+    <div>
+      <h1 class="cf__title">{{ 'ai.cashflow.title' | translate }}</h1>
+      <p class="cf__subtitle">{{ 'ai.cashflow.subtitle' | translate }}</p>
+    </div>
+    <button type="button" class="secondary-button" [disabled]="refreshing() || runInProgress()" (click)="refresh()">
+      <lucide-icon [img]="RefreshIcon" size="16" aria-hidden="true"></lucide-icon>
+      <span>{{ (runInProgress() ? 'ai.cashflow.running' : 'ai.cashflow.refresh') | translate }}</span>
+    </button>
+  </header>
+
+  @if (loading()) {
+    <p class="cf__muted">{{ 'ai.cashflow.loading' | translate }}</p>
+  } @else if (error(); as message) {
+    <p class="cf__error" role="alert">{{ message }}</p>
+  } @else if (!projection()) {
+    <div class="card cf__empty">
+      <p class="cf__empty-title">{{ (runInProgress() ? 'ai.cashflow.first_run_title' : 'ai.cashflow.never_run_title') | translate }}</p>
+      <p class="cf__muted">{{ 'ai.cashflow.never_run_help' | translate }}</p>
+      @if (overview()?.latest?.status === 'FAILED') {
+        <p class="cf__error">{{ 'ai.cashflow.last_run_failed' | translate }}</p>
+      }
+    </div>
+  } @else {
+    @if (metrics(); as m) {
+      <p class="cf__muted">
+        {{ 'ai.cashflow.as_of' | translate: { when: (projection()!.finishedAt | vxDate: 'medium') } }}
+        @if (overview()?.latest?.status === 'FAILED') {
+          · <span class="cf__error">{{ 'ai.cashflow.last_run_failed' | translate }}</span>
+        }
+      </p>
+
+      <div class="cf__kpis">
+        <div class="card cf__kpi">
+          <span class="cf__kpi-label">{{ 'ai.cashflow.kpi.today' | translate }}</span>
+          <span class="cf__kpi-value">{{ m.openingCash | vxMoney: currency() }}</span>
+        </div>
+        <div class="card cf__kpi">
+          <span class="cf__kpi-label">{{ 'ai.cashflow.kpi.end' | translate: { days: m.horizonDays } }}</span>
+          <span class="cf__kpi-value">{{ m.endP50 | vxMoney: currency() }}</span>
+          <span class="cf__kpi-hint">{{ 'ai.cashflow.kpi.range' | translate: { low: (m.endP10 | vxMoney: currency()), high: (m.endP90 | vxMoney: currency()) } }}</span>
+        </div>
+        <div class="card cf__kpi">
+          <span class="cf__kpi-label">{{ 'ai.cashflow.kpi.tightest' | translate }}</span>
+          <span class="cf__kpi-value">{{ m.lowestP50 | vxMoney: currency() }}</span>
+          <span class="cf__kpi-hint">{{ m.lowestP50Date | vxDate }}</span>
+        </div>
+        <div class="card cf__kpi" [class.cf__kpi--danger]="risk() === 'high'" [class.cf__kpi--warning]="risk() === 'medium'">
+          <span class="cf__kpi-label">{{ 'ai.cashflow.kpi.shortfall' | translate }}</span>
+          <span class="cf__kpi-value">{{ m.shortfallProbability | vxPercent }}</span>
+          <span class="cf__kpi-hint">
+            @if (m.firstLikelyShortfallDate) {
+              {{ 'ai.cashflow.kpi.shortfall_from' | translate: { date: (m.firstLikelyShortfallDate | vxDate) } }}
+            } @else {
+              {{ 'ai.cashflow.kpi.worst' | translate: { amount: (m.lowestP10 | vxMoney: currency()) } }}
+            }
+          </span>
+        </div>
+      </div>
+
+      <div class="card cf__chart">
+        <app-cashflow-chart
+          [days]="projection()!.days"
+          [compare]="scenarioResult()?.scenario?.days ?? null"
+          [threshold]="m.threshold"
+          [currency]="currency()"
+        />
+      </div>
+
+      <div class="cf__grid">
+        <section class="card cf__panel">
+          <h2 class="cf__h2">{{ 'ai.cashflow.components.title' | translate }}</h2>
+          <dl class="cf__components">
+            @for (entry of m.byComponent | keyvalue; track entry.key) {
+              <dt>{{ k('ai.cashflow.component', entry.key) | translate }}</dt>
+              <dd [class.cf__negative]="entry.value < 0">{{ entry.value | vxMoney: currency() }}</dd>
+            }
+          </dl>
+        </section>
+
+        <section class="card cf__panel">
+          <h2 class="cf__h2">{{ 'ai.cashflow.drivers.title' | translate }}</h2>
+          @if (m.drivers.length) {
+            <ul class="cf__drivers">
+              @for (driver of m.drivers; track driver.documentId) {
+                <li>
+                  <span class="cf__driver-party">{{ driver.partyName || ('ai.cashflow.unnamed' | translate) }}</span>
+                  <span>{{ k('ai.cashflow.kind', driver.kind) | translate }} · {{ driver.dueDate | vxDate }}</span>
+                  <span class="cf__num" [class.cf__negative]="driver.kind === 'PAYABLE'">{{ driver.amount | vxMoney: currency() }}</span>
+                  @if (driver.kind === 'RECEIVABLE') {
+                    <span class="cf__muted">{{ 'ai.cashflow.drivers.chance' | translate: { percent: (driver.pBy30 | vxPercent) } }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="cf__muted">{{ 'ai.cashflow.drivers.none' | translate }}</p>
+          }
+        </section>
+      </div>
+
+      <section class="card cf__panel">
+        <div class="cf__panel-head">
+          <h2 class="cf__h2">{{ 'ai.cashflow.documents.title' | translate }}</h2>
+          <div class="cf__toggle" role="group" [attr.aria-label]="'ai.cashflow.documents.title' | translate">
+            <button type="button" class="secondary-button" [class.is-active]="docKind() === 'RECEIVABLE'" [attr.aria-pressed]="docKind() === 'RECEIVABLE'" (click)="setDocKind('RECEIVABLE')">{{ 'ai.cashflow.documents.receivables' | translate }}</button>
+            <button type="button" class="secondary-button" [class.is-active]="docKind() === 'PAYABLE'" [attr.aria-pressed]="docKind() === 'PAYABLE'" (click)="setDocKind('PAYABLE')">{{ 'ai.cashflow.documents.payables' | translate }}</button>
+          </div>
+          <label class="cf__sort">
+            <span>{{ 'ai.cashflow.documents.sort' | translate }}</span>
+            <select [ngModel]="docSort()" (ngModelChange)="setDocSort($event)">
+              <option value="risk">{{ 'ai.cashflow.documents.sort_risk' | translate }}</option>
+              <option value="amount">{{ 'ai.cashflow.documents.sort_amount' | translate }}</option>
+              <option value="expected">{{ 'ai.cashflow.documents.sort_expected' | translate }}</option>
+            </select>
+          </label>
+        </div>
+        @if (documents().length) {
+          <div class="cf__table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>{{ (docKind() === 'RECEIVABLE' ? 'ai.cashflow.documents.customer' : 'ai.cashflow.documents.supplier') | translate }}</th>
+                  <th>{{ 'ai.cashflow.documents.number' | translate }}</th>
+                  <th>{{ 'ai.cashflow.documents.due' | translate }}</th>
+                  <th class="numeric">{{ 'ai.cashflow.documents.amount' | translate }}</th>
+                  <th>{{ 'ai.cashflow.documents.expected' | translate }}</th>
+                  <th class="numeric">{{ 'ai.cashflow.documents.by7' | translate }}</th>
+                  <th class="numeric">{{ 'ai.cashflow.documents.by30' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (doc of documents(); track doc.id) {
+                  <tr>
+                    <td>{{ doc.partyName }} @if (doc.doubtful) { <span class="cf__badge">{{ 'ai.cashflow.documents.doubtful' | translate }}</span> }</td>
+                    <td>{{ doc.number }}</td>
+                    <td>{{ doc.dueDate | vxDate }}</td>
+                    <td class="numeric">{{ doc.amount | vxMoney: currency() }}</td>
+                    <td>{{ doc.expectedDate ? (doc.expectedDate | vxDate) : ('ai.cashflow.documents.beyond' | translate) }}</td>
+                    <td class="numeric">{{ doc.pBy7 | vxPercent }}</td>
+                    <td class="numeric">{{ doc.pBy30 | vxPercent }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @if (documentsTotal() > documents().length) {
+            <p class="cf__muted">{{ 'ai.cashflow.documents.showing' | translate: { shown: documents().length, total: documentsTotal() } }}</p>
+          }
+        } @else {
+          <p class="cf__muted">{{ 'ai.cashflow.documents.none' | translate }}</p>
+        }
+      </section>
+
+      <div class="cf__grid">
+        <section class="card cf__panel">
+          <div class="cf__panel-head">
+            <h2 class="cf__h2">{{ 'ai.cashflow.plan.title' | translate }}</h2>
+            <button type="button" class="secondary-button" [disabled]="plan()?.status === 'QUEUED' || plan()?.status === 'RUNNING'" (click)="requestPlan()">
+              <lucide-icon [img]="PlanIcon" size="16" aria-hidden="true"></lucide-icon>
+              <span>{{ (plan()?.content ? 'ai.cashflow.plan.rewrite' : 'ai.cashflow.plan.write') | translate }}</span>
+            </button>
+          </div>
+          @switch (plan()?.status) {
+            @case ('QUEUED') { <p class="cf__muted" role="status">{{ 'ai.cashflow.plan.writing' | translate }}</p> }
+            @case ('RUNNING') { <p class="cf__muted" role="status">{{ 'ai.cashflow.plan.writing' | translate }}</p> }
+            @case ('FAILED') { <p class="cf__error">{{ 'ai.cashflow.plan.failed' | translate }}</p> }
+          }
+          @if (plan()?.content; as content) {
+            <article class="cf__report">
+              <h3>{{ content.title }}</h3>
+              <p class="cf__summary">{{ content.summary }}</p>
+              @for (section of content.sections; track $index) {
+                <h4>{{ section.heading }}</h4>
+                <p>{{ section.body }}</p>
+              }
+              @if (content.recommendations.length) {
+                <h4>{{ 'ai.cashflow.plan.recommendations' | translate }}</h4>
+                <ol>
+                  @for (item of content.recommendations; track $index) {
+                    <li><strong>{{ item.action }}</strong> — {{ item.why }}</li>
+                  }
+                </ol>
+              }
+              <p class="cf__muted">{{ 'ai.cashflow.plan.written_at' | translate: { when: (plan()!.finishedAt | vxDate: 'medium') } }}</p>
+            </article>
+          } @else if (!plan()) {
+            <p class="cf__muted">{{ 'ai.cashflow.plan.intro' | translate }}</p>
+          }
+        </section>
+
+        <section class="card cf__panel">
+          <h2 class="cf__h2">
+            <lucide-icon [img]="ScenarioIcon" size="16" aria-hidden="true"></lucide-icon>
+            {{ 'ai.cashflow.scenario.title' | translate }}
+          </h2>
+          <p class="cf__muted">{{ 'ai.cashflow.scenario.intro' | translate }}</p>
+          <form class="cf__scenario" (ngSubmit)="runScenario()">
+            <div class="form-field">
+              <label for="cf-sales">{{ 'ai.cashflow.scenario.sales' | translate }}</label>
+              <input id="cf-sales" name="sales" type="number" step="1" min="-100" max="500" [ngModel]="scenarioInput().salesChange" (ngModelChange)="updateScenario('salesChange', $event)" />
+            </div>
+            <div class="form-field">
+              <label for="cf-delay">{{ 'ai.cashflow.scenario.delay' | translate }}</label>
+              <input id="cf-delay" name="delay" type="number" step="1" min="-60" max="180" [ngModel]="scenarioInput().collectionDelayDays" (ngModelChange)="updateScenario('collectionDelayDays', $event)" />
+            </div>
+            <div class="form-field">
+              <label for="cf-expense">{{ 'ai.cashflow.scenario.expense' | translate }}</label>
+              <input id="cf-expense" name="expense" type="number" step="0.01" min="0" [ngModel]="scenarioInput().extraMonthlyExpense" (ngModelChange)="updateScenario('extraMonthlyExpense', $event)" />
+            </div>
+            <div class="form-field">
+              <label for="cf-oneoff">{{ 'ai.cashflow.scenario.one_off' | translate }}</label>
+              <input id="cf-oneoff" name="oneOff" type="number" step="0.01" [ngModel]="scenarioInput().oneOffAmount" (ngModelChange)="updateScenario('oneOffAmount', $event)" />
+            </div>
+            <div class="form-field">
+              <label for="cf-oneoff-day">{{ 'ai.cashflow.scenario.one_off_day' | translate }}</label>
+              <input id="cf-oneoff-day" name="oneOffDay" type="number" step="1" min="0" max="365" [ngModel]="scenarioInput().oneOffDay" (ngModelChange)="updateScenario('oneOffDay', $event)" />
+            </div>
+            <button type="submit" class="primary-button" [disabled]="scenarioRunning()">
+              {{ (scenarioRunning() ? 'ai.cashflow.scenario.running' : 'ai.cashflow.scenario.run') | translate }}
+            </button>
+          </form>
+          @if (scenarioMetrics(); as s) {
+            <dl class="cf__compare">
+              <dt>{{ 'ai.cashflow.kpi.end' | translate: { days: s.horizonDays } }}</dt>
+              <dd>{{ s.endP50 | vxMoney: currency() }} <span class="cf__muted">({{ delta(s.endP50, m.endP50) | vxMoney: currency() }})</span></dd>
+              <dt>{{ 'ai.cashflow.kpi.tightest' | translate }}</dt>
+              <dd>{{ s.lowestP50 | vxMoney: currency() }} · {{ s.lowestP50Date | vxDate }}</dd>
+              <dt>{{ 'ai.cashflow.kpi.shortfall' | translate }}</dt>
+              <dd>{{ s.shortfallProbability | vxPercent }} <span class="cf__muted">({{ 'ai.cashflow.scenario.was' | translate: { value: (m.shortfallProbability | vxPercent) } }})</span></dd>
+            </dl>
+          }
+        </section>
+      </div>
+
+      <p class="cf__muted cf__method">{{ 'ai.cashflow.method' | translate }}</p>
+    }
+  }
+</section>

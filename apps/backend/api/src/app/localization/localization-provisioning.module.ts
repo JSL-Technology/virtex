@@ -6,6 +6,7 @@ import { TaxTemplate } from './entities/tax-template.entity';
 import { LocalizationTemplate } from './entities/localization-template.entity';
 import { TaxGroup } from './entities/tax-group.entity';
 import { LocalizationService } from './services/localization.service';
+import { TaxIdRegistryPort } from './contracts/tax-id.contract';
 import { IdentityDocumentService } from './services/identity-document.service';
 import { LocalizationProvisioningPort } from './localization-provisioning.port';
 import { TaxScheme } from './entities/tax-scheme.entity';
@@ -71,9 +72,11 @@ import { TaxDeterminationService } from './fiscal/tax-determination/tax-determin
     TenantJurisdictionProvider,
     TaxDeterminationService,
     { provide: LocalizationProvisioningPort, useExisting: LocalizationService },
+    { provide: TaxIdRegistryPort, useExisting: LocalizationService },
   ],
   exports: [
     LocalizationProvisioningPort,
+    TaxIdRegistryPort,
     LocalizationService,
     TaxDeterminationService,
     IdentityDocumentService,

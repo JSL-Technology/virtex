@@ -1,3 +1,4 @@
+import { ProcurementCopilotTools } from './procurement.copilot-tools';
 import { PurchaseOrderApprovalSource, RequisitionApprovalSource } from './procurement-approval.sources';
 import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -40,7 +41,7 @@ import { GoodsReceiptsService } from './goods-receipts.service';
     CurrenciesModule,
   ],
   controllers: [ProcurementController, PurchaseOrdersController, GoodsReceiptsController],
-  providers: [ProcurementService, PurchaseOrdersService, GoodsReceiptsService, PurchaseOrderApprovalSource, RequisitionApprovalSource],
+  providers: [ProcurementCopilotTools, ProcurementService, PurchaseOrdersService, GoodsReceiptsService, PurchaseOrderApprovalSource, RequisitionApprovalSource],
   exports: [ProcurementService, PurchaseOrdersService],
 })
 export class ProcurementModule implements OnModuleInit {

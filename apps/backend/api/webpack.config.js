@@ -40,6 +40,12 @@ module.exports = {
           glob: '**/*.hbs',
           output: 'templates/documents',
         },
+        // The in-app help the assistant searches, indexed at start-up (ai/help/help.service.ts).
+        {
+          input: './src/app/ai/help/articles',
+          glob: '**/*.md',
+          output: 'help',
+        },
       ],
       optimization: false,
       outputHashing: 'none',

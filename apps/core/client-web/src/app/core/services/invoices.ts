@@ -265,6 +265,9 @@ export interface InvoicingContext {
   today: string;
 }
 
+/** How a drafted note to a customer sounds. */
+export type MessageTone = 'cordial' | 'formal' | 'firm';
+
 @Injectable({ providedIn: 'root' })
 export class InvoicesService {
   private http = inject(HttpClient);
@@ -370,6 +373,11 @@ export class InvoicesService {
   /** E-mail the document to the customer (or `to`), with its PDF attached. */
   sendInvoice(id: string, body: { to?: string; message?: string }): Observable<{ queued: boolean; to: string }> {
     return this.http.post<{ queued: boolean; to: string }>(`${this.apiUrl}/${id}/send`, body);
+  }
+
+  /** A covering note for the invoice e-mail, drafted in a tone; the person edits it before sending. */
+  composeMessage(id: string, tone: MessageTone): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/${id}/compose-message`, { tone });
   }
 
   /** Readiness, currency, legal rates and issuable document types for this tenant's market. */

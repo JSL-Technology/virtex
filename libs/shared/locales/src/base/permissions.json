@@ -224,6 +224,11 @@
     "en": "Reopen fiscal year",
     "pt": "Reabrir exercício fiscal"
   },
+  "permissions.actions.resolve": {
+    "es": "Resolver",
+    "en": "Resolve",
+    "pt": "Resolver"
+  },
   "permissions.actions.reverse": {
     "es": "Reversar",
     "en": "Reverse",
@@ -258,6 +263,11 @@
     "es": "Transferir",
     "en": "Transfer",
     "pt": "Transferir"
+  },
+  "permissions.actions.use": {
+    "es": "Usar",
+    "en": "Use",
+    "pt": "Usar"
   },
   "permissions.actions.view": {
     "es": "Ver",
@@ -318,6 +328,56 @@
     "es": "Cuentas por cobrar",
     "en": "Accounts receivable",
     "pt": "Contas a receber"
+  },
+  "permissions.groups.ai_agents": {
+    "es": "Agentes (IA)",
+    "en": "Agents (AI)",
+    "pt": "Agentes (IA)"
+  },
+  "permissions.groups.ai_anomalies": {
+    "es": "Anomalías detectadas (IA)",
+    "en": "Detected anomalies (AI)",
+    "pt": "Anomalias detetadas (IA)"
+  },
+  "permissions.groups.ai_bill_capture": {
+    "es": "Facturas de proveedor desde foto (IA)",
+    "en": "Vendor bills from photo (AI)",
+    "pt": "Faturas de fornecedor a partir de foto (IA)"
+  },
+  "permissions.groups.ai_cashflow": {
+    "es": "Flujo de caja proyectado (IA)",
+    "en": "Projected cash flow (AI)",
+    "pt": "Fluxo de caixa projetado (IA)"
+  },
+  "permissions.groups.ai_collections": {
+    "es": "Cobranza inteligente (IA)",
+    "en": "Smart collections (AI)",
+    "pt": "Cobrança inteligente (IA)"
+  },
+  "permissions.groups.ai_copilot": {
+    "es": "Asistente del ERP (IA)",
+    "en": "ERP assistant (AI)",
+    "pt": "Assistente do ERP (IA)"
+  },
+  "permissions.groups.ai_forecasts": {
+    "es": "Predicciones de demanda (IA)",
+    "en": "Demand forecasts (AI)",
+    "pt": "Previsões de procura (IA)"
+  },
+  "permissions.groups.ai_reports": {
+    "es": "Informes del gerente (IA)",
+    "en": "Manager reports (AI)",
+    "pt": "Relatórios de gestão (IA)"
+  },
+  "permissions.groups.ai_usage": {
+    "es": "Consumo de IA",
+    "en": "AI usage",
+    "pt": "Consumo de IA"
+  },
+  "permissions.groups.ai_vision": {
+    "es": "Productos desde foto (IA)",
+    "en": "Products from photo (AI)",
+    "pt": "Produtos a partir de foto (IA)"
   },
   "permissions.groups.analytics": {
     "es": "Analítica",

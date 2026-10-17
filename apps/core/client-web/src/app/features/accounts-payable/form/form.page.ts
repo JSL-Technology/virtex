@@ -15,15 +15,17 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { LucideAngularModule, ChevronLeft, Plus, Trash2 } from 'lucide-angular';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideAngularModule, Plus, Trash2, FileText, Sparkles, Paperclip } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, of, map } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 
 import {
   AccountsPayableService,
+  BillCaptureSuggestion,
   CreateVendorBillDto,
+  VendorBillAttachment,
   PAYMENT_FORMS,
   PURCHASE_CATEGORIES,
   UpdateVendorBillDto,
@@ -44,6 +46,9 @@ import { VxDateFieldComponent, dateOrder } from '../../../shared/components/date
 import { VX_SELECT } from '../../../shared/components/select';
 import { Supplier } from '../../../core/models/supplier.model';
 import { Account } from '../../../core/models/account.model';
+import { AiService } from '../../ai/data/ai.service';
+import { composeKey } from '@virteex/shared/types';
+import { AuthService } from '../../../core/services/auth';
 
 /** The date pickers hand back `YYYY-MM-DD` already; this only normalises what the API returns. */
 function isoOf(value: string | Date): string {
@@ -95,7 +100,7 @@ interface BillTotals {
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
-    ...VX_FORM_A11Y, VxDateFieldComponent, ...VX_SELECT],
+    ...VX_FORM_A11Y, VxDateFieldComponent, ...VX_SELECT, RouterLink],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -105,6 +110,9 @@ export class VendorBillFormPage implements OnInit {
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
   protected readonly AddIcon = Plus;
   protected readonly RemoveIcon = Trash2;
+  protected readonly DocumentIcon = FileText;
+  protected readonly ReadIcon = Sparkles;
+  protected readonly AttachIcon = Paperclip;
   protected readonly purchaseCategories = PURCHASE_CATEGORIES;
   protected readonly paymentForms = PAYMENT_FORMS;
 
@@ -118,6 +126,172 @@ export class VendorBillFormPage implements OnInit {
   private readonly accounts = inject(ChartOfAccountsApiService);
   private readonly notifications = inject(NotificationService);
   private readonly purchasing = inject(PurchasingService);
+  private readonly ai = inject(AiService);
+  private readonly auth = inject(AuthService);
+
+  // ── The supplier's document ────────────────────────────────────────────────
+  //
+  // A photo or PDF of the bill can be read into the form (with the AI plan and permission) or just
+  // kept with it. Either way the file is the bill's evidence: the DGII can ask for the comprobante
+  // behind any line of the 606.
+
+  /** Whether the plan and the server can read documents now; asked only of someone who may. */
+  private readonly visionAvailable = signal(false);
+  readonly canRead = computed(() => !this.isEditMode() && this.visionAvailable());
+  readonly documentState = signal<'idle' | 'reading' | 'uploading' | 'done' | 'error'>('idle');
+  /** Files staged for the bill being entered, or kept with the bill being edited. */
+  readonly attachments = signal<VendorBillAttachment[]>([]);
+  readonly capture = signal<BillCaptureSuggestion | null>(null);
+  /** Fields the reading filled, with how sure it was; a field leaves this as soon as it is edited. */
+  private readonly suggested = signal<Record<string, number>>({});
+
+  /** What the person should check before saving a bill read from a document. */
+  readonly captureNotes = computed(() => {
+    const result = this.capture();
+    if (!result) return [] as Array<{ key: string; params?: Record<string, unknown>; tone: 'warning' | 'info' }>;
+    const notes: Array<{ key: string; params?: Record<string, unknown>; tone: 'warning' | 'info' }> = [];
+    if (result.documentKind === 'not_a_bill') notes.push({ key: 'accounts_payable.capture.not_a_bill', tone: 'warning' });
+    if (result.documentKind === 'credit_note') notes.push({ key: 'accounts_payable.capture.is_credit_note', tone: 'warning' });
+    if (result.supplier.taxId && result.supplier.taxIdValid === false) {
+      notes.push({ key: 'accounts_payable.capture.tax_id_invalid', params: { taxId: result.supplier.taxId }, tone: 'warning' });
+    }
+    if (result.checks.ncf.status === 'invalid') {
+      notes.push({ key: composeKey('accounts_payable.capture.ncf_error', result.checks.ncf.error ?? 'format'), params: { ncf: result.bill.ncf }, tone: 'warning' });
+    }
+    for (const warning of result.checks.ncf.warnings) {
+      notes.push({ key: composeKey('accounts_payable.capture.ncf_warning', warning), params: { ncf: result.bill.ncf }, tone: 'info' });
+    }
+    for (const issue of result.checks.arithmetic) {
+      notes.push({ key: composeKey('accounts_payable.capture.arithmetic', issue.kind), params: { ...issue }, tone: 'warning' });
+    }
+    return notes;
+  });
+
+  /** The model's confidence in a field it filled, or null once the person has made it theirs. */
+  confidenceOf(field: string): number | null {
+    const control = this.form?.get(field);
+    if (!control || control.dirty) return null;
+    return this.suggested()[field] ?? null;
+  }
+
+  onDocumentSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    // Choosing the same file again must fire `change` again.
+    input.value = '';
+    if (!file) return;
+    const billId = this.billId();
+    if (billId) {
+      this.documentState.set('uploading');
+      this.accountsPayable.attachToBill(billId, file).subscribe({
+        next: (attachment) => this.keepAttachment(attachment),
+        error: (err) => this.documentFailed(err),
+      });
+      return;
+    }
+    if (!this.canRead()) {
+      this.documentState.set('uploading');
+      this.accountsPayable.stageAttachment(file).subscribe({
+        next: (attachment) => this.keepAttachment(attachment),
+        error: (err) => this.documentFailed(err),
+      });
+      return;
+    }
+    this.documentState.set('reading');
+    this.accountsPayable.captureBill(file).subscribe({
+      next: (result) => {
+        this.capture.set(result);
+        this.keepAttachment({ ...result.attachment, vendorBillId: null, fileSize: file.size, createdAt: new Date().toISOString() });
+        this.applyCapture(result);
+      },
+      error: (err) => this.documentFailed(err),
+    });
+  }
+
+  removeAttachment(id: string): void {
+    // Only a file staged for this form: one kept with a saved bill is its evidence.
+    if (this.billId()) return;
+    this.attachments.update((list) => list.filter((item) => item.id !== id));
+  }
+
+  openAttachment(attachment: VendorBillAttachment): void {
+    this.accountsPayable.downloadAttachment(attachment.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank', 'noopener');
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      },
+      error: (err) => this.notifications.showHttpError(err, 'accounts_payable.attachment_not_found'),
+    });
+  }
+
+  private keepAttachment(attachment: VendorBillAttachment): void {
+    this.attachments.update((list) => (list.some((item) => item.id === attachment.id) ? list : [...list, attachment]));
+    this.documentState.set('done');
+  }
+
+  private documentFailed(err: unknown): void {
+    // The form works by hand exactly as before.
+    this.documentState.set('error');
+    this.notifications.showHttpError(err, 'accounts_payable.capture.failed');
+  }
+
+  /**
+   * Fill what the document says into the fields nobody has touched. A suggestion is help, not
+   * authority: an edited field keeps the person's value, and a value that failed its check (an NCF
+   * of the wrong shape) is shown as a warning rather than written in as if it were right.
+   */
+  private applyCapture(result: BillCaptureSuggestion): void {
+    const filled: Record<string, number> = {};
+    const set = (field: string, value: unknown, confidence: number) => {
+      const control = this.form.get(field);
+      if (!control || control.dirty || control.disabled || value === null || value === undefined || value === '') return;
+      control.setValue(value);
+      filled[field] = confidence;
+    };
+    const { bill, confidence } = result;
+    if (result.supplier.match) set('vendorId', result.supplier.match.id, confidence.supplier);
+    if (bill.ncf && result.checks.ncf.status === 'ok') set('ncf', bill.ncf, confidence.ncf);
+    set('date', bill.date, confidence.dates);
+    set('dueDate', bill.dueDate ?? bill.date, confidence.dates);
+    if (bill.currencyCode && this.currencies().some((currency) => currency.code === bill.currencyCode)) {
+      set('currencyCode', bill.currencyCode, confidence.amounts);
+    }
+    set('paymentForm', bill.paymentForm, confidence.amounts);
+    set('purchaseCategory', bill.purchaseCategory, confidence.lines);
+    set('taxAmount', bill.taxAmount, confidence.amounts);
+    set('serviceCharge', bill.serviceCharge, confidence.amounts);
+    if (filled['taxAmount'] !== undefined || filled['serviceCharge'] !== undefined || filled['purchaseCategory'] !== undefined) {
+      this.showFiscalDetail.set(true);
+    }
+
+    // The lines only when the person has not started on them: one untouched, empty line.
+    const untouched = this.lines.controls.every((line) => !line.dirty && !line.value.product);
+    if (untouched && result.lines.length) {
+      this.lines.clear();
+      for (const line of result.lines) {
+        this.lines.push(
+          this.createLine({
+            product: line.description,
+            quantity: line.quantity,
+            unitPrice: line.unitPrice,
+            productId: line.productId ?? '',
+            expenseAccountId: line.expenseAccountId ?? '',
+          }),
+        );
+      }
+      filled['lines'] = confidence.lines;
+    }
+    this.suggested.set(filled);
+    this.recomputeTotals();
+  }
+
+  /** Register the supplier a document names, when the company has none with that RNC. */
+  newSupplierQuery(): Record<string, string> | null {
+    const supplier = this.capture()?.supplier;
+    if (!supplier || supplier.match || !supplier.taxId || supplier.taxIdValid !== true) return null;
+    return { name: supplier.registry?.legalName ?? supplier.name ?? '', taxId: supplier.taxId };
+  }
 
   form!: FormGroup;
   readonly isEditMode = signal(false);
@@ -182,6 +356,9 @@ export class VendorBillFormPage implements OnInit {
   readonly canSave = computed(() => !this.isLoading() && this.totals().total > 0);
 
   ngOnInit(): void {
+    if (this.auth.hasPermissions(['ai_bill_capture:use'])) {
+      this.ai.status().pipe(catchError(() => of(null))).subscribe((status) => this.visionAvailable.set(!!status?.vision.available));
+    }
     this.initForm();
     this.loadPickers();
     this.checkMode();
@@ -428,6 +605,10 @@ export class VendorBillFormPage implements OnInit {
             );
           }
           if (this.lines.length === 0) this.addLine();
+          this.accountsPayable.billAttachments(bill.id).subscribe({
+            next: (list) => this.attachments.set(list),
+            error: () => this.attachments.set([]),
+          });
 
           // Lines are immutable once the bill exists: the server refuses a patch that carries them
           // and tells the caller to raise a debit or credit note instead. Disabling them says so
@@ -514,6 +695,7 @@ export class VendorBillFormPage implements OnInit {
       otherTaxes: Number(value.otherTaxes ?? 0),
       serviceCharge: Number(value.serviceCharge ?? 0),
       servicesAmount: this.totals().subtotal,
+      attachmentIds: this.isEditMode() ? undefined : this.attachments().map((attachment) => attachment.id),
     };
 
     const operation = this.isEditMode()

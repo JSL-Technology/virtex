@@ -25,6 +25,18 @@ export const TESORERIA_MODULE: ModuleManifest = {
       menu: { group: 'inbox', labelKey: 'sidebar.finance.treasury_sub.dashboard' },
       load: () => import('../../../features/accounting/treasury/treasury.page').then((m) => m.TreasuryPage),
     },
+    //  Hacia dónde va la caja: la proyección del motor de IA a 90 días (banda P10–P90), lo que la
+    //  decide, el plan de caja escrito a partir de esas cifras y escenarios «¿qué pasa si…?».
+    {
+      path: 'treasury/cash-flow',
+      kind: WindowKind.OVERVIEW,
+      permission: 'ai_cashflow:view',
+      titleKey: 'page_titles.ai_cashflow',
+      icon: 'TrendingUp',
+      entityKeyFn: () => 'tesoreria:ai-cashflow',
+      menu: { group: 'analysis', labelKey: 'page_titles.ai_cashflow' },
+      load: () => import('../../../features/ai/cashflow/cashflow.page').then((m) => m.CashflowPage),
+    },
     {
       path: 'treasury/bank-accounts/new',
       kind: WindowKind.DRAFT,

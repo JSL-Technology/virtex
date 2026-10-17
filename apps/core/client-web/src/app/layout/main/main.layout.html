@@ -256,6 +256,20 @@
           }
         </div>
 
+        @if (canUseCopilot()) {
+        <button
+          class="icon-button"
+          type="button"
+          [class.is-active]="isCopilotOpen()"
+          [title]="'ai.copilot.open' | translate"
+          [attr.aria-label]="'ai.copilot.open' | translate"
+          [attr.aria-pressed]="isCopilotOpen()"
+          (click)="toggleCopilot()"
+        >
+          <lucide-icon [img]="CopilotIcon" size="20"></lucide-icon>
+        </button>
+        }
+
         <div
           class="notification-menu"
           appClickOutside
@@ -533,6 +547,10 @@
 }
 
 <app-dialog-host></app-dialog-host>
+
+@if (isCopilotOpen()) {
+<app-copilot-panel (dismissed)="closeCopilot()" />
+}
 
 @if (isShortcutsOpen()) {
 <app-shortcuts-dialog

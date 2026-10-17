@@ -1,3 +1,4 @@
+import { InventoryCopilotTools } from './inventory.copilot-tools';
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -24,12 +25,18 @@ import { StockLedgerService } from './stock-ledger.service';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { VendorBillInventoryHandler } from './handlers/vendor-bill-inventory.handler';
 import { GoodsReceiptPort } from './contracts/goods-receipt.contract';
+import { ProductImage } from './entities/product-image.entity';
+import { ProductPriceHistory } from './entities/product-price-history.entity';
+import { ProductImagesService } from './product-images.service';
+import { ProductCatalogPort } from './contracts/product-catalog.contract';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Product,
       ProductCategory,
+      ProductImage,
+      ProductPriceHistory,
       Location,
       StockLevel,
       StockMovement,
@@ -44,7 +51,7 @@ import { GoodsReceiptPort } from './contracts/goods-receipt.contract';
   ],
   // The stock controller first: its literal paths must win over the catalogue's `inventory/:id`.
   controllers: [StockController, InventoryController, ProductCategoriesController],
-  providers: [
+  providers: [InventoryCopilotTools, 
     InventoryService,
     ProductsDataTransferProvider,
     InventoryPostingService,
@@ -56,7 +63,10 @@ import { GoodsReceiptPort } from './contracts/goods-receipt.contract';
     VendorBillInventoryHandler,
     // Purchasing brings goods into stock through the port, not through the service.
     { provide: GoodsReceiptPort, useExisting: InventoryService },
+    ProductImagesService,
+    // Photo-assisted entry asks the catalogue through the port, not through the service.
+    { provide: ProductCatalogPort, useExisting: ProductImagesService },
   ],
-  exports: [InventoryService, ProductCategoriesService, GoodsReceiptPort, StockLedgerService],
+  exports: [InventoryService, ProductCategoriesService, GoodsReceiptPort, StockLedgerService, ProductCatalogPort],
 })
 export class InventoryModule {}

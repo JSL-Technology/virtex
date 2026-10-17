@@ -14,6 +14,26 @@
     "en": "The Accounts Payable account is not configured.",
     "pt": "A conta de Contas a Pagar não está configurada."
   },
+  "accounts_payable.attachment_not_available": {
+    "es": "Uno de los documentos adjuntos ya no está disponible. Súbelo de nuevo.",
+    "en": "One of the attached documents is no longer available. Upload it again.",
+    "pt": "Um dos documentos anexos já não está disponível. Envie-o novamente."
+  },
+  "accounts_payable.attachment_not_found": {
+    "es": "No se encontró el documento.",
+    "en": "Document not found.",
+    "pt": "Documento não encontrado."
+  },
+  "accounts_payable.attachment_too_large": {
+    "es": "El archivo supera los 20 MB.",
+    "en": "The file is larger than 20 MB.",
+    "pt": "O ficheiro tem mais de 20 MB."
+  },
+  "accounts_payable.attachment_unsupported": {
+    "es": "Sube una foto (JPG, PNG, WEBP, HEIC) o un PDF.",
+    "en": "Upload a photo (JPG, PNG, WEBP, HEIC) or a PDF.",
+    "pt": "Envie uma foto (JPG, PNG, WEBP, HEIC) ou um PDF."
+  },
   "accounts_payable.bank_account_name_inactive_cannot_take": {
     "es": "La cuenta bancaria «{{name}}» está inactiva y no admite movimientos.",
     "en": "Bank account “{{name}}” is inactive and cannot take movements.",
@@ -53,6 +73,136 @@
     "es": "Control presupuestario fallido: {{message}}",
     "en": "Budget control failed: {{message}}",
     "pt": "Controle orçamentário falhou: {{message}}"
+  },
+  "accounts_payable.capture.arithmetic.lines_vs_subtotal": {
+    "es": "Las líneas suman {{lines}} pero el subtotal impreso es {{subtotal}}.",
+    "en": "The lines add up to {{lines}} but the printed subtotal is {{subtotal}}.",
+    "pt": "As linhas somam {{lines}} mas o subtotal impresso é {{subtotal}}."
+  },
+  "accounts_payable.capture.arithmetic.subtotal_tax_vs_total": {
+    "es": "Subtotal más impuestos da {{computed}} pero el total impreso es {{total}}.",
+    "en": "Subtotal plus taxes is {{computed}} but the printed total is {{total}}.",
+    "pt": "Subtotal mais impostos dá {{computed}} mas o total impresso é {{total}}."
+  },
+  "accounts_payable.capture.attach_document": {
+    "es": "Adjuntar foto o PDF",
+    "en": "Attach photo or PDF",
+    "pt": "Anexar foto ou PDF"
+  },
+  "accounts_payable.capture.duplicate": {
+    "es": "Ya registraste una factura de este proveedor con el NCF {{ncf}}.",
+    "en": "You already recorded a bill from this supplier with NCF {{ncf}}.",
+    "pt": "Já registou uma fatura deste fornecedor com o NCF {{ncf}}."
+  },
+  "accounts_payable.capture.failed": {
+    "es": "No se pudo leer el documento. Puedes llenar la factura a mano.",
+    "en": "The document could not be read. You can fill in the bill by hand.",
+    "pt": "Não foi possível ler o documento. Pode preencher a fatura manualmente."
+  },
+  "accounts_payable.capture.filled": {
+    "es": "Listo: revisa los campos marcados como sugeridos.",
+    "en": "Done: review the fields marked as suggested.",
+    "pt": "Pronto: reveja os campos marcados como sugeridos."
+  },
+  "accounts_payable.capture.intro_attach": {
+    "es": "Adjunta la foto o el PDF de la factura: queda guardado con ella como evidencia para la DGII.",
+    "en": "Attach the photo or PDF of the invoice: it is kept with the bill as evidence for the DGII.",
+    "pt": "Anexe a foto ou o PDF da fatura: fica guardado com ela como evidência para a DGII."
+  },
+  "accounts_payable.capture.intro_read": {
+    "es": "Sube la foto o el PDF de la factura y llenaremos el formulario por ti. Revisa cada campo antes de guardar; el archivo queda guardado con la factura.",
+    "en": "Upload the photo or PDF of the invoice and we will fill in the form for you. Review every field before saving; the file is kept with the bill.",
+    "pt": "Envie a foto ou o PDF da fatura e preenchemos o formulário por si. Reveja cada campo antes de guardar; o ficheiro fica guardado com a fatura."
+  },
+  "accounts_payable.capture.is_credit_note": {
+    "es": "El documento es una nota de crédito: regístrala como nota, no como factura.",
+    "en": "The document is a credit note: record it as a note, not as a bill.",
+    "pt": "O documento é uma nota de crédito: registe-a como nota, não como fatura."
+  },
+  "accounts_payable.capture.ncf_error.format": {
+    "es": "El NCF leído ({{ncf}}) no tiene el formato de la DGII; no se llenó.",
+    "en": "The NCF read ({{ncf}}) is not in the DGII format; it was not filled in.",
+    "pt": "O NCF lido ({{ncf}}) não tem o formato da DGII; não foi preenchido."
+  },
+  "accounts_payable.capture.ncf_error.unknown_type": {
+    "es": "El tipo de comprobante del NCF leído ({{ncf}}) no existe; no se llenó.",
+    "en": "The comprobante type of the NCF read ({{ncf}}) does not exist; it was not filled in.",
+    "pt": "O tipo de comprovante do NCF lido ({{ncf}}) não existe; não foi preenchido."
+  },
+  "accounts_payable.capture.ncf_warning.credit_note_on_bill": {
+    "es": "{{ncf}} es una nota de crédito, no una factura.",
+    "en": "{{ncf}} is a credit note, not an invoice.",
+    "pt": "{{ncf}} é uma nota de crédito, não uma fatura."
+  },
+  "accounts_payable.capture.ncf_warning.no_tax_credit": {
+    "es": "{{ncf}} es una factura de consumo: no da crédito de ITBIS.",
+    "en": "{{ncf}} is a consumer invoice: it gives no ITBIS credit.",
+    "pt": "{{ncf}} é uma fatura de consumo: não dá crédito de ITBIS."
+  },
+  "accounts_payable.capture.ncf_warning.sales_only_type": {
+    "es": "{{ncf}} es un tipo que no se recibe en compras: verifica que se leyó bien.",
+    "en": "{{ncf}} is a type not received on purchases: check it was read correctly.",
+    "pt": "{{ncf}} é um tipo que não se recebe em compras: confirme que foi bem lido."
+  },
+  "accounts_payable.capture.not_a_bill": {
+    "es": "El archivo no parece una factura de compra.",
+    "en": "The file does not look like a purchase invoice.",
+    "pt": "O ficheiro não parece uma fatura de compra."
+  },
+  "accounts_payable.capture.open_duplicate": {
+    "es": "Abrir",
+    "en": "Open",
+    "pt": "Abrir"
+  },
+  "accounts_payable.capture.read_document": {
+    "es": "Leer foto o PDF",
+    "en": "Read photo or PDF",
+    "pt": "Ler foto ou PDF"
+  },
+  "accounts_payable.capture.reading": {
+    "es": "Leyendo el documento…",
+    "en": "Reading the document…",
+    "pt": "A ler o documento…"
+  },
+  "accounts_payable.capture.register_supplier": {
+    "es": "Registrar proveedor",
+    "en": "Register supplier",
+    "pt": "Registar fornecedor"
+  },
+  "accounts_payable.capture.remove_file": {
+    "es": "Quitar archivo",
+    "en": "Remove file",
+    "pt": "Remover ficheiro"
+  },
+  "accounts_payable.capture.review_hint": {
+    "es": "Nada se ha guardado todavía. Revisa los montos y la cuenta de cada línea antes de guardar.",
+    "en": "Nothing has been saved yet. Check the amounts and each line's account before saving.",
+    "pt": "Nada foi guardado ainda. Verifique os valores e a conta de cada linha antes de guardar."
+  },
+  "accounts_payable.capture.same_file": {
+    "es": "Este mismo archivo ya es el documento de otra factura.",
+    "en": "This same file is already the document of another bill.",
+    "pt": "Este mesmo ficheiro já é o documento de outra fatura."
+  },
+  "accounts_payable.capture.supplier_unknown": {
+    "es": "No tienes un proveedor con el RNC {{taxId}} ({{name}}).",
+    "en": "You have no supplier with RNC {{taxId}} ({{name}}).",
+    "pt": "Não tem nenhum fornecedor com o RNC {{taxId}} ({{name}})."
+  },
+  "accounts_payable.capture.tax_id_invalid": {
+    "es": "El RNC leído ({{taxId}}) no pasa la verificación: revísalo en el documento.",
+    "en": "The RNC read ({{taxId}}) fails its check digit: check it on the document.",
+    "pt": "O RNC lido ({{taxId}}) não passa a verificação: confirme-o no documento."
+  },
+  "accounts_payable.capture.title": {
+    "es": "Documento del proveedor",
+    "en": "Supplier document",
+    "pt": "Documento do fornecedor"
+  },
+  "accounts_payable.capture.uploading": {
+    "es": "Subiendo…",
+    "en": "Uploading…",
+    "pt": "A enviar…"
   },
   "accounts_payable.debit_note_already_voided": {
     "es": "Esta nota de débito ya fue anulada.",
@@ -851,10 +1001,25 @@
     "en": "Vendor bills",
     "pt": "Faturas de fornecedor"
   },
+  "accounts_payable.ncf_already_recorded": {
+    "es": "El NCF {{ncf}} de {{supplier}} ya está registrado en otra factura.",
+    "en": "NCF {{ncf}} from {{supplier}} is already recorded on another bill.",
+    "pt": "O NCF {{ncf}} de {{supplier}} já está registado noutra fatura."
+  },
+  "accounts_payable.ncf_invalid_format": {
+    "es": "El NCF {{ncf}} no tiene el formato de la DGII: B + tipo + 8 dígitos (11 caracteres) o E + tipo + 10 dígitos (13).",
+    "en": "NCF {{ncf}} is not in the DGII format: B + type + 8 digits (11 characters) or E + type + 10 digits (13).",
+    "pt": "O NCF {{ncf}} não tem o formato da DGII: B + tipo + 8 dígitos (11 caracteres) ou E + tipo + 10 dígitos (13)."
+  },
   "accounts_payable.ncf_requires_supplier_tax_id": {
     "es": "La factura con NCF {{ncf}} necesita el RNC o la cédula del proveedor {{supplier}}. Regístralo en la ficha del proveedor: el 606 identifica cada compra por él y la DGII rechaza las que no lo tienen.",
     "en": "The bill with NCF {{ncf}} needs the RNC or cédula of supplier {{supplier}}. Record it on the supplier: the 606 identifies every purchase by it and the DGII rejects those without one.",
     "pt": "A fatura com NCF {{ncf}} precisa do RNC ou da cédula do fornecedor {{supplier}}. Registre-o no cadastro do fornecedor: o 606 identifica cada compra por ele e a DGII rejeita as que não o têm."
+  },
+  "accounts_payable.ncf_unknown_type": {
+    "es": "El tipo de comprobante de {{ncf}} no existe en la DGII.",
+    "en": "The comprobante type of {{ncf}} does not exist at the DGII.",
+    "pt": "O tipo de comprovante de {{ncf}} não existe na DGII."
   },
   "accounts_payable.no_default_ledger_has_configured_organization": {
     "es": "No se ha configurado un libro contable por defecto para la organización.",

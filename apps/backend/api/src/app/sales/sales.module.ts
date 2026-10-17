@@ -1,3 +1,4 @@
+import { SalesCopilotTools } from './sales.copilot-tools';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CustomersModule } from '../customers/customers.module';
@@ -45,7 +46,7 @@ import { Customer } from '../customers/entities/customer.entity';
     OpportunitiesController,
     QuotesController,
   ],
-  providers: [
+  providers: [SalesCopilotTools, 
     LeadsService,
     OpportunitiesService,
     QuotesService,

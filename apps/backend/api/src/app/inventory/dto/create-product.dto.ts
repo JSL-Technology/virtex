@@ -10,6 +10,10 @@ import {
   MaxLength,
   Max,
   IsIn,
+  IsArray,
+  ArrayMaxSize,
+  IsObject,
+  Matches,
 } from 'class-validator';
 import { ProductKind, ProductStatus } from '../entities/product.entity';
 
@@ -100,4 +104,31 @@ export class CreateProductDto {
   @Max(1, { message: 'validation.product.tax_rate_is_a_fraction' })
   @IsOptional()
   taxRate?: number;
+
+  /** The code on the packaging. Digits, letters and dashes: what a scanner reads, nothing else. */
+  @IsString()
+  @IsOptional()
+  @MaxLength(64, { message: 'validation.constraints.max_length|{"max":64}' })
+  @Matches(/^[0-9A-Za-z-]*$/, { message: 'validation.product.barcode_format' })
+  barcode?: string | null;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
+  brand?: string | null;
+
+  /** Size, colour, weight… free keys; trimmed and bounded by `InventoryService`. */
+  @IsObject()
+  @IsOptional()
+  attributes?: Record<string, string> | null;
+
+  /**
+   * Photos uploaded before the product existed — the "create from photo" flow — to attach to it.
+   * The first becomes the primary image.
+   */
+  @IsArray()
+  @IsUUID('4', { each: true })
+  @ArrayMaxSize(8)
+  @IsOptional()
+  imageIds?: string[];
 }

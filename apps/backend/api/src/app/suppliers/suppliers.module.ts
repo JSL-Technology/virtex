@@ -1,3 +1,4 @@
+import { SuppliersCopilotTools } from './suppliers.copilot-tools';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SuppliersDataTransferProvider } from './suppliers-data-transfer.provider';
@@ -15,6 +16,7 @@ import { LocalizationProvisioningModule } from '../localization/localization-pro
     LocalizationProvisioningModule,
   ],
   controllers: [SuppliersController],
-  providers: [SuppliersService, SuppliersDataTransferProvider],
+  providers: [SuppliersCopilotTools, SuppliersService, SuppliersDataTransferProvider],
+  exports: [SuppliersService],
 })
 export class SuppliersModule {}

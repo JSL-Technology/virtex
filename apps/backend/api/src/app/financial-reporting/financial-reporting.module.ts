@@ -1,3 +1,4 @@
+import { FinancialReportingCopilotTools } from './financial-reporting.copilot-tools';
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -17,7 +18,7 @@ import { AccountingModule } from '../accounting/accounting.module';
     AccountingModule,
   ],
   controllers: [FinancialReportingController],
-  providers: [FinancialReportingService],
+  providers: [FinancialReportingCopilotTools, FinancialReportingService],
 
   exports: [FinancialReportingService],
 })

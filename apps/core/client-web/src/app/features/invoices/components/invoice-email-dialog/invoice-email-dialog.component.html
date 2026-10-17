@@ -1,0 +1,54 @@
+<vx-dialog size="md" titleKey="invoices.detail.email_title" [busy]="busy()" (dismissed)="dismissed.emit()">
+  <form class="email-dialog" (ngSubmit)="send()">
+    <p class="email-dialog__intro">{{ 'invoices.detail.email_message' | translate: { number: number(), customer: customer() } }}</p>
+
+    <div class="form-field">
+      <label for="emailTo">{{ 'invoices.email.to' | translate }}</label>
+      <input
+        id="emailTo"
+        name="to"
+        type="email"
+        autocomplete="email"
+        [placeholder]="'invoices.detail.email_placeholder' | translate"
+        [ngModel]="to()"
+        (ngModelChange)="to.set($event)"
+      />
+      @if (addressInvalid()) {
+        <p class="field-error">{{ 'invoices.detail.email_invalid' | translate }}</p>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="emailMessage">{{ 'invoices.email.message' | translate }}</label>
+      <textarea
+        id="emailMessage"
+        name="message"
+        rows="6"
+        [maxlength]="MAX_NOTE_CHARS"
+        [ngModel]="message()"
+        (ngModelChange)="message.set($event)"
+      ></textarea>
+      <p class="field-hint">{{ 'invoices.email.message_hint' | translate }}</p>
+    </div>
+
+    @if (canCompose()) {
+      <div class="email-dialog__compose">
+        <label for="emailTone">{{ 'invoices.email.tone' | translate }}</label>
+        <select id="emailTone" name="tone" [ngModel]="tone()" (ngModelChange)="tone.set($event)">
+          @for (option of TONES; track option) {
+            <option [value]="option">{{ k('invoices.email.tone', option) | translate }}</option>
+          }
+        </select>
+        <button type="button" class="secondary-button" [disabled]="composing()" (click)="compose()">
+          <lucide-icon [img]="ComposeIcon" size="16" aria-hidden="true"></lucide-icon>
+          <span>{{ (composing() ? 'invoices.email.composing' : 'invoices.email.compose') | translate }}</span>
+        </button>
+      </div>
+    }
+
+    <div class="email-dialog__actions">
+      <button type="button" class="secondary-button" (click)="dismissed.emit()">{{ 'common.cancel' | translate }}</button>
+      <button type="submit" class="primary-button" [disabled]="!canSend()">{{ 'invoices.detail.email_send' | translate }}</button>
+    </div>
+  </form>
+</vx-dialog>

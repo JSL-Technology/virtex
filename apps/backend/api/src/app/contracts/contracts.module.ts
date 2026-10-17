@@ -3,6 +3,8 @@ import { ClosingBlockerRegistry } from './closing-blockers/closing-blocker.regis
 import { DataTransferRegistry } from './data-transfer/data-transfer.registry';
 import { ApprovalSourceRegistry } from './approvals/approval-source.registry';
 import { PurchaseFiscalRecordsRegistry } from './fiscal-records/purchase-fiscal-records.registry';
+import { CopilotToolRegistry } from './copilot/copilot-tools.contract';
+import { CashPositionRegistry } from './treasury/cash-position.contract';
 
 /**
  * Los contratos por los que dos módulos se hablan sin conocerse.
@@ -20,7 +22,7 @@ import { PurchaseFiscalRecordsRegistry } from './fiscal-records/purchase-fiscal-
  */
 @Global()
 @Module({
-  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry],
-  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry],
+  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry],
+  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry],
 })
 export class ContractsModule {}

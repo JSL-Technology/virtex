@@ -399,6 +399,11 @@
     "en": "Recommended",
     "pt": "Recomendado"
   },
+  "register.steps.plan.resources.ai_credits": {
+    "es": "créditos de IA",
+    "en": "AI credits",
+    "pt": "créditos de IA"
+  },
   "register.steps.plan.resources.customers": {
     "es": "clientes",
     "en": "customers",

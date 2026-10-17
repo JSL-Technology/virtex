@@ -1,3 +1,10 @@
+import { AccountsPayableCopilotTools } from './accounts-payable.copilot-tools';
+import { BillCaptureController } from './bill-capture.controller';
+import { BillCaptureService } from './bill-capture.service';
+import { VendorBillAttachment } from './entities/vendor-bill-attachment.entity';
+// Bills read from a photo find their supplier by RNC, and ask the registry about an unknown one.
+import { SuppliersModule } from '../suppliers/suppliers.module';
+import { LocalizationProvisioningModule } from '../localization/localization-provisioning.module';
 
 import { VendorBillsDataTransferProvider } from './vendor-bills-data-transfer.provider';
 import { Module } from '@nestjs/common';
@@ -40,6 +47,7 @@ import { AuthModule } from '../auth/auth.module';
     TypeOrmModule.forFeature([
       VendorBill,
       VendorBillLine,
+      VendorBillAttachment,
       VendorPayment,
       VendorDebitNote,
       PaymentBatch,
@@ -57,9 +65,12 @@ import { AuthModule } from '../auth/auth.module';
     PeriodLockModule,
     AccountingModule,
     AuthModule,
+    SuppliersModule,
+    LocalizationProvisioningModule,
   ],
-  controllers: [AccountsPayableController, VendorDebitNotesController, VendorPaymentsController, SupplierStatementsController],
-  providers: [
+  controllers: [BillCaptureController, AccountsPayableController, VendorDebitNotesController, VendorPaymentsController, SupplierStatementsController],
+  providers: [AccountsPayableCopilotTools,
+    BillCaptureService,
     PayablesInboxProvider,
     VendorBillsDataTransferProvider,
     AccountsPayableService,

@@ -1,3 +1,4 @@
+import { CustomersCopilotTools } from './customers.copilot-tools';
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -55,7 +56,7 @@ import { CustomerStatementService } from './customer-statement.service';
     CustomerPaymentsController,
     CustomerGroupsController,
   ],
-  providers: [
+  providers: [CustomersCopilotTools, 
     CustomerStatementService,
     CustomersService,
     CustomersDataTransferProvider,

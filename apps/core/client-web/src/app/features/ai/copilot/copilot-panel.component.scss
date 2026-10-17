@@ -1,0 +1,299 @@
+//  Docked to the right of the work area, under the top bar: the screen being asked about stays
+//  visible next to the answer. On a narrow screen it takes the whole width.
+:host {
+  position: fixed;
+  inset-block: var(--header-height, 3.5rem) 0;
+  inset-inline-end: 0;
+  z-index: var(--z-drawer);
+  display: flex;
+  width: min(26rem, 100vw);
+  border-inline-start: 1px solid var(--border-default);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-lg);
+}
+
+.cp {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cp__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.cp__mark { color: var(--accent-text); }
+
+.cp__title {
+  flex: 1;
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+}
+
+.cp__messages {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  overflow-y: auto;
+}
+
+.cp__muted {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+.cp__notice {
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  font-size: var(--text-sm);
+}
+
+.cp__welcome {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cp__welcome-title {
+  margin: 0;
+  font-weight: var(--font-semibold);
+}
+
+.cp__suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cp__suggestion {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+  color: var(--content-primary);
+  font: inherit;
+  font-size: var(--text-sm);
+  text-align: start;
+  cursor: pointer;
+
+  &:hover { background: var(--surface-hover); }
+}
+
+.cp__bubble {
+  max-width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.cp__bubble--user {
+  align-self: flex-end;
+  max-width: 85%;
+  background: var(--accent-surface);
+  color: var(--content-primary);
+  white-space: pre-wrap;
+}
+
+.cp__bubble--assistant {
+  background: var(--surface-sunken);
+  color: var(--content-primary);
+
+  ::ng-deep {
+    p { margin: 0 0 var(--space-2); }
+    p:last-child { margin-block-end: 0; }
+    ul, ol { margin: 0 0 var(--space-2); padding-inline-start: var(--space-5); }
+    code { font-size: 0.95em; }
+    .cp-table { overflow-x: auto; margin-block-end: var(--space-2); }
+    table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    th, td { padding: var(--space-1) var(--space-2); border-block-end: 1px solid var(--border-subtle); text-align: start; }
+  }
+}
+
+.cp__answer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cp__sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cp__source {
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  color: var(--content-secondary);
+}
+
+.cp__source--active {
+  border-color: var(--accent-border);
+  color: var(--accent-text);
+}
+
+.cp__thinking { font-style: italic; }
+
+.cp__proposal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+}
+
+.cp__proposal--decided { border-color: var(--border-subtle); }
+
+.cp__proposal-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.cp__proposal-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+}
+
+.cp__proposal-party {
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+.cp__lines {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+
+  td { padding: var(--space-1) 0; border-block-end: 1px solid var(--border-subtle); }
+}
+
+.cp__num {
+  padding-inline-start: var(--space-2);
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cp__totals {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+
+  dd { margin: 0; font-variant-numeric: tabular-nums; }
+}
+
+.cp__proposal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.cp__created {
+  font-size: var(--text-sm);
+  color: var(--accent-text);
+}
+
+.cp__error {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--error-text);
+}
+
+.cp__composer {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) 0;
+  border-block-start: 1px solid var(--border-subtle);
+
+  textarea {
+    flex: 1;
+    min-height: 2.75rem;
+    max-height: 10rem;
+    resize: vertical;
+    font: inherit;
+    font-size: var(--text-sm);
+  }
+}
+
+.cp__disclaimer {
+  margin: 0;
+  padding: var(--space-1) var(--space-3) var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--content-secondary);
+}
+
+.cp__history {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: var(--space-2);
+  overflow-y: auto;
+  list-style: none;
+
+  li { display: flex; align-items: center; gap: var(--space-1); }
+  .cp__muted { padding: var(--space-3); }
+}
+
+.cp__history-item {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--content-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover { background: var(--surface-hover); }
+}
+
+.cp__history-item--current { background: var(--surface-selected); }
+
+.cp__history-title {
+  overflow: hidden;
+  font-size: var(--text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cp__history-when {
+  font-size: var(--text-xs);
+  color: var(--content-secondary);
+}

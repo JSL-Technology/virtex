@@ -608,6 +608,56 @@
     "en": "Stock movements",
     "pt": "Movimentos de existências"
   },
+  "invoices.email.compose": {
+    "es": "Redactar con IA",
+    "en": "Draft with AI",
+    "pt": "Redigir com IA"
+  },
+  "invoices.email.compose_failed": {
+    "es": "No se pudo redactar el mensaje. Escríbelo a mano o inténtalo de nuevo.",
+    "en": "The message could not be drafted. Write it yourself or try again.",
+    "pt": "Não foi possível redigir a mensagem. Escreva-a manualmente ou tente novamente."
+  },
+  "invoices.email.composing": {
+    "es": "Redactando…",
+    "en": "Drafting…",
+    "pt": "A redigir…"
+  },
+  "invoices.email.message": {
+    "es": "Mensaje para el cliente",
+    "en": "Message to the customer",
+    "pt": "Mensagem para o cliente"
+  },
+  "invoices.email.message_hint": {
+    "es": "Opcional. Va en el cuerpo del correo, junto con el PDF de la factura.",
+    "en": "Optional. It goes in the body of the e-mail, with the invoice PDF.",
+    "pt": "Opcional. Vai no corpo do e-mail, com o PDF da fatura."
+  },
+  "invoices.email.to": {
+    "es": "Enviar a",
+    "en": "Send to",
+    "pt": "Enviar para"
+  },
+  "invoices.email.tone": {
+    "es": "Tono",
+    "en": "Tone",
+    "pt": "Tom"
+  },
+  "invoices.email.tone.cordial": {
+    "es": "Cordial",
+    "en": "Friendly",
+    "pt": "Cordial"
+  },
+  "invoices.email.tone.firm": {
+    "es": "Firme",
+    "en": "Firm",
+    "pt": "Firme"
+  },
+  "invoices.email.tone.formal": {
+    "es": "Formal",
+    "en": "Formal",
+    "pt": "Formal"
+  },
   "invoices.entry_document_invoice_number_does_not": {
     "es": "El asiento del documento {{invoiceNumber}} no cuadra: débitos {{debit}} frente a créditos {{credit}}.",
     "en": "The entry for document {{invoiceNumber}} does not balance: debits {{debit}} against credits {{credit}}.",

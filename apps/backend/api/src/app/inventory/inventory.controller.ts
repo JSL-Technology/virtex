@@ -1,11 +1,27 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+  Logger,
+} from '@nestjs/common';
+import * as fs from 'fs/promises';
+import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
+import { FastifyFile, spooledUploadPath } from '../common/interfaces/fastify-file.interface';
+import { BadRequestError } from '../i18n/localized.exception';
+import { ProductImagesService } from './product-images.service';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { InventoryService } from './inventory.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
@@ -13,7 +29,57 @@ import { clampLimit } from '../common/database/search-term';
 
 @Controller('inventory')
 export class InventoryController {
-  constructor(private readonly inventoryService: InventoryService) {}
+  private readonly logger = new Logger(InventoryController.name);
+
+  constructor(
+    private readonly inventoryService: InventoryService,
+    private readonly images: ProductImagesService,
+  ) {}
+
+  /**
+   * Store a product photo before the product exists; the create request claims it by id.
+   *
+   * The image was only ever previewed in the browser and its URL field left empty, so no product in
+   * the catalogue had a photo. The bytes are decoded, stripped of metadata (GPS included) and
+   * re-encoded before they are stored — see `ProductImagesService.storeImage`.
+   */
+  @Post('images')
+  @HasPermission(PERMISSIONS.PRODUCTS_CREATE)
+  @UseInterceptors(
+    FastifyFileInterceptor('file', {
+      fileFilter: (_req, file, cb) => {
+        if (!/^image\/(jpe?g|png|webp|gif|heic|heif|avif)$/i.test(file.mimetype)) {
+          return cb(new BadRequestError('inventory.product_image.not_an_image'), false);
+        }
+        cb(null, true);
+      },
+      limits: { fileSize: 12 * 1024 * 1024 },
+    }),
+  )
+  async uploadImage(@UploadedFile() file: FastifyFile, @CurrentUser() user: AuthenticatedUser) {
+    if (!file) throw new BadRequestError('users.file_required');
+    const spooled = spooledUploadPath(file);
+    try {
+      const buffer = file.buffer ?? (spooled ? await fs.readFile(spooled) : null);
+      if (!buffer?.length) throw new BadRequestError('users.file_required');
+      const image = await this.images.storeImage(user.organizationId, user.id, {
+        fileName: file.originalname ?? file.filename,
+        mimeType: file.mimetype,
+        buffer,
+      });
+      return { id: image.id, width: image.width, height: image.height };
+    } finally {
+      if (spooled) {
+        await fs.unlink(spooled).catch((error) => this.logger.warn(`Failed to remove ${spooled}: ${error.message}`));
+      }
+    }
+  }
+
+  @Get(':id/images')
+  @HasPermission(PERMISSIONS.PRODUCTS_VIEW)
+  listImages(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.images.listForProduct(user.organizationId, id);
+  }
 
   @Post()
   @HasPermission(PERMISSIONS.PRODUCTS_CREATE)

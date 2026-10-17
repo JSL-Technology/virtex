@@ -70,6 +70,19 @@
       "FAILED",
       "RECONCILED"
     ],
+    "accounts_payable.capture.arithmetic": [
+      "lines_vs_subtotal",
+      "subtotal_tax_vs_total"
+    ],
+    "accounts_payable.capture.ncf_error": [
+      "format",
+      "unknown_type"
+    ],
+    "accounts_payable.capture.ncf_warning": [
+      "no_tax_credit",
+      "credit_note_on_bill",
+      "sales_only_type"
+    ],
     "accounts_payable.debit_notes.status": [
       "POSTED",
       "VOIDED"
@@ -88,6 +101,229 @@
       "PAID",
       "VOID",
       "REJECTED"
+    ],
+    "ai.admin.feature": [
+      "vision",
+      "forecasting",
+      "anomalies",
+      "explanations"
+    ],
+    "ai.admin.run_kind": [
+      "forecast",
+      "anomaly"
+    ],
+    "ai.admin.run_status": [
+      "QUEUED",
+      "RUNNING",
+      "SUCCEEDED",
+      "FAILED"
+    ],
+    "ai.admin.state": [
+      "available",
+      "not_in_plan",
+      "provider_missing"
+    ],
+    "ai.admin.usage_feature": [
+      "anomaly_narrative",
+      "bill_capture",
+      "column_mapping",
+      "compose",
+      "copilot",
+      "deep_analysis",
+      "product_image_embedding",
+      "product_vision",
+      "reconcile_ambiguous"
+    ],
+    "ai.anomalies.category_label": [
+      "sales",
+      "purchases",
+      "inventory",
+      "cash",
+      "security"
+    ],
+    "ai.anomalies.detector": [
+      "rule_duplicate_vendor_bill",
+      "rule_sale_below_cost",
+      "rule_pos_cancellations",
+      "rule_large_inventory_adjustment",
+      "timeseries_branch_sales",
+      "outlier_invoice",
+      "forensic_benford",
+      "rule_duplicate_customer_payment",
+      "rule_vendor_overpayment",
+      "rule_three_way_match",
+      "rule_returns_spike",
+      "rule_price_change",
+      "rule_invoiced_price",
+      "rule_discount",
+      "rule_post_issue_change",
+      "rule_off_hours"
+    ],
+    "ai.anomalies.evidence": [
+      "fiscalNumber",
+      "total",
+      "count",
+      "reason",
+      "invoiceNumber",
+      "revenue",
+      "cost",
+      "loss",
+      "margin",
+      "tickets",
+      "cancelled",
+      "cancelledTotal",
+      "rate",
+      "typicalRate",
+      "quantity",
+      "unitCost",
+      "value",
+      "typicalValue",
+      "direction",
+      "amount",
+      "expected",
+      "robustZ",
+      "discountRatio",
+      "hour",
+      "lines",
+      "percentile",
+      "bills",
+      "mad",
+      "threshold",
+      "pValue",
+      "reference",
+      "billTotal",
+      "settled",
+      "excess",
+      "payments",
+      "orderNumber",
+      "valueNotReceived",
+      "orderTotal",
+      "billedTotal",
+      "dispatched",
+      "returned",
+      "returnRate",
+      "previousRate",
+      "tenantRate",
+      "productName",
+      "reasons",
+      "oldPrice",
+      "newPrice",
+      "oldCost",
+      "newCost",
+      "localHour",
+      "offHours",
+      "price",
+      "typicalPrice",
+      "comparedWith",
+      "discount",
+      "typicalRatio",
+      "action",
+      "statusBefore",
+      "fields",
+      "actions",
+      "hours",
+      "shareOfActivityAtThoseHours",
+      "timezone"
+    ],
+    "ai.anomalies.severity_label": [
+      "LOW",
+      "MEDIUM",
+      "HIGH",
+      "CRITICAL"
+    ],
+    "ai.anomalies.status_label": [
+      "OPEN",
+      "CONFIRMED",
+      "DISMISSED"
+    ],
+    "ai.anomalies.value": [
+      "same_fiscal_number",
+      "same_amount_and_date",
+      "loss",
+      "gain",
+      "drop",
+      "spike",
+      "same_reference",
+      "settled_above_total",
+      "identical_payments",
+      "billed_not_received",
+      "billed_above_ordered",
+      "billed_above_order_total",
+      "price_drop",
+      "price_rise",
+      "cost_drop",
+      "cost_rise",
+      "price_below_cost",
+      "below",
+      "above",
+      "UPDATE",
+      "DELETE",
+      "true",
+      "false"
+    ],
+    "ai.cashflow.component": [
+      "receivables",
+      "new_sales",
+      "payables",
+      "new_spending",
+      "payroll",
+      "scenario"
+    ],
+    "ai.cashflow.kind": [
+      "RECEIVABLE",
+      "PAYABLE"
+    ],
+    "ai.copilot.proposal": [
+      "draft_invoice",
+      "draft_quote",
+      "draft_purchase_order"
+    ],
+    "ai.copilot.proposal_status": [
+      "PROPOSED",
+      "CONFIRMED",
+      "REJECTED",
+      "FAILED",
+      "EXPIRED"
+    ],
+    "ai.copilot.tool": [
+      "anomalies",
+      "balance_sheet",
+      "business_summary",
+      "cash_position",
+      "cashflow_forecast",
+      "draft_invoice",
+      "draft_purchase_order",
+      "draft_quote",
+      "expected_collections",
+      "forecast_summary",
+      "get_invoice",
+      "income_statement",
+      "inventory_forecast",
+      "list_invoices",
+      "list_purchase_orders",
+      "list_quotes",
+      "payables_aging",
+      "receivables_aging",
+      "sales_trend",
+      "search_customers",
+      "search_help",
+      "search_products",
+      "search_suppliers",
+      "stock_on_hand",
+      "supplier_lead_times",
+      "top_sellers_by_branch"
+    ],
+    "ai.photo.match_reason": [
+      "barcode",
+      "name",
+      "image"
+    ],
+    "ai.predictions.status_label": [
+      "STOCKOUT_RISK",
+      "REORDER",
+      "OVERSTOCK",
+      "DEAD_STOCK",
+      "OK"
     ],
     "approvals.document_type": [
       "VENDOR_BILL",
@@ -307,6 +543,11 @@
       "TRANSFER_OUT",
       "TRANSFER_IN"
     ],
+    "invoices.email.tone": [
+      "cordial",
+      "formal",
+      "firm"
+    ],
     "invoices.payment_method": [
       "CASH",
       "CHECK",
@@ -434,6 +675,25 @@
       "JOURNAL_ENTRIES",
       "SUBSIDIARIES"
     ],
+    "relationship_map.category": [
+      "flow",
+      "settlement",
+      "posting",
+      "reversal",
+      "correction",
+      "fiscal"
+    ],
+    "relationship_map.csv": [
+      "type",
+      "number",
+      "party",
+      "date",
+      "amount",
+      "currency",
+      "status",
+      "description",
+      "depth"
+    ],
     "relationship_map.doc": [
       "sales_opportunity",
       "sales_quote",
@@ -453,6 +713,14 @@
       "inventory_adjustment",
       "payroll_run",
       "fixed_asset"
+    ],
+    "relationship_map.module": [
+      "sales",
+      "purchasing",
+      "finance",
+      "inventory",
+      "hr",
+      "assets"
     ],
     "relationship_map.rel": [
       "quoted",
@@ -895,33 +1163,6 @@
       "date",
       "select",
       "user"
-    ],
-    "relationship_map.module": [
-      "sales",
-      "purchasing",
-      "finance",
-      "inventory",
-      "hr",
-      "assets"
-    ],
-    "relationship_map.category": [
-      "flow",
-      "settlement",
-      "posting",
-      "reversal",
-      "correction",
-      "fiscal"
-    ],
-    "relationship_map.csv": [
-      "type",
-      "number",
-      "party",
-      "date",
-      "amount",
-      "currency",
-      "status",
-      "description",
-      "depth"
     ]
   },
   "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",

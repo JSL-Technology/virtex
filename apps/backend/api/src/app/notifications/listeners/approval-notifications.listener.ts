@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { DataSource } from 'typeorm';
 import { LanguageCode, composeKey, matchLanguage } from '@virteex/shared/types';
-import { hasPermission } from '@virteex/shared/util-auth';
 import {
   APPROVAL_DECIDED,
   APPROVAL_REQUESTED,
@@ -10,6 +9,7 @@ import {
   ApprovalRequestedEvent,
 } from '../../workflows/events/approval.events';
 import { NotificationsService } from '../notifications.service';
+import { Recipient, membersWithPermission } from '../recipients';
 
 /** Where the document behind a request is opened in the client, by type. */
 const DOCUMENT_LINKS: Readonly<Record<string, (id: string) => string>> = {
@@ -21,11 +21,6 @@ const DOCUMENT_LINKS: Readonly<Record<string, (id: string) => string>> = {
   PURCHASE_ORDER: (id) => `/purchasing/orders/${id}/edit`,
   PURCHASE_REQUISITION: (id) => `/purchasing/requisitions/${id}/edit`,
 };
-
-interface Recipient {
-  id: string;
-  language: string | null;
-}
 
 /**
  * Approvals in the bell (QA B-02: «la campana no muestra ninguna notificación pese a los eventos»).
@@ -119,25 +114,8 @@ export class ApprovalNotificationsListener {
   }
 
   /** Active, unsuspended members of this company holding a permission here; never the requester. */
-  private async membersWithPermission(organizationId: string, permission: string, requesterId: string | null): Promise<Recipient[]> {
-    const rows: { id: string; language: string | null; permissions: string | null }[] = await this.dataSource.query(
-      `SELECT u.id, u.preferred_language AS language, r.permissions
-         FROM users u
-         JOIN user_organizations m ON m.user_id = u.id AND m.organization_id = $1 AND m.suspended_at IS NULL
-         JOIN user_roles ur ON ur.user_id = u.id
-         JOIN roles r ON r.id = ur.role_id AND (r.organization_id = $1 OR r.organization_id IS NULL)
-        WHERE u.status = 'ACTIVE' AND ($2::uuid IS NULL OR u.id <> $2::uuid)`,
-      [organizationId, requesterId],
-    );
-    const byUser = new Map<string, { language: string | null; permissions: string[] }>();
-    for (const row of rows) {
-      const entry = byUser.get(row.id) ?? { language: row.language, permissions: [] };
-      entry.permissions.push(...(row.permissions ?? '').split(',').map((p) => p.trim()).filter(Boolean));
-      byUser.set(row.id, entry);
-    }
-    return [...byUser.entries()]
-      .filter(([, entry]) => hasPermission(entry.permissions, [permission]))
-      .map(([id, entry]) => ({ id, language: entry.language }));
+  private membersWithPermission(organizationId: string, permission: string, requesterId: string | null): Promise<Recipient[]> {
+    return membersWithPermission(this.dataSource, organizationId, permission, requesterId);
   }
 
   /** Active, unsuspended members of this company holding the step's role; never the requester. */

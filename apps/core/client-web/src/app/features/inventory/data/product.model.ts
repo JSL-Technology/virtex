@@ -28,6 +28,12 @@ export interface Product {
   exciseRate?: number;
   fiscalItemCode?: string | null;
 
+  /** The code on the packaging (EAN/UPC/GTIN), unique among the tenant's products. */
+  barcode?: string | null;
+  brand?: string | null;
+  /** Size, colour, weight… free descriptive pairs. */
+  attributes?: Record<string, string> | null;
+
   organizationId: string;
   createdAt: Date;
   updatedAt: Date;
