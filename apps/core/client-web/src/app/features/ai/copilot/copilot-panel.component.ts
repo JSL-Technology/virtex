@@ -44,6 +44,7 @@ interface PanelMessage {
 /** Example questions, offered when the person can use the tool that answers them. */
 const SUGGESTIONS: ReadonlyArray<{ tool: string; key: string }> = [
   { tool: 'business_summary', key: 'ai.copilot.suggestion.summary' },
+  { tool: 'cashflow_forecast', key: 'ai.copilot.suggestion.cashflow' },
   { tool: 'receivables_aging', key: 'ai.copilot.suggestion.receivables' },
   { tool: 'inventory_forecast', key: 'ai.copilot.suggestion.stockouts' },
   { tool: 'top_sellers_by_branch', key: 'ai.copilot.suggestion.top_sellers' },

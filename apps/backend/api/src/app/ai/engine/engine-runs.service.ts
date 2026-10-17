@@ -34,6 +34,28 @@ export const ANOMALY_DEFAULTS = {
   lookbackDays: 90,
 } as const;
 
+/** The cash-flow simulation; `openingCash` is added per run from the ledger (see CashflowService). */
+export const CASHFLOW_DEFAULTS = {
+  horizonDays: 90,
+  paths: 2000,
+  historyDays: 730,
+  threshold: 0,
+} as const;
+
+const DEFAULTS: Record<AiModelRunKind, Record<string, unknown>> = {
+  FORECAST: FORECAST_DEFAULTS,
+  ANOMALY: ANOMALY_DEFAULTS,
+  CASHFLOW: CASHFLOW_DEFAULTS,
+  SCENARIO: CASHFLOW_DEFAULTS,
+};
+
+const JOB_NAMES: Record<AiModelRunKind, string> = {
+  FORECAST: 'forecast',
+  ANOMALY: 'anomalies',
+  CASHFLOW: 'cashflow',
+  SCENARIO: 'scenario',
+};
+
 /**
  * Starting forecasting and anomaly runs, and knowing what became of them.
  *
@@ -59,6 +81,7 @@ export class EngineRunsService {
     kind: AiModelRunKind,
     trigger: AiModelRunTrigger,
     requestedByUserId: string | null,
+    extraParams: Record<string, unknown> = {},
   ): Promise<AiModelRun> {
     await this.expireStale(organizationId);
     const active = await this.runs.findOne({
@@ -67,15 +90,14 @@ export class EngineRunsService {
     });
     if (active) return active;
 
-    const params: Record<string, unknown> =
-      kind === 'FORECAST' ? { ...FORECAST_DEFAULTS } : { ...ANOMALY_DEFAULTS };
+    const params: Record<string, unknown> = { ...DEFAULTS[kind], ...extraParams };
     const run = await this.runs.save(
       this.runs.create({ organizationId, kind, trigger, requestedByUserId, status: 'QUEUED', params }),
     );
 
     try {
       await this.queue.add(
-        kind === 'FORECAST' ? 'forecast' : 'anomalies',
+        JOB_NAMES[kind],
         { organizationId, runId: run.id, kind, params },
         {
           // The run id deduplicates the enqueue; the engine deduplicates the execution by refusing

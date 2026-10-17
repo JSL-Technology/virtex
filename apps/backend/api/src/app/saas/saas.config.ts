@@ -66,6 +66,11 @@ export const SAAS_FEATURE_KEYS = [
   // The copilot: a conversation that reads and drafts through the user's own permissions. Every
   // model turn is metered by `AI_CREDITS`.
   'ai_assistant',
+  'ai_cashflow',
+  'ai_reconciliation',
+  'ai_collections',
+  'ai_manager_reports',
+  'ai_agents',
 ] as const;
 export type SaasFeatureKey = (typeof SAAS_FEATURE_KEYS)[number];
 
@@ -205,6 +210,11 @@ export const SAAS_PLANS: PlanConfig[] = [
       { featureKey: 'ai_forecasting', isEnabled: false },
       { featureKey: 'ai_anomalies', isEnabled: false },
       { featureKey: 'ai_assistant', isEnabled: false },
+      { featureKey: 'ai_cashflow', isEnabled: false },
+      { featureKey: 'ai_reconciliation', isEnabled: false },
+      { featureKey: 'ai_collections', isEnabled: false },
+      { featureKey: 'ai_manager_reports', isEnabled: false },
+      { featureKey: 'ai_agents', isEnabled: false },
     ]
   },
   {
@@ -232,6 +242,11 @@ export const SAAS_PLANS: PlanConfig[] = [
       { featureKey: 'ai_forecasting', isEnabled: true },
       { featureKey: 'ai_anomalies', isEnabled: true },
       { featureKey: 'ai_assistant', isEnabled: true },
+      { featureKey: 'ai_cashflow', isEnabled: true },
+      { featureKey: 'ai_reconciliation', isEnabled: true },
+      { featureKey: 'ai_collections', isEnabled: true },
+      { featureKey: 'ai_manager_reports', isEnabled: true },
+      { featureKey: 'ai_agents', isEnabled: true },
     ]
   },
   {
@@ -259,6 +274,11 @@ export const SAAS_PLANS: PlanConfig[] = [
       { featureKey: 'ai_forecasting', isEnabled: true },
       { featureKey: 'ai_anomalies', isEnabled: true },
       { featureKey: 'ai_assistant', isEnabled: true },
+      { featureKey: 'ai_cashflow', isEnabled: true },
+      { featureKey: 'ai_reconciliation', isEnabled: true },
+      { featureKey: 'ai_collections', isEnabled: true },
+      { featureKey: 'ai_manager_reports', isEnabled: true },
+      { featureKey: 'ai_agents', isEnabled: true },
     ]
   }
 ];

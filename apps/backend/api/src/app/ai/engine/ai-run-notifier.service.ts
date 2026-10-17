@@ -10,6 +10,9 @@ import { currentTenantStore } from '../../shared/tenancy/tenant-context';
 /** A run that finished longer ago than this is history, not news: it is closed without a notice. */
 const NEWS_FOR_HOURS = 36;
 
+/** The chance of a shortfall from which the people who watch the cash are told. */
+const CASHFLOW_ALERT_PROBABILITY = 0.3;
+
 /**
  * Turns what a finished run found into one announcement — the AI telling people, instead of
  * waiting for them to open a screen.
@@ -34,7 +37,7 @@ export class AiRunNotifierService {
   async announce(organizationId: string, runId: string): Promise<AiRunFindingsEvent | null> {
     const event = await runAsTenantJob(this.dataSource, organizationId, async () => {
       const manager = currentTenantStore()?.manager ?? this.dataSource.manager;
-      const claimed: { id: string; kind: 'FORECAST' | 'ANOMALY'; started_at: Date | null; stale: boolean }[] =
+      const claimed: { id: string; kind: string; started_at: Date | null; stale: boolean }[] =
         await manager.query(
           `UPDATE ai_model_runs r
               SET notified_at = now()
@@ -51,9 +54,11 @@ export class AiRunNotifierService {
       const run = rows[0];
       // Not ours to announce (another replica did, or it is not finished), or superseded/old news.
       if (!run || run.stale) return null;
-      return run.kind === 'FORECAST'
-        ? this.forecastFindings(manager, organizationId, run.id)
-        : this.anomalyFindings(manager, organizationId, run.id, run.started_at);
+      if (run.kind === 'FORECAST') return this.forecastFindings(manager, organizationId, run.id);
+      if (run.kind === 'ANOMALY') return this.anomalyFindings(manager, organizationId, run.id, run.started_at);
+      if (run.kind === 'CASHFLOW') return this.cashflowFindings(manager, organizationId, run.id);
+      // A scenario is somebody's own question, answered on their screen: not news for the bell.
+      return null;
     });
     if (event) this.events.emit(AI_RUN_FINDINGS, event);
     return event;
@@ -110,6 +115,27 @@ export class AiRunNotifierService {
         count: Number(rows[0].total),
         earliestDate: rows[0].stockout_date,
         products: [...new Set(rows.map((r) => r.product_name))],
+      },
+    };
+  }
+
+  /** A shortfall worth hearing about: at least 30 % of the simulated paths go below the threshold. */
+  private async cashflowFindings(manager: EntityManager, organizationId: string, runId: string): Promise<AiRunFindingsEvent | null> {
+    const [row]: { metrics: Record<string, unknown> | null; params: Record<string, unknown> | null }[] = await manager.query(
+      `SELECT metrics, params FROM ai_model_runs WHERE id = $1 AND organization_id = $2`,
+      [runId, organizationId],
+    );
+    const probability = Number(row?.metrics?.['shortfallProbability'] ?? 0);
+    if (!(probability >= CASHFLOW_ALERT_PROBABILITY)) return null;
+    return {
+      organizationId,
+      runId,
+      kind: 'CASHFLOW',
+      cashflow: {
+        probability,
+        date: (row?.metrics?.['firstLikelyShortfallDate'] as string) ?? null,
+        lowestExpected: Number(row?.metrics?.['lowestP50'] ?? 0),
+        currency: (row?.params?.['baseCurrency'] as string) ?? null,
       },
     };
   }

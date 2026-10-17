@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
-export type AiModelRunKind = 'FORECAST' | 'ANOMALY';
+export type AiModelRunKind = 'FORECAST' | 'ANOMALY' | 'CASHFLOW' | 'SCENARIO';
 export type AiModelRunStatus = 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED';
 export type AiModelRunTrigger = 'SCHEDULED' | 'MANUAL' | 'EVENT';
 

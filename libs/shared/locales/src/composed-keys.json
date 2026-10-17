@@ -261,6 +261,18 @@
       "true",
       "false"
     ],
+    "ai.cashflow.component": [
+      "receivables",
+      "new_sales",
+      "payables",
+      "new_spending",
+      "payroll",
+      "scenario"
+    ],
+    "ai.cashflow.kind": [
+      "RECEIVABLE",
+      "PAYABLE"
+    ],
     "ai.copilot.proposal": [
       "draft_invoice",
       "draft_quote",
@@ -274,29 +286,32 @@
       "EXPIRED"
     ],
     "ai.copilot.tool": [
-      "inventory_forecast",
-      "forecast_summary",
-      "top_sellers_by_branch",
-      "supplier_lead_times",
       "anomalies",
-      "search_customers",
-      "receivables_aging",
-      "search_suppliers",
-      "payables_aging",
-      "search_products",
-      "stock_on_hand",
-      "income_statement",
       "balance_sheet",
-      "cash_position",
       "business_summary",
-      "sales_trend",
-      "list_invoices",
-      "get_invoice",
+      "cash_position",
+      "cashflow_forecast",
       "draft_invoice",
-      "list_quotes",
+      "draft_purchase_order",
       "draft_quote",
+      "expected_collections",
+      "forecast_summary",
+      "get_invoice",
+      "income_statement",
+      "inventory_forecast",
+      "list_invoices",
       "list_purchase_orders",
-      "draft_purchase_order"
+      "list_quotes",
+      "payables_aging",
+      "receivables_aging",
+      "sales_trend",
+      "search_customers",
+      "search_help",
+      "search_products",
+      "search_suppliers",
+      "stock_on_hand",
+      "supplier_lead_times",
+      "top_sellers_by_branch"
     ],
     "ai.photo.match_reason": [
       "barcode",

@@ -13,7 +13,7 @@ export const AI_RUN_FINDINGS = 'ai.run.findings';
 export interface AiRunFindingsEvent {
   organizationId: string;
   runId: string;
-  kind: 'FORECAST' | 'ANOMALY';
+  kind: 'FORECAST' | 'ANOMALY' | 'CASHFLOW';
   /** FORECAST: product × warehouse rows at risk of stocking out within their lead time. */
   stockouts?: {
     count: number;
@@ -26,5 +26,14 @@ export interface AiRunFindingsEvent {
   anomalies?: {
     count: number;
     critical: number;
+  };
+  /** CASHFLOW: the projection gives a real chance of the balance falling below the threshold. */
+  cashflow?: {
+    /** 0–1. */
+    probability: number;
+    /** The first day the shortfall becomes likely (≥ 10 % of paths), ISO date. */
+    date: string | null;
+    lowestExpected: number;
+    currency: string | null;
   };
 }

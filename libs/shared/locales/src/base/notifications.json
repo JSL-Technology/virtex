@@ -39,6 +39,21 @@
     "en": "Critical anomalies to review",
     "pt": "Anomalias críticas para revisar"
   },
+  "notifications.ai.cashflow.body": {
+    "es": "Hay un {{percent}} % de probabilidad de que el saldo baje del mínimo, desde el {{date}}. Saldo esperado en el peor momento: {{lowest}}.",
+    "en": "There is a {{percent}} % chance the balance falls below the minimum, from {{date}}. Expected balance at its lowest: {{lowest}}.",
+    "pt": "Há {{percent}} % de probabilidade de o saldo descer abaixo do mínimo, a partir de {{date}}. Saldo esperado no pior momento: {{lowest}}."
+  },
+  "notifications.ai.cashflow.body_no_date": {
+    "es": "Hay un {{percent}} % de probabilidad de que el saldo baje del mínimo en las próximas semanas. Saldo esperado en el peor momento: {{lowest}}.",
+    "en": "There is a {{percent}} % chance the balance falls below the minimum in the coming weeks. Expected balance at its lowest: {{lowest}}.",
+    "pt": "Há {{percent}} % de probabilidade de o saldo descer abaixo do mínimo nas próximas semanas. Saldo esperado no pior momento: {{lowest}}."
+  },
+  "notifications.ai.cashflow.title": {
+    "es": "Riesgo de quedarte sin caja",
+    "en": "Risk of running short of cash",
+    "pt": "Risco de ficar sem caixa"
+  },
   "notifications.ai.stockouts.body": {
     "es": "{{count}} productos podrían agotarse antes de que llegue un pedido, el primero hacia el {{date}}: {{products}}…",
     "en": "{{count}} products could run out before an order arrives, the first around {{date}}: {{products}}…",

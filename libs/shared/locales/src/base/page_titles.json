@@ -39,6 +39,11 @@
     "en": "Anomalies",
     "pt": "Anomalias"
   },
+  "page_titles.ai_cashflow": {
+    "es": "Flujo de caja proyectado",
+    "en": "Projected cash flow",
+    "pt": "Fluxo de caixa projetado"
+  },
   "page_titles.ai_predictions": {
     "es": "Predicciones de demanda",
     "en": "Demand predictions",

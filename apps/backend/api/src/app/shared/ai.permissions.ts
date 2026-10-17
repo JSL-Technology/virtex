@@ -23,4 +23,14 @@ export const AI_PERMISSIONS = {
   AI_COPILOT_USE: 'ai_copilot:use',
   /** Reading a supplier's invoice from a photo or PDF into a draft bill. Spends credits. */
   AI_BILL_CAPTURE_USE: 'ai_bill_capture:use',
+  /** The projected cash flow and its what-if scenarios. Reveals every open balance, both sides. */
+  AI_CASHFLOW_VIEW: 'ai_cashflow:view',
+  /** The collections worklist (who to chase first, and why). */
+  AI_COLLECTIONS_VIEW: 'ai_collections:view',
+  /** Recording collection activity and sending reminders to customers. */
+  AI_COLLECTIONS_ACT: 'ai_collections:act',
+  /** The manager's monthly report and scenario comparisons. */
+  AI_REPORTS_VIEW: 'ai_reports:view',
+  /** Configuring the agents that prepare documents on their own, and reading their log. */
+  AI_AGENTS_MANAGE: 'ai_agents:manage',
 } as const;

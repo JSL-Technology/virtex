@@ -22,6 +22,7 @@ from bullmq import Worker
 from . import ENGINE_VERSION
 from . import config as config_module
 from .anomalies import pipeline as anomaly_pipeline
+from .cashflow import pipeline as cashflow_pipeline
 from .db import Database
 from .forecasting import pipeline as forecast_pipeline
 
@@ -72,6 +73,8 @@ def execute(db: Database, settings: config_module.Settings, data: dict, attempts
             )
         elif kind == "ANOMALY":
             result = anomaly_pipeline.run(db, organization_id, run_id, params)
+        elif kind in ("CASHFLOW", "SCENARIO"):
+            result = cashflow_pipeline.run(db, organization_id, run_id, params, kind=kind)
         else:
             raise ValueError(f"unknown run kind {kind!r}")
     except Exception as error:  # noqa: BLE001

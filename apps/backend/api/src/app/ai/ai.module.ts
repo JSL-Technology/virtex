@@ -14,6 +14,14 @@ import { CopilotService } from './copilot/copilot.service';
 import { CopilotController } from './copilot/copilot.controller';
 import { AiCopilotTools } from './copilot/ai.copilot-tools';
 import { HelpService } from './help/help.service';
+import { CashflowService } from './cashflow/cashflow.service';
+import { CashflowController } from './cashflow/cashflow.controller';
+import { CashflowPlanBuilder } from './cashflow/cashflow-plan.builder';
+import { ReportsService, AI_REPORTS_QUEUE } from './reports/reports.service';
+import { ReportsProcessor } from './reports/reports.processor';
+import { AiCashflowForecast } from './entities/ai-cashflow-forecast.entity';
+import { AiCashflowItem } from './entities/ai-cashflow-item.entity';
+import { AiReport } from './entities/ai-report.entity';
 import { AiKnowledgeChunk } from './entities/ai-knowledge-chunk.entity';
 import { AiAssistPort } from '../contracts/ai/ai-assist.contract';
 import { AiGatewayService } from './gateway/ai-gateway.service';
@@ -44,11 +52,13 @@ import { InventoryModule } from '../inventory/inventory.module';
     TypeOrmModule.forFeature([
       AiRequest, AiModelRun, AiForecast, AiInventoryInsight, AiAnomaly, AiAnomalyFeedback,
       AiConversation, AiMessage, AiPendingAction, AiKnowledgeChunk,
+      AiCashflowForecast, AiCashflowItem, AiReport,
     ]),
     BullModule.registerQueue({ name: AI_ENGINE_QUEUE }),
+    BullModule.registerQueue({ name: AI_REPORTS_QUEUE }),
     InventoryModule,
   ],
-  controllers: [AiController, CopilotController],
+  controllers: [AiController, CopilotController, CashflowController],
   providers: [
     AiGatewayService,
     EmbeddingsService,
@@ -62,6 +72,10 @@ import { InventoryModule } from '../inventory/inventory.module';
     AnomaliesService,
     CopilotService,
     HelpService,
+    CashflowService,
+    ReportsService,
+    ReportsProcessor,
+    CashflowPlanBuilder,
     AiCopilotTools,
     { provide: AiAssistPort, useExisting: AiGatewayService },
   ],

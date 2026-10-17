@@ -4,6 +4,7 @@ import { AI_PERMISSIONS } from '../../shared/ai.permissions';
 import { ForecastingService } from '../forecasting/forecasting.service';
 import { AnomaliesService } from '../anomalies/anomalies.service';
 import { HelpService } from '../help/help.service';
+import { CashflowService } from '../cashflow/cashflow.service';
 
 /** The AI module's own findings, as copilot tools: forecasts, stock risks, anomalies, lead times. */
 @Injectable()
@@ -13,10 +14,55 @@ export class AiCopilotTools implements OnModuleInit {
     private readonly forecasting: ForecastingService,
     private readonly anomalies: AnomaliesService,
     private readonly help: HelpService,
+    private readonly cashflow: CashflowService,
   ) {}
 
   onModuleInit(): void {
     this.registry.register(
+      {
+        kind: 'read',
+        name: 'cashflow_forecast',
+        description:
+          'The projected cash balance for the next weeks from the nightly simulation: cash today, the expected balance ' +
+          'at the end and at its tightest (with the date), the worst plausible balance (P10), the probability of falling ' +
+          'below the threshold, expected money in and out by component, and the documents that drive the low point. ' +
+          'Also weekly points of the band. Use for "will I have enough cash", "cash flow", "when will I be short".',
+        permissions: [AI_PERMISSIONS.AI_CASHFLOW_VIEW],
+        feature: 'ai_cashflow',
+        inputSchema: s.object({}),
+        run: async (ctx) => {
+          const { latest, projection } = await this.cashflow.overview(ctx.organizationId);
+          if (!projection) return { available: false, latestRun: latest };
+          return {
+            available: true,
+            asOfDate: projection.asOfDate,
+            currency: projection.baseCurrency,
+            metrics: projection.metrics,
+            weekly: projection.days.filter((_, index) => index % 7 === 0 || index === projection.days.length - 1),
+          };
+        },
+      },
+      {
+        kind: 'read',
+        name: 'expected_collections',
+        description:
+          'Open customer invoices (or supplier bills) of the cash-flow projection with the chance each is collected ' +
+          '(paid) within 7 and 30 days and its likely date. sort=risk lists the least likely to arrive first — the ' +
+          'collection priorities.',
+        permissions: [AI_PERMISSIONS.AI_CASHFLOW_VIEW],
+        feature: 'ai_cashflow',
+        inputSchema: s.object({
+          kind: s.enum(['RECEIVABLE', 'PAYABLE']),
+          sort: s.enum(['risk', 'amount', 'expected']),
+          limit: s.integer('1-50'),
+        }),
+        run: async (ctx, input) =>
+          this.cashflow.documents(ctx.organizationId, {
+            kind: input['kind'] === 'PAYABLE' ? 'PAYABLE' : 'RECEIVABLE',
+            sort: (['risk', 'amount', 'expected'] as const).find((value) => value === input['sort']) ?? 'risk',
+            limit: Math.min(Math.max(Number(input['limit'] ?? 20), 1), 50),
+          }),
+      },
       {
         kind: 'read',
         name: 'search_help',

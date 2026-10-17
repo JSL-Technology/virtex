@@ -329,6 +329,11 @@
     "en": "Accounts receivable",
     "pt": "Contas a receber"
   },
+  "permissions.groups.ai_agents": {
+    "es": "Agentes (IA)",
+    "en": "Agents (AI)",
+    "pt": "Agentes (IA)"
+  },
   "permissions.groups.ai_anomalies": {
     "es": "Anomalías detectadas (IA)",
     "en": "Detected anomalies (AI)",
@@ -339,6 +344,16 @@
     "en": "Vendor bills from photo (AI)",
     "pt": "Faturas de fornecedor a partir de foto (IA)"
   },
+  "permissions.groups.ai_cashflow": {
+    "es": "Flujo de caja proyectado (IA)",
+    "en": "Projected cash flow (AI)",
+    "pt": "Fluxo de caixa projetado (IA)"
+  },
+  "permissions.groups.ai_collections": {
+    "es": "Cobranza inteligente (IA)",
+    "en": "Smart collections (AI)",
+    "pt": "Cobrança inteligente (IA)"
+  },
   "permissions.groups.ai_copilot": {
     "es": "Asistente del ERP (IA)",
     "en": "ERP assistant (AI)",
@@ -348,6 +363,11 @@
     "es": "Predicciones de demanda (IA)",
     "en": "Demand forecasts (AI)",
     "pt": "Previsões de procura (IA)"
+  },
+  "permissions.groups.ai_reports": {
+    "es": "Informes del gerente (IA)",
+    "en": "Manager reports (AI)",
+    "pt": "Relatórios de gestão (IA)"
   },
   "permissions.groups.ai_usage": {
     "es": "Consumo de IA",

@@ -31,6 +31,7 @@ export class AiNotificationsListener {
       await runAsTenantJob(this.dataSource, event.organizationId, async () => {
         if (event.stockouts?.count) await this.stockouts(event);
         if (event.anomalies?.count) await this.anomalies(event);
+        if (event.cashflow) await this.cashflow(event);
       });
     } catch (error) {
       this.logger.warn(
@@ -67,6 +68,33 @@ export class AiNotificationsListener {
         organizationId: event.organizationId,
       });
     }
+  }
+
+  private async cashflow(event: AiRunFindingsEvent): Promise<void> {
+    const { probability, date, lowestExpected, currency } = event.cashflow!;
+    const recipients = await membersWithPermission(this.dataSource, event.organizationId, AI_PERMISSIONS.AI_CASHFLOW_VIEW);
+    for (const recipient of recipients) {
+      const language = languageOf(recipient.language);
+      await this.notifications.createLocalizedNotification(recipient.id, language, {
+        titleKey: 'notifications.ai.cashflow.title',
+        bodyKey: date ? 'notifications.ai.cashflow.body' : 'notifications.ai.cashflow.body_no_date',
+        params: {
+          percent: Math.round(probability * 100),
+          date: formatDate(date, language),
+          lowest: formatMoney(lowestExpected, currency, language),
+        },
+        link: '/accounting/treasury/cash-flow',
+        organizationId: event.organizationId,
+      });
+    }
+  }
+}
+
+function formatMoney(amount: number, currency: string | null, language: LanguageCode): string {
+  try {
+    return new Intl.NumberFormat(language, currency ? { style: 'currency', currency } : { maximumFractionDigits: 2 }).format(amount);
+  } catch {
+    return amount.toFixed(2);
   }
 }
 

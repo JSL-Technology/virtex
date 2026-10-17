@@ -1,3 +1,4 @@
+import { CashPositionProvider } from './cash-position.provider';
 import { TreasuryCopilotTools } from './treasury.copilot-tools';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -25,7 +26,7 @@ import { AccountingModule } from '../accounting/accounting.module';
     AccountingModule,
   ],
   controllers: [TreasuryController],
-  providers: [TreasuryCopilotTools, TreasuryService, BanksService],
+  providers: [TreasuryCopilotTools, CashPositionProvider, TreasuryService, BanksService],
   exports: [TreasuryService, BanksService],
 })
 export class TreasuryModule {}

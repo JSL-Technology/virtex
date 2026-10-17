@@ -411,7 +411,9 @@ export class AiGatewayService implements AiAssistPort {
         // the same call; the response's `model` says which one answered.
         betas: [FALLBACK_BETA],
         fallbacks: 'default',
-      });
+        // A long output budget is streamed even though nobody reads it as it arrives: a single
+        // non-streamed request that may run for minutes is cut by intermediaries and refused by the SDK.
+      }, route.maxTokens > 16_000 ? () => undefined : undefined);
     } catch (error) {
       const cause = error instanceof NonTrippingError ? error.original : error;
       await this.record(record, 'FAILED', started, null, null, this.errorCode(cause));
