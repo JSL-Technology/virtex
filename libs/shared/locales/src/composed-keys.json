@@ -641,6 +641,38 @@
       "PUBLISHED",
       "ARCHIVED"
     ],
+    "workflow_engine.designer.branch_count": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.copied": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.cut_done": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.fix_before_publish": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.issue_count": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.lane_steps": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.matches": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.multi_selected": [
+      "one",
+      "other"
+    ],
     "workflow_engine.designer.role_members": [
       "one",
       "other"
@@ -649,6 +681,14 @@
       "default",
       "select",
       "scroll"
+    ],
+    "workflow_engine.designer.selected": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.waypoints": [
+      "one",
+      "other"
     ],
     "workflow_engine.event": [
       "approval_decided",
@@ -888,6 +928,10 @@
       "action",
       "end",
       "lane"
+    ],
+    "workflow_engine.publish_warnings.message": [
+      "one",
+      "other"
     ],
     "workflow_engine.run_state": [
       "done",

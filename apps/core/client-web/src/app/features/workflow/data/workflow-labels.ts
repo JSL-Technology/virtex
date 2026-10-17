@@ -78,6 +78,15 @@ export function runFailureText(translate: TranslateService, error: string | null
   return translate.instant('workflow_engine.runtime.unexpected', { detail: error });
 }
 
+/**
+ * The catalogue key for a count: `base.one` for «1 paso copiado», `base.other` for «3 pasos
+ * copiados», by the language's CLDR rules — the same choice `vxPluralKey` makes in templates.
+ */
+export function pluralKey(translate: TranslateService, base: string, count: number): string {
+  const language = translate.currentLang || translate.getDefaultLang() || 'es';
+  return `${base}.${new Intl.PluralRules(language).select(count) === 'one' ? 'one' : 'other'}`;
+}
+
 /** The steps a running instance waits on, by name or, for an unnamed step, by its kind — never `timer`. */
 export function currentStepsText(
   translate: TranslateService,

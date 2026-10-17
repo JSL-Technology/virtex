@@ -2,7 +2,7 @@ import { composeKey } from '@virteex/shared/types';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES, FormatService, translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, FormatService, LocaleStore, translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { Ban, ExternalLink, LucideAngularModule, Pause, Play, RefreshCw, RotateCcw } from 'lucide-angular';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { AuthService } from '../../../core/services/auth';
@@ -21,6 +21,7 @@ import {
   WorkflowTransition,
 } from '../data/workflow.service';
 import { CanvasEdge, CanvasNode, CanvasPrefs, WorkflowCanvasComponent } from '../designer/workflow-canvas.component';
+import { setSummaryLocale, summarizePredicate } from '../designer/predicate-summary';
 
 const REFRESH_MS = 15000;
 const REPLAY_STEP_MS = 650;
@@ -76,6 +77,7 @@ export class WorkflowInstancePage {
   private readonly dialog = inject(DialogService);
   private readonly translate = inject(TranslateService);
   private readonly format = inject(FormatService);
+  private readonly localeStore = inject(LocaleStore);
   private readonly auth = inject(AuthService);
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
@@ -193,7 +195,7 @@ export class WorkflowInstancePage {
     const nodes = new Map(this.graph().nodes.map((n) => [n.id, n]));
     return this.graph().edges.map((edge) => {
       const source = nodes.get(edge.from);
-      const label = edge.label || (edge.outcome ? outcomeLabel(this.translate, edge.outcome, source?.config?.outcomeLabels) : edge.default && source?.type === 'condition' ? this.translate.instant('workflow_engine.designer.otherwise') : '');
+      const label = this.edgeCaption(edge, source?.type, source?.config?.outcomeLabels);
       return {
         id: edge.id,
         from: edge.from,
@@ -270,6 +272,7 @@ export class WorkflowInstancePage {
   });
 
   constructor() {
+    effect(() => setSummaryLocale(this.localeStore.locale()));
     effect(() => {
       const id = this.id();
       if (id) untracked(() => this.load(id));
@@ -418,6 +421,23 @@ export class WorkflowInstancePage {
     return currentStepsText(this.translate, run);
   }
 
+  /**
+   * What a connection says: the author's caption, the outcome it follows, «Otherwise», or — for a
+   * condition branch — the rule itself, worded with the process's variable labels («Importe
+   * solicitado > 1.000»), exactly as the designer draws it.
+   */
+  private edgeCaption(edge: WorkflowGraphEdge, sourceType?: string, outcomeLabels?: Record<string, string>): string {
+    if (edge.label) return edge.label;
+    if (edge.outcome) return outcomeLabel(this.translate, edge.outcome, outcomeLabels);
+    if (edge.default) return sourceType === 'condition' ? this.translate.instant('workflow_engine.designer.otherwise') : '';
+    if (edge.condition) {
+      this.localeStore.locale();
+      const labels = new Map((this.graph().variables ?? []).map((v) => [v.name, v.label || v.name]));
+      return summarizePredicate(this.translate, edge.condition, (v) => labels.get(v) ?? eventFieldLabel(this.translate, v), 40);
+    }
+    return '';
+  }
+
   private failureOf(d: Record<string, unknown>): string {
     const key = d['messageKey'] as string | undefined;
     const params = { ...((d['params'] as Record<string, unknown> | null) ?? {}) };
@@ -502,13 +522,15 @@ export class WorkflowInstancePage {
         if (d['failed']) tone = 'warning';
         break;
       }
-      case 'condition':
+      case 'condition': {
+        const taken = detail.definition?.graph.edges.find((e) => e.id === d['edge']);
         text = tr('condition', {
           step: name,
-          branch: (d['branch'] as string | null) || (d['isDefault'] ? this.translate.instant('workflow_engine.designer.otherwise') : '—'),
+          branch: (d['branch'] as string | null) || (taken ? this.edgeCaption(taken, 'condition') : d['isDefault'] ? this.translate.instant('workflow_engine.designer.otherwise') : '—'),
           next: (d['nextNodeName'] as string | null) || node(t.toNodeId),
         });
         break;
+      }
       case 'timer_set':
         text = tr('timer_set', { step: name, until: d['wakeAt'] ? this.format.date(String(d['wakeAt']), 'dateTime') : '—' });
         break;

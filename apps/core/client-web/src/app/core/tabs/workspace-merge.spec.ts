@@ -1,4 +1,4 @@
-import { mergeWorkspaces } from './workspace-merge';
+import { mergeWorkspaces, uniqueTabIds } from './workspace-merge';
 import { TabModel, TabType } from './tab.model';
 
 const tab = (over: Partial<TabModel> & { route: string }): TabModel =>
@@ -98,5 +98,33 @@ describe('mergeWorkspaces', () => {
     const closed = new Map([['/invoices', new Date('2026-01-10').getTime()]]);
     const result = mergeWorkspaces([], [tab({ route: '/invoices', lastActivatedAt: new Date('2026-01-15') })], closed);
     expect(result.map((t) => t.route)).toEqual(['/invoices']);
+  });
+
+  it('una vista previa reutilizada no vuelve del servidor como otra pestaña con el mismo id', () => {
+    // La ventana «preview» mostraba el diseñador; luego pasó a una ejecución conservando su id.
+    const local = [tab({ id: 'preview', route: '/workflow-instances/run-1', entityKey: 'run:1', isPreview: true, lastActivatedAt: new Date('2026-01-03') })];
+    const remote = [tab({ id: 'preview', route: '/workflows/d-1/edit', entityKey: 'design:1', isPreview: true, lastActivatedAt: new Date('2026-01-02') })];
+
+    const result = mergeWorkspaces(local, remote);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].route).toBe('/workflow-instances/run-1');
+  });
+});
+
+describe('uniqueTabIds', () => {
+  it('cura un espacio guardado con la misma ventana repetida: queda la usada por última vez', () => {
+    const tabs = [
+      tab({ id: 'home', route: '/overview' }),
+      tab({ id: 'preview', route: '/workflows/d-1/edit', lastActivatedAt: new Date('2026-01-02') }),
+      tab({ id: 'preview', route: '/workflow-instances/run-1', lastActivatedAt: new Date('2026-01-05') }),
+      tab({ id: 'list', route: '/workflow-instances' }),
+    ];
+
+    expect(uniqueTabIds(tabs).map((t) => `${t.id}:${t.route}`)).toEqual([
+      'home:/overview',
+      'preview:/workflow-instances/run-1',
+      'list:/workflow-instances',
+    ]);
   });
 });

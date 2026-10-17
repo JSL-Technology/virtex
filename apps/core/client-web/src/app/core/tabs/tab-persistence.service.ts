@@ -3,7 +3,7 @@ import { TabRouterService } from './tab-router.service';
 import { TabStateService } from './tab-state.service';
 import { ActiveOrganizationService } from '../tenancy/active-organization.service';
 import { WorkspaceSyncService } from './workspace-sync.service';
-import { mergeWorkspaces, tabIdentity } from './workspace-merge';
+import { mergeWorkspaces, tabIdentity, uniqueTabIds } from './workspace-merge';
 import { TabModel, TabType } from './tab.model';
 
 /** Versión del esquema de persistencia. Incrementar ante cambios incompatibles. */
@@ -138,7 +138,8 @@ export class TabPersistenceService {
       }
 
       this.absorbClosed(data.closed);
-      const tabs = data.tabs.map((t) => this.deserialize(t));
+      // A workspace saved while the merge still duplicated a reused preview window heals here.
+      const tabs = uniqueTabIds(data.tabs.map((t) => this.deserialize(t)));
       if (tabs.length === 0) {
         this.clearLayout();
         this.tabState.ensureDefaultTab();

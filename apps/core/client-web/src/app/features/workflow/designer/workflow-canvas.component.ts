@@ -1,3 +1,4 @@
+import { VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -118,7 +119,7 @@ const CACHE_THRESHOLD = 60;
 @Component({
   selector: 'app-workflow-canvas',
   standalone: true,
-  imports: [FFlowModule, TranslateModule, LucideAngularModule],
+  imports: [FFlowModule, TranslateModule, VxPluralKeyPipe, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './workflow-canvas.component.scss',
   template: `
@@ -252,7 +253,7 @@ const CACHE_THRESHOLD = 60;
               }
             </span>
             @if (node.issue) {
-              <span class="wf-node__issue" [class.wf-node__issue--error]="node.issue === 'error'" [title]="'workflow_engine.designer.issue_count' | translate: { count: node.issueCount }">
+              <span class="wf-node__issue" [class.wf-node__issue--error]="node.issue === 'error'" [title]="'workflow_engine.designer.issue_count' | vxPluralKey: node.issueCount ?? 0 | translate: { count: node.issueCount }">
                 <lucide-icon [img]="node.issue === 'error' ? ErrorIcon : WarnIcon" [size]="12" />
                 {{ node.issueCount }}
               </span>
@@ -284,7 +285,8 @@ const CACHE_THRESHOLD = 60;
         <f-magnetic-rects />
       }
       @if (prefs().minimap) {
-        <f-minimap [fMinSize]="2400" />
+        <!-- Sized to the graph, not to a fixed world: a two-step process read as two dashes. -->
+        <f-minimap [fMinSize]="900" />
       }
     </f-flow>
   `,

@@ -1,3 +1,4 @@
+import { VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AlertTriangle, ArrowRight, CircleAlert, LucideAngularModule, Spline, Trash2 } from 'lucide-angular';
@@ -15,7 +16,7 @@ import { DesignerStore, outcomesOf } from '../designer-store';
 @Component({
   selector: 'app-workflow-edge-panel',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, ConditionEditorComponent],
+  imports: [TranslateModule, VxPluralKeyPipe, LucideAngularModule, ConditionEditorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inspector.scss',
   template: `
@@ -97,7 +98,7 @@ import { DesignerStore, outcomesOf } from '../designer-store';
     @if (e.waypoints?.length) {
       <section class="insp-section">
         <h4 class="insp-section__title">{{ 'workflow_engine.designer.route' | translate }}</h4>
-        <p class="insp-hint">{{ 'workflow_engine.designer.waypoints' | translate: { count: e.waypoints!.length } }}</p>
+        <p class="insp-hint">{{ 'workflow_engine.designer.waypoints' | vxPluralKey: e.waypoints!.length | translate: { count: e.waypoints!.length } }}</p>
         @if (!readonly()) {
           <button type="button" class="insp-secondary" (click)="store.setWaypoints(e.id, [])">{{ 'workflow_engine.designer.straighten' | translate }}</button>
         }

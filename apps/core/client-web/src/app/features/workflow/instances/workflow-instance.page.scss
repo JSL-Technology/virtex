@@ -238,9 +238,10 @@
     border-bottom: 1px solid var(--border-subtle);
   }
 
+  // A label wraps rather than hides: «Respuesta en «Revisión de gerencia»» is the whole point of it.
   dt {
-    @include ds.truncate;
     font-size: var(--text-sm);
+    overflow-wrap: anywhere;
     color: var(--content-tertiary);
   }
 

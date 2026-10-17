@@ -199,7 +199,7 @@
                 (keydown.enter)="$event.preventDefault(); nextMatch($event.shiftKey)"
                 (keydown.escape)="$event.stopPropagation(); closeSearch()" />
               <span class="wd-search__count" aria-live="polite">
-                @if (matches(); as m) { {{ 'workflow_engine.designer.matches' | translate: { count: m.size } }} }
+                @if (matches(); as m) { {{ 'workflow_engine.designer.matches' | vxPluralKey: m.size | translate: { count: m.size } }} }
               </span>
               <button type="button" class="wd-icon" (click)="closeSearch()" [attr.aria-label]="'workflow_engine.designer.close_search' | translate">
                 <lucide-icon [img]="CloseIcon" [size]="14" />
@@ -291,7 +291,7 @@
                 <app-workflow-group-panel [group]="group" [readonly]="readOnly()" />
               } @else if (selectionCount() > 1) {
                 <div class="wd-multi">
-                  <h3>{{ 'workflow_engine.designer.multi_selected' | translate: { count: selectionCount() } }}</h3>
+                  <h3>{{ 'workflow_engine.designer.multi_selected' | vxPluralKey: selectionCount() | translate: { count: selectionCount() } }}</h3>
                   @if (!readOnly()) {
                     <div class="wd-multi__actions">
                       <button type="button" class="secondary-button wd-button" (click)="store.duplicateSelection()">
@@ -347,7 +347,7 @@
     <footer class="wd-status">
       <span>{{ 'workflow_engine.designer.stats' | translate: { nodes: store.nodes().length, edges: store.edges().length } }}</span>
       @if (selectionCount()) {
-        <span>{{ 'workflow_engine.designer.selected' | translate: { count: selectionCount() } }}</span>
+        <span>{{ 'workflow_engine.designer.selected' | vxPluralKey: selectionCount() | translate: { count: selectionCount() } }}</span>
       }
       @if (!readOnly()) {
       <button type="button" class="wd-status__issues" (click)="inspectorTab.set('issues'); setPref('inspector', true)">
@@ -405,7 +405,7 @@
 
   @if (publishWarnings(); as warnings) {
     <vx-dialog titleKey="workflow_engine.publish_warnings.title" size="md" (dismissed)="publishWarnings.set(null)">
-      <p>{{ 'workflow_engine.publish_warnings.message' | translate: { count: warnings.length } }}</p>
+      <p>{{ 'workflow_engine.publish_warnings.message' | vxPluralKey: warnings.length | translate: { count: warnings.length } }}</p>
       <ul class="wd-warnings">
         @for (issue of warnings; track $index) {
           <li><lucide-icon [img]="WarnIcon" [size]="14" /> <span><strong>{{ issueTarget(issue) }}</strong> {{ issueText(issue) }}</span></li>

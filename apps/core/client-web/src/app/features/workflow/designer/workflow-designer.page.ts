@@ -1,5 +1,5 @@
 import { composeKey } from '@virteex/shared/types';
-import { VxDatePipe } from '@virteex/shared/ui-i18n';
+import { VxDatePipe, VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -75,6 +75,7 @@ import {
   issueMessage,
   nodeTypeKey,
   outcomeLabel,
+  pluralKey,
 } from '../data/workflow-labels';
 import {
   WorkflowDefinition,
@@ -141,6 +142,7 @@ let sessionClipboard: DesignerClipboard | null = null;
   standalone: true,
   imports: [
     VxDatePipe,
+    VxPluralKeyPipe,
     TranslateModule,
     LucideAngularModule,
     VxBadgeComponent,
@@ -684,7 +686,7 @@ export class WorkflowDesignerPage {
     if (!rollback && this.errorCount() > 0) {
       this.inspectorTab.set('issues');
       this.setPref('inspector', true);
-      this.notifications.showError('workflow_engine.designer.fix_before_publish', { count: this.errorCount() });
+      this.notifications.showError(pluralKey(this.translate, 'workflow_engine.designer.fix_before_publish', this.errorCount()), { count: this.errorCount() });
       return;
     }
     this.publishing.set(true);
@@ -962,7 +964,7 @@ export class WorkflowDesignerPage {
       /* the in-memory copy still works within the app */
     }
     if (cut && !this.readOnly()) this.store.deleteItems();
-    this.notifications.showInfo(cut ? 'workflow_engine.designer.cut_done' : 'workflow_engine.designer.copied', { count: fragment.nodes.length });
+    this.notifications.showInfo(pluralKey(this.translate, cut ? 'workflow_engine.designer.cut_done' : 'workflow_engine.designer.copied', fragment.nodes.length), { count: fragment.nodes.length });
   }
 
   async paste(): Promise<void> {
@@ -1182,7 +1184,7 @@ export class WorkflowDesignerPage {
         return cfg.timerMinutes ? formatMinutes(this.translate, cfg.timerMinutes) : '';
       case 'condition': {
         const count = this.store.edges().filter((e) => e.from === node.id).length;
-        return this.translate.instant('workflow_engine.designer.branch_count', { count });
+        return this.translate.instant(pluralKey(this.translate, 'workflow_engine.designer.branch_count', count), { count });
       }
       default:
         return '';

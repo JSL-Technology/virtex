@@ -1,8 +1,8 @@
 {
   "workflow_engine.a11y.all_selected": {
-    "es": "{{count}} elementos seleccionados",
-    "en": "{{count}} items selected",
-    "pt": "{{count}} elementos selecionados"
+    "es": "Elementos seleccionados: {{count}}",
+    "en": "Items selected: {{count}}",
+    "pt": "Elementos selecionados: {{count}}"
   },
   "workflow_engine.a11y.connect_cancelled": {
     "es": "Conexión cancelada",
@@ -50,9 +50,9 @@
     "pt": "De {{source}} para {{target}}"
   },
   "workflow_engine.a11y.delete_requested": {
-    "es": "Eliminar {{count}} elementos",
-    "en": "Delete {{count}} items",
-    "pt": "Eliminar {{count}} elementos"
+    "es": "Eliminar elementos seleccionados: {{count}}",
+    "en": "Delete selected items: {{count}}",
+    "pt": "Eliminar elementos selecionados: {{count}}"
   },
   "workflow_engine.a11y.dropped": {
     "es": "{{label}} soltado en {{x}}, {{y}}",
@@ -80,9 +80,9 @@
     "pt": "Tab percorre os passos; Espaço pega no passo e as setas movem-no; C liga; + e − alteram o zoom."
   },
   "workflow_engine.a11y.items_count": {
-    "es": "{{count}} elementos",
-    "en": "{{count}} items",
-    "pt": "{{count}} elementos"
+    "es": "Elementos: {{count}}",
+    "en": "Items: {{count}}",
+    "pt": "Elementos: {{count}}"
   },
   "workflow_engine.a11y.move_cancelled": {
     "es": "Movimiento de {{label}} cancelado",
@@ -450,9 +450,9 @@
     "pt": "Processo criado. Já pode desenhá-lo."
   },
   "workflow_engine.definition_has_instances": {
-    "es": "No se puede eliminar: esta versión tiene {{count}} ejecución(es) en su historial.",
-    "en": "Cannot delete: this version has {{count}} run(s) in its history.",
-    "pt": "Não é possível eliminar: esta versão tem {{count}} execução(ões) no histórico."
+    "es": "No se puede eliminar: esta versión ya tiene ejecuciones en su historial ({{count}}).",
+    "en": "Cannot delete: this version already has runs in its history ({{count}}).",
+    "pt": "Não é possível eliminar: esta versão já tem execuções no seu histórico ({{count}})."
   },
   "workflow_engine.definition_not_found": {
     "es": "No se encontró la definición del flujo de trabajo.",
@@ -579,7 +579,12 @@
     "en": "Plain",
     "pt": "Liso"
   },
-  "workflow_engine.designer.branch_count": {
+  "workflow_engine.designer.branch_count.one": {
+    "es": "{{count}} salida",
+    "en": "{{count}} exit",
+    "pt": "{{count}} saída"
+  },
+  "workflow_engine.designer.branch_count.other": {
     "es": "{{count}} salidas",
     "en": "{{count}} exits",
     "pt": "{{count}} saídas"
@@ -714,12 +719,22 @@
     "en": "Connection style",
     "pt": "Estilo das ligações"
   },
-  "workflow_engine.designer.copied": {
+  "workflow_engine.designer.copied.one": {
+    "es": "{{count}} paso copiado.",
+    "en": "{{count}} step copied.",
+    "pt": "{{count}} passo copiado."
+  },
+  "workflow_engine.designer.copied.other": {
     "es": "{{count}} pasos copiados.",
     "en": "{{count}} steps copied.",
     "pt": "{{count}} passos copiados."
   },
-  "workflow_engine.designer.cut_done": {
+  "workflow_engine.designer.cut_done.one": {
+    "es": "{{count}} paso cortado.",
+    "en": "{{count}} step cut.",
+    "pt": "{{count}} passo cortado."
+  },
+  "workflow_engine.designer.cut_done.other": {
     "es": "{{count}} pasos cortados.",
     "en": "{{count}} steps cut.",
     "pt": "{{count}} passos cortados."
@@ -804,7 +819,12 @@
     "en": "Filter by type",
     "pt": "Filtrar por tipo"
   },
-  "workflow_engine.designer.fix_before_publish": {
+  "workflow_engine.designer.fix_before_publish.one": {
+    "es": "Corrige el error antes de publicar.",
+    "en": "Fix the error before publishing.",
+    "pt": "Corrija o erro antes de publicar."
+  },
+  "workflow_engine.designer.fix_before_publish.other": {
     "es": "Corrige {{count}} errores antes de publicar.",
     "en": "Fix {{count}} errors before publishing.",
     "pt": "Corrija {{count}} erros antes de publicar."
@@ -829,7 +849,12 @@
     "en": "Properties",
     "pt": "Propriedades"
   },
-  "workflow_engine.designer.issue_count": {
+  "workflow_engine.designer.issue_count.one": {
+    "es": "{{count}} problema en este paso",
+    "en": "{{count}} problem in this step",
+    "pt": "{{count}} problema neste passo"
+  },
+  "workflow_engine.designer.issue_count.other": {
     "es": "{{count}} problemas en este paso",
     "en": "{{count}} problems in this step",
     "pt": "{{count}} problemas neste passo"
@@ -864,7 +889,12 @@
     "en": "Drag steps in to group them. Deleting the lane keeps its steps.",
     "pt": "Arraste passos para dentro para os agrupar. Eliminar a faixa mantém os passos."
   },
-  "workflow_engine.designer.lane_steps": {
+  "workflow_engine.designer.lane_steps.one": {
+    "es": "{{count}} paso en este carril",
+    "en": "{{count}} step in this lane",
+    "pt": "{{count}} passo nesta faixa"
+  },
+  "workflow_engine.designer.lane_steps.other": {
     "es": "{{count}} pasos en este carril",
     "en": "{{count}} steps in this lane",
     "pt": "{{count}} passos nesta faixa"
@@ -894,7 +924,12 @@
     "en": "Auto-layout options",
     "pt": "Opções de organização automática"
   },
-  "workflow_engine.designer.matches": {
+  "workflow_engine.designer.matches.one": {
+    "es": "{{count}} coincidencia",
+    "en": "{{count}} match",
+    "pt": "{{count}} correspondência"
+  },
+  "workflow_engine.designer.matches.other": {
     "es": "{{count}} coincidencias",
     "en": "{{count}} matches",
     "pt": "{{count}} correspondências"
@@ -904,7 +939,12 @@
     "en": "Move to lane",
     "pt": "Mover para a faixa"
   },
-  "workflow_engine.designer.multi_selected": {
+  "workflow_engine.designer.multi_selected.one": {
+    "es": "{{count}} elemento seleccionado",
+    "en": "{{count}} item selected",
+    "pt": "{{count}} elemento selecionado"
+  },
+  "workflow_engine.designer.multi_selected.other": {
     "es": "{{count}} elementos seleccionados",
     "en": "{{count}} items selected",
     "pt": "{{count}} elementos selecionados"
@@ -1134,7 +1174,12 @@
     "en": "Search steps",
     "pt": "Procurar passos"
   },
-  "workflow_engine.designer.selected": {
+  "workflow_engine.designer.selected.one": {
+    "es": "{{count}} seleccionado",
+    "en": "{{count}} selected",
+    "pt": "{{count}} selecionado"
+  },
+  "workflow_engine.designer.selected.other": {
     "es": "{{count}} seleccionados",
     "en": "{{count}} selected",
     "pt": "{{count}} selecionados"
@@ -1239,10 +1284,15 @@
     "en": "Until a date",
     "pt": "Até uma data"
   },
-  "workflow_engine.designer.waypoints": {
+  "workflow_engine.designer.waypoints.one": {
+    "es": "{{count}} punto de quiebre",
+    "en": "{{count}} bend point",
+    "pt": "{{count}} ponto de quebra"
+  },
+  "workflow_engine.designer.waypoints.other": {
     "es": "{{count}} puntos de quiebre",
     "en": "{{count}} bend points",
-    "pt": "{{count}} pontos de dobra"
+    "pt": "{{count}} pontos de quebra"
   },
   "workflow_engine.designer.waypoints_hint": {
     "es": "Arrastra la línea para añadirle puntos de quiebre.",
@@ -2225,14 +2275,14 @@
     "pt": "Ainda não há execuções."
   },
   "workflow_engine.invalid_graph.malformed": {
-    "es": "El diseño tiene {{count}} error(es) de estructura y no se puede guardar.",
-    "en": "The design has {{count}} structural error(s) and cannot be saved.",
-    "pt": "O desenho tem {{count}} erro(s) de estrutura e não pode ser guardado."
+    "es": "El diseño tiene errores de estructura ({{count}}) y no se puede guardar.",
+    "en": "The design has structural errors ({{count}}) and cannot be saved.",
+    "pt": "O desenho tem erros de estrutura ({{count}}) e não pode ser guardado."
   },
   "workflow_engine.invalid_graph.summary": {
-    "es": "El proceso tiene {{count}} problema(s) que impiden publicarlo.",
-    "en": "The process has {{count}} problem(s) that prevent publishing it.",
-    "pt": "O processo tem {{count}} problema(s) que impedem a publicação."
+    "es": "El proceso tiene problemas que impiden publicarlo ({{count}}).",
+    "en": "The process has problems that prevent publishing it ({{count}}).",
+    "pt": "O processo tem problemas que impedem a sua publicação ({{count}})."
   },
   "workflow_engine.invalid_outcome": {
     "es": "«{{outcome}}» no es un resultado válido para esta tarea.",
@@ -3275,16 +3325,21 @@
     "pt": "Não foi possível publicar."
   },
   "workflow_engine.publish_has_warnings": {
-    "es": "El diseño tiene {{count}} advertencias: revísalas antes de publicar.",
-    "en": "The design has {{count}} warnings: review them before publishing.",
-    "pt": "O desenho tem {{count}} avisos: reveja-os antes de publicar."
+    "es": "El diseño tiene advertencias ({{count}}): revísalas antes de publicar.",
+    "en": "The design has warnings ({{count}}): review them before publishing.",
+    "pt": "O desenho tem avisos ({{count}}): reveja-os antes de publicar."
   },
   "workflow_engine.publish_warnings.confirm": {
     "es": "Publicar igualmente",
     "en": "Publish anyway",
     "pt": "Publicar mesmo assim"
   },
-  "workflow_engine.publish_warnings.message": {
+  "workflow_engine.publish_warnings.message.one": {
+    "es": "El proceso funciona, pero hay un punto que conviene revisar:",
+    "en": "The process works, but one point is worth reviewing:",
+    "pt": "O processo funciona, mas há um ponto que convém rever:"
+  },
+  "workflow_engine.publish_warnings.message.other": {
     "es": "El proceso funciona, pero hay {{count}} puntos que conviene revisar:",
     "en": "The process works, but {{count}} points are worth reviewing:",
     "pt": "O processo funciona, mas há {{count}} pontos que convém rever:"

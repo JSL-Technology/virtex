@@ -69,9 +69,8 @@
 }
 
 .wfl__name {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  // A table cell stays a table cell: `display: flex` here took it out of the row's height, so a
+  // name without a description drew its border halfway up the row. The lines stack as blocks.
   min-width: 220px;
   max-width: 420px;
 
@@ -84,6 +83,7 @@
 
 .wfl__description {
   @include ds.line-clamp(2);
+  margin-top: 2px;
   font-size: var(--text-xs);
   color: var(--content-tertiary);
 }

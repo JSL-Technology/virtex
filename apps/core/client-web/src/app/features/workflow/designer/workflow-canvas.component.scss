@@ -363,6 +363,11 @@ f-flow {
     background: var(--ff-minimap-background-color);
     box-shadow: var(--ff-minimap-shadow);
     z-index: 2;
+
+    // On a phone it covered a third of the process it was meant to summarise; pinch and pan do its job.
+    @media (max-width: 640px) {
+      display: none;
+    }
   }
 }
 
