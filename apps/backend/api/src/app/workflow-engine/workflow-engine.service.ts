@@ -8,6 +8,7 @@ import {
   ForbiddenError,
   NotFoundError,
   UnprocessableEntityError,
+  isLocalizedError,
 } from '../i18n/localized.exception';
 import {
   WorkflowGraph,
@@ -50,6 +51,20 @@ export interface CompleteTaskOptions {
   outcome: string;
   formData?: Record<string, unknown>;
   comment?: string | null;
+}
+
+/**
+ * A failure inside a run, named by a catalogue key so the person reading the instance gets a
+ * sentence in their language instead of an engine message («node … has no exit»).
+ */
+export class WorkflowRuntimeError extends Error {
+  constructor(
+    readonly key: string,
+    readonly params: Record<string, string | number> = {},
+  ) {
+    super(key);
+    this.name = 'WorkflowRuntimeError';
+  }
 }
 
 /** Work done after the transaction commits — notifications must never announce a rolled-back step. */
@@ -181,7 +196,12 @@ export class WorkflowEngineService {
       }
       let formData = sanitizeContext(options.formData ?? {});
       if (task.form?.length) {
-        const checked = coerceFields(task.form, formData);
+        // A refusal-type outcome (one that asks for a comment: reject, return) does not complete the
+        // work the form describes, so it must not demand its required fields — «approved amount» has
+        // no meaning on a rejection. Values given are still type-checked.
+        const refusing = (task.commentRequiredFor ?? []).includes(options.outcome);
+        const fields = refusing ? task.form.map((field) => ({ ...field, required: false })) : task.form;
+        const checked = coerceFields(fields, formData);
         if (checked.problems.length) {
           throw new UnprocessableEntityError('workflow_engine.task_form_invalid', { field: checked.problems[0].field });
         }
@@ -215,6 +235,7 @@ export class WorkflowEngineService {
         [task.nodeId]: { outcome: options.outcome, comment, by: actor.userId, at: task.completedAt.toISOString() },
         lastOutcome: options.outcome,
         lastComment: comment,
+        lastActorUserId: actor.userId,
       };
       if (contextTooLarge(instance.context)) throw new BadRequestError('workflow_engine.context_too_large');
 
@@ -234,7 +255,12 @@ export class WorkflowEngineService {
           nextNodeName: edge ? (nodeOf(definition.graph, edge.to)?.name ?? null) : null,
         },
       });
-      if (token) follow(token, edge);
+      if (token) {
+        if (!edge) {
+          throw new UnprocessableEntityError('workflow_engine.runtime.no_exit', { node: task.name, outcome: options.outcome });
+        }
+        follow(token, edge);
+      }
       return this.run(scope, instance, definition);
     }, actor.userId);
   }
@@ -253,6 +279,8 @@ export class WorkflowEngineService {
       instance.completedAt = new Date();
       instance.nextWakeAt = null;
       instance.cancelReason = text.slice(0, 2000);
+      // The steps the run was on when it stopped: the runtime view marks them «cancelled», not done.
+      const interruptedNodes = instance.tokens.filter((token) => token.state !== 'done').map((token) => token.nodeId);
       instance.tokens = instance.tokens.map((token) => ({ ...token, state: 'done' as const }));
       await scope.tx.getRepository(WorkflowInstance).save(instance);
       const open = await scope.tx.getRepository(WorkflowTask).find({
@@ -265,7 +293,10 @@ export class WorkflowEngineService {
         await scope.tx.getRepository(WorkflowTask).save(task);
         scope.effects.push(() => this.notifier.taskClosed(task));
       }
-      await this.record(scope, instance, 'cancelled', { actorUserId, detail: { reason: instance.cancelReason } });
+      await this.record(scope, instance, 'cancelled', {
+        actorUserId,
+        detail: { reason: instance.cancelReason, interruptedNodes },
+      });
       return instance;
     }, actorUserId);
   }
@@ -319,6 +350,7 @@ export class WorkflowEngineService {
             });
             // The wait is over: the token leaves the timer node along its exit, rather than being
             // re-activated on the timer itself — which would park it again for another full wait.
+            if (!edge) throw new WorkflowRuntimeError('workflow_engine.runtime.no_exit', { node: node?.name ?? token.nodeId, outcome: '' });
             follow(token, edge);
             woke = true;
           }
@@ -391,10 +423,10 @@ export class WorkflowEngineService {
         const token = instance.tokens.find((candidate) => candidate.state === 'active');
         if (!token) break;
         if ((steps += 1) > MAX_STEPS_PER_RUN) {
-          throw new Error('step limit exceeded — the graph may contain a loop with no wait');
+          throw new WorkflowRuntimeError('workflow_engine.runtime.step_limit', { max: MAX_STEPS_PER_RUN });
         }
         const node = nodeOf(graph, token.nodeId);
-        if (!node) throw new Error(`node «${token.nodeId}» is not in the definition graph`);
+        if (!node) throw new WorkflowRuntimeError('workflow_engine.runtime.node_missing', { node: token.nodeId });
         await this.step(scope, instance, graph, node, token);
       }
 
@@ -408,10 +440,15 @@ export class WorkflowEngineService {
       }
       return await instances.save(instance);
     } catch (error) {
+      const described = describeFailure(error);
       instance.status = WorkflowInstanceStatus.FAILED;
-      instance.error = String((error as Error)?.message ?? error).slice(0, 2000);
+      // A known failure is stored as its catalogue key (the client words it); an unexpected one keeps
+      // its own message, which is what whoever has to fix it needs to read.
+      instance.error = (described.key === 'workflow_engine.runtime.unexpected' ? described.message : described.key).slice(0, 2000);
       instance.nextWakeAt = null;
-      await this.record(scope, instance, 'error', { detail: { message: instance.error } });
+      await this.record(scope, instance, 'error', {
+        detail: { message: described.message, messageKey: described.key, params: described.params },
+      });
       scope.effects.push(() => this.notifier.instanceFailed(instance, definition));
       return instances.save(instance);
     }
@@ -420,7 +457,7 @@ export class WorkflowEngineService {
   private async step(scope: RunScope, instance: WorkflowInstance, graph: WorkflowGraph, node: WorkflowGraphNode, token: WorkflowToken): Promise<void> {
     switch (node.type) {
       case WorkflowNodeType.START:
-        follow(token, pickEdge(graph, node, {}));
+        follow(token, requireEdge(node, pickEdge(graph, node, {})));
         return;
 
       case WorkflowNodeType.END:
@@ -431,7 +468,7 @@ export class WorkflowEngineService {
       case WorkflowNodeType.ACTION: {
         const key = node.config?.action;
         const action = key ? this.actions.get(key) : undefined;
-        if (!action) throw new Error(`action «${key ?? '(none)'}» is not registered`);
+        if (!action) throw new WorkflowRuntimeError('workflow_engine.runtime.action_missing', { action: key ?? '—' });
         const result = await action.run({
           organizationId: instance.organizationId,
           instanceId: instance.id,
@@ -440,21 +477,31 @@ export class WorkflowEngineService {
           params: node.config?.actionParams ?? {},
           startedByUserId: instance.startedByUserId,
           subjectLabel: instance.subject?.label ?? null,
+          subject: instance.subject ?? null,
         });
         if (result.patch) instance.context = { ...instance.context, ...sanitizeContext(result.patch) };
         const edge = pickEdge(graph, node, { outcome: result.outcome });
         await this.record(scope, instance, 'action', {
           fromNodeId: node.id,
           toNodeId: edge?.to ?? null,
-          detail: { action: key, nodeName: node.name ?? null, outcome: result.outcome ?? null, summary: result.summary?.slice(0, 500) ?? null },
+          detail: {
+            action: key,
+            nodeName: node.name ?? null,
+            outcome: result.outcome ?? null,
+            failed: result.outcome === 'error',
+            summary: result.summary?.slice(0, 500) ?? null,
+            summaryKey: result.summaryKey ?? null,
+            summaryParams: result.summaryParams ?? null,
+            nextNodeName: edge ? (nodeOf(graph, edge.to)?.name ?? null) : null,
+          },
         });
-        follow(token, edge);
+        follow(token, requireEdge(node, edge, result.outcome));
         return;
       }
 
       case WorkflowNodeType.CONDITION: {
         const edge = pickConditionEdge(graph, node, instance.context);
-        if (!edge) throw new Error(`condition «${node.name ?? node.id}» has no matching branch and no default`);
+        if (!edge) throw new WorkflowRuntimeError('workflow_engine.runtime.no_branch', { node: node.name ?? node.id });
         await this.record(scope, instance, 'condition', {
           fromNodeId: node.id,
           toNodeId: edge.to,
@@ -492,7 +539,7 @@ export class WorkflowEngineService {
       }
 
       default:
-        throw new Error(`unknown node type «${(node as WorkflowGraphNode).type}»`);
+        throw new WorkflowRuntimeError('workflow_engine.runtime.unknown_node', { type: String((node as WorkflowGraphNode).type) });
     }
   }
 
@@ -644,7 +691,27 @@ export function pickEdge(graph: WorkflowGraph, node: WorkflowGraphNode, options:
     const byOutcome = edges.find((edge) => edge.outcome === options.outcome);
     if (byOutcome) return byOutcome;
   }
-  return edges.find((edge) => edge.default) ?? edges.find((edge) => !edge.outcome && !edge.condition) ?? (edges.length === 1 ? edges[0] : undefined);
+  // The fallbacks never include an edge labelled with ANOTHER outcome: a failed webhook must not
+  // leave along the «ok» connection just because it is the only one drawn.
+  return (
+    edges.find((edge) => edge.default) ??
+    edges.find((edge) => !edge.outcome && !edge.condition) ??
+    (edges.length === 1 && !edges[0].outcome && !options.outcome ? edges[0] : undefined)
+  );
+}
+
+/** The edge a non-terminal node must leave by; its absence is a failure of the run, never a silent end. */
+function requireEdge(node: WorkflowGraphNode, edge: WorkflowGraphEdge | undefined, outcome?: string): WorkflowGraphEdge {
+  if (!edge) throw new WorkflowRuntimeError('workflow_engine.runtime.no_exit', { node: node.name ?? node.id, outcome: outcome ?? '' });
+  return edge;
+}
+
+/** What a failure becomes on the instance: a catalogue key, its parameters, and a log line. */
+export function describeFailure(error: unknown): { key: string; params: Record<string, unknown>; message: string } {
+  if (error instanceof WorkflowRuntimeError) return { key: error.key, params: error.params, message: error.key };
+  if (isLocalizedError(error)) return { key: error.messageKey, params: error.params ?? {}, message: error.messageKey };
+  const message = String((error as Error)?.message ?? error).slice(0, 1000);
+  return { key: 'workflow_engine.runtime.unexpected', params: { detail: message.slice(0, 300) }, message };
 }
 
 /** The first branch whose predicate holds, else the default branch. Order is the author's order. */

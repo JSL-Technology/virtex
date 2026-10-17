@@ -11,6 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
@@ -52,6 +53,10 @@ import {
  */
 @ApiTags('Workflow engine')
 @ApiBearerAuth()
+// The global 20/min bucket is sized for anonymous, credential-guessing traffic. This controller is
+// authenticated and permission-gated, and a designer at work validates after every edit while
+// other open tabs read their catalogues: 20/min locked people out of their own work (QA C-05).
+@Throttle({ default: { limit: 240, ttl: 60_000 } })
 @Controller('workflow-engine')
 export class WorkflowEngineController {
   constructor(
@@ -101,7 +106,7 @@ export class WorkflowEngineController {
   @HasPermission(PERMISSIONS.WORKFLOW_DESIGN)
   @ApiOperation({ summary: 'Todos los problemas de un diseño (errores y advertencias), sin guardar nada.' })
   async validate(@Body() dto: ValidateDefinitionDto, @CurrentUser() user: AuthenticatedUser) {
-    return { issues: await this.definitions.validate(dto.graph, dto.trigger, user.organizationId) };
+    return { issues: await this.definitions.validateFor(dto.graph, dto.trigger, user.organizationId, dto.definitionId) };
   }
 
   @Patch('definitions/:id')
@@ -175,7 +180,7 @@ export class WorkflowEngineController {
   eventCatalogue() {
     return {
       customPrefix: CUSTOM_EVENT_PREFIX,
-      events: WORKFLOW_EVENT_CATALOGUE.map((event) => ({ key: event.key, group: event.group, fields: event.fields })),
+      events: WORKFLOW_EVENT_CATALOGUE.map((event) => ({ key: event.key, group: event.group, fields: event.fields, subjectType: event.subjectType ?? null })),
     };
   }
 
@@ -183,11 +188,20 @@ export class WorkflowEngineController {
   @HasPermission(PERMISSIONS.WORKFLOW_DESIGN)
   @ApiOperation({ summary: 'Las personas y los roles de la empresa a los que se puede asignar una tarea.' })
   async assignees(@Query() query: AssigneeQueryDto, @CurrentUser() user: AuthenticatedUser) {
-    const [users, roles] = await Promise.all([
+    const [users, roles, actingRoles, actingUsers, members] = await Promise.all([
       this.directory.users(user.organizationId, query.search, query.ids),
       this.directory.roles(user.organizationId),
+      this.directory.rolesWithPermission(user.organizationId, PERMISSIONS.WORKFLOW_TASK_ACT),
+      this.directory.userIdsWithPermission(user.organizationId, PERMISSIONS.WORKFLOW_TASK_ACT),
+      this.directory.roleMemberCounts(user.organizationId),
     ]);
-    return { users: users.map(({ id, name, email }) => ({ id, name, email })), roles };
+    const acting = new Set(actingUsers);
+    // Who can actually answer a task travels with each option, so the picker can say «this role
+    // cannot answer tasks» at the moment of choosing rather than after the run stalls.
+    return {
+      users: users.map(({ id, name, email }) => ({ id, name, email, canAct: acting.has(id) })),
+      roles: roles.map((role) => ({ ...role, canAct: actingRoles.has(role.id), members: members.get(role.id) ?? 0 })),
+    };
   }
 
   /**

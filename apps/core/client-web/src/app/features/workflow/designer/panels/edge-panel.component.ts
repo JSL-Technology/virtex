@@ -1,3 +1,4 @@
+import { VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AlertTriangle, ArrowRight, CircleAlert, LucideAngularModule, Spline, Trash2 } from 'lucide-angular';
@@ -15,7 +16,7 @@ import { DesignerStore, outcomesOf } from '../designer-store';
 @Component({
   selector: 'app-workflow-edge-panel',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, ConditionEditorComponent],
+  imports: [TranslateModule, VxPluralKeyPipe, LucideAngularModule, ConditionEditorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inspector.scss',
   template: `
@@ -55,6 +56,9 @@ import { DesignerStore, outcomesOf } from '../designer-store';
         <input id="edge-label" type="text" maxlength="80" [value]="e.label ?? ''" [readOnly]="readonly()"
           [placeholder]="'workflow_engine.designer.label_placeholder' | translate"
           (input)="store.patchEdge(e.id, { label: $any($event.target).value || undefined }, 'label')" />
+        @if (e.condition) {
+          <p class="insp-hint">{{ 'workflow_engine.designer.condition_label_hint' | translate }}</p>
+        }
       </div>
     </section>
 
@@ -66,11 +70,11 @@ import { DesignerStore, outcomesOf } from '../designer-store';
           <select id="edge-outcome" [value]="e.default ? '__default' : (e.outcome ?? '')" [disabled]="readonly()" (change)="setOutcome($any($event.target).value)">
             <option value="">{{ 'workflow_engine.designer.choose_outcome' | translate }}</option>
             @for (outcome of offered(); track outcome.id) {
-              <option [value]="outcome.id" [disabled]="outcome.taken && outcome.id !== e.outcome">
+              <option [value]="outcome.id" [selected]="!e.default && outcome.id === e.outcome" [disabled]="outcome.taken && outcome.id !== e.outcome">
                 {{ outcome.label }}{{ outcome.taken && outcome.id !== e.outcome ? ' · ' + ('workflow_engine.designer.already_routed' | translate) : '' }}
               </option>
             }
-            <option value="__default">{{ 'workflow_engine.designer.any_other_outcome' | translate }}</option>
+            <option value="__default" [selected]="!!e.default">{{ 'workflow_engine.designer.any_other_outcome' | translate }}</option>
           </select>
         </div>
       </section>
@@ -94,7 +98,7 @@ import { DesignerStore, outcomesOf } from '../designer-store';
     @if (e.waypoints?.length) {
       <section class="insp-section">
         <h4 class="insp-section__title">{{ 'workflow_engine.designer.route' | translate }}</h4>
-        <p class="insp-hint">{{ 'workflow_engine.designer.waypoints' | translate: { count: e.waypoints!.length } }}</p>
+        <p class="insp-hint">{{ 'workflow_engine.designer.waypoints' | vxPluralKey: e.waypoints!.length | translate: { count: e.waypoints!.length } }}</p>
         @if (!readonly()) {
           <button type="button" class="insp-secondary" (click)="store.setWaypoints(e.id, [])">{{ 'workflow_engine.designer.straighten' | translate }}</button>
         }

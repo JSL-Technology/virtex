@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WorkflowActionParam } from './validation/workflow-graph.validator';
+import { WorkflowSubject } from './contracts/workflow-graph';
 
 /** What a running action is handed: the instance it belongs to, the live context, and its parameters. */
 export interface WorkflowActionContext {
@@ -14,6 +15,8 @@ export interface WorkflowActionContext {
   startedByUserId: string | null;
   /** The instance's subject label, for messages. */
   subjectLabel: string | null;
+  /** What the instance is about (type and id of the business document), when it has one. */
+  subject: WorkflowSubject | null;
 }
 
 export interface WorkflowActionResult {
@@ -23,6 +26,9 @@ export interface WorkflowActionResult {
   patch?: Record<string, unknown>;
   /** A short, human-readable line for the instance timeline. */
   summary?: string;
+  /** A catalogue key for the timeline line, preferred over `summary` by the client. */
+  summaryKey?: string;
+  summaryParams?: Record<string, string | number>;
 }
 
 /**
@@ -46,6 +52,8 @@ export interface WorkflowAction {
   /** Outcomes the action may return, so the designer can offer them on outgoing connections. */
   readonly outcomes?: readonly string[];
   readonly params: readonly WorkflowActionParam[];
+  /** Context variables the action writes when it runs, so validation knows they will exist. */
+  writes?(params: Record<string, unknown>): readonly string[];
   run(context: WorkflowActionContext): Promise<WorkflowActionResult>;
 }
 
@@ -75,6 +83,10 @@ export class WorkflowActionRegistry {
 
   paramsOf(key: string): readonly WorkflowActionParam[] | undefined {
     return this.actions.get(key)?.params;
+  }
+
+  writesOf(key: string, params: Record<string, unknown>): readonly string[] {
+    return this.actions.get(key)?.writes?.(params) ?? [];
   }
 
   /** The palette: every action the designer may place, with the form its parameters need. */

@@ -17,7 +17,7 @@
             [attr.aria-label]="'main.shortcuts.use_from_other_apps' | translate"
           >
             @for (preset of presets; track preset.id) {
-              <option [value]="preset.id">{{ preset.labelKey | translate }}</option>
+              <option [value]="preset.id" [selected]="preset.id == (selectedPreset())">{{ preset.labelKey | translate }}</option>
             }
           </select>
           <button class="ks__apply" type="button" (click)="applyPreset()">

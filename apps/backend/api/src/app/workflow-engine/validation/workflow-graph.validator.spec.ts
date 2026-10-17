@@ -122,6 +122,7 @@ describe('workflow graph validation', () => {
       expect(codes(semanticIssues(graph, MANUAL, ctx))).toEqual(expect.arrayContaining(['condition_needs_default', 'branch_needs_condition']));
       graph.edges[1].condition = { var: 'amount', op: 'gt', value: 10 };
       graph.edges[2].default = true;
+      graph.variables = [{ name: 'amount', type: 'number' }];
       expect(codes(semanticIssues(graph, MANUAL, ctx))).toEqual([]);
     });
 
@@ -166,7 +167,7 @@ describe('workflow graph validation', () => {
       expect(codes(semanticIssues(rework, MANUAL, ctx))).not.toContain('automatic_loop');
     });
 
-    it('warns (without blocking) about undeclared variables in conditions', () => {
+    it('blocks a condition on a variable nothing writes when the data is known, warns otherwise (QA C-01)', () => {
       const graph: WorkflowGraph = {
         nodes: [
           { id: 's', type: WorkflowNodeType.START },
@@ -176,15 +177,103 @@ describe('workflow graph validation', () => {
         ],
         edges: [
           { id: 'a', from: 's', to: 'c' },
-          { id: 'b', from: 'c', to: 'e1', condition: { var: 'monto', op: 'gt', value: 1 } },
+          { id: 'b', from: 'c', to: 'e1', condition: { var: 'totl', op: 'gt', value: 1 } },
           { id: 'd', from: 'c', to: 'e2', default: true },
         ],
       };
-      const issues = semanticIssues(graph, MANUAL, ctx);
-      expect(codes(issues)).toEqual([]);
-      expect(issues.some((i) => i.code === 'variable_undeclared' && i.severity === 'warning')).toBe(true);
-      graph.variables = [{ name: 'monto', type: 'number' }];
-      expect(semanticIssues(graph, MANUAL, ctx).some((i) => i.code === 'variable_undeclared')).toBe(false);
+      // A manual start: the container is all there is, so «totl» can never hold a value.
+      expect(codes(semanticIssues(graph, MANUAL, ctx))).toEqual(['variable_undeclared']);
+      // A catalogued event declares its payload: «total» exists, «totl» does not.
+      const withEvents: WorkflowValidationContext = { ...ctx, eventFields: (event) => (event === 'invoice.issued' ? ['total'] : undefined) };
+      const onEvent: WorkflowTrigger = { mode: 'event', event: 'invoice.issued' };
+      expect(codes(semanticIssues(graph, onEvent, withEvents))).toEqual(['variable_undeclared']);
+      graph.edges[1].condition = { var: 'total', op: 'gt', value: 1 };
+      expect(codes(semanticIssues(graph, onEvent, withEvents))).toEqual([]);
+      // An integration event's payload is unknown: only a warning.
+      graph.edges[1].condition = { var: 'anything', op: 'gt', value: 1 };
+      const custom = semanticIssues(graph, { mode: 'event', event: 'custom.sync' }, withEvents);
+      expect(codes(custom)).toEqual([]);
+      expect(custom.some((i) => i.code === 'variable_undeclared' && i.severity === 'warning')).toBe(true);
+      // A variable an action writes counts as declared.
+      graph.nodes.splice(1, 0, { id: 'set', type: WorkflowNodeType.ACTION, name: 'Fijar', config: { action: 'log' } });
+      graph.edges[0] = { id: 'a', from: 's', to: 'set' };
+      graph.edges.push({ id: 'a2', from: 'set', to: 'c' });
+      const writes: WorkflowValidationContext = { ...ctx, actionWrites: (key) => (key === 'log' ? ['anything'] : []) };
+      expect(codes(semanticIssues(graph, MANUAL, writes))).toEqual([]);
+    });
+
+    it('never hides the other problems behind a malformed variable (QA M-02)', () => {
+      const graph = approvalGraph();
+      graph.variables = [{ name: 'mi variable', type: 'string' }];
+      graph.nodes[1].config = {};
+      const found = codes(semanticIssues(graph, MANUAL, ctx));
+      expect(found).toEqual(expect.arrayContaining(['variable_name_invalid', 'task_no_assignee']));
+    });
+
+    it('requires every outcome of an action to be routed, and refuses foreign outcomes (QA C-04)', () => {
+      const withOutcomes: WorkflowValidationContext = { ...ctx, actionOutcomes: (key) => (key === 'webhook' ? ['ok', 'error'] : undefined) };
+      const graph: WorkflowGraph = {
+        nodes: [
+          { id: 's', type: WorkflowNodeType.START },
+          { id: 'w', type: WorkflowNodeType.ACTION, name: 'Llamar', config: { action: 'webhook', actionParams: { url: 'https://example.com/hook' } } },
+          { id: 'ok', type: WorkflowNodeType.END },
+          { id: 'ko', type: WorkflowNodeType.END },
+        ],
+        edges: [
+          { id: 'a', from: 's', to: 'w' },
+          { id: 'b', from: 'w', to: 'ok', outcome: 'ok' },
+        ],
+      };
+      expect(codes(semanticIssues(graph, MANUAL, withOutcomes))).toEqual(expect.arrayContaining(['outcome_unrouted']));
+      expect(codes(semanticIssues(graph, MANUAL, withOutcomes))).not.toContain('variable_undeclared');
+      graph.edges.push({ id: 'c', from: 'w', to: 'ko', outcome: 'error' });
+      expect(codes(semanticIssues(graph, MANUAL, withOutcomes))).toEqual([]);
+      graph.edges[2].outcome = 'boom';
+      expect(codes(semanticIssues(graph, MANUAL, withOutcomes))).toEqual(expect.arrayContaining(['outcome_unrouted', 'edge_unknown_outcome']));
+      // One plain connection carries every outcome — allowed, but an unhandled error is flagged.
+      graph.nodes = graph.nodes.filter((node) => node.id !== 'ko');
+      graph.edges = [{ id: 'a', from: 's', to: 'w' }, { id: 'b', from: 'w', to: 'ok' }];
+      const plain = semanticIssues(graph, MANUAL, withOutcomes);
+      expect(codes(plain)).toEqual([]);
+      expect(plain.some((i) => i.code === 'action_error_unhandled')).toBe(true);
+    });
+
+    it('refuses webhooks to private or local addresses at design time', () => {
+      const graph: WorkflowGraph = {
+        nodes: [
+          { id: 's', type: WorkflowNodeType.START },
+          { id: 'w', type: WorkflowNodeType.ACTION, name: 'Llamar', config: { action: 'webhook', actionParams: { url: 'https://169.254.169.254/latest' } } },
+          { id: 'e', type: WorkflowNodeType.END },
+        ],
+        edges: [
+          { id: 'a', from: 's', to: 'w' },
+          { id: 'b', from: 'w', to: 'e' },
+        ],
+      };
+      expect(codes(semanticIssues(graph, MANUAL, ctx))).toContain('action_param_url_private');
+      (graph.nodes[1].config as { actionParams: Record<string, string> }).actionParams['url'] = 'http://localhost:3000';
+      expect(codes(semanticIssues(graph, MANUAL, ctx))).toContain('action_param_url_private');
+      (graph.nodes[1].config as { actionParams: Record<string, string> }).actionParams['url'] = 'http://example.com';
+      expect(codes(semanticIssues(graph, MANUAL, ctx))).toContain('action_param_url_https');
+      expect(codes(semanticIssues(graph, MANUAL, { ...ctx, allowHttpWebhooks: true }))).toEqual([]);
+    });
+
+    it('refuses a task nobody can answer: its role or person lacks the grant (QA C-02)', () => {
+      const acting: WorkflowValidationContext = { ...ctx, actingRoleIds: new Set(), actingUserIds: new Set([USER]) };
+      const graph = approvalGraph();
+      graph.nodes[1].config = { assigneeRoleId: ROLE };
+      expect(codes(semanticIssues(graph, MANUAL, acting))).toEqual(['assignee_role_cannot_act']);
+      expect(codes(semanticIssues(graph, MANUAL, { ...acting, actingRoleIds: new Set([ROLE]) }))).toEqual([]);
+      const empty = semanticIssues(graph, MANUAL, { ...acting, actingRoleIds: new Set([ROLE]), roleMemberCounts: new Map([[ROLE, 0]]) });
+      expect(empty.some((i) => i.code === 'assignee_role_empty' && i.severity === 'warning')).toBe(true);
+      graph.nodes[1].config = { assigneeUserId: USER };
+      expect(codes(semanticIssues(graph, MANUAL, { ...acting, actingUserIds: new Set() }))).toEqual(['assignee_user_cannot_act']);
+    });
+
+    it('requires a human step to have a name, which becomes the task title (QA A-04)', () => {
+      const graph = approvalGraph();
+      delete graph.nodes[1].name;
+      expect(codes(semanticIssues(graph, MANUAL, ctx))).toContain('task_needs_name');
     });
   });
 });

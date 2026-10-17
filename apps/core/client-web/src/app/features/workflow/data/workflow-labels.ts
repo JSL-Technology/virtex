@@ -1,5 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { composeKey } from '@virteex/shared/types';
+import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 import {
   CircleDot,
   Clock,
@@ -53,17 +54,48 @@ export function outcomeLabel(
 export function eventLabel(translate: TranslateService, event: string | undefined | null): string {
   if (!event) return '';
   if (event.startsWith('custom.')) return event;
-  const key = composeKey('workflow_engine.event', event);
-  const text = translate.instant(key);
-  return text === key ? event : text;
+  return translateOrLiteral(translate, composeKey('workflow_engine.event', event), undefined, event);
 }
 
 export function eventFieldLabel(translate: TranslateService, name: string, label?: string | null): string {
   // A label the server sent as a catalogue key is translated below; anything else is the author's own text.
   if (label && !/^workflow_engine\./.test(label)) return label;
-  const key = composeKey('workflow_engine.event_field', name);
-  const text = translate.instant(key);
-  return text === key ? name : text;
+  // Never the raw key: the missing-translation handler answers «[[key]]», which the old `=== key`
+  // test let through to the screen (QA A-05).
+  return translateOrLiteral(translate, composeKey('workflow_engine.event_field', name), undefined, name);
+}
+
+/**
+ * Why a run failed, in the reader's words. The engine stores a catalogue key for every failure it
+ * understands (`workflow_engine.runtime.no_exit`, `workflow_engine.subprocess_too_deep`) and the
+ * raw message only for an unexpected one, which is shown as it is — it is what support needs.
+ */
+export function runFailureText(translate: TranslateService, error: string | null | undefined, params?: Record<string, unknown>): string {
+  if (!error) return '—';
+  if (/^workflow_engine\.[a-z0-9_.]+$/.test(error)) {
+    return translateOrLiteral(translate, error, params, translate.instant('workflow_engine.runtime.unexpected', { detail: error }));
+  }
+  return translate.instant('workflow_engine.runtime.unexpected', { detail: error });
+}
+
+/**
+ * The catalogue key for a count: `base.one` for «1 paso copiado», `base.other` for «3 pasos
+ * copiados», by the language's CLDR rules — the same choice `vxPluralKey` makes in templates.
+ */
+export function pluralKey(translate: TranslateService, base: string, count: number): string {
+  const language = translate.currentLang || translate.getDefaultLang() || 'es';
+  return `${base}.${new Intl.PluralRules(language).select(count) === 'one' ? 'one' : 'other'}`;
+}
+
+/** The steps a running instance waits on, by name or, for an unnamed step, by its kind — never `timer`. */
+export function currentStepsText(
+  translate: TranslateService,
+  run: { currentNodes?: Array<{ name: string | null; type: string }>; currentSteps?: string[] },
+): string {
+  const steps = run.currentNodes?.length
+    ? run.currentNodes.map((node) => node.name || translate.instant(composeKey('workflow_engine.node', node.type)))
+    : (run.currentSteps ?? []);
+  return steps.join(', ') || '—';
 }
 
 /**

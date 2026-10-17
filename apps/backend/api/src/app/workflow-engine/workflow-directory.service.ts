@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { LanguageCode, matchLanguage } from '@virteex/shared/types';
+import { hasPermission } from '@virteex/shared/util-auth';
 
 export interface DirectoryUser {
   id: string;
@@ -110,7 +111,7 @@ export class WorkflowDirectoryService {
   }
 
   async userIdsWithPermission(organizationId: string, permission: string): Promise<string[]> {
-    const rows: Array<{ id: string; permissions: string }> = await this.dataSource.query(
+    const rows: Array<{ id: string; permissions: string | null }> = await this.dataSource.query(
       `SELECT DISTINCT u.id, r.permissions
          FROM users u
          JOIN user_organizations m ON m.user_id = u.id AND m.organization_id = $1 AND m.suspended_at IS NULL
@@ -119,17 +120,72 @@ export class WorkflowDirectoryService {
         WHERE u.status = 'ACTIVE'`,
       [organizationId],
     );
-    return [
-      ...new Set(
-        rows
-          .filter((row) => {
-            const list = String(row.permissions ?? '').split(',').map((p) => p.trim());
-            return list.includes(permission) || list.includes('*') || list.includes('*:*');
-          })
-          .map((row) => row.id),
-      ),
-    ];
+    return [...new Set(rows.filter((row) => hasPermission(splitPermissions(row.permissions), [permission])).map((row) => row.id))];
   }
+
+  /**
+   * The company's roles that hold a permission, each with how many active members it has.
+   *
+   * Uses the same matcher as the request guard (`*`, `module:*` wildcards), so «can this role
+   * answer a task» is answered here exactly as the API will answer it when the person tries.
+   */
+  async rolesWithPermission(organizationId: string, permission: string): Promise<Map<string, number>> {
+    const rows: Array<{ id: string; permissions: string | null; members: number }> = await this.dataSource.query(
+      `SELECT r.id, r.permissions,
+              (SELECT COUNT(*)::int FROM user_roles ur
+                 JOIN users u ON u.id = ur.user_id AND u.status = 'ACTIVE'
+                 JOIN user_organizations m ON m.user_id = u.id AND m.organization_id = $1 AND m.suspended_at IS NULL
+                WHERE ur.role_id = r.id) AS members
+         FROM roles r
+        WHERE r.organization_id = $1`,
+      [organizationId],
+    );
+    return new Map(
+      rows.filter((row) => hasPermission(splitPermissions(row.permissions), [permission])).map((row) => [row.id, Number(row.members)]),
+    );
+  }
+
+  /** A member's identity as the services see it: roles and effective permissions in this company. */
+  async principal(
+    organizationId: string,
+    userId: string,
+  ): Promise<{ id: string; name: string; roleIds: string[]; permissions: string[] } | null> {
+    const [user] = await this.users(organizationId, undefined, [userId]);
+    if (!user) return null;
+    const rows: Array<{ id: string; permissions: string | null }> = await this.dataSource.query(
+      `SELECT r.id, r.permissions FROM user_roles ur JOIN roles r ON r.id = ur.role_id
+        WHERE ur.user_id = $1 AND r.organization_id = $2`,
+      [userId, organizationId],
+    );
+    return {
+      id: user.id,
+      name: user.name,
+      roleIds: rows.map((row) => row.id),
+      permissions: [...new Set(rows.flatMap((row) => splitPermissions(row.permissions)))],
+    };
+  }
+
+  /** Active members per role, for every role of the company. */
+  async roleMemberCounts(organizationId: string): Promise<Map<string, number>> {
+    const rows: Array<{ id: string; members: number }> = await this.dataSource.query(
+      `SELECT r.id,
+              (SELECT COUNT(*)::int FROM user_roles ur
+                 JOIN users u ON u.id = ur.user_id AND u.status = 'ACTIVE'
+                 JOIN user_organizations m ON m.user_id = u.id AND m.organization_id = $1 AND m.suspended_at IS NULL
+                WHERE ur.role_id = r.id) AS members
+         FROM roles r
+        WHERE r.organization_id = $1`,
+      [organizationId],
+    );
+    return new Map(rows.map((row) => [row.id, Number(row.members)]));
+  }
+}
+
+function splitPermissions(raw: string | null): string[] {
+  return String(raw ?? '')
+    .split(',')
+    .map((permission) => permission.trim())
+    .filter(Boolean);
 }
 
 /**

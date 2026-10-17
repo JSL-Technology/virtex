@@ -17,6 +17,7 @@ import { WorkflowNotifier } from './workflow-notifier.service';
 import { WorkflowSubprocessService } from './workflow-subprocess.service';
 import { WorkflowEngineApprovalSource } from './workflow-approval.source';
 import { BuiltinWorkflowActions, WorkflowSubprocessStarter } from './actions/builtin-actions';
+import { DocumentWorkflowActions } from './actions/document-actions';
 import { WorkflowDomainEventsListener } from './events/workflow-domain-events.listener';
 import { WorkflowEngineController } from './workflow-engine.controller';
 
@@ -48,6 +49,7 @@ import { WorkflowEngineController } from './workflow-engine.controller';
     WorkflowEngineApprovalSource,
     WorkflowDomainEventsListener,
     BuiltinWorkflowActions,
+    DocumentWorkflowActions,
     WorkflowSubprocessService,
     { provide: WorkflowSubprocessStarter, useExisting: WorkflowSubprocessService },
   ],

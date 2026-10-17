@@ -69,19 +69,21 @@
 }
 
 .wfl__name {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  // A table cell stays a table cell: `display: flex` here took it out of the row's height, so a
+  // name without a description drew its border halfway up the row. The lines stack as blocks.
   min-width: 220px;
   max-width: 420px;
 
   .table-link {
+    @include ds.line-clamp(2);
     font-weight: var(--font-semibold);
+    overflow-wrap: anywhere;
   }
 }
 
 .wfl__description {
   @include ds.line-clamp(2);
+  margin-top: 2px;
   font-size: var(--text-xs);
   color: var(--content-tertiary);
 }
@@ -90,6 +92,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
+  min-width: 140px;
   font-size: var(--text-sm);
   color: var(--content-secondary);
 }
@@ -126,6 +129,39 @@
   &--danger:hover {
     color: var(--error-text);
   }
+}
+
+.wfl__more {
+  position: relative;
+  display: inline-flex;
+}
+
+.wfl__menu {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: var(--space-1);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised, var(--surface-base));
+  box-shadow: var(--shadow-lg, 0 8px 24px rgb(0 0 0 / 0.12));
+  text-align: start;
+
+  > button,
+  > a {
+    @include ds.button-ghost('sm');
+    justify-content: flex-start;
+    gap: var(--space-2);
+    width: 100%;
+    color: var(--content-primary);
+    text-decoration: none;
+  }
+}
+
+.wfl__menu-danger {
+  color: var(--error-text) !important;
 }
 
 .sr-only {

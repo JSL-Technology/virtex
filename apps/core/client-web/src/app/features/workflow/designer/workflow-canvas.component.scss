@@ -197,6 +197,17 @@ f-flow {
   box-shadow: 0 0 0 3px var(--error-border);
 }
 
+// Interrupted by a cancellation: it never finished, and it does not pulse as if it still might.
+.wf-node--cancelled {
+  border-style: dashed;
+  border-color: var(--warning-solid);
+
+  .wf-node__icon {
+    background: var(--warning-surface);
+    color: var(--warning-text);
+  }
+}
+
 @keyframes wf-pulse {
   0%,
   100% {
@@ -352,6 +363,11 @@ f-flow {
     background: var(--ff-minimap-background-color);
     box-shadow: var(--ff-minimap-shadow);
     z-index: 2;
+
+    // On a phone it covered a third of the process it was meant to summarise; pinch and pan do its job.
+    @media (max-width: 640px) {
+      display: none;
+    }
   }
 }
 

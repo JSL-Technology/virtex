@@ -14,6 +14,8 @@ export interface WorkflowEventDefinition {
   group: 'sales' | 'purchasing' | 'accounting' | 'approvals' | 'customers' | 'integration';
   /** The variables an instance started by this event receives — the designer offers them. */
   fields: WorkflowVariable[];
+  /** The type of document the instance is about (its subject), when the event has one. */
+  subjectType?: string;
   map(payload: Record<string, unknown>): WorkflowEventStart;
 }
 
@@ -170,6 +172,7 @@ export const WORKFLOW_EVENT_CATALOGUE: readonly WorkflowEventDefinition[] = [
   {
     key: BUSINESS_EVENTS.PURCHASE_ORDER_CREATED,
     group: 'purchasing',
+    subjectType: 'purchase_order',
     fields: [field('purchaseOrderId', 'string'), field('number', 'string'), field('total', 'number'), field('currencyCode', 'string'), field('supplierId', 'string'), field('supplierName', 'string')],
     map: (payload) => {
       const id = str(payload['purchaseOrderId']);
@@ -248,6 +251,7 @@ export const WORKFLOW_EVENT_CATALOGUE: readonly WorkflowEventDefinition[] = [
   {
     key: BUSINESS_EVENTS.APPROVAL_REQUESTED,
     group: 'approvals',
+    subjectType: 'approval_request',
     fields: [field('requestId', 'string'), field('documentType', 'string'), field('documentId', 'string'), field('amount', 'number'), field('currencyCode', 'string'), field('reference', 'string')],
     map: (payload) => ({
       context: {

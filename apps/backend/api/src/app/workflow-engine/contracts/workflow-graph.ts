@@ -97,6 +97,9 @@ export interface WorkflowVariable {
   options?: string[];
   /** Shown in forms as a hint. */
   description?: string;
+  /** For `number`: the accepted range (an amount that cannot be negative, a percentage ≤ 100). */
+  min?: number;
+  max?: number;
 }
 
 export interface WorkflowNodeConfig {

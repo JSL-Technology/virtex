@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
 import { ExternalLink, LucideAngularModule, MessageSquareText } from 'lucide-angular';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { NotificationService } from '../../../core/services/notification';
+import { AuthService } from '../../../core/services/auth';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_UI } from '../../../shared/components';
 import { InboxItem, InboxSection, InboxShellComponent } from '../../../shared/components/gestures';
@@ -83,7 +84,7 @@ const REFRESH_MS = 60000;
             @if (task.subject?.label) {
               <span>
                 @if (task.subject?.route) {
-                  <a [routerLink]="link(task.subject!.route!)">{{ task.subject?.label }} <lucide-icon [img]="OpenIcon" [size]="12" aria-hidden="true" /></a>
+                  <a [href]="link(task.subject!.route!)" (click)="$event.preventDefault(); leaveTo(task.subject!.route!)">{{ task.subject?.label }} <lucide-icon [img]="OpenIcon" [size]="12" aria-hidden="true" /></a>
                 } @else {
                   {{ task.subject?.label }}
                 }
@@ -93,7 +94,7 @@ const REFRESH_MS = 60000;
               <span>{{ 'workflow_engine.inbox.started_by' | translate: { name: task.startedByName } }}</span>
             }
             @if (task.dueAt) {
-              <span [class.wft-detail__overdue]="task.overdue">{{ 'workflow_engine.instance.due' | translate: { date: (task.dueAt | vxDate: 'datetime') } }}</span>
+              <span [class.wft-detail__overdue]="task.overdue">{{ 'workflow_engine.instance.due' | translate: { date: (task.dueAt | vxDate: 'dateTime') } }}</span>
             }
           </div>
 
@@ -119,7 +120,8 @@ const REFRESH_MS = 60000;
             @if (task.form?.length) {
               <section class="wft-detail__section">
                 <h3>{{ 'workflow_engine.inbox.form' | translate }}</h3>
-                <app-workflow-fields [fields]="task.form!" [value]="formData()" [submitted]="submitted()" idPrefix="wft-form" (valueChange)="formData.set($event)" />
+                <app-workflow-fields [fields]="task.form!" [value]="formData()" [submitted]="submitted()" idPrefix="wft-form"
+                  [relaxRequired]="refusing(task)" (valueChange)="formData.set($event)" />
               </section>
             }
             <section class="wft-detail__section">
@@ -139,10 +141,17 @@ const REFRESH_MS = 60000;
                 </p>
               }
             </section>
+          } @else if (task.status === 'CANCELLED') {
+            <!-- A cancelled task was never answered: saying «your answer» with nothing after it read as
+                 if the person had responded (QA A-10). -->
+            <section class="wft-detail__section" role="status">
+              <h3>{{ 'workflow_engine.inbox.cancelled_title' | translate }}</h3>
+              <p>{{ 'workflow_engine.inbox.cancelled_body' | translate: { date: (task.completedAt | vxDate: 'dateTime') } }}</p>
+            </section>
           } @else {
             <section class="wft-detail__section">
-              <h3>{{ 'workflow_engine.inbox.your_answer' | translate }}</h3>
-              <p>{{ label(task, task.outcome ?? '') }} · {{ task.completedAt | vxDate: 'datetime' }}</p>
+              <h3>{{ (task.completedByName && task.completedByUserId !== myId() ? 'workflow_engine.inbox.answer_by' : 'workflow_engine.inbox.your_answer') | translate: { name: task.completedByName } }}</h3>
+              <p>{{ label(task, task.outcome ?? '') }} · {{ task.completedAt | vxDate: 'dateTime' }}</p>
               @if (task.comment) {
                 <q class="wft-detail__instructions">{{ task.comment }}</q>
               }
@@ -150,7 +159,7 @@ const REFRESH_MS = 60000;
           }
         </div>
         <div dialogActions class="wft-detail__actions">
-          <a class="secondary-button" [routerLink]="link('workflow-instances/' + task.instanceId)">{{ 'workflow_engine.inbox.view_run' | translate }}</a>
+          <button type="button" class="secondary-button" (click)="leaveTo('workflow-instances/' + task.instanceId)">{{ 'workflow_engine.inbox.view_run' | translate }}</button>
           @if (task.status === 'OPEN') {
             @for (outcome of task.outcomes; track outcome) {
               <button type="button" [class]="tone(outcome) === 'danger' ? 'secondary-button wft__danger' : tone(outcome) === 'primary' ? 'primary-button' : 'secondary-button'"
@@ -169,8 +178,11 @@ export class WorkflowTasksPage {
   private readonly tenancy = inject(ActiveOrganizationService);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
+  private readonly format = inject(FormatService);
   private readonly router = inject(Router);
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly auth = inject(AuthService);
 
   /** `?task=<id>` from a notification or a run's «open task» link. */
   readonly task = input<string>('');
@@ -282,10 +294,15 @@ export class WorkflowTasksPage {
     return outcomeTone(outcome);
   }
 
+  /** A fact as the run view shows it: the person's number and date format, yes/no in words. */
   factValue(value: unknown): string {
     if (value === null || value === undefined || value === '') return '—';
-    if (typeof value === 'boolean') return value ? '✓' : '✗';
-    if (typeof value === 'number') return value.toLocaleString(this.translate.currentLang);
+    if (typeof value === 'boolean') return this.translate.instant(value ? 'workflow_engine.yes' : 'workflow_engine.no');
+    if (typeof value === 'number') return this.format.number(value);
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?/.test(value) && !Number.isNaN(Date.parse(value))) {
+      return this.format.date(value, value.length > 10 ? 'dateTime' : 'date');
+    }
+    if (Array.isArray(value)) return value.map((item) => this.factValue(item)).join(', ');
     return typeof value === 'object' ? JSON.stringify(value) : String(value);
   }
 
@@ -320,11 +337,31 @@ export class WorkflowTasksPage {
     this.send(task, { outcome });
   }
 
+  /** The chosen answer is a refusal: it asks for a reason and waives the form's required fields. */
+  refusing(task: WorkflowTask): boolean {
+    const outcome = this.chosen();
+    return !!outcome && (task.commentRequiredFor ?? []).includes(outcome);
+  }
+
+  /**
+   * Leave the dialog for another page. The dialog is closed and rendered closed first: the page we
+   * go to opens in another tab, and this one stops rendering the moment it is hidden (QA C-03).
+   */
+  leaveTo(path: string): void {
+    this.close();
+    this.cdr.detectChanges();
+    setTimeout(() => void this.router.navigateByUrl(this.link(path)));
+  }
+
+  myId(): string | null {
+    return this.auth.currentUser()?.id ?? null;
+  }
+
   /** From the dialog: checks the form and the comment first. */
   submit(task: WorkflowTask, outcome: string): void {
     this.chosen.set(outcome);
     this.submitted.set(true);
-    if (task.form?.length && Object.keys(fieldProblems(task.form, this.formData())).length) return;
+    if (task.form?.length && Object.keys(fieldProblems(task.form, this.formData(), { relaxRequired: this.refusing(task) })).length) return;
     if ((task.commentRequiredFor ?? []).includes(outcome) && !this.comment().trim()) return;
     this.send(task, { outcome, formData: task.form?.length ? this.formData() : undefined, comment: this.comment().trim() || undefined });
   }

@@ -12,7 +12,10 @@ import { WorkflowInstance, WorkflowInstanceStatus } from './entities/workflow-in
 import { WorkflowGraph, WorkflowNodeType, WorkflowTrigger } from './contracts/workflow-graph';
 import { WorkflowActionRegistry } from './workflow-action.registry';
 import { WorkflowDirectoryService } from './workflow-directory.service';
-import { isKnownWorkflowEvent } from './events/workflow-event.catalogue';
+import { eventDefinition, isKnownWorkflowEvent } from './events/workflow-event.catalogue';
+import { PERMISSIONS } from '../shared/permissions';
+import { DOCUMENT_DECISION_ACTION, DOCUMENT_DECISION_SOURCES } from './actions/document-actions';
+import { isDevLikeEnvironment } from '../config/environment';
 import { WorkflowIssue, semanticIssues, structuralIssues } from './validation/workflow-graph.validator';
 import {
   CreateWorkflowDefinitionDto,
@@ -180,6 +183,9 @@ export class WorkflowDefinitionsService {
   /** Copy a process (any version) into a brand-new process with its own key. */
   async duplicate(id: string, name: string | undefined, organizationId: string, actorUserId: string): Promise<WorkflowDefinition> {
     const source = await this.get(id, organizationId);
+    // A name the person typed is theirs: if it is taken they are told, never handed another one.
+    // Only the suggested «copy of …» name is numbered to find a free one.
+    if (name?.trim()) await this.assertNameFree(name.trim(), organizationId, null);
     const base = (name?.trim() || `${source.name} (copia)`).slice(0, 200);
     let candidate = base;
     for (let suffix = 2; await this.nameTaken(candidate, organizationId, null); suffix += 1) {
@@ -200,7 +206,10 @@ export class WorkflowDefinitionsService {
     // Optimistic concurrency: a designer saving over a version someone else saved after they loaded
     // it would silently lose that person's work.
     if (dto.expectedUpdatedAt && new Date(dto.expectedUpdatedAt).getTime() !== definition.updatedAt.getTime()) {
-      throw new ConflictError('workflow_engine.edited_elsewhere');
+      // Who saved it decides how the designer words it: the same person in another tab, or someone else.
+      const by = definition.updatedByUserId;
+      const name = by && by !== actorUserId ? (await this.directory.names(organizationId, [by])).get(by) ?? null : null;
+      throw new ConflictError('workflow_engine.edited_elsewhere', { self: by === actorUserId, name });
     }
     if (dto.name !== undefined) {
       const name = dto.name.trim();
@@ -228,9 +237,14 @@ export class WorkflowDefinitionsService {
    * The designer calls this while the author works, to mark nodes on the canvas; publishing calls it
    * and refuses on any error.
    */
-  async validate(graph: WorkflowGraph, trigger: WorkflowTrigger, organizationId: string): Promise<WorkflowIssue[]> {
+  async validate(
+    graph: WorkflowGraph,
+    trigger: WorkflowTrigger,
+    organizationId: string,
+    self: { key?: string; id?: string } = {},
+  ): Promise<WorkflowIssue[]> {
     const structural = structuralIssues(graph, trigger);
-    if (structural.length) return structural;
+    if (structural.some((issue) => FATAL_CODES.has(issue.code))) return structural;
     const userIds = new Set<string>();
     for (const node of graph.nodes) {
       if (node.config?.assigneeUserId) userIds.add(node.config.assigneeUserId);
@@ -241,25 +255,79 @@ export class WorkflowDefinitionsService {
         if (param.type === 'user' && typeof value === 'string' && value) userIds.add(value);
       }
     }
-    const [knownUsers, knownRoles] = await Promise.all([
+    const [knownUsers, knownRoles, actingRoles, actingUsers, memberCounts] = await Promise.all([
       this.directory.userIdSet(organizationId, userIds),
       this.directory.roleIdSet(organizationId),
+      this.directory.rolesWithPermission(organizationId, PERMISSIONS.WORKFLOW_TASK_ACT),
+      this.directory.userIdsWithPermission(organizationId, PERMISSIONS.WORKFLOW_TASK_ACT),
+      this.directory.roleMemberCounts(organizationId),
     ]);
     const issues = semanticIssues(graph, trigger, {
       actionParams: (key) => this.actions.paramsOf(key),
+      actionOutcomes: (key) => this.actions.get(key)?.outcomes,
+      actionWrites: (key, params) => this.actions.writesOf(key, params),
       isKnownEvent: isKnownWorkflowEvent,
+      eventFields: (event) => eventDefinition(event)?.fields.map((field) => field.name),
       userIds: knownUsers,
       roleIds: knownRoles,
+      actingRoleIds: new Set(actingRoles.keys()),
+      actingUserIds: new Set(actingUsers),
+      roleMemberCounts: memberCounts,
+      allowHttpWebhooks: isDevLikeEnvironment(),
     });
-    // `start_workflow` names another process by key: it must exist and be live.
+
+    // `start_workflow` names another process by key: it must exist, be live, and never lead back
+    // here. A ring of processes starting each other is caught at depth 5 by the engine — after
+    // five useless runs; refusing it at design time is the only place it costs nothing.
+    const published = await this.definitions.find({ where: { organizationId, status: WorkflowDefinitionStatus.PUBLISHED } });
+    const startsOf = new Map<string, string[]>(published.map((d) => [d.key, subprocessKeys(d.graph)]));
+    if (self.key) startsOf.set(self.key, subprocessKeys(graph));
     for (const node of graph.nodes) {
       if (node.config?.action !== 'start_workflow') continue;
       const key = String(node.config.actionParams?.['workflowKey'] ?? '');
       if (!key) continue;
-      const target = await this.getPublishedByKey(key, organizationId);
-      if (!target) issues.push({ code: 'subprocess_unknown', severity: 'error', nodeId: node.id, params: { key } });
+      const exists = key === self.key || startsOf.has(key);
+      if (!exists) {
+        issues.push({ code: 'subprocess_unknown', severity: 'error', nodeId: node.id, params: { key } });
+        continue;
+      }
+      if (self.key && reaches(key, self.key, startsOf)) {
+        issues.push({ code: 'subprocess_cycle', severity: 'error', nodeId: node.id, params: { key } });
+      }
+    }
+
+    // «Decide the document» acts on what the run is about; a run started by hand, or by an event
+    // with no decidable document, has nothing to decide on and would always take its error exit.
+    const documentNodes = graph.nodes.filter((node) => node.config?.action === DOCUMENT_DECISION_ACTION);
+    if (documentNodes.length) {
+      const subjectType = trigger.mode === 'event' && trigger.event ? eventDefinition(trigger.event)?.subjectType : undefined;
+      if (!subjectType || !DOCUMENT_DECISION_SOURCES[subjectType]) {
+        for (const node of documentNodes) issues.push({ code: 'document_action_without_document', severity: 'warning', nodeId: node.id });
+      }
+    }
+
+    // Two live processes on one event both start on every occurrence: duplicate approvals for the
+    // same people. Legitimate sometimes (a notification flow beside an approval flow), so a warning
+    // the publisher must acknowledge, naming the others.
+    if (trigger.mode === 'event' && trigger.event) {
+      const others = published.filter(
+        (d) => d.key !== self.key && d.trigger?.mode === 'event' && d.trigger.event === trigger.event,
+      );
+      if (others.length) {
+        issues.push({
+          code: 'trigger_event_shared',
+          severity: 'warning',
+          params: { count: others.length, names: others.map((d) => d.name).join(', ').slice(0, 300) },
+        });
+      }
     }
     return issues;
+  }
+
+  /** Validation for the designer: knows which process it is, so self-references resolve. */
+  async validateFor(graph: WorkflowGraph, trigger: WorkflowTrigger, organizationId: string, definitionId?: string): Promise<WorkflowIssue[]> {
+    const self = definitionId ? await this.definitions.findOne({ where: { id: definitionId, organizationId } }) : null;
+    return this.validate(graph, trigger, organizationId, self ? { key: self.key, id: self.id } : {});
   }
 
   /** Validate the graph, then make this the live version of its key. */
@@ -280,13 +348,24 @@ export class WorkflowDefinitionsService {
         throw new ConflictError('workflow_engine.stale_version', { version: definition.version, live: live.version }, 'workflow_engine.stale_version');
       }
 
-      const issues = await this.validate(definition.graph, definition.trigger, organizationId);
+      const issues = await this.validate(definition.graph, definition.trigger, organizationId, { key: definition.key, id: definition.id });
       const errors = issues.filter((issue) => issue.severity === 'error');
       if (errors.length) {
         throw new UnprocessableEntityError(
           'workflow_engine.invalid_graph.summary',
           { count: errors.length, issues: errors },
           'workflow_engine.invalid_graph',
+        );
+      }
+      // Warnings do not block, but nobody publishes past one without having seen it: a process goes
+      // live only after its author confirmed each warning the server found, not the ones the
+      // designer happened to show.
+      const warnings = issues.filter((issue) => issue.severity === 'warning');
+      if (warnings.length && !dto.acknowledgeWarnings) {
+        throw new ConflictError(
+          'workflow_engine.publish_has_warnings',
+          { count: warnings.length, issues: warnings },
+          'workflow_engine.publish_has_warnings',
         );
       }
 
@@ -401,6 +480,33 @@ export class WorkflowDefinitionsService {
       candidate = `${base.slice(0, 110)}-${suffix}`;
     }
   }
+}
+
+const FATAL_CODES: ReadonlySet<string> = new Set([
+  'graph_malformed', 'too_many_nodes', 'too_many_edges', 'node_malformed', 'node_bad_id', 'node_bad_type',
+  'duplicate_node_id', 'edge_malformed', 'edge_dangling', 'duplicate_edge_id', 'config_malformed',
+]);
+
+/** The process keys a graph starts through `start_workflow` steps. */
+function subprocessKeys(graph: WorkflowGraph | null | undefined): string[] {
+  return (graph?.nodes ?? [])
+    .filter((node) => node.config?.action === 'start_workflow')
+    .map((node) => String(node.config?.actionParams?.['workflowKey'] ?? ''))
+    .filter(Boolean);
+}
+
+/** Whether starting `from` can, through any chain of subprocesses, start `target` again. */
+function reaches(from: string, target: string, startsOf: ReadonlyMap<string, string[]>): boolean {
+  const seen = new Set<string>();
+  const stack = [from];
+  while (stack.length) {
+    const key = stack.pop() as string;
+    if (key === target) return true;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    stack.push(...(startsOf.get(key) ?? []));
+  }
+  return false;
 }
 
 function slugify(value: string): string {

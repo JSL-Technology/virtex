@@ -52,7 +52,7 @@
 
     @if (run.status === 'FAILED' && run.error) {
       <div class="wri__banner wri__banner--error" role="alert">
-        <strong>{{ 'workflow_engine.instance.failed_title' | translate }}</strong> {{ run.error }}
+        <strong>{{ 'workflow_engine.instance.failed_title' | translate }}</strong> {{ failure() }}
         @if (canRun()) {
           <span>{{ 'workflow_engine.instance.failed_help' | translate }}</span>
         }
@@ -83,6 +83,9 @@
           <li><span class="wri__dot wri__dot--done"></span>{{ 'workflow_engine.run_state.done' | translate }}</li>
           <li><span class="wri__dot wri__dot--active"></span>{{ 'workflow_engine.run_state.active' | translate }}</li>
           <li><span class="wri__dot wri__dot--failed"></span>{{ 'workflow_engine.run_state.failed' | translate }}</li>
+          @if (run.status === 'CANCELLED') {
+            <li><span class="wri__dot wri__dot--cancelled"></span>{{ 'workflow_engine.run_state.cancelled' | translate }}</li>
+          }
           <li><span class="wri__dot"></span>{{ 'workflow_engine.run_state.pending' | translate }}</li>
         </ul>
       </div>
@@ -105,17 +108,17 @@
             @case ('summary') {
               <dl class="wri__facts">
                 <div><dt>{{ 'workflow_engine.instances.started_by' | translate }}</dt><dd>{{ run.startedByName || ('workflow_engine.instances.automatic' | translate) }}</dd></div>
-                <div><dt>{{ 'workflow_engine.instance.started' | translate }}</dt><dd>{{ run.createdAt | vxDate: 'datetime' }}</dd></div>
+                <div><dt>{{ 'workflow_engine.instance.started' | translate }}</dt><dd>{{ run.createdAt | vxDate: 'dateTime' }}</dd></div>
                 @if (run.completedAt) {
-                  <div><dt>{{ 'workflow_engine.instance.completed' | translate }}</dt><dd>{{ run.completedAt | vxDate: 'datetime' }}</dd></div>
+                  <div><dt>{{ 'workflow_engine.instance.completed' | translate }}</dt><dd>{{ run.completedAt | vxDate: 'dateTime' }}</dd></div>
                 }
                 @if (run.result) {
                   <div><dt>{{ 'workflow_engine.instance.result' | translate }}</dt><dd>{{ run.result }}</dd></div>
                 }
                 @if (run.status === 'RUNNING') {
-                  <div><dt>{{ 'workflow_engine.instances.where' | translate }}</dt><dd>{{ (run.currentSteps ?? []).join(', ') || '—' }}</dd></div>
+                  <div><dt>{{ 'workflow_engine.instances.where' | translate }}</dt><dd>{{ currentSteps(run) }}</dd></div>
                   @if (run.nextWakeAt) {
-                    <div><dt>{{ 'workflow_engine.instance.next_wake' | translate }}</dt><dd>{{ run.nextWakeAt | vxDate: 'datetime' }}</dd></div>
+                    <div><dt>{{ 'workflow_engine.instance.next_wake' | translate }}</dt><dd>{{ run.nextWakeAt | vxDate: 'dateTime' }}</dd></div>
                   }
                 }
               </dl>
@@ -136,7 +139,7 @@
                           @if (task.status === 'OPEN') {
                             {{ 'workflow_engine.instance.waiting_on' | translate: { who: taskAssignee(task) } }}
                             @if (task.dueAt) {
-                              · {{ 'workflow_engine.instance.due' | translate: { date: (task.dueAt | vxDate: 'datetime') } }}
+                              · {{ 'workflow_engine.instance.due' | translate: { date: (task.dueAt | vxDate: 'dateTime') } }}
                             }
                           } @else if (task.status === 'COMPLETED') {
                             {{ 'workflow_engine.instance.answered' | translate: { who: person(task.completedByUserId), outcome: taskOutcome(task) } }}
@@ -175,11 +178,27 @@
               @if (!facts().length) {
                 <p class="wri__muted">{{ 'workflow_engine.instance.no_data' | translate }}</p>
               } @else {
-                <dl class="wri__facts">
-                  @for (fact of facts(); track fact.key) {
-                    <div><dt [title]="fact.key">{{ fact.label }}</dt><dd>{{ fact.value }}</dd></div>
+                @for (group of ['data', 'steps', 'system']; track group) {
+                  @let items = factsIn(group);
+                  @if (items.length) {
+                    <section class="wri__section">
+                      <h3>{{ 'workflow_engine.fact_group.' + group | translate }}</h3>
+                      <dl class="wri__facts">
+                        @for (fact of items; track fact.key) {
+                          <div>
+                            <dt>{{ fact.label }}</dt>
+                            <dd>
+                              {{ fact.value }}
+                              @if (fact.note) {
+                                <q class="wri__comment">{{ fact.note }}</q>
+                              }
+                            </dd>
+                          </div>
+                        }
+                      </dl>
+                    </section>
                   }
-                </dl>
+                }
               }
             }
             @case ('history') {
@@ -191,7 +210,7 @@
                       @if (entry.comment) {
                         <q class="wri__comment">{{ entry.comment }}</q>
                       }
-                      <time class="wri__event-time" [attr.datetime]="entry.at">{{ entry.at | vxDate: 'datetime' }}</time>
+                      <time class="wri__event-time" [attr.datetime]="entry.at">{{ entry.at | vxDate: 'dateTime' }}</time>
                     </button>
                   </li>
                 }

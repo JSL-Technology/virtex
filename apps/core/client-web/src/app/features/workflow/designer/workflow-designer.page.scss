@@ -76,6 +76,13 @@
   gap: var(--space-2);
   min-width: 0;
   max-width: 34%;
+  flex: 0 1 auto;
+  overflow: hidden;
+
+  > vx-badge,
+  > .wd-version {
+    flex: none;
+  }
 }
 
 .wd-toolbar__spacer {
@@ -84,6 +91,10 @@
 
 .wd-name {
   @include ds.truncate;
+  // A flex item never shrinks below its content unless told: a 160-character name pushed the
+  // whole toolbar to 1 770 px and «Publicar» off the screen (QA A-08).
+  min-width: 0;
+  flex: 0 1 auto;
   margin: 0;
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
@@ -121,6 +132,85 @@
     @include ds.button-ghost('sm');
     border-start-end-radius: 0;
     border-end-end-radius: 0;
+  }
+}
+
+.wd-layout-menu {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  inset-inline-start: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: var(--space-1);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised, var(--surface-base));
+  box-shadow: var(--shadow-lg, 0 8px 24px rgb(0 0 0 / 0.12));
+
+  button {
+    @include ds.button-ghost('sm');
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
+.wd-menu {
+  position: relative;
+}
+
+.wd-menu__toggle {
+  @include ds.button-ghost('sm');
+  width: 28px;
+  padding: 0;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+.wd-versions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+  }
+
+  li[aria-current='true'] {
+    border-color: var(--border-strong, var(--border-default));
+    background: var(--surface-sunken, transparent);
+  }
+}
+
+.wd-versions__meta {
+  flex: 1 1 200px;
+  min-width: 0;
+  color: var(--content-secondary);
+  font-size: var(--text-sm);
+}
+
+.wd-warnings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: var(--space-2);
+    align-items: flex-start;
   }
 }
 

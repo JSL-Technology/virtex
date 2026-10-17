@@ -6,6 +6,8 @@ import { LucideAngularModule, X } from 'lucide-angular';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { VxDateRangeComponent } from '../../../shared/components/date';
+import { currentStepsText, runFailureText } from '../data/workflow-labels';
 import { VX_UI } from '../../../shared/components';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
@@ -33,7 +35,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-workflow-instances-page',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, RouterLink, RowLinkDirective, ...FORMAT_PIPES, ...VX_UI, ListShellComponent],
+  imports: [TranslateModule, LucideAngularModule, RouterLink, RowLinkDirective, ...FORMAT_PIPES, ...VX_UI, ListShellComponent, VxDateRangeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './workflow-instances.page.scss',
   template: `
@@ -77,14 +79,8 @@ const SEARCH_DEBOUNCE_MS = 300;
             <option value="mine">{{ 'workflow_engine.instances.me' | translate }}</option>
           </select>
         </label>
-        <label class="wfr__control">
-          <span>{{ 'workflow_engine.instances.from' | translate }}</span>
-          <input type="date" [value]="from()" [max]="to() || null" (change)="setRange($any($event.target).value, to())" />
-        </label>
-        <label class="wfr__control">
-          <span>{{ 'workflow_engine.instances.to' | translate }}</span>
-          <input type="date" [value]="to()" [min]="from() || null" (change)="setRange(from(), $any($event.target).value)" />
-        </label>
+        <vx-date-range class="wfr__range" fromLabelKey="workflow_engine.instances.from" toLabelKey="workflow_engine.instances.to"
+          [from]="from() || null" (fromChange)="setRange($event ?? '', to())" [to]="to() || null" (toChange)="setRange(from(), $event ?? '')" />
         @if (hasFilters()) {
           <button type="button" class="wfr__clear" (click)="clearFilters()">
             <lucide-icon [img]="ClearIcon" [size]="14" aria-hidden="true" /> {{ 'workflow_engine.list.clear_filters' | translate }}
@@ -132,18 +128,18 @@ const SEARCH_DEBOUNCE_MS = 300;
                 <td class="wfr__where">
                   @switch (run.status) {
                     @case ('RUNNING') {
-                      {{ (run.currentSteps ?? []).join(', ') || '—' }}
+                      {{ steps(run) }}
                       @if (run.openTaskCount) {
-                        <span class="wfr__sub">{{ 'workflow_engine.instances.open_tasks' | translate: { count: run.openTaskCount } }}</span>
+                        <span class="wfr__sub">{{ 'workflow_engine.instances.open_tasks' | vxPluralKey: run.openTaskCount | translate: { count: run.openTaskCount } }}</span>
                       }
                     }
                     @case ('COMPLETED') { {{ run.result || ('workflow_engine.instance_status.completed' | translate) }} }
-                    @case ('FAILED') { <span class="wfr__error" [title]="run.error ?? ''">{{ run.error || '—' }}</span> }
+                    @case ('FAILED') { <span class="wfr__error" [title]="failure(run)">{{ failure(run) }}</span> }
                     @case ('CANCELLED') { <span [title]="run.cancelReason ?? ''">{{ run.cancelReason || '—' }}</span> }
                   }
                 </td>
                 <td>{{ run.startedByName || ('workflow_engine.instances.automatic' | translate) }}</td>
-                <td>{{ run.createdAt | vxDate: 'datetime' }}</td>
+                <td>{{ run.createdAt | vxDate: 'dateTime' }}</td>
                 <td class="text-right wfr__duration">{{ duration(run) }}</td>
               </tr>
             }
@@ -279,7 +275,19 @@ export class WorkflowInstancesPage {
   setRange(from: string, to: string): void {
     this.from.set(from);
     this.to.set(to);
+    // An inverted range is reported by the control; asking the server for it would only answer
+    // «nothing matches», which reads as «there were no runs».
+    if (from && to && from > to) return;
     this.refilter();
+  }
+
+  /** A failure in the reader's language: the engine stores a catalogue key for the known ones. */
+  failure(run: WorkflowInstance): string {
+    return runFailureText(this.translate, run.error, run.errorParams ?? undefined);
+  }
+
+  steps(run: WorkflowInstance): string {
+    return currentStepsText(this.translate, run);
   }
 
   setPage(page: number): void {

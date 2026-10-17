@@ -3,7 +3,7 @@ import { coerceFields, sanitizeContext } from './workflow-context';
 import { interpolate } from '../workflow-directory.service';
 import { isBlockedAddress } from '../security/safe-webhook';
 import { WorkflowNodeType } from './workflow-graph';
-import { computeWake, follow, pickConditionEdge, pickEdge } from '../workflow-engine.service';
+import { WorkflowRuntimeError, computeWake, describeFailure, follow, pickConditionEdge, pickEdge } from '../workflow-engine.service';
 
 describe('workflow predicates', () => {
   const context = { amount: 15000, customer: { country: 'DO', name: 'Acme SRL' }, tags: ['vip'], due: '2026-10-20', flag: false };
@@ -112,5 +112,33 @@ describe('engine routing helpers', () => {
     expect(
       computeWake({ id: 'w', type: WorkflowNodeType.TIMER, config: { timerUntilVar: 'due' } }, { due: '2026-02-01T10:00:00Z' }, now).toISOString(),
     ).toBe('2026-02-01T10:00:00.000Z');
+  });
+});
+
+describe('routing by outcome (QA C-04)', () => {
+  const graph = {
+    nodes: [
+      { id: 'w', type: WorkflowNodeType.ACTION },
+      { id: 'ok', type: WorkflowNodeType.END },
+    ],
+    edges: [{ id: 'e', from: 'w', to: 'ok', outcome: 'ok' }],
+  };
+
+  it('never sends a different outcome down the only connection', () => {
+    expect(pickEdge(graph, graph.nodes[0], { outcome: 'ok' })?.to).toBe('ok');
+    expect(pickEdge(graph, graph.nodes[0], { outcome: 'error' })).toBeUndefined();
+  });
+
+  it('still uses a plain connection for any outcome', () => {
+    const plain = { ...graph, edges: [{ id: 'e', from: 'w', to: 'ok' }] };
+    expect(pickEdge(plain, plain.nodes[0], { outcome: 'error' })?.to).toBe('ok');
+  });
+
+  it('describes a failure by catalogue key, never by engine prose', () => {
+    expect(describeFailure(new WorkflowRuntimeError('workflow_engine.runtime.no_exit', { node: 'X' }))).toMatchObject({
+      key: 'workflow_engine.runtime.no_exit',
+      params: { node: 'X' },
+    });
+    expect(describeFailure(new Error('boom')).key).toBe('workflow_engine.runtime.unexpected');
   });
 });

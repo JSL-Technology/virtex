@@ -43,6 +43,13 @@ describeWithDb('WorkflowEngineService (integration)', () => {
         return { patch: { flaky: 'ok' } };
       },
     });
+    registry.register({
+      key: 'always_error',
+      labelKey: 'x',
+      outcomes: ['ok', 'error'],
+      params: [],
+      run: async () => ({ outcome: 'error', summaryKey: 'workflow_engine.webhook_result.private_address' }),
+    });
     engine = new WorkflowEngineService(dataSource, registry, notifier as unknown as WorkflowNotifier);
   });
 
@@ -183,6 +190,26 @@ describeWithDb('WorkflowEngineService (integration)', () => {
     const retried = await engine.retry(failed.id, organizationId, USER);
     expect(retried.status).toBe(WorkflowInstanceStatus.COMPLETED);
     expect(retried.context['flaky']).toBe('ok');
+  });
+
+  it('never sends an error outcome down the success connection (QA C-04)', async () => {
+    const definition = await publish({
+      nodes: [
+        { id: 's', type: WorkflowNodeType.START },
+        { id: 'w', type: WorkflowNodeType.ACTION, name: 'Llamar', config: { action: 'always_error' } },
+        { id: 'e', type: WorkflowNodeType.END, name: 'Correcto' },
+      ],
+      edges: [
+        { id: '1', from: 's', to: 'w' },
+        { id: '2', from: 'w', to: 'e', outcome: 'ok' },
+      ],
+    });
+    const run = await engine.start(definition, {}, organizationId);
+    expect(run.status).toBe(WorkflowInstanceStatus.FAILED);
+    expect(run.error).toBe('workflow_engine.runtime.no_exit');
+    expect(run.result).toBeNull();
+    const action = (await transitions(run.id)).find((t) => t.kind === 'action');
+    expect(action?.detail).toMatchObject({ outcome: 'error', failed: true, summaryKey: 'workflow_engine.webhook_result.private_address' });
   });
 
   it('cancels with a reason, closing the open tasks', async () => {

@@ -850,10 +850,54 @@
       "PUBLISHED",
       "ARCHIVED"
     ],
+    "workflow_engine.designer.branch_count": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.copied": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.cut_done": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.fix_before_publish": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.issue_count": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.lane_steps": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.matches": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.multi_selected": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.role_members": [
+      "one",
+      "other"
+    ],
     "workflow_engine.designer.scheme_hint": [
       "default",
       "select",
       "scroll"
+    ],
+    "workflow_engine.designer.selected": [
+      "one",
+      "other"
+    ],
+    "workflow_engine.designer.waypoints": [
+      "one",
+      "other"
     ],
     "workflow_engine.event": [
       "approval_decided",
@@ -915,11 +959,43 @@
       "purchasing",
       "sales"
     ],
+    "workflow_engine.fact": [
+      "lastOutcome",
+      "lastComment",
+      "lastActorUserId",
+      "event",
+      "webhook",
+      "subprocess",
+      "document",
+      "parentInstanceId"
+    ],
+    "workflow_engine.fact_field": [
+      "ok",
+      "status",
+      "reason",
+      "response",
+      "key",
+      "instanceId",
+      "decision",
+      "by",
+      "at",
+      "outcome",
+      "comment"
+    ],
+    "workflow_engine.fact_group": [
+      "data",
+      "steps",
+      "system"
+    ],
     "workflow_engine.instance_status": [
       "RUNNING",
       "COMPLETED",
       "CANCELLED",
       "FAILED"
+    ],
+    "workflow_engine.instances.open_tasks": [
+      "one",
+      "other"
     ],
     "workflow_engine.issue": [
       "action_param_number",
@@ -990,7 +1066,19 @@
       "variable_duplicate",
       "variable_name_invalid",
       "variable_undeclared",
-      "variables_malformed"
+      "variables_malformed",
+      "action_ambiguous_exit",
+      "action_error_unhandled",
+      "action_param_url_https",
+      "action_param_url_private",
+      "assignee_role_cannot_act",
+      "assignee_role_empty",
+      "assignee_user_cannot_act",
+      "document_action_without_document",
+      "subprocess_cycle",
+      "task_needs_name",
+      "trigger_event_shared",
+      "variable_range_invalid"
     ],
     "workflow_engine.list.status": [
       "all",
@@ -1050,12 +1138,17 @@
       "end",
       "lane"
     ],
+    "workflow_engine.publish_warnings.message": [
+      "one",
+      "other"
+    ],
     "workflow_engine.run_state": [
       "done",
       "active",
       "waiting",
       "failed",
-      "pending"
+      "pending",
+      "cancelled"
     ],
     "workflow_engine.task_status": [
       "OPEN",
@@ -1077,7 +1170,10 @@
       "cancelled",
       "retried",
       "error",
-      "entered"
+      "entered",
+      "action_plain",
+      "cancelled_auto",
+      "completed_plain"
     ],
     "workflow_engine.variable_type": [
       "string",
@@ -1087,6 +1183,19 @@
       "date",
       "select",
       "user"
+    ],
+    "workflow_engine.webhook_result": [
+      "ok",
+      "http_error",
+      "timeout",
+      "network_error",
+      "invalid_url",
+      "scheme_not_allowed",
+      "port_not_allowed",
+      "credentials_in_url",
+      "host_unresolvable",
+      "private_address",
+      "method_not_allowed"
     ]
   },
   "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",

@@ -16,8 +16,12 @@ export interface WorkflowInstanceRow extends WorkflowInstance {
   definitionKey: string | null;
   /** Names of the nodes the run is currently on (waiting or active). */
   currentSteps: string[];
+  /** The steps the run waits on, with their type so a step without a name reads as «Temporizador», not `timer`. */
+  currentNodes: { id: string; name: string | null; type: string }[];
   startedByName: string | null;
   openTaskCount: number;
+  /** For a failed run: the parameters of its failure's catalogue key (which step, which outcome). */
+  errorParams: Record<string, unknown> | null;
 }
 
 export interface WorkflowInstancePage {
@@ -170,19 +174,36 @@ export class WorkflowInstancesService {
     const open = await this.engine.openTasksFor(instances.map((i) => i.id), organizationId);
     const openBy = new Map<string, number>();
     for (const task of open) openBy.set(task.instanceId, (openBy.get(task.instanceId) ?? 0) + 1);
+    // `error` holds the failure's catalogue key; its parameters live on the error transition.
+    const failedIds = instances.filter((i) => i.status === 'FAILED').map((i) => i.id);
+    const errorParams = new Map<string, Record<string, unknown>>();
+    if (failedIds.length) {
+      const errors = await this.transitions
+        .createQueryBuilder('t')
+        .where('t.organization_id = :organizationId AND t.instance_id IN (:...ids) AND t.kind = :kind', { organizationId, ids: failedIds, kind: 'error' })
+        .orderBy('t.created_at', 'ASC')
+        .getMany();
+      for (const error of errors) errorParams.set(error.instanceId, ((error.detail as { params?: Record<string, unknown> } | null)?.params ?? {}));
+    }
 
     return instances.map((instance) => {
       const definition = byId.get(instance.definitionId);
       const nodes = new Map((definition?.graph.nodes ?? []).map((node) => [node.id, node]));
-      const currentSteps = instance.tokens
+      const currentNodes = instance.tokens
         .filter((token) => token.state !== 'done')
-        .map((token) => nodes.get(token.nodeId)?.name || nodes.get(token.nodeId)?.type || token.nodeId);
+        .map((token) => {
+          const node = nodes.get(token.nodeId);
+          return { id: token.nodeId, name: node?.name?.trim() || null, type: node?.type ?? 'task' };
+        });
+      const currentSteps = currentNodes.map((node) => node.name ?? node.type);
       return Object.assign(instance, {
         definitionName: definition?.name ?? null,
         definitionKey: definition?.key ?? null,
         currentSteps,
+        currentNodes,
         startedByName: instance.startedByUserId ? (names.get(instance.startedByUserId) ?? null) : null,
         openTaskCount: openBy.get(instance.id) ?? 0,
+        errorParams: errorParams.get(instance.id) ?? null,
       });
     });
   }
