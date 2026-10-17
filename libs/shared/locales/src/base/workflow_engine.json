@@ -204,6 +204,11 @@
     "en": "Cancel run",
     "pt": "Cancelar execução"
   },
+  "workflow_engine.cancel_dialog.keep": {
+    "es": "Seguir en curso",
+    "en": "Keep running",
+    "pt": "Manter em curso"
+  },
   "workflow_engine.cancel_dialog.message": {
     "es": "Las tareas abiertas se cierran y la ejecución no continuará. Indica el motivo; queda en el historial.",
     "en": "Open tasks are closed and the run will not continue. Give the reason; it is kept in the history.",
@@ -360,24 +365,39 @@
     "pt": "Decidir depois"
   },
   "workflow_engine.conflict.message": {
-    "es": "Se guardó otra versión del borrador después de abrirlo. Puedes recargarla (pierdes tus cambios) o sobrescribirla con los tuyos.",
-    "en": "Another version of the draft was saved after you opened it. You can reload it (losing your changes) or overwrite it with yours.",
-    "pt": "Foi guardada outra versão do rascunho depois de o abrir. Pode recarregá-la (perde as suas alterações) ou substituí-la pelas suas."
+    "es": "Se guardó otra versión del borrador después de abrirlo. Puedes cargar esa versión (pierdes tus cambios) o guardar la tuya encima.",
+    "en": "Another version of the draft was saved after you opened it. You can load that version (losing your changes) or save yours over it.",
+    "pt": "Foi guardada outra versão do rascunho depois de o abrir. Pode carregar essa versão (perde as suas alterações) ou guardar a sua por cima."
+  },
+  "workflow_engine.conflict.message_named": {
+    "es": "{{name}} guardó otra versión del borrador después de que lo abrieras. Puedes cargar su versión (pierdes tus cambios) o guardar la tuya encima.",
+    "en": "{{name}} saved another version of the draft after you opened it. You can load their version (losing your changes) or save yours over it.",
+    "pt": "{{name}} guardou outra versão do rascunho depois de o abrir. Pode carregar a versão dessa pessoa (perde as suas alterações) ou guardar a sua por cima."
+  },
+  "workflow_engine.conflict.message_self": {
+    "es": "Hay una versión más reciente guardada por ti en otra pestaña o equipo. Puedes cargarla (pierdes los cambios de aquí) o guardar estos encima.",
+    "en": "There is a newer version you saved in another tab or device. You can load it (losing the changes here) or save these over it.",
+    "pt": "Há uma versão mais recente guardada por si noutro separador ou equipamento. Pode carregá-la (perde as alterações daqui) ou guardar estas por cima."
   },
   "workflow_engine.conflict.overwrite": {
-    "es": "Sobrescribir con mis cambios",
-    "en": "Overwrite with my changes",
-    "pt": "Substituir pelas minhas alterações"
+    "es": "Guardar la mía encima",
+    "en": "Save mine over it",
+    "pt": "Guardar a minha por cima"
   },
   "workflow_engine.conflict.reload": {
-    "es": "Recargar su versión",
-    "en": "Reload their version",
-    "pt": "Recarregar a versão deles"
+    "es": "Cargar esa versión",
+    "en": "Load that version",
+    "pt": "Carregar essa versão"
   },
   "workflow_engine.conflict.title": {
-    "es": "Otra persona cambió este borrador",
-    "en": "Someone else changed this draft",
-    "pt": "Outra pessoa alterou este rascunho"
+    "es": "Este borrador cambió mientras lo editabas",
+    "en": "This draft changed while you were editing",
+    "pt": "Este rascunho mudou enquanto o editava"
+  },
+  "workflow_engine.conflict.title_self": {
+    "es": "Guardaste este borrador en otra pestaña",
+    "en": "You saved this draft in another tab",
+    "pt": "Guardou este rascunho noutro separador"
   },
   "workflow_engine.connection_style.adaptive_curve": {
     "es": "Curva adaptativa",
@@ -789,6 +809,11 @@
     "en": "Top to bottom",
     "pt": "De cima para baixo"
   },
+  "workflow_engine.designer.due_rounded": {
+    "es": "El plazo cuenta horas enteras: se guardará como {{hours}} h.",
+    "en": "Deadlines count whole hours: it will be saved as {{hours}} h.",
+    "pt": "O prazo conta horas inteiras: será guardado como {{hours}} h."
+  },
   "workflow_engine.designer.duplicate": {
     "es": "Duplicar",
     "en": "Duplicate",
@@ -1184,6 +1209,11 @@
     "en": "{{count}} selected",
     "pt": "{{count}} selecionados"
   },
+  "workflow_engine.designer.start_not_deletable": {
+    "es": "«Inicio» no se puede eliminar: todo proceso empieza por él. Puedes moverlo o cambiar a qué paso conduce.",
+    "en": "“Start” cannot be deleted: every process begins there. You can move it or change the step it leads to.",
+    "pt": "«Início» não pode ser eliminado: todo o processo começa por ele. Pode movê-lo ou mudar o passo a que conduz."
+  },
   "workflow_engine.designer.stats": {
     "es": "{{nodes}} pasos · {{edges}} conexiones",
     "en": "{{nodes}} steps · {{edges}} connections",
@@ -1208,6 +1238,11 @@
     "es": "Puedes insertar datos del proceso con {{variable}}.",
     "en": "You can insert process data with {{variable}}.",
     "pt": "Pode inserir dados do processo com {{variable}}."
+  },
+  "workflow_engine.designer.timer_rounded": {
+    "es": "La espera cuenta minutos enteros: se guardará como {{minutes}} min.",
+    "en": "Waits count whole minutes: it will be saved as {{minutes}} min.",
+    "pt": "A espera conta minutos inteiros: será guardada como {{minutes}} min."
   },
   "workflow_engine.designer.toggle_inspector": {
     "es": "Mostrar u ocultar propiedades",
@@ -3013,6 +3048,16 @@
     "es": "«{{task}}» de {{subject}} espera tu acción.",
     "en": "“{{task}}” for {{subject}} is waiting for you.",
     "pt": "«{{task}}» de {{subject}} aguarda a sua ação."
+  },
+  "workflow_engine.notify.task_closed_body": {
+    "es": "«{{task}}» ya no necesita tu respuesta: se respondió o la ejecución terminó.",
+    "en": "“{{task}}” no longer needs your answer: it was answered or the run ended.",
+    "pt": "«{{task}}» já não precisa da sua resposta: foi respondida ou a execução terminou."
+  },
+  "workflow_engine.notify.task_closed_title": {
+    "es": "Ya no está pendiente: {{task}}",
+    "en": "No longer pending: {{task}}",
+    "pt": "Já não está pendente: {{task}}"
   },
   "workflow_engine.notify.task_title": {
     "es": "Tienes una tarea pendiente",

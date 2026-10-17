@@ -341,6 +341,8 @@ export class WorkflowInstancePage {
       message: 'workflow_engine.cancel_dialog.message',
       placeholder: 'workflow_engine.cancel_dialog.placeholder',
       confirmText: 'workflow_engine.cancel_dialog.confirm',
+      // «Cancelar» next to «Cancelar ejecución» asked the reader to guess which one stops the run.
+      cancelText: 'workflow_engine.cancel_dialog.keep',
       minLength: 3,
       tooShort: 'workflow_engine.cancel_dialog.too_short',
       variant: 'danger',

@@ -206,7 +206,10 @@ export class WorkflowDefinitionsService {
     // Optimistic concurrency: a designer saving over a version someone else saved after they loaded
     // it would silently lose that person's work.
     if (dto.expectedUpdatedAt && new Date(dto.expectedUpdatedAt).getTime() !== definition.updatedAt.getTime()) {
-      throw new ConflictError('workflow_engine.edited_elsewhere');
+      // Who saved it decides how the designer words it: the same person in another tab, or someone else.
+      const by = definition.updatedByUserId;
+      const name = by && by !== actorUserId ? (await this.directory.names(organizationId, [by])).get(by) ?? null : null;
+      throw new ConflictError('workflow_engine.edited_elsewhere', { self: by === actorUserId, name });
     }
     if (dto.name !== undefined) {
       const name = dto.name.trim();

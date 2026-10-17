@@ -369,6 +369,10 @@ export class TabStateService {
   }
 
   updateTitle(tabId: string, title: string): void {
+    // The same title again is not a change: a page that refreshes itself (a running workflow every
+    // 15 s) re-set it on each load, and every patch saved the whole workspace to the server.
+    const tab = this.tabsSignal().find((t) => t.id === tabId);
+    if (tab && tab.title === title && !tab.titleKey) return;
     // A title set by the page is data (the document's own number), not a catalogue entry.
     this.patch(tabId, { title, titleKey: undefined });
   }

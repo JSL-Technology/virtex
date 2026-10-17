@@ -81,6 +81,23 @@
     font-size: var(--text-sm);
   }
 
+  // A published version is read-only, and has to look it: a white, bordered box invites typing that
+  // will not stick (QA). The text stays fully legible and selectable.
+  input[readonly]:not([type='checkbox']):not([type='radio']),
+  textarea[readonly],
+  select:disabled {
+    background: var(--surface-sunken);
+    border-color: transparent;
+    color: var(--content-secondary);
+    cursor: default;
+    opacity: 1;
+    resize: none;
+
+    &:hover {
+      border-color: transparent;
+    }
+  }
+
   textarea {
     height: auto;
     min-height: calc(var(--control-height-sm) * 2);

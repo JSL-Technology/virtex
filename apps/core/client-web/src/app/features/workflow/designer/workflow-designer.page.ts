@@ -528,6 +528,19 @@ export class WorkflowDesignerPage {
     if (definition.status === 'ARCHIVED') this.refreshVersions();
   }
 
+  /**
+   * Delete what is selected. «Inicio» cannot go — every process has exactly one — and pressing
+   * Supr on it used to do nothing at all; now the author is told why.
+   */
+  deleteSelected(): boolean {
+    if (this.readOnly()) return false;
+    const selection = this.store.selection();
+    const removed = this.store.deleteItems();
+    const startSelected = selection.nodes.some((id) => this.store.nodes().find((n) => n.id === id)?.type === 'start');
+    if (startSelected) this.notifications.showInfo('workflow_engine.designer.start_not_deletable');
+    return removed > 0 || startSelected;
+  }
+
   resyncTab(): void {
     queueMicrotask(() => {
       if (this.store.dirty()) this.tab?.markDirty(true);
@@ -592,7 +605,7 @@ export class WorkflowDesignerPage {
       })
       .catch(async (err: unknown) => {
         this.saveState.set('error');
-        if (messageKeyOf(err) === 'workflow_engine.edited_elsewhere') return this.resolveConflict();
+        if (messageKeyOf(err) === 'workflow_engine.edited_elsewhere') return this.resolveConflict(err);
         this.notifications.showHttpError(err, 'workflow_engine.save_failed');
         return false;
       })
@@ -606,11 +619,21 @@ export class WorkflowDesignerPage {
     return this.inFlight;
   }
 
-  /** Someone else saved this draft since it was opened: keep theirs or overwrite with ours. */
-  private async resolveConflict(): Promise<boolean> {
+  /**
+   * The draft was saved elsewhere since it was opened: keep that version or overwrite it. The title
+   * says who — «Otra persona» read wrong when it was the same person in another tab (QA).
+   */
+  private async resolveConflict(err: unknown): Promise<boolean> {
+    const params = (err as { error?: { params?: { self?: boolean; name?: string | null } } })?.error?.params ?? {};
+    const message = params.self
+      ? 'workflow_engine.conflict.message_self'
+      : params.name
+        ? 'workflow_engine.conflict.message_named'
+        : 'workflow_engine.conflict.message';
     const decision = await this.dialog.confirmClose({
-      title: 'workflow_engine.conflict.title',
-      message: 'workflow_engine.conflict.message',
+      title: params.self ? 'workflow_engine.conflict.title_self' : 'workflow_engine.conflict.title',
+      message,
+      messageParams: { name: params.name ?? '' },
       saveText: 'workflow_engine.conflict.overwrite',
       discardText: 'workflow_engine.conflict.reload',
       cancelText: 'workflow_engine.conflict.later',
@@ -1131,7 +1154,7 @@ export class WorkflowDesignerPage {
     if (mod && key === 'a') return this.handled(event, () => this.store.selectAll());
     if (mod && key === 'f') return this.handled(event, () => this.openSearch());
     if (mod && event.shiftKey && key === 'l') return this.handled(event, () => void this.autoLayout('dagre'));
-    if ((key === 'delete' || key === 'backspace') && !mod) return this.handled(event, () => !this.readOnly() && this.store.deleteItems());
+    if ((key === 'delete' || key === 'backspace') && !mod) return this.handled(event, () => this.deleteSelected());
     if (event.shiftKey && (event.key === '!' || event.code === 'Digit1')) return this.handled(event, () => this.fit());
     if (event.key === '?') return this.handled(event, () => this.showShortcuts.set(true));
     if (key === 'escape') {

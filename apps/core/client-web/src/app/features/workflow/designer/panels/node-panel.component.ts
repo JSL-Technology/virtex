@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormatService } from '@virteex/shared/ui-i18n';
@@ -129,6 +129,9 @@ const UNIT_MINUTES: Record<DurationUnit, number> = { minutes: 1, hours: 60, days
             </select>
           </div>
         </div>
+        @if (dueRounded(); as hours) {
+          <p class="insp-hint" role="status">{{ 'workflow_engine.designer.due_rounded' | translate: { hours } }}</p>
+        }
         @if (cfg.dueInHours) {
           <div class="insp-field">
             <label for="node-escalate">{{ 'workflow_engine.field.escalate_to' | translate }}</label>
@@ -256,6 +259,9 @@ const UNIT_MINUTES: Record<DurationUnit, number> = { minutes: 1, hours: 60, days
               </select>
             </div>
           </div>
+          @if (timerRounded(); as minutes) {
+            <p class="insp-hint" role="status">{{ 'workflow_engine.designer.timer_rounded' | translate: { minutes } }}</p>
+          }
         } @else {
           <div class="insp-field">
             <label for="node-timer-var">{{ 'workflow_engine.designer.date_variable' | translate }}</label>
@@ -335,6 +341,18 @@ export class NodePanelComponent {
 
   protected readonly newOutcome = signal('');
   protected readonly outcomeError = signal<string | null>(null);
+  /** The whole minutes/hours a fractional entry was stored as, shown under the field; null when exact. */
+  protected readonly timerRounded = signal<number | null>(null);
+  protected readonly dueRounded = signal<number | null>(null);
+  private readonly forgetRounding = effect(() => {
+    // Another step selected: the note was about the previous one.
+    const nodeId = this.node().id;
+    untracked(() => {
+      if (!nodeId) return;
+      this.timerRounded.set(null);
+      this.dueRounded.set(null);
+    });
+  });
   /** Remembered so switching person ↔ role doesn't flip back while the field is still empty. */
   private readonly preferredMode = signal<'role' | 'user' | null>(null);
 
@@ -454,13 +472,19 @@ export class NodePanelComponent {
 
   setDue(raw: string, unit: 'hours' | 'days'): void {
     const amount = Number(raw);
-    const hours = raw === '' || !Number.isFinite(amount) || amount <= 0 ? undefined : Math.round(unit === 'days' ? amount * 24 : amount);
+    const exact = unit === 'days' ? amount * 24 : amount;
+    const hours = raw === '' || !Number.isFinite(amount) || amount <= 0 ? undefined : Math.round(exact);
+    // Deadlines count whole hours: say what will be stored instead of rounding behind the author's back.
+    this.dueRounded.set(hours !== undefined && hours !== exact ? hours : null);
     this.patch({ dueInHours: hours, ...(hours ? {} : { escalateToUserId: undefined }) }, 'due');
   }
 
   setTimer(raw: string, unit: DurationUnit): void {
     const amount = Number(raw);
-    const minutes = raw === '' || !Number.isFinite(amount) || amount <= 0 ? undefined : Math.round(amount * UNIT_MINUTES[unit]);
+    const exact = amount * UNIT_MINUTES[unit];
+    const minutes = raw === '' || !Number.isFinite(amount) || amount <= 0 ? undefined : Math.round(exact);
+    // A wait counts whole minutes: «1,5» becomes 2, and the author is told so (QA: it was silent).
+    this.timerRounded.set(minutes !== undefined && minutes !== exact ? minutes : null);
     this.patch({ timerMinutes: minutes }, 'timer');
   }
 

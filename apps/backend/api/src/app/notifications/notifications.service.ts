@@ -221,6 +221,16 @@ export class NotificationsService {
     return result.affected ?? 0;
   }
 
+  /**
+   * Like {@link markReadByLink}, and the notice also stops SAYING it needs an answer: its title and
+   * body are re-keyed (they are rendered from the keys on every read, with the params it already
+   * has), so «espera tu acción» becomes «ya no necesita tu respuesta» in every language.
+   */
+  async resolveByLink(organizationId: string, link: string, keys: { titleKey: string; bodyKey: string }): Promise<number> {
+    const result = await this.notificationRepository.update({ organizationId, link }, { read: true, ...keys });
+    return result.affected ?? 0;
+  }
+
   async markAllAsRead(userId: string): Promise<any> {
     await this.notificationRepository.update({ userId, read: false }, { read: true });
     return { success: true };

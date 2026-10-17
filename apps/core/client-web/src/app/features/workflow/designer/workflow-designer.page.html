@@ -179,7 +179,7 @@
           (reassign)="onReassign($event)"
           (moved)="onMoved($event)"
           (selectionChange)="onCanvasSelection($event)"
-          (deleteRequested)="!readOnly() && store.deleteItems()"
+          (deleteRequested)="deleteSelected()"
           (dropped)="onDropped($event)"
           (waypointsChange)="store.setWaypoints($event.edgeId, $event.points)"
           (droppedToGroup)="onDroppedToGroup($event)"
@@ -297,7 +297,7 @@
                       <button type="button" class="secondary-button wd-button" (click)="store.duplicateSelection()">
                         <lucide-icon [img]="CopyIcon" [size]="14" /> {{ 'workflow_engine.designer.duplicate' | translate }}
                       </button>
-                      <button type="button" class="secondary-button wd-button" (click)="store.deleteItems()">
+                      <button type="button" class="secondary-button wd-button" (click)="deleteSelected()">
                         <lucide-icon [img]="DeleteIcon" [size]="14" /> {{ 'workflow_engine.designer.delete_selection' | translate }}
                       </button>
                     </div>
