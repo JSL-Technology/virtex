@@ -455,6 +455,14 @@ export class WorkflowInstancePage {
         return typeof value === 'string' ? this.person(value) || '—' : '—';
       case 'event':
         return typeof value === 'string' ? eventLabel(this.translate, value) : this.formatValue(value);
+      case 'webhook': {
+        // The rejection reason is a code (`host_unresolvable`): word it as the timeline does.
+        const reply = (value ?? {}) as Record<string, unknown>;
+        const reason = typeof reply['reason'] === 'string' ? reply['reason'] : null;
+        return this.formatValue(
+          reason ? { ...reply, reason: translateOrLiteral(this.translate, composeKey('workflow_engine.webhook_result', reason), { status: reply['status'] ?? '' }, reason) } : reply,
+        );
+      }
       default:
         return this.formatValue(value);
     }
@@ -466,6 +474,8 @@ export class WorkflowInstancePage {
     if (typeof value === 'boolean') return this.translate.instant(value ? 'workflow_engine.yes' : 'workflow_engine.no');
     if (typeof value === 'number') return this.format.number(value);
     if (typeof value === 'string') {
+      // A catalogue key the engine stored as a reason (`workflow_engine.document_result.no_document`).
+      if (/^workflow_engine\.[a-z0-9_.]+$/.test(value)) return translateOrLiteral(this.translate, value, undefined, value);
       if (UUID.test(value)) return this.detail()?.people[value] ?? this.translate.instant('workflow_engine.fact.reference');
       if (ISO_INSTANT.test(value) && !Number.isNaN(Date.parse(value))) return this.format.date(value, 'dateTime');
       return value;
