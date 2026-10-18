@@ -64,6 +64,8 @@ export class CashflowPage implements OnInit {
   readonly scenarioInput = signal<CashflowScenarioInput>({ salesChange: 0, collectionDelayDays: 0, extraMonthlyExpense: 0, oneOffAmount: 0, oneOffDay: 0 });
   readonly scenarioResult = signal<CashflowScenarioResult | null>(null);
   readonly scenarioRunning = signal(false);
+  /** The scenario against the projection, in words; asked for once the scenario has run. */
+  readonly scenarioNarrative = signal<AiReport | null>(null);
 
   readonly projection = computed(() => this.overview()?.projection ?? null);
   readonly metrics = computed(() => this.projection()?.metrics ?? null);
@@ -157,12 +159,25 @@ export class CashflowPage implements OnInit {
     this.api.runScenario(payload, this.metrics()?.threshold ?? 0).subscribe({
       next: (run) => {
         this.scenarioResult.set({ run, scenario: null, baseline: this.projection() });
+        this.scenarioNarrative.set(null);
         this.schedulePoll();
       },
       error: (err) => {
         this.scenarioRunning.set(false);
         this.notifications.showHttpError(err, 'ai.cashflow.scenario_failed');
       },
+    });
+  }
+
+  explainScenario(): void {
+    const run = this.scenarioResult()?.run;
+    if (!run || run.status !== 'SUCCEEDED') return;
+    this.api.requestScenarioNarrative(run.id).subscribe({
+      next: (report) => {
+        this.scenarioNarrative.set(report);
+        this.schedulePoll();
+      },
+      error: (err) => this.notifications.showHttpError(err, 'ai.cashflow.scenario.explain_failed'),
     });
   }
 
@@ -183,12 +198,26 @@ export class CashflowPage implements OnInit {
   /** While anything is being computed or written, look again every few seconds; stop when done. */
   private schedulePoll(): void {
     const waiting =
-      this.runInProgress() || pending(this.plan()?.status) || pending(this.scenarioResult()?.run.status);
+      this.runInProgress() ||
+      pending(this.plan()?.status) ||
+      pending(this.scenarioResult()?.run.status) ||
+      pending(this.scenarioNarrative()?.status);
     this.polling?.unsubscribe();
     if (!waiting) return;
     this.polling = timer(POLL_MS).subscribe(() => {
       if (this.runInProgress()) this.load();
       if (pending(this.plan()?.status)) this.loadPlan();
+      const narrative = this.scenarioNarrative();
+      const scenarioRun = this.scenarioResult()?.run;
+      if (narrative && scenarioRun && pending(narrative.status)) {
+        this.api.scenarioNarrative(scenarioRun.id).subscribe({
+          next: (report) => {
+            this.scenarioNarrative.set(report);
+            this.schedulePoll();
+          },
+          error: () => undefined,
+        });
+      }
       const scenario = this.scenarioResult();
       if (scenario && pending(scenario.run.status)) {
         this.api.scenario(scenario.run.id).subscribe({

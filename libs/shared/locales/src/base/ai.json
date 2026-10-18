@@ -1314,6 +1314,21 @@
     "en": "New monthly expense",
     "pt": "Gasto mensal novo"
   },
+  "ai.cashflow.scenario.explain": {
+    "es": "Explicar la diferencia",
+    "en": "Explain the difference",
+    "pt": "Explicar a diferença"
+  },
+  "ai.cashflow.scenario.explain_failed": {
+    "es": "No se pudo explicar el escenario.",
+    "en": "The scenario could not be explained.",
+    "pt": "Não foi possível explicar o cenário."
+  },
+  "ai.cashflow.scenario.explaining": {
+    "es": "Escribiendo la explicación…",
+    "en": "Writing the explanation…",
+    "pt": "Escrevendo a explicação…"
+  },
   "ai.cashflow.scenario.intro": {
     "es": "Cambia un supuesto y compara con la proyección. El escenario no reemplaza la proyección.",
     "en": "Change an assumption and compare with the projection. The scenario does not replace the projection.",
@@ -1363,6 +1378,11 @@
     "es": "No se pudo simular el escenario.",
     "en": "The scenario could not be simulated.",
     "pt": "Não foi possível simular o cenário."
+  },
+  "ai.cashflow.scenario_not_finished": {
+    "es": "El escenario todavía no ha terminado de calcularse.",
+    "en": "The scenario has not finished computing yet.",
+    "pt": "O cenário ainda não terminou de ser calculado."
   },
   "ai.cashflow.scenario_not_found": {
     "es": "No se encontró el escenario.",

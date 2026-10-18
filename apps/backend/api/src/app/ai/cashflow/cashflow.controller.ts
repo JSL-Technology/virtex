@@ -9,6 +9,7 @@ import { PERMISSIONS } from '../../shared/permissions';
 import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { CheckFeature } from '../../saas/contracts/entitlements.contract';
 import { currentLanguage } from '../../i18n/request-locale';
+import { BadRequestError } from '../../i18n/localized.exception';
 import { CashflowService } from './cashflow.service';
 import { ReportsService } from '../reports/reports.service';
 
@@ -104,6 +105,22 @@ export class CashflowController {
   @Get('scenarios')
   scenarios(@CurrentUser() user: AuthenticatedUser) {
     return this.cashflow.scenarios(user.organizationId);
+  }
+
+  /** The scenario against the projection, in words (written in the background). */
+  @Post('scenarios/:id/narrative')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 6, ttl: 60_000 } })
+  async requestNarrative(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    const result = await this.cashflow.scenarioResult(user.organizationId, id);
+    if (result.run.status !== 'SUCCEEDED') throw new BadRequestError('ai.cashflow.scenario_not_finished');
+    return this.reports.request(user.organizationId, user.id, 'SCENARIO_COMPARISON', { language: currentLanguage(), sourceRunId: id });
+  }
+
+  @Get('scenarios/:id/narrative')
+  narrative(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    return this.reports.latestForRun(user.organizationId, 'SCENARIO_COMPARISON', id);
   }
 
   @Get('scenarios/:id')

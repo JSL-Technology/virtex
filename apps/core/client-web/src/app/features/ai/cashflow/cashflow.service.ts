@@ -134,6 +134,15 @@ export class CashflowService {
     return this.http.post<CashflowRun>(`${this.url}/scenarios`, { ...input, threshold });
   }
 
+  /** Have the scenario explained against the projection (written in the background). */
+  requestScenarioNarrative(id: string): Observable<AiReport> {
+    return this.http.post<AiReport>(`${this.url}/scenarios/${id}/narrative`, {});
+  }
+
+  scenarioNarrative(id: string): Observable<AiReport | null> {
+    return this.http.get<AiReport | null>(`${this.url}/scenarios/${id}/narrative`);
+  }
+
   scenario(id: string): Observable<CashflowScenarioResult> {
     return this.http.get<CashflowScenarioResult>(`${this.url}/scenarios/${id}`);
   }

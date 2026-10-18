@@ -88,10 +88,16 @@ export class ReportsService {
     organizationId: string,
     userId: string | null,
     kind: AiReportKind,
-    options: { period?: string | null; language: string },
+    options: { period?: string | null; language: string; sourceRunId?: string | null },
   ): Promise<AiReport> {
     const active = await this.reports.findOne({
-      where: { organizationId, kind, status: In(['QUEUED', 'RUNNING']), ...(options.period ? { period: options.period } : {}) },
+      where: {
+        organizationId,
+        kind,
+        status: In(['QUEUED', 'RUNNING']),
+        ...(options.period ? { period: options.period } : {}),
+        ...(options.sourceRunId ? { sourceRunId: options.sourceRunId } : {}),
+      },
       order: { createdAt: 'DESC' },
     });
     if (active) return active;
@@ -101,6 +107,7 @@ export class ReportsService {
         kind,
         status: 'QUEUED',
         period: options.period ?? null,
+        sourceRunId: options.sourceRunId ?? null,
         language: options.language,
         requestedByUserId: userId,
       }),
@@ -138,6 +145,11 @@ export class ReportsService {
     return (await this.reports.count({ where: { organizationId, kind, period, status: In(['QUEUED', 'RUNNING', 'SUCCEEDED']) } })) > 0;
   }
 
+  /** The latest report of a kind written about one engine run (a scenario's narrative). */
+  latestForRun(organizationId: string, kind: AiReportKind, sourceRunId: string): Promise<AiReport | null> {
+    return this.reports.findOne({ where: { organizationId, kind, sourceRunId }, order: { createdAt: 'DESC' } });
+  }
+
   list(organizationId: string, kind: AiReportKind, limit = 12): Promise<AiReport[]> {
     return this.reports.find({ where: { organizationId, kind }, order: { createdAt: 'DESC' }, take: limit });
   }
@@ -168,7 +180,7 @@ export class ReportsService {
         validate: (raw) => parseContent(raw, flat),
       });
       report.facts = brief.facts;
-      report.sourceRunId = brief.sourceRunId ?? null;
+      report.sourceRunId = brief.sourceRunId ?? report.sourceRunId ?? null;
       report.content = value as unknown as Record<string, unknown>;
       report.status = 'SUCCEEDED';
       report.error = null;

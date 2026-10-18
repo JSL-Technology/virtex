@@ -17,6 +17,7 @@ import { HelpService } from './help/help.service';
 import { CashflowService } from './cashflow/cashflow.service';
 import { PaymentLikelihoodProvider } from './cashflow/payment-likelihood.provider';
 import { ManagerReportBuilder } from './reports/manager-report.builder';
+import { ScenarioComparisonBuilder } from './cashflow/scenario-comparison.builder';
 import { ManagerReportController } from './reports/manager-report.controller';
 import { CashflowController } from './cashflow/cashflow.controller';
 import { CashflowPlanBuilder } from './cashflow/cashflow-plan.builder';
@@ -81,6 +82,7 @@ import { InventoryModule } from '../inventory/inventory.module';
     ReportsProcessor,
     CashflowPlanBuilder,
     ManagerReportBuilder,
+    ScenarioComparisonBuilder,
     AiCopilotTools,
     { provide: AiAssistPort, useExisting: AiGatewayService },
   ],

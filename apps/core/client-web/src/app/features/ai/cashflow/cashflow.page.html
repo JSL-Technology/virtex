@@ -230,6 +230,32 @@
               <dt>{{ 'ai.cashflow.kpi.shortfall' | translate }}</dt>
               <dd>{{ s.shortfallProbability | vxPercent }} <span class="cf__muted">({{ 'ai.cashflow.scenario.was' | translate: { value: (m.shortfallProbability | vxPercent) } }})</span></dd>
             </dl>
+            @if (scenarioNarrative(); as narrative) {
+              @if (narrative.content; as c) {
+                <div class="cf__narrative">
+                  <p>{{ c.summary }}</p>
+                  @for (section of c.sections; track $index) {
+                    <p><strong>{{ section.heading }}.</strong> {{ section.body }}</p>
+                  }
+                  @if (c.recommendations.length) {
+                    <ul>
+                      @for (rec of c.recommendations; track $index) {
+                        <li><strong>{{ rec.action }}</strong> — {{ rec.why }}</li>
+                      }
+                    </ul>
+                  }
+                </div>
+              } @else if (narrative.status === 'FAILED') {
+                <p class="cf__error">{{ 'ai.cashflow.scenario.explain_failed' | translate }}</p>
+              } @else {
+                <p class="cf__muted" role="status">{{ 'ai.cashflow.scenario.explaining' | translate }}</p>
+              }
+            } @else {
+              <button type="button" class="secondary-button" (click)="explainScenario()">
+                <lucide-icon [img]="PlanIcon" size="16" aria-hidden="true"></lucide-icon>
+                <span>{{ 'ai.cashflow.scenario.explain' | translate }}</span>
+              </button>
+            }
           }
         </section>
       </div>
