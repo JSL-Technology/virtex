@@ -18,6 +18,7 @@ export const QUEUE_NAMES = [
   'recurring-entries-processor',
   'intercompany-jobs',
   'mail',
+  'ai-reports',
 ] as const;
 
 export type QueueName = (typeof QUEUE_NAMES)[number];
@@ -25,13 +26,18 @@ export type QueueName = (typeof QUEUE_NAMES)[number];
 /**
  * Colas que NO se muestran en el panel, y por qué.
  *
- * El correo es el único: enviar un mensaje ya compuesto no es trabajo del inquilino sobre sus
- * propios datos, no lleva `organizationId` en su carga —`queue-tenancy.spec.ts` lo exime por lo
- * mismo— y un fallo de envío se comunica por otros medios. Mostrarlo llenaría el panel de ruido
- * que nadie puede accionar.
+ * El correo: enviar un mensaje ya compuesto no es trabajo del inquilino sobre sus propios datos,
+ * no lleva `organizationId` en su carga —`queue-tenancy.spec.ts` lo exime por lo mismo— y un fallo
+ * de envío se comunica por otros medios. Mostrarlo llenaría el panel de ruido que nadie puede
+ * accionar.
+ *
+ * Los informes del asistente: cada uno es una fila de `ai_reports` con su propio estado (en cola,
+ * en curso, listo, fallido y por qué), que su pantalla muestra y su aviso anuncia. El trabajo de la
+ * cola es solo el medio; mostrarlo aquí también sería decir lo mismo dos veces.
  */
 export const NOT_SHOWN: Partial<Record<QueueName, string>> = {
   mail: 'Envía un mensaje ya compuesto: no es trabajo del inquilino sobre sus datos.',
+  'ai-reports': 'Cada informe lleva su estado en ai_reports, visible en su pantalla y anunciado por aviso.',
 };
 
 /** Las colas que el panel muestra. */
