@@ -422,3 +422,35 @@ La foto ahora también lee el fabricante, y el formulario avisa de que precio y 
 Pruebas del motor: 45, de las cuales 6 son de integración como el rol del motor contra la base migrada.
 
 **Siguiente:** Fase 2 — control por lenguaje natural sobre este mismo gateway, con herramientas que heredan los permisos del usuario, y facturas de proveedor desde foto/PDF.
+
+## 12. Estado de la implementación — Fases 2 a 5
+
+Construido, probado y en este repositorio. Cada pieza que necesita un modelo pasa por el gateway (créditos, registro, circuit breaker); las cifras las calculan servicios y modelos deterministas, y toda acción que escribe deja un borrador o una solicitud de aprobación.
+
+| Fase | Pieza | Dónde |
+| ---- | ----- | ----- |
+| 2.1 | Copiloto: tool use en streaming (SSE), herramientas registradas por cada dominio con sus permisos y su alcance por sucursal, borradores que se confirman | `ai/copilot/`, `contracts/copilot/`, `*.copilot-tools.ts` |
+| 2.2 | Factura de proveedor desde foto o PDF, adjuntos, validador de NCF/e-NCF, RNC, aritmética y duplicados | `accounts-payable/bill-capture.service.ts`, `localization/fiscal/ncf.ts` |
+| 2.3 | Notas con tono (cordial/formal/firme) con verificación de cifras; ayuda integrada (`search_help`) | `ai/gateway` (`compose`), `ai/help/` |
+| 3.1 | Flujo de caja proyectado: Monte Carlo en el motor, banda P10–P90, riesgo de déficit, plan de caja escrito, escenarios | `apps/ai-engine/.../cashflow/`, `ai/cashflow/` |
+| 3.2 | Conciliación: OFX y camt.053, mapeo de columnas de CSV (encabezados y, si hace falta, asistente), puntuación con razones y emparejamientos aprendidos, confirmación automática opcional, desempate por el asistente | `reconciliation/` |
+| 3.3 | Cobranza: lista priorizada con la probabilidad del flujo de caja, acción y tono sugeridos, recordatorios con la factura adjunta, llamadas y promesas, herramienta del copiloto y acción de workflow | `collections/` |
+| 4.1 | Informe mensual del gerente (día 1 y a pedido) y explicación de escenarios | `ai/reports/`, `ai/cashflow/scenario-comparison.builder.ts` |
+| 4.2 | Duplicados de clientes, proveedores y productos; importación con mapeo de columnas | `ai/data-quality/`, `data-transfer/column-mapping.ts` |
+| 5 | Agente de reposición, cotizaciones desde el mensaje de un cliente (copiloto) y bitácora de agentes | `procurement/replenishment/`, `ai/agents/` |
+
+**Desviaciones respecto al plan, con su motivo:**
+
+- **Ayuda sin embeddings.** La búsqueda usa texto completo de PostgreSQL en español, con un segundo intento por cualquier palabra cuando la frase entera no coincide. Para unos pocos cientos de secciones da los mismos resultados sin depender de Voyage ni de pgvector. Los artículos viajan con la API y se sincronizan al arrancar, así que no hay un paso de indexado que olvidar en el despliegue.
+- **Ranking de conciliación aprendido en la API, no en el motor.** La señal útil es qué cuentas de contrapartida usó la empresa para el mismo tipo de descripción, y se lee de los emparejamientos confirmados en cada consulta. Un modelo entrenado aparte tendría que reentrenarse y desplegarse para aprender lo mismo.
+- **Sin tolerancia por comisiones bancarias.** El monto debe coincidir exactamente. Una conciliación que acepta diferencias pequeñas por diseño puede ocultar un error real; la comisión sigue resolviéndose con una regla que crea su asiento.
+- **Duplicados con trigramas en la aplicación**, porque `pg_trgm` no siempre está instalado, y sin embeddings de nombre. Se agrupa por identificación fiscal, contacto, código y las palabras más distintivas del nombre, para no comparar todo con todo. Nada se fusiona: fusionar mueve documentos y saldos, y es una decisión contable.
+- **PDF del informe del gerente con la impresión del navegador**, con una hoja de estilo de impresión propia, en lugar del renderizador de documentos de la API.
+- **Agente de cotizaciones como capacidad del copiloto.** El copiloto busca al cliente y los productos y propone `draft_quote` a precios de catálogo. Lo que no logra identificar lo lista en lugar de adivinarlo.
+- **Pendiente:** nuevos conjuntos importables (facturas de proveedor y saldos iniciales). El plan los condicionaba a que el contrato de importación lo permitiera, y no se añadieron en esta entrega.
+
+**Verificación:**
+
+- En cada entrega pasan typecheck, lint y las pruebas de API, cliente y motor.
+- Se ejecutaron `check:schema-drift`, `verify:rls`, `verify:tenant-scope`, `verify:boundaries` (línea base intacta), `verify:boot`, i18n y `lint:design-system`.
+- Las piezas con base de datos se prueban contra PostgreSQL migrado: cobranza, conciliación, duplicados e importación.

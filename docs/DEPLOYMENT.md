@@ -239,3 +239,25 @@ docker run --rm -e AI_ENGINE_DB_HOST=… -e AI_ENGINE_DB_NAME=… -e AI_ENGINE_D
 It compares the engine's ensemble with LightGBM (with and without holiday, price and promotion
 drivers) and a seasonal-naive baseline — and Prophet and CatBoost when the image is built with the
 `benchmark` extra — by WAPE, MASE, bias, P10–P90 coverage and run time.
+
+### 7.4 Phases 2–5: what else runs, and when
+
+All of it is gated by plan features in `saas.config` (`ai_assistant`, `ai_cashflow`,
+`ai_reconciliation`, `ai_collections`, `ai_manager_reports`, `ai_agents`; off on starter) and by
+permissions; every model call still goes through the gateway and its credits.
+
+| What                                   | When                                                   | Notes                                                                                                       |
+| -------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Cash-flow projection (`CASHFLOW`)      | nightly with the other runs, 02:17                     | Starts from today's cash in the ledger; a shortfall chance ≥ 30 % is announced in the bell.                 |
+| Manager's monthly report               | 1st of the month, 06:41, for the month that ended      | Written on the `ai-reports` queue by the deep-analysis model; announced to `ai_reports:view` holders.       |
+| Duplicate scan (customers, suppliers, products) | Sundays 03:23                                  | No model call; runs for every plan.                                                                         |
+| Replenishment agent                    | daily 07:13, only where a company turned it on         | Writes draft purchase orders (or sends them for approval within the company's limit); never to a supplier. |
+| In-app help index                      | when the API starts                                    | `ai/help/articles/*.md` ship in the bundle (`help/`) and are synced into `ai_knowledge_chunks`.            |
+
+Each scheduled job claims its slot with the scheduler lock, so any number of API replicas runs it
+once. Reports are processed by the API itself (queue `ai-reports`), not by the Python engine.
+
+Migrations added in these phases: `AiCopilot`, `VendorBillAttachments`, `AiKnowledge`, `AiCashflow`,
+`ReconciliationSettings`, `Collections`, `AiDuplicateSuggestions`, `AiAgents` — all tenant tables with
+forced row-level security. `AiCashflow` grants the engine role read access to the receivables,
+payables and payroll sources it simulates from.
