@@ -1,7 +1,7 @@
 import { Component, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
 import { LucideAngularModule, Building, Briefcase, Users, Globe, Camera } from 'lucide-angular';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';

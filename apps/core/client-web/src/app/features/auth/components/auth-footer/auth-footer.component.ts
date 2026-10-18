@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { LanguageService } from '../../../../core/services/language';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { RouterModule } from '@angular/router';
 import { LanguageSelector } from '../../../../shared/components/language-selector/language-selector';
 

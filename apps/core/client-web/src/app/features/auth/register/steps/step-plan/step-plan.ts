@@ -1,14 +1,14 @@
 import { Component, Input, effect, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Rocket, Check, AlertCircle } from 'lucide-angular';
 import { BillingService } from '../../../../../core/services/billing';
 import { annualSavingPercent, formatPlanPrice, type BillingPeriod } from '../../../../../core/models/plan.model';
 import { CountryService } from '../../../../../core/services/country.service';
 import { LanguageService } from '../../../../../core/services/language';
-import { translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { TranslateModule, translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 

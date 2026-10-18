@@ -22,7 +22,7 @@ import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-t
 import { QRCodeComponent } from 'angularx-qrcode';
 import { saveAs } from 'file-saver';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AuthService } from '../../../core/services/auth';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 import { TransitionPreviewComponent } from '../../../shared/components/transition-preview/transition-preview.component';

@@ -1,6 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { LucideAngularModule, Plus, Trash2, ListPlus } from 'lucide-angular';
 import { PREDICATE_OPS, PredicateOp, UNARY_OPS, WorkflowPredicate } from '../data/workflow.service';

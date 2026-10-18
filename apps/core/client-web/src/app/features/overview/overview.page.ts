@@ -1,5 +1,5 @@
 import { RouterLink } from '@angular/router';
-import { FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { VxBadgeComponent } from '../../shared/components/badge';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import {
   LucideAngularModule,
   ArrowRight,

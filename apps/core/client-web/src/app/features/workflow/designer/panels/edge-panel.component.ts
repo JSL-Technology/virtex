@@ -1,6 +1,6 @@
-import { VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AlertTriangle, ArrowRight, CircleAlert, LucideAngularModule, Spline, Trash2 } from 'lucide-angular';
 import { issueMessage, nodeTypeKey, outcomeLabel } from '../../data/workflow-labels';
 import { WorkflowGraphEdge, WorkflowIssue, WorkflowPredicate } from '../../data/workflow.service';

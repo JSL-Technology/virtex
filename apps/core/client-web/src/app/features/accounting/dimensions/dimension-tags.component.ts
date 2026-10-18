@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, input, output, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { Dimension, DimensionValue, DimensionsService, valueLabel, valueTree } from '../data/dimensions.service';
 
 /**

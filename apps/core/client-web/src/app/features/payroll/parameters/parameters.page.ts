@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { AuthService } from '../../../core/services/auth';
 import { LucideAngularModule, Plus, Save, Trash2 } from 'lucide-angular';
 import { catchError, forkJoin, of } from 'rxjs';
-import { FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 import {
   CompanyParameterKind,

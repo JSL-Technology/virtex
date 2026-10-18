@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, AlertCircle, RefreshCw, Check, Bell } from 'lucide-angular';
 import { CountryService, SupportedCountry } from '../../../core/services/country.service';
 import { CountryNamesService } from '../../../core/i18n/countries';

@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { DatasheetSummary, DatasheetVariablesService } from '../../services/datasheet-variables.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { LucideAngularModule, Plus, FileSpreadsheet } from 'lucide-angular';
 import { ListShellComponent } from '../../../../shared/components/gestures';
 

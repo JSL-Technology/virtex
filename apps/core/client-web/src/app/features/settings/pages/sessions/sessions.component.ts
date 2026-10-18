@@ -8,8 +8,8 @@ import { LucideAngularModule, Monitor, Smartphone, MapPin, X, RefreshCw, Clock, 
 import { SessionService, UserSession } from '../../../../core/services/session.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { finalize } from 'rxjs/operators';
-import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VxSpinnerComponent } from '../../../../shared/components/feedback';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
 import { environment } from '../../../../../environments/environment';

@@ -12,9 +12,9 @@ import {
 } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
 import { invoiceStatusKey, invoiceStatusTone } from '../../../core/services/invoice-status';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import {
   CsvValue,
   downloadCsv,
@@ -295,7 +295,7 @@ export class InvoicesListPage implements OnInit {
 
           downloadCsv(
             reportFilename(this.translate.instant('invoices.export.invoices'), this.today),
-            toCsv(rows, { locale: this.translate.currentLang }),
+            toCsv(rows, { locale: this.translate.getCurrentLang() }),
           );
 
           this.notificationService.showSuccess(

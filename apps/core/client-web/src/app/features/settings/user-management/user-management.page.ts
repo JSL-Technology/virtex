@@ -1,4 +1,4 @@
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { RoleNamePipe, roleLabel } from '../../../shared/pipes/role-name.pipe';
 import {
   Component,
@@ -18,7 +18,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from '../../../core/services/dialog.service';
 import {
   LucideAngularModule,

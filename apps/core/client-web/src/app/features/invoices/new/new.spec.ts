@@ -1,3 +1,5 @@
+import { provideTestCountryPack } from '../../../core/api/country-pack.service.testing';
+import { PaymentMethodsService } from '../../../core/api/payment-methods.service';
 import { provideTestBranches } from '../../../core/tenancy/branches.service.testing';
 import {
   ComponentFixture,
@@ -15,7 +17,7 @@ import { CustomersService } from '../../../core/api/customers.service';
 import { InventoryService } from '../../../core/api/inventory.service';
 import { CurrenciesService } from '../../../core/api/currencies.service';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 /**
  * The form takes its defaults from the tenant's market, not from a constant.
@@ -129,6 +131,8 @@ describe('NewInvoicePage', () => {
       .configureTestingModule({
         imports: [NewInvoicePage, NoopAnimationsModule, TranslateModule.forRoot()],
         providers: [
+        provideTestCountryPack(),
+        { provide: PaymentMethodsService, useValue: { active: () => of([]), list: () => of([]) } },
         provideTestBranches(),
           { provide: InvoicesService, useValue: invoicesService },
           { provide: CustomersService, useValue: customersService },

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Puzzle, RefreshCw } from 'lucide-angular';
 import { ExtensionsService, RuntimeExtension } from './extensions.service';
 import { ExtensionHostComponent } from './extension-host.component';

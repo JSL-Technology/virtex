@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, input } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Check, ChevronDown, Globe } from 'lucide-angular';
 import { LanguageService } from '../../../core/services/language';
 

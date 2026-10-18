@@ -23,3 +23,4 @@ export * from './lib/missing-translation.handler';
 export * from './lib/translate-or-literal';
 export * from './lib/regional-catalogue';
 export * from './lib/error-key';
+export * from './lib/translate.module';

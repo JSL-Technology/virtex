@@ -23,7 +23,7 @@ const listDef: TabDefinition = {
   icon: 'List',
   title: 'X',
   isCloseable: true,
-  entityKeyFn: () => 'module:/x',
+  entityKeyFn: (params) => `module:${params['route']}`,
   load: () => Promise.resolve(class {}),
 };
 
@@ -58,7 +58,7 @@ describe('TabStateService — tope de pestañas', () => {
     TestBed.configureTestingModule({
       providers: [
         TabStateService,
-        { provide: TabRegistryService, useValue: { resolve: () => ({ definition: listDef, params: {}, isFallback: false }), canOpen: () => true } },
+        { provide: TabRegistryService, useValue: { resolve: (route: string) => ({ definition: listDef, params: { route }, isFallback: false }), canOpen: () => true } },
         {
           provide: TabPreferencesService,
           useValue: { enablePreview: () => false, maxTabs, setMaxTabs: (v: number) => maxTabs.set(v) },

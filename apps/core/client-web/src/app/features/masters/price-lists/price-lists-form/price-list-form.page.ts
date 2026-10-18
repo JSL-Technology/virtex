@@ -8,13 +8,13 @@ import { InventoryService } from '../../../../core/api/inventory.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { Product } from '../../../../core/models/product.model';
 import { PriceListItem, PriceListStatus } from '../../../../core/models/price-list.model';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 import { VX_SELECT } from '../../../../shared/components/select';
-import { LocaleStore, VxCurrencyNamePipe } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore, VxCurrencyNamePipe } from '@virteex/shared/ui-i18n';
 import { CurrenciesService, Currency } from '../../../../core/api/currencies.service';
 
 @Component({

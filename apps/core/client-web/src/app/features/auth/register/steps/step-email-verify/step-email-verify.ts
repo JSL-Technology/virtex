@@ -9,7 +9,8 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Mail, CheckCircle, AlertCircle, Loader } from 'lucide-angular';
 import { ReCaptchaV3Service, RecaptchaV3Module } from 'ng-recaptcha-19';
 import { recaptchaToken$ } from '../../../../../core/auth/recaptcha-token';
@@ -76,7 +77,7 @@ export class StepEmailVerify implements OnInit {
           firstName: this.firstName,
           //  El idioma que el lector eligió, no el del servidor: decide el idioma del correo y el
           //  segmento de idioma del enlace mágico que lleva dentro.
-          language: this.translate.currentLang,
+          language: this.translate.getCurrentLang(),
           country: this.country,
         })
       )

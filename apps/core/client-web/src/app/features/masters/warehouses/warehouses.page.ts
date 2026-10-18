@@ -6,7 +6,7 @@ import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } 
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { Warehouse, WarehousesService } from '../../../core/api/warehouses.service';

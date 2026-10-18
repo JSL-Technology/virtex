@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { of } from 'rxjs';
 import { RecurringEntryFormPage, lineTotals } from './recurring-entry-form.page';
 import { EntryTemplateFormPage, templateProblem } from '../entry-templates/entry-template-form.page';

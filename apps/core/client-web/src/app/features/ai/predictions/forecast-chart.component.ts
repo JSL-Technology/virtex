@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { HighchartsChartComponent } from 'highcharts-angular';
 import type * as Highcharts from 'highcharts';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { baseChartOptions, categoricalPalette, token } from '../../../core/utils/chart-theme';
 import { ForecastSeries } from '../data/ai.service';
 

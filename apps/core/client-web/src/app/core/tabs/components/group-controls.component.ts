@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import {
   LucideAngularModule, SplitSquareHorizontal, Maximize2, Minimize2, PictureInPicture2, ExternalLink,
 } from 'lucide-angular';

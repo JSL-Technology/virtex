@@ -1,5 +1,5 @@
 import { visitorRegion } from '../../../core/i18n/visitor-region';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -20,7 +20,7 @@ import {
   ValidationErrors,
   Validator,
 } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { CountryService, SupportedCountry } from '../../../core/services/country.service';
 import { callingCodeForRegion, exampleNationalNumber, formatNational, isValidPhone, regionForE164, toE164 } from '../../utils/phone.util';
 import { CountryNamesService } from '../../../core/i18n/countries';

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { ChevronLeft, ChevronRight, LucideAngularModule } from 'lucide-angular';
 
 /** A gap in the page list, so `1 … 7 8 9 … 42` is expressible as data. */

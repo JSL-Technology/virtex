@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Maximize, Minus, Plus, Locate } from 'lucide-angular';
 import {
   EFConnectableSide,

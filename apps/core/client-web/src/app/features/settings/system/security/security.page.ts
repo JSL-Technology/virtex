@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { environment } from '../../../../../environments/environment';
 import { AuthService } from '../../../../core/services/auth';
 import { DialogService } from '../../../../core/services/dialog.service';

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AccountGroup, PolicyField, SettingsSectionComponent } from '../../shared/settings-section.component';
 
 /** QA M-09: this section said «En desarrollo». It edits the organization's real settings now. */

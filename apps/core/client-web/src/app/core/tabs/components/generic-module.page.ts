@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, SearchX } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 import { TAB_CONTEXT } from '../tab-context';

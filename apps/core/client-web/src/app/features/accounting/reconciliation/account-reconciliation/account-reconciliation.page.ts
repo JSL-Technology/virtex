@@ -13,8 +13,8 @@ import {
   Wand2,
   XCircle,
 } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { BankAccount, TreasuryService } from '../../../../core/api/treasury.service';
 import {
   BankStatement,

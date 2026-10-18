@@ -4,8 +4,8 @@ import { LucideAngularModule, TrendingUp, TrendingDown, Minus, Wallet } from 'lu
 import { Kpi } from '../../../../core/models/finance';
 import { DashboardApiService } from '../../../../core/api/dashboard-api.service';
 import { Observable, map } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 @Component({
   selector: 'app-kpi-fcf',

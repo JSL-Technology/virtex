@@ -29,7 +29,7 @@ import {
   InvoiceStatusSlice,
 } from '../../../../core/api/dashboard-api.service';
 import { PointOptionsObject } from 'highcharts';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 // Extiende tipos que Highcharts no declara en Chart para los métodos de exportación
 type ExportingChart = Highcharts.Chart & {

@@ -5,9 +5,9 @@ import { Router } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../../core/services/notification';
 import {
   PurchaseRequisition,

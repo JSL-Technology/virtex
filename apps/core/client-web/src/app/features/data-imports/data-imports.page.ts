@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { CheckCircle, Download, File, Loader, LucideAngularModule, ShieldCheck, UploadCloud } from 'lucide-angular';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   DataTransferDataset,
   DataTransferRun,

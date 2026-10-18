@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';

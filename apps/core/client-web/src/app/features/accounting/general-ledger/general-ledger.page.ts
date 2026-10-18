@@ -8,8 +8,8 @@ import { GeneralLedgerLine, GeneralLedger as GeneralLedgerData } from '../../../
 import { LedgersService } from '../../../core/api/ledgers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { Observable } from 'rxjs';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';

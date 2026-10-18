@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { LucideAngularModule, Calendar, RefreshCw } from 'lucide-angular';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { AgingReport, AgingService } from '../../../core/api/aging.service';
 import { toIsoDate } from '../financial-statements/report-period';
 import { VxAmountComponent } from '../../../shared/components/amount';

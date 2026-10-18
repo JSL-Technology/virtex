@@ -7,7 +7,7 @@ import { VirtexMissingTranslationHandler, resetMissingTranslationLog } from '@vi
 describe('VirtexMissingTranslationHandler', () => {
   const catalogue: Record<string, string> = { 'masters.price_lists.status_label.draft': 'Borrador' };
   const translateService = {
-    currentLang: 'es',
+    getCurrentLang: () => 'es',
     instant: (key: string) => catalogue[key] ?? handler.handle({ key, translateService } as never),
   };
   const handler = new VirtexMissingTranslationHandler();

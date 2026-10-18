@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { Observable, map, of, throwError } from 'rxjs';
-import { accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, accountNameOf } from '@virteex/shared/ui-i18n';
 import { VX_SELECT } from '../../../shared/components/select';
 import { PercentInputDirective } from '../../../shared/directives/percent-input.directive';
 import { AccountingService } from '../../../core/api/accounting.service';

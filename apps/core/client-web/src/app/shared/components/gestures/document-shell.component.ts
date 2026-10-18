@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, ArrowLeft, AlertTriangle, RotateCw, PanelRight } from 'lucide-angular';
 import { VxBadgeComponent, VxTone } from '../badge';
 import { RelationshipMapLinkComponent } from '../relationship-map-link';

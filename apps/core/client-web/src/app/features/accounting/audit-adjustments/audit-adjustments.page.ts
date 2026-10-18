@@ -1,8 +1,8 @@
-import { VxDatePipe, VxMoneyPipe, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxDatePipe, VxMoneyPipe, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, FilePlus, Paperclip } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';

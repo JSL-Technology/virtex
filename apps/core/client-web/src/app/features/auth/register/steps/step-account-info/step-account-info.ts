@@ -2,7 +2,7 @@ import { Component, Input, computed, inject, OnInit } from '@angular/core';
 import { CountryService } from '../../../../../core/services/country.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
 import { IntlPhoneInputComponent } from '../../../../../shared/components/intl-phone-input/intl-phone-input.component';
 import { PasswordStrengthComponent } from '../../../../../shared/components/password-strength/password-strength.component';

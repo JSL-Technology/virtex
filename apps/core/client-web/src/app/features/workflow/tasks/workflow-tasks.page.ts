@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
 import { ExternalLink, LucideAngularModule, MessageSquareText } from 'lucide-angular';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -401,7 +401,7 @@ export class WorkflowTasksPage {
         id: task.id,
         title: task.name,
         detail: [this.label(task, task.outcome ?? ''), task.comment ? `«${task.comment}»` : null, task.definitionName].filter(Boolean).join(' · '),
-        when: task.completedAt ? new Date(task.completedAt).toLocaleString(this.translate.currentLang) : undefined,
+        when: task.completedAt ? new Date(task.completedAt).toLocaleString(this.translate.getCurrentLang()) : undefined,
         link: null,
       };
     }

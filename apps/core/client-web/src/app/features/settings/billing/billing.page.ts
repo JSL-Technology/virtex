@@ -1,4 +1,4 @@
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { translateOrLiteral, FormatService } from '@virteex/shared/ui-i18n';
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -8,7 +8,7 @@ import { BillingService, BillingOverview, BillingInvoice } from '../../../core/s
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { formatPlanPrice, minorUnitFactorFor } from '../../../core/models/plan.model';
 import { LanguageService } from '../../../core/services/language';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { composeKey } from '@virteex/shared/types';
 import { VxSpinnerComponent } from '../../../shared/components/feedback';
 import { VxPaymentCardComponent } from '../../../shared/components/payment-card';

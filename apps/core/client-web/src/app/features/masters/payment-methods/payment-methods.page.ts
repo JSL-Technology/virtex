@@ -1,7 +1,8 @@
 import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SORT, sortable } from '../../../shared/components/sort';

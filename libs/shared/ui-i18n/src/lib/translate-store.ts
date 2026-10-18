@@ -22,7 +22,7 @@ import { normalizeKey } from '@virteex/shared/types';
  * `accounts_payable.status.PARTIALLY_PAID` in a table cell — which is the precise failure the
  * naming convention exists to prevent, reintroduced by the call site.
  *
- * `TranslateStore.getValue` is the single funnel every lookup passes through — the pipe, the
+ * `TranslateStore.getTranslationValue` is the single funnel every lookup passes through — the pipe, the
  * directive, `instant`, `get`, `stream` and the fallback-language retry all reach it — so
  * normalising here covers every call site that exists and every one that will be written.
  *
@@ -40,8 +40,8 @@ export class VirtexTranslateStore extends TranslateStore {
    * Whether the loaded catalogue can render a key — the question, asked of the code path that
    * will answer it later.
    *
-   * `getValue` is `protected` upstream, so a caller outside this class cannot ask it directly, and
-   * the one that needed to asked `instant(key) !== key` instead. That is the documented
+   * Before @ngx-translate 18 the lookup (`getValue`) was protected upstream, so the one caller that
+   * needed it asked `instant(key) !== key` instead. That is the documented
    * `@ngx-translate` behaviour and it is wrong in this product, because
    * `VirtexMissingTranslationHandler` replaces it: a missing key comes back as `[[key]]` in
    * development and as a humanised last segment in production, neither of which equals the key. So
@@ -53,20 +53,20 @@ export class VirtexTranslateStore extends TranslateStore {
    * same normalisation and the same fallback, and cannot disagree about what exists.
    */
   hasKey(language: string, key: string): boolean {
-    return this.getValue(language, key) !== undefined;
+    return this.getTranslationValue(language, key) !== undefined;
   }
 
-  override getValue(language: string, key: string): InterpolatableTranslation {
+  override getTranslationValue(language: string, key: string): InterpolatableTranslation {
     let normal = this.normalized.get(key);
     if (normal === undefined) {
       normal = normalizeKey(key);
       this.normalized.set(key, normal);
     }
-    const direct = super.getValue(language, normal);
+    const direct = super.getTranslationValue(language, normal);
     if (direct !== undefined) return direct;
     // A key that was already exactly right and is simply absent must not be looked up twice.
     return normal === key
       ? (undefined as unknown as InterpolatableTranslation)
-      : super.getValue(language, key);
+      : super.getTranslationValue(language, key);
   }
 }

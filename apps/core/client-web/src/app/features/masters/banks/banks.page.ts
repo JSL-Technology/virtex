@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, Trash2 } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { Bank, TreasuryService } from '../../../core/api/treasury.service';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';

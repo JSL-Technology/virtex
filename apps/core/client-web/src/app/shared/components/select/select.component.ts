@@ -22,7 +22,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { ChevronDown, LucideAngularModule, Plus, RotateCcw, Search, X } from 'lucide-angular';
 import { EMPTY, Subject, Subscription, isObservable, merge, of, timer } from 'rxjs';
 import { catchError, debounce, map, switchMap, tap } from 'rxjs/operators';

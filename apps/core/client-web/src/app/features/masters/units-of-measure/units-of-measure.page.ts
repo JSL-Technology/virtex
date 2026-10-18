@@ -2,7 +2,8 @@ import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } 
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule, PlusCircle, Trash2 } from 'lucide-angular';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AuthService } from '../../../core/services/auth';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -64,7 +65,7 @@ export class UnitsOfMeasurePage implements OnInit {
   /** Category first (catalogue order), then name as the reader reads it. Headers still re-sort. */
   readonly ordered = computed(() => {
     const order = new Map<string, number>(UNIT_CATEGORIES.map((c, i) => [c, i]));
-    const collator = new Intl.Collator(this.translate.currentLang || 'es', { sensitivity: 'base' });
+    const collator = new Intl.Collator(this.translate.getCurrentLang() || 'es', { sensitivity: 'base' });
     return [...this.units()].sort(
       (a, b) =>
         (order.get(a.category) ?? 99) - (order.get(b.category) ?? 99) ||

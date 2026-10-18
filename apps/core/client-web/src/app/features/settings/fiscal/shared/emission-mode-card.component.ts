@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { FiscalEmissionMode, InvoicingContext } from '../../../../core/services/invoices';
 import { NotificationService } from '../../../../core/services/notification';
 import { OrganizationSettingsService } from '../../data/organization-settings.service';

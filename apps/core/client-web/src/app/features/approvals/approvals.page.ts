@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Check, X } from 'lucide-angular';
-import { FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
 import { InboxShellComponent, InboxItem, InboxSection } from '../../shared/components/gestures';
 import { NotificationService } from '../../core/services/notification';
 import { DialogService } from '../../core/services/dialog.service';

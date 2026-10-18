@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ViewContainerRef } from '@angular/core';
 import { Router, RouterOutlet, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { ThemeService } from './core/services/theme';
 import { LanguageService } from './core/services/language';
 import { AuthService } from './core/services/auth';

@@ -3,11 +3,11 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { catchError, of, startWith, switchMap } from 'rxjs';
 import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { BranchesService } from '../../../core/tenancy/branches.service';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import {
   PurchaseOrder,

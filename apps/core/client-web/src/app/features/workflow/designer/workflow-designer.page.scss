@@ -147,7 +147,7 @@
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   background: var(--surface-raised, var(--surface-base));
-  box-shadow: var(--shadow-lg, 0 8px 24px rgb(0 0 0 / 0.12));
+  box-shadow: var(--shadow-lg);
 
   button {
     @include ds.button-ghost('sm');

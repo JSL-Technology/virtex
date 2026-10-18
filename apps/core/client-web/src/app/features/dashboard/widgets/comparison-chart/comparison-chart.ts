@@ -15,7 +15,7 @@ import { LucideAngularModule, Settings, BarChart, AreaChart, PieChart } from 'lu
 
 // Importar y activar el módulo de exportación de Highcharts para habilitar el menú contextual (imprimir, descargar, etc.)
 import Exporting from 'highcharts/modules/exporting';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VxEmptyStateComponent } from '../../../../shared/components/feedback';
 // Exporting(Highcharts);
 

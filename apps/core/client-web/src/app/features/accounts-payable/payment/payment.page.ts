@@ -5,9 +5,9 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { Router } from '@angular/router';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
 import { NotificationService } from '../../../core/services/notification';

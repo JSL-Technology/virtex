@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Package, AlertCircle } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { catchError, of } from 'rxjs';
 import { DashboardApiService, LowStockItem } from '../../../../core/api/dashboard-api.service';
 import { VxEmptyStateComponent } from '../../../../shared/components/feedback';

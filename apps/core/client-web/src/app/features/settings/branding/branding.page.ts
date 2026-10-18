@@ -6,7 +6,7 @@ import { BrandingService, UiFont } from '../../../core/services/branding';
 import { ThemeService } from '../../../core/services/theme';
 import { LivePreview } from '../../../shared/components/live-preview/live-preview';
 import { LanguageSelector } from '../../../shared/components/language-selector/language-selector';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 // import { LivePreview } from '../../../shared/components/live-preview/live-preview'; // Importar el nuevo componente
 

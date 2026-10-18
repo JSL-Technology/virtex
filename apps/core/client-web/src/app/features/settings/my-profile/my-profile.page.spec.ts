@@ -7,7 +7,7 @@ import { SecurityService } from '../../../core/api/security.service';
 import { NotificationService } from '../../../core/services/notification';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { of } from 'rxjs';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Component, Input } from '@angular/core';

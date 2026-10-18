@@ -1,12 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  TranslateModule,
-  TranslateService,
-  TranslateLoader,
-  type TranslationObject,
-} from '@ngx-translate/core';
+import { TranslateService, TranslateLoader, type TranslationObject } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
-import { translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { TranslateModule, translateOrLiteral } from '@virteex/shared/ui-i18n';
 
 class FakeLoader implements TranslateLoader {
   getTranslation(): Observable<TranslationObject> {

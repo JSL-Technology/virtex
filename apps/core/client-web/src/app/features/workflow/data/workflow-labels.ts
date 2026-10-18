@@ -83,7 +83,7 @@ export function runFailureText(translate: TranslateService, error: string | null
  * copiados», by the language's CLDR rules — the same choice `vxPluralKey` makes in templates.
  */
 export function pluralKey(translate: TranslateService, base: string, count: number): string {
-  const language = translate.currentLang || translate.getDefaultLang() || 'es';
+  const language = translate.getCurrentLang() || translate.getFallbackLang() || 'es';
   return `${base}.${new Intl.PluralRules(language).select(count) === 'one' ? 'one' : 'other'}`;
 }
 

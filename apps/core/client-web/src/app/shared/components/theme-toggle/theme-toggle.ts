@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { LucideAngularModule, Moon, Sun } from 'lucide-angular';
 
 import { ThemeService } from '../../../core/services/theme';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 /** A single, explicit control for switching between light and dark themes. */
 @Component({

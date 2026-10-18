@@ -7,7 +7,7 @@ import {
   model,
   viewChildren,
 } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VxBadgeComponent, VxTone } from '../badge';
 
 /** One tab. `id` is what the caller stores; everything else is presentation. */

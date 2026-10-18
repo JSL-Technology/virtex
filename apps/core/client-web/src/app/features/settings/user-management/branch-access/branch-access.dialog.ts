@@ -11,7 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { forkJoin } from 'rxjs';
 import { Branch, BranchesService } from '../../../../core/tenancy/branches.service';
 import { NotificationService } from '../../../../core/services/notification';

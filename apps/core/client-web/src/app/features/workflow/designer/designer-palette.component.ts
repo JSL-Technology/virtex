@@ -1,7 +1,8 @@
 import { composeKey } from '@virteex/shared/types';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { FFlowModule } from '@foblex/flow';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { ChevronDown, LucideAngularModule, Rows3, Search, X } from 'lucide-angular';
 import { NODE_ICONS, nodeTypeKey } from '../data/workflow-labels';
 import { WorkflowGraphNode, WorkflowNodeType } from '../data/workflow.service';

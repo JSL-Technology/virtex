@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, TemplateRef, computed, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, AlertTriangle, CheckCircle, RotateCw } from 'lucide-angular';
 
 /** Algo que espera a esta persona. */

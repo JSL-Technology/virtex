@@ -10,8 +10,8 @@ import {
   MarketCoverage,
 } from '../../../core/api/fiscal-settings.service';
 import { EmissionModeCardComponent, SigningCertificateCardComponent } from './shared';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../shared/components/badge';

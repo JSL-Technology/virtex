@@ -19,7 +19,8 @@ import {
   Trash2 // Ícono de basura importado
 } from 'lucide-angular';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
 import { BreakdownSlice, DashboardApiService } from '../../../../core/api/dashboard-api.service';

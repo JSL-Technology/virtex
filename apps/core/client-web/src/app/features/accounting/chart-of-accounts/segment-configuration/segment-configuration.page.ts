@@ -8,7 +8,7 @@ import { ChartOfAccountsApiService, AccountSegmentDefinition } from '../../../..
 import { LucideAngularModule, Save, Plus, Trash2, ArrowLeft, RotateCcw } from 'lucide-angular';
 import { NotificationService } from '../../../../core/services/notification';
 import { take } from 'rxjs/operators';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/components/feedback';

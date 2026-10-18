@@ -2,7 +2,8 @@ import { Component, EventEmitter, Input, Output, computed, inject, signal } from
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import {
   CountryService,
   type FiscalFieldSpec,

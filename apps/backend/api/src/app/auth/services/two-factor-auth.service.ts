@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { authenticator } from 'otplib';
+import { generateSecret, generateSync, generateURI, verifySync } from 'otplib';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { CryptoUtil } from '../../shared/utils/crypto.util';
 import { UserCacheService } from '../modules/user-cache.service';
@@ -57,9 +57,9 @@ export class TwoFactorAuthService {
       throw new BadRequestError('auth.two_step_verification_already_turn_off');
     }
 
-    const secret = authenticator.generateSecret();
+    const secret = generateSecret();
     const appName = this.configService.get<string>('APP_NAME') || 'Virtex';
-    const otpauthUrl = authenticator.keyuri(user.email, appName, secret);
+    const otpauthUrl = generateURI({ issuer: appName, label: user.email, secret });
 
     security.pendingTwoFactorSecret = this.cryptoUtil.encrypt(secret);
     await this.userSecurityRepository.save(security);
@@ -122,11 +122,10 @@ export class TwoFactorAuthService {
       let matchedStep: number | null = null;
       for (let offset = -window; offset <= window; offset++) {
           const candidateStep = currentStep + offset;
-          // `authenticator.generate` takes only the secret; the epoch is set on the instance.
-          // Passing it as a second argument was silently ignored, so EVERY candidate step in the
-          // window generated the code for the CURRENT time — the drift window did nothing.
-          const expected = authenticator.clone({ epoch: candidateStep * stepSeconds * 1000 })
-              .generate(secret);
+          // The code for THAT step, not for now: `epoch` (in seconds since otplib 13) is what moves
+          // the window. An earlier version passed the step as an ignored second argument, so every
+          // candidate generated the current code and the drift window did nothing.
+          const expected = generateSync({ secret, epoch: candidateStep * stepSeconds, period: stepSeconds });
           // Constant-time comparison: both operands are fixed-length numeric strings.
           if (expected.length === code.length &&
               crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(code))) {
@@ -231,7 +230,7 @@ export class TwoFactorAuthService {
     // correct code is it promoted to the live secret — so an abandoned or hostile enrolment
     // never displaces a working authenticator.
     const decryptedSecret = this.cryptoUtil.decrypt(freshUser.security.pendingTwoFactorSecret);
-    const isValid = authenticator.verify({ token, secret: decryptedSecret });
+    const isValid = verifySync({ token, secret: decryptedSecret }).valid;
     if (!isValid) {
       throw new UnauthorizedError('auth.invalid_2_fa_token');
     }

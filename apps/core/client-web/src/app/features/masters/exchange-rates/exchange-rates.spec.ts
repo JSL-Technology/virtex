@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { of } from 'rxjs';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
 import { ExchangeRatesPage } from './exchange-rates.page';
 import { ExchangeRatesService, parseRateTable } from '../data/exchange-rates.service';
 import { CurrenciesService } from '../data/currencies.service';

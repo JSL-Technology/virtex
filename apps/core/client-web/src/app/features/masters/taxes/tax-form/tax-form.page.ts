@@ -4,11 +4,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { TaxesService, CreateTaxDto, UpdateTaxDto } from '../../../../core/api/taxes.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { TaxType, taxTypeLabel } from '../../../../core/models/tax.model';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
 @Component({
   selector: 'app-tax-form-page',
   standalone: true,

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { BarcodeScannerComponent } from './barcode-scanner.component';
 
 /** The scanner is never a dead end: no camera, or no permission, still leaves typing the code. */

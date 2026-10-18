@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, u
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, PlusCircle, MoreHorizontal } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   JournalEntriesApiService,
   JournalEntry,

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, CheckCircle, AlertCircle, Loader } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth';
 import { AppError } from '../../../core/services/error-handler.service';

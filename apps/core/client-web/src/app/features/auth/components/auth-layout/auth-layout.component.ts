@@ -4,7 +4,7 @@ import { ThemeService } from '../../../../core/services/theme';
 import { BrandLogo } from '../../../../shared/components/brand-logo/brand-logo';
 import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
 import { AuthFooterComponent } from '../auth-footer/auth-footer.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 /**
  * Marco común de las pantallas públicas: acceso, registro, recuperación de

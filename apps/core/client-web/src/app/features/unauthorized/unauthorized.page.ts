@@ -8,7 +8,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LucideAngularModule, ShieldAlert, Mail } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 @Component({
   selector: 'app-unauthorized-page',

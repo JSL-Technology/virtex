@@ -7,7 +7,7 @@ import { LanguageService } from '../../../core/services/language';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 
 type CompleteState = 'verifying' | 'success' | 'error';

@@ -17,7 +17,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Shield, Clock, RefreshCw, Eraser, CheckCircle, Info, AlertCircle, AlertTriangle } from 'lucide-angular';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 type StatusType = 'success' | 'error' | 'warning' | 'info';
 interface OtpStatus {

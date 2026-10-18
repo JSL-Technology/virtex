@@ -3,11 +3,11 @@ import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, si
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { LucideAngularModule, Eye } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../../core/services/notification';
 import {
   Department,

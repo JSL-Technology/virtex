@@ -6,7 +6,8 @@ import {
   SearchResult,
   SearchResultGroup as BaseSearchResultGroup,
 } from '../../core/services/search.service';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { SearchResultTextService } from '../../core/services/search-result-text.service';
 import { ListShellComponent } from '../../shared/components/gestures';
 

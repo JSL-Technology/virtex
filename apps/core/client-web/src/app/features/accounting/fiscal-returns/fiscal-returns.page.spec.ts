@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { of } from 'rxjs';
 import { FiscalReturnsPage } from './fiscal-returns.page';
 import { FiscalReturnFiling, FiscalReturnsService, returnFileName } from '../data/fiscal-returns.service';

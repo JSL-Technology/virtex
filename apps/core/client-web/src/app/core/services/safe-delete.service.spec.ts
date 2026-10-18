@@ -28,7 +28,7 @@ describe('SafeDeleteService', () => {
         { provide: NotificationService, useValue: notifications },
         {
           provide: TranslateService,
-          useValue: { instant: (k: string) => words[k] ?? k, currentLang: 'es', getDefaultLang: () => 'es' },
+          useValue: { instant: (k: string) => words[k] ?? k, getCurrentLang: () => 'es', getFallbackLang: () => 'es' },
         },
       ],
     });

@@ -4,7 +4,7 @@ import { LucideAngularModule, TrendingUp, TrendingDown, Minus, Percent } from 'l
 import { Kpi } from '../../../../core/models/finance';
 import { DashboardApiService } from '../../../../core/api/dashboard-api.service';
 import { Observable, map } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 @Component({
   selector: 'app-kpi-net-margin',

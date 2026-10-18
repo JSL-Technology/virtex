@@ -8,10 +8,10 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
 import { CustomersService } from '../data/customers.service';
 import { Customer } from '../../../core/models/customer.model';
 import {

@@ -41,7 +41,7 @@ export class StatementExportService {
   }
 
   private get locale(): string {
-    return this.translate.currentLang || this.translate.getDefaultLang() || 'es';
+    return this.translate.getCurrentLang() || this.translate.getFallbackLang() || 'es';
   }
 
   /** Title, ledger, currency and period, above the table. */

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, model, output } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Search, Inbox, AlertTriangle, RotateCw, X } from 'lucide-angular';
 import { refreshWhenStale } from '../../../core/data/data-version.service';
 

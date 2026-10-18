@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VxDateFieldComponent } from './date-field.component';
 
 let nextId = 0;

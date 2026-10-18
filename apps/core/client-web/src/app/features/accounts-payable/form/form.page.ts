@@ -17,7 +17,7 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule, ChevronLeft, Plus, Trash2 } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { Observable, of, map } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { CountryPackService } from '../../../core/api/country-pack.service';
@@ -38,7 +38,7 @@ import { TreasuryService } from '../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { toIsoDate } from '../../../shared/utils/date.util';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';

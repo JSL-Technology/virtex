@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { LucideAngularModule, RefreshCw, Sparkles, ThumbsUp, ThumbsDown, RotateCcw } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { composeKey } from '@virteex/shared/types';
 import { ListShellComponent } from '../../../shared/components/gestures';

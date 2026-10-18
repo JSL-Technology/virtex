@@ -1,4 +1,4 @@
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
 import { computed,
   Component,
   HostListener,
@@ -16,7 +16,7 @@ import { switchMap } from 'rxjs/operators';
 import { from, of } from 'rxjs';
 import { LucideAngularModule, Building, Users, Palette, UserCircle, Briefcase, Shield, Server, FileText, Lock, Workflow, Globe, Mail, Database, Calculator, Percent, CalendarClock, ArrowRightLeft, CreditCard, ReceiptText, Landmark, MapPin, MapPinned, Building2, Scale, Puzzle, Sparkles } from 'lucide-angular';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
-import { TranslateModule } from '@ngx-translate/core';
+
 
 @Component({
   selector: 'app-settings-modal',

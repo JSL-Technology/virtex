@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { Ban, LucideAngularModule } from 'lucide-angular';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { DocumentShellComponent } from '../../../shared/components/gestures';
 import { VxBranchLabelComponent } from '../../../shared/components/branch-picker';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';

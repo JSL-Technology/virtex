@@ -86,7 +86,7 @@ import {
   Square, // ✅ Control de ventana: maximizar (escritorio)
   Copy, // ✅ Control de ventana: restaurar, dos cuadros superpuestos (escritorio)
 } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { Sidebar } from '../sidebar/sidebar';
 import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive'; // ✅ Directiva añadida
 import { CompanySwitcherComponent } from './components/company-switcher/company-switcher.component';
@@ -96,7 +96,7 @@ import { TabPersistenceService } from '../../core/tabs/tab-persistence.service';
 import { TabKeyboardService } from '../../core/tabs/tab-keyboard.service';
 import { TabRouterService } from '../../core/tabs/tab-router.service';
 import { DialogHostComponent } from '../../shared/components/dialog-host/dialog-host.component';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { StatusBarComponent } from '../status-bar/status-bar.component';
 import { ModuleRailComponent } from '../module-rail/module-rail.component';
 import { DesktopWindowService } from '../../core/windows/desktop-window.service';

@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Save, Lock } from 'lucide-angular';
 import { OrganizationProfile, OrganizationService } from '../../../shared/service/organization.service';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { CountryFlagComponent } from '../../../shared/components/country-flag/country-flag.component';

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostListener, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Building2, CalendarCheck, CalendarX, Coins, Wifi, WifiOff, LoaderCircle, TriangleAlert } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth';
 import { StatusBarService } from './status-bar.service';

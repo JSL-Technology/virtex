@@ -4,8 +4,8 @@ import { BranchesService } from '../../../core/tenancy/branches.service';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   CustomerReceipt,
   CustomerReceiptsService,

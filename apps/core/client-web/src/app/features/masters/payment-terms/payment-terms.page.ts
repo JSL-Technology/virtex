@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule, Clock } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { CustomersService } from '../../../core/api/customers.service';

@@ -1,9 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService, TranslateStore } from '@ngx-translate/core';
+import { TranslateService, TranslateStore } from '@ngx-translate/core';
 
 import { ErrorHandlerService } from './error-handler.service';
-import { VirtexMissingTranslationHandler, VirtexTranslateStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VirtexMissingTranslationHandler, VirtexTranslateStore } from '@virteex/shared/ui-i18n';
 
 /**
  * The resolution order only works if "can the catalogue render this key?" can answer no.
@@ -54,7 +54,7 @@ describe('ErrorHandlerService key resolution', () => {
     service = TestBed.inject(ErrorHandlerService);
     translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', CATALOGUE);
-    translate.setDefaultLang('en');
+    translate.setFallbackLang('en');
     translate.use('en');
   });
 

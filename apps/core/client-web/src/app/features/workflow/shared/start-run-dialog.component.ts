@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VxDialogComponent } from '../../../shared/components/dialog';
 import { NotificationService } from '../../../core/services/notification';
 import { WorkflowDefinition, WorkflowInstance, WorkflowService } from '../data/workflow.service';

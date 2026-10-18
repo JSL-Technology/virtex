@@ -27,8 +27,8 @@ import { KpiLeverageComponent } from './widgets/kpi-leverage/kpi-leverage';
 import { KpiNetMarginComponent } from './widgets/kpi-net-margin/kpi-net-margin';
 import { KpiEbitdaComponent } from './widgets/kpi-ebitda/kpi-ebitda';
 import { KpiFcfComponent } from './widgets/kpi-fcf/kpi-fcf';
-import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 /**
  * The business indicators: configurable widgets over the tenant's own figures.

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { LucideAngularModule, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-angular';
 import { VARIABLE_TYPES, WorkflowVariable, WorkflowVariableType } from '../../data/workflow.service';

@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks } from '@angular/core/testing';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { BranchesService, MyBranches } from '../../../core/tenancy/branches.service';
 import { VxBranchLabelComponent } from './branch-label.component';
 import { VxBranchPickerComponent } from './branch-picker.component';

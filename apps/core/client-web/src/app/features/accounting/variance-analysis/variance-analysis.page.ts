@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, si
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, ArrowUp, ArrowDown } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
-import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { NotificationService } from '../../../core/services/notification';

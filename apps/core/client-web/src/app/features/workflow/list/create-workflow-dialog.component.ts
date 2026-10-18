@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { BadgeCheck, CircleDashed, FileInput, LucideAngularModule, ReceiptText, ShieldCheck, UserPlus } from 'lucide-angular';
 import { VxDialogComponent } from '../../../shared/components/dialog';
 import { NotificationService } from '../../../core/services/notification';

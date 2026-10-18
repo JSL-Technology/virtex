@@ -2,7 +2,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, inject, signal, DestroyRef, ViewChildren, ViewChild, QueryList, ElementRef, Inject, PLATFORM_ID, ViewContainerRef, computed } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LucideAngularModule, Shield, Smartphone, QrCode, Monitor, Laptop, Globe, AlertTriangle, CheckCircle, MapPin, Copy, Download, RefreshCw, X, ArrowRight, ImageIcon, User, Mail, Phone, Building, KeyRound } from 'lucide-angular';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../../core/services/auth';
 import { SecurityService, Session } from '../../../../core/api/security.service';
 import { StepUpService, StepUpScope } from '../../../../core/services/step-up.service';
@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { ConfirmationModalComponent } from '../../../../shared/components/confirmation-modal/confirmation-modal.component';
 import { OtpComponent } from '../../../../shared/components/otp/otp.component';
 import { token } from '../../../../core/utils/chart-theme';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
 import { VxBadgeComponent } from '../../../../shared/components/badge';

@@ -60,7 +60,7 @@ export class VirtexMissingTranslationHandler implements MissingTranslationHandle
       reported.add(key);
       // One line, once, naming the key and the language, so a missing entry is greppable in a
       // production log aggregator instead of invisible.
-      console.warn(`[i18n] Missing translation: "${key}" (${params.translateService.currentLang})`);
+      console.warn(`[i18n] Missing translation: "${key}" (${params.translateService.getCurrentLang()})`);
     }
 
     if (isDevMode()) return `[[${key}]]`;

@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, ElementRef, inject, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, X } from 'lucide-angular';
 import { TabStateService } from '../tab-state.service';
 import { resolveTabIcon } from './tab-icon';

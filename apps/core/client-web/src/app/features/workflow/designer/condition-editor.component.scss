@@ -66,13 +66,13 @@
 }
 
 .ce-leaf--unknown {
-  border-color: var(--status-danger-border, var(--color-danger, #c0392b));
+  border-color: var(--danger-color);
 }
 
 .ce-leaf__warning {
   margin: 0;
   font-size: var(--text-xs);
-  color: var(--status-danger-fg, var(--color-danger, #c0392b));
+  color: var(--danger-color);
 }
 
 .ce-icon {

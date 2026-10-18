@@ -9,7 +9,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Search, X, ChevronDown, Clock } from 'lucide-angular';
 import { TabStateService } from '../tab-state.service';
 import { TabSearchService } from '../tab-search.service';

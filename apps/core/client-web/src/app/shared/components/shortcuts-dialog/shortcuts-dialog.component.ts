@@ -10,7 +10,8 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Search, Pencil, RotateCcw, ChevronDown } from 'lucide-angular';
 import { VxDialogComponent } from '../dialog/dialog.component';
 import { VxKbdComponent } from '../kbd';

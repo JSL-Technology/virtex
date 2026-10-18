@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, UploadCloud, ChevronLeft, AlertTriangle, Check } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+
 import {
   ImportColumnMapping,
   ImportPreview,
   JournalEntries,
 } from '../../../../core/services/journal-entries';
 import { NotificationService } from '../../../../core/services/notification';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 

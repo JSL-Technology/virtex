@@ -10,7 +10,7 @@ import {
   computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Phone, AlertCircle, Loader, Mail, Clock } from 'lucide-angular';
 import { ReCaptchaV3Service, RecaptchaV3Module } from 'ng-recaptcha-19';
 import { recaptchaToken$ } from '../../../../../core/auth/recaptcha-token';

@@ -2,7 +2,7 @@
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, signal, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Phone, Check } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth';
 import { NotificationService } from '../../../../core/services/notification';

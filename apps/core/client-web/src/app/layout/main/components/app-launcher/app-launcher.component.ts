@@ -1,6 +1,6 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Grid2X2, ShoppingCart, HardHat, Store, Box, Utensils, Users, UserCircle } from 'lucide-angular';
 import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
 

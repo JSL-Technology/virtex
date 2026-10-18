@@ -6,10 +6,10 @@ import * as Highcharts from 'highcharts';
 import { catchError, of } from 'rxjs';
 import { DashboardWidget, DashboardService, ChartType } from '../../../../core/services/dashboard';
 import { DashboardApiService, TrendPoint } from '../../../../core/api/dashboard-api.service';
-import { FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FormatService } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Settings, AreaChart, LineChart } from 'lucide-angular';
 import Exporting from 'highcharts/modules/exporting';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 
 // Exporting(Highcharts);
 

@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { Observable } from 'rxjs';
 import { LucideAngularModule, AlertTriangle, ArrowRight, Ban, GitMerge } from 'lucide-angular';
-import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VX_SELECT } from '../../../shared/components/select';
 import { VxAmountComponent } from '../../../shared/components/amount';

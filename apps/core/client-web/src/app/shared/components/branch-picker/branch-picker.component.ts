@@ -10,7 +10,7 @@ import {
   untracked,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { BranchOption, BranchesService } from '../../../core/tenancy/branches.service';
 
 let nextId = 0;

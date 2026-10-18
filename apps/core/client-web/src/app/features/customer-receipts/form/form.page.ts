@@ -4,9 +4,9 @@ import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule, Plus } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { CustomerAdvance, CustomerReceiptsService } from '../../../core/services/customer-receipts';
 import { InvoicesService, Invoice } from '../../../core/services/invoices';
 import { CustomersService } from '../../../core/api/customers.service';

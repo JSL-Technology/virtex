@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { ModuleRailComponent } from './module-rail.component';
 import { ActiveModuleService, ReachableModule } from '../../core/modules/active-module.service';
 import { ModuleInboxService } from '../../core/inbox/module-inbox.service';

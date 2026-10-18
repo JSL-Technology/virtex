@@ -8,8 +8,8 @@ import { LucideAngularModule, Search, X, Plus, Minus, Trash2, CreditCard, Shoppi
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Product } from '../../../core/models/product.model';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { InvoicesService } from '../../../core/services/invoices';
 import { InventoryService } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -459,7 +459,7 @@ export class PosPage {
     const tenders = sale.payments
       .map((payment) => `<tr><td>${escapeHtml(t('sales.pos.pay.method.' + payment.method))}</td><td class="r">${money(payment.amount)}</td></tr>`)
       .join('');
-    const html = `<!doctype html><html lang="${escapeHtml(this.translate.currentLang || 'es')}"><head><meta charset="utf-8"><title>${escapeHtml(t('sales.pos.ticket.title'))}</title>
+    const html = `<!doctype html><html lang="${escapeHtml(this.translate.getCurrentLang() || 'es')}"><head><meta charset="utf-8"><title>${escapeHtml(t('sales.pos.ticket.title'))}</title>
 <style>body{font:13px/1.4 system-ui,sans-serif;width:72mm;margin:0 auto;padding:8px}h1{font-size:15px;margin:0 0 4px;text-align:center}p{margin:0 0 6px;text-align:center}table{width:100%;border-collapse:collapse}td{padding:3px 0;vertical-align:top}.r{text-align:right}.t td{border-top:1px dashed #000;font-weight:700}small{color:#444}</style></head>
 <body><h1>${escapeHtml(t('sales.pos.ticket.title'))}</h1><p>${escapeHtml(this.format.date(sale.createdAt, 'dateTime'))}</p><p>${escapeHtml(t('sales.pos.customer'))} ${escapeHtml(sale.customer)}</p>
 <table>${rows}<tr class="t"><td>${escapeHtml(t('sales.pos.amount_due'))}</td><td class="r">${money(sale.total)}</td></tr>${tenders}

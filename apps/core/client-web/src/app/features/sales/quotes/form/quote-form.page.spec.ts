@@ -1,7 +1,7 @@
 import { provideTestBranches } from '../../../../core/tenancy/branches.service.testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { of } from 'rxjs';
 import { CustomersService } from '../../../../core/api/customers.service';
 import { CurrenciesService } from '../../../../core/api/currencies.service';

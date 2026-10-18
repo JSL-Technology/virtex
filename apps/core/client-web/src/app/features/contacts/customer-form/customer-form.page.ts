@@ -3,12 +3,12 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomersService, CreateCustomerDto, UpdateCustomerDto } from '../../../core/api/customers.service';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { formPayload } from '../../../shared/utils/form-payload.util';

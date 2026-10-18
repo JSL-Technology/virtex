@@ -1,11 +1,11 @@
-import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, FileDown } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { VxDateRangeComponent } from '../../../shared/components/date';
-import { TranslateModule } from '@ngx-translate/core';
+
 import { JournalEntriesApiService, JournalEntry } from '../../../core/api/journal-entries.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { ListShellComponent } from '../../../shared/components/gestures';

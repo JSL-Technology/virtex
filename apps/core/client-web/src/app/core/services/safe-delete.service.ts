@@ -114,7 +114,7 @@ export class SafeDeleteService {
       const word = d.count === 1 && this.translate.instant(one) !== one ? this.translate.instant(one) : this.translate.instant(d.label);
       return `${d.count} ${word}`;
     });
-    const lang = this.translate.currentLang || this.translate.getDefaultLang() || 'es';
+    const lang = this.translate.getCurrentLang() || this.translate.getFallbackLang() || 'es';
     try {
       return new Intl.ListFormat(lang, { style: 'long', type: 'conjunction' }).format(parts);
     } catch {
