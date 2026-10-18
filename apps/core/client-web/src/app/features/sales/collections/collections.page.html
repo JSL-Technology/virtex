@@ -1,18 +1,35 @@
-<section class="co">
-  <header class="co__header">
-    <div>
-      <h1 class="co__title">{{ 'collections.title' | translate }}</h1>
-      <p class="co__subtitle">{{ 'collections.subtitle' | translate }}</p>
-    </div>
-    <button type="button" class="secondary-button" [disabled]="loading()" (click)="load()">
-      <lucide-icon [img]="RefreshIcon" size="16" aria-hidden="true"></lucide-icon>
-      <span>{{ 'collections.refresh' | translate }}</span>
-    </button>
-  </header>
+<vx-list-shell
+  titleKey="collections.title"
+  subtitleKey="collections.subtitle"
+  [count]="worklist()?.total ?? null"
+  [loading]="loading() && !worklist()"
+  [error]="error()"
+  [empty]="!loading() && !items().length"
+  (reload)="load()"
+>
+  <button listActions type="button" class="secondary-button" [disabled]="loading()" (click)="load()">
+    <lucide-icon [img]="RefreshIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'collections.refresh' | translate }}</span>
+  </button>
 
-  @if (error(); as message) {
-    <p class="co__error" role="alert">{{ message }}</p>
-  }
+  <div listFilters class="co__filters" role="group" [attr.aria-label]="'collections.filter_by_action' | translate">
+    @for (action of actions; track action) {
+      <button
+        type="button"
+        class="co__chip"
+        [class.is-active]="filter() === action"
+        [attr.aria-pressed]="filter() === action"
+        (click)="setFilter(action)"
+      >
+        {{ k('collections.action', action) | translate }}
+        <span class="co__chip-count">{{ byAction()[action] ?? 0 }}</span>
+      </button>
+    }
+  </div>
+
+  <p listEmpty class="co__muted">{{ (filter() ? 'collections.empty_filtered' : 'collections.empty') | translate }}</p>
+
+  <div class="co__body">
 
   @if (worklist(); as list) {
     <p class="co__muted">
@@ -33,30 +50,10 @@
         <span class="co__kpi-value">{{ list.totals.overdueBase | vxMoney: currency() }}</span>
       </div>
     </div>
-
-    <div class="co__filters" role="group" [attr.aria-label]="'collections.filter_by_action' | translate">
-      @for (action of actions; track action) {
-        <button
-          type="button"
-          class="co__chip"
-          [class.is-active]="filter() === action"
-          [attr.aria-pressed]="filter() === action"
-          (click)="setFilter(action)"
-        >
-          {{ k('collections.action', action) | translate }}
-          <span class="co__chip-count">{{ byAction()[action] ?? 0 }}</span>
-        </button>
-      }
-    </div>
   }
 
   <div class="co__layout" [class.co__layout--split]="selected()">
     <div class="card co__table-wrap">
-      @if (loading() && !worklist()) {
-        <p class="co__muted co__pad">{{ 'collections.loading' | translate }}</p>
-      } @else if (!items().length) {
-        <p class="co__muted co__pad">{{ (filter() ? 'collections.empty_filtered' : 'collections.empty') | translate }}</p>
-      } @else {
         <table class="data-table">
           <thead>
             <tr>
@@ -111,7 +108,6 @@
             }
           </tbody>
         </table>
-      }
     </div>
 
     @if (selected(); as item) {
@@ -291,4 +287,5 @@
       </aside>
     }
   </div>
-</section>
+  </div>
+</vx-list-shell>

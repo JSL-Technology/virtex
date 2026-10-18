@@ -1,16 +1,17 @@
-<section class="dq">
-  <header class="dq__header">
-    <div>
-      <h1 class="dq__title">{{ 'ai.data_quality.title' | translate }}</h1>
-      <p class="dq__muted">{{ 'ai.data_quality.subtitle' | translate }}</p>
-    </div>
-    <button type="button" class="secondary-button" [disabled]="scanning()" (click)="scan()">
-      <lucide-icon [img]="ScanIcon" size="16" aria-hidden="true"></lucide-icon>
-      <span>{{ (scanning() ? 'ai.data_quality.scanning' : 'ai.data_quality.scan') | translate }}</span>
-    </button>
-  </header>
+<vx-list-shell
+  titleKey="ai.data_quality.title"
+  subtitleKey="ai.data_quality.subtitle"
+  [count]="data()?.total ?? null"
+  [loading]="loading() && !data()"
+  [empty]="!loading() && (!types().length || !data()?.items?.length)"
+  (reload)="load()"
+>
+  <button listActions type="button" class="secondary-button" [disabled]="scanning()" (click)="scan()">
+    <lucide-icon [img]="ScanIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ (scanning() ? 'ai.data_quality.scanning' : 'ai.data_quality.scan') | translate }}</span>
+  </button>
 
-  <div class="dq__filters">
+  <div listFilters class="dq__filters">
     <div class="dq__chips" role="group" [attr.aria-label]="'ai.data_quality.by_type' | translate">
       <button type="button" class="dq__chip" [class.is-active]="!type()" [attr.aria-pressed]="!type()" (click)="setType(null)">
         {{ 'ai.data_quality.all_types' | translate }}
@@ -31,13 +32,11 @@
     </div>
   </div>
 
-  @if (loading() && !data()) {
-    <p class="dq__muted">{{ 'ai.data_quality.loading' | translate }}</p>
-  } @else if (!types().length) {
-    <p class="dq__muted">{{ 'ai.data_quality.no_types' | translate }}</p>
-  } @else if (!data()?.items?.length) {
-    <p class="dq__muted">{{ (status() === 'OPEN' ? 'ai.data_quality.none_open' : 'ai.data_quality.none') | translate }}</p>
-  } @else {
+  <p listEmpty class="dq__muted">
+    {{ (!types().length ? 'ai.data_quality.no_types' : status() === 'OPEN' ? 'ai.data_quality.none_open' : 'ai.data_quality.none') | translate }}
+  </p>
+
+  @if (data()?.items?.length) {
     <ul class="dq__list">
       @for (item of data()!.items; track item.id) {
         <li class="card dq__pair">
@@ -66,4 +65,4 @@
     </ul>
     <p class="dq__muted">{{ 'ai.data_quality.no_merge' | translate }}</p>
   }
-</section>
+</vx-list-shell>

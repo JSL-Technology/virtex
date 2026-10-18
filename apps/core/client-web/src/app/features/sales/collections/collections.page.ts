@@ -9,6 +9,7 @@ import { composeKey } from '@virteex/shared/types';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
+import { ListShellComponent } from '../../../shared/components/gestures';
 import {
   CallOutcome,
   CollectionAction,
@@ -38,7 +39,7 @@ const ACTIONS: CollectionAction[] = ['call', 'firm_reminder', 'reminder', 'court
 @Component({
   selector: 'app-collections-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, HasPermissionDirective, VxBadgeComponent],
+  imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, HasPermissionDirective, VxBadgeComponent, ListShellComponent],
   templateUrl: './collections.page.html',
   styleUrl: './collections.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
