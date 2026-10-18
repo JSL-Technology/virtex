@@ -123,8 +123,9 @@
 
   color: var(--content-tertiary);
   font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-caps);
+  //  En minúscula y en los tres idiomas igual (QA B-04): «o» / «or» / «ou», como se escribe.
+  //  Las versalitas daban «O» en un idioma y «OR» en otro según cómo llegara el texto, y una
+  //  conjunción en mayúsculas grita más que la acción principal que tiene encima.
 
   //  La línea se desvanece hacia el centro, donde está la palabra. Una regla
   //  recta cortada en dos deja dos extremos duros a ambos lados del texto.

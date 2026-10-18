@@ -5,6 +5,7 @@
   [class.loading]="loading"
   [disabled]="disabled || loading"
   [attr.aria-busy]="loading || null"
+  [attr.aria-describedby]="describedBy"
   (click)="clicked.emit($event)">
 
   <!--

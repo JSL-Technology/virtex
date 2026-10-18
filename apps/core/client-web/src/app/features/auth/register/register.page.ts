@@ -555,7 +555,7 @@ export class RegisterPage implements OnInit {
               window.location.href = response.url;
             } else {
               // Honeypot / no checkout needed — send to login without leaking why.
-              this.router.navigate(['/auth/login']);
+              this.router.navigate(['/', this.languageService.currentLang(), 'auth', 'login']);
             }
           },
           error: (err) => {

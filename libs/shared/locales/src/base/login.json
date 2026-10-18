@@ -109,6 +109,11 @@
     "en": "or",
     "pt": "ou"
   },
+  "login.other_sign_in_methods": {
+    "es": "Otras formas de iniciar sesión",
+    "en": "Other ways to sign in",
+    "pt": "Outras formas de entrar"
+  },
   "login.passkey_button_short": {
     "es": "Continuar con llave de acceso",
     "en": "Continue with passkey",

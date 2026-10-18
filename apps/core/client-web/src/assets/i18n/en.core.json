@@ -250,6 +250,7 @@
   "login.notice.session_unverified": "We couldn't verify your session because the server didn't respond. Check your connection and try again in a few minutes.",
   "login.notice.signed_out_idle": "We signed you out after a period of inactivity. Sign in again to continue.",
   "login.or": "or",
+  "login.other_sign_in_methods": "Other ways to sign in",
   "login.passkey_button_short": "Continue with passkey",
   "login.password_label": "Password",
   "login.password_placeholder": "Your password",

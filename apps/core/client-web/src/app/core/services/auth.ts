@@ -139,6 +139,8 @@ export interface RegistrationConfirmation {
     trial: boolean;
     currentPeriodEnd: string | null;
     planSlug: string | null;
+    /** Length of the trial the plan grants; absent from older servers. */
+    trialDays?: number | null;
   };
 }
 

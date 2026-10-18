@@ -38,14 +38,14 @@ export class CountryGuard implements CanActivate {
    */
   private pickerUrl(reason: 'unsupported' | 'failed', countryCode: string, state: RouterStateSnapshot): UrlTree {
     const current = this.router.parseUrl(state.url);
-    return this.router.createUrlTree(['/', this.languageService.currentLanguage(), 'auth', 'register'], {
+    return this.router.createUrlTree(['/', this.languageService.currentLanguage(), 'auth', 'choose-country'], {
       queryParams: { ...current.queryParams, [reason]: countryCode.toUpperCase() },
     });
   }
 
   /** A route with no language or country at all: the picker, without a reason to report. */
   private bareSignupUrl(): UrlTree {
-    return this.router.createUrlTree(['/', this.languageService.currentLanguage(), 'auth', 'register']);
+    return this.router.createUrlTree(['/', this.languageService.currentLanguage(), 'auth', 'choose-country']);
   }
 
   canActivate(

@@ -62,9 +62,6 @@ export class AddCompanyComponent {
     companyName: ['', [Validators.required]],
     industry: ['', [Validators.required]],
     companySize: [''],
-    // Rendered by the shared business step as a honeypot. A signed-in person is not a bot; the
-    // control exists so the step renders, and its value is never sent.
-    fax: [''],
   });
   readonly plan: FormGroup = buildPlanGroup(this.fb);
 

@@ -17,7 +17,13 @@
         @if (isTrial()) {
           <!-- Una prueba no es un pago (QA A-11): qué está activo, cuándo se cobraría y qué
                pasa al terminar, antes de entrar. -->
-          <h1 class="checkout-complete__title">{{ 'auth.checkout_complete.trial_active' | translate }}</h1>
+          <h1 class="checkout-complete__title">
+            @if (trialDays(); as days) {
+              {{ 'auth.checkout_complete.trial_active_days' | translate: { days: days } }}
+            } @else {
+              {{ 'auth.checkout_complete.trial_active' | translate }}
+            }
+          </h1>
           <p class="checkout-complete__text">
             @if (trialEndsOn(); as date) {
               {{ 'auth.checkout_complete.trial_no_charge_until' | translate: { date: date } }}

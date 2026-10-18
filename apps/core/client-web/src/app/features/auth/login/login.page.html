@@ -194,7 +194,7 @@
       adivinar que el edificio era el acceso único de su empresa. La llave va la primera por ser
       la vía más segura.
     -->
-    <section class="secondary-auth" [attr.aria-label]="'login.or' | translate">
+    <section class="secondary-auth" [attr.aria-label]="'login.other_sign_in_methods' | translate">
       <app-passkey-button
         class="provider-cell provider-cell--passkey"
         [iconOnly]="true"
@@ -220,7 +220,7 @@
         `/{idioma}/{país del navegador}/auth/register`, y un visitante con `en-GB`, `pt-PT` o
         `fr-FR` acababa en un formulario dominicano. El país lo elige quien se registra.
       -->
-      <a [routerLink]="['/', languageService.currentLang(), 'auth', 'register']">
+      <a [routerLink]="['/', languageService.currentLang(), 'auth', 'choose-country']">
         {{ 'login.register_link' | translate }}
       </a>
     </p>

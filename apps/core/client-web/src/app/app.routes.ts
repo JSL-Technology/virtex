@@ -180,13 +180,22 @@ export const APP_ROUTES: Routes = [
                     {
                         // Signup starts by ASKING the country (QA C-06, A-13). Every link
                         // without one — the sign-in page's "Sign up", an abandoned checkout, a
-                        // URL naming a market the product does not serve — lands here instead of
-                        // on a country somebody assumed.
-                        path: 'register',
+                        // URL naming a market the product does not serve or whose configuration
+                        // could not be loaded — lands here instead of on a country somebody
+                        // assumed, or silently back on the sign-in page.
+                        path: 'choose-country',
                         title: 'auth.titles.choose_country',
                         data: { authWidth: 'wide' },
                         loadComponent: () =>
                         import('./features/auth/country-picker/country-picker.page').then((m) => m.CountryPickerPage),
+                    },
+                    {
+                        // `/{lang}/auth/register` without a country: the URL people type and
+                        // older emails carry. A string redirect keeps the query string, so an
+                        // emailed magic link's token survives the hop.
+                        path: 'register',
+                        pathMatch: 'full',
+                        redirectTo: 'choose-country',
                     },
                     {
                         // The lockout email's link (QA C-09). Reachable signed in too: the
