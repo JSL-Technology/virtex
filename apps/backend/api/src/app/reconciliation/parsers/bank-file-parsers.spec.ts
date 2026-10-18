@@ -89,4 +89,37 @@ describe('bank file parsers', () => {
     const evil = CAMT.replace('<?xml version="1.0" encoding="UTF-8"?>', '<?xml version="1.0"?><!DOCTYPE d [<!ENTITY x SYSTEM "file:///etc/passwd">]>').replace('Pago luz EDESUR', '&x;');
     expect(parseCamt053(Buffer.from(evil)).transactions[1].description).toBe('&x;');
   });
+
+  describe('a crafted file costs linear time, not minutes', () => {
+    const quickly = (fn: () => unknown) => {
+      const started = Date.now();
+      try {
+        fn();
+      } catch {
+        // Refusing the file is fine; taking forever to do it is not.
+      }
+      return Date.now() - started;
+    };
+
+    it('an OFX balance block that never closes', () => {
+      const evil = `OFXHEADER:100\n<OFX><STMTTRN><TRNAMT>1<DTPOSTED>20261001${'<LEDGERBAL>a'.repeat(200_000)}`;
+      expect(quickly(() => parseOfx(Buffer.from(evil)))).toBeLessThan(5000);
+    });
+
+    it('a transaction list that never reaches a transaction', () => {
+      const evil = `OFXHEADER:100\n<OFX>${'<BANKTRANLIST>a'.repeat(200_000)}<STMTTRN><TRNAMT>1<DTPOSTED>20261001`;
+      expect(quickly(() => parseOfx(Buffer.from(evil)))).toBeLessThan(5000);
+    });
+
+    it('camt.053 with endless unclosed tags of another name', () => {
+      const evil = `<Document><BkToCstmrStmt><Stmt>${'<Xyz '.repeat(200_000)}></Stmt></BkToCstmrStmt></Document>`;
+      expect(quickly(() => parseCamt053(Buffer.from(evil)))).toBeLessThan(5000);
+    });
+
+    it('camt.053 with endless unclosed tags and stray brackets', () => {
+      const evil = `<Document><BkToCstmrStmt><Stmt>${'<Ntry '.repeat(100_000)}${'<'.repeat(200_000)}</Stmt></BkToCstmrStmt></Document>`;
+      expect(quickly(() => parseCamt053(Buffer.from(evil)))).toBeLessThan(5000);
+    });
+  });
 });
+

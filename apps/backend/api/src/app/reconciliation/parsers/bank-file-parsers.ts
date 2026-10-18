@@ -9,6 +9,10 @@ import { ParsedBankTransaction } from './csv-parser.service';
  * Read with plain element extraction, not an XML parser: OFX 1.x is SGML whose tags are often
  * never closed, and a DTD-processing parser is the classic way an uploaded file reads the server's
  * disk (XXE). Nothing here resolves entities or follows a reference.
+ *
+ * And every scan over the file is linear: elements are found with `indexOf`, never with a lazy
+ * `[\s\S]*?` regex. A regex like that retries from every candidate start, so a crafted upload
+ * (thousands of opening tags and no closing one) turns one request into minutes of CPU.
  */
 
 export type BankFileFormat = 'csv' | 'ofx' | 'camt053';
@@ -82,10 +86,10 @@ export function parseOfx(bytes: Buffer): ParsedBankFile {
   });
   if (!transactions.length) throw new BankFileParseError('NO_ROWS');
 
-  const ledger = /<LEDGERBAL>([\s\S]*?)(<\/LEDGERBAL>|<AVAILBAL>|<\/STMTRS>)/i.exec(text)?.[1] ?? '';
+  const ledger = between(text, '<LEDGERBAL>', ['</LEDGERBAL>', '<AVAILBAL>', '</STMTRS>']);
   const ending = ledger ? Number(ofxValue(ledger, 'BALAMT')) : NaN;
   const net = transactions.reduce((sum, t) => sum + t.debit - t.credit, 0);
-  const list = /<BANKTRANLIST>([\s\S]*?)<STMTTRN>/i.exec(text)?.[1] ?? '';
+  const list = between(text, '<BANKTRANLIST>', ['<STMTTRN>']);
   return {
     format: 'ofx',
     transactions,
@@ -100,11 +104,65 @@ export function parseOfx(bytes: Buffer): ParsedBankFile {
 
 // ── camt.053 ────────────────────────────────────────────────────────────────
 
-const P = '(?:\\w+:)?'; // an optional namespace prefix: `<Ntry>` or `<ns2:Ntry>`
-
+/**
+ * The contents of every `<tag>…</tag>` (or `<ns:tag …>…</ns:tag>`), in order. The first closing
+ * tag ends an element, as a lazy match would; nesting the same tag in itself is handled where it
+ * occurs (a balance's `<Dt><Dt>`). One pass: each opening tag is read once, and the search for its
+ * closing tag resumes after it.
+ */
 function elements(xml: string, tag: string): string[] {
-  const re = new RegExp(`<${P}${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${P}${tag}>`, 'g');
-  return [...xml.matchAll(re)].map((m) => m[1]);
+  const found: string[] = [];
+  let at = 0;
+  // The next `>` and `<` are only ever searched forward from where the last search ended, so a
+  // run of unclosed tags costs one pass, not one pass per tag.
+  let gt = -1;
+  while (at < xml.length) {
+    const open = xml.indexOf('<', at);
+    if (open < 0) break;
+    if (gt <= open) gt = xml.indexOf('>', open + 1);
+    if (gt < 0) break;
+    const nextOpen = xml.indexOf('<', open + 1);
+    if (nextOpen >= 0 && nextOpen < gt) {
+      // `<` … `<` before any `>`: the first was not a tag.
+      at = nextOpen;
+      continue;
+    }
+    const end = gt;
+    const head = xml.slice(open + 1, end);
+    const name = head.split(/[\s/]/, 1)[0];
+    const local = name.includes(':') ? name.slice(name.indexOf(':') + 1) : name;
+    if (local !== tag || head.endsWith('/')) {
+      at = open + 1;
+      continue;
+    }
+    const close = xml.indexOf(`</${name}>`, end + 1);
+    if (close < 0) break;
+    found.push(xml.slice(end + 1, close));
+    at = close + name.length + 3;
+  }
+  return found;
+}
+
+/** The text after `start` up to the first of `ends` (case-insensitive, as OFX tags are). */
+function between(text: string, start: string, ends: string[]): string {
+  const upper = text.toUpperCase();
+  const from = upper.indexOf(start.toUpperCase());
+  if (from < 0) return '';
+  const body = from + start.length;
+  const stops = ends.map((end) => upper.indexOf(end.toUpperCase(), body)).filter((index) => index >= 0);
+  return text.slice(body, stops.length ? Math.min(...stops) : text.length);
+}
+
+/** An element's text with any markup inside it dropped — one pass, no regex backtracking. */
+function textOf(fragment: string): string {
+  let out = '';
+  let inTag = false;
+  for (const char of fragment) {
+    if (char === '<') inTag = true;
+    else if (char === '>') inTag = false;
+    else if (!inTag) out += char;
+  }
+  return out;
 }
 
 function first(xml: string, path: string[]): string | null {
@@ -112,7 +170,7 @@ function first(xml: string, path: string[]): string | null {
   for (const tag of path) {
     scope = scope ? elements(scope, tag)[0] ?? null : null;
   }
-  const value = scope?.replace(/<[^>]+>/g, '').trim();
+  const value = scope === null ? undefined : textOf(scope).trim();
   return value ? decodeEntities(value) : null;
 }
 
