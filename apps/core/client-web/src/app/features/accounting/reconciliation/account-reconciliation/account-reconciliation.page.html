@@ -50,7 +50,7 @@
           (change)="selectBankAccount($any($event.target).value)"
         >
           @for (account of bankAccounts(); track account.id) {
-            <option [value]="account.id" [selected]="account.id == (selectedBankAccountId())">{{ account.name }} ({{ account.currencyCode }})</option>
+            <option [value]="account.id" [selected]="account.id === (selectedBankAccountId())">{{ account.name }} ({{ account.currencyCode }})</option>
           }
         </select>
       </label>
@@ -63,7 +63,7 @@
             (change)="selectStatement($any($event.target).value)"
           >
             @for (item of statements(); track item.id) {
-              <option [value]="item.id" [selected]="item.id == (selectedStatementId())">
+              <option [value]="item.id" [selected]="item.id === (selectedStatementId())">
                 {{ item.startDate | vxDate: 'date' : true }} — {{ item.endDate | vxDate: 'date' : true }}
               </option>
             }

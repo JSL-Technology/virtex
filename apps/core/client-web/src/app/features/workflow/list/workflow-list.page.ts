@@ -206,7 +206,7 @@ type TriggerFilter = 'all' | 'manual' | 'event';
                       <lucide-icon [img]="MoreIcon" [size]="16" />
                     </button>
                     @if (menuFor() === row.key) {
-                      <div class="wfl__menu" role="menu" (keydown.escape)="menuFor.set(null)" [style.top.px]="menuPos().top" [style.right.px]="menuPos().right">
+                      <div class="wfl__menu" role="menu" tabindex="-1" (keydown.escape)="menuFor.set(null)" [style.top.px]="menuPos().top" [style.right.px]="menuPos().right">
                         @if (canDesign() && (main ?? latest); as source) {
                           <button type="button" role="menuitem" (click)="menuFor.set(null); duplicate(source.id, row.name)">
                             <lucide-icon [img]="DuplicateIcon" [size]="14" /> {{ 'workflow_engine.list.duplicate' | translate }}

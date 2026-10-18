@@ -162,7 +162,7 @@
             <span>{{ 'hcm.employees.form.frequency' | translate }}</span>
             <select id="initialFrequency" [value]="initialFrequency()" (change)="initialFrequency.set($any($event.target).value)">
               @for (frequency of payFrequencies; track frequency) {
-                <option [value]="frequency" [selected]="frequency == (initialFrequency())">{{ 'hcm.employees.form.frequency_label.' + frequency | translate }}</option>
+                <option [value]="frequency" [selected]="frequency === (initialFrequency())">{{ 'hcm.employees.form.frequency_label.' + frequency | translate }}</option>
               }
             </select>
           </label>

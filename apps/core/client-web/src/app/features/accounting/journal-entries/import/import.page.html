@@ -66,7 +66,7 @@
                 >
                   <option value="">{{ 'accounting.import.not_mapped' | translate }}</option>
                   @for (header of headers(); track header) {
-                    <option [value]="header" [selected]="header == (mapping()[field.key] ?? '')">{{ header }}</option>
+                    <option [value]="header" [selected]="header === (mapping()[field.key] ?? '')">{{ header }}</option>
                   }
                 </select>
               </label>
@@ -81,7 +81,7 @@
               <span>{{ 'accounting.import.file_date_format' | translate }}</span>
               <select [value]="dateFormat()" (change)="dateFormat.set($any($event.target).value)">
                 @for (format of dateFormats; track format) {
-                  <option [value]="format" [selected]="format == (dateFormat())">{{ format }}</option>
+                  <option [value]="format" [selected]="format === (dateFormat())">{{ format }}</option>
                 }
               </select>
             </label>
