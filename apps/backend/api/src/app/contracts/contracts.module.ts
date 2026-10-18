@@ -6,6 +6,7 @@ import { PurchaseFiscalRecordsRegistry } from './fiscal-records/purchase-fiscal-
 import { CopilotToolRegistry } from './copilot/copilot-tools.contract';
 import { CashPositionRegistry } from './treasury/cash-position.contract';
 import { PaymentLikelihoodRegistry } from './ai/payment-likelihood.contract';
+import { DuplicateSourceRegistry } from './data-quality/duplicate-sources.contract';
 
 /**
  * Los contratos por los que dos módulos se hablan sin conocerse.
@@ -23,7 +24,7 @@ import { PaymentLikelihoodRegistry } from './ai/payment-likelihood.contract';
  */
 @Global()
 @Module({
-  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry],
-  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry],
+  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry],
+  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry],
 })
 export class ContractsModule {}

@@ -1,3 +1,4 @@
+import { CustomersDuplicatesSource } from './customers-duplicates.source';
 import { CustomersCopilotTools } from './customers.copilot-tools';
 
 import { Module } from '@nestjs/common';
@@ -56,7 +57,7 @@ import { CustomerStatementService } from './customer-statement.service';
     CustomerPaymentsController,
     CustomerGroupsController,
   ],
-  providers: [CustomersCopilotTools, 
+  providers: [CustomersDuplicatesSource, CustomersCopilotTools, 
     CustomerStatementService,
     CustomersService,
     CustomersDataTransferProvider,

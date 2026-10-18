@@ -1784,6 +1784,186 @@
     "en": "How can I help?",
     "pt": "Em que posso ajudar?"
   },
+  "ai.data_quality.all_types": {
+    "es": "Todos",
+    "en": "All",
+    "pt": "Todos"
+  },
+  "ai.data_quality.by_status": {
+    "es": "Por estado",
+    "en": "By status",
+    "pt": "Por estado"
+  },
+  "ai.data_quality.by_type": {
+    "es": "Por tipo",
+    "en": "By type",
+    "pt": "Por tipo"
+  },
+  "ai.data_quality.cannot_decide": {
+    "es": "Necesitas permiso para editar este tipo de registro.",
+    "en": "You need permission to edit this kind of record.",
+    "pt": "Você precisa de permissão para editar este tipo de registro."
+  },
+  "ai.data_quality.cannot_view": {
+    "es": "No tienes acceso a ningún tipo de registro que revisar.",
+    "en": "You have access to no kind of record to check.",
+    "pt": "Você não tem acesso a nenhum tipo de registro para revisar."
+  },
+  "ai.data_quality.decide_failed": {
+    "es": "No se pudo guardar la decisión.",
+    "en": "The decision could not be saved.",
+    "pt": "Não foi possível salvar a decisão."
+  },
+  "ai.data_quality.load_failed": {
+    "es": "No se pudieron cargar los duplicados.",
+    "en": "Duplicates could not be loaded.",
+    "pt": "Não foi possível carregar os duplicados."
+  },
+  "ai.data_quality.loading": {
+    "es": "Cargando…",
+    "en": "Loading…",
+    "pt": "Carregando…"
+  },
+  "ai.data_quality.no_merge": {
+    "es": "Marcar «son el mismo» no fusiona nada: abre ambos registros y desactiva el que sobra, o fusiónalos desde su propia pantalla.",
+    "en": "Marking «the same» merges nothing: open both records and deactivate the spare one, or merge them from their own screen.",
+    "pt": "Marcar «são o mesmo» não mescla nada: abra os dois registros e desative o que sobra, ou mescle-os na própria tela."
+  },
+  "ai.data_quality.no_types": {
+    "es": "No tienes acceso a clientes, proveedores ni productos.",
+    "en": "You have no access to customers, suppliers or products.",
+    "pt": "Você não tem acesso a clientes, fornecedores nem produtos."
+  },
+  "ai.data_quality.none": {
+    "es": "Nada en este estado.",
+    "en": "Nothing in this status.",
+    "pt": "Nada neste estado."
+  },
+  "ai.data_quality.none_open": {
+    "es": "No hay duplicados pendientes. La búsqueda se repite cada semana.",
+    "en": "No pending duplicates. The search runs again every week.",
+    "pt": "Não há duplicados pendentes. A busca se repete toda semana."
+  },
+  "ai.data_quality.not_duplicate": {
+    "es": "No son duplicados",
+    "en": "Not duplicates",
+    "pt": "Não são duplicados"
+  },
+  "ai.data_quality.not_found": {
+    "es": "El par ya no existe.",
+    "en": "The pair no longer exists.",
+    "pt": "O par não existe mais."
+  },
+  "ai.data_quality.reason.different_tax_id": {
+    "es": "Identificación distinta",
+    "en": "Different tax id",
+    "pt": "Identificador diferente"
+  },
+  "ai.data_quality.reason.same_barcode": {
+    "es": "Mismo código de barras",
+    "en": "Same barcode",
+    "pt": "Mesmo código de barras"
+  },
+  "ai.data_quality.reason.same_code": {
+    "es": "Mismo código",
+    "en": "Same code",
+    "pt": "Mesmo código"
+  },
+  "ai.data_quality.reason.same_email": {
+    "es": "Mismo correo",
+    "en": "Same e-mail",
+    "pt": "Mesmo e-mail"
+  },
+  "ai.data_quality.reason.same_phone": {
+    "es": "Mismo teléfono",
+    "en": "Same phone",
+    "pt": "Mesmo telefone"
+  },
+  "ai.data_quality.reason.same_tax_id": {
+    "es": "Mismo RNC / identificación",
+    "en": "Same tax id",
+    "pt": "Mesmo identificador fiscal"
+  },
+  "ai.data_quality.reason.similar_name": {
+    "es": "Nombre muy parecido",
+    "en": "Very similar name",
+    "pt": "Nome muito parecido"
+  },
+  "ai.data_quality.reopen": {
+    "es": "Volver a revisar",
+    "en": "Review again",
+    "pt": "Revisar novamente"
+  },
+  "ai.data_quality.same": {
+    "es": "Son el mismo",
+    "en": "They are the same",
+    "pt": "São o mesmo"
+  },
+  "ai.data_quality.scan": {
+    "es": "Buscar duplicados ahora",
+    "en": "Look for duplicates now",
+    "pt": "Procurar duplicados agora"
+  },
+  "ai.data_quality.scan_failed": {
+    "es": "No se pudo buscar duplicados.",
+    "en": "Duplicates could not be looked for.",
+    "pt": "Não foi possível procurar duplicados."
+  },
+  "ai.data_quality.scanned": {
+    "es": "Búsqueda terminada: {{count}} pares nuevos.",
+    "en": "Done: {{count}} new pairs.",
+    "pt": "Concluído: {{count}} pares novos."
+  },
+  "ai.data_quality.scanning": {
+    "es": "Buscando…",
+    "en": "Looking…",
+    "pt": "Procurando…"
+  },
+  "ai.data_quality.status.not_duplicate": {
+    "es": "No son duplicados",
+    "en": "Not duplicates",
+    "pt": "Não são duplicados"
+  },
+  "ai.data_quality.status.open": {
+    "es": "Pendientes",
+    "en": "Pending",
+    "pt": "Pendentes"
+  },
+  "ai.data_quality.status.same": {
+    "es": "Son el mismo",
+    "en": "Same",
+    "pt": "São o mesmo"
+  },
+  "ai.data_quality.status.stale": {
+    "es": "Ya no coinciden",
+    "en": "No longer match",
+    "pt": "Não coincidem mais"
+  },
+  "ai.data_quality.subtitle": {
+    "es": "Clientes, proveedores y productos que probablemente están registrados dos veces.",
+    "en": "Customers, suppliers and products that are probably entered twice.",
+    "pt": "Clientes, fornecedores e produtos que provavelmente estão cadastrados duas vezes."
+  },
+  "ai.data_quality.title": {
+    "es": "Calidad de datos",
+    "en": "Data quality",
+    "pt": "Qualidade dos dados"
+  },
+  "ai.data_quality.type.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "ai.data_quality.type.product": {
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
+  },
+  "ai.data_quality.type.supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
   "ai.manager_report.failed": {
     "es": "No se pudo escribir este informe. Vuelve a intentarlo.",
     "en": "This report could not be written. Try again.",

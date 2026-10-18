@@ -27,6 +27,18 @@ export const ANALISIS_MODULE: ModuleManifest = {
       load: () => import('../../../features/reports/hub/reports-hub.page').then((m) => m.ReportsHubPage),
     },
     {
+      //  Clientes, proveedores y productos probablemente repetidos. Cada tipo lo filtra el servidor
+      //  con su propio permiso (ver, decidir), así que la ventana no exige uno solo.
+      path: 'data-quality',
+      kind: WindowKind.LIST,
+      permission: AUTHENTICATED_ONLY,
+      titleKey: 'page_titles.ai_data_quality',
+      icon: 'ListChecks',
+      entityKeyFn: () => 'analisis:data-quality',
+      menu: { group: 'analysis', labelKey: 'page_titles.ai_data_quality' },
+      load: () => import('../../../features/ai/data-quality/data-quality.page').then((m) => m.DataQualityPage),
+    },
+    {
       //  El mes en pocos párrafos para quien dirige la empresa, escrito el día 1 (o a pedido) a partir
       //  de las cifras que el sistema calculó; se imprime o se guarda como PDF desde el navegador.
       path: 'manager-report',

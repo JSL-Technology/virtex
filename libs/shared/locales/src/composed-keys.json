@@ -332,6 +332,26 @@
       "supplier_lead_times",
       "top_sellers_by_branch"
     ],
+    "ai.data_quality.reason": [
+      "same_tax_id",
+      "same_barcode",
+      "same_email",
+      "same_phone",
+      "same_code",
+      "similar_name",
+      "different_tax_id"
+    ],
+    "ai.data_quality.status": [
+      "OPEN",
+      "SAME",
+      "NOT_DUPLICATE",
+      "STALE"
+    ],
+    "ai.data_quality.type": [
+      "CUSTOMER",
+      "SUPPLIER",
+      "PRODUCT"
+    ],
     "ai.manager_report.status": [
       "queued",
       "running",

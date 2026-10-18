@@ -18,6 +18,9 @@ import { CashflowService } from './cashflow/cashflow.service';
 import { PaymentLikelihoodProvider } from './cashflow/payment-likelihood.provider';
 import { ManagerReportBuilder } from './reports/manager-report.builder';
 import { ScenarioComparisonBuilder } from './cashflow/scenario-comparison.builder';
+import { DataQualityService } from './data-quality/data-quality.service';
+import { DataQualityController } from './data-quality/data-quality.controller';
+import { AiDuplicateSuggestion } from './entities/ai-duplicate-suggestion.entity';
 import { ManagerReportController } from './reports/manager-report.controller';
 import { CashflowController } from './cashflow/cashflow.controller';
 import { CashflowPlanBuilder } from './cashflow/cashflow-plan.builder';
@@ -56,13 +59,13 @@ import { InventoryModule } from '../inventory/inventory.module';
     TypeOrmModule.forFeature([
       AiRequest, AiModelRun, AiForecast, AiInventoryInsight, AiAnomaly, AiAnomalyFeedback,
       AiConversation, AiMessage, AiPendingAction, AiKnowledgeChunk,
-      AiCashflowForecast, AiCashflowItem, AiReport,
+      AiCashflowForecast, AiCashflowItem, AiReport, AiDuplicateSuggestion,
     ]),
     BullModule.registerQueue({ name: AI_ENGINE_QUEUE }),
     BullModule.registerQueue({ name: AI_REPORTS_QUEUE }),
     InventoryModule,
   ],
-  controllers: [AiController, CopilotController, CashflowController, ManagerReportController],
+  controllers: [AiController, CopilotController, CashflowController, ManagerReportController, DataQualityController],
   providers: [
     AiGatewayService,
     EmbeddingsService,
@@ -83,6 +86,7 @@ import { InventoryModule } from '../inventory/inventory.module';
     CashflowPlanBuilder,
     ManagerReportBuilder,
     ScenarioComparisonBuilder,
+    DataQualityService,
     AiCopilotTools,
     { provide: AiAssistPort, useExisting: AiGatewayService },
   ],

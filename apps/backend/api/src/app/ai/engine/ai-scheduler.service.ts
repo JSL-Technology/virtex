@@ -7,6 +7,7 @@ import { SchedulerLockService } from '../../shared/scheduler/scheduler-lock.serv
 import { forEachTenant } from '../../shared/tenancy/tenant-job';
 import { CashflowService } from '../cashflow/cashflow.service';
 import { ReportsService } from '../reports/reports.service';
+import { DataQualityService } from '../data-quality/data-quality.service';
 import { previousMonth } from '../reports/manager-report.builder';
 import { currentTenantStore } from '../../shared/tenancy/tenant-context';
 
@@ -32,7 +33,25 @@ export class AiSchedulerService {
     private readonly lock: SchedulerLockService,
     private readonly cashflow: CashflowService,
     private readonly reports: ReportsService,
+    private readonly quality: DataQualityService,
   ) {}
+
+  // Sundays at 03:23: duplicates are looked for weekly; no model is called, so every plan has it.
+  @Cron('23 3 * * 0')
+  async weekly(): Promise<void> {
+    const runKey = new Date().toISOString().slice(0, 10);
+    await this.lock.runOnce('ai-weekly-data-quality', runKey, async () => {
+      await forEachTenant(
+        this.dataSource,
+        async (organizationId) => {
+          await this.quality.scan(organizationId);
+        },
+        undefined,
+        (organizationId, error) =>
+          this.logger.error(`Duplicate scan failed for ${organizationId}: ${(error as Error)?.message}`),
+      );
+    });
+  }
 
   // 06:41 on the 1st: after the night's runs, so the report reads a projection made that morning.
   @Cron('41 6 1 * *')

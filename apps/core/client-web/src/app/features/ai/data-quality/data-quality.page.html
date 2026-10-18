@@ -1,0 +1,69 @@
+<section class="dq">
+  <header class="dq__header">
+    <div>
+      <h1 class="dq__title">{{ 'ai.data_quality.title' | translate }}</h1>
+      <p class="dq__muted">{{ 'ai.data_quality.subtitle' | translate }}</p>
+    </div>
+    <button type="button" class="secondary-button" [disabled]="scanning()" (click)="scan()">
+      <lucide-icon [img]="ScanIcon" size="16" aria-hidden="true"></lucide-icon>
+      <span>{{ (scanning() ? 'ai.data_quality.scanning' : 'ai.data_quality.scan') | translate }}</span>
+    </button>
+  </header>
+
+  <div class="dq__filters">
+    <div class="dq__chips" role="group" [attr.aria-label]="'ai.data_quality.by_type' | translate">
+      <button type="button" class="dq__chip" [class.is-active]="!type()" [attr.aria-pressed]="!type()" (click)="setType(null)">
+        {{ 'ai.data_quality.all_types' | translate }}
+      </button>
+      @for (option of types(); track option) {
+        <button type="button" class="dq__chip" [class.is-active]="type() === option" [attr.aria-pressed]="type() === option" (click)="setType(option)">
+          {{ k('ai.data_quality.type', option) | translate }}
+          <span class="dq__count">{{ data()?.counts?.[option] ?? 0 }}</span>
+        </button>
+      }
+    </div>
+    <div class="dq__chips" role="group" [attr.aria-label]="'ai.data_quality.by_status' | translate">
+      @for (option of statuses; track option) {
+        <button type="button" class="dq__chip" [class.is-active]="status() === option" [attr.aria-pressed]="status() === option" (click)="setStatus(option)">
+          {{ k('ai.data_quality.status', option) | translate }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading() && !data()) {
+    <p class="dq__muted">{{ 'ai.data_quality.loading' | translate }}</p>
+  } @else if (!types().length) {
+    <p class="dq__muted">{{ 'ai.data_quality.no_types' | translate }}</p>
+  } @else if (!data()?.items?.length) {
+    <p class="dq__muted">{{ (status() === 'OPEN' ? 'ai.data_quality.none_open' : 'ai.data_quality.none') | translate }}</p>
+  } @else {
+    <ul class="dq__list">
+      @for (item of data()!.items; track item.id) {
+        <li class="card dq__pair">
+          <div class="dq__records">
+            <span class="dq__type">{{ k('ai.data_quality.type', item.entityType) | translate }}</span>
+            @if (item.linkA) { <a [routerLink]="item.linkA">{{ item.labelA }}</a> } @else { <span>{{ item.labelA }}</span> }
+            <span class="dq__muted" aria-hidden="true">↔</span>
+            @if (item.linkB) { <a [routerLink]="item.linkB">{{ item.labelB }}</a> } @else { <span>{{ item.labelB }}</span> }
+          </div>
+          <div class="dq__why">
+            <span class="dq__score">{{ item.score | vxPercent }}</span>
+            @for (reason of item.reasons; track reason) {
+              <span class="dq__reason" [class.dq__reason--against]="reason === 'different_tax_id'">{{ k('ai.data_quality.reason', reason) | translate }}</span>
+            }
+          </div>
+          <div class="dq__actions">
+            @if (item.status === 'OPEN') {
+              <button type="button" class="secondary-button" (click)="decide(item, 'NOT_DUPLICATE')">{{ 'ai.data_quality.not_duplicate' | translate }}</button>
+              <button type="button" class="primary-button" (click)="decide(item, 'SAME')">{{ 'ai.data_quality.same' | translate }}</button>
+            } @else if (item.status !== 'STALE') {
+              <button type="button" class="secondary-button" (click)="decide(item, 'OPEN')">{{ 'ai.data_quality.reopen' | translate }}</button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+    <p class="dq__muted">{{ 'ai.data_quality.no_merge' | translate }}</p>
+  }
+</section>

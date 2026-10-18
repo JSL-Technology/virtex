@@ -1,3 +1,4 @@
+import { ProductsDuplicatesSource } from './products-duplicates.source';
 import { InventoryCopilotTools } from './inventory.copilot-tools';
 
 import { Module } from '@nestjs/common';
@@ -51,7 +52,7 @@ import { ProductCatalogPort } from './contracts/product-catalog.contract';
   ],
   // The stock controller first: its literal paths must win over the catalogue's `inventory/:id`.
   controllers: [StockController, InventoryController, ProductCategoriesController],
-  providers: [InventoryCopilotTools, 
+  providers: [ProductsDuplicatesSource, InventoryCopilotTools, 
     InventoryService,
     ProductsDataTransferProvider,
     InventoryPostingService,
