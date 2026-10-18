@@ -58,6 +58,8 @@ export interface SignupSubscriptionSummary {
   /** When the trial (or the first paid period) ends, ISO 8601. */
   currentPeriodEnd: string | null;
   planSlug: string | null;
+  /** The length of the trial the plan grants, so the screen can say "your 30-day trial". */
+  trialDays: number | null;
 }
 
 @ApiTags('Auth')
@@ -272,6 +274,8 @@ export class AuthRegistrationController {
     // Single use: the transaction has served its purpose and must not be replayable.
     this.cookieService.clearRegistrationTransactionCookie(res);
 
+    const trial = session.subscriptionStatus === 'trialing' || session.paymentStatus === 'no_payment_required';
+
     return {
       user: plainToInstance(UserResponseDto, safeUser, { excludeExtraneousValues: true }),
       // What the person just agreed to pay, so the landing screen can say it truthfully (QA A-11).
@@ -280,11 +284,30 @@ export class AuthRegistrationController {
       // fastest way to a chargeback.
       subscription: {
         status: session.subscriptionStatus ?? null,
-        trial: session.subscriptionStatus === 'trialing' || session.paymentStatus === 'no_payment_required',
+        trial,
         currentPeriodEnd: session.currentPeriodEnd ? session.currentPeriodEnd.toISOString() : null,
         planSlug: session.planSlug ?? null,
+        trialDays: trial ? await this.trialDaysFor(session.planSlug ?? null) : null,
       },
     };
+  }
+
+  /**
+   * The trial length the plan grants — the same figure the checkout was opened with.
+   *
+   * Best effort: the account already exists by the time this is asked, so a catalogue that cannot
+   * be read only costs the screen the number ("your trial is active" instead of "your 30-day
+   * trial is active"), never the confirmation.
+   */
+  private async trialDaysFor(planSlug: string | null): Promise<number | null> {
+    if (!planSlug) return null;
+    try {
+      const plan = (await this.saasService.getPlans()).find((p) => p.slug === planSlug);
+      const days = plan?.trialPeriodDays ?? null;
+      return days && days > 0 ? days : null;
+    } catch {
+      return null;
+    }
   }
 
   @Public()

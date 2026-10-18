@@ -90,7 +90,7 @@ describe('CountryGuard', () => {
 
     (guard.canActivate(route, { url: '/es/mx/auth/register' } as RouterStateSnapshot) as any).subscribe(
       (result: string) => {
-        expect(result).toBe('/es/auth/register?failed=MX');
+        expect(result).toBe('/es/auth/choose-country?failed=MX');
         expect(router.createUrlTree).not.toHaveBeenCalledWith(['/es/auth/login']);
         done();
       },
@@ -105,7 +105,7 @@ describe('CountryGuard', () => {
 
     (guard.canActivate(route, { url: '/en/gb/auth/register' } as RouterStateSnapshot) as any).subscribe(
       (result: string) => {
-        expect(result).toBe('/es/auth/register?unsupported=GB');
+        expect(result).toBe('/es/auth/choose-country?unsupported=GB');
         done();
       },
     );
@@ -119,7 +119,7 @@ describe('CountryGuard', () => {
 
     (guard.canActivate(route, { url: '/es/fr/auth/register?email_token=abc' } as RouterStateSnapshot) as any).subscribe(
       (result: string) => {
-        expect(result).toBe('/es/auth/register?email_token=abc&unsupported=FR');
+        expect(result).toBe('/es/auth/choose-country?email_token=abc&unsupported=FR');
         done();
       },
     );
@@ -133,7 +133,7 @@ describe('CountryGuard', () => {
 
     (guard.canActivate(route, { url: '/pt/pt/auth/register' } as RouterStateSnapshot) as any).subscribe(
       (result: string) => {
-        expect(result).toBe('/es/auth/register?unsupported=PT');
+        expect(result).toBe('/es/auth/choose-country?unsupported=PT');
         done();
       },
     );

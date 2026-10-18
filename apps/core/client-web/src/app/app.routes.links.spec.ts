@@ -119,7 +119,8 @@ describe('Client routes — links emitted by the backend', () => {
     ['profile (email-change confirmation)', '/settings/my-profile'],
     ['checkout complete', '/auth/checkout-complete'],
     // A signup link without a country lands on the country picker (QA C-06, A-13).
-    ['signup without a country (country picker)', '/es/auth/register'],
+    ['signup without a country (redirects to the country picker)', '/es/auth/register'],
+    ['country picker (QA A-13)', '/es/auth/choose-country'],
     ['account unlock (QA C-09)', '/es/auth/unlock'],
     ['terms (QA C-08)', '/es/terms'],
     ['privacy', '/en/privacy'],

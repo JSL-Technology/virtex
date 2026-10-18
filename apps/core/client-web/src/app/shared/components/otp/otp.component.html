@@ -31,7 +31,7 @@
                [class.disabled]="inputsDisabled()"
                [disabled]="inputsDisabled()"
                [id]="'otp-input-' + i"
-               [attr.aria-label]="'Dígito ' + (i + 1) + ' del código OTP'"
+               [attr.aria-label]="'shared.otp.digit_label' | translate: { position: i + 1, total: otpValues().length }"
                [attr.aria-invalid]="inputError() || status()?.type === 'error'"
                [autocomplete]="i === 0 ? 'one-time-code' : 'off'"
                [value]="val"

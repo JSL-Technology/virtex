@@ -147,7 +147,7 @@
               type="submit"
               variant="primary"
               [disabled]="!termsAccepted"
-              [attr.aria-describedby]="termsAccepted ? null : 'terms-required-hint'"
+              [describedBy]="termsAccepted ? null : 'terms-required-hint'"
               [loading]="isRegistering()">
               {{ (isRegistering() ? 'register.registering' : 'register.submit_button') | translate }}
               @if (!isRegistering()) {

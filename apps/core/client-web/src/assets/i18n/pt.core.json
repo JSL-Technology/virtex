@@ -250,6 +250,7 @@
   "login.notice.session_unverified": "Não conseguimos verificar sua sessão porque o servidor não respondeu. Verifique sua conexão e tente novamente em alguns minutos.",
   "login.notice.signed_out_idle": "Encerramos sua sessão por inatividade. Entre novamente para continuar.",
   "login.or": "ou",
+  "login.other_sign_in_methods": "Outras formas de entrar",
   "login.passkey_button_short": "Continuar com chave de acesso",
   "login.password_label": "Senha",
   "login.password_placeholder": "Sua senha",

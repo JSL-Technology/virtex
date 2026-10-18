@@ -24,6 +24,12 @@ export class AuthButtonComponent {
   @Input() variant: 'primary' | 'secondary' | 'outline' | 'ghost' = 'primary';
   @Input() disabled = false;
   @Input() loading = false;
+  /**
+   * Id of the text that explains the button's state — why it is disabled, typically. Forwarded to
+   * the inner `<button>`: on the host element it described a wrapper no assistive technology
+   * focuses, so the reason never reached the control it was about.
+   */
+  @Input() describedBy: string | null = null;
 
   /**
    * `size` se acepta y se ignora a propósito: varias plantillas ya lo pasaban

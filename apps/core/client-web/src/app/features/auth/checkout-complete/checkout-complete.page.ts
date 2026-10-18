@@ -45,6 +45,8 @@ export class CheckoutCompletePage implements OnInit {
    */
   readonly trialEndsOn = signal<string | null>(null);
   readonly isTrial = signal(false);
+  /** "Your 30-day trial" when the server says how long it is; the plain wording otherwise. */
+  readonly trialDays = signal<number | null>(null);
   errorMessage = signal<string | null>(null);
 
   private sessionId: string | null = null;
@@ -98,6 +100,8 @@ export class CheckoutCompletePage implements OnInit {
 
   private describeSubscription(subscription: RegistrationConfirmation['subscription']): void {
     this.isTrial.set(!!subscription?.trial);
+    const days = subscription?.trialDays;
+    this.trialDays.set(typeof days === 'number' && days > 0 ? days : null);
     const end = subscription?.currentPeriodEnd ? new Date(subscription.currentPeriodEnd) : null;
     this.trialEndsOn.set(
       end && !Number.isNaN(end.getTime())
@@ -111,6 +115,7 @@ export class CheckoutCompletePage implements OnInit {
   }
 
   goToLogin(): void {
-    this.router.navigate(['/auth/login']);
+    // With the language: `/auth/login` alone matches no route (see `app.routes.links.spec.ts`).
+    this.router.navigate(['/', this.language.currentLang(), 'auth', 'login']);
   }
 }
