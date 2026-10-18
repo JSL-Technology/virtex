@@ -329,6 +329,41 @@
     "en": "We received a request to reset the password on your account at {{appName}}. To continue, use the secure button below.",
     "pt": "Recebemos uma solicitação para redefinir a senha da sua conta em {{appName}}. Para continuar, use o botão seguro abaixo."
   },
+  "mail.payment_reminder.already_paid": {
+    "es": "Si ya realizó el pago, por favor ignore este mensaje o respóndanos con el comprobante.",
+    "en": "If you have already paid, please disregard this message or reply with the receipt.",
+    "pt": "Se já efetuou o pagamento, desconsidere esta mensagem ou responda com o comprovante."
+  },
+  "mail.payment_reminder.body": {
+    "es": "Le escribimos de {{company}} para recordarle que la factura {{number}} tiene un saldo pendiente de {{balance}}.",
+    "en": "We are writing from {{company}} to remind you that invoice {{number}} has an outstanding balance of {{balance}}.",
+    "pt": "Escrevemos da {{company}} para lembrar que a fatura {{number}} tem um saldo pendente de {{balance}}."
+  },
+  "mail.payment_reminder.due": {
+    "es": "Vence el {{date}}. Saldo pendiente: {{balance}}.",
+    "en": "It falls due on {{date}}. Outstanding balance: {{balance}}.",
+    "pt": "Vence em {{date}}. Saldo pendente: {{balance}}."
+  },
+  "mail.payment_reminder.overdue": {
+    "es": "Venció el {{date}}. Saldo pendiente: {{balance}}.",
+    "en": "It fell due on {{date}}. Outstanding balance: {{balance}}.",
+    "pt": "Venceu em {{date}}. Saldo pendente: {{balance}}."
+  },
+  "mail.payment_reminder.preheader": {
+    "es": "{{company}} le recuerda un saldo pendiente de {{balance}}.",
+    "en": "{{company}} reminds you of an outstanding balance of {{balance}}.",
+    "pt": "{{company}} lembra um saldo pendente de {{balance}}."
+  },
+  "mail.payment_reminder.subject": {
+    "es": "Recordatorio de pago: factura {{number}} — {{company}}",
+    "en": "Payment reminder: invoice {{number}} — {{company}}",
+    "pt": "Lembrete de pagamento: fatura {{number}} — {{company}}"
+  },
+  "mail.payment_reminder.title": {
+    "es": "Recordatorio de la factura {{number}}",
+    "en": "Reminder for invoice {{number}}",
+    "pt": "Lembrete da fatura {{number}}"
+  },
   "mail.registration_email_verify.click_button_below_confirm_your_address": {
     "es": "Haz clic en el botón de abajo para confirmar tu correo y retomar el proceso de registro donde lo dejaste.",
     "en": "Click the button below to confirm your address and pick up the sign-up where you left off.",

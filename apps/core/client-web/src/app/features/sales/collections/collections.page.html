@@ -1,0 +1,294 @@
+<section class="co">
+  <header class="co__header">
+    <div>
+      <h1 class="co__title">{{ 'collections.title' | translate }}</h1>
+      <p class="co__subtitle">{{ 'collections.subtitle' | translate }}</p>
+    </div>
+    <button type="button" class="secondary-button" [disabled]="loading()" (click)="load()">
+      <lucide-icon [img]="RefreshIcon" size="16" aria-hidden="true"></lucide-icon>
+      <span>{{ 'collections.refresh' | translate }}</span>
+    </button>
+  </header>
+
+  @if (error(); as message) {
+    <p class="co__error" role="alert">{{ message }}</p>
+  }
+
+  @if (worklist(); as list) {
+    <p class="co__muted">
+      @if (list.projectionAt) {
+        {{ 'collections.likelihood_from_projection' | translate: { when: (list.projectionAt | vxDate: 'medium') } }}
+      } @else {
+        {{ 'collections.likelihood_from_age' | translate }}
+      }
+    </p>
+
+    <div class="co__kpis">
+      <div class="card co__kpi">
+        <span class="co__kpi-label">{{ 'collections.kpi.open' | translate: { count: list.totals.invoices } }}</span>
+        <span class="co__kpi-value">{{ list.totals.balanceBase | vxMoney: currency() }}</span>
+      </div>
+      <div class="card co__kpi co__kpi--warning">
+        <span class="co__kpi-label">{{ 'collections.kpi.overdue' | translate }}</span>
+        <span class="co__kpi-value">{{ list.totals.overdueBase | vxMoney: currency() }}</span>
+      </div>
+    </div>
+
+    <div class="co__filters" role="group" [attr.aria-label]="'collections.filter_by_action' | translate">
+      @for (action of actions; track action) {
+        <button
+          type="button"
+          class="co__chip"
+          [class.is-active]="filter() === action"
+          [attr.aria-pressed]="filter() === action"
+          (click)="setFilter(action)"
+        >
+          {{ k('collections.action', action) | translate }}
+          <span class="co__chip-count">{{ byAction()[action] ?? 0 }}</span>
+        </button>
+      }
+    </div>
+  }
+
+  <div class="co__layout" [class.co__layout--split]="selected()">
+    <div class="card co__table-wrap">
+      @if (loading() && !worklist()) {
+        <p class="co__muted co__pad">{{ 'collections.loading' | translate }}</p>
+      } @else if (!items().length) {
+        <p class="co__muted co__pad">{{ (filter() ? 'collections.empty_filtered' : 'collections.empty') | translate }}</p>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'collections.col.customer' | translate }}</th>
+              <th scope="col">{{ 'collections.col.invoice' | translate }}</th>
+              <th scope="col" class="text-right">{{ 'collections.col.overdue' | translate }}</th>
+              <th scope="col" class="text-right">{{ 'collections.col.balance' | translate }}</th>
+              <th scope="col" class="text-right">{{ 'collections.col.p30' | translate }}</th>
+              <th scope="col">{{ 'collections.col.action' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items(); track item.invoiceId) {
+              <tr
+                class="co__row"
+                [class.is-selected]="selected()?.invoiceId === item.invoiceId"
+                tabindex="0"
+                (click)="open(item)"
+                (keydown.enter)="open(item)"
+              >
+                <td>
+                  <span class="co__strong">{{ item.customerName }}</span>
+                  @if (item.reasons.length) {
+                    <span class="co__reasons">
+                      @for (reason of item.reasons; track reason) {
+                        <span class="co__reason">{{ k('collections.reason', reason) | translate }}</span>
+                      }
+                    </span>
+                  }
+                </td>
+                <td>
+                  <a [routerLink]="['/invoices', item.invoiceId]" (click)="$event.stopPropagation()">{{ item.number }}</a>
+                  @if (item.draftReminderId) {
+                    <vx-badge size="sm" tone="draft">{{ 'collections.has_draft' | translate }}</vx-badge>
+                  }
+                </td>
+                <td class="text-right co__num" [class.co__negative]="item.daysOverdue > 0">
+                  @if (item.daysOverdue > 0) {
+                    {{ 'collections.days_overdue' | translate: { days: item.daysOverdue } }}
+                  } @else {
+                    {{ 'collections.due_on' | translate: { date: (item.dueDate | vxDate) } }}
+                  }
+                </td>
+                <td class="text-right co__num">{{ item.balance | vxMoney: item.currencyCode }}</td>
+                <td class="text-right co__num" [attr.title]="(item.likelihoodSource === 'projection' ? 'collections.p30_projection' : 'collections.p30_age') | translate">
+                  {{ item.pBy30 | vxPercent }}
+                </td>
+                <td>
+                  <vx-badge size="sm" [tone]="actionTone(item.action)">{{ k('collections.action', item.action) | translate }}</vx-badge>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+
+    @if (selected(); as item) {
+      <aside class="card co__detail" [attr.aria-label]="'collections.detail_label' | translate: { number: item.number }">
+        <div class="co__detail-head">
+          <div>
+            <h2 class="co__h2">{{ item.customerName }}</h2>
+            <p class="co__muted">
+              {{ item.number }} · {{ item.balance | vxMoney: item.currencyCode }} ·
+              {{ 'collections.due_on' | translate: { date: (item.dueDate | vxDate) } }}
+            </p>
+            <p class="co__muted">
+              @if (item.email) { {{ item.email }} }
+              @if (item.phone) { · {{ item.phone }} }
+            </p>
+          </div>
+          <button type="button" class="icon-button" (click)="close()" [attr.aria-label]="'collections.close' | translate">
+            <lucide-icon [img]="CloseIcon" size="16" aria-hidden="true"></lucide-icon>
+          </button>
+        </div>
+
+        <dl class="co__facts">
+          <div>
+            <dt>{{ 'collections.col.p30' | translate }}</dt>
+            <dd>{{ item.pBy30 | vxPercent }}</dd>
+          </div>
+          @if (item.expectedDate) {
+            <div>
+              <dt>{{ 'collections.expected_date' | translate }}</dt>
+              <dd>{{ item.expectedDate | vxDate }}</dd>
+            </div>
+          }
+          @if (item.openPromise; as promise) {
+            <div>
+              <dt>{{ 'collections.open_promise' | translate }}</dt>
+              <dd>
+                {{ promise.date | vxDate }}
+                @if (promise.amount) { · {{ promise.amount | vxMoney: item.currencyCode }} }
+              </dd>
+            </div>
+          }
+          @if (item.brokenPromises) {
+            <div>
+              <dt>{{ 'collections.broken_promises' | translate }}</dt>
+              <dd class="co__negative">{{ item.brokenPromises }}</dd>
+            </div>
+          }
+        </dl>
+
+        <ng-container *appHasPermission="'ai_collections:act'">
+          <section class="co__block">
+            <h3 class="co__h3">
+              <lucide-icon [img]="SendIcon" size="16" aria-hidden="true"></lucide-icon>
+              {{ 'collections.reminder' | translate }}
+              @if (draftId()) {
+                <vx-badge size="sm" tone="draft">{{ 'collections.has_draft' | translate }}</vx-badge>
+              }
+            </h3>
+            <div class="co__row-fields">
+              <label class="field">
+                <span>{{ 'collections.tone' | translate }}</span>
+                <select [ngModel]="tone()" (ngModelChange)="tone.set($event)">
+                  @for (option of tones; track option) {
+                    <option [value]="option">{{ k('collections.tone_option', option) | translate }}</option>
+                  }
+                </select>
+              </label>
+              <button type="button" class="secondary-button" [disabled]="composing()" (click)="compose()">
+                <lucide-icon [img]="AiIcon" size="16" aria-hidden="true"></lucide-icon>
+                <span>{{ (composing() ? 'collections.composing' : 'collections.compose') | translate }}</span>
+              </button>
+            </div>
+            <label class="field">
+              <span>{{ 'collections.to' | translate }}</span>
+              <input type="email" [ngModel]="to()" (ngModelChange)="to.set($event)" maxlength="320" />
+            </label>
+            <label class="field">
+              <span>{{ 'collections.note' | translate }}</span>
+              <textarea rows="6" maxlength="2000" [ngModel]="message()" (ngModelChange)="message.set($event)" [placeholder]="'collections.note_placeholder' | translate"></textarea>
+            </label>
+            <p class="co__muted">{{ 'collections.reminder_hint' | translate }}</p>
+            <div class="co__actions">
+              @if (draftId()) {
+                <button type="button" class="secondary-button" (click)="discardDraft()">{{ 'collections.discard_draft' | translate }}</button>
+              }
+              <button type="button" class="secondary-button" (click)="saveDraft()">{{ 'collections.save_draft' | translate }}</button>
+              <button type="button" class="primary-button" [disabled]="sending() || !to()" (click)="send()">
+                <lucide-icon [img]="SendIcon" size="16" aria-hidden="true"></lucide-icon>
+                <span>{{ (sending() ? 'collections.sending' : 'collections.send') | translate }}</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="co__block">
+            <h3 class="co__h3">
+              <lucide-icon [img]="CallIcon" size="16" aria-hidden="true"></lucide-icon>
+              {{ 'collections.record' | translate }}
+            </h3>
+            <div class="co__row-fields">
+              <label class="field">
+                <span>{{ 'collections.activity_kind' | translate }}</span>
+                <select [ngModel]="logKind()" (ngModelChange)="logKind.set($event)">
+                  <option value="CALL">{{ 'collections.kind.call' | translate }}</option>
+                  <option value="PROMISE">{{ 'collections.kind.promise' | translate }}</option>
+                  <option value="NOTE">{{ 'collections.kind.note' | translate }}</option>
+                </select>
+              </label>
+              @if (logKind() === 'CALL') {
+                <label class="field">
+                  <span>{{ 'collections.outcome' | translate }}</span>
+                  <select [ngModel]="logOutcome()" (ngModelChange)="logOutcome.set($event)">
+                    <option value="">—</option>
+                    @for (option of outcomes; track option) {
+                      <option [value]="option">{{ k('collections.outcome_option', option) | translate }}</option>
+                    }
+                  </select>
+                </label>
+              }
+            </div>
+            @if (needsDate()) {
+              <div class="co__row-fields">
+                <label class="field">
+                  <span>{{ 'collections.promised_date' | translate }} *</span>
+                  <input type="date" [ngModel]="logDate()" (ngModelChange)="logDate.set($event)" />
+                </label>
+                <label class="field">
+                  <span>{{ 'collections.promised_amount' | translate }}</span>
+                  <input type="number" step="0.01" min="0" [ngModel]="logAmount()" (ngModelChange)="logAmount.set($event)" />
+                </label>
+              </div>
+            }
+            <label class="field">
+              <span>{{ 'collections.activity_note' | translate }}</span>
+              <textarea rows="2" maxlength="2000" [ngModel]="logNote()" (ngModelChange)="logNote.set($event)"></textarea>
+            </label>
+            <div class="co__actions">
+              <button type="button" class="primary-button" [disabled]="logging()" (click)="record()">{{ 'collections.record_save' | translate }}</button>
+            </div>
+          </section>
+        </ng-container>
+
+        <section class="co__block">
+          <h3 class="co__h3">{{ 'collections.history' | translate }}</h3>
+          @if (!activities().length) {
+            <p class="co__muted">{{ 'collections.history_empty' | translate }}</p>
+          } @else {
+            <ol class="co__timeline">
+              @for (activity of activities(); track activity.id) {
+                <li class="co__event">
+                  <span class="co__event-head">
+                    <span class="co__strong">{{ k('collections.kind', activity.kind) | translate }}</span>
+                    @if (activity.status === 'DRAFT') {
+                      <vx-badge size="sm" tone="draft">{{ 'collections.has_draft' | translate }}</vx-badge>
+                    }
+                    <span class="co__muted">{{ activity.occurredAt | vxDate: 'medium' }}@if (activity.userName) { · {{ activity.userName }} }</span>
+                  </span>
+                  @if (activity.outcome) {
+                    <span>{{ k('collections.outcome_option', activity.outcome) | translate }}</span>
+                  }
+                  @if (activity.promisedDate) {
+                    <span>
+                      {{ 'collections.promised_for' | translate: { date: (activity.promisedDate | vxDate) } }}
+                      @if (activity.promisedAmount) { · {{ activity.promisedAmount | vxMoney: item.currencyCode }} }
+                    </span>
+                  }
+                  @if (activity.recipient && activity.kind === 'REMINDER') {
+                    <span class="co__muted">{{ 'collections.sent_to' | translate: { to: activity.recipient } }}</span>
+                  }
+                  @if (activity.message) {
+                    <span class="co__event-message">{{ activity.message }}</span>
+                  }
+                </li>
+              }
+            </ol>
+          }
+        </section>
+      </aside>
+    }
+  </div>
+</section>

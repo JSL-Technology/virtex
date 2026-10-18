@@ -292,7 +292,8 @@
     "ai.copilot.proposal": [
       "draft_invoice",
       "draft_quote",
-      "draft_purchase_order"
+      "draft_purchase_order",
+      "draft_payment_reminder"
     ],
     "ai.copilot.proposal_status": [
       "PROPOSED",
@@ -307,7 +308,9 @@
       "business_summary",
       "cash_position",
       "cashflow_forecast",
+      "collections_worklist",
       "draft_invoice",
+      "draft_payment_reminder",
       "draft_purchase_order",
       "draft_quote",
       "expected_collections",
@@ -366,6 +369,44 @@
       "incomplete",
       "incomplete_expired",
       "paused"
+    ],
+    "collections.action": [
+      "call",
+      "firm_reminder",
+      "reminder",
+      "courtesy_reminder",
+      "await_promise",
+      "wait",
+      "none"
+    ],
+    "collections.kind": [
+      "REMINDER",
+      "CALL",
+      "PROMISE",
+      "NOTE"
+    ],
+    "collections.outcome_option": [
+      "reached",
+      "no_answer",
+      "promised",
+      "disputed",
+      "wrong_contact",
+      "paid_already"
+    ],
+    "collections.reason": [
+      "large_balance",
+      "unlikely_soon",
+      "doubtful",
+      "long_overdue",
+      "broken_promise",
+      "promise_in_date",
+      "recently_contacted",
+      "due_soon"
+    ],
+    "collections.tone_option": [
+      "cordial",
+      "formal",
+      "firm"
     ],
     "common.dependents": [
       "activities",
@@ -1124,7 +1165,10 @@
       "done",
       "ok",
       "error",
-      "return"
+      "return",
+      "sent",
+      "drafted",
+      "skipped"
     ],
     "workflow_engine.palette.category": [
       "people",
@@ -1141,6 +1185,13 @@
       "action",
       "end",
       "lane"
+    ],
+    "workflow_engine.param_option": [
+      "cordial",
+      "formal",
+      "firm",
+      "draft",
+      "send"
     ],
     "workflow_engine.run_state": [
       "done",

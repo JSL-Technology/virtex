@@ -114,6 +114,11 @@
     "en": "Closing checklists",
     "pt": "Checklists de fechamento"
   },
+  "page_titles.collections": {
+    "es": "Cobranza",
+    "en": "Collections",
+    "pt": "Cobrança"
+  },
   "page_titles.currencies": {
     "es": "Monedas",
     "en": "Currencies",

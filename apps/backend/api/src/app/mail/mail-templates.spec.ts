@@ -104,6 +104,15 @@ const CONTEXTS: Record<string, Record<string, unknown>> = {
     dueDate: '30/10/2026',
     message: 'Gracias por su compra.',
   },
+  'payment-reminder': {
+    invoiceNumber: 'E310000000123',
+    customerName: 'Ana',
+    companyName: 'Caribe Logística SRL',
+    balance: 'DOP 11,800.00',
+    dueDate: '30 de septiembre de 2026',
+    overdue: true,
+    message: null,
+  },
   'billing-notice': {
     titleKey: 'MAIL.BILLING_NOTICE.PAYMENT_FAILED_TITLE',
     bodyKey: 'MAIL.BILLING_NOTICE.PAYMENT_FAILED_BODY',

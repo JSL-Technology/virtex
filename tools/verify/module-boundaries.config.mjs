@@ -69,6 +69,7 @@ export const MODULE_OF_FOLDER = {
   invoices: 'ventas',
   sales: 'ventas',
   customers: 'ventas',
+  collections: 'ventas',
   pos: 'ventas',
   'price-lists': 'ventas',
   einvoicing: 'ventas',

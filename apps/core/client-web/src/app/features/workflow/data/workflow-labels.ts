@@ -37,7 +37,7 @@ export const NODE_ICONS: Record<WorkflowNodeType, unknown> = {
 };
 
 /** Outcomes the catalogue knows; anything else an author typed is shown as they wrote it. */
-const KNOWN_OUTCOMES = new Set(['approve', 'reject', 'done', 'ok', 'error', 'return']);
+const KNOWN_OUTCOMES = new Set(['approve', 'reject', 'done', 'ok', 'error', 'return', 'sent', 'drafted', 'skipped']);
 
 export function outcomeLabel(
   translate: TranslateService,

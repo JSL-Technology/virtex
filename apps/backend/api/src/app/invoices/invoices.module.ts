@@ -88,6 +88,7 @@ import { MailModule } from '../mail/mail.module';
     ArgentinaNumberingAdapter,
     FiscalAdapterFactory,
   ],
-  exports: [InvoicesService, InvoicePostingService],
+  // The renderer is exported for collections, which attaches the invoice PDF to a reminder.
+  exports: [InvoicesService, InvoicePostingService, InvoiceRendererService],
 })
 export class InvoicesModule {}

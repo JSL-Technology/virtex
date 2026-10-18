@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VX_SELECT } from '../../../../shared/components/select';
 import { WorkflowActionParam } from '../../data/workflow.service';
@@ -55,7 +56,7 @@ import { DesignerCatalogs, PersonOption } from '../designer-catalogs';
               <select [id]="idFor(param)" [value]="text(param)" [disabled]="readonly()" (change)="set(param, $any($event.target).value || undefined)">
                 <option value="">—</option>
                 @for (option of param.options ?? []; track option) {
-                  <option [value]="option">{{ option }}</option>
+                  <option [value]="option">{{ optionLabel(option) }}</option>
                 }
               </select>
             }
@@ -93,6 +94,17 @@ import { DesignerCatalogs, PersonOption } from '../designer-catalogs';
 })
 export class ActionParamsComponent {
   protected readonly catalogs = inject(DesignerCatalogs);
+  private readonly translate = inject(TranslateService);
+
+  /**
+   * An option's label: the catalogue's word for it when there is one (`formal`, `draft`), the
+   * value itself when not — an HTTP method or a code reads the same in every language.
+   */
+  optionLabel(option: string): string {
+    const key = composeKey('workflow_engine.param_option', option);
+    const text = this.translate.instant(key);
+    return text === key ? option : text;
+  }
 
   readonly params = input<WorkflowActionParam[]>([]);
   readonly value = input<Record<string, unknown>>({});

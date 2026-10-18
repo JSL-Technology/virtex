@@ -1,0 +1,14 @@
+{{#> shell title=(t 'mail.payment_reminder.title' number=invoiceNumber) preheader=(t 'mail.payment_reminder.preheader' company=companyName balance=balance)}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.payment_reminder.title' number=invoiceNumber}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=customerName}}</p>
+{{#if message}}
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}}; white-space:pre-line;">{{message}}</p>
+{{else}}
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.payment_reminder.body' company=companyName number=invoiceNumber balance=balance}}</p>
+{{/if}}
+{{#if dueDate}}
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{#if overdue}}{{t 'mail.payment_reminder.overdue' date=dueDate balance=balance}}{{else}}{{t 'mail.payment_reminder.due' date=dueDate balance=balance}}{{/if}}</p>
+{{/if}}
+<p class="ink3" style="margin:0 0 8px; font:400 14px/1.6 {{brand 'font'}}; color:{{brand 'ink3'}};">{{t 'mail.payment_reminder.already_paid'}}</p>
+<p class="ink3" style="margin:0; font:400 14px/1.6 {{brand 'font'}}; color:{{brand 'ink3'}};">{{t 'mail.invoice.attachment_note'}}</p>
+{{/shell}}

@@ -78,6 +78,18 @@ export const VENTAS_MODULE: ModuleManifest = {
       load: () => import('../../../features/sales/quotes/form/quote-form.page').then((m) => m.QuoteFormPage),
     },
     {
+      //  Cobranza: las facturas abiertas en el orden en que conviene cobrarlas, la acción sugerida y
+      //  por qué, y el recordatorio (redactado por el asistente si se pide) que la persona envía.
+      path: 'collections',
+      kind: WindowKind.LIST,
+      permission: 'ai_collections:view',
+      titleKey: 'page_titles.collections',
+      icon: 'PhoneCall',
+      entityKeyFn: () => 'ventas:collections',
+      menu: { group: 'documents', labelKey: 'page_titles.collections' },
+      load: () => import('../../../features/sales/collections/collections.page').then((m) => m.CollectionsPage),
+    },
+    {
       path: 'customer-receipts',
       kind: WindowKind.LIST,
       permission: 'accounts_receivable:view',

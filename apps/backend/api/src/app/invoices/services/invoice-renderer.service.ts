@@ -131,32 +131,34 @@ export class InvoiceRendererService implements OnModuleDestroy {
     return { language, locale, issuerCountry };
   }
 
-  /** The total and the due date as the e-mail states them, in the document's own language and format. */
+  /** The total, the balance and the due date as the e-mail states them, in the document's own language and format. */
   emailSummary(context: Pick<InvoiceRenderContext, 'invoice' | 'organization' | 'language' | 'locale'>): {
     language: LanguageCode;
     total: string;
+    balance: string;
     dueDate: string | null;
   } {
     const { language, locale } = this.readerOf(context);
     const { invoice } = context;
     const decimals = minorUnitsFor(invoice.currencyCode);
-    const amount = Number(invoice.total ?? 0);
-    let total: string;
-    try {
-      total = new Intl.NumberFormat(locale, {
-        style: 'currency',
-        currency: (invoice.currencyCode ?? '').toUpperCase(),
-        currencyDisplay: 'code',
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals,
-      }).format(amount);
-    } catch {
-      // An unrecognised currency code must not blank the figure the customer is asked to pay.
-      total = `${invoice.currencyCode ?? ''} ${amount.toFixed(decimals)}`.trim();
-    }
+    const money = (amount: number): string => {
+      try {
+        return new Intl.NumberFormat(locale, {
+          style: 'currency',
+          currency: (invoice.currencyCode ?? '').toUpperCase(),
+          currencyDisplay: 'code',
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        }).format(amount);
+      } catch {
+        // An unrecognised currency code must not blank the figure the customer is asked to pay.
+        return `${invoice.currencyCode ?? ''} ${amount.toFixed(decimals)}`.trim();
+      }
+    };
     return {
       language,
-      total,
+      total: money(Number(invoice.total ?? 0)),
+      balance: money(Number(invoice.balance ?? invoice.total ?? 0)),
       dueDate: invoice.dueDate ? formatLongDate(invoice.dueDate, locale) : null,
     };
   }

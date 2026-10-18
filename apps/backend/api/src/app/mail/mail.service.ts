@@ -234,6 +234,61 @@ export class MailService {
   }
 
   /**
+   * Remind a customer of an invoice still owed, with the invoice PDF attached. Written in the
+   * invoice's own language; the amounts arrive already formatted the way the document states them.
+   * `message` is the note a person reviewed (and may have had the assistant draft); the template
+   * states the figures itself, so a reminder with no note is still complete.
+   */
+  async sendPaymentReminder(params: {
+    to: string;
+    language: string | null | undefined;
+    invoiceNumber: string;
+    customerName: string;
+    companyName: string;
+    balance: string;
+    dueDate: string | null;
+    overdue: boolean;
+    message?: string | null;
+    pdf?: Buffer | null;
+    identity?: MailIdentity;
+  }): Promise<void> {
+    const language = matchLanguage(params.language) ?? currentLanguage() ?? DEFAULT_LANGUAGE;
+    await this.enqueue({
+      to: params.to,
+      // From the catalogue, like every subject: it and the body cannot end up in two languages.
+      subjectKey: 'mail.payment_reminder.subject',
+      subjectParams: { number: params.invoiceNumber, company: params.companyName },
+      language,
+      template: 'payment-reminder',
+      context: {
+        ...this.baseContext(),
+        invoiceNumber: params.invoiceNumber,
+        customerName: params.customerName,
+        companyName: params.companyName,
+        balance: params.balance,
+        dueDate: params.dueDate,
+        overdue: params.overdue,
+        message: params.message ?? null,
+        replyTo: params.identity?.replyTo ?? null,
+      },
+      fromName: params.identity?.senderName ?? null,
+      replyTo: params.identity?.replyTo ?? null,
+      bcc: params.identity?.copyTo ?? null,
+      ...(params.pdf
+        ? {
+            attachments: [
+              {
+                filename: `${params.invoiceNumber}.pdf`,
+                contentBase64: params.pdf.toString('base64'),
+                contentType: 'application/pdf',
+              },
+            ],
+          }
+        : {}),
+    });
+  }
+
+  /**
    * Tell somebody who already has an account that they now have access to another organization
    * they themselves created — a returning customer registering a further company.
    *

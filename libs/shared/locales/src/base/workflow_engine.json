@@ -124,6 +124,11 @@
     "en": "Notify a person",
     "pt": "Notificar uma pessoa"
   },
+  "workflow_engine.action.payment_reminder": {
+    "es": "Recordatorio de pago",
+    "en": "Payment reminder",
+    "pt": "Lembrete de pagamento"
+  },
   "workflow_engine.action.set_variable": {
     "es": "Asignar una variable",
     "en": "Set a variable",
@@ -148,6 +153,11 @@
     "es": "Envía un aviso en la aplicación a una persona (por defecto, a quien inició la ejecución).",
     "en": "Sends an in-app notice to a person (by default, whoever started the run).",
     "pt": "Envia um aviso na aplicação a uma pessoa (por defeito, a quem iniciou a execução)."
+  },
+  "workflow_engine.action_help.payment_reminder": {
+    "es": "Redacta un recordatorio de pago para una factura abierta y lo deja en Cobranza para revisarlo, o lo envía al cliente por correo con la factura adjunta.",
+    "en": "Drafts a payment reminder for an open invoice and leaves it in Collections for review, or e-mails it to the customer with the invoice attached.",
+    "pt": "Redige um lembrete de pagamento para uma fatura em aberto e deixa-o em Cobrança para revisão, ou envia-o ao cliente por e-mail com a fatura anexada."
   },
   "workflow_engine.action_help.set_variable": {
     "es": "Guarda un valor en las variables de la ejecución.",
@@ -2739,6 +2749,11 @@
     "en": "Done",
     "pt": "Concluído"
   },
+  "workflow_engine.outcome.drafted": {
+    "es": "En borrador",
+    "en": "Drafted",
+    "pt": "Em rascunho"
+  },
   "workflow_engine.outcome.error": {
     "es": "Error",
     "en": "Failed",
@@ -2758,6 +2773,16 @@
     "es": "Devolver",
     "en": "Send back",
     "pt": "Devolver"
+  },
+  "workflow_engine.outcome.sent": {
+    "es": "Enviado",
+    "en": "Sent",
+    "pt": "Enviado"
+  },
+  "workflow_engine.outcome.skipped": {
+    "es": "Omitido",
+    "en": "Skipped",
+    "pt": "Omitido"
   },
   "workflow_engine.palette.category.automation": {
     "es": "Automatización",
@@ -2854,6 +2879,16 @@
     "en": "Accepts {{variable}}. Empty sends every variable.",
     "pt": "Admite {{variable}}. Vazio envia todas as variáveis."
   },
+  "workflow_engine.param.invoice_id": {
+    "es": "Factura",
+    "en": "Invoice",
+    "pt": "Fatura"
+  },
+  "workflow_engine.param.invoice_id_hint": {
+    "es": "El identificador de la factura; normalmente la variable invoiceId del evento que inició el proceso, entre llaves dobles.",
+    "en": "The invoice's id; usually the invoiceId variable of the event that started the process, in double braces.",
+    "pt": "O identificador da fatura; normalmente a variável invoiceId do evento que iniciou o processo, entre chaves duplas."
+  },
   "workflow_engine.param.message": {
     "es": "Mensaje",
     "en": "Message",
@@ -2874,10 +2909,20 @@
     "en": "Leave empty to notify whoever started the run.",
     "pt": "Se deixar vazio, avisa-se quem iniciou a execução."
   },
+  "workflow_engine.param.reminder_mode": {
+    "es": "Qué hacer",
+    "en": "What to do",
+    "pt": "O que fazer"
+  },
   "workflow_engine.param.title": {
     "es": "Título",
     "en": "Title",
     "pt": "Título"
+  },
+  "workflow_engine.param.tone": {
+    "es": "Tono",
+    "en": "Tone",
+    "pt": "Tom"
   },
   "workflow_engine.param.url": {
     "es": "URL",
@@ -2908,6 +2953,31 @@
     "es": "La clave del proceso publicado que se iniciará.",
     "en": "The key of the published process to start.",
     "pt": "A chave do processo publicado que será iniciado."
+  },
+  "workflow_engine.param_option.cordial": {
+    "es": "Cordial",
+    "en": "Cordial",
+    "pt": "Cordial"
+  },
+  "workflow_engine.param_option.draft": {
+    "es": "Dejar en borrador para revisar",
+    "en": "Leave as a draft for review",
+    "pt": "Deixar em rascunho para revisão"
+  },
+  "workflow_engine.param_option.firm": {
+    "es": "Firme",
+    "en": "Firm",
+    "pt": "Firme"
+  },
+  "workflow_engine.param_option.formal": {
+    "es": "Formal",
+    "en": "Formal",
+    "pt": "Formal"
+  },
+  "workflow_engine.param_option.send": {
+    "es": "Enviar al cliente",
+    "en": "Send to the customer",
+    "pt": "Enviar ao cliente"
   },
   "workflow_engine.publish": {
     "es": "Publicar",

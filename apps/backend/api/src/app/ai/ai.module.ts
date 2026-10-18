@@ -15,6 +15,7 @@ import { CopilotController } from './copilot/copilot.controller';
 import { AiCopilotTools } from './copilot/ai.copilot-tools';
 import { HelpService } from './help/help.service';
 import { CashflowService } from './cashflow/cashflow.service';
+import { PaymentLikelihoodProvider } from './cashflow/payment-likelihood.provider';
 import { CashflowController } from './cashflow/cashflow.controller';
 import { CashflowPlanBuilder } from './cashflow/cashflow-plan.builder';
 import { ReportsService, AI_REPORTS_QUEUE } from './reports/reports.service';
@@ -73,6 +74,7 @@ import { InventoryModule } from '../inventory/inventory.module';
     CopilotService,
     HelpService,
     CashflowService,
+    PaymentLikelihoodProvider,
     ReportsService,
     ReportsProcessor,
     CashflowPlanBuilder,

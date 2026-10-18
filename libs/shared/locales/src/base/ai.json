@@ -1474,6 +1474,11 @@
     "en": "Draft invoice",
     "pt": "Fatura em rascunho"
   },
+  "ai.copilot.proposal.draft_payment_reminder": {
+    "es": "Recordatorio de pago en borrador",
+    "en": "Draft payment reminder",
+    "pt": "Lembrete de pagamento em rascunho"
+  },
   "ai.copilot.proposal.draft_purchase_order": {
     "es": "Orden de compra en borrador",
     "en": "Draft purchase order",
@@ -1624,10 +1629,20 @@
     "en": "Projected cash flow",
     "pt": "Fluxo de caixa projetado"
   },
+  "ai.copilot.tool.collections_worklist": {
+    "es": "Cobranza priorizada",
+    "en": "Prioritised collections",
+    "pt": "Cobrança priorizada"
+  },
   "ai.copilot.tool.draft_invoice": {
     "es": "Borrador de factura",
     "en": "Invoice draft",
     "pt": "Rascunho de fatura"
+  },
+  "ai.copilot.tool.draft_payment_reminder": {
+    "es": "Recordatorio de pago",
+    "en": "Payment reminder",
+    "pt": "Lembrete de pagamento"
   },
   "ai.copilot.tool.draft_purchase_order": {
     "es": "Borrador de orden de compra",

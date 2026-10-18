@@ -1,0 +1,447 @@
+{
+  "collections.action.await_promise": {
+    "es": "Esperar la promesa",
+    "en": "Await the promise",
+    "pt": "Aguardar a promessa"
+  },
+  "collections.action.call": {
+    "es": "Llamar",
+    "en": "Call",
+    "pt": "Ligar"
+  },
+  "collections.action.courtesy_reminder": {
+    "es": "Aviso antes del vencimiento",
+    "en": "Heads-up before due",
+    "pt": "Aviso antes do vencimento"
+  },
+  "collections.action.firm_reminder": {
+    "es": "Recordatorio firme",
+    "en": "Firm reminder",
+    "pt": "Lembrete firme"
+  },
+  "collections.action.none": {
+    "es": "Nada por ahora",
+    "en": "Nothing for now",
+    "pt": "Nada por enquanto"
+  },
+  "collections.action.reminder": {
+    "es": "Recordatorio",
+    "en": "Reminder",
+    "pt": "Lembrete"
+  },
+  "collections.action.wait": {
+    "es": "Contactado hace poco",
+    "en": "Recently contacted",
+    "pt": "Contatado recentemente"
+  },
+  "collections.activity_kind": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "collections.activity_note": {
+    "es": "Nota",
+    "en": "Note",
+    "pt": "Nota"
+  },
+  "collections.activity_recorded": {
+    "es": "Gestión registrada.",
+    "en": "Activity recorded.",
+    "pt": "Atividade registrada."
+  },
+  "collections.ai_not_available": {
+    "es": "El asistente no está disponible en este momento.",
+    "en": "The assistant is not available right now.",
+    "pt": "O assistente não está disponível no momento."
+  },
+  "collections.broken_promises": {
+    "es": "Promesas incumplidas",
+    "en": "Broken promises",
+    "pt": "Promessas não cumpridas"
+  },
+  "collections.close": {
+    "es": "Cerrar",
+    "en": "Close",
+    "pt": "Fechar"
+  },
+  "collections.col.action": {
+    "es": "Acción sugerida",
+    "en": "Suggested action",
+    "pt": "Ação sugerida"
+  },
+  "collections.col.balance": {
+    "es": "Saldo",
+    "en": "Balance",
+    "pt": "Saldo"
+  },
+  "collections.col.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "collections.col.invoice": {
+    "es": "Factura",
+    "en": "Invoice",
+    "pt": "Fatura"
+  },
+  "collections.col.overdue": {
+    "es": "Vencimiento",
+    "en": "Due",
+    "pt": "Vencimento"
+  },
+  "collections.col.p30": {
+    "es": "Prob. de pago en 30 días",
+    "en": "Chance of payment in 30 days",
+    "pt": "Prob. de pagamento em 30 dias"
+  },
+  "collections.compose": {
+    "es": "Redactar con el asistente",
+    "en": "Draft with the assistant",
+    "pt": "Redigir com o assistente"
+  },
+  "collections.compose_failed": {
+    "es": "El asistente no pudo redactar el recordatorio.",
+    "en": "The assistant could not draft the reminder.",
+    "pt": "O assistente não conseguiu redigir o lembrete."
+  },
+  "collections.composing": {
+    "es": "Redactando…",
+    "en": "Drafting…",
+    "pt": "Redigindo…"
+  },
+  "collections.days_overdue": {
+    "es": "{{days}} días vencida",
+    "en": "{{days}} days overdue",
+    "pt": "{{days}} dias vencida"
+  },
+  "collections.detail_label": {
+    "es": "Cobranza de la factura {{number}}",
+    "en": "Collections for invoice {{number}}",
+    "pt": "Cobrança da fatura {{number}}"
+  },
+  "collections.discard_draft": {
+    "es": "Descartar borrador",
+    "en": "Discard draft",
+    "pt": "Descartar rascunho"
+  },
+  "collections.draft_not_found": {
+    "es": "El borrador ya no existe.",
+    "en": "The draft no longer exists.",
+    "pt": "O rascunho não existe mais."
+  },
+  "collections.draft_saved": {
+    "es": "Borrador guardado.",
+    "en": "Draft saved.",
+    "pt": "Rascunho salvo."
+  },
+  "collections.due_on": {
+    "es": "Vence el {{date}}",
+    "en": "Due {{date}}",
+    "pt": "Vence em {{date}}"
+  },
+  "collections.empty": {
+    "es": "No hay facturas por cobrar.",
+    "en": "There are no invoices to collect.",
+    "pt": "Não há faturas a cobrar."
+  },
+  "collections.empty_filtered": {
+    "es": "Ninguna factura tiene esta acción sugerida.",
+    "en": "No invoice has this suggested action.",
+    "pt": "Nenhuma fatura tem esta ação sugerida."
+  },
+  "collections.expected_date": {
+    "es": "Fecha de pago esperada",
+    "en": "Expected payment date",
+    "pt": "Data de pagamento esperada"
+  },
+  "collections.filter_by_action": {
+    "es": "Filtrar por acción sugerida",
+    "en": "Filter by suggested action",
+    "pt": "Filtrar por ação sugerida"
+  },
+  "collections.has_draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "collections.history": {
+    "es": "Historial",
+    "en": "History",
+    "pt": "Histórico"
+  },
+  "collections.history_empty": {
+    "es": "Todavía no se ha hecho nada con esta factura.",
+    "en": "Nothing has been done on this invoice yet.",
+    "pt": "Ainda não foi feito nada com esta fatura."
+  },
+  "collections.invoice_not_found": {
+    "es": "La factura no existe.",
+    "en": "The invoice does not exist.",
+    "pt": "A fatura não existe."
+  },
+  "collections.invoice_not_open": {
+    "es": "La factura ya no tiene saldo pendiente.",
+    "en": "The invoice has no outstanding balance any more.",
+    "pt": "A fatura não tem mais saldo pendente."
+  },
+  "collections.kind.call": {
+    "es": "Llamada",
+    "en": "Call",
+    "pt": "Ligação"
+  },
+  "collections.kind.note": {
+    "es": "Nota",
+    "en": "Note",
+    "pt": "Nota"
+  },
+  "collections.kind.promise": {
+    "es": "Promesa de pago",
+    "en": "Payment promise",
+    "pt": "Promessa de pagamento"
+  },
+  "collections.kind.reminder": {
+    "es": "Recordatorio",
+    "en": "Reminder",
+    "pt": "Lembrete"
+  },
+  "collections.kpi.open": {
+    "es": "Por cobrar ({{count}} facturas)",
+    "en": "Receivable ({{count}} invoices)",
+    "pt": "A receber ({{count}} faturas)"
+  },
+  "collections.kpi.overdue": {
+    "es": "Vencido",
+    "en": "Overdue",
+    "pt": "Vencido"
+  },
+  "collections.likelihood_from_age": {
+    "es": "Aún no hay flujo de caja proyectado: la prioridad se calcula por antigüedad y saldo.",
+    "en": "No cash-flow projection yet: priority is based on age and balance.",
+    "pt": "Ainda não há fluxo de caixa projetado: a prioridade é calculada por idade e saldo."
+  },
+  "collections.likelihood_from_projection": {
+    "es": "Probabilidades de pago del flujo de caja proyectado del {{when}}.",
+    "en": "Payment likelihoods from the cash-flow projection of {{when}}.",
+    "pt": "Probabilidades de pagamento do fluxo de caixa projetado de {{when}}."
+  },
+  "collections.loading": {
+    "es": "Cargando la cartera…",
+    "en": "Loading receivables…",
+    "pt": "Carregando a carteira…"
+  },
+  "collections.note": {
+    "es": "Mensaje",
+    "en": "Message",
+    "pt": "Mensagem"
+  },
+  "collections.note_placeholder": {
+    "es": "Opcional. Sin mensaje, el correo indica el saldo y el vencimiento.",
+    "en": "Optional. Without one, the e-mail states the balance and due date.",
+    "pt": "Opcional. Sem mensagem, o e-mail informa o saldo e o vencimento."
+  },
+  "collections.open_promise": {
+    "es": "Promesa de pago",
+    "en": "Payment promise",
+    "pt": "Promessa de pagamento"
+  },
+  "collections.outcome": {
+    "es": "Resultado",
+    "en": "Outcome",
+    "pt": "Resultado"
+  },
+  "collections.outcome_option.disputed": {
+    "es": "Disputa la factura",
+    "en": "Disputes the invoice",
+    "pt": "Contesta a fatura"
+  },
+  "collections.outcome_option.no_answer": {
+    "es": "No contestó",
+    "en": "No answer",
+    "pt": "Não atendeu"
+  },
+  "collections.outcome_option.paid_already": {
+    "es": "Dice que ya pagó",
+    "en": "Says it is paid",
+    "pt": "Diz que já pagou"
+  },
+  "collections.outcome_option.promised": {
+    "es": "Prometió pagar",
+    "en": "Promised to pay",
+    "pt": "Prometeu pagar"
+  },
+  "collections.outcome_option.reached": {
+    "es": "Contestó",
+    "en": "Reached",
+    "pt": "Atendeu"
+  },
+  "collections.outcome_option.wrong_contact": {
+    "es": "Contacto equivocado",
+    "en": "Wrong contact",
+    "pt": "Contato errado"
+  },
+  "collections.p30_age": {
+    "es": "Estimada por la antigüedad de la factura.",
+    "en": "Estimated from the invoice's age.",
+    "pt": "Estimada pela idade da fatura."
+  },
+  "collections.p30_projection": {
+    "es": "Según cómo paga este cliente (flujo de caja proyectado).",
+    "en": "From how this customer pays (cash-flow projection).",
+    "pt": "Segundo como este cliente paga (fluxo de caixa projetado)."
+  },
+  "collections.promise_exceeds_balance": {
+    "es": "La promesa no puede superar el saldo de la factura ({{balance}}).",
+    "en": "The promise cannot exceed the invoice balance ({{balance}}).",
+    "pt": "A promessa não pode exceder o saldo da fatura ({{balance}})."
+  },
+  "collections.promise_in_the_past": {
+    "es": "La fecha prometida no puede ser anterior a hoy.",
+    "en": "The promised date cannot be before today.",
+    "pt": "A data prometida não pode ser anterior a hoje."
+  },
+  "collections.promise_needs_date": {
+    "es": "Una promesa de pago necesita la fecha prometida.",
+    "en": "A payment promise needs the promised date.",
+    "pt": "Uma promessa de pagamento precisa da data prometida."
+  },
+  "collections.promised_amount": {
+    "es": "Monto prometido",
+    "en": "Promised amount",
+    "pt": "Valor prometido"
+  },
+  "collections.promised_date": {
+    "es": "Fecha prometida",
+    "en": "Promised date",
+    "pt": "Data prometida"
+  },
+  "collections.promised_for": {
+    "es": "Prometió pagar el {{date}}",
+    "en": "Promised to pay on {{date}}",
+    "pt": "Prometeu pagar em {{date}}"
+  },
+  "collections.reason.broken_promise": {
+    "es": "Promesa incumplida",
+    "en": "Broken promise",
+    "pt": "Promessa não cumprida"
+  },
+  "collections.reason.doubtful": {
+    "es": "Más tarde que nunca antes",
+    "en": "Later than ever before",
+    "pt": "Mais tarde do que nunca"
+  },
+  "collections.reason.due_soon": {
+    "es": "Vence esta semana",
+    "en": "Due this week",
+    "pt": "Vence esta semana"
+  },
+  "collections.reason.large_balance": {
+    "es": "Saldo grande",
+    "en": "Large balance",
+    "pt": "Saldo grande"
+  },
+  "collections.reason.long_overdue": {
+    "es": "Más de 60 días vencida",
+    "en": "Over 60 days overdue",
+    "pt": "Mais de 60 dias vencida"
+  },
+  "collections.reason.promise_in_date": {
+    "es": "Promesa vigente",
+    "en": "Promise in date",
+    "pt": "Promessa vigente"
+  },
+  "collections.reason.recently_contacted": {
+    "es": "Contactado hace poco",
+    "en": "Recently contacted",
+    "pt": "Contatado recentemente"
+  },
+  "collections.reason.unlikely_soon": {
+    "es": "Poco probable que pague pronto",
+    "en": "Unlikely to pay soon",
+    "pt": "Pouco provável que pague logo"
+  },
+  "collections.record": {
+    "es": "Registrar gestión",
+    "en": "Record an activity",
+    "pt": "Registrar atividade"
+  },
+  "collections.record_save": {
+    "es": "Registrar",
+    "en": "Record",
+    "pt": "Registrar"
+  },
+  "collections.refresh": {
+    "es": "Actualizar",
+    "en": "Refresh",
+    "pt": "Atualizar"
+  },
+  "collections.reminder": {
+    "es": "Recordatorio por correo",
+    "en": "E-mail reminder",
+    "pt": "Lembrete por e-mail"
+  },
+  "collections.reminder_hint": {
+    "es": "El correo sale con el nombre de tu empresa, en el idioma de la factura y con la factura adjunta.",
+    "en": "The e-mail goes out under your company's name, in the invoice's language, with the invoice attached.",
+    "pt": "O e-mail sai com o nome da sua empresa, no idioma da fatura e com a fatura anexada."
+  },
+  "collections.reminder_sent": {
+    "es": "Recordatorio enviado a {{to}}.",
+    "en": "Reminder sent to {{to}}.",
+    "pt": "Lembrete enviado para {{to}}."
+  },
+  "collections.save_draft": {
+    "es": "Guardar borrador",
+    "en": "Save draft",
+    "pt": "Salvar rascunho"
+  },
+  "collections.send": {
+    "es": "Enviar recordatorio",
+    "en": "Send reminder",
+    "pt": "Enviar lembrete"
+  },
+  "collections.sending": {
+    "es": "Enviando…",
+    "en": "Sending…",
+    "pt": "Enviando…"
+  },
+  "collections.sent_to": {
+    "es": "Enviado a {{to}}",
+    "en": "Sent to {{to}}",
+    "pt": "Enviado para {{to}}"
+  },
+  "collections.subtitle": {
+    "es": "Las facturas abiertas en el orden en que conviene cobrarlas, con la acción sugerida y por qué.",
+    "en": "Open invoices in the order worth collecting them, with the suggested action and why.",
+    "pt": "As faturas em aberto na ordem em que convém cobrá-las, com a ação sugerida e o porquê."
+  },
+  "collections.title": {
+    "es": "Cobranza",
+    "en": "Collections",
+    "pt": "Cobrança"
+  },
+  "collections.to": {
+    "es": "Para",
+    "en": "To",
+    "pt": "Para"
+  },
+  "collections.tone": {
+    "es": "Tono",
+    "en": "Tone",
+    "pt": "Tom"
+  },
+  "collections.tone_option.cordial": {
+    "es": "Cordial",
+    "en": "Cordial",
+    "pt": "Cordial"
+  },
+  "collections.tone_option.firm": {
+    "es": "Firme",
+    "en": "Firm",
+    "pt": "Firme"
+  },
+  "collections.tone_option.formal": {
+    "es": "Formal",
+    "en": "Formal",
+    "pt": "Formal"
+  }
+}
