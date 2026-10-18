@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Square, LayoutGrid, Smartphone } from 'lucide-angular';
 import { WindowModeService } from '../../core/windows/window-mode.service';
 
@@ -20,7 +20,7 @@ import { WindowModeService } from '../../core/windows/window-mode.service';
 @Component({
   selector: 'app-window-mode-toggle',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule],
+  imports: [TranslatePipe, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button

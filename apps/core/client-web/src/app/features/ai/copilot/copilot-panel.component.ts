@@ -12,9 +12,10 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Sparkles, X, Plus, History, Trash2, SendHorizontal, Check, ArrowLeft, Square } from 'lucide-angular';
 import { Subscription } from 'rxjs';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import {
@@ -64,7 +65,7 @@ const MAX_MESSAGE_CHARS = 4000;
 @Component({
   selector: 'app-copilot-panel',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES],
+  imports: [FormsModule, RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './copilot-panel.component.html',
   styleUrl: './copilot-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

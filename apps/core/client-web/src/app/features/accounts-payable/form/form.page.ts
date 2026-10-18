@@ -17,7 +17,7 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2, FileText, Sparkles, Paperclip } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, of, map } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
@@ -97,7 +97,7 @@ interface BillTotals {
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
-    TranslateModule,
+    TranslatePipe,
     ...FORMAT_PIPES,
     DraftShellComponent,
     ...VX_FORM_A11Y, VxDateFieldComponent, ...VX_SELECT, RouterLink],

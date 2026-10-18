@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { IncomeStatementPage } from './income-statement.page';
 import { IncomeStatementReport } from '../../../../core/api/financial-reporting.service';
 import { environment } from '../../../../../environments/environment';
@@ -45,7 +44,7 @@ describe('IncomeStatementPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IncomeStatementPage, TranslateModule.forRoot()],
+      imports: [IncomeStatementPage],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),

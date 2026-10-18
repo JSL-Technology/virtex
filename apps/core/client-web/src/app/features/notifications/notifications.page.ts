@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, computed, inject } from '@angular/core';
 import { LucideAngularModule, Check, BellOff } from 'lucide-angular';
 import { NotificationCenterService, Notification } from '../../core/services/notification-center.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ListShellComponent } from '../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
@@ -20,7 +20,7 @@ interface NotificationGroup {
 @Component({
   selector: 'app-notifications-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './notifications.page.html',
   styleUrls: ['./notifications.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

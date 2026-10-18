@@ -488,10 +488,22 @@ export class DesignerStore {
     const ids = new Map<string, string>();
     for (const n of fragment.nodes) ids.set(n.id, newId());
     for (const g of fragment.groups) ids.set(g.id, newId('g'));
+    // A pasted step gets a name of its own («Espera 2»): two steps called the same read as one in
+    // every inbox and timeline.
+    const taken = new Set(this.nodes().map((n) => n.name?.trim().toLowerCase()).filter((name): name is string => !!name));
+    const fresh = (name: string | undefined): string | undefined => {
+      const base = name?.trim();
+      if (!base) return name;
+      let candidate = base;
+      for (let n = 2; taken.has(candidate.toLowerCase()); n += 1) candidate = `${base.replace(/ \d+$/, '')} ${n}`;
+      taken.add(candidate.toLowerCase());
+      return candidate;
+    };
     const nodes = fragment.nodes
       .filter((n) => n.type !== 'start')
       .map((n) => ({
         ...structuredClone(n),
+        name: fresh(n.name),
         id: ids.get(n.id) as string,
         position: { x: (n.position?.x ?? 0) + offset, y: (n.position?.y ?? 0) + offset },
         parentId: n.parentId ? ids.get(n.parentId) : undefined,

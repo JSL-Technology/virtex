@@ -4,7 +4,7 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { DatasheetSummary, DatasheetVariablesService } from '../../services/datasheet-variables.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Plus, FileSpreadsheet } from 'lucide-angular';
 import { ListShellComponent } from '../../../../shared/components/gestures';
 
@@ -25,7 +25,7 @@ import { ListShellComponent } from '../../../../shared/components/gestures';
 @Component({
   selector: 'app-datasheet-list',
   standalone: true,
-  imports: [RouterModule, TranslateModule, LucideAngularModule, ListShellComponent, ...FORMAT_PIPES],
+  imports: [RouterModule, TranslatePipe, LucideAngularModule, ListShellComponent, ...FORMAT_PIPES],
   styleUrl: './datasheet-list.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

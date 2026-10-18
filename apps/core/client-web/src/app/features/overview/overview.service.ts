@@ -185,6 +185,11 @@ function toEventItem(row: EventDto, format: FormatService): EventItem {
     currencyCode: row.currencyCode,
     date: row.date,
     route: row.route,
+    // QA C-03: a receivable that falls due is the moment to collect it, so the panel offers that.
+    collectInvoiceId:
+      (row.kind === 'RECEIVABLE_DUE' || row.kind === 'RECEIVABLE_OVERDUE') && row.route?.startsWith('/invoices/')
+        ? row.route.split('/')[2] ?? null
+        : null,
   };
 }
 
@@ -251,6 +256,8 @@ export interface ActivityItem {
 
 export interface EventItem {
   id: string;
+  /** The invoice «Registrar cobro» opens a receipt for, when the event is a receivable. */
+  collectInvoiceId: string | null;
   icon: unknown;
   /** Past its date: worth showing differently from something merely upcoming. */
   overdue: boolean;

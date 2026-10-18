@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { InventoryAdjustmentFormPage } from './adjustment-form.page';
 import { InventoryAdjustment, StockService } from '../data/stock.service';
@@ -41,7 +40,7 @@ describe('InventoryAdjustmentFormPage', () => {
     };
     notifications = { showSuccess: jest.fn(), showHttpError: jest.fn(), showError: jest.fn() };
     TestBed.configureTestingModule({
-      imports: [InventoryAdjustmentFormPage, TranslateModule.forRoot()],
+      imports: [InventoryAdjustmentFormPage],
       providers: [
         provideRouter([]),
         { provide: StockService, useValue: stock },

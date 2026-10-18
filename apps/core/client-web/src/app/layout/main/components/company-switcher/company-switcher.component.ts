@@ -1,7 +1,7 @@
 import { RoleNamePipe } from '../../../../shared/pipes/role-name.pipe';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Building, Check, ChevronsUpDown, Plus, Settings, Search, Mail, X } from 'lucide-angular';
 import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
 import { AuthService } from '../../../../core/services/auth';
@@ -13,7 +13,7 @@ import { OrganizationInvitationsService, ReceivedInvitation } from '../../../../
 @Component({
   selector: 'app-company-switcher',
   standalone: true,
-  imports: [RoleNamePipe, CommonModule, TranslateModule, LucideAngularModule, ClickOutsideDirective],
+  imports: [RoleNamePipe, CommonModule, TranslatePipe, LucideAngularModule, ClickOutsideDirective],
   templateUrl: './company-switcher.component.html',
   styleUrls: ['./company-switcher.component.scss']
 })

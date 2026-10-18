@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, si
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, ArrowUp, ArrowDown } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
@@ -26,7 +26,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 @Component({
   selector: 'app-variance-analysis-page',
   standalone: true,
-  imports: [...VX_SORT, FormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [...VX_SORT, FormsModule, RouterLink, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './variance-analysis.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './variance-analysis.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

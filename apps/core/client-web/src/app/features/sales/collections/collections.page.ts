@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Mail, PhoneCall, RefreshCw, Sparkles, X } from 'lucide-angular';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -39,7 +39,7 @@ const ACTIONS: CollectionAction[] = ['call', 'firm_reminder', 'reminder', 'court
 @Component({
   selector: 'app-collections-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, HasPermissionDirective, VxBadgeComponent, ListShellComponent],
+  imports: [FormsModule, RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, HasPermissionDirective, VxBadgeComponent, ListShellComponent],
   templateUrl: './collections.page.html',
   styleUrl: './collections.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

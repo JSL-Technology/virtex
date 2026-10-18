@@ -1,5 +1,5 @@
 {
-  "count": 40,
+  "count": 35,
   "files": {
     "apps/core/client-web/src/app/core/services/billing.ts": 1,
     "apps/core/client-web/src/app/core/services/dashboard.ts": 13,
@@ -8,11 +8,9 @@
     "apps/core/client-web/src/app/features/dashboard/widgets/ar-aging-chart/ar-aging-chart.ts": 5,
     "apps/core/client-web/src/app/features/datasheets/components/datasheet-chart.component.ts": 1,
     "apps/core/client-web/src/app/features/datasheets/pages/datasheet-editor/datasheet-editor.page.ts": 1,
-    "apps/core/client-web/src/app/features/settings/billing/billing.page.ts": 2,
     "apps/core/client-web/src/app/features/settings/my-profile/my-profile.page.ts": 1,
     "apps/core/client-web/src/app/features/settings/system/sso/sso.page.ts": 7,
     "apps/core/client-web/src/app/features/settings/user-management/user-management.page.ts": 1,
-    "apps/core/client-web/src/app/shared/components/geo-mismatch-modal/geo-mismatch-modal.component.ts": 3,
     "apps/core/client-web/src/testing/country.service.mock.ts": 3
   }
 }

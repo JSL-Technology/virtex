@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, UserPlus } from 'lucide-angular';
 import { forkJoin, catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -38,7 +38,7 @@ const STATUS_TONE: Record<EmploymentStatus, VxTone> = {
 @Component({
   selector: 'app-employees-page',
   standalone: true,
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './employees.page.html',
   styleUrls: ['./employees.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

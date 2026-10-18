@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, si
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, map, startWith } from 'rxjs';
 import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -35,7 +35,7 @@ const todayIso = (): string => {
 @Component({
   selector: 'app-vendor-debit-note-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, VxDateFieldComponent, VxAmountComponent],
+  imports: [ReactiveFormsModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, VxDateFieldComponent, VxAmountComponent],
   templateUrl: './debit-note-form.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

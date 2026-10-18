@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, u
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, PlusCircle, MoreHorizontal } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   JournalEntriesApiService,
@@ -37,7 +37,7 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-journal-entries-page',
   standalone: true,
-  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxPagerComponent],
+  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, CommonModule, LucideAngularModule, RouterLink, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxPagerComponent],
   templateUrl: './journal-entries.page.html',
   styleUrls: ['./journal-entries.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

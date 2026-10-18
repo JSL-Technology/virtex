@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Component, viewChild } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import { IntlPhoneInputComponent } from './intl-phone-input.component';
 import { CountryService } from '../../../core/services/country.service';
 import { MockCountryService } from '../../../../testing/country.service.mock';
@@ -23,7 +22,7 @@ describe('IntlPhoneInputComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HostComponent, TranslateModule.forRoot()],
+      imports: [HostComponent],
       providers: [{ provide: CountryService, useClass: MockCountryService }],
     }).compileComponents();
 

@@ -7,7 +7,7 @@ import { InventoryService } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { Product } from '../../../core/models/product.model';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
@@ -19,7 +19,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 @Component({
   selector: 'app-products-page',
   standalone: true,
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, HasPermissionDirective, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, HasPermissionDirective, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent],
   templateUrl: './products.page.html',
   styleUrls: ['./products.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

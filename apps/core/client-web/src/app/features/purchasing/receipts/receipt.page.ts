@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Ban, LucideAngularModule } from 'lucide-angular';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { DocumentShellComponent } from '../../../shared/components/gestures';
@@ -25,7 +25,7 @@ const QUANTITY_EPSILON = 0.000001;
 @Component({
   selector: 'app-goods-receipt-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, VxBranchLabelComponent, HasPermissionDirective],
+  imports: [RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, VxBranchLabelComponent, HasPermissionDirective],
   templateUrl: './receipt.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

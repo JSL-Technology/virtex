@@ -9,7 +9,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Phone, AlertCircle, Loader } from 'lucide-angular';
 import { ReCaptchaV3Service, RecaptchaV3Module } from 'ng-recaptcha-19';
 import { recaptchaToken$ } from '../../../../../core/auth/recaptcha-token';
@@ -21,7 +21,7 @@ import { NotificationService } from '../../../../../core/services/notification';
 @Component({
   selector: 'app-step-phone-verify',
   standalone: true,
-  imports: [CommonModule, TranslateModule, LucideAngularModule, OtpComponent, RecaptchaV3Module],
+  imports: [CommonModule, TranslatePipe, LucideAngularModule, OtpComponent, RecaptchaV3Module],
   templateUrl: './step-phone-verify.html',
   styleUrls: ['./step-phone-verify.scss'],
 })

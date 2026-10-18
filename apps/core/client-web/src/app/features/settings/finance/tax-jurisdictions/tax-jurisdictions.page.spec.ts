@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { TaxJurisdictionsPage } from './tax-jurisdictions.page';
 import { TaxJurisdiction } from '../../../../core/api/fiscal-settings.service';
 import { environment } from '../../../../../environments/environment';
@@ -48,7 +47,7 @@ describe('TaxJurisdictionsPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TaxJurisdictionsPage, TranslateModule.forRoot()],
+      imports: [TaxJurisdictionsPage],
       providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 

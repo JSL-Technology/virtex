@@ -71,6 +71,21 @@ export class SaasService implements OnModuleInit {
   async seedPlans() {
     this.logger.log('Seeding/Updating SaaS Plans from Config...');
 
+    // Guard: if the table doesn't exist, the migrations haven't been run. Fail with a clear
+    // message instead of a raw Postgres error that gives no hint about the fix.
+    const tableExists = await this.dataSource.query(
+      `SELECT EXISTS (
+        SELECT FROM information_schema.tables
+        WHERE table_schema = current_schema()
+          AND table_name = 'saas_plans'
+      )`,
+    );
+    if (!tableExists?.[0]?.exists) {
+      throw new Error(
+        'Table "saas_plans" does not exist. Run `npm run migration:run` before starting the API.',
+      );
+    }
+
     for (const pConfig of SAAS_PLANS) {
         const monthlyPriceId = process.env[pConfig.monthlyPriceIdVar];
         // Annual billing is offered only where a Stripe Price exists for it. Absent, the plan is

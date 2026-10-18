@@ -1,18 +1,20 @@
 import { FormsModule } from '@angular/forms';
 import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { Component, ChangeDetectionStrategy, signal, inject, computed } from '@angular/core';
+import { A11yModule } from '@angular/cdk/a11y';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, Search, X, Plus, Minus, Trash2, CreditCard, ShoppingCart } from 'lucide-angular';
+import { LucideAngularModule, Search, X, Plus, Minus, Trash2, CreditCard, ShoppingCart, Banknote, Landmark, Shuffle, Printer, CheckCircle2 } from 'lucide-angular';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Product } from '../../../core/models/product.model';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { InvoicesService } from '../../../core/services/invoices';
 import { InventoryService } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
-import { PosService } from './pos.service';
+import { PosPaymentPayload, PosSale, PosService } from './pos.service';
+import { FormatService } from '@virteex/shared/ui-i18n';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -32,7 +34,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-pos-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [CommonModule, A11yModule, ReactiveFormsModule, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './pos.page.html',
   styleUrls: ['./pos.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,6 +46,8 @@ export class PosPage {
   private readonly posService = inject(PosService);
   private readonly notifications = inject(NotificationService);
   private readonly errors = inject(ErrorHandlerService);
+  private readonly translate = inject(TranslateService);
+  private readonly format = inject(FormatService);
 
   /**
    * The till this screen operates. Single-terminal for now; multi-terminal is a matter of letting
@@ -100,6 +104,58 @@ export class PosPage {
   // The empty-cart illustration referenced this by string name (`name="shopping-cart"`), which
   // only works when the icon set is registered globally — it is not, so the icon never rendered.
   protected readonly ShoppingCartIcon = ShoppingCart;
+  protected readonly CashIcon = Banknote;
+  protected readonly TransferIcon = Landmark;
+  protected readonly MixedIcon = Shuffle;
+  protected readonly PrintIcon = Printer;
+  protected readonly DoneIcon = CheckCircle2;
+
+  // ── Cobro (QA C-04) ──────────────────────────────────────────────────────────
+  //
+  // «Cobrar» registraba la venta al instante: sin forma de pago, sin efectivo recibido, sin cambio
+  // y sin ticket. Toda venta se contaba como efectivo y la caja nunca cuadraba con el datáfono.
+  // Ahora abre un cobro: se elige cómo paga el cliente, se teclea lo recibido, se ve el cambio y
+  // al terminar se ofrece el ticket.
+
+  /** The payment dialog is open. */
+  readonly paying = signal(false);
+  readonly payMethod = signal<'cash' | 'card' | 'transfer' | 'mixed'>('cash');
+  /** Cash handed over (cash or the cash part of a mixed payment). */
+  readonly cashTendered = signal<number | null>(null);
+  /** The card part of a mixed payment. */
+  readonly cardPart = signal<number | null>(null);
+  readonly payReference = signal('');
+  /** The sale just completed, for the ticket. */
+  readonly lastSale = signal<CompletedSale | null>(null);
+
+  /** Cash amounts a cashier is commonly handed for this total: exact, then round notes. */
+  readonly cashSuggestions = computed(() => {
+    const total = this.total();
+    if (total <= 0) return [];
+    const options = new Set<number>([total]);
+    for (const step of [50, 100, 500, 1000]) options.add(Math.ceil(total / step) * step);
+    return [...options].filter((value) => value >= total).sort((a, b) => a - b).slice(0, 5);
+  });
+
+  /** What has been tendered so far. */
+  readonly paidSoFar = computed(() => {
+    switch (this.payMethod()) {
+      case 'cash':
+        return round2(this.cashTendered() ?? 0);
+      case 'mixed':
+        return round2((this.cashTendered() ?? 0) + (this.cardPart() ?? 0));
+      default:
+        return this.total();
+    }
+  });
+  readonly changeDue = computed(() => round2(Math.max(this.paidSoFar() - this.total(), 0)));
+  readonly stillOwed = computed(() => round2(Math.max(this.total() - this.paidSoFar(), 0)));
+  /** Only cash can produce change; a card part larger than the total is a keying mistake. */
+  readonly payError = computed<string | null>(() => {
+    if (this.payMethod() === 'mixed' && (this.cardPart() ?? 0) > this.total()) return 'sales.pos.pay.card_exceeds_total';
+    if (this.stillOwed() > 0) return 'sales.pos.pay.not_enough';
+    return null;
+  });
 
   // Catálogo de productos simulado
   allProducts = signal<Product[]>([
@@ -119,8 +175,20 @@ export class PosPage {
    */
   saleForm: FormGroup = this.fb.group({
     cartItems: this.fb.array([]),
-    customer: ['Cliente General'],
+    // Empty means the walk-in customer, named in the reader's language and with the same name the
+    // customer list uses («Consumidor final»), not the hard-coded «Cliente General» (QA M-17).
+    customer: [''],
   });
+
+  /** The name shown and sent for the sale's customer. */
+  customerLabel(): string {
+    return (this.saleForm.get('customer')?.value as string) || this.translate.instant('sales.pos.walk_in_customer');
+  }
+
+  /** A service is never «out of stock» (QA M-17); only goods run out. */
+  isOutOfStock(product: Product): boolean {
+    return product.kind !== 'SERVICE' && Number(product.stock ?? 0) <= 0;
+  }
 
   /**
    * Reactive-forms controls are not signals, so a `computed()` that walks `cartItems.controls`
@@ -328,8 +396,90 @@ export class PosPage {
     this.ensureShift();
   }
 
+  /** «Cobrar»: opens the payment dialog instead of booking the sale on the spot (QA C-04). */
+  openPayment(): void {
+    if (this.saving() || this.cartItems.length === 0) return;
+    if (!this.shiftReady()) {
+      this.notifications.showError(this.shiftError() ?? 'pos.shift_error');
+      return;
+    }
+    this.payMethod.set('cash');
+    this.cashTendered.set(this.total());
+    this.cardPart.set(null);
+    this.payReference.set('');
+    this.paying.set(true);
+  }
+
+  choosePayMethod(method: 'cash' | 'card' | 'transfer' | 'mixed'): void {
+    this.payMethod.set(method);
+    if (method === 'cash') this.cashTendered.set(this.total());
+    if (method === 'mixed') {
+      this.cardPart.set(null);
+      this.cashTendered.set(null);
+    }
+  }
+
+  cancelPayment(): void {
+    this.paying.set(false);
+  }
+
+  /** The tenders as the server expects them. */
+  private tenders(): PosPaymentPayload[] {
+    const reference = this.payReference().trim() || undefined;
+    switch (this.payMethod()) {
+      case 'cash':
+        return [{ method: 'cash', amount: round2(this.cashTendered() ?? 0) }];
+      case 'card':
+        return [{ method: 'card', amount: this.total(), reference }];
+      case 'transfer':
+        return [{ method: 'transfer', amount: this.total(), reference }];
+      case 'mixed': {
+        const parts: PosPaymentPayload[] = [];
+        if ((this.cardPart() ?? 0) > 0) parts.push({ method: 'card', amount: round2(this.cardPart() ?? 0), reference });
+        if ((this.cashTendered() ?? 0) > 0) parts.push({ method: 'cash', amount: round2(this.cashTendered() ?? 0) });
+        return parts;
+      }
+    }
+  }
+
+  /** Closes the ticket and leaves the till ready for the next customer. */
+  newSale(): void {
+    this.lastSale.set(null);
+  }
+
+  /** Prints the ticket of the sale just completed, in its own window so nothing else prints. */
+  printTicket(): void {
+    const sale = this.lastSale();
+    if (!sale) return;
+    const t = (key: string, params?: Record<string, unknown>) => this.translate.instant(key, params);
+    const money = (value: number) => this.format.money(value, sale.currency ?? undefined);
+    const rows = sale.lines
+      .map((line) => `<tr><td>${escapeHtml(line.name)}<br><small>${line.quantity} × ${money(line.price)}</small></td><td class="r">${money(line.quantity * line.price)}</td></tr>`)
+      .join('');
+    const tenders = sale.payments
+      .map((payment) => `<tr><td>${escapeHtml(t('sales.pos.pay.method.' + payment.method))}</td><td class="r">${money(payment.amount)}</td></tr>`)
+      .join('');
+    const html = `<!doctype html><html lang="${escapeHtml(this.translate.getCurrentLang() || 'es')}"><head><meta charset="utf-8"><title>${escapeHtml(t('sales.pos.ticket.title'))}</title>
+<style>body{font:13px/1.4 system-ui,sans-serif;width:72mm;margin:0 auto;padding:8px}h1{font-size:15px;margin:0 0 4px;text-align:center}p{margin:0 0 6px;text-align:center}table{width:100%;border-collapse:collapse}td{padding:3px 0;vertical-align:top}.r{text-align:right}.t td{border-top:1px dashed #000;font-weight:700}small{color:#444}</style></head>
+<body><h1>${escapeHtml(t('sales.pos.ticket.title'))}</h1><p>${escapeHtml(this.format.date(sale.createdAt, 'dateTime'))}</p><p>${escapeHtml(t('sales.pos.customer'))} ${escapeHtml(sale.customer)}</p>
+<table>${rows}<tr class="t"><td>${escapeHtml(t('sales.pos.amount_due'))}</td><td class="r">${money(sale.total)}</td></tr>${tenders}
+${sale.changeDue > 0 ? `<tr><td>${escapeHtml(t('sales.pos.pay.change'))}</td><td class="r">${money(sale.changeDue)}</td></tr>` : ''}</table>
+<p style="margin-top:10px">${escapeHtml(t('sales.pos.ticket.thanks'))}</p></body></html>`;
+    const win = window.open('', '_blank', 'width=420,height=640');
+    if (!win) {
+      this.notifications.showWarning('sales.pos.ticket.popup_blocked');
+      return;
+    }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    win.print();
+  }
+
   completeSale(): void {
     if (this.saving() || this.saleForm.invalid || this.cartItems.length === 0) return;
+    if (this.payError()) return;
     // No shift, no sale: the server would refuse it, and a sale with nowhere to be counted and
     // no one accountable for the drawer is exactly what the shift exists to prevent.
     if (!this.shiftReady()) {
@@ -357,11 +507,22 @@ export class PosPage {
         subtotal: this.subtotal(),
         tax: this.taxAmount(),
         total: this.total(),
-        customerName: this.saleForm.get('customer')?.value ?? undefined,
+        customerName: this.customerLabel(),
+        payments: this.tenders(),
       })
       .subscribe({
-        next: () => {
+        next: (sale: PosSale) => {
           this.saving.set(false);
+          this.paying.set(false);
+          this.lastSale.set({
+            createdAt: sale.createdAt ?? new Date().toISOString(),
+            customer: this.customerLabel(),
+            currency: this.currencyCode(),
+            total: Number(sale.total ?? this.total()),
+            changeDue: Number(sale.changeDue ?? this.changeDue()),
+            payments: sale.payments?.length ? sale.payments : this.tenders(),
+            lines: items.map((item) => ({ name: item.productName, quantity: item.quantity, price: item.price })),
+          });
           this.cartItems.clear();
           this.notifications.showSuccess('pos.sale_completed');
           // Reflect the stock the sale consumed.
@@ -387,6 +548,21 @@ export class PosPage {
         },
       });
   }
+}
+
+/** What the ticket prints for a completed sale. */
+interface CompletedSale {
+  createdAt: string;
+  customer: string;
+  currency: string | null;
+  total: number;
+  changeDue: number;
+  payments: PosPaymentPayload[];
+  lines: Array<{ name: string; quantity: number; price: number }>;
+}
+
+function escapeHtml(value: string): string {
+  return String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char] as string);
 }
 
 function round2(value: number): number {

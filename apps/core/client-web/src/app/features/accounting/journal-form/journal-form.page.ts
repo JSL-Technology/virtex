@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { JournalsService } from '../../../core/api/journals.service';
 import { NotificationService } from '../../../core/services/notification';
 import { Journal } from '../../../core/models/journal.model';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -12,7 +12,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-journal-form',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [ReactiveFormsModule, TranslatePipe, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './journal-form.page.html',
   styleUrls: ['./journal-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

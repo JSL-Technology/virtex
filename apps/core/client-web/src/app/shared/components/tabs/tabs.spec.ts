@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { VxTab, VxTabsComponent } from './index';
 
 const TABS: VxTab[] = [
@@ -11,7 +11,7 @@ const TABS: VxTab[] = [
 
 @Component({
   standalone: true,
-  imports: [TranslateModule, VxTabsComponent],
+  imports: [TranslatePipe, VxTabsComponent],
   template: `
     <vx-tabs #tabs [tabs]="TABS" [(active)]="active" ariaLabel="Secciones" />
     <div role="tabpanel" [id]="tabs.panelId('content')" [attr.aria-labelledby]="tabs.tabId('content')"></div>
@@ -24,7 +24,7 @@ class Host {
 
 describe('VxTabsComponent', () => {
   function build() {
-    TestBed.configureTestingModule({ imports: [Host, TranslateModule.forRoot()] });
+    TestBed.configureTestingModule({ imports: [Host] });
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     return fixture;

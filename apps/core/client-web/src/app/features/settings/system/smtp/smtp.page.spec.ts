@@ -1,7 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../../../core/services/notification';
 import { MailSettings, SmtpSettingsPage } from './smtp.page';
 
@@ -20,7 +19,7 @@ describe('SmtpSettingsPage (outgoing e-mail)', () => {
 
   function create() {
     TestBed.configureTestingModule({
-      imports: [SmtpSettingsPage, TranslateModule.forRoot()],
+      imports: [SmtpSettingsPage],
       providers: [provideHttpClient(), provideHttpClientTesting(), { provide: NotificationService, useValue: notifications }],
     });
     http = TestBed.inject(HttpTestingController);

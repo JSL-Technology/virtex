@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { AlertsPanel } from './alerts-panel';
@@ -11,7 +11,7 @@ describe('AlertsPanel', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AlertsPanel, TranslateModule.forRoot()],
+      imports: [AlertsPanel],
       providers: [
         provideRouter([]),
         {

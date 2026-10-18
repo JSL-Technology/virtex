@@ -53,6 +53,9 @@ const NONE: MyBranches = { branches: [], closed: [], defaultBranchId: null, rest
  * held here, so ten pickers on screen cost one request; switching company clears it, because the
  * branches — and the person's access to them — belong to the company.
  */
+/** A failed branch list is asked for again only after this long. */
+const RETRY_AFTER_FAILURE_MS = 30_000;
+
 @Injectable({ providedIn: 'root' })
 export class BranchesService {
   private readonly http = inject(HttpClient);
@@ -62,6 +65,11 @@ export class BranchesService {
   private readonly mineState = signal<MyBranches>(NONE);
   private loadedFor: string | null = null;
   private pending: Promise<MyBranches> | null = null;
+  /** When the last load failed; null after a success. */
+  private failedAt: number | null = null;
+  /** Someone asked before the company was resolved. */
+  private wanted = false;
+  private seenOrganization: string | null = null;
 
   /** The person's branches in the active company; empty until loaded, and for a company without any. */
   readonly mine = this.mineState.asReadonly();
@@ -71,10 +79,18 @@ export class BranchesService {
   constructor() {
     effect(() => {
       const organizationId = this.tenancy.organization()?.id ?? null;
-      if (organizationId !== this.loadedFor) {
+      // Only a real change of company resets. Comparing with `loadedFor` reset the request still in
+      // flight whenever the same company was emitted again, and the next picker started another.
+      if (organizationId !== this.seenOrganization) {
+        this.seenOrganization = organizationId;
         this.loadedFor = null;
         this.pending = null;
+        this.failedAt = null;
         this.mineState.set(NONE);
+      }
+      if (organizationId && this.wanted) {
+        this.wanted = false;
+        queueMicrotask(() => void this.ensureMine());
       }
     });
   }
@@ -87,29 +103,49 @@ export class BranchesService {
     return branch ? `${branch.code} · ${branch.name}` : null;
   }
 
-  /** Loads the person's branches for the active company, once. */
+  /**
+   * Loads the person's branches for the active company, once.
+   *
+   * The request went out three to five times per page load (QA A-04): every picker that asked
+   * before the company was resolved, or after a failed answer, started its own. Now the answer —
+   * success or failure — is remembered per company, and a failure is retried only after a pause,
+   * so a 429 is not answered with more requests.
+   */
   ensureMine(): Promise<MyBranches> {
     const organizationId = this.tenancy.organization()?.id ?? null;
-    if (organizationId && this.loadedFor === organizationId) return Promise.resolve(this.mineState());
+    if (!organizationId) {
+      // Asked before the company is known: load as soon as it is (see the constructor's effect).
+      this.wanted = true;
+      return Promise.resolve(this.mineState());
+    }
+    if (this.loadedFor === organizationId) {
+      const failedRecently = this.failedAt !== null && Date.now() - this.failedAt < RETRY_AFTER_FAILURE_MS;
+      if (this.failedAt === null || failedRecently) return Promise.resolve(this.mineState());
+    }
     if (this.pending) return this.pending;
     this.pending = firstValueFrom(this.http.get<MyBranches>(`${this.apiUrl}/mine`))
       .then((mine) => {
         this.mineState.set(mine);
-        this.loadedFor = organizationId;
+        this.failedAt = null;
         return mine;
       })
       .catch(() => {
         // No branches is the safe reading: the form issues documents as it always did.
         this.mineState.set(NONE);
+        this.failedAt = Date.now();
         return NONE;
       })
-      .finally(() => (this.pending = null));
+      .finally(() => {
+        this.loadedFor = organizationId;
+        this.pending = null;
+      });
     return this.pending;
   }
 
   /** Forget the cached list; the next picker asks again. After any branch or access change. */
   invalidate(): void {
     this.loadedFor = null;
+    this.failedAt = null;
     this.pending = null;
   }
 

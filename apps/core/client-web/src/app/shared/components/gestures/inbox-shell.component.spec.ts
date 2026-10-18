@@ -1,7 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { InboxShellComponent, InboxSection } from './inbox-shell.component';
 
 /**
@@ -54,7 +53,7 @@ describe('InboxShellComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Host, TranslateModule.forRoot()],
+      imports: [Host],
       providers: [provideRouter([])],
     }).compileComponents();
 

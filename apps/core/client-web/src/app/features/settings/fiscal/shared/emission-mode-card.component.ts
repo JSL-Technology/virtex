@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FiscalEmissionMode, InvoicingContext } from '../../../../core/services/invoices';
 import { NotificationService } from '../../../../core/services/notification';
 import { OrganizationSettingsService } from '../../data/organization-settings.service';
@@ -24,7 +24,7 @@ interface EmissionModeChoice {
 @Component({
   selector: 'vx-emission-mode-card',
   standalone: true,
-  imports: [TranslateModule, VxBadgeComponent],
+  imports: [TranslatePipe, VxBadgeComponent],
   templateUrl: './emission-mode-card.component.html',
   styleUrls: ['./emission-mode-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

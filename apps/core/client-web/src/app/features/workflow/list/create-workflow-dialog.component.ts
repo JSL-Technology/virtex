@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { BadgeCheck, CircleDashed, FileInput, LucideAngularModule, ReceiptText, ShieldCheck, UserPlus } from 'lucide-angular';
 import { VxDialogComponent } from '../../../shared/components/dialog';
 import { NotificationService } from '../../../core/services/notification';
@@ -25,7 +25,7 @@ const IMPORT_LIMIT_BYTES = 2 * 1024 * 1024;
 @Component({
   selector: 'app-create-workflow-dialog',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, VxDialogComponent],
+  imports: [TranslatePipe, LucideAngularModule, VxDialogComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <vx-dialog titleKey="workflow_engine.create.title" size="lg" [busy]="busy()" (dismissed)="dismissed.emit()">
@@ -118,6 +118,7 @@ const IMPORT_LIMIT_BYTES = 2 * 1024 * 1024;
         border: 0;
       }
       .wfc__templates legend {
+        padding: 0;
         margin-bottom: var(--space-2);
         font-size: var(--text-sm);
         font-weight: var(--font-semibold);

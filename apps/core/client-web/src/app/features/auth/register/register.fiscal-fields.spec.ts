@@ -4,7 +4,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateLoader, provideTranslateLoader } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 
 import { RegisterPage } from './register.page';
@@ -104,8 +104,9 @@ describe('RegisterPage — DO fiscal field (production-shaped config)', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RegisterPage, NoopAnimationsModule, TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: FakeLoader } })],
+      imports: [RegisterPage, NoopAnimationsModule],
       providers: [
+        provideTranslateLoader(FakeLoader),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),

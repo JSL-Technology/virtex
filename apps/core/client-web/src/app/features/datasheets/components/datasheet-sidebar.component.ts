@@ -2,14 +2,14 @@
 import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, ChevronRight, CheckCircle2 } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DatasheetImportService, ImportModule } from '../services/datasheet-import.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-datasheet-sidebar',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe],
   template: `
     <div class="h-full flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800">
       <div class="flex border-b border-slate-200 dark:border-slate-800">

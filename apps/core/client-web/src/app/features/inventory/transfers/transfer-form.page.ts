@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, catchError, map, of } from 'rxjs';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -42,7 +42,7 @@ function distinctWarehouses(group: AbstractControl): ValidationErrors | null {
   imports: [
     ReactiveFormsModule,
     LucideAngularModule,
-    TranslateModule,
+    TranslatePipe,
     ...FORMAT_PIPES,
     ...VX_FORM_A11Y,
     ...VX_SELECT,

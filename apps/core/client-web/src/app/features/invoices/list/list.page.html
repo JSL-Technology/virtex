@@ -59,6 +59,7 @@
           @if (branches.hasBranches()) {
             <th>{{ 'branches.picker.label' | translate }}</th>
           }
+          <th class="actions-column"><span class="sr-only">{{ 'common.actions' | translate }}</span></th>
         </tr>
       </thead>
       <tbody>
@@ -97,6 +98,19 @@
             @if (branches.hasBranches()) {
               <td><vx-branch-label [branchId]="invoice.branchId" /></td>
             }
+            <td class="actions-column">
+              @if (canCollect(invoice)) {
+                <!-- QA C-03: cobrar desde la fila, sin abrir la factura ni buscar la página de recibos. -->
+                <a
+                  class="row-action"
+                  [routerLink]="['/customer-receipts/new']"
+                  [queryParams]="{ customerId: invoice.customerId, invoiceId: invoice.id }"
+                  (click)="$event.stopPropagation()"
+                >
+                  {{ 'invoices.invoice_toolbar.collect' | translate }}
+                </a>
+              }
+            </td>
           </tr>
         }
       </tbody>

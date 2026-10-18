@@ -1,6 +1,6 @@
-import { DatePipe } from '@angular/common';
+import { VxDatePipe } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { composeKey } from '@virteex/shared/types';
 import { LucideAngularModule, Workflow } from 'lucide-angular';
 import { VxBadgeComponent } from '../../../../shared/components/badge/badge.component';
@@ -21,7 +21,7 @@ const CUSTOM = '__custom';
 @Component({
   selector: 'app-workflow-process-panel',
   standalone: true,
-  imports: [DatePipe, TranslateModule, LucideAngularModule, VxBadgeComponent, ConditionEditorComponent, VariablesEditorComponent],
+  imports: [VxDatePipe, TranslatePipe, LucideAngularModule, VxBadgeComponent, ConditionEditorComponent, VariablesEditorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inspector.scss',
   template: `
@@ -40,7 +40,7 @@ const CUSTOM = '__custom';
           <span class="insp-mono">{{ def.key }}</span>
         </div>
         @if (def.publishedAt) {
-          <p class="insp-hint">{{ 'workflow_engine.designer.published_on' | translate: { date: (def.publishedAt | date: 'medium') } }}</p>
+          <p class="insp-hint">{{ 'workflow_engine.designer.published_on' | translate: { date: (def.publishedAt | vxDate: 'dateTimeLong') } }}</p>
         }
       </section>
     }
@@ -123,7 +123,7 @@ const CUSTOM = '__custom';
         <select id="process-connection" [value]="doc.settings.connectionType ?? 'bezier'" [disabled]="readonly()"
           (change)="store.setSettings({ connectionType: $any($event.target).value })">
           @for (style of styles; track style) {
-            <option [value]="style">{{ styleKey(style) | translate }}</option>
+            <option [value]="style" [selected]="style === (doc.settings.connectionType ?? 'bezier')">{{ styleKey(style) | translate }}</option>
           }
         </select>
       </div>

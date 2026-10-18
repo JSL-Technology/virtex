@@ -34,9 +34,27 @@ function render(translate: TranslateService, p: WorkflowPredicate, labelOf: (v: 
   return `${label} ${op} ${formatValue(p.value)}`;
 }
 
+let numberFormat: Intl.NumberFormat | null = null;
+let numberLocale = '';
+
 function formatValue(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(formatValue).join(', ')}]`;
   if (typeof value === 'string') return `“${value}”`;
-  if (typeof value === 'number') return value.toLocaleString();
+  if (typeof value === 'number') return (numberFormat ?? new Intl.NumberFormat()).format(value);
   return String(value);
+}
+
+/**
+ * The locale numbers in summaries are written in — the tenant's, set once by the designer — rather
+ * than the browser's: an English Windows showed «10,000» on a Dominican tenant's canvas while the
+ * rest of the screen said «10 000».
+ */
+export function setSummaryLocale(locale: string): void {
+  if (locale === numberLocale) return;
+  numberLocale = locale;
+  try {
+    numberFormat = new Intl.NumberFormat(locale);
+  } catch {
+    numberFormat = null;
+  }
 }

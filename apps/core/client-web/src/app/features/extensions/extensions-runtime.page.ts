@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Puzzle, RefreshCw } from 'lucide-angular';
 import { ExtensionsService, RuntimeExtension } from './extensions.service';
 import { ExtensionHostComponent } from './extension-host.component';
@@ -14,7 +14,7 @@ import { ExtensionHostComponent } from './extension-host.component';
 @Component({
   selector: 'app-extensions-runtime-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule, LucideAngularModule, ExtensionHostComponent],
+  imports: [CommonModule, RouterLink, TranslatePipe, LucideAngularModule, ExtensionHostComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="run">

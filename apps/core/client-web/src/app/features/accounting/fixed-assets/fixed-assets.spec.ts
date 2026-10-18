@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { FixedAssetsPage } from './fixed-assets.page';
 import { FixedAssetFormPage } from './fixed-asset-form.page';
@@ -68,7 +67,6 @@ describe('fixed assets', () => {
       showError: jest.fn(),
     };
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
         { provide: FixedAssetsService, useValue: api },

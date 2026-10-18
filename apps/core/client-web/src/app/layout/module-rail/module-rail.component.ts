@@ -1,7 +1,7 @@
 import { FitWordDirective } from './fit-word.directive';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Lock } from 'lucide-angular';
 import { ActiveModuleService, ReachableModule } from '../../core/modules/active-module.service';
 import { moduleIcon } from '../../core/modules/module-icons';
@@ -45,7 +45,7 @@ interface RailItem extends ReachableModule {
 @Component({
   selector: 'app-module-rail',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, FitWordDirective],
+  imports: [TranslatePipe, LucideAngularModule, FitWordDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './module-rail.component.html',
   styleUrls: ['./module-rail.component.scss'],

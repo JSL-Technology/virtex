@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { BarcodeScannerComponent } from './barcode-scanner.component';
 
 /** The scanner is never a dead end: no camera, or no permission, still leaves typing the code. */
@@ -21,7 +20,7 @@ describe('BarcodeScannerComponent', () => {
   });
 
   const create = async () => {
-    await TestBed.configureTestingModule({ imports: [BarcodeScannerComponent, TranslateModule.forRoot()] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [BarcodeScannerComponent] }).compileComponents();
     fixture = TestBed.createComponent(BarcodeScannerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -60,7 +59,7 @@ describe('BarcodeScannerComponent', () => {
     (globalThis as unknown as Record<string, unknown>)['BarcodeDetector'] = jest.fn(() => ({ detect }));
     jest.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
     try {
-      await TestBed.configureTestingModule({ imports: [BarcodeScannerComponent, TranslateModule.forRoot()] }).compileComponents();
+      await TestBed.configureTestingModule({ imports: [BarcodeScannerComponent] }).compileComponents();
       fixture = TestBed.createComponent(BarcodeScannerComponent);
       component = fixture.componentInstance;
       const emitted: string[] = [];

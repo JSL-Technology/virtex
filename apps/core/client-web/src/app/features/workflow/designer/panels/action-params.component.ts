@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { composeKey } from '@virteex/shared/types';
+import { TranslatePipe } from '@ngx-translate/core';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VX_SELECT } from '../../../../shared/components/select';
 import { WorkflowActionParam } from '../../data/workflow.service';
@@ -17,7 +16,7 @@ import { DesignerCatalogs, PersonOption } from '../designer-catalogs';
 @Component({
   selector: 'app-workflow-action-params',
   standalone: true,
-  imports: [FormsModule, TranslateModule, ...VX_SELECT, ...VX_FORM_A11Y],
+  imports: [FormsModule, TranslatePipe, ...VX_SELECT, ...VX_FORM_A11Y],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inspector.scss',
   template: `
@@ -56,7 +55,19 @@ import { DesignerCatalogs, PersonOption } from '../designer-catalogs';
               <select [id]="idFor(param)" [value]="text(param)" [disabled]="readonly()" (change)="set(param, $any($event.target).value || undefined)">
                 <option value="">—</option>
                 @for (option of param.options ?? []; track option) {
-                  <option [value]="option">{{ optionLabel(option) }}</option>
+                  <option [value]="option" [selected]="option === text(param)">{{ param.optionLabelKeys?.[option] ? (param.optionLabelKeys![option] | translate) : option }}</option>
+                }
+              </select>
+            }
+            @case ('process') {
+              <select [id]="idFor(param)" [disabled]="readonly()" [attr.aria-required]="param.required || null"
+                [attr.aria-invalid]="missing(param) || null" (change)="set(param, $any($event.target).value || undefined)">
+                <option value="" [selected]="!text(param)">{{ 'workflow_engine.designer.choose_process' | translate }}</option>
+                @for (process of catalogs.processes(); track process.key) {
+                  <option [value]="process.key" [selected]="process.key === text(param)">{{ process.name }}</option>
+                }
+                @if (text(param) && !knownProcess(text(param))) {
+                  <option [value]="text(param)" selected>{{ 'workflow_engine.designer.unknown_process' | translate: { key: text(param) } }}</option>
                 }
               </select>
             }
@@ -68,15 +79,7 @@ import { DesignerCatalogs, PersonOption } from '../designer-catalogs';
             @default {
               <input [id]="idFor(param)" [type]="param.type === 'url' ? 'url' : 'text'" [attr.maxlength]="param.maxLength ?? null" [value]="text(param)"
                 [readOnly]="readonly()" [attr.aria-required]="param.required || null" [attr.aria-invalid]="missing(param) || null"
-                [attr.inputmode]="param.type === 'url' ? 'url' : null" spellcheck="false" (input)="set(param, $any($event.target).value, true)"
-                [attr.list]="param.name === 'workflowKey' ? idFor(param) + '-list' : null" />
-              @if (param.name === 'workflowKey') {
-                <datalist [id]="idFor(param) + '-list'">
-                  @for (process of catalogs.processes(); track process.key) {
-                    <option [value]="process.key">{{ process.name }}</option>
-                  }
-                </datalist>
-              }
+                [attr.inputmode]="param.type === 'url' ? 'url' : null" spellcheck="false" (input)="set(param, $any($event.target).value, true)" />
             }
           }
         }
@@ -94,23 +97,16 @@ import { DesignerCatalogs, PersonOption } from '../designer-catalogs';
 })
 export class ActionParamsComponent {
   protected readonly catalogs = inject(DesignerCatalogs);
-  private readonly translate = inject(TranslateService);
-
-  /**
-   * An option's label: the catalogue's word for it when there is one (`formal`, `draft`), the
-   * value itself when not — an HTTP method or a code reads the same in every language.
-   */
-  optionLabel(option: string): string {
-    const key = composeKey('workflow_engine.param_option', option);
-    const text = this.translate.instant(key);
-    return text === key ? option : text;
-  }
 
   readonly params = input<WorkflowActionParam[]>([]);
   readonly value = input<Record<string, unknown>>({});
   readonly readonly = input(false);
   readonly idPrefix = input('param');
   readonly valueChange = output<{ value: Record<string, unknown>; coalesce?: string }>();
+
+  protected knownProcess(key: string): boolean {
+    return this.catalogs.processes().some((process) => process.key === key);
+  }
 
   protected readonly personName = (p: PersonOption) => p.name;
   protected readonly personEmail = (p: PersonOption) => p.email;

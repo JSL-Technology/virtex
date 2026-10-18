@@ -3,6 +3,7 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsIn,
   IsNumber,
   IsOptional,
   IsString,
@@ -38,6 +39,21 @@ export class PosSaleItemDto {
   quantity: number;
 }
 
+/** One tender: how part (or all) of the sale was paid. */
+export class PosPaymentDto {
+  @IsIn(['cash', 'card', 'transfer', 'other'], { message: 'validation.constraints.is_in' })
+  method: 'cash' | 'card' | 'transfer' | 'other';
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0.01, { message: 'validation.constraints.min|{"min":0.01}' })
+  amount: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80, { message: 'validation.constraints.max_length|{"max":80}' })
+  reference?: string;
+}
+
 export class ProcessSaleDto {
   @IsString()
   @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
@@ -71,4 +87,16 @@ export class ProcessSaleDto {
   @IsString()
   @MaxLength(255, { message: 'validation.constraints.max_length|{"max":255}' })
   customerName?: string;
+
+  /**
+   * How the customer paid (QA C-04). Several entries make a mixed payment. Optional so an older
+   * till keeps working; when present it must cover the total, and only cash may exceed it — the
+   * difference is the change.
+   */
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(10, { message: 'validation.constraints.array_max_size|{"max":10}' })
+  @ValidateNested({ each: true })
+  @Type(() => PosPaymentDto)
+  payments?: PosPaymentDto[];
 }

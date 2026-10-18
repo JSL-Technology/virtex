@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, PackagePlus } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -32,7 +32,7 @@ export const GOODS_RECEIPT_TONE: Record<GoodsReceiptStatus, VxTone> = { POSTED: 
   imports: [
     FormsModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     LucideAngularModule,
     ...FORMAT_PIPES,
     ...VX_SELECT,

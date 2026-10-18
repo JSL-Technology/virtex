@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Info } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { catchError, combineLatest, map, of } from 'rxjs';
 import { DashboardApiService } from '../../../../core/api/dashboard-api.service';
 import { FormatService } from '@virteex/shared/ui-i18n';
@@ -39,7 +39,7 @@ interface FinancialRatio {
 @Component({
   selector: 'app-financial-ratios',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe],
   templateUrl: './financial-ratios.html',
   styleUrls: ['./financial-ratios.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

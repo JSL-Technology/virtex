@@ -6,7 +6,7 @@ import {
   SearchResult,
   SearchResultGroup as BaseSearchResultGroup,
 } from '../../core/services/search.service';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { IdentityDocumentsService } from '../../core/api/identity-documents.service';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../shared/components/gestures';
@@ -18,7 +18,7 @@ interface SearchResultGroup extends BaseSearchResultGroup {
 @Component({
   selector: 'app-global-search-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [RouterLink, LucideAngularModule, TranslatePipe, ListShellComponent],
   templateUrl: './global-search.page.html',
   styleUrls: ['./global-search.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

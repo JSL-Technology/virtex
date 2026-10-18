@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, WifiOff } from 'lucide-angular';
 import { PwaService } from '../../../core/services/pwa.service';
 
 @Component({
   selector: 'app-offline-banner',
   standalone: true,
-  imports: [CommonModule, TranslateModule, LucideAngularModule],
+  imports: [CommonModule, TranslatePipe, LucideAngularModule],
   template: `
     @if (!pwaService.isOnline()) {
       <div class="offline-banner">

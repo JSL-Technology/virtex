@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { throwError } from 'rxjs';
 import { StepConfiguration } from './step-configuration';
 import { CountryService } from '../../../../../core/services/country.service';
 import { MockCountryService, US_CONFIG } from '../../../../../../testing/country.service.mock';
+import { provideTranslateService } from '@ngx-translate/core';
 
 /**
  * The same shape `RegisterPage` builds. `taxpayerKind` and the `fiscalProfile` sub-group are part
@@ -32,8 +32,9 @@ describe('StepConfiguration', () => {
 
   const build = async () => {
     await TestBed.configureTestingModule({
-      imports: [StepConfiguration, ReactiveFormsModule, TranslateModule.forRoot()],
+      imports: [StepConfiguration, ReactiveFormsModule],
       providers: [
+        provideTranslateService(),
         { provide: CountryService, useClass: MockCountryService },
         { provide: Router, useValue: mockRouter },
       ],
@@ -69,8 +70,9 @@ describe('StepConfiguration', () => {
       failing.getSupportedCountries = jest.fn(() => throwError(() => new Error('offline')));
 
       await TestBed.configureTestingModule({
-        imports: [StepConfiguration, ReactiveFormsModule, TranslateModule.forRoot()],
+        imports: [StepConfiguration, ReactiveFormsModule],
         providers: [
+          provideTranslateService(),
           { provide: CountryService, useValue: failing },
           { provide: Router, useValue: mockRouter },
         ],

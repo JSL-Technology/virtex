@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Check, X, AlertTriangle } from 'lucide-angular';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TransitionPreview, LedgerEffect, StockEffect, SequenceEffect } from './transition-preview.model';
@@ -24,7 +24,7 @@ import { TransitionPreview, LedgerEffect, StockEffect, SequenceEffect } from './
 @Component({
   selector: 'app-transition-preview',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES],
+  imports: [CommonModule, RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './transition-preview.component.html',
   styleUrls: ['./transition-preview.component.scss'],

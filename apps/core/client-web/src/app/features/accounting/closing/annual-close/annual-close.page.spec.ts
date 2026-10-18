@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth';
 import { DialogService } from '../../../../core/services/dialog.service';
@@ -36,7 +35,7 @@ describe('AnnualClosePage', () => {
 
   function create() {
     TestBed.configureTestingModule({
-      imports: [AnnualClosePage, TranslateModule.forRoot()],
+      imports: [AnnualClosePage],
       providers: [
         provideRouter([]),
         { provide: FiscalYearsService, useValue: api },

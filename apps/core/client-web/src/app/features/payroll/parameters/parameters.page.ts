@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth';
 import { LucideAngularModule, Save } from 'lucide-angular';
 import { catchError, forkJoin, of } from 'rxjs';
@@ -34,7 +34,7 @@ import { VxDateFieldComponent } from '../../../shared/components/date';
 @Component({
   selector: 'app-payroll-parameters-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './parameters.page.html',
   styleUrls: ['./parameters.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

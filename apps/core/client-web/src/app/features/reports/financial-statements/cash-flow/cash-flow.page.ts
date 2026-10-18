@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, AlertTriangle, Calendar, FileDown, RefreshCw } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { StatementExportService } from '../../../../core/export/statement-export.service';
 import {
@@ -24,7 +24,7 @@ import { VxDateRangeComponent } from '../../../../shared/components/date';
 @Component({
   selector: 'app-cash-flow-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
   templateUrl: './cash-flow.page.html',
   styleUrls: ['../balance-sheet/balance-sheet.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

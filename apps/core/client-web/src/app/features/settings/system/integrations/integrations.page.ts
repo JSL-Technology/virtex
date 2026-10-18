@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { AuthService } from '../../../../core/services/auth';
@@ -88,7 +88,7 @@ export interface IntegrationCard {
 @Component({
   selector: 'app-integration-settings-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './integrations.page.html',
   styleUrls: ['./integrations.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

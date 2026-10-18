@@ -22,6 +22,13 @@ export interface PosSaleItemPayload {
   quantity: number;
 }
 
+/** One tender of a sale (QA C-04). */
+export interface PosPaymentPayload {
+  method: 'cash' | 'card' | 'transfer' | 'other';
+  amount: number;
+  reference?: string;
+}
+
 export interface ProcessSalePayload {
   terminalId: string;
   items: PosSaleItemPayload[];
@@ -30,6 +37,7 @@ export interface ProcessSalePayload {
   total: number;
   paymentMethod?: string;
   customerName?: string;
+  payments?: PosPaymentPayload[];
 }
 
 export interface PosSale {
@@ -44,6 +52,9 @@ export interface PosSale {
   invoiceId: string | null;
   status: string;
   createdAt: string;
+  payments?: PosPaymentPayload[];
+  amountTendered?: number | null;
+  changeDue?: number;
   /** The branch of the till; null for a company without branches. */
   branchId?: string | null;
 }

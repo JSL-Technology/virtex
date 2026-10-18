@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { FormatService } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { AlertTriangle, Copy, CircleAlert, LucideAngularModule, Plus, Trash2, ArrowRight } from 'lucide-angular';
 import { VX_SELECT } from '../../../../shared/components/select';
@@ -27,7 +28,7 @@ const UNIT_MINUTES: Record<DurationUnit, number> = { minutes: 1, hours: 60, days
 @Component({
   selector: 'app-workflow-node-panel',
   standalone: true,
-  imports: [FormsModule, TranslateModule, LucideAngularModule, ...VX_SELECT, ...VX_FORM_A11Y, ActionParamsComponent, VariablesEditorComponent],
+  imports: [FormsModule, TranslatePipe, LucideAngularModule, ...VX_SELECT, ...VX_FORM_A11Y, ActionParamsComponent, VariablesEditorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inspector.scss',
   template: `
@@ -62,8 +63,8 @@ const UNIT_MINUTES: Record<DurationUnit, number> = { minutes: 1, hours: 60, days
     <section class="insp-section">
       <h4 class="insp-section__title">{{ 'workflow_engine.designer.general' | translate }}</h4>
       <div class="insp-field">
-        <label for="node-type">{{ 'workflow_engine.field.type' | translate }}</label>
-        <input id="node-type" type="text" [value]="typeKey() | translate" readonly tabindex="-1" />
+        <span class="insp-label" id="node-type-label">{{ 'workflow_engine.field.type' | translate }}</span>
+        <p class="insp-static" aria-labelledby="node-type-label">{{ typeKey() | translate }}</p>
       </div>
       <div class="insp-field">
         <label for="node-name">{{ 'workflow_engine.field.name' | translate }}</label>
@@ -103,14 +104,16 @@ const UNIT_MINUTES: Record<DurationUnit, number> = { minutes: 1, hours: 60, days
           <div class="insp-field">
             <label for="node-role">{{ 'workflow_engine.field.role' | translate }}</label>
             <vx-select inputId="node-role" [ngModel]="cfg.assigneeRoleId ?? null" (ngModelChange)="setRole($event)" [disabled]="readonly()"
-              [options]="catalogs.roles()" [displayWith]="roleLabel" [valueWith]="roleId" />
+              [options]="catalogs.roles()" [displayWith]="roleLabel" [describeWith]="roleDescription" [disabledWith]="cannotAct" [valueWith]="roleId" />
             <p class="insp-hint">{{ 'workflow_engine.designer.role_hint' | translate }}</p>
+            <p class="insp-hint">{{ 'workflow_engine.designer.can_act_hint' | translate }}</p>
           </div>
         } @else {
           <div class="insp-field">
             <label for="node-user">{{ 'workflow_engine.field.user' | translate }}</label>
             <vx-select inputId="node-user" [ngModel]="cfg.assigneeUserId ?? null" (ngModelChange)="setUser($event)" [disabled]="readonly()"
-              [search]="catalogs.searchPeople" [resolveWith]="catalogs.resolvePerson" [displayWith]="personName" [describeWith]="personEmail" [valueWith]="personId" />
+              [search]="catalogs.searchPeople" [resolveWith]="catalogs.resolvePerson" [displayWith]="personName" [describeWith]="personDescription" [disabledWith]="cannotAct" [valueWith]="personId" />
+            <p class="insp-hint">{{ 'workflow_engine.designer.can_act_hint' | translate }}</p>
           </div>
         }
         <div class="insp-row">
@@ -126,6 +129,9 @@ const UNIT_MINUTES: Record<DurationUnit, number> = { minutes: 1, hours: 60, days
             </select>
           </div>
         </div>
+        @if (dueRounded(); as hours) {
+          <p class="insp-hint" role="status">{{ 'workflow_engine.designer.due_rounded' | translate: { hours } }}</p>
+        }
         @if (cfg.dueInHours) {
           <div class="insp-field">
             <label for="node-escalate">{{ 'workflow_engine.field.escalate_to' | translate }}</label>
@@ -148,7 +154,7 @@ const UNIT_MINUTES: Record<DurationUnit, number> = { minutes: 1, hours: 60, days
           @for (outcome of outcomes(); track outcome) {
             <li class="insp-card">
               <div class="insp-card__head">
-                <span class="insp-mono">{{ outcome }}</span>
+                <strong [title]="outcome">{{ cfg.outcomeLabels?.[outcome] || defaultOutcomeLabel(outcome) }}</strong>
                 @if (targetOf(outcome); as target) {
                   <button type="button" class="insp-link" (click)="store.select({ edges: [target.edgeId] })">
                     <lucide-icon [img]="ArrowIcon" [size]="12" /> {{ target.name }}
@@ -253,6 +259,9 @@ const UNIT_MINUTES: Record<DurationUnit, number> = { minutes: 1, hours: 60, days
               </select>
             </div>
           </div>
+          @if (timerRounded(); as minutes) {
+            <p class="insp-hint" role="status">{{ 'workflow_engine.designer.timer_rounded' | translate: { minutes } }}</p>
+          }
         } @else {
           <div class="insp-field">
             <label for="node-timer-var">{{ 'workflow_engine.designer.date_variable' | translate }}</label>
@@ -324,6 +333,7 @@ export class NodePanelComponent {
   protected readonly store = inject(DesignerStore);
   protected readonly catalogs = inject(DesignerCatalogs);
   private readonly translate = inject(TranslateService);
+  private readonly format = inject(FormatService);
 
   readonly node = input.required<WorkflowGraphNode>();
   readonly readonly = input(false);
@@ -331,6 +341,18 @@ export class NodePanelComponent {
 
   protected readonly newOutcome = signal('');
   protected readonly outcomeError = signal<string | null>(null);
+  /** The whole minutes/hours a fractional entry was stored as, shown under the field; null when exact. */
+  protected readonly timerRounded = signal<number | null>(null);
+  protected readonly dueRounded = signal<number | null>(null);
+  private readonly forgetRounding = effect(() => {
+    // Another step selected: the note was about the previous one.
+    const nodeId = this.node().id;
+    untracked(() => {
+      if (!nodeId) return;
+      this.timerRounded.set(null);
+      this.dueRounded.set(null);
+    });
+  });
   /** Remembered so switching person ↔ role doesn't flip back while the field is still empty. */
   private readonly preferredMode = signal<'role' | 'user' | null>(null);
 
@@ -345,6 +367,14 @@ export class NodePanelComponent {
   protected readonly personEmail = (p: PersonOption) => p.email;
   protected readonly personId = (p: PersonOption) => p.id;
   protected readonly roleLabel = (r: RoleOption) => r.label;
+  /** Who can answer, at the moment of choosing: a role without the grant would stall every run. */
+  protected readonly roleDescription = (r: RoleOption) =>
+    r.canAct === false
+      ? this.translate.instant('workflow_engine.designer.cannot_act')
+      : this.translate.instant(`workflow_engine.designer.role_members.${this.format.pluralCategory(r.members ?? 0) === 'one' ? 'one' : 'other'}`, { count: r.members ?? 0 });
+  protected readonly personDescription = (p: PersonOption) =>
+    p.canAct === false ? `${p.email} · ${this.translate.instant('workflow_engine.designer.cannot_act')}` : p.email;
+  protected readonly cannotAct = (option: RoleOption | PersonOption) => option.canAct === false;
   protected readonly roleId = (r: RoleOption) => r.id;
 
   readonly icon = computed(() => NODE_ICONS[this.node().type]);
@@ -442,19 +472,29 @@ export class NodePanelComponent {
 
   setDue(raw: string, unit: 'hours' | 'days'): void {
     const amount = Number(raw);
-    const hours = raw === '' || !Number.isFinite(amount) || amount <= 0 ? undefined : Math.round(unit === 'days' ? amount * 24 : amount);
+    const exact = unit === 'days' ? amount * 24 : amount;
+    const hours = raw === '' || !Number.isFinite(amount) || amount <= 0 ? undefined : Math.round(exact);
+    // Deadlines count whole hours: say what will be stored instead of rounding behind the author's back.
+    this.dueRounded.set(hours !== undefined && hours !== exact ? hours : null);
     this.patch({ dueInHours: hours, ...(hours ? {} : { escalateToUserId: undefined }) }, 'due');
   }
 
   setTimer(raw: string, unit: DurationUnit): void {
     const amount = Number(raw);
-    const minutes = raw === '' || !Number.isFinite(amount) || amount <= 0 ? undefined : Math.round(amount * UNIT_MINUTES[unit]);
+    const exact = amount * UNIT_MINUTES[unit];
+    const minutes = raw === '' || !Number.isFinite(amount) || amount <= 0 ? undefined : Math.round(exact);
+    // A wait counts whole minutes: «1,5» becomes 2, and the author is told so (QA: it was silent).
+    this.timerRounded.set(minutes !== undefined && minutes !== exact ? minutes : null);
     this.patch({ timerMinutes: minutes }, 'timer');
   }
 
   setAction(key: string): void {
-    // Parameters belong to the action: changing it starts from an empty form.
-    this.patch({ action: key || undefined, actionParams: undefined });
+    // Parameters belong to the action: changing it starts from its defaults, not the old values.
+    const action = this.catalogs.action(key);
+    const defaults = Object.fromEntries(
+      (action?.params ?? []).filter((param) => param.defaultValue !== undefined).map((param) => [param.name, param.defaultValue]),
+    );
+    this.patch({ action: key || undefined, actionParams: Object.keys(defaults).length ? defaults : undefined });
   }
 
   setForm(form: WorkflowVariable[], coalesce?: string): void {

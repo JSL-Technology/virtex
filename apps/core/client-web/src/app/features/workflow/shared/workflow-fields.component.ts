@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { Observable, map, of } from 'rxjs';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -13,13 +13,22 @@ interface Person {
 }
 
 /** Problems a set of values has against its fields: `{ field: messageKey }`. */
-export function fieldProblems(fields: readonly WorkflowVariable[], values: Record<string, unknown>): Record<string, string> {
+export function fieldProblems(
+  fields: readonly WorkflowVariable[],
+  values: Record<string, unknown>,
+  options: { relaxRequired?: boolean } = {},
+): Record<string, string> {
   const out: Record<string, string> = {};
   for (const field of fields) {
     const value = values[field.name];
     const empty = value === undefined || value === null || value === '';
-    if (field.required && empty && field.type !== 'boolean') out[field.name] = 'workflow_engine.form.required';
-    else if (!empty && field.type === 'number' && !Number.isFinite(Number(value))) out[field.name] = 'workflow_engine.form.number';
+    const number = Number(value);
+    // A refusal (reject, return) does not complete the work the form describes: its required
+    // fields are not asked for, exactly as the server decides (QA M-04).
+    if (field.required && !options.relaxRequired && empty && field.type !== 'boolean') out[field.name] = 'workflow_engine.form.required';
+    else if (!empty && field.type === 'number' && !Number.isFinite(number)) out[field.name] = 'workflow_engine.form.number';
+    else if (!empty && field.type === 'number' && field.min !== undefined && number < field.min) out[field.name] = 'workflow_engine.form.min';
+    else if (!empty && field.type === 'number' && field.max !== undefined && number > field.max) out[field.name] = 'workflow_engine.form.max';
     else if (!empty && field.type === 'select' && field.options?.length && !field.options.includes(String(value))) out[field.name] = 'workflow_engine.form.option';
   }
   return out;
@@ -34,7 +43,7 @@ export function fieldProblems(fields: readonly WorkflowVariable[], values: Recor
 @Component({
   selector: 'app-workflow-fields',
   standalone: true,
-  imports: [FormsModule, TranslateModule, ...VX_SELECT, ...VX_FORM_A11Y],
+  imports: [FormsModule, TranslatePipe, ...VX_SELECT, ...VX_FORM_A11Y],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @for (field of fields(); track field.name) {
@@ -59,6 +68,7 @@ export function fieldProblems(fields: readonly WorkflowVariable[], values: Recor
             }
             @case ('number') {
               <input [id]="idFor(field)" type="number" inputmode="decimal" [value]="text(field)" [readOnly]="readonly()"
+                [attr.min]="field.min ?? null" [attr.max]="field.max ?? null"
                 [attr.aria-required]="field.required || null" [attr.aria-invalid]="showProblem(field) || null" [attr.aria-describedby]="showProblem(field) ? idFor(field) + '-err' : null"
                 (input)="setNumber(field, $any($event.target).value)" />
             }
@@ -72,7 +82,7 @@ export function fieldProblems(fields: readonly WorkflowVariable[], values: Recor
                 [attr.aria-invalid]="showProblem(field) || null" (change)="set(field, $any($event.target).value)">
                 <option value="">—</option>
                 @for (option of field.options ?? []; track option) {
-                  <option [value]="option">{{ option }}</option>
+                  <option [value]="option" [selected]="option === text(field)">{{ option }}</option>
                 }
               </select>
             }
@@ -92,7 +102,7 @@ export function fieldProblems(fields: readonly WorkflowVariable[], values: Recor
           <p class="wff__hint">{{ field.description }}</p>
         }
         @if (showProblem(field)) {
-          <p class="wff__error" [id]="idFor(field) + '-err'" role="alert">{{ problems()[field.name] | translate }}</p>
+          <p class="wff__error" [id]="idFor(field) + '-err'" role="alert">{{ problems()[field.name] | translate: { min: field.min, max: field.max } }}</p>
         }
       </div>
     }
@@ -168,7 +178,9 @@ export class WorkflowFieldsComponent {
   readonly idPrefix = input('wf-field');
   readonly valueChange = output<Record<string, unknown>>();
 
-  readonly problems = computed(() => fieldProblems(this.fields(), this.value()));
+  /** Required fields are not demanded (the chosen answer is a refusal). */
+  readonly relaxRequired = input(false);
+  readonly problems = computed(() => fieldProblems(this.fields(), this.value(), { relaxRequired: this.relaxRequired() }));
 
   private readonly known = new Map<string, Person>();
 

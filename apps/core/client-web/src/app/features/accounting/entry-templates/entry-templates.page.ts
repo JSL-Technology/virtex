@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
@@ -16,7 +16,7 @@ import { EntryTemplate, RecurringEntriesService } from '../data/recurring-entrie
 @Component({
   selector: 'app-entry-templates-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ListShellComponent, HasPermissionDirective, RowLinkDirective],
+  imports: [RouterLink, TranslatePipe, LucideAngularModule, ListShellComponent, HasPermissionDirective, RowLinkDirective],
   templateUrl: './entry-templates.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

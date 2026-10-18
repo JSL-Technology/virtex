@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Plus, Pencil, Trash2, PlusCircle } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -39,7 +39,7 @@ interface CategoryRow {
 @Component({
   selector: 'app-categories-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe, ListShellComponent, VxBadgeComponent],
   templateUrl: './categories.page.html',
   styleUrls: ['./categories.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

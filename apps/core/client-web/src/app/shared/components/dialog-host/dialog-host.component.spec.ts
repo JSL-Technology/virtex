@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { DialogHostComponent } from './dialog-host.component';
 import { DialogService } from '../../../core/services/dialog.service';
+import { provideTranslateService } from '@ngx-translate/core';
 
 /**
  * The prompt honours exactly the minimum its caller asked for. It used to demand at least one
@@ -11,7 +11,8 @@ import { DialogService } from '../../../core/services/dialog.service';
 describe('DialogHostComponent — prompt', () => {
   async function open(minLength?: number) {
     await TestBed.configureTestingModule({
-      imports: [DialogHostComponent, TranslateModule.forRoot()],
+      providers: [provideTranslateService()],
+      imports: [DialogHostComponent],
     }).compileComponents();
     const fixture = TestBed.createComponent(DialogHostComponent);
     const dialogs = TestBed.inject(DialogService);

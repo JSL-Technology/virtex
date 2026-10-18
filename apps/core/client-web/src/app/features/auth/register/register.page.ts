@@ -16,7 +16,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   LucideAngularModule,
   CheckCircle,
@@ -77,7 +77,7 @@ export function passwordMatchValidator(
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
     LucideAngularModule,
     RouterLink,
     StepAccountInfo,

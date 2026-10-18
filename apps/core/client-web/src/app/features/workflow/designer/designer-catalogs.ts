@@ -17,12 +17,16 @@ export interface PersonOption {
   id: string;
   name: string;
   email: string;
+  /** Holds the grant to answer tasks. Absent when unknown (a person resolved by id only). */
+  canAct?: boolean;
 }
 
 export interface RoleOption {
   id: string;
   name: string;
   label: string;
+  canAct?: boolean;
+  members?: number;
 }
 
 /**
@@ -66,6 +70,17 @@ export class DesignerCatalogs {
     }
     for (const node of this.store.nodes()) {
       for (const field of node.config?.form ?? []) add(field);
+      // What automatic steps write: the same list the server's validation counts as declared.
+      const action = node.type === 'action' ? node.config?.action : undefined;
+      if (action === 'set_variable') {
+        const name = String(node.config?.actionParams?.['name'] ?? '').trim();
+        if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) add({ name, type: 'string', label: name });
+      } else if (action === 'webhook') {
+        add({ name: 'webhook.ok', type: 'boolean', label: this.translate.instant('workflow_engine.variable.webhook_ok') });
+        add({ name: 'webhook.status', type: 'number', label: this.translate.instant('workflow_engine.variable.webhook_status') });
+      } else if (action === 'document_decision') {
+        add({ name: 'document.ok', type: 'boolean', label: this.translate.instant('workflow_engine.variable.document_ok') });
+      }
     }
     add({ name: 'lastOutcome', type: 'string', label: this.translate.instant('workflow_engine.variable.last_outcome') });
     add({ name: 'lastComment', type: 'string', label: this.translate.instant('workflow_engine.variable.last_comment') });
@@ -138,7 +153,9 @@ export class DesignerCatalogs {
 
   private setAssignees(assignees: WorkflowAssignees): void {
     this.people.set(assignees.users);
-    this.roles.set(assignees.roles.map((role) => ({ id: role.id, name: role.name, label: roleLabel(this.translate, role.name) })));
+    this.roles.set(
+      assignees.roles.map((role) => ({ id: role.id, name: role.name, label: roleLabel(this.translate, role.name), canAct: role.canAct, members: role.members })),
+    );
   }
 
   private mergePeople(users: PersonOption[]): void {

@@ -39,12 +39,12 @@
             <td>{{ period.startDate | vxDate: 'date' : true }}</td>
             <td>{{ period.endDate | vxDate: 'date' : true }}</td>
             <td class="text-center">
-              <vx-badge [tone]="statusTone(period.status)">
-                {{ statusKey(period.status) | translate }}
+              <vx-badge [tone]="statusTone(period.status, period)">
+                {{ statusKey(period.status, period) | translate }}
               </vx-badge>
             </td>
             <td class="actions-column">
-              @if (period.status === 'OPEN') {
+              @if (period.status === 'OPEN' && period.id === nextClosableId()) {
                 <button
                   class="action-button"
                   type="button"
@@ -54,6 +54,13 @@
                   <lucide-icon [img]="LockIcon" size="16" aria-hidden="true"></lucide-icon>
                   <span>{{ 'accounting.periods.close_period' | translate }}</span>
                 </button>
+              } @else if (period.status === 'OPEN') {
+                <!-- Not closable yet: said once, in words, instead of a button that would be refused. -->
+                @if (phase(period) === 'ended' && nextClosable(); as first) {
+                  <span class="period-hint">{{ 'accounting.periods.close_first' | translate: { period: label(first) } }}</span>
+                } @else {
+                  <span class="period-hint">—</span>
+                }
               } @else {
                 <button
                   class="action-button"

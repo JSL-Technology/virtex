@@ -42,7 +42,7 @@ import { StepUpService, StepUpScope } from '../../../core/services/step-up.servi
 import { SecuritySettingsComponent } from '../components/security-settings/security-settings.component';
 import { PhoneVerificationModalComponent } from '../components/phone-verification-modal/phone-verification-modal.component';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FileUtil } from '../../../shared/utils/file.util';
 // H4 FIX: enforce the same password policy as register/reset/set (and the backend) on the
 // change-password form, which previously only required minLength(8).
@@ -79,7 +79,7 @@ interface ProfileForm {
     ReactiveFormsModule,
     LucideAngularModule,
     SecuritySettingsComponent,
-    TranslateModule,
+    TranslatePipe,
     PhoneVerificationModalComponent,
     PasswordStrengthComponent,
     RoleNamePipe,

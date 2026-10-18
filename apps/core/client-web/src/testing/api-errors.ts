@@ -50,7 +50,7 @@ export const TRANSLATE_STORE_PROVIDERS: Provider[] = [
 export function useCatalogue(entries: Record<string, string>): TranslateService {
   const translate = TestBed.inject(TranslateService);
   translate.setTranslation('es', entries, true);
-  translate.setDefaultLang('es');
+  translate.setFallbackLang('es');
   translate.use('es');
   return translate;
 }

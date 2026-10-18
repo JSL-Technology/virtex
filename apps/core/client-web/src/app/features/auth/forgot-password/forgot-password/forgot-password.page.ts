@@ -8,7 +8,7 @@ import { recaptchaToken$ } from '../../../../core/auth/recaptcha-token';
 import { environment } from '../../../../../environments/environment';
 import { switchMap } from 'rxjs/operators';
 import { LanguageService } from '../../../../core/services/language';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Mail, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-angular';
 
 // Shared Components
@@ -25,7 +25,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
     ReactiveFormsModule,
     RecaptchaV3Module,
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     LucideAngularModule,
     AuthInputComponent,
     AuthButtonComponent,

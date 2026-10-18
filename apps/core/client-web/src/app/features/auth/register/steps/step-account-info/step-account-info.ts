@@ -1,7 +1,7 @@
 import { Component, Input, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
 import { IntlPhoneInputComponent } from '../../../../../shared/components/intl-phone-input/intl-phone-input.component';
 import { PasswordStrengthComponent } from '../../../../../shared/components/password-strength/password-strength.component';
@@ -16,7 +16,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
     AuthInputComponent,
     IntlPhoneInputComponent,
     PasswordStrengthComponent,

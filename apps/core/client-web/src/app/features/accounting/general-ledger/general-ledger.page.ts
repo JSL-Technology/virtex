@@ -8,7 +8,7 @@ import { GeneralLedgerLine, GeneralLedger as GeneralLedgerData } from '../../../
 import { LedgersService } from '../../../core/api/ledgers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { Observable } from 'rxjs';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
@@ -24,7 +24,7 @@ import { StatementExportService } from '../../../core/export/statement-export.se
 @Component({
   selector: 'app-general-ledger-page',
   standalone: true,
-  imports: [LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxAmountComponent, VxDateRangeComponent, ...VX_SELECT],
+  imports: [LucideAngularModule, FormsModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxAmountComponent, VxDateRangeComponent, ...VX_SELECT],
   templateUrl: './general-ledger.page.html',
   styleUrls: ['./general-ledger.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

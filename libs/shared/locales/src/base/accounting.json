@@ -621,7 +621,7 @@
     "pt": "Todos os tipos"
   },
   "accounting.chart_of_accounts.balance": {
-    "es": "Balance",
+    "es": "Saldo",
     "en": "Balance",
     "pt": "Saldo"
   },
@@ -630,15 +630,15 @@
     "en": "Chart of accounts",
     "pt": "Plano de contas"
   },
-  "accounting.chart_of_accounts.delete": {
-    "es": "Eliminar",
-    "en": "Delete",
-    "pt": "Excluir"
+  "accounting.chart_of_accounts.delete_named": {
+    "es": "Eliminar la cuenta {{name}}",
+    "en": "Delete account {{name}}",
+    "pt": "Excluir a conta {{name}}"
   },
-  "accounting.chart_of_accounts.edit": {
-    "es": "Editar",
-    "en": "Edit",
-    "pt": "Editar"
+  "accounting.chart_of_accounts.edit_named": {
+    "es": "Editar la cuenta {{name}}",
+    "en": "Edit account {{name}}",
+    "pt": "Editar a conta {{name}}"
   },
   "accounting.chart_of_accounts.export": {
     "es": "Exportar",
@@ -805,6 +805,16 @@
     "en": "Account",
     "pt": "Conta"
   },
+  "accounting.daily_journal.all_statuses": {
+    "es": "Todos los estados",
+    "en": "All statuses",
+    "pt": "Todos os status"
+  },
+  "accounting.daily_journal.clear_filters": {
+    "es": "Quitar filtros",
+    "en": "Clear filters",
+    "pt": "Limpar filtros"
+  },
   "accounting.daily_journal.credit": {
     "es": "Crédito",
     "en": "Credit",
@@ -840,10 +850,40 @@
     "en": "Export",
     "pt": "Exportar"
   },
+  "accounting.daily_journal.export_hint": {
+    "es": "Descarga todas las líneas de todos los asientos en CSV.",
+    "en": "Downloads every line of every entry as CSV.",
+    "pt": "Baixa todas as linhas de todos os lançamentos em CSV."
+  },
+  "accounting.daily_journal.export_nothing": {
+    "es": "No hay asientos que exportar.",
+    "en": "There are no entries to export.",
+    "pt": "Não há lançamentos para exportar."
+  },
   "accounting.daily_journal.load_failed": {
     "es": "No se pudo cargar el libro diario.",
     "en": "The journal could not be loaded.",
     "pt": "Não foi possível carregar o livro diário."
+  },
+  "accounting.daily_journal.no_entries_filtered": {
+    "es": "Ningún asiento coincide con estos filtros.",
+    "en": "No entries match these filters.",
+    "pt": "Nenhum lançamento corresponde a estes filtros."
+  },
+  "accounting.daily_journal.no_entries_yet": {
+    "es": "Aún no hay asientos. Aparecerán aquí al contabilizar facturas, cobros o asientos manuales.",
+    "en": "No entries yet. They appear here as invoices, receipts or manual entries are posted.",
+    "pt": "Ainda não há lançamentos. Eles aparecem aqui ao contabilizar faturas, recebimentos ou lançamentos manuais."
+  },
+  "accounting.daily_journal.search_placeholder": {
+    "es": "Buscar por número o descripción",
+    "en": "Search by number or description",
+    "pt": "Buscar por número ou descrição"
+  },
+  "accounting.daily_journal.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
   },
   "accounting.default_ledger_cannot_unset_without_designating": {
     "es": "No puede quitar el libro contable por defecto sin designar otro: sin él no es posible contabilizar.",
@@ -2035,6 +2075,11 @@
     "en": "{{period}} could not be closed.",
     "pt": "Não foi possível encerrar {{period}}."
   },
+  "accounting.periods.close_first": {
+    "es": "Cierra primero {{period}}",
+    "en": "Close {{period}} first",
+    "pt": "Feche {{period}} primeiro"
+  },
   "accounting.periods.close_period": {
     "es": "Cerrar período",
     "en": "Close period",
@@ -2089,6 +2134,16 @@
     "es": "Cerrado",
     "en": "Closed",
     "pt": "Encerrado"
+  },
+  "accounting.periods.status_current": {
+    "es": "En curso",
+    "en": "Current",
+    "pt": "Em andamento"
+  },
+  "accounting.periods.status_future": {
+    "es": "Futuro",
+    "en": "Upcoming",
+    "pt": "Futuro"
   },
   "accounting.periods.status_open": {
     "es": "Abierto",

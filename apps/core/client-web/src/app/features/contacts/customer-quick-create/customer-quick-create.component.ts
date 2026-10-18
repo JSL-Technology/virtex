@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
@@ -42,7 +42,7 @@ import { NotificationService } from '../../../core/services/notification';
 @Component({
   selector: 'app-customer-quick-create',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, VxDialogComponent, ...VX_SELECT, ...VX_FORM_A11Y],
+  imports: [ReactiveFormsModule, TranslatePipe, VxDialogComponent, ...VX_SELECT, ...VX_FORM_A11Y],
   templateUrl: './customer-quick-create.component.html',
   styleUrls: ['./customer-quick-create.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

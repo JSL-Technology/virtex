@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FiscalSettingsService,
@@ -37,7 +37,7 @@ import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/d
 @Component({
   selector: 'app-tax-jurisdictions-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDateFieldComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDateFieldComponent],
   templateUrl: './tax-jurisdictions.page.html',
   styleUrls: ['./tax-jurisdictions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -2,7 +2,6 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { StatementExportService } from '../../../core/export/statement-export.service';
 import { GeneralLedgerPage } from './general-ledger.page';
 
@@ -16,7 +15,7 @@ describe('GeneralLedgerPage', () => {
 
   function create(accountId: string | null) {
     TestBed.configureTestingModule({
-      imports: [GeneralLedgerPage, TranslateModule.forRoot()],
+      imports: [GeneralLedgerPage],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),

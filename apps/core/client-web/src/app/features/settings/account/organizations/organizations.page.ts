@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Building2, Network, Plus, Check } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
@@ -26,7 +26,7 @@ import { AddCompanyComponent } from './add-company.component';
 @Component({
   selector: 'app-organizations-settings',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, HasPermissionDirective, VxBadgeComponent, AddCompanyComponent],
+  imports: [TranslatePipe, LucideAngularModule, HasPermissionDirective, VxBadgeComponent, AddCompanyComponent],
   templateUrl: './organizations.page.html',
   styleUrls: ['./organizations.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

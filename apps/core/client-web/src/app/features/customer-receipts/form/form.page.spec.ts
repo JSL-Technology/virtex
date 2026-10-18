@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { CustomerReceiptFormPage } from './form.page';
 import { environment } from '../../../../environments/environment';
 
@@ -64,7 +63,7 @@ describe('CustomerReceiptFormPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CustomerReceiptFormPage, TranslateModule.forRoot()],
+      imports: [CustomerReceiptFormPage],
       providers: [
         provideTestBranches(),provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();

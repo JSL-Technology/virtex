@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { JournalEntryImportPage } from './import.page';
 import { ImportPreview } from '../../../../core/services/journal-entries';
 import { environment } from '../../../../../environments/environment';
@@ -67,7 +66,7 @@ describe('JournalEntryImportPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [JournalEntryImportPage, TranslateModule.forRoot()],
+      imports: [JournalEntryImportPage],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
 

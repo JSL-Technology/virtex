@@ -36,7 +36,7 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../share
 import { VX_SELECT } from '../../../shared/components/select';
 import { CustomerQuickCreateComponent } from '../../contacts/customer-quick-create/customer-quick-create.component';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
@@ -68,7 +68,7 @@ import { PercentInputDirective } from '../../../shared/directives/percent-input.
     RouterLink,
     InvoiceToolbarComponent,
     InvoiceSelectionDialogComponent,
-    TranslateModule,
+    TranslatePipe,
     ...FORMAT_PIPES,
     DraftShellComponent,
     VxBranchPickerComponent,

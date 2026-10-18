@@ -201,6 +201,8 @@
   "pos.open_shift": "Abrir turno",
   "pos.open_shift_error": "No pudimos abrir el turno.",
   "pos.password": "Contraseña",
+  "pos.payment_overpaid_non_cash": "Solo el efectivo puede superar el total: con tarjeta o transferencia se cobra el monto exacto.",
+  "pos.payment_short": "El pago ({{paid}}) no cubre el total de la venta ({{total}}).",
   "pos.prices_changed": "El precio de un producto cambió. Se han recargado los precios: revisa el total antes de cobrar.",
   "pos.product_not_available": "Uno de los productos ya no está disponible para la venta.",
   "pos.remove_line": "Quitar línea",

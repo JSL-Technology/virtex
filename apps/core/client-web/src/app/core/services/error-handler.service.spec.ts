@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService, TranslateStore } from '@ngx-translate/core';
+import { TranslateService, TranslateStore, provideMissingTranslationHandler } from '@ngx-translate/core';
 
 import { ErrorHandlerService } from './error-handler.service';
 import { VirtexMissingTranslationHandler, VirtexTranslateStore } from '@virteex/shared/ui-i18n';
@@ -35,15 +35,8 @@ describe('ErrorHandlerService key resolution', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        TranslateModule.forRoot({
-          missingTranslationHandler: {
-            provide: VirtexMissingTranslationHandler,
-            useClass: VirtexMissingTranslationHandler,
-          },
-        }),
-      ],
       providers: [
+        provideMissingTranslationHandler(VirtexMissingTranslationHandler),
         // The same wiring the applications use: one store, reachable under both tokens.
         VirtexTranslateStore,
         { provide: TranslateStore, useExisting: VirtexTranslateStore },
@@ -54,7 +47,7 @@ describe('ErrorHandlerService key resolution', () => {
     service = TestBed.inject(ErrorHandlerService);
     translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', CATALOGUE);
-    translate.setDefaultLang('en');
+    translate.setFallbackLang('en');
     translate.use('en');
   });
 

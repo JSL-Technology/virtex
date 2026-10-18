@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { ModuleRailComponent } from './module-rail.component';
 import { ActiveModuleService, ReachableModule } from '../../core/modules/active-module.service';
 import { ModuleInboxService } from '../../core/inbox/module-inbox.service';
 import { MODULES } from '../../core/modules/module-registry';
 import { ModuleManifest } from '../../core/modules/module-manifest';
+import { provideTranslateService } from '@ngx-translate/core';
 
 /**
  * The rail is the first decision of every navigation: which part of the business.
@@ -28,8 +28,9 @@ describe('ModuleRailComponent', () => {
   async function render(reachable: ReachableModule[], active: ModuleManifest | null) {
     navigateByUrl.mockReset();
     await TestBed.configureTestingModule({
-      imports: [ModuleRailComponent, TranslateModule.forRoot()],
+      imports: [ModuleRailComponent],
       providers: [
+        provideTranslateService(),
         { provide: Router, useValue: { navigateByUrl } },
         {
           provide: ActiveModuleService,

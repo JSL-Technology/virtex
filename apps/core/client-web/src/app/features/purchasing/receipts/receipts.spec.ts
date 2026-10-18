@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { GoodsReceiptNewPage } from './receipt-new.page';
 import { GoodsReceiptPage } from './receipt.page';
@@ -50,7 +49,6 @@ describe('goods receipts', () => {
       voidReceipt: jest.fn().mockReturnValue(of({ ...receipt, status: 'VOID', voidReason: 'Llegó a otra empresa' })),
     };
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
         provideTestBranches(),

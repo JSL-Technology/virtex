@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, ScanSearch } from 'lucide-angular';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
@@ -21,7 +21,7 @@ import { DataQualityApiService, DuplicateEntityType, DuplicateList, DuplicateSta
 @Component({
   selector: 'app-data-quality-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './data-quality.page.html',
   styleUrl: './data-quality.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

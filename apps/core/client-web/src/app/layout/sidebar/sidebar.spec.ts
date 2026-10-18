@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from './sidebar';
 import { ActiveModuleService, PanelSection } from '../../core/modules/active-module.service';
 import { GROUP_LABEL } from '../../core/modules/menu-labels';
 import { moduleIcon } from '../../core/modules/module-icons';
 import { ModuleManifest } from '../../core/modules/module-manifest';
+import { provideTranslateService } from '@ngx-translate/core';
 
 /**
  * The module panel answers one question: what is there to do inside the module I am in.
@@ -24,8 +24,9 @@ describe('Sidebar (panel de módulo)', () => {
 
   async function render(panel: PanelSection[], activeEntry: string | null = null) {
     await TestBed.configureTestingModule({
-      imports: [Sidebar, TranslateModule.forRoot()],
+      imports: [Sidebar],
       providers: [
+        provideTranslateService(),
         provideRouter([]),
         {
           provide: ActiveModuleService,

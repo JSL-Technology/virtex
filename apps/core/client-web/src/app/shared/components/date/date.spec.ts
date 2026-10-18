@@ -1,12 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe, provideTranslateService } from '@ngx-translate/core';
 import { VX_DATE, dateOrder, toCalendarDate } from './index';
 
 @Component({
   standalone: true,
-  imports: [TranslateModule, ...VX_DATE],
+  imports: [TranslatePipe, ...VX_DATE],
   template: `<vx-date-range [(from)]="from" [(to)]="to" />`,
 })
 class RangeHost {
@@ -16,7 +16,7 @@ class RangeHost {
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, ...VX_DATE],
+  imports: [ReactiveFormsModule, TranslatePipe, ...VX_DATE],
   template: `
     <form [formGroup]="form">
       <vx-date-field inputId="issueDate" formControlName="issueDate" [required]="true" />
@@ -35,7 +35,7 @@ describe('campos de fecha', () => {
 
   describe('vx-date-range', () => {
     function build() {
-      TestBed.configureTestingModule({ imports: [RangeHost, TranslateModule.forRoot()] });
+      TestBed.configureTestingModule({ providers: [provideTranslateService()], imports: [RangeHost] });
       const fixture = TestBed.createComponent(RangeHost);
       fixture.detectChanges();
       return fixture;
@@ -91,7 +91,7 @@ describe('campos de fecha', () => {
 
   describe('vx-date-field dentro de un formulario', () => {
     function build() {
-      TestBed.configureTestingModule({ imports: [FormHost, TranslateModule.forRoot()] });
+      TestBed.configureTestingModule({ providers: [provideTranslateService()], imports: [FormHost] });
       const fixture = TestBed.createComponent(FormHost);
       fixture.detectChanges();
       return fixture;

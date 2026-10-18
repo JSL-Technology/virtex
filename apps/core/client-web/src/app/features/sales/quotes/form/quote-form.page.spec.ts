@@ -1,7 +1,6 @@
 import { provideTestBranches } from '../../../../core/tenancy/branches.service.testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { CustomersService } from '../../../../core/api/customers.service';
 import { CurrenciesService } from '../../../../core/api/currencies.service';
@@ -35,7 +34,7 @@ describe('QuoteFormPage', () => {
 
   function create(id?: string) {
     TestBed.configureTestingModule({
-      imports: [QuoteFormPage, TranslateModule.forRoot()],
+      imports: [QuoteFormPage],
       providers: [
         provideTestBranches(),
         provideRouter([]),

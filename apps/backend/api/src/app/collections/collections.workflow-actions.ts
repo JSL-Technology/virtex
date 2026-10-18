@@ -40,8 +40,27 @@ export class CollectionsWorkflowActions implements OnModuleInit {
       outcomes: ['sent', 'drafted', 'skipped'],
       params: [
         { name: 'invoiceId', labelKey: 'workflow_engine.param.invoice_id', type: 'string', required: true, templated: true, maxLength: 200, hintKey: 'workflow_engine.param.invoice_id_hint' },
-        { name: 'tone', labelKey: 'workflow_engine.param.tone', type: 'select', options: [...MESSAGE_TONES] },
-        { name: 'mode', labelKey: 'workflow_engine.param.reminder_mode', type: 'select', options: ['draft', 'send'] },
+        {
+          name: 'tone',
+          labelKey: 'workflow_engine.param.tone',
+          type: 'select',
+          options: [...MESSAGE_TONES],
+          optionLabelKeys: {
+            cordial: 'workflow_engine.param.tone_cordial',
+            formal: 'workflow_engine.param.tone_formal',
+            firm: 'workflow_engine.param.tone_firm',
+          },
+        },
+        {
+          name: 'mode',
+          labelKey: 'workflow_engine.param.reminder_mode',
+          type: 'select',
+          options: ['draft', 'send'],
+          optionLabelKeys: {
+            draft: 'workflow_engine.param.reminder_mode_draft',
+            send: 'workflow_engine.param.reminder_mode_send',
+          },
+        },
       ],
       run: async (ctx: WorkflowActionContext): Promise<WorkflowActionResult> => {
         const invoiceId = interpolate(String(ctx.params['invoiceId'] ?? ''), ctx.context).trim();

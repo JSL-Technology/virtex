@@ -2,7 +2,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, inject, signal, DestroyRef, ViewChildren, ViewChild, QueryList, ElementRef, Inject, PLATFORM_ID, ViewContainerRef, computed } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LucideAngularModule, Shield, Smartphone, QrCode, Monitor, Laptop, Globe, AlertTriangle, CheckCircle, MapPin, Copy, Download, RefreshCw, X, ArrowRight, ImageIcon, User, Mail, Phone, Building, KeyRound } from 'lucide-angular';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../../core/services/auth';
 import { SecurityService, Session } from '../../../../core/api/security.service';
 import { StepUpService, StepUpScope } from '../../../../core/services/step-up.service';
@@ -23,7 +23,7 @@ type SetupStep = 'INTRO' | 'EMAIL_VERIFY' | 'QR_SETUP' | 'BACKUP_CODES';
 @Component({
   selector: 'app-security-settings',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent],
   templateUrl: './security-settings.component.html',
   styleUrls: ['./security-settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

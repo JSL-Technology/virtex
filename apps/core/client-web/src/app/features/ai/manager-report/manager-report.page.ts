@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Printer, Sparkles } from 'lucide-angular';
 import { Subscription, timer } from 'rxjs';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -30,7 +30,7 @@ export function previousPeriod(date = new Date()): string {
 @Component({
   selector: 'app-manager-report-page',
   standalone: true,
-  imports: [FormsModule, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [FormsModule, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './manager-report.page.html',
   styleUrl: './manager-report.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

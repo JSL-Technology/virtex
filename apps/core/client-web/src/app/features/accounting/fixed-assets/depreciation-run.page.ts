@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxAmountComponent } from '../../../shared/components/amount';
@@ -26,7 +26,7 @@ export function previousMonth(today = new Date()): string {
 @Component({
   selector: 'app-depreciation-run-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxAmountComponent, HasPermissionDirective],
+  imports: [FormsModule, RouterLink, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, VxAmountComponent, HasPermissionDirective],
   templateUrl: './depreciation-run.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

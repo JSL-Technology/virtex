@@ -1974,11 +1974,6 @@
     "en": "Duplicates could not be loaded.",
     "pt": "Não foi possível carregar os duplicados."
   },
-  "ai.data_quality.loading": {
-    "es": "Cargando…",
-    "en": "Loading…",
-    "pt": "Carregando…"
-  },
   "ai.data_quality.no_merge": {
     "es": "Marcar «son el mismo» no fusiona nada: abre ambos registros y desactiva el que sobra, o fusiónalos desde su propia pantalla.",
     "en": "Marking «the same» merges nothing: open both records and deactivate the spare one, or merge them from their own screen.",

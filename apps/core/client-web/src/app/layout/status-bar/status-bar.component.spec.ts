@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import { StatusBarComponent } from './status-bar.component';
 import { StatusBarService, CurrentPeriod } from './status-bar.service';
 import { AuthService } from '../../core/services/auth';
@@ -20,7 +19,7 @@ describe('StatusBarComponent', () => {
     baseCurrency: 'DOP',
   }) {
     await TestBed.configureTestingModule({
-      imports: [StatusBarComponent, TranslateModule.forRoot()],
+      imports: [StatusBarComponent],
       providers: [
         {
           provide: StatusBarService,

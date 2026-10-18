@@ -7,7 +7,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 // ✅ CORREGIDO: Se importa el ícono 'X' que se usará como CloseIcon.
 import { LucideAngularModule, Plus, Edit, Trash, Copy, X } from 'lucide-angular';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   RolesService,
   Role,
@@ -31,7 +31,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
     ReactiveFormsModule,
     LucideAngularModule,
     HasPermissionDirective,
-    TranslateModule,
+    TranslatePipe,
     ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent],
   templateUrl: './roles.page.html',
   styleUrls: ['./roles.page.scss'],

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { HighchartsChartComponent } from 'highcharts-angular';
 import type * as Highcharts from 'highcharts';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { baseChartOptions, categoricalPalette, token } from '../../../core/utils/chart-theme';
 import { ForecastSeries } from '../data/ai.service';
@@ -26,7 +26,7 @@ const utc = (date: string) => Date.parse(`${date}T00:00:00Z`);
 @Component({
   selector: 'app-forecast-chart',
   standalone: true,
-  imports: [HighchartsChartComponent, TranslateModule, ...FORMAT_PIPES],
+  imports: [HighchartsChartComponent, TranslatePipe, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <highcharts-chart class="forecast-chart" [options]="options()" />

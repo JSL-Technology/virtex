@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BadRequestError } from '../i18n/localized.exception';
+import { WorkflowSubject } from './contracts/workflow-graph';
 import { WorkflowSubprocessStarter } from './actions/builtin-actions';
 import { WorkflowDefinitionsService } from './workflow-definitions.service';
 import { MAX_SUBPROCESS_DEPTH, WorkflowEngineService } from './workflow-engine.service';
@@ -24,7 +25,7 @@ export class WorkflowSubprocessService extends WorkflowSubprocessStarter {
     organizationId: string,
     key: string,
     context: Record<string, unknown>,
-    parent: { instanceId: string; subjectLabel: string | null; startedByUserId: string | null },
+    parent: { instanceId: string; subjectLabel: string | null; startedByUserId: string | null; subject?: WorkflowSubject | null },
   ): Promise<string> {
     const definition = await this.definitions.getPublishedByKey(key, organizationId);
     if (!definition) throw new BadRequestError('workflow_engine.subprocess_unknown', { key });
@@ -34,7 +35,7 @@ export class WorkflowSubprocessService extends WorkflowSubprocessStarter {
       definition,
       {
         context: { ...context, __workflowDepth: depth, parentInstanceId: parent.instanceId },
-        subject: parent.subjectLabel ? { label: parent.subjectLabel } : null,
+        subject: parent.subject ?? (parent.subjectLabel ? { label: parent.subjectLabel } : null),
         startedByUserId: parent.startedByUserId,
         parentInstanceId: parent.instanceId,
       },

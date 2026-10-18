@@ -20,7 +20,7 @@ import {
   ValidationErrors,
   Validator,
 } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CountryService, SupportedCountry } from '../../../core/services/country.service';
 import { callingCodeForRegion, formatNational, isValidPhone, regionForE164, toE164 } from '../../utils/phone.util';
 
@@ -44,7 +44,7 @@ import { callingCodeForRegion, formatNational, isValidPhone, regionForE164, toE1
 @Component({
   selector: 'app-intl-phone-input',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => IntlPhoneInputComponent), multi: true },

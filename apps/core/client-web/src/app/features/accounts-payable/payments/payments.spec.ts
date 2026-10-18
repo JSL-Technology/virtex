@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { VendorPaymentsPage } from './payments.page';
 import { VendorPaymentDetailPage } from './payment-detail.page';
@@ -37,7 +36,6 @@ describe('payments to suppliers', () => {
       voidPayment: jest.fn().mockReturnValue(of({ ...batch, status: 'VOID' })),
     };
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
         provideTestBranches(),

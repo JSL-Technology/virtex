@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { BrandLogo } from '../../../../shared/components/brand-logo/brand-logo';
 import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
 import { AuthFooterComponent } from '../auth-footer/auth-footer.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * Marco común de las pantallas públicas: acceso, registro, recuperación de
@@ -25,7 +25,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
-  imports: [AuthFooterComponent, BrandLogo, ThemeToggle, TranslateModule],
+  imports: [AuthFooterComponent, BrandLogo, ThemeToggle, TranslatePipe],
   templateUrl: './auth-layout.component.html',
   styleUrls: ['./auth-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

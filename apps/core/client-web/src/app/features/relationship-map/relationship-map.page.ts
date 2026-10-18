@@ -12,7 +12,7 @@ import {
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Subject, catchError, debounceTime, distinctUntilChanged, map, of, startWith, switchMap, tap } from 'rxjs';
 import {
   AlertTriangle,
@@ -104,7 +104,7 @@ interface Prefs {
 @Component({
   selector: 'app-relationship-map-page',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, FlowCanvasComponent],
+  imports: [TranslatePipe, LucideAngularModule, FlowCanvasComponent],
   templateUrl: './relationship-map.page.html',
   styleUrls: ['./relationship-map.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -176,7 +176,7 @@ export class RelationshipMapPage {
 
   /** Bumps on a language change, so labels translated with `instant` are recomputed. */
   private readonly lang = toSignal(this.translate.onLangChange.pipe(map((event) => event.lang)), {
-    initialValue: this.translate.currentLang,
+    initialValue: this.translate.getCurrentLang(),
   });
 
   private readonly nodeByKey = computed(() => new Map((this.map()?.nodes ?? []).map((n) => [n.key, n])));

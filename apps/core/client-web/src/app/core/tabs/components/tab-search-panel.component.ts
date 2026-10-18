@@ -9,7 +9,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Search, X, ChevronDown, Clock } from 'lucide-angular';
 import { TabStateService } from '../tab-state.service';
 import { TabSearchService } from '../tab-search.service';
@@ -43,7 +43,7 @@ interface ResultRow {
 @Component({
   selector: 'app-tab-search-panel',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, VxKbdComponent],
+  imports: [LucideAngularModule, TranslatePipe, VxKbdComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './tab-search-panel.component.html',
   styleUrls: ['./tab-search-panel.component.scss'],

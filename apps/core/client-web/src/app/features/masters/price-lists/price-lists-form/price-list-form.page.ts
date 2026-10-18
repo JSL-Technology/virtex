@@ -8,7 +8,7 @@ import { InventoryService } from '../../../../core/api/inventory.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { Product } from '../../../../core/models/product.model';
 import { PriceListItem, PriceListStatus } from '../../../../core/models/price-list.model';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -19,7 +19,7 @@ import { CurrenciesService, Currency } from '../../../../core/api/currencies.ser
 
 @Component({
   selector: 'app-price-list-form-page',
-  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent, VxCurrencyNamePipe],
+  imports: [ReactiveFormsModule, LucideAngularModule, TranslatePipe, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent, VxCurrencyNamePipe],
   templateUrl: './price-list-form.page.html',
   styleUrls: ['./price-list-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

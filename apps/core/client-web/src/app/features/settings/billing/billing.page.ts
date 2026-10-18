@@ -8,7 +8,7 @@ import { BillingService, BillingOverview, BillingInvoice } from '../../../core/s
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { formatPlanPrice, minorUnitFactorFor } from '../../../core/models/plan.model';
 import { LanguageService } from '../../../core/services/language';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { composeKey } from '@virteex/shared/types';
 import { VxSpinnerComponent } from '../../../shared/components/feedback';
 import { VxPaymentCardComponent } from '../../../shared/components/payment-card';
@@ -16,7 +16,7 @@ import { VxPaymentCardComponent } from '../../../shared/components/payment-card'
 @Component({
   selector: 'app-billing-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, VxSpinnerComponent, VxPaymentCardComponent, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe, VxSpinnerComponent, VxPaymentCardComponent, ...FORMAT_PIPES],
   templateUrl: './billing.page.html',
   styleUrls: ['./billing.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -89,13 +89,13 @@ export class BillingPage implements OnInit {
    * refreshed overview.
    */
   private confirmCheckout(sessionId: string): void {
-    this.successMessage.set('¡Pago completado! Estamos activando tu suscripción…');
+    this.successMessage.set(this.translate.instant('billing.checkout.activating'));
     this.overviewLoading.set(true);
     this.billingService.confirmCheckout(sessionId).subscribe(overview => {
       if (overview) {
         this.overview.set(overview);
         this.overviewLoading.set(false);
-        this.successMessage.set('¡Pago completado! Tu suscripción está activa.');
+        this.successMessage.set(this.translate.instant('billing.checkout.active'));
         this.billingService.getInvoices().subscribe(list => this.invoices.set(list));
       } else {
         // Confirmation failed (Stripe unreachable, etc.) — fall back to whatever the API reports.
@@ -139,7 +139,7 @@ export class BillingPage implements OnInit {
     }).subscribe({
       next: (ok) => {
         if (!ok) {
-          this.checkoutError.set('No se pudo iniciar el proceso. Intenta de nuevo.');
+          this.checkoutError.set(this.translate.instant('billing.checkout.start_failed'));
           this.isRedirecting.set(false);
         }
         // On success the browser is redirected away — no need to reset state.

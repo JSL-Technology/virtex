@@ -9,7 +9,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Mail, CheckCircle, AlertCircle, Loader } from 'lucide-angular';
 import { ReCaptchaV3Service, RecaptchaV3Module } from 'ng-recaptcha-19';
 import { recaptchaToken$ } from '../../../../../core/auth/recaptcha-token';
@@ -21,7 +21,7 @@ import { NotificationService } from '../../../../../core/services/notification';
 @Component({
   selector: 'app-step-email-verify',
   standalone: true,
-  imports: [CommonModule, TranslateModule, LucideAngularModule, OtpComponent, RecaptchaV3Module],
+  imports: [CommonModule, TranslatePipe, LucideAngularModule, OtpComponent, RecaptchaV3Module],
   templateUrl: './step-email-verify.html',
   styleUrls: ['./step-email-verify.scss'],
 })
@@ -76,7 +76,7 @@ export class StepEmailVerify implements OnInit {
           firstName: this.firstName,
           //  El idioma que el lector eligió, no el del servidor: decide el idioma del correo y el
           //  segmento de idioma del enlace mágico que lleva dentro.
-          language: this.translate.currentLang,
+          language: this.translate.getCurrentLang(),
           country: this.country,
         })
       )

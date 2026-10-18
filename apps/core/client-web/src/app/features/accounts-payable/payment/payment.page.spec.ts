@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { DialogService } from '../../../core/services/dialog.service';
 import { VendorPaymentPage } from './payment.page';
 import { environment } from '../../../../environments/environment';
@@ -92,7 +91,7 @@ describe('VendorPaymentPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [VendorPaymentPage, TranslateModule.forRoot()],
+      imports: [VendorPaymentPage],
       providers: [
         provideTestBranches(),provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();

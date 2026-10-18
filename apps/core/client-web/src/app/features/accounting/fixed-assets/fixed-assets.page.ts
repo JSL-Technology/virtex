@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CalendarClock, LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -28,7 +28,7 @@ export const FIXED_ASSET_TONE: Record<FixedAssetStatus, VxTone> = { IN_USE: 'ok'
   imports: [
     FormsModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     LucideAngularModule,
     ...FORMAT_PIPES,
     ListShellComponent,

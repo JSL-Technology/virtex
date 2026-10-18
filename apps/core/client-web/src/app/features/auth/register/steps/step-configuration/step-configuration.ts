@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output, computed, inject, signal } from
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   CountryService,
   type FiscalFieldSpec,
@@ -31,7 +31,7 @@ import { CountryNamesService } from '../../../../../core/i18n/countries';
 @Component({
   selector: 'app-step-configuration',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, AuthInputComponent, ...VX_FORM_A11Y],
+  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, AuthInputComponent, ...VX_FORM_A11Y],
   templateUrl: './step-configuration.html',
   styleUrls: ['./step-configuration.scss'],
 })

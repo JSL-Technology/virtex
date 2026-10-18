@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Banknote, LucideAngularModule } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -42,7 +42,7 @@ export const PAYMENT_TONE: Record<PaymentBatchStatus, VxTone> = {
   imports: [
     FormsModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     LucideAngularModule,
     ...FORMAT_PIPES,
     ...VX_SELECT,

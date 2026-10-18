@@ -114,6 +114,16 @@
     "en": "Password",
     "pt": "Senha"
   },
+  "pos.payment_overpaid_non_cash": {
+    "es": "Solo el efectivo puede superar el total: con tarjeta o transferencia se cobra el monto exacto.",
+    "en": "Only cash can exceed the total: card and transfer are charged for the exact amount.",
+    "pt": "Somente o dinheiro pode ultrapassar o total: cartão e transferência são cobrados pelo valor exato."
+  },
+  "pos.payment_short": {
+    "es": "El pago ({{paid}}) no cubre el total de la venta ({{total}}).",
+    "en": "The payment ({{paid}}) does not cover the sale total ({{total}}).",
+    "pt": "O pagamento ({{paid}}) não cobre o total da venda ({{total}})."
+  },
   "pos.prices_changed": {
     "es": "El precio de un producto cambió. Se han recargado los precios: revisa el total antes de cobrar.",
     "en": "A product's price has changed. Prices have been reloaded: check the total before charging.",

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, input } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Check, ChevronDown, Globe } from 'lucide-angular';
 import { LanguageService } from '../../../core/services/language';
 
@@ -22,7 +22,7 @@ import { LanguageService } from '../../../core/services/language';
 @Component({
   selector: 'app-language-selector',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule],
+  imports: [TranslatePipe, LucideAngularModule],
   templateUrl: './language-selector.html',
   styleUrls: ['./language-selector.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

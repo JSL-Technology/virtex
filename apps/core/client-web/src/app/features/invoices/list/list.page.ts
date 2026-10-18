@@ -14,7 +14,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { invoiceStatusKey, invoiceStatusTone } from '../../../core/services/invoice-status';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   CsvValue,
   downloadCsv,
@@ -47,7 +47,7 @@ type InvoiceSortKey = 'number' | 'fiscalNumber' | 'customer' | 'issueDate' | 'du
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, FormsModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -295,7 +295,7 @@ export class InvoicesListPage implements OnInit {
 
           downloadCsv(
             reportFilename(this.translate.instant('invoices.export.invoices'), this.today),
-            toCsv(rows, { locale: this.translate.currentLang }),
+            toCsv(rows, { locale: this.translate.getCurrentLang() }),
           );
 
           this.notificationService.showSuccess(
@@ -309,5 +309,10 @@ export class InvoicesListPage implements OnInit {
         },
         error: () => this.notificationService.showError('invoices.list.list_could_not_exported'),
       });
+  }
+
+  /** «Registrar cobro» from the row: an issued invoice that still has something owed. */
+  canCollect(invoice: Invoice): boolean {
+    return ['Pending', 'Partially Paid'].includes(invoice.status) && Number(invoice.balance ?? 0) > 0;
   }
 }

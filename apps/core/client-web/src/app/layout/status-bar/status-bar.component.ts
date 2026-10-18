@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostListener, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Building2, CalendarCheck, CalendarX, Coins, Wifi, WifiOff, LoaderCircle, TriangleAlert } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth';
 import { StatusBarService } from './status-bar.service';
@@ -23,7 +23,7 @@ import { JobsPanelService } from '../../core/jobs/jobs-panel.service';
 @Component({
   selector: 'app-status-bar',
   standalone: true,
-  imports: [CommonModule, TranslateModule, LucideAngularModule],
+  imports: [CommonModule, TranslatePipe, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './status-bar.component.html',
   styleUrls: ['./status-bar.component.scss'],

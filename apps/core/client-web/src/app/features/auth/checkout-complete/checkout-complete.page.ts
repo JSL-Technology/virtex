@@ -6,7 +6,7 @@ import { AuthService } from '../../../core/services/auth';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { NotificationService } from '../../../core/services/notification';
 
 type CompleteState = 'verifying' | 'success' | 'error';
@@ -14,7 +14,7 @@ type CompleteState = 'verifying' | 'success' | 'error';
 @Component({
   selector: 'app-checkout-complete',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, AuthLayoutComponent, AuthButtonComponent, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, AuthLayoutComponent, AuthButtonComponent, TranslatePipe],
   templateUrl: './checkout-complete.page.html',
   styleUrls: ['./checkout-complete.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { StockPage } from './stock.page';
 import { StockService } from '../data/stock.service';
@@ -18,7 +17,7 @@ describe('StockPage', () => {
 
   function create(warehouseId?: string) {
     TestBed.configureTestingModule({
-      imports: [StockPage, TranslateModule.forRoot()],
+      imports: [StockPage],
       providers: [
         provideRouter([]),
         { provide: StockService, useValue: { onHand } },

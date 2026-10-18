@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AiSettingsPage } from './ai-settings.page';
 import { AiOverview, AiService } from '../../../ai/data/ai.service';
@@ -45,7 +44,7 @@ describe('AiSettingsPage', () => {
     };
     notifications = { showSuccess: jest.fn(), showHttpError: jest.fn() };
     await TestBed.configureTestingModule({
-      imports: [AiSettingsPage, TranslateModule.forRoot()],
+      imports: [AiSettingsPage],
       providers: [
         provideRouter([]),
         { provide: AiService, useValue: ai },

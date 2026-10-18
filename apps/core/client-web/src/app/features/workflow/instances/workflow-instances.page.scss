@@ -38,6 +38,14 @@
   }
 }
 
+.wfr__range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
+}
+
 .wfr__control {
   display: flex;
   flex-direction: column;
@@ -48,6 +56,8 @@
   select,
   input {
     @include ds.input-base;
+    // A process with a 160-character name stretched the native select past the screen.
+    max-width: 260px;
     height: var(--control-height-sm);
     font-size: var(--text-sm);
     width: auto;

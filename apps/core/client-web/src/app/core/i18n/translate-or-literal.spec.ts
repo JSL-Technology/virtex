@@ -1,10 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  TranslateModule,
-  TranslateService,
-  TranslateLoader,
-  type TranslationObject,
-} from '@ngx-translate/core';
+import { TranslateService, TranslateLoader, type TranslationObject, provideTranslateLoader } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
 import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 
@@ -27,9 +22,7 @@ describe('translateOrLiteral', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: FakeLoader } }),
-      ],
+      providers: [provideTranslateLoader(FakeLoader)],
     });
     translate = TestBed.inject(TranslateService);
     translate.use('en');

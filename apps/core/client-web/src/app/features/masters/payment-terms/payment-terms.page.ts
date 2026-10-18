@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule, Clock } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { CustomersService } from '../../../core/api/customers.service';
@@ -33,7 +33,7 @@ interface PaymentTermInUse {
 @Component({
   selector: 'app-payment-terms-page',
   standalone: true,
-  imports: [...VX_SORT, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [...VX_SORT, LucideAngularModule, TranslatePipe, ListShellComponent],
   templateUrl: './payment-terms.page.html',
   styleUrls: ['./payment-terms.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { CustomerQuickCreateComponent } from './customer-quick-create.component';
 import { CustomersService } from '../data/customers.service';
 import { IdentityDocumentsService } from '../../../core/api/identity-documents.service';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { TRANSLATE_STORE_PROVIDERS, apiError, useCatalogue } from '../../../../testing/api-errors';
+import { provideTranslateService } from '@ngx-translate/core';
 
 /**
  * The short form that lets an invoice be finished.
@@ -39,8 +39,9 @@ describe('CustomerQuickCreateComponent', () => {
     //  Sin `resetTestingModule`: el arnés global (`test-setup.ts`) ya instala las animaciones
     //  «noop» que el modal compartido necesita, y reiniciarlo las tiraría.
     await TestBed.configureTestingModule({
-        imports: [CustomerQuickCreateComponent, TranslateModule.forRoot()],
+        imports: [CustomerQuickCreateComponent],
         providers: [
+          provideTranslateService(),
           ...TRANSLATE_STORE_PROVIDERS,
           { provide: CustomersService, useValue: customers },
           {

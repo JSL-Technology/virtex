@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, Subject, debounceTime, switchMap, tap, catchError, of } from 'rxjs';
 import { FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -46,7 +46,7 @@ const DEFAULT_VALIDITY_DAYS = 15;
     ReactiveFormsModule,
     RouterLink,
     LucideAngularModule,
-    TranslateModule,
+    TranslatePipe,
     ...FORMAT_PIPES,
     ...VX_FORM_A11Y,
     ...VX_SELECT,

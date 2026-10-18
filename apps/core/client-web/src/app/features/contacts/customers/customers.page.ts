@@ -7,7 +7,7 @@ import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2, 
 import { Customer } from '../../../core/models/customer.model';
 import { CustomersService } from '../../../core/api/customers.service';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
@@ -16,7 +16,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 
 @Component({
   selector: 'app-customers-page',
-  imports: [PhonePipe, HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
+  imports: [PhonePipe, HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslatePipe, ListShellComponent, VxBadgeComponent],
   templateUrl: './customers.page.html',
   styleUrls: ['./customers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

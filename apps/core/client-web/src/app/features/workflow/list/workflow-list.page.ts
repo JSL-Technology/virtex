@@ -1,7 +1,7 @@
 import { composeKey } from '@virteex/shared/types';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   CopyPlus,
@@ -16,6 +16,8 @@ import {
   Trash2,
   Zap,
   Hand,
+  MoreHorizontal,
+  Power,
 } from 'lucide-angular';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { AuthService } from '../../../core/services/auth';
@@ -45,7 +47,7 @@ type TriggerFilter = 'all' | 'manual' | 'event';
   selector: 'app-workflow-list-page',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     LucideAngularModule,
     RouterLink,
     RowLinkDirective,
@@ -125,12 +127,12 @@ type TriggerFilter = 'all' | 'manual' | 'event';
           <tbody>
             @for (row of rows(); track row.key) {
               @let main = row.draft ?? row.published ?? null;
+              @let latest = row.versions[0] ?? null;
+              @let inactive = !row.published && !row.draft;
               <tr appRowLink>
                 <td class="wfl__name">
-                  @if (main) {
-                    <a class="table-link" [routerLink]="link('workflows/' + main.id + '/edit')">{{ row.name }}</a>
-                  } @else {
-                    <span>{{ row.name }}</span>
+                  @if (main ?? latest; as target) {
+                    <a class="table-link" [routerLink]="link('workflows/' + target.id + '/edit')" [title]="row.name">{{ row.name }}</a>
                   }
                   @if (row.description) {
                     <span class="wfl__description">{{ row.description }}</span>
@@ -148,6 +150,8 @@ type TriggerFilter = 'all' | 'manual' | 'event';
                     @if (live.publishedAt) {
                       <span class="wfl__sub">{{ live.publishedAt | vxDate: 'date' }}</span>
                     }
+                  } @else if (inactive) {
+                    <vx-badge tone="neutral">{{ 'workflow_engine.list.inactive' | translate }}</vx-badge>
                   } @else {
                     <vx-badge tone="neutral">{{ 'workflow_engine.list.not_live' | translate }}</vx-badge>
                   }
@@ -168,8 +172,9 @@ type TriggerFilter = 'all' | 'manual' | 'event';
                     <span class="wfl__muted">0</span>
                   }
                 </td>
-                <td>{{ row.updatedAt | vxDate: 'datetime' }}</td>
+                <td>{{ row.updatedAt | vxDate: 'dateTime' }}</td>
                 <td class="wfl__actions">
+                  <!-- The main move for the row stays one click away; everything else lives in «More». -->
                   @if (row.published && canRun()) {
                     <button type="button" class="wfl__icon" (click)="startRun(row.published)"
                       [attr.aria-label]="'workflow_engine.list.run_named' | translate: { name: row.name }" [title]="'workflow_engine.start.confirm' | translate">
@@ -187,38 +192,49 @@ type TriggerFilter = 'all' | 'manual' | 'event';
                         [attr.aria-label]="'workflow_engine.list.version_named' | translate: { name: row.name }" [title]="'workflow_engine.new_version' | translate">
                         <lucide-icon [img]="VersionIcon" [size]="16" />
                       </button>
-                    }
-                    @if (main) {
-                      <button type="button" class="wfl__icon" (click)="duplicate(main)"
-                        [attr.aria-label]="'workflow_engine.list.duplicate_named' | translate: { name: row.name }" [title]="'workflow_engine.list.duplicate' | translate">
-                        <lucide-icon [img]="DuplicateIcon" [size]="16" />
+                    } @else if (inactive && latest) {
+                      <button type="button" class="wfl__icon" (click)="reactivate(latest.id, row)"
+                        [attr.aria-label]="'workflow_engine.list.reactivate_named' | translate: { name: row.name }" [title]="'workflow_engine.reactivate.action' | translate">
+                        <lucide-icon [img]="ReactivateIcon" [size]="16" />
                       </button>
                     }
                   }
-                  @if (main) {
-                    <button type="button" class="wfl__icon" (click)="export(main)"
-                      [attr.aria-label]="'workflow_engine.list.export_named' | translate: { name: row.name }" [title]="'workflow_engine.designer.export' | translate">
-                      <lucide-icon [img]="ExportIcon" [size]="16" />
+                  <span class="wfl__more">
+                    <button type="button" class="wfl__icon" aria-haspopup="menu" [attr.aria-expanded]="menuFor() === row.key"
+                      (click)="toggleMenu(row.key, $event)"
+                      [attr.aria-label]="'workflow_engine.list.more_named' | translate: { name: row.name }" [title]="'workflow_engine.list.more' | translate">
+                      <lucide-icon [img]="MoreIcon" [size]="16" />
                     </button>
-                  }
-                  <a class="wfl__icon" [routerLink]="link('workflow-instances')" [queryParams]="{ key: row.key }"
-                    [attr.aria-label]="'workflow_engine.list.runs_named' | translate: { name: row.name }" [title]="'workflow_engine.runs' | translate">
-                    <lucide-icon [img]="RunsIcon" [size]="16" />
-                  </a>
-                  @if (canDesign()) {
-                    @if (row.published) {
-                      <button type="button" class="wfl__icon" (click)="unpublish(row.published)"
-                        [attr.aria-label]="'workflow_engine.list.unpublish_named' | translate: { name: row.name }" [title]="'workflow_engine.unpublish.action' | translate">
-                        <lucide-icon [img]="UnpublishIcon" [size]="16" />
-                      </button>
+                    @if (menuFor() === row.key) {
+                      <div class="wfl__menu" role="menu" tabindex="-1" (keydown.escape)="menuFor.set(null)" [style.top.px]="menuPos().top" [style.right.px]="menuPos().right">
+                        @if (canDesign() && (main ?? latest); as source) {
+                          <button type="button" role="menuitem" (click)="menuFor.set(null); duplicate(source.id, row.name)">
+                            <lucide-icon [img]="DuplicateIcon" [size]="14" /> {{ 'workflow_engine.list.duplicate' | translate }}
+                          </button>
+                        }
+                        @if (main ?? latest; as source) {
+                          <button type="button" role="menuitem" (click)="menuFor.set(null); export(source.id)">
+                            <lucide-icon [img]="ExportIcon" [size]="14" /> {{ 'workflow_engine.designer.export' | translate }}
+                          </button>
+                        }
+                        <a role="menuitem" [routerLink]="link('workflow-instances')" [queryParams]="{ key: row.key }" (click)="menuFor.set(null)">
+                          <lucide-icon [img]="RunsIcon" [size]="14" /> {{ 'workflow_engine.runs' | translate }}
+                        </a>
+                        @if (canDesign()) {
+                          @if (row.published) {
+                            <button type="button" role="menuitem" (click)="menuFor.set(null); unpublish(row.published)">
+                              <lucide-icon [img]="UnpublishIcon" [size]="14" /> {{ 'workflow_engine.unpublish.action' | translate }}
+                            </button>
+                          }
+                          @if (row.draft) {
+                            <button type="button" role="menuitem" class="wfl__menu-danger" (click)="menuFor.set(null); remove(row.draft, row)">
+                              <lucide-icon [img]="DeleteIcon" [size]="14" /> {{ 'workflow_engine.list.delete_draft' | translate }}
+                            </button>
+                          }
+                        }
+                      </div>
                     }
-                    @if (row.draft) {
-                      <button type="button" class="wfl__icon wfl__icon--danger" (click)="remove(row.draft, row)"
-                        [attr.aria-label]="'workflow_engine.list.delete_named' | translate: { name: row.name }" [title]="'workflow_engine.list.delete_draft' | translate">
-                        <lucide-icon [img]="DeleteIcon" [size]="16" />
-                      </button>
-                    }
-                  }
+                  </span>
                 </td>
               </tr>
             }
@@ -256,6 +272,13 @@ export class WorkflowListPage {
   protected readonly DeleteIcon = Trash2;
   protected readonly EventIcon = Zap;
   protected readonly ManualIcon = Hand;
+  protected readonly MoreIcon = MoreHorizontal;
+  protected readonly ReactivateIcon = Power;
+  private readonly cdr = inject(ChangeDetectorRef);
+  /** The row whose «More» menu is open. */
+  readonly menuFor = signal<string | null>(null);
+  /** Where the open menu sits: fixed to the viewport, so the table's scroll box cannot clip it. */
+  readonly menuPos = signal({ top: 0, right: 0 });
 
   protected readonly statusOptions: StatusFilter[] = ['all', 'published', 'draft', 'pending', 'inactive'];
 
@@ -299,6 +322,34 @@ export class WorkflowListPage {
 
   constructor() {
     this.load();
+    // A click anywhere else closes the row menu.
+    const close = () => this.menuFor.set(null);
+    document.addEventListener('click', close);
+    inject(DestroyRef).onDestroy(() => document.removeEventListener('click', close));
+  }
+
+  toggleMenu(key: string, event: Event): void {
+    event.stopPropagation();
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const menuHeight = 220;
+    const below = rect.bottom + 4;
+    this.menuPos.set({
+      top: below + menuHeight > window.innerHeight ? Math.max(8, rect.top - menuHeight - 4) : below,
+      right: Math.max(8, window.innerWidth - rect.right),
+    });
+    this.menuFor.update((open) => (open === key ? null : key));
+  }
+
+  /**
+   * Close a dialog, render it closed, then navigate.
+   *
+   * Navigating opens another tab, and a tab that is not on screen has its change detection paused:
+   * a dialog closed in the same breath stayed on screen, frozen on «Creando…», with every way out
+   * disabled (QA C-03). Rendering the page once more before leaving removes it first.
+   */
+  private leaveTo(path: string): void {
+    this.cdr.detectChanges();
+    setTimeout(() => void this.router.navigateByUrl(this.link(path)));
   }
 
   load(): void {
@@ -339,7 +390,8 @@ export class WorkflowListPage {
   onCreated(definition: WorkflowDefinition): void {
     this.creating.set(false);
     this.notifications.showSuccess('workflow_engine.created');
-    void this.router.navigateByUrl(this.link(`workflows/${definition.id}/edit`));
+    this.load();
+    this.leaveTo(`workflows/${definition.id}/edit`);
   }
 
   startRun(definition: WorkflowDefinition): void {
@@ -349,7 +401,34 @@ export class WorkflowListPage {
   onStarted(instance: WorkflowInstance): void {
     this.starting.set(null);
     this.load();
-    void this.router.navigateByUrl(this.link(`workflow-instances/${instance.id}`));
+    this.leaveTo(`workflow-instances/${instance.id}`);
+  }
+
+  /** A deactivated process made live again: its latest version, validated like any publish. */
+  async reactivate(versionId: string, row: WorkflowDefinitionSummary): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'workflow_engine.reactivate.title',
+      message: 'workflow_engine.reactivate.message',
+      messageParams: { name: row.name, version: row.versions[0]?.version ?? '' },
+      confirmText: 'workflow_engine.reactivate.confirm',
+    });
+    if (!confirmed) return;
+    this.service.publish(versionId, true).subscribe({
+      next: () => {
+        this.notifications.showSuccess('workflow_engine.reactivate.done', { name: row.name });
+        this.load();
+      },
+      error: (err: unknown) => {
+        const body = (err as { error?: { messageKey?: string } })?.error;
+        // Errors or warnings in the design: open it, where they are listed and can be fixed.
+        if (body?.messageKey === 'workflow_engine.publish_has_warnings' || body?.messageKey === 'workflow_engine.invalid_graph.summary') {
+          this.notifications.showWarning('workflow_engine.reactivate.review');
+          this.leaveTo(`workflows/${versionId}/edit`);
+          return;
+        }
+        this.notifications.showHttpError(err, 'workflow_engine.publish_failed');
+      },
+    });
   }
 
   newVersion(definition: WorkflowDefinition): void {
@@ -359,27 +438,39 @@ export class WorkflowListPage {
     });
   }
 
-  async duplicate(definition: WorkflowDefinition): Promise<void> {
+  async duplicate(id: string, currentName: string): Promise<void> {
+    const suggested = this.translate.instant('workflow_engine.duplicate.suggested_name', { name: currentName });
+    const free = this.freeName(suggested);
     const name = await this.dialog.prompt({
       title: 'workflow_engine.duplicate.title',
       message: 'workflow_engine.duplicate.message',
-      messageParams: { name: definition.name },
+      messageParams: { name: currentName },
       placeholder: 'workflow_engine.field.name',
+      defaultValue: free,
       confirmText: 'workflow_engine.duplicate.confirm',
       minLength: 1,
     });
     if (!name?.trim()) return;
-    this.service.duplicate(definition.id, name.trim()).subscribe({
+    this.service.duplicate(id, name.trim()).subscribe({
       next: (copy) => {
         this.notifications.showSuccess('workflow_engine.duplicate.done', { name: copy.name });
-        void this.router.navigateByUrl(this.link(`workflows/${copy.id}/edit`));
+        this.load();
+        this.leaveTo(`workflows/${copy.id}/edit`);
       },
+      // A name already in use is said plainly; the copy is never silently renamed (QA M-14).
       error: (err: unknown) => this.notifications.showHttpError(err, 'workflow_engine.save_failed'),
     });
   }
 
-  export(definition: WorkflowDefinition): void {
-    this.service.getDefinition(definition.id).subscribe({
+  /** «Copia de X», numbered when that is taken, so the suggestion is always accepted as is. */
+  private freeName(base: string): string {
+    const taken = new Set(this.all().map((row) => row.name.toLowerCase()));
+    if (!taken.has(base.toLowerCase())) return base;
+    for (let n = 2; ; n += 1) if (!taken.has(`${base} ${n}`.toLowerCase())) return `${base} ${n}`;
+  }
+
+  export(id: string): void {
+    this.service.getDefinition(id).subscribe({
       next: (full) => {
         const payload = {
           kind: 'virtex.workflow',
@@ -394,7 +485,7 @@ export class WorkflowListPage {
         const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
         const anchor = document.createElement('a');
         anchor.href = url;
-        anchor.download = `${full.key}-v${full.version}.json`;
+        anchor.download = `${fileSlug(full.name) || full.key}-v${full.version}.json`;
         anchor.click();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       },
@@ -439,6 +530,17 @@ export class WorkflowListPage {
       error: (err: unknown) => this.notifications.showHttpError(err, 'workflow_engine.delete_failed'),
     });
   }
+}
+
+function fileSlug(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-')
+    .slice(0, 80);
 }
 
 function normalize(text: string): string {

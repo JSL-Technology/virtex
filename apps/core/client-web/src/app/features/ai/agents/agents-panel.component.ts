@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -19,7 +19,7 @@ import { AgentRun, AgentsApiService, CopilotProposalEntry, ReplenishmentSettings
 @Component({
   selector: 'app-ai-agents-panel',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, HasPermissionDirective, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [FormsModule, RouterLink, TranslatePipe, HasPermissionDirective, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './agents-panel.component.html',
   styleUrl: './agents-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

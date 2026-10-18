@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { LucideAngularModule, Landmark } from 'lucide-angular';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { PAYMENT_FORMS } from '../../../core/services/accounts-payable';
@@ -25,7 +25,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-payment-methods-page',
   standalone: true,
-  imports: [...VX_SORT, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [...VX_SORT, LucideAngularModule, TranslatePipe, ListShellComponent],
   templateUrl: './payment-methods.page.html',
   styleUrls: ['./payment-methods.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

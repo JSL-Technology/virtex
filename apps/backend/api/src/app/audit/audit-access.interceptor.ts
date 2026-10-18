@@ -6,7 +6,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, concatMap, from, map } from 'rxjs';
 import { AuditTrailService } from './audit.service';
 import { ActionType } from './entities/audit-log.entity';
 import { AUDIT_ACCESS_KEY, AuditAccessOptions } from './audit-access.decorator';
@@ -52,14 +52,17 @@ export class AuditAccessInterceptor implements NestInterceptor {
       url?: string;
     }>();
 
+    // The row is written INSIDE the stream and awaited before the value goes out. It used to be
+    // fired from `tap` with `void`: the response completed, TenantConnectionInterceptor reset and
+    // released the request's pinned connection, and the save — which opens a transaction — landed
+    // on that connection in between. The connection went back to the pool mid-transaction, kept
+    // its locks, and every later request that touched the same rows waited forever (see QA C-01).
     return next.handle().pipe(
-      tap({
-        next: () => this.record(options, request),
-      }),
+      concatMap((value) => from(this.record(options, request)).pipe(map(() => value))),
     );
   }
 
-  private record(
+  private async record(
     options: AuditAccessOptions,
     request: {
       user?: { id?: string; organizationId?: string };
@@ -69,7 +72,7 @@ export class AuditAccessInterceptor implements NestInterceptor {
       method?: string;
       url?: string;
     },
-  ): void {
+  ): Promise<void> {
     const userId = request.user?.id;
     if (!userId) return;
 
@@ -81,7 +84,7 @@ export class AuditAccessInterceptor implements NestInterceptor {
       if (value !== undefined) identifiers[key] = value;
     }
 
-    void this.audit
+    await this.audit
       .record(
         userId,
         options.entity,

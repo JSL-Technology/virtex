@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { LucideAngularModule, AlertTriangle, ArrowRight, Ban, GitMerge } from 'lucide-angular';
 import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
@@ -37,7 +37,7 @@ import { ChartOfAccountsApiService, MergePreview } from '../data/chart-of-accoun
 @Component({
   selector: 'app-merge-accounts-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, VxAmountComponent],
+  imports: [FormsModule, RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, VxAmountComponent],
   templateUrl: './merge-accounts.page.html',
   styleUrls: ['./merge-accounts.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

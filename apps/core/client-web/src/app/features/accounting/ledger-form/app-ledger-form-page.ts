@@ -7,7 +7,7 @@ import { LedgersService, CreateLedgerDto, UpdateLedgerDto } from '../../../core/
 // FIX: Importar el tipo Ledger directamente desde su modelo, ya que el servicio no lo re-exporta.
 import { Ledger } from '../../../core/models/ledger.model';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -15,7 +15,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-ledger-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [ReactiveFormsModule, TranslatePipe, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './app-ledger-form-page.html',
   styleUrls: ['./app-ledger-form-page.scss']
 })

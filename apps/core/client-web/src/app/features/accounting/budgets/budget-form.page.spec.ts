@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { BudgetFormPage, restOfYear } from './budget-form.page';
 import { BudgetsService } from '../data/budgets.service';
@@ -22,7 +21,7 @@ describe('BudgetFormPage', () => {
       vsActual: jest.fn().mockReturnValue(of({ period: { startDate: '', endDate: '' }, ledger: null, lines: [], totals: { budgeted: 0, actual: 0, difference: 0 } })),
     };
     TestBed.configureTestingModule({
-      imports: [BudgetFormPage, TranslateModule.forRoot()],
+      imports: [BudgetFormPage],
       providers: [
         provideRouter([]),
         { provide: BudgetsService, useValue: budgets },

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import { LanguageSelector } from '../../../../shared/components/language-selector/language-selector';
 
@@ -15,7 +15,7 @@ import { LanguageSelector } from '../../../../shared/components/language-selecto
 @Component({
   selector: 'app-auth-footer',
   standalone: true,
-  imports: [TranslateModule, RouterModule, LanguageSelector],
+  imports: [TranslatePipe, RouterModule, LanguageSelector],
   templateUrl: './auth-footer.component.html',
   styleUrls: ['./auth-footer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { EinvoicingRegimePage } from './einvoicing-regime.page';
 import {
   FiscalRange,
@@ -52,7 +51,7 @@ describe('EinvoicingRegimePage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EinvoicingRegimePage, TranslateModule.forRoot()],
+      imports: [EinvoicingRegimePage],
       providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 

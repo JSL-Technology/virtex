@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { Bank, TreasuryService } from '../../../../core/api/treasury.service';
@@ -34,7 +34,7 @@ import { VxDateFieldComponent } from '../../../../shared/components/date';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
     ...FORMAT_PIPES,
     DraftShellComponent,
     ...VX_FORM_A11Y, VxDateFieldComponent],

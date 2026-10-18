@@ -17,7 +17,7 @@
     <select [value]="fiscalYearId()" (change)="filterByYear($any($event.target).value)">
       <option value="">{{ 'audit_adjustments.all_years' | translate }}</option>
       @for (year of years(); track year.id) {
-        <option [value]="year.id">{{ year.startDate }} – {{ year.endDate }}</option>
+        <option [value]="year.id" [selected]="year.id === (fiscalYearId())">{{ year.startDate }} – {{ year.endDate }}</option>
       }
     </select>
   </label>

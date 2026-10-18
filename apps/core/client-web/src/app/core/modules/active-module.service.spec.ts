@@ -58,6 +58,28 @@ describe('ActiveModuleService', () => {
     expect(svc.active()?.id).toBe('compras');
   });
 
+  it('Ventas › Antigüedad de saldos no salta a otro módulo (QA C-05)', () => {
+    const svc = make('/invoices', todos());
+
+    events.next(new NavigationEnd(1, '/reports/aging/receivables', '/reports/aging/receivables'));
+    expect(svc.active()?.id).toBe('ventas');
+
+    // Abierta en frío (un marcador) también es de Ventas.
+    TestBed.resetTestingModule();
+    expect(make('/reports/aging/receivables', todos()).active()?.id).toBe('ventas');
+  });
+
+  it('se queda en el módulo actual cuando su menú también ofrece la página', () => {
+    const svc = make('/accounts-payable', todos());
+    const comprasPaths = svc.visibleMenu(svc.active() as ModuleManifest).flatMap((s) => s.entries.map((e) => e.path));
+    const compartida = comprasPaths.find((p) => p.startsWith('/reports/'));
+    if (!compartida) return;
+
+    events.next(new NavigationEnd(2, compartida, compartida));
+
+    expect(svc.active()?.id).toBe('compras');
+  });
+
   it('una URL que ningún módulo declara no inventa un módulo', () => {
     const svc = make('/no-existe/nada', todos());
 

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Plus } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -46,7 +46,7 @@ const STATUS_TONE: Record<PayrollRunStatus, VxTone> = {
 @Component({
   selector: 'app-payroll-runs-page',
   standalone: true,
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './runs.page.html',
   styleUrls: ['./runs.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -7,7 +7,7 @@ import { SecurityService } from '../../../core/api/security.service';
 import { NotificationService } from '../../../core/services/notification';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Component, Input } from '@angular/core';
@@ -69,7 +69,6 @@ describe('MyProfilePage', () => {
         MyProfilePage,
         BrowserAnimationsModule,
         HttpClientTestingModule,
-        TranslateModule.forRoot(),
         FormsModule,
         ReactiveFormsModule
       ],
@@ -86,7 +85,7 @@ describe('MyProfilePage', () => {
           CommonModule,
           ReactiveFormsModule,
           LucideAngularModule,
-          TranslateModule,
+          TranslatePipe,
           MockSecuritySettingsComponent,
           MockPhoneVerificationModalComponent,
           // The real meter: the password fields show it, and it has no dependencies to mock.

@@ -6,7 +6,7 @@ import { UserSecurity } from '../../users/entities/user-security.entity';
 import { CryptoUtil } from '../../shared/utils/crypto.util';
 import { UserCacheService } from '../modules/user-cache.service';
 import { PasswordService } from './password.service';
-import { authenticator } from 'otplib';
+import { generateSecret, generateSync } from 'otplib';
 import { ConfigService } from '@nestjs/config';
 import { expectLocalizedError } from '../../i18n/testing/expect-localized-error';
 
@@ -157,7 +157,7 @@ describe('TwoFactorAuthService', () => {
    * that the path a federated identity takes (no `passwordHash` at all) now succeeds.
    */
   describe('enableTwoFactor', () => {
-      const stagedSecret = authenticator.generateSecret();
+      const stagedSecret = generateSecret();
 
       const userWith = (security: Record<string, unknown>) => {
           userRepo.findOne.mockResolvedValue({
@@ -173,7 +173,7 @@ describe('TwoFactorAuthService', () => {
 
           const result = await service.enableTwoFactor(
               { id: 'user-1' } as User,
-              authenticator.generate(stagedSecret),
+              generateSync({ secret: stagedSecret }),
           );
 
           expect(result.backupCodes.length).toBe(10);
@@ -190,7 +190,7 @@ describe('TwoFactorAuthService', () => {
 
           const result = await service.enableTwoFactor(
               { id: 'user-1' } as User,
-              authenticator.generate(stagedSecret),
+              generateSync({ secret: stagedSecret }),
           );
 
           expect(result.backupCodes.length).toBe(10);

@@ -10,7 +10,7 @@ import { of, Observable } from 'rxjs';
 import { MockCountryService } from '../../../../testing/country.service.mock';
 import { CountryService } from '../../../core/services/country.service';
 import { LanguageService } from '../../../core/services/language';
-import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
+import { TranslateLoader, provideTranslateLoader } from '@ngx-translate/core';
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
@@ -47,9 +47,6 @@ describe('LoginPage', () => {
       imports: [
         LoginPage,
         NoopAnimationsModule,
-        TranslateModule.forRoot({
-            loader: { provide: TranslateLoader, useClass: FakeLoader }
-        }),
         AuthLayoutComponent,
         AuthInputComponent,
         AuthButtonComponent,
@@ -57,6 +54,7 @@ describe('LoginPage', () => {
         PasskeyButtonComponent
       ],
       providers: [
+        provideTranslateLoader(FakeLoader),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),

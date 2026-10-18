@@ -224,11 +224,6 @@
     "en": "Payment likelihoods from the cash-flow projection of {{when}}.",
     "pt": "Probabilidades de pagamento do fluxo de caixa projetado de {{when}}."
   },
-  "collections.loading": {
-    "es": "Cargando la cartera…",
-    "en": "Loading receivables…",
-    "pt": "Carregando a carteira…"
-  },
   "collections.note": {
     "es": "Mensaje",
     "en": "Message",

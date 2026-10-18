@@ -153,7 +153,7 @@ export class ErrorHandlerService {
    * the later render walk the same normalisation and cannot disagree about what exists.
    */
   private has(key: string): boolean {
-    for (const language of [this.translate.currentLang, this.translate.defaultLang]) {
+    for (const language of [this.translate.getCurrentLang(), this.translate.getFallbackLang()]) {
       if (!language) continue;
       if (this.store.hasKey(language, key)) return true;
     }

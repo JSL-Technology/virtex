@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { AiOverview, AiRunSummary, AiService } from '../../../ai/data/ai.service';
@@ -31,7 +31,7 @@ interface FeatureUsage {
 @Component({
   selector: 'app-ai-settings-page',
   standalone: true,
-  imports: [TranslateModule, RouterLink, HasPermissionDirective, ...FORMAT_PIPES, AiAgentsPanelComponent],
+  imports: [TranslatePipe, RouterLink, HasPermissionDirective, ...FORMAT_PIPES, AiAgentsPanelComponent],
   templateUrl: './ai-settings.page.html',
   styleUrls: ['./ai-settings.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

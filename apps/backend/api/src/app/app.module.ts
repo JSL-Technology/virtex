@@ -211,6 +211,19 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
         subscribers: [FinancialAuditSubscriber],
         synchronize: config.get<boolean>('DB_SYNCHRONIZE', false),
         logging: config.get<boolean>('DB_LOGGING', false),
+        // Last line of defence for the pool. Every tenant request pins one connection for its life
+        // (TenantConnectionInterceptor), so a connection handed back with a transaction still open
+        // used to keep its row locks forever: every later `PUT /me/workspace` queued behind it,
+        // the pool drained, and the API stopped answering every tenant. The interceptor now rolls
+        // such a transaction back itself; these server-side limits make sure a leak that slips past
+        // it is cut off in a minute instead of holding the whole service hostage.
+        extra: {
+          max: Number(config.get<number>('DB_POOL_SIZE', 20)),
+          idle_in_transaction_session_timeout: Number(
+            config.get<number>('DB_IDLE_IN_TRANSACTION_TIMEOUT_MS', 60_000),
+          ),
+          statement_timeout: Number(config.get<number>('DB_STATEMENT_TIMEOUT_MS', 120_000)),
+        },
         // M-04 FIX: When TLS is enabled, validate the server certificate (rejectUnauthorized:true)
         // to prevent MITM of credentials/tokens/2FA secrets in transit. An optional CA bundle
         // (DB_SSL_CA) supports private/managed-CA deployments. rejectUnauthorized can only be

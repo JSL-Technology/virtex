@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Inbox } from 'lucide-angular';
 
 /**
@@ -24,7 +24,7 @@ import { LucideAngularModule, Inbox } from 'lucide-angular';
 @Component({
   selector: 'vx-empty-state',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule],
+  imports: [TranslatePipe, LucideAngularModule],
   template: `
     <lucide-icon [img]="icon()" class="empty-icon" aria-hidden="true"></lucide-icon>
     <p class="empty-title">{{ titleKey() | translate: params() }}</p>

@@ -158,6 +158,15 @@
                             <strong>{{ item.amount | vxMoney: item.currencyCode }}</strong>
                           }
                         </p>
+                        @if (item.collectInvoiceId) {
+                          <a
+                            class="ov-event__action"
+                            [routerLink]="['/customer-receipts/new']"
+                            [queryParams]="{ invoiceId: item.collectInvoiceId }"
+                            (click)="$event.stopPropagation()"
+                            (keydown.enter)="$event.stopPropagation()"
+                          >{{ 'invoices.invoice_toolbar.collect' | translate }}</a>
+                        }
                       </div>
                     </li>
                   }

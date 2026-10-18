@@ -21,6 +21,8 @@
   <app-invoice-toolbar
     documentActions
     [canCopyFrom]="inv.status === 'Draft'"
+    [canCollect]="canCollect(inv)"
+    (collectRequested)="collect(inv)"
     (navigateRequested)="handleNavigate($event)"
     (printRequested)="printInvoice()"
     (emailRequested)="emailInvoice()"
@@ -215,11 +217,16 @@
     -->
     <div class="alert alert-neutral credit-actions" role="group" [attr.aria-label]="'invoices.detail.corrections' | translate">
       <span>{{ 'invoices.detail.corrections_hint' | translate }}</span>
-      <div class="draft-actions">
+      <!--
+        QA A-18: «Anular» (rojo) iba pegado a «Nota de crédito». La acción destructiva se aparta de
+        la correctiva y se presenta como enlace de peligro; además pide motivo antes de ejecutarse.
+      -->
+      <div class="draft-actions credit-actions__buttons">
         <button type="button" class="secondary-button" [disabled]="ecfBusy()" (click)="createCreditNote(inv.id)">
           {{ 'invoices.detail.credit_note' | translate }}
         </button>
-        <button type="button" class="danger-button" [disabled]="ecfBusy()" (click)="voidInvoice(inv)">
+        <span class="credit-actions__divider" aria-hidden="true"></span>
+        <button type="button" class="danger-link" [disabled]="ecfBusy()" (click)="voidInvoice(inv)">
           {{ 'invoices.detail.void_invoice' | translate }}
         </button>
       </div>

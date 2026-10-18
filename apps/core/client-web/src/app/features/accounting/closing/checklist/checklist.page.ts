@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, AlertCircle, CheckCircle, Circle, Lock, RefreshCw } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { AuthService } from '../../../../core/services/auth';
 import { DialogService } from '../../../../core/services/dialog.service';
@@ -33,7 +33,7 @@ import {
 @Component({
   selector: 'app-checklist-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES],
   templateUrl: './checklist.page.html',
   styleUrls: ['./checklist.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

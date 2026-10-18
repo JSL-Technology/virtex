@@ -93,6 +93,29 @@
     rel="stylesheet">
 
   <link rel="manifest" href="manifest.webmanifest">
+
+  <!--
+    PANTALLA DE ARRANQUE (QA C-02). Vive dentro de <app-root>, así que Angular la sustituye en
+    cuanto la aplicación pinta. Antes, si la API tardaba o no respondía, el usuario veía una
+    página en blanco indefinidamente: sin indicador, sin mensaje y sin forma de reintentar.
+    Va embebida (CSS y JS en línea) porque tiene que funcionar justo cuando nada más carga.
+  -->
+  <style>
+    .vx-boot{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+      background:#f4f6fa;color:#1f2433;font:15px/1.5 Inter,system-ui,-apple-system,'Segoe UI',sans-serif;text-align:center;padding:24px}
+    :root[data-theme=dark] .vx-boot{background:#141414;color:#e8e8ee}
+    @media (prefers-color-scheme:dark){:root:not([data-theme=light]) .vx-boot{background:#141414;color:#e8e8ee}}
+    .vx-boot__spinner{width:28px;height:28px;border-radius:50%;border:3px solid rgba(91,62,240,.25);border-top-color:#5b3ef0;animation:vx-spin .8s linear infinite}
+    @keyframes vx-spin{to{transform:rotate(360deg)}}
+    @media (prefers-reduced-motion:reduce){.vx-boot__spinner{animation-duration:2.4s}}
+    .vx-boot__error{display:none;max-width:420px}
+    .vx-boot--failed .vx-boot__spinner{display:none}
+    .vx-boot--failed .vx-boot__error{display:block}
+    .vx-boot__error h1{font-size:18px;margin:0 0 6px}
+    .vx-boot__error p{margin:0 0 16px;opacity:.8}
+    .vx-boot__retry{font:inherit;font-weight:600;color:#fff;background:#5b3ef0;border:0;border-radius:8px;padding:10px 20px;cursor:pointer}
+    .vx-boot__retry:focus-visible{outline:3px solid #a99bf7;outline-offset:2px}
+  </style>
 </head>
 
 <body>
@@ -100,7 +123,19 @@
     The skip link lives in `app.html`, not here: its text has to be translated, and it only has
     somewhere to skip to once the layout has rendered. It stays the first focusable element.
   -->
-  <app-root></app-root>
+  <app-root>
+    <div class="vx-boot" id="vx-boot" role="status" aria-live="polite">
+      <img src="favicon.svg" width="44" height="44" alt="Virtex">
+      <div class="vx-boot__spinner" aria-hidden="true"></div>
+      <span class="vx-boot__loading" id="vx-boot-loading">Cargando…</span>
+      <div class="vx-boot__error" role="alert">
+        <h1 id="vx-boot-title">No pudimos conectar con el servidor</h1>
+        <p id="vx-boot-text">Revisa tu conexión. Si el problema continúa, puede que el servicio esté en mantenimiento.</p>
+        <button type="button" class="vx-boot__retry" id="vx-boot-retry">Reintentar</button>
+      </div>
+    </div>
+    <script src="boot.js"></script>
+  </app-root>
 
   <!--
     Shown exactly when no script can run, so nothing here can pick a language: it carries all

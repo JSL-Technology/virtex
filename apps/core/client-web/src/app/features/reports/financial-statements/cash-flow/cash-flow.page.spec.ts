@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { CashFlowPage } from './cash-flow.page';
 import { CashFlowStatementReport } from '../../../../core/api/financial-reporting.service';
 import { environment } from '../../../../../environments/environment';
@@ -16,13 +15,13 @@ describe('CashFlowPage', () => {
     openingCash: 50_000,
     operating: {
       netIncome: 180_000,
-      nonCashAdjustments: [{ accountId: 'a1', code: '5401', amount: 12_000 }],
-      workingCapitalChanges: [{ accountId: 'a2', code: '1105', amount: -30_000 }],
+      nonCashAdjustments: [{ accountId: 'a1', code: '5401', name: { es: 'Depreciación', en: 'Depreciation' }, amount: 12_000 }],
+      workingCapitalChanges: [{ accountId: 'a2', code: '1105', name: 'Cuentas por cobrar', amount: -30_000 }],
       total: 162_000,
     },
     investing: {
       movements: [
-        { accountId: 'a3', code: '1501', inflow: 10_000, outflow: 30_000, amount: -20_000 },
+        { accountId: 'a3', code: '1501', name: 'Edificios', inflow: 10_000, outflow: 30_000, amount: -20_000 },
       ],
       inflows: 10_000,
       outflows: 30_000,
@@ -30,7 +29,7 @@ describe('CashFlowPage', () => {
     },
     financing: {
       movements: [
-        { accountId: 'a4', code: '2501', inflow: 48_000, outflow: 40_000, amount: 8_000 },
+        { accountId: 'a4', code: '2501', name: 'Préstamos', inflow: 48_000, outflow: 40_000, amount: 8_000 },
       ],
       inflows: 48_000,
       outflows: 40_000,
@@ -45,7 +44,7 @@ describe('CashFlowPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CashFlowPage, TranslateModule.forRoot()],
+      imports: [CashFlowPage],
       providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
@@ -69,6 +68,15 @@ describe('CashFlowPage', () => {
     expect(text).toContain('5401');
     expect(text).toContain('1105');
     expect(fixture.nativeElement.querySelector('.out-of-balance')).toBeFalsy();
+  });
+
+  it('nombra cada cuenta además de su código (QA A-16)', () => {
+    fixture.detectChanges();
+    flush();
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('Cuentas por cobrar');
+    expect(text).toContain('Préstamos');
   });
 
   it('shows an unexplained difference, which by construction should never occur', () => {
@@ -109,8 +117,8 @@ describe('CashFlowPage', () => {
     flush({
       ...report,
       nonCashTransactions: [
-        { accountId: 'a5', code: '1501', debit: 120_000, credit: 0 },
-        { accountId: 'a6', code: '2501', debit: 0, credit: 120_000 },
+        { accountId: 'a5', code: '1501', name: 'Edificios', debit: 120_000, credit: 0 },
+        { accountId: 'a6', code: '2501', name: 'Préstamos', debit: 0, credit: 120_000 },
       ],
     });
 

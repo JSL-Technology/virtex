@@ -18,7 +18,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 import { DialogService } from '../../../core/services/dialog.service';
 import {
   LucideAngularModule,
@@ -85,7 +85,7 @@ import { TableSort, VX_SORT, sortable } from '../../../shared/components/sort';
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
-    TranslateModule,
+    TranslatePipe,
     HasPermissionDirective,
     ...VX_FORM_A11Y, ...VX_SELECT, VxSpinnerComponent, VxPagerComponent, VxBadgeComponent,
     UserBranchAccessDialogComponent],

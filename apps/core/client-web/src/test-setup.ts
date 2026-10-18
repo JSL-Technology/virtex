@@ -5,7 +5,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { TranslateModule, TranslateStore } from '@ngx-translate/core';
+import { provideTranslateService, TranslateStore } from '@ngx-translate/core';
 import { VirtexTranslateStore } from '@virteex/shared/ui-i18n';
 import { provideHighcharts } from 'highcharts-angular';
 import { API_URL } from './app/core/tokens/api-url.token';
@@ -34,8 +34,10 @@ setupZoneTestEnv({
  */
 beforeEach(() => {
   TestBed.configureTestingModule({
-    imports: [TranslateModule.forRoot()],
     providers: [
+      // A spec that needs a loader or a missing-key handler adds `provideTranslateLoader(…)` /
+      // `provideMissingTranslationHandler(…)` to its own providers, which override these.
+      provideTranslateService(),
       provideHttpClient(),
       provideHttpClientTesting(),
       provideRouter([]),
@@ -51,7 +53,7 @@ beforeEach(() => {
       // "Cannot read properties of undefined (reading 'root')" during component construction.
       // A route stub is both simpler and more predictable than driving a navigation per spec.
       { provide: ActivatedRoute, useValue: activatedRouteStub() },
-      // The same store wiring `app.config.ts` installs. `TranslateModule.forRoot()` registers the
+      // The same store wiring `app.config.ts` installs. `provideTranslateService()` registers the
       // upstream `TranslateStore`, whose key lookup is neither normalised nor publicly askable —
       // so a spec running against it exercises different i18n behaviour than the application does,
       // which is how a defect in key resolution can pass a green suite.

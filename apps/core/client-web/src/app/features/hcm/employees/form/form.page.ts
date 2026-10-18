@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, si
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Eye } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
@@ -49,7 +49,7 @@ import { refreshWhenStale } from '../../../../core/data/data-version.service';
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
-    TranslateModule,
+    TranslatePipe,
     ...FORMAT_PIPES,
     DraftShellComponent,
     ...VX_FORM_A11Y, VxDateFieldComponent],

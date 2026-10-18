@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Shield, Clock, RefreshCw, Eraser, CheckCircle, Info, AlertCircle, AlertTriangle } from 'lucide-angular';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 type StatusType = 'success' | 'error' | 'warning' | 'info';
 interface OtpStatus {
@@ -39,7 +39,7 @@ const SELECTABLE_LENGTHS = [4, 6, 8] as const;
 @Component({
   selector: 'app-otp',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe],
   templateUrl: './otp.component.html',
   styleUrls: ['./otp.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

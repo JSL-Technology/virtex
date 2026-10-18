@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Banknote, ChevronLeft, Edit, FileMinus, Send, Trash2 } from 'lucide-angular';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { EMPTY, forkJoin, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
@@ -43,7 +43,7 @@ import { refreshWhenStale } from '../../../core/data/data-version.service';
 @Component({
   selector: 'app-vendor-bill-detail-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent, HasPermissionDirective],
+  imports: [RouterLink, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, DocumentShellComponent, HasPermissionDirective],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

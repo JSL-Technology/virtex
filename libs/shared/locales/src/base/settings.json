@@ -4517,5 +4517,145 @@
     "es": "¿Está seguro que desea eliminar permanentemente al usuario",
     "en": "Are you sure you want to permanently delete the user",
     "pt": "Tem certeza de que deseja excluir permanentemente o usuário"
+  },
+  "settings.fiscal.mode.title": {
+    "es": "Cómo emites tus comprobantes",
+    "en": "How you issue your fiscal documents",
+    "pt": "Como você emite seus comprovantes"
+  },
+  "settings.fiscal.mode.subtitle": {
+    "es": "Puedes emitir comprobantes tradicionales (numerados de un rango autorizado e impresos), electrónicos (firmados y enviados a la autoridad fiscal) o ambos mientras haces la transición.",
+    "en": "You can issue traditional documents (numbered from an authorised range and printed), electronic ones (signed and sent to the tax authority), or both while you make the transition.",
+    "pt": "Você pode emitir comprovantes tradicionais (numerados de uma faixa autorizada e impressos), eletrônicos (assinados e enviados à autoridade fiscal) ou ambos durante a transição."
+  },
+  "settings.fiscal.mode.both_title": {
+    "es": "Ambos",
+    "en": "Both",
+    "pt": "Ambos"
+  },
+  "settings.fiscal.mode.both_description": {
+    "es": "Emite electrónicos cuando tengas certificado y rango para ellos; si no, tradicionales. En cada factura puedes elegir el tipo.",
+    "en": "Issues electronic documents when you have a certificate and a range for them, traditional ones otherwise. You can choose the type on each invoice.",
+    "pt": "Emite eletrônicos quando houver certificado e faixa para eles; caso contrário, tradicionais. Em cada fatura você pode escolher o tipo."
+  },
+  "settings.fiscal.mode.electronic_title": {
+    "es": "Solo electrónicos",
+    "en": "Electronic only",
+    "pt": "Somente eletrônicos"
+  },
+  "settings.fiscal.mode.electronic_description": {
+    "es": "Firmados con tu certificado y enviados a la autoridad fiscal ({{authority}}). Necesitas certificado digital y rangos de comprobantes electrónicos.",
+    "en": "Signed with your certificate and sent to the tax authority ({{authority}}). You need a digital certificate and ranges of electronic documents.",
+    "pt": "Assinados com seu certificado e enviados à autoridade fiscal ({{authority}}). Você precisa de certificado digital e faixas de comprovantes eletrônicos."
+  },
+  "settings.fiscal.mode.traditional_title": {
+    "es": "Solo tradicionales",
+    "en": "Traditional only",
+    "pt": "Somente tradicionais"
+  },
+  "settings.fiscal.mode.traditional_description": {
+    "es": "Numerados con tus rangos autorizados e impresos. No necesitas certificado digital.",
+    "en": "Numbered from your authorised ranges and printed. You do not need a digital certificate.",
+    "pt": "Numerados com suas faixas autorizadas e impressos. Você não precisa de certificado digital."
+  },
+  "settings.fiscal.mode.can_issue_now": {
+    "es": "Ahora mismo puedes emitir:",
+    "en": "You can issue right now:",
+    "pt": "Agora você pode emitir:"
+  },
+  "settings.fiscal.mode.cannot_issue_yet": {
+    "es": "Todavía no puedes emitir comprobantes. Falta:",
+    "en": "You cannot issue fiscal documents yet. You need:",
+    "pt": "Você ainda não pode emitir comprovantes. Falta:"
+  },
+  "settings.fiscal.mode.certificate_not_needed": {
+    "es": "Emites solo comprobantes tradicionales: no necesitas certificado digital.",
+    "en": "You issue traditional documents only: you do not need a digital certificate.",
+    "pt": "Você emite somente comprovantes tradicionais: não precisa de certificado digital."
+  },
+  "settings.fiscal.mode.saved": {
+    "es": "Modalidad de emisión guardada.",
+    "en": "Emission mode saved.",
+    "pt": "Modalidade de emissão salva."
+  },
+  "settings.fiscal.mode.save_failed": {
+    "es": "No se pudo guardar la modalidad de emisión.",
+    "en": "The emission mode could not be saved.",
+    "pt": "Não foi possível salvar a modalidade de emissão."
+  },
+  "settings.fiscal.mode.load_failed": {
+    "es": "No se pudo cargar la modalidad de emisión.",
+    "en": "The emission mode could not be loaded.",
+    "pt": "Não foi possível carregar a modalidade de emissão."
+  },
+  "settings.fiscal.range_group_electronic": {
+    "es": "Electrónicos (e-CF, serie E)",
+    "en": "Electronic (e-CF, E series)",
+    "pt": "Eletrônicos (e-CF, série E)"
+  },
+  "settings.fiscal.range_group_traditional": {
+    "es": "Tradicionales (NCF, serie B)",
+    "en": "Traditional (NCF, B series)",
+    "pt": "Tradicionais (NCF, série B)"
+  },
+  "settings.fiscal.holder_person_note": {
+    "es": "Persona autorizada: debe constar como representante de tu empresa ante la autoridad fiscal ({{authority}}).",
+    "en": "Authorised person: must be registered as your company's representative with the tax authority ({{authority}}).",
+    "pt": "Pessoa autorizada: deve constar como representante da sua empresa perante a autoridade fiscal ({{authority}})."
+  },
+  "settings.fiscal.test_certificate": {
+    "es": "Prueba",
+    "en": "Test",
+    "pt": "Teste"
+  },
+  "settings.fiscal.test_certificate_hint": {
+    "es": "Certificado autofirmado de pruebas: solo funciona en desarrollo y ninguna autoridad fiscal lo acepta.",
+    "en": "Self-signed test certificate: works only in development and no tax authority accepts it.",
+    "pt": "Certificado autoassinado de teste: funciona apenas em desenvolvimento e nenhuma autoridade fiscal o aceita."
+  },
+  "settings.fiscal.status_title": {
+    "es": "Qué puedes emitir hoy",
+    "en": "What you can issue today",
+    "pt": "O que você pode emitir hoje"
+  },
+  "settings.fiscal.status_subtitle": {
+    "es": "Lo que el formulario de facturas te dejará emitir con tu configuración actual.",
+    "en": "What the invoice form will let you issue with your current setup.",
+    "pt": "O que o formulário de faturas permitirá emitir com sua configuração atual."
+  },
+  "settings.fiscal.certificate_description": {
+    "es": "Solo para comprobantes electrónicos. Sube el certificado (.p12 / .pfx) que te emitió una entidad certificadora reconocida por la autoridad fiscal ({{authority}}), a nombre del {{label}} de tu empresa o, donde la ley lo permite, de la persona que la representa. Se guarda cifrado y solo se usa para firmar.",
+    "en": "Only for electronic documents. Upload the certificate (.p12 / .pfx) issued by a certification authority the tax authority ({{authority}}) recognises, to your company's {{label}} or, where the law allows it, to the person who represents it. It is stored encrypted and used only to sign.",
+    "pt": "Somente para comprovantes eletrônicos. Envie o certificado (.p12 / .pfx) emitido por uma autoridade certificadora reconhecida pela autoridade fiscal ({{authority}}), em nome do {{label}} da sua empresa ou, onde a lei permite, da pessoa que a representa. É guardado criptografado e usado apenas para assinar."
+  },
+  "settings.fiscal.certificate_example_name": {
+    "es": "Certificado {{authority}} {{year}}",
+    "en": "{{authority}} certificate {{year}}",
+    "pt": "Certificado {{authority}} {{year}}"
+  },
+  "settings.fiscal.signs_for": {
+    "es": "Firma para",
+    "en": "Signs for",
+    "pt": "Assina para"
+  },
+  "settings.fiscal.document_types_load_failed": {
+    "es": "No se pudieron cargar los tipos de comprobante de tu país.",
+    "en": "Your country's document types could not be loaded.",
+    "pt": "Não foi possível carregar os tipos de comprovante do seu país."
+  },
+  "settings.pages.einvoicing.choose_document_type": {
+    "es": "Elige el tipo",
+    "en": "Choose the type",
+    "pt": "Escolha o tipo"
+  },
+  "settings.approvals.workflows_note": {
+    "es": "Aquí defines políticas simples: quién aprueba según el importe. Si necesitas varios pasos, condiciones, plazos o acciones automáticas, diseña un flujo de trabajo. Ambos conviven: si un flujo también decide sobre un tipo de documento con política, se aplican los dos, así que evita duplicar la aprobación.",
+    "en": "Here you set simple policies: who approves by amount. If you need several steps, conditions, deadlines or automatic actions, design a workflow. Both coexist: if a workflow also decides on a document type that has a policy, both apply, so avoid approving twice.",
+    "pt": "Aqui define políticas simples: quem aprova segundo o montante. Se precisar de vários passos, condições, prazos ou ações automáticas, desenhe um fluxo de trabalho. Ambos coexistem: se um fluxo também decide sobre um tipo de documento com política, aplicam-se os dois, por isso evite aprovar duas vezes."
+  },
+  "settings.approvals.go_workflows": {
+    "es": "Ir a Flujos de trabajo",
+    "en": "Go to Workflows",
+    "pt": "Ir para Fluxos de trabalho"
   }
 }

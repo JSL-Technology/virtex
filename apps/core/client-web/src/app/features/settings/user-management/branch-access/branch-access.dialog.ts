@@ -11,7 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import { Branch, BranchesService } from '../../../../core/tenancy/branches.service';
 import { NotificationService } from '../../../../core/services/notification';
@@ -30,7 +30,7 @@ import { VxSpinnerComponent } from '../../../../shared/components/feedback';
 @Component({
   selector: 'app-user-branch-access-dialog',
   standalone: true,
-  imports: [TranslateModule, VxDialogComponent, VxSpinnerComponent],
+  imports: [TranslatePipe, VxDialogComponent, VxSpinnerComponent],
   templateUrl: './branch-access.dialog.html',
   styleUrls: ['./branch-access.dialog.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

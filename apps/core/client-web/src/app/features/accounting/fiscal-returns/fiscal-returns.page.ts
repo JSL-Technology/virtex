@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -56,7 +56,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 @Component({
   selector: 'app-fiscal-returns-page',
   standalone: true,
-  imports: [FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [FormsModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './fiscal-returns.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './fiscal-returns.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

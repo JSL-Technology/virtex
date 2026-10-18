@@ -9,14 +9,14 @@ import { DashboardApiService, TrendPoint } from '../../../../core/api/dashboard-
 import { FormatService } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Settings, AreaChart, LineChart } from 'lucide-angular';
 import Exporting from 'highcharts/modules/exporting';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 // Exporting(Highcharts);
 
 @Component({
   selector: 'app-sales-chart',
   standalone: true,
-  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslatePipe],
   templateUrl: './sales-chart.html',
   styleUrls: ['../widget-styles.scss'],
 })

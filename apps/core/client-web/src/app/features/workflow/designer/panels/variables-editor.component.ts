@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { composeKey } from '@virteex/shared/types';
 import { LucideAngularModule, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-angular';
 import { VARIABLE_TYPES, WorkflowVariable, WorkflowVariableType } from '../../data/workflow.service';
@@ -18,7 +18,7 @@ export const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*){
 @Component({
   selector: 'app-workflow-variables-editor',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule],
+  imports: [TranslatePipe, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inspector.scss',
   template: `
@@ -46,7 +46,7 @@ export const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*){
             <div class="insp-field">
               <label [attr.for]="idFor(i, 'label')">{{ 'workflow_engine.variables.label' | translate }}</label>
               <input [id]="idFor(i, 'label')" type="text" maxlength="120" [value]="variable.label ?? ''" [readOnly]="readonly()"
-                (input)="patch(i, { label: $any($event.target).value }, 'label')" />
+                (input)="setLabel(i, $any($event.target).value)" />
             </div>
             <div class="insp-field">
               <label [attr.for]="idFor(i, 'name')">{{ 'workflow_engine.variables.name' | translate }}</label>
@@ -63,7 +63,7 @@ export const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*){
               <label [attr.for]="idFor(i, 'type')">{{ 'workflow_engine.variables.type' | translate }}</label>
               <select [id]="idFor(i, 'type')" [value]="variable.type" [disabled]="readonly()" (change)="setType(i, $any($event.target).value)">
                 @for (type of types; track type) {
-                  <option [value]="type">{{ typeKey(type) | translate }}</option>
+                  <option [value]="type" [selected]="type === variable.type">{{ typeKey(type) | translate }}</option>
                 }
               </select>
             </div>
@@ -75,6 +75,20 @@ export const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*){
               </label>
             </div>
           </div>
+          @if (variable.type === 'number') {
+            <div class="insp-row">
+              <div class="insp-field">
+                <label [attr.for]="idFor(i, 'min')">{{ 'workflow_engine.variables.min' | translate }}</label>
+                <input [id]="idFor(i, 'min')" type="number" [value]="variable.min ?? ''" [readOnly]="readonly()"
+                  (change)="patch(i, { min: toNumber($any($event.target).value) })" />
+              </div>
+              <div class="insp-field">
+                <label [attr.for]="idFor(i, 'max')">{{ 'workflow_engine.variables.max' | translate }}</label>
+                <input [id]="idFor(i, 'max')" type="number" [value]="variable.max ?? ''" [readOnly]="readonly()"
+                  (change)="patch(i, { max: toNumber($any($event.target).value) })" />
+              </div>
+            </div>
+          }
           @if (variable.type === 'select') {
             <div class="insp-field">
               <label [attr.for]="idFor(i, 'options')">{{ 'workflow_engine.variables.options' | translate }}</label>
@@ -121,6 +135,7 @@ export class VariablesEditorComponent {
       seen.set(variable.name, index);
       if (previous !== undefined) return 'workflow_engine.variables.error_duplicate';
       if (variable.type === 'select' && !variable.options?.length) return 'workflow_engine.variables.error_options';
+      if (variable.min !== undefined && variable.max !== undefined && variable.min > variable.max) return 'workflow_engine.variables.error_range';
       return null;
     });
   });
@@ -136,8 +151,25 @@ export class VariablesEditorComponent {
   add(): void {
     const names = new Set(this.value().map((v) => v.name));
     let n = this.value().length + 1;
-    while (names.has(`field${n}`)) n++;
-    this.emit([...this.value(), { name: `field${n}`, label: '', type: 'string' }]);
+    while (names.has(`dato${n}`)) n++;
+    this.emit([...this.value(), { name: `dato${n}`, label: '', type: 'string' }]);
+  }
+
+  /**
+   * Typing the label derives the technical name («Monto aprobado» → `monto_aprobado`) for as long
+   * as the author has not written one of their own; after that their name is left alone.
+   */
+  setLabel(index: number, label: string): void {
+    const current = this.value()[index];
+    const derivedBefore = /^dato\d+$/.test(current.name) || current.name === technicalName(current.label ?? '');
+    const patch: Partial<WorkflowVariable> = { label };
+    if (derivedBefore) {
+      const others = new Set(this.value().filter((_, i) => i !== index).map((v) => v.name));
+      let candidate = technicalName(label) || current.name;
+      for (let n = 2; others.has(candidate); n += 1) candidate = `${technicalName(label)}_${n}`;
+      patch.name = candidate;
+    }
+    this.patch(index, patch, 'label');
   }
 
   remove(index: number): void {
@@ -160,7 +192,18 @@ export class VariablesEditorComponent {
   }
 
   setType(index: number, type: WorkflowVariableType): void {
-    this.patch(index, { type, options: type === 'select' ? this.value()[index].options ?? [] : undefined });
+    this.patch(index, {
+      type,
+      options: type === 'select' ? this.value()[index].options ?? [] : undefined,
+      min: type === 'number' ? this.value()[index].min : undefined,
+      max: type === 'number' ? this.value()[index].max : undefined,
+    });
+  }
+
+  toNumber(raw: string): number | undefined {
+    if (raw === '' || raw === null || raw === undefined) return undefined;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : undefined;
   }
 
   setOptions(index: number, raw: string): void {
@@ -173,10 +216,24 @@ export class VariablesEditorComponent {
   }
 }
 
+/** A label as a variable name: letters, digits and «_», starting with a letter. */
+export function technicalName(label: string): string {
+  const slug = label
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 60);
+  return /^[a-z_]/.test(slug) ? slug : slug ? `v_${slug}` : '';
+}
+
 function stripEmpty(variable: WorkflowVariable): WorkflowVariable {
   const out = { ...variable };
   if (!out.label) delete out.label;
   if (!out.required) delete out.required;
   if (out.type !== 'select') delete out.options;
+  if (out.min === undefined || out.type !== 'number') delete out.min;
+  if (out.max === undefined || out.type !== 'number') delete out.max;
   return out;
 }

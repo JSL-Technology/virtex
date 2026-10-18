@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { InvoiceSelectionDialogComponent } from './invoice-selection-dialog.component';
 import { InvoicesService, Invoice } from '../../../../core/services/invoices';
 
@@ -19,7 +18,7 @@ describe('InvoiceSelectionDialogComponent', () => {
   beforeEach(() => {
     getInvoices = jest.fn().mockReturnValue(of({ items: [invoice], total: 1, page: 1, limit: 50 }));
     TestBed.configureTestingModule({
-      imports: [InvoiceSelectionDialogComponent, TranslateModule.forRoot()],
+      imports: [InvoiceSelectionDialogComponent],
       providers: [{ provide: InvoicesService, useValue: { getInvoices } }],
     });
     component = TestBed.createComponent(InvoiceSelectionDialogComponent).componentInstance;

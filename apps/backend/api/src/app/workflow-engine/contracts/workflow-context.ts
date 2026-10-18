@@ -40,7 +40,7 @@ export function contextTooLarge(context: Record<string, unknown>): boolean {
 
 export interface FieldProblem {
   field: string;
-  code: 'required' | 'type' | 'option';
+  code: 'required' | 'type' | 'option' | 'min' | 'max';
 }
 
 /**
@@ -64,6 +64,8 @@ export function coerceFields(
       case 'number': {
         const n = typeof raw === 'number' ? raw : Number(String(raw).replace(',', '.'));
         if (!Number.isFinite(n)) problems.push({ field: field.name, code: 'type' });
+        else if (field.min !== undefined && n < field.min) problems.push({ field: field.name, code: 'min' });
+        else if (field.max !== undefined && n > field.max) problems.push({ field: field.name, code: 'max' });
         else out[field.name] = n;
         break;
       }

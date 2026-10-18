@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Check, X } from 'lucide-angular';
 import { FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
 import { InboxShellComponent, InboxItem, InboxSection } from '../../shared/components/gestures';
@@ -32,7 +32,7 @@ import { MODULES } from '../../core/modules/module-registry';
 @Component({
   selector: 'app-approvals-page',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, InboxShellComponent, ...FORMAT_PIPES],
+  imports: [TranslatePipe, LucideAngularModule, InboxShellComponent, ...FORMAT_PIPES],
   templateUrl: './approvals.page.html',
   styleUrls: ['./approvals.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

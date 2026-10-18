@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { AccountReconciliationPage } from './account-reconciliation.page';
 import { BankAccount } from '../../../../core/api/treasury.service';
 import {
@@ -123,7 +122,7 @@ describe('AccountReconciliationPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AccountReconciliationPage, TranslateModule.forRoot()],
+      imports: [AccountReconciliationPage],
       providers: [provideHttpClient(), provideHttpClientTesting(), ...TRANSLATE_STORE_PROVIDERS],
     }).compileComponents();
 

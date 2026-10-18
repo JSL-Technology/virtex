@@ -35,9 +35,9 @@
     "pt": "Saldo"
   },
   "customer_receipts.form.bank_account": {
-    "es": "Cuenta bancaria",
-    "en": "Bank account",
-    "pt": "Conta bancária"
+    "es": "Cuenta de caja o banco",
+    "en": "Cash or bank account",
+    "pt": "Conta de caixa ou banco"
   },
   "customer_receipts.form.bank_account_decides_currency": {
     "es": "La moneda la determina la cuenta bancaria.",
@@ -48,6 +48,11 @@
     "es": "Efectivo",
     "en": "Cash",
     "pt": "Dinheiro"
+  },
+  "customer_receipts.form.choose_customer_to_see_invoices": {
+    "es": "Elige un cliente para ver sus facturas pendientes.",
+    "en": "Choose a customer to see their open invoices.",
+    "pt": "Escolha um cliente para ver as faturas em aberto."
   },
   "customer_receipts.form.collection_could_not_recorded": {
     "es": "No se pudo registrar el cobro.",
@@ -104,6 +109,16 @@
     "en": "Press an invoice to add it to the receipt.",
     "pt": "Pressione uma fatura para a adicionar ao recibo."
   },
+  "customer_receipts.form.review_application": {
+    "es": "Revisar aplicación",
+    "en": "Review application",
+    "pt": "Revisar aplicação"
+  },
+  "customer_receipts.form.save_as_advance": {
+    "es": "Guardar como anticipo",
+    "en": "Save as advance",
+    "pt": "Salvar como adiantamento"
+  },
   "customer_receipts.form.settles": {
     "es": "Salda",
     "en": "Settles",
@@ -113,6 +128,16 @@
     "es": "No aplicado (anticipo o excedente)",
     "en": "Unapplied (advance or overpayment)",
     "pt": "Não aplicado (adiantamento ou excedente)"
+  },
+  "customer_receipts.form.unapplied_confirm_message": {
+    "es": "{{amount}} {{currency}} quedarán como anticipo del cliente aunque tiene facturas pendientes. Esas facturas seguirán «Por cobrar».",
+    "en": "{{amount}} {{currency}} will be kept as a customer advance even though the customer has open invoices. Those invoices will stay unpaid.",
+    "pt": "{{amount}} {{currency}} ficarão como adiantamento do cliente, embora ele tenha faturas em aberto. Essas faturas continuarão a receber."
+  },
+  "customer_receipts.form.unapplied_confirm_title": {
+    "es": "¿Guardar dinero sin aplicar?",
+    "en": "Save money unapplied?",
+    "pt": "Salvar valor não aplicado?"
   },
   "customer_receipts.form.use_advance": {
     "es": "Usar el anticipo",

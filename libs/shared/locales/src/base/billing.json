@@ -9,6 +9,21 @@
     "en": "Change payment method",
     "pt": "Alterar forma de pagamento"
   },
+  "billing.checkout.activating": {
+    "es": "¡Pago completado! Estamos activando tu suscripción…",
+    "en": "Payment complete! We are activating your subscription…",
+    "pt": "Pagamento concluído! Estamos ativando sua assinatura…"
+  },
+  "billing.checkout.active": {
+    "es": "¡Pago completado! Tu suscripción está activa.",
+    "en": "Payment complete! Your subscription is active.",
+    "pt": "Pagamento concluído! Sua assinatura está ativa."
+  },
+  "billing.checkout.start_failed": {
+    "es": "No se pudo iniciar el proceso. Intenta de nuevo.",
+    "en": "The process could not be started. Please try again.",
+    "pt": "Não foi possível iniciar o processo. Tente novamente."
+  },
   "billing.invoice_status.draft": {
     "es": "Borrador",
     "en": "Draft",

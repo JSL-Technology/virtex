@@ -70,11 +70,25 @@ export class PurchaseOrderApprovalSource implements ApprovalSource, OnModuleInit
   }
 
   async approve(id: string, viewer: ApprovalViewer): Promise<void> {
+    await this.ensurePending(id, viewer);
     await this.orders.approve(id, viewer.organizationId, viewer.userId);
   }
 
   async reject(id: string, viewer: ApprovalViewer, reason: string): Promise<void> {
+    await this.ensurePending(id, viewer);
     await this.orders.reject(id, viewer.organizationId, viewer.userId, reason);
+  }
+
+  /**
+   * A decision reached by a business process may arrive while the order is still a draft (the
+   * process starts when the order is created). The order is submitted first, through the same
+   * transition a person would use, so its history reads «submitted, then approved» like any other.
+   */
+  private async ensurePending(id: string, viewer: ApprovalViewer): Promise<void> {
+    const order = await this.repository.findOne({ where: { id, organizationId: viewer.organizationId } });
+    if (order?.status === PurchaseOrderStatus.DRAFT) {
+      await this.orders.submit(id, viewer.organizationId, order.createdByUserId ?? viewer.userId);
+    }
   }
 }
 

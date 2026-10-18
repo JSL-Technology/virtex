@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
 import {
   LucideAngularModule, AlertTriangle, Info, ShieldAlert, Save, Trash2,
 } from 'lucide-angular';
@@ -26,7 +25,7 @@ let nextDialogHostId = 0;
 @Component({
   selector: 'app-dialog-host',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, VxDialogComponent],
+  imports: [CommonModule, LucideAngularModule, VxDialogComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (dialog(); as d) {
@@ -134,8 +133,8 @@ export class DialogHostComponent {
     // A dialog that opened carrying the previous one's text would offer the last reason as the
     // answer to this question.
     effect(() => {
-      this.dialog();
-      this.draft.set('');
+      const dialog = this.dialog();
+      this.draft.set(dialog?.kind === 'prompt' ? (dialog.defaultValue ?? '') : '');
       this.promptError.set(false);
     });
   }

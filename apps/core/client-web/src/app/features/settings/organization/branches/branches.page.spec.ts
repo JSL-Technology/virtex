@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { BranchesSettingsPage } from './branches.page';
 import { DialogService } from '../../../../core/services/dialog.service';
 import { NotificationService } from '../../../../core/services/notification';
@@ -22,7 +21,7 @@ describe('BranchesSettingsPage', () => {
 
   function create() {
     TestBed.configureTestingModule({
-      imports: [BranchesSettingsPage, TranslateModule.forRoot()],
+      imports: [BranchesSettingsPage],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),

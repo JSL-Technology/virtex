@@ -10,7 +10,7 @@
             (change)="selectPeriod($any($event.target).value)"
           >
             @for (period of periods(); track period.id) {
-              <option [value]="period.id">
+              <option [value]="period.id" [selected]="period.id === (selectedPeriodId())">
                 {{ period.startDate | vxDate: 'date' : true }} — {{ period.endDate | vxDate: 'date' : true }}
               </option>
             }

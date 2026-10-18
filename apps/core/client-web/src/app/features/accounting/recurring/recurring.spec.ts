@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { RecurringEntryFormPage, lineTotals } from './recurring-entry-form.page';
 import { EntryTemplateFormPage, templateProblem } from '../entry-templates/entry-template-form.page';
@@ -27,7 +26,6 @@ describe('recurring entries and templates', () => {
       useTemplate: jest.fn().mockReturnValue(of({ id: 'je-1', entryNumber: 'GEN-2026-000001' })),
     };
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
         { provide: RecurringEntriesService, useValue: api },

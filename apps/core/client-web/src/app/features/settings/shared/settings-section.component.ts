@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, map, of, throwError } from 'rxjs';
 import { accountNameOf } from '@virteex/shared/ui-i18n';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -48,7 +48,7 @@ export interface PolicyField {
 @Component({
   selector: 'app-settings-section',
   standalone: true,
-  imports: [FormsModule, TranslateModule, PercentInputDirective, ...VX_SELECT],
+  imports: [FormsModule, TranslatePipe, PercentInputDirective, ...VX_SELECT],
   templateUrl: './settings-section.component.html',
   styleUrls: ['./settings-section.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

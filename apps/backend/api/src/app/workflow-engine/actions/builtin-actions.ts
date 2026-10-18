@@ -9,6 +9,7 @@ import {
   WorkflowActionResult,
 } from '../workflow-action.registry';
 import { WorkflowDirectoryService, interpolate } from '../workflow-directory.service';
+import { WorkflowSubject } from '../contracts/workflow-graph';
 
 /** Starts a published process by key. Resolved lazily so the actions do not depend on the engine. */
 export abstract class WorkflowSubprocessStarter {
@@ -16,7 +17,7 @@ export abstract class WorkflowSubprocessStarter {
     organizationId: string,
     key: string,
     context: Record<string, unknown>,
-    parent: { instanceId: string; subjectLabel: string | null; startedByUserId: string | null },
+    parent: { instanceId: string; subjectLabel: string | null; startedByUserId: string | null; subject?: WorkflowSubject | null },
   ): Promise<string>;
 }
 
@@ -71,9 +72,13 @@ export class BuiltinWorkflowActions implements OnModuleInit {
       labelKey: 'workflow_engine.action.set_variable',
       descriptionKey: 'workflow_engine.action_help.set_variable',
       params: [
-        { name: 'name', labelKey: 'workflow_engine.param.variable_name', type: 'string', required: true, maxLength: 64 },
+        { name: 'name', labelKey: 'workflow_engine.param.variable_name', type: 'variable', required: true, maxLength: 64 },
         { name: 'value', labelKey: 'workflow_engine.param.value', type: 'string', templated: true, maxLength: 1000 },
       ],
+      writes: (params) => {
+        const name = String(params['name'] ?? '').trim();
+        return /^[A-Za-z_][A-Za-z0-9_]*$/.test(name) ? [name] : [];
+      },
       run: async (ctx: WorkflowActionContext): Promise<WorkflowActionResult> => {
         const name = String(ctx.params['name'] ?? '').trim();
         if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) return {};
@@ -99,9 +104,9 @@ export class BuiltinWorkflowActions implements OnModuleInit {
         const userId = (ctx.params['userId'] as string) || ctx.startedByUserId;
         const message = interpolate(String(ctx.params['message'] ?? ''), ctx.context).slice(0, 1000);
         const title = interpolate(String(ctx.params['title'] ?? ''), ctx.context).slice(0, 160);
-        if (!userId) return { summary: 'no recipient' };
+        if (!userId) return { summary: 'no recipient', summaryKey: 'workflow_engine.action_result.notify_no_recipient' };
         const [recipient] = await this.directory.users(ctx.organizationId, undefined, [userId]);
-        if (!recipient) return { summary: 'recipient not in company' };
+        if (!recipient) return { summary: 'recipient not in company', summaryKey: 'workflow_engine.action_result.notify_no_recipient' };
         await this.notifications
           .createLocalizedNotification(recipient.id, recipient.language, {
             titleKey: title ? 'workflow_engine.notify.custom_title_text' : 'workflow_engine.notify.custom_title',
@@ -111,7 +116,7 @@ export class BuiltinWorkflowActions implements OnModuleInit {
             organizationId: ctx.organizationId,
           })
           .catch((error: unknown) => this.logger.warn(`notify falló: ${(error as Error)?.message ?? error}`));
-        return { summary: recipient.name };
+        return { summary: recipient.name, summaryKey: 'workflow_engine.action_result.notified', summaryParams: { name: recipient.name } };
       },
     };
   }
@@ -146,6 +151,12 @@ export class BuiltinWorkflowActions implements OnModuleInit {
           outcome: result.ok ? 'ok' : 'error',
           patch: { webhook: { ok: result.ok, status: result.status ?? null, reason: result.reason ?? null, response: result.body ?? null } },
           summary: result.ok ? `HTTP ${result.status}` : `${result.reason ?? 'HTTP ' + result.status}`,
+          summaryKey: result.ok
+            ? 'workflow_engine.webhook_result.ok'
+            : result.reason
+              ? `workflow_engine.webhook_result.${result.reason}`
+              : 'workflow_engine.webhook_result.http_error',
+          summaryParams: { status: result.status ?? 0 },
         };
       },
     };
@@ -158,7 +169,7 @@ export class BuiltinWorkflowActions implements OnModuleInit {
       labelKey: 'workflow_engine.action.start_workflow',
       descriptionKey: 'workflow_engine.action_help.start_workflow',
       params: [
-        { name: 'workflowKey', labelKey: 'workflow_engine.param.workflow', type: 'string', required: true, maxLength: 120, hintKey: 'workflow_engine.param.workflow_hint' },
+        { name: 'workflowKey', labelKey: 'workflow_engine.param.workflow', type: 'process', required: true, maxLength: 120, hintKey: 'workflow_engine.param.workflow_hint' },
       ],
       run: async (ctx: WorkflowActionContext): Promise<WorkflowActionResult> => {
         const starter = this.moduleRef.get(WorkflowSubprocessStarter, { strict: false });
@@ -167,8 +178,14 @@ export class BuiltinWorkflowActions implements OnModuleInit {
           instanceId: ctx.instanceId,
           subjectLabel: ctx.subjectLabel,
           startedByUserId: ctx.startedByUserId,
+          subject: ctx.subject,
         });
-        return { patch: { subprocess: { key, instanceId: childId } }, summary: key };
+        return {
+          patch: { subprocess: { key, instanceId: childId } },
+          summary: key,
+          summaryKey: 'workflow_engine.action_result.subprocess_started',
+          summaryParams: { key },
+        };
       },
     };
   }

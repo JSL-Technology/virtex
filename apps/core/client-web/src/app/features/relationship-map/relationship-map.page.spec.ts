@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { provideRouter, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { Observable, of, throwError } from 'rxjs';
 import { FormatService } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../core/services/notification';
@@ -66,7 +65,7 @@ describe('RelationshipMapPage', () => {
 
   function create() {
     TestBed.configureTestingModule({
-      imports: [RelationshipMapPage, TranslateModule.forRoot()],
+      imports: [RelationshipMapPage],
       providers: [
         provideRouter([]),
         { provide: RelationshipMapService, useValue: api },

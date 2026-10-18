@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { PartnerLedgerPage } from './partner-ledger.page';
 import { StatementsService, documentRoute } from '../data/statements.service';
@@ -20,7 +19,7 @@ describe('PartnerLedgerPage', () => {
   function create(inputs: Record<string, string> = {}) {
     statementFn = jest.fn().mockReturnValue(of(statement));
     TestBed.configureTestingModule({
-      imports: [PartnerLedgerPage, TranslateModule.forRoot()],
+      imports: [PartnerLedgerPage],
       providers: [
         provideRouter([]),
         { provide: StatementsService, useValue: { statement: statementFn } },

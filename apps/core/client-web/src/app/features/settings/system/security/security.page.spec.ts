@@ -2,7 +2,6 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth';
 import { DialogService } from '../../../../core/services/dialog.service';
@@ -33,7 +32,7 @@ describe('SecuritySettingsPage', () => {
 
   function create(canReadTrail = true, usersFail = false) {
     TestBed.configureTestingModule({
-      imports: [SecuritySettingsPage, TranslateModule.forRoot()],
+      imports: [SecuritySettingsPage],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),

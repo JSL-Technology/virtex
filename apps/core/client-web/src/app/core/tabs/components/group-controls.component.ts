@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   LucideAngularModule, SplitSquareHorizontal, Maximize2, Minimize2, PictureInPicture2, ExternalLink,
 } from 'lucide-angular';
@@ -19,7 +19,7 @@ import type { DockviewApi, DockviewGroupPanel, IDockviewPanel } from 'dockview-a
 @Component({
   selector: 'app-group-controls',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!--

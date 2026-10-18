@@ -24,7 +24,7 @@ import { BrandingService } from '../../../../core/services/branding';
 import { DashboardApiService, CashFlowWaterfallDto } from '../../../../core/api/dashboard-api.service';
 
 // >>> ÚNICO CAMBIO NECESARIO PARA TRADUCCIÓN EN TS <<<
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -45,7 +45,7 @@ type ExportingChart = Highcharts.Chart & {
             modules: () => [import('highcharts/esm/highcharts-more')],
         }),
     ],
-    imports: [HighchartsChartComponent, CommonModule, HighchartsChartComponent, LucideAngularModule, TranslateModule],
+    imports: [HighchartsChartComponent, CommonModule, HighchartsChartComponent, LucideAngularModule, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CashflowChart {

@@ -4,7 +4,7 @@ import { NotificationService } from '../../../../core/services/notification';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Save, Download, Share2, History, Settings, RefreshCw, BarChart3, Database, FileSpreadsheet, Plus } from 'lucide-angular';
 import { DatasheetGridComponent } from '../../components/datasheet-grid.component';
 import { DatasheetSidebarComponent } from '../../components/datasheet-sidebar.component';
@@ -16,7 +16,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-datasheet-editor',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, LucideAngularModule, DatasheetGridComponent, DatasheetSidebarComponent, FormsModule, ...VX_FORM_A11Y],
+  imports: [CommonModule, RouterModule, TranslatePipe, LucideAngularModule, DatasheetGridComponent, DatasheetSidebarComponent, FormsModule, ...VX_FORM_A11Y],
   styleUrl: './datasheet-editor.page.scss',
   template: `
     <div class="editor-container">

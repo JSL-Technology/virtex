@@ -54,8 +54,20 @@
 
   .account-info {
     display: flex;
-    flex-direction: column;
+    align-items: baseline;
+    gap: var(--space-3);
     min-width: 0;
+    color: var(--content-primary);
+    text-decoration: none;
+
+    &:hover .account-title { text-decoration: underline; }
+  }
+
+  .account-code {
+    flex-shrink: 0;
+    min-width: 4.5rem;
+    color: var(--content-secondary);
+    font-variant-numeric: tabular-nums;
   }
 
   .account-title { color: var(--content-primary); }

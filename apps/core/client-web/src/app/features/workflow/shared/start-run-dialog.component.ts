@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { VxDialogComponent } from '../../../shared/components/dialog';
 import { NotificationService } from '../../../core/services/notification';
 import { WorkflowDefinition, WorkflowInstance, WorkflowService } from '../data/workflow.service';
@@ -15,7 +15,7 @@ import { WorkflowFieldsComponent, fieldProblems } from './workflow-fields.compon
 @Component({
   selector: 'app-workflow-start-run-dialog',
   standalone: true,
-  imports: [TranslateModule, VxDialogComponent, WorkflowFieldsComponent],
+  imports: [TranslatePipe, VxDialogComponent, WorkflowFieldsComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <vx-dialog titleKey="workflow_engine.start.title" size="md" [busy]="busy()" (dismissed)="dismissed.emit()">

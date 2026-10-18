@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Package, AlertCircle } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { DashboardApiService, LowStockItem } from '../../../../core/api/dashboard-api.service';
 import { VxEmptyStateComponent } from '../../../../shared/components/feedback';
@@ -25,7 +25,7 @@ import { VxEmptyStateComponent } from '../../../../shared/components/feedback';
 @Component({
   selector: 'app-low-stock-products',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, VxEmptyStateComponent],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslatePipe, VxEmptyStateComponent],
   templateUrl: './low-stock-products.html',
   styleUrls: ['./low-stock-products.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

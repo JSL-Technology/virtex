@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Sparkles } from 'lucide-angular';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { composeKey } from '@virteex/shared/types';
@@ -21,7 +21,7 @@ export const MAX_NOTE_CHARS = 1000;
 @Component({
   selector: 'app-invoice-email-dialog',
   standalone: true,
-  imports: [FormsModule, TranslateModule, LucideAngularModule, VxDialogComponent, ...VX_FORM_A11Y],
+  imports: [FormsModule, TranslatePipe, LucideAngularModule, VxDialogComponent, ...VX_FORM_A11Y],
   templateUrl: './invoice-email-dialog.component.html',
   styleUrl: './invoice-email-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

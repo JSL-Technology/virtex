@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { environment } from '../../../../../environments/environment';
 import { NotificationService } from '../../../../core/services/notification';
 
@@ -23,7 +23,7 @@ interface DocumentSequenceRow {
 @Component({
   selector: 'app-sequence-settings-page',
   standalone: true,
-  imports: [TranslateModule, RouterLink],
+  imports: [TranslatePipe, RouterLink],
   templateUrl: './sequences.page.html',
   styleUrls: ['./sequences.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

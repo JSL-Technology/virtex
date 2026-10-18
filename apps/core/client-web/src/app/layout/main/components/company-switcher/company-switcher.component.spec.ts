@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { signal } from '@angular/core';
 
 import { CompanySwitcherComponent } from './company-switcher.component';
@@ -47,7 +46,7 @@ describe('CompanySwitcherComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [CompanySwitcherComponent, TranslateModule.forRoot()],
+      imports: [CompanySwitcherComponent],
       providers: [
         {
           provide: AuthService,

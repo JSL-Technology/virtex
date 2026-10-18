@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FiscalDocumentTypeView,
@@ -76,7 +76,7 @@ const SECRET_BY_COUNTRY: Record<string, 'CAF_XML' | 'DIAN_TECHNICAL_KEY'> = {
     ...VX_SORT,
     CommonModule,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
     ...FORMAT_PIPES,
     ...VX_FORM_A11Y,
     VxDateFieldComponent,

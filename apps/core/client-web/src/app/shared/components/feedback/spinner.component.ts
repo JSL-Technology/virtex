@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * Something is happening and it is not finished.
@@ -21,7 +21,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'vx-spinner',
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslatePipe],
   template: `
     <span class="vx-spinner__wheel" aria-hidden="true"></span>
     <span [class.vx-spinner__label]="!withLabel()" [class.vx-spinner__caption]="withLabel()">

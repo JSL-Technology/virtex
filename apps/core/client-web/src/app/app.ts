@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ViewContainerRef } from '@angular/core';
 import { Router, RouterOutlet, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ThemeService } from './core/services/theme';
 import { LanguageService } from './core/services/language';
 import { AuthService } from './core/services/auth';
@@ -18,7 +18,7 @@ import { IdleWarningComponent } from './shared/components/idle-warning/idle-warn
 @Component({
   selector: 'app-root',
   imports: [
-    TranslateModule,
+    TranslatePipe,
     RouterOutlet,
     CommonModule,
     GeoMismatchModalComponent,

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { provideRouter } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { InvoicesListPage } from './list.page';
 import { InvoicesService, PaginatedInvoices } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
@@ -32,7 +32,7 @@ describe('InvoicesListPage', () => {
     notifications = { showError: jest.fn(), showSuccess: jest.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [InvoicesListPage, TranslateModule.forRoot()],
+      imports: [InvoicesListPage],
       providers: [
         { provide: InvoicesService, useValue: invoicesService },
         { provide: NotificationService, useValue: notifications },

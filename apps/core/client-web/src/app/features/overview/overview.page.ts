@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
@@ -8,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   LucideAngularModule,
   ArrowRight,
@@ -41,7 +42,7 @@ type SectionStatus = 'loading' | 'ready' | 'error';
 @Component({
   selector: 'app-overview-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DashboardPage],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, DashboardPage],
   templateUrl: './overview.page.html',
   styleUrls: ['./overview.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -162,7 +163,7 @@ export class OverviewPage implements OnInit, TabAware {
   // ── Formato de fechas/tiempos ──────────────────────────────────────────────
   //
   // Delegado en `FormatService`: la pagina construia sus propios `Intl` con
-  // `translate.currentLang`, que es el IDIOMA y no la region — de modo que un
+  // `translate.getCurrentLang()`, que es el IDIOMA y no la region — de modo que un
   // lector en Buenos Aires y otro en Santo Domingo, ambos en espanol, veian el
   // mismo formato aunque no comparten separadores ni orden de fecha. El
   // servicio ademas usa la zona horaria del inquilino, no la del navegador.

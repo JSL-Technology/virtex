@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe, provideTranslateService } from '@ngx-translate/core';
 import { Observable, Subject, of, throwError, timer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { VX_SELECT } from './index';
@@ -40,7 +40,7 @@ const TERMS: PaymentTerm[] = [
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, ...VX_SELECT],
+  imports: [ReactiveFormsModule, TranslatePipe, ...VX_SELECT],
   template: `
     <label for="customer">Cliente</label>
     <vx-select
@@ -83,7 +83,7 @@ class ServerHost {
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, ...VX_SELECT],
+  imports: [ReactiveFormsModule, TranslatePipe, ...VX_SELECT],
   template: `
     <vx-select
       [formControl]="control"
@@ -162,7 +162,7 @@ describe('VxSelectComponent', () => {
   describe('con búsqueda en el servidor', () => {
     beforeEach(async () => {
       await TestBed.resetTestingModule()
-        .configureTestingModule({ imports: [ServerHost, TranslateModule.forRoot()] })
+        .configureTestingModule({ providers: [provideTranslateService()], imports: [ServerHost] })
         .compileComponents();
     });
 
@@ -431,7 +431,7 @@ describe('VxSelectComponent', () => {
   describe('con una lista pequeña en el cliente', () => {
     beforeEach(async () => {
       await TestBed.resetTestingModule()
-        .configureTestingModule({ imports: [ClientHost, TranslateModule.forRoot()] })
+        .configureTestingModule({ providers: [provideTranslateService()], imports: [ClientHost] })
         .compileComponents();
     });
 

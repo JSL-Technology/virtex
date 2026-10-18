@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AlertCircle, CheckCircle, DownloadCloud, Loader, LucideAngularModule } from 'lucide-angular';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -32,7 +32,7 @@ import { VX_SORT, sortable } from '../../shared/components/sort';
   imports: [...VX_SORT, 
     ReactiveFormsModule,
     LucideAngularModule,
-    TranslateModule,
+    TranslatePipe,
     ListShellComponent,
     ...VX_FORM_A11Y,
     ...FORMAT_PIPES,

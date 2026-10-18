@@ -2,7 +2,6 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { PriceListFormPage } from './price-list-form.page';
 
@@ -12,7 +11,7 @@ describe('PriceListFormPage', () => {
 
   function create() {
     TestBed.configureTestingModule({
-      imports: [PriceListFormPage, TranslateModule.forRoot()],
+      imports: [PriceListFormPage],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     });
     TestBed.inject(LocaleStore).setTenantContext({ countryCode: 'DO', currency: 'DOP' } as never);

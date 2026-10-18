@@ -1,3 +1,4 @@
+import { VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,7 +13,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   EFCanvasLayer,
   EFConnectableSide,
@@ -39,6 +40,9 @@ import { ConnectionStyle, WorkflowNodeType, WorkflowPoint } from '../data/workfl
 import { GRID, inputOf, nodeOfConnector, outputOf } from './designer-store';
 
 /** What the canvas draws for a step — display values computed by the page. */
+/** Below this a step's name is not legible on a laptop screen. */
+const MIN_READABLE_SCALE = 0.7;
+
 export interface CanvasNode {
   id: string;
   type: WorkflowNodeType;
@@ -52,7 +56,7 @@ export interface CanvasNode {
   /** Faded by a search or filter. */
   dim?: boolean;
   /** Runtime view: how far the instance got here. */
-  state?: 'done' | 'active' | 'waiting' | 'failed' | null;
+  state?: 'done' | 'active' | 'waiting' | 'failed' | 'cancelled' | null;
   ariaLabel: string;
 }
 
@@ -115,7 +119,7 @@ const CACHE_THRESHOLD = 60;
 @Component({
   selector: 'app-workflow-canvas',
   standalone: true,
-  imports: [FFlowModule, TranslateModule, LucideAngularModule],
+  imports: [FFlowModule, TranslatePipe, VxPluralKeyPipe, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './workflow-canvas.component.scss',
   template: `
@@ -249,7 +253,7 @@ const CACHE_THRESHOLD = 60;
               }
             </span>
             @if (node.issue) {
-              <span class="wf-node__issue" [class.wf-node__issue--error]="node.issue === 'error'" [title]="'workflow_engine.designer.issue_count' | translate: { count: node.issueCount }">
+              <span class="wf-node__issue" [class.wf-node__issue--error]="node.issue === 'error'" [title]="'workflow_engine.designer.issue_count' | vxPluralKey: node.issueCount ?? 0 | translate: { count: node.issueCount }">
                 <lucide-icon [img]="node.issue === 'error' ? ErrorIcon : WarnIcon" [size]="12" />
                 {{ node.issueCount }}
               </span>
@@ -269,8 +273,11 @@ const CACHE_THRESHOLD = 60;
         }
       </f-canvas>
 
+      <!-- One projectable node per @if: Foblex projects each into its own slot (NG8011). -->
       @if (!readonly()) {
         <f-selection-area />
+      }
+      @if (!readonly()) {
         <f-auto-pan [fEdgeThreshold]="48" [fSpeed]="12" />
       }
       @if (prefs().guides && !readonly()) {
@@ -278,7 +285,8 @@ const CACHE_THRESHOLD = 60;
         <f-magnetic-rects />
       }
       @if (prefs().minimap) {
-        <f-minimap [fMinSize]="2400" />
+        <!-- Sized to the graph, not to a fixed world: a two-step process read as two dashes. -->
+        <f-minimap [fMinSize]="900" />
       }
     </f-flow>
   `,
@@ -388,14 +396,33 @@ export class WorkflowCanvasComponent {
   onRendered(): void {
     if (this.firstRender) {
       this.firstRender = false;
-      // Never magnify a two-step draft to fill the screen.
-      this.canvas()?.fitToScreen({ x: 80, y: 80 }, false, true, 1);
+      // Never magnify a two-step draft to fill the screen, and never open a large one at a scale
+      // where its cards cannot be read (QA M-10: the purchase template opened at 38 %).
+      this.fitReadable(false);
     }
     this.rendered.emit();
   }
 
+  /** «Fit to screen»: the whole drawing, at whatever scale it takes. An explicit request. */
   fit(): void {
     this.canvas()?.fitToScreen({ x: 80, y: 80 }, true, true, 1.25);
+  }
+
+  /**
+   * Fit when the drawing is readable that way; otherwise open at a readable scale on the start step,
+   * from where the author follows the flow (the minimap and «fit» still show the whole).
+   */
+  fitReadable(animated = true): void {
+    const canvas = this.canvas();
+    if (!canvas) return;
+    canvas.fitToScreen({ x: 80, y: 80 }, false, true, 1);
+    if (canvas.getScale() >= MIN_READABLE_SCALE) {
+      if (animated) canvas.fitToScreen({ x: 80, y: 80 }, true, true, 1);
+      return;
+    }
+    canvas.setScale(MIN_READABLE_SCALE);
+    const start = this.nodes().find((node) => node.type === 'start') ?? this.nodes()[0];
+    if (start) canvas.centerGroupOrNode(start.id, animated, true);
   }
 
   zoomIn(): void {

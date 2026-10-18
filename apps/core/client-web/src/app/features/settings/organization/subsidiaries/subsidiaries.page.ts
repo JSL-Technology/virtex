@@ -14,7 +14,7 @@ import { VX_SELECT } from '../../../../shared/components/select';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
 import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/components/feedback';
@@ -22,7 +22,7 @@ import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/co
 @Component({
   selector: 'app-subsidiaries',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, ...VX_SELECT, ...FORMAT_PIPES, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent, VxDateFieldComponent, VxBadgeComponent],
+  imports: [CommonModule, LucideAngularModule, ReactiveFormsModule, TranslatePipe, ...VX_FORM_A11Y, ...VX_SELECT, ...FORMAT_PIPES, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent, VxDateFieldComponent, VxBadgeComponent],
   templateUrl: './subsidiaries.page.html',
   styleUrls: ['./subsidiaries.page.scss'],
   // Signals and OnPush (QA A-16): the state lived in plain fields under a modal host that does not

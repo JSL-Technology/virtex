@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { DraftShellComponent, DraftProblem } from '../../../../shared/components/gestures';
 import { NotificationService } from '../../../../core/services/notification';
@@ -42,7 +42,7 @@ import { Observable, map } from 'rxjs';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
     LucideAngularModule,
     DraftShellComponent,
     ...VX_FORM_A11Y, ...VX_SELECT],

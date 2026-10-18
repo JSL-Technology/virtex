@@ -7,7 +7,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../../../../core/services/auth';
 import { of, Observable } from 'rxjs';
 import { LanguageService } from '../../../../core/services/language';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateLoader, provideTranslateLoader } from '@ngx-translate/core';
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../../components/auth-button/auth-button.component';
@@ -35,15 +35,13 @@ describe('ResetPasswordPage', () => {
       imports: [
         ResetPasswordPage,
         NoopAnimationsModule,
-        TranslateModule.forRoot({
-            loader: { provide: TranslateLoader, useClass: FakeLoader }
-        }),
         AuthLayoutComponent,
         AuthInputComponent,
         AuthButtonComponent,
         PasswordStrengthComponent
       ],
       providers: [
+        provideTranslateLoader(FakeLoader),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),

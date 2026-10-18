@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, ChevronLeft, Upload } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { BankAccount, TreasuryService } from '../../../../core/api/treasury.service';
 import {
@@ -45,7 +45,7 @@ import { VX_SELECT } from '../../../../shared/components/select';
 @Component({
   selector: 'app-statement-import-page',
   standalone: true,
-  imports: [VxFileInputComponent, CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent],
+  imports: [VxFileInputComponent, CommonModule, ReactiveFormsModule, LucideAngularModule, TranslatePipe, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent],
   templateUrl: './statement-import.page.html',
   styleUrls: ['./statement-import.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

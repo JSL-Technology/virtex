@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LocaleStore, translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { BillingService } from '../../../../core/services/billing';
 import { NotificationService } from '../../../../core/services/notification';
@@ -29,7 +29,7 @@ import { formatPlanPrice } from '../../../../core/models/plan.model';
 @Component({
   selector: 'app-plan-selection',
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="plans">

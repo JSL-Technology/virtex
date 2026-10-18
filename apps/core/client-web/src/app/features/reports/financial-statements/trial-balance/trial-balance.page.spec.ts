@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { TrialBalancePage } from './trial-balance.page';
 import { TrialBalanceReport } from '../../../../core/api/financial-reporting.service';
 import { environment } from '../../../../../environments/environment';
@@ -58,7 +57,7 @@ describe('TrialBalancePage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TrialBalancePage, TranslateModule.forRoot()],
+      imports: [TrialBalancePage],
       providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
@@ -94,6 +93,14 @@ describe('TrialBalancePage', () => {
 
     expect(fixture.nativeElement.querySelector('.balance-check--error')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('.balance-check--ok')).toBeFalsy();
+  });
+
+  it('no dice que la balanza cuadra cuando no hay movimientos (QA A-16)', () => {
+    fixture.detectChanges();
+    flush({ ...report, rows: [], isBalanced: true });
+
+    expect(fixture.nativeElement.querySelector('.balance-check--ok')).toBeFalsy();
+    expect(fixture.nativeElement.querySelector('.report-state')).toBeTruthy();
   });
 
   it('reports a failed request rather than an empty balance', () => {

@@ -9,7 +9,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  height: 100%;
+  // At least the window, and taller with a long list: `height` cut the background off at the fold.
+  min-height: 100%;
   padding: var(--space-6);
   background-color: var(--surface-canvas);
 

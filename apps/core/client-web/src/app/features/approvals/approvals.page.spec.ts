@@ -2,7 +2,6 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { DialogService } from '../../core/services/dialog.service';
 import { NotificationService } from '../../core/services/notification';
 import { ActiveOrganizationService } from '../../core/tenancy/active-organization.service';
@@ -49,7 +48,7 @@ describe('ApprovalsPage', () => {
 
   function create() {
     TestBed.configureTestingModule({
-      imports: [ApprovalsPage, TranslateModule.forRoot()],
+      imports: [ApprovalsPage],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),

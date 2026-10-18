@@ -85,7 +85,7 @@ import {
   Square, // ✅ Control de ventana: maximizar (escritorio)
   Copy, // ✅ Control de ventana: restaurar, dos cuadros superpuestos (escritorio)
 } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Sidebar } from '../sidebar/sidebar';
 import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive'; // ✅ Directiva añadida
 import { CompanySwitcherComponent } from './components/company-switcher/company-switcher.component';
@@ -119,7 +119,7 @@ import { resolveRoute } from '../../core/modules/module-registry';
     RouterLink,
     ThemeToggle,
     LucideAngularModule,
-    TranslateModule,
+    TranslatePipe,
     Sidebar,
     ClickOutsideDirective,
     SettingsModalComponent,

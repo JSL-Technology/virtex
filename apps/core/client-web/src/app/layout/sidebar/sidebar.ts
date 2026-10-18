@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule } from 'lucide-angular';
 
 import { ActiveModuleService } from '../../core/modules/active-module.service';
@@ -30,7 +30,7 @@ import { ActiveModuleService } from '../../core/modules/active-module.service';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, TranslateModule, LucideAngularModule],
+  imports: [RouterModule, TranslatePipe, LucideAngularModule],
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

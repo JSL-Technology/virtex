@@ -1,5 +1,9 @@
 <vx-list-shell
   titleKey="accounting.daily_journal.daily_journal"
+  [searchable]="true"
+  searchPlaceholderKey="accounting.daily_journal.search_placeholder"
+  [search]="search()"
+  (searchChange)="setSearch($event)"
   [count]="total()"
   [loading]="loading()"
   [error]="failed() ? 'accounting.daily_journal.load_failed' : null"
@@ -8,10 +12,47 @@
 >
   <button listActions class="primary-button" type="button"
     [disabled]="isEmpty() || exports.exporting() === 'journal_entry_lines'"
+    [title]="exportHint() | translate"
     (click)="exports.export('journal_entry_lines')">
     <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'accounting.daily_journal.export' | translate }}</span>
   </button>
+
+  <div listFilters class="journal-filters">
+    <vx-date-range
+      [from]="from()"
+      [to]="to()"
+      fromLabelKey="reports.common.from"
+      toLabelKey="reports.common.to"
+      (fromChange)="setRange($event, to())"
+      (toChange)="setRange(from(), $event)"
+    />
+    <label class="journal-filter">
+      <span>{{ 'accounting.daily_journal.status' | translate }}</span>
+      <select [ngModel]="status()" (ngModelChange)="setStatus($event)">
+        <option value="">{{ 'accounting.daily_journal.all_statuses' | translate }}</option>
+        @for (option of STATUSES; track option.value) {
+          <option [value]="option.value">{{ option.key | translate }}</option>
+        }
+      </select>
+    </label>
+    @if (hasFilters()) {
+      <button type="button" class="secondary-button" (click)="clearFilters()">
+        {{ 'accounting.daily_journal.clear_filters' | translate }}
+      </button>
+    }
+  </div>
+
+  <div listEmpty class="journal-empty">
+    @if (hasFilters()) {
+      <p>{{ 'accounting.daily_journal.no_entries_filtered' | translate }}</p>
+      <button type="button" class="secondary-button" (click)="clearFilters()">
+        {{ 'accounting.daily_journal.clear_filters' | translate }}
+      </button>
+    } @else {
+      <p>{{ 'accounting.daily_journal.no_entries_yet' | translate }}</p>
+    }
+  </div>
 
   <div class="table-container card">
     <table class="data-table journal-table">

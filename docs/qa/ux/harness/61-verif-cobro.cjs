@@ -1,0 +1,26 @@
+const { launch, login, shot, instrument, nav } = require('./flow-lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage(); const log = instrument(page);
+  await login(page);
+  await nav(page, 'Ventas', 'Facturas');
+  const P = page.locator('.dv-active-group .dv-content-container');
+  await shot(page, 'fix/C03-1-listado-registrar-cobro');
+  await P.getByText('FAC-00000001').first().click(); await page.waitForTimeout(3000);
+  await shot(page, 'fix/A18-1-barra-factura');
+  await P.getByRole('button', { name: 'Más' }).click(); await page.waitForTimeout(500);
+  await shot(page, 'fix/A18-2-menu-mas');
+  await page.keyboard.press('Escape');
+  await P.getByRole('button', { name: 'Más' }).click();
+  await P.getByRole('button', { name: 'Registrar cobro' }).first().click(); await page.waitForTimeout(3500);
+  console.log('URL', page.url());
+  const P2 = page.locator('.dv-active-group .dv-content-container');
+  await shot(page, 'fix/C03-2-recibo-prellenado');
+  console.log('RECIBO:', (await P2.innerText()).replace(/\n+/g, ' | ').slice(0, 900));
+  await P2.getByRole('button', { name: 'Guardar' }).click(); await page.waitForTimeout(3000);
+  console.log('DIALOG:', await page.locator('[role=dialog]').allInnerTexts());
+  console.log('ALERTS:', await page.locator('[role=alert], .toast').allInnerTexts());
+  await shot(page, 'fix/C03-3-guardado');
+  console.log(log.req.filter(r => /receipt/.test(r) && !/GET/.test(r)).join('\n'));
+  await browser.close();
+})();

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, ArrowLeft, AlertTriangle, RotateCw, PanelRight } from 'lucide-angular';
 import { VxBadgeComponent, VxTone } from '../badge';
 import { RelationshipMapLinkComponent } from '../relationship-map-link';
@@ -34,7 +34,7 @@ export type DocumentTone = VxTone;
 @Component({
   selector: 'vx-document-shell',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, VxBadgeComponent, RelationshipMapLinkComponent],
+  imports: [TranslatePipe, LucideAngularModule, VxBadgeComponent, RelationshipMapLinkComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './document-shell.component.html',
   styleUrls: ['./document-shell.component.scss'],

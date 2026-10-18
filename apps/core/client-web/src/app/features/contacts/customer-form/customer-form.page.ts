@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomersService, CreateCustomerDto, UpdateCustomerDto } from '../../../core/api/customers.service';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
@@ -20,7 +20,7 @@ import {
 
 @Component({
   selector: 'app-customer-form-page',
-  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [ReactiveFormsModule, TranslatePipe, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './customer-form.page.html',
   styleUrls: ['./customer-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

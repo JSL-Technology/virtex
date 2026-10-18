@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { VendorDebitNoteFormPage } from './debit-note-form.page';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
@@ -28,7 +27,7 @@ describe('VendorDebitNoteFormPage', () => {
       createDebitNote: jest.fn().mockReturnValue(of({ id: 'nd-1', number: 'ND-2026-000001' })),
     };
     TestBed.configureTestingModule({
-      imports: [VendorDebitNoteFormPage, TranslateModule.forRoot()],
+      imports: [VendorDebitNoteFormPage],
       providers: [
         provideRouter([]),
         { provide: AccountsPayableService, useValue: payables },

@@ -1,6 +1,5 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { ListShellComponent } from './list-shell.component';
 
 /**
@@ -51,7 +50,7 @@ describe('ListShellComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Host, TranslateModule.forRoot()],
+      imports: [Host],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Host);

@@ -1,8 +1,9 @@
+import { RouterLink } from '@angular/router';
 import { roleLabel } from '../../../../shared/pipes/role-name.pipe';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { environment } from '../../../../../environments/environment';
@@ -47,7 +48,7 @@ interface PolicyDraft {
 @Component({
   selector: 'app-approval-policies-page',
   standalone: true,
-  imports: [FormsModule, TranslateModule, ...VX_SELECT, ...FORMAT_PIPES],
+  imports: [FormsModule, TranslatePipe, RouterLink, ...VX_SELECT, ...FORMAT_PIPES],
   templateUrl: './approvals.page.html',
   styleUrls: ['./approvals.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

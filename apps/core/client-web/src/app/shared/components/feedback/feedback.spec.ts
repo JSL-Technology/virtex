@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { VX_FEEDBACK } from './index';
 
 @Component({
   standalone: true,
-  imports: [TranslateModule, ...VX_FEEDBACK],
+  imports: [TranslatePipe, ...VX_FEEDBACK],
   template: `
     <vx-spinner [withLabel]="withLabel()" labelKey="common.loading" />
     <vx-empty-state titleKey="common.empty_title" [params]="{ query: 'ferre' }" />
@@ -20,7 +20,7 @@ class Host {
 
 describe('estados de una pantalla', () => {
   function build() {
-    TestBed.configureTestingModule({ imports: [Host, TranslateModule.forRoot()] });
+    TestBed.configureTestingModule({ imports: [Host] });
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     return fixture;

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CheckCircle, Download, File, Loader, LucideAngularModule, ShieldCheck, UploadCloud } from 'lucide-angular';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
@@ -36,7 +36,7 @@ const MAX_BYTES = 5 * 1024 * 1024;
 @Component({
   selector: 'app-data-imports-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxBadgeComponent],
+  imports: [LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, VxBadgeComponent],
   templateUrl: './data-imports.page.html',
   styleUrls: ['./data-imports.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

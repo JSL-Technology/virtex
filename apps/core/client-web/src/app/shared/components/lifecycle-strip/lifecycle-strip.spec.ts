@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DocumentLifecycle } from '@virteex/shared/types';
 import { DocumentLifecycleService } from '../../../core/lifecycle/document-lifecycle.service';
 import { VxLifecycleStripComponent } from './index';
@@ -21,7 +21,7 @@ const ORDEN: DocumentLifecycle = {
 
 @Component({
   standalone: true,
-  imports: [VxLifecycleStripComponent, TranslateModule],
+  imports: [VxLifecycleStripComponent, TranslatePipe],
   template: `<vx-lifecycle-strip [documentType]="tipo()" [status]="estado()" />`,
 })
 class Host {
@@ -46,7 +46,7 @@ describe('VxLifecycleStripComponent', () => {
     };
 
     TestBed.configureTestingModule({
-      imports: [Host, TranslateModule.forRoot()],
+      imports: [Host],
       providers: [{ provide: DocumentLifecycleService, useValue: doble }],
     });
     const fixture = TestBed.createComponent(Host);

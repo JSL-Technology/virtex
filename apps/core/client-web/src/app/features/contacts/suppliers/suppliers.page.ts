@@ -6,7 +6,7 @@ import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2, 
 import { Supplier } from '../../../core/models/supplier.model';
 import { SuppliersService } from '../../../core/api/suppliers.service';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
@@ -14,7 +14,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 
 @Component({
   selector: 'app-suppliers-page',
-  imports: [HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslatePipe, ListShellComponent],
   templateUrl: './suppliers.page.html',
   styleUrls: ['./suppliers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

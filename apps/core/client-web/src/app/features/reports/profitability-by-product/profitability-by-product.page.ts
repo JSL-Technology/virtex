@@ -3,7 +3,7 @@ import { VxBranchPickerComponent } from '../../../shared/components/branch-picke
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, AlertTriangle, Calendar, FileDown, RefreshCw } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   ProfitabilityApiService,
@@ -31,7 +31,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-profitability-by-product-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent, FormsModule, VxBranchPickerComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, VxDateRangeComponent, FormsModule, VxBranchPickerComponent],
   templateUrl: './profitability-by-product.page.html',
   styleUrls: ['./profitability-by-product.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

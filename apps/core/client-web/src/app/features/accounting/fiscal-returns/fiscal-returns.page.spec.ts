@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { FiscalReturnsPage } from './fiscal-returns.page';
 import { FiscalReturnFiling, FiscalReturnsService, returnFileName } from '../data/fiscal-returns.service';
@@ -43,7 +42,7 @@ describe('FiscalReturnsPage', () => {
     };
     dialog = { prompt: jest.fn(), confirm: jest.fn() };
     TestBed.configureTestingModule({
-      imports: [FiscalReturnsPage, TranslateModule.forRoot()],
+      imports: [FiscalReturnsPage],
       providers: [
         { provide: FiscalReturnsService, useValue: service },
         { provide: FiscalSettingsService, useValue: { coverage: () => of({ countryCode: country, capabilities: [] }) } },

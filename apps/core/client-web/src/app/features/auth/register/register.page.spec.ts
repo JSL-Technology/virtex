@@ -11,7 +11,7 @@ import { of, throwError, Observable } from 'rxjs';
 import { CountryService } from '../../../core/services/country.service';
 import { MockCountryService, US_CONFIG } from '../../../../testing/country.service.mock';
 import { LanguageService } from '../../../core/services/language';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateLoader, provideTranslateLoader } from '@ngx-translate/core';
 import { UsersService } from '../../../core/api/users.service';
 import { GeoLocationService } from '../../../core/services/geo-location.service';
 import { ConfigService, RegistrationOptions } from '../../../shared/services/config.service';
@@ -79,14 +79,12 @@ describe('RegisterPage', () => {
       imports: [
         RegisterPage, // Standalone
         NoopAnimationsModule,
-        TranslateModule.forRoot({
-            loader: { provide: TranslateLoader, useClass: FakeLoader }
-        }),
         // Mock components that might be in the template but not mocked
         // Actually they are imports in RegisterPage, so they are used.
         // We can override them if they are complex, but for now importing them via RegisterPage is fine.
       ],
       providers: [
+        provideTranslateLoader(FakeLoader),
         ...TRANSLATE_STORE_PROVIDERS,
         provideHttpClient(),
         provideHttpClientTesting(),

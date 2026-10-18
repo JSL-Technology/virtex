@@ -19,7 +19,7 @@ import {
   ProductCategory,
 } from '../../../core/api/product-categories.service';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -27,7 +27,7 @@ import { UnitOfMeasure, UnitsOfMeasureService } from '../../masters/data/units-o
 
 @Component({
   selector: 'app-product-form-page',
-  imports: [ReactiveFormsModule, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, DraftShellComponent, BarcodeScannerComponent, ...VX_FORM_A11Y, ...FORMAT_PIPES],
+  imports: [ReactiveFormsModule, RouterLink, HasPermissionDirective, LucideAngularModule, TranslatePipe, DraftShellComponent, BarcodeScannerComponent, ...VX_FORM_A11Y, ...FORMAT_PIPES],
   templateUrl: './product-form.page.html',
   styleUrls: ['./product-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

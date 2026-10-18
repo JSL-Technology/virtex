@@ -1,7 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { ReportsHubPage } from './reports-hub.page';
@@ -10,7 +9,7 @@ import { ReportsHubPage } from './reports-hub.page';
 describe('ReportsHubPage', () => {
   function create(granted: (permission: string) => boolean) {
     TestBed.configureTestingModule({
-      imports: [ReportsHubPage, TranslateModule.forRoot()],
+      imports: [ReportsHubPage],
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: { currentUser: signal(null), hasPermissions: (ps: string[]) => ps.every(granted) } },

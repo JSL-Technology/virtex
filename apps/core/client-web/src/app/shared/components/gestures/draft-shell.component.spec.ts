@@ -1,6 +1,5 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DraftShellComponent, DraftProblem } from './draft-shell.component';
 
@@ -53,7 +52,7 @@ describe('DraftShellComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Host, TranslateModule.forRoot()],
+      imports: [Host],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Host);
@@ -192,7 +191,7 @@ describe('DraftShellComponent', () => {
       fixture.detectChanges();
 
       // The one left is the NCF, identified by where its link takes the reader — the rendered text
-      // is the untranslated key under `TranslateModule.forRoot()` with no catalogue.
+      // is the untranslated key under `` with no catalogue.
       expect(el.querySelectorAll('.dr__problems li').length).toBe(1);
       (el.querySelector('.dr__problem-link') as HTMLButtonElement).click();
       expect(host.focused).toBe('ncf');

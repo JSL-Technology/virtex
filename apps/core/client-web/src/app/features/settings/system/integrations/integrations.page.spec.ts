@@ -2,7 +2,6 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth';
 import { SsoAdminService } from '../../../../core/services/sso-admin.service';
@@ -16,7 +15,7 @@ describe('IntegrationSettingsPage', () => {
 
   function create(permissions: string[], ssoFails = false) {
     TestBed.configureTestingModule({
-      imports: [IntegrationSettingsPage, TranslateModule.forRoot()],
+      imports: [IntegrationSettingsPage],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),

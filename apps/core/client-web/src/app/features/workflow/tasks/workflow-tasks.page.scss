@@ -2,6 +2,9 @@
 
 :host {
   display: block;
+  // The inbox paints the window's background; it needs a height to fill, or it stopped where the
+  // last task did and the rest of the window was a different colour (QA).
+  height: 100%;
 }
 
 .wft__views {

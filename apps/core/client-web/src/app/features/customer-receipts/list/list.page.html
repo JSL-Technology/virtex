@@ -5,7 +5,7 @@
   [empty]="items().length === 0"
   (reload)="load()"
 >
-  <a listActions routerLink="new" class="primary-button">
+  <a listActions routerLink="/customer-receipts/new" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'customer_receipts.list.new_receipt' | translate }}</span>
   </a>

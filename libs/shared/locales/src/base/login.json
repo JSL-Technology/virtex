@@ -84,6 +84,11 @@
     "en": "Your session has expired. Sign in again to continue.",
     "pt": "A sua sessão expirou. Inicie sessão novamente para continuar."
   },
+  "login.notice.session_unverified": {
+    "es": "No pudimos verificar tu sesión porque el servidor no respondió. Revisa tu conexión e inténtalo de nuevo en unos minutos.",
+    "en": "We couldn't verify your session because the server didn't respond. Check your connection and try again in a few minutes.",
+    "pt": "Não conseguimos verificar sua sessão porque o servidor não respondeu. Verifique sua conexão e tente novamente em alguns minutos."
+  },
   "login.notice.signed_out_idle": {
     "es": "Cerramos tu sesión por inactividad. Vuelve a iniciar sesión para continuar.",
     "en": "We signed you out after a period of inactivity. Sign in again to continue.",

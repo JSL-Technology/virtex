@@ -10,7 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Search, Pencil, RotateCcw, ChevronDown } from 'lucide-angular';
 import { VxDialogComponent } from '../dialog/dialog.component';
 import { VxKbdComponent } from '../kbd';
@@ -51,7 +51,7 @@ import {
 @Component({
   selector: 'app-shortcuts-dialog',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, VxDialogComponent, VxKbdComponent],
+  imports: [TranslatePipe, LucideAngularModule, VxDialogComponent, VxKbdComponent],
   templateUrl: './shortcuts-dialog.component.html',
   styleUrls: ['./shortcuts-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

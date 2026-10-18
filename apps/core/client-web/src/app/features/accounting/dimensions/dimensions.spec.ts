@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { DimensionsPage, validate } from './dimensions.page';
 import { VxDimensionFilterComponent } from './dimension-filter.component';
@@ -70,7 +69,7 @@ describe('analytic dimensions', () => {
         invalidate: jest.fn(),
       };
       TestBed.configureTestingModule({
-        imports: [DimensionsPage, TranslateModule.forRoot()],
+        imports: [DimensionsPage],
         providers: [
           { provide: DimensionsService, useValue: api },
           { provide: NotificationService, useValue: { httpErrorMessage: () => 'x', showSuccess: jest.fn(), showHttpError: jest.fn() } },
@@ -113,7 +112,7 @@ describe('analytic dimensions', () => {
   describe('tagging journal lines', () => {
     function form() {
       TestBed.configureTestingModule({
-        imports: [JournalEntryFormPage, TranslateModule.forRoot()],
+        imports: [JournalEntryFormPage],
         providers: [
           provideRouter([]),
           provideHttpClient(),
@@ -179,7 +178,7 @@ describe('analytic dimensions', () => {
 
   it('emits a filter only once a value is chosen, and clears it with the dimension', () => {
     TestBed.configureTestingModule({
-      imports: [VxDimensionFilterComponent, TranslateModule.forRoot()],
+      imports: [VxDimensionFilterComponent],
       providers: [{ provide: DimensionsService, useValue: { forTagging: () => of([costCentre]) } }],
     });
     const filter = TestBed.createComponent(VxDimensionFilterComponent).componentInstance;

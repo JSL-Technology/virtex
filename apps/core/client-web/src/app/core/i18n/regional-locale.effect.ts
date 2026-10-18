@@ -26,7 +26,7 @@ export class RegionalLocaleEffect {
   constructor() {
     effect(() => {
       const locale = this.locale.locale();
-      const language = this.translate.currentLang;
+      const language = this.translate.getCurrentLang();
       if (!language) return;
       if (this.applied === locale) return;
       this.applied = locale;

@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { VxPagerComponent } from './index';
 
 @Component({
   standalone: true,
-  imports: [TranslateModule, VxPagerComponent],
+  imports: [TranslatePipe, VxPagerComponent],
   template: `
     <vx-pager
       [page]="page()"
@@ -26,7 +26,7 @@ class Host {
 
 describe('VxPagerComponent', () => {
   function build() {
-    TestBed.configureTestingModule({ imports: [Host, TranslateModule.forRoot()] });
+    TestBed.configureTestingModule({ providers: [provideTranslateService()], imports: [Host] });
     //  Con traducciones de verdad, y no con las claves crudas: lo que se comprueba abajo es que
     //  los números LLEGAN a la frase, y con la clave sin resolver esa comprobación no existe.
     const translate = TestBed.inject(TranslateService);

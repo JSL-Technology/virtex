@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { VxDialogComponent, VxDialogDismissal } from './index';
 
 @Component({
   standalone: true,
-  imports: [TranslateModule, VxDialogComponent],
+  imports: [TranslatePipe, VxDialogComponent],
   template: `
     <button type="button" id="opener" (click)="open.set(true)">Abrir</button>
 
@@ -42,7 +42,7 @@ describe('VxDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Host, TranslateModule.forRoot()],
+      imports: [Host],
     }).compileComponents();
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();

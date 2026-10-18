@@ -10,7 +10,7 @@
         <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
         <span>{{ 'reports.common.refresh' | translate }}</span>
       </button>
-      <a class="primary-button" routerLink="bank-accounts/new">
+      <a class="primary-button" routerLink="/accounting/treasury/bank-accounts/new">
         <lucide-icon [img]="BankIcon" size="16"></lucide-icon>
         <span>{{ 'treasury.form.new_bank_account' | translate }}</span>
       </a>
@@ -46,7 +46,7 @@
             @for (row of accountsTable.rows(); track row.bankAccountId) {
               <tr>
                 <td>
-                  <a class="account-name table-link" [routerLink]="['bank-accounts', row.bankAccountId, 'edit']">
+                  <a class="account-name table-link" [routerLink]="['/accounting/treasury/bank-accounts', row.bankAccountId, 'edit']">
                     <lucide-icon [img]="BankIcon" size="14"></lucide-icon>
                     {{ row.name }}
                   </a>

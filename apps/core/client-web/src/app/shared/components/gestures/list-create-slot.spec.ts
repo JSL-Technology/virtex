@@ -1,6 +1,5 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 
 import { ListShellComponent } from './list-shell.component';
 
@@ -46,7 +45,7 @@ describe('list shell create slot', () => {
   const rows = () => fixture.nativeElement.querySelector('[data-testid="rows"]');
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ imports: [HostComponent, TranslateModule.forRoot()] });
+    TestBed.configureTestingModule({ imports: [HostComponent] });
     fixture = TestBed.createComponent(HostComponent);
     host = fixture.componentInstance;
     fixture.detectChanges();

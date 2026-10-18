@@ -1,0 +1,71 @@
+Mi trabajo || /e/virtex-dev/overview | Inicio
+Mi trabajo || /e/virtex-dev/approvals | Aprobaciones
+Mi trabajo || /e/virtex-dev/workflow-tasks | Mis tareas
+Mi trabajo || /e/virtex-dev/documents/repository | Todos los documentos
+Mi trabajo || /e/virtex-dev/workflows | Flujos de trabajo
+Mi trabajo || /e/virtex-dev/workflow-instances | Ejecuciones
+Ventas || /e/virtex-dev/invoices | Facturas
+Ventas || /e/virtex-dev/quotes | Cotizaciones
+Ventas || /e/virtex-dev/customer-receipts | Recibos
+Ventas || /e/virtex-dev/sales/history | Tickets de punto de venta
+Ventas || /e/virtex-dev/sales/pos | Punto de venta
+Ventas || /e/virtex-dev/contacts/customers | Clientes
+Ventas || /e/virtex-dev/masters/price-lists | Listas de precios
+Ventas || /e/virtex-dev/reports/aging/receivables | Antigüedad de saldos
+Compras || /e/virtex-dev/accounts-payable | Facturas
+Compras || /e/virtex-dev/accounts-payable/payments | Pagos a proveedores
+Compras || /e/virtex-dev/accounts-payable/debit-notes | Notas de débito
+Compras || /e/virtex-dev/purchasing/orders | Órdenes de compra
+Compras || /e/virtex-dev/purchasing/receipts | Recepciones
+Compras || /e/virtex-dev/purchasing/requisitions | Requisiciones
+Compras || /e/virtex-dev/contacts/suppliers | Proveedores
+Compras || /e/virtex-dev/reports/aging/payables | Antigüedad de saldos
+Inventario || /e/virtex-dev/inventory/adjustments | Ajustes de inventario
+Inventario || /e/virtex-dev/inventory/transfers | Transferencias
+Inventario || /e/virtex-dev/inventory/products | Productos
+Inventario || /e/virtex-dev/inventory/stock | Existencias
+Inventario || /e/virtex-dev/inventory/movements | Kárdex
+Inventario || /e/virtex-dev/inventory/categories | Categorías
+Inventario || /e/virtex-dev/masters/warehouses | Almacenes
+Inventario || /e/virtex-dev/masters/units-of-measure | Unidades de medida
+Tesorería || /e/virtex-dev/accounting/treasury | Tablero
+Tesorería || /e/virtex-dev/accounting/reconciliation | Conciliación — manual
+Tesorería || /e/virtex-dev/masters/banks | Bancos
+Tesorería || /e/virtex-dev/masters/payment-methods | Formas de pago
+Contabilidad || /e/virtex-dev/accounting/journal-entries | Asientos
+Contabilidad || /e/virtex-dev/accounting/recurring-entries | Asientos recurrentes
+Contabilidad || /e/virtex-dev/accounting/entry-templates | Plantillas de asiento
+Contabilidad || /e/virtex-dev/accounting/fixed-assets | Activos fijos
+Contabilidad || /e/virtex-dev/accounting/fixed-assets/depreciation | Ejecutar depreciación
+Contabilidad || /e/virtex-dev/accounting/budgets | Presupuestos
+Contabilidad || /e/virtex-dev/accounting/closing/annual-close | Cierre — anual
+Contabilidad || /e/virtex-dev/accounting/audit-adjustments | Ajustes de auditoría
+Contabilidad || /e/virtex-dev/accounting/closing/checklist | Cierre de período
+Contabilidad || /e/virtex-dev/accounting/chart-of-accounts | Plan de cuentas
+Contabilidad || /e/virtex-dev/accounting/daily-journal | Libro: diario
+Contabilidad || /e/virtex-dev/accounting/general-ledger | Libro: mayor
+Contabilidad || /e/virtex-dev/accounting/partner-ledger | Mayor de terceros
+Contabilidad || /e/virtex-dev/accounting/variance-analysis | Análisis de variaciones
+Contabilidad || /e/virtex-dev/reports/financial-statements/balance-sheet | Balance general
+Contabilidad || /e/virtex-dev/reports/financial-statements/income-statement | Estado de resultados
+Contabilidad || /e/virtex-dev/reports/financial-statements/trial-balance | Balanza de comprobación
+Contabilidad || /e/virtex-dev/reports/financial-statements/cash-flow | Flujo de efectivo
+Contabilidad || /e/virtex-dev/reports/fiscal-returns | Declaraciones fiscales
+Contabilidad || /e/virtex-dev/accounting/dimensions | Dimensiones analíticas
+Contabilidad || /e/virtex-dev/accounting/ledgers | Multilibros
+Contabilidad || /e/virtex-dev/accounting/journals | Diarios
+Contabilidad || /e/virtex-dev/accounting/periods | Periodos contables
+Contabilidad || /e/virtex-dev/masters/taxes | Impuestos
+Contabilidad || /e/virtex-dev/masters/currencies | Monedas
+Contabilidad || /e/virtex-dev/masters/currencies/exchange-rates | Tipos de cambio
+Contabilidad || /e/virtex-dev/masters/payment-terms | Condiciones de pago
+RR.HH. y nómina || /e/virtex-dev/payroll/my-payslips | Mis volantes
+RR.HH. y nómina || /e/virtex-dev/payroll/runs | Nóminas
+RR.HH. y nómina || /e/virtex-dev/hcm/employees | Empleados
+RR.HH. y nómina || /e/virtex-dev/hcm/departments | Departamentos
+RR.HH. y nómina || /e/virtex-dev/payroll/concepts | Conceptos
+RR.HH. y nómina || /e/virtex-dev/payroll/parameters | Parámetros de ley
+Análisis || /e/virtex-dev/reports/profitability-by-product | Rentabilidad por producto
+Análisis || /e/virtex-dev/reports/profitability-by-customer | Rentabilidad por cliente
+Análisis || /e/virtex-dev/reports/relationship-map | Mapa de relaciones
+Análisis || /e/virtex-dev/datasheets | DataSheets

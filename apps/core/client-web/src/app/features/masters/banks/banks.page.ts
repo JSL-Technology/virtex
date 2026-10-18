@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, Trash2 } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { Bank, TreasuryService } from '../../../core/api/treasury.service';
@@ -28,7 +28,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-banks-page',
   standalone: true,
-  imports: [...VX_SORT, RouterLink, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent, ...FORMAT_PIPES],
+  imports: [...VX_SORT, RouterLink, CanOpenDirective, LucideAngularModule, TranslatePipe, ListShellComponent, VxBadgeComponent, ...FORMAT_PIPES],
   templateUrl: './banks.page.html',
   styleUrls: ['./banks.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -11,7 +11,7 @@ import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType } from '@virteex/s
 import { AccountType, AccountCategory, AccountNature, CashFlowCategory, RequiredDimension } from '../../../core/models/account.model';
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -30,7 +30,7 @@ type ParentOption = { id: string; name: string; code: string };
     ReactiveFormsModule,
     RouterLink,
     LucideAngularModule,
-    TranslateModule,
+    TranslatePipe,
     DraftShellComponent,
     ...VX_FORM_A11Y, ...VX_SELECT, VxTabsComponent, VxDateFieldComponent],
   templateUrl: './account-form.page.html',

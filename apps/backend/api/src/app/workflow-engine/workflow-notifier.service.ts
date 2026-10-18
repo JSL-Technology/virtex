@@ -40,8 +40,12 @@ export class WorkflowNotifier {
     }
   }
 
+  /** The task no longer waits on anyone: its notices are read and say so (QA A-10). */
   async taskClosed(task: WorkflowTask): Promise<void> {
-    await this.notifications.markReadByLink(task.organizationId, taskLink(task.id));
+    await this.notifications.resolveByLink(task.organizationId, taskLink(task.id), {
+      titleKey: 'workflow_engine.notify.task_closed_title',
+      bodyKey: 'workflow_engine.notify.task_closed_body',
+    });
   }
 
   async taskOverdue(task: WorkflowTask, instance: WorkflowInstance): Promise<void> {

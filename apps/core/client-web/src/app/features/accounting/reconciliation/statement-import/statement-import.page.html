@@ -82,18 +82,18 @@
 
       <div class="form-grid">
         @for (field of columnFields; track field.control) {
-          <label class="field">
+          <label class="field" [for]="'stmt-col-' + field.control">
             <span>{{ field.label | translate }}@if (field.required) { *}</span>
             @if (headers().length) {
               <!-- The file's own header names: a typed name that is one space off matches nothing. -->
-              <select [formControlName]="field.control">
+              <select [id]="'stmt-col-' + field.control" [formControlName]="field.control">
                 <option value="">{{ 'accounting.reconciliation.import.no_column' | translate }}</option>
                 @for (header of headers(); track header) {
                   <option [value]="header">{{ header }}</option>
                 }
               </select>
             } @else {
-              <input type="text" [formControlName]="field.control" />
+              <input type="text" [id]="'stmt-col-' + field.control" [formControlName]="field.control" />
             }
           </label>
         }

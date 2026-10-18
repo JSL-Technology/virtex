@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { StockTransferFormPage } from './transfer-form.page';
 import { StockService, StockTransfer } from '../data/stock.service';
@@ -35,7 +34,7 @@ describe('StockTransferFormPage', () => {
       cancelTransfer: jest.fn().mockReturnValue(of({ ...draft, status: 'CANCELLED' })),
     };
     TestBed.configureTestingModule({
-      imports: [StockTransferFormPage, TranslateModule.forRoot()],
+      imports: [StockTransferFormPage],
       providers: [
         provideRouter([]),
         { provide: StockService, useValue: stock },

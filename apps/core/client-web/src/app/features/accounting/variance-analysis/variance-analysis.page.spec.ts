@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { VarianceAnalysisPage } from './variance-analysis.page';
 import { BudgetsService, isFavourable } from '../data/budgets.service';
@@ -17,7 +16,7 @@ describe('VarianceAnalysisPage', () => {
   it('reads the range from the URL and asks the server for it', () => {
     const variance = jest.fn().mockReturnValue(of(report));
     TestBed.configureTestingModule({
-      imports: [VarianceAnalysisPage, TranslateModule.forRoot()],
+      imports: [VarianceAnalysisPage],
       providers: [
         provideRouter([]),
         { provide: BudgetsService, useValue: { variance } },

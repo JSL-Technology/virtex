@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../../../core/services/auth';
 import { CountryService } from '../../../../core/services/country.service';
 import { NotificationService } from '../../../../core/services/notification';
@@ -33,7 +33,7 @@ const STEPS: readonly Step[] = ['configuration', 'business', 'plan'];
 @Component({
   selector: 'app-add-company',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, StepConfiguration, StepBusiness, StepPlan],
+  imports: [ReactiveFormsModule, TranslatePipe, StepConfiguration, StepBusiness, StepPlan],
   templateUrl: './add-company.component.html',
   styleUrls: ['./add-company.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -6,7 +6,7 @@ import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } 
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { Warehouse, WarehousesService } from '../../../core/api/warehouses.service';
@@ -33,7 +33,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-warehouses-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_SORT, CanOpenDirective, RouterLink, HasPermissionDirective, LucideAngularModule, TranslatePipe, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './warehouses.page.html',
   styleUrls: ['./warehouses.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
@@ -56,7 +56,7 @@ export function lineTotals(lines: readonly StoredEntryLine[]): { debit: number; 
     ReactiveFormsModule,
     FormsModule,
     RouterLink,
-    TranslateModule,
+    TranslatePipe,
     LucideAngularModule,
     ...FORMAT_PIPES,
     ...VX_FORM_A11Y,

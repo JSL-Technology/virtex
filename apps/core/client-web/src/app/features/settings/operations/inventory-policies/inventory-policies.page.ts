@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AccountGroup, PolicyField, SettingsSectionComponent } from '../../shared/settings-section.component';
 
 /** QA M-09: this section said «En desarrollo». It edits the organization's real settings now. */
 @Component({
   selector: 'app-inventory-policies-settings-page',
   standalone: true,
-  imports: [TranslateModule, SettingsSectionComponent],
+  imports: [TranslatePipe, SettingsSectionComponent],
   template: `
     <div class="s-page">
       <div class="s-header">

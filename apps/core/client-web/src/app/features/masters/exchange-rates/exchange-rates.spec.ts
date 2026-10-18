@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { ExchangeRatesPage } from './exchange-rates.page';
@@ -37,7 +36,7 @@ describe('ExchangeRatesPage', () => {
       resolve: jest.fn().mockReturnValue(of({ rate: 59, from: 'USD', to: 'DOP', date: '2026-03-01', rateType: 'OFFICIAL', method: 'DIRECT', source: 'BCRD', quotedOn: '2026-03-01' })),
     };
     TestBed.configureTestingModule({
-      imports: [ExchangeRatesPage, TranslateModule.forRoot()],
+      imports: [ExchangeRatesPage],
       providers: [
         provideRouter([]),
         { provide: ExchangeRatesService, useValue: rates },

@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SuppliersService, CreateSupplierDto, UpdateSupplierDto } from '../../../core/api/suppliers.service';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
@@ -21,7 +21,7 @@ import { phoneLikeValidator } from '../../../shared/validators/phone-like.valida
 @Component({
   selector: 'app-supplier-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [ReactiveFormsModule, TranslatePipe, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './supplier-form.html',
   styleUrls: ['./supplier-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,0 +1,11 @@
+t=0 tras login 200 en 13 ms | 0 bloqueadas / 1 idle-in-tx
+tras abrir Facturas 200 en 13 ms | 0 bloqueadas / 1 idle-in-tx
+tras F5 #1 200 en 13 ms | 2 bloqueadas / 1 idle-in-tx
+tras F5 #2 200 en 14 ms | 3 bloqueadas / 1 idle-in-tx
+tras F5 #3 200 en 12 ms | 4 bloqueadas / 2 idle-in-tx
++5s 200 en 11 ms | 3 bloqueadas / 1 idle-in-tx
++10s 200 en 13 ms | 3 bloqueadas / 1 idle-in-tx
++15s 200 en 13 ms | 3 bloqueadas / 1 idle-in-tx
++20s 200 en 11 ms | 3 bloqueadas / 1 idle-in-tx
++25s 200 en 12 ms | 3 bloqueadas / 1 idle-in-tx
++30s 200 en 10 ms | 3 bloqueadas / 1 idle-in-tx

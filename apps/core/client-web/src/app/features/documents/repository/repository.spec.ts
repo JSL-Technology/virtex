@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { RepositoryPage } from './repository.page';
 import { environment } from '../../../../environments/environment';
 
@@ -36,7 +35,7 @@ describe('RepositoryPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RepositoryPage, TranslateModule.forRoot()],
+      imports: [RepositoryPage],
       providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 

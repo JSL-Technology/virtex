@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, PlusCircle, Trash2 } from 'lucide-angular';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -18,7 +18,7 @@ import { BudgetSummary, BudgetsService } from '../data/budgets.service';
 @Component({
   selector: 'app-budgets-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, RowLinkDirective],
+  imports: [RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, RowLinkDirective],
   templateUrl: './budgets.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', '../../../shared/styles/document-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

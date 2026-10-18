@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, computed, inject } from '@an
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, DollarSign, Receipt, Package, Users, BarChart3, TrendingDown, TrendingUp } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { catchError, of, shareReplay } from 'rxjs';
 import { DashboardApiService, DashboardSummary } from '../../../../core/api/dashboard-api.service';
 import { FormatService } from '@virteex/shared/ui-i18n';
@@ -27,7 +27,7 @@ export type SummaryStat = 'sales-today' | 'pending-invoices' | 'low-stock' | 'ac
 @Component({
   selector: 'app-stat-summary',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe],
   templateUrl: './stat-summary.html',
   styleUrls: ['./stat-summary.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

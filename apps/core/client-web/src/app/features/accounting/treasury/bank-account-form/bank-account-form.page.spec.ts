@@ -2,10 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { BankAccountFormPage } from './bank-account-form.page';
 import { environment } from '../../../../../environments/environment';
 import { NotificationService } from '../../../../core/services/notification';
+import { provideTranslateService } from '@ngx-translate/core';
 
 /**
  * Nothing could create a bank account, and every settlement route depends on one. The assertions
@@ -68,8 +68,9 @@ describe('BankAccountFormPage', () => {
   const build = async (id: string | null) => {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      imports: [BankAccountFormPage, TranslateModule.forRoot()],
+      imports: [BankAccountFormPage],
       providers: [
+        provideTranslateService(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),

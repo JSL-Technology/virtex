@@ -4,13 +4,13 @@ import { LucideAngularModule, TrendingUp, TrendingDown, Minus, Scale } from 'luc
 import { Kpi } from '../../../../core/models/finance';
 import { DashboardApiService } from '../../../../core/api/dashboard-api.service';
 import { Observable, map } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 @Component({
   selector: 'app-kpi-current-ratio',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES],
   templateUrl: './kpi-current-ratio.html',
   styleUrls: ['../kpi-roe/kpi-roe.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

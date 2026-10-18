@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { TransitionPreviewComponent } from './transition-preview.component';
 import { TransitionPreview } from './transition-preview.model';
 
@@ -59,7 +58,7 @@ describe('TransitionPreviewComponent', () => {
 
   async function render(preview: TransitionPreview) {
     await TestBed.configureTestingModule({
-      imports: [TransitionPreviewComponent, TranslateModule.forRoot()],
+      imports: [TransitionPreviewComponent],
       providers: [provideRouter([])],
     }).compileComponents();
 

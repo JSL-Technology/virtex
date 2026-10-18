@@ -3,10 +3,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { AgingPage } from './aging.page';
 import { AgingReport } from '../../../core/api/aging.service';
 import { environment } from '../../../../environments/environment';
+import { provideTranslateService } from '@ngx-translate/core';
 
 /**
  * Ageing existed on neither side of the product. One component serves both, so the assertion that
@@ -53,8 +53,9 @@ describe('AgingPage', () => {
   const build = async (side: 'payables' | 'receivables') => {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      imports: [AgingPage, TranslateModule.forRoot()],
+      imports: [AgingPage],
       providers: [
+        provideTranslateService(),
         provideTestBranches(),
         provideHttpClient(),
         provideHttpClientTesting(),

@@ -6,7 +6,7 @@ import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth';
 import { LanguageService } from '../../../core/services/language';
 import { CountryService } from '../../../core/services/country.service';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha-19';
 import { recaptchaToken$ } from '../../../core/auth/recaptcha-token';
 import { LucideAngularModule, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle, ShieldCheck, Camera, Briefcase, Users, Globe, Rocket, Check, ArrowLeft, Info } from 'lucide-angular';
@@ -26,6 +26,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 const SIGN_OUT_NOTICE: Record<string, string | undefined> = {
   expired: 'login.notice.session_expired',
   idle: 'login.notice.signed_out_idle',
+  unverified: 'login.notice.session_unverified',
 };
 
 @Component({
@@ -35,7 +36,7 @@ const SIGN_OUT_NOTICE: Record<string, string | undefined> = {
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     RecaptchaV3Module,
     LucideAngularModule,
     AuthInputComponent,

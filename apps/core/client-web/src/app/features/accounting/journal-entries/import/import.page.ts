@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, UploadCloud, ChevronLeft, AlertTriangle, Check } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   ImportColumnMapping,
   ImportPreview,
@@ -56,7 +56,7 @@ const DATE_FORMATS = ['dd/MM/yyyy', 'MM/dd/yyyy', 'yyyy-MM-dd', 'dd-MM-yyyy', 'd
 @Component({
   selector: 'app-journal-entry-import-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxAmountComponent],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxAmountComponent],
   templateUrl: './import.page.html',
   styleUrls: ['./import.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
