@@ -1,0 +1,80 @@
+<section class="mr">
+  <header class="mr__header no-print">
+    <div>
+      <h1 class="mr__title">{{ 'ai.manager_report.title' | translate }}</h1>
+      <p class="mr__muted">{{ 'ai.manager_report.subtitle' | translate }}</p>
+    </div>
+    <div class="mr__controls">
+      @if (reports().length) {
+        <label class="field">
+          <span>{{ 'ai.manager_report.written' | translate }}</span>
+          <select [ngModel]="report()?.id" (ngModelChange)="open($event)">
+            @for (row of reports(); track row.id) {
+              <option [value]="row.id">{{ row.period }} · {{ ('ai.manager_report.status.' + row.status.toLowerCase()) | translate }}</option>
+            }
+          </select>
+        </label>
+      }
+      <label class="field">
+        <span>{{ 'ai.manager_report.month' | translate }}</span>
+        <input type="month" [max]="maxPeriod" [ngModel]="period()" (ngModelChange)="period.set($event)" />
+      </label>
+      <button type="button" class="secondary-button" [disabled]="requesting() || writing() || !period()" (click)="write()">
+        <lucide-icon [img]="WriteIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'ai.manager_report.write' | translate }}</span>
+      </button>
+      @if (content()) {
+        <button type="button" class="primary-button" (click)="print()">
+          <lucide-icon [img]="PrintIcon" size="16" aria-hidden="true"></lucide-icon>
+          <span>{{ 'ai.manager_report.print' | translate }}</span>
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (loading()) {
+    <p class="mr__muted">{{ 'ai.manager_report.loading' | translate }}</p>
+  } @else if (!report()) {
+    <div class="card mr__empty">
+      <p class="mr__strong">{{ 'ai.manager_report.none_yet' | translate }}</p>
+      <p class="mr__muted">{{ 'ai.manager_report.none_yet_help' | translate }}</p>
+    </div>
+  } @else {
+    @switch (report()!.status) {
+      @case ('QUEUED') { <p class="mr__muted" role="status">{{ 'ai.manager_report.writing' | translate }}</p> }
+      @case ('RUNNING') { <p class="mr__muted" role="status">{{ 'ai.manager_report.writing' | translate }}</p> }
+      @case ('FAILED') { <p class="mr__error" role="alert">{{ 'ai.manager_report.failed' | translate }}</p> }
+    }
+
+    @if (content(); as c) {
+      <article class="card mr__report">
+        <p class="mr__period">{{ 'ai.manager_report.period' | translate: { period: report()!.period } }}</p>
+        <h2 class="mr__report-title">{{ c.title }}</h2>
+        <p class="mr__summary">{{ c.summary }}</p>
+        @for (section of c.sections; track $index) {
+          <section class="mr__section">
+            <h3>{{ section.heading }}</h3>
+            <p>{{ section.body }}</p>
+          </section>
+        }
+        @if (c.recommendations.length) {
+          <section class="mr__section">
+            <h3>{{ 'ai.manager_report.recommendations' | translate }}</h3>
+            <ol class="mr__recs">
+              @for (rec of c.recommendations; track $index) {
+                <li><strong>{{ rec.action }}</strong> — {{ rec.why }}</li>
+              }
+            </ol>
+          </section>
+        }
+        <footer class="mr__foot">
+          <p class="mr__muted">{{ 'ai.manager_report.written_at' | translate: { when: (report()!.finishedAt | vxDate: 'medium') } }}</p>
+          <p class="mr__muted">{{ 'ai.manager_report.figures_note' | translate }}</p>
+          @if (unavailable().length) {
+            <p class="mr__muted">{{ 'ai.manager_report.unavailable' | translate: { count: unavailable().length } }}</p>
+          }
+        </footer>
+      </article>
+    }
+  }
+</section>

@@ -33,7 +33,8 @@ export class AuditTrailService {
    * an improvement either.
    */
   async record(
-    userId: string,
+    // Null for work no person started: a scheduled report, a system job.
+    userId: string | null,
     entity: string,
     entityId: string,
     actionType: ActionType,

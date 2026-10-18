@@ -9,6 +9,7 @@ describe('AiNotificationsListener', () => {
     { id: 'u-buyer', language: 'es', permissions: 'ai_forecasts:view' },
     { id: 'u-auditor', language: 'en', permissions: 'ai_anomalies:view' },
     { id: 'u-sales', language: 'es', permissions: 'invoices:view' },
+    { id: 'u-manager', language: 'en', permissions: 'ai_reports:view' },
   ];
 
   const build = () => {
@@ -65,5 +66,18 @@ describe('AiNotificationsListener', () => {
     await expect(
       listener.onFindings({ organizationId: 'org-1', runId: 'r3', kind: 'ANOMALY', anomalies: { count: 1, critical: 0 } }),
     ).resolves.toBeUndefined();
+  });
+
+  it('tells the people who read the manager report that the month is written', async () => {
+    const { listener, notifications } = build();
+    await listener.onReportReady({ organizationId: 'org-1', reportId: 'rep-1', kind: 'MANAGER_MONTHLY', period: '2026-09' });
+    expect(notifications.createLocalizedNotification).toHaveBeenCalledTimes(1);
+    expect(notifications.createLocalizedNotification).toHaveBeenCalledWith('u-manager', 'en', {
+      titleKey: 'notifications.ai.manager_report.title',
+      bodyKey: 'notifications.ai.manager_report.body',
+      params: { month: 'September 2026' },
+      link: '/reports/manager-report?id=rep-1',
+      organizationId: 'org-1',
+    });
   });
 });

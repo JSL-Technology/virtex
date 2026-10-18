@@ -27,6 +27,18 @@ export const ANALISIS_MODULE: ModuleManifest = {
       load: () => import('../../../features/reports/hub/reports-hub.page').then((m) => m.ReportsHubPage),
     },
     {
+      //  El mes en pocos párrafos para quien dirige la empresa, escrito el día 1 (o a pedido) a partir
+      //  de las cifras que el sistema calculó; se imprime o se guarda como PDF desde el navegador.
+      path: 'manager-report',
+      kind: WindowKind.OVERVIEW,
+      permission: 'ai_reports:view',
+      titleKey: 'page_titles.ai_manager_report',
+      icon: 'ScrollText',
+      entityKeyFn: () => 'analisis:manager-report',
+      menu: { group: 'analysis', labelKey: 'page_titles.ai_manager_report' },
+      load: () => import('../../../features/ai/manager-report/manager-report.page').then((m) => m.ManagerReportPage),
+    },
+    {
       // Lo que la auditoría automática encontró inusual en ventas, compras, existencias y caja.
       path: 'anomalies',
       kind: WindowKind.LIST,

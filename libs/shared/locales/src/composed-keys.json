@@ -332,6 +332,12 @@
       "supplier_lead_times",
       "top_sellers_by_branch"
     ],
+    "ai.manager_report.status": [
+      "queued",
+      "running",
+      "succeeded",
+      "failed"
+    ],
     "ai.photo.match_reason": [
       "barcode",
       "name",

@@ -15,7 +15,8 @@ export class AccessAuditAdapter extends AccessAuditPort {
   recordRead(access: { userId: string; organizationId: string; entity: string; via: string; identifiers?: Record<string, unknown> }): void {
     void this.audit
       .record(
-        access.userId,
+        // A report the scheduler generated reads as no one in particular, not as an empty id.
+        access.userId || null,
         access.entity,
         access.entity,
         ActionType.READ,

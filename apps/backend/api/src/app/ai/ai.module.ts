@@ -16,6 +16,8 @@ import { AiCopilotTools } from './copilot/ai.copilot-tools';
 import { HelpService } from './help/help.service';
 import { CashflowService } from './cashflow/cashflow.service';
 import { PaymentLikelihoodProvider } from './cashflow/payment-likelihood.provider';
+import { ManagerReportBuilder } from './reports/manager-report.builder';
+import { ManagerReportController } from './reports/manager-report.controller';
 import { CashflowController } from './cashflow/cashflow.controller';
 import { CashflowPlanBuilder } from './cashflow/cashflow-plan.builder';
 import { ReportsService, AI_REPORTS_QUEUE } from './reports/reports.service';
@@ -59,7 +61,7 @@ import { InventoryModule } from '../inventory/inventory.module';
     BullModule.registerQueue({ name: AI_REPORTS_QUEUE }),
     InventoryModule,
   ],
-  controllers: [AiController, CopilotController, CashflowController],
+  controllers: [AiController, CopilotController, CashflowController, ManagerReportController],
   providers: [
     AiGatewayService,
     EmbeddingsService,
@@ -78,6 +80,7 @@ import { InventoryModule } from '../inventory/inventory.module';
     ReportsService,
     ReportsProcessor,
     CashflowPlanBuilder,
+    ManagerReportBuilder,
     AiCopilotTools,
     { provide: AiAssistPort, useExisting: AiGatewayService },
   ],

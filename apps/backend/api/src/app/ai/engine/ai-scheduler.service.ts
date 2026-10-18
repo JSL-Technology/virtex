@@ -6,6 +6,9 @@ import { EntitlementsPort } from '../../saas/contracts/entitlements.contract';
 import { SchedulerLockService } from '../../shared/scheduler/scheduler-lock.service';
 import { forEachTenant } from '../../shared/tenancy/tenant-job';
 import { CashflowService } from '../cashflow/cashflow.service';
+import { ReportsService } from '../reports/reports.service';
+import { previousMonth } from '../reports/manager-report.builder';
+import { currentTenantStore } from '../../shared/tenancy/tenant-context';
 
 /** A tenant that ran this kind in the last 20 hours is fresh enough to skip tonight. */
 const FRESH_FOR_MS = 20 * 60 * 60 * 1000;
@@ -28,7 +31,41 @@ export class AiSchedulerService {
     private readonly entitlements: EntitlementsPort,
     private readonly lock: SchedulerLockService,
     private readonly cashflow: CashflowService,
+    private readonly reports: ReportsService,
   ) {}
+
+  // 06:41 on the 1st: after the night's runs, so the report reads a projection made that morning.
+  @Cron('41 6 1 * *')
+  async monthly(): Promise<void> {
+    const period = previousMonth();
+    await this.lock.runOnce('ai-monthly-reports', period, async () => {
+      await this.queueMonthlyReports(period);
+    });
+  }
+
+  /** The manager's report for `period`, for every tenant whose plan includes it and lacks one. */
+  async queueMonthlyReports(period: string): Promise<number> {
+    let queued = 0;
+    await forEachTenant(
+      this.dataSource,
+      async (organizationId) => {
+        if (!(await this.entitlements.checkFeature(organizationId, 'ai_manager_reports'))) return;
+        if (await this.reports.exists(organizationId, 'MANAGER_MONTHLY', period)) return;
+        const manager = currentTenantStore()?.manager ?? this.dataSource.manager;
+        const [org]: Array<{ language: string | null }> = await manager.query(
+          `SELECT "books_language" AS language FROM "organizations" WHERE "id" = $1`,
+          [organizationId],
+        );
+        await this.reports.request(organizationId, null, 'MANAGER_MONTHLY', { period, language: org?.language ?? 'es' });
+        queued++;
+      },
+      undefined,
+      (organizationId, error) =>
+        this.logger.error(`Monthly report could not be queued for ${organizationId}: ${(error as Error)?.message}`),
+    );
+    this.logger.log(`Monthly manager reports queued for ${period}: ${queued}.`);
+    return queued;
+  }
 
   // 02:17 server time: after midnight closes the day's sales, away from the round hours other
   // jobs cluster on.

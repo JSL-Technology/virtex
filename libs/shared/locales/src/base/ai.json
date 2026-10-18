@@ -1764,6 +1764,116 @@
     "en": "How can I help?",
     "pt": "Em que posso ajudar?"
   },
+  "ai.manager_report.failed": {
+    "es": "No se pudo escribir este informe. Vuelve a intentarlo.",
+    "en": "This report could not be written. Try again.",
+    "pt": "Não foi possível escrever este relatório. Tente novamente."
+  },
+  "ai.manager_report.figures_note": {
+    "es": "Cada cifra sale de los estados financieros, la cartera y las proyecciones del sistema, y se verificó antes de guardar el informe.",
+    "en": "Every figure comes from the system's financial statements, receivables and projections, and was checked before the report was stored.",
+    "pt": "Cada número vem das demonstrações financeiras, da carteira e das projeções do sistema, e foi verificado antes de salvar o relatório."
+  },
+  "ai.manager_report.load_failed": {
+    "es": "No se pudo cargar el informe.",
+    "en": "The report could not be loaded.",
+    "pt": "Não foi possível carregar o relatório."
+  },
+  "ai.manager_report.loading": {
+    "es": "Cargando…",
+    "en": "Loading…",
+    "pt": "Carregando…"
+  },
+  "ai.manager_report.month": {
+    "es": "Mes",
+    "en": "Month",
+    "pt": "Mês"
+  },
+  "ai.manager_report.none_yet": {
+    "es": "Todavía no hay informes.",
+    "en": "There are no reports yet.",
+    "pt": "Ainda não há relatórios."
+  },
+  "ai.manager_report.none_yet_help": {
+    "es": "Se escribe solo el día 1 de cada mes para el mes que terminó. También puedes pedir el de cualquier mes cerrado.",
+    "en": "One is written on the 1st of each month for the month that ended. You can also ask for any closed month.",
+    "pt": "Um é escrito no dia 1 de cada mês para o mês que terminou. Você também pode pedir o de qualquer mês fechado."
+  },
+  "ai.manager_report.period": {
+    "es": "Mes {{period}}",
+    "en": "Month {{period}}",
+    "pt": "Mês {{period}}"
+  },
+  "ai.manager_report.print": {
+    "es": "Imprimir o guardar PDF",
+    "en": "Print or save as PDF",
+    "pt": "Imprimir ou salvar PDF"
+  },
+  "ai.manager_report.recommendations": {
+    "es": "Qué hacer",
+    "en": "What to do",
+    "pt": "O que fazer"
+  },
+  "ai.manager_report.request_failed": {
+    "es": "No se pudo pedir el informe.",
+    "en": "The report could not be requested.",
+    "pt": "Não foi possível solicitar o relatório."
+  },
+  "ai.manager_report.status.failed": {
+    "es": "falló",
+    "en": "failed",
+    "pt": "falhou"
+  },
+  "ai.manager_report.status.queued": {
+    "es": "en cola",
+    "en": "queued",
+    "pt": "na fila"
+  },
+  "ai.manager_report.status.running": {
+    "es": "escribiéndose",
+    "en": "being written",
+    "pt": "sendo escrito"
+  },
+  "ai.manager_report.status.succeeded": {
+    "es": "listo",
+    "en": "ready",
+    "pt": "pronto"
+  },
+  "ai.manager_report.subtitle": {
+    "es": "El mes en pocos párrafos: cómo fue, hacia dónde va la caja, quién debe y qué hacer el mes próximo.",
+    "en": "The month in a few paragraphs: how it went, where cash is heading, who owes, and what to do next month.",
+    "pt": "O mês em poucos parágrafos: como foi, para onde vai o caixa, quem deve e o que fazer no próximo mês."
+  },
+  "ai.manager_report.title": {
+    "es": "Informe del gerente",
+    "en": "Manager's report",
+    "pt": "Relatório do gestor"
+  },
+  "ai.manager_report.unavailable": {
+    "es": "{{count}} fuentes no estaban disponibles para este informe.",
+    "en": "{{count}} sources were not available for this report.",
+    "pt": "{{count}} fontes não estavam disponíveis para este relatório."
+  },
+  "ai.manager_report.write": {
+    "es": "Escribir el informe del mes",
+    "en": "Write the month's report",
+    "pt": "Escrever o relatório do mês"
+  },
+  "ai.manager_report.writing": {
+    "es": "Escribiendo el informe… puede tardar uno o dos minutos.",
+    "en": "Writing the report… it can take a minute or two.",
+    "pt": "Escrevendo o relatório… pode levar um ou dois minutos."
+  },
+  "ai.manager_report.written": {
+    "es": "Informes escritos",
+    "en": "Written reports",
+    "pt": "Relatórios escritos"
+  },
+  "ai.manager_report.written_at": {
+    "es": "Escrito el {{when}}.",
+    "en": "Written {{when}}.",
+    "pt": "Escrito em {{when}}."
+  },
   "ai.not_configured": {
     "es": "La inteligencia artificial no está configurada en este servidor. Puedes continuar manualmente.",
     "en": "Artificial intelligence is not configured on this server. You can continue manually.",
@@ -2248,6 +2358,11 @@
     "es": "No se encontró el informe.",
     "en": "Report not found.",
     "pt": "Relatório não encontrado."
+  },
+  "ai.reports.period_not_closed": {
+    "es": "Ese mes todavía no ha terminado.",
+    "en": "That month has not ended yet.",
+    "pt": "Esse mês ainda não terminou."
   },
   "ai.request_refused": {
     "es": "El asistente no pudo procesar esta solicitud. Revisa el contenido o completa los datos manualmente.",

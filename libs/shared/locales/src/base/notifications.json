@@ -54,6 +54,16 @@
     "en": "Risk of running short of cash",
     "pt": "Risco de ficar sem caixa"
   },
+  "notifications.ai.manager_report.body": {
+    "es": "Ya puedes leer el informe de {{month}}.",
+    "en": "The report for {{month}} is ready to read.",
+    "pt": "O relatório de {{month}} já pode ser lido."
+  },
+  "notifications.ai.manager_report.title": {
+    "es": "Informe del gerente listo",
+    "en": "Manager's report ready",
+    "pt": "Relatório do gestor pronto"
+  },
   "notifications.ai.stockouts.body": {
     "es": "{{count}} productos podrían agotarse antes de que llegue un pedido, el primero hacia el {{date}}: {{products}}…",
     "en": "{{count}} products could run out before an order arrives, the first around {{date}}: {{products}}…",

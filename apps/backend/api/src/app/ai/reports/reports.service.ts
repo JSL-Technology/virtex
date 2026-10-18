@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { AI_REPORT_READY, AiReportReadyEvent } from '../../contracts/ai-insights/ai-report-ready.contract';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Queue } from 'bullmq';
 import { In, Repository } from 'typeorm';
@@ -74,6 +76,7 @@ export class ReportsService {
     private readonly gateway: AiGatewayService,
     @InjectRepository(AiReport) private readonly reports: Repository<AiReport>,
     @InjectQueue(AI_REPORTS_QUEUE) private readonly queue: Queue<{ organizationId: string; reportId: string }>,
+    private readonly events: EventEmitter2,
   ) {}
 
   register(builder: ReportBuilder): void {
@@ -130,6 +133,11 @@ export class ReportsService {
     return this.reports.findOne({ where: { organizationId, kind }, order: { createdAt: 'DESC' } });
   }
 
+  /** Whether a report of this kind and period already exists (written, or being written). */
+  async exists(organizationId: string, kind: AiReportKind, period: string): Promise<boolean> {
+    return (await this.reports.count({ where: { organizationId, kind, period, status: In(['QUEUED', 'RUNNING', 'SUCCEEDED']) } })) > 0;
+  }
+
   list(organizationId: string, kind: AiReportKind, limit = 12): Promise<AiReport[]> {
     return this.reports.find({ where: { organizationId, kind }, order: { createdAt: 'DESC' }, take: limit });
   }
@@ -166,6 +174,15 @@ export class ReportsService {
       report.error = null;
       report.finishedAt = new Date();
       await this.reports.save(report);
+      if (report.kind === 'MANAGER_MONTHLY') {
+        // The cash plan is asked for and read on its screen; the monthly report is news.
+        this.events.emit(AI_REPORT_READY, {
+          organizationId,
+          reportId: report.id,
+          kind: 'MANAGER_MONTHLY',
+          period: report.period,
+        } satisfies AiReportReadyEvent);
+      }
     } catch (error) {
       report.status = finalAttempt ? 'FAILED' : 'QUEUED';
       // The reason for the screen, never the model's text or the facts.

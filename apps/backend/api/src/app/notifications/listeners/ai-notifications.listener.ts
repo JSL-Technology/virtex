@@ -3,6 +3,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { DataSource } from 'typeorm';
 import { LanguageCode, matchLanguage } from '@virteex/shared/types';
 import { AI_RUN_FINDINGS, AiRunFindingsEvent } from '../../contracts/ai-insights/ai-run-findings.contract';
+import { AI_REPORT_READY, AiReportReadyEvent } from '../../contracts/ai-insights/ai-report-ready.contract';
 import { AI_PERMISSIONS } from '../../shared/ai.permissions';
 import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { NotificationsService } from '../notifications.service';
@@ -37,6 +38,31 @@ export class AiNotificationsListener {
       this.logger.warn(
         { event: 'ai_notice_failed', runId: event.runId },
         `AI run findings could not be notified: ${(error as Error).message}`,
+      );
+    }
+  }
+
+  /** The manager's monthly report is written: told to those who may read it. */
+  @OnEvent(AI_REPORT_READY, { async: true })
+  async onReportReady(event: AiReportReadyEvent): Promise<void> {
+    try {
+      await runAsTenantJob(this.dataSource, event.organizationId, async () => {
+        const recipients = await membersWithPermission(this.dataSource, event.organizationId, AI_PERMISSIONS.AI_REPORTS_VIEW);
+        for (const recipient of recipients) {
+          const language = languageOf(recipient.language);
+          await this.notifications.createLocalizedNotification(recipient.id, language, {
+            titleKey: 'notifications.ai.manager_report.title',
+            bodyKey: 'notifications.ai.manager_report.body',
+            params: { month: formatMonth(event.period, language) },
+            link: `/reports/manager-report?id=${event.reportId}`,
+            organizationId: event.organizationId,
+          });
+        }
+      });
+    } catch (error) {
+      this.logger.warn(
+        { event: 'ai_notice_failed', reportId: event.reportId },
+        `AI report could not be notified: ${(error as Error).message}`,
       );
     }
   }
@@ -108,5 +134,15 @@ function formatDate(iso: string | null, language: LanguageCode): string {
     return new Intl.DateTimeFormat(language, { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
   } catch {
     return iso;
+  }
+}
+
+/** `2026-09` → «septiembre de 2026». */
+function formatMonth(period: string | null, language: LanguageCode): string {
+  if (!period) return '';
+  try {
+    return new Intl.DateTimeFormat(language, { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${period}-01T00:00:00Z`));
+  } catch {
+    return period;
   }
 }

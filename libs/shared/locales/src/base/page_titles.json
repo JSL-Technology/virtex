@@ -44,6 +44,11 @@
     "en": "Projected cash flow",
     "pt": "Fluxo de caixa projetado"
   },
+  "page_titles.ai_manager_report": {
+    "es": "Informe del gerente",
+    "en": "Manager's report",
+    "pt": "Relatório do gestor"
+  },
   "page_titles.ai_predictions": {
     "es": "Predicciones de demanda",
     "en": "Demand predictions",
