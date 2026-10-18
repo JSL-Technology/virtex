@@ -46,6 +46,19 @@ export interface ImportReport {
   problems: DataTransferProblem[];
 }
 
+/** Which header of a file is which key, as the server proposes it. */
+export interface ColumnMappingProposal {
+  headers: string[];
+  sample: Array<Record<string, string>>;
+  /** Header → dataset key, or null to leave the column out. */
+  mapping: Record<string, string | null>;
+  /** `template`: the file already uses the keys; `headers`: matched by name; `ai`: the assistant helped. */
+  source: 'template' | 'headers' | 'ai';
+  /** Required keys no header is mapped to yet. */
+  missing: string[];
+  columns: Array<{ key: string; required: boolean }>;
+}
+
 export interface DownloadedFile {
   fileName: string;
   blob: Blob;
@@ -86,9 +99,18 @@ export class DataTransferService {
       );
   }
 
-  import(dataset: string, file: File, mode: 'validate' | 'commit'): Observable<ImportReport> {
+  /** Propose which header of a file is which key. Imports nothing. */
+  columnMapping(dataset: string, file: File): Observable<ColumnMappingProposal> {
     const body = new FormData();
     body.append('file', file, file.name);
+    return this.http.post<ColumnMappingProposal>(`${this.apiUrl}/datasets/${dataset}/column-mapping`, body);
+  }
+
+  /** `mapping`, when the file is not the template: the header → key choice the person confirmed. */
+  import(dataset: string, file: File, mode: 'validate' | 'commit', mapping?: Record<string, string | null> | null): Observable<ImportReport> {
+    const body = new FormData();
+    body.append('file', file, file.name);
+    if (mapping) body.append('mapping', JSON.stringify(mapping));
     const params = new HttpParams().set('dataset', dataset).set('mode', mode);
     return this.http.post<ImportReport>(`${this.apiUrl}/imports`, body, { params });
   }

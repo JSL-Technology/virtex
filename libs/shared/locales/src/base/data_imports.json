@@ -74,6 +74,51 @@
     "en": "Line",
     "pt": "Linha"
   },
+  "data_imports.mapping.detecting": {
+    "es": "Leyendo las columnas del archivo…",
+    "en": "Reading the file's columns…",
+    "pt": "Lendo as colunas do arquivo…"
+  },
+  "data_imports.mapping.field": {
+    "es": "Campo",
+    "en": "Field",
+    "pt": "Campo"
+  },
+  "data_imports.mapping.field_for": {
+    "es": "Campo para la columna {{column}}",
+    "en": "Field for column {{column}}",
+    "pt": "Campo para a coluna {{column}}"
+  },
+  "data_imports.mapping.file_column": {
+    "es": "Columna del archivo",
+    "en": "File column",
+    "pt": "Coluna do arquivo"
+  },
+  "data_imports.mapping.from_ai": {
+    "es": "El archivo no usa las columnas de la plantilla. El asistente propuso cómo emparejarlas; revisa y corrige antes de validar.",
+    "en": "The file does not use the template's columns. The assistant proposed how to match them; check and correct them before validating.",
+    "pt": "O arquivo não usa as colunas do modelo. O assistente propôs como combiná-las; revise e corrija antes de validar."
+  },
+  "data_imports.mapping.from_headers": {
+    "es": "El archivo no usa las columnas de la plantilla. Se emparejaron por nombre; revisa y corrige antes de validar.",
+    "en": "The file does not use the template's columns. They were matched by name; check and correct them before validating.",
+    "pt": "O arquivo não usa as colunas do modelo. Foram combinadas pelo nome; revise e corrija antes de validar."
+  },
+  "data_imports.mapping.ignore": {
+    "es": "— No importar —",
+    "en": "— Do not import —",
+    "pt": "— Não importar —"
+  },
+  "data_imports.mapping.missing": {
+    "es": "Faltan campos obligatorios: {{columns}}.",
+    "en": "Required fields missing: {{columns}}.",
+    "pt": "Faltam campos obrigatórios: {{columns}}."
+  },
+  "data_imports.mapping.sample": {
+    "es": "Ejemplo",
+    "en": "Example",
+    "pt": "Exemplo"
+  },
   "data_imports.no_imports_yet": {
     "es": "Aún no hay importaciones.",
     "en": "No imports yet.",

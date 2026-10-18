@@ -60,7 +60,7 @@ export function readSample(bytes: Buffer, rows = 8): CsvSample {
 }
 
 const norm = (header: string) =>
-  header.toLocaleLowerCase('es').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
+  header.toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
 
 /** The header that names `field`, if exactly one does (or the best of several). */
 function byName(headers: string[], field: keyof typeof SYNONYMS, taken: Set<string>): string | null {

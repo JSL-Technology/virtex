@@ -140,6 +140,45 @@ describeWithDb('data transfer', () => {
     );
   });
 
+  it('imports a file not made from the template, under the mapping the person confirmed', async () => {
+    const file = csv('Nombre del contacto,E-mail,Notas\nAna,ana@example.test,vip\n');
+    const report = await service.import(admin(), 'contacts', file, 'commit', {
+      'Nombre del contacto': 'nombre',
+      'E-mail': 'correo',
+      Notas: null,
+    });
+    expect(report).toMatchObject({ status: DataTransferStatus.COMPLETED, importedRows: 1 });
+    expect(stored).toEqual([expect.objectContaining({ name: 'Ana', email: 'ana@example.test' })]);
+
+    const twice = await service.import(admin(), 'contacts', file, 'validate', { 'Nombre del contacto': 'nombre', 'E-mail': 'nombre' });
+    expect(twice.problems[0]).toMatchObject({ key: 'data_transfer.mapping_duplicate_key' });
+  });
+
+  it('proposes a mapping from the headers, and asks the assistant only for what they leave open', async () => {
+    const extract = jest.fn(async (request: { validate: (raw: unknown) => unknown }) => ({
+      // The model is held to the real headers and keys: the invented ones are dropped.
+      value: request.validate({ mapping: [{ header: 'mail del cliente', key: 'correo' }, { header: 'inventado', key: 'codigo' }, { header: 'notas', key: 'salario' }] }),
+      requestId: 'r',
+      model: 'm',
+    }));
+    const registry = new DataTransferRegistry();
+    registry.register(dataset as DataTransferDataset);
+    const withAi = new DataTransferService(registry, dataSource.getRepository(DataTransferRun), new I18nService(), {
+      available: () => true,
+      extract,
+      compose: jest.fn(),
+    } as never);
+
+    const proposal = await withAi.proposeMapping(admin(), 'contacts', csv('NOMBRE,Mail del cliente,Notas\nAna,ana@example.test,vip\n'));
+
+    expect(proposal.mapping).toEqual({ nombre: 'nombre', 'mail del cliente': 'correo', notas: null });
+    expect(proposal).toMatchObject({ source: 'ai', missing: [] });
+    expect(stored).toEqual([]);
+    await expect(withAi.proposeMapping(user(['contacts:view']), 'contacts', csv('a\n1\n'))).rejects.toMatchObject({
+      messageKey: 'data_transfer.not_allowed_to_import',
+    });
+  });
+
   it('reads an Excel file the same way', async () => {
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Hoja');

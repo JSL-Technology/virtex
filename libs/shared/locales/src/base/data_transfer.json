@@ -69,6 +69,21 @@
     "en": "The file could not be read: {{detail}}",
     "pt": "Não foi possível ler o arquivo: {{detail}}"
   },
+  "data_transfer.mapping_duplicate_key": {
+    "es": "Dos columnas del archivo van al mismo campo: {{key}}.",
+    "en": "Two file columns go to the same field: {{key}}.",
+    "pt": "Duas colunas do arquivo vão para o mesmo campo: {{key}}."
+  },
+  "data_transfer.mapping_invalid": {
+    "es": "El mapeo de columnas no es válido.",
+    "en": "The column mapping is not valid.",
+    "pt": "O mapeamento de colunas não é válido."
+  },
+  "data_transfer.mapping_unknown_key": {
+    "es": "El mapeo usa un campo que este conjunto no tiene: {{key}}.",
+    "en": "The mapping uses a field this dataset does not have: {{key}}.",
+    "pt": "O mapeamento usa um campo que este conjunto não tem: {{key}}."
+  },
   "data_transfer.missing_columns": {
     "es": "Faltan columnas obligatorias: {{columns}}.",
     "en": "Required columns are missing: {{columns}}.",

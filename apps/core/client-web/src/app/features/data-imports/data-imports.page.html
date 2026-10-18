@@ -49,6 +49,48 @@
             }
           </label>
         </div>
+
+        @if (detecting()) {
+          <p class="mapping-note" role="status">{{ 'data_imports.mapping.detecting' | translate }}</p>
+        } @else if (needsMapping() && proposal(); as p) {
+          <div class="mapping">
+            <p class="mapping-note">
+              {{ (p.source === 'ai' ? 'data_imports.mapping.from_ai' : 'data_imports.mapping.from_headers') | translate }}
+            </p>
+            <table class="mapping-table">
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'data_imports.mapping.file_column' | translate }}</th>
+                  <th scope="col">{{ 'data_imports.mapping.sample' | translate }}</th>
+                  <th scope="col">{{ 'data_imports.mapping.field' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (header of p.headers; track header) {
+                  <tr>
+                    <td>{{ header }}</td>
+                    <td class="mapping-sample">{{ p.sample[0]?.[header] ?? '' }}</td>
+                    <td>
+                      <select
+                        [attr.aria-label]="'data_imports.mapping.field_for' | translate: { column: header }"
+                        [value]="mapping()[header] ?? ''"
+                        (change)="setMapping(header, $any($event.target).value)"
+                      >
+                        <option value="">{{ 'data_imports.mapping.ignore' | translate }}</option>
+                        @for (column of p.columns; track column.key) {
+                          <option [value]="column.key" [selected]="mapping()[header] === column.key">{{ column.key }}{{ column.required ? ' *' : '' }}</option>
+                        }
+                      </select>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            @if (missingRequired().length) {
+              <p class="mapping-missing" role="alert">{{ 'data_imports.mapping.missing' | translate: { columns: missingRequired().join(', ') } }}</p>
+            }
+          </div>
+        }
       </div>
     </section>
 
@@ -58,7 +100,7 @@
         <h3 id="import-step-3">{{ 'data_imports.start_import' | translate }}</h3>
         <p>{{ 'data_imports.validate_then_import' | translate }}</p>
         <div class="actions">
-          <button class="secondary-button" type="button" (click)="run('validate')" [disabled]="!selectedFile() || !!busy()">
+          <button class="secondary-button" type="button" (click)="run('validate')" [disabled]="!selectedFile() || !!busy() || detecting() || (needsMapping() && missingRequired().length > 0)">
             @if (busy() === 'validate') {
               <lucide-icon [img]="ProcessingIcon" size="18" class="spinner" aria-hidden="true"></lucide-icon>
             } @else {
@@ -66,7 +108,7 @@
             }
             <span>{{ 'data_imports.validate' | translate }}</span>
           </button>
-          <button class="primary-button" type="button" (click)="run('commit')" [disabled]="!selectedFile() || !!busy()">
+          <button class="primary-button" type="button" (click)="run('commit')" [disabled]="!selectedFile() || !!busy() || detecting() || (needsMapping() && missingRequired().length > 0)">
             @if (busy() === 'commit') {
               <lucide-icon [img]="ProcessingIcon" size="18" class="spinner" aria-hidden="true"></lucide-icon>
               <span>{{ 'data_imports.processing' | translate }}</span>

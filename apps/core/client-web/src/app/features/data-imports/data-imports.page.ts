@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CheckCircle, Download, File, Loader, LucideAngularModule, ShieldCheck, UploadCloud } from 'lucide-angular';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
+  ColumnMappingProposal,
   DataTransferDataset,
   DataTransferRun,
   DataTransferService,
@@ -26,6 +27,11 @@ const MAX_BYTES = 5 * 1024 * 1024;
  * 2. «Validar» runs every check the import runs and writes nothing;
  * 3. «Importar» is all-or-nothing: if any row fails, none is written and every problem is listed by
  *    line and column, so correcting the file and uploading it again never duplicates a row.
+ *
+ * A file that was not made from the template (an export from another system, a spreadsheet kept
+ * by hand) is not refused for its headers: choosing it asks the server which header is which
+ * field — by name, and with the assistant's help when the names say nothing — and the proposal is
+ * shown for the person to correct before anything is validated.
  */
 @Component({
   selector: 'app-data-imports-page',
@@ -56,6 +62,18 @@ export class DataImportsPage implements OnInit {
   readonly selectedFile = signal<File | null>(null);
   readonly busy = signal<'validate' | 'commit' | null>(null);
   readonly report = signal<ImportReport | null>(null);
+  readonly proposal = signal<ColumnMappingProposal | null>(null);
+  /** The header → key choice, as the person leaves it. */
+  readonly mapping = signal<Record<string, string | null>>({});
+  readonly detecting = signal(false);
+  /** Whether the file needs a mapping at all (it is not the template). */
+  readonly needsMapping = computed(() => !!this.proposal() && this.proposal()!.source !== 'template');
+  readonly missingRequired = computed(() => {
+    const proposal = this.proposal();
+    if (!proposal) return [];
+    const mapped = new Set(Object.values(this.mapping()).filter(Boolean));
+    return proposal.columns.filter((column) => column.required && !mapped.has(column.key)).map((column) => column.key);
+  });
 
   readonly selectedDataset = computed(
     () => this.importable().find((dataset) => dataset.id === this.selectedDatasetId()) ?? null,
@@ -93,6 +111,9 @@ export class DataImportsPage implements OnInit {
   onDatasetChange(event: Event): void {
     this.selectedDatasetId.set((event.target as HTMLSelectElement).value || null);
     this.report.set(null);
+    // Another dataset has other fields: the file's columns are matched again.
+    const file = this.selectedFile();
+    if (file) this.detectColumns(file);
   }
 
   onFileSelected(event: Event): void {
@@ -110,6 +131,37 @@ export class DataImportsPage implements OnInit {
       return;
     }
     this.selectedFile.set(file);
+    this.detectColumns(file);
+  }
+
+  /** Ask which header is which field; a template file needs nothing, any other gets a proposal. */
+  private detectColumns(file: File): void {
+    const dataset = this.selectedDataset();
+    this.proposal.set(null);
+    this.mapping.set({});
+    if (!dataset) return;
+    this.detecting.set(true);
+    this.transfer
+      .columnMapping(dataset.id, file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (proposal) => {
+          this.detecting.set(false);
+          if (this.selectedFile() !== file) return;
+          this.proposal.set(proposal);
+          this.mapping.set({ ...proposal.mapping });
+        },
+        // Without a proposal the file is imported as it is, and the import names any column it does not know.
+        error: () => this.detecting.set(false),
+      });
+  }
+
+  setMapping(header: string, key: string): void {
+    const next = { ...this.mapping() };
+    // One header per field: choosing a field another header had frees that one.
+    for (const [other, value] of Object.entries(next)) if (key && value === key) next[other] = null;
+    next[header] = key || null;
+    this.mapping.set(next);
   }
 
   downloadTemplate(): void {
@@ -131,7 +183,7 @@ export class DataImportsPage implements OnInit {
     this.busy.set(mode);
     this.report.set(null);
     this.transfer
-      .import(dataset.id, file, mode)
+      .import(dataset.id, file, mode, this.needsMapping() ? this.mapping() : null)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (report) => {
@@ -140,6 +192,7 @@ export class DataImportsPage implements OnInit {
           if (report.status === 'COMPLETED') {
             this.notifications.showSuccess('data_imports.imported', { count: report.importedRows });
             this.selectedFile.set(null);
+            this.proposal.set(null);
           } else if (report.status === 'VALIDATED') {
             this.notifications.showSuccess('data_imports.validated', { count: report.totalRows });
           }

@@ -83,6 +83,7 @@ export class DataTransferController {
     @UploadedFile(new ParseFilePipe({ validators: [new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 })] }))
     file: FastifyFile,
     @CurrentUser() user: AuthenticatedUser,
+    @Body('mapping') mapping?: string,
   ) {
     if (!/\.(csv|xlsx)$/i.test(file.originalname ?? '')) {
       throw new BadRequestError('data_transfer.unsupported_file_type');
@@ -95,7 +96,31 @@ export class DataTransferController {
       query.dataset,
       { originalname: file.originalname, mimetype: file.mimetype ?? '', buffer },
       query.mode ?? 'commit',
+      parseMapping(mapping),
     );
+  }
+
+  /** Which header of a file is which key, proposed for the person to confirm. Imports nothing. */
+  @Post('datasets/:dataset/column-mapping')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  @AuthenticatedOnly(
+    'Proponer el mapeo exige el mismo permiso que importar ese conjunto; DataTransferService lo comprueba antes de leer el archivo.',
+  )
+  @UseInterceptors(FastifyFileInterceptor('file'))
+  async columnMapping(
+    @Param() params: TemplateParamsDto,
+    @UploadedFile(new ParseFilePipe({ validators: [new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 })] }))
+    file: FastifyFile,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    if (!/\.(csv|xlsx)$/i.test(file.originalname ?? '')) {
+      throw new BadRequestError('data_transfer.unsupported_file_type');
+    }
+    const spooled = spooledUploadPath(file);
+    const buffer = file.buffer ?? (spooled ? await readFile(spooled) : undefined);
+    if (!buffer?.length) throw new BadRequestError('data_transfer.file_has_no_rows');
+    return this.transfer.proposeMapping(user, params.dataset, { originalname: file.originalname, mimetype: file.mimetype ?? '', buffer });
   }
 
   private send(res: Response, file: DataTransferFile): void {
@@ -106,4 +131,21 @@ export class DataTransferController {
       .header('Cache-Control', 'no-store')
       .send(file.body);
   }
+}
+
+/** The confirmed mapping, sent as JSON beside the file: `{"Nombre": "name", "Notas": null}`. */
+function parseMapping(raw: string | undefined): Record<string, string | null> | null {
+  if (!raw) return null;
+  let value: unknown;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    throw new BadRequestError('data_transfer.mapping_invalid');
+  }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new BadRequestError('data_transfer.mapping_invalid');
+  const entries = Object.entries(value as Record<string, unknown>);
+  if (entries.length > 200 || entries.some(([header, key]) => header.length > 200 || (key !== null && typeof key !== 'string'))) {
+    throw new BadRequestError('data_transfer.mapping_invalid');
+  }
+  return Object.fromEntries(entries) as Record<string, string | null>;
 }
