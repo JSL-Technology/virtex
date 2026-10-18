@@ -79,6 +79,11 @@ export interface ShortcutDefinition {
   groupId: 'create' | 'tabs' | 'layout' | 'general';
   /** The factory default binding(s). The user may override the first; the rest are alternates. */
   defaults: KeyChord[];
+  /**
+   * The binding in the desktop app, where the window is ours and the editor-style chords a browser
+   * keeps for itself (Ctrl+W, Ctrl+Shift+T, Ctrl+Tab) can be honoured. Absent: same as `defaults`.
+   */
+  desktopDefaults?: KeyChord[];
   /** Whether the reader may rebind it. Conventions (Esc, Ctrl+Tab cycling) are fixed. */
   editable: boolean;
   /** Present on create shortcuts: the route the shell navigates to. */
@@ -103,54 +108,63 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroupMeta[] = [
  * menu, the tab handler, the tab context menu, the help dialog, the stored overrides — reads from
  * here by id.
  *
- * ## The tab/layout defaults
+ * ## Why the web defaults are all `Alt+Shift` (QA A-14)
  *
- * Every tab-context-menu action gets a binding so the menu can show one and the keyboard can
- * invoke it. There is no natural single chord for "close others" or "split below", so the family
- * uses one coherent scheme — `mod+alt` plus a mnemonic key — chosen to avoid the browser's own
- * combos (`⌘⇧W` closes the window, `⌘D` bookmarks) and never to collide with each other or with
- * quick-create (`⌥⇧`-based). None of this is sacred: all of them are editable, so a reader who
- * dislikes a default simply rebinds it.
+ * The first defaults copied a desktop editor: Ctrl+W, Ctrl+Shift+T, Ctrl+Tab, Ctrl+Shift+A, and a
+ * family of Ctrl+Alt chords. In a browser the first four belong to the browser — Ctrl+W closes the
+ * BROWSER tab, with whatever was unsaved in it, and cannot be intercepted — and Ctrl+Alt is AltGr
+ * on the Spanish and Latin American Windows layouts this product is sold on, the key used to type
+ * `@`, `[`, `]`, `{`, `}` and `\`. So on the web every default is `Alt+Shift` plus a mnemonic
+ * key: free in Chrome, Edge, Firefox and Safari, never AltGr, and never fired while typing in a
+ * field (see `ShortcutsService.matches`). The desktop app, whose window is ours, keeps the
+ * editor-style chords through `desktopDefaults`. All of them remain editable.
  */
-export const SHORTCUT_DEFINITIONS: readonly ShortcutDefinition[] = [
-  { id: 'create.invoice', descriptionKey: 'actions.new_invoice', groupId: 'create', editable: true, route: '/invoices/new', defaults: [{ alt: true, shift: true, key: 'I', code: 'KeyI' }] },
-  { id: 'create.quote', descriptionKey: 'actions.new_quote', groupId: 'create', editable: true, route: '/quotes/new', defaults: [{ alt: true, shift: true, key: 'Q', code: 'KeyQ' }] },
-  { id: 'create.customer', descriptionKey: 'actions.new_customer', groupId: 'create', editable: true, route: '/contacts/customers/new', defaults: [{ alt: true, shift: true, key: 'C', code: 'KeyC' }] },
-  { id: 'create.product', descriptionKey: 'actions.new_product', groupId: 'create', editable: true, route: '/inventory/products/new', defaults: [{ alt: true, shift: true, key: 'P', code: 'KeyP' }] },
+const altShift = (key: string, code: string): KeyChord => ({ alt: true, shift: true, key, code });
 
-  { id: 'tabs.close', descriptionKey: 'main.shortcuts.close_tab', groupId: 'tabs', editable: true, defaults: [{ mod: true, key: 'W', code: 'KeyW' }] },
-  { id: 'tabs.close_others', descriptionKey: 'tabs.close_others', groupId: 'tabs', editable: true, defaults: [{ mod: true, alt: true, key: 'W', code: 'KeyW' }] },
-  { id: 'tabs.close_right', descriptionKey: 'tabs.close_right', groupId: 'tabs', editable: true, defaults: [{ mod: true, alt: true, key: ']', code: 'BracketRight' }] },
-  { id: 'tabs.close_all', descriptionKey: 'tabs.close_all', groupId: 'tabs', editable: true, defaults: [{ mod: true, alt: true, key: 'A', code: 'KeyA' }] },
-  { id: 'tabs.reopen', descriptionKey: 'main.shortcuts.reopen_tab', groupId: 'tabs', editable: true, defaults: [{ mod: true, shift: true, key: 'T', code: 'KeyT' }] },
-  { id: 'tabs.search', descriptionKey: 'main.shortcuts.search_tabs', groupId: 'tabs', editable: true, defaults: [{ mod: true, shift: true, key: 'A', code: 'KeyA' }] },
-  { id: 'tabs.duplicate', descriptionKey: 'tabs.duplicate', groupId: 'tabs', editable: true, defaults: [{ mod: true, alt: true, key: 'D', code: 'KeyD' }] },
-  { id: 'tabs.pin', descriptionKey: 'tabs.pin', groupId: 'tabs', editable: true, defaults: [{ mod: true, alt: true, key: 'P', code: 'KeyP' }] },
-  { id: 'tabs.preview_toggle', descriptionKey: 'tabs.preview_on_open', groupId: 'tabs', editable: true, defaults: [{ mod: true, alt: true, key: 'V', code: 'KeyV' }] },
+export const SHORTCUT_DEFINITIONS: readonly ShortcutDefinition[] = [
+  { id: 'create.invoice', descriptionKey: 'actions.new_invoice', groupId: 'create', editable: true, route: '/invoices/new', defaults: [altShift('I', 'KeyI')] },
+  { id: 'create.quote', descriptionKey: 'actions.new_quote', groupId: 'create', editable: true, route: '/quotes/new', defaults: [altShift('Q', 'KeyQ')] },
+  { id: 'create.customer', descriptionKey: 'actions.new_customer', groupId: 'create', editable: true, route: '/contacts/customers/new', defaults: [altShift('C', 'KeyC')] },
+  { id: 'create.product', descriptionKey: 'actions.new_product', groupId: 'create', editable: true, route: '/inventory/products/new', defaults: [altShift('P', 'KeyP')] },
+
+  { id: 'tabs.close', descriptionKey: 'main.shortcuts.close_tab', groupId: 'tabs', editable: true, defaults: [altShift('W', 'KeyW')], desktopDefaults: [{ mod: true, key: 'W', code: 'KeyW' }] },
+  { id: 'tabs.close_others', descriptionKey: 'tabs.close_others', groupId: 'tabs', editable: true, defaults: [altShift('O', 'KeyO')] },
+  { id: 'tabs.close_right', descriptionKey: 'tabs.close_right', groupId: 'tabs', editable: true, defaults: [altShift('End', 'End')] },
+  { id: 'tabs.close_all', descriptionKey: 'tabs.close_all', groupId: 'tabs', editable: true, defaults: [altShift('X', 'KeyX')] },
+  { id: 'tabs.reopen', descriptionKey: 'main.shortcuts.reopen_tab', groupId: 'tabs', editable: true, defaults: [altShift('T', 'KeyT')], desktopDefaults: [{ mod: true, shift: true, key: 'T', code: 'KeyT' }] },
+  { id: 'tabs.search', descriptionKey: 'main.shortcuts.search_tabs', groupId: 'tabs', editable: true, defaults: [altShift('A', 'KeyA')] },
+  { id: 'tabs.duplicate', descriptionKey: 'tabs.duplicate', groupId: 'tabs', editable: true, defaults: [altShift('D', 'KeyD')] },
+  { id: 'tabs.pin', descriptionKey: 'tabs.pin', groupId: 'tabs', editable: true, defaults: [altShift('G', 'KeyG')] },
+  { id: 'tabs.preview_toggle', descriptionKey: 'tabs.preview_on_open', groupId: 'tabs', editable: true, defaults: [altShift('V', 'KeyV')] },
   {
     id: 'tabs.next', descriptionKey: 'main.shortcuts.next_tab', groupId: 'tabs', editable: false,
-    defaults: [{ ctrl: true, key: 'Tab', code: 'Tab' }, { ctrl: true, key: 'Page Down', code: 'PageDown' }],
+    defaults: [altShift('Page Down', 'PageDown')],
+    desktopDefaults: [{ ctrl: true, key: 'Tab', code: 'Tab' }, { ctrl: true, key: 'Page Down', code: 'PageDown' }],
   },
   {
     id: 'tabs.previous', descriptionKey: 'main.shortcuts.previous_tab', groupId: 'tabs', editable: false,
-    defaults: [{ ctrl: true, shift: true, key: 'Tab', code: 'Tab' }, { ctrl: true, key: 'Page Up', code: 'PageUp' }],
+    defaults: [altShift('Page Up', 'PageUp')],
+    desktopDefaults: [{ ctrl: true, shift: true, key: 'Tab', code: 'Tab' }, { ctrl: true, key: 'Page Up', code: 'PageUp' }],
   },
 
-  { id: 'layout.split_right', descriptionKey: 'tabs.split_right', groupId: 'layout', editable: true, defaults: [{ mod: true, alt: true, key: '→', code: 'ArrowRight' }] },
-  { id: 'layout.split_below', descriptionKey: 'tabs.split_below', groupId: 'layout', editable: true, defaults: [{ mod: true, alt: true, key: '↓', code: 'ArrowDown' }] },
-  { id: 'layout.float', descriptionKey: 'tabs.float', groupId: 'layout', editable: true, defaults: [{ mod: true, alt: true, key: 'F', code: 'KeyF' }] },
-  { id: 'layout.popout', descriptionKey: 'tabs.pop_out_window', groupId: 'layout', editable: true, defaults: [{ mod: true, alt: true, key: 'O', code: 'KeyO' }] },
-  { id: 'layout.maximize', descriptionKey: 'tabs.maximise', groupId: 'layout', editable: true, defaults: [{ mod: true, alt: true, key: 'M', code: 'KeyM' }] },
+  { id: 'layout.split_right', descriptionKey: 'tabs.split_right', groupId: 'layout', editable: true, defaults: [altShift('S', 'KeyS')] },
+  { id: 'layout.split_below', descriptionKey: 'tabs.split_below', groupId: 'layout', editable: true, defaults: [altShift('B', 'KeyB')] },
+  { id: 'layout.float', descriptionKey: 'tabs.float', groupId: 'layout', editable: true, defaults: [altShift('F', 'KeyF')] },
+  { id: 'layout.popout', descriptionKey: 'tabs.pop_out_window', groupId: 'layout', editable: true, defaults: [altShift('U', 'KeyU')] },
+  { id: 'layout.maximize', descriptionKey: 'tabs.maximise', groupId: 'layout', editable: true, defaults: [altShift('M', 'KeyM')] },
 
   //  Global application shortcuts, after Teams' "General" group but kept to the ones an ERP
   //  actually has an action for — no meeting/compose/Copilot keys. All editable.
   { id: 'app.show_shortcuts', descriptionKey: 'main.shortcuts.show_shortcuts', groupId: 'general', editable: true, defaults: [{ mod: true, key: '.', code: 'Period' }] },
-  { id: 'app.search', descriptionKey: 'main.shortcuts.search', groupId: 'general', editable: true, defaults: [{ mod: true, key: 'E', code: 'KeyE' }] },
-  { id: 'app.settings', descriptionKey: 'nav.settings', groupId: 'general', editable: true, defaults: [{ mod: true, key: ',', code: 'Comma' }] },
+  //  Ctrl/⌘+K, the command-palette convention, rather than Ctrl+E, which Chrome and Edge use to
+  //  put the cursor in their own address bar.
+  { id: 'app.search', descriptionKey: 'main.shortcuts.search', groupId: 'general', editable: true, defaults: [{ mod: true, key: 'K', code: 'KeyK' }] },
+  //  ⌘, opens the BROWSER's settings on a Mac; Alt+Shift+, is free everywhere.
+  { id: 'app.settings', descriptionKey: 'nav.settings', groupId: 'general', editable: true, defaults: [altShift(',', 'Comma')], desktopDefaults: [{ mod: true, key: ',', code: 'Comma' }] },
   { id: 'app.help', descriptionKey: 'user.help', groupId: 'general', editable: true, defaults: [{ key: 'F1', code: 'F1' }] },
-  { id: 'app.back', descriptionKey: 'main.shortcuts.go_back', groupId: 'general', editable: true, defaults: [{ mod: true, key: '[', code: 'BracketLeft' }] },
-  { id: 'app.forward', descriptionKey: 'main.shortcuts.go_forward', groupId: 'general', editable: true, defaults: [{ mod: true, key: ']', code: 'BracketRight' }] },
-  { id: 'app.report_problem', descriptionKey: 'main.shortcuts.report_problem', groupId: 'general', editable: true, defaults: [{ mod: true, alt: true, shift: true, key: 'R', code: 'KeyR' }] },
+  { id: 'app.back', descriptionKey: 'main.shortcuts.go_back', groupId: 'general', editable: true, defaults: [altShift('←', 'ArrowLeft')], desktopDefaults: [{ mod: true, key: '[', code: 'BracketLeft' }] },
+  { id: 'app.forward', descriptionKey: 'main.shortcuts.go_forward', groupId: 'general', editable: true, defaults: [altShift('→', 'ArrowRight')], desktopDefaults: [{ mod: true, key: ']', code: 'BracketRight' }] },
+  { id: 'app.report_problem', descriptionKey: 'main.shortcuts.report_problem', groupId: 'general', editable: true, defaults: [altShift('R', 'KeyR')] },
 
   { id: 'general.dismiss', descriptionKey: 'main.shortcuts.dismiss', groupId: 'general', editable: false, defaults: [{ key: 'Esc', code: 'Escape' }] },
 ];
@@ -250,6 +264,9 @@ export function chordFromKeyboardEvent(event: KeyboardEvent, isMac: boolean): Ke
 
 /** Whether a keydown is the chord — exact modifiers, right physical key. */
 export function matchesChord(event: KeyboardEvent, chord: KeyChord, isMac: boolean): boolean {
+  // AltGr is a CHARACTER key on Spanish and Latin American layouts — it types @ [ ] { } \ — and on
+  // Windows it arrives as Ctrl+Alt. Nothing typed with it is ever a shortcut (QA A-14).
+  if (typeof event.getModifierState === 'function' && event.getModifierState('AltGraph')) return false;
   const codeOk = chord.code
     ? event.code === chord.code
     : chord.key.length === 1

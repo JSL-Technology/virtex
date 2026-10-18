@@ -1,0 +1,14 @@
+{{#> shell title=(t 'mail.account_locked.title' appName=appName) preheader=(t 'mail.account_locked.preheader' minutes=minutes)}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'mail.account_locked.heading'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.common.hello_name' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.account_locked.body' appName=appName minutes=minutes}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'mail.account_locked.if_it_was_you'}}</p>
+
+{{> button href=unlockUrl label=(t 'mail.account_locked.unlock_button')}}
+
+<p class="ink3" style="margin:0; font:400 14px/1.65 {{brand 'font'}}; color:{{brand 'ink3'}}; text-align:center;">{{t 'mail.account_locked.link_valid_for' hours=validHours}}</p>
+
+{{> link-fallback href=unlockUrl label=(t 'mail.common.if_button_does_not_work_copy')}}
+
+{{#> note}}{{t 'mail.account_locked.if_it_was_not_you'}} <a href="{{resetPasswordUrl}}" style="color:{{brand 'accentText'}};">{{t 'mail.account_locked.reset_password_link'}}</a>{{/note}}
+{{/shell}}

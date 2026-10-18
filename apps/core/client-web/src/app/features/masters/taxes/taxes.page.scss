@@ -4,3 +4,77 @@
 :host {
   @include list.list-page;
 }
+
+// Sales tax by state, for the markets with no national rate (QA C-06).
+.jurisdictional {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.jurisdictional__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.jurisdictional__title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+.jurisdictional__help,
+.jurisdictional__more,
+.jurisdictional__local {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.jurisdictional__local {
+  display: block;
+  font-size: var(--text-xs);
+}
+
+.jurisdictional__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+
+  p { margin: 0; }
+}
+
+.jurisdictional__empty-title { font-weight: 600; }
+
+.jurisdictional__form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
+  align-items: end;
+}
+
+.j-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+
+  span { font-weight: 500; }
+}
+
+.j-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.field-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--error-text);
+}

@@ -84,6 +84,7 @@ import { PushNotificationsModule } from './push-notifications/push-notifications
 import { BiModule } from './bi/bi.module';
 import { PaymentModule } from './payment/payment.module';
 import { GeoModule } from './geo/geo.module';
+import { LegalModule } from './legal/legal.module';
 import { CommonModule } from './common/common.module';
 import { SaasModule } from './saas/saas.module';
 import { ManufacturingModule } from './manufacturing/manufacturing.module';
@@ -358,6 +359,8 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
     BiModule,
     PaymentModule,
     GeoModule,
+    // Public legal pages' editions, support address and the market waitlist (QA C-08, A-13).
+    LegalModule,
     CommonModule,
     SaasModule,
     ManufacturingModule,

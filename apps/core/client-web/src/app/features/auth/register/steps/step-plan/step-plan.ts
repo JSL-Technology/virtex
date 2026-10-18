@@ -69,7 +69,22 @@ export class StepPlan {
       const code = this.countryService.currentCountry()?.countryCode;
       if (code) this.billingService.loadPlans(code);
     });
+
+    // Pre-select the plan the screen recommends, once the catalogue is in and only while nobody
+    // has chosen (QA A-11). A choice the person made — or a plan they no longer see — is kept.
+    effect(() => {
+      const plans = this.plans();
+      const control = this.group?.get('selectedPlanId');
+      if (!control || plans.length === 0) return;
+      const current = control.value as string;
+      if (current && plans.some((p) => p.id === current)) return;
+      const recommended = plans.find((p) => p.recommended) ?? plans[0];
+      control.setValue(recommended.id);
+    });
   }
+
+  /** The language prefix for the legal links, which open in a new tab outside the wizard. */
+  readonly lang = computed(() => this.languageService.currentLang());
 
   /** Real plans from the backend so prices/limits stay in sync with billing. */
   plans = computed<DisplayPlan[]>(() => {

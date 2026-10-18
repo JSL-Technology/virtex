@@ -20,8 +20,18 @@
 
   <div listEmpty class="empty-copy">
     @if (market() === 'OTHER') {
-      <p class="ls__state-title">{{ 'fiscal_returns.other_market_title' | translate }}</p>
-      <p class="ls__state-help">{{ 'fiscal_returns.other_market_help' | translate }}</p>
+      <!--
+        Honest and specific (QA C-06): it used to tell a US company that «the product generates the
+        DGII formats (Dominican Republic) and the SAT electronic accounting (Mexico)» — true, and of
+        no use to it. It now names the company's own country and the reports to prepare with.
+      -->
+      <p class="ls__state-title">{{ 'fiscal_returns.not_available_title' | translate: { country: countryName() } }}</p>
+      <p class="ls__state-help">{{ 'fiscal_returns.not_available_help' | translate }}</p>
+      <ul class="fr-reports">
+        @for (report of prepareWith(); track report.route) {
+          <li><a [routerLink]="report.route">{{ report.labelKey | translate }}</a></li>
+        }
+      </ul>
     } @else {
       <p class="ls__state-title">{{ 'fiscal_returns.future_year_title' | translate }}</p>
     }
@@ -43,7 +53,7 @@
             @for (kind of kinds(); track kind) {
               <th scope="col">{{ 'fiscal_returns.kinds.' + kind | translate }}</th>
             }
-            @if (market() === 'DO') {
+            @if (dueDay() !== null) {
               <th scope="col">{{ 'fiscal_returns.due' | translate }}</th>
             }
           </tr>
@@ -59,6 +69,7 @@
                     class="fr-cell"
                     [class.fr-cell--selected]="isSelected(kind, month)"
                     [attr.aria-pressed]="isSelected(kind, month)"
+                    [disabled]="state(kind, month) === 'not_applicable'"
                     (click)="select(kind, month)"
                   >
                     <vx-badge [tone]="tone(kind, month)">{{ 'fiscal_returns.states.' + state(kind, month) | translate }}</vx-badge>
@@ -68,8 +79,14 @@
                   </button>
                 </td>
               }
-              @if (market() === 'DO') {
-                <td>{{ dueDate(month) | vxDate: 'date' : true }}</td>
+              @if (dueDay() !== null) {
+                <td>
+                  @if (beforeActivity(month)) {
+                    <span aria-hidden="true">—</span>
+                  } @else {
+                    {{ dueDate(month) | vxDate: 'date' : true }}
+                  }
+                </td>
               }
             </tr>
           }

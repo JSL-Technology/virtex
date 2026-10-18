@@ -1,4 +1,6 @@
+import { inject } from '@angular/core';
 import { Routes, UrlSegment, UrlMatchResult } from '@angular/router';
+import { LanguageService } from './core/services/language';
 import { authGuard } from './core/guards/auth-guard';
 import { publicGuard } from './core/guards/public.guard';
 import { permissionsGuard } from './core/guards/permissions-guard';
@@ -13,6 +15,9 @@ import { buildModuleRoutes, resolveRoute } from './core/modules/module-registry'
 import { organizationRouteGuard } from './core/tenancy/organization-route.guard';
 
 // Only match 2-letter country codes so route segments like 'login' or 'auth' never bleed into :country
+/** The public legal pages, each at `/{lang}/{page}` (QA C-08). */
+export const LEGAL_PAGES = ['terms', 'privacy', 'security', 'contact'] as const;
+
 export function countryCodeMatcher(segments: UrlSegment[]): UrlMatchResult | null {
   if (segments.length > 0 && /^[a-zA-Z]{2}$/.test(segments[0].path)) {
     return { consumed: [segments[0]], posParams: { country: segments[0] } };
@@ -95,12 +100,30 @@ export const APP_ROUTES: Routes = [
     ]
   },
 
+  // 2b. Legal pages without a language (`/terms`, `/privacy`, `/security`, `/contact`).
+  // They were linked from every public footer and fell through to the sign-in page (QA C-08).
+  // Each now redirects to the same page under the reader's language, the one shape every public
+  // page has. Declared before the authenticated shell so its wildcard never sees them.
+  ...LEGAL_PAGES.map((page) => ({
+    path: page,
+    pathMatch: 'full' as const,
+    redirectTo: () => `/${inject(LanguageService).currentLanguage()}/${page}`,
+  })),
+
   // 3. Public language-prefixed routes (e.g. /es/auth/login).
   // MUST come before the authenticated `path: ''` shell below — see langCodeMatcher.
   {
     matcher: langCodeMatcher,
     canActivate: [languageInitGuard],
     children: [
+      // Terms, Privacy, Security and Contact, in the reader's language (QA C-08). Public, and
+      // reachable signed in too: a customer reviewing the terms they accepted is signed in.
+      ...LEGAL_PAGES.map((page) => ({
+        path: page,
+        title: `legal.${page}.title`,
+        data: { legalPage: page },
+        loadComponent: () => import('./features/legal/legal.page').then((m) => m.LegalPage),
+      })),
       // Country-specific public routes (e.g., /es/do/auth/register)
       // matcher ensures only 2-letter codes match — prevents 'login', 'auth', etc. from being treated as a country
       {
@@ -155,7 +178,29 @@ export const APP_ROUTES: Routes = [
                         loadComponent: () => import('./features/auth/login/login.page').then((m) => m.LoginPage),
                     },
                     {
+                        // Signup starts by ASKING the country (QA C-06, A-13). Every link
+                        // without one — the sign-in page's "Sign up", an abandoned checkout, a
+                        // URL naming a market the product does not serve — lands here instead of
+                        // on a country somebody assumed.
+                        path: 'register',
+                        title: 'auth.titles.choose_country',
+                        data: { authWidth: 'wide' },
+                        loadComponent: () =>
+                        import('./features/auth/country-picker/country-picker.page').then((m) => m.CountryPickerPage),
+                    },
+                    {
+                        // The lockout email's link (QA C-09). Reachable signed in too: the
+                        // person may be signed in on another device while this one is locked.
+                        path: 'unlock',
+                        title: 'auth.titles.unlock',
+                        data: { allowSignedIn: true },
+                        loadComponent: () =>
+                        import('./features/auth/unlock/unlock.page').then((m) => m.UnlockAccountPage),
+                    },
+                    {
                         path: 'forgot-password',
+                        // Its own document title (QA M-14): the tab read just «Virtex».
+                        title: 'auth.titles.forgot_password',
                         loadComponent: () =>
                         import('./features/auth/forgot-password/forgot-password/forgot-password.page').then(
                             (m) => m.ForgotPasswordPage
@@ -163,6 +208,7 @@ export const APP_ROUTES: Routes = [
                     },
                     {
                         path: 'reset-password',
+                        title: 'auth.titles.reset_password',
                         loadComponent: () =>
                         import('./features/auth/reset-password/reset-password.page/reset-password.page').then(
                             (m) => m.ResetPasswordPage

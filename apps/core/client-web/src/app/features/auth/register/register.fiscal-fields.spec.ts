@@ -178,6 +178,7 @@ describe('RegisterPage — DO fiscal field (production-shaped config)', () => {
     });
     component.business.patchValue({ companyName: 'Acme', industry: 'tech' });
     component.accountInfo.patchValue({ firstName: 'A', lastName: 'B', email: 'a@b.com' });
+    component.plan.patchValue({ agreeToTerms: true });
 
     component.onSubmit();
 

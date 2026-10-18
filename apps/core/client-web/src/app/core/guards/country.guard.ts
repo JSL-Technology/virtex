@@ -27,15 +27,25 @@ export class CountryGuard implements CanActivate {
   private router = inject(Router);
 
   /**
-   * Where an unusable URL goes.
+   * Where an unusable country URL goes: the country picker, never the sign-in page (QA A-13).
    *
-   * This used to be `/es/do/auth/login`, which is not a route: the country-prefixed branch of the
-   * router carries only `register`. The URL fell through to the global wildcard and bounced to
-   * `/es/auth/login` through a redirect chain nobody intended — it worked by accident. The
-   * sign-in page has no country segment, so the language alone is what belongs here.
+   * This used to send the visitor to `/{lang}/auth/login`. For a country the product does not
+   * serve, or a moment when the configuration could not be loaded, the signup button therefore
+   * looped back to sign-in without a word — the QA run hit it for Mexico, Colombia and Ecuador
+   * during an API hiccup, and for a visitor from Spain every time. The picker says which of the
+   * two happened, offers the countries that ARE served and a retry, and keeps whatever query
+   * string the visitor arrived with (an emailed magic link's token).
    */
-  private signInUrl(): UrlTree {
-    return this.router.createUrlTree([`/${this.languageService.currentLanguage()}/auth/login`]);
+  private pickerUrl(reason: 'unsupported' | 'failed', countryCode: string, state: RouterStateSnapshot): UrlTree {
+    const current = this.router.parseUrl(state.url);
+    return this.router.createUrlTree(['/', this.languageService.currentLanguage(), 'auth', 'register'], {
+      queryParams: { ...current.queryParams, [reason]: countryCode.toUpperCase() },
+    });
+  }
+
+  /** A route with no language or country at all: the picker, without a reason to report. */
+  private bareSignupUrl(): UrlTree {
+    return this.router.createUrlTree(['/', this.languageService.currentLanguage(), 'auth', 'register']);
   }
 
   canActivate(
@@ -46,30 +56,24 @@ export class CountryGuard implements CanActivate {
     const langCode = route.paramMap.get('lang');
 
     if (langCode) this.languageService.applyRouteLanguage(langCode);
-    if (!countryCode || !langCode) return this.signInUrl();
+    if (!countryCode || !langCode) return this.bareSignupUrl();
 
     return this.countryService.getCountryConfig(countryCode).pipe(
       map((config) => {
-        // The service answers with a default profile when the URL names a country it does not
-        // know, so a mismatch between what was asked for and what came back means the URL is
-        // wrong. Rewriting it — rather than rendering a Dominican form under `/mx/` — keeps the
-        // address bar and the form telling the same story.
+        // A configuration for a DIFFERENT country than the URL names means the one asked for is
+        // not served. This used to rewrite the URL to the other country — which is how a visitor
+        // from the UK landed on a Dominican form (QA C-06). The visitor chooses instead.
         if (config && config.countryCode.toLowerCase() !== countryCode.toLowerCase()) {
-          const segments = state.url.split('/');
-          if (segments.length > 2) {
-            segments[2] = config.countryCode.toLowerCase();
-            return this.router.parseUrl(segments.join('/'));
-          }
+          return this.pickerUrl('unsupported', countryCode, state);
         }
         return true;
       }),
       tap(() => this.geoService.checkAndNotifyMismatch(countryCode)),
-      catchError(() => {
-        // The configuration endpoint is unreachable. Sending the visitor to a country picked at
-        // random would be worse than sending them to sign-in, where the message is at least
-        // truthful about what happened.
-        return of(this.signInUrl());
-      }),
+      catchError((error: { status?: number } | undefined) =>
+        // 404 is the server saying the country is not one it registers tenants in; anything else
+        // is the configuration being unreachable right now, which a retry can fix.
+        of(this.pickerUrl(error?.status === 404 ? 'unsupported' : 'failed', countryCode, state)),
+      ),
     );
   }
 }

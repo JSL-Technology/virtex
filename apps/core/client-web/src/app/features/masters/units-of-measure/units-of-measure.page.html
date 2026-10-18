@@ -1,5 +1,6 @@
 <vx-list-shell
   titleKey="masters.units_of_measure.units_measure"
+  subtitleKey="masters.units_of_measure.subtitle"
   [count]="units().length"
   [loading]="loading()"
   [error]="error()"
@@ -7,36 +8,41 @@
   (reload)="load()"
 >
   @if (canManage()) {
-    <button listActions type="button" class="primary-button" appRequires="units_of_measure:manage" (click)="toggleCreate()">
+    <button listActions type="button" class="primary-button" (click)="toggleCreate()" [attr.aria-expanded]="creating()">
       <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
       <span>{{ 'masters.units_of_measure.new_unit' | translate }}</span>
     </button>
   }
 
   @if (creating()) {
-    <div listCreate class="inline-row card">
+    <form listCreate class="inline-row card" (ngSubmit)="save()">
       <label class="field">
         <span>{{ 'masters.units_of_measure.name' | translate }}</span>
-        <input id="uom-name" type="text" maxlength="60"
+        <input id="uom-name" name="name" type="text" maxlength="80" required
+          [placeholder]="'masters.units_of_measure.name_placeholder' | translate"
           [ngModel]="draftName()" (ngModelChange)="draftName.set($event)" />
       </label>
-      <label class="field">
+      <label class="field field--short">
         <span>{{ 'masters.units_of_measure.symbol' | translate }}</span>
-        <input id="uom-symbol" type="text" maxlength="12"
+        <input id="uom-symbol" name="symbol" type="text" maxlength="16" required autocapitalize="characters"
+          [placeholder]="'masters.units_of_measure.symbol_placeholder' | translate"
           [ngModel]="draftSymbol()" (ngModelChange)="draftSymbol.set($event)" />
       </label>
       <label class="field">
         <span>{{ 'masters.units_of_measure.type' | translate }}</span>
-        <input id="uom-category" type="text" maxlength="40"
-          [ngModel]="draftCategory()" (ngModelChange)="draftCategory.set($event)" />
+        <select id="uom-category" name="category" [ngModel]="draftCategory()" (ngModelChange)="draftCategory.set($event)">
+          @for (category of CATEGORIES; track category) {
+            <option [value]="category">{{ categoryLabel(category) }}</option>
+          }
+        </select>
       </label>
-      <button type="button" class="primary-button" [disabled]="!canSave()" (click)="save()">
+      <button type="submit" class="primary-button" [disabled]="!canSave()">
         {{ 'common.save' | translate }}
       </button>
       <button type="button" class="secondary-button" (click)="toggleCreate()">
         {{ 'common.cancel' | translate }}
       </button>
-    </div>
+    </form>
   }
 
   <div listEmpty class="empty-copy">
@@ -48,17 +54,31 @@
     <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
+          <th appSortHeader="category">{{ 'masters.units_of_measure.type' | translate }}</th>
           <th appSortHeader="name">{{ 'masters.units_of_measure.name' | translate }}</th>
           <th appSortHeader="symbol" class="text-center">{{ 'masters.units_of_measure.symbol' | translate }}</th>
-          <th appSortHeader="category">{{ 'masters.units_of_measure.type' | translate }}</th>
+          <th class="actions-column"><span class="sr-only">{{ 'common.actions' | translate }}</span></th>
         </tr>
       </thead>
       <tbody>
         @for (unit of table.rows(); track unit.id) {
           <tr>
-            <td>{{ unit.nameKey | translate }}</td>
+            <td>{{ categoryLabel(unit.category) }}</td>
+            <td>
+              {{ nameOf(unit) }}
+              @if (unit.scope === 'company') {
+                <vx-badge tone="info">{{ 'masters.units_of_measure.company_unit' | translate }}</vx-badge>
+              }
+            </td>
             <td class="text-center">{{ unit.symbol }}</td>
-            <td>{{ unit.category }}</td>
+            <td class="actions-column">
+              @if (unit.scope === 'company' && canManage()) {
+                <button type="button" class="icon-button delete" (click)="remove(unit)"
+                  [attr.aria-label]="'masters.units_of_measure.delete_named' | translate: { name: nameOf(unit) }">
+                  <lucide-icon [img]="TrashIcon" size="16" aria-hidden="true"></lucide-icon>
+                </button>
+              }
+            </td>
           </tr>
         }
       </tbody>

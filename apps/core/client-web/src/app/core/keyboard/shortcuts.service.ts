@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { PlatformService } from '../platform/platform.service';
+import { DesktopWindowService } from '../windows/desktop-window.service';
 import {
   KeyChord,
   ShortcutDefinition,
@@ -72,6 +73,12 @@ export const SHORTCUT_PRESETS: readonly ShortcutPreset[] = [
 @Injectable({ providedIn: 'root' })
 export class ShortcutsService {
   private readonly platform = inject(PlatformService);
+  private readonly desktop = inject(DesktopWindowService);
+
+  /** The factory binding for where we run: editor-style chords in the desktop app, browser-safe ones on the web. */
+  private defaultsOf(def: ShortcutDefinition): KeyChord[] {
+    return this.desktop.isDesktop() && def.desktopDefaults ? def.desktopDefaults : def.defaults;
+  }
 
   /** User overrides by id. The whole customisation state; everything else derives from it. */
   private readonly overrides = signal<Partial<Record<ShortcutId, KeyChord>>>(this.load());
@@ -111,7 +118,7 @@ export class ShortcutsService {
   effectiveChords(id: ShortcutId): KeyChord[] {
     const override = this.overrides()[id];
     if (override) return [override];
-    return this.definition(id).defaults;
+    return this.defaultsOf(this.definition(id));
   }
 
   /** The first chord bound to a shortcut — what a single chip shows (e.g. the context menu). */
@@ -122,7 +129,9 @@ export class ShortcutsService {
   /** Whether a keydown invokes a given shortcut, under the current platform. */
   matches(event: KeyboardEvent, id: ShortcutId): boolean {
     const isMac = this.platform.isMac();
-    return this.effectiveChords(id).some((chord) => matchesChord(event, chord, isMac));
+    return this.effectiveChords(id).some(
+      (chord) => matchesChord(event, chord, isMac) && !blockedWhileTyping(event, chord),
+    );
   }
 
   /** The create shortcut a keydown invokes, if any — the shell's handler navigates to its route. */
@@ -130,7 +139,7 @@ export class ShortcutsService {
     const isMac = this.platform.isMac();
     return (
       this.createShortcuts().find((view) =>
-        view.chords.some((chord) => matchesChord(event, chord, isMac)),
+        view.chords.some((chord) => matchesChord(event, chord, isMac) && !blockedWhileTyping(event, chord)),
       ) ?? null
     );
   }
@@ -195,7 +204,7 @@ export class ShortcutsService {
       descriptionKey: def.descriptionKey,
       editable: def.editable,
       route: def.route,
-      chords: override ? [override] : def.defaults,
+      chords: override ? [override] : this.defaultsOf(def),
       customized: Boolean(override),
     };
   }
@@ -210,7 +219,7 @@ export class ShortcutsService {
     const overrides = this.overrides();
     for (const def of SHORTCUT_DEFINITIONS) {
       if (def.id === exceptId) continue;
-      const chords = overrides[def.id] ? [overrides[def.id] as KeyChord] : def.defaults;
+      const chords = overrides[def.id] ? [overrides[def.id] as KeyChord] : this.defaultsOf(def);
       if (chords.some((other) => chordsEqual(other, chord))) return def;
     }
     return null;
@@ -234,4 +243,19 @@ export class ShortcutsService {
       /* storage full or blocked: the binding still works for this session. */
     }
   }
+}
+
+/**
+ * A chord without Ctrl/⌘ is not a shortcut while the reader is typing in a field (QA A-14).
+ *
+ * On a Mac, Option+Shift+letter TYPES a character, and Alt+Shift+arrow selects text everywhere, so
+ * an `Alt+Shift` chord fired from inside an input would steal a keystroke the reader meant for the
+ * field. Chords that carry Ctrl/⌘ are never characters and still work from anywhere.
+ */
+function blockedWhileTyping(event: KeyboardEvent, chord: KeyChord): boolean {
+  if (chord.mod || chord.ctrl) return false;
+  if (!chord.alt && !chord.shift) return false; // F1, Esc: not characters either
+  const target = event.target;
+  if (typeof HTMLElement === 'undefined' || !(target instanceof HTMLElement)) return false;
+  return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
 }

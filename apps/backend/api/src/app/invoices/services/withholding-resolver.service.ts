@@ -12,6 +12,7 @@ import {
   findWithholdingScheme,
 } from '../../localization/fiscal/withholding-regimes';
 import { BadRequestError } from '../../i18n/localized.exception';
+import { countryPackFor } from '../../contracts/country-pack/country-pack';
 
 /** What the server decided to withhold on a document, and why. */
 export interface ResolvedWithholding {
@@ -91,6 +92,8 @@ export class WithholdingResolverService {
       select: ['id', 'country'],
     });
     const countryCode = organization?.country ?? null;
+    const none = this.outsideWithholdingMarket(countryCode, request);
+    if (none) return none;
 
     const regimes = await this.regimesFor(manager, organizationId, countryCode, customer, scope);
     return this.reconcile(regimes, request, organizationId, `cliente ${customer.id}`);
@@ -122,6 +125,8 @@ export class WithholdingResolverService {
       select: ['id', 'country'],
     });
     const countryCode = organization?.country ?? null;
+    const none = this.outsideWithholdingMarket(countryCode, request);
+    if (none) return none;
 
     const regimes = await this.purchaseRegimesFor(
       manager,
@@ -174,6 +179,29 @@ export class WithholdingResolverService {
       : findWithholdingScheme(countryCode);
 
     return applicableRegimes(scheme, { payer, payee, scope });
+  }
+
+  /**
+   * Nothing, in a market with no withholding at source — and a refusal for a request that states
+   * some there.
+   *
+   * Whether a market withholds at source is its country pack's answer (`withholding.applies`). In
+   * the United States it does not: backup and non-resident withholding are payment-level and filed
+   * on Forms 1099 and 1042-S, never on an invoice. The forms no longer offer the fields there (QA
+   * C-06); a request that still carries a rate is refused rather than recorded as an «override» of
+   * a regime that does not exist. Null where the market withholds, so the caller resolves normally.
+   */
+  private outsideWithholdingMarket(
+    countryCode: string | null,
+    request: WithholdingRequest,
+  ): ResolvedWithholding | null {
+    // A tenant with no country is not known to be outside every regime; it resolves as before.
+    if (!countryCode || countryPackFor(countryCode).withholding.applies) return null;
+    const stated = [request.taxWithholdingRate, request.incomeTaxWithholdingRate].some(
+      (rate) => (rate ?? 0) > 0,
+    );
+    if (stated) throw new BadRequestError('invoices.withholding_not_in_market', { country: countryCode ?? '' });
+    return { taxWithholdingRate: 0, incomeTaxWithholdingRate: 0, regimeCodes: [] };
   }
 
   /**

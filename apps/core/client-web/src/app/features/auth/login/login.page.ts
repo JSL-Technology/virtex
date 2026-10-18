@@ -18,7 +18,8 @@ import { SocialAuthButtonsComponent } from '../components/social-auth-buttons/so
 import { PasskeyButtonComponent } from '../components/passkey-button/passkey-button.component';
 import { OtpComponent } from '../../../shared/components/otp/otp.component';
 import { BrandLogo } from '../../../shared/components/brand-logo/brand-logo';
-import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { AppError, ErrorHandlerService, retryAfterOf } from '../../../core/services/error-handler.service';
+import { relativeWait } from '../../../shared/utils/relative-wait';
 import { HttpErrorResponse } from '@angular/common/http';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
@@ -87,7 +88,14 @@ export class LoginPage implements OnInit {
   loginForm!: FormGroup;
   otpCodeControl = this.fb.control('', [Validators.required, Validators.minLength(6)]);
 
-  errorMessage = signal<string | null>(null);
+  /**
+   * The error banner: a catalogue key and the values it interpolates.
+   *
+   * A key and not a sentence, so the banner follows a language switch; with its params, because
+   * two of the messages it shows only help if they say HOW LONG — a locked account and a rate
+   * limit (QA C-09, M-14).
+   */
+  errorMessage = signal<{ key: string; params?: Record<string, unknown> } | null>(null);
 
   /**
    * Why the previous session ended, when it ended on its own.
@@ -120,7 +128,7 @@ export class LoginPage implements OnInit {
     this.route.queryParamMap.subscribe(params => {
       const error = params.get('error');
       if (error) {
-        this.errorMessage.set(this.mapSocialErrorCode(error));
+        this.errorMessage.set({ key: this.mapSocialErrorCode(error) });
       }
       this.notice.set(SIGN_OUT_NOTICE[params.get('reason') ?? ''] ?? null);
       // A federated sign-in (Google, Microsoft, the company IdP) succeeded, and the account's own
@@ -240,7 +248,7 @@ export class LoginPage implements OnInit {
         if (!environment.production) {
           console.warn('Passkey login failed', { status: (err as any)?.status });
         }
-        this.errorMessage.set('login.errors.passkey_error');
+        this.errorMessage.set({ key: 'login.errors.passkey_error' });
         this.isLoggingIn.set(false);
       });
   }
@@ -273,7 +281,7 @@ export class LoginPage implements OnInit {
         });
       },
       error: () => {
-        this.errorMessage.set('errors.internal');
+        this.errorMessage.set({ key: 'errors.internal' });
         this.isLoggingIn.set(false);
       }
     });
@@ -306,7 +314,7 @@ export class LoginPage implements OnInit {
         this.handleSuccess(user);
       },
       error: (err) => {
-        this.errorMessage.set('errors.auth_two_factor_invalid');
+        this.errorMessage.set({ key: 'errors.auth_two_factor_invalid' });
         this.isLoggingIn.set(false);
         if (this.otpComponent) {
              // We can use the translation service here if needed, or pass the key.
@@ -348,10 +356,32 @@ export class LoginPage implements OnInit {
    * other screen. A key is stored rather than a sentence so the message follows a language switch.
    */
   private handleError(err: unknown): void {
-    const response = err as HttpErrorResponse;
+    const response = err as HttpErrorResponse | AppError;
     if (!environment.production) {
       console.warn('Login failed', { status: response?.status });
     }
-    this.errorMessage.set(this.errors.keyFor(response));
+    const described = this.errors.describe(response);
+    const wait = described.retryAfterSeconds ?? retryAfterOf(response);
+    const when = wait ? relativeWait(wait, this.languageService.currentLocale()) : null;
+
+    // The right password on a locked account: say it is locked, for how long, and that a link to
+    // unlock it is in the inbox (QA C-09). A wrong password still gets the generic sentence — the
+    // server never sends this code for one.
+    if (described.code === 'AUTH_ACCOUNT_TEMPORARILY_LOCKED') {
+      this.errorMessage.set(
+        when
+          ? { key: 'login.errors.account_locked', params: { when } }
+          : { key: described.messageKey, params: described.params },
+      );
+      return;
+    }
+
+    // Rate-limited: "too many attempts" alone leaves the reader retrying into the same wall.
+    if (described.status === 429 && when) {
+      this.errorMessage.set({ key: 'login.errors.too_many_attempts_wait', params: { when } });
+      return;
+    }
+
+    this.errorMessage.set({ key: described.messageKey, params: described.params });
   }
 }

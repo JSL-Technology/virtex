@@ -225,6 +225,11 @@
     "en": "The customer could not be deleted.",
     "pt": "Não foi possível excluir o cliente."
   },
+  "contacts.customers.customer_deactivated": {
+    "es": "El cliente «{{name}}» quedó inactivo.",
+    "en": "The customer “{{name}}” is now inactive.",
+    "pt": "O cliente “{{name}}” agora está inativo."
+  },
   "contacts.customers.customer_deleted": {
     "es": "Cliente eliminado exitosamente.",
     "en": "Customer deleted.",
@@ -244,6 +249,16 @@
     "es": "Eliminar",
     "en": "Delete",
     "pt": "Excluir"
+  },
+  "contacts.customers.delete_blocked_message": {
+    "es": "«{{name}}» tiene {{summary}}. Los documentos fiscales se conservan, así que el cliente también. Puedes desactivarlo: dejará de aparecer al facturar y conservará su historial.",
+    "en": "“{{name}}” has {{summary}}. Fiscal documents are kept, so the customer is too. You can deactivate it: it stops appearing when invoicing and keeps its history.",
+    "pt": "“{{name}}” tem {{summary}}. Os documentos fiscais são mantidos, então o cliente também. Você pode desativá-lo: ele deixa de aparecer ao faturar e mantém seu histórico."
+  },
+  "contacts.customers.delete_blocked_title": {
+    "es": "Este cliente no se puede eliminar",
+    "en": "This customer can't be deleted",
+    "pt": "Este cliente não pode ser excluído"
   },
   "contacts.customers.edit": {
     "es": "Editar",
@@ -309,6 +324,16 @@
     "es": "Eliminar",
     "en": "Delete",
     "pt": "Excluir"
+  },
+  "contacts.suppliers.delete_blocked_message": {
+    "es": "«{{name}}» tiene {{summary}}. Esos documentos se conservan, así que el proveedor también.",
+    "en": "“{{name}}” has {{summary}}. Those documents are kept, so the supplier is too.",
+    "pt": "“{{name}}” tem {{summary}}. Esses documentos são mantidos, então o fornecedor também."
+  },
+  "contacts.suppliers.delete_blocked_title": {
+    "es": "Este proveedor no se puede eliminar",
+    "en": "This supplier can't be deleted",
+    "pt": "Este fornecedor não pode ser excluído"
   },
   "contacts.suppliers.edit": {
     "es": "Editar",

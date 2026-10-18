@@ -1,56 +1,55 @@
 import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { LucideAngularModule, PlusCircle } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle, Trash2 } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { UnitOfMeasure, UnitsOfMeasureService } from '../../../core/api/units-of-measure.service';
+import { UNIT_CATEGORIES } from '../data/units-of-measure.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { NotificationService } from '../../../core/services/notification';
+import { DialogService } from '../../../core/services/dialog.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
+import { VxBadgeComponent } from '../../../shared/components/badge';
+
+type Category = (typeof UNIT_CATEGORIES)[number];
 
 /**
  * The units products are counted, weighed and measured in.
  *
- * ## What this replaces
- *
- * Six invented units held in a signal — kilogram, gram, piece, unit, litre, metre — with no request
- * made and a "New" button wired to nothing, while `/units-of-measure` answered GET and POST and the
- * table held none. A product could not be given a unit this screen claimed to offer.
- *
- * The name is a catalogue key rather than text, because a unit's name is translated; where a key is
- * not seeded the missing-key handler renders its last segment, so a unit added by a tenant still
- * reads as words.
+ * Two sources, one list (QA M-18): the shared catalogue — unit, kilogram, metre — that every company
+ * has, and the company's own units — «saco de 50 kg», «bulto» — which «Nueva unidad» creates. The
+ * screen used to offer creating only to platform operators (the shared catalogue is theirs), so a
+ * company could not add the unit it sells by; and it listed everything by symbol without saying so,
+ * which put «Pie» and «Pie cuadrado» before «Gramo». Units are now grouped by category, in the
+ * catalogue's order, and sorted by name in the reader's own language.
  */
 @Component({
   selector: 'app-units-of-measure-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y],
+  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './units-of-measure.page.html',
   styleUrls: ['./units-of-measure.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UnitsOfMeasurePage implements OnInit {
   private readonly translate = inject(TranslateService);
-  /** Sortable by its headers (QA B-01). */
-  readonly table = sortable(() => this.units(), { name: (unit) => this.translate.instant(unit.nameKey) });
-  protected readonly PlusCircleIcon = PlusCircle;
-
   private readonly api = inject(UnitsOfMeasureService);
   private readonly auth = inject(AuthService);
-
-  /**
-   * Units of measure are shared by every tenant.
-   * Held only by platform operators: a tenant administrator's `'*'` does not reach it (see
-   * `hasPermission`), so the actions are not offered to someone the server would refuse.
-   */
-  readonly canManage = computed(() => this.auth.hasPermissions(['platform:reference_data:manage']));
   private readonly errors = inject(ErrorHandlerService);
   private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(DialogService);
+
+  protected readonly PlusCircleIcon = PlusCircle;
+  protected readonly TrashIcon = Trash2;
+  protected readonly CATEGORIES = UNIT_CATEGORIES;
+
+  /** A company's own units are managed by whoever manages its master data. */
+  readonly canManage = computed(() => this.auth.hasPermissions(['units_of_measure:manage']));
 
   readonly units = signal<UnitOfMeasure[]>([]);
   readonly loading = signal(true);
@@ -60,18 +59,41 @@ export class UnitsOfMeasurePage implements OnInit {
   readonly creating = signal(false);
   readonly draftName = signal('');
   readonly draftSymbol = signal('');
-  readonly draftCategory = signal('');
+  readonly draftCategory = signal<Category>('Units');
+
+  /** Category first (catalogue order), then name as the reader reads it. Headers still re-sort. */
+  readonly ordered = computed(() => {
+    const order = new Map<string, number>(UNIT_CATEGORIES.map((c, i) => [c, i]));
+    const collator = new Intl.Collator(this.translate.currentLang || 'es', { sensitivity: 'base' });
+    return [...this.units()].sort(
+      (a, b) =>
+        (order.get(a.category) ?? 99) - (order.get(b.category) ?? 99) ||
+        collator.compare(this.nameOf(a), this.nameOf(b)),
+    );
+  });
+
+  /** Sortable by its headers (QA B-01); the default order is the grouped one above. */
+  readonly table = sortable(() => this.ordered(), {
+    name: (unit) => this.nameOf(unit),
+    category: (unit) => this.categoryLabel(unit.category),
+  });
 
   readonly canSave = computed(
-    () =>
-      !this.saving() &&
-      this.draftName().trim().length > 0 &&
-      this.draftSymbol().trim().length > 0 &&
-      this.draftCategory().trim().length > 0,
+    () => !this.saving() && this.draftName().trim().length > 0 && /^[A-Za-z0-9][A-Za-z0-9-]*$/.test(this.draftSymbol().trim()),
   );
 
   ngOnInit(): void {
     this.load();
+  }
+
+  nameOf(unit: UnitOfMeasure): string {
+    return unit.name ?? (unit.nameKey ? this.translate.instant(unit.nameKey) : unit.symbol);
+  }
+
+  categoryLabel(category: string): string {
+    const key = `masters.units_of_measure.category.${category.toLowerCase()}`;
+    const text = this.translate.instant(key);
+    return text === key ? category : text;
   }
 
   load(): void {
@@ -79,7 +101,7 @@ export class UnitsOfMeasurePage implements OnInit {
     this.error.set(null);
     this.api.list().subscribe({
       next: (list) => {
-        this.units.set([...(list ?? [])].sort((a, b) => a.symbol.localeCompare(b.symbol)));
+        this.units.set(list ?? []);
         this.loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
@@ -98,10 +120,10 @@ export class UnitsOfMeasurePage implements OnInit {
     if (!this.canSave()) return;
     this.saving.set(true);
     this.api
-      .create({
-        symbol: this.draftSymbol().trim(),
-        category: this.draftCategory().trim(),
-        nameKey: unitNameKey(this.draftName()),
+      .createForCompany({
+        symbol: this.draftSymbol().trim().toUpperCase(),
+        name: this.draftName().trim(),
+        category: this.draftCategory(),
       })
       .subscribe({
         next: () => {
@@ -113,30 +135,33 @@ export class UnitsOfMeasurePage implements OnInit {
         },
         error: (err: HttpErrorResponse) => {
           this.saving.set(false);
-          this.notifications.showError(this.errors.keyFor(err));
+          this.notifications.showHttpError(err, 'masters.units_of_measure.create_failed');
         },
       });
+  }
+
+  async remove(unit: UnitOfMeasure): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'masters.units_of_measure.delete_title',
+      message: 'masters.units_of_measure.delete_message',
+      messageParams: { name: this.nameOf(unit), symbol: unit.symbol },
+      confirmText: 'common.delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+    this.api.removeForCompany(unit.id).subscribe({
+      next: () => {
+        this.notifications.showSuccess('masters.units_of_measure.deleted', { name: this.nameOf(unit) });
+        this.load();
+      },
+      // «Used by 3 products» — the server's own sentence, not a generic failure.
+      error: (err: HttpErrorResponse) => this.notifications.showHttpError(err, 'masters.units_of_measure.delete_failed'),
+    });
   }
 
   private resetDraft(): void {
     this.draftName.set('');
     this.draftSymbol.set('');
-    this.draftCategory.set('');
+    this.draftCategory.set('Units');
   }
-}
-
-/**
- * `Caja de 12` becomes `uom.caja_de_12`.
- *
- * The column is a catalogue key, so what the user typed has to become one. Same normalisation the
- * catalogue itself uses: lower snake, no punctuation.
- */
-export function unitNameKey(name: string): string {
-  const slug = name
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^A-Za-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .toLowerCase();
-  return `uom.${slug}`;
 }

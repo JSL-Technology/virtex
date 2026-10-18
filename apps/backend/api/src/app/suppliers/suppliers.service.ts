@@ -12,7 +12,7 @@ import { IdentityDocumentService } from '../localization/services/identity-docum
 import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
 import { likeTerm } from '../common/database/search-term';
 
-import { assertNoDependents, DependentReference } from '../common/database/dependents';
+import { assertNoDependents, countDependents, DependentCount, DependentReference } from '../common/database/dependents';
 
 const SUPPLIER_DEPENDENTS: readonly DependentReference[] = [
   { table: 'vendor_bills', column: 'vendor_id', label: 'common.dependents.vendor_bills' },
@@ -204,6 +204,21 @@ export class SuppliersService {
    * and still be unable to create one. Both happen in the same transaction, so a failed delete
    * cannot hand out free quota.
    */
+  /**
+   * What still uses this record, asked BEFORE offering to delete it (QA A-08).
+   *
+   * The delete already refuses when documents point here, but the reader only learned that after
+   * confirming, from a generic error. Asking first lets the screen say «2 invoices and 1 receipt use
+   * this record» and offer to deactivate it instead.
+   */
+  async dependents(id: string, organizationId: string): Promise<{ dependents: DependentCount[] }> {
+    const record = await this.findOne(id, organizationId);
+    const dependents = await this.dataSource.transaction((manager) =>
+      countDependents(manager, record.id, SUPPLIER_DEPENDENTS),
+    );
+    return { dependents };
+  }
+
   async remove(id: string, organizationId: string): Promise<void> {
     const supplier = await this.findOne(id, organizationId);
     await this.dataSource.transaction(async (manager) => {

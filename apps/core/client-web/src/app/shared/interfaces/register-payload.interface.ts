@@ -51,11 +51,11 @@ export interface RegisterPayload {
     phoneVerificationCode?: string;
 
     /**
-     * Honeypot. Hidden from people, offered to bots.
-     *
-     * Present in the type so it cannot be dropped from the payload again: the control existed in
-     * the form and was rendered nowhere, so nothing ever submitted it and the server's honeypot
-     * branch — which answers a hit with a believable success and no session — was dead code.
+     * Acceptance of the Terms of service and the Privacy policy, and the editions accepted
+     * (QA C-07). The server refuses a signup without them, or with an edition that is no longer in
+     * force, and records when and from where they were accepted.
      */
-    fax?: string;
+    acceptTerms: boolean;
+    termsVersion: string;
+    privacyVersion: string;
 }

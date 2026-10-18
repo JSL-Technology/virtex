@@ -2,4 +2,61 @@
 
 :host {
   @include list.list-page;
+
+  .pm-note {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+  }
+
+  .pm-editor {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .pm-editor__title {
+    margin: 0;
+    font-size: var(--text-base);
+    font-weight: 600;
+  }
+
+  .pm-editor__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .pm-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+
+    span { font-weight: 500; }
+  }
+
+  .pm-field__hint {
+    color: var(--text-secondary);
+    font-size: var(--text-xs);
+  }
+
+  .pm-editor__actions,
+  .row-actions {
+    display: flex;
+    gap: var(--space-2);
+    justify-content: flex-end;
+  }
+
+  .pm-editor__actions { justify-content: flex-start; }
+
+  tr.is-retired td { color: var(--text-secondary); }
+
+  .field-error {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--error-text);
+  }
 }

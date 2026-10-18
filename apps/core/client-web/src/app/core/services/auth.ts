@@ -125,6 +125,23 @@ const SESSION_RESOLUTION_TIMEOUT_MS = 15_000;
 /** How long a failed session check is trusted before the next navigation asks the API again. */
 const SESSION_RETRY_AFTER_MS = 5_000;
 
+/**
+ * What `register-confirm` answers: the new session's user, and the subscription it opened.
+ *
+ * The subscription travels so the landing screen can say what actually happened — a trial with
+ * nothing charged until a date, or a paid first period — instead of "Payment confirmed" to
+ * somebody who was promised a free trial (QA A-11).
+ */
+export interface RegistrationConfirmation {
+  user: User;
+  subscription?: {
+    status: string | null;
+    trial: boolean;
+    currentPeriodEnd: string | null;
+    planSlug: string | null;
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -408,16 +425,13 @@ export class AuthService {
    * Finalizes signup after returning from Stripe Checkout. The backend creates
    * the account and sets auth cookies (auto-login); we hydrate the session.
    */
-  confirmRegistration(sessionId: string): Observable<User> {
+  confirmRegistration(sessionId: string): Observable<RegistrationConfirmation> {
     return this.http
-      .post<{ user: User }>(`${this.apiUrl}/register-confirm`, { sessionId }, {
+      .post<RegistrationConfirmation>(`${this.apiUrl}/register-confirm`, { sessionId }, {
         withCredentials: true,
         context: new HttpContext().set(IS_PUBLIC_API, true),
       })
-      .pipe(
-        map((response) => response.user),
-        tap((user) => this.applyAuthenticated(user)),
-      );
+      .pipe(tap((response) => this.applyAuthenticated(response.user)));
   }
 
   // Re-authentication travels as the httpOnly step-up cookie, not as a password in the body.
@@ -837,6 +851,17 @@ export class AuthService {
    * @param password La nueva contraseña.
    * @param twoFactorCode Código TOTP o de respaldo, si la cuenta tiene 2FA activo.
    */
+  /**
+   * Lift a sign-in lockout with the token from the emailed link (QA C-09). Signs nobody in.
+   */
+  unlockAccount(token: string): Observable<{ messageKey: string }> {
+    return this.http
+      .post<{ messageKey: string }>(`${this.apiUrl}/unlock-account`, { token }, {
+        context: new HttpContext().set(IS_PUBLIC_API, true),
+      })
+      .pipe(catchError((err) => this.errorHandlerService.handleError('unlockAccount', err)));
+  }
+
   resetPassword(token: string, password: string, twoFactorCode?: string): Observable<User> {
     const url = `${this.apiUrl}/reset-password`;
     return this.http

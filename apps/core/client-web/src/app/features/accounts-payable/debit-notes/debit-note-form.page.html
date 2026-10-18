@@ -48,11 +48,13 @@
           <span>{{ 'accounts_payable.debit_notes.tax_amount' | translate }}</span>
           <input id="note-tax" type="number" step="0.01" min="0" formControlName="taxAmount" />
         </label>
-        <label class="field" for="note-ncf">
-          <span>{{ 'accounts_payable.debit_notes.ncf' | translate }}</span>
-          <input id="note-ncf" type="text" maxlength="19" formControlName="ncf"
-                 [placeholder]="'accounts_payable.debit_notes.ncf_placeholder' | translate" />
-        </label>
+        @if (supplierFiscalNumber()) {
+          <label class="field" for="note-ncf">
+            <span>{{ 'accounts_payable.debit_notes.ncf' | translate }}</span>
+            <input id="note-ncf" type="text" maxlength="19" formControlName="ncf"
+                   [placeholder]="'accounts_payable.debit_notes.ncf_placeholder' | translate" />
+          </label>
+        }
         <label class="field field--wide" for="note-account">
           <span>{{ 'accounts_payable.debit_notes.counterpart' | translate }} *</span>
           <vx-select

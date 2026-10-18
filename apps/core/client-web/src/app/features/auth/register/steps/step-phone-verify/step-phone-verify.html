@@ -5,33 +5,52 @@
     </div>
     <h3 class="verify-title">{{ 'auth.step_phone_verify.confirm_your_mobile_number' | translate }}</h3>
     <!-- Only once the code has really gone out: it used to claim "we sent an SMS" above the very
-         error that said it could not be sent. -->
-    <p class="verify-subtitle" *ngIf="hasPhone && !isSending() && codeSent() && !sendError()">
+         error that said it could not be sent. The number is shown as its country writes it. -->
+    <p class="verify-subtitle" *ngIf="hasPhone && !isSending() && codeSent() && !sendFailure()">
       {{ 'auth.step_phone_verify.we_sent_sms_with_code' | translate }}
-      <strong>{{ phone }}</strong>
+      <strong>{{ displayPhone() }}</strong>
     </p>
     <p class="verify-subtitle" *ngIf="hasPhone && isSending()">
       <lucide-icon [img]="LoaderIcon" size="14" class="spin"></lucide-icon>
-      {{ 'auth.step_phone_verify.sending_sms_phone' | translate: { phone: phone } }}
+      {{ 'auth.step_phone_verify.sending_sms_phone' | translate: { phone: displayPhone() } }}
     </p>
     <p class="verify-subtitle" *ngIf="!hasPhone">
       {{ 'auth.step_phone_verify.optional_skip' | translate }}
     </p>
   </div>
 
-  <div *ngIf="sendError()" class="send-error" role="alert">
+  <!-- The cause, and the wait when waiting helps (QA A-10). -->
+  <div *ngIf="sendFailure() as failure" class="send-error" role="alert">
     <lucide-icon [img]="AlertCircleIcon" size="14"></lucide-icon>
-    {{ sendError()! | translate }}
+    <span>{{ failure.key | translate: failure.params }}</span>
     <!-- A channel that is down will not come back by pressing a button; retry is offered only for
          failures a retry can fix. -->
-    <button *ngIf="!channelDown()" type="button" class="retry-btn" (click)="sendCode()">{{ 'auth.step_phone_verify.try_again' | translate }}</button>
+    <button *ngIf="failure.retryable" type="button" class="retry-btn" (click)="sendCode()">{{ 'auth.step_phone_verify.try_again' | translate }}</button>
   </div>
 
-  <p *ngIf="channelDown()" class="verify-subtitle">
-    {{ 'auth.step_phone_verify.sms_unavailable_continue' | translate }}
-  </p>
+  <!--
+    Alternatives when the SMS cannot be used now. The email is already verified (step 2), so the
+    account is proven either way; what changes is what happens to the number.
+  -->
+  <div *ngIf="sendFailure()" class="alternatives">
+    <p class="alternatives-title">{{ 'auth.step_phone_verify.alternatives_title' | translate }}</p>
+    <button type="button" class="alternative" (click)="skip('later')">
+      <lucide-icon [img]="ClockIcon" size="16"></lucide-icon>
+      <span>
+        <strong>{{ 'auth.step_phone_verify.verify_later' | translate }}</strong>
+        <small>{{ 'auth.step_phone_verify.verify_later_hint' | translate }}</small>
+      </span>
+    </button>
+    <button type="button" class="alternative" (click)="skip('email')">
+      <lucide-icon [img]="MailIcon" size="16"></lucide-icon>
+      <span>
+        <strong>{{ 'auth.step_phone_verify.use_email_instead' | translate }}</strong>
+        <small>{{ 'auth.step_phone_verify.use_email_instead_hint' | translate }}</small>
+      </span>
+    </button>
+  </div>
 
-  <div *ngIf="codeSent() && !sendError()">
+  <div *ngIf="codeSent() && !sendFailure()">
     <app-otp
       [title]="'auth.step_phone_verify.sms_verification_code' | translate"
       [description]="'auth.step_phone_verify.enter_digit_code_we_sent_your' | translate"
@@ -41,5 +60,10 @@
       (verify)="onVerify($event)"
       (resend)="onResend()">
     </app-otp>
+
+    <!-- A quiet way out even when nothing failed: the SMS may simply not be arriving. -->
+    <button type="button" class="later-link" (click)="skip('later')">
+      {{ 'auth.step_phone_verify.not_receiving_verify_later' | translate }}
+    </button>
   </div>
 </div>

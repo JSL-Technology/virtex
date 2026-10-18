@@ -1,3 +1,4 @@
+import { CountryPack, countryPackFor } from '../../contracts/country-pack/country-pack';
 
 /**
  * The working data a company starts with, beyond its books.
@@ -76,37 +77,6 @@ export const UNITS_OF_MEASURE: ReadonlyArray<{ symbol: string; category: string;
   { symbol: 'MES', category: 'Time', nameKey: 'uom.month' },
 ];
 
-/**
- * Payroll concepts for the Dominican engine — the only jurisdiction with a payroll strategy.
- *
- * The statutory rows (AFP, SFS, ISR) carry no amount: the engine computes them from the versioned
- * parameters. They exist so the payslip names them and an account can be attached. The others are
- * the lines a Dominican payroll uses in its first month: overtime at the Labour Code's premiums,
- * the night premium, a bonus, a commission, a loan repayment and an advance.
- */
-const DO_PAYROLL_CONCEPTS: ReadonlyArray<{
-  code: string;
-  nameKey: string;
-  type: 'EARNING' | 'DEDUCTION' | 'EMPLOYER_CONTRIBUTION';
-  calculation: 'FIXED' | 'PERCENTAGE' | 'HOURLY' | 'STATUTORY';
-  rate: number | null;
-  taxable: boolean;
-  contributesToTss: boolean;
-  sortOrder: number;
-  isSystem: boolean;
-}> = [
-  { code: 'HE35', nameKey: 'payroll.concepts.seed.overtime_35', type: 'EARNING', calculation: 'HOURLY', rate: 1.35, taxable: true, contributesToTss: true, sortOrder: 20, isSystem: false },
-  { code: 'HE100', nameKey: 'payroll.concepts.seed.overtime_100', type: 'EARNING', calculation: 'HOURLY', rate: 2, taxable: true, contributesToTss: true, sortOrder: 21, isSystem: false },
-  { code: 'NOCT', nameKey: 'payroll.concepts.seed.night_premium', type: 'EARNING', calculation: 'HOURLY', rate: 0.15, taxable: true, contributesToTss: true, sortOrder: 22, isSystem: false },
-  { code: 'BONO', nameKey: 'payroll.concepts.seed.bonus', type: 'EARNING', calculation: 'FIXED', rate: null, taxable: true, contributesToTss: false, sortOrder: 30, isSystem: false },
-  { code: 'COMISION', nameKey: 'payroll.concepts.seed.commission', type: 'EARNING', calculation: 'FIXED', rate: null, taxable: true, contributesToTss: true, sortOrder: 31, isSystem: false },
-  { code: 'AFP', nameKey: 'payroll.concepts.seed.afp', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 200, isSystem: true },
-  { code: 'SFS', nameKey: 'payroll.concepts.seed.sfs', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 201, isSystem: true },
-  { code: 'ISR', nameKey: 'payroll.concepts.seed.isr', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 210, isSystem: true },
-  { code: 'PRESTAMO', nameKey: 'payroll.concepts.seed.loan_repayment', type: 'DEDUCTION', calculation: 'FIXED', rate: null, taxable: false, contributesToTss: false, sortOrder: 300, isSystem: false },
-  { code: 'ANTICIPO', nameKey: 'payroll.concepts.seed.salary_advance', type: 'DEDUCTION', calculation: 'FIXED', rate: null, taxable: false, contributesToTss: false, sortOrder: 301, isSystem: false },
-];
-
 /** The global unit-of-measure catalogue. Idempotent on the symbol. */
 export async function seedUnitsOfMeasure(runner: SqlRunner): Promise<void> {
   for (const unit of UNITS_OF_MEASURE) {
@@ -119,8 +89,30 @@ export async function seedUnitsOfMeasure(runner: SqlRunner): Promise<void> {
   }
 }
 
-/** Seed one tenant's working defaults. Safe to run any number of times. */
+/**
+ * Seed one tenant's defaults: its working data, its payment methods and its payroll parameters.
+ * Safe to run any number of times. What provisioning runs.
+ */
 export async function seedTenantDefaults(
+  runner: SqlRunner,
+  context: TenantDefaultsContext,
+  translate: Translate,
+): Promise<void> {
+  await seedTenantWorkingDefaults(runner, context, translate);
+  const t = (key: string) => translate(key, seedLanguage(context.booksLanguage));
+  const pack = countryPackFor(context.country);
+  await seedPaymentMethods(runner, context.organizationId, pack, t);
+  await seedCompanyPayrollParameters(runner, context.organizationId, pack, context.baseCurrency, t);
+}
+
+/**
+ * The working data alone: the default customer, a category, the till and the payroll concepts.
+ *
+ * Split from {@link seedTenantDefaults} because `TenantWorkingDefaults1789009800000` backfills
+ * exactly these, and on a fresh database it runs before the migration that creates the payment
+ * method and company payroll parameter tables (`CountryPacks1789010300000`), which backfills those.
+ */
+export async function seedTenantWorkingDefaults(
   runner: SqlRunner,
   context: TenantDefaultsContext,
   translate: Translate,
@@ -130,14 +122,18 @@ export async function seedTenantDefaults(
   const { organizationId } = context;
   const country = context.country?.toUpperCase() ?? null;
 
-  // «Consumidor final»: the buyer of every sale that names nobody. In the Dominican Republic it is
-  // also what a consumer invoice (E32) is issued to below the identification threshold. One per
-  // company, enforced by the partial unique index on `is_final_consumer`.
+  // The buyer of every sale that names nobody, under the name its market gives it: «Consumidor
+  // final» in the Dominican Republic — where it is also what a consumer invoice (E32) is issued to
+  // below the identification threshold —, «Público en general» in Mexico, the SAT's own term, and a
+  // «Walk-in customer» in the United States (QA C-06: an English-speaking US company was handed
+  // «Consumidor final»). One per company, enforced by the partial unique index on
+  // `is_final_consumer`.
   //
   // A customer of that name with no tax id is adopted first rather than duplicated: a company that
-  // already created its own «Consumidor final» by hand, or a database migrated down and up again,
-  // keeps one, with its history.
-  const finalConsumerName = t('ledger.provisioning.final_consumer');
+  // already created its own by hand, or a database migrated down and up again, keeps one, with its
+  // history.
+  const pack = countryPackFor(country);
+  const finalConsumerName = t(pack.defaultCustomer.nameKey);
   await runner.query(
     `UPDATE "customers" SET "is_final_consumer" = true
       WHERE "id" = (
@@ -175,27 +171,103 @@ export async function seedTenantDefaults(
     );
   }
 
-  if (country === 'DO') {
-    for (const concept of DO_PAYROLL_CONCEPTS) {
-      await runner.query(
-        `INSERT INTO "payroll_concepts"
-           ("organization_id", "code", "name", "type", "calculation", "rate", "taxable",
-            "contributes_to_tss", "sort_order", "active", "is_system")
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true, $10)
-         ON CONFLICT DO NOTHING`,
-        [
-          organizationId,
-          concept.code,
-          t(concept.nameKey),
-          concept.type,
-          concept.calculation,
-          concept.rate,
-          concept.taxable,
-          concept.contributesToTss,
-          concept.sortOrder,
-          concept.isSystem,
-        ],
-      );
-    }
+  // The payroll lines the market's payroll uses in its first month (the Dominican engine's AFP, SFS
+  // and ISR; the US FICA, Medicare and income-tax lines), from its pack. A market whose pack names
+  // none gets none: an empty list is honest, a borrowed one is the defect.
+  for (const concept of pack.payroll.concepts) {
+    await runner.query(
+      `INSERT INTO "payroll_concepts"
+         ("organization_id", "code", "name", "type", "calculation", "rate", "taxable",
+          "contributes_to_tss", "sort_order", "active", "is_system")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true, $10)
+       ON CONFLICT DO NOTHING`,
+      [
+        organizationId,
+        concept.code,
+        t(concept.nameKey),
+        concept.type,
+        concept.calculation,
+        concept.rate,
+        concept.taxable,
+        concept.contributesToTss,
+        concept.sortOrder,
+        concept.isSystem,
+      ],
+    );
+  }
+}
+
+/**
+ * The payment methods the market starts with (QA C-06).
+ *
+ * The DGII's seven codes for a Dominican company, marked `is_system` because the authority owns
+ * them; ACH, wire, check, card, Zelle and cash for a US company; SAT's `c_FormaPago`, DIAN's «medios
+ * de pago», PIX and boleto where those are how the market pays. Idempotent on the code, so a company
+ * that already has a method of that code — seeded or its own — keeps it as it is.
+ */
+export async function seedPaymentMethods(
+  runner: SqlRunner,
+  organizationId: string,
+  pack: CountryPack,
+  t: (key: string) => string,
+): Promise<void> {
+  const fixed = pack.paymentMethods.catalogue === 'AUTHORITY_FIXED';
+  for (const [index, method] of pack.paymentMethods.defaults.entries()) {
+    await runner.query(
+      `INSERT INTO "payment_methods"
+         ("organization_id", "code", "name", "kind", "fiscal_code", "is_system", "is_active", "sort_order")
+       VALUES ($1, $2, $3, $4, $5, $6, true, $7)
+       ON CONFLICT ("organization_id", "code") DO NOTHING`,
+      [organizationId, method.code, t(method.nameKey), method.kind, method.fiscalCode, fixed, (index + 1) * 10],
+    );
+  }
+}
+
+/**
+ * The payroll figures a company keeps for itself, as editable statutory defaults (QA C-06).
+ *
+ * Only for a market whose pack says the company keeps them (`statutoryParameters: 'COMPANY'`); the
+ * Dominican rates are the platform's and live in the global statutory tables. Idempotent on
+ * (code, effective date): a company that already recorded a figure for that date keeps its own, and
+ * next year's defaults are added beside this year's rather than over them.
+ */
+export async function seedCompanyPayrollParameters(
+  runner: SqlRunner,
+  organizationId: string,
+  pack: CountryPack,
+  currency: string,
+  t: (key: string) => string,
+): Promise<void> {
+  if (pack.payroll.statutoryParameters !== 'COMPANY') return;
+  for (const parameter of pack.payroll.parameters) {
+    await runner.query(
+      `INSERT INTO "payroll_company_parameters"
+         ("organization_id", "country_code", "code", "name", "kind", "employee_rate", "employer_rate",
+          "wage_base", "threshold", "credit_rate", "amount", "currency_code", "effective_from",
+          "source", "legal_basis", "requires_input", "active")
+       SELECT $1::uuid, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::numeric, $7::numeric,
+              $8::numeric, $9::numeric, $10::numeric, $11::numeric, $12::varchar, $13::date,
+              'STATUTORY_DEFAULT', $14::varchar, $15::boolean, true
+        WHERE NOT EXISTS (
+          SELECT 1 FROM "payroll_company_parameters"
+           WHERE "organization_id" = $1::uuid AND "code" = $3::varchar AND "effective_from" = $13::date)`,
+      [
+        organizationId,
+        pack.countryCode,
+        parameter.code,
+        t(parameter.nameKey),
+        parameter.kind,
+        parameter.employeeRate ?? null,
+        parameter.employerRate ?? null,
+        parameter.wageBase ?? null,
+        parameter.threshold ?? null,
+        parameter.creditRate ?? null,
+        parameter.amount ?? null,
+        currency,
+        parameter.effectiveFrom,
+        parameter.legalBasis,
+        parameter.requiresInput === true,
+      ],
+    );
   }
 }

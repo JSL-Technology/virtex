@@ -79,6 +79,11 @@
     "en": "That confirmation link has expired or isn't valid. Enter the code by hand instead.",
     "pt": "O link de confirmação expirou ou é inválido. Digite o código manualmente."
   },
+  "register.errors.email_exists": {
+    "es": "Este correo ya está registrado.",
+    "en": "This email is already registered.",
+    "pt": "Este e-mail já está cadastrado."
+  },
   "register.errors.email_invalid": {
     "es": "Escribe un correo electrónico válido.",
     "en": "Enter a valid email address.",
@@ -235,9 +240,9 @@
     "pt": "País do telefone"
   },
   "register.phone_placeholder": {
-    "es": "Ej. 809 555 5555",
-    "en": "e.g. 809 555 5555",
-    "pt": "Ex.: 11 95555-5555"
+    "es": "Ej. {{example}}",
+    "en": "e.g. {{example}}",
+    "pt": "Ex.: {{example}}"
   },
   "register.privacy": {
     "es": "Política de privacidad",
@@ -462,7 +467,7 @@
   "register.submit_button": {
     "es": "Registrarse",
     "en": "Sign up",
-    "pt": "Cadastrar"
+    "pt": "Cadastrar-se"
   },
   "register.taxid_format": {
     "es": "Formato esperado: {{example}}",
@@ -473,6 +478,11 @@
     "es": "Términos de servicio",
     "en": "Terms of service",
     "pt": "Termos de serviço"
+  },
+  "register.terms_required_hint": {
+    "es": "Para crear la cuenta, marca la casilla de aceptación de los Términos y la Política de privacidad.",
+    "en": "To create the account, tick the box to accept the Terms and the Privacy policy.",
+    "pt": "Para criar a conta, marque a caixa de aceite dos Termos e da Política de privacidade."
   },
   "register.title": {
     "es": "Crear cuenta",

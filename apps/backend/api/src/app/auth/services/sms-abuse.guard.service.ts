@@ -3,7 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-import { ForbiddenError, ServiceUnavailableError } from '../../i18n/localized.exception';
+import { ForbiddenError, ServiceUnavailableError, TooManyRequestsError } from '../../i18n/localized.exception';
 
 /**
  * Fraud controls for outbound SMS.
@@ -26,8 +26,18 @@ import { ForbiddenError, ServiceUnavailableError } from '../../i18n/localized.ex
  *   4. Global daily cap. The backstop that bounds the bill when the first three are evaded, and
  *      the one that turns an incident from an invoice into an alert.
  *
- * Every rejection is logged with the reason, so the response stays uniform (the caller learns
- * nothing about which control fired) while the operator can see what happened.
+ * Every rejection is logged with the reason. What the CALLER is told depends on whether they can
+ * act on it (QA A-10). The signup screen used to say "the SMS could not be sent, try again" for
+ * all four, so a person who had simply asked for a code five times retried, failed, and left —
+ * and a failed SMS is a lost signup. Now:
+ *
+ *   - the per-number cap says so, with the wait until the window reopens: it is the one a real
+ *     person hits, and "try again in 40 minutes" is information they need, not a leak — the
+ *     number is theirs and the cap is per number;
+ *   - an unserved country says so: the number is outside the markets the product sells in, and
+ *     no amount of retrying changes that;
+ *   - the per-prefix and global caps answer "SMS is unavailable, verify by email": those are the
+ *     anti-fraud controls proper, and naming them would tell a pumping operator which one fired.
  */
 @Injectable()
 export class SmsAbuseGuardService {
@@ -142,7 +152,9 @@ export class SmsAbuseGuardService {
    * Increment a counter and refuse once it passes its limit.
    *
    * The counter is incremented BEFORE the decision, so a burst of concurrent requests cannot all
-   * observe the same low value and all proceed.
+   * observe the same low value and all proceed. The window is FIXED from the first message — the
+   * entry carries when it opened — so the refusal can say how long until it reopens, and a person
+   * who keeps retrying does not push that moment further away.
    */
   private async assertUnderLimit(
     key: string,
@@ -152,9 +164,20 @@ export class SmsAbuseGuardService {
     context: Record<string, unknown>,
   ): Promise<void> {
     let current: number;
+    let resetAt: number;
     try {
-      current = ((await this.cache.get<number>(key)) ?? 0) + 1;
-      await this.cache.set(key, current, windowMs);
+      const stored = await this.cache.get<number | { count: number; resetAt: number }>(key);
+      const now = Date.now();
+      // A bare number is an entry written before the window carried its own end.
+      const entry =
+        typeof stored === 'number'
+          ? { count: stored, resetAt: now + windowMs }
+          : stored && stored.resetAt > now
+            ? stored
+            : { count: 0, resetAt: now + windowMs };
+      current = entry.count + 1;
+      resetAt = entry.resetAt;
+      await this.cache.set(key, { count: current, resetAt }, Math.max(1000, resetAt - now));
     } catch (error) {
       // Fail CLOSED. These counters ARE the fraud control; a cache outage that made
       // `get` throw would otherwise reset every one of them to zero on every call and
@@ -170,17 +193,29 @@ export class SmsAbuseGuardService {
     }
 
     if (current > limit) {
-      this.reject(reason, { ...context, count: current, limit });
+      this.reject(reason, { ...context, count: current, limit }, resetAt);
     }
   }
 
-  private reject(reason: string, context: Record<string, unknown>): never {
+  private reject(reason: string, context: Record<string, unknown>, resetAt?: number): never {
     this.logger.warn(
       { event: 'sms_send_refused', reason, ...context },
       '[SECURITY] Outbound verification SMS refused',
     );
-    // Deliberately uniform: a caller probing the controls learns only that it did not go through.
-    throw new ForbiddenError('auth.verification_code_could_not_sent_number');
+
+    if (reason === 'per_number_limit' && resetAt) {
+      const retryAfterSeconds = Math.max(1, Math.ceil((resetAt - Date.now()) / 1000));
+      throw new TooManyRequestsError(
+        'auth.sms_number_limit_reached',
+        { retryAfterSeconds, minutes: Math.max(1, Math.ceil(retryAfterSeconds / 60)) },
+        'SMS_NUMBER_LIMIT',
+      );
+    }
+    if (reason === 'country_not_served') {
+      throw new ForbiddenError('auth.verification_code_could_not_sent_number', {}, 'SMS_COUNTRY_NOT_SUPPORTED');
+    }
+    // The anti-fraud caps proper: say only that SMS is not available right now.
+    throw new ServiceUnavailableError('auth.sms_unavailable_use_email', {}, 'SMS_UNAVAILABLE');
   }
 
   /** Destination numbers are personal data; count them without storing them. */

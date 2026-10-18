@@ -25,11 +25,6 @@ import { DEFAULT_LANGUAGE, matchLanguage } from '@virteex/shared/types';
  */
 @Injectable()
 export class FrontendUrlService {
-  /**
-   * Country used when a link has no better information. The signup route requires a country
-   * segment, and a missing one produces a URL that does not resolve.
-   */
-  private static readonly DEFAULT_COUNTRY = 'do';
 
   constructor(private readonly configService: ConfigService) {}
 
@@ -49,9 +44,18 @@ export class FrontendUrlService {
     return matchLanguage(preferred) ?? DEFAULT_LANGUAGE;
   }
 
-  private country(preferred?: string | null): string {
-    const candidate = (preferred ?? '').slice(0, 2).toLowerCase();
-    return /^[a-z]{2}$/.test(candidate) ? candidate : FrontendUrlService.DEFAULT_COUNTRY;
+  /**
+   * The signup path for a country, or the country picker when there is none.
+   *
+   * There used to be a default country — the Dominican Republic — written in here, so every link
+   * built without one (an abandoned checkout, a failed signup) sent a visitor from anywhere to a
+   * Dominican form (QA C-06). Without a country the link now lands on `/:lang/auth/register`,
+   * which ASKS for it.
+   */
+  private signupPath(language?: string | null, country?: string | null): string {
+    const candidate = (country ?? '').slice(0, 2).toLowerCase();
+    const lang = this.language(language);
+    return /^[a-z]{2}$/.test(candidate) ? `/${lang}/${candidate}/auth/register` : `/${lang}/auth/register`;
   }
 
   /**
@@ -66,6 +70,14 @@ export class FrontendUrlService {
   }
 
   /**
+   * Lift a sign-in lockout (QA C-09). A fragment, like the reset link, so the token never reaches
+   * a server log or a `Referer` header.
+   */
+  unlockAccount(token: string, language?: string | null): string {
+    return `${this.origin}/${this.language(language)}/auth/unlock#token=${encodeURIComponent(token)}`;
+  }
+
+  /**
    * Invitation acceptance.
    *
    * Also a fragment. This link used to carry `?token=` while the page read only `#token=`, so
@@ -77,15 +89,12 @@ export class FrontendUrlService {
 
   /** Registration email confirmation ("magic link"). Requires both segments. */
   confirmRegistrationEmail(token: string, language?: string | null, country?: string | null): string {
-    return (
-      `${this.origin}/${this.language(language)}/${this.country(country)}` +
-      `/auth/register?email_token=${encodeURIComponent(token)}`
-    );
+    return `${this.origin}${this.signupPath(language, country)}?email_token=${encodeURIComponent(token)}`;
   }
 
   /** Where a social sign-in lands when the account does not exist yet. */
   socialRegistration(language?: string | null, country?: string | null): string {
-    return `${this.origin}/${this.language(language)}/${this.country(country)}/auth/register?social_registration=true`;
+    return `${this.origin}${this.signupPath(language, country)}?social_registration=true`;
   }
 
   /** Login page, optionally carrying an error code for the banner. */
@@ -168,12 +177,12 @@ export class FrontendUrlService {
 
   /** The signup wizard. */
   register(language?: string | null, country?: string | null): string {
-    return `${this.origin}/${this.language(language)}/${this.country(country)}/auth/register`;
+    return `${this.origin}${this.signupPath(language, country)}`;
   }
 
   /** Where Checkout returns when the visitor abandons signup. */
   registerCancelled(language?: string | null, country?: string | null): string {
-    return `${this.origin}/${this.language(language)}/${this.country(country)}/auth/register`;
+    return `${this.origin}${this.signupPath(language, country)}`;
   }
 
   /** The product's own front door, for the logotype in an email header. */

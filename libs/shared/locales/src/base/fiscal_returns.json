@@ -174,20 +174,20 @@
     "en": "This period has not been generated yet.",
     "pt": "Este período ainda não foi gerado."
   },
+  "fiscal_returns.not_available_help": {
+    "es": "El producto no genera todavía los archivos de la autoridad tributaria de tu país. Prepara tus declaraciones con estos informes:",
+    "en": "The product does not generate your tax authority's files yet. Prepare your returns with these reports:",
+    "pt": "O produto ainda não gera os arquivos da autoridade tributária do seu país. Prepare suas declarações com estes relatórios:"
+  },
+  "fiscal_returns.not_available_title": {
+    "es": "Los archivos de declaraciones de {{country}} aún no están disponibles",
+    "en": "Fiscal return files for {{country}} are not available yet",
+    "pt": "Os arquivos de declarações de {{country}} ainda não estão disponíveis"
+  },
   "fiscal_returns.order_number": {
     "es": "Número de orden",
     "en": "Order number",
     "pt": "Número da ordem"
-  },
-  "fiscal_returns.other_market_help": {
-    "es": "El producto genera los formatos de la DGII (República Dominicana) y la contabilidad electrónica del SAT (México). Para otros países, los libros e informes contables siguen disponibles en Contabilidad.",
-    "en": "The product generates the DGII formats (Dominican Republic) and the SAT electronic accounting (Mexico). For other countries, the books and accounting reports remain available in Accounting.",
-    "pt": "O produto gera os formatos da DGII (República Dominicana) e a contabilidade eletrônica do SAT (México). Para outros países, os livros e relatórios contábeis continuam disponíveis em Contabilidade."
-  },
-  "fiscal_returns.other_market_title": {
-    "es": "No hay declaraciones periódicas para tu país",
-    "en": "No periodic returns for your country",
-    "pt": "Não há declarações periódicas para o seu país"
   },
   "fiscal_returns.period": {
     "es": "Período",
@@ -278,6 +278,11 @@
     "es": "Sin generar",
     "en": "Not generated",
     "pt": "Não gerado"
+  },
+  "fiscal_returns.states.not_applicable": {
+    "es": "No aplica",
+    "en": "Not applicable",
+    "pt": "Não se aplica"
   },
   "fiscal_returns.states.overdue": {
     "es": "Vencida",

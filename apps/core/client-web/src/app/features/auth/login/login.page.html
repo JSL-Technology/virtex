@@ -118,7 +118,7 @@
         formControlName="password"
         type="password"
         [label]="'login.password_label' | translate"
-        placeholder="••••••••"
+        [placeholder]="'login.password_placeholder' | translate"
         [hasIcon]="true"
         [required]="true"
         autocomplete="current-password"
@@ -161,7 +161,7 @@
       @if (errorMessage()) {
         <div class="error-alert" role="alert">
           <lucide-icon [img]="icons.AlertCircle" size="16"></lucide-icon>
-          <span>{{ errorMessage()! | translate }}</span>
+          <span>{{ errorMessage()!.key | translate: errorMessage()!.params }}</span>
         </div>
       }
 
@@ -188,14 +188,17 @@
     </div>
 
     <!--
-      Llave de paso y proveedores externos comparten una sola fila de iconos: la
-      llave la primera por ser la vía más segura. El nombre de cada uno vive en
-      su `aria-label`.
+      Llave de paso y proveedores externos, cada uno CON SU NOMBRE a la vista (QA M-14). Eran solo
+      iconos —una llave, una «G», cuatro cuadrados y un edificio— y el nombre vivía en el
+      `aria-label`: un lector de pantalla lo anunciaba, pero quien mira la pantalla tenía que
+      adivinar que el edificio era el acceso único de su empresa. La llave va la primera por ser
+      la vía más segura.
     -->
-    <section class="secondary-auth">
+    <section class="secondary-auth" [attr.aria-label]="'login.or' | translate">
       <app-passkey-button
         class="provider-cell provider-cell--passkey"
         [iconOnly]="true"
+        [showLabel]="true"
         (clicked)="onLoginWithPasskey()"
         [loading]="isLoggingIn()"></app-passkey-button>
       <app-social-auth-buttons
@@ -212,7 +215,12 @@
   @if (!showSsoInput()) {
     <p class="cross-link">
       {{ 'login.no_account' | translate }}
-      <a [routerLink]="['/', languageService.currentLang(), countryService.currentCountryCode(), 'auth', 'register']">
+      <!--
+        Al selector de país, no a un país supuesto (QA C-06). El enlace iba a
+        `/{idioma}/{país del navegador}/auth/register`, y un visitante con `en-GB`, `pt-PT` o
+        `fr-FR` acababa en un formulario dominicano. El país lo elige quien se registra.
+      -->
+      <a [routerLink]="['/', languageService.currentLang(), 'auth', 'register']">
         {{ 'login.register_link' | translate }}
       </a>
     </p>

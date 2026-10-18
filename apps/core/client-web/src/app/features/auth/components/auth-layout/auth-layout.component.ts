@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, computed, inject, signal } from '@angular/core';
+import { ThemeService } from '../../../../core/services/theme';
 
 import { BrandLogo } from '../../../../shared/components/brand-logo/brand-logo';
 import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
@@ -42,10 +43,26 @@ export class AuthLayoutComponent {
   @Input() showBrand = true;
 
   /**
-   * Fotografía de fondo opcional. Cuando se indica, sustituye a los velos de
-   * aurora en movimiento por una imagen a sangre; el velo de contraste se
-   * mantiene encima para que el formulario siga siendo legible sobre cualquier
-   * zona de la foto. Solo el acceso y el registro la usan.
+   * Fotografía de fondo del tema OSCURO. Por defecto, la misma para todas las
+   * puertas de entrada —acceso, alta, confirmación del pago—: que la pantalla
+   * final del alta tuviera otro fondo la hacía parecer otro producto (QA A-11).
+   *
+   * Solo en oscuro. La foto es una seda casi negra, y en el tema claro dejaba
+   * la pantalla de acceso «casi negra» con el pie gris sobre gris (QA M-14):
+   * quien eligió claro veía oscuro. En claro se pintan los velos de aurora, que
+   * sí tienen lectura clara.
    */
-  @Input() backgroundImage: string | null = null;
+  @Input() set backgroundImage(value: string | null) {
+    this.photo.set(value);
+  }
+
+  private readonly theme = inject(ThemeService);
+  private readonly photo = signal<string | null>(AUTH_BACKGROUND_PHOTO);
+
+  /** La foto que se pinta ahora mismo, o `null` para los velos de aurora. */
+  readonly activePhoto = computed(() => (this.theme.isDark() ? this.photo() : null));
 }
+
+/** La fotografía común de las pantallas de acceso en tema oscuro. */
+export const AUTH_BACKGROUND_PHOTO =
+  'assets/images/vibrant-liquid-wavy-background-3d-illustration-abstract-iridescent-fluid-render-neon-holographic-smooth-surface-with-colorful-interference-stylish-spectrum-flow-motion.jpg';

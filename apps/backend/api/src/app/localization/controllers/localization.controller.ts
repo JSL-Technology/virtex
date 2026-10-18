@@ -11,6 +11,7 @@ import { Public } from '../../security/decorators/public.decorator';
 import { CurrentUser } from '../../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../security/principal';
 import { TenantCountryResolver } from '../../shared/tenancy/tenant-country.resolver';
+import { publicCountryPack } from '../fiscal/public-country-pack';
 
 import { AuthenticatedOnly } from '../../security/decorators/authenticated-only.decorator';
 /**
@@ -100,6 +101,24 @@ export class LocalizationController {
       appliesTo: row.appliesTo,
       isDefault: row.isDefault,
     }));
+  }
+
+  /**
+   * The caller's country pack: what its market has (QA C-06).
+   *
+   * Every screen that used to assume the Dominican Republic — the invoice's withholding and NCF, the
+   * customer's taxpayer classification, the payment methods note, the fiscal returns page — asks
+   * this instead. Authenticated, with the country from the session: a client naming its own market
+   * is a client that can be wrong about it. A tenant with no country gets the neutral pack, which
+   * claims nothing, rather than an error that would leave those screens unable to render.
+   */
+  @Get('country-pack')
+  @AuthenticatedOnly(
+    'Reference data every form reads to know what the tenant\'s market has: withholding, fiscal\n' +
+      'numbering, the tax model, who owns the payment methods. Nothing tenant-specific or secret.',
+  )
+  async getTenantCountryPack(@CurrentUser() user: AuthenticatedUser) {
+    return publicCountryPack(await this.tenantCountry.resolveOrNull(user.organizationId));
   }
 
   /**

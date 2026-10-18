@@ -160,7 +160,7 @@
                   <th scope="col" class="text-right">{{ 'invoices.new.price' | translate }}</th>
                   <th scope="col" class="text-right">{{ 'invoices.new.disc' | translate }}</th>
                   <th scope="col">{{ 'invoices.new.treatment' | translate }}</th>
-                  <th scope="col">{{ 'invoices.new.tax_column_header' | translate }}</th>
+                  <th scope="col">{{ (taxByDestination() ? taxNameKey() : 'invoices.new.tax_column_header') | translate }}</th>
                   <th scope="col" class="text-right">{{ 'invoices.new.line_amount' | translate }}</th>
                   <th scope="col"><span class="sr-only">{{ 'invoices.new.remove_line' | translate }}</span></th>
                 </tr>
@@ -214,7 +214,23 @@
                       </select>
                     </td>
                     <td>
-                      @if (taxRates().length > 0) {
+                      <!--
+                        Where the rate is the buyer's state's (US sales tax), it is not the
+                        clerk's to choose: the cell shows the rate the server determined from the
+                        customer's address and the states the company registered. It was a free
+                        number in 0 (QA C-06).
+                      -->
+                      @if (taxByDestination()) {
+                        <span class="tax-determined" [class.line-amount--stale]="totalsPending()">
+                          @if (line.value.taxTreatment !== 'TAXED') {
+                            {{ 0 | vxPercent: '1.0-3' }}
+                          } @else if (totals().lines[i]; as priced) {
+                            {{ priced.taxRate | vxPercent: '1.0-3' }}
+                          } @else {
+                            <span aria-hidden="true">—</span>
+                          }
+                        </span>
+                      } @else if (taxRates().length > 0) {
                         <select formControlName="taxRate" class="form-control">
                           @for (rate of taxRates(); track rate) {
                             <option [value]="rate">{{ rate * 100 | vxNumber: '1.0-2' }}%</option>
@@ -253,6 +269,20 @@
                 <ng-container *ngTemplateOutlet="totalsList; context: { $implicit: 'inline' }" />
               </div>
             </div>
+
+            @if (taxByDestination()) {
+              <p class="hint tax-destination-hint" role="note">
+                @if (registeredJurisdictions().length > 0) {
+                  {{ 'invoices.new.sales_tax_by_destination' | translate }}
+                  @for (state of registeredJurisdictions(); track state.stateCode; let last = $last) {
+                    <strong>{{ state.stateCode }} {{ state.rate | vxPercent: '1.0-3' }}</strong>@if (!last) {, }
+                  }
+                } @else {
+                  {{ 'invoices.new.sales_tax_no_states' | translate }}
+                  <a routerLink="/masters/taxes">{{ 'invoices.new.sales_tax_register_states' | translate }}</a>
+                }
+              </p>
+            }
 
             <div class="form-group">
               <label class="form-label" for="notes">{{ 'invoices.new.notes' | translate }}</label>
@@ -294,7 +324,14 @@
           <div class="card-body">
             <h3 class="section-title">{{ 'invoices.new.fiscal_document' | translate }}</h3>
 
-            @if (fiscalTypes().length > 0) {
+            @if (numberedInternally()) {
+              <!--
+                Not «this market has no electronic invoicing implemented yet»: in the United
+                States nothing is missing. A sales invoice carries no authority number or stamp
+                there, and saying so is the complete answer (QA C-06).
+              -->
+              <p class="hint">{{ 'invoices.new.numbered_internally' | translate }}</p>
+            } @else if (fiscalTypes().length > 0) {
               <div class="form-group">
                 <label class="form-label" for="fiscalDocumentType">{{ 'invoices.new.document_type' | translate }}</label>
                 <select id="fiscalDocumentType" formControlName="fiscalDocumentType" class="form-control">
@@ -336,6 +373,14 @@
 
             <div class="form-group">
               <label class="form-label" for="paymentMethod">{{ 'invoices.new.payment_method' | translate }}</label>
+              @if (usesOwnPaymentMethods()) {
+                <!-- The company's own methods (ACH, Zelle…), from Treasury › Payment methods. -->
+                <select id="paymentMethod" formControlName="paymentMethodCode" class="form-control">
+                  @for (method of paymentMethods(); track method.id) {
+                    <option [value]="method.code">{{ method.name }}</option>
+                  }
+                </select>
+              } @else {
               <select id="paymentMethod" formControlName="paymentMethod" class="form-control">
                 <option value="CASH">{{ 'invoices.new.payment_method_cash' | translate }}</option>
                 <option value="CHECK">{{ 'invoices.new.cheque' | translate }}</option>
@@ -347,6 +392,7 @@
                 <option value="SWAP">{{ 'invoices.new.barter' | translate }}</option>
                 <option value="OTHER">{{ 'invoices.new.other' | translate }}</option>
               </select>
+              }
             </div>
           </div>
         </div>
@@ -378,6 +424,8 @@
           </div>
         </div>
 
+        <!-- Only where the market withholds at source; a US invoice has no withholding (QA C-06). -->
+        @if (withholdingApplies()) {
         <div class="card">
           <div class="card-body">
             <h3 class="section-title">{{ 'invoices.new.withholding_source' | translate }}</h3>
@@ -396,6 +444,7 @@
             </div>
           </div>
         </div>
+        }
       </div>
     </div>
   </div>

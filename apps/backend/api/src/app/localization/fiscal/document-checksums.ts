@@ -132,6 +132,26 @@ export const CHECKSUM_ALGORITHMS: Readonly<Record<string, ChecksumAlgorithm>> = 
   ni_ruc: isValidNicaraguanRuc,
 });
 
+/**
+ * The registered checks that are NOT a check digit — structure only (length, shape, an issuer's
+ * assigned prefixes).
+ *
+ * The signup told a US company "we verify the check digit against IRS" because its EIN row names
+ * an algorithm, and every named algorithm was presented as a check digit (QA A-12). The EIN has
+ * none; neither do these. `PublicCountryConfig.taxIdHasCheckDigit` reads this so the form can only
+ * claim what is actually checked.
+ */
+export const STRUCTURAL_CHECKS: ReadonlySet<string> = new Set([
+  'us_ein_prefix',
+  'pa_ruc',
+  'cr_cedula_juridica',
+  'cr_cedula_fisica',
+  'bo_nit',
+  'sv_nit',
+  'hn_rtn',
+  'ni_ruc',
+]);
+
 /** Every name the catalogue may cite. Exported so a test can assert the two lists agree. */
 export const CHECKSUM_ALGORITHM_NAMES: readonly string[] = Object.freeze(
   Object.keys(CHECKSUM_ALGORITHMS),

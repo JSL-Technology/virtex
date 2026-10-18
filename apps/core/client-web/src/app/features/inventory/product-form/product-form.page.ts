@@ -66,7 +66,7 @@ export class ProductFormPage implements OnInit {
    * does not list (an import, a unit retired later) must not be silently replaced on save.
    */
   private readonly units = signal<UnitOfMeasure[]>([]);
-  readonly unitOptions = computed<Pick<UnitOfMeasure, 'symbol' | 'nameKey'>[]>(() => {
+  readonly unitOptions = computed<Pick<UnitOfMeasure, 'symbol' | 'nameKey' | 'name'>[]>(() => {
     const units = this.units();
     const current = this.currentUnit();
     return current && !units.some((unit) => unit.symbol === current)

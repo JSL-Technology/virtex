@@ -79,8 +79,9 @@
 .tab-action {
   position: relative;
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  //  24px: the smallest target WCAG 2.5.8 allows; at 20px every tab's close missed it (QA M-09).
+  width: 24px;
+  height: 24px;
 }
 
 .tab-dirty-dot,
@@ -104,8 +105,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: none;
   border-radius: var(--radius-sm);

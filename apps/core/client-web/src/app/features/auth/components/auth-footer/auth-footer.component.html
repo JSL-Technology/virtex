@@ -4,10 +4,12 @@
     <app-language-selector variant="compact" />
 
     <nav class="footer-nav" [attr.aria-label]="'auth.legal_links' | translate">
-      <a routerLink="/terms">{{ 'auth.terms' | translate }}</a>
-      <a routerLink="/privacy">{{ 'auth.privacy' | translate }}</a>
-      <a routerLink="/security">{{ 'auth.security' | translate }}</a>
-      <a routerLink="/contact">{{ 'auth.contact' | translate }}</a>
+      <!-- Con el prefijo de idioma, como el resto de las páginas públicas: `/terms` a secas no
+           existía y devolvía al acceso (QA C-08). -->
+      <a [routerLink]="['/', lang(), 'terms']">{{ 'auth.terms' | translate }}</a>
+      <a [routerLink]="['/', lang(), 'privacy']">{{ 'auth.privacy' | translate }}</a>
+      <a [routerLink]="['/', lang(), 'security']">{{ 'auth.security' | translate }}</a>
+      <a [routerLink]="['/', lang(), 'contact']">{{ 'auth.contact' | translate }}</a>
     </nav>
 
     <p class="copyright">

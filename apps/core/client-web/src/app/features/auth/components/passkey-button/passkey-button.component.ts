@@ -26,5 +26,11 @@ export class PasskeyButtonComponent {
    */
   @Input() iconOnly = false;
 
+  /**
+   * In the compact form, also print a short name next to the icon (QA M-14). An icon alone — a
+   * key — was a guess for anybody who has never used a passkey, which is most people.
+   */
+  @Input() showLabel = false;
+
   @Output() clicked = new EventEmitter<void>();
 }

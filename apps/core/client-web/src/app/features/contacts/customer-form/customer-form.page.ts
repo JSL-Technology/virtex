@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal, input, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal, input, effect, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomersService, CreateCustomerDto, UpdateCustomerDto } from '../../../core/api/customers.service';
@@ -17,6 +17,7 @@ import {
   IdentityDocumentsService,
   IdentityDocumentTypeOption,
 } from '../../../core/api/identity-documents.service';
+import { CountryPackService } from '../../../core/api/country-pack.service';
 
 @Component({
   selector: 'app-customer-form-page',
@@ -68,6 +69,36 @@ export class CustomerFormPage implements OnInit {
 
   /** Every country, in the reader's language. See `CountryNamesService`. */
   protected readonly countries = this.countryNames.options;
+
+  // ── The company's market (its country pack, QA C-06) ───────────────────────
+
+  private readonly countryPack = inject(CountryPackService);
+
+  /**
+   * Whether the taxpayer classification means anything here. It decides what a customer withholds
+   * at source; in a market with no withholding (the United States) the field asked a US company
+   * about a «Designated withholding agent» and is not shown.
+   */
+  protected readonly withholdingApplies = this.countryPack.withholding;
+
+  /** The customer's country as the form holds it, to offer that country's states. */
+  private readonly customerCountry = signal('');
+
+  /**
+   * The first-level divisions to pick from, when the customer is in the company's own market and
+   * the pack lists them. US sales tax is determined from the buyer's state CODE, so a typed «Texas»
+   * would leave the invoice unable to find the rate; the list stores «TX».
+   */
+  protected readonly divisions = computed(() => {
+    const pack = this.countryPack.pack();
+    return pack && pack.countryCode === this.customerCountry() ? pack.divisions : [];
+  });
+
+  /** Placeholders in the company's own market's shapes — never another country's examples. */
+  protected readonly examples = computed(() => {
+    const pack = this.countryPack.pack();
+    return pack && pack.countryCode === this.customerCountry() ? pack.examples : null;
+  });
 
 
   /** Qué falta antes de guardar. Se llena al pulsar, no mientras se teclea el primer campo. */
@@ -121,6 +152,11 @@ export class CustomerFormPage implements OnInit {
       paymentTerms: [''],
       paymentTermDays: [null as number | null],
     });
+
+    this.customerCountry.set((this.customerForm.get('country')?.value ?? '').toUpperCase());
+    this.customerForm
+      .get('country')
+      ?.valueChanges.subscribe((country: string) => this.customerCountry.set((country ?? '').toUpperCase()));
 
     this.identityDocuments
       .list({ appliesTo: 'both', usedFor: 'invoicing' })

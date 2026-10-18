@@ -1,5 +1,5 @@
 
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 import type { User } from './user.entity/user.entity';
 
 @Entity({ name: 'user_security' })
@@ -44,6 +44,19 @@ export class UserSecurity {
 
   @Column({ name: 'password_reset_expires', type: 'timestamp', nullable: true })
   passwordResetExpires?: Date | null;
+
+  /**
+   * Single-use link that lifts a lockout before it expires (QA C-09).
+   *
+   * SHA-256 of a 256-bit random token, like `password_reset_token`: a database read never yields
+   * a working link. Issued when the account locks and e-mailed to its address; cleared on use.
+   */
+  @Index('IDX_user_security_unlock_token', { where: '"unlock_token" IS NOT NULL' })
+  @Column({ name: 'unlock_token', type: 'varchar', length: 64, nullable: true })
+  unlockToken?: string | null;
+
+  @Column({ name: 'unlock_token_expires', type: 'timestamptz', nullable: true })
+  unlockTokenExpires?: Date | null;
 
   @Column({ name: 'is_two_factor_enabled', default: false })
   isTwoFactorEnabled: boolean;

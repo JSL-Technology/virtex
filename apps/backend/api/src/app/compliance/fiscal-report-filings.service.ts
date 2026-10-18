@@ -85,6 +85,30 @@ export class FiscalReportFilingsService {
   }
 
   /** Every tracked report of the year, generated or filed, in calendar order. */
+  /**
+   * The first day the company has anything to report: the earlier of the day it was created and
+   * the date of its oldest posted record (journal entry, sales invoice, supplier bill).
+   *
+   * The calendar used to start every January, so a company created in September was shown eight
+   * months of every return as «Overdue» — thirty-two red chips for months in which it did not exist
+   * (QA A-15). A month before this date has nothing to file; the calendar says «Not applicable».
+   * Records dated before the company existed — an opening balance, history imported from the
+   * previous system — move the start back, because those months do have something to report.
+   */
+  async activeSince(organizationId: string): Promise<string> {
+    // As text, so no driver turns the date into a midnight in some other time zone.
+    const [row]: Array<{ since: string | null }> = await this.filings.query(
+      `SELECT to_char(LEAST(
+                (SELECT o."created_at"::date FROM "organizations" o WHERE o."id" = $1),
+                (SELECT MIN(j."date")::date FROM "journal_entries" j WHERE j."organization_id" = $1),
+                (SELECT MIN(i."issueDate")::date FROM "invoices" i WHERE i."organization_id" = $1),
+                (SELECT MIN(b."date")::date FROM "vendor_bills" b WHERE b."organization_id" = $1)
+              ), 'YYYY-MM-DD') AS since`,
+      [organizationId],
+    );
+    return row?.since ?? new Date().toISOString().slice(0, 10);
+  }
+
   async list(organizationId: string, year: number): Promise<FiscalReportFilingView[]> {
     const rows = await this.filings.find({
       where: { organizationId, year },

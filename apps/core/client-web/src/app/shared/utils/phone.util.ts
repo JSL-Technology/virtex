@@ -1,4 +1,4 @@
-import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber';
+import { PhoneNumberUtil, PhoneNumberFormat, PhoneNumberType } from 'google-libphonenumber';
 
 /**
  * Phone-number normalization for the browser, using the SAME library the backend validates with
@@ -84,6 +84,25 @@ export function callingCodeForRegion(region: string): string {
   try {
     const code = phoneUtil.getCountryCodeForRegion((region || '').toUpperCase());
     return code ? String(code) : '';
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * An example mobile number for a region, written the way that country writes it nationally
+ * (`US` → `(201) 555-0123`, `MX` → `222 123 4567`), for a field's placeholder.
+ *
+ * From libphonenumber's own metadata, so every market has a real-shaped example without a list of
+ * them here — the signup used to show `809 555 5555`, a Dominican number, to everybody (QA A-12).
+ */
+export function exampleNationalNumber(region: string): string {
+  const code = (region || '').toUpperCase();
+  if (!code) return '';
+  try {
+    const example =
+      phoneUtil.getExampleNumberForType(code, PhoneNumberType.MOBILE) ?? phoneUtil.getExampleNumber(code);
+    return example ? phoneUtil.format(example, PhoneNumberFormat.NATIONAL) : '';
   } catch {
     return '';
   }

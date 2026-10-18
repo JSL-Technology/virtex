@@ -72,6 +72,21 @@ export interface AppError {
   messageKey: string;
   /** Per-field messages, already translated, keyed by the field's dotted path. */
   fieldErrors: Record<string, string[]>;
+  /**
+   * The parameters the server sent with the key, catalogue keys already rendered.
+   *
+   * Carried so a screen that stores the KEY (to re-render on a language switch) can render it with
+   * its values too — a locked account's minutes remaining, an SMS limit's wait.
+   */
+  params?: Record<string, unknown>;
+  /**
+   * How long to wait before retrying, in seconds, when the server said (QA M-14, A-10).
+   *
+   * From the payload's `params.retryAfterSeconds` when the API states it, else from the
+   * `Retry-After` header the throttler sends with every 429. "Too many attempts" without a wait
+   * leaves the reader retrying into the same wall.
+   */
+  retryAfterSeconds?: number | null;
 }
 
 interface ErrorBody {
@@ -112,6 +127,8 @@ export class ErrorHandlerService {
       message: this.resolveMessage(error),
       messageKey: this.keyFor(error),
       fieldErrors: this.resolveFieldErrors(error),
+      params: this.paramsFor(error),
+      retryAfterSeconds: retryAfterOf(error),
     };
   }
 
@@ -232,6 +249,24 @@ export class ErrorHandlerService {
     return out;
   }
 
+}
+
+/**
+ * Seconds to wait before retrying, from the error payload or the `Retry-After` header.
+ *
+ * `Retry-After` may be a number of seconds or an HTTP date (RFC 9110 §10.2.3); both are read.
+ */
+export function retryAfterOf(error: HttpErrorResponse | AppError | null | undefined): number | null {
+  if (!error) return null;
+  if (isAppError(error)) return error.retryAfterSeconds ?? null;
+  const fromBody = Number(errorParamsOf(error)['retryAfterSeconds']);
+  if (Number.isFinite(fromBody) && fromBody > 0) return Math.ceil(fromBody);
+  const header = error.headers?.get?.('Retry-After');
+  if (!header) return null;
+  const seconds = Number(header);
+  if (Number.isFinite(seconds) && seconds > 0) return Math.ceil(seconds);
+  const date = Date.parse(header);
+  return Number.isFinite(date) ? Math.max(1, Math.ceil((date - Date.now()) / 1000)) : null;
 }
 
 /** An error `ErrorHandlerService.handleError` has already described and rethrown. */

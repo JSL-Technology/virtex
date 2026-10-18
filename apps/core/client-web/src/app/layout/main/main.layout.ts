@@ -1,3 +1,6 @@
+import { LanguageService } from '../../core/services/language';
+import { ThemeService } from '../../core/services/theme';
+import { SearchResultTextService } from '../../core/services/search-result-text.service';
 import { RoleNamePipe } from '../../shared/pipes/role-name.pipe';
 // ../app/layout/main/main.layout.ts
 
@@ -79,7 +82,6 @@ import {
   Bug, // ✅ Reportar un problema
   Lightbulb, // ✅ Sugerir una mejora
   Star, // ✅ Dejar una valoración
-  ChevronLeft, // ✅ Indicador del submenú de Feedback (se abre a la izquierda)
   Minus, // ✅ Control de ventana: minimizar (escritorio)
   Square, // ✅ Control de ventana: maximizar (escritorio)
   Copy, // ✅ Control de ventana: restaurar, dos cuadros superpuestos (escritorio)
@@ -233,6 +235,12 @@ export class MainLayout implements OnInit {
   //  estamos ahí, en qué sistema, y ejecuta las acciones de ventana.
   readonly desktop = inject(DesktopWindowService);
   private searchService = inject(SearchService);
+  /** Result text shared with the search page, so invoices read the same in both (QA A-19). */
+  protected readonly searchText = inject(SearchResultTextService);
+  /** Language and theme in the user menu (QA M-10). */
+  protected readonly languageService = inject(LanguageService);
+  protected readonly themeService = inject(ThemeService);
+  protected readonly THEME_MODES = ['light', 'dark', 'system'] as const;
   protected readonly router = inject(Router);
   private readonly location = inject(Location);
 
@@ -381,7 +389,6 @@ export class MainLayout implements OnInit {
   protected readonly BugIcon = Bug;
   protected readonly LightbulbIcon = Lightbulb;
   protected readonly StarIcon = Star;
-  protected readonly ChevronLeftIcon = ChevronLeft;
   protected readonly MinimizeIcon = Minus; // Control de ventana
   protected readonly MaximizeIcon = Square; // Control de ventana
   protected readonly RestoreIcon = Copy; // Control de ventana (maximizada)
@@ -588,8 +595,8 @@ export class MainLayout implements OnInit {
     if (this.shortcuts.capturing()) return;
 
     // Global application shortcuts (open search/settings/help, navigate history…). Handled before
-    // the typing gate so ⌘, or ⌘E work even from inside a field — they all carry a modifier, so
-    // they can never be a character the reader meant to type.
+    // the typing gate so ⌘K or ⌘. work even from inside a field. The service itself keeps an
+    // Alt+Shift chord from firing while typing (QA A-14); one with Ctrl/⌘ is never a character.
     if (this.handleAppShortcut(event)) return;
 
     if (this.isTypingContext(event.target)) return;

@@ -232,8 +232,8 @@
   },
   "fiscal.labels.state": {
     "es": "Estado",
-    "en": "Status",
-    "pt": "Situação"
+    "en": "State",
+    "pt": "Estado"
   },
   "fiscal.labels.tax_regime": {
     "es": "Régimen fiscal",

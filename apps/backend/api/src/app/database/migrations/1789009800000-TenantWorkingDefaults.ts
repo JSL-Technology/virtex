@@ -5,7 +5,7 @@ import pt from '../../i18n/messages/pt.json';
 import {
   SeedLanguage,
   UNITS_OF_MEASURE,
-  seedTenantDefaults,
+  seedTenantWorkingDefaults,
   seedUnitsOfMeasure,
 } from '../seeds/tenant-defaults';
 
@@ -21,9 +21,9 @@ const translate = (key: string, language: SeedLanguage): string =>
  *   names nobody.
  * - The unit-of-measure catalogue. It was empty: its seeder was never registered, so the product
  *   form had nothing to offer and every product carried the column default.
- * - For every existing tenant, the same seed provisioning now runs (`seedTenantDefaults`): the
- *   final consumer, a default product category, a cash account on the chart's cash account, and the
- *   Dominican payroll concepts. Idempotent, so a tenant that already has any of them keeps its own.
+ * - For every existing tenant, the working part of the seed provisioning runs
+ *   (`seedTenantWorkingDefaults`): the final consumer, a default product category, a cash account
+ *   on the chart's cash account, and the payroll concepts of the tenant's country pack. Idempotent, so a tenant that already has any of them keeps its own.
  *
  * Runs per tenant with `app.current_organization` set, so it reads and writes through row-level
  * security exactly as the application does.
@@ -57,7 +57,7 @@ export class TenantWorkingDefaults1789009800000 implements MigrationInterface {
 
     for (const tenant of tenants) {
       await queryRunner.query(`SELECT set_config('app.current_organization', $1, true)`, [tenant.id]);
-      await seedTenantDefaults(
+      await seedTenantWorkingDefaults(
         queryRunner,
         {
           organizationId: tenant.id,

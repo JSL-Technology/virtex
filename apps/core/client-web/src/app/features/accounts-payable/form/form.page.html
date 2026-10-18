@@ -39,7 +39,7 @@
         </div>
 
         <div class="form-field">
-          <label for="ncf">{{ 'accounts_payable.form.ncf' | translate }}</label>
+          <label for="ncf">{{ supplierNumberKey() | translate }}</label>
           <input type="text" id="ncf" formControlName="ncf" autocomplete="off">
         </div>
 
@@ -74,8 +74,8 @@
         <div class="form-field">
           <label for="paymentForm">{{ 'accounts_payable.form.payment_form' | translate }}</label>
           <select id="paymentForm" formControlName="paymentForm">
-            @for (form of paymentForms; track form.code) {
-              <option [value]="form.code">{{ form.code }} — {{ form.labelKey | translate }}</option>
+            @for (form of paymentForms(); track form.code) {
+              <option [value]="form.code">{{ form.code }} — {{ form.label ?? (form.labelKey ?? '' | translate) }}</option>
             }
           </select>
         </div>
@@ -167,6 +167,7 @@
       </div>
       @if (showFiscalDetail()) {
         <div class="card-body grid-form">
+          @if (purchaseClassification()) {
           <div class="form-field">
             <label for="purchaseCategory">{{ 'accounts_payable.form.type_goods_services' | translate }}</label>
             <select id="purchaseCategory" formControlName="purchaseCategory">
@@ -175,10 +176,12 @@
               }
             </select>
           </div>
+          }
           <div class="form-field">
             <label for="taxAmount">{{ 'accounts_payable.form.tax_charged' | translate }}</label>
             <input type="number" id="taxAmount" formControlName="taxAmount" step="0.01" min="0">
           </div>
+          @if (withholdingApplies()) {
           <div class="form-field">
             <label for="taxWithheld">{{ 'accounts_payable.form.tax_withheld' | translate }}</label>
             <input type="number" id="taxWithheld" formControlName="taxWithheld" step="0.01" min="0">
@@ -187,6 +190,7 @@
             <label for="incomeTaxWithheld">{{ 'accounts_payable.form.income_tax_withheld' | translate }}</label>
             <input type="number" id="incomeTaxWithheld" formControlName="incomeTaxWithheld" step="0.01" min="0">
           </div>
+          }
           <div class="form-field">
             <label for="taxToCost">{{ 'accounts_payable.form.tax_carried_cost' | translate }}</label>
             <input type="number" id="taxToCost" formControlName="taxToCost" step="0.01" min="0">
@@ -220,10 +224,12 @@
           <dd>{{ totals().taxAmount | vxNumber:'1.2-2' }}</dd>
           <dt class="strong">{{ 'accounts_payable.form.document_total' | translate }}</dt>
           <dd class="strong">{{ totals().total | vxNumber:'1.2-2' }}</dd>
-          <dt>{{ 'accounts_payable.form.withholdings' | translate }}</dt>
-          <dd>−{{ totals().withheld | vxNumber:'1.2-2' }}</dd>
-          <dt class="strong">{{ 'accounts_payable.form.net_payable' | translate }}</dt>
-          <dd class="strong">{{ totals().payable | vxNumber:'1.2-2' }}</dd>
+          @if (withholdingApplies()) {
+            <dt>{{ 'accounts_payable.form.withholdings' | translate }}</dt>
+            <dd>−{{ totals().withheld | vxNumber:'1.2-2' }}</dd>
+            <dt class="strong">{{ 'accounts_payable.form.net_payable' | translate }}</dt>
+            <dd class="strong">{{ totals().payable | vxNumber:'1.2-2' }}</dd>
+          }
         </dl>
       </div>
     </div>

@@ -13,8 +13,8 @@
       (blur)="markTouched()"
       [disabled]="disabled()"
       [attr.aria-label]="'register.phone_country' | translate">
-      @for (c of countries(); track c.countryCode) {
-        <option [value]="c.countryCode">{{ c.name }} (+{{ c.callingCode }})</option>
+      @for (c of countryOptions(); track c.code) {
+        <option [value]="c.code" [selected]="c.code === region()">{{ c.name }} (+{{ c.callingCode }})</option>
       }
     </select>
 
@@ -30,7 +30,7 @@
       (input)="onNationalInput($any($event.target).value)"
       (blur)="markTouched()"
       [disabled]="disabled()"
-      [placeholder]="placeholder" />
+      [placeholder]="placeholder || (example() ? ('register.phone_placeholder' | translate: { example: example() }) : '')" />
   </div>
 
   @if (showError()) {

@@ -79,125 +79,250 @@
     "en": "activities",
     "pt": "atividades"
   },
+  "common.dependents.activities_one": {
+    "es": "actividad",
+    "en": "activity",
+    "pt": "atividade"
+  },
   "common.dependents.bin_locations": {
     "es": "ubicaciones",
     "en": "locations",
     "pt": "localizações"
+  },
+  "common.dependents.bin_locations_one": {
+    "es": "ubicación",
+    "en": "location",
+    "pt": "localização"
   },
   "common.dependents.boms": {
     "es": "listas de materiales",
     "en": "bills of materials",
     "pt": "listas de materiais"
   },
+  "common.dependents.boms_one": {
+    "es": "lista de materiales",
+    "en": "bill of materials",
+    "pt": "lista de materiais"
+  },
   "common.dependents.cases": {
     "es": "casos de servicio",
     "en": "service cases",
     "pt": "casos de atendimento"
+  },
+  "common.dependents.cases_one": {
+    "es": "caso de servicio",
+    "en": "service case",
+    "pt": "caso de atendimento"
   },
   "common.dependents.customer_payments": {
     "es": "cobros",
     "en": "customer receipts",
     "pt": "recebimentos"
   },
+  "common.dependents.customer_payments_one": {
+    "es": "cobro",
+    "en": "customer receipt",
+    "pt": "recebimento"
+  },
   "common.dependents.customers": {
     "es": "clientes",
     "en": "customers",
     "pt": "clientes"
+  },
+  "common.dependents.customers_one": {
+    "es": "cliente",
+    "en": "customer",
+    "pt": "cliente"
   },
   "common.dependents.employees": {
     "es": "empleados",
     "en": "employees",
     "pt": "funcionários"
   },
+  "common.dependents.employees_one": {
+    "es": "empleado",
+    "en": "employee",
+    "pt": "funcionário"
+  },
   "common.dependents.invoice_lines": {
     "es": "líneas de factura",
     "en": "invoice lines",
     "pt": "linhas de fatura"
+  },
+  "common.dependents.invoice_lines_one": {
+    "es": "línea de factura",
+    "en": "invoice line",
+    "pt": "linha de fatura"
   },
   "common.dependents.invoices": {
     "es": "facturas",
     "en": "invoices",
     "pt": "faturas"
   },
+  "common.dependents.invoices_one": {
+    "es": "factura",
+    "en": "invoice",
+    "pt": "fatura"
+  },
   "common.dependents.journal_entries": {
     "es": "asientos contables",
     "en": "journal entries",
     "pt": "lançamentos contábeis"
+  },
+  "common.dependents.journal_entries_one": {
+    "es": "asiento contable",
+    "en": "journal entry",
+    "pt": "lançamento contábil"
   },
   "common.dependents.locations": {
     "es": "ubicaciones de almacén",
     "en": "warehouse locations",
     "pt": "localizações de armazém"
   },
+  "common.dependents.locations_one": {
+    "es": "ubicación de almacén",
+    "en": "warehouse location",
+    "pt": "localização de armazém"
+  },
   "common.dependents.opportunities": {
     "es": "oportunidades",
     "en": "opportunities",
     "pt": "oportunidades"
+  },
+  "common.dependents.opportunities_one": {
+    "es": "oportunidad",
+    "en": "opportunity",
+    "pt": "oportunidade"
   },
   "common.dependents.production_orders": {
     "es": "órdenes de producción",
     "en": "production orders",
     "pt": "ordens de produção"
   },
+  "common.dependents.production_orders_one": {
+    "es": "orden de producción",
+    "en": "production order",
+    "pt": "ordem de produção"
+  },
   "common.dependents.project_tasks": {
     "es": "tareas",
     "en": "tasks",
     "pt": "tarefas"
+  },
+  "common.dependents.project_tasks_one": {
+    "es": "tarea",
+    "en": "task",
+    "pt": "tarefa"
   },
   "common.dependents.projects": {
     "es": "proyectos",
     "en": "projects",
     "pt": "projetos"
   },
+  "common.dependents.projects_one": {
+    "es": "proyecto",
+    "en": "project",
+    "pt": "projeto"
+  },
   "common.dependents.purchase_order_lines": {
     "es": "líneas de órdenes de compra",
     "en": "purchase order lines",
     "pt": "linhas de pedidos de compra"
+  },
+  "common.dependents.purchase_order_lines_one": {
+    "es": "línea de orden de compra",
+    "en": "purchase order line",
+    "pt": "linha de pedido de compra"
   },
   "common.dependents.purchase_orders": {
     "es": "órdenes de compra",
     "en": "purchase orders",
     "pt": "pedidos de compra"
   },
+  "common.dependents.purchase_orders_one": {
+    "es": "orden de compra",
+    "en": "purchase order",
+    "pt": "pedido de compra"
+  },
   "common.dependents.quote_lines": {
     "es": "líneas de cotizaciones",
     "en": "quote lines",
     "pt": "linhas de orçamentos"
+  },
+  "common.dependents.quote_lines_one": {
+    "es": "línea de cotización",
+    "en": "quote line",
+    "pt": "linha de orçamento"
   },
   "common.dependents.quotes": {
     "es": "cotizaciones",
     "en": "quotes",
     "pt": "orçamentos"
   },
+  "common.dependents.quotes_one": {
+    "es": "cotización",
+    "en": "quote",
+    "pt": "orçamento"
+  },
   "common.dependents.requisition_lines": {
     "es": "líneas de requisiciones",
     "en": "requisition lines",
     "pt": "linhas de requisições"
+  },
+  "common.dependents.requisition_lines_one": {
+    "es": "línea de requisición",
+    "en": "requisition line",
+    "pt": "linha de requisição"
   },
   "common.dependents.stock_items": {
     "es": "existencias",
     "en": "stock items",
     "pt": "itens de estoque"
   },
+  "common.dependents.stock_items_one": {
+    "es": "existencia",
+    "en": "stock item",
+    "pt": "item de estoque"
+  },
   "common.dependents.stock_movements": {
     "es": "movimientos de inventario",
     "en": "stock movements",
     "pt": "movimentos de estoque"
+  },
+  "common.dependents.stock_movements_one": {
+    "es": "movimiento de inventario",
+    "en": "stock movement",
+    "pt": "movimento de estoque"
   },
   "common.dependents.timesheets": {
     "es": "registros de horas",
     "en": "timesheet entries",
     "pt": "apontamentos de horas"
   },
+  "common.dependents.timesheets_one": {
+    "es": "registro de horas",
+    "en": "timesheet entry",
+    "pt": "apontamento de horas"
+  },
   "common.dependents.vendor_bill_lines": {
     "es": "líneas de facturas de proveedor",
     "en": "vendor bill lines",
     "pt": "linhas de faturas de fornecedor"
   },
+  "common.dependents.vendor_bill_lines_one": {
+    "es": "línea de factura de proveedor",
+    "en": "vendor bill line",
+    "pt": "linha de fatura de fornecedor"
+  },
   "common.dependents.vendor_bills": {
     "es": "facturas de proveedor",
     "en": "vendor bills",
     "pt": "faturas de fornecedor"
+  },
+  "common.dependents.vendor_bills_one": {
+    "es": "factura de proveedor",
+    "en": "vendor bill",
+    "pt": "fatura de fornecedor"
   },
   "common.discard": {
     "es": "Descartar",
@@ -323,6 +448,11 @@
     "es": "Página anterior",
     "en": "Previous page",
     "pt": "Página anterior"
+  },
+  "common.record_deactivated": {
+    "es": "«{{name}}» quedó desactivado.",
+    "en": "“{{name}}” was deactivated.",
+    "pt": "“{{name}}” foi desativado."
   },
   "common.refresh": {
     "es": "Actualizar",

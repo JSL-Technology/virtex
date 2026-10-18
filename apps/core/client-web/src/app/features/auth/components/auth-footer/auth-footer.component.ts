@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { LanguageService } from '../../../../core/services/language';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import { LanguageSelector } from '../../../../shared/components/language-selector/language-selector';
@@ -22,4 +23,7 @@ import { LanguageSelector } from '../../../../shared/components/language-selecto
 })
 export class AuthFooterComponent {
   readonly currentYear = new Date().getFullYear();
+
+  /** The active language, for the legal links' prefix. */
+  readonly lang = inject(LanguageService).currentLang;
 }

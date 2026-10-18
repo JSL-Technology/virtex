@@ -179,11 +179,17 @@
                       <lucide-icon [img]="groupIcon" size="18"></lucide-icon>
                     </div>
                     <div class="item-content">
-                      <span class="item-title">{{ item.title }}</span>
-                      <span class="item-description"
-                        >{{ item.description }}</span
-                      >
+                      <span class="item-title">{{ searchText.title(item) }}</span>
+                      <span class="item-description">{{ searchText.describe(item) }}</span>
                     </div>
+                    @if (searchText.amount(item); as total) {
+                      <span class="item-meta">
+                        <span class="item-amount">{{ total }}</span>
+                        @if (searchText.status(item); as state) {
+                          <span class="item-status">{{ state }}</span>
+                        }
+                      </span>
+                    }
                     <lucide-icon
                       [img]="ChevronRightIcon"
                       size="16"
@@ -247,7 +253,7 @@
                 class="quick-action-item"
               >
                 <lucide-icon [img]="quickCreateIcon(item.route)" size="20"></lucide-icon>
-                <span class="quick-action-label">{{ item.descriptionKey | translate }}</span>
+                <span class="quick-action-label" [title]="item.descriptionKey | translate">{{ item.descriptionKey | translate }}</span>
                 <vx-kbd class="quick-action-shortcut" [chord]="item.chord" />
               </a>
               }
@@ -385,6 +391,30 @@
 
             <div class="dropdown-divider" role="separator"></div>
 
+            <!-- Idioma y tema, sin abrir Ajustes (QA M-10). -->
+            <div class="menu-preference">
+              <span class="menu-preference__label" id="menu-language-label">{{ 'user.language' | translate }}</span>
+              <div class="menu-preference__options" role="radiogroup" aria-labelledby="menu-language-label">
+                @for (lang of languageService.availableLanguages; track lang.code) {
+                  <button type="button" role="radio" class="menu-preference__option"
+                    [attr.aria-checked]="languageService.currentLanguage() === lang.code"
+                    (click)="languageService.setLanguage(lang.code)">{{ lang.label }}</button>
+                }
+              </div>
+            </div>
+            <div class="menu-preference">
+              <span class="menu-preference__label" id="menu-theme-label">{{ 'user.theme' | translate }}</span>
+              <div class="menu-preference__options" role="radiogroup" aria-labelledby="menu-theme-label">
+                @for (mode of THEME_MODES; track mode) {
+                  <button type="button" role="radio" class="menu-preference__option"
+                    [attr.aria-checked]="themeService.mode() === mode"
+                    (click)="themeService.setMode(mode)">{{ 'user.theme_mode.' + mode | translate }}</button>
+                }
+              </div>
+            </div>
+
+            <div class="dropdown-divider" role="separator"></div>
+
             <button class="dropdown-item" type="button" (click)="comingSoon()">
               <lucide-icon [img]="HelpCircleIcon" size="16"></lucide-icon>
               <span>{{ "user.help" | translate }}</span>
@@ -407,23 +437,22 @@
                 class="dropdown-item feedback-toggle"
                 type="button"
                 (click)="toggleFeedback()"
-                aria-haspopup="true"
                 [attr.aria-expanded]="isFeedbackOpen()"
               >
                 <lucide-icon [img]="MessageSquareIcon" size="16"></lucide-icon>
                 <span>{{ "feedback.title" | translate }}</span>
                 <lucide-icon
-                  [img]="ChevronLeftIcon"
+                  [img]="ChevronDownIcon"
                   size="16"
                   class="feedback-chevron"
+                  aria-hidden="true"
                 ></lucide-icon>
               </button>
 
-              <div class="feedback-submenu" role="menu">
+              <div class="feedback-submenu" role="group">
                 <button
                   class="dropdown-item dropdown-subitem"
                   type="button"
-                  role="menuitem"
                   (click)="comingSoon()"
                 >
                   <lucide-icon [img]="BugIcon" size="16"></lucide-icon>
@@ -432,7 +461,6 @@
                 <button
                   class="dropdown-item dropdown-subitem"
                   type="button"
-                  role="menuitem"
                   (click)="comingSoon()"
                 >
                   <lucide-icon [img]="LightbulbIcon" size="16"></lucide-icon>
@@ -441,7 +469,6 @@
                 <button
                   class="dropdown-item dropdown-subitem"
                   type="button"
-                  role="menuitem"
                   (click)="comingSoon()"
                 >
                   <lucide-icon [img]="StarIcon" size="16"></lucide-icon>

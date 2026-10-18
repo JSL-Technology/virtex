@@ -152,7 +152,7 @@
                       <div class="ov-event__body">
                         <p class="ov-event__title">{{ eventTitle(item) }}</p>
                         <p class="ov-event__meta">
-                          <span class="ov-tag ov-tag--soft">{{ item.typeKey | translate }}</span>
+                          <vx-badge class="ov-event__badge" [tone]="item.tone">{{ item.typeKey | translate }}</vx-badge>
                           @if (item.counterparty) { <span>{{ item.counterparty }}</span> }
                           @if (item.amount !== null) {
                             <strong>{{ item.amount | vxMoney: item.currencyCode }}</strong>

@@ -107,6 +107,29 @@ export class PendingRegistration {
   @Column({ name: 'plan_slug' })
   planSlug: string;
 
+  /**
+   * The consent given on the last step of the signup, as it was given (QA C-07).
+   *
+   * Held here because the account does not exist yet when the person ticks the box — payment
+   * comes between the two — and copied into `legal_acceptances` when it is materialised. Which
+   * edition of each document, when, and from which address: without all three the acceptance
+   * cannot be shown to anyone who asks for it.
+   */
+  @Column({ name: 'terms_version', type: 'varchar', length: 32, nullable: true })
+  termsVersion: string | null;
+
+  @Column({ name: 'privacy_version', type: 'varchar', length: 32, nullable: true })
+  privacyVersion: string | null;
+
+  @Column({ name: 'terms_accepted_at', type: 'timestamptz', nullable: true })
+  termsAcceptedAt: Date | null;
+
+  @Column({ name: 'terms_accepted_ip', type: 'varchar', length: 64, nullable: true })
+  termsAcceptedIp: string | null;
+
+  @Column({ name: 'terms_accepted_user_agent', type: 'varchar', length: 255, nullable: true })
+  termsAcceptedUserAgent: string | null;
+
   @Index('IDX_pending_registrations_session')
   @Column({ name: 'stripe_session_id', type: 'varchar', nullable: true })
   stripeSessionId: string | null;

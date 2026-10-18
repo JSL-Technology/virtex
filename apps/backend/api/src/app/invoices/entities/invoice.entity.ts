@@ -399,6 +399,15 @@ export class Invoice {
   })
   paymentMethod: PaymentMethod;
 
+  /**
+   * Which of the company's payment methods (`payment_methods.code`) it was paid with — «ZELLE»,
+   * «ACH» — where `payment_method` only says how it settles. Null on documents that named only the
+   * kind, which is every document before country packs (QA C-06) and every Dominican one, whose
+   * e-CF form of payment is the kind.
+   */
+  @Column({ name: 'payment_method_code', type: 'varchar', length: 20, nullable: true })
+  paymentMethodCode?: string | null;
+
   @OneToMany(() => InvoiceLineItem, (line) => line.invoice, { cascade: true, eager: true })
   lineItems: InvoiceLineItem[];
 

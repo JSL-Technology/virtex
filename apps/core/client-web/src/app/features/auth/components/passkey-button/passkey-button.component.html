@@ -5,6 +5,7 @@
   [class.loading]="loading"
   [disabled]="loading"
   [attr.aria-busy]="loading || null"
+  [class.passkey-card--labelled]="iconOnly && showLabel"
   [attr.aria-label]="iconOnly ? ('login.passkey_button_short' | translate) : null"
   (click)="clicked.emit()">
 
@@ -16,6 +17,9 @@
       <span class="icon-wrapper" aria-hidden="true">
         <img src="assets/icons/passkey.svg" alt="" class="passkey-icon">
       </span>
+    }
+    @if (showLabel) {
+      <span class="passkey-label" aria-hidden="true">{{ 'login.providers.passkey' | translate }}</span>
     }
   } @else {
     <span class="icon-wrapper" aria-hidden="true">

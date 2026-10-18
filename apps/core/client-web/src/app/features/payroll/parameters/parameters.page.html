@@ -1,25 +1,276 @@
 <div class="params-page">
 
   <header class="params-header">
-    <h1 class="params-title">{{ 'payroll.parameters.title' | translate }}</h1>
-    <!--
-      Said where the reader will act on it: nothing here is edited in place, because a payroll
-      recomputed after a rate change must still produce what it produced at the time.
-    -->
-    <p class="params-subtitle">{{ 'payroll.parameters.rate_fact_about_moment_nothing_here' | translate }}</p>
+    <div>
+      <h1 class="params-title">{{ 'payroll.parameters.title' | translate }}</h1>
+      <!--
+        What the reader came to do, not how the table is built (QA M-13): the old line explained
+        that «a rate is a fact about a moment». The consequence for the person is the instruction.
+      -->
+      <p class="params-subtitle">{{ 'payroll.parameters.subtitle_task' | translate }}</p>
+    </div>
   </header>
 
   @if (loading()) {
     <p class="section-note">{{ 'common.loading' | translate }}</p>
   } @else {
 
-  <!-- ── Social-security rates ─────────────────────────────────────── -->
+  <!-- ── The company's own parameters (any market) ─────────────────────── -->
+  <section class="panel" aria-labelledby="company-params-title">
+    <header class="panel__head">
+      <div>
+        <h2 id="company-params-title" class="panel__title">{{ 'payroll.parameters.company_title' | translate }}</h2>
+        <p class="section-note">{{ 'payroll.parameters.company_help' | translate }}</p>
+      </div>
+      @if (canManageCompany()) {
+        <button type="button" class="primary-button" [disabled]="busy()" (click)="startNewCompanyParameter()">
+          <lucide-icon [img]="AddIcon" size="14" aria-hidden="true"></lucide-icon>
+          <span>{{ 'payroll.parameters.add_parameter' | translate }}</span>
+        </button>
+      }
+    </header>
+
+    @if (companyDraft(); as draft) {
+      <div class="editor" role="group" [attr.aria-label]="'payroll.parameters.add_parameter' | translate">
+        <label class="field">
+          <span>{{ 'payroll.parameters.code' | translate }} *</span>
+          <input type="text" maxlength="40" [value]="draft.code" [disabled]="!draft.isNew"
+            [placeholder]="'payroll.parameters.code_placeholder' | translate"
+            (input)="patchCompany({ code: $any($event.target).value })" />
+        </label>
+        <label class="field">
+          <span>{{ 'payroll.parameters.name' | translate }} *</span>
+          <input type="text" maxlength="160" [value]="draft.name"
+            (input)="patchCompany({ name: $any($event.target).value })" />
+        </label>
+        <label class="field">
+          <span>{{ 'payroll.parameters.kind_label' | translate }}</span>
+          <select [value]="draft.kind" [disabled]="!draft.isNew"
+            (change)="patchCompany({ kind: $any($event.target).value })">
+            @for (kind of kinds; track kind.value) {
+              <option [value]="kind.value">{{ kind.labelKey | translate }}</option>
+            }
+          </select>
+        </label>
+        @if (divisions().length > 0) {
+          <label class="field">
+            <span>{{ 'payroll.parameters.jurisdiction' | translate }}</span>
+            <select [value]="draft.jurisdiction" [disabled]="!draft.isNew"
+              (change)="patchCompany({ jurisdiction: $any($event.target).value })">
+              <option value="">{{ 'payroll.parameters.jurisdiction_national' | translate }}</option>
+              @for (division of divisions(); track division.code) {
+                <option [value]="division.code">{{ division.name }}</option>
+              }
+            </select>
+          </label>
+        }
+        <label class="field" for="companyEffectiveFrom">
+          <span>{{ 'payroll.parameters.effective_from' | translate }} *</span>
+          <vx-date-field inputId="companyEffectiveFrom" [value]="draft.effectiveFrom"
+            (valueChange)="patchCompany({ effectiveFrom: ($event ?? '') })" />
+        </label>
+
+        @switch (draft.kind) {
+          @case ('CONTRIBUTION') {
+            <label class="field">
+              <span>{{ 'payroll.parameters.employee_percent' | translate }}</span>
+              <input type="number" step="0.0001" min="0" max="100" [value]="draft.employeePercent ?? ''"
+                (input)="patchCompany({ employeePercent: numberOrNull($any($event.target).value) })" />
+            </label>
+            <label class="field">
+              <span>{{ 'payroll.parameters.employer_percent' | translate }}</span>
+              <input type="number" step="0.0001" min="0" max="100" [value]="draft.employerPercent ?? ''"
+                (input)="patchCompany({ employerPercent: numberOrNull($any($event.target).value) })" />
+            </label>
+            <label class="field">
+              <span>{{ 'payroll.parameters.wage_base' | translate }}</span>
+              <input type="number" step="0.01" min="0" [value]="draft.wageBase ?? ''"
+                (input)="patchCompany({ wageBase: numberOrNull($any($event.target).value) })" />
+              <small class="field__note">{{ 'payroll.parameters.wage_base_help' | translate }}</small>
+            </label>
+            <label class="field">
+              <span>{{ 'payroll.parameters.threshold' | translate }}</span>
+              <input type="number" step="0.01" min="0" [value]="draft.threshold ?? ''"
+                (input)="patchCompany({ threshold: numberOrNull($any($event.target).value) })" />
+              <small class="field__note">{{ 'payroll.parameters.threshold_help' | translate }}</small>
+            </label>
+            <label class="field">
+              <span>{{ 'payroll.parameters.credit_percent' | translate }}</span>
+              <input type="number" step="0.0001" min="0" max="100" [value]="draft.creditPercent ?? ''"
+                (input)="patchCompany({ creditPercent: numberOrNull($any($event.target).value) })" />
+            </label>
+          }
+          @case ('AMOUNT') {
+            <label class="field">
+              <span>{{ 'payroll.parameters.amount' | translate }} *</span>
+              <input type="number" step="0.01" min="0" [value]="draft.amount ?? ''"
+                (input)="patchCompany({ amount: numberOrNull($any($event.target).value) })" />
+            </label>
+          }
+          @case ('TABLE') {
+            <div class="brackets">
+              <p class="section-note">{{ 'payroll.parameters.table_help' | translate }}</p>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="numeric">{{ 'payroll.parameters.over' | translate }}</th>
+                    <th class="numeric">{{ 'payroll.parameters.up_to' | translate }}</th>
+                    <th class="numeric">{{ 'payroll.parameters.rate_percent' | translate }}</th>
+                    <th class="numeric">{{ 'payroll.parameters.base_amount' | translate }}</th>
+                    <th><span class="sr-only">{{ 'payroll.parameters.remove_bracket' | translate }}</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (bracket of draft.brackets; track $index; let i = $index) {
+                    <tr>
+                      <td class="numeric"><input type="number" step="0.01" min="0" [value]="bracket.over"
+                        [attr.aria-label]="'payroll.parameters.over' | translate"
+                        (input)="patchBracket(i, { over: +$any($event.target).value })" /></td>
+                      <td class="numeric"><input type="number" step="0.01" min="0" [value]="bracket.upTo ?? ''"
+                        [attr.aria-label]="'payroll.parameters.up_to' | translate"
+                        [placeholder]="'payroll.parameters.open_bracket' | translate"
+                        (input)="patchBracket(i, { upTo: numberOrNull($any($event.target).value) })" /></td>
+                      <td class="numeric"><input type="number" step="0.0001" min="0" max="100" [value]="bracket.ratePercent"
+                        [attr.aria-label]="'payroll.parameters.rate_percent' | translate"
+                        (input)="patchBracket(i, { ratePercent: +$any($event.target).value })" /></td>
+                      <td class="numeric"><input type="number" step="0.01" min="0" [value]="bracket.baseAmount"
+                        [attr.aria-label]="'payroll.parameters.base_amount' | translate"
+                        (input)="patchBracket(i, { baseAmount: +$any($event.target).value })" /></td>
+                      <td>
+                        <button type="button" class="icon-button" [disabled]="draft.brackets.length === 1"
+                          [attr.aria-label]="'payroll.parameters.remove_bracket' | translate" (click)="removeBracket(i)">
+                          <lucide-icon [img]="RemoveIcon" size="14" aria-hidden="true"></lucide-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+              <button type="button" class="secondary-button" (click)="addBracket()">
+                {{ 'payroll.parameters.add_bracket' | translate }}
+              </button>
+            </div>
+          }
+        }
+
+        <label class="field field--wide">
+          <span>{{ 'payroll.parameters.legal_basis' | translate }}</span>
+          <input type="text" maxlength="200" [value]="draft.legalBasis"
+            [placeholder]="'payroll.parameters.legal_basis_placeholder' | translate"
+            (input)="patchCompany({ legalBasis: $any($event.target).value })" />
+        </label>
+
+        <div class="editor__actions">
+          <button type="button" class="primary-button" [disabled]="busy()" (click)="saveCompany()">
+            <lucide-icon [img]="SaveIcon" size="14" aria-hidden="true"></lucide-icon>
+            <span>{{ 'common.save' | translate }}</span>
+          </button>
+          <button type="button" class="secondary-button" (click)="companyDraft.set(null)">
+            {{ 'common.cancel' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (companyParameters().length === 0) {
+      <p class="section-note">{{ 'payroll.parameters.company_empty' | translate }}</p>
+    } @else {
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'payroll.parameters.parameter' | translate }}</th>
+              <th class="numeric">{{ 'payroll.parameters.employee_rate' | translate }}</th>
+              <th class="numeric">{{ 'payroll.parameters.employer_rate' | translate }}</th>
+              <th>{{ 'payroll.parameters.limits' | translate }}</th>
+              <th>{{ 'payroll.parameters.in_force' | translate }}</th>
+              <th>{{ 'payroll.parameters.source' | translate }}</th>
+              @if (canManageCompany()) {
+                <th class="text-right">{{ 'common.actions' | translate }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of companyParameters(); track row.id) {
+              <tr [class.is-historic]="!isCurrent(row) && !row.requiresInput" [class.is-retired]="!row.active">
+                <td>
+                  <span class="strong">{{ row.name }}</span>
+                  @if (row.jurisdiction) { <code>{{ row.jurisdiction }}</code> }
+                  @if (row.legalBasis) { <small class="muted block">{{ row.legalBasis }}</small> }
+                </td>
+                @if (row.requiresInput) {
+                  <td colspan="3"><vx-badge tone="warning">{{ 'payroll.parameters.needs_values' | translate }}</vx-badge></td>
+                } @else if (row.kind === 'TABLE') {
+                  <td colspan="3">{{ 'payroll.parameters.brackets_count' | translate: { count: row.brackets?.length ?? 0 } }}</td>
+                } @else if (row.kind === 'AMOUNT') {
+                  <td colspan="3" class="numeric"><vx-amount [value]="row.amount ?? 0" /></td>
+                } @else {
+                  <td class="numeric">{{ (row.employeeRate ?? 0) | vxPercent: '1.0-4' }}</td>
+                  <td class="numeric">{{ (row.employerRate ?? 0) | vxPercent: '1.0-4' }}</td>
+                  <td>
+                    @if (row.wageBase !== null) {
+                      <span class="block">{{ 'payroll.parameters.up_to_wage_base' | translate }} <vx-amount [value]="row.wageBase" /></span>
+                    }
+                    @if (row.threshold !== null) {
+                      <span class="block">{{ 'payroll.parameters.above_threshold' | translate }} <vx-amount [value]="row.threshold" /></span>
+                    }
+                    @if (row.creditRate !== null) {
+                      <span class="block">{{ 'payroll.parameters.credit_of' | translate: { rate: (row.creditRate | vxPercent: '1.0-2') } }}</span>
+                    }
+                    @if (row.wageBase === null && row.threshold === null && row.creditRate === null) { — }
+                  </td>
+                }
+                <td>
+                  @if (row.effectiveTo) {
+                    {{ 'payroll.parameters.in_force_between' | translate: { from: (row.effectiveFrom | vxDate), to: (row.effectiveTo | vxDate) } }}
+                  } @else {
+                    {{ 'payroll.parameters.in_force_since' | translate: { date: (row.effectiveFrom | vxDate) } }}
+                  }
+                </td>
+                <td>
+                  @if (!row.active) {
+                    <vx-badge tone="neutral">{{ 'payroll.parameters.retired_badge' | translate }}</vx-badge>
+                  } @else if (row.source === 'STATUTORY_DEFAULT') {
+                    <vx-badge tone="info">{{ 'payroll.parameters.statutory_default' | translate }}</vx-badge>
+                  } @else {
+                    <vx-badge tone="ok">{{ 'payroll.parameters.company_value' | translate }}</vx-badge>
+                  }
+                </td>
+                @if (canManageCompany()) {
+                  <td class="text-right">
+                    @if (isCurrent(row) || row.requiresInput) {
+                      <span class="row-actions">
+                      <button type="button" class="secondary-button" [disabled]="busy()" (click)="startCompanyValue(row)">
+                        {{ (row.requiresInput ? 'payroll.parameters.enter_values' : 'payroll.parameters.new_value') | translate }}
+                      </button>
+                      <button type="button" class="secondary-button" [disabled]="busy()" (click)="toggleCompanyActive(row)">
+                        {{ (row.active ? 'payroll.parameters.retire' : 'payroll.parameters.reinstate') | translate }}
+                      </button>
+                      </span>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  @if (showStatutoryTables()) {
+  <!-- ── Social-security rates (the platform's, for the markets the engine computes) ── -->
   <section class="panel">
     <header class="panel__head">
-      <h2 class="panel__title">{{ 'payroll.parameters.contributions' | translate }}</h2>
-      <button [hidden]="!canManage()" type="button" class="secondary-button" (click)="startContribution()">
-        {{ 'payroll.parameters.new_rate' | translate }}
-      </button>
+      <div>
+        <h2 class="panel__title">{{ 'payroll.parameters.contributions' | translate }}</h2>
+        <p class="section-note">{{ 'payroll.parameters.platform_note' | translate }}</p>
+      </div>
+      @if (canManage()) {
+        <button type="button" class="secondary-button" (click)="startContribution()">
+          {{ 'payroll.parameters.new_rate' | translate }}
+        </button>
+      }
     </header>
 
     @if (contributionDraft(); as draft) {
@@ -81,7 +332,9 @@
             <th class="numeric">{{ 'payroll.parameters.employer_rate' | translate }}</th>
             <th>{{ 'payroll.parameters.base' | translate }}</th>
             <th>{{ 'payroll.parameters.in_force' | translate }}</th>
-            <th class="text-right">{{ 'common.actions' | translate }}</th>
+            @if (canManage()) {
+              <th class="text-right">{{ 'common.actions' | translate }}</th>
+            }
           </tr>
         </thead>
         <tbody>
@@ -91,12 +344,20 @@
               <td class="numeric">{{ row.employeeRate | vxPercent: '1.2-4' }}</td>
               <td class="numeric">{{ row.employerRate | vxPercent: '1.2-4' }}</td>
               <td>{{ 'payroll.parameters.base_label.' + row.base | translate }}</td>
-              <td>{{ row.effectiveFrom | vxDate }} — {{ row.effectiveTo ? (row.effectiveTo | vxDate) : '…' }}</td>
-              <td class="text-right">
-                <button [hidden]="!canManage()" type="button" class="secondary-button" (click)="startContribution(row)">
-                  {{ 'payroll.parameters.supersede' | translate }}
-                </button>
+              <td>
+                @if (row.effectiveTo) {
+                  {{ 'payroll.parameters.in_force_between' | translate: { from: (row.effectiveFrom | vxDate), to: (row.effectiveTo | vxDate) } }}
+                } @else {
+                  {{ 'payroll.parameters.in_force_since' | translate: { date: (row.effectiveFrom | vxDate) } }}
+                }
               </td>
+              @if (canManage()) {
+                <td class="text-right">
+                  <button type="button" class="secondary-button" (click)="startContribution(row)">
+                    {{ 'payroll.parameters.supersede' | translate }}
+                  </button>
+                </td>
+              }
             </tr>
           }
         </tbody>
@@ -108,9 +369,11 @@
   <section class="panel">
     <header class="panel__head">
       <h2 class="panel__title">{{ 'payroll.parameters.references' | translate }}</h2>
-      <button [hidden]="!canManage()" type="button" class="secondary-button" (click)="startReference()">
-        {{ 'payroll.parameters.new_reference' | translate }}
-      </button>
+      @if (canManage()) {
+        <button type="button" class="secondary-button" (click)="startReference()">
+          {{ 'payroll.parameters.new_reference' | translate }}
+        </button>
+      }
     </header>
 
     @if (referenceDraft(); as draft) {
@@ -157,7 +420,9 @@
             <th>{{ 'payroll.parameters.key' | translate }}</th>
             <th class="numeric">{{ 'payroll.parameters.value' | translate }}</th>
             <th>{{ 'payroll.parameters.in_force' | translate }}</th>
-            <th class="text-right">{{ 'common.actions' | translate }}</th>
+            @if (canManage()) {
+              <th class="text-right">{{ 'common.actions' | translate }}</th>
+            }
           </tr>
         </thead>
         <tbody>
@@ -165,12 +430,20 @@
             <tr [class.is-historic]="!inForceReferences().includes(row)">
               <td>{{ 'payroll.parameters.key_label.' + row.key | translate }}</td>
               <td class="numeric"><vx-amount [value]="row.value" /></td>
-              <td>{{ row.effectiveFrom | vxDate }} — {{ row.effectiveTo ? (row.effectiveTo | vxDate) : '…' }}</td>
-              <td class="text-right">
-                <button [hidden]="!canManage()" type="button" class="secondary-button" (click)="startReference(row)">
-                  {{ 'payroll.parameters.supersede' | translate }}
-                </button>
+              <td>
+                @if (row.effectiveTo) {
+                  {{ 'payroll.parameters.in_force_between' | translate: { from: (row.effectiveFrom | vxDate), to: (row.effectiveTo | vxDate) } }}
+                } @else {
+                  {{ 'payroll.parameters.in_force_since' | translate: { date: (row.effectiveFrom | vxDate) } }}
+                }
               </td>
+              @if (canManage()) {
+                <td class="text-right">
+                  <button type="button" class="secondary-button" (click)="startReference(row)">
+                    {{ 'payroll.parameters.supersede' | translate }}
+                  </button>
+                </td>
+              }
             </tr>
           }
         </tbody>
@@ -211,13 +484,20 @@
               </td>
               <td class="numeric">{{ bracket.rate | vxPercent: '1.0-2' }}</td>
               <td class="numeric"><vx-amount [value]="bracket.accumulatedTax" /></td>
-              <td>{{ bracket.effectiveFrom | vxDate }} — {{ bracket.effectiveTo ? (bracket.effectiveTo | vxDate) : '…' }}</td>
+              <td>
+                @if (bracket.effectiveTo) {
+                  {{ 'payroll.parameters.in_force_between' | translate: { from: (bracket.effectiveFrom | vxDate), to: (bracket.effectiveTo | vxDate) } }}
+                } @else {
+                  {{ 'payroll.parameters.in_force_since' | translate: { date: (bracket.effectiveFrom | vxDate) } }}
+                }
+              </td>
             </tr>
           }
         </tbody>
       </table>
     </div>
   </section>
+  }
 
   }
 </div>

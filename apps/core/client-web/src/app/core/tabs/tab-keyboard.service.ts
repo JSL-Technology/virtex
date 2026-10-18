@@ -6,10 +6,9 @@ import { SHORTCUT_DEFINITIONS } from '../keyboard/keyboard-shortcuts';
 /**
  * Atajos de teclado del área de trabajo, al estilo de un editor de pestañas.
  *
- *  - `Ctrl/Cmd+W`            cerrar la pestaña activa
- *  - `Ctrl/Cmd+Shift+T`      reabrir la última pestaña cerrada
- *  - `Ctrl+Tab` / `+Shift`   siguiente / anterior pestaña
- *  - `Ctrl+PageDown/PageUp`  siguiente / anterior pestaña
+ * En la web son todos `Alt+Shift` + tecla (cerrar `Alt+Shift+W`, reabrir `Alt+Shift+T`, siguiente
+ * y anterior `Alt+Shift+AvPág/RePág`); en la app de escritorio, los clásicos `Ctrl/Cmd+W`,
+ * `Ctrl/Cmd+Shift+T` y `Ctrl+Tab`. Ver `SHORTCUT_DEFINITIONS` (QA A-14).
  *
  * ## Por qué los atajos los resuelve `ShortcutsService` y no este archivo
  *
@@ -21,10 +20,10 @@ import { SHORTCUT_DEFINITIONS } from '../keyboard/keyboard-shortcuts';
  *
  * ## Sobre `Ctrl/Cmd+W` y `Ctrl+Tab`
  *
- * En un navegador el propio agente puede reservarse estas combinaciones y no siempre se pueden
- * interceptar; en el escritorio y en PWA standalone sí. Se hace `preventDefault` solo cuando el
- * atajo se atiende. Mientras el editor de atajos captura una tecla, `capturing` está activo y este
- * oyente —que escucha en fase de CAPTURA sobre `window`, antes que nadie— se aparta.
+ * En un navegador son del navegador: Ctrl+W cierra la PESTAÑA DEL NAVEGADOR y no se puede
+ * interceptar. Por eso solo son los atajos por defecto en el escritorio. Se hace `preventDefault`
+ * solo cuando el atajo se atiende. Mientras el editor de atajos captura una tecla, `capturing` está
+ * activo y este oyente —que escucha en fase de CAPTURA sobre `window`, antes que nadie— se aparta.
  */
 @Injectable({ providedIn: 'root' })
 export class TabKeyboardService {

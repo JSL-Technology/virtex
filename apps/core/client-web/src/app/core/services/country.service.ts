@@ -156,8 +156,22 @@ export class CountryService {
   getSupportedCountries(): Observable<SupportedCountry[]> {
     this.supportedCountries$ ??= this.http
       .get<SupportedCountry[]>(`${environment.apiUrl}/localization/countries`)
-      .pipe(shareReplay({ bufferSize: 1, refCount: false }));
+      .pipe(
+        // A failure is not cached: the next caller (the picker's retry) asks again.
+        tap({ error: () => (this.supportedCountries$ = undefined) }),
+        shareReplay({ bufferSize: 1, refCount: false }),
+      );
     return this.supportedCountries$;
+  }
+
+  /**
+   * Forget the cached country list, so the next call asks the server again.
+   *
+   * For the country picker's "retry": a list that failed to load must be fetchable again without
+   * reloading the page (QA A-13).
+   */
+  resetSupportedCountries(): void {
+    this.supportedCountries$ = undefined;
   }
 
   /**

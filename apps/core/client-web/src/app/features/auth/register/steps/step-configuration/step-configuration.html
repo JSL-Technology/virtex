@@ -19,9 +19,10 @@
     <div class="form-field">
       <label class="input-label" for="country">{{ 'register.country' | translate }}</label>
       <div class="custom-select-wrapper">
+        <!-- The flag of the country in force, from the shared component (with an emoji fallback);
+             a missing file used to fall back to the Dominican flag for every country. -->
         <div class="flag-icon">
-          <img [src]="'assets/flags/' + countryService.currentCountryCode() + '.svg'"
-               (error)="onFlagError($event)" alt="">
+          <app-country-flag [country]="countryService.currentCountryCode()"></app-country-flag>
         </div>
         <select id="country" formControlName="country" (change)="onCountryChange($event)" class="custom-select">
           <option *ngFor="let c of countryOptions()" [value]="c.code">{{ c.name }}</option>
@@ -67,8 +68,13 @@
         [errorMessage]="getTaxIdError()">
         <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
       </app-auth-input>
-      <p class="field-hint" *ngIf="config()?.taxIdHasCheckDigit">
-        {{ 'auth.step_configuration.we_verify_check_digit_against_fiscal' | translate: { fiscalAuthority: config()?.fiscalAuthority } }}
+      <!-- What is actually checked, and nothing more (QA A-12). It said "we verify the check digit
+           against IRS" for an EIN, which has no check digit and is not looked up at the IRS. -->
+      <p class="field-hint" *ngIf="taxIdHint() as hint">
+        {{ hint.key | translate: hint.params }}
+        <ng-container *ngIf="config()?.taxIdHasCheckDigit && selectedKind() !== 'individual'">
+          {{ 'auth.step_configuration.tax_id_check_digit' | translate }}
+        </ng-container>
       </p>
     </div>
 
@@ -93,10 +99,15 @@
     </div>
 
     <!-- Coded catalogue where the country publishes one, free text where it does not. -->
-    <div class="form-field" *ngIf="divisions() as divisionList; else freeTextDivision">
+    <!-- Marked invalid like every other field when left empty (QA A-12): the select alone stayed
+         neutral while the inputs around it turned red, so it read as the one field that was fine. -->
+    <div class="form-field" [class.error-state]="!!errorFor('state')" *ngIf="divisions() as divisionList; else freeTextDivision">
       <label class="input-label" for="state">{{ divisionLabel() }}</label>
       <div class="custom-select-wrapper">
-        <select id="state" formControlName="state" class="custom-select">
+        <select id="state" formControlName="state" class="custom-select"
+                [class.error]="!!errorFor('state')"
+                [attr.aria-invalid]="!!errorFor('state')"
+                [attr.aria-describedby]="errorFor('state') ? 'state-error' : null">
           <option value="">{{ 'register.select' | translate }}</option>
           <option *ngFor="let d of divisionList" [value]="d.code">{{ d.name }}</option>
         </select>
@@ -104,7 +115,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-9"/></svg>
         </div>
       </div>
-      <p class="field-error" *ngIf="errorFor('state')">{{ errorFor('state') | translate }}</p>
+      <p id="state-error" class="field-error" *ngIf="errorFor('state')">{{ errorFor('state') | translate }}</p>
     </div>
 
     <ng-template #freeTextDivision>
@@ -157,14 +168,18 @@
           -->
           <div class="custom-select-wrapper" [class.custom-select-wrapper--multi]="field.multiple">
             <select *ngIf="!field.multiple" [id]="'fiscal-' + field.key"
-                    [formControlName]="field.key" class="custom-select">
+                    [formControlName]="field.key" class="custom-select"
+                    [class.error]="!!errorForFiscalField(field.key)"
+                    [attr.aria-invalid]="!!errorForFiscalField(field.key)">
               <option value="">{{ 'register.select' | translate }}</option>
               <option *ngFor="let option of optionsFor(field)" [value]="option.code">
                 {{ option.code }} — {{ option.label }}
               </option>
             </select>
             <select *ngIf="field.multiple" [id]="'fiscal-' + field.key"
-                    [formControlName]="field.key" class="custom-select" multiple [attr.size]="5">
+                    [formControlName]="field.key" class="custom-select" multiple [attr.size]="5"
+                    [class.error]="!!errorForFiscalField(field.key)"
+                    [attr.aria-invalid]="!!errorForFiscalField(field.key)">
               <option *ngFor="let option of optionsFor(field)" [value]="option.code">
                 {{ option.code }} — {{ option.label }}
               </option>

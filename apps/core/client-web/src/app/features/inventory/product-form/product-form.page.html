@@ -138,7 +138,7 @@
               <!-- The unit a document quantifies this item in; the e-CF maps it to the authority's code. -->
               <select id="unitOfMeasure" formControlName="unitOfMeasure">
                 @for (unit of unitOptions(); track unit.symbol) {
-                  <option [value]="unit.symbol">{{ unit.symbol }} · {{ unit.nameKey | translate }}</option>
+                  <option [value]="unit.symbol">{{ unit.symbol }} · {{ unit.name ?? (unit.nameKey ?? '' | translate) }}</option>
                 }
               </select>
             </div>

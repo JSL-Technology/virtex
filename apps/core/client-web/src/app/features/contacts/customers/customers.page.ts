@@ -7,6 +7,7 @@ import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2, 
 import { Customer } from '../../../core/models/customer.model';
 import { CustomersService } from '../../../core/api/customers.service';
 import { NotificationService } from '../../../core/services/notification';
+import { SafeDeleteService } from '../../../core/services/safe-delete.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
@@ -32,6 +33,7 @@ export class CustomersPage implements OnInit {
 
   private customersService = inject(CustomersService);
   private notificationService = inject(NotificationService);
+  private readonly safeDelete = inject(SafeDeleteService);
 
   customers = signal<Customer[]>([]);
   isLoading = signal<boolean>(true);
@@ -54,23 +56,24 @@ export class CustomersPage implements OnInit {
     });
   }
 
-  async deleteCustomer(id: string): Promise<void> {
-    const confirmed = await this.dialog.confirm({
-      title: 'dialog.delete_customer.title',
-      message: 'dialog.delete_customer.message',
-      confirmText: 'common.delete',
-      variant: 'danger',
+  /** Deleting asks first what still uses the customer, and offers to deactivate it (QA A-08). */
+  async deleteCustomer(customer: Customer): Promise<void> {
+    const name = customer.companyName;
+    const outcome = await this.safeDelete.run({
+      name,
+      check: () => this.customersService.dependents(customer.id),
+      remove: () => this.customersService.deleteCustomer(customer.id),
+      deactivate: () => this.customersService.updateCustomer(customer.id, { status: 'INACTIVE' }),
+      keys: {
+        confirmTitle: 'dialog.delete_customer.title',
+        confirmMessage: 'dialog.delete_customer.message_named',
+        deleted: 'contacts.customers.customer_deleted',
+        deleteFailed: 'contacts.customers.customer_could_not_deleted',
+        blockedTitle: 'contacts.customers.delete_blocked_title',
+        blockedMessage: 'contacts.customers.delete_blocked_message',
+        deactivated: 'contacts.customers.customer_deactivated',
+      },
     });
-    if (confirmed) {
-      this.customersService.deleteCustomer(id).subscribe({
-        next: () => {
-          this.notificationService.showSuccess('contacts.customers.customer_deleted');
-          this.loadCustomers();
-        },
-        error: () => {
-          this.notificationService.showError('contacts.customers.customer_could_not_deleted');
-        }
-      });
-    }
+    if (outcome !== 'cancelled') this.loadCustomers();
   }
 }

@@ -127,6 +127,57 @@ export class SecuritySettingsComponent implements OnInit {
   // Sessions
   sessions = signal<Session[]>([]);
   expandedSessionId = signal<string | null>(null);
+
+  /** Sessions grouped by device — browser, system and kind — current group first (QA M-10). */
+  readonly sessionGroups = computed(() => {
+    const groups = new Map<string, Session[]>();
+    for (const session of this.sessions()) {
+      const key = `${session.deviceType}|${session.browser}|${session.os}`;
+      groups.set(key, [...(groups.get(key) ?? []), session]);
+    }
+    const time = (s: Session) => new Date(s.lastActiveAt).getTime() || 0;
+    return [...groups.entries()]
+      .map(([key, list]) => ({
+        key,
+        sessions: [...list].sort((a, b) => Number(b.isCurrent) - Number(a.isCurrent) || time(b) - time(a)),
+      }))
+      .sort((a, b) => Number(b.sessions[0].isCurrent) - Number(a.sessions[0].isCurrent) || time(b.sessions[0]) - time(a.sessions[0]));
+  });
+
+  readonly otherSessionCount = computed(() => this.sessions().filter((s) => !s.isCurrent).length);
+  private readonly openGroups = signal<ReadonlySet<string>>(new Set());
+
+  isGroupOpen(key: string): boolean {
+    return this.openGroups().has(key);
+  }
+
+  toggleGroup(key: string): void {
+    this.openGroups.update((open) => {
+      const next = new Set(open);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
+  /** A closed group shows its first (current or latest) session; open, all of them. */
+  visibleSessions(group: { key: string; sessions: Session[] }): Session[] {
+    return this.isGroupOpen(group.key) ? group.sessions : group.sessions.slice(0, 1);
+  }
+
+  /** Signs out every device but this one, behind the same step-up as revoking one. */
+  revokeOtherSessions(): void {
+    this.stepUpService.requireStepUp(StepUpScope.REVOKE_SESSION, this.viewContainerRef, () => {
+      return this.securityService.revokeOtherSessions();
+    }).pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: () => {
+        this.loadSessions();
+        this.notificationService.showSuccess('auth.other_sessions_have_closed');
+      },
+      error: () => this.notificationService.showError('settings.security.errors.revoke_failed'),
+    });
+  }
   private map: any;
 
   @ViewChildren('mapContainer') mapContainers!: QueryList<ElementRef<HTMLDivElement>>;

@@ -58,19 +58,6 @@
       </div>
     </div>
 
-    <!--
-      Honeypot. Hidden from people, offered to bots, and it has to be INSIDE the form and INSIDE
-      the payload to do anything: the control was declared in `register.page.ts` and rendered
-      nowhere, so no submission ever carried it and the server's honeypot branch — with its
-      believable fake success and its timing delay — was unreachable from the product.
-
-      `aria-hidden` plus `tabindex="-1"` keeps it away from screen readers and from the tab order,
-      which is what separates a honeypot from an accessibility defect.
-    -->
-    <div class="hp-field" aria-hidden="true">
-      <label for="fax">{{ 'auth.step_business.fax' | translate }}</label>
-      <input id="fax" type="text" formControlName="fax" tabindex="-1" autocomplete="off">
-    </div>
 
   </div>
 </div>

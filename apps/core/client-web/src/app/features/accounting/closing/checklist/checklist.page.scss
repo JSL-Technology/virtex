@@ -6,7 +6,7 @@
 // Estilos base del cierre (eran los de «Cierre de mes», que se fusionó en esta lista).
 .closing-header {
   margin-bottom: var(--space-8);
-  h3 { font-size: var(--text-xl); font-weight: var(--font-semibold); margin-bottom: var(--space-4); }
+  h1, h3 { font-size: var(--text-xl); font-weight: var(--font-semibold); margin-bottom: var(--space-4); }
 }
 
 .progress-bar {

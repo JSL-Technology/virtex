@@ -17,6 +17,7 @@ import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.s
 import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
 import { Account } from '../../../core/models/account.model';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
+import { CountryPackService } from '../../../core/api/country-pack.service';
 
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 const todayIso = (): string => {
@@ -48,6 +49,14 @@ export class VendorDebitNoteFormPage implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly organization = inject(ActiveOrganizationService);
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
+  private readonly countryPack = inject(CountryPackService);
+  /**
+   * The note's authority number (the DGII NCF, shape-checked on the server), asked only where the
+   * market has one for purchases (QA C-06): a US supplier's debit memo has no such number.
+   */
+  protected readonly supplierFiscalNumber = computed(
+    () => this.countryPack.pack()?.documents.supplierFiscalNumber ?? false,
+  );
 
   /** `?billId=` — from the bill's own page. */
   readonly billId = input<string>();
@@ -123,7 +132,7 @@ export class VendorDebitNoteFormPage implements OnInit {
         amount: round2(Number(raw.amount)),
         taxAmount: round2(Number(raw.taxAmount) || 0),
         expenseAccountId: raw.expenseAccountId as string,
-        ncf: (raw.ncf ?? '').trim().toUpperCase() || undefined,
+        ncf: (this.supplierFiscalNumber() && (raw.ncf ?? '').trim().toUpperCase()) || undefined,
         reason: (raw.reason ?? '').trim(),
       })
       .subscribe({

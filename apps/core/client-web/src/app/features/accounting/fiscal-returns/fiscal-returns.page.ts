@@ -1,14 +1,17 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, filter, forkJoin, map, of, take } from 'rxjs';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { AuthService } from '../../../core/services/auth';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
-import { FiscalSettingsService } from '../../settings/data/fiscal-settings.service';
+import { CountryPackService } from '../../../core/api/country-pack.service';
+import { CountryNamesService } from '../../../core/i18n/countries';
 import { saveFile } from '../../../core/api/data-transfer.service';
 import {
   DGII_RETURNS,
@@ -23,8 +26,11 @@ import {
 /** The markets whose periodic returns this product produces. */
 export type ReturnsMarket = 'DO' | 'MX' | 'OTHER';
 
-/** Where one month's return stands, as the calendar colours it. */
-export type CellState = 'missing' | 'overdue' | 'generated' | 'submitted' | 'changed';
+/**
+ * Where one month's return stands, as the calendar colours it. `not_applicable` is a month before
+ * the company had anything to report (QA A-15).
+ */
+export type CellState = 'missing' | 'overdue' | 'generated' | 'submitted' | 'changed' | 'not_applicable';
 
 const STATE_TONE: Record<CellState, VxTone> = {
   missing: 'neutral',
@@ -32,15 +38,8 @@ const STATE_TONE: Record<CellState, VxTone> = {
   generated: 'info',
   submitted: 'ok',
   changed: 'warning',
+  not_applicable: 'neutral',
 };
-
-/**
- * The DGII's due day for the 606/607/608/609: the 15th of the month after the period. Mexico's
- * deadlines depend on the kind of taxpayer (the 3rd or the 5th of the second month after, and a
- * different rule for the Catálogo), which the product does not record — so it flags nothing
- * overdue there rather than flag the wrong month.
- */
-const DGII_DUE_DAY = 15;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -56,14 +55,20 @@ const pad = (n: number) => String(n).padStart(2, '0');
 @Component({
   selector: 'app-fiscal-returns-page',
   standalone: true,
-  imports: [FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './fiscal-returns.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './fiscal-returns.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FiscalReturnsPage implements OnInit {
   private readonly returns = inject(FiscalReturnsService);
-  private readonly fiscalSettings = inject(FiscalSettingsService);
+  private readonly countryPack = inject(CountryPackService);
+  private readonly countryNames = inject(CountryNamesService);
+  /** The pack once it has been read (or failed), for the one decision `ngOnInit` waits on. */
+  private readonly packReady$ = toObservable(this.countryPack.pack).pipe(
+    filter((pack) => pack !== undefined),
+    take(1),
+  );
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(DialogService);
   private readonly auth = inject(AuthService);
@@ -71,6 +76,24 @@ export class FiscalReturnsPage implements OnInit {
   private readonly today = new Date();
 
   readonly market = signal<ReturnsMarket | null>(null);
+
+  /**
+   * The first day the company had anything to report (QA A-15). The calendar used to start every
+   * January, and a company created in September saw eight months of every return as «Overdue».
+   */
+  readonly activeSince = signal<string | null>(null);
+
+  /**
+   * The day of the following month a return falls due, from the market's pack: the DGII's 15th.
+   * Mexico's deadlines depend on the kind of taxpayer (the 3rd or the 5th of the second month after,
+   * and a different rule for the Catálogo), which the product does not record — so its pack names no
+   * day and nothing is flagged overdue there rather than the wrong month.
+   */
+  readonly dueDay = computed(() => this.countryPack.pack()?.fiscalReturns.dueDay ?? null);
+
+  /** Where the product generates no return files: the market's name and the reports to use instead. */
+  readonly countryName = computed(() => this.countryNames.nameOf(this.countryPack.pack()?.countryCode));
+  readonly prepareWith = computed(() => this.countryPack.pack()?.fiscalReturns.prepareWith ?? []);
   readonly year = signal(this.today.getFullYear());
   readonly filings = signal<FiscalReturnFiling[]>([]);
   readonly loading = signal(true);
@@ -109,9 +132,12 @@ export class FiscalReturnsPage implements OnInit {
     return Array.from({ length: last }, (_, index) => index + 1);
   });
 
+  /** From this year back to the year the company started reporting; never a year before it existed. */
   readonly years = computed(() => {
     const current = this.today.getFullYear();
-    return Array.from({ length: 6 }, (_, index) => current - index);
+    const first = Number((this.activeSince() ?? '').slice(0, 4)) || current - 5;
+    const span = Math.max(1, Math.min(current - first + 1, 6));
+    return Array.from({ length: span }, (_, index) => current - index);
   });
 
   readonly empty = computed(
@@ -126,17 +152,27 @@ export class FiscalReturnsPage implements OnInit {
   /** Months filed whose data changed afterwards, across the year. */
   readonly changedCount = computed(() => this.filings().filter((filing) => filing.changedSinceSubmission).length);
 
+  /**
+   * Which generator the market has comes from its country pack — not from a country name here — and
+   * where the calendar starts from the company's own history.
+   */
   ngOnInit(): void {
-    this.fiscalSettings.coverage().subscribe({
-      next: (coverage) => {
-        const country = (coverage.countryCode ?? '').toUpperCase();
-        this.market.set(country === 'DO' || country === 'MX' ? country : 'OTHER');
-        this.load();
-      },
-      error: (error: unknown) => {
-        this.error.set(this.notifications.httpErrorMessage(error, 'fiscal_returns.load_failed'));
+    forkJoin({
+      pack: this.packReady$,
+      since: this.returns.activeSince().pipe(
+        map((answer) => answer.activeSince),
+        catchError(() => of(null)),
+      ),
+    }).subscribe(({ pack, since }) => {
+      if (!pack) {
+        this.error.set('fiscal_returns.load_failed');
         this.loading.set(false);
-      },
+        return;
+      }
+      this.activeSince.set(since);
+      const generator = pack.fiscalReturns.generator;
+      this.market.set(generator === 'DGII' ? 'DO' : generator === 'SAT' ? 'MX' : 'OTHER');
+      this.load();
     });
   }
 
@@ -184,8 +220,16 @@ export class FiscalReturnsPage implements OnInit {
   state(kind: TrackedReturn, month: number): CellState {
     const filing = this.filingOf(kind, month);
     if (filing?.status === 'SUBMITTED') return filing.changedSinceSubmission ? 'changed' : 'submitted';
-    if (this.market() === 'DO' && this.isPastDue(month)) return 'overdue';
+    // Nothing to file for a month the company had not started — neutral, never «Overdue» (QA A-15).
+    if (!filing && this.beforeActivity(month)) return 'not_applicable';
+    if (this.dueDay() !== null && this.isPastDue(month)) return 'overdue';
     return filing ? 'generated' : 'missing';
+  }
+
+  /** The month ended before the company's first day with anything to report. */
+  beforeActivity(month: number): boolean {
+    const since = this.activeSince();
+    return since !== null && `${this.year()}-${pad(month)}` < since.slice(0, 7);
   }
 
   tone(kind: TrackedReturn, month: number): VxTone {
@@ -197,9 +241,9 @@ export class FiscalReturnsPage implements OnInit {
     return `${this.year()}-${pad(month)}-01`;
   }
 
-  /** The DGII due date of a month's returns: the 15th of the following month. */
+  /** A month's due date: the market's due day of the following month. */
   dueDate(month: number): string {
-    const due = new Date(this.year(), month, DGII_DUE_DAY);
+    const due = new Date(this.year(), month, this.dueDay() ?? 1);
     return `${due.getFullYear()}-${pad(due.getMonth() + 1)}-${pad(due.getDate())}`;
   }
 
@@ -315,7 +359,7 @@ export class FiscalReturnsPage implements OnInit {
   }
 
   private isPastDue(month: number): boolean {
-    const due = new Date(this.year(), month, DGII_DUE_DAY, 23, 59, 59);
+    const due = new Date(this.year(), month, this.dueDay() ?? 1, 23, 59, 59);
     return this.today.getTime() > due.getTime();
   }
 }

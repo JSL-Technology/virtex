@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
+import { CountryPackService } from '../../../core/api/country-pack.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SuppliersService, CreateSupplierDto, UpdateSupplierDto } from '../../../core/api/suppliers.service';
@@ -50,6 +51,15 @@ export class SupplierForm implements OnInit {
 
   /** Every country, in the reader's language. See `CountryNamesService`. */
   protected readonly countries = this.countryNames.options;
+
+  /**
+   * The company's market, from its country pack (QA C-06). The taxpayer classification only decides
+   * withholding, so it is asked only where the market withholds at source; the phone placeholder is
+   * the market's own shape.
+   */
+  private readonly countryPack = inject(CountryPackService);
+  protected readonly withholdingApplies = this.countryPack.withholding;
+  protected readonly phoneExample = () => this.countryPack.pack()?.examples.phone ?? '';
 
 
   /**

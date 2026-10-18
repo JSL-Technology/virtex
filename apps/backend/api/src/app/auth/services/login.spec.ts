@@ -19,6 +19,8 @@ import { MfaPolicyPort } from '../ports/mfa-policy.port';
 import { UserStatus } from '../../users/entities/user.entity/user.entity';
 import { AuthError } from '../enums/auth-error.enum';
 import { AuthException } from '../exceptions/auth.exception';
+import { AccountUnlockService } from './account-unlock.service';
+import { LockedError } from '../../i18n/localized.exception';
 
 /**
  * What `AuthService.login` actually promises.
@@ -53,7 +55,7 @@ describe('AuthService — sign in', () => {
     hash: jest.fn(),
   };
   const securityAnalysisService = {
-    handleFailedLoginAttempt: jest.fn(),
+    handleFailedLoginAttempt: jest.fn().mockResolvedValue({ lockedNow: false }),
     resetLoginAttempts: jest.fn(),
     checkImpossibleTravel: jest.fn(),
   };
@@ -67,6 +69,7 @@ describe('AuthService — sign in', () => {
   };
   const mfaOrchestratorService = { sendLoginOtp: jest.fn(), complete2faLogin: jest.fn() };
   const eventEmitter = { emit: jest.fn() };
+  const accountUnlockService = { notifyLocked: jest.fn() };
 
   const activeUser = () => ({
     id: 'user-1',
@@ -100,6 +103,7 @@ describe('AuthService — sign in', () => {
         { provide: MfaOrchestratorService, useValue: mfaOrchestratorService },
         { provide: TwoFactorAuthService, useValue: { verifyCode: jest.fn() } },
         { provide: PasswordService, useValue: passwordService },
+        { provide: AccountUnlockService, useValue: accountUnlockService },
         { provide: EventEmitter2, useValue: eventEmitter },
         { provide: EnterpriseSsoService, useValue: { discoverByEmail: jest.fn() } },
         { provide: OidcProviderService, useValue: { isProviderConfigured: jest.fn() } },
@@ -178,64 +182,76 @@ describe('AuthService — sign in', () => {
     });
   });
 
-  describe('the lockout says nothing a wrong password does not', () => {
+  describe('a locked account', () => {
     /**
-     * The lockout used to answer `AUTH_USER_BLOCKED` with `meta.lockoutUntil` to a caller holding
-     * the RIGHT password and `AUTH_INVALID_CREDENTIALS` to one holding a wrong one — and only the
-     * wrong-password branch paid `simulateDelay()`. Two oracles, in the body and in the clock, on
-     * the one control whose entire job is to stop online guessing.
-     *
-     * What that allowed: lock the account with five junk passwords, keep guessing, and watch for
-     * the response that changes. The lockout did not stop the guessing; it announced the winning
-     * guess and then told the attacker exactly how long to wait.
-     *
-     * These three tests pin the fix from the attacker's side: the two replies must be
-     * indistinguishable in code, in body, and in the work done to produce them.
+     * QA C-09. The lockout used to answer a locked account holding the RIGHT password exactly as a
+     * wrong one ("incorrect email or password"), so the owner reset a password that was never the
+     * problem and stayed locked out. With the right password the reply now names the lockout and
+     * the minutes left, and the owner is emailed a link to lift it. With a wrong password nothing
+     * changes: same generic code, the attempt counts, the lock slides.
      */
     const lockedOutUser = () => {
       const user = activeUser();
-      user.security.lockoutUntil = new Date(Date.now() + 60_000) as never;
+      user.security.lockoutUntil = new Date(Date.now() + 10 * 60_000) as never;
       return user;
     };
 
-    it('answers a locked account with the right password exactly as it answers a wrong one', async () => {
+    it('tells the owner holding the right password that the account is locked, and for how long', async () => {
       usersService.findUserForAuth.mockResolvedValue(lockedOutUser());
       passwordService.verify.mockResolvedValue(true);
 
       const error = await service
         .login({ email: 'someone@example.com', password: 'right' } as never)
+        .catch((e) => e);
+
+      expect(error).toBeInstanceOf(LockedError);
+      expect((error as LockedError).getStatus()).toBe(423);
+      expect((error as LockedError).code).toBe('AUTH_ACCOUNT_TEMPORARILY_LOCKED');
+      expect((error as LockedError).params['minutes']).toBe(10);
+      expect((error as LockedError).params['retryAfterSeconds']).toBeGreaterThan(540);
+    });
+
+    it('emails the unlock link to the address on the account', async () => {
+      const user = lockedOutUser();
+      usersService.findUserForAuth.mockResolvedValue(user);
+      passwordService.verify.mockResolvedValue(true);
+
+      await service.login({ email: 'someone@example.com', password: 'right' } as never).catch(() => undefined);
+
+      expect(accountUnlockService.notifyLocked).toHaveBeenCalledWith(user);
+    });
+
+    it('does not count a right-password attempt, which would slide the lock forward', async () => {
+      usersService.findUserForAuth.mockResolvedValue(lockedOutUser());
+      passwordService.verify.mockResolvedValue(true);
+
+      await service.login({ email: 'someone@example.com', password: 'right' } as never).catch(() => undefined);
+
+      expect(securityAnalysisService.handleFailedLoginAttempt).not.toHaveBeenCalled();
+    });
+
+    it('keeps the generic reply for a wrong password, and counts it', async () => {
+      usersService.findUserForAuth.mockResolvedValue(lockedOutUser());
+      passwordService.verify.mockResolvedValue(false);
+
+      const error = await service
+        .login({ email: 'someone@example.com', password: 'wrong' } as never)
         .catch((e) => e);
 
       expect((error as AuthException).message).toContain(AuthError.INVALID_CREDENTIALS);
-      expect((error as AuthException).message).not.toContain(AuthError.USER_BLOCKED);
-    });
-
-    it('never puts lockoutUntil on the wire', async () => {
-      usersService.findUserForAuth.mockResolvedValue(lockedOutUser());
-      passwordService.verify.mockResolvedValue(true);
-
-      const error = await service
-        .login({ email: 'someone@example.com', password: 'right' } as never)
-        .catch((e) => e);
-
-      // `getResponse()` is what the client actually receives.
-      const body = (error as AuthException).getResponse() as Record<string, unknown>;
-      expect(body).not.toHaveProperty('meta');
-      expect(JSON.stringify(body)).not.toContain('lockoutUntil');
-    });
-
-    it('does the same work for a right password as for a wrong one, so the clock cannot tell either', async () => {
-      // The wrong-password branch performs an UPDATE on `user_security` before its delay.
-      // Skipping it on the right-password branch would leave a timing difference of exactly one
-      // database round-trip between "correct" and "incorrect" — the same oracle, quieter.
-      usersService.findUserForAuth.mockResolvedValue(lockedOutUser());
-      passwordService.verify.mockResolvedValue(true);
-
-      await service
-        .login({ email: 'someone@example.com', password: 'right' } as never)
-        .catch(() => undefined);
-
+      expect(JSON.stringify((error as AuthException).getResponse())).not.toContain('lockout');
       expect(securityAnalysisService.handleFailedLoginAttempt).toHaveBeenCalled();
+    });
+
+    it('emails the owner when a wrong password is the one that engages the lock', async () => {
+      const user = activeUser();
+      usersService.findUserForAuth.mockResolvedValue(user);
+      passwordService.verify.mockResolvedValue(false);
+      securityAnalysisService.handleFailedLoginAttempt.mockResolvedValueOnce({ lockedNow: true });
+
+      await service.login({ email: 'someone@example.com', password: 'wrong' } as never).catch(() => undefined);
+
+      expect(accountUnlockService.notifyLocked).toHaveBeenCalledWith(user, { force: true });
     });
   });
 

@@ -127,6 +127,54 @@ export type StatutoryReferenceKey =
  * Versioned rather than constant: a rate is a fact about a *moment*. A payroll recomputed after a
  * rate change must still produce what it produced at the time.
  */
+/** One bracket of a withholding table a company enters; annual amounts, the rate as a fraction. */
+export interface WithholdingBracket {
+  over: number;
+  upTo: number | null;
+  rate: number;
+  baseAmount: number;
+}
+
+export type CompanyParameterKind = 'CONTRIBUTION' | 'TABLE' | 'AMOUNT';
+
+/**
+ * A payroll figure the COMPANY keeps (`/payroll/company-parameters`), in any market: the US FICA,
+ * Medicare and FUTA defaults, its state's withholding table, anything it adds. Dated like every
+ * statutory figure: a new value is recorded from the date it takes effect.
+ */
+export interface CompanyPayrollParameter {
+  id: string;
+  countryCode: string;
+  code: string;
+  name: string;
+  kind: CompanyParameterKind;
+  /** The state it belongs to (`TX`); '' for a national one. */
+  jurisdiction: string;
+  employeeRate: number | null;
+  employerRate: number | null;
+  wageBase: number | null;
+  threshold: number | null;
+  creditRate: number | null;
+  amount: number | null;
+  brackets: WithholdingBracket[] | null;
+  currencyCode: string;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  source: 'STATUTORY_DEFAULT' | 'COMPANY';
+  legalBasis: string | null;
+  /** Seeded without figures: the company has to enter them. */
+  requiresInput: boolean;
+  active: boolean;
+}
+
+export type CompanyPayrollParameterInput = Pick<CompanyPayrollParameter, 'code' | 'name' | 'kind' | 'effectiveFrom'> &
+  Partial<
+    Pick<
+      CompanyPayrollParameter,
+      'jurisdiction' | 'employeeRate' | 'employerRate' | 'wageBase' | 'threshold' | 'creditRate' | 'amount' | 'brackets' | 'legalBasis'
+    >
+  >;
+
 export interface StatutoryContribution {
   id?: string;
   countryCode: string;
@@ -300,6 +348,22 @@ export class PayrollService {
     return this.http.get<IncomeTaxBracket[]>(`${this.apiUrl}/parameters/tax-brackets`, {
       params: new HttpParams().set('country', country),
     });
+  }
+
+  // ── Company parameters ──────────────────────────────────────────────────────
+
+  listCompanyParameters(): Observable<CompanyPayrollParameter[]> {
+    return this.http.get<CompanyPayrollParameter[]>(`${this.apiUrl}/company-parameters`);
+  }
+
+  /** A new parameter, a new value from a date, or a correction of the value recorded for that date. */
+  recordCompanyParameter(body: CompanyPayrollParameterInput): Observable<CompanyPayrollParameter> {
+    return this.http.post<CompanyPayrollParameter>(`${this.apiUrl}/company-parameters`, body);
+  }
+
+  /** Retire a parameter from the company's payroll (every version of it), or reinstate it. */
+  setCompanyParameterActive(id: string, active: boolean): Observable<CompanyPayrollParameter[]> {
+    return this.http.patch<CompanyPayrollParameter[]>(`${this.apiUrl}/company-parameters/${id}`, { active });
   }
 
   upsertContribution(body: StatutoryContribution): Observable<StatutoryContribution> {

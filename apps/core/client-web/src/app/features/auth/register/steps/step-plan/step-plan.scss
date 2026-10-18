@@ -344,3 +344,14 @@
 @media (prefers-reduced-motion: reduce) {
   .billing-toggle__option { transition: none; }
 }
+
+//  Por qué el botón de alta está apagado (QA C-07): en tono neutro mientras nadie
+//  lo ha intentado, en el color de error cuando sí.
+.terms-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--content-secondary);
+}

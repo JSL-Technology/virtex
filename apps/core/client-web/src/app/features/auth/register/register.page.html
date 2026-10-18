@@ -76,7 +76,7 @@
           }
           @case (3) {
             <div class="step-content">
-              <app-step-phone-verify [phone]="currentPhone" (verified)="onPhoneVerified($event)" (unavailable)="phoneChannelDown.set(true)"></app-step-phone-verify>
+              <app-step-phone-verify [phone]="currentPhone" (verified)="onPhoneVerified($event)" (unavailable)="phoneChannelDown.set(true)" (skipped)="onPhoneSkipped($event)"></app-step-phone-verify>
             </div>
           }
           @case (4) {
@@ -119,7 +119,14 @@
         }
 
         <div class="step-actions__primary">
-          @if (currentStep() < steps.length) {
+          <!--
+            Una sola acción principal por paso (QA M-22). En los pasos de verificación esa acción
+            es el código: seis dígitos verifican y avanzan solos. «Siguiente» aparece solo cuando
+            ya no queda nada que verificar —sin teléfono, canal caído, «verificar más tarde»—.
+          -->
+          @if (currentStep() === 2 || (currentStep() === 3 && !phoneStepDone())) {
+            <!-- Nada aquí: la acción la lleva el código. -->
+          } @else if (currentStep() < steps.length) {
             <!--
               `(clicked)`, no `(onClick)`. La plantilla anterior escuchaba
               `onClick`, que no es la salida del componente sino un nombre de
@@ -132,9 +139,15 @@
               <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
             </app-auth-button>
           } @else {
+            <!--
+              Deshabilitado hasta aceptar los Términos y la Privacidad (QA C-07): antes se podía
+              crear la cuenta con la casilla sin marcar. El motivo se dice junto a la casilla.
+            -->
             <app-auth-button
               type="submit"
               variant="primary"
+              [disabled]="!termsAccepted"
+              [attr.aria-describedby]="termsAccepted ? null : 'terms-required-hint'"
               [loading]="isRegistering()">
               {{ (isRegistering() ? 'register.registering' : 'register.submit_button') | translate }}
               @if (!isRegistering()) {

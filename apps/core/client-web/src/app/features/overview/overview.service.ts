@@ -165,6 +165,7 @@ function toEventItem(row: EventDto, format: FormatService): EventItem {
     overdue: view.overdue,
     titleKey: `overview.events.item.${row.kind}`,
     typeKey: `overview.events.kind.${row.kind}`,
+    tone: row.kind.endsWith('_OVERDUE') ? 'danger' : row.kind.startsWith('PERIOD_CLOSE') ? 'info' : 'warning',
     /**
      * A period's reference is its month, and a month has a name in every language.
      *
@@ -261,6 +262,11 @@ export interface EventItem {
   overdue: boolean;
   titleKey: string;
   typeKey: string;
+  /**
+   * The badge colour, the same the lists use for the same state (QA M-20): «Por cobrar» was black
+   * here and amber in the invoice list. Overdue is danger, money waiting is warning, a closing is info.
+   */
+  tone: 'warning' | 'danger' | 'info';
   reference: string | null;
   counterparty: string | null;
   amount: number | null;

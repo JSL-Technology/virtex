@@ -31,6 +31,8 @@ import { PayrollConceptService } from './services/payroll-concept.service';
 import { PayrollInputService } from './services/payroll-input.service';
 import { PayrollParametersService } from './services/payroll-parameters.service';
 import { PayrollParametersAdminService } from './services/payroll-parameters-admin.service';
+import { CompanyPayrollParametersService } from './services/company-payroll-parameters.service';
+import { RecordCompanyParameterDto, SetCompanyParameterActiveDto } from './dto/company-parameter.dto';
 import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
 import { CreateRunDto } from './dto/create-run.dto';
 import { CreateConceptDto } from './dto/create-concept.dto';
@@ -62,6 +64,7 @@ export class PayrollController {
     private readonly inputs: PayrollInputService,
     private readonly parameters: PayrollParametersService,
     private readonly parametersAdmin: PayrollParametersAdminService,
+    private readonly companyParameters: CompanyPayrollParametersService,
     private readonly tenantCountry: TenantCountryResolver,
   ) {}
 
@@ -305,6 +308,38 @@ export class PayrollController {
   @RequireStepUp(StepUpScope.MANAGE_COMPENSATION)
   replaceTaxScale(@Body() dto: ReplaceTaxScaleDto) {
     return this.parametersAdmin.replaceTaxScale(dto);
+  }
+
+  // ── Company parameters (the tenant's own, effective-dated) ─────────────────────
+  //
+  // The statutory tables above are the platform's, for the markets the payroll engine computes. A
+  // company in any other market keeps its rates here — seeded from its country pack as editable
+  // statutory defaults (FICA, Medicare, FUTA for the United States) plus the ones only it can know
+  // (its state's withholding table and unemployment rate). Writing them changes how the company's
+  // payroll is withheld, so it is the parameters grant and a fresh re-authentication, as above.
+
+  @Get('company-parameters')
+  @HasPermission(PERMISSIONS.PAYROLL_VIEW)
+  listCompanyParameters(@CurrentUser() user: AuthenticatedUser) {
+    return this.companyParameters.list(user.organizationId);
+  }
+
+  @Post('company-parameters')
+  @HasPermission(PERMISSIONS.PAYROLL_PARAMETERS_MANAGE)
+  @RequireStepUp(StepUpScope.MANAGE_COMPENSATION)
+  recordCompanyParameter(@Body() dto: RecordCompanyParameterDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.companyParameters.record(dto, user.organizationId);
+  }
+
+  @Patch('company-parameters/:id')
+  @HasPermission(PERMISSIONS.PAYROLL_PARAMETERS_MANAGE)
+  @RequireStepUp(StepUpScope.MANAGE_COMPENSATION)
+  setCompanyParameterActive(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: SetCompanyParameterActiveDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.companyParameters.setActive(id, dto.active, user.organizationId);
   }
 
   // ── TSS ──────────────────────────────────────────────────────────────────────

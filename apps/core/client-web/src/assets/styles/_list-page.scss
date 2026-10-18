@@ -33,6 +33,10 @@
   }
 
   .table-link {
+    //  A cell's only link is a target on its own, not text inside a sentence: 24px tall (QA M-09).
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
     color: var(--accent-solid);
     text-decoration: none;
 

@@ -3,6 +3,7 @@ import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, EntityManager } from 'typeorm';
+import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
 import * as argon2 from 'argon2';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GoogleRecaptchaValidator } from '@nestlab/google-recaptcha';
@@ -25,6 +26,8 @@ import { AuthConfig } from '../auth.config';
 import { UserSecurity } from '../../users/entities/user-security.entity';
 import { PasswordService } from './password.service';
 import { PendingRegistration, PendingRegistrationStatus } from '../entities/pending-registration.entity';
+import { LegalAcceptance } from '../entities/legal-acceptance.entity';
+import type { RegisterCheckoutDto } from '../dto/register-checkout.dto';
 import { Plan } from '../../saas/entities/plan.entity';
 import { MembershipService } from '../../organizations/services/membership.service';
 import { UserCacheService } from '../modules/user-cache.service';
@@ -39,6 +42,20 @@ export interface CompletedSubscriptionInfo {
   subscriptionId: string | null;
   status: string;
   currentPeriodEnd: Date | null;
+}
+
+/**
+ * The acceptance of the Terms and the Privacy policy as the signup gave it (QA C-07).
+ *
+ * `ipAddress` and `userAgent` come from the request, never from the body: they are evidence of
+ * where the acceptance was given, and evidence the applicant could write would prove nothing.
+ */
+export interface SignupConsent {
+  termsVersion: string;
+  privacyVersion: string;
+  acceptedAt: Date;
+  ipAddress: string | null;
+  userAgent: string | null;
 }
 
 /**
@@ -556,8 +573,15 @@ export class RegistrationService {
    * only once Stripe confirms the payment. Returns the pending row (or a dummy
    * for honeypot hits).
    */
-  async createPendingRegistration(dto: RegisterUserDto, planSlug: string): Promise<PendingRegistration | null> {
+  async createPendingRegistration(
+    dto: RegisterUserDto,
+    planSlug: string,
+    consent: SignupConsent,
+  ): Promise<PendingRegistration | null> {
     await this.validateRegistration(dto);
+    // The DTO refuses a payload without acceptance; this is the net under any caller that reaches
+    // the service without the HTTP pipe. No consent, no pending registration — and so no account.
+    this.assertConsent(dto as Partial<RegisterCheckoutDto>, consent);
 
     if (dto.fax) {
       this.logger.warn(`Spam registration detected (Honeypot): ${dto.email}`);
@@ -613,11 +637,70 @@ export class RegistrationService {
       postalCode: dto.postalCode ?? null,
       countryCode: dto.countryCode.toUpperCase(),
       planSlug,
+      termsVersion: consent.termsVersion,
+      privacyVersion: consent.privacyVersion,
+      termsAcceptedAt: consent.acceptedAt,
+      termsAcceptedIp: consent.ipAddress?.slice(0, 64) ?? null,
+      termsAcceptedUserAgent: consent.userAgent?.slice(0, 255) ?? null,
       status: PendingRegistrationStatus.PENDING,
       expiresAt: new Date(Date.now() + PENDING_REGISTRATION_TTL_MS),
     });
 
     return this.pendingRegistrationRepository.save(pending);
+  }
+
+  /**
+   * Refuse a signup that did not accept the documents in force.
+   *
+   * The same rule the DTO states, restated where the pending row is written: the DTO protects the
+   * HTTP route, this protects the service.
+   */
+  private assertConsent(dto: Partial<RegisterCheckoutDto>, consent: SignupConsent): void {
+    if (dto.acceptTerms !== true) {
+      throw new BadRequestError('validation.register_checkout.terms_must_be_accepted');
+    }
+    if (
+      consent.termsVersion !== LEGAL_DOCUMENTS.terms.version ||
+      consent.privacyVersion !== LEGAL_DOCUMENTS.privacy.version
+    ) {
+      throw new BadRequestError('validation.register_checkout.legal_version_outdated');
+    }
+  }
+
+  /**
+   * Copy the acceptance from the pending signup onto the person it produced.
+   *
+   * In the materialisation transaction, so an account never exists without the consent it was
+   * created under. A pending row from before consent was recorded carries none, and none is
+   * invented for it.
+   */
+  private async recordConsent(
+    pending: PendingRegistration,
+    userId: string,
+    organizationId: string,
+    manager: EntityManager,
+  ): Promise<void> {
+    if (!pending.termsAcceptedAt) return;
+    const rows = (
+      [
+        ['terms', pending.termsVersion],
+        ['privacy', pending.privacyVersion],
+      ] as const
+    )
+      .filter(([, version]) => !!version)
+      .map(([document, version]) =>
+        manager.create(LegalAcceptance, {
+          userId,
+          organizationId,
+          document,
+          version: version as string,
+          acceptedAt: pending.termsAcceptedAt as Date,
+          ipAddress: pending.termsAcceptedIp,
+          userAgent: pending.termsAcceptedUserAgent,
+          source: 'signup',
+        }),
+      );
+    if (rows.length) await manager.save(LegalAcceptance, rows);
   }
 
   /**
@@ -887,6 +970,8 @@ export class RegistrationService {
       organization.plan = plan;
       organization.planId = plan.id;
       await manager.save(organization);
+
+      await this.recordConsent(pending, user.id, organization.id, manager);
 
       pending.status = PendingRegistrationStatus.COMPLETED;
       pending.organizationId = organization.id;

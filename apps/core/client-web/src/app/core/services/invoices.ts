@@ -110,6 +110,8 @@ export interface Invoice {
   status: InvoiceStatus;
   type: 'INVOICE' | 'CREDIT_NOTE' | 'DEBIT_NOTE';
   paymentMethod: PaymentMethod;
+  /** Which of the company's payment methods (`ZELLE`), where it named one. */
+  paymentMethodCode?: string | null;
   lineItems: InvoiceLineItem[];
   notes?: string;
   originalInvoiceId?: string | null;
@@ -179,6 +181,8 @@ export interface CreateInvoiceDto {
   taxWithholdingRate?: number;
   incomeTaxWithholdingRate?: number;
   paymentMethod?: PaymentMethod;
+  /** One of the company's payment methods by code (`ACH`), where the market lets it keep its own. */
+  paymentMethodCode?: string;
   fiscalDocumentType?: string;
   /** The issuing branch. Omitted: the person's default branch, else the headquarters. */
   branchId?: string;
@@ -239,6 +243,14 @@ export interface InvoicingContext {
   taxRates: number[];
   /** True where the tax base is sub-national and the tenant must configure it (US, Brazil). */
   taxRequiresConfiguration: boolean;
+  /**
+   * How the market's tax is set (its country pack). `BY_JURISDICTION`: the server determines each
+   * line's rate from the buyer's state and the jurisdictions the company registered; the form shows
+   * that rate instead of asking for one.
+   */
+  taxModel?: 'NATIONAL_RATES' | 'BY_JURISDICTION';
+  /** The states the company collects in, with their combined rate today, in a `BY_JURISDICTION` market. */
+  registeredJurisdictions?: Array<{ stateCode: string; rate: number }>;
   fiscalDocumentTypes: FiscalDocumentTypeOption[];
   /** Which documents the company issues: traditional, electronic, or both. */
   emissionMode?: FiscalEmissionMode;

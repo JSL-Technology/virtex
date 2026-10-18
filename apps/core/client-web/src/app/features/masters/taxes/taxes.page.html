@@ -15,6 +15,111 @@
     <span>{{ 'masters.taxes.new_tax' | translate }}</span>
   </a>
 
+  <!--
+    Markets with no national rate (QA C-06). The sales tax is the states the company collects in;
+    without this section a US company saw an empty list and nothing to do about it.
+  -->
+  @if (byJurisdiction()) {
+    <section listCreate class="card jurisdictional" aria-labelledby="jurisdictional-title">
+      <header class="jurisdictional__head">
+        <div>
+          <h2 id="jurisdictional-title" class="jurisdictional__title">
+            {{ 'masters.taxes.by_state_title' | translate: { tax: (taxNameKey() | translate) } }}
+          </h2>
+          <p class="jurisdictional__help">{{ 'masters.taxes.by_state_help' | translate }}</p>
+        </div>
+        @if (registeredStates().length > 0 && !addingState()) {
+          <button type="button" class="secondary-button" *appHasPermission="'taxes:create'" (click)="startState()">
+            {{ 'masters.taxes.add_state' | translate }}
+          </button>
+        }
+      </header>
+
+      @if (registeredStates().length === 0 && !addingState()) {
+        <div class="jurisdictional__empty">
+          <p class="jurisdictional__empty-title">{{ 'masters.taxes.by_state_empty_title' | translate }}</p>
+          <p>{{ 'masters.taxes.by_state_empty_help' | translate }}</p>
+          <button type="button" class="primary-button" *appHasPermission="'taxes:create'" (click)="startState()">
+            {{ 'masters.taxes.add_first_state' | translate }}
+          </button>
+        </div>
+      }
+
+      @if (addingState()) {
+        <form class="jurisdictional__form" [formGroup]="stateForm" (ngSubmit)="saveState()">
+          <label class="j-field">
+            <span>{{ 'masters.taxes.state' | translate }} *</span>
+            <select formControlName="stateCode">
+              <option value="" disabled>{{ 'masters.taxes.choose_state' | translate }}</option>
+              @for (division of availableDivisions(); track division.code) {
+                <option [value]="division.code">{{ division.name }} ({{ division.code }})</option>
+              }
+            </select>
+          </label>
+          <label class="j-field">
+            <span>{{ 'masters.taxes.state_rate' | translate }} *</span>
+            <input type="number" step="0.001" min="0" max="100" formControlName="ratePercent"
+              [placeholder]="'masters.taxes.state_rate_placeholder' | translate" />
+          </label>
+          <label class="j-field" for="stateEffectiveFrom">
+            <span>{{ 'masters.taxes.effective_from' | translate }} *</span>
+            <vx-date-field inputId="stateEffectiveFrom" formControlName="effectiveFrom" />
+          </label>
+          <div class="j-actions">
+            <button type="submit" class="primary-button" [disabled]="savingState()">{{ 'common.save' | translate }}</button>
+            <button type="button" class="secondary-button" (click)="addingState.set(false)">{{ 'common.cancel' | translate }}</button>
+          </div>
+          @if (stateForm.touched && stateForm.invalid) {
+            <p class="field-error" role="alert">{{ 'masters.taxes.state_form_invalid' | translate }}</p>
+          }
+        </form>
+      }
+
+      @if (registeredStates().length > 0) {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'masters.taxes.state' | translate }}</th>
+              <th class="text-right">{{ 'masters.taxes.state_rate' | translate }}</th>
+              <th class="text-right">{{ 'masters.taxes.combined_rate' | translate }}</th>
+              <th>{{ 'masters.taxes.in_force_since' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of registeredStates(); track row.id) {
+              <tr>
+                <td>{{ row.stateName }} <code>{{ row.stateCode }}</code></td>
+                <td class="text-right">{{ row.rate | vxPercent: '1.0-3' }}</td>
+                <td class="text-right">
+                  {{ row.combined | vxPercent: '1.0-3' }}
+                  @if (row.localCount > 0) {
+                    <small class="jurisdictional__local">{{ 'masters.taxes.local_rates' | translate: { count: row.localCount } }}</small>
+                  }
+                </td>
+                <td>{{ row.effectiveFrom | vxDate }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+
+      <p class="jurisdictional__more">
+        {{ 'masters.taxes.local_rates_help' | translate }}
+        <a routerLink="/settings/tax-jurisdictions">{{ 'masters.taxes.open_jurisdictions' | translate }}</a>
+      </p>
+    </section>
+  }
+
+  <div listEmpty class="empty-copy">
+    @if (byJurisdiction()) {
+      <p class="ls__state-title">{{ 'masters.taxes.no_flat_taxes_title' | translate }}</p>
+      <p class="ls__state-help">{{ 'masters.taxes.no_flat_taxes_help' | translate }}</p>
+    } @else {
+      <p class="ls__state-title">{{ 'masters.taxes.empty_title' | translate }}</p>
+      <p class="ls__state-help">{{ 'masters.taxes.empty_help' | translate }}</p>
+    }
+  </div>
+
   <div class="table-container card">
     <table [appSort]="table.sort" class="data-table">
       <thead>

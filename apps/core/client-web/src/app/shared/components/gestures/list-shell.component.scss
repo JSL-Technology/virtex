@@ -30,10 +30,13 @@
 
 .ls__identity { min-width: 0; }
 
-.ls__title {
+.ls__title-row {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+}
+
+.ls__title {
   margin: 0;
   @include ds.heading('2xl');
 }

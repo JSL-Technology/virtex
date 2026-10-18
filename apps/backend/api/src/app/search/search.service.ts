@@ -53,8 +53,16 @@ export class SearchService {
           id: i.id,
           titleKey: 'search.result.invoice_title',
           titleParams: { number: i.invoiceNumber },
-          descriptionKey: 'search.result.invoice_description',
-          descriptionParams: { customer: i.customerName },
+          // The fiscal number, total and state, not only the customer (QA A-19): looking an invoice
+          // up by its NCF is the commonest query at the till and in support, and the result has to
+          // say which document it found.
+          descriptionKey: i.fiscalNumber
+            ? 'search.result.invoice_description_fiscal'
+            : 'search.result.invoice_description',
+          descriptionParams: { customer: i.customerName, fiscalNumber: i.fiscalNumber ?? null },
+          amount: Number(i.total),
+          currency: i.currencyCode,
+          status: i.status,
           link: `/invoices/${i.id}`,
         })),
       },
@@ -77,7 +85,7 @@ export class SearchService {
           descriptionParams: { taxId: c.taxId },
           documentTypeCode: c.identityDocumentTypeCode ?? null,
           documentTypeCountry: c.identityDocumentCountry ?? null,
-          link: `/masters/customers/${c.id}/edit`,
+          link: `/contacts/customers/${c.id}/edit`,
         })),
       },
     ].filter((g) => g.results.length > 0);

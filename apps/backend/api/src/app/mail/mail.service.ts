@@ -167,6 +167,34 @@ export class MailService {
     return { count, unitKey };
   }
 
+  /**
+   * Tell the owner their account has been locked, and give them a way out (QA C-09).
+   *
+   * Sent when too many failed sign-ins lock the account, and again (throttled) when the owner
+   * signs in with the right password while it is still locked. Goes to the address on the
+   * account, so whoever triggered the lock — the owner mistyping, or somebody guessing — is not
+   * the one who receives the link.
+   */
+  async sendAccountLockedEmail(user: User, token: string, minutes: number, validHours: number) {
+    const language = this.languageFor(user);
+
+    await this.enqueue({
+      to: user.email,
+      subjectKey: 'mail.account_locked.subject',
+      subjectParams: { appName: this.appName },
+      language,
+      template: 'account-locked',
+      context: {
+        ...this.baseContext(),
+        name: user.firstName,
+        minutes,
+        validHours,
+        unlockUrl: this.links.unlockAccount(token, language),
+        resetPasswordUrl: this.links.forgotPassword(language),
+      },
+    });
+  }
+
   async sendUserInvitation(user: User, token: string) {
     const language = this.languageFor(user);
 

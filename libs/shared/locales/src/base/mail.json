@@ -1,4 +1,54 @@
 {
+  "mail.account_locked.body": {
+    "es": "Hubo demasiados intentos fallidos de iniciar sesión en tu cuenta de {{appName}}, así que la bloqueamos temporalmente. Se desbloqueará sola en unos {{minutes}} min.",
+    "en": "There were too many failed sign-in attempts on your {{appName}} account, so we locked it temporarily. It will unlock by itself in about {{minutes}} min.",
+    "pt": "Houve tentativas demais sem sucesso de entrar na sua conta {{appName}}, então a bloqueamos temporariamente. Ela será desbloqueada sozinha em cerca de {{minutes}} min."
+  },
+  "mail.account_locked.heading": {
+    "es": "Bloqueamos tu cuenta por seguridad",
+    "en": "We locked your account for your security",
+    "pt": "Bloqueamos sua conta por segurança"
+  },
+  "mail.account_locked.if_it_was_not_you": {
+    "es": "¿No fuiste tú? Alguien podría estar intentando adivinar tu contraseña. Te recomendamos cambiarla:",
+    "en": "Wasn't you? Someone may be trying to guess your password. We recommend changing it:",
+    "pt": "Não foi você? Alguém pode estar tentando adivinhar sua senha. Recomendamos trocá-la:"
+  },
+  "mail.account_locked.if_it_was_you": {
+    "es": "Si fuiste tú y no quieres esperar, desbloquéala ahora:",
+    "en": "If it was you and you don't want to wait, unlock it now:",
+    "pt": "Se foi você e não quer esperar, desbloqueie agora:"
+  },
+  "mail.account_locked.link_valid_for": {
+    "es": "El enlace sirve una sola vez y caduca en {{hours}} h.",
+    "en": "The link works once and expires in {{hours}} h.",
+    "pt": "O link funciona uma única vez e expira em {{hours}} h."
+  },
+  "mail.account_locked.preheader": {
+    "es": "Hubo demasiados intentos fallidos. Se desbloquea sola en {{minutes}} min, o ahora con este enlace.",
+    "en": "There were too many failed attempts. It unlocks by itself in {{minutes}} min, or now with this link.",
+    "pt": "Houve tentativas demais sem sucesso. Ela se desbloqueia sozinha em {{minutes}} min, ou agora por este link."
+  },
+  "mail.account_locked.reset_password_link": {
+    "es": "restablecer mi contraseña",
+    "en": "reset my password",
+    "pt": "redefinir minha senha"
+  },
+  "mail.account_locked.subject": {
+    "es": "Bloqueamos temporalmente tu cuenta de {{appName}}",
+    "en": "We temporarily locked your {{appName}} account",
+    "pt": "Bloqueamos temporariamente sua conta {{appName}}"
+  },
+  "mail.account_locked.title": {
+    "es": "Cuenta bloqueada temporalmente · {{appName}}",
+    "en": "Account temporarily locked · {{appName}}",
+    "pt": "Conta temporariamente bloqueada · {{appName}}"
+  },
+  "mail.account_locked.unlock_button": {
+    "es": "Desbloquear mi cuenta",
+    "en": "Unlock my account",
+    "pt": "Desbloquear minha conta"
+  },
   "mail.billing_notice.go_billing": {
     "es": "Ir a facturación",
     "en": "Go to billing",
@@ -61,7 +111,7 @@
   },
   "mail.duplicate_registration.sign": {
     "es": "Iniciar sesión",
-    "en": "Sign In",
+    "en": "Sign in",
     "pt": "Entrar"
   },
   "mail.duplicate_registration.subject": {

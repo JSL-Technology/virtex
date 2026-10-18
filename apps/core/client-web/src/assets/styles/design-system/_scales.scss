@@ -28,7 +28,7 @@
   --font-numeric: 'tabular-nums' 1, 'lnum' 1;
 
   //  Escala tipográfica — 16px = 1rem
-  --text-2xs: 0.6875rem;   // 11px · marcas de eje, texto legal
+  --text-2xs: 0.75rem;     // 12px · marcas de eje, texto legal. Antes 11px: por debajo del mínimo legible (QA M-09)
   --text-xs: 0.75rem;      // 12px · etiquetas, insignias, pies
   --text-sm: 0.8125rem;    // 13px · celdas de tabla densas
   --text-md: 0.875rem;     // 14px · TEXTO BASE de la interfaz
