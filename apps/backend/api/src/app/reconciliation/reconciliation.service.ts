@@ -19,6 +19,13 @@ import {
   RuleDirection,
 } from './entities/reconciliation-rule.entity';
 import { CsvParserService, CsvParseError } from './parsers/csv-parser.service';
+import {
+  BankFileParseError,
+  ParsedBankFile,
+  detectFormat,
+  parseCamt053,
+  parseOfx,
+} from './parsers/bank-file-parsers';
 import { UploadStatementDto } from './dto/upload-statement.dto';
 import { ConfirmMatchDto } from './dto/confirm-match.dto';
 import { ExcludeTransactionDto } from './dto/exclude-transaction.dto';
@@ -57,7 +64,11 @@ export interface MatchCandidate {
   amount: number;
   /** 0-100. Amount and proximity in time, plus any overlap in wording. */
   score: number;
+  /** Why it scored: `amount`, `same_day`/`near_date`, `reference`, `words`, `learned`. */
+  reasons: MatchReason[];
 }
+
+export type MatchReason = 'amount' | 'same_day' | 'near_date' | 'reference' | 'words' | 'learned';
 
 /** Several ledger lines that together explain one statement line. */
 export interface MatchCandidateGroup {
@@ -79,7 +90,16 @@ export interface TransactionSuggestion {
   candidateGroups: MatchCandidateGroup[];
   /** A rule fired and the transaction has no ledger counterpart to match. */
   suggestedRuleId: string | null;
+  /**
+   * `safe`: one candidate, clearly ahead of any other and claimed by no other statement line —
+   * what "apply all safe matches" and the opt-in automatic confirmation act on. `review`: a person
+   * should choose (several candidates close together: the AI can be asked to break the tie).
+   */
+  confidence: 'safe' | 'review' | 'none';
 }
+
+/** How far ahead of the runner-up a candidate must be to count as unambiguous. */
+const SAFE_MARGIN = 15;
 
 /**
  * The bank reconciliation proof.
@@ -223,9 +243,6 @@ export class ReconciliationService {
     if (!bankAccount) {
       throw new BadRequestError('reconciliation.specified_bank_account_not_valid');
     }
-    if (dto.startDate > dto.endDate) {
-      throw new BadRequestError('reconciliation.statement_start_date_after_end_date');
-    }
 
     const spooled = spooledUploadPath(file);
     const bytes = file.buffer ?? (spooled ? await readFile(spooled) : undefined);
@@ -233,6 +250,26 @@ export class ReconciliationService {
       throw new BadRequestError('reconciliation.uploaded_file_empty_could_not_read');
     }
     const fileHash = createHash('sha256').update(bytes).digest('hex');
+
+    // OFX and camt.053 carry their own dates, signs, references and usually balances; a CSV
+    // carries rows and nothing else, so for it the mapping and the period are the caller's.
+    const format = detectFormat(bytes);
+    let structured: ParsedBankFile | null = null;
+    if (format !== 'csv') {
+      try {
+        structured = format === 'ofx' ? parseOfx(bytes) : parseCamt053(bytes);
+      } catch (error) {
+        throw new BadRequestError('reconciliation.bank_file_unreadable', {
+          detail: error instanceof BankFileParseError ? `${error.reason}: ${JSON.stringify(error.detail)}` : 'MALFORMED',
+        });
+      }
+    } else if (!dto.dateColumn || !dto.descriptionColumn || !dto.dateFormat) {
+      throw new BadRequestError('reconciliation.csv_mapping_required');
+    }
+    const period = statementPeriod(dto, structured);
+    if (period.startDate > period.endDate) {
+      throw new BadRequestError('reconciliation.statement_start_date_after_end_date');
+    }
 
     // The same file twice used to load every transaction a second time, and the duplicates were
     // matchable against ledger lines the first upload had already cleared.
@@ -255,30 +292,30 @@ export class ReconciliationService {
         currencyCode: bankAccount.currencyCode,
         fileName: file.originalname,
         fileHash,
-        startDate: dto.startDate,
-        endDate: dto.endDate,
-        startingBalance: dto.startingBalance,
-        endingBalance: dto.endingBalance,
+        startDate: period.startDate,
+        endDate: period.endDate,
+        startingBalance: period.startingBalance,
+        endingBalance: period.endingBalance,
         status: StatementStatus.IMPORTING,
         createdByUserId: actorUserId,
       }),
     );
 
     try {
-      const parsed = await this.csvParser.parse(bytes, {
-        date: dto.dateColumn,
-        description: dto.descriptionColumn,
+      const parsed = structured ? structured.transactions : await this.csvParser.parse(bytes, {
+        date: dto.dateColumn as string,
+        description: dto.descriptionColumn as string,
         reference: dto.referenceColumn,
         debit: dto.debitColumn,
         credit: dto.creditColumn,
         amount: dto.amountColumn,
-        dateFormat: dto.dateFormat,
+        dateFormat: dto.dateFormat as string,
         decimalSeparator: dto.decimalSeparator ?? '.',
         positiveAmountIsMoneyIn: dto.positiveAmountIsMoneyIn ?? true,
       });
 
       const outsideRange = parsed.filter(
-        (row) => row.date < dto.startDate || row.date > dto.endDate,
+        (row) => row.date < period.startDate || row.date > period.endDate,
       );
       if (outsideRange.length > 0) {
         throw new CsvParseError('INVALID_DATE', {
@@ -325,6 +362,10 @@ export class ReconciliationService {
     // Synchronous, and inside the request: the old code kicked auto-reconciliation off with a
     // detached promise and a `.catch(log)`, so the caller saw "completed" whatever happened.
     await this.applyRules(statement.id, organizationId, actorUserId);
+    // Opt-in, per company: confirm on import what is unambiguous. Undone like any match.
+    if ((await this.settings(organizationId)).autoConfirm) {
+      await this.applySafeMatches(statement.id, organizationId, null, MatchOrigin.AUTOMATIC);
+    }
 
     return this.findStatement(statement.id, organizationId);
   }
@@ -393,19 +434,34 @@ export class ReconciliationService {
       )
     ).filter((line) => !line.amountUnavailable);
     const rules = await this.activeRules(this.dataSource.manager, organizationId);
+    const settings = await this.settings(organizationId);
+    const learned = await this.learnedCounterparts(organizationId);
+    const counterparts = await this.entryCounterparts(
+      organizationId,
+      [...new Set(candidates.map((line) => line.journalEntryId))],
+      bankAccount.glAccountId,
+    );
 
-    return unmatched.map((transaction) => {
+    const suggestions: TransactionSuggestion[] = unmatched.map((transaction) => {
       const amount = signedAmount(transaction);
+      const expected = learned.get(descriptionSignature(transaction.description)) ?? null;
       const scored = candidates
-        .map((line) => ({
-          journalEntryLineId: line.id,
-          journalEntryId: line.journalEntryId,
-          entryNumber: line.entryNumber,
-          date: line.date,
-          description: line.description,
-          amount: line.amount,
-          score: scoreCandidate(transaction, amount, line),
-        }))
+        .map((line) => {
+          const { score, reasons } = scoreCandidate(transaction, amount, line, {
+            learnedAccounts: expected,
+            entryAccounts: counterparts.get(line.journalEntryId) ?? null,
+          });
+          return {
+            journalEntryLineId: line.id,
+            journalEntryId: line.journalEntryId,
+            entryNumber: line.entryNumber,
+            date: line.date,
+            description: line.description,
+            amount: line.amount,
+            score,
+            reasons,
+          };
+        })
         .filter((candidate) => candidate.score > 0)
         .sort((a, b) => b.score - a.score)
         .slice(0, 10);
@@ -415,6 +471,8 @@ export class ReconciliationService {
 
       const rule = rules.find((candidate) => this.ruleMatches(candidate, transaction));
 
+      const [top, runnerUp] = scored;
+      const clear = !!top && top.score >= settings.minScore && (!runnerUp || top.score - runnerUp.score >= SAFE_MARGIN);
       return {
         bankTransactionId: transaction.id,
         date: transaction.date,
@@ -424,8 +482,130 @@ export class ReconciliationService {
         candidateGroups: groups,
         suggestedRuleId:
           scored.length === 0 && groups.length === 0 && rule ? rule.id : null,
+        confidence: clear ? 'safe' : scored.length || groups.length ? 'review' : 'none',
       };
     });
+
+    // A ledger line that is the clear choice of two statement lines is the clear choice of
+    // neither: which of the two it belongs to is a person's call.
+    const claimed = new Map<string, number>();
+    for (const suggestion of suggestions) {
+      if (suggestion.confidence !== 'safe') continue;
+      const id = suggestion.candidates[0].journalEntryLineId;
+      claimed.set(id, (claimed.get(id) ?? 0) + 1);
+    }
+    for (const suggestion of suggestions) {
+      if (suggestion.confidence === 'safe' && (claimed.get(suggestion.candidates[0].journalEntryLineId) ?? 0) > 1) {
+        suggestion.confidence = 'review';
+      }
+    }
+    return suggestions;
+  }
+
+  /**
+   * Confirm every safe suggestion of a statement: one candidate, clearly ahead, claimed by no other
+   * line. `MANUAL` when a person pressed the button; `AUTOMATIC` when the tenant opted in to
+   * confirmation on import. Either way each one is an ordinary match, undone by `unmatch`.
+   */
+  async applySafeMatches(
+    statementId: string,
+    organizationId: string,
+    actorUserId: string | null,
+    origin: MatchOrigin.MANUAL | MatchOrigin.AUTOMATIC,
+  ): Promise<{ applied: number }> {
+    const suggestions = await this.suggestMatches(statementId, organizationId);
+    const safe = suggestions.filter((suggestion) => suggestion.confidence === 'safe');
+    let applied = 0;
+    for (const suggestion of safe) {
+      await this.dataSource.transaction(async (manager) => {
+        const statement = await manager.findOne(BankStatement, { where: { id: statementId, organizationId } });
+        if (!statement || statement.status === StatementStatus.RECONCILED) return;
+        await this.writeMatch(manager, {
+          statement,
+          organizationId,
+          bankTransactionIds: [suggestion.bankTransactionId],
+          journalEntryLineIds: [suggestion.candidates[0].journalEntryLineId],
+          origin,
+          ruleId: null,
+          actorUserId,
+          notes: null,
+        });
+        applied++;
+      });
+    }
+    return { applied };
+  }
+
+  async settings(organizationId: string): Promise<{ autoConfirm: boolean; minScore: number }> {
+    const [row]: Array<{ auto_confirm: boolean; min_score: number }> = await this.dataSource.query(
+      `SELECT auto_confirm, min_score FROM reconciliation_settings WHERE organization_id = $1`,
+      [organizationId],
+    );
+    return { autoConfirm: row?.auto_confirm ?? false, minScore: row?.min_score ?? DEFAULT_SAFE_SCORE };
+  }
+
+  async updateSettings(organizationId: string, changes: { autoConfirm?: boolean; minScore?: number }) {
+    const current = await this.settings(organizationId);
+    const next = {
+      autoConfirm: changes.autoConfirm ?? current.autoConfirm,
+      // Never below what "exact amount, same day" alone reaches: confirming on less is guessing.
+      minScore: Math.min(100, Math.max(DEFAULT_SAFE_SCORE - 5, Math.round(changes.minScore ?? current.minScore))),
+    };
+    await this.dataSource.query(
+      `INSERT INTO reconciliation_settings (organization_id, auto_confirm, min_score, updated_at)
+       VALUES ($1, $2, $3, now())
+       ON CONFLICT (organization_id) DO UPDATE SET auto_confirm = EXCLUDED.auto_confirm, min_score = EXCLUDED.min_score, updated_at = now()`,
+      [organizationId, next.autoConfirm, next.minScore],
+    );
+    return next;
+  }
+
+  /**
+   * What this company's people have matched before: the shape of a bank description (its words,
+   * without amounts or numbers) → the accounts on the other side of the entries it was cleared
+   * against. "TRANSFERENCIA CLARO" matched to telephone expense last month makes the entry that
+   * hits telephone expense the likelier one this month.
+   */
+  private async learnedCounterparts(organizationId: string): Promise<Map<string, Set<string>>> {
+    const rows: Array<{ description: string; account_id: string }> = await this.dataSource.query(
+      `SELECT bt.description, other.account_id
+         FROM reconciliation_matches m
+         JOIN bank_transactions bt ON bt.match_id = m.id
+         JOIN reconciliation_match_lines ml ON ml.match_id = m.id
+         JOIN journal_entry_lines line ON line.id = ml.journal_entry_line_id
+         JOIN journal_entries je ON je.id = line.journal_entry_id AND je.organization_id = m.organization_id
+         JOIN journal_entry_lines other ON other.journal_entry_id = line.journal_entry_id AND other.id <> line.id
+        WHERE m.organization_id = $1 AND m.origin IN ('MANUAL', 'RULE')
+        ORDER BY m.created_at DESC
+        LIMIT 5000`,
+      [organizationId],
+    );
+    const learned = new Map<string, Set<string>>();
+    for (const row of rows) {
+      const signature = descriptionSignature(row.description);
+      if (!signature) continue;
+      if (!learned.has(signature)) learned.set(signature, new Set());
+      learned.get(signature)!.add(row.account_id);
+    }
+    return learned;
+  }
+
+  /** For each candidate entry, the accounts on its other lines (the non-bank side). */
+  private async entryCounterparts(organizationId: string, entryIds: string[], bankGlAccountId: string): Promise<Map<string, Set<string>>> {
+    const map = new Map<string, Set<string>>();
+    if (!entryIds.length) return map;
+    const rows: Array<{ journal_entry_id: string; account_id: string }> = await this.dataSource.query(
+      `SELECT line.journal_entry_id, line.account_id
+         FROM journal_entry_lines line
+         JOIN journal_entries je ON je.id = line.journal_entry_id
+        WHERE je.organization_id = $1 AND line.journal_entry_id = ANY($2::uuid[]) AND line.account_id <> $3`,
+      [organizationId, entryIds, bankGlAccountId],
+    );
+    for (const row of rows) {
+      if (!map.has(row.journal_entry_id)) map.set(row.journal_entry_id, new Set());
+      map.get(row.journal_entry_id)!.add(row.account_id);
+    }
+    return map;
   }
 
   /**
@@ -905,7 +1085,8 @@ export class ReconciliationService {
       journalEntryLineIds: string[];
       origin: MatchOrigin;
       ruleId: string | null;
-      actorUserId: string;
+      /** Null for a match the system confirmed on its own (`AUTOMATIC`). */
+      actorUserId: string | null;
       notes: string | null;
     },
   ): Promise<ReconciliationMatch> {
@@ -1356,40 +1537,128 @@ function findSubsetsSummingTo(
 }
 
 /** Positive into the account, negative out of it. */
+/**
+ * The statement's period and balances: what the caller sent, else what the file states. A file
+ * that states them and a caller who sent different ones disagree about the same document, and the
+ * import stops rather than pick one.
+ */
+function statementPeriod(dto: UploadStatementDto, file: ParsedBankFile | null) {
+  const pick = <T>(sent: T | undefined, stated: T | null | undefined, field: string): T => {
+    if (sent !== undefined && sent !== null && stated !== undefined && stated !== null && sent !== stated) {
+      throw new BadRequestError('reconciliation.statement_disagrees_with_file', { field, sent: String(sent), file: String(stated) });
+    }
+    const value = sent ?? stated;
+    if (value === undefined || value === null) throw new BadRequestError('reconciliation.statement_period_required', { field });
+    return value as T;
+  };
+  const dates = file?.transactions.map((row) => row.date).sort() ?? [];
+  return {
+    startDate: pick(dto.startDate, file?.startDate ?? dates[0], 'startDate'),
+    endDate: pick(dto.endDate, file?.endDate ?? dates[dates.length - 1], 'endDate'),
+    startingBalance: pick(
+      dto.startingBalance === undefined ? undefined : roundAmount(dto.startingBalance),
+      file?.startingBalance,
+      'startingBalance',
+    ),
+    endingBalance: pick(
+      dto.endingBalance === undefined ? undefined : roundAmount(dto.endingBalance),
+      file?.endingBalance,
+      'endingBalance',
+    ),
+  };
+}
+
 function signedAmount(transaction: BankTransaction | { debit: number; credit: number }): number {
   return roundAmount(Number(transaction.debit) - Number(transaction.credit));
 }
 
+/** The minimum score a "safe" match needs by default: an exact amount plus corroboration. */
+export const DEFAULT_SAFE_SCORE = 95;
+
+const STOPWORDS = new Set([
+  'pago', 'pagos', 'transferencia', 'transf', 'deposito', 'depósito', 'retiro', 'cheque', 'banco', 'cuenta',
+  'para', 'desde', 'del', 'los', 'las', 'por', 'con', 'payment', 'transfer', 'deposit', 'from', 'the', 'and',
+]);
+
+function words(text: string | null | undefined): Set<string> {
+  return new Set(
+    (text ?? '')
+      .toLocaleLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .split(/[^\p{L}\p{N}]+/u)
+      .filter((word) => word.length >= 3 && !STOPWORDS.has(word) && !/^\d+$/.test(word)),
+  );
+}
+
+/** Document numbers a text cites: invoice and receipt numbers, NCF/e-CF, long numeric references. */
+export function documentReferences(text: string | null | undefined): Set<string> {
+  const found = new Set<string>();
+  const source = (text ?? '').toUpperCase();
+  for (const match of source.matchAll(/\b([BE]\d{10}|E\d{12})\b/g)) found.add(match[1]);
+  for (const match of source.matchAll(/\b([A-Z]{1,5})[-\s]?(\d{3,})\b/g)) found.add(`${match[1]}-${Number(match[2])}`);
+  for (const match of source.matchAll(/\b(\d{6,})\b/g)) found.add(match[1]);
+  return found;
+}
+
+/** A bank description reduced to its words, for recognising "the same kind of movement" again. */
+export function descriptionSignature(text: string | null | undefined): string {
+  return [...words(text)].sort().slice(0, 4).join(' ');
+}
+
 /**
- * How likely a ledger line is to be this statement line.
+ * How likely a ledger line is to be this statement line, and why.
  *
  * The amount has to be exact — a bank reconciliation that tolerates a near miss on the figure is
- * not a reconciliation. Everything else is tie-breaking: how close the dates are, and whether the
- * wording overlaps.
+ * not a reconciliation. Everything else ranks the exact matches: how close the dates are, a
+ * document number both texts cite (an invoice, a receipt, an NCF), the words they share (the
+ * counterparty's name), and whether the entry hits the accounts this company cleared the same kind
+ * of bank movement against before.
  */
 function scoreCandidate(
   transaction: BankTransaction,
   amount: number,
-  line: { date: string; description: string | null; amount: number },
-): number {
-  if (toCents(line.amount) !== toCents(amount)) return 0;
+  line: { date: string; description: string | null; amount: number; entryNumber?: string | null },
+  context: { learnedAccounts?: Set<string> | null; entryAccounts?: Set<string> | null } = {},
+): { score: number; reasons: MatchReason[] } {
+  if (toCents(line.amount) !== toCents(amount)) return { score: 0, reasons: [] };
+  const reasons: MatchReason[] = ['amount'];
 
   const days = Math.abs(
     (Date.parse(`${line.date}T00:00:00Z`) - Date.parse(`${transaction.date}T00:00:00Z`)) /
       86_400_000,
   );
   let score = days === 0 ? 90 : days <= 3 ? 80 : days <= 10 ? 70 : days <= 30 ? 60 : 50;
+  if (days === 0) reasons.push('same_day');
+  else if (days <= 3) reasons.push('near_date');
 
-  const words = new Set(
-    (transaction.description ?? '')
-      .toLocaleLowerCase()
-      .split(/[^\p{L}\p{N}]+/u)
-      .filter((word) => word.length >= 4),
-  );
-  const ledgerWords = (line.description ?? '').toLocaleLowerCase();
-  if ([...words].some((word) => ledgerWords.includes(word))) score += 10;
+  const bankText = `${transaction.description ?? ''} ${transaction.reference ?? ''}`;
+  const ledgerText = `${line.description ?? ''} ${line.entryNumber ?? ''}`;
+  const bankRefs = documentReferences(bankText);
+  if (bankRefs.size) {
+    const ledgerRefs = documentReferences(ledgerText);
+    if ([...bankRefs].some((ref) => ledgerRefs.has(ref))) {
+      score += 15;
+      reasons.push('reference');
+    }
+  }
 
-  return Math.min(100, score);
+  const bankWords = words(bankText);
+  const ledgerWords = words(ledgerText);
+  const shared = [...bankWords].filter((word) => ledgerWords.has(word)).length;
+  if (shared) {
+    score += Math.min(10, shared * 5);
+    reasons.push('words');
+  }
+
+  if (context.learnedAccounts?.size && context.entryAccounts?.size) {
+    if ([...context.entryAccounts].some((account) => context.learnedAccounts!.has(account))) {
+      score += 10;
+      reasons.push('learned');
+    }
+  }
+
+  return { score: Math.min(100, score), reasons };
 }
 
-export { signedAmount };
+export { signedAmount, scoreCandidate };

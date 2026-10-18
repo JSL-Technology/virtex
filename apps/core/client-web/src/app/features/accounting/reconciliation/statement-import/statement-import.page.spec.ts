@@ -117,4 +117,81 @@ describe('StatementImportPage', () => {
     expect(component.importError()).toContain('"row":4');
     httpMock.verify();
   });
+
+  const proposal = (overrides: Record<string, unknown> = {}) => ({
+    format: 'csv',
+    headers: ['Fecha', 'Concepto', 'Entrada', 'Salida'],
+    sample: [{ Fecha: '05/03/2026', Concepto: 'Deposito', Entrada: '10000.00', Salida: '' }],
+    mapping: {
+      date: 'Fecha',
+      description: 'Concepto',
+      reference: null,
+      moneyIn: 'Entrada',
+      moneyOut: 'Salida',
+      amount: null,
+      dateFormat: 'dd/MM/yyyy',
+      decimalSeparator: '.',
+      positiveAmountIsMoneyIn: true,
+    },
+    source: 'headers',
+    problems: [],
+    ...overrides,
+  });
+
+  const choose = (file: File) =>
+    component.onFileSelected({ target: { files: [file] } } as unknown as Event);
+
+  it('fills the column mapping the server proposes, without overriding what was typed', () => {
+    component.form.get('descriptionColumn')?.setValue('Detalle');
+    component.form.get('descriptionColumn')?.markAsDirty();
+    choose(csv());
+
+    httpMock.expectOne((c) => c.url === `${API}/reconciliation/column-mapping`).flush(proposal());
+
+    expect(component.form.value.dateColumn).toBe('Fecha');
+    expect(component.form.value.debitColumn).toBe('Entrada');
+    expect(component.form.value.dateFormat).toBe('dd/MM/yyyy');
+    // The person's own choice outranks the proposal.
+    expect(component.form.value.descriptionColumn).toBe('Detalle');
+    expect(component.headers()).toEqual(['Fecha', 'Concepto', 'Entrada', 'Salida']);
+    httpMock.verify();
+  });
+
+  it('asks nothing of an OFX file, and sends only the account', () => {
+    const ofx = new File(['OFXHEADER:100\n<OFX>'], 'octubre.ofx', { type: 'application/x-ofx' });
+    choose(ofx);
+    httpMock
+      .expectOne((c) => c.url === `${API}/reconciliation/column-mapping`)
+      .flush(proposal({ format: 'ofx', headers: [], sample: [], mapping: null, source: 'not_needed' }));
+    fixture.detectChanges();
+
+    expect(component.structured()).toBe(true);
+    expect(component.form.valid).toBe(true);
+    expect(fixture.nativeElement.querySelector('select[ng-reflect-name="dateColumn"], input[ng-reflect-name="dateColumn"]')).toBeNull();
+
+    component.submit();
+    const request = httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements`);
+    const body = request.request.body as FormData;
+    expect(body.get('bankAccountId')).toBe('b1');
+    // The file states its own period and balances; a zero sent here would contradict it.
+    expect(body.get('startingBalance')).toBeNull();
+    expect(body.get('dateColumn')).toBeNull();
+    expect(body.get('dateFormat')).toBeNull();
+    request.flush({ id: 's1', transactions: [] });
+    httpMock.verify();
+  });
+
+  it('still lets a CSV be mapped by hand when detection fails', () => {
+    choose(csv());
+    httpMock
+      .expectOne((c) => c.url === `${API}/reconciliation/column-mapping`)
+      .flush({}, { status: 503, statusText: 'Unavailable' });
+
+    expect(component.detecting()).toBe(false);
+    expect(component.structured()).toBe(false);
+    fillMapping();
+    component.submit();
+    httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements`).flush({ id: 's1', transactions: [] });
+    httpMock.verify();
+  });
 });

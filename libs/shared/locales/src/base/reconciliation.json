@@ -1,4 +1,14 @@
 {
+  "reconciliation.ai_not_available": {
+    "es": "El asistente no está disponible en tu plan o no está configurado.",
+    "en": "The assistant is not available on your plan or is not configured.",
+    "pt": "O assistente não está disponível no seu plano ou não está configurado."
+  },
+  "reconciliation.bank_file_unreadable": {
+    "es": "No se pudo leer el archivo del banco: {{detail}}.",
+    "en": "The bank file could not be read: {{detail}}.",
+    "pt": "Não foi possível ler o arquivo do banco: {{detail}}."
+  },
   "reconciliation.bank_movement_appears_twice_same_match": {
     "es": "Un movimiento del banco aparece dos veces en la misma conciliación.",
     "en": "A bank movement appears twice in the same match.",
@@ -28,6 +38,16 @@
     "es": "El formato del archivo CSV no es válido, está corrupto, o el mapeo de columnas es incorrecto.",
     "en": "The CSV file is malformed or corrupt, or the column mapping is wrong.",
     "pt": "O arquivo CSV está malformado ou corrompido, ou o mapeamento de colunas está incorreto."
+  },
+  "reconciliation.csv_has_no_header": {
+    "es": "El CSV no tiene una fila de encabezados; la primera fila debe nombrar las columnas.",
+    "en": "The CSV has no header row; its first row must name the columns.",
+    "pt": "O CSV não tem linha de cabeçalho; a primeira linha deve nomear as colunas."
+  },
+  "reconciliation.csv_mapping_required": {
+    "es": "Un CSV necesita indicar al menos las columnas de fecha, descripción y monto, y el formato de fecha.",
+    "en": "A CSV needs at least its date, description and amount columns, and its date format.",
+    "pt": "Um CSV precisa indicar ao menos as colunas de data, descrição e valor, e o formato de data."
   },
   "reconciliation.entry_rule_generated_does_not_contain": {
     "es": "El asiento generado por la regla no contiene la línea de la cuenta bancaria.",
@@ -73,6 +93,11 @@
     "es": "No se ha configurado un libro contable por defecto para la organización.",
     "en": "No default ledger has been configured for the organization.",
     "pt": "Nenhum livro contábil padrão foi configurado para a organização."
+  },
+  "reconciliation.nothing_to_resolve": {
+    "es": "Este movimiento no tiene varias opciones entre las que elegir.",
+    "en": "This movement has no several candidates to choose between.",
+    "pt": "Este movimento não tem várias opções para escolher."
   },
   "reconciliation.reconciliation_does_not_balance_difference_remains": {
     "es": "La conciliación no cuadra: quedan {{difference}} de diferencia entre el saldo contable ajustado y el del banco.",
@@ -129,6 +154,11 @@
     "en": "The statement did not import successfully and cannot be reconciled.",
     "pt": "O extrato não foi importado corretamente e não pode ser conciliado."
   },
+  "reconciliation.statement_disagrees_with_file": {
+    "es": "El dato «{{field}}» indicado ({{sent}}) no coincide con el del archivo ({{file}}).",
+    "en": "The stated “{{field}}” ({{sent}}) does not match the file's ({{file}}).",
+    "pt": "O dado “{{field}}” informado ({{sent}}) não coincide com o do arquivo ({{file}})."
+  },
   "reconciliation.statement_does_not_add_up_opening": {
     "es": "El estado de cuenta no cuadra consigo mismo: saldo inicial más movimientos difiere del saldo final en {{difference}}.",
     "en": "The statement does not add up: opening balance plus movements differs from the closing balance by {{difference}}.",
@@ -144,10 +174,20 @@
     "en": "The statement is not reconciled.",
     "pt": "O extrato não está conciliado."
   },
+  "reconciliation.statement_period_required": {
+    "es": "Falta el dato «{{field}}» del estado de cuenta y el archivo no lo trae.",
+    "en": "The statement's “{{field}}” is missing and the file does not state it.",
+    "pt": "Falta o dado “{{field}}” do extrato e o arquivo não o informa."
+  },
   "reconciliation.statement_start_date_after_end_date": {
     "es": "La fecha de inicio del estado de cuenta es posterior a la de fin.",
     "en": "The statement’s start date is after its end date.",
     "pt": "A data inicial do extrato é posterior à final."
+  },
+  "reconciliation.transaction_not_found": {
+    "es": "El movimiento no existe en este estado de cuenta.",
+    "en": "The movement does not exist on this statement.",
+    "pt": "O movimento não existe neste extrato."
   },
   "reconciliation.uploaded_file_empty_could_not_read": {
     "es": "El archivo subido está vacío o no se pudo leer.",

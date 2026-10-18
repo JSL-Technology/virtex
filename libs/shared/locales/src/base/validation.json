@@ -2046,11 +2046,6 @@
     "en": "The closing balance must be a number.",
     "pt": "O saldo final deve ser um número."
   },
-  "validation.upload_statement.end_date_cannot_empty": {
-    "es": "La fecha de fin no puede estar vacía.",
-    "en": "The end date cannot be empty.",
-    "pt": "A data final não pode ficar vazia."
-  },
   "validation.upload_statement.end_date_must_valid_date": {
     "es": "La fecha de fin debe ser una fecha válida.",
     "en": "The end date must be a valid date.",
@@ -2060,11 +2055,6 @@
     "es": "El saldo inicial debe ser un número.",
     "en": "The opening balance must be a number.",
     "pt": "O saldo inicial deve ser um número."
-  },
-  "validation.upload_statement.start_date_cannot_empty": {
-    "es": "La fecha de inicio no puede estar vacía.",
-    "en": "The start date cannot be empty.",
-    "pt": "A data inicial não pode ficar vazia."
   },
   "validation.upload_statement.start_date_must_valid_date": {
     "es": "La fecha de inicio debe ser una fecha válida.",

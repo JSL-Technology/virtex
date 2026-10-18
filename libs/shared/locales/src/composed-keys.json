@@ -64,6 +64,22 @@
       "STATUS_OPEN",
       "STATUS_CLOSED"
     ],
+    "accounting.reconciliation.confidence": [
+      "safe",
+      "review"
+    ],
+    "accounting.reconciliation.import.structured_file": [
+      "ofx",
+      "camt053"
+    ],
+    "accounting.reconciliation.match_reason": [
+      "amount",
+      "same_day",
+      "near_date",
+      "reference",
+      "words",
+      "learned"
+    ],
     "accounting.reconciliation.status": [
       "IMPORTING",
       "IMPORTED",

@@ -112,3 +112,30 @@
   font-size: var(--text-sm);
   margin: var(--space-2) 0 0;
 }
+
+.section-note--ai {
+  color: var(--text-primary);
+}
+
+.sample-wrap {
+  overflow-x: auto;
+}
+
+.sample {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+
+  th,
+  td {
+    padding: var(--space-1) var(--space-2);
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  th {
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+}

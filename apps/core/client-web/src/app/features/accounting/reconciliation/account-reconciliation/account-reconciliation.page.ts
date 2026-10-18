@@ -8,6 +8,8 @@ import {
   CheckCircle,
   Clock,
   Link2,
+  ShieldCheck,
+  Sparkles,
   Undo2,
   Upload,
   Wand2,
@@ -17,12 +19,15 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { BankAccount, TreasuryService } from '../../../../core/api/treasury.service';
 import {
+  AmbiguityResolution,
   BankStatement,
   MatchCandidateGroup,
   ReconciliationApiService,
+  ReconciliationSettings,
   ReconciliationSummary,
+  SuggestionConfidence,
   TransactionSuggestion,
-} from '../../../../core/api/reconciliation.service';
+} from '../../data/reconciliation.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
 import { VxAmountComponent } from '../../../../shared/components/amount';
@@ -45,6 +50,15 @@ import { NotificationService } from '../../../../core/services/notification';
  *
  * Nothing here computes a balance. Every figure on the screen is the server's, including the proof,
  * because a reconciliation whose arithmetic lives in the browser proves nothing about the ledger.
+ *
+ * ## Assisted matching
+ *
+ * Each suggestion arrives with its confidence and the reasons behind each candidate's score (same
+ * amount, same day, a shared reference, what this company matched before). The `safe` ones — one
+ * clear candidate above the company's threshold — can be confirmed together, or on import when the
+ * company turns that on; every such match is undone the same way as a manual one. For a movement
+ * the score cannot settle, the assistant can be asked which candidate it is: its answer ticks that
+ * line and says why, and the person still confirms.
  */
 @Component({
   selector: 'app-account-reconciliation-page',
@@ -75,6 +89,23 @@ export class AccountReconciliationPage {
   protected readonly RulesIcon = Wand2;
   protected readonly ExcludeIcon = XCircle;
   protected readonly ImportIcon = Upload;
+  protected readonly SafeIcon = ShieldCheck;
+  protected readonly AiIcon = Sparkles;
+
+  readonly settings = signal<ReconciliationSettings | null>(null);
+  /** The assistant's answer for a movement, kept until the movement is matched or reloaded. */
+  readonly resolutions = signal<Map<string, AmbiguityResolution>>(new Map());
+  readonly resolvingId = signal<string | null>(null);
+  /** Movements the server confirmed in the last "apply safe", for the message that says so. */
+  readonly lastApplied = signal<number | null>(null);
+
+  /** Suggestions by movement, so the table can show each one's confidence without a search. */
+  readonly suggestionByTransaction = computed(
+    () => new Map(this.suggestions().map((suggestion) => [suggestion.bankTransactionId, suggestion])),
+  );
+  readonly safeCount = computed(
+    () => this.suggestions().filter((suggestion) => suggestion.confidence === 'safe').length,
+  );
 
   readonly bankAccounts = signal<BankAccount[]>([]);
   readonly selectedBankAccountId = signal<string | null>(null);
@@ -114,6 +145,11 @@ export class AccountReconciliationPage {
 
   constructor() {
     this.loadBankAccounts();
+    this.api.settings().subscribe({
+      next: (settings) => this.settings.set(settings),
+      // Without the settings the toggle is hidden; matching works the same.
+      error: () => this.settings.set(null),
+    });
   }
 
   // ── loading ────────────────────────────────────────────────────────────────
@@ -157,6 +193,8 @@ export class AccountReconciliationPage {
     this.selectedStatementId.set(statementId);
     this.openTransactionId.set(null);
     this.selectedLineIds.set(new Set());
+    this.resolutions.set(new Map());
+    this.lastApplied.set(null);
     this.refreshStatement();
   }
 
@@ -277,6 +315,56 @@ export class AccountReconciliationPage {
     });
   }
 
+  /** Confirm every suggestion the server calls safe. Each one is undone like any other match. */
+  applySafe(): void {
+    const statementId = this.selectedStatementId();
+    if (!statementId) return;
+    this.working.set(true);
+    this.errorMessage.set(null);
+    this.api.applySafe(statementId).subscribe({
+      next: ({ applied }) => {
+        this.lastApplied.set(applied);
+        this.refreshStatement();
+      },
+      error: (error) => this.reportFailure(error),
+    });
+  }
+
+  toggleAutoConfirm(autoConfirm: boolean): void {
+    this.errorMessage.set(null);
+    this.api.updateSettings({ autoConfirm }).subscribe({
+      next: (settings) => this.settings.set(settings),
+      error: (error) => this.reportFailure(error),
+    });
+  }
+
+  /** Several candidates the score cannot separate: ask the assistant, and tick what it chose. */
+  askAssistant(suggestion: TransactionSuggestion): void {
+    const statementId = this.selectedStatementId();
+    if (!statementId) return;
+    this.resolvingId.set(suggestion.bankTransactionId);
+    this.errorMessage.set(null);
+    this.api.resolve(statementId, suggestion.bankTransactionId).subscribe({
+      next: (resolution) => {
+        this.resolvingId.set(null);
+        const next = new Map(this.resolutions());
+        next.set(suggestion.bankTransactionId, resolution);
+        this.resolutions.set(next);
+        if (resolution.chosenId && this.openTransactionId() === suggestion.bankTransactionId) {
+          this.selectedLineIds.set(new Set([resolution.chosenId]));
+        }
+      },
+      error: (error) => {
+        this.resolvingId.set(null);
+        this.reportFailure(error);
+      },
+    });
+  }
+
+  canAskAssistant(suggestion: TransactionSuggestion): boolean {
+    return suggestion.confidence === 'review' && suggestion.candidates.length >= 2;
+  }
+
   applyRules(): void {
     const statementId = this.selectedStatementId();
     if (!statementId) return;
@@ -339,6 +427,12 @@ export class AccountReconciliationPage {
     if (status === 'MATCHED') return 'ok';
     if (status === 'EXCLUDED') return 'neutral';
     return 'warning';
+  }
+
+  confidenceTone(confidence: SuggestionConfidence): VxTone {
+    if (confidence === 'safe') return 'ok';
+    if (confidence === 'review') return 'warning';
+    return 'neutral';
   }
 
   statusIcon(status: BankStatement['status']) {

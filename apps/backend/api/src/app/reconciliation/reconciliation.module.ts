@@ -1,3 +1,5 @@
+import { ReconciliationSettings } from './entities/reconciliation-settings.entity';
+import { ReconciliationAssistService } from './reconciliation-assist.service';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReconciliationController } from './reconciliation.controller';
@@ -17,6 +19,7 @@ import { ReconciliationClosingBlockersProvider } from './reconciliation-closing-
   imports: [
     // Only the entities this module owns.
     TypeOrmModule.forFeature([
+      ReconciliationSettings,
       BankStatement,
       BankTransaction,
       ReconciliationMatch,
@@ -32,6 +35,7 @@ import { ReconciliationClosingBlockersProvider } from './reconciliation-closing-
   controllers: [ReconciliationController],
   providers: [
     ReconciliationService,
+    ReconciliationAssistService,
     CsvParserService,
     // Responde al checklist de cierre de Contabilidad sin que Contabilidad conozca esta tabla.
     ReconciliationClosingBlockersProvider,

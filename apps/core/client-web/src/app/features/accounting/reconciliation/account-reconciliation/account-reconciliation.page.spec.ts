@@ -8,7 +8,7 @@ import {
   BankStatement,
   ReconciliationSummary,
   TransactionSuggestion,
-} from '../../../../core/api/reconciliation.service';
+} from '../../data/reconciliation.service';
 import { environment } from '../../../../../environments/environment';
 import { TRANSLATE_STORE_PROVIDERS, apiErrorBody, useCatalogue } from '../../../../../testing/api-errors';
 
@@ -103,10 +103,22 @@ describe('AccountReconciliationPage', () => {
         description: 'Cobro cliente',
         amount: 10_000,
         score: 100,
+        reasons: ['amount', 'same_day'],
       },
     ],
     candidateGroups: [],
     suggestedRuleId: null,
+    confidence: 'safe',
+  };
+
+  /** Two lines of the same amount the score cannot separate. */
+  const ambiguous: TransactionSuggestion = {
+    ...suggestion,
+    confidence: 'review',
+    candidates: [
+      { ...suggestion.candidates[0], journalEntryLineId: 'l1', score: 90, reasons: ['amount', 'same_day'] },
+      { ...suggestion.candidates[0], journalEntryLineId: 'l2', score: 90, reasons: ['amount', 'same_day'] },
+    ],
   };
 
   beforeEach(async () => {
@@ -121,7 +133,8 @@ describe('AccountReconciliationPage', () => {
   });
 
   /** Bank accounts, then the statement list, then the three the workbench loads for a statement. */
-  const openStatement = (summary: ReconciliationSummary = balanced) => {
+  const openStatement = (summary: ReconciliationSummary = balanced, suggestions = [suggestion]) => {
+    httpMock.expectOne((c) => c.url === `${API}/reconciliation/settings`).flush({ autoConfirm: false, minScore: 95 });
     httpMock.expectOne((c) => c.url === `${API}/treasury/bank-accounts`).flush([bankAccount]);
     httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements`).flush([statement]);
     httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1`).flush(statement);
@@ -130,8 +143,15 @@ describe('AccountReconciliationPage', () => {
       .flush(summary);
     httpMock
       .expectOne((c) => c.url === `${API}/reconciliation/statements/s1/suggestions`)
-      .flush([suggestion]);
+      .flush(suggestions);
     fixture.detectChanges();
+  };
+
+  /** What the workbench reloads after any change. */
+  const reload = () => {
+    httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1`).flush(statement);
+    httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1/summary`).flush(balanced);
+    httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1/suggestions`).flush([]);
   };
 
   it('opens the tenant’s first statement and shows the proof', () => {
@@ -184,6 +204,67 @@ describe('AccountReconciliationPage', () => {
 
     // The refusal IS the information — swallowing it into a generic failure hides why.
     expect(component.errorMessage()).toBe('La conciliación no balancea.');
+    httpMock.verify();
+  });
+
+  it('confirms every safe suggestion at once, and says how many', () => {
+    fixture.detectChanges();
+    openStatement();
+
+    expect(component.safeCount()).toBe(1);
+    const button = [...fixture.nativeElement.querySelectorAll('button')].find((b: HTMLButtonElement) =>
+      b.textContent?.includes('accounting.reconciliation.apply_safe'),
+    ) as HTMLButtonElement;
+    button.click();
+
+    httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1/apply-safe` && c.method === 'POST').flush({ applied: 1 });
+    reload();
+    expect(component.lastApplied()).toBe(1);
+    httpMock.verify();
+  });
+
+  it('shows why each candidate scored what it did', () => {
+    fixture.detectChanges();
+    openStatement();
+    component.openTransaction('t1');
+    fixture.detectChanges();
+
+    const chips = [...fixture.nativeElement.querySelectorAll('.reason-chip')].map((chip: HTMLElement) => chip.textContent?.trim());
+    expect(chips).toEqual(['accounting.reconciliation.match_reason.amount', 'accounting.reconciliation.match_reason.same_day']);
+    httpMock.verify();
+  });
+
+  it('asks the assistant only between candidates the score cannot separate, and ticks its choice', () => {
+    fixture.detectChanges();
+    openStatement(balanced, [ambiguous]);
+
+    expect(component.canAskAssistant(suggestion)).toBe(false);
+    expect(component.canAskAssistant(ambiguous)).toBe(true);
+
+    component.openTransaction('t1');
+    component.askAssistant(ambiguous);
+    httpMock
+      .expectOne((c) => c.url === `${API}/reconciliation/statements/s1/transactions/t1/resolve`)
+      .flush({ chosenId: 'l2', reason: 'La referencia 4471 aparece en el asiento.' });
+
+    // Ticked, not matched: the person still confirms.
+    expect(component.isLineSelected('l2')).toBe(true);
+    expect(component.isLineSelected('l1')).toBe(false);
+    expect(component.resolutions().get('t1')?.reason).toContain('4471');
+    httpMock.expectNone((c) => c.url === `${API}/reconciliation/matches`);
+    httpMock.verify();
+  });
+
+  it('turns automatic confirmation on for the company', () => {
+    fixture.detectChanges();
+    openStatement();
+
+    component.toggleAutoConfirm(true);
+    const request = httpMock.expectOne((c) => c.url === `${API}/reconciliation/settings` && c.method === 'PATCH');
+    expect(request.request.body).toEqual({ autoConfirm: true });
+    request.flush({ autoConfirm: true, minScore: 95 });
+
+    expect(component.settings()?.autoConfirm).toBe(true);
     httpMock.verify();
   });
 });

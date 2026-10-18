@@ -30,65 +30,73 @@
           />
         </label>
 
-        <div class="field" role="group" [attr.aria-label]="'accounting.reconciliation.import.csv_file' | translate">
-          <span>{{ 'accounting.reconciliation.import.csv_file' | translate }} *</span>
-          <vx-file-input accept=".csv,text/csv" (changed)="onFileSelected($event)" />
+        <div class="field" role="group" [attr.aria-label]="'accounting.reconciliation.import.statement_file' | translate">
+          <span>{{ 'accounting.reconciliation.import.statement_file' | translate }} *</span>
+          <vx-file-input accept=".csv,.txt,.ofx,.qfx,.xml,text/csv,application/xml,text/xml" (changed)="onFileSelected($event)" />
+          @if (detecting()) {
+            <span class="field__note" aria-live="polite">{{ 'accounting.reconciliation.import.detecting' | translate }}</span>
+          } @else if (structured()) {
+            <span class="field__note" aria-live="polite">{{ 'accounting.reconciliation.import.structured_file.' + format() | translate }}</span>
+          }
         </div>
 
         <label class="field" for="startDate">
-          <span>{{ 'reports.common.from' | translate }} *</span>
+          <span>{{ 'reports.common.from' | translate }}@if (!structured()) { *}</span>
           <vx-date-field inputId="startDate" formControlName="startDate" />
         </label>
 
         <label class="field" for="endDate">
-          <span>{{ 'reports.common.to' | translate }} *</span>
+          <span>{{ 'reports.common.to' | translate }}@if (!structured()) { *}</span>
           <vx-date-field inputId="endDate" formControlName="endDate" />
         </label>
 
         <label class="field">
-          <span>{{ 'accounting.reconciliation.opening_balance' | translate }} *</span>
-          <input type="number" step="0.01" formControlName="startingBalance" />
+          <span>{{ 'accounting.reconciliation.opening_balance' | translate }}@if (!structured()) { *}</span>
+          <input type="number" step="0.01" formControlName="startingBalance" [placeholder]="structured() ? ('accounting.reconciliation.import.from_file' | translate) : ''" />
         </label>
 
         <label class="field">
-          <span>{{ 'accounting.reconciliation.closing_balance' | translate }} *</span>
-          <input type="number" step="0.01" formControlName="endingBalance" />
+          <span>{{ 'accounting.reconciliation.closing_balance' | translate }}@if (!structured()) { *}</span>
+          <input type="number" step="0.01" formControlName="endingBalance" [placeholder]="structured() ? ('accounting.reconciliation.import.from_file' | translate) : ''" />
         </label>
       </div>
 
+      @if (structured()) {
+        <p class="section-note">{{ 'accounting.reconciliation.import.structured_file_note' | translate }}</p>
+      } @else {
       <h4 class="section-heading">{{ 'accounting.reconciliation.import.column_mapping' | translate }}</h4>
-      <p class="section-note">{{ 'accounting.reconciliation.import.type_each_column_name_exactly_appears' | translate }}</p>
+      @switch (proposal()?.source) {
+        @case ('headers') {
+          <p class="section-note">{{ 'accounting.reconciliation.import.mapping_from_headers' | translate }}</p>
+        }
+        @case ('ai') {
+          <p class="section-note section-note--ai">{{ 'accounting.reconciliation.import.mapping_from_ai' | translate }}</p>
+        }
+        @case ('incomplete') {
+          <p class="section-note">{{ 'accounting.reconciliation.import.mapping_incomplete' | translate }}</p>
+        }
+        @default {
+          <p class="section-note">{{ 'accounting.reconciliation.import.type_each_column_name_exactly_appears' | translate }}</p>
+        }
+      }
 
       <div class="form-grid">
-        <label class="field">
-          <span>{{ 'accounting.reconciliation.import.date_column' | translate }} *</span>
-          <input type="text" formControlName="dateColumn" />
-        </label>
-
-        <label class="field">
-          <span>{{ 'accounting.reconciliation.import.description_column' | translate }} *</span>
-          <input type="text" formControlName="descriptionColumn" />
-        </label>
-
-        <label class="field">
-          <span>{{ 'accounting.reconciliation.import.reference_column' | translate }}</span>
-          <input type="text" formControlName="referenceColumn" />
-        </label>
-
-        <label class="field">
-          <span>{{ 'accounting.reconciliation.import.money_column' | translate }}</span>
-          <input type="text" formControlName="debitColumn" />
-        </label>
-
-        <label class="field">
-          <span>{{ 'accounting.reconciliation.import.money_out_column' | translate }}</span>
-          <input type="text" formControlName="creditColumn" />
-        </label>
-
-        <label class="field">
-          <span>{{ 'accounting.reconciliation.import.signed_amount_column' | translate }}</span>
-          <input type="text" formControlName="amountColumn" />
-        </label>
+        @for (field of columnFields; track field.control) {
+          <label class="field">
+            <span>{{ field.label | translate }}@if (field.required) { *}</span>
+            @if (headers().length) {
+              <!-- The file's own header names: a typed name that is one space off matches nothing. -->
+              <select [formControlName]="field.control">
+                <option value="">{{ 'accounting.reconciliation.import.no_column' | translate }}</option>
+                @for (header of headers(); track header) {
+                  <option [value]="header">{{ header }}</option>
+                }
+              </select>
+            } @else {
+              <input type="text" [formControlName]="field.control" />
+            }
+          </label>
+        }
       </div>
 
       @if (!hasAmountMapping()) {
@@ -99,7 +107,7 @@
         <!--
           Neither of these has a safe default. The same eight characters are two different dates in
           the two markets this product sells into, and the same digits are two amounts three orders
-          of magnitude apart.
+          of magnitude apart. A proposal fills them from the sample; the person confirms them.
         -->
         <label class="field">
           <span>{{ 'accounting.reconciliation.import.bank_date_format' | translate }} *</span>
@@ -124,6 +132,31 @@
           <span>{{ 'accounting.reconciliation.import.positive_amount_money_arriving' | translate }}</span>
         </label>
       </div>
+
+      @if (sampleRows().length) {
+        <h4 class="section-heading">{{ 'accounting.reconciliation.import.sample' | translate }}</h4>
+        <div class="sample-wrap">
+          <table class="sample">
+            <thead>
+              <tr>
+                @for (header of headers(); track header) {
+                  <th scope="col">{{ header }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of sampleRows(); track $index) {
+                <tr>
+                  @for (header of headers(); track header) {
+                    <td>{{ row[header] }}</td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      }
 
       @if (importError(); as detail) {
         <p class="import-error" role="alert">

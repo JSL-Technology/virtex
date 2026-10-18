@@ -21,6 +21,13 @@ import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger'
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { ReconciliationService } from './reconciliation.service';
+import { ReconciliationAssistService } from './reconciliation-assist.service';
+import { MatchOrigin } from './entities/reconciliation-match.entity';
+import { ReconciliationSettingsDto } from './dto/reconciliation-settings.dto';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
+import { spooledUploadPath } from '../common/interfaces/fastify-file.interface';
+import { readFile } from 'fs/promises';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { UploadStatementDto } from './dto/upload-statement.dto';
 import { ConfirmMatchDto } from './dto/confirm-match.dto';
 import { ExcludeTransactionDto } from './dto/exclude-transaction.dto';
@@ -46,7 +53,84 @@ import { PERMISSIONS } from '../shared/permissions';
 @ApiBearerAuth()
 @Controller('reconciliation')
 export class ReconciliationController {
-  constructor(private readonly reconciliation: ReconciliationService) {}
+  constructor(
+    private readonly reconciliation: ReconciliationService,
+    private readonly assist: ReconciliationAssistService,
+  ) {}
+
+  // ── settings and assistance ───────────────────────────────────────────────
+
+  @Get('settings')
+  @HasPermission(PERMISSIONS.RECONCILIATION_VIEW)
+  @ApiOperation({ summary: 'Whether safe matches are confirmed on import, and from what score.' })
+  getSettings(@CurrentUser() user: AuthenticatedUser) {
+    return this.reconciliation.settings(user.organizationId);
+  }
+
+  @Patch('settings')
+  @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)
+  updateSettings(@CurrentUser() user: AuthenticatedUser, @Body() dto: ReconciliationSettingsDto) {
+    return this.reconciliation.updateSettings(user.organizationId, dto);
+  }
+
+  /**
+   * Which column of a CSV is which, proposed from its headers and sample rows (and, when the
+   * headers say nothing usable, by the AI). Imports nothing; the person confirms the mapping.
+   */
+  @Post('column-mapping')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.RECONCILIATION_IMPORT)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  @UseInterceptors(FastifyFileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024 } }))
+  async columnMapping(@UploadedFile() file: FastifyFile, @CurrentUser() user: AuthenticatedUser) {
+    if (!file) throw new BadRequestError('users.file_required');
+    const spooled = spooledUploadPath(file);
+    const bytes = file.buffer ?? (spooled ? await readFile(spooled) : null);
+    if (!bytes?.length) throw new BadRequestError('reconciliation.uploaded_file_empty_could_not_read');
+    return this.assist.proposeMapping(user.organizationId, user.id, bytes);
+  }
+
+  @Post('statements/:id/apply-safe')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)
+  @ApiOperation({ summary: 'Confirm every unambiguous suggestion of the statement.' })
+  applySafe(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.reconciliation.applySafeMatches(id, user.organizationId, user.id, MatchOrigin.MANUAL);
+  }
+
+  /** Several exact-amount candidates the score cannot separate: ask the AI which one, and why. */
+  @Post('statements/:id/transactions/:transactionId/resolve')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  async resolve(
+    @Param('id', UuidParamPipe) id: string,
+    @Param('transactionId', UuidParamPipe) transactionId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    const suggestion = (await this.reconciliation.suggestMatches(id, user.organizationId)).find(
+      (item) => item.bankTransactionId === transactionId,
+    );
+    if (!suggestion) throw new NotFoundError('reconciliation.transaction_not_found');
+    const candidates = suggestion.candidates.slice(0, 5);
+    if (candidates.length < 2) throw new BadRequestError('reconciliation.nothing_to_resolve');
+    const statement = await this.reconciliation.findStatement(id, user.organizationId);
+    const line = statement.transactions.find((transaction) => transaction.id === transactionId);
+    return this.assist.resolveAmbiguous(
+      user.organizationId,
+      user.id,
+      { date: suggestion.date, description: suggestion.description, reference: line?.reference ?? null, amount: suggestion.amount },
+      candidates.map((candidate) => ({
+        id: candidate.journalEntryLineId,
+        date: candidate.date,
+        description: candidate.description,
+        amount: candidate.amount,
+        entryNumber: candidate.entryNumber,
+      })),
+    );
+  }
 
   // ── rules ──────────────────────────────────────────────────────────────────
   //
@@ -94,13 +178,15 @@ export class ReconciliationController {
   @Post('statements')
   @HasPermission(PERMISSIONS.RECONCILIATION_IMPORT)
   @UseInterceptors(FastifyFileInterceptor('file'))
-  @ApiOperation({ summary: 'Importa un estado de cuenta bancario en CSV.' })
+  @ApiOperation({ summary: 'Importa un estado de cuenta bancario (CSV, OFX o camt.053).' })
   importStatement(
     @UploadedFile(
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
-          new FileTypeValidator({ fileType: 'text/csv' }),
+          // CSV, OFX (often served as text/plain or octet-stream) or camt.053 XML; the content
+          // decides which, not the declared type.
+          new FileTypeValidator({ fileType: /(csv|xml|ofx|plain|octet-stream|vnd\.ms-excel)/ }),
         ],
       }),
     )

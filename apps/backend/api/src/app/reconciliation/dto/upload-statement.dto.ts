@@ -29,33 +29,38 @@ export class UploadStatementDto {
   @IsNotEmpty()
   bankAccountId: string;
 
+  // The period and balances: required for a CSV, which carries neither; an OFX or camt.053 file
+  // states them itself, and a value sent here must then agree with the file's.
+
   @IsDateString({}, { message: 'validation.upload_statement.start_date_must_valid_date' })
-  @IsNotEmpty({ message: 'validation.upload_statement.start_date_cannot_empty' })
-  startDate: string;
+  @IsOptional()
+  startDate?: string;
 
   @IsDateString({}, { message: 'validation.upload_statement.end_date_must_valid_date' })
-  @IsNotEmpty({ message: 'validation.upload_statement.end_date_cannot_empty' })
-  endDate: string;
+  @IsOptional()
+  endDate?: string;
 
   @Transform(toNumber)
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.upload_statement.opening_balance_must_number' })
-  startingBalance: number;
+  @IsOptional()
+  startingBalance?: number;
 
   @Transform(toNumber)
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.upload_statement.closing_balance_must_number' })
-  endingBalance: number;
+  @IsOptional()
+  endingBalance?: number;
 
-  // ── column mapping ─────────────────────────────────────────────────────────
-
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
-  dateColumn: string;
+  // ── column mapping (CSV only) ──────────────────────────────────────────────
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
-  descriptionColumn: string;
+  dateColumn?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
+  descriptionColumn?: string;
 
   @IsString()
   @IsOptional()
@@ -87,9 +92,9 @@ export class UploadStatementDto {
    * product sold in both, that silently moves transactions by up to eleven months.
    */
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(40, { message: 'validation.constraints.max_length|{"max":40}' })
-  dateFormat: string;
+  dateFormat?: string;
 
   @IsIn(['.', ','])
   @IsOptional()

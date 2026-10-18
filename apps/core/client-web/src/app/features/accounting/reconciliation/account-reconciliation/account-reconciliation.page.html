@@ -7,6 +7,12 @@
         <span>{{ 'accounting.reconciliation.import_statement' | translate }}</span>
       </a>
       @if (selectedStatementId()) {
+        @if (statement()?.status !== 'RECONCILED' && safeCount() > 0) {
+          <button class="secondary-button" type="button" (click)="applySafe()" [disabled]="working()">
+            <lucide-icon [img]="SafeIcon" size="16"></lucide-icon>
+            <span>{{ 'accounting.reconciliation.apply_safe' | translate: { count: safeCount() } }}</span>
+          </button>
+        }
         <button class="secondary-button" type="button" (click)="applyRules()" [disabled]="working()">
           <lucide-icon [img]="RulesIcon" size="16"></lucide-icon>
           <span>{{ 'accounting.reconciliation.apply_rules' | translate }}</span>
@@ -28,6 +34,11 @@
 
   @if (errorMessage(); as message) {
     <p class="reconciliation-error" role="alert">{{ message }}</p>
+  }
+  @if (lastApplied() !== null) {
+    <p class="reconciliation-note" role="status">
+      {{ 'accounting.reconciliation.safe_applied' | translate: { count: lastApplied() } }}
+    </p>
   }
 
   @if (loading()) {
@@ -68,6 +79,20 @@
               </option>
             }
           </select>
+        </label>
+      }
+
+      @if (settings(); as current) {
+        <label class="field field--checkbox auto-confirm">
+          <input
+            type="checkbox"
+            [checked]="current.autoConfirm"
+            (change)="toggleAutoConfirm($any($event.target).checked)"
+          />
+          <span>
+            {{ 'accounting.reconciliation.auto_confirm' | translate }}
+            <small class="field__note">{{ 'accounting.reconciliation.auto_confirm_hint' | translate: { score: current.minScore } }}</small>
+          </span>
         </label>
       }
     </div>
@@ -175,6 +200,13 @@
                 </td>
                 <td class="actions-column">
                   @if (movement.status === 'UNMATCHED' && current.status !== 'RECONCILED') {
+                    @if (suggestionByTransaction().get(movement.id); as hint) {
+                      @if (hint.confidence !== 'none') {
+                        <vx-badge size="sm" [tone]="confidenceTone(hint.confidence)">
+                          {{ 'accounting.reconciliation.confidence.' + hint.confidence | translate }}
+                        </vx-badge>
+                      }
+                    }
                     <button class="secondary-button" type="button" (click)="openTransaction(movement.id)">
                       <lucide-icon [img]="MatchIcon" size="14"></lucide-icon>
                       <span>{{ 'accounting.reconciliation.match' | translate }}</span>
@@ -211,9 +243,29 @@
                               />
                               <span class="candidate__entry">{{ candidate.entryNumber ?? '—' }}</span>
                               <span class="candidate__date">{{ candidate.date | vxDate: 'date' : true }}</span>
-                              <span class="candidate__description">{{ candidate.description ?? '—' }}</span>
+                              <span class="candidate__description">
+                                {{ candidate.description ?? '—' }}
+                                @if (candidate.reasons.length) {
+                                  <span class="candidate__reasons">
+                                    @for (reason of candidate.reasons; track reason) {
+                                      <span class="reason-chip">{{ 'accounting.reconciliation.match_reason.' + reason | translate }}</span>
+                                    }
+                                  </span>
+                                }
+                              </span>
+                              <span class="candidate__score" [attr.aria-label]="'accounting.reconciliation.score' | translate">{{ candidate.score }}</span>
                               <vx-amount class="candidate__amount" [value]="candidate.amount" />
                             </label>
+                          }
+
+                          @if (resolutions().get(suggestion.bankTransactionId); as answer) {
+                            <p class="assistant-answer" role="status">
+                              <lucide-icon [img]="AiIcon" size="14"></lucide-icon>
+                              {{ (answer.chosenId ? 'accounting.reconciliation.assistant_chose' : 'accounting.reconciliation.assistant_none') | translate }}
+                              @if (answer.reason) {
+                                <span class="assistant-answer__reason">{{ answer.reason }}</span>
+                              }
+                            </p>
                           }
 
                           @if (suggestion.candidateGroups.length > 0) {
@@ -237,6 +289,18 @@
                             >
                               {{ 'accounting.reconciliation.match' | translate }}
                             </button>
+
+                            @if (canAskAssistant(suggestion)) {
+                              <button
+                                class="secondary-button"
+                                type="button"
+                                [disabled]="resolvingId() === suggestion.bankTransactionId || working()"
+                                (click)="askAssistant(suggestion)"
+                              >
+                                <lucide-icon [img]="AiIcon" size="14"></lucide-icon>
+                                <span>{{ 'accounting.reconciliation.ask_assistant' | translate }}</span>
+                              </button>
+                            }
 
                             <label class="field field--inline">
                               <span>{{ 'accounting.reconciliation.reason' | translate }}</span>

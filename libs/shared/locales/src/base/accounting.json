@@ -2115,6 +2115,36 @@
     "en": "Apply rules",
     "pt": "Aplicar regras"
   },
+  "accounting.reconciliation.apply_safe": {
+    "es": "Confirmar las seguras ({{count}})",
+    "en": "Confirm the safe ones ({{count}})",
+    "pt": "Confirmar as seguras ({{count}})"
+  },
+  "accounting.reconciliation.ask_assistant": {
+    "es": "Preguntar al asistente",
+    "en": "Ask the assistant",
+    "pt": "Perguntar ao assistente"
+  },
+  "accounting.reconciliation.assistant_chose": {
+    "es": "El asistente marcó la línea que corresponde. Revisa y confirma.",
+    "en": "The assistant ticked the matching line. Check it and confirm.",
+    "pt": "O assistente marcou a linha correspondente. Revise e confirme."
+  },
+  "accounting.reconciliation.assistant_none": {
+    "es": "El asistente no encontró una línea que corresponda con seguridad.",
+    "en": "The assistant found no line that clearly corresponds.",
+    "pt": "O assistente não encontrou uma linha que corresponda com segurança."
+  },
+  "accounting.reconciliation.auto_confirm": {
+    "es": "Confirmar automáticamente al importar los emparejamientos seguros",
+    "en": "Confirm safe matches automatically on import",
+    "pt": "Confirmar automaticamente as conciliações seguras ao importar"
+  },
+  "accounting.reconciliation.auto_confirm_hint": {
+    "es": "Solo con puntuación {{score}} o más y un único candidato claro.",
+    "en": "Only at a score of {{score}} or more with a single clear candidate.",
+    "pt": "Apenas com pontuação {{score}} ou mais e um único candidato claro."
+  },
   "accounting.reconciliation.balance_per_bank": {
     "es": "Saldo según el banco",
     "en": "Balance per the bank",
@@ -2154,6 +2184,16 @@
     "es": "Combinaciones que suman este movimiento",
     "en": "Combinations that add up to this movement",
     "pt": "Combinações que somam este movimento"
+  },
+  "accounting.reconciliation.confidence.review": {
+    "es": "Revisar",
+    "en": "Review",
+    "pt": "Revisar"
+  },
+  "accounting.reconciliation.confidence.safe": {
+    "es": "Segura",
+    "en": "Safe",
+    "pt": "Segura"
   },
   "accounting.reconciliation.customer_statements": {
     "es": "Estados de cuenta",
@@ -2195,11 +2235,6 @@
     "en": "Complete the column mapping and the file format.",
     "pt": "Complete o mapeamento de colunas e o formato do arquivo."
   },
-  "accounting.reconciliation.import.csv_file": {
-    "es": "Archivo CSV",
-    "en": "CSV file",
-    "pt": "Arquivo CSV"
-  },
   "accounting.reconciliation.import.date_column": {
     "es": "Columna de fecha",
     "en": "Date column",
@@ -2210,15 +2245,40 @@
     "en": "Description column",
     "pt": "Coluna de descrição"
   },
+  "accounting.reconciliation.import.detecting": {
+    "es": "Leyendo el archivo…",
+    "en": "Reading the file…",
+    "pt": "Lendo o arquivo…"
+  },
   "accounting.reconciliation.import.file_could_not_read": {
     "es": "No se pudo leer el archivo:",
     "en": "The file could not be read:",
     "pt": "Não foi possível ler o arquivo:"
   },
+  "accounting.reconciliation.import.from_file": {
+    "es": "Del archivo",
+    "en": "From the file",
+    "pt": "Do arquivo"
+  },
   "accounting.reconciliation.import.give_amount_column_money_money_out": {
     "es": "Indique la columna de monto, o el par de columnas de entradas y salidas.",
     "en": "Give the amount column, or the money-in and money-out pair.",
     "pt": "Informe a coluna de valor, ou o par de colunas de entradas e saídas."
+  },
+  "accounting.reconciliation.import.mapping_from_ai": {
+    "es": "El asistente propuso estas columnas porque los encabezados no las nombraban. Revísalas antes de importar.",
+    "en": "The assistant proposed these columns because the headers did not name them. Check them before importing.",
+    "pt": "O assistente propôs estas colunas porque os cabeçalhos não as nomeavam. Revise-as antes de importar."
+  },
+  "accounting.reconciliation.import.mapping_from_headers": {
+    "es": "Columnas propuestas a partir de los encabezados del archivo. Revísalas antes de importar.",
+    "en": "Columns proposed from the file's headers. Check them before importing.",
+    "pt": "Colunas propostas a partir dos cabeçalhos do arquivo. Revise-as antes de importar."
+  },
+  "accounting.reconciliation.import.mapping_incomplete": {
+    "es": "No se pudieron identificar todas las columnas. Completa las que faltan.",
+    "en": "Not every column could be identified. Fill in the missing ones.",
+    "pt": "Não foi possível identificar todas as colunas. Complete as que faltam."
   },
   "accounting.reconciliation.import.money_column": {
     "es": "Columna de entradas",
@@ -2229,6 +2289,11 @@
     "es": "Columna de salidas",
     "en": "Money-out column",
     "pt": "Coluna de saídas"
+  },
+  "accounting.reconciliation.import.no_column": {
+    "es": "— Ninguna —",
+    "en": "— None —",
+    "pt": "— Nenhuma —"
   },
   "accounting.reconciliation.import.number_format": {
     "es": "Formato de números",
@@ -2245,15 +2310,40 @@
     "en": "Reference column",
     "pt": "Coluna de referência"
   },
+  "accounting.reconciliation.import.sample": {
+    "es": "Primeras filas del archivo",
+    "en": "First rows of the file",
+    "pt": "Primeiras linhas do arquivo"
+  },
   "accounting.reconciliation.import.signed_amount_column": {
     "es": "Columna de monto (con signo)",
     "en": "Signed amount column",
     "pt": "Coluna de valor (com sinal)"
   },
+  "accounting.reconciliation.import.statement_file": {
+    "es": "Archivo del banco (CSV, OFX o camt.053)",
+    "en": "Bank file (CSV, OFX or camt.053)",
+    "pt": "Arquivo do banco (CSV, OFX ou camt.053)"
+  },
   "accounting.reconciliation.import.statement_imported_count_movements": {
     "es": "Estado de cuenta importado: {{count}} movimientos.",
     "en": "Statement imported: {{count}} movements.",
     "pt": "Extrato importado: {{count}} movimentos."
+  },
+  "accounting.reconciliation.import.structured_file.camt053": {
+    "es": "Archivo camt.053 (ISO 20022): trae sus fechas, montos y saldos.",
+    "en": "camt.053 file (ISO 20022): it states its dates, amounts and balances.",
+    "pt": "Arquivo camt.053 (ISO 20022): traz suas datas, valores e saldos."
+  },
+  "accounting.reconciliation.import.structured_file.ofx": {
+    "es": "Archivo OFX: trae sus fechas, montos y saldo.",
+    "en": "OFX file: it states its dates, amounts and balance.",
+    "pt": "Arquivo OFX: traz suas datas, valores e saldo."
+  },
+  "accounting.reconciliation.import.structured_file_note": {
+    "es": "Este archivo no necesita mapeo de columnas. El período y los saldos se toman del archivo; si los indicas, deben coincidir con él.",
+    "en": "This file needs no column mapping. The period and balances are taken from the file; if you state them, they must match it.",
+    "pt": "Este arquivo não precisa de mapeamento de colunas. O período e os saldos vêm do arquivo; se você os informar, devem coincidir com ele."
   },
   "accounting.reconciliation.import.type_each_column_name_exactly_appears": {
     "es": "Escribe el nombre exacto de cada columna tal como aparece en el encabezado del archivo.",
@@ -2279,6 +2369,36 @@
     "es": "Conciliar",
     "en": "Match",
     "pt": "Conciliar"
+  },
+  "accounting.reconciliation.match_reason.amount": {
+    "es": "Mismo monto",
+    "en": "Same amount",
+    "pt": "Mesmo valor"
+  },
+  "accounting.reconciliation.match_reason.learned": {
+    "es": "Como emparejamientos anteriores",
+    "en": "Like earlier matches",
+    "pt": "Como conciliações anteriores"
+  },
+  "accounting.reconciliation.match_reason.near_date": {
+    "es": "Fecha cercana",
+    "en": "Close date",
+    "pt": "Data próxima"
+  },
+  "accounting.reconciliation.match_reason.reference": {
+    "es": "Referencia en común",
+    "en": "Shared reference",
+    "pt": "Referência em comum"
+  },
+  "accounting.reconciliation.match_reason.same_day": {
+    "es": "Mismo día",
+    "en": "Same day",
+    "pt": "Mesmo dia"
+  },
+  "accounting.reconciliation.match_reason.words": {
+    "es": "Descripción parecida",
+    "en": "Similar description",
+    "pt": "Descrição parecida"
   },
   "accounting.reconciliation.no_ledger_line_matches_movement": {
     "es": "Ninguna línea contable coincide con este movimiento.",
@@ -2329,6 +2449,16 @@
     "es": "Reabrir",
     "en": "Reopen",
     "pt": "Reabrir"
+  },
+  "accounting.reconciliation.safe_applied": {
+    "es": "Se confirmaron {{count}} emparejamientos seguros. Cada uno se puede deshacer.",
+    "en": "{{count}} safe matches confirmed. Each one can be undone.",
+    "pt": "{{count}} conciliações seguras confirmadas. Cada uma pode ser desfeita."
+  },
+  "accounting.reconciliation.score": {
+    "es": "Puntuación",
+    "en": "Score",
+    "pt": "Pontuação"
   },
   "accounting.reconciliation.set_aside": {
     "es": "Apartar",

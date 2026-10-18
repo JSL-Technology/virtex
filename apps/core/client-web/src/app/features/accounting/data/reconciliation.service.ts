@@ -35,22 +35,72 @@ export interface BankStatement {
   transactions?: BankTransaction[];
 }
 
+/**
+ * What an import can leave out depends on the file. An OFX or camt.053 file states its dates,
+ * amounts and (usually) its balances, so only the account is needed; a CSV needs its columns named.
+ * A period or balance given alongside a file that states its own must agree with it.
+ */
 export interface ImportStatementOptions {
   bankAccountId: string;
-  startDate: string;
-  endDate: string;
-  startingBalance: number;
-  endingBalance: number;
-  dateColumn: string;
-  descriptionColumn: string;
+  startDate?: string;
+  endDate?: string;
+  startingBalance?: number | null;
+  endingBalance?: number | null;
+  dateColumn?: string;
+  descriptionColumn?: string;
   referenceColumn?: string;
   debitColumn?: string;
   creditColumn?: string;
   amountColumn?: string;
   /** `date-fns` tokens: `dd/MM/yyyy`, `MM/dd/yyyy`, `yyyy-MM-dd`. */
-  dateFormat: string;
+  dateFormat?: string;
   decimalSeparator?: '.' | ',';
   positiveAmountIsMoneyIn?: boolean;
+}
+
+export type BankFileFormat = 'csv' | 'ofx' | 'camt053';
+
+/** Which column of a CSV is which, as the server proposes it. Column names, never values. */
+export interface ProposedColumnMapping {
+  date: string | null;
+  description: string | null;
+  reference: string | null;
+  moneyIn: string | null;
+  moneyOut: string | null;
+  amount: string | null;
+  dateFormat: string | null;
+  decimalSeparator: '.' | ',';
+  positiveAmountIsMoneyIn: boolean;
+}
+
+export interface ColumnMappingProposal {
+  format: BankFileFormat;
+  headers: string[];
+  sample: Array<Record<string, string>>;
+  mapping: ProposedColumnMapping | null;
+  /** `not_needed`: OFX/camt; `headers`: read from the names; `ai`: proposed by the assistant. */
+  source: 'not_needed' | 'headers' | 'ai' | 'incomplete';
+  /** What still has to be chosen by hand: `date`, `description`, `amount`, `dateFormat`, `numbers:<column>`. */
+  problems: string[];
+}
+
+/** Why a candidate scored what it did. */
+export type MatchReason = 'amount' | 'same_day' | 'near_date' | 'reference' | 'words' | 'learned';
+
+/**
+ * `safe`: one clear candidate above the company's threshold, not claimed by another line.
+ * `review`: candidates a person should choose between. `none`: nothing in the ledger fits.
+ */
+export type SuggestionConfidence = 'safe' | 'review' | 'none';
+
+export interface ReconciliationSettings {
+  autoConfirm: boolean;
+  minScore: number;
+}
+
+export interface AmbiguityResolution {
+  chosenId: string | null;
+  reason: string;
 }
 
 export interface MatchCandidate {
@@ -61,6 +111,7 @@ export interface MatchCandidate {
   description: string | null;
   amount: number;
   score: number;
+  reasons: MatchReason[];
 }
 
 export interface MatchCandidateGroup {
@@ -77,6 +128,7 @@ export interface TransactionSuggestion {
   candidates: MatchCandidate[];
   candidateGroups: MatchCandidateGroup[];
   suggestedRuleId: string | null;
+  confidence: SuggestionConfidence;
 }
 
 /**
@@ -123,10 +175,9 @@ export class ReconciliationApiService {
   /**
    * Import a statement.
    *
-   * Sent as multipart because the CSV travels with its column mapping: which column holds the
+   * Sent as multipart because a CSV travels with its column mapping: which column holds the
    * date, how that bank writes one, and whether `1.234,56` means a thousand or one and a bit. The
-   * importer refuses a file it cannot read rather than guessing, so every one of these is required
-   * to be right.
+   * importer refuses a file it cannot read rather than guessing. OFX and camt.053 need none of it.
    */
   importStatement(file: File, options: ImportStatementOptions): Observable<BankStatement> {
     const body = new FormData();
@@ -137,6 +188,34 @@ export class ReconciliationApiService {
       }
     }
     return this.http.post<BankStatement>(`${this.apiUrl}/statements`, body);
+  }
+
+  /** Propose which column is which (or say the file needs no mapping). Imports nothing. */
+  columnMapping(file: File): Observable<ColumnMappingProposal> {
+    const body = new FormData();
+    body.append('file', file, file.name);
+    return this.http.post<ColumnMappingProposal>(`${this.apiUrl}/column-mapping`, body);
+  }
+
+  settings(): Observable<ReconciliationSettings> {
+    return this.http.get<ReconciliationSettings>(`${this.apiUrl}/settings`);
+  }
+
+  updateSettings(changes: Partial<ReconciliationSettings>): Observable<ReconciliationSettings> {
+    return this.http.patch<ReconciliationSettings>(`${this.apiUrl}/settings`, changes);
+  }
+
+  /** Confirm every `safe` suggestion of the statement at once. */
+  applySafe(id: string): Observable<{ applied: number }> {
+    return this.http.post<{ applied: number }>(`${this.apiUrl}/statements/${id}/apply-safe`, {});
+  }
+
+  /** Ask the assistant which of several candidates a statement line is, and why. Matches nothing. */
+  resolve(statementId: string, transactionId: string): Observable<AmbiguityResolution> {
+    return this.http.post<AmbiguityResolution>(
+      `${this.apiUrl}/statements/${statementId}/transactions/${transactionId}/resolve`,
+      {},
+    );
   }
 
   listStatements(bankAccountId?: string): Observable<BankStatement[]> {
