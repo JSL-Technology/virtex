@@ -2,7 +2,6 @@
 jest.mock('puppeteer', () => ({}));
 
 import { DataSource } from 'typeorm';
-import { Organization } from '../organizations/entities/organization.entity';
 import { Customer } from '../customers/entities/customer.entity';
 import { Invoice, InvoiceStatus } from '../invoices/entities/invoice.entity';
 import { PaymentLikelihoodRegistry } from '../contracts/ai/payment-likelihood.contract';
@@ -67,15 +66,15 @@ describeWithDb('collections', () => {
     await dataSource?.destroy();
   });
 
-  const organization = async () =>
-    (
-      await dataSource.getRepository(Organization).save(
-        dataSource.getRepository(Organization).create({
-          legalName: `COB ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          timezone: 'America/Santo_Domingo',
-        }),
-      )
-    ).id;
+  // Written directly: a tenant is identity's to create, and this spec only needs one to exist.
+  const organization = async (): Promise<string> => {
+    const tag = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const [row]: Array<{ id: string }> = await dataSource.query(
+      `INSERT INTO "organizations" ("legal_name", "slug", "timezone") VALUES ($1, $2, 'America/Santo_Domingo') RETURNING "id"`,
+      [`COB ${tag}`, `cob-${tag}`],
+    );
+    return row.id;
+  };
 
   const customer = async (orgId: string, name = 'Distribuidora Nacional') =>
     (
