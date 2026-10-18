@@ -1,0 +1,74 @@
+<section class="ag" aria-labelledby="ai-agents">
+  <h2 id="ai-agents" class="ag__heading">{{ 'ai.agents.title' | translate }}</h2>
+  <p class="ag__muted">{{ 'ai.agents.intro' | translate }}</p>
+
+  @if (settings(); as s) {
+    <article class="card ag__card">
+      <h3 class="ag__h3">{{ 'ai.agents.replenishment.title' | translate }}</h3>
+      <p class="ag__muted">{{ 'ai.agents.replenishment.help' | translate }}</p>
+      <label class="ag__check">
+        <input type="checkbox" [checked]="s.enabled" (change)="update({ enabled: $any($event.target).checked })" />
+        <span>{{ 'ai.agents.replenishment.enabled' | translate }}</span>
+      </label>
+      <label class="ag__check">
+        <input type="checkbox" [checked]="s.submitForApproval" (change)="update({ submitForApproval: $any($event.target).checked })" />
+        <span>{{ 'ai.agents.replenishment.submit' | translate }}</span>
+      </label>
+      <label class="ag__field">
+        <span>{{ 'ai.agents.replenishment.limit' | translate }}</span>
+        <input type="number" min="0" step="0.01" [ngModel]="s.maxOrderAmount" (change)="setLimit($any($event.target).value)" [placeholder]="'ai.agents.replenishment.no_limit' | translate" />
+      </label>
+      <div class="ag__actions" *appHasPermission="'procurement:manage'">
+        <button type="button" class="btn-secondary" [disabled]="running()" (click)="runNow()">
+          {{ (running() ? 'ai.agents.replenishment.running' : 'ai.agents.replenishment.run_now') | translate }}
+        </button>
+      </div>
+    </article>
+  }
+
+  <h3 class="ag__h3">{{ 'ai.agents.log' | translate }}</h3>
+  @if (!runs().length) {
+    <p class="ag__muted">{{ 'ai.agents.log_empty' | translate }}</p>
+  } @else {
+    <ul class="ag__runs">
+      @for (run of runs(); track run.id) {
+        <li class="ag__run">
+          <span class="ag__strong">{{ k('ai.agents.agent', run.agent) | translate }}</span>
+          <span class="ag__muted">{{ run.startedAt | vxDate: 'medium' }} · {{ k('ai.agents.trigger', run.trigger) | translate }} · {{ k('ai.agents.status', run.status) | translate }}</span>
+          @if (run.proposals.length) {
+            <span class="ag__proposals">
+              @for (proposal of run.proposals; track proposal.id) {
+                @if (proposal.link) {
+                  <a [routerLink]="proposal.link">{{ proposal.label }}</a>
+                } @else {
+                  <span>{{ proposal.label }}</span>
+                }
+                <span class="ag__muted">({{ k('ai.agents.state', proposal.state) | translate }})</span>
+              }
+            </span>
+          }
+          @for (note of run.notes; track $index) {
+            <span class="ag__note">{{ k('ai.agents.note', note.key) | translate: note.params ?? {} }}</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  <h3 class="ag__h3">{{ 'ai.agents.copilot' | translate }}</h3>
+  @if (!proposals().length) {
+    <p class="ag__muted">{{ 'ai.agents.copilot_empty' | translate }}</p>
+  } @else {
+    <ul class="ag__runs">
+      @for (item of proposals(); track item.id) {
+        <li class="ag__run">
+          <span>{{ item.summary }}</span>
+          <span class="ag__muted">{{ item.createdAt | vxDate: 'medium' }} · {{ k('ai.copilot.proposal_status', item.status) | translate }}</span>
+          @if (item.link) {
+            <a [routerLink]="item.link">{{ 'ai.agents.open' | translate }}</a>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>

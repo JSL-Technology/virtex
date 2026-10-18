@@ -21,6 +21,11 @@ import { ScenarioComparisonBuilder } from './cashflow/scenario-comparison.builde
 import { DataQualityService } from './data-quality/data-quality.service';
 import { DataQualityController } from './data-quality/data-quality.controller';
 import { AiDuplicateSuggestion } from './entities/ai-duplicate-suggestion.entity';
+import { AiAgentRun } from './entities/ai-agent-run.entity';
+import { AgentRunsService } from './agents/agent-runs.service';
+import { AgentsController } from './agents/agents.controller';
+import { ReorderSuggestionsProvider } from './forecasting/reorder-suggestions.provider';
+import { AgentRunLogPort } from '../contracts/ai/agent-runs.contract';
 import { ManagerReportController } from './reports/manager-report.controller';
 import { CashflowController } from './cashflow/cashflow.controller';
 import { CashflowPlanBuilder } from './cashflow/cashflow-plan.builder';
@@ -59,13 +64,13 @@ import { InventoryModule } from '../inventory/inventory.module';
     TypeOrmModule.forFeature([
       AiRequest, AiModelRun, AiForecast, AiInventoryInsight, AiAnomaly, AiAnomalyFeedback,
       AiConversation, AiMessage, AiPendingAction, AiKnowledgeChunk,
-      AiCashflowForecast, AiCashflowItem, AiReport, AiDuplicateSuggestion,
+      AiCashflowForecast, AiCashflowItem, AiReport, AiDuplicateSuggestion, AiAgentRun,
     ]),
     BullModule.registerQueue({ name: AI_ENGINE_QUEUE }),
     BullModule.registerQueue({ name: AI_REPORTS_QUEUE }),
     InventoryModule,
   ],
-  controllers: [AiController, CopilotController, CashflowController, ManagerReportController, DataQualityController],
+  controllers: [AiController, CopilotController, CashflowController, ManagerReportController, DataQualityController, AgentsController],
   providers: [
     AiGatewayService,
     EmbeddingsService,
@@ -87,9 +92,12 @@ import { InventoryModule } from '../inventory/inventory.module';
     ManagerReportBuilder,
     ScenarioComparisonBuilder,
     DataQualityService,
+    AgentRunsService,
+    ReorderSuggestionsProvider,
+    { provide: AgentRunLogPort, useExisting: AgentRunsService },
     AiCopilotTools,
     { provide: AiAssistPort, useExisting: AiGatewayService },
   ],
-  exports: [AiGatewayService, AiAssistPort],
+  exports: [AiGatewayService, AiAssistPort, AgentRunLogPort],
 })
 export class AiModule {}

@@ -7,6 +7,7 @@ import { AiOverview, AiRunSummary, AiService } from '../../../ai/data/ai.service
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { NotificationService } from '../../../../core/services/notification';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
+import { AiAgentsPanelComponent } from '../../../ai/agents/agents-panel.component';
 
 type Availability = 'available' | 'not_in_plan' | 'provider_missing';
 
@@ -30,7 +31,7 @@ interface FeatureUsage {
 @Component({
   selector: 'app-ai-settings-page',
   standalone: true,
-  imports: [TranslateModule, RouterLink, HasPermissionDirective, ...FORMAT_PIPES],
+  imports: [TranslateModule, RouterLink, HasPermissionDirective, ...FORMAT_PIPES, AiAgentsPanelComponent],
   templateUrl: './ai-settings.page.html',
   styleUrls: ['./ai-settings.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

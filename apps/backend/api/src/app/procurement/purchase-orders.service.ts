@@ -154,7 +154,8 @@ export class PurchaseOrdersService {
   async create(
     dto: CreatePurchaseOrderDto,
     organizationId: string,
-    actorUserId: string,
+    // Null for an agent's draft: no person, so no personal branch scope or default.
+    actorUserId: string | null,
   ): Promise<PurchaseOrder> {
     let supplierName: string | null = null;
     const created = await this.dataSource.transaction(async (manager) => {

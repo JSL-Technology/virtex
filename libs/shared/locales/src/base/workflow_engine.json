@@ -129,6 +129,11 @@
     "en": "Payment reminder",
     "pt": "Lembrete de pagamento"
   },
+  "workflow_engine.action.replenishment_agent": {
+    "es": "Agente de reposición",
+    "en": "Replenishment agent",
+    "pt": "Agente de reposição"
+  },
   "workflow_engine.action.set_variable": {
     "es": "Asignar una variable",
     "en": "Set a variable",
@@ -158,6 +163,11 @@
     "es": "Redacta un recordatorio de pago para una factura abierta y lo deja en Cobranza para revisarlo, o lo envía al cliente por correo con la factura adjunta.",
     "en": "Drafts a payment reminder for an open invoice and leaves it in Collections for review, or e-mails it to the customer with the invoice attached.",
     "pt": "Redige um lembrete de pagamento para uma fatura em aberto e deixa-o em Cobrança para revisão, ou envia-o ao cliente por e-mail com a fatura anexada."
+  },
+  "workflow_engine.action_help.replenishment_agent": {
+    "es": "Prepara órdenes de compra a partir del pronóstico de demanda, con la configuración del agente (borradores o enviadas a aprobación).",
+    "en": "Prepares purchase orders from the demand forecast, under the agent's settings (drafts, or sent for approval).",
+    "pt": "Prepara pedidos de compra a partir da previsão de demanda, com a configuração do agente (rascunhos ou enviados para aprovação)."
   },
   "workflow_engine.action_help.set_variable": {
     "es": "Guarda un valor en las variables de la ejecución.",
@@ -2759,10 +2769,20 @@
     "en": "Failed",
     "pt": "Erro"
   },
+  "workflow_engine.outcome.nothing": {
+    "es": "Nada que pedir",
+    "en": "Nothing to order",
+    "pt": "Nada a pedir"
+  },
   "workflow_engine.outcome.ok": {
     "es": "Correcto",
     "en": "Succeeded",
     "pt": "Correto"
+  },
+  "workflow_engine.outcome.ordered": {
+    "es": "Pidió",
+    "en": "Ordered",
+    "pt": "Pediu"
   },
   "workflow_engine.outcome.reject": {
     "es": "Rechazar",

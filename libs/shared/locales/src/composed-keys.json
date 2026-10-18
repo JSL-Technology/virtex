@@ -150,6 +150,29 @@
       "product_vision",
       "reconcile_ambiguous"
     ],
+    "ai.agents.agent": [
+      "replenishment"
+    ],
+    "ai.agents.note": [
+      "no_supplier",
+      "over_limit",
+      "no_forecast",
+      "failed"
+    ],
+    "ai.agents.state": [
+      "DRAFT",
+      "PENDING_APPROVAL"
+    ],
+    "ai.agents.status": [
+      "SUCCEEDED",
+      "FAILED",
+      "NOTHING_TO_DO"
+    ],
+    "ai.agents.trigger": [
+      "SCHEDULED",
+      "MANUAL",
+      "WORKFLOW"
+    ],
     "ai.anomalies.category_label": [
       "sales",
       "purchases",
@@ -1194,7 +1217,9 @@
       "return",
       "sent",
       "drafted",
-      "skipped"
+      "skipped",
+      "ordered",
+      "nothing"
     ],
     "workflow_engine.palette.category": [
       "people",

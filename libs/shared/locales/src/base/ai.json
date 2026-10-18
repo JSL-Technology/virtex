@@ -259,6 +259,161 @@
     "en": "Reconciliation (ambiguous cases)",
     "pt": "Reconciliação (casos ambíguos)"
   },
+  "ai.agents.agent.replenishment": {
+    "es": "Reposición",
+    "en": "Replenishment",
+    "pt": "Reposição"
+  },
+  "ai.agents.copilot": {
+    "es": "Lo que propuso el asistente",
+    "en": "What the assistant proposed",
+    "pt": "O que o assistente propôs"
+  },
+  "ai.agents.copilot_empty": {
+    "es": "El asistente todavía no ha propuesto borradores.",
+    "en": "The assistant has not proposed drafts yet.",
+    "pt": "O assistente ainda não propôs rascunhos."
+  },
+  "ai.agents.intro": {
+    "es": "Un agente ejecuta un proceso por su cuenta, pero nunca compromete a la empresa: deja borradores o los envía al flujo de aprobación que ya existe.",
+    "en": "An agent runs a process on its own but never commits the company: it leaves drafts, or sends them into the approval flow that already exists.",
+    "pt": "Um agente executa um processo sozinho, mas nunca compromete a empresa: deixa rascunhos ou os envia ao fluxo de aprovação existente."
+  },
+  "ai.agents.log": {
+    "es": "Bitácora de agentes",
+    "en": "Agent log",
+    "pt": "Registro dos agentes"
+  },
+  "ai.agents.log_empty": {
+    "es": "Ningún agente se ha ejecutado todavía.",
+    "en": "No agent has run yet.",
+    "pt": "Nenhum agente foi executado ainda."
+  },
+  "ai.agents.note.failed": {
+    "es": "Error: {{reason}}",
+    "en": "Error: {{reason}}",
+    "pt": "Erro: {{reason}}"
+  },
+  "ai.agents.note.no_forecast": {
+    "es": "Todavía no hay pronóstico de demanda.",
+    "en": "There is no demand forecast yet.",
+    "pt": "Ainda não há previsão de demanda."
+  },
+  "ai.agents.note.no_supplier": {
+    "es": "Sin proveedor anterior ({{count}}): {{products}}.",
+    "en": "No previous supplier ({{count}}): {{products}}.",
+    "pt": "Sem fornecedor anterior ({{count}}): {{products}}."
+  },
+  "ai.agents.note.over_limit": {
+    "es": "{{number}} supera el límite y quedó en borrador.",
+    "en": "{{number}} is over the limit and stayed a draft.",
+    "pt": "{{number}} excede o limite e ficou em rascunho."
+  },
+  "ai.agents.open": {
+    "es": "Abrir",
+    "en": "Open",
+    "pt": "Abrir"
+  },
+  "ai.agents.replenishment.enabled": {
+    "es": "Activado",
+    "en": "Enabled",
+    "pt": "Ativado"
+  },
+  "ai.agents.replenishment.help": {
+    "es": "Cada mañana, con el pronóstico de demanda, prepara órdenes de compra al último proveedor de cada producto por lo que falta y no está ya pedido.",
+    "en": "Every morning, from the demand forecast, it prepares purchase orders to each product's last supplier for what is short and not already on order.",
+    "pt": "Toda manhã, com a previsão de demanda, prepara pedidos de compra ao último fornecedor de cada produto pelo que falta e ainda não foi pedido."
+  },
+  "ai.agents.replenishment.limit": {
+    "es": "Monto máximo para enviar a aprobación",
+    "en": "Largest order sent for approval",
+    "pt": "Valor máximo para enviar para aprovação"
+  },
+  "ai.agents.replenishment.no_limit": {
+    "es": "Sin límite",
+    "en": "No limit",
+    "pt": "Sem limite"
+  },
+  "ai.agents.replenishment.ran": {
+    "es": "El agente preparó {{count}} órdenes de compra.",
+    "en": "The agent prepared {{count}} purchase orders.",
+    "pt": "O agente preparou {{count}} pedidos de compra."
+  },
+  "ai.agents.replenishment.run_failed": {
+    "es": "El agente de reposición no pudo ejecutarse.",
+    "en": "The replenishment agent could not run.",
+    "pt": "O agente de reposição não pôde ser executado."
+  },
+  "ai.agents.replenishment.run_now": {
+    "es": "Ejecutar ahora",
+    "en": "Run now",
+    "pt": "Executar agora"
+  },
+  "ai.agents.replenishment.running": {
+    "es": "Ejecutando…",
+    "en": "Running…",
+    "pt": "Executando…"
+  },
+  "ai.agents.replenishment.submit": {
+    "es": "Enviar las órdenes a aprobación (si no, quedan en borrador)",
+    "en": "Send the orders for approval (otherwise they stay as drafts)",
+    "pt": "Enviar os pedidos para aprovação (senão ficam em rascunho)"
+  },
+  "ai.agents.replenishment.title": {
+    "es": "Agente de reposición",
+    "en": "Replenishment agent",
+    "pt": "Agente de reposição"
+  },
+  "ai.agents.save_failed": {
+    "es": "No se pudo guardar la configuración del agente.",
+    "en": "The agent settings could not be saved.",
+    "pt": "Não foi possível salvar a configuração do agente."
+  },
+  "ai.agents.state.draft": {
+    "es": "borrador",
+    "en": "draft",
+    "pt": "rascunho"
+  },
+  "ai.agents.state.pending_approval": {
+    "es": "en aprobación",
+    "en": "awaiting approval",
+    "pt": "em aprovação"
+  },
+  "ai.agents.status.failed": {
+    "es": "falló",
+    "en": "failed",
+    "pt": "falhou"
+  },
+  "ai.agents.status.nothing_to_do": {
+    "es": "nada que pedir",
+    "en": "nothing to order",
+    "pt": "nada a pedir"
+  },
+  "ai.agents.status.succeeded": {
+    "es": "propuso órdenes",
+    "en": "proposed orders",
+    "pt": "propôs pedidos"
+  },
+  "ai.agents.title": {
+    "es": "Agentes",
+    "en": "Agents",
+    "pt": "Agentes"
+  },
+  "ai.agents.trigger.manual": {
+    "es": "a pedido",
+    "en": "on request",
+    "pt": "sob demanda"
+  },
+  "ai.agents.trigger.scheduled": {
+    "es": "programado",
+    "en": "scheduled",
+    "pt": "agendado"
+  },
+  "ai.agents.trigger.workflow": {
+    "es": "desde un flujo",
+    "en": "from a workflow",
+    "pt": "de um fluxo"
+  },
   "ai.anomalies.all": {
     "es": "Todas",
     "en": "All",

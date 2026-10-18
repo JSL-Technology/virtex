@@ -21,6 +21,11 @@ import { PURCHASE_ORDER_LIFECYCLE, REQUISITION_LIFECYCLE } from './procurement-l
 
 import { GoodsReceiptsController } from './goods-receipts.controller';
 import { GoodsReceiptsService } from './goods-receipts.service';
+import { ReplenishmentAgentSettings } from './replenishment/replenishment-settings.entity';
+import { ReplenishmentAgentService } from './replenishment/replenishment-agent.service';
+import { ReplenishmentAgentController } from './replenishment/replenishment-agent.controller';
+import { ReplenishmentWorkflowActions } from './replenishment/replenishment.workflow-actions';
+import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 
 @Module({
   imports: [
@@ -31,7 +36,10 @@ import { GoodsReceiptsService } from './goods-receipts.service';
       PurchaseOrderLine,
       SupplierPortalUser,
       PurchaseOrderReceipt,
+      ReplenishmentAgentSettings,
     ]),
+    // The replenishment agent registers a workflow step.
+    WorkflowEngineModule,
     // A receipt brings goods into stock (and onto the books) through the inventory module.
     InventoryModule,
     AuthModule,
@@ -40,8 +48,8 @@ import { GoodsReceiptsService } from './goods-receipts.service';
     // A foreign-currency order is costed at the spot rate of the day its goods arrive (QA A-12).
     CurrenciesModule,
   ],
-  controllers: [ProcurementController, PurchaseOrdersController, GoodsReceiptsController],
-  providers: [ProcurementCopilotTools, ProcurementService, PurchaseOrdersService, GoodsReceiptsService, PurchaseOrderApprovalSource, RequisitionApprovalSource],
+  controllers: [ProcurementController, PurchaseOrdersController, GoodsReceiptsController, ReplenishmentAgentController],
+  providers: [ProcurementCopilotTools, ProcurementService, PurchaseOrdersService, GoodsReceiptsService, PurchaseOrderApprovalSource, RequisitionApprovalSource, ReplenishmentAgentService, ReplenishmentWorkflowActions],
   exports: [ProcurementService, PurchaseOrdersService],
 })
 export class ProcurementModule implements OnModuleInit {
