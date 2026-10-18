@@ -520,6 +520,9 @@
   overflow: hidden;
   height: 100%;
   width: 100%;
+  //  A grid item's minimum is its content's by default: the docked windows asked for 435px and a
+  //  390px phone cut every page's right edge (buttons, badges, the footer). It shrinks to its track.
+  min-width: 0;
   position: relative;
   z-index: 1;
 
@@ -1539,7 +1542,7 @@ app-status-bar {
 
 @media (max-width: 768px) {
   :host {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto 1fr auto;
     grid-template-areas:
       'banner'

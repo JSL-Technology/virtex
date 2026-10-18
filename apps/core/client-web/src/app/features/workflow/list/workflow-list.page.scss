@@ -1,86 +1,115 @@
+@use '../../../../assets/styles/list-page' as list;
+@use 'assets/styles/design-system' as ds;
+
 :host {
   display: block;
-  height: 100%;
-  min-height: 0;
+  @include list.list-page;
 }
 
-// The page's own copy for the shell's empty state: icon above sentence, like the shell's default.
+.wfl__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.wfl__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  background: var(--surface-base);
+  color: var(--content-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  @include ds.focus-ring(2px);
+
+  &--active {
+    border-color: var(--accent-solid);
+    background: var(--accent-surface);
+    color: var(--accent-text);
+    font-weight: var(--font-semibold);
+  }
+}
+
+.wfl__chip-count {
+  min-width: 18px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  color: var(--content-tertiary);
+  font-size: var(--text-xs);
+  text-align: center;
+}
+
+.wfl__select select {
+  @include ds.input-base;
+  height: var(--control-height-sm);
+  font-size: var(--text-sm);
+  width: auto;
+}
+
 .wfl__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-
-  p {
-    margin: 0;
-  }
+  gap: var(--space-2);
 }
 
-.wfl__table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--text-sm);
-
-  th {
-    text-align: left;
-    padding: 8px 16px;
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    color: var(--content-tertiary);
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  td {
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border-subtle);
-    color: var(--content-primary);
-    vertical-align: middle;
-  }
+.wfl__table td {
+  vertical-align: middle;
 }
 
 .wfl__name {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  // A table cell stays a table cell: `display: flex` here took it out of the row's height, so a
+  // name without a description drew its border halfway up the row. The lines stack as blocks.
+  min-width: 220px;
+  max-width: 420px;
+
+  .table-link {
+    @include ds.line-clamp(2);
+    font-weight: var(--font-semibold);
+    overflow-wrap: anywhere;
+  }
 }
 
-.wfl__link {
-  padding: 0;
-  font: inherit;
-  font-weight: 600;
-  text-align: left;
-  color: var(--content-link);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.wfl__trigger {
-  font-size: var(--text-2xs);
+.wfl__description {
+  @include ds.line-clamp(2);
+  margin-top: 2px;
+  font-size: var(--text-xs);
   color: var(--content-tertiary);
 }
 
-.wfl__badge {
-  padding: 2px 8px;
-  font-size: var(--text-2xs);
-  font-weight: 600;
-  border-radius: var(--border-radius-full);
-  background: var(--bg-tertiary);
+.wfl__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 140px;
+  font-size: var(--text-sm);
   color: var(--content-secondary);
+}
 
-  &[data-status='PUBLISHED'] {
-    background: var(--success-surface);
-    color: var(--success-text);
-  }
-  &[data-status='DRAFT'] {
-    background: var(--info-surface);
-    color: var(--info-text);
-  }
-  &[data-status='ARCHIVED'] {
-    background: var(--bg-tertiary);
-    color: var(--content-tertiary);
-  }
+.wfl__sub {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
+}
+
+.wfl__draft {
+  text-decoration: none;
+}
+
+.wfl__muted {
+  color: var(--content-tertiary);
 }
 
 .wfl__actions-col {
@@ -88,25 +117,53 @@
 }
 
 .wfl__actions {
-  display: flex;
-  gap: 2px;
   white-space: nowrap;
+  text-align: right;
+}
 
-  button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    color: var(--content-secondary);
-    background: transparent;
-    border: none;
-    border-radius: var(--border-radius-sm);
-    cursor: pointer;
+.wfl__icon {
+  @include ds.button-icon('sm');
+  display: inline-flex;
+  vertical-align: middle;
 
-    &:hover {
-      background: var(--bg-hover);
-      color: var(--content-primary);
-    }
+  &--danger:hover {
+    color: var(--error-text);
   }
+}
+
+.wfl__more {
+  position: relative;
+  display: inline-flex;
+}
+
+.wfl__menu {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: var(--space-1);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised, var(--surface-base));
+  box-shadow: var(--shadow-lg, 0 8px 24px rgb(0 0 0 / 0.12));
+  text-align: start;
+
+  > button,
+  > a {
+    @include ds.button-ghost('sm');
+    justify-content: flex-start;
+    gap: var(--space-2);
+    width: 100%;
+    color: var(--content-primary);
+    text-decoration: none;
+  }
+}
+
+.wfl__menu-danger {
+  color: var(--error-text) !important;
+}
+
+.sr-only {
+  @include ds.visually-hidden;
 }

@@ -210,6 +210,27 @@ export class NotificationsService {
     return this.notificationRepository.save(notification);
   }
 
+  /**
+   * Mark every notice that points at `link` as read, for everyone in the company.
+   *
+   * For notices about work that has been dealt with — a task someone else decided, a run that was
+   * cancelled: the bell must stop asking people to act on something already closed.
+   */
+  async markReadByLink(organizationId: string, link: string): Promise<number> {
+    const result = await this.notificationRepository.update({ organizationId, link, read: false }, { read: true });
+    return result.affected ?? 0;
+  }
+
+  /**
+   * Like {@link markReadByLink}, and the notice also stops SAYING it needs an answer: its title and
+   * body are re-keyed (they are rendered from the keys on every read, with the params it already
+   * has), so «espera tu acción» becomes «ya no necesita tu respuesta» in every language.
+   */
+  async resolveByLink(organizationId: string, link: string, keys: { titleKey: string; bodyKey: string }): Promise<number> {
+    const result = await this.notificationRepository.update({ organizationId, link }, { read: true, ...keys });
+    return result.affected ?? 0;
+  }
+
   async markAllAsRead(userId: string): Promise<any> {
     await this.notificationRepository.update({ userId, read: false }, { read: true });
     return { success: true };

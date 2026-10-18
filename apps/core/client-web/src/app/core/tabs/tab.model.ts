@@ -86,6 +86,8 @@ export interface TabDefinition {
   title?: string;
   icon?: string;
   isCloseable?: boolean;
+  /** `false` = never opens as the reusable preview tab (see `RouteManifest.previewable`). */
+  previewable?: boolean;
   permissions?: string[];                            // espejo del permissionsGuard
   entityKeyFn?: (params: Record<string, string>, q?: Record<string, string>) => string;
   titleFn?: (params: Record<string, string>, data?: unknown) => string;

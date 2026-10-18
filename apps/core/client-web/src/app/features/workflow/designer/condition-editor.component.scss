@@ -1,0 +1,87 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+}
+
+.ce-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ce-group--nested {
+  padding: var(--space-2);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.ce-group__head,
+.ce-group__add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ce-switch select,
+.ce-leaf select,
+.ce-leaf input {
+  @include ds.input-base;
+  height: var(--control-height-sm);
+  font-size: var(--text-sm);
+  min-width: 0;
+}
+
+.ce-negate {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+.ce-leaf {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+}
+
+// Variable on its own line, operator and value on the next: in a 300-pixel inspector three columns
+// left «es igual a» clipped to «es igu» (QA).
+.ce-leaf__row {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+
+  > select,
+  > input {
+    flex: 1 1 0;
+  }
+}
+
+.ce-leaf--unknown {
+  border-color: var(--status-danger-border, var(--color-danger, #c0392b));
+}
+
+.ce-leaf__warning {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--status-danger-fg, var(--color-danger, #c0392b));
+}
+
+.ce-icon {
+  @include ds.button-icon('sm');
+}
+
+.ce-add {
+  @include ds.button-ghost('sm');
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}

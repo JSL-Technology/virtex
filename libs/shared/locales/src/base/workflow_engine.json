@@ -1,473 +1,493 @@
 {
-  "workflow_engine.no_start_node": {
-    "es": "El flujo de trabajo no tiene un nodo de inicio.",
-    "en": "The workflow has no start node.",
-    "pt": "O fluxo de trabalho não tem um nó de início."
+  "workflow_engine.a11y.all_selected": {
+    "es": "Elementos seleccionados: {{count}}",
+    "en": "Items selected: {{count}}",
+    "pt": "Elementos selecionados: {{count}}"
   },
-  "workflow_engine.task_not_open": {
-    "es": "La tarea ya no está abierta.",
-    "en": "The task is no longer open.",
-    "pt": "A tarefa já não está aberta."
+  "workflow_engine.a11y.connect_cancelled": {
+    "es": "Conexión cancelada",
+    "en": "Connection cancelled",
+    "pt": "Ligação cancelada"
   },
-  "workflow_engine.invalid_outcome": {
-    "es": "«{{outcome}}» no es un resultado válido para esta tarea.",
-    "en": "«{{outcome}}» is not a valid outcome for this task.",
-    "pt": "«{{outcome}}» não é um resultado válido para esta tarefa."
+  "workflow_engine.a11y.connect_requires_single": {
+    "es": "Selecciona un único paso para conectar",
+    "en": "Select a single step to connect",
+    "pt": "Selecione um único passo para ligar"
   },
-  "workflow_engine.instance_not_found": {
-    "es": "No se encontró la instancia del flujo de trabajo.",
-    "en": "The workflow instance was not found.",
-    "pt": "A instância do fluxo de trabalho não foi encontrada."
+  "workflow_engine.a11y.connect_started": {
+    "es": "Conectando desde {{label}}. Elige el destino con las flechas.",
+    "en": "Connecting from {{label}}. Choose the target with the arrows.",
+    "pt": "A ligar a partir de {{label}}. Escolha o destino com as setas."
   },
-  "workflow_engine.instance_not_running": {
-    "es": "La instancia no está en ejecución.",
-    "en": "The instance is not running.",
-    "pt": "A instância não está em execução."
+  "workflow_engine.a11y.connect_target": {
+    "es": "{{label}}, destino {{index}} de {{total}}",
+    "en": "{{label}}, target {{index}} of {{total}}",
+    "pt": "{{label}}, destino {{index}} de {{total}}"
   },
-  "workflow_engine.definition_not_found": {
-    "es": "No se encontró la definición del flujo de trabajo.",
-    "en": "The workflow definition was not found.",
-    "pt": "A definição do fluxo de trabalho não foi encontrada."
+  "workflow_engine.a11y.connect_unavailable": {
+    "es": "No hay nada que conectar aquí",
+    "en": "There is nothing to connect here",
+    "pt": "Não há nada para ligar aqui"
   },
-  "workflow_engine.only_draft_editable": {
-    "es": "Solo se puede editar un flujo de trabajo en borrador.",
-    "en": "Only a draft workflow can be edited.",
-    "pt": "Apenas um fluxo de trabalho em rascunho pode ser editado."
+  "workflow_engine.a11y.connected": {
+    "es": "{{source}} conectado con {{target}}",
+    "en": "{{source}} connected to {{target}}",
+    "pt": "{{source}} ligado a {{target}}"
   },
-  "workflow_engine.cannot_delete_published": {
-    "es": "No se puede eliminar un flujo de trabajo publicado.",
-    "en": "A published workflow cannot be deleted.",
-    "pt": "Um fluxo de trabalho publicado não pode ser eliminado."
+  "workflow_engine.a11y.connection": {
+    "es": "conexión",
+    "en": "connection",
+    "pt": "ligação"
   },
-  "workflow_engine.definition_has_running_instances": {
-    "es": "No se puede eliminar: el flujo de trabajo tiene instancias en ejecución.",
-    "en": "It cannot be deleted: the workflow has running instances.",
-    "pt": "Não pode ser eliminado: o fluxo de trabalho tem instâncias em execução."
+  "workflow_engine.a11y.connection_focused": {
+    "es": "Conexión {{label}}",
+    "en": "Connection {{label}}",
+    "pt": "Ligação {{label}}"
   },
-  "workflow_engine.definition_not_published": {
-    "es": "El flujo de trabajo debe estar publicado para iniciarse.",
-    "en": "The workflow must be published before it can start.",
-    "pt": "O fluxo de trabalho deve estar publicado para ser iniciado."
+  "workflow_engine.a11y.connection_label": {
+    "es": "De {{source}} a {{target}}",
+    "en": "From {{source}} to {{target}}",
+    "pt": "De {{source}} para {{target}}"
   },
-  "workflow_engine.task_not_found": {
-    "es": "No se encontró la tarea.",
-    "en": "The task was not found.",
-    "pt": "A tarefa não foi encontrada."
+  "workflow_engine.a11y.delete_requested": {
+    "es": "Eliminar elementos seleccionados: {{count}}",
+    "en": "Delete selected items: {{count}}",
+    "pt": "Eliminar elementos selecionados: {{count}}"
   },
-  "workflow_engine.not_your_task": {
-    "es": "No tienes permiso para actuar sobre esta tarea.",
-    "en": "You do not have permission to act on this task.",
-    "pt": "Não tens permissão para agir sobre esta tarefa."
+  "workflow_engine.a11y.dropped": {
+    "es": "{{label}} soltado en {{x}}, {{y}}",
+    "en": "{{label}} dropped at {{x}}, {{y}}",
+    "pt": "{{label}} largado em {{x}}, {{y}}"
   },
-  "workflow_engine.invalid_graph.one_start": {
-    "es": "El flujo debe tener exactamente un nodo de inicio.",
-    "en": "The flow must have exactly one start node.",
-    "pt": "O fluxo deve ter exatamente um nó de início."
+  "workflow_engine.a11y.flow": {
+    "es": "diagrama de proceso",
+    "en": "process diagram",
+    "pt": "diagrama de processo"
   },
-  "workflow_engine.invalid_graph.need_end": {
-    "es": "El flujo debe tener al menos un nodo final.",
-    "en": "The flow must have at least one end node.",
-    "pt": "O fluxo deve ter pelo menos um nó final."
+  "workflow_engine.a11y.grabbed": {
+    "es": "{{label}} tomado. Usa las flechas y Espacio para soltar.",
+    "en": "{{label}} grabbed. Use the arrows, then Space to drop.",
+    "pt": "{{label}} pegado. Use as setas e Espaço para largar."
   },
-  "workflow_engine.invalid_graph.duplicate_node_id": {
-    "es": "Hay nodos con el mismo identificador.",
-    "en": "Two nodes share the same identifier.",
-    "pt": "Há nós com o mesmo identificador."
+  "workflow_engine.a11y.group": {
+    "es": "carril",
+    "en": "lane",
+    "pt": "faixa"
   },
-  "workflow_engine.invalid_graph.edge_dangling": {
-    "es": "Una conexión apunta a un nodo que no existe.",
-    "en": "A connection points to a node that does not exist.",
-    "pt": "Uma conexão aponta para um nó que não existe."
+  "workflow_engine.a11y.instructions": {
+    "es": "Tab recorre los pasos; Espacio toma el paso y las flechas lo mueven; C conecta; + y − cambian el zoom.",
+    "en": "Tab moves between steps; Space grabs a step and the arrows move it; C connects; + and − zoom.",
+    "pt": "Tab percorre os passos; Espaço pega no passo e as setas movem-no; C liga; + e − alteram o zoom."
   },
-  "workflow_engine.invalid_graph.node_no_exit": {
-    "es": "El nodo «{{node}}» no tiene salida.",
-    "en": "Node «{{node}}» has no way out.",
-    "pt": "O nó «{{node}}» não tem saída."
+  "workflow_engine.a11y.items_count": {
+    "es": "Elementos: {{count}}",
+    "en": "Items: {{count}}",
+    "pt": "Elementos: {{count}}"
   },
-  "workflow_engine.invalid_graph.unknown_action": {
-    "es": "El nodo «{{node}}» usa una acción que no existe.",
-    "en": "Node «{{node}}» uses an action that does not exist.",
-    "pt": "O nó «{{node}}» usa uma ação que não existe."
+  "workflow_engine.a11y.move_cancelled": {
+    "es": "Movimiento de {{label}} cancelado",
+    "en": "Moving {{label}} cancelled",
+    "pt": "Movimento de {{label}} cancelado"
   },
-  "workflow_engine.notify.custom_title": {
-    "es": "Flujo de trabajo",
-    "en": "Workflow",
-    "pt": "Fluxo de trabalho"
+  "workflow_engine.a11y.moved": {
+    "es": "Posición {{x}}, {{y}}",
+    "en": "Position {{x}}, {{y}}",
+    "pt": "Posição {{x}}, {{y}}"
   },
-  "workflow_engine.notify.custom_body": {
-    "es": "{{message}}",
-    "en": "{{message}}",
-    "pt": "{{message}}"
+  "workflow_engine.a11y.node": {
+    "es": "paso",
+    "en": "step",
+    "pt": "passo"
   },
-  "workflow_engine.notify.task_title": {
-    "es": "Tienes una tarea pendiente",
-    "en": "You have a pending task",
-    "pt": "Tens uma tarefa pendente"
+  "workflow_engine.a11y.node_focused": {
+    "es": "{{label}}, paso {{index}} de {{total}}",
+    "en": "{{label}}, step {{index}} of {{total}}",
+    "pt": "{{label}}, passo {{index}} de {{total}}"
   },
-  "workflow_engine.notify.task_body": {
-    "es": "«{{task}}» espera tu acción.",
-    "en": "«{{task}}» is waiting for you.",
-    "pt": "«{{task}}» aguarda a tua ação."
+  "workflow_engine.a11y.selection_cleared": {
+    "es": "Selección vacía",
+    "en": "Selection cleared",
+    "pt": "Seleção limpa"
+  },
+  "workflow_engine.a11y.zoom": {
+    "es": "Zoom {{percent}} %",
+    "en": "Zoom {{percent}}%",
+    "pt": "Zoom {{percent}} %"
+  },
+  "workflow_engine.action.document_decision": {
+    "es": "Aprobar o rechazar el documento",
+    "en": "Approve or reject the document",
+    "pt": "Aprovar ou rejeitar o documento"
   },
   "workflow_engine.action.log": {
     "es": "Registrar en la bitácora",
     "en": "Write to the log",
     "pt": "Registar no histórico"
   },
+  "workflow_engine.action.notify": {
+    "es": "Notificar a una persona",
+    "en": "Notify a person",
+    "pt": "Notificar uma pessoa"
+  },
   "workflow_engine.action.set_variable": {
     "es": "Asignar una variable",
     "en": "Set a variable",
     "pt": "Definir uma variável"
   },
-  "workflow_engine.action.notify": {
-    "es": "Notificar a una persona",
-    "en": "Notify a person",
-    "pt": "Notificar uma pessoa"
+  "workflow_engine.action.start_workflow": {
+    "es": "Iniciar otro proceso",
+    "en": "Start another process",
+    "pt": "Iniciar outro processo"
   },
   "workflow_engine.action.webhook": {
     "es": "Llamar a un webhook",
     "en": "Call a webhook",
     "pt": "Chamar um webhook"
   },
-  "workflow_engine.title": {
-    "es": "Flujos de trabajo",
-    "en": "Workflows",
-    "pt": "Fluxos de trabalho"
+  "workflow_engine.action_help.document_decision": {
+    "es": "Decide sobre el documento que inició el proceso (p. ej. la orden de compra) en nombre de quien respondió el último paso.",
+    "en": "Decides on the document that started the process (e.g. the purchase order) on behalf of whoever answered the last step.",
+    "pt": "Decide sobre o documento que iniciou o processo (p. ex. a ordem de compra) em nome de quem respondeu ao último passo."
   },
-  "workflow_engine.nav.workflows": {
-    "es": "Flujos de trabajo",
-    "en": "Workflows",
-    "pt": "Fluxos de trabalho"
+  "workflow_engine.action_help.log": {
+    "es": "Deja una nota en la cronología de la ejecución.",
+    "en": "Writes a note on the run timeline.",
+    "pt": "Deixa uma nota na cronologia da execução."
   },
-  "workflow_engine.nav.instances": {
-    "es": "Ejecuciones",
-    "en": "Runs",
-    "pt": "Execuções"
+  "workflow_engine.action_help.notify": {
+    "es": "Envía un aviso en la aplicación a una persona (por defecto, a quien inició la ejecución).",
+    "en": "Sends an in-app notice to a person (by default, whoever started the run).",
+    "pt": "Envia um aviso na aplicação a uma pessoa (por defeito, a quem iniciou a execução)."
   },
-  "workflow_engine.nav.tasks": {
-    "es": "Mis tareas",
-    "en": "My tasks",
-    "pt": "As minhas tarefas"
+  "workflow_engine.action_help.set_variable": {
+    "es": "Guarda un valor en las variables de la ejecución.",
+    "en": "Stores a value in the run variables.",
+    "pt": "Guarda um valor nas variáveis da execução."
   },
-  "workflow_engine.loading": {
-    "es": "Cargando…",
-    "en": "Loading…",
-    "pt": "A carregar…"
+  "workflow_engine.action_help.start_workflow": {
+    "es": "Inicia otro proceso publicado con los datos de esta ejecución.",
+    "en": "Starts another published process with this run’s data.",
+    "pt": "Inicia outro processo publicado com os dados desta execução."
   },
-  "workflow_engine.load_failed": {
-    "es": "No se pudo cargar.",
-    "en": "It could not be loaded.",
-    "pt": "Não foi possível carregar."
+  "workflow_engine.action_help.webhook": {
+    "es": "Llama a un sistema externo por HTTPS. Las direcciones internas están bloqueadas. Ofrece los resultados «ok» y «error».",
+    "en": "Calls an external system over HTTPS. Internal addresses are blocked. Offers the “ok” and “error” outcomes.",
+    "pt": "Chama um sistema externo por HTTPS. Os endereços internos estão bloqueados. Oferece os resultados «ok» e «error»."
   },
-  "workflow_engine.saved": {
-    "es": "Flujo guardado.",
-    "en": "Workflow saved.",
-    "pt": "Fluxo guardado."
+  "workflow_engine.action_result.notified": {
+    "es": "Aviso enviado a {{name}}.",
+    "en": "Notice sent to {{name}}.",
+    "pt": "Aviso enviado a {{name}}."
   },
-  "workflow_engine.save_failed": {
-    "es": "No se pudo guardar.",
-    "en": "It could not be saved.",
-    "pt": "Não foi possível guardar."
+  "workflow_engine.action_result.notify_no_recipient": {
+    "es": "No había nadie a quien avisar.",
+    "en": "There was nobody to notify.",
+    "pt": "Não havia ninguém a quem avisar."
   },
-  "workflow_engine.published": {
-    "es": "Flujo publicado.",
-    "en": "Workflow published.",
-    "pt": "Fluxo publicado."
+  "workflow_engine.action_result.subprocess_started": {
+    "es": "Se inició el proceso «{{key}}».",
+    "en": "The process “{{key}}” was started.",
+    "pt": "Foi iniciado o processo «{{key}}»."
   },
-  "workflow_engine.publish_failed": {
-    "es": "No se pudo publicar.",
-    "en": "It could not be published.",
-    "pt": "Não foi possível publicar."
+  "workflow_engine.already_published": {
+    "es": "Esta versión ya está publicada.",
+    "en": "This version is already published.",
+    "pt": "Esta versão já está publicada."
   },
-  "workflow_engine.deleted": {
-    "es": "Flujo eliminado.",
-    "en": "Workflow deleted.",
-    "pt": "Fluxo eliminado."
+  "workflow_engine.cancel": {
+    "es": "Cancelar",
+    "en": "Cancel",
+    "pt": "Cancelar"
   },
-  "workflow_engine.delete_failed": {
-    "es": "No se pudo eliminar.",
-    "en": "It could not be deleted.",
-    "pt": "Não foi possível eliminar."
+  "workflow_engine.cancel_dialog.confirm": {
+    "es": "Cancelar ejecución",
+    "en": "Cancel run",
+    "pt": "Cancelar execução"
   },
-  "workflow_engine.new": {
-    "es": "Nuevo flujo",
-    "en": "New workflow",
-    "pt": "Novo fluxo"
+  "workflow_engine.cancel_dialog.keep": {
+    "es": "Seguir en curso",
+    "en": "Keep running",
+    "pt": "Manter em curso"
   },
-  "workflow_engine.save": {
-    "es": "Guardar",
-    "en": "Save",
-    "pt": "Guardar"
+  "workflow_engine.cancel_dialog.message": {
+    "es": "Las tareas abiertas se cierran y la ejecución no continuará. Indica el motivo; queda en el historial.",
+    "en": "Open tasks are closed and the run will not continue. Give the reason; it is kept in the history.",
+    "pt": "As tarefas abertas são fechadas e a execução não continuará. Indique o motivo; fica no histórico."
   },
-  "workflow_engine.publish": {
-    "es": "Publicar",
-    "en": "Publish",
-    "pt": "Publicar"
+  "workflow_engine.cancel_dialog.placeholder": {
+    "es": "Motivo de la cancelación",
+    "en": "Reason for cancelling",
+    "pt": "Motivo do cancelamento"
   },
-  "workflow_engine.new_version": {
-    "es": "Nueva versión",
-    "en": "New version",
-    "pt": "Nova versão"
+  "workflow_engine.cancel_dialog.title": {
+    "es": "Cancelar la ejecución",
+    "en": "Cancel the run",
+    "pt": "Cancelar a execução"
   },
-  "workflow_engine.edit": {
-    "es": "Editar",
-    "en": "Edit",
-    "pt": "Editar"
+  "workflow_engine.cancel_dialog.too_short": {
+    "es": "Escribe al menos 3 caracteres.",
+    "en": "Write at least 3 characters.",
+    "pt": "Escreva pelo menos 3 caracteres."
   },
-  "workflow_engine.view": {
-    "es": "Ver",
-    "en": "View",
-    "pt": "Ver"
+  "workflow_engine.cancel_failed": {
+    "es": "No se pudo cancelar la ejecución.",
+    "en": "The run could not be cancelled.",
+    "pt": "Não foi possível cancelar a execução."
   },
-  "workflow_engine.delete": {
-    "es": "Eliminar",
-    "en": "Delete",
-    "pt": "Eliminar"
-  },
-  "workflow_engine.back": {
-    "es": "Volver",
-    "en": "Back",
-    "pt": "Voltar"
-  },
-  "workflow_engine.runs": {
-    "es": "Ejecuciones",
-    "en": "Runs",
-    "pt": "Execuções"
-  },
-  "workflow_engine.palette": {
-    "es": "Elementos",
-    "en": "Elements",
-    "pt": "Elementos"
-  },
-  "workflow_engine.connections": {
-    "es": "Conexiones",
-    "en": "Connections",
-    "pt": "Conexões"
-  },
-  "workflow_engine.add_condition": {
-    "es": "Añadir condición",
-    "en": "Add condition",
-    "pt": "Adicionar condição"
+  "workflow_engine.cancel_reason_required": {
+    "es": "Indica el motivo de la cancelación.",
+    "en": "Give a reason for the cancellation.",
+    "pt": "Indique o motivo do cancelamento."
   },
   "workflow_engine.cancel_run": {
     "es": "Cancelar ejecución",
     "en": "Cancel run",
     "pt": "Cancelar execução"
   },
-  "workflow_engine.view_run": {
-    "es": "Ver ejecución",
-    "en": "View run",
-    "pt": "Ver execução"
-  },
-  "workflow_engine.create_title": {
-    "es": "Nuevo flujo de trabajo",
-    "en": "New workflow",
-    "pt": "Novo fluxo de trabalho"
-  },
-  "workflow_engine.create_message": {
-    "es": "Dale un nombre al flujo.",
-    "en": "Give the workflow a name.",
-    "pt": "Dá um nome ao fluxo."
-  },
-  "workflow_engine.delete_title": {
-    "es": "Eliminar flujo",
-    "en": "Delete workflow",
-    "pt": "Eliminar fluxo"
-  },
-  "workflow_engine.delete_message": {
-    "es": "¿Eliminar «{{name}}»? No se puede deshacer.",
-    "en": "Delete «{{name}}»? This cannot be undone.",
-    "pt": "Eliminar «{{name}}»? Não pode ser desfeito."
-  },
-  "workflow_engine.read_only_notice": {
-    "es": "Este flujo está publicado y es de solo lectura. Crea una nueva versión para editarlo.",
-    "en": "This workflow is published and read-only. Create a new version to edit it.",
-    "pt": "Este fluxo está publicado e é só de leitura. Cria uma nova versão para o editar."
-  },
-  "workflow_engine.name_placeholder": {
-    "es": "Nombre del flujo",
-    "en": "Workflow name",
-    "pt": "Nome do fluxo"
-  },
-  "workflow_engine.connect_hint": {
-    "es": "Arrastra del conector derecho de un nodo al izquierdo de otro para conectarlos.",
-    "en": "Drag from a node's right connector to another's left to connect them.",
-    "pt": "Arrasta do conector direito de um nó para o esquerdo de outro para os ligar."
-  },
-  "workflow_engine.select_hint": {
-    "es": "Selecciona un nodo para editarlo, o añade uno desde el panel de la izquierda.",
-    "en": "Select a node to edit it, or add one from the palette on the left.",
-    "pt": "Seleciona um nó para o editar, ou adiciona um a partir do painel à esquerda."
-  },
-  "workflow_engine.list.name": {
-    "es": "Nombre",
-    "en": "Name",
-    "pt": "Nome"
-  },
-  "workflow_engine.list.version": {
-    "es": "Versión",
-    "en": "Version",
-    "pt": "Versão"
-  },
-  "workflow_engine.list.status": {
-    "es": "Estado",
-    "en": "Status",
-    "pt": "Estado"
-  },
-  "workflow_engine.list.updated": {
-    "es": "Actualizado",
-    "en": "Updated",
-    "pt": "Atualizado"
-  },
-  "workflow_engine.list.empty": {
-    "es": "Aún no hay flujos de trabajo.",
-    "en": "No workflows yet.",
-    "pt": "Ainda não há fluxos de trabalho."
-  },
-  "workflow_engine.instances_empty": {
-    "es": "Aún no hay ejecuciones.",
-    "en": "No runs yet.",
-    "pt": "Ainda não há execuções."
-  },
-  "workflow_engine.instance.subject": {
-    "es": "Asunto",
-    "en": "Subject",
-    "pt": "Assunto"
-  },
-  "workflow_engine.instance.started": {
-    "es": "Iniciada",
-    "en": "Started",
-    "pt": "Iniciada"
-  },
-  "workflow_engine.instance.completed": {
-    "es": "Finalizada",
-    "en": "Completed",
-    "pt": "Concluída"
-  },
-  "workflow_engine.instance.untitled": {
-    "es": "(sin asunto)",
-    "en": "(no subject)",
-    "pt": "(sem assunto)"
-  },
-  "workflow_engine.task_completed": {
-    "es": "Tarea completada.",
-    "en": "Task completed.",
-    "pt": "Tarefa concluída."
-  },
-  "workflow_engine.task_complete_failed": {
-    "es": "No se pudo completar la tarea.",
-    "en": "The task could not be completed.",
-    "pt": "Não foi possível concluir a tarefa."
-  },
-  "workflow_engine.open_tasks": {
-    "es": "Tareas abiertas",
-    "en": "Open tasks",
-    "pt": "Tarefas abertas"
-  },
-  "workflow_engine.no_open_tasks": {
-    "es": "Sin tareas abiertas.",
-    "en": "No open tasks.",
-    "pt": "Sem tarefas abertas."
-  },
-  "workflow_engine.timeline": {
-    "es": "Cronología",
-    "en": "Timeline",
-    "pt": "Cronologia"
-  },
-  "workflow_engine.instance_cancelled": {
+  "workflow_engine.cancelled": {
     "es": "Ejecución cancelada.",
     "en": "Run cancelled.",
     "pt": "Execução cancelada."
   },
-  "workflow_engine.trigger.label": {
-    "es": "Disparador",
-    "en": "Trigger",
-    "pt": "Gatilho"
+  "workflow_engine.cannot_delete_published": {
+    "es": "No se puede eliminar un flujo de trabajo publicado.",
+    "en": "A published workflow cannot be deleted.",
+    "pt": "Um fluxo de trabalho publicado não pode ser eliminado."
   },
-  "workflow_engine.trigger.manual": {
-    "es": "Manual",
-    "en": "Manual",
-    "pt": "Manual"
+  "workflow_engine.comment_required": {
+    "es": "El resultado «{{outcome}}» requiere un comentario.",
+    "en": "The outcome “{{outcome}}” requires a comment.",
+    "pt": "O resultado «{{outcome}}» requer um comentário."
   },
-  "workflow_engine.trigger.event": {
-    "es": "Evento",
-    "en": "Event",
-    "pt": "Evento"
+  "workflow_engine.common.no": {
+    "es": "No",
+    "en": "No",
+    "pt": "Não"
   },
-  "workflow_engine.trigger.event_placeholder": {
-    "es": "p. ej. invoice.created",
-    "en": "e.g. invoice.created",
-    "pt": "ex. invoice.created"
+  "workflow_engine.common.yes": {
+    "es": "Sí",
+    "en": "Yes",
+    "pt": "Sim"
   },
-  "workflow_engine.field.name": {
-    "es": "Nombre",
-    "en": "Name",
-    "pt": "Nome"
+  "workflow_engine.condition.add": {
+    "es": "Añadir comparación",
+    "en": "Add comparison",
+    "pt": "Adicionar comparação"
   },
-  "workflow_engine.field.assignee_role": {
-    "es": "Rol asignado",
-    "en": "Assigned role",
-    "pt": "Função atribuída"
+  "workflow_engine.condition.add_group": {
+    "es": "Añadir grupo",
+    "en": "Add group",
+    "pt": "Adicionar grupo"
   },
-  "workflow_engine.field.role_id": {
-    "es": "ID del rol",
-    "en": "Role ID",
-    "pt": "ID da função"
+  "workflow_engine.condition.all": {
+    "es": "Se cumplen todas",
+    "en": "All of these hold",
+    "pt": "Todas se cumprem"
   },
-  "workflow_engine.field.assignee_user": {
-    "es": "Usuario asignado",
-    "en": "Assigned user",
-    "pt": "Utilizador atribuído"
+  "workflow_engine.condition.and": {
+    "es": "y",
+    "en": "and",
+    "pt": "e"
   },
-  "workflow_engine.field.user_id": {
-    "es": "ID del usuario",
-    "en": "User ID",
-    "pt": "ID do utilizador"
+  "workflow_engine.condition.any": {
+    "es": "Se cumple alguna",
+    "en": "Any of these holds",
+    "pt": "Alguma se cumpre"
   },
-  "workflow_engine.field.outcomes": {
-    "es": "Resultados",
-    "en": "Outcomes",
-    "pt": "Resultados"
+  "workflow_engine.condition.choose_variable": {
+    "es": "Elige un dato…",
+    "en": "Choose a field…",
+    "pt": "Escolha um dado…"
   },
-  "workflow_engine.field.outcomes_placeholder": {
-    "es": "aprobar, rechazar",
-    "en": "approve, reject",
-    "pt": "aprovar, rejeitar"
+  "workflow_engine.condition.combine": {
+    "es": "Cómo combinar",
+    "en": "How to combine",
+    "pt": "Como combinar"
   },
-  "workflow_engine.field.due_hours": {
-    "es": "Vence en (horas)",
-    "en": "Due in (hours)",
-    "pt": "Vence em (horas)"
+  "workflow_engine.condition.custom_variable": {
+    "es": "Otro dato (escribir nombre)…",
+    "en": "Another field (type its name)…",
+    "pt": "Outro dado (escrever o nome)…"
   },
-  "workflow_engine.field.action": {
-    "es": "Acción",
-    "en": "Action",
-    "pt": "Ação"
+  "workflow_engine.condition.custom_variable_placeholder": {
+    "es": "Nombre del dato, p. ej. importe",
+    "en": "Field name, e.g. amount",
+    "pt": "Nome do dado, p. ex. montante"
   },
-  "workflow_engine.field.timer_minutes": {
-    "es": "Esperar (minutos)",
-    "en": "Wait (minutes)",
-    "pt": "Esperar (minutos)"
+  "workflow_engine.condition.list_placeholder": {
+    "es": "valor1, valor2",
+    "en": "value1, value2",
+    "pt": "valor1, valor2"
   },
-  "workflow_engine.field.outcome": {
-    "es": "Resultado",
-    "en": "Outcome",
-    "pt": "Resultado"
+  "workflow_engine.condition.negate": {
+    "es": "Negar",
+    "en": "Negate",
+    "pt": "Negar"
   },
-  "workflow_engine.field.default": {
-    "es": "Por defecto",
-    "en": "Default",
-    "pt": "Padrão"
+  "workflow_engine.condition.not": {
+    "es": "no",
+    "en": "not",
+    "pt": "não"
   },
-  "workflow_engine.field.variable": {
-    "es": "Variable",
-    "en": "Variable",
-    "pt": "Variável"
+  "workflow_engine.condition.operator": {
+    "es": "Operador",
+    "en": "Operator",
+    "pt": "Operador"
   },
-  "workflow_engine.field.value": {
-    "es": "Valor",
-    "en": "Value",
-    "pt": "Valor"
+  "workflow_engine.condition.or": {
+    "es": "o",
+    "en": "or",
+    "pt": "ou"
+  },
+  "workflow_engine.condition.remove": {
+    "es": "Quitar comparación",
+    "en": "Remove comparison",
+    "pt": "Remover comparação"
+  },
+  "workflow_engine.condition.remove_group": {
+    "es": "Quitar grupo",
+    "en": "Remove group",
+    "pt": "Remover grupo"
+  },
+  "workflow_engine.condition.unknown_variable": {
+    "es": "«{{name}}» (no declarado)",
+    "en": "“{{name}}” (not declared)",
+    "pt": "«{{name}}» (não declarado)"
+  },
+  "workflow_engine.condition.unknown_variable_hint": {
+    "es": "«{{name}}» no es un dato del proceso: decláralo en Variables o elige otro, o la condición nunca se cumplirá.",
+    "en": "“{{name}}” is not a field of the process: declare it under Variables or choose another, or the condition will never hold.",
+    "pt": "«{{name}}» não é um dado do processo: declare-o em Variáveis ou escolha outro, ou a condição nunca se cumprirá."
+  },
+  "workflow_engine.conflict.later": {
+    "es": "Decidir después",
+    "en": "Decide later",
+    "pt": "Decidir depois"
+  },
+  "workflow_engine.conflict.message": {
+    "es": "Se guardó otra versión del borrador después de abrirlo. Puedes cargar esa versión (pierdes tus cambios) o guardar la tuya encima.",
+    "en": "Another version of the draft was saved after you opened it. You can load that version (losing your changes) or save yours over it.",
+    "pt": "Foi guardada outra versão do rascunho depois de o abrir. Pode carregar essa versão (perde as suas alterações) ou guardar a sua por cima."
+  },
+  "workflow_engine.conflict.message_named": {
+    "es": "{{name}} guardó otra versión del borrador después de que lo abrieras. Puedes cargar su versión (pierdes tus cambios) o guardar la tuya encima.",
+    "en": "{{name}} saved another version of the draft after you opened it. You can load their version (losing your changes) or save yours over it.",
+    "pt": "{{name}} guardou outra versão do rascunho depois de o abrir. Pode carregar a versão dessa pessoa (perde as suas alterações) ou guardar a sua por cima."
+  },
+  "workflow_engine.conflict.message_self": {
+    "es": "Hay una versión más reciente guardada por ti en otra pestaña o equipo. Puedes cargarla (pierdes los cambios de aquí) o guardar estos encima.",
+    "en": "There is a newer version you saved in another tab or device. You can load it (losing the changes here) or save these over it.",
+    "pt": "Há uma versão mais recente guardada por si noutro separador ou equipamento. Pode carregá-la (perde as alterações daqui) ou guardar estas por cima."
+  },
+  "workflow_engine.conflict.overwrite": {
+    "es": "Guardar la mía encima",
+    "en": "Save mine over it",
+    "pt": "Guardar a minha por cima"
+  },
+  "workflow_engine.conflict.reload": {
+    "es": "Cargar esa versión",
+    "en": "Load that version",
+    "pt": "Carregar essa versão"
+  },
+  "workflow_engine.conflict.title": {
+    "es": "Este borrador cambió mientras lo editabas",
+    "en": "This draft changed while you were editing",
+    "pt": "Este rascunho mudou enquanto o editava"
+  },
+  "workflow_engine.conflict.title_self": {
+    "es": "Guardaste este borrador en otra pestaña",
+    "en": "You saved this draft in another tab",
+    "pt": "Guardou este rascunho noutro separador"
+  },
+  "workflow_engine.connection_style.adaptive_curve": {
+    "es": "Curva adaptativa",
+    "en": "Adaptive curve",
+    "pt": "Curva adaptativa"
+  },
+  "workflow_engine.connection_style.bezier": {
+    "es": "Curva",
+    "en": "Curved",
+    "pt": "Curva"
+  },
+  "workflow_engine.connection_style.segment": {
+    "es": "Ortogonal",
+    "en": "Orthogonal",
+    "pt": "Ortogonal"
+  },
+  "workflow_engine.connection_style.straight": {
+    "es": "Recta",
+    "en": "Straight",
+    "pt": "Reta"
+  },
+  "workflow_engine.context_too_large": {
+    "es": "Los datos de la ejecución superan el tamaño permitido (64 KB).",
+    "en": "The run data exceeds the allowed size (64 KB).",
+    "pt": "Os dados da execução excedem o tamanho permitido (64 KB)."
+  },
+  "workflow_engine.create.confirm": {
+    "es": "Crear y diseñar",
+    "en": "Create and design",
+    "pt": "Criar e desenhar"
+  },
+  "workflow_engine.create.creating": {
+    "es": "Creando…",
+    "en": "Creating…",
+    "pt": "A criar…"
+  },
+  "workflow_engine.create.import": {
+    "es": "Importar archivo",
+    "en": "Import a file",
+    "pt": "Importar ficheiro"
+  },
+  "workflow_engine.create.import_hint": {
+    "es": "Un proceso exportado como JSON desde Virtex.",
+    "en": "A process exported as JSON from Virtex.",
+    "pt": "Um processo exportado como JSON a partir do Virtex."
+  },
+  "workflow_engine.create.imported": {
+    "es": "{{file}} · {{nodes}} pasos",
+    "en": "{{file}} · {{nodes}} steps",
+    "pt": "{{file}} · {{nodes}} passos"
+  },
+  "workflow_engine.create.start_from": {
+    "es": "Empezar desde",
+    "en": "Start from",
+    "pt": "Começar a partir de"
+  },
+  "workflow_engine.create.starts_on": {
+    "es": "Se inicia con: {{event}}",
+    "en": "Starts on: {{event}}",
+    "pt": "Inicia-se com: {{event}}"
+  },
+  "workflow_engine.create.title": {
+    "es": "Nuevo proceso",
+    "en": "New process",
+    "pt": "Novo processo"
+  },
+  "workflow_engine.created": {
+    "es": "Proceso creado. Ya puedes diseñarlo.",
+    "en": "Process created. You can design it now.",
+    "pt": "Processo criado. Já pode desenhá-lo."
+  },
+  "workflow_engine.definition_has_instances": {
+    "es": "No se puede eliminar: esta versión ya tiene ejecuciones en su historial ({{count}}).",
+    "en": "Cannot delete: this version already has runs in its history ({{count}}).",
+    "pt": "Não é possível eliminar: esta versão já tem execuções no seu histórico ({{count}})."
+  },
+  "workflow_engine.definition_not_found": {
+    "es": "No se encontró la definición del flujo de trabajo.",
+    "en": "The workflow definition was not found.",
+    "pt": "A definição do fluxo de trabalho não foi encontrada."
+  },
+  "workflow_engine.definition_not_published": {
+    "es": "El proceso debe estar publicado para iniciarse.",
+    "en": "The process must be published to be started.",
+    "pt": "O processo tem de estar publicado para ser iniciado."
+  },
+  "workflow_engine.definition_status.archived": {
+    "es": "Desactivado",
+    "en": "Inactive",
+    "pt": "Desativado"
   },
   "workflow_engine.definition_status.draft": {
     "es": "Borrador",
@@ -479,45 +499,2495 @@
     "en": "Published",
     "pt": "Publicado"
   },
-  "workflow_engine.definition_status.archived": {
-    "es": "Archivado",
-    "en": "Archived",
-    "pt": "Arquivado"
+  "workflow_engine.delete_confirm.confirm": {
+    "es": "Eliminar",
+    "en": "Delete",
+    "pt": "Eliminar"
   },
-  "workflow_engine.instance_status.running": {
-    "es": "En ejecución",
-    "en": "Running",
-    "pt": "Em execução"
+  "workflow_engine.delete_confirm.message": {
+    "es": "Se eliminará «{{name}}» (v{{version}}). Esta acción no se puede deshacer.",
+    "en": "“{{name}}” (v{{version}}) will be deleted. This cannot be undone.",
+    "pt": "«{{name}}» (v{{version}}) será eliminado. Esta ação não pode ser anulada."
   },
-  "workflow_engine.instance_status.completed": {
-    "es": "Completada",
+  "workflow_engine.delete_confirm.message_draft": {
+    "es": "Se eliminará el borrador v{{version}} de «{{name}}». La versión publicada sigue en uso.",
+    "en": "The v{{version}} draft of “{{name}}” will be deleted. The published version stays in use.",
+    "pt": "O rascunho v{{version}} de «{{name}}» será eliminado. A versão publicada continua em uso."
+  },
+  "workflow_engine.delete_confirm.title": {
+    "es": "¿Eliminar el borrador?",
+    "en": "Delete the draft?",
+    "pt": "Eliminar o rascunho?"
+  },
+  "workflow_engine.delete_failed": {
+    "es": "No se pudo eliminar.",
+    "en": "It could not be deleted.",
+    "pt": "Não foi possível eliminar."
+  },
+  "workflow_engine.deleted": {
+    "es": "Flujo eliminado.",
+    "en": "Workflow deleted.",
+    "pt": "Fluxo eliminado."
+  },
+  "workflow_engine.designer.action_outcomes": {
+    "es": "Salidas posibles: {{outcomes}}.",
+    "en": "Possible exits: {{outcomes}}.",
+    "pt": "Saídas possíveis: {{outcomes}}."
+  },
+  "workflow_engine.designer.add_field": {
+    "es": "Añadir campo",
+    "en": "Add field",
+    "pt": "Adicionar campo"
+  },
+  "workflow_engine.designer.add_outcome": {
+    "es": "Añadir",
+    "en": "Add",
+    "pt": "Adicionar"
+  },
+  "workflow_engine.designer.already_routed": {
+    "es": "ya conectada",
+    "en": "already connected",
+    "pt": "já ligada"
+  },
+  "workflow_engine.designer.any_other_outcome": {
+    "es": "Cualquier otra respuesta",
+    "en": "Any other answer",
+    "pt": "Qualquer outra resposta"
+  },
+  "workflow_engine.designer.appearance": {
+    "es": "Apariencia",
+    "en": "Appearance",
+    "pt": "Aparência"
+  },
+  "workflow_engine.designer.assign_role": {
+    "es": "Un rol",
+    "en": "A role",
+    "pt": "Uma função"
+  },
+  "workflow_engine.designer.assign_to": {
+    "es": "Asignar a",
+    "en": "Assign to",
+    "pt": "Atribuir a"
+  },
+  "workflow_engine.designer.assign_user": {
+    "es": "Una persona",
+    "en": "A person",
+    "pt": "Uma pessoa"
+  },
+  "workflow_engine.designer.auto_layout": {
+    "es": "Ordenar",
+    "en": "Arrange",
+    "pt": "Organizar"
+  },
+  "workflow_engine.designer.automation": {
+    "es": "Automatización",
+    "en": "Automation",
+    "pt": "Automação"
+  },
+  "workflow_engine.designer.background_dots": {
+    "es": "Puntos",
+    "en": "Dots",
+    "pt": "Pontos"
+  },
+  "workflow_engine.designer.background_grid": {
+    "es": "Cuadrícula",
+    "en": "Grid",
+    "pt": "Grelha"
+  },
+  "workflow_engine.designer.background_none": {
+    "es": "Liso",
+    "en": "Plain",
+    "pt": "Liso"
+  },
+  "workflow_engine.designer.branch_count.one": {
+    "es": "{{count}} salida",
+    "en": "{{count}} exit",
+    "pt": "{{count}} saída"
+  },
+  "workflow_engine.designer.branch_count.other": {
+    "es": "{{count}} salidas",
+    "en": "{{count}} exits",
+    "pt": "{{count}} saídas"
+  },
+  "workflow_engine.designer.branch_rule": {
+    "es": "Condición del camino",
+    "en": "Path condition",
+    "pt": "Condição do caminho"
+  },
+  "workflow_engine.designer.branches": {
+    "es": "Caminos",
+    "en": "Paths",
+    "pt": "Caminhos"
+  },
+  "workflow_engine.designer.branches_hint": {
+    "es": "Selecciona cada conexión de salida para darle su condición. Una de ellas es el camino «en otro caso».",
+    "en": "Select each outgoing connection to give it a condition. One of them is the “otherwise” path.",
+    "pt": "Selecione cada ligação de saída para lhe dar a condição. Uma delas é o caminho «caso contrário»."
+  },
+  "workflow_engine.designer.button_text": {
+    "es": "Texto del botón",
+    "en": "Button text",
+    "pt": "Texto do botão"
+  },
+  "workflow_engine.designer.can_act_hint": {
+    "es": "Solo aparecen quienes tienen permiso para responder tareas de flujos de trabajo.",
+    "en": "Only people allowed to answer workflow tasks are listed.",
+    "pt": "Só aparecem as pessoas com permissão para responder a tarefas de fluxos de trabalho."
+  },
+  "workflow_engine.designer.cannot_act": {
+    "es": "sin permiso para responder",
+    "en": "not allowed to answer",
+    "pt": "sem permissão para responder"
+  },
+  "workflow_engine.designer.canvas_label": {
+    "es": "Diagrama del proceso: {{nodes}} pasos y {{edges}} conexiones",
+    "en": "Process diagram: {{nodes}} steps and {{edges}} connections",
+    "pt": "Diagrama do processo: {{nodes}} passos e {{edges}} ligações"
+  },
+  "workflow_engine.designer.canvas_settings": {
+    "es": "Ajustes del lienzo",
+    "en": "Canvas settings",
+    "pt": "Definições da tela"
+  },
+  "workflow_engine.designer.choose_action": {
+    "es": "Elige una acción…",
+    "en": "Choose an action…",
+    "pt": "Escolha uma ação…"
+  },
+  "workflow_engine.designer.choose_outcome": {
+    "es": "Elige una respuesta…",
+    "en": "Choose an answer…",
+    "pt": "Escolha uma resposta…"
+  },
+  "workflow_engine.designer.choose_process": {
+    "es": "Elige un proceso…",
+    "en": "Choose a process…",
+    "pt": "Escolha um processo…"
+  },
+  "workflow_engine.designer.close": {
+    "es": "Cerrar",
+    "en": "Close",
+    "pt": "Fechar"
+  },
+  "workflow_engine.designer.close_search": {
+    "es": "Cerrar búsqueda",
+    "en": "Close search",
+    "pt": "Fechar pesquisa"
+  },
+  "workflow_engine.designer.color": {
+    "es": "Color",
+    "en": "Colour",
+    "pt": "Cor"
+  },
+  "workflow_engine.designer.comment_required": {
+    "es": "Exigir comentario",
+    "en": "Require a comment",
+    "pt": "Exigir comentário"
+  },
+  "workflow_engine.designer.condition_label_hint": {
+    "es": "El texto que se ve sobre la conexión. Si lo dejas vacío se muestra la condición.",
+    "en": "The text shown on the connection. Leave it empty to show the condition.",
+    "pt": "O texto mostrado sobre a ligação. Se ficar vazio, mostra-se a condição."
+  },
+  "workflow_engine.designer.connect.all_routed": {
+    "es": "Todas las respuestas de este paso ya están conectadas.",
+    "en": "Every answer of this step is already connected.",
+    "pt": "Todas as respostas deste passo já estão ligadas."
+  },
+  "workflow_engine.designer.connect.duplicate": {
+    "es": "Esa conexión ya existe.",
+    "en": "That connection already exists.",
+    "pt": "Essa ligação já existe."
+  },
+  "workflow_engine.designer.connect.from_end": {
+    "es": "Un paso final no tiene salidas.",
+    "en": "An end step has no exits.",
+    "pt": "Um passo final não tem saídas."
+  },
+  "workflow_engine.designer.connect.missing": {
+    "es": "Ese paso ya no existe.",
+    "en": "That step no longer exists.",
+    "pt": "Esse passo já não existe."
+  },
+  "workflow_engine.designer.connect.self": {
+    "es": "Un paso no puede conectarse consigo mismo.",
+    "en": "A step cannot connect to itself.",
+    "pt": "Um passo não pode ligar-se a si mesmo."
+  },
+  "workflow_engine.designer.connect.single_exit": {
+    "es": "Este paso solo tiene una salida; usa una decisión para bifurcar.",
+    "en": "This step has a single exit; use a decision to branch.",
+    "pt": "Este passo só tem uma saída; use uma decisão para ramificar."
+  },
+  "workflow_engine.designer.connect.start_single": {
+    "es": "El inicio solo tiene una salida.",
+    "en": "The start has a single exit.",
+    "pt": "O início só tem uma saída."
+  },
+  "workflow_engine.designer.connect.to_start": {
+    "es": "Nada puede llegar al inicio.",
+    "en": "Nothing can lead into the start.",
+    "pt": "Nada pode chegar ao início."
+  },
+  "workflow_engine.designer.connection": {
+    "es": "Conexión",
+    "en": "Connection",
+    "pt": "Ligação"
+  },
+  "workflow_engine.designer.connection_style": {
+    "es": "Estilo de las conexiones",
+    "en": "Connection style",
+    "pt": "Estilo das ligações"
+  },
+  "workflow_engine.designer.copied.one": {
+    "es": "{{count}} paso copiado.",
+    "en": "{{count}} step copied.",
+    "pt": "{{count}} passo copiado."
+  },
+  "workflow_engine.designer.copied.other": {
+    "es": "{{count}} pasos copiados.",
+    "en": "{{count}} steps copied.",
+    "pt": "{{count}} passos copiados."
+  },
+  "workflow_engine.designer.cut_done.one": {
+    "es": "{{count}} paso cortado.",
+    "en": "{{count}} step cut.",
+    "pt": "{{count}} passo cortado."
+  },
+  "workflow_engine.designer.cut_done.other": {
+    "es": "{{count}} pasos cortados.",
+    "en": "{{count}} steps cut.",
+    "pt": "{{count}} passos cortados."
+  },
+  "workflow_engine.designer.date_variable": {
+    "es": "Dato de fecha",
+    "en": "Date field",
+    "pt": "Dado de data"
+  },
+  "workflow_engine.designer.default_branch": {
+    "es": "Camino por defecto",
+    "en": "Default path",
+    "pt": "Caminho predefinido"
+  },
+  "workflow_engine.designer.default_hint": {
+    "es": "Se toma cuando ninguna otra condición se cumple.",
+    "en": "Taken when no other condition holds.",
+    "pt": "Seguido quando nenhuma outra condição se cumpre."
+  },
+  "workflow_engine.designer.delete_connection": {
+    "es": "Eliminar conexión",
+    "en": "Delete connection",
+    "pt": "Eliminar ligação"
+  },
+  "workflow_engine.designer.delete_lane": {
+    "es": "Eliminar carril",
+    "en": "Delete lane",
+    "pt": "Eliminar faixa"
+  },
+  "workflow_engine.designer.delete_selection": {
+    "es": "Eliminar selección",
+    "en": "Delete selection",
+    "pt": "Eliminar seleção"
+  },
+  "workflow_engine.designer.delete_step": {
+    "es": "Eliminar paso",
+    "en": "Delete step",
+    "pt": "Eliminar passo"
+  },
+  "workflow_engine.designer.direction": {
+    "es": "Dirección del flujo",
+    "en": "Flow direction",
+    "pt": "Direção do fluxo"
+  },
+  "workflow_engine.designer.direction_lr": {
+    "es": "De izquierda a derecha",
+    "en": "Left to right",
+    "pt": "Da esquerda para a direita"
+  },
+  "workflow_engine.designer.direction_tb": {
+    "es": "De arriba abajo",
+    "en": "Top to bottom",
+    "pt": "De cima para baixo"
+  },
+  "workflow_engine.designer.due_rounded": {
+    "es": "El plazo cuenta horas enteras: se guardará como {{hours}} h.",
+    "en": "Deadlines count whole hours: it will be saved as {{hours}} h.",
+    "pt": "O prazo conta horas inteiras: será guardado como {{hours}} h."
+  },
+  "workflow_engine.designer.duplicate": {
+    "es": "Duplicar",
+    "en": "Duplicate",
+    "pt": "Duplicar"
+  },
+  "workflow_engine.designer.empty_canvas": {
+    "es": "Arrastra pasos desde la izquierda para empezar.",
+    "en": "Drag steps from the left to get started.",
+    "pt": "Arraste passos da esquerda para começar."
+  },
+  "workflow_engine.designer.escalate_hint": {
+    "es": "Recibe un aviso cuando la tarea supera su plazo.",
+    "en": "Gets a notice when the task goes past its due time.",
+    "pt": "Recebe um aviso quando a tarefa ultrapassa o prazo."
+  },
+  "workflow_engine.designer.export": {
+    "es": "Exportar JSON",
+    "en": "Export JSON",
+    "pt": "Exportar JSON"
+  },
+  "workflow_engine.designer.file": {
+    "es": "Archivo",
+    "en": "File",
+    "pt": "Ficheiro"
+  },
+  "workflow_engine.designer.filter_types": {
+    "es": "Filtrar por tipo",
+    "en": "Filter by type",
+    "pt": "Filtrar por tipo"
+  },
+  "workflow_engine.designer.fix_before_publish.one": {
+    "es": "Corrige el error antes de publicar.",
+    "en": "Fix the error before publishing.",
+    "pt": "Corrija o erro antes de publicar."
+  },
+  "workflow_engine.designer.fix_before_publish.other": {
+    "es": "Corrige {{count}} errores antes de publicar.",
+    "en": "Fix {{count}} errors before publishing.",
+    "pt": "Corrija {{count}} erros antes de publicar."
+  },
+  "workflow_engine.designer.general": {
+    "es": "General",
+    "en": "General",
+    "pt": "Geral"
+  },
+  "workflow_engine.designer.history": {
+    "es": "Historial de cambios",
+    "en": "Change history",
+    "pt": "Histórico de alterações"
+  },
+  "workflow_engine.designer.import": {
+    "es": "Importar JSON",
+    "en": "Import JSON",
+    "pt": "Importar JSON"
+  },
+  "workflow_engine.designer.inspector": {
+    "es": "Propiedades",
+    "en": "Properties",
+    "pt": "Propriedades"
+  },
+  "workflow_engine.designer.issue_count.one": {
+    "es": "{{count}} problema en este paso",
+    "en": "{{count}} problem in this step",
+    "pt": "{{count}} problema neste passo"
+  },
+  "workflow_engine.designer.issue_count.other": {
+    "es": "{{count}} problemas en este paso",
+    "en": "{{count}} problems in this step",
+    "pt": "{{count}} problemas neste passo"
+  },
+  "workflow_engine.designer.issue_summary": {
+    "es": "{{errors}} errores · {{warnings}} avisos",
+    "en": "{{errors}} errors · {{warnings}} warnings",
+    "pt": "{{errors}} erros · {{warnings}} avisos"
+  },
+  "workflow_engine.designer.issues": {
+    "es": "Problemas",
+    "en": "Problems",
+    "pt": "Problemas"
+  },
+  "workflow_engine.designer.json_invalid": {
+    "es": "El JSON no es válido.",
+    "en": "The JSON is not valid.",
+    "pt": "O JSON não é válido."
+  },
+  "workflow_engine.designer.label_placeholder": {
+    "es": "Se muestra sobre la línea",
+    "en": "Shown on the line",
+    "pt": "Mostrado sobre a linha"
+  },
+  "workflow_engine.designer.lane": {
+    "es": "Carril",
+    "en": "Lane",
+    "pt": "Faixa"
+  },
+  "workflow_engine.designer.lane_hint": {
+    "es": "Arrastra pasos dentro para agruparlos. Eliminar el carril conserva sus pasos.",
+    "en": "Drag steps in to group them. Deleting the lane keeps its steps.",
+    "pt": "Arraste passos para dentro para os agrupar. Eliminar a faixa mantém os passos."
+  },
+  "workflow_engine.designer.lane_steps.one": {
+    "es": "{{count}} paso en este carril",
+    "en": "{{count}} step in this lane",
+    "pt": "{{count}} passo nesta faixa"
+  },
+  "workflow_engine.designer.lane_steps.other": {
+    "es": "{{count}} pasos en este carril",
+    "en": "{{count}} steps in this lane",
+    "pt": "{{count}} passos nesta faixa"
+  },
+  "workflow_engine.designer.layout_dagre": {
+    "es": "Ordenar (Dagre, rápido)",
+    "en": "Arrange (Dagre, quick)",
+    "pt": "Organizar (Dagre, rápido)"
+  },
+  "workflow_engine.designer.layout_dagre_hint": {
+    "es": "Coloca los pasos automáticamente en la dirección del proceso",
+    "en": "Places the steps automatically in the process direction",
+    "pt": "Coloca os passos automaticamente na direção do processo"
+  },
+  "workflow_engine.designer.layout_elk": {
+    "es": "Ordenar (ELK, menos cruces)",
+    "en": "Arrange (ELK, fewer crossings)",
+    "pt": "Organizar (ELK, menos cruzamentos)"
+  },
+  "workflow_engine.designer.layout_failed": {
+    "es": "No se pudo ordenar el diagrama.",
+    "en": "The diagram could not be arranged.",
+    "pt": "Não foi possível organizar o diagrama."
+  },
+  "workflow_engine.designer.layout_options": {
+    "es": "Opciones de orden automático",
+    "en": "Auto-layout options",
+    "pt": "Opções de organização automática"
+  },
+  "workflow_engine.designer.matches.one": {
+    "es": "{{count}} coincidencia",
+    "en": "{{count}} match",
+    "pt": "{{count}} correspondência"
+  },
+  "workflow_engine.designer.matches.other": {
+    "es": "{{count}} coincidencias",
+    "en": "{{count}} matches",
+    "pt": "{{count}} correspondências"
+  },
+  "workflow_engine.designer.move_to_lane": {
+    "es": "Mover al carril",
+    "en": "Move to lane",
+    "pt": "Mover para a faixa"
+  },
+  "workflow_engine.designer.multi_selected.one": {
+    "es": "{{count}} elemento seleccionado",
+    "en": "{{count}} item selected",
+    "pt": "{{count}} elemento selecionado"
+  },
+  "workflow_engine.designer.multi_selected.other": {
+    "es": "{{count}} elementos seleccionados",
+    "en": "{{count}} items selected",
+    "pt": "{{count}} elementos selecionados"
+  },
+  "workflow_engine.designer.name_required": {
+    "es": "Ponle un nombre al proceso.",
+    "en": "Give the process a name.",
+    "pt": "Dê um nome ao processo."
+  },
+  "workflow_engine.designer.new_lane": {
+    "es": "Nuevo carril",
+    "en": "New lane",
+    "pt": "Nova faixa"
+  },
+  "workflow_engine.designer.new_outcome": {
+    "es": "Nueva respuesta, p. ej. «Pedir más información»",
+    "en": "New answer, e.g. “Ask for more information”",
+    "pt": "Nova resposta, p. ex. «Pedir mais informação»"
+  },
+  "workflow_engine.designer.next_steps": {
+    "es": "Siguientes pasos",
+    "en": "Next steps",
+    "pt": "Passos seguintes"
+  },
+  "workflow_engine.designer.no_assignee": {
+    "es": "Sin responsable",
+    "en": "No owner",
+    "pt": "Sem responsável"
+  },
+  "workflow_engine.designer.no_fields": {
+    "es": "Sin campos: solo se pide la respuesta.",
+    "en": "No fields: only the answer is asked for.",
+    "pt": "Sem campos: só se pede a resposta."
+  },
+  "workflow_engine.designer.no_issues": {
+    "es": "Sin problemas: el proceso se puede publicar.",
+    "en": "No problems: the process can be published.",
+    "pt": "Sem problemas: o processo pode ser publicado."
+  },
+  "workflow_engine.designer.no_lane": {
+    "es": "Sin carril",
+    "en": "No lane",
+    "pt": "Sem faixa"
+  },
+  "workflow_engine.designer.no_next": {
+    "es": "Este paso aún no lleva a ningún sitio.",
+    "en": "This step does not lead anywhere yet.",
+    "pt": "Este passo ainda não leva a lado nenhum."
+  },
+  "workflow_engine.designer.no_params": {
+    "es": "Esta acción no necesita datos.",
+    "en": "This action needs no data.",
+    "pt": "Esta ação não precisa de dados."
+  },
+  "workflow_engine.designer.otherwise": {
+    "es": "En otro caso",
+    "en": "Otherwise",
+    "pt": "Caso contrário"
+  },
+  "workflow_engine.designer.outcome_duplicate": {
+    "es": "Esa respuesta ya existe.",
+    "en": "That answer already exists.",
+    "pt": "Essa resposta já existe."
+  },
+  "workflow_engine.designer.outcome_invalid": {
+    "es": "Escribe una respuesta con letras o números.",
+    "en": "Write an answer with letters or digits.",
+    "pt": "Escreva uma resposta com letras ou números."
+  },
+  "workflow_engine.designer.outcome_limit": {
+    "es": "Máximo 10 respuestas por paso.",
+    "en": "At most 10 answers per step.",
+    "pt": "Máximo de 10 respostas por passo."
+  },
+  "workflow_engine.designer.outcomes": {
+    "es": "Respuestas posibles",
+    "en": "Possible answers",
+    "pt": "Respostas possíveis"
+  },
+  "workflow_engine.designer.pref_background": {
+    "es": "Fondo",
+    "en": "Background",
+    "pt": "Fundo"
+  },
+  "workflow_engine.designer.pref_guides": {
+    "es": "Guías de alineación",
+    "en": "Alignment guides",
+    "pt": "Guias de alinhamento"
+  },
+  "workflow_engine.designer.pref_layers": {
+    "es": "Conexiones por encima de los pasos",
+    "en": "Connections above steps",
+    "pt": "Ligações por cima dos passos"
+  },
+  "workflow_engine.designer.pref_minimap": {
+    "es": "Minimapa",
+    "en": "Minimap",
+    "pt": "Minimapa"
+  },
+  "workflow_engine.designer.pref_scheme": {
+    "es": "Controles del ratón",
+    "en": "Mouse controls",
+    "pt": "Controlos do rato"
+  },
+  "workflow_engine.designer.pref_snap": {
+    "es": "Ajustar a la cuadrícula",
+    "en": "Snap to grid",
+    "pt": "Ajustar à grelha"
+  },
+  "workflow_engine.designer.process": {
+    "es": "Proceso",
+    "en": "Process",
+    "pt": "Processo"
+  },
+  "workflow_engine.designer.properties": {
+    "es": "Propiedades",
+    "en": "Properties",
+    "pt": "Propriedades"
+  },
+  "workflow_engine.designer.published_on": {
+    "es": "Publicada el {{date}}",
+    "en": "Published on {{date}}",
+    "pt": "Publicada em {{date}}"
+  },
+  "workflow_engine.designer.readonly_archived": {
+    "es": "Versión archivada, solo de consulta.",
+    "en": "Archived version, read-only.",
+    "pt": "Versão arquivada, só de consulta."
+  },
+  "workflow_engine.designer.readonly_permission": {
+    "es": "Solo lectura: no tienes permiso para diseñar procesos.",
+    "en": "Read-only: you are not allowed to design processes.",
+    "pt": "Só leitura: não tem permissão para desenhar processos."
+  },
+  "workflow_engine.designer.readonly_published": {
+    "es": "Esta versión está publicada y en uso. Para cambiarla, crea una nueva versión.",
+    "en": "This version is published and in use. To change it, create a new version.",
+    "pt": "Esta versão está publicada e em uso. Para a alterar, crie uma nova versão."
+  },
+  "workflow_engine.designer.ready_to_publish": {
+    "es": "Listo para publicar",
+    "en": "Ready to publish",
+    "pt": "Pronto a publicar"
+  },
+  "workflow_engine.designer.remove_outcome": {
+    "es": "Quitar respuesta",
+    "en": "Remove answer",
+    "pt": "Remover resposta"
+  },
+  "workflow_engine.designer.reset_zoom": {
+    "es": "Restablecer zoom",
+    "en": "Reset zoom",
+    "pt": "Repor zoom"
+  },
+  "workflow_engine.designer.responsible": {
+    "es": "Responsable",
+    "en": "Owner",
+    "pt": "Responsável"
+  },
+  "workflow_engine.designer.role_hint": {
+    "es": "Cualquier persona con este rol puede responder; todas reciben el aviso.",
+    "en": "Anyone with this role can answer; all of them are notified.",
+    "pt": "Qualquer pessoa com esta função pode responder; todas são avisadas."
+  },
+  "workflow_engine.designer.role_members.one": {
+    "es": "{{count}} miembro",
+    "en": "{{count}} member",
+    "pt": "{{count}} membro"
+  },
+  "workflow_engine.designer.role_members.other": {
+    "es": "{{count}} miembros",
+    "en": "{{count}} members",
+    "pt": "{{count}} membros"
+  },
+  "workflow_engine.designer.route": {
+    "es": "Trazado",
+    "en": "Route",
+    "pt": "Traçado"
+  },
+  "workflow_engine.designer.save_error": {
+    "es": "No se pudo guardar",
+    "en": "Could not save",
+    "pt": "Não foi possível guardar"
+  },
+  "workflow_engine.designer.saved_at": {
+    "es": "Guardado {{time}}",
+    "en": "Saved {{time}}",
+    "pt": "Guardado {{time}}"
+  },
+  "workflow_engine.designer.saving": {
+    "es": "Guardando…",
+    "en": "Saving…",
+    "pt": "A guardar…"
+  },
+  "workflow_engine.designer.scheme_default": {
+    "es": "Arrastrar mueve el lienzo",
+    "en": "Drag pans the canvas",
+    "pt": "Arrastar move a tela"
+  },
+  "workflow_engine.designer.scheme_hint.default": {
+    "es": "Arrastra el fondo para moverte; Mayús + arrastrar selecciona; la rueda hace zoom.",
+    "en": "Drag the background to move around; Shift + drag selects; the wheel zooms.",
+    "pt": "Arraste o fundo para se mover; Shift + arrastar seleciona; a roda faz zoom."
+  },
+  "workflow_engine.designer.scheme_hint.scroll": {
+    "es": "La rueda o dos dedos desplazan; Ctrl + rueda o pellizcar hace zoom.",
+    "en": "The wheel or two fingers scroll; Ctrl + wheel or pinch zooms.",
+    "pt": "A roda ou dois dedos deslocam; Ctrl + roda ou pinça faz zoom."
+  },
+  "workflow_engine.designer.scheme_hint.select": {
+    "es": "Arrastra el fondo para seleccionar; botón central para moverte; la rueda hace zoom.",
+    "en": "Drag the background to select; middle button to move around; the wheel zooms.",
+    "pt": "Arraste o fundo para selecionar; botão do meio para se mover; a roda faz zoom."
+  },
+  "workflow_engine.designer.scheme_scroll": {
+    "es": "Rueda desplaza (trackpad)",
+    "en": "Wheel scrolls (trackpad)",
+    "pt": "Roda desloca (trackpad)"
+  },
+  "workflow_engine.designer.scheme_select": {
+    "es": "Arrastrar selecciona",
+    "en": "Drag selects",
+    "pt": "Arrastar seleciona"
+  },
+  "workflow_engine.designer.search_steps": {
+    "es": "Buscar pasos",
+    "en": "Search steps",
+    "pt": "Procurar passos"
+  },
+  "workflow_engine.designer.selected.one": {
+    "es": "{{count}} seleccionado",
+    "en": "{{count}} selected",
+    "pt": "{{count}} selecionado"
+  },
+  "workflow_engine.designer.selected.other": {
+    "es": "{{count}} seleccionados",
+    "en": "{{count}} selected",
+    "pt": "{{count}} selecionados"
+  },
+  "workflow_engine.designer.start_not_deletable": {
+    "es": "«Inicio» no se puede eliminar: todo proceso empieza por él. Puedes moverlo o cambiar a qué paso conduce.",
+    "en": "“Start” cannot be deleted: every process begins there. You can move it or change the step it leads to.",
+    "pt": "«Início» não pode ser eliminado: todo o processo começa por ele. Pode movê-lo ou mudar o passo a que conduz."
+  },
+  "workflow_engine.designer.stats": {
+    "es": "{{nodes}} pasos · {{edges}} conexiones",
+    "en": "{{nodes}} steps · {{edges}} connections",
+    "pt": "{{nodes}} passos · {{edges}} ligações"
+  },
+  "workflow_engine.designer.straighten": {
+    "es": "Quitar quiebres",
+    "en": "Remove bends",
+    "pt": "Remover dobras"
+  },
+  "workflow_engine.designer.task_form": {
+    "es": "Formulario de la tarea",
+    "en": "Task form",
+    "pt": "Formulário da tarefa"
+  },
+  "workflow_engine.designer.task_form_hint": {
+    "es": "Datos que la persona rellena al responder; quedan disponibles para los pasos siguientes.",
+    "en": "Fields the person fills in when answering; available to the following steps.",
+    "pt": "Dados que a pessoa preenche ao responder; ficam disponíveis para os passos seguintes."
+  },
+  "workflow_engine.designer.templated_hint": {
+    "es": "Puedes insertar datos del proceso con {{variable}}.",
+    "en": "You can insert process data with {{variable}}.",
+    "pt": "Pode inserir dados do processo com {{variable}}."
+  },
+  "workflow_engine.designer.timer_rounded": {
+    "es": "La espera cuenta minutos enteros: se guardará como {{minutes}} min.",
+    "en": "Waits count whole minutes: it will be saved as {{minutes}} min.",
+    "pt": "A espera conta minutos inteiros: será guardada como {{minutes}} min."
+  },
+  "workflow_engine.designer.toggle_inspector": {
+    "es": "Mostrar u ocultar propiedades",
+    "en": "Show or hide properties",
+    "pt": "Mostrar ou ocultar propriedades"
+  },
+  "workflow_engine.designer.toggle_palette": {
+    "es": "Mostrar u ocultar componentes",
+    "en": "Show or hide components",
+    "pt": "Mostrar ou ocultar componentes"
+  },
+  "workflow_engine.designer.toolbar": {
+    "es": "Barra del diseñador",
+    "en": "Designer toolbar",
+    "pt": "Barra do desenhador"
+  },
+  "workflow_engine.designer.unit": {
+    "es": "Unidad",
+    "en": "Unit",
+    "pt": "Unidade"
+  },
+  "workflow_engine.designer.unknown_process": {
+    "es": "«{{key}}» (no encontrado)",
+    "en": "“{{key}}” (not found)",
+    "pt": "«{{key}}» (não encontrado)"
+  },
+  "workflow_engine.designer.unrouted": {
+    "es": "Sin destino",
+    "en": "Not connected",
+    "pt": "Sem destino"
+  },
+  "workflow_engine.designer.unsaved": {
+    "es": "Cambios sin guardar",
+    "en": "Unsaved changes",
+    "pt": "Alterações por guardar"
+  },
+  "workflow_engine.designer.until": {
+    "es": "Hasta {{variable}}",
+    "en": "Until {{variable}}",
+    "pt": "Até {{variable}}"
+  },
+  "workflow_engine.designer.untitled": {
+    "es": "Proceso sin nombre",
+    "en": "Untitled process",
+    "pt": "Processo sem nome"
+  },
+  "workflow_engine.designer.validating": {
+    "es": "Comprobando…",
+    "en": "Checking…",
+    "pt": "A verificar…"
+  },
+  "workflow_engine.designer.view": {
+    "es": "Vista",
+    "en": "View",
+    "pt": "Vista"
+  },
+  "workflow_engine.designer.wait": {
+    "es": "Espera",
+    "en": "Wait",
+    "pt": "Espera"
+  },
+  "workflow_engine.designer.wait_duration": {
+    "es": "Un tiempo",
+    "en": "A duration",
+    "pt": "Um tempo"
+  },
+  "workflow_engine.designer.wait_for": {
+    "es": "Espera {{duration}}",
+    "en": "Waits {{duration}}",
+    "pt": "Espera {{duration}}"
+  },
+  "workflow_engine.designer.wait_until": {
+    "es": "Hasta una fecha",
+    "en": "Until a date",
+    "pt": "Até uma data"
+  },
+  "workflow_engine.designer.waypoints.one": {
+    "es": "{{count}} punto de quiebre",
+    "en": "{{count}} bend point",
+    "pt": "{{count}} ponto de quebra"
+  },
+  "workflow_engine.designer.waypoints.other": {
+    "es": "{{count}} puntos de quiebre",
+    "en": "{{count}} bend points",
+    "pt": "{{count}} pontos de quebra"
+  },
+  "workflow_engine.designer.waypoints_hint": {
+    "es": "Arrastra la línea para añadirle puntos de quiebre.",
+    "en": "Drag the line to add bend points.",
+    "pt": "Arraste a linha para lhe adicionar pontos de dobra."
+  },
+  "workflow_engine.designer.when_answer": {
+    "es": "Se toma cuando la respuesta es",
+    "en": "Taken when the answer is",
+    "pt": "Seguida quando a resposta é"
+  },
+  "workflow_engine.document_result.approved": {
+    "es": "{{name}} aprobó {{document}}.",
+    "en": "{{name}} approved {{document}}.",
+    "pt": "{{name}} aprovou {{document}}."
+  },
+  "workflow_engine.document_result.failed": {
+    "es": "No se pudo decidir sobre {{document}}.",
+    "en": "Could not decide on {{document}}.",
+    "pt": "Não foi possível decidir sobre {{document}}."
+  },
+  "workflow_engine.document_result.no_actor": {
+    "es": "No hay nadie en cuyo nombre decidir sobre el documento.",
+    "en": "There is nobody on whose behalf to decide on the document.",
+    "pt": "Não há ninguém em cujo nome decidir sobre o documento."
+  },
+  "workflow_engine.document_result.no_document": {
+    "es": "Este proceso no se inició desde un documento.",
+    "en": "This process was not started from a document.",
+    "pt": "Este processo não foi iniciado a partir de um documento."
+  },
+  "workflow_engine.document_result.rejected": {
+    "es": "{{name}} rechazó {{document}}.",
+    "en": "{{name}} rejected {{document}}.",
+    "pt": "{{name}} rejeitou {{document}}."
+  },
+  "workflow_engine.document_result.unsupported": {
+    "es": "Los documentos de tipo «{{type}}» no admiten aprobación desde un proceso.",
+    "en": "Documents of type “{{type}}” cannot be approved from a process.",
+    "pt": "Os documentos do tipo «{{type}}» não admitem aprovação a partir de um processo."
+  },
+  "workflow_engine.draft_ready": {
+    "es": "Borrador v{{version}} listo para editar.",
+    "en": "Draft v{{version}} ready to edit.",
+    "pt": "Rascunho v{{version}} pronto para editar."
+  },
+  "workflow_engine.duplicate.confirm": {
+    "es": "Duplicar",
+    "en": "Duplicate",
+    "pt": "Duplicar"
+  },
+  "workflow_engine.duplicate.done": {
+    "es": "«{{name}}» creado.",
+    "en": "“{{name}}” created.",
+    "pt": "«{{name}}» criado."
+  },
+  "workflow_engine.duplicate.message": {
+    "es": "Se creará un borrador nuevo a partir de «{{name}}». ¿Cómo se llamará?",
+    "en": "A new draft will be created from “{{name}}”. What will it be called?",
+    "pt": "Será criado um novo rascunho a partir de «{{name}}». Como se vai chamar?"
+  },
+  "workflow_engine.duplicate.suggested_name": {
+    "es": "{{name}} (copia)",
+    "en": "{{name}} (copy)",
+    "pt": "{{name}} (cópia)"
+  },
+  "workflow_engine.duplicate.title": {
+    "es": "Duplicar proceso",
+    "en": "Duplicate process",
+    "pt": "Duplicar processo"
+  },
+  "workflow_engine.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "workflow_engine.edited_elsewhere": {
+    "es": "Otra persona guardó este borrador después de que lo abrieras. Recárgalo para no sobrescribir sus cambios.",
+    "en": "Someone else saved this draft after you opened it. Reload it so you do not overwrite their changes.",
+    "pt": "Outra pessoa guardou este rascunho depois de o abrir. Recarregue-o para não sobrescrever as alterações."
+  },
+  "workflow_engine.event.approval_decided": {
+    "es": "Aprobación resuelta",
+    "en": "Approval decided",
+    "pt": "Aprovação decidida"
+  },
+  "workflow_engine.event.approval_requested": {
+    "es": "Aprobación solicitada",
+    "en": "Approval requested",
+    "pt": "Aprovação solicitada"
+  },
+  "workflow_engine.event.customer_created": {
+    "es": "Cliente registrado",
+    "en": "Customer registered",
+    "pt": "Cliente registado"
+  },
+  "workflow_engine.event.customer_payment_received": {
+    "es": "Cobro recibido",
+    "en": "Payment received",
+    "pt": "Recebimento registado"
+  },
+  "workflow_engine.event.goods_receipt_created": {
+    "es": "Recepción de mercancía registrada",
+    "en": "Goods receipt recorded",
+    "pt": "Receção de mercadoria registada"
+  },
+  "workflow_engine.event.invoice_created": {
+    "es": "Factura registrada",
+    "en": "Invoice recorded",
+    "pt": "Fatura registada"
+  },
+  "workflow_engine.event.invoice_credit_note_created": {
+    "es": "Nota de crédito emitida",
+    "en": "Credit note issued",
+    "pt": "Nota de crédito emitida"
+  },
+  "workflow_engine.event.invoice_issued": {
+    "es": "Factura emitida",
+    "en": "Invoice issued",
+    "pt": "Fatura emitida"
+  },
+  "workflow_engine.event.journal_entry_posted": {
+    "es": "Asiento contabilizado",
+    "en": "Journal entry posted",
+    "pt": "Lançamento contabilizado"
+  },
+  "workflow_engine.event.purchase_order_created": {
+    "es": "Orden de compra creada",
+    "en": "Purchase order created",
+    "pt": "Ordem de compra criada"
+  },
+  "workflow_engine.event.quote_accepted": {
+    "es": "Cotización aceptada",
+    "en": "Quote accepted",
+    "pt": "Orçamento aceite"
+  },
+  "workflow_engine.event.quote_created": {
+    "es": "Cotización creada",
+    "en": "Quote created",
+    "pt": "Orçamento criado"
+  },
+  "workflow_engine.event.quote_rejected": {
+    "es": "Cotización rechazada",
+    "en": "Quote rejected",
+    "pt": "Orçamento rejeitado"
+  },
+  "workflow_engine.event.vendor_bill_posted": {
+    "es": "Factura de proveedor contabilizada",
+    "en": "Vendor bill posted",
+    "pt": "Fatura de fornecedor contabilizada"
+  },
+  "workflow_engine.event.vendor_bill_voided": {
+    "es": "Factura de proveedor anulada",
+    "en": "Vendor bill voided",
+    "pt": "Fatura de fornecedor anulada"
+  },
+  "workflow_engine.event_field.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Montante"
+  },
+  "workflow_engine.event_field.balance": {
+    "es": "Saldo pendiente",
+    "en": "Balance due",
+    "pt": "Saldo pendente"
+  },
+  "workflow_engine.event_field.bill_id": {
+    "es": "ID de factura de proveedor",
+    "en": "Vendor bill ID",
+    "pt": "ID da fatura de fornecedor"
+  },
+  "workflow_engine.event_field.country": {
+    "es": "País",
+    "en": "Country",
+    "pt": "País"
+  },
+  "workflow_engine.event_field.credit_note_id": {
+    "es": "ID de nota de crédito",
+    "en": "Credit note ID",
+    "pt": "ID da nota de crédito"
+  },
+  "workflow_engine.event_field.credit_note_number": {
+    "es": "Número de nota de crédito",
+    "en": "Credit note number",
+    "pt": "Número da nota de crédito"
+  },
+  "workflow_engine.event_field.currency_code": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "workflow_engine.event_field.customer_id": {
+    "es": "ID de cliente",
+    "en": "Customer ID",
+    "pt": "ID do cliente"
+  },
+  "workflow_engine.event_field.customer_name": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "workflow_engine.event_field.decision": {
+    "es": "Decisión",
+    "en": "Decision",
+    "pt": "Decisão"
+  },
+  "workflow_engine.event_field.document_id": {
+    "es": "ID del documento",
+    "en": "Document ID",
+    "pt": "ID do documento"
+  },
+  "workflow_engine.event_field.document_type": {
+    "es": "Tipo de documento",
+    "en": "Document type",
+    "pt": "Tipo de documento"
+  },
+  "workflow_engine.event_field.due_date": {
+    "es": "Fecha de vencimiento",
+    "en": "Due date",
+    "pt": "Data de vencimento"
+  },
+  "workflow_engine.event_field.email": {
+    "es": "Correo electrónico",
+    "en": "Email",
+    "pt": "E-mail"
+  },
+  "workflow_engine.event_field.entry_id": {
+    "es": "ID de asiento",
+    "en": "Journal entry ID",
+    "pt": "ID do lançamento"
+  },
+  "workflow_engine.event_field.invoice_id": {
+    "es": "ID de factura",
+    "en": "Invoice ID",
+    "pt": "ID da fatura"
+  },
+  "workflow_engine.event_field.invoice_number": {
+    "es": "Número de factura",
+    "en": "Invoice number",
+    "pt": "Número da fatura"
+  },
+  "workflow_engine.event_field.journal_entry_id": {
+    "es": "ID de asiento",
+    "en": "Journal entry ID",
+    "pt": "ID do lançamento"
+  },
+  "workflow_engine.event_field.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "workflow_engine.event_field.payment_id": {
+    "es": "ID del cobro",
+    "en": "Payment ID",
+    "pt": "ID do recebimento"
+  },
+  "workflow_engine.event_field.purchase_order_id": {
+    "es": "ID de orden de compra",
+    "en": "Purchase order ID",
+    "pt": "ID da ordem de compra"
+  },
+  "workflow_engine.event_field.purchase_order_number": {
+    "es": "Número de orden de compra",
+    "en": "Purchase order number",
+    "pt": "Número da ordem de compra"
+  },
+  "workflow_engine.event_field.quote_id": {
+    "es": "ID de cotización",
+    "en": "Quote ID",
+    "pt": "ID do orçamento"
+  },
+  "workflow_engine.event_field.quote_number": {
+    "es": "Número de cotización",
+    "en": "Quote number",
+    "pt": "Número do orçamento"
+  },
+  "workflow_engine.event_field.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "workflow_engine.event_field.receipt_id": {
+    "es": "ID de recepción",
+    "en": "Receipt ID",
+    "pt": "ID da receção"
+  },
+  "workflow_engine.event_field.receipt_number": {
+    "es": "Número de recibo",
+    "en": "Receipt number",
+    "pt": "Número do recibo"
+  },
+  "workflow_engine.event_field.reference": {
+    "es": "Referencia",
+    "en": "Reference",
+    "pt": "Referência"
+  },
+  "workflow_engine.event_field.request_id": {
+    "es": "ID de solicitud",
+    "en": "Request ID",
+    "pt": "ID do pedido"
+  },
+  "workflow_engine.event_field.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Estado"
+  },
+  "workflow_engine.event_field.supplier_id": {
+    "es": "ID de proveedor",
+    "en": "Supplier ID",
+    "pt": "ID do fornecedor"
+  },
+  "workflow_engine.event_field.supplier_name": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "workflow_engine.event_field.total": {
+    "es": "Total",
+    "en": "Total",
+    "pt": "Total"
+  },
+  "workflow_engine.event_group.accounting": {
+    "es": "Contabilidad",
+    "en": "Accounting",
+    "pt": "Contabilidade"
+  },
+  "workflow_engine.event_group.approvals": {
+    "es": "Aprobaciones",
+    "en": "Approvals",
+    "pt": "Aprovações"
+  },
+  "workflow_engine.event_group.customers": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "workflow_engine.event_group.integration": {
+    "es": "Integraciones",
+    "en": "Integrations",
+    "pt": "Integrações"
+  },
+  "workflow_engine.event_group.purchasing": {
+    "es": "Compras",
+    "en": "Purchasing",
+    "pt": "Compras"
+  },
+  "workflow_engine.event_group.sales": {
+    "es": "Ventas",
+    "en": "Sales",
+    "pt": "Vendas"
+  },
+  "workflow_engine.fact.document": {
+    "es": "Decisión sobre el documento",
+    "en": "Decision on the document",
+    "pt": "Decisão sobre o documento"
+  },
+  "workflow_engine.fact.event": {
+    "es": "Evento que lo inició",
+    "en": "Event that started it",
+    "pt": "Evento que o iniciou"
+  },
+  "workflow_engine.fact.last_actor_user_id": {
+    "es": "Respondió por última vez",
+    "en": "Last answered by",
+    "pt": "Respondeu por último"
+  },
+  "workflow_engine.fact.last_comment": {
+    "es": "Último comentario",
+    "en": "Last comment",
+    "pt": "Último comentário"
+  },
+  "workflow_engine.fact.last_outcome": {
+    "es": "Última respuesta",
+    "en": "Last answer",
+    "pt": "Última resposta"
+  },
+  "workflow_engine.fact.parent_instance_id": {
+    "es": "Proceso que lo inició",
+    "en": "Process that started it",
+    "pt": "Processo que o iniciou"
+  },
+  "workflow_engine.fact.reference": {
+    "es": "(referencia interna)",
+    "en": "(internal reference)",
+    "pt": "(referência interna)"
+  },
+  "workflow_engine.fact.step_result": {
+    "es": "Respuesta en «{{step}}»",
+    "en": "Answer at “{{step}}”",
+    "pt": "Resposta em «{{step}}»"
+  },
+  "workflow_engine.fact.subprocess": {
+    "es": "Subproceso iniciado",
+    "en": "Subprocess started",
+    "pt": "Subprocesso iniciado"
+  },
+  "workflow_engine.fact.webhook": {
+    "es": "Respuesta del webhook",
+    "en": "Webhook reply",
+    "pt": "Resposta do webhook"
+  },
+  "workflow_engine.fact_field.at": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "workflow_engine.fact_field.by": {
+    "es": "Por",
+    "en": "By",
+    "pt": "Por"
+  },
+  "workflow_engine.fact_field.comment": {
+    "es": "Comentario",
+    "en": "Comment",
+    "pt": "Comentário"
+  },
+  "workflow_engine.fact_field.decision": {
+    "es": "Decisión",
+    "en": "Decision",
+    "pt": "Decisão"
+  },
+  "workflow_engine.fact_field.instance_id": {
+    "es": "Ejecución",
+    "en": "Run",
+    "pt": "Execução"
+  },
+  "workflow_engine.fact_field.key": {
+    "es": "Proceso",
+    "en": "Process",
+    "pt": "Processo"
+  },
+  "workflow_engine.fact_field.ok": {
+    "es": "Correcto",
+    "en": "Succeeded",
+    "pt": "Correto"
+  },
+  "workflow_engine.fact_field.outcome": {
+    "es": "Respuesta",
+    "en": "Answer",
+    "pt": "Resposta"
+  },
+  "workflow_engine.fact_field.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "workflow_engine.fact_field.response": {
+    "es": "Respuesta",
+    "en": "Response",
+    "pt": "Resposta"
+  },
+  "workflow_engine.fact_field.status": {
+    "es": "Código HTTP",
+    "en": "HTTP status",
+    "pt": "Código HTTP"
+  },
+  "workflow_engine.fact_group.data": {
+    "es": "Datos del proceso",
+    "en": "Process data",
+    "pt": "Dados do processo"
+  },
+  "workflow_engine.fact_group.steps": {
+    "es": "Respuestas",
+    "en": "Answers",
+    "pt": "Respostas"
+  },
+  "workflow_engine.fact_group.system": {
+    "es": "Registrado por el motor",
+    "en": "Recorded by the engine",
+    "pt": "Registado pelo motor"
+  },
+  "workflow_engine.field.action": {
+    "es": "Acción",
+    "en": "Action",
+    "pt": "Ação"
+  },
+  "workflow_engine.field.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "workflow_engine.field.due": {
+    "es": "Plazo",
+    "en": "Due in",
+    "pt": "Prazo"
+  },
+  "workflow_engine.field.escalate_to": {
+    "es": "Si vence, avisar a",
+    "en": "When overdue, notify",
+    "pt": "Se vencer, avisar"
+  },
+  "workflow_engine.field.instructions": {
+    "es": "Instrucciones",
+    "en": "Instructions",
+    "pt": "Instruções"
+  },
+  "workflow_engine.field.label": {
+    "es": "Etiqueta",
+    "en": "Label",
+    "pt": "Etiqueta"
+  },
+  "workflow_engine.field.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "workflow_engine.field.outcome": {
+    "es": "Resultado",
+    "en": "Outcome",
+    "pt": "Resultado"
+  },
+  "workflow_engine.field.role": {
+    "es": "Rol",
+    "en": "Role",
+    "pt": "Função"
+  },
+  "workflow_engine.field.timer": {
+    "es": "Esperar",
+    "en": "Wait for",
+    "pt": "Esperar"
+  },
+  "workflow_engine.field.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "workflow_engine.field.user": {
+    "es": "Persona",
+    "en": "Person",
+    "pt": "Pessoa"
+  },
+  "workflow_engine.field.value": {
+    "es": "Valor",
+    "en": "Value",
+    "pt": "Valor"
+  },
+  "workflow_engine.field.variable": {
+    "es": "Variable",
+    "en": "Variable",
+    "pt": "Variável"
+  },
+  "workflow_engine.form.max": {
+    "es": "El valor máximo es {{max}}.",
+    "en": "The maximum is {{max}}.",
+    "pt": "O valor máximo é {{max}}."
+  },
+  "workflow_engine.form.min": {
+    "es": "El valor mínimo es {{min}}.",
+    "en": "The minimum is {{min}}.",
+    "pt": "O valor mínimo é {{min}}."
+  },
+  "workflow_engine.form.number": {
+    "es": "Escribe un número.",
+    "en": "Enter a number.",
+    "pt": "Escreva um número."
+  },
+  "workflow_engine.form.option": {
+    "es": "Elige una de las opciones.",
+    "en": "Choose one of the options.",
+    "pt": "Escolha uma das opções."
+  },
+  "workflow_engine.form.required": {
+    "es": "Este dato es obligatorio.",
+    "en": "This field is required.",
+    "pt": "Este dado é obrigatório."
+  },
+  "workflow_engine.import.confirm": {
+    "es": "Reemplazar",
+    "en": "Replace",
+    "pt": "Substituir"
+  },
+  "workflow_engine.import.done": {
+    "es": "Diseño importado.",
+    "en": "Design imported.",
+    "pt": "Desenho importado."
+  },
+  "workflow_engine.import.invalid": {
+    "es": "El archivo no es un proceso exportado válido.",
+    "en": "The file is not a valid exported process.",
+    "pt": "O ficheiro não é um processo exportado válido."
+  },
+  "workflow_engine.import.message": {
+    "es": "El archivo trae {{nodes}} pasos y reemplazará el diseño actual. Puedes deshacerlo.",
+    "en": "The file brings {{nodes}} steps and will replace the current design. You can undo it.",
+    "pt": "O ficheiro traz {{nodes}} passos e vai substituir o desenho atual. Pode anular."
+  },
+  "workflow_engine.import.title": {
+    "es": "¿Reemplazar el diseño?",
+    "en": "Replace the design?",
+    "pt": "Substituir o desenho?"
+  },
+  "workflow_engine.import.too_large": {
+    "es": "El archivo supera 2 MB.",
+    "en": "The file is larger than 2 MB.",
+    "pt": "O ficheiro excede 2 MB."
+  },
+  "workflow_engine.inbox.answer_by": {
+    "es": "Respuesta de {{name}}",
+    "en": "Answer by {{name}}",
+    "pt": "Resposta de {{name}}"
+  },
+  "workflow_engine.inbox.cancelled_body": {
+    "es": "El proceso se canceló o cambió el {{date}}; esta tarea ya no necesita respuesta.",
+    "en": "The process was cancelled or moved on on {{date}}; this task no longer needs an answer.",
+    "pt": "O processo foi cancelado ou avançou em {{date}}; esta tarefa já não precisa de resposta."
+  },
+  "workflow_engine.inbox.cancelled_title": {
+    "es": "Tarea anulada",
+    "en": "Task withdrawn",
+    "pt": "Tarefa anulada"
+  },
+  "workflow_engine.inbox.comment": {
+    "es": "Comentario",
+    "en": "Comment",
+    "pt": "Comentário"
+  },
+  "workflow_engine.inbox.comment_required": {
+    "es": "«{{outcome}}» requiere un comentario.",
+    "en": "“{{outcome}}” requires a comment.",
+    "pt": "«{{outcome}}» requer um comentário."
+  },
+  "workflow_engine.inbox.comment_required_for": {
+    "es": "Obligatorio si respondes: {{outcomes}}.",
+    "en": "Required if you answer: {{outcomes}}.",
+    "pt": "Obrigatório se responder: {{outcomes}}."
+  },
+  "workflow_engine.inbox.details": {
+    "es": "Detalles",
+    "en": "Details",
+    "pt": "Detalhes"
+  },
+  "workflow_engine.inbox.done": {
+    "es": "Respondidas",
+    "en": "Answered",
+    "pt": "Respondidas"
+  },
+  "workflow_engine.inbox.due_in": {
+    "es": "Vence en {{amount}}",
+    "en": "Due in {{amount}}",
+    "pt": "Vence em {{amount}}"
+  },
+  "workflow_engine.inbox.facts": {
+    "es": "Datos",
+    "en": "Details",
+    "pt": "Dados"
+  },
+  "workflow_engine.inbox.form": {
+    "es": "Completa",
+    "en": "Fill in",
+    "pt": "Preencha"
+  },
+  "workflow_engine.inbox.overdue_by": {
+    "es": "Vencida hace {{amount}}",
+    "en": "Overdue by {{amount}}",
+    "pt": "Vencida há {{amount}}"
+  },
+  "workflow_engine.inbox.pending": {
+    "es": "Pendientes",
+    "en": "Pending",
+    "pt": "Pendentes"
+  },
+  "workflow_engine.inbox.respond": {
+    "es": "Responder",
+    "en": "Respond",
+    "pt": "Responder"
+  },
+  "workflow_engine.inbox.section_done": {
+    "es": "Respondidas",
+    "en": "Answered",
+    "pt": "Respondidas"
+  },
+  "workflow_engine.inbox.section_later": {
+    "es": "Más adelante",
+    "en": "Later",
+    "pt": "Mais tarde"
+  },
+  "workflow_engine.inbox.section_overdue": {
+    "es": "Vencidas",
+    "en": "Overdue",
+    "pt": "Vencidas"
+  },
+  "workflow_engine.inbox.section_soon": {
+    "es": "Vencen en 24 h",
+    "en": "Due within 24 h",
+    "pt": "Vencem em 24 h"
+  },
+  "workflow_engine.inbox.started_by": {
+    "es": "Iniciada por {{name}}",
+    "en": "Started by {{name}}",
+    "pt": "Iniciada por {{name}}"
+  },
+  "workflow_engine.inbox.subtitle_done": {
+    "es": "Lo que respondiste recientemente.",
+    "en": "What you answered recently.",
+    "pt": "O que respondeu recentemente."
+  },
+  "workflow_engine.inbox.subtitle_open": {
+    "es": "Lo que espera tu respuesta, por urgencia.",
+    "en": "What is waiting for your answer, by urgency.",
+    "pt": "O que aguarda a sua resposta, por urgência."
+  },
+  "workflow_engine.inbox.task_unavailable": {
+    "es": "Esa tarea ya no está disponible.",
+    "en": "That task is no longer available.",
+    "pt": "Essa tarefa já não está disponível."
+  },
+  "workflow_engine.inbox.view": {
+    "es": "Vista",
+    "en": "View",
+    "pt": "Vista"
+  },
+  "workflow_engine.inbox.view_run": {
+    "es": "Ver la ejecución",
+    "en": "View the run",
+    "pt": "Ver a execução"
+  },
+  "workflow_engine.inbox.your_answer": {
+    "es": "Tu respuesta",
+    "en": "Your answer",
+    "pt": "A sua resposta"
+  },
+  "workflow_engine.instance.answered": {
+    "es": "{{who}} respondió «{{outcome}}»",
+    "en": "{{who}} answered “{{outcome}}”",
+    "pt": "{{who}} respondeu «{{outcome}}»"
+  },
+  "workflow_engine.instance.cancelled_title": {
+    "es": "Cancelada. Motivo:",
+    "en": "Cancelled. Reason:",
+    "pt": "Cancelada. Motivo:"
+  },
+  "workflow_engine.instance.children": {
+    "es": "Subprocesos",
+    "en": "Subprocesses",
+    "pt": "Subprocessos"
+  },
+  "workflow_engine.instance.completed": {
+    "es": "Finalizada",
     "en": "Completed",
     "pt": "Concluída"
+  },
+  "workflow_engine.instance.data": {
+    "es": "Datos",
+    "en": "Data",
+    "pt": "Dados"
+  },
+  "workflow_engine.instance.definition_missing": {
+    "es": "No se encontró el diseño de esta ejecución.",
+    "en": "The design of this run was not found.",
+    "pt": "O desenho desta execução não foi encontrado."
+  },
+  "workflow_engine.instance.due": {
+    "es": "Vence {{date}}",
+    "en": "Due {{date}}",
+    "pt": "Vence {{date}}"
+  },
+  "workflow_engine.instance.failed_help": {
+    "es": "Corrige la causa y pulsa «Reintentar» para continuar desde el mismo paso.",
+    "en": "Fix the cause and press “Retry” to continue from the same step.",
+    "pt": "Corrija a causa e carregue em «Tentar novamente» para continuar a partir do mesmo passo."
+  },
+  "workflow_engine.instance.failed_title": {
+    "es": "La ejecución se detuvo por un error:",
+    "en": "The run stopped on an error:",
+    "pt": "A execução parou por um erro:"
+  },
+  "workflow_engine.instance.legend": {
+    "es": "Leyenda",
+    "en": "Legend",
+    "pt": "Legenda"
+  },
+  "workflow_engine.instance.next_wake": {
+    "es": "Próximo paso automático",
+    "en": "Next automatic step",
+    "pt": "Próximo passo automático"
+  },
+  "workflow_engine.instance.no_data": {
+    "es": "Esta ejecución no tiene datos.",
+    "en": "This run has no data.",
+    "pt": "Esta execução não tem dados."
+  },
+  "workflow_engine.instance.open_design": {
+    "es": "Abrir el diseño de esta versión",
+    "en": "Open this version’s design",
+    "pt": "Abrir o desenho desta versão"
+  },
+  "workflow_engine.instance.open_task": {
+    "es": "Abrir la tarea",
+    "en": "Open the task",
+    "pt": "Abrir a tarefa"
+  },
+  "workflow_engine.instance.parent": {
+    "es": "Ver el proceso que la inició",
+    "en": "View the process that started it",
+    "pt": "Ver o processo que a iniciou"
+  },
+  "workflow_engine.instance.refresh": {
+    "es": "Actualizar",
+    "en": "Refresh",
+    "pt": "Atualizar"
+  },
+  "workflow_engine.instance.replay": {
+    "es": "Reproducir recorrido",
+    "en": "Replay path",
+    "pt": "Reproduzir percurso"
+  },
+  "workflow_engine.instance.result": {
+    "es": "Resultado",
+    "en": "Result",
+    "pt": "Resultado"
+  },
+  "workflow_engine.instance.retry": {
+    "es": "Reintentar",
+    "en": "Retry",
+    "pt": "Tentar novamente"
+  },
+  "workflow_engine.instance.started": {
+    "es": "Iniciada",
+    "en": "Started",
+    "pt": "Iniciada"
+  },
+  "workflow_engine.instance.stop_replay": {
+    "es": "Detener",
+    "en": "Stop",
+    "pt": "Parar"
+  },
+  "workflow_engine.instance.subject": {
+    "es": "Asunto",
+    "en": "Subject",
+    "pt": "Assunto"
+  },
+  "workflow_engine.instance.summary": {
+    "es": "Resumen",
+    "en": "Summary",
+    "pt": "Resumo"
+  },
+  "workflow_engine.instance.tasks": {
+    "es": "Tareas",
+    "en": "Tasks",
+    "pt": "Tarefas"
+  },
+  "workflow_engine.instance.untitled": {
+    "es": "(sin asunto)",
+    "en": "(no subject)",
+    "pt": "(sem assunto)"
+  },
+  "workflow_engine.instance.waiting_on": {
+    "es": "Esperando a {{who}}",
+    "en": "Waiting on {{who}}",
+    "pt": "À espera de {{who}}"
+  },
+  "workflow_engine.instance_not_failed": {
+    "es": "Solo se puede reintentar una ejecución fallida.",
+    "en": "Only a failed run can be retried.",
+    "pt": "Só é possível repetir uma execução falhada."
+  },
+  "workflow_engine.instance_not_found": {
+    "es": "No se encontró la instancia del flujo de trabajo.",
+    "en": "The workflow instance was not found.",
+    "pt": "A instância do fluxo de trabalho não foi encontrada."
+  },
+  "workflow_engine.instance_not_running": {
+    "es": "La instancia no está en ejecución.",
+    "en": "The instance is not running.",
+    "pt": "A instância não está em execução."
   },
   "workflow_engine.instance_status.cancelled": {
     "es": "Cancelada",
     "en": "Cancelled",
     "pt": "Cancelada"
   },
+  "workflow_engine.instance_status.completed": {
+    "es": "Completada",
+    "en": "Completed",
+    "pt": "Concluída"
+  },
   "workflow_engine.instance_status.failed": {
     "es": "Fallida",
     "en": "Failed",
     "pt": "Falhada"
   },
-  "workflow_engine.node.start": {
+  "workflow_engine.instance_status.running": {
+    "es": "En ejecución",
+    "en": "Running",
+    "pt": "Em execução"
+  },
+  "workflow_engine.instances.all": {
+    "es": "Todas",
+    "en": "All",
+    "pt": "Todas"
+  },
+  "workflow_engine.instances.all_processes": {
+    "es": "Todos los procesos",
+    "en": "All processes",
+    "pt": "Todos os processos"
+  },
+  "workflow_engine.instances.anyone": {
+    "es": "Cualquiera",
+    "en": "Anyone",
+    "pt": "Qualquer pessoa"
+  },
+  "workflow_engine.instances.automatic": {
+    "es": "Automática",
+    "en": "Automatic",
+    "pt": "Automática"
+  },
+  "workflow_engine.instances.duration": {
+    "es": "Duración",
+    "en": "Duration",
+    "pt": "Duração"
+  },
+  "workflow_engine.instances.empty_help": {
+    "es": "Las ejecuciones aparecen cuando un proceso publicado se inicia a mano o por un evento.",
+    "en": "Runs appear when a published process starts by hand or on an event.",
+    "pt": "As execuções aparecem quando um processo publicado é iniciado manualmente ou por um evento."
+  },
+  "workflow_engine.instances.filter_status": {
+    "es": "Filtrar por estado",
+    "en": "Filter by status",
+    "pt": "Filtrar por estado"
+  },
+  "workflow_engine.instances.from": {
+    "es": "Desde",
+    "en": "From",
+    "pt": "Desde"
+  },
+  "workflow_engine.instances.me": {
+    "es": "Yo",
+    "en": "Me",
+    "pt": "Eu"
+  },
+  "workflow_engine.instances.no_match": {
+    "es": "Ninguna ejecución coincide con los filtros.",
+    "en": "No run matches the filters.",
+    "pt": "Nenhuma execução corresponde aos filtros."
+  },
+  "workflow_engine.instances.open_tasks.one": {
+    "es": "{{count}} tarea abierta",
+    "en": "{{count}} open task",
+    "pt": "{{count}} tarefa aberta"
+  },
+  "workflow_engine.instances.open_tasks.other": {
+    "es": "{{count}} tareas abiertas",
+    "en": "{{count}} open tasks",
+    "pt": "{{count}} tarefas abertas"
+  },
+  "workflow_engine.instances.process": {
+    "es": "Proceso",
+    "en": "Process",
+    "pt": "Processo"
+  },
+  "workflow_engine.instances.search": {
+    "es": "Buscar por asunto",
+    "en": "Search by subject",
+    "pt": "Procurar por assunto"
+  },
+  "workflow_engine.instances.started_by": {
+    "es": "Iniciada por",
+    "en": "Started by",
+    "pt": "Iniciada por"
+  },
+  "workflow_engine.instances.subtitle": {
+    "es": "Cada ejecución de cada proceso: dónde está, quién la inició y cómo terminó.",
+    "en": "Every run of every process: where it is, who started it and how it ended.",
+    "pt": "Cada execução de cada processo: onde está, quem a iniciou e como terminou."
+  },
+  "workflow_engine.instances.to": {
+    "es": "Hasta",
+    "en": "To",
+    "pt": "Até"
+  },
+  "workflow_engine.instances.where": {
+    "es": "Situación",
+    "en": "Where it is",
+    "pt": "Situação"
+  },
+  "workflow_engine.instances_empty": {
+    "es": "Aún no hay ejecuciones.",
+    "en": "No runs yet.",
+    "pt": "Ainda não há execuções."
+  },
+  "workflow_engine.invalid_graph.duplicate_node_id": {
+    "es": "Hay nodos con el mismo identificador.",
+    "en": "Two nodes share the same identifier.",
+    "pt": "Há nós com o mesmo identificador."
+  },
+  "workflow_engine.invalid_graph.edge_dangling": {
+    "es": "Una conexión apunta a un nodo que no existe.",
+    "en": "A connection points to a node that does not exist.",
+    "pt": "Uma conexão aponta para um nó que não existe."
+  },
+  "workflow_engine.invalid_graph.malformed": {
+    "es": "El diseño tiene errores de estructura ({{count}}) y no se puede guardar.",
+    "en": "The design has structural errors ({{count}}) and cannot be saved.",
+    "pt": "O desenho tem erros de estrutura ({{count}}) e não pode ser guardado."
+  },
+  "workflow_engine.invalid_graph.need_end": {
+    "es": "El flujo debe tener al menos un nodo final.",
+    "en": "The flow must have at least one end node.",
+    "pt": "O fluxo deve ter pelo menos um nó final."
+  },
+  "workflow_engine.invalid_graph.node_no_exit": {
+    "es": "El nodo «{{node}}» no tiene salida.",
+    "en": "Node «{{node}}» has no way out.",
+    "pt": "O nó «{{node}}» não tem saída."
+  },
+  "workflow_engine.invalid_graph.one_start": {
+    "es": "El flujo debe tener exactamente un nodo de inicio.",
+    "en": "The flow must have exactly one start node.",
+    "pt": "O fluxo deve ter exatamente um nó de início."
+  },
+  "workflow_engine.invalid_graph.summary": {
+    "es": "El proceso tiene problemas que impiden publicarlo ({{count}}).",
+    "en": "The process has problems that prevent publishing it ({{count}}).",
+    "pt": "O processo tem problemas que impedem a sua publicação ({{count}})."
+  },
+  "workflow_engine.invalid_graph.unknown_action": {
+    "es": "El nodo «{{node}}» usa una acción que no existe.",
+    "en": "Node «{{node}}» uses an action that does not exist.",
+    "pt": "O nó «{{node}}» usa uma ação que não existe."
+  },
+  "workflow_engine.invalid_outcome": {
+    "es": "«{{outcome}}» no es un resultado válido para esta tarea.",
+    "en": "«{{outcome}}» is not a valid outcome for this task.",
+    "pt": "«{{outcome}}» não é um resultado válido para esta tarefa."
+  },
+  "workflow_engine.issue.action_ambiguous_exit": {
+    "es": "«{{node}}» tiene varias salidas sin resultado: no se sabría cuál tomar.",
+    "en": "“{{node}}” has several exits without an outcome: there is no telling which to take.",
+    "pt": "«{{node}}» tem várias saídas sem resultado: não se saberia qual seguir."
+  },
+  "workflow_engine.issue.action_error_unhandled": {
+    "es": "Si «{{node}}» falla, el proceso se detendrá: conecta su resultado «Error».",
+    "en": "If “{{node}}” fails the process will stop: connect its “Error” outcome.",
+    "pt": "Se «{{node}}» falhar, o processo para: ligue o seu resultado «Erro»."
+  },
+  "workflow_engine.issue.action_param_number": {
+    "es": "«{{param}}» de «{{node}}» debe ser un número.",
+    "en": "“{{param}}” in “{{node}}” must be a number.",
+    "pt": "«{{param}}» de «{{node}}» deve ser um número."
+  },
+  "workflow_engine.issue.action_param_option": {
+    "es": "«{{param}}» de «{{node}}» tiene un valor no permitido.",
+    "en": "“{{param}}” in “{{node}}” has a value that is not allowed.",
+    "pt": "«{{param}}» de «{{node}}» tem um valor não permitido."
+  },
+  "workflow_engine.issue.action_param_required": {
+    "es": "Falta «{{param}}» en «{{node}}».",
+    "en": "“{{param}}” is missing in “{{node}}”.",
+    "pt": "Falta «{{param}}» em «{{node}}»."
+  },
+  "workflow_engine.issue.action_param_too_long": {
+    "es": "«{{param}}» de «{{node}}» supera {{max}} caracteres.",
+    "en": "“{{param}}” in “{{node}}” exceeds {{max}} characters.",
+    "pt": "«{{param}}» de «{{node}}» excede {{max}} caracteres."
+  },
+  "workflow_engine.issue.action_param_url": {
+    "es": "«{{param}}» de «{{node}}» no es una URL http(s) válida.",
+    "en": "“{{param}}” in “{{node}}” is not a valid http(s) URL.",
+    "pt": "«{{param}}» de «{{node}}» não é um URL http(s) válido."
+  },
+  "workflow_engine.issue.action_param_url_https": {
+    "es": "La URL de «{{node}}» debe usar https.",
+    "en": "The URL in “{{node}}” must use https.",
+    "pt": "O URL de «{{node}}» deve usar https."
+  },
+  "workflow_engine.issue.action_param_url_private": {
+    "es": "La URL de «{{node}}» apunta a una red interna; no está permitido.",
+    "en": "The URL in “{{node}}” points to an internal network; not allowed.",
+    "pt": "O URL de «{{node}}» aponta para uma rede interna; não é permitido."
+  },
+  "workflow_engine.issue.assignee_role_cannot_act": {
+    "es": "El rol asignado a «{{node}}» no tiene permiso para responder tareas: nadie podría resolverla.",
+    "en": "The role assigned to “{{node}}” is not allowed to answer tasks: nobody could resolve it.",
+    "pt": "A função atribuída a «{{node}}» não tem permissão para responder a tarefas: ninguém a poderia resolver."
+  },
+  "workflow_engine.issue.assignee_role_empty": {
+    "es": "El rol asignado a «{{node}}» no tiene miembros: la tarea quedaría sin nadie que la vea.",
+    "en": "The role assigned to “{{node}}” has no members: nobody would see the task.",
+    "pt": "A função atribuída a «{{node}}» não tem membros: ninguém veria a tarefa."
+  },
+  "workflow_engine.issue.assignee_role_invalid": {
+    "es": "El rol asignado no es válido.",
+    "en": "The assigned role is invalid.",
+    "pt": "A função atribuída não é válida."
+  },
+  "workflow_engine.issue.assignee_role_unknown": {
+    "es": "El rol asignado en «{{node}}» no existe en la empresa.",
+    "en": "The role assigned in “{{node}}” does not exist in the company.",
+    "pt": "A função atribuída em «{{node}}» não existe na empresa."
+  },
+  "workflow_engine.issue.assignee_user_cannot_act": {
+    "es": "La persona asignada a «{{node}}» no tiene permiso para responder tareas.",
+    "en": "The person assigned to “{{node}}” is not allowed to answer tasks.",
+    "pt": "A pessoa atribuída a «{{node}}» não tem permissão para responder a tarefas."
+  },
+  "workflow_engine.issue.assignee_user_invalid": {
+    "es": "La persona asignada no es válida.",
+    "en": "The assigned person is invalid.",
+    "pt": "A pessoa atribuída não é válida."
+  },
+  "workflow_engine.issue.assignee_user_unknown": {
+    "es": "La persona asignada en «{{node}}» no pertenece a la empresa o está inactiva.",
+    "en": "The person assigned in “{{node}}” is not in the company or is inactive.",
+    "pt": "A pessoa atribuída em «{{node}}» não pertence à empresa ou está inativa."
+  },
+  "workflow_engine.issue.automatic_loop": {
+    "es": "Hay un ciclo de pasos automáticos sin espera en «{{node}}»: se repetiría sin fin.",
+    "en": "There is a loop of automatic steps with no wait at “{{node}}”: it would repeat forever.",
+    "pt": "Há um ciclo de passos automáticos sem espera em «{{node}}»: repetir-se-ia sem fim."
+  },
+  "workflow_engine.issue.branch_needs_condition": {
+    "es": "La salida de «{{node}}» hacia «{{target}}» necesita una condición o ser la salida por defecto.",
+    "en": "The exit of “{{node}}” to “{{target}}” needs a condition or must be the default.",
+    "pt": "A saída de «{{node}}» para «{{target}}» precisa de uma condição ou de ser a predefinida."
+  },
+  "workflow_engine.issue.condition_bad_operator": {
+    "es": "La condición usa un operador desconocido.",
+    "en": "The condition uses an unknown operator.",
+    "pt": "A condição usa um operador desconhecido."
+  },
+  "workflow_engine.issue.condition_bad_variable": {
+    "es": "La condición usa un nombre de variable no válido.",
+    "en": "The condition uses an invalid variable name.",
+    "pt": "A condição usa um nome de variável inválido."
+  },
+  "workflow_engine.issue.condition_ignored": {
+    "es": "Las condiciones en salidas de una tarea se ignoran: usa resultados.",
+    "en": "Conditions on a task’s exits are ignored: use outcomes.",
+    "pt": "As condições nas saídas de uma tarefa são ignoradas: use resultados."
+  },
+  "workflow_engine.issue.condition_malformed": {
+    "es": "La condición no está bien formada.",
+    "en": "The condition is malformed.",
+    "pt": "A condição não está bem formada."
+  },
+  "workflow_engine.issue.condition_missing_value": {
+    "es": "Falta el valor con el que comparar.",
+    "en": "The value to compare with is missing.",
+    "pt": "Falta o valor com que comparar."
+  },
+  "workflow_engine.issue.condition_needs_branches": {
+    "es": "«{{node}}» necesita al menos dos salidas.",
+    "en": "“{{node}}” needs at least two exits.",
+    "pt": "«{{node}}» precisa de pelo menos duas saídas."
+  },
+  "workflow_engine.issue.condition_needs_default": {
+    "es": "«{{node}}» necesita una salida por defecto para cuando ninguna condición se cumpla.",
+    "en": "“{{node}}” needs a default exit for when no condition holds.",
+    "pt": "«{{node}}» precisa de uma saída predefinida para quando nenhuma condição se cumpra."
+  },
+  "workflow_engine.issue.condition_needs_list": {
+    "es": "«Está en» necesita una lista de valores separados por comas.",
+    "en": "“Is in” needs a comma-separated list of values.",
+    "pt": "«Está em» precisa de uma lista de valores separados por vírgulas."
+  },
+  "workflow_engine.issue.condition_too_deep": {
+    "es": "La condición tiene demasiados niveles.",
+    "en": "The condition has too many levels.",
+    "pt": "A condição tem demasiados níveis."
+  },
+  "workflow_engine.issue.condition_too_large": {
+    "es": "La condición tiene demasiadas comparaciones.",
+    "en": "The condition has too many comparisons.",
+    "pt": "A condição tem demasiadas comparações."
+  },
+  "workflow_engine.issue.config_malformed": {
+    "es": "La configuración del paso no es válida.",
+    "en": "The step configuration is invalid.",
+    "pt": "A configuração do passo não é válida."
+  },
+  "workflow_engine.issue.document_action_without_document": {
+    "es": "«{{node}}» decide sobre un documento, pero el proceso no se inicia desde uno.",
+    "en": "“{{node}}” decides on a document, but the process is not started from one.",
+    "pt": "«{{node}}» decide sobre um documento, mas o processo não é iniciado a partir de um."
+  },
+  "workflow_engine.issue.due_hours_invalid": {
+    "es": "El vencimiento debe ser un número de horas mayor que 0 (máximo {{max}}).",
+    "en": "The due time must be a number of hours above 0 (at most {{max}}).",
+    "pt": "O prazo deve ser um número de horas maior que 0 (máximo {{max}})."
+  },
+  "workflow_engine.issue.duplicate_edge_id": {
+    "es": "Hay conexiones con el mismo identificador.",
+    "en": "Several connections share the same identifier.",
+    "pt": "Há ligações com o mesmo identificador."
+  },
+  "workflow_engine.issue.duplicate_node_id": {
+    "es": "Hay pasos con el mismo identificador.",
+    "en": "Several steps share the same identifier.",
+    "pt": "Há passos com o mesmo identificador."
+  },
+  "workflow_engine.issue.edge_bad_outcome": {
+    "es": "El resultado de la conexión no es válido (solo letras, números, «-» y «_»).",
+    "en": "The connection outcome is invalid (letters, digits, “-” and “_” only).",
+    "pt": "O resultado da ligação não é válido (apenas letras, números, «-» e «_»)."
+  },
+  "workflow_engine.issue.edge_dangling": {
+    "es": "Una conexión apunta a un paso que no existe.",
+    "en": "A connection points at a step that does not exist.",
+    "pt": "Uma ligação aponta para um passo que não existe."
+  },
+  "workflow_engine.issue.edge_duplicate": {
+    "es": "Hay dos conexiones iguales entre los mismos pasos.",
+    "en": "There are two identical connections between the same steps.",
+    "pt": "Há duas ligações iguais entre os mesmos passos."
+  },
+  "workflow_engine.issue.edge_malformed": {
+    "es": "Una conexión tiene datos no válidos.",
+    "en": "A connection has invalid data.",
+    "pt": "Uma ligação tem dados inválidos."
+  },
+  "workflow_engine.issue.edge_self_loop": {
+    "es": "Un paso no puede conectarse consigo mismo.",
+    "en": "A step cannot connect to itself.",
+    "pt": "Um passo não pode ligar-se a si mesmo."
+  },
+  "workflow_engine.issue.edge_unknown_outcome": {
+    "es": "«{{node}}» no ofrece el resultado «{{outcome}}».",
+    "en": "“{{node}}” does not offer the outcome “{{outcome}}”.",
+    "pt": "«{{node}}» não oferece o resultado «{{outcome}}»."
+  },
+  "workflow_engine.issue.end_has_outgoing": {
+    "es": "Un paso final («{{node}}») no puede tener salidas.",
+    "en": "An end step (“{{node}}”) cannot have outgoing connections.",
+    "pt": "Um passo final («{{node}}») não pode ter saídas."
+  },
+  "workflow_engine.issue.form_invalid": {
+    "es": "Un campo del formulario no es válido.",
+    "en": "A form field is invalid.",
+    "pt": "Um campo do formulário não é válido."
+  },
+  "workflow_engine.issue.graph_malformed": {
+    "es": "El diseño no tiene un formato válido.",
+    "en": "The design is not in a valid format.",
+    "pt": "O desenho não tem um formato válido."
+  },
+  "workflow_engine.issue.groups_malformed": {
+    "es": "Un carril tiene datos no válidos.",
+    "en": "A lane has invalid data.",
+    "pt": "Uma faixa tem dados inválidos."
+  },
+  "workflow_engine.issue.multiple_defaults": {
+    "es": "«{{node}}» tiene más de una salida por defecto.",
+    "en": "“{{node}}” has more than one default exit.",
+    "pt": "«{{node}}» tem mais de uma saída predefinida."
+  },
+  "workflow_engine.issue.need_end": {
+    "es": "El proceso necesita al menos un paso final.",
+    "en": "The process needs at least one end step.",
+    "pt": "O processo precisa de pelo menos um passo final."
+  },
+  "workflow_engine.issue.need_start": {
+    "es": "El proceso necesita un paso de inicio.",
+    "en": "The process needs a start step.",
+    "pt": "O processo precisa de um passo de início."
+  },
+  "workflow_engine.issue.node_bad_group": {
+    "es": "El paso pertenece a un carril que no existe.",
+    "en": "The step belongs to a lane that does not exist.",
+    "pt": "O passo pertence a uma faixa que não existe."
+  },
+  "workflow_engine.issue.node_bad_id": {
+    "es": "Un paso tiene un identificador no válido.",
+    "en": "A step has an invalid identifier.",
+    "pt": "Um passo tem um identificador inválido."
+  },
+  "workflow_engine.issue.node_bad_position": {
+    "es": "La posición del paso no es válida.",
+    "en": "The step position is invalid.",
+    "pt": "A posição do passo não é válida."
+  },
+  "workflow_engine.issue.node_bad_type": {
+    "es": "Un paso tiene un tipo desconocido.",
+    "en": "A step has an unknown type.",
+    "pt": "Um passo tem um tipo desconhecido."
+  },
+  "workflow_engine.issue.node_cannot_finish": {
+    "es": "Desde «{{node}}» no se llega a ningún paso final.",
+    "en": "No end step can be reached from “{{node}}”.",
+    "pt": "A partir de «{{node}}» não se chega a nenhum passo final."
+  },
+  "workflow_engine.issue.node_malformed": {
+    "es": "Un paso tiene datos no válidos.",
+    "en": "A step has invalid data.",
+    "pt": "Um passo tem dados inválidos."
+  },
+  "workflow_engine.issue.node_name_too_long": {
+    "es": "El nombre del paso supera {{max}} caracteres.",
+    "en": "The step name exceeds {{max}} characters.",
+    "pt": "O nome do passo excede {{max}} caracteres."
+  },
+  "workflow_engine.issue.node_no_entry": {
+    "es": "Ninguna conexión llega a «{{node}}».",
+    "en": "No connection leads to “{{node}}”.",
+    "pt": "Nenhuma ligação chega a «{{node}}»."
+  },
+  "workflow_engine.issue.node_no_exit": {
+    "es": "«{{node}}» no tiene salida.",
+    "en": "“{{node}}” has no way out.",
+    "pt": "«{{node}}» não tem saída."
+  },
+  "workflow_engine.issue.node_unreachable": {
+    "es": "No se puede llegar a «{{node}}» desde el inicio.",
+    "en": "“{{node}}” cannot be reached from the start.",
+    "pt": "Não é possível chegar a «{{node}}» a partir do início."
+  },
+  "workflow_engine.issue.one_start": {
+    "es": "Solo puede haber un paso de inicio.",
+    "en": "There can be only one start step.",
+    "pt": "Só pode haver um passo de início."
+  },
+  "workflow_engine.issue.outcome_unrouted": {
+    "es": "El resultado «{{outcome}}» de «{{node}}» no lleva a ningún paso.",
+    "en": "The outcome “{{outcome}}” of “{{node}}” leads nowhere.",
+    "pt": "O resultado «{{outcome}}» de «{{node}}» não leva a nenhum passo."
+  },
+  "workflow_engine.issue.outcomes_duplicate": {
+    "es": "Hay resultados repetidos.",
+    "en": "There are repeated outcomes.",
+    "pt": "Há resultados repetidos."
+  },
+  "workflow_engine.issue.outcomes_invalid": {
+    "es": "Los resultados solo admiten letras, números, «-» y «_» (máximo 12).",
+    "en": "Outcomes accept letters, digits, “-” and “_” only (12 at most).",
+    "pt": "Os resultados só admitem letras, números, «-» e «_» (máximo 12)."
+  },
+  "workflow_engine.issue.select_needs_options": {
+    "es": "La variable «{{name}}» es una lista y necesita opciones.",
+    "en": "The variable “{{name}}” is a list and needs options.",
+    "pt": "A variável «{{name}}» é uma lista e precisa de opções."
+  },
+  "workflow_engine.issue.start_has_incoming": {
+    "es": "Ninguna conexión puede llegar al inicio.",
+    "en": "No connection can lead into the start.",
+    "pt": "Nenhuma ligação pode chegar ao início."
+  },
+  "workflow_engine.issue.subprocess_cycle": {
+    "es": "El subproceso «{{key}}» acaba llamando a este mismo proceso: sería un bucle infinito.",
+    "en": "The subprocess “{{key}}” ends up calling this very process: an endless loop.",
+    "pt": "O subprocesso «{{key}}» acaba por chamar este mesmo processo: seria um ciclo infinito."
+  },
+  "workflow_engine.issue.subprocess_unknown": {
+    "es": "No hay ningún proceso publicado con la clave «{{key}}».",
+    "en": "There is no published process with the key “{{key}}”.",
+    "pt": "Não há nenhum processo publicado com a chave «{{key}}»."
+  },
+  "workflow_engine.issue.task_needs_name": {
+    "es": "Pon un nombre a la tarea: es lo que verá quien la reciba.",
+    "en": "Give the task a name: it is what the assignee will see.",
+    "pt": "Dê um nome à tarefa: é o que verá quem a receber."
+  },
+  "workflow_engine.issue.task_no_assignee": {
+    "es": "«{{node}}» no tiene responsable: asigna una persona o un rol.",
+    "en": "“{{node}}” has no owner: assign a person or a role.",
+    "pt": "«{{node}}» não tem responsável: atribua uma pessoa ou uma função."
+  },
+  "workflow_engine.issue.text_too_long": {
+    "es": "El texto es demasiado largo.",
+    "en": "The text is too long.",
+    "pt": "O texto é demasiado longo."
+  },
+  "workflow_engine.issue.timer_minutes_invalid": {
+    "es": "La espera debe ser un número de minutos mayor que 0 (máximo {{max}}).",
+    "en": "The wait must be a number of minutes above 0 (at most {{max}}).",
+    "pt": "A espera deve ser um número de minutos maior que 0 (máximo {{max}})."
+  },
+  "workflow_engine.issue.timer_needs_duration": {
+    "es": "«{{node}}» necesita una duración o una variable de fecha.",
+    "en": "“{{node}}” needs a duration or a date variable.",
+    "pt": "«{{node}}» precisa de uma duração ou de uma variável de data."
+  },
+  "workflow_engine.issue.too_many_edges": {
+    "es": "El proceso supera el máximo de {{max}} conexiones.",
+    "en": "The process exceeds the maximum of {{max}} connections.",
+    "pt": "O processo excede o máximo de {{max}} ligações."
+  },
+  "workflow_engine.issue.too_many_nodes": {
+    "es": "El proceso supera el máximo de {{max}} pasos.",
+    "en": "The process exceeds the maximum of {{max}} steps.",
+    "pt": "O processo excede o máximo de {{max}} passos."
+  },
+  "workflow_engine.issue.trigger_event_shared": {
+    "es": "Este evento también inicia {{names}}: se ejecutarán todos.",
+    "en": "This event also starts {{names}}: all of them will run.",
+    "pt": "Este evento também inicia {{names}}: todos serão executados."
+  },
+  "workflow_engine.issue.trigger_malformed": {
+    "es": "El disparador no es válido.",
+    "en": "The trigger is invalid.",
+    "pt": "O acionador não é válido."
+  },
+  "workflow_engine.issue.trigger_needs_event": {
+    "es": "Elige el evento que inicia el proceso.",
+    "en": "Choose the event that starts the process.",
+    "pt": "Escolha o evento que inicia o processo."
+  },
+  "workflow_engine.issue.trigger_unknown_event": {
+    "es": "«{{event}}» no es un evento conocido.",
+    "en": "“{{event}}” is not a known event.",
+    "pt": "«{{event}}» não é um evento conhecido."
+  },
+  "workflow_engine.issue.unknown_action": {
+    "es": "«{{node}}» no tiene una acción válida seleccionada.",
+    "en": "“{{node}}” has no valid action selected.",
+    "pt": "«{{node}}» não tem uma ação válida selecionada."
+  },
+  "workflow_engine.issue.variable_duplicate": {
+    "es": "La variable «{{name}}» está repetida.",
+    "en": "The variable “{{name}}” is repeated.",
+    "pt": "A variável «{{name}}» está repetida."
+  },
+  "workflow_engine.issue.variable_name_invalid": {
+    "es": "El nombre de variable no es válido (letras, números y «_», sin espacios).",
+    "en": "The variable name is invalid (letters, digits and “_”, no spaces).",
+    "pt": "O nome da variável não é válido (letras, números e «_», sem espaços)."
+  },
+  "workflow_engine.issue.variable_range_invalid": {
+    "es": "En «{{name}}» el mínimo es mayor que el máximo.",
+    "en": "In “{{name}}” the minimum is greater than the maximum.",
+    "pt": "Em «{{name}}» o mínimo é maior que o máximo."
+  },
+  "workflow_engine.issue.variable_undeclared": {
+    "es": "«{{variable}}» no está declarada en las variables del proceso.",
+    "en": "“{{variable}}” is not declared in the process variables.",
+    "pt": "«{{variable}}» não está declarada nas variáveis do processo."
+  },
+  "workflow_engine.issue.variables_malformed": {
+    "es": "Una variable del proceso no es válida.",
+    "en": "A process variable is invalid.",
+    "pt": "Uma variável do processo não é válida."
+  },
+  "workflow_engine.list.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "workflow_engine.list.clear_filters": {
+    "es": "Quitar filtros",
+    "en": "Clear filters",
+    "pt": "Limpar filtros"
+  },
+  "workflow_engine.list.delete_draft": {
+    "es": "Eliminar borrador",
+    "en": "Delete draft",
+    "pt": "Eliminar rascunho"
+  },
+  "workflow_engine.list.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "workflow_engine.list.duplicate": {
+    "es": "Duplicar",
+    "en": "Duplicate",
+    "pt": "Duplicar"
+  },
+  "workflow_engine.list.edit_named": {
+    "es": "Editar {{name}}",
+    "en": "Edit {{name}}",
+    "pt": "Editar {{name}}"
+  },
+  "workflow_engine.list.empty": {
+    "es": "Aún no hay flujos de trabajo.",
+    "en": "No workflows yet.",
+    "pt": "Ainda não há fluxos de trabalho."
+  },
+  "workflow_engine.list.empty_help": {
+    "es": "Crea el primero desde una plantilla: aprobación de compras, facturas, alta de clientes…",
+    "en": "Create the first one from a template: purchase approval, invoices, customer onboarding…",
+    "pt": "Crie o primeiro a partir de um modelo: aprovação de compras, faturas, integração de clientes…"
+  },
+  "workflow_engine.list.filter_status": {
+    "es": "Filtrar por estado",
+    "en": "Filter by status",
+    "pt": "Filtrar por estado"
+  },
+  "workflow_engine.list.filter_trigger": {
+    "es": "Filtrar por inicio",
+    "en": "Filter by trigger",
+    "pt": "Filtrar por início"
+  },
+  "workflow_engine.list.inactive": {
+    "es": "Desactivado",
+    "en": "Inactive",
+    "pt": "Desativado"
+  },
+  "workflow_engine.list.live_version": {
+    "es": "En uso",
+    "en": "Live",
+    "pt": "Em uso"
+  },
+  "workflow_engine.list.more": {
+    "es": "Más acciones",
+    "en": "More actions",
+    "pt": "Mais ações"
+  },
+  "workflow_engine.list.more_named": {
+    "es": "Más acciones para «{{name}}»",
+    "en": "More actions for “{{name}}”",
+    "pt": "Mais ações para «{{name}}»"
+  },
+  "workflow_engine.list.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "workflow_engine.list.no_match": {
+    "es": "Ningún proceso coincide con los filtros.",
+    "en": "No process matches the filters.",
+    "pt": "Nenhum processo corresponde aos filtros."
+  },
+  "workflow_engine.list.not_live": {
+    "es": "Sin publicar",
+    "en": "Not live",
+    "pt": "Não publicado"
+  },
+  "workflow_engine.list.reactivate_named": {
+    "es": "Reactivar «{{name}}»",
+    "en": "Reactivate “{{name}}”",
+    "pt": "Reativar «{{name}}»"
+  },
+  "workflow_engine.list.run_named": {
+    "es": "Iniciar {{name}}",
+    "en": "Start {{name}}",
+    "pt": "Iniciar {{name}}"
+  },
+  "workflow_engine.list.running": {
+    "es": "En curso",
+    "en": "Running",
+    "pt": "Em curso"
+  },
+  "workflow_engine.list.search": {
+    "es": "Buscar procesos",
+    "en": "Search processes",
+    "pt": "Procurar processos"
+  },
+  "workflow_engine.list.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Estado"
+  },
+  "workflow_engine.list.status.all": {
+    "es": "Todos",
+    "en": "All",
+    "pt": "Todos"
+  },
+  "workflow_engine.list.status.draft": {
+    "es": "Solo borrador",
+    "en": "Draft only",
+    "pt": "Só rascunho"
+  },
+  "workflow_engine.list.status.inactive": {
+    "es": "Desactivados",
+    "en": "Inactive",
+    "pt": "Desativados"
+  },
+  "workflow_engine.list.status.pending": {
+    "es": "Con cambios sin publicar",
+    "en": "With unpublished changes",
+    "pt": "Com alterações por publicar"
+  },
+  "workflow_engine.list.status.published": {
+    "es": "Publicados",
+    "en": "Published",
+    "pt": "Publicados"
+  },
+  "workflow_engine.list.subtitle": {
+    "es": "Diseña, publica y versiona los procesos de la empresa.",
+    "en": "Design, publish and version the company’s processes.",
+    "pt": "Desenhe, publique e versione os processos da empresa."
+  },
+  "workflow_engine.list.trigger": {
     "es": "Inicio",
-    "en": "Start",
+    "en": "Trigger",
     "pt": "Início"
   },
-  "workflow_engine.node.end": {
-    "es": "Fin",
-    "en": "End",
-    "pt": "Fim"
+  "workflow_engine.list.trigger_all": {
+    "es": "Cualquier inicio",
+    "en": "Any trigger",
+    "pt": "Qualquer início"
   },
-  "workflow_engine.node.task": {
-    "es": "Tarea",
-    "en": "Task",
-    "pt": "Tarefa"
+  "workflow_engine.list.updated": {
+    "es": "Actualizado",
+    "en": "Updated",
+    "pt": "Atualizado"
+  },
+  "workflow_engine.list.version_named": {
+    "es": "Nueva versión de {{name}}",
+    "en": "New version of {{name}}",
+    "pt": "Nova versão de {{name}}"
+  },
+  "workflow_engine.load_failed": {
+    "es": "No se pudo cargar.",
+    "en": "It could not be loaded.",
+    "pt": "Não foi possível carregar."
+  },
+  "workflow_engine.loading": {
+    "es": "Cargando…",
+    "en": "Loading…",
+    "pt": "A carregar…"
+  },
+  "workflow_engine.name_required": {
+    "es": "El nombre del proceso es obligatorio.",
+    "en": "The process name is required.",
+    "pt": "O nome do processo é obrigatório."
+  },
+  "workflow_engine.name_taken": {
+    "es": "Ya existe un proceso llamado «{{name}}».",
+    "en": "A process named “{{name}}” already exists.",
+    "pt": "Já existe um processo chamado «{{name}}»."
+  },
+  "workflow_engine.nav.instances": {
+    "es": "Ejecuciones",
+    "en": "Runs",
+    "pt": "Execuções"
+  },
+  "workflow_engine.nav.tasks": {
+    "es": "Mis tareas",
+    "en": "My tasks",
+    "pt": "As minhas tarefas"
+  },
+  "workflow_engine.nav.workflows": {
+    "es": "Flujos de trabajo",
+    "en": "Workflows",
+    "pt": "Fluxos de trabalho"
+  },
+  "workflow_engine.new": {
+    "es": "Nuevo flujo",
+    "en": "New workflow",
+    "pt": "Novo fluxo"
+  },
+  "workflow_engine.new_version": {
+    "es": "Nueva versión",
+    "en": "New version",
+    "pt": "Nova versão"
+  },
+  "workflow_engine.no": {
+    "es": "No",
+    "en": "No",
+    "pt": "Não"
+  },
+  "workflow_engine.no_access": {
+    "es": "No tienes acceso a los procesos de negocio.",
+    "en": "You have no access to business processes.",
+    "pt": "Não tem acesso aos processos de negócio."
+  },
+  "workflow_engine.no_open_tasks": {
+    "es": "Sin tareas abiertas.",
+    "en": "No open tasks.",
+    "pt": "Sem tarefas abertas."
+  },
+  "workflow_engine.no_start_node": {
+    "es": "El flujo de trabajo no tiene un nodo de inicio.",
+    "en": "The workflow has no start node.",
+    "pt": "O fluxo de trabalho não tem um nó de início."
+  },
+  "workflow_engine.node.action": {
+    "es": "Acción",
+    "en": "Action",
+    "pt": "Ação"
   },
   "workflow_engine.node.approval": {
     "es": "Aprobación",
@@ -529,25 +2999,135 @@
     "en": "Condition",
     "pt": "Condição"
   },
-  "workflow_engine.node.action": {
-    "es": "Acción",
-    "en": "Action",
-    "pt": "Ação"
+  "workflow_engine.node.end": {
+    "es": "Fin",
+    "en": "End",
+    "pt": "Fim"
+  },
+  "workflow_engine.node.start": {
+    "es": "Inicio",
+    "en": "Start",
+    "pt": "Início"
+  },
+  "workflow_engine.node.task": {
+    "es": "Tarea",
+    "en": "Task",
+    "pt": "Tarefa"
   },
   "workflow_engine.node.timer": {
     "es": "Espera",
     "en": "Timer",
     "pt": "Espera"
   },
+  "workflow_engine.not_published": {
+    "es": "Esta versión no está publicada.",
+    "en": "This version is not published.",
+    "pt": "Esta versão não está publicada."
+  },
+  "workflow_engine.not_your_task": {
+    "es": "No tienes permiso para actuar sobre esta tarea.",
+    "en": "You do not have permission to act on this task.",
+    "pt": "Não tens permissão para agir sobre esta tarefa."
+  },
+  "workflow_engine.notify.approval_title": {
+    "es": "Tienes una aprobación pendiente",
+    "en": "You have an approval waiting",
+    "pt": "Tem uma aprovação pendente"
+  },
+  "workflow_engine.notify.custom_body": {
+    "es": "{{message}}",
+    "en": "{{message}}",
+    "pt": "{{message}}"
+  },
+  "workflow_engine.notify.custom_title": {
+    "es": "Flujo de trabajo",
+    "en": "Workflow",
+    "pt": "Fluxo de trabalho"
+  },
+  "workflow_engine.notify.custom_title_text": {
+    "es": "{{title}}",
+    "en": "{{title}}",
+    "pt": "{{title}}"
+  },
+  "workflow_engine.notify.failed_body": {
+    "es": "«{{workflow}}» {{subject}} se detuvo por un error. Revísala y reinténtala.",
+    "en": "“{{workflow}}” {{subject}} stopped on an error. Review it and retry.",
+    "pt": "«{{workflow}}» {{subject}} parou por um erro. Reveja-a e repita."
+  },
+  "workflow_engine.notify.failed_title": {
+    "es": "Una ejecución ha fallado",
+    "en": "A run has failed",
+    "pt": "Uma execução falhou"
+  },
+  "workflow_engine.notify.overdue_body": {
+    "es": "«{{task}}» {{subject}} ha superado su fecha límite.",
+    "en": "“{{task}}” {{subject}} is past its due date.",
+    "pt": "«{{task}}» {{subject}} ultrapassou o prazo."
+  },
+  "workflow_engine.notify.overdue_title": {
+    "es": "Tarea vencida",
+    "en": "Overdue task",
+    "pt": "Tarefa vencida"
+  },
+  "workflow_engine.notify.task_body": {
+    "es": "«{{task}}» espera tu acción.",
+    "en": "«{{task}}» is waiting for you.",
+    "pt": "«{{task}}» aguarda a tua ação."
+  },
+  "workflow_engine.notify.task_body_subject": {
+    "es": "«{{task}}» de {{subject}} espera tu acción.",
+    "en": "“{{task}}” for {{subject}} is waiting for you.",
+    "pt": "«{{task}}» de {{subject}} aguarda a sua ação."
+  },
+  "workflow_engine.notify.task_closed_body": {
+    "es": "«{{task}}» ya no necesita tu respuesta: se respondió o la ejecución terminó.",
+    "en": "“{{task}}” no longer needs your answer: it was answered or the run ended.",
+    "pt": "«{{task}}» já não precisa da sua resposta: foi respondida ou a execução terminou."
+  },
+  "workflow_engine.notify.task_closed_title": {
+    "es": "Ya no está pendiente: {{task}}",
+    "en": "No longer pending: {{task}}",
+    "pt": "Já não está pendente: {{task}}"
+  },
+  "workflow_engine.notify.task_title": {
+    "es": "Tienes una tarea pendiente",
+    "en": "You have a pending task",
+    "pt": "Tens uma tarefa pendente"
+  },
+  "workflow_engine.only_custom_events": {
+    "es": "Por la API solo se pueden disparar eventos de integración «custom.*».",
+    "en": "Only “custom.*” integration events can be fired through the API.",
+    "pt": "Pela API só é possível disparar eventos de integração «custom.*»."
+  },
+  "workflow_engine.only_draft_editable": {
+    "es": "Solo se puede editar un flujo de trabajo en borrador.",
+    "en": "Only a draft workflow can be edited.",
+    "pt": "Apenas um fluxo de trabalho em rascunho pode ser editado."
+  },
+  "workflow_engine.op.contains": {
+    "es": "contiene",
+    "en": "contains",
+    "pt": "contém"
+  },
+  "workflow_engine.op.ends_with": {
+    "es": "termina en",
+    "en": "ends with",
+    "pt": "termina em"
+  },
   "workflow_engine.op.eq": {
     "es": "es igual a",
     "en": "equals",
     "pt": "é igual a"
   },
-  "workflow_engine.op.ne": {
-    "es": "es distinto de",
-    "en": "not equal",
-    "pt": "é diferente de"
+  "workflow_engine.op.exists": {
+    "es": "existe",
+    "en": "exists",
+    "pt": "existe"
+  },
+  "workflow_engine.op.falsy": {
+    "es": "es «no»",
+    "en": "is “no”",
+    "pt": "é «não»"
   },
   "workflow_engine.op.gt": {
     "es": "mayor que",
@@ -559,6 +3139,11 @@
     "en": "at least",
     "pt": "maior ou igual"
   },
+  "workflow_engine.op.in": {
+    "es": "está en",
+    "en": "is in",
+    "pt": "está em"
+  },
   "workflow_engine.op.lt": {
     "es": "menor que",
     "en": "less than",
@@ -569,25 +3154,30 @@
     "en": "at most",
     "pt": "menor ou igual"
   },
-  "workflow_engine.op.in": {
-    "es": "está en",
-    "en": "is in",
-    "pt": "está em"
+  "workflow_engine.op.ne": {
+    "es": "es distinto de",
+    "en": "not equal",
+    "pt": "é diferente de"
   },
   "workflow_engine.op.nin": {
     "es": "no está en",
     "en": "is not in",
     "pt": "não está em"
   },
-  "workflow_engine.op.contains": {
-    "es": "contiene",
-    "en": "contains",
-    "pt": "contém"
+  "workflow_engine.op.not_contains": {
+    "es": "no contiene",
+    "en": "does not contain",
+    "pt": "não contém"
   },
-  "workflow_engine.op.exists": {
-    "es": "existe",
-    "en": "exists",
-    "pt": "existe"
+  "workflow_engine.op.not_exists": {
+    "es": "no tiene valor",
+    "en": "is empty",
+    "pt": "não tem valor"
+  },
+  "workflow_engine.op.starts_with": {
+    "es": "empieza por",
+    "en": "starts with",
+    "pt": "começa por"
   },
   "workflow_engine.op.truthy": {
     "es": "es verdadero",
@@ -599,69 +3189,1314 @@
     "en": "Approve",
     "pt": "Aprovar"
   },
-  "workflow_engine.outcome.reject": {
-    "es": "Rechazar",
-    "en": "Reject",
-    "pt": "Rejeitar"
-  },
   "workflow_engine.outcome.done": {
     "es": "Hecho",
     "en": "Done",
     "pt": "Concluído"
   },
-  "workflow_engine.transition.started": {
-    "es": "Iniciado",
-    "en": "Started",
-    "pt": "Iniciado"
+  "workflow_engine.outcome.error": {
+    "es": "Error",
+    "en": "Failed",
+    "pt": "Erro"
   },
-  "workflow_engine.transition.enter": {
-    "es": "Entró",
-    "en": "Entered",
-    "pt": "Entrou"
+  "workflow_engine.outcome.ok": {
+    "es": "Correcto",
+    "en": "Succeeded",
+    "pt": "Correto"
+  },
+  "workflow_engine.outcome.reject": {
+    "es": "Rechazar",
+    "en": "Reject",
+    "pt": "Rejeitar"
+  },
+  "workflow_engine.outcome.return": {
+    "es": "Devolver",
+    "en": "Send back",
+    "pt": "Devolver"
+  },
+  "workflow_engine.palette.category.automation": {
+    "es": "Automatización",
+    "en": "Automation",
+    "pt": "Automação"
+  },
+  "workflow_engine.palette.category.flow": {
+    "es": "Flujo",
+    "en": "Flow",
+    "pt": "Fluxo"
+  },
+  "workflow_engine.palette.category.logic": {
+    "es": "Lógica",
+    "en": "Logic",
+    "pt": "Lógica"
+  },
+  "workflow_engine.palette.category.people": {
+    "es": "Personas",
+    "en": "People",
+    "pt": "Pessoas"
+  },
+  "workflow_engine.palette.category.structure": {
+    "es": "Organización",
+    "en": "Structure",
+    "pt": "Organização"
+  },
+  "workflow_engine.palette.clear": {
+    "es": "Borrar búsqueda",
+    "en": "Clear search",
+    "pt": "Limpar pesquisa"
+  },
+  "workflow_engine.palette.describe.action": {
+    "es": "Paso automático sin intervención humana.",
+    "en": "Automatic step with no human involved.",
+    "pt": "Passo automático sem intervenção humana."
+  },
+  "workflow_engine.palette.describe.approval": {
+    "es": "Una persona aprueba o rechaza; puede pedir comentario.",
+    "en": "A person approves or rejects; can require a comment.",
+    "pt": "Uma pessoa aprova ou rejeita; pode pedir comentário."
+  },
+  "workflow_engine.palette.describe.condition": {
+    "es": "Elige el camino según los datos del proceso.",
+    "en": "Picks the path from the process data.",
+    "pt": "Escolhe o caminho segundo os dados do processo."
+  },
+  "workflow_engine.palette.describe.end": {
+    "es": "Termina el proceso con un resultado.",
+    "en": "Ends the process with a result.",
+    "pt": "Termina o processo com um resultado."
+  },
+  "workflow_engine.palette.describe.lane": {
+    "es": "Agrupa los pasos de un área o rol.",
+    "en": "Groups the steps of a department or role.",
+    "pt": "Agrupa os passos de uma área ou função."
+  },
+  "workflow_engine.palette.describe.task": {
+    "es": "Trabajo que hace una persona y responde con un resultado.",
+    "en": "Work a person does and answers with an outcome.",
+    "pt": "Trabalho que uma pessoa faz e responde com um resultado."
+  },
+  "workflow_engine.palette.describe.timer": {
+    "es": "Espera un tiempo o hasta una fecha.",
+    "en": "Waits for a while or until a date.",
+    "pt": "Espera um tempo ou até uma data."
+  },
+  "workflow_engine.palette.hint": {
+    "es": "Arrastra al lienzo o pulsa para añadir al centro.",
+    "en": "Drag onto the canvas or click to add in the middle.",
+    "pt": "Arraste para a tela ou clique para adicionar ao centro."
+  },
+  "workflow_engine.palette.no_results": {
+    "es": "Ningún componente coincide.",
+    "en": "No component matches.",
+    "pt": "Nenhum componente corresponde."
+  },
+  "workflow_engine.palette.search": {
+    "es": "Buscar componentes",
+    "en": "Search components",
+    "pt": "Procurar componentes"
+  },
+  "workflow_engine.palette.title": {
+    "es": "Componentes",
+    "en": "Components",
+    "pt": "Componentes"
+  },
+  "workflow_engine.param.body": {
+    "es": "Cuerpo (JSON)",
+    "en": "Body (JSON)",
+    "pt": "Corpo (JSON)"
+  },
+  "workflow_engine.param.body_hint": {
+    "es": "Admite {{variable}}. Vacío envía todas las variables.",
+    "en": "Accepts {{variable}}. Empty sends every variable.",
+    "pt": "Admite {{variable}}. Vazio envia todas as variáveis."
+  },
+  "workflow_engine.param.decision": {
+    "es": "Decisión",
+    "en": "Decision",
+    "pt": "Decisão"
+  },
+  "workflow_engine.param.decision_approve": {
+    "es": "Aprobar",
+    "en": "Approve",
+    "pt": "Aprovar"
+  },
+  "workflow_engine.param.decision_reject": {
+    "es": "Rechazar",
+    "en": "Reject",
+    "pt": "Rejeitar"
+  },
+  "workflow_engine.param.message": {
+    "es": "Mensaje",
+    "en": "Message",
+    "pt": "Mensagem"
+  },
+  "workflow_engine.param.method": {
+    "es": "Método",
+    "en": "Method",
+    "pt": "Método"
+  },
+  "workflow_engine.param.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "workflow_engine.param.reason_hint": {
+    "es": "Si lo dejas vacío se usa el comentario del último paso.",
+    "en": "Leave it empty to use the last step's comment.",
+    "pt": "Se ficar vazio, usa-se o comentário do último passo."
+  },
+  "workflow_engine.param.recipient": {
+    "es": "Destinatario",
+    "en": "Recipient",
+    "pt": "Destinatário"
+  },
+  "workflow_engine.param.recipient_hint": {
+    "es": "Si lo dejas vacío, se avisa a quien inició la ejecución.",
+    "en": "Leave empty to notify whoever started the run.",
+    "pt": "Se deixar vazio, avisa-se quem iniciou a execução."
+  },
+  "workflow_engine.param.title": {
+    "es": "Título",
+    "en": "Title",
+    "pt": "Título"
+  },
+  "workflow_engine.param.url": {
+    "es": "URL",
+    "en": "URL",
+    "pt": "URL"
+  },
+  "workflow_engine.param.url_hint": {
+    "es": "Debe ser https:// y una dirección pública.",
+    "en": "Must be https:// and a public address.",
+    "pt": "Deve ser https:// e um endereço público."
+  },
+  "workflow_engine.param.value": {
+    "es": "Valor",
+    "en": "Value",
+    "pt": "Valor"
+  },
+  "workflow_engine.param.variable_name": {
+    "es": "Nombre de la variable",
+    "en": "Variable name",
+    "pt": "Nome da variável"
+  },
+  "workflow_engine.param.workflow": {
+    "es": "Proceso",
+    "en": "Process",
+    "pt": "Processo"
+  },
+  "workflow_engine.param.workflow_hint": {
+    "es": "La clave del proceso publicado que se iniciará.",
+    "en": "The key of the published process to start.",
+    "pt": "A chave do processo publicado que será iniciado."
+  },
+  "workflow_engine.publish": {
+    "es": "Publicar",
+    "en": "Publish",
+    "pt": "Publicar"
+  },
+  "workflow_engine.publish_failed": {
+    "es": "No se pudo publicar.",
+    "en": "It could not be published.",
+    "pt": "Não foi possível publicar."
+  },
+  "workflow_engine.publish_has_warnings": {
+    "es": "El diseño tiene advertencias ({{count}}): revísalas antes de publicar.",
+    "en": "The design has warnings ({{count}}): review them before publishing.",
+    "pt": "O desenho tem avisos ({{count}}): reveja-os antes de publicar."
+  },
+  "workflow_engine.publish_warnings.confirm": {
+    "es": "Publicar igualmente",
+    "en": "Publish anyway",
+    "pt": "Publicar mesmo assim"
+  },
+  "workflow_engine.publish_warnings.message.one": {
+    "es": "El proceso funciona, pero hay un punto que conviene revisar:",
+    "en": "The process works, but one point is worth reviewing:",
+    "pt": "O processo funciona, mas há um ponto que convém rever:"
+  },
+  "workflow_engine.publish_warnings.message.other": {
+    "es": "El proceso funciona, pero hay {{count}} puntos que conviene revisar:",
+    "en": "The process works, but {{count}} points are worth reviewing:",
+    "pt": "O processo funciona, mas há {{count}} pontos que convém rever:"
+  },
+  "workflow_engine.publish_warnings.review": {
+    "es": "Revisar",
+    "en": "Review",
+    "pt": "Rever"
+  },
+  "workflow_engine.publish_warnings.title": {
+    "es": "¿Publicar con advertencias?",
+    "en": "Publish with warnings?",
+    "pt": "Publicar com avisos?"
+  },
+  "workflow_engine.published": {
+    "es": "Flujo publicado.",
+    "en": "Workflow published.",
+    "pt": "Fluxo publicado."
+  },
+  "workflow_engine.publishing": {
+    "es": "Publicando…",
+    "en": "Publishing…",
+    "pt": "A publicar…"
+  },
+  "workflow_engine.reactivate.action": {
+    "es": "Reactivar",
+    "en": "Reactivate",
+    "pt": "Reativar"
+  },
+  "workflow_engine.reactivate.confirm": {
+    "es": "Reactivar",
+    "en": "Reactivate",
+    "pt": "Reativar"
+  },
+  "workflow_engine.reactivate.done": {
+    "es": "«{{name}}» está activo de nuevo.",
+    "en": "“{{name}}” is live again.",
+    "pt": "«{{name}}» está ativo de novo."
+  },
+  "workflow_engine.reactivate.message": {
+    "es": "«{{name}}» volverá a iniciarse con su versión {{version}}.",
+    "en": "“{{name}}” will start again with its version {{version}}.",
+    "pt": "«{{name}}» voltará a iniciar-se com a sua versão {{version}}."
+  },
+  "workflow_engine.reactivate.review": {
+    "es": "El diseño necesita revisión antes de reactivarse; lo abrimos para que lo veas.",
+    "en": "The design needs a review before it can be reactivated; it is open for you.",
+    "pt": "O desenho precisa de revisão antes de ser reativado; abrimo-lo para o ver."
+  },
+  "workflow_engine.reactivate.title": {
+    "es": "¿Reactivar el proceso?",
+    "en": "Reactivate the process?",
+    "pt": "Reativar o processo?"
+  },
+  "workflow_engine.retried": {
+    "es": "Ejecución reanudada.",
+    "en": "Run resumed.",
+    "pt": "Execução retomada."
+  },
+  "workflow_engine.retry": {
+    "es": "Reintentar",
+    "en": "Retry",
+    "pt": "Tentar novamente"
+  },
+  "workflow_engine.retry_failed": {
+    "es": "No se pudo reintentar la ejecución.",
+    "en": "The run could not be retried.",
+    "pt": "Não foi possível repetir a execução."
+  },
+  "workflow_engine.rollback.confirm": {
+    "es": "Restaurar y publicar",
+    "en": "Restore and publish",
+    "pt": "Restaurar e publicar"
+  },
+  "workflow_engine.rollback.message": {
+    "es": "Vas a publicar la versión {{version}}, anterior a la que está en uso (v{{live}}). Las ejecuciones nuevas usarán esta.",
+    "en": "You are about to publish version {{version}}, older than the one in use (v{{live}}). New runs will use it.",
+    "pt": "Vai publicar a versão {{version}}, anterior à que está em uso (v{{live}}). As novas execuções vão usá-la."
+  },
+  "workflow_engine.rollback.title": {
+    "es": "¿Restaurar una versión anterior?",
+    "en": "Restore an older version?",
+    "pt": "Restaurar uma versão anterior?"
+  },
+  "workflow_engine.run_state.active": {
+    "es": "En curso",
+    "en": "In progress",
+    "pt": "Em curso"
+  },
+  "workflow_engine.run_state.cancelled": {
+    "es": "Interrumpido",
+    "en": "Interrupted",
+    "pt": "Interrompido"
+  },
+  "workflow_engine.run_state.done": {
+    "es": "Completado",
+    "en": "Done",
+    "pt": "Concluído"
+  },
+  "workflow_engine.run_state.failed": {
+    "es": "Con error",
+    "en": "Failed",
+    "pt": "Com erro"
+  },
+  "workflow_engine.run_state.pending": {
+    "es": "Sin recorrer",
+    "en": "Not reached",
+    "pt": "Não percorrido"
+  },
+  "workflow_engine.run_state.waiting": {
+    "es": "Esperando",
+    "en": "Waiting",
+    "pt": "À espera"
+  },
+  "workflow_engine.runs": {
+    "es": "Ejecuciones",
+    "en": "Runs",
+    "pt": "Execuções"
+  },
+  "workflow_engine.runtime.action_missing": {
+    "es": "La acción «{{action}}» ya no existe.",
+    "en": "The action “{{action}}” no longer exists.",
+    "pt": "A ação «{{action}}» já não existe."
+  },
+  "workflow_engine.runtime.no_branch": {
+    "es": "Ninguna rama de «{{node}}» se cumplió y no tiene rama «En otro caso».",
+    "en": "No branch of “{{node}}” held and it has no “Otherwise” branch.",
+    "pt": "Nenhum ramo de «{{node}}» se cumpriu e não tem ramo «Caso contrário»."
+  },
+  "workflow_engine.runtime.no_exit": {
+    "es": "«{{node}}» no tiene salida para la respuesta «{{outcome}}».",
+    "en": "“{{node}}” has no way out for the answer “{{outcome}}”.",
+    "pt": "«{{node}}» não tem saída para a resposta «{{outcome}}»."
+  },
+  "workflow_engine.runtime.node_missing": {
+    "es": "La ejecución apunta a un paso que ya no existe en el diseño.",
+    "en": "The run points to a step that no longer exists in the design.",
+    "pt": "A execução aponta para um passo que já não existe no desenho."
+  },
+  "workflow_engine.runtime.step_limit": {
+    "es": "Se superaron {{max}} pasos automáticos seguidos: posible bucle.",
+    "en": "More than {{max}} automatic steps in a row: a likely loop.",
+    "pt": "Foram ultrapassados {{max}} passos automáticos seguidos: possível ciclo."
+  },
+  "workflow_engine.runtime.unexpected": {
+    "es": "Error inesperado: {{detail}}",
+    "en": "Unexpected error: {{detail}}",
+    "pt": "Erro inesperado: {{detail}}"
+  },
+  "workflow_engine.runtime.unknown_node": {
+    "es": "Tipo de paso desconocido: «{{type}}».",
+    "en": "Unknown step type: “{{type}}”.",
+    "pt": "Tipo de passo desconhecido: «{{type}}»."
+  },
+  "workflow_engine.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Guardar"
+  },
+  "workflow_engine.save_failed": {
+    "es": "No se pudo guardar.",
+    "en": "It could not be saved.",
+    "pt": "Não foi possível guardar."
+  },
+  "workflow_engine.saved": {
+    "es": "Flujo guardado.",
+    "en": "Workflow saved.",
+    "pt": "Fluxo guardado."
+  },
+  "workflow_engine.shortcut.connect": {
+    "es": "Conectar desde el paso",
+    "en": "Connect from the step",
+    "pt": "Ligar a partir do passo"
+  },
+  "workflow_engine.shortcut.copy": {
+    "es": "Copiar",
+    "en": "Copy",
+    "pt": "Copiar"
+  },
+  "workflow_engine.shortcut.cut": {
+    "es": "Cortar",
+    "en": "Cut",
+    "pt": "Cortar"
+  },
+  "workflow_engine.shortcut.delete": {
+    "es": "Eliminar selección",
+    "en": "Delete selection",
+    "pt": "Eliminar seleção"
+  },
+  "workflow_engine.shortcut.duplicate": {
+    "es": "Duplicar",
+    "en": "Duplicate",
+    "pt": "Duplicar"
+  },
+  "workflow_engine.shortcut.escape": {
+    "es": "Cancelar / deseleccionar",
+    "en": "Cancel / deselect",
+    "pt": "Cancelar / desselecionar"
+  },
+  "workflow_engine.shortcut.fit": {
+    "es": "Ajustar a la pantalla",
+    "en": "Fit to screen",
+    "pt": "Ajustar ao ecrã"
+  },
+  "workflow_engine.shortcut.grab": {
+    "es": "Tomar y mover con flechas",
+    "en": "Grab and move with arrows",
+    "pt": "Pegar e mover com setas"
+  },
+  "workflow_engine.shortcut.help": {
+    "es": "Ver atajos",
+    "en": "Show shortcuts",
+    "pt": "Ver atalhos"
+  },
+  "workflow_engine.shortcut.layout": {
+    "es": "Ordenar automáticamente",
+    "en": "Auto-arrange",
+    "pt": "Organizar automaticamente"
+  },
+  "workflow_engine.shortcut.next_step": {
+    "es": "Ir al siguiente paso",
+    "en": "Go to the next step",
+    "pt": "Ir para o passo seguinte"
+  },
+  "workflow_engine.shortcut.paste": {
+    "es": "Pegar",
+    "en": "Paste",
+    "pt": "Colar"
+  },
+  "workflow_engine.shortcut.redo": {
+    "es": "Rehacer",
+    "en": "Redo",
+    "pt": "Refazer"
+  },
+  "workflow_engine.shortcut.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Guardar"
+  },
+  "workflow_engine.shortcut.search": {
+    "es": "Buscar pasos",
+    "en": "Search steps",
+    "pt": "Procurar passos"
+  },
+  "workflow_engine.shortcut.select_all": {
+    "es": "Seleccionar todo",
+    "en": "Select all",
+    "pt": "Selecionar tudo"
+  },
+  "workflow_engine.shortcut.title": {
+    "es": "Atajos de teclado",
+    "en": "Keyboard shortcuts",
+    "pt": "Atalhos de teclado"
+  },
+  "workflow_engine.shortcut.undo": {
+    "es": "Deshacer",
+    "en": "Undo",
+    "pt": "Desfazer"
+  },
+  "workflow_engine.shortcut.zoom_in": {
+    "es": "Acercar",
+    "en": "Zoom in",
+    "pt": "Aproximar"
+  },
+  "workflow_engine.shortcut.zoom_out": {
+    "es": "Alejar",
+    "en": "Zoom out",
+    "pt": "Afastar"
+  },
+  "workflow_engine.stale_version": {
+    "es": "La versión {{version}} es anterior a la publicada (v{{live}}). Confirma que quieres restaurarla.",
+    "en": "Version {{version}} is older than the live one (v{{live}}). Confirm that you want to restore it.",
+    "pt": "A versão {{version}} é anterior à publicada (v{{live}}). Confirme que quer restaurá-la."
+  },
+  "workflow_engine.start.confirm": {
+    "es": "Iniciar",
+    "en": "Start",
+    "pt": "Iniciar"
+  },
+  "workflow_engine.start.data": {
+    "es": "Datos del proceso",
+    "en": "Process data",
+    "pt": "Dados do processo"
+  },
+  "workflow_engine.start.lead": {
+    "es": "Vas a iniciar «{{name}}» (v{{version}}).",
+    "en": "You are starting “{{name}}” (v{{version}}).",
+    "pt": "Vai iniciar «{{name}}» (v{{version}})."
+  },
+  "workflow_engine.start.no_data": {
+    "es": "Este proceso no pide datos para iniciarse.",
+    "en": "This process asks for no data to start.",
+    "pt": "Este processo não pede dados para iniciar."
+  },
+  "workflow_engine.start.starting": {
+    "es": "Iniciando…",
+    "en": "Starting…",
+    "pt": "A iniciar…"
+  },
+  "workflow_engine.start.subject": {
+    "es": "Asunto",
+    "en": "Subject",
+    "pt": "Assunto"
+  },
+  "workflow_engine.start.subject_hint": {
+    "es": "Opcional. Así se reconoce la ejecución en la bandeja y en el listado.",
+    "en": "Optional. How the run is recognised in the inbox and the list.",
+    "pt": "Opcional. Assim se reconhece a execução na caixa de entrada e na lista."
+  },
+  "workflow_engine.start.subject_placeholder": {
+    "es": "p. ej. Pedido 0042",
+    "en": "e.g. Order 0042",
+    "pt": "p. ex. Encomenda 0042"
+  },
+  "workflow_engine.start.title": {
+    "es": "Iniciar ejecución",
+    "en": "Start a run",
+    "pt": "Iniciar execução"
+  },
+  "workflow_engine.start_failed": {
+    "es": "No se pudo iniciar la ejecución.",
+    "en": "The run could not be started.",
+    "pt": "Não foi possível iniciar a execução."
+  },
+  "workflow_engine.start_form_invalid": {
+    "es": "Revisa el dato «{{field}}» para iniciar la ejecución.",
+    "en": "Check the “{{field}}” value to start the run.",
+    "pt": "Revise o dado «{{field}}» para iniciar a execução."
+  },
+  "workflow_engine.started": {
+    "es": "Ejecución iniciada.",
+    "en": "Run started.",
+    "pt": "Execução iniciada."
+  },
+  "workflow_engine.subprocess_too_deep": {
+    "es": "Demasiados subprocesos anidados: revisa que un proceso no se inicie a sí mismo.",
+    "en": "Too many nested subprocesses: check that a process does not start itself.",
+    "pt": "Demasiados subprocessos aninhados: verifique se um processo não se inicia a si mesmo."
+  },
+  "workflow_engine.subprocess_unknown": {
+    "es": "No hay ningún proceso publicado con la clave «{{key}}».",
+    "en": "There is no published process with the key “{{key}}”.",
+    "pt": "Não há nenhum processo publicado com a chave «{{key}}»."
+  },
+  "workflow_engine.task_already_completed": {
+    "es": "Esta tarea ya fue resuelta por otra persona o en otra pestaña.",
+    "en": "This task has already been resolved by someone else or in another tab.",
+    "pt": "Esta tarefa já foi resolvida por outra pessoa ou noutra aba."
+  },
+  "workflow_engine.task_completed": {
+    "es": "Tarea completada.",
+    "en": "Task completed.",
+    "pt": "Tarefa concluída."
+  },
+  "workflow_engine.task_failed": {
+    "es": "No se pudo registrar tu respuesta.",
+    "en": "Your answer could not be recorded.",
+    "pt": "Não foi possível registar a sua resposta."
+  },
+  "workflow_engine.task_form_invalid": {
+    "es": "Revisa el campo «{{field}}» del formulario de la tarea.",
+    "en": "Check the “{{field}}” field of the task form.",
+    "pt": "Revise o campo «{{field}}» do formulário da tarefa."
+  },
+  "workflow_engine.task_not_found": {
+    "es": "No se encontró la tarea.",
+    "en": "The task was not found.",
+    "pt": "A tarefa não foi encontrada."
+  },
+  "workflow_engine.task_status.cancelled": {
+    "es": "Cancelada",
+    "en": "Cancelled",
+    "pt": "Cancelada"
+  },
+  "workflow_engine.task_status.completed": {
+    "es": "Respondida",
+    "en": "Answered",
+    "pt": "Respondida"
+  },
+  "workflow_engine.task_status.open": {
+    "es": "Pendiente",
+    "en": "Open",
+    "pt": "Pendente"
+  },
+  "workflow_engine.template.bill.description": {
+    "es": "Cada factura contabilizada se revisa; si se rechaza, se avisa.",
+    "en": "Every posted bill is reviewed; a rejection notifies the requester.",
+    "pt": "Cada fatura contabilizada é revista; se for rejeitada, avisa-se."
+  },
+  "workflow_engine.template.bill.name": {
+    "es": "Revisión de facturas de proveedor",
+    "en": "Vendor bill review",
+    "pt": "Revisão de faturas de fornecedor"
+  },
+  "workflow_engine.template.blank.description": {
+    "es": "Un inicio y un fin: dibuja tu propio proceso.",
+    "en": "A start and an end: draw your own process.",
+    "pt": "Um início e um fim: desenhe o seu próprio processo."
+  },
+  "workflow_engine.template.blank.name": {
+    "es": "En blanco",
+    "en": "Blank",
+    "pt": "Em branco"
+  },
+  "workflow_engine.template.customer.description": {
+    "es": "Verificación de documentos, seguimiento a la semana y llamada de bienvenida.",
+    "en": "Document check, a follow-up a week later and a welcome call.",
+    "pt": "Verificação de documentos, seguimento uma semana depois e chamada de boas-vindas."
+  },
+  "workflow_engine.template.customer.name": {
+    "es": "Alta de clientes",
+    "en": "Customer onboarding",
+    "pt": "Integração de clientes"
+  },
+  "workflow_engine.template.invoice.description": {
+    "es": "Las facturas de importe alto pasan por crédito.",
+    "en": "High-value invoices go through credit control.",
+    "pt": "As faturas de valor alto passam pelo crédito."
+  },
+  "workflow_engine.template.invoice.name": {
+    "es": "Aprobación de facturas grandes",
+    "en": "Large invoice approval",
+    "pt": "Aprovação de faturas grandes"
+  },
+  "workflow_engine.template.label.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Montante"
+  },
+  "workflow_engine.template.label.approved": {
+    "es": "Aprobado",
+    "en": "Approved",
+    "pt": "Aprovado"
+  },
+  "workflow_engine.template.label.auto_approved": {
+    "es": "Aprobado automáticamente",
+    "en": "Approved automatically",
+    "pt": "Aprovado automaticamente"
+  },
+  "workflow_engine.template.label.credit_approval": {
+    "es": "Aprobación de crédito",
+    "en": "Credit approval",
+    "pt": "Aprovação de crédito"
+  },
+  "workflow_engine.template.label.credit_limit": {
+    "es": "Límite de crédito",
+    "en": "Credit limit",
+    "pt": "Limite de crédito"
+  },
+  "workflow_engine.template.label.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "workflow_engine.template.label.document": {
+    "es": "Documento",
+    "en": "Document",
+    "pt": "Documento"
+  },
+  "workflow_engine.template.label.done": {
+    "es": "Terminado",
+    "en": "Done",
+    "pt": "Terminado"
+  },
+  "workflow_engine.template.label.follow_up": {
+    "es": "Esperar una semana",
+    "en": "Wait a week",
+    "pt": "Esperar uma semana"
+  },
+  "workflow_engine.template.label.lane_management": {
+    "es": "Dirección",
+    "en": "Management",
+    "pt": "Direção"
+  },
+  "workflow_engine.template.label.lane_purchasing": {
+    "es": "Compras",
+    "en": "Purchasing",
+    "pt": "Compras"
+  },
+  "workflow_engine.template.label.manager_approval": {
+    "es": "Aprobación de dirección",
+    "en": "Management approval",
+    "pt": "Aprovação da direção"
+  },
+  "workflow_engine.template.label.notify_message": {
+    "es": "Tu solicitud {{number}} se resolvió.",
+    "en": "Your request {{number}} was resolved.",
+    "pt": "O seu pedido {{number}} foi resolvido."
+  },
+  "workflow_engine.template.label.notify_requester": {
+    "es": "Avisar al solicitante",
+    "en": "Notify the requester",
+    "pt": "Avisar o requerente"
+  },
+  "workflow_engine.template.label.over_threshold": {
+    "es": "¿Supera el umbral?",
+    "en": "Above the threshold?",
+    "pt": "Acima do limite?"
+  },
+  "workflow_engine.template.label.rejected": {
+    "es": "Rechazado",
+    "en": "Rejected",
+    "pt": "Rejeitado"
+  },
+  "workflow_engine.template.label.returned": {
+    "es": "Devuelto al solicitante",
+    "en": "Returned to the requester",
+    "pt": "Devolvido ao requerente"
+  },
+  "workflow_engine.template.label.review_bill": {
+    "es": "Revisar factura",
+    "en": "Review the bill",
+    "pt": "Rever a fatura"
+  },
+  "workflow_engine.template.label.review_request": {
+    "es": "Revisar solicitud",
+    "en": "Review the request",
+    "pt": "Rever o pedido"
+  },
+  "workflow_engine.template.label.supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "workflow_engine.template.label.verify_documents": {
+    "es": "Verificar documentación",
+    "en": "Check documents",
+    "pt": "Verificar documentação"
+  },
+  "workflow_engine.template.label.welcome_call": {
+    "es": "Llamada de bienvenida",
+    "en": "Welcome call",
+    "pt": "Chamada de boas-vindas"
+  },
+  "workflow_engine.template.purchase.description": {
+    "es": "Compras revisa; dirección aprueba por encima de un importe.",
+    "en": "Purchasing reviews; management approves above an amount.",
+    "pt": "Compras revê; a direção aprova acima de um montante."
+  },
+  "workflow_engine.template.purchase.name": {
+    "es": "Aprobación de compras",
+    "en": "Purchase approval",
+    "pt": "Aprovação de compras"
+  },
+  "workflow_engine.timeline": {
+    "es": "Cronología",
+    "en": "Timeline",
+    "pt": "Cronologia"
+  },
+  "workflow_engine.timeline.a_role": {
+    "es": "un rol",
+    "en": "a role",
+    "pt": "uma função"
+  },
+  "workflow_engine.timeline.action": {
+    "es": "«{{step}}» ejecutado. {{summary}}",
+    "en": "“{{step}}” ran. {{summary}}",
+    "pt": "«{{step}}» executado. {{summary}}"
+  },
+  "workflow_engine.timeline.action_plain": {
+    "es": "«{{step}}» ejecutado.",
+    "en": "“{{step}}” ran.",
+    "pt": "«{{step}}» executado."
+  },
+  "workflow_engine.timeline.cancelled": {
+    "es": "Cancelada por {{actor}}",
+    "en": "Cancelled by {{actor}}",
+    "pt": "Cancelada por {{actor}}"
+  },
+  "workflow_engine.timeline.cancelled_auto": {
+    "es": "Cancelada automáticamente",
+    "en": "Cancelled automatically",
+    "pt": "Cancelada automaticamente"
+  },
+  "workflow_engine.timeline.completed": {
+    "es": "Proceso terminado: {{result}}",
+    "en": "Process finished: {{result}}",
+    "pt": "Processo terminado: {{result}}"
+  },
+  "workflow_engine.timeline.completed_plain": {
+    "es": "Proceso terminado",
+    "en": "Process finished",
+    "pt": "Processo terminado"
+  },
+  "workflow_engine.timeline.condition": {
+    "es": "«{{step}}»: {{branch}} → {{next}}",
+    "en": "“{{step}}”: {{branch}} → {{next}}",
+    "pt": "«{{step}}»: {{branch}} → {{next}}"
+  },
+  "workflow_engine.timeline.entered": {
+    "es": "Llegó a «{{step}}»",
+    "en": "Reached “{{step}}”",
+    "pt": "Chegou a «{{step}}»"
+  },
+  "workflow_engine.timeline.error": {
+    "es": "Error: {{message}}",
+    "en": "Error: {{message}}",
+    "pt": "Erro: {{message}}"
+  },
+  "workflow_engine.timeline.escalated": {
+    "es": "La tarea «{{step}}» venció y se avisó",
+    "en": "Task “{{step}}” went overdue and was escalated",
+    "pt": "A tarefa «{{step}}» venceu e foi escalada"
+  },
+  "workflow_engine.timeline.retried": {
+    "es": "Reintentada por {{actor}}",
+    "en": "Retried by {{actor}}",
+    "pt": "Repetida por {{actor}}"
+  },
+  "workflow_engine.timeline.started_auto": {
+    "es": "Iniciada automáticamente por un evento",
+    "en": "Started automatically by an event",
+    "pt": "Iniciada automaticamente por um evento"
+  },
+  "workflow_engine.timeline.started_by": {
+    "es": "Iniciada por {{actor}}",
+    "en": "Started by {{actor}}",
+    "pt": "Iniciada por {{actor}}"
+  },
+  "workflow_engine.timeline.task_completed": {
+    "es": "{{actor}} respondió «{{outcome}}» en «{{step}}»",
+    "en": "{{actor}} answered “{{outcome}}” on “{{step}}”",
+    "pt": "{{actor}} respondeu «{{outcome}}» em «{{step}}»"
+  },
+  "workflow_engine.timeline.task_created": {
+    "es": "Tarea «{{step}}» creada",
+    "en": "Task “{{step}}” created",
+    "pt": "Tarefa «{{step}}» criada"
+  },
+  "workflow_engine.timeline.timer_fired": {
+    "es": "Terminó la espera de «{{step}}»",
+    "en": "“{{step}}” finished waiting",
+    "pt": "Terminou a espera de «{{step}}»"
+  },
+  "workflow_engine.timeline.timer_set": {
+    "es": "«{{step}}» espera hasta {{until}}",
+    "en": "“{{step}}” waits until {{until}}",
+    "pt": "«{{step}}» espera até {{until}}"
+  },
+  "workflow_engine.title": {
+    "es": "Flujos de trabajo",
+    "en": "Workflows",
+    "pt": "Fluxos de trabalho"
   },
   "workflow_engine.transition.action": {
     "es": "Acción ejecutada",
     "en": "Action ran",
     "pt": "Ação executada"
   },
-  "workflow_engine.transition.condition": {
-    "es": "Condición evaluada",
-    "en": "Condition evaluated",
-    "pt": "Condição avaliada"
-  },
-  "workflow_engine.transition.task_created": {
-    "es": "Tarea creada",
-    "en": "Task created",
-    "pt": "Tarefa criada"
-  },
-  "workflow_engine.transition.task_completed": {
-    "es": "Tarea completada",
-    "en": "Task completed",
-    "pt": "Tarefa concluída"
-  },
-  "workflow_engine.transition.timer_set": {
-    "es": "Temporizador fijado",
-    "en": "Timer set",
-    "pt": "Temporizador definido"
-  },
-  "workflow_engine.transition.timer_fired": {
-    "es": "Temporizador disparado",
-    "en": "Timer fired",
-    "pt": "Temporizador disparado"
+  "workflow_engine.transition.cancelled": {
+    "es": "Cancelado",
+    "en": "Cancelled",
+    "pt": "Cancelado"
   },
   "workflow_engine.transition.completed": {
     "es": "Completado",
     "en": "Completed",
     "pt": "Concluído"
   },
-  "workflow_engine.transition.cancelled": {
-    "es": "Cancelado",
-    "en": "Cancelled",
-    "pt": "Cancelado"
+  "workflow_engine.transition.condition": {
+    "es": "Condición evaluada",
+    "en": "Condition evaluated",
+    "pt": "Condição avaliada"
+  },
+  "workflow_engine.transition.enter": {
+    "es": "Entró",
+    "en": "Entered",
+    "pt": "Entrou"
   },
   "workflow_engine.transition.error": {
     "es": "Error",
     "en": "Error",
     "pt": "Erro"
+  },
+  "workflow_engine.transition.started": {
+    "es": "Iniciado",
+    "en": "Started",
+    "pt": "Iniciado"
+  },
+  "workflow_engine.transition.task_completed": {
+    "es": "Tarea completada",
+    "en": "Task completed",
+    "pt": "Tarefa concluída"
+  },
+  "workflow_engine.transition.task_created": {
+    "es": "Tarea creada",
+    "en": "Task created",
+    "pt": "Tarefa criada"
+  },
+  "workflow_engine.transition.timer_fired": {
+    "es": "Temporizador disparado",
+    "en": "Timer fired",
+    "pt": "Temporizador disparado"
+  },
+  "workflow_engine.transition.timer_set": {
+    "es": "Temporizador fijado",
+    "en": "Timer set",
+    "pt": "Temporizador definido"
+  },
+  "workflow_engine.trigger.choose_event": {
+    "es": "Elige un evento…",
+    "en": "Choose an event…",
+    "pt": "Escolha um evento…"
+  },
+  "workflow_engine.trigger.custom_event": {
+    "es": "Evento de integración (personalizado)",
+    "en": "Integration event (custom)",
+    "pt": "Evento de integração (personalizado)"
+  },
+  "workflow_engine.trigger.custom_hint": {
+    "es": "Se dispara por la API como «{{prefix}}nombre». Minúsculas, números, «.», «-» y «_».",
+    "en": "Fired through the API as “{{prefix}}name”. Lowercase, digits, “.”, “-” and “_”.",
+    "pt": "É disparado pela API como «{{prefix}}nome». Minúsculas, números, «.», «-» e «_»."
+  },
+  "workflow_engine.trigger.custom_name": {
+    "es": "Nombre del evento",
+    "en": "Event name",
+    "pt": "Nome do evento"
+  },
+  "workflow_engine.trigger.event": {
+    "es": "Evento",
+    "en": "Event",
+    "pt": "Evento"
+  },
+  "workflow_engine.trigger.event_name": {
+    "es": "Evento",
+    "en": "Event",
+    "pt": "Evento"
+  },
+  "workflow_engine.trigger.fields": {
+    "es": "Datos que trae: {{fields}}",
+    "en": "Data it brings: {{fields}}",
+    "pt": "Dados que traz: {{fields}}"
+  },
+  "workflow_engine.trigger.filter": {
+    "es": "Solo cuando…",
+    "en": "Only when…",
+    "pt": "Só quando…"
+  },
+  "workflow_engine.trigger.filter_hint": {
+    "es": "Opcional. Sin condiciones, cada evento inicia una ejecución.",
+    "en": "Optional. With no conditions, every event starts a run.",
+    "pt": "Opcional. Sem condições, cada evento inicia uma execução."
+  },
+  "workflow_engine.trigger.manual": {
+    "es": "Manual",
+    "en": "Manual",
+    "pt": "Manual"
+  },
+  "workflow_engine.trigger.manual_hint": {
+    "es": "Lo inicia una persona desde el catálogo de procesos.",
+    "en": "A person starts it from the process catalogue.",
+    "pt": "Uma pessoa inicia-o a partir do catálogo de processos."
+  },
+  "workflow_engine.trigger.title": {
+    "es": "Qué inicia el proceso",
+    "en": "What starts the process",
+    "pt": "O que inicia o processo"
+  },
+  "workflow_engine.unit.days": {
+    "es": "días",
+    "en": "days",
+    "pt": "dias"
+  },
+  "workflow_engine.unit.days_short": {
+    "es": "{{count}} d",
+    "en": "{{count}} d",
+    "pt": "{{count}} d"
+  },
+  "workflow_engine.unit.hours": {
+    "es": "horas",
+    "en": "hours",
+    "pt": "horas"
+  },
+  "workflow_engine.unit.hours_short": {
+    "es": "{{count}} h",
+    "en": "{{count}} h",
+    "pt": "{{count}} h"
+  },
+  "workflow_engine.unit.minutes": {
+    "es": "minutos",
+    "en": "minutes",
+    "pt": "minutos"
+  },
+  "workflow_engine.unit.minutes_short": {
+    "es": "{{count}} min",
+    "en": "{{count}} min",
+    "pt": "{{count}} min"
+  },
+  "workflow_engine.unknown_event": {
+    "es": "«{{event}}» no es un evento conocido.",
+    "en": "“{{event}}” is not a known event.",
+    "pt": "«{{event}}» não é um evento conhecido."
+  },
+  "workflow_engine.unpublish.action": {
+    "es": "Desactivar",
+    "en": "Deactivate",
+    "pt": "Desativar"
+  },
+  "workflow_engine.unpublish.confirm": {
+    "es": "Desactivar",
+    "en": "Deactivate",
+    "pt": "Desativar"
+  },
+  "workflow_engine.unpublish.message": {
+    "es": "«{{name}}» dejará de iniciarse. Las ejecuciones en curso continúan hasta terminar.",
+    "en": "“{{name}}” will stop starting. Runs in progress carry on until they finish.",
+    "pt": "«{{name}}» deixará de ser iniciado. As execuções em curso continuam até terminar."
+  },
+  "workflow_engine.unpublish.title": {
+    "es": "¿Desactivar el proceso?",
+    "en": "Deactivate the process?",
+    "pt": "Desativar o processo?"
+  },
+  "workflow_engine.unpublished": {
+    "es": "El proceso ya no se inicia: queda desactivado.",
+    "en": "The process no longer starts: it is now inactive.",
+    "pt": "O processo já não se inicia: fica desativado."
+  },
+  "workflow_engine.variable.document_ok": {
+    "es": "Documento decidido correctamente",
+    "en": "Document decided successfully",
+    "pt": "Documento decidido corretamente"
+  },
+  "workflow_engine.variable.last_comment": {
+    "es": "Último comentario",
+    "en": "Last comment",
+    "pt": "Último comentário"
+  },
+  "workflow_engine.variable.last_outcome": {
+    "es": "Última respuesta",
+    "en": "Last answer",
+    "pt": "Última resposta"
+  },
+  "workflow_engine.variable.webhook_ok": {
+    "es": "Webhook correcto",
+    "en": "Webhook succeeded",
+    "pt": "Webhook correto"
+  },
+  "workflow_engine.variable.webhook_status": {
+    "es": "Código HTTP del webhook",
+    "en": "Webhook HTTP status",
+    "pt": "Código HTTP do webhook"
+  },
+  "workflow_engine.variable_type.boolean": {
+    "es": "Sí / No",
+    "en": "Yes / No",
+    "pt": "Sim / Não"
+  },
+  "workflow_engine.variable_type.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "workflow_engine.variable_type.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "workflow_engine.variable_type.select": {
+    "es": "Lista de opciones",
+    "en": "Option list",
+    "pt": "Lista de opções"
+  },
+  "workflow_engine.variable_type.string": {
+    "es": "Texto",
+    "en": "Text",
+    "pt": "Texto"
+  },
+  "workflow_engine.variable_type.text": {
+    "es": "Texto largo",
+    "en": "Long text",
+    "pt": "Texto longo"
+  },
+  "workflow_engine.variable_type.user": {
+    "es": "Persona",
+    "en": "Person",
+    "pt": "Pessoa"
+  },
+  "workflow_engine.variables.add": {
+    "es": "Añadir dato",
+    "en": "Add field",
+    "pt": "Adicionar dado"
+  },
+  "workflow_engine.variables.empty": {
+    "es": "Sin datos declarados.",
+    "en": "No fields declared.",
+    "pt": "Sem dados declarados."
+  },
+  "workflow_engine.variables.error_duplicate": {
+    "es": "Ese nombre ya está en uso.",
+    "en": "That name is already in use.",
+    "pt": "Esse nome já está em uso."
+  },
+  "workflow_engine.variables.error_name": {
+    "es": "Solo letras, números y «_», empezando por una letra.",
+    "en": "Letters, digits and “_” only, starting with a letter.",
+    "pt": "Só letras, números e «_», a começar por uma letra."
+  },
+  "workflow_engine.variables.error_options": {
+    "es": "Una lista necesita al menos una opción.",
+    "en": "A list needs at least one option.",
+    "pt": "Uma lista precisa de pelo menos uma opção."
+  },
+  "workflow_engine.variables.error_range": {
+    "es": "El mínimo no puede ser mayor que el máximo.",
+    "en": "The minimum cannot be greater than the maximum.",
+    "pt": "O mínimo não pode ser maior que o máximo."
+  },
+  "workflow_engine.variables.error_required": {
+    "es": "Escribe un nombre técnico.",
+    "en": "Enter a technical name.",
+    "pt": "Escreva um nome técnico."
+  },
+  "workflow_engine.variables.hint": {
+    "es": "Lo que el proceso recibe al iniciarse y usa en sus decisiones. Se piden al iniciarlo a mano.",
+    "en": "What the process receives when it starts and uses in its decisions. Asked for when it is started by hand.",
+    "pt": "O que o processo recebe ao iniciar e usa nas decisões. São pedidos quando é iniciado manualmente."
+  },
+  "workflow_engine.variables.label": {
+    "es": "Etiqueta",
+    "en": "Label",
+    "pt": "Etiqueta"
+  },
+  "workflow_engine.variables.max": {
+    "es": "Máximo",
+    "en": "Maximum",
+    "pt": "Máximo"
+  },
+  "workflow_engine.variables.min": {
+    "es": "Mínimo",
+    "en": "Minimum",
+    "pt": "Mínimo"
+  },
+  "workflow_engine.variables.move_down": {
+    "es": "Bajar",
+    "en": "Move down",
+    "pt": "Descer"
+  },
+  "workflow_engine.variables.move_up": {
+    "es": "Subir",
+    "en": "Move up",
+    "pt": "Subir"
+  },
+  "workflow_engine.variables.name": {
+    "es": "Nombre técnico",
+    "en": "Technical name",
+    "pt": "Nome técnico"
+  },
+  "workflow_engine.variables.options": {
+    "es": "Opciones",
+    "en": "Options",
+    "pt": "Opções"
+  },
+  "workflow_engine.variables.options_hint": {
+    "es": "Separadas por comas.",
+    "en": "Comma-separated.",
+    "pt": "Separadas por vírgulas."
+  },
+  "workflow_engine.variables.remove": {
+    "es": "Quitar dato",
+    "en": "Remove field",
+    "pt": "Remover dado"
+  },
+  "workflow_engine.variables.required": {
+    "es": "Obligatorio",
+    "en": "Required",
+    "pt": "Obrigatório"
+  },
+  "workflow_engine.variables.title": {
+    "es": "Datos del proceso",
+    "en": "Process data",
+    "pt": "Dados do processo"
+  },
+  "workflow_engine.variables.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "workflow_engine.version": {
+    "es": "v{{version}}",
+    "en": "v{{version}}",
+    "pt": "v{{version}}"
+  },
+  "workflow_engine.versions.empty": {
+    "es": "Aún no hay versiones publicadas.",
+    "en": "No versions published yet.",
+    "pt": "Ainda não há versões publicadas."
+  },
+  "workflow_engine.versions.open": {
+    "es": "Abrir",
+    "en": "Open",
+    "pt": "Abrir"
+  },
+  "workflow_engine.versions.published_on": {
+    "es": "Publicada el {{date}}",
+    "en": "Published on {{date}}",
+    "pt": "Publicada em {{date}}"
+  },
+  "workflow_engine.versions.restore": {
+    "es": "Restaurar como borrador",
+    "en": "Restore as draft",
+    "pt": "Restaurar como rascunho"
+  },
+  "workflow_engine.versions.restore_message": {
+    "es": "El borrador actual se sustituirá por el diseño de la versión {{version}}. Lo publicado no cambia hasta que publiques.",
+    "en": "The current draft will be replaced by the design of version {{version}}. What is live does not change until you publish.",
+    "pt": "O rascunho atual será substituído pelo desenho da versão {{version}}. O publicado não muda até publicar."
+  },
+  "workflow_engine.versions.restore_title": {
+    "es": "¿Restaurar esta versión?",
+    "en": "Restore this version?",
+    "pt": "Restaurar esta versão?"
+  },
+  "workflow_engine.versions.title": {
+    "es": "Historial de versiones",
+    "en": "Version history",
+    "pt": "Histórico de versões"
+  },
+  "workflow_engine.versions.updated_on": {
+    "es": "Modificada el {{date}}",
+    "en": "Changed on {{date}}",
+    "pt": "Alterada em {{date}}"
+  },
+  "workflow_engine.webhook_result.credentials_in_url": {
+    "es": "La URL no puede llevar usuario ni contraseña.",
+    "en": "The URL cannot carry a user or password.",
+    "pt": "O URL não pode levar utilizador nem palavra-passe."
+  },
+  "workflow_engine.webhook_result.host_unresolvable": {
+    "es": "No se encontró el servidor.",
+    "en": "The server could not be found.",
+    "pt": "Não foi encontrado o servidor."
+  },
+  "workflow_engine.webhook_result.http_error": {
+    "es": "Respondió con error HTTP {{status}}.",
+    "en": "Replied with HTTP error {{status}}.",
+    "pt": "Respondeu com erro HTTP {{status}}."
+  },
+  "workflow_engine.webhook_result.invalid_url": {
+    "es": "La URL no es válida.",
+    "en": "The URL is invalid.",
+    "pt": "O URL não é válido."
+  },
+  "workflow_engine.webhook_result.method_not_allowed": {
+    "es": "Ese método HTTP no está permitido.",
+    "en": "That HTTP method is not allowed.",
+    "pt": "Esse método HTTP não é permitido."
+  },
+  "workflow_engine.webhook_result.network_error": {
+    "es": "No se pudo conectar.",
+    "en": "Could not connect.",
+    "pt": "Não foi possível ligar."
+  },
+  "workflow_engine.webhook_result.ok": {
+    "es": "Respondió HTTP {{status}}.",
+    "en": "Replied HTTP {{status}}.",
+    "pt": "Respondeu HTTP {{status}}."
+  },
+  "workflow_engine.webhook_result.port_not_allowed": {
+    "es": "Ese puerto no está permitido.",
+    "en": "That port is not allowed.",
+    "pt": "Essa porta não é permitida."
+  },
+  "workflow_engine.webhook_result.private_address": {
+    "es": "La URL apunta a una red interna; no está permitido.",
+    "en": "The URL points to an internal network; not allowed.",
+    "pt": "O URL aponta para uma rede interna; não é permitido."
+  },
+  "workflow_engine.webhook_result.scheme_not_allowed": {
+    "es": "Solo se permiten URL https.",
+    "en": "Only https URLs are allowed.",
+    "pt": "Só são permitidos URL https."
+  },
+  "workflow_engine.webhook_result.timeout": {
+    "es": "No respondió a tiempo.",
+    "en": "Did not reply in time.",
+    "pt": "Não respondeu a tempo."
+  },
+  "workflow_engine.yes": {
+    "es": "Sí",
+    "en": "Yes",
+    "pt": "Sim"
   }
 }

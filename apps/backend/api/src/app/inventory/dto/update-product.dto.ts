@@ -9,4 +9,4 @@ import { CreateProductDto } from './create-product.dto';
  * and its own entry (`POST /inventory/adjustments`). The unit cost likewise, once there is stock
  * to revalue. See `InventoryService.update`.
  */
-export class UpdateProductDto extends PartialType(OmitType(CreateProductDto, ['warehouseId'] as const)) {}
+export class UpdateProductDto extends PartialType(OmitType(CreateProductDto, ['warehouseId', 'imageIds'] as const)) {}

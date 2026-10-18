@@ -25,7 +25,9 @@ jobs:
       # against the entity definitions. Without a real Postgres it could not run at all, which is
       # how the repository ended up with no baseline migration in the first place.
       postgres:
-        image: postgres:16
+        # The official Postgres 16 image with the pgvector extension added. The AI migration creates
+        # `product_embeddings` only where `vector` is available, so CI must have it to test that path.
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -67,6 +69,9 @@ jobs:
       # sets the role's password from this same variable; it is a CI-only credential for an
       # otherwise-inert role, not a secret that guards anything in production.
       APP_DB_PASSWORD: ci-app-db-password
+      # Same reasoning for the AI engine's role (`virtex_ai_engine`): the migration gives it this
+      # password so the engine's integration tests can connect as it, the way the engine does.
+      AI_ENGINE_DB_PASSWORD: ci-ai-engine-db-password
 
       # Redis is no longer optional: the cache, the throttler and the mail queue all resolve
       # their connection from these, and the application refuses to boot outside development
@@ -124,7 +129,7 @@ jobs:
           # dependency's install script that `npm ci` runs below.
           persist-credentials: false
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: 'npm'
@@ -244,6 +249,26 @@ jobs:
       # Lo mismo a través de la aplicación y como el rol `virtex_app`, que es el que no posee las
       # tablas y por tanto el único para el que las políticas rigen. Se niega a correr como dueño
       # para no reportar un éxito que vendría del motivo equivocado.
+      # The forecasting and anomaly engine (apps/ai-engine, Python). Its unit tests check the
+      # forecasting method and the detectors on data built to contain what they must find; its
+      # integration tests run as the engine's own database role against the migrated schema and
+      # prove the row-level policies bind it like they bind the API. The runner's Python is used, so
+      # no unpinned action enters the job; dependencies are the locked ones the image installs.
+      - name: AI engine — install
+        working-directory: apps/ai-engine
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install --quiet -r requirements.lock
+          .venv/bin/pip install --quiet --no-deps -e .
+
+      - name: AI engine — tests (unit, and as its own role against the database)
+        working-directory: apps/ai-engine
+        env:
+          NIXTLA_NUMBA_CACHE: '1'
+          AI_ENGINE_TEST_ADMIN_DSN: host=localhost port=5432 dbname=virteex_ci user=postgres password=postgres
+          AI_ENGINE_TEST_ENGINE_DSN: host=localhost port=5432 dbname=virteex_ci user=virtex_ai_engine password=ci-ai-engine-db-password
+        run: .venv/bin/python -m pytest -W ignore
+
       - name: tenant isolation holds through the application
         env:
           # El rol lo crea la propia migración, con la contraseña que le puso ese mismo

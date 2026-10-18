@@ -10,9 +10,9 @@
     "pt": "Mapa de relações"
   },
   "relationship_map.empty_hint": {
-    "es": "Abre el mapa desde un documento —una factura, una orden de compra— para ver toda su cadena.",
-    "en": "Open the map from a document — an invoice, a purchase order — to see its whole chain.",
-    "pt": "Abra o mapa a partir de um documento — uma fatura, uma ordem de compra — para ver toda a sua cadeia."
+    "es": "Busca un documento por su número, o ábrelo desde la barra de cualquier factura, orden o asiento con «Mapa de relaciones».",
+    "en": "Search for a document by its number, or open it from any invoice, order or entry with «Relationship map».",
+    "pt": "Pesquise um documento pelo número ou abra-o a partir de qualquer fatura, ordem ou lançamento com «Mapa de relações»."
   },
   "relationship_map.loading": {
     "es": "Cargando el mapa…",
@@ -33,11 +33,6 @@
     "es": "Tipo de documento no reconocido: {{type}}.",
     "en": "Unrecognised document type: {{type}}.",
     "pt": "Tipo de documento não reconhecido: {{type}}."
-  },
-  "relationship_map.truncated": {
-    "es": "Se muestran los primeros {{count}} documentos de la cadena.",
-    "en": "Showing the first {{count}} documents of the chain.",
-    "pt": "Mostrando os primeiros {{count}} documentos da cadeia."
   },
   "relationship_map.node.no_number": {
     "es": "Sin número",
@@ -155,9 +150,9 @@
     "pt": "Recebido"
   },
   "relationship_map.rel.billed": {
-    "es": "Facturado por el proveedor",
+    "es": "Facturado",
     "en": "Billed",
-    "pt": "Faturado pelo fornecedor"
+    "pt": "Faturado"
   },
   "relationship_map.rel.posted": {
     "es": "Contabilizado",
@@ -193,5 +188,385 @@
     "es": "Sin estado",
     "en": "No status",
     "pt": "Sem estado"
+  },
+  "relationship_map.open_hint": {
+    "es": "Ver toda la cadena de este documento: de dónde viene, en qué se convirtió y qué contabilizó",
+    "en": "See this document's whole chain: where it came from, what it became and what it posted",
+    "pt": "Ver toda a cadeia deste documento: de onde vem, no que se tornou e o que lançou"
+  },
+  "relationship_map.forbidden": {
+    "es": "No tienes acceso a este documento, así que tampoco a su mapa.",
+    "en": "You do not have access to this document, so not to its map either.",
+    "pt": "Você não tem acesso a este documento, portanto também não ao seu mapa."
+  },
+  "relationship_map.too_large": {
+    "es": "La cadena de este documento es demasiado grande para dibujarla. Reduce la profundidad e inténtalo de nuevo.",
+    "en": "This document's chain is too large to draw. Lower the depth and try again.",
+    "pt": "A cadeia deste documento é grande demais para desenhar. Reduza a profundidade e tente novamente."
+  },
+  "relationship_map.summary": {
+    "es": "{{documents}} documentos · {{links}} vínculos",
+    "en": "{{documents}} documents · {{links}} links",
+    "pt": "{{documents}} documentos · {{links}} vínculos"
+  },
+  "relationship_map.legend": {
+    "es": "Leyenda",
+    "en": "Legend",
+    "pt": "Legenda"
+  },
+  "relationship_map.postings_hidden": {
+    "es": "{{count}} asientos contables ocultos.",
+    "en": "{{count}} journal entries hidden.",
+    "pt": "{{count}} lançamentos contábeis ocultos."
+  },
+  "relationship_map.truncated.nodes": {
+    "es": "Se muestran los {{count}} documentos más cercanos; la cadena continúa.",
+    "en": "Showing the {{count}} nearest documents; the chain goes on.",
+    "pt": "Mostrando os {{count}} documentos mais próximos; a cadeia continua."
+  },
+  "relationship_map.truncated.depth": {
+    "es": "La cadena continúa más allá de {{depth}} saltos desde este documento.",
+    "en": "The chain goes on beyond {{depth}} hops from this document.",
+    "pt": "A cadeia continua além de {{depth}} saltos a partir deste documento."
+  },
+  "relationship_map.truncated.fan_out": {
+    "es": "Algún documento tiene más vínculos de un mismo tipo de los que se dibujan.",
+    "en": "Some document has more links of one kind than are drawn.",
+    "pt": "Algum documento tem mais vínculos de um mesmo tipo do que os desenhados."
+  },
+  "relationship_map.truncated.widen": {
+    "es": "Ampliar",
+    "en": "Show more",
+    "pt": "Ampliar"
+  },
+  "relationship_map.node.restricted": {
+    "es": "Sin acceso",
+    "en": "No access",
+    "pt": "Sem acesso"
+  },
+  "relationship_map.node.open_hint": {
+    "es": "Doble clic para abrir el documento",
+    "en": "Double-click to open the document",
+    "pt": "Clique duplo para abrir o documento"
+  },
+  "relationship_map.toolbar.label": {
+    "es": "Herramientas del mapa",
+    "en": "Map tools",
+    "pt": "Ferramentas do mapa"
+  },
+  "relationship_map.toolbar.filter": {
+    "es": "Buscar en el mapa",
+    "en": "Search the map",
+    "pt": "Pesquisar no mapa"
+  },
+  "relationship_map.toolbar.postings": {
+    "es": "Asientos",
+    "en": "Entries",
+    "pt": "Lançamentos"
+  },
+  "relationship_map.toolbar.postings_hint": {
+    "es": "Mostrar u ocultar los asientos contables",
+    "en": "Show or hide journal entries",
+    "pt": "Mostrar ou ocultar os lançamentos contábeis"
+  },
+  "relationship_map.toolbar.show_postings": {
+    "es": "Mostrarlos",
+    "en": "Show them",
+    "pt": "Mostrá-los"
+  },
+  "relationship_map.toolbar.depth": {
+    "es": "Profundidad",
+    "en": "Depth",
+    "pt": "Profundidade"
+  },
+  "relationship_map.toolbar.depth_hint": {
+    "es": "Cuántos saltos desde este documento se recorren",
+    "en": "How many hops from this document are followed",
+    "pt": "Quantos saltos a partir deste documento são percorridos"
+  },
+  "relationship_map.toolbar.view": {
+    "es": "Vista",
+    "en": "View",
+    "pt": "Visualização"
+  },
+  "relationship_map.toolbar.diagram": {
+    "es": "Diagrama",
+    "en": "Diagram",
+    "pt": "Diagrama"
+  },
+  "relationship_map.toolbar.list": {
+    "es": "Lista",
+    "en": "List",
+    "pt": "Lista"
+  },
+  "relationship_map.toolbar.refresh": {
+    "es": "Actualizar",
+    "en": "Refresh",
+    "pt": "Atualizar"
+  },
+  "relationship_map.toolbar.export": {
+    "es": "Exportar a CSV",
+    "en": "Export to CSV",
+    "pt": "Exportar para CSV"
+  },
+  "relationship_map.finder.intro": {
+    "es": "Elige un documento para ver su cadena completa: de dónde viene, en qué se convirtió, quién lo pagó y qué contabilizó.",
+    "en": "Pick a document to see its whole chain: where it came from, what it became, who paid it and what it posted.",
+    "pt": "Escolha um documento para ver sua cadeia completa: de onde vem, no que se tornou, quem o pagou e o que lançou."
+  },
+  "relationship_map.finder.number": {
+    "es": "Número de documento",
+    "en": "Document number",
+    "pt": "Número do documento"
+  },
+  "relationship_map.finder.placeholder": {
+    "es": "FAC-00000128, PO-2026-000001…",
+    "en": "INV-00000128, PO-2026-000001…",
+    "pt": "FAT-00000128, PO-2026-000001…"
+  },
+  "relationship_map.finder.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "relationship_map.finder.all_types": {
+    "es": "Todos los tipos",
+    "en": "All types",
+    "pt": "Todos os tipos"
+  },
+  "relationship_map.finder.searching": {
+    "es": "Buscando…",
+    "en": "Searching…",
+    "pt": "Pesquisando…"
+  },
+  "relationship_map.finder.no_results": {
+    "es": "Ningún documento coincide con esa búsqueda.",
+    "en": "No document matches that search.",
+    "pt": "Nenhum documento corresponde a essa pesquisa."
+  },
+  "relationship_map.panel.title": {
+    "es": "Detalle del documento",
+    "en": "Document details",
+    "pt": "Detalhes do documento"
+  },
+  "relationship_map.panel.module": {
+    "es": "Área",
+    "en": "Area",
+    "pt": "Área"
+  },
+  "relationship_map.panel.open": {
+    "es": "Abrir documento",
+    "en": "Open document",
+    "pt": "Abrir documento"
+  },
+  "relationship_map.panel.reroot": {
+    "es": "Ver su mapa",
+    "en": "See its map",
+    "pt": "Ver seu mapa"
+  },
+  "relationship_map.panel.relations": {
+    "es": "Vínculos",
+    "en": "Links",
+    "pt": "Vínculos"
+  },
+  "relationship_map.panel.restricted": {
+    "es": "No tienes permiso para ver este documento. Se muestra para que la cadena conserve su forma.",
+    "en": "You are not allowed to see this document. It is shown so the chain keeps its shape.",
+    "pt": "Você não tem permissão para ver este documento. Ele é exibido para que a cadeia mantenha sua forma."
+  },
+  "relationship_map.csv.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "relationship_map.csv.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "relationship_map.csv.party": {
+    "es": "Tercero",
+    "en": "Party",
+    "pt": "Terceiro"
+  },
+  "relationship_map.csv.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "relationship_map.csv.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "relationship_map.csv.currency": {
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
+  },
+  "relationship_map.csv.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Estado"
+  },
+  "relationship_map.csv.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "relationship_map.csv.depth": {
+    "es": "Saltos",
+    "en": "Hops",
+    "pt": "Saltos"
+  },
+  "relationship_map.csv.file": {
+    "es": "mapa-de-relaciones",
+    "en": "relationship-map",
+    "pt": "mapa-de-relacoes"
+  },
+  "relationship_map.doc.sales_opportunity": {
+    "es": "Oportunidad",
+    "en": "Opportunity",
+    "pt": "Oportunidade"
+  },
+  "relationship_map.doc.vendor_debit_note": {
+    "es": "Nota de débito de proveedor",
+    "en": "Vendor debit note",
+    "pt": "Nota de débito de fornecedor"
+  },
+  "relationship_map.doc.vendor_payment": {
+    "es": "Pago a proveedor",
+    "en": "Vendor payment",
+    "pt": "Pagamento a fornecedor"
+  },
+  "relationship_map.doc.bank_transfer": {
+    "es": "Transferencia bancaria",
+    "en": "Bank transfer",
+    "pt": "Transferência bancária"
+  },
+  "relationship_map.doc.intercompany_transaction": {
+    "es": "Operación intercompañía",
+    "en": "Intercompany transaction",
+    "pt": "Operação intercompanhia"
+  },
+  "relationship_map.doc.inventory_adjustment": {
+    "es": "Ajuste de inventario",
+    "en": "Inventory adjustment",
+    "pt": "Ajuste de estoque"
+  },
+  "relationship_map.doc.payroll_run": {
+    "es": "Nómina",
+    "en": "Payroll run",
+    "pt": "Folha de pagamento"
+  },
+  "relationship_map.doc.fixed_asset": {
+    "es": "Activo fijo",
+    "en": "Fixed asset",
+    "pt": "Ativo imobilizado"
+  },
+  "relationship_map.rel.quoted": {
+    "es": "Cotizado",
+    "en": "Quoted",
+    "pt": "Cotado"
+  },
+  "relationship_map.rel.adjusted_by": {
+    "es": "Ajustada con",
+    "en": "Adjusted by",
+    "pt": "Ajustada por"
+  },
+  "relationship_map.rel.reversed": {
+    "es": "Revertido",
+    "en": "Reversed",
+    "pt": "Estornado"
+  },
+  "relationship_map.rel.payment_posted": {
+    "es": "Pago contabilizado",
+    "en": "Payment posted",
+    "pt": "Pagamento lançado"
+  },
+  "relationship_map.rel.posted_counterparty": {
+    "es": "Contabilizado en la otra empresa",
+    "en": "Posted at the counterparty",
+    "pt": "Lançado na outra empresa"
+  },
+  "relationship_map.rel.disposal_posted": {
+    "es": "Baja contabilizada",
+    "en": "Disposal posted",
+    "pt": "Baixa lançada"
+  },
+  "relationship_map.rel.depreciated": {
+    "es": "Depreciado",
+    "en": "Depreciated",
+    "pt": "Depreciado"
+  },
+  "relationship_map.rel.modified": {
+    "es": "Modificado",
+    "en": "Modified",
+    "pt": "Modificado"
+  },
+  "relationship_map.status.pending": {
+    "es": "Por aprobar",
+    "en": "Pending",
+    "pt": "Pendente"
+  },
+  "relationship_map.module.sales": {
+    "es": "Ventas",
+    "en": "Sales",
+    "pt": "Vendas"
+  },
+  "relationship_map.module.purchasing": {
+    "es": "Compras",
+    "en": "Purchasing",
+    "pt": "Compras"
+  },
+  "relationship_map.module.finance": {
+    "es": "Finanzas",
+    "en": "Finance",
+    "pt": "Finanças"
+  },
+  "relationship_map.module.inventory": {
+    "es": "Inventario",
+    "en": "Inventory",
+    "pt": "Estoque"
+  },
+  "relationship_map.module.hr": {
+    "es": "RR.HH. y nómina",
+    "en": "HR and payroll",
+    "pt": "RH e folha"
+  },
+  "relationship_map.module.assets": {
+    "es": "Activos fijos",
+    "en": "Fixed assets",
+    "pt": "Ativos imobilizados"
+  },
+  "relationship_map.category.flow": {
+    "es": "Flujo del documento",
+    "en": "Document flow",
+    "pt": "Fluxo do documento"
+  },
+  "relationship_map.category.settlement": {
+    "es": "Pago",
+    "en": "Payment",
+    "pt": "Pagamento"
+  },
+  "relationship_map.category.posting": {
+    "es": "Contabilización",
+    "en": "Posting",
+    "pt": "Lançamento"
+  },
+  "relationship_map.category.reversal": {
+    "es": "Reversión",
+    "en": "Reversal",
+    "pt": "Estorno"
+  },
+  "relationship_map.category.correction": {
+    "es": "Corrección",
+    "en": "Correction",
+    "pt": "Correção"
+  },
+  "relationship_map.category.fiscal": {
+    "es": "Fiscal",
+    "en": "Fiscal",
+    "pt": "Fiscal"
   }
 }

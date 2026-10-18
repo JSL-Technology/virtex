@@ -3,6 +3,12 @@
     <h1 class="s-header__title">{{ 'settings.pages.approvals.title' | translate }}</h1>
     <p class="s-header__subtitle">{{ 'settings.approvals.subtitle' | translate }}</p>
   </div>
+  <!-- Two ways to approve a document: a simple policy here, or a process with steps and branches.
+       Say so, and where the other one lives (QA A-02). -->
+  <p class="ap__workflows" role="note">
+    {{ 'settings.approvals.workflows_note' | translate }}
+    <a routerLink="/workflows">{{ 'settings.approvals.go_workflows' | translate }}</a>
+  </p>
 
   @if (loading()) {
     <p class="ap__state" role="status">{{ 'settings.sections.loading' | translate }}</p>

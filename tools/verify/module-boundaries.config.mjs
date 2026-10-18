@@ -103,6 +103,8 @@ export const MODULE_OF_FOLDER = {
   // imports no domain — reaches document links through the global DataSource and TypeORM metadata.
   'relationship-map': 'reportes',
 
+  ai: 'inteligencia',
+
   // ── Configuración / Administración ────────────────────────────────────────────────────────────
   localization: 'configuracion',
   taxes: 'configuracion',
@@ -181,6 +183,13 @@ export const ALLOWED_DEPENDENCIES = {
    * transaccionales de nadie. Es la única forma en que se extrae sin arrastrar el resto.
    */
   reportes: ['plataforma', 'identidad', 'configuracion'],
+
+  /**
+   * La plataforma de IA (docs/IA_PLAN_MAESTRO.md). Propone productos al catálogo a través de su
+   * puerto y lee los resultados del motor de pronóstico, que escribe tablas propias (`ai_*`). No
+   * escribe en las tablas de nadie: lo que sugiere lo guarda una persona, por el módulo dueño.
+   */
+  inteligencia: ['plataforma', 'identidad', 'configuracion', 'inventario'],
 };
 
 /**

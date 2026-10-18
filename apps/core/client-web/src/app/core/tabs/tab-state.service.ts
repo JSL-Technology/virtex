@@ -7,6 +7,7 @@ import { TabPreferencesService } from './tab-preferences.service';
 import { DialogService } from '../services/dialog.service';
 import { NotificationService } from '../services/notification';
 import { TabEventBusService, TabEvent } from './tab-event-bus.service';
+import { uniqueById } from './workspace-merge';
 
 /** Handler que una página puede registrar para guardar antes de cerrar (dirty). */
 export type TabSaveHandler = () => Promise<boolean> | boolean;
@@ -118,6 +119,7 @@ export class TabStateService {
     // config; si no, según la preferencia del usuario y qué representa la ventana.
     const asPreview =
       definition.tabType !== TabType.PINNED &&
+      definition.previewable !== false &&
       (config.preview ??
         (this.prefs.enablePreview() && this.isPreviewable(definition.tabType, params)));
 
@@ -150,7 +152,11 @@ export class TabStateService {
     // contenido en el sitio en vez de acumular otra pestaña al lado. Es lo que
     // hace que ir abriendo registros no deje un reguero de pestañas.
     if (asPreview) {
-      const preview = this.tabsSignal().find((t) => t.isPreview && t.isCloseable);
+      // Never a window declared non-previewable, even one persisted as a preview by an older build:
+      // reusing the relationship map's tab for the document opened FROM it replaced the map.
+      const preview = this.tabsSignal().find(
+        (t) => t.isPreview && t.isCloseable && this.registry.resolve(t.route).definition.previewable !== false,
+      );
       if (preview) {
         this.reusePreview(preview.id, {
           type: definition.tabType,
@@ -371,6 +377,10 @@ export class TabStateService {
   }
 
   updateTitle(tabId: string, title: string): void {
+    // The same title again is not a change: a page that refreshes itself (a running workflow every
+    // 15 s) re-set it on each load, and every patch saved the whole workspace to the server.
+    const tab = this.tabsSignal().find((t) => t.id === tabId);
+    if (tab && tab.title === title && !tab.titleKey) return;
     // A title set by the page is data (the document's own number), not a catalogue entry.
     this.patch(tabId, { title, titleKey: undefined });
   }
@@ -560,15 +570,44 @@ export class TabStateService {
   }
 
   /**
-   * Replaces the list — restore and cross-device sync — and applies the tab limit to it.
+   * Replaces the whole list — on restore, from this browser or from the account's saved workspace.
    *
-   * Opening a tab respected the cap, but a restored workspace was taken whole: a list saved before
-   * the cap existed, or merged from another device, came back with 40 tabs and stayed that way
-   * (QA A-04). The tabs kept are the ones the user would miss: pinned, unsaved, and the most
-   * recently used.
+   * The list is normalised on the way in, because it may have been written by an older build or
+   * merged from another device:
+   *
+   *  - The entity key is RE-DERIVED from the route. The route is what the tab shows; a stored key
+   *    that disagreed with it (a tab showing a relationship map but claiming to be an invoice)
+   *    made `openTab`'s de-duplication send every later attempt to open that invoice to the map.
+   *  - Two tabs with the same id collapse into the most recently active (see `uniqueById`), and two
+   *    claiming the same entity into the first: every lookup assumes one of each.
+   *  - A window that may not be a preview stops being one, and at most one preview survives — the
+   *    preview slot is, by definition, a single reusable tab.
+   *
+   * The tab limit is applied last: a workspace saved before the cap existed, or merged from another
+   * device, could come back over the limit (QA A-04). The tabs kept are the ones the user would
+   * miss: pinned, unsaved, and the most recently used.
    */
   setTabs(tabs: TabModel[]): void {
-    this.tabsSignal.set(this.sortPinned(tabs));
+    const seen = new Set<string>();
+    let previewKept = false;
+    const normalised: TabModel[] = [];
+    for (const tab of uniqueById(tabs)) {
+      let entityKey = tab.entityKey;
+      let previewable = true;
+      try {
+        const { definition, params } = this.registry.resolve(tab.route);
+        if (definition.entityKeyFn) entityKey = definition.entityKeyFn(params, tab.queryParams);
+        previewable = definition.previewable !== false;
+      } catch {
+        /* An unresolvable route keeps what it had; the wrapper shows its own error. */
+      }
+      if (entityKey && seen.has(entityKey)) continue;
+      if (entityKey) seen.add(entityKey);
+      const isPreview = tab.isPreview && previewable && !previewKept;
+      if (isPreview) previewKept = true;
+      normalised.push({ ...tab, entityKey, isPreview });
+    }
+    this.tabsSignal.set(this.sortPinned(normalised));
     this.trimToLimit();
   }
 

@@ -19,6 +19,7 @@ import { MailModule } from '../mail/mail.module';
 import { BillingNotificationsListener } from './listeners/billing-notifications.listener';
 import { User } from '../users/entities/user.entity/user.entity';
 import { SaasCronService } from './services/saas-cron.service';
+import { EntitlementsPort } from './contracts/entitlements.contract';
 
 @Global()
 @Module({
@@ -46,7 +47,8 @@ import { SaasCronService } from './services/saas-cron.service';
   controllers: [SaasController],
   providers: [SaasService, SubscriptionActiveGuard, PlanLimitCheckGuard, UsageMetricRepository, SaasCronService,
     BillingNotificationsListener,
+    { provide: EntitlementsPort, useExisting: SaasService },
   ],
-  exports: [SaasService, SubscriptionActiveGuard, PlanLimitCheckGuard],
+  exports: [SaasService, SubscriptionActiveGuard, PlanLimitCheckGuard, EntitlementsPort],
 })
 export class SaasModule {}

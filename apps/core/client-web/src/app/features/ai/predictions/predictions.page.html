@@ -1,0 +1,235 @@
+<vx-list-shell
+  titleKey="ai.predictions.title"
+  subtitleKey="ai.predictions.subtitle"
+  [count]="total()"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  [searchable]="true"
+  [search]="search()"
+  (searchChange)="onSearch($event)"
+  searchPlaceholderKey="ai.predictions.search"
+  (reload)="reload()"
+>
+  <button
+    listActions
+    *appHasPermission="'ai_forecasts:run'"
+    type="button"
+    class="secondary-button"
+    [disabled]="running() || runInProgress()"
+    (click)="runNow()"
+  >
+    <lucide-icon [img]="RunIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ (runInProgress() ? 'ai.predictions.run_in_progress' : 'ai.predictions.run_now') | translate }}</span>
+  </button>
+
+  <div listFilters class="doc-filter">
+    <label for="pred-warehouse">{{ 'inventory.common.warehouse' | translate }}</label>
+    <select id="pred-warehouse" [ngModel]="warehouseFilter()" (ngModelChange)="warehouseFilter.set($event); applyFilters()">
+      <option value="">{{ 'inventory.common.all_warehouses' | translate }}</option>
+      @for (warehouse of warehouses(); track warehouse.id) {
+        <option [value]="warehouse.id">{{ warehouse.name }}</option>
+      }
+    </select>
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="pred-status">{{ 'ai.predictions.status' | translate }}</label>
+    <select id="pred-status" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); applyFilters()">
+      <option value="">{{ 'ai.predictions.all_statuses' | translate }}</option>
+      @for (status of STATUSES; track status) {
+        <option [value]="status">{{ k('ai.predictions.status_label', status) | translate }}</option>
+      }
+    </select>
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="pred-sort">{{ 'ai.predictions.sort' | translate }}</label>
+    <select id="pred-sort" [ngModel]="sort()" (ngModelChange)="sort.set($event); applyFilters()">
+      <option value="risk">{{ 'ai.predictions.sort_risk' | translate }}</option>
+      <option value="top_sellers">{{ 'ai.predictions.sort_top_sellers' | translate }}</option>
+    </select>
+  </div>
+
+  <div listEmpty class="empty-copy">
+    @if (neverRun()) {
+      <p class="ls__state-title">{{ 'ai.predictions.never_run_title' | translate }}</p>
+      <p class="ls__state-help">{{ 'ai.predictions.never_run_help' | translate }}</p>
+    } @else {
+      <p class="ls__state-title">{{ 'ai.predictions.empty_title' | translate }}</p>
+      <p class="ls__state-help">{{ 'ai.predictions.empty_help' | translate }}</p>
+    }
+  </div>
+
+  <section class="pred-overview" [attr.aria-label]="'ai.predictions.overview' | translate">
+    <p class="pred-run">
+      @if (summary()?.lastSuccess; as success) {
+        {{ 'ai.predictions.last_run' | translate: { when: (success.finishedAt | vxDate: 'medium') } }}
+        @if (medianWape() !== null) {
+          · {{ 'ai.predictions.accuracy' | translate: { wape: (medianWape() | vxPercent) } }}
+        }
+      }
+      @if (summary()?.lastRun?.status === 'FAILED') {
+        <span class="pred-run__failed">{{ 'ai.predictions.last_run_failed' | translate }}</span>
+      }
+    </p>
+
+    <div class="pred-chips" role="group" [attr.aria-label]="'ai.predictions.status' | translate">
+      @for (status of STATUSES; track status) {
+        <button
+          type="button"
+          class="pred-chip"
+          [class.is-active]="statusFilter() === status"
+          [attr.aria-pressed]="statusFilter() === status"
+          (click)="filterStatus(status)"
+        >
+          <vx-badge [tone]="toneOf(status)" size="sm">{{ summary()?.byStatus?.[status] ?? 0 | vxNumber: '1.0-0' }}</vx-badge>
+          <span>{{ k('ai.predictions.status_label', status) | translate }}</span>
+        </button>
+      }
+    </div>
+
+    @if (branches().length) {
+      <div class="pred-branches">
+        <h2 class="pred-branches__title">{{ 'ai.predictions.top_by_branch' | translate }}</h2>
+        <div class="pred-branches__grid">
+          @for (branch of branches(); track branch.name) {
+            <article class="pred-branch card">
+              <h3>{{ branch.name || ('ai.predictions.no_branch' | translate) }}</h3>
+              <ol>
+                @for (item of branch.items; track item.productId) {
+                  <li>
+                    <span class="pred-branch__name">{{ item.productName }}</span>
+                    <span class="pred-branch__qty">{{ item.forecast30d | vxNumber: '1.0-0' }}</span>
+                  </li>
+                }
+              </ol>
+              <p class="pred-branch__hint">{{ 'ai.predictions.units_next_30_days' | translate }}</p>
+            </article>
+          }
+        </div>
+      </div>
+    }
+
+    @if (leadTimes().length) {
+      <details class="pred-leadtimes card">
+        <summary class="pred-leadtimes__title">{{ 'ai.predictions.lead_times' | translate: { count: leadTimes().length } }}</summary>
+        <p class="pred-leadtimes__hint">{{ 'ai.predictions.lead_times_hint' | translate }}</p>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'ai.predictions.lt_supplier' | translate }}</th>
+              <th scope="col" class="num">{{ 'ai.predictions.lt_receipts' | translate }}</th>
+              <th scope="col" class="num">{{ 'ai.predictions.lt_median' | translate }}</th>
+              <th scope="col" class="num">{{ 'ai.predictions.lt_p90' | translate }}</th>
+              <th scope="col" class="num">{{ 'ai.predictions.lt_range' | translate }}</th>
+              <th scope="col" class="num">{{ 'ai.predictions.lt_on_time' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of leadTimes(); track row.supplierId) {
+              <tr>
+                <th scope="row">{{ row.supplierName }}</th>
+                <td class="num">{{ row.receipts | vxNumber: '1.0-0' }}</td>
+                <td class="num">{{ row.medianDays | vxNumber: '1.0-1' }}</td>
+                <td class="num">{{ row.p90Days | vxNumber: '1.0-1' }}</td>
+                <td class="num">{{ row.minDays }}–{{ row.maxDays }}</td>
+                <td class="num">{{ row.onTimeRate === null ? '—' : (row.onTimeRate | vxPercent) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </details>
+    }
+  </section>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th><span class="visually-hidden">{{ 'ai.predictions.details' | translate }}</span></th>
+          <th>{{ 'inventory.common.product' | translate }}</th>
+          <th>{{ 'inventory.common.warehouse' | translate }}</th>
+          <th class="numeric">{{ 'ai.predictions.on_hand' | translate }}</th>
+          <th class="numeric">{{ 'ai.predictions.next_30_days' | translate }}</th>
+          <th class="numeric">{{ 'ai.predictions.days_of_cover' | translate }}</th>
+          <th>{{ 'ai.predictions.stockout_date' | translate }}</th>
+          <th class="numeric">{{ 'ai.predictions.suggested_order' | translate }}</th>
+          <th>{{ 'ai.predictions.status' | translate }}</th>
+          @if (sort() === 'top_sellers') {
+            <th class="numeric">{{ 'ai.predictions.branch_rank' | translate }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track rowKey(row)) {
+          <tr>
+            <td>
+              <button
+                type="button"
+                class="icon-button"
+                [attr.aria-expanded]="expanded() === rowKey(row)"
+                [attr.aria-label]="'ai.predictions.show_chart' | translate: { name: row.productName }"
+                (click)="toggle(row)"
+              >
+                <lucide-icon [img]="expanded() === rowKey(row) ? OpenIcon : ClosedIcon" size="16" aria-hidden="true"></lucide-icon>
+              </button>
+            </td>
+            <td>
+              <a class="table-link" routerLink="/inventory/movements" [queryParams]="{ productId: row.productId, warehouseId: row.warehouseId }">{{ row.productName }}</a>
+              @if (row.sku) { <span class="muted"> · {{ row.sku }}</span> }
+            </td>
+            <td>{{ row.warehouseName }}</td>
+            <td class="numeric">{{ row.onHand | vxNumber: '1.0-2' }}</td>
+            <td class="numeric" [attr.title]="'ai.predictions.range_hint' | translate: { p90: (row.forecast30dP90 | vxNumber: '1.0-0') }">
+              {{ row.forecast30d | vxNumber: '1.0-0' }}
+            </td>
+            <td class="numeric">{{ row.daysOfCover === null ? '—' : (row.daysOfCover | vxNumber: '1.0-0') }}</td>
+            <td>{{ row.stockoutDate ? (row.stockoutDate | vxDate) : '—' }}</td>
+            <td class="numeric">
+              @if (row.suggestedOrderQty > 0) {
+                <strong>{{ row.suggestedOrderQty | vxNumber: '1.0-2' }}</strong>
+              } @else { — }
+            </td>
+            <td><vx-badge [tone]="toneOf(row.status)" size="sm">{{ k('ai.predictions.status_label', row.status) | translate }}</vx-badge></td>
+            @if (sort() === 'top_sellers') {
+              <td class="numeric">{{ row.branchRank ?? '—' }}</td>
+            }
+          </tr>
+          @if (expanded() === rowKey(row)) {
+            <tr class="pred-detail">
+              <td [attr.colspan]="sort() === 'top_sellers' ? 10 : 9">
+                <div class="pred-detail__body">
+                  @if (seriesLoading()) {
+                    <p class="muted">{{ 'ai.predictions.loading_chart' | translate }}</p>
+                  } @else if (series(); as data) {
+                    <app-forecast-chart [series]="data" />
+                  }
+                  <dl class="pred-facts">
+                    <div><dt>{{ 'ai.predictions.avg_daily_demand' | translate }}</dt><dd>{{ row.avgDailyDemand | vxNumber: '1.0-2' }}</dd></div>
+                    <div><dt>{{ 'ai.predictions.lead_time' | translate }}</dt><dd>{{ row.leadTimeDays === null ? '—' : (row.leadTimeDays | vxNumber: '1.0-1') }}</dd></div>
+                    <div><dt>{{ 'ai.predictions.safety_stock' | translate }}</dt><dd>{{ row.safetyStock | vxNumber: '1.0-2' }}</dd></div>
+                    <div><dt>{{ 'ai.predictions.reorder_point' | translate }}</dt><dd>{{ row.reorderPoint | vxNumber: '1.0-2' }}</dd></div>
+                    <div><dt>{{ 'ai.predictions.service_level' | translate }}</dt><dd>{{ row.serviceLevel | vxPercent }}</dd></div>
+                    <div><dt>{{ 'ai.predictions.model' | translate }}</dt><dd>{{ row.model }}</dd></div>
+                    <div><dt>{{ 'ai.predictions.backtest_error' | translate }}</dt><dd>{{ row.accuracyWape === null ? '—' : (row.accuracyWape | vxPercent) }}</dd></div>
+                    <div><dt>{{ 'ai.predictions.censored_days' | translate }}</dt><dd>{{ row.censoredDays | vxNumber: '1.0-0' }}</dd></div>
+                  </dl>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <vx-pager
+    listFooter
+    [page]="page()"
+    [pageSize]="limit()"
+    [total]="total()"
+    [pageSizes]="[25, 50, 100, 200]"
+    [disabled]="loading()"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  />
+</vx-list-shell>

@@ -16,6 +16,7 @@ import { AbstractControl, FormGroupDirective } from '@angular/forms';
 import { Subscription, merge } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, ArrowLeft, AlertTriangle, Check, Loader } from 'lucide-angular';
+import { RelationshipMapLinkComponent } from '../relationship-map-link';
 
 /** Un fallo de validación, con el campo al que pertenece. */
 export interface DraftProblem {
@@ -53,7 +54,7 @@ export interface DraftProblem {
 @Component({
   selector: 'vx-draft-shell',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule],
+  imports: [TranslateModule, LucideAngularModule, RelationshipMapLinkComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './draft-shell.component.html',
   styleUrls: ['./draft-shell.component.scss'],
@@ -215,6 +216,13 @@ export class DraftShellComponent {
 
   readonly saveLabelKey = input('common.save');
   readonly cancelLabelKey = input('common.cancel');
+
+  /**
+   * The document as the relationship map names it, once it exists (a new draft has no chain yet).
+   * Given both, the header carries the «Mapa de relaciones» action.
+   */
+  readonly relationshipMapType = input<string | null>(null);
+  readonly relationshipMapId = input<string | null | undefined>(null);
 
   readonly save = output<void>();
   /**

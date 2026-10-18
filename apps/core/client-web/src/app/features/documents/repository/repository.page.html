@@ -43,7 +43,7 @@
     <select [value]="templateFilter() ?? ''" (change)="filterTemplates($any($event.target).value)">
       <option value="">{{ 'documents.repository.all_kinds' | translate }}</option>
       @for (type of templateTypes; track type) {
-        <option [value]="type">{{ 'documents.templates.type.' + type | translate }}</option>
+        <option [value]="type" [selected]="type == (templateFilter() ?? '')">{{ 'documents.templates.type.' + type | translate }}</option>
       }
     </select>
   </label>
@@ -51,7 +51,7 @@
     <span>{{ 'documents.templates.upload_as' | translate }}</span>
     <select [value]="uploadType()" (change)="uploadType.set($any($event.target).value)">
       @for (type of templateTypes; track type) {
-        <option [value]="type">{{ 'documents.templates.type.' + type | translate }}</option>
+        <option [value]="type" [selected]="type == (uploadType())">{{ 'documents.templates.type.' + type | translate }}</option>
       }
     </select>
   </label>
@@ -136,7 +136,7 @@
                   (change)="retag(item, $any($event.target).value)">
                   <option value="NONE">{{ 'documents.repository.not_a_template' | translate }}</option>
                   @for (type of templateTypes; track type) {
-                    <option [value]="type">{{ 'documents.templates.type.' + type | translate }}</option>
+                    <option [value]="type" [selected]="type == (item.templateType)">{{ 'documents.templates.type.' + type | translate }}</option>
                   }
                 </select>
               } @else {

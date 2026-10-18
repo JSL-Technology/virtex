@@ -28,7 +28,9 @@ Three things used to make a reproducible deployment impossible:
 | ---------- | ------- | ----- |
 | Node.js    | 20.x    | Pinned by `.nvmrc` and `engines`. |
 | PostgreSQL | 16+     | `uuid-ossp` and `pgcrypto` are created by the baseline migration. |
-| Redis      | 6+      | Sessions, rate limiting, plan-limit counters. |
+| Redis      | 6+      | Sessions, rate limiting, plan-limit counters, job queues. |
+| pgvector   | 0.5+    | Optional. Enables duplicate-product detection by photo. |
+| Python     | 3.12    | Only for the AI engine container (`apps/ai-engine`). |
 
 ## 1. Configure the backend
 
@@ -163,3 +165,77 @@ invoice.payment_failed
 
 Put its signing secret in `STRIPE_WEBHOOK_SECRET`. Plans and their limits are provisioned by
 migration, so no seeding flag is involved; the Stripe price ids belong in `STRIPE_PRICE_*`.
+
+## 7. AI platform
+
+Everything here is optional: without it every screen works by hand, and the AI-assisted parts
+answer 503 or stay hidden. The architecture and the reasoning behind each model are in
+`docs/IA_PLAN_MAESTRO.md`.
+
+### 7.1 API settings
+
+| Variable                                                          | Purpose                                                                               |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `ANTHROPIC_API_KEY`                                               | Enables photo-to-product and anomaly explanations. Server-side only.                  |
+| `AI_MODEL_VISION`, `AI_MODEL_NARRATIVE`, `AI_MODEL_DEEP_ANALYSIS` | Model per feature; defaults `claude-opus-5-5`, `claude-opus-5-5`, `claude-fable-5-1`. |
+| `VOYAGE_API_KEY`                                                  | Image embeddings for duplicate detection (needs pgvector).                            |
+| `AI_ENABLED=false`                                                | Turns every model call off without removing the key.                                  |
+| `AI_OPEN_FOOD_FACTS_ENABLED=true`                                 | Looks scanned barcodes up in Open Food Facts; only the barcode is sent. Off by default. |
+
+Every call is metered against the plan's `ai_credits` and recorded in `ai_requests` (tokens, cost,
+latency, outcome — never the user's input). The plan features `ai_vision`, `ai_forecasting` and
+`ai_anomalies` gate the screens.
+
+### 7.2 Database
+
+The `AiPlatform` migration creates the role the engine connects as, `virtex_ai_engine`, with no
+BYPASSRLS: it reads the source tables and writes only the `ai_*` tables it produces. Give it a
+password before migrating, the same way `virtex_app` gets one:
+
+```bash
+AI_ENGINE_DB_PASSWORD='…' npm run migration:run
+```
+
+If the database offers the `vector` extension, the migration installs it and creates
+`product_embeddings`; if not, it skips that table and everything else still applies.
+
+### 7.3 The engine
+
+The forecasting and anomaly engine is a Python worker that consumes the `ai-engine` BullMQ queue
+from the same Redis as the API. It holds no state, so it scales by running more replicas.
+
+```bash
+docker build -t virtex-ai-engine apps/ai-engine
+docker run \
+  -e AI_ENGINE_DB_HOST=… -e AI_ENGINE_DB_NAME=… -e AI_ENGINE_DB_PASSWORD=… \
+  -e REDIS_HOST=… -e REDIS_PORT=6379 [-e REDIS_PASSWORD=… -e REDIS_TLS=true] \
+  virtex-ai-engine
+```
+
+| Variable                      | Default            | Purpose                                                                                    |
+| ----------------------------- | ------------------ | ------------------------------------------------------------------------------------------ |
+| `AI_ENGINE_DB_USER`           | `virtex_ai_engine` | Never the application's role, never the schema owner.                                      |
+| `AI_ENGINE_CONCURRENCY`       | `1`                | Tenants processed at once per replica.                                                     |
+| `AI_ENGINE_MAX_SERIES`        | `20000`            | Series modelled individually per tenant; the slowest movers beyond it are averaged.        |
+| `AI_ENGINE_FOUNDATION_MODELS` | `false`            | Chronos-Bolt zero-shot forecasts for new products; needs the `foundation` extra (PyTorch). |
+
+The API queues a forecasting and an anomaly run per entitled tenant every night at 02:17 server
+time, and on demand from the screens. A run that never finishes is marked failed after six hours;
+the screens keep showing the last good results meanwhile.
+
+When a run finishes, the API announces what it found — products at risk of stocking out, new
+high-severity anomalies — in the notification bell of the people allowed to see them, once per run
+whatever the number of API replicas. It hears the engine through BullMQ's job events; a sweep every
+three hours covers any it missed.
+
+To decide which forecasting model to trust on a tenant's own data, run the benchmark from the
+engine image (read-only, as the engine role):
+
+```bash
+docker run --rm -e AI_ENGINE_DB_HOST=… -e AI_ENGINE_DB_NAME=… -e AI_ENGINE_DB_PASSWORD=… \
+  virtex-ai-engine virtex-ai-benchmark --organization <uuid> --windows 3 --output /tmp/report.json
+```
+
+It compares the engine's ensemble with LightGBM (with and without holiday, price and promotion
+drivers) and a seasonal-naive baseline — and Prophet and CatBoost when the image is built with the
+`benchmark` extra — by WAPE, MASE, bias, P10–P90 coverage and run time.

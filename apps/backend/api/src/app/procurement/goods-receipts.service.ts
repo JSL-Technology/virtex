@@ -1,4 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { BUSINESS_EVENTS } from '../contracts/business-events/business-events.contract';
 import { DataSource } from 'typeorm';
 import { GoodsReceiptStatus, PurchaseOrderReceipt } from './entities/purchase-order-receipt.entity';
 import { PurchaseOrder, PurchaseOrderStatus } from './entities/purchase-order.entity';
@@ -93,6 +95,7 @@ export class GoodsReceiptsService {
     private readonly dataSource: DataSource,
     private readonly orders: PurchaseOrdersService,
     private readonly inventory: GoodsReceiptPort,
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
 
   /** Record a delivery against an order and answer with the receipt it became. */
@@ -101,7 +104,19 @@ export class GoodsReceiptsService {
     // Opening the order checks the person can see its branch.
     await this.orders.findOne(orderId, organizationId, actorUserId);
     const { receipt } = await this.orders.receiveDocument(orderId, delivery, organizationId, actorUserId);
-    return this.findOne(receipt.id, organizationId);
+    const view = await this.findOne(receipt.id, organizationId);
+    this.events?.emit(BUSINESS_EVENTS.GOODS_RECEIPT_CREATED, {
+      organizationId,
+      actorUserId,
+      receiptId: view.id,
+      number: view.number,
+      purchaseOrderId: view.orderId,
+      purchaseOrderNumber: view.orderNumber,
+      supplierId: view.supplierId,
+      supplierName: view.supplierName,
+      currencyCode: view.currencyCode,
+    });
+    return view;
   }
 
   async findAll(

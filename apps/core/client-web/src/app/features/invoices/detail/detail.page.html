@@ -1,5 +1,7 @@
 @if (invoice(); as inv) {
 <vx-document-shell
+  relationshipMapType="SALES_INVOICE"
+  [relationshipMapId]="inv.id"
   [title]="documentTitle(inv)"
   [subtitle]="inv.customerName"
   [statusKey]="statusKey(inv.status)"

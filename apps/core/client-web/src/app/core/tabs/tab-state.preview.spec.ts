@@ -37,7 +37,21 @@ const listDef: TabDefinition = {
   load: () => Promise.resolve(class {}),
 };
 
+/** A window to work FROM (the relationship map): never the reusable preview. */
+const canvasDef: TabDefinition = {
+  pattern: '/map/:id',
+  tabType: TabType.WIZARD,
+  icon: 'Share2',
+  title: 'Map',
+  isCloseable: true,
+  previewable: false,
+  entityKeyFn: (p) => `map:${p['id']}`,
+  load: () => Promise.resolve(class {}),
+};
+
 function resolve(route: string) {
+  const map = route.match(/^\/map\/(\w+)$/);
+  if (map) return { definition: canvasDef, params: { id: map[1] }, isFallback: false };
   const m = route.match(/^\/invoices\/(\w+)$/);
   if (m) return { definition: recordDef, params: { id: m[1] }, isFallback: false };
   return { definition: listDef, params: {}, isFallback: false };
@@ -98,6 +112,39 @@ describe('TabStateService — vista previa al abrir', () => {
     tabs.openTab({ route: '/invoices/89' });
     expect(tabs.tabs().length).toBe(2);
     expect(tabs.tabs().every((t) => !t.isPreview)).toBe(true);
+  });
+
+  it('a non-previewable window is never a preview, and the document opened from it gets its own tab', () => {
+    tabs.openTab({ route: '/map/1' });
+    expect(tabs.tabs()[0].isPreview).toBe(false);
+    tabs.openTab({ route: '/invoices/88' });
+    expect(tabs.tabs().map((t) => t.route)).toEqual(['/map/1', '/invoices/88']);
+  });
+
+  it('never reuses a non-previewable window persisted as a preview by an older build', () => {
+    tabs.setTabs([
+      { id: 't1', type: TabType.WIZARD, title: 'Map', icon: 'Share2', route: '/map/1', isDirty: false, isLoading: false, isCloseable: true, isPinned: false, isPreview: true, entityKey: 'map:1', createdAt: new Date(), lastActivatedAt: new Date(), order: 0 },
+    ] as never);
+    tabs.openTab({ route: '/invoices/88' });
+    expect(tabs.tabs().map((t) => t.route)).toEqual(['/map/1', '/invoices/88']);
+  });
+
+  it('heals a restored list: keys follow routes, duplicates collapse, one preview at most', () => {
+    const base = { type: TabType.RECORD, title: 'x', icon: 'x', isDirty: false, isLoading: false, isCloseable: true, isPinned: false, createdAt: new Date(), lastActivatedAt: new Date() };
+    tabs.setTabs([
+      // Shows the map but claims to be invoice 88 — written by an older build.
+      { ...base, id: 'a', route: '/map/1', entityKey: 'invoice:88', isPreview: true, order: 0 },
+      { ...base, id: 'b', route: '/invoices/88', entityKey: 'invoice:88', isPreview: true, order: 1 },
+      { ...base, id: 'c', route: '/invoices/88', entityKey: 'invoice:88', isPreview: false, order: 2 },
+      { ...base, id: 'd', route: '/invoices/90', entityKey: 'invoice:90', isPreview: true, order: 3 },
+    ] as never);
+    expect(tabs.tabs().map((t) => [t.id, t.entityKey, t.isPreview])).toEqual([
+      ['a', 'map:1', false],
+      ['b', 'invoice:88', true],
+      ['d', 'invoice:90', false],
+    ]);
+    tabs.openTab({ route: '/invoices/88' });
+    expect(tabs.activeTabId()).toBe('b');
   });
 
   it('a tab titled from the catalogue follows a language change; a document title does not', () => {

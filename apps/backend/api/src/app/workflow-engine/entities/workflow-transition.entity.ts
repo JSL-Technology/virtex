@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { WorkflowInstance } from './workflow-instance.entity';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
+import type { WorkflowInstance } from './workflow-instance.entity';
 
 /** What happened at one step of an instance. The `kind` is the verb; `detail` carries the specifics. */
 export type WorkflowTransitionKind =
@@ -14,6 +14,8 @@ export type WorkflowTransitionKind =
   | 'timer_fired'
   | 'completed'
   | 'cancelled'
+  | 'retried'
+  | 'escalated'
   | 'error';
 
 /**
@@ -35,8 +37,9 @@ export class WorkflowTransition {
   @Column({ name: 'instance_id', type: 'uuid' })
   instanceId: string;
 
-  /** Declared so the entity states the foreign key the migration creates; history dies with its instance. */
-  @ManyToOne(() => WorkflowInstance, { onDelete: 'CASCADE' })
+  // The instance it belongs to: deleting an instance deletes its history (the migration's FK, declared here
+  // so the schema-drift check sees the entity and the database agree).
+  @ManyToOne('WorkflowInstance', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'instance_id', foreignKeyConstraintName: 'FK_workflow_transitions_instance' })
   instance?: WorkflowInstance;
 

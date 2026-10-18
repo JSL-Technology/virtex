@@ -52,6 +52,10 @@ export enum CostingMethod {
 @Entity({ name: 'products' })
 @Index(['organizationId', 'sku'], { unique: true, where: '"sku" IS NOT NULL' })
 @Index(['organizationId', 'name'], { unique: true })
+@Index('UQ_products_organization_barcode', ['organizationId', 'barcode'], {
+  unique: true,
+  where: '"barcode" IS NOT NULL',
+})
 // Filing the register by category is the first thing anybody does with one.
 @Index('IDX_products_category_id', ['categoryId'])
 export class Product {
@@ -73,6 +77,25 @@ export class Product {
 
   @Column({ type: 'text', nullable: true })
   description?: string;
+
+  /**
+   * The code printed on the packaging (EAN-13, UPC-A, GTIN-14…), unique among the tenant's
+   * products when given — two products answering to the same scan is a till that rings up the
+   * wrong one. Blank is stored as NULL for the same reason as the SKU.
+   */
+  @Column({ type: 'varchar', length: 64, nullable: true, transformer: blankToNullTransformer })
+  barcode?: string | null;
+
+  @Column({ type: 'varchar', length: 120, nullable: true, transformer: blankToNullTransformer })
+  brand?: string | null;
+
+  /**
+   * Descriptive attributes that differ by kind of product — size, colour, weight, volume,
+   * material. Free keys rather than columns: a shoe shop and a hardware store do not describe their
+   * stock with the same words, and neither drives any calculation.
+   */
+  @Column({ type: 'jsonb', nullable: true })
+  attributes?: Record<string, string> | null;
 
   /**
    * The tenant's own category, by reference.

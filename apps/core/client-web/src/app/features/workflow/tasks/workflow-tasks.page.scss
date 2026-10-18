@@ -1,45 +1,160 @@
+@use 'assets/styles/design-system' as ds;
+
 :host {
   display: block;
+  // The inbox paints the window's background; it needs a height to fill, or it stopped where the
+  // last task did and the rest of the window was a different colour (QA).
   height: 100%;
-  min-height: 0;
+}
+
+.wft__views {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.chip {
+  padding: 2px var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  background: var(--surface-base);
+  color: var(--content-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  @include ds.focus-ring(2px);
+
+  &--active {
+    border-color: var(--accent-solid);
+    background: var(--accent-surface);
+    color: var(--accent-text);
+    font-weight: var(--font-semibold);
+  }
+}
+
+.wft__outcome {
+  @include ds.button-secondary('sm');
+
+  &--primary {
+    @include ds.button-primary('sm');
+  }
+
+  &--danger {
+    color: var(--error-text);
+    border-color: var(--error-border);
+  }
 }
 
 .wft__open {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  color: var(--content-link);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  font: inherit;
+  gap: var(--space-1);
 }
 
-.wft__outcome {
-  padding: 6px 14px;
+.wft__link {
+  @include ds.button-icon('sm');
+}
+
+.wft__danger {
+  color: var(--error-text);
+  border-color: var(--error-border);
+}
+
+.wft-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.wft-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
   font-size: var(--text-sm);
-  font-weight: 600;
+  color: var(--content-secondary);
+
+  a {
+    color: var(--accent-text);
+  }
+}
+
+.wft-detail__overdue {
+  color: var(--error-text);
+  font-weight: var(--font-semibold);
+}
+
+.wft-detail__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  h3 {
+    @include ds.section-label;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  textarea {
+    @include ds.input-base;
+    height: auto;
+    min-height: 80px;
+    padding-block: var(--space-2);
+    resize: vertical;
+
+    &[aria-invalid='true'] {
+      border-color: var(--error-solid);
+    }
+  }
+}
+
+.wft-detail__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--content-secondary);
+}
+
+.wft-detail__instructions {
+  white-space: pre-line;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
   color: var(--content-primary);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
+  font-size: var(--text-sm);
+}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: default;
+.wft-detail__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+
+  dt {
+    font-size: var(--text-xs);
+    color: var(--content-tertiary);
   }
 
-  &--approve {
-    color: var(--success-on-solid);
-    background: var(--success-solid);
-    border-color: transparent;
+  dd {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--content-primary);
+    overflow-wrap: anywhere;
   }
+}
 
-  &--reject {
-    color: var(--error-text);
-    background: var(--error-surface);
-    border-color: var(--error-border);
-  }
+.wft-detail__error {
+  color: var(--error-text);
+  font-size: var(--text-xs);
+}
+
+.wft-detail__hint {
+  color: var(--content-tertiary);
+  font-size: var(--text-xs);
+}
+
+.wft-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
 }

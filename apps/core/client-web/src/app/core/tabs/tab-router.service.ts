@@ -88,7 +88,15 @@ export class TabRouterService {
    * la pestaña que estuviera activa al guardar, no en la página que pedía la barra de direcciones.
    */
   bootRoute(): { path: string; query: Record<string, string> } | null {
-    const url = this.router.url;
+    // The layout restores while the first navigation is still activating it, and when that
+    // navigation came through a redirect (a link without the company, `/workflow-instances/…` →
+    // `/e/acme/workflow-instances/…`) `router.url` still reads `/`: the saved tab then won over the
+    // link. The navigation in flight knows where it is going.
+    const inFlight = this.router.getCurrentNavigation()?.finalUrl;
+    // The page under a settings link (`/overview#settings/approvals`) is still the page asked
+    // for; judging it with its fragment discarded it, the saved tab won, and the navigation to that
+    // tab dropped the fragment — the settings window a link pointed at never opened.
+    const url = this.stripFragment(inFlight ? this.router.serializeUrl(inFlight) : this.router.url);
     return this.isWorkspaceUrl(url) ? this.parseUrl(url) : null;
   }
 

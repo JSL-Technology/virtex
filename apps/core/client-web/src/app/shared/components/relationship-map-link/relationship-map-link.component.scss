@@ -1,0 +1,15 @@
+@use '../../../../assets/styles/design-system' as ds;
+
+:host {
+  display: inline-flex;
+}
+
+.rml {
+  @include ds.button-secondary('md');
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.rml--icon {
+  @include ds.button-icon('md');
+}

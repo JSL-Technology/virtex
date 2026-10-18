@@ -1,0 +1,146 @@
+<vx-list-shell
+  titleKey="ai.anomalies.title"
+  subtitleKey="ai.anomalies.subtitle"
+  [count]="total()"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load(); loadRun()"
+>
+  <button
+    listActions
+    *appHasPermission="'ai_anomalies:resolve'"
+    type="button"
+    class="secondary-button"
+    [disabled]="running() || lastRun()?.status === 'QUEUED' || lastRun()?.status === 'RUNNING'"
+    (click)="runNow()"
+  >
+    <lucide-icon [img]="RunIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'ai.anomalies.run_now' | translate }}</span>
+  </button>
+
+  <div listFilters class="doc-filter">
+    <label for="an-status">{{ 'ai.anomalies.status' | translate }}</label>
+    <select id="an-status" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); applyFilters()">
+      <option value="">{{ 'ai.anomalies.all' | translate }}</option>
+      @for (status of STATUSES; track status) {
+        <option [value]="status">{{ k('ai.anomalies.status_label', status) | translate }} ({{ byStatus()[status] ?? 0 }})</option>
+      }
+    </select>
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="an-severity">{{ 'ai.anomalies.severity' | translate }}</label>
+    <select id="an-severity" [ngModel]="severityFilter()" (ngModelChange)="severityFilter.set($event); applyFilters()">
+      <option value="">{{ 'ai.anomalies.all' | translate }}</option>
+      @for (severity of SEVERITIES; track severity) {
+        <option [value]="severity">{{ k('ai.anomalies.severity_label', severity) | translate }}</option>
+      }
+    </select>
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="an-category">{{ 'ai.anomalies.category' | translate }}</label>
+    <select id="an-category" [ngModel]="categoryFilter()" (ngModelChange)="categoryFilter.set($event); applyFilters()">
+      <option value="">{{ 'ai.anomalies.all' | translate }}</option>
+      @for (category of CATEGORIES; track category) {
+        <option [value]="category">{{ k('ai.anomalies.category_label', category) | translate }}</option>
+      }
+    </select>
+  </div>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'ai.anomalies.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'ai.anomalies.empty_help' | translate }}</p>
+  </div>
+
+  @if (lastRun(); as run) {
+    <p class="an-run">
+      @if (run.finishedAt) {
+        {{ 'ai.anomalies.last_run' | translate: { when: (run.finishedAt | vxDate: 'medium') } }}
+      }
+      @if (run.status === 'QUEUED' || run.status === 'RUNNING') {
+        <span>{{ 'ai.anomalies.run_in_progress' | translate }}</span>
+      }
+      @if (run.status === 'FAILED') {
+        <span class="an-run__failed">{{ 'ai.anomalies.last_run_failed' | translate }}</span>
+      }
+    </p>
+  }
+
+  <ul class="an-list">
+    @for (anomaly of rows(); track anomaly.id) {
+      <li class="an-item card">
+        <header class="an-item__header">
+          <vx-badge [tone]="toneOf(anomaly.severity)" size="sm">{{ k('ai.anomalies.severity_label', anomaly.severity) | translate }}</vx-badge>
+          <h2 class="an-item__title">{{ k('ai.anomalies.detector', anomaly.detector) | translate }}</h2>
+          <span class="an-item__meta">
+            {{ k('ai.anomalies.category_label', anomaly.category) | translate }} · {{ anomaly.occurredOn | vxDate }}
+          </span>
+          @if (anomaly.status !== 'OPEN') {
+            <vx-badge tone="neutral" size="sm">{{ k('ai.anomalies.status_label', anomaly.status) | translate }}</vx-badge>
+          }
+        </header>
+
+        <dl class="an-evidence">
+          @for (field of evidenceOf(anomaly); track field.key) {
+            <div>
+              <dt>{{ k('ai.anomalies.evidence', field.key) | translate }}</dt>
+              <dd>
+                @if (isNumber(field.value)) { {{ field.value | vxNumber: '1.0-4' }} }
+                @else if (isTranslated(field.key)) {
+                  @for (v of asList(field.value); track $index) {
+                    {{ k('ai.anomalies.value', v) | translate }}{{ $last ? '' : ', ' }}
+                  }
+                }
+                @else { {{ asList(field.value).join(', ') }} }
+              </dd>
+            </div>
+          }
+        </dl>
+
+        @if (anomaly.explanation) {
+          <p class="an-explanation">
+            <lucide-icon [img]="ExplainIcon" size="14" aria-hidden="true"></lucide-icon>
+            {{ anomaly.explanation }}
+          </p>
+        }
+
+        <footer class="an-actions">
+          @if (!anomaly.explanation && canExplain()) {
+            <button type="button" class="secondary-button" [disabled]="busy() === anomaly.id" (click)="explain(anomaly)">
+              <lucide-icon [img]="ExplainIcon" size="16" aria-hidden="true"></lucide-icon>
+              <span>{{ 'ai.anomalies.explain' | translate }}</span>
+            </button>
+          }
+          <ng-container *appHasPermission="'ai_anomalies:resolve'">
+            @if (anomaly.status === 'OPEN') {
+              <button type="button" class="secondary-button" [disabled]="busy() === anomaly.id" (click)="verdict(anomaly, 'USEFUL')">
+                <lucide-icon [img]="UsefulIcon" size="16" aria-hidden="true"></lucide-icon>
+                <span>{{ 'ai.anomalies.mark_useful' | translate }}</span>
+              </button>
+              <button type="button" class="secondary-button" [disabled]="busy() === anomaly.id" (click)="verdict(anomaly, 'FALSE_POSITIVE')">
+                <lucide-icon [img]="DismissIcon" size="16" aria-hidden="true"></lucide-icon>
+                <span>{{ 'ai.anomalies.mark_false_positive' | translate }}</span>
+              </button>
+            } @else {
+              <button type="button" class="secondary-button" [disabled]="busy() === anomaly.id" (click)="reopen(anomaly)">
+                <lucide-icon [img]="ReopenIcon" size="16" aria-hidden="true"></lucide-icon>
+                <span>{{ 'ai.anomalies.reopen' | translate }}</span>
+              </button>
+            }
+          </ng-container>
+        </footer>
+      </li>
+    }
+  </ul>
+
+  <vx-pager
+    listFooter
+    [page]="page()"
+    [pageSize]="limit()"
+    [total]="total()"
+    [pageSizes]="[25, 50, 100]"
+    [disabled]="loading()"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  />
+</vx-list-shell>

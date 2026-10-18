@@ -44,4 +44,10 @@ export const PERIOD_USAGE_SOURCES: ReadonlyArray<{ resource: SaasResource; sql: 
     sql: `SELECT COUNT(*)::int AS n FROM journal_entries
            WHERE organization_id = $1 AND "entryType" = 'MANUAL' AND created_at >= $2 AND created_at < $3`,
   },
+  {
+    // Credits consumed by calls to a language model. A refused or failed call is recorded with the
+    // credits it was charged, so this is the same number the gateway enforced against.
+    resource: SaasResource.AI_CREDITS,
+    sql: 'SELECT COALESCE(SUM(credits), 0)::int AS n FROM ai_requests WHERE organization_id = $1 AND created_at >= $2 AND created_at < $3',
+  },
 ];

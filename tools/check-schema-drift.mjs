@@ -40,6 +40,14 @@ const UNMODELLED_OBJECTS = [
       'exclusive lock and analytical reporting blocks for its duration.',
   },
   {
+    match: /IDX_workflow_definitions_published_trigger/,
+    reason:
+      'An expression index on `(trigger->>\'event\')`, partial on published definitions: it is how ' +
+      'the event dispatcher finds the processes a business event starts without scanning every ' +
+      'definition. TypeORM @Index takes column names only, so an expression index can exist only ' +
+      'in a migration (WorkflowEngineHardening) and always reads as drift.',
+  },
+  {
     match: /ALTER COLUMN "fx_rate_tolerance" SET DEFAULT/,
     reason:
       "A fractional default on a `decimal` column. TypeORM writes `SET DEFAULT '0.02'`, PostgreSQL " +

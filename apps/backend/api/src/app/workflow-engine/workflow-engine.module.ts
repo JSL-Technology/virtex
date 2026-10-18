@@ -12,7 +12,13 @@ import { WorkflowTasksService } from './workflow-tasks.service';
 import { WorkflowTimerService } from './workflow-timer.service';
 import { WorkflowTriggerService } from './workflow-trigger.service';
 import { WorkflowActionRegistry } from './workflow-action.registry';
-import { BuiltinWorkflowActions } from './actions/builtin-actions';
+import { WorkflowDirectoryService } from './workflow-directory.service';
+import { WorkflowNotifier } from './workflow-notifier.service';
+import { WorkflowSubprocessService } from './workflow-subprocess.service';
+import { WorkflowEngineApprovalSource } from './workflow-approval.source';
+import { BuiltinWorkflowActions, WorkflowSubprocessStarter } from './actions/builtin-actions';
+import { DocumentWorkflowActions } from './actions/document-actions';
+import { WorkflowDomainEventsListener } from './events/workflow-domain-events.listener';
 import { WorkflowEngineController } from './workflow-engine.controller';
 
 /**
@@ -20,18 +26,14 @@ import { WorkflowEngineController } from './workflow-engine.controller';
  *
  * It owns its four tables and reaches no operational module: automatic steps run through the
  * {@link WorkflowActionRegistry} (the built-in verbs ship here; a domain registers its own), and
- * events arrive through {@link WorkflowTriggerService}, which is exported so a module can start a
- * process from one of its facts without the engine ever importing it. `NotificationsModule` is the
- * one collaborator — a sibling in `configuracion` — so a task can tell the person it waits on.
+ * business events arrive by name through the application event bus (`contracts/business-events`),
+ * so the engine never imports the module that emitted them. `NotificationsModule` is the one
+ * collaborator — a sibling in `configuracion` — so a task can tell the people it waits on; the
+ * approvals centre reaches workflow approvals through the shared `ApprovalSourceRegistry`.
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      WorkflowDefinition,
-      WorkflowInstance,
-      WorkflowTask,
-      WorkflowTransition,
-    ]),
+    TypeOrmModule.forFeature([WorkflowDefinition, WorkflowInstance, WorkflowTask, WorkflowTransition]),
     NotificationsModule,
   ],
   providers: [
@@ -42,7 +44,14 @@ import { WorkflowEngineController } from './workflow-engine.controller';
     WorkflowTimerService,
     WorkflowTriggerService,
     WorkflowActionRegistry,
+    WorkflowDirectoryService,
+    WorkflowNotifier,
+    WorkflowEngineApprovalSource,
+    WorkflowDomainEventsListener,
     BuiltinWorkflowActions,
+    DocumentWorkflowActions,
+    WorkflowSubprocessService,
+    { provide: WorkflowSubprocessStarter, useExisting: WorkflowSubprocessService },
   ],
   controllers: [WorkflowEngineController],
   exports: [WorkflowEngineService, WorkflowActionRegistry, WorkflowTriggerService],

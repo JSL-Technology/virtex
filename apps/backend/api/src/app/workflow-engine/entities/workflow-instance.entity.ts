@@ -29,6 +29,9 @@ export enum WorkflowInstanceStatus {
 @Index('IDX_workflow_instances_org_status', ['organizationId', 'status'])
 @Index('IDX_workflow_instances_org_wake', ['organizationId', 'nextWakeAt'])
 @Index('IDX_workflow_instances_org_definition', ['organizationId', 'definitionId'])
+// `created_at DESC` in the migration; TypeORM cannot express the direction, only the columns.
+@Index('IDX_workflow_instances_org_created', ['organizationId', 'createdAt'])
+@Index('IDX_workflow_instances_parent', ['organizationId', 'parentInstanceId'], { where: '"parent_instance_id" IS NOT NULL' })
 export class WorkflowInstance {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -50,10 +53,10 @@ export class WorkflowInstance {
   })
   status: WorkflowInstanceStatus;
 
-  @Column({ type: 'jsonb', default: () => `'{}'` })
+  @Column({ type: 'jsonb', default: {} })
   context: Record<string, unknown>;
 
-  @Column({ type: 'jsonb', default: () => `'[]'` })
+  @Column({ type: 'jsonb', default: [] })
   tokens: WorkflowToken[];
 
   @Column({ type: 'jsonb', nullable: true })
@@ -67,6 +70,18 @@ export class WorkflowInstance {
 
   @Column({ type: 'text', nullable: true })
   error: string | null;
+
+  /** How it ended: the name of the end node reached («Aprobado», «Rechazado»). */
+  @Column({ type: 'varchar', length: 200, nullable: true })
+  result: string | null;
+
+  /** Why someone cancelled it, kept with the run. */
+  @Column({ name: 'cancel_reason', type: 'text', nullable: true })
+  cancelReason: string | null;
+
+  /** The run that started this one as a subprocess, if any. */
+  @Column({ name: 'parent_instance_id', type: 'uuid', nullable: true })
+  parentInstanceId: string | null;
 
   @Column({ name: 'completed_at', type: 'timestamptz', nullable: true })
   completedAt: Date | null;

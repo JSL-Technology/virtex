@@ -5,9 +5,9 @@
     "pt": "Aceder"
   },
   "permissions.actions.act": {
-    "es": "Atender tareas",
-    "en": "Act on tasks",
-    "pt": "Atender tarefas"
+    "es": "Responder tareas",
+    "en": "Answer tasks",
+    "pt": "Responder a tarefas"
   },
   "permissions.actions.adjust": {
     "es": "Ajustar",
@@ -65,9 +65,9 @@
     "pt": "Excluir"
   },
   "permissions.actions.design": {
-    "es": "Diseñar",
-    "en": "Design",
-    "pt": "Projetar"
+    "es": "Diseñar y publicar",
+    "en": "Design and publish",
+    "pt": "Desenhar e publicar"
   },
   "permissions.actions.dispose": {
     "es": "Dar de baja",
@@ -224,15 +224,20 @@
     "en": "Reopen fiscal year",
     "pt": "Reabrir exercício fiscal"
   },
+  "permissions.actions.resolve": {
+    "es": "Resolver",
+    "en": "Resolve",
+    "pt": "Resolver"
+  },
   "permissions.actions.reverse": {
     "es": "Reversar",
     "en": "Reverse",
     "pt": "Estornar"
   },
   "permissions.actions.run": {
-    "es": "Ejecutar",
-    "en": "Run",
-    "pt": "Executar"
+    "es": "Iniciar y gestionar ejecuciones",
+    "en": "Start and manage runs",
+    "pt": "Iniciar e gerir execuções"
   },
   "permissions.actions.run_inflation_adjustment": {
     "es": "Ejecutar ajuste por inflación",
@@ -258,6 +263,11 @@
     "es": "Transferir",
     "en": "Transfer",
     "pt": "Transferir"
+  },
+  "permissions.actions.use": {
+    "es": "Usar",
+    "en": "Use",
+    "pt": "Usar"
   },
   "permissions.actions.view": {
     "es": "Ver",
@@ -318,6 +328,26 @@
     "es": "Cuentas por cobrar",
     "en": "Accounts receivable",
     "pt": "Contas a receber"
+  },
+  "permissions.groups.ai_anomalies": {
+    "es": "Anomalías detectadas (IA)",
+    "en": "Detected anomalies (AI)",
+    "pt": "Anomalias detetadas (IA)"
+  },
+  "permissions.groups.ai_forecasts": {
+    "es": "Predicciones de demanda (IA)",
+    "en": "Demand forecasts (AI)",
+    "pt": "Previsões de procura (IA)"
+  },
+  "permissions.groups.ai_usage": {
+    "es": "Consumo de IA",
+    "en": "AI usage",
+    "pt": "Consumo de IA"
+  },
+  "permissions.groups.ai_vision": {
+    "es": "Productos desde foto (IA)",
+    "en": "Products from photo (AI)",
+    "pt": "Produtos a partir de foto (IA)"
   },
   "permissions.groups.analytics": {
     "es": "Analítica",
@@ -497,7 +527,7 @@
   "permissions.groups.relationship_map": {
     "es": "Mapa de relaciones",
     "en": "Relationship map",
-    "pt": "Mapa de relacionamentos"
+    "pt": "Mapa de relações"
   },
   "permissions.groups.reports": {
     "es": "Reportes",
@@ -555,9 +585,9 @@
     "pt": "Gestão de armazéns"
   },
   "permissions.groups.workflow_engine": {
-    "es": "Motor de flujos de trabajo",
-    "en": "Workflow engine",
-    "pt": "Motor de fluxos de trabalho"
+    "es": "Procesos de negocio",
+    "en": "Business processes",
+    "pt": "Processos de negócio"
   },
   "permissions.groups.workflows": {
     "es": "Flujos de trabajo",

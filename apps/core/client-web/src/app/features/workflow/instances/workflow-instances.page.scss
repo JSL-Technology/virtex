@@ -1,76 +1,101 @@
+@use '../../../../assets/styles/list-page' as list;
+@use 'assets/styles/design-system' as ds;
+
 :host {
   display: block;
-  height: 100%;
-  min-height: 0;
+  @include list.list-page;
 }
 
-// The page's own copy for the shell's empty state: icon above sentence, like the shell's default.
-.wfi__empty {
+.wfr__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2) var(--space-3);
+}
+
+.wfr__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  flex-basis: 100%;
+}
+
+.chip {
+  padding: 2px var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  background: var(--surface-base);
+  color: var(--content-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  @include ds.focus-ring(2px);
+
+  &--active {
+    border-color: var(--accent-solid);
+    background: var(--accent-surface);
+    color: var(--accent-text);
+    font-weight: var(--font-semibold);
+  }
+}
+
+.wfr__range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
+}
+
+.wfr__control {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
+
+  select,
+  input {
+    @include ds.input-base;
+    // A process with a 160-character name stretched the native select past the screen.
+    max-width: 260px;
+    height: var(--control-height-sm);
+    font-size: var(--text-sm);
+    width: auto;
+    min-width: 140px;
+  }
+}
+
+.wfr__clear {
+  @include ds.button-ghost('sm');
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.wfr__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-
-  p {
-    margin: 0;
-  }
+  gap: var(--space-2);
 }
 
-.wfi__table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--text-sm);
-
-  th {
-    text-align: left;
-    padding: 8px 16px;
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    color: var(--content-tertiary);
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  td {
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border-subtle);
-    color: var(--content-primary);
-  }
-
-  tbody tr {
-    cursor: pointer;
-    &:hover {
-      background: var(--bg-hover);
-    }
-  }
+.wfr__sub {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
 }
 
-.wfi__subject {
-  font-weight: 600;
+.wfr__subject,
+.wfr__where {
+  max-width: 280px;
 }
 
-.wfi__badge {
-  padding: 2px 8px;
-  font-size: var(--text-2xs);
-  font-weight: 600;
-  border-radius: var(--border-radius-full);
-  background: var(--bg-tertiary);
-  color: var(--content-secondary);
+.wfr__error {
+  @include ds.line-clamp(2);
+  color: var(--error-text);
+}
 
-  &[data-status='RUNNING'] {
-    background: var(--info-surface);
-    color: var(--info-text);
-  }
-  &[data-status='COMPLETED'] {
-    background: var(--success-surface);
-    color: var(--success-text);
-  }
-  &[data-status='CANCELLED'] {
-    background: var(--bg-tertiary);
-    color: var(--content-secondary);
-  }
-  &[data-status='FAILED'] {
-    background: var(--error-surface);
-    color: var(--error-text);
-  }
+.wfr__duration {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }

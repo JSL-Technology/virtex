@@ -247,11 +247,19 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
    * una lista o un informe no hay nada que guardar (escribir en un filtro no es un cambio pendiente),
    * así que ahí una interacción solo FIJA la vista previa, sin ensuciarla.
    *
+   * Los controles de VISTA (`[data-view-control]`: buscar dentro de un diagrama, elegir su
+   * profundidad) no cuentan como edición.
+   *
    * Una página que gestione su propio estado sucio con `TAB_CONTEXT.markDirty/markClean` sigue
    * mandando: esto solo actúa como red de seguridad y nunca vuelve a ensuciar tras un `markClean`
    * mientras el usuario no edite de nuevo.
    */
-  private readonly promoteOnEdit = (): void => {
+  private readonly promoteOnEdit = (event: Event): void => {
+    // A control that only changes how the window is VIEWED — a search box over a diagram, a depth
+    // selector — is not an edit: typing in it marked the relationship map «unsaved», and closing
+    // the map then asked to discard changes that did not exist. Such controls opt out by sitting
+    // inside `[data-view-control]`.
+    if ((event.target as Element | null)?.closest?.('[data-view-control]')) return;
     const tab = this.currentTab();
     if (!tab) return;
     if (tab.type === TabType.RECORD || tab.type === TabType.WIZARD) {

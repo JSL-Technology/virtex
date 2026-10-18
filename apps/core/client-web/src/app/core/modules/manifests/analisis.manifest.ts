@@ -27,6 +27,17 @@ export const ANALISIS_MODULE: ModuleManifest = {
       load: () => import('../../../features/reports/hub/reports-hub.page').then((m) => m.ReportsHubPage),
     },
     {
+      // Lo que la auditoría automática encontró inusual en ventas, compras, existencias y caja.
+      path: 'anomalies',
+      kind: WindowKind.LIST,
+      permission: 'ai_anomalies:view',
+      titleKey: 'page_titles.ai_anomalies',
+      icon: 'ShieldAlert',
+      entityKeyFn: () => 'analisis:ai-anomalies',
+      menu: { group: 'analysis', labelKey: 'page_titles.ai_anomalies' },
+      load: () => import('../../../features/ai/anomalies/anomalies.page').then((m) => m.AnomaliesPage),
+    },
+    {
       path: 'profitability-by-product',
       kind: WindowKind.OVERVIEW,
       permission: 'reports:view_sales',
@@ -55,6 +66,7 @@ export const ANALISIS_MODULE: ModuleManifest = {
       titleKey: 'relationship_map.title',
       icon: 'Share2',
       entityKeyFn: () => 'analisis:relationship-map',
+      previewable: false,
       menu: { group: 'analysis', labelKey: 'relationship_map.menu' },
       load: () => import('../../../features/relationship-map/relationship-map.page').then((m) => m.RelationshipMapPage),
     },
@@ -67,6 +79,8 @@ export const ANALISIS_MODULE: ModuleManifest = {
       titleKey: 'relationship_map.title',
       icon: 'Share2',
       entityKeyFn: (p) => `analisis:relationship-map:${p['type']}:${p['id']}`,
+      // A place to work FROM: documents opened on it get their own tabs, the map stays.
+      previewable: false,
       load: () => import('../../../features/relationship-map/relationship-map.page').then((m) => m.RelationshipMapPage),
     },
   ],

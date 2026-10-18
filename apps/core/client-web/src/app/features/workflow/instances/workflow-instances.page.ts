@@ -1,118 +1,335 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, Play } from 'lucide-angular';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { LucideAngularModule, X } from 'lucide-angular';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { NotificationService } from '../../../core/services/notification';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { VxDateRangeComponent } from '../../../shared/components/date';
+import { currentStepsText, runFailureText } from '../data/workflow-labels';
+import { VX_UI } from '../../../shared/components';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { WorkflowInstance, WorkflowService } from '../data/workflow.service';
+import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
+import { instanceStatusKey, instanceStatusTone } from '../data/workflow-labels';
+import {
+  ListInstancesFilter,
+  WorkflowDefinitionSummary,
+  WorkflowInstance,
+  WorkflowInstanceStatus,
+  WorkflowService,
+} from '../data/workflow.service';
+
+const STATUSES: WorkflowInstanceStatus[] = ['RUNNING', 'COMPLETED', 'FAILED', 'CANCELLED'];
+const SEARCH_DEBOUNCE_MS = 300;
 
 /**
- * The runs list: every instance of the tenant's workflows, newest first.
+ * Every run of every process, filterable the way an operator investigates: by state, by process,
+ * by who started it, by date, and by text (the run's subject). Paged on the server, so a company
+ * with years of runs opens it as fast as one with ten.
  *
- * Opened from a definition's «runs» action it is scoped to that process (the `definitionId` arrives
- * as a query parameter); opened from the menu it shows them all. Each row opens the runtime view,
- * where the instance's path through its graph is drawn.
+ * Opened from a process's «runs» link it arrives filtered to that process (`?key=`) and, from the
+ * running count, to its running instances (`?status=RUNNING`); the filters are visible and
+ * removable, never a hidden scope.
  */
 @Component({
   selector: 'app-workflow-instances-page',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, ListShellComponent, ...FORMAT_PIPES],
+  imports: [TranslateModule, LucideAngularModule, RouterLink, RowLinkDirective, ...FORMAT_PIPES, ...VX_UI, ListShellComponent, VxDateRangeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './workflow-instances.page.scss',
   template: `
     <vx-list-shell
       titleKey="workflow_engine.nav.instances"
-      [count]="instances().length"
+      subtitleKey="workflow_engine.instances.subtitle"
+      [count]="total()"
       [loading]="loading()"
       [error]="error()"
-      [empty]="instances().length === 0"
-      (reload)="reload()"
+      [empty]="items().length === 0"
+      [searchable]="true"
+      searchPlaceholderKey="workflow_engine.instances.search"
+      [search]="query()"
+      (searchChange)="onSearch($event)"
+      (reload)="load()"
     >
-      <div listEmpty class="empty-copy wfi__empty">
-        <lucide-icon [img]="RunIcon" size="28" aria-hidden="true"></lucide-icon>
-        <p class="ls__state-title">{{ 'workflow_engine.instances_empty' | translate }}</p>
+      <div listFilters class="wfr__filters">
+        <div class="wfr__chips" role="group" [attr.aria-label]="'workflow_engine.instances.filter_status' | translate">
+          <button type="button" class="chip" [class.chip--active]="!status()" [attr.aria-pressed]="!status()" (click)="setStatus('')">
+            {{ 'workflow_engine.instances.all' | translate }}
+          </button>
+          @for (option of statuses; track option) {
+            <button type="button" class="chip" [class.chip--active]="status() === option" [attr.aria-pressed]="status() === option" (click)="setStatus(option)">
+              {{ statusKey(option) | translate }}
+            </button>
+          }
+        </div>
+        <label class="wfr__control">
+          <span>{{ 'workflow_engine.instances.process' | translate }}</span>
+          <select [value]="processKey()" (change)="setProcess($any($event.target).value)">
+            <option value="">{{ 'workflow_engine.instances.all_processes' | translate }}</option>
+            @for (process of processes(); track process.key) {
+              <option [value]="process.key" [selected]="process.key === processKey()">{{ process.name }}</option>
+            }
+          </select>
+        </label>
+        <label class="wfr__control">
+          <span>{{ 'workflow_engine.instances.started_by' | translate }}</span>
+          <select [value]="scope()" (change)="setScope($any($event.target).value)">
+            <option value="all">{{ 'workflow_engine.instances.anyone' | translate }}</option>
+            <option value="mine">{{ 'workflow_engine.instances.me' | translate }}</option>
+          </select>
+        </label>
+        <vx-date-range class="wfr__range" fromLabelKey="workflow_engine.instances.from" toLabelKey="workflow_engine.instances.to"
+          [from]="from() || null" (fromChange)="setRange($event ?? '', to())" [to]="to() || null" (toChange)="setRange(from(), $event ?? '')" />
+        @if (hasFilters()) {
+          <button type="button" class="wfr__clear" (click)="clearFilters()">
+            <lucide-icon [img]="ClearIcon" [size]="14" aria-hidden="true" /> {{ 'workflow_engine.list.clear_filters' | translate }}
+          </button>
+        }
       </div>
 
-      <table class="wfi__table">
-        <thead>
-          <tr>
-            <th>{{ 'workflow_engine.instance.subject' | translate }}</th>
-            <th>{{ 'workflow_engine.list.status' | translate }}</th>
-            <th>{{ 'workflow_engine.instance.started' | translate }}</th>
-            <th>{{ 'workflow_engine.instance.completed' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (instance of instances(); track instance.id) {
-            <tr (click)="open(instance)">
-              <td class="wfi__subject">
-                {{ instance.subject?.label || ('workflow_engine.instance.untitled' | translate) }}
-              </td>
-              <td>
-                <span class="wfi__badge" [attr.data-status]="instance.status">
-                  {{ 'workflow_engine.instance_status.' + instance.status.toLowerCase() | translate }}
-                </span>
-              </td>
-              <td>{{ instance.createdAt | vxDate }}</td>
-              <td>{{ instance.completedAt ? (instance.completedAt | vxDate) : '—' }}</td>
+      <div listEmpty class="wfr__empty">
+        <p class="ls__state-title">{{ (hasFilters() ? 'workflow_engine.instances.no_match' : 'workflow_engine.instances_empty') | translate }}</p>
+        @if (hasFilters()) {
+          <button type="button" class="secondary-button" (click)="clearFilters()">{{ 'workflow_engine.list.clear_filters' | translate }}</button>
+        } @else {
+          <p class="ls__state-help">{{ 'workflow_engine.instances.empty_help' | translate }}</p>
+        }
+      </div>
+
+      <div class="table-container card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'workflow_engine.instances.process' | translate }}</th>
+              <th scope="col">{{ 'workflow_engine.instance.subject' | translate }}</th>
+              <th scope="col">{{ 'workflow_engine.list.status' | translate }}</th>
+              <th scope="col">{{ 'workflow_engine.instances.where' | translate }}</th>
+              <th scope="col">{{ 'workflow_engine.instances.started_by' | translate }}</th>
+              <th scope="col">{{ 'workflow_engine.instance.started' | translate }}</th>
+              <th scope="col" class="text-right">{{ 'workflow_engine.instances.duration' | translate }}</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (run of items(); track run.id) {
+              <tr appRowLink>
+                <td>
+                  <a class="table-link" [routerLink]="link('workflow-instances/' + run.id)">{{ run.definitionName ?? '—' }}</a>
+                  <span class="wfr__sub">{{ 'workflow_engine.version' | translate: { version: run.definitionVersion } }}</span>
+                </td>
+                <td class="wfr__subject">
+                  @if (run.subject?.route) {
+                    <a class="table-link" [routerLink]="link(run.subject!.route!)">{{ run.subject?.label || ('workflow_engine.instance.untitled' | translate) }}</a>
+                  } @else {
+                    {{ run.subject?.label || ('workflow_engine.instance.untitled' | translate) }}
+                  }
+                </td>
+                <td><vx-badge [tone]="tone(run.status)">{{ statusKey(run.status) | translate }}</vx-badge></td>
+                <td class="wfr__where">
+                  @switch (run.status) {
+                    @case ('RUNNING') {
+                      {{ steps(run) }}
+                      @if (run.openTaskCount) {
+                        <span class="wfr__sub">{{ 'workflow_engine.instances.open_tasks' | vxPluralKey: run.openTaskCount | translate: { count: run.openTaskCount } }}</span>
+                      }
+                    }
+                    @case ('COMPLETED') { {{ run.result || ('workflow_engine.instance_status.completed' | translate) }} }
+                    @case ('FAILED') { <span class="wfr__error" [title]="failure(run)">{{ failure(run) }}</span> }
+                    @case ('CANCELLED') { <span [title]="run.cancelReason ?? ''">{{ run.cancelReason || '—' }}</span> }
+                  }
+                </td>
+                <td>{{ run.startedByName || ('workflow_engine.instances.automatic' | translate) }}</td>
+                <td>{{ run.createdAt | vxDate: 'dateTime' }}</td>
+                <td class="text-right wfr__duration">{{ duration(run) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <vx-pager listFooter [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="setPage($event)" (pageSizeChange)="setPageSize($event)" />
     </vx-list-shell>
   `,
 })
 export class WorkflowInstancesPage {
   private readonly service = inject(WorkflowService);
   private readonly tenancy = inject(ActiveOrganizationService);
-  private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
-  protected readonly RunIcon = Play;
-
-  /** Optional filter, bound from the `?definitionId=` query parameter. */
+  /** Optional filters from the query string (`?key=…&status=…&definitionId=…`). */
+  readonly key = input<string>('');
   readonly definitionId = input<string>('');
+  // The query string says `?status=`, and `status` is already the filter's own state below: the
+  // route parameter seeds it once, so it is bound under the address's name and read as the seed.
+  // eslint-disable-next-line @angular-eslint/no-input-rename
+  readonly initialStatus = input<string>('', { alias: 'status' });
 
-  readonly instances = signal<WorkflowInstance[]>([]);
+  protected readonly statuses = STATUSES;
+  protected readonly ClearIcon = X;
+
+  readonly items = signal<WorkflowInstance[]>([]);
+  readonly total = signal(0);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly processes = signal<Array<{ key: string; name: string }>>([]);
 
-  readonly filter = computed(() => (this.definitionId() ? { definitionId: this.definitionId() } : {}));
+  readonly query = signal('');
+  readonly status = signal<WorkflowInstanceStatus | ''>('');
+  readonly processKey = signal('');
+  readonly definitionFilter = signal('');
+  readonly scope = signal<'all' | 'mine'>('all');
+  readonly from = signal('');
+  readonly to = signal('');
+  readonly page = signal(1);
+  readonly pageSize = signal(50);
+
+  readonly hasFilters = computed(
+    () => !!(this.query() || this.status() || this.processKey() || this.definitionFilter() || this.scope() !== 'all' || this.from() || this.to()),
+  );
+
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
+  private seq = 0;
 
   constructor() {
+    // Seed the filters from the link that opened the page (route inputs, or the tab's query).
     effect(() => {
-      // Re-read when the query filter changes.
-      const filter = this.filter();
-      this.load(filter);
+      const query = this.tab?.query ?? {};
+      const key = this.key() || query['key'] || '';
+      const status = (this.initialStatus() || query['status'] || '').toUpperCase();
+      const definitionId = this.definitionId() || query['definitionId'] || '';
+      untracked(() => {
+        this.processKey.set(key);
+        this.definitionFilter.set(definitionId);
+        this.status.set(STATUSES.includes(status as WorkflowInstanceStatus) ? (status as WorkflowInstanceStatus) : '');
+        this.page.set(1);
+        this.load();
+      });
     });
+
+    this.service.catalogue().subscribe({
+      next: (list: WorkflowDefinitionSummary[]) => this.processes.set(list.map((p) => ({ key: p.key, name: p.name })).sort((a, b) => a.name.localeCompare(b.name))),
+      error: () => undefined,
+    });
+
+    inject(DestroyRef).onDestroy(() => this.searchTimer && clearTimeout(this.searchTimer));
   }
 
-  /**
-   * The shell's «retry», and its reload when the list comes back into view after its data changed elsewhere: it
-   * re-reads with the current filter, so a list opened from one workflow stays scoped to it.
-   */
-  reload(): void {
-    this.load(this.filter());
-  }
-
-  private load(filter: { definitionId?: string }): void {
+  load(): void {
+    const seq = ++this.seq;
     this.loading.set(true);
     this.error.set(null);
+    const filter: ListInstancesFilter = {
+      status: this.status(),
+      key: this.processKey() || undefined,
+      definitionId: this.definitionFilter() || undefined,
+      search: this.query().trim() || undefined,
+      scope: this.scope(),
+      from: this.from() || undefined,
+      to: this.to() || undefined,
+      page: this.page(),
+      pageSize: this.pageSize(),
+    };
     this.service.listInstances(filter).subscribe({
-      next: (instances) => {
-        this.instances.set(instances);
+      next: (result) => {
+        if (seq !== this.seq) return;
+        this.items.set(result.items);
+        this.total.set(result.total);
         this.loading.set(false);
       },
       error: (err: unknown) => {
+        if (seq !== this.seq) return;
         this.error.set(this.notifications.httpErrorMessage(err, 'workflow_engine.load_failed'));
         this.loading.set(false);
       },
     });
   }
 
-  open(instance: WorkflowInstance): void {
-    void this.router.navigateByUrl(this.tenancy.urlFor(`workflow-instances/${instance.id}`));
+  link(path: string): string {
+    return this.tenancy.urlFor(path);
+  }
+
+  onSearch(value: string): void {
+    this.query.set(value);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => this.refilter(), SEARCH_DEBOUNCE_MS);
+  }
+
+  setStatus(status: WorkflowInstanceStatus | ''): void {
+    this.status.set(status);
+    this.refilter();
+  }
+
+  setProcess(key: string): void {
+    this.processKey.set(key);
+    this.definitionFilter.set('');
+    this.refilter();
+  }
+
+  setScope(scope: 'all' | 'mine'): void {
+    this.scope.set(scope);
+    this.refilter();
+  }
+
+  setRange(from: string, to: string): void {
+    this.from.set(from);
+    this.to.set(to);
+    // An inverted range is reported by the control; asking the server for it would only answer
+    // «nothing matches», which reads as «there were no runs».
+    if (from && to && from > to) return;
+    this.refilter();
+  }
+
+  /** A failure in the reader's language: the engine stores a catalogue key for the known ones. */
+  failure(run: WorkflowInstance): string {
+    return runFailureText(this.translate, run.error, run.errorParams ?? undefined);
+  }
+
+  steps(run: WorkflowInstance): string {
+    return currentStepsText(this.translate, run);
+  }
+
+  setPage(page: number): void {
+    this.page.set(page);
+    this.load();
+  }
+
+  setPageSize(size: number): void {
+    this.pageSize.set(size);
+    this.refilter();
+  }
+
+  clearFilters(): void {
+    this.query.set('');
+    this.status.set('');
+    this.processKey.set('');
+    this.definitionFilter.set('');
+    this.scope.set('all');
+    this.from.set('');
+    this.to.set('');
+    this.refilter();
+  }
+
+  private refilter(): void {
+    this.page.set(1);
+    this.load();
+  }
+
+  tone(status: WorkflowInstanceStatus) {
+    return instanceStatusTone(status);
+  }
+
+  statusKey(status: WorkflowInstanceStatus): string {
+    return instanceStatusKey(status);
+  }
+
+  duration(run: WorkflowInstance): string {
+    const end = run.completedAt ? new Date(run.completedAt).getTime() : Date.now();
+    const minutes = Math.max(0, Math.round((end - new Date(run.createdAt).getTime()) / 60000));
+    if (minutes < 60) return this.translate.instant('workflow_engine.unit.minutes_short', { count: minutes });
+    const hours = Math.round(minutes / 6) / 10;
+    if (hours < 48) return this.translate.instant('workflow_engine.unit.hours_short', { count: hours });
+    return this.translate.instant('workflow_engine.unit.days_short', { count: Math.round(hours / 2.4) / 10 });
   }
 }

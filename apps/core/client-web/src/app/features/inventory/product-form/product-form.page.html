@@ -23,7 +23,7 @@
           </h2>
 
           <div class="form-field">
-            <label for="name">{{ 'inventory.product_form.product_name' | translate }} *</label>
+            <label for="name">{{ 'inventory.product_form.product_name' | translate }} * @if (confidenceOf('name'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
             <input id="name" formControlName="name" maxlength="255" />
           </div>
           <div class="form-field">
@@ -31,30 +31,125 @@
             <input id="sku" formControlName="sku" />
           </div>
           <div class="form-field">
-            <label for="description">{{ 'inventory.product_form.description' | translate }}</label>
+            <label for="description">{{ 'inventory.product_form.description' | translate }} @if (confidenceOf('description'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
             <textarea id="description" formControlName="description" rows="5"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="brand">{{ 'ai.product.brand' | translate }} @if (confidenceOf('brand'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
+              <input id="brand" formControlName="brand" maxlength="120" />
+            </div>
+            <div class="form-field">
+              <label for="barcode">{{ 'ai.product.barcode' | translate }} @if (confidenceOf('barcode'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
+              <div class="barcode-input">
+                <input id="barcode" formControlName="barcode" maxlength="64" inputmode="numeric" autocomplete="off" />
+                <button type="button" class="btn-secondary barcode-input__scan" (click)="scanning.set(true)"
+                        [attr.aria-label]="'ai.scan.open' | translate" [title]="'ai.scan.open' | translate">
+                  <lucide-icon [img]="ScanIcon" size="16" aria-hidden="true"></lucide-icon>
+                  <span>{{ 'ai.scan.button' | translate }}</span>
+                </button>
+              </div>
+              @if (reference(); as ref) {
+                <small class="field-hint">
+                  {{ 'ai.scan.reference_hint' | translate: { name: ref.name ?? ref.brand } }}
+                  <a [href]="ref.url" target="_blank" rel="noopener noreferrer">{{ 'ai.scan.reference_source' | translate }}</a>
+                </small>
+              }
+              @if (suggestion()?.barcode?.check === 'invalid') {
+                <small class="field-hint field-hint--warning">{{ 'ai.photo.barcode_check_failed' | translate: { code: suggestion()?.barcode?.value } }}</small>
+              }
+            </div>
           </div>
         </section>
 
         <section class="form-section">
           <h2 class="form-section-title">{{ 'inventory.product_form.product_image' | translate }}</h2>
+          @if (canUseAi()) {
+            <p class="field-hint ai-intro">
+              <lucide-icon [img]="SparklesIcon" size="14" aria-hidden="true"></lucide-icon>
+              {{ 'ai.photo.intro' | translate }}
+            </p>
+          }
 
           <div class="form-field file-upload-field">
             <input
               type="file"
               id="imageFile"
               class="file-input"
-              accept="image/png, image/jpeg"
+              accept="image/png, image/jpeg, image/webp, image/heic, image/heif"
+              capture="environment"
+              [disabled]="photoState() === 'analysing' || photoState() === 'uploading'"
               (change)="onFileSelected($event)"
             />
-            <label for="imageFile" class="file-input-label">
+            <label for="imageFile" class="file-input-label" [class.is-busy]="photoState() === 'analysing'">
               @if (imagePreview()) {
                 <img [src]="imagePreview()" [alt]="'inventory.product_form.preview' | translate" />
               } @else {
-                <lucide-icon [img]="ImageIcon" size="32" aria-hidden="true"></lucide-icon>
-                <span>{{ 'inventory.product_form.upload_image' | translate }}</span>
+                <lucide-icon [img]="canUseAi() ? SparklesIcon : ImageIcon" size="32" aria-hidden="true"></lucide-icon>
+                <span>{{ (canUseAi() ? 'ai.photo.upload_and_fill' : 'inventory.product_form.upload_image') | translate }}</span>
               }
             </label>
+            <p class="photo-status" role="status" aria-live="polite">
+              @switch (photoState()) {
+                @case ('analysing') { {{ 'ai.photo.analysing' | translate }} }
+                @case ('uploading') { {{ 'ai.photo.uploading' | translate }} }
+                @case ('done') {
+                  @if (suggestion()?.isProductPhoto) { {{ 'ai.photo.filled' | translate }} }
+                  @else { {{ 'ai.photo.stored' | translate }} }
+                }
+              }
+            </p>
+          </div>
+
+          @if (suggestion()?.notes) {
+            <p class="field-hint">{{ 'ai.photo.notes' | translate }}: {{ suggestion()?.notes }}</p>
+          }
+
+          @if (duplicates().length) {
+            <div class="ai-duplicates" role="alert">
+              <p class="ai-duplicates__title">{{ 'ai.photo.possible_duplicates' | translate }}</p>
+              <ul>
+                @for (match of duplicates(); track match.id) {
+                  <li>
+                    <a [routerLink]="['/inventory/products', match.id, 'edit']">{{ match.name }}</a>
+                    @if (match.sku) { <span class="muted"> · {{ match.sku }}</span> }
+                    <span class="muted"> · {{ (k('ai.photo.match_reason', match.reason)) | translate }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </section>
+
+        <section class="form-section">
+          <h2 class="form-section-title">{{ 'ai.product.attributes' | translate }}</h2>
+          @if (attributes().length) {
+            <ul class="attribute-list">
+              @for (attribute of attributes(); track attribute.key) {
+                <li class="attribute-chip">
+                  <span class="attribute-chip__key">{{ attribute.key }}</span>
+                  <span>{{ attribute.value }}</span>
+                  <button type="button" class="icon-button" (click)="removeAttribute(attribute.key)"
+                          [attr.aria-label]="'ai.product.remove_attribute' | translate: { name: attribute.key }">
+                    <lucide-icon [img]="RemoveIcon" size="14" aria-hidden="true"></lucide-icon>
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+          <div class="form-row attribute-add">
+            <div class="form-field">
+              <label for="attrKey">{{ 'ai.product.attribute_name' | translate }}</label>
+              <input id="attrKey" #attrKey maxlength="40" />
+            </div>
+            <div class="form-field">
+              <label for="attrValue">{{ 'ai.product.attribute_value' | translate }}</label>
+              <input id="attrValue" #attrValue maxlength="120" (keydown.enter)="$event.preventDefault(); addAttribute(attrKey.value, attrValue.value); attrKey.value = ''; attrValue.value = ''" />
+            </div>
+            <button type="button" class="secondary-button attribute-add__button"
+                    (click)="addAttribute(attrKey.value, attrValue.value); attrKey.value = ''; attrValue.value = ''">
+              {{ 'ai.product.add_attribute' | translate }}
+            </button>
           </div>
         </section>
       </div>
@@ -63,10 +158,21 @@
         <section class="form-section">
           <h2 class="form-section-title">{{ 'inventory.product_form.pricing_stock' | translate }}</h2>
 
+          @if (pricingPending()) {
+            <p class="field-hint field-hint--warning ai-pricing-pending" role="status">{{ 'ai.photo.pricing_pending' | translate }}</p>
+          }
           <div class="form-row">
             <div class="form-field">
               <label for="price">{{ 'inventory.product_form.sale_price' | translate }}</label>
               <input type="number" id="price" formControlName="price" />
+              @if (suggestedPrice(); as price) {
+                <small class="field-hint">
+                  {{ 'ai.photo.price_hint' | translate: { markup: (suggestion()?.pricing?.typicalMarkup | vxNumber: '1.2-2'), count: suggestion()?.pricing?.sampleSize } }}
+                  <button type="button" class="link-button" (click)="applySuggestedPrice()">
+                    {{ 'ai.photo.apply_price' | translate: { price: (price | vxNumber: '1.2-2') } }}
+                  </button>
+                </small>
+              }
             </div>
             @if (!isEditMode()) {
               <div class="form-field">
@@ -127,14 +233,14 @@
           <h2 class="form-section-title">{{ 'inventory.product_form.tax_section' | translate }}</h2>
           <div class="form-row">
             <div class="form-field">
-              <label for="kind">{{ 'inventory.product_form.kind' | translate }}</label>
+              <label for="kind">{{ 'inventory.product_form.kind' | translate }} @if (confidenceOf('kind'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
               <select id="kind" formControlName="kind">
                 <option value="GOOD">{{ 'inventory.product_form.kind_good' | translate }}</option>
                 <option value="SERVICE">{{ 'inventory.product_form.kind_service' | translate }}</option>
               </select>
             </div>
             <div class="form-field">
-              <label for="unitOfMeasure">{{ 'inventory.product_form.unit_of_measure' | translate }}</label>
+              <label for="unitOfMeasure">{{ 'inventory.product_form.unit_of_measure' | translate }} @if (confidenceOf('unitOfMeasure'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
               <!-- The unit a document quantifies this item in; the e-CF maps it to the authority's code. -->
               <select id="unitOfMeasure" formControlName="unitOfMeasure">
                 @for (unit of unitOptions(); track unit.symbol) {
@@ -143,7 +249,7 @@
               </select>
             </div>
             <div class="form-field">
-              <label for="taxTreatment">{{ 'inventory.product_form.tax_treatment' | translate }}</label>
+              <label for="taxTreatment">{{ 'inventory.product_form.tax_treatment' | translate }} @if (confidenceOf('taxTreatment'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
               <select id="taxTreatment" formControlName="taxTreatment">
                 <option value="TAXED">{{ 'inventory.product_form.tax_treatment_taxed' | translate }}</option>
                 <option value="ZERO_RATED">{{ 'inventory.product_form.tax_treatment_zero_rated' | translate }}</option>
@@ -170,7 +276,7 @@
           <h2 class="form-section-title">{{ 'inventory.product_form.organization' | translate }}</h2>
 
           <div class="form-field">
-            <label for="categoryId">{{ 'inventory.product_form.category' | translate }}</label>
+            <label for="categoryId">{{ 'inventory.product_form.category' | translate }} @if (confidenceOf('categoryId'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
             <!--
               The tenant's own categories. This was three options written into this template —
               Electrónica, Accesorios, Monitores — offered to every tenant in every market.
@@ -198,3 +304,7 @@
     </div>
   </div>
 </vx-draft-shell>
+
+@if (scanning()) {
+  <app-barcode-scanner (scanned)="onScanned($event)" (dismissed)="scanning.set(false)" />
+}

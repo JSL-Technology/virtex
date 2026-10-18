@@ -9,7 +9,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
-import { WorkflowInstance } from './workflow-instance.entity';
+import type { WorkflowInstance } from './workflow-instance.entity';
+import { WorkflowVariable } from '../contracts/workflow-graph';
 
 export enum WorkflowTaskStatus {
   OPEN = 'OPEN',
@@ -29,6 +30,8 @@ export enum WorkflowTaskStatus {
 @Index('IDX_workflow_tasks_org_status', ['organizationId', 'status'])
 @Index('IDX_workflow_tasks_org_instance', ['organizationId', 'instanceId'])
 @Index('IDX_workflow_tasks_org_role', ['organizationId', 'assigneeRoleId'])
+@Index('IDX_workflow_tasks_org_user', ['organizationId', 'assigneeUserId'])
+@Index('IDX_workflow_tasks_org_due', ['organizationId', 'dueAt'])
 export class WorkflowTask {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -39,8 +42,9 @@ export class WorkflowTask {
   @Column({ name: 'instance_id', type: 'uuid' })
   instanceId: string;
 
-  /** Declared so the entity states the foreign key the migration creates; a task dies with its instance. */
-  @ManyToOne(() => WorkflowInstance, { onDelete: 'CASCADE', createForeignKeyConstraints: true })
+  // The instance it belongs to: deleting an instance deletes its tasks (the migration's FK, declared here
+  // so the schema-drift check sees the entity and the database agree).
+  @ManyToOne('WorkflowInstance', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'instance_id', foreignKeyConstraintName: 'FK_workflow_tasks_instance' })
   instance?: WorkflowInstance;
 
@@ -62,7 +66,7 @@ export class WorkflowTask {
   assigneeUserId: string | null;
 
   /** The outcomes the actor may pick; each matches an outgoing edge. */
-  @Column({ type: 'jsonb', default: () => `'[]'` })
+  @Column({ type: 'jsonb', default: [] })
   outcomes: string[];
 
   @Column({
@@ -88,6 +92,34 @@ export class WorkflowTask {
   /** What the actor filled in on completion, merged into the instance context. */
   @Column({ name: 'form_data', type: 'jsonb', nullable: true })
   formData: Record<string, unknown> | null;
+
+  /** `task` or `approval`: an approval is also offered in the approvals centre. */
+  @Column({ name: 'node_type', type: 'varchar', length: 16, default: 'task' })
+  nodeType: string;
+
+  /** What the actor sees: the node's instructions, outcome labels and form, frozen at creation. */
+  @Column({ type: 'text', nullable: true })
+  instructions: string | null;
+
+  @Column({ name: 'outcome_labels', type: 'jsonb', nullable: true })
+  outcomeLabels: Record<string, string> | null;
+
+  @Column({ name: 'comment_required_for', type: 'jsonb', nullable: true })
+  commentRequiredFor: string[] | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  form: WorkflowVariable[] | null;
+
+  /** The actor's comment on the decision. */
+  @Column({ type: 'text', nullable: true })
+  comment: string | null;
+
+  /** When the overdue reminder went out, so it goes out once. */
+  @Column({ name: 'escalated_at', type: 'timestamptz', nullable: true })
+  escalatedAt: Date | null;
+
+  @Column({ name: 'escalate_to_user_id', type: 'uuid', nullable: true })
+  escalateToUserId: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

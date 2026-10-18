@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { roleLabel } from '../../../../shared/pipes/role-name.pipe';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -47,7 +48,7 @@ interface PolicyDraft {
 @Component({
   selector: 'app-approval-policies-page',
   standalone: true,
-  imports: [FormsModule, TranslateModule, ...VX_SELECT, ...FORMAT_PIPES],
+  imports: [FormsModule, TranslateModule, RouterLink, ...VX_SELECT, ...FORMAT_PIPES],
   templateUrl: './approvals.page.html',
   styleUrls: ['./approvals.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

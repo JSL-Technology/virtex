@@ -1,0 +1,310 @@
+@use 'assets/styles/design-system' as ds;
+
+// Shared by every inspector panel of the workflow designer: a column of labelled fields grouped in
+// sections, compact enough to live in a side panel next to the canvas.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.insp-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+
+  h3 {
+    @include ds.truncate;
+    flex: 1;
+    margin: 0;
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    color: var(--content-primary);
+  }
+}
+
+.insp-kind {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  flex: none;
+  border-radius: var(--radius-md);
+  background: var(--accent-surface);
+  color: var(--accent-text);
+}
+
+.insp-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+
+  &:first-of-type {
+    padding-top: 0;
+    border-top: 0;
+  }
+}
+
+.insp-section__title {
+  @include ds.section-label;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.insp-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+
+  > label,
+  > .insp-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--content-secondary);
+  }
+
+  input:not([type='checkbox']):not([type='radio']):not([type='color']),
+  select,
+  textarea {
+    @include ds.input-base;
+    height: var(--control-height-sm);
+    font-size: var(--text-sm);
+  }
+
+  // A published version is read-only, and has to look it: a white, bordered box invites typing that
+  // will not stick (QA). The text stays fully legible and selectable.
+  input[readonly]:not([type='checkbox']):not([type='radio']),
+  textarea[readonly],
+  select:disabled {
+    background: var(--surface-sunken);
+    border-color: transparent;
+    color: var(--content-secondary);
+    cursor: default;
+    opacity: 1;
+    resize: none;
+
+    &:hover {
+      border-color: transparent;
+    }
+  }
+
+  textarea {
+    height: auto;
+    min-height: calc(var(--control-height-sm) * 2);
+    padding-block: var(--space-2);
+    resize: vertical;
+    line-height: var(--leading-normal, 1.5);
+  }
+}
+
+.insp-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.insp-hint {
+  @include ds.field-hint;
+  margin: 0;
+}
+
+.insp-error {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--error-text);
+}
+
+.insp-check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--content-primary);
+  cursor: pointer;
+}
+
+.insp-segmented {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+
+  button {
+    flex: 1;
+    min-height: calc(var(--control-height-sm) - 4px);
+    padding-inline: var(--space-3);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--content-secondary);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    @include ds.focus-ring;
+
+    &[aria-pressed='true'] {
+      background: var(--surface-base);
+      color: var(--content-primary);
+      box-shadow: var(--shadow-xs, var(--shadow-sm));
+    }
+
+    &:disabled {
+      cursor: default;
+    }
+  }
+}
+
+.insp-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.insp-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.insp-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+
+  > :first-child {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.insp-link {
+  @include ds.truncate;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-text);
+  font-size: var(--text-sm);
+  text-align: start;
+  cursor: pointer;
+  @include ds.focus-ring;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.insp-icon {
+  @include ds.button-icon('sm');
+  flex: none;
+}
+
+.insp-add {
+  @include ds.button-ghost('sm');
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  align-self: flex-start;
+}
+
+.insp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.insp-danger {
+  @include ds.button-ghost('sm');
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--error-text);
+}
+
+.insp-secondary {
+  @include ds.button-secondary('sm');
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.insp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  padding: 0 var(--space-2);
+  min-height: 22px;
+  border-radius: var(--radius-full);
+  background: var(--surface-raised, var(--surface-base));
+  border: 1px solid var(--border-default);
+  font-size: var(--text-xs);
+  color: var(--content-secondary);
+}
+
+.insp-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
+}
+
+.insp-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+
+  button {
+    width: 24px;
+    height: 24px;
+    border: 2px solid transparent;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    @include ds.focus-ring(2px);
+
+    &[aria-pressed='true'] {
+      border-color: var(--content-primary);
+    }
+  }
+
+  @for $i from 1 through 8 {
+    .swatch-viz-#{$i} {
+      background: var(--viz-#{$i});
+    }
+  }
+}
+
+.insp-empty {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--content-tertiary);
+}
+
+.sr-only {
+  @include ds.visually-hidden;
+}
+
+// A value the author cannot change (a step's type) reads as text, not as a field that refuses input.
+.insp-static {
+  margin: 0;
+  padding: var(--space-1) 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--content-primary);
+}
