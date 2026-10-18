@@ -47,8 +47,33 @@ export interface DataTransferImport<TDto extends object = object> {
    * that must exist…). Throws a localized error to refuse the row.
    */
   check?(dto: TDto, context: DataTransferContext): Promise<void>;
-  /** Creates the record through the domain's own service. */
-  create(dto: TDto, context: DataTransferContext): Promise<void>;
+  /**
+   * Creates the record through the domain's own service. A dataset gives this or
+   * {@link createAll}, not both.
+   */
+  create?(dto: TDto, context: DataTransferContext): Promise<void>;
+  /**
+   * The rules that hold over the whole file rather than one row — an opening balance that must
+   * add up to zero, a document that appears twice. Runs once, after every row passed its own
+   * checks, WITHOUT writing. Returns the problems found; none means the file may be committed.
+   */
+  checkFile?(dtos: readonly TDto[], context: DataTransferContext): Promise<DataTransferFileProblem[]>;
+  /**
+   * Commits the whole file at once, all or nothing, in place of {@link create} row by row. For
+   * rows that only mean something together: half an opening balance is not a smaller opening
+   * balance, it is a wrong one.
+   */
+  createAll?(dtos: readonly TDto[], context: DataTransferContext): Promise<void>;
+}
+
+/** A problem {@link DataTransferImport.checkFile} found. */
+export interface DataTransferFileProblem {
+  /** The 0-based index of the row it is about; absent when it is about the file as a whole. */
+  readonly index?: number;
+  /** The column key it is about, when there is one. */
+  readonly column?: string;
+  readonly key: string;
+  readonly params?: Record<string, unknown>;
 }
 
 export interface DataTransferDataset<TDto extends object = object> {
@@ -56,6 +81,11 @@ export interface DataTransferDataset<TDto extends object = object> {
   readonly id: string;
   /** Catalogue key of its name. */
   readonly labelKey: string;
+  /**
+   * Catalogue key of what a person must know before importing it — where a figure must come
+   * from, what it will not accept. Shown beside the template on the import screen.
+   */
+  readonly hintKey?: string;
   /** Reading these records by hand requires it; exporting them requires the same. */
   readonly viewPermission: string;
   readonly columns: readonly DataTransferColumn[];

@@ -249,6 +249,16 @@
     "en": "Opening quantity of {{product}}",
     "pt": "Existência inicial de {{product}}"
   },
+  "ledger.opening_balances.entry": {
+    "es": "Asiento de apertura: saldos iniciales importados",
+    "en": "Opening entry: imported opening balances",
+    "pt": "Lançamento de abertura: saldos iniciais importados"
+  },
+  "ledger.opening_balances.line": {
+    "es": "Saldo inicial",
+    "en": "Opening balance",
+    "pt": "Saldo inicial"
+  },
   "ledger.payroll.afp_payable": {
     "es": "AFP por pagar (TSS)",
     "en": "AFP payable (TSS)",

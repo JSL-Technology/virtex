@@ -203,6 +203,23 @@ export class AccountsPayableService {
   // Recording
   // ───────────────────────────────────────────────────────────────────────────
 
+  /**
+   * The checks {@link create} makes on who the bill is from and which comprobante it is, WITHOUT
+   * writing: the supplier exists, the NCF is well formed and not already recorded for them. An
+   * import validates every row with this before it commits any, so a file is refused whole rather
+   * than half imported.
+   */
+  async assertImportable(dto: CreateVendorBillDto, organizationId: string): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      const supplier = await manager.findOne(Supplier, {
+        where: { id: dto.vendorId, organizationId },
+        select: ['id', 'name', 'taxId'],
+      });
+      if (!supplier) throw new NotFoundError('accounts_payable.supplier_id_not_found', { id: dto.vendorId });
+      await this.assertFiscalIdentity(manager, organizationId, dto.ncf, supplier);
+    });
+  }
+
   async create(
     dto: CreateVendorBillDto,
     organizationId: string,

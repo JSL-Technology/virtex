@@ -29,6 +29,9 @@
               @if (column.required) { <code>{{ column.key }}</code> }
             }
           </p>
+          @if (dataset.hintKey) {
+            <p class="dataset-hint">{{ dataset.hintKey | translate }}</p>
+          }
         }
       </div>
     </section>

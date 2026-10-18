@@ -24,6 +24,11 @@
     "en": "General journal (entry lines)",
     "pt": "Livro diário (linhas de lançamentos)"
   },
+  "data_transfer.datasets.opening_balances": {
+    "es": "Saldos iniciales",
+    "en": "Opening balances",
+    "pt": "Saldos iniciais"
+  },
   "data_transfer.datasets.pos_sales": {
     "es": "Ventas del punto de venta",
     "en": "Point-of-sale sales",
@@ -69,6 +74,16 @@
     "en": "The file could not be read: {{detail}}",
     "pt": "Não foi possível ler o arquivo: {{detail}}"
   },
+  "data_transfer.hints.opening_balances": {
+    "es": "Un archivo es un solo asiento de apertura: una fila por cuenta, todas con la misma fecha, y los débitos deben igualar los créditos al centavo. Las cuentas por cobrar, por pagar, el inventario y los bancos no se cargan aquí: sus saldos salen de las facturas abiertas, las facturas de proveedor abiertas, las existencias y el saldo inicial de cada cuenta bancaria.",
+    "en": "One file is a single opening entry: one row per account, all with the same date, and debits must equal credits to the cent. Receivables, payables, inventory and bank accounts are not loaded here: their balances come from open invoices, open supplier bills, stock on hand and each bank account’s opening balance.",
+    "pt": "Um arquivo é um único lançamento de abertura: uma linha por conta, todas com a mesma data, e os débitos devem igualar os créditos ao centavo. Contas a receber, a pagar, estoque e bancos não são carregados aqui: seus saldos vêm das faturas em aberto, das faturas de fornecedor em aberto, do estoque e do saldo inicial de cada conta bancária."
+  },
+  "data_transfer.hints.vendor_bills": {
+    "es": "Cada fila es una factura de proveedor de una línea y entra como borrador, para revisarla y aprobarla. El proveedor se busca por su RNC o identificación fiscal y debe existir. Para facturas anteriores al inicio en el sistema, usa como cuenta de gasto la cuenta de patrimonio de saldos iniciales: el gasto ya está en los libros anteriores.",
+    "en": "Each row is a one-line supplier bill and is imported as a draft, to be reviewed and approved. The supplier is found by tax id and must already exist. For bills from before you started using the system, give the opening-balance equity account as the expense account: the expense is already in the previous books.",
+    "pt": "Cada linha é uma fatura de fornecedor de uma linha e entra como rascunho, para revisão e aprovação. O fornecedor é encontrado pelo número fiscal e deve existir. Para faturas anteriores ao início no sistema, use como conta de despesa a conta de patrimônio de saldos iniciais: a despesa já está nos livros anteriores."
+  },
   "data_transfer.mapping_duplicate_key": {
     "es": "Dos columnas del archivo van al mismo campo: {{key}}.",
     "en": "Two file columns go to the same field: {{key}}.",
@@ -98,6 +113,56 @@
     "es": "No tienes permiso para crear estos registros, así que tampoco para importarlos.",
     "en": "You are not allowed to create these records, so you cannot import them either.",
     "pt": "Você não tem permissão para criar estes registros, portanto também não pode importá-los."
+  },
+  "data_transfer.opening_balances.account_not_postable": {
+    "es": "La cuenta {{code}} no admite movimientos: es de agrupación, está inactiva o bloqueada.",
+    "en": "Account {{code}} does not take postings: it is a grouping account, inactive or blocked.",
+    "pt": "A conta {{code}} não aceita lançamentos: é de agrupamento, está inativa ou bloqueada."
+  },
+  "data_transfer.opening_balances.already_posted": {
+    "es": "Este mismo archivo ya se contabilizó (asiento {{entry}}).",
+    "en": "This same file was already posted (entry {{entry}}).",
+    "pt": "Este mesmo arquivo já foi contabilizado (lançamento {{entry}})."
+  },
+  "data_transfer.opening_balances.one_date": {
+    "es": "Todas las filas deben tener la misma fecha que la primera ({{date}}): un archivo es un solo asiento de apertura.",
+    "en": "Every row must have the same date as the first ({{date}}): one file is a single opening entry.",
+    "pt": "Todas as linhas devem ter a mesma data da primeira ({{date}}): um arquivo é um único lançamento de abertura."
+  },
+  "data_transfer.opening_balances.one_side": {
+    "es": "Cada fila lleva un débito o un crédito, no los dos ni ninguno.",
+    "en": "Each row carries a debit or a credit, not both and not neither.",
+    "pt": "Cada linha leva um débito ou um crédito, não os dois nem nenhum."
+  },
+  "data_transfer.opening_balances.subledger_bank": {
+    "es": "La cuenta {{code}} pertenece a una cuenta bancaria: registra su saldo inicial en Tesorería.",
+    "en": "Account {{code}} belongs to a bank account: record its opening balance in Treasury.",
+    "pt": "A conta {{code}} pertence a uma conta bancária: registre seu saldo inicial em Tesouraria."
+  },
+  "data_transfer.opening_balances.subledger_inventory": {
+    "es": "La cuenta {{code}} es la de inventario: su saldo sale de las existencias de cada producto.",
+    "en": "Account {{code}} is the inventory account: its balance comes from each product’s stock.",
+    "pt": "A conta {{code}} é a de estoque: seu saldo vem do estoque de cada produto."
+  },
+  "data_transfer.opening_balances.subledger_payables": {
+    "es": "La cuenta {{code}} es la de cuentas por pagar: su saldo sale de las facturas de proveedor abiertas. Impórtalas en lugar de cargar el saldo.",
+    "en": "Account {{code}} is the payables account: its balance comes from open supplier bills. Import them instead of loading the balance.",
+    "pt": "A conta {{code}} é a de contas a pagar: seu saldo vem das faturas de fornecedor em aberto. Importe-as em vez de carregar o saldo."
+  },
+  "data_transfer.opening_balances.subledger_receivables": {
+    "es": "La cuenta {{code}} es la de cuentas por cobrar: su saldo sale de las facturas abiertas. Impórtalas en lugar de cargar el saldo.",
+    "en": "Account {{code}} is the receivables account: its balance comes from open invoices. Import them instead of loading the balance.",
+    "pt": "A conta {{code}} é a de contas a receber: seu saldo vem das faturas em aberto. Importe-as em vez de carregar o saldo."
+  },
+  "data_transfer.opening_balances.unbalanced": {
+    "es": "Los débitos ({{debits}}) no igualan los créditos ({{credits}}); la diferencia es {{difference}}. Corrige el archivo: no se cuadra contra patrimonio.",
+    "en": "Debits ({{debits}}) do not equal credits ({{credits}}); the difference is {{difference}}. Correct the file: it is not balanced against equity.",
+    "pt": "Os débitos ({{debits}}) não igualam os créditos ({{credits}}); a diferença é {{difference}}. Corrija o arquivo: ele não é fechado contra o patrimônio."
+  },
+  "data_transfer.opening_balances.unknown_account": {
+    "es": "No existe la cuenta {{code}} en el catálogo.",
+    "en": "There is no account {{code}} in the chart of accounts.",
+    "pt": "Não existe a conta {{code}} no plano de contas."
   },
   "data_transfer.status.completed": {
     "es": "Completada",
@@ -138,5 +203,30 @@
     "es": "Sube un archivo .csv o .xlsx.",
     "en": "Upload a .csv or .xlsx file.",
     "pt": "Envie um arquivo .csv ou .xlsx."
+  },
+  "data_transfer.vendor_bills.account_not_usable": {
+    "es": "La cuenta {{code}} no puede llevar el gasto: es de agrupación, está inactiva o bloqueada, o es la de cuentas por pagar.",
+    "en": "Account {{code}} cannot carry the expense: it is a grouping account, inactive or blocked, or it is the payables account.",
+    "pt": "A conta {{code}} não pode levar a despesa: é de agrupamento, está inativa ou bloqueada, ou é a de contas a pagar."
+  },
+  "data_transfer.vendor_bills.due_before_date": {
+    "es": "El vencimiento es anterior a la fecha de la factura.",
+    "en": "The due date is before the bill date.",
+    "pt": "O vencimento é anterior à data da fatura."
+  },
+  "data_transfer.vendor_bills.total_mismatch": {
+    "es": "El total ({{total}}) no es subtotal más impuesto ({{expected}}).",
+    "en": "The total ({{total}}) is not subtotal plus tax ({{expected}}).",
+    "pt": "O total ({{total}}) não é subtotal mais imposto ({{expected}})."
+  },
+  "data_transfer.vendor_bills.unknown_account": {
+    "es": "No existe la cuenta {{code}} en el catálogo.",
+    "en": "There is no account {{code}} in the chart of accounts.",
+    "pt": "Não existe a conta {{code}} no plano de contas."
+  },
+  "data_transfer.vendor_bills.unknown_supplier": {
+    "es": "No hay un proveedor con la identificación {{taxId}}. Créalo o impórtalo primero.",
+    "en": "There is no supplier with tax id {{taxId}}. Create or import it first.",
+    "pt": "Não há fornecedor com a identificação {{taxId}}. Crie ou importe-o primeiro."
   }
 }

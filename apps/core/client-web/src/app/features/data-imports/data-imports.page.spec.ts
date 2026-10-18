@@ -29,7 +29,12 @@ describe('DataImportsPage', () => {
 
   const setup = async (detected: ColumnMappingProposal) => {
     api = {
-      datasets: jest.fn().mockReturnValue(of([{ id: 'customers', labelKey: 'x', importable: true, columns: [] }])),
+      datasets: jest.fn().mockReturnValue(
+        of([
+          { id: 'customers', labelKey: 'x', importable: true, columns: [] },
+          { id: 'opening_balances', labelKey: 'y', hintKey: 'data_transfer.hints.opening_balances', importable: true, columns: [] },
+        ]),
+      ),
       runs: jest.fn().mockReturnValue(of([])),
       columnMapping: jest.fn().mockReturnValue(of(detected)),
       import: jest.fn().mockReturnValue(of({ runId: 'r', status: 'VALIDATED', totalRows: 1, importedRows: 0, failedRows: 0, problems: [] })),
@@ -48,6 +53,16 @@ describe('DataImportsPage', () => {
     fixture.detectChanges();
     component.selectedDatasetId.set('customers');
   };
+
+  it('says what to know before importing a dataset that has rules a template cannot show', async () => {
+    await setup(proposal({ source: 'template', mapping: {} }));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dataset-hint')).toBeNull();
+
+    component.selectedDatasetId.set('opening_balances');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.dataset-hint')?.textContent).toContain('data_transfer.hints.opening_balances');
+  });
 
   it('imports a template file as it is, without a mapping', async () => {
     await setup(proposal({ source: 'template', mapping: { name: 'name' } }));

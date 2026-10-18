@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 import { DataSource } from 'typeorm';
 import * as ExcelJS from 'exceljs';
 import { DataTransferDataset } from '../contracts/data-transfer/data-transfer.contract';
@@ -28,6 +28,15 @@ class ContactDto {
   @IsOptional()
   @IsString()
   code?: string;
+}
+
+class BalanceDto {
+  @IsString()
+  @IsNotEmpty()
+  account: string;
+
+  @IsNumber()
+  amount: number;
 }
 
 /**
@@ -84,6 +93,37 @@ describeWithDb('data transfer', () => {
     },
   };
 
+  /** Rows that only mean something together: they must add up to zero, and land all at once. */
+  let posted: BalanceDto[][];
+  let refuseCommit = false;
+  const balances: DataTransferDataset<BalanceDto> = {
+    id: 'balances',
+    labelKey: 'data_transfer.datasets.balances',
+    viewPermission: 'balances:view',
+    columns: [
+      { key: 'cuenta', property: 'account', required: true },
+      { key: 'importe', property: 'amount', required: true },
+    ],
+    exportPage: async () => ({ rows: [], total: 0 }),
+    import: {
+      createPermission: 'balances:create',
+      dto: BalanceDto,
+      checkFile: async (dtos) => {
+        const sum = dtos.reduce((total, dto) => total + dto.amount, 0);
+        const problems = dtos
+          .map((dto, index) => ({ dto, index }))
+          .filter(({ dto }) => dto.account === 'X')
+          .map(({ index }) => ({ index, column: 'cuenta', key: 'balances.unknown_account' }));
+        return sum === 0 ? problems : [...problems, { key: 'balances.unbalanced', params: { sum } }];
+      },
+      createAll: async (dtos) => {
+        if (refuseCommit) throw new BadRequestError('balances.period_closed');
+        posted.push([...dtos]);
+      },
+    },
+  };
+  const ledgerUser = () => user(['balances:view', 'balances:create']);
+
   const csv = (text: string) => ({ originalname: 'contactos.csv', mimetype: 'text/csv', buffer: Buffer.from(text, 'utf-8') });
 
   beforeAll(async () => {
@@ -91,11 +131,14 @@ describeWithDb('data transfer', () => {
     organizationId = await createTestOrganization(dataSource, 'Transferencia');
     const registry = new DataTransferRegistry();
     registry.register(dataset as DataTransferDataset);
+    registry.register(balances as DataTransferDataset);
     service = new DataTransferService(registry, dataSource.getRepository(DataTransferRun), new I18nService());
   });
 
   beforeEach(() => {
     stored = [];
+    posted = [];
+    refuseCommit = false;
   });
 
   afterAll(() => dropTestOrganization(dataSource, organizationId));
@@ -204,6 +247,37 @@ describeWithDb('data transfer', () => {
     expect(text).toContain(`"'=HYPERLINK(""http://evil"")"`);
     expect(text).toContain(',-500\r\n');
     expect(text).toContain('"Comas, ""y"" comillas",,C-2');
+  });
+
+  it('checks the file as a whole, and names the row a file-level problem is about', async () => {
+    const report = await service.import(ledgerUser(), 'balances', csv('cuenta,importe\nA,100\nX,-40\n'), 'commit');
+
+    expect(report.status).toBe(DataTransferStatus.FAILED);
+    expect(posted).toEqual([]);
+    expect(report.problems).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ row: 3, column: 'cuenta', key: 'balances.unknown_account' }),
+        expect.objectContaining({ row: 0, key: 'balances.unbalanced', params: { sum: 60 } }),
+      ]),
+    );
+    expect(report.failedRows).toBe(1);
+  });
+
+  it('commits rows that belong together in one call, or not at all', async () => {
+    const file = csv('cuenta,importe\nA,100\nB,-100\n');
+
+    expect(await service.import(ledgerUser(), 'balances', file, 'validate')).toMatchObject({ status: DataTransferStatus.VALIDATED });
+    expect(posted).toEqual([]);
+
+    const committed = await service.import(ledgerUser(), 'balances', file, 'commit');
+    expect(committed).toMatchObject({ status: DataTransferStatus.COMPLETED, importedRows: 2 });
+    expect(posted).toHaveLength(1);
+    expect(posted[0].map((dto) => [dto.account, dto.amount])).toEqual([['A', 100], ['B', -100]]);
+
+    refuseCommit = true;
+    const refused = await service.import(ledgerUser(), 'balances', file, 'commit');
+    expect(refused).toMatchObject({ status: DataTransferStatus.FAILED, importedRows: 0 });
+    expect(refused.problems).toEqual([expect.objectContaining({ row: 0, key: 'balances.period_closed' })]);
   });
 
   it('requires the permissions a person would need by hand', async () => {

@@ -144,6 +144,12 @@
 }
 
 
+.dataset-hint {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    max-width: 70ch;
+}
+
 .columns-hint {
     font-size: var(--text-sm);
     code {

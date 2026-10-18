@@ -1,4 +1,5 @@
 import { JournalEntryLinesDataTransferProvider } from './journal-entries-data-transfer.provider';
+import { OpeningBalancesDataTransferProvider } from './opening-balances-data-transfer.provider';
 
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -99,6 +100,8 @@ import { JournalQueryService } from './services/journal-query.service';
     JournalQueryService,
     // «Exportar» in the daybook (QA A-13).
     JournalEntryLinesDataTransferProvider,
+    // A migrated trial balance, posted as one opening entry.
+    OpeningBalancesDataTransferProvider,
   ],
   controllers: [
     JournalEntriesController,

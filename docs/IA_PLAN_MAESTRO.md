@@ -447,7 +447,21 @@ Construido, probado y en este repositorio. Cada pieza que necesita un modelo pas
 - **Duplicados con trigramas en la aplicación**, porque `pg_trgm` no siempre está instalado, y sin embeddings de nombre. Se agrupa por identificación fiscal, contacto, código y las palabras más distintivas del nombre, para no comparar todo con todo. Nada se fusiona: fusionar mueve documentos y saldos, y es una decisión contable.
 - **PDF del informe del gerente con la impresión del navegador**, con una hoja de estilo de impresión propia, en lugar del renderizador de documentos de la API.
 - **Agente de cotizaciones como capacidad del copiloto.** El copiloto busca al cliente y los productos y propone `draft_quote` a precios de catálogo. Lo que no logra identificar lo lista en lugar de adivinarlo.
-- **Pendiente:** nuevos conjuntos importables (facturas de proveedor y saldos iniciales). El plan los condicionaba a que el contrato de importación lo permitiera, y no se añadieron en esta entrega.
+- **Facturas de proveedor y saldos iniciales importables, con el contrato ampliado.** El contrato de importación era «una fila, un registro». Ahora admite dos ganchos opcionales:
+  - `checkFile`: reglas que abarcan varias filas.
+  - `createAll`: confirma el archivo entero, todo o nada.
+
+  Con eso se añadieron dos conjuntos:
+  - **`opening_balances`** (`journal-entries/`): el archivo es un solo asiento `OPENING_BALANCE`.
+    - Debe cuadrar al centavo; no se cuadra contra patrimonio.
+    - Todas las filas llevan la misma fecha.
+    - Las cuentas deben admitir movimientos.
+    - No acepta el mismo archivo dos veces: la clave de idempotencia es su contenido.
+    - Rechaza las cuentas de control de cuentas por cobrar, cuentas por pagar e inventario, y las cuentas bancarias, porque sus saldos vienen de su propio auxiliar.
+  - **`vendor_bills`** (`accounts-payable/`): cada fila es una factura de una línea y entra por `AccountsPayableService` como borrador.
+    - Busca al proveedor por su identificación fiscal.
+    - Aplica las mismas validaciones de NCF y de duplicado que el formulario, y detecta además los duplicados dentro del propio archivo.
+    - Para las facturas anteriores al arranque se usa como cuenta de gasto la de patrimonio de saldos iniciales, como explica la pantalla de importación.
 
 **Verificación:**
 

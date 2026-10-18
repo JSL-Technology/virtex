@@ -10,6 +10,8 @@ export type DataTransferStatus = 'COMPLETED' | 'VALIDATED' | 'FAILED' | 'PARTIAL
 export interface DataTransferDataset {
   id: string;
   labelKey: string;
+  /** What to know before importing it, when the dataset has rules a template cannot show. */
+  hintKey?: string | null;
   importable: boolean;
   columns: Array<{ key: string; required: boolean }>;
 }

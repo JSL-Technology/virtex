@@ -93,6 +93,7 @@ export class DataTransferService {
       .map((dataset) => ({
         id: dataset.id,
         labelKey: dataset.labelKey,
+        hintKey: dataset.hintKey ?? null,
         importable: !!dataset.import && this.holds(user, dataset.import.createPermission),
         columns: dataset.columns.map(({ key, required }) => ({ key, required: !!required })),
       }))
@@ -359,6 +360,24 @@ export class DataTransferService {
       }
     }
 
+    // ── The file as a whole, once every row stands on its own ───────────────────────────────
+    if (problems.length === 0 && importer.checkFile) {
+      const checkFile = importer.checkFile;
+      let found: Awaited<ReturnType<typeof checkFile>> = [];
+      const refusal = await this.refusalOf(async () => {
+        found = await checkFile(dtos, context);
+      });
+      if (refusal) problems.push({ row: 0, ...refusal });
+      for (const problem of found) {
+        problems.push({
+          row: problem.index === undefined ? 0 : problem.index + 2,
+          ...(problem.column ? { column: problem.column } : {}),
+          key: problem.key,
+          params: problem.params ?? {},
+        });
+      }
+    }
+
     const failedRows = new Set(problems.filter((p) => p.row > 1).map((p) => p.row)).size;
     if (problems.length > 0 || mode === 'validate') {
       return this.finish(user, dataset.id, format, file.originalname, {
@@ -371,9 +390,34 @@ export class DataTransferService {
     }
 
     // ── Commit, in order; a refusal now is a race with another writer ───────────────────────
+    const createAll = importer.createAll;
+    if (createAll) {
+      // All or nothing: the domain writes every row in one transaction, or none of them.
+      const refusal = await this.refusalOf(() => createAll(dtos, context));
+      if (refusal) {
+        this.logger.warn(`Importación de ${dataset.id} rechazada al confirmar: ${refusal.key}`);
+        return this.finish(user, dataset.id, format, file.originalname, {
+          status: DataTransferStatus.FAILED,
+          totalRows: rows.length,
+          importedRows: 0,
+          failedRows: 0,
+          problems: [{ row: 0, ...refusal }],
+        });
+      }
+      return this.finish(user, dataset.id, format, file.originalname, {
+        status: DataTransferStatus.COMPLETED,
+        totalRows: rows.length,
+        importedRows: dtos.length,
+        failedRows: 0,
+        problems: [],
+      });
+    }
+
+    const create = importer.create;
+    if (!create) throw new Error(`Dataset ${dataset.id} accepts rows but gives no way to create them`);
     let imported = 0;
     for (let index = 0; index < dtos.length; index++) {
-      const refusal = await this.refusalOf(() => importer.create(dtos[index], context));
+      const refusal = await this.refusalOf(() => create(dtos[index], context));
       if (refusal) {
         this.logger.warn(`Importación de ${dataset.id} detenida en la línea ${index + 2}: ${refusal.key}`);
         return this.finish(user, dataset.id, format, file.originalname, {
