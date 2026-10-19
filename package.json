@@ -138,7 +138,7 @@
     "@aws-sdk/client-s3": "^3.887.0",
     "@aws-sdk/s3-request-presigner": "^3.887.0",
     "@fastify/cookie": "^11.0.2",
-    "@fastify/helmet": "^13.0.2",
+    "@fastify/helmet": "^13.2.0",
     "@fastify/multipart": "^9.3.0",
     "@fastify/static": "^10.1.5",
     "@foblex/2d": "^1.2.2",
