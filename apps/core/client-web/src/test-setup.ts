@@ -5,7 +5,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { TranslateStore } from '@ngx-translate/core';
+import { provideTranslateService, TranslateStore } from '@ngx-translate/core';
 import { TranslateModule, VirtexTranslateStore } from '@virteex/shared/ui-i18n';
 import { provideHighcharts } from 'highcharts-angular';
 import { API_URL } from './app/core/tokens/api-url.token';
