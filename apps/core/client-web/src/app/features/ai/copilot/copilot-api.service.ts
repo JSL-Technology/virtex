@@ -27,6 +27,30 @@ export interface CopilotProposal {
   decidedAt?: string | null;
 }
 
+export type CopilotChartType = 'line' | 'area' | 'column' | 'bar' | 'pie';
+
+/** What a chart shows, read by the server from a tool's own result. */
+export interface CopilotChartData {
+  categories: string[];
+  series: Array<{ name: string; values: Array<number | null> }>;
+  unit: string | null;
+  omitted: number;
+  drawnAt: string;
+}
+
+/** A chart the copilot drew. Pinned, it is drawn again from live data on the dashboard. */
+export interface CopilotChart {
+  id: string;
+  title: string;
+  type: CopilotChartType;
+  sourceTool: string;
+  /** Null when a pinned chart cannot be drawn now (see `unavailable`). */
+  data: CopilotChartData | null;
+  pinned: boolean;
+  unavailable?: 'not_allowed' | 'failed';
+  createdAt: string;
+}
+
 export interface CopilotEntry {
   seq: number;
   role: 'user' | 'assistant';
@@ -34,12 +58,15 @@ export interface CopilotEntry {
   /** The tools an answer consulted: where its figures came from. */
   toolsUsed: string[];
   proposals: string[];
+  /** Charts drawn while writing this answer. */
+  charts: string[];
 }
 
 export interface CopilotTranscript {
   conversation: CopilotConversation;
   entries: CopilotEntry[];
   proposals: CopilotProposal[];
+  charts: CopilotChart[];
 }
 
 export interface CopilotCapability {
@@ -59,6 +86,7 @@ export type CopilotEvent =
   | { type: 'text'; delta: string }
   | { type: 'tool'; name: string }
   | { type: 'proposal'; proposal: CopilotProposal }
+  | { type: 'chart'; chart: CopilotChart }
   | { type: 'done'; result: CopilotTurnResult }
   | { type: 'error'; key: string; message: string };
 
@@ -113,6 +141,19 @@ export class CopilotApiService {
 
   reject(proposalId: string): Observable<CopilotProposal> {
     return this.http.post<CopilotProposal>(`${this.url}/proposals/${proposalId}/reject`, {});
+  }
+
+  /** The person's pinned charts, each drawn now with their own permissions. */
+  pinnedCharts(): Observable<CopilotChart[]> {
+    return this.http.get<CopilotChart[]>(`${this.url}/charts/pinned`);
+  }
+
+  pin(chartId: string): Observable<CopilotChart> {
+    return this.http.post<CopilotChart>(`${this.url}/charts/${chartId}/pin`, {});
+  }
+
+  unpin(chartId: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/charts/${chartId}/pin`);
   }
 
   /** Ask; the answer arrives as events. Unsubscribing stops reading (the turn still completes server-side). */
@@ -208,6 +249,8 @@ export function parseEvent(block: string): CopilotEvent | null {
         type: 'proposal',
         proposal: { ...(payload as unknown as CopilotProposal), status: 'PROPOSED', result: null, error: null },
       };
+    case 'chart':
+      return { type: 'chart', chart: payload as unknown as CopilotChart };
     case 'done':
       return { type: 'done', result: payload as unknown as CopilotTurnResult };
     case 'error':

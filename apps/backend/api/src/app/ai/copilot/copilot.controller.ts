@@ -78,7 +78,7 @@ export class CopilotController {
   @Post('conversations/:id/messages')
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 30, ttl: 60_000 } })
-  @ApiOperation({ summary: 'Ask; the answer streams back as server-sent events (text, tool, proposal, done, error).' })
+  @ApiOperation({ summary: 'Ask; the answer streams back as server-sent events (text, tool, proposal, chart, done, error).' })
   async send(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id', UuidParamPipe) id: string,
@@ -98,6 +98,7 @@ export class CopilotController {
         text: (delta) => emit('text', { delta }),
         tool: (call) => emit('tool', call),
         proposal: (action) => emit('proposal', action),
+        chart: (chart) => emit('chart', chart),
       });
       emit('done', result);
     } catch (error) {
@@ -112,6 +113,25 @@ export class CopilotController {
     } finally {
       stream.end();
     }
+  }
+
+  @Get('charts/pinned')
+  @ApiOperation({ summary: "The user's pinned charts, each drawn now from live data with the user's own permissions." })
+  pinned(@CurrentUser() user: AuthenticatedUser) {
+    return this.copilot.pinned(asCopilotUser(user));
+  }
+
+  @Post('charts/:id/pin')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Keep a chart the copilot drew on the dashboard.' })
+  pin(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    return this.copilot.pin(asCopilotUser(user), id);
+  }
+
+  @Delete('charts/:id/pin')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  unpin(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    return this.copilot.unpin(asCopilotUser(user), id);
   }
 
   @Post('proposals/:id/confirm')

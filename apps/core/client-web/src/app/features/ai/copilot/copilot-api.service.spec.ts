@@ -18,6 +18,7 @@ describe('copilot event stream', () => {
   it('parses each event the server sends', () => {
     expect(parseEvent('event: text\ndata: {"delta":"Hola"}')).toEqual({ type: 'text', delta: 'Hola' });
     expect(parseEvent('event: tool\ndata: {"name":"receivables_aging"}')).toEqual({ type: 'tool', name: 'receivables_aging' });
+    expect(parseEvent('event: chart\ndata: {"id":"g-1","title":"Ventas"}')).toEqual({ type: 'chart', chart: { id: 'g-1', title: 'Ventas' } });
     expect(parseEvent('event: error\ndata: {"key":"ai.unavailable","message":"No disponible"}')).toEqual({
       type: 'error',
       key: 'ai.unavailable',

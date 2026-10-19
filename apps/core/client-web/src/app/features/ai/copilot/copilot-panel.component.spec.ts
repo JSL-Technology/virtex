@@ -2,7 +2,23 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 import { CopilotPanelComponent } from './copilot-panel.component';
-import { CopilotApiService, CopilotEvent, CopilotProposal } from './copilot-api.service';
+import { CopilotApiService, CopilotChart, CopilotEvent, CopilotProposal } from './copilot-api.service';
+
+const chart: CopilotChart = {
+  id: 'g-1',
+  title: 'Ventas por mes',
+  type: 'column',
+  sourceTool: 'sales_trend',
+  pinned: false,
+  createdAt: '2026-10-19T00:00:00Z',
+  data: {
+    categories: ['2026-08', '2026-09'],
+    series: [{ name: 'Ventas', values: [100, 250] }],
+    unit: 'DOP',
+    omitted: 0,
+    drawnAt: '2026-10-19T00:00:00Z',
+  },
+};
 
 const proposal: CopilotProposal = {
   id: 'p-1',
@@ -31,6 +47,8 @@ describe('CopilotPanelComponent', () => {
       reject: jest.fn().mockReturnValue(of({ ...proposal, status: 'REJECTED' })),
       transcript: jest.fn(),
       remove: jest.fn().mockReturnValue(of(undefined)),
+      pin: jest.fn().mockReturnValue(of({ ...chart, pinned: true })),
+      unpin: jest.fn().mockReturnValue(of(undefined)),
       ...overrides,
     };
     await TestBed.configureTestingModule({
@@ -83,6 +101,30 @@ describe('CopilotPanelComponent', () => {
     expect(component.proposal('p-1')).toMatchObject({ status: 'CONFIRMED' });
     const link: HTMLAnchorElement | null = fixture.nativeElement.querySelector('.cp__created');
     expect(link?.getAttribute('href')).toBe('/quotes/q-1/edit');
+  });
+
+  it('draws a chart in the answer, with its data as a table, and pins it to the dashboard', async () => {
+    await setup();
+    component.ask('Gráfico de ventas');
+    turn.next({ type: 'tool', name: 'sales_trend' });
+    turn.next({ type: 'chart', chart });
+    turn.next({ type: 'done', result: { text: '', stopReason: 'end_turn', toolsUsed: ['show_chart', 'sales_trend'], proposals: [] } });
+    turn.complete();
+    fixture.detectChanges();
+
+    expect(component.messages().at(-1)).toMatchObject({ charts: ['g-1'] });
+    const figure: HTMLElement = fixture.nativeElement.querySelector('app-copilot-chart');
+    expect(figure.textContent).toContain('Ventas por mes');
+    expect(figure.querySelectorAll('tbody tr')).toHaveLength(2);
+
+    (figure.querySelector('.cc__pin') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(api['pin']).toHaveBeenCalledWith('g-1');
+    expect(component.chart('g-1')).toMatchObject({ pinned: true });
+
+    component.togglePin(component.chart('g-1')!);
+    expect(api['unpin']).toHaveBeenCalledWith('g-1');
+    expect(component.chart('g-1')).toMatchObject({ pinned: false });
   });
 
   it('shows the server’s reason when the plan does not include the assistant, and does not send', async () => {

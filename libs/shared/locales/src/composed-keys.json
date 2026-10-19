@@ -312,6 +312,10 @@
       "RECEIVABLE",
       "PAYABLE"
     ],
+    "ai.copilot.chart.unavailable": [
+      "not_allowed",
+      "failed"
+    ],
     "ai.copilot.proposal": [
       "draft_invoice",
       "draft_quote",
@@ -353,7 +357,8 @@
       "search_suppliers",
       "stock_on_hand",
       "supplier_lead_times",
-      "top_sellers_by_branch"
+      "top_sellers_by_branch",
+      "show_chart"
     ],
     "ai.data_quality.reason": [
       "same_tax_id",

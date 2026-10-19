@@ -10,6 +10,7 @@ import { AiAnomalyFeedback } from './entities/ai-anomaly-feedback.entity';
 import { AiConversation } from './entities/ai-conversation.entity';
 import { AiMessage } from './entities/ai-message.entity';
 import { AiPendingAction } from './entities/ai-pending-action.entity';
+import { AiChart } from './entities/ai-chart.entity';
 import { CopilotService } from './copilot/copilot.service';
 import { CopilotController } from './copilot/copilot.controller';
 import { AiCopilotTools } from './copilot/ai.copilot-tools';
@@ -63,7 +64,7 @@ import { InventoryModule } from '../inventory/inventory.module';
   imports: [
     TypeOrmModule.forFeature([
       AiRequest, AiModelRun, AiForecast, AiInventoryInsight, AiAnomaly, AiAnomalyFeedback,
-      AiConversation, AiMessage, AiPendingAction, AiKnowledgeChunk,
+      AiConversation, AiMessage, AiPendingAction, AiChart, AiKnowledgeChunk,
       AiCashflowForecast, AiCashflowItem, AiReport, AiDuplicateSuggestion, AiAgentRun,
     ]),
     BullModule.registerQueue({ name: AI_ENGINE_QUEUE }),

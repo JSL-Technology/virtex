@@ -1564,6 +1564,61 @@
     "en": "Back",
     "pt": "Voltar"
   },
+  "ai.copilot.chart.drawn_at": {
+    "es": "Datos al {{date}}",
+    "en": "Data as of {{date}}",
+    "pt": "Dados em {{date}}"
+  },
+  "ai.copilot.chart.omitted": {
+    "es": "{{count}} más sin mostrar",
+    "en": "{{count}} more not shown",
+    "pt": "mais {{count}} não exibidos"
+  },
+  "ai.copilot.chart.pin": {
+    "es": "Fijar en el inicio",
+    "en": "Pin to home",
+    "pt": "Fixar no início"
+  },
+  "ai.copilot.chart.pinned_hint": {
+    "es": "Se dibujan de nuevo con los datos de hoy cada vez que entras, y solo con lo que tienes permiso de ver.",
+    "en": "They are drawn again from today’s data every time you come in, and only with what you are allowed to see.",
+    "pt": "São desenhados novamente com os dados de hoje sempre que você entra, e apenas com o que você tem permissão para ver."
+  },
+  "ai.copilot.chart.pinned_title": {
+    "es": "Fijados desde el asistente",
+    "en": "Pinned from the assistant",
+    "pt": "Fixados a partir do assistente"
+  },
+  "ai.copilot.chart.show_table": {
+    "es": "Ver los datos",
+    "en": "Show the data",
+    "pt": "Ver os dados"
+  },
+  "ai.copilot.chart.unavailable.failed": {
+    "es": "No se pudo dibujar este gráfico ahora. Inténtalo más tarde.",
+    "en": "This chart could not be drawn right now. Try again later.",
+    "pt": "Não foi possível desenhar este gráfico agora. Tente mais tarde."
+  },
+  "ai.copilot.chart.unavailable.not_allowed": {
+    "es": "Ya no tienes acceso a los datos de este gráfico.",
+    "en": "You no longer have access to the data behind this chart.",
+    "pt": "Você não tem mais acesso aos dados deste gráfico."
+  },
+  "ai.copilot.chart.unpin": {
+    "es": "Quitar del inicio",
+    "en": "Remove from home",
+    "pt": "Remover do início"
+  },
+  "ai.copilot.chart_not_found": {
+    "es": "El gráfico no existe o no es tuyo.",
+    "en": "The chart does not exist or is not yours.",
+    "pt": "O gráfico não existe ou não é seu."
+  },
+  "ai.copilot.chart_pin_limit": {
+    "es": "Puedes fijar hasta {{max}} gráficos. Quita alguno del inicio para fijar otro.",
+    "en": "You can pin up to {{max}} charts. Remove one from home to pin another.",
+    "pt": "Você pode fixar até {{max}} gráficos. Remova algum do início para fixar outro."
+  },
   "ai.copilot.close": {
     "es": "Cerrar el asistente",
     "en": "Close the assistant",
@@ -1903,6 +1958,11 @@
     "es": "Proveedores",
     "en": "Suppliers",
     "pt": "Fornecedores"
+  },
+  "ai.copilot.tool.show_chart": {
+    "es": "Gráfico",
+    "en": "Chart",
+    "pt": "Gráfico"
   },
   "ai.copilot.tool.stock_on_hand": {
     "es": "Existencias",

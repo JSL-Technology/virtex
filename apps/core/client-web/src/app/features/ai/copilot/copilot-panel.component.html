@@ -76,6 +76,12 @@
               </p>
             }
 
+            @for (id of message.charts; track id) {
+              @if (chart(id); as drawn) {
+                <app-copilot-chart class="cp__chart" [chart]="drawn" [busy]="pinning() === drawn.id" (togglePin)="togglePin($event)" />
+              }
+            }
+
             @for (id of message.proposals; track id) {
               @if (proposal(id); as draft) {
                 <article class="cp__proposal" [class.cp__proposal--decided]="draft.status !== 'PROPOSED'">

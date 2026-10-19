@@ -21,12 +21,14 @@ import { composeKey } from '@virteex/shared/types';
 import {
   CopilotApiService,
   CopilotCapability,
+  CopilotChart,
   CopilotConversation,
   CopilotEntry,
   CopilotProposal,
   CopilotRequestError,
 } from './copilot-api.service';
 import { renderCopilotMarkdown } from './copilot-markdown';
+import { CopilotChartComponent } from './copilot-chart.component';
 
 /** One bubble of the conversation as the panel draws it. */
 interface PanelMessage {
@@ -35,6 +37,8 @@ interface PanelMessage {
   text: string;
   toolsUsed: string[];
   proposals: string[];
+  /** Charts drawn while writing this answer. */
+  charts: string[];
   /** The answer still being written. */
   streaming?: boolean;
   /** The tool being consulted right now, while streaming. */
@@ -65,7 +69,7 @@ const MAX_MESSAGE_CHARS = 4000;
 @Component({
   selector: 'app-copilot-panel',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [FormsModule, RouterLink, TranslatePipe, LucideAngularModule, CopilotChartComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './copilot-panel.component.html',
   styleUrl: './copilot-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -101,6 +105,9 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
   readonly conversationId = signal<string | null>(null);
   readonly messages = signal<PanelMessage[]>([]);
   readonly proposals = signal<Record<string, CopilotProposal>>({});
+  readonly charts = signal<Record<string, CopilotChart>>({});
+  /** The chart being pinned or unpinned. */
+  readonly pinning = signal<string | null>(null);
   readonly draft = signal('');
   readonly streaming = signal(false);
   readonly loading = signal(false);
@@ -142,6 +149,7 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
     this.conversationId.set(null);
     this.messages.set([]);
     this.proposals.set({});
+    this.charts.set({});
     this.showHistory.set(false);
     queueMicrotask(() => this.inputEl()?.nativeElement.focus());
   }
@@ -154,6 +162,7 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
       next: (transcript) => {
         this.conversationId.set(transcript.conversation.id);
         this.proposals.set(Object.fromEntries(transcript.proposals.map((proposal) => [proposal.id, proposal])));
+        this.charts.set(Object.fromEntries((transcript.charts ?? []).map((chart) => [chart.id, chart])));
         this.messages.set(transcript.entries.map((entry) => this.fromEntry(entry)));
         this.loading.set(false);
         this.scrollToEnd();
@@ -196,7 +205,7 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
     if (!this.canSend()) return;
     const text = this.draft().trim();
     this.draft.set('');
-    this.messages.update((list) => [...list, { key: `u-${Date.now()}`, role: 'user', text, toolsUsed: [], proposals: [] }]);
+    this.messages.update((list) => [...list, { key: `u-${Date.now()}`, role: 'user', text, toolsUsed: [], proposals: [], charts: [] }]);
     this.streaming.set(true);
     this.scrollToEnd();
 
@@ -239,6 +248,26 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
     return this.proposals()[id];
   }
 
+  chart(id: string): CopilotChart | undefined {
+    return this.charts()[id];
+  }
+
+  /** Puts the chart on the dashboard, or takes it off; it is drawn there from live data each visit. */
+  togglePin(chart: CopilotChart): void {
+    if (this.pinning()) return;
+    this.pinning.set(chart.id);
+    const done = (pinned: boolean) => {
+      this.charts.update((map) => ({ ...map, [chart.id]: { ...chart, pinned } }));
+      this.pinning.set(null);
+    };
+    const failed = (error: unknown) => {
+      this.pinning.set(null);
+      this.appendError(this.messageOf(error));
+    };
+    if (chart.pinned) this.api.unpin(chart.id).subscribe({ next: () => done(false), error: failed });
+    else this.api.pin(chart.id).subscribe({ next: () => done(true), error: failed });
+  }
+
   /** The lines of a draft's preview, whatever the document. */
   previewLines(proposal: CopilotProposal): Array<{ description: string; quantity: number; amount: number | null }> {
     const lines = proposal.preview['lines'];
@@ -258,7 +287,7 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
   private stream(conversationId: string, text: string): void {
     this.messages.update((list) => [
       ...list,
-      { key: `a-${Date.now()}`, role: 'assistant', text: '', toolsUsed: [], proposals: [], streaming: true, activeTool: null },
+      { key: `a-${Date.now()}`, role: 'assistant', text: '', toolsUsed: [], proposals: [], charts: [], streaming: true, activeTool: null },
     ]);
     this.turn = this.api.send(conversationId, text).subscribe({
       next: (event) => {
@@ -276,6 +305,10 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
           case 'proposal':
             this.proposals.update((map) => ({ ...map, [event.proposal.id]: event.proposal }));
             this.patchAnswer((answer) => ({ ...answer, proposals: [...answer.proposals, event.proposal.id] }));
+            break;
+          case 'chart':
+            this.charts.update((map) => ({ ...map, [event.chart.id]: event.chart }));
+            this.patchAnswer((answer) => ({ ...answer, charts: [...answer.charts, event.chart.id] }));
             break;
           case 'done':
             this.patchAnswer((answer) => ({ ...answer, streaming: false, activeTool: null }));
@@ -331,7 +364,7 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
   }
 
   private appendError(message: string): void {
-    this.messages.update((list) => [...list, { key: `e-${Date.now()}`, role: 'assistant', text: '', toolsUsed: [], proposals: [], error: message }]);
+    this.messages.update((list) => [...list, { key: `e-${Date.now()}`, role: 'assistant', text: '', toolsUsed: [], proposals: [], charts: [], error: message }]);
   }
 
   private touchConversation(id: string, firstMessage: string): void {
@@ -344,7 +377,14 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
   }
 
   private fromEntry(entry: CopilotEntry): PanelMessage {
-    return { key: `s-${entry.seq}`, role: entry.role, text: entry.text, toolsUsed: entry.toolsUsed, proposals: entry.proposals };
+    return {
+      key: `s-${entry.seq}`,
+      role: entry.role,
+      text: entry.text,
+      toolsUsed: entry.toolsUsed,
+      proposals: entry.proposals,
+      charts: entry.charts ?? [],
+    };
   }
 
   private scrollToEnd(): void {

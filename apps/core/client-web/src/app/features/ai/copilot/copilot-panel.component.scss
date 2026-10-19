@@ -156,6 +156,14 @@
 
 .cp__thinking { font-style: italic; }
 
+.cp__chart {
+  display: block;
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+}
+
 .cp__proposal {
   display: flex;
   flex-direction: column;

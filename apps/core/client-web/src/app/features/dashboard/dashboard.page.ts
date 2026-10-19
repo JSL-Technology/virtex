@@ -28,6 +28,7 @@ import { KpiNetMarginComponent } from './widgets/kpi-net-margin/kpi-net-margin';
 import { KpiEbitdaComponent } from './widgets/kpi-ebitda/kpi-ebitda';
 import { KpiFcfComponent } from './widgets/kpi-fcf/kpi-fcf';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PinnedChartsComponent } from '../ai/copilot/pinned-charts.component';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 /**
@@ -41,7 +42,7 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
   selector: 'app-dashboard-page',
   standalone: true,
   imports: [CommonModule, GridsterModule, LucideAngularModule, // ✅ CORRECCIÓN: Se añaden todos los widgets a la lista de imports
-    StatSummary, ComparisonChart, AlertsPanel, SalesChart, InvoiceStatus, LowStockProducts, TopProductsChart, RecentActivity, CashflowChart, ExpensesChart, ArAgingChart, FinancialRatios, KpiRoe, KpiRoa, KpiCurrentRatio, KpiQuickRatio, KpiWorkingCapital, KpiLeverageComponent, KpiNetMarginComponent, KpiEbitdaComponent, KpiFcfComponent, TranslatePipe, ...FORMAT_PIPES],
+    StatSummary, ComparisonChart, AlertsPanel, SalesChart, InvoiceStatus, LowStockProducts, TopProductsChart, RecentActivity, CashflowChart, ExpensesChart, ArAgingChart, FinancialRatios, KpiRoe, KpiRoa, KpiCurrentRatio, KpiQuickRatio, KpiWorkingCapital, KpiLeverageComponent, KpiNetMarginComponent, KpiEbitdaComponent, KpiFcfComponent, PinnedChartsComponent, TranslatePipe, ...FORMAT_PIPES],
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

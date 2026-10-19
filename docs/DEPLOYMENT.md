@@ -258,6 +258,6 @@ Each scheduled job claims its slot with the scheduler lock, so any number of API
 once. Reports are processed by the API itself (queue `ai-reports`), not by the Python engine.
 
 Migrations added in these phases: `AiCopilot`, `VendorBillAttachments`, `AiKnowledge`, `AiCashflow`,
-`ReconciliationSettings`, `Collections`, `AiDuplicateSuggestions`, `AiAgents` — all tenant tables with
+`ReconciliationSettings`, `Collections`, `AiDuplicateSuggestions`, `AiAgents`, `AiCharts` — all tenant tables with
 forced row-level security. `AiCashflow` grants the engine role read access to the receivables,
 payables and payroll sources it simulates from.

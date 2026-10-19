@@ -430,6 +430,7 @@ Construido, probado y en este repositorio. Cada pieza que necesita un modelo pas
 | Fase | Pieza | Dónde |
 | ---- | ----- | ----- |
 | 2.1 | Copiloto: tool use en streaming (SSE), herramientas registradas por cada dominio con sus permisos y su alcance por sucursal, borradores que se confirman | `ai/copilot/`, `contracts/copilot/`, `*.copilot-tools.ts` |
+| 2.1 / 4.1 | Gráficos del copiloto (`show_chart`), fijables en el inicio | `ai/copilot/copilot-chart.ts`, `ai_charts`, `features/ai/copilot/pinned-charts.component.ts` |
 | 2.2 | Factura de proveedor desde foto o PDF, adjuntos, validador de NCF/e-NCF, RNC, aritmética y duplicados | `accounts-payable/bill-capture.service.ts`, `localization/fiscal/ncf.ts` |
 | 2.3 | Notas con tono (cordial/formal/firme) con verificación de cifras; ayuda integrada (`search_help`) | `ai/gateway` (`compose`), `ai/help/` |
 | 3.1 | Flujo de caja proyectado: Monte Carlo en el motor, banda P10–P90, riesgo de déficit, plan de caja escrito, escenarios | `apps/ai-engine/.../cashflow/`, `ai/cashflow/` |
@@ -447,6 +448,11 @@ Construido, probado y en este repositorio. Cada pieza que necesita un modelo pas
 - **Duplicados con trigramas en la aplicación**, porque `pg_trgm` no siempre está instalado, y sin embeddings de nombre. Se agrupa por identificación fiscal, contacto, código y las palabras más distintivas del nombre, para no comparar todo con todo. Nada se fusiona: fusionar mueve documentos y saldos, y es una decisión contable.
 - **PDF del informe del gerente con la impresión del navegador**, con una hoja de estilo de impresión propia, en lugar del renderizador de documentos de la API.
 - **Agente de cotizaciones como capacidad del copiloto.** El copiloto busca al cliente y los productos y propone `draft_quote` a precios de catálogo. Lo que no logra identificar lo lista en lugar de adivinarlo.
+- **Gráficos del copiloto sin cifras del modelo.** El modelo no escribe los valores de un gráfico. `show_chart` nombra una herramienta de lectura que la persona ya puede usar, su entrada y qué campos dibujar; el servidor la ejecuta como esa persona y toma las series de su resultado. Un gráfico fijado en el inicio guarda esa receta, no las cifras:
+  - se dibuja de nuevo con los datos del día en cada visita;
+  - se dibuja con los permisos de quien lo mira, así que, si la persona pierde el permiso o el plan apaga la función, el gráfico se queda sin cifras.
+
+  Hay un máximo de 12 gráficos fijados por persona.
 - **Facturas de proveedor y saldos iniciales importables, con el contrato ampliado.** El contrato de importación era «una fila, un registro». Ahora admite dos ganchos opcionales:
   - `checkFile`: reglas que abarcan varias filas.
   - `createAll`: confirma el archivo entero, todo o nada.
