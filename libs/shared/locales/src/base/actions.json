@@ -1,8 +1,63 @@
 {
+  "actions.archive": {
+    "es": "Archivar",
+    "en": "Archive",
+    "pt": "Arquivar"
+  },
+  "actions.archive_n": {
+    "es": "Archivar {{n}}",
+    "en": "Archive {{n}}",
+    "pt": "Arquivar {{n}}"
+  },
   "actions.create_new": {
     "es": "Crear nuevo",
     "en": "Create new",
     "pt": "Criar novo"
+  },
+  "actions.delete_n": {
+    "es": "Eliminar {{n}}",
+    "en": "Delete {{n}}",
+    "pt": "Excluir {{n}}"
+  },
+  "actions.delete_selected_message": {
+    "es": "Se eliminarán {{n}} elementos. Esta acción no se puede deshacer.",
+    "en": "{{n}} items will be deleted. This cannot be undone.",
+    "pt": "{{n}} itens serão excluídos. Esta ação não pode ser desfeita."
+  },
+  "actions.delete_selected_title": {
+    "es": "Eliminar selección",
+    "en": "Delete selection",
+    "pt": "Excluir seleção"
+  },
+  "actions.duplicate": {
+    "es": "Duplicar",
+    "en": "Duplicate",
+    "pt": "Duplicar"
+  },
+  "actions.export": {
+    "es": "Exportar",
+    "en": "Export",
+    "pt": "Exportar"
+  },
+  "actions.export_n": {
+    "es": "Exportar {{n}}",
+    "en": "Export {{n}}",
+    "pt": "Exportar {{n}}"
+  },
+  "actions.refresh": {
+    "es": "Refrescar",
+    "en": "Refresh",
+    "pt": "Atualizar"
+  },
+  "actions.row_actions": {
+    "es": "Acciones de la fila",
+    "en": "Row actions",
+    "pt": "Ações da linha"
+  },
+  "actions.select_all": {
+    "es": "Seleccionar todo",
+    "en": "Select all",
+    "pt": "Selecionar tudo"
   },
   "actions.new_customer": {
     "es": "Nuevo cliente",

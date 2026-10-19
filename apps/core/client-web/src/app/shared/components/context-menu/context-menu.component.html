@@ -1,0 +1,48 @@
+<!-- Ancla de tamaño cero: el menú abre en las coordenadas del cursor, no aquí. -->
+<span class="vx-ctx-anchor" [cdkContextMenuTriggerFor]="panel" aria-hidden="true"></span>
+
+<ng-template #panel>
+  <div cdkMenu class="vx-ctx-panel">
+    @for (section of visibleSections(); track section.id; let lastSection = $last) {
+      @for (item of section.items; track item.id) {
+        <ng-container [ngTemplateOutlet]="itemTpl" [ngTemplateOutletContext]="{ $implicit: item }" />
+      }
+      @if (!lastSection) {
+        <div class="vx-ctx-sep" role="separator"></div>
+      }
+    }
+  </div>
+</ng-template>
+
+<!-- Un único renderizador de ítem, reutilizado recursivamente por los submenús. -->
+<ng-template #itemTpl let-item>
+  @if (item.submenu && item.submenu.length) {
+    <button
+      cdkMenuItem
+      [cdkMenuTriggerFor]="submenu"
+      class="vx-ctx-trigger"
+      [class.vx-ctx-trigger--danger]="item.danger"
+    >
+      <app-context-menu-item [item]="item" [ctx]="context()" [hasSubmenu]="true" />
+    </button>
+    <ng-template #submenu>
+      <div cdkMenu class="vx-ctx-panel">
+        @for (sub of item.submenu; track sub.id) {
+          @if (isVisible(sub, context()!)) {
+            <ng-container [ngTemplateOutlet]="itemTpl" [ngTemplateOutletContext]="{ $implicit: sub }" />
+          }
+        }
+      </div>
+    </ng-template>
+  } @else {
+    <button
+      cdkMenuItem
+      class="vx-ctx-trigger"
+      [class.vx-ctx-trigger--danger]="item.danger"
+      [cdkMenuItemDisabled]="isDisabled(item, context())"
+      (cdkMenuItemTriggered)="run(item)"
+    >
+      <app-context-menu-item [item]="item" [ctx]="context()" />
+    </button>
+  }
+</ng-template>

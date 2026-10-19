@@ -14,6 +14,7 @@ import { NotificationService } from './core/services/notification';
 import { ToastContainerComponent } from './shared/components/ui/toast/toast-container.component';
 import { OfflineBannerComponent } from './shared/components/offline-banner/offline-banner.component';
 import { IdleWarningComponent } from './shared/components/idle-warning/idle-warning.component';
+import { ContextMenuComponent } from './shared/components/context-menu';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +26,7 @@ import { IdleWarningComponent } from './shared/components/idle-warning/idle-warn
     ToastContainerComponent,
     OfflineBannerComponent,
     IdleWarningComponent,
+    ContextMenuComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss'

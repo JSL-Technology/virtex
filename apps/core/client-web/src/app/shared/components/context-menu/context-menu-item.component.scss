@@ -1,0 +1,43 @@
+// =============================================================================
+//  CONTEXT MENU ITEM
+// =============================================================================
+//  Sólo la fila. El panel, el hover y los separadores los pone el host
+//  (context-menu.component.scss), porque viven en el overlay. Todo con tokens.
+// =============================================================================
+
+:host {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-width: 0;
+}
+
+.vx-ctx-item__check,
+.vx-ctx-item__chevron {
+  display: inline-flex;
+  width: 1rem;
+  flex: none;
+  justify-content: center;
+}
+
+.vx-ctx-item__icon {
+  flex: none;
+  color: var(--content-secondary);
+}
+
+.vx-ctx-item__label {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vx-ctx-item__kbd {
+  margin-left: var(--space-4);
+}
+
+.vx-ctx-item__chevron {
+  margin-left: auto;
+  color: var(--content-tertiary);
+}

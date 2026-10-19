@@ -21,9 +21,17 @@
   </a>
 
   <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+    <table [appTableMenu]="productsMenu" #tableMenu="appTableMenu" [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
+          <th class="select-column">
+            <input
+              type="checkbox"
+              [checked]="selection.allSelected()"
+              (change)="selection.toggleAll()"
+              [attr.aria-label]="'actions.select_all' | translate"
+            />
+          </th>
           <th appSortHeader="name">{{ 'inventory.products.product' | translate }}</th>
           <th appSortHeader="category">{{ 'inventory.products.category' | translate }}</th>
           <th appSortHeader="price" class="text-right">{{ 'inventory.products.price' | translate }}</th>
@@ -35,7 +43,16 @@
       </thead>
       <tbody>
         @for (product of table.rows(); track product.id) {
-          <tr appRowLink>
+          <tr appRowLink [appRowMenu]="product" #rowMenu="appRowMenu" [class.is-selected]="selection.isSelected(product.id)">
+            <td class="select-column">
+              <input
+                type="checkbox"
+                [checked]="selection.isSelected(product.id)"
+                (click)="$event.stopPropagation()"
+                (change)="selection.toggle(product.id)"
+                [attr.aria-label]="product.name"
+              />
+            </td>
             <td>
               <a [routerLink]="['/inventory/products', product.id, 'edit']" class="table-link">
                 {{ product.name }}
@@ -77,6 +94,16 @@
                   (click)="deleteProduct(product)"
                 >
                   <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>
+                </button>
+                <!-- Mismo menú que el clic derecho, para táctil y teclado. -->
+                <button
+                  type="button"
+                  class="icon-button"
+                  (click)="rowMenu.open($event)"
+                  [attr.aria-label]="'actions.row_actions' | translate"
+                  aria-haspopup="menu"
+                >
+                  <lucide-icon [img]="MoreIcon" size="18" aria-hidden="true"></lucide-icon>
                 </button>
               </div>
             </td>
