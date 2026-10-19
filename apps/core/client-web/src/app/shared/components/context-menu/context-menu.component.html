@@ -1,48 +1,60 @@
 <!-- Ancla de tamaño cero: el menú abre en las coordenadas del cursor, no aquí. -->
 <span class="vx-ctx-anchor" [cdkContextMenuTriggerFor]="panel" aria-hidden="true"></span>
 
+<!--
+  Los ítems se pintan EN LÍNEA (con @for/@if), nunca con ngTemplateOutlet.
+
+  CDK inyecta su MENU_STACK en la vista del panel a través del injector que el trigger pasa al
+  TemplatePortal. Las vistas de @for/@if se declaran donde se insertan, así que su injector
+  encadena con el <div cdkMenu> y cada cdkMenuItem encuentra el MENU_STACK. ngTemplateOutlet, en
+  cambio, encadena al punto de DECLARACIÓN (este componente) y rompe esa cadena → NG0201
+  «No provider for cdk-menu-stack». Por eso el submenú se repite aquí en vez de reusar un template.
+-->
 <ng-template #panel>
   <div cdkMenu class="vx-ctx-panel">
     @for (section of visibleSections(); track section.id; let lastSection = $last) {
       @for (item of section.items; track item.id) {
-        <ng-container [ngTemplateOutlet]="itemTpl" [ngTemplateOutletContext]="{ $implicit: item }" />
+        @if (item.submenu && item.submenu.length) {
+          <button
+            cdkMenuItem
+            [cdkMenuTriggerFor]="submenu"
+            class="vx-ctx-trigger"
+            [class.vx-ctx-trigger--danger]="item.danger"
+          >
+            <app-context-menu-item [item]="item" [ctx]="context()" [hasSubmenu]="true" />
+          </button>
+          <ng-template #submenu>
+            <div cdkMenu class="vx-ctx-panel">
+              @for (child of item.submenu; track child.id) {
+                @if (isVisible(child, context()!)) {
+                  <button
+                    cdkMenuItem
+                    class="vx-ctx-trigger"
+                    [class.vx-ctx-trigger--danger]="child.danger"
+                    [cdkMenuItemDisabled]="isDisabled(child, context())"
+                    (cdkMenuItemTriggered)="run(child)"
+                  >
+                    <app-context-menu-item [item]="child" [ctx]="context()" />
+                  </button>
+                }
+              }
+            </div>
+          </ng-template>
+        } @else {
+          <button
+            cdkMenuItem
+            class="vx-ctx-trigger"
+            [class.vx-ctx-trigger--danger]="item.danger"
+            [cdkMenuItemDisabled]="isDisabled(item, context())"
+            (cdkMenuItemTriggered)="run(item)"
+          >
+            <app-context-menu-item [item]="item" [ctx]="context()" />
+          </button>
+        }
       }
       @if (!lastSection) {
         <div class="vx-ctx-sep" role="separator"></div>
       }
     }
   </div>
-</ng-template>
-
-<!-- Un único renderizador de ítem, reutilizado recursivamente por los submenús. -->
-<ng-template #itemTpl let-item>
-  @if (item.submenu && item.submenu.length) {
-    <button
-      cdkMenuItem
-      [cdkMenuTriggerFor]="submenu"
-      class="vx-ctx-trigger"
-      [class.vx-ctx-trigger--danger]="item.danger"
-    >
-      <app-context-menu-item [item]="item" [ctx]="context()" [hasSubmenu]="true" />
-    </button>
-    <ng-template #submenu>
-      <div cdkMenu class="vx-ctx-panel">
-        @for (sub of item.submenu; track sub.id) {
-          @if (isVisible(sub, context()!)) {
-            <ng-container [ngTemplateOutlet]="itemTpl" [ngTemplateOutletContext]="{ $implicit: sub }" />
-          }
-        }
-      </div>
-    </ng-template>
-  } @else {
-    <button
-      cdkMenuItem
-      class="vx-ctx-trigger"
-      [class.vx-ctx-trigger--danger]="item.danger"
-      [cdkMenuItemDisabled]="isDisabled(item, context())"
-      (cdkMenuItemTriggered)="run(item)"
-    >
-      <app-context-menu-item [item]="item" [ctx]="context()" />
-    </button>
-  }
 </ng-template>

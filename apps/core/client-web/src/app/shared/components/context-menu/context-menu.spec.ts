@@ -2,9 +2,11 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ListSelectionService } from './list-selection.service';
 import { ContextMenuService } from './context-menu.service';
+import { ContextMenuComponent } from './context-menu.component';
 import { TableMenuDirective } from './table-menu.directive';
 import { RowMenuDirective } from './row-menu.directive';
 import { ListMenuConfig, MenuContext } from './context-menu.types';
+import { AuthService } from '../../../core/services/auth';
 
 interface Row {
   id: string;
@@ -123,5 +125,62 @@ describe('appRowMenu / appTableMenu', () => {
 
     expect(service.context()?.kind).toBe('table');
     expect(service.sections().map((s) => s.id)).toEqual(['t']);
+  });
+});
+
+@Component({ standalone: true, imports: [ContextMenuComponent], template: `<vx-context-menu />` })
+class HostApp {}
+
+describe('ContextMenuComponent (overlay rendering)', () => {
+  afterEach(() => {
+    document.querySelectorAll('.cdk-overlay-container').forEach((el) => el.remove());
+  });
+
+  // Catches the cdk-menu-stack regression: rendering items through ngTemplateOutlet broke the
+  // injector chain so every cdkMenuItem threw NG0201 and the overlay never painted. Rendering the
+  // real panel through the overlay is the only thing that exercises that wiring.
+  it('paints the menu items in the overlay and runs the clicked one', () => {
+    TestBed.configureTestingModule({
+      imports: [HostApp],
+      providers: [{ provide: AuthService, useValue: { hasPermissions: () => true } }],
+    });
+    const fixture = TestBed.createComponent(HostApp);
+    fixture.detectChanges();
+
+    const service = TestBed.inject(ContextMenuService);
+    const ran: string[] = [];
+    const event = new MouseEvent('contextmenu', { clientX: 10, clientY: 10 });
+    const ctx: MenuContext = { kind: 'row', selection: [], event };
+    service.open(event, [{ id: 's', items: [
+      { id: 'a', label: 'Alpha', run: () => { ran.push('a'); } },
+      { id: 'b', label: 'Beta', run: () => { ran.push('b'); } },
+    ] }], ctx);
+    fixture.detectChanges();
+
+    const items = Array.from(document.querySelectorAll<HTMLElement>('.cdk-overlay-container .vx-ctx-trigger'));
+    expect(items).toHaveLength(2);
+
+    items[0].click();
+    expect(ran).toEqual(['a']);
+  });
+
+  it('hides an item the user lacks permission for', () => {
+    TestBed.configureTestingModule({
+      imports: [HostApp],
+      providers: [{ provide: AuthService, useValue: { hasPermissions: (perms: string[]) => !perms.includes('secret') } }],
+    });
+    const fixture = TestBed.createComponent(HostApp);
+    fixture.detectChanges();
+
+    const service = TestBed.inject(ContextMenuService);
+    const event = new MouseEvent('contextmenu', { clientX: 10, clientY: 10 });
+    service.open(event, [{ id: 's', items: [
+      { id: 'a', label: 'Alpha' },
+      { id: 'b', label: 'Beta', permission: 'secret' },
+    ] }], { kind: 'row', selection: [], event });
+    fixture.detectChanges();
+
+    const items = Array.from(document.querySelectorAll<HTMLElement>('.cdk-overlay-container .vx-ctx-trigger'));
+    expect(items).toHaveLength(1);
   });
 });

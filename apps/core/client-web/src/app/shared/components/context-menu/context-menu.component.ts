@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild, computed, inject } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
 import { CdkContextMenuTrigger, CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 import { AuthService } from '../../../core/services/auth';
 import { ContextMenuService } from './context-menu.service';
@@ -24,7 +23,7 @@ import { MenuContext, MenuItem, MenuSection } from './context-menu.types';
 @Component({
   selector: 'vx-context-menu',
   standalone: true,
-  imports: [NgTemplateOutlet, CdkContextMenuTrigger, CdkMenu, CdkMenuItem, CdkMenuTrigger, ContextMenuItemComponent],
+  imports: [CdkContextMenuTrigger, CdkMenu, CdkMenuItem, CdkMenuTrigger, ContextMenuItemComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './context-menu.component.html',
   styleUrls: ['./context-menu.component.scss'],
