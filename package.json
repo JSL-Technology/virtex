@@ -146,7 +146,7 @@
     "@foblex/flow-dagre-layout": "^19.3.0",
     "@foblex/flow-elk-layout": "^19.3.0",
     "@handsontable/angular-wrapper": "^18.1.1",
-    "@keyv/redis": "^4.6.0",
+    "@keyv/redis": "^6.1.0",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/bullmq": "^11.0.3",
