@@ -1631,6 +1631,11 @@
     "en": "The start date is required.",
     "pt": "A data inicial é obrigatória."
   },
+  "validation.legal.country_code_invalid": {
+    "es": "Elige un país válido.",
+    "en": "Choose a valid country.",
+    "pt": "Escolha um país válido."
+  },
   "validation.list_users_query.column_cannot_sorted": {
     "es": "No se puede ordenar por esa columna.",
     "en": "That column cannot be sorted on.",
@@ -1846,10 +1851,20 @@
     "en": "The billing period is not valid.",
     "pt": "O período de cobrança não é válido."
   },
+  "validation.register_checkout.legal_version_outdated": {
+    "es": "Los Términos o la Política de privacidad se actualizaron mientras completabas el registro. Recarga la página, revísalos y vuelve a aceptarlos.",
+    "en": "The Terms or the Privacy policy were updated while you were signing up. Reload the page, review them and accept them again.",
+    "pt": "Os Termos ou a Política de privacidade foram atualizados enquanto você se cadastrava. Recarregue a página, revise-os e aceite novamente."
+  },
   "validation.register_checkout.selected_plan_not_valid": {
     "es": "El plan seleccionado no es válido.",
     "en": "The selected plan is not valid.",
     "pt": "O plano selecionado não é válido."
+  },
+  "validation.register_checkout.terms_must_be_accepted": {
+    "es": "Debes aceptar los Términos de servicio y la Política de privacidad para crear la cuenta.",
+    "en": "You must accept the Terms of service and the Privacy policy to create the account.",
+    "pt": "Você precisa aceitar os Termos de serviço e a Política de privacidade para criar a conta."
   },
   "validation.register_checkout.you_must_select_plan": {
     "es": "Debes seleccionar un plan.",

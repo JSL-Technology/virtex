@@ -1,0 +1,437 @@
+{
+  "legal.common.back_to_sign_in": {
+    "es": "Volver a iniciar sesión",
+    "en": "Back to sign in",
+    "pt": "Voltar para o login"
+  },
+  "legal.common.back_to_sign_up": {
+    "es": "Volver al registro",
+    "en": "Back to sign up",
+    "pt": "Voltar ao cadastro"
+  },
+  "legal.common.documents_nav": {
+    "es": "Documentos legales",
+    "en": "Legal documents",
+    "pt": "Documentos legais"
+  },
+  "legal.common.effective": {
+    "es": "Vigente desde el {{date}}",
+    "en": "Effective {{date}}",
+    "pt": "Em vigor desde {{date}}"
+  },
+  "legal.common.questions": {
+    "es": "¿Dudas sobre este documento? Escríbenos a {{email}}.",
+    "en": "Questions about this document? Write to us at {{email}}.",
+    "pt": "Dúvidas sobre este documento? Escreva para {{email}}."
+  },
+  "legal.common.summary_note": {
+    "es": "Este resumen no sustituye a los derechos que te reconozca la ley de tu país; cuando la ley local dé más protección, prevalece.",
+    "en": "Nothing here limits rights the law of your country gives you; where local law gives more protection, it prevails.",
+    "pt": "Nada aqui limita os direitos que a lei do seu país lhe garante; quando a lei local der mais proteção, ela prevalece."
+  },
+  "legal.common.version": {
+    "es": "Versión {{version}}",
+    "en": "Version {{version}}",
+    "pt": "Versão {{version}}"
+  },
+  "legal.contact.copied": {
+    "es": "Copiado",
+    "en": "Copied",
+    "pt": "Copiado"
+  },
+  "legal.contact.copy": {
+    "es": "Copiar",
+    "en": "Copy",
+    "pt": "Copiar"
+  },
+  "legal.contact.email_label": {
+    "es": "Correo de soporte",
+    "en": "Support email",
+    "pt": "E-mail de suporte"
+  },
+  "legal.contact.form_hint": {
+    "es": "Al enviar se abrirá tu aplicación de correo con el mensaje listo para mandar a {{email}}.",
+    "en": "Sending opens your email app with the message ready to send to {{email}}.",
+    "pt": "Ao enviar, seu aplicativo de e-mail será aberto com a mensagem pronta para {{email}}."
+  },
+  "legal.contact.form_title": {
+    "es": "Escríbenos",
+    "en": "Write to us",
+    "pt": "Escreva para nós"
+  },
+  "legal.contact.lead": {
+    "es": "¿Necesitas ayuda con tu cuenta, la facturación o tus datos? Escríbenos y te responderemos por correo.",
+    "en": "Need help with your account, billing or your data? Write to us and we'll reply by email.",
+    "pt": "Precisa de ajuda com sua conta, a cobrança ou seus dados? Escreva para nós e responderemos por e-mail."
+  },
+  "legal.contact.loading": {
+    "es": "Cargando datos de contacto…",
+    "en": "Loading contact details…",
+    "pt": "Carregando dados de contato…"
+  },
+  "legal.contact.mail_from": {
+    "es": "De: {{name}} <{{email}}>",
+    "en": "From: {{name}} <{{email}}>",
+    "pt": "De: {{name}} <{{email}}>"
+  },
+  "legal.contact.message": {
+    "es": "Mensaje",
+    "en": "Message",
+    "pt": "Mensagem"
+  },
+  "legal.contact.name": {
+    "es": "Tu nombre",
+    "en": "Your name",
+    "pt": "Seu nome"
+  },
+  "legal.contact.privacy_note": {
+    "es": "Para solicitudes sobre tus datos personales, escribe desde el correo de tu cuenta: así podemos verificar que eres tú.",
+    "en": "For requests about your personal data, write from your account's email address so we can verify it's you.",
+    "pt": "Para solicitações sobre seus dados pessoais, escreva a partir do e-mail da sua conta, para que possamos confirmar que é você."
+  },
+  "legal.contact.reply_to": {
+    "es": "Correo donde quieres la respuesta",
+    "en": "Email to reply to",
+    "pt": "E-mail para resposta"
+  },
+  "legal.contact.required": {
+    "es": "Completa el tema y el mensaje.",
+    "en": "Fill in the topic and the message.",
+    "pt": "Preencha o assunto e a mensagem."
+  },
+  "legal.contact.send": {
+    "es": "Preparar correo",
+    "en": "Compose email",
+    "pt": "Preparar e-mail"
+  },
+  "legal.contact.title": {
+    "es": "Contacto",
+    "en": "Contact",
+    "pt": "Contato"
+  },
+  "legal.contact.topic": {
+    "es": "Tema",
+    "en": "Topic",
+    "pt": "Assunto"
+  },
+  "legal.contact.topics.billing": {
+    "es": "Facturación y planes",
+    "en": "Billing and plans",
+    "pt": "Cobrança e planos"
+  },
+  "legal.contact.topics.privacy": {
+    "es": "Solicitud sobre mis datos personales",
+    "en": "Request about my personal data",
+    "pt": "Solicitação sobre meus dados pessoais"
+  },
+  "legal.contact.topics.sales": {
+    "es": "Información comercial",
+    "en": "Sales enquiry",
+    "pt": "Informações comerciais"
+  },
+  "legal.contact.topics.security": {
+    "es": "Informar de un problema de seguridad",
+    "en": "Report a security problem",
+    "pt": "Comunicar um problema de segurança"
+  },
+  "legal.contact.topics.support": {
+    "es": "Ayuda con la cuenta",
+    "en": "Help with my account",
+    "pt": "Ajuda com a conta"
+  },
+  "legal.privacy.lead": {
+    "es": "Qué datos personales tratamos cuando usas {{app}}, para qué, con quién los compartimos y cómo ejercer tus derechos.",
+    "en": "What personal data we process when you use {{app}}, why, who we share it with, and how to exercise your rights.",
+    "pt": "Quais dados pessoais tratamos quando você usa o {{app}}, para quê, com quem os compartilhamos e como exercer seus direitos."
+  },
+  "legal.privacy.s1.body": {
+    "es": "Somos responsables de los datos de las cuentas: los de quienes se registran y de los usuarios que acceden. Los datos que una empresa cliente introduce sobre sus propios clientes, proveedores o empleados los tratamos por cuenta de esa empresa, como encargado del tratamiento; para esos datos, dirígete primero a ella.",
+    "en": "We are the controller of account data: that of the people who sign up and of the users who sign in. Data a customer business enters about its own customers, suppliers or employees we process on that business's behalf, as its processor; for that data, contact the business first.",
+    "pt": "Somos controladores dos dados das contas: os de quem se cadastra e dos usuários que acessam. Os dados que uma empresa cliente insere sobre seus próprios clientes, fornecedores ou funcionários tratamos em nome dessa empresa, como operador; para esses dados, procure primeiro a empresa."
+  },
+  "legal.privacy.s1.title": {
+    "es": "1. Nuestro papel",
+    "en": "1. Our role",
+    "pt": "1. Nosso papel"
+  },
+  "legal.privacy.s10.body": {
+    "es": "Si cambiamos esta política, actualizaremos la versión y la fecha de arriba y, si el cambio es importante, te avisaremos con antelación.",
+    "en": "If we change this policy, we will update the version and date above and, if the change is material, notify you in advance.",
+    "pt": "Se alterarmos esta política, atualizaremos a versão e a data acima e, se a alteração for relevante, avisaremos com antecedência."
+  },
+  "legal.privacy.s10.title": {
+    "es": "10. Cambios en esta política",
+    "en": "10. Changes to this policy",
+    "pt": "10. Alterações desta política"
+  },
+  "legal.privacy.s2.body": {
+    "es": "Datos de la cuenta (nombre, correo, teléfono si lo das, y la contraseña guardada solo como hash); datos de la empresa (razón social, identificador fiscal, dirección, sector); datos de uso y del dispositivo (dirección IP, navegador, fechas de inicio de sesión y registros de seguridad); datos de facturación (plan y estado del pago: los datos de tarjeta los gestiona el procesador de pagos y no guardamos el número completo); y lo que nos escribas al pedir ayuda. Al registrarte guardamos además qué versión de estos documentos aceptaste, cuándo y desde qué dirección IP.",
+    "en": "Account data (name, email, phone if you give it, and your password stored only as a hash); business data (legal name, tax identifier, address, industry); usage and device data (IP address, browser, sign-in times and security logs); billing data (plan and payment status — card details are handled by the payment processor and we do not store full card numbers); and whatever you write to us when asking for help. When you sign up we also record which version of these documents you accepted, when, and from which IP address.",
+    "pt": "Dados da conta (nome, e-mail, telefone se você informar e a senha guardada apenas como hash); dados da empresa (razão social, identificador fiscal, endereço, setor); dados de uso e do dispositivo (endereço IP, navegador, horários de login e registros de segurança); dados de cobrança (plano e status do pagamento — os dados do cartão ficam com o processador de pagamentos e não guardamos o número completo); e o que você nos escrever ao pedir ajuda. No cadastro, registramos também qual versão destes documentos você aceitou, quando e de qual endereço IP."
+  },
+  "legal.privacy.s2.title": {
+    "es": "2. Qué datos tratamos",
+    "en": "2. What data we process",
+    "pt": "2. Quais dados tratamos"
+  },
+  "legal.privacy.s3.body": {
+    "es": "Para prestar el Servicio y darte soporte (ejecución del contrato); para proteger las cuentas, prevenir el fraude y mejorar el producto con datos agregados (interés legítimo); para facturar y cumplir obligaciones fiscales y legales (obligación legal); y, cuando la ley lo exija, con tu consentimiento, que puedes retirar en cualquier momento.",
+    "en": "To provide the Service and support you (performance of the contract); to protect accounts, prevent fraud and improve the product with aggregated data (legitimate interests); to bill and meet tax and legal obligations (legal obligation); and, where the law requires it, with your consent, which you can withdraw at any time.",
+    "pt": "Para prestar o Serviço e dar suporte (execução do contrato); para proteger as contas, prevenir fraudes e melhorar o produto com dados agregados (legítimo interesse); para cobrar e cumprir obrigações fiscais e legais (obrigação legal); e, quando a lei exigir, com o seu consentimento, que você pode revogar a qualquer momento."
+  },
+  "legal.privacy.s3.title": {
+    "es": "3. Para qué los usamos",
+    "en": "3. Why we use it",
+    "pt": "3. Para que os usamos"
+  },
+  "legal.privacy.s4.body": {
+    "es": "Con proveedores que nos ayudan a prestar el Servicio —alojamiento, envío de correo y SMS, procesamiento de pagos—, bajo contratos que les obligan a protegerlos y a usarlos solo para eso; y con autoridades cuando la ley lo exija. No vendemos datos personales ni los compartimos para publicidad comportamental.",
+    "en": "With providers that help us run the Service — hosting, email and SMS delivery, payment processing — under contracts that require them to protect the data and use it only for that; and with authorities where the law requires it. We do not sell personal data or share it for cross-context behavioral advertising.",
+    "pt": "Com fornecedores que nos ajudam a prestar o Serviço — hospedagem, envio de e-mail e SMS, processamento de pagamentos —, sob contratos que os obrigam a protegê-los e a usá-los só para isso; e com autoridades quando a lei exigir. Não vendemos dados pessoais nem os compartilhamos para publicidade comportamental."
+  },
+  "legal.privacy.s4.title": {
+    "es": "4. Con quién los compartimos",
+    "en": "4. Who we share it with",
+    "pt": "4. Com quem compartilhamos"
+  },
+  "legal.privacy.s5.body": {
+    "es": "Algunos proveedores pueden tratar los datos fuera de tu país. Cuando ocurre, lo hacemos con las garantías que exige la ley aplicable, como cláusulas contractuales de protección de datos.",
+    "en": "Some providers may process data outside your country. When that happens, we rely on the safeguards the applicable law requires, such as data-protection contractual clauses.",
+    "pt": "Alguns fornecedores podem tratar os dados fora do seu país. Quando isso ocorre, usamos as garantias exigidas pela lei aplicável, como cláusulas contratuais de proteção de dados."
+  },
+  "legal.privacy.s5.title": {
+    "es": "5. Transferencias internacionales",
+    "en": "5. International transfers",
+    "pt": "5. Transferências internacionais"
+  },
+  "legal.privacy.s6.body": {
+    "es": "Mientras la cuenta esté activa y, después, solo lo necesario para cumplir obligaciones legales (por ejemplo, conservar registros fiscales) o defender reclamaciones. Los registros que quedan a medias, sin llegar a crear una cuenta, se eliminan automáticamente cuando caducan.",
+    "en": "While the account is active and, after that, only as long as needed to meet legal obligations (for example, keeping tax records) or to defend claims. Signups left unfinished, which never became an account, are deleted automatically when they expire.",
+    "pt": "Enquanto a conta estiver ativa e, depois, apenas o necessário para cumprir obrigações legais (por exemplo, manter registros fiscais) ou defender reclamações. Cadastros não concluídos, que não chegaram a criar uma conta, são excluídos automaticamente quando expiram."
+  },
+  "legal.privacy.s6.title": {
+    "es": "6. Cuánto tiempo los guardamos",
+    "en": "6. How long we keep it",
+    "pt": "6. Por quanto tempo guardamos"
+  },
+  "legal.privacy.s7.body": {
+    "es": "Según dónde vivas —por ejemplo, bajo la LGPD en Brasil, la CCPA/CPRA y otras leyes estatales en EE. UU., o las leyes de protección de datos de México, Colombia, Argentina, Chile, Perú y otros países—, puedes pedir acceso a tus datos, su rectificación, su eliminación o su portabilidad, oponerte a ciertos usos o limitarlos, retirar tu consentimiento y saber con quién los compartimos. No te trataremos de forma distinta por ejercer estos derechos. Escríbenos a {{email}}: verificaremos tu identidad y responderemos en el plazo que fije la ley. También puedes reclamar ante la autoridad de protección de datos de tu país.",
+    "en": "Depending on where you live — for example, under Brazil's LGPD, the CCPA/CPRA and other US state laws, or the data-protection laws of Mexico, Colombia, Argentina, Chile, Peru and other countries — you can ask to access, correct, delete or port your data, object to or restrict certain uses, withdraw your consent, and know who we share it with. We will not treat you differently for exercising these rights. Write to us at {{email}}: we will verify your identity and respond within the time the law sets. You can also complain to the data-protection authority in your country.",
+    "pt": "Dependendo de onde você mora — por exemplo, pela LGPD no Brasil, pela CCPA/CPRA e outras leis estaduais nos EUA, ou pelas leis de proteção de dados do México, da Colômbia, da Argentina, do Chile, do Peru e de outros países —, você pode solicitar acesso, correção, exclusão ou portabilidade dos seus dados, opor-se a certos usos ou restringi-los, revogar o consentimento e saber com quem os compartilhamos. Você não será tratado de forma diferente por exercer esses direitos. Escreva para {{email}}: verificaremos sua identidade e responderemos no prazo legal. Você também pode reclamar à autoridade de proteção de dados do seu país (no Brasil, a ANPD)."
+  },
+  "legal.privacy.s7.title": {
+    "es": "7. Tus derechos",
+    "en": "7. Your rights",
+    "pt": "7. Seus direitos"
+  },
+  "legal.privacy.s8.body": {
+    "es": "Aplicamos medidas técnicas y organizativas para proteger los datos; las describimos en la página de Seguridad. Si se produjera un incidente que afecte a tus datos, te lo comunicaremos como exige la ley.",
+    "en": "We apply technical and organizational measures to protect data; they are described on the Security page. If an incident affecting your data occurs, we will notify you as the law requires.",
+    "pt": "Aplicamos medidas técnicas e organizacionais para proteger os dados; elas estão descritas na página de Segurança. Se ocorrer um incidente que afete seus dados, comunicaremos como a lei exige."
+  },
+  "legal.privacy.s8.title": {
+    "es": "8. Seguridad",
+    "en": "8. Security",
+    "pt": "8. Segurança"
+  },
+  "legal.privacy.s9.body": {
+    "es": "El Servicio está pensado para empresas y no se dirige a menores de edad.",
+    "en": "The Service is designed for businesses and is not directed at minors.",
+    "pt": "O Serviço é voltado a empresas e não se destina a menores de idade."
+  },
+  "legal.privacy.s9.title": {
+    "es": "9. Menores",
+    "en": "9. Children",
+    "pt": "9. Menores de idade"
+  },
+  "legal.privacy.title": {
+    "es": "Política de privacidad",
+    "en": "Privacy policy",
+    "pt": "Política de privacidade"
+  },
+  "legal.security.lead": {
+    "es": "Cómo protegemos tu cuenta y tus datos, y qué puedes hacer tú. Ningún sistema es invulnerable; esto describe lo que hacemos, no una garantía.",
+    "en": "How we protect your account and your data, and what you can do. No system is invulnerable; this describes what we do, not a guarantee.",
+    "pt": "Como protegemos sua conta e seus dados, e o que você pode fazer. Nenhum sistema é invulnerável; isto descreve o que fazemos, não uma garantia."
+  },
+  "legal.security.s1.body": {
+    "es": "Las comunicaciones con el Servicio viajan cifradas con TLS. Las contraseñas nunca se guardan: guardamos un hash Argon2id, y los enlaces de un solo uso (restablecer contraseña, desbloquear la cuenta, invitaciones) se guardan también solo como hash. Rechazamos contraseñas que aparecen en filtraciones conocidas.",
+    "en": "Communications with the Service are encrypted with TLS. Passwords are never stored: we store an Argon2id hash, and single-use links (password reset, account unlock, invitations) are also stored only as hashes. We reject passwords that appear in known breaches.",
+    "pt": "As comunicações com o Serviço trafegam criptografadas com TLS. As senhas nunca são guardadas: guardamos um hash Argon2id, e os links de uso único (redefinição de senha, desbloqueio de conta, convites) também ficam só como hash. Recusamos senhas que aparecem em vazamentos conhecidos."
+  },
+  "legal.security.s1.title": {
+    "es": "1. Cifrado y contraseñas",
+    "en": "1. Encryption and passwords",
+    "pt": "1. Criptografia e senhas"
+  },
+  "legal.security.s2.body": {
+    "es": "Los datos de cada empresa están aislados en la propia base de datos mediante políticas de seguridad por fila, además de los controles de la aplicación, de modo que un fallo en una consulta no expone los datos de otro cliente.",
+    "en": "Each business's data is isolated in the database itself through row-level security policies, in addition to the application's own checks, so a faulty query does not expose another customer's data.",
+    "pt": "Os dados de cada empresa ficam isolados no próprio banco de dados por políticas de segurança por linha, além dos controles da aplicação, de modo que uma falha em uma consulta não expõe os dados de outro cliente."
+  },
+  "legal.security.s2.title": {
+    "es": "2. Aislamiento entre empresas",
+    "en": "2. Isolation between businesses",
+    "pt": "2. Isolamento entre empresas"
+  },
+  "legal.security.s3.body": {
+    "es": "Puedes activar la verificación en dos pasos y las llaves de acceso (passkeys), y una empresa puede exigirlas a todos sus usuarios. Tras varios intentos fallidos, la cuenta se bloquea temporalmente y avisamos a su dueño por correo con un enlace para desbloquearla. Puedes revisar tus sesiones activas y cerrarlas desde tu perfil. Los permisos se asignan por roles.",
+    "en": "You can turn on two-step verification and passkeys, and a business can require them for all its users. After several failed attempts the account is temporarily locked and we email its owner a link to unlock it. You can review your active sessions and sign them out from your profile. Permissions are assigned through roles.",
+    "pt": "Você pode ativar a verificação em duas etapas e as chaves de acesso (passkeys), e uma empresa pode exigi-las de todos os seus usuários. Após várias tentativas sem sucesso, a conta é bloqueada temporariamente e enviamos ao titular um e-mail com um link para desbloqueá-la. Você pode revisar suas sessões ativas e encerrá-las no seu perfil. As permissões são atribuídas por perfis de acesso."
+  },
+  "legal.security.s3.title": {
+    "es": "3. Acceso a la cuenta",
+    "en": "3. Account access",
+    "pt": "3. Acesso à conta"
+  },
+  "legal.security.s4.body": {
+    "es": "Registramos las acciones sensibles y los eventos de seguridad (inicios de sesión, cambios de permisos, bloqueos) en un registro de auditoría que los administradores de cada empresa pueden consultar.",
+    "en": "We record sensitive actions and security events (sign-ins, permission changes, lockouts) in an audit trail that each business's administrators can review.",
+    "pt": "Registramos as ações sensíveis e os eventos de segurança (logins, alterações de permissões, bloqueios) em uma trilha de auditoria que os administradores de cada empresa podem consultar."
+  },
+  "legal.security.s4.title": {
+    "es": "4. Registro y supervisión",
+    "en": "4. Logging and monitoring",
+    "pt": "4. Registro e monitoramento"
+  },
+  "legal.security.s5.body": {
+    "es": "Usa una contraseña larga y única, activa la verificación en dos pasos, revisa periódicamente quién tiene acceso a tu empresa y desconfía de correos que te pidan tu contraseña: nunca te la pediremos.",
+    "en": "Use a long, unique password, turn on two-step verification, review regularly who has access to your business, and be wary of emails asking for your password: we will never ask for it.",
+    "pt": "Use uma senha longa e exclusiva, ative a verificação em duas etapas, revise periodicamente quem tem acesso à sua empresa e desconfie de e-mails que peçam sua senha: nunca vamos pedi-la."
+  },
+  "legal.security.s5.title": {
+    "es": "5. Lo que puedes hacer tú",
+    "en": "5. What you can do",
+    "pt": "5. O que você pode fazer"
+  },
+  "legal.security.s6.body": {
+    "es": "Si encuentras un problema de seguridad, escríbenos a {{email}} con el asunto «Seguridad» y los pasos para reproducirlo. Te pedimos que no accedas a datos de otros ni degrades el servicio mientras lo compruebas, y que nos des tiempo para corregirlo antes de hacerlo público. Te responderemos para confirmar que lo recibimos.",
+    "en": "If you find a security problem, write to us at {{email}} with the subject “Security” and the steps to reproduce it. Please do not access other people's data or degrade the service while checking it, and give us time to fix it before making it public. We will reply to confirm we received it.",
+    "pt": "Se você encontrar um problema de segurança, escreva para {{email}} com o assunto “Segurança” e os passos para reproduzi-lo. Pedimos que não acesse dados de terceiros nem prejudique o serviço ao verificá-lo, e que nos dê tempo para corrigi-lo antes de torná-lo público. Responderemos para confirmar o recebimento."
+  },
+  "legal.security.s6.title": {
+    "es": "6. Informar de una vulnerabilidad",
+    "en": "6. Reporting a vulnerability",
+    "pt": "6. Comunicar uma vulnerabilidade"
+  },
+  "legal.security.title": {
+    "es": "Seguridad",
+    "en": "Security",
+    "pt": "Segurança"
+  },
+  "legal.terms.lead": {
+    "es": "Las condiciones para usar {{app}} como empresa: qué ofrecemos, qué esperamos de ti y cómo funcionan la prueba gratuita y la facturación.",
+    "en": "The conditions for using {{app}} as a business: what we provide, what we expect from you, and how the free trial and billing work.",
+    "pt": "As condições para usar o {{app}} como empresa: o que oferecemos, o que esperamos de você e como funcionam o teste gratuito e a cobrança."
+  },
+  "legal.terms.s1.body": {
+    "es": "Estos términos regulan el uso del servicio de gestión empresarial en la nube {{app}} (el «Servicio») por la empresa que crea la cuenta (el «Cliente») y por las personas a las que esta da acceso. Al crear la cuenta y marcar la casilla de aceptación, declaras que tienes facultades para aceptarlos en nombre de esa empresa.",
+    "en": "These terms govern the use of the {{app}} cloud business-management service (the “Service”) by the business that creates the account (the “Customer”) and by the people it gives access to. By creating the account and ticking the acceptance box, you confirm you are authorized to accept them on behalf of that business.",
+    "pt": "Estes termos regem o uso do serviço de gestão empresarial em nuvem {{app}} (o “Serviço”) pela empresa que cria a conta (o “Cliente”) e pelas pessoas a quem ela der acesso. Ao criar a conta e marcar a caixa de aceite, você declara que tem poderes para aceitá-los em nome dessa empresa."
+  },
+  "legal.terms.s1.title": {
+    "es": "1. Quién acepta estos términos",
+    "en": "1. Who accepts these terms",
+    "pt": "1. Quem aceita estes termos"
+  },
+  "legal.terms.s10.body": {
+    "es": "Estos términos se rigen por la ley que corresponda a la entidad contratante indicada en tu pedido o factura, sin perjuicio de los derechos irrenunciables que te reconozcan las leyes de protección al consumidor o de datos de tu país.",
+    "en": "These terms are governed by the law applicable to the contracting entity named in your order or invoice, without prejudice to any mandatory rights the consumer-protection or data-protection laws of your country give you.",
+    "pt": "Estes termos são regidos pela lei aplicável à entidade contratante indicada no seu pedido ou fatura, sem prejuízo dos direitos irrenunciáveis que as leis de defesa do consumidor ou de proteção de dados do seu país lhe garantem."
+  },
+  "legal.terms.s10.title": {
+    "es": "10. Ley aplicable",
+    "en": "10. Governing law",
+    "pt": "10. Lei aplicável"
+  },
+  "legal.terms.s2.body": {
+    "es": "El Cliente debe dar datos veraces y mantenerlos al día, custodiar las credenciales de sus usuarios y avisarnos sin demora si sospecha de un acceso no autorizado. El Cliente responde de lo que hagan los usuarios a los que da acceso.",
+    "en": "The Customer must provide accurate information and keep it up to date, keep its users' credentials confidential, and tell us promptly if it suspects unauthorized access. The Customer is responsible for what the users it gives access to do.",
+    "pt": "O Cliente deve fornecer dados verdadeiros e mantê-los atualizados, guardar as credenciais dos seus usuários e nos avisar sem demora se suspeitar de acesso não autorizado. O Cliente responde pelo que fizerem os usuários a quem der acesso."
+  },
+  "legal.terms.s2.title": {
+    "es": "2. Cuenta y usuarios",
+    "en": "2. Account and users",
+    "pt": "2. Conta e usuários"
+  },
+  "legal.terms.s3.body": {
+    "es": "La prueba gratuita dura lo que se indica al registrarse y no genera ningún cargo. Al terminar, la suscripción continúa con el plan elegido y se cobra por adelantado en cada periodo, en la moneda mostrada y con los impuestos que correspondan, salvo que la canceles antes desde Configuración › Facturación. Puedes cancelar en cualquier momento; la cancelación surte efecto al final del periodo ya pagado. Los periodos parciales no se reembolsan, salvo cuando la ley lo exija.",
+    "en": "The free trial lasts as stated at signup and involves no charge. When it ends, the subscription continues on the chosen plan and is charged in advance for each period, in the currency shown and with any applicable taxes, unless you cancel before then from Settings › Billing. You can cancel at any time; cancellation takes effect at the end of the period already paid. Partial periods are not refunded, except where the law requires it.",
+    "pt": "O teste gratuito dura o prazo informado no cadastro e não gera nenhuma cobrança. Ao terminar, a assinatura continua no plano escolhido e é cobrada antecipadamente a cada período, na moeda exibida e com os impostos aplicáveis, a menos que você cancele antes em Configurações › Cobrança. Você pode cancelar a qualquer momento; o cancelamento vale ao final do período já pago. Períodos parciais não são reembolsados, salvo quando a lei exigir."
+  },
+  "legal.terms.s3.title": {
+    "es": "3. Prueba gratuita, planes y facturación",
+    "en": "3. Free trial, plans and billing",
+    "pt": "3. Teste gratuito, planos e cobrança"
+  },
+  "legal.terms.s4.body": {
+    "es": "No uses el Servicio para fines ilícitos, para enviar comunicaciones no solicitadas, para infringir derechos de terceros, para intentar acceder a datos de otros clientes o para eludir sus medidas de seguridad o sus límites de uso.",
+    "en": "Do not use the Service for unlawful purposes, to send unsolicited communications, to infringe third-party rights, to try to access other customers' data, or to circumvent its security measures or usage limits.",
+    "pt": "Não use o Serviço para fins ilícitos, para enviar comunicações não solicitadas, para violar direitos de terceiros, para tentar acessar dados de outros clientes ou para burlar suas medidas de segurança ou limites de uso."
+  },
+  "legal.terms.s4.title": {
+    "es": "4. Uso aceptable",
+    "en": "4. Acceptable use",
+    "pt": "4. Uso aceitável"
+  },
+  "legal.terms.s5.body": {
+    "es": "Los datos que el Cliente introduce en el Servicio son suyos. Solo los tratamos para prestar el Servicio, según la Política de privacidad. Respecto de los datos personales de sus propios clientes, proveedores y empleados, el Cliente decide para qué se usan y es responsable de tener una base legal para ello; nosotros actuamos como encargado del tratamiento (o «proveedor de servicios»).",
+    "en": "The data the Customer enters into the Service belongs to the Customer. We only process it to provide the Service, as described in the Privacy policy. For the personal data of its own customers, suppliers and employees, the Customer decides how it is used and is responsible for having a legal basis to do so; we act as its processor (or “service provider”).",
+    "pt": "Os dados que o Cliente insere no Serviço pertencem ao Cliente. Só os tratamos para prestar o Serviço, conforme a Política de privacidade. Quanto aos dados pessoais dos seus próprios clientes, fornecedores e funcionários, o Cliente decide como são usados e é responsável por ter uma base legal para isso; nós atuamos como operador (ou “prestador de serviços”)."
+  },
+  "legal.terms.s5.title": {
+    "es": "5. Tus datos",
+    "en": "5. Your data",
+    "pt": "5. Seus dados"
+  },
+  "legal.terms.s6.body": {
+    "es": "El Servicio ayuda a preparar documentos y registros según el país configurado, y las funciones disponibles varían de un país a otro. El Cliente sigue siendo responsable de la exactitud de lo que declara ante su autoridad fiscal y de revisarlo con su asesor cuando sea necesario.",
+    "en": "The Service helps prepare documents and records according to the configured country, and the features available vary from one country to another. The Customer remains responsible for the accuracy of what it files with its tax authority and for reviewing it with its advisor where needed.",
+    "pt": "O Serviço ajuda a preparar documentos e registros conforme o país configurado, e os recursos disponíveis variam de um país para outro. O Cliente continua responsável pela exatidão do que declara à autoridade fiscal e por revisar com seu contador quando necessário."
+  },
+  "legal.terms.s6.title": {
+    "es": "6. Obligaciones fiscales",
+    "en": "6. Tax obligations",
+    "pt": "6. Obrigações fiscais"
+  },
+  "legal.terms.s7.body": {
+    "es": "Trabajamos para que el Servicio esté disponible y sea fiable, pero se presta «tal cual» y puede tener interrupciones por mantenimiento o causas ajenas. En la medida en que la ley lo permita, no respondemos de daños indirectos ni de lucro cesante, y nuestra responsabilidad total se limita a lo que el Cliente haya pagado en los doce meses anteriores a la reclamación. Nada de esto limita la responsabilidad que la ley no permita limitar.",
+    "en": "We work to keep the Service available and reliable, but it is provided “as is” and may be interrupted for maintenance or reasons beyond our control. To the extent the law allows, we are not liable for indirect damages or lost profits, and our total liability is limited to what the Customer paid in the twelve months before the claim. Nothing here limits liability that the law does not allow to be limited.",
+    "pt": "Trabalhamos para que o Serviço esteja disponível e seja confiável, mas ele é prestado “no estado em que se encontra” e pode ter interrupções por manutenção ou causas alheias. Na medida em que a lei permitir, não respondemos por danos indiretos nem lucros cessantes, e nossa responsabilidade total se limita ao que o Cliente pagou nos doze meses anteriores à reclamação. Nada disso limita a responsabilidade que a lei não permita limitar."
+  },
+  "legal.terms.s7.title": {
+    "es": "7. Disponibilidad y responsabilidad",
+    "en": "7. Availability and liability",
+    "pt": "7. Disponibilidade e responsabilidade"
+  },
+  "legal.terms.s8.body": {
+    "es": "El Cliente puede dejar de usar el Servicio cuando quiera. Podemos suspender o cerrar una cuenta que incumpla estos términos, avisando antes salvo que haya un riesgo de seguridad o una obligación legal. Antes de eliminar los datos de una cuenta cerrada, te daremos una oportunidad razonable de exportarlos, salvo que la ley nos obligue a conservarlos.",
+    "en": "The Customer may stop using the Service at any time. We may suspend or close an account that breaches these terms, giving notice first unless there is a security risk or a legal obligation. Before deleting a closed account's data we will give you a reasonable opportunity to export it, unless the law requires us to keep it.",
+    "pt": "O Cliente pode deixar de usar o Serviço quando quiser. Podemos suspender ou encerrar uma conta que descumpra estes termos, avisando antes, exceto em caso de risco de segurança ou obrigação legal. Antes de excluir os dados de uma conta encerrada, daremos uma oportunidade razoável de exportá-los, salvo se a lei nos obrigar a mantê-los."
+  },
+  "legal.terms.s8.title": {
+    "es": "8. Fin del servicio",
+    "en": "8. Ending the service",
+    "pt": "8. Encerramento do serviço"
+  },
+  "legal.terms.s9.body": {
+    "es": "Podemos actualizar estos términos. La versión y la fecha de vigencia figuran al principio de esta página. Si un cambio es importante, lo avisaremos con antelación por correo o dentro del Servicio. Quien se registra acepta la versión vigente en ese momento.",
+    "en": "We may update these terms. The version and effective date are shown at the top of this page. If a change is material, we will give notice in advance by email or within the Service. Whoever signs up accepts the version in force at that time.",
+    "pt": "Podemos atualizar estes termos. A versão e a data de vigência aparecem no início desta página. Se uma alteração for relevante, avisaremos com antecedência por e-mail ou dentro do Serviço. Quem se cadastra aceita a versão vigente naquele momento."
+  },
+  "legal.terms.s9.title": {
+    "es": "9. Cambios en estos términos",
+    "en": "9. Changes to these terms",
+    "pt": "9. Alterações destes termos"
+  },
+  "legal.terms.title": {
+    "es": "Términos de servicio",
+    "en": "Terms of service",
+    "pt": "Termos de serviço"
+  },
+  "legal.waitlist.joined": {
+    "es": "Listo. Te escribiremos cuando estemos disponibles en tu país.",
+    "en": "Done. We'll write to you when we're available in your country.",
+    "pt": "Pronto. Vamos escrever para você quando estivermos disponíveis no seu país."
+  }
+}

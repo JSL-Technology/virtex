@@ -19,7 +19,8 @@ import {
   Trash2 // Ícono de basura importado
 } from 'lucide-angular';
 
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
 import { BreakdownSlice, DashboardApiService } from '../../../../core/api/dashboard-api.service';
@@ -42,7 +43,7 @@ type ExportingChart = Highcharts.Chart & {
 @Component({
   selector: 'app-top-products-chart',
   standalone: true,
-  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslateModule],
   templateUrl: './top-products-chart.html',
   styleUrls: ['../widget-styles.scss', './top-products-chart.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

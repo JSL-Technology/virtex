@@ -29,7 +29,7 @@ import {
   InvoiceStatusSlice,
 } from '../../../../core/api/dashboard-api.service';
 import { PointOptionsObject } from 'highcharts';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 // Extiende tipos que Highcharts no declara en Chart para los métodos de exportación
 type ExportingChart = Highcharts.Chart & {
@@ -43,7 +43,7 @@ type ExportingChart = Highcharts.Chart & {
 @Component({
   selector: 'app-invoice-status',
   standalone: true,
-  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslateModule],
   templateUrl: './invoice-status.html',
   styleUrls: ['./invoice-status.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

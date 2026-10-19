@@ -18,6 +18,7 @@ import { InternalServerError } from '../../i18n/localized.exception';
 import { I18nService } from '../../i18n/i18n.service';
 import { DEFAULT_LANGUAGE, LanguageCode } from '@virteex/shared/types';
 import { seedTenantDefaults } from '../../database/seeds/tenant-defaults';
+import { languageOfCountry } from '../../localization/contracts/country-profile.contract';
 
 /**
  * Everything a tenant needs in order to record a transaction, created at the moment the tenant is.
@@ -109,7 +110,7 @@ export class TenantBookkeepingProvisioner {
   ): Promise<void> {
     const organizationId = organization.id;
     // The statutory language of these books, which is what their ledger and journals are named in.
-    const language = organization.booksLanguage ?? DEFAULT_LANGUAGE;
+    const language = await this.provisionBooksLanguage(organization, manager);
 
     const settings = await this.provisionSettings(organizationId, baseCurrency, manager);
     await this.provisionLedger(organizationId, baseCurrency, language, manager);
@@ -131,6 +132,27 @@ export class TenantBookkeepingProvisioner {
     );
 
     this.logger.log(`Contabilidad operativa provisionada para la organización ${organizationId}.`);
+  }
+
+  // ── Books language ───────────────────────────────────────────────────────────
+
+  /**
+   * The language the books are kept in, fixed now from the country when nobody set it.
+   *
+   * `Organization.booksLanguage` was documented as «fixed at provisioning from the country» and was
+   * never written: every tenant had it null, and every reader fell back to Spanish. So a US company
+   * opened its books in Spanish and was handed a «Consumidor final» as its default customer (QA
+   * C-06). It is written here, once, from the country's profile; a language someone chose is kept.
+   */
+  private async provisionBooksLanguage(
+    organization: Organization,
+    manager: EntityManager,
+  ): Promise<LanguageCode> {
+    if (organization.booksLanguage) return organization.booksLanguage;
+    const language = languageOfCountry(organization.country) ?? DEFAULT_LANGUAGE;
+    await manager.update(Organization, { id: organization.id }, { booksLanguage: language });
+    organization.booksLanguage = language;
+    return language;
   }
 
   // ── Default warehouse ────────────────────────────────────────────────────────

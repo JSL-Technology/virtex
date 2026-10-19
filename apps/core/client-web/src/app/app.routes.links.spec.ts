@@ -118,6 +118,15 @@ describe('Client routes — links emitted by the backend', () => {
     ['billing', '/settings/billing'],
     ['profile (email-change confirmation)', '/settings/my-profile'],
     ['checkout complete', '/auth/checkout-complete'],
+    // A signup link without a country lands on the country picker (QA C-06, A-13).
+    ['signup without a country (redirects to the country picker)', '/es/auth/register'],
+    ['country picker (QA A-13)', '/es/auth/choose-country'],
+    ['account unlock (QA C-09)', '/es/auth/unlock'],
+    ['terms (QA C-08)', '/es/terms'],
+    ['privacy', '/en/privacy'],
+    ['security', '/pt/security'],
+    ['contact', '/es/contact'],
+    ['terms without a language (redirects to it)', '/terms'],
   ])('resolves the %s link', async (_label, url) => {
     await expect(resolves(url)).resolves.toBe(true);
   });
@@ -129,7 +138,6 @@ describe('Client routes — links emitted by the backend', () => {
   it.each([
     ['reset password without a language prefix', '/auth/reset-password'],
     ['invitation without a language prefix', '/auth/set-password'],
-    ['registration without a country segment', '/es/auth/register'],
     ['social sign-up with no prefixes at all', '/auth/register'],
     ['login without a language prefix', '/auth/login'],
   ])('still rejects the old broken form: %s', async (_label, url) => {

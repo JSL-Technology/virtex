@@ -52,7 +52,7 @@
         </div>
         <div class="form-field">
           <label for="phone">{{ 'masters.supplier_form.phone' | translate }}</label>
-          <input type="tel" id="phone" formControlName="phone" />
+          <input type="tel" id="phone" formControlName="phone" [placeholder]="phoneExample()" />
         </div>
         <div class="form-field">
           <label for="country">{{ 'masters.supplier_form.country' | translate }}</label>
@@ -71,6 +71,7 @@
           administración tributaria, así que se pregunta y no se deduce, y en blanco no se retiene
           nada automáticamente.
         -->
+        @if (withholdingApplies()) {
         <div class="form-field">
           <label for="taxpayerType">
             {{ 'contacts.customer_form.taxpayer_type' | translate }}
@@ -87,6 +88,7 @@
             {{ 'masters.supplier_form.decides_what_withheld_when_you_pay' | translate }}
           </small>
         </div>
+        }
       </div>
     </section>
   </div>

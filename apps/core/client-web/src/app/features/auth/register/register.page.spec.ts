@@ -1,3 +1,4 @@
+import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RegisterPage } from './register.page';
@@ -11,7 +12,8 @@ import { of, throwError, Observable } from 'rxjs';
 import { CountryService } from '../../../core/services/country.service';
 import { MockCountryService, US_CONFIG } from '../../../../testing/country.service.mock';
 import { LanguageService } from '../../../core/services/language';
-import { TranslateLoader, provideTranslateLoader } from '@ngx-translate/core';
+import { TranslateLoader } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { UsersService } from '../../../core/api/users.service';
 import { GeoLocationService } from '../../../core/services/geo-location.service';
 import { ConfigService, RegistrationOptions } from '../../../shared/services/config.service';
@@ -261,6 +263,7 @@ describe('RegisterPage', () => {
         .fn()
         .mockReturnValue(throwError(() => apiError(400, 'register.tax_id_invalid_for_company')));
 
+      component.plan.patchValue({ agreeToTerms: true });
       component.onSubmit();
 
       expect(component.serverErrorMessage()).toBe(rejection);
@@ -276,9 +279,83 @@ describe('RegisterPage', () => {
         .fn()
         .mockReturnValue(throwError(() => apiError(500, 'errors.internal', {}, 'INTERNAL_ERROR')));
 
+      component.plan.patchValue({ agreeToTerms: true });
       component.onSubmit();
 
       expect(component.serverErrorMessage()).toBe('No pudimos completar el registro.');
+    });
+  });
+
+  /**
+   * QA C-07: the account was created with the Terms box unticked, and the payload carried no
+   * acceptance at all. Signup now waits for the box, and says why, and the payload carries the
+   * acceptance with the editions on screen so the server can record and check them.
+   */
+  describe('consent to the Terms and the Privacy policy', () => {
+    let authService: { registerCheckout: jest.Mock };
+
+    beforeEach(() => {
+      authService = TestBed.inject(AuthService) as unknown as { registerCheckout: jest.Mock };
+      authService.registerCheckout = jest.fn().mockReturnValue(of({ url: null }));
+    });
+
+    it('does not submit while the box is unticked, and says why', () => {
+      component.plan.patchValue({ agreeToTerms: false });
+
+      component.onSubmit();
+
+      expect(authService.registerCheckout).not.toHaveBeenCalled();
+      expect(component.termsAccepted).toBe(false);
+      expect(component.errorMessage()).toBe('register.errors.terms_required');
+    });
+
+    it('sends the acceptance and the editions in force once ticked', () => {
+      component.plan.patchValue({ agreeToTerms: true });
+
+      component.onSubmit();
+
+      expect(authService.registerCheckout).toHaveBeenCalled();
+      const payload = authService.registerCheckout.mock.calls[0][0];
+      expect(payload.acceptTerms).toBe(true);
+      expect(payload.termsVersion).toBe(LEGAL_DOCUMENTS.terms.version);
+      expect(payload.privacyVersion).toBe(LEGAL_DOCUMENTS.privacy.version);
+      // The old honeypot travelled as `fax`; the field is gone from the signup (QA A-12).
+      expect(payload).not.toHaveProperty('fax');
+    });
+  });
+
+  /** QA A-10: a phone that could not be verified must not block the signup or vanish silently. */
+  describe('continuing without verifying the phone', () => {
+    it('"verify later" keeps the number, unverified, and advances', () => {
+      component.accountInfo.patchValue({ phone: '+12025550147' });
+      component.currentStep.set(3);
+
+      component.onPhoneSkipped('later');
+
+      expect(component.currentStep()).toBe(4);
+      expect(component.accountInfo.get('phone')?.value).toBe('+12025550147');
+      expect(component.accountInfo.get('phoneCode')?.value).toBe('');
+      expect(component.phoneVerified()).toBe(false);
+    });
+
+    it('"use email only" drops the number and advances', () => {
+      component.accountInfo.patchValue({ phone: '+12025550147' });
+      component.currentStep.set(3);
+
+      component.onPhoneSkipped('email');
+
+      expect(component.currentStep()).toBe(4);
+      expect(component.accountInfo.get('phone')?.value).toBe('');
+    });
+
+    it('keeps the step as a gate while an entered number is neither verified nor skipped', () => {
+      component.accountInfo.patchValue({ phone: '+12025550147' });
+      component.currentStep.set(3);
+
+      component.nextStep();
+
+      expect(component.currentStep()).toBe(3);
+      expect(component.phoneStepDone()).toBe(false);
     });
   });
 });

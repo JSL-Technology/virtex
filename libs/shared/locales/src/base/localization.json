@@ -4,6 +4,86 @@
     "en": "The country \"{{countryCode}}\" is not available for registration yet.",
     "pt": "O país \"{{countryCode}}\" ainda não está disponível para cadastro."
   },
+  "localization.country_pack.reports.general_ledger": {
+    "es": "Libro mayor",
+    "en": "General ledger",
+    "pt": "Razão geral"
+  },
+  "localization.country_pack.reports.income_statement": {
+    "es": "Estado de resultados",
+    "en": "Income statement",
+    "pt": "Demonstração do resultado"
+  },
+  "localization.country_pack.reports.sales_invoices": {
+    "es": "Facturas de venta",
+    "en": "Sales invoices",
+    "pt": "Faturas de venda"
+  },
+  "localization.country_pack.reports.supplier_payments": {
+    "es": "Pagos a proveedores",
+    "en": "Supplier payments",
+    "pt": "Pagamentos a fornecedores"
+  },
+  "localization.country_pack.reports.trial_balance": {
+    "es": "Balanza de comprobación",
+    "en": "Trial balance",
+    "pt": "Balancete de verificação"
+  },
+  "localization.country_pack.reports.vendor_bills": {
+    "es": "Facturas de proveedores",
+    "en": "Supplier bills",
+    "pt": "Faturas de fornecedores"
+  },
+  "localization.country_pack.supplier_document.cfdi_uuid": {
+    "es": "Folio fiscal (UUID del CFDI)",
+    "en": "Fiscal folio (CFDI UUID)",
+    "pt": "Folio fiscal (UUID do CFDI)"
+  },
+  "localization.country_pack.supplier_document.cufe": {
+    "es": "CUFE de la factura",
+    "en": "Invoice CUFE",
+    "pt": "CUFE da fatura"
+  },
+  "localization.country_pack.supplier_document.fiscal_number": {
+    "es": "Número de comprobante fiscal",
+    "en": "Fiscal document number",
+    "pt": "Número do documento fiscal"
+  },
+  "localization.country_pack.supplier_document.invoice_number": {
+    "es": "Número de factura del proveedor",
+    "en": "Supplier invoice number",
+    "pt": "Número da fatura do fornecedor"
+  },
+  "localization.country_pack.supplier_document.ncf": {
+    "es": "NCF",
+    "en": "NCF",
+    "pt": "NCF"
+  },
+  "localization.country_pack.supplier_document.nfe_key": {
+    "es": "Clave de acceso de la NF-e",
+    "en": "NF-e access key",
+    "pt": "Chave de acesso da NF-e"
+  },
+  "localization.country_pack.tax_name.icms_iss": {
+    "es": "ICMS / ISS",
+    "en": "ICMS / ISS",
+    "pt": "ICMS / ISS"
+  },
+  "localization.country_pack.tax_name.itbis": {
+    "es": "ITBIS",
+    "en": "ITBIS",
+    "pt": "ITBIS"
+  },
+  "localization.country_pack.tax_name.sales_tax": {
+    "es": "Impuesto sobre las ventas",
+    "en": "Sales tax",
+    "pt": "Imposto sobre vendas"
+  },
+  "localization.country_pack.tax_name.vat": {
+    "es": "IVA",
+    "en": "VAT",
+    "pt": "IVA"
+  },
   "localization.determining_tax_country_code_needs_destination": {
     "es": "Para determinar el impuesto en {{countryCode}} hace falta el estado o provincia de destino: en este mercado no existe una tasa nacional.",
     "en": "Determining tax in {{countryCode}} needs the destination state or province: this market has no national rate.",

@@ -7,14 +7,22 @@ import { environment } from '../../../environments/environment';
 export interface OrganizationProfile {
   id: string;
   legalName: string;
-  taxId?: string;
-  address?: string;
-  city?: string;
-  country?: string;
-  phone?: string;
-  website?: string;
-  industry?: string;
-  logoUrl?: string;
+  taxId?: string | null;
+  address?: string | null;
+  city?: string | null;
+  /** First-level division: a code (`TX`, `CMX`) where the country publishes a catalogue. */
+  state?: string | null;
+  postalCode?: string | null;
+  /** ISO 3166-1 alpha-2. */
+  country?: string | null;
+  phone?: string | null;
+  website?: string | null;
+  industry?: string | null;
+  companySize?: string | null;
+  taxpayerKind?: string | null;
+  logoUrl?: string | null;
+  /** The country is fixed once the tenant is provisioned (its fiscal pack depends on it). */
+  countryLocked?: boolean;
 }
 
 export interface OrganizationMembership {

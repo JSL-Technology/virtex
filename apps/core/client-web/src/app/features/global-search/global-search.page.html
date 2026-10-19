@@ -36,6 +36,9 @@
               <a [routerLink]="item.link">
                 <span class="item-title">{{ titleOf(item) }}</span>
                 <span class="item-description">{{ describe(item) }}</span>
+                @if (text.amount(item); as total) {
+                  <span class="item-meta">{{ total }}@if (text.status(item); as state) { · {{ state }} }</span>
+                }
               </a>
             </li>
           }

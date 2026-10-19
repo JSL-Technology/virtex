@@ -3,6 +3,7 @@ import {
   ConflictException,
   ForbiddenException,
   HttpException,
+  HttpStatus,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
@@ -189,6 +190,44 @@ export class InternalServerError extends InternalServerErrorException implements
 
   constructor(messageKey: string, params: Record<string, unknown> = {}, code?: string) {
     super(messageKey);
+    localize(this, messageKey, params, code);
+  }
+}
+
+/**
+ * 423 Locked: the resource exists and the request was right, but it is held for a while.
+ *
+ * Used for an account under a sign-in lockout that presented the CORRECT password (QA C-09). It
+ * is a distinct status rather than another 401 because the person is not unauthenticated — they
+ * proved who they are — and the client must tell them to wait, not to retype.
+ */
+export class LockedError extends HttpException implements LocalizedError {
+  declare readonly [LOCALIZED_ERROR]: true;
+  declare readonly messageKey: string;
+  declare readonly params: Record<string, unknown>;
+  declare readonly code: string;
+
+  constructor(messageKey: string, params: Record<string, unknown> = {}, code?: string) {
+    super(messageKey, HttpStatus.LOCKED);
+    localize(this, messageKey, params, code);
+  }
+}
+
+/**
+ * 429 with a reason of our own, and how long to wait.
+ *
+ * The throttler answers 429 for request floods; this is for a domain limit the person can do
+ * something about — "this number has had too many codes, try again in N minutes" — where the
+ * wait belongs in `params` so the screen can say it.
+ */
+export class TooManyRequestsError extends HttpException implements LocalizedError {
+  declare readonly [LOCALIZED_ERROR]: true;
+  declare readonly messageKey: string;
+  declare readonly params: Record<string, unknown>;
+  declare readonly code: string;
+
+  constructor(messageKey: string, params: Record<string, unknown> = {}, code?: string) {
+    super(messageKey, HttpStatus.TOO_MANY_REQUESTS);
     localize(this, messageKey, params, code);
   }
 }

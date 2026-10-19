@@ -829,6 +829,16 @@
     "en": "Delete",
     "pt": "Excluir"
   },
+  "inventory.products.delete_blocked_message": {
+    "es": "«{{name}}» aparece en {{summary}}. Puedes desactivarlo: dejará de ofrecerse en ventas y compras y conservará su historial.",
+    "en": "“{{name}}” appears on {{summary}}. You can deactivate it: it stops being offered in sales and purchases and keeps its history.",
+    "pt": "“{{name}}” aparece em {{summary}}. Você pode desativá-lo: ele deixa de ser oferecido em vendas e compras e mantém seu histórico."
+  },
+  "inventory.products.delete_blocked_title": {
+    "es": "Este producto no se puede eliminar",
+    "en": "This product can't be deleted",
+    "pt": "Este produto não pode ser excluído"
+  },
   "inventory.products.edit": {
     "es": "Editar",
     "en": "Edit",
@@ -863,6 +873,11 @@
     "es": "Producto",
     "en": "Product",
     "pt": "Produto"
+  },
+  "inventory.products.product_deactivated": {
+    "es": "El producto «{{name}}» quedó inactivo.",
+    "en": "The product “{{name}}” is now inactive.",
+    "pt": "O produto “{{name}}” agora está inativo."
   },
   "inventory.products.product_deleted": {
     "es": "Producto eliminado exitosamente.",

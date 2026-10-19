@@ -3,14 +3,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { AuthService } from '../../../core/services/auth';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { Currency, CurrenciesService } from '../../../core/api/currencies.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { NotificationService } from '../../../core/services/notification';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
@@ -33,7 +33,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-currencies-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslatePipe, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './currencies.page.html',
   styleUrls: ['./currencies.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

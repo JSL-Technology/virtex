@@ -42,7 +42,7 @@ import { StepUpService, StepUpScope } from '../../../core/services/step-up.servi
 import { SecuritySettingsComponent } from '../components/security-settings/security-settings.component';
 import { PhoneVerificationModalComponent } from '../components/phone-verification-modal/phone-verification-modal.component';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { FileUtil } from '../../../shared/utils/file.util';
 // H4 FIX: enforce the same password policy as register/reset/set (and the backend) on the
 // change-password form, which previously only required minLength(8).
@@ -50,7 +50,7 @@ import { strongPasswordValidator } from '../../../shared/validators/password.val
 import { catchError, of } from 'rxjs';
 import { phoneLikeValidator } from '../../../shared/validators/phone-like.validator';
 import { toE164 } from '../../../shared/utils/phone.util';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
 import { PasswordStrengthComponent } from '../../../shared/components/password-strength/password-strength.component';
 
 /** «Nueva» y «Confirmar» coinciden. El error vive en el grupo para poder decirlo junto a ambos. */
@@ -79,7 +79,7 @@ interface ProfileForm {
     ReactiveFormsModule,
     LucideAngularModule,
     SecuritySettingsComponent,
-    TranslatePipe,
+    TranslateModule,
     PhoneVerificationModalComponent,
     PasswordStrengthComponent,
     RoleNamePipe,

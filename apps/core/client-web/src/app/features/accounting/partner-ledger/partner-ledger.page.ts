@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { Observable, map } from 'rxjs';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SELECT } from '../../../shared/components/select';
 import { NotificationService } from '../../../core/services/notification';
@@ -36,7 +36,7 @@ interface Partner {
 @Component({
   selector: 'app-partner-ledger-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslatePipe, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent],
+  imports: [FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent],
   templateUrl: './partner-ledger.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './partner-ledger.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

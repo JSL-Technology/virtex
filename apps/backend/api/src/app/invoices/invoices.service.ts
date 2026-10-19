@@ -32,6 +32,7 @@ import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
 import { TenantBookkeepingProvisioner } from '../accounting/provisioning/tenant-bookkeeping.provisioner';
 import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
+import { countryPackFor } from '../contracts/country-pack/country-pack';
 import { serviceChargeRateFor } from '../localization/fiscal/country-profiles';
 import { EcfSubmission } from '../einvoicing/entities/ecf-submission.entity';
 import { InvoiceRenderContext } from './services/invoice-renderer.service';
@@ -133,6 +134,18 @@ export interface InvoicingContext {
   baseCurrency: string;
   taxRates: number[];
   taxRequiresConfiguration: boolean;
+  /**
+   * How the market's tax is set, from its country pack. `BY_JURISDICTION` (the United States) means
+   * the rate is determined from the buyer's address and the jurisdictions the company registered —
+   * the form shows the rate the server determined instead of asking for one.
+   */
+  taxModel: 'NATIONAL_RATES' | 'BY_JURISDICTION';
+  /**
+   * The jurisdictions the company collects in, in a `BY_JURISDICTION` market: state and combined
+   * rate, so the form can say «sales tax by destination — 2 states registered» or send the person
+   * to register the first one.
+   */
+  registeredJurisdictions: Array<{ stateCode: string; rate: number }>;
   /** The types the company may offer on an invoice, each with what stands in its way. */
   fiscalDocumentTypes: IssuableTypeOption[];
   /** Traditional, electronic, or both (`OrganizationSettings.fiscalEmissionMode`). */
@@ -800,6 +813,8 @@ export class InvoicesService {
       currencyCode,
     );
 
+    const payment = await this.resolvePaymentMethod(dto, organizationId, manager);
+
     return manager.create(Invoice, {
       organizationId,
       invoiceNumber,
@@ -845,7 +860,8 @@ export class InvoicesService {
       creditedTotal: 0,
       status: InvoiceStatus.DRAFT,
       type: InvoiceType.INVOICE,
-      paymentMethod: dto.paymentMethod ?? this.inferPaymentMethod(dto),
+      paymentMethod: payment.kind,
+      paymentMethodCode: payment.code,
       notes: dto.notes,
       currencyCode,
       exchangeRate,
@@ -855,6 +871,32 @@ export class InvoicesService {
       totalInBaseCurrency: roundToCurrency(computed.total * exchangeRate, baseCurrency),
       costOfSale,
     });
+  }
+
+  /**
+   * How the document is paid: the company's own method when the request names one, else the
+   * settlement kind it states or the one its dates imply.
+   *
+   * A company outside the Dominican Republic keeps its own payment methods (ACH, Zelle — QA C-06),
+   * and the invoice records which one by its code. The settlement KIND is still what every
+   * e-invoicing adapter maps to its authority's code, so it is taken from the method itself rather
+   * than from the request: a request saying «ZELLE, paid in cash» is answered «ZELLE, a transfer».
+   * A retired or unknown code is refused, not silently replaced.
+   */
+  private async resolvePaymentMethod(
+    dto: CreateInvoiceDto,
+    organizationId: string,
+    manager: EntityManager,
+  ): Promise<{ kind: PaymentMethod; code: string | null }> {
+    const code = dto.paymentMethodCode?.trim().toUpperCase();
+    if (!code) return { kind: dto.paymentMethod ?? this.inferPaymentMethod(dto), code: null };
+
+    const [method]: Array<{ kind: PaymentMethod }> = await manager.query(
+      `SELECT "kind" FROM "payment_methods" WHERE "organization_id" = $1 AND "code" = $2 AND "is_active"`,
+      [organizationId, code],
+    );
+    if (!method) throw new BadRequestError('invoices.payment_method_code_unknown', { code });
+    return { kind: method.kind, code };
   }
 
   // ── Line resolution ────────────────────────────────────────────────────────
@@ -1091,6 +1133,7 @@ export class InvoicesService {
         netReceivable: rebuilt.netReceivable,
         balance: rebuilt.netReceivable,
         paymentMethod: rebuilt.paymentMethod,
+        paymentMethodCode: rebuilt.paymentMethodCode,
         notes: rebuilt.notes,
         currencyCode: rebuilt.currencyCode,
         exchangeRate: rebuilt.exchangeRate,
@@ -1281,6 +1324,7 @@ export class InvoicesService {
         currencyCode: original.currencyCode,
         exchangeRate: original.exchangeRate,
         paymentMethod: original.paymentMethod,
+        paymentMethodCode: original.paymentMethodCode ?? null,
         lineItems: noteLines,
         subtotal: computed.subtotal,
         discountTotal: computed.discountTotal,
@@ -1664,6 +1708,14 @@ export class InvoicesService {
 
     const countryCode = organization?.country ?? null;
     const scheme = countryCode ? COUNTRY_TAX_SCHEMES[countryCode.toUpperCase()] : undefined;
+    const pack = countryPackFor(countryCode);
+    const tenantRates = [...new Set(await this.tenantTaxRates(organizationId, this.dataSource.manager))].sort(
+      (a, b) => b - a,
+    );
+    const jurisdictions =
+      pack.taxes.model === 'BY_JURISDICTION'
+        ? await this.registeredJurisdictions(organizationId)
+        : [];
 
     /**
      * A market that numbers its documents needs a live range before one can be issued.
@@ -1701,9 +1753,17 @@ export class InvoicesService {
       missing: gaps,
       countryCode,
       baseCurrency: settings?.baseCurrency ?? 'USD',
-      /** Rates the market levies, as fractions, highest first: the standard rate leads. */
-      taxRates: (scheme?.taxes ?? []).map((t) => t.rate / 100).sort((a, b) => b - a),
+      /**
+       * The rates the line selector offers, as fractions, highest first: the standard rate leads.
+       *
+       * The tenant's own tax catalogue when it has one — the rates it configured, including a
+       * reduced rate it added — and the market's scheme only for a tenant whose catalogue is empty.
+       * It used to be the scheme alone, so a rate the tenant configured never reached the form.
+       */
+      taxRates: tenantRates.length > 0 ? tenantRates : (scheme?.taxes ?? []).map((t) => t.rate / 100).sort((a, b) => b - a),
       taxRequiresConfiguration: scheme?.configurationRequired ?? true,
+      taxModel: pack.taxes.model,
+      registeredJurisdictions: jurisdictions,
       fiscalDocumentTypes: issuable.options,
       emissionMode: issuable.mode,
       automaticKind: issuable.automaticKind,
@@ -1720,6 +1780,27 @@ export class InvoicesService {
       defaultPaymentTermDays: settings?.defaultPaymentTermDays ?? 0,
       today,
     };
+  }
+
+  /**
+   * The combined rate the company collects per registered state, today: the state row plus the
+   * county, city and district rows under it. What the invoice form names when it says where sales
+   * tax will be charged.
+   */
+  private async registeredJurisdictions(
+    organizationId: string,
+  ): Promise<Array<{ stateCode: string; rate: number }>> {
+    const rows: Array<{ state_code: string; rate: string }> = await this.dataSource.query(
+      `SELECT "state_code", SUM("rate") AS rate
+         FROM "tax_jurisdictions"
+        WHERE "organization_id" = $1 AND "is_registered"
+          AND "effective_from" <= CURRENT_DATE
+          AND ("effective_to" IS NULL OR "effective_to" >= CURRENT_DATE)
+        GROUP BY "state_code"
+        ORDER BY "state_code"`,
+      [organizationId],
+    );
+    return rows.map((row) => ({ stateCode: row.state_code, rate: Number(row.rate) }));
   }
 
   /**

@@ -2329,15 +2329,45 @@
     "en": "No runs yet.",
     "pt": "Ainda não há execuções."
   },
+  "workflow_engine.invalid_graph.duplicate_node_id": {
+    "es": "Hay nodos con el mismo identificador.",
+    "en": "Two nodes share the same identifier.",
+    "pt": "Há nós com o mesmo identificador."
+  },
+  "workflow_engine.invalid_graph.edge_dangling": {
+    "es": "Una conexión apunta a un nodo que no existe.",
+    "en": "A connection points to a node that does not exist.",
+    "pt": "Uma conexão aponta para um nó que não existe."
+  },
   "workflow_engine.invalid_graph.malformed": {
     "es": "El diseño tiene errores de estructura ({{count}}) y no se puede guardar.",
     "en": "The design has structural errors ({{count}}) and cannot be saved.",
     "pt": "O desenho tem erros de estrutura ({{count}}) e não pode ser guardado."
   },
+  "workflow_engine.invalid_graph.need_end": {
+    "es": "El flujo debe tener al menos un nodo final.",
+    "en": "The flow must have at least one end node.",
+    "pt": "O fluxo deve ter pelo menos um nó final."
+  },
+  "workflow_engine.invalid_graph.node_no_exit": {
+    "es": "El nodo «{{node}}» no tiene salida.",
+    "en": "Node «{{node}}» has no way out.",
+    "pt": "O nó «{{node}}» não tem saída."
+  },
+  "workflow_engine.invalid_graph.one_start": {
+    "es": "El flujo debe tener exactamente un nodo de inicio.",
+    "en": "The flow must have exactly one start node.",
+    "pt": "O fluxo deve ter exatamente um nó de início."
+  },
   "workflow_engine.invalid_graph.summary": {
     "es": "El proceso tiene problemas que impiden publicarlo ({{count}}).",
     "en": "The process has problems that prevent publishing it ({{count}}).",
     "pt": "O processo tem problemas que impedem a sua publicação ({{count}})."
+  },
+  "workflow_engine.invalid_graph.unknown_action": {
+    "es": "El nodo «{{node}}» usa una acción que no existe.",
+    "en": "Node «{{node}}» uses an action that does not exist.",
+    "pt": "O nó «{{node}}» usa uma ação que não existe."
   },
   "workflow_engine.invalid_outcome": {
     "es": "«{{outcome}}» no es un resultado válido para esta tarea.",
@@ -4118,6 +4148,61 @@
     "es": "Flujos de trabajo",
     "en": "Workflows",
     "pt": "Fluxos de trabalho"
+  },
+  "workflow_engine.transition.action": {
+    "es": "Acción ejecutada",
+    "en": "Action ran",
+    "pt": "Ação executada"
+  },
+  "workflow_engine.transition.cancelled": {
+    "es": "Cancelado",
+    "en": "Cancelled",
+    "pt": "Cancelado"
+  },
+  "workflow_engine.transition.completed": {
+    "es": "Completado",
+    "en": "Completed",
+    "pt": "Concluído"
+  },
+  "workflow_engine.transition.condition": {
+    "es": "Condición evaluada",
+    "en": "Condition evaluated",
+    "pt": "Condição avaliada"
+  },
+  "workflow_engine.transition.enter": {
+    "es": "Entró",
+    "en": "Entered",
+    "pt": "Entrou"
+  },
+  "workflow_engine.transition.error": {
+    "es": "Error",
+    "en": "Error",
+    "pt": "Erro"
+  },
+  "workflow_engine.transition.started": {
+    "es": "Iniciado",
+    "en": "Started",
+    "pt": "Iniciado"
+  },
+  "workflow_engine.transition.task_completed": {
+    "es": "Tarea completada",
+    "en": "Task completed",
+    "pt": "Tarefa concluída"
+  },
+  "workflow_engine.transition.task_created": {
+    "es": "Tarea creada",
+    "en": "Task created",
+    "pt": "Tarefa criada"
+  },
+  "workflow_engine.transition.timer_fired": {
+    "es": "Temporizador disparado",
+    "en": "Timer fired",
+    "pt": "Temporizador disparado"
+  },
+  "workflow_engine.transition.timer_set": {
+    "es": "Temporizador fijado",
+    "en": "Timer set",
+    "pt": "Temporizador definido"
   },
   "workflow_engine.trigger.choose_event": {
     "es": "Elige un evento…",

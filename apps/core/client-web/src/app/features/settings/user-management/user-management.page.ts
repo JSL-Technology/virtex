@@ -1,4 +1,4 @@
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { RoleNamePipe, roleLabel } from '../../../shared/pipes/role-name.pipe';
 import {
   Component,
@@ -18,7 +18,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { TranslateService, TranslatePipe } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from '../../../core/services/dialog.service';
 import {
   LucideAngularModule,
@@ -85,7 +85,7 @@ import { TableSort, VX_SORT, sortable } from '../../../shared/components/sort';
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
-    TranslatePipe,
+    TranslateModule,
     HasPermissionDirective,
     ...VX_FORM_A11Y, ...VX_SELECT, VxSpinnerComponent, VxPagerComponent, VxBadgeComponent,
     UserBranchAccessDialogComponent],

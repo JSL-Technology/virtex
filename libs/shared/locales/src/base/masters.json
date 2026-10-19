@@ -164,25 +164,145 @@
     "en": "Yes",
     "pt": "Sim"
   },
+  "masters.payment_methods.active": {
+    "es": "Activa",
+    "en": "Active",
+    "pt": "Ativa"
+  },
   "masters.payment_methods.code": {
     "es": "Código",
     "en": "Code",
     "pt": "Código"
+  },
+  "masters.payment_methods.code_help": {
+    "es": "Lo que registran los documentos. No se puede cambiar después.",
+    "en": "What documents record. It cannot be changed later.",
+    "pt": "O que os documentos registram. Não pode ser alterado depois."
+  },
+  "masters.payment_methods.code_placeholder": {
+    "es": "p. ej. ACH",
+    "en": "e.g. ACH",
+    "pt": "ex.: PIX"
+  },
+  "masters.payment_methods.created": {
+    "es": "Forma de pago creada.",
+    "en": "Payment method created.",
+    "pt": "Forma de pagamento criada."
+  },
+  "masters.payment_methods.edit": {
+    "es": "Editar",
+    "en": "Edit",
+    "pt": "Editar"
+  },
+  "masters.payment_methods.edit_method": {
+    "es": "Editar forma de pago",
+    "en": "Edit payment method",
+    "pt": "Editar forma de pagamento"
+  },
+  "masters.payment_methods.fiscal_code": {
+    "es": "Código fiscal",
+    "en": "Fiscal code",
+    "pt": "Código fiscal"
+  },
+  "masters.payment_methods.fiscal_code_help_authority": {
+    "es": "El código del catálogo de la {{authority}} que lleva el comprobante.",
+    "en": "The {{authority}} catalogue code the fiscal document carries.",
+    "pt": "O código do catálogo da {{authority}} que o documento fiscal leva."
+  },
+  "masters.payment_methods.fiscal_code_help_none": {
+    "es": "Opcional. Tu país no tiene un catálogo oficial de formas de pago.",
+    "en": "Optional. Your country has no official catalogue of payment methods.",
+    "pt": "Opcional. Seu país não tem um catálogo oficial de formas de pagamento."
+  },
+  "masters.payment_methods.fixed_by_authority": {
+    "es": "La {{authority}} fija estas formas de pago para los comprobantes fiscales: no se añaden ni se modifican.",
+    "en": "The {{authority}} sets these payment methods for fiscal documents: they cannot be added or changed.",
+    "pt": "A {{authority}} define estas formas de pagamento para os documentos fiscais: não podem ser adicionadas nem alteradas."
+  },
+  "masters.payment_methods.form_invalid": {
+    "es": "Revisa el código (solo letras, números, guion y guion bajo) y el nombre.",
+    "en": "Check the code (letters, digits, hyphens and underscores only) and the name.",
+    "pt": "Revise o código (só letras, números, hífen e sublinhado) e o nome."
+  },
+  "masters.payment_methods.kind": {
+    "es": "Se liquida como",
+    "en": "Settles as",
+    "pt": "Liquida como"
+  },
+  "masters.payment_methods.kind_help": {
+    "es": "Cómo lo entiende la factura electrónica cuando no conoce el nombre.",
+    "en": "How e-invoicing reads it when it does not know the name.",
+    "pt": "Como a nota eletrônica o entende quando não conhece o nome."
+  },
+  "masters.payment_methods.load_failed": {
+    "es": "No se pudieron cargar las formas de pago.",
+    "en": "Payment methods could not be loaded.",
+    "pt": "Não foi possível carregar as formas de pagamento."
   },
   "masters.payment_methods.name": {
     "es": "Nombre",
     "en": "Name",
     "pt": "Nome"
   },
+  "masters.payment_methods.name_placeholder": {
+    "es": "p. ej. Transferencia ACH",
+    "en": "e.g. ACH transfer",
+    "pt": "ex.: Transferência PIX"
+  },
+  "masters.payment_methods.new_method": {
+    "es": "Nueva forma de pago",
+    "en": "New payment method",
+    "pt": "Nova forma de pagamento"
+  },
   "masters.payment_methods.payment_methods": {
     "es": "Formas de pago",
     "en": "Payment methods",
     "pt": "Formas de pagamento"
   },
-  "masters.payment_methods.statutory_note": {
-    "es": "Las fija la DGII para los comprobantes fiscales; no se añaden ni se editan.",
-    "en": "Fixed by the DGII for fiscal documents; they are not added or edited.",
-    "pt": "Fixadas pela DGII para os comprovativos fiscais; não se adicionam nem editam."
+  "masters.payment_methods.reinstate": {
+    "es": "Reactivar",
+    "en": "Reinstate",
+    "pt": "Reativar"
+  },
+  "masters.payment_methods.reinstated": {
+    "es": "«{{name}}» vuelve a estar disponible.",
+    "en": "“{{name}}” is available again.",
+    "pt": "«{{name}}» está disponível novamente."
+  },
+  "masters.payment_methods.retire": {
+    "es": "Retirar",
+    "en": "Retire",
+    "pt": "Desativar"
+  },
+  "masters.payment_methods.retired": {
+    "es": "«{{name}}» ya no aparece al registrar documentos.",
+    "en": "“{{name}}” no longer appears when recording documents.",
+    "pt": "«{{name}}» não aparece mais ao registrar documentos."
+  },
+  "masters.payment_methods.retired_badge": {
+    "es": "Retirada",
+    "en": "Retired",
+    "pt": "Desativada"
+  },
+  "masters.payment_methods.save_failed": {
+    "es": "No se pudo guardar la forma de pago.",
+    "en": "The payment method could not be saved.",
+    "pt": "Não foi possível salvar a forma de pagamento."
+  },
+  "masters.payment_methods.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
+  },
+  "masters.payment_methods.subtitle_editable": {
+    "es": "Cómo te pagan y cómo pagas. Añade las que uses, renómbralas o retíralas; los documentos que ya las usaron conservan su código.",
+    "en": "How you get paid and how you pay. Add the ones you use, rename them or retire them; documents that already used one keep its code.",
+    "pt": "Como você recebe e como paga. Adicione as que usa, renomeie ou desative; os documentos que já as usaram mantêm o código."
+  },
+  "masters.payment_methods.updated": {
+    "es": "Forma de pago guardada.",
+    "en": "Payment method saved.",
+    "pt": "Forma de pagamento salva."
   },
   "masters.payment_terms.customers_on_it": {
     "es": "Clientes",
@@ -614,15 +734,85 @@
     "en": "Type",
     "pt": "Tipo"
   },
+  "masters.taxes.add_first_state": {
+    "es": "Añadir el primer estado",
+    "en": "Add your first state",
+    "pt": "Adicionar o primeiro estado"
+  },
+  "masters.taxes.add_state": {
+    "es": "Añadir estado",
+    "en": "Add state",
+    "pt": "Adicionar estado"
+  },
+  "masters.taxes.by_state_empty_help": {
+    "es": "Añade el estado donde está tu negocio y su tasa estatal. Hasta entonces las facturas salen sin impuesto y lo indican.",
+    "en": "Add the state your business is in and its state rate. Until then invoices are issued without tax and say so.",
+    "pt": "Adicione o estado onde fica sua empresa e a alíquota estadual. Até lá as faturas saem sem imposto e informam isso."
+  },
+  "masters.taxes.by_state_empty_title": {
+    "es": "Aún no cobras impuesto en ningún estado",
+    "en": "You don't collect tax in any state yet",
+    "pt": "Você ainda não cobra imposto em nenhum estado"
+  },
+  "masters.taxes.by_state_help": {
+    "es": "No hay una tasa nacional: el impuesto lo fijan el estado, el condado y la ciudad donde se entrega la venta. Registra los estados donde lo cobras y las facturas a clientes de esos estados cobrarán su tasa combinada.",
+    "en": "There is no national rate: the tax is set by the state, county and city the sale is delivered to. Register the states where you collect it and invoices to customers there will charge their combined rate.",
+    "pt": "Não há alíquota nacional: o imposto é definido pelo estado, condado e cidade de entrega da venda. Registre os estados onde você o cobra e as faturas para clientes desses estados cobrarão a alíquota combinada."
+  },
+  "masters.taxes.by_state_title": {
+    "es": "{{tax}} por estado",
+    "en": "{{tax}} by state",
+    "pt": "{{tax}} por estado"
+  },
+  "masters.taxes.choose_state": {
+    "es": "Elige un estado",
+    "en": "Choose a state",
+    "pt": "Escolha um estado"
+  },
+  "masters.taxes.combined_rate": {
+    "es": "Tasa combinada",
+    "en": "Combined rate",
+    "pt": "Alíquota combinada"
+  },
   "masters.taxes.country": {
     "es": "País",
     "en": "Country",
     "pt": "País"
   },
+  "masters.taxes.effective_from": {
+    "es": "Vigente desde",
+    "en": "Effective from",
+    "pt": "Vigente desde"
+  },
+  "masters.taxes.empty_help": {
+    "es": "Crea las tasas que aplicas en tus ventas y compras.",
+    "en": "Create the rates you apply on sales and purchases.",
+    "pt": "Crie as alíquotas que você aplica em vendas e compras."
+  },
+  "masters.taxes.empty_title": {
+    "es": "Aún no hay impuestos",
+    "en": "No taxes yet",
+    "pt": "Ainda não há impostos"
+  },
   "masters.taxes.error_deleting_tax": {
     "es": "Error al eliminar el impuesto.",
     "en": "Error deleting the tax.",
     "pt": "Erro ao excluir o imposto."
+  },
+  "masters.taxes.in_force_since": {
+    "es": "Vigente desde",
+    "en": "In force since",
+    "pt": "Vigente desde"
+  },
+  "masters.taxes.local_rates": {
+    "es": "incluye {{count}} tasa(s) local(es)",
+    "en": "includes {{count}} local rate(s)",
+    "pt": "inclui {{count}} alíquota(s) local(is)"
+  },
+  "masters.taxes.local_rates_help": {
+    "es": "Las tasas de condado, ciudad y distritos especiales se añaden bajo cada estado.",
+    "en": "County, city and special-district rates are added under each state.",
+    "pt": "As alíquotas de condado, cidade e distritos especiais são adicionadas sob cada estado."
   },
   "masters.taxes.name": {
     "es": "Nombre",
@@ -634,10 +824,60 @@
     "en": "New tax",
     "pt": "Novo imposto"
   },
+  "masters.taxes.no_flat_taxes_help": {
+    "es": "Aquí van los impuestos de tasa fija que no dependen del estado, si los tienes.",
+    "en": "Flat-rate taxes that don't depend on the state go here, if you have any.",
+    "pt": "Aqui ficam os impostos de alíquota fixa que não dependem do estado, se houver."
+  },
+  "masters.taxes.no_flat_taxes_title": {
+    "es": "Sin otros impuestos",
+    "en": "No other taxes",
+    "pt": "Sem outros impostos"
+  },
+  "masters.taxes.open_jurisdictions": {
+    "es": "Abrir jurisdicciones fiscales",
+    "en": "Open tax jurisdictions",
+    "pt": "Abrir jurisdições fiscais"
+  },
   "masters.taxes.rate": {
     "es": "Tasa (%)",
     "en": "Rate (%)",
     "pt": "Alíquota (%)"
+  },
+  "masters.taxes.state": {
+    "es": "Estado",
+    "en": "State",
+    "pt": "Estado"
+  },
+  "masters.taxes.state_form_invalid": {
+    "es": "Elige el estado e indica una tasa entre 0 y 100.",
+    "en": "Choose the state and enter a rate between 0 and 100.",
+    "pt": "Escolha o estado e informe uma alíquota entre 0 e 100."
+  },
+  "masters.taxes.state_rate": {
+    "es": "Tasa estatal (%)",
+    "en": "State rate (%)",
+    "pt": "Alíquota estadual (%)"
+  },
+  "masters.taxes.state_rate_name": {
+    "es": "{{tax}} de {{state}}",
+    "en": "{{state}} {{tax}}",
+    "pt": "{{tax}} de {{state}}"
+  },
+  "masters.taxes.state_rate_placeholder": {
+    "es": "p. ej. 6,25",
+    "en": "e.g. 6.25",
+    "pt": "ex.: 6,25"
+  },
+  "masters.taxes.state_registered": {
+    "es": "{{state}} registrado: las facturas a clientes de ese estado cobrarán su tasa.",
+    "en": "{{state}} registered: invoices to customers in that state will charge its rate.",
+    "pt": "{{state}} registrado: as faturas para clientes desse estado cobrarão sua alíquota."
+  },
+  "masters.taxes.state_save_failed": {
+    "es": "No se pudo registrar el estado.",
+    "en": "The state could not be registered.",
+    "pt": "Não foi possível registrar o estado."
   },
   "masters.taxes.tax_deleted": {
     "es": "Impuesto eliminado exitosamente.",
@@ -669,10 +909,75 @@
     "en": "Percentage",
     "pt": "Percentual"
   },
+  "masters.units_of_measure.category.area": {
+    "es": "Superficie",
+    "en": "Area",
+    "pt": "Área"
+  },
+  "masters.units_of_measure.category.length": {
+    "es": "Longitud",
+    "en": "Length",
+    "pt": "Comprimento"
+  },
+  "masters.units_of_measure.category.time": {
+    "es": "Tiempo",
+    "en": "Time",
+    "pt": "Tempo"
+  },
+  "masters.units_of_measure.category.units": {
+    "es": "Unidades",
+    "en": "Count",
+    "pt": "Unidades"
+  },
+  "masters.units_of_measure.category.volume": {
+    "es": "Volumen",
+    "en": "Volume",
+    "pt": "Volume"
+  },
+  "masters.units_of_measure.category.weight": {
+    "es": "Peso",
+    "en": "Weight",
+    "pt": "Peso"
+  },
+  "masters.units_of_measure.company_unit": {
+    "es": "Propia",
+    "en": "Custom",
+    "pt": "Própria"
+  },
+  "masters.units_of_measure.create_failed": {
+    "es": "No se pudo crear la unidad.",
+    "en": "The unit could not be created.",
+    "pt": "Não foi possível criar a unidade."
+  },
   "masters.units_of_measure.created": {
     "es": "Unidad creada.",
     "en": "Unit created.",
     "pt": "Unidade criada."
+  },
+  "masters.units_of_measure.delete_failed": {
+    "es": "No se pudo eliminar la unidad.",
+    "en": "The unit could not be deleted.",
+    "pt": "Não foi possível excluir a unidade."
+  },
+  "masters.units_of_measure.delete_message": {
+    "es": "¿Eliminar la unidad «{{name}}» ({{symbol}})?",
+    "en": "Delete the unit “{{name}}” ({{symbol}})?",
+    "pt": "Excluir a unidade “{{name}}” ({{symbol}})?"
+  },
+  "masters.units_of_measure.delete_named": {
+    "es": "Eliminar la unidad {{name}}",
+    "en": "Delete unit {{name}}",
+    "pt": "Excluir a unidade {{name}}"
+  },
+  "masters.units_of_measure.delete_title": {
+    "es": "Eliminar unidad",
+    "en": "Delete unit",
+    "pt": "Excluir unidade"
+  },
+  "masters.units_of_measure.deleted": {
+    "es": "Unidad «{{name}}» eliminada.",
+    "en": "Unit “{{name}}” deleted.",
+    "pt": "Unidade “{{name}}” excluída."
   },
   "masters.units_of_measure.empty_help": {
     "es": "Crea las que uses para contar, pesar o medir lo que vendes.",
@@ -689,15 +994,30 @@
     "en": "Name",
     "pt": "Nome"
   },
+  "masters.units_of_measure.name_placeholder": {
+    "es": "Ej.: Saco de 50 kg",
+    "en": "E.g. 50 lb bag",
+    "pt": "Ex.: Saco de 50 kg"
+  },
   "masters.units_of_measure.new_unit": {
     "es": "Nueva unidad",
     "en": "New unit",
     "pt": "Nova unidade"
   },
+  "masters.units_of_measure.subtitle": {
+    "es": "Las del catálogo común y las propias de tu empresa, agrupadas por tipo.",
+    "en": "The shared catalogue and your company's own units, grouped by type.",
+    "pt": "As do catálogo comum e as próprias da sua empresa, agrupadas por tipo."
+  },
   "masters.units_of_measure.symbol": {
     "es": "Símbolo",
     "en": "Symbol",
     "pt": "Símbolo"
+  },
+  "masters.units_of_measure.symbol_placeholder": {
+    "es": "Ej.: SC50",
+    "en": "E.g. BG50",
+    "pt": "Ex.: SC50"
   },
   "masters.units_of_measure.type": {
     "es": "Tipo",

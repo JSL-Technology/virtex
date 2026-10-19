@@ -15,7 +15,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, X } from 'lucide-angular';
 
 let nextId = 0;
@@ -70,7 +70,7 @@ export type VxDialogDismissal = 'close-button' | 'escape' | 'scrim';
 @Component({
   selector: 'vx-dialog',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule],
+  imports: [TranslateModule, LucideAngularModule],
   templateUrl: './dialog.component.html',
   styleUrls: ['./dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

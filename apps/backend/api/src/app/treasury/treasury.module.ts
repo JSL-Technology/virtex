@@ -8,6 +8,9 @@ import { BankTransfer } from './entities/bank-transfer.entity';
 import { BankAccount } from './entities/bank-account.entity';
 import { Bank } from './entities/bank.entity';
 import { BanksService } from './banks.service';
+import { PaymentMethod } from './entities/payment-method.entity';
+import { PaymentMethodsService } from './payment-methods/payment-methods.service';
+import { PaymentMethodsController } from './payment-methods/payment-methods.controller';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 import { CurrenciesModule } from '../currencies/currencies.module';
@@ -17,7 +20,7 @@ import { AccountingModule } from '../accounting/accounting.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([BankTransfer, BankAccount, Bank]),
+    TypeOrmModule.forFeature([BankTransfer, BankAccount, Bank, PaymentMethod]),
     JournalEntriesModule,
     ChartOfAccountsModule,
     CurrenciesModule,
@@ -25,8 +28,8 @@ import { AccountingModule } from '../accounting/accounting.module';
     PeriodLockModule,
     AccountingModule,
   ],
-  controllers: [TreasuryController],
-  providers: [TreasuryCopilotTools, CashPositionProvider, TreasuryService, BanksService],
-  exports: [TreasuryService, BanksService],
+  controllers: [TreasuryController, PaymentMethodsController],
+  providers: [TreasuryCopilotTools, CashPositionProvider, TreasuryService, BanksService, PaymentMethodsService],
+  exports: [TreasuryService, BanksService, PaymentMethodsService],
 })
 export class TreasuryModule {}

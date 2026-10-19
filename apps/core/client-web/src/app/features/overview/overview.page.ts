@@ -1,5 +1,5 @@
 import { RouterLink } from '@angular/router';
-import { FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,8 +8,9 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { VxBadgeComponent } from '../../shared/components/badge';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import {
   LucideAngularModule,
   ArrowRight,
@@ -42,7 +43,7 @@ type SectionStatus = 'loading' | 'ready' | 'error';
 @Component({
   selector: 'app-overview-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, DashboardPage],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DashboardPage, VxBadgeComponent],
   templateUrl: './overview.page.html',
   styleUrls: ['./overview.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

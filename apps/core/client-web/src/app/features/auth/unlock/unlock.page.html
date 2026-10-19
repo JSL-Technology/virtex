@@ -1,0 +1,41 @@
+<!-- El armazón (lienzo, lámina y pie) lo aporta `AuthShellComponent`. -->
+<div class="unlock">
+  <header class="auth-head">
+    <span class="auth-seal" aria-hidden="true">
+      <app-brand-logo variant="mark" [size]="30"></app-brand-logo>
+    </span>
+    <h1 class="auth-title">{{ 'login.unlock.title' | translate }}</h1>
+  </header>
+
+  @switch (state()) {
+    @case ('working') {
+      <p class="unlock-status" role="status">
+        <lucide-icon [img]="LoaderIcon" size="16" class="spin"></lucide-icon>
+        {{ 'login.unlock.working' | translate }}
+      </p>
+    }
+    @case ('done') {
+      <div class="success-view" role="status">
+        <div class="success-icon-ring"><lucide-icon [img]="CheckIcon" size="28"></lucide-icon></div>
+        <p class="success-text">{{ 'login.unlock.done' | translate }}</p>
+      </div>
+    }
+    @case ('error') {
+      <div class="error-alert" role="alert">
+        <lucide-icon [img]="AlertIcon" size="16"></lucide-icon>
+        <span>{{ errorKey() | translate }}</span>
+      </div>
+    }
+  }
+
+  <div class="unlock-actions">
+    <a class="primary-link" [routerLink]="['/', languageService.currentLang(), 'auth', 'login']">
+      {{ 'login.unlock.go_to_sign_in' | translate }}
+    </a>
+    @if (state() === 'error') {
+      <a class="primary-link" [routerLink]="['/', languageService.currentLang(), 'auth', 'forgot-password']">
+        {{ 'login.unlock.forgot_password' | translate }}
+      </a>
+    }
+  </div>
+</div>

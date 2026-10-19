@@ -1,6 +1,6 @@
-import { VxDatePipe } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxDatePipe } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { composeKey } from '@virteex/shared/types';
 import { LucideAngularModule, Workflow } from 'lucide-angular';
 import { VxBadgeComponent } from '../../../../shared/components/badge/badge.component';
@@ -21,7 +21,7 @@ const CUSTOM = '__custom';
 @Component({
   selector: 'app-workflow-process-panel',
   standalone: true,
-  imports: [VxDatePipe, TranslatePipe, LucideAngularModule, VxBadgeComponent, ConditionEditorComponent, VariablesEditorComponent],
+  imports: [VxDatePipe, TranslateModule, LucideAngularModule, VxBadgeComponent, ConditionEditorComponent, VariablesEditorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inspector.scss',
   template: `

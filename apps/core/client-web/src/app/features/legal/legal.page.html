@@ -1,0 +1,104 @@
+<app-auth-layout width="wide">
+  <article class="legal" [attr.aria-labelledby]="'legal-title'">
+
+    <nav class="legal-nav" [attr.aria-label]="'legal.common.documents_nav' | translate">
+      @for (item of pages; track item) {
+        <a [routerLink]="['/', language.currentLang(), item]"
+           [class.is-active]="item === page()"
+           [attr.aria-current]="item === page() ? 'page' : null">
+          {{ 'legal.' + item + '.title' | translate }}
+        </a>
+      }
+    </nav>
+
+    <header class="legal-head">
+      <h1 id="legal-title" class="legal-title">{{ 'legal.' + page() + '.title' | translate }}</h1>
+      @if (edition(); as ed) {
+        <p class="legal-meta">
+          <span>{{ 'legal.common.version' | translate: { version: ed.version } }}</span>
+          <span aria-hidden="true">·</span>
+          <span>{{ 'legal.common.effective' | translate: { date: effectiveDate() } }}</span>
+        </p>
+      }
+      <p class="legal-lead">{{ 'legal.' + page() + '.lead' | translate: { app: appName() } }}</p>
+    </header>
+
+    @if (isDocument()) {
+      @for (section of sections(); track section) {
+        <section class="legal-section">
+          <h2>{{ section + '.title' | translate }}</h2>
+          <p>{{ section + '.body' | translate: { app: appName(), email: supportEmail() ?? '' } }}</p>
+        </section>
+      }
+      <p class="legal-note">{{ 'legal.common.summary_note' | translate }}</p>
+      @if (supportEmail(); as email) {
+        <p class="legal-note">
+          {{ 'legal.common.questions' | translate: { email: email } }}
+        </p>
+      }
+    } @else {
+      <!-- ── Contacto ──────────────────────────────────────────────────── -->
+      <section class="contact-channel">
+        <span class="contact-label">{{ 'legal.contact.email_label' | translate }}</span>
+        @if (supportEmail(); as email) {
+          <div class="contact-email">
+            <a [href]="'mailto:' + email">{{ email }}</a>
+            <button type="button" class="contact-copy" (click)="copyEmail()">
+              {{ (copied() ? 'legal.contact.copied' : 'legal.contact.copy') | translate }}
+            </button>
+          </div>
+        } @else {
+          <p class="legal-note" role="status">{{ 'legal.contact.loading' | translate }}</p>
+        }
+      </section>
+
+      <form class="contact-form" (ngSubmit)="composeEmail()" novalidate>
+        <h2>{{ 'legal.contact.form_title' | translate }}</h2>
+        <p class="legal-note">{{ 'legal.contact.form_hint' | translate: { email: supportEmail() ?? '' } }}</p>
+
+        <div class="contact-grid">
+          <label class="contact-field">
+            <span>{{ 'legal.contact.name' | translate }}</span>
+            <input type="text" name="name" autocomplete="name" [(ngModel)]="name">
+          </label>
+          <label class="contact-field">
+            <span>{{ 'legal.contact.reply_to' | translate }}</span>
+            <input type="email" name="replyTo" autocomplete="email" [(ngModel)]="replyTo">
+          </label>
+        </div>
+
+        <label class="contact-field">
+          <span>{{ 'legal.contact.topic' | translate }} *</span>
+          <select name="topic" [(ngModel)]="topic" required [attr.aria-invalid]="formError() && !topic">
+            <option value="">—</option>
+            @for (t of topics; track t) {
+              <option [value]="t">{{ 'legal.contact.topics.' + t | translate }}</option>
+            }
+          </select>
+        </label>
+        @if (topic === 'privacy') {
+          <p class="legal-note">{{ 'legal.contact.privacy_note' | translate }}</p>
+        }
+
+        <label class="contact-field">
+          <span>{{ 'legal.contact.message' | translate }} *</span>
+          <textarea name="message" rows="5" [(ngModel)]="message" required
+                    [attr.aria-invalid]="formError() && !message.trim()"></textarea>
+        </label>
+
+        @if (formError()) {
+          <p class="contact-error" role="alert">{{ 'legal.contact.required' | translate }}</p>
+        }
+
+        <button type="submit" class="contact-submit" [disabled]="!supportEmail()">
+          {{ 'legal.contact.send' | translate }}
+        </button>
+      </form>
+    }
+
+    <footer class="legal-foot">
+      <a [routerLink]="['/', language.currentLang(), 'auth', 'login']">{{ 'legal.common.back_to_sign_in' | translate }}</a>
+      <a [routerLink]="['/', language.currentLang(), 'auth', 'choose-country']">{{ 'legal.common.back_to_sign_up' | translate }}</a>
+    </footer>
+  </article>
+</app-auth-layout>

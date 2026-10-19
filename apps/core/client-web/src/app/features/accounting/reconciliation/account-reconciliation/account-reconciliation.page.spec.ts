@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AccountReconciliationPage } from './account-reconciliation.page';
 import { BankAccount } from '../../../../core/api/treasury.service';
 import {

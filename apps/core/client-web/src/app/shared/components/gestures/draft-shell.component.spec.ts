@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DraftShellComponent, DraftProblem } from './draft-shell.component';
 

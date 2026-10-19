@@ -163,6 +163,13 @@ export class ComplianceController {
     return this.filings.list(user.organizationId, query.year);
   }
 
+  /** The first day the company has anything to report (QA A-15): the calendar starts there. */
+  @Get('filings/active-since')
+  @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  async activeSince(@CurrentUser() user: AuthenticatedUser) {
+    return { activeSince: await this.filings.activeSince(user.organizationId) };
+  }
+
   /**
    * Generate the period's file without downloading it, to learn its record count and whether it
    * still matches what was filed. Recorded like a download: it is a generation.

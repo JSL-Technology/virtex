@@ -4,13 +4,13 @@ import { LucideAngularModule, TrendingUp, TrendingDown, Minus, Trophy } from 'lu
 import { Kpi } from '../../../../core/models/finance';
 import { DashboardApiService } from '../../../../core/api/dashboard-api.service';
 import { Observable, map } from 'rxjs';
-import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 @Component({
   selector: 'app-kpi-roe',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './kpi-roe.html',
   styleUrls: ['./kpi-roe.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -3,13 +3,13 @@ import { Component, inject } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { GeoLocationService } from '../../../core/services/geo-location.service';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VxDialogComponent } from '../dialog';
 
 @Component({
   selector: 'app-geo-mismatch-modal',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, VxDialogComponent],
+  imports: [CommonModule, TranslateModule, VxDialogComponent],
   templateUrl: './geo-mismatch-modal.component.html',
   styleUrls: ['./geo-mismatch-modal.component.scss']
 })

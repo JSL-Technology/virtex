@@ -15,8 +15,8 @@ import {
   Wand2,
   XCircle,
 } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { BankAccount, TreasuryService } from '../../../../core/api/treasury.service';
 import {
   AmbiguityResolution,
@@ -68,7 +68,7 @@ import { NotificationService } from '../../../../core/services/notification';
     FormsModule,
     RouterLink,
     LucideAngularModule,
-    TranslatePipe,
+    TranslateModule,
     ...FORMAT_PIPES,
     ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent],
   templateUrl: './account-reconciliation.page.html',

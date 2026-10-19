@@ -3,7 +3,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractContro
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LanguageService } from '../../../../core/services/language';
 import { LucideAngularModule, Lock, AlertCircle, CheckCircle } from 'lucide-angular';
 
@@ -30,7 +31,7 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    TranslatePipe,
+    TranslateModule,
     LucideAngularModule,
     AuthInputComponent,
     AuthButtonComponent,

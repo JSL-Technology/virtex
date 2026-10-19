@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { of, throwError } from 'rxjs';
 import { AiSettingsPage } from './ai-settings.page';
 import { AiOverview, AiService } from '../../../ai/data/ai.service';

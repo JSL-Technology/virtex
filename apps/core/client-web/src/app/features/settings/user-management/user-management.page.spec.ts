@@ -8,6 +8,7 @@ import { RolesService, Role } from '../../../core/api/roles.service';
 import { NotificationService } from '../../../core/services/notification';
 import { WebSocketService } from '../../../core/services/websocket.service';
 import { AuthService } from '../../../core/services/auth';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { LucideAngularModule, UserPlus, Save, X, Send, User, History, Trash2, Key, Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, MoreHorizontal, FilePenLine, Ban, UserCog, Mail, ChevronLeft, ChevronRight, Plus, RefreshCw, Power, PowerOff, Building, Lock, Archive, UserCheck, Zap, FileInput, FileOutput, UserCircle2, LogOut } from 'lucide-angular';
 import { User as ApiUser } from '../../../shared/interfaces/user.interface';

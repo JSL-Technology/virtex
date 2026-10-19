@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 /**
  * A file picker in the reader's language.
@@ -12,7 +12,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 @Component({
   selector: 'vx-file-input',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <label class="vx-file" [class.vx-file--disabled]="disabled()">

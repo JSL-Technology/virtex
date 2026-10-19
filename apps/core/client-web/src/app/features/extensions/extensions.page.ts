@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import {
   LucideAngularModule,
   Puzzle,
@@ -39,7 +39,7 @@ import { VX_SORT, sortable } from '../../shared/components/sort';
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
-    TranslatePipe,
+    TranslateModule,
     LucideAngularModule,
     ListShellComponent,
     ...VX_FORM_A11Y,

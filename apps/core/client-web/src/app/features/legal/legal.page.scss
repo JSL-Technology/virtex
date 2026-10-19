@@ -1,0 +1,177 @@
+// =============================================================================
+//  PÁGINAS LEGALES Y CONTACTO
+// =============================================================================
+//  Sobre la misma lámina ancha que el alta: son puertas de entrada al producto,
+//  y quien las abre desde la casilla de aceptación tiene que reconocer que sigue
+//  en el mismo sitio. La tipografía es de lectura —líneas cortas, interlineado
+//  generoso— porque esto se lee, no se escanea.
+// =============================================================================
+@use '../auth/auth-page' as auth;
+@use '../../../assets/styles/design-system' as ds;
+
+.legal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 68ch;
+  margin-inline: auto;
+}
+
+.legal-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+
+  a {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+    text-decoration: none;
+    @include ds.focus-ring(2px);
+
+    &:hover { color: var(--content-primary); }
+
+    &.is-active {
+      color: var(--content-primary);
+      font-weight: var(--font-semibold);
+      background: var(--glass-field-bg);
+    }
+  }
+}
+
+.legal-head { text-align: center; }
+.legal-title { @include auth.title; }
+
+.legal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-xs);
+  color: var(--content-secondary);
+}
+
+.legal-lead {
+  margin: var(--space-3) 0 0;
+  color: var(--content-secondary);
+  line-height: var(--leading-relaxed, 1.6);
+}
+
+.legal-section {
+  h2 {
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-md, 1rem);
+    font-weight: var(--font-semibold);
+    color: var(--content-primary);
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--text-sm);
+    line-height: 1.7;
+    color: var(--content-secondary);
+  }
+}
+
+.legal-note {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  color: var(--content-secondary);
+}
+
+.legal-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--glass-divider);
+
+  a { @include auth.primary-link; }
+}
+
+// ── Contacto ─────────────────────────────────────────────────────────────────
+.contact-channel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.contact-label {
+  font-size: var(--text-xs);
+  color: var(--content-secondary);
+}
+
+.contact-email {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+
+  a {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    @include auth.primary-link;
+    word-break: break-all;
+  }
+}
+
+.contact-copy {
+  @include ds.glass-button-secondary('sm');
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  h2 {
+    margin: 0;
+    font-size: var(--text-md, 1rem);
+    font-weight: var(--font-semibold);
+  }
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+
+  @include ds.bp-down('sm') { grid-template-columns: 1fr; }
+}
+
+.contact-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+
+  input, select, textarea {
+    @include ds.glass-field;
+    width: 100%;
+    font: inherit;
+    color: var(--content-primary);
+  }
+
+  textarea { resize: vertical; min-height: 7rem; padding-block: var(--space-2); }
+
+  [aria-invalid='true'] { border-color: var(--error-border); }
+}
+
+.contact-error {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--error-text);
+}
+
+.contact-submit {
+  @include ds.glass-button-primary('lg');
+  align-self: flex-start;
+}

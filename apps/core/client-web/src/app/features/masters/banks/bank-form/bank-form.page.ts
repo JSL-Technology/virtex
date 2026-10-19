@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
 import { TreasuryService } from '../../../../core/api/treasury.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
@@ -20,7 +20,7 @@ import { bicValidator } from '../../../../shared/validators/bank-identifiers.val
 @Component({
   selector: 'app-bank-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './bank-form.page.html',
   styleUrls: ['./bank-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -359,6 +359,11 @@
     "en": "Final consumer",
     "pt": "Consumidor final"
   },
+  "ledger.provisioning.general_public": {
+    "es": "Público en general",
+    "en": "General public",
+    "pt": "Público em geral"
+  },
   "ledger.provisioning.journals.banks": {
     "es": "Diario de bancos",
     "en": "Banks journal",
@@ -413,6 +418,111 @@
     "es": "Diario de ventas",
     "en": "Sales journal",
     "pt": "Diário de vendas"
+  },
+  "ledger.provisioning.payment_methods.ach": {
+    "es": "Transferencia ACH",
+    "en": "ACH transfer",
+    "pt": "Transferência ACH"
+  },
+  "ledger.provisioning.payment_methods.bank_transfer": {
+    "es": "Transferencia bancaria",
+    "en": "Bank transfer",
+    "pt": "Transferência bancária"
+  },
+  "ledger.provisioning.payment_methods.boleto": {
+    "es": "Boleto bancario",
+    "en": "Bank slip (boleto)",
+    "pt": "Boleto bancário"
+  },
+  "ledger.provisioning.payment_methods.card": {
+    "es": "Tarjeta",
+    "en": "Card",
+    "pt": "Cartão"
+  },
+  "ledger.provisioning.payment_methods.cash": {
+    "es": "Efectivo",
+    "en": "Cash",
+    "pt": "Dinheiro"
+  },
+  "ledger.provisioning.payment_methods.check": {
+    "es": "Cheque",
+    "en": "Check",
+    "pt": "Cheque"
+  },
+  "ledger.provisioning.payment_methods.credit_card": {
+    "es": "Tarjeta de crédito",
+    "en": "Credit card",
+    "pt": "Cartão de crédito"
+  },
+  "ledger.provisioning.payment_methods.debit_card": {
+    "es": "Tarjeta de débito",
+    "en": "Debit card",
+    "pt": "Cartão de débito"
+  },
+  "ledger.provisioning.payment_methods.dgii_barter": {
+    "es": "Permuta",
+    "en": "Barter",
+    "pt": "Permuta"
+  },
+  "ledger.provisioning.payment_methods.dgii_card": {
+    "es": "Tarjeta de crédito o débito",
+    "en": "Credit or debit card",
+    "pt": "Cartão de crédito ou débito"
+  },
+  "ledger.provisioning.payment_methods.dgii_cash": {
+    "es": "Efectivo",
+    "en": "Cash",
+    "pt": "Dinheiro"
+  },
+  "ledger.provisioning.payment_methods.dgii_check_transfer": {
+    "es": "Cheque, transferencia o depósito",
+    "en": "Cheque, transfer or deposit",
+    "pt": "Cheque, transferência ou depósito"
+  },
+  "ledger.provisioning.payment_methods.dgii_credit": {
+    "es": "Compra a crédito",
+    "en": "Purchase on credit",
+    "pt": "Compra a prazo"
+  },
+  "ledger.provisioning.payment_methods.dgii_credit_note": {
+    "es": "Nota de crédito",
+    "en": "Credit note",
+    "pt": "Nota de crédito"
+  },
+  "ledger.provisioning.payment_methods.dgii_mixed": {
+    "es": "Mixto",
+    "en": "Mixed",
+    "pt": "Misto"
+  },
+  "ledger.provisioning.payment_methods.on_account": {
+    "es": "A crédito",
+    "en": "On account",
+    "pt": "A prazo"
+  },
+  "ledger.provisioning.payment_methods.pix": {
+    "es": "PIX",
+    "en": "PIX",
+    "pt": "PIX"
+  },
+  "ledger.provisioning.payment_methods.to_be_defined": {
+    "es": "Por definir",
+    "en": "To be defined",
+    "pt": "A definir"
+  },
+  "ledger.provisioning.payment_methods.wire": {
+    "es": "Transferencia cablegráfica",
+    "en": "Wire transfer",
+    "pt": "Transferência eletrônica (wire)"
+  },
+  "ledger.provisioning.payment_methods.zelle": {
+    "es": "Zelle",
+    "en": "Zelle",
+    "pt": "Zelle"
+  },
+  "ledger.provisioning.walk_in_customer": {
+    "es": "Cliente de mostrador",
+    "en": "Walk-in customer",
+    "pt": "Cliente de balcão"
   },
   "ledger.provisioning.warehouse.main": {
     "es": "Almacén principal",

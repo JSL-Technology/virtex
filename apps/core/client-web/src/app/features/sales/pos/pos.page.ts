@@ -8,8 +8,8 @@ import { LucideAngularModule, Search, X, Plus, Minus, Trash2, CreditCard, Shoppi
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Product } from '../../../core/models/product.model';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { InvoicesService } from '../../../core/services/invoices';
 import { InventoryService } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -34,7 +34,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-pos-page',
   standalone: true,
-  imports: [CommonModule, A11yModule, ReactiveFormsModule, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [CommonModule, A11yModule, ReactiveFormsModule, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './pos.page.html',
   styleUrls: ['./pos.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

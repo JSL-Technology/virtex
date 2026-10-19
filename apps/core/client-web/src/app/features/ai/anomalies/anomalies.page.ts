@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { LucideAngularModule, RefreshCw, Sparkles, ThumbsUp, ThumbsDown, RotateCcw } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { composeKey } from '@virteex/shared/types';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -55,7 +55,7 @@ const TRANSLATED_VALUES = new Set(['direction', 'reason', 'reasons', 'action', '
 @Component({
   selector: 'app-ai-anomalies-page',
   standalone: true,
-  imports: [FormsModule, ...VX_FORM_A11Y, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, VxBadgeComponent, HasPermissionDirective],
+  imports: [FormsModule, ...VX_FORM_A11Y, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, VxBadgeComponent, HasPermissionDirective],
   templateUrl: './anomalies.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './anomalies.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

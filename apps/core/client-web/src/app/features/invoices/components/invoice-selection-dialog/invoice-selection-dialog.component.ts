@@ -5,8 +5,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, X } from 'lucide-angular';
 import { InvoicesService, Invoice } from '../../../../core/services/invoices';
-import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
 import { VxAmountComponent } from '../../../../shared/components/amount';
@@ -20,7 +20,7 @@ import { VX_SORT, sortable } from '../../../../shared/components/sort';
     CommonModule,
     FormsModule,
     LucideAngularModule,
-    TranslatePipe,
+    TranslateModule,
     ...FORMAT_PIPES,
     VxDialogComponent,
     VxAmountComponent,

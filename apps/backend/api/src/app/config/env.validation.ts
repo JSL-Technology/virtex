@@ -384,6 +384,12 @@ export const envValidation = Joi.object({
     otherwise: Joi.string().email().required(),
   }),
   MAIL_FROM_NAME: devDefault('Virtex'),
+  /**
+   * Where customers write for help, shown on the public Contact page and in the legal texts
+   * (QA C-08). Optional: without it the page offers the sending address, which is the one inbox
+   * every deployment is already required to have.
+   */
+  SUPPORT_EMAIL: Joi.string().email().allow('').optional(),
   /** Implicit TLS (port 465). Port 587 upgrades with STARTTLS and must leave this false. */
   MAIL_SECURE: Joi.boolean().default(false),
   // Development only: where messages go when no SMTP server is configured (see mail/dev-outbox.ts).

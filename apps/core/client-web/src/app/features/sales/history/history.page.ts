@@ -5,8 +5,8 @@ import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@ang
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, FileDown } from 'lucide-angular';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { PosSale, PosService } from '../pos/pos.service';
@@ -33,7 +33,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-history-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, RouterLink, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, RouterLink, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './history.page.html',
   styleUrls: ['./history.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

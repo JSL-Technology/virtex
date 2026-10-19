@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
-import { AuthLayoutComponent } from '../auth-layout/auth-layout.component';
+import { AUTH_BACKGROUND_PHOTO, AuthLayoutComponent } from '../auth-layout/auth-layout.component';
 import { authContentAnimation } from './auth-shell.animations';
 
 /**
@@ -35,9 +35,8 @@ export class AuthShellComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  /** Fondo compartido por todas las puertas de entrada. */
-  readonly backgroundImage =
-    'assets/images/vibrant-liquid-wavy-background-3d-illustration-abstract-iridescent-fluid-render-neon-holographic-smooth-surface-with-colorful-interference-stylish-spectrum-flow-motion.jpg';
+  /** Fondo compartido por todas las puertas de entrada (también la confirmación del pago). */
+  readonly backgroundImage = AUTH_BACKGROUND_PHOTO;
 
   /**
    * Ancho de la lámina. Lo decide la ruta hija activa (`data.authWidth`): el

@@ -22,7 +22,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { ChevronDown, LucideAngularModule, Plus, RotateCcw, Search, X } from 'lucide-angular';
 import { EMPTY, Subject, Subscription, isObservable, merge, of, timer } from 'rxjs';
 import { catchError, debounce, map, switchMap, tap } from 'rxjs/operators';
@@ -104,7 +104,7 @@ function fold(text: string): string {
 @Component({
   selector: 'vx-select',
   standalone: true,
-  imports: [NgTemplateOutlet, ScrollingModule, TranslatePipe, LucideAngularModule],
+  imports: [NgTemplateOutlet, ScrollingModule, TranslateModule, LucideAngularModule],
   templateUrl: './select.component.html',
   styleUrls: ['./select.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

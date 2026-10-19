@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { requiredPermissionsFor } from '../../../core/modules/module-manifest';
 import { MODULES, buildMenu } from '../../../core/modules/module-registry';
 import { AuthService } from '../../../core/services/auth';
@@ -21,7 +21,7 @@ export interface ReportGroup {
 @Component({
   selector: 'app-reports-hub-page',
   standalone: true,
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslateModule],
   templateUrl: './reports-hub.page.html',
   styleUrls: ['./reports-hub.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

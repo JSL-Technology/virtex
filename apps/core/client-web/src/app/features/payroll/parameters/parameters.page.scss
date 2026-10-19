@@ -174,3 +174,20 @@
 
 /* Una fila fuera de vigencia sigue ahí porque explica una nómina pasada; se lee apagada. */
 .is-historic { opacity: 0.5; }
+
+/* ── Company parameters (QA C-06) ──────────────────────────────────── */
+.block { display: block; }
+.field--wide { grid-column: 1 / -1; }
+.brackets {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+.row-actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+.is-retired td { color: var(--content-secondary); }

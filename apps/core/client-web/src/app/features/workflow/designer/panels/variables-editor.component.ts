@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { LucideAngularModule, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-angular';
 import { VARIABLE_TYPES, WorkflowVariable, WorkflowVariableType } from '../../data/workflow.service';
@@ -18,7 +18,7 @@ export const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*){
 @Component({
   selector: 'app-workflow-variables-editor',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule],
+  imports: [TranslateModule, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inspector.scss',
   template: `

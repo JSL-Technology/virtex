@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { InvoicesListPage } from './list.page';
 import { InvoicesService, PaginatedInvoices } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';

@@ -1,3 +1,4 @@
+import { RecordDependents } from '../../../core/services/safe-delete.service';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -39,6 +40,11 @@ export class SuppliersService {
 
   updateSupplier(id: string, supplier: UpdateSupplierDto): Observable<Supplier> {
     return this.http.patch<Supplier>(`${this.apiUrl}/${id}`, supplier);
+  }
+
+  /** What still uses the supplier, so the delete can be refused before it is attempted. */
+  dependents(id: string): Observable<RecordDependents> {
+    return this.http.get<RecordDependents>(`${this.apiUrl}/${id}/dependents`);
   }
 
   deleteSupplier(id: string): Observable<void> {

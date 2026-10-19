@@ -171,6 +171,15 @@ export class CreateInvoiceDto {
   paymentMethod?: PaymentMethod;
 
   /**
+   * One of the company's payment methods (`ACH`, `ZELLE`, `01`), by code. When present it decides
+   * the settlement kind as well — see `InvoicesService.resolvePaymentMethod`.
+   */
+  @IsString()
+  @IsOptional()
+  @MaxLength(20, { message: 'validation.constraints.max_length|{"max":20}' })
+  paymentMethodCode?: string;
+
+  /**
    * Fiscal document type to issue, as the authority's own code.
    *
    * Absent, the market's adapter chooses — for the Dominican Republic, credit-fiscal or consumo

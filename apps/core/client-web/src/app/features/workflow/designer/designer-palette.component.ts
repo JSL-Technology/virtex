@@ -1,7 +1,8 @@
 import { composeKey } from '@virteex/shared/types';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { FFlowModule } from '@foblex/flow';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { ChevronDown, LucideAngularModule, Rows3, Search, X } from 'lucide-angular';
 import { NODE_ICONS, nodeTypeKey } from '../data/workflow-labels';
 import { WorkflowGraphNode, WorkflowNodeType } from '../data/workflow.service';
@@ -32,7 +33,7 @@ const CATEGORY_ORDER: PaletteCategory[] = ['people', 'logic', 'automation', 'flo
 @Component({
   selector: 'app-workflow-designer-palette',
   standalone: true,
-  imports: [FFlowModule, TranslatePipe, LucideAngularModule],
+  imports: [FFlowModule, TranslateModule, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './designer-palette.component.scss',
   template: `

@@ -9,7 +9,8 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Mail, CheckCircle, AlertCircle, Loader } from 'lucide-angular';
 import { ReCaptchaV3Service, RecaptchaV3Module } from 'ng-recaptcha-19';
 import { recaptchaToken$ } from '../../../../../core/auth/recaptcha-token';
@@ -21,7 +22,7 @@ import { NotificationService } from '../../../../../core/services/notification';
 @Component({
   selector: 'app-step-email-verify',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, LucideAngularModule, OtpComponent, RecaptchaV3Module],
+  imports: [CommonModule, TranslateModule, LucideAngularModule, OtpComponent, RecaptchaV3Module],
   templateUrl: './step-email-verify.html',
   styleUrls: ['./step-email-verify.scss'],
 })

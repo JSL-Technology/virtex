@@ -3,10 +3,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { ActivityItem, OverviewService } from '../../../overview/overview.service';
-import { FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FormatService } from '@virteex/shared/ui-i18n';
 import { VxEmptyStateComponent } from '../../../../shared/components/feedback';
 
 /**
@@ -24,7 +24,7 @@ import { VxEmptyStateComponent } from '../../../../shared/components/feedback';
 @Component({
   selector: 'app-recent-activity',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslatePipe, VxEmptyStateComponent],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, VxEmptyStateComponent],
   templateUrl: './recent-activity.html',
   styleUrls: ['./recent-activity.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

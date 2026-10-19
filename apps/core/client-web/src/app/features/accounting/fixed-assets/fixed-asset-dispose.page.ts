@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, si
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { Observable, map, startWith } from 'rxjs';
-import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxDateFieldComponent } from '../../../shared/components/date';
@@ -42,7 +42,7 @@ export function carryingOnDisposal(asset: FixedAsset, schedule: FixedAssetSchedu
 @Component({
   selector: 'app-fixed-asset-dispose-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, VxDateFieldComponent, VxAmountComponent],
+  imports: [ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, VxDateFieldComponent, VxAmountComponent],
   templateUrl: './fixed-asset-dispose.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

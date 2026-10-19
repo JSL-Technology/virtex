@@ -34,6 +34,8 @@ export class VxSortDirective {
       align-items: center;
       gap: var(--space-1);
       max-width: 100%;
+      /* A header is a button: 24px tall at least (WCAG 2.5.8, QA M-09). */
+      min-height: 24px;
       padding: 0;
       border: 0;
       background: transparent;

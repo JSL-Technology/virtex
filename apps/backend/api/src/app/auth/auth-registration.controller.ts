@@ -50,6 +50,18 @@ import { BadRequestError, ForbiddenError, UnauthorizedError } from '../i18n/loca
  * Split out of `AuthController`; every route keeps its exact guards and throttles.
  * `@AllowInactiveSubscription` so a lapsed tenant can still open a checkout and pay.
  */
+/** The subscription a signup produced, as the post-checkout screen describes it. */
+export interface SignupSubscriptionSummary {
+  status: string | null;
+  /** True while nothing has been charged yet. */
+  trial: boolean;
+  /** When the trial (or the first paid period) ends, ISO 8601. */
+  currentPeriodEnd: string | null;
+  planSlug: string | null;
+  /** The length of the trial the plan grants, so the screen can say "your 30-day trial". */
+  trialDays: number | null;
+}
+
 @ApiTags('Auth')
 @AllowInactiveSubscription()
 @Controller('auth')
@@ -81,11 +93,23 @@ export class AuthRegistrationController {
   async registerCheckout(
     @Body() dto: RegisterCheckoutDto,
     @Res({ passthrough: true }) res: Response,
+    @Ip() ip: string,
+    @Headers('user-agent') userAgent: string | undefined,
   ): Promise<{ url: string | null }> {
     const { plan, priceId } = await this.resolvePlanPrice(dto.planId, dto.billingPeriod);
 
     // Validate everything and stash a pending registration. NO account yet.
-    const pending = await this.authFacade.createPendingRegistration(dto, plan.slug);
+    //
+    // The acceptance of the Terms and the Privacy policy travels with it (QA C-07): the editions
+    // the person saw, from the body, and when and from where they accepted, from the request —
+    // never from the body, where the applicant could write whatever they liked.
+    const pending = await this.authFacade.createPendingRegistration(dto, plan.slug, {
+      termsVersion: dto.termsVersion,
+      privacyVersion: dto.privacyVersion,
+      acceptedAt: new Date(),
+      ipAddress: ip ?? null,
+      userAgent: userAgent ?? null,
+    });
     if (!pending) {
       // Honeypot hit — respond as if it succeeded, without a real session.
       return { url: null };
@@ -202,7 +226,7 @@ export class AuthRegistrationController {
     @Res({ passthrough: true }) res: Response,
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string
-  ): Promise<AuthResponseDto> {
+  ): Promise<AuthResponseDto & { subscription: SignupSubscriptionSummary }> {
     // Proof that this browser is the one that started the checkout.
     //
     // Without it the Stripe `session_id` alone minted a full owner session — and that id reaches
@@ -250,9 +274,40 @@ export class AuthRegistrationController {
     // Single use: the transaction has served its purpose and must not be replayable.
     this.cookieService.clearRegistrationTransactionCookie(res);
 
+    const trial = session.subscriptionStatus === 'trialing' || session.paymentStatus === 'no_payment_required';
+
     return {
       user: plainToInstance(UserResponseDto, safeUser, { excludeExtraneousValues: true }),
+      // What the person just agreed to pay, so the landing screen can say it truthfully (QA A-11).
+      // A trial is "nothing is charged until <date>", not "payment confirmed": no payment was
+      // taken, and telling somebody who was promised a free trial that they were charged is the
+      // fastest way to a chargeback.
+      subscription: {
+        status: session.subscriptionStatus ?? null,
+        trial,
+        currentPeriodEnd: session.currentPeriodEnd ? session.currentPeriodEnd.toISOString() : null,
+        planSlug: session.planSlug ?? null,
+        trialDays: trial ? await this.trialDaysFor(session.planSlug ?? null) : null,
+      },
     };
+  }
+
+  /**
+   * The trial length the plan grants — the same figure the checkout was opened with.
+   *
+   * Best effort: the account already exists by the time this is asked, so a catalogue that cannot
+   * be read only costs the screen the number ("your trial is active" instead of "your 30-day
+   * trial is active"), never the confirmation.
+   */
+  private async trialDaysFor(planSlug: string | null): Promise<number | null> {
+    if (!planSlug) return null;
+    try {
+      const plan = (await this.saasService.getPlans()).find((p) => p.slug === planSlug);
+      const days = plan?.trialPeriodDays ?? null;
+      return days && days > 0 ? days : null;
+    } catch {
+      return null;
+    }
   }
 
   @Public()

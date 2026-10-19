@@ -21,12 +21,12 @@ import {
   HandCoins,
   Ellipsis,
 } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 @Component({
   selector: 'app-invoice-toolbar',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './invoice-toolbar.component.html',
   styleUrls: ['./invoice-toolbar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

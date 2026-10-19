@@ -18,6 +18,7 @@ import { TokenService } from './services/token.service';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { TwoFactorAuthService } from './services/two-factor-auth.service';
 import { PasswordService } from './services/password.service';
+import { AccountUnlockService } from './services/account-unlock.service';
 import {
   AuthAccountLockedEvent,
   AuthEvents,
@@ -33,7 +34,7 @@ import { SINGLE_USE_SCOPES, StepUpClaims, StepUpScope, carriedGrants, stepUpCove
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { OidcProviderService } from './services/oidc-provider.service';
 import { AtomicCacheService } from '../cache/atomic-cache.service';
-import { BadRequestError, ForbiddenError, UnauthorizedError } from '../i18n/localized.exception';
+import { BadRequestError, ForbiddenError, LockedError, UnauthorizedError } from '../i18n/localized.exception';
 
 export type LoginResult = LoginResultDto;
 
@@ -75,6 +76,7 @@ export class AuthService extends SessionSwitchPort {
     private readonly oidcProviderService: OidcProviderService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly atomicCache: AtomicCacheService,
+    private readonly accountUnlockService: AccountUnlockService,
     // The narrow port, not OrgSettingsService: `auth` must not depend on `organizations`.
   ) { super(); }
 
@@ -103,9 +105,10 @@ export class AuthService extends SessionSwitchPort {
     // on the one control whose entire job is to stop online guessing. The lockout did not stop
     // the attacker guessing; it told them when they had won, and they simply waited it out.
     //
-    // An account that is locked now answers EXACTLY as a wrong password does, at the same cost,
-    // whatever the password was. A rejection therefore carries one bit — "not signed in" — and
-    // that bit is the same one it has always carried.
+    // A locked account answers a WRONG password exactly as an unlocked one does. With the RIGHT
+    // password it now says so, and for how long (QA C-09): the owner was being told their
+    // password was wrong while it was right, reset it, and was still locked out. See
+    // `assertNotLockedOut` for why that disclosure is accepted and what bounds it.
     // ------------------------------------------------------------------------------------
     const isLockedOut = Boolean(
       user?.security?.lockoutUntil && new Date() < user.security.lockoutUntil,
@@ -121,7 +124,13 @@ export class AuthService extends SessionSwitchPort {
 
     if (!user || !isPasswordValid) {
           if (user) {
-              await this.securityAnalysisService.handleFailedLoginAttempt(user);
+              const { lockedNow } = await this.securityAnalysisService.handleFailedLoginAttempt(user);
+              // This attempt is the one that locked the account: tell the owner, at the address on
+              // the account, and give them a way back in that does not involve waiting (QA C-09).
+              // Not awaited into the reply's timing: the email is queued either way.
+              if (lockedNow) {
+                  await this.accountUnlockService.notifyLocked(user, { force: true });
+              }
               this.eventEmitter.emit(
                   AuthEvents.LOGIN_FAILED,
                   new AuthLoginFailedEvent(user.id, user.email, 'Invalid Credentials', ipAddress, userAgent, correlationId)
@@ -229,33 +238,30 @@ export class AuthService extends SessionSwitchPort {
   }
 
   /**
-   * Refuse a locked account WITHOUT telling the caller that is why.
+   * Refuse a locked account that presented the CORRECT password — and say why (QA C-09).
    *
-   * ## What this closes
+   * ## What changed, and the trade-off it makes
    *
-   * The lockout used to answer `AUTH_USER_BLOCKED` plus `meta.lockoutUntil` to a caller holding
-   * the correct password, and `AUTH_INVALID_CREDENTIALS` to one holding a wrong one — and only
-   * the second paid `simulateDelay()`. So the control that exists to stop online guessing
-   * announced the winning guess, in the body and in the latency, and the attacker only had to
-   * wait out the window it had just disclosed to them.
+   * This used to answer exactly as a wrong password does, so the lockout would not confirm a
+   * correct guess. The cost of that uniformity fell entirely on the legitimate owner: told
+   * "incorrect email or password" with the right password, they reset it — which changes nothing
+   * while the lock holds — and were still refused. Support tickets and abandoned accounts were the
+   * result, and the QA run reproduced it on the first try.
    *
-   * ## Why it does the failed-attempt write too
+   * The reply now names the lockout and the minutes remaining, but ONLY to a caller that has just
+   * proven the password. What that discloses is "this password is right", to somebody who has the
+   * password. It is bounded by what bounds guessing in the first place:
    *
-   * Uniformity has to hold in work as well as in words. The wrong-password branch performs an
-   * `UPDATE` on `user_security` before its delay; skipping it here would leave a residual timing
-   * difference of exactly one database round-trip between "right password" and "wrong password",
-   * which is the same oracle at a smaller amplitude.
+   *   - wrong passwords still get the generic reply, still count, and still slide the lock, so
+   *     the lockout keeps capping the guessing rate exactly as before;
+   *   - the per-IP throttler on `/auth/login` is unchanged;
+   *   - the owner is emailed the moment the lock engages, at the address on the account — so a
+   *     guessing run that reaches the right password is announced to the one person who can act
+   *     on it (the email offers a password reset for exactly that case);
+   *   - `ACCOUNT_LOCKED` with `credentialsWereValid: true` is still recorded for the operator.
    *
-   * Counting it is also correct on its own terms rather than only convenient: while the account
-   * is locked NO password authenticates it, so an attempt made now has failed, and a lockout that
-   * slides on continued attempts is the documented behaviour of the control. It cannot be used to
-   * keep a victim locked out any longer than an attacker could already keep them locked out by
-   * sending wrong passwords, which is the same budget the throttler bounds.
-   *
-   * ## How the owner finds out
-   *
-   * Through `ACCOUNT_LOCKED`, which carries `lockoutUntil` inside the process to a channel that
-   * reaches the address on the account. Whoever is guessing is not that address.
+   * A valid-password attempt does NOT add to the failed count any more: it did not fail, and
+   * counting it slid the lock forward every time the owner checked whether it had expired.
    */
   private async assertNotLockedOut(
     user: User,
@@ -265,8 +271,6 @@ export class AuthService extends SessionSwitchPort {
     correlationId?: string,
   ): Promise<void> {
     if (!isLockedOut) return;
-
-    await this.securityAnalysisService.handleFailedLoginAttempt(user);
 
     this.eventEmitter.emit(
       AuthEvents.LOGIN_FAILED,
@@ -285,9 +289,21 @@ export class AuthService extends SessionSwitchPort {
       ),
     );
 
-    await this.simulateDelay();
-    // Byte for byte what a wrong password returns: no `meta`, no `lockoutUntil`, no distinct code.
-    throw new AuthException(AuthError.INVALID_CREDENTIALS);
+    // The owner is at the keyboard: make sure the unlock link is in their inbox. Throttled inside
+    // the service, so retrying the form does not flood it.
+    await this.accountUnlockService.notifyLocked(user);
+
+    const lockoutUntil = user.security?.lockoutUntil ?? null;
+    const minutes = AccountUnlockService.minutesRemaining(lockoutUntil) || 1;
+    const retryAfterSeconds = lockoutUntil
+      ? Math.max(1, Math.ceil((lockoutUntil.getTime() - Date.now()) / 1000))
+      : 60;
+
+    throw new LockedError(
+      'auth.account_temporarily_locked',
+      { minutes, retryAfterSeconds },
+      'AUTH_ACCOUNT_TEMPORARILY_LOCKED',
+    );
   }
 
   async refreshAccessToken(token: string, ipAddress?: string, userAgent?: string) {

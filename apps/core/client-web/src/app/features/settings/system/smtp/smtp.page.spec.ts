@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../../core/services/notification';
 import { MailSettings, SmtpSettingsPage } from './smtp.page';
 

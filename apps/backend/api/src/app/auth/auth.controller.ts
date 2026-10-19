@@ -18,6 +18,8 @@ import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { Public } from '../security/decorators/public.decorator';
 import { AuthenticatedUser } from '../security/principal';
 import { PasswordRecoveryService } from './services/password-recovery.service';
+import { AccountUnlockService } from './services/account-unlock.service';
+import { UnlockAccountDto } from './dto/unlock-account.dto';
 import { CookieService } from './services/cookie.service';
 import { KeyManagementService } from './services/key-management.service';
 import {
@@ -71,6 +73,7 @@ export class AuthController {
     private readonly cookieService: CookieService,
     private readonly auditTrailService: AuditTrailService,
     private readonly keyManagementService: KeyManagementService,
+    private readonly accountUnlockService: AccountUnlockService,
   ) {}
 
   @Public()
@@ -386,5 +389,23 @@ export class AuthController {
     // Return only whitelisted fields — never expose security entity (passwordHash,
     // twoFactorSecret, backupCodes, etc.) regardless of what the ORM loaded.
     return plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true });
+  }
+
+  /**
+   * Lift a sign-in lockout with the link e-mailed to the owner (QA C-09).
+   *
+   * Public, like reset-password, and for the same reason: the person is locked out, so they have
+   * no session and no XSRF cookie; the 256-bit single-use token is the proof. It signs nobody in
+   * and changes no credential — it only gives back the attempts the lockout took away.
+   */
+  @Public()
+  @Post('unlock-account')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe())
+  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
+  @ApiOperation({ summary: 'Lift a sign-in lockout using the emailed single-use link' })
+  async unlockAccount(@Body() dto: UnlockAccountDto) {
+    await this.accountUnlockService.unlock(dto.token);
+    return { messageKey: 'auth.account_unlocked' };
   }
 }

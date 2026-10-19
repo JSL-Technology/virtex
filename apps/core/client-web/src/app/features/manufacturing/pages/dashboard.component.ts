@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 /**
  * What this module will do, said in the reader's language.
@@ -13,7 +13,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 @Component({
   selector: 'app-manufacturing-dashboard',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="roadmap">

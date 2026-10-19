@@ -1,3 +1,6 @@
+import { LanguageService } from '../../core/services/language';
+import { ThemeService } from '../../core/services/theme';
+import { SearchResultTextService } from '../../core/services/search-result-text.service';
 import { RoleNamePipe } from '../../shared/pipes/role-name.pipe';
 // ../app/layout/main/main.layout.ts
 
@@ -80,12 +83,11 @@ import {
   Lightbulb, // ✅ Sugerir una mejora
   Sparkles, // Copiloto
   Star, // ✅ Dejar una valoración
-  ChevronLeft, // ✅ Indicador del submenú de Feedback (se abre a la izquierda)
   Minus, // ✅ Control de ventana: minimizar (escritorio)
   Square, // ✅ Control de ventana: maximizar (escritorio)
   Copy, // ✅ Control de ventana: restaurar, dos cuadros superpuestos (escritorio)
 } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { Sidebar } from '../sidebar/sidebar';
 import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive'; // ✅ Directiva añadida
 import { CompanySwitcherComponent } from './components/company-switcher/company-switcher.component';
@@ -95,7 +97,7 @@ import { TabPersistenceService } from '../../core/tabs/tab-persistence.service';
 import { TabKeyboardService } from '../../core/tabs/tab-keyboard.service';
 import { TabRouterService } from '../../core/tabs/tab-router.service';
 import { DialogHostComponent } from '../../shared/components/dialog-host/dialog-host.component';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { StatusBarComponent } from '../status-bar/status-bar.component';
 import { ModuleRailComponent } from '../module-rail/module-rail.component';
 import { DesktopWindowService } from '../../core/windows/desktop-window.service';
@@ -119,7 +121,7 @@ import { resolveRoute } from '../../core/modules/module-registry';
     RouterLink,
     ThemeToggle,
     LucideAngularModule,
-    TranslatePipe,
+    TranslateModule,
     Sidebar,
     ClickOutsideDirective,
     SettingsModalComponent,
@@ -235,6 +237,12 @@ export class MainLayout implements OnInit {
   //  estamos ahí, en qué sistema, y ejecuta las acciones de ventana.
   readonly desktop = inject(DesktopWindowService);
   private searchService = inject(SearchService);
+  /** Result text shared with the search page, so invoices read the same in both (QA A-19). */
+  protected readonly searchText = inject(SearchResultTextService);
+  /** Language and theme in the user menu (QA M-10). */
+  protected readonly languageService = inject(LanguageService);
+  protected readonly themeService = inject(ThemeService);
+  protected readonly THEME_MODES = ['light', 'dark', 'system'] as const;
   protected readonly router = inject(Router);
   private readonly location = inject(Location);
 
@@ -384,7 +392,6 @@ export class MainLayout implements OnInit {
   protected readonly BugIcon = Bug;
   protected readonly LightbulbIcon = Lightbulb;
   protected readonly StarIcon = Star;
-  protected readonly ChevronLeftIcon = ChevronLeft;
   protected readonly MinimizeIcon = Minus; // Control de ventana
   protected readonly MaximizeIcon = Square; // Control de ventana
   protected readonly RestoreIcon = Copy; // Control de ventana (maximizada)
@@ -608,8 +615,8 @@ export class MainLayout implements OnInit {
     if (this.shortcuts.capturing()) return;
 
     // Global application shortcuts (open search/settings/help, navigate history…). Handled before
-    // the typing gate so ⌘, or ⌘E work even from inside a field — they all carry a modifier, so
-    // they can never be a character the reader meant to type.
+    // the typing gate so ⌘K or ⌘. work even from inside a field. The service itself keeps an
+    // Alt+Shift chord from firing while typing (QA A-14); one with Ctrl/⌘ is never a character.
     if (this.handleAppShortcut(event)) return;
 
     if (this.isTypingContext(event.target)) return;

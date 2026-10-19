@@ -39,6 +39,7 @@ import {
 } from '../fiscal/coa-builder';
 import { InternalServerError, NotFoundError } from '../../i18n/localized.exception';
 import { fiscalLabelKey } from '../fiscal/fiscal-label-keys';
+import { STRUCTURAL_CHECKS } from '../fiscal/document-checksums';
 import { I18nService } from '../../i18n/i18n.service';
 import { currentLanguage } from '../../i18n/request-locale';
 
@@ -311,7 +312,9 @@ export class LocalizationService extends LocalizationProvisioningPort implements
         : 'ID',
       taxIdExample: fiscalId?.example ?? '',
       taxIdPattern: fiscalId?.pattern ?? '',
-      taxIdHasCheckDigit: fiscalId ? fiscalId.checksum !== null : false,
+      // A named check is a check DIGIT only when it is one; the EIN's issuer-prefix test is not
+      // (QA A-12), and the form must not claim otherwise.
+      taxIdHasCheckDigit: fiscalId?.checksum ? !STRUCTURAL_CHECKS.has(fiscalId.checksum) : false,
       identityDocumentTypes,
       // Derived from the catalogue rather than from the profile's own optional field, which was
       // populated in two of nineteen markets. A country that issues a distinct document to natural

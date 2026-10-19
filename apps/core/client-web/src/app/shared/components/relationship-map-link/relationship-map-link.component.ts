@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Share2 } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
@@ -27,7 +27,7 @@ export function relationshipMapPath(type: string, id: string): string {
 @Component({
   selector: 'vx-relationship-map-link',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule],
+  imports: [TranslateModule, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./relationship-map-link.component.scss'],
   template: `

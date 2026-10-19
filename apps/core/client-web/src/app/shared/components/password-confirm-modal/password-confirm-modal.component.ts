@@ -2,7 +2,7 @@ import { Component, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Shield, AlertCircle, KeyRound } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDialogComponent } from '../dialog';
 import { VxSpinnerComponent } from '../feedback';
@@ -33,7 +33,7 @@ export type StepUpFactor = 'password' | 'otp' | 'sso' | 'none';
     CommonModule,
     FormsModule,
     LucideAngularModule,
-    TranslatePipe,
+    TranslateModule,
     VxDialogComponent,
     VxSpinnerComponent,
     ...VX_FORM_A11Y,

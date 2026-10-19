@@ -144,6 +144,38 @@
     margin: 0;
 }
 
+.field-hint {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+// País: bandera + selector (+ candado cuando el paquete fiscal ya lo fija). El
+// selector sigue siendo nativo; la bandera y el candado se dibujan encima.
+.country-select {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    app-country-flag {
+        position: absolute;
+        left: 0.75rem;
+        pointer-events: none;
+    }
+
+    select {
+        width: 100%;
+        padding-left: 2.75rem;
+    }
+
+    .country-lock {
+        position: absolute;
+        right: 2.25rem;
+        color: var(--text-tertiary);
+        pointer-events: none;
+    }
+}
+
 // ──────────────────────────────────────────────
 // Shared classes re-exported for dependent pages
 // ──────────────────────────────────────────────

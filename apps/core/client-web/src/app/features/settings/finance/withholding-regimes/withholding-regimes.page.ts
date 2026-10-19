@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FiscalSettingsService,
@@ -16,7 +16,7 @@ import {
   WithholdingRegime,
 } from '../../../../core/api/fiscal-settings.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
@@ -38,7 +38,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-withholding-regimes-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './withholding-regimes.page.html',
   styleUrls: ['./withholding-regimes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { Banknote, LucideAngularModule } from 'lucide-angular';
 import { Observable } from 'rxjs';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxPagerComponent } from '../../../shared/components/pager';
@@ -42,7 +42,7 @@ export const PAYMENT_TONE: Record<PaymentBatchStatus, VxTone> = {
   imports: [
     FormsModule,
     RouterLink,
-    TranslatePipe,
+    TranslateModule,
     LucideAngularModule,
     ...FORMAT_PIPES,
     ...VX_SELECT,

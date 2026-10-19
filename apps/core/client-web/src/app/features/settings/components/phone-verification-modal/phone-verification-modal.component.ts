@@ -2,7 +2,7 @@
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, signal, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Phone, Check } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth';
 import { NotificationService } from '../../../../core/services/notification';
@@ -14,7 +14,7 @@ import { VxSpinnerComponent } from '../../../../shared/components/feedback';
 @Component({
   selector: 'app-phone-verification-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, LucideAngularModule, IntlPhoneInputComponent, ...VX_FORM_A11Y, VxDialogComponent, VxSpinnerComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, LucideAngularModule, IntlPhoneInputComponent, ...VX_FORM_A11Y, VxDialogComponent, VxSpinnerComponent],
   templateUrl: './phone-verification-modal.component.html',
   styleUrls: ['./phone-verification-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

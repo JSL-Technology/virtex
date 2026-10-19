@@ -1,0 +1,102 @@
+<div class="picker">
+  <header class="auth-head">
+    <h1 class="auth-title">{{ 'auth.country_picker.title' | translate }}</h1>
+    <p class="auth-subtitle">{{ 'auth.country_picker.subtitle' | translate }}</p>
+  </header>
+
+  @if (unsupported(); as code) {
+    <div class="notice-alert" role="status">
+      <lucide-icon [img]="AlertCircleIcon" size="16"></lucide-icon>
+      <span>{{ 'auth.country_picker.not_served_named' | translate: { country: nameOf(code) } }}</span>
+    </div>
+  }
+
+  @if (failedCountry(); as code) {
+    <div class="notice-alert" role="status">
+      <lucide-icon [img]="AlertCircleIcon" size="16"></lucide-icon>
+      <span>{{ 'auth.country_picker.config_failed' | translate: { country: nameOf(code) } }}</span>
+    </div>
+  }
+
+  @switch (state()) {
+    @case ('loading') {
+      <p class="picker-status" role="status">{{ 'auth.country_picker.loading' | translate }}</p>
+    }
+    @case ('failed') {
+      <div class="error-alert" role="alert">
+        <lucide-icon [img]="AlertCircleIcon" size="16"></lucide-icon>
+        <span>{{ 'auth.country_picker.load_failed' | translate }}</span>
+      </div>
+      <app-auth-button type="button" variant="outline" (clicked)="retry()">
+        <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
+        {{ 'common.retry' | translate }}
+      </app-auth-button>
+    }
+    @case ('ready') {
+      @if (suggested(); as s) {
+        <button type="button" class="country country--suggested" (click)="choose(s.code)">
+          <app-country-flag [country]="s.code"></app-country-flag>
+          <span class="country-name">{{ s.name }}</span>
+          <span class="country-badge">{{ 'auth.country_picker.suggested' | translate }}</span>
+        </button>
+      }
+
+      <ul class="country-grid" [attr.aria-label]="'auth.country_picker.available' | translate">
+        @for (c of choices(); track c.code) {
+          @if (c.code !== suggested()?.code) {
+            <li>
+              <button type="button" class="country" (click)="choose(c.code)">
+                <app-country-flag [country]="c.code"></app-country-flag>
+                <span class="country-name">{{ c.name }}</span>
+              </button>
+            </li>
+          }
+        }
+      </ul>
+    }
+  }
+
+  <!-- ── «Aún no estamos en tu país» ───────────────────────────────────── -->
+  <section class="waitlist" [class.waitlist--prominent]="visitorNotServed()">
+    <h2 class="waitlist-title">
+      <lucide-icon [img]="BellIcon" size="16"></lucide-icon>
+      {{ 'auth.country_picker.waitlist_title' | translate }}
+    </h2>
+    <p class="waitlist-text">{{ 'auth.country_picker.waitlist_text' | translate }}</p>
+
+    @if (waitlistState() === 'done') {
+      <p class="waitlist-done" role="status">
+        <lucide-icon [img]="CheckIcon" size="16"></lucide-icon>
+        {{ 'legal.waitlist.joined' | translate }}
+      </p>
+    } @else {
+      <form class="waitlist-form" (ngSubmit)="joinWaitlist()" novalidate>
+        <label class="waitlist-field">
+          <span>{{ 'auth.country_picker.waitlist_country' | translate }}</span>
+          <select name="waitlistCountry" [(ngModel)]="waitlistCountry" required>
+            <option value="">{{ 'register.select' | translate }}</option>
+            @for (o of waitlistOptions(); track o.code) {
+              <option [value]="o.code">{{ o.name }}</option>
+            }
+          </select>
+        </label>
+        <label class="waitlist-field">
+          <span>{{ 'auth.country_picker.waitlist_email' | translate }}</span>
+          <input type="email" name="waitlistEmail" autocomplete="email" [(ngModel)]="waitlistEmail" required
+                 [placeholder]="'login.name_company_com' | translate">
+        </label>
+        @if (waitlistState() === 'error' && waitlistError()) {
+          <p class="waitlist-error" role="alert">{{ waitlistError() }}</p>
+        }
+        <app-auth-button type="submit" variant="outline" [loading]="waitlistState() === 'sending'">
+          {{ 'auth.country_picker.waitlist_submit' | translate }}
+        </app-auth-button>
+      </form>
+    }
+  </section>
+</div>
+
+<p class="cross-link">
+  {{ 'register.has_account' | translate }}
+  <a [routerLink]="['/', language.currentLang(), 'auth', 'login']">{{ 'register.login_link' | translate }}</a>
+</p>

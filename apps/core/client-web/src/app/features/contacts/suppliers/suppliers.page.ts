@@ -6,7 +6,8 @@ import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2, 
 import { Supplier } from '../../../core/models/supplier.model';
 import { SuppliersService } from '../../../core/api/suppliers.service';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslatePipe } from '@ngx-translate/core';
+import { SafeDeleteService } from '../../../core/services/safe-delete.service';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
@@ -14,7 +15,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 
 @Component({
   selector: 'app-suppliers-page',
-  imports: [HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslatePipe, ListShellComponent],
+  imports: [HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './suppliers.page.html',
   styleUrls: ['./suppliers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,6 +31,7 @@ export class SuppliersPage implements OnInit {
 
   private suppliersService = inject(SuppliersService);
   private notificationService = inject(NotificationService);
+  private readonly safeDelete = inject(SafeDeleteService);
 
   suppliers = signal<Supplier[]>([]);
   isLoading = signal<boolean>(true);
@@ -52,23 +54,24 @@ export class SuppliersPage implements OnInit {
     });
   }
 
-  async deleteSupplier(id: string): Promise<void> {
-    const confirmed = await this.dialog.confirm({
-      title: 'dialog.delete_supplier.title',
-      message: 'dialog.delete_supplier.message',
-      confirmText: 'common.delete',
-      variant: 'danger',
+  /**
+   * Deleting asks first what still uses the supplier (QA A-08). Suppliers have no inactive state,
+   * so one that bills or orders name is explained, not offered a delete that would fail.
+   */
+  async deleteSupplier(supplier: Supplier): Promise<void> {
+    const outcome = await this.safeDelete.run({
+      name: supplier.name,
+      check: () => this.suppliersService.dependents(supplier.id),
+      remove: () => this.suppliersService.deleteSupplier(supplier.id),
+      keys: {
+        confirmTitle: 'dialog.delete_supplier.title',
+        confirmMessage: 'dialog.delete_supplier.message_named',
+        deleted: 'contacts.suppliers.supplier_deleted',
+        deleteFailed: 'contacts.suppliers.supplier_could_not_deleted',
+        blockedTitle: 'contacts.suppliers.delete_blocked_title',
+        blockedMessage: 'contacts.suppliers.delete_blocked_message',
+      },
     });
-    if (confirmed) {
-      this.suppliersService.deleteSupplier(id).subscribe({
-        next: () => {
-          this.notificationService.showSuccess('contacts.suppliers.supplier_deleted');
-          this.loadSuppliers();
-        },
-        error: () => {
-          this.notificationService.showError('contacts.suppliers.supplier_could_not_deleted');
-        }
-      });
-    }
+    if (outcome !== 'cancelled') this.loadSuppliers();
   }
 }

@@ -20,6 +20,7 @@ module.exports = {
     // bundle imports `dockview`, which declares a CommonJS `main` and resolves on its own.
     '^dockview-angular$':
       '<rootDir>/../../../node_modules/dockview-angular/dist/fesm2022/dockview-angular.mjs',
+    '^dockview$': '<rootDir>/../../../node_modules/dockview/dist/package/main.esm.mjs',
   },
   // Transform the ESM-only dependencies as well as anything ending in .mjs.
   transformIgnorePatterns: ['node_modules/(?!(dockview-angular|dockview|dockview-core)/|.*\\.mjs$)'],

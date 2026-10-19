@@ -90,9 +90,9 @@
 
 .rail__label {
   //  9px truncado con «…» era doblemente ilegible: ni se leía el tamaño ni el
-  //  nombre completo («Contabili…», «Administr…»). 10px y hasta DOS líneas —una
-  //  etiqueta recortada no cumple su única función, que es nombrar el módulo.
-  font-size: 0.625rem;
+  //  nombre completo («Contabili…», «Administr…»). 12px —el mínimo legible del sistema, QA M-09—
+  //  y hasta DOS líneas: una etiqueta recortada no cumple su única función, que es nombrar el módulo.
+  font-size: var(--text-xs);
   line-height: 1.1;
   font-weight: var(--font-medium);
   text-align: center;
@@ -131,7 +131,7 @@
   //  distintivo se pintaba sin fondo. `--error-on-solid` garantiza el contraste en ambos temas.
   background-color: var(--error-solid);
   color: var(--error-on-solid);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
   line-height: 18px;
   text-align: center;

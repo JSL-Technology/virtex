@@ -1,8 +1,8 @@
 import { composeKey } from '@virteex/shared/types';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES, FormatService, LocaleStore, translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES, FormatService, LocaleStore, translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { Ban, ExternalLink, LucideAngularModule, Pause, Play, RefreshCw, RotateCcw } from 'lucide-angular';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { AuthService } from '../../../core/services/auth';
@@ -65,7 +65,7 @@ interface TimelineEntry {
 @Component({
   selector: 'app-workflow-instance-page',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule, RouterLink, ...FORMAT_PIPES, ...VX_UI, WorkflowCanvasComponent],
+  imports: [TranslateModule, LucideAngularModule, RouterLink, ...FORMAT_PIPES, ...VX_UI, WorkflowCanvasComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './workflow-instance.page.html',
   styleUrl: './workflow-instance.page.scss',

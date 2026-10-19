@@ -212,32 +212,46 @@ export class SecurityAnalysisService {
    * and the lockout is applied in the same statement so there is no window between passing the
    * threshold and being locked.
    */
-  async handleFailedLoginAttempt(user: User) {
-    if (!user.security) return;
+  async handleFailedLoginAttempt(user: User): Promise<{ lockedNow: boolean }> {
+    if (!user.security) return { lockedNow: false };
 
     const maxAttempts = AuthConfig.MAX_FAILED_ATTEMPTS;
     const lockoutMs = AuthConfig.LOCKOUT_DURATION;
 
-    const [updated] = returnedRows<{ failed_login_attempts: number; lockout_until: string | null }>(await this.userSecurityRepository.query(
+    // `was_locked` is read from the row as it was BEFORE this statement (the `FROM` subquery sees
+    // the pre-update snapshot), so the caller can tell the attempt that ENGAGED the lock from the
+    // ones made while it was already on. Only the first deserves an email to the owner (QA C-09);
+    // the rest are the same lockout continuing.
+    const [updated] = returnedRows<{
+      failed_login_attempts: number;
+      lockout_until: string | null;
+      was_locked: boolean;
+    }>(await this.userSecurityRepository.query(
       `
-      UPDATE "user_security"
-         SET "failed_login_attempts" = "failed_login_attempts" + 1,
+      UPDATE "user_security" us
+         SET "failed_login_attempts" = us."failed_login_attempts" + 1,
              "lockout_until" = CASE
-               WHEN "failed_login_attempts" + 1 >= $2 THEN now() + ($3 || ' milliseconds')::interval
-               ELSE "lockout_until"
+               WHEN us."failed_login_attempts" + 1 >= $2 THEN now() + ($3 || ' milliseconds')::interval
+               ELSE us."lockout_until"
              END
-       WHERE "id" = $1
-       RETURNING "failed_login_attempts", "lockout_until"
+        FROM (
+          SELECT "id", ("lockout_until" IS NOT NULL AND "lockout_until" > now()) AS was_locked
+            FROM "user_security" WHERE "id" = $1
+        ) prev
+       WHERE us."id" = $1 AND prev."id" = us."id"
+       RETURNING us."failed_login_attempts", us."lockout_until", prev.was_locked
       `,
       [user.security.id, maxAttempts, String(lockoutMs)],
     ));
 
     // Keep the in-memory copy consistent with what the row now holds, so a caller that inspects
     // it after this call (the login path reports lockout state) does not see a stale value.
-    if (updated) {
-      user.security.failedLoginAttempts = Number(updated.failed_login_attempts);
-      user.security.lockoutUntil = updated.lockout_until ? new Date(updated.lockout_until) : null;
-    }
+    if (!updated) return { lockedNow: false };
+    user.security.failedLoginAttempts = Number(updated.failed_login_attempts);
+    user.security.lockoutUntil = updated.lockout_until ? new Date(updated.lockout_until) : null;
+    const lockedNow =
+      !updated.was_locked && !!user.security.lockoutUntil && user.security.lockoutUntil > new Date();
+    return { lockedNow };
   }
 
   /**

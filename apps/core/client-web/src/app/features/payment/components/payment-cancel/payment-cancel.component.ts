@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 /**
  * Where Stripe sends the reader when they back out of the checkout.
@@ -11,7 +11,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 @Component({
   selector: 'app-payment-cancel',
   standalone: true,
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="outcome">

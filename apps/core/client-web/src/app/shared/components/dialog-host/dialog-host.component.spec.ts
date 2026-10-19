@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { DialogHostComponent } from './dialog-host.component';
 import { DialogService } from '../../../core/services/dialog.service';
 import { provideTranslateService } from '@ngx-translate/core';

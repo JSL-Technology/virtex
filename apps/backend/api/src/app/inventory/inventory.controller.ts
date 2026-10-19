@@ -118,6 +118,12 @@ export class InventoryController {
     return this.inventoryService.update(id, updateProductDto, user.organizationId, user.id);
   }
 
+  @Get(':id/dependents')
+  @HasPermission(PERMISSIONS.PRODUCTS_VIEW)
+  dependents(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.inventoryService.dependents(id, user.organizationId);
+  }
+
   @Delete(':id')
   @HasPermission(PERMISSIONS.PRODUCTS_DELETE)
   remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VxDateFieldComponent } from './date-field.component';
 
 let nextId = 0;
@@ -22,7 +22,7 @@ let nextId = 0;
 @Component({
   selector: 'vx-date-range',
   standalone: true,
-  imports: [TranslatePipe, VxDateFieldComponent],
+  imports: [TranslateModule, VxDateFieldComponent],
   template: `
     <div class="vx-date-range__field">
       <label [attr.for]="fromId">{{ fromLabelKey() | translate }}</label>

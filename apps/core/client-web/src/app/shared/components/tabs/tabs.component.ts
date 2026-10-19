@@ -7,7 +7,7 @@ import {
   model,
   viewChildren,
 } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VxBadgeComponent, VxTone } from '../badge';
 
 /** One tab. `id` is what the caller stores; everything else is presentation. */
@@ -55,7 +55,7 @@ let nextId = 0;
 @Component({
   selector: 'vx-tabs',
   standalone: true,
-  imports: [TranslatePipe, VxBadgeComponent],
+  imports: [TranslateModule, VxBadgeComponent],
   templateUrl: './tabs.component.html',
   styleUrls: ['./tabs.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

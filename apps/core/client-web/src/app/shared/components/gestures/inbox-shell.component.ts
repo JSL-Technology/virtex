@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, TemplateRef, computed, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, AlertTriangle, CheckCircle, RotateCw } from 'lucide-angular';
 
 /** Algo que espera a esta persona. */
@@ -52,7 +52,7 @@ export interface InboxSection {
 @Component({
   selector: 'vx-inbox-shell',
   standalone: true,
-  imports: [NgTemplateOutlet, RouterModule, TranslatePipe, LucideAngularModule],
+  imports: [NgTemplateOutlet, RouterModule, TranslateModule, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './inbox-shell.component.html',
   styleUrls: ['./inbox-shell.component.scss'],

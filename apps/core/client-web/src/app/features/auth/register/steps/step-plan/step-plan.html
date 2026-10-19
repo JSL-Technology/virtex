@@ -89,15 +89,23 @@
       </span>
       <span class="checkbox-label">
           {{ 'register.agree' | translate }}
-          <a routerLink="/terms" target="_blank" class="legal-link">{{ 'register.terms' | translate }}</a>
+          <!-- Rutas absolutas con idioma (QA C-08): `routerLink="/terms"` no existía. Se abren
+               en otra pestaña para no perder el alta a medias. -->
+          <a [routerLink]="['/', lang(), 'terms']" target="_blank" rel="noopener" class="legal-link">{{ 'register.terms' | translate }}</a>
           {{ 'register.and' | translate }}
-          <a routerLink="/privacy" target="_blank" class="legal-link">{{ 'register.privacy' | translate }}</a>.
+          <a [routerLink]="['/', lang(), 'privacy']" target="_blank" rel="noopener" class="legal-link">{{ 'register.privacy' | translate }}</a>.
       </span>
     </label>
 
-    <div *ngIf="group.get('agreeToTerms')?.touched && group.get('agreeToTerms')?.invalid" class="error-text">
+    <!--
+      Por qué «Registrarse» está apagado, dicho junto a la casilla y no solo al pulsar (QA C-07).
+      `id` porque el botón lo cita en `aria-describedby`.
+    -->
+    @if (group.get('agreeToTerms')?.value !== true) {
+      <p id="terms-required-hint" class="terms-hint" [class.error-text]="group.get('agreeToTerms')?.touched">
         <lucide-icon [img]="AlertCircleIcon" size="14"></lucide-icon>
-        <span>{{ 'register.errors.terms_required' | translate }}</span>
-    </div>
+        <span>{{ 'register.terms_required_hint' | translate }}</span>
+      </p>
+    }
   </div>
 </div>

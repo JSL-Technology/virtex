@@ -12,7 +12,7 @@ import {
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Subject, catchError, debounceTime, distinctUntilChanged, map, of, startWith, switchMap, tap } from 'rxjs';
 import {
   AlertTriangle,
@@ -32,7 +32,7 @@ import {
   Share2,
   X,
 } from 'lucide-angular';
-import { FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FormatService } from '@virteex/shared/ui-i18n';
 import { FlowCanvasComponent, FlowCanvasEdge, FlowCanvasNode, layeredLayout } from '../../shared/flow';
 import { relationshipMapPath } from '../../shared/components/relationship-map-link';
 import { ActiveOrganizationService } from '../../core/tenancy/active-organization.service';
@@ -104,7 +104,7 @@ interface Prefs {
 @Component({
   selector: 'app-relationship-map-page',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule, FlowCanvasComponent],
+  imports: [TranslateModule, LucideAngularModule, FlowCanvasComponent],
   templateUrl: './relationship-map.page.html',
   styleUrls: ['./relationship-map.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

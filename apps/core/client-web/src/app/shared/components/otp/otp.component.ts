@@ -17,7 +17,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Shield, Clock, RefreshCw, Eraser, CheckCircle, Info, AlertCircle, AlertTriangle } from 'lucide-angular';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 type StatusType = 'success' | 'error' | 'warning' | 'info';
 interface OtpStatus {
@@ -39,7 +40,7 @@ const SELECTABLE_LENGTHS = [4, 6, 8] as const;
 @Component({
   selector: 'app-otp',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './otp.component.html',
   styleUrls: ['./otp.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

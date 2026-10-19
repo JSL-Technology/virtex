@@ -1,11 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { TranslatePipe, TranslateService, provideTranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VxPagerComponent } from './index';
 
 @Component({
   standalone: true,
-  imports: [TranslatePipe, VxPagerComponent],
+  imports: [TranslateModule, VxPagerComponent],
   template: `
     <vx-pager
       [page]="page()"

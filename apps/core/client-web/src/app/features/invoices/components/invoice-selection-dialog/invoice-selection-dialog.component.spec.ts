@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { InvoiceSelectionDialogComponent } from './invoice-selection-dialog.component';
 import { InvoicesService, Invoice } from '../../../../core/services/invoices';
 

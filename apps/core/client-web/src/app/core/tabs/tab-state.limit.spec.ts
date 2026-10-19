@@ -23,7 +23,7 @@ const listDef: TabDefinition = {
   icon: 'List',
   title: 'X',
   isCloseable: true,
-  entityKeyFn: () => 'module:/x',
+  entityKeyFn: (params) => `module:${params['route']}`,
   load: () => Promise.resolve(class {}),
 };
 

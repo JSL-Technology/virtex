@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { BankAccountFormPage } from './bank-account-form.page';
 import { environment } from '../../../../../environments/environment';
 import { NotificationService } from '../../../../core/services/notification';

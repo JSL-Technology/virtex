@@ -1,6 +1,5 @@
 
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { RegisterUserDto } from './dto/register-user.dto';
 import { SocialUser } from './interfaces/social-user.interface';
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
 import { User } from '../users/entities/user.entity/user.entity';
@@ -27,8 +26,10 @@ export class AuthFacade {
   ) {}
 
   /** Payment-first signup: validate + stash a pending registration (no account yet). */
-  async createPendingRegistration(registerUserDto: RegisterUserDto, planSlug: string) {
-    return this.registrationService.createPendingRegistration(registerUserDto, planSlug);
+  async createPendingRegistration(
+    ...args: Parameters<RegistrationService['createPendingRegistration']>
+  ) {
+    return this.registrationService.createPendingRegistration(...args);
   }
 
   async createPendingAdditionalCompany(

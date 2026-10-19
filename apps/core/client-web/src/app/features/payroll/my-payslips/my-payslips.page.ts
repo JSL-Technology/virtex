@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { LucideAngularModule, FileText } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { Payslip, PayrollService } from '../../../core/api/payroll.service';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
@@ -19,7 +19,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-my-payslips-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './my-payslips.page.html',
   styleUrls: ['./my-payslips.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

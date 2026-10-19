@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, AlertTriangle, Calendar, FileDown, RefreshCw } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { StatementExportService } from '../../../../core/export/statement-export.service';
 import {
   BalanceSheetReport,
@@ -34,7 +34,7 @@ import { VxDateFieldComponent } from '../../../../shared/components/date';
 @Component({
   selector: 'app-balance-sheet-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxAmountComponent, VxDimensionFilterComponent, VxDateFieldComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxAmountComponent, VxDimensionFilterComponent, VxDateFieldComponent],
   templateUrl: './balance-sheet.page.html',
   styleUrls: ['./balance-sheet.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

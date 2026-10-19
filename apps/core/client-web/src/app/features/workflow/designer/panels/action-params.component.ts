@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VX_SELECT } from '../../../../shared/components/select';
 import { WorkflowActionParam } from '../../data/workflow.service';
@@ -16,7 +16,7 @@ import { DesignerCatalogs, PersonOption } from '../designer-catalogs';
 @Component({
   selector: 'app-workflow-action-params',
   standalone: true,
-  imports: [FormsModule, TranslatePipe, ...VX_SELECT, ...VX_FORM_A11Y],
+  imports: [FormsModule, TranslateModule, ...VX_SELECT, ...VX_FORM_A11Y],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inspector.scss',
   template: `

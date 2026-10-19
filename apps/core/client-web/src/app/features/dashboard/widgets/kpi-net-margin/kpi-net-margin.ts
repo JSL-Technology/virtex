@@ -4,12 +4,12 @@ import { LucideAngularModule, TrendingUp, TrendingDown, Minus, Percent } from 'l
 import { Kpi } from '../../../../core/models/finance';
 import { DashboardApiService } from '../../../../core/api/dashboard-api.service';
 import { Observable, map } from 'rxjs';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 @Component({
   selector: 'app-kpi-net-margin',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './kpi-net-margin.html',
   styleUrls: ['../kpi-roe/kpi-roe.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

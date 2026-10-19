@@ -1,5 +1,5 @@
 import { composeKey } from '@virteex/shared/types';
-import { VxDatePipe, VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxDatePipe, VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -28,7 +28,7 @@ import {
   withConnectionFlow,
   withControlScheme,
 } from '@foblex/flow';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import {
   AlertTriangle,
   ChevronDown,
@@ -143,7 +143,7 @@ let sessionClipboard: DesignerClipboard | null = null;
   imports: [
     VxDatePipe,
     VxPluralKeyPipe,
-    TranslatePipe,
+    TranslateModule,
     LucideAngularModule,
     VxBadgeComponent,
     VxDialogComponent,

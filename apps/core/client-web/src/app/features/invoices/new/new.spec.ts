@@ -1,3 +1,5 @@
+import { provideTestCountryPack } from '../../../core/api/country-pack.service.testing';
+import { PaymentMethodsService } from '../../../core/api/payment-methods.service';
 import { provideTestBranches } from '../../../core/tenancy/branches.service.testing';
 import {
   ComponentFixture,
@@ -130,6 +132,8 @@ describe('NewInvoicePage', () => {
         imports: [NewInvoicePage, NoopAnimationsModule],
         providers: [
         provideTranslateService(),
+        provideTestCountryPack(),
+        { provide: PaymentMethodsService, useValue: { active: () => of([]), list: () => of([]) } },
         provideTestBranches(),
           { provide: InvoicesService, useValue: invoicesService },
           { provide: CustomersService, useValue: customersService },

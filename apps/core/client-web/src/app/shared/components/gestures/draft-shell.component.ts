@@ -14,7 +14,8 @@ import {
 } from '@angular/core';
 import { AbstractControl, FormGroupDirective } from '@angular/forms';
 import { Subscription, merge } from 'rxjs';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, ArrowLeft, AlertTriangle, Check, Loader } from 'lucide-angular';
 import { RelationshipMapLinkComponent } from '../relationship-map-link';
 
@@ -54,7 +55,7 @@ export interface DraftProblem {
 @Component({
   selector: 'vx-draft-shell',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule, RelationshipMapLinkComponent],
+  imports: [TranslateModule, LucideAngularModule, RelationshipMapLinkComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './draft-shell.component.html',
   styleUrls: ['./draft-shell.component.scss'],

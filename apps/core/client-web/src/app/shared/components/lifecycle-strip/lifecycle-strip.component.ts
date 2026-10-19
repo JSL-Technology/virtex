@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { mainPath } from '@virteex/shared/types';
 import { DocumentLifecycleService } from '../../../core/lifecycle/document-lifecycle.service';
 
@@ -41,7 +41,7 @@ interface StagePoint {
 @Component({
   selector: 'vx-lifecycle-strip',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslateModule],
   templateUrl: './lifecycle-strip.component.html',
   styleUrls: ['./lifecycle-strip.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

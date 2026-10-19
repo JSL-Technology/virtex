@@ -73,6 +73,12 @@ export class CustomersController {
     return this.customersService.update(id, updateCustomerDto, user.organizationId);
   }
 
+  @Get(':id/dependents')
+  @HasPermission(PERMISSIONS.CUSTOMERS_VIEW)
+  dependents(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.customersService.dependents(id, user.organizationId);
+  }
+
   @Delete(':id')
   @HasPermission(PERMISSIONS.CUSTOMERS_DELETE)
   remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {

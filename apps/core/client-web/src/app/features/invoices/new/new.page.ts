@@ -36,13 +36,15 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../share
 import { VX_SELECT } from '../../../shared/components/select';
 import { CustomerQuickCreateComponent } from '../../contacts/customer-quick-create/customer-quick-create.component';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
 import { VxDateFieldComponent, dateOrder } from '../../../shared/components/date';
 import { PercentInputDirective } from '../../../shared/directives/percent-input.directive';
+import { CountryPackService } from '../../../core/api/country-pack.service';
+import { PaymentMethodRow, PaymentMethodsService } from '../../../core/api/payment-methods.service';
 
 /**
  * Issuing a sales document.
@@ -68,7 +70,7 @@ import { PercentInputDirective } from '../../../shared/directives/percent-input.
     RouterLink,
     InvoiceToolbarComponent,
     InvoiceSelectionDialogComponent,
-    TranslatePipe,
+    TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
     VxBranchPickerComponent,
@@ -92,8 +94,32 @@ export class NewInvoicePage implements OnInit {
   private inventoryService = inject(InventoryService);
   private currenciesService = inject(CurrenciesService);
   private notificationService = inject(NotificationService);
+  private readonly countryPack = inject(CountryPackService);
+  private readonly paymentMethodsService = inject(PaymentMethodsService);
 
   invoiceForm: FormGroup;
+
+  // ── What the company's market has (its country pack, QA C-06) ───────────────
+  //
+  // The withholding card, the fiscal-document section and the payment-method list were the same
+  // for every market — the Dominican ones — so a US invoice offered «Withholding at source». Each is
+  // now shown only where the market has it, and the decision is the pack's, not a country name here.
+
+  /** Withholding at source exists in the market. */
+  readonly withholdingApplies = this.countryPack.withholding;
+  /** The market is known to have none (false while the pack loads, so nothing is dropped early). */
+  readonly withholdingAbsent = computed(() => this.countryPack.pack()?.withholding.applies === false);
+  /** Sales documents carry an authority number (NCF, CFDI folio…). */
+  readonly fiscalNumbering = this.countryPack.fiscalNumbering;
+  /** The market has no authority numbering at all: the document is numbered internally, and that is complete. */
+  readonly numberedInternally = computed(() => this.countryPack.pack()?.documents.fiscalNumbering === false);
+  /** The company keeps its own payment methods (ACH, Zelle…) rather than the authority's fixed list. */
+  readonly ownPaymentMethods = computed(() => this.countryPack.pack()?.paymentMethods.catalogue === 'EDITABLE');
+  readonly paymentMethods = signal<PaymentMethodRow[]>([]);
+  /** The rate is determined from the buyer's state, not chosen per line (US sales tax). */
+  readonly taxByDestination = computed(() => this.context()?.taxModel === 'BY_JURISDICTION');
+  readonly registeredJurisdictions = computed(() => this.context()?.registeredJurisdictions ?? []);
+  readonly taxNameKey = computed(() => this.countryPack.pack()?.taxes.nameKey ?? 'invoices.new.tax_column_header');
 
   /** Debounces the preview requests; see `requestPreview`. */
   private readonly previewRequests = new Subject<CreateInvoiceDto>();
@@ -217,6 +243,8 @@ export class NewInvoicePage implements OnInit {
       branchId: [null as string | null],
       fiscalDocumentType: [''],
       paymentMethod: ['CASH'],
+      // The company's own method, by code, in a market where it keeps its own list.
+      paymentMethodCode: [''],
       documentDiscountRate: [0, [Validators.min(0), Validators.max(0.99)]],
       serviceChargeRate: [0, [Validators.min(0), Validators.max(0.5)]],
       taxWithholdingRate: [0, [Validators.min(0), Validators.max(1)]],
@@ -235,6 +263,7 @@ export class NewInvoicePage implements OnInit {
 
   ngOnInit(): void {
     this.loadContext();
+    this.loadPaymentMethods();
     //  Los clientes ya NO se descargan enteros al abrir: el campo los busca en el servidor. Ver
     //  `searchCustomers` más abajo.
     this.currenciesService.getCurrencies().subscribe((data) => this.currencies.set(data));
@@ -322,6 +351,34 @@ export class NewInvoicePage implements OnInit {
       error: () =>
         this.notificationService.showError('invoices.new.invoicing_configuration_could_not_loaded'),
     });
+  }
+
+  /**
+   * The company's active payment methods, for a market where it keeps its own.
+   *
+   * Choosing one also sets the settlement kind (`paymentMethod`) the server and the e-invoicing
+   * adapters read, so the two controls cannot disagree.
+   */
+  private loadPaymentMethods(): void {
+    this.paymentMethodsService.active().subscribe({
+      next: (methods) => {
+        this.paymentMethods.set(methods);
+        this.syncPaymentMethod();
+      },
+      error: () => this.paymentMethods.set([]),
+    });
+    this.invoiceForm
+      .get('paymentMethodCode')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((code: string) => {
+        const method = this.paymentMethods().find((row) => row.code === code);
+        if (method) this.invoiceForm.get('paymentMethod')!.setValue(method.kind, { emitEvent: false });
+      });
+  }
+
+  /** Whether the list of the company's own methods drives the payment-method field. */
+  protected usesOwnPaymentMethods(): boolean {
+    return this.ownPaymentMethods() && this.paymentMethods().length > 0;
   }
 
   // ── El cliente ─────────────────────────────────────────────────────────────
@@ -443,8 +500,20 @@ export class NewInvoicePage implements OnInit {
     const control = this.invoiceForm.get('paymentMethod');
     if (!control || control.dirty) return;
     const { issueDate, dueDate, paymentMethod } = this.invoiceForm.getRawValue();
-    if (paymentMethod !== 'CASH' && paymentMethod !== 'CREDIT') return;
     const method = dueDate && issueDate && dueDate > issueDate ? 'CREDIT' : 'CASH';
+
+    // With the company's own methods, the same rule picks the first of the right kind («On account»
+    // for a credit sale, «Cash» for one paid on the spot) until the person chooses.
+    const codeControl = this.invoiceForm.get('paymentMethodCode');
+    if (this.usesOwnPaymentMethods() && codeControl && !codeControl.dirty) {
+      const current = this.paymentMethods().find((row) => row.code === codeControl.value);
+      if (current && current.kind !== 'CASH' && current.kind !== 'CREDIT') return;
+      const match = this.paymentMethods().find((row) => row.kind === method);
+      if (match && match.code !== codeControl.value) codeControl.setValue(match.code);
+      return;
+    }
+
+    if (paymentMethod !== 'CASH' && paymentMethod !== 'CREDIT') return;
     if (method !== paymentMethod) control.setValue(method, { emitEvent: false });
   }
 
@@ -478,6 +547,7 @@ export class NewInvoicePage implements OnInit {
         customerId: invoice.customerId,
         currencyCode: invoice.currencyCode,
         paymentMethod: invoice.paymentMethod,
+        paymentMethodCode: invoice.paymentMethodCode ?? '',
         notes: `${note} ${invoice.notes ?? ''}`.trim(),
       });
 
@@ -679,11 +749,17 @@ export class NewInvoicePage implements OnInit {
       branchId: value.branchId || undefined,
       notes: value.notes || undefined,
       paymentMethod: value.paymentMethod || undefined,
-      fiscalDocumentType: value.fiscalDocumentType || undefined,
+      paymentMethodCode: (this.usesOwnPaymentMethods() && value.paymentMethodCode) || undefined,
+      // A market with no authority numbering has no document type to choose.
+      fiscalDocumentType: (!this.numberedInternally() && value.fiscalDocumentType) || undefined,
       documentDiscountRate: numberOrUndefined(value.documentDiscountRate),
       serviceChargeRate: numberOrUndefined(value.serviceChargeRate),
-      taxWithholdingRate: numberOrUndefined(value.taxWithholdingRate),
-      incomeTaxWithholdingRate: numberOrUndefined(value.incomeTaxWithholdingRate),
+      // Nothing is stated where the market has no withholding at source: the server refuses a rate
+      // there rather than record an «override» of a regime that does not exist.
+      taxWithholdingRate: this.withholdingAbsent() ? undefined : numberOrUndefined(value.taxWithholdingRate),
+      incomeTaxWithholdingRate: this.withholdingAbsent()
+        ? undefined
+        : numberOrUndefined(value.incomeTaxWithholdingRate),
       issue,
       lineItems: (value.lineItems as Array<Record<string, unknown>>).map(
         (line): CreateInvoiceLine => ({

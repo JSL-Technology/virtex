@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Toast } from '../../../interfaces/toast.interface';
 import { LucideAngularModule, CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { trigger, style, animate, transition } from '@angular/animations';
 import { composeKey } from '@virteex/shared/types';
 
 @Component({
   selector: 'app-toast',
-  imports: [CommonModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './toast.component.html',
   styleUrl: './toast.component.scss',
   animations: [

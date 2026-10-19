@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
 import { ExternalLink, LucideAngularModule, MessageSquareText } from 'lucide-angular';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -29,7 +29,7 @@ const REFRESH_MS = 60000;
 @Component({
   selector: 'app-workflow-tasks-page',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule, RouterLink, ...FORMAT_PIPES, ...VX_UI, InboxShellComponent, WorkflowFieldsComponent],
+  imports: [TranslateModule, LucideAngularModule, RouterLink, ...FORMAT_PIPES, ...VX_UI, InboxShellComponent, WorkflowFieldsComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './workflow-tasks.page.scss',
   template: `

@@ -1,5 +1,8 @@
+import { provideTestCountryPack } from '../../../core/api/country-pack.service.testing';
+import { PaymentMethodsService } from '../../../core/api/payment-methods.service';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { of } from 'rxjs';
 import { VendorDebitNoteFormPage } from './debit-note-form.page';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
@@ -29,6 +32,8 @@ describe('VendorDebitNoteFormPage', () => {
     TestBed.configureTestingModule({
       imports: [VendorDebitNoteFormPage],
       providers: [
+        provideTestCountryPack(),
+        { provide: PaymentMethodsService, useValue: { active: () => of([]), list: () => of([]) } },
         provideRouter([]),
         { provide: AccountsPayableService, useValue: payables },
         { provide: ChartOfAccountsApiService, useValue: { searchAccounts: () => of([]), getAccountById: (id: string) => of({ id, code: '5101', name: { es: 'Compras' } }) } },

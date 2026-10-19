@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Component, viewChild } from '@angular/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { IntlPhoneInputComponent } from './intl-phone-input.component';
 import { CountryService } from '../../../core/services/country.service';
 import { MockCountryService } from '../../../../testing/country.service.mock';

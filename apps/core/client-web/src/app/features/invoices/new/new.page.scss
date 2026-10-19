@@ -271,6 +271,19 @@
   }
 }
 
+// The rate the server determined from the buyer's state (US sales tax): read, not typed (QA C-06).
+.tax-determined {
+  display: block;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tax-destination-hint {
+  margin: var(--space-3) 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 .font-semibold { font-weight: var(--font-semibold); }

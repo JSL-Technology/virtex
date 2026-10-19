@@ -658,3 +658,38 @@
   from { opacity: 0; transform: scale(0.96) translateY(10px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
+
+/* Header with the «close the others» action on the right (QA M-10). */
+.sessions-list__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+/* One device's sessions, with the count toggle above its latest row. */
+.sessions-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sessions-group__toggle {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent-text);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+}

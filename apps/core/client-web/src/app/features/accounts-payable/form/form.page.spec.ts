@@ -1,8 +1,12 @@
+import { of } from 'rxjs';
+import { provideTestCountryPack } from '../../../core/api/country-pack.service.testing';
+import { PaymentMethodsService } from '../../../core/api/payment-methods.service';
 import { provideTestBranches } from '../../../core/tenancy/branches.service.testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VendorBillFormPage } from './form.page';
 import { environment } from '../../../../environments/environment';
 
@@ -136,6 +140,8 @@ describe('VendorBillFormPage', () => {
     await TestBed.configureTestingModule({
       imports: [VendorBillFormPage],
       providers: [
+        provideTestCountryPack(),
+        { provide: PaymentMethodsService, useValue: { active: () => of([]), list: () => of([]) } },
         provideTestBranches(),provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
 

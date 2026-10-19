@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, I
 import { Router, RouterLink } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { LucideAngularModule, Save, Plus, Trash2 } from 'lucide-angular';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { JournalEntries } from '../../../core/services/journal-entries';
 import { JournalEntry as ApiJournalEntry } from '../../../core/api/journal-entries.service';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
@@ -14,7 +14,7 @@ import { JournalsService } from '../../../core/api/journals.service';
 import { Ledger } from '../../../core/models/ledger.model';
 import { Journal } from '../../../core/models/journal.model';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -77,7 +77,7 @@ interface EntryOrigin {
 @Component({
   selector: 'app-journal-entry-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, DraftShellComponent, ...VX_FORM_A11Y, VxDateFieldComponent, ...VX_SELECT],
+  imports: [ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DraftShellComponent, ...VX_FORM_A11Y, VxDateFieldComponent, ...VX_SELECT],
   templateUrl: './journal-entry-form.page.html',
   styleUrls: ['./journal-entry-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

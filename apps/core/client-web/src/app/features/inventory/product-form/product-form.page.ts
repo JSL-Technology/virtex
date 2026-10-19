@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { InvoicesService } from '../../../core/services/invoices';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -19,7 +19,7 @@ import {
   ProductCategory,
 } from '../../../core/api/product-categories.service';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -27,7 +27,7 @@ import { UnitOfMeasure, UnitsOfMeasureService } from '../../masters/data/units-o
 
 @Component({
   selector: 'app-product-form-page',
-  imports: [ReactiveFormsModule, RouterLink, HasPermissionDirective, LucideAngularModule, TranslatePipe, DraftShellComponent, BarcodeScannerComponent, ...VX_FORM_A11Y, ...FORMAT_PIPES],
+  imports: [ReactiveFormsModule, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, DraftShellComponent, BarcodeScannerComponent, ...VX_FORM_A11Y, ...FORMAT_PIPES],
   templateUrl: './product-form.page.html',
   styleUrls: ['./product-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -123,7 +123,7 @@ export class ProductFormPage implements OnInit {
    * does not list (an import, a unit retired later) must not be silently replaced on save.
    */
   private readonly units = signal<UnitOfMeasure[]>([]);
-  readonly unitOptions = computed<Pick<UnitOfMeasure, 'symbol' | 'nameKey'>[]>(() => {
+  readonly unitOptions = computed<Pick<UnitOfMeasure, 'symbol' | 'nameKey' | 'name'>[]>(() => {
     const units = this.units();
     const current = this.currentUnit();
     return current && !units.some((unit) => unit.symbol === current)

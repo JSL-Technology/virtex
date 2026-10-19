@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Inbox } from 'lucide-angular';
 
 /**
@@ -24,7 +24,7 @@ import { LucideAngularModule, Inbox } from 'lucide-angular';
 @Component({
   selector: 'vx-empty-state',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule],
+  imports: [TranslateModule, LucideAngularModule],
   template: `
     <lucide-icon [img]="icon()" class="empty-icon" aria-hidden="true"></lucide-icon>
     <p class="empty-title">{{ titleKey() | translate: params() }}</p>

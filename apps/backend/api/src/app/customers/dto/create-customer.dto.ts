@@ -15,6 +15,7 @@ import {
 } from 'class-validator';
 import { BlankToUndefined, IsPhoneLike } from '../../common/transformers/blank-to-undefined.transformer';
 import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
+import { CustomerStatus } from '../entities/customer.entity';
 
 export class CreateCustomerDto {
   @BlankToUndefined()
@@ -145,4 +146,12 @@ export class CreateCustomerDto {
   @Max(365, { message: 'validation.constraints.max|{"max":365}' })
   @IsOptional()
   paymentTermDays?: number | null;
+
+  /**
+   * Active or inactive. A customer that documents still name cannot be deleted, and deactivating
+   * it is the alternative the delete dialog offers (QA A-08), so the API has to accept it.
+   */
+  @IsOptional()
+  @IsEnum(CustomerStatus)
+  status?: CustomerStatus;
 }

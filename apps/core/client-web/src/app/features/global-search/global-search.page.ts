@@ -7,8 +7,7 @@ import {
   SearchResultGroup as BaseSearchResultGroup,
 } from '../../core/services/search.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { IdentityDocumentsService } from '../../core/api/identity-documents.service';
-import { catchError, of } from 'rxjs';
+import { SearchResultTextService } from '../../core/services/search-result-text.service';
 import { ListShellComponent } from '../../shared/components/gestures';
 
 interface SearchResultGroup extends BaseSearchResultGroup {
@@ -27,16 +26,7 @@ export class GlobalSearchPage implements OnInit {
   private route = inject(ActivatedRoute);
   private searchService = inject(SearchService);
   private readonly translate = inject(TranslateService);
-  private readonly identityDocuments = inject(IdentityDocumentsService);
 
-  /**
-   * The identifier labels this tenant's country uses, so a customer hit can name its own document.
-   *
-   * The server used to send `RNC: <value>` assembled as a literal, which was Spanish for every
-   * reader and Dominican for every market. It now sends the value and the document's catalogue
-   * code, and the label is resolved here.
-   */
-  private documentLabels = new Map<string, string>();
 
   // Íconos
   protected readonly InvoiceIcon = FileText;
@@ -67,43 +57,18 @@ export class GlobalSearchPage implements OnInit {
     });
   }
 
-  /**
-   * A result's description, composed from its key and parameters.
-   *
-   * For a customer the `taxId` parameter is joined with the document's own name — "RNC",
-   * "CNPJ", "Cédula de ciudadanía" — falling back to a neutral "tax id" label when the record
-   * carries no type, which is every customer saved before the catalogue existed.
-   */
+  /** Titles, descriptions, totals and states, shared with the top bar's dropdown (QA A-19). */
+  protected readonly text = inject(SearchResultTextService);
+
   protected describe(item: SearchResult): string {
-    const params = { ...(item.descriptionParams ?? {}) };
-    if (item.documentTypeCode) {
-      params['documentLabel'] =
-        this.documentLabels.get(item.documentTypeCode) ?? item.documentTypeCode;
-    } else {
-      params['documentLabel'] = this.translate.instant('search.result.tax_id_label');
-    }
-    return this.translate.instant(item.descriptionKey, params);
+    return this.text.describe(item);
   }
 
-  /** A result's title: a key when it is prose, the plain string when it is data (a product name). */
   protected titleOf(item: SearchResult): string {
-    if (item.title) return item.title;
-    return item.titleKey ? this.translate.instant(item.titleKey, item.titleParams ?? {}) : '';
+    return this.text.title(item);
   }
 
   ngOnInit(): void {
-    this.identityDocuments
-      .list()
-      .pipe(catchError(() => of([])))
-      .subscribe((types) => {
-        this.documentLabels = new Map<string, string>(
-          types.map((type): [string, string] => [
-            type.code,
-            type.labelVerbatim ?? this.translate.instant(type.labelKey),
-          ]),
-        );
-      });
-
     this.route.queryParamMap.subscribe((params) => {
       const query = params.get('q');
       if (query) this.searchQuery.set(query);

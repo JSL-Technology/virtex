@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VxDialogComponent } from '../dialog';
 
 /**
@@ -23,7 +23,7 @@ import { VxDialogComponent } from '../dialog';
 @Component({
   selector: 'app-confirmation-modal',
   standalone: true,
-  imports: [TranslatePipe, VxDialogComponent],
+  imports: [TranslateModule, VxDialogComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./confirmation-modal.component.scss'],
   template: `

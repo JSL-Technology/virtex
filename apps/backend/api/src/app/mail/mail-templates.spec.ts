@@ -53,6 +53,13 @@ const CONTEXTS: Record<string, Record<string, unknown>> = {
     resetLink: 'https://app.example.test/es/auth/reset-password#token=abc',
     expiration: { unitKey: 'TIME.MINUTES', count: 30 },
   },
+  'account-locked': {
+    name: 'Ana',
+    minutes: 15,
+    validHours: 24,
+    unlockUrl: 'https://app.example.test/es/auth/unlock#token=abc',
+    resetPasswordUrl: 'https://app.example.test/es/auth/forgot-password',
+  },
   'registration-email-verify': {
     name: 'Ana',
     code: '482913',

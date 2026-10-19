@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateService, TranslatePipe } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   SsoAdminService,
@@ -20,7 +21,7 @@ import { VX_SORT, sortable } from '../../../../shared/components/sort';
 @Component({
   selector: 'app-sso-settings',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, ReactiveFormsModule, TranslatePipe, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [...VX_SORT, CommonModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './sso.page.html',
   styleUrls: ['./sso.page.scss'],
 })

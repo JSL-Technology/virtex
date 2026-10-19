@@ -9,7 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VxDialogComponent } from '../../../shared/components/dialog';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
@@ -38,7 +38,7 @@ type NativeDetectorClass = new (options: { formats: string[] }) => NativeDetecto
 @Component({
   selector: 'app-barcode-scanner',
   standalone: true,
-  imports: [FormsModule, TranslatePipe, VxDialogComponent, ...VX_FORM_A11Y],
+  imports: [FormsModule, TranslateModule, VxDialogComponent, ...VX_FORM_A11Y],
   template: `
     <vx-dialog [titleKey]="'ai.scan.title'" size="sm" (dismissed)="dismissed.emit()">
       <div class="scan">

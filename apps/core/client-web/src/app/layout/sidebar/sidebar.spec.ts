@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { Sidebar } from './sidebar';
 import { ActiveModuleService, PanelSection } from '../../core/modules/active-module.service';
 import { GROUP_LABEL } from '../../core/modules/menu-labels';

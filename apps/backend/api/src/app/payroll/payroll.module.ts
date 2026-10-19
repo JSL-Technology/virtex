@@ -14,6 +14,8 @@ import { PayrollInput } from './entities/payroll-input.entity';
 import { StatutoryContribution } from './entities/statutory-contribution.entity';
 import { IncomeTaxBracket } from './entities/income-tax-bracket.entity';
 import { StatutoryReference } from './entities/statutory-reference.entity';
+import { CompanyPayrollParameter } from './entities/company-payroll-parameter.entity';
+import { CompanyPayrollParametersService } from './services/company-payroll-parameters.service';
 import { JurisdictionsModule } from '../jurisdictions/jurisdictions.module';
 import { PayrollParametersService } from './services/payroll-parameters.service';
 import { PayrollParametersAdminService } from './services/payroll-parameters-admin.service';
@@ -45,6 +47,7 @@ import { PayrollController } from './payroll.controller';
       StatutoryContribution,
       IncomeTaxBracket,
       StatutoryReference,
+      CompanyPayrollParameter,
       Employee,
       EmployeeCompensation,
     ]),
@@ -60,6 +63,7 @@ import { PayrollController } from './payroll.controller';
   providers: [
     PayrollParametersService,
     PayrollParametersAdminService,
+    CompanyPayrollParametersService,
     PayrollCalculationService,
     SeveranceService,
     PayrollAccountingService,

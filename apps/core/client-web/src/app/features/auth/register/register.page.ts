@@ -16,7 +16,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import {
   LucideAngularModule,
   CheckCircle,
@@ -33,7 +33,8 @@ import { AuthService } from '../../../core/services/auth';
 import { RegisterPayload } from '../../../shared/interfaces/register-payload.interface';
 import { StepAccountInfo } from './steps/step-account-info/step-account-info';
 import { StepEmailVerify } from './steps/step-email-verify/step-email-verify';
-import { StepPhoneVerify } from './steps/step-phone-verify/step-phone-verify';
+import { StepPhoneVerify, PhoneSkipMode } from './steps/step-phone-verify/step-phone-verify';
+import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
 import { StepBusiness } from './steps/step-business/step-business';
 import { StepConfiguration } from './steps/step-configuration/step-configuration';
 import { StepPlan } from './steps/step-plan/step-plan';
@@ -77,7 +78,7 @@ export function passwordMatchValidator(
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    TranslatePipe,
+    TranslateModule,
     LucideAngularModule,
     RouterLink,
     StepAccountInfo,
@@ -160,6 +161,25 @@ export class RegisterPage implements OnInit {
   phoneVerified = signal(false);
   /** The SMS channel is down, so the phone step stops being a gate. See `StepPhoneVerify.unavailable`. */
   phoneChannelDown = signal(false);
+  /**
+   * The person chose to continue without confirming the number now (QA A-10): either keeping it
+   * unverified, to confirm from the profile later, or dropping it for the already-verified email.
+   */
+  phoneSkipped = signal(false);
+
+  /**
+   * Whether the phone step can be left forward.
+   *
+   * The wizard's "Next" is hidden on the two verification steps until there is nothing left to
+   * verify (QA M-22): they used to show "Verify" and "Next" side by side, two primary actions, and
+   * pressing the second only produced "verify your number before continuing". Entering the six
+   * digits verifies and advances by itself; this decides when "Next" is the one thing left to do.
+   */
+  readonly phoneStepDone = computed(
+    () => !this.phoneValue() || this.phoneVerified() || this.phoneChannelDown() || this.phoneSkipped(),
+  );
+  /** Mirror of `accountInfo.phone`, so `phoneStepDone` can be a computed. */
+  private readonly phoneValue = signal('');
 
   readonly steps = Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1);
 
@@ -263,13 +283,17 @@ export class RegisterPage implements OnInit {
         companyName: ['', [Validators.required]],
         industry: ['', [Validators.required]],
         companySize: [''],
-        // Honeypot. It lives in THIS group because that is the one `StepBusiness` renders — it
-        // used to sit at the root of the form, where no template referenced it, so it was never
-        // shown to a bot and never submitted. A honeypot that is not in the payload is not a
-        // honeypot; the server's entire spam branch was unreachable from the product.
-        fax: [''],
       }),
       plan: buildPlanGroup(this.fb),
+    });
+
+    this.phoneValue.set(this.registerForm.get('accountInfo.phone')?.value ?? '');
+    this.registerForm.get('accountInfo.phone')?.valueChanges.subscribe((value: string) => {
+      this.phoneValue.set(value ?? '');
+      // A different number is a different verification: any earlier answer no longer applies.
+      this.phoneVerified.set(false);
+      this.phoneSkipped.set(false);
+      this.registerForm.get('accountInfo.phoneCode')?.setValue('', { emitEvent: false });
     });
 
     this.activatedRoute.queryParams.subscribe((params) => {
@@ -381,12 +405,7 @@ export class RegisterPage implements OnInit {
     // is actually working. The phone is optional; demanding an SMS for an empty field made the step
     // impossible to pass, and demanding one the server cannot send made the whole signup
     // impossible on any deployment without an SMS provider.
-    if (
-      this.currentStep() === 3 &&
-      this.currentPhone &&
-      !this.phoneVerified() &&
-      !this.phoneChannelDown()
-    ) {
+    if (this.currentStep() === 3 && !this.phoneStepDone()) {
       this.errorMessage.set('register.errors.phone_verify_required');
       return;
     }
@@ -471,8 +490,36 @@ export class RegisterPage implements OnInit {
     }
   }
 
+  /**
+   * Continue without confirming the number now (QA A-10).
+   *
+   * `later` keeps the number; it is sent with no verification code, so the server stores it as
+   * unverified and the profile offers to confirm it. `email` drops it: the email verified on step 2
+   * is all the account needs, and a number that cannot be confirmed is not worth keeping.
+   */
+  onPhoneSkipped(mode: PhoneSkipMode): void {
+    if (mode === 'email') {
+      this.registerForm.get('accountInfo.phone')?.setValue('');
+    }
+    this.registerForm.get('accountInfo.phoneCode')?.setValue('', { emitEvent: false });
+    this.phoneVerified.set(false);
+    this.phoneSkipped.set(true);
+    if (this.currentStep() === 3) this.nextStep();
+  }
+
+  /** Whether the Terms and the Privacy policy are accepted — the submit button waits for it. */
+  get termsAccepted(): boolean {
+    return this.registerForm?.get('plan.agreeToTerms')?.value === true;
+  }
+
   onSubmit(): void {
     if (this.isRegistering()) return;
+    // The button is disabled until the box is ticked; this is the net under a submit by Enter.
+    if (!this.termsAccepted) {
+      this.registerForm.get('plan.agreeToTerms')?.markAsTouched();
+      this.errorMessage.set('register.errors.terms_required');
+      return;
+    }
 
     this.isRegistering.set(true);
     this.clearError();
@@ -491,9 +538,11 @@ export class RegisterPage implements OnInit {
           password: formValue.accountInfo.passwordGroup.password,
           ...companyPayload(formValue),
           recaptchaToken,
-          // Sent only when a bot filled it. The server answers a honeypot hit with a believable
-          // success and no session, so the payload has to carry the field for that to ever run.
-          fax: formValue.business.fax || undefined,
+          // Express, dated consent (QA C-07): the box's answer and the editions on screen. The
+          // server refuses the signup without them and records when and from where.
+          acceptTerms: formValue.plan.agreeToTerms === true,
+          termsVersion: LEGAL_DOCUMENTS.terms.version,
+          privacyVersion: LEGAL_DOCUMENTS.privacy.version,
         };
 
         // Payment-first: the backend validates and returns a Stripe Checkout URL.
@@ -506,7 +555,7 @@ export class RegisterPage implements OnInit {
               window.location.href = response.url;
             } else {
               // Honeypot / no checkout needed — send to login without leaking why.
-              this.router.navigate(['/auth/login']);
+              this.router.navigate(['/', this.languageService.currentLang(), 'auth', 'login']);
             }
           },
           error: (err) => {

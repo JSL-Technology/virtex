@@ -59,6 +59,22 @@
   }
 }
 
+//  Icono con su nombre (QA M-14): mismo alto de control, el texto a la derecha.
+.passkey-card--labelled {
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+
+  .passkey-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+
+
 .icon-wrapper {
   display: grid;
   place-items: center;

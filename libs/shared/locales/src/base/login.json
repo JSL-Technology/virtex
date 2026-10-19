@@ -9,6 +9,11 @@
     "en": "Email",
     "pt": "E-mail"
   },
+  "login.errors.account_locked": {
+    "es": "Tu cuenta está bloqueada temporalmente por demasiados intentos fallidos. Podrás volver a intentarlo {{when}}, o desbloquearla ya con el enlace que te enviamos por correo.",
+    "en": "Your account is temporarily locked after too many failed attempts. You can try again {{when}}, or unlock it now with the link we emailed you.",
+    "pt": "Sua conta está temporariamente bloqueada por excesso de tentativas sem sucesso. Você poderá tentar de novo {{when}}, ou desbloqueá-la agora pelo link que enviamos por e-mail."
+  },
   "login.errors.email_invalid": {
     "es": "Por favor, introduce un correo electrónico válido.",
     "en": "Please enter a valid email address.",
@@ -49,6 +54,11 @@
     "en": "That sign-in method is currently unavailable. Please try another.",
     "pt": "Esse método de login não está disponível no momento. Tente outro."
   },
+  "login.errors.too_many_attempts_wait": {
+    "es": "Demasiados intentos seguidos. Podrás volver a intentarlo {{when}}.",
+    "en": "Too many attempts in a row. You can try again {{when}}.",
+    "pt": "Tentativas demais seguidas. Você poderá tentar de novo {{when}}."
+  },
   "login.forgot_password": {
     "es": "¿Olvidaste tu contraseña?",
     "en": "Forgot your password?",
@@ -56,18 +66,18 @@
   },
   "login.keep_me_logged": {
     "es": "Mantener la sesión iniciada",
-    "en": "Keep me logged in",
+    "en": "Keep me signed in",
     "pt": "Manter conectado"
   },
   "login.keep_me_logged_hint": {
     "es": "Solo en un equipo personal. Si no lo marcas, tu sesión se cierra al cerrar el navegador o tras 15 minutos de inactividad.",
     "en": "Only on a personal device. If unticked, you are signed out when you close the browser or after 15 minutes of inactivity.",
-    "pt": "Apenas num dispositivo pessoal. Se não marcar, a sessão termina ao fechar o navegador ou após 15 minutos de inatividade."
+    "pt": "Apenas em um dispositivo pessoal. Se não marcar, você sai ao fechar o navegador ou após 15 minutos de inatividade."
   },
   "login.logging_in": {
-    "es": "Iniciando sesión",
-    "en": "Logging in",
-    "pt": "Entrando"
+    "es": "Iniciando sesión…",
+    "en": "Signing in…",
+    "pt": "Entrando…"
   },
   "login.name_company_com": {
     "es": "nombre@empresa.com",
@@ -82,7 +92,7 @@
   "login.notice.session_expired": {
     "es": "Tu sesión ha caducado. Vuelve a iniciar sesión para continuar.",
     "en": "Your session has expired. Sign in again to continue.",
-    "pt": "A sua sessão expirou. Inicie sessão novamente para continuar."
+    "pt": "Sua sessão expirou. Entre novamente para continuar."
   },
   "login.notice.session_unverified": {
     "es": "No pudimos verificar tu sesión porque el servidor no respondió. Revisa tu conexión e inténtalo de nuevo en unos minutos.",
@@ -92,12 +102,17 @@
   "login.notice.signed_out_idle": {
     "es": "Cerramos tu sesión por inactividad. Vuelve a iniciar sesión para continuar.",
     "en": "We signed you out after a period of inactivity. Sign in again to continue.",
-    "pt": "Terminámos a sua sessão por inatividade. Inicie sessão novamente para continuar."
+    "pt": "Encerramos sua sessão por inatividade. Entre novamente para continuar."
   },
   "login.or": {
     "es": "o",
     "en": "or",
     "pt": "ou"
+  },
+  "login.other_sign_in_methods": {
+    "es": "Otras formas de iniciar sesión",
+    "en": "Other ways to sign in",
+    "pt": "Outras formas de entrar"
   },
   "login.passkey_button_short": {
     "es": "Continuar con llave de acceso",
@@ -109,10 +124,31 @@
     "en": "Password",
     "pt": "Senha"
   },
+  "login.password_placeholder": {
+    "es": "Tu contraseña",
+    "en": "Your password",
+    "pt": "Sua senha"
+  },
   "login.passwordless_just_one_step": {
     "es": "Sin contraseña, en un solo paso.",
     "en": "Passwordless, in just one step.",
     "pt": "Sem senha, em uma única etapa."
+  },
+  "login.providers.google": {
+    "literal": "Google"
+  },
+  "login.providers.microsoft": {
+    "literal": "Microsoft"
+  },
+  "login.providers.passkey": {
+    "es": "Llave de acceso",
+    "en": "Passkey",
+    "pt": "Chave de acesso"
+  },
+  "login.providers.sso": {
+    "es": "SSO de empresa",
+    "en": "Company SSO",
+    "pt": "SSO da empresa"
   },
   "login.register_link": {
     "es": "Regístrate",
@@ -120,9 +156,9 @@
     "pt": "Cadastre-se"
   },
   "login.sso.cancel": {
-    "es": "Volver al inicio de sesión",
-    "en": "Back to login",
-    "pt": "Voltar ao login"
+    "es": "Volver a iniciar sesión",
+    "en": "Back to sign in",
+    "pt": "Voltar para o login"
   },
   "login.sso.continue": {
     "es": "Continuar",
@@ -144,12 +180,9 @@
     "en": "Company sign-in",
     "pt": "Acesso corporativo"
   },
-  "login.sso_button": {
-    "literal": "SSO"
-  },
   "login.submit_button": {
-    "es": "Entrar",
-    "en": "Sign In",
+    "es": "Iniciar sesión",
+    "en": "Sign in",
     "pt": "Entrar"
   },
   "login.title": {
@@ -158,9 +191,9 @@
     "pt": "Entrar"
   },
   "login.two_factor.back_to_login": {
-    "es": "Volver al login",
-    "en": "Back to login",
-    "pt": "Voltar ao login"
+    "es": "Volver a iniciar sesión",
+    "en": "Back to sign in",
+    "pt": "Voltar para o login"
   },
   "login.two_factor.subtitle": {
     "es": "Ingresa el código de 6 dígitos enviado a tu dispositivo.",
@@ -168,8 +201,38 @@
     "pt": "Digite o código de 6 dígitos enviado ao seu dispositivo."
   },
   "login.two_factor.title": {
-    "es": "Verificación de 2 pasos",
-    "en": "2-Step verification",
+    "es": "Verificación en dos pasos",
+    "en": "Two-step verification",
     "pt": "Verificação em duas etapas"
+  },
+  "login.unlock.done": {
+    "es": "Listo: tu cuenta está desbloqueada. Ya puedes iniciar sesión con tu contraseña.",
+    "en": "Done: your account is unlocked. You can now sign in with your password.",
+    "pt": "Pronto: sua conta foi desbloqueada. Agora você pode entrar com sua senha."
+  },
+  "login.unlock.forgot_password": {
+    "es": "Restablecer mi contraseña",
+    "en": "Reset my password",
+    "pt": "Redefinir minha senha"
+  },
+  "login.unlock.go_to_sign_in": {
+    "es": "Ir a iniciar sesión",
+    "en": "Go to sign in",
+    "pt": "Ir para o login"
+  },
+  "login.unlock.missing_token": {
+    "es": "Este enlace no tiene el código de desbloqueo. Ábrelo directamente desde el correo que te enviamos.",
+    "en": "This link is missing its unlock code. Open it directly from the email we sent you.",
+    "pt": "Este link está sem o código de desbloqueio. Abra-o diretamente pelo e-mail que enviamos."
+  },
+  "login.unlock.title": {
+    "es": "Desbloquear tu cuenta",
+    "en": "Unlock your account",
+    "pt": "Desbloquear sua conta"
+  },
+  "login.unlock.working": {
+    "es": "Desbloqueando tu cuenta…",
+    "en": "Unlocking your account…",
+    "pt": "Desbloqueando sua conta…"
   }
 }

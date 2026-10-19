@@ -48,6 +48,7 @@ export const MODULE_OF_FOLDER = {
   saas: 'identidad',
   payment: 'identidad',
   geo: 'identidad',
+  legal: 'identidad',
 
   // ── Contabilidad ──────────────────────────────────────────────────────────────────────────────
   accounting: 'contabilidad',

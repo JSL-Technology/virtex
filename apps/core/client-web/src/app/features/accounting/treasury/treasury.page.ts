@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Calendar, Landmark, RefreshCw } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   BankAccount,
   BankTransfer,
@@ -38,7 +38,7 @@ const TRANSFERS_SHOWN = 25;
 @Component({
   selector: 'app-treasury-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, RouterLink, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
+  imports: [...VX_SORT, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './treasury.page.html',
   styleUrls: ['./treasury.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

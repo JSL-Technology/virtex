@@ -4,6 +4,11 @@
     "en": "Help",
     "pt": "Ajuda"
   },
+  "user.language": {
+    "es": "Idioma",
+    "en": "Language",
+    "pt": "Idioma"
+  },
   "user.my_profile": {
     "es": "Mi perfil",
     "en": "My profile",
@@ -63,5 +68,25 @@
     "es": "Pendiente",
     "en": "Pending",
     "pt": "Pendente"
+  },
+  "user.theme": {
+    "es": "Tema",
+    "en": "Theme",
+    "pt": "Tema"
+  },
+  "user.theme_mode.dark": {
+    "es": "Oscuro",
+    "en": "Dark",
+    "pt": "Escuro"
+  },
+  "user.theme_mode.light": {
+    "es": "Claro",
+    "en": "Light",
+    "pt": "Claro"
+  },
+  "user.theme_mode.system": {
+    "es": "Sistema",
+    "en": "System",
+    "pt": "Sistema"
   }
 }

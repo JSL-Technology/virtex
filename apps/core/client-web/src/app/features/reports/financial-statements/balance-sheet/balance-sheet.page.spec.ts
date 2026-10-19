@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { BalanceSheetPage } from './balance-sheet.page';
 import { BalanceSheetReport } from '../../../../core/api/financial-reporting.service';
 import { environment } from '../../../../../environments/environment';

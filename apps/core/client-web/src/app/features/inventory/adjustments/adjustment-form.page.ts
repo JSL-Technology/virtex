@@ -3,9 +3,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { Observable, catchError, map, of } from 'rxjs';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
@@ -43,7 +43,7 @@ const todayIso = (): string => new Date().toISOString().slice(0, 10);
     ReactiveFormsModule,
     RouterLink,
     LucideAngularModule,
-    TranslatePipe,
+    TranslateModule,
     ...FORMAT_PIPES,
     ...VX_FORM_A11Y,
     ...VX_SELECT,

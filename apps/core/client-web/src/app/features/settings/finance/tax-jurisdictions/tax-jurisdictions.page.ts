@@ -9,14 +9,14 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FiscalSettingsService,
   TaxJurisdiction,
 } from '../../../../core/api/fiscal-settings.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 
@@ -37,7 +37,7 @@ import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/d
 @Component({
   selector: 'app-tax-jurisdictions-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDateFieldComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDateFieldComponent],
   templateUrl: './tax-jurisdictions.page.html',
   styleUrls: ['./tax-jurisdictions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

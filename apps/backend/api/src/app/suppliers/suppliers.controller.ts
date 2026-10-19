@@ -60,6 +60,12 @@ export class SuppliersController {
     return this.suppliersService.update(id, updateSupplierDto, user.organizationId);
   }
 
+  @Get(':id/dependents')
+  @HasPermission(PERMISSIONS.SUPPLIERS_VIEW)
+  dependents(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.suppliersService.dependents(id, user.organizationId);
+  }
+
   @Delete(':id')
   @HasPermission(PERMISSIONS.SUPPLIERS_DELETE)
   remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {

@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AgingPage } from './aging.page';
 import { AgingReport } from '../../../core/api/aging.service';
 import { environment } from '../../../../environments/environment';

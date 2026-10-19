@@ -10,7 +10,7 @@ import {
   untracked,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { BranchOption, BranchesService } from '../../../core/tenancy/branches.service';
 
 let nextId = 0;
@@ -35,7 +35,7 @@ let nextId = 0;
 @Component({
   selector: 'vx-branch-picker',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslateModule],
   templateUrl: './branch-picker.component.html',
   styleUrls: ['./branch-picker.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -2,7 +2,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, inject, signal, DestroyRef, ViewChildren, ViewChild, QueryList, ElementRef, Inject, PLATFORM_ID, ViewContainerRef, computed } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LucideAngularModule, Shield, Smartphone, QrCode, Monitor, Laptop, Globe, AlertTriangle, CheckCircle, MapPin, Copy, Download, RefreshCw, X, ArrowRight, ImageIcon, User, Mail, Phone, Building, KeyRound } from 'lucide-angular';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../../core/services/auth';
 import { SecurityService, Session } from '../../../../core/api/security.service';
 import { StepUpService, StepUpScope } from '../../../../core/services/step-up.service';
@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { ConfirmationModalComponent } from '../../../../shared/components/confirmation-modal/confirmation-modal.component';
 import { OtpComponent } from '../../../../shared/components/otp/otp.component';
 import { token } from '../../../../core/utils/chart-theme';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
@@ -23,7 +23,7 @@ type SetupStep = 'INTRO' | 'EMAIL_VERIFY' | 'QR_SETUP' | 'BACKUP_CODES';
 @Component({
   selector: 'app-security-settings',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslatePipe, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent],
   templateUrl: './security-settings.component.html',
   styleUrls: ['./security-settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -127,6 +127,57 @@ export class SecuritySettingsComponent implements OnInit {
   // Sessions
   sessions = signal<Session[]>([]);
   expandedSessionId = signal<string | null>(null);
+
+  /** Sessions grouped by device — browser, system and kind — current group first (QA M-10). */
+  readonly sessionGroups = computed(() => {
+    const groups = new Map<string, Session[]>();
+    for (const session of this.sessions()) {
+      const key = `${session.deviceType}|${session.browser}|${session.os}`;
+      groups.set(key, [...(groups.get(key) ?? []), session]);
+    }
+    const time = (s: Session) => new Date(s.lastActiveAt).getTime() || 0;
+    return [...groups.entries()]
+      .map(([key, list]) => ({
+        key,
+        sessions: [...list].sort((a, b) => Number(b.isCurrent) - Number(a.isCurrent) || time(b) - time(a)),
+      }))
+      .sort((a, b) => Number(b.sessions[0].isCurrent) - Number(a.sessions[0].isCurrent) || time(b.sessions[0]) - time(a.sessions[0]));
+  });
+
+  readonly otherSessionCount = computed(() => this.sessions().filter((s) => !s.isCurrent).length);
+  private readonly openGroups = signal<ReadonlySet<string>>(new Set());
+
+  isGroupOpen(key: string): boolean {
+    return this.openGroups().has(key);
+  }
+
+  toggleGroup(key: string): void {
+    this.openGroups.update((open) => {
+      const next = new Set(open);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
+  /** A closed group shows its first (current or latest) session; open, all of them. */
+  visibleSessions(group: { key: string; sessions: Session[] }): Session[] {
+    return this.isGroupOpen(group.key) ? group.sessions : group.sessions.slice(0, 1);
+  }
+
+  /** Signs out every device but this one, behind the same step-up as revoking one. */
+  revokeOtherSessions(): void {
+    this.stepUpService.requireStepUp(StepUpScope.REVOKE_SESSION, this.viewContainerRef, () => {
+      return this.securityService.revokeOtherSessions();
+    }).pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: () => {
+        this.loadSessions();
+        this.notificationService.showSuccess('auth.other_sessions_have_closed');
+      },
+      error: () => this.notificationService.showError('settings.security.errors.revoke_failed'),
+    });
+  }
   private map: any;
 
   @ViewChildren('mapContainer') mapContainers!: QueryList<ElementRef<HTMLDivElement>>;

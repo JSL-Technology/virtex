@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, ChevronDown } from 'lucide-angular';
 import { TabSearchService } from '../tab-search.service';
 
@@ -14,7 +14,7 @@ import { TabSearchService } from '../tab-search.service';
 @Component({
   selector: 'app-tab-search-button',
   standalone: true,
-  imports: [LucideAngularModule, TranslatePipe],
+  imports: [LucideAngularModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button

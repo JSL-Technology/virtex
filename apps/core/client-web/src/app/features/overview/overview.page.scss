@@ -218,7 +218,8 @@
     gap: 0.6rem;
   }
 
-  &__head-icon { color: var(--text-tertiary); }
+  //  Secondary, not tertiary: the tertiary grey all but vanished on the dark surface (QA M-20).
+  &__head-icon { color: var(--text-secondary); }
 
   &__body { padding: 0.5rem 0.5rem 0.75rem; }
 }
@@ -379,6 +380,12 @@
     font-size: var(--text-xs);
     color: var(--text-tertiary);
   }
+}
+
+/* The event's kind never wraps to two lines («Por / cobrar» did, in a black pill). */
+.ov-event__badge {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* ── Tags ──────────────────────────────────────────────────────────── */

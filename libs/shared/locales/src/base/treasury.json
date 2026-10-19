@@ -280,6 +280,36 @@
     "en": "An opening balance must state the date on which the account held it.",
     "pt": "Um saldo de abertura deve indicar a data em que a conta o possuía."
   },
+  "treasury.payment_method_code_format": {
+    "es": "El código solo admite letras, números, guion y guion bajo.",
+    "en": "The code may contain only letters, digits, hyphens and underscores.",
+    "pt": "O código só aceita letras, números, hífen e sublinhado."
+  },
+  "treasury.payment_method_code_immutable": {
+    "es": "El código {{code}} ya figura en documentos y no se puede cambiar. Crea otra forma de pago y retira esta.",
+    "en": "Code {{code}} is already on documents and cannot change. Create another payment method and retire this one.",
+    "pt": "O código {{code}} já consta em documentos e não pode ser alterado. Crie outra forma de pagamento e desative esta."
+  },
+  "treasury.payment_method_code_taken": {
+    "es": "Ya existe una forma de pago con el código {{code}}.",
+    "en": "A payment method with code {{code}} already exists.",
+    "pt": "Já existe uma forma de pagamento com o código {{code}}."
+  },
+  "treasury.payment_method_fixed_by_authority": {
+    "es": "Esta forma de pago pertenece al catálogo de la autoridad tributaria y no se modifica.",
+    "en": "This payment method belongs to the tax authority's catalogue and cannot be changed.",
+    "pt": "Esta forma de pagamento pertence ao catálogo da autoridade tributária e não pode ser alterada."
+  },
+  "treasury.payment_method_not_found": {
+    "es": "La forma de pago no existe.",
+    "en": "The payment method does not exist.",
+    "pt": "A forma de pagamento não existe."
+  },
+  "treasury.payment_methods_fixed_in_market": {
+    "es": "En tu país las formas de pago las fija la {{authority}}: no se añaden ni se modifican.",
+    "en": "In your country the {{authority}} sets the payment methods: they cannot be added or changed.",
+    "pt": "No seu país as formas de pagamento são definidas pela {{authority}}: não podem ser adicionadas nem alteradas."
+  },
   "treasury.received": {
     "es": "Recibido",
     "en": "Received",

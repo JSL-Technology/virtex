@@ -23,7 +23,8 @@ import {
 import { DashboardWidget, DashboardService, ChartType } from '../../../../core/services/dashboard';
 import { BrandingService } from '../../../../core/services/branding';
 import { PointOptionsObject } from 'highcharts';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { BreakdownSlice, DashboardApiService } from '../../../../core/api/dashboard-api.service';
 
 type ExportingChart = Highcharts.Chart & {
@@ -37,7 +38,7 @@ type ExportingChart = Highcharts.Chart & {
 @Component({
   selector: 'app-expenses-chart',
   standalone: true,
-  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslateModule],
   templateUrl: './expenses-chart.html',
   styleUrls: ['./expenses-chart.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

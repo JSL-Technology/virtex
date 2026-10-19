@@ -41,9 +41,11 @@
   gap: var(--space-5);
   flex-wrap: wrap;
 
+  //  `secondary` y no `tertiary`: sobre el lienzo claro el terciario quedaba gris
+  //  sobre gris, por debajo del contraste legible (QA M-14).
   a {
     font-size: var(--text-sm);
-    color: var(--content-tertiary);
+    color: var(--content-secondary);
     text-decoration: none;
     @include ds.transition(color);
     @include ds.focus-ring(3px);
@@ -59,7 +61,7 @@
 .copyright {
   margin: 0;
   font-size: var(--text-xs);
-  color: var(--content-tertiary);
+  color: var(--content-secondary);
 }
 
 // ── Aviso de reCAPTCHA ───────────────────────────────────────────────────────

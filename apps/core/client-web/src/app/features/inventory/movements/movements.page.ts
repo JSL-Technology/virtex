@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { Observable } from 'rxjs';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -36,7 +36,7 @@ const SOURCE_ROUTES: Record<string, (id: string) => string> = {
 @Component({
   selector: 'app-stock-movements-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslatePipe, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
+  imports: [FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
   templateUrl: './movements.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './movements.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

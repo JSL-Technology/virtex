@@ -5,8 +5,8 @@ import { LucideAngularModule, PlusCircle, Edit, Trash2 } from 'lucide-angular';
 import { PriceList } from '../../../core/models/price-list.model';
 import { PriceListsService } from '../../../core/api/price-lists.service';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
@@ -15,7 +15,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 
 @Component({
   selector: 'app-price-lists-page',
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './price-lists.page.html',
   styleUrls: ['./price-lists.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

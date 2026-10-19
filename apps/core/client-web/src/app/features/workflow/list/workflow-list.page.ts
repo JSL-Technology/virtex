@@ -1,8 +1,8 @@
 import { composeKey } from '@virteex/shared/types';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import {
   CopyPlus,
   Download,
@@ -47,7 +47,7 @@ type TriggerFilter = 'all' | 'manual' | 'event';
   selector: 'app-workflow-list-page',
   standalone: true,
   imports: [
-    TranslatePipe,
+    TranslateModule,
     LucideAngularModule,
     RouterLink,
     RowLinkDirective,

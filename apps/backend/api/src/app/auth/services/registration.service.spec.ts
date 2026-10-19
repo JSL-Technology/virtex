@@ -1,3 +1,7 @@
+import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+import { RegisterCheckoutDto } from '../dto/register-checkout.dto';
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { RegistrationService } from './registration.service';
@@ -344,6 +348,111 @@ describe('RegistrationService', () => {
         .mfaOrchestratorService;
       await validate({ ...dto, phoneVerificationCode: '654321' } as RegisterUserDto);
       expect(mfa.verifyPublicCode).toHaveBeenCalledWith('+18095551234', expect.anything(), '654321');
+    });
+  });
+
+  /**
+   * QA C-07: an account could be created without accepting the Terms, and an acceptance given
+   * could not be shown afterwards. The pending signup now carries it — editions, when, from where —
+   * and the account is materialised with it.
+   */
+  describe('consent to the Terms and the Privacy policy', () => {
+    const dto = {
+      email: 'owner@example.do',
+      emailVerificationCode: '123456',
+      recaptchaToken: 'token',
+      countryCode: 'DO',
+      taxpayerKind: 'company',
+      taxId: '131234569',
+      password: 'Sup3r-Segura-2026!',
+      firstName: 'Ana',
+      lastName: 'Pérez',
+      organizationName: 'Acme',
+      acceptTerms: true,
+      termsVersion: LEGAL_DOCUMENTS.terms.version,
+      privacyVersion: LEGAL_DOCUMENTS.privacy.version,
+    } as unknown as RegisterUserDto;
+    const consent = {
+      termsVersion: LEGAL_DOCUMENTS.terms.version,
+      privacyVersion: LEGAL_DOCUMENTS.privacy.version,
+      acceptedAt: new Date('2026-10-12T10:00:00Z'),
+      ipAddress: '203.0.113.7',
+      userAgent: 'jest',
+    };
+
+    beforeEach(() => {
+      (mockLocalizationService as unknown as { findRegionByCountryCode: jest.Mock }).findRegionByCountryCode = jest
+        .fn()
+        .mockResolvedValue({ id: 'region-do' });
+      mockPendingRepo.create.mockImplementation((row: unknown) => row);
+      mockPendingRepo.save.mockImplementation(async (row: unknown) => row);
+    });
+
+    it('stores which editions were accepted, when, and from which address', async () => {
+      const pending = await service.createPendingRegistration(dto, 'pro', consent);
+
+      expect(pending).toMatchObject({
+        termsVersion: LEGAL_DOCUMENTS.terms.version,
+        privacyVersion: LEGAL_DOCUMENTS.privacy.version,
+        termsAcceptedAt: consent.acceptedAt,
+        termsAcceptedIp: '203.0.113.7',
+        termsAcceptedUserAgent: 'jest',
+      });
+    });
+
+    it('refuses a signup that did not accept, before anything is stored', async () => {
+      await expect(
+        service.createPendingRegistration({ ...dto, acceptTerms: false } as unknown as RegisterUserDto, 'pro', consent),
+      ).rejects.toMatchObject({ messageKey: 'validation.register_checkout.terms_must_be_accepted' });
+      expect(mockPendingRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('refuses an edition that is no longer in force', async () => {
+      await expect(
+        service.createPendingRegistration(dto, 'pro', { ...consent, termsVersion: '2020-01-01' }),
+      ).rejects.toMatchObject({ messageKey: 'validation.register_checkout.legal_version_outdated' });
+    });
+
+    it('rejects the payload at the edge when the box was not ticked', async () => {
+      const payload = plainToInstance(RegisterCheckoutDto, { acceptTerms: false, termsVersion: 'old', privacyVersion: 'old' });
+      const errors = await validate(payload);
+      const byProperty = Object.fromEntries(errors.map((e) => [e.property, Object.values(e.constraints ?? {})]));
+      expect(byProperty['acceptTerms']).toContain('validation.register_checkout.terms_must_be_accepted');
+      expect(byProperty['termsVersion']).toContain('validation.register_checkout.legal_version_outdated');
+      expect(byProperty['privacyVersion']).toContain('validation.register_checkout.legal_version_outdated');
+    });
+
+    it('copies the acceptance onto the person when the account is materialised', async () => {
+      const manager = { create: jest.fn((_e: unknown, row: unknown) => row), save: jest.fn() };
+      const record = (service as unknown as {
+        recordConsent(p: unknown, u: string, o: string, m: unknown): Promise<void>;
+      }).recordConsent.bind(service);
+
+      await record(
+        {
+          termsVersion: LEGAL_DOCUMENTS.terms.version,
+          privacyVersion: LEGAL_DOCUMENTS.privacy.version,
+          termsAcceptedAt: consent.acceptedAt,
+          termsAcceptedIp: '203.0.113.7',
+          termsAcceptedUserAgent: 'jest',
+        },
+        'user-1',
+        'org-1',
+        manager,
+      );
+
+      const rows = manager.save.mock.calls[0][1];
+      expect(rows).toEqual([
+        expect.objectContaining({ userId: 'user-1', organizationId: 'org-1', document: 'terms', version: LEGAL_DOCUMENTS.terms.version, ipAddress: '203.0.113.7' }),
+        expect.objectContaining({ document: 'privacy', version: LEGAL_DOCUMENTS.privacy.version }),
+      ]);
+    });
+
+    it('invents no acceptance for a signup that predates consent being recorded', async () => {
+      const manager = { create: jest.fn(), save: jest.fn() };
+      await (service as unknown as { recordConsent(p: unknown, u: string, o: string, m: unknown): Promise<void> })
+        .recordConsent({ termsAcceptedAt: null }, 'user-1', 'org-1', manager);
+      expect(manager.save).not.toHaveBeenCalled();
     });
   });
 

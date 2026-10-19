@@ -679,10 +679,87 @@
       "CREDIT_NOTE"
     ],
     "ledger.sales": [],
+    "legal": [
+      "terms.title",
+      "terms.lead",
+      "terms.s1.title",
+      "terms.s1.body",
+      "terms.s2.title",
+      "terms.s2.body",
+      "terms.s3.title",
+      "terms.s3.body",
+      "terms.s4.title",
+      "terms.s4.body",
+      "terms.s5.title",
+      "terms.s5.body",
+      "terms.s6.title",
+      "terms.s6.body",
+      "terms.s7.title",
+      "terms.s7.body",
+      "terms.s8.title",
+      "terms.s8.body",
+      "terms.s9.title",
+      "terms.s9.body",
+      "terms.s10.title",
+      "terms.s10.body",
+      "privacy.title",
+      "privacy.lead",
+      "privacy.s1.title",
+      "privacy.s1.body",
+      "privacy.s2.title",
+      "privacy.s2.body",
+      "privacy.s3.title",
+      "privacy.s3.body",
+      "privacy.s4.title",
+      "privacy.s4.body",
+      "privacy.s5.title",
+      "privacy.s5.body",
+      "privacy.s6.title",
+      "privacy.s6.body",
+      "privacy.s7.title",
+      "privacy.s7.body",
+      "privacy.s8.title",
+      "privacy.s8.body",
+      "privacy.s9.title",
+      "privacy.s9.body",
+      "privacy.s10.title",
+      "privacy.s10.body",
+      "security.title",
+      "security.lead",
+      "security.s1.title",
+      "security.s1.body",
+      "security.s2.title",
+      "security.s2.body",
+      "security.s3.title",
+      "security.s3.body",
+      "security.s4.title",
+      "security.s4.body",
+      "security.s5.title",
+      "security.s5.body",
+      "security.s6.title",
+      "security.s6.body",
+      "contact.title",
+      "contact.lead"
+    ],
+    "legal.contact.topics": [
+      "support",
+      "billing",
+      "privacy",
+      "security",
+      "sales"
+    ],
     "masters.price_lists.status_label": [
       "Draft",
       "Active",
       "Inactive"
+    ],
+    "masters.units_of_measure.category": [
+      "units",
+      "weight",
+      "length",
+      "area",
+      "volume",
+      "time"
     ],
     "notifications.document_type": [
       "vendor_bill",
@@ -777,6 +854,15 @@
       "WEEKLY",
       "MONTHLY",
       "ANNUALLY"
+    ],
+    "register.industries": [
+      "technology",
+      "retail",
+      "manufacturing",
+      "services",
+      "healthcare",
+      "construction",
+      "other"
     ],
     "register.steps.plan.resources": [
       "INVOICES",
@@ -999,6 +1085,11 @@
       "ARCHIVED",
       "BLOCKED"
     ],
+    "user.theme_mode": [
+      "light",
+      "dark",
+      "system"
+    ],
     "validation.constraints": [],
     "validation.fields": [],
     "workflow_engine.a11y": [
@@ -1184,6 +1275,14 @@
       "one",
       "other"
     ],
+    "workflow_engine.invalid_graph": [
+      "one_start",
+      "need_end",
+      "duplicate_node_id",
+      "edge_dangling",
+      "node_no_exit",
+      "unknown_action"
+    ],
     "workflow_engine.issue": [
       "action_param_number",
       "action_param_option",
@@ -1366,6 +1465,19 @@
       "action_plain",
       "cancelled_auto",
       "completed_plain"
+    ],
+    "workflow_engine.transition": [
+      "started",
+      "enter",
+      "action",
+      "condition",
+      "task_created",
+      "task_completed",
+      "timer_set",
+      "timer_fired",
+      "completed",
+      "cancelled",
+      "error"
     ],
     "workflow_engine.variable_type": [
       "string",

@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AccountGroup, PolicyField, SettingsSectionComponent } from '../../shared/settings-section.component';
 
 /** QA M-09: this section said «En desarrollo». It edits the organization's real settings now. */
 @Component({
   selector: 'app-inventory-policies-settings-page',
   standalone: true,
-  imports: [TranslatePipe, SettingsSectionComponent],
+  imports: [TranslateModule, SettingsSectionComponent],
   template: `
     <div class="s-page">
       <div class="s-header">

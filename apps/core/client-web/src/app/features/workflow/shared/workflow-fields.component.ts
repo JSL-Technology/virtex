@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { Observable, map, of } from 'rxjs';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -43,7 +43,7 @@ export function fieldProblems(
 @Component({
   selector: 'app-workflow-fields',
   standalone: true,
-  imports: [FormsModule, TranslatePipe, ...VX_SELECT, ...VX_FORM_A11Y],
+  imports: [FormsModule, TranslateModule, ...VX_SELECT, ...VX_FORM_A11Y],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @for (field of fields(); track field.name) {

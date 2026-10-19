@@ -4,6 +4,8 @@ export interface Customer {
   companyName: string;
   /** The company's «Consumidor final»: seeded with the company, never deleted. */
   isFinalConsumer?: boolean;
+  /** `INACTIVE` is what a customer documents still name becomes instead of being deleted (QA A-08). */
+  status?: 'LEAD' | 'ACTIVE' | 'INACTIVE' | 'ON_HOLD';
   contactPerson?: string;
   email: string;
   phone: string;

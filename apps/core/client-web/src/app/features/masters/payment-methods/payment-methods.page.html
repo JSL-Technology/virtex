@@ -1,22 +1,118 @@
 <vx-list-shell
   titleKey="masters.payment_methods.payment_methods"
-  subtitleKey="masters.payment_methods.statutory_note"
-  [count]="methods.length"
-  [empty]="false"
+  [subtitleKey]="fixed() ? null : 'masters.payment_methods.subtitle_editable'"
+  [count]="methods().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="!loading() && !error() && methods().length === 0"
+  (reload)="load()"
 >
+  @if (editable()) {
+    <button listActions type="button" class="primary-button" [disabled]="busy()"
+      *appHasPermission="'treasury:manage_accounts'" (click)="startNew()">
+      <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+      <span>{{ 'masters.payment_methods.new_method' | translate }}</span>
+    </button>
+  }
+
+  <!--
+    Said only where it is true. This sentence used to stand over every company's list, in every
+    market — and a US company read that the DGII had fixed its payment methods (QA C-06).
+  -->
+  @if (fixed()) {
+    <p listToolbar class="pm-note" role="note">
+      {{ 'masters.payment_methods.fixed_by_authority' | translate: { authority: authority() } }}
+    </p>
+  }
+
+  @if (editing(); as current) {
+    <form listCreate class="pm-editor card" [formGroup]="form" (ngSubmit)="save()">
+      <h2 class="pm-editor__title">
+        {{ (current === 'new' ? 'masters.payment_methods.new_method' : 'masters.payment_methods.edit_method') | translate }}
+      </h2>
+      <div class="pm-editor__grid">
+        <label class="pm-field">
+          <span>{{ 'masters.payment_methods.code' | translate }} *</span>
+          <input type="text" formControlName="code" maxlength="20" autocomplete="off"
+            [placeholder]="'masters.payment_methods.code_placeholder' | translate" />
+          <small class="pm-field__hint">{{ 'masters.payment_methods.code_help' | translate }}</small>
+        </label>
+        <label class="pm-field">
+          <span>{{ 'masters.payment_methods.name' | translate }} *</span>
+          <input type="text" formControlName="name" maxlength="120"
+            [placeholder]="'masters.payment_methods.name_placeholder' | translate" />
+        </label>
+        <label class="pm-field">
+          <span>{{ 'masters.payment_methods.kind' | translate }} *</span>
+          <select formControlName="kind">
+            @for (kind of kinds; track kind.value) {
+              <option [value]="kind.value">{{ kind.labelKey | translate }}</option>
+            }
+          </select>
+          <small class="pm-field__hint">{{ 'masters.payment_methods.kind_help' | translate }}</small>
+        </label>
+        <label class="pm-field">
+          <span>{{ 'masters.payment_methods.fiscal_code' | translate }}</span>
+          <input type="text" formControlName="fiscalCode" maxlength="10" autocomplete="off" />
+          <small class="pm-field__hint">
+            @if (authority()) {
+              {{ 'masters.payment_methods.fiscal_code_help_authority' | translate: { authority: authority() } }}
+            } @else {
+              {{ 'masters.payment_methods.fiscal_code_help_none' | translate }}
+            }
+          </small>
+        </label>
+      </div>
+      @if (form.touched && form.invalid) {
+        <p class="field-error" role="alert">{{ 'masters.payment_methods.form_invalid' | translate }}</p>
+      }
+      <div class="pm-editor__actions">
+        <button type="submit" class="primary-button" [disabled]="busy()">{{ 'common.save' | translate }}</button>
+        <button type="button" class="secondary-button" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+      </div>
+    </form>
+  }
+
   <div class="table-container card">
     <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th appSortHeader="code" class="text-center">{{ 'masters.payment_methods.code' | translate }}</th>
+          <th appSortHeader="code">{{ 'masters.payment_methods.code' | translate }}</th>
           <th appSortHeader="name">{{ 'masters.payment_methods.name' | translate }}</th>
+          <th appSortHeader="kind">{{ 'masters.payment_methods.kind' | translate }}</th>
+          <th appSortHeader="fiscalCode">{{ 'masters.payment_methods.fiscal_code' | translate }}</th>
+          <th appSortHeader="isActive">{{ 'masters.payment_methods.status' | translate }}</th>
+          @if (editable()) {
+            <th class="text-right">{{ 'common.actions' | translate }}</th>
+          }
         </tr>
       </thead>
       <tbody>
-        @for (method of table.rows(); track method.code) {
-          <tr>
-            <td class="text-center"><code>{{ method.code }}</code></td>
-            <td>{{ method.labelKey | translate }}</td>
+        @for (method of table.rows(); track method.id) {
+          <tr [class.is-retired]="!method.isActive">
+            <td><code>{{ method.code }}</code></td>
+            <td>{{ method.name }}</td>
+            <td>{{ kindLabel(method.kind) | translate }}</td>
+            <td>{{ method.fiscalCode || '—' }}</td>
+            <td>
+              <vx-badge [tone]="method.isActive ? 'ok' : 'neutral'">
+                {{ (method.isActive ? 'masters.payment_methods.active' : 'masters.payment_methods.retired_badge') | translate }}
+              </vx-badge>
+            </td>
+            @if (editable()) {
+              <td class="text-right">
+                @if (!method.isSystem) {
+                  <span class="row-actions" *appHasPermission="'treasury:manage_accounts'">
+                    <button type="button" class="secondary-button" [disabled]="busy()" (click)="startEdit(method)">
+                      {{ 'masters.payment_methods.edit' | translate }}
+                    </button>
+                    <button type="button" class="secondary-button" [disabled]="busy()" (click)="toggleActive(method)">
+                      {{ (method.isActive ? 'masters.payment_methods.retire' : 'masters.payment_methods.reinstate') | translate }}
+                    </button>
+                  </span>
+                }
+              </td>
+            }
           </tr>
         }
       </tbody>

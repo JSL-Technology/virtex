@@ -1,7 +1,8 @@
-import { Component, Input, inject, OnInit } from '@angular/core';
+import { Component, Input, computed, inject, OnInit } from '@angular/core';
+import { CountryService } from '../../../../../core/services/country.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
 import { IntlPhoneInputComponent } from '../../../../../shared/components/intl-phone-input/intl-phone-input.component';
 import { PasswordStrengthComponent } from '../../../../../shared/components/password-strength/password-strength.component';
@@ -16,7 +17,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    TranslatePipe,
+    TranslateModule,
     AuthInputComponent,
     IntlPhoneInputComponent,
     PasswordStrengthComponent,
@@ -29,6 +30,10 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 export class StepAccountInfo implements OnInit {
   @Input() group!: FormGroup;
   private http = inject(HttpClient);
+  private readonly countryService = inject(CountryService);
+
+  /** The country being signed up in: the phone field starts there (QA A-12). */
+  readonly signupCountry = computed(() => this.countryService.currentCountry()?.countryCode ?? null);
 
   readonly UserIcon = User;
   readonly MailIcon = Mail;
@@ -52,7 +57,7 @@ export class StepAccountInfo implements OnInit {
     if (control?.touched && control?.errors) {
       if (control.errors['required']) return 'register.errors.required';
       if (control.errors['email']) return 'register.errors.email_invalid';
-      if (control.errors['emailExists']) return 'Este correo ya está registrado.';
+      if (control.errors['emailExists']) return 'register.errors.email_exists';
       if (control.errors['minlength']) return 'register.errors.password_length';
       if (control.errors['strongPassword']) return 'register.errors.password_weak';
       if (control.errors['passwordMismatch']) return 'register.errors.password_mismatch';

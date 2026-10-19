@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
@@ -19,7 +19,7 @@ import { RecurringEntriesService, RecurringEntry } from '../data/recurring-entri
 @Component({
   selector: 'app-recurring-entries-page',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, HasPermissionDirective, RowLinkDirective],
+  imports: [RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, HasPermissionDirective, RowLinkDirective],
   templateUrl: './recurring-entries.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

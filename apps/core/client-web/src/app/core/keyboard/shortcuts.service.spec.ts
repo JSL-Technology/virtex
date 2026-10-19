@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { ShortcutsService } from './shortcuts.service';
 import { PlatformService } from '../platform/platform.service';
-import { KeyChord } from './keyboard-shortcuts';
+import { KeyChord, SHORTCUT_DEFINITIONS } from './keyboard-shortcuts';
+import { DesktopWindowService } from '../windows/desktop-window.service';
 
 /** A keydown good enough for `matchesChord` to read. */
 function keydown(init: Partial<KeyboardEvent> & { code: string }): KeyboardEvent {
@@ -57,8 +58,8 @@ describe('ShortcutsService', () => {
     service.rebind('tabs.close', { mod: true, shift: true, key: 'K', code: 'KeyK' });
     service.resetBinding('tabs.close');
     expect(service.hasCustomizations()).toBe(false);
-    // The factory Ctrl+W fires again.
-    expect(service.matches(keydown({ ctrlKey: true, code: 'KeyW' }), 'tabs.close')).toBe(true);
+    // The factory Alt+Shift+W fires again (Ctrl+W is the browser's on the web: QA A-14).
+    expect(service.matches(keydown({ altKey: true, shiftKey: true, code: 'KeyW' }), 'tabs.close')).toBe(true);
   });
 
   it('persists overrides so a new instance restores them', () => {
@@ -76,5 +77,61 @@ describe('ShortcutsService', () => {
     service.rebind('tabs.close', { mod: true, shift: true, key: 'K', code: 'KeyK' });
     service.applyPreset('default');
     expect(service.hasCustomizations()).toBe(false);
+  });
+});
+
+/** QA A-14: no default may be a browser-reserved chord or AltGr, nor fire while typing. */
+describe('ShortcutsService — atajos seguros en el navegador', () => {
+  const make = (isDesktop: boolean) => {
+    localStorage.clear();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: PlatformService, useValue: { isMac: () => false } },
+        { provide: DesktopWindowService, useValue: { isDesktop: () => isDesktop } },
+      ],
+    });
+    return TestBed.inject(ShortcutsService);
+  };
+
+  it('en la web ningún atajo por defecto usa Ctrl+Alt (AltGr) ni Ctrl+W/T/Tab', () => {
+    const reserved = ['KeyW', 'KeyT', 'Tab', 'KeyE'];
+    for (const def of SHORTCUT_DEFINITIONS) {
+      for (const chord of def.defaults) {
+        expect({ id: def.id, altGr: Boolean((chord.mod || chord.ctrl) && chord.alt) }).toEqual({ id: def.id, altGr: false });
+        if (chord.mod || chord.ctrl) expect({ id: def.id, code: reserved.includes(chord.code ?? '') }).toEqual({ id: def.id, code: false });
+      }
+    }
+  });
+
+  it('en la app de escritorio se conserva Ctrl+W', () => {
+    const desktop = make(true);
+    expect(desktop.matches(keydown({ ctrlKey: true, code: 'KeyW' }), 'tabs.close')).toBe(true);
+    const web = make(false);
+    expect(web.matches(keydown({ ctrlKey: true, code: 'KeyW' }), 'tabs.close')).toBe(false);
+  });
+
+  it('AltGr nunca dispara un atajo', () => {
+    const service = make(false);
+    const altGr = keydown({ altKey: true, shiftKey: true, code: 'KeyW', getModifierState: (k: string) => k === 'AltGraph' } as never);
+    expect(service.matches(altGr, 'tabs.close')).toBe(false);
+  });
+
+  it('un atajo sin Ctrl no se dispara mientras se escribe en un campo', () => {
+    const service = make(false);
+    const input = document.createElement('input');
+    expect(service.matches(keydown({ altKey: true, shiftKey: true, code: 'KeyW', target: input } as never), 'tabs.close')).toBe(false);
+    expect(service.matches(keydown({ ctrlKey: true, code: 'KeyK', target: input } as never), 'app.search')).toBe(true);
+  });
+
+  it('los atajos por defecto no chocan entre sí', () => {
+    const seen = new Map<string, string>();
+    for (const def of SHORTCUT_DEFINITIONS) {
+      for (const c of def.defaults) {
+        const sig = `${!!c.mod}${!!c.ctrl}${!!c.alt}${!!c.shift}:${c.code}`;
+        expect({ sig, clash: seen.get(sig) }).toEqual({ sig, clash: undefined });
+        seen.set(sig, def.id);
+      }
+    }
   });
 });

@@ -39,7 +39,10 @@ export function buildConfigurationGroup(fb: FormBuilder): FormGroup {
 
 export function buildPlanGroup(fb: FormBuilder): FormGroup {
   return fb.group({
-    selectedPlanId: ['starter', [Validators.required]],
+    // Empty until the catalogue loads: `StepPlan` then selects the RECOMMENDED plan (QA A-11). It
+    // was hard-wired to 'starter' while the card marked «Recommended» was another one, so the
+    // screen recommended one plan and pre-selected a different one.
+    selectedPlanId: ['', [Validators.required]],
     // Monthly unless the customer picks otherwise, and only offered when every plan has an annual
     // Stripe Price behind it — the server refuses a period it cannot charge.
     billingPeriod: ['monthly', [Validators.required]],

@@ -1,14 +1,15 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
+import { CountryPackService } from '../../../core/api/country-pack.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SuppliersService, CreateSupplierDto, UpdateSupplierDto } from '../../../core/api/suppliers.service';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import {
@@ -21,7 +22,7 @@ import { phoneLikeValidator } from '../../../shared/validators/phone-like.valida
 @Component({
   selector: 'app-supplier-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './supplier-form.html',
   styleUrls: ['./supplier-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,6 +51,15 @@ export class SupplierForm implements OnInit {
 
   /** Every country, in the reader's language. See `CountryNamesService`. */
   protected readonly countries = this.countryNames.options;
+
+  /**
+   * The company's market, from its country pack (QA C-06). The taxpayer classification only decides
+   * withholding, so it is asked only where the market withholds at source; the phone placeholder is
+   * the market's own shape.
+   */
+  private readonly countryPack = inject(CountryPackService);
+  protected readonly withholdingApplies = this.countryPack.withholding;
+  protected readonly phoneExample = () => this.countryPack.pack()?.examples.phone ?? '';
 
 
   /**

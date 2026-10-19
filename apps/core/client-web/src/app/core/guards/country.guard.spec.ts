@@ -21,8 +21,11 @@ class MockGeoLocationService {
 }
 
 class MockRouter {
-  createUrlTree = jest.fn((commands) => commands.join('/'));
-  parseUrl = jest.fn((url) => url);
+  createUrlTree = jest.fn((commands: string[], extras?: { queryParams?: Record<string, string> }) => {
+    const query = new URLSearchParams(extras?.queryParams ?? {}).toString();
+    return commands.join('/').replace(/^\/+/, '/') + (query ? `?${query}` : '');
+  });
+  parseUrl = jest.fn((url: string) => ({ queryParams: Object.fromEntries(new URLSearchParams(url.split('?')[1] ?? '')) }));
 }
 
 describe('CountryGuard', () => {
@@ -75,27 +78,64 @@ describe('CountryGuard', () => {
     });
   });
 
-  it('should redirect if country fetch fails', (done) => {
-    countryService.getCountryConfig.mockReturnValue(throwError(() => new Error('Failed')));
+  /**
+   * QA A-13: a failed or unsupported country used to bounce to the sign-in page without a word.
+   * It now lands on the country picker, saying which of the two happened.
+   */
+  it('sends an unreachable configuration to the country picker, flagged as failed', (done) => {
+    countryService.getCountryConfig.mockReturnValue(throwError(() => ({ status: 0 })));
     const route = {
-        paramMap: {
-          get: (key: string) => key === 'country' ? 'invalid' : 'es'
-        }
-      } as unknown as ActivatedRouteSnapshot;
+      paramMap: { get: (key: string) => (key === 'country' ? 'mx' : 'es') },
+    } as unknown as ActivatedRouteSnapshot;
 
-      const state = { url: '/es/invalid/auth/login' } as RouterStateSnapshot;
-
-      const obs = guard.canActivate(route, state);
-
-      (obs as any).subscribe((result: any) => {
-        // The configuration endpoint is down. Sending the visitor to a country picked at random
-        // would be worse than sending them to sign-in, so the guard redirects THERE — and to the
-        // sign-in route that actually exists. It used to aim at `/es/do/auth/login`, which is not
-        // a route: the country-prefixed branch carries only `register`, so the URL fell through
-        // to the global wildcard and bounced onward through a redirect chain nobody intended.
-        expect(router.createUrlTree).toHaveBeenCalledWith(['/es/auth/login']);
-        expect(result).toBe('/es/auth/login');
+    (guard.canActivate(route, { url: '/es/mx/auth/register' } as RouterStateSnapshot) as any).subscribe(
+      (result: string) => {
+        expect(result).toBe('/es/auth/choose-country?failed=MX');
+        expect(router.createUrlTree).not.toHaveBeenCalledWith(['/es/auth/login']);
         done();
-      });
+      },
+    );
+  });
+
+  it('sends a country the product does not serve to the picker, flagged as unsupported', (done) => {
+    countryService.getCountryConfig.mockReturnValue(throwError(() => ({ status: 404 })));
+    const route = {
+      paramMap: { get: (key: string) => (key === 'country' ? 'gb' : 'en') },
+    } as unknown as ActivatedRouteSnapshot;
+
+    (guard.canActivate(route, { url: '/en/gb/auth/register' } as RouterStateSnapshot) as any).subscribe(
+      (result: string) => {
+        expect(result).toBe('/es/auth/choose-country?unsupported=GB');
+        done();
+      },
+    );
+  });
+
+  it('keeps the query string the visitor arrived with (an emailed magic link)', (done) => {
+    countryService.getCountryConfig.mockReturnValue(throwError(() => ({ status: 404 })));
+    const route = {
+      paramMap: { get: (key: string) => (key === 'country' ? 'fr' : 'es') },
+    } as unknown as ActivatedRouteSnapshot;
+
+    (guard.canActivate(route, { url: '/es/fr/auth/register?email_token=abc' } as RouterStateSnapshot) as any).subscribe(
+      (result: string) => {
+        expect(result).toBe('/es/auth/choose-country?email_token=abc&unsupported=FR');
+        done();
+      },
+    );
+  });
+
+  it('never rewrites the URL to a different country than the one asked for (QA C-06)', (done) => {
+    countryService.getCountryConfig.mockReturnValue(of({ countryCode: 'DO' } as any));
+    const route = {
+      paramMap: { get: (key: string) => (key === 'country' ? 'pt' : 'pt') },
+    } as unknown as ActivatedRouteSnapshot;
+
+    (guard.canActivate(route, { url: '/pt/pt/auth/register' } as RouterStateSnapshot) as any).subscribe(
+      (result: string) => {
+        expect(result).toBe('/es/auth/choose-country?unsupported=PT');
+        done();
+      },
+    );
   });
 });

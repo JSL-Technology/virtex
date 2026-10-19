@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable, map } from 'rxjs';
-import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -48,7 +48,7 @@ const emptyDraft = (): Draft => ({ id: null, name: '', description: '', isActive
 @Component({
   selector: 'app-dimensions-page',
   standalone: true,
-  imports: [FormsModule, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxBadgeComponent, HasPermissionDirective],
+  imports: [FormsModule, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxBadgeComponent, HasPermissionDirective],
   templateUrl: './dimensions.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', '../../../shared/styles/document-form.scss', './dimensions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

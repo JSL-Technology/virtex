@@ -16,10 +16,11 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { LucideAngularModule, Plus, Trash2, FileText, Sparkles, Paperclip } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
+import { LucideAngularModule, ChevronLeft, Plus, Trash2, FileText, Sparkles, Paperclip } from 'lucide-angular';
 import { Observable, of, map } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
+import { CountryPackService } from '../../../core/api/country-pack.service';
+import { PaymentMethodsService } from '../../../core/api/payment-methods.service';
 
 import {
   AccountsPayableService,
@@ -38,7 +39,7 @@ import { TreasuryService } from '../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { toIsoDate } from '../../../shared/utils/date.util';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -97,7 +98,7 @@ interface BillTotals {
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
-    TranslatePipe,
+    TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
     ...VX_FORM_A11Y, VxDateFieldComponent, ...VX_SELECT, RouterLink],
@@ -114,7 +115,29 @@ export class VendorBillFormPage implements OnInit {
   protected readonly ReadIcon = Sparkles;
   protected readonly AttachIcon = Paperclip;
   protected readonly purchaseCategories = PURCHASE_CATEGORIES;
-  protected readonly paymentForms = PAYMENT_FORMS;
+  // ── The company's market (its country pack, QA C-06) ───────────────────────
+  //
+  // The bill used to ask every company for an «NCF», a DGII 606 purchase type and withholding —
+  // the Dominican purchase — whatever its country. Each now follows the market's pack.
+
+  private readonly countryPack = inject(CountryPackService);
+  private readonly paymentMethodsApi = inject(PaymentMethodsService);
+  /** What the supplier's document number is called here: NCF, CFDI UUID, or the supplier's invoice number. */
+  protected readonly supplierNumberKey = computed(
+    () => this.countryPack.pack()?.documents.supplierDocumentNumberKey ?? 'accounts_payable.form.ncf',
+  );
+  /** The DGII 606 «Tipo de bienes y servicios», where the market classifies purchases for a report. */
+  protected readonly purchaseClassification = computed(
+    () => this.countryPack.pack()?.documents.purchaseClassification ?? false,
+  );
+  protected readonly withholdingApplies = this.countryPack.withholding;
+  /**
+   * The company's payment methods; for a Dominican company they ARE the DGII's 606 codes. The
+   * constant stays as the list while they load, so the field is never empty.
+   */
+  protected readonly paymentForms = signal<ReadonlyArray<{ code: string; label: string | null; labelKey: string | null }>>(
+    PAYMENT_FORMS.map((form) => ({ code: form.code, label: null, labelKey: form.labelKey })),
+  );
 
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
@@ -361,7 +384,23 @@ export class VendorBillFormPage implements OnInit {
     }
     this.initForm();
     this.loadPickers();
+    this.loadPaymentMethods();
     this.checkMode();
+  }
+
+  /** The company's active payment methods; a bill that has none of them yet takes the first. */
+  private loadPaymentMethods(): void {
+    this.paymentMethodsApi.active().subscribe({
+      next: (methods) => {
+        if (methods.length === 0) return;
+        this.paymentForms.set(methods.map((method) => ({ code: method.code, label: method.name, labelKey: null })));
+        const control = this.form.get('paymentForm');
+        if (control && !control.dirty && !methods.some((method) => method.code === control.value)) {
+          control.setValue(methods[0].code, { emitEvent: false });
+        }
+      },
+      error: () => undefined,
+    });
   }
 
   private initForm(): void {
@@ -683,12 +722,15 @@ export class VendorBillFormPage implements OnInit {
       ncf: value.ncf || undefined,
       currencyCode: value.currencyCode || undefined,
       branchId: value.branchId || undefined,
-      purchaseCategory: value.purchaseCategory || undefined,
+      // Only where the market classifies purchases for a report (the DGII 606).
+      purchaseCategory: (this.purchaseClassification() && value.purchaseCategory) || undefined,
       paymentForm: value.paymentForm || undefined,
       isrRetentionType: value.isrRetentionType || undefined,
       taxAmount: Number(value.taxAmount ?? 0),
-      taxWithheld: Number(value.taxWithheld ?? 0),
-      incomeTaxWithheld: Number(value.incomeTaxWithheld ?? 0),
+      // Zero where the market has no withholding at source: the fields are not offered there.
+      taxWithheld: this.countryPack.pack()?.withholding.applies === false ? 0 : Number(value.taxWithheld ?? 0),
+      incomeTaxWithheld:
+        this.countryPack.pack()?.withholding.applies === false ? 0 : Number(value.incomeTaxWithheld ?? 0),
       taxToCost: Number(value.taxToCost ?? 0),
       taxProportional: Number(value.taxProportional ?? 0),
       exciseAmount: Number(value.exciseAmount ?? 0),

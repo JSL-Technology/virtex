@@ -1,12 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslatePipe, provideTranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VX_DATE, dateOrder, toCalendarDate } from './index';
 
 @Component({
   standalone: true,
-  imports: [TranslatePipe, ...VX_DATE],
+  imports: [TranslateModule, ...VX_DATE],
   template: `<vx-date-range [(from)]="from" [(to)]="to" />`,
 })
 class RangeHost {
@@ -16,7 +16,7 @@ class RangeHost {
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, ...VX_DATE],
+  imports: [ReactiveFormsModule, TranslateModule, ...VX_DATE],
   template: `
     <form [formGroup]="form">
       <vx-date-field inputId="issueDate" formControlName="issueDate" [required]="true" />

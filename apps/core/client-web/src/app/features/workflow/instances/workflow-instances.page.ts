@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, X } from 'lucide-angular';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -35,7 +35,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-workflow-instances-page',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule, RouterLink, RowLinkDirective, ...FORMAT_PIPES, ...VX_UI, ListShellComponent, VxDateRangeComponent],
+  imports: [TranslateModule, LucideAngularModule, RouterLink, RowLinkDirective, ...FORMAT_PIPES, ...VX_UI, ListShellComponent, VxDateRangeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './workflow-instances.page.scss',
   template: `

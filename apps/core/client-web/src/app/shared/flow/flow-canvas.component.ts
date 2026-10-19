@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Maximize, Minus, Plus, Locate } from 'lucide-angular';
 import {
   EFConnectableSide,
@@ -57,7 +57,7 @@ export interface FlowCanvasEdge<E = unknown> {
 @Component({
   selector: 'vx-flow-canvas',
   standalone: true,
-  imports: [NgTemplateOutlet, FFlowModule, LucideAngularModule, TranslatePipe],
+  imports: [NgTemplateOutlet, FFlowModule, LucideAngularModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./flow-canvas.component.scss'],
   template: `

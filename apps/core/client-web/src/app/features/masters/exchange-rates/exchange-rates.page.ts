@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { LucideAngularModule, PlusCircle, Trash2, Upload } from 'lucide-angular';
-import { FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
@@ -43,7 +43,7 @@ const todayIso = (): string => {
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    TranslatePipe,
+    TranslateModule,
     LucideAngularModule,
     ...FORMAT_PIPES,
     ...VX_FORM_A11Y,

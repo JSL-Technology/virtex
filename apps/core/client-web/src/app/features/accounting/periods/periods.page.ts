@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { DialogService } from '../../../core/services/dialog.service';
 import { LucideAngularModule, Lock, Unlock, RefreshCw } from 'lucide-angular';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
 import {
   AccountingPeriod,
   AccountingPeriodsService,
@@ -38,7 +38,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-periods-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './periods.page.html',
   styleUrls: ['./periods.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

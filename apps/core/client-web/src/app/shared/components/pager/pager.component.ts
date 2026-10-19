@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { ChevronLeft, ChevronRight, LucideAngularModule } from 'lucide-angular';
 
 /** A gap in the page list, so `1 … 7 8 9 … 42` is expressible as data. */
@@ -30,7 +30,7 @@ type PageSlot = number | typeof GAP;
 @Component({
   selector: 'vx-pager',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule],
+  imports: [TranslateModule, LucideAngularModule],
   templateUrl: './pager.component.html',
   styleUrls: ['./pager.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

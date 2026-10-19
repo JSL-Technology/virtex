@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, AlertTriangle, AlertCircle, CheckCircle } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { DashboardAlert, DashboardApiService } from '../../../../core/api/dashboard-api.service';
@@ -25,7 +25,7 @@ import { VxEmptyStateComponent } from '../../../../shared/components/feedback';
 @Component({
   selector: 'app-alerts-panel',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslatePipe, VxEmptyStateComponent, RouterLink],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, VxEmptyStateComponent, RouterLink],
   templateUrl: './alerts-panel.html',
   styleUrls: ['../widget-styles.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

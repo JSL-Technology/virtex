@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FormatService } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { AlertTriangle, Copy, CircleAlert, LucideAngularModule, Plus, Trash2, ArrowRight } from 'lucide-angular';
 import { VX_SELECT } from '../../../../shared/components/select';
@@ -28,7 +28,7 @@ const UNIT_MINUTES: Record<DurationUnit, number> = { minutes: 1, hours: 60, days
 @Component({
   selector: 'app-workflow-node-panel',
   standalone: true,
-  imports: [FormsModule, TranslatePipe, LucideAngularModule, ...VX_SELECT, ...VX_FORM_A11Y, ActionParamsComponent, VariablesEditorComponent],
+  imports: [FormsModule, TranslateModule, LucideAngularModule, ...VX_SELECT, ...VX_FORM_A11Y, ActionParamsComponent, VariablesEditorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inspector.scss',
   template: `

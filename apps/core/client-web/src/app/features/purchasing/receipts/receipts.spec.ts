@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { of } from 'rxjs';
 import { GoodsReceiptNewPage } from './receipt-new.page';
 import { GoodsReceiptPage } from './receipt.page';

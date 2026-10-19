@@ -61,6 +61,11 @@ export class FiscalReturnsService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/compliance`;
 
+  /** The first day the company had anything to report (QA A-15): where the calendar starts. */
+  activeSince(): Observable<{ activeSince: string }> {
+    return this.http.get<{ activeSince: string }>(`${this.base}/filings/active-since`);
+  }
+
   filings(year: number): Observable<FiscalReturnFiling[]> {
     return this.http.get<FiscalReturnFiling[]>(`${this.base}/filings`, { params: { year } });
   }

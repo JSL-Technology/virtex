@@ -45,6 +45,11 @@ export class SecurityService {
     return this.http.post<void>(`${this.apiUrl}/sessions/${sessionId}/revoke`, {});
   }
 
+  /** Ends every session except this one (QA M-10). */
+  revokeOtherSessions(): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/sessions/revoke-others`, {});
+  }
+
   generate2faSecret(): Observable<TwoFactorSetupResponse> {
     return this.http.post<TwoFactorSetupResponse>(`${this.apiUrl}/2fa/generate`, {});
   }

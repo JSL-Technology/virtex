@@ -64,12 +64,33 @@
   <div class="security-card">
     <div class="sessions-list">
       <div class="sessions-list__header">
-        <h3>{{ 'settings.security.sessions_title' | translate }}</h3>
-        <p>{{ 'settings.security.sessions_description' | translate }}</p>
+        <div>
+          <h3>{{ 'settings.security.sessions_title' | translate }}</h3>
+          <p>{{ 'settings.security.sessions_description' | translate }}</p>
+        </div>
+        <!-- One action for the common case: «I only use this device» (QA M-10). -->
+        @if (otherSessionCount() > 0) {
+          <button type="button" class="secondary-button" (click)="revokeOtherSessions()">
+            {{ 'settings.security.revoke_others' | translate: { count: otherSessionCount() } }}
+          </button>
+        }
       </div>
 
       <div class="sessions-list__items">
-        @for (session of sessions(); track session.id) {
+        <!--
+          Grouped by device (browser + system + kind). 23 sessions listed one by one were 23 rows of
+          «Chrome en Windows» nobody could tell apart; a group shows its latest session and how many
+          more it holds, and expands on request.
+        -->
+        @for (group of sessionGroups(); track group.key) {
+        <div class="sessions-group">
+        @if (group.sessions.length > 1) {
+          <button type="button" class="sessions-group__toggle" [attr.aria-expanded]="isGroupOpen(group.key)" (click)="toggleGroup(group.key)">
+            {{ 'settings.security.sessions_in_group' | translate: { count: group.sessions.length } }}
+            <span aria-hidden="true">{{ isGroupOpen(group.key) ? '▴' : '▾' }}</span>
+          </button>
+        }
+        @for (session of visibleSessions(group); track session.id) {
           <div class="sessions-list__item" (click)="toggleSessionDetails(session)" tabindex="0" role="button" (keydown.enter)="toggleSessionDetails(session)" (keydown.space)="$event.preventDefault(); toggleSessionDetails(session)">
             <div class="sessions-list__content">
               <div class="sessions-list__info">
@@ -128,6 +149,8 @@
               </div>
             }
           </div>
+        }
+        </div>
         }
       </div>
     </div>

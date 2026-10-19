@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxDateFieldComponent } from '../../../shared/components/date';
@@ -39,7 +39,7 @@ interface ReceiptLineValue {
 @Component({
   selector: 'app-goods-receipt-new-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, VxDateFieldComponent],
+  imports: [ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, VxDateFieldComponent],
   templateUrl: './receipt-new.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

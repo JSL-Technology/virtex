@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Plus, Pencil, Trash2 } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -23,7 +23,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-departments-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslatePipe, ListShellComponent],
+  imports: [...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './departments.page.html',
   styleUrls: ['./departments.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

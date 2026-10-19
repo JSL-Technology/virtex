@@ -2,7 +2,8 @@ import { Component, EventEmitter, Input, Output, computed, inject, signal } from
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import {
   CountryService,
   type FiscalFieldSpec,
@@ -12,6 +13,7 @@ import {
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { CountryNamesService } from '../../../../../core/i18n/countries';
+import { CountryFlagComponent } from '../../../../../shared/components/country-flag/country-flag.component';
 
 /**
  * The fiscal identity step: country, tax id, and the fiscal address.
@@ -31,7 +33,7 @@ import { CountryNamesService } from '../../../../../core/i18n/countries';
 @Component({
   selector: 'app-step-configuration',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, AuthInputComponent, ...VX_FORM_A11Y],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, AuthInputComponent, CountryFlagComponent, ...VX_FORM_A11Y],
   templateUrl: './step-configuration.html',
   styleUrls: ['./step-configuration.scss'],
 })
@@ -43,6 +45,7 @@ export class StepConfiguration {
 
   public countryService = inject(CountryService);
   private router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   readonly countries = signal<SupportedCountry[]>([]);
   private readonly countryNames = inject(CountryNamesService);
@@ -109,12 +112,34 @@ export class StepConfiguration {
       : { label: config.taxIdLabel, example: config.taxIdExample, pattern: config.taxIdPattern };
   });
 
-  readonly taxIdLabel = computed(() => this.documentSpec()?.label ?? 'Tax ID');
+  /**
+   * The format the identifier is checked against, said plainly (QA A-12).
+   *
+   * Derived from the country's own example: a numeric identifier is described by its digit count
+   * and mask — an EIN reads "9 digits, in the format XX-XXXXXXX" — and an alphanumeric one (an
+   * RFC) by its example. Whether a check digit is also verified is a separate, server-declared
+   * fact (`taxIdHasCheckDigit`), appended only when true.
+   */
+  readonly taxIdHint = computed<{ key: string; params: Record<string, unknown> } | null>(() => {
+    const example = this.documentSpec()?.example || '';
+    if (!example) return null;
+    const label = this.taxIdLabel();
+    if (/^[\d\s.\-/]+$/.test(example)) {
+      const digits = example.replace(/\D/g, '').length;
+      const mask = example.replace(/\d/g, 'X');
+      return { key: 'auth.step_configuration.tax_id_format_digits', params: { label, digits, mask } };
+    }
+    return { key: 'auth.step_configuration.tax_id_format_example', params: { label, example } };
+  });
+
+  // Generic labels for the instant before the country's own arrive — never one country's words
+  // (they were Spanish «Provincia» and «Código postal» for every market).
+  readonly taxIdLabel = computed(() => this.documentSpec()?.label ?? this.translate.instant('auth.step_configuration.tax_id_generic'));
   readonly taxIdPlaceholder = computed(() => this.documentSpec()?.example ?? '');
   /** The shape the client validates against, following the taxpayer kind. */
   readonly taxIdPattern = computed(() => this.documentSpec()?.pattern ?? null);
-  readonly divisionLabel = computed(() => this.config()?.address.divisionLabel ?? 'Provincia');
-  readonly postalCodeLabel = computed(() => this.config()?.address.postalCodeLabel ?? 'Código postal');
+  readonly divisionLabel = computed(() => this.config()?.address.divisionLabel ?? this.translate.instant('fiscal.labels.region'));
+  readonly postalCodeLabel = computed(() => this.config()?.address.postalCodeLabel ?? this.translate.instant('fiscal.labels.postal_code'));
   readonly postalCodeRequired = computed(() => this.config()?.address.postalCodeRequired ?? false);
 
   /**
@@ -166,10 +191,6 @@ export class StepConfiguration {
     if (!control?.touched || !control.errors) return '';
     if (control.errors['required']) return 'register.errors.required';
     return 'register.errors.invalid_format';
-  }
-
-  onFlagError(event: Event) {
-    (event.target as HTMLImageElement).src = 'assets/flags/do.svg';
   }
 
   onCountryChange(event: Event) {

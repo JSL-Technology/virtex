@@ -1,3 +1,4 @@
+import { RecordDependents } from '../../../core/services/safe-delete.service';
 // app/core/api/customers.service.ts
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -44,6 +45,11 @@ export class CustomersService {
 
   updateCustomer(id: string, customer: UpdateCustomerDto): Observable<Customer> {
     return this.http.patch<Customer>(`${this.apiUrl}/${id}`, customer);
+  }
+
+  /** What still uses the customer, so the delete can be refused before it is attempted. */
+  dependents(id: string): Observable<RecordDependents> {
+    return this.http.get<RecordDependents>(`${this.apiUrl}/${id}/dependents`);
   }
 
   deleteCustomer(id: string): Observable<void> {

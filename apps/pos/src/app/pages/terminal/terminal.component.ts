@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { FormatService, resolveErrorKey } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, FormatService, resolveErrorKey } from '@virteex/shared/ui-i18n';
 import { AuthService } from '../../core/auth.service';
 import { MyBranches, PosApiService, Product } from '../../core/pos-api.service';
 
@@ -58,7 +58,7 @@ function taxRateOf(product: Product, standardRate: number): number {
 @Component({
   selector: 'pos-terminal',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="pos">

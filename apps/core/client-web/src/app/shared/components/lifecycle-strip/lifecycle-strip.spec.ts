@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { DocumentLifecycle } from '@virteex/shared/types';
 import { DocumentLifecycleService } from '../../../core/lifecycle/document-lifecycle.service';
 import { VxLifecycleStripComponent } from './index';
@@ -21,7 +21,7 @@ const ORDEN: DocumentLifecycle = {
 
 @Component({
   standalone: true,
-  imports: [VxLifecycleStripComponent, TranslatePipe],
+  imports: [VxLifecycleStripComponent, TranslateModule],
   template: `<vx-lifecycle-strip [documentType]="tipo()" [status]="estado()" />`,
 })
 class Host {

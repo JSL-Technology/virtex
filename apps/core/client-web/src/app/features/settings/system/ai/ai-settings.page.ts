@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { AiOverview, AiRunSummary, AiService } from '../../../ai/data/ai.service';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
@@ -31,7 +31,7 @@ interface FeatureUsage {
 @Component({
   selector: 'app-ai-settings-page',
   standalone: true,
-  imports: [TranslatePipe, RouterLink, HasPermissionDirective, ...FORMAT_PIPES, AiAgentsPanelComponent],
+  imports: [TranslateModule, RouterLink, HasPermissionDirective, ...FORMAT_PIPES, AiAgentsPanelComponent],
   templateUrl: './ai-settings.page.html',
   styleUrls: ['./ai-settings.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

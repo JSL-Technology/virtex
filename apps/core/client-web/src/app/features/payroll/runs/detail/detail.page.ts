@@ -1,8 +1,8 @@
-import { FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Calculator, CheckCircle, Banknote, XCircle, Download, Plus, Trash2 } from 'lucide-angular';
 import { Observable, catchError, finalize, forkJoin, of } from 'rxjs';
 import { TreasuryService, CashPositionRow } from '../../../accounting/data/treasury.service';
@@ -43,7 +43,7 @@ import { VX_SORT, sortable } from '../../../../shared/components/sort';
 @Component({
   selector: 'app-payroll-run-detail-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, DocumentShellComponent, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, VxAmountComponent],
+  imports: [...VX_SORT, CommonModule, DocumentShellComponent, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

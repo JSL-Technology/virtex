@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, si
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { Observable, map, startWith } from 'rxjs';
-import { FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxDateFieldComponent } from '../../../shared/components/date';
@@ -17,6 +17,7 @@ import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.s
 import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
 import { Account } from '../../../core/models/account.model';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
+import { CountryPackService } from '../../../core/api/country-pack.service';
 
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 const todayIso = (): string => {
@@ -35,7 +36,7 @@ const todayIso = (): string => {
 @Component({
   selector: 'app-vendor-debit-note-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, VxDateFieldComponent, VxAmountComponent],
+  imports: [ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, VxDateFieldComponent, VxAmountComponent],
   templateUrl: './debit-note-form.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +49,14 @@ export class VendorDebitNoteFormPage implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly organization = inject(ActiveOrganizationService);
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
+  private readonly countryPack = inject(CountryPackService);
+  /**
+   * The note's authority number (the DGII NCF, shape-checked on the server), asked only where the
+   * market has one for purchases (QA C-06): a US supplier's debit memo has no such number.
+   */
+  protected readonly supplierFiscalNumber = computed(
+    () => this.countryPack.pack()?.documents.supplierFiscalNumber ?? false,
+  );
 
   /** `?billId=` — from the bill's own page. */
   readonly billId = input<string>();
@@ -123,7 +132,7 @@ export class VendorDebitNoteFormPage implements OnInit {
         amount: round2(Number(raw.amount)),
         taxAmount: round2(Number(raw.taxAmount) || 0),
         expenseAccountId: raw.expenseAccountId as string,
-        ncf: (raw.ncf ?? '').trim().toUpperCase() || undefined,
+        ncf: (this.supplierFiscalNumber() && (raw.ncf ?? '').trim().toUpperCase()) || undefined,
         reason: (raw.reason ?? '').trim(),
       })
       .subscribe({

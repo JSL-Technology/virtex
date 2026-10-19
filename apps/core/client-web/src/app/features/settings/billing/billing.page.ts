@@ -1,4 +1,4 @@
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { translateOrLiteral, FormatService } from '@virteex/shared/ui-i18n';
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -8,7 +8,7 @@ import { BillingService, BillingOverview, BillingInvoice } from '../../../core/s
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { formatPlanPrice, minorUnitFactorFor } from '../../../core/models/plan.model';
 import { LanguageService } from '../../../core/services/language';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { composeKey } from '@virteex/shared/types';
 import { VxSpinnerComponent } from '../../../shared/components/feedback';
 import { VxPaymentCardComponent } from '../../../shared/components/payment-card';
@@ -16,7 +16,7 @@ import { VxPaymentCardComponent } from '../../../shared/components/payment-card'
 @Component({
   selector: 'app-billing-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslatePipe, VxSpinnerComponent, VxPaymentCardComponent, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, VxSpinnerComponent, VxPaymentCardComponent, ...FORMAT_PIPES],
   templateUrl: './billing.page.html',
   styleUrls: ['./billing.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

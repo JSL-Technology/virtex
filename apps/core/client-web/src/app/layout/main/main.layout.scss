@@ -635,7 +635,11 @@ app-module-rail {
   position: absolute;
   top: calc(100% + 12px);
   right: 0;
-  width: 280px;
+  //  Sized by its content: at a fixed 280 px «Nueva cotización» ran into «Alt Shift Q», and the
+  //  longer Portuguese and English labels were worse (QA A-20). Capped by the viewport on phones.
+  width: max-content;
+  min-width: 300px;
+  max-width: min(440px, calc(100vw - 32px));
   border-radius: var(--radius-lg);
   box-shadow: var(--glass-shadow);
   @include ds.popover-surface;
@@ -699,6 +703,10 @@ app-module-rail {
   .quick-action-label {
     flex: 1;
     min-width: 0;
+    //  A label that still does not fit wraps instead of sliding under the shortcut chip.
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: start;
   }
 
   // Just alignment now: the keycaps are drawn by vx-kbd, which brings its own chip styling.
@@ -1050,10 +1058,10 @@ app-module-rail {
     background-color: var(--glass-border-soft);
   }
 
-  //  Feedback abre un submenú flotante AL LADO (patrón submenú de escritorio),
-  //  no un acordeón. El grupo es el ancla de posición del panel.
+  //  Feedback se despliega EN LÍNEA, como acordeón (QA M-10). El submenú flotante a la izquierda
+  //  llevaba un chevron que apuntaba hacia fuera del menú, no cabía en un teléfono y se cerraba al
+  //  cruzar el hueco con el ratón. Dentro del menú, con un chevron que gira, no hay nada que adivinar.
   .feedback-group {
-    position: relative;
     display: flex;
     flex-direction: column;
   }
@@ -1061,55 +1069,64 @@ app-module-rail {
   .feedback-chevron {
     margin-left: auto;
     color: var(--text-tertiary);
+    transition: transform 0.16s ease;
   }
 
-  //  Panel lateral. Se abre a la IZQUIERDA (`right: 100%`) porque el menú está
-  //  pegado al borde derecho de la ventana y hacia la derecha se saldría de
-  //  pantalla. Es su propia lámina de cristal (fondo + filo + sombra propios).
-  //  Oculto por defecto; se revela al pasar el ratón, al enfocar con teclado
-  //  (`focus-within`) o cuando el clic lo deja fijado (`.open`).
+  .feedback-group.open .feedback-chevron {
+    transform: rotate(180deg);
+  }
+
   .feedback-submenu {
-    position: absolute;
-    top: calc(-1 * var(--space-2));
-    right: 100%;
-    margin-right: var(--space-2);
+    display: none;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-left: var(--space-6);
+  }
+
+  .feedback-group.open .feedback-submenu {
+    display: flex;
+  }
+
+  //  Idioma y tema, a un clic desde el menú de usuario: antes solo vivían dentro de Ajustes.
+  .menu-preference {
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
-    min-width: 224px;
-    padding: var(--space-2);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--glass-shadow);
-    @include ds.popover-surface;
-    @include ds.glass-edge();
-    z-index: 1;
-
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(var(--space-2));
-    transition:
-      opacity 0.16s ease,
-      transform 0.16s ease,
-      visibility 0.16s;
-
-    //  Puente invisible sobre el hueco: evita que el submenú se cierre al mover
-    //  el ratón desde «Feedback» hasta el panel.
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      right: calc(-1 * var(--space-2));
-      width: var(--space-2);
-    }
+    padding: var(--space-1) var(--space-2);
   }
 
-  .feedback-group:hover .feedback-submenu,
-  .feedback-group:focus-within .feedback-submenu,
-  .feedback-group.open .feedback-submenu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(0);
+  .menu-preference__label {
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+  }
+
+  .menu-preference__options {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  .menu-preference__option {
+    flex: 1;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: var(--text-sm);
+    cursor: pointer;
+
+    &[aria-checked='true'] {
+      border-color: var(--accent-border);
+      background: var(--accent-surface);
+      color: var(--accent-text);
+      font-weight: var(--font-semibold);
+    }
+
+    &:focus-visible {
+      outline: var(--focus-ring-width) solid var(--focus-ring-color);
+      outline-offset: var(--focus-ring-offset);
+    }
   }
 
   .dropdown-subitem {
@@ -1328,6 +1345,22 @@ app-module-rail {
                 justify-content: center;
                 flex-shrink: 0;
                 transition: var(--search-transition);
+              }
+
+              //  Total and state of a document result, right-aligned beside it (QA A-19).
+              .item-meta {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                flex-shrink: 0;
+                font-size: var(--text-xs);
+                font-variant-numeric: tabular-nums;
+                color: var(--search-description-color);
+
+                .item-amount {
+                  color: var(--content-primary);
+                  font-weight: var(--font-semibold);
+                }
               }
 
               .item-content {

@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { LucideAngularModule, AlertCircle, CheckCircle, Info } from 'lucide-angular';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { AuthService } from '../../../../core/services/auth';
 import { DialogService } from '../../../../core/services/dialog.service';
 import { NotificationService } from '../../../../core/services/notification';
@@ -34,7 +34,7 @@ const CHECKS: Record<YearEndCheckId, { label: string; failing: string; link?: st
 @Component({
   selector: 'app-annual-close-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslatePipe, LucideAngularModule, ...VX_SELECT, ...FORMAT_PIPES],
+  imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...VX_SELECT, ...FORMAT_PIPES],
   templateUrl: './annual-close.page.html',
   styleUrls: ['./annual-close.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

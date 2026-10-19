@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FiscalDocumentTypeView,
@@ -21,7 +21,7 @@ import {
 import { FiscalEmissionMode, InvoicesService, InvoicingContext } from '../../../../core/services/invoices';
 import { EmissionModeCardComponent, SigningCertificateCardComponent } from '../../fiscal/shared';
 import { NotificationService } from '../../../../core/services/notification';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
@@ -76,7 +76,7 @@ const SECRET_BY_COUNTRY: Record<string, 'CAF_XML' | 'DIAN_TECHNICAL_KEY'> = {
     ...VX_SORT,
     CommonModule,
     ReactiveFormsModule,
-    TranslatePipe,
+    TranslateModule,
     ...FORMAT_PIPES,
     ...VX_FORM_A11Y,
     VxDateFieldComponent,

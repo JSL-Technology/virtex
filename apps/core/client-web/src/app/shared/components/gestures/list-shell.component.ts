@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, model, output } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Search, Inbox, AlertTriangle, RotateCw, X } from 'lucide-angular';
 import { refreshWhenStale } from '../../../core/data/data-version.service';
 
@@ -33,7 +33,7 @@ import { refreshWhenStale } from '../../../core/data/data-version.service';
 @Component({
   selector: 'vx-list-shell',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule],
+  imports: [TranslateModule, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './list-shell.component.html',
   styleUrls: ['./list-shell.component.scss'],

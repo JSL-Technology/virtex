@@ -4,11 +4,11 @@ import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
 import { CurrenciesService } from '../../../../core/api/currencies.service';
 import { NotificationService } from '../../../../core/services/notification';
 import {
@@ -49,7 +49,7 @@ import { PercentInputDirective } from '../../../../shared/directives/percent-inp
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
-    TranslatePipe,
+    TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
     RouterLink,

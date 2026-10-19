@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { Ban, LucideAngularModule, Pencil, Trash2 } from 'lucide-angular';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { DocumentShellComponent } from '../../../shared/components/gestures';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxBranchLabelComponent } from '../../../shared/components/branch-picker';
@@ -23,7 +23,7 @@ import { FIXED_ASSET_TONE } from './fixed-assets.page';
 @Component({
   selector: 'app-fixed-asset-page',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, VxAmountComponent, VxBranchLabelComponent, HasPermissionDirective],
+  imports: [RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, VxAmountComponent, VxBranchLabelComponent, HasPermissionDirective],
   templateUrl: './fixed-asset.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss', '../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

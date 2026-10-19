@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { IdleService } from '../../../core/services/idle.service';
 import { VxDialogComponent } from '../dialog';
 
@@ -17,7 +17,7 @@ import { VxDialogComponent } from '../dialog';
 @Component({
   selector: 'app-idle-warning',
   standalone: true,
-  imports: [TranslatePipe, VxDialogComponent],
+  imports: [TranslateModule, VxDialogComponent],
   templateUrl: './idle-warning.component.html',
   styleUrl: './idle-warning.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

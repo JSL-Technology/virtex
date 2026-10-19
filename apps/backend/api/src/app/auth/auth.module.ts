@@ -24,6 +24,8 @@ import { RegistrationService } from './services/registration.service';
 import { DevSeederService } from './services/dev-seeder.service';
 import { PendingRegistrationCleanupService } from './services/pending-registration-cleanup.service';
 import { PendingRegistration } from './entities/pending-registration.entity';
+import { LegalAcceptance } from './entities/legal-acceptance.entity';
+import { AccountUnlockService } from './services/account-unlock.service';
 import { UserOrganization } from '../organizations/entities/user-organization.entity';
 import { RegistrationPaymentListener } from './listeners/registration-payment.listener';
 import { TwoFactorAuthService } from './services/two-factor-auth.service';
@@ -97,6 +99,7 @@ import { KeyManagementModule } from './services/key-management.module';
       OrganizationDomain,
       Role,
       PendingRegistration,
+      LegalAcceptance,
       // The ownership policy resolves authority by membership, like the rest of the platform.
       UserOrganization,
     ]),
@@ -185,6 +188,8 @@ import { KeyManagementModule } from './services/key-management.module';
     RegistrationPaymentListener,
     TwoFactorAuthService,
     PasswordRecoveryService,
+    // Lifts a sign-in lockout from a link e-mailed to the owner (QA C-09).
+    AccountUnlockService,
     WebAuthnService,
     ImpersonationService,
     JwtStrategy,

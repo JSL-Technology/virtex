@@ -64,3 +64,10 @@
     p { margin: 0; max-width: 32rem; }
   }
 }
+
+/* Total and state of a document result, so the invoice found by its NCF is recognisable (QA A-19). */
+.item-meta {
+  font-size: var(--text-xs);
+  color: var(--content-secondary);
+  font-variant-numeric: tabular-nums;
+}

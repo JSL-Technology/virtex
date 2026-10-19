@@ -1,28 +1,39 @@
 // =============================================================================
 //  PROVEEDORES DE IDENTIDAD EXTERNOS
 // =============================================================================
-//  Tres botones iguales, solo icono. La igualdad es deliberada: ninguno de los
-//  tres es «el recomendado», y darle más peso a uno empuja al usuario hacia un
-//  proveedor que quizá no sea el suyo. El nombre del proveedor vive en el
-//  `aria-label` de cada botón.
+//  Tres botones iguales, icono y nombre. La igualdad es deliberada: ninguno de
+//  los tres es «el recomendado», y darle más peso a uno empuja al usuario hacia
+//  un proveedor que quizá no sea el suyo.
+//
+//  `display: contents` en el anfitrión y en la rejilla: los tres botones se
+//  colocan en la rejilla de la pantalla de acceso, junto a la llave de acceso,
+//  como una sola fila de cuatro celdas que se parte en dos columnas cuando el
+//  nombre no cabe.
 // =============================================================================
 @use '../../../../../assets/styles/design-system' as ds;
 
 :host {
-  display: block;
+  display: contents;
 }
 
 .social-auth-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-2);
-  width: 100%;
+  display: contents;
 }
 
 .social-btn {
   @include ds.glass-button-secondary('lg');
-  padding-inline: var(--space-2);
+  padding-inline: var(--space-3);
   min-width: 0;
+  gap: var(--space-2);
+  justify-content: center;
+
+  .social-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
   .social-icon {
     width: 1.15rem;

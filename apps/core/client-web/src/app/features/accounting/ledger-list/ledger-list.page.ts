@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { LedgersService } from '../../../core/api/ledgers.service';
 import { Ledger } from '../../../core/models/ledger.model';
@@ -26,7 +26,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-ledger-list-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslatePipe, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
   templateUrl: './ledger-list.page.html',
   styleUrls: ['./ledger-list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

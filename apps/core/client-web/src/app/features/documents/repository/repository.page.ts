@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, ElementRef, effect, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import {
   LucideAngularModule,
   Folder,
@@ -15,7 +15,7 @@ import {
   CornerLeftUp,
 } from 'lucide-angular';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import { DocumentNode, DocumentsService, DocumentTemplateType } from '../data/documents.service';
@@ -51,7 +51,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-repository-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent],
+  imports: [...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './repository.page.html',
   styleUrls: ['./repository.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

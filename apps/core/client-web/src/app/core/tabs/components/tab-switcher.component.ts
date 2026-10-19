@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Layers, X } from 'lucide-angular';
 import { TabStateService } from '../tab-state.service';
 import { WindowModeService } from '../../windows/window-mode.service';
@@ -22,7 +22,7 @@ import { resolveTabIcon } from './tab-icon';
 @Component({
   selector: 'app-tab-switcher',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, LucideAngularModule, ClickOutsideDirective],
+  imports: [CommonModule, TranslateModule, LucideAngularModule, ClickOutsideDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (windowMode.mode() === 'compact') {

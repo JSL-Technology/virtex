@@ -1,4 +1,4 @@
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { CardBrand, cardBrandLabel, normalizeCardBrand, VxCardBrandComponent } from '../card-brand';
 
@@ -30,7 +30,7 @@ import { CardBrand, cardBrandLabel, normalizeCardBrand, VxCardBrandComponent } f
 @Component({
   selector: 'vx-payment-card',
   standalone: true,
-  imports: [VxCardBrandComponent, TranslatePipe],
+  imports: [VxCardBrandComponent, TranslateModule],
   templateUrl: './payment-card.component.html',
   styleUrls: ['./payment-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

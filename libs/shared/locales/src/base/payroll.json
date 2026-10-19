@@ -14,6 +14,76 @@
     "en": "An approved run cannot be cancelled; use an adjustment run.",
     "pt": "Uma folha aprovada não pode ser cancelada; use uma folha de ajuste."
   },
+  "payroll.company_parameters.amount_required": {
+    "es": "Indica el importe.",
+    "en": "Enter the amount.",
+    "pt": "Informe o valor."
+  },
+  "payroll.company_parameters.brackets_contiguous": {
+    "es": "Cada tramo debe terminar donde empieza el siguiente; solo el último puede quedar abierto.",
+    "en": "Each bracket must end where the next one starts; only the last may be open.",
+    "pt": "Cada faixa deve terminar onde começa a seguinte; só a última pode ficar aberta."
+  },
+  "payroll.company_parameters.brackets_required": {
+    "es": "Una tabla necesita al menos un tramo.",
+    "en": "A table needs at least one bracket.",
+    "pt": "Uma tabela precisa de pelo menos uma faixa."
+  },
+  "payroll.company_parameters.brackets_start_at_zero": {
+    "es": "El primer tramo debe empezar en 0.",
+    "en": "The first bracket must start at 0.",
+    "pt": "A primeira faixa deve começar em 0."
+  },
+  "payroll.company_parameters.code_format": {
+    "es": "El código solo admite letras, números y guion bajo.",
+    "en": "The code may contain only letters, digits and underscores.",
+    "pt": "O código só aceita letras, números e sublinhado."
+  },
+  "payroll.company_parameters.not_found": {
+    "es": "El parámetro no existe.",
+    "en": "The parameter does not exist.",
+    "pt": "O parâmetro não existe."
+  },
+  "payroll.company_parameters.rate_required": {
+    "es": "Indica la tasa del empleado, la del empleador o ambas.",
+    "en": "Enter the employee rate, the employer rate or both.",
+    "pt": "Informe a alíquota do empregado, a do empregador ou ambas."
+  },
+  "payroll.company_parameters.seed.federal_income_tax_withholding": {
+    "es": "Retención federal del impuesto sobre la renta",
+    "en": "Federal income tax withholding",
+    "pt": "Retenção federal do imposto de renda"
+  },
+  "payroll.company_parameters.seed.fica_medicare": {
+    "es": "Medicare (FICA)",
+    "en": "Medicare (FICA)",
+    "pt": "Medicare (FICA)"
+  },
+  "payroll.company_parameters.seed.fica_medicare_additional": {
+    "es": "Medicare adicional",
+    "en": "Additional Medicare",
+    "pt": "Medicare adicional"
+  },
+  "payroll.company_parameters.seed.fica_social_security": {
+    "es": "Seguro Social (FICA)",
+    "en": "Social Security (FICA)",
+    "pt": "Seguridade Social (FICA)"
+  },
+  "payroll.company_parameters.seed.futa": {
+    "es": "Desempleo federal (FUTA)",
+    "en": "Federal unemployment (FUTA)",
+    "pt": "Desemprego federal (FUTA)"
+  },
+  "payroll.company_parameters.seed.state_income_tax_withholding": {
+    "es": "Retención estatal del impuesto sobre la renta",
+    "en": "State income tax withholding",
+    "pt": "Retenção estadual do imposto de renda"
+  },
+  "payroll.company_parameters.seed.state_unemployment": {
+    "es": "Desempleo estatal (SUTA)",
+    "en": "State unemployment (SUTA)",
+    "pt": "Desemprego estadual (SUTA)"
+  },
   "payroll.concept_id_not_found": {
     "es": "No se encontró el concepto \"{{id}}\".",
     "en": "Concept \"{{id}}\" was not found.",
@@ -159,6 +229,61 @@
     "en": "SFS (family health insurance)",
     "pt": "SFS (seguro familiar de saúde)"
   },
+  "payroll.concepts.seed.us_401k": {
+    "es": "Aporte 401(k)",
+    "en": "401(k) contribution",
+    "pt": "Contribuição 401(k)"
+  },
+  "payroll.concepts.seed.us_employer_medicare": {
+    "es": "Medicare (empleador)",
+    "en": "Medicare (employer)",
+    "pt": "Medicare (empregador)"
+  },
+  "payroll.concepts.seed.us_employer_social_security": {
+    "es": "Seguro Social (empleador)",
+    "en": "Social Security (employer)",
+    "pt": "Seguridade Social (empregador)"
+  },
+  "payroll.concepts.seed.us_federal_income_tax": {
+    "es": "Impuesto federal sobre la renta",
+    "en": "Federal income tax",
+    "pt": "Imposto de renda federal"
+  },
+  "payroll.concepts.seed.us_futa": {
+    "es": "Desempleo federal (FUTA)",
+    "en": "Federal unemployment (FUTA)",
+    "pt": "Desemprego federal (FUTA)"
+  },
+  "payroll.concepts.seed.us_medicare": {
+    "es": "Medicare (empleado)",
+    "en": "Medicare (employee)",
+    "pt": "Medicare (empregado)"
+  },
+  "payroll.concepts.seed.us_overtime": {
+    "es": "Horas extra (×1,5)",
+    "en": "Overtime (1.5×)",
+    "pt": "Horas extras (1,5×)"
+  },
+  "payroll.concepts.seed.us_social_security": {
+    "es": "Seguro Social (empleado)",
+    "en": "Social Security (employee)",
+    "pt": "Seguridade Social (empregado)"
+  },
+  "payroll.concepts.seed.us_state_income_tax": {
+    "es": "Impuesto estatal sobre la renta",
+    "en": "State income tax",
+    "pt": "Imposto de renda estadual"
+  },
+  "payroll.concepts.seed.us_suta": {
+    "es": "Desempleo estatal (SUTA)",
+    "en": "State unemployment (SUTA)",
+    "pt": "Desemprego estadual (SUTA)"
+  },
+  "payroll.concepts.seed.us_tips": {
+    "es": "Propinas declaradas",
+    "en": "Reported tips",
+    "pt": "Gorjetas declaradas"
+  },
   "payroll.concepts.system": {
     "es": "De ley",
     "en": "Statutory",
@@ -259,13 +384,38 @@
     "en": "Only a calculated run can be approved.",
     "pt": "Somente uma folha calculada pode ser aprovada."
   },
+  "payroll.parameters.above_threshold": {
+    "es": "Por encima de",
+    "en": "Above",
+    "pt": "Acima de"
+  },
   "payroll.parameters.accumulated": {
     "es": "Impuesto acumulado",
     "en": "Accumulated tax",
     "pt": "Imposto acumulado"
   },
+  "payroll.parameters.add_bracket": {
+    "es": "Añadir tramo",
+    "en": "Add bracket",
+    "pt": "Adicionar faixa"
+  },
+  "payroll.parameters.add_parameter": {
+    "es": "Añadir parámetro",
+    "en": "Add parameter",
+    "pt": "Adicionar parâmetro"
+  },
+  "payroll.parameters.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
   "payroll.parameters.base": {
     "literal": "Base"
+  },
+  "payroll.parameters.base_amount": {
+    "es": "Impuesto acumulado",
+    "en": "Base tax",
+    "pt": "Imposto acumulado"
   },
   "payroll.parameters.base_label.payroll_uncapped": {
     "es": "Nómina sin tope",
@@ -277,6 +427,11 @@
     "en": "Salary, capped",
     "pt": "Salário com teto"
   },
+  "payroll.parameters.brackets_count": {
+    "es": "Tabla de {{count}} tramos",
+    "en": "Table of {{count}} brackets",
+    "pt": "Tabela de {{count}} faixas"
+  },
   "payroll.parameters.cap": {
     "es": "Tope (× salario mínimo)",
     "en": "Cap (× minimum wage)",
@@ -287,25 +442,100 @@
     "en": "A multiple of the minimum contributory wage.",
     "pt": "Um múltiplo do salário mínimo contributivo."
   },
+  "payroll.parameters.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "payroll.parameters.code_placeholder": {
+    "es": "p. ej. STATE_DISABILITY",
+    "en": "e.g. STATE_DISABILITY",
+    "pt": "ex.: STATE_DISABILITY"
+  },
+  "payroll.parameters.company_empty": {
+    "es": "Aún no hay parámetros. Añade el primero con «Añadir parámetro».",
+    "en": "No parameters yet. Add the first one with “Add parameter”.",
+    "pt": "Ainda não há parâmetros. Adicione o primeiro com «Adicionar parâmetro»."
+  },
+  "payroll.parameters.company_help": {
+    "es": "Los valores de ley vienen precargados y puedes actualizarlos cada año; añade los que dependen de tu empresa, como la tabla de retención de tu estado.",
+    "en": "Statutory values come preloaded and you can update them every year; add the ones that depend on your company, such as your state's withholding table.",
+    "pt": "Os valores legais vêm pré-carregados e podem ser atualizados todo ano; adicione os que dependem da sua empresa, como a tabela de retenção do seu estado."
+  },
+  "payroll.parameters.company_reinstated": {
+    "es": "«{{name}}» vuelve a aplicarse.",
+    "en": "“{{name}}” applies again.",
+    "pt": "«{{name}}» volta a se aplicar."
+  },
+  "payroll.parameters.company_required_fields": {
+    "es": "Indica el código, el nombre y la fecha desde la que rige.",
+    "en": "Enter the code, the name and the date it applies from.",
+    "pt": "Informe o código, o nome e a data a partir da qual vale."
+  },
+  "payroll.parameters.company_retired": {
+    "es": "«{{name}}» ya no se aplica a tu nómina.",
+    "en": "“{{name}}” no longer applies to your payroll.",
+    "pt": "«{{name}}» não se aplica mais à sua folha."
+  },
+  "payroll.parameters.company_saved": {
+    "es": "«{{name}}» guardado.",
+    "en": "“{{name}}” saved.",
+    "pt": "«{{name}}» salvo."
+  },
+  "payroll.parameters.company_title": {
+    "es": "Parámetros de tu empresa",
+    "en": "Your company's parameters",
+    "pt": "Parâmetros da sua empresa"
+  },
+  "payroll.parameters.company_value": {
+    "es": "Valor de la empresa",
+    "en": "Company value",
+    "pt": "Valor da empresa"
+  },
   "payroll.parameters.contributions": {
     "es": "Aportes de seguridad social",
     "en": "Social-security contributions",
     "pt": "Contribuições para a segurança social"
+  },
+  "payroll.parameters.credit_of": {
+    "es": "Crédito de {{rate}}",
+    "en": "Credit of {{rate}}",
+    "pt": "Crédito de {{rate}}"
+  },
+  "payroll.parameters.credit_percent": {
+    "es": "Crédito (%)",
+    "en": "Credit (%)",
+    "pt": "Crédito (%)"
   },
   "payroll.parameters.effective_from": {
     "es": "Vigente desde",
     "en": "Effective from",
     "pt": "Vigente desde"
   },
+  "payroll.parameters.employee_percent": {
+    "es": "Empleado (%)",
+    "en": "Employee (%)",
+    "pt": "Empregado (%)"
+  },
   "payroll.parameters.employee_rate": {
     "es": "Tasa del empleado",
     "en": "Employee rate",
     "pt": "Taxa do colaborador"
   },
+  "payroll.parameters.employer_percent": {
+    "es": "Empleador (%)",
+    "en": "Employer (%)",
+    "pt": "Empregador (%)"
+  },
   "payroll.parameters.employer_rate": {
     "es": "Tasa patronal",
     "en": "Employer rate",
     "pt": "Taxa patronal"
+  },
+  "payroll.parameters.enter_values": {
+    "es": "Introducir valores",
+    "en": "Enter values",
+    "pt": "Informar valores"
   },
   "payroll.parameters.from_annual": {
     "es": "Desde (anual)",
@@ -316,6 +546,26 @@
     "es": "Vigencia",
     "en": "In force",
     "pt": "Vigência"
+  },
+  "payroll.parameters.in_force_between": {
+    "es": "Del {{from}} al {{to}}",
+    "en": "From {{from}} to {{to}}",
+    "pt": "De {{from}} a {{to}}"
+  },
+  "payroll.parameters.in_force_since": {
+    "es": "Vigente desde {{date}}",
+    "en": "In force since {{date}}",
+    "pt": "Vigente desde {{date}}"
+  },
+  "payroll.parameters.jurisdiction": {
+    "es": "Estado",
+    "en": "State",
+    "pt": "Estado"
+  },
+  "payroll.parameters.jurisdiction_national": {
+    "es": "Nacional",
+    "en": "Federal / national",
+    "pt": "Nacional"
   },
   "payroll.parameters.key": {
     "es": "Parámetro",
@@ -337,6 +587,51 @@
     "en": "Minimum contributory wage",
     "pt": "Salário mínimo contributivo"
   },
+  "payroll.parameters.kind.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "payroll.parameters.kind.contribution": {
+    "es": "Tasa sobre salarios",
+    "en": "Rate on wages",
+    "pt": "Alíquota sobre salários"
+  },
+  "payroll.parameters.kind.table": {
+    "es": "Tabla de retención",
+    "en": "Withholding table",
+    "pt": "Tabela de retenção"
+  },
+  "payroll.parameters.kind_label": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
+  "payroll.parameters.legal_basis": {
+    "es": "Fundamento",
+    "en": "Legal basis",
+    "pt": "Fundamento legal"
+  },
+  "payroll.parameters.legal_basis_placeholder": {
+    "es": "p. ej. la norma o publicación oficial",
+    "en": "e.g. the statute or official publication",
+    "pt": "ex.: a norma ou publicação oficial"
+  },
+  "payroll.parameters.limits": {
+    "es": "Límites",
+    "en": "Limits",
+    "pt": "Limites"
+  },
+  "payroll.parameters.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "payroll.parameters.needs_values": {
+    "es": "Falta introducir los valores",
+    "en": "Values needed",
+    "pt": "Faltam os valores"
+  },
   "payroll.parameters.new_rate": {
     "es": "Nueva tasa",
     "en": "New rate",
@@ -347,15 +642,40 @@
     "en": "New value",
     "pt": "Novo valor"
   },
+  "payroll.parameters.new_value": {
+    "es": "Nuevo valor",
+    "en": "New value",
+    "pt": "Novo valor"
+  },
+  "payroll.parameters.open_bracket": {
+    "es": "Sin límite",
+    "en": "No limit",
+    "pt": "Sem limite"
+  },
+  "payroll.parameters.over": {
+    "es": "Desde",
+    "en": "Over",
+    "pt": "Acima de"
+  },
+  "payroll.parameters.parameter": {
+    "es": "Parámetro",
+    "en": "Parameter",
+    "pt": "Parâmetro"
+  },
+  "payroll.parameters.platform_note": {
+    "es": "Tasas de ley que la plataforma mantiene para tu país; se actualizan cuando la autoridad las cambia.",
+    "en": "Statutory rates the platform keeps for your country; they are updated when the authority changes them.",
+    "pt": "Alíquotas legais que a plataforma mantém para o seu país; são atualizadas quando a autoridade as altera."
+  },
   "payroll.parameters.rate": {
     "es": "Tasa",
     "en": "Rate",
     "pt": "Taxa"
   },
-  "payroll.parameters.rate_fact_about_moment_nothing_here": {
-    "es": "Una tasa es un hecho de un momento: nada se edita en su sitio. Un cambio es una fila nueva con su fecha de vigencia, para que una nómina recalculada después siga produciendo lo que produjo entonces.",
-    "en": "A rate is a fact about a moment: nothing here is edited in place. A change is a new row with the date it takes effect, so a payroll recomputed later still produces what it produced then.",
-    "pt": "Uma taxa é um facto de um momento: nada aqui se edita no lugar. Uma alteração é uma linha nova com a data em que passa a vigorar, para que uma folha recalculada depois continue a produzir o que produziu então."
+  "payroll.parameters.rate_percent": {
+    "es": "Tasa (%)",
+    "en": "Rate (%)",
+    "pt": "Alíquota (%)"
   },
   "payroll.parameters.references": {
     "es": "Valores de referencia",
@@ -388,15 +708,55 @@
     "en": "Occupational risk",
     "pt": "Riscos laborais"
   },
+  "payroll.parameters.reinstate": {
+    "es": "Reactivar",
+    "en": "Reinstate",
+    "pt": "Reativar"
+  },
+  "payroll.parameters.remove_bracket": {
+    "es": "Quitar tramo",
+    "en": "Remove bracket",
+    "pt": "Remover faixa"
+  },
+  "payroll.parameters.retire": {
+    "es": "Retirar",
+    "en": "Retire",
+    "pt": "Desativar"
+  },
+  "payroll.parameters.retired_badge": {
+    "es": "Retirado",
+    "en": "Retired",
+    "pt": "Desativado"
+  },
   "payroll.parameters.save_failed": {
     "es": "No se pudo guardar el parámetro.",
     "en": "The parameter could not be saved.",
     "pt": "Não foi possível guardar o parâmetro."
   },
+  "payroll.parameters.source": {
+    "es": "Origen",
+    "en": "Source",
+    "pt": "Origem"
+  },
+  "payroll.parameters.statutory_default": {
+    "es": "Valor de ley",
+    "en": "Statutory default",
+    "pt": "Valor legal"
+  },
+  "payroll.parameters.subtitle_task": {
+    "es": "Las tasas e importes con los que se calcula tu nómina. Cuando uno cambie, registra el valor nuevo con la fecha desde la que rige: las nóminas anteriores conservan el que usaron.",
+    "en": "The rates and amounts your payroll is calculated with. When one changes, record the new value with the date it applies from: earlier payrolls keep the one they used.",
+    "pt": "As alíquotas e valores com que sua folha é calculada. Quando um mudar, registre o novo valor com a data a partir da qual vale: as folhas anteriores mantêm o que usaram."
+  },
   "payroll.parameters.supersede": {
     "es": "Sustituir",
     "en": "Supersede",
     "pt": "Substituir"
+  },
+  "payroll.parameters.table_help": {
+    "es": "Copia los tramos anuales de la publicación oficial: desde, hasta, tasa marginal e impuesto acumulado al inicio del tramo. El último tramo queda abierto.",
+    "en": "Copy the annual brackets from the official publication: over, up to, marginal rate and the tax accumulated at the start of the bracket. Leave the last bracket open.",
+    "pt": "Copie as faixas anuais da publicação oficial: acima de, até, alíquota marginal e imposto acumulado no início da faixa. A última faixa fica aberta."
   },
   "payroll.parameters.tax_scale": {
     "es": "Escala del ISR",
@@ -404,9 +764,19 @@
     "pt": "Escalão de IRS"
   },
   "payroll.parameters.tax_scale_help": {
-    "es": "La escala es un conjunto: se reemplaza completa con una fecha de vigencia, no fila por fila.",
-    "en": "A scale is a set: it is replaced whole as of a date, not row by row.",
-    "pt": "Um escalão é um conjunto: substitui-se por inteiro numa data, não linha a linha."
+    "es": "Cuando la autoridad publique una escala nueva, se registra completa con su fecha de vigencia.",
+    "en": "When the authority publishes a new scale, it is recorded whole with the date it applies from.",
+    "pt": "Quando a autoridade publicar uma nova tabela, ela é registrada inteira com a data a partir da qual vale."
+  },
+  "payroll.parameters.threshold": {
+    "es": "Umbral anual",
+    "en": "Annual threshold",
+    "pt": "Limite anual"
+  },
+  "payroll.parameters.threshold_help": {
+    "es": "Salario anual a partir del cual empieza a aplicarse.",
+    "en": "Annual wages above which it starts applying.",
+    "pt": "Salário anual acima do qual começa a se aplicar."
   },
   "payroll.parameters.title": {
     "es": "Parámetros de ley",
@@ -418,10 +788,30 @@
     "en": "To (annual)",
     "pt": "Até (anual)"
   },
+  "payroll.parameters.up_to": {
+    "es": "Hasta",
+    "en": "Up to",
+    "pt": "Até"
+  },
+  "payroll.parameters.up_to_wage_base": {
+    "es": "Hasta",
+    "en": "Up to",
+    "pt": "Até"
+  },
   "payroll.parameters.value": {
     "es": "Valor",
     "en": "Value",
     "pt": "Valor"
+  },
+  "payroll.parameters.wage_base": {
+    "es": "Tope salarial anual",
+    "en": "Annual wage base",
+    "pt": "Teto salarial anual"
+  },
+  "payroll.parameters.wage_base_help": {
+    "es": "Salario anual a partir del cual deja de aplicarse. Vacío: sin tope.",
+    "en": "Annual wages after which it stops applying. Empty: no cap.",
+    "pt": "Salário anual a partir do qual deixa de se aplicar. Vazio: sem teto."
   },
   "payroll.paying_bank_account_currency": {
     "es": "La nómina se paga en {{base}} y la cuenta elegida es en {{currency}}. Elige una cuenta en {{base}}.",

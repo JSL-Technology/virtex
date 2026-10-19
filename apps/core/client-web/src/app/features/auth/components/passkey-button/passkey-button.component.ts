@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 /**
  * Acceso con llave de paso (WebAuthn).
@@ -11,7 +11,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 @Component({
   selector: 'app-passkey-button',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslateModule],
   templateUrl: './passkey-button.component.html',
   styleUrls: ['./passkey-button.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,6 +25,12 @@ export class PasskeyButtonComponent {
    * la tarjeta completa con título y subtítulo.
    */
   @Input() iconOnly = false;
+
+  /**
+   * In the compact form, also print a short name next to the icon (QA M-14). An icon alone — a
+   * key — was a guess for anybody who has never used a passkey, which is most people.
+   */
+  @Input() showLabel = false;
 
   @Output() clicked = new EventEmitter<void>();
 }

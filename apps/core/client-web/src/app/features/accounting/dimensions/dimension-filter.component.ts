@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, output, signal } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { Dimension, DimensionsService, valueLabel, valueTree } from '../data/dimensions.service';
 
 /**
@@ -13,7 +13,7 @@ import { Dimension, DimensionsService, valueLabel, valueTree } from '../data/dim
 @Component({
   selector: 'vx-dimension-filter',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (dimensions().length) {

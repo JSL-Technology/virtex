@@ -1,4 +1,4 @@
-import { VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -13,7 +13,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import {
   EFCanvasLayer,
   EFConnectableSide,
@@ -119,7 +119,7 @@ const CACHE_THRESHOLD = 60;
 @Component({
   selector: 'app-workflow-canvas',
   standalone: true,
-  imports: [FFlowModule, TranslatePipe, VxPluralKeyPipe, LucideAngularModule],
+  imports: [FFlowModule, TranslateModule, VxPluralKeyPipe, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './workflow-canvas.component.scss',
   template: `

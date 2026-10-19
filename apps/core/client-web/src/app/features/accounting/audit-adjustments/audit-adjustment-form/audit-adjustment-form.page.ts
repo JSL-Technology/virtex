@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { DraftShellComponent, DraftProblem } from '../../../../shared/components/gestures';
 import { NotificationService } from '../../../../core/services/notification';
@@ -12,7 +12,7 @@ import { AccountingService } from '../../../../core/api/accounting.service';
 import { JournalsService } from '../../../../core/api/journals.service';
 import { Account } from '../../../../core/models/account.model';
 import { Journal } from '../../../../core/models/journal.model';
-import { accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, accountNameOf } from '@virteex/shared/ui-i18n';
 import { isChargeable } from '../../../../core/services/account-selection';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -42,7 +42,7 @@ import { Observable, map } from 'rxjs';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    TranslatePipe,
+    TranslateModule,
     LucideAngularModule,
     DraftShellComponent,
     ...VX_FORM_A11Y, ...VX_SELECT],

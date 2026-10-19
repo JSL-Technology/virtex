@@ -44,6 +44,11 @@
     "en": "Delete this customer? This cannot be undone.",
     "pt": "Excluir este cliente? Não é possível desfazer."
   },
+  "dialog.delete_customer.message_named": {
+    "es": "¿Eliminar el cliente «{{name}}»? Esta acción no se puede deshacer.",
+    "en": "Delete the customer “{{name}}”? This can't be undone.",
+    "pt": "Excluir o cliente “{{name}}”? Esta ação não pode ser desfeita."
+  },
   "dialog.delete_customer.title": {
     "es": "Eliminar cliente",
     "en": "Delete customer",
@@ -143,6 +148,11 @@
     "es": "¿Seguro que quieres eliminar este proveedor? No se puede deshacer.",
     "en": "Delete this supplier? This cannot be undone.",
     "pt": "Excluir este fornecedor? Não é possível desfazer."
+  },
+  "dialog.delete_supplier.message_named": {
+    "es": "¿Eliminar el proveedor «{{name}}»? Esta acción no se puede deshacer.",
+    "en": "Delete the supplier “{{name}}”? This can't be undone.",
+    "pt": "Excluir o fornecedor “{{name}}”? Esta ação não pode ser desfeita."
   },
   "dialog.delete_supplier.title": {
     "es": "Eliminar proveedor",

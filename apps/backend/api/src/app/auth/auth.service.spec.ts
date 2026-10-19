@@ -1,3 +1,4 @@
+import { AccountUnlockService } from './services/account-unlock.service';
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
@@ -154,6 +155,7 @@ describe('AuthService', () => {
         { provide: SocialAuthService, useValue: mockSocialAuthService },
         { provide: MfaOrchestratorService, useValue: mockMfaOrchestratorService },
         { provide: PasswordService, useValue: { verify: jest.fn(), verifyDummy: jest.fn() } },
+        { provide: AccountUnlockService, useValue: { notifyLocked: jest.fn() } },
         // Step-up now re-authenticates with the strongest factor the account has, so the
         // service needs the 2FA verifier as well as the password verifier.
         { provide: TwoFactorAuthService, useValue: { verifyCode: jest.fn() } },

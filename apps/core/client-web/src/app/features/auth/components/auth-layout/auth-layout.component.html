@@ -8,9 +8,9 @@
   pseudoelementos. Además, así cada velo es su propia capa de composición y el
   movimiento lo resuelve la GPU sin repintar el formulario en cada fotograma.
 -->
-<div class="auth-canvas" [class.auth-canvas--photo]="backgroundImage" aria-hidden="true">
-  @if (backgroundImage) {
-    <span class="auth-photo" [style.background-image]="'url(' + backgroundImage + ')'"></span>
+<div class="auth-canvas" [class.auth-canvas--photo]="activePhoto()" aria-hidden="true">
+  @if (activePhoto(); as photo) {
+    <span class="auth-photo" [style.background-image]="'url(' + photo + ')'"></span>
   } @else {
     <span class="aurora aurora--one"></span>
     <span class="aurora aurora--two"></span>

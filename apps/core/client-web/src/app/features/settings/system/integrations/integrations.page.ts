@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { AuthService } from '../../../../core/services/auth';
@@ -88,7 +88,7 @@ export interface IntegrationCard {
 @Component({
   selector: 'app-integration-settings-page',
   standalone: true,
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslateModule],
   templateUrl: './integrations.page.html',
   styleUrls: ['./integrations.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

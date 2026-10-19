@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { of, throwError } from 'rxjs';
 import { StockPage } from './stock.page';
 import { StockService } from '../data/stock.service';

@@ -6,6 +6,7 @@ import { CheckPermissions } from '../security/decorators/check-permissions.decor
 import { IsOrganizationOwnerPolicy } from '../auth/policies/is-organization-owner.policy';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
+import { OrganizationProfileResponseDto } from './dto/organization-profile-response.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { UpdateSecuritySettingsDto } from './dto/update-security-settings.dto';
 import { OrgSettingsService } from './services/org-settings.service';
@@ -150,7 +151,9 @@ export class OrganizationsController {
     // `stripe_subscription_id`, which OrganizationResponseDto excludes on purpose — this endpoint
     // handed both to any authenticated member of the organization.
     const organization = await this.organizationsService.findOne(user.organizationId);
-    return plainToInstance(OrganizationResponseDto, organization, {
+    // The profile shape, not the header: it carries the address and the rest of what signup
+    // collected, which the header deliberately leaves out (QA A-02).
+    return plainToInstance(OrganizationProfileResponseDto, organization, {
       excludeExtraneousValues: true,
     });
   }
@@ -161,7 +164,8 @@ export class OrganizationsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() updateOrganizationDto: UpdateOrganizationDto,
   ) {
-    return this.organizationsService.update(user.organizationId, updateOrganizationDto);
+    const updated = await this.organizationsService.update(user.organizationId, updateOrganizationDto);
+    return plainToInstance(OrganizationProfileResponseDto, updated, { excludeExtraneousValues: true });
   }
 
   /**

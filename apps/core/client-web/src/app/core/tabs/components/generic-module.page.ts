@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, SearchX } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 import { TAB_CONTEXT } from '../tab-context';
@@ -17,7 +17,7 @@ import { TAB_CONTEXT } from '../tab-context';
 @Component({
   selector: 'app-generic-module-page',
   standalone: true,
-  imports: [TranslatePipe, CommonModule, LucideAngularModule, RouterLink],
+  imports: [TranslateModule, CommonModule, LucideAngularModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="generic-page">

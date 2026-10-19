@@ -39,9 +39,16 @@
 }
 
 // ── Lienzo ───────────────────────────────────────────────────────────────────
+//  `absolute` sobre el anfitrión, no `fixed` sobre la ventana (QA M-23). Fijo, el
+//  lienzo medía exactamente lo que la ventana: en cuanto la página era más alta
+//  —el alta con todos los errores a la vista, una pantalla de más de 900 px— el
+//  resto quedaba sobre una franja blanca con el pie encima. Anclado al
+//  anfitrión, que crece con su contenido (`min-height: 100dvh` como suelo), el
+//  fondo llega siempre hasta abajo.
 .auth-canvas {
-  position: fixed;
+  position: absolute;
   inset: 0;
+  min-height: 100%;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;

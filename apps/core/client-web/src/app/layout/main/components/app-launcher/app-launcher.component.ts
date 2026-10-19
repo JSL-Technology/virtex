@@ -1,6 +1,6 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Grid2X2, ShoppingCart, HardHat, Store, Box, Utensils, Users, UserCircle } from 'lucide-angular';
 import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
 
@@ -15,7 +15,7 @@ interface VirtexApp {
 @Component({
   selector: 'app-launcher',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, LucideAngularModule, ClickOutsideDirective],
+  imports: [CommonModule, TranslateModule, LucideAngularModule, ClickOutsideDirective],
   template: `
     <div class="app-launcher-container" appClickOutside (clickOutside)="closeMenu()">
       <button

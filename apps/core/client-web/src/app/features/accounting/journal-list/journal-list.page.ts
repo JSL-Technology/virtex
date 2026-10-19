@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, PlusCircle, Trash2 } from 'lucide-angular';
 import { JournalsService } from '../../../core/api/journals.service';
 import { Journal } from '../../../core/models/journal.model';
@@ -28,7 +29,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 @Component({
   selector: 'app-journal-list',
   standalone: true,
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, TranslatePipe, LucideAngularModule, ListShellComponent, VxBadgeComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, TranslateModule, LucideAngularModule, ListShellComponent, VxBadgeComponent],
   templateUrl: './journal-list.page.html',
   styleUrls: ['./journal-list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

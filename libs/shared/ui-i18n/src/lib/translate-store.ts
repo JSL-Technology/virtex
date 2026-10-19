@@ -40,8 +40,9 @@ export class VirtexTranslateStore extends TranslateStore {
    * Whether the loaded catalogue can render a key — the question, asked of the code path that
    * will answer it later.
    *
-   * Upstream offers no normalised "is this key there" question, so the one caller that needed it
-   * asked `instant(key) !== key` instead. That is the documented `@ngx-translate` behaviour and it is wrong in this product, because
+   * Before @ngx-translate 18 the lookup (`getValue`) was protected upstream, so the one caller that
+   * needed it asked `instant(key) !== key` instead. That is the documented
+   * `@ngx-translate` behaviour and it is wrong in this product, because
    * `VirtexMissingTranslationHandler` replaces it: a missing key comes back as `[[key]]` in
    * development and as a humanised last segment in production, neither of which equals the key. So
    * the check could not return false, and `resolveErrorKey` accepted the first candidate whether or

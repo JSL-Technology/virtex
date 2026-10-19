@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VxDialogComponent, VxDialogDismissal } from './index';
 
 @Component({
   standalone: true,
-  imports: [TranslatePipe, VxDialogComponent],
+  imports: [TranslateModule, VxDialogComponent],
   template: `
     <button type="button" id="opener" (click)="open.set(true)">Abrir</button>
 

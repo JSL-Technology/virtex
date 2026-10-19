@@ -1,3 +1,4 @@
+import { AccountUnlockService } from './account-unlock.service';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
@@ -99,6 +100,7 @@ describe('AuthService — step-up re-authentication', () => {
         { provide: MfaOrchestratorService, useValue: stub },
         { provide: TwoFactorAuthService, useValue: twoFactorAuthService },
         { provide: PasswordService, useValue: passwordService },
+        { provide: AccountUnlockService, useValue: { notifyLocked: jest.fn() } },
         { provide: EventEmitter2, useValue: { emit: jest.fn() } },
         { provide: EnterpriseSsoService, useValue: enterpriseSsoService },
         { provide: OidcProviderService, useValue: oidcProviderService },

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { signal } from '@angular/core';
 
 import { CompanySwitcherComponent } from './company-switcher.component';

@@ -1,3 +1,4 @@
+import { RecordDependents } from '../../../core/services/safe-delete.service';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -52,6 +53,11 @@ export class InventoryService {
 
   updateProduct(id: string, product: UpdateProductDto): Observable<Product> {
     return this.http.patch<Product>(`${this.apiUrl}/${id}`, product);
+  }
+
+  /** What still uses the product, so the delete can be refused before it is attempted. */
+  productDependents(id: string): Observable<RecordDependents> {
+    return this.http.get<RecordDependents>(`${this.apiUrl}/${id}/dependents`);
   }
 
   /**

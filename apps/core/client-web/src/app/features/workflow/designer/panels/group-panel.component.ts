@@ -1,6 +1,6 @@
-import { VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { LucideAngularModule, Rows3, Trash2 } from 'lucide-angular';
 import { WorkflowGraphGroup } from '../../data/workflow.service';
 import { DesignerStore } from '../designer-store';
@@ -14,7 +14,7 @@ export const LANE_COLORS = ['viz-1', 'viz-2', 'viz-3', 'viz-4', 'viz-5', 'viz-6'
 @Component({
   selector: 'app-workflow-group-panel',
   standalone: true,
-  imports: [TranslatePipe, VxPluralKeyPipe, LucideAngularModule],
+  imports: [TranslateModule, VxPluralKeyPipe, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './inspector.scss',
   template: `

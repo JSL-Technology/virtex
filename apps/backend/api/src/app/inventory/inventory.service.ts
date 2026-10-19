@@ -15,7 +15,7 @@ import { ProductPriceHistory } from './entities/product-price-history.entity';
 import { ProductCategoriesService } from './product-categories.service';
 import { likeTerm } from '../common/database/search-term';
 
-import { assertNoDependents, DependentReference } from '../common/database/dependents';
+import { assertNoDependents, countDependents, DependentCount, DependentReference } from '../common/database/dependents';
 
 /** Documents that name a product by id. A product on any of them is deactivated, not deleted. */
 const PRODUCT_DEPENDENTS: readonly DependentReference[] = [
@@ -251,6 +251,22 @@ export class InventoryService implements GoodsReceiptPort {
    * Removing the row on its own left the value of that stock sitting in the inventory account with
    * nothing in the catalogue to account for it — an asset no one could ever explain or count.
    */
+  /**
+   * What still uses this record, asked BEFORE offering to delete it (QA A-08).
+   *
+   * The delete already refuses when documents point here, but the reader only learned that after
+   * confirming, from a generic error. Asking first lets the screen say «2 invoices and 1 receipt use
+   * this record» and offer to deactivate it instead.
+   */
+  async dependents(id: string, organizationId: string): Promise<{ dependents: DependentCount[] }> {
+    const record = await this.dataSource.getRepository(Product).findOne({ where: { id, organizationId } });
+    if (!record) throw new NotFoundError('inventory.product_id_not_found', { id });
+    const dependents = await this.dataSource.transaction((manager) =>
+      countDependents(manager, record.id, PRODUCT_DEPENDENTS),
+    );
+    return { dependents };
+  }
+
   async remove(
     id: string,
     organizationId: string,

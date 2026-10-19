@@ -104,6 +104,11 @@
     "en": "To protect your account, we have sent a verification code to your registered email address.",
     "pt": "Para proteger a sua conta, enviámos um código de verificação para o seu e-mail registado."
   },
+  "shared.otp.digit_label": {
+    "es": "Dígito {{position}} de {{total}} del código",
+    "en": "Code digit {{position}} of {{total}}",
+    "pt": "Dígito {{position}} de {{total}} do código"
+  },
   "shared.otp.never_share_code_our_team_will": {
     "es": "Nunca compartas este código. Nuestro equipo jamás te lo pedirá.",
     "en": "Never share this code. Our team will never ask you for it.",

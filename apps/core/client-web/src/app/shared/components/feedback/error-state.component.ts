@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, RotateCcw, TriangleAlert } from 'lucide-angular';
 
 /**
@@ -18,7 +18,7 @@ import { LucideAngularModule, RotateCcw, TriangleAlert } from 'lucide-angular';
 @Component({
   selector: 'vx-error-state',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule],
+  imports: [TranslateModule, LucideAngularModule],
   template: `
     <lucide-icon [img]="AlertIcon" class="empty-icon" aria-hidden="true"></lucide-icon>
     <p class="empty-title">{{ titleKey() | translate }}</p>

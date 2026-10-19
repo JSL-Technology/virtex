@@ -4,11 +4,12 @@ import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, MoreHorizontal, AlertCircle, Search, Pencil, Trash2 } from 'lucide-angular';
 // import { Product } from '../../../core/models/product.model';
 import { InventoryService } from '../../../core/api/inventory.service';
+import { SafeDeleteService } from '../../../core/services/safe-delete.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { Product } from '../../../core/models/product.model';
-import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
@@ -19,7 +20,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 @Component({
   selector: 'app-products-page',
   standalone: true,
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, HasPermissionDirective, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent],
+  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, HasPermissionDirective, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent],
   templateUrl: './products.page.html',
   styleUrls: ['./products.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,6 +31,7 @@ export class ProductsPage implements OnInit {
   private readonly dialog = inject(DialogService);
   private inventoryService = inject(InventoryService);
   private notificationService = inject(NotificationService);
+  private readonly safeDelete = inject(SafeDeleteService);
 
   // Iconos
   protected readonly PlusCircleIcon = PlusCircle;
@@ -94,23 +96,24 @@ export class ProductsPage implements OnInit {
     return 'ok';
   }
 
+  /** Deleting asks first what still uses the product, and offers to deactivate it (QA A-08). */
   async deleteProduct(product: Product): Promise<void> {
-    const confirmed = await this.dialog.confirm({
-      title: 'dialog.delete_product.title',
-      message: 'dialog.delete_product.message',
-      messageParams: { name: product.name },
-      confirmText: 'common.delete',
-      variant: 'danger',
+    const outcome = await this.safeDelete.run({
+      name: product.name,
+      check: () => this.inventoryService.productDependents(product.id),
+      remove: () => this.inventoryService.deleteProduct(product.id),
+      deactivate: () => this.inventoryService.updateProduct(product.id, { status: 'Inactive' }),
+      keys: {
+        confirmTitle: 'dialog.delete_product.title',
+        confirmMessage: 'dialog.delete_product.message',
+        deleted: 'inventory.products.product_deleted',
+        deleteFailed: 'inventory.products.error_deleting_product',
+        blockedTitle: 'inventory.products.delete_blocked_title',
+        blockedMessage: 'inventory.products.delete_blocked_message',
+        deactivated: 'inventory.products.product_deactivated',
+      },
     });
-    if (confirmed) {
-      this.inventoryService.deleteProduct(product.id).subscribe({
-        next: () => {
-          this.notificationService.showSuccess('inventory.products.product_deleted');
-          this.loadProducts(); // Recargar la lista
-        },
-        error: () => this.notificationService.showError('inventory.products.error_deleting_product')
-      });
-    }
+    if (outcome !== 'cancelled') this.loadProducts();
   }
 
 }

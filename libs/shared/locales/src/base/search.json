@@ -34,6 +34,11 @@
     "en": "Customer: {{customer}}",
     "pt": "Cliente: {{customer}}"
   },
+  "search.result.invoice_description_fiscal": {
+    "es": "{{fiscalNumber}} · {{customer}}",
+    "en": "{{fiscalNumber}} · {{customer}}",
+    "pt": "{{fiscalNumber}} · {{customer}}"
+  },
   "search.result.invoice_title": {
     "es": "Factura #{{number}}",
     "en": "Invoice #{{number}}",

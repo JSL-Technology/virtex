@@ -25,6 +25,10 @@ export interface SearchResult {
   /** The catalogue code of the customer's identifier, so its own name can be rendered. */
   documentTypeCode?: string | null;
   documentTypeCountry?: string | null;
+  /** For documents: the total and its currency, and the state the document is in. */
+  amount?: number;
+  currency?: string;
+  status?: string;
   link: string;
 }
 

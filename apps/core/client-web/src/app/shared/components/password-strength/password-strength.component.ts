@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Check, X } from 'lucide-angular';
 import {
   PASSWORD_MAX_LENGTH,
@@ -41,7 +41,7 @@ type StrengthLevel = 0 | 1 | 2 | 3 | 4;
 @Component({
   selector: 'app-password-strength',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './password-strength.component.html',
   styleUrls: ['./password-strength.component.scss'],

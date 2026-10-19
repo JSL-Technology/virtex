@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import {
   LucideAngularModule, AlertTriangle, Info, ShieldAlert, Save, Trash2,
 } from 'lucide-angular';

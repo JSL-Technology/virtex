@@ -92,6 +92,11 @@
     line-height: var(--leading-normal);
   }
 
+  //  Lo que pasa al terminar la prueba: información secundaria, más pequeña.
+  &__text--muted {
+    font-size: var(--text-sm);
+  }
+
   &__actions {
     display: flex;
     flex-direction: column;

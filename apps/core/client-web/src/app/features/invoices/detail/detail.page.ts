@@ -22,7 +22,7 @@ import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-t
 import { QRCodeComponent } from 'angularx-qrcode';
 import { saveAs } from 'file-saver';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AuthService } from '../../../core/services/auth';
 import { InvoiceEmailDialogComponent } from '../components/invoice-email-dialog/invoice-email-dialog.component';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
@@ -57,7 +57,7 @@ const ECF_STATUS: Record<string, { label: string; hint: string }> = {
   standalone: true,
   imports: [TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
     // a text link instead, while `angularx-qrcode` was already a dependency of the project.
-    QRCodeComponent, TranslatePipe, ...FORMAT_PIPES, DocumentShellComponent,
+    QRCodeComponent, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent,
     ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxTabsComponent, InvoiceEmailDialogComponent],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],

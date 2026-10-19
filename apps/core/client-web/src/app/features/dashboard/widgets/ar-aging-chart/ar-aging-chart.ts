@@ -20,7 +20,7 @@ import {
 
 import { DashboardWidget, DashboardService, ChartType } from '../../../../core/services/dashboard';
 import { BrandingService } from '../../../../core/services/branding';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 type ExportingChart = Highcharts.Chart & {
   print: () => void;
@@ -33,7 +33,7 @@ type ExportingChart = Highcharts.Chart & {
 @Component({
   selector: 'app-ar-aging-chart',
   standalone: true,
-  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslateModule],
   templateUrl: './ar-aging-chart.html',
   styleUrls: ['./ar-aging-chart.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

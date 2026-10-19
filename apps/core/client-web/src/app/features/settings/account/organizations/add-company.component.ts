@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AuthService } from '../../../../core/services/auth';
 import { CountryService } from '../../../../core/services/country.service';
 import { NotificationService } from '../../../../core/services/notification';
@@ -33,7 +33,7 @@ const STEPS: readonly Step[] = ['configuration', 'business', 'plan'];
 @Component({
   selector: 'app-add-company',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, StepConfiguration, StepBusiness, StepPlan],
+  imports: [ReactiveFormsModule, TranslateModule, StepConfiguration, StepBusiness, StepPlan],
   templateUrl: './add-company.component.html',
   styleUrls: ['./add-company.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,9 +62,6 @@ export class AddCompanyComponent {
     companyName: ['', [Validators.required]],
     industry: ['', [Validators.required]],
     companySize: [''],
-    // Rendered by the shared business step as a honeypot. A signed-in person is not a bot; the
-    // control exists so the step renders, and its value is never sent.
-    fax: [''],
   });
   readonly plan: FormGroup = buildPlanGroup(this.fb);
 

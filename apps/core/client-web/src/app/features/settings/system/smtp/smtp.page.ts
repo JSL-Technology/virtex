@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { environment } from '../../../../../environments/environment';
 import { NotificationService } from '../../../../core/services/notification';
 
@@ -35,7 +35,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 @Component({
   selector: 'app-smtp-settings-page',
   standalone: true,
-  imports: [FormsModule, TranslatePipe],
+  imports: [FormsModule, TranslateModule],
   templateUrl: './smtp.page.html',
   styleUrls: ['./smtp.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

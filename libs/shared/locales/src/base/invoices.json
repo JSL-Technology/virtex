@@ -1382,6 +1382,11 @@
     "en": "Notes",
     "pt": "Observações"
   },
+  "invoices.new.numbered_internally": {
+    "es": "En tu país la factura de venta no lleva número ni sello de la autoridad tributaria: se numera internamente y queda completa así.",
+    "en": "In your country a sales invoice carries no tax authority number or stamp: it is numbered internally, and that is complete.",
+    "pt": "No seu país a fatura de venda não leva número nem selo da autoridade tributária: é numerada internamente e isso basta."
+  },
   "invoices.new.other": {
     "es": "Otra",
     "en": "Other",
@@ -1411,6 +1416,21 @@
     "es": "Eliminar línea",
     "en": "Remove line",
     "pt": "Remover linha"
+  },
+  "invoices.new.sales_tax_by_destination": {
+    "es": "El impuesto sobre las ventas se cobra a la tasa del estado del cliente (según su dirección). Estados registrados:",
+    "en": "Sales tax is charged at the rate of the customer's state (from their address). Registered states:",
+    "pt": "O imposto sobre vendas é cobrado à alíquota do estado do cliente (pelo endereço). Estados registrados:"
+  },
+  "invoices.new.sales_tax_no_states": {
+    "es": "No cobras impuesto sobre las ventas en ningún estado todavía: esta factura saldrá sin impuesto.",
+    "en": "You don't collect sales tax in any state yet: this invoice will be issued without tax.",
+    "pt": "Você ainda não cobra imposto sobre vendas em nenhum estado: esta fatura sairá sem imposto."
+  },
+  "invoices.new.sales_tax_register_states": {
+    "es": "Registrar estados",
+    "en": "Register states",
+    "pt": "Registrar estados"
   },
   "invoices.new.save_draft": {
     "es": "Guardar borrador",
@@ -1619,6 +1639,11 @@
     "en": "Barter",
     "pt": "Permuta"
   },
+  "invoices.payment_method_code_unknown": {
+    "es": "La forma de pago {{code}} no existe o está retirada.",
+    "en": "Payment method {{code}} does not exist or has been retired.",
+    "pt": "A forma de pagamento {{code}} não existe ou foi desativada."
+  },
   "invoices.precondition.draft": {
     "es": "El documento está en borrador y puede emitirse.",
     "en": "The document is a draft and can be issued.",
@@ -1693,6 +1718,11 @@
     "es": "El tipo {{type}} no es un comprobante de nota de crédito válido.",
     "en": "Type {{type}} is not a valid credit-note document.",
     "pt": "O tipo {{type}} não é um documento de nota de crédito válido."
+  },
+  "invoices.withholding_not_in_market": {
+    "es": "En tu país las facturas no llevan retenciones en la fuente; deja las retenciones en 0.",
+    "en": "Invoices in your country carry no withholding at source; leave withholding at 0.",
+    "pt": "No seu país as faturas não têm retenção na fonte; deixe as retenções em 0."
   },
   "invoices.withholding_stated_stated_not_what_applicable": {
     "es": "La retención indicada ({{stated}}) no corresponde al régimen aplicable ({{resolved}}, regímenes: {{regimes}}). Si la excepción es correcta, indica el motivo en «withholdingOverrideReason».",

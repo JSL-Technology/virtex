@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { TranslatePipe, provideTranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { Observable, Subject, of, throwError, timer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { VX_SELECT } from './index';
@@ -40,7 +40,7 @@ const TERMS: PaymentTerm[] = [
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, ...VX_SELECT],
+  imports: [ReactiveFormsModule, TranslateModule, ...VX_SELECT],
   template: `
     <label for="customer">Cliente</label>
     <vx-select
@@ -83,7 +83,7 @@ class ServerHost {
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, ...VX_SELECT],
+  imports: [ReactiveFormsModule, TranslateModule, ...VX_SELECT],
   template: `
     <vx-select
       [formControl]="control"

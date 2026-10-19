@@ -1,8 +1,10 @@
 import { TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { of } from 'rxjs';
 import { FiscalReturnsPage } from './fiscal-returns.page';
 import { FiscalReturnFiling, FiscalReturnsService, returnFileName } from '../data/fiscal-returns.service';
-import { FiscalSettingsService } from '../../settings/data/fiscal-settings.service';
+import { signal } from '@angular/core';
+import { CountryPackService } from '../../../core/api/country-pack.service';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import { AuthService } from '../../../core/services/auth';
@@ -25,6 +27,7 @@ describe('FiscalReturnsPage', () => {
 
   let service: {
     filings: jest.Mock;
+    activeSince: jest.Mock;
     download: jest.Mock;
     check: jest.Mock;
     markSubmitted: jest.Mock;
@@ -32,9 +35,23 @@ describe('FiscalReturnsPage', () => {
   };
   let dialog: { prompt: jest.Mock; confirm: jest.Mock };
 
-  function create(country: string, rows: FiscalReturnFiling[] = [], permissions = true) {
+  /** The slice of the country pack this page reads (QA C-06): its return generator and due day. */
+  const PACKS: Record<string, { generator: 'DGII' | 'SAT' | null; dueDay: number | null }> = {
+    DO: { generator: 'DGII', dueDay: 15 },
+    MX: { generator: 'SAT', dueDay: null },
+    CO: { generator: null, dueDay: null },
+    US: { generator: null, dueDay: null },
+  };
+
+  function create(
+    country: string,
+    rows: FiscalReturnFiling[] = [],
+    permissions = true,
+    activeSince = '2020-01-01',
+  ) {
     service = {
       filings: jest.fn().mockReturnValue(of(rows)),
+      activeSince: jest.fn().mockReturnValue(of({ activeSince })),
       download: jest.fn().mockReturnValue(of(new Blob(['x']))),
       check: jest.fn(),
       markSubmitted: jest.fn(),
@@ -45,7 +62,18 @@ describe('FiscalReturnsPage', () => {
       imports: [FiscalReturnsPage],
       providers: [
         { provide: FiscalReturnsService, useValue: service },
-        { provide: FiscalSettingsService, useValue: { coverage: () => of({ countryCode: country, capabilities: [] }) } },
+        {
+          provide: CountryPackService,
+          useValue: {
+            pack: signal({
+              countryCode: country,
+              fiscalReturns: {
+                ...PACKS[country],
+                prepareWith: [{ labelKey: 'localization.country_pack.reports.trial_balance', route: '/reports/financial-statements/trial-balance' }],
+              },
+            }),
+          },
+        },
         {
           provide: NotificationService,
           useValue: { httpErrorMessage: () => 'x', showHttpError: jest.fn(), showError: jest.fn(), showInfo: jest.fn(), showSuccess: jest.fn() },
@@ -76,6 +104,26 @@ describe('FiscalReturnsPage', () => {
     expect(page.market()).toBe('OTHER');
     expect(page.empty()).toBe(true);
     expect(service.filings).not.toHaveBeenCalled();
+  });
+
+  it('offers the reports to prepare with, naming the country, where no generator exists (C-06)', () => {
+    const { page, fixture } = create('US');
+    expect(page.market()).toBe('OTHER');
+    expect(page.prepareWith().map((report) => report.route)).toEqual(['/reports/financial-statements/trial-balance']);
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('fiscal_returns.not_available_title');
+    expect(text).not.toContain('DGII');
+  });
+
+  it('marks months before the company existed «not applicable», never overdue (A-15)', () => {
+    const { page } = create('DO', [], true, '2025-09-14');
+    page.setYear(2025);
+    expect(page.state('606', 1)).toBe('not_applicable');
+    expect(page.state('606', 8)).toBe('not_applicable');
+    expect(page.state('606', 9)).toBe('overdue');
+    // The year selector never offers a year before the company's first activity.
+    expect(Math.min(...page.years())).toBe(2025);
   });
 
   it('colours each month by where its return stands', () => {

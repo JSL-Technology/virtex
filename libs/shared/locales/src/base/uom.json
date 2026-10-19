@@ -24,6 +24,26 @@
     "en": "Dozen",
     "pt": "Dúzia"
   },
+  "uom.errors.in_use": {
+    "es": "La unidad «{{symbol}}» se usa en {{count}} producto(s); cámbiales la unidad antes de eliminarla.",
+    "en": "The unit “{{symbol}}” is used by {{count}} product(s); change their unit before deleting it.",
+    "pt": "A unidade “{{symbol}}” é usada por {{count}} produto(s); altere a unidade deles antes de excluí-la."
+  },
+  "uom.errors.not_found": {
+    "es": "La unidad no existe o ya fue eliminada.",
+    "en": "The unit doesn't exist or was already deleted.",
+    "pt": "A unidade não existe ou já foi excluída."
+  },
+  "uom.errors.symbol_format": {
+    "es": "El símbolo solo admite letras, números y guiones.",
+    "en": "The symbol may only contain letters, numbers and hyphens.",
+    "pt": "O símbolo só pode conter letras, números e hifens."
+  },
+  "uom.errors.symbol_taken": {
+    "es": "Ya existe una unidad con el símbolo «{{symbol}}».",
+    "en": "A unit with the symbol “{{symbol}}” already exists.",
+    "pt": "Já existe uma unidade com o símbolo “{{symbol}}”."
+  },
   "uom.foot": {
     "es": "Pie",
     "en": "Foot",

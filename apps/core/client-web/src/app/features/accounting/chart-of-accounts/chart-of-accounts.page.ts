@@ -8,8 +8,8 @@ import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accoun
 import { LucideAngularModule, Plus, ChevronDown, ChevronRight, Edit, Trash, FileDown, FileUp, GitMerge, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-angular';
 import { Account, AccountType } from '../../../core/models/account.model';
 import { FlattenedAccount } from '../../../core/models/flattened-account.model';
-import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../shared/components/badge';
@@ -19,7 +19,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 @Component({
   selector: 'app-chart-of-accounts-page',
   standalone: true,
-  imports: [CanOpenDirective, FormsModule, RouterLink, LucideAngularModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent],
+  imports: [CanOpenDirective, FormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent],
   templateUrl: './chart-of-accounts.page.html',
   styleUrls: ['./chart-of-accounts.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+
 import { LucideAngularModule, ArrowLeftRight, ClipboardCheck } from 'lucide-angular';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
@@ -21,7 +21,7 @@ import { Warehouse, WarehousesService } from '../../masters/data/warehouses.serv
 @Component({
   selector: 'app-stock-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, HasPermissionDirective],
+  imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, HasPermissionDirective],
   templateUrl: './stock.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

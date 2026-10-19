@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 
 @Component({
   selector: 'app-social-auth-buttons',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './social-auth-buttons.component.html',
   styleUrls: ['./social-auth-buttons.component.scss']
 })

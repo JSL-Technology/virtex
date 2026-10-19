@@ -12,9 +12,9 @@ import {
 } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
 import { invoiceStatusKey, invoiceStatusTone } from '../../../core/services/invoice-status';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import {
   CsvValue,
   downloadCsv,
@@ -47,7 +47,7 @@ type InvoiceSortKey = 'number' | 'fiscalNumber' | 'customer' | 'issueDate' | 'du
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, FormsModule, TranslatePipe, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
