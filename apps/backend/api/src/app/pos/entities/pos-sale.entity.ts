@@ -119,6 +119,18 @@ export class PosSale {
   @Column({ type: 'enum', enum: PosSaleStatus, default: PosSaleStatus.PAID })
   status: PosSaleStatus;
 
+  /** When a supervisor voided the sale; null while it stands. */
+  @Column({ name: 'voided_at', type: 'timestamptz', nullable: true })
+  voidedAt: Date | null;
+
+  /** Who voided it — always a holder of `pos:manage_shifts`. */
+  @Column({ name: 'voided_by_id', type: 'uuid', nullable: true })
+  voidedById: string | null;
+
+  /** Why, in the supervisor's words. Required to void. */
+  @Column({ name: 'void_reason', type: 'varchar', length: 255, nullable: true })
+  voidReason: string | null;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Grid2X2, ShoppingCart, HardHat, Store, Box, Utensils, Users, UserCircle } from 'lucide-angular';
 import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
+import { POS_URL } from '../../../../core/tokens/pos-url';
 
 interface VirtexApp {
   id: string;
@@ -148,7 +149,7 @@ export class AppLauncherComponent {
   protected readonly GridIcon = Grid2X2;
 
   apps: VirtexApp[] = [
-    { id: 'pos', nameKey: 'apps.pos', icon: ShoppingCart, color: 'var(--viz-1)', url: 'https://pos.virteex.com' },
+    { id: 'pos', nameKey: 'apps.pos', icon: ShoppingCart, color: 'var(--viz-1)', url: POS_URL },
     { id: 'shopfloor', nameKey: 'apps.shopfloor', icon: HardHat, color: 'var(--viz-4)', url: 'https://shopfloor.virteex.com' },
     { id: 'store', nameKey: 'apps.store', icon: Store, color: 'var(--viz-7)', url: 'https://store.virteex.com' },
     { id: 'wms', nameKey: 'apps.wms', icon: Box, color: 'var(--viz-3)', url: 'https://wms.virteex.com' },

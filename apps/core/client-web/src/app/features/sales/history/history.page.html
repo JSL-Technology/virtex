@@ -13,7 +13,7 @@
     <lucide-icon [img]="FileDownIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'sales.history.export' | translate }}</span>
   </button>
-  <a listActions routerLink="/sales/pos" class="primary-button">
+  <a listActions [href]="posUrl" target="_blank" rel="noopener" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'sales.history.new_sale' | translate }}</span>
   </a>

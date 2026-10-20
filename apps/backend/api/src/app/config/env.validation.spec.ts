@@ -78,7 +78,7 @@ describe('environment validation', () => {
     it('points the client and CORS at the Angular dev server', () => {
       const { value } = check({ NODE_ENV: 'development' });
       expect(value.FRONTEND_URL).toBe('http://localhost:4200');
-      expect(value.CORS_ORIGIN).toBe('http://localhost:4200');
+      expect(value.CORS_ORIGIN).toBe('http://localhost:4200,http://localhost:4300');
     });
 
     it('defaults the database to the container the README tells you to run', () => {

@@ -178,17 +178,18 @@ export const VENTAS_MODULE: ModuleManifest = {
       load: () => import('../../../features/sales/history/history.page').then((m) => m.HistoryPage),
     },
     {
-      //  Un terminal de punto de venta: catálogo, ticket y cobro, los tres a la vez y a pantalla
-      //  completa. El armazón de borrador —cabecera fija con «Guardar» y «Cancelar»— describe un
-      //  formulario, y esto no lo es: aquí no se guarda un borrador, se cobra.
+      //  La puerta al punto de venta, no el punto de venta. Vender ocurre en la aplicación POS
+      //  (`apps/pos`), desplegada aparte; esta ventana dice adónde se fue y la abre con la misma
+      //  sesión. Se queda en `sales/pos` para que el menú, los marcadores y las pestañas guardadas
+      //  sigan llevando a algún sitio.
       path: 'sales/pos',
-      kind: WindowKind.CANVAS,
-      permission: 'invoices:create',
+      kind: WindowKind.OVERVIEW,
+      permission: 'pos:view',
       titleKey: 'page_titles.point_of_sale',
       icon: 'Store',
       entityKeyFn: () => 'ventas:pos',
       menu: { group: 'documents', labelKey: 'page_titles.point_of_sale' },
-      load: () => import('../../../features/sales/pos/pos.page').then((m) => m.PosPage),
+      load: () => import('../../../features/sales/pos-launcher/pos-launcher.page').then((m) => m.PosLauncherPage),
     },
     {
       path: 'reports/aging/receivables',

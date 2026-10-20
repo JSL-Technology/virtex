@@ -72,218 +72,40 @@
     "en": "Only accepted quotes can be invoiced.",
     "pt": "Somente orçamentos aceitos podem ser faturados."
   },
-  "sales.pos.add_products_start_sale": {
-    "es": "Agrega productos para comenzar una venta.",
-    "en": "Add products to start a sale.",
-    "pt": "Adicione produtos para iniciar uma venda."
+  "sales.pos_launcher.feature_payments": {
+    "es": "Efectivo con cambio, tarjeta, transferencia y pagos mixtos",
+    "en": "Cash with change, card, transfer and split payments",
+    "pt": "Dinheiro com troco, cartão, transferência e pagamentos mistos"
   },
-  "sales.pos.amount_due": {
-    "es": "Total a pagar",
-    "en": "Amount due",
-    "pt": "Total a pagar"
+  "sales.pos_launcher.feature_receipts": {
+    "es": "Tickets impresos, reimpresión y anulación por supervisor",
+    "en": "Printed receipts, reprints and supervisor voids",
+    "pt": "Cupons impressos, reimpressão e anulação por supervisor"
   },
-  "sales.pos.charge": {
-    "es": "Cobrar",
-    "en": "Charge",
-    "pt": "Cobrar"
+  "sales.pos_launcher.feature_scan": {
+    "es": "Venta por escáner de código de barras, búsqueda y categorías",
+    "en": "Selling by barcode scanner, search and categories",
+    "pt": "Venda por leitor de código de barras, pesquisa e categorias"
   },
-  "sales.pos.current_order": {
-    "es": "Orden actual",
-    "en": "Current order",
-    "pt": "Pedido atual"
+  "sales.pos_launcher.feature_shift": {
+    "es": "Turnos con fondo de caja, reportes X y Z y arqueo con diferencia",
+    "en": "Shifts with opening float, X and Z reports and cash-up with variance",
+    "pt": "Turnos com fundo de caixa, relatórios X e Z e fecho com diferença"
   },
-  "sales.pos.customer": {
-    "es": "Cliente:",
-    "en": "Customer:",
-    "pt": "Cliente:"
+  "sales.pos_launcher.lead": {
+    "es": "El punto de venta es una aplicación aparte, pensada para la caja: pantalla completa, escáner y atajos de teclado. Entras con tu misma cuenta.",
+    "en": "The point of sale is a separate application built for the till: full screen, scanner and keyboard shortcuts. You sign in with the same account.",
+    "pt": "O ponto de venda é uma aplicação à parte, pensada para o caixa: ecrã inteiro, leitor e atalhos de teclado. Entra com a mesma conta."
   },
-  "sales.pos.decrease_qty": {
-    "es": "Restar una unidad de {{name}}",
-    "en": "Remove one {{name}}",
-    "pt": "Diminuir uma unidade de {{name}}"
+  "sales.pos_launcher.open": {
+    "es": "Abrir el punto de venta",
+    "en": "Open the point of sale",
+    "pt": "Abrir o ponto de venda"
   },
-  "sales.pos.increase_qty": {
-    "es": "Sumar una unidad de {{name}}",
-    "en": "Add one more {{name}}",
-    "pt": "Adicionar uma unidade de {{name}}"
-  },
-  "sales.pos.not_enough_stock": {
-    "es": "No hay existencias suficientes de «{{name}}»: quedan {{available}}.",
-    "en": "Not enough stock of “{{name}}”: {{available}} left.",
-    "pt": "Estoque insuficiente de “{{name}}”: restam {{available}}."
-  },
-  "sales.pos.out_stock": {
-    "es": "Agotado",
-    "en": "Out of stock",
-    "pt": "Esgotado"
-  },
-  "sales.pos.pay.card_exceeds_total": {
-    "es": "La parte con tarjeta no puede superar el total.",
-    "en": "The card part cannot exceed the total.",
-    "pt": "A parte no cartão não pode ultrapassar o total."
-  },
-  "sales.pos.pay.card_part": {
-    "es": "Parte con tarjeta",
-    "en": "Card part",
-    "pt": "Parte no cartão"
-  },
-  "sales.pos.pay.cash_part": {
-    "es": "Parte en efectivo",
-    "en": "Cash part",
-    "pt": "Parte em dinheiro"
-  },
-  "sales.pos.pay.cash_received": {
-    "es": "Efectivo recibido",
-    "en": "Cash received",
-    "pt": "Dinheiro recebido"
-  },
-  "sales.pos.pay.change": {
-    "es": "Cambio",
-    "en": "Change",
-    "pt": "Troco"
-  },
-  "sales.pos.pay.charging": {
-    "es": "Registrando…",
-    "en": "Recording…",
-    "pt": "Registrando…"
-  },
-  "sales.pos.pay.confirm": {
-    "es": "Confirmar cobro de {{amount}}",
-    "en": "Confirm payment of {{amount}}",
-    "pt": "Confirmar recebimento de {{amount}}"
-  },
-  "sales.pos.pay.done": {
-    "es": "Venta registrada",
-    "en": "Sale recorded",
-    "pt": "Venda registrada"
-  },
-  "sales.pos.pay.method.card": {
-    "es": "Tarjeta",
-    "en": "Card",
-    "pt": "Cartão"
-  },
-  "sales.pos.pay.method.cash": {
-    "es": "Efectivo",
-    "en": "Cash",
-    "pt": "Dinheiro"
-  },
-  "sales.pos.pay.method.mixed": {
-    "es": "Mixto",
-    "en": "Split",
-    "pt": "Misto"
-  },
-  "sales.pos.pay.method.other": {
-    "es": "Otro",
-    "en": "Other",
-    "pt": "Outro"
-  },
-  "sales.pos.pay.method.transfer": {
-    "es": "Transferencia",
-    "en": "Transfer",
-    "pt": "Transferência"
-  },
-  "sales.pos.pay.method_label": {
-    "es": "Forma de pago",
-    "en": "Payment method",
-    "pt": "Forma de pagamento"
-  },
-  "sales.pos.pay.new_sale": {
-    "es": "Nueva venta",
-    "en": "New sale",
-    "pt": "Nova venda"
-  },
-  "sales.pos.pay.not_enough": {
-    "es": "Lo recibido no cubre el total.",
-    "en": "What was received does not cover the total.",
-    "pt": "O valor recebido não cobre o total."
-  },
-  "sales.pos.pay.paid": {
-    "es": "Recibido",
-    "en": "Received",
-    "pt": "Recebido"
-  },
-  "sales.pos.pay.quick_amounts": {
-    "es": "Montos rápidos",
-    "en": "Quick amounts",
-    "pt": "Valores rápidos"
-  },
-  "sales.pos.pay.reference": {
-    "es": "Referencia (opcional)",
-    "en": "Reference (optional)",
-    "pt": "Referência (opcional)"
-  },
-  "sales.pos.pay.still_owed": {
-    "es": "Falta",
-    "en": "Still owed",
-    "pt": "Falta"
-  },
-  "sales.pos.pay.title": {
-    "es": "Cobrar venta",
-    "en": "Take payment",
-    "pt": "Receber pagamento"
-  },
-  "sales.pos.prices_updated_review": {
-    "es": "Los precios o impuestos del catálogo cambiaron. El ticket se actualizó: revisa el total con el cliente y vuelve a cobrar.",
-    "en": "Catalogue prices or taxes changed. The ticket was updated: review the total with the customer and charge again.",
-    "pt": "Os preços ou impostos do catálogo mudaram. O cupom foi atualizado: revise o total com o cliente e cobre novamente."
-  },
-  "sales.pos.quantity_of": {
-    "es": "Cantidad de {{name}}",
-    "en": "Quantity of {{name}}",
-    "pt": "Quantidade de {{name}}"
-  },
-  "sales.pos.remove_item": {
-    "es": "Quitar {{name}} del ticket",
-    "en": "Remove {{name}} from the ticket",
-    "pt": "Remover {{name}} do cupom"
-  },
-  "sales.pos.search_products_name_sku": {
-    "es": "Buscar productos por nombre o SKU...",
-    "en": "Search products by name or SKU...",
-    "pt": "Buscar produtos por nome ou SKU..."
-  },
-  "sales.pos.subtotal": {
-    "literal": "Subtotal"
-  },
-  "sales.pos.tax": {
-    "es": "Impuestos",
-    "en": "Taxes",
-    "pt": "Impostos"
-  },
-  "sales.pos.tax_at_rate": {
-    "es": "Impuestos ({{rate}})",
-    "en": "Tax ({{rate}})",
-    "pt": "Impostos ({{rate}})"
-  },
-  "sales.pos.tax_needs_configuration": {
-    "es": "Este país calcula el impuesto por estado o municipio. Configúralo en Ajustes → Impuestos antes de cobrar.",
-    "en": "This country levies tax by state or municipality. Configure it under Settings → Taxes before charging.",
-    "pt": "Este país calcula o imposto por estado ou município. Configure-o em Configurações → Impostos antes de cobrar."
-  },
-  "sales.pos.ticket.popup_blocked": {
-    "es": "El navegador bloqueó la ventana del ticket. Permite las ventanas emergentes para este sitio e inténtalo de nuevo.",
-    "en": "The browser blocked the receipt window. Allow pop-ups for this site and try again.",
-    "pt": "O navegador bloqueou a janela do cupom. Permita pop-ups para este site e tente novamente."
-  },
-  "sales.pos.ticket.print": {
-    "es": "Imprimir ticket",
-    "en": "Print receipt",
-    "pt": "Imprimir cupom"
-  },
-  "sales.pos.ticket.thanks": {
-    "es": "¡Gracias por tu compra!",
-    "en": "Thank you for your purchase!",
-    "pt": "Obrigado pela sua compra!"
-  },
-  "sales.pos.ticket.title": {
-    "es": "Ticket de venta",
-    "en": "Sales receipt",
-    "pt": "Cupom de venda"
-  },
-  "sales.pos.walk_in_customer": {
-    "es": "Consumidor final",
-    "en": "Walk-in customer",
-    "pt": "Consumidor final"
+  "sales.pos_launcher.same_session": {
+    "es": "Se abre en una pestaña nueva con tu sesión actual.",
+    "en": "Opens in a new tab with your current session.",
+    "pt": "Abre num separador novo com a sua sessão atual."
   },
   "sales.quote_expired_cannot_accept": {
     "es": "La cotización {{quoteNumber}} venció. Duplícala con fechas nuevas para que el cliente acepte el precio vigente.",

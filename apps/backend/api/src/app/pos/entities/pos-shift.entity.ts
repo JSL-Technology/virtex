@@ -93,6 +93,13 @@ export class PosShift {
   @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformerNotNull, default: 0 })
   cashSalesTotal: number;
 
+  /** Sales voided on this shift, kept apart from the takings so the report shows both. */
+  @Column({ name: 'voided_total', type: 'numeric', precision: 14, scale: 2, transformer: numericTransformerNotNull, default: 0 })
+  voidedTotal: number;
+
+  @Column({ name: 'voided_count', type: 'int', default: 0 })
+  voidedCount: number;
+
   /** What the drawer should hold at close: opening float plus cash takings. Set when it closes. */
   @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformer, nullable: true })
   expectedBalance: number | null;
