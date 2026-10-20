@@ -13,14 +13,20 @@ export const POS_PERMISSIONS = {
   SUPERVISE: 'pos:manage_shifts',
 } as const;
 
-export function canAccessPos(permissions: readonly string[] | null | undefined): boolean {
+export function canAccessPos(
+  permissions: readonly string[] | null | undefined,
+): boolean {
   return hasPermission([...(permissions ?? [])], [POS_PERMISSIONS.ACCESS]);
 }
 
-export function canOperatePos(permissions: readonly string[] | null | undefined): boolean {
+export function canOperatePos(
+  permissions: readonly string[] | null | undefined,
+): boolean {
   return hasPermission([...(permissions ?? [])], [POS_PERMISSIONS.OPERATE]);
 }
 
-export function canSupervisePos(permissions: readonly string[] | null | undefined): boolean {
+export function canSupervisePos(
+  permissions: readonly string[] | null | undefined,
+): boolean {
   return hasPermission([...(permissions ?? [])], [POS_PERMISSIONS.SUPERVISE]);
 }

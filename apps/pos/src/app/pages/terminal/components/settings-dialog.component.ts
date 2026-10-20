@@ -1,6 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  output,
+  signal,
+} from '@angular/core';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
-import { TERMINAL_ID_PATTERN, TerminalConfigService } from '../../../core/terminal-config.service';
+import {
+  TERMINAL_ID_PATTERN,
+  TerminalConfigService,
+} from '../../../core/terminal-config.service';
 import { ToastService } from '../../../core/toast.service';
 import { TillStore } from '../../../state/till.store';
 import { DialogComponent } from './dialog.component';
@@ -29,14 +38,29 @@ export const SHORTCUTS: ReadonlyArray<{ keys: string; labelKey: string }> = [
       <form class="form" (submit)="$event.preventDefault(); save()">
         <label class="field">
           {{ 'pos.settings.terminal' | translate }}
-          <input type="text" maxlength="40" autocomplete="off" [value]="terminal()" (input)="terminal.set($any($event.target).value)" [attr.aria-invalid]="!valid()" />
-          <span class="field-hint">{{ 'pos.settings.terminal_hint' | translate }}</span>
+          <input
+            type="text"
+            maxlength="40"
+            autocomplete="off"
+            [value]="terminal()"
+            (input)="terminal.set($any($event.target).value)"
+            [attr.aria-invalid]="!valid()"
+          />
+          <span class="field-hint">{{
+            'pos.settings.terminal_hint' | translate
+          }}</span>
         </label>
         @if (till.shiftReady() && terminal().trim() !== config.terminalId()) {
-          <p class="alert alert-warning">{{ 'pos.settings.terminal_open_shift' | translate }}</p>
+          <p class="alert alert-warning">
+            {{ 'pos.settings.terminal_open_shift' | translate }}
+          </p>
         }
         <label class="check">
-          <input type="checkbox" [checked]="autoPrint()" (change)="autoPrint.set($any($event.target).checked)" />
+          <input
+            type="checkbox"
+            [checked]="autoPrint()"
+            (change)="autoPrint.set($any($event.target).checked)"
+          />
           <span>{{ 'pos.settings.auto_print' | translate }}</span>
         </label>
       </form>
@@ -44,24 +68,61 @@ export const SHORTCUTS: ReadonlyArray<{ keys: string; labelKey: string }> = [
         <h3>{{ 'pos.shortcuts.title' | translate }}</h3>
         <dl class="kv shortcuts">
           @for (s of shortcuts; track s.keys) {
-            <div><dt>{{ s.labelKey | translate }}</dt><dd><kbd>{{ s.keys }}</kbd></dd></div>
+            <div>
+              <dt>{{ s.labelKey | translate }}</dt>
+              <dd>
+                <kbd>{{ s.keys }}</kbd>
+              </dd>
+            </div>
           }
         </dl>
       </section>
       <ng-container dialog-actions>
-        <button type="button" class="btn" (click)="closed.emit()">{{ 'pos.cancel' | translate }}</button>
-        <button type="button" class="btn btn-primary" [disabled]="!valid()" (click)="save()">{{ 'pos.settings.save' | translate }}</button>
+        <button type="button" class="btn" (click)="closed.emit()">
+          {{ 'pos.cancel' | translate }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="!valid()"
+          (click)="save()"
+        >
+          {{ 'pos.settings.save' | translate }}
+        </button>
       </ng-container>
     </pos-dialog>
   `,
   styles: [
     `
-      .form { display: flex; flex-direction: column; gap: 14px; }
-      .check { display: flex; gap: 10px; align-items: center; min-height: 44px; }
-      .check input { width: 20px; height: 20px; accent-color: var(--pos-primary); }
-      h3 { margin: 4px 0 8px; font-size: 0.85rem; color: var(--pos-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-      .shortcuts { font-size: 0.9rem; }
-      .alert { margin: 0; }
+      .form {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .check {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        min-height: 44px;
+      }
+      .check input {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--pos-primary);
+      }
+      h3 {
+        margin: 4px 0 8px;
+        font-size: 0.85rem;
+        color: var(--pos-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .shortcuts {
+        font-size: 0.9rem;
+      }
+      .alert {
+        margin: 0;
+      }
     `,
   ],
 })

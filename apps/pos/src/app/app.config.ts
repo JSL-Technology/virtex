@@ -1,6 +1,16 @@
-import { ApplicationConfig, effect, inject, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  effect,
+  inject,
+  provideAppInitializer,
+  provideZonelessChangeDetection,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withFetch,
+  withInterceptors,
+} from '@angular/common/http';
 import {
   MissingTranslationHandler,
   TranslateLoader,
@@ -33,7 +43,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(APP_ROUTES),
     // Expiry first: a request it replays after renewing the session goes back through
     // `apiInterceptor`, which reads the CSRF cookie again — the renewal may have rotated it.
-    provideHttpClient(withFetch(), withInterceptors([sessionExpiryInterceptor, apiInterceptor])),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([sessionExpiryInterceptor, apiInterceptor]),
+    ),
 
     provideTranslateService({
       loader: { provide: TranslateLoader, useClass: PosTranslateLoader },

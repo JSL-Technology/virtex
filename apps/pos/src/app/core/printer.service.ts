@@ -15,7 +15,14 @@ export class PrinterService {
       const frame = document.createElement('iframe');
       frame.setAttribute('aria-hidden', 'true');
       frame.tabIndex = -1;
-      Object.assign(frame.style, { position: 'fixed', right: '0', bottom: '0', width: '0', height: '0', border: '0' });
+      Object.assign(frame.style, {
+        position: 'fixed',
+        right: '0',
+        bottom: '0',
+        width: '0',
+        height: '0',
+        border: '0',
+      });
       frame.srcdoc = html;
       frame.onload = () => {
         const win = frame.contentWindow;
@@ -24,7 +31,9 @@ export class PrinterService {
           resolve();
         };
         if (!win) return cleanup();
-        win.addEventListener('afterprint', () => setTimeout(cleanup, 0), { once: true });
+        win.addEventListener('afterprint', () => setTimeout(cleanup, 0), {
+          once: true,
+        });
         win.focus();
         win.print();
         // Browsers that print synchronously never fire `afterprint` on an iframe.

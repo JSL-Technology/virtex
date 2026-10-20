@@ -214,20 +214,15 @@
     "en": "We could not load the product catalogue.",
     "pt": "Não foi possível carregar o catálogo de produtos."
   },
-  "pos.loading_catalogue": {
-    "es": "Cargando el catálogo…",
-    "en": "Loading the catalogue…",
-    "pt": "A carregar o catálogo…"
-  },
   "pos.loading_shift": {
     "es": "Comprobando el turno de esta caja…",
     "en": "Checking this till’s shift…",
     "pt": "A verificar o turno deste caixa…"
   },
   "pos.no_access": {
-    "es": "Tu cuenta no tiene acceso al punto de venta. Pide a un administrador que añada el permiso «Punto de venta» a tu rol, o entra con otra cuenta.",
-    "en": "Your account has no access to the point of sale. Ask an administrator to add the “Point of sale” permission to your role, or sign in with another account.",
-    "pt": "A sua conta não tem acesso ao ponto de venda. Peça a um administrador que adicione a permissão “Ponto de venda” ao seu perfil, ou entre com outra conta."
+    "es": "Tu cuenta no tiene acceso al punto de venta. Pide a un administrador el permiso «Punto de venta» para tu rol, o entra con otra cuenta.",
+    "en": "Your account has no access to the point of sale. Ask an administrator for the “Point of sale” permission on your role, or sign in with another account.",
+    "pt": "A sua conta não tem acesso ao ponto de venda. Peça a um administrador a permissão “Ponto de venda” para o seu perfil, ou entre com outra conta."
   },
   "pos.no_matches": {
     "es": "Ningún producto coincide con la búsqueda.",
@@ -335,9 +330,9 @@
     "pt": "Em espera"
   },
   "pos.park.parked": {
-    "es": "Ticket aparcado. Recupéralo cuando el cliente vuelva.",
-    "en": "Ticket parked. Recall it when the customer returns.",
-    "pt": "Cupom em espera. Recupere-o quando o cliente voltar."
+    "es": "Ticket aparcado. Recupéralo desde «Recuperar» cuando quieras.",
+    "en": "Ticket parked. Bring it back from “Recall” whenever you need it.",
+    "pt": "Cupom em espera. Recupere-o em “Recuperar” quando quiser."
   },
   "pos.park.recall": {
     "es": "Recuperar",
@@ -493,11 +488,6 @@
     "es": "Quitar {{name}} del ticket",
     "en": "Remove {{name}} from the ticket",
     "pt": "Remover {{name}} do cupom"
-  },
-  "pos.remove_line": {
-    "es": "Quitar línea",
-    "en": "Remove line",
-    "pt": "Remover linha"
   },
   "pos.report.average_ticket": {
     "es": "Ticket medio",
@@ -868,11 +858,6 @@
     "es": "Iniciando sesión…",
     "en": "Signing in…",
     "pt": "A iniciar sessão…"
-  },
-  "pos.step_up_required": {
-    "es": "Se requiere verificación adicional. Termina de iniciar sesión en la aplicación principal.",
-    "en": "Additional verification is required. Finish signing in on the main application.",
-    "pt": "É necessária verificação adicional. Termina de iniciar sessão na aplicação principal."
   },
   "pos.subtotal": {
     "literal": "Subtotal"

@@ -1,6 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
@@ -12,8 +15,18 @@ import { TillStore } from './till.store';
 
 const POS = `${environment.apiUrl}/pos`;
 const coffee: CatalogueItem = {
-  id: 'p1', name: 'Café', sku: 'CAF', barcode: '746', price: 100, taxRate: 0.18, kind: 'GOOD', stock: 5,
-  unitOfMeasure: 'UND', imageUrl: null, categoryId: null, categoryName: null,
+  id: 'p1',
+  name: 'Café',
+  sku: 'CAF',
+  barcode: '746',
+  price: 100,
+  taxRate: 0.18,
+  kind: 'GOOD',
+  stock: 5,
+  unitOfMeasure: 'UND',
+  imageUrl: null,
+  categoryId: null,
+  categoryName: null,
 };
 
 describe('TillStore', () => {
@@ -23,7 +36,12 @@ describe('TillStore', () => {
 
   beforeEach(() => {
     localStorage.clear();
-    toast = { success: jest.fn(), error: jest.fn(), warning: jest.fn(), info: jest.fn() };
+    toast = {
+      success: jest.fn(),
+      error: jest.fn(),
+      warning: jest.fn(),
+      info: jest.fn(),
+    };
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -31,30 +49,60 @@ describe('TillStore', () => {
         provideRouter([]),
         { provide: ToastService, useValue: toast },
         // Every key "exists", so the server's message key is shown as-is.
-        { provide: TranslateService, useValue: { instant: (k: string) => `t:${k}` } },
-        { provide: LocaleStore, useValue: { setTenantContext: jest.fn(), setLanguage: jest.fn() } },
+        {
+          provide: TranslateService,
+          useValue: { instant: (k: string) => `t:${k}` },
+        },
+        {
+          provide: LocaleStore,
+          useValue: { setTenantContext: jest.fn(), setLanguage: jest.fn() },
+        },
       ],
     });
     till = TestBed.inject(TillStore);
     http = TestBed.inject(HttpTestingController);
-    till.shift.set({ id: 's1', terminalId: 'main', userId: 'u1', status: 'OPEN', openingBalance: 0, salesTotal: 0, salesCount: 0, openedAt: '' });
+    till.shift.set({
+      id: 's1',
+      terminalId: 'main',
+      userId: 'u1',
+      status: 'OPEN',
+      openingBalance: 0,
+      salesTotal: 0,
+      salesCount: 0,
+      openedAt: '',
+    });
   });
 
   afterEach(() => http.verify());
 
   it('sends the same idempotency key when the same cart is charged again after a failure', () => {
     till.add(coffee);
-    till.charge({ ...startTender(118), cash: 200 }).subscribe({ error: () => void 0 });
+    till
+      .charge({ ...startTender(118), cash: 200 })
+      .subscribe({ error: () => void 0 });
     const first = http.expectOne(`${POS}/sales`);
     const key = first.request.headers.get('Idempotency-Key');
     expect(key).toBeTruthy();
-    expect(first.request.body).toMatchObject({ subtotal: 100, tax: 18, total: 118, payments: [{ method: 'cash', amount: 200 }] });
+    expect(first.request.body).toMatchObject({
+      subtotal: 100,
+      tax: 18,
+      total: 118,
+      payments: [{ method: 'cash', amount: 200 }],
+    });
     first.error(new ProgressEvent('error'), { status: 0 });
 
     till.charge({ ...startTender(118), cash: 200 }).subscribe();
     const retry = http.expectOne(`${POS}/sales`);
     expect(retry.request.headers.get('Idempotency-Key')).toBe(key);
-    retry.flush({ id: 'sale-1', total: 118, items: [], payments: [], changeDue: 82, status: 'PAID', createdAt: '' });
+    retry.flush({
+      id: 'sale-1',
+      total: 118,
+      items: [],
+      payments: [],
+      changeDue: 82,
+      status: 'PAID',
+      createdAt: '',
+    });
     http.expectOne(`${POS}/catalog`).flush([coffee]);
 
     expect(till.lines()).toEqual([]);
@@ -78,7 +126,12 @@ describe('TillStore', () => {
   it('when the server says prices moved, the catalogue is reloaded and the ticket re-priced', () => {
     till.add(coffee);
     till.charge(startTender(118)).subscribe({ error: () => void 0 });
-    http.expectOne(`${POS}/sales`).flush({ messageKey: 'pos.prices_changed' }, { status: 409, statusText: 'Conflict' });
+    http
+      .expectOne(`${POS}/sales`)
+      .flush(
+        { messageKey: 'pos.prices_changed' },
+        { status: 409, statusText: 'Conflict' },
+      );
     http.expectOne(`${POS}/catalog`).flush([{ ...coffee, price: 120 }]);
     expect(till.lines()[0].price).toBe(120);
     expect(toast['error']).toHaveBeenCalledWith('pos.prices_changed');
@@ -101,6 +154,8 @@ describe('TillStore', () => {
 
   it('refuses an out-of-stock good at the counter', () => {
     expect(till.add({ ...coffee, stock: 0 })).toBe(false);
-    expect(toast['warning']).toHaveBeenCalledWith('pos.out_of_stock_named', { name: 'Café' });
+    expect(toast['warning']).toHaveBeenCalledWith('pos.out_of_stock_named', {
+      name: 'Café',
+    });
   });
 });

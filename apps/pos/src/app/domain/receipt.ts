@@ -1,4 +1,9 @@
-import type { PosContext, PosSale, ShiftReport, TenderMethod } from '../core/pos-api.service';
+import type {
+  PosContext,
+  PosSale,
+  ShiftReport,
+  TenderMethod,
+} from '../core/pos-api.service';
 
 /** What the documents need to put words and amounts on paper, in the tenant's language and locale. */
 export interface PrintFormat {
@@ -18,7 +23,10 @@ export interface ReceiptHeader {
 export function escapeHtml(value: unknown): string {
   return String(value ?? '').replace(
     /[&<>"']/g,
-    (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char] as string,
+    (char) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[
+        char
+      ] as string,
   );
 }
 
@@ -44,7 +52,9 @@ function headerHtml(header: ReceiptHeader, f: PrintFormat): string {
   const org = header.context?.organization;
   return [
     `<h1>${escapeHtml(org?.legalName || f.t('apps.pos'))}</h1>`,
-    org?.taxId ? `<p class="c">${escapeHtml(f.t('pos.ticket.tax_id', { taxId: org.taxId }))}</p>` : '',
+    org?.taxId
+      ? `<p class="c">${escapeHtml(f.t('pos.ticket.tax_id', { taxId: org.taxId }))}</p>`
+      : '',
     header.branch ? `<p class="c">${escapeHtml(header.branch)}</p>` : '',
   ].join('');
 }
@@ -54,7 +64,11 @@ function document(title: string, lang: string, body: string): string {
 }
 
 /** A sale's ticket. A voided sale prints with the void stamped across it and its reason. */
-export function receiptHtml(sale: PosSale, header: ReceiptHeader, f: PrintFormat): string {
+export function receiptHtml(
+  sale: PosSale,
+  header: ReceiptHeader,
+  f: PrintFormat,
+): string {
   const rows = (sale.items ?? [])
     .map(
       (line) =>
@@ -97,7 +111,11 @@ export function receiptHtml(sale: PosSale, header: ReceiptHeader, f: PrintFormat
 const METHODS: TenderMethod[] = ['cash', 'card', 'transfer', 'other'];
 
 /** The X report (open shift) or Z report (closed shift), for the drawer's paper trail. */
-export function shiftReportHtml(report: ShiftReport, header: ReceiptHeader, f: PrintFormat): string {
+export function shiftReportHtml(
+  report: ShiftReport,
+  header: ReceiptHeader,
+  f: PrintFormat,
+): string {
   const shift = report.shift;
   const closed = shift.status === 'CLOSED';
   const row = (label: string, value: string) =>
@@ -107,7 +125,9 @@ export function shiftReportHtml(report: ShiftReport, header: ReceiptHeader, f: P
     `<hr><h1>${escapeHtml(f.t(closed ? 'pos.report.z_title' : 'pos.report.x_title'))}</h1>`,
     `<p class="c">${escapeHtml(f.t('pos.ticket.terminal_cashier', { terminal: header.terminalId, cashier: header.cashier }))}</p>`,
     `<p class="c">${escapeHtml(f.t('pos.report.opened_at', { when: f.dateTime(shift.openedAt) }))}</p>`,
-    closed && shift.closedAt ? `<p class="c">${escapeHtml(f.t('pos.report.closed_at', { when: f.dateTime(shift.closedAt) }))}</p>` : '',
+    closed && shift.closedAt
+      ? `<p class="c">${escapeHtml(f.t('pos.report.closed_at', { when: f.dateTime(shift.closedAt) }))}</p>`
+      : '',
     `<p class="c">${escapeHtml(f.t('pos.report.printed_at', { when: f.dateTime(new Date()) }))}</p>`,
     `<hr><table>`,
     row(f.t('pos.report.sales_count'), String(report.salesCount)),
@@ -117,12 +137,29 @@ export function shiftReportHtml(report: ShiftReport, header: ReceiptHeader, f: P
     `<tr class="big"><td>${escapeHtml(f.t('pos.total'))}</td><td class="r">${escapeHtml(f.money(report.total))}</td></tr>`,
     row(f.t('pos.report.average_ticket'), f.money(report.averageTicket)),
     `</table><hr><table>`,
-    ...METHODS.map((method) => row(f.t('pos.pay.method.' + method), f.money(report.byMethod[method] ?? 0))),
+    ...METHODS.map((method) =>
+      row(
+        f.t('pos.pay.method.' + method),
+        f.money(report.byMethod[method] ?? 0),
+      ),
+    ),
     `</table><hr><table>`,
-    row(f.t('pos.report.voided', { count: report.voidedCount }), f.money(report.voidedTotal)),
+    row(
+      f.t('pos.report.voided', { count: report.voidedCount }),
+      f.money(report.voidedTotal),
+    ),
     row(f.t('pos.report.opening_float'), f.money(shift.openingBalance)),
-    row(f.t('pos.report.expected_cash'), f.money(closed && shift.expectedBalance != null ? shift.expectedBalance : report.expectedCash)),
-    closed && shift.closingBalance != null ? row(f.t('pos.counted_cash'), f.money(shift.closingBalance)) : '',
+    row(
+      f.t('pos.report.expected_cash'),
+      f.money(
+        closed && shift.expectedBalance != null
+          ? shift.expectedBalance
+          : report.expectedCash,
+      ),
+    ),
+    closed && shift.closingBalance != null
+      ? row(f.t('pos.counted_cash'), f.money(shift.closingBalance))
+      : '',
     closed && shift.closingVariance != null
       ? `<tr class="big"><td>${escapeHtml(f.t('pos.report.variance'))}</td><td class="r">${escapeHtml(f.money(shift.closingVariance))}</td></tr>`
       : '',
@@ -134,5 +171,9 @@ export function shiftReportHtml(report: ShiftReport, header: ReceiptHeader, f: P
       : '',
     `<hr><p class="c">${escapeHtml(f.t('pos.report.signature'))}</p><p>&nbsp;</p><p class="c">______________________</p>`,
   ].join('');
-  return document(f.t(closed ? 'pos.report.z_title' : 'pos.report.x_title'), f.lang, body);
+  return document(
+    f.t(closed ? 'pos.report.z_title' : 'pos.report.x_title'),
+    f.lang,
+    body,
+  );
 }

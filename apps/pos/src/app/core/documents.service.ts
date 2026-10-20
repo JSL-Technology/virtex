@@ -4,7 +4,12 @@ import { FormatService } from '@virteex/shared/ui-i18n';
 import { AuthService } from './auth.service';
 import { PosSale, ShiftReport } from './pos-api.service';
 import { PrinterService } from './printer.service';
-import { PrintFormat, ReceiptHeader, receiptHtml, shiftReportHtml } from '../domain/receipt';
+import {
+  PrintFormat,
+  ReceiptHeader,
+  receiptHtml,
+  shiftReportHtml,
+} from '../domain/receipt';
 import { TillStore } from '../state/till.store';
 
 /** Tickets and shift reports, worded in the tenant's language and printed. */
@@ -17,11 +22,15 @@ export class DocumentsService {
   private readonly till = inject(TillStore);
 
   printReceipt(sale: PosSale): Promise<void> {
-    return this.printer.print(receiptHtml(sale, this.header(), this.printFormat()));
+    return this.printer.print(
+      receiptHtml(sale, this.header(), this.printFormat()),
+    );
   }
 
   printReport(report: ShiftReport): Promise<void> {
-    return this.printer.print(shiftReportHtml(report, this.header(), this.printFormat()));
+    return this.printer.print(
+      shiftReportHtml(report, this.header(), this.printFormat()),
+    );
   }
 
   private header(): ReceiptHeader {

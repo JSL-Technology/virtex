@@ -44,7 +44,8 @@ export function stillOwed(draft: TenderDraft, total: number): number {
  * (`pos.payment_short`, `pos.payment_overpaid_non_cash`).
  */
 export function paymentError(draft: TenderDraft, total: number): string | null {
-  if (draft.method === 'mixed' && (draft.card ?? 0) > total) return 'pos.pay.card_exceeds_total';
+  if (draft.method === 'mixed' && (draft.card ?? 0) > total)
+    return 'pos.pay.card_exceeds_total';
   if (stillOwed(draft, total) > 0) return 'pos.pay.not_enough';
   return null;
 }
@@ -61,8 +62,14 @@ export function tenders(draft: TenderDraft, total: number): PosPayment[] {
       return [{ method: 'transfer', amount: round2(total), reference }];
     case 'mixed': {
       const parts: PosPayment[] = [];
-      if ((draft.card ?? 0) > 0) parts.push({ method: 'card', amount: round2(draft.card ?? 0), reference });
-      if ((draft.cash ?? 0) > 0) parts.push({ method: 'cash', amount: round2(draft.cash ?? 0) });
+      if ((draft.card ?? 0) > 0)
+        parts.push({
+          method: 'card',
+          amount: round2(draft.card ?? 0),
+          reference,
+        });
+      if ((draft.cash ?? 0) > 0)
+        parts.push({ method: 'cash', amount: round2(draft.cash ?? 0) });
       return parts;
     }
   }

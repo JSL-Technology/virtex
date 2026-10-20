@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, HostListener, computed, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  HostListener,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import {
   LucideAngularModule,
@@ -31,7 +40,8 @@ import { ShiftDialogComponent } from './components/shift-dialog.component';
 import { TicketPanelComponent } from './components/ticket-panel.component';
 import { ToastsComponent } from './components/toasts.component';
 
-type Dialog = 'payment' | 'receipt' | 'shift' | 'journal' | 'settings' | 'parked' | null;
+type Dialog =
+  'payment' | 'receipt' | 'shift' | 'journal' | 'settings' | 'parked' | null;
 
 /**
  * The till: one full-screen surface — catalogue on the left, ticket on the right, the whole
@@ -92,13 +102,17 @@ export class TerminalComponent {
   protected readonly fullscreen = signal(false);
   protected readonly now = signal(new Date());
   protected readonly organization = computed(
-    () => this.till.context()?.organization.legalName || this.auth.user()?.organization?.legalName || '',
+    () =>
+      this.till.context()?.organization.legalName ||
+      this.auth.user()?.organization?.legalName ||
+      '',
   );
 
   constructor() {
     this.till.init();
     const clock = setInterval(() => this.now.set(new Date()), 30_000);
-    const onFullscreen = () => this.fullscreen.set(!!document.fullscreenElement);
+    const onFullscreen = () =>
+      this.fullscreen.set(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', onFullscreen);
     inject(DestroyRef).onDestroy(() => {
       clearInterval(clock);
@@ -107,8 +121,13 @@ export class TerminalComponent {
   }
 
   protected open(dialog: Exclude<Dialog, null>): void {
-    if (dialog === 'payment' && (this.till.lines().length === 0 || !this.till.canSell())) return;
-    if ((dialog === 'shift' || dialog === 'journal') && !this.till.shift()) return;
+    if (
+      dialog === 'payment' &&
+      (this.till.lines().length === 0 || !this.till.canSell())
+    )
+      return;
+    if ((dialog === 'shift' || dialog === 'journal') && !this.till.shift())
+      return;
     this.dialog.set(dialog);
   }
 
@@ -130,11 +149,14 @@ export class TerminalComponent {
 
   protected toggleFullscreen(): void {
     if (document.fullscreenElement) void document.exitFullscreen();
-    else void document.documentElement.requestFullscreen?.().catch(() => void 0);
+    else
+      void document.documentElement.requestFullscreen?.().catch(() => void 0);
   }
 
   protected logout(): void {
-    this.auth.logout().subscribe(() => void this.router.navigateByUrl('/login'));
+    this.auth
+      .logout()
+      .subscribe(() => void this.router.navigateByUrl('/login'));
   }
 
   /**
@@ -154,7 +176,9 @@ export class TerminalComponent {
         return;
       case 'F4':
         event.preventDefault();
-        document.querySelector<HTMLInputElement>('[data-testid="pos-customer"]')?.focus();
+        document
+          .querySelector<HTMLInputElement>('[data-testid="pos-customer"]')
+          ?.focus();
         return;
       case 'F6':
         event.preventDefault();

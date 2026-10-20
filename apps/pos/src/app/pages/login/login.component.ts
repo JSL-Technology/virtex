@@ -1,8 +1,19 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { LucideAngularModule, Store, Eye, EyeOff, Building2 } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  Store,
+  Eye,
+  EyeOff,
+  Building2,
+} from 'lucide-angular';
 import { TranslateModule, resolveErrorKey } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { environment } from '../../../environments/environment';
@@ -19,13 +30,20 @@ import { AuthService, SignInOutcome } from '../../core/auth.service';
 @Component({
   selector: 'pos-login',
   standalone: true,
-  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, ...VX_FORM_A11Y],
+  imports: [
+    ReactiveFormsModule,
+    LucideAngularModule,
+    TranslateModule,
+    ...VX_FORM_A11Y,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <main class="wrap">
       <section class="panel">
         <div class="brand">
-          <span class="mark" aria-hidden="true"><lucide-icon [img]="StoreIcon" size="22" /></span>
+          <span class="mark" aria-hidden="true"
+            ><lucide-icon [img]="StoreIcon" size="22"
+          /></span>
           <div>
             <h1>{{ 'apps.pos' | translate }}</h1>
             <p class="sub">{{ 'pos.sign_in_title' | translate }}</p>
@@ -33,7 +51,12 @@ import { AuthService, SignInOutcome } from '../../core/auth.service';
         </div>
 
         @if (notice(); as n) {
-          <div class="alert" [class.alert-warning]="n === 'pos.no_access'" [class.alert-info]="n !== 'pos.no_access'" role="status">
+          <div
+            class="alert"
+            [class.alert-warning]="n === 'pos.no_access'"
+            [class.alert-info]="n !== 'pos.no_access'"
+            role="status"
+          >
             {{ n | translate }}
           </div>
         }
@@ -42,21 +65,55 @@ import { AuthService, SignInOutcome } from '../../core/auth.service';
         }
 
         @if (step() === 'credentials') {
-          <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <form
+            class="form"
+            [formGroup]="form"
+            (ngSubmit)="submit()"
+            novalidate
+          >
             <label class="field">
               {{ 'pos.email' | translate }}
-              <input type="email" formControlName="email" autocomplete="username" inputmode="email" data-testid="login-email" />
+              <input
+                type="email"
+                formControlName="email"
+                autocomplete="username"
+                inputmode="email"
+                data-testid="login-email"
+              />
             </label>
             <label class="field">
               {{ 'pos.password' | translate }}
               <span class="password">
-                <input [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="current-password" data-testid="login-password" />
-                <button type="button" class="icon-btn" (click)="showPassword.set(!showPassword())" [attr.aria-label]="(showPassword() ? 'pos.hide_password' : 'pos.show_password') | translate" [attr.aria-pressed]="showPassword()">
-                  <lucide-icon [img]="showPassword() ? EyeOffIcon : EyeIcon" size="18" aria-hidden="true" />
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="password"
+                  autocomplete="current-password"
+                  data-testid="login-password"
+                />
+                <button
+                  type="button"
+                  class="icon-btn"
+                  (click)="showPassword.set(!showPassword())"
+                  [attr.aria-label]="
+                    (showPassword() ? 'pos.hide_password' : 'pos.show_password')
+                      | translate
+                  "
+                  [attr.aria-pressed]="showPassword()"
+                >
+                  <lucide-icon
+                    [img]="showPassword() ? EyeOffIcon : EyeIcon"
+                    size="18"
+                    aria-hidden="true"
+                  />
                 </button>
               </span>
             </label>
-            <button type="submit" class="btn btn-primary btn-lg" [disabled]="loading()" data-testid="login-submit">
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg"
+              [disabled]="loading()"
+              data-testid="login-submit"
+            >
               {{ (loading() ? 'pos.signing_in' : 'pos.sign_in') | translate }}
             </button>
           </form>
@@ -65,19 +122,42 @@ import { AuthService, SignInOutcome } from '../../core/auth.service';
             <p class="sub">{{ 'pos.second_factor_prompt' | translate }}</p>
             <label class="field">
               {{ 'pos.second_factor_code' | translate }}
-              <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="12" [formControl]="code" />
+              <input
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="12"
+                [formControl]="code"
+              />
             </label>
-            <button type="submit" class="btn btn-primary btn-lg" [disabled]="code.invalid || loading()">
-              {{ (loading() ? 'pos.signing_in' : 'pos.verify_code') | translate }}
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg"
+              [disabled]="code.invalid || loading()"
+            >
+              {{
+                (loading() ? 'pos.signing_in' : 'pos.verify_code') | translate
+              }}
             </button>
-            <button type="button" class="btn btn-ghost" (click)="backToCredentials()">{{ 'pos.use_another_account' | translate }}</button>
+            <button
+              type="button"
+              class="btn btn-ghost"
+              (click)="backToCredentials()"
+            >
+              {{ 'pos.use_another_account' | translate }}
+            </button>
           </form>
         }
 
         <footer class="foot">
           <p>{{ 'pos.same_account_hint' | translate }}</p>
-          <a class="btn btn-ghost btn-sm" [href]="erpUrl" data-testid="login-erp-link">
-            <lucide-icon [img]="ErpIcon" size="16" aria-hidden="true" /> {{ 'pos.back_office' | translate }}
+          <a
+            class="btn btn-ghost btn-sm"
+            [href]="erpUrl"
+            data-testid="login-erp-link"
+          >
+            <lucide-icon [img]="ErpIcon" size="16" aria-hidden="true" />
+            {{ 'pos.back_office' | translate }}
           </a>
         </footer>
       </section>
@@ -92,8 +172,16 @@ import { AuthService, SignInOutcome } from '../../core/auth.service';
         place-items: center;
         padding: 24px 16px;
         background:
-          radial-gradient(900px 500px at 15% -10%, color-mix(in srgb, var(--pos-primary) 22%, transparent), transparent 60%),
-          radial-gradient(700px 500px at 110% 110%, color-mix(in srgb, #7c5cff 18%, transparent), transparent 60%),
+          radial-gradient(
+            900px 500px at 15% -10%,
+            color-mix(in srgb, var(--pos-primary) 22%, transparent),
+            transparent 60%
+          ),
+          radial-gradient(
+            700px 500px at 110% 110%,
+            color-mix(in srgb, #7c5cff 18%, transparent),
+            transparent 60%
+          ),
           var(--pos-bg);
       }
       .panel {
@@ -108,18 +196,68 @@ import { AuthService, SignInOutcome } from '../../core/auth.service';
         gap: 18px;
         box-shadow: var(--pos-shadow-lg);
       }
-      .brand { display: flex; align-items: center; gap: 14px; }
-      .mark { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, var(--pos-primary), #7c5cff); color: #fff; }
-      h1 { margin: 0; font-size: 1.45rem; }
-      .sub { margin: 2px 0 0; color: var(--pos-muted); font-size: 0.92rem; }
-      .form { display: flex; flex-direction: column; gap: 14px; }
-      .password { position: relative; display: flex; }
-      .password input { flex: 1; padding-right: 48px; }
-      .password .icon-btn { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); }
-      .alert { margin: 0; }
-      .foot { border-top: 1px solid var(--pos-border); padding-top: 14px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
-      .foot p { margin: 0; color: var(--pos-faint); font-size: 0.82rem; }
-      .foot a { text-decoration: none; }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .mark {
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--pos-primary), #7c5cff);
+        color: #fff;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.45rem;
+      }
+      .sub {
+        margin: 2px 0 0;
+        color: var(--pos-muted);
+        font-size: 0.92rem;
+      }
+      .form {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .password {
+        position: relative;
+        display: flex;
+      }
+      .password input {
+        flex: 1;
+        padding-right: 48px;
+      }
+      .password .icon-btn {
+        position: absolute;
+        right: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .alert {
+        margin: 0;
+      }
+      .foot {
+        border-top: 1px solid var(--pos-border);
+        padding-top: 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        text-align: center;
+      }
+      .foot p {
+        margin: 0;
+        color: var(--pos-faint);
+        font-size: 0.82rem;
+      }
+      .foot a {
+        text-decoration: none;
+      }
     `,
   ],
 })
@@ -141,7 +279,9 @@ export class LoginComponent {
   /** A catalogue key rather than a sentence, so the message follows a language switch. */
   readonly errorKey = signal<string | null>(null);
   /** Why the cashier is here: their role lacks the till, or their session ran out. */
-  readonly notice = signal<string | null>(LoginComponent.noticeFor(this.route.snapshot.queryParamMap.get('reason')));
+  readonly notice = signal<string | null>(
+    LoginComponent.noticeFor(this.route.snapshot.queryParamMap.get('reason')),
+  );
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -220,7 +360,10 @@ export class LoginComponent {
     // Never the server's own sentence: it is written for whoever is reading the logs, and
     // forwarding it is how an English string reached a Spanish till.
     this.errorKey.set(
-      resolveErrorKey(err as { status?: number; error?: unknown }, (key) => this.translate.instant(key) !== key),
+      resolveErrorKey(
+        err as { status?: number; error?: unknown },
+        (key) => this.translate.instant(key) !== key,
+      ),
     );
   }
 

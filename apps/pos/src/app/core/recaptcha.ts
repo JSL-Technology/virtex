@@ -43,9 +43,14 @@ function loadScript(siteKey: string): Promise<Grecaptcha> {
   return loading;
 }
 
-export function recaptchaToken$(action: string, siteKey = environment.recaptchaSiteKey): Observable<string> {
+export function recaptchaToken$(
+  action: string,
+  siteKey = environment.recaptchaSiteKey,
+): Observable<string> {
   if (!siteKey || typeof document === 'undefined') return of('');
-  return from(loadScript(siteKey).then((api) => api.execute(siteKey, { action }))).pipe(
+  return from(
+    loadScript(siteKey).then((api) => api.execute(siteKey, { action })),
+  ).pipe(
     timeout(TIMEOUT_MS),
     catchError(() => of('')),
   );

@@ -20,14 +20,20 @@ export const sessionExpiryInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: unknown) => {
-      if (!(error instanceof HttpErrorResponse) || error.status !== 401 || SESSION_ROUTES.test(req.url)) {
+      if (
+        !(error instanceof HttpErrorResponse) ||
+        error.status !== 401 ||
+        SESSION_ROUTES.test(req.url)
+      ) {
         return throwError(() => error);
       }
       return auth.refresh().pipe(
         switchMap((renewed) => {
           if (renewed) return next(req.clone());
           auth.sessionLost();
-          void router.navigate(['/login'], { queryParams: { reason: 'expired' } });
+          void router.navigate(['/login'], {
+            queryParams: { reason: 'expired' },
+          });
           return throwError(() => error);
         }),
       );

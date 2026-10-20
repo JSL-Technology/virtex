@@ -118,6 +118,16 @@ static site — that is a separate origin, and authentication cannot work that w
 Set `CORS_ORIGIN` and `FRONTEND_URL` to the client's origin, and `API_URL` to the API's base URL
 including the version prefix.
 
+### The point of sale on the same origin
+
+The point of sale (`apps/pos`) is a separate bundle under the SAME origin, by default at `/pos/`
+(`https://app.example.com/pos/`). That is what lets it read the CSRF cookie and send the session, and
+it is also what makes one sign-in valid for both applications. Build it with
+`API_URL=… RECAPTCHA_V3_SITE_KEY=… npm run build:pos` (base href `/pos/`), serve
+`dist/apps/pos/browser` under `/pos/` with SPA fallback to `/pos/index.html` and the headers in
+`apps/pos/public/serve.json`. If you mount it elsewhere, set `POS_URL` for the ERP build so its
+*Punto de venta* link points there. See `docs/pos.md`.
+
 ## 4b. Identity-provider redirect URIs
 
 Every OIDC provider — the built-in social ones and each customer's enterprise IdP — must have BOTH

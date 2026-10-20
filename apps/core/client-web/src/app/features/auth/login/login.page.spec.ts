@@ -11,7 +11,7 @@ import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { MockCountryService } from '../../../../testing/country.service.mock';
 import { CountryService } from '../../../core/services/country.service';
 import { LanguageService } from '../../../core/services/language';
-import { TranslateLoader, TranslateService } from '@ngx-translate/core';
+import { TranslateLoader, TranslateService, provideTranslateLoader } from '@ngx-translate/core';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';

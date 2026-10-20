@@ -3,7 +3,9 @@ import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 /** Whether the device thinks it is online — shown on the till so a failed sale is not a mystery. */
 @Injectable({ providedIn: 'root' })
 export class ConnectivityService {
-  readonly online = signal(typeof navigator === 'undefined' ? true : navigator.onLine);
+  readonly online = signal(
+    typeof navigator === 'undefined' ? true : navigator.onLine,
+  );
 
   constructor() {
     if (typeof window === 'undefined') return;

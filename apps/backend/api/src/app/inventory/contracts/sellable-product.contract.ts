@@ -154,5 +154,5 @@ export async function isStockedProduct(
     where: { id: productId, organizationId },
     select: ['id', 'kind'],
   });
-  return Boolean(product) && product!.kind !== ProductKind.SERVICE;
+  return product !== null && product.kind !== ProductKind.SERVICE;
 }

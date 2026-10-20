@@ -1,7 +1,9 @@
 <div class="pos">
   <header class="topbar">
     <div class="brand">
-      <span class="brand__mark" aria-hidden="true"><lucide-icon [img]="icons.brand" size="18" /></span>
+      <span class="brand__mark" aria-hidden="true"
+        ><lucide-icon [img]="icons.brand" size="18"
+      /></span>
       <div class="brand__text">
         <h1>{{ 'apps.pos' | translate }}</h1>
         @if (organization()) {
@@ -15,47 +17,120 @@
         {{ 'pos.terminal_label' | translate: { id: till.terminalId() } }}
       </span>
       @if (till.shiftReady()) {
-        <button type="button" class="chip chip--open" (click)="open('shift')" data-testid="pos-shift-chip">
+        <button
+          type="button"
+          class="chip chip--open"
+          (click)="open('shift')"
+          data-testid="pos-shift-chip"
+        >
           <span class="dot dot--open" aria-hidden="true"></span>
-          {{ 'pos.shift_open_summary' | translate: { count: till.shift()!.salesCount, amount: (till.shift()!.salesTotal | vxMoney: till.currency()) } }}
+          {{
+            'pos.shift_open_summary'
+              | translate
+                : {
+                    count: till.shift()!.salesCount,
+                    amount:
+                      (till.shift()!.salesTotal | vxMoney: till.currency()),
+                  }
+          }}
         </button>
         @if (till.shiftBranchName(); as branch) {
           <span class="chip">{{ branch }}</span>
         }
       } @else if (!till.shiftLoading()) {
-        <span class="chip chip--closed"><span class="dot dot--closed" aria-hidden="true"></span>{{ 'pos.no_shift_open' | translate }}</span>
+        <span class="chip chip--closed"
+          ><span class="dot dot--closed" aria-hidden="true"></span
+          >{{ 'pos.no_shift_open' | translate }}</span
+        >
       }
-      <span class="chip" [class.chip--offline]="!connectivity.online()" role="status">
-        <lucide-icon [img]="connectivity.online() ? icons.online : icons.offline" size="14" aria-hidden="true" />
+      <span
+        class="chip"
+        [class.chip--offline]="!connectivity.online()"
+        role="status"
+      >
+        <lucide-icon
+          [img]="connectivity.online() ? icons.online : icons.offline"
+          size="14"
+          aria-hidden="true"
+        />
         {{ (connectivity.online() ? 'pos.online' : 'pos.offline') | translate }}
       </span>
     </div>
 
     <nav class="actions" [attr.aria-label]="'pos.actions' | translate">
-      <span class="clock num" aria-hidden="true">{{ now() | vxDate: 'time' }}</span>
-      <button type="button" class="btn btn-ghost btn-sm" (click)="open('journal')" [disabled]="!till.shift()">
+      <span class="clock num" aria-hidden="true">{{
+        now() | vxDate: 'time'
+      }}</span>
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm"
+        (click)="open('journal')"
+        [disabled]="!till.shift()"
+      >
         <lucide-icon [img]="icons.journal" size="16" aria-hidden="true" />
-        <span class="label">{{ 'pos.journal.title' | translate }}</span> <kbd aria-hidden="true">F6</kbd>
+        <span class="label">{{ 'pos.journal.title' | translate }}</span>
+        <kbd aria-hidden="true">F6</kbd>
       </button>
-      <button type="button" class="btn btn-ghost btn-sm" (click)="open('shift')" [disabled]="!till.shift()" data-testid="pos-close-shift">
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm"
+        (click)="open('shift')"
+        [disabled]="!till.shift()"
+        data-testid="pos-close-shift"
+      >
         <lucide-icon [img]="icons.shift" size="16" aria-hidden="true" />
-        <span class="label">{{ 'pos.close_shift' | translate }}</span> <kbd aria-hidden="true">F7</kbd>
+        <span class="label">{{ 'pos.close_shift' | translate }}</span>
+        <kbd aria-hidden="true">F7</kbd>
       </button>
-      <a class="btn btn-ghost btn-sm" [href]="erpUrl" target="_blank" rel="noopener" [title]="'pos.back_office_hint' | translate" data-testid="pos-erp-link">
+      <a
+        class="btn btn-ghost btn-sm"
+        [href]="erpUrl"
+        target="_blank"
+        rel="noopener"
+        [title]="'pos.back_office_hint' | translate"
+        data-testid="pos-erp-link"
+      >
         <lucide-icon [img]="icons.erp" size="16" aria-hidden="true" />
         <span class="label">{{ 'pos.back_office' | translate }}</span>
       </a>
-      <button type="button" class="icon-btn" (click)="open('settings')" [attr.aria-label]="'pos.settings.title' | translate" [title]="'pos.settings.title' | translate">
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="open('settings')"
+        [attr.aria-label]="'pos.settings.title' | translate"
+        [title]="'pos.settings.title' | translate"
+      >
         <lucide-icon [img]="icons.settings" size="18" aria-hidden="true" />
       </button>
-      <button type="button" class="icon-btn" (click)="toggleFullscreen()" [attr.aria-label]="'pos.fullscreen' | translate" [title]="'pos.fullscreen' | translate">
-        <lucide-icon [img]="fullscreen() ? icons.minimize : icons.maximize" size="18" aria-hidden="true" />
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="toggleFullscreen()"
+        [attr.aria-label]="'pos.fullscreen' | translate"
+        [title]="'pos.fullscreen' | translate"
+      >
+        <lucide-icon
+          [img]="fullscreen() ? icons.minimize : icons.maximize"
+          size="18"
+          aria-hidden="true"
+        />
       </button>
       <div class="user">
-        <span class="user__avatar" aria-hidden="true">{{ auth.displayName().slice(0, 1).toUpperCase() }}</span>
-        <span class="user__name" data-testid="pos-user">{{ auth.displayName() }}</span>
+        <span class="user__avatar" aria-hidden="true">{{
+          auth.displayName().slice(0, 1).toUpperCase()
+        }}</span>
+        <span class="user__name" data-testid="pos-user">{{
+          auth.displayName()
+        }}</span>
       </div>
-      <button type="button" class="icon-btn" (click)="logout()" [attr.aria-label]="'pos.sign_out' | translate" [title]="'pos.sign_out' | translate" data-testid="pos-logout">
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="logout()"
+        [attr.aria-label]="'pos.sign_out' | translate"
+        [title]="'pos.sign_out' | translate"
+        data-testid="pos-logout"
+      >
         <lucide-icon [img]="icons.logout" size="18" aria-hidden="true" />
       </button>
     </nav>
@@ -63,13 +138,20 @@
 
   <main class="body">
     <pos-catalog-panel class="catalog" />
-    <pos-ticket-panel class="ticket" (chargeRequested)="open('payment')" (recallRequested)="open('parked')" />
+    <pos-ticket-panel
+      class="ticket"
+      (chargeRequested)="open('payment')"
+      (recallRequested)="open('parked')"
+    />
   </main>
 </div>
 
 @switch (dialog()) {
   @case ('payment') {
-    <pos-payment-dialog (cancelled)="closeDialog()" (completed)="saleCompleted($event)" />
+    <pos-payment-dialog
+      (cancelled)="closeDialog()"
+      (completed)="saleCompleted($event)"
+    />
   }
   @case ('receipt') {
     @if (till.lastSale(); as sale) {

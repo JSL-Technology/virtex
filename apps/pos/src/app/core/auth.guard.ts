@@ -16,7 +16,10 @@ export const authGuard: CanActivateFn = () => {
   const decide = () =>
     !auth.isAuthenticated()
       ? router.createUrlTree(['/login'])
-      : auth.canAccess() || router.createUrlTree(['/login'], { queryParams: { reason: 'no_access' } });
+      : auth.canAccess() ||
+        router.createUrlTree(['/login'], {
+          queryParams: { reason: 'no_access' },
+        });
   if (auth.isAuthenticated()) return of(decide());
   return auth.resolveSession().pipe(map(() => decide()));
 };
@@ -27,7 +30,10 @@ export const guestGuard: CanActivateFn = (route) => {
   const router = inject(Router);
   // An explicit reason (no access, expired) is a message to show, not a page to skip.
   if (route.queryParamMap.has('reason')) return true;
-  const decide = () => (auth.isAuthenticated() && auth.canAccess() ? router.createUrlTree(['/']) : true);
+  const decide = () =>
+    auth.isAuthenticated() && auth.canAccess()
+      ? router.createUrlTree(['/'])
+      : true;
   if (auth.isAuthenticated()) return decide();
   return auth.resolveSession().pipe(map(() => decide()));
 };

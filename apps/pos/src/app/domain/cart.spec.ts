@@ -1,5 +1,13 @@
 import type { CatalogueItem } from '../core/pos-api.service';
-import { addToCart, cartTotals, filterCatalogue, findByCode, isOutOfStock, repriceCart, setQuantity } from './cart';
+import {
+  addToCart,
+  cartTotals,
+  filterCatalogue,
+  findByCode,
+  isOutOfStock,
+  repriceCart,
+  setQuantity,
+} from './cart';
 
 const item = (over: Partial<CatalogueItem> = {}): CatalogueItem => ({
   id: 'p1',
@@ -21,7 +29,13 @@ describe('cart', () => {
   it('prices each line as the server does: per line, rounded to the cent, then summed', () => {
     const lines = addToCart([], item({ price: 0.335, taxRate: 0.18 }), 3).lines;
     // 3 × 0.335 = 1.005 → 1.01 (line-rounded); tax 0.18 × 1.01 = 0.1818 → 0.18
-    expect(cartTotals(lines)).toMatchObject({ subtotal: 1.01, tax: 0.18, total: 1.19, units: 3, rate: 0.18 });
+    expect(cartTotals(lines)).toMatchObject({
+      subtotal: 1.01,
+      tax: 0.18,
+      total: 1.19,
+      units: 3,
+      rate: 0.18,
+    });
   });
 
   it('reports the single rate on the ticket, or null when lines carry different ones', () => {
@@ -34,7 +48,10 @@ describe('cart', () => {
   it('refuses to sell a good beyond what is on hand, and never limits a service', () => {
     let change = addToCart([], item({ stock: 1 }));
     change = addToCart(change.lines, item({ stock: 1 }));
-    expect(change.refused).toEqual({ reason: 'not_enough_stock', available: 1 });
+    expect(change.refused).toEqual({
+      reason: 'not_enough_stock',
+      available: 1,
+    });
     expect(change.lines[0].quantity).toBe(1);
 
     const service = item({ id: 's', kind: 'SERVICE', stock: 0 });
@@ -58,16 +75,30 @@ describe('cart', () => {
   });
 
   it('a scan finds the exact barcode or SKU, case-insensitively', () => {
-    const catalogue = [item(), item({ id: 'p2', sku: 'AGU-600', barcode: null })];
+    const catalogue = [
+      item(),
+      item({ id: 'p2', sku: 'AGU-600', barcode: null }),
+    ];
     expect(findByCode(catalogue, ' 7460321000017 ')?.id).toBe('p1');
     expect(findByCode(catalogue, 'agu-600')?.id).toBe('p2');
     expect(findByCode(catalogue, '746')).toBeUndefined();
   });
 
   it('filters by name, SKU or barcode within a category', () => {
-    const catalogue = [item(), item({ id: 'p2', name: 'Agua', sku: 'AGU', barcode: '1', categoryId: 'c2' })];
+    const catalogue = [
+      item(),
+      item({
+        id: 'p2',
+        name: 'Agua',
+        sku: 'AGU',
+        barcode: '1',
+        categoryId: 'c2',
+      }),
+    ];
     expect(filterCatalogue(catalogue, 'caf').map((i) => i.id)).toEqual(['p1']);
-    expect(filterCatalogue(catalogue, '', 'c2').map((i) => i.id)).toEqual(['p2']);
+    expect(filterCatalogue(catalogue, '', 'c2').map((i) => i.id)).toEqual([
+      'p2',
+    ]);
     expect(filterCatalogue(catalogue, 'caf', 'c2')).toEqual([]);
   });
 });

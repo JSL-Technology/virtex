@@ -24,14 +24,23 @@ export interface CatalogueItem {
 
 /** `GET /pos/context`. */
 export interface PosContext {
-  organization: { legalName: string | null; taxId: string | null; country: string | null };
+  organization: {
+    legalName: string | null;
+    taxId: string | null;
+    country: string | null;
+  };
   currency: string;
   standardTaxRate: number;
   taxRequiresConfiguration: boolean;
 }
 
 export interface MyBranches {
-  branches: { id: string; code: string; name: string; isHeadquarters: boolean }[];
+  branches: {
+    id: string;
+    code: string;
+    name: string;
+    isHeadquarters: boolean;
+  }[];
   closed: { id: string; code: string; name: string }[];
   defaultBranchId: string | null;
   restricted: boolean;
@@ -128,7 +137,12 @@ export interface ShiftReport {
   voidedCount: number;
   voidedTotal: number;
   expectedCash: number;
-  topProducts: Array<{ productId: string; productName: string; quantity: number; total: number }>;
+  topProducts: Array<{
+    productId: string;
+    productName: string;
+    quantity: number;
+    total: number;
+  }>;
 }
 
 /**
@@ -150,15 +164,23 @@ export class PosApiService {
 
   /** The branches this cashier may open a till in, and their default one. */
   myBranches(): Observable<MyBranches> {
-    return this.http.get<MyBranches>(`${environment.apiUrl}/organizations/branches/mine`);
+    return this.http.get<MyBranches>(
+      `${environment.apiUrl}/organizations/branches/mine`,
+    );
   }
 
   activeShift(terminalId: string): Observable<PosShift | null> {
-    return this.http.get<PosShift | null>(`${this.api}/shifts/active`, { params: { terminalId } });
+    return this.http.get<PosShift | null>(`${this.api}/shifts/active`, {
+      params: { terminalId },
+    });
   }
 
   /** `branchId` omitted: the cashier's default branch, else the headquarters. */
-  openShift(terminalId: string, openingBalance: number, branchId?: string | null): Observable<PosShift> {
+  openShift(
+    terminalId: string,
+    openingBalance: number,
+    branchId?: string | null,
+  ): Observable<PosShift> {
     return this.http.post<PosShift>(`${this.api}/shifts`, {
       terminalId,
       openingBalance,
@@ -167,7 +189,9 @@ export class PosApiService {
   }
 
   closeShift(shiftId: string, closingBalance: number): Observable<PosShift> {
-    return this.http.post<PosShift>(`${this.api}/shifts/${shiftId}/close`, { closingBalance });
+    return this.http.post<PosShift>(`${this.api}/shifts/${shiftId}/close`, {
+      closingBalance,
+    });
   }
 
   shiftReport(shiftId: string): Observable<ShiftReport> {
@@ -179,7 +203,10 @@ export class PosApiService {
    * response sends the same key, so the server returns the sale it already recorded instead of
    * ringing — and moving the stock of — a second one. The route requires it.
    */
-  processSale(payload: ProcessSalePayload, idempotencyKey: string): Observable<PosSale> {
+  processSale(
+    payload: ProcessSalePayload,
+    idempotencyKey: string,
+  ): Observable<PosSale> {
     return this.http.post<PosSale>(`${this.api}/sales`, payload, {
       headers: { 'Idempotency-Key': idempotencyKey },
     });
@@ -187,11 +214,17 @@ export class PosApiService {
 
   /** The shift's sales, newest first. */
   listSales(shiftId: string): Observable<PosSale[]> {
-    return this.http.get<PosSale[]>(`${this.api}/sales`, { params: new HttpParams().set('shiftId', shiftId) });
+    return this.http.get<PosSale[]>(`${this.api}/sales`, {
+      params: new HttpParams().set('shiftId', shiftId),
+    });
   }
 
   /** Supervisor only (`pos:manage_shifts`), on an open shift, with a reason. */
-  voidSale(saleId: string, reason: string, idempotencyKey: string): Observable<PosSale> {
+  voidSale(
+    saleId: string,
+    reason: string,
+    idempotencyKey: string,
+  ): Observable<PosSale> {
     return this.http.post<PosSale>(
       `${this.api}/sales/${saleId}/void`,
       { reason },

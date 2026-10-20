@@ -2,7 +2,16 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 import { resolveErrorKey } from '@virteex/shared/ui-i18n';
-import { Observable, catchError, finalize, forkJoin, map, of, tap, throwError } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  finalize,
+  forkJoin,
+  map,
+  of,
+  tap,
+  throwError,
+} from 'rxjs';
 import { AuthService } from '../core/auth.service';
 import {
   CatalogueItem,
@@ -15,7 +24,15 @@ import {
 } from '../core/pos-api.service';
 import { TerminalConfigService } from '../core/terminal-config.service';
 import { ToastService } from '../core/toast.service';
-import { CartLine, addToCart, cartTotals, findByCode, isOutOfStock, repriceCart, setQuantity } from '../domain/cart';
+import {
+  CartLine,
+  addToCart,
+  cartTotals,
+  findByCode,
+  isOutOfStock,
+  repriceCart,
+  setQuantity,
+} from '../domain/cart';
 import { newIdempotencyKey } from '../domain/idempotency';
 import { TenderDraft, tenders } from '../domain/payment';
 
@@ -52,7 +69,9 @@ export class TillStore {
   readonly context = signal<PosContext | null>(null);
   readonly currency = computed(() => this.context()?.currency ?? null);
   readonly standardRate = computed(() => this.context()?.standardTaxRate ?? 0);
-  readonly taxNeedsConfiguration = computed(() => this.context()?.taxRequiresConfiguration === true);
+  readonly taxNeedsConfiguration = computed(
+    () => this.context()?.taxRequiresConfiguration === true,
+  );
 
   // ── Catalogue ────────────────────────────────────────────────────────────────
   readonly catalogue = signal<CatalogueItem[]>([]);
@@ -61,9 +80,12 @@ export class TillStore {
   readonly categories = computed(() => {
     const seen = new Map<string, string>();
     for (const item of this.catalogue()) {
-      if (item.categoryId && item.categoryName) seen.set(item.categoryId, item.categoryName);
+      if (item.categoryId && item.categoryName)
+        seen.set(item.categoryId, item.categoryName);
     }
-    return [...seen.entries()].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+    return [...seen.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   });
 
   // ── Branches & shift ─────────────────────────────────────────────────────────
@@ -82,7 +104,10 @@ export class TillStore {
     return !!shift && !!user && shift.userId !== user.id;
   });
   readonly canSell = computed(
-    () => this.shiftReady() && this.auth.canOperate() && (!this.shiftIsForeign() || this.auth.canSupervise()),
+    () =>
+      this.shiftReady() &&
+      this.auth.canOperate() &&
+      (!this.shiftIsForeign() || this.auth.canSupervise()),
   );
   readonly shiftBranchName = computed(() => {
     const id = this.shift()?.branchId;
@@ -96,7 +121,9 @@ export class TillStore {
   readonly customer = signal('');
   /** The line the keyboard acts on (+, −, Delete). */
   readonly selectedId = signal<string | null>(null);
-  readonly totals = computed(() => cartTotals(this.lines(), this.standardRate()));
+  readonly totals = computed(() =>
+    cartTotals(this.lines(), this.standardRate()),
+  );
   readonly charging = signal(false);
   /** The sale just completed, for the receipt dialog. */
   readonly lastSale = signal<PosSale | null>(null);
@@ -189,20 +216,23 @@ export class TillStore {
   /** Open a shift with the float the cashier counted into the drawer. */
   openShift(openingBalance: number): Observable<PosShift> {
     this.shiftError.set(null);
-    return this.api.openShift(this.terminalId(), openingBalance, this.branchId()).pipe(
-      tap((shift) => {
-        this.shift.set(shift);
-        this.toast.success('pos.shift_opened');
-      }),
-      catchError((err) => {
-        const key = this.errorKey(err, 'pos.open_shift_error');
-        // Someone opened one meanwhile (another tab, another device on this terminal id): adopt it.
-        if (key === 'pos.there_already_active_shift_for_this_terminal') this.loadShift();
-        this.shiftError.set(key);
-        this.toast.error(key);
-        return throwError(() => err);
-      }),
-    );
+    return this.api
+      .openShift(this.terminalId(), openingBalance, this.branchId())
+      .pipe(
+        tap((shift) => {
+          this.shift.set(shift);
+          this.toast.success('pos.shift_opened');
+        }),
+        catchError((err) => {
+          const key = this.errorKey(err, 'pos.open_shift_error');
+          // Someone opened one meanwhile (another tab, another device on this terminal id): adopt it.
+          if (key === 'pos.there_already_active_shift_for_this_terminal')
+            this.loadShift();
+          this.shiftError.set(key);
+          this.toast.error(key);
+          return throwError(() => err);
+        }),
+      );
   }
 
   /**
@@ -239,7 +269,10 @@ export class TillStore {
     }
     const change = addToCart(this.lines(), item, quantity);
     if (change.refused) {
-      this.toast.warning('pos.not_enough_stock', { name: item.name, available: change.refused.available });
+      this.toast.warning('pos.not_enough_stock', {
+        name: item.name,
+        available: change.refused.available,
+      });
       return false;
     }
     this.lines.set(change.lines);
@@ -259,7 +292,10 @@ export class TillStore {
     const change = setQuantity(this.lines(), productId, quantity);
     if (change.refused) {
       const line = this.lines().find((l) => l.productId === productId);
-      this.toast.warning('pos.not_enough_stock', { name: line?.name ?? '', available: change.refused.available });
+      this.toast.warning('pos.not_enough_stock', {
+        name: line?.name ?? '',
+        available: change.refused.available,
+      });
       return;
     }
     this.lines.set(change.lines);
@@ -311,9 +347,17 @@ export class TillStore {
     const ticket = this.parked().find((t) => t.id === id);
     if (!ticket) return;
     const current = this.lines().length
-      ? { id: newIdempotencyKey(), lines: this.lines(), customer: this.customer(), parkedAt: new Date().toISOString() }
+      ? {
+          id: newIdempotencyKey(),
+          lines: this.lines(),
+          customer: this.customer(),
+          parkedAt: new Date().toISOString(),
+        }
       : null;
-    this.parked.update((list) => [...list.filter((t) => t.id !== id), ...(current ? [current] : [])]);
+    this.parked.update((list) => [
+      ...list.filter((t) => t.id !== id),
+      ...(current ? [current] : []),
+    ]);
     this.writeParked();
     // Re-priced against today's catalogue: a parked ticket may be hours old.
     this.lines.set(repriceCart(ticket.lines, this.catalogue()));
@@ -365,7 +409,10 @@ export class TillStore {
               ? {
                   ...shift,
                   salesCount: shift.salesCount + 1,
-                  salesTotal: Math.round((Number(shift.salesTotal) + Number(sale.total)) * 100) / 100,
+                  salesTotal:
+                    Math.round(
+                      (Number(shift.salesTotal) + Number(sale.total)) * 100,
+                    ) / 100,
                 }
               : shift,
           );
@@ -379,7 +426,11 @@ export class TillStore {
         }),
         catchError((err) => {
           const key = this.errorKey(err, 'pos.sale_error');
-          if (key === 'pos.prices_changed' || key === 'pos.totals_changed' || key === 'pos.product_not_available') {
+          if (
+            key === 'pos.prices_changed' ||
+            key === 'pos.totals_changed' ||
+            key === 'pos.product_not_available'
+          ) {
             this.loadCatalogue();
             this.cartChanged();
           }
@@ -407,7 +458,10 @@ export class TillStore {
             ? {
                 ...shift,
                 salesCount: Math.max(0, shift.salesCount - 1),
-                salesTotal: Math.round((Number(shift.salesTotal) - Number(voided.total)) * 100) / 100,
+                salesTotal:
+                  Math.round(
+                    (Number(shift.salesTotal) - Number(voided.total)) * 100,
+                  ) / 100,
                 voidedCount: (shift.voidedCount ?? 0) + 1,
               }
             : shift,
@@ -423,10 +477,16 @@ export class TillStore {
   }
 
   /** Load both the report and the sales of the open shift (the X report screen). */
-  shiftOverview(): Observable<{ report: ShiftReport; sales: PosSale[] } | null> {
+  shiftOverview(): Observable<{
+    report: ShiftReport;
+    sales: PosSale[];
+  } | null> {
     const shift = this.shift();
     if (!shift) return of(null);
-    return forkJoin({ report: this.api.shiftReport(shift.id), sales: this.api.listSales(shift.id) });
+    return forkJoin({
+      report: this.api.shiftReport(shift.id),
+      sales: this.api.listSales(shift.id),
+    });
   }
 
   /**
@@ -435,8 +495,14 @@ export class TillStore {
    * is how an English string reached a Spanish till.
    */
   errorKey(err: unknown, fallback: string): string {
-    const key = resolveErrorKey(err as HttpErrorResponse, (candidate) => this.translate.instant(candidate) !== candidate);
-    return key === 'errors.unexpected' || /^errors\.http_(400|409|422)$/.test(key) ? fallback : key;
+    const key = resolveErrorKey(
+      err as HttpErrorResponse,
+      (candidate) => this.translate.instant(candidate) !== candidate,
+    );
+    return key === 'errors.unexpected' ||
+      /^errors\.http_(400|409|422)$/.test(key)
+      ? fallback
+      : key;
   }
 
   private cartChanged(): void {
@@ -445,9 +511,13 @@ export class TillStore {
 
   private readParked(): ParkedTicket[] {
     try {
-      const raw = localStorage.getItem(`${PARKED_KEY}.${this.config.terminalId()}`);
+      const raw = localStorage.getItem(
+        `${PARKED_KEY}.${this.config.terminalId()}`,
+      );
       const list = raw ? (JSON.parse(raw) as ParkedTicket[]) : [];
-      return Array.isArray(list) ? list.filter((t) => t && Array.isArray(t.lines)).slice(0, MAX_PARKED) : [];
+      return Array.isArray(list)
+        ? list.filter((t) => t && Array.isArray(t.lines)).slice(0, MAX_PARKED)
+        : [];
     } catch {
       return [];
     }
@@ -455,7 +525,10 @@ export class TillStore {
 
   private writeParked(): void {
     try {
-      localStorage.setItem(`${PARKED_KEY}.${this.config.terminalId()}`, JSON.stringify(this.parked()));
+      localStorage.setItem(
+        `${PARKED_KEY}.${this.config.terminalId()}`,
+        JSON.stringify(this.parked()),
+      );
     } catch {
       // Blocked storage: parked tickets last for this page load only.
     }

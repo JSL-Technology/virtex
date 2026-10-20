@@ -1,6 +1,15 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map, of, shareReplay, switchMap, tap, finalize } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+  tap,
+  finalize,
+} from 'rxjs';
 import { LocaleContextContract } from '@virteex/shared/types';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { environment } from '../../environments/environment';
@@ -13,7 +22,11 @@ export interface SessionUser {
   firstName?: string;
   lastName?: string;
   organizationId: string;
-  organization?: { id: string; legalName?: string | null; logoUrl?: string | null } | null;
+  organization?: {
+    id: string;
+    legalName?: string | null;
+    logoUrl?: string | null;
+  } | null;
   permissions?: string[];
   /**
    * Language, locale, currency and timezone, resolved by the server for this tenant.
@@ -59,12 +72,19 @@ export class AuthService {
   readonly user = this._user.asReadonly();
   readonly isAuthenticated = computed(() => this._user() !== null);
   readonly canAccess = computed(() => canAccessPos(this._user()?.permissions));
-  readonly canOperate = computed(() => canOperatePos(this._user()?.permissions));
-  readonly canSupervise = computed(() => canSupervisePos(this._user()?.permissions));
+  readonly canOperate = computed(() =>
+    canOperatePos(this._user()?.permissions),
+  );
+  readonly canSupervise = computed(() =>
+    canSupervisePos(this._user()?.permissions),
+  );
   readonly displayName = computed(() => {
     const user = this._user();
     if (!user) return '';
-    const name = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
+    const name = [user.firstName, user.lastName]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
     return name || user.email;
   });
 
@@ -83,7 +103,11 @@ export class AuthService {
         if (res.refreshable) {
           return this.refresh().pipe(
             switchMap((renewed) => (renewed ? this.readSession() : of(null))),
-            map((again) => (again?.authenticated && again.user ? this.adopt(again.user) : this.forget())),
+            map((again) =>
+              again?.authenticated && again.user
+                ? this.adopt(again.user)
+                : this.forget(),
+            ),
           );
         }
         return of(this.forget());
@@ -122,21 +146,28 @@ export class AuthService {
   login(email: string, password: string): Observable<SignInOutcome> {
     return recaptchaToken$('login').pipe(
       switchMap((recaptchaToken) =>
-        this.http.post<{ require2fa?: boolean } | object>(`${this.apiUrl}/login`, {
-          email,
-          password,
-          recaptchaToken,
-        }),
+        this.http.post<{ require2fa?: boolean } | object>(
+          `${this.apiUrl}/login`,
+          {
+            email,
+            password,
+            recaptchaToken,
+          },
+        ),
       ),
       switchMap((res) =>
-        res && 'require2fa' in res && res.require2fa ? of<SignInOutcome>('second-factor') : this.afterSignIn(),
+        res && 'require2fa' in res && res.require2fa
+          ? of<SignInOutcome>('second-factor')
+          : this.afterSignIn(),
       ),
     );
   }
 
   /** Complete a sign-in that is waiting for its second factor (TOTP or a backup code). */
   verifySecondFactor(code: string): Observable<SignInOutcome> {
-    return this.http.post(`${this.apiUrl}/verify-2fa`, { code }).pipe(switchMap(() => this.afterSignIn()));
+    return this.http
+      .post(`${this.apiUrl}/verify-2fa`, { code })
+      .pipe(switchMap(() => this.afterSignIn()));
   }
 
   logout(): Observable<unknown> {
@@ -173,7 +204,8 @@ export class AuthService {
   private adopt(user: SessionUser): boolean {
     this._user.set(user);
     this.locale.setTenantContext(user.localeContext ?? null);
-    if (user.localeContext) this.locale.setLanguage(user.localeContext.language);
+    if (user.localeContext)
+      this.locale.setLanguage(user.localeContext.language);
     return true;
   }
 
