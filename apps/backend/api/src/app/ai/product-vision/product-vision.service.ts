@@ -13,6 +13,8 @@ import { BarcodeLookupService, ExternalProductReference } from './barcode-lookup
 import { BadRequestError } from '../../i18n/localized.exception';
 import { DataSource } from 'typeorm';
 import { withTenant } from '../../shared/tenancy/tenant-job';
+import { organizationMarket } from '../../organizations/contracts/market.contract';
+import { booksLanguageName } from '../language';
 
 const TAX_TREATMENTS = ['TAXED', 'ZERO_RATED', 'EXEMPT'] as const;
 const KINDS = ['GOOD', 'SERVICE'] as const;
@@ -76,12 +78,12 @@ export interface ProductSuggestion {
  * same for every call and is served from the prompt cache; the tenant's catalogue goes in the user
  * turn, after it.
  */
-const SYSTEM_PROMPT = `You catalogue retail and wholesale products for a business management system used in Latin America.
+const SYSTEM_PROMPT = `You catalogue retail and wholesale products for a business management system.
 
 You receive one photo of a product (its packaging, label, shelf tag or the item itself) and the company's own catalogue vocabulary: its product categories, its units of measure and the brands it already uses. Propose the catalogue entry a careful stock clerk would write.
 
 Rules:
-- Write name and description in Spanish, the way the product is sold: brand, product, variant and size when visible ("Café molido Santo Domingo 453 g"). The description is one or two factual sentences; no marketing language.
+- Write name, description and notes in the catalogue language given in the message, the way the product is sold: brand, product, variant and size when visible ("Café molido Santo Domingo 453 g", "Folgers Classic Roast Ground Coffee 30.5 oz"). Keep brand names as printed. The description is one or two factual sentences; no marketing language.
 - Only state what the photo shows or what follows directly from it. If something is not visible, leave it null or empty and give it low confidence. Never invent a barcode: transcribe the digits under the bars exactly as printed, or return null.
 - Choose category_id only from the listed categories, by id; null if none fits. Choose unit_of_measure only from the listed symbols. Prefer a brand spelling already in the company's list when it is the same brand.
 - kind is SERVICE only when the photo shows a service rather than a physical item.
@@ -121,9 +123,10 @@ export class ProductVisionService {
     // The route holds no connection while the model looks (`ShortLivedConnections`): database work
     // runs in short tenant scopes before and after the call.
     const tenant = <T>(work: () => Promise<T>) => withTenant(this.dataSource, organizationId, work);
-    const { image, context } = await tenant(async () => {
+    const { image, context, language } = await tenant(async () => {
       const image = await this.catalog.storeImage(organizationId, userId, upload);
-      return { image, context: await this.catalog.catalogContext(organizationId) };
+      const market = await organizationMarket(this.dataSource.manager, organizationId);
+      return { image, context: await this.catalog.catalogContext(organizationId), language: booksLanguageName(market.booksLanguage) };
     });
 
     // Started in parallel with the model call: the embedding is independent, and it is optional.
@@ -142,7 +145,7 @@ export class ProductVisionService {
           type: 'image',
           source: { type: 'base64', media_type: 'image/jpeg', data: image.data.toString('base64') },
         } as Anthropic.ImageBlockParam,
-        { type: 'text', text: describeCatalog(context) },
+        { type: 'text', text: `Catalogue language: ${language}.\n\n${describeCatalog(context)}` },
       ],
       schema: buildSchema(context),
       validate: (raw) => validateAnswer(raw, context),
@@ -270,7 +273,7 @@ export function buildSchema(context: CatalogContext): Record<string, unknown> {
     ],
     properties: {
       is_product_photo: { type: 'boolean' },
-      name: { type: 'string', description: 'Catalogue name, in Spanish, at most 255 characters.' },
+      name: { type: 'string', description: 'Catalogue name, in the catalogue language, at most 255 characters.' },
       description: { type: 'string' },
       brand: nullable({ type: 'string' }),
       manufacturer: nullable({ type: 'string' }),
@@ -294,7 +297,7 @@ export function buildSchema(context: CatalogContext): Record<string, unknown> {
         required: [...FIELDS],
         properties: Object.fromEntries(FIELDS.map((field) => [field, { type: 'number' }])),
       },
-      notes: { type: 'string', description: 'Anything the clerk should check, in Spanish. Empty if nothing.' },
+      notes: { type: 'string', description: 'Anything the clerk should check, in the catalogue language. Empty if nothing.' },
     },
   };
 }

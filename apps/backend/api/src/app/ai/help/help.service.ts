@@ -9,6 +9,10 @@ import { AiKnowledgeChunk } from '../entities/ai-knowledge-chunk.entity';
 /** A section longer than this is split, so a search returns a passage rather than a whole article. */
 const MAX_CHUNK_CHARS = 1800;
 
+/** The languages the help is written in, each with its PostgreSQL text-search dictionary. */
+export const HELP_LANGUAGES: Readonly<Record<string, string>> = { es: 'spanish', en: 'english', pt: 'portuguese' };
+const DEFAULT_HELP_LANGUAGE = 'es';
+
 export interface HelpChunk {
   source: string;
   ordinal: number;
@@ -17,6 +21,8 @@ export interface HelpChunk {
   route: string | null;
   content: string;
   contentHash: string;
+  language: string;
+  countries: string[];
 }
 
 export interface HelpHit {
@@ -25,10 +31,23 @@ export interface HelpHit {
   route: string | null;
   source: string;
   excerpt: string;
+  /** The language the passage is written in — not the reader's when no translation exists. */
+  language: string;
+}
+
+/** Who is reading: their language, and their company's market. */
+export interface HelpReader {
+  language: string | null | undefined;
+  country: string | null | undefined;
 }
 
 /**
  * The in-app help: product articles, indexed for the assistant's `search_help` tool.
+ *
+ * Articles are written per language (`slug.md` is Spanish, `slug.en.md` English, `slug.pt.md`
+ * Portuguese) and may name the markets they apply to (`countries: DO` in the front matter) — the
+ * Dominican NCF rules are not help for a company in Mexico. A search reads the reader's language
+ * and market only; where an article has no translation, the Spanish one answers and says so.
  *
  * The articles ship with the API (`ai/help/articles`, copied to `help/` in the bundle) and are
  * synced into `ai_knowledge_chunks` when the API starts — only what changed is rewritten, and an
@@ -83,29 +102,56 @@ export class HelpService implements OnApplicationBootstrap {
     });
   }
 
-  /** The sections that best answer `query`, ranked by Postgres full-text search. */
-  async search(query: string, limit = 4): Promise<HelpHit[]> {
+  /**
+   * The sections that best answer `query` for this reader, ranked by Postgres full-text search in
+   * the reader's language and restricted to their market. With nothing in that language, the
+   * default language answers (each hit says which language it is in).
+   */
+  async search(query: string, reader: HelpReader, limit = 4): Promise<HelpHit[]> {
     const text = (query ?? '').trim().slice(0, 300);
     if (!text) return [];
-    let rows = await this.ranked(text, limit);
-    // Every word must match at first; when that finds nothing, any word may — a long question in
-    // the person's own words rarely shares all its words with one section.
-    const words = text.split(/\s+/).filter((word) => word.length > 2);
-    if (!rows.length && words.length > 1) rows = await this.ranked(words.join(' OR '), limit);
-    return rows.map((row) => ({ title: row.title, heading: row.heading, route: row.route, source: row.source, excerpt: row.content }));
+    const country = (reader.country ?? '').trim().toUpperCase();
+    const wanted = helpLanguageOf(reader.language);
+    const languages = wanted === DEFAULT_HELP_LANGUAGE ? [wanted] : [wanted, DEFAULT_HELP_LANGUAGE];
+    for (const language of languages) {
+      let rows = await this.ranked(text, language, country, limit);
+      // Every word must match at first; when that finds nothing, any word may — a long question in
+      // the person's own words rarely shares all its words with one section.
+      const words = text.split(/\s+/).filter((word) => word.length > 2);
+      if (!rows.length && words.length > 1) rows = await this.ranked(words.join(' OR '), language, country, limit);
+      if (rows.length) {
+        return rows.map((row) => ({ title: row.title, heading: row.heading, route: row.route, source: row.source, excerpt: row.content, language }));
+      }
+    }
+    return [];
   }
 
-  private ranked(text: string, limit: number): Promise<Array<{ title: string; heading: string; route: string | null; source: string; content: string }>> {
+  private ranked(
+    text: string,
+    language: string,
+    country: string,
+    limit: number,
+  ): Promise<Array<{ title: string; heading: string; route: string | null; source: string; content: string }>> {
+    // The dictionary comes from a fixed map, never from input: it is SQL text, not a parameter.
+    const dictionary = HELP_LANGUAGES[language] ?? HELP_LANGUAGES[DEFAULT_HELP_LANGUAGE];
     return this.chunks.query(
-      `WITH q AS (SELECT websearch_to_tsquery('spanish', $1) AS query)
+      `WITH q AS (SELECT websearch_to_tsquery('${dictionary}', $1) AS query)
        SELECT c."title", c."heading", c."route", c."source", c."content"
          FROM "ai_knowledge_chunks" c, q
-        WHERE to_tsvector('spanish', c."title" || ' ' || c."heading" || ' ' || c."content") @@ q.query
-        ORDER BY ts_rank(to_tsvector('spanish', c."title" || ' ' || c."heading" || ' ' || c."content"), q.query) DESC
+        WHERE c."language" = $3
+          AND (c."countries" = '[]'::jsonb OR c."countries" ? $4)
+          AND to_tsvector('${dictionary}', c."title" || ' ' || c."heading" || ' ' || c."content") @@ q.query
+        ORDER BY ts_rank(to_tsvector('${dictionary}', c."title" || ' ' || c."heading" || ' ' || c."content"), q.query) DESC
         LIMIT $2`,
-      [text, Math.min(Math.max(limit, 1), 8)],
+      [text, Math.min(Math.max(limit, 1), 8), language, country],
     );
   }
+}
+
+/** The help language for a reader's language (`es-DO` → `es`), or the default one. */
+export function helpLanguageOf(language: string | null | undefined): string {
+  const base = (language ?? '').trim().toLowerCase().slice(0, 2);
+  return base in HELP_LANGUAGES ? base : DEFAULT_HELP_LANGUAGE;
 }
 
 /** Where the articles are: next to the bundle in a build, in the source tree in development. */
@@ -140,6 +186,14 @@ export function chunkArticle(source: string, markdown: string): HelpChunk[] {
   const { meta, body } = frontMatter(markdown);
   const title = (meta['title'] ?? source.replace(/\.md$/, '')).slice(0, 300);
   const route = meta['route']?.slice(0, 300) ?? null;
+  // `slug.en.md` is English, `slug.md` the default language; the front matter may say it too.
+  const suffix = /\.([a-z]{2})\.md$/.exec(source)?.[1];
+  const language = helpLanguageOf(meta['language'] ?? suffix ?? DEFAULT_HELP_LANGUAGE);
+  const countries = (meta['countries'] ?? '')
+    .split(',')
+    .map((code) => code.trim().toUpperCase())
+    .filter((code) => /^[A-Z]{2}$/.test(code))
+    .sort();
   const sections: Array<{ heading: string; text: string }> = [];
   let current = { heading: '', lines: [] as string[] };
   for (const line of body.split(/\r?\n/)) {
@@ -164,7 +218,11 @@ export function chunkArticle(source: string, markdown: string): HelpChunk[] {
         heading: section.heading.slice(0, 300),
         route,
         content: piece,
-        contentHash: createHash('sha256').update(`${title}\n${section.heading}\n${route ?? ''}\n${piece}`).digest('hex'),
+        language,
+        countries,
+        contentHash: createHash('sha256')
+          .update(`${title}\n${section.heading}\n${route ?? ''}\n${language}\n${countries.join(',')}\n${piece}`)
+          .digest('hex'),
       });
     }
   }

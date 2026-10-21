@@ -16,7 +16,7 @@ export class SuppliersCopilotTools implements OnModuleInit {
       name: 'search_suppliers',
       branchScope: 'none',
       externalText: true,
-      description: 'Find suppliers by name, tax id (RNC) or e-mail. Returns ids for use in other tools.',
+      description: "Find suppliers by name, tax identifier (the market's own) or e-mail. Returns ids for use in other tools.",
       permissions: [PERMISSIONS.SUPPLIERS_VIEW],
       inputSchema: s.object({ query: s.string('Name, tax id or e-mail fragment'), limit: s.integer('1-25') }),
       run: async (ctx, input) => {

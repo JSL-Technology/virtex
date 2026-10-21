@@ -341,6 +341,7 @@ describe('VendorBillFormPage', () => {
 
     const capture = {
       attachment: { id: 'att-1', fileName: 'factura.jpg', mimeType: 'image/jpeg' },
+      market: { countryCode: 'DO', generic: false, documentKind: 'NCF' },
       documentKind: 'invoice',
       supplier: { match: { id: 's1', name: 'Suplidora del Caribe', taxId: '131246753' }, name: 'Suplidora', taxId: '131246753', taxIdValid: true, registry: null },
       bill: { ncf: 'B01-123', ncfModified: null, date: '2026-10-01', dueDate: '2026-10-31', currencyCode: 'DOP', paymentForm: '04', purchaseCategory: '06', taxAmount: 180, serviceCharge: null, subtotal: 1000, total: 1180 },

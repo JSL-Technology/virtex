@@ -42,14 +42,14 @@ export class InvoicesCopilotTools implements OnModuleInit {
         externalText: true,
         description:
           'Sales invoices, newest first, filtered by status, customer, issue-date range or a number/name fragment. ' +
-          'Returns number, fiscal number (NCF), customer, dates, total, balance and status.',
+          "Returns number, fiscal number (the authority's number where the market has one, e.g. NCF, CFDI folio), customer, dates, total, balance and status.",
         permissions: [PERMISSIONS.INVOICES_VIEW],
         inputSchema: s.object({
           status: s.nullable(s.enum(Object.values(InvoiceStatus))),
           customer_id: s.nullable(s.string()),
           from: s.nullable(s.string('Issue date from, YYYY-MM-DD')),
           to: s.nullable(s.string('Issue date to, YYYY-MM-DD')),
-          search: s.nullable(s.string('Invoice number, NCF or customer name fragment')),
+          search: s.nullable(s.string('Invoice number, fiscal number or customer name fragment')),
           limit: s.integer('1-50'),
         }),
         run: async (ctx, input) => {

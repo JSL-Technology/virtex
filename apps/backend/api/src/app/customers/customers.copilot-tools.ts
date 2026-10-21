@@ -20,7 +20,7 @@ export class CustomersCopilotTools implements OnModuleInit {
         name: 'search_customers',
         branchScope: 'none',
         externalText: true,
-        description: 'Find customers by name, tax id (RNC/cédula) or e-mail. Returns ids for use in other tools, with payment terms and credit limit.',
+        description: "Find customers by name, tax identifier (the market's own: RNC, RFC, EIN…) or e-mail. Returns ids for use in other tools, with payment terms and credit limit.",
         permissions: [PERMISSIONS.CUSTOMERS_VIEW],
         inputSchema: s.object({ query: s.string('Name, tax id or e-mail fragment'), limit: s.integer('1-25') }),
         run: async (ctx, input) => {

@@ -40,7 +40,7 @@ export const AI_ROUTES: Readonly<Record<AiFeature, AiRoute>> = {
   // One model turn of the copilot (a question may take several, one per round of tool calls).
   // Interactive: `medium` keeps a turn to seconds; the numbers come from tools, not from reasoning.
   copilot: { modelSetting: 'AI_MODEL_VISION', effort: 'medium', maxTokens: 16_000, credits: 1 },
-  // A supplier's invoice read into a draft bill: a wrong RNC or total is a wrong tax record.
+  // A supplier's invoice read into a draft bill: a wrong tax identifier or total is a wrong tax record.
   bill_capture: { modelSetting: 'AI_MODEL_VISION', effort: 'high', maxTokens: 12_000, credits: 2 },
   // A reminder or a covering note, written from facts the server supplies.
   compose: { modelSetting: 'AI_MODEL_NARRATIVE', effort: 'low', maxTokens: 4_000, credits: 1 },

@@ -181,6 +181,12 @@ export class VendorBillFormPage implements OnInit {
     if (result.checks.ncf.status === 'invalid') {
       notes.push({ key: composeKey('accounts_payable.capture.ncf_error', result.checks.ncf.error ?? 'format'), params: { ncf: result.bill.ncf }, tone: 'warning' });
     }
+    if (result.checks.ncf.status === 'unverified' && result.bill.ncf) {
+      notes.push({ key: 'accounts_payable.capture.document_unverified', params: { ncf: result.bill.ncf }, tone: 'info' });
+    }
+    if (result.market.generic) {
+      notes.push({ key: 'accounts_payable.capture.generic_market', tone: 'info' });
+    }
     for (const warning of result.checks.ncf.warnings) {
       notes.push({ key: composeKey('accounts_payable.capture.ncf_warning', warning), params: { ncf: result.bill.ncf }, tone: 'info' });
     }
@@ -274,7 +280,9 @@ export class VendorBillFormPage implements OnInit {
     };
     const { bill, confidence } = result;
     if (result.supplier.match) set('vendorId', result.supplier.match.id, confidence.supplier);
-    if (bill.ncf && result.checks.ncf.status === 'ok') set('ncf', bill.ncf, confidence.ncf);
+    // A number the market's rule rejected is shown as a warning, never written in; one the market has
+    // no rule for is written in and flagged as not verified.
+    if (bill.ncf && (result.checks.ncf.status === 'ok' || result.checks.ncf.status === 'unverified')) set('ncf', bill.ncf, confidence.ncf);
     set('date', bill.date, confidence.dates);
     set('dueDate', bill.dueDate ?? bill.date, confidence.dates);
     if (bill.currencyCode && this.currencies().some((currency) => currency.code === bill.currencyCode)) {

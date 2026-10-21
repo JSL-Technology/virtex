@@ -5,7 +5,7 @@ route: /inventory/products/new
 
 ## Cómo se hace
 
-En Inventario › Productos › Nuevo, sube una foto del producto o escanea su código de barras con la cámara. Se proponen el nombre, la descripción, la marca, el código de barras, la categoría, el tipo, la unidad y el impuesto. Los campos sugeridos llevan su porcentaje de confianza y solo se llenan los que no hayas tocado.
+En Inventario › Productos › Nuevo, sube una foto del producto o escanea su código de barras con la cámara. Se proponen el nombre, la descripción, la marca, el código de barras, la categoría, el tipo, la unidad y el impuesto, en el idioma de los libros de tu empresa. Los campos sugeridos llevan su porcentaje de confianza y solo se llenan los que no hayas tocado.
 
 ## Duplicados
 

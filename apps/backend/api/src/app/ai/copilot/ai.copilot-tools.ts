@@ -5,6 +5,8 @@ import { ForecastingService } from '../forecasting/forecasting.service';
 import { AnomaliesService } from '../anomalies/anomalies.service';
 import { HelpService } from '../help/help.service';
 import { CashflowService } from '../cashflow/cashflow.service';
+import { DataSource } from 'typeorm';
+import { organizationFiscalIdentity } from '../../organizations/contracts/fiscal-identity.contract';
 
 /** The AI module's own findings, as copilot tools: forecasts, stock risks, anomalies, lead times. */
 @Injectable()
@@ -15,6 +17,7 @@ export class AiCopilotTools implements OnModuleInit {
     private readonly anomalies: AnomaliesService,
     private readonly help: HelpService,
     private readonly cashflow: CashflowService,
+    private readonly dataSource: DataSource,
   ) {}
 
   onModuleInit(): void {
@@ -73,12 +76,19 @@ export class AiCopilotTools implements OnModuleInit {
         branchScope: 'none',
         description:
           "Search the product's in-app help articles for how to do something in the ERP or what a screen or rule " +
-          'means (e.g. registering a supplier bill from a photo, NCF rules, the assistant, credits). The articles are ' +
-          'in Spanish: search with Spanish keywords. Answer from the passages returned and name the article; if ' +
-          'nothing relevant comes back, say the help does not cover it rather than guessing.',
+          "means (e.g. registering a supplier bill from a photo, the company's fiscal document rules, the assistant, " +
+          "credits). Search with keywords in the person's language; only articles for the company's market are " +
+          'returned. Each passage says its language: if it is not the person\'s, translate what you use. Answer from ' +
+          'the passages returned and name the article; if nothing relevant comes back, say the help does not cover ' +
+          'it rather than guessing.',
         permissions: [AI_PERMISSIONS.AI_COPILOT_USE],
-        inputSchema: s.object({ query: s.string('Spanish keywords, e.g. "factura proveedor foto NCF"') }),
-        run: async (_ctx, input) => ({ results: await this.help.search(String(input['query'] ?? ''), 4) }),
+        inputSchema: s.object({ query: s.string('Keywords in the person\'s language, e.g. "supplier bill photo"') }),
+        run: async (ctx, input) => {
+          const identity = await organizationFiscalIdentity(this.dataSource.manager, ctx.organizationId);
+          return {
+            results: await this.help.search(String(input['query'] ?? ''), { language: ctx.user.language, country: identity?.country }, 4),
+          };
+        },
       },
       {
         kind: 'read',

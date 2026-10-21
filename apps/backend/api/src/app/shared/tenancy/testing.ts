@@ -14,9 +14,12 @@ export function fakeTenantDataSource(): DataSource & { tenantQueries: string[] }
     },
     release: async () => undefined,
   };
+  // Reads through the default manager find nothing: a company with no market stated, no settings.
+  const manager = { findOne: async () => null, find: async () => [], query: async () => [] };
   return {
     tenantQueries,
+    manager,
     createQueryRunner: () => runner,
-    createEntityManager: () => ({}),
+    createEntityManager: () => manager,
   } as unknown as DataSource & { tenantQueries: string[] };
 }

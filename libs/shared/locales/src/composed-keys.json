@@ -92,7 +92,8 @@
     ],
     "accounts_payable.capture.ncf_error": [
       "format",
-      "unknown_type"
+      "unknown_type",
+      "check_digit"
     ],
     "accounts_payable.capture.ncf_warning": [
       "no_tax_credit",
