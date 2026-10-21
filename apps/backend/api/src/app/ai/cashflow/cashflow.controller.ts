@@ -119,8 +119,8 @@ export class CashflowController {
   }
 
   @Get('scenarios/:id/narrative')
-  narrative(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
-    return this.reports.latestForRun(user.organizationId, 'SCENARIO_COMPARISON', id);
+  async narrative(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    return this.reports.latestForRun(user.organizationId, 'SCENARIO_COMPARISON', id, await this.reports.reader(user.organizationId, user));
   }
 
   @Get('scenarios/:id')
@@ -139,8 +139,8 @@ export class CashflowController {
 
   @Get('plan')
   @ApiOperation({ summary: 'The latest cash plan, or the one being written.' })
-  latestPlan(@CurrentUser() user: AuthenticatedUser) {
-    return this.reports.latest(user.organizationId, 'CASHFLOW_PLAN');
+  async latestPlan(@CurrentUser() user: AuthenticatedUser) {
+    return this.reports.latest(user.organizationId, 'CASHFLOW_PLAN', await this.reports.reader(user.organizationId, user));
   }
 }
 

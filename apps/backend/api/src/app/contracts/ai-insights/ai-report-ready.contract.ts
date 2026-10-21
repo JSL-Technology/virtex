@@ -12,4 +12,8 @@ export interface AiReportReadyEvent {
   kind: 'MANAGER_MONTHLY';
   /** `YYYY-MM`. */
   period: string | null;
+  /** Who may read it — the notice goes to those people only (see `canReadReport`). */
+  audience: 'REQUESTER' | 'ORGANIZATION';
+  requiredPermissions: string[];
+  requestedByUserId: string | null;
 }

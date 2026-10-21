@@ -7,7 +7,7 @@ import { AI_REPORT_READY, AiReportReadyEvent } from '../../contracts/ai-insights
 import { AI_PERMISSIONS } from '../../shared/ai.permissions';
 import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { NotificationsService } from '../notifications.service';
-import { membersWithPermission } from '../recipients';
+import { holdsAll, loadMembersAccess } from '../../roles/contracts/member-access.contract';
 
 /**
  * The AI speaking first: products about to run out, and new serious anomalies, in the bell.
@@ -47,7 +47,17 @@ export class AiNotificationsListener {
   async onReportReady(event: AiReportReadyEvent): Promise<void> {
     try {
       await runAsTenantJob(this.dataSource, event.organizationId, async () => {
-        const recipients = await membersWithPermission(this.dataSource, event.organizationId, AI_PERMISSIONS.AI_REPORTS_VIEW);
+        // Told only to those who may read it: the requester of a personal report; for a company-wide
+        // one, members holding every source permission and limited to no branch. The same rule as
+        // reading it (`canReadReport`), so a notice never points at a report its reader cannot open.
+        const required = [AI_PERMISSIONS.AI_REPORTS_VIEW, ...(event.requiredPermissions ?? [])];
+        const members = await loadMembersAccess(this.dataSource, event.organizationId);
+        const recipients = members
+          .filter((member) => holdsAll(member, required))
+          .filter((member) =>
+            event.audience === 'REQUESTER' ? member.userId === event.requestedByUserId : member.branches === null,
+          )
+          .map((member) => ({ id: member.userId, language: member.language }));
         for (const recipient of recipients) {
           const language = languageOf(recipient.language);
           await this.notifications.createLocalizedNotification(recipient.id, language, {
@@ -67,9 +77,21 @@ export class AiNotificationsListener {
     }
   }
 
+  /**
+   * Who may be told a company-wide AI finding: the permission, and no branch limit. The stockouts,
+   * the anomalies and the cash projection are drawn from every branch's documents; a person
+   * limited to some branches does not see them on screen and is not told them in the bell either.
+   */
+  private async companyWideReaders(organizationId: string, required: string[]) {
+    const members = await loadMembersAccess(this.dataSource, organizationId);
+    return members
+      .filter((member) => holdsAll(member, required) && member.branches === null)
+      .map((member) => ({ id: member.userId, language: member.language }));
+  }
+
   private async stockouts(event: AiRunFindingsEvent): Promise<void> {
     const { count, earliestDate, products } = event.stockouts!;
-    const recipients = await membersWithPermission(this.dataSource, event.organizationId, AI_PERMISSIONS.AI_FORECASTS_VIEW);
+    const recipients = await this.companyWideReaders(event.organizationId, [AI_PERMISSIONS.AI_FORECASTS_VIEW]);
     for (const recipient of recipients) {
       const language = languageOf(recipient.language);
       await this.notifications.createLocalizedNotification(recipient.id, language, {
@@ -84,7 +106,7 @@ export class AiNotificationsListener {
 
   private async anomalies(event: AiRunFindingsEvent): Promise<void> {
     const { count, critical } = event.anomalies!;
-    const recipients = await membersWithPermission(this.dataSource, event.organizationId, AI_PERMISSIONS.AI_ANOMALIES_VIEW);
+    const recipients = await this.companyWideReaders(event.organizationId, [AI_PERMISSIONS.AI_ANOMALIES_VIEW]);
     for (const recipient of recipients) {
       await this.notifications.createLocalizedNotification(recipient.id, languageOf(recipient.language), {
         titleKey: critical ? 'notifications.ai.anomalies.title_critical' : 'notifications.ai.anomalies.title',
@@ -98,7 +120,7 @@ export class AiNotificationsListener {
 
   private async cashflow(event: AiRunFindingsEvent): Promise<void> {
     const { probability, date, lowestExpected, currency } = event.cashflow!;
-    const recipients = await membersWithPermission(this.dataSource, event.organizationId, AI_PERMISSIONS.AI_CASHFLOW_VIEW);
+    const recipients = await this.companyWideReaders(event.organizationId, [AI_PERMISSIONS.AI_CASHFLOW_VIEW]);
     for (const recipient of recipients) {
       const language = languageOf(recipient.language);
       await this.notifications.createLocalizedNotification(recipient.id, language, {

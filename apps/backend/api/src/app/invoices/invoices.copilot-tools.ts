@@ -38,6 +38,8 @@ export class InvoicesCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'list_invoices',
+        branchScope: 'applied',
+        externalText: true,
         description:
           'Sales invoices, newest first, filtered by status, customer, issue-date range or a number/name fragment. ' +
           'Returns number, fiscal number (NCF), customer, dates, total, balance and status.',
@@ -80,6 +82,8 @@ export class InvoicesCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'get_invoice',
+        branchScope: 'applied',
+        externalText: true,
         description: 'One sales invoice with its lines, taxes and payments status.',
         permissions: [PERMISSIONS.INVOICES_VIEW],
         inputSchema: s.object({ id: s.string('Invoice id from list_invoices') }),
@@ -110,6 +114,7 @@ export class InvoicesCopilotTools implements OnModuleInit {
       {
         kind: 'draft',
         name: 'draft_invoice',
+        branchScope: 'applied',
         description:
           'PROPOSE a sales invoice as a draft (not issued, no fiscal number). The person sees the priced preview and ' +
           'confirms it themselves. Resolve the customer and products with search_customers / search_products first.',
@@ -127,6 +132,8 @@ export class InvoicesCopilotTools implements OnModuleInit {
           const names = await productNames(this.dataSource, ctx.organizationId, dto.lineItems.map((line) => line.productId));
           const customer = await partyName(this.dataSource, 'customer', ctx.organizationId, dto.customerId);
           return {
+            // Dates resolved now: confirmed tomorrow, the invoice still carries the dates shown.
+            input: { ...input, issue_date: dto.issueDate, due_date: dto.dueDate },
             summary: `Draft invoice for ${customer} · ${dto.lineItems.length} line(s) · total ${computed.total}`,
             preview: {
               customerId: dto.customerId,

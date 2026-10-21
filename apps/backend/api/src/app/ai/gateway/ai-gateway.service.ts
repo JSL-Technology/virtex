@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import Anthropic from '@anthropic-ai/sdk';
 import CircuitBreaker = require('opossum');
 import { createHash } from 'node:crypto';
 import { AiRequest, AiRequestStatus } from '../entities/ai-request.entity';
+import { withTenant } from '../../shared/tenancy/tenant-job';
 import { AI_ROUTES, AiFeature, costMicroUsd, isPricedModel, TokenUsage } from './ai-models';
 import { EntitlementsPort, SaasResource } from '../../saas/contracts/entitlements.contract';
 import {
@@ -49,13 +50,18 @@ export interface ConverseRequest {
   onToolCall?: (call: { id: string; name: string; input: Record<string, unknown> }) => void;
   /** Model turns allowed before the loop gives up (each is a call, and each is paid). */
   maxTurns?: number;
+  /**
+   * The person stopped waiting (closed the panel, pressed Stop). The call in flight is aborted and
+   * no further turn is paid for.
+   */
+  signal?: AbortSignal;
 }
 
 export interface ConverseResult {
   /** The turns this exchange added, to append to the stored conversation unchanged. */
   appended: Anthropic.Beta.Messages.BetaMessageParam[];
   text: string;
-  stopReason: 'end_turn' | 'refusal' | 'max_turns' | 'max_tokens';
+  stopReason: 'end_turn' | 'refusal' | 'max_turns' | 'max_tokens' | 'cancelled';
   requestIds: string[];
   model: string;
 }
@@ -116,12 +122,16 @@ const FALLBACK_BETA = 'server-side-fallback-2026-07-01';
 export class AiGatewayService implements AiAssistPort {
   private readonly logger = new Logger(AiGatewayService.name);
   private readonly client: Anthropic | null;
-  private readonly breaker: CircuitBreaker<[Anthropic.Beta.Messages.MessageCreateParamsNonStreaming, TextSink?], Anthropic.Beta.Messages.BetaMessage>;
+  private readonly breaker: CircuitBreaker<
+    [Anthropic.Beta.Messages.MessageCreateParamsNonStreaming, TextSink?, AbortSignal?],
+    Anthropic.Beta.Messages.BetaMessage
+  >;
 
   constructor(
     private readonly config: ConfigService,
     private readonly entitlements: EntitlementsPort,
     @InjectRepository(AiRequest) private readonly requests: Repository<AiRequest>,
+    private readonly dataSource: DataSource,
   ) {
     const apiKey = this.config.get<string>('ANTHROPIC_API_KEY');
     const enabled = this.config.get<boolean>('AI_ENABLED') !== false;
@@ -135,17 +145,19 @@ export class AiGatewayService implements AiAssistPort {
         : null;
 
     this.breaker = new CircuitBreaker(
-      async (params: Anthropic.Beta.Messages.MessageCreateParamsNonStreaming, onText?: TextSink) => {
+      async (params: Anthropic.Beta.Messages.MessageCreateParamsNonStreaming, onText?: TextSink, signal?: AbortSignal) => {
         const client = this.client;
         if (!client) throw new ServiceUnavailableError('ai.not_configured');
         try {
-          if (!onText) return await client.beta.messages.create(params);
+          if (!onText) return await client.beta.messages.create(params, { signal });
           // Streaming: the text reaches the person as it is written, and `finalMessage` still
           // returns the whole response (tool calls, stop reason, usage) for the loop.
-          const stream = client.beta.messages.stream(params);
+          const stream = client.beta.messages.stream(params, { signal });
           stream.on('text', (delta) => onText(delta));
           return await stream.finalMessage();
         } catch (error) {
+          // A request the person cancelled says nothing about the provider's health either.
+          if (signal?.aborted) throw new NonTrippingError(error);
           // A request the API rejected as malformed, unauthorised or over quota is our problem or
           // the tenant's, not the provider being down; it must not open the circuit for everyone.
           if (
@@ -265,7 +277,12 @@ export class AiGatewayService implements AiAssistPort {
     let text = '';
 
     for (let turn = 0; turn < maxTurns; turn++) {
-      await this.entitlements.consume(request.organizationId, SaasResource.AI_CREDITS, route.credits);
+      if (request.signal?.aborted) {
+        return { appended, text, stopReason: 'cancelled', requestIds, model: servedBy };
+      }
+      await this.scoped(request.organizationId, () =>
+        this.entitlements.consume(request.organizationId, SaasResource.AI_CREDITS, route.credits),
+      );
       const started = Date.now();
       const record: Partial<AiRequest> = {
         organizationId: request.organizationId,
@@ -297,9 +314,15 @@ export class AiGatewayService implements AiAssistPort {
             fallbacks: 'default',
           } as Anthropic.Beta.Messages.MessageCreateParamsNonStreaming,
           request.onText,
+          request.signal,
         );
       } catch (error) {
         const cause = error instanceof NonTrippingError ? error.original : error;
+        if (request.signal?.aborted) {
+          // Paid for the turn that was cut (its tokens are unknown); no further turn is started.
+          await this.record(record, 'CANCELLED', started, null, null, 'cancelled');
+          return { appended, text, stopReason: 'cancelled', requestIds, model: servedBy };
+        }
         await this.record(record, 'FAILED', started, null, null, this.errorCode(cause));
         this.logger.error(`AI conversation turn failed (${request.feature}): ${(cause as Error)?.message ?? cause}`);
         if (this.breaker.opened) throw new ServiceUnavailableError('ai.temporarily_unavailable');
@@ -381,7 +404,9 @@ export class AiGatewayService implements AiAssistPort {
     }
 
     // 1. Pay first: the plan's counter moves before the provider is called.
-    await this.entitlements.consume(request.organizationId, SaasResource.AI_CREDITS, route.credits);
+    await this.scoped(request.organizationId, () =>
+      this.entitlements.consume(request.organizationId, SaasResource.AI_CREDITS, route.credits),
+    );
 
     const started = Date.now();
     const record: Partial<AiRequest> = {
@@ -483,7 +508,7 @@ export class AiGatewayService implements AiAssistPort {
       latencyMs: Date.now() - started,
     });
     try {
-      const saved = await this.requests.save(row);
+      const saved = await this.scoped(base.organizationId as string, () => this.requests.save(row));
       return saved.id;
     } catch (error) {
       // The answer must not be lost because its receipt could not be written; the credit was
@@ -491,6 +516,15 @@ export class AiGatewayService implements AiAssistPort {
       this.logger.error(`Could not record AI request: ${(error as Error).message}`);
       return '';
     }
+  }
+
+  /**
+   * Database work as the tenant: on the request's own connection when there is one, otherwise on a
+   * connection opened for just this (a route under `ShortLivedConnections`, which holds none while
+   * the model answers).
+   */
+  private scoped<T>(organizationId: string, work: () => Promise<T>): Promise<T> {
+    return withTenant(this.dataSource, organizationId, work);
   }
 
   private errorCode(error: unknown): string {

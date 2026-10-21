@@ -1204,6 +1204,7 @@
   "ai.copilot.proposal.draft_purchase_order": "Draft purchase order",
   "ai.copilot.proposal.draft_quote": "Draft quote",
   "ai.copilot.proposal_already_decided": "This proposal was already confirmed or discarded.",
+  "ai.copilot.proposal_changed": "The figures changed since the proposal (a price, tax or date). Nothing was created: ask again to review it.",
   "ai.copilot.proposal_expired": "The proposal expired: ask again to see current figures.",
   "ai.copilot.proposal_not_found": "The proposal was not found.",
   "ai.copilot.proposal_note": "Nothing has been created yet. It will be created as a draft for you to review.",

@@ -1,9 +1,11 @@
 import { CallHandler, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { DataSource, EntityManager } from 'typeorm';
 import { Observable, firstValueFrom, from, of, switchMap } from 'rxjs';
 
 import { TenantConnectionInterceptor } from './tenant-connection.interceptor';
 import { currentOrganizationId, currentTenantStore } from './tenant-context';
+import { SHORT_LIVED_CONNECTIONS } from './short-lived-connections.decorator';
 
 const ORGANIZACION = '9a3cb82a-94fc-410b-a7a6-90d0cff8e431';
 
@@ -55,10 +57,12 @@ describe('TenantConnectionInterceptor', () => {
     return { dataSource, manager, ejecutado, liberado: () => liberado };
   }
 
-  function contexto(user: { organizationId: string } | undefined): ExecutionContext {
+  function contexto(user: { organizationId: string } | undefined, handler: () => void = () => undefined): ExecutionContext {
     return {
       getType: () => 'http',
       switchToHttp: () => ({ getRequest: () => ({ user }) }),
+      getHandler: () => handler,
+      getClass: () => class Controller {},
     } as unknown as ExecutionContext;
   }
 
@@ -97,7 +101,7 @@ describe('TenantConnectionInterceptor', () => {
     const visto: { organizationId?: string } = {};
 
     await firstValueFrom(
-      new TenantConnectionInterceptor(dataSource).intercept(
+      new TenantConnectionInterceptor(dataSource, new Reflector()).intercept(
         contexto({ organizationId: ORGANIZACION }),
         manejadorInmediato(visto),
       ) as Observable<unknown>,
@@ -113,7 +117,7 @@ describe('TenantConnectionInterceptor', () => {
     const visto: { organizationId?: string; manager?: unknown } = {};
 
     await firstValueFrom(
-      new TenantConnectionInterceptor(dataSource).intercept(
+      new TenantConnectionInterceptor(dataSource, new Reflector()).intercept(
         contexto({ organizationId: ORGANIZACION }),
         manejadorAplazado(visto),
       ) as Observable<unknown>,
@@ -129,7 +133,7 @@ describe('TenantConnectionInterceptor', () => {
     const { dataSource, ejecutado, liberado } = fakeDataSource();
 
     await firstValueFrom(
-      new TenantConnectionInterceptor(dataSource).intercept(
+      new TenantConnectionInterceptor(dataSource, new Reflector()).intercept(
         contexto({ organizationId: ORGANIZACION }),
         manejadorAplazado({}),
       ) as Observable<unknown>,
@@ -151,7 +155,7 @@ describe('TenantConnectionInterceptor', () => {
     const visto: { organizationId?: string } = {};
 
     await firstValueFrom(
-      new TenantConnectionInterceptor(dataSource).intercept(
+      new TenantConnectionInterceptor(dataSource, new Reflector()).intercept(
         contexto(undefined),
         manejadorInmediato(visto),
       ) as Observable<unknown>,
@@ -159,6 +163,26 @@ describe('TenantConnectionInterceptor', () => {
 
     expect(visto.organizationId).toBeUndefined();
     expect(ejecutado).toEqual([]);
+  });
+
+  it('no fija conexión en una ruta de conexiones cortas: el manejador abre una por unidad de trabajo', async () => {
+    // El copiloto espera al modelo uno o dos minutos; una conexión fijada todo ese tiempo es un
+    // hueco del pool ocioso, y veinte de esos detienen la API para todas las empresas.
+    const { dataSource, ejecutado } = fakeDataSource();
+    const visto: { organizationId?: string } = {};
+    const handler = () => undefined;
+    Reflect.defineMetadata(SHORT_LIVED_CONNECTIONS, true, handler);
+
+    await firstValueFrom(
+      new TenantConnectionInterceptor(dataSource, new Reflector()).intercept(
+        contexto({ organizationId: ORGANIZACION }, handler),
+        manejadorInmediato(visto),
+      ) as Observable<unknown>,
+    );
+
+    expect(ejecutado).toEqual([]);
+    // Sin contexto: lo que el manejador consulte fuera de `runAsTenantJob` no ve filas (RLS).
+    expect(visto.organizationId).toBeUndefined();
   });
 
   /**
@@ -200,7 +224,7 @@ describe('TenantConnectionInterceptor', () => {
     it('espera a que termine una transacción tardía antes de liberar, sin revertirla', async () => {
       const { runner, dataSource, ejecutado, liberado } = runnerConTransaccion();
       await firstValueFrom(
-        new TenantConnectionInterceptor(dataSource).intercept(contexto({ organizationId: ORGANIZACION }), {
+        new TenantConnectionInterceptor(dataSource, new Reflector()).intercept(contexto({ organizationId: ORGANIZACION }), {
           handle: () => {
             // Trabajo que sigue vivo cuando la respuesta ya salió: abre una transacción y la
             // confirma 60 ms después.
@@ -224,7 +248,7 @@ describe('TenantConnectionInterceptor', () => {
       try {
         const { runner, dataSource, ejecutado, liberado } = runnerConTransaccion();
         await firstValueFrom(
-          new TenantConnectionInterceptor(dataSource).intercept(contexto({ organizationId: ORGANIZACION }), {
+          new TenantConnectionInterceptor(dataSource, new Reflector()).intercept(contexto({ organizationId: ORGANIZACION }), {
             handle: () => {
               runner.isTransactionActive = true; // nunca se confirma
               return of('listo');

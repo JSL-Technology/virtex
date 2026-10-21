@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
+import { hasPermission } from '@virteex/shared/util-auth';
 
 /**
  * The copilot's tools, contributed by the modules that own the data.
@@ -29,6 +30,14 @@ export interface CopilotUser {
   organizationId: string;
   permissions: string[];
   language: string;
+  /** Branch ids the person is limited to; `null` when they see every branch. */
+  branches: string[] | null;
+}
+
+/** Whether a person may have a tool: every permission it requires, and a branch scope it respects. */
+export function toolAllowed(tool: Pick<CopilotToolBase, 'permissions' | 'branchScope'>, user: Pick<CopilotUser, 'permissions' | 'branches'>): boolean {
+  if (!hasPermission(user.permissions, tool.permissions)) return false;
+  return !(tool.branchScope === 'unscoped' && user.branches !== null);
 }
 
 export interface CopilotToolContext {
@@ -38,6 +47,21 @@ export interface CopilotToolContext {
 
 /** JSON Schema with `additionalProperties: false` on every object (the API's strict mode). */
 export type CopilotSchema = Record<string, unknown>;
+
+/**
+ * How a tool's result relates to the person's branch scope (`user_branch_access`).
+ *
+ *  - `applied`: the tool passes `ctx.user.id` as the actor and the domain service narrows the
+ *    result to the person's branches, as the screen does.
+ *  - `none`: not branch data (master data, help articles), or a company-wide figure the owning
+ *    module shows to everyone holding the permission (the financial statements).
+ *  - `unscoped`: company-wide data derived from documents that ARE branch-scoped (a projection over
+ *    every open invoice, findings across all warehouses). Offered only to people who see every
+ *    branch; to anyone limited to some, it would reveal the branches they cannot open.
+ *
+ * Required, so every tool's author decides — a default would be a guess about somebody's data.
+ */
+export type CopilotBranchScope = 'applied' | 'none' | 'unscoped';
 
 interface CopilotToolBase {
   /** snake_case, unique: what the model calls. */
@@ -49,6 +73,13 @@ interface CopilotToolBase {
   permissions: string[];
   /** Plan feature that must be enabled, if any (e.g. `ai_forecasting`). */
   feature?: string;
+  branchScope: CopilotBranchScope;
+  /**
+   * The result can carry free text written by someone outside the company (a customer's or a
+   * supplier's name, a note, a description). A proposal made in the same turn is marked so the
+   * person knows it followed external text (see `CopilotService`).
+   */
+  externalText?: boolean;
 }
 
 export interface CopilotReadTool extends CopilotToolBase {
@@ -62,6 +93,12 @@ export interface CopilotDraftProposal {
   summary: string;
   /** What will be created, as the person will see it before confirming (totals computed). */
   preview: Record<string, unknown>;
+  /**
+   * The input with everything resolved while proposing — dates that defaulted to "today", prices
+   * that defaulted to the catalogue's — so the confirmation commits what the preview showed, not
+   * what the defaults would say on the day it is confirmed. Omitted when nothing defaulted.
+   */
+  input?: Record<string, unknown>;
 }
 
 export interface CopilotDraftResult {
@@ -74,7 +111,10 @@ export interface CopilotDraftResult {
 
 export interface CopilotDraftTool extends CopilotToolBase {
   kind: 'draft';
-  /** Validates and previews; must not write. */
+  /**
+   * Validates and previews; must not write. Called again with the frozen `input` when the person
+   * confirms, and must then give the same preview (the confirmation is refused if it does not).
+   */
   propose(ctx: CopilotToolContext, input: Record<string, unknown>): Promise<CopilotDraftProposal>;
   /** Creates the document as a draft. Runs only after the person confirmed the proposal. */
   commit(ctx: CopilotToolContext, input: Record<string, unknown>): Promise<CopilotDraftResult>;

@@ -11,6 +11,8 @@ import {
 import { checkGtin, GtinCheck } from './gtin';
 import { BarcodeLookupService, ExternalProductReference } from './barcode-lookup.service';
 import { BadRequestError } from '../../i18n/localized.exception';
+import { DataSource } from 'typeorm';
+import { withTenant } from '../../shared/tenancy/tenant-job';
 
 const TAX_TREATMENTS = ['TAXED', 'ZERO_RATED', 'EXEMPT'] as const;
 const KINDS = ['GOOD', 'SERVICE'] as const;
@@ -108,6 +110,7 @@ export class ProductVisionService {
     private readonly catalog: ProductCatalogPort,
     private readonly embeddings: EmbeddingsService,
     private readonly barcodes: BarcodeLookupService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async suggestFromImage(
@@ -115,8 +118,13 @@ export class ProductVisionService {
     userId: string,
     upload: ProductImageUpload,
   ): Promise<ProductSuggestion> {
-    const image = await this.catalog.storeImage(organizationId, userId, upload);
-    const context = await this.catalog.catalogContext(organizationId);
+    // The route holds no connection while the model looks (`ShortLivedConnections`): database work
+    // runs in short tenant scopes before and after the call.
+    const tenant = <T>(work: () => Promise<T>) => withTenant(this.dataSource, organizationId, work);
+    const { image, context } = await tenant(async () => {
+      const image = await this.catalog.storeImage(organizationId, userId, upload);
+      return { image, context: await this.catalog.catalogContext(organizationId) };
+    });
 
     // Started in parallel with the model call: the embedding is independent, and it is optional.
     const embedding = this.embeddings
@@ -142,8 +150,10 @@ export class ProductVisionService {
 
     const barcodeCheck = checkGtin(value.barcode);
     const vector = await embedding;
-    const duplicates = await this.findDuplicates(organizationId, value, vector);
-    const pricing = await this.catalog.pricingHint(organizationId, value.category_id);
+    const { duplicates, pricing } = await tenant(async () => ({
+      duplicates: await this.findDuplicates(organizationId, value, vector),
+      pricing: await this.catalog.pricingHint(organizationId, value.category_id),
+    }));
     // A public reference only for a barcode that passed its check digit and is not already ours.
     const reference =
       barcodeCheck === 'valid' && !duplicates.some((match) => match.reason === 'barcode')

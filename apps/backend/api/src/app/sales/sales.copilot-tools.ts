@@ -21,6 +21,8 @@ export class SalesCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'list_quotes',
+        branchScope: 'applied',
+        externalText: true,
         description: 'Sales quotes, filtered by status (DRAFT, SENT, ACCEPTED, REJECTED, CANCELLED, INVOICED), with customer, dates, total and whether expired.',
         permissions: [PERMISSIONS.INVOICES_VIEW],
         inputSchema: s.object({ status: s.nullable(s.string('Quote status')), limit: s.integer('1-50') }),
@@ -45,6 +47,7 @@ export class SalesCopilotTools implements OnModuleInit {
       {
         kind: 'draft',
         name: 'draft_quote',
+        branchScope: 'applied',
         description:
           "PROPOSE a sales quote as a draft. Prices default to each product's catalogue price; a discount rate (0-1) " +
           'per line is optional. The person sees the priced preview and confirms it themselves. Resolve the customer ' +
@@ -69,6 +72,18 @@ export class SalesCopilotTools implements OnModuleInit {
           const computed = await this.quotes.preview(dto, ctx.organizationId);
           const customer = await partyName(this.dataSource, 'customer', ctx.organizationId, dto.customerId);
           return {
+            // Prices, descriptions and dates resolved now are the ones committed (see `CopilotDraftProposal.input`).
+            input: {
+              ...input,
+              issue_date: dto.issueDate,
+              lines: dto.lines.map((line) => ({
+                product_id: line.productId ?? null,
+                description: line.description ?? null,
+                quantity: line.quantity,
+                unit_price: line.unitPrice ?? null,
+                discount_rate: line.discountRate ?? null,
+              })),
+            },
             summary: `Draft quote for ${customer} · ${dto.lines.length} line(s) · total ${computed.total}`,
             preview: {
               customerId: dto.customerId,
@@ -107,7 +122,8 @@ export class SalesCopilotTools implements OnModuleInit {
       );
       for (const row of rows) catalogue.set(row.id, { name: row.name, price: Number(row.price) });
     }
-    const issueDate = new Date().toISOString().slice(0, 10);
+    // A frozen proposal carries its issue date; the model's input never does (not in its schema).
+    const issueDate = opt<string>(input, 'issue_date') ?? new Date().toISOString().slice(0, 10);
     const validDays = Math.min(Math.max(Number(opt(input, 'valid_days') ?? QUOTE_VALID_DAYS), 1), 365);
     return asValidDto(CreateQuoteDto, {
       customerId: input['customer_id'],

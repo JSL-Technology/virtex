@@ -22,6 +22,8 @@ export class AiCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'cashflow_forecast',
+        branchScope: 'unscoped',
+        externalText: true,
         description:
           'The projected cash balance for the next weeks from the nightly simulation: cash today, the expected balance ' +
           'at the end and at its tightest (with the date), the worst plausible balance (P10), the probability of falling ' +
@@ -45,6 +47,8 @@ export class AiCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'expected_collections',
+        branchScope: 'unscoped',
+        externalText: true,
         description:
           'Open customer invoices (or supplier bills) of the cash-flow projection with the chance each is collected ' +
           '(paid) within 7 and 30 days and its likely date. sort=risk lists the least likely to arrive first — the ' +
@@ -66,6 +70,7 @@ export class AiCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'search_help',
+        branchScope: 'none',
         description:
           "Search the product's in-app help articles for how to do something in the ERP or what a screen or rule " +
           'means (e.g. registering a supplier bill from a photo, NCF rules, the assistant, credits). The articles are ' +
@@ -78,6 +83,8 @@ export class AiCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'inventory_forecast',
+        branchScope: 'unscoped',
+        externalText: true,
         description:
           'Demand forecast and stock position per product and warehouse from the nightly AI run: on hand, ' +
           'average daily demand, units forecast for the next 30 days (P50 and P90), days of cover, projected ' +
@@ -102,6 +109,7 @@ export class AiCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'forecast_summary',
+        branchScope: 'unscoped',
         description: 'How many products are in each stock status, and when the last forecast ran and how accurate it was (median WAPE).',
         permissions: [AI_PERMISSIONS.AI_FORECASTS_VIEW],
         feature: 'ai_forecasting',
@@ -111,6 +119,8 @@ export class AiCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'top_sellers_by_branch',
+        branchScope: 'unscoped',
+        externalText: true,
         description: 'The products projected to sell the most units in the next 30 days, per branch.',
         permissions: [AI_PERMISSIONS.AI_FORECASTS_VIEW],
         feature: 'ai_forecasting',
@@ -121,6 +131,8 @@ export class AiCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'supplier_lead_times',
+        branchScope: 'unscoped',
+        externalText: true,
         description: "Each supplier's measured delivery time over the last year: median and P90 days from order to receipt, and the share delivered by the promised date.",
         permissions: [AI_PERMISSIONS.AI_FORECASTS_VIEW],
         feature: 'ai_forecasting',
@@ -130,6 +142,8 @@ export class AiCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'anomalies',
+        branchScope: 'unscoped',
+        externalText: true,
         description:
           'Unusual transactions the AI flagged (duplicate bills or receipts, sales below cost, overpayments, purchase ' +
           'order/receipt/bill mismatches, unusual prices or discounts, edited issued documents, off-hours activity…), ' +

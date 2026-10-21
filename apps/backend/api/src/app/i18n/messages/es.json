@@ -1204,6 +1204,7 @@
   "ai.copilot.proposal.draft_purchase_order": "Orden de compra en borrador",
   "ai.copilot.proposal.draft_quote": "Cotización en borrador",
   "ai.copilot.proposal_already_decided": "Esta propuesta ya fue confirmada o descartada.",
+  "ai.copilot.proposal_changed": "Las cifras cambiaron desde la propuesta (precio, impuesto o fecha). No se creó nada: pídela de nuevo para revisarla.",
   "ai.copilot.proposal_expired": "La propuesta caducó: pídela de nuevo para ver cifras actuales.",
   "ai.copilot.proposal_not_found": "No se encontró la propuesta.",
   "ai.copilot.proposal_note": "Aún no se ha creado nada. Se creará como borrador para que lo revises.",

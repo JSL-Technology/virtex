@@ -20,7 +20,7 @@ describe('the scenario comparison', () => {
     );
 
   it('puts the two projections side by side with the differences already computed', async () => {
-    const brief = await builder().build('org-1', { sourceRunId: 'sc-1' } as AiReport);
+    const brief = await builder().build('org-1', { sourceRunId: 'sc-1' } as AiReport, null);
     expect(brief.sourceRunId).toBe('sc-1');
     expect(brief.facts).toMatchObject({
       currency: 'DOP',
@@ -32,7 +32,7 @@ describe('the scenario comparison', () => {
   });
 
   it('refuses a scenario that has not finished, or none at all', async () => {
-    await expect(builder({ ...scenario, status: 'RUNNING' }).build('org-1', { sourceRunId: 'sc-1' } as AiReport)).rejects.toThrow(/not finished/);
-    await expect(builder().build('org-1', { sourceRunId: null } as AiReport)).rejects.toThrow(/needs its scenario/);
+    await expect(builder({ ...scenario, status: 'RUNNING' }).build('org-1', { sourceRunId: 'sc-1' } as AiReport, null)).rejects.toThrow(/not finished/);
+    await expect(builder().build('org-1', { sourceRunId: null } as AiReport, null)).rejects.toThrow(/needs its scenario/);
   });
 });

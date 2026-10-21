@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { AiRequest } from '../entities/ai-request.entity';
+import { withTenant } from '../../shared/tenancy/tenant-job';
 
 const VOYAGE_URL = 'https://api.voyageai.com/v1/multimodalembeddings';
 const DIMENSIONS = 1024;
@@ -108,7 +109,7 @@ export class EmbeddingsService implements OnModuleInit {
       errorCode = (error as Error)?.name === 'TimeoutError' ? 'timeout' : 'network';
     }
 
-    await this.requests
+    await withTenant(this.dataSource, organizationId, () => this.requests
       .save(
         this.requests.create({
           organizationId,
@@ -123,18 +124,18 @@ export class EmbeddingsService implements OnModuleInit {
           latencyMs: Date.now() - started,
         }),
       )
-      .catch((error) => this.logger.warn(`Could not record embedding request: ${(error as Error).message}`));
+      .catch((error) => this.logger.warn(`Could not record embedding request: ${(error as Error).message}`)));
 
     if (!vector) {
       this.logger.warn(`Image embedding failed (${errorCode}); duplicates fall back to barcode and name.`);
       return null;
     }
 
-    await this.dataSource.query(
+    await withTenant(this.dataSource, organizationId, () => this.dataSource.query(
       `INSERT INTO "product_embeddings" ("organization_id", "image_id", "source", "model", "embedding")
        VALUES ($1, $2, 'image', $3, $4::vector)`,
       [organizationId, imageId, model, toVectorLiteral(vector)],
-    );
+    ));
     return vector;
   }
 

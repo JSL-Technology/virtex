@@ -1,3 +1,4 @@
+import { fakeTenantDataSource } from '../../shared/tenancy/testing';
 import { buildSchema, ProductVisionService, validateAnswer } from './product-vision.service';
 import type { CatalogContext } from '../../inventory/contracts/product-catalog.contract';
 
@@ -129,7 +130,7 @@ describe('ProductVisionService.suggestFromImage', () => {
     const embeddings = { embedImage: jest.fn().mockResolvedValue(null), nearestProducts: jest.fn() };
     const reference = { source: 'open_food_facts', name: 'Café molido', brand: 'Santo Domingo', quantity: '453 g', imageUrl: null, url: 'u' };
     const barcodes = { external: jest.fn().mockResolvedValue(reference) };
-    const service = new ProductVisionService(gateway as never, catalog as never, embeddings as never, barcodes as never);
+    const service = new ProductVisionService(gateway as never, catalog as never, embeddings as never, barcodes as never, fakeTenantDataSource());
     return { service, catalog, gateway, embeddings, barcodes };
   };
 

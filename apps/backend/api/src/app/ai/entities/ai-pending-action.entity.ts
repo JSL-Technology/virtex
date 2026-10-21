@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, Primary
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 import type { AiConversation } from './ai-conversation.entity';
 
-export type AiPendingActionStatus = 'PROPOSED' | 'CONFIRMED' | 'REJECTED' | 'FAILED' | 'EXPIRED';
+export type AiPendingActionStatus = 'PROPOSED' | 'COMMITTING' | 'CONFIRMED' | 'REJECTED' | 'FAILED' | 'EXPIRED';
 
 /**
  * A document the copilot proposed to create. Nothing reaches the business tables until the person

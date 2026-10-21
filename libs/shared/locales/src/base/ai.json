@@ -1724,6 +1724,11 @@
     "en": "This proposal was already confirmed or discarded.",
     "pt": "Esta proposta já foi confirmada ou descartada."
   },
+  "ai.copilot.proposal_changed": {
+    "es": "Las cifras cambiaron desde la propuesta (precio, impuesto o fecha). No se creó nada: pídela de nuevo para revisarla.",
+    "en": "The figures changed since the proposal (a price, tax or date). Nothing was created: ask again to review it.",
+    "pt": "Os valores mudaram desde a proposta (preço, imposto ou data). Nada foi criado: peça novamente para revisá-la."
+  },
   "ai.copilot.proposal_expired": {
     "es": "La propuesta caducó: pídela de nuevo para ver cifras actuales.",
     "en": "The proposal expired: ask again to see current figures.",

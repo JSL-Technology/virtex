@@ -1,10 +1,12 @@
 import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, QueryRunner } from 'typeorm';
 import { Observable, defer, from, switchMap } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { AuthenticatedRequest } from '@virteex/shared/util-auth';
 import { runInTenantContext } from './tenant-context';
+import { SHORT_LIVED_CONNECTIONS } from './short-lived-connections.decorator';
 
 /**
  * Pins each request to one connection and stamps the tenant on it.
@@ -45,7 +47,10 @@ const TRANSACTION_GRACE_MS = 5_000;
 export class TenantConnectionInterceptor implements NestInterceptor {
   private readonly logger = new Logger(TenantConnectionInterceptor.name);
 
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly reflector: Reflector,
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     if (context.getType() !== 'http') return next.handle();
@@ -54,6 +59,13 @@ export class TenantConnectionInterceptor implements NestInterceptor {
     const organizationId = request.user?.organizationId;
 
     if (!organizationId) return next.handle();
+
+    // A route that waits minutes on something other than the database opens a connection per unit
+    // of work itself (see `ShortLivedConnections`). It gets no pinned one: holding a pool slot idle
+    // for the whole wait is how a handful of long requests stop the API for every tenant.
+    if (this.reflector.getAllAndOverride<boolean>(SHORT_LIVED_CONNECTIONS, [context.getHandler(), context.getClass()])) {
+      return next.handle();
+    }
 
     return defer(() => {
       const queryRunner = this.dataSource.createQueryRunner();

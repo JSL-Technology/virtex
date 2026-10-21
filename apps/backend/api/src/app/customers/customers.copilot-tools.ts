@@ -18,6 +18,8 @@ export class CustomersCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'search_customers',
+        branchScope: 'none',
+        externalText: true,
         description: 'Find customers by name, tax id (RNC/cédula) or e-mail. Returns ids for use in other tools, with payment terms and credit limit.',
         permissions: [PERMISSIONS.CUSTOMERS_VIEW],
         inputSchema: s.object({ query: s.string('Name, tax id or e-mail fragment'), limit: s.integer('1-25') }),
@@ -39,6 +41,8 @@ export class CustomersCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'receivables_aging',
+        branchScope: 'applied',
+        externalText: true,
         description:
           'Accounts receivable ageing: what customers owe, split into current and days-past-due buckets, with the ' +
           'largest balances first. Use for "who owes me", "overdue customers", "collections".',

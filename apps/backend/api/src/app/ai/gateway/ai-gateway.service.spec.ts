@@ -1,3 +1,4 @@
+import { fakeTenantDataSource } from '../../shared/tenancy/testing';
 import Anthropic from '@anthropic-ai/sdk';
 import { AiGatewayService } from './ai-gateway.service';
 import { costMicroUsd } from './ai-models';
@@ -35,6 +36,7 @@ function build(config: Record<string, unknown> = settings) {
     { get: (key: string) => config[key] } as never,
     entitlements as never,
     requests as never,
+    fakeTenantDataSource(),
   );
   const create = jest.fn();
   // The breaker calls through `this.client`, so replacing the client's method is enough.

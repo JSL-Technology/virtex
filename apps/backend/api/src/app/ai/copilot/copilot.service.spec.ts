@@ -1,3 +1,4 @@
+import { fakeTenantDataSource } from '../../shared/tenancy/testing';
 import { CopilotService, transcriptEntries } from './copilot.service';
 import { CopilotToolRegistry, CopilotUser, s } from '../../contracts/copilot/copilot-tools.contract';
 import type { ConverseRequest } from '../gateway/ai-gateway.service';
@@ -35,6 +36,25 @@ function repo<T extends { id?: string }>() {
     find: jest.fn(async ({ where }: { where: Record<string, unknown> }) => rows.filter((row) => matches(row as Record<string, unknown>, where))),
     findOne: jest.fn(async ({ where }: { where: Record<string, unknown> }) => rows.find((row) => matches(row as Record<string, unknown>, where)) ?? null),
     count: jest.fn(async ({ where }: { where: Record<string, unknown> }) => rows.filter((row) => matches(row as Record<string, unknown>, where)).length),
+    // The conditional UPDATE the service claims a proposal with: atomic, as one statement is.
+    createQueryBuilder: () => {
+      let values: Record<string, unknown> = {};
+      let params: Record<string, unknown> = {};
+      const builder = {
+        update: () => builder,
+        set: (v: Record<string, unknown>) => ((values = v), builder),
+        where: (_sql: string, p: Record<string, unknown>) => ((params = p), builder),
+        execute: async () => {
+          const row = rows.find((r) => {
+            const x = r as Record<string, unknown>;
+            return x['id'] === params['id'] && x['organizationId'] === params['org'] && x['userId'] === params['user'] && x['status'] === params['status'];
+          });
+          if (row) Object.assign(row, values);
+          return { affected: row ? 1 : 0 };
+        },
+      };
+      return builder;
+    },
     delete: jest.fn(async ({ id }: { id: string }) => {
       const index = rows.findIndex((row) => row.id === id);
       if (index >= 0) rows.splice(index, 1);
@@ -43,6 +63,9 @@ function repo<T extends { id?: string }>() {
 }
 
 type Script = (request: ConverseRequest) => Promise<void>;
+
+/** The price `draft_quote` previews at; a test changes it to see a confirmation refused. */
+let quoteTotal = 100;
 
 /** What `sales_trend` reports now; a test changes it to see a pinned chart follow the data. */
 let trend: number[] = [100, 250, 175];
@@ -56,6 +79,7 @@ function build(script: Script) {
       kind: 'read',
       name: 'receivables_aging',
       description: 'd',
+      branchScope: 'applied',
       permissions: ['accounts_receivable:view'],
       inputSchema: s.object({}),
       run: async () => ({ total: 1500 }),
@@ -64,6 +88,7 @@ function build(script: Script) {
       kind: 'read',
       name: 'sales_trend',
       description: 'd',
+      branchScope: 'unscoped',
       permissions: ['accounts_receivable:view'],
       inputSchema: s.object({ months: s.integer() }),
       run: async (_ctx, input) => {
@@ -75,6 +100,7 @@ function build(script: Script) {
       kind: 'read',
       name: 'payroll_totals',
       description: 'd',
+      branchScope: 'none',
       permissions: ['payroll:view'],
       inputSchema: s.object({}),
       run: async () => ({ secret: true }),
@@ -83,9 +109,10 @@ function build(script: Script) {
       kind: 'draft',
       name: 'draft_quote',
       description: 'd',
+      branchScope: 'applied',
       permissions: ['invoices:create'],
       inputSchema: s.object({ customer_id: s.string() }),
-      propose: async () => ({ summary: 'Cotización · total 100', preview: { total: 100 } }),
+      propose: async () => ({ summary: `Cotización · total ${quoteTotal}`, preview: { total: quoteTotal } }),
       commit: async (_ctx, input) => {
         created.push(input);
         return { id: 'q-1', link: '/quotes/q-1/edit', label: 'Cotización COT-1' };
@@ -113,11 +140,18 @@ function build(script: Script) {
     messages as never,
     actions as never,
     charts as never,
+    fakeTenantDataSource(),
   );
   return { service, gateway, offered, created, conversations, messages, actions, charts };
 }
 
-const user: CopilotUser = { id: 'u-1', organizationId: 'org-1', permissions: ['accounts_receivable:view', 'invoices:create'], language: 'es' };
+const user: CopilotUser = {
+  id: 'u-1',
+  organizationId: 'org-1',
+  permissions: ['accounts_receivable:view', 'invoices:create'],
+  language: 'es',
+  branches: null,
+};
 const sink = () => ({ text: jest.fn(), tool: jest.fn(), proposal: jest.fn(), chart: jest.fn() });
 const chartInput = (overrides: Record<string, unknown> = {}) => ({
   title: 'Ventas por mes',
@@ -137,6 +171,18 @@ describe('CopilotService', () => {
     const conversation = await service.create(user);
     await service.send(user, conversation.id, '¿cuánto me deben?', sink());
     expect(offered[0]).toEqual(['draft_quote', 'receivables_aging', 'sales_trend', 'show_chart']);
+  });
+
+  it('withholds company-wide tools from a person limited to branches, and refuses them if named', async () => {
+    let outcome: unknown;
+    const { service, offered } = build(async (request) => {
+      outcome = await request.execute('sales_trend', { months: 3 });
+    });
+    const cashier: CopilotUser = { ...user, branches: ['br-1'] };
+    const conversation = await service.create(cashier);
+    await service.send(cashier, conversation.id, 'ventas', sink());
+    expect(offered[0]).toEqual(['draft_quote', 'receivables_aging', 'show_chart']);
+    expect(outcome).toMatchObject({ isError: true });
   });
 
   it('refuses a tool the model names but the person may not use, even if forced', async () => {
@@ -170,6 +216,33 @@ describe('CopilotService', () => {
     // Twice is not twice the documents.
     await expect(service.confirm(user, turn.proposals[0])).rejects.toMatchObject({ messageKey: 'ai.copilot.proposal_already_decided' });
     expect(created).toHaveLength(1);
+  });
+
+  it('two confirmations at once create one document', async () => {
+    const { service, created } = build(async (request) => {
+      await request.execute('draft_quote', { customer_id: 'c-1' });
+    });
+    const conversation = await service.create(user);
+    const turn = await service.send(user, conversation.id, 'cotiza', sink());
+    const outcomes = await Promise.allSettled([service.confirm(user, turn.proposals[0]), service.confirm(user, turn.proposals[0])]);
+    expect(outcomes.filter((outcome) => outcome.status === 'fulfilled')).toHaveLength(1);
+    expect(created).toHaveLength(1);
+  });
+
+  it('refuses to create what the person did not see: a preview that changed since is not committed', async () => {
+    const { service, created, actions } = build(async (request) => {
+      await request.execute('draft_quote', { customer_id: 'c-1' });
+    });
+    const conversation = await service.create(user);
+    const turn = await service.send(user, conversation.id, 'cotiza', sink());
+    quoteTotal = 120;
+    try {
+      await expect(service.confirm(user, turn.proposals[0])).rejects.toMatchObject({ messageKey: 'ai.copilot.proposal_changed' });
+    } finally {
+      quoteTotal = 100;
+    }
+    expect(created).toEqual([]);
+    expect(actions.rows[0]).toMatchObject({ status: 'EXPIRED' });
   });
 
   it('a person who lost the permission cannot confirm an earlier proposal', async () => {

@@ -4,10 +4,12 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AI_REPORT_READY, AiReportReadyEvent } from '../../contracts/ai-insights/ai-report-ready.contract';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Queue } from 'bullmq';
-import { In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { AiGatewayService, numbersNotInFacts } from '../gateway/ai-gateway.service';
-import { AiReport, AiReportKind } from '../entities/ai-report.entity';
+import { AiReport, AiReportAudience, AiReportKind } from '../entities/ai-report.entity';
 import { NotFoundError } from '../../i18n/localized.exception';
+import { MemberAccess, holdsAll, loadMemberAccess } from '../../roles/contracts/member-access.contract';
+import { AI_PERMISSIONS } from '../../shared/ai.permissions';
 
 export const AI_REPORTS_QUEUE = 'ai-reports';
 
@@ -17,12 +19,40 @@ export interface ReportBrief {
   /** The kind-specific task, appended to the stable system prompt. */
   instructions: string;
   sourceRunId?: string | null;
+  /** The permissions guarding every source the facts were read from. */
+  requiredPermissions: string[];
 }
 
-/** Assembles the facts of one kind of report. Registered by the service that owns those facts. */
+/**
+ * Assembles the facts of one kind of report. Registered by the service that owns those facts.
+ *
+ * `access` is the requester as they are now (permissions, branches) for a `REQUESTER` report, and
+ * null for an `ORGANIZATION` one. A builder reads nothing the requester could not open themselves.
+ */
 export interface ReportBuilder {
   kind: AiReportKind;
-  build(organizationId: string, report: AiReport): Promise<ReportBrief>;
+  /** Who reads a report of this kind when a person asks for it (a scheduled one is always `ORGANIZATION`). */
+  readonly requestedAudience: AiReportAudience;
+  /** What reading it requires before its facts are known (a queued report is guarded too). */
+  readonly basePermissions: readonly string[];
+  build(organizationId: string, report: AiReport, access: MemberAccess | null): Promise<ReportBrief>;
+}
+
+/** The person asking to read a report: their permissions in this company and the branches they are limited to. */
+export interface ReportReader {
+  id: string;
+  permissions: string[];
+  branches: string[] | null;
+}
+
+/**
+ * Whether `reader` may read `report`: every source permission, and — for a report written for the
+ * whole company — no branch limit; a report written for one person is theirs alone.
+ */
+export function canReadReport(report: Pick<AiReport, 'audience' | 'requiredPermissions' | 'requestedByUserId'>, reader: ReportReader): boolean {
+  if (!holdsAll({ active: true, permissions: reader.permissions }, report.requiredPermissions ?? [])) return false;
+  if (report.audience === 'REQUESTER') return report.requestedByUserId === reader.id;
+  return reader.branches === null;
 }
 
 export interface ReportContent {
@@ -77,24 +107,33 @@ export class ReportsService {
     @InjectRepository(AiReport) private readonly reports: Repository<AiReport>,
     @InjectQueue(AI_REPORTS_QUEUE) private readonly queue: Queue<{ organizationId: string; reportId: string }>,
     private readonly events: EventEmitter2,
+    private readonly dataSource: DataSource,
   ) {}
 
   register(builder: ReportBuilder): void {
     this.builders.set(builder.kind, builder);
   }
 
-  /** Ask for a report. One of a kind (and period) in progress at a time: asking again returns it. */
+  /**
+   * Ask for a report. One of a kind (and period) in progress at a time per audience: asking again
+   * returns it. A person's request is theirs (`REQUESTER` for the kinds written from their own
+   * sources); a scheduled one (`userId` null) is written for the whole company.
+   */
   async request(
     organizationId: string,
     userId: string | null,
     kind: AiReportKind,
     options: { period?: string | null; language: string; sourceRunId?: string | null },
   ): Promise<AiReport> {
+    const builder = this.builders.get(kind);
+    const audience: AiReportAudience = userId ? (builder?.requestedAudience ?? 'REQUESTER') : 'ORGANIZATION';
     const active = await this.reports.findOne({
       where: {
         organizationId,
         kind,
+        audience,
         status: In(['QUEUED', 'RUNNING']),
+        ...(audience === 'REQUESTER' ? { requestedByUserId: userId as string } : {}),
         ...(options.period ? { period: options.period } : {}),
         ...(options.sourceRunId ? { sourceRunId: options.sourceRunId } : {}),
       },
@@ -106,6 +145,8 @@ export class ReportsService {
         organizationId,
         kind,
         status: 'QUEUED',
+        audience,
+        requiredPermissions: [AI_PERMISSIONS.AI_REPORTS_VIEW, ...(builder?.basePermissions ?? [])],
         period: options.period ?? null,
         sourceRunId: options.sourceRunId ?? null,
         language: options.language,
@@ -130,28 +171,44 @@ export class ReportsService {
     return report;
   }
 
-  async get(organizationId: string, id: string): Promise<AiReport> {
+  /** The reader as they are now: session permissions, branches from the company's settings. */
+  async reader(organizationId: string, user: { id: string; permissions?: string[] }): Promise<ReportReader> {
+    const access = await loadMemberAccess(this.dataSource.manager, organizationId, user.id);
+    return { id: user.id, permissions: user.permissions ?? [], branches: access.branches };
+  }
+
+  /** One report, if this reader may read it; otherwise "not found" — its existence is not theirs to learn. */
+  async get(organizationId: string, id: string, reader: ReportReader): Promise<AiReport> {
     const report = await this.reports.findOne({ where: { organizationId, id } });
-    if (!report) throw new NotFoundError('ai.reports.not_found');
+    if (!report || !canReadReport(report, reader)) throw new NotFoundError('ai.reports.not_found');
     return report;
   }
 
-  latest(organizationId: string, kind: AiReportKind): Promise<AiReport | null> {
-    return this.reports.findOne({ where: { organizationId, kind }, order: { createdAt: 'DESC' } });
+  /** The newest report of a kind this reader may read. */
+  async latest(organizationId: string, kind: AiReportKind, reader: ReportReader): Promise<AiReport | null> {
+    const rows = await this.reports.find({ where: { organizationId, kind }, order: { createdAt: 'DESC' }, take: 50 });
+    return rows.find((row) => canReadReport(row, reader)) ?? null;
   }
 
-  /** Whether a report of this kind and period already exists (written, or being written). */
+  /** Whether a company-wide report of this kind and period already exists (written, or being written). */
   async exists(organizationId: string, kind: AiReportKind, period: string): Promise<boolean> {
-    return (await this.reports.count({ where: { organizationId, kind, period, status: In(['QUEUED', 'RUNNING', 'SUCCEEDED']) } })) > 0;
+    return (
+      (await this.reports.count({
+        where: { organizationId, kind, period, audience: 'ORGANIZATION', status: In(['QUEUED', 'RUNNING', 'SUCCEEDED']) },
+      })) > 0
+    );
   }
 
   /** The latest report of a kind written about one engine run (a scenario's narrative). */
-  latestForRun(organizationId: string, kind: AiReportKind, sourceRunId: string): Promise<AiReport | null> {
-    return this.reports.findOne({ where: { organizationId, kind, sourceRunId }, order: { createdAt: 'DESC' } });
+  async latestForRun(organizationId: string, kind: AiReportKind, sourceRunId: string, reader: ReportReader): Promise<AiReport | null> {
+    const rows = await this.reports.find({ where: { organizationId, kind, sourceRunId }, order: { createdAt: 'DESC' }, take: 20 });
+    return rows.find((row) => canReadReport(row, reader)) ?? null;
   }
 
-  list(organizationId: string, kind: AiReportKind, limit = 12): Promise<AiReport[]> {
-    return this.reports.find({ where: { organizationId, kind }, order: { createdAt: 'DESC' }, take: limit });
+  /** The reports of a kind this reader may read, newest first. */
+  async list(organizationId: string, kind: AiReportKind, reader: ReportReader, limit = 12): Promise<AiReport[]> {
+    const rows = await this.reports.find({ where: { organizationId, kind }, order: { createdAt: 'DESC' }, take: Math.max(limit * 4, 50) });
+    return rows.filter((row) => canReadReport(row, reader)).slice(0, limit);
   }
 
   /** The processor's work: claim, build the facts, write, check, store. */
@@ -163,7 +220,15 @@ export class ReportsService {
     report.status = 'RUNNING';
     await this.reports.save(report);
     try {
-      const brief = await builder.build(organizationId, report);
+      // A person's report is written as that person is NOW: a permission withdrawn since they
+      // asked is withdrawn from the report too, and someone who left the company gets nothing.
+      let access: MemberAccess | null = null;
+      if (report.audience === 'REQUESTER') {
+        if (!report.requestedByUserId) throw new Error('A requester report has no requester.');
+        access = await loadMemberAccess(this.dataSource.manager, organizationId, report.requestedByUserId);
+        if (!holdsAll(access, report.requiredPermissions ?? [])) throw new Error('The requester may no longer read this report.');
+      }
+      const brief = await builder.build(organizationId, report, access);
       const flat = flatten(brief.facts);
       const { value } = await this.gateway.structured<ReportContent>({
         feature: 'deep_analysis',
@@ -180,6 +245,7 @@ export class ReportsService {
         validate: (raw) => parseContent(raw, flat),
       });
       report.facts = brief.facts;
+      report.requiredPermissions = [...new Set([AI_PERMISSIONS.AI_REPORTS_VIEW, ...builder.basePermissions, ...brief.requiredPermissions])].sort();
       report.sourceRunId = brief.sourceRunId ?? report.sourceRunId ?? null;
       report.content = value as unknown as Record<string, unknown>;
       report.status = 'SUCCEEDED';
@@ -193,6 +259,9 @@ export class ReportsService {
           reportId: report.id,
           kind: 'MANAGER_MONTHLY',
           period: report.period,
+          audience: report.audience,
+          requiredPermissions: report.requiredPermissions,
+          requestedByUserId: report.requestedByUserId,
         } satisfies AiReportReadyEvent);
       }
     } catch (error) {

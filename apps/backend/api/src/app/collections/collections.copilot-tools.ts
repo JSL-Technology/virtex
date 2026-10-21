@@ -22,6 +22,8 @@ export class CollectionsCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'collections_worklist',
+        branchScope: 'applied',
+        externalText: true,
         description:
           'Open invoices ranked by who to chase first: balance, days overdue, how likely each is to be paid within ' +
           '30 days without action, promises kept or broken, and the suggested next action (call, firm_reminder, ' +
@@ -73,6 +75,7 @@ export class CollectionsCopilotTools implements OnModuleInit {
       {
         kind: 'draft',
         name: 'draft_payment_reminder',
+        branchScope: 'applied',
         description:
           'Draft a payment reminder e-mail for one open invoice, in the given tone (cordial, formal, firm). The note is ' +
           'written from the invoice\'s own figures and saved as a draft in Sales › Collections, where a person reviews ' +
@@ -87,6 +90,7 @@ export class CollectionsCopilotTools implements OnModuleInit {
           const invoice = await this.collections.openInvoice(ctx.organizationId, ctx.user.id, String(input['invoice_id'] ?? ''));
           const tone = opt<MessageTone>(input, 'tone') ?? 'formal';
           return {
+            input: { ...input, tone },
             summary: `Payment reminder for invoice ${invoice.fiscalNumber ?? invoice.invoiceNumber} (${tone})`,
             preview: {
               invoice: invoice.fiscalNumber ?? invoice.invoiceNumber,

@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not, Repository } from 'typeorm';
+import { DataSource, IsNull, Not, Repository } from 'typeorm';
 import type Anthropic from '@anthropic-ai/sdk';
-import { hasPermission } from '@virteex/shared/util-auth';
 import { AiGatewayService } from '../gateway/ai-gateway.service';
 import { AiConversation } from '../entities/ai-conversation.entity';
 import { AiMessage } from '../entities/ai-message.entity';
@@ -14,9 +13,11 @@ import {
   CopilotToolContext,
   CopilotToolRegistry,
   CopilotUser,
+  toolAllowed,
 } from '../../contracts/copilot/copilot-tools.contract';
 import { EntitlementsPort } from '../../saas/contracts/entitlements.contract';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
+import { withTenant } from '../../shared/tenancy/tenant-job';
 
 /** What a proposal stays confirmable for. An old preview may no longer be what would be created. */
 const PROPOSAL_TTL_MS = 24 * 60 * 60 * 1000;
@@ -103,6 +104,7 @@ export class CopilotService {
     @InjectRepository(AiMessage) private readonly messages: Repository<AiMessage>,
     @InjectRepository(AiPendingAction) private readonly actions: Repository<AiPendingAction>,
     @InjectRepository(AiChart) private readonly charts: Repository<AiChart>,
+    private readonly dataSource: DataSource,
   ) {}
 
   // ── Conversations ────────────────────────────────────────────────────────────
@@ -156,21 +158,37 @@ export class CopilotService {
 
   // ── A turn ───────────────────────────────────────────────────────────────────
 
-  async send(user: CopilotUser, conversationId: string, text: string, sink: CopilotSink): Promise<CopilotTurnResult> {
+  /**
+   * One question and its answer.
+   *
+   * Called from a route under `ShortLivedConnections`: no database connection is held while the
+   * model answers. Each piece of database work — loading the conversation, running a tool, storing
+   * the turn — opens one as the tenant (`scoped`) and gives it back. `signal` is the person
+   * stopping: the call in flight is aborted and no further model turn is paid for.
+   */
+  async send(
+    user: CopilotUser,
+    conversationId: string,
+    text: string,
+    sink: CopilotSink,
+    signal?: AbortSignal,
+  ): Promise<CopilotTurnResult> {
     const message = (text ?? '').trim();
     if (!message) throw new BadRequestError('ai.copilot.empty_message');
     if (message.length > MAX_MESSAGE_CHARS) throw new BadRequestError('ai.copilot.message_too_long');
 
-    const conversation = await this.owned(user, conversationId);
-    const stored = await this.messages.find({
-      where: { conversationId: conversation.id, organizationId: user.organizationId },
-      order: { seq: 'ASC' },
+    const { conversation, stored, outcomes, tools } = await this.scoped(user, async () => {
+      const conversation = await this.owned(user, conversationId);
+      const stored = await this.messages.find({
+        where: { conversationId: conversation.id, organizationId: user.organizationId },
+        order: { seq: 'ASC' },
+      });
+      // What happened to earlier proposals since the last turn, so the model does not keep offering
+      // a draft the person already created (or declined).
+      const outcomes = await this.unreportedDecisions(user, conversation.id);
+      return { conversation, stored, outcomes, tools: await this.toolsFor(user) };
     });
     const history = stored.map((row) => ({ role: row.role, content: row.content }) as Anthropic.Beta.Messages.BetaMessageParam);
-
-    // What happened to earlier proposals since the last turn, so the model does not keep offering
-    // a draft the person already created (or declined).
-    const outcomes = await this.unreportedDecisions(user, conversation.id);
     const today = new Date().toISOString().slice(0, 10);
     const userTurn: Anthropic.Beta.Messages.BetaMessageParam = {
       role: 'user',
@@ -185,7 +203,6 @@ export class CopilotService {
       ],
     };
 
-    const tools = await this.toolsFor(user);
     const byName = new Map(tools.map((tool) => [tool.name, tool]));
     const context: CopilotToolContext = { user, organizationId: user.organizationId };
     const toolsUsed = new Set<string>();
@@ -204,7 +221,8 @@ export class CopilotService {
       ],
       onText: (delta) => sink.text(delta),
       onToolCall: (call) => sink.tool({ name: call.name }),
-      execute: async (name, input) => {
+      signal,
+      execute: (name, input) => this.scoped(user, async () => {
         if (name === CHART_TOOL_NAME) {
           let chart: AiChart;
           try {
@@ -228,7 +246,7 @@ export class CopilotService {
         const tool = byName.get(name);
         // Checked again here, not only when the list was built: the list is what the model was
         // offered, this is what the user may run.
-        if (!tool || !hasPermission(user.permissions, tool.permissions)) {
+        if (!tool || !toolAllowed(tool, user)) {
           return { content: JSON.stringify({ error: 'This tool is not available to this user.' }), isError: true };
         }
         toolsUsed.add(name);
@@ -243,7 +261,8 @@ export class CopilotService {
             conversationId: conversation.id,
             userId: user.id,
             tool: tool.name,
-            input,
+            // What was resolved while proposing (dates, prices) is what gets committed.
+            input: proposal.input ?? input,
             summary: proposal.summary.slice(0, 500),
             preview: proposal.preview,
             status: 'PROPOSED',
@@ -260,7 +279,7 @@ export class CopilotService {
             note: 'Shown to the person with Confirm / Discard buttons. Nothing has been created.',
           }),
         };
-      },
+      }),
     });
 
     // Append-only: the user's turn, then everything the model and the tools added, in order.
@@ -276,10 +295,12 @@ export class CopilotService {
       }),
     );
     // A refused turn leaves only the user's message; it is kept so the transcript shows the question.
-    await this.messages.save(rows);
-    if (!conversation.title) conversation.title = message.slice(0, 80);
-    conversation.updatedAt = new Date();
-    await this.conversations.save(conversation);
+    await this.scoped(user, async () => {
+      await this.messages.save(rows);
+      if (!conversation.title) conversation.title = message.slice(0, 80);
+      conversation.updatedAt = new Date();
+      await this.conversations.save(conversation);
+    });
 
     return { text: result.text, stopReason: result.stopReason, toolsUsed: [...toolsUsed], proposals };
   }
@@ -375,45 +396,75 @@ export class CopilotService {
 
   // ── Proposals ────────────────────────────────────────────────────────────────
 
+  /**
+   * Create, as a draft, what the person confirmed — once, and only what they saw.
+   *
+   * Claimed with one conditional UPDATE (`PROPOSED` → `COMMITTING`), so a double click or a second
+   * tab cannot create the document twice. Then the proposal is priced again from the very input it
+   * was shown with (values resolved when proposed: dates, prices); if the preview differs from what
+   * the person read — a price or a rate changed since — nothing is created and they are asked to
+   * look again, rather than finding a different total on the draft than on the card they confirmed.
+   */
   async confirm(user: CopilotUser, actionId: string) {
-    const action = await this.pending(user, actionId);
-    const tool = this.registry.get(action.tool);
-    if (!tool || tool.kind !== 'draft' || !hasPermission(user.permissions, tool.permissions)) {
-      throw new ForbiddenError('auth.you_do_not_have_permission_perform');
-    }
-    if (tool.feature && !(await this.entitlements.checkFeature(user.organizationId, tool.feature))) {
-      throw new ForbiddenError('auth.you_do_not_have_permission_perform');
-    }
-    try {
-      const created = await tool.commit({ user, organizationId: user.organizationId }, action.input);
-      action.status = 'CONFIRMED';
-      action.result = { ...created };
-    } catch (error) {
-      action.status = 'FAILED';
-      action.error = (error as Error)?.message?.slice(0, 500) ?? 'failed';
+    const tool = await this.scoped(user, async () => {
+      const action = await this.pending(user, actionId);
+      const tool = this.registry.get(action.tool);
+      if (!tool || tool.kind !== 'draft' || !toolAllowed(tool, user)) {
+        throw new ForbiddenError('auth.you_do_not_have_permission_perform');
+      }
+      if (tool.feature && !(await this.entitlements.checkFeature(user.organizationId, tool.feature))) {
+        throw new ForbiddenError('auth.you_do_not_have_permission_perform');
+      }
+      return tool;
+    });
+    return this.scoped(user, async () => {
+      const action = await this.claim(user, actionId);
+      const ctx: CopilotToolContext = { user, organizationId: user.organizationId };
+      try {
+        const fresh = await tool.propose(ctx, action.input);
+        if (stableJson(fresh.preview) !== stableJson(action.preview)) {
+          action.status = 'EXPIRED';
+          action.error = 'preview_changed';
+          action.decidedAt = new Date();
+          await this.actions.save(action);
+          throw new BadRequestError('ai.copilot.proposal_changed');
+        }
+        const created = await tool.commit(ctx, action.input);
+        action.status = 'CONFIRMED';
+        action.result = { ...created };
+      } catch (error) {
+        if (action.status === 'EXPIRED') throw error;
+        action.status = 'FAILED';
+        action.error = (error as Error)?.message?.slice(0, 500) ?? 'failed';
+        action.decidedAt = new Date();
+        await this.actions.save(action);
+        throw error;
+      }
       action.decidedAt = new Date();
-      await this.actions.save(action);
-      throw error;
-    }
-    action.decidedAt = new Date();
-    return publicAction(await this.actions.save(action));
+      return publicAction(await this.actions.save(action));
+    });
   }
 
   async reject(user: CopilotUser, actionId: string) {
-    const action = await this.pending(user, actionId);
+    const action = await this.scoped(user, () => this.claim(user, actionId));
     action.status = 'REJECTED';
     action.decidedAt = new Date();
-    return publicAction(await this.actions.save(action));
+    return this.scoped(user, async () => publicAction(await this.actions.save(action)));
   }
 
   // ── Internals ────────────────────────────────────────────────────────────────
+
+  /** Database work as the person's tenant: the request's connection if it has one, else one opened for this. */
+  private scoped<T>(user: CopilotUser, work: () => Promise<T>): Promise<T> {
+    return withTenant(this.dataSource, user.organizationId, work);
+  }
 
   /** The registry filtered to this user: every permission held, and the tool's plan feature on. */
   private async toolsFor(user: CopilotUser): Promise<CopilotTool[]> {
     const features = new Map<string, boolean>();
     const allowed: CopilotTool[] = [];
     for (const tool of this.registry.all()) {
-      if (!hasPermission(user.permissions, tool.permissions)) continue;
+      if (!toolAllowed(tool, user)) continue;
       if (tool.feature) {
         if (!features.has(tool.feature)) {
           features.set(tool.feature, await this.entitlements.checkFeature(user.organizationId, tool.feature));
@@ -446,12 +497,35 @@ export class CopilotService {
     return action;
   }
 
+  /**
+   * Takes a proposal out of `PROPOSED` atomically: of two concurrent confirmations (or a confirm and
+   * a discard) exactly one gets the row; the other is told it was already decided.
+   */
+  private async claim(user: CopilotUser, id: string): Promise<AiPendingAction> {
+    await this.pending(user, id);
+    const result = await this.actions
+      .createQueryBuilder()
+      .update(AiPendingAction)
+      .set({ status: 'COMMITTING' })
+      .where('id = :id AND organization_id = :org AND user_id = :user AND status = :status', {
+        id,
+        org: user.organizationId,
+        user: user.id,
+        status: 'PROPOSED',
+      })
+      .execute();
+    if (!result.affected) throw new BadRequestError('ai.copilot.proposal_already_decided');
+    const action = await this.actions.findOne({ where: { id, organizationId: user.organizationId, userId: user.id } });
+    if (!action) throw new NotFoundError('ai.copilot.proposal_not_found');
+    return action;
+  }
+
   /** Decisions taken in the panel since they were last mentioned to the model; marks them reported. */
   private async unreportedDecisions(user: CopilotUser, conversationId: string): Promise<string[]> {
     const decided = await this.actions.find({ where: { conversationId, organizationId: user.organizationId } });
     const notes: string[] = [];
     for (const action of decided) {
-      if (action.status === 'PROPOSED' || action.result?.['reported']) continue;
+      if (action.status === 'PROPOSED' || action.status === 'COMMITTING' || action.result?.['reported']) continue;
       const created = action.result as { label?: string } | null;
       notes.push(
         action.status === 'CONFIRMED'
@@ -463,6 +537,15 @@ export class CopilotService {
     }
     return notes;
   }
+}
+
+/** JSON with object keys sorted, so two previews compare by content, not by key order. */
+export function stableJson(value: unknown): string {
+  return JSON.stringify(value, (_key, item) =>
+    item && typeof item === 'object' && !Array.isArray(item)
+      ? Object.fromEntries(Object.entries(item as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b)))
+      : item,
+  );
 }
 
 function truncate(json: string): string {

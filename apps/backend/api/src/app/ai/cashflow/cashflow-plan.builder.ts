@@ -5,6 +5,8 @@ import { EngineRunsService } from '../engine/engine-runs.service';
 import { AiCashflowItem } from '../entities/ai-cashflow-item.entity';
 import { AiReport } from '../entities/ai-report.entity';
 import { ReportBrief, ReportBuilder, ReportsService } from '../reports/reports.service';
+import { AI_PERMISSIONS } from '../../shared/ai.permissions';
+import { MemberAccess } from '../../roles/contracts/member-access.contract';
 
 const money = (value: unknown) => Math.round(Number(value ?? 0) * 100) / 100;
 const percent = (value: unknown) => Math.round(Number(value ?? 0) * 100);
@@ -17,6 +19,9 @@ const percent = (value: unknown) => Math.round(Number(value ?? 0) * 100);
 @Injectable()
 export class CashflowPlanBuilder implements ReportBuilder, OnModuleInit {
   readonly kind = 'CASHFLOW_PLAN' as const;
+  /** Written from the company-wide projection: shared by everyone who may read the projection. */
+  readonly requestedAudience = 'ORGANIZATION' as const;
+  readonly basePermissions: readonly string[] = [AI_PERMISSIONS.AI_CASHFLOW_VIEW];
 
   constructor(
     private readonly reports: ReportsService,
@@ -28,7 +33,7 @@ export class CashflowPlanBuilder implements ReportBuilder, OnModuleInit {
     this.reports.register(this);
   }
 
-  async build(organizationId: string, _report: AiReport): Promise<ReportBrief> {
+  async build(organizationId: string, _report: AiReport, _access: MemberAccess | null): Promise<ReportBrief> {
     const run = await this.runs.latestSucceeded(organizationId, 'CASHFLOW');
     if (!run) throw new Error('There is no cash-flow projection to write a plan from.');
     const m = (run.metrics ?? {}) as Record<string, unknown>;
@@ -44,6 +49,7 @@ export class CashflowPlanBuilder implements ReportBuilder, OnModuleInit {
     });
     const byComponent = (m['byComponent'] ?? {}) as Record<string, number>;
     return {
+      requiredPermissions: [AI_PERMISSIONS.AI_CASHFLOW_VIEW],
       sourceRunId: run.id,
       instructions:
         'Write the cash plan for the next weeks: where the balance is heading, the moment it is tightest and how ' +

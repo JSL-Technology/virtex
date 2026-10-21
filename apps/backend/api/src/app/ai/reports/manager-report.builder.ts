@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { CopilotToolContext, CopilotToolRegistry } from '../../contracts/copilot/copilot-tools.contract';
+import { CopilotToolContext, CopilotToolRegistry, toolAllowed } from '../../contracts/copilot/copilot-tools.contract';
+import { MemberAccess } from '../../roles/contracts/member-access.contract';
 import { EntitlementsPort } from '../../saas/contracts/entitlements.contract';
 import { AiReport } from '../entities/ai-report.entity';
 import { ReportBrief, ReportBuilder, ReportsService } from './reports.service';
@@ -37,15 +38,20 @@ interface FactSource {
  * payables, the projection by the AI engine) — so the report and the screens cannot disagree, and
  * this module never imports those domains.
  *
- * Asked for by a person, the tools run as that person (their branches, their name on the access
- * audit of the financial statements); the one the scheduler writes on the 1st runs as no one, so it
- * covers the whole company. Reading either is gated by `ai_reports:view`, the manager's permission. A tool whose plan feature is off, or
- * that fails, is listed as unavailable so the writer says what it could not see rather than
- * guessing.
+ * Asked for by a person, the report is THEIRS: each tool runs only if that person may have it
+ * (every permission it requires, and a branch scope it respects — `toolAllowed`, the copilot's own
+ * rule), as that person (their branches, their name on the access audit), and only they read it.
+ * The one the scheduler writes on the 1st covers the whole company, and is readable only by someone
+ * holding every source permission and limited to no branch (`canReadReport`). Either way the
+ * report records the permissions of the sources it used. A tool the person may not have, whose
+ * plan feature is off, or that fails, is listed as unavailable so the writer says what it could
+ * not see rather than guessing.
  */
 @Injectable()
 export class ManagerReportBuilder implements ReportBuilder, OnModuleInit {
   readonly kind = 'MANAGER_MONTHLY' as const;
+  readonly requestedAudience = 'REQUESTER' as const;
+  readonly basePermissions: readonly string[] = [];
   private readonly logger = new Logger(ManagerReportBuilder.name);
 
   static readonly SOURCES: FactSource[] = [
@@ -79,21 +85,24 @@ export class ManagerReportBuilder implements ReportBuilder, OnModuleInit {
     this.reports.register(this);
   }
 
-  async build(organizationId: string, report: AiReport): Promise<ReportBrief> {
+  async build(organizationId: string, report: AiReport, access: MemberAccess | null): Promise<ReportBrief> {
     const period = report.period ?? previousMonth();
     const bounds = monthBounds(period);
     const ctx: CopilotToolContext = {
       organizationId,
-      // The requester's scope when a person asked; none (the whole company) for the scheduled one.
-      user: { id: report.requestedByUserId ?? '', organizationId, permissions: [], language: report.language },
+      // The requester as they are now; for the company-wide report, nobody (no branch narrowing).
+      user: access
+        ? { id: access.userId, organizationId, permissions: access.permissions, language: report.language, branches: access.branches }
+        : { id: '', organizationId, permissions: [], language: report.language, branches: null },
     };
+    const required = new Set<string>();
 
     const facts: Record<string, unknown> = { period, periodStart: bounds.start, periodEnd: bounds.end, previousPeriod: bounds.previous };
     const unavailable: string[] = [];
     const features = new Map<string, boolean>();
     for (const source of ManagerReportBuilder.SOURCES) {
       const tool = this.tools.get(source.tool);
-      if (!tool || tool.kind !== 'read') {
+      if (!tool || tool.kind !== 'read' || (access && !toolAllowed(tool, ctx.user))) {
         unavailable.push(source.key);
         continue;
       }
@@ -111,6 +120,7 @@ export class ManagerReportBuilder implements ReportBuilder, OnModuleInit {
           continue;
         }
         facts[source.key] = value;
+        tool.permissions.forEach((permission) => required.add(permission));
       } catch (error) {
         this.logger.warn(`Informe ${report.id}: ${source.tool} no disponible (${(error as Error).message})`);
         unavailable.push(source.key);
@@ -130,6 +140,7 @@ export class ManagerReportBuilder implements ReportBuilder, OnModuleInit {
         'concrete actions for the coming month, most important first. If something listed under "unavailable" would ' +
         'have mattered, say briefly that it was not available rather than guessing.',
       facts,
+      requiredPermissions: [...required],
     };
   }
 }

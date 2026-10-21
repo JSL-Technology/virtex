@@ -1,4 +1,4 @@
-import { flatten, parseContent } from './reports.service';
+import { canReadReport, flatten, parseContent } from './reports.service';
 
 describe('report checks', () => {
   const facts = flatten({
@@ -29,5 +29,24 @@ describe('report checks', () => {
 
   it('refuses an empty report', () => {
     expect(() => parseContent({ title: 'x', summary: '', sections: [], recommendations: [] }, facts)).toThrow(/empty/);
+  });
+});
+
+describe('who may read a report', () => {
+  const company = { audience: 'ORGANIZATION' as const, requiredPermissions: ['ai_reports:view', 'reports:view_financial'], requestedByUserId: null };
+  const personal = { audience: 'REQUESTER' as const, requiredPermissions: ['ai_reports:view'], requestedByUserId: 'u-1' };
+
+  it('a company-wide report needs every source permission and no branch limit', () => {
+    expect(canReadReport(company, { id: 'u-1', permissions: ['ai_reports:view', 'reports:view_financial'], branches: null })).toBe(true);
+    // The report permission alone is not a way around the income statement's own.
+    expect(canReadReport(company, { id: 'u-2', permissions: ['ai_reports:view'], branches: null })).toBe(false);
+    // Everything, but limited to a branch: the company's figures are not theirs.
+    expect(canReadReport(company, { id: 'u-3', permissions: ['*'], branches: ['br-1'] })).toBe(false);
+  });
+
+  it('a personal report is its requester\'s alone, and only while they keep the permissions', () => {
+    expect(canReadReport(personal, { id: 'u-1', permissions: ['ai_reports:view'], branches: ['br-1'] })).toBe(true);
+    expect(canReadReport(personal, { id: 'u-2', permissions: ['*'], branches: null })).toBe(false);
+    expect(canReadReport(personal, { id: 'u-1', permissions: [], branches: null })).toBe(false);
   });
 });

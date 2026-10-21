@@ -1,3 +1,4 @@
+import { fakeTenantDataSource } from '../../shared/tenancy/testing';
 import { AiGatewayService, numbersNotInFacts } from './ai-gateway.service';
 
 /**
@@ -24,7 +25,7 @@ function build() {
     }),
   };
   const entitlements = { consume: jest.fn().mockResolvedValue(undefined), checkFeature: jest.fn() };
-  const service = new AiGatewayService({ get: (key: string) => settings[key] } as never, entitlements as never, requests as never);
+  const service = new AiGatewayService({ get: (key: string) => settings[key] } as never, entitlements as never, requests as never, fakeTenantDataSource());
   const create = jest.fn();
   (service as unknown as { client: unknown }).client = { beta: { messages: { create } } };
   return { service, create, saved, entitlements };
@@ -109,6 +110,23 @@ describe('AiGatewayService.converse', () => {
     expect(result.stopReason).toBe('refusal');
     expect(execute).not.toHaveBeenCalled();
     expect(saved[0]).toMatchObject({ status: 'REFUSED' });
+  });
+
+  it('stops paying once the person stops waiting: no further turn after the signal', async () => {
+    const { service, create, entitlements } = build();
+    const abort = new AbortController();
+    create.mockImplementation(async (_params: unknown, options: { signal?: AbortSignal }) => {
+      expect(options?.signal).toBe(abort.signal);
+      abort.abort();
+      return { model: 'm', stop_reason: 'tool_use', usage, content: [{ type: 'tool_use', id: 't1', name: 'receivables_aging', input: {} }] };
+    });
+    const result = await service.converse({
+      feature: 'copilot', organizationId: 'o', userId: 'u', system: 's', history: [{ role: 'user', content: 'q' }], tools,
+      execute: async () => ({ content: '{}' }), signal: abort.signal,
+    });
+    expect(result.stopReason).toBe('cancelled');
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(entitlements.consume).toHaveBeenCalledTimes(1);
   });
 });
 

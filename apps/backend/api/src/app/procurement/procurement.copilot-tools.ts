@@ -23,6 +23,8 @@ export class ProcurementCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'list_purchase_orders',
+        branchScope: 'applied',
+        externalText: true,
         description: 'Purchase orders, filtered by status or supplier, with dates, total and status.',
         permissions: [PERMISSIONS.PROCUREMENT_VIEW],
         inputSchema: s.object({
@@ -57,6 +59,7 @@ export class ProcurementCopilotTools implements OnModuleInit {
       {
         kind: 'draft',
         name: 'draft_purchase_order',
+        branchScope: 'applied',
         description:
           "PROPOSE a purchase order as a draft. Prices default to each product's last unit cost. Use inventory_forecast " +
           '(suggested order quantities) and search_suppliers / search_products first. The person confirms it themselves.',
@@ -79,6 +82,16 @@ export class ProcurementCopilotTools implements OnModuleInit {
           const subtotal = dto.lines.reduce((sum, line) => sum + Number(line.quantity) * Number(line.unitPrice), 0);
           const supplier = await partyName(this.dataSource, 'supplier', ctx.organizationId, dto.supplierId);
           return {
+            // Costs resolved now are the ones committed (see `CopilotDraftProposal.input`).
+            input: {
+              ...input,
+              lines: dto.lines.map((line) => ({
+                product_id: line.productId ?? null,
+                description: line.description ?? null,
+                quantity: line.quantity,
+                unit_price: line.unitPrice ?? null,
+              })),
+            },
             summary: `Draft purchase order to ${supplier} · ${dto.lines.length} line(s) · subtotal ${Math.round(subtotal * 100) / 100}`,
             preview: {
               supplierId: dto.supplierId,

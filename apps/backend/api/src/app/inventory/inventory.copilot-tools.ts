@@ -17,6 +17,8 @@ export class InventoryCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'search_products',
+        branchScope: 'none',
+        externalText: true,
         description: 'Find products by name or SKU. Returns ids, sale price, unit cost, unit of measure and total stock, for use in other tools and drafts.',
         permissions: [PERMISSIONS.PRODUCTS_VIEW],
         inputSchema: s.object({ query: s.string('Name or SKU fragment'), limit: s.integer('1-25') }),
@@ -41,6 +43,8 @@ export class InventoryCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'stock_on_hand',
+        branchScope: 'none',
+        externalText: true,
         description: 'Quantity on hand per product and warehouse, now. Filter by product, warehouse or a name fragment.',
         permissions: [PERMISSIONS.INVENTORY_VIEW_STOCK],
         inputSchema: s.object({

@@ -12,6 +12,7 @@ import { checkReceivedNcf, normalizeNcf, ReceivedNcfError, ReceivedNcfWarning } 
 import { VendorBillAttachment } from './entities/vendor-bill-attachment.entity';
 import { PurchaseCategory } from './entities/vendor-bill.entity';
 import { SuppliersService } from '../suppliers/suppliers.service';
+import { withTenant } from '../shared/tenancy/tenant-job';
 
 /** Largest file accepted: a multi-page scanned PDF fits; a video does not. */
 export const MAX_BILL_FILE_BYTES = 20 * 1024 * 1024;
@@ -220,7 +221,9 @@ export class BillCaptureService {
   async capture(organizationId: string, userId: string, upload: BillUpload): Promise<BillCaptureSuggestion> {
     if (!this.ai.available()) throw new ServiceUnavailableError('ai.not_configured');
     const file = await normalise(upload);
-    const attachment = await this.store(organizationId, userId, file);
+    // The route holds no connection while the model reads (`ShortLivedConnections`): each piece of
+    // database work opens one as the tenant and gives it back.
+    const attachment = await withTenant(this.dataSource, organizationId, () => this.store(organizationId, userId, file));
 
     const content =
       file.mimeType === 'application/pdf'
@@ -237,7 +240,7 @@ export class BillCaptureService {
       inputFingerprint: attachment.sha256,
     });
 
-    return this.review(organizationId, attachment, read);
+    return withTenant(this.dataSource, organizationId, () => this.review(organizationId, attachment, read));
   }
 
   /** The deterministic half: identity, fiscal number, arithmetic, duplicates, line matching. */

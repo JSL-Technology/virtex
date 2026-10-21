@@ -17,6 +17,7 @@ import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import * as fs from 'fs/promises';
 import { DataSource } from 'typeorm';
 import { HasPermission } from '../security/decorators/permissions.decorator';
+import { ShortLivedConnections } from '../shared/tenancy/short-lived-connections.decorator';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../security/principal';
 import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
@@ -162,6 +163,7 @@ export class AiController {
   // ── Product from photo ─────────────────────────────────────────────────────────
 
   @Post('products/from-image')
+  @ShortLivedConnections()
   @HasPermission(PERMISSIONS.PRODUCTS_CREATE, PERMISSIONS.AI_VISION_USE)
   @CheckFeature('ai_vision')
   @UseGuards(ThrottlerGuard)

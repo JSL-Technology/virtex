@@ -1204,6 +1204,7 @@
   "ai.copilot.proposal.draft_purchase_order": "Ordem de compra em rascunho",
   "ai.copilot.proposal.draft_quote": "Orçamento em rascunho",
   "ai.copilot.proposal_already_decided": "Esta proposta já foi confirmada ou descartada.",
+  "ai.copilot.proposal_changed": "Os valores mudaram desde a proposta (preço, imposto ou data). Nada foi criado: peça novamente para revisá-la.",
   "ai.copilot.proposal_expired": "A proposta expirou: peça novamente para ver os valores atuais.",
   "ai.copilot.proposal_not_found": "A proposta não foi encontrada.",
   "ai.copilot.proposal_note": "Ainda não foi criado nada. Será criado como rascunho para rever.",

@@ -35,13 +35,24 @@ export class ManagerReportController {
   @Get()
   @ApiOperation({ summary: 'Recent monthly reports, newest first (without their content).' })
   async list(@CurrentUser() user: AuthenticatedUser, @Query('limit') limit?: string) {
-    const rows = await this.reports.list(user.organizationId, 'MANAGER_MONTHLY', Math.min(Math.max(Number(limit) || 12, 1), 36));
-    return rows.map(({ id, period, status, createdAt, finishedAt, error, language }) => ({ id, period, status, createdAt, finishedAt, error, language }));
+    const reader = await this.reports.reader(user.organizationId, user);
+    const rows = await this.reports.list(user.organizationId, 'MANAGER_MONTHLY', reader, Math.min(Math.max(Number(limit) || 12, 1), 36));
+    return rows.map(({ id, period, status, createdAt, finishedAt, error, language, audience }) => ({
+      id,
+      period,
+      status,
+      createdAt,
+      finishedAt,
+      error,
+      language,
+      audience,
+    }));
   }
 
+  /** One report — only if the reader holds every permission its facts were read under (`canReadReport`). */
   @Get(':id')
   async get(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    const report = await this.reports.get(user.organizationId, id);
+    const report = await this.reports.get(user.organizationId, id, await this.reports.reader(user.organizationId, user));
     if (report.kind !== 'MANAGER_MONTHLY') throw new NotFoundError('ai.reports.not_found');
     return report;
   }

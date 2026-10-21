@@ -5,6 +5,8 @@ import { EngineRunsService } from '../engine/engine-runs.service';
 import { AiModelRun } from '../entities/ai-model-run.entity';
 import { AiReport } from '../entities/ai-report.entity';
 import { ReportBrief, ReportBuilder, ReportsService } from '../reports/reports.service';
+import { AI_PERMISSIONS } from '../../shared/ai.permissions';
+import { MemberAccess } from '../../roles/contracts/member-access.contract';
 
 const money = (value: unknown) => Math.round(Number(value ?? 0) * 100) / 100;
 const percent = (value: unknown) => Math.round(Number(value ?? 0) * 100);
@@ -33,6 +35,9 @@ function headline(metrics: Record<string, unknown>) {
 @Injectable()
 export class ScenarioComparisonBuilder implements ReportBuilder, OnModuleInit {
   readonly kind = 'SCENARIO_COMPARISON' as const;
+  /** Written from the company-wide projection: shared by everyone who may read the projection. */
+  readonly requestedAudience = 'ORGANIZATION' as const;
+  readonly basePermissions: readonly string[] = [AI_PERMISSIONS.AI_CASHFLOW_VIEW];
 
   constructor(
     private readonly reports: ReportsService,
@@ -44,7 +49,7 @@ export class ScenarioComparisonBuilder implements ReportBuilder, OnModuleInit {
     this.reports.register(this);
   }
 
-  async build(organizationId: string, report: AiReport): Promise<ReportBrief> {
+  async build(organizationId: string, report: AiReport, _access: MemberAccess | null): Promise<ReportBrief> {
     if (!report.sourceRunId) throw new Error('A scenario comparison needs its scenario run.');
     const scenario = await this.runRows.findOne({ where: { id: report.sourceRunId, organizationId, kind: 'SCENARIO' } });
     if (!scenario || scenario.status !== 'SUCCEEDED') throw new Error('The scenario has not finished.');
@@ -57,6 +62,7 @@ export class ScenarioComparisonBuilder implements ReportBuilder, OnModuleInit {
     const diff = (key: keyof typeof withScenario) => money(Number(withScenario[key]) - Number(asProjected[key]));
 
     return {
+      requiredPermissions: [AI_PERMISSIONS.AI_CASHFLOW_VIEW],
       sourceRunId: scenario.id,
       instructions:
         'Explain in plain words what this scenario does to the company\'s cash compared with the current projection: ' +
