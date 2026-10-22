@@ -14,6 +14,11 @@ export const AI_PERMISSIONS = {
   AI_FORECASTS_RUN: 'ai_forecasts:run',
   AI_ANOMALIES_VIEW: 'ai_anomalies:view',
   AI_ANOMALIES_RESOLVE: 'ai_anomalies:resolve',
+  /**
+   * The findings about people rather than transactions — someone working at hours the company never
+   * works. Monitoring of employees: its own permission, not part of reading the sales anomalies.
+   */
+  AI_ANOMALIES_VIEW_SECURITY: 'ai_anomalies:view_security',
   AI_VISION_USE: 'ai_vision:use',
   AI_USAGE_VIEW: 'ai_usage:view',
   /**

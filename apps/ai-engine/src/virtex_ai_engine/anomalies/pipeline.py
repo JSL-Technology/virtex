@@ -170,7 +170,7 @@ def load(conn: psycopg.Connection, organization_id: str, since) -> dict[str, pd.
         "organization": frame(conn, "SELECT timezone FROM organizations WHERE id = %s", (organization_id,)),
         "feedback": frame(
             conn,
-            """SELECT a.detector, f.verdict FROM ai_anomaly_feedback f JOIN ai_anomalies a ON a.id = f.anomaly_id
+            """SELECT a.detector, f.verdict, f.user_id::text AS user_id FROM ai_anomaly_feedback f JOIN ai_anomalies a ON a.id = f.anomaly_id
                 WHERE f.organization_id = %s AND f.created_at >= (%s::date - 275)""",
             p,
         ),

@@ -6,7 +6,8 @@ import { AiAnomalyFeedback, AiAnomalyVerdict } from '../entities/ai-anomaly-feed
 import { AiGatewayService } from '../gateway/ai-gateway.service';
 import { organizationMarket } from '../../organizations/contracts/market.contract';
 import { booksLanguageName } from '../language';
-import { NotFoundError } from '../../i18n/localized.exception';
+import { ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
+import { ChangeAuditPort } from '../../contracts/audit/access-audit.contract';
 
 export interface AnomalyQuery {
   status?: AiAnomalyStatus;
@@ -36,11 +37,12 @@ export class AnomaliesService {
     @InjectRepository(AiAnomalyFeedback) private readonly feedback: Repository<AiAnomalyFeedback>,
     private readonly dataSource: DataSource,
     private readonly gateway: AiGatewayService,
+    private readonly audit: ChangeAuditPort,
   ) {}
 
-  async list(organizationId: string, query: AnomalyQuery) {
+  async list(organizationId: string, query: AnomalyQuery, reader: AnomalyReader) {
     const params: unknown[] = [organizationId];
-    const where = ['"organization_id" = $1'];
+    const where = ['"organization_id" = $1', ...readerFilter(reader, params)];
     if (query.status) {
       params.push(query.status);
       where.push(`"status" = $${params.length}`);
@@ -66,9 +68,11 @@ export class AnomaliesService {
         LIMIT ${limit} OFFSET ${offset}`,
       params,
     );
+    const countParams: unknown[] = [organizationId];
+    const countWhere = ['"organization_id" = $1', ...readerFilter(reader, countParams)];
     const counts: Array<{ status: string; n: string }> = await this.dataSource.query(
-      `SELECT "status", COUNT(*) AS "n" FROM "ai_anomalies" WHERE "organization_id" = $1 GROUP BY "status"`,
-      [organizationId],
+      `SELECT "status", COUNT(*) AS "n" FROM "ai_anomalies" WHERE ${countWhere.join(' AND ')} GROUP BY "status"`,
+      countParams,
     );
     return {
       total: rows.length ? Number(rows[0].total) : 0,
@@ -77,13 +81,24 @@ export class AnomaliesService {
     };
   }
 
+  /**
+   * Confirm a finding or dismiss it — never one about your own entry.
+   *
+   * Dismissals teach the engine which detectors a company finds noisy, and a quietened detector
+   * stops raising its low findings. Left to anyone, the person whose duplicated bill was flagged
+   * could dismiss it, and five dismissals later the detector would stop looking. So nobody decides
+   * on a finding about a record they created or changed (by the audit trail), nor on one about
+   * themselves.
+   */
   async recordFeedback(
     organizationId: string,
-    userId: string,
+    reader: AnomalyReader,
     anomalyId: string,
     verdict: AiAnomalyVerdict,
     comment: string | null,
   ): Promise<AiAnomaly> {
+    const userId = reader.id;
+    await this.assertMayDecide(organizationId, reader, anomalyId);
     return this.dataSource.transaction(async (manager) => {
       const anomaly = await manager.findOne(AiAnomaly, { where: { id: anomalyId, organizationId } });
       if (!anomaly) throw new NotFoundError('ai.anomaly_not_found', { id: anomalyId });
@@ -104,7 +119,8 @@ export class AnomaliesService {
   }
 
   /** Reopen a finding someone closed by mistake. The feedback history stays as it was. */
-  async reopen(organizationId: string, anomalyId: string): Promise<AiAnomaly> {
+  async reopen(organizationId: string, reader: AnomalyReader, anomalyId: string): Promise<AiAnomaly> {
+    await this.assertMayDecide(organizationId, reader, anomalyId);
     const anomaly = await this.anomalies.findOne({ where: { id: anomalyId, organizationId } });
     if (!anomaly) throw new NotFoundError('ai.anomaly_not_found', { id: anomalyId });
     anomaly.status = 'OPEN';
@@ -119,9 +135,9 @@ export class AnomaliesService {
    * On demand, not for every finding: it costs a credit, and most findings are understood from the
    * evidence alone. Once written it is reused, so asking twice is free.
    */
-  async explain(organizationId: string, userId: string, anomalyId: string): Promise<AiAnomaly> {
-    const anomaly = await this.anomalies.findOne({ where: { id: anomalyId, organizationId } });
-    if (!anomaly) throw new NotFoundError('ai.anomaly_not_found', { id: anomalyId });
+  async explain(organizationId: string, reader: AnomalyReader, anomalyId: string): Promise<AiAnomaly> {
+    const userId = reader.id;
+    const anomaly = await this.visible(organizationId, reader, anomalyId);
     if (anomaly.explanation) return anomaly;
 
     // Written once and kept for everyone who reads the finding: in the language of the company's books.
@@ -142,7 +158,8 @@ export class AnomaliesService {
             severity: anomaly.severity,
             occurredOn: anomaly.occurredOn,
             entityType: anomaly.entityType,
-            evidence: anomaly.evidence,
+            // Who a finding is about is not the model's business: identifiers of people stay here.
+            evidence: withoutPeople(anomaly.evidence),
           }),
         },
       ],
@@ -161,4 +178,49 @@ export class AnomaliesService {
     anomaly.explanation = value.explanation;
     return this.anomalies.save(anomaly);
   }
+
+  /** One finding, if this reader may see it (their branches; the security ones with their permission). */
+  private async visible(organizationId: string, reader: AnomalyReader, anomalyId: string): Promise<AiAnomaly> {
+    const anomaly = await this.anomalies.findOne({ where: { id: anomalyId, organizationId } });
+    const allowed =
+      anomaly &&
+      (anomaly.category !== 'security' || reader.seesSecurity) &&
+      (reader.branches === null || (anomaly.branchId !== null && reader.branches.includes(anomaly.branchId)));
+    if (!anomaly || !allowed) throw new NotFoundError('ai.anomaly_not_found', { id: anomalyId });
+    return anomaly;
+  }
+
+  private async assertMayDecide(organizationId: string, reader: AnomalyReader, anomalyId: string): Promise<void> {
+    const anomaly = await this.visible(organizationId, reader, anomalyId);
+    const aboutThemselves = anomaly.entityType === 'user' && anomaly.entityId === reader.id;
+    const theirEntry = anomaly.entityId ? (await this.audit.actorsOf(organizationId, anomaly.entityId)).includes(reader.id) : false;
+    if (aboutThemselves || theirEntry) throw new ForbiddenError('ai.anomaly_own_entry');
+  }
+}
+
+/** Who is reading the anomaly inbox: their branches, and whether they may see findings about people. */
+export interface AnomalyReader {
+  id: string;
+  /** Branch ids the person is limited to; `null` when they see every branch. */
+  branches: string[] | null;
+  seesSecurity: boolean;
+}
+
+/** The WHERE conditions that keep a reader to what they may see. Pushes its parameters onto `params`. */
+function readerFilter(reader: AnomalyReader, params: unknown[]): string[] {
+  const where: string[] = [];
+  if (!reader.seesSecurity) where.push(`"category" <> 'security'`);
+  if (reader.branches !== null) {
+    params.push(reader.branches);
+    // A finding with no branch is company-wide: not for someone limited to some branches.
+    where.push(`"branch_id" = ANY($${params.length}::uuid[])`);
+  }
+  return where;
+}
+
+const PERSON_KEY = /^(user_?id|userid|actor|by_?user|created_?by|resolved_?by|employee_?id)$/i;
+
+/** The evidence without the identifiers of people (a user id, who did it). */
+export function withoutPeople(evidence: Record<string, unknown> | null | undefined): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(evidence ?? {}).filter(([key]) => !PERSON_KEY.test(key)));
 }

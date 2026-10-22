@@ -24,4 +24,10 @@ export abstract class ChangeAuditPort {
     before: object | null;
     after: object;
   }): Promise<void>;
+
+  /**
+   * Who created or changed a record, by the audit trail: the people a check of that record must not
+   * be left to (a segregation-of-duties rule — no one reviews a finding about their own entry).
+   */
+  abstract actorsOf(organizationId: string, entityId: string): Promise<string[]>;
 }

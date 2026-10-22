@@ -952,18 +952,37 @@ def off_hours_activity(events: pd.DataFrame, timezone: str | None, min_events: i
 SEVERITY_ORDER = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 
 
+# Detectors whose findings are money leaving twice or for nothing. No amount of dismissals quietens
+# them: the person who could dismiss them may be the one who benefits from the payment.
+NEVER_QUIETENED = frozenset({
+    "rule.duplicate_vendor_bill",
+    "rule.duplicate_customer_payment",
+    "rule.vendor_overpayment",
+    "rule.three_way_match",
+})
+
+
 def apply_feedback(findings: list[Finding], feedback: pd.DataFrame, min_votes: int = 5,
-                   dismiss_rate: float = 0.7) -> list[Finding]:
+                   dismiss_rate: float = 0.7, min_people: int = 2) -> list[Finding]:
     """Quieten a detector this tenant keeps dismissing: one severity lower, and LOW findings dropped.
 
-    feedback: detector, verdict ('USEFUL' | 'FALSE_POSITIVE')
+    feedback: detector, verdict ('USEFUL' | 'FALSE_POSITIVE'), user_id
+
+    The dismissals must come from at least ``min_people`` different people — one person cannot
+    teach the engine to stop looking — and the detectors in ``NEVER_QUIETENED`` are never quietened.
     """
     if feedback.empty:
         return findings
-    stats = feedback.groupby("detector")["verdict"].agg(
-        votes="size", dismissed=lambda v: float((v == "FALSE_POSITIVE").mean())
+    if "user_id" not in feedback.columns:
+        feedback = feedback.assign(user_id=None)
+    stats = feedback.groupby("detector").agg(
+        votes=("verdict", "size"),
+        dismissed=("verdict", lambda v: float((v == "FALSE_POSITIVE").mean())),
+        people=("user_id", lambda u: int(u.dropna().nunique())),
     )
-    noisy = set(stats[(stats["votes"] >= min_votes) & (stats["dismissed"] >= dismiss_rate)].index)
+    noisy = set(stats[
+        (stats["votes"] >= min_votes) & (stats["dismissed"] >= dismiss_rate) & (stats["people"] >= min_people)
+    ].index) - NEVER_QUIETENED
     out = []
     for finding in findings:
         if finding.detector in noisy:

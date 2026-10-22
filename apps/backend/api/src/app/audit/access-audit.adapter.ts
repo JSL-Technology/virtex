@@ -48,4 +48,8 @@ export class ChangeAuditAdapter extends ChangeAuditPort {
       change.organizationId,
     );
   }
+
+  actorsOf(organizationId: string, entityId: string): Promise<string[]> {
+    return this.audit.actorsOf(organizationId, entityId);
+  }
 }

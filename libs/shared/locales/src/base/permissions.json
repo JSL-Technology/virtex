@@ -294,6 +294,11 @@
     "en": "View sales reports",
     "pt": "Ver relatórios de vendas"
   },
+  "permissions.actions.view_security": {
+    "es": "Ver hallazgos de seguridad",
+    "en": "View security findings",
+    "pt": "Ver constatações de segurança"
+  },
   "permissions.actions.view_sensitive": {
     "es": "Ver datos sensibles",
     "en": "View sensitive data",

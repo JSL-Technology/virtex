@@ -1109,6 +1109,11 @@
     "en": "Anomaly {{id}} was not found.",
     "pt": "A anomalia {{id}} não foi encontrada."
   },
+  "ai.anomaly_own_entry": {
+    "es": "No puedes confirmar, descartar ni reabrir un hallazgo sobre un registro que creaste o modificaste, ni sobre ti. Otra persona debe revisarlo.",
+    "en": "You cannot confirm, dismiss or reopen a finding about a record you created or changed, or about yourself. Ask someone else to review it.",
+    "pt": "Não pode confirmar, descartar nem reabrir uma constatação sobre um registo que criou ou alterou, nem sobre si. Peça a outra pessoa que a reveja."
+  },
   "ai.answer_incomplete": {
     "es": "La respuesta del asistente quedó incompleta. Inténtalo de nuevo.",
     "en": "The assistant's answer was incomplete. Try again.",
@@ -1563,6 +1568,11 @@
     "es": "Sin nombre",
     "en": "Unnamed",
     "pt": "Sem nome"
+  },
+  "ai.company_wide_only": {
+    "es": "Esta vista abarca toda la empresa y tu acceso está limitado a algunas sucursales.",
+    "en": "This view covers the whole company and your access is limited to some branches.",
+    "pt": "Esta vista abrange toda a empresa e o seu acesso está limitado a algumas filiais."
   },
   "ai.copilot.back": {
     "es": "Volver",

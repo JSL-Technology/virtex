@@ -1,10 +1,12 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CopilotToolRegistry, opt, s } from '../../contracts/copilot/copilot-tools.contract';
 import { AI_PERMISSIONS } from '../../shared/ai.permissions';
+import { hasPermission } from '@virteex/shared/util-auth';
 import { ForecastingService } from '../forecasting/forecasting.service';
 import { AnomaliesService } from '../anomalies/anomalies.service';
 import { HelpService } from '../help/help.service';
 import { CashflowService } from '../cashflow/cashflow.service';
+import { cashflowReader } from '../company-wide';
 import { DataSource } from 'typeorm';
 import { organizationFiscalIdentity } from '../../organizations/contracts/fiscal-identity.contract';
 
@@ -36,7 +38,7 @@ export class AiCopilotTools implements OnModuleInit {
         feature: 'ai_cashflow',
         inputSchema: s.object({}),
         run: async (ctx) => {
-          const { latest, projection } = await this.cashflow.overview(ctx.organizationId);
+          const { latest, projection } = await this.cashflow.overview(ctx.organizationId, cashflowReader(ctx.user.permissions));
           if (!projection) return { available: false, latestRun: latest };
           return {
             available: true,
@@ -93,7 +95,7 @@ export class AiCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'inventory_forecast',
-        branchScope: 'unscoped',
+        branchScope: 'applied',
         externalText: true,
         description:
           'Demand forecast and stock position per product and warehouse from the nightly AI run: on hand, ' +
@@ -114,45 +116,45 @@ export class AiCopilotTools implements OnModuleInit {
             search: opt(input, 'search'),
             sort: (opt<string>(input, 'sort') as 'risk' | 'top_sellers') ?? 'risk',
             limit: Math.min(Math.max(Number(opt(input, 'limit') ?? 20), 1), 50),
-          }),
+          }, ctx.user.branches),
       },
       {
         kind: 'read',
         name: 'forecast_summary',
-        branchScope: 'unscoped',
+        branchScope: 'applied',
         description: 'How many products are in each stock status, and when the last forecast ran and how accurate it was (median WAPE).',
         permissions: [AI_PERMISSIONS.AI_FORECASTS_VIEW],
         feature: 'ai_forecasting',
         inputSchema: s.object({}),
-        run: async (ctx) => this.forecasting.summary(ctx.organizationId),
+        run: async (ctx) => this.forecasting.summary(ctx.organizationId, ctx.user.branches),
       },
       {
         kind: 'read',
         name: 'top_sellers_by_branch',
-        branchScope: 'unscoped',
+        branchScope: 'applied',
         externalText: true,
         description: 'The products projected to sell the most units in the next 30 days, per branch.',
         permissions: [AI_PERMISSIONS.AI_FORECASTS_VIEW],
         feature: 'ai_forecasting',
         inputSchema: s.object({ per_branch: s.integer('1-20') }),
         run: async (ctx, input) =>
-          this.forecasting.topByBranch(ctx.organizationId, Math.min(Math.max(Number(input['per_branch'] ?? 5), 1), 20)),
+          this.forecasting.topByBranch(ctx.organizationId, ctx.user.branches, Math.min(Math.max(Number(input['per_branch'] ?? 5), 1), 20)),
       },
       {
         kind: 'read',
         name: 'supplier_lead_times',
-        branchScope: 'unscoped',
+        branchScope: 'applied',
         externalText: true,
         description: "Each supplier's measured delivery time over the last year: median and P90 days from order to receipt, and the share delivered by the promised date.",
         permissions: [AI_PERMISSIONS.AI_FORECASTS_VIEW],
         feature: 'ai_forecasting',
         inputSchema: s.object({}),
-        run: async (ctx) => (await this.forecasting.supplierLeadTimes(ctx.organizationId)).slice(0, 50),
+        run: async (ctx) => (await this.forecasting.supplierLeadTimes(ctx.organizationId, ctx.user.branches)).slice(0, 50),
       },
       {
         kind: 'read',
         name: 'anomalies',
-        branchScope: 'unscoped',
+        branchScope: 'applied',
         externalText: true,
         description:
           'Unusual transactions the AI flagged (duplicate bills or receipts, sales below cost, overpayments, purchase ' +
@@ -172,6 +174,10 @@ export class AiCopilotTools implements OnModuleInit {
             severity: opt(input, 'severity'),
             category: opt(input, 'category'),
             limit: Math.min(Math.max(Number(opt(input, 'limit') ?? 15), 1), 30),
+          }, {
+            id: ctx.user.id,
+            branches: ctx.user.branches,
+            seesSecurity: hasPermission(ctx.user.permissions, [AI_PERMISSIONS.AI_ANOMALIES_VIEW_SECURITY]),
           }),
       },
     );

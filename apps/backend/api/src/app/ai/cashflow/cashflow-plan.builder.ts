@@ -73,8 +73,8 @@ export class CashflowPlanBuilder implements ReportBuilder, OnModuleInit {
         expectedFromOpenInvoices: money(byComponent['receivables']),
         expectedFromSalesNotYetInvoiced: money(byComponent['new_sales']),
         expectedToOpenBills: money(-Number(byComponent['payables'] ?? 0)),
-        expectedToSpendingNotYetBilled: money(-Number(byComponent['new_spending'] ?? 0)),
-        expectedPayroll: money(-Number(byComponent['payroll'] ?? 0)),
+        // Payroll stays inside other spending: the plan is read company-wide, wages are not.
+        expectedToOtherSpending: money(-Number(byComponent['new_spending'] ?? 0) - Number(byComponent['payroll'] ?? 0)),
         receivablesUnlikelyWithinAMonth: atRisk.map((item) => ({
           customer: item.partyName,
           invoice: item.number,
