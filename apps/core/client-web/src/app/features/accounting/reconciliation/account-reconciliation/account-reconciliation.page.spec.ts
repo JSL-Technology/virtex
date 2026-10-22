@@ -133,11 +133,18 @@ describe('AccountReconciliationPage', () => {
   });
 
   /** Bank accounts, then the statement list, then the three the workbench loads for a statement. */
-  const openStatement = (summary: ReconciliationSummary = balanced, suggestions = [suggestion]) => {
+  const accountSettings = {
+    bankAccountId: 'b1', autoConfirm: false, configuredMinScore: 95, minScore: 96, precision: 0.98, samples: 50,
+    paused: false, pausedAt: null, pausedReason: null, inherits: { autoConfirm: true, minScore: true },
+  };
+
+  const openStatement = (summary: ReconciliationSummary = balanced, suggestions = [suggestion], categories: unknown[] = []) => {
     httpMock.expectOne((c) => c.url === `${API}/reconciliation/settings`).flush({ autoConfirm: false, minScore: 95 });
     httpMock.expectOne((c) => c.url === `${API}/treasury/bank-accounts`).flush([bankAccount]);
+    httpMock.expectOne((c) => c.url === `${API}/reconciliation/bank-accounts/b1/settings`).flush(accountSettings);
     httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements`).flush([statement]);
     httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1`).flush(statement);
+    httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1/categories`).flush(categories);
     httpMock
       .expectOne((c) => c.url === `${API}/reconciliation/statements/s1/summary`)
       .flush(summary);
@@ -151,6 +158,7 @@ describe('AccountReconciliationPage', () => {
   const reload = () => {
     httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1`).flush(statement);
     httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1/summary`).flush(balanced);
+    httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1/categories`).flush([]);
     httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1/suggestions`).flush([]);
   };
 
@@ -265,6 +273,41 @@ describe('AccountReconciliationPage', () => {
     request.flush({ autoConfirm: true, minScore: 95 });
 
     expect(component.settings()?.autoConfirm).toBe(true);
+    httpMock.verify();
+  });
+
+  it('shows the account\'s calibrated threshold, and books a suggested category with one click', () => {
+    fixture.detectChanges();
+    openStatement(balanced, [], [
+      { bankTransactionId: 't1', accountId: 'a-fees', accountCode: '5210', accountName: { es: 'Comisiones bancarias' }, probability: 0.92, support: 7, evidence: ['comision'] },
+    ]);
+    const text: string = fixture.nativeElement.textContent;
+    expect(text).toContain('accounting.reconciliation.calibration');
+    expect(fixture.nativeElement.querySelector('.category-hint')).toBeTruthy();
+
+    component.applyCategory(component.categories().get('t1')!);
+    const request = httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1/transactions/t1/categorize` && c.method === 'POST');
+    expect(request.request.body).toEqual({ accountId: 'a-fees' });
+    request.flush({ matchId: 'm1' });
+    reload();
+    httpMock.verify();
+  });
+
+  it('undoes what was matched without a person, and resumes a paused account', () => {
+    fixture.detectChanges();
+    openStatement();
+    component.undoAutomatic();
+    httpMock.expectOne((c) => c.url === `${API}/reconciliation/statements/s1/undo-automatic` && c.method === 'POST').flush({ undone: 3 });
+    httpMock.expectOne((c) => c.url === `${API}/reconciliation/bank-accounts/b1/settings`).flush({ ...accountSettings, paused: true });
+    reload();
+    expect(component.lastUndone()).toBe(3);
+    expect(component.accountSettings()?.paused).toBe(true);
+
+    component.resumeAccount();
+    const resume = httpMock.expectOne((c) => c.url === `${API}/reconciliation/bank-accounts/b1/settings` && c.method === 'PATCH');
+    expect(resume.request.body).toEqual({ resume: true });
+    resume.flush(accountSettings);
+    expect(component.accountSettings()?.paused).toBe(false);
     httpMock.verify();
   });
 });

@@ -7,7 +7,10 @@ function load(name: string): unknown {
 }
 
 /**
- * The evaluation cases (H-A5): versioned with the code, by feature, country and language. A
+ * The evaluation cases (H-A5). This folder sits outside `src/app` on purpose: it exercises the
+ * prompts of several business modules (purchases, collections, the assistant) as one product, so
+ * it belongs to none of them and is not part of the built API.
+ *: versioned with the code, by feature, country and language. A
  * prompt change is judged against them before it ships; a new market adds its cases here.
  */
 export type EvalCountry = 'DO' | 'MX' | 'US';

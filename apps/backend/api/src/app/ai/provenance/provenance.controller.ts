@@ -18,7 +18,7 @@ const READ_PERMISSION: Record<string, string> = {
   vendor_bill: PERMISSIONS.ACCOUNTS_PAYABLE_VIEW,
   collection_draft: PERMISSIONS.AI_COLLECTIONS_VIEW,
   sales_order: PERMISSIONS.INVOICES_VIEW,
-  bank_statement_line: PERMISSIONS.ACCOUNTS_PAYABLE_VIEW,
+  reconciliation_match: PERMISSIONS.RECONCILIATION_VIEW,
 };
 
 /**

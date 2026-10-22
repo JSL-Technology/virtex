@@ -1,6 +1,6 @@
 name: AI evaluation
 
-# The AI features measured against their versioned cases (apps/backend/api/src/app/ai/evaluation):
+# The AI features measured against their versioned cases (apps/backend/api/src/ai-evaluation):
 # supplier documents of each market, the assistant's answers, injection attempts and the texts
 # written from facts — through the real gateway and the production prompts. It calls the model
 # provider and costs money, so it runs on demand and weekly, not on every push; the cases and the

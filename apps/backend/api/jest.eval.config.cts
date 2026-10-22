@@ -1,5 +1,5 @@
 /**
- * The AI evaluation run (`npm run ai:eval`): the cases in src/app/ai/evaluation against the real
+ * The AI evaluation run (`npm run ai:eval`): the cases in src/ai-evaluation against the real
  * model. Separate from the unit suite because it calls the provider, costs money and needs a key;
  * without ANTHROPIC_API_KEY it skips.
  */
@@ -9,5 +9,5 @@ module.exports = {
   ...base,
   displayName: 'api-ai-eval',
   globalSetup: undefined,
-  testMatch: ['<rootDir>/src/app/ai/evaluation/**/*.eval.ts'],
+  testMatch: ['<rootDir>/src/ai-evaluation/**/*.eval.ts'],
 };

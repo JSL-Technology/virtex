@@ -2150,6 +2150,26 @@
     "en": "Open",
     "pt": "Aberto"
   },
+  "accounting.reconciliation.account_auto_confirm": {
+    "es": "Confirmar sin una persona en esta cuenta",
+    "en": "Confirm without a person on this account",
+    "pt": "Confirmar sem uma pessoa nesta conta"
+  },
+  "accounting.reconciliation.account_auto_confirm_inherit": {
+    "es": "Como dice la empresa",
+    "en": "As the company says",
+    "pt": "Como diz a empresa"
+  },
+  "accounting.reconciliation.account_auto_confirm_off": {
+    "es": "No",
+    "en": "No",
+    "pt": "Não"
+  },
+  "accounting.reconciliation.account_auto_confirm_on": {
+    "es": "Sí",
+    "en": "Yes",
+    "pt": "Sim"
+  },
   "accounting.reconciliation.adjusted_balance_per_bank": {
     "es": "Saldo ajustado según el banco",
     "en": "Adjusted balance per the bank",
@@ -2200,6 +2220,11 @@
     "en": "Only at a score of {{score}} or more with a single clear candidate.",
     "pt": "Apenas com pontuação {{score}} ou mais e um único candidato claro."
   },
+  "accounting.reconciliation.automatic_undone": {
+    "es": "Se deshicieron {{count}} conciliaciones automáticas.",
+    "en": "{{count}} automatic matches were undone.",
+    "pt": "Foram desfeitas {{count}} conciliações automáticas."
+  },
   "accounting.reconciliation.balance_per_bank": {
     "es": "Saldo según el banco",
     "en": "Balance per the bank",
@@ -2219,6 +2244,26 @@
     "es": "Conciliación bancaria",
     "en": "Bank reconciliation",
     "pt": "Conciliação bancária"
+  },
+  "accounting.reconciliation.calibration": {
+    "es": "Umbral calibrado: {{score}}. Se mantuvo el {{precision}} de {{samples}} conciliaciones automáticas.",
+    "en": "Calibrated threshold: {{score}}. {{precision}} of {{samples}} automatic matches were kept.",
+    "pt": "Limiar calibrado: {{score}}. Manteve-se {{precision}} de {{samples}} conciliações automáticas."
+  },
+  "accounting.reconciliation.calibration_none": {
+    "es": "Umbral: {{score}} (aún sin historial para calibrarlo).",
+    "en": "Threshold: {{score}} (no history yet to calibrate it).",
+    "pt": "Limiar: {{score}} (ainda sem histórico para o calibrar)."
+  },
+  "accounting.reconciliation.category_apply": {
+    "es": "Contabilizar",
+    "en": "Book it",
+    "pt": "Contabilizar"
+  },
+  "accounting.reconciliation.category_suggested": {
+    "es": "Sugerido: {{account}} ({{probability}})",
+    "en": "Suggested: {{account}} ({{probability}})",
+    "pt": "Sugerido: {{account}} ({{probability}})"
   },
   "accounting.reconciliation.choose_bank_account": {
     "es": "Selecciona una cuenta bancaria",
@@ -2475,6 +2520,16 @@
     "en": "The operation could not be completed.",
     "pt": "Não foi possível concluir a operação."
   },
+  "accounting.reconciliation.paused": {
+    "es": "En pausa",
+    "en": "Paused",
+    "pt": "Em pausa"
+  },
+  "accounting.reconciliation.paused_hint": {
+    "es": "Se deshicieron demasiadas conciliaciones automáticas de esta cuenta; ahora todo espera a una persona.",
+    "en": "Too many automatic matches on this account were undone; everything now waits for a person.",
+    "pt": "Foram desfeitas demasiadas conciliações automáticas desta conta; agora tudo espera por uma pessoa."
+  },
   "accounting.reconciliation.proof": {
     "es": "Cuadre",
     "en": "Proof",
@@ -2504,6 +2559,11 @@
     "es": "Reabrir",
     "en": "Reopen",
     "pt": "Reabrir"
+  },
+  "accounting.reconciliation.resume": {
+    "es": "Reanudar",
+    "en": "Resume",
+    "pt": "Retomar"
   },
   "accounting.reconciliation.safe_applied": {
     "es": "Se confirmaron {{count}} emparejamientos seguros. Cada uno se puede deshacer.",
@@ -2554,6 +2614,16 @@
     "es": "Deshacer",
     "en": "Undo",
     "pt": "Desfazer"
+  },
+  "accounting.reconciliation.undo_automatic": {
+    "es": "Deshacer automáticas",
+    "en": "Undo automatic matches",
+    "pt": "Desfazer automáticas"
+  },
+  "accounting.reconciliation.undo_automatic_hint": {
+    "es": "Deshace las conciliaciones que el sistema hizo sin una persona en este estado de cuenta. La cuenta aprende de ello y sube su umbral.",
+    "en": "Undoes the matches the system made without a person on this statement. The account learns from it and raises its threshold.",
+    "pt": "Desfaz as conciliações que o sistema fez sem uma pessoa neste extrato. A conta aprende com isso e sobe o seu limiar."
   },
   "accounting.retained_earnings_account_not_configured_organization": {
     "es": "La cuenta de Resultados del Ejercicio (Ganancias Retenidas) no está configurada para la organización.",

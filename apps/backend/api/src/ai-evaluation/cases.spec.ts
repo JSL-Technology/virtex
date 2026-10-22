@@ -1,6 +1,6 @@
 import { BILL_CAPTURE_CASES, COPILOT_CASES, INJECTION_CASES, NARRATIVE_CASES } from './cases';
-import { checkSupplierTaxId } from '../../localization/fiscal/purchase-capture-profile';
-import { checkReceivedDocument } from '../../localization/fiscal/received-document';
+import { checkSupplierTaxId } from '../app/localization/fiscal/purchase-capture-profile';
+import { checkReceivedDocument } from '../app/localization/fiscal/received-document';
 import { numbersOf } from './graders';
 
 /**

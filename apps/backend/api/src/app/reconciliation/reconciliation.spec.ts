@@ -1036,4 +1036,76 @@ describeWithDb('bank reconciliation', () => {
       expect(summary.difference).toBe(0);
     });
   });
+
+  describe('confirming on its own, and learning from what people undo', () => {
+    it('labels what it matched alone, and pauses the account when people undo it all', async () => {
+      const lines = ['Fecha,Concepto,Entrada,Salida'];
+      for (let i = 1; i <= 20; i++) {
+        const amount = 1000 + i;
+        await postToBank(`2026-03-${String(i).padStart(2, '0')}`, amount, `Cobro ${i}`);
+        lines.push(`${String(i).padStart(2, '0')}/03/2026,Deposito ${i},${amount}.00,`);
+      }
+      const statement = await importCsv(lines.join('\n'), { endingBalance: 20 * 1000 + 210 });
+
+      const outcomes = await dataSource.query(`SELECT score, undone_at FROM reconciliation_auto_outcomes WHERE statement_id = $1`, [statement.id]);
+      expect(outcomes).toHaveLength(20);
+      const labelled = await dataSource.query(
+        `SELECT count(*)::int AS n FROM ai_record_provenance WHERE organization_id = $1 AND source = 'AI_RECONCILIATION'`,
+        [organizationId],
+      );
+      expect(labelled[0].n).toBe(20);
+      expect((await reconciliation.effectiveSettings(organizationId, bankAccountId)).paused).toBe(false);
+
+      // A person undoes everything it did: every one counts against it, and the account stops.
+      expect(await reconciliation.undoAutomatic(statement.id, organizationId, ACTOR)).toEqual({ undone: 20 });
+      const effective = await reconciliation.effectiveSettings(organizationId, bankAccountId);
+      expect(effective).toMatchObject({ paused: true, pausedReason: 'undo_rate', samples: 20, precision: 0 });
+      expect(await reconciliation.applyRules(statement.id, organizationId, ACTOR)).toEqual({ matched: 0, created: 0 });
+
+      // A person resumes it.
+      await reconciliation.updateAccountSettings(organizationId, bankAccountId, { resume: true }, ACTOR);
+      expect((await reconciliation.effectiveSettings(organizationId, bankAccountId)).paused).toBe(false);
+    });
+
+    it('suggests the account an unexplained bank line belongs to, from how the company booked its like', async () => {
+      const rule = await reconciliation.createRule(
+        {
+          name: 'Comisiones',
+          conditionField: RuleConditionField.DESCRIPTION,
+          conditionOperator: RuleConditionOperator.CONTAINS,
+          conditionValue: 'comision',
+          direction: RuleDirection.MONEY_OUT,
+          action: RuleAction.CREATE_ENTRY,
+          targetAccountId: account['fees'],
+        } as never,
+        organizationId,
+      );
+      await importCsv(
+        ['Fecha,Concepto,Entrada,Salida', '02/03/2026,Comision manejo ahorros,,150.00', '05/03/2026,Comision manejo ahorros,,151.00', '09/03/2026,Comision manejo ahorros,,152.00'].join('\n'),
+        { endDate: '2026-03-15', endingBalance: -453 },
+      );
+      await reconciliation.deleteRule(rule.id, organizationId);
+
+      const statement = await importCsv(['Fecha,Concepto,Entrada,Salida', '20/03/2026,Cargo manejo ahorros marzo,,155.00'].join('\n'), {
+        startDate: '2026-03-16',
+        endingBalance: -155,
+      });
+      const [suggestion] = await reconciliation.categorySuggestions(statement.id, organizationId);
+      expect(suggestion).toMatchObject({ accountId: account['fees'], support: 3 });
+      expect(suggestion.probability).toBeGreaterThan(0.6);
+
+      await reconciliation.applyCategory(statement.id, suggestion.bankTransactionId, account['fees'], organizationId, ACTOR, {
+        probability: suggestion.probability,
+        suggestedAccountId: suggestion.accountId,
+      });
+      const [line] = await dataSource.getRepository(BankTransaction).find({ where: { statementId: statement.id } });
+      expect(line.status).toBe(TransactionStatus.MATCHED);
+      const [record] = await dataSource.query(`SELECT fields FROM ai_record_provenance WHERE organization_id = $1 AND source = 'AI_RECONCILIATION'`, [organizationId]);
+      expect(record.fields).toEqual({ accepted: ['accountId'], edited: [] });
+      // Booked once: asking again for the same line is refused, not posted twice.
+      await expect(
+        reconciliation.applyCategory(statement.id, suggestion.bankTransactionId, account['fees'], organizationId, ACTOR, null),
+      ).rejects.toMatchObject({ messageKey: 'reconciliation.transaction_not_unmatched' });
+    });
+  });
 });

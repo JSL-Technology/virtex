@@ -167,6 +167,33 @@ export interface ReconciliationMatch {
   notes: string | null;
 }
 
+/** One bank account's settings in effect, with the threshold calibrated from what people undid. */
+export interface AccountReconciliationSettings {
+  bankAccountId: string;
+  autoConfirm: boolean;
+  configuredMinScore: number;
+  /** The score a match needs now, for this account, after calibration. */
+  minScore: number;
+  /** Share of the matches confirmed without a person that people kept; null without history. */
+  precision: number | null;
+  samples: number;
+  paused: boolean;
+  pausedAt: string | null;
+  pausedReason: string | null;
+  inherits: { autoConfirm: boolean; minScore: boolean };
+}
+
+/** The account an unexplained bank line most likely belongs to, learned from the company's history. */
+export interface CategorySuggestion {
+  bankTransactionId: string;
+  accountId: string;
+  accountCode: string;
+  accountName: string | Record<string, string>;
+  probability: number;
+  support: number;
+  evidence: string[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class ReconciliationApiService {
   private readonly http = inject(HttpClient);
@@ -203,6 +230,31 @@ export class ReconciliationApiService {
 
   updateSettings(changes: Partial<ReconciliationSettings>): Observable<ReconciliationSettings> {
     return this.http.patch<ReconciliationSettings>(`${this.apiUrl}/settings`, changes);
+  }
+
+  accountSettings(bankAccountId: string): Observable<AccountReconciliationSettings> {
+    return this.http.get<AccountReconciliationSettings>(`${this.apiUrl}/bank-accounts/${bankAccountId}/settings`);
+  }
+
+  updateAccountSettings(
+    bankAccountId: string,
+    changes: { autoConfirm?: boolean | null; minScore?: number | null; resume?: boolean },
+  ): Observable<AccountReconciliationSettings> {
+    return this.http.patch<AccountReconciliationSettings>(`${this.apiUrl}/bank-accounts/${bankAccountId}/settings`, changes);
+  }
+
+  /** Undo every match of the statement confirmed without a person. */
+  undoAutomatic(id: string): Observable<{ undone: number }> {
+    return this.http.post<{ undone: number }>(`${this.apiUrl}/statements/${id}/undo-automatic`, {});
+  }
+
+  categories(id: string): Observable<CategorySuggestion[]> {
+    return this.http.get<CategorySuggestion[]>(`${this.apiUrl}/statements/${id}/categories`);
+  }
+
+  /** Book an unexplained bank line to an account (the entry the books were missing) and match it. */
+  categorize(id: string, transactionId: string, accountId: string): Observable<{ matchId: string }> {
+    return this.http.post<{ matchId: string }>(`${this.apiUrl}/statements/${id}/transactions/${transactionId}/categorize`, { accountId });
   }
 
   /** Confirm every `safe` suggestion of the statement at once. */

@@ -6,11 +6,11 @@ import {
   captureSchema,
   marketBrief,
   parseExtractedBill,
-} from '../../accounts-payable/bill-capture.service';
-import { purchaseCaptureProfile } from '../../localization/contracts/purchase-capture.contract';
-import { ANOMALY_NARRATIVE_SYSTEM, withoutPeople } from '../anomalies/anomalies.service';
-import { REMINDER_SYSTEM, REMINDER_TONES } from '../../collections/reminder-prompt';
-import { booksLanguageName } from '../language';
+} from '../app/accounts-payable/bill-capture.service';
+import { purchaseCaptureProfile } from '../app/localization/contracts/purchase-capture.contract';
+import { ANOMALY_NARRATIVE_SYSTEM, withoutPeople } from '../app/ai/anomalies/anomalies.service';
+import { REMINDER_SYSTEM, REMINDER_TONES } from '../app/collections/reminder-prompt';
+import { booksLanguageName } from '../app/ai/language';
 import { BillCaptureCase, BILL_CAPTURE_CASES, COPILOT_CASES, CopilotCase, INJECTION_CASES, NARRATIVE_CASES } from './cases';
 import { Grade, grade, gradeExtraction, inventedNumbers, languageOf, mentions, numbersIn } from './graders';
 import { evalCopilot, evalGateway, evalSettings, evalUser } from './harness';

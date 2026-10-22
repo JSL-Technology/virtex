@@ -24,6 +24,7 @@ import { ReconciliationService } from './reconciliation.service';
 import { ReconciliationAssistService } from './reconciliation-assist.service';
 import { MatchOrigin } from './entities/reconciliation-match.entity';
 import { ReconciliationSettingsDto } from './dto/reconciliation-settings.dto';
+import { ApplyCategoryDto, ReconciliationAccountSettingsDto } from './dto/reconciliation-autopilot.dto';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { spooledUploadPath } from '../common/interfaces/fastify-file.interface';
 import { readFile } from 'fs/promises';
@@ -92,6 +93,61 @@ export class ReconciliationController {
     const bytes = file.buffer ?? (spooled ? await readFile(spooled) : null);
     if (!bytes?.length) throw new BadRequestError('reconciliation.uploaded_file_empty_could_not_read');
     return this.assist.proposeMapping(user.organizationId, user.id, bytes);
+  }
+
+  @Get('bank-accounts/:bankAccountId/settings')
+  @HasPermission(PERMISSIONS.RECONCILIATION_VIEW)
+  @ApiOperation({ summary: "One account's settings in effect: confirmed without a person or not, the calibrated threshold, and whether it is paused." })
+  accountSettings(@Param('bankAccountId', UuidParamPipe) bankAccountId: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.reconciliation.effectiveSettings(user.organizationId, bankAccountId);
+  }
+
+  @Patch('bank-accounts/:bankAccountId/settings')
+  @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)
+  @ApiOperation({ summary: "Set one account's own settings, or resume it after a pause." })
+  updateAccountSettings(
+    @Param('bankAccountId', UuidParamPipe) bankAccountId: string,
+    @Body() dto: ReconciliationAccountSettingsDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.reconciliation.updateAccountSettings(user.organizationId, bankAccountId, dto, user.id);
+  }
+
+  @Post('statements/:id/undo-automatic')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)
+  @ApiOperation({ summary: 'Undo every match of the statement confirmed without a person.' })
+  undoAutomatic(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.reconciliation.undoAutomatic(id, user.organizationId, user.id);
+  }
+
+  @Get('statements/:id/categories')
+  @HasPermission(PERMISSIONS.RECONCILIATION_VIEW)
+  @ApiOperation({ summary: 'For bank lines with nothing to match, the account they most likely belong to (learned from this company).' })
+  categories(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.reconciliation.categorySuggestions(id, user.organizationId);
+  }
+
+  @Post('statements/:id/transactions/:transactionId/categorize')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)
+  @ApiOperation({ summary: 'Book an unexplained bank line to an account, and match it.' })
+  async categorize(
+    @Param('id', UuidParamPipe) id: string,
+    @Param('transactionId', UuidParamPipe) transactionId: string,
+    @Body() dto: ApplyCategoryDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    // What was suggested is worked out here, not taken from the client: it is what the record keeps.
+    const suggestion = (await this.reconciliation.categorySuggestions(id, user.organizationId)).find((item) => item.bankTransactionId === transactionId);
+    return this.reconciliation.applyCategory(
+      id,
+      transactionId,
+      dto.accountId,
+      user.organizationId,
+      user.id,
+      suggestion ? { probability: suggestion.probability, suggestedAccountId: suggestion.accountId } : null,
+    );
   }
 
   @Post('statements/:id/apply-safe')
@@ -325,7 +381,7 @@ export class ReconciliationController {
     @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.reconciliation.unmatch(id, user.organizationId);
+    return this.reconciliation.unmatch(id, user.organizationId, user.id);
   }
 
   @Post('transactions/:id/exclude')

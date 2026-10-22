@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
-import { envValidation } from '../../config/env.validation';
-import { AiGatewayService } from '../gateway/ai-gateway.service';
-import { CopilotService } from '../copilot/copilot.service';
-import { CopilotToolRegistry, CopilotUser, s } from '../../contracts/copilot/copilot-tools.contract';
-import { fakeTenantDataSource } from '../../shared/tenancy/testing';
+import { envValidation } from '../app/config/env.validation';
+import { AiGatewayService } from '../app/ai/gateway/ai-gateway.service';
+import { CopilotService } from '../app/ai/copilot/copilot.service';
+import { CopilotToolRegistry, CopilotUser, s } from '../app/contracts/copilot/copilot-tools.contract';
+import { fakeTenantDataSource } from '../app/shared/tenancy/testing';
 
 /** The deployment's AI settings, from the environment, with the same defaults the API boots with. */
 const AI_KEYS = [
