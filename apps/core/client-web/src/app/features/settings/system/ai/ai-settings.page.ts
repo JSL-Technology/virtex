@@ -8,6 +8,7 @@ import { HasPermissionDirective } from '../../../../shared/directives/has-permis
 import { NotificationService } from '../../../../core/services/notification';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { AiAgentsPanelComponent } from '../../../ai/agents/agents-panel.component';
+import { AiPolicyPanelComponent } from '../../../ai/policy/ai-policy-panel.component';
 
 type Availability = 'available' | 'not_in_plan' | 'provider_missing';
 
@@ -26,12 +27,13 @@ interface FeatureUsage {
  * not, whether it is the plan or the server; how many of the plan's credits are gone; what each
  * feature cost this month (an estimate from list prices, recorded with every call); how the last
  * forecasting and anomaly runs went, with their measured accuracy; and what is waiting for
- * someone. Everything is read from `GET /ai/overview`; nothing here changes a setting.
+ * someone. Read from `GET /ai/overview`. What the company allows — switching the AI or a feature
+ * off, what is sent unasked, the budget, retention — is the policy panel (`GET/PUT /ai/settings`).
  */
 @Component({
   selector: 'app-ai-settings-page',
   standalone: true,
-  imports: [TranslateModule, RouterLink, HasPermissionDirective, ...FORMAT_PIPES, AiAgentsPanelComponent],
+  imports: [TranslateModule, RouterLink, HasPermissionDirective, ...FORMAT_PIPES, AiAgentsPanelComponent, AiPolicyPanelComponent],
   templateUrl: './ai-settings.page.html',
   styleUrls: ['./ai-settings.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

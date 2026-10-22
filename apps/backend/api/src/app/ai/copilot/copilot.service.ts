@@ -19,6 +19,11 @@ import { EntitlementsPort } from '../../saas/contracts/entitlements.contract';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
 import { withTenant } from '../../shared/tenancy/tenant-job';
 import { organizationMarket } from '../../organizations/contracts/market.contract';
+import { AiSettingsService } from '../settings/ai-settings.service';
+import { historyForModel, maskIdentifiers } from './copilot-history';
+
+/** Tools whose purpose is finding a party by its identifier: their results are not masked. */
+const IDENTIFIER_SEARCH_TOOLS = new Set(['search_customers', 'search_suppliers']);
 
 /** What a proposal stays confirmable for. An old preview may no longer be what would be created. */
 const PROPOSAL_TTL_MS = 24 * 60 * 60 * 1000;
@@ -107,6 +112,7 @@ export class CopilotService {
     @InjectRepository(AiPendingAction) private readonly actions: Repository<AiPendingAction>,
     @InjectRepository(AiChart) private readonly charts: Repository<AiChart>,
     private readonly dataSource: DataSource,
+    private readonly settings: AiSettingsService,
   ) {}
 
   // ── Conversations ────────────────────────────────────────────────────────────
@@ -128,6 +134,41 @@ export class CopilotService {
   async remove(user: CopilotUser, id: string): Promise<void> {
     const conversation = await this.owned(user, id);
     await this.conversations.delete({ id: conversation.id, organizationId: user.organizationId });
+  }
+
+  /**
+   * Everything the copilot keeps about this person in this company, readable: each conversation's
+   * visible transcript (questions and answers, the tools behind them), the proposals made and what
+   * became of them. What a person is entitled to take with them.
+   */
+  async exportAll(user: CopilotUser) {
+    const conversations = await this.conversations.find({
+      where: { organizationId: user.organizationId, userId: user.id },
+      order: { createdAt: 'ASC' },
+    });
+    const exported = [];
+    for (const conversation of conversations) {
+      exported.push({
+        id: conversation.id,
+        title: conversation.title,
+        createdAt: conversation.createdAt,
+        updatedAt: conversation.updatedAt,
+        ...(await this.transcript(user, conversation.id)),
+        conversation: undefined,
+      });
+    }
+    const proposals = await this.actions.find({ where: { organizationId: user.organizationId, userId: user.id }, order: { createdAt: 'ASC' } });
+    return { exportedAt: new Date().toISOString(), conversations: exported, proposals: proposals.map(publicAction) };
+  }
+
+  /**
+   * Deletes every conversation of this person in this company — and what the tools read in them.
+   * The proposals stay, without their conversation: they are the record of what the AI offered and
+   * what was decided, which the company keeps.
+   */
+  async removeAll(user: CopilotUser): Promise<{ deleted: number }> {
+    const result = await this.conversations.delete({ organizationId: user.organizationId, userId: user.id });
+    return { deleted: result.affected ?? 0 };
   }
 
   /** The visible transcript: user text, assistant text, the tools behind each answer, proposals. */
@@ -179,7 +220,7 @@ export class CopilotService {
     if (!message) throw new BadRequestError('ai.copilot.empty_message');
     if (message.length > MAX_MESSAGE_CHARS) throw new BadRequestError('ai.copilot.message_too_long');
 
-    const { conversation, stored, outcomes, market, tools } = await this.scoped(user, async () => {
+    const { conversation, stored, outcomes, market, settings, tools } = await this.scoped(user, async () => {
       const conversation = await this.owned(user, conversationId);
       const stored = await this.messages.find({
         where: { conversationId: conversation.id, organizationId: user.organizationId },
@@ -189,9 +230,15 @@ export class CopilotService {
       // a draft the person already created (or declined).
       const outcomes = await this.unreportedDecisions(user, conversation.id);
       const market = await organizationMarket(this.dataSource.manager, user.organizationId);
-      return { conversation, stored, outcomes, market, tools: await this.toolsFor(user) };
+      const settings = await this.settings.get(user.organizationId);
+      return { conversation, stored, outcomes, market, settings, tools: await this.toolsFor(user) };
     });
-    const history = stored.map((row) => ({ role: row.role, content: row.content }) as Anthropic.Beta.Messages.BetaMessageParam);
+    // What was read long ago, or under a permission since withdrawn, is not sent again (see
+    // `historyForModel`); the stored rows keep the full record.
+    const history = historyForModel(
+      stored.map((row) => ({ role: row.role, content: row.content }) as Anthropic.Beta.Messages.BetaMessageParam),
+      new Set(tools.map((tool) => tool.name)),
+    );
     const today = new Date().toISOString().slice(0, 10);
     const userTurn: Anthropic.Beta.Messages.BetaMessageParam = {
       role: 'user',
@@ -214,6 +261,7 @@ export class CopilotService {
 
     const result = await this.gateway.converse({
       feature: 'copilot',
+      promptId: 'copilot.system',
       organizationId: user.organizationId,
       userId: user.id,
       system: COPILOT_SYSTEM_PROMPT,
@@ -256,7 +304,9 @@ export class CopilotService {
         toolsUsed.add(name);
         if (tool.kind === 'read') {
           const data = await tool.run(context, input);
-          return { content: truncate(JSON.stringify(data ?? null)) };
+          // Identifiers leave the platform masked unless finding a party by one is the tool's purpose.
+          const sent = settings.maskIdentifiers && !IDENTIFIER_SEARCH_TOOLS.has(tool.name) ? maskIdentifiers(data) : data;
+          return { content: truncate(JSON.stringify(sent ?? null)) };
         }
         const proposal = await tool.propose(context, input);
         const action = await this.actions.save(

@@ -5,6 +5,7 @@ import { IsString, MaxLength, MinLength } from 'class-validator';
 import { PassThrough } from 'node:stream';
 import type { FastifyReply } from 'fastify';
 import { HasPermission } from '../../security/decorators/permissions.decorator';
+import { AuthenticatedOnly } from '../../security/decorators/authenticated-only.decorator';
 import { CurrentUser } from '../../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../security/principal';
 import { PERMISSIONS } from '../../shared/permissions';
@@ -19,6 +20,7 @@ import { loadBranchScope } from '../../organizations/contracts/branch.contract';
 import { ShortLivedConnections } from '../../shared/tenancy/short-lived-connections.decorator';
 import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { DataSource } from 'typeorm';
+import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../../shared/rate-limit/tenant-rate-limit.guard';
 
 export class CopilotMessageDto {
   @IsString({ message: 'validation.constraints.is_string' })
@@ -88,6 +90,8 @@ export class CopilotController {
     return this.copilot.remove(await asCopilotUser(this.dataSource, user), id);
   }
 
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('conversations/:id/messages')
   @ShortLivedConnections()
   @UseGuards(ThrottlerGuard)
@@ -174,5 +178,33 @@ export class CopilotController {
   @HttpCode(HttpStatus.OK)
   async reject(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
     return this.copilot.reject(await asCopilotUser(this.dataSource, user), id);
+  }
+}
+
+/**
+ * A person's own copilot data, theirs to take or erase: available to anyone signed in, whatever
+ * their role or their company's plan today — losing the permission or the plan must not trap the
+ * data the copilot kept about them. Only the caller's own conversations, in the company they act in.
+ */
+@ApiTags('AI')
+@ApiBearerAuth()
+@Controller('ai/copilot/my-data')
+@AuthenticatedOnly("A person's own conversations; the service reads and deletes only rows with the caller's user and organization.")
+export class CopilotDataController {
+  constructor(
+    private readonly copilot: CopilotService,
+    private readonly dataSource: DataSource,
+  ) {}
+
+  @Get()
+  @ApiOperation({ summary: 'Everything the copilot keeps about the caller in this company: conversations and proposals.' })
+  async export(@CurrentUser() user: AuthenticatedUser) {
+    return this.copilot.exportAll(await asCopilotUser(this.dataSource, user));
+  }
+
+  @Delete()
+  @ApiOperation({ summary: "Delete all of the caller's conversations in this company. Proposals are kept as the record of what was decided." })
+  async remove(@CurrentUser() user: AuthenticatedUser) {
+    return this.copilot.removeAll(await asCopilotUser(this.dataSource, user));
   }
 }

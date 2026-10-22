@@ -36,6 +36,11 @@
         <li class="cp__muted">{{ 'ai.copilot.no_history' | translate }}</li>
       }
     </ul>
+    <div class="cp__my-data">
+      <p class="cp__muted">{{ 'ai.copilot.my_data_help' | translate }}</p>
+      <button type="button" class="btn-secondary" (click)="downloadMyData()">{{ 'ai.copilot.download_my_data' | translate }}</button>
+      <button type="button" class="btn-secondary" (click)="deleteMyData()">{{ 'ai.copilot.delete_all' | translate }}</button>
+    </div>
   } @else {
     <div class="cp__messages" #scroller aria-live="polite">
       @if (unavailable(); as reason) {

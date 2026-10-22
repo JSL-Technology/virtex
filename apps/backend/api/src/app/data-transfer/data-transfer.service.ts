@@ -12,7 +12,7 @@ import {
   DataTransferDataset,
 } from '../contracts/data-transfer/data-transfer.contract';
 import { DataTransferRegistry } from '../contracts/data-transfer/data-transfer.registry';
-import { AiAssistPort } from '../contracts/ai/ai-assist.contract';
+import { AiAssistPort, SAMPLE_ROWS_SENT, redactSampleCell } from '../contracts/ai/ai-assist.contract';
 import { applyMapping, ColumnMapping, deterministicMapping, missingRequired } from './column-mapping';
 import { BadRequestError, ForbiddenError, NotFoundError, isLocalizedError } from '../i18n/localized.exception';
 import { I18nService } from '../i18n/i18n.service';
@@ -183,6 +183,7 @@ export class DataTransferService {
       try {
         const { value } = await this.ai.extract<Record<string, string | null>>({
           feature: 'column_mapping',
+          promptId: 'data_transfer.column_mapping',
           organizationId: user.organizationId,
           userId: user.id,
           system: MAPPING_SYSTEM,
@@ -194,7 +195,10 @@ export class DataTransferService {
                   dataset: dataset.id,
                   fields: dataset.columns.filter((column) => free.includes(column.key)).map((column) => ({ key: column.key, required: !!column.required, example: column.example ?? null })),
                   headers: unmatched,
-                  sampleRows: sample.map((row) => Object.fromEntries(unmatched.map((header) => [header, String(row[header] ?? '').slice(0, 80)]))),
+                  // The shape of each column, not its content (see `redactSampleCell`).
+                  sampleRows: sample
+                    .slice(0, SAMPLE_ROWS_SENT)
+                    .map((row) => Object.fromEntries(unmatched.map((header) => [header, redactSampleCell(String(row[header] ?? '').slice(0, 80))]))),
                 },
                 null,
                 2,

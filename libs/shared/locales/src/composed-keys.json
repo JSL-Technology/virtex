@@ -140,6 +140,16 @@
       "not_in_plan",
       "provider_missing"
     ],
+    "ai.policy.feature": [
+      "anomaly_narrative",
+      "bill_capture",
+      "column_mapping",
+      "compose",
+      "copilot",
+      "deep_analysis",
+      "product_vision",
+      "reconcile_ambiguous"
+    ],
     "ai.admin.usage_feature": [
       "anomaly_narrative",
       "bill_capture",

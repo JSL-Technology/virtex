@@ -189,6 +189,21 @@ export const envValidation = Joi.object({
   AI_MODEL_VISION: Joi.string().default('claude-opus-5-5'),
   AI_MODEL_NARRATIVE: Joi.string().default('claude-opus-5-5'),
   AI_MODEL_DEEP_ANALYSIS: Joi.string().default('claude-fable-5-1'),
+  /**
+   * The copilot's own model, and the one for short classification tasks (mapping a file's columns,
+   * choosing between two bank matches). They default to the models those features used before, so
+   * a deployment changes nothing until it chooses to; the evaluation suite (tools/ai-evals) is what
+   * shows whether a smaller model is good enough for them.
+   */
+  AI_MODEL_COPILOT: Joi.string().default(Joi.ref('AI_MODEL_VISION')),
+  AI_MODEL_LIGHT: Joi.string().default(Joi.ref('AI_MODEL_NARRATIVE')),
+  /**
+   * What a company may spend on language models per month, in US dollars, when it has not set its
+   * own budget (Administration › AI), and the most it may set. A budget is money, not credits: the
+   * top plan's credits are unlimited, and a runaway loop must still stop somewhere.
+   */
+  AI_DEFAULT_MONTHLY_BUDGET_USD: Joi.number().min(0).default(200),
+  AI_MAX_MONTHLY_BUDGET_USD: Joi.number().min(0).default(10_000),
   AI_REQUEST_TIMEOUT_MS: Joi.number().integer().min(5_000).max(600_000).default(90_000),
   VOYAGE_API_KEY: Joi.string().allow('').optional(),
   VOYAGE_MULTIMODAL_MODEL: Joi.string().default('voyage-multimodal-3'),

@@ -22,12 +22,18 @@ export type AiEffort = 'low' | 'medium' | 'high' | 'xhigh' | 'max';
 
 export interface AiRoute {
   /** The env var naming the model; see `config/env.validation.ts` for its default. */
-  readonly modelSetting: 'AI_MODEL_VISION' | 'AI_MODEL_NARRATIVE' | 'AI_MODEL_DEEP_ANALYSIS';
+  readonly modelSetting: 'AI_MODEL_VISION' | 'AI_MODEL_NARRATIVE' | 'AI_MODEL_DEEP_ANALYSIS' | 'AI_MODEL_COPILOT' | 'AI_MODEL_LIGHT';
   readonly effort: AiEffort;
   readonly maxTokens: number;
   /** Plan credits one call consumes; see `SaasResource.AI_CREDITS`. */
   readonly credits: number;
 }
+
+/** A route setting left unset uses another's model (the one the feature used before it had its own). */
+export const MODEL_SETTING_FALLBACK: Readonly<Partial<Record<AiRoute['modelSetting'], AiRoute['modelSetting']>>> = {
+  AI_MODEL_COPILOT: 'AI_MODEL_VISION',
+  AI_MODEL_LIGHT: 'AI_MODEL_NARRATIVE',
+};
 
 export const AI_ROUTES: Readonly<Record<AiFeature, AiRoute>> = {
   // Reading a label in a photo is extraction, but a mis-read barcode or brand is a wrong catalogue
@@ -39,15 +45,15 @@ export const AI_ROUTES: Readonly<Record<AiFeature, AiRoute>> = {
   deep_analysis: { modelSetting: 'AI_MODEL_DEEP_ANALYSIS', effort: 'high', maxTokens: 32_000, credits: 10 },
   // One model turn of the copilot (a question may take several, one per round of tool calls).
   // Interactive: `medium` keeps a turn to seconds; the numbers come from tools, not from reasoning.
-  copilot: { modelSetting: 'AI_MODEL_VISION', effort: 'medium', maxTokens: 16_000, credits: 1 },
+  copilot: { modelSetting: 'AI_MODEL_COPILOT', effort: 'medium', maxTokens: 16_000, credits: 1 },
   // A supplier's invoice read into a draft bill: a wrong tax identifier or total is a wrong tax record.
   bill_capture: { modelSetting: 'AI_MODEL_VISION', effort: 'high', maxTokens: 12_000, credits: 2 },
   // A reminder or a covering note, written from facts the server supplies.
   compose: { modelSetting: 'AI_MODEL_NARRATIVE', effort: 'low', maxTokens: 4_000, credits: 1 },
   // A spreadsheet's headers mapped onto the dataset's columns.
-  column_mapping: { modelSetting: 'AI_MODEL_NARRATIVE', effort: 'low', maxTokens: 4_000, credits: 1 },
+  column_mapping: { modelSetting: 'AI_MODEL_LIGHT', effort: 'low', maxTokens: 4_000, credits: 1 },
   // Choosing between two bank-statement matches the deterministic score could not separate.
-  reconcile_ambiguous: { modelSetting: 'AI_MODEL_NARRATIVE', effort: 'medium', maxTokens: 4_000, credits: 1 },
+  reconcile_ambiguous: { modelSetting: 'AI_MODEL_LIGHT', effort: 'medium', maxTokens: 4_000, credits: 1 },
 };
 
 /** US dollars per million tokens. */

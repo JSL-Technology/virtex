@@ -40,6 +40,7 @@ import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
+import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../shared/rate-limit/tenant-rate-limit.guard';
 
 /**
  * The reconciliation surface.
@@ -77,6 +78,8 @@ export class ReconciliationController {
    * Which column of a CSV is which, proposed from its headers and sample rows (and, when the
    * headers say nothing usable, by the AI). Imports nothing; the person confirms the mapping.
    */
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('column-mapping')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.RECONCILIATION_IMPORT)
@@ -100,6 +103,8 @@ export class ReconciliationController {
   }
 
   /** Several exact-amount candidates the score cannot separate: ask the AI which one, and why. */
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('statements/:id/transactions/:transactionId/resolve')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)

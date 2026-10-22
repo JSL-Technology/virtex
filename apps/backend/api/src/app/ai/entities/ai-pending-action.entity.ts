@@ -20,10 +20,11 @@ export class AiPendingAction {
   @TenantOwned('FK_ai_pending_actions_organization')
   organization?: TenantRef;
 
-  @Column({ name: 'conversation_id', type: 'uuid' })
-  conversationId: string;
+  /** Null once the conversation is deleted: the proposal outlives it as the record of what was offered. */
+  @Column({ name: 'conversation_id', type: 'uuid', nullable: true })
+  conversationId: string | null;
 
-  @ManyToOne('AiConversation', { onDelete: 'CASCADE' })
+  @ManyToOne('AiConversation', { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'conversation_id', foreignKeyConstraintName: 'FK_ai_pending_actions_conversation' })
   conversation?: AiConversation;
 

@@ -12,6 +12,7 @@ import { currentLanguage } from '../../i18n/request-locale';
 import { BadRequestError } from '../../i18n/localized.exception';
 import { CashflowService } from './cashflow.service';
 import { ReportsService } from '../reports/reports.service';
+import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../../shared/rate-limit/tenant-rate-limit.guard';
 
 export class CashflowRunDto {
   /** The balance below which the company is short; 0 by default. */
@@ -108,6 +109,8 @@ export class CashflowController {
   }
 
   /** The scenario against the projection, in words (written in the background). */
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('scenarios/:id/narrative')
   @HttpCode(HttpStatus.ACCEPTED)
   @UseGuards(ThrottlerGuard)
@@ -128,6 +131,8 @@ export class CashflowController {
     return this.cashflow.scenarioResult(user.organizationId, id);
   }
 
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('plan')
   @HttpCode(HttpStatus.ACCEPTED)
   @UseGuards(ThrottlerGuard)

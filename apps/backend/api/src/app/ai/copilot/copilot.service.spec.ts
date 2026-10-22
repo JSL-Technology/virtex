@@ -141,6 +141,7 @@ function build(script: Script) {
     actions as never,
     charts as never,
     fakeTenantDataSource(),
+    { get: async () => ({ maskIdentifiers: true }) } as never,
   );
   return { service, gateway, offered, created, conversations, messages, actions, charts };
 }

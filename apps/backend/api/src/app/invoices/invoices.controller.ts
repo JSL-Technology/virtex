@@ -40,6 +40,7 @@ import { AiAssistPort } from '../contracts/ai/ai-assist.contract';
 import { CheckFeature } from '../saas/contracts/entitlements.contract';
 import { Throttle } from '@nestjs/throttler';
 import { BadRequestError } from '../i18n/localized.exception';
+import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../shared/rate-limit/tenant-rate-limit.guard';
 /**
  * Sales documents.
  *
@@ -284,6 +285,8 @@ export class InvoicesController {
    * answer stating any other figure is refused. The note is shown to the person, who edits it and
    * sends it themselves.
    */
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post(':id/compose-message')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.INVOICES_VIEW, PERMISSIONS.AI_COPILOT_USE)
@@ -303,6 +306,7 @@ export class InvoicesController {
     const overdue = !!invoice.dueDate && balance > 0 && new Date(invoice.dueDate).getTime() < Date.now();
     const { value } = await this.ai.compose({
       feature: 'compose',
+      promptId: 'invoices.cover_note',
       organizationId: user.organizationId,
       userId: user.id,
       system: INVOICE_NOTE_SYSTEM,

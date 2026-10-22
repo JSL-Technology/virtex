@@ -1124,6 +1124,11 @@
     "en": "The barcode is not valid.",
     "pt": "O código de barras não é válido."
   },
+  "ai.budget_exhausted": {
+    "es": "Se alcanzó el presupuesto mensual de IA de la empresa (US$ {{budget}}). Puedes continuar manualmente; un administrador puede ampliarlo en Administración › IA.",
+    "en": "The company's monthly AI budget (US$ {{budget}}) has been reached. You can continue manually; an administrator can raise it under Administration › AI.",
+    "pt": "O orçamento mensal de IA da empresa (US$ {{budget}}) foi atingido. Pode continuar manualmente; um administrador pode ampliá-lo em Administração › IA."
+  },
   "ai.cashflow.as_of": {
     "es": "Calculado el {{when}}",
     "en": "Calculated on {{when}}",
@@ -1644,6 +1649,21 @@
     "en": "Delete conversation",
     "pt": "Eliminar conversa"
   },
+  "ai.copilot.delete_all": {
+    "es": "Borrar todas mis conversaciones",
+    "en": "Delete all my conversations",
+    "pt": "Apagar todas as minhas conversas"
+  },
+  "ai.copilot.delete_all_message": {
+    "es": "Se borran todas tus conversaciones con el asistente en esta empresa y lo que se leyó en ellas. Las propuestas que confirmaste o descartaste se conservan como registro. No se puede deshacer.",
+    "en": "All your assistant conversations in this company, and what was read in them, are deleted. Proposals you confirmed or discarded are kept as a record. This cannot be undone.",
+    "pt": "Todas as suas conversas com o assistente nesta empresa, e o que foi lido nelas, são apagadas. As propostas que você confirmou ou descartou ficam como registro. Não pode ser desfeito."
+  },
+  "ai.copilot.delete_all_title": {
+    "es": "¿Borrar todas tus conversaciones?",
+    "en": "Delete all your conversations?",
+    "pt": "Apagar todas as suas conversas?"
+  },
   "ai.copilot.discard": {
     "es": "Descartar",
     "en": "Discard",
@@ -1653,6 +1673,11 @@
     "es": "Las cifras salen de tus datos; revisa los borradores antes de emitirlos.",
     "en": "Figures come from your data; review drafts before issuing them.",
     "pt": "Os valores vêm dos seus dados; reveja os rascunhos antes de os emitir."
+  },
+  "ai.copilot.download_my_data": {
+    "es": "Descargar mis datos",
+    "en": "Download my data",
+    "pt": "Baixar os meus dados"
   },
   "ai.copilot.empty_message": {
     "es": "Escribe una pregunta.",
@@ -1673,6 +1698,11 @@
     "es": "El mensaje es demasiado largo (máximo 4.000 caracteres).",
     "en": "The message is too long (4,000 characters at most).",
     "pt": "A mensagem é longa demais (máximo de 4.000 caracteres)."
+  },
+  "ai.copilot.my_data_help": {
+    "es": "Tus conversaciones se guardan solo para ti y se borran según lo que decida tu empresa.",
+    "en": "Your conversations are kept for you alone and deleted as your company decides.",
+    "pt": "As suas conversas ficam guardadas só para você e são apagadas conforme a sua empresa decidir."
   },
   "ai.copilot.new": {
     "es": "Nueva conversación",
@@ -2004,6 +2034,11 @@
     "en": "How can I help?",
     "pt": "Em que posso ajudar?"
   },
+  "ai.daily_budget_exhausted": {
+    "es": "Se alcanzó el presupuesto diario de IA de la empresa (US$ {{budget}}). Vuelve a intentarlo mañana o continúa manualmente.",
+    "en": "The company's daily AI budget (US$ {{budget}}) has been reached. Try again tomorrow or continue manually.",
+    "pt": "O orçamento diário de IA da empresa (US$ {{budget}}) foi atingido. Tente amanhã ou continue manualmente."
+  },
   "ai.data_quality.all_types": {
     "es": "Todos",
     "en": "All",
@@ -2178,6 +2213,16 @@
     "es": "Proveedor",
     "en": "Supplier",
     "pt": "Fornecedor"
+  },
+  "ai.disabled_for_organization": {
+    "es": "La IA está desactivada para tu empresa. Un administrador puede activarla en Administración › IA.",
+    "en": "AI is turned off for your company. An administrator can turn it on under Administration › AI.",
+    "pt": "A IA está desativada para a sua empresa. Um administrador pode ativá-la em Administração › IA."
+  },
+  "ai.feature_disabled_for_organization": {
+    "es": "Tu empresa desactivó esta función de IA. Puedes continuar manualmente.",
+    "en": "Your company turned this AI feature off. You can continue manually.",
+    "pt": "A sua empresa desativou esta função de IA. Pode continuar manualmente."
   },
   "ai.manager_report.failed": {
     "es": "No se pudo escribir este informe. Vuelve a intentarlo.",
@@ -2393,6 +2438,166 @@
     "es": "Subiendo la foto…",
     "en": "Uploading the photo…",
     "pt": "A enviar a foto…"
+  },
+  "ai.policy.budget": {
+    "es": "Presupuesto",
+    "en": "Budget",
+    "pt": "Orçamento"
+  },
+  "ai.policy.budget_help": {
+    "es": "Al llegar al presupuesto, las funciones de IA se detienen hasta el siguiente periodo; el ERP sigue funcionando. Avisamos al 50, 80 y 100 %.",
+    "en": "When the budget is reached, the AI features stop until the next period; the ERP keeps working. You are notified at 50, 80 and 100%.",
+    "pt": "Ao atingir o orçamento, as funções de IA param até o próximo período; o ERP continua funcionando. Avisamos a 50, 80 e 100%."
+  },
+  "ai.policy.daily_budget": {
+    "es": "Presupuesto diario en US$",
+    "en": "Daily budget in US$",
+    "pt": "Orçamento diário em US$"
+  },
+  "ai.policy.feature.anomaly_narrative": {
+    "es": "Explicar anomalías",
+    "en": "Explaining anomalies",
+    "pt": "Explicar anomalias"
+  },
+  "ai.policy.feature.bill_capture": {
+    "es": "Leer facturas de proveedor",
+    "en": "Reading supplier bills",
+    "pt": "Ler faturas de fornecedor"
+  },
+  "ai.policy.feature.column_mapping": {
+    "es": "Reconocer columnas de archivos",
+    "en": "Recognising file columns",
+    "pt": "Reconhecer colunas de arquivos"
+  },
+  "ai.policy.feature.compose": {
+    "es": "Redactar mensajes y recordatorios",
+    "en": "Drafting messages and reminders",
+    "pt": "Redigir mensagens e lembretes"
+  },
+  "ai.policy.feature.copilot": {
+    "es": "Asistente del ERP",
+    "en": "ERP assistant",
+    "pt": "Assistente do ERP"
+  },
+  "ai.policy.feature.deep_analysis": {
+    "es": "Informes escritos (gerente, plan de caja)",
+    "en": "Written reports (manager, cash plan)",
+    "pt": "Relatórios escritos (gestor, plano de caixa)"
+  },
+  "ai.policy.feature.product_vision": {
+    "es": "Productos desde foto",
+    "en": "Products from a photo",
+    "pt": "Produtos a partir de foto"
+  },
+  "ai.policy.feature.reconcile_ambiguous": {
+    "es": "Desempatar conciliaciones",
+    "en": "Breaking reconciliation ties",
+    "pt": "Desempatar conciliações"
+  },
+  "ai.policy.features": {
+    "es": "Funciones permitidas",
+    "en": "Features allowed",
+    "pt": "Funções permitidas"
+  },
+  "ai.policy.image_embeddings": {
+    "es": "Buscar productos duplicados por imagen",
+    "en": "Find duplicate products by image",
+    "pt": "Procurar produtos duplicados por imagem"
+  },
+  "ai.policy.image_embeddings_help": {
+    "es": "Envía las fotos de productos a un segundo proveedor (embeddings). Apagado por defecto; sin esto, los duplicados se buscan por código de barras y nombre.",
+    "en": "Sends product photos to a second provider (embeddings). Off by default; without it, duplicates are found by barcode and name.",
+    "pt": "Envia as fotos dos produtos a um segundo provedor (embeddings). Desligado por padrão; sem isso, os duplicados são procurados por código de barras e nome."
+  },
+  "ai.policy.intro": {
+    "es": "Decide qué datos salen hacia el proveedor de IA, qué funciones se usan, cuánto se puede gastar y cuánto tiempo se guardan las conversaciones. Todo el ERP funciona igual con la IA desactivada.",
+    "en": "Decide what data goes to the AI provider, which features are used, how much may be spent and how long conversations are kept. The whole ERP works the same with AI switched off.",
+    "pt": "Decida que dados vão para o provedor de IA, que funções se usam, quanto se pode gastar e por quanto tempo as conversas ficam guardadas. Todo o ERP funciona igual com a IA desativada."
+  },
+  "ai.policy.language_models": {
+    "es": "Usar modelos de lenguaje",
+    "en": "Use language models",
+    "pt": "Usar modelos de linguagem"
+  },
+  "ai.policy.language_models_help": {
+    "es": "Apagado, ninguna función envía datos al proveedor: el asistente, la lectura de documentos y la redacción dejan de estar disponibles. Las predicciones y anomalías se calculan dentro de la plataforma y siguen funcionando.",
+    "en": "Off, no feature sends data to the provider: the assistant, document reading and drafting become unavailable. Forecasts and anomalies are computed inside the platform and keep working.",
+    "pt": "Desligado, nenhuma função envia dados ao provedor: o assistente, a leitura de documentos e a redação ficam indisponíveis. Previsões e anomalias são calculadas dentro da plataforma e continuam funcionando."
+  },
+  "ai.policy.mask_identifiers": {
+    "es": "Ocultar identificadores al proveedor cuando no hacen falta",
+    "en": "Hide identifiers from the provider when they are not needed",
+    "pt": "Ocultar identificadores do provedor quando não forem necessários"
+  },
+  "ai.policy.mask_identifiers_help": {
+    "es": "Los identificadores fiscales, correos, teléfonos y cuentas bancarias que leen las herramientas del asistente se envían enmascarados, salvo en la búsqueda que los necesita.",
+    "en": "Tax identifiers, e-mails, phones and bank accounts the assistant's tools read are sent masked, except in the search that needs them.",
+    "pt": "Identificadores fiscais, e-mails, telefones e contas bancárias lidos pelas ferramentas do assistente são enviados mascarados, exceto na busca que precisa deles."
+  },
+  "ai.policy.monthly_budget": {
+    "es": "Presupuesto mensual en US$ (máximo {{max}}; vacío = el predeterminado)",
+    "en": "Monthly budget in US$ (at most {{max}}; empty = the default)",
+    "pt": "Orçamento mensal em US$ (máximo {{max}}; vazio = o padrão)"
+  },
+  "ai.policy.no_daily_limit": {
+    "es": "Sin límite diario",
+    "en": "No daily limit",
+    "pt": "Sem limite diário"
+  },
+  "ai.policy.read_only": {
+    "es": "Solo lectura: cambiar esta configuración requiere el permiso «Configuración de la IA».",
+    "en": "Read only: changing these settings needs the \"AI settings\" permission.",
+    "pt": "Somente leitura: alterar esta configuração requer a permissão «Configuração da IA»."
+  },
+  "ai.policy.retention": {
+    "es": "Conservación de conversaciones",
+    "en": "Keeping conversations",
+    "pt": "Conservação de conversas"
+  },
+  "ai.policy.retention_days": {
+    "es": "Días que se guardan las conversaciones del asistente",
+    "en": "Days assistant conversations are kept",
+    "pt": "Dias que as conversas do assistente ficam guardadas"
+  },
+  "ai.policy.retention_help": {
+    "es": "Pasado ese plazo sin actividad, la conversación y lo que las herramientas leyeron en ella se borran cada noche. Las propuestas confirmadas siguen enlazadas a su documento.",
+    "en": "After that time without activity, the conversation and what its tools read are deleted overnight. Confirmed proposals stay linked to their document.",
+    "pt": "Passado esse prazo sem atividade, a conversa e o que as ferramentas leram nela são apagados à noite. As propostas confirmadas continuam vinculadas ao seu documento."
+  },
+  "ai.policy.save_failed": {
+    "es": "No se pudo guardar el cambio.",
+    "en": "The change could not be saved.",
+    "pt": "Não foi possível salvar a alteração."
+  },
+  "ai.policy.scheduled_reports": {
+    "es": "Escribir el informe del gerente automáticamente el día 1",
+    "en": "Write the manager's report automatically on the 1st",
+    "pt": "Escrever o relatório do gestor automaticamente no dia 1"
+  },
+  "ai.policy.scheduled_reports_help": {
+    "es": "Envía al proveedor los estados financieros del mes sin que nadie lo pida. Apagado por defecto.",
+    "en": "Sends the month's financial statements to the provider without anyone asking. Off by default.",
+    "pt": "Envia ao provedor as demonstrações financeiras do mês sem que ninguém peça. Desligado por padrão."
+  },
+  "ai.policy.sending": {
+    "es": "Envío de datos al proveedor de IA",
+    "en": "Sending data to the AI provider",
+    "pt": "Envio de dados ao provedor de IA"
+  },
+  "ai.policy.spent": {
+    "es": "Gastado este mes: US$ {{spent}} de US$ {{budget}}",
+    "en": "Spent this month: US$ {{spent}} of US$ {{budget}}",
+    "pt": "Gasto este mês: US$ {{spent}} de US$ {{budget}}"
+  },
+  "ai.policy.title": {
+    "es": "Qué permite la empresa",
+    "en": "What the company allows",
+    "pt": "O que a empresa permite"
+  },
+  "ai.policy.unavailable": {
+    "es": "No se pudo cargar la configuración de la IA.",
+    "en": "The AI settings could not be loaded.",
+    "pt": "Não foi possível carregar a configuração da IA."
   },
   "ai.predictions.accuracy": {
     "es": "error medio en pruebas: {{wape}}",
@@ -2848,6 +3053,21 @@
     "es": "Usar código",
     "en": "Use code",
     "pt": "Usar código"
+  },
+  "ai.settings.budget_above_ceiling": {
+    "es": "El presupuesto mensual no puede superar US$ {{max}}.",
+    "en": "The monthly budget cannot exceed US$ {{max}}.",
+    "pt": "O orçamento mensal não pode passar de US$ {{max}}."
+  },
+  "ai.settings.daily_above_monthly": {
+    "es": "El presupuesto diario no puede superar el mensual.",
+    "en": "The daily budget cannot exceed the monthly one.",
+    "pt": "O orçamento diário não pode passar do mensal."
+  },
+  "ai.settings.unknown_feature": {
+    "es": "Una de las funciones indicadas no existe.",
+    "en": "One of the features given does not exist.",
+    "pt": "Uma das funções indicadas não existe."
   },
   "ai.temporarily_unavailable": {
     "es": "El servicio de inteligencia artificial no está disponible en este momento. Inténtalo más tarde o continúa manualmente.",

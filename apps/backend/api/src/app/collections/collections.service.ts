@@ -260,6 +260,7 @@ export class CollectionsService {
     const promise = (await this.historyFor(organizationId, [invoice.id], today)).get(invoice.id)?.openPromise ?? null;
     const { value } = await this.ai.compose({
       feature: 'compose',
+      promptId: 'collections.reminder',
       organizationId,
       userId: user.id,
       system: REMINDER_SYSTEM,

@@ -29,6 +29,7 @@ import {
 } from './copilot-api.service';
 import { renderCopilotMarkdown } from './copilot-markdown';
 import { CopilotChartComponent } from './copilot-chart.component';
+import { DialogService } from '../../../core/services/dialog.service';
 
 /** One bubble of the conversation as the panel draws it. */
 interface PanelMessage {
@@ -78,6 +79,7 @@ const MAX_MESSAGE_CHARS = 4000;
 export class CopilotPanelComponent implements OnInit, OnDestroy {
   private readonly api = inject(CopilotApiService);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(DialogService);
 
   readonly dismissed = output<void>();
 
@@ -181,6 +183,39 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
         this.conversations.update((list) => list.filter((item) => item.id !== conversation.id));
         if (this.conversationId() === conversation.id) this.newConversation();
       },
+    });
+  }
+
+  /** Downloads, as a JSON file, everything the copilot keeps about this person in this company. */
+  downloadMyData(): void {
+    this.api.exportMyData().subscribe({
+      next: (data) => {
+        const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `copilot-${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      },
+      error: (error) => this.appendError(this.messageOf(error)),
+    });
+  }
+
+  /** Deletes every conversation of this person, after asking. What was proposed stays as a record. */
+  async deleteMyData(): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'ai.copilot.delete_all_title',
+      message: 'ai.copilot.delete_all_message',
+      confirmText: 'ai.copilot.delete_all',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+    this.api.deleteMyData().subscribe({
+      next: () => {
+        this.conversations.set([]);
+        this.newConversation();
+      },
+      error: (error) => this.appendError(this.messageOf(error)),
     });
   }
 

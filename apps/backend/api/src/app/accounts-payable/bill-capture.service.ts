@@ -299,6 +299,7 @@ export class BillCaptureService {
         : [{ type: 'image' as const, mediaType: 'image/jpeg' as const, data: file.buffer.toString('base64') }];
     const { value: read } = await this.ai.extract<ExtractedBill>({
       feature: 'bill_capture',
+      promptId: 'bill_capture.system',
       organizationId,
       userId,
       system: SYSTEM_PROMPT,

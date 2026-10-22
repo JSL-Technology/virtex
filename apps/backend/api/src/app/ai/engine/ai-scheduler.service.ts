@@ -10,6 +10,7 @@ import { ReportsService } from '../reports/reports.service';
 import { DataQualityService } from '../data-quality/data-quality.service';
 import { previousMonth } from '../reports/manager-report.builder';
 import { currentTenantStore } from '../../shared/tenancy/tenant-context';
+import { AiSettingsService } from '../settings/ai-settings.service';
 
 /** A tenant that ran this kind in the last 20 hours is fresh enough to skip tonight. */
 const FRESH_FOR_MS = 20 * 60 * 60 * 1000;
@@ -34,6 +35,7 @@ export class AiSchedulerService {
     private readonly cashflow: CashflowService,
     private readonly reports: ReportsService,
     private readonly quality: DataQualityService,
+    private readonly settings: AiSettingsService,
   ) {}
 
   // Sundays at 03:23: duplicates are looked for weekly; no model is called, so every plan has it.
@@ -69,6 +71,10 @@ export class AiSchedulerService {
       this.dataSource,
       async (organizationId) => {
         if (!(await this.entitlements.checkFeature(organizationId, 'ai_manager_reports'))) return;
+        // Written unasked only where the company opted in: it sends the month's statements to the
+        // model provider without anyone pressing a button.
+        const settings = await this.settings.get(organizationId);
+        if (!settings.languageModels || !settings.scheduledReports || settings.disabledFeatures.includes('deep_analysis')) return;
         if (await this.reports.exists(organizationId, 'MANAGER_MONTHLY', period)) return;
         const manager = currentTenantStore()?.manager ?? this.dataSource.manager;
         const [org]: Array<{ language: string | null }> = await manager.query(

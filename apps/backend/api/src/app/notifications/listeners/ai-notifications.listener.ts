@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import { LanguageCode, matchLanguage } from '@virteex/shared/types';
 import { AI_RUN_FINDINGS, AiRunFindingsEvent } from '../../contracts/ai-insights/ai-run-findings.contract';
 import { AI_REPORT_READY, AiReportReadyEvent } from '../../contracts/ai-insights/ai-report-ready.contract';
+import { AI_BUDGET_THRESHOLD, AiBudgetThresholdEvent } from '../../contracts/ai-insights/ai-budget.contract';
 import { AI_PERMISSIONS } from '../../shared/ai.permissions';
 import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { NotificationsService } from '../notifications.service';
@@ -74,6 +75,32 @@ export class AiNotificationsListener {
         { event: 'ai_notice_failed', reportId: event.reportId },
         `AI report could not be notified: ${(error as Error).message}`,
       );
+    }
+  }
+
+  /** The company's AI spending crossed 50, 80 or 100 % of its monthly budget: told to who reads the usage. */
+  @OnEvent(AI_BUDGET_THRESHOLD, { async: true })
+  async onBudgetThreshold(event: AiBudgetThresholdEvent): Promise<void> {
+    try {
+      await runAsTenantJob(this.dataSource, event.organizationId, async () => {
+        const members = await loadMembersAccess(this.dataSource, event.organizationId);
+        for (const member of members.filter((candidate) => holdsAll(candidate, [AI_PERMISSIONS.AI_USAGE_VIEW]))) {
+          const language = languageOf(member.language);
+          await this.notifications.createLocalizedNotification(member.userId, language, {
+            titleKey: 'notifications.ai.budget.title',
+            bodyKey: 'notifications.ai.budget.body',
+            params: {
+              percent: event.percent,
+              spent: formatMoney(event.spentUsd, 'USD', language),
+              budget: formatMoney(event.budgetUsd, 'USD', language),
+            },
+            link: '/settings/ai',
+            organizationId: event.organizationId,
+          });
+        }
+      });
+    } catch (error) {
+      this.logger.warn({ event: 'ai_notice_failed', organizationId: event.organizationId }, `AI budget notice failed: ${(error as Error).message}`);
     }
   }
 

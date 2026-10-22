@@ -128,6 +128,7 @@ export class AnomaliesService {
     const market = await organizationMarket(this.dataSource.manager, organizationId);
     const { value } = await this.gateway.structured<{ explanation: string }>({
       feature: 'anomaly_narrative',
+      promptId: 'anomaly.narrative',
       organizationId,
       userId,
       system: NARRATIVE_SYSTEM,

@@ -81,6 +81,14 @@ export class AiRequest {
   @Column({ name: 'input_hash', type: 'char', length: 64, nullable: true })
   inputHash: string | null;
 
+  /** Which instructions the call used (`copilot.system`, `bill_capture.system`…). */
+  @Column({ name: 'prompt_id', type: 'varchar', length: 64, nullable: true })
+  promptId: string | null;
+
+  /** The first 16 hex characters of the SHA-256 of the system prompt as sent: its version. */
+  @Column({ name: 'prompt_hash', type: 'char', length: 16, nullable: true })
+  promptHash: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 }

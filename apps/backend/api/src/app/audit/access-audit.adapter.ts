@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AccessAuditPort } from '../contracts/audit/access-audit.contract';
+import { AccessAuditPort, ChangeAuditPort } from '../contracts/audit/access-audit.contract';
 import { AuditTrailService } from './audit.service';
 import { ActionType } from './entities/audit-log.entity';
 
@@ -26,5 +26,26 @@ export class AccessAuditAdapter extends AccessAuditPort {
         access.organizationId,
       )
       .catch((error: Error) => this.logger.error(`No se pudo registrar el acceso a ${access.entity}: ${error.message}`));
+  }
+}
+
+/** `ChangeAuditPort`: a settings change, with its before and after, in the same trail. */
+@Injectable()
+export class ChangeAuditAdapter extends ChangeAuditPort {
+  constructor(private readonly audit: AuditTrailService) {
+    super();
+  }
+
+  recordChange(change: { userId: string | null; organizationId: string; entity: string; entityId: string; before: object | null; after: object }): Promise<void> {
+    return this.audit.record(
+      change.userId,
+      change.entity,
+      change.entityId,
+      change.before ? ActionType.UPDATE : ActionType.CREATE,
+      change.after,
+      change.before ?? undefined,
+      undefined,
+      change.organizationId,
+    );
   }
 }

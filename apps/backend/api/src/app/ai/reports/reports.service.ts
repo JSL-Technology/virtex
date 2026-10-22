@@ -232,6 +232,7 @@ export class ReportsService {
       const flat = flatten(brief.facts);
       const { value } = await this.gateway.structured<ReportContent>({
         feature: 'deep_analysis',
+        promptId: `report.${report.kind.toLowerCase()}`,
         organizationId,
         userId: report.requestedByUserId,
         system: SYSTEM,

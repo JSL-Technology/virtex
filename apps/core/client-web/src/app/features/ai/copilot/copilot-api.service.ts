@@ -135,6 +135,16 @@ export class CopilotApiService {
     return this.http.delete<void>(`${this.url}/conversations/${id}`);
   }
 
+  /** Everything the copilot keeps about the caller in this company, to take with them. */
+  exportMyData(): Observable<unknown> {
+    return this.http.get<unknown>(`${this.url}/my-data`);
+  }
+
+  /** Deletes all of the caller's conversations; proposals stay as the record of what was decided. */
+  deleteMyData(): Observable<{ deleted: number }> {
+    return this.http.delete<{ deleted: number }>(`${this.url}/my-data`);
+  }
+
   confirm(proposalId: string): Observable<CopilotProposal> {
     return this.http.post<CopilotProposal>(`${this.url}/proposals/${proposalId}/confirm`, {});
   }

@@ -39,6 +39,16 @@
     "en": "Critical anomalies to review",
     "pt": "Anomalias críticas para revisar"
   },
+  "notifications.ai.budget.body": {
+    "es": "La empresa lleva {{spent}} de {{budget}} este mes en IA. Al llegar al 100 % las funciones de IA se detienen hasta el mes siguiente o hasta ampliar el presupuesto.",
+    "en": "The company has spent {{spent}} of {{budget}} on AI this month. At 100% the AI features stop until next month or until the budget is raised.",
+    "pt": "A empresa já gastou {{spent}} de {{budget}} em IA este mês. Ao chegar a 100% as funções de IA param até o mês seguinte ou até ampliar o orçamento."
+  },
+  "notifications.ai.budget.title": {
+    "es": "Presupuesto de IA: {{percent}} % usado",
+    "en": "AI budget: {{percent}}% used",
+    "pt": "Orçamento de IA: {{percent}}% usado"
+  },
   "notifications.ai.cashflow.body": {
     "es": "Hay un {{percent}} % de probabilidad de que el saldo baje del mínimo, desde el {{date}}. Saldo esperado en el peor momento: {{lowest}}.",
     "en": "There is a {{percent}} % chance the balance falls below the minimum, from {{date}}. Expected balance at its lowest: {{lowest}}.",

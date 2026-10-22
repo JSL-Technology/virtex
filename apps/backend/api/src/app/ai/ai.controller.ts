@@ -42,6 +42,7 @@ import {
   SeriesQueryDto,
   TopByBranchQueryDto,
 } from './dto/ai-queries.dto';
+import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../shared/rate-limit/tenant-rate-limit.guard';
 
 /** The largest photo accepted. A phone's full-resolution JPEG is 3–8 MB; the image is resized anyway. */
 const MAX_PHOTO_BYTES = 12 * 1024 * 1024;
@@ -162,6 +163,8 @@ export class AiController {
 
   // ── Product from photo ─────────────────────────────────────────────────────────
 
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('products/from-image')
   @ShortLivedConnections()
   @HasPermission(PERMISSIONS.PRODUCTS_CREATE, PERMISSIONS.AI_VISION_USE)
@@ -324,6 +327,8 @@ export class AiController {
     return this.anomalies.reopen(user.organizationId, id);
   }
 
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('anomalies/:id/explain')
   @HasPermission(PERMISSIONS.AI_ANOMALIES_VIEW)
   @CheckFeature('ai_anomalies')

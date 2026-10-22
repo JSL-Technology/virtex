@@ -102,6 +102,7 @@
   "common.pager_range": "{{first}}–{{last}} de {{total}}",
   "common.pagination": "Paginação",
   "common.previous_page": "Página anterior",
+  "common.rate_limited": "Muitas solicitações seguidas. Tente novamente em {{seconds}} segundos.",
   "common.record_deactivated": "“{{name}}” foi desativado.",
   "common.refresh": "Atualizar",
   "common.retry": "Tentar novamente",

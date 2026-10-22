@@ -12,6 +12,7 @@ import { BadRequestError, NotFoundError } from '../../i18n/localized.exception';
 import { currentLanguage } from '../../i18n/request-locale';
 import { ReportsService } from './reports.service';
 import { previousMonth } from './manager-report.builder';
+import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../../shared/rate-limit/tenant-rate-limit.guard';
 
 export class ManagerReportRequestDto {
   /** `YYYY-MM`; the month that just ended when left out. */
@@ -57,6 +58,8 @@ export class ManagerReportController {
     return report;
   }
 
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post()
   @HttpCode(HttpStatus.ACCEPTED)
   @UseGuards(ThrottlerGuard)

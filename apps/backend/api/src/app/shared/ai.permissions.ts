@@ -33,4 +33,9 @@ export const AI_PERMISSIONS = {
   AI_REPORTS_VIEW: 'ai_reports:view',
   /** Configuring the agents that prepare documents on their own, and reading their log. */
   AI_AGENTS_MANAGE: 'ai_agents:manage',
+  /**
+   * What the company decides about its AI: switching it (or one feature) off, what may be sent to a
+   * provider, the spending budget, how long conversations are kept. Separate from reading the usage.
+   */
+  AI_SETTINGS_MANAGE: 'ai_settings:manage',
 } as const;

@@ -369,6 +369,11 @@
     "en": "Manager reports (AI)",
     "pt": "Relatórios de gestão (IA)"
   },
+  "permissions.groups.ai_settings": {
+    "es": "Configuración de la IA",
+    "en": "AI settings",
+    "pt": "Configuração da IA"
+  },
   "permissions.groups.ai_usage": {
     "es": "Consumo de IA",
     "en": "AI usage",

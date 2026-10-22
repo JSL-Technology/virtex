@@ -136,6 +136,7 @@ export class ProductVisionService {
 
     const { value, requestId, model } = await this.gateway.structured<VisionAnswer>({
       feature: 'product_vision',
+      promptId: 'product_vision.system',
       organizationId,
       userId,
       system: SYSTEM_PROMPT,
@@ -195,16 +196,16 @@ export class ProductVisionService {
   private async findDuplicates(
     organizationId: string,
     answer: VisionAnswer,
-    vector: number[] | null,
+    embedded: { vector: number[]; model: string } | null,
   ): Promise<ProductMatch[]> {
     const byText = await this.catalog.findLikelyDuplicates(organizationId, {
       barcode: checkGtin(answer.barcode) === 'invalid' ? null : answer.barcode,
       name: answer.name,
       brand: answer.brand,
     });
-    if (!vector) return byText;
+    if (!embedded) return byText;
 
-    const neighbours = await this.embeddings.nearestProducts(organizationId, vector);
+    const neighbours = await this.embeddings.nearestProducts(organizationId, embedded);
     const merged = new Map(byText.map((match) => [match.id, match]));
     const unseen = neighbours.filter((neighbour) => !merged.has(neighbour.productId));
     const described = await this.catalog.describeProducts(
