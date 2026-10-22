@@ -59,6 +59,11 @@
     "en": "Demand predictions",
     "pt": "Previsões de procura"
   },
+  "page_titles.ai_proposal": {
+    "es": "Propuesta de la IA",
+    "en": "AI proposal",
+    "pt": "Proposta da IA"
+  },
   "page_titles.approvals": {
     "es": "Aprobaciones",
     "en": "Approvals",
@@ -388,6 +393,11 @@
     "es": "Libros contables",
     "en": "Ledgers",
     "pt": "Livros contábeis"
+  },
+  "page_titles.mcp_consent": {
+    "es": "Conectar agente de IA",
+    "en": "Connect AI agent",
+    "pt": "Conectar agente de IA"
   },
   "page_titles.my_payslips": {
     "es": "Mis volantes de pago",

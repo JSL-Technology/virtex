@@ -2479,6 +2479,81 @@
     "en": "Written {{when}}.",
     "pt": "Escrito em {{when}}."
   },
+  "ai.mcp.agents_help": {
+    "es": "Asistentes de IA externos (por ejemplo, Claude o ChatGPT) que conectaste a Virtex. Leen con tus permisos y solo proponen borradores que tú confirmas aquí.",
+    "en": "External AI assistants (for example, Claude or ChatGPT) you connected to Virtex. They read with your permissions and only propose drafts that you confirm here.",
+    "pt": "Assistentes de IA externos (por exemplo, Claude ou ChatGPT) que você conectou ao Virtex. Eles leem com suas permissões e só propõem rascunhos que você confirma aqui."
+  },
+  "ai.mcp.agents_title": {
+    "es": "Agentes de IA conectados",
+    "en": "Connected AI agents",
+    "pt": "Agentes de IA conectados"
+  },
+  "ai.mcp.allow": {
+    "es": "Permitir",
+    "en": "Allow",
+    "pt": "Permitir"
+  },
+  "ai.mcp.consent_intro": {
+    "es": "Si lo permites, el agente actuará en esta empresa como tú, con tus mismos permisos y sucursales. Puedes desconectarlo en cualquier momento desde Integraciones.",
+    "en": "If you allow it, it will be able to act in this company as you, with your same permissions and branches. You can disconnect it at any time from Integrations.",
+    "pt": "Se você permitir, ele poderá agir nesta empresa como você, com as mesmas permissões e filiais. Você pode desconectá-lo a qualquer momento em Integrações."
+  },
+  "ai.mcp.consent_return": {
+    "es": "Después volverás a {{host}}. Si no reconoces esa dirección, no lo permitas.",
+    "en": "You will then return to {{host}}. If you don't recognize that address, don't allow it.",
+    "pt": "Em seguida você voltará para {{host}}. Se não reconhecer esse endereço, não permita."
+  },
+  "ai.mcp.consent_title": {
+    "es": "{{client}} quiere acceder a Virtex",
+    "en": "{{client}} wants to access Virtex",
+    "pt": "{{client}} quer acessar o Virtex"
+  },
+  "ai.mcp.deny": {
+    "es": "No permitir",
+    "en": "Don't allow",
+    "pt": "Não permitir"
+  },
+  "ai.mcp.disconnect": {
+    "es": "Desconectar",
+    "en": "Disconnect",
+    "pt": "Desconectar"
+  },
+  "ai.mcp.disconnect_failed": {
+    "es": "No se pudo desconectar el agente. Inténtalo de nuevo.",
+    "en": "The agent could not be disconnected. Try again.",
+    "pt": "Não foi possível desconectar o agente. Tente novamente."
+  },
+  "ai.mcp.invalid_request": {
+    "es": "Esta solicitud de conexión no es válida o ya caducó. Vuelve a iniciarla desde el asistente.",
+    "en": "This connection request is invalid or has expired. Start it again from the assistant.",
+    "pt": "Esta solicitação de conexão é inválida ou expirou. Inicie-a novamente pelo assistente."
+  },
+  "ai.mcp.no_agents": {
+    "es": "No hay agentes conectados.",
+    "en": "No agents are connected.",
+    "pt": "Não há agentes conectados."
+  },
+  "ai.mcp.proposal_from_agent": {
+    "es": "Un agente de IA externo preparó esta propuesta. Comprueba los datos antes de confirmarla: nada se crea hasta que lo hagas.",
+    "en": "An external AI agent prepared this proposal. Check the details before confirming it: nothing is created until you do.",
+    "pt": "Um agente de IA externo preparou esta proposta. Confira os dados antes de confirmá-la: nada é criado até você fazer isso."
+  },
+  "ai.mcp.scope.draft": {
+    "es": "Proponer borradores (facturas, cotizaciones, órdenes de compra, recordatorios) que tú confirmas en Virtex",
+    "en": "Propose drafts (invoices, quotes, purchase orders, reminders) that you confirm in Virtex",
+    "pt": "Propor rascunhos (faturas, orçamentos, pedidos de compra, lembretes) que você confirma no Virtex"
+  },
+  "ai.mcp.scope.read": {
+    "es": "Consultar la información a la que tienes acceso",
+    "en": "Look up the information you have access to",
+    "pt": "Consultar as informações às quais você tem acesso"
+  },
+  "ai.mcp.since": {
+    "es": "Conectado desde {{date}}",
+    "en": "Connected since {{date}}",
+    "pt": "Conectado desde {{date}}"
+  },
   "ai.not_configured": {
     "es": "La inteligencia artificial no está configurada en este servidor. Puedes continuar manualmente.",
     "en": "Artificial intelligence is not configured on this server. You can continue manually.",

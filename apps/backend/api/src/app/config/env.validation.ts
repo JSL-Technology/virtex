@@ -193,6 +193,11 @@ export const envValidation = Joi.object({
    */
   INBOUND_MAIL_DOMAIN: Joi.string().hostname().allow('').optional(),
   INBOUND_MAIL_WEBHOOK_SECRET: Joi.string().min(32).allow('').optional(),
+  /**
+   * The API's public origin (https://api.example.com), as MCP agents reach it: the OAuth issuer and
+   * the resource they are authorised for. Unset, it is taken from each request's host.
+   */
+  API_PUBLIC_URL: Joi.string().uri({ scheme: ['https', 'http'] }).allow('').optional(),
   AI_MODEL_VISION: Joi.string().default('claude-opus-5-5'),
   AI_MODEL_NARRATIVE: Joi.string().default('claude-opus-5-5'),
   AI_MODEL_DEEP_ANALYSIS: Joi.string().default('claude-fable-5-1'),

@@ -21,6 +21,26 @@ export const WORKSPACE_MODULE: ModuleManifest = {
   order: 0,
   routes: [
     {
+      // An external AI agent asking to act as the signed-in person (MCP, OAuth). Reached from the agent, not the menu.
+      path: 'oauth/consent',
+      kind: WindowKind.OVERVIEW,
+      permission: 'ai_copilot:use',
+      titleKey: 'page_titles.mcp_consent',
+      icon: 'ShieldCheck',
+      entityKeyFn: () => 'workspace:mcp-consent',
+      load: () => import('../../../features/ai/mcp/mcp-consent.page').then((m) => m.McpConsentPage),
+    },
+    {
+      // A draft an external agent (or the assistant) proposed, to confirm or discard.
+      path: 'ai/proposals/:id',
+      kind: WindowKind.DOCUMENT,
+      permission: 'ai_copilot:use',
+      titleKey: 'page_titles.ai_proposal',
+      icon: 'Sparkles',
+      entityKeyFn: (p) => `workspace:ai-proposal:${p['id']}`,
+      load: () => import('../../../features/ai/proposals/proposal.page').then((m) => m.ProposalPage),
+    },
+    {
       path: 'overview',
       kind: WindowKind.OVERVIEW,
       permission: 'authenticated',

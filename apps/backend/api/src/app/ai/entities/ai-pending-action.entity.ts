@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Check, Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 import type { AiConversation } from './ai-conversation.entity';
 
@@ -9,6 +9,7 @@ export type AiPendingActionStatus = 'PROPOSED' | 'COMMITTING' | 'CONFIRMED' | 'R
  * who asked confirms it; this row keeps what they were shown, what they decided and what resulted.
  */
 @Entity({ name: 'ai_pending_actions' })
+@Check('CHK_ai_pending_actions_channel', `"channel" IN ('COPILOT', 'MCP')`)
 @Index('IDX_ai_pending_actions_org_conversation', ['organizationId', 'conversationId'])
 export class AiPendingAction {
   @PrimaryGeneratedColumn('uuid')
@@ -49,6 +50,10 @@ export class AiPendingAction {
    */
   @Column({ name: 'after_external_text', type: 'boolean', default: false })
   afterExternalText: boolean;
+
+  /** Where the draft was proposed: in the assistant, or by an external agent over MCP. */
+  @Column({ type: 'varchar', length: 16, default: 'COPILOT' })
+  channel: 'COPILOT' | 'MCP';
 
   @Column({ type: 'varchar', length: 16, default: 'PROPOSED' })
   status: AiPendingActionStatus;

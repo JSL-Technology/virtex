@@ -158,6 +158,7 @@ export const GLOBAL_TABLES: readonly UnscopedTable[] = [
   { table: 'typeorm_metadata', why: 'Metadatos de vistas de TypeORM.' },
   { table: 'scheduled_job_runs', why: 'Cerrojo de trabajos programados del proceso; no lleva datos de negocio.' },
   { table: 'payment_webhook_events', why: 'Idempotencia de webhooks de Stripe: solo un id y su fecha.' },
+  { table: 'mcp_oauth_clients', why: 'Agentes MCP registrados (RFC 7591): nombre y direcciones de retorno, sin datos de ninguna empresa.' },
 ];
 
 /**
@@ -177,6 +178,8 @@ export const CROSS_TENANT_TABLES: readonly UnscopedTable[] = [
   { table: 'user_roles', why: 'Asignación de rol; se resuelve al construir el principal, antes del contexto.' },
   { table: 'roles', why: '`organization_id` nullable a propósito: un rol de plataforma no pertenece a ninguna empresa.' },
   { table: 'refresh_tokens', why: 'Sesiones. El refresco ocurre sin contexto de inquilino.' },
+  { table: 'mcp_oauth_codes', why: 'Códigos OAuth de un solo uso de agentes MCP: se canjean por su hash antes de que haya contexto de inquilino. Toda consulta nombra el hash.' },
+  { table: 'mcp_oauth_tokens', why: 'Tokens OAuth de agentes MCP (solo el hash): se resuelven en cada llamada antes del contexto de inquilino, como refresh_tokens. Toda consulta nombra el hash, la persona o la empresa.' },
   { table: 'user_organizations', why: 'Pertenencia de una PERSONA a varias empresas. Se lee en el camino de autenticación, antes de que haya inquilino, para saber en qué empresas puede actuar; con política solo se veía la del contexto y el modelo multiempresa no funcionaba para `virtex_app`. Toda consulta filtra por `user_id` o por `organization_id`.' },
   { table: 'organization_invitations', why: 'La lee su DESTINATARIO desde la empresa en la que esté actuando, que no es la que invita; una política de inquilino se la ocultaría justo a quien debe responderla. Toda consulta filtra por empresa o por destinatario.' },
   { table: 'passkeys', why: 'Credencial WebAuthn de una persona, no de una empresa.' },

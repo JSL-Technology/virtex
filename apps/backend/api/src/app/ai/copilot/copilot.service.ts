@@ -217,6 +217,65 @@ export class CopilotService {
   }
 
   /** The tools this user may have, by name and purpose — what the panel lists as "I can help with". */
+  /**
+   * The tools this person may have, for an external agent (MCP): the assistant's own rule — every
+   * permission, a branch scope it respects, its plan feature on.
+   */
+  externalTools(user: CopilotUser): Promise<CopilotTool[]> {
+    return this.scoped(user, () => this.toolsFor(user));
+  }
+
+  /**
+   * Run a read tool for an external agent, as the person, with the company's masking applied — the
+   * same as a tool call inside the assistant.
+   */
+  async runExternal(user: CopilotUser, name: string, input: Record<string, unknown>): Promise<unknown> {
+    const tool = (await this.externalTools(user)).find((candidate) => candidate.name === name);
+    if (!tool || tool.kind !== 'read') throw new ForbiddenError('auth.you_do_not_have_permission_perform');
+    return this.scoped(user, async () => {
+      const settings = await this.settings.get(user.organizationId);
+      const data = await tool.run({ user, organizationId: user.organizationId }, input);
+      return settings.maskIdentifiers && !IDENTIFIER_SEARCH_TOOLS.has(tool.name) ? maskIdentifiers(data) : data;
+    });
+  }
+
+  /**
+   * A draft an external agent proposes: recorded as a proposal for the person to confirm in Virtex,
+   * never created on the agent's say-so. Marked as following external text — the agent may have
+   * read anything — and as proposed over MCP, which the created record will say.
+   */
+  async proposeExternal(user: CopilotUser, name: string, input: Record<string, unknown>) {
+    const tool = (await this.externalTools(user)).find((candidate) => candidate.name === name);
+    if (!tool || tool.kind !== 'draft') throw new ForbiddenError('auth.you_do_not_have_permission_perform');
+    return this.scoped(user, async () => {
+      const proposal = await tool.propose({ user, organizationId: user.organizationId }, input);
+      const action = await this.actions.save(
+        this.actions.create({
+          organizationId: user.organizationId,
+          conversationId: null,
+          userId: user.id,
+          tool: tool.name,
+          input: proposal.input ?? input,
+          summary: proposal.summary.slice(0, 500),
+          preview: proposal.preview,
+          status: 'PROPOSED',
+          afterExternalText: true,
+          channel: 'MCP',
+        }),
+      );
+      return publicAction(action);
+    });
+  }
+
+  /** One proposal of this person, to review and confirm (an external agent's, or the assistant's). */
+  async proposal(user: CopilotUser, id: string) {
+    return this.scoped(user, async () => {
+      const action = await this.actions.findOne({ where: { id, organizationId: user.organizationId, userId: user.id } });
+      if (!action) throw new NotFoundError('ai.copilot.proposal_not_found');
+      return publicAction(action);
+    });
+  }
+
   async capabilities(user: CopilotUser) {
     return (await this.toolsFor(user)).map((tool) => ({ name: tool.name, kind: tool.kind }));
   }
@@ -528,7 +587,7 @@ export class CopilotService {
           organizationId: user.organizationId,
           entityType: created.entityType,
           entityId: created.id,
-          source: 'AI_COPILOT',
+          source: action.channel === 'MCP' ? 'AI_MCP' : 'AI_COPILOT',
           userId: user.id,
           pendingActionId: action.id,
           detail: { tool: tool.name, afterExternalText: action.afterExternalText },
@@ -790,6 +849,7 @@ function publicAction(action: AiPendingAction) {
     summary: action.summary,
     preview: action.preview,
     afterExternalText: action.afterExternalText,
+    channel: action.channel,
     status: action.status,
     result: action.result?.['id'] ? { id: action.result['id'], link: action.result['link'], label: action.result['label'] } : null,
     error: action.error,

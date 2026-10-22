@@ -54,6 +54,14 @@ import { AiRecordProvenance } from './entities/ai-record-provenance.entity';
 import { ProvenanceController } from './provenance/provenance.controller';
 import { CloseAssistantService } from './close/close-assistant.service';
 import { CloseAssistantController } from './close/close-assistant.controller';
+import { McpOAuthClient } from './mcp/entities/mcp-oauth-client.entity';
+import { McpOAuthCode } from './mcp/entities/mcp-oauth-code.entity';
+import { McpOAuthToken } from './mcp/entities/mcp-oauth-token.entity';
+import { McpOAuthService } from './mcp/mcp-oauth.service';
+import { McpService } from './mcp/mcp.service';
+import { McpController } from './mcp/mcp.controller';
+import { McpOAuthController } from './mcp/mcp-oauth.controller';
+import { McpWellKnownController } from './mcp/mcp-well-known.controller';
 import { AiMessageFeedback } from './entities/ai-message-feedback.entity';
 import { AiSettingsService } from './settings/ai-settings.service';
 import { AiSettingsController } from './settings/ai-settings.controller';
@@ -75,17 +83,19 @@ import { AiRetentionService } from './settings/ai-retention.service';
     TypeOrmModule.forFeature([
       AiRequest, AiModelRun, AiForecast, AiInventoryInsight, AiAnomaly, AiAnomalyFeedback,
       AiConversation, AiMessage, AiPendingAction, AiChart, AiKnowledgeChunk,
-      AiCashflowForecast, AiCashflowItem, AiReport, AiDuplicateSuggestion, AiAgentRun, AiOrganizationSettings, AiRecordProvenance, AiMessageFeedback,
+      AiCashflowForecast, AiCashflowItem, AiReport, AiDuplicateSuggestion, AiAgentRun, AiOrganizationSettings, AiRecordProvenance, AiMessageFeedback, McpOAuthClient, McpOAuthCode, McpOAuthToken,
     ]),
     BullModule.registerQueue({ name: AI_ENGINE_QUEUE }),
     BullModule.registerQueue({ name: AI_REPORTS_QUEUE }),
     InventoryModule,
     AuditModule,
   ],
-  controllers: [AiController, ProvenanceController, CloseAssistantController, CopilotController, CopilotDataController, CashflowController, ManagerReportController, DataQualityController, AgentsController, AiSettingsController],
+  controllers: [AiController, ProvenanceController, CloseAssistantController, McpController, McpOAuthController, McpWellKnownController, CopilotController, CopilotDataController, CashflowController, ManagerReportController, DataQualityController, AgentsController, AiSettingsController],
   providers: [
     AiSettingsService,
     CloseAssistantService,
+    McpOAuthService,
+    McpService,
     AiRetentionService,
     AiGatewayService,
     EmbeddingsService,

@@ -2,7 +2,7 @@ import { createServer } from 'node:net';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { useContainer } from 'class-validator';
 import fastifyCookie from '@fastify/cookie';
@@ -238,7 +238,8 @@ async function bootstrap() {
   );
 
   const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
-  app.setGlobalPrefix(apiPrefix);
+  // OAuth discovery (RFC 8414, RFC 9728) lives at the origin's root, where MCP agents look for it.
+  app.setGlobalPrefix(apiPrefix, { exclude: [{ path: '.well-known/{*rest}', method: RequestMethod.GET }] });
 
   // Same allow-list as everything else that is "development only". `NODE_ENV !== 'production'`
   // published the whole API surface — every route, DTO and example — to any value that was not

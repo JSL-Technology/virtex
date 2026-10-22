@@ -21,6 +21,8 @@ export interface CopilotProposal {
   preview: Record<string, unknown>;
   /** Proposed after the assistant read text written outside the company: worth a closer look. */
   afterExternalText?: boolean;
+  /** Proposed in the assistant, or by an external agent over MCP. */
+  channel?: 'COPILOT' | 'MCP';
   status: CopilotProposalStatus;
   /** The draft that was created, once confirmed. */
   result: { id: string; link: string; label: string } | null;
@@ -171,6 +173,11 @@ export class CopilotApiService {
       verdict,
       ...(comment ? { comment } : {}),
     });
+  }
+
+  /** One of the caller's proposals (the assistant's, or an external agent's), to review. */
+  proposal(proposalId: string): Observable<CopilotProposal> {
+    return this.http.get<CopilotProposal>(`${this.url}/proposals/${proposalId}`);
   }
 
   confirm(proposalId: string): Observable<CopilotProposal> {

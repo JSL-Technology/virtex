@@ -193,6 +193,12 @@ export class CopilotController {
     return this.copilot.feedback(await asCopilotUser(this.dataSource, user), id, dto.seq, dto.verdict, dto.comment ?? null);
   }
 
+  @Get('proposals/:id')
+  @ApiOperation({ summary: 'One proposal of the caller (from the assistant or an external agent), to review.' })
+  async proposal(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    return this.copilot.proposal(await asCopilotUser(this.dataSource, user), id);
+  }
+
   @Post('proposals/:id/confirm')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Create, as a draft, the document the copilot proposed.' })
