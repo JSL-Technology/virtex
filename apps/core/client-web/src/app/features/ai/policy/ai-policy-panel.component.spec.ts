@@ -15,6 +15,7 @@ const policy = (overrides: Partial<AiPolicy['settings']> = {}): AiPolicy => ({
     dailyBudgetUsd: null,
     conversationRetentionDays: 180,
     maskIdentifiers: true,
+    activityMonitoring: false,
     maxMonthlyBudgetUsd: 10_000,
     ...overrides,
   },

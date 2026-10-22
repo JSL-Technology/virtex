@@ -31,6 +31,13 @@ export class AiOrganizationSettings {
   @Column({ name: 'scheduled_reports', type: 'boolean', default: false })
   scheduledReports: boolean;
 
+  /**
+   * Whether the anomaly run looks at when each person works (findings about people). Off until the
+   * company opts in, having told its people as its country's labour rules require.
+   */
+  @Column({ name: 'activity_monitoring', type: 'boolean', default: false })
+  activityMonitoring: boolean;
+
   /** Whether product photos go to the image-embeddings provider. Off until the company opts in. */
   @Column({ name: 'image_embeddings', type: 'boolean', default: false })
   imageEmbeddings: boolean;

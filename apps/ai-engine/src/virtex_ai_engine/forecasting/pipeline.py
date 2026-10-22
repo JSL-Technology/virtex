@@ -60,13 +60,12 @@ def load(conn: psycopg.Connection, organization_id: str, params: Params, today: 
         ),
         "on_hand": frame(
             conn,
-            """SELECT l.product_id::text, l.warehouse_id::text, l.quantity_on_hand
-                 FROM stock_levels l JOIN products p ON p.id = l.product_id
-                WHERE l.organization_id = %s AND p.kind = 'GOOD'""",
+            """SELECT product_id::text, warehouse_id::text, quantity_on_hand
+                 FROM ai_src_stock_on_hand WHERE organization_id = %s""",
             org,
         ),
         "warehouses": frame(
-            conn, "SELECT id::text AS warehouse_id, branch_id::text FROM warehouses WHERE organization_id = %s", org
+            conn, "SELECT warehouse_id::text, branch_id::text FROM ai_src_warehouses WHERE organization_id = %s", org
         ),
         "lead_times": frame(
             conn,
@@ -82,18 +81,18 @@ def load(conn: psycopg.Connection, organization_id: str, params: Params, today: 
         ),
         "products": frame(
             conn,
-            "SELECT id::text AS product_id, price::float, category_id::text FROM products WHERE organization_id = %s",
+            "SELECT product_id::text, price::float, category_id::text FROM ai_src_products WHERE organization_id = %s",
             org,
         ),
-        "organization": frame(conn, "SELECT country, timezone FROM organizations WHERE id = %s", org),
+        "organization": frame(conn, "SELECT country, timezone FROM ai_src_organizations WHERE organization_id = %s", org),
         "on_order": frame(
             conn,
-            """SELECT l.product_id::text, SUM(GREATEST(l.quantity - l.received_quantity, 0))::float AS quantity
-                 FROM purchase_order_lines l JOIN purchase_orders o ON o.id = l.order_id
-                WHERE o.organization_id = %s AND l.product_id IS NOT NULL
+            """SELECT product_id::text, SUM(GREATEST(quantity - received_quantity, 0))::float AS quantity
+                 FROM ai_src_purchase_order_lines
+                WHERE organization_id = %s AND product_id IS NOT NULL
                   -- Committed and not yet fully received: what is already on its way.
-                  AND o.status::text IN ('APPROVED', 'SENT', 'PARTIALLY_RECEIVED')
-                GROUP BY l.product_id""",
+                  AND order_status IN ('APPROVED', 'SENT', 'PARTIALLY_RECEIVED')
+                GROUP BY product_id""",
             org,
         ),
     }

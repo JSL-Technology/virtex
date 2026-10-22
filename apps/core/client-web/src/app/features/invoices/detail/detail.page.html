@@ -18,6 +18,7 @@
     `(email)` y `(export)` mientras la barra emitía `navigateRequested`, `printRequested`…: catorce
     de dieciséis botones no hacían nada (QA A-09).
   -->
+  <app-ai-provenance-badge documentActions entityType="invoice" [entityId]="inv.id" />
   <app-invoice-toolbar
     documentActions
     [canCopyFrom]="inv.status === 'Draft'"

@@ -10,6 +10,7 @@
   (back)="goToList()"
 >
   <ng-container documentActions>
+    <app-ai-provenance-badge entityType="vendor_bill" [entityId]="billData.id" />
     @if (canEdit()) {
       <a [routerLink]="['/accounts-payable', billData.id, 'edit']" class="secondary-button">
         <lucide-icon [img]="EditIcon" size="16" aria-hidden="true"></lucide-icon>

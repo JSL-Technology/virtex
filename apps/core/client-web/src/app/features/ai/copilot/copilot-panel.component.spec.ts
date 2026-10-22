@@ -49,6 +49,7 @@ describe('CopilotPanelComponent', () => {
       remove: jest.fn().mockReturnValue(of(undefined)),
       pin: jest.fn().mockReturnValue(of({ ...chart, pinned: true })),
       unpin: jest.fn().mockReturnValue(of(undefined)),
+      feedback: jest.fn().mockReturnValue(of({ seq: 2, verdict: 'UP' })),
       ...overrides,
     };
     await TestBed.configureTestingModule({
@@ -59,6 +60,44 @@ describe('CopilotPanelComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
   };
+
+  it('announces a finished answer once, links its records, and takes a rating', async () => {
+    await setup();
+    const live = () => fixture.nativeElement.querySelector('[aria-live]') as HTMLElement;
+    // The conversation itself is no live region: a reader would hear every fragment.
+    expect(fixture.nativeElement.querySelector('.cp__messages').getAttribute('aria-live')).toBeNull();
+    component.draft.set('¿Qué facturas vencen?');
+    component.send();
+    turn.next({ type: 'text', delta: 'Vence **FAC-1**.' });
+    fixture.detectChanges();
+    expect(live().textContent?.trim()).toBe('');
+    turn.next({
+      type: 'done',
+      result: {
+        text: '', stopReason: 'end_turn', toolsUsed: ['list_invoices'], proposals: [], answerSeq: 2,
+        sources: [{ tool: 'list_invoices', type: 'invoice', id: 'i-1', label: 'FAC-1', link: '/invoices/i-1' }],
+      },
+    });
+    turn.complete();
+    fixture.detectChanges();
+    expect(live().textContent).toContain('Vence');
+    expect(fixture.nativeElement.querySelector('.cp__record').getAttribute('href')).toBe('/invoices/i-1');
+
+    (fixture.nativeElement.querySelector('.cp__feedback button') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    expect(api['feedback']).toHaveBeenCalledWith('c-1', 2, 'UP');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.cp__feedback button').getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('warns on a draft proposed after reading text from outside the company', async () => {
+    await setup();
+    component.draft.set('cotiza la nota');
+    component.send();
+    turn.next({ type: 'proposal', proposal: { ...proposal, afterExternalText: true } });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.cp__external')).not.toBeNull();
+  });
 
   it('suggests only what the person can ask about', async () => {
     await setup();

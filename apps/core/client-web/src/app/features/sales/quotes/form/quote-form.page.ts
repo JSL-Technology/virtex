@@ -26,6 +26,7 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { Quote, QuoteInput, QuotesService } from '../data/quotes.service';
 import { QUOTE_TONE } from '../list/quotes.page';
+import { AiProvenanceBadgeComponent } from '../../../ai/provenance/ai-provenance-badge.component';
 
 const DEFAULT_VALIDITY_DAYS = 15;
 
@@ -41,7 +42,7 @@ const DEFAULT_VALIDITY_DAYS = 15;
 @Component({
   selector: 'app-quote-form-page',
   standalone: true,
-  imports: [
+  imports: [AiProvenanceBadgeComponent, 
     VxBranchPickerComponent,
     ReactiveFormsModule,
     RouterLink,

@@ -21,3 +21,11 @@ Além dos créditos do plano, a empresa tem um orçamento mensal em dólares (e,
 ## Conversas e os seus dados
 
 As conversas do assistente são apagadas à noite quando passam os dias configurados sem atividade, e também as de quem sai da empresa. O que o assistente propôs e o que foi decidido fica guardado como registro. Cada pessoa pode baixar ou apagar as suas próprias conversas no assistente.
+
+## Horário de atividade das pessoas
+
+A deteção de anomalias pode assinalar quem trabalha em documentos a horas em que a empresa quase nunca trabalha. É um tratamento de dados de funcionários, por isso começa desligado: ative-o em «O que a empresa permite» só depois de informar a sua equipa, como exijam as normas laborais do seu país. As constatações sobre pessoas só são visíveis a quem tem a permissão «Ver constatações de segurança», e ninguém pode confirmar nem descartar uma constatação sobre algo que fez.
+
+## O que a IA fez em cada registo
+
+Uma fatura, orçamento ou ordem de compra que o assistente propôs, uma fatura de fornecedor lida de um PDF ou uma ordem criada pelo agente de reposição indicam-no com uma etiqueta no próprio documento. Nas faturas lidas por IA, a etiqueta diz quantos campos uma pessoa corrigiu; ao passar o cursor vê-se quais. As respostas do assistente podem ser avaliadas ou reportadas, e em «Agentes» vê-se o resumo do que a equipa disse.

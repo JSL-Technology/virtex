@@ -24,6 +24,7 @@ export class ProcurementCopilotTools implements OnModuleInit {
         kind: 'read',
         name: 'list_purchase_orders',
         branchScope: 'applied',
+        records: 'purchase_order',
         externalText: true,
         description: 'Purchase orders, filtered by status or supplier, with dates, total and status.',
         permissions: [PERMISSIONS.PROCUREMENT_VIEW],
@@ -104,7 +105,7 @@ export class ProcurementCopilotTools implements OnModuleInit {
         },
         commit: async (ctx, input) => {
           const order = await this.orders.create(await this.toDto(ctx, input), ctx.organizationId, ctx.user.id);
-          return { id: order.id, link: `/purchasing/orders/${order.id}/edit`, label: order.number ?? '' };
+          return { id: order.id, entityType: 'purchase_order', link: `/purchasing/orders/${order.id}/edit`, label: order.number ?? '' };
         },
       },
     );

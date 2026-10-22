@@ -43,6 +43,13 @@ export class AiPendingAction {
   @Column({ type: 'jsonb' })
   preview: Record<string, unknown>;
 
+  /**
+   * Made in a turn that had read text written outside the company (a supplier's note, a customer's
+   * name): the confirmation card says so, since that is where a planted instruction would come from.
+   */
+  @Column({ name: 'after_external_text', type: 'boolean', default: false })
+  afterExternalText: boolean;
+
   @Column({ type: 'varchar', length: 16, default: 'PROPOSED' })
   status: AiPendingActionStatus;
 

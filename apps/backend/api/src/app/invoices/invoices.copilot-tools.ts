@@ -39,6 +39,7 @@ export class InvoicesCopilotTools implements OnModuleInit {
         kind: 'read',
         name: 'list_invoices',
         branchScope: 'applied',
+        records: 'invoice',
         externalText: true,
         description:
           'Sales invoices, newest first, filtered by status, customer, issue-date range or a number/name fragment. ' +
@@ -83,6 +84,7 @@ export class InvoicesCopilotTools implements OnModuleInit {
         kind: 'read',
         name: 'get_invoice',
         branchScope: 'applied',
+        records: 'invoice',
         externalText: true,
         description: 'One sales invoice with its lines, taxes and payments status.',
         permissions: [PERMISSIONS.INVOICES_VIEW],
@@ -155,7 +157,7 @@ export class InvoicesCopilotTools implements OnModuleInit {
         commit: async (ctx, input) => {
           const dto = await this.toDto(ctx, input);
           const invoice = await this.invoices.create(dto, ctx.organizationId, ctx.user.id);
-          return { id: invoice.id, link: `/invoices/${invoice.id}`, label: invoice.invoiceNumber ?? '' };
+          return { id: invoice.id, entityType: 'invoice', link: `/invoices/${invoice.id}`, label: invoice.invoiceNumber ?? '' };
         },
       },
     );

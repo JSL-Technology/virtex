@@ -22,6 +22,7 @@ export class SalesCopilotTools implements OnModuleInit {
         kind: 'read',
         name: 'list_quotes',
         branchScope: 'applied',
+        records: 'quote',
         externalText: true,
         description: 'Sales quotes, filtered by status (DRAFT, SENT, ACCEPTED, REJECTED, CANCELLED, INVOICED), with customer, dates, total and whether expired.',
         permissions: [PERMISSIONS.INVOICES_VIEW],
@@ -104,7 +105,7 @@ export class SalesCopilotTools implements OnModuleInit {
         },
         commit: async (ctx, input) => {
           const quote = await this.quotes.create(await this.toDto(ctx, input), ctx.organizationId, { id: ctx.user.id });
-          return { id: quote.id, link: `/quotes/${quote.id}/edit`, label: quote.quoteNumber ?? '' };
+          return { id: quote.id, entityType: 'quote', link: `/quotes/${quote.id}/edit`, label: quote.quoteNumber ?? '' };
         },
       },
     );

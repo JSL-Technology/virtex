@@ -20,6 +20,12 @@ export class AgentsController {
     return this.runs.list(user.organizationId, agent && /^[a-z_]{1,48}$/.test(agent) ? agent : undefined, Number(limit) || 30);
   }
 
+  @Get('copilot-feedback')
+  @ApiOperation({ summary: "What people said about the copilot's answers (useful, not useful, reported)." })
+  feedback(@CurrentUser() user: AuthenticatedUser, @Query('limit') limit?: string) {
+    return this.runs.copilotFeedback(user.organizationId, Number(limit) || 50);
+  }
+
   @Get('copilot-proposals')
   @ApiOperation({ summary: 'What the copilot proposed to draft, and what became of each proposal.' })
   proposals(@CurrentUser() user: AuthenticatedUser, @Query('limit') limit?: string) {

@@ -15,6 +15,7 @@
     @if (current(); as quote) {
       <div class="doc-status">
         <vx-badge [tone]="statusTone()" [struck]="quote.status === 'CANCELLED'">{{ statusKey() | translate }}</vx-badge>
+        <app-ai-provenance-badge entityType="quote" [entityId]="quote.id" />
         @if (quote.expired) {
           <span class="doc-status__note">{{ 'sales.quotes.expired_note' | translate }}</span>
         }

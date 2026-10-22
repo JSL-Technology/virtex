@@ -33,6 +33,11 @@ export interface CopilotProposalEntry {
   link: string | null;
 }
 
+export interface CopilotFeedbackReport {
+  last30Days: { up: number; down: number; reported: number };
+  items: Array<{ id: string; verdict: 'UP' | 'DOWN' | 'REPORT'; comment: string | null; createdAt: string; toolsUsed: string[] }>;
+}
+
 export interface ReplenishmentSettings {
   enabled: boolean;
   warehouseIds: string[];
@@ -51,6 +56,11 @@ export class AgentsApiService {
 
   copilotProposals(): Observable<CopilotProposalEntry[]> {
     return this.http.get<CopilotProposalEntry[]>(`${this.api}/ai/agents/copilot-proposals`);
+  }
+
+  /** What people said about the copilot's answers: the verdicts and comments, not the conversations. */
+  copilotFeedback(): Observable<CopilotFeedbackReport> {
+    return this.http.get<CopilotFeedbackReport>(`${this.api}/ai/agents/copilot-feedback`);
   }
 
   replenishmentSettings(): Observable<ReplenishmentSettings> {

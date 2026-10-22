@@ -274,6 +274,21 @@
     "en": "The assistant has not proposed drafts yet.",
     "pt": "O assistente ainda não propôs rascunhos."
   },
+  "ai.agents.feedback": {
+    "es": "Opinión sobre el asistente",
+    "en": "Feedback on the assistant",
+    "pt": "Opinião sobre o assistente"
+  },
+  "ai.agents.feedback_empty": {
+    "es": "Nadie ha calificado respuestas todavía.",
+    "en": "Nobody has rated an answer yet.",
+    "pt": "Ninguém avaliou respostas ainda."
+  },
+  "ai.agents.feedback_totals": {
+    "es": "Últimos 30 días: {{up}} útiles, {{down}} no útiles, {{reported}} reportadas.",
+    "en": "Last 30 days: {{up}} useful, {{down}} not useful, {{reported}} reported.",
+    "pt": "Últimos 30 dias: {{up}} úteis, {{down}} não úteis, {{reported}} reportadas."
+  },
   "ai.agents.intro": {
     "es": "Un agente ejecuta un proceso por su cuenta, pero nunca compromete a la empresa: deja borradores o los envía al flujo de aprobación que ya existe.",
     "en": "An agent runs a process on its own but never commits the company: it leaves drafts, or sends them into the approval flow that already exists.",
@@ -413,6 +428,21 @@
     "es": "desde un flujo",
     "en": "from a workflow",
     "pt": "de um fluxo"
+  },
+  "ai.agents.verdict.down": {
+    "es": "No útil",
+    "en": "Not useful",
+    "pt": "Não útil"
+  },
+  "ai.agents.verdict.report": {
+    "es": "Reportada",
+    "en": "Reported",
+    "pt": "Reportada"
+  },
+  "ai.agents.verdict.up": {
+    "es": "Útil",
+    "en": "Useful",
+    "pt": "Útil"
   },
   "ai.anomalies.all": {
     "es": "Todas",
@@ -1574,6 +1604,16 @@
     "en": "This view covers the whole company and your access is limited to some branches.",
     "pt": "Esta vista abrange toda a empresa e o seu acesso está limitado a algumas filiais."
   },
+  "ai.copilot.after_external_text": {
+    "es": "Esta propuesta se hizo después de leer texto escrito fuera de la empresa (una nota, un nombre de cliente o proveedor). Revísala con cuidado: ese texto podría intentar dar instrucciones al asistente.",
+    "en": "This proposal was made after reading text written outside the company (a note, a customer's or supplier's name). Review it carefully: that text could try to give the assistant instructions.",
+    "pt": "Esta proposta foi feita depois de ler texto escrito fora da empresa (uma nota, um nome de cliente ou fornecedor). Reveja-a com cuidado: esse texto pode tentar dar instruções ao assistente."
+  },
+  "ai.copilot.answer_not_found": {
+    "es": "No se encontró esa respuesta en la conversación.",
+    "en": "That answer was not found in the conversation.",
+    "pt": "Essa resposta não foi encontrada na conversa."
+  },
   "ai.copilot.back": {
     "es": "Volver",
     "en": "Back",
@@ -1699,6 +1739,26 @@
     "en": "Could not get an answer. Please try again.",
     "pt": "Não foi possível obter uma resposta. Tente novamente."
   },
+  "ai.copilot.feedback_down": {
+    "es": "No útil",
+    "en": "Not useful",
+    "pt": "Não útil"
+  },
+  "ai.copilot.feedback_label": {
+    "es": "¿Te sirvió esta respuesta?",
+    "en": "Was this answer useful?",
+    "pt": "Esta resposta foi útil?"
+  },
+  "ai.copilot.feedback_thanks": {
+    "es": "Gracias, tu opinión quedó registrada.",
+    "en": "Thanks, your feedback was recorded.",
+    "pt": "Obrigado, a sua opinião foi registada."
+  },
+  "ai.copilot.feedback_up": {
+    "es": "Útil",
+    "en": "Useful",
+    "pt": "Útil"
+  },
   "ai.copilot.history": {
     "es": "Conversaciones",
     "en": "Conversations",
@@ -1809,10 +1869,30 @@
     "en": "Discarded.",
     "pt": "Descartada."
   },
+  "ai.copilot.records": {
+    "es": "Registros consultados",
+    "en": "Records consulted",
+    "pt": "Registos consultados"
+  },
   "ai.copilot.refused": {
     "es": "El asistente no puede ayudar con esta petición.",
     "en": "The assistant cannot help with this request.",
     "pt": "O assistente não pode ajudar com este pedido."
+  },
+  "ai.copilot.report": {
+    "es": "Reportar",
+    "en": "Report",
+    "pt": "Reportar"
+  },
+  "ai.copilot.report_message": {
+    "es": "Los administradores de IA de tu empresa verán que reportaste esta respuesta (no el texto de la conversación). Úsalo para cifras incorrectas o sugerencias inapropiadas.",
+    "en": "Your company's AI administrators will see that you reported this answer (not the conversation's text). Use it for wrong figures or inappropriate suggestions.",
+    "pt": "Os administradores de IA da sua empresa verão que reportou esta resposta (não o texto da conversa). Use-o para números errados ou sugestões inapropriadas."
+  },
+  "ai.copilot.report_title": {
+    "es": "Reportar esta respuesta",
+    "en": "Report this answer",
+    "pt": "Reportar esta resposta"
   },
   "ai.copilot.send": {
     "es": "Enviar",
@@ -2449,6 +2529,16 @@
     "en": "Uploading the photo…",
     "pt": "A enviar a foto…"
   },
+  "ai.policy.activity_monitoring": {
+    "es": "Revisar el horario de actividad de cada persona",
+    "en": "Review each person's activity hours",
+    "pt": "Rever o horário de atividade de cada pessoa"
+  },
+  "ai.policy.activity_monitoring_help": {
+    "es": "Señala a quien trabaja en documentos a horas en que la empresa casi nunca trabaja. Es un tratamiento de datos de empleados: actívalo solo después de informarles, como exijan las normas laborales de tu país. Los hallazgos solo los ve quien tiene el permiso de hallazgos de seguridad.",
+    "en": "Flags whoever works on documents at hours the company almost never works. This processes employee data: turn it on only after telling your people, as your country's labour rules require. Only people with the security-findings permission see the findings.",
+    "pt": "Assinala quem trabalha em documentos a horas em que a empresa quase nunca trabalha. É um tratamento de dados de funcionários: ative-o só depois de os informar, como exijam as normas laborais do seu país. Só quem tem a permissão de constatações de segurança vê as constatações."
+  },
   "ai.policy.budget": {
     "es": "Presupuesto",
     "en": "Budget",
@@ -2978,6 +3068,46 @@
     "es": "Quitar {{name}}",
     "en": "Remove {{name}}",
     "pt": "Remover {{name}}"
+  },
+  "ai.provenance.edited": {
+    "es": "{{count}} campo(s) corregido(s)",
+    "en": "{{count}} field(s) corrected",
+    "pt": "{{count}} campo(s) corrigido(s)"
+  },
+  "ai.provenance.source.ai_agent": {
+    "es": "Creado por un agente de IA",
+    "en": "Raised by an AI agent",
+    "pt": "Criado por um agente de IA"
+  },
+  "ai.provenance.source.ai_capture": {
+    "es": "Leído del documento por IA",
+    "en": "Read from the document by AI",
+    "pt": "Lido do documento por IA"
+  },
+  "ai.provenance.source.ai_copilot": {
+    "es": "Propuesto por el asistente",
+    "en": "Proposed by the assistant",
+    "pt": "Proposto pelo assistente"
+  },
+  "ai.provenance.source.ai_mail": {
+    "es": "Recibido por correo y leído por IA",
+    "en": "Received by e-mail and read by AI",
+    "pt": "Recebido por e-mail e lido por IA"
+  },
+  "ai.provenance.source.ai_mcp": {
+    "es": "Creado por un agente externo (MCP)",
+    "en": "Created by an external agent (MCP)",
+    "pt": "Criado por um agente externo (MCP)"
+  },
+  "ai.provenance.source.ai_reconciliation": {
+    "es": "Conciliado automáticamente por IA",
+    "en": "Reconciled automatically by AI",
+    "pt": "Conciliado automaticamente por IA"
+  },
+  "ai.provenance.unknown_record_type": {
+    "es": "Ese tipo de registro no tiene procedencia de IA.",
+    "en": "That kind of record has no AI provenance.",
+    "pt": "Esse tipo de registo não tem proveniência de IA."
   },
   "ai.provider_error": {
     "es": "El servicio de inteligencia artificial no respondió. Inténtalo de nuevo o continúa manualmente.",

@@ -15,6 +15,7 @@ export class SuppliersCopilotTools implements OnModuleInit {
       kind: 'read',
       name: 'search_suppliers',
       branchScope: 'none',
+      records: 'supplier',
       externalText: true,
       description: "Find suppliers by name, tax identifier (the market's own) or e-mail. Returns ids for use in other tools.",
       permissions: [PERMISSIONS.SUPPLIERS_VIEW],

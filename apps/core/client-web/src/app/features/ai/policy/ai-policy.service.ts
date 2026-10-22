@@ -13,6 +13,7 @@ export interface AiPolicySettings {
   dailyBudgetUsd: number | null;
   conversationRetentionDays: number;
   maskIdentifiers: boolean;
+  activityMonitoring: boolean;
   maxMonthlyBudgetUsd: number;
 }
 

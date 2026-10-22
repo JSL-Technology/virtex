@@ -109,7 +109,7 @@ export class CollectionsCopilotTools implements OnModuleInit {
           const { message } = await this.collections.composeReminder(ctx.organizationId, { id: ctx.user.id }, invoice.id, tone);
           const draft = await this.collections.saveDraft(ctx.organizationId, ctx.user.id, invoice.id, { tone, message });
           // The draft opens in the worklist, where the person reviews and sends it.
-          return { id: draft.id, link: `/collections?draft=${draft.id}`, label: invoice.fiscalNumber ?? invoice.invoiceNumber };
+          return { id: draft.id, entityType: 'collection_draft', link: `/collections?draft=${draft.id}`, label: invoice.fiscalNumber ?? invoice.invoiceNumber };
         },
       },
     );

@@ -50,6 +50,9 @@ import { AnomaliesService } from './anomalies/anomalies.service';
 import { AiController } from './ai.controller';
 import { InventoryModule } from '../inventory/inventory.module';
 import { AiOrganizationSettings } from './entities/ai-organization-settings.entity';
+import { AiRecordProvenance } from './entities/ai-record-provenance.entity';
+import { ProvenanceController } from './provenance/provenance.controller';
+import { AiMessageFeedback } from './entities/ai-message-feedback.entity';
 import { AiSettingsService } from './settings/ai-settings.service';
 import { AiSettingsController } from './settings/ai-settings.controller';
 import { AuditModule } from '../audit/audit.module';
@@ -70,14 +73,14 @@ import { AiRetentionService } from './settings/ai-retention.service';
     TypeOrmModule.forFeature([
       AiRequest, AiModelRun, AiForecast, AiInventoryInsight, AiAnomaly, AiAnomalyFeedback,
       AiConversation, AiMessage, AiPendingAction, AiChart, AiKnowledgeChunk,
-      AiCashflowForecast, AiCashflowItem, AiReport, AiDuplicateSuggestion, AiAgentRun, AiOrganizationSettings,
+      AiCashflowForecast, AiCashflowItem, AiReport, AiDuplicateSuggestion, AiAgentRun, AiOrganizationSettings, AiRecordProvenance, AiMessageFeedback,
     ]),
     BullModule.registerQueue({ name: AI_ENGINE_QUEUE }),
     BullModule.registerQueue({ name: AI_REPORTS_QUEUE }),
     InventoryModule,
     AuditModule,
   ],
-  controllers: [AiController, CopilotController, CopilotDataController, CashflowController, ManagerReportController, DataQualityController, AgentsController, AiSettingsController],
+  controllers: [AiController, ProvenanceController, CopilotController, CopilotDataController, CashflowController, ManagerReportController, DataQualityController, AgentsController, AiSettingsController],
   providers: [
     AiSettingsService,
     AiRetentionService,

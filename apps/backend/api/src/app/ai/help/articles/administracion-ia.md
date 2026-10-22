@@ -21,3 +21,11 @@ Además de los créditos del plan, la empresa tiene un presupuesto mensual en d�
 ## Conversaciones y tus datos
 
 Las conversaciones del asistente se borran cada noche cuando pasan los días configurados sin actividad, y también las de quien deja la empresa. Lo que el asistente propuso y lo que se decidió se conserva como registro. Cada persona puede descargar o borrar sus propias conversaciones desde el asistente.
+
+## Horario de actividad de las personas
+
+La detección de anomalías puede señalar a quien trabaja en documentos a horas en que la empresa casi nunca trabaja. Es un tratamiento de datos de empleados, así que viene apagado: actívalo en «Qué permite la empresa» solo después de informar a tu equipo, como exijan las normas laborales de tu país. Los hallazgos sobre personas solo los ve quien tiene el permiso «Ver hallazgos de seguridad», y nadie puede confirmar ni descartar un hallazgo sobre algo que hizo él mismo.
+
+## Qué hizo la IA en cada registro
+
+Una factura, cotización u orden de compra que propuso el asistente, una factura de proveedor leída de un PDF o una orden que creó el agente de reposición lo indican con una etiqueta en el propio documento. En las facturas leídas por IA, la etiqueta dice cuántos campos corrigió una persona; al pasar el cursor se ven cuáles. Las respuestas del asistente se pueden calificar o reportar, y en «Agentes» se ve el resumen de lo que opinó el equipo.

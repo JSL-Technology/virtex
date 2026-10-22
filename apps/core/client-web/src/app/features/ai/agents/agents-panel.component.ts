@@ -7,7 +7,7 @@ import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
-import { AgentRun, AgentsApiService, CopilotProposalEntry, ReplenishmentSettings } from './agents.service';
+import { AgentRun, AgentsApiService, CopilotFeedbackReport, CopilotProposalEntry, ReplenishmentSettings } from './agents.service';
 
 /**
  * Admin › AI › Agents: the replenishment agent's settings, a run on request, and the log of
@@ -32,6 +32,7 @@ export class AiAgentsPanelComponent implements OnInit {
   readonly settings = signal<ReplenishmentSettings | null>(null);
   readonly runs = signal<AgentRun[]>([]);
   readonly proposals = signal<CopilotProposalEntry[]>([]);
+  readonly feedback = signal<CopilotFeedbackReport | null>(null);
   readonly running = signal(false);
 
   ngOnInit(): void {
@@ -42,6 +43,7 @@ export class AiAgentsPanelComponent implements OnInit {
   loadLog(): void {
     this.api.runs().subscribe({ next: (runs) => this.runs.set(runs), error: () => this.runs.set([]) });
     this.api.copilotProposals().subscribe({ next: (rows) => this.proposals.set(rows), error: () => this.proposals.set([]) });
+    this.api.copilotFeedback().subscribe({ next: (report) => this.feedback.set(report), error: () => this.feedback.set(null) });
   }
 
   update(changes: Partial<ReplenishmentSettings>): void {

@@ -53,6 +53,10 @@ export class UpdateAiSettingsDto {
   @IsOptional()
   @IsBoolean({ message: 'validation.constraints.is_boolean' })
   maskIdentifiers?: boolean;
+
+  @IsOptional()
+  @IsBoolean({ message: 'validation.constraints.is_boolean' })
+  activityMonitoring?: boolean;
 }
 
 /**

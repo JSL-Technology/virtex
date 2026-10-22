@@ -40,6 +40,55 @@ export function toolAllowed(tool: Pick<CopilotToolBase, 'permissions' | 'branchS
   return !(tool.branchScope === 'unscoped' && user.branches !== null);
 }
 
+/** A kind of record a tool returns, so an answer can link to the records it rests on. */
+export type CopilotRecordType = 'invoice' | 'quote' | 'purchase_order' | 'customer' | 'supplier' | 'product' | 'vendor_bill';
+
+/** Where each kind of record opens in the client. */
+export const COPILOT_RECORD_LINKS: Record<CopilotRecordType, (id: string) => string> = {
+  invoice: (id) => `/invoices/${id}`,
+  quote: (id) => `/quotes/${id}/edit`,
+  purchase_order: (id) => `/purchasing/orders/${id}/edit`,
+  customer: (id) => `/contacts/customers/${id}/edit`,
+  supplier: (id) => `/contacts/suppliers/${id}/edit`,
+  product: (id) => `/inventory/products/${id}/edit`,
+  vendor_bill: (id) => `/accounts-payable/${id}`,
+};
+
+export interface CopilotRecordRef {
+  tool: string;
+  type: CopilotRecordType;
+  id: string;
+  label: string;
+  link: string;
+}
+
+const RECORD_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const RECORD_LABELS = ['number', 'invoiceNumber', 'fiscalNumber', 'quoteNumber', 'orderNumber', 'ncf', 'name', 'companyName', 'sku'];
+
+/**
+ * The records in a tool's result: every object (to a few levels deep) with a uuid `id`, labelled
+ * by its number or name. What an answer can link to, instead of naming the tool.
+ */
+export function recordsIn(tool: string, type: CopilotRecordType, value: unknown, max = 20): CopilotRecordRef[] {
+  const found = new Map<string, CopilotRecordRef>();
+  const visit = (node: unknown, depth: number) => {
+    if (found.size >= max || depth > 3 || node === null || typeof node !== 'object') return;
+    if (Array.isArray(node)) {
+      for (const item of node) visit(item, depth + 1);
+      return;
+    }
+    const record = node as Record<string, unknown>;
+    const id = record['id'];
+    if (typeof id === 'string' && RECORD_UUID.test(id) && !found.has(id)) {
+      const labelKey = RECORD_LABELS.find((key) => typeof record[key] === 'string' && (record[key] as string).trim());
+      found.set(id, { tool, type, id, label: labelKey ? String(record[labelKey]).slice(0, 80) : id.slice(0, 8), link: COPILOT_RECORD_LINKS[type](id) });
+    }
+    for (const child of Object.values(record)) if (child && typeof child === 'object') visit(child, depth + 1);
+  };
+  visit(value, 0);
+  return [...found.values()];
+}
+
 export interface CopilotToolContext {
   user: CopilotUser;
   organizationId: string;
@@ -80,6 +129,8 @@ interface CopilotToolBase {
    * person knows it followed external text (see `CopilotService`).
    */
   externalText?: boolean;
+  /** The kind of record the result lists, when it lists records: the answer links to them. */
+  records?: CopilotRecordType;
 }
 
 export interface CopilotReadTool extends CopilotToolBase {
@@ -104,6 +155,8 @@ export interface CopilotDraftProposal {
 export interface CopilotDraftResult {
   /** The created draft. */
   id: string;
+  /** What it is (`invoice`, `quote`…): the confirmed draft records that the assistant proposed it. */
+  entityType: string;
   /** Client route to open it. */
   link: string;
   label: string;

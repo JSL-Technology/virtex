@@ -1,3 +1,4 @@
+import { recordAiProvenance } from '../../contracts/ai/provenance.contract';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, IsNull, Not, Repository } from 'typeorm';
@@ -9,10 +10,12 @@ import { AiPendingAction } from '../entities/ai-pending-action.entity';
 import { AiChart, AiChartData } from '../entities/ai-chart.entity';
 import { CHART_TOOL, CHART_TOOL_NAME, drawChart, parseChartRequest } from './copilot-chart';
 import {
+  CopilotRecordRef,
   CopilotTool,
   CopilotToolContext,
   CopilotToolRegistry,
   CopilotUser,
+  recordsIn,
   toolAllowed,
 } from '../../contracts/copilot/copilot-tools.contract';
 import { EntitlementsPort } from '../../saas/contracts/entitlements.contract';
@@ -20,7 +23,8 @@ import { BadRequestError, ForbiddenError, NotFoundError } from '../../i18n/local
 import { withTenant } from '../../shared/tenancy/tenant-job';
 import { organizationMarket } from '../../organizations/contracts/market.contract';
 import { AiSettingsService } from '../settings/ai-settings.service';
-import { historyForModel, maskIdentifiers } from './copilot-history';
+import { historyForModel, maskIdentifiers, toolsInContext } from './copilot-history';
+import type { AiMessageVerdict } from '../entities/ai-message-feedback.entity';
 
 /** Tools whose purpose is finding a party by its identifier: their results are not masked. */
 const IDENTIFIER_SEARCH_TOOLS = new Set(['search_customers', 'search_suppliers']);
@@ -30,6 +34,8 @@ const PROPOSAL_TTL_MS = 24 * 60 * 60 * 1000;
 /** Tool results are trimmed to this; a model reading 200 invoices does not need the 201st. */
 const MAX_TOOL_RESULT_CHARS = 24_000;
 const MAX_MESSAGE_CHARS = 4_000;
+/** Records linked from one answer; beyond this the tool name is enough. */
+const MAX_SOURCES = 30;
 /** Charts one person may keep on their dashboard. Each is drawn again on every visit. */
 export const MAX_PINNED_CHARTS = 12;
 
@@ -55,7 +61,7 @@ How you work:
 export interface CopilotSink {
   text(delta: string): void;
   tool(call: { name: string }): void;
-  proposal(action: { id: string; tool: string; summary: string; preview: Record<string, unknown> }): void;
+  proposal(action: { id: string; tool: string; summary: string; preview: Record<string, unknown>; afterExternalText: boolean }): void;
   chart(chart: PublicChart): void;
 }
 
@@ -77,6 +83,10 @@ export interface CopilotTurnResult {
   stopReason: string;
   toolsUsed: string[];
   proposals: string[];
+  /** The records the answer rests on, to open and check. */
+  sources: CopilotRecordRef[];
+  /** The stored answer's sequence number (what feedback on it refers to); null if nothing was stored. */
+  answerSeq: number | null;
 }
 
 /** A conversation as the panel shows it: what was said, which tools answered, what was proposed. */
@@ -89,6 +99,10 @@ export interface CopilotTranscriptEntry {
   proposals: string[];
   /** Ids of the charts drawn while writing this answer (assistant entries only). */
   charts: string[];
+  /** The records the answer rests on (assistant entries only). */
+  sources: CopilotRecordRef[];
+  /** What this person said about the answer, if anything (assistant entries only). */
+  feedback?: AiMessageVerdict | null;
 }
 
 /**
@@ -186,9 +200,17 @@ export class CopilotService {
       where: { conversationId: conversation.id, organizationId: user.organizationId, userId: user.id },
       order: { createdAt: 'ASC' },
     });
+    const verdicts: Array<{ seq: number; verdict: AiMessageVerdict }> = await this.dataSource.manager.query(
+      `SELECT m."seq", f."verdict" FROM "ai_message_feedback" f JOIN "ai_messages" m ON m."id" = f."message_id"
+        WHERE f."organization_id" = $1 AND f."user_id" = $2 AND m."conversation_id" = $3`,
+      [user.organizationId, user.id, conversation.id],
+    );
+    const feedback = new Map(verdicts.map((row) => [Number(row.seq), row.verdict]));
     return {
       conversation,
-      entries: transcriptEntries(rows, proposals, charts),
+      entries: transcriptEntries(rows, proposals, charts).map((entry) =>
+        entry.role === 'assistant' ? { ...entry, feedback: feedback.get(entry.seq) ?? null } : entry,
+      ),
       proposals: proposals.map(publicAction),
       charts: charts.map((chart) => publicChart(chart, chart.snapshot)),
     };
@@ -256,8 +278,13 @@ export class CopilotService {
 
     const byName = new Map(tools.map((tool) => [tool.name, tool]));
     const context: CopilotToolContext = { user, organizationId: user.organizationId };
+    // Whether the model has read text written outside the company (a supplier's note, a customer's
+    // name) — in the history it still sees, or in this turn. A draft proposed after that is marked
+    // on its card: a planted instruction would come from there (H-sec-1).
+    let externalTextRead = [...toolsInContext(history)].some((name) => byName.get(name)?.externalText === true);
     const toolsUsed = new Set<string>();
     const proposals: string[] = [];
+    const sources = new Map<string, CopilotRecordRef>();
 
     const result = await this.gateway.converse({
       feature: 'copilot',
@@ -303,7 +330,13 @@ export class CopilotService {
         }
         toolsUsed.add(name);
         if (tool.kind === 'read') {
+          if (tool.externalText) externalTextRead = true;
           const data = await tool.run(context, input);
+          if (tool.records) {
+            for (const record of recordsIn(tool.name, tool.records, data)) {
+              if (sources.size < MAX_SOURCES && !sources.has(record.id)) sources.set(record.id, record);
+            }
+          }
           // Identifiers leave the platform masked unless finding a party by one is the tool's purpose.
           const sent = settings.maskIdentifiers && !IDENTIFIER_SEARCH_TOOLS.has(tool.name) ? maskIdentifiers(data) : data;
           return { content: truncate(JSON.stringify(sent ?? null)) };
@@ -320,10 +353,11 @@ export class CopilotService {
             summary: proposal.summary.slice(0, 500),
             preview: proposal.preview,
             status: 'PROPOSED',
+            afterExternalText: externalTextRead,
           }),
         );
         proposals.push(action.id);
-        sink.proposal({ id: action.id, tool: tool.name, summary: action.summary, preview: action.preview });
+        sink.proposal({ id: action.id, tool: tool.name, summary: action.summary, preview: action.preview, afterExternalText: action.afterExternalText });
         return {
           content: JSON.stringify({
             status: 'proposed',
@@ -348,6 +382,10 @@ export class CopilotService {
         toolsUsed: turn.role === 'assistant' ? toolNames(turn.content) : [],
       }),
     );
+    // The records travel with the last assistant row: the answer that rests on them.
+    const lastAnswer = [...rows].reverse().find((row) => row.role === 'assistant');
+    if (lastAnswer) lastAnswer.sources = [...sources.values()];
+    const answerSeq = rows.find((row) => row.role === 'assistant')?.seq ?? null;
     // A refused turn leaves only the user's message; it is kept so the transcript shows the question.
     await this.scoped(user, async () => {
       await this.messages.save(rows);
@@ -356,7 +394,7 @@ export class CopilotService {
       await this.conversations.save(conversation);
     });
 
-    return { text: result.text, stopReason: result.stopReason, toolsUsed: [...toolsUsed], proposals };
+    return { text: result.text, stopReason: result.stopReason, toolsUsed: [...toolsUsed], proposals, sources: [...sources.values()], answerSeq };
   }
 
   // ── Charts ───────────────────────────────────────────────────────────────────
@@ -486,6 +524,15 @@ export class CopilotService {
         const created = await tool.commit(ctx, action.input);
         action.status = 'CONFIRMED';
         action.result = { ...created };
+        await recordAiProvenance(this.dataSource.manager, {
+          organizationId: user.organizationId,
+          entityType: created.entityType,
+          entityId: created.id,
+          source: 'AI_COPILOT',
+          userId: user.id,
+          pendingActionId: action.id,
+          detail: { tool: tool.name, afterExternalText: action.afterExternalText },
+        });
       } catch (error) {
         if (action.status === 'EXPIRED') throw error;
         action.status = 'FAILED';
@@ -504,6 +551,30 @@ export class CopilotService {
     action.status = 'REJECTED';
     action.decidedAt = new Date();
     return this.scoped(user, async () => publicAction(await this.actions.save(action)));
+  }
+
+  // ── Feedback ─────────────────────────────────────────────────────────────────
+
+  /**
+   * What the person thinks of an answer: useful, not useful, or something to report (wrong figures,
+   * an unsafe suggestion). One verdict per person and answer; a new one replaces the old.
+   */
+  async feedback(user: CopilotUser, conversationId: string, seq: number, verdict: AiMessageVerdict, comment: string | null) {
+    return this.scoped(user, async () => {
+      const conversation = await this.owned(user, conversationId);
+      const message = await this.messages.findOne({
+        where: { conversationId: conversation.id, organizationId: user.organizationId, seq, role: 'assistant' },
+      });
+      if (!message) throw new NotFoundError('ai.copilot.answer_not_found');
+      await this.dataSource.manager.query(
+        `INSERT INTO "ai_message_feedback" ("organization_id", "message_id", "user_id", "verdict", "comment")
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT ON CONSTRAINT "UQ_ai_message_feedback_message_user"
+         DO UPDATE SET "verdict" = EXCLUDED."verdict", "comment" = EXCLUDED."comment", "created_at" = now()`,
+        [user.organizationId, message.id, user.id, verdict, comment?.trim().slice(0, 2_000) || null],
+      );
+      return { seq, verdict };
+    });
   }
 
   // ── Internals ────────────────────────────────────────────────────────────────
@@ -631,7 +702,7 @@ function visibleText(content: unknown, role: 'user' | 'assistant'): string {
  * the proposal is that turn's question, and its answer is what follows.
  */
 export function transcriptEntries(
-  rows: Array<Pick<AiMessage, 'seq' | 'role' | 'content' | 'toolsUsed' | 'createdAt'>>,
+  rows: Array<Pick<AiMessage, 'seq' | 'role' | 'content' | 'toolsUsed' | 'createdAt'> & { sources?: AiMessage['sources'] }>,
   proposals: Array<Pick<AiPendingAction, 'id' | 'createdAt'>>,
   charts: Array<Pick<AiChart, 'id' | 'createdAt'>> = [],
 ): CopilotTranscriptEntry[] {
@@ -641,15 +712,16 @@ export function transcriptEntries(
     if (row.role === 'user') {
       // A tool result is a user row with no text: part of the answer in progress, not a question.
       if (!text) continue;
-      entries.push({ seq: row.seq, role: 'user', text, toolsUsed: [], proposals: [], charts: [], createdAt: row.createdAt });
+      entries.push({ seq: row.seq, role: 'user', text, toolsUsed: [], proposals: [], charts: [], sources: [], createdAt: row.createdAt });
       continue;
     }
     const last = entries[entries.length - 1];
     if (last?.role === 'assistant') {
       last.text += text;
       last.toolsUsed = [...new Set([...last.toolsUsed, ...row.toolsUsed])];
+      last.sources = mergeSources(last.sources, row.sources);
     } else {
-      entries.push({ seq: row.seq, role: 'assistant', text, toolsUsed: [...row.toolsUsed], proposals: [], charts: [], createdAt: row.createdAt });
+      entries.push({ seq: row.seq, role: 'assistant', text, toolsUsed: [...row.toolsUsed], proposals: [], charts: [], sources: mergeSources([], row.sources), createdAt: row.createdAt });
     }
   }
   // Proposals and charts are made during a turn whose rows are written when it ends, so the first
@@ -674,6 +746,7 @@ export function transcriptEntries(
           toolsUsed: [],
           proposals: into === 'proposals' ? orphans : [],
           charts: into === 'charts' ? orphans : [],
+          sources: [],
           createdAt: new Date(),
         });
     }
@@ -687,7 +760,14 @@ export function transcriptEntries(
     toolsUsed: entry.toolsUsed,
     proposals: entry.proposals,
     charts: entry.charts,
+    sources: entry.sources,
   }));
+}
+
+function mergeSources(into: CopilotRecordRef[], more: unknown): CopilotRecordRef[] {
+  const list = Array.isArray(more) ? (more as CopilotRecordRef[]) : [];
+  const seen = new Set(into.map((source) => source.id));
+  return [...into, ...list.filter((source) => source && typeof source.id === 'string' && !seen.has(source.id))];
 }
 
 function publicChart(chart: AiChart, data: AiChartData | null, unavailable?: PublicChart['unavailable']): PublicChart {
@@ -709,6 +789,7 @@ function publicAction(action: AiPendingAction) {
     tool: action.tool,
     summary: action.summary,
     preview: action.preview,
+    afterExternalText: action.afterExternalText,
     status: action.status,
     result: action.result?.['id'] ? { id: action.result['id'], link: action.result['link'], label: action.result['label'] } : null,
     error: action.error,

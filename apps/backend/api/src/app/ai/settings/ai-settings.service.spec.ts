@@ -45,6 +45,7 @@ describeWithDb('AiSettingsService', () => {
       imageEmbeddings: false,
       monthlyBudgetUsd: 10,
       maskIdentifiers: true,
+      activityMonitoring: false,
     });
     await expect(service.assertCallAllowed(organizationId, 'copilot')).resolves.toBeUndefined();
   });

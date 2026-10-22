@@ -25,6 +25,7 @@ describe('AiAgentsPanelComponent', () => {
         ]),
       ),
       copilotProposals: jest.fn().mockReturnValue(of([])),
+      copilotFeedback: jest.fn().mockReturnValue(of({ last30Days: { up: 0, down: 0, reported: 0 }, items: [] })),
     };
     await TestBed.configureTestingModule({
       imports: [AiAgentsPanelComponent],

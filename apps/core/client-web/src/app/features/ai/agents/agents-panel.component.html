@@ -71,4 +71,23 @@
       }
     </ul>
   }
+
+  <h3 class="ag__h3">{{ 'ai.agents.feedback' | translate }}</h3>
+  @if (feedback(); as report) {
+    <p class="ag__muted">
+      {{ 'ai.agents.feedback_totals' | translate: { up: report.last30Days.up, down: report.last30Days.down, reported: report.last30Days.reported } }}
+    </p>
+    @if (report.items.length) {
+      <ul class="ag__runs">
+        @for (item of report.items; track item.id) {
+          <li class="ag__run">
+            <span>{{ k('ai.agents.verdict', item.verdict) | translate }}@if (item.comment) { · {{ item.comment }} }</span>
+            <span class="ag__muted">{{ item.createdAt | vxDate: 'medium' }}@for (tool of item.toolsUsed; track tool) { · {{ k('ai.copilot.tool', tool) | translate }} }</span>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="ag__muted">{{ 'ai.agents.feedback_empty' | translate }}</p>
+    }
+  }
 </section>

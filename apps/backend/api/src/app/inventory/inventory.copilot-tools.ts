@@ -18,6 +18,7 @@ export class InventoryCopilotTools implements OnModuleInit {
         kind: 'read',
         name: 'search_products',
         branchScope: 'none',
+        records: 'product',
         externalText: true,
         description: 'Find products by name or SKU. Returns ids, sale price, unit cost, unit of measure and total stock, for use in other tools and drafts.',
         permissions: [PERMISSIONS.PRODUCTS_VIEW],

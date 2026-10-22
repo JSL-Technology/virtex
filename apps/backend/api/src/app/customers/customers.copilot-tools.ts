@@ -19,6 +19,7 @@ export class CustomersCopilotTools implements OnModuleInit {
         kind: 'read',
         name: 'search_customers',
         branchScope: 'none',
+        records: 'customer',
         externalText: true,
         description: "Find customers by name, tax identifier (the market's own: RNC, RFC, EIN…) or e-mail. Returns ids for use in other tools, with payment terms and credit limit.",
         permissions: [PERMISSIONS.CUSTOMERS_VIEW],

@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Param, Post, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
-import { IsString, MaxLength, MinLength } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, MaxLength, Min, MinLength } from 'class-validator';
+import { Type } from 'class-transformer';
 import { PassThrough } from 'node:stream';
 import type { FastifyReply } from 'fastify';
 import { HasPermission } from '../../security/decorators/permissions.decorator';
@@ -27,6 +28,22 @@ export class CopilotMessageDto {
   @MinLength(1, { message: 'validation.constraints.min_length' })
   @MaxLength(4000, { message: 'validation.constraints.max_length' })
   text: string;
+}
+
+export class CopilotFeedbackDto {
+  /** The answer's sequence number, as the transcript or the finished turn gives it. */
+  @Type(() => Number)
+  @IsInt({ message: 'validation.constraints.is_int' })
+  @Min(1, { message: 'validation.constraints.min' })
+  seq: number;
+
+  @IsIn(['UP', 'DOWN', 'REPORT'], { message: 'validation.constraints.is_in' })
+  verdict: 'UP' | 'DOWN' | 'REPORT';
+
+  @IsOptional()
+  @IsString({ message: 'validation.constraints.is_string' })
+  @MaxLength(2000, { message: 'validation.constraints.max_length' })
+  comment?: string;
 }
 
 /** The person as the copilot sees them: their permissions, their language and the branches they are limited to. */
@@ -165,6 +182,15 @@ export class CopilotController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async unpin(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
     return this.copilot.unpin(await asCopilotUser(this.dataSource, user), id);
+  }
+
+  @Post('conversations/:id/feedback')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Rate an answer (useful / not useful) or report it.' })
+  async feedback(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string, @Body() dto: CopilotFeedbackDto) {
+    return this.copilot.feedback(await asCopilotUser(this.dataSource, user), id, dto.seq, dto.verdict, dto.comment ?? null);
   }
 
   @Post('proposals/:id/confirm')

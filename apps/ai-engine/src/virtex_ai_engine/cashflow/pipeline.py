@@ -23,82 +23,72 @@ log = logging.getLogger(__name__)
 #: Scenarios kept per tenant; older ones (and their rows) are deleted.
 KEEP_SCENARIOS = 20
 
-LIVE_INVOICE = """i.status::text NOT IN ('Draft', 'Void') AND i.type::text <> 'CREDIT_NOTE' AND i.voided_at IS NULL"""
-LIVE_BILL = """b.voided_at IS NULL AND b.status::text NOT IN ('VOID', 'REJECTED', 'DRAFT')"""
-
 
 def load(conn: psycopg.Connection, organization_id: str, params: model.Params, today: pd.Timestamp) -> dict:
+    """The open documents and payment habits, from the `ai_src_*` views (which documents count is decided there)."""
     org = organization_id
     since = (today - pd.Timedelta(days=params.history_days)).date()
     recent = (today - pd.Timedelta(days=182)).date()
     receivables = frame(
         conn,
-        f"""SELECT i.id::text AS document_id, i.customer_id::text AS party_id, i."customerName" AS party_name,
-                   i."invoiceNumber" AS number, i."dueDate" AS due_date,
-                   (i.balance * CASE WHEN i.total > 0 THEN i.total_in_base_currency / i.total ELSE 1 END)::float AS amount
-              FROM invoices i
-             WHERE i.organization_id = %s AND {LIVE_INVOICE} AND i.balance > 0.005""",
+        """SELECT id::text AS document_id, customer_id::text AS party_id, customer_name AS party_name,
+                  invoice_number AS number, due_date, balance_in_base_currency::float AS amount
+             FROM ai_src_issued_invoices
+            WHERE organization_id = %s AND type <> 'CREDIT_NOTE' AND balance > 0.005""",
         (org,),
     )
     payables = frame(
         conn,
-        f"""SELECT b.id::text AS document_id, b.vendor_id::text AS party_id, s.name AS party_name,
-                   b.ncf AS number, b."dueDate" AS due_date,
-                   (b.balance * CASE WHEN b.total > 0 THEN b.total_in_base_currency / b.total ELSE 1 END)::float AS amount
-              FROM vendor_bills b LEFT JOIN suppliers s ON s.id = b.vendor_id
-             WHERE b.organization_id = %s AND {LIVE_BILL} AND b.balance > 0.005""",
+        """SELECT id::text AS document_id, vendor_id::text AS party_id, vendor_name AS party_name,
+                  ncf AS number, due_date, balance_in_base_currency::float AS amount
+             FROM ai_src_posted_bills
+            WHERE organization_id = %s AND balance > 0.005""",
         (org,),
     )
     receipt_history = frame(
         conn,
-        f"""SELECT i.customer_id::text AS party_id, (p.payment_date - i."dueDate")::float AS delay_days,
-                   l.amount::float AS weight
-              FROM customer_payment_lines l
-              JOIN customer_payments p ON p.id = l.payment_id
-              JOIN invoices i ON i.id = l.invoice_id
-             WHERE p.organization_id = %s AND p.status::text = 'POSTED' AND p.voided_at IS NULL
-               AND p.payment_date >= %s AND {LIVE_INVOICE}""",
+        """SELECT customer_id::text AS party_id, (payment_date - due_date)::float AS delay_days, amount::float AS weight
+             FROM ai_src_customer_receipts
+            WHERE organization_id = %s AND payment_date >= %s""",
         (org, since),
     )
     payment_history = frame(
         conn,
-        """SELECT b.vendor_id::text AS party_id, (vp.date::date - b."dueDate"::date)::float AS delay_days,
-                  vp.amount::float AS weight
-             FROM vendor_payment vp
-             JOIN vendor_bills b ON b.id = vp.vendor_bill_id
-             JOIN payment_batches pb ON pb.id = vp.payment_batch_id
-            WHERE b.organization_id = %s AND pb.status::text <> 'VOID' AND pb.voided_at IS NULL AND vp.date >= %s""",
+        """SELECT vendor_id::text AS party_id, (payment_date::date - bill_due_date::date)::float AS delay_days,
+                  amount::float AS weight
+             FROM ai_src_vendor_settlements
+            WHERE organization_id = %s AND payment_date >= %s""",
         (org, since),
     )
     daily_sales = frame(
         conn,
-        f"""SELECT i."issueDate" AS day, SUM(i.total_in_base_currency)::float AS amount
-              FROM invoices i WHERE i.organization_id = %s AND {LIVE_INVOICE} AND i."issueDate" >= %s
-             GROUP BY i."issueDate" """,
+        """SELECT issue_date AS day, SUM(total_in_base_currency)::float AS amount
+             FROM ai_src_issued_invoices
+            WHERE organization_id = %s AND type <> 'CREDIT_NOTE' AND issue_date >= %s
+            GROUP BY issue_date""",
         (org, recent),
     )
     daily_bills = frame(
         conn,
-        f"""SELECT b.date AS day, SUM(b.total_in_base_currency)::float AS amount
-              FROM vendor_bills b WHERE b.organization_id = %s AND {LIVE_BILL} AND b.date >= %s
-             GROUP BY b.date""",
+        """SELECT date AS day, SUM(total_in_base_currency)::float AS amount
+             FROM ai_src_posted_bills WHERE organization_id = %s AND date >= %s
+            GROUP BY date""",
         (org, recent),
     )
     terms = frame(
         conn,
-        f"""SELECT
-              (SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY i."dueDate" - i."issueDate")
-                 FROM invoices i WHERE i.organization_id = %s AND {LIVE_INVOICE} AND i."issueDate" >= %s)::float AS customer,
-              (SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY b."dueDate"::date - b.date::date)
-                 FROM vendor_bills b WHERE b.organization_id = %s AND {LIVE_BILL} AND b.date >= %s)::float AS vendor""",
+        """SELECT
+             (SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY due_date - issue_date)
+                FROM ai_src_issued_invoices
+               WHERE organization_id = %s AND type <> 'CREDIT_NOTE' AND issue_date >= %s)::float AS customer,
+             (SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY due_date::date - date::date)
+                FROM ai_src_posted_bills WHERE organization_id = %s AND date >= %s)::float AS vendor""",
         (org, recent, org, recent),
     )
     payroll = frame(
         conn,
-        """SELECT pay_date, (COALESCE(total_net, 0) + COALESCE(total_employer_contributions, 0))::float AS amount
-             FROM payroll_runs
-            WHERE organization_id = %s AND run_type::text = 'REGULAR' AND status::text IN ('APPROVED', 'PAID')
-            ORDER BY pay_date DESC LIMIT 3""",
+        """SELECT pay_date, amount::float FROM ai_src_payroll_outflows
+            WHERE organization_id = %s ORDER BY pay_date DESC LIMIT 3""",
         (org,),
     )
     t = terms.iloc[0] if not terms.empty else {}

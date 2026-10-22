@@ -47,6 +47,13 @@
         <span>{{ 'ai.policy.mask_identifiers' | translate }}</span>
       </label>
       <p class="pol__hint">{{ 'ai.policy.mask_identifiers_help' | translate }}</p>
+
+      <label class="pol__check">
+        <input type="checkbox" [checked]="p.settings.activityMonitoring" [disabled]="!canManage() || saving()"
+               (change)="save({ activityMonitoring: $any($event.target).checked })" />
+        <span>{{ 'ai.policy.activity_monitoring' | translate }}</span>
+      </label>
+      <p class="pol__hint">{{ 'ai.policy.activity_monitoring_help' | translate }}</p>
     </article>
 
     <article class="card pol__card">

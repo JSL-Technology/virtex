@@ -42,7 +42,8 @@
       <button type="button" class="btn-secondary" (click)="deleteMyData()">{{ 'ai.copilot.delete_all' | translate }}</button>
     </div>
   } @else {
-    <div class="cp__messages" #scroller aria-live="polite">
+    <p class="sr-only" aria-live="polite" aria-atomic="true">{{ announcement() }}</p>
+    <div class="cp__messages" #scroller>
       @if (unavailable(); as reason) {
         <p class="cp__notice">{{ reason }}</p>
       } @else if (!messages().length && !loading()) {
@@ -74,7 +75,7 @@
               </ul>
             }
             @if (message.text) {
-              <div class="cp__bubble cp__bubble--assistant" [innerHTML]="markdown(message.text)"></div>
+              <div class="cp__bubble cp__bubble--assistant" [attr.aria-busy]="message.streaming ? 'true' : null" [innerHTML]="markdown(message.text)"></div>
             } @else if (message.streaming) {
               <p class="cp__muted cp__thinking">
                 {{ (message.activeTool ? 'ai.copilot.consulting' : 'ai.copilot.thinking') | translate: { tool: (message.activeTool ? (k('ai.copilot.tool', message.activeTool) | translate) : '') } }}
@@ -119,6 +120,12 @@
 
                   @switch (draft.status) {
                     @case ('PROPOSED') {
+                      @if (draft.afterExternalText) {
+                        <p class="cp__external" role="note">
+                          <lucide-icon [img]="WarningIcon" size="14" aria-hidden="true"></lucide-icon>
+                          <span>{{ 'ai.copilot.after_external_text' | translate }}</span>
+                        </p>
+                      }
                       <p class="cp__muted">{{ 'ai.copilot.proposal_note' | translate }}</p>
                       <div class="cp__proposal-actions">
                         <button type="button" class="primary-button" [disabled]="deciding() === draft.id" (click)="confirm(draft)">
@@ -148,8 +155,39 @@
               }
             }
 
+            @if (message.sources?.length) {
+              <ul class="cp__records" [attr.aria-label]="'ai.copilot.records' | translate">
+                @for (source of message.sources; track source.id) {
+                  <li><a class="cp__record" [routerLink]="source.link">{{ source.label }}</a></li>
+                }
+              </ul>
+            }
+
             @if (message.error) {
               <p class="cp__error" role="alert">{{ message.error }}</p>
+            }
+
+            @if (message.seq && !message.streaming && message.text) {
+              <div class="cp__feedback" role="group" [attr.aria-label]="'ai.copilot.feedback_label' | translate">
+                <button type="button" class="icon-button" [class.cp__feedback--chosen]="message.feedback === 'UP'"
+                        [attr.aria-pressed]="message.feedback === 'UP'"
+                        [title]="'ai.copilot.feedback_up' | translate" [attr.aria-label]="'ai.copilot.feedback_up' | translate"
+                        (click)="rate(message, 'UP')">
+                  <lucide-icon [img]="UpIcon" size="14" aria-hidden="true"></lucide-icon>
+                </button>
+                <button type="button" class="icon-button" [class.cp__feedback--chosen]="message.feedback === 'DOWN'"
+                        [attr.aria-pressed]="message.feedback === 'DOWN'"
+                        [title]="'ai.copilot.feedback_down' | translate" [attr.aria-label]="'ai.copilot.feedback_down' | translate"
+                        (click)="rate(message, 'DOWN')">
+                  <lucide-icon [img]="DownIcon" size="14" aria-hidden="true"></lucide-icon>
+                </button>
+                <button type="button" class="icon-button" [class.cp__feedback--chosen]="message.feedback === 'REPORT'"
+                        [attr.aria-pressed]="message.feedback === 'REPORT'"
+                        [title]="'ai.copilot.report' | translate" [attr.aria-label]="'ai.copilot.report' | translate"
+                        (click)="rate(message, 'REPORT')">
+                  <lucide-icon [img]="ReportIcon" size="14" aria-hidden="true"></lucide-icon>
+                </button>
+              </div>
             }
           </div>
         }

@@ -21,3 +21,11 @@ Besides the plan's credits, the company has a monthly budget in dollars (and, if
 ## Conversations and your data
 
 Assistant conversations are deleted overnight once they pass the configured number of days without activity, and so are those of anyone who leaves the company. What the assistant proposed and what was decided is kept as a record. Each person can download or delete their own conversations from the assistant.
+
+## People's activity hours
+
+Anomaly detection can flag whoever works on documents at hours the company almost never works. That processes employee data, so it starts switched off: turn it on under "What the company allows" only after telling your team, as your country's labour rules require. Findings about people are visible only to those with the "View security findings" permission, and nobody can confirm or dismiss a finding about something they did themselves.
+
+## What the AI did on each record
+
+An invoice, quote or purchase order the assistant proposed, a supplier bill read from a PDF, or an order the replenishment agent raised says so with a badge on the document itself. On bills read by AI, the badge says how many fields a person corrected; hover to see which. The assistant's answers can be rated or reported, and "Agents" shows a summary of what the team said.

@@ -1,3 +1,4 @@
+import { CAPTURED_ATTACHMENT, recordAiProvenance } from '../contracts/ai/provenance.contract';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, IsNull, Repository } from 'typeorm';
@@ -132,7 +133,7 @@ export interface BillCaptureSuggestion {
  * company's own country (`marketBrief`), so one cached prompt serves every market and none of them
  * is read by another's rules.
  */
-const SYSTEM_PROMPT = `You read a supplier's invoice (a photo or a PDF) for an accounting system and return its fields. The market the document comes from — its tax identifiers, its fiscal document number, its tax, how it writes dates, and any coded lists — is described in the message; use those descriptions, not assumptions about another country.
+export const BILL_CAPTURE_SYSTEM_PROMPT = `You read a supplier's invoice (a photo or a PDF) for an accounting system and return its fields. The market the document comes from — its tax identifiers, its fiscal document number, its tax, how it writes dates, and any coded lists — is described in the message; use those descriptions, not assumptions about another country.
 
 Rules:
 - Report only what is printed. If a field is not on the document, or you cannot read it with confidence, return null — never guess or compute a value the document does not show.
@@ -163,7 +164,7 @@ const PURCHASE_CATEGORY_DESCRIPTIONS: Record<string, string> = {
   '12': 'insurance',
 };
 
-/** What the market's documents look like, for the user turn (see `SYSTEM_PROMPT`). */
+/** What the market's documents look like, for the user turn (see `BILL_CAPTURE_SYSTEM_PROMPT`). */
 export function marketBrief(profile: PurchaseCaptureProfile): string {
   const identifiers = profile.issuerIdentifiers.length
     ? profile.issuerIdentifiers.map((doc) => (doc.example ? `${doc.label} (e.g. ${doc.example})` : doc.label)).join(' or ')
@@ -297,19 +298,33 @@ export class BillCaptureService {
       file.mimeType === 'application/pdf'
         ? [{ type: 'pdf' as const, data: file.buffer.toString('base64') }]
         : [{ type: 'image' as const, mediaType: 'image/jpeg' as const, data: file.buffer.toString('base64') }];
-    const { value: read } = await this.ai.extract<ExtractedBill>({
+    const { value: read, requestId } = await this.ai.extract<ExtractedBill>({
       feature: 'bill_capture',
       promptId: 'bill_capture.system',
       organizationId,
       userId,
-      system: SYSTEM_PROMPT,
+      system: BILL_CAPTURE_SYSTEM_PROMPT,
       content: [...content, { type: 'text', text: `${marketBrief(profile)}\n\nRead this supplier document.` }],
       schema: captureSchema(profile),
       validate: (value) => parseExtractedBill(value, profile),
       inputFingerprint: attachment.sha256,
     });
 
-    return withTenant(this.dataSource, organizationId, () => this.review(organizationId, attachment, read, profile));
+    return withTenant(this.dataSource, organizationId, async () => {
+      const suggestion = await this.review(organizationId, attachment, read, profile);
+      // What the AI read, kept with the file: when a bill is saved with it, each field is compared
+      // with what the person saved (kept as read, or corrected) and the bill records it (H-M7).
+      await recordAiProvenance(this.dataSource.manager, {
+        organizationId,
+        entityType: CAPTURED_ATTACHMENT,
+        entityId: attachment.id,
+        source: 'AI_CAPTURE',
+        userId,
+        aiRequestId: requestId,
+        detail: { suggested: capturedValues(suggestion), confidence: read.confidence },
+      });
+      return suggestion;
+    });
   }
 
   /** The deterministic half, by the company's market: identity, document number, arithmetic, duplicates, line matching. */
@@ -482,6 +497,23 @@ export class BillCaptureService {
 }
 
 /** The bytes decide what the file is; the declared type is the client's opinion. */
+/** The suggestion as the bill's own fields, for comparing with what was saved. */
+export function capturedValues(suggestion: BillCaptureSuggestion): Record<string, unknown> {
+  return {
+    vendorId: suggestion.supplier.match?.id ?? null,
+    ncf: suggestion.bill.ncf,
+    ncfModified: suggestion.bill.ncfModified,
+    date: suggestion.bill.date,
+    dueDate: suggestion.bill.dueDate,
+    currencyCode: suggestion.bill.currencyCode,
+    paymentForm: suggestion.bill.paymentForm,
+    purchaseCategory: suggestion.bill.purchaseCategory,
+    taxAmount: suggestion.bill.taxAmount,
+    serviceCharge: suggestion.bill.serviceCharge,
+    total: suggestion.bill.total,
+  };
+}
+
 async function normalise(upload: BillUpload): Promise<BillUpload> {
   if (!upload.buffer?.length) throw new BadRequestError('users.file_required');
   if (upload.buffer.length > MAX_BILL_FILE_BYTES) throw new BadRequestError('accounts_payable.attachment_too_large');

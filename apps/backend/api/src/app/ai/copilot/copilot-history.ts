@@ -64,6 +64,26 @@ export function historyForModel(stored: Message[], allowedTools: ReadonlySet<str
   return shaped.slice(from);
 }
 
+/**
+ * Tools whose results the model still sees verbatim — those of the last `VERBATIM_QUESTIONS`
+ * questions (see `historyForModel`). What it proposes now may rest on what they returned.
+ */
+export function toolsInContext(shaped: Message[]): Set<string> {
+  const names = new Set<string>();
+  const toolOf = new Map<string, string>();
+  for (const message of shaped) {
+    if (!Array.isArray(message.content)) continue;
+    for (const block of message.content as unknown as Block[]) {
+      if (block['type'] === 'tool_use') toolOf.set(String(block['id']), String(block['name']));
+      if (block['type'] === 'tool_result' && block['content'] !== STALE_RESULT_NOTE) {
+        const name = toolOf.get(String(block['tool_use_id']));
+        if (name) names.add(name);
+      }
+    }
+  }
+  return names;
+}
+
 function isQuestion(message: Message): boolean {
   if (message.role !== 'user') return false;
   if (typeof message.content === 'string') return true;

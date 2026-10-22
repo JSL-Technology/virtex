@@ -36,6 +36,7 @@ import { refreshWhenStale } from '../../../core/data/data-version.service';
 import { finalize } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { IdentityDocumentsService } from '../../../core/api/identity-documents.service';
+import { AiProvenanceBadgeComponent } from '../../ai/provenance/ai-provenance-badge.component';
 
 /** Each e-CF state's name and what it means for the person reading it. */
 const ECF_STATUS: Record<string, { label: string; hint: string }> = {
@@ -55,7 +56,7 @@ const ECF_STATUS: Record<string, { label: string; hint: string }> = {
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
-  imports: [TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
+  imports: [AiProvenanceBadgeComponent, TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
     // a text link instead, while `angularx-qrcode` was already a dependency of the project.
     QRCodeComponent, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent,
     ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxTabsComponent, InvoiceEmailDialogComponent],

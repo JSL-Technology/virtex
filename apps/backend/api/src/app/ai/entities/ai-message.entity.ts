@@ -2,6 +2,14 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGenerat
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 import type { AiConversation } from './ai-conversation.entity';
 
+/** One record a tool returned, as a link: the invoice itself rather than "list_invoices". */
+export interface AiMessageSource {
+  tool: string;
+  type: string;
+  id: string;
+  label: string;
+}
+
 /**
  * One turn of a copilot conversation, exactly as it was sent or received: a later turn replays the
  * history byte for byte (thinking blocks are bound to the conversation that produced them).
@@ -37,6 +45,10 @@ export class AiMessage {
   /** Names of the tools an assistant turn called — the sources of its figures. */
   @Column({ name: 'tools_used', type: 'jsonb', default: [] })
   toolsUsed: string[];
+
+  /** The records an assistant turn rests on, by tool: what a person can open to check it. */
+  @Column({ type: 'jsonb', default: [] })
+  sources: AiMessageSource[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

@@ -19,6 +19,8 @@ export interface EffectiveAiSettings {
   dailyBudgetUsd: number | null;
   conversationRetentionDays: number;
   maskIdentifiers: boolean;
+  /** Whether the anomaly run looks at when each person works. Off until the company opts in. */
+  activityMonitoring: boolean;
   /** The ceiling a company may raise its budget to, from the deployment. */
   maxMonthlyBudgetUsd: number;
 }
@@ -32,6 +34,7 @@ export interface AiSettingsUpdate {
   dailyBudgetUsd?: number | null;
   conversationRetentionDays?: number;
   maskIdentifiers?: boolean;
+  activityMonitoring?: boolean;
 }
 
 export interface AiSpend {
@@ -74,6 +77,7 @@ export class AiSettingsService {
       dailyBudgetUsd: null,
       conversationRetentionDays: 180,
       maskIdentifiers: true,
+      activityMonitoring: false,
       maxMonthlyBudgetUsd: max,
     };
   }
@@ -91,6 +95,7 @@ export class AiSettingsService {
       dailyBudgetUsd: row.dailyBudgetUsd,
       conversationRetentionDays: row.conversationRetentionDays,
       maskIdentifiers: row.maskIdentifiers,
+      activityMonitoring: row.activityMonitoring,
       maxMonthlyBudgetUsd: defaults.maxMonthlyBudgetUsd,
     };
   }
@@ -117,6 +122,7 @@ export class AiSettingsService {
         dailyBudgetUsd: daily,
         conversationRetentionDays: change.conversationRetentionDays ?? current.conversationRetentionDays,
         maskIdentifiers: change.maskIdentifiers ?? current.maskIdentifiers,
+        activityMonitoring: change.activityMonitoring ?? current.activityMonitoring,
         updatedByUserId: userId,
       }),
     );
