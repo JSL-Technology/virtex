@@ -8,6 +8,8 @@
 
 ## Resumen ejecutivo
 
+> **Actualización (22 de octubre de 2026):** todos los hallazgos de este informe están corregidos y las cinco funcionalidades de mayor valor están implementadas. El estado de cada uno, con su commit, está en la [sección 8](#8-estado-de-la-remediación-22-de-octubre-de-2026). El texto de las secciones 1 a 7 se conserva como se escribió, como registro de la auditoría.
+
 **Nota global: 4/10.** Madurez: **funcional con huecos serios.** La nota está limitada por los ejes de seguridad (4) y de privacidad (4). La ingeniería de base está muy por encima de la media: hay una pasarela real, un registro de capacidades por módulo, RLS como defensa en profundidad (verificada), salidas estructuradas, cifras comprobadas contra los hechos, borradores con confirmación humana y una falla explícita cuando no hay proveedor (verificada).
 
 **Los tres hallazgos más graves:**
@@ -382,3 +384,66 @@ Ordenada por dependencias. Todo cabe en el monolito actual (NestJS + PostgreSQL 
 | `verify:rls-runtime` del repositorio | Falló al sembrar datos en este entorno (FK de `customers`); el aislamiento de la IA se verificó con la prueba 3 |
 | Extensiones de terceros | No registran herramientas del copiloto ni usan `AiAssistPort` (búsqueda en `extensions/` sin resultados); no se profundizó |
 | Organizaciones de demostración | No existe un concepto de "organización demo" en el producto (solo la herramienta de desarrollo `demo:tenant`); no aplica |
+
+---
+
+## 8. Estado de la remediación (22 de octubre de 2026)
+
+Todo se hizo dentro del monolito, sin infraestructura nueva. Cada commit pasó por estas comprobaciones:
+
+- las verificaciones de fronteras entre módulos, sin regresiones sobre la línea base;
+- la deriva de esquema, limpia;
+- los catálogos de traducción en es/en/pt;
+- las pruebas del backend y del frontend de lo que tocó.
+
+### 8.1 Hallazgos
+
+| Hallazgo | Estado | Qué se hizo | Commit |
+|---|---|---|---|
+| H-C1 (crítico) | Corregido | Cada informe tiene audiencia (`REQUESTER` u `ORGANIZATION`) y guarda los permisos de sus fuentes. Leerlo exige todos esos permisos (`canReadReport`). Uno pedido por una persona se genera con sus permisos y sucursales actuales y solo lo lee ella; el programado solo lo lee quien no tiene límite de sucursal. Las notificaciones siguen la misma regla. | `552c68fd` |
+| H-A1 | Corregido | La captura usa el perfil fiscal del país de la empresa: identificador del emisor con su validador, número de documento por mercado (NCF, UUID CFDI, clave NF-e, CUFE) y nunca hereda reglas de otro país. Acepta XML. | `68ae0183`, `d48673e4` |
+| H-A2 | Corregido | Los prompts son neutros. El país, el idioma de los libros y la moneda viajan en cada turno. La ayuda está indexada por idioma (es/en/pt) y país. | `68ae0183` |
+| H-A3 | Corregido | Ajustes de IA por empresa (`ai_organization_settings`), con cambios auditados. El informe automático y los embeddings de fotos pasan a ser opt-in. Se enmascaran identificadores. Hay retención con purga nocturna, más exportación y borrado de los datos propios. | `c704a512` |
+| H-A4 | Corregido | Ninguna conexión del pool queda retenida mientras responde el modelo (`@ShortLivedConnections` y `withTenant` por unidad de trabajo). La cancelación aborta la llamada. | `552c68fd` |
+| H-A5 | Corregido | Suite de evaluación versionada por función, país e idioma, con casos de inyección (`apps/backend/api/src/ai-evaluation/`, `npm run ai:eval`, workflow `ai-eval.yml`). | `c43e4dee` |
+| H-M1 | Corregido | El historial reenviado descarta resultados antiguos o leídos con permisos ya retirados, y se recorta por tamaño. | `c704a512` |
+| H-M2 | Corregido | Los embeddings pasan por la pasarela: consentimiento, circuit breaker y registro. Solo se comparan vectores del mismo modelo. | `c704a512` |
+| H-M3 | Corregido | Presupuesto mensual y diario en dólares por empresa, con avisos al 50, 80 y 100 %. | `c704a512` |
+| H-M4 | Corregido | Límites de tasa por persona y por empresa (Redis) en todas las rutas que llaman a un modelo. | `c704a512` |
+| H-M5 | Corregido | Anomalías, pronósticos y herramientas del copiloto respetan las sucursales. Los datos de toda la empresa son solo para usuarios sin límite. | `e0c38593` |
+| H-M6 | Corregido | Nadie decide sobre un hallazgo que toca un registro que creó o modificó. Un detector solo se silencia con descartes de dos personas, y los de pagos duplicados, sobrepagos y tres vías nunca. Los hallazgos de seguridad tienen permiso propio. La evidencia sale sin identificadores de personas. | `e0c38593` |
+| H-M7 | Corregido | `ai_record_provenance`, con contrato público e insignia en los documentos. Registra el origen: copiloto, agentes, captura, correo, conciliación automática y MCP. Las correcciones humanas se cuentan campo por campo. | `965161a3` y siguientes |
+| H-M8 | Corregido | La confirmación es idempotente (UPDATE condicional), los valores quedan congelados al proponer y se rechaza si la vista previa cambió. | `552c68fd` |
+| H-M9 | Corregido | La vigilancia de actividad por persona queda opcional y apagada por defecto (`activity_monitoring`). | `965161a3` |
+| H-M10 | Corregido | Sin `payroll:view`, la nómina se suma a «otros egresos» en la proyección de caja. | `e0c38593` |
+| H-M11 | Corregido | Cada llamada registra el id y el hash del prompt usado. | `c704a512` |
+| H-sec-1 | Mitigado | Las propuestas hechas después de leer texto externo (correo, documentos o un agente MCP) quedan marcadas y la confirmación lo advierte. Nada se crea sin confirmación humana. La suite de evaluación incluye casos de inyección. No se puede eliminar del todo: es una propiedad de los LLM. | `965161a3`, `d5e04e93` |
+| H-B1 | Corregido | Modelos separados para el copiloto y para las tareas ligeras, y un modelo por función nueva (`order_intake` y otras). | `c704a512`, `4f7d3d59` |
+| H-B2 | Corregido | Una región `aria-live` anuncia solo la respuesta terminada. Las fuentes se muestran por registro. Las respuestas se pueden calificar o reportar. | `965161a3` |
+| H-B3 | Corregido | El motor Python lee solo vistas `ai_src_*` con `security_invoker`. Una prueba impide que nombre otras tablas. | `965161a3` |
+
+### 8.2 Funcionalidades
+
+| Funcionalidad | Qué hace | Salvaguardas | Commit |
+|---|---|---|---|
+| Conciliación que se aplica sola, más categorización | Aplica sola los emparejamientos de alta confianza, por cuenta bancaria y con umbral configurable. Un clasificador (naive Bayes sobre las palabras de la descripción) sugiere la cuenta contable de los movimientos sin documento. | Todo es reversible («deshacer»). Si más del 5 % de lo automático se deshace (con al menos 20 casos), la cuenta se pausa sola. Lo automático lleva procedencia. | `fd53b082` |
+| Buzón de facturas de proveedor por correo | Una dirección por empresa (token rotable, remitentes permitidos y firma HMAC del proveedor de correo). Descarta lo que falla en SPF o DKIM. Lee PDF, imagen o XML con las reglas del país y empareja con la orden de compra abierta. | Solo crea borradores. Lo dudoso queda en una bandeja con su motivo. La búsqueda del buzón usa una función con un rol `NOLOGIN` dedicado. | `d48673e4` |
+| Pedidos de clientes por correo | Del correo a una cotización en borrador a precios de catálogo, y de ahí a pedido con la aprobación existente. | El cliente se reconoce por su dirección. Lo no identificado queda en la bandeja. | `4f7d3d59` |
+| Asistente de cierre de periodo | Ordena el checklist determinista, muestra lo que merece revisión (anomalías sin atender del periodo y facturas recibidas por correo pendientes) y redacta un plan escrito por la IA, anclado en esos hechos. | El checklist lo aporta contabilidad por medio de `CloseReadinessRegistry`. El plan respeta los permisos de quien lo pide. | `94876264` |
+| Acceso MCP para agentes externos | Servidor MCP (Streamable HTTP, sin estado). OAuth 2.1 con registro dinámico de clientes públicos, PKCE S256, códigos de 60 s y rotación de refresh tokens con detección de reutilización. Alcances `erp:read` y `erp:draft`. | En cada petición se vuelven a leer los permisos, el plan y la política de IA. Cada consulta queda auditada. Los borradores solo se proponen: se confirman en `/ai/proposals/:id`. Las conexiones se pueden revocar desde Integraciones. | `d5e04e93` |
+
+**Fuera del alcance, por decisión del responsable del producto:** diseñador de agentes, generador de informes en lenguaje natural, búsqueda semántica (pgvector), asistente fiscal, anomalías de nómina, revisión de roles por segregación de funciones y gastos de empleados.
+
+### 8.3 Lo que queda pendiente o fuera de este entorno
+
+- **Comportamiento real del modelo.** Se puede medir ejecutando la suite de evaluación con `ANTHROPIC_API_KEY`, que es un secreto del workflow `ai-eval.yml`. En este entorno no había clave. Las pruebas automatizadas cubren todo lo determinista.
+- **Revisión legal.** Del DPA y los subencargados por país, y de los avisos sobre el correo entrante y MCP.
+- **Fallos que ya existían antes de esta remediación** (comprobados sobre el commit anterior, `6886ff73`):
+  - `tenant-bookkeeping.provisioner.spec`;
+  - `tenant-deletion.spec` (`legal_acceptances`);
+  - `verify:tenant-scope` en `legal.service.ts:59`;
+  - `verify:step-up-coverage`.
+- **Configuración de producción:**
+  - para el correo entrante, `INBOUND_MAIL_DOMAIN` e `INBOUND_MAIL_WEBHOOK_SECRET`, más el webhook del proveedor de correo;
+  - para MCP, `API_PUBLIC_URL`.
+
