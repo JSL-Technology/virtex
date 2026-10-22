@@ -1,0 +1,75 @@
+{
+  "feature": "copilot",
+  "version": 1,
+  "threshold": 0.85,
+  "note": "A question, the tools the person has (with what each returns), and what a good answer does: call the right tool, state its figures, answer in the person's language, invent no number, propose a draft only when asked.",
+  "cases": [
+    {
+      "id": "do-receivables-es",
+      "country": "DO",
+      "language": "es",
+      "currency": "DOP",
+      "question": "¿Cuánto me deben los clientes en total y quién debe más?",
+      "tools": {
+        "receivables_aging": { "currency": "DOP", "total": 152300.5, "overdue": 48200, "customers": [{ "id": "11111111-1111-4111-8111-111111111111", "name": "Hotel Bávaro Real", "balance": 61000 }, { "id": "22222222-2222-4222-8222-222222222222", "name": "Colmado La Esquina", "balance": 12000 }] },
+        "cash_position": { "currency": "DOP", "total": 410000 }
+      },
+      "expect": { "tools": ["receivables_aging"], "mentions": [152300.5, 61000], "noDraft": true }
+    },
+    {
+      "id": "mx-income-statement-es",
+      "country": "MX",
+      "language": "es",
+      "currency": "MXN",
+      "question": "¿Cuál fue mi utilidad neta el mes pasado?",
+      "tools": {
+        "income_statement": { "currency": "MXN", "from": "2026-09-01", "to": "2026-09-30", "revenue": 820000, "costOfSales": 510000, "expenses": 190000, "netIncome": 120000 },
+        "receivables_aging": { "currency": "MXN", "total": 300000, "customers": [] }
+      },
+      "expect": { "tools": ["income_statement"], "mentions": [120000], "noDraft": true }
+    },
+    {
+      "id": "us-stockouts-en",
+      "country": "US",
+      "language": "en",
+      "currency": "USD",
+      "question": "Which products are about to run out?",
+      "tools": {
+        "inventory_forecast": { "total": 2, "items": [{ "productName": "Safety gloves (box)", "sku": "SK-118", "onHand": 14, "daysOfCover": 3.5, "stockoutDate": "2026-10-26", "suggestedOrderQty": 120, "status": "STOCKOUT_RISK" }, { "productName": "Welding wire", "sku": "WD-40X", "onHand": 40, "daysOfCover": 9, "stockoutDate": "2026-11-01", "suggestedOrderQty": 30, "status": "REORDER" }] },
+        "sales_trend": { "currency": "USD", "months": [] }
+      },
+      "expect": { "tools": ["inventory_forecast"], "mentions": [120], "noDraft": true }
+    },
+    {
+      "id": "us-quote-on-request-en",
+      "country": "US",
+      "language": "en",
+      "currency": "USD",
+      "question": "Draft a quote for Lone Star Fabrication: 10 boxes of safety gloves at the catalogue price.",
+      "tools": {
+        "search_customers": { "items": [{ "id": "44444444-4444-4444-8444-444444444444", "name": "Lone Star Fabrication Inc." }] },
+        "search_products": { "items": [{ "id": "55555555-5555-4555-8555-555555555555", "name": "Safety gloves (box)", "sku": "SK-118", "price": 24.5 }] }
+      },
+      "draftTool": "draft_quote",
+      "expect": { "tools": ["search_customers", "search_products"], "draft": "draft_quote" }
+    },
+    {
+      "id": "do-question-in-english-en",
+      "country": "DO",
+      "language": "en",
+      "currency": "DOP",
+      "question": "How much cash do we have right now?",
+      "tools": { "cash_position": { "currency": "DOP", "total": 410000, "accounts": [{ "name": "Banco Popular", "balance": 380000 }, { "name": "Caja chica", "balance": 30000 }] } },
+      "expect": { "tools": ["cash_position"], "mentions": [410000], "noDraft": true }
+    },
+    {
+      "id": "mx-unknown-answer-es",
+      "country": "MX",
+      "language": "es",
+      "currency": "MXN",
+      "question": "¿Cuántos empleados tiene la competencia?",
+      "tools": { "receivables_aging": { "currency": "MXN", "total": 300000, "customers": [] } },
+      "expect": { "tools": [], "mentions": [], "noDraft": true, "noNumbers": true }
+    }
+  ]
+}

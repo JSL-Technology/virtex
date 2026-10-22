@@ -1,0 +1,60 @@
+name: AI evaluation
+
+# The AI features measured against their versioned cases (apps/backend/api/src/app/ai/evaluation):
+# supplier documents of each market, the assistant's answers, injection attempts and the texts
+# written from facts — through the real gateway and the production prompts. It calls the model
+# provider and costs money, so it runs on demand and weekly, not on every push; the cases and the
+# graders themselves are checked on every build by the ordinary test suite.
+#
+# A prompt or model change is judged here before it ships: run it on the branch (Actions › AI
+# evaluation › Run workflow), and read the report attached to the run.
+
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: 'Sets to run (bill_capture, copilot, injection, narratives), comma-separated; empty for all'
+        required: false
+        default: ''
+  schedule:
+    - cron: '17 6 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-eval-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      AI_EVAL_ONLY: ${{ github.event.inputs.only }}
+      AI_EVAL_REPORT: ai-eval-report.json
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Require the provider key
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::Set the ANTHROPIC_API_KEY repository secret to run the AI evaluation."
+            exit 1
+          fi
+      - run: npm ci
+      - run: npm run ai:eval
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ai-eval-report
+          path: ai-eval-report.json
+          if-no-files-found: warn

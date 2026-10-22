@@ -1,0 +1,50 @@
+{
+  "feature": "bill_capture",
+  "version": 1,
+  "threshold": 0.85,
+  "note": "Supplier documents as their text reaches the system (an e-invoice XML, a PDF's text layer). Expected values are what is printed; a field the document does not show is expected null.",
+  "cases": [
+    {
+      "id": "do-ncf-b01-es",
+      "country": "DO",
+      "language": "es",
+      "document": "DISTRIBUIDORA DEL CARIBE SRL\nRNC: 1-31-24675-3\nAv. Winston Churchill 45, Santo Domingo\n\nFACTURA DE CRÉDITO FISCAL\nNCF: B0100000123\nFecha: 05/10/2026        Vence: 04/11/2026\nCliente: Ferretería Los Pinos SRL  RNC 1-01-01063-2\n\nCant  Descripción                 Precio      Total\n10    Cemento gris 42.5 kg        450.00     4,500.00\n 4    Varilla 3/8 x 20'           310.00     1,240.00\n\nSubtotal: RD$5,740.00\nITBIS 18%: RD$1,033.20\nTotal: RD$6,773.20\nForma de pago: Crédito",
+      "expected": { "supplierTaxId": "1-31-24675-3", "ncf": "B0100000123", "issueDate": "2026-10-05", "dueDate": "2026-11-04", "currencyCode": "DOP", "subtotal": 5740, "taxAmount": 1033.2, "total": 6773.2, "lines": 2 }
+    },
+    {
+      "id": "do-ecf-e31-service-charge-es",
+      "country": "DO",
+      "language": "es",
+      "document": "RESTAURANTE EL CONUCO SRL — RNC 131246753\nComprobante Fiscal Electrónico  e-NCF: E310000004521\nFecha de emisión: 12-09-2026\n\n2  Almuerzo ejecutivo   850.00   1,700.00\n1  Jugo natural         180.00     180.00\n\nSubtotal 1,880.00\nITBIS (18%) 338.40\n10% Ley 188.00\nTOTAL RD$ 2,406.40",
+      "expected": { "supplierTaxId": "131246753", "ncf": "E310000004521", "issueDate": "2026-09-12", "currencyCode": "DOP", "subtotal": 1880, "taxAmount": 338.4, "serviceCharge": 188, "total": 2406.4, "lines": 2 }
+    },
+    {
+      "id": "mx-cfdi-xml-es",
+      "country": "MX",
+      "language": "es",
+      "document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cfdi:Comprobante Version=\"4.0\" Serie=\"A\" Folio=\"1043\" Fecha=\"2026-10-03T11:20:00\" SubTotal=\"12500.00\" Moneda=\"MXN\" Total=\"14500.00\" TipoDeComprobante=\"I\" FormaPago=\"03\" MetodoPago=\"PUE\" LugarExpedicion=\"64000\">\n  <cfdi:Emisor Rfc=\"DEM010203AB5\" Nombre=\"ABARROTES DEL NORTE SA DE CV\" RegimenFiscal=\"601\"/>\n  <cfdi:Receptor Rfc=\"XAXX010101000\" Nombre=\"PUBLICO EN GENERAL\" UsoCFDI=\"G03\"/>\n  <cfdi:Conceptos>\n    <cfdi:Concepto ClaveProdServ=\"50202306\" Cantidad=\"50\" Descripcion=\"Refresco cola 600 ml caja\" ValorUnitario=\"250.00\" Importe=\"12500.00\"/>\n  </cfdi:Conceptos>\n  <cfdi:Impuestos TotalImpuestosTrasladados=\"2000.00\"/>\n  <cfdi:Complemento><tfd:TimbreFiscalDigital UUID=\"6F9C1E2A-3B4D-4C5E-8F70-1A2B3C4D5E6F\" FechaTimbrado=\"2026-10-03T11:21:05\"/></cfdi:Complemento>\n</cfdi:Comprobante>",
+      "expected": { "supplierTaxId": "DEM010203AB5", "ncf": "6F9C1E2A-3B4D-4C5E-8F70-1A2B3C4D5E6F", "issueDate": "2026-10-03", "currencyCode": "MXN", "subtotal": 12500, "taxAmount": 2000, "total": 14500, "lines": 1 }
+    },
+    {
+      "id": "mx-pdf-text-usd-es",
+      "country": "MX",
+      "language": "es",
+      "document": "LOGÍSTICA PACÍFICO S DE RL DE CV   RFC LPA150312KJ1\nFactura Serie B Folio 88\nFolio fiscal (UUID): 0C1D2E3F-4A5B-4C6D-9E8F-112233445566\nFecha: 15/08/2026\nMoneda: USD   Tipo de cambio: 18.20\n\nFlete internacional Laredo–Monterrey   1   1,200.00   1,200.00\n\nSubtotal 1,200.00\nIVA 16% 192.00\nTotal 1,392.00 USD",
+      "expected": { "supplierTaxId": "LPA150312KJ1", "ncf": "0C1D2E3F-4A5B-4C6D-9E8F-112233445566", "issueDate": "2026-08-15", "currencyCode": "USD", "subtotal": 1200, "taxAmount": 192, "total": 1392, "lines": 1 }
+    },
+    {
+      "id": "us-invoice-en",
+      "country": "US",
+      "language": "en",
+      "document": "ACME INDUSTRIAL SUPPLY LLC\nEIN 12-3456789\n1200 Commerce St, Dallas, TX 75201\n\nINVOICE # INV-20931\nDate: 10/07/2026     Terms: Net 30     Due: 11/06/2026\nBill to: Lone Star Fabrication Inc.\n\nQty  Item     Description                 Unit      Amount\n12   SK-118   Safety gloves (box)        24.50     294.00\n 3   WD-40X   Welding wire 0.035 33lb    89.90     269.70\n\nSubtotal   $563.70\nSales tax (8.25%)  $46.51\nTotal Due  $610.21",
+      "expected": { "supplierTaxId": "12-3456789", "ncf": "INV-20931", "issueDate": "2026-10-07", "dueDate": "2026-11-06", "currencyCode": "USD", "subtotal": 563.7, "taxAmount": 46.51, "total": 610.21, "lines": 2 }
+    },
+    {
+      "id": "us-invoice-no-tax-id-en",
+      "country": "US",
+      "language": "en",
+      "document": "Green Valley Farms\n45 Orchard Rd, Fresno CA\nInvoice 5521   March 3, 2026\n\n40 lb  Organic apples  @1.85  74.00\n20 lb  Pears           @2.10  42.00\nTotal  $116.00\nThank you!",
+      "expected": { "supplierTaxId": null, "ncf": "5521", "issueDate": "2026-03-03", "currencyCode": "USD", "taxAmount": null, "total": 116, "lines": 2 }
+    }
+  ]
+}

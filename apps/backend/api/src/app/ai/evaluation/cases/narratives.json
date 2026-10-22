@@ -1,0 +1,49 @@
+{
+  "feature": "narratives",
+  "version": 1,
+  "threshold": 0.9,
+  "note": "Texts written from facts: an anomaly explained to the owner, a payment reminder to a customer. Every figure in the text must be in the facts, and the text must be in the language asked.",
+  "anomalies": [
+    {
+      "id": "do-duplicate-bill-es",
+      "country": "DO",
+      "language": "es",
+      "finding": { "detector": "rule.duplicate_vendor_bill", "category": "purchases", "severity": "HIGH", "occurredOn": "2026-10-02", "entityType": "vendor_bill", "evidence": { "vendorName": "Distribuidora del Caribe", "ncf": "B0100000123", "amount": 6773.2, "otherBillDate": "2026-09-28", "otherBillAmount": 6773.2 } }
+    },
+    {
+      "id": "us-sale-below-cost-en",
+      "country": "US",
+      "language": "en",
+      "finding": { "detector": "rule.sale_below_cost", "category": "sales", "severity": "MEDIUM", "occurredOn": "2026-10-11", "entityType": "invoice", "evidence": { "invoiceNumber": "INV-3310", "product": "Welding wire", "unitPrice": 61.5, "unitCost": 72.4, "quantity": 8, "loss": 87.2 } }
+    },
+    {
+      "id": "mx-price-change-es",
+      "country": "MX",
+      "language": "es",
+      "finding": { "detector": "rule.price_change", "category": "sales", "severity": "MEDIUM", "occurredOn": "2026-10-14", "entityType": "product", "evidence": { "product": "Refresco cola 600 ml caja", "oldPrice": 320, "newPrice": 160, "changePercent": -50 } }
+    }
+  ],
+  "reminders": [
+    {
+      "id": "do-reminder-es",
+      "country": "DO",
+      "language": "es",
+      "tone": "cordial",
+      "facts": { "customer": "Hotel Bávaro Real", "invoice": "B0100000871", "balance": "RD$61,000.00", "dueDate": "2026-09-30", "daysOverdue": 22, "company": "Distribuidora del Caribe" }
+    },
+    {
+      "id": "us-reminder-en",
+      "country": "US",
+      "language": "en",
+      "tone": "formal",
+      "facts": { "customer": "Delta Corp", "invoice": "INV-77", "balance": "$1,250.00", "dueDate": "2026-10-01", "daysOverdue": 21, "company": "Acme Industrial Supply" }
+    },
+    {
+      "id": "mx-reminder-es",
+      "country": "MX",
+      "language": "es",
+      "tone": "firm",
+      "facts": { "customer": "Abarrotes del Norte", "invoice": "A-1043", "balance": "$14,500.00 MXN", "dueDate": "2026-09-15", "daysOverdue": 37, "company": "Logística Pacífico" }
+    }
+  ]
+}

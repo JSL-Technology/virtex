@@ -42,6 +42,9 @@
     "jest.config.ts",
     "jest.config.cts",
     "src/**/*.spec.ts",
+    // The AI evaluation run (jest globals, calls the provider): never part of the built API.
+    "src/**/*.eval.ts",
+    "jest.eval.config.cts",
     "src/**/*.test.ts"
   ]
 }
