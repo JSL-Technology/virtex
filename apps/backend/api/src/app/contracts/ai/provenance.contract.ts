@@ -139,7 +139,7 @@ export async function recordCapturedRecord(
   },
 ): Promise<void> {
   if (!input.attachmentIds.length) return;
-  const reads: Array<{ ai_request_id: string | null; detail: { suggested?: Record<string, unknown> }; entity_id: string }> = await manager.query(
+  const reads: Array<{ ai_request_id: string | null; detail: { suggested?: Record<string, unknown>; channel?: { kind: string; inboundMessageId?: string } }; entity_id: string }> = await manager.query(
     `SELECT "ai_request_id", "detail", "entity_id" FROM "ai_record_provenance"
       WHERE "organization_id" = $1 AND "entity_type" = $2 AND "entity_id" = ANY($3::uuid[]) AND "source" = 'AI_CAPTURE'
       ORDER BY "created_at" DESC`,
@@ -157,4 +157,15 @@ export async function recordCapturedRecord(
     fields: compareFields(read.detail?.suggested ?? {}, input.saved),
     detail: { attachmentId: read.entity_id },
   });
+  // Received by mail: the record says that too, with the message it came in.
+  if (read.detail?.channel?.kind === 'mail') {
+    await recordAiProvenance(manager, {
+      organizationId: input.organizationId,
+      entityType: input.entityType,
+      entityId: input.entityId,
+      source: 'AI_MAIL',
+      userId: input.userId,
+      detail: { inboundMessageId: read.detail.channel.inboundMessageId ?? null, attachmentId: read.entity_id },
+    });
+  }
 }

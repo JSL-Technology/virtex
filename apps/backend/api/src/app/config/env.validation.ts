@@ -186,6 +186,13 @@ export const envValidation = Joi.object({
    */
   AI_ENABLED: Joi.boolean().default(true),
   ANTHROPIC_API_KEY: Joi.string().allow('').optional(),
+  /**
+   * Receiving mail (supplier bills and customer orders by e-mail). Both optional: without them the
+   * addresses are not shown and the webhook refuses every request. The domain is the one the mail
+   * receiver accepts for (`bills+<token>@<domain>`); the secret signs what it posts.
+   */
+  INBOUND_MAIL_DOMAIN: Joi.string().hostname().allow('').optional(),
+  INBOUND_MAIL_WEBHOOK_SECRET: Joi.string().min(32).allow('').optional(),
   AI_MODEL_VISION: Joi.string().default('claude-opus-5-5'),
   AI_MODEL_NARRATIVE: Joi.string().default('claude-opus-5-5'),
   AI_MODEL_DEEP_ANALYSIS: Joi.string().default('claude-fable-5-1'),

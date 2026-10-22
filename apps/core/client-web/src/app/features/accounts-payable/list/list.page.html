@@ -22,6 +22,8 @@
     (ngModelChange)="setBranch($event)"
   />
 
+  <app-inbound-mail-inbox listCreate purpose="BILLS" />
+
   <div listEmpty class="empty-invite">
     <h2>{{ 'accounts_payable.list.no_vendor_bills' | translate }}</h2>
     <p>{{ 'accounts_payable.list.create_your_first_vendor_bill_get' | translate }}</p>

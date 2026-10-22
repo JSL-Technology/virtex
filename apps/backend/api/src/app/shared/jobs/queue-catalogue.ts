@@ -19,6 +19,7 @@ export const QUEUE_NAMES = [
   'intercompany-jobs',
   'mail',
   'ai-reports',
+  'inbound-mail',
 ] as const;
 
 export type QueueName = (typeof QUEUE_NAMES)[number];
@@ -38,6 +39,7 @@ export type QueueName = (typeof QUEUE_NAMES)[number];
 export const NOT_SHOWN: Partial<Record<QueueName, string>> = {
   mail: 'Envía un mensaje ya compuesto: no es trabajo del inquilino sobre sus datos.',
   'ai-reports': 'Cada informe lleva su estado en ai_reports, visible en su pantalla y anunciado por aviso.',
+  'inbound-mail': 'Cada mensaje lleva su estado en inbound_messages, visible (con reintento) en la bandeja de su lista.',
 };
 
 /** Las colas que el panel muestra. */

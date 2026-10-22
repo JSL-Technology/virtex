@@ -14,11 +14,12 @@ import { VxAmountComponent } from '../../../shared/components/amount';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
+import { InboundMailInboxComponent } from '../../inbound-mail/inbound-mail-inbox.component';
 
 @Component({
   selector: 'app-vendor-bills-list-page',
   standalone: true,
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [InboundMailInboxComponent, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

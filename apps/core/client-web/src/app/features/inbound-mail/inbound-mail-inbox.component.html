@@ -1,0 +1,54 @@
+@if (!failed() && visible().length) {
+  <section class="mail-inbox card" [attr.aria-label]="k('inbound_mail.inbox_title', purpose()) | translate">
+    <h3 class="mail-inbox__title">
+      <lucide-icon [img]="MailIcon" size="16" aria-hidden="true"></lucide-icon>
+      {{ k('inbound_mail.inbox_title', purpose()) | translate }}
+    </h3>
+    <ul class="mail-inbox__list">
+      @for (message of visible(); track message.id) {
+        <li class="mail-inbox__item">
+          <div class="mail-inbox__head">
+            <vx-badge size="sm" [tone]="tone(message.status)">{{ k('inbound_mail.status', message.status) | translate }}</vx-badge>
+            <span class="mail-inbox__from">{{ message.fromName || message.from }}</span>
+            <span class="mail-inbox__subject">{{ message.subject }}</span>
+            <span class="mail-inbox__when">{{ message.receivedAt | vxRelativeTime }}</span>
+          </div>
+
+          @if (message.reason) {
+            <p class="mail-inbox__reason">{{ message.reason | translate }}</p>
+          }
+
+          @for (record of message.records; track record.id) {
+            <a class="mail-inbox__record" [routerLink]="record.link">{{ k('inbound_mail.record', record.type) | translate: { label: record.label } }}</a>
+          }
+
+          @for (item of reviewItems(message); track item.key) {
+            <div class="mail-inbox__review">
+              <span>{{ item.label }}</span>
+              @for (reason of item.reasons; track reason) {
+                <span class="mail-inbox__chip">{{ reason | translate }}</span>
+              }
+              <a class="secondary-button" [routerLink]="item.link" [queryParams]="item.queryParams">{{ 'inbound_mail.review' | translate }}</a>
+            </div>
+          }
+
+          <div class="mail-inbox__actions">
+            @for (attachment of message.attachments; track attachment.id) {
+              <button type="button" class="link-button" (click)="open(message, attachment.id)">{{ attachment.fileName }}</button>
+            }
+            @if (message.status === 'FAILED' || message.status === 'REJECTED' || message.status === 'NEEDS_REVIEW') {
+              <button type="button" class="icon-button" [disabled]="busy() === message.id" (click)="retry(message)"
+                      [title]="'inbound_mail.retry' | translate" [attr.aria-label]="'inbound_mail.retry' | translate">
+                <lucide-icon [img]="RetryIcon" size="14" aria-hidden="true"></lucide-icon>
+              </button>
+            }
+            <button type="button" class="icon-button" [disabled]="busy() === message.id" (click)="dismiss(message)"
+                    [title]="'inbound_mail.dismiss' | translate" [attr.aria-label]="'inbound_mail.dismiss' | translate">
+              <lucide-icon [img]="DismissIcon" size="14" aria-hidden="true"></lucide-icon>
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  </section>
+}

@@ -504,6 +504,11 @@
     "en": "People",
     "pt": "Pessoal"
   },
+  "permissions.groups.inbound_mail": {
+    "es": "Correo entrante",
+    "en": "Inbound e-mail",
+    "pt": "E-mail recebido"
+  },
   "permissions.groups.intercompany": {
     "es": "Intercompañía",
     "en": "Intercompany",

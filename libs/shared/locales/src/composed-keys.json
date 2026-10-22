@@ -1524,6 +1524,47 @@
       "UP",
       "DOWN",
       "REPORT"
+    ],
+    "inbound_mail.inbox_title": [
+      "BILLS",
+      "ORDERS"
+    ],
+    "inbound_mail.purpose": [
+      "BILLS",
+      "ORDERS"
+    ],
+    "inbound_mail.purpose_help": [
+      "BILLS",
+      "ORDERS"
+    ],
+    "inbound_mail.status": [
+      "RECEIVED",
+      "PROCESSING",
+      "PROCESSED",
+      "NEEDS_REVIEW",
+      "REJECTED",
+      "FAILED",
+      "DISMISSED"
+    ],
+    "inbound_mail.record": [
+      "vendor_bill",
+      "quote"
+    ],
+    "inbound_mail.bill_reason": [
+      "unknown_supplier",
+      "not_a_bill",
+      "possible_duplicate",
+      "document_number",
+      "arithmetic",
+      "unmatched_lines",
+      "no_total",
+      "rejected_by_rules"
+    ],
+    "inbound_mail.order_reason": [
+      "unknown_customer",
+      "unmatched_items",
+      "no_items",
+      "rejected_by_rules"
     ]
   },
   "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",

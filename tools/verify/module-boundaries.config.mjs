@@ -123,6 +123,9 @@ export const MODULE_OF_FOLDER = {
   // Moves files in and out; each domain offers its datasets through `contracts/data-transfer`, so
   // this module depends on none of them.
   'data-transfer': 'configuracion',
+  // Receives mail at each company's addresses and hands it to the module registered for its purpose
+  // (contracts/inbound-mail); it imports no domain.
+  'inbound-mail': 'configuracion',
 
   // ── Plataforma (infraestructura; no depende de ningún módulo de negocio) ───────────────────────
   common: 'plataforma',

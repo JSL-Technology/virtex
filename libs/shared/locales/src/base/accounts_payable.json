@@ -1016,6 +1016,11 @@
     "en": "Vendor bills",
     "pt": "Faturas de fornecedor"
   },
+  "accounts_payable.mail_draft_refused": {
+    "es": "La factura no se pudo guardar como borrador; revísala en el formulario.",
+    "en": "The bill could not be saved as a draft; review it in the form.",
+    "pt": "A fatura não pôde ser guardada como rascunho; reveja-a no formulário."
+  },
   "accounts_payable.ncf_already_recorded": {
     "es": "El NCF {{ncf}} de {{supplier}} ya está registrado en otra factura.",
     "en": "NCF {{ncf}} from {{supplier}} is already recorded on another bill.",

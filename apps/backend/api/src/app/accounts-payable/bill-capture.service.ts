@@ -284,7 +284,12 @@ export class BillCaptureService {
   }
 
   /** Read a supplier's document into a suggested bill; the file is kept, staged, as its evidence. */
-  async capture(organizationId: string, userId: string, upload: BillUpload): Promise<BillCaptureSuggestion> {
+  async capture(
+    organizationId: string,
+    userId: string | null,
+    upload: BillUpload,
+    channel: { kind: 'upload' } | { kind: 'mail'; inboundMessageId: string } = { kind: 'upload' },
+  ): Promise<BillCaptureSuggestion> {
     if (!this.ai.available()) throw new ServiceUnavailableError('ai.not_configured');
     const file = await normalise(upload);
     // The route holds no connection while the model reads (`ShortLivedConnections`): each piece of
@@ -297,7 +302,9 @@ export class BillCaptureService {
     const content =
       file.mimeType === 'application/pdf'
         ? [{ type: 'pdf' as const, data: file.buffer.toString('base64') }]
-        : [{ type: 'image' as const, mediaType: 'image/jpeg' as const, data: file.buffer.toString('base64') }];
+        : file.mimeType === 'application/xml'
+          ? [{ type: 'text' as const, text: `The supplier's electronic invoice (XML):\n\n${file.buffer.toString('utf8').slice(0, MAX_XML_CHARS)}` }]
+          : [{ type: 'image' as const, mediaType: 'image/jpeg' as const, data: file.buffer.toString('base64') }];
     const { value: read, requestId } = await this.ai.extract<ExtractedBill>({
       feature: 'bill_capture',
       promptId: 'bill_capture.system',
@@ -321,7 +328,7 @@ export class BillCaptureService {
         source: 'AI_CAPTURE',
         userId,
         aiRequestId: requestId,
-        detail: { suggested: capturedValues(suggestion), confidence: read.confidence },
+        detail: { suggested: capturedValues(suggestion), confidence: read.confidence, channel },
       });
       return suggestion;
     });
@@ -514,11 +521,23 @@ export function capturedValues(suggestion: BillCaptureSuggestion): Record<string
   };
 }
 
+/** Characters of an XML document sent to the model; an e-invoice is a few thousand. */
+const MAX_XML_CHARS = 150_000;
+
+function looksLikeXml(buffer: Buffer): boolean {
+  const head = buffer.subarray(0, 512).toString('utf8').replace(/^\uFEFF/, '').trimStart();
+  return head.startsWith('<?xml') || /^<[A-Za-z][\w:.-]*[\s>]/.test(head);
+}
+
 async function normalise(upload: BillUpload): Promise<BillUpload> {
   if (!upload.buffer?.length) throw new BadRequestError('users.file_required');
   if (upload.buffer.length > MAX_BILL_FILE_BYTES) throw new BadRequestError('accounts_payable.attachment_too_large');
   if (upload.buffer.subarray(0, 5).toString('latin1') === '%PDF-') {
     return { fileName: withExtension(upload.fileName, 'pdf'), mimeType: 'application/pdf', buffer: upload.buffer };
+  }
+  // An electronic invoice as its XML (a CFDI, an e-CF, an NF-e): the document itself, read as text.
+  if (looksLikeXml(upload.buffer)) {
+    return { fileName: withExtension(upload.fileName, 'xml'), mimeType: 'application/xml', buffer: upload.buffer };
   }
   try {
     const metadata = await sharp(upload.buffer, { limitInputPixels: MAX_INPUT_PIXELS, failOn: 'error' }).metadata();
