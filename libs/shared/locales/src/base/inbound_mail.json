@@ -134,6 +134,11 @@
     "en": "This kind of mailbox is not available.",
     "pt": "Este tipo de caixa de correio não está disponível."
   },
+  "inbound_mail.not_an_order": {
+    "es": "El correo no parece un pedido.",
+    "en": "The e-mail does not look like an order.",
+    "pt": "O e-mail não parece uma encomenda."
+  },
   "inbound_mail.not_configured": {
     "es": "Esta instalación todavía no tiene un dominio de correo entrante configurado.",
     "en": "This installation has no inbound mail domain configured yet.",

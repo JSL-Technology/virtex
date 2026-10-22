@@ -244,6 +244,11 @@
     "en": "Deep analysis",
     "pt": "Análise aprofundada"
   },
+  "ai.admin.usage_feature.order_intake": {
+    "es": "Pedidos por correo",
+    "en": "Orders by e-mail",
+    "pt": "Encomendas por e-mail"
+  },
   "ai.admin.usage_feature.product_image_embedding": {
     "es": "Búsqueda de duplicados por imagen",
     "en": "Duplicate search by image",
@@ -2583,6 +2588,11 @@
     "es": "Informes escritos (gerente, plan de caja)",
     "en": "Written reports (manager, cash plan)",
     "pt": "Relatórios escritos (gestor, plano de caixa)"
+  },
+  "ai.policy.feature.order_intake": {
+    "es": "Pedidos de clientes por correo",
+    "en": "Customer orders by e-mail",
+    "pt": "Encomendas de clientes por e-mail"
   },
   "ai.policy.feature.product_vision": {
     "es": "Productos desde foto",

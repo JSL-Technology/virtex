@@ -160,7 +160,7 @@ export class InboundMailService {
    */
   async process(organizationId: string, messageId: string, finalAttempt: boolean): Promise<void> {
     const message = await withTenant(this.dataSource, organizationId, async () => {
-      const row = await this.messages.findOne({ where: { id: messageId, organizationId } });
+      const row = await this.messages.findOne({ where: { id: messageId, organizationId }, relations: ['mailbox'] });
       if (!row || !['RECEIVED', 'FAILED', 'PROCESSING'].includes(row.status)) return null;
       row.status = 'PROCESSING';
       row.attempts += 1;
@@ -206,6 +206,7 @@ export class InboundMailService {
       subject: row.subject,
       text: row.bodyText,
       receivedAt: row.receivedAt,
+      mailboxOwnerUserId: row.mailbox?.createdByUserId ?? null,
       attachments: row.attachments.map((attachment) => ({
         id: attachment.id,
         fileName: attachment.fileName,

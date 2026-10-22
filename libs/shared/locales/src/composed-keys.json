@@ -147,6 +147,7 @@
       "compose",
       "copilot",
       "deep_analysis",
+      "order_intake",
       "product_vision",
       "reconcile_ambiguous"
     ],
@@ -157,6 +158,7 @@
       "compose",
       "copilot",
       "deep_analysis",
+      "order_intake",
       "product_image_embedding",
       "product_vision",
       "reconcile_ambiguous"

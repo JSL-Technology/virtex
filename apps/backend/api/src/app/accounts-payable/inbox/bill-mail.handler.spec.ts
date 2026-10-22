@@ -26,6 +26,7 @@ const message: InboundMailMessage = {
   text: '',
   receivedAt: new Date(),
   attachments: [{ id: 'a', fileName: 'f.pdf', mimeType: 'application/pdf', size: 5, read: async () => Buffer.from('%PDF-') }],
+  mailboxOwnerUserId: null,
 };
 
 function build(read: BillCaptureSuggestion, poRows: unknown[] = []) {

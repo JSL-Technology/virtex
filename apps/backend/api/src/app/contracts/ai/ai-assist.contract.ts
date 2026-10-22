@@ -17,7 +17,8 @@ export type AiAssistFeature =
   | 'compose'
   | 'column_mapping'
   | 'reconcile_ambiguous'
-  | 'deep_analysis';
+  | 'deep_analysis'
+  | 'order_intake';
 
 /** Input content, independent of any provider's wire format. Binary data is base64. */
 export type AiAssistContent =

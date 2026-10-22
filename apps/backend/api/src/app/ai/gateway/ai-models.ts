@@ -16,7 +16,8 @@ export type AiFeature =
   | 'bill_capture'
   | 'compose'
   | 'column_mapping'
-  | 'reconcile_ambiguous';
+  | 'reconcile_ambiguous'
+  | 'order_intake';
 
 export type AiEffort = 'low' | 'medium' | 'high' | 'xhigh' | 'max';
 
@@ -54,6 +55,9 @@ export const AI_ROUTES: Readonly<Record<AiFeature, AiRoute>> = {
   column_mapping: { modelSetting: 'AI_MODEL_LIGHT', effort: 'low', maxTokens: 4_000, credits: 1 },
   // Choosing between two bank-statement matches the deterministic score could not separate.
   reconcile_ambiguous: { modelSetting: 'AI_MODEL_LIGHT', effort: 'medium', maxTokens: 4_000, credits: 1 },
+  // A customer's order e-mail read into items and quantities; every item is then matched to the
+  // catalogue by code or name, and the quote is a draft a person approves.
+  order_intake: { modelSetting: 'AI_MODEL_NARRATIVE', effort: 'medium', maxTokens: 6_000, credits: 1 },
 };
 
 /** US dollars per million tokens. */

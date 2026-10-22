@@ -33,6 +33,8 @@ export interface InboundMailMessage {
   text: string;
   receivedAt: Date;
   attachments: InboundMailAttachment[];
+  /** Who set up the address: the person a draft is assigned to when nobody else is obvious. */
+  mailboxOwnerUserId: string | null;
 }
 
 /** What a handler made of a message. */
