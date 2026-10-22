@@ -1604,6 +1604,56 @@
     "en": "Unnamed",
     "pt": "Sem nome"
   },
+  "ai.close.mailed_bills": {
+    "es": "{{count}} facturas recibidas por correo esperan revisión",
+    "en": "{{count}} bills received by e-mail wait for review",
+    "pt": "{{count}} faturas recebidas por e-mail aguardam revisão"
+  },
+  "ai.close.not_ready": {
+    "es": "Todavía no se puede cerrar: {{progress}} % hecho. Empieza por el primer paso.",
+    "en": "It cannot be closed yet: {{progress}} % done. Start with the first step.",
+    "pt": "Ainda não pode ser fechado: {{progress}} % feito. Comece pelo primeiro passo."
+  },
+  "ai.close.open_anomalies": {
+    "es": "{{count}} hallazgos graves sin revisar en el periodo",
+    "en": "{{count}} serious findings not reviewed in the period",
+    "pt": "{{count}} constatações graves por rever no período"
+  },
+  "ai.close.plan_failed": {
+    "es": "No se pudo escribir el plan. Inténtalo de nuevo.",
+    "en": "The plan could not be written. Try again.",
+    "pt": "Não foi possível escrever o plano. Tente novamente."
+  },
+  "ai.close.ready": {
+    "es": "Listo para cerrar ({{progress}} % hecho; quedan solo pasos manuales por confirmar).",
+    "en": "Ready to close ({{progress}} % done; only manual steps left to confirm).",
+    "pt": "Pronto para fechar ({{progress}} % feito; restam só passos manuais por confirmar)."
+  },
+  "ai.close.rewrite_plan": {
+    "es": "Escribirlo de nuevo",
+    "en": "Write it again",
+    "pt": "Escrevê-lo de novo"
+  },
+  "ai.close.title": {
+    "es": "Asistente de cierre",
+    "en": "Close assistant",
+    "pt": "Assistente de fecho"
+  },
+  "ai.close.unavailable": {
+    "es": "El checklist de cierre no está disponible.",
+    "en": "The close checklist is not available.",
+    "pt": "A checklist de fecho não está disponível."
+  },
+  "ai.close.write_plan": {
+    "es": "Escribir el plan de cierre",
+    "en": "Write the close plan",
+    "pt": "Escrever o plano de fecho"
+  },
+  "ai.close.writing": {
+    "es": "Escribiendo el plan… te avisaremos cuando esté listo.",
+    "en": "Writing the plan… you will be notified when it is ready.",
+    "pt": "A escrever o plano… será avisado quando estiver pronto."
+  },
   "ai.company_wide_only": {
     "es": "Esta vista abarca toda la empresa y tu acceso está limitado a algunas sucursales.",
     "en": "This view covers the whole company and your access is limited to some branches.",

@@ -61,13 +61,21 @@ export class AiNotificationsListener {
           .map((member) => ({ id: member.userId, language: member.language }));
         for (const recipient of recipients) {
           const language = languageOf(recipient.language);
-          await this.notifications.createLocalizedNotification(recipient.id, language, {
-            titleKey: 'notifications.ai.manager_report.title',
-            bodyKey: 'notifications.ai.manager_report.body',
-            params: { month: formatMonth(event.period, language) },
-            link: `/reports/manager-report?id=${event.reportId}`,
-            organizationId: event.organizationId,
-          });
+          const notice =
+            event.kind === 'CLOSE_ASSISTANT'
+              ? {
+                  titleKey: 'notifications.ai.close_plan.title',
+                  bodyKey: 'notifications.ai.close_plan.body',
+                  params: {},
+                  link: `/accounting/closing/checklist?period=${event.sourceRunId ?? ''}`,
+                }
+              : {
+                  titleKey: 'notifications.ai.manager_report.title',
+                  bodyKey: 'notifications.ai.manager_report.body',
+                  params: { month: formatMonth(event.period, language) },
+                  link: `/reports/manager-report?id=${event.reportId}`,
+                };
+          await this.notifications.createLocalizedNotification(recipient.id, language, { ...notice, organizationId: event.organizationId });
         }
       });
     } catch (error) {

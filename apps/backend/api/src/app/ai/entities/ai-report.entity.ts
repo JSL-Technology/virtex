@@ -1,7 +1,7 @@
 import { Check, Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
-export type AiReportKind = 'CASHFLOW_PLAN' | 'MANAGER_MONTHLY' | 'SCENARIO_COMPARISON';
+export type AiReportKind = 'CASHFLOW_PLAN' | 'MANAGER_MONTHLY' | 'SCENARIO_COMPARISON' | 'CLOSE_ASSISTANT';
 export type AiReportStatus = 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED';
 /**
  * Who may read a report. `REQUESTER`: written with the requester's own permissions and branches,

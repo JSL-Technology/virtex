@@ -67,7 +67,11 @@ describe('ChecklistPage', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => httpMock.verify());
+  afterEach(() => {
+    // The close assistant on the page asks for its own view; it has its own spec.
+    httpMock.match((request) => request.url.includes('/ai/close-assistant')).forEach((request) => request.flush(null));
+    httpMock.verify();
+  });
 
   it('opens on the earliest open period and shows the computed checks', () => {
     fixture.detectChanges();

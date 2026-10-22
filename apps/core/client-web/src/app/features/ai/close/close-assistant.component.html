@@ -1,0 +1,70 @@
+@if (view(); as v) {
+  <section class="ca card" aria-labelledby="close-assistant-title">
+    <header class="ca__header">
+      <h2 id="close-assistant-title" class="ca__title">{{ 'ai.close.title' | translate }}</h2>
+      <p class="ca__verdict" [class.ca__verdict--ready]="v.ready" role="status">
+        {{ (v.ready ? 'ai.close.ready' : 'ai.close.not_ready') | translate: { progress: v.progress } }}
+      </p>
+    </header>
+
+    <ol class="ca__steps">
+      @for (step of v.steps; track step.id) {
+        <li class="ca__step" [class.ca__step--done]="step.done">
+          <lucide-icon [img]="step.done ? DoneIcon : TodoIcon" size="16" aria-hidden="true"></lucide-icon>
+          <span class="ca__desc">{{ step.description }}</span>
+          @if (step.note && !step.done) {
+            <span class="ca__note">{{ step.note }}</span>
+          }
+          @if (step.link && !step.done) {
+            <a class="ca__link" [routerLink]="step.link">{{ 'accounting.checklist.resolve' | translate }}</a>
+          }
+        </li>
+      }
+    </ol>
+
+    @if (v.openAnomalies.critical + v.openAnomalies.high > 0) {
+      <p class="ca__extra">
+        <a routerLink="/reports/anomalies">{{ 'ai.close.open_anomalies' | translate: { count: v.openAnomalies.critical + v.openAnomalies.high } }}</a>
+      </p>
+    }
+    @if (v.mailedBillsToReview > 0) {
+      <p class="ca__extra">
+        <a routerLink="/accounts-payable">{{ 'ai.close.mailed_bills' | translate: { count: v.mailedBillsToReview } }}</a>
+      </p>
+    }
+
+    @if (canWrite) {
+      <div class="ca__plan">
+        @if (plan(); as p) {
+          @if (pending(p.status)) {
+            <p class="ca__note" role="status">{{ 'ai.close.writing' | translate }}</p>
+          } @else if (p.status === 'FAILED') {
+            <p class="ca__note" role="alert">{{ 'ai.close.plan_failed' | translate }}</p>
+          } @else if (p.content; as c) {
+            <article class="ca__content" aria-live="polite">
+              <h3>{{ c.title }}</h3>
+              <p>{{ c.summary }}</p>
+              @for (section of c.sections; track $index) {
+                <h4>{{ section.heading }}</h4>
+                <p>{{ section.body }}</p>
+              }
+              @if (c.recommendations.length) {
+                <ul>
+                  @for (rec of c.recommendations; track $index) {
+                    <li><strong>{{ rec.action }}</strong> — {{ rec.why }}</li>
+                  }
+                </ul>
+              }
+            </article>
+          }
+        }
+        @if (!plan() || !pending(plan()!.status)) {
+          <button type="button" class="secondary-button" [disabled]="requesting()" (click)="writePlan()">
+            <lucide-icon [img]="AiIcon" size="16" aria-hidden="true"></lucide-icon>
+            <span>{{ (plan() ? 'ai.close.rewrite_plan' : 'ai.close.write_plan') | translate }}</span>
+          </button>
+        }
+      </div>
+    }
+  </section>
+}

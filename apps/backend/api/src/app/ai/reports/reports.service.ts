@@ -253,13 +253,15 @@ export class ReportsService {
       report.error = null;
       report.finishedAt = new Date();
       await this.reports.save(report);
-      if (report.kind === 'MANAGER_MONTHLY') {
-        // The cash plan is asked for and read on its screen; the monthly report is news.
+      if (report.kind === 'MANAGER_MONTHLY' || report.kind === 'CLOSE_ASSISTANT') {
+        // The cash plan is asked for and read on its screen; the monthly report is news, and the
+        // close plan is written while the accountant works on something else.
         this.events.emit(AI_REPORT_READY, {
           organizationId,
           reportId: report.id,
-          kind: 'MANAGER_MONTHLY',
+          kind: report.kind,
           period: report.period,
+          sourceRunId: report.sourceRunId,
           audience: report.audience,
           requiredPermissions: report.requiredPermissions,
           requestedByUserId: report.requestedByUserId,

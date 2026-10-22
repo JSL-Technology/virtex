@@ -64,6 +64,16 @@
     "en": "Risk of running short of cash",
     "pt": "Risco de ficar sem caixa"
   },
+  "notifications.ai.close_plan.body": {
+    "es": "El asistente terminó el plan para cerrar el periodo.",
+    "en": "The assistant finished the plan to close the period.",
+    "pt": "O assistente terminou o plano para fechar o período."
+  },
+  "notifications.ai.close_plan.title": {
+    "es": "Plan de cierre listo",
+    "en": "Close plan ready",
+    "pt": "Plano de fecho pronto"
+  },
   "notifications.ai.manager_report.body": {
     "es": "Ya puedes leer el informe de {{month}}.",
     "en": "The report for {{month}} is ready to read.",

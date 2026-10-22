@@ -52,6 +52,8 @@ import { InventoryModule } from '../inventory/inventory.module';
 import { AiOrganizationSettings } from './entities/ai-organization-settings.entity';
 import { AiRecordProvenance } from './entities/ai-record-provenance.entity';
 import { ProvenanceController } from './provenance/provenance.controller';
+import { CloseAssistantService } from './close/close-assistant.service';
+import { CloseAssistantController } from './close/close-assistant.controller';
 import { AiMessageFeedback } from './entities/ai-message-feedback.entity';
 import { AiSettingsService } from './settings/ai-settings.service';
 import { AiSettingsController } from './settings/ai-settings.controller';
@@ -80,9 +82,10 @@ import { AiRetentionService } from './settings/ai-retention.service';
     InventoryModule,
     AuditModule,
   ],
-  controllers: [AiController, ProvenanceController, CopilotController, CopilotDataController, CashflowController, ManagerReportController, DataQualityController, AgentsController, AiSettingsController],
+  controllers: [AiController, ProvenanceController, CloseAssistantController, CopilotController, CopilotDataController, CashflowController, ManagerReportController, DataQualityController, AgentsController, AiSettingsController],
   providers: [
     AiSettingsService,
+    CloseAssistantService,
     AiRetentionService,
     AiGatewayService,
     EmbeddingsService,
