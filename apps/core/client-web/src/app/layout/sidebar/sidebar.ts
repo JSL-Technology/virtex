@@ -83,6 +83,9 @@ const FAVORITES_COLLAPSED_KEY = 'virtex.nav.favorites.collapsed';
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // On the host and not on the `<nav>`: the key comes from whichever entry has focus and bubbles
+  // up, and a key handler on a non-focusable element is what the template a11y lint forbids.
+  host: { '(keydown)': 'onKeydown($event)' },
 })
 export class Sidebar {
   private readonly modules = inject(ActiveModuleService);

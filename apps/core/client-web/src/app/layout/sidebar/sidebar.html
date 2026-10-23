@@ -2,7 +2,6 @@
   class="sidebar"
   id="module-panel"
   [attr.aria-label]="'shell.module_panel' | translate"
-  (keydown)="onKeydown($event)"
 >
   @if (module(); as active) {
     <h2 class="module-title">{{ active.titleKey | translate }}</h2>

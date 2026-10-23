@@ -138,7 +138,8 @@ describe('Sidebar (panel de módulo)', () => {
     it('Escape también vuelve', async () => {
       const el = await render(panelCompleto, { browsing: true });
 
-      el.querySelector('nav')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      // Desde la entrada enfocada, como llega de verdad: la tecla sube hasta el panel.
+      el.querySelector('a.menu-item')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       expect(stopBrowsing).toHaveBeenCalled();
     });
 
