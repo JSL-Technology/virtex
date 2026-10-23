@@ -67,7 +67,16 @@ export class TabStateService {
 
   private closeHandlers = new Map<string, TabSaveHandler>();
 
+  /** Pestaña en cuyo contenido fue la última pulsación; ver `noteContentInteraction`. */
+  private contentInteractionTabId: string | null = null;
+
   constructor() {
+    if (typeof document !== 'undefined') {
+      const forget = () => (this.contentInteractionTabId = null);
+      document.addEventListener('pointerdown', forget, true);
+      document.addEventListener('keydown', forget, true);
+    }
+
     // A tab titled from the catalogue follows the language. Its title was translated once, when it
     // opened, so switching to Spanish left «Customers» and «Inventory adjustments» in English.
     this.translate.onLangChange.subscribe(() => {
@@ -121,7 +130,7 @@ export class TabStateService {
       definition.tabType !== TabType.PINNED &&
       definition.previewable !== false &&
       (config.preview ??
-        (this.prefs.enablePreview() && this.isPreviewable(definition.tabType, params)));
+        (this.prefs.enablePreview() && this.isPreviewable(definition.tabType)));
 
     // Deduplicación de instancias.
     if (entityKey) {
@@ -157,7 +166,10 @@ export class TabStateService {
       const preview = this.tabsSignal().find(
         (t) => t.isPreview && t.isCloseable && this.registry.resolve(t.route).definition.previewable !== false,
       );
-      if (preview) {
+      // Abierta DESDE la propia vista previa (una fila de su lista): esa pestaña se usó, se fija y
+      // la nueva ocupa otra al lado.
+      if (preview && this.contentInteractionTabId === preview.id) this.markPermanent(preview.id);
+      else if (preview) {
         this.reusePreview(preview.id, {
           type: definition.tabType,
           title,
@@ -202,31 +214,38 @@ export class TabStateService {
   }
 
   /**
-   * ¿Esta apertura es «hojeable» y por tanto candidata a vista previa reutilizable?
+   * ¿Esta apertura es candidata a vista previa reutilizable?
    *
-   * No basta con el tipo: en este ERP casi todos los detalles de registro son
-   * formularios (`DRAFT`→`WIZARD`), y hay dos clases muy distintas:
-   *  - **Editar un registro EXISTENTE** (`/clientes/88/edit`, con parámetros de
-   *    ruta): es exactamente hojear —abrir uno, mirar, pasar al siguiente—, así que
-   *    va en vista previa. En cuanto se toca un campo, se fija (ver el promotor de
-   *    edición del `TabWrapper`), de modo que hojear nunca pisa cambios sin guardar.
-   *  - **Crear uno NUEVO** (`/clientes/new`, sin parámetros): nunca se reutiliza;
-   *    cada uno es una pestaña propia.
+   * Todo lo que se abre con un clic es vista previa, como en VS Code: módulos y submódulos del
+   * menú, listas, bandejas, registros, informes y formularios —nuevos o de edición—. Recorrer el
+   * menú mirando pantallas dejaba una pestaña por cada clic aunque no se hubiera tocado ninguna;
+   * ahora todas comparten UNA pestaña en cursiva hasta que el usuario hace algo en ella:
+   *  - escribir o cambiar un campo (el promotor de edición del `TabWrapper`; en un formulario,
+   *    además, la ensucia, así que hojear nunca pisa cambios sin guardar),
+   *  - abrir algo DESDE ella (una fila de la lista: ver `noteContentInteraction`),
+   *  - doble clic en su cabecera o «Mantener abierta».
    *
-   * `RECORD` (documentos) y `REPORT` (análisis) son hojeables siempre. Listas,
-   * lienzos, bandejas e inicio son permanentes.
+   * Solo el inicio (`PINNED`) y las ventanas declaradas `previewable: false` (lienzos desde los que
+   * se trabaja) son siempre permanentes; eso lo filtra `openTab` antes de llegar aquí.
    */
-  private isPreviewable(type: TabType, params: Record<string, string>): boolean {
-    switch (type) {
-      case TabType.RECORD:
-      case TabType.REPORT:
-        return true;
-      case TabType.WIZARD:
-        // Solo si apunta a un registro concreto (tiene parámetros); los «nuevos» no.
-        return Object.keys(params).length > 0;
-      default:
-        return false; // PINNED, MODULE_LIST, UTILITY
-    }
+  private isPreviewable(type: TabType): boolean {
+    return type !== TabType.PINNED;
+  }
+
+  /**
+   * El usuario acaba de pulsar (o teclear) DENTRO del contenido de una pestaña.
+   *
+   * Si lo siguiente que ocurre es abrir otra ventana, esa ventana nace de esta: el usuario usó la
+   * pestaña —eligió una fila de la lista—, así que deja de ser «nada hecho». Sin esto, abrir un
+   * cliente desde la lista de clientes en vista previa reemplazaba la lista por el cliente y había
+   * que volver a buscarla en el menú.
+   *
+   * Cualquier pulsación fuera del contenido (menú, cabecera de pestañas, paleta) la olvida: lo
+   * hace el escuchador global del constructor, que en fase de captura corre antes que el del
+   * `TabWrapper`.
+   */
+  noteContentInteraction(tabId: string): void {
+    this.contentInteractionTabId = tabId;
   }
 
   /**

@@ -14,7 +14,7 @@ export const DEFAULT_MAX_TABS = 12;
  *
  * ## Vista previa (estilo VS Code)
  *
- * Con la vista previa activada, abrir un registro no crea una pestaña nueva cada
+ * Con la vista previa activada, abrir un módulo o un registro no crea una pestaña nueva cada
  * vez: reutiliza una única pestaña «efímera» (en cursiva) hasta que el usuario la
  * fija —editándola, con doble clic en su cabecera o desde el menú—. Es lo que
  * evita que curiosear por veinte documentos deje veinte pestañas abiertas.

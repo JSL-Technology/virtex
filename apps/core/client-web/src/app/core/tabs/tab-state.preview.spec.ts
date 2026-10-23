@@ -92,6 +92,42 @@ describe('TabStateService — vista previa al abrir', () => {
     expect(tabs.tabs()[0].isPreview).toBe(true);
   });
 
+  it('recorrer módulos del menú sin tocar nada deja UNA sola pestaña (como VS Code)', () => {
+    tabs.openTab({ route: '/invoices' });
+    tabs.openTab({ route: '/invoices/88' });
+    tabs.openTab({ route: '/invoices' });
+    expect(tabs.tabs().length).toBe(1);
+    expect(tabs.tabs()[0]).toMatchObject({ route: '/invoices', isPreview: true });
+  });
+
+  it('una vista previa con cambios se queda; lo siguiente se abre al lado', () => {
+    tabs.openTab({ route: '/invoices' });
+    tabs.markDirty(tabs.tabs()[0].id);
+    tabs.openTab({ route: '/invoices/88' });
+    expect(tabs.tabs().map((t) => [t.route, t.isPreview])).toEqual([
+      ['/invoices', false],
+      ['/invoices/88', true],
+    ]);
+  });
+
+  it('abrir algo DESDE la vista previa (una fila de su lista) la fija en vez de reemplazarla', () => {
+    tabs.openTab({ route: '/invoices' });
+    tabs.noteContentInteraction(tabs.tabs()[0].id);
+    tabs.openTab({ route: '/invoices/88' });
+    expect(tabs.tabs().map((t) => [t.route, t.isPreview])).toEqual([
+      ['/invoices', false],
+      ['/invoices/88', true],
+    ]);
+  });
+
+  it('una pulsación fuera del contenido (el menú) olvida esa interacción', () => {
+    tabs.openTab({ route: '/invoices' });
+    tabs.noteContentInteraction(tabs.tabs()[0].id);
+    document.dispatchEvent(new Event('pointerdown'));
+    tabs.openTab({ route: '/invoices/88' });
+    expect(tabs.tabs().map((t) => t.route)).toEqual(['/invoices/88']);
+  });
+
   it('preview:false (intención «permanente») abre pestaña propia y no reutiliza', () => {
     tabs.openTab({ route: '/invoices/88', preview: false });
     tabs.openTab({ route: '/invoices/89', preview: false });
