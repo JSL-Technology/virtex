@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Router, UrlTree, DefaultUrlSerializer } from '@angular/router';
+import { NavigationEnd, Router, UrlTree, DefaultUrlSerializer } from '@angular/router';
 import { Subject } from 'rxjs';
 import { TabRouterService } from './tab-router.service';
 import { TabStateService } from './tab-state.service';
@@ -59,5 +59,40 @@ describe('TabRouterService.bootRoute', () => {
 
   it('has nothing to honour at the root', () => {
     expect(setup().bootRoute()).toBeNull();
+  });
+});
+
+/**
+ * The first navigation loaded the app from outside it — a bookmark, a shared link — and opens like
+ * a link: a tab of its own. Everything after it is a click inside the app and follows the preview
+ * rules, or the menu would leave a permanent tab per click again.
+ */
+describe('TabRouterService · Router → Tabs', () => {
+  const events = new Subject<unknown>();
+  const tabState = { activeTab: () => null, openTab: jest.fn(), openFromLink: jest.fn() };
+
+  beforeEach(() => {
+    tabState.openTab.mockReset();
+    tabState.openFromLink.mockReset();
+    TestBed.configureTestingModule({
+      providers: [
+        TabRouterService,
+        { provide: Router, useValue: { events, url: '/', navigateByUrl: jest.fn().mockResolvedValue(true) } },
+        { provide: TabStateService, useValue: tabState },
+        { provide: ActiveOrganizationService, useValue: { urlFor: (path: string) => `/e/acme${path}` } },
+      ],
+    });
+    TestBed.inject(TabRouterService);
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('opens the page the app was loaded on like a link, and the next ones normally', () => {
+    events.next(new NavigationEnd(1, '/e/acme/invoices/88', '/e/acme/invoices/88'));
+    expect(tabState.openFromLink).toHaveBeenCalledWith('/invoices/88', {});
+
+    events.next(new NavigationEnd(2, '/e/acme/customers', '/e/acme/customers'));
+    expect(tabState.openFromLink).toHaveBeenCalledTimes(1);
+    expect(tabState.openTab).toHaveBeenCalledWith({ route: '/customers', queryParams: {}, preview: undefined });
   });
 });

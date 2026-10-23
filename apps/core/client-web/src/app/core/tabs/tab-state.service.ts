@@ -214,6 +214,31 @@ export class TabStateService {
   }
 
   /**
+   * Abre la página a la que apunta un ENLACE que llega de fuera: un marcador, un enlace compartido,
+   * la barra de direcciones.
+   *
+   * Un enlace es intención explícita —alguien eligió ESA página—, así que abre una pestaña
+   * permanente y no la vista previa: si no, el siguiente clic en el menú se llevaría por delante la
+   * factura que un compañero acaba de enviar. Pero si la página ya está abierta (recargar con F5
+   * sobre una vista previa es el caso de todos los días), solo se enfoca y conserva su estado: una
+   * recarga no es una decisión de mantenerla abierta.
+   */
+  openFromLink(route: string, queryParams?: Record<string, string>): void {
+    this.openTab({
+      route,
+      queryParams,
+      preview: this.findTabFor(route, queryParams) ? undefined : false,
+    });
+  }
+
+  /** La pestaña que ya muestra esta ruta (por su clave de entidad, como deduplica `openTab`). */
+  findTabFor(route: string, queryParams?: Record<string, string>): TabModel | null {
+    const { definition, params } = this.registry.resolve(route);
+    const key = definition.entityKeyFn ? definition.entityKeyFn(params, queryParams) : undefined;
+    return key ? this.getTabByEntityKey(key) : null;
+  }
+
+  /**
    * ¿Esta apertura es candidata a vista previa reutilizable?
    *
    * Todo lo que se abre con un clic es vista previa, como en VS Code: módulos y submódulos del
@@ -624,10 +649,23 @@ export class TabStateService {
       if (entityKey) seen.add(entityKey);
       const isPreview = tab.isPreview && previewable && !previewKept;
       if (isPreview) previewKept = true;
-      normalised.push({ ...tab, entityKey, isPreview });
+      normalised.push({ ...tab, entityKey, isPreview, title: this.catalogueTitle(tab) });
     }
     this.tabsSignal.set(this.sortPinned(normalised));
     this.trimToLimit();
+  }
+
+  /**
+   * A restored tab titled from the catalogue speaks the language in use NOW, not the one it was
+   * saved in. The title is stored already translated, and the language listener only fires on a
+   * change: a tab opened in English on one device came back as «Journals» among Spanish tabs on
+   * another. If the catalogue has not loaded yet `instant` answers the key itself, and the stored
+   * title is kept until the language listener fires.
+   */
+  private catalogueTitle(tab: TabModel): string {
+    if (!tab.titleKey) return tab.title;
+    const translated = this.translate.instant(tab.titleKey);
+    return translated && translated !== tab.titleKey ? translated : tab.title;
   }
 
   /** Lowers the tab count to the limit when the user picks a smaller one. */

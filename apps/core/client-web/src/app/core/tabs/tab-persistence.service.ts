@@ -161,7 +161,7 @@ export class TabPersistenceService {
       this.tabState.ensureDefaultTab();
 
       if (boot) {
-        this.tabState.openTab({ route: boot.path, queryParams: boot.query });
+        this.tabState.openFromLink(boot.path, boot.query);
       } else {
         // Enfoca la última pestaña activa (o la más reciente).
         const target =

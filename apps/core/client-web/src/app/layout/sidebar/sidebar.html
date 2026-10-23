@@ -1,23 +1,127 @@
-<nav class="sidebar" [attr.aria-label]="'shell.module_panel' | translate">
+<nav
+  class="sidebar"
+  id="module-panel"
+  [attr.aria-label]="'shell.module_panel' | translate"
+  (keydown)="onKeydown($event)"
+>
   @if (module(); as active) {
     <h2 class="module-title">{{ active.titleKey | translate }}</h2>
   }
 
+  <!--
+    Exploring another module than the window's: say so, and offer the way back. Without it the
+    panel shows Sales while the window shows a journal entry, and nothing on screen connects them.
+  -->
+  @if (isBrowsing() && currentModule(); as current) {
+    <div class="browsing" role="status">
+      <p class="browsing__hint">{{ 'shell.nav.browsing_hint' | translate }}</p>
+      <button type="button" class="browsing__back" (click)="backToCurrent()">
+        <lucide-icon [img]="icons.ArrowLeft" size="14" aria-hidden="true"></lucide-icon>
+        <span>{{ 'shell.nav.back_to_module' | translate: { module: (current.titleKey | translate) } }}</span>
+      </button>
+    </div>
+  }
+
   <div class="sidebar-body">
+    @if (favoriteItems().length > 0) {
+      <div class="menu-group menu-group--favorites">
+        <h3 class="group-title group-title--toggle">
+          <button
+            type="button"
+            class="group-toggle"
+            [attr.aria-expanded]="!favoritesCollapsed()"
+            aria-controls="favorites-list"
+            (click)="toggleFavoritesSection()"
+          >
+            <lucide-icon [img]="icons.Star" size="12" class="group-toggle__star" aria-hidden="true"></lucide-icon>
+            <span class="group-toggle__label">{{ 'shell.favorites.title' | translate }}</span>
+            <span class="group-toggle__count">{{ favoriteItems().length }}</span>
+            <lucide-icon
+              [img]="icons.ChevronDown"
+              size="14"
+              class="group-toggle__chevron"
+              [class.group-toggle__chevron--collapsed]="favoritesCollapsed()"
+              aria-hidden="true"
+            ></lucide-icon>
+          </button>
+        </h3>
+
+        @if (!favoritesCollapsed()) {
+          <div id="favorites-list">
+            @for (item of favoriteItems(); track item.route; let i = $index) {
+              <div class="menu-row">
+                <a
+                  class="menu-item"
+                  [routerLink]="item.path"
+                  [class.active]="item.route === activeFavorite()"
+                  [attr.aria-current]="item.route === activeFavorite() ? 'page' : null"
+                  [title]="favoriteModuleHint(item) ? (favoriteModuleHint(item)! | translate) + ' › ' + (item.labelKey | translate) : (item.labelKey | translate)"
+                  (dblclick)="keepOpen(item.path, $event)"
+                  #favoriteLink
+                  [cdkContextMenuTriggerFor]="entryMenu"
+                  [cdkContextMenuTriggerData]="{ $implicit: menuContext(item.route, i) }"
+                  (cdkContextMenuOpened)="menuOpenedFrom(favoriteLink)"
+                  (cdkContextMenuClosed)="menuClosed()"
+                >
+                  <lucide-icon [img]="item.icon" size="16" class="item-icon" aria-hidden="true"></lucide-icon>
+                  <span class="label">{{ item.labelKey | translate }}</span>
+                  @if (favoriteModuleHint(item); as moduleKey) {
+                    <span class="item-module">{{ moduleKey | translate }}</span>
+                  }
+                </a>
+                <!-- Pointer shortcut only: from the keyboard the same action is in the entry's
+                     context menu, and a second tab stop per entry would double the walk. -->
+                <button
+                  type="button"
+                  class="menu-star menu-star--on"
+                  tabindex="-1"
+                  [attr.aria-label]="'shell.favorites.remove' | translate"
+                  [title]="'shell.favorites.remove' | translate"
+                  (click)="toggleFavorite(item.route, $event)"
+                >
+                  <lucide-icon [img]="icons.Star" size="14" aria-hidden="true"></lucide-icon>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
     @for (section of sections(); track section.group) {
       <div class="menu-group">
         <h3 class="group-title">{{ section.labelKey | translate }}</h3>
 
         @for (entry of section.entries; track entry.path) {
-          <a
-            class="menu-item"
-            [routerLink]="entry.path"
-            [class.active]="entry.path === activeEntry()"
-            [attr.aria-current]="entry.path === activeEntry() ? 'page' : null"
-          >
-            <lucide-icon [img]="entry.icon" size="16" class="item-icon" aria-hidden="true"></lucide-icon>
-            <span class="label">{{ entry.labelKey | translate }}</span>
-          </a>
+          <div class="menu-row">
+            <a
+              class="menu-item"
+              [routerLink]="entry.path"
+              [class.active]="entry.path === activeEntry()"
+              [attr.aria-current]="entry.path === activeEntry() ? 'page' : null"
+              (dblclick)="keepOpen(entry.path, $event)"
+              #entryLink
+              [cdkContextMenuTriggerFor]="entryMenu"
+              [cdkContextMenuTriggerData]="{ $implicit: menuContext(routeOf(entry)) }"
+              (cdkContextMenuOpened)="menuOpenedFrom(entryLink)"
+              (cdkContextMenuClosed)="menuClosed()"
+            >
+              <lucide-icon [img]="entry.icon" size="16" class="item-icon" aria-hidden="true"></lucide-icon>
+              <span class="label">{{ entry.labelKey | translate }}</span>
+            </a>
+            <button
+              type="button"
+              class="menu-star"
+              tabindex="-1"
+              [class.menu-star--on]="isFavorite(entry)"
+              [attr.aria-pressed]="isFavorite(entry)"
+              [attr.aria-label]="(isFavorite(entry) ? 'shell.favorites.remove' : 'shell.favorites.add') | translate"
+              [title]="(isFavorite(entry) ? 'shell.favorites.remove' : 'shell.favorites.add') | translate"
+              (click)="toggleFavorite(routeOf(entry), $event)"
+            >
+              <lucide-icon [img]="icons.Star" size="14" aria-hidden="true"></lucide-icon>
+            </button>
+          </div>
         }
       </div>
     } @empty {
@@ -25,3 +129,85 @@
     }
   </div>
 </nav>
+
+<!--
+  The entry menu. One template for every entry and every favourite: the entry it was opened on
+  travels as the context. `cdkMenu` gives it the menu semantics and keyboard model.
+-->
+<ng-template #entryMenu let-ctx>
+  <div class="entry-menu" cdkMenu>
+    <button type="button" class="entry-menu__item" cdkMenuItem (cdkMenuItemTriggered)="open(ctx, 'preview')">
+      <lucide-icon [img]="icons.CornerDownLeft" size="14" class="entry-menu__icon" aria-hidden="true"></lucide-icon>
+      <span class="entry-menu__label">{{ 'shell.nav.open' | translate }}</span>
+      <span class="entry-menu__hint">{{ 'shell.nav.hint_click' | translate }}</span>
+    </button>
+    <button type="button" class="entry-menu__item" cdkMenuItem (cdkMenuItemTriggered)="open(ctx, 'permanent')">
+      <lucide-icon [img]="icons.Pin" size="14" class="entry-menu__icon" aria-hidden="true"></lucide-icon>
+      <span class="entry-menu__label">{{ 'shell.nav.open_new_tab' | translate }}</span>
+      <span class="entry-menu__hint">{{ 'shell.nav.hint_double_click' | translate }}</span>
+    </button>
+    <button type="button" class="entry-menu__item" cdkMenuItem (cdkMenuItemTriggered)="open(ctx, 'side')">
+      <lucide-icon [img]="icons.Columns2" size="14" class="entry-menu__icon" aria-hidden="true"></lucide-icon>
+      <span class="entry-menu__label">{{ 'shell.nav.open_to_side' | translate }}</span>
+    </button>
+    <button type="button" class="entry-menu__item" cdkMenuItem (cdkMenuItemTriggered)="open(ctx, 'background')">
+      <lucide-icon [img]="icons.Layers" size="14" class="entry-menu__icon" aria-hidden="true"></lucide-icon>
+      <span class="entry-menu__label">{{ 'shell.nav.open_in_background' | translate }}</span>
+    </button>
+    <button type="button" class="entry-menu__item" cdkMenuItem (cdkMenuItemTriggered)="open(ctx, 'window')">
+      <lucide-icon [img]="icons.ExternalLink" size="14" class="entry-menu__icon" aria-hidden="true"></lucide-icon>
+      <span class="entry-menu__label">{{ 'shell.nav.open_new_window' | translate }}</span>
+      <span class="entry-menu__hint">{{ 'shell.nav.hint_modifier_click' | translate }}</span>
+    </button>
+
+    <div class="entry-menu__separator" role="separator"></div>
+
+    <button
+      type="button"
+      class="entry-menu__item"
+      cdkMenuItem
+      [attr.aria-pressed]="isFavoritePath(ctx.path)"
+      (cdkMenuItemTriggered)="favorites.toggle(ctx.path)"
+    >
+      <lucide-icon
+        [img]="icons.Star"
+        size="14"
+        class="entry-menu__icon"
+        [class.entry-menu__icon--star-on]="isFavoritePath(ctx.path)"
+        aria-hidden="true"
+      ></lucide-icon>
+      <span class="entry-menu__label">
+        {{ (isFavoritePath(ctx.path) ? 'shell.favorites.remove' : 'shell.favorites.add') | translate }}
+      </span>
+    </button>
+    @if (ctx.favoriteIndex !== null) {
+      <button
+        type="button"
+        class="entry-menu__item"
+        cdkMenuItem
+        [cdkMenuItemDisabled]="ctx.favoriteIndex === 0"
+        (cdkMenuItemTriggered)="moveFavorite(ctx, -1)"
+      >
+        <lucide-icon [img]="icons.ArrowUp" size="14" class="entry-menu__icon" aria-hidden="true"></lucide-icon>
+        <span class="entry-menu__label">{{ 'shell.favorites.move_up' | translate }}</span>
+      </button>
+      <button
+        type="button"
+        class="entry-menu__item"
+        cdkMenuItem
+        [cdkMenuItemDisabled]="ctx.favoriteIndex === favoriteItems().length - 1"
+        (cdkMenuItemTriggered)="moveFavorite(ctx, 1)"
+      >
+        <lucide-icon [img]="icons.ArrowDown" size="14" class="entry-menu__icon" aria-hidden="true"></lucide-icon>
+        <span class="entry-menu__label">{{ 'shell.favorites.move_down' | translate }}</span>
+      </button>
+    }
+
+    <div class="entry-menu__separator" role="separator"></div>
+
+    <button type="button" class="entry-menu__item" cdkMenuItem (cdkMenuItemTriggered)="copyLink(ctx)">
+      <lucide-icon [img]="icons.Link" size="14" class="entry-menu__icon" aria-hidden="true"></lucide-icon>
+      <span class="entry-menu__label">{{ 'shell.nav.copy_link' | translate }}</span>
+    </button>
+  </div>
+</ng-template>

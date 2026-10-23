@@ -19,6 +19,51 @@
     "en": "There is nothing here yet.",
     "pt": "Ainda não há nada aqui."
   },
+  "shell.favorites.add": {
+    "es": "Añadir a favoritos",
+    "en": "Add to favorites",
+    "pt": "Adicionar aos favoritos"
+  },
+  "shell.favorites.limit": {
+    "es": "Ya tienes {{max}} favoritos. Quita alguno para añadir otro.",
+    "en": "You already have {{max}} favorites. Remove one to add another.",
+    "pt": "Você já tem {{max}} favoritos. Remova algum para adicionar outro."
+  },
+  "shell.favorites.move_down": {
+    "es": "Bajar",
+    "en": "Move down",
+    "pt": "Mover para baixo"
+  },
+  "shell.favorites.move_up": {
+    "es": "Subir",
+    "en": "Move up",
+    "pt": "Mover para cima"
+  },
+  "shell.favorites.remove": {
+    "es": "Quitar de favoritos",
+    "en": "Remove from favorites",
+    "pt": "Remover dos favoritos"
+  },
+  "shell.favorites.removed": {
+    "es": "Se quitó de favoritos.",
+    "en": "Removed from favorites.",
+    "pt": "Removido dos favoritos."
+  },
+  "shell.favorites.save_failed": {
+    "es": "No se pudieron guardar tus favoritos. Se volvió a cargar la lista guardada.",
+    "en": "Your favorites could not be saved. The saved list was reloaded.",
+    "pt": "Não foi possível salvar seus favoritos. A lista salva foi recarregada."
+  },
+  "shell.favorites.title": {
+    "es": "Favoritos",
+    "en": "Favorites",
+    "pt": "Favoritos"
+  },
+  "shell.favorites.undo": {
+    "es": "Deshacer",
+    "en": "Undo",
+    "pt": "Desfazer"
+  },
   "shell.field_not_expected_format": {
     "es": "«{{field}}» no tiene el formato esperado",
     "en": "“{{field}}” is not in the expected format",
@@ -64,6 +109,11 @@
     "en": "All clear.",
     "pt": "Em dia."
   },
+  "shell.module_current_window": {
+    "es": "aquí está la ventana abierta",
+    "en": "your open window is here",
+    "pt": "aqui está a janela aberta"
+  },
   "shell.module_locked": {
     "es": "Sin acceso",
     "en": "No access",
@@ -78,6 +128,76 @@
     "es": "Módulos",
     "en": "Modules",
     "pt": "Módulos"
+  },
+  "shell.nav.back_to_module": {
+    "es": "Volver a {{module}}",
+    "en": "Back to {{module}}",
+    "pt": "Voltar para {{module}}"
+  },
+  "shell.nav.browsing_hint": {
+    "es": "Elige qué abrir, o cambia de módulo. Nada se abre hasta que lo elijas.",
+    "en": "Choose what to open, or switch modules. Nothing opens until you choose.",
+    "pt": "Escolha o que abrir ou troque de módulo. Nada abre até você escolher."
+  },
+  "shell.nav.copy_link": {
+    "es": "Copiar enlace",
+    "en": "Copy link",
+    "pt": "Copiar link"
+  },
+  "shell.nav.hint_click": {
+    "es": "Clic",
+    "en": "Click",
+    "pt": "Clique"
+  },
+  "shell.nav.hint_double_click": {
+    "es": "Doble clic",
+    "en": "Double-click",
+    "pt": "Clique duplo"
+  },
+  "shell.nav.hint_modifier_click": {
+    "es": "Ctrl/⌘ + clic",
+    "en": "Ctrl/⌘ + click",
+    "pt": "Ctrl/⌘ + clique"
+  },
+  "shell.nav.link_copied": {
+    "es": "Enlace copiado. Quien lo abra irá directo a esta página, después de iniciar sesión si hace falta.",
+    "en": "Link copied. Whoever opens it goes straight to this page, after signing in if needed.",
+    "pt": "Link copiado. Quem abrir irá direto para esta página, depois de entrar se for preciso."
+  },
+  "shell.nav.link_copy_failed": {
+    "es": "No se pudo copiar el enlace. Cópialo desde la barra de direcciones.",
+    "en": "The link could not be copied. Copy it from the address bar.",
+    "pt": "Não foi possível copiar o link. Copie-o da barra de endereços."
+  },
+  "shell.nav.open": {
+    "es": "Abrir",
+    "en": "Open",
+    "pt": "Abrir"
+  },
+  "shell.nav.open_in_background": {
+    "es": "Abrir en segundo plano",
+    "en": "Open in the background",
+    "pt": "Abrir em segundo plano"
+  },
+  "shell.nav.open_new_tab": {
+    "es": "Abrir en una pestaña nueva",
+    "en": "Open in a new tab",
+    "pt": "Abrir em uma nova aba"
+  },
+  "shell.nav.open_new_window": {
+    "es": "Abrir en una ventana nueva del navegador",
+    "en": "Open in a new browser window",
+    "pt": "Abrir em uma nova janela do navegador"
+  },
+  "shell.nav.open_to_side": {
+    "es": "Abrir al lado",
+    "en": "Open to the side",
+    "pt": "Abrir ao lado"
+  },
+  "shell.nav.opened_in_background": {
+    "es": "Se abrió en una pestaña nueva, en segundo plano.",
+    "en": "Opened in a new tab, in the background.",
+    "pt": "Aberto em uma nova aba, em segundo plano."
   },
   "shell.no_changes": {
     "es": "Sin cambios",

@@ -46,6 +46,7 @@ export interface AddCompanyPayload {
   billingPeriod?: string;
 }
 import { readCsrfCookie } from '../auth/csrf-token';
+import { ReturnUrlService } from '../auth/return-url';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageService } from './language';
@@ -150,6 +151,7 @@ export interface RegistrationConfirmation {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private returnUrl = inject(ReturnUrlService);
   private notificationService = inject(NotificationService);
   private webSocketService = inject(WebSocketService);
   private errorHandlerService = inject(ErrorHandlerService);
@@ -682,9 +684,19 @@ export class AuthService {
      * something wrong. A deliberate sign-out passes no reason and says nothing, because there is
      * nothing to explain.
      */
-    this.router.navigate([`/${this.languageService.currentLanguage()}/auth/login`], {
-      queryParams: reason ? { reason } : {},
-    });
+    //
+    // A session that ended on its own also carries where the person was, so signing back in
+    // returns them to that page instead of the home page (see `ReturnUrlService`). A deliberate
+    // sign-out forgets any destination: whoever signs in next starts at home.
+    const queryParams: Record<string, string> = {};
+    if (reason) {
+      queryParams['reason'] = reason;
+      const destination = this.returnUrl.remember(this.router.url);
+      if (destination) queryParams['returnUrl'] = destination;
+    } else {
+      this.returnUrl.clear();
+    }
+    this.router.navigate([`/${this.languageService.currentLanguage()}/auth/login`], { queryParams });
 
     // H5 FIX: The backend /logout endpoint is protected by CsrfGuard, which requires the
     // X-XSRF-TOKEN header to match the signed XSRF-TOKEN cookie. navigator.sendBeacon cannot set
