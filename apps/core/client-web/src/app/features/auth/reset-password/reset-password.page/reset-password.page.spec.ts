@@ -7,7 +7,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../../../../core/services/auth';
 import { of, Observable } from 'rxjs';
 import { LanguageService } from '../../../../core/services/language';
-import { TranslateLoader } from '@ngx-translate/core';
+import { TranslateLoader, provideTranslateLoader } from '@ngx-translate/core';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../../components/auth-input/auth-input.component';
