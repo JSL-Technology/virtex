@@ -7,7 +7,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../../../core/services/auth';
 import { ReCaptchaV3Service, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha-19';
 import { of, Observable } from 'rxjs';
-import { TranslateLoader } from '@ngx-translate/core';
+import { TranslateLoader, provideTranslateLoader } from '@ngx-translate/core';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';

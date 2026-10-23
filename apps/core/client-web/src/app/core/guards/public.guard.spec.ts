@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree, provideRouter } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree, convertToParamMap, provideRouter } from '@angular/router';
 import { Observable, firstValueFrom, isObservable, of } from 'rxjs';
 import { publicGuard } from './public.guard';
 import { AuthService } from '../services/auth';
@@ -52,5 +52,23 @@ describe('publicGuard', () => {
     // As `canActivateChild` the guard first runs for the shell, whose data is empty; the unlock
     // page below it is the one that admits a signed-in person.
     expect(await run(chain({}, { allowSignedIn: true }))).toBe(true);
+  });
+
+  describe('a sign-in link that names a destination, opened while already signed in', () => {
+    const withReturnUrl = (returnUrl: string) => {
+      const route = chain({});
+      (route as { queryParamMap: unknown }).queryParamMap = convertToParamMap({ returnUrl });
+      return route;
+    };
+
+    it('goes to the page the link names, not to the home page', async () => {
+      const result = await run(withReturnUrl('/e/acme/invoices/88'));
+      expect(TestBed.inject(Router).serializeUrl(result as UrlTree)).toBe('/e/acme/invoices/88');
+    });
+
+    it('cannot be used to bounce a signed-in person to another site', async () => {
+      const result = await run(withReturnUrl('//evil.example/phish'));
+      expect(TestBed.inject(Router).serializeUrl(result as UrlTree)).toBe('/overview');
+    });
   });
 });

@@ -92,6 +92,57 @@ describe('TabStateService — vista previa al abrir', () => {
     expect(tabs.tabs()[0].isPreview).toBe(true);
   });
 
+  it('recorrer módulos del menú sin tocar nada deja UNA sola pestaña (como VS Code)', () => {
+    tabs.openTab({ route: '/invoices' });
+    tabs.openTab({ route: '/invoices/88' });
+    tabs.openTab({ route: '/invoices' });
+    expect(tabs.tabs().length).toBe(1);
+    expect(tabs.tabs()[0]).toMatchObject({ route: '/invoices', isPreview: true });
+  });
+
+  it('una vista previa con cambios se queda; lo siguiente se abre al lado', () => {
+    tabs.openTab({ route: '/invoices' });
+    tabs.markDirty(tabs.tabs()[0].id);
+    tabs.openTab({ route: '/invoices/88' });
+    expect(tabs.tabs().map((t) => [t.route, t.isPreview])).toEqual([
+      ['/invoices', false],
+      ['/invoices/88', true],
+    ]);
+  });
+
+  it('abrir algo DESDE la vista previa (una fila de su lista) la fija en vez de reemplazarla', () => {
+    tabs.openTab({ route: '/invoices' });
+    tabs.noteContentInteraction(tabs.tabs()[0].id);
+    tabs.openTab({ route: '/invoices/88' });
+    expect(tabs.tabs().map((t) => [t.route, t.isPreview])).toEqual([
+      ['/invoices', false],
+      ['/invoices/88', true],
+    ]);
+  });
+
+  it('una pulsación fuera del contenido (el menú) olvida esa interacción', () => {
+    tabs.openTab({ route: '/invoices' });
+    tabs.noteContentInteraction(tabs.tabs()[0].id);
+    document.dispatchEvent(new Event('pointerdown'));
+    tabs.openTab({ route: '/invoices/88' });
+    expect(tabs.tabs().map((t) => t.route)).toEqual(['/invoices/88']);
+  });
+
+  it('un enlace de fuera (marcador, enlace compartido) abre una pestaña permanente', () => {
+    tabs.openTab({ route: '/invoices' });
+    tabs.openFromLink('/invoices/88');
+    expect(tabs.tabs().map((t) => [t.route, t.isPreview])).toEqual([
+      ['/invoices', true],
+      ['/invoices/88', false],
+    ]);
+  });
+
+  it('recargar (F5) sobre una vista previa la enfoca sin fijarla', () => {
+    tabs.openTab({ route: '/invoices/88' });
+    tabs.openFromLink('/invoices/88');
+    expect(tabs.tabs().map((t) => [t.route, t.isPreview])).toEqual([['/invoices/88', true]]);
+  });
+
   it('preview:false (intención «permanente») abre pestaña propia y no reutiliza', () => {
     tabs.openTab({ route: '/invoices/88', preview: false });
     tabs.openTab({ route: '/invoices/89', preview: false });
@@ -145,6 +196,16 @@ describe('TabStateService — vista previa al abrir', () => {
     ]);
     tabs.openTab({ route: '/invoices/88' });
     expect(tabs.activeTabId()).toBe('b');
+  });
+
+  it('a restored tab titled from the catalogue comes back in the language in use, not the saved one', () => {
+    const base = { type: TabType.MODULE_LIST, icon: 'x', isDirty: false, isLoading: false, isCloseable: true, isPinned: false, isPreview: false, createdAt: new Date(), lastActivatedAt: new Date() };
+    lang = 'es';
+    tabs.setTabs([
+      { ...base, id: 'a', route: '/invoices', title: 'Invoices', titleKey: 'page_titles.invoices', order: 0 },
+      { ...base, id: 'b', route: '/invoices/88', title: 'Invoice E310000000001', order: 1 },
+    ] as never);
+    expect(tabs.tabs().map((t) => t.title)).toEqual(['es:page_titles.invoices', 'Invoice E310000000001']);
   });
 
   it('a tab titled from the catalogue follows a language change; a document title does not', () => {

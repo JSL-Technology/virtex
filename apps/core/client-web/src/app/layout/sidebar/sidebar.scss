@@ -1,4 +1,5 @@
 @use '../../../assets/styles/variables' as *;
+@use '../../../assets/styles/design-system' as ds;
 
 :host {
   display: block;
@@ -152,3 +153,261 @@
 //  entradas como para necesitar plegarlas. Y una lista con ramas obliga a
 //  recordar cuál estaba abierta, que es exactamente el tipo de estado que este
 //  rediseño elimina.
+
+
+// ── Explorando otro módulo ────────────────────────────────────────
+//  Aparece solo cuando el panel enseña un módulo distinto del de la ventana.
+//  Dice qué está pasando —«elige qué abrir»— y ofrece la vuelta; una franja
+//  tenue y no un aviso, porque explorar no es un error.
+.browsing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--glass-divider);
+}
+
+.browsing__hint {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--text-tertiary);
+}
+
+.browsing__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 0.125rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent-text);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover span { text-decoration: underline; }
+
+  @include ds.focus-ring;
+}
+
+// ── Fila: entrada + estrella ──────────────────────────────────────
+//  La estrella va FUERA del enlace —un botón dentro de un enlace es un control
+//  dentro de otro— y se superpone a su borde derecho. Aparece al pasar el
+//  ratón o al enfocar la fila; la de un favorito se queda visible, porque es
+//  información («esto ya está en Favoritos»), no solo un control.
+.menu-row {
+  position: relative;
+
+  .menu-item { padding-right: 2rem; }
+
+  &:hover .menu-star,
+  &:focus-within .menu-star {
+    opacity: 1;
+  }
+}
+
+.menu-star {
+  position: absolute;
+  top: 50%;
+  right: 0.375rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  @include ds.transition(opacity, color, background-color);
+
+  &:hover {
+    background-color: var(--surface-hover);
+    color: var(--warning-text);
+  }
+
+  &--on {
+    opacity: 1;
+    color: var(--warning-solid);
+
+    ::ng-deep svg { fill: currentColor; }
+  }
+
+  // Un dispositivo sin ratón no tiene «hover»: la estrella vacía sería invisible para siempre.
+  @media (hover: none) {
+    opacity: 1;
+  }
+}
+
+// ── Favoritos ─────────────────────────────────────────────────────
+.menu-group--favorites {
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--glass-divider);
+
+  //  Con el módulo al lado, el rótulo parte de su ancho natural para que, si falta sitio, encoja
+  //  primero el módulo (`flex-shrink: 3`) y no el nombre de la entrada.
+  .label { flex: 1 1 auto; }
+}
+
+.group-title--toggle {
+  padding: 0;
+}
+
+.group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: 100%;
+  padding: 0.375rem 0.625rem 0.5rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+
+  &:hover { color: var(--text-secondary); }
+
+  @include ds.focus-ring-inset;
+}
+
+.group-toggle__star {
+  color: var(--warning-solid);
+
+  ::ng-deep svg { fill: currentColor; }
+}
+
+.group-toggle__label { flex: 1; text-align: left; }
+
+.group-toggle__count {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+.group-toggle__chevron {
+  @include ds.transition(transform);
+
+  &--collapsed { transform: rotate(-90deg); }
+}
+
+//  El módulo de un favorito que no es el del panel: «Diarios · Contabilidad».
+//  Sin él, dos favoritos llamados «Informes» de dos módulos serían iguales.
+.item-module {
+  //  Cede espacio antes que el rótulo: el nombre de la entrada es lo que se lee primero, el módulo
+  //  solo desambigua. El nombre completo de ambos está en el `title` de la fila.
+  flex: 0 3 auto;
+  min-width: 2.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-xs);
+  font-weight: var(--font-regular);
+  color: var(--text-tertiary);
+}
+
+// ── Menú contextual de una entrada ────────────────────────────────
+//  Se pinta en la capa de superposición del CDK, fuera del panel, pero la
+//  plantilla es de este componente y conserva su encapsulación: los estilos
+//  viven aquí. Mismo aspecto que el menú de las pestañas.
+.entry-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 248px;
+  max-width: 400px;
+  padding: var(--space-1);
+  background-color: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  outline: none;
+}
+
+.entry-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--content-secondary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  line-height: 1.2;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  @include ds.transition(background-color, color);
+
+  &:hover,
+  &:focus {
+    background: var(--accent-surface);
+    color: var(--content-primary);
+    outline: none;
+  }
+
+  //  El foco de teclado se distingue del ratón: un anillo, no solo el fondo.
+  &:focus-visible {
+    box-shadow: inset 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+  }
+
+  &[aria-disabled='true'] {
+    color: var(--content-disabled);
+    cursor: default;
+
+    &:hover,
+    &:focus {
+      background: transparent;
+      color: var(--content-disabled);
+    }
+  }
+}
+
+.entry-menu__icon {
+  flex: none;
+  color: var(--content-tertiary);
+
+  &--star-on {
+    color: var(--warning-solid);
+
+    ::ng-deep svg { fill: currentColor; }
+  }
+}
+
+.entry-menu__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+//  El gesto que hace lo mismo sin abrir el menú: así se aprende el atajo.
+.entry-menu__hint {
+  flex: none;
+  margin-left: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
+}
+
+.entry-menu__separator {
+  height: 1px;
+  margin: var(--space-1) var(--space-2);
+  background-color: var(--border-subtle);
+}

@@ -3,6 +3,7 @@ import { ActivatedRouteSnapshot, CanActivateFn, Router, UrlTree } from '@angular
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { AuthService } from '../services/auth';
+import { ReturnUrlService, sanitizeReturnUrl } from '../auth/return-url';
 
 /**
  * Keeps an already-signed-in user off the sign-in screens, sending them to the app instead.
@@ -21,8 +22,18 @@ export const publicGuard: CanActivateFn = (route?: ActivatedRouteSnapshot): Obse
   const authService = inject(AuthService);
   const router = inject(Router);
 
+  const returnUrl = inject(ReturnUrlService);
+
   return authService.resolveSession().pipe(
-    map((isAuthenticated) => (isAuthenticated ? router.createUrlTree(['/overview']) : true)),
+    map((isAuthenticated) => {
+      if (!isAuthenticated) return true;
+      // Already signed in and handed a sign-in link that names a destination (an e-mail, a link
+      // someone shared): go to the page it names rather than to the home page. Sanitized like
+      // every other destination, so this cannot be used to bounce a signed-in user off-site.
+      const destination = sanitizeReturnUrl(returnUrlParam(route));
+      returnUrl.clear();
+      return router.parseUrl(destination ?? '/overview');
+    }),
   );
 };
 
@@ -41,4 +52,13 @@ function allowsSignedIn(route: ActivatedRouteSnapshot | undefined): boolean {
     if (current.data?.['allowSignedIn'] === true) return true;
   }
   return false;
+}
+
+/** The `returnUrl` query parameter, wherever in the matched route tree it was read. */
+function returnUrlParam(route: ActivatedRouteSnapshot | undefined): string | null {
+  for (let current: ActivatedRouteSnapshot | null | undefined = route; current; current = current.firstChild) {
+    const value = current.queryParamMap?.get('returnUrl');
+    if (value) return value;
+  }
+  return null;
 }

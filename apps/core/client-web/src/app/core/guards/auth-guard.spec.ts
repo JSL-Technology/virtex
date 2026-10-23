@@ -6,6 +6,7 @@ import { authGuard } from './auth-guard';
 import { of } from 'rxjs';
 import { EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { routerMock as routerMockFactory } from '../../../testing/service-mocks';
+import { ReturnUrlService } from '../auth/return-url';
 
 describe('authGuard', () => {
   let authServiceMock: any;
@@ -80,6 +81,67 @@ describe('authGuard', () => {
           queryParams: { reason: 'idle' },
         });
         done();
+      });
+    });
+  });
+
+  describe('the link someone opened survives the sign-in', () => {
+    const at = (url: string) => ({ url }) as any;
+
+    beforeEach(() => sessionStorage.clear());
+
+    it('names the page that was asked for on the sign-in page, and remembers it', (done) => {
+      authServiceMock.resolveSession.mockReturnValue(of(false));
+
+      runInInjectionContext(TestBed.inject(EnvironmentInjector), () => {
+        (authGuard(null as any, at('/e/acme/invoices/88?tab=lines')) as any).subscribe(() => {
+          expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/', 'en', 'auth', 'login'], {
+            queryParams: { returnUrl: '/e/acme/invoices/88?tab=lines' },
+          });
+          expect(TestBed.inject(ReturnUrlService).peek()).toBe('/e/acme/invoices/88?tab=lines');
+          done();
+        });
+      });
+    });
+
+    it('does not bother remembering the home page, where a sign-in lands anyway', (done) => {
+      authServiceMock.resolveSession.mockReturnValue(of(false));
+
+      runInInjectionContext(TestBed.inject(EnvironmentInjector), () => {
+        (authGuard(null as any, at('/overview')) as any).subscribe(() => {
+          expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/', 'en', 'auth', 'login']);
+          done();
+        });
+      });
+    });
+
+    it('back from Google or SSO on the home page, goes on to the page that was asked for', (done) => {
+      TestBed.inject(ReturnUrlService).remember('/e/acme/invoices/88');
+      authServiceMock.resolveSession.mockReturnValue(of(true));
+      const tree = { tree: true };
+      routerMock.parseUrl.mockReturnValue(tree);
+
+      runInInjectionContext(TestBed.inject(EnvironmentInjector), () => {
+        (authGuard(null as any, at('/overview')) as any).subscribe((res: unknown) => {
+          expect(routerMock.parseUrl).toHaveBeenCalledWith('/e/acme/invoices/88');
+          expect(res).toBe(tree);
+          // Used once: the next visit to the home page stays on the home page.
+          expect(TestBed.inject(ReturnUrlService).peek()).toBeNull();
+          done();
+        });
+      });
+    });
+
+    it('a deliberate navigation elsewhere drops a destination left over from an abandoned sign-in', (done) => {
+      TestBed.inject(ReturnUrlService).remember('/e/acme/invoices/88');
+      authServiceMock.resolveSession.mockReturnValue(of(true));
+
+      runInInjectionContext(TestBed.inject(EnvironmentInjector), () => {
+        (authGuard(null as any, at('/e/acme/customers')) as any).subscribe((res: unknown) => {
+          expect(res).toBe(true);
+          expect(TestBed.inject(ReturnUrlService).peek()).toBeNull();
+          done();
+        });
       });
     });
   });

@@ -1,6 +1,5 @@
 import { FitWordDirective } from './fit-word.directive';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { LucideAngularModule, Lock } from 'lucide-angular';
 import { ActiveModuleService, ReachableModule } from '../../core/modules/active-module.service';
@@ -51,7 +50,6 @@ interface RailItem extends ReachableModule {
   styleUrls: ['./module-rail.component.scss'],
 })
 export class ModuleRailComponent {
-  private readonly router = inject(Router);
   private readonly modules = inject(ActiveModuleService);
   private readonly inbox = inject(ModuleInboxService);
 
@@ -71,10 +69,26 @@ export class ModuleRailComponent {
     })),
   );
 
+  /** The module whose panel is on screen — the one the user is looking in. */
   protected readonly activeId = computed(() => this.modules.active()?.id ?? null);
 
+  /**
+   * The module the window on screen belongs to, while the user is browsing another one.
+   *
+   * Browsing moves the highlight to the module being looked at; without a second, quieter mark
+   * the user would lose track of where the window they are working in lives. Null when the two
+   * coincide, so the rail only ever shows one mark in the ordinary case.
+   */
+  protected readonly currentId = computed(() =>
+    this.modules.isBrowsing() ? (this.modules.current()?.id ?? null) : null,
+  );
+
+  /**
+   * Show the module's panel. Nothing opens: the user chooses from the panel what to open, or
+   * moves on to another module — see `ActiveModuleService.browse`.
+   */
   protected open(item: RailItem): void {
-    if (!item.allowed || !item.target) return;
-    void this.router.navigateByUrl(item.target);
+    if (!item.allowed) return;
+    this.modules.browse(item.module);
   }
 }

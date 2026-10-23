@@ -56,6 +56,7 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
     ensureDefaultTab: jest.Mock;
     activateTab: jest.Mock;
     openTab: jest.Mock;
+    openFromLink: jest.Mock;
     tabs: () => unknown[];
     activeTabId: () => string | null;
   };
@@ -74,6 +75,7 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
       ensureDefaultTab: jest.fn(),
       activateTab: jest.fn(),
       openTab: jest.fn(),
+      openFromLink: jest.fn(),
       tabs: () => [],
       activeTabId: () => null,
     };
@@ -110,10 +112,8 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
 
     service.restoreState();
 
-    expect(tabState.openTab).toHaveBeenCalledWith({
-      route: '/accounting/chart-of-accounts',
-      queryParams: {},
-    });
+    // Como un enlace: pestaña propia, salvo que ya estuviera abierta (ver `openFromLink`).
+    expect(tabState.openFromLink).toHaveBeenCalledWith('/accounting/chart-of-accounts', {});
     expect(tabState.activateTab).not.toHaveBeenCalled();
   });
 
@@ -124,10 +124,7 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
 
     service.restoreState();
 
-    expect(tabState.openTab).toHaveBeenCalledWith({
-      route: '/invoices',
-      queryParams: { status: 'overdue' },
-    });
+    expect(tabState.openFromLink).toHaveBeenCalledWith('/invoices', { status: 'overdue' });
   });
 
   it('vuelve a la última pestaña activa cuando no hay ruta de arranque', () => {
@@ -139,6 +136,7 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
 
     expect(tabState.activateTab).toHaveBeenCalledWith('inicio');
     expect(tabState.openTab).not.toHaveBeenCalled();
+    expect(tabState.openFromLink).not.toHaveBeenCalled();
   });
 
   it('restaura siempre la lista guardada, gane quien gane el foco', () => {

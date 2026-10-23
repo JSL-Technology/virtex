@@ -25,6 +25,8 @@ import { TabCommandsService, TabLayoutController } from '../tab-command.service'
 import { TabSearchService } from '../tab-search.service';
 import { TabSearchButtonComponent } from './tab-search-button.component';
 import { TabSearchPanelComponent } from './tab-search-panel.component';
+import { NavigationActionsService } from '../../navigation/navigation-actions.service';
+import { FavoritesService } from '../../navigation/favorites.service';
 
 /**
  * Hospeda Dockview y mapea el signal `tabs` ↔ paneles (TAB_ARCHITECTURE §11).
@@ -84,6 +86,8 @@ export class TabContainerComponent implements TabLayoutController, OnDestroy {
   private translate = inject(TranslateService);
   private shortcuts = inject(ShortcutsService);
   private commands = inject(TabCommandsService);
+  private navigation = inject(NavigationActionsService);
+  private favorites = inject(FavoritesService);
   private el = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private dockviewApi: any;
@@ -185,6 +189,7 @@ export class TabContainerComponent implements TabLayoutController, OnDestroy {
         run: () =>
           tab?.isPinned ? this.tabState.unpinTab(panel.id) : this.tabState.pinTab(panel.id),
       }),
+      ...this.shareItems(tab, t),
       'separator',
       //  Ajuste global de comportamiento, no de esta pestaña: si el usuario prefiere que cada
       //  apertura sea permanente, lo desactiva desde aquí (equivale a enablePreview de VS Code).
@@ -206,6 +211,42 @@ export class TabContainerComponent implements TabLayoutController, OnDestroy {
       ...windowActions,
     ];
   };
+
+  /**
+   * Compartir la pestaña: copiar su enlace y abrirla en otra ventana del navegador.
+   *
+   * El enlace lleva la empresa y la consulta de la pestaña (filtros incluidos), así que quien lo
+   * abre ve lo mismo; si no tiene sesión, entra y vuelve aquí. Favoritos solo se ofrece cuando la
+   * página es un destino del menú: un favorito es un atajo a un sitio del producto, no a un
+   * documento concreto.
+   */
+  private shareItems(tab: TabModel | undefined, t: (key: string) => string): ContextMenuItem[] {
+    if (!tab) return [];
+    const path = this.linkOf(tab);
+    const items: ContextMenuItem[] = [
+      'separator',
+      this.menuItem({ label: t('shell.nav.copy_link'), run: () => this.navigation.copyLink(path) }),
+      this.menuItem({ label: t('shell.nav.open_new_window'), run: () => this.navigation.open(path, 'window') }),
+    ];
+    if (this.favorites.canFavorite(tab.route)) {
+      const isFavorite = this.favorites.isFavorite(tab.route);
+      items.push(
+        this.menuItem({
+          label: t(isFavorite ? 'shell.favorites.remove' : 'shell.favorites.add'),
+          checked: isFavorite,
+          run: () => this.favorites.toggle(tab.route),
+        }),
+      );
+    }
+    return items;
+  }
+
+  private linkOf(tab: TabModel): string {
+    const query = tab.queryParams && Object.keys(tab.queryParams).length
+      ? `?${new URLSearchParams(tab.queryParams)}`
+      : '';
+    return `${tab.route}${query}`;
+  }
 
   /**
    * Wrap a row's data as a Dockview context-menu item rendered by
