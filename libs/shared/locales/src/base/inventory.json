@@ -844,10 +844,25 @@
     "en": "Edit",
     "pt": "Editar"
   },
+  "inventory.products.error_creating_product": {
+    "es": "Error al crear el producto.",
+    "en": "Error creating the product.",
+    "pt": "Erro ao criar o produto."
+  },
   "inventory.products.error_deleting_product": {
     "es": "Error al eliminar el producto.",
     "en": "Error deleting the product.",
     "pt": "Erro ao excluir o produto."
+  },
+  "inventory.products.error_updating_product": {
+    "es": "Error al actualizar el producto.",
+    "en": "Error updating the product.",
+    "pt": "Erro ao atualizar o produto."
+  },
+  "inventory.products.product_created": {
+    "es": "Producto creado.",
+    "en": "Product created.",
+    "pt": "Produto criado."
   },
   "inventory.products.load_failed": {
     "es": "No se pudieron cargar los productos. Inténtalo de nuevo.",

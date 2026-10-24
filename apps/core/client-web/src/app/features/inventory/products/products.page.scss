@@ -22,4 +22,19 @@
     display: inline-flex;
     gap: var(--space-1);
   }
+
+  //  Columna de selección múltiple: estrecha y centrada; la fila marcada se tiñe
+  //  con la superficie de acento para que el lote sea visible de un vistazo.
+  .select-column {
+    width: 2.5rem;
+    text-align: center;
+
+    input[type='checkbox'] {
+      cursor: pointer;
+    }
+  }
+
+  tr.is-selected > td {
+    background: var(--accent-surface);
+  }
 }

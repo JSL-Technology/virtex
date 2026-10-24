@@ -29,6 +29,7 @@ import { VxTabsComponent } from './tabs';
 export * from './amount';
 export * from './badge';
 export * from './branch-picker';
+export * from './context-menu';
 export * from './date';
 export * from './dialog';
 export * from './feedback';

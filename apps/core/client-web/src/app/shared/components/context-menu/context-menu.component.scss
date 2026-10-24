@@ -1,0 +1,77 @@
+// =============================================================================
+//  CONTEXT MENU (host)
+// =============================================================================
+//  El PANEL vive en el overlay de CDK, colgado de <body>, FUERA del :host. Por
+//  eso su contenido NO puede estilarse con `:host .x` (esa regla compila a
+//  «.x dentro del host» y nunca casa — el mismo defecto que arregló el diálogo).
+//  Se estiliza por su clase global, con `::ng-deep` y sin prefijo de :host.
+//  Todo con tokens para coincidir en ambos temas.
+// =============================================================================
+
+.vx-ctx-anchor {
+  position: fixed;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+::ng-deep .vx-ctx-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 13rem;
+  max-width: 22rem;
+  padding: var(--space-1);
+  background: var(--surface-overlay, var(--surface-raised));
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  // El overlay de CDK ya lo coloca; esto sólo asegura que el panel no herede medidas raras.
+  font-size: var(--text-sm);
+}
+
+::ng-deep .vx-ctx-trigger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--content-secondary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--accent-surface);
+    color: var(--content-primary);
+    outline: none;
+  }
+
+  &.cdk-menu-item-disabled {
+    color: var(--content-disabled);
+    cursor: default;
+    pointer-events: none;
+  }
+
+  &--danger {
+    color: var(--danger);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--error-surface, var(--accent-surface));
+      color: var(--danger);
+    }
+  }
+}
+
+::ng-deep .vx-ctx-sep {
+  height: 1px;
+  margin: var(--space-1) 0;
+  background: var(--border-subtle);
+}
