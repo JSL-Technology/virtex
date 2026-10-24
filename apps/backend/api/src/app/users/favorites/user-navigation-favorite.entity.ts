@@ -7,7 +7,7 @@ import { User } from '../entities/user.entity/user.entity';
  *
  * Solo la ruta y su posición: el rótulo y el icono los pone el cliente desde el manifiesto, así
  * que se traducen y siguen a la pantalla si cambia de nombre. Ver la migración
- * `UserNavigationFavorites1789140000000` para el porqué de una fila por favorito.
+ * `UserNavigationFavorites1789140200000` para el porqué de una fila por favorito.
  */
 @Entity({ name: 'user_navigation_favorites' })
 @Unique('UQ_user_navigation_favorites_owner_route', ['organizationId', 'userId', 'route'])

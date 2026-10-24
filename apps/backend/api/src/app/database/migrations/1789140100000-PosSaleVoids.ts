@@ -9,8 +9,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * on a shift that is still open; the sale records who voided it, when and why, the stock goes back
  * and the shift keeps the voids apart from the takings so its report shows both.
  */
-export class PosSaleVoids1789140000000 implements MigrationInterface {
-  name = 'PosSaleVoids1789140000000';
+export class PosSaleVoids1789140100000 implements MigrationInterface {
+  name = 'PosSaleVoids1789140100000';
 
   public async up(q: QueryRunner): Promise<void> {
     await q.query(`ALTER TABLE "pos_sales" ADD COLUMN IF NOT EXISTS "voided_at" timestamptz NULL`);

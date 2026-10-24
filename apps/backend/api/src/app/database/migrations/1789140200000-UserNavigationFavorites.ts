@@ -24,8 +24,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * El rótulo y el icono los pone el cliente desde el manifiesto: así se traducen y siguen al
  * producto si una pantalla cambia de nombre.
  */
-export class UserNavigationFavorites1789140000000 implements MigrationInterface {
-  name = 'UserNavigationFavorites1789140000000';
+export class UserNavigationFavorites1789140200000 implements MigrationInterface {
+  name = 'UserNavigationFavorites1789140200000';
 
   public async up(q: QueryRunner): Promise<void> {
     const TENANT = `(NULLIF(current_setting('app.current_organization', true), ''))::uuid`;
