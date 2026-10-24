@@ -1,0 +1,52 @@
+@if (canManage()) {
+  <section class="mail-inbox card" aria-labelledby="mailboxes-title">
+    <h2 id="mailboxes-title" class="mail-inbox__title">{{ 'inbound_mail.mailboxes_title' | translate }}</h2>
+    <p class="mail-inbox__reason">{{ 'inbound_mail.mailboxes_help' | translate }}</p>
+    @if (!configured()) {
+      <p class="mail-inbox__reason" role="status">{{ 'inbound_mail.not_configured' | translate }}</p>
+    }
+    <ul class="mail-inbox__list">
+      @for (purpose of purposes; track purpose) {
+        <li class="mail-inbox__item">
+          <h3 class="mail-inbox__title">{{ k('inbound_mail.purpose', purpose) | translate }}</h3>
+          <p class="mail-inbox__reason">{{ k('inbound_mail.purpose_help', purpose) | translate }}</p>
+          @if (mailboxes()[purpose]; as mailbox) {
+            <div class="mail-inbox__head">
+              @if (mailbox.address) {
+                <code>{{ mailbox.address }}</code>
+                <button type="button" class="icon-button" (click)="copy(mailbox.address)"
+                        [title]="'inbound_mail.copy' | translate" [attr.aria-label]="'inbound_mail.copy' | translate">
+                  <lucide-icon [img]="CopyIcon" size="14" aria-hidden="true"></lucide-icon>
+                </button>
+              }
+              <label class="field field--checkbox">
+                <input type="checkbox" [checked]="mailbox.active" [disabled]="busy() === purpose"
+                       (change)="setActive(purpose, $any($event.target).checked)" />
+                <span>{{ 'inbound_mail.active' | translate }}</span>
+              </label>
+              <button type="button" class="secondary-button" [disabled]="busy() === purpose" (click)="rotate(purpose)">
+                <lucide-icon [img]="RotateIcon" size="14" aria-hidden="true"></lucide-icon>
+                <span>{{ 'inbound_mail.rotate' | translate }}</span>
+              </button>
+            </div>
+            <label class="field">
+              <span>{{ 'inbound_mail.allowed_senders' | translate }}</span>
+              <textarea #senders rows="2" [value]="mailbox.allowedSenders.join('\n')"
+                        [placeholder]="'inbound_mail.allowed_senders_placeholder' | translate"></textarea>
+              <small class="field__note">{{ 'inbound_mail.allowed_senders_help' | translate }}</small>
+            </label>
+            <div>
+              <button type="button" class="secondary-button" [disabled]="busy() === purpose" (click)="saveSenders(purpose, senders.value)">
+                {{ 'inbound_mail.save_senders' | translate }}
+              </button>
+            </div>
+          } @else {
+            <button type="button" class="primary-button" [disabled]="busy() === purpose || !configured()" (click)="rotate(purpose)">
+              {{ 'inbound_mail.create' | translate }}
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  </section>
+}

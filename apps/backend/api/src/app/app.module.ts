@@ -59,6 +59,7 @@ import { CurrenciesModule } from './currencies/currencies.module';
 import { TaxesModule } from './taxes/taxes.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ReconciliationModule } from './reconciliation/reconciliation.module';
+import { InboundMailModule } from './inbound-mail/inbound-mail.module';
 import { AccountsPayableModule } from './accounts-payable/accounts-payable.module';
 import { FixedAssetsModule } from './fixed-assets/fixed-assets.module';
 import { BudgetsModule } from './budgets/budgets.module';
@@ -336,6 +337,7 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
     JournalEntriesModule,
     DashboardModule,
     ReconciliationModule,
+    InboundMailModule,
     AccountsPayableModule,
     FixedAssetsModule,
     BudgetsModule,

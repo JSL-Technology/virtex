@@ -15,6 +15,8 @@ export class AccountsPayableCopilotTools implements OnModuleInit {
     this.registry.register({
       kind: 'read',
       name: 'payables_aging',
+      branchScope: 'applied',
+      externalText: true,
       description:
         'Accounts payable ageing: what is owed to suppliers, split into current and days-past-due buckets, largest ' +
         'balances first. Use for "what do I owe", "bills due", "overdue suppliers".',

@@ -1,3 +1,4 @@
+import { BillMailHandler } from './inbox/bill-mail.handler';
 import { AccountsPayableCopilotTools } from './accounts-payable.copilot-tools';
 import { BillCaptureController } from './bill-capture.controller';
 import { BillCaptureService } from './bill-capture.service';
@@ -72,6 +73,8 @@ import { AuthModule } from '../auth/auth.module';
   providers: [AccountsPayableCopilotTools,
     BillCaptureService,
     PayablesInboxProvider,
+    // Supplier bills received at the company's address (inbound-mail) become drafts or wait for review.
+    BillMailHandler,
     VendorBillsDataTransferProvider,
     AccountsPayableService,
     VendorDebitNotesService,

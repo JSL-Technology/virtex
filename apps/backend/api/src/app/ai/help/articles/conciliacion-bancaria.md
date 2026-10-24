@@ -18,7 +18,7 @@ Con OFX y camt.053 el período y los saldos salen del archivo. Si los escribes a
 Para cada movimiento del banco se buscan líneas del mayor de la cuenta bancaria por el mismo monto, y se puntúan:
 
 - misma fecha o fecha cercana;
-- una referencia en común (número de cheque, de factura, NCF o de recibo en la descripción);
+- una referencia en común (número de cheque, de factura, número fiscal o de recibo en la descripción);
 - palabras en común en la descripción;
 - que la empresa haya emparejado antes movimientos con la misma descripción contra la misma cuenta.
 

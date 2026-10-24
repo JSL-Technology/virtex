@@ -13,6 +13,13 @@
             <span>{{ 'accounting.reconciliation.apply_safe' | translate: { count: safeCount() } }}</span>
           </button>
         }
+        @if (statement()?.status !== 'RECONCILED') {
+          <button class="secondary-button" type="button" (click)="undoAutomatic()" [disabled]="working()"
+                  [title]="'accounting.reconciliation.undo_automatic_hint' | translate">
+            <lucide-icon [img]="UndoIcon" size="16"></lucide-icon>
+            <span>{{ 'accounting.reconciliation.undo_automatic' | translate }}</span>
+          </button>
+        }
         <button class="secondary-button" type="button" (click)="applyRules()" [disabled]="working()">
           <lucide-icon [img]="RulesIcon" size="16"></lucide-icon>
           <span>{{ 'accounting.reconciliation.apply_rules' | translate }}</span>
@@ -34,6 +41,11 @@
 
   @if (errorMessage(); as message) {
     <p class="reconciliation-error" role="alert">{{ message }}</p>
+  }
+  @if (lastUndone() !== null) {
+    <p class="reconciliation-note" role="status">
+      {{ 'accounting.reconciliation.automatic_undone' | translate: { count: lastUndone() } }}
+    </p>
   }
   @if (lastApplied() !== null) {
     <p class="reconciliation-note" role="status">
@@ -94,6 +106,34 @@
             <small class="field__note">{{ 'accounting.reconciliation.auto_confirm_hint' | translate: { score: current.minScore } }}</small>
           </span>
         </label>
+      }
+
+      @if (accountSettings(); as account) {
+        <div class="account-autopilot">
+          <label class="field">
+            <span>{{ 'accounting.reconciliation.account_auto_confirm' | translate }}</span>
+            <select [value]="account.inherits.autoConfirm ? 'inherit' : account.autoConfirm ? 'on' : 'off'"
+                    (change)="setAccountAutoConfirm($any($event.target).value)">
+              <option value="inherit" [selected]="account.inherits.autoConfirm">{{ 'accounting.reconciliation.account_auto_confirm_inherit' | translate }}</option>
+              <option value="on" [selected]="!account.inherits.autoConfirm && account.autoConfirm">{{ 'accounting.reconciliation.account_auto_confirm_on' | translate }}</option>
+              <option value="off" [selected]="!account.inherits.autoConfirm && !account.autoConfirm">{{ 'accounting.reconciliation.account_auto_confirm_off' | translate }}</option>
+            </select>
+          </label>
+          <p class="field__note account-autopilot__calibration">
+            @if (account.precision !== null) {
+              {{ 'accounting.reconciliation.calibration' | translate: { score: account.minScore, precision: (account.precision | vxPercent), samples: account.samples } }}
+            } @else {
+              {{ 'accounting.reconciliation.calibration_none' | translate: { score: account.minScore } }}
+            }
+          </p>
+          @if (account.paused) {
+            <p class="account-autopilot__paused" role="status">
+              <vx-badge size="sm" tone="warning">{{ 'accounting.reconciliation.paused' | translate }}</vx-badge>
+              {{ 'accounting.reconciliation.paused_hint' | translate }}
+              <button class="secondary-button" type="button" (click)="resumeAccount()">{{ 'accounting.reconciliation.resume' | translate }}</button>
+            </p>
+          }
+        </div>
       }
     </div>
 
@@ -206,6 +246,15 @@
                           {{ 'accounting.reconciliation.confidence.' + hint.confidence | translate }}
                         </vx-badge>
                       }
+                    }
+                    @if (categories().get(movement.id); as category) {
+                      <span class="category-hint" [title]="category.evidence.join(', ')">
+                        <lucide-icon [img]="AiIcon" size="14" aria-hidden="true"></lucide-icon>
+                        {{ 'accounting.reconciliation.category_suggested' | translate: { account: category.accountCode + ' ' + (category.accountName | vxName), probability: (category.probability | vxPercent) } }}
+                      </span>
+                      <button class="secondary-button" type="button" [disabled]="working()" (click)="applyCategory(category)">
+                        {{ 'accounting.reconciliation.category_apply' | translate }}
+                      </button>
                     }
                     <button class="secondary-button" type="button" (click)="openTransaction(movement.id)">
                       <lucide-icon [img]="MatchIcon" size="14"></lucide-icon>

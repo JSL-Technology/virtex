@@ -1,8 +1,18 @@
 {
+  "reconciliation.account_not_found": {
+    "es": "No se encontró la cuenta contable.",
+    "en": "The ledger account was not found.",
+    "pt": "A conta contabilística não foi encontrada."
+  },
   "reconciliation.ai_not_available": {
     "es": "El asistente no está disponible en tu plan o no está configurado.",
     "en": "The assistant is not available on your plan or is not configured.",
     "pt": "O assistente não está disponível no seu plano ou não está configurado."
+  },
+  "reconciliation.bank_account_not_found": {
+    "es": "No se encontró la cuenta bancaria.",
+    "en": "The bank account was not found.",
+    "pt": "A conta bancária não foi encontrada."
   },
   "reconciliation.bank_file_unreadable": {
     "es": "No se pudo leer el archivo del banco: {{detail}}.",
@@ -28,6 +38,11 @@
     "es": "Los movimientos del banco suman {{bank}} y las líneas contables {{ledger}}; una conciliación sólo es válida si ambos lados coinciden.",
     "en": "The bank movements total {{bank}} and the ledger lines {{ledger}}; a match is only valid when both sides agree.",
     "pt": "Os movimentos do banco somam {{bank}} e as linhas contábeis {{ledger}}; uma conciliação só é válida se ambos os lados coincidirem."
+  },
+  "reconciliation.category_is_bank_account": {
+    "es": "Elige una cuenta distinta de la del banco.",
+    "en": "Choose an account other than the bank's.",
+    "pt": "Escolha uma conta diferente da do banco."
   },
   "reconciliation.count_bank_movements_still_neither_matched": {
     "es": "Quedan {{count}} movimientos del banco sin conciliar ni apartar.",
@@ -88,6 +103,11 @@
     "es": "Una conciliación necesita al menos un movimiento del banco y una línea contable.",
     "en": "A match needs at least one bank movement and one ledger line.",
     "pt": "Uma conciliação precisa de pelo menos um movimento do banco e uma linha contábil."
+  },
+  "reconciliation.min_score_out_of_range": {
+    "es": "La puntuación mínima debe estar entre 90 y 100.",
+    "en": "The minimum score must be between 90 and 100.",
+    "pt": "A pontuação mínima deve estar entre 90 e 100."
   },
   "reconciliation.no_default_ledger_has_configured_organization": {
     "es": "No se ha configurado un libro contable por defecto para la organización.",
@@ -188,6 +208,11 @@
     "es": "El movimiento no existe en este estado de cuenta.",
     "en": "The movement does not exist on this statement.",
     "pt": "O movimento não existe neste extrato."
+  },
+  "reconciliation.transaction_not_unmatched": {
+    "es": "Ese movimiento ya está conciliado o apartado.",
+    "en": "That bank line is already matched or set aside.",
+    "pt": "Esse movimento já está conciliado ou posto de lado."
   },
   "reconciliation.uploaded_file_empty_could_not_read": {
     "es": "El archivo subido está vacío o no se pudo leer.",

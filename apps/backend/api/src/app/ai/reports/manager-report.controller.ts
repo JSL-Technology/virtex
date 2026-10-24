@@ -12,6 +12,7 @@ import { BadRequestError, NotFoundError } from '../../i18n/localized.exception';
 import { currentLanguage } from '../../i18n/request-locale';
 import { ReportsService } from './reports.service';
 import { previousMonth } from './manager-report.builder';
+import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../../shared/rate-limit/tenant-rate-limit.guard';
 
 export class ManagerReportRequestDto {
   /** `YYYY-MM`; the month that just ended when left out. */
@@ -35,17 +36,30 @@ export class ManagerReportController {
   @Get()
   @ApiOperation({ summary: 'Recent monthly reports, newest first (without their content).' })
   async list(@CurrentUser() user: AuthenticatedUser, @Query('limit') limit?: string) {
-    const rows = await this.reports.list(user.organizationId, 'MANAGER_MONTHLY', Math.min(Math.max(Number(limit) || 12, 1), 36));
-    return rows.map(({ id, period, status, createdAt, finishedAt, error, language }) => ({ id, period, status, createdAt, finishedAt, error, language }));
+    const reader = await this.reports.reader(user.organizationId, user);
+    const rows = await this.reports.list(user.organizationId, 'MANAGER_MONTHLY', reader, Math.min(Math.max(Number(limit) || 12, 1), 36));
+    return rows.map(({ id, period, status, createdAt, finishedAt, error, language, audience }) => ({
+      id,
+      period,
+      status,
+      createdAt,
+      finishedAt,
+      error,
+      language,
+      audience,
+    }));
   }
 
+  /** One report — only if the reader holds every permission its facts were read under (`canReadReport`). */
   @Get(':id')
   async get(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    const report = await this.reports.get(user.organizationId, id);
+    const report = await this.reports.get(user.organizationId, id, await this.reports.reader(user.organizationId, user));
     if (report.kind !== 'MANAGER_MONTHLY') throw new NotFoundError('ai.reports.not_found');
     return report;
   }
 
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post()
   @HttpCode(HttpStatus.ACCEPTED)
   @UseGuards(ThrottlerGuard)

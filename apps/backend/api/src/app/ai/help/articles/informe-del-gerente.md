@@ -15,7 +15,7 @@ Se escribe solo el día 1 de cada mes para el mes que terminó, y avisa en la ca
 
 Cada cifra sale de los estados financieros, la antigüedad de cuentas por cobrar y por pagar, la posición de caja, el flujo de caja proyectado, la cobranza, las anomalías y las predicciones del sistema. El asistente redacta, pero no calcula: si su texto menciona una cifra que no está en esos datos, el informe se rechaza y se vuelve a escribir. Si alguna fuente no estaba disponible (por ejemplo, porque tu plan no incluye esa función), el informe lo indica.
 
-El informe pedido por una persona usa lo que esa persona puede ver (sus sucursales); el del día 1 abarca toda la empresa. Para leerlo hace falta el permiso de informes del gerente.
+El informe que pide una persona se escribe solo con lo que esa persona puede ver (sus permisos y sus sucursales) y solo lo lee ella. El del día 1 abarca toda la empresa y solo lo leen quienes tienen el permiso de informes del gerente y, además, el de cada fuente que usa (por ejemplo, estados financieros o cuentas por cobrar) y no están limitados a algunas sucursales.
 
 ## Imprimir o guardar en PDF
 

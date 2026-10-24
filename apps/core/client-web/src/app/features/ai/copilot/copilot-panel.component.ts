@@ -13,7 +13,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { LucideAngularModule, Sparkles, X, Plus, History, Trash2, SendHorizontal, Check, ArrowLeft, Square } from 'lucide-angular';
+import { LucideAngularModule, Sparkles, X, Plus, History, Trash2, SendHorizontal, Check, ArrowLeft, Square, ThumbsUp, ThumbsDown, Flag, TriangleAlert } from 'lucide-angular';
 import { Subscription } from 'rxjs';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -26,9 +26,12 @@ import {
   CopilotEntry,
   CopilotProposal,
   CopilotRequestError,
+  CopilotSource,
+  CopilotVerdict,
 } from './copilot-api.service';
 import { renderCopilotMarkdown } from './copilot-markdown';
 import { CopilotChartComponent } from './copilot-chart.component';
+import { DialogService } from '../../../core/services/dialog.service';
 
 /** One bubble of the conversation as the panel draws it. */
 interface PanelMessage {
@@ -44,6 +47,11 @@ interface PanelMessage {
   /** The tool being consulted right now, while streaming. */
   activeTool?: string | null;
   error?: string | null;
+  /** The records the answer rests on. */
+  sources?: CopilotSource[];
+  /** The stored answer's number, once stored: what a rating refers to. */
+  seq?: number | null;
+  feedback?: CopilotVerdict | null;
 }
 
 /** Example questions, offered when the person can use the tool that answers them. */
@@ -78,6 +86,7 @@ const MAX_MESSAGE_CHARS = 4000;
 export class CopilotPanelComponent implements OnInit, OnDestroy {
   private readonly api = inject(CopilotApiService);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(DialogService);
 
   readonly dismissed = output<void>();
 
@@ -90,6 +99,10 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
   protected readonly ConfirmIcon = Check;
   protected readonly BackIcon = ArrowLeft;
   protected readonly StopIcon = Square;
+  protected readonly UpIcon = ThumbsUp;
+  protected readonly DownIcon = ThumbsDown;
+  protected readonly ReportIcon = Flag;
+  protected readonly WarningIcon = TriangleAlert;
   protected readonly MAX_MESSAGE_CHARS = MAX_MESSAGE_CHARS;
   protected readonly k = composeKey;
   protected readonly markdown = renderCopilotMarkdown;
@@ -112,6 +125,11 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
   readonly streaming = signal(false);
   readonly loading = signal(false);
   readonly deciding = signal<string | null>(null);
+  /**
+   * What a screen reader announces: a finished answer, once — not every fragment as it streams,
+   * which is what a live region over the whole conversation did.
+   */
+  readonly announcement = signal('');
 
   readonly suggestions = computed(() => {
     const names = new Set((this.capabilities() ?? []).map((tool) => tool.name));
@@ -181,6 +199,39 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
         this.conversations.update((list) => list.filter((item) => item.id !== conversation.id));
         if (this.conversationId() === conversation.id) this.newConversation();
       },
+    });
+  }
+
+  /** Downloads, as a JSON file, everything the copilot keeps about this person in this company. */
+  downloadMyData(): void {
+    this.api.exportMyData().subscribe({
+      next: (data) => {
+        const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `copilot-${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      },
+      error: (error) => this.appendError(this.messageOf(error)),
+    });
+  }
+
+  /** Deletes every conversation of this person, after asking. What was proposed stays as a record. */
+  async deleteMyData(): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'ai.copilot.delete_all_title',
+      message: 'ai.copilot.delete_all_message',
+      confirmText: 'ai.copilot.delete_all',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+    this.api.deleteMyData().subscribe({
+      next: () => {
+        this.conversations.set([]);
+        this.newConversation();
+      },
+      error: (error) => this.appendError(this.messageOf(error)),
     });
   }
 
@@ -311,7 +362,14 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
             this.patchAnswer((answer) => ({ ...answer, charts: [...answer.charts, event.chart.id] }));
             break;
           case 'done':
-            this.patchAnswer((answer) => ({ ...answer, streaming: false, activeTool: null }));
+            this.patchAnswer((answer) => ({
+              ...answer,
+              streaming: false,
+              activeTool: null,
+              seq: event.result.answerSeq ?? null,
+              sources: event.result.sources ?? [],
+            }));
+            this.announceLastAnswer();
             if (event.result.stopReason === 'refusal') {
               this.patchAnswer((answer) => ({ ...answer, error: this.translate.instant('ai.copilot.refused') }));
             }
@@ -319,6 +377,7 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
             break;
           case 'error':
             this.patchAnswer((answer) => ({ ...answer, streaming: false, activeTool: null, error: event.message || this.translate.instant('ai.copilot.failed') }));
+            this.announcement.set(event.message || this.translate.instant('ai.copilot.failed'));
             break;
         }
         this.scrollToEnd();
@@ -334,6 +393,33 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
         this.patchAnswer((answer) => (answer.streaming ? { ...answer, streaming: false, activeTool: null } : answer));
       },
     });
+  }
+
+  /** Rate an answer, or report it (after a confirmation). A new verdict replaces the previous one. */
+  async rate(message: PanelMessage, verdict: CopilotVerdict): Promise<void> {
+    const conversationId = this.conversationId();
+    if (!conversationId || !message.seq) return;
+    if (verdict === 'REPORT') {
+      const confirmed = await this.dialog.confirm({
+        title: 'ai.copilot.report_title',
+        message: 'ai.copilot.report_message',
+        confirmText: 'ai.copilot.report',
+        variant: 'danger',
+      });
+      if (!confirmed) return;
+    }
+    this.api.feedback(conversationId, message.seq, verdict).subscribe({
+      next: () => {
+        this.messages.update((list) => list.map((item) => (item.key === message.key ? { ...item, feedback: verdict } : item)));
+        this.announcement.set(this.translate.instant('ai.copilot.feedback_thanks'));
+      },
+      error: (error) => this.appendError(this.messageOf(error)),
+    });
+  }
+
+  private announceLastAnswer(): void {
+    const answer = [...this.messages()].reverse().find((message) => message.role === 'assistant');
+    if (answer?.text) this.announcement.set(answer.text.replace(/[*_`#>|-]/g, ' ').replace(/\s+/g, ' ').trim());
   }
 
   private decide(proposal: CopilotProposal, decision: 'confirm' | 'reject'): void {
@@ -384,6 +470,9 @@ export class CopilotPanelComponent implements OnInit, OnDestroy {
       toolsUsed: entry.toolsUsed,
       proposals: entry.proposals,
       charts: entry.charts ?? [],
+      sources: entry.sources ?? [],
+      seq: entry.role === 'assistant' ? entry.seq : null,
+      feedback: entry.feedback ?? null,
     };
   }
 

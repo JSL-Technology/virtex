@@ -151,6 +151,12 @@ export type ArithmeticIssue =
 /** What the server read from a supplier's document. Nothing has been recorded. */
 export interface BillCaptureSuggestion {
   attachment: { id: string; fileName: string; mimeType: string };
+  /** The market whose rules read and checked the document; `generic` when none is modelled. */
+  market: {
+    countryCode: string | null;
+    generic: boolean;
+    documentKind: 'NCF' | 'CFDI_UUID' | 'NFE_KEY' | 'CUFE' | 'FISCAL_NUMBER' | 'INVOICE_NUMBER';
+  };
   documentKind: 'invoice' | 'credit_note' | 'debit_note' | 'receipt' | 'not_a_bill';
   supplier: {
     match: { id: string; name: string; taxId: string | null } | null;
@@ -182,9 +188,10 @@ export interface BillCaptureSuggestion {
     matchedBy: 'history' | 'code' | 'name' | null;
   }>;
   checks: {
+    /** The supplier's document number, checked by the company's market (`unverified` where it has no rule). */
     ncf: {
-      status: 'ok' | 'missing' | 'invalid';
-      error: 'format' | 'unknown_type' | null;
+      status: 'ok' | 'missing' | 'invalid' | 'unverified';
+      error: 'format' | 'unknown_type' | 'check_digit' | null;
       type: string | null;
       warnings: Array<'no_tax_credit' | 'credit_note_on_bill' | 'sales_only_type'>;
     };

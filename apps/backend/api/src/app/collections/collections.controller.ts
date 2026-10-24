@@ -15,6 +15,7 @@ import {
   SaveReminderDraftDto,
   SendReminderDto,
 } from './dto/collections.dto';
+import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../shared/rate-limit/tenant-rate-limit.guard';
 
 /**
  * Sales › Collections. Reading needs the receivables permission as well as collections': the
@@ -52,6 +53,8 @@ export class CollectionsController {
   }
 
   /** The assistant's note for a reminder, for the person to edit. Sends nothing. */
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('invoices/:invoiceId/reminder/compose')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.AI_COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)

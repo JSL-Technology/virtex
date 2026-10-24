@@ -9,10 +9,10 @@ Análisis › Calidad de datos muestra clientes, proveedores y productos que pro
 
 ## Por qué propone un par
 
-- el mismo RNC o identificación (casi seguro que son el mismo);
+- la misma identificación fiscal (RNC, RFC, NIT, EIN…; casi seguro que son el mismo);
 - el mismo código de barras, en productos;
 - el mismo correo, teléfono o código;
-- un nombre muy parecido, sin contar acentos, puntuación ni «SRL», «S.A.», «EIRL» y similares.
+- un nombre muy parecido, sin contar acentos, puntuación ni la forma jurídica («SRL», «S.A.», «S.A. de C.V.», «LLC», «Inc.» y similares).
 
 Dos registros con identificación fiscal distinta son dos contribuyentes distintos aunque se llamen igual: el par baja de puntuación y casi nunca se propone.
 

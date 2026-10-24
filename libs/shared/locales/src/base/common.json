@@ -449,6 +449,11 @@
     "en": "Previous page",
     "pt": "Página anterior"
   },
+  "common.rate_limited": {
+    "es": "Demasiadas solicitudes seguidas. Inténtalo de nuevo en {{seconds}} segundos.",
+    "en": "Too many requests in a row. Try again in {{seconds}} seconds.",
+    "pt": "Muitas solicitações seguidas. Tente novamente em {{seconds}} segundos."
+  },
   "common.record_deactivated": {
     "es": "«{{name}}» quedó desactivado.",
     "en": "“{{name}}” was deactivated.",

@@ -12,7 +12,7 @@ import { AiMessage } from './entities/ai-message.entity';
 import { AiPendingAction } from './entities/ai-pending-action.entity';
 import { AiChart } from './entities/ai-chart.entity';
 import { CopilotService } from './copilot/copilot.service';
-import { CopilotController } from './copilot/copilot.controller';
+import { CopilotController, CopilotDataController } from './copilot/copilot.controller';
 import { AiCopilotTools } from './copilot/ai.copilot-tools';
 import { HelpService } from './help/help.service';
 import { CashflowService } from './cashflow/cashflow.service';
@@ -49,6 +49,24 @@ import { ForecastingService } from './forecasting/forecasting.service';
 import { AnomaliesService } from './anomalies/anomalies.service';
 import { AiController } from './ai.controller';
 import { InventoryModule } from '../inventory/inventory.module';
+import { AiOrganizationSettings } from './entities/ai-organization-settings.entity';
+import { AiRecordProvenance } from './entities/ai-record-provenance.entity';
+import { ProvenanceController } from './provenance/provenance.controller';
+import { CloseAssistantService } from './close/close-assistant.service';
+import { CloseAssistantController } from './close/close-assistant.controller';
+import { McpOAuthClient } from './mcp/entities/mcp-oauth-client.entity';
+import { McpOAuthCode } from './mcp/entities/mcp-oauth-code.entity';
+import { McpOAuthToken } from './mcp/entities/mcp-oauth-token.entity';
+import { McpOAuthService } from './mcp/mcp-oauth.service';
+import { McpService } from './mcp/mcp.service';
+import { McpController } from './mcp/mcp.controller';
+import { McpOAuthController } from './mcp/mcp-oauth.controller';
+import { McpWellKnownController } from './mcp/mcp-well-known.controller';
+import { AiMessageFeedback } from './entities/ai-message-feedback.entity';
+import { AiSettingsService } from './settings/ai-settings.service';
+import { AiSettingsController } from './settings/ai-settings.controller';
+import { AuditModule } from '../audit/audit.module';
+import { AiRetentionService } from './settings/ai-retention.service';
 
 /**
  * The AI platform: the gateway every model call goes through, photo-assisted catalogue entry, and
@@ -65,14 +83,20 @@ import { InventoryModule } from '../inventory/inventory.module';
     TypeOrmModule.forFeature([
       AiRequest, AiModelRun, AiForecast, AiInventoryInsight, AiAnomaly, AiAnomalyFeedback,
       AiConversation, AiMessage, AiPendingAction, AiChart, AiKnowledgeChunk,
-      AiCashflowForecast, AiCashflowItem, AiReport, AiDuplicateSuggestion, AiAgentRun,
+      AiCashflowForecast, AiCashflowItem, AiReport, AiDuplicateSuggestion, AiAgentRun, AiOrganizationSettings, AiRecordProvenance, AiMessageFeedback, McpOAuthClient, McpOAuthCode, McpOAuthToken,
     ]),
     BullModule.registerQueue({ name: AI_ENGINE_QUEUE }),
     BullModule.registerQueue({ name: AI_REPORTS_QUEUE }),
     InventoryModule,
+    AuditModule,
   ],
-  controllers: [AiController, CopilotController, CashflowController, ManagerReportController, DataQualityController, AgentsController],
+  controllers: [AiController, ProvenanceController, CloseAssistantController, McpController, McpOAuthController, McpWellKnownController, CopilotController, CopilotDataController, CashflowController, ManagerReportController, DataQualityController, AgentsController, AiSettingsController],
   providers: [
+    AiSettingsService,
+    CloseAssistantService,
+    McpOAuthService,
+    McpService,
+    AiRetentionService,
     AiGatewayService,
     EmbeddingsService,
     ProductVisionService,

@@ -1,0 +1,93 @@
+<section class="pol" aria-labelledby="ai-policy">
+  <h2 id="ai-policy" class="pol__heading">{{ 'ai.policy.title' | translate }}</h2>
+  <p class="pol__muted">{{ 'ai.policy.intro' | translate }}</p>
+
+  @if (policy(); as p) {
+    @if (!canManage()) {
+      <p class="pol__muted" role="note">{{ 'ai.policy.read_only' | translate }}</p>
+    }
+
+    <article class="card pol__card">
+      <h3 class="pol__h3">{{ 'ai.policy.sending' | translate }}</h3>
+      <label class="pol__check">
+        <input type="checkbox" [checked]="p.settings.languageModels" [disabled]="!canManage() || saving()"
+               (change)="save({ languageModels: $any($event.target).checked })" />
+        <span>{{ 'ai.policy.language_models' | translate }}</span>
+      </label>
+      <p class="pol__hint">{{ 'ai.policy.language_models_help' | translate }}</p>
+
+      <fieldset class="pol__features" [disabled]="!canManage() || saving() || !p.settings.languageModels">
+        <legend class="pol__legend">{{ 'ai.policy.features' | translate }}</legend>
+        @for (feature of p.features; track feature) {
+          <label class="pol__check">
+            <input type="checkbox" [checked]="featureEnabled(feature)" [disabled]="!canManage() || saving() || !p.settings.languageModels"
+                   (change)="toggleFeature(feature, $any($event.target).checked)" />
+            <span>{{ k('ai.policy.feature', feature) | translate }}</span>
+          </label>
+        }
+      </fieldset>
+
+      <label class="pol__check">
+        <input type="checkbox" [checked]="p.settings.scheduledReports" [disabled]="!canManage() || saving()"
+               (change)="save({ scheduledReports: $any($event.target).checked })" />
+        <span>{{ 'ai.policy.scheduled_reports' | translate }}</span>
+      </label>
+      <p class="pol__hint">{{ 'ai.policy.scheduled_reports_help' | translate }}</p>
+
+      <label class="pol__check">
+        <input type="checkbox" [checked]="p.settings.imageEmbeddings" [disabled]="!canManage() || saving()"
+               (change)="save({ imageEmbeddings: $any($event.target).checked })" />
+        <span>{{ 'ai.policy.image_embeddings' | translate }}</span>
+      </label>
+      <p class="pol__hint">{{ 'ai.policy.image_embeddings_help' | translate }}</p>
+
+      <label class="pol__check">
+        <input type="checkbox" [checked]="p.settings.maskIdentifiers" [disabled]="!canManage() || saving()"
+               (change)="save({ maskIdentifiers: $any($event.target).checked })" />
+        <span>{{ 'ai.policy.mask_identifiers' | translate }}</span>
+      </label>
+      <p class="pol__hint">{{ 'ai.policy.mask_identifiers_help' | translate }}</p>
+
+      <label class="pol__check">
+        <input type="checkbox" [checked]="p.settings.activityMonitoring" [disabled]="!canManage() || saving()"
+               (change)="save({ activityMonitoring: $any($event.target).checked })" />
+        <span>{{ 'ai.policy.activity_monitoring' | translate }}</span>
+      </label>
+      <p class="pol__hint">{{ 'ai.policy.activity_monitoring_help' | translate }}</p>
+    </article>
+
+    <article class="card pol__card">
+      <h3 class="pol__h3">{{ 'ai.policy.budget' | translate }}</h3>
+      <p>{{ 'ai.policy.spent' | translate: { spent: (p.spend.monthUsd | vxNumber: '1.2-2'), budget: (p.settings.monthlyBudgetUsd | vxNumber: '1.2-2') } }}</p>
+      @if (spentShare() !== null) {
+        <div class="pol__meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="spentShare()"
+             [attr.aria-label]="'ai.policy.budget' | translate">
+          <div class="pol__meter-fill" [class.pol__meter-fill--high]="(spentShare() ?? 0) >= 80" [style.width.%]="spentShare()"></div>
+        </div>
+      }
+      <label class="pol__field">
+        <span>{{ 'ai.policy.monthly_budget' | translate: { max: (p.settings.maxMonthlyBudgetUsd | vxNumber: '1.0-0') } }}</span>
+        <input type="number" min="0" step="1" [max]="p.settings.maxMonthlyBudgetUsd" [ngModel]="p.settings.monthlyBudgetUsd"
+               [disabled]="!canManage() || saving()" (change)="setBudget('monthlyBudgetUsd', $any($event.target).value)" />
+      </label>
+      <label class="pol__field">
+        <span>{{ 'ai.policy.daily_budget' | translate }}</span>
+        <input type="number" min="0" step="1" [ngModel]="p.settings.dailyBudgetUsd" [placeholder]="'ai.policy.no_daily_limit' | translate"
+               [disabled]="!canManage() || saving()" (change)="setBudget('dailyBudgetUsd', $any($event.target).value)" />
+      </label>
+      <p class="pol__hint">{{ 'ai.policy.budget_help' | translate }}</p>
+    </article>
+
+    <article class="card pol__card">
+      <h3 class="pol__h3">{{ 'ai.policy.retention' | translate }}</h3>
+      <label class="pol__field">
+        <span>{{ 'ai.policy.retention_days' | translate }}</span>
+        <input type="number" min="1" max="3650" step="1" [ngModel]="p.settings.conversationRetentionDays"
+               [disabled]="!canManage() || saving()" (change)="setRetention($any($event.target).value)" />
+      </label>
+      <p class="pol__hint">{{ 'ai.policy.retention_help' | translate }}</p>
+    </article>
+  } @else {
+    <p class="pol__muted">{{ 'ai.policy.unavailable' | translate }}</p>
+  }
+</section>

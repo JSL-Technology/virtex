@@ -1,5 +1,5 @@
 import { DataSource, EntityManager } from 'typeorm';
-import { runInTenantContext } from './tenant-context';
+import { currentTenantStore, runInTenantContext } from './tenant-context';
 
 /**
  * Runs background work as one tenant.
@@ -43,6 +43,15 @@ export async function runAsTenantJob<T>(
     await runner.query(`RESET app.current_organization`).catch(() => undefined);
     await runner.release().catch(() => undefined);
   }
+}
+
+/**
+ * Database work as one tenant, on the connection the current unit of work already holds — or, when
+ * it holds none (a route under `ShortLivedConnections` while it waits on a model), on one opened
+ * for just this work and given back straight after.
+ */
+export function withTenant<T>(dataSource: DataSource, organizationId: string, work: () => Promise<T>): Promise<T> {
+  return currentTenantStore() ? work() : runAsTenantJob(dataSource, organizationId, work);
 }
 
 /**

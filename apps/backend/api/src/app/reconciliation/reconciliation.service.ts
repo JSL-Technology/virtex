@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, In, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, IsNull, Repository } from 'typeorm';
 import { createHash } from 'crypto';
 import { readFile } from 'fs/promises';
 import { addDays, subDays } from 'date-fns';
@@ -52,6 +52,11 @@ import {
 } from '../common/money';
 import { FastifyFile, spooledUploadPath } from '../common/interfaces/fastify-file.interface';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
+import { recordAiProvenance } from '../contracts/ai/provenance.contract';
+import { ReconciliationAccountSettings } from './entities/reconciliation-account-settings.entity';
+import { ReconciliationAutoOutcome } from './entities/reconciliation-auto-outcome.entity';
+import { CALIBRATION_DAYS, calibrate } from './autopilot';
+import { predictBankLine, trainBankLineModel } from './bank-line-classifier';
 
 /** A ledger line offered as a counterpart, with why it was offered. */
 export interface MatchCandidate {
@@ -363,7 +368,8 @@ export class ReconciliationService {
     // detached promise and a `.catch(log)`, so the caller saw "completed" whatever happened.
     await this.applyRules(statement.id, organizationId, actorUserId);
     // Opt-in, per company: confirm on import what is unambiguous. Undone like any match.
-    if ((await this.settings(organizationId)).autoConfirm) {
+    const effective = await this.effectiveSettings(organizationId, statement.bankAccountId);
+    if (effective.autoConfirm && !effective.paused) {
       await this.applySafeMatches(statement.id, organizationId, null, MatchOrigin.AUTOMATIC);
     }
 
@@ -434,7 +440,8 @@ export class ReconciliationService {
       )
     ).filter((line) => !line.amountUnavailable);
     const rules = await this.activeRules(this.dataSource.manager, organizationId);
-    const settings = await this.settings(organizationId);
+    // The account's threshold, calibrated by what people kept of the matches confirmed on their own.
+    const settings = await this.effectiveSettings(organizationId, statement.bankAccountId);
     const learned = await this.learnedCounterparts(organizationId);
     const counterparts = await this.entryCounterparts(
       organizationId,
@@ -520,7 +527,7 @@ export class ReconciliationService {
       await this.dataSource.transaction(async (manager) => {
         const statement = await manager.findOne(BankStatement, { where: { id: statementId, organizationId } });
         if (!statement || statement.status === StatementStatus.RECONCILED) return;
-        await this.writeMatch(manager, {
+        const match = await this.writeMatch(manager, {
           statement,
           organizationId,
           bankTransactionIds: [suggestion.bankTransactionId],
@@ -530,6 +537,9 @@ export class ReconciliationService {
           actorUserId,
           notes: null,
         });
+        if (origin === MatchOrigin.AUTOMATIC) {
+          await this.recordAutomatic(manager, organizationId, statement, match.id, suggestion.candidates[0].score, suggestion.bankTransactionId, suggestion.candidates[0].reasons);
+        }
         applied++;
       });
     }
@@ -558,6 +568,217 @@ export class ReconciliationService {
       [organizationId, next.autoConfirm, next.minScore],
     );
     return next;
+  }
+
+  /**
+   * A match confirmed without a person: kept to learn from (if a person undoes it, the account's
+   * threshold rises — see autopilot.ts) and labelled as the matcher's on the record.
+   */
+  private async recordAutomatic(
+    manager: EntityManager,
+    organizationId: string,
+    statement: BankStatement,
+    matchId: string,
+    score: number,
+    bankTransactionId: string,
+    reasons: MatchReason[] = ['amount'],
+  ): Promise<void> {
+    await manager.save(
+      manager.create(ReconciliationAutoOutcome, {
+        organizationId,
+        matchId,
+        bankAccountId: statement.bankAccountId,
+        statementId: statement.id,
+        score: Math.round(score),
+      }),
+    );
+    await recordAiProvenance(manager, {
+      organizationId,
+      entityType: 'reconciliation_match',
+      entityId: matchId,
+      source: 'AI_RECONCILIATION',
+      detail: { score, reasons, bankTransactionId },
+    });
+  }
+
+  /**
+   * The settings in effect for one bank account: its own over the company's, and the threshold
+   * calibrated from what people kept of the matches confirmed without them.
+   */
+  async effectiveSettings(organizationId: string, bankAccountId: string) {
+    const company = await this.settings(organizationId);
+    const account = await this.dataSource.manager.findOne(ReconciliationAccountSettings, { where: { organizationId, bankAccountId } });
+    const configuredMin = account?.minScore ?? company.minScore;
+    const rows: Array<{ score: number; undone: boolean }> = await this.dataSource.query(
+      `SELECT "score", ("undone_at" IS NOT NULL) AS "undone" FROM "reconciliation_auto_outcomes"
+        WHERE "organization_id" = $1 AND "bank_account_id" = $2 AND "created_at" >= now() - ($3::int * interval '1 day')`,
+      [organizationId, bankAccountId, CALIBRATION_DAYS],
+    );
+    const calibration = calibrate(rows.map((row) => ({ score: Number(row.score), undone: !!row.undone })), configuredMin);
+    return {
+      bankAccountId,
+      autoConfirm: account?.autoConfirm ?? company.autoConfirm,
+      configuredMinScore: configuredMin,
+      minScore: calibration.minScore,
+      precision: calibration.precision,
+      samples: calibration.samples,
+      paused: !!account?.pausedAt,
+      pausedAt: account?.pausedAt ?? null,
+      pausedReason: account?.pausedReason ?? null,
+      inherits: { autoConfirm: account?.autoConfirm == null, minScore: account?.minScore == null },
+    };
+  }
+
+  /** Set one account's own settings (`null` inherits the company's), or resume it after a pause. */
+  async updateAccountSettings(
+    organizationId: string,
+    bankAccountId: string,
+    change: { autoConfirm?: boolean | null; minScore?: number | null; resume?: boolean },
+    actorUserId: string,
+  ) {
+    const account = await this.dataSource.manager.findOne(BankAccount, { where: { id: bankAccountId, organizationId } });
+    if (!account) throw new NotFoundError('reconciliation.bank_account_not_found');
+    const current = await this.dataSource.manager.findOne(ReconciliationAccountSettings, { where: { organizationId, bankAccountId } });
+    const minScore = change.minScore === undefined ? current?.minScore ?? null : change.minScore;
+    if (minScore !== null && (minScore < DEFAULT_SAFE_SCORE - 5 || minScore > 100)) throw new BadRequestError('reconciliation.min_score_out_of_range');
+    await this.dataSource.manager.save(
+      this.dataSource.manager.create(ReconciliationAccountSettings, {
+        organizationId,
+        bankAccountId,
+        autoConfirm: change.autoConfirm === undefined ? current?.autoConfirm ?? null : change.autoConfirm,
+        minScore,
+        pausedAt: change.resume ? null : current?.pausedAt ?? null,
+        pausedReason: change.resume ? null : current?.pausedReason ?? null,
+        updatedByUserId: actorUserId,
+      }),
+    );
+    return this.effectiveSettings(organizationId, bankAccountId);
+  }
+
+  /**
+   * Undo every match of a statement that was confirmed without a person. Each counts as undone,
+   * so the account's threshold learns from it.
+   */
+  async undoAutomatic(statementId: string, organizationId: string, actorUserId: string): Promise<{ undone: number }> {
+    const statement = await this.findStatement(statementId, organizationId);
+    const outcomes = await this.dataSource.manager.find(ReconciliationAutoOutcome, {
+      where: { organizationId, statementId: statement.id, undoneAt: IsNull() },
+    });
+    let undone = 0;
+    for (const outcome of outcomes) {
+      const exists = await this.dataSource.manager.count(ReconciliationMatch, { where: { id: outcome.matchId, organizationId } });
+      if (!exists) continue;
+      await this.unmatch(outcome.matchId, organizationId, actorUserId);
+      undone++;
+    }
+    return { undone };
+  }
+
+  /**
+   * The account each unexplained bank line most likely belongs to, learned from how this company
+   * booked the same kind of line before (see `bank-line-classifier.ts`). Only for lines with no
+   * ledger line to match: those need an entry, and this says which account it would hit.
+   */
+  async categorySuggestions(statementId: string, organizationId: string) {
+    const statement = await this.findStatement(statementId, organizationId);
+    const suggestions = await this.suggestMatches(statementId, organizationId);
+    const unexplained = new Set(suggestions.filter((suggestion) => suggestion.confidence === 'none').map((suggestion) => suggestion.bankTransactionId));
+    if (!unexplained.size) return [];
+    const bankAccount = await this.dataSource.manager.findOneByOrFail(BankAccount, { id: statement.bankAccountId });
+    const history: Array<{ description: string; amount: string; account_id: string }> = await this.dataSource.query(
+      `SELECT bt.description, (bt.credit - bt.debit) AS amount, other.account_id
+         FROM reconciliation_matches m
+         JOIN bank_transactions bt ON bt.match_id = m.id
+         JOIN reconciliation_match_lines ml ON ml.match_id = m.id
+         JOIN journal_entry_lines line ON line.id = ml.journal_entry_line_id
+         JOIN journal_entries je ON je.id = line.journal_entry_id AND je.organization_id = m.organization_id
+         JOIN journal_entry_lines other ON other.journal_entry_id = line.journal_entry_id AND other.id <> line.id
+        WHERE m.organization_id = $1 AND m.origin IN ('MANUAL', 'RULE') AND other.account_id <> $2
+        ORDER BY m.created_at DESC
+        LIMIT 5000`,
+      [organizationId, bankAccount.glAccountId],
+    );
+    const model = trainBankLineModel(history.map((row) => ({ description: row.description, amount: Number(row.amount), label: row.account_id })));
+    const accounts = new Map(
+      (
+        await this.dataSource.manager.find(Account, {
+          where: { organizationId, id: In([...new Set(history.map((row) => row.account_id))]) },
+        })
+      ).map((account) => [account.id, account]),
+    );
+    const out = [];
+    for (const transaction of statement.transactions) {
+      if (!unexplained.has(transaction.id)) continue;
+      const [best] = predictBankLine(model, transaction.description, signedAmount(transaction));
+      if (!best || best.probability < MIN_CATEGORY_PROBABILITY || best.support < MIN_CATEGORY_SUPPORT) continue;
+      const account = accounts.get(best.label);
+      if (!account) continue;
+      out.push({
+        bankTransactionId: transaction.id,
+        accountId: account.id,
+        accountCode: account.code,
+        accountName: account.name,
+        probability: Math.round(best.probability * 1000) / 1000,
+        support: best.support,
+        evidence: best.evidence,
+      });
+    }
+    return out;
+  }
+
+  /**
+   * Book an unexplained bank line to an account a person chose (usually the suggested one): the
+   * entry the books were missing, matched to the line at once. Recorded as the person's decision,
+   * with where the suggestion came from.
+   */
+  async applyCategory(
+    statementId: string,
+    transactionId: string,
+    accountId: string,
+    organizationId: string,
+    actorUserId: string,
+    suggested: { probability: number; suggestedAccountId: string } | null,
+  ) {
+    return this.dataSource.transaction(async (manager) => {
+      const statement = await manager.findOne(BankStatement, { where: { id: statementId, organizationId } });
+      if (!statement) throw new NotFoundError('reconciliation.statement_not_found');
+      if (statement.status === StatementStatus.RECONCILED) {
+        throw new BadRequestError('reconciliation.statement_already_reconciled_reopen_before_changing');
+      }
+      const transaction = await manager.findOne(BankTransaction, { where: { id: transactionId, statementId: statement.id } });
+      if (!transaction || transaction.status !== TransactionStatus.UNMATCHED) throw new BadRequestError('reconciliation.transaction_not_unmatched');
+      const account = await manager.findOne(Account, { where: { id: accountId, organizationId } });
+      if (!account) throw new NotFoundError('reconciliation.account_not_found');
+      const bankAccount = await manager.findOneByOrFail(BankAccount, { id: statement.bankAccountId });
+      if (account.id === bankAccount.glAccountId) throw new BadRequestError('reconciliation.category_is_bank_account');
+      const line = await this.postMissingEntry(manager, statement, bankAccount, transaction, {
+        targetAccountId: account.id,
+        lineNarrative: { key: 'ledger.reconciliation.category_line', params: { account: account.name } },
+        idempotencyKey: `bank-category:${transaction.id}`,
+      }, organizationId, actorUserId);
+      const match = await this.writeMatch(manager, {
+        statement,
+        organizationId,
+        bankTransactionIds: [transaction.id],
+        journalEntryLineIds: [line.id],
+        origin: MatchOrigin.MANUAL,
+        ruleId: null,
+        actorUserId,
+        notes: null,
+      });
+      if (suggested) {
+        await recordAiProvenance(manager, {
+          organizationId,
+          entityType: 'reconciliation_match',
+          entityId: match.id,
+          source: 'AI_RECONCILIATION',
+          userId: actorUserId,
+          fields: suggested.suggestedAccountId === account.id ? { accepted: ['accountId'], edited: [] } : { accepted: [], edited: ['accountId'] },
+          detail: { categorized: true, probability: suggested.probability, suggestedAccountId: suggested.suggestedAccountId },
+        });
+      }
+      return { matchId: match.id };
+    });
   }
 
   /**
@@ -757,7 +978,7 @@ export class ReconciliationService {
   }
 
   /** Undo a match. Both sides go back to being outstanding items. */
-  async unmatch(matchId: string, organizationId: string): Promise<void> {
+  async unmatch(matchId: string, organizationId: string, actorUserId: string | null = null): Promise<void> {
     await this.dataSource.transaction(async (manager) => {
       const match = await manager.findOne(ReconciliationMatch, {
         where: { id: matchId, organizationId },
@@ -777,6 +998,29 @@ export class ReconciliationService {
       );
       await manager.delete(ReconciliationMatchLine, { matchId: match.id });
       await manager.delete(ReconciliationMatch, { id: match.id });
+
+      // A match confirmed without a person and undone by one: the account learns from it, and
+      // stops confirming on its own if that keeps happening.
+      const outcome = await manager.findOne(ReconciliationAutoOutcome, { where: { organizationId, matchId: match.id } });
+      if (outcome && !outcome.undoneAt) {
+        outcome.undoneAt = new Date();
+        outcome.undoneByUserId = actorUserId;
+        await manager.save(outcome);
+        const rows: Array<{ score: number; undone: boolean }> = await manager.query(
+          `SELECT "score", ("undone_at" IS NOT NULL) AS "undone" FROM "reconciliation_auto_outcomes"
+            WHERE "organization_id" = $1 AND "bank_account_id" = $2 AND "created_at" >= now() - ($3::int * interval '1 day')`,
+          [organizationId, outcome.bankAccountId, CALIBRATION_DAYS],
+        );
+        if (calibrate(rows.map((row) => ({ score: Number(row.score), undone: !!row.undone })), DEFAULT_SAFE_SCORE).pause) {
+          await manager.query(
+            `INSERT INTO "reconciliation_account_settings" ("organization_id", "bank_account_id", "paused_at", "paused_reason", "updated_at")
+             VALUES ($1, $2, now(), 'undo_rate', now())
+             ON CONFLICT ("organization_id", "bank_account_id")
+             DO UPDATE SET "paused_at" = COALESCE("reconciliation_account_settings"."paused_at", now()), "paused_reason" = 'undo_rate', "updated_at" = now()`,
+            [organizationId, outcome.bankAccountId],
+          );
+        }
+      }
     });
   }
 
@@ -987,6 +1231,9 @@ export class ReconciliationService {
         id: statement.bankAccountId,
       });
       const rules = await this.activeRules(manager, organizationId);
+      // An account people paused (they kept undoing what was matched without them) gets no
+      // matching on its own here either: everything waits for a person.
+      const paused = !!(await manager.findOne(ReconciliationAccountSettings, { where: { organizationId, bankAccountId: statement.bankAccountId } }))?.pausedAt;
 
       let matched = 0;
       let created = 0;
@@ -1006,8 +1253,8 @@ export class ReconciliationService {
         // A single unambiguous counterpart: same amount, inside the window, one candidate only.
         // Anything less certain is left for a person, which is why `suggestMatches` exists.
         const exact = available.filter((line) => toCents(line.amount) === toCents(amount));
-        if (exact.length === 1) {
-          await this.writeMatch(manager, {
+        if (exact.length === 1 && !paused) {
+          const match = await this.writeMatch(manager, {
             statement,
             organizationId,
             bankTransactionIds: [transaction.id],
@@ -1017,6 +1264,7 @@ export class ReconciliationService {
             actorUserId,
             notes: null,
           });
+          await this.recordAutomatic(manager, organizationId, statement, match.id, 100, transaction.id);
           matched += 1;
           continue;
         }
@@ -1051,7 +1299,12 @@ export class ReconciliationService {
           statement,
           bankAccount,
           transaction,
-          rule,
+          {
+            targetAccountId: rule.targetAccountId,
+            lineNarrative: { key: 'ledger.reconciliation.rule_line', params: { rule: rule.name } },
+            // One rule-created entry per statement line, however many times the rules are re-run.
+            idempotencyKey: `bank-rule:${transaction.id}`,
+          },
           organizationId,
           actorUserId,
         );
@@ -1414,7 +1667,7 @@ export class ReconciliationService {
     statement: BankStatement,
     bankAccount: BankAccount,
     transaction: BankTransaction,
-    rule: ReconciliationRule,
+    target: { targetAccountId: string; lineNarrative: { key: string; params: Record<string, unknown> }; idempotencyKey: string },
     organizationId: string,
     actorUserId: string,
   ): Promise<{ id: string }> {
@@ -1432,7 +1685,7 @@ export class ReconciliationService {
         key: 'ledger.reconciliation.entry',
         params: { description: transaction.description },
       },
-      rule: { key: 'ledger.reconciliation.rule_line', params: { rule: rule.name } },
+      rule: target.lineNarrative,
     });
 
     const entry = await this.posting.createWithManager(
@@ -1454,7 +1707,7 @@ export class ReconciliationService {
             description: transaction.description,
           },
           {
-            accountId: rule.targetAccountId as string,
+            accountId: target.targetAccountId,
             debit: transaction.credit,
             credit: transaction.debit,
             description: words.rule,
@@ -1465,8 +1718,8 @@ export class ReconciliationService {
       {
         actorUserId,
         systemReason: `bank-reconciliation:${statement.id}`,
-        // One rule-created entry per statement line, however many times the rules are re-run.
-        idempotencyKey: `bank-rule:${transaction.id}`,
+        // One entry per statement line, however many times it is asked for (see the caller's key).
+        idempotencyKey: target.idempotencyKey,
       },
     );
 
@@ -1572,6 +1825,10 @@ function signedAmount(transaction: BankTransaction | { debit: number; credit: nu
   return roundAmount(Number(transaction.debit) - Number(transaction.credit));
 }
 
+/** A category is suggested only when the classifier is this sure, from this many past lines. */
+const MIN_CATEGORY_PROBABILITY = 0.6;
+const MIN_CATEGORY_SUPPORT = 3;
+
 /** The minimum score a "safe" match needs by default: an exact amount plus corroboration. */
 export const DEFAULT_SAFE_SCORE = 95;
 
@@ -1580,7 +1837,8 @@ const STOPWORDS = new Set([
   'para', 'desde', 'del', 'los', 'las', 'por', 'con', 'payment', 'transfer', 'deposit', 'from', 'the', 'and',
 ]);
 
-function words(text: string | null | undefined): Set<string> {
+/** The meaningful words of a bank description: no stop words, no numbers. */
+export function descriptionWords(text: string | null | undefined): Set<string> {
   return new Set(
     (text ?? '')
       .toLocaleLowerCase()
@@ -1603,7 +1861,7 @@ export function documentReferences(text: string | null | undefined): Set<string>
 
 /** A bank description reduced to its words, for recognising "the same kind of movement" again. */
 export function descriptionSignature(text: string | null | undefined): string {
-  return [...words(text)].sort().slice(0, 4).join(' ');
+  return [...descriptionWords(text)].sort().slice(0, 4).join(' ');
 }
 
 /**
@@ -1643,8 +1901,8 @@ function scoreCandidate(
     }
   }
 
-  const bankWords = words(bankText);
-  const ledgerWords = words(ledgerText);
+  const bankWords = descriptionWords(bankText);
+  const ledgerWords = descriptionWords(ledgerText);
   const shared = [...bankWords].filter((word) => ledgerWords.has(word)).length;
   if (shared) {
     score += Math.min(10, shared * 5);

@@ -1,10 +1,14 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CopilotToolRegistry, opt, s } from '../../contracts/copilot/copilot-tools.contract';
 import { AI_PERMISSIONS } from '../../shared/ai.permissions';
+import { hasPermission } from '@virteex/shared/util-auth';
 import { ForecastingService } from '../forecasting/forecasting.service';
 import { AnomaliesService } from '../anomalies/anomalies.service';
 import { HelpService } from '../help/help.service';
 import { CashflowService } from '../cashflow/cashflow.service';
+import { cashflowReader } from '../company-wide';
+import { DataSource } from 'typeorm';
+import { organizationFiscalIdentity } from '../../organizations/contracts/fiscal-identity.contract';
 
 /** The AI module's own findings, as copilot tools: forecasts, stock risks, anomalies, lead times. */
 @Injectable()
@@ -15,6 +19,7 @@ export class AiCopilotTools implements OnModuleInit {
     private readonly anomalies: AnomaliesService,
     private readonly help: HelpService,
     private readonly cashflow: CashflowService,
+    private readonly dataSource: DataSource,
   ) {}
 
   onModuleInit(): void {
@@ -22,6 +27,8 @@ export class AiCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'cashflow_forecast',
+        branchScope: 'unscoped',
+        externalText: true,
         description:
           'The projected cash balance for the next weeks from the nightly simulation: cash today, the expected balance ' +
           'at the end and at its tightest (with the date), the worst plausible balance (P10), the probability of falling ' +
@@ -31,7 +38,7 @@ export class AiCopilotTools implements OnModuleInit {
         feature: 'ai_cashflow',
         inputSchema: s.object({}),
         run: async (ctx) => {
-          const { latest, projection } = await this.cashflow.overview(ctx.organizationId);
+          const { latest, projection } = await this.cashflow.overview(ctx.organizationId, cashflowReader(ctx.user.permissions));
           if (!projection) return { available: false, latestRun: latest };
           return {
             available: true,
@@ -45,6 +52,8 @@ export class AiCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'expected_collections',
+        branchScope: 'unscoped',
+        externalText: true,
         description:
           'Open customer invoices (or supplier bills) of the cash-flow projection with the chance each is collected ' +
           '(paid) within 7 and 30 days and its likely date. sort=risk lists the least likely to arrive first — the ' +
@@ -66,18 +75,28 @@ export class AiCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'search_help',
+        branchScope: 'none',
         description:
           "Search the product's in-app help articles for how to do something in the ERP or what a screen or rule " +
-          'means (e.g. registering a supplier bill from a photo, NCF rules, the assistant, credits). The articles are ' +
-          'in Spanish: search with Spanish keywords. Answer from the passages returned and name the article; if ' +
-          'nothing relevant comes back, say the help does not cover it rather than guessing.',
+          "means (e.g. registering a supplier bill from a photo, the company's fiscal document rules, the assistant, " +
+          "credits). Search with keywords in the person's language; only articles for the company's market are " +
+          'returned. Each passage says its language: if it is not the person\'s, translate what you use. Answer from ' +
+          'the passages returned and name the article; if nothing relevant comes back, say the help does not cover ' +
+          'it rather than guessing.',
         permissions: [AI_PERMISSIONS.AI_COPILOT_USE],
-        inputSchema: s.object({ query: s.string('Spanish keywords, e.g. "factura proveedor foto NCF"') }),
-        run: async (_ctx, input) => ({ results: await this.help.search(String(input['query'] ?? ''), 4) }),
+        inputSchema: s.object({ query: s.string('Keywords in the person\'s language, e.g. "supplier bill photo"') }),
+        run: async (ctx, input) => {
+          const identity = await organizationFiscalIdentity(this.dataSource.manager, ctx.organizationId);
+          return {
+            results: await this.help.search(String(input['query'] ?? ''), { language: ctx.user.language, country: identity?.country }, 4),
+          };
+        },
       },
       {
         kind: 'read',
         name: 'inventory_forecast',
+        branchScope: 'applied',
+        externalText: true,
         description:
           'Demand forecast and stock position per product and warehouse from the nightly AI run: on hand, ' +
           'average daily demand, units forecast for the next 30 days (P50 and P90), days of cover, projected ' +
@@ -97,39 +116,46 @@ export class AiCopilotTools implements OnModuleInit {
             search: opt(input, 'search'),
             sort: (opt<string>(input, 'sort') as 'risk' | 'top_sellers') ?? 'risk',
             limit: Math.min(Math.max(Number(opt(input, 'limit') ?? 20), 1), 50),
-          }),
+          }, ctx.user.branches),
       },
       {
         kind: 'read',
         name: 'forecast_summary',
+        branchScope: 'applied',
         description: 'How many products are in each stock status, and when the last forecast ran and how accurate it was (median WAPE).',
         permissions: [AI_PERMISSIONS.AI_FORECASTS_VIEW],
         feature: 'ai_forecasting',
         inputSchema: s.object({}),
-        run: async (ctx) => this.forecasting.summary(ctx.organizationId),
+        run: async (ctx) => this.forecasting.summary(ctx.organizationId, ctx.user.branches),
       },
       {
         kind: 'read',
         name: 'top_sellers_by_branch',
+        branchScope: 'applied',
+        externalText: true,
         description: 'The products projected to sell the most units in the next 30 days, per branch.',
         permissions: [AI_PERMISSIONS.AI_FORECASTS_VIEW],
         feature: 'ai_forecasting',
         inputSchema: s.object({ per_branch: s.integer('1-20') }),
         run: async (ctx, input) =>
-          this.forecasting.topByBranch(ctx.organizationId, Math.min(Math.max(Number(input['per_branch'] ?? 5), 1), 20)),
+          this.forecasting.topByBranch(ctx.organizationId, ctx.user.branches, Math.min(Math.max(Number(input['per_branch'] ?? 5), 1), 20)),
       },
       {
         kind: 'read',
         name: 'supplier_lead_times',
+        branchScope: 'applied',
+        externalText: true,
         description: "Each supplier's measured delivery time over the last year: median and P90 days from order to receipt, and the share delivered by the promised date.",
         permissions: [AI_PERMISSIONS.AI_FORECASTS_VIEW],
         feature: 'ai_forecasting',
         inputSchema: s.object({}),
-        run: async (ctx) => (await this.forecasting.supplierLeadTimes(ctx.organizationId)).slice(0, 50),
+        run: async (ctx) => (await this.forecasting.supplierLeadTimes(ctx.organizationId, ctx.user.branches)).slice(0, 50),
       },
       {
         kind: 'read',
         name: 'anomalies',
+        branchScope: 'applied',
+        externalText: true,
         description:
           'Unusual transactions the AI flagged (duplicate bills or receipts, sales below cost, overpayments, purchase ' +
           'order/receipt/bill mismatches, unusual prices or discounts, edited issued documents, off-hours activity…), ' +
@@ -148,6 +174,10 @@ export class AiCopilotTools implements OnModuleInit {
             severity: opt(input, 'severity'),
             category: opt(input, 'category'),
             limit: Math.min(Math.max(Number(opt(input, 'limit') ?? 15), 1), 30),
+          }, {
+            id: ctx.user.id,
+            branches: ctx.user.branches,
+            seesSecurity: hasPermission(ctx.user.permissions, [AI_PERMISSIONS.AI_ANOMALIES_VIEW_SECURITY]),
           }),
       },
     );

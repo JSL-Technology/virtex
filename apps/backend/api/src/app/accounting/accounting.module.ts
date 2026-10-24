@@ -28,6 +28,7 @@ import { LedgerMappingService } from './ledger-mapping.service';
 import { LedgerMappingController } from './ledger-mapping.controller';
 import { LedgerMappingRuleCondition } from './entities/ledger-mapping-rule-condition.entity';
 import { ClosingChecklistService } from './closing-checklist.service';
+import { CloseReadinessSourceService } from './close-readiness.source';
 import { TenantBookkeepingProvisioner } from './provisioning/tenant-bookkeeping.provisioner';
 import { PeriodLockModule } from './period-lock.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
@@ -76,6 +77,8 @@ import { AccountingInboxProvider } from './inbox/accounting-inbox.provider';
     ClosingAutomationService,
     ResultTransferService,
     ClosingChecklistService,
+    // The checklist, for the close assistant (AI) through contracts/closing.
+    CloseReadinessSourceService,
     LedgerMappingService,
     TenantBookkeepingProvisioner,
     FiscalCalendarService,

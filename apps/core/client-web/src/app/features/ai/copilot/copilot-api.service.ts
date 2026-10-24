@@ -19,6 +19,10 @@ export interface CopilotProposal {
   tool: string;
   summary: string;
   preview: Record<string, unknown>;
+  /** Proposed after the assistant read text written outside the company: worth a closer look. */
+  afterExternalText?: boolean;
+  /** Proposed in the assistant, or by an external agent over MCP. */
+  channel?: 'COPILOT' | 'MCP';
   status: CopilotProposalStatus;
   /** The draft that was created, once confirmed. */
   result: { id: string; link: string; label: string } | null;
@@ -51,6 +55,17 @@ export interface CopilotChart {
   createdAt: string;
 }
 
+/** A record an answer rests on, to open and check. */
+export interface CopilotSource {
+  tool: string;
+  type: string;
+  id: string;
+  label: string;
+  link: string;
+}
+
+export type CopilotVerdict = 'UP' | 'DOWN' | 'REPORT';
+
 export interface CopilotEntry {
   seq: number;
   role: 'user' | 'assistant';
@@ -60,6 +75,9 @@ export interface CopilotEntry {
   proposals: string[];
   /** Charts drawn while writing this answer. */
   charts: string[];
+  sources?: CopilotSource[];
+  /** What the person said about this answer. */
+  feedback?: CopilotVerdict | null;
 }
 
 export interface CopilotTranscript {
@@ -79,6 +97,9 @@ export interface CopilotTurnResult {
   stopReason: string;
   toolsUsed: string[];
   proposals: string[];
+  sources?: CopilotSource[];
+  /** The stored answer's number, which feedback refers to. */
+  answerSeq?: number | null;
 }
 
 /** What a turn streams back, in order. `done` and `error` end it. */
@@ -133,6 +154,30 @@ export class CopilotApiService {
 
   remove(id: string): Observable<void> {
     return this.http.delete<void>(`${this.url}/conversations/${id}`);
+  }
+
+  /** Everything the copilot keeps about the caller in this company, to take with them. */
+  exportMyData(): Observable<unknown> {
+    return this.http.get<unknown>(`${this.url}/my-data`);
+  }
+
+  /** Deletes all of the caller's conversations; proposals stay as the record of what was decided. */
+  deleteMyData(): Observable<{ deleted: number }> {
+    return this.http.delete<{ deleted: number }>(`${this.url}/my-data`);
+  }
+
+  /** Rate an answer, or report it. One verdict per answer; a new one replaces the old. */
+  feedback(conversationId: string, seq: number, verdict: CopilotVerdict, comment?: string): Observable<{ seq: number; verdict: CopilotVerdict }> {
+    return this.http.post<{ seq: number; verdict: CopilotVerdict }>(`${this.url}/conversations/${conversationId}/feedback`, {
+      seq,
+      verdict,
+      ...(comment ? { comment } : {}),
+    });
+  }
+
+  /** One of the caller's proposals (the assistant's, or an external agent's), to review. */
+  proposal(proposalId: string): Observable<CopilotProposal> {
+    return this.http.get<CopilotProposal>(`${this.url}/proposals/${proposalId}`);
   }
 
   confirm(proposalId: string): Observable<CopilotProposal> {

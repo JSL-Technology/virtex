@@ -587,6 +587,17 @@ function registrationDocsFor(country: string): IdentityDocumentTypeSpec[] {
   );
 }
 
+/**
+ * The identifiers a taxpayer of this country can file under, as printed on their documents — the
+ * authority's own label and a placeholder-shaped example. What a supplier's bill shows as its
+ * issuer's identifier, so a reader (a person, or a model reading a photo) knows what to look for.
+ */
+export function registrationDocumentsFor(countryCode: string): Array<{ label: string; example: string | null }> {
+  return registrationDocsFor(upperCountry(countryCode))
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((doc) => ({ label: doc.labelVerbatim ?? doc.code, example: doc.example ?? null }));
+}
+
 /** Whether a document identifies the given taxpayer kind; `both` satisfies either. */
 function documentServesKind(appliesTo: DocumentAppliesTo, kind: TaxpayerKind): boolean {
   return appliesTo === 'both' || appliesTo === kind;

@@ -10,8 +10,11 @@ import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { CheckFeature } from '../../saas/contracts/entitlements.contract';
 import { currentLanguage } from '../../i18n/request-locale';
 import { BadRequestError } from '../../i18n/localized.exception';
+import { DataSource } from 'typeorm';
 import { CashflowService } from './cashflow.service';
+import { assertCompanyWide, cashflowReader } from '../company-wide';
 import { ReportsService } from '../reports/reports.service';
+import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../../shared/rate-limit/tenant-rate-limit.guard';
 
 export class CashflowRunDto {
   /** The balance below which the company is short; 0 by default. */
@@ -58,12 +61,14 @@ export class CashflowController {
   constructor(
     private readonly cashflow: CashflowService,
     private readonly reports: ReportsService,
+    private readonly dataSource: DataSource,
   ) {}
 
   @Get()
   @ApiOperation({ summary: 'The projected cash balance (P10/P50/P90 per day), its headline figures and drivers.' })
-  overview(@CurrentUser() user: AuthenticatedUser) {
-    return this.cashflow.overview(user.organizationId);
+  async overview(@CurrentUser() user: AuthenticatedUser) {
+    await assertCompanyWide(this.dataSource, user);
+    return this.cashflow.overview(user.organizationId, cashflowReader(user.permissions));
   }
 
   @Post('runs')
@@ -71,19 +76,21 @@ export class CashflowController {
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 6, ttl: 60_000 } })
   @ApiOperation({ summary: "Project again from today's cash." })
-  refresh(@CurrentUser() user: AuthenticatedUser, @Body() dto: CashflowRunDto) {
+  async refresh(@CurrentUser() user: AuthenticatedUser, @Body() dto: CashflowRunDto) {
+    await assertCompanyWide(this.dataSource, user);
     return this.cashflow.refresh(user.organizationId, user.id, 'MANUAL', dto.threshold ?? 0);
   }
 
   @Get('documents')
   @ApiOperation({ summary: 'Open invoices or bills in the projection, with when their money is likely to move.' })
-  documents(
+  async documents(
     @CurrentUser() user: AuthenticatedUser,
     @Query('kind') kind: string,
     @Query('sort') sort?: string,
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
     @Query('offset', new ParseIntPipe({ optional: true })) offset?: number,
   ) {
+    await assertCompanyWide(this.dataSource, user);
     return this.cashflow.documents(user.organizationId, {
       kind: kind === 'PAYABLE' ? 'PAYABLE' : 'RECEIVABLE',
       sort: (['amount', 'risk', 'expected'] as const).find((value) => value === sort) ?? 'amount',
@@ -97,50 +104,61 @@ export class CashflowController {
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Simulate a what-if beside the projection.' })
-  scenario(@CurrentUser() user: AuthenticatedUser, @Body() dto: CashflowScenarioDto) {
+  async scenario(@CurrentUser() user: AuthenticatedUser, @Body() dto: CashflowScenarioDto) {
+    await assertCompanyWide(this.dataSource, user);
     const { threshold, ...scenario } = dto;
     return this.cashflow.scenario(user.organizationId, user.id, scenario, threshold ?? 0);
   }
 
   @Get('scenarios')
-  scenarios(@CurrentUser() user: AuthenticatedUser) {
+  async scenarios(@CurrentUser() user: AuthenticatedUser) {
+    await assertCompanyWide(this.dataSource, user);
     return this.cashflow.scenarios(user.organizationId);
   }
 
   /** The scenario against the projection, in words (written in the background). */
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('scenarios/:id/narrative')
   @HttpCode(HttpStatus.ACCEPTED)
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 6, ttl: 60_000 } })
   async requestNarrative(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
-    const result = await this.cashflow.scenarioResult(user.organizationId, id);
+    await assertCompanyWide(this.dataSource, user);
+    const result = await this.cashflow.scenarioResult(user.organizationId, id, cashflowReader(user.permissions));
     if (result.run.status !== 'SUCCEEDED') throw new BadRequestError('ai.cashflow.scenario_not_finished');
     return this.reports.request(user.organizationId, user.id, 'SCENARIO_COMPARISON', { language: currentLanguage(), sourceRunId: id });
   }
 
   @Get('scenarios/:id/narrative')
-  narrative(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
-    return this.reports.latestForRun(user.organizationId, 'SCENARIO_COMPARISON', id);
+  async narrative(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    await assertCompanyWide(this.dataSource, user);
+    return this.reports.latestForRun(user.organizationId, 'SCENARIO_COMPARISON', id, await this.reports.reader(user.organizationId, user));
   }
 
   @Get('scenarios/:id')
-  scenarioResult(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
-    return this.cashflow.scenarioResult(user.organizationId, id);
+  async scenarioResult(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    await assertCompanyWide(this.dataSource, user);
+    return this.cashflow.scenarioResult(user.organizationId, id, cashflowReader(user.permissions));
   }
 
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('plan')
   @HttpCode(HttpStatus.ACCEPTED)
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 3, ttl: 60_000 } })
   @ApiOperation({ summary: 'Have the cash plan written from the projection (in the background).' })
-  requestPlan(@CurrentUser() user: AuthenticatedUser) {
+  async requestPlan(@CurrentUser() user: AuthenticatedUser) {
+    await assertCompanyWide(this.dataSource, user);
     return this.reports.request(user.organizationId, user.id, 'CASHFLOW_PLAN', { language: currentLanguage() });
   }
 
   @Get('plan')
   @ApiOperation({ summary: 'The latest cash plan, or the one being written.' })
-  latestPlan(@CurrentUser() user: AuthenticatedUser) {
-    return this.reports.latest(user.organizationId, 'CASHFLOW_PLAN');
+  async latestPlan(@CurrentUser() user: AuthenticatedUser) {
+    await assertCompanyWide(this.dataSource, user);
+    return this.reports.latest(user.organizationId, 'CASHFLOW_PLAN', await this.reports.reader(user.organizationId, user));
   }
 }
 

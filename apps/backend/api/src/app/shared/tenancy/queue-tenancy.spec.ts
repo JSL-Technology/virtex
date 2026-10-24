@@ -21,6 +21,8 @@ const APP_DIR = join(__dirname, '..', '..');
 const EXEMPT: Record<string, string> = {
   'mail/mail.processor.ts':
     'Envía un mensaje ya compuesto; no lee ninguna tabla con empresa.',
+  'inbound-mail/inbound-mail.processor.ts':
+    'Lleva organizationId y cada paso abre su empresa con withTenant (InboundMailService.process): no retiene una conexión mientras un modelo lee el documento.',
 };
 
 function processorFiles(dir: string): string[] {

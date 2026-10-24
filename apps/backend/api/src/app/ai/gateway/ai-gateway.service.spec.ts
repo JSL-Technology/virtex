@@ -1,3 +1,4 @@
+import { fakeTenantDataSource } from '../../shared/tenancy/testing';
 import Anthropic from '@anthropic-ai/sdk';
 import { AiGatewayService } from './ai-gateway.service';
 import { costMicroUsd } from './ai-models';
@@ -31,21 +32,25 @@ function build(config: Record<string, unknown> = settings) {
     }),
   };
   const entitlements = { consume: jest.fn().mockResolvedValue(undefined), checkFeature: jest.fn() };
+  const policy = { assertCallAllowed: jest.fn().mockResolvedValue(undefined), afterCall: jest.fn().mockResolvedValue(undefined) };
   const service = new AiGatewayService(
     { get: (key: string) => config[key] } as never,
     entitlements as never,
     requests as never,
+    fakeTenantDataSource(),
+    policy as never,
   );
   const create = jest.fn();
   // The breaker calls through `this.client`, so replacing the client's method is enough.
   (service as unknown as { client: unknown }).client = config['ANTHROPIC_API_KEY']
     ? { beta: { messages: { create } } }
     : null;
-  return { service, create, saved, entitlements };
+  return { service, policy, create, saved, entitlements };
 }
 
 const request = (validate: (value: unknown) => unknown = (value) => value) => ({
   feature: 'product_vision' as const,
+  promptId: 'product_vision.system',
   organizationId: 'org-1',
   userId: 'user-1',
   system: 'instructions',
@@ -74,6 +79,21 @@ describe('AiGatewayService', () => {
     await service.structured(request());
     expect(order).toEqual(['consume', 'call']);
     expect(entitlements.consume).toHaveBeenCalledWith('org-1', SaasResource.AI_CREDITS, 1);
+  });
+
+  it("never calls the model, nor spends a credit, when the company's settings or budget refuse it", async () => {
+    const { service, create, entitlements, policy } = build();
+    policy.assertCallAllowed.mockRejectedValueOnce(Object.assign(new Error('budget'), { messageKey: 'ai.budget_exhausted' }));
+    await expect(service.structured(request())).rejects.toMatchObject({ messageKey: 'ai.budget_exhausted' });
+    expect(entitlements.consume).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it('records which prompt answered, by id and by a hash of its text', async () => {
+    const { service, create, saved } = build();
+    create.mockResolvedValue(message());
+    await service.structured(request());
+    expect(saved[0]).toMatchObject({ promptId: 'product_vision.system', promptHash: expect.stringMatching(/^[0-9a-f]{16}$/) });
   });
 
   it('never calls the model when the plan has no credits left', async () => {
@@ -107,6 +127,7 @@ describe('AiGatewayService', () => {
     expect(saved[0]).toMatchObject({
       status: 'SUCCEEDED',
       feature: 'product_vision',
+    promptId: 'product_vision.system',
       inputTokens: 2_000,
       outputTokens: 500,
       credits: 1,

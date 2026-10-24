@@ -7,6 +7,9 @@ export const CONFIG_PERMISSIONS = {
   SETTINGS_EDIT_COMPANY: 'settings:edit_company',
   SETTINGS_EDIT_BRANDING: 'settings:edit_branding',
 
+  /** Set up the company's mail addresses for supplier bills and customer orders, and who may write to them. */
+  INBOUND_MAIL_MANAGE: 'inbound_mail:manage',
+
   /**
    * Read the tenant's subscription, payment method and invoice history.
    *

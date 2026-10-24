@@ -30,6 +30,14 @@ export class AiKnowledgeChunk {
   @Column({ type: 'text' })
   content: string;
 
+  /** The article's language (`es`, `en`, `pt`); each is searched with its own dictionary. */
+  @Column({ type: 'varchar', length: 8, default: 'es' })
+  language: string;
+
+  /** Markets the article applies to (ISO 3166-1 alpha-2); empty means every market. */
+  @Column({ type: 'jsonb', default: [] })
+  countries: string[];
+
   @Column({ name: 'content_hash', type: 'char', length: 64 })
   contentHash: string;
 

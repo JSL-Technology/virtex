@@ -19,6 +19,8 @@ import psycopg
 import pytest
 
 from virtex_ai_engine.anomalies import pipeline as anomaly_pipeline
+from virtex_ai_engine.cashflow import model as cashflow_model
+from virtex_ai_engine.cashflow import pipeline as cashflow_pipeline
 from virtex_ai_engine.db import Database
 from virtex_ai_engine.forecasting import pipeline as forecast_pipeline
 
@@ -156,3 +158,22 @@ def test_an_anomaly_run_completes_on_a_quiet_tenant(tenants):
     finally:
         db.close()
     assert "failed" not in result["metrics"]["byDetector"].values()
+
+
+def test_every_read_view_answers_to_the_engine_role(tenants):
+    """Each ai_src_* view the pipelines read exists, is granted, and runs under the tenant's policies."""
+    a, _ = tenants
+    db = Database(ENGINE, max_size=1)
+    try:
+        with db.tenant_transaction(a["org"]) as conn:
+            views = [row[0] for row in conn.execute(
+                "SELECT table_name FROM information_schema.views WHERE table_name LIKE 'ai\\_src\\_%%' ORDER BY 1"
+            ).fetchall()]
+            assert len(views) >= 19
+            for view in views:
+                conn.execute(f'SELECT * FROM "{view}" LIMIT 1').fetchall()
+            # Both loaders run every query they have, against the views, as the engine.
+            anomaly_pipeline.load(conn, a["org"], (TODAY - pd.Timedelta(days=90)).date())
+            cashflow_pipeline.load(conn, a["org"], cashflow_model.Params.from_run({}), TODAY)
+    finally:
+        db.close()

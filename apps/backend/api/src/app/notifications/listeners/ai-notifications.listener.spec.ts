@@ -9,15 +9,20 @@ describe('AiNotificationsListener', () => {
     { id: 'u-buyer', language: 'es', permissions: 'ai_forecasts:view' },
     { id: 'u-auditor', language: 'en', permissions: 'ai_anomalies:view' },
     { id: 'u-sales', language: 'es', permissions: 'invoices:view' },
-    { id: 'u-manager', language: 'en', permissions: 'ai_reports:view' },
+    { id: 'u-manager', language: 'en', permissions: 'ai_reports:view,reports:view_financial' },
+    // Holds the report permission but not the statements it was written from.
+    { id: 'u-reports-only', language: 'es', permissions: 'ai_reports:view' },
+    // Holds everything, but is limited to one branch: not a reader of a company-wide report.
+    { id: 'u-branch', language: 'es', permissions: '*' },
   ];
+  const branchRows = [{ user_id: 'u-branch', branch_id: 'br-1' }];
 
   const build = () => {
     const runner = { connect: jest.fn(), query: jest.fn(async () => undefined), release: jest.fn(async () => undefined) };
     const dataSource = {
       createQueryRunner: () => runner,
       createEntityManager: () => ({}),
-      query: jest.fn(async () => members),
+      query: jest.fn(async (sql: string) => (sql.includes('user_branch_access') ? branchRows : members)),
     };
     const notifications = { createLocalizedNotification: jest.fn(async () => ({})) };
     const listener = new AiNotificationsListener(notifications as never, dataSource as never);
@@ -68,9 +73,17 @@ describe('AiNotificationsListener', () => {
     ).resolves.toBeUndefined();
   });
 
-  it('tells the people who read the manager report that the month is written', async () => {
+  it('tells only those who may read the company-wide report: every source permission, no branch limit', async () => {
     const { listener, notifications } = build();
-    await listener.onReportReady({ organizationId: 'org-1', reportId: 'rep-1', kind: 'MANAGER_MONTHLY', period: '2026-09' });
+    await listener.onReportReady({
+      organizationId: 'org-1',
+      reportId: 'rep-1',
+      kind: 'MANAGER_MONTHLY',
+      period: '2026-09',
+      audience: 'ORGANIZATION',
+      requiredPermissions: ['ai_reports:view', 'reports:view_financial'],
+      requestedByUserId: null,
+    });
     expect(notifications.createLocalizedNotification).toHaveBeenCalledTimes(1);
     expect(notifications.createLocalizedNotification).toHaveBeenCalledWith('u-manager', 'en', {
       titleKey: 'notifications.ai.manager_report.title',
@@ -79,5 +92,20 @@ describe('AiNotificationsListener', () => {
       link: '/reports/manager-report?id=rep-1',
       organizationId: 'org-1',
     });
+  });
+
+  it('tells a personal report to its requester alone', async () => {
+    const { listener, notifications } = build();
+    await listener.onReportReady({
+      organizationId: 'org-1',
+      reportId: 'rep-2',
+      kind: 'MANAGER_MONTHLY',
+      period: '2026-09',
+      audience: 'REQUESTER',
+      requiredPermissions: ['ai_reports:view'],
+      requestedByUserId: 'u-reports-only',
+    });
+    expect(notifications.createLocalizedNotification).toHaveBeenCalledTimes(1);
+    expect(notifications.createLocalizedNotification).toHaveBeenCalledWith('u-reports-only', 'es', expect.anything());
   });
 });

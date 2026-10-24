@@ -125,9 +125,31 @@ def test_feedback_quietens_a_detector_the_tenant_keeps_dismissing():
         detectors.Finding("outlier.invoice", "sales", "LOW", 0.9, "invoice", "i2", "2025-01-01", "f2"),
         detectors.Finding("rule.sale_below_cost", "sales", "HIGH", 0.9, "invoice", "i3", "2025-01-01", "f3"),
     ]
-    feedback = pd.DataFrame({"detector": ["outlier.invoice"] * 6, "verdict": ["FALSE_POSITIVE"] * 5 + ["USEFUL"]})
+    feedback = pd.DataFrame({
+        "detector": ["outlier.invoice"] * 6,
+        "verdict": ["FALSE_POSITIVE"] * 5 + ["USEFUL"],
+        "user_id": ["u1", "u2", "u1", "u2", "u1", "u2"],
+    })
     out = detectors.apply_feedback(findings, feedback)
     assert [(f.fingerprint, f.severity) for f in out] == [("f1", "LOW"), ("f3", "HIGH")]
+
+
+def test_one_person_alone_cannot_quieten_a_detector():
+    findings = [detectors.Finding("outlier.invoice", "sales", "MEDIUM", 0.9, "invoice", "i1", "2025-01-01", "f1")]
+    feedback = pd.DataFrame({"detector": ["outlier.invoice"] * 8, "verdict": ["FALSE_POSITIVE"] * 8, "user_id": ["u1"] * 8})
+    out = detectors.apply_feedback(findings, feedback)
+    assert [(f.fingerprint, f.severity) for f in out] == [("f1", "MEDIUM")]
+
+
+def test_money_leaving_twice_is_never_quietened():
+    findings = [detectors.Finding("rule.duplicate_vendor_bill", "purchases", "LOW", 0.9, "bill", "b1", "2025-01-01", "d1")]
+    feedback = pd.DataFrame({
+        "detector": ["rule.duplicate_vendor_bill"] * 10,
+        "verdict": ["FALSE_POSITIVE"] * 10,
+        "user_id": [f"u{i}" for i in range(10)],
+    })
+    out = detectors.apply_feedback(findings, feedback)
+    assert [(f.fingerprint, f.severity) for f in out] == [("d1", "LOW")]
 
 
 def test_robust_z_is_not_fooled_by_a_single_extreme_value():

@@ -18,6 +18,7 @@
         <vx-badge [tone]="statusTone()" [struck]="status() === 'CANCELLED'">
           {{ 'purchasing.orders.status_label.' + status() | translate }}
         </vx-badge>
+        <app-ai-provenance-badge entityType="purchase_order" [entityId]="current()!.id" />
         @if (current()!.requisitionId) {
           <a class="doc-status__link"
              [routerLink]="['/purchasing/requisitions', current()!.requisitionId, 'edit']">

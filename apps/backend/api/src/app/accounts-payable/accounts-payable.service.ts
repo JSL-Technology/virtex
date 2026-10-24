@@ -1,3 +1,4 @@
+import { recordCapturedRecord } from '../contracts/ai/provenance.contract';
 import { PurchaseOrderLine } from '../procurement/entities/purchase-order-line.entity';
 import { PurchaseOrder } from '../procurement/entities/purchase-order.entity';
 import { VendorBillLine } from './entities/vendor-bill-line.entity';
@@ -353,6 +354,15 @@ export class AccountsPayableService {
 
       const saved = await manager.save(bill);
       await this.claimAttachments(manager, organizationId, saved.id, attachmentIds ?? []);
+      // A bill entered from a document the AI read says so, field by field (kept or corrected).
+      await recordCapturedRecord(manager, {
+        organizationId,
+        entityType: 'vendor_bill',
+        entityId: saved.id,
+        attachmentIds: attachmentIds ?? [],
+        saved: { ...saved, vendorId: dto.vendorId },
+        userId: actorUserId,
+      });
       this.logger.log(`Factura de proveedor ${saved.id} registrada en borrador.`);
       return saved;
     });

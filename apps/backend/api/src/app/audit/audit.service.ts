@@ -63,6 +63,17 @@ export class AuditTrailService {
     }
   }
 
+  /** Who created or changed a record, by its id: the distinct people on its CREATE and UPDATE rows. */
+  async actorsOf(organizationId: string, entityId: string): Promise<string[]> {
+    const rows: Array<{ user_id: string }> = await this.auditLogRepository.query(
+      `SELECT DISTINCT "user_id" FROM "audit_logs"
+        WHERE "organization_id" = $1 AND "entity_id" = $2 AND "user_id" IS NOT NULL
+          AND "actionType" IN ('CREATE', 'UPDATE')`,
+      [organizationId, entityId],
+    );
+    return rows.map((row) => row.user_id);
+  }
+
   /**
    * An audit row that shares the fate of the thing it describes.
    *

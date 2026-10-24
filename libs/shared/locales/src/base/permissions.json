@@ -294,6 +294,11 @@
     "en": "View sales reports",
     "pt": "Ver relatórios de vendas"
   },
+  "permissions.actions.view_security": {
+    "es": "Ver hallazgos de seguridad",
+    "en": "View security findings",
+    "pt": "Ver constatações de segurança"
+  },
   "permissions.actions.view_sensitive": {
     "es": "Ver datos sensibles",
     "en": "View sensitive data",
@@ -368,6 +373,11 @@
     "es": "Informes del gerente (IA)",
     "en": "Manager reports (AI)",
     "pt": "Relatórios de gestão (IA)"
+  },
+  "permissions.groups.ai_settings": {
+    "es": "Configuración de la IA",
+    "en": "AI settings",
+    "pt": "Configuração da IA"
   },
   "permissions.groups.ai_usage": {
     "es": "Consumo de IA",
@@ -493,6 +503,11 @@
     "es": "Personal",
     "en": "People",
     "pt": "Pessoal"
+  },
+  "permissions.groups.inbound_mail": {
+    "es": "Correo entrante",
+    "en": "Inbound e-mail",
+    "pt": "E-mail recebido"
   },
   "permissions.groups.intercompany": {
     "es": "Intercompañía",

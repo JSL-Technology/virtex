@@ -244,6 +244,11 @@
     "en": "Deep analysis",
     "pt": "Análise aprofundada"
   },
+  "ai.admin.usage_feature.order_intake": {
+    "es": "Pedidos por correo",
+    "en": "Orders by e-mail",
+    "pt": "Encomendas por e-mail"
+  },
   "ai.admin.usage_feature.product_image_embedding": {
     "es": "Búsqueda de duplicados por imagen",
     "en": "Duplicate search by image",
@@ -273,6 +278,21 @@
     "es": "El asistente todavía no ha propuesto borradores.",
     "en": "The assistant has not proposed drafts yet.",
     "pt": "O assistente ainda não propôs rascunhos."
+  },
+  "ai.agents.feedback": {
+    "es": "Opinión sobre el asistente",
+    "en": "Feedback on the assistant",
+    "pt": "Opinião sobre o assistente"
+  },
+  "ai.agents.feedback_empty": {
+    "es": "Nadie ha calificado respuestas todavía.",
+    "en": "Nobody has rated an answer yet.",
+    "pt": "Ninguém avaliou respostas ainda."
+  },
+  "ai.agents.feedback_totals": {
+    "es": "Últimos 30 días: {{up}} útiles, {{down}} no útiles, {{reported}} reportadas.",
+    "en": "Last 30 days: {{up}} useful, {{down}} not useful, {{reported}} reported.",
+    "pt": "Últimos 30 dias: {{up}} úteis, {{down}} não úteis, {{reported}} reportadas."
   },
   "ai.agents.intro": {
     "es": "Un agente ejecuta un proceso por su cuenta, pero nunca compromete a la empresa: deja borradores o los envía al flujo de aprobación que ya existe.",
@@ -413,6 +433,21 @@
     "es": "desde un flujo",
     "en": "from a workflow",
     "pt": "de um fluxo"
+  },
+  "ai.agents.verdict.down": {
+    "es": "No útil",
+    "en": "Not useful",
+    "pt": "Não útil"
+  },
+  "ai.agents.verdict.report": {
+    "es": "Reportada",
+    "en": "Reported",
+    "pt": "Reportada"
+  },
+  "ai.agents.verdict.up": {
+    "es": "Útil",
+    "en": "Useful",
+    "pt": "Útil"
   },
   "ai.anomalies.all": {
     "es": "Todas",
@@ -1109,6 +1144,11 @@
     "en": "Anomaly {{id}} was not found.",
     "pt": "A anomalia {{id}} não foi encontrada."
   },
+  "ai.anomaly_own_entry": {
+    "es": "No puedes confirmar, descartar ni reabrir un hallazgo sobre un registro que creaste o modificaste, ni sobre ti. Otra persona debe revisarlo.",
+    "en": "You cannot confirm, dismiss or reopen a finding about a record you created or changed, or about yourself. Ask someone else to review it.",
+    "pt": "Não pode confirmar, descartar nem reabrir uma constatação sobre um registo que criou ou alterou, nem sobre si. Peça a outra pessoa que a reveja."
+  },
   "ai.answer_incomplete": {
     "es": "La respuesta del asistente quedó incompleta. Inténtalo de nuevo.",
     "en": "The assistant's answer was incomplete. Try again.",
@@ -1123,6 +1163,11 @@
     "es": "El código de barras no es válido.",
     "en": "The barcode is not valid.",
     "pt": "O código de barras não é válido."
+  },
+  "ai.budget_exhausted": {
+    "es": "Se alcanzó el presupuesto mensual de IA de la empresa (US$ {{budget}}). Puedes continuar manualmente; un administrador puede ampliarlo en Administración › IA.",
+    "en": "The company's monthly AI budget (US$ {{budget}}) has been reached. You can continue manually; an administrator can raise it under Administration › AI.",
+    "pt": "O orçamento mensal de IA da empresa (US$ {{budget}}) foi atingido. Pode continuar manualmente; um administrador pode ampliá-lo em Administração › IA."
   },
   "ai.cashflow.as_of": {
     "es": "Calculado el {{when}}",
@@ -1559,6 +1604,71 @@
     "en": "Unnamed",
     "pt": "Sem nome"
   },
+  "ai.close.mailed_bills": {
+    "es": "{{count}} facturas recibidas por correo esperan revisión",
+    "en": "{{count}} bills received by e-mail wait for review",
+    "pt": "{{count}} faturas recebidas por e-mail aguardam revisão"
+  },
+  "ai.close.not_ready": {
+    "es": "Todavía no se puede cerrar: {{progress}} % hecho. Empieza por el primer paso.",
+    "en": "It cannot be closed yet: {{progress}} % done. Start with the first step.",
+    "pt": "Ainda não pode ser fechado: {{progress}} % feito. Comece pelo primeiro passo."
+  },
+  "ai.close.open_anomalies": {
+    "es": "{{count}} hallazgos graves sin revisar en el periodo",
+    "en": "{{count}} serious findings not reviewed in the period",
+    "pt": "{{count}} constatações graves por rever no período"
+  },
+  "ai.close.plan_failed": {
+    "es": "No se pudo escribir el plan. Inténtalo de nuevo.",
+    "en": "The plan could not be written. Try again.",
+    "pt": "Não foi possível escrever o plano. Tente novamente."
+  },
+  "ai.close.ready": {
+    "es": "Listo para cerrar ({{progress}} % hecho; quedan solo pasos manuales por confirmar).",
+    "en": "Ready to close ({{progress}} % done; only manual steps left to confirm).",
+    "pt": "Pronto para fechar ({{progress}} % feito; restam só passos manuais por confirmar)."
+  },
+  "ai.close.rewrite_plan": {
+    "es": "Escribirlo de nuevo",
+    "en": "Write it again",
+    "pt": "Escrevê-lo de novo"
+  },
+  "ai.close.title": {
+    "es": "Asistente de cierre",
+    "en": "Close assistant",
+    "pt": "Assistente de fecho"
+  },
+  "ai.close.unavailable": {
+    "es": "El checklist de cierre no está disponible.",
+    "en": "The close checklist is not available.",
+    "pt": "A checklist de fecho não está disponível."
+  },
+  "ai.close.write_plan": {
+    "es": "Escribir el plan de cierre",
+    "en": "Write the close plan",
+    "pt": "Escrever o plano de fecho"
+  },
+  "ai.close.writing": {
+    "es": "Escribiendo el plan… te avisaremos cuando esté listo.",
+    "en": "Writing the plan… you will be notified when it is ready.",
+    "pt": "A escrever o plano… será avisado quando estiver pronto."
+  },
+  "ai.company_wide_only": {
+    "es": "Esta vista abarca toda la empresa y tu acceso está limitado a algunas sucursales.",
+    "en": "This view covers the whole company and your access is limited to some branches.",
+    "pt": "Esta vista abrange toda a empresa e o seu acesso está limitado a algumas filiais."
+  },
+  "ai.copilot.after_external_text": {
+    "es": "Esta propuesta se hizo después de leer texto escrito fuera de la empresa (una nota, un nombre de cliente o proveedor). Revísala con cuidado: ese texto podría intentar dar instrucciones al asistente.",
+    "en": "This proposal was made after reading text written outside the company (a note, a customer's or supplier's name). Review it carefully: that text could try to give the assistant instructions.",
+    "pt": "Esta proposta foi feita depois de ler texto escrito fora da empresa (uma nota, um nome de cliente ou fornecedor). Reveja-a com cuidado: esse texto pode tentar dar instruções ao assistente."
+  },
+  "ai.copilot.answer_not_found": {
+    "es": "No se encontró esa respuesta en la conversación.",
+    "en": "That answer was not found in the conversation.",
+    "pt": "Essa resposta não foi encontrada na conversa."
+  },
   "ai.copilot.back": {
     "es": "Volver",
     "en": "Back",
@@ -1644,6 +1754,21 @@
     "en": "Delete conversation",
     "pt": "Eliminar conversa"
   },
+  "ai.copilot.delete_all": {
+    "es": "Borrar todas mis conversaciones",
+    "en": "Delete all my conversations",
+    "pt": "Apagar todas as minhas conversas"
+  },
+  "ai.copilot.delete_all_message": {
+    "es": "Se borran todas tus conversaciones con el asistente en esta empresa y lo que se leyó en ellas. Las propuestas que confirmaste o descartaste se conservan como registro. No se puede deshacer.",
+    "en": "All your assistant conversations in this company, and what was read in them, are deleted. Proposals you confirmed or discarded are kept as a record. This cannot be undone.",
+    "pt": "Todas as suas conversas com o assistente nesta empresa, e o que foi lido nelas, são apagadas. As propostas que você confirmou ou descartou ficam como registro. Não pode ser desfeito."
+  },
+  "ai.copilot.delete_all_title": {
+    "es": "¿Borrar todas tus conversaciones?",
+    "en": "Delete all your conversations?",
+    "pt": "Apagar todas as suas conversas?"
+  },
   "ai.copilot.discard": {
     "es": "Descartar",
     "en": "Discard",
@@ -1653,6 +1778,11 @@
     "es": "Las cifras salen de tus datos; revisa los borradores antes de emitirlos.",
     "en": "Figures come from your data; review drafts before issuing them.",
     "pt": "Os valores vêm dos seus dados; reveja os rascunhos antes de os emitir."
+  },
+  "ai.copilot.download_my_data": {
+    "es": "Descargar mis datos",
+    "en": "Download my data",
+    "pt": "Baixar os meus dados"
   },
   "ai.copilot.empty_message": {
     "es": "Escribe una pregunta.",
@@ -1664,6 +1794,26 @@
     "en": "Could not get an answer. Please try again.",
     "pt": "Não foi possível obter uma resposta. Tente novamente."
   },
+  "ai.copilot.feedback_down": {
+    "es": "No útil",
+    "en": "Not useful",
+    "pt": "Não útil"
+  },
+  "ai.copilot.feedback_label": {
+    "es": "¿Te sirvió esta respuesta?",
+    "en": "Was this answer useful?",
+    "pt": "Esta resposta foi útil?"
+  },
+  "ai.copilot.feedback_thanks": {
+    "es": "Gracias, tu opinión quedó registrada.",
+    "en": "Thanks, your feedback was recorded.",
+    "pt": "Obrigado, a sua opinião foi registada."
+  },
+  "ai.copilot.feedback_up": {
+    "es": "Útil",
+    "en": "Useful",
+    "pt": "Útil"
+  },
   "ai.copilot.history": {
     "es": "Conversaciones",
     "en": "Conversations",
@@ -1673,6 +1823,11 @@
     "es": "El mensaje es demasiado largo (máximo 4.000 caracteres).",
     "en": "The message is too long (4,000 characters at most).",
     "pt": "A mensagem é longa demais (máximo de 4.000 caracteres)."
+  },
+  "ai.copilot.my_data_help": {
+    "es": "Tus conversaciones se guardan solo para ti y se borran según lo que decida tu empresa.",
+    "en": "Your conversations are kept for you alone and deleted as your company decides.",
+    "pt": "As suas conversas ficam guardadas só para você e são apagadas conforme a sua empresa decidir."
   },
   "ai.copilot.new": {
     "es": "Nueva conversación",
@@ -1724,6 +1879,11 @@
     "en": "This proposal was already confirmed or discarded.",
     "pt": "Esta proposta já foi confirmada ou descartada."
   },
+  "ai.copilot.proposal_changed": {
+    "es": "Las cifras cambiaron desde la propuesta (precio, impuesto o fecha). No se creó nada: pídela de nuevo para revisarla.",
+    "en": "The figures changed since the proposal (a price, tax or date). Nothing was created: ask again to review it.",
+    "pt": "Os valores mudaram desde a proposta (preço, imposto ou data). Nada foi criado: peça novamente para revisá-la."
+  },
   "ai.copilot.proposal_expired": {
     "es": "La propuesta caducó: pídela de nuevo para ver cifras actuales.",
     "en": "The proposal expired: ask again to see current figures.",
@@ -1764,10 +1924,30 @@
     "en": "Discarded.",
     "pt": "Descartada."
   },
+  "ai.copilot.records": {
+    "es": "Registros consultados",
+    "en": "Records consulted",
+    "pt": "Registos consultados"
+  },
   "ai.copilot.refused": {
     "es": "El asistente no puede ayudar con esta petición.",
     "en": "The assistant cannot help with this request.",
     "pt": "O assistente não pode ajudar com este pedido."
+  },
+  "ai.copilot.report": {
+    "es": "Reportar",
+    "en": "Report",
+    "pt": "Reportar"
+  },
+  "ai.copilot.report_message": {
+    "es": "Los administradores de IA de tu empresa verán que reportaste esta respuesta (no el texto de la conversación). Úsalo para cifras incorrectas o sugerencias inapropiadas.",
+    "en": "Your company's AI administrators will see that you reported this answer (not the conversation's text). Use it for wrong figures or inappropriate suggestions.",
+    "pt": "Os administradores de IA da sua empresa verão que reportou esta resposta (não o texto da conversa). Use-o para números errados ou sugestões inapropriadas."
+  },
+  "ai.copilot.report_title": {
+    "es": "Reportar esta respuesta",
+    "en": "Report this answer",
+    "pt": "Reportar esta resposta"
   },
   "ai.copilot.send": {
     "es": "Enviar",
@@ -1999,6 +2179,11 @@
     "en": "How can I help?",
     "pt": "Em que posso ajudar?"
   },
+  "ai.daily_budget_exhausted": {
+    "es": "Se alcanzó el presupuesto diario de IA de la empresa (US$ {{budget}}). Vuelve a intentarlo mañana o continúa manualmente.",
+    "en": "The company's daily AI budget (US$ {{budget}}) has been reached. Try again tomorrow or continue manually.",
+    "pt": "O orçamento diário de IA da empresa (US$ {{budget}}) foi atingido. Tente amanhã ou continue manualmente."
+  },
   "ai.data_quality.all_types": {
     "es": "Todos",
     "en": "All",
@@ -2174,6 +2359,16 @@
     "en": "Supplier",
     "pt": "Fornecedor"
   },
+  "ai.disabled_for_organization": {
+    "es": "La IA está desactivada para tu empresa. Un administrador puede activarla en Administración › IA.",
+    "en": "AI is turned off for your company. An administrator can turn it on under Administration › AI.",
+    "pt": "A IA está desativada para a sua empresa. Um administrador pode ativá-la em Administração › IA."
+  },
+  "ai.feature_disabled_for_organization": {
+    "es": "Tu empresa desactivó esta función de IA. Puedes continuar manualmente.",
+    "en": "Your company turned this AI feature off. You can continue manually.",
+    "pt": "A sua empresa desativou esta função de IA. Pode continuar manualmente."
+  },
   "ai.manager_report.failed": {
     "es": "No se pudo escribir este informe. Vuelve a intentarlo.",
     "en": "This report could not be written. Try again.",
@@ -2284,6 +2479,81 @@
     "en": "Written {{when}}.",
     "pt": "Escrito em {{when}}."
   },
+  "ai.mcp.agents_help": {
+    "es": "Asistentes de IA externos (por ejemplo, Claude o ChatGPT) que conectaste a Virtex. Leen con tus permisos y solo proponen borradores que tú confirmas aquí.",
+    "en": "External AI assistants (for example, Claude or ChatGPT) you connected to Virtex. They read with your permissions and only propose drafts that you confirm here.",
+    "pt": "Assistentes de IA externos (por exemplo, Claude ou ChatGPT) que você conectou ao Virtex. Eles leem com suas permissões e só propõem rascunhos que você confirma aqui."
+  },
+  "ai.mcp.agents_title": {
+    "es": "Agentes de IA conectados",
+    "en": "Connected AI agents",
+    "pt": "Agentes de IA conectados"
+  },
+  "ai.mcp.allow": {
+    "es": "Permitir",
+    "en": "Allow",
+    "pt": "Permitir"
+  },
+  "ai.mcp.consent_intro": {
+    "es": "Si lo permites, el agente actuará en esta empresa como tú, con tus mismos permisos y sucursales. Puedes desconectarlo en cualquier momento desde Integraciones.",
+    "en": "If you allow it, it will be able to act in this company as you, with your same permissions and branches. You can disconnect it at any time from Integrations.",
+    "pt": "Se você permitir, ele poderá agir nesta empresa como você, com as mesmas permissões e filiais. Você pode desconectá-lo a qualquer momento em Integrações."
+  },
+  "ai.mcp.consent_return": {
+    "es": "Después volverás a {{host}}. Si no reconoces esa dirección, no lo permitas.",
+    "en": "You will then return to {{host}}. If you don't recognize that address, don't allow it.",
+    "pt": "Em seguida você voltará para {{host}}. Se não reconhecer esse endereço, não permita."
+  },
+  "ai.mcp.consent_title": {
+    "es": "{{client}} quiere acceder a Virtex",
+    "en": "{{client}} wants to access Virtex",
+    "pt": "{{client}} quer acessar o Virtex"
+  },
+  "ai.mcp.deny": {
+    "es": "No permitir",
+    "en": "Don't allow",
+    "pt": "Não permitir"
+  },
+  "ai.mcp.disconnect": {
+    "es": "Desconectar",
+    "en": "Disconnect",
+    "pt": "Desconectar"
+  },
+  "ai.mcp.disconnect_failed": {
+    "es": "No se pudo desconectar el agente. Inténtalo de nuevo.",
+    "en": "The agent could not be disconnected. Try again.",
+    "pt": "Não foi possível desconectar o agente. Tente novamente."
+  },
+  "ai.mcp.invalid_request": {
+    "es": "Esta solicitud de conexión no es válida o ya caducó. Vuelve a iniciarla desde el asistente.",
+    "en": "This connection request is invalid or has expired. Start it again from the assistant.",
+    "pt": "Esta solicitação de conexão é inválida ou expirou. Inicie-a novamente pelo assistente."
+  },
+  "ai.mcp.no_agents": {
+    "es": "No hay agentes conectados.",
+    "en": "No agents are connected.",
+    "pt": "Não há agentes conectados."
+  },
+  "ai.mcp.proposal_from_agent": {
+    "es": "Un agente de IA externo preparó esta propuesta. Comprueba los datos antes de confirmarla: nada se crea hasta que lo hagas.",
+    "en": "An external AI agent prepared this proposal. Check the details before confirming it: nothing is created until you do.",
+    "pt": "Um agente de IA externo preparou esta proposta. Confira os dados antes de confirmá-la: nada é criado até você fazer isso."
+  },
+  "ai.mcp.scope.draft": {
+    "es": "Proponer borradores (facturas, cotizaciones, órdenes de compra, recordatorios) que tú confirmas en Virtex",
+    "en": "Propose drafts (invoices, quotes, purchase orders, reminders) that you confirm in Virtex",
+    "pt": "Propor rascunhos (faturas, orçamentos, pedidos de compra, lembretes) que você confirma no Virtex"
+  },
+  "ai.mcp.scope.read": {
+    "es": "Consultar la información a la que tienes acceso",
+    "en": "Look up the information you have access to",
+    "pt": "Consultar as informações às quais você tem acesso"
+  },
+  "ai.mcp.since": {
+    "es": "Conectado desde {{date}}",
+    "en": "Connected since {{date}}",
+    "pt": "Conectado desde {{date}}"
+  },
   "ai.not_configured": {
     "es": "La inteligencia artificial no está configurada en este servidor. Puedes continuar manualmente.",
     "en": "Artificial intelligence is not configured on this server. You can continue manually.",
@@ -2388,6 +2658,181 @@
     "es": "Subiendo la foto…",
     "en": "Uploading the photo…",
     "pt": "A enviar a foto…"
+  },
+  "ai.policy.activity_monitoring": {
+    "es": "Revisar el horario de actividad de cada persona",
+    "en": "Review each person's activity hours",
+    "pt": "Rever o horário de atividade de cada pessoa"
+  },
+  "ai.policy.activity_monitoring_help": {
+    "es": "Señala a quien trabaja en documentos a horas en que la empresa casi nunca trabaja. Es un tratamiento de datos de empleados: actívalo solo después de informarles, como exijan las normas laborales de tu país. Los hallazgos solo los ve quien tiene el permiso de hallazgos de seguridad.",
+    "en": "Flags whoever works on documents at hours the company almost never works. This processes employee data: turn it on only after telling your people, as your country's labour rules require. Only people with the security-findings permission see the findings.",
+    "pt": "Assinala quem trabalha em documentos a horas em que a empresa quase nunca trabalha. É um tratamento de dados de funcionários: ative-o só depois de os informar, como exijam as normas laborais do seu país. Só quem tem a permissão de constatações de segurança vê as constatações."
+  },
+  "ai.policy.budget": {
+    "es": "Presupuesto",
+    "en": "Budget",
+    "pt": "Orçamento"
+  },
+  "ai.policy.budget_help": {
+    "es": "Al llegar al presupuesto, las funciones de IA se detienen hasta el siguiente periodo; el ERP sigue funcionando. Avisamos al 50, 80 y 100 %.",
+    "en": "When the budget is reached, the AI features stop until the next period; the ERP keeps working. You are notified at 50, 80 and 100%.",
+    "pt": "Ao atingir o orçamento, as funções de IA param até o próximo período; o ERP continua funcionando. Avisamos a 50, 80 e 100%."
+  },
+  "ai.policy.daily_budget": {
+    "es": "Presupuesto diario en US$",
+    "en": "Daily budget in US$",
+    "pt": "Orçamento diário em US$"
+  },
+  "ai.policy.feature.anomaly_narrative": {
+    "es": "Explicar anomalías",
+    "en": "Explaining anomalies",
+    "pt": "Explicar anomalias"
+  },
+  "ai.policy.feature.bill_capture": {
+    "es": "Leer facturas de proveedor",
+    "en": "Reading supplier bills",
+    "pt": "Ler faturas de fornecedor"
+  },
+  "ai.policy.feature.column_mapping": {
+    "es": "Reconocer columnas de archivos",
+    "en": "Recognising file columns",
+    "pt": "Reconhecer colunas de arquivos"
+  },
+  "ai.policy.feature.compose": {
+    "es": "Redactar mensajes y recordatorios",
+    "en": "Drafting messages and reminders",
+    "pt": "Redigir mensagens e lembretes"
+  },
+  "ai.policy.feature.copilot": {
+    "es": "Asistente del ERP",
+    "en": "ERP assistant",
+    "pt": "Assistente do ERP"
+  },
+  "ai.policy.feature.deep_analysis": {
+    "es": "Informes escritos (gerente, plan de caja)",
+    "en": "Written reports (manager, cash plan)",
+    "pt": "Relatórios escritos (gestor, plano de caixa)"
+  },
+  "ai.policy.feature.order_intake": {
+    "es": "Pedidos de clientes por correo",
+    "en": "Customer orders by e-mail",
+    "pt": "Encomendas de clientes por e-mail"
+  },
+  "ai.policy.feature.product_vision": {
+    "es": "Productos desde foto",
+    "en": "Products from a photo",
+    "pt": "Produtos a partir de foto"
+  },
+  "ai.policy.feature.reconcile_ambiguous": {
+    "es": "Desempatar conciliaciones",
+    "en": "Breaking reconciliation ties",
+    "pt": "Desempatar conciliações"
+  },
+  "ai.policy.features": {
+    "es": "Funciones permitidas",
+    "en": "Features allowed",
+    "pt": "Funções permitidas"
+  },
+  "ai.policy.image_embeddings": {
+    "es": "Buscar productos duplicados por imagen",
+    "en": "Find duplicate products by image",
+    "pt": "Procurar produtos duplicados por imagem"
+  },
+  "ai.policy.image_embeddings_help": {
+    "es": "Envía las fotos de productos a un segundo proveedor (embeddings). Apagado por defecto; sin esto, los duplicados se buscan por código de barras y nombre.",
+    "en": "Sends product photos to a second provider (embeddings). Off by default; without it, duplicates are found by barcode and name.",
+    "pt": "Envia as fotos dos produtos a um segundo provedor (embeddings). Desligado por padrão; sem isso, os duplicados são procurados por código de barras e nome."
+  },
+  "ai.policy.intro": {
+    "es": "Decide qué datos salen hacia el proveedor de IA, qué funciones se usan, cuánto se puede gastar y cuánto tiempo se guardan las conversaciones. Todo el ERP funciona igual con la IA desactivada.",
+    "en": "Decide what data goes to the AI provider, which features are used, how much may be spent and how long conversations are kept. The whole ERP works the same with AI switched off.",
+    "pt": "Decida que dados vão para o provedor de IA, que funções se usam, quanto se pode gastar e por quanto tempo as conversas ficam guardadas. Todo o ERP funciona igual com a IA desativada."
+  },
+  "ai.policy.language_models": {
+    "es": "Usar modelos de lenguaje",
+    "en": "Use language models",
+    "pt": "Usar modelos de linguagem"
+  },
+  "ai.policy.language_models_help": {
+    "es": "Apagado, ninguna función envía datos al proveedor: el asistente, la lectura de documentos y la redacción dejan de estar disponibles. Las predicciones y anomalías se calculan dentro de la plataforma y siguen funcionando.",
+    "en": "Off, no feature sends data to the provider: the assistant, document reading and drafting become unavailable. Forecasts and anomalies are computed inside the platform and keep working.",
+    "pt": "Desligado, nenhuma função envia dados ao provedor: o assistente, a leitura de documentos e a redação ficam indisponíveis. Previsões e anomalias são calculadas dentro da plataforma e continuam funcionando."
+  },
+  "ai.policy.mask_identifiers": {
+    "es": "Ocultar identificadores al proveedor cuando no hacen falta",
+    "en": "Hide identifiers from the provider when they are not needed",
+    "pt": "Ocultar identificadores do provedor quando não forem necessários"
+  },
+  "ai.policy.mask_identifiers_help": {
+    "es": "Los identificadores fiscales, correos, teléfonos y cuentas bancarias que leen las herramientas del asistente se envían enmascarados, salvo en la búsqueda que los necesita.",
+    "en": "Tax identifiers, e-mails, phones and bank accounts the assistant's tools read are sent masked, except in the search that needs them.",
+    "pt": "Identificadores fiscais, e-mails, telefones e contas bancárias lidos pelas ferramentas do assistente são enviados mascarados, exceto na busca que precisa deles."
+  },
+  "ai.policy.monthly_budget": {
+    "es": "Presupuesto mensual en US$ (máximo {{max}}; vacío = el predeterminado)",
+    "en": "Monthly budget in US$ (at most {{max}}; empty = the default)",
+    "pt": "Orçamento mensal em US$ (máximo {{max}}; vazio = o padrão)"
+  },
+  "ai.policy.no_daily_limit": {
+    "es": "Sin límite diario",
+    "en": "No daily limit",
+    "pt": "Sem limite diário"
+  },
+  "ai.policy.read_only": {
+    "es": "Solo lectura: cambiar esta configuración requiere el permiso «Configuración de la IA».",
+    "en": "Read only: changing these settings needs the \"AI settings\" permission.",
+    "pt": "Somente leitura: alterar esta configuração requer a permissão «Configuração da IA»."
+  },
+  "ai.policy.retention": {
+    "es": "Conservación de conversaciones",
+    "en": "Keeping conversations",
+    "pt": "Conservação de conversas"
+  },
+  "ai.policy.retention_days": {
+    "es": "Días que se guardan las conversaciones del asistente",
+    "en": "Days assistant conversations are kept",
+    "pt": "Dias que as conversas do assistente ficam guardadas"
+  },
+  "ai.policy.retention_help": {
+    "es": "Pasado ese plazo sin actividad, la conversación y lo que las herramientas leyeron en ella se borran cada noche. Las propuestas confirmadas siguen enlazadas a su documento.",
+    "en": "After that time without activity, the conversation and what its tools read are deleted overnight. Confirmed proposals stay linked to their document.",
+    "pt": "Passado esse prazo sem atividade, a conversa e o que as ferramentas leram nela são apagados à noite. As propostas confirmadas continuam vinculadas ao seu documento."
+  },
+  "ai.policy.save_failed": {
+    "es": "No se pudo guardar el cambio.",
+    "en": "The change could not be saved.",
+    "pt": "Não foi possível salvar a alteração."
+  },
+  "ai.policy.scheduled_reports": {
+    "es": "Escribir el informe del gerente automáticamente el día 1",
+    "en": "Write the manager's report automatically on the 1st",
+    "pt": "Escrever o relatório do gestor automaticamente no dia 1"
+  },
+  "ai.policy.scheduled_reports_help": {
+    "es": "Envía al proveedor los estados financieros del mes sin que nadie lo pida. Apagado por defecto.",
+    "en": "Sends the month's financial statements to the provider without anyone asking. Off by default.",
+    "pt": "Envia ao provedor as demonstrações financeiras do mês sem que ninguém peça. Desligado por padrão."
+  },
+  "ai.policy.sending": {
+    "es": "Envío de datos al proveedor de IA",
+    "en": "Sending data to the AI provider",
+    "pt": "Envio de dados ao provedor de IA"
+  },
+  "ai.policy.spent": {
+    "es": "Gastado este mes: US$ {{spent}} de US$ {{budget}}",
+    "en": "Spent this month: US$ {{spent}} of US$ {{budget}}",
+    "pt": "Gasto este mês: US$ {{spent}} de US$ {{budget}}"
+  },
+  "ai.policy.title": {
+    "es": "Qué permite la empresa",
+    "en": "What the company allows",
+    "pt": "O que a empresa permite"
+  },
+  "ai.policy.unavailable": {
+    "es": "No se pudo cargar la configuración de la IA.",
+    "en": "The AI settings could not be loaded.",
+    "pt": "Não foi possível carregar a configuração da IA."
   },
   "ai.predictions.accuracy": {
     "es": "error medio en pruebas: {{wape}}",
@@ -2759,6 +3204,46 @@
     "en": "Remove {{name}}",
     "pt": "Remover {{name}}"
   },
+  "ai.provenance.edited": {
+    "es": "{{count}} campo(s) corregido(s)",
+    "en": "{{count}} field(s) corrected",
+    "pt": "{{count}} campo(s) corrigido(s)"
+  },
+  "ai.provenance.source.ai_agent": {
+    "es": "Creado por un agente de IA",
+    "en": "Raised by an AI agent",
+    "pt": "Criado por um agente de IA"
+  },
+  "ai.provenance.source.ai_capture": {
+    "es": "Leído del documento por IA",
+    "en": "Read from the document by AI",
+    "pt": "Lido do documento por IA"
+  },
+  "ai.provenance.source.ai_copilot": {
+    "es": "Propuesto por el asistente",
+    "en": "Proposed by the assistant",
+    "pt": "Proposto pelo assistente"
+  },
+  "ai.provenance.source.ai_mail": {
+    "es": "Recibido por correo y leído por IA",
+    "en": "Received by e-mail and read by AI",
+    "pt": "Recebido por e-mail e lido por IA"
+  },
+  "ai.provenance.source.ai_mcp": {
+    "es": "Creado por un agente externo (MCP)",
+    "en": "Created by an external agent (MCP)",
+    "pt": "Criado por um agente externo (MCP)"
+  },
+  "ai.provenance.source.ai_reconciliation": {
+    "es": "Conciliado automáticamente por IA",
+    "en": "Reconciled automatically by AI",
+    "pt": "Conciliado automaticamente por IA"
+  },
+  "ai.provenance.unknown_record_type": {
+    "es": "Ese tipo de registro no tiene procedencia de IA.",
+    "en": "That kind of record has no AI provenance.",
+    "pt": "Esse tipo de registo não tem proveniência de IA."
+  },
   "ai.provider_error": {
     "es": "El servicio de inteligencia artificial no respondió. Inténtalo de nuevo o continúa manualmente.",
     "en": "The artificial intelligence service did not respond. Try again or continue manually.",
@@ -2843,6 +3328,21 @@
     "es": "Usar código",
     "en": "Use code",
     "pt": "Usar código"
+  },
+  "ai.settings.budget_above_ceiling": {
+    "es": "El presupuesto mensual no puede superar US$ {{max}}.",
+    "en": "The monthly budget cannot exceed US$ {{max}}.",
+    "pt": "O orçamento mensal não pode passar de US$ {{max}}."
+  },
+  "ai.settings.daily_above_monthly": {
+    "es": "El presupuesto diario no puede superar el mensual.",
+    "en": "The daily budget cannot exceed the monthly one.",
+    "pt": "O orçamento diário não pode passar do mensal."
+  },
+  "ai.settings.unknown_feature": {
+    "es": "Una de las funciones indicadas no existe.",
+    "en": "One of the features given does not exist.",
+    "pt": "Uma das funções indicadas não existe."
   },
   "ai.temporarily_unavailable": {
     "es": "El servicio de inteligencia artificial no está disponible en este momento. Inténtalo más tarde o continúa manualmente.",

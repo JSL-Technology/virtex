@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
+import { hasPermission } from '@virteex/shared/util-auth';
 
 /**
  * The copilot's tools, contributed by the modules that own the data.
@@ -29,6 +30,63 @@ export interface CopilotUser {
   organizationId: string;
   permissions: string[];
   language: string;
+  /** Branch ids the person is limited to; `null` when they see every branch. */
+  branches: string[] | null;
+}
+
+/** Whether a person may have a tool: every permission it requires, and a branch scope it respects. */
+export function toolAllowed(tool: Pick<CopilotToolBase, 'permissions' | 'branchScope'>, user: Pick<CopilotUser, 'permissions' | 'branches'>): boolean {
+  if (!hasPermission(user.permissions, tool.permissions)) return false;
+  return !(tool.branchScope === 'unscoped' && user.branches !== null);
+}
+
+/** A kind of record a tool returns, so an answer can link to the records it rests on. */
+export type CopilotRecordType = 'invoice' | 'quote' | 'purchase_order' | 'customer' | 'supplier' | 'product' | 'vendor_bill';
+
+/** Where each kind of record opens in the client. */
+export const COPILOT_RECORD_LINKS: Record<CopilotRecordType, (id: string) => string> = {
+  invoice: (id) => `/invoices/${id}`,
+  quote: (id) => `/quotes/${id}/edit`,
+  purchase_order: (id) => `/purchasing/orders/${id}/edit`,
+  customer: (id) => `/contacts/customers/${id}/edit`,
+  supplier: (id) => `/contacts/suppliers/${id}/edit`,
+  product: (id) => `/inventory/products/${id}/edit`,
+  vendor_bill: (id) => `/accounts-payable/${id}`,
+};
+
+export interface CopilotRecordRef {
+  tool: string;
+  type: CopilotRecordType;
+  id: string;
+  label: string;
+  link: string;
+}
+
+const RECORD_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const RECORD_LABELS = ['number', 'invoiceNumber', 'fiscalNumber', 'quoteNumber', 'orderNumber', 'ncf', 'name', 'companyName', 'sku'];
+
+/**
+ * The records in a tool's result: every object (to a few levels deep) with a uuid `id`, labelled
+ * by its number or name. What an answer can link to, instead of naming the tool.
+ */
+export function recordsIn(tool: string, type: CopilotRecordType, value: unknown, max = 20): CopilotRecordRef[] {
+  const found = new Map<string, CopilotRecordRef>();
+  const visit = (node: unknown, depth: number) => {
+    if (found.size >= max || depth > 3 || node === null || typeof node !== 'object') return;
+    if (Array.isArray(node)) {
+      for (const item of node) visit(item, depth + 1);
+      return;
+    }
+    const record = node as Record<string, unknown>;
+    const id = record['id'];
+    if (typeof id === 'string' && RECORD_UUID.test(id) && !found.has(id)) {
+      const labelKey = RECORD_LABELS.find((key) => typeof record[key] === 'string' && (record[key] as string).trim());
+      found.set(id, { tool, type, id, label: labelKey ? String(record[labelKey]).slice(0, 80) : id.slice(0, 8), link: COPILOT_RECORD_LINKS[type](id) });
+    }
+    for (const child of Object.values(record)) if (child && typeof child === 'object') visit(child, depth + 1);
+  };
+  visit(value, 0);
+  return [...found.values()];
 }
 
 export interface CopilotToolContext {
@@ -38,6 +96,21 @@ export interface CopilotToolContext {
 
 /** JSON Schema with `additionalProperties: false` on every object (the API's strict mode). */
 export type CopilotSchema = Record<string, unknown>;
+
+/**
+ * How a tool's result relates to the person's branch scope (`user_branch_access`).
+ *
+ *  - `applied`: the tool passes `ctx.user.id` as the actor and the domain service narrows the
+ *    result to the person's branches, as the screen does.
+ *  - `none`: not branch data (master data, help articles), or a company-wide figure the owning
+ *    module shows to everyone holding the permission (the financial statements).
+ *  - `unscoped`: company-wide data derived from documents that ARE branch-scoped (a projection over
+ *    every open invoice, findings across all warehouses). Offered only to people who see every
+ *    branch; to anyone limited to some, it would reveal the branches they cannot open.
+ *
+ * Required, so every tool's author decides — a default would be a guess about somebody's data.
+ */
+export type CopilotBranchScope = 'applied' | 'none' | 'unscoped';
 
 interface CopilotToolBase {
   /** snake_case, unique: what the model calls. */
@@ -49,6 +122,15 @@ interface CopilotToolBase {
   permissions: string[];
   /** Plan feature that must be enabled, if any (e.g. `ai_forecasting`). */
   feature?: string;
+  branchScope: CopilotBranchScope;
+  /**
+   * The result can carry free text written by someone outside the company (a customer's or a
+   * supplier's name, a note, a description). A proposal made in the same turn is marked so the
+   * person knows it followed external text (see `CopilotService`).
+   */
+  externalText?: boolean;
+  /** The kind of record the result lists, when it lists records: the answer links to them. */
+  records?: CopilotRecordType;
 }
 
 export interface CopilotReadTool extends CopilotToolBase {
@@ -62,11 +144,19 @@ export interface CopilotDraftProposal {
   summary: string;
   /** What will be created, as the person will see it before confirming (totals computed). */
   preview: Record<string, unknown>;
+  /**
+   * The input with everything resolved while proposing — dates that defaulted to "today", prices
+   * that defaulted to the catalogue's — so the confirmation commits what the preview showed, not
+   * what the defaults would say on the day it is confirmed. Omitted when nothing defaulted.
+   */
+  input?: Record<string, unknown>;
 }
 
 export interface CopilotDraftResult {
   /** The created draft. */
   id: string;
+  /** What it is (`invoice`, `quote`…): the confirmed draft records that the assistant proposed it. */
+  entityType: string;
   /** Client route to open it. */
   link: string;
   label: string;
@@ -74,7 +164,10 @@ export interface CopilotDraftResult {
 
 export interface CopilotDraftTool extends CopilotToolBase {
   kind: 'draft';
-  /** Validates and previews; must not write. */
+  /**
+   * Validates and previews; must not write. Called again with the frozen `input` when the person
+   * confirms, and must then give the same preview (the confirmation is refused if it does not).
+   */
   propose(ctx: CopilotToolContext, input: Record<string, unknown>): Promise<CopilotDraftProposal>;
   /** Creates the document as a draft. Runs only after the person confirmed the proposal. */
   commit(ctx: CopilotToolContext, input: Record<string, unknown>): Promise<CopilotDraftResult>;

@@ -1,12 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import Anthropic from '@anthropic-ai/sdk';
 import CircuitBreaker = require('opossum');
 import { createHash } from 'node:crypto';
 import { AiRequest, AiRequestStatus } from '../entities/ai-request.entity';
-import { AI_ROUTES, AiFeature, costMicroUsd, isPricedModel, TokenUsage } from './ai-models';
+import { withTenant } from '../../shared/tenancy/tenant-job';
+import { AI_ROUTES, AiFeature, AiRoute, costMicroUsd, isPricedModel, MODEL_SETTING_FALLBACK, TokenUsage } from './ai-models';
+import { AiSettingsService } from '../settings/ai-settings.service';
 import { EntitlementsPort, SaasResource } from '../../saas/contracts/entitlements.contract';
 import {
   ServiceUnavailableError,
@@ -37,6 +39,8 @@ export interface ConverseToolOutcome {
 
 export interface ConverseRequest {
   feature: AiFeature;
+  /** Which instructions these are (`copilot.system`); recorded with a hash of the text as its version. */
+  promptId: string;
   organizationId: string;
   userId: string | null;
   /** Stable: no dates, ids or user data, so the prompt cache serves it across every tenant. */
@@ -49,13 +53,18 @@ export interface ConverseRequest {
   onToolCall?: (call: { id: string; name: string; input: Record<string, unknown> }) => void;
   /** Model turns allowed before the loop gives up (each is a call, and each is paid). */
   maxTurns?: number;
+  /**
+   * The person stopped waiting (closed the panel, pressed Stop). The call in flight is aborted and
+   * no further turn is paid for.
+   */
+  signal?: AbortSignal;
 }
 
 export interface ConverseResult {
   /** The turns this exchange added, to append to the stored conversation unchanged. */
   appended: Anthropic.Beta.Messages.BetaMessageParam[];
   text: string;
-  stopReason: 'end_turn' | 'refusal' | 'max_turns' | 'max_tokens';
+  stopReason: 'end_turn' | 'refusal' | 'max_turns' | 'max_tokens' | 'cancelled';
   requestIds: string[];
   model: string;
 }
@@ -63,6 +72,8 @@ export interface ConverseResult {
 /** What a feature hands the gateway: one user turn whose answer must match `schema`. */
 export interface StructuredRequest<T> {
   feature: AiFeature;
+  /** Which instructions these are (`bill_capture.system`); recorded with a hash of the text as its version. */
+  promptId: string;
   organizationId: string;
   userId: string | null;
   /** Stable instructions. Kept free of per-request values so it can be served from the prompt cache. */
@@ -95,6 +106,10 @@ class NonTrippingError extends Error {
 
 const FALLBACK_BETA = 'server-side-fallback-2026-07-01';
 
+const VOYAGE_URL = 'https://api.voyageai.com/v1/multimodalembeddings';
+/** The vector length the `product_embeddings` column holds. */
+export const EMBEDDING_DIMENSIONS = 1024;
+
 /**
  * The one place in the product that calls a language model.
  *
@@ -113,15 +128,21 @@ const FALLBACK_BETA = 'server-side-fallback-2026-07-01';
  *  5. **Configuration.** Which model serves a feature is a deploy setting (`AI_MODEL_*`).
  */
 @Injectable()
-export class AiGatewayService implements AiAssistPort {
+export class AiGatewayService implements AiAssistPort, OnModuleInit {
   private readonly logger = new Logger(AiGatewayService.name);
   private readonly client: Anthropic | null;
-  private readonly breaker: CircuitBreaker<[Anthropic.Beta.Messages.MessageCreateParamsNonStreaming, TextSink?], Anthropic.Beta.Messages.BetaMessage>;
+  private readonly embeddingBreaker: CircuitBreaker<[string, Buffer, string], unknown>;
+  private readonly breaker: CircuitBreaker<
+    [Anthropic.Beta.Messages.MessageCreateParamsNonStreaming, TextSink?, AbortSignal?],
+    Anthropic.Beta.Messages.BetaMessage
+  >;
 
   constructor(
     private readonly config: ConfigService,
     private readonly entitlements: EntitlementsPort,
     @InjectRepository(AiRequest) private readonly requests: Repository<AiRequest>,
+    private readonly dataSource: DataSource,
+    private readonly policy: AiSettingsService,
   ) {
     const apiKey = this.config.get<string>('ANTHROPIC_API_KEY');
     const enabled = this.config.get<boolean>('AI_ENABLED') !== false;
@@ -135,17 +156,19 @@ export class AiGatewayService implements AiAssistPort {
         : null;
 
     this.breaker = new CircuitBreaker(
-      async (params: Anthropic.Beta.Messages.MessageCreateParamsNonStreaming, onText?: TextSink) => {
+      async (params: Anthropic.Beta.Messages.MessageCreateParamsNonStreaming, onText?: TextSink, signal?: AbortSignal) => {
         const client = this.client;
         if (!client) throw new ServiceUnavailableError('ai.not_configured');
         try {
-          if (!onText) return await client.beta.messages.create(params);
+          if (!onText) return await client.beta.messages.create(params, { signal });
           // Streaming: the text reaches the person as it is written, and `finalMessage` still
           // returns the whole response (tool calls, stop reason, usage) for the loop.
-          const stream = client.beta.messages.stream(params);
+          const stream = client.beta.messages.stream(params, { signal });
           stream.on('text', (delta) => onText(delta));
           return await stream.finalMessage();
         } catch (error) {
+          // A request the person cancelled says nothing about the provider's health either.
+          if (signal?.aborted) throw new NonTrippingError(error);
           // A request the API rejected as malformed, unauthorised or over quota is our problem or
           // the tenant's, not the provider being down; it must not open the circuit for everyone.
           if (
@@ -172,6 +195,45 @@ export class AiGatewayService implements AiAssistPort {
     );
     this.breaker.on('open', () => this.logger.warn('AI provider circuit OPEN — AI features degrade to manual'));
     this.breaker.on('close', () => this.logger.log('AI provider circuit CLOSED'));
+
+    this.embeddingBreaker = new CircuitBreaker(
+      async (model: string, jpeg: Buffer, key: string) => {
+        const response = await fetch(VOYAGE_URL, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+          body: JSON.stringify({
+            model,
+            input_type: 'document',
+            inputs: [{ content: [{ type: 'image_base64', image_base64: `data:image/jpeg;base64,${jpeg.toString('base64')}` }] }],
+          }),
+          signal: AbortSignal.timeout(20_000),
+        });
+        if (!response.ok) throw new Error(`http_${response.status}`);
+        return response.json();
+      },
+      { timeout: false, errorThresholdPercentage: 50, volumeThreshold: 5, resetTimeout: 60_000 },
+    );
+    this.embeddingBreaker.on('open', () => this.logger.warn('Embeddings provider circuit OPEN — duplicates fall back to barcode and name'));
+  }
+
+  /**
+   * A model the price list does not know is reported at the dearest rate — safe for the bill, wrong
+   * for the usage screen. Said at start-up, once per model, rather than discovered on an invoice.
+   */
+  onModuleInit(): void {
+    const models = new Set(Object.values(AI_ROUTES).map((route) => this.modelFor(route)));
+    for (const model of models) {
+      if (model && !isPricedModel(model)) {
+        this.logger.warn(`AI model ${model} has no list price in ai-models.ts; its cost is reported at the dearest rate.`);
+      }
+    }
+  }
+
+  /** The model serving a route: its own setting, else the setting it falls back to. */
+  modelFor(route: AiRoute): string {
+    const own = this.config.get<string>(route.modelSetting);
+    const fallback = MODEL_SETTING_FALLBACK[route.modelSetting];
+    return (own || (fallback ? this.config.get<string>(fallback) : undefined)) as string;
   }
 
   /** Whether calls can be made at all: a key is configured, AI is enabled and the circuit is closed. */
@@ -187,6 +249,7 @@ export class AiGatewayService implements AiAssistPort {
   extract<T>(request: AiExtractRequest<T>): Promise<AiAssistResult<T>> {
     return this.structured<T>({
       feature: request.feature,
+      promptId: request.promptId,
       organizationId: request.organizationId,
       userId: request.userId,
       system: request.system,
@@ -208,6 +271,7 @@ export class AiGatewayService implements AiAssistPort {
     const facts = JSON.stringify(request.facts, null, 2);
     return this.structured<{ subject: string; body: string }>({
       feature: request.feature,
+      promptId: request.promptId,
       organizationId: request.organizationId,
       userId: request.userId,
       system:
@@ -250,7 +314,8 @@ export class AiGatewayService implements AiAssistPort {
     if (this.breaker.opened) throw new ServiceUnavailableError('ai.temporarily_unavailable');
 
     const route = AI_ROUTES[request.feature];
-    const model = this.config.get<string>(route.modelSetting) as string;
+    const model = this.modelFor(route);
+    const promptHash = hashPrompt(request.system);
     const tools: Anthropic.Beta.Messages.BetaTool[] = request.tools.map((tool) => ({
       name: tool.name,
       description: tool.description,
@@ -265,7 +330,14 @@ export class AiGatewayService implements AiAssistPort {
     let text = '';
 
     for (let turn = 0; turn < maxTurns; turn++) {
-      await this.entitlements.consume(request.organizationId, SaasResource.AI_CREDITS, route.credits);
+      if (request.signal?.aborted) {
+        return { appended, text, stopReason: 'cancelled', requestIds, model: servedBy };
+      }
+      await this.scoped(request.organizationId, async () => {
+        // The company's own decision and budget first: a refused call costs no credit.
+        await this.policy.assertCallAllowed(request.organizationId, request.feature);
+        await this.entitlements.consume(request.organizationId, SaasResource.AI_CREDITS, route.credits);
+      });
       const started = Date.now();
       const record: Partial<AiRequest> = {
         organizationId: request.organizationId,
@@ -275,6 +347,8 @@ export class AiGatewayService implements AiAssistPort {
         model,
         credits: route.credits,
         inputHash: null,
+        promptId: request.promptId,
+        promptHash,
       };
 
       let response: Anthropic.Beta.Messages.BetaMessage;
@@ -297,9 +371,15 @@ export class AiGatewayService implements AiAssistPort {
             fallbacks: 'default',
           } as Anthropic.Beta.Messages.MessageCreateParamsNonStreaming,
           request.onText,
+          request.signal,
         );
       } catch (error) {
         const cause = error instanceof NonTrippingError ? error.original : error;
+        if (request.signal?.aborted) {
+          // Paid for the turn that was cut (its tokens are unknown); no further turn is started.
+          await this.record(record, 'CANCELLED', started, null, null, 'cancelled');
+          return { appended, text, stopReason: 'cancelled', requestIds, model: servedBy };
+        }
         await this.record(record, 'FAILED', started, null, null, this.errorCode(cause));
         this.logger.error(`AI conversation turn failed (${request.feature}): ${(cause as Error)?.message ?? cause}`);
         if (this.breaker.opened) throw new ServiceUnavailableError('ai.temporarily_unavailable');
@@ -375,13 +455,14 @@ export class AiGatewayService implements AiAssistPort {
     }
 
     const route = AI_ROUTES[request.feature];
-    const model = this.config.get<string>(route.modelSetting) as string;
-    if (!isPricedModel(model)) {
-      this.logger.warn(`Model ${model} has no list price; its cost is reported at the dearest rate.`);
-    }
+    const model = this.modelFor(route);
 
-    // 1. Pay first: the plan's counter moves before the provider is called.
-    await this.entitlements.consume(request.organizationId, SaasResource.AI_CREDITS, route.credits);
+    // 1. The company allows it and can afford it; then pay first: the plan's counter moves before
+    //    the provider is called.
+    await this.scoped(request.organizationId, async () => {
+      await this.policy.assertCallAllowed(request.organizationId, request.feature);
+      await this.entitlements.consume(request.organizationId, SaasResource.AI_CREDITS, route.credits);
+    });
 
     const started = Date.now();
     const record: Partial<AiRequest> = {
@@ -394,6 +475,8 @@ export class AiGatewayService implements AiAssistPort {
       inputHash: request.inputFingerprint
         ? createHash('sha256').update(`${request.feature}:${request.inputFingerprint}`).digest('hex')
         : null,
+      promptId: request.promptId,
+      promptHash: hashPrompt(request.system),
     };
 
     let response: Anthropic.Beta.Messages.BetaMessage;
@@ -483,7 +566,11 @@ export class AiGatewayService implements AiAssistPort {
       latencyMs: Date.now() - started,
     });
     try {
-      const saved = await this.requests.save(row);
+      const saved = await this.scoped(base.organizationId as string, async () => {
+        const saved = await this.requests.save(row);
+        if (row.costMicroUsd > 0) await this.policy.afterCall(base.organizationId as string);
+        return saved;
+      });
       return saved.id;
     } catch (error) {
       // The answer must not be lost because its receipt could not be written; the credit was
@@ -493,6 +580,67 @@ export class AiGatewayService implements AiAssistPort {
     }
   }
 
+  /**
+   * One product photo as an embedding vector, or null when the company has not opted in, the
+   * deployment has no key, the provider is failing or answers something unexpected.
+   *
+   * A second provider, held to the same rules as the language model: the company's consent
+   * (`image_embeddings`, off until it opts in — a photo leaves the platform), a circuit breaker of
+   * its own, a timeout, and a receipt in `ai_requests`. A failure here never blocks a form: duplicates
+   * are still found by barcode and name.
+   */
+  async embedImage(organizationId: string, userId: string | null, jpeg: Buffer): Promise<{ vector: number[]; model: string } | null> {
+    const key = this.config.get<string>('VOYAGE_API_KEY');
+    if (!key || this.config.get<boolean>('AI_ENABLED') === false || this.embeddingBreaker.opened) return null;
+    const settings = await this.scoped(organizationId, () => this.policy.get(organizationId));
+    if (!settings.imageEmbeddings) return null;
+
+    const model = this.config.get<string>('VOYAGE_MULTIMODAL_MODEL') ?? 'voyage-multimodal-3';
+    const started = Date.now();
+    let vector: number[] | null = null;
+    let tokens = 0;
+    let errorCode: string | null = null;
+    try {
+      const body = (await this.embeddingBreaker.fire(model, jpeg, key)) as { data?: Array<{ embedding: number[] }>; usage?: { total_tokens?: number } };
+      const embedding = body.data?.[0]?.embedding;
+      tokens = body.usage?.total_tokens ?? 0;
+      if (Array.isArray(embedding) && embedding.length === EMBEDDING_DIMENSIONS) vector = embedding;
+      else errorCode = 'unexpected_dimensions';
+    } catch (error) {
+      errorCode = (error as Error)?.name === 'TimeoutError' ? 'timeout' : (error as Error)?.message?.startsWith('http_') ? (error as Error).message : 'network';
+    }
+    // No list price is kept for the embeddings provider: the tokens are recorded, the cost is not
+    // estimated rather than estimated wrong.
+    await this.scoped(organizationId, () =>
+      this.requests
+        .save(
+          this.requests.create({
+            organizationId,
+            userId,
+            feature: 'product_image_embedding',
+            provider: 'voyage',
+            model,
+            status: vector ? 'SUCCEEDED' : 'FAILED',
+            errorCode,
+            inputTokens: tokens,
+            credits: 0,
+            latencyMs: Date.now() - started,
+          }),
+        )
+        .catch((error) => this.logger.warn(`Could not record embedding request: ${(error as Error).message}`)),
+    );
+    return vector ? { vector, model } : null;
+  }
+
+  /**
+   * Database work as the tenant: on the request's own connection when there is one, otherwise on a
+   * connection opened for just this (a route under `ShortLivedConnections`, which holds none while
+   * the model answers).
+   */
+  private scoped<T>(organizationId: string, work: () => Promise<T>): Promise<T> {
+    return withTenant(this.dataSource, organizationId, work);
+  }
+
   private errorCode(error: unknown): string {
     if (error instanceof Anthropic.APIError) {
       return `http_${error.status ?? 'unknown'}`;
@@ -500,6 +648,11 @@ export class AiGatewayService implements AiAssistPort {
     if ((error as Error)?.message?.includes('Breaker is open')) return 'circuit_open';
     return 'unknown';
   }
+}
+
+/** A prompt's version: the first 16 hex characters of the SHA-256 of its text as sent. */
+export function hashPrompt(system: string): string {
+  return createHash('sha256').update(system).digest('hex').slice(0, 16);
 }
 
 function toContentBlock(block: AiAssistContent): Anthropic.ContentBlockParam {

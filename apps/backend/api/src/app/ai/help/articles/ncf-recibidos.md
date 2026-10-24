@@ -1,6 +1,7 @@
 ---
 title: NCF y e-CF de las compras
 route: /accounts-payable
+countries: DO
 ---
 
 ## Formato

@@ -1,4 +1,6 @@
 import { ReconciliationSettings } from './entities/reconciliation-settings.entity';
+import { ReconciliationAccountSettings } from './entities/reconciliation-account-settings.entity';
+import { ReconciliationAutoOutcome } from './entities/reconciliation-auto-outcome.entity';
 import { ReconciliationAssistService } from './reconciliation-assist.service';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -25,6 +27,8 @@ import { ReconciliationClosingBlockersProvider } from './reconciliation-closing-
       ReconciliationMatch,
       ReconciliationMatchLine,
       ReconciliationRule,
+      ReconciliationAccountSettings,
+      ReconciliationAutoOutcome,
     ]),
     AuthModule,
     // Account (chart-of-accounts) and BankAccount (treasury) are accessed via DataSource.

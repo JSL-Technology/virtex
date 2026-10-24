@@ -15,6 +15,7 @@ export class DashboardCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'business_summary',
+        branchScope: 'none',
         description: 'Headline indicators shown on the home screen: sales, receivables, payables and cash, this month against the last.',
         permissions: [PERMISSIONS.DASHBOARD_VIEW],
         inputSchema: s.object({}),
@@ -23,6 +24,7 @@ export class DashboardCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'sales_trend',
+        branchScope: 'none',
         description: 'Monthly sales totals for the last N months.',
         permissions: [PERMISSIONS.DASHBOARD_VIEW],
         inputSchema: s.object({ months: s.integer('1-24') }),

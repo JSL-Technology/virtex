@@ -17,7 +17,8 @@ export type AiAssistFeature =
   | 'compose'
   | 'column_mapping'
   | 'reconcile_ambiguous'
-  | 'deep_analysis';
+  | 'deep_analysis'
+  | 'order_intake';
 
 /** Input content, independent of any provider's wire format. Binary data is base64. */
 export type AiAssistContent =
@@ -27,6 +28,8 @@ export type AiAssistContent =
 
 export interface AiExtractRequest<T> {
   feature: AiAssistFeature;
+  /** Which instructions these are (`bill_capture.system`); recorded with a hash of the text as its version. */
+  promptId: string;
   organizationId: string;
   userId: string | null;
   /** Stable instructions, free of per-request values so they can be served from the prompt cache. */
@@ -42,6 +45,8 @@ export interface AiExtractRequest<T> {
 
 export interface AiComposeRequest {
   feature: AiAssistFeature;
+  /** Which instructions these are (`collections.reminder`). */
+  promptId: string;
   organizationId: string;
   userId: string | null;
   system: string;
@@ -70,3 +75,25 @@ export abstract class AiAssistPort {
   /** A short text for a person to review, with a subject line. Figures are checked against `facts`. */
   abstract compose(request: AiComposeRequest): Promise<AiAssistResult<{ subject: string; body: string }>>;
 }
+
+/**
+ * A cell of a file's sample rows, as it may leave the platform to have its columns recognised.
+ *
+ * Recognising a column needs its shape — a date, an amount, some words — not its content. E-mail
+ * addresses are reduced to their shape, and any run of eight or more digits (an account, card or
+ * identifier number) keeps only its last four; amounts, dates and words are left as they are, since
+ * they are what tells one column from another.
+ */
+export function redactSampleCell(value: string): string {
+  return value
+    .replace(/[^\s@]+@[^\s@]+\.[^\s@]+/g, 'x@x.xx')
+    .replace(/\d[\d\s-]{6,}\d/g, (run) => {
+      // A date written with hyphens is a date, whatever its digit count.
+      if (/^\d{4}-\d{1,2}-\d{1,2}$|^\d{1,2}-\d{1,2}-\d{2,4}$/.test(run)) return run;
+      const digits = run.replace(/\D/g, '');
+      return digits.length >= 8 ? `•••${digits.slice(-4)}` : run;
+    });
+}
+
+/** How many sample rows go with a column-recognition request: enough to see a pattern. */
+export const SAMPLE_ROWS_SENT = 3;

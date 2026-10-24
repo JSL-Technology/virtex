@@ -17,6 +17,7 @@ import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import * as fs from 'fs/promises';
 import { DataSource } from 'typeorm';
 import { HasPermission } from '../security/decorators/permissions.decorator';
+import { ShortLivedConnections } from '../shared/tenancy/short-lived-connections.decorator';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../security/principal';
 import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
@@ -30,7 +31,9 @@ import { AiModelRun } from './entities/ai-model-run.entity';
 import { ProductVisionService } from './product-vision/product-vision.service';
 import { BarcodeLookupService } from './product-vision/barcode-lookup.service';
 import { ForecastingService } from './forecasting/forecasting.service';
-import { AnomaliesService } from './anomalies/anomalies.service';
+import { AnomaliesService, AnomalyReader } from './anomalies/anomalies.service';
+import { loadBranchScope } from '../organizations/contracts/branch.contract';
+import { hasPermission } from '@virteex/shared/util-auth';
 import { EngineRunsService } from './engine/engine-runs.service';
 import { AiGatewayService } from './gateway/ai-gateway.service';
 import { EmbeddingsService } from './embeddings/embeddings.service';
@@ -41,6 +44,7 @@ import {
   SeriesQueryDto,
   TopByBranchQueryDto,
 } from './dto/ai-queries.dto';
+import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../shared/rate-limit/tenant-rate-limit.guard';
 
 /** The largest photo accepted. A phone's full-resolution JPEG is 3–8 MB; the image is resized anyway. */
 const MAX_PHOTO_BYTES = 12 * 1024 * 1024;
@@ -161,7 +165,10 @@ export class AiController {
 
   // ── Product from photo ─────────────────────────────────────────────────────────
 
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('products/from-image')
+  @ShortLivedConnections()
   @HasPermission(PERMISSIONS.PRODUCTS_CREATE, PERMISSIONS.AI_VISION_USE)
   @CheckFeature('ai_vision')
   @UseGuards(ThrottlerGuard)
@@ -223,40 +230,40 @@ export class AiController {
   @HasPermission(PERMISSIONS.AI_FORECASTS_VIEW)
   @CheckFeature('ai_forecasting')
   @ApiOperation({ summary: 'Counts by inventory status, and the latest forecasting run.' })
-  forecastSummary(@CurrentUser() user: AuthenticatedUser) {
-    return this.forecasting.summary(user.organizationId);
+  async forecastSummary(@CurrentUser() user: AuthenticatedUser) {
+    return this.forecasting.summary(user.organizationId, await this.branchesOf(user));
   }
 
   @Get('forecasts/insights')
   @HasPermission(PERMISSIONS.AI_FORECASTS_VIEW)
   @CheckFeature('ai_forecasting')
   @ApiOperation({ summary: 'Per product and warehouse: cover, stock-out date, reorder suggestion.' })
-  insights(@CurrentUser() user: AuthenticatedUser, @Query() query: InsightsQueryDto) {
-    return this.forecasting.insights(user.organizationId, query);
+  async insights(@CurrentUser() user: AuthenticatedUser, @Query() query: InsightsQueryDto) {
+    return this.forecasting.insights(user.organizationId, query, await this.branchesOf(user));
   }
 
   @Get('forecasts/top-by-branch')
   @HasPermission(PERMISSIONS.AI_FORECASTS_VIEW)
   @CheckFeature('ai_forecasting')
   @ApiOperation({ summary: 'Which products are projected to sell most in each branch over 30 days.' })
-  topByBranch(@CurrentUser() user: AuthenticatedUser, @Query() query: TopByBranchQueryDto) {
-    return this.forecasting.topByBranch(user.organizationId, query.perBranch);
+  async topByBranch(@CurrentUser() user: AuthenticatedUser, @Query() query: TopByBranchQueryDto) {
+    return this.forecasting.topByBranch(user.organizationId, await this.branchesOf(user), query.perBranch);
   }
 
   @Get('forecasts/supplier-lead-times')
   @HasPermission(PERMISSIONS.AI_FORECASTS_VIEW)
   @CheckFeature('ai_forecasting')
   @ApiOperation({ summary: 'Measured lead time per supplier over the last year: median, P90, on-time rate.' })
-  supplierLeadTimes(@CurrentUser() user: AuthenticatedUser) {
-    return this.forecasting.supplierLeadTimes(user.organizationId);
+  async supplierLeadTimes(@CurrentUser() user: AuthenticatedUser) {
+    return this.forecasting.supplierLeadTimes(user.organizationId, await this.branchesOf(user));
   }
 
   @Get('forecasts/series')
   @HasPermission(PERMISSIONS.AI_FORECASTS_VIEW)
   @CheckFeature('ai_forecasting')
   @ApiOperation({ summary: 'Units sold, then the P10/P50/P90 forecast, for one product in one warehouse.' })
-  series(@CurrentUser() user: AuthenticatedUser, @Query() query: SeriesQueryDto) {
-    return this.forecasting.series(user.organizationId, query.productId, query.warehouseId, query.historyDays);
+  async series(@CurrentUser() user: AuthenticatedUser, @Query() query: SeriesQueryDto) {
+    return this.forecasting.series(user.organizationId, query.productId, query.warehouseId, await this.branchesOf(user), query.historyDays);
   }
 
   @Post('forecasts/runs')
@@ -277,8 +284,8 @@ export class AiController {
   @HasPermission(PERMISSIONS.AI_ANOMALIES_VIEW)
   @CheckFeature('ai_anomalies')
   @ApiOperation({ summary: 'The anomaly inbox, most severe first.' })
-  listAnomalies(@CurrentUser() user: AuthenticatedUser, @Query() query: AnomaliesQueryDto) {
-    return this.anomalies.list(user.organizationId, query);
+  async listAnomalies(@CurrentUser() user: AuthenticatedUser, @Query() query: AnomaliesQueryDto) {
+    return this.anomalies.list(user.organizationId, query, await this.anomalyReader(user));
   }
 
   @Get('anomalies/last-run')
@@ -306,22 +313,24 @@ export class AiController {
   @HasPermission(PERMISSIONS.AI_ANOMALIES_RESOLVE)
   @CheckFeature('ai_anomalies')
   @ApiOperation({ summary: 'Confirm a finding as useful, or dismiss it as a false positive.' })
-  feedback(
+  async feedback(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id', UuidParamPipe) id: string,
     @Body() dto: AnomalyFeedbackDto,
   ) {
-    return this.anomalies.recordFeedback(user.organizationId, user.id, id, dto.verdict, dto.comment ?? null);
+    return this.anomalies.recordFeedback(user.organizationId, await this.anomalyReader(user), id, dto.verdict, dto.comment ?? null);
   }
 
   @Post('anomalies/:id/reopen')
   @HasPermission(PERMISSIONS.AI_ANOMALIES_RESOLVE)
   @CheckFeature('ai_anomalies')
   @ApiOperation({ summary: 'Reopen a finding that was confirmed or dismissed.' })
-  reopen(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
-    return this.anomalies.reopen(user.organizationId, id);
+  async reopen(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    return this.anomalies.reopen(user.organizationId, await this.anomalyReader(user), id);
   }
 
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('anomalies/:id/explain')
   @HasPermission(PERMISSIONS.AI_ANOMALIES_VIEW)
   @CheckFeature('ai_anomalies')
@@ -329,8 +338,22 @@ export class AiController {
   @Throttle({ default: { limit: 30, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Write (once) a plain-language explanation of a finding from its evidence.' })
-  explain(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
-    return this.anomalies.explain(user.organizationId, user.id, id);
+  async explain(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    return this.anomalies.explain(user.organizationId, await this.anomalyReader(user), id);
+  }
+
+  /** The branches this person is limited to (`user_branch_access`), or `null` for every branch. */
+  private async branchesOf(user: AuthenticatedUser): Promise<string[] | null> {
+    return (await loadBranchScope(this.dataSource.manager, user.organizationId, user.id)).allowed;
+  }
+
+  /** The reader of the anomaly inbox: their branch scope, and whether findings about people are theirs to see. */
+  private async anomalyReader(user: AuthenticatedUser): Promise<AnomalyReader> {
+    return {
+      id: user.id,
+      branches: await this.branchesOf(user),
+      seesSecurity: hasPermission(user.permissions ?? [], [PERMISSIONS.AI_ANOMALIES_VIEW_SECURITY]),
+    };
   }
 }
 

@@ -19,8 +19,10 @@ import {
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { BankAccount, TreasuryService } from '../../../../core/api/treasury.service';
 import {
+  AccountReconciliationSettings,
   AmbiguityResolution,
   BankStatement,
+  CategorySuggestion,
   MatchCandidateGroup,
   ReconciliationApiService,
   ReconciliationSettings,
@@ -93,6 +95,11 @@ export class AccountReconciliationPage {
   protected readonly AiIcon = Sparkles;
 
   readonly settings = signal<ReconciliationSettings | null>(null);
+  /** The selected account's settings in effect: calibrated threshold, paused or not. */
+  readonly accountSettings = signal<AccountReconciliationSettings | null>(null);
+  /** Suggested accounts for lines with nothing to match, by movement. */
+  readonly categories = signal<Map<string, CategorySuggestion>>(new Map());
+  readonly lastUndone = signal<number | null>(null);
   /** The assistant's answer for a movement, kept until the movement is matched or reloaded. */
   readonly resolutions = signal<Map<string, AmbiguityResolution>>(new Map());
   readonly resolvingId = signal<string | null>(null);
@@ -173,6 +180,11 @@ export class AccountReconciliationPage {
 
   selectBankAccount(bankAccountId: string): void {
     this.selectedBankAccountId.set(bankAccountId);
+    this.accountSettings.set(null);
+    this.api.accountSettings(bankAccountId).subscribe({
+      next: (settings) => this.accountSettings.set(settings),
+      error: () => this.accountSettings.set(null),
+    });
     this.selectedStatementId.set(null);
     this.statement.set(null);
     this.summary.set(null);
@@ -191,6 +203,7 @@ export class AccountReconciliationPage {
 
   selectStatement(statementId: string): void {
     this.selectedStatementId.set(statementId);
+    this.lastUndone.set(null);
     this.openTransactionId.set(null);
     this.selectedLineIds.set(new Set());
     this.resolutions.set(new Map());
@@ -210,6 +223,11 @@ export class AccountReconciliationPage {
     this.api.summary(statementId).subscribe({
       next: (summary) => this.summary.set(summary),
       error: () => this.failed.set(true),
+    });
+    this.api.categories(statementId).subscribe({
+      next: (list) => this.categories.set(new Map(list.map((item) => [item.bankTransactionId, item]))),
+      // Without them the line is matched by hand as before.
+      error: () => this.categories.set(new Map()),
     });
     this.api.suggestions(statementId).subscribe({
       next: (suggestions) => {
@@ -328,6 +346,59 @@ export class AccountReconciliationPage {
       },
       error: (error) => this.reportFailure(error),
     });
+  }
+
+  /** Undo every match the system confirmed on its own in this statement; the account learns from it. */
+  undoAutomatic(): void {
+    const statementId = this.selectedStatementId();
+    if (!statementId) return;
+    this.working.set(true);
+    this.errorMessage.set(null);
+    this.api.undoAutomatic(statementId).subscribe({
+      next: ({ undone }) => {
+        this.lastUndone.set(undone);
+        this.reloadAccountSettings();
+        this.refreshStatement();
+      },
+      error: (error) => this.reportFailure(error),
+    });
+  }
+
+  /** This account only: confirm on its own (true), never (false), or as the company says (null). */
+  setAccountAutoConfirm(value: string): void {
+    const bankAccountId = this.selectedBankAccountId();
+    if (!bankAccountId) return;
+    const autoConfirm = value === 'on' ? true : value === 'off' ? false : null;
+    this.api.updateAccountSettings(bankAccountId, { autoConfirm }).subscribe({
+      next: (settings) => this.accountSettings.set(settings),
+      error: (error) => this.reportFailure(error),
+    });
+  }
+
+  resumeAccount(): void {
+    const bankAccountId = this.selectedBankAccountId();
+    if (!bankAccountId) return;
+    this.api.updateAccountSettings(bankAccountId, { resume: true }).subscribe({
+      next: (settings) => this.accountSettings.set(settings),
+      error: (error) => this.reportFailure(error),
+    });
+  }
+
+  /** Book the line to the suggested account and match it. */
+  applyCategory(category: CategorySuggestion): void {
+    const statementId = this.selectedStatementId();
+    if (!statementId) return;
+    this.working.set(true);
+    this.errorMessage.set(null);
+    this.api.categorize(statementId, category.bankTransactionId, category.accountId).subscribe({
+      next: () => this.refreshStatement(),
+      error: (error) => this.reportFailure(error),
+    });
+  }
+
+  private reloadAccountSettings(): void {
+    const bankAccountId = this.selectedBankAccountId();
+    if (bankAccountId) this.api.accountSettings(bankAccountId).subscribe({ next: (settings) => this.accountSettings.set(settings), error: () => undefined });
   }
 
   toggleAutoConfirm(autoConfirm: boolean): void {

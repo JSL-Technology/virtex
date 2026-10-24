@@ -21,6 +21,7 @@ export class FinancialReportingCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'income_statement',
+        branchScope: 'none',
         description:
           'Income statement (profit and loss) for a period: revenue, cost of sales, expenses and net income, by account. ' +
           'Use for "how much did I earn", "profit this month", "expenses by type". Compare periods by calling it twice.',
@@ -36,6 +37,7 @@ export class FinancialReportingCopilotTools implements OnModuleInit {
       {
         kind: 'read',
         name: 'balance_sheet',
+        branchScope: 'none',
         description: 'Balance sheet at a date: assets, liabilities and equity, by account.',
         permissions: [PERMISSIONS.REPORTS_VIEW_FINANCIAL],
         inputSchema: s.object({ as_of: s.string('YYYY-MM-DD') }),

@@ -89,6 +89,11 @@
     "en": "Attach photo or PDF",
     "pt": "Anexar foto ou PDF"
   },
+  "accounts_payable.capture.document_unverified": {
+    "es": "Se copió el número de documento ({{ncf}}) tal como está impreso; en este mercado no tiene una verificación automática.",
+    "en": "The document number ({{ncf}}) was copied as printed; this market has no automatic check for it.",
+    "pt": "O número do documento ({{ncf}}) foi copiado como está impresso; neste mercado não há verificação automática."
+  },
   "accounts_payable.capture.duplicate": {
     "es": "Ya registraste una factura de este proveedor con el NCF {{ncf}}.",
     "en": "You already recorded a bill from this supplier with NCF {{ncf}}.",
@@ -103,6 +108,11 @@
     "es": "Listo: revisa los campos marcados como sugeridos.",
     "en": "Done: review the fields marked as suggested.",
     "pt": "Pronto: reveja os campos marcados como sugeridos."
+  },
+  "accounts_payable.capture.generic_market": {
+    "es": "El país de la empresa no tiene reglas fiscales configuradas: el identificador y el número de documento no se verificaron.",
+    "en": "The company's country has no fiscal rules configured: the identifier and the document number were not checked.",
+    "pt": "O país da empresa não tem regras fiscais configuradas: o identificador e o número do documento não foram verificados."
   },
   "accounts_payable.capture.intro_attach": {
     "es": "Adjunta la foto o el PDF de la factura: queda guardado con ella como evidencia para la DGII.",
@@ -119,10 +129,15 @@
     "en": "The document is a credit note: record it as a note, not as a bill.",
     "pt": "O documento é uma nota de crédito: registe-a como nota, não como fatura."
   },
+  "accounts_payable.capture.ncf_error.check_digit": {
+    "es": "El número de documento leído ({{ncf}}) no pasa su dígito verificador; no se llenó.",
+    "en": "The document number read ({{ncf}}) fails its check digit; it was not filled in.",
+    "pt": "O número do documento lido ({{ncf}}) não passa o dígito verificador; não foi preenchido."
+  },
   "accounts_payable.capture.ncf_error.format": {
-    "es": "El NCF leído ({{ncf}}) no tiene el formato de la DGII; no se llenó.",
-    "en": "The NCF read ({{ncf}}) is not in the DGII format; it was not filled in.",
-    "pt": "O NCF lido ({{ncf}}) não tem o formato da DGII; não foi preenchido."
+    "es": "El número de documento leído ({{ncf}}) no tiene el formato que exige el mercado de la empresa; no se llenó.",
+    "en": "The document number read ({{ncf}}) is not in the format the company's market requires; it was not filled in.",
+    "pt": "O número do documento lido ({{ncf}}) não tem o formato exigido pelo mercado da empresa; não foi preenchido."
   },
   "accounts_payable.capture.ncf_error.unknown_type": {
     "es": "El tipo de comprobante del NCF leído ({{ncf}}) no existe; no se llenó.",
@@ -190,9 +205,9 @@
     "pt": "Não tem nenhum fornecedor com o RNC {{taxId}} ({{name}})."
   },
   "accounts_payable.capture.tax_id_invalid": {
-    "es": "El RNC leído ({{taxId}}) no pasa la verificación: revísalo en el documento.",
-    "en": "The RNC read ({{taxId}}) fails its check digit: check it on the document.",
-    "pt": "O RNC lido ({{taxId}}) não passa a verificação: confirme-o no documento."
+    "es": "El identificador fiscal leído ({{taxId}}) no pasa la verificación: revísalo en el documento.",
+    "en": "The tax identifier read ({{taxId}}) fails its check: check it on the document.",
+    "pt": "O identificador fiscal lido ({{taxId}}) não passa a verificação: confirme-o no documento."
   },
   "accounts_payable.capture.title": {
     "es": "Documento del proveedor",
@@ -1000,6 +1015,11 @@
     "es": "Facturas de proveedor",
     "en": "Vendor bills",
     "pt": "Faturas de fornecedor"
+  },
+  "accounts_payable.mail_draft_refused": {
+    "es": "La factura no se pudo guardar como borrador; revísala en el formulario.",
+    "en": "The bill could not be saved as a draft; review it in the form.",
+    "pt": "A fatura não pôde ser guardada como rascunho; reveja-a no formulário."
   },
   "accounts_payable.ncf_already_recorded": {
     "es": "El NCF {{ncf}} de {{supplier}} ya está registrado en otra factura.",

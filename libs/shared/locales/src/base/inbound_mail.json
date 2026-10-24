@@ -1,0 +1,292 @@
+{
+  "inbound_mail.active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "inbound_mail.allowed_senders": {
+    "es": "Remitentes permitidos",
+    "en": "Allowed senders",
+    "pt": "Remetentes permitidos"
+  },
+  "inbound_mail.allowed_senders_help": {
+    "es": "Vacío: cualquiera puede escribir. Una dirección o un @dominio por línea.",
+    "en": "Empty: anyone can write. One address or @domain per line.",
+    "pt": "Vazio: qualquer pessoa pode escrever. Um endereço ou @domínio por linha."
+  },
+  "inbound_mail.allowed_senders_placeholder": {
+    "es": "ana@proveedor.com, @otro-proveedor.com",
+    "en": "ana@supplier.com, @other-supplier.com",
+    "pt": "ana@fornecedor.com, @outro-fornecedor.com"
+  },
+  "inbound_mail.bill_reason.arithmetic": {
+    "es": "Los totales no cuadran",
+    "en": "Totals do not add up",
+    "pt": "Os totais não batem"
+  },
+  "inbound_mail.bill_reason.document_number": {
+    "es": "Número de documento a revisar",
+    "en": "Document number to check",
+    "pt": "Número de documento a rever"
+  },
+  "inbound_mail.bill_reason.no_total": {
+    "es": "Falta fecha o total",
+    "en": "Date or total missing",
+    "pt": "Falta data ou total"
+  },
+  "inbound_mail.bill_reason.not_a_bill": {
+    "es": "No parece una factura",
+    "en": "Does not look like a bill",
+    "pt": "Não parece uma fatura"
+  },
+  "inbound_mail.bill_reason.possible_duplicate": {
+    "es": "Posible duplicado",
+    "en": "Possible duplicate",
+    "pt": "Possível duplicado"
+  },
+  "inbound_mail.bill_reason.rejected_by_rules": {
+    "es": "Las reglas de la factura la rechazaron",
+    "en": "The bill's rules refused it",
+    "pt": "As regras da fatura recusaram-na"
+  },
+  "inbound_mail.bill_reason.unknown_supplier": {
+    "es": "Proveedor no registrado",
+    "en": "Supplier not registered",
+    "pt": "Fornecedor não registado"
+  },
+  "inbound_mail.bill_reason.unmatched_lines": {
+    "es": "Líneas sin producto ni cuenta",
+    "en": "Lines without product or account",
+    "pt": "Linhas sem produto nem conta"
+  },
+  "inbound_mail.copied": {
+    "es": "Dirección copiada.",
+    "en": "Address copied.",
+    "pt": "Endereço copiado."
+  },
+  "inbound_mail.copy": {
+    "es": "Copiar",
+    "en": "Copy",
+    "pt": "Copiar"
+  },
+  "inbound_mail.create": {
+    "es": "Crear dirección",
+    "en": "Create address",
+    "pt": "Criar endereço"
+  },
+  "inbound_mail.dismiss": {
+    "es": "Archivar",
+    "en": "Archive",
+    "pt": "Arquivar"
+  },
+  "inbound_mail.inbox_title.bills": {
+    "es": "Facturas recibidas por correo",
+    "en": "Bills received by e-mail",
+    "pt": "Faturas recebidas por e-mail"
+  },
+  "inbound_mail.inbox_title.orders": {
+    "es": "Pedidos recibidos por correo",
+    "en": "Orders received by e-mail",
+    "pt": "Encomendas recebidas por e-mail"
+  },
+  "inbound_mail.invalid_message": {
+    "es": "El mensaje recibido no tiene el formato esperado.",
+    "en": "The received message is not in the expected format.",
+    "pt": "A mensagem recebida não tem o formato esperado."
+  },
+  "inbound_mail.invalid_sender": {
+    "es": "Escribe direcciones completas (ana@proveedor.com) o dominios (@proveedor.com).",
+    "en": "Write full addresses (ana@supplier.com) or domains (@supplier.com).",
+    "pt": "Escreva endereços completos (ana@fornecedor.com) ou domínios (@fornecedor.com)."
+  },
+  "inbound_mail.invalid_signature": {
+    "es": "Firma del receptor de correo inválida.",
+    "en": "Invalid mail receiver signature.",
+    "pt": "Assinatura do recetor de correio inválida."
+  },
+  "inbound_mail.mailbox_not_found": {
+    "es": "No se encontró ese buzón.",
+    "en": "That mailbox was not found.",
+    "pt": "Essa caixa de correio não foi encontrada."
+  },
+  "inbound_mail.mailboxes_help": {
+    "es": "Direcciones a las que tus proveedores y clientes pueden escribir. Lo que llega se convierte en borradores que una persona aprueba; nada se contabiliza ni se envía solo.",
+    "en": "Addresses your suppliers and customers can write to. What arrives becomes drafts for a person to review; nothing is posted or sent on its own.",
+    "pt": "Endereços para onde os seus fornecedores e clientes podem escrever. O que chega torna-se rascunhos para uma pessoa rever; nada é contabilizado nem enviado sozinho."
+  },
+  "inbound_mail.mailboxes_title": {
+    "es": "Correo entrante",
+    "en": "Inbound e-mail",
+    "pt": "E-mail recebido"
+  },
+  "inbound_mail.message_not_found": {
+    "es": "No se encontró ese mensaje.",
+    "en": "That message was not found.",
+    "pt": "Essa mensagem não foi encontrada."
+  },
+  "inbound_mail.no_document": {
+    "es": "El correo no traía ningún documento que leer (PDF, foto o XML).",
+    "en": "The e-mail had no document to read (PDF, photo or XML).",
+    "pt": "O e-mail não trazia nenhum documento para ler (PDF, foto ou XML)."
+  },
+  "inbound_mail.no_handler": {
+    "es": "Este tipo de buzón no está disponible.",
+    "en": "This kind of mailbox is not available.",
+    "pt": "Este tipo de caixa de correio não está disponível."
+  },
+  "inbound_mail.not_an_order": {
+    "es": "El correo no parece un pedido.",
+    "en": "The e-mail does not look like an order.",
+    "pt": "O e-mail não parece uma encomenda."
+  },
+  "inbound_mail.not_configured": {
+    "es": "Esta instalación todavía no tiene un dominio de correo entrante configurado.",
+    "en": "This installation has no inbound mail domain configured yet.",
+    "pt": "Esta instalação ainda não tem um domínio de e-mail recebido configurado."
+  },
+  "inbound_mail.not_in_plan": {
+    "es": "Tu plan no incluye la lectura de documentos con IA.",
+    "en": "Your plan does not include reading documents with AI.",
+    "pt": "O seu plano não inclui a leitura de documentos com IA."
+  },
+  "inbound_mail.not_retryable": {
+    "es": "Ese mensaje ya se está procesando o ya terminó.",
+    "en": "That message is already being processed or is finished.",
+    "pt": "Essa mensagem já está a ser processada ou já terminou."
+  },
+  "inbound_mail.order_reason.no_items": {
+    "es": "No se encontraron artículos",
+    "en": "No items found",
+    "pt": "Não foram encontrados artigos"
+  },
+  "inbound_mail.order_reason.rejected_by_rules": {
+    "es": "Las reglas de la cotización la rechazaron",
+    "en": "The quote's rules refused it",
+    "pt": "As regras do orçamento recusaram-no"
+  },
+  "inbound_mail.order_reason.unknown_customer": {
+    "es": "Cliente no reconocido",
+    "en": "Customer not recognised",
+    "pt": "Cliente não reconhecido"
+  },
+  "inbound_mail.order_reason.unmatched_items": {
+    "es": "Artículos sin identificar",
+    "en": "Items not identified",
+    "pt": "Artigos não identificados"
+  },
+  "inbound_mail.processing_failed": {
+    "es": "No se pudo procesar el mensaje. Puedes reintentarlo.",
+    "en": "The message could not be processed. You can retry it.",
+    "pt": "Não foi possível processar a mensagem. Pode tentar novamente."
+  },
+  "inbound_mail.purpose.bills": {
+    "es": "Facturas de proveedor",
+    "en": "Supplier bills",
+    "pt": "Faturas de fornecedor"
+  },
+  "inbound_mail.purpose.orders": {
+    "es": "Pedidos de clientes",
+    "en": "Customer orders",
+    "pt": "Encomendas de clientes"
+  },
+  "inbound_mail.purpose_help.bills": {
+    "es": "Cada PDF, foto o XML adjunto se lee según las reglas de tu país; si todo cuadra queda como factura en borrador ligada a su orden de compra.",
+    "en": "Each attached PDF, photo or XML is read by your country's rules; if everything checks out it becomes a draft bill linked to its purchase order.",
+    "pt": "Cada PDF, foto ou XML anexo é lido segundo as regras do seu país; se tudo bater, fica como fatura em rascunho ligada à sua ordem de compra."
+  },
+  "inbound_mail.purpose_help.orders": {
+    "es": "El pedido del cliente se convierte en una cotización en borrador con precios de catálogo, para aprobarla y convertirla en pedido.",
+    "en": "The customer's order becomes a draft quote at catalogue prices, to approve and turn into an order.",
+    "pt": "A encomenda do cliente torna-se um orçamento em rascunho a preços de catálogo, para aprovar e converter em encomenda."
+  },
+  "inbound_mail.record.quote": {
+    "es": "Cotización en borrador {{label}}",
+    "en": "Draft quote {{label}}",
+    "pt": "Orçamento em rascunho {{label}}"
+  },
+  "inbound_mail.record.vendor_bill": {
+    "es": "Factura en borrador {{label}}",
+    "en": "Draft bill {{label}}",
+    "pt": "Fatura em rascunho {{label}}"
+  },
+  "inbound_mail.retry": {
+    "es": "Reintentar",
+    "en": "Retry",
+    "pt": "Tentar novamente"
+  },
+  "inbound_mail.review": {
+    "es": "Revisar",
+    "en": "Review",
+    "pt": "Rever"
+  },
+  "inbound_mail.rotate": {
+    "es": "Cambiar dirección",
+    "en": "Change address",
+    "pt": "Mudar endereço"
+  },
+  "inbound_mail.rotate_message": {
+    "es": "La dirección actual dejará de funcionar de inmediato. Tendrás que avisar la nueva a quienes te escriben.",
+    "en": "The current address will stop working at once. You will have to give the new one to whoever writes to you.",
+    "pt": "O endereço atual deixará de funcionar de imediato. Terá de dar o novo a quem lhe escreve."
+  },
+  "inbound_mail.rotate_title": {
+    "es": "¿Cambiar la dirección?",
+    "en": "Change the address?",
+    "pt": "Mudar o endereço?"
+  },
+  "inbound_mail.save_failed": {
+    "es": "No se pudo guardar.",
+    "en": "Could not save.",
+    "pt": "Não foi possível guardar."
+  },
+  "inbound_mail.save_senders": {
+    "es": "Guardar remitentes",
+    "en": "Save senders",
+    "pt": "Guardar remetentes"
+  },
+  "inbound_mail.senders_saved": {
+    "es": "Remitentes guardados.",
+    "en": "Senders saved.",
+    "pt": "Remetentes guardados."
+  },
+  "inbound_mail.status.dismissed": {
+    "es": "Archivado",
+    "en": "Archived",
+    "pt": "Arquivado"
+  },
+  "inbound_mail.status.failed": {
+    "es": "Falló",
+    "en": "Failed",
+    "pt": "Falhou"
+  },
+  "inbound_mail.status.needs_review": {
+    "es": "Por revisar",
+    "en": "To review",
+    "pt": "Por rever"
+  },
+  "inbound_mail.status.processed": {
+    "es": "Listo",
+    "en": "Done",
+    "pt": "Concluído"
+  },
+  "inbound_mail.status.processing": {
+    "es": "Procesando",
+    "en": "Processing",
+    "pt": "A processar"
+  },
+  "inbound_mail.status.received": {
+    "es": "Recibido",
+    "en": "Received",
+    "pt": "Recebido"
+  },
+  "inbound_mail.status.rejected": {
+    "es": "Descartado",
+    "en": "Rejected",
+    "pt": "Rejeitado"
+  },
+  "inbound_mail.unknown_purpose": {
+    "es": "Buzón desconocido.",
+    "en": "Unknown mailbox.",
+    "pt": "Caixa de correio desconhecida."
+  }
+}

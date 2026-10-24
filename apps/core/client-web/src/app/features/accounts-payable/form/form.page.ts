@@ -50,6 +50,7 @@ import { Account } from '../../../core/models/account.model';
 import { AiService } from '../../ai/data/ai.service';
 import { composeKey } from '@virteex/shared/types';
 import { AuthService } from '../../../core/services/auth';
+import { InboundMailService } from '../../inbound-mail/inbound-mail.service';
 
 /** The date pickers hand back `YYYY-MM-DD` already; this only normalises what the API returns. */
 function isoOf(value: string | Date): string {
@@ -150,6 +151,9 @@ export class VendorBillFormPage implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly purchasing = inject(PurchasingService);
   private readonly ai = inject(AiService);
+  private readonly inboundMail = inject(InboundMailService);
+  /** The mail message this bill was opened from, and whether it is the message's only bill. */
+  readonly mailSource = signal<{ messageId: string; single: boolean } | null>(null);
   private readonly auth = inject(AuthService);
 
   // ── The supplier's document ────────────────────────────────────────────────
@@ -180,6 +184,12 @@ export class VendorBillFormPage implements OnInit {
     }
     if (result.checks.ncf.status === 'invalid') {
       notes.push({ key: composeKey('accounts_payable.capture.ncf_error', result.checks.ncf.error ?? 'format'), params: { ncf: result.bill.ncf }, tone: 'warning' });
+    }
+    if (result.checks.ncf.status === 'unverified' && result.bill.ncf) {
+      notes.push({ key: 'accounts_payable.capture.document_unverified', params: { ncf: result.bill.ncf }, tone: 'info' });
+    }
+    if (result.market.generic) {
+      notes.push({ key: 'accounts_payable.capture.generic_market', tone: 'info' });
     }
     for (const warning of result.checks.ncf.warnings) {
       notes.push({ key: composeKey('accounts_payable.capture.ncf_warning', warning), params: { ncf: result.bill.ncf }, tone: 'info' });
@@ -274,7 +284,9 @@ export class VendorBillFormPage implements OnInit {
     };
     const { bill, confidence } = result;
     if (result.supplier.match) set('vendorId', result.supplier.match.id, confidence.supplier);
-    if (bill.ncf && result.checks.ncf.status === 'ok') set('ncf', bill.ncf, confidence.ncf);
+    // A number the market's rule rejected is shown as a warning, never written in; one the market has
+    // no rule for is written in and flagged as not verified.
+    if (bill.ncf && (result.checks.ncf.status === 'ok' || result.checks.ncf.status === 'unverified')) set('ncf', bill.ncf, confidence.ncf);
     set('date', bill.date, confidence.dates);
     set('dueDate', bill.dueDate ?? bill.date, confidence.dates);
     if (bill.currencyCode && this.currencies().some((currency) => currency.code === bill.currencyCode)) {
@@ -465,6 +477,33 @@ export class VendorBillFormPage implements OnInit {
    */
   readonly sourceOrder = signal<{ id: string; number: string } | null>(null);
 
+  /**
+   * A supplier's bill that arrived by mail and was read, but left for a person: what was read
+   * fills the form exactly as a document uploaded here would, and the file comes with it.
+   */
+  private prefillFromMail(messageId: string, attachmentId: string): void {
+    this.inboundMail.messages('BILLS', ['NEEDS_REVIEW']).subscribe({
+      next: (messages) => {
+        const message = messages.find((item) => item.id === messageId);
+        const bills = ((message?.review?.['bills'] as Array<{ attachmentId: string; fileName: string; suggestion: BillCaptureSuggestion }>) ?? []);
+        const item = bills.find((bill) => bill.attachmentId === attachmentId);
+        if (!item) return;
+        this.capture.set(item.suggestion);
+        this.applyCapture(item.suggestion);
+        this.keepAttachment({
+          id: item.suggestion.attachment.id,
+          vendorBillId: null,
+          fileName: item.suggestion.attachment.fileName,
+          mimeType: item.suggestion.attachment.mimeType,
+          fileSize: 0,
+          createdAt: '',
+        });
+        this.mailSource.set({ messageId, single: bills.length === 1 });
+      },
+      error: (err) => this.notifications.showHttpError(err, 'inbound_mail.message_not_found'),
+    });
+  }
+
   private prefillFromPurchaseOrder(orderId: string): void {
     this.isLoading.set(true);
     this.purchasing.getOrder(orderId).subscribe({
@@ -595,6 +634,11 @@ export class VendorBillFormPage implements OnInit {
     const fromOrder = this.route.snapshot?.queryParamMap?.get('purchaseOrderId');
     if (fromOrder && !this.route.snapshot?.paramMap?.get('id')) {
       this.prefillFromPurchaseOrder(fromOrder);
+    }
+    const fromMail = this.route.snapshot?.queryParamMap?.get('fromMail');
+    const mailAttachment = this.route.snapshot?.queryParamMap?.get('attachment');
+    if (fromMail && mailAttachment && !this.route.snapshot?.paramMap?.get('id')) {
+      this.prefillFromMail(fromMail, mailAttachment);
     }
     this.route.paramMap
       .pipe(
@@ -755,6 +799,9 @@ export class VendorBillFormPage implements OnInit {
             : 'accounts_payable.form.invoice_created',
         );
         this.isLoading.set(false);
+        // The bill was the message's only one: the message is done and leaves the mail inbox.
+        const source = this.mailSource();
+        if (source?.single && !this.isEditMode()) this.inboundMail.dismiss('BILLS', source.messageId).subscribe({ error: () => undefined });
         //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
         //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
         //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.

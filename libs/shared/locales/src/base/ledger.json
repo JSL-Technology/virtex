@@ -569,6 +569,11 @@
     "en": "Tax withheld, payable to the authority",
     "pt": "Retenções a pagar ao fisco"
   },
+  "ledger.reconciliation.category_line": {
+    "es": "Categoría: {{account}}",
+    "en": "Category: {{account}}",
+    "pt": "Categoria: {{account}}"
+  },
   "ledger.reconciliation.entry": {
     "es": "Conciliación bancaria — {{description}}",
     "en": "Bank reconciliation — {{description}}",

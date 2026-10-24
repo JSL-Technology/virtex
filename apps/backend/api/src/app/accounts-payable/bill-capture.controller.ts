@@ -14,6 +14,8 @@ import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { AccountsPayableService } from './accounts-payable.service';
 import { VendorBillAttachment } from './entities/vendor-bill-attachment.entity';
 import { BillCaptureService, BillUpload, MAX_BILL_FILE_BYTES } from './bill-capture.service';
+import { ShortLivedConnections } from '../shared/tenancy/short-lived-connections.decorator';
+import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../shared/rate-limit/tenant-rate-limit.guard';
 
 const ACCEPTED = /^(image\/(jpe?g|png|webp|gif|heic|heif|avif|tiff)|application\/pdf)$/i;
 
@@ -42,7 +44,10 @@ export class BillCaptureController {
     private readonly bills: AccountsPayableService,
   ) {}
 
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('capture')
+  @ShortLivedConnections()
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_CREATE, PERMISSIONS.AI_BILL_CAPTURE_USE)
   @CheckFeature('ai_vision')
   @UseGuards(ThrottlerGuard)

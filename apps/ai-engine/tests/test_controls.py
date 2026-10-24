@@ -207,3 +207,21 @@ def test_every_detector_runs_on_an_empty_tenant():
     }
     findings, counts = pipeline.detect(data)
     assert findings == [] and "failed" not in counts.values()
+
+
+def test_working_hours_are_watched_only_where_the_company_turned_it_on():
+    day = pd.Timestamp("2026-03-02", tz="UTC")
+    events = pd.DataFrame({
+        "entity": "invoice", "entity_id": "x", "action": "UPDATE", "status_before": None, "changed_fields": None,
+        "user_id": ["u1"] * 300 + ["u9"] * 5,
+        "created_at": [day + pd.Timedelta(hours=8 + (k % 10), minutes=k % 60) for k in range(300)]
+        + [day + pd.Timedelta(hours=3, minutes=k) for k in range(5)],
+    })
+    base = {key: pd.DataFrame() for key in ["bills", "bills_year", "below_cost", "pos", "adjustments", "branch_daily",
+                                             "invoices", "customer_payments", "settlements", "po_lines", "po_bills",
+                                             "returns", "price_changes", "invoice_prices", "organization", "feedback"]}
+    base["document_changes"] = events
+    _, off = pipeline.detect({**base, "settings": pd.DataFrame({"activity_monitoring": [False]})})
+    assert "off_hours" not in off
+    _, on = pipeline.detect({**base, "settings": pd.DataFrame({"activity_monitoring": [True]})})
+    assert on["off_hours"] == 1

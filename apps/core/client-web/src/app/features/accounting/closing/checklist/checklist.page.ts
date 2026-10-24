@@ -12,6 +12,8 @@ import {
   AccountingPeriodsService,
   ClosingChecklistItem,
 } from '../../../../core/api/accounting-periods.service';
+import { CloseAssistantComponent } from '../../../ai/close/close-assistant.component';
+import { ActivatedRoute } from '@angular/router';
 
 /**
  * The closing checklist, for whichever period the reader chooses.
@@ -33,13 +35,14 @@ import {
 @Component({
   selector: 'app-checklist-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CloseAssistantComponent, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './checklist.page.html',
   styleUrls: ['./checklist.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChecklistPage {
   private readonly periodsApi = inject(AccountingPeriodsService);
+  private readonly route = inject(ActivatedRoute, { optional: true });
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(DialogService);
   private readonly notifications = inject(NotificationService);
@@ -88,8 +91,12 @@ export class ChecklistPage {
         this.periods.set(periods);
         // The earliest open period is the one being closed; fall back to the most recent when
         // every period is already closed, so the page still has something to show.
+        // A link to one period (the close plan's notice) opens that one.
+        const asked = this.route?.snapshot?.queryParamMap?.get('period');
         const target =
-          periods.find((period) => period.status === 'OPEN') ?? periods[periods.length - 1];
+          periods.find((period) => period.id === asked) ??
+          periods.find((period) => period.status === 'OPEN') ??
+          periods[periods.length - 1];
         if (!target) {
           this.items.set([]);
           this.loading.set(false);

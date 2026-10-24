@@ -69,24 +69,24 @@ export class CashflowService {
   }
 
   /** The current projection: its band, headline figures, and the state of the latest run. */
-  async overview(organizationId: string) {
+  async overview(organizationId: string, reader: CashflowReader) {
     const [latest, succeeded] = await Promise.all([
       this.runs.latest(organizationId, 'CASHFLOW'),
       this.runs.latestSucceeded(organizationId, 'CASHFLOW'),
     ]);
     if (!succeeded) return { latest: latest && summarise(latest), projection: null };
-    return { latest: latest && summarise(latest), projection: await this.projection(organizationId, succeeded) };
+    return { latest: latest && summarise(latest), projection: await this.projection(organizationId, succeeded, reader) };
   }
 
   /** A scenario run and, for comparison, the projection it changes. */
-  async scenarioResult(organizationId: string, runId: string) {
+  async scenarioResult(organizationId: string, runId: string, reader: CashflowReader) {
     const run = await this.runRows.findOne({ where: { id: runId, organizationId, kind: 'SCENARIO' } });
     if (!run) throw new NotFoundError('ai.cashflow.scenario_not_found');
     const baseline = await this.runs.latestSucceeded(organizationId, 'CASHFLOW');
     return {
       run: summarise(run),
-      scenario: run.status === 'SUCCEEDED' ? await this.projection(organizationId, run) : null,
-      baseline: baseline ? await this.projection(organizationId, baseline) : null,
+      scenario: run.status === 'SUCCEEDED' ? await this.projection(organizationId, run, reader) : null,
+      baseline: baseline ? await this.projection(organizationId, baseline, reader) : null,
     };
   }
 
@@ -122,9 +122,9 @@ export class CashflowService {
     return { total, items };
   }
 
-  private async projection(organizationId: string, run: AiModelRun) {
+  private async projection(organizationId: string, run: AiModelRun, reader: CashflowReader) {
     const days = await this.days.find({ where: { organizationId, runId: run.id }, order: { day: 'ASC' } });
-    return {
+    const projection = {
       runId: run.id,
       createdAt: run.createdAt,
       finishedAt: run.finishedAt,
@@ -141,6 +141,7 @@ export class CashflowService {
         components: day.components,
       })),
     };
+    return reader.seesPayroll ? projection : withoutPayroll(projection);
   }
 
   private async opening(organizationId: string, threshold: number) {
@@ -153,6 +154,33 @@ export class CashflowService {
       threshold: Number.isFinite(threshold) ? threshold : 0,
     };
   }
+}
+
+/** Who reads a projection: whether payroll may be shown on its own line. */
+export interface CashflowReader {
+  seesPayroll: boolean;
+}
+
+/**
+ * Payroll folded into the other spending. The total payroll of a small company is close to the pay
+ * of each person in it, so a reader without `payroll:view` sees the same balance and the same money
+ * out, without the line that says how much of it is wages.
+ */
+export function withoutPayroll<T extends { metrics: Record<string, unknown>; days: Array<{ components: unknown }> }>(projection: T): T {
+  const fold = (components: unknown): unknown => {
+    if (!components || typeof components !== 'object' || !('payroll' in components)) return components;
+    const { payroll, ...rest } = components as Record<string, number>;
+    return { ...rest, new_spending: round2(Number(rest['new_spending'] ?? 0) + Number(payroll ?? 0)) };
+  };
+  return {
+    ...projection,
+    metrics: { ...projection.metrics, byComponent: fold(projection.metrics['byComponent']) },
+    days: projection.days.map((day) => ({ ...day, components: fold(day.components) })),
+  };
+}
+
+function round2(value: number): number {
+  return Math.round(value * 100) / 100;
 }
 
 export function boundScenario(input: CashflowScenarioInput): Required<CashflowScenarioInput> {

@@ -51,6 +51,8 @@
       </p>
     }
 
+    <app-close-assistant [periodId]="selectedPeriodId()" />
+
     @if (isEmpty()) {
       <p class="checklist-state">{{ 'accounting.checklist.no_checklists_have_been_created_yet' | translate }}</p>
     } @else {

@@ -25,6 +25,7 @@ import { DocumentShellComponent, DocumentTone } from '../../../shared/components
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { refreshWhenStale } from '../../../core/data/data-version.service';
+import { AiProvenanceBadgeComponent } from '../../ai/provenance/ai-provenance-badge.component';
 
 /**
  * A supplier bill, in full.
@@ -43,7 +44,7 @@ import { refreshWhenStale } from '../../../core/data/data-version.service';
 @Component({
   selector: 'app-vendor-bill-detail-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent, HasPermissionDirective],
+  imports: [AiProvenanceBadgeComponent, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent, HasPermissionDirective],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

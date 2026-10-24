@@ -8,6 +8,8 @@ import { AuthService } from '../../../../core/services/auth';
 import { SsoAdminService } from '../../../../core/services/sso-admin.service';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { ExtensionsService } from '../../../extensions/extensions.service';
+import { InboundMailboxesPanelComponent } from '../../../inbound-mail/inbound-mailboxes-panel.component';
+import { McpAgentsPanelComponent } from '../../../ai/mcp/mcp-agents-panel.component';
 
 /** The copy of each card. Literal keys, so the catalogue check sees every one of them. */
 export const INTEGRATION_COPY = {
@@ -88,7 +90,7 @@ export interface IntegrationCard {
 @Component({
   selector: 'app-integration-settings-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule],
+  imports: [RouterLink, TranslateModule, InboundMailboxesPanelComponent, McpAgentsPanelComponent],
   templateUrl: './integrations.page.html',
   styleUrls: ['./integrations.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

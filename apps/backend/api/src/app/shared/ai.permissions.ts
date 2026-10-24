@@ -14,6 +14,11 @@ export const AI_PERMISSIONS = {
   AI_FORECASTS_RUN: 'ai_forecasts:run',
   AI_ANOMALIES_VIEW: 'ai_anomalies:view',
   AI_ANOMALIES_RESOLVE: 'ai_anomalies:resolve',
+  /**
+   * The findings about people rather than transactions — someone working at hours the company never
+   * works. Monitoring of employees: its own permission, not part of reading the sales anomalies.
+   */
+  AI_ANOMALIES_VIEW_SECURITY: 'ai_anomalies:view_security',
   AI_VISION_USE: 'ai_vision:use',
   AI_USAGE_VIEW: 'ai_usage:view',
   /**
@@ -33,4 +38,9 @@ export const AI_PERMISSIONS = {
   AI_REPORTS_VIEW: 'ai_reports:view',
   /** Configuring the agents that prepare documents on their own, and reading their log. */
   AI_AGENTS_MANAGE: 'ai_agents:manage',
+  /**
+   * What the company decides about its AI: switching it (or one feature) off, what may be sent to a
+   * provider, the spending budget, how long conversations are kept. Separate from reading the usage.
+   */
+  AI_SETTINGS_MANAGE: 'ai_settings:manage',
 } as const;

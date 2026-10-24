@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AiAssistPort } from '../contracts/ai/ai-assist.contract';
+import { AiAssistPort, SAMPLE_ROWS_SENT, redactSampleCell } from '../contracts/ai/ai-assist.contract';
 import { EntitlementsPort } from '../saas/contracts/entitlements.contract';
 import { BadRequestError } from '../i18n/localized.exception';
 import { CsvSample, ProposedMapping, inferDateFormat, inferDecimalSeparator, mappingProblems, proposeMapping, readSample } from './parsers/column-mapping';
@@ -89,6 +89,7 @@ export class ReconciliationAssistService {
     const ids = candidates.map((candidate) => candidate.id);
     const { value } = await this.ai.extract<{ chosenId: string | null; reason: string }>({
       feature: 'reconcile_ambiguous',
+      promptId: 'reconciliation.ambiguous',
       organizationId,
       userId,
       system: AMBIGUOUS_SYSTEM,
@@ -115,10 +116,26 @@ export class ReconciliationAssistService {
     const header = { anyOf: [{ type: 'string', enum: sample.headers }, { type: 'null' }] };
     const { value } = await this.ai.extract<ProposedMapping>({
       feature: 'column_mapping',
+      promptId: 'reconciliation.column_mapping',
       organizationId,
       userId,
       system: MAPPING_SYSTEM,
-      content: [{ type: 'text', text: JSON.stringify({ headers: sample.headers, rows: sample.rows.slice(0, 5) }, null, 2) }],
+      // The shape of each column, not the account's movements (see `redactSampleCell`).
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              headers: sample.headers,
+              rows: sample.rows
+                .slice(0, SAMPLE_ROWS_SENT)
+                .map((row) => Object.fromEntries(Object.entries(row).map(([header, cell]) => [header, redactSampleCell(String(cell ?? ''))]))),
+            },
+            null,
+            2,
+          ),
+        },
+      ],
       schema: {
         type: 'object',
         additionalProperties: false,

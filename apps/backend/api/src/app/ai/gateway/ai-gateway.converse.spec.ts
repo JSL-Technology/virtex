@@ -1,3 +1,4 @@
+import { fakeTenantDataSource } from '../../shared/tenancy/testing';
 import { AiGatewayService, numbersNotInFacts } from './ai-gateway.service';
 
 /**
@@ -24,7 +25,8 @@ function build() {
     }),
   };
   const entitlements = { consume: jest.fn().mockResolvedValue(undefined), checkFeature: jest.fn() };
-  const service = new AiGatewayService({ get: (key: string) => settings[key] } as never, entitlements as never, requests as never);
+  const policy = { assertCallAllowed: jest.fn().mockResolvedValue(undefined), afterCall: jest.fn().mockResolvedValue(undefined) };
+  const service = new AiGatewayService({ get: (key: string) => settings[key] } as never, entitlements as never, requests as never, fakeTenantDataSource(), policy as never);
   const create = jest.fn();
   (service as unknown as { client: unknown }).client = { beta: { messages: { create } } };
   return { service, create, saved, entitlements };
@@ -50,6 +52,7 @@ describe('AiGatewayService.converse', () => {
 
     const result = await service.converse({
       feature: 'copilot',
+      promptId: 'copilot.system',
       organizationId: 'org-1',
       userId: 'u-1',
       system: 'stable',
@@ -80,7 +83,7 @@ describe('AiGatewayService.converse', () => {
       .mockResolvedValueOnce({ model: 'm', stop_reason: 'tool_use', usage, content: [{ type: 'tool_use', id: 't', name: 'x', input: {} }] })
       .mockResolvedValueOnce({ model: 'm', stop_reason: 'end_turn', usage, content: [{ type: 'text', text: 'No pude.' }] });
     await service.converse({
-      feature: 'copilot', organizationId: 'o', userId: 'u', system: 's', history: [{ role: 'user', content: 'q' }], tools,
+      feature: 'copilot', promptId: 'copilot.system', organizationId: 'o', userId: 'u', system: 's', history: [{ role: 'user', content: 'q' }], tools,
       execute: async () => {
         throw new Error('boom');
       },
@@ -92,7 +95,7 @@ describe('AiGatewayService.converse', () => {
     const { service, create, entitlements } = build();
     create.mockResolvedValue({ model: 'm', stop_reason: 'tool_use', usage, content: [{ type: 'tool_use', id: 't', name: 'x', input: {} }] });
     const result = await service.converse({
-      feature: 'copilot', organizationId: 'o', userId: 'u', system: 's', history: [{ role: 'user', content: 'q' }], tools,
+      feature: 'copilot', promptId: 'copilot.system', organizationId: 'o', userId: 'u', system: 's', history: [{ role: 'user', content: 'q' }], tools,
       execute: async () => ({ content: '{}' }), maxTurns: 3,
     });
     expect(result.stopReason).toBe('max_turns');
@@ -104,11 +107,28 @@ describe('AiGatewayService.converse', () => {
     create.mockResolvedValue({ model: 'm', stop_reason: 'refusal', usage, content: [{ type: 'tool_use', id: 't', name: 'x', input: {} }] });
     const execute = jest.fn();
     const result = await service.converse({
-      feature: 'copilot', organizationId: 'o', userId: 'u', system: 's', history: [{ role: 'user', content: 'q' }], tools, execute,
+      feature: 'copilot', promptId: 'copilot.system', organizationId: 'o', userId: 'u', system: 's', history: [{ role: 'user', content: 'q' }], tools, execute,
     });
     expect(result.stopReason).toBe('refusal');
     expect(execute).not.toHaveBeenCalled();
     expect(saved[0]).toMatchObject({ status: 'REFUSED' });
+  });
+
+  it('stops paying once the person stops waiting: no further turn after the signal', async () => {
+    const { service, create, entitlements } = build();
+    const abort = new AbortController();
+    create.mockImplementation(async (_params: unknown, options: { signal?: AbortSignal }) => {
+      expect(options?.signal).toBe(abort.signal);
+      abort.abort();
+      return { model: 'm', stop_reason: 'tool_use', usage, content: [{ type: 'tool_use', id: 't1', name: 'receivables_aging', input: {} }] };
+    });
+    const result = await service.converse({
+      feature: 'copilot', promptId: 'copilot.system', organizationId: 'o', userId: 'u', system: 's', history: [{ role: 'user', content: 'q' }], tools,
+      execute: async () => ({ content: '{}' }), signal: abort.signal,
+    });
+    expect(result.stopReason).toBe('cancelled');
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(entitlements.consume).toHaveBeenCalledTimes(1);
   });
 });
 

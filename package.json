@@ -23,6 +23,7 @@
     "i18n:prune": "node tools/i18n/verify-catalogues.mjs --prune && node tools/i18n/build-catalogues.mjs",
     "generate:env": "node tools/generate-environment.mjs",
     "check:schema-drift": "node tools/check-schema-drift.mjs",
+    "ai:eval": "jest -c apps/backend/api/jest.eval.config.cts --runInBand",
     "verify:migration-identities": "node tools/verify/migration-identities.mjs",
     "verify:tenant-scope": "node tools/verify/tenant-scope-guard.mjs",
     "verify:env-gating": "node tools/verify/env-gating.mjs",

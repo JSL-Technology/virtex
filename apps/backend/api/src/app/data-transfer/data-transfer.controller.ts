@@ -12,6 +12,7 @@ import {
   Res,
   UploadedFile,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { readFile } from 'fs/promises';
@@ -25,6 +26,7 @@ import { AuthenticatedUser } from '../security/principal';
 import { DataTransferFile, DataTransferService } from './data-transfer.service';
 import { ExportRequestDto, ImportQueryDto, RunsQueryDto, TemplateParamsDto } from './dto/data-transfer.dto';
 import { DataTransferKind } from './entities/data-transfer-run.entity';
+import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../shared/rate-limit/tenant-rate-limit.guard';
 
 /**
  * Every route is reachable by any signed-in user and decides per DATASET: exporting customers needs
@@ -101,6 +103,8 @@ export class DataTransferController {
   }
 
   /** Which header of a file is which key, proposed for the person to confirm. Imports nothing. */
+  @TenantRateLimit(AI_RATE_LIMIT)
+  @UseGuards(TenantRateLimitGuard)
   @Post('datasets/:dataset/column-mapping')
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 20, ttl: 60_000 } })

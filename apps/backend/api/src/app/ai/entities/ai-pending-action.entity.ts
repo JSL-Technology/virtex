@@ -1,14 +1,15 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Check, Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 import type { AiConversation } from './ai-conversation.entity';
 
-export type AiPendingActionStatus = 'PROPOSED' | 'CONFIRMED' | 'REJECTED' | 'FAILED' | 'EXPIRED';
+export type AiPendingActionStatus = 'PROPOSED' | 'COMMITTING' | 'CONFIRMED' | 'REJECTED' | 'FAILED' | 'EXPIRED';
 
 /**
  * A document the copilot proposed to create. Nothing reaches the business tables until the person
  * who asked confirms it; this row keeps what they were shown, what they decided and what resulted.
  */
 @Entity({ name: 'ai_pending_actions' })
+@Check('CHK_ai_pending_actions_channel', `"channel" IN ('COPILOT', 'MCP')`)
 @Index('IDX_ai_pending_actions_org_conversation', ['organizationId', 'conversationId'])
 export class AiPendingAction {
   @PrimaryGeneratedColumn('uuid')
@@ -20,10 +21,11 @@ export class AiPendingAction {
   @TenantOwned('FK_ai_pending_actions_organization')
   organization?: TenantRef;
 
-  @Column({ name: 'conversation_id', type: 'uuid' })
-  conversationId: string;
+  /** Null once the conversation is deleted: the proposal outlives it as the record of what was offered. */
+  @Column({ name: 'conversation_id', type: 'uuid', nullable: true })
+  conversationId: string | null;
 
-  @ManyToOne('AiConversation', { onDelete: 'CASCADE' })
+  @ManyToOne('AiConversation', { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'conversation_id', foreignKeyConstraintName: 'FK_ai_pending_actions_conversation' })
   conversation?: AiConversation;
 
@@ -41,6 +43,17 @@ export class AiPendingAction {
 
   @Column({ type: 'jsonb' })
   preview: Record<string, unknown>;
+
+  /**
+   * Made in a turn that had read text written outside the company (a supplier's note, a customer's
+   * name): the confirmation card says so, since that is where a planted instruction would come from.
+   */
+  @Column({ name: 'after_external_text', type: 'boolean', default: false })
+  afterExternalText: boolean;
+
+  /** Where the draft was proposed: in the assistant, or by an external agent over MCP. */
+  @Column({ type: 'varchar', length: 16, default: 'COPILOT' })
+  channel: 'COPILOT' | 'MCP';
 
   @Column({ type: 'varchar', length: 16, default: 'PROPOSED' })
   status: AiPendingActionStatus;

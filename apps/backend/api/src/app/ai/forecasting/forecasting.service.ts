@@ -13,6 +13,19 @@ export interface InsightQuery {
   offset?: number;
 }
 
+/** Branch ids a reader is limited to; `null` when they see every branch. */
+export type BranchLimit = string[] | null;
+
+/**
+ * The condition that keeps a branch-limited reader to their branches. A row with no branch is
+ * company-wide, so it is not theirs either. Pushes its parameter onto `params`.
+ */
+function branchCondition(column: string, branches: BranchLimit, params: unknown[]): string[] {
+  if (branches === null) return [];
+  params.push(branches);
+  return [`${column} = ANY($${params.length}::uuid[])`];
+}
+
 const STATUS_ORDER = `CASE i."status"
   WHEN 'STOCKOUT_RISK' THEN 0 WHEN 'REORDER' THEN 1 WHEN 'OVERSTOCK' THEN 2
   WHEN 'DEAD_STOCK' THEN 3 ELSE 4 END`;
@@ -31,11 +44,13 @@ export class ForecastingService {
     private readonly runs: EngineRunsService,
   ) {}
 
-  async summary(organizationId: string) {
+  async summary(organizationId: string, branches: BranchLimit) {
+    const params: unknown[] = [organizationId];
+    const where = ['"organization_id" = $1', ...branchCondition('"branch_id"', branches, params)];
     const counts: Array<{ status: string; n: string }> = await this.dataSource.query(
       `SELECT "status", COUNT(*) AS "n" FROM "ai_inventory_insights"
-        WHERE "organization_id" = $1 GROUP BY "status"`,
-      [organizationId],
+        WHERE ${where.join(' AND ')} GROUP BY "status"`,
+      params,
     );
     const byStatus = Object.fromEntries(counts.map((row) => [row.status, Number(row.n)]));
     const [lastRun, lastSuccess] = await Promise.all([
@@ -60,9 +75,9 @@ export class ForecastingService {
     };
   }
 
-  async insights(organizationId: string, query: InsightQuery) {
+  async insights(organizationId: string, query: InsightQuery, branches: BranchLimit) {
     const params: unknown[] = [organizationId];
-    const where: string[] = ['i."organization_id" = $1'];
+    const where: string[] = ['i."organization_id" = $1', ...branchCondition('i."branch_id"', branches, params)];
     if (query.branchId) {
       params.push(query.branchId);
       where.push(`i."branch_id" = $${params.length}`);
@@ -112,8 +127,10 @@ export class ForecastingService {
   }
 
   /** The best sellers of each branch over the next 30 days: "what will sell most, and where". */
-  async topByBranch(organizationId: string, perBranch = 10) {
+  async topByBranch(organizationId: string, branches: BranchLimit, perBranch = 10) {
     const limit = Math.min(Math.max(perBranch, 1), 50);
+    const params: unknown[] = [organizationId];
+    const where = ['i."organization_id" = $1', ...branchCondition('i."branch_id"', branches, params)];
     return this.dataSource.query(
       `SELECT * FROM (
          SELECT b."id" AS "branchId", COALESCE(b."name", '') AS "branchName",
@@ -123,12 +140,12 @@ export class ForecastingService {
            FROM "ai_inventory_insights" i
            JOIN "products" p ON p."id" = i."product_id"
            LEFT JOIN "branches" b ON b."id" = i."branch_id"
-          WHERE i."organization_id" = $1
+          WHERE ${where.join(' AND ')}
           GROUP BY b."id", b."name", p."id", p."name", p."sku"
        ) ranked
        WHERE ranked."rank" <= ${limit} AND ranked."forecast30d" > 0
        ORDER BY ranked."branchName", ranked."rank"`,
-      [organizationId],
+      params,
     );
   }
 
@@ -138,7 +155,9 @@ export class ForecastingService {
    * the goods arrived by the date the order promised. The same receipts the engine reads to size
    * reorder points, so a buyer can see why a reorder point is what it is.
    */
-  async supplierLeadTimes(organizationId: string) {
+  async supplierLeadTimes(organizationId: string, branches: BranchLimit) {
+    const params: unknown[] = [organizationId];
+    const scoped = branchCondition('r."branch_id"', branches, params).map((condition) => ` AND ${condition}`).join('');
     const rows: Array<Record<string, unknown>> = await this.dataSource.query(
       `WITH receipts AS (
          SELECT r."id", o."supplier_id", r."received_at",
@@ -148,7 +167,7 @@ export class ForecastingService {
            FROM "purchase_order_receipts" r
            JOIN "purchase_orders" o ON o."id" = r."order_id"
           WHERE r."organization_id" = $1 AND o."organization_id" = $1 AND r."voided_at" IS NULL
-            AND r."received_at" >= now() - interval '365 days'
+            AND r."received_at" >= now() - interval '365 days'${scoped}
        )
        SELECT s."id" AS "supplierId", s."name" AS "supplierName", COUNT(*)::int AS "receipts",
               percentile_cont(0.5) WITHIN GROUP (ORDER BY rc."days")::float AS "medianDays",
@@ -161,14 +180,22 @@ export class ForecastingService {
         GROUP BY s."id", s."name"
         ORDER BY COUNT(*) DESC, s."name"
         LIMIT 200`,
-      [organizationId],
+      params,
     );
     return rows;
   }
 
   /** History and forecast of one series, for the chart: actual units sold, then P10/P50/P90 ahead. */
-  async series(organizationId: string, productId: string, warehouseId: string, historyDays = 180) {
+  async series(organizationId: string, productId: string, warehouseId: string, branches: BranchLimit, historyDays = 180) {
     const days = Math.min(Math.max(historyDays, 7), 730);
+    if (branches !== null) {
+      // A warehouse outside the reader's branches is not theirs to chart.
+      const [warehouse] = await this.dataSource.query(
+        `SELECT 1 FROM "warehouses" WHERE "id" = $1 AND "organization_id" = $2 AND "branch_id" = ANY($3::uuid[])`,
+        [warehouseId, organizationId, branches],
+      );
+      if (!warehouse) return { history: [], forecast: [] };
+    }
     const [history, forecast] = await Promise.all([
       this.dataSource.query(
         `SELECT to_char("day", 'YYYY-MM-DD') AS "date", ("qty_sold" - "qty_returned")::float AS "quantity"

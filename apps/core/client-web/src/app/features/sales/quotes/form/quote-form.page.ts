@@ -26,6 +26,8 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { Quote, QuoteInput, QuotesService } from '../data/quotes.service';
 import { QUOTE_TONE } from '../list/quotes.page';
+import { AiProvenanceBadgeComponent } from '../../../ai/provenance/ai-provenance-badge.component';
+import { InboundMailService } from '../../../inbound-mail/inbound-mail.service';
 
 const DEFAULT_VALIDITY_DAYS = 15;
 
@@ -41,7 +43,7 @@ const DEFAULT_VALIDITY_DAYS = 15;
 @Component({
   selector: 'app-quote-form-page',
   standalone: true,
-  imports: [
+  imports: [AiProvenanceBadgeComponent, 
     VxBranchPickerComponent,
     ReactiveFormsModule,
     RouterLink,
@@ -75,6 +77,9 @@ export class QuoteFormPage implements OnInit {
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   @Input() id?: string;
+  /** A customer's order that arrived by mail and waits for a person: it fills the new quote. */
+  @Input() fromMail?: string;
+  private readonly inboundMail = inject(InboundMailService);
 
   protected readonly AddIcon = Plus;
   protected readonly RemoveIcon = Trash2;
@@ -178,10 +183,60 @@ export class QuoteFormPage implements OnInit {
         next: (quote) => this.load(quote),
         error: (error: unknown) => this.notifications.showHttpError(error, 'sales.quotes.load_failed'),
       });
+    } else if (this.fromMail) {
+      this.prefillFromMail(this.fromMail);
     } else {
       this.addLine();
     }
   }
+
+  /**
+   * What was read from the customer's e-mail: the customer if recognised, each item with the
+   * product it was matched to (at its catalogue price) or, unmatched, as the customer wrote it —
+   * with a price of zero for the person to set. The customer's reference and wishes go to the notes.
+   */
+  private prefillFromMail(messageId: string): void {
+    this.inboundMail.messages('ORDERS', ['NEEDS_REVIEW']).subscribe({
+      next: (messages) => {
+        const message = messages.find((item) => item.id === messageId);
+        const order = message?.review?.['order'] as
+          | {
+              customer: { id: string } | null;
+              items: Array<{ description: string; quantity: number; productId: string | null; productName: string | null; unitPrice: number | null }>;
+              requestedDate: string | null;
+              customerReference: string | null;
+              notes: string | null;
+            }
+          | undefined;
+        if (!order) {
+          this.addLine();
+          return;
+        }
+        this.mailSource = messageId;
+        this.form.patchValue({
+          customerId: order.customer?.id ?? '',
+          notes: [`${message!.from}: ${message!.subject}`, order.customerReference ? `Ref. ${order.customerReference}` : null, order.requestedDate ? `→ ${order.requestedDate}` : null, order.notes]
+            .filter(Boolean)
+            .join(' · ')
+            .slice(0, 1000),
+        });
+        for (const item of order.items) {
+          this.addLine();
+          this.lines.at(this.lines.length - 1).patchValue({
+            productId: item.productId ?? '',
+            description: item.productName ?? item.description,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice ?? 0,
+          });
+        }
+        if (!order.items.length) this.addLine();
+      },
+      error: () => this.addLine(),
+    });
+  }
+
+  /** The mail message this quote was opened from; it leaves the inbox once the quote is saved. */
+  private mailSource: string | null = null;
 
   get lines(): FormArray {
     return this.form.get('lines') as FormArray;
@@ -245,6 +300,10 @@ export class QuoteFormPage implements OnInit {
       next: (quote) => {
         this.saving.set(false);
         this.notifications.showSuccess('sales.quotes.saved', { number: quote.quoteNumber });
+        if (creating && this.mailSource) {
+          this.inboundMail.dismiss('ORDERS', this.mailSource).subscribe({ error: () => undefined });
+          this.mailSource = null;
+        }
         if (creating && this.tab) {
           this.tab.replaceRoute(`/quotes/${quote.id}/edit`, { title: quote.quoteNumber });
           return;

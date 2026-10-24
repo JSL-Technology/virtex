@@ -1,3 +1,4 @@
+import { OrderMailHandler } from './inbox/order-mail.handler';
 import { SalesCopilotTools } from './sales.copilot-tools';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -46,7 +47,9 @@ import { Customer } from '../customers/entities/customer.entity';
     OpportunitiesController,
     QuotesController,
   ],
-  providers: [SalesCopilotTools, 
+  providers: [
+    // Customer orders received at the company's address (inbound-mail) become draft quotes.
+    OrderMailHandler,SalesCopilotTools, 
     LeadsService,
     OpportunitiesService,
     QuotesService,

@@ -15,6 +15,7 @@ export class TreasuryCopilotTools implements OnModuleInit {
     this.registry.register({
       kind: 'read',
       name: 'cash_position',
+      branchScope: 'none',
       description: 'Cash and bank balances per account at a date, and the total. Use for "how much cash do I have".',
       permissions: [PERMISSIONS.TREASURY_VIEW],
       inputSchema: s.object({ as_of: s.nullable(s.string('YYYY-MM-DD; today when null')) }),
