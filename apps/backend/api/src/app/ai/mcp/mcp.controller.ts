@@ -1,4 +1,4 @@
-import { All, Controller, Headers, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { All, Controller, Headers, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
@@ -32,10 +32,19 @@ export class McpController {
 
   @Public()
   @SkipCsrf()
-  @Post()
+  @All()
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 120, ttl: 60_000 } })
   async handle(@Headers('authorization') authorization: string | undefined, @Req() request: FastifyRequest, @Res() reply: FastifyReply) {
+    // Stateless MCP: only POST carries a JSON-RPC exchange. Every other method is 405 (no stream to
+    // open on GET, no session to end on DELETE). One `@All()` route avoids Fastify's duplicate-method
+    // rejection that a separate `@Post()` + `@All()` pair triggers.
+    if (request.method !== 'POST') {
+      return reply
+        .status(405)
+        .header('allow', 'POST')
+        .send({ jsonrpc: '2.0', error: { code: -32000, message: `${request.method} is not supported; POST JSON-RPC.` }, id: null });
+    }
     const token = /^Bearer\s+(\S+)$/i.exec(authorization ?? '')?.[1] ?? '';
     const principal = await this.mcp.principal(token);
     if (principal === 'invalid_token') {
@@ -57,13 +66,5 @@ export class McpController {
     });
     await server.connect(transport);
     await transport.handleRequest(request.raw, reply.raw, request.body);
-  }
-
-  /** Stateless: no stream to open (GET) and no session to end (DELETE). */
-  @Public()
-  @SkipCsrf()
-  @All()
-  notAllowed(@Res() reply: FastifyReply, @Req() request: FastifyRequest) {
-    return reply.status(405).header('allow', 'POST').send({ jsonrpc: '2.0', error: { code: -32000, message: `${request.method} is not supported; POST JSON-RPC.` }, id: null });
   }
 }

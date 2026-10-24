@@ -20,13 +20,13 @@ export class McpWellKnownController {
   }
 
   @Public()
-  @Get(['oauth-authorization-server', 'oauth-authorization-server/{*rest}', 'openid-configuration'])
+  @Get(['oauth-authorization-server', 'oauth-authorization-server/*', 'openid-configuration'])
   authorizationServer(@Req() request: FastifyRequest) {
     return this.metadata(request).authorizationServer;
   }
 
   @Public()
-  @Get(['oauth-protected-resource', 'oauth-protected-resource/{*rest}'])
+  @Get(['oauth-protected-resource', 'oauth-protected-resource/*'])
   protectedResource(@Req() request: FastifyRequest) {
     return this.metadata(request).protectedResource;
   }
