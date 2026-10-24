@@ -22,8 +22,11 @@
  * together, and there is no second place to forget.
  */
 
-/** The default a local checkout gets when nothing is configured. */
-export const DEFAULT_CORS_ORIGIN = 'http://localhost:4200';
+/**
+ * The default a local checkout gets when nothing is configured: the ERP's dev server and the
+ * point of sale's. They are two applications on two ports, and both sign in against this API.
+ */
+export const DEFAULT_CORS_ORIGIN = 'http://localhost:4200,http://localhost:4300';
 
 export interface CorsOrigins {
   /** Exactly what `CORS_ORIGIN` named, for `enableCors` and for Socket.IO. */
@@ -50,7 +53,7 @@ export function parseCorsOrigins(raw?: string | null): CorsOrigins {
     .map((origin) => origin.trim())
     .filter(Boolean);
 
-  const effective = http.length ? http : [DEFAULT_CORS_ORIGIN];
+  const effective = http.length ? http : DEFAULT_CORS_ORIGIN.split(',');
 
   return {
     http: effective,

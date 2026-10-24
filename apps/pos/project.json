@@ -26,6 +26,11 @@
             "glob": "**/*",
             "input": "apps/pos/src/assets",
             "output": "assets"
+          },
+          {
+            "glob": "serve.json",
+            "input": "apps/pos/public",
+            "output": "."
           }
         ],
         "styles": [
@@ -47,7 +52,8 @@
               "maximumError": "1.5mb"
             }
           ],
-          "outputHashing": "all"
+          "outputHashing": "all",
+          "baseHref": "/pos/"
         },
         "development": {
           "optimization": false,
@@ -75,6 +81,16 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "apps/pos/jest.config.cts",
+        "passWithNoTests": false
+      }
     }
   }
 }

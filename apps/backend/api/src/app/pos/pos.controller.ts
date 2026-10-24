@@ -1,5 +1,6 @@
 import { BranchScoped } from '../organizations/contracts/branch-scope.interceptor';
 import { PosShift } from './entities/pos-shift.entity';
+import { PosSale } from './entities/pos-sale.entity';
 import {
   Body,
   Controller,
@@ -18,6 +19,7 @@ import { PosService } from './pos.service';
 import { OpenShiftDto } from './dto/open-shift.dto';
 import { CloseShiftDto } from './dto/close-shift.dto';
 import { ProcessSaleDto } from './dto/process-sale.dto';
+import { VoidSaleDto } from './dto/void-sale.dto';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 /**
@@ -27,6 +29,23 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 @Controller('pos')
 export class PosController {
   constructor(private readonly pos: PosService) {}
+
+  /**
+   * The till's catalogue: active products, priced and taxed exactly as a sale will be. Behind
+   * `pos:view`, so a cashier needs no back-office catalogue permission to sell.
+   */
+  @Get('catalog')
+  @HasPermission(PERMISSIONS.POS_VIEW)
+  catalogue(@CurrentUser() user: AuthenticatedUser) {
+    return this.pos.catalogue(user.organizationId);
+  }
+
+  /** Currency, standard rate and the company's identity for the ticket header. */
+  @Get('context')
+  @HasPermission(PERMISSIONS.POS_VIEW)
+  context(@CurrentUser() user: AuthenticatedUser) {
+    return this.pos.context(user.organizationId);
+  }
 
   @Get('shifts/active')
   @HasPermission(PERMISSIONS.POS_VIEW)
@@ -51,6 +70,14 @@ export class PosController {
     return this.pos.closeShift(user.organizationId, id, dto, user);
   }
 
+  /** The X report of an open shift, the Z report of a closed one. */
+  @Get('shifts/:id/report')
+  @HasPermission(PERMISSIONS.POS_VIEW)
+  @BranchScoped(PosShift)
+  shiftReport(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.pos.shiftReport(user.organizationId, id);
+  }
+
   /**
    * Idempotent: a till on a flaky connection retries, and a sale that commits and then loses its
    * response must not be rung — and its stock moved — a second time.
@@ -70,5 +97,28 @@ export class PosController {
     @Query('branchId', new ParseUUIDPipe({ optional: true })) branchId?: string,
   ) {
     return this.pos.listSales(user.organizationId, shiftId || undefined, { branchId, actorUserId: user.id });
+  }
+
+  @Get('sales/:id')
+  @HasPermission(PERMISSIONS.POS_VIEW)
+  @BranchScoped(PosSale)
+  getSale(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.pos.getSale(user.organizationId, id);
+  }
+
+  /**
+   * Void a sale on a shift that is still open: a supervisor's act, with a reason. The stock goes
+   * back and the shift's takings drop by the sale; the void is kept on the shift's report.
+   */
+  @Post('sales/:id/void')
+  @Idempotent()
+  @HasPermission(PERMISSIONS.POS_MANAGE_SHIFTS)
+  @BranchScoped(PosSale)
+  voidSale(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: VoidSaleDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.pos.voidSale(user.organizationId, id, dto, user);
   }
 }

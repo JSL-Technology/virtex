@@ -3,13 +3,13 @@ import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared
 import { BranchesService } from '../../../core/tenancy/branches.service';
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, FileDown } from 'lucide-angular';
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { PosSale, PosService } from '../pos/pos.service';
+import { PosSale, PosSalesService } from './pos-sales.service';
+import { POS_URL } from '../../../core/tokens/pos-url';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { DatasetExportService } from '../../../core/export/dataset-export';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
@@ -33,7 +33,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-history-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, RouterLink, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './history.page.html',
   styleUrls: ['./history.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,7 +45,9 @@ export class HistoryPage implements OnInit {
   protected readonly PlusCircleIcon = PlusCircle;
   protected readonly FileDownIcon = FileDown;
 
-  private readonly pos = inject(PosService);
+  private readonly pos = inject(PosSalesService);
+  /** «Nueva venta» opens the point-of-sale application, which is deployed apart from the ERP. */
+  protected readonly posUrl = POS_URL;
   private readonly errors = inject(ErrorHandlerService);
   /** «Exportar» — every sale, from the server (QA A-13). */
   protected readonly exports = inject(DatasetExportService);

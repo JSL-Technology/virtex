@@ -1,4 +1,34 @@
 {
+  "pos.actions": {
+    "es": "Acciones de la caja",
+    "en": "Till actions",
+    "pt": "Ações do caixa"
+  },
+  "pos.add_item_aria": {
+    "es": "Agregar {{name}}, {{price}}",
+    "en": "Add {{name}}, {{price}}",
+    "pt": "Adicionar {{name}}, {{price}}"
+  },
+  "pos.all_categories": {
+    "es": "Todo",
+    "en": "All",
+    "pt": "Tudo"
+  },
+  "pos.amount_due": {
+    "es": "Total a pagar",
+    "en": "Amount due",
+    "pt": "Total a pagar"
+  },
+  "pos.back_office": {
+    "es": "Ir al ERP",
+    "en": "Open the ERP",
+    "pt": "Abrir o ERP"
+  },
+  "pos.back_office_hint": {
+    "es": "Abre el ERP (back office) con la misma sesión",
+    "en": "Opens the ERP (back office) with the same session",
+    "pt": "Abre o ERP (back office) com a mesma sessão"
+  },
   "pos.branch": {
     "es": "Sucursal",
     "en": "Branch",
@@ -8,6 +38,11 @@
     "es": "Cancelar",
     "en": "Cancel",
     "pt": "Cancelar"
+  },
+  "pos.categories": {
+    "es": "Categorías",
+    "en": "Categories",
+    "pt": "Categorias"
   },
   "pos.charge": {
     "es": "Cobrar {{amount}}",
@@ -24,6 +59,16 @@
     "en": "Choose the branch",
     "pt": "Escolha a filial"
   },
+  "pos.clear_ticket": {
+    "es": "Vaciar el ticket",
+    "en": "Clear the ticket",
+    "pt": "Limpar o cupom"
+  },
+  "pos.close": {
+    "es": "Cerrar",
+    "en": "Close",
+    "pt": "Fechar"
+  },
   "pos.close_shift": {
     "es": "Cerrar turno",
     "en": "Close shift",
@@ -34,20 +79,50 @@
     "en": "We could not close the shift.",
     "pt": "Não foi possível fechar o turno."
   },
+  "pos.closing_shift": {
+    "es": "Cerrando…",
+    "en": "Closing…",
+    "pt": "A fechar…"
+  },
+  "pos.code_not_found": {
+    "es": "Ningún producto tiene el código «{{code}}».",
+    "en": "No product has the code “{{code}}”.",
+    "pt": "Nenhum produto tem o código “{{code}}”."
+  },
   "pos.confirm_close_shift": {
     "es": "Cerrar y cuadrar",
     "en": "Close and reconcile",
     "pt": "Fechar e conferir"
+  },
+  "pos.context_error": {
+    "es": "No pudimos cargar la configuración de la empresa (moneda e impuestos).",
+    "en": "We could not load the company settings (currency and taxes).",
+    "pt": "Não foi possível carregar a configuração da empresa (moeda e impostos)."
   },
   "pos.counted_cash": {
     "es": "Efectivo contado",
     "en": "Cash counted",
     "pt": "Dinheiro contado"
   },
+  "pos.credentials_required": {
+    "es": "Escribe tu correo y tu contraseña.",
+    "en": "Enter your email and password.",
+    "pt": "Digite o seu e-mail e a sua senha."
+  },
   "pos.current_order": {
     "es": "Pedido actual",
     "en": "Current order",
     "pt": "Pedido atual"
+  },
+  "pos.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "pos.decrease_qty": {
+    "es": "Restar una unidad de {{name}}",
+    "en": "Remove one {{name}}",
+    "pt": "Diminuir uma unidade de {{name}}"
   },
   "pos.email": {
     "es": "Correo",
@@ -58,6 +133,21 @@
     "es": "Agrega productos para empezar.",
     "en": "Add products to begin.",
     "pt": "Adiciona produtos para começar."
+  },
+  "pos.foreign_shift_supervisor": {
+    "es": "Este turno lo abrió otro cajero. Como supervisor puedes vender en él y cerrarlo.",
+    "en": "Another cashier opened this shift. As a supervisor you can sell on it and close it.",
+    "pt": "Outro operador abriu este turno. Como supervisor, você pode vender nele e fechá-lo."
+  },
+  "pos.fullscreen": {
+    "es": "Pantalla completa",
+    "en": "Full screen",
+    "pt": "Ecrã inteiro"
+  },
+  "pos.hide_password": {
+    "es": "Ocultar contraseña",
+    "en": "Hide password",
+    "pt": "Ocultar senha"
   },
   "pos.in_stock": {
     "es": "{{count}} en existencia",
@@ -74,15 +164,70 @@
     "en": "{{count}} in stock",
     "pt": "{{count}} em stock"
   },
+  "pos.increase_qty": {
+    "es": "Sumar una unidad de {{name}}",
+    "en": "Add one more {{name}}",
+    "pt": "Adicionar uma unidade de {{name}}"
+  },
+  "pos.journal.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "pos.journal.empty": {
+    "es": "Aún no hay ventas en este turno.",
+    "en": "No sales on this shift yet.",
+    "pt": "Ainda não há vendas neste turno."
+  },
+  "pos.journal.error": {
+    "es": "No pudimos cargar las ventas del turno.",
+    "en": "We could not load the shift’s sales.",
+    "pt": "Não foi possível carregar as vendas do turno."
+  },
+  "pos.journal.loading": {
+    "es": "Cargando ventas…",
+    "en": "Loading sales…",
+    "pt": "A carregar vendas…"
+  },
+  "pos.journal.method": {
+    "es": "Pago",
+    "en": "Payment",
+    "pt": "Pagamento"
+  },
+  "pos.journal.search": {
+    "es": "Busca por ticket, cliente o producto",
+    "en": "Search by ticket, customer or product",
+    "pt": "Procure por cupom, cliente ou produto"
+  },
+  "pos.journal.time": {
+    "es": "Hora",
+    "en": "Time",
+    "pt": "Hora"
+  },
+  "pos.journal.title": {
+    "es": "Ventas del turno",
+    "en": "Shift sales",
+    "pt": "Vendas do turno"
+  },
   "pos.load_products_error": {
     "es": "No pudimos cargar el catálogo de productos.",
     "en": "We could not load the product catalogue.",
     "pt": "Não foi possível carregar o catálogo de produtos."
   },
-  "pos.loading_catalogue": {
-    "es": "Cargando el catálogo…",
-    "en": "Loading the catalogue…",
-    "pt": "A carregar o catálogo…"
+  "pos.loading_shift": {
+    "es": "Comprobando el turno de esta caja…",
+    "en": "Checking this till’s shift…",
+    "pt": "A verificar o turno deste caixa…"
+  },
+  "pos.no_access": {
+    "es": "Tu cuenta no tiene acceso al punto de venta. Pide a un administrador el permiso «Punto de venta» para tu rol, o entra con otra cuenta.",
+    "en": "Your account has no access to the point of sale. Ask an administrator for the “Point of sale” permission on your role, or sign in with another account.",
+    "pt": "A sua conta não tem acesso ao ponto de venda. Peça a um administrador a permissão “Ponto de venda” para o seu perfil, ou entre com outra conta."
+  },
+  "pos.no_matches": {
+    "es": "Ningún producto coincide con la búsqueda.",
+    "en": "No product matches the search.",
+    "pt": "Nenhum produto corresponde à pesquisa."
   },
   "pos.no_open_shift": {
     "en": "There is no open shift on this terminal. Open a shift before selling.",
@@ -99,6 +244,21 @@
     "en": "No open shift",
     "pt": "Sem turno aberto"
   },
+  "pos.not_enough_stock": {
+    "es": "No hay existencias suficientes de «{{name}}»: quedan {{available}}.",
+    "en": "Not enough stock of “{{name}}”: {{available}} left.",
+    "pt": "Estoque insuficiente de “{{name}}”: restam {{available}}."
+  },
+  "pos.offline": {
+    "es": "Sin conexión",
+    "en": "Offline",
+    "pt": "Sem ligação"
+  },
+  "pos.online": {
+    "es": "En línea",
+    "en": "Online",
+    "pt": "Online"
+  },
   "pos.open_shift": {
     "es": "Abrir turno",
     "en": "Open shift",
@@ -109,10 +269,190 @@
     "en": "We could not open the shift.",
     "pt": "Não foi possível abrir o turno."
   },
+  "pos.open_shift_help": {
+    "es": "Cuenta el efectivo con que abre la gaveta y ábrela: cada venta quedará en este turno.",
+    "en": "Count the cash the drawer opens with and open it: every sale will be recorded on this shift.",
+    "pt": "Conte o dinheiro com que a gaveta abre e abra-a: cada venda ficará registada neste turno."
+  },
+  "pos.opening_float": {
+    "es": "Fondo de caja inicial",
+    "en": "Opening float",
+    "pt": "Fundo de caixa inicial"
+  },
+  "pos.opening_shift": {
+    "es": "Abriendo…",
+    "en": "Opening…",
+    "pt": "A abrir…"
+  },
+  "pos.out_of_stock": {
+    "es": "Agotado",
+    "en": "Out of stock",
+    "pt": "Esgotado"
+  },
+  "pos.out_of_stock_named": {
+    "es": "«{{name}}» está agotado.",
+    "en": "“{{name}}” is out of stock.",
+    "pt": "“{{name}}” está esgotado."
+  },
+  "pos.park.discard": {
+    "es": "Descartar el ticket aparcado",
+    "en": "Discard the parked ticket",
+    "pt": "Descartar o cupom em espera"
+  },
+  "pos.park.empty": {
+    "es": "No hay tickets aparcados.",
+    "en": "No parked tickets.",
+    "pt": "Não há cupons em espera."
+  },
+  "pos.park.items": {
+    "es": "{{count}} artículos",
+    "en": "{{count}} items",
+    "pt": "{{count}} artigos"
+  },
+  "pos.park.items_one": {
+    "es": "{{count}} artículo",
+    "en": "{{count}} item",
+    "pt": "{{count}} artigo"
+  },
+  "pos.park.items_other": {
+    "es": "{{count}} artículos",
+    "en": "{{count}} items",
+    "pt": "{{count}} artigos"
+  },
+  "pos.park.limit": {
+    "es": "Ya hay {{max}} tickets aparcados. Cobra o descarta alguno antes de aparcar otro.",
+    "en": "There are already {{max}} parked tickets. Charge or discard one before parking another.",
+    "pt": "Já existem {{max}} cupons em espera. Cobre ou descarte algum antes de colocar outro em espera."
+  },
+  "pos.park.park": {
+    "es": "Aparcar",
+    "en": "Park",
+    "pt": "Em espera"
+  },
+  "pos.park.parked": {
+    "es": "Ticket aparcado. Recupéralo desde «Recuperar» cuando quieras.",
+    "en": "Ticket parked. Bring it back from “Recall” whenever you need it.",
+    "pt": "Cupom em espera. Recupere-o em “Recuperar” quando quiser."
+  },
+  "pos.park.recall": {
+    "es": "Recuperar",
+    "en": "Recall",
+    "pt": "Recuperar"
+  },
+  "pos.park.title": {
+    "es": "Tickets aparcados",
+    "en": "Parked tickets",
+    "pt": "Cupons em espera"
+  },
   "pos.password": {
     "es": "Contraseña",
     "en": "Password",
     "pt": "Senha"
+  },
+  "pos.pay.card_exceeds_total": {
+    "es": "La parte con tarjeta no puede superar el total.",
+    "en": "The card part cannot exceed the total.",
+    "pt": "A parte no cartão não pode ultrapassar o total."
+  },
+  "pos.pay.card_part": {
+    "es": "Parte con tarjeta",
+    "en": "Card part",
+    "pt": "Parte no cartão"
+  },
+  "pos.pay.cash_part": {
+    "es": "Parte en efectivo",
+    "en": "Cash part",
+    "pt": "Parte em dinheiro"
+  },
+  "pos.pay.cash_received": {
+    "es": "Efectivo recibido",
+    "en": "Cash received",
+    "pt": "Dinheiro recebido"
+  },
+  "pos.pay.change": {
+    "es": "Cambio",
+    "en": "Change",
+    "pt": "Troco"
+  },
+  "pos.pay.confirm": {
+    "es": "Confirmar cobro de {{amount}}",
+    "en": "Confirm payment of {{amount}}",
+    "pt": "Confirmar recebimento de {{amount}}"
+  },
+  "pos.pay.done": {
+    "es": "Venta registrada",
+    "en": "Sale recorded",
+    "pt": "Venda registrada"
+  },
+  "pos.pay.method.card": {
+    "es": "Tarjeta",
+    "en": "Card",
+    "pt": "Cartão"
+  },
+  "pos.pay.method.cash": {
+    "es": "Efectivo",
+    "en": "Cash",
+    "pt": "Dinheiro"
+  },
+  "pos.pay.method.mixed": {
+    "es": "Mixto",
+    "en": "Split",
+    "pt": "Misto"
+  },
+  "pos.pay.method.other": {
+    "es": "Otro",
+    "en": "Other",
+    "pt": "Outro"
+  },
+  "pos.pay.method.transfer": {
+    "es": "Transferencia",
+    "en": "Transfer",
+    "pt": "Transferência"
+  },
+  "pos.pay.method_label": {
+    "es": "Forma de pago",
+    "en": "Payment method",
+    "pt": "Forma de pagamento"
+  },
+  "pos.pay.new_sale": {
+    "es": "Nueva venta",
+    "en": "New sale",
+    "pt": "Nova venda"
+  },
+  "pos.pay.not_enough": {
+    "es": "Lo recibido no cubre el total.",
+    "en": "What was received does not cover the total.",
+    "pt": "O valor recebido não cobre o total."
+  },
+  "pos.pay.paid": {
+    "es": "Recibido",
+    "en": "Received",
+    "pt": "Recebido"
+  },
+  "pos.pay.quick_amounts": {
+    "es": "Montos rápidos",
+    "en": "Quick amounts",
+    "pt": "Valores rápidos"
+  },
+  "pos.pay.reference": {
+    "es": "Referencia (opcional)",
+    "en": "Reference (optional)",
+    "pt": "Referência (opcional)"
+  },
+  "pos.pay.reference_hint": {
+    "es": "Autorización del datáfono o número de la transferencia.",
+    "en": "Card terminal authorisation or transfer number.",
+    "pt": "Autorização do terminal de cartão ou número da transferência."
+  },
+  "pos.pay.still_owed": {
+    "es": "Falta",
+    "en": "Still owed",
+    "pt": "Falta"
+  },
+  "pos.pay.title": {
+    "es": "Cobrar venta",
+    "en": "Take payment",
+    "pt": "Receber pagamento"
   },
   "pos.payment_overpaid_non_cash": {
     "es": "Solo el efectivo puede superar el total: con tarjeta o transferencia se cobra el monto exacto.",
@@ -134,10 +474,150 @@
     "en": "One of the products is no longer available for sale.",
     "pt": "Um dos produtos não está mais disponível para venda."
   },
-  "pos.remove_line": {
-    "es": "Quitar línea",
-    "en": "Remove line",
-    "pt": "Remover linha"
+  "pos.quantity_of": {
+    "es": "Cantidad de {{name}}",
+    "en": "Quantity of {{name}}",
+    "pt": "Quantidade de {{name}}"
+  },
+  "pos.reload_catalogue": {
+    "es": "Recargar el catálogo",
+    "en": "Reload the catalogue",
+    "pt": "Recarregar o catálogo"
+  },
+  "pos.remove_item": {
+    "es": "Quitar {{name}} del ticket",
+    "en": "Remove {{name}} from the ticket",
+    "pt": "Remover {{name}} do cupom"
+  },
+  "pos.report.average_ticket": {
+    "es": "Ticket medio",
+    "en": "Average ticket",
+    "pt": "Cupom médio"
+  },
+  "pos.report.balanced": {
+    "es": "La caja cuadra.",
+    "en": "The drawer balances.",
+    "pt": "O caixa confere."
+  },
+  "pos.report.by_method": {
+    "es": "Por forma de pago",
+    "en": "By payment method",
+    "pt": "Por forma de pagamento"
+  },
+  "pos.report.cash_sales": {
+    "es": "Ventas en efectivo",
+    "en": "Cash sales",
+    "pt": "Vendas em dinheiro"
+  },
+  "pos.report.cash_up": {
+    "es": "Arqueo de caja",
+    "en": "Cash-up",
+    "pt": "Fecho de caixa"
+  },
+  "pos.report.closed_at": {
+    "es": "Cerrado: {{when}}",
+    "en": "Closed: {{when}}",
+    "pt": "Fechado: {{when}}"
+  },
+  "pos.report.done": {
+    "es": "Listo",
+    "en": "Done",
+    "pt": "Concluído"
+  },
+  "pos.report.error": {
+    "es": "No pudimos cargar el reporte del turno.",
+    "en": "We could not load the shift report.",
+    "pt": "Não foi possível carregar o relatório do turno."
+  },
+  "pos.report.expected_cash": {
+    "es": "Efectivo esperado",
+    "en": "Expected cash",
+    "pt": "Dinheiro esperado"
+  },
+  "pos.report.items_sold": {
+    "es": "Artículos vendidos",
+    "en": "Items sold",
+    "pt": "Artigos vendidos"
+  },
+  "pos.report.loading": {
+    "es": "Cargando el reporte…",
+    "en": "Loading the report…",
+    "pt": "A carregar o relatório…"
+  },
+  "pos.report.no_sales": {
+    "es": "Sin ventas todavía.",
+    "en": "No sales yet.",
+    "pt": "Sem vendas ainda."
+  },
+  "pos.report.opened_at": {
+    "es": "Abierto: {{when}}",
+    "en": "Opened: {{when}}",
+    "pt": "Aberto: {{when}}"
+  },
+  "pos.report.opening_float": {
+    "es": "Fondo inicial",
+    "en": "Opening float",
+    "pt": "Fundo inicial"
+  },
+  "pos.report.over": {
+    "es": "Sobran {{amount}} en caja.",
+    "en": "The drawer is {{amount}} over.",
+    "pt": "Sobram {{amount}} no caixa."
+  },
+  "pos.report.print": {
+    "es": "Imprimir reporte",
+    "en": "Print report",
+    "pt": "Imprimir relatório"
+  },
+  "pos.report.printed_at": {
+    "es": "Impreso: {{when}}",
+    "en": "Printed: {{when}}",
+    "pt": "Impresso: {{when}}"
+  },
+  "pos.report.sales_count": {
+    "es": "Ventas",
+    "en": "Sales",
+    "pt": "Vendas"
+  },
+  "pos.report.short": {
+    "es": "Faltan {{amount}} en caja.",
+    "en": "The drawer is {{amount}} short.",
+    "pt": "Faltam {{amount}} no caixa."
+  },
+  "pos.report.signature": {
+    "es": "Firma del cajero",
+    "en": "Cashier’s signature",
+    "pt": "Assinatura do operador"
+  },
+  "pos.report.top_products": {
+    "es": "Más vendidos",
+    "en": "Best sellers",
+    "pt": "Mais vendidos"
+  },
+  "pos.report.variance": {
+    "es": "Diferencia",
+    "en": "Variance",
+    "pt": "Diferença"
+  },
+  "pos.report.voided": {
+    "es": "Anuladas ({{count}})",
+    "en": "Voided ({{count}})",
+    "pt": "Anuladas ({{count}})"
+  },
+  "pos.report.x_title": {
+    "es": "Reporte X · turno en curso",
+    "en": "X report · current shift",
+    "pt": "Relatório X · turno em curso"
+  },
+  "pos.report.z_title": {
+    "es": "Reporte Z · cierre de turno",
+    "en": "Z report · shift close",
+    "pt": "Relatório Z · fecho de turno"
+  },
+  "pos.sale_already_voided": {
+    "es": "Esa venta ya está anulada.",
+    "en": "That sale is already voided.",
+    "pt": "Essa venda já está anulada."
   },
   "pos.sale_completed": {
     "es": "Venta registrada.",
@@ -148,6 +628,21 @@
     "es": "No pudimos completar la venta.",
     "en": "We could not complete the sale.",
     "pt": "Não foi possível concluir a venda."
+  },
+  "pos.sale_not_found": {
+    "es": "No encontramos esa venta.",
+    "en": "We could not find that sale.",
+    "pt": "Não encontrámos essa venda."
+  },
+  "pos.sale_shift_closed": {
+    "es": "Solo se anulan ventas de un turno abierto. Para un turno ya cerrado, registra una devolución.",
+    "en": "Only sales on an open shift can be voided. For a closed shift, record a return.",
+    "pt": "Só se anulam vendas de um turno aberto. Para um turno já fechado, registe uma devolução."
+  },
+  "pos.sale_status.cancelled": {
+    "es": "Anulada",
+    "en": "Voided",
+    "pt": "Anulada"
   },
   "pos.sale_status.paid": {
     "es": "Cobrada",
@@ -164,6 +659,16 @@
     "en": "Voided",
     "pt": "Anulada"
   },
+  "pos.same_account_hint": {
+    "es": "Usa la misma cuenta del ERP. Si ya iniciaste sesión allí en este equipo, entras directamente.",
+    "en": "Use your ERP account. If you are already signed in there on this device, you go straight in.",
+    "pt": "Use a mesma conta do ERP. Se já tem sessão iniciada lá neste dispositivo, entra diretamente."
+  },
+  "pos.scan_hint": {
+    "es": "Escanea un código de barras o toca un producto.",
+    "en": "Scan a barcode or tap a product.",
+    "pt": "Leia um código de barras ou toque num produto."
+  },
   "pos.search_products": {
     "es": "Busca productos por nombre o SKU…",
     "en": "Search products by name or SKU…",
@@ -178,6 +683,46 @@
     "es": "Escribe el código de tu aplicación de autenticación o uno de tus códigos de respaldo.",
     "en": "Enter the code from your authenticator app or one of your backup codes.",
     "pt": "Digite o código do seu aplicativo autenticador ou um dos seus códigos de backup."
+  },
+  "pos.session_expired": {
+    "es": "Tu sesión terminó. Vuelve a iniciar sesión: el turno de la caja sigue abierto.",
+    "en": "Your session ended. Sign in again: the till’s shift is still open.",
+    "pt": "A sua sessão terminou. Inicie sessão de novo: o turno do caixa continua aberto."
+  },
+  "pos.settings.auto_print": {
+    "es": "Imprimir el ticket automáticamente al cobrar",
+    "en": "Print the receipt automatically after charging",
+    "pt": "Imprimir o cupom automaticamente ao cobrar"
+  },
+  "pos.settings.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Guardar"
+  },
+  "pos.settings.saved": {
+    "es": "Ajustes guardados.",
+    "en": "Settings saved.",
+    "pt": "Configurações guardadas."
+  },
+  "pos.settings.terminal": {
+    "es": "Terminal de este equipo",
+    "en": "This device’s terminal",
+    "pt": "Terminal deste dispositivo"
+  },
+  "pos.settings.terminal_hint": {
+    "es": "Un nombre único por caja (p. ej. CAJA-1). Cada caja tiene su propio turno.",
+    "en": "A unique name per till (e.g. TILL-1). Each till has its own shift.",
+    "pt": "Um nome único por caixa (ex.: CAIXA-1). Cada caixa tem o seu próprio turno."
+  },
+  "pos.settings.terminal_open_shift": {
+    "es": "El turno abierto pertenece a la terminal actual y seguirá abierto en ella.",
+    "en": "The open shift belongs to the current terminal and stays open there.",
+    "pt": "O turno aberto pertence ao terminal atual e continua aberto nele."
+  },
+  "pos.settings.title": {
+    "es": "Ajustes de la caja",
+    "en": "Till settings",
+    "pt": "Configurações do caixa"
   },
   "pos.shift_already_closed": {
     "en": "That shift is already closed.",
@@ -229,10 +774,70 @@
     "en": "Shift open · {{count}} sales · {{amount}}",
     "pt": "Turno aberto · {{count}} vendas · {{amount}}"
   },
+  "pos.shift_opened": {
+    "es": "Turno abierto. ¡Buenas ventas!",
+    "en": "Shift open. Happy selling!",
+    "pt": "Turno aberto. Boas vendas!"
+  },
   "pos.shift_retry": {
     "es": "Reintentar",
     "en": "Try again",
     "pt": "Tentar de novo"
+  },
+  "pos.shortcuts.charge": {
+    "es": "Cobrar",
+    "en": "Charge",
+    "pt": "Cobrar"
+  },
+  "pos.shortcuts.close": {
+    "es": "Cerrar diálogo",
+    "en": "Close dialog",
+    "pt": "Fechar diálogo"
+  },
+  "pos.shortcuts.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "pos.shortcuts.journal": {
+    "es": "Ventas del turno",
+    "en": "Shift sales",
+    "pt": "Vendas do turno"
+  },
+  "pos.shortcuts.park": {
+    "es": "Aparcar ticket",
+    "en": "Park ticket",
+    "pt": "Colocar cupom em espera"
+  },
+  "pos.shortcuts.quantity": {
+    "es": "Cantidad de la línea seleccionada",
+    "en": "Quantity of the selected line",
+    "pt": "Quantidade da linha selecionada"
+  },
+  "pos.shortcuts.remove": {
+    "es": "Quitar la línea seleccionada",
+    "en": "Remove the selected line",
+    "pt": "Remover a linha selecionada"
+  },
+  "pos.shortcuts.search": {
+    "es": "Buscar / escanear",
+    "en": "Search / scan",
+    "pt": "Pesquisar / ler"
+  },
+  "pos.shortcuts.shift": {
+    "es": "Turno y arqueo",
+    "en": "Shift and cash-up",
+    "pt": "Turno e fecho"
+  },
+  "pos.shortcuts.title": {
+    "es": "Atajos de teclado",
+    "en": "Keyboard shortcuts",
+    "pt": "Atalhos de teclado"
+  },
+  "pos.show_password": {
+    "es": "Mostrar contraseña",
+    "en": "Show password",
+    "pt": "Mostrar senha"
   },
   "pos.sign_in": {
     "es": "Iniciar sesión",
@@ -242,7 +847,7 @@
   "pos.sign_in_title": {
     "es": "Inicia sesión para abrir la caja",
     "en": "Sign in to open the till",
-    "pt": "Inicia sessão para abrir a caixa"
+    "pt": "Inicie sessão para abrir a caixa"
   },
   "pos.sign_out": {
     "es": "Cerrar sesión",
@@ -254,23 +859,78 @@
     "en": "Signing in…",
     "pt": "A iniciar sessão…"
   },
-  "pos.step_up_required": {
-    "es": "Se requiere verificación adicional. Termina de iniciar sesión en la aplicación principal.",
-    "en": "Additional verification is required. Finish signing in on the main application.",
-    "pt": "É necessária verificação adicional. Termina de iniciar sessão na aplicação principal."
-  },
   "pos.subtotal": {
     "literal": "Subtotal"
+  },
+  "pos.tax_at_rate": {
+    "es": "Impuestos ({{rate}})",
+    "en": "Tax ({{rate}})",
+    "pt": "Impostos ({{rate}})"
+  },
+  "pos.tax_exempt": {
+    "es": "exento",
+    "en": "exempt",
+    "pt": "isento"
+  },
+  "pos.tax_needs_configuration": {
+    "es": "Este país calcula el impuesto por estado o municipio. Configúralo en Ajustes → Impuestos antes de cobrar.",
+    "en": "This country levies tax by state or municipality. Configure it under Settings → Taxes before charging.",
+    "pt": "Este país calcula o imposto por estado ou município. Configure-o em Configurações → Impostos antes de cobrar."
   },
   "pos.taxes": {
     "es": "Impuestos",
     "en": "Taxes",
     "pt": "Impostos"
   },
+  "pos.terminal_label": {
+    "es": "Caja {{id}}",
+    "en": "Till {{id}}",
+    "pt": "Caixa {{id}}"
+  },
   "pos.there_already_active_shift_for_this_terminal": {
     "en": "There is already an open shift on this terminal.",
     "es": "Ya hay un turno abierto en esta terminal.",
     "pt": "Já existe um turno aberto neste terminal."
+  },
+  "pos.ticket.number": {
+    "es": "Ticket n.º {{number}}",
+    "en": "Receipt no. {{number}}",
+    "pt": "Cupom n.º {{number}}"
+  },
+  "pos.ticket.number_label": {
+    "es": "Ticket",
+    "en": "Receipt",
+    "pt": "Cupom"
+  },
+  "pos.ticket.print": {
+    "es": "Imprimir ticket",
+    "en": "Print receipt",
+    "pt": "Imprimir cupom"
+  },
+  "pos.ticket.tax_id": {
+    "es": "RNC/NIF: {{taxId}}",
+    "en": "Tax ID: {{taxId}}",
+    "pt": "NIF: {{taxId}}"
+  },
+  "pos.ticket.terminal_cashier": {
+    "es": "Caja {{terminal}} · {{cashier}}",
+    "en": "Till {{terminal}} · {{cashier}}",
+    "pt": "Caixa {{terminal}} · {{cashier}}"
+  },
+  "pos.ticket.thanks": {
+    "es": "¡Gracias por tu compra!",
+    "en": "Thank you for your purchase!",
+    "pt": "Obrigado pela sua compra!"
+  },
+  "pos.ticket.title": {
+    "es": "Ticket de venta",
+    "en": "Sales receipt",
+    "pt": "Cupom de venda"
+  },
+  "pos.ticket.voided": {
+    "es": "ANULADA",
+    "en": "VOIDED",
+    "pt": "ANULADA"
   },
   "pos.total": {
     "literal": "Total"
@@ -280,9 +940,49 @@
     "en": "The calculated total does not match the one shown. Prices have been reloaded: check the total before charging.",
     "pt": "O total calculado não confere com o exibido. Os preços foram recarregados: confira o total antes de cobrar."
   },
+  "pos.use_another_account": {
+    "es": "Usar otra cuenta",
+    "en": "Use another account",
+    "pt": "Usar outra conta"
+  },
   "pos.verify_code": {
     "es": "Verificar",
     "en": "Verify",
     "pt": "Verificar"
+  },
+  "pos.view_only": {
+    "es": "Tu rol permite consultar la caja pero no vender. Pide el permiso «Operar el punto de venta».",
+    "en": "Your role can view the till but not sell. Ask for the “Operate the point of sale” permission.",
+    "pt": "O seu perfil permite consultar o caixa, mas não vender. Peça a permissão “Operar o ponto de venda”."
+  },
+  "pos.void.action": {
+    "es": "Anular venta",
+    "en": "Void sale",
+    "pt": "Anular venda"
+  },
+  "pos.void.confirm": {
+    "es": "Anular {{amount}}",
+    "en": "Void {{amount}}",
+    "pt": "Anular {{amount}}"
+  },
+  "pos.void.done": {
+    "es": "Venta anulada. El stock volvió al inventario.",
+    "en": "Sale voided. The stock went back to inventory.",
+    "pt": "Venda anulada. O stock voltou ao inventário."
+  },
+  "pos.void.error": {
+    "es": "No pudimos anular la venta.",
+    "en": "We could not void the sale.",
+    "pt": "Não foi possível anular a venda."
+  },
+  "pos.void.reason": {
+    "es": "Motivo de la anulación",
+    "en": "Reason for the void",
+    "pt": "Motivo da anulação"
+  },
+  "pos.walk_in_customer": {
+    "es": "Consumidor final",
+    "en": "Walk-in customer",
+    "pt": "Consumidor final"
   }
 }

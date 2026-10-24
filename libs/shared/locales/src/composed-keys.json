@@ -839,10 +839,18 @@
     ],
     "permissions.actions": [],
     "permissions.groups": [],
+    "pos.pay.method": [
+      "cash",
+      "card",
+      "transfer",
+      "mixed",
+      "other"
+    ],
     "pos.sale_status": [
       "PAID",
       "PENDING",
-      "VOID"
+      "VOID",
+      "CANCELLED"
     ],
     "purchasing.orders.status_label": [
       "DRAFT",

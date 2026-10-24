@@ -20,6 +20,13 @@
  * Optional:
  *   VAPID_PUBLIC_KEY         Web-push public key. Push notifications are disabled when absent.
  *   GOOGLE_MAPS_API_KEY      Maps Embed API key. The session-location map is hidden when absent.
+ *   POS_URL                  Where the point-of-sale application is served. Default `/pos/`: the
+ *                            same origin as the ERP, which is what lets the two share a session.
+ *   ERP_URL                  (POS only) Where the ERP is served, for the till's «back office»
+ *                            link. Default `/`.
+ *
+ * `--app=pos` writes the point-of-sale application's environment instead of the ERP's
+ * (apps/pos/src/environments/environment.production.ts). Same variables, same rules.
  */
 
 import { writeFileSync } from 'node:fs';
@@ -27,7 +34,12 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const TARGET = resolve(HERE, '../apps/core/client-web/src/environments/environment.production.ts');
+const APP = (process.argv.find((arg) => arg.startsWith('--app=')) ?? '--app=client-web').slice('--app='.length);
+const TARGETS = {
+  'client-web': resolve(HERE, '../apps/core/client-web/src/environments/environment.production.ts'),
+  pos: resolve(HERE, '../apps/pos/src/environments/environment.production.ts'),
+};
+const TARGET = TARGETS[APP];
 
 /** Variables without a safe default. A missing one is a configuration error, not a fallback. */
 const REQUIRED = ['API_URL', 'RECAPTCHA_V3_SITE_KEY'];
@@ -36,6 +48,8 @@ function fail(message) {
   console.error(`\n  generate-environment: ${message}\n`);
   process.exit(1);
 }
+
+if (!TARGET) fail(`unknown --app "${APP}" (expected one of: ${Object.keys(TARGETS).join(', ')})`);
 
 const missing = REQUIRED.filter((name) => !process.env[name]?.trim());
 if (missing.length > 0) {
@@ -64,19 +78,33 @@ if (parsed.protocol !== 'https:' && parsed.hostname !== 'localhost' && parsed.ho
 const siteKey = process.env.RECAPTCHA_V3_SITE_KEY.trim();
 const vapidKey = (process.env.VAPID_PUBLIC_KEY ?? '').trim();
 const mapsKey = (process.env.GOOGLE_MAPS_API_KEY ?? '').trim();
+const posUrl = (process.env.POS_URL ?? '').trim() || '/pos/';
+const erpUrl = (process.env.ERP_URL ?? '').trim() || '/';
 
 /** Escape for embedding inside a single-quoted TypeScript string literal. */
 const lit = (value) => `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 
-const contents = `/**
+const HEADER = `/**
  * GENERATED FILE — do not edit by hand.
  *
  * Written by tools/generate-environment.mjs from the deployment's own variables at build time.
  * Editing it here has no effect: the next production build overwrites it.
  */
-export const environment = {
+`;
+
+const contents =
+  APP === 'pos'
+    ? `${HEADER}export const environment = {
   production: true,
   apiUrl: ${lit(apiUrl)},
+  erpUrl: ${lit(erpUrl)},
+  recaptchaSiteKey: ${lit(siteKey)},
+};
+`
+    : `${HEADER}export const environment = {
+  production: true,
+  apiUrl: ${lit(apiUrl)},
+  posUrl: ${lit(posUrl)},
   vapidPublicKey: ${lit(vapidKey)},
   recaptcha: {
     siteKey: ${lit(siteKey)},
@@ -86,4 +114,4 @@ export const environment = {
 `;
 
 writeFileSync(TARGET, contents, 'utf8');
-console.log(`generate-environment: wrote production environment (apiUrl=${apiUrl})`);
+console.log(`generate-environment: wrote ${APP} production environment (apiUrl=${apiUrl})`);

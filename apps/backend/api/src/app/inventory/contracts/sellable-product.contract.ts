@@ -76,3 +76,83 @@ export function effectiveProductTaxRate(
   const own = Number(product.taxRate);
   return Number.isFinite(own) && own > 0 ? own : standardRate;
 }
+
+/** One item as a till shows it: what it is, what it costs, and how it is taxed — already resolved. */
+export interface SellableCatalogueItem {
+  id: string;
+  name: string;
+  sku: string | null;
+  barcode: string | null;
+  /** Unit price before tax. */
+  price: number;
+  /**
+   * The rate the server will tax the line at, already resolved by {@link effectiveProductTaxRate}.
+   * Sending the resolved rate (rather than treatment + own rate) is what keeps a till from ever
+   * pricing a line differently from the server that will accept or refuse it.
+   */
+  taxRate: number;
+  kind: ProductKind;
+  /** On hand across the company. Services report 0 and are never out of stock. */
+  stock: number;
+  unitOfMeasure: string;
+  imageUrl: string | null;
+  categoryId: string | null;
+  categoryName: string | null;
+}
+
+/** The most a till downloads at once. A shop with more than this sells by search and barcode. */
+export const SELLABLE_CATALOGUE_LIMIT = 5000;
+
+/**
+ * Everything the tenant sells right now, priced and taxed the way the sale will be.
+ *
+ * The till used to read `GET /inventory` — the back office's product list, behind `products:view`
+ * — and re-derive the tax rule in the browser. A cashier therefore needed a catalogue-management
+ * permission to sell, and two copies of the tax rule had to agree forever.
+ */
+export async function listSellableCatalogue(
+  manager: EntityManager,
+  organizationId: string,
+): Promise<SellableCatalogueItem[]> {
+  const [products, standardRate] = await Promise.all([
+    manager
+      .createQueryBuilder(Product, 'product')
+      .leftJoinAndSelect('product.category', 'category')
+      .where('product.organizationId = :organizationId', { organizationId })
+      .andWhere('product.status = :status', { status: ProductStatus.ACTIVE })
+      .orderBy('product.name', 'ASC')
+      .take(SELLABLE_CATALOGUE_LIMIT)
+      .getMany(),
+    standardSalesTaxRate(manager, organizationId),
+  ]);
+  return products.map((product) => ({
+    id: product.id,
+    name: product.name,
+    sku: product.sku ?? null,
+    barcode: product.barcode ?? null,
+    price: Number(product.price),
+    taxRate: effectiveProductTaxRate(product, standardRate),
+    kind: product.kind,
+    stock: product.kind === ProductKind.SERVICE ? 0 : Number(product.stock ?? 0),
+    unitOfMeasure: product.unitOfMeasure,
+    imageUrl: product.imageUrl ?? null,
+    categoryId: product.categoryId ?? null,
+    categoryName: product.category?.name ?? null,
+  }));
+}
+
+/**
+ * Whether selling this product moved stock — the question a void asks to put it back. Answered
+ * for inactive products too: a product withdrawn after the sale still has to be restocked.
+ */
+export async function isStockedProduct(
+  manager: EntityManager,
+  organizationId: string,
+  productId: string,
+): Promise<boolean> {
+  const product = await manager.findOne(Product, {
+    where: { id: productId, organizationId },
+    select: ['id', 'kind'],
+  });
+  return product !== null && product.kind !== ProductKind.SERVICE;
+}

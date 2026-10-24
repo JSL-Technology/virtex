@@ -9,7 +9,9 @@ export function readCsrfCookie(): string | null {
   if (typeof document === 'undefined') return null;
   for (const name of CSRF_COOKIE_NAMES) {
     const match = document.cookie.match(
-      new RegExp(`(?:^|;\\s*)${name.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')}=([^;]*)`),
+      new RegExp(
+        `(?:^|;\\s*)${name.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')}=([^;]*)`,
+      ),
     );
     if (match) return decodeURIComponent(match[1]);
   }

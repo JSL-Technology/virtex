@@ -10,7 +10,9 @@ export const apiInterceptor: HttpInterceptorFn = (req, next) => {
   let authReq = req.clone({ withCredentials: true });
   const token = readCsrfCookie();
   if (token && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-    authReq = authReq.clone({ headers: authReq.headers.set('X-XSRF-TOKEN', token) });
+    authReq = authReq.clone({
+      headers: authReq.headers.set('X-XSRF-TOKEN', token),
+    });
   }
   return next(authReq);
 };

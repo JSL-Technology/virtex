@@ -270,3 +270,112 @@ describe('PosService.settleTenders', () => {
     expect(() => PosService.settleTenders({ payments: [{ method: 'card', amount: 150 }] }, 100)).toThrow();
   });
 });
+
+describe('PosService — reports and voids', () => {
+  const PRODUCT = '33333333-3333-4333-8333-333333333333';
+  const supervisor = { id: 'sup-1', organizationId: 'org-1', permissions: ['pos:manage_shifts'] } as never;
+
+  const sale = (over: Record<string, unknown> = {}) => ({
+    id: 'sale-1',
+    organizationId: 'org-1',
+    terminalId: 'main',
+    shiftId: 's1',
+    branchId: null,
+    status: PosSaleStatus.PAID,
+    subtotal: 100,
+    tax: 18,
+    total: 118,
+    changeDue: 0,
+    paymentMethod: 'cash',
+    payments: [{ method: 'cash', amount: 118 }],
+    items: [{ productId: PRODUCT, productName: 'Widget', price: 50, quantity: 2, taxRate: 0.18, lineSubtotal: 100, lineTax: 18 }],
+    ...over,
+  });
+
+  const shift = (over: Record<string, unknown> = {}) => ({
+    id: 's1',
+    userId: 'cashier-1',
+    status: PosShiftStatus.OPEN,
+    openingBalance: 50,
+    salesTotal: 118,
+    salesCount: 1,
+    cashSalesTotal: 118,
+    voidedTotal: 0,
+    voidedCount: 0,
+    ...over,
+  });
+
+  it('the report breaks takings down by tender, net of change, and keeps voids apart', () => {
+    const report = PosService.buildReport(shift() as never, [
+      sale({ id: 'a', total: 118, payments: [{ method: 'cash', amount: 200 }], changeDue: 82 }),
+      sale({ id: 'b', total: 59, subtotal: 50, tax: 9, payments: [{ method: 'card', amount: 40 }, { method: 'cash', amount: 19 }], items: [] }),
+      sale({ id: 'c', total: 10, subtotal: 10, tax: 0, payments: [], paymentMethod: 'transfer', items: [] }),
+      sale({ id: 'd', status: PosSaleStatus.CANCELLED, total: 30 }),
+    ] as never);
+
+    expect(report.salesCount).toBe(3);
+    expect(report.total).toBe(187);
+    expect(report.byMethod).toEqual({ cash: 137, card: 40, transfer: 10, other: 0 });
+    expect(report.expectedCash).toBe(187); // 50 float + 137 cash kept
+    expect(report.voidedCount).toBe(1);
+    expect(report.voidedTotal).toBe(30);
+    expect(report.itemsSold).toBe(2);
+    expect(report.topProducts[0]).toMatchObject({ productId: PRODUCT, quantity: 2, total: 118 });
+    expect(report.averageTicket).toBe(62.33);
+  });
+
+  const makeVoid = (found: { sale: any; shift: any }) => {
+    const queries = [found.sale, found.shift];
+    const manager: any = {
+      createQueryBuilder: jest.fn(() => {
+        const result = queries.shift();
+        const query: any = {
+          where: jest.fn().mockReturnThis(),
+          andWhere: jest.fn().mockReturnThis(),
+          setLock: jest.fn().mockReturnThis(),
+          getOne: jest.fn(async () => result),
+        };
+        return query;
+      }),
+      findOne: jest.fn(async () => ({ id: PRODUCT, kind: 'GOOD' })),
+      save: jest.fn(async (_e, v) => v),
+    };
+    const inventory: any = { increaseStock: jest.fn().mockResolvedValue(undefined) };
+    const dataSource: any = { transaction: jest.fn(async (cb) => cb(manager)) };
+    const service = new PosService({} as never, {} as never, inventory, dataSource);
+    return { service, inventory, manager };
+  };
+
+  it('voiding returns the goods, takes the sale out of the takings and records who and why', async () => {
+    const theShift = shift();
+    const { service, inventory } = makeVoid({ sale: sale(), shift: theShift });
+
+    const voided = await service.voidSale('org-1', 'sale-1', { reason: ' cobro duplicado ' }, supervisor);
+
+    expect(inventory.increaseStock).toHaveBeenCalledWith(
+      PRODUCT,
+      2,
+      expect.anything(),
+      'org-1',
+      expect.objectContaining({ type: 'SALE_RETURN', sourceType: 'pos_sale_void', sourceId: 'sale-1' }),
+    );
+    expect(voided).toMatchObject({ status: PosSaleStatus.CANCELLED, voidedById: 'sup-1', voidReason: 'cobro duplicado' });
+    expect(theShift).toMatchObject({ salesTotal: 0, salesCount: 0, cashSalesTotal: 0, voidedTotal: 118, voidedCount: 1 });
+  });
+
+  it('refuses to void a sale twice', async () => {
+    const { service, inventory } = makeVoid({ sale: sale({ status: PosSaleStatus.CANCELLED }), shift: shift() });
+    await expect(service.voidSale('org-1', 'sale-1', { reason: 'otra vez' }, supervisor)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    expect(inventory.increaseStock).not.toHaveBeenCalled();
+  });
+
+  it('refuses to void on a shift that has been cashed up', async () => {
+    const { service, inventory } = makeVoid({ sale: sale(), shift: shift({ status: PosShiftStatus.CLOSED }) });
+    await expect(service.voidSale('org-1', 'sale-1', { reason: 'tarde' }, supervisor)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    expect(inventory.increaseStock).not.toHaveBeenCalled();
+  });
+});

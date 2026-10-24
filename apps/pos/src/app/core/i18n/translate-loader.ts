@@ -2,8 +2,16 @@ import { inject } from '@angular/core';
 import { TranslateLoader, TranslationObject } from '@ngx-translate/core';
 import { Observable, from, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { DEFAULT_LANGUAGE, LanguageCode, isLanguageCode } from '@virteex/shared/types';
-import { LocaleStore, RegionalCatalogue, applyRegionalCatalogue } from '@virteex/shared/ui-i18n';
+import {
+  DEFAULT_LANGUAGE,
+  LanguageCode,
+  isLanguageCode,
+} from '@virteex/shared/types';
+import {
+  LocaleStore,
+  RegionalCatalogue,
+  applyRegionalCatalogue,
+} from '@virteex/shared/ui-i18n';
 import spanish from '../../../assets/i18n/es.json';
 import regionalOverrides from '../../../assets/i18n/regional.json';
 
@@ -40,17 +48,25 @@ export class PosTranslateLoader implements TranslateLoader {
   private readonly locale = inject(LocaleStore);
 
   getTranslation(lang: string): Observable<TranslationObject> {
-    const language: LanguageCode = isLanguageCode(lang) ? lang : DEFAULT_LANGUAGE;
+    const language: LanguageCode = isLanguageCode(lang)
+      ? lang
+      : DEFAULT_LANGUAGE;
 
     return from(CATALOGUES[language]()).pipe(
       map(unwrap),
       catchError(() => {
-        console.error(`[i18n] Could not load the "${language}" catalogue; falling back to Spanish.`);
+        console.error(
+          `[i18n] Could not load the "${language}" catalogue; falling back to Spanish.`,
+        );
         return of(unwrap({ default: spanish }));
       }),
       map(
         (base) =>
-          applyRegionalCatalogue(base, REGIONAL, this.locale.locale()) as unknown as TranslationObject,
+          applyRegionalCatalogue(
+            base,
+            REGIONAL,
+            this.locale.locale(),
+          ) as unknown as TranslationObject,
       ),
     );
   }

@@ -1,6 +1,16 @@
-import { ApplicationConfig, inject, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  effect,
+  inject,
+  provideAppInitializer,
+  provideZonelessChangeDetection,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withFetch,
+  withInterceptors,
+} from '@angular/common/http';
 import {
   MissingTranslationHandler,
   TranslateLoader,
@@ -16,6 +26,7 @@ import {
 } from '@virteex/shared/ui-i18n';
 import { APP_ROUTES } from './app.routes';
 import { apiInterceptor } from './core/api.interceptor';
+import { sessionExpiryInterceptor } from './core/session-expiry.interceptor';
 import { PosTranslateLoader } from './core/i18n/translate-loader';
 
 /**
@@ -30,7 +41,12 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
     provideRouter(APP_ROUTES),
-    provideHttpClient(withFetch(), withInterceptors([apiInterceptor])),
+    // Expiry first: a request it replays after renewing the session goes back through
+    // `apiInterceptor`, which reads the CSRF cookie again — the renewal may have rotated it.
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([sessionExpiryInterceptor, apiInterceptor]),
+    ),
 
     provideTranslateService({
       loader: { provide: TranslateLoader, useClass: PosTranslateLoader },
@@ -52,6 +68,13 @@ export const appConfig: ApplicationConfig = {
       // The language a previous session chose, or the browser's, before any session is known. The
       // tenant's own is applied by `AuthService` once the session resolves.
       translate.use(locale.readInitialLanguage());
+      // The store is the one source of the language: when the session resolves it to the
+      // reader's (their preference, else their browser's, as the server decided), the words
+      // follow. Without this the till formatted amounts in one language and wrote in another.
+      effect(() => {
+        const language = locale.language();
+        if (translate.getCurrentLang() !== language) translate.use(language);
+      });
     }),
   ],
 };

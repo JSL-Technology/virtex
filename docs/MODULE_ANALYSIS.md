@@ -25,7 +25,7 @@ no new domain library).
 | virtex module | From enigma | Notes |
 | --- | --- | --- |
 | `extensions` | `apps/service/plugin-host` (1132 real lines) | isolated-vm sandbox, admission pipeline, consent, metering/billing. The flagship. → [extensions.md](./extensions.md) |
-| `pos` (+ standalone `apps/pos` app) | `libs/domain/pos` (567) | shift lifecycle + atomic till sale (decrements stock in the sale's transaction). → [pos.md](./pos.md) |
+| `pos` (+ standalone `apps/pos` app) | `libs/domain/pos` (567) | shift lifecycle + atomic till sale (decrements stock in the sale's transaction). The ERP's embedded till was later merged into `apps/pos`; the ERP only links to it. → [pos.md](./pos.md) |
 
 ## Auth & identity
 

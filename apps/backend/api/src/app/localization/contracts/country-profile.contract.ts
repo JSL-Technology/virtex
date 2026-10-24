@@ -12,3 +12,9 @@ export { findCountryProfile, type CountryFiscalProfile } from '../fiscal/country
  * — and names its seeded customer, journals and payment methods — in it.
  */
 export { languageOfCountry } from '../fiscal/country-language';
+
+/**
+ * A market's consumption-tax scheme. A till reads `configurationRequired` to warn that the market
+ * has no national rate (United States, Brazil) and the tenant has to set one up.
+ */
+export { findTaxScheme, type CountryTaxScheme } from '../fiscal/country-tax-schemes';

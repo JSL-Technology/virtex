@@ -6,8 +6,9 @@ dominios nuevos):
 - **Máquina virtual para extensiones** — un marketplace de extensiones firmadas que corren en un
   sandbox `isolated-vm`, con pipeline de admisión, consentimiento por inquilino y medición de uso.
   Ver [docs/extensions.md](docs/extensions.md).
-- **Punto de venta (POS)** — turnos de caja y ventas atómicas (descuentan stock en la misma
-  transacción). Ver [docs/pos.md](docs/pos.md).
+- **Punto de venta (POS)** — aplicación aparte (`apps/pos`): escáner, cobro mixto con cambio,
+  tickets, turnos con reportes X/Z y arqueo, anulaciones de supervisor; ventas atómicas e
+  idempotentes. Ver [docs/pos.md](docs/pos.md).
 
 Detalle y criterios del merge en [docs/MERGE_FROM_SPECIAL_ENIGMA.md](docs/MERGE_FROM_SPECIAL_ENIGMA.md).
 
@@ -55,8 +56,11 @@ DEV_SEED=true DEV_SEED_PASSWORD='elige-una-de-12+' npm run dev:api
 | **POS** (aplicación aparte) | `npm run dev:pos` | 4300 |
 | **Desktop** (Electron) | `npm run dev:desktop` | — |
 
-El POS es una **aplicación independiente** (`apps/pos`), no un módulo del portal; consume la API
-`/pos` e `/inventory`. El shell de escritorio (`apps/desktop`) envuelve el portal y el POS. Análisis
+El POS es una **aplicación independiente** (`apps/pos`), no un módulo del portal: el ERP solo enlaza a
+él (*Ventas › Punto de venta*) y conserva el diario de tickets. Se entra con la **misma cuenta** que
+en el ERP —basta con que el rol tenga `pos:view`— y, servidos en el mismo origen, una sesión vale
+para ambos (`dev@virtex.local` entra en los dos). Consume solo la API `/pos`. Detalle en
+[docs/pos.md](docs/pos.md). El shell de escritorio (`apps/desktop`) envuelve el portal y el POS. Análisis
 módulo a módulo del merge en [docs/MODULE_ANALYSIS.md](docs/MODULE_ANALYSIS.md).
 
 Los valores por defecto de desarrollo coinciden exactamente con esos contenedores

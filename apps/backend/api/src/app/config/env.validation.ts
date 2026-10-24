@@ -297,7 +297,8 @@ export const envValidation = Joi.object({
   // Where the client lives. Every emailed link and OAuth redirect is built from it. Defaulted to
   // the Angular dev server in development so a local run needs no configuration at all.
   FRONTEND_URL: devDefault('http://localhost:4200', Joi.string().uri()),
-  CORS_ORIGIN: devDefault('http://localhost:4200'),
+  // Comma-separated. In development: the ERP (4200) and the point of sale (4300), each its own app.
+  CORS_ORIGIN: devDefault('http://localhost:4200,http://localhost:4300'),
   API_PREFIX: Joi.string().optional().default('api/v1'),
 
   // Stripe price ids, one per plan. Without them the plans exist but cannot be subscribed to, and
