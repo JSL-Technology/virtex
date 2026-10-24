@@ -67,7 +67,16 @@ export class TabStateService {
 
   private closeHandlers = new Map<string, TabSaveHandler>();
 
+  /** Pestaña en cuyo contenido fue la última pulsación; ver `noteContentInteraction`. */
+  private contentInteractionTabId: string | null = null;
+
   constructor() {
+    if (typeof document !== 'undefined') {
+      const forget = () => (this.contentInteractionTabId = null);
+      document.addEventListener('pointerdown', forget, true);
+      document.addEventListener('keydown', forget, true);
+    }
+
     // A tab titled from the catalogue follows the language. Its title was translated once, when it
     // opened, so switching to Spanish left «Customers» and «Inventory adjustments» in English.
     this.translate.onLangChange.subscribe(() => {
@@ -121,7 +130,7 @@ export class TabStateService {
       definition.tabType !== TabType.PINNED &&
       definition.previewable !== false &&
       (config.preview ??
-        (this.prefs.enablePreview() && this.isPreviewable(definition.tabType, params)));
+        (this.prefs.enablePreview() && this.isPreviewable(definition.tabType)));
 
     // Deduplicación de instancias.
     if (entityKey) {
@@ -157,7 +166,10 @@ export class TabStateService {
       const preview = this.tabsSignal().find(
         (t) => t.isPreview && t.isCloseable && this.registry.resolve(t.route).definition.previewable !== false,
       );
-      if (preview) {
+      // Abierta DESDE la propia vista previa (una fila de su lista): esa pestaña se usó, se fija y
+      // la nueva ocupa otra al lado.
+      if (preview && this.contentInteractionTabId === preview.id) this.markPermanent(preview.id);
+      else if (preview) {
         this.reusePreview(preview.id, {
           type: definition.tabType,
           title,
@@ -202,31 +214,63 @@ export class TabStateService {
   }
 
   /**
-   * ¿Esta apertura es «hojeable» y por tanto candidata a vista previa reutilizable?
+   * Abre la página a la que apunta un ENLACE que llega de fuera: un marcador, un enlace compartido,
+   * la barra de direcciones.
    *
-   * No basta con el tipo: en este ERP casi todos los detalles de registro son
-   * formularios (`DRAFT`→`WIZARD`), y hay dos clases muy distintas:
-   *  - **Editar un registro EXISTENTE** (`/clientes/88/edit`, con parámetros de
-   *    ruta): es exactamente hojear —abrir uno, mirar, pasar al siguiente—, así que
-   *    va en vista previa. En cuanto se toca un campo, se fija (ver el promotor de
-   *    edición del `TabWrapper`), de modo que hojear nunca pisa cambios sin guardar.
-   *  - **Crear uno NUEVO** (`/clientes/new`, sin parámetros): nunca se reutiliza;
-   *    cada uno es una pestaña propia.
-   *
-   * `RECORD` (documentos) y `REPORT` (análisis) son hojeables siempre. Listas,
-   * lienzos, bandejas e inicio son permanentes.
+   * Un enlace es intención explícita —alguien eligió ESA página—, así que abre una pestaña
+   * permanente y no la vista previa: si no, el siguiente clic en el menú se llevaría por delante la
+   * factura que un compañero acaba de enviar. Pero si la página ya está abierta (recargar con F5
+   * sobre una vista previa es el caso de todos los días), solo se enfoca y conserva su estado: una
+   * recarga no es una decisión de mantenerla abierta.
    */
-  private isPreviewable(type: TabType, params: Record<string, string>): boolean {
-    switch (type) {
-      case TabType.RECORD:
-      case TabType.REPORT:
-        return true;
-      case TabType.WIZARD:
-        // Solo si apunta a un registro concreto (tiene parámetros); los «nuevos» no.
-        return Object.keys(params).length > 0;
-      default:
-        return false; // PINNED, MODULE_LIST, UTILITY
-    }
+  openFromLink(route: string, queryParams?: Record<string, string>): void {
+    this.openTab({
+      route,
+      queryParams,
+      preview: this.findTabFor(route, queryParams) ? undefined : false,
+    });
+  }
+
+  /** La pestaña que ya muestra esta ruta (por su clave de entidad, como deduplica `openTab`). */
+  findTabFor(route: string, queryParams?: Record<string, string>): TabModel | null {
+    const { definition, params } = this.registry.resolve(route);
+    const key = definition.entityKeyFn ? definition.entityKeyFn(params, queryParams) : undefined;
+    return key ? this.getTabByEntityKey(key) : null;
+  }
+
+  /**
+   * ¿Esta apertura es candidata a vista previa reutilizable?
+   *
+   * Todo lo que se abre con un clic es vista previa, como en VS Code: módulos y submódulos del
+   * menú, listas, bandejas, registros, informes y formularios —nuevos o de edición—. Recorrer el
+   * menú mirando pantallas dejaba una pestaña por cada clic aunque no se hubiera tocado ninguna;
+   * ahora todas comparten UNA pestaña en cursiva hasta que el usuario hace algo en ella:
+   *  - escribir o cambiar un campo (el promotor de edición del `TabWrapper`; en un formulario,
+   *    además, la ensucia, así que hojear nunca pisa cambios sin guardar),
+   *  - abrir algo DESDE ella (una fila de la lista: ver `noteContentInteraction`),
+   *  - doble clic en su cabecera o «Mantener abierta».
+   *
+   * Solo el inicio (`PINNED`) y las ventanas declaradas `previewable: false` (lienzos desde los que
+   * se trabaja) son siempre permanentes; eso lo filtra `openTab` antes de llegar aquí.
+   */
+  private isPreviewable(type: TabType): boolean {
+    return type !== TabType.PINNED;
+  }
+
+  /**
+   * El usuario acaba de pulsar (o teclear) DENTRO del contenido de una pestaña.
+   *
+   * Si lo siguiente que ocurre es abrir otra ventana, esa ventana nace de esta: el usuario usó la
+   * pestaña —eligió una fila de la lista—, así que deja de ser «nada hecho». Sin esto, abrir un
+   * cliente desde la lista de clientes en vista previa reemplazaba la lista por el cliente y había
+   * que volver a buscarla en el menú.
+   *
+   * Cualquier pulsación fuera del contenido (menú, cabecera de pestañas, paleta) la olvida: lo
+   * hace el escuchador global del constructor, que en fase de captura corre antes que el del
+   * `TabWrapper`.
+   */
+  noteContentInteraction(tabId: string): void {
+    this.contentInteractionTabId = tabId;
   }
 
   /**
@@ -605,10 +649,23 @@ export class TabStateService {
       if (entityKey) seen.add(entityKey);
       const isPreview = tab.isPreview && previewable && !previewKept;
       if (isPreview) previewKept = true;
-      normalised.push({ ...tab, entityKey, isPreview });
+      normalised.push({ ...tab, entityKey, isPreview, title: this.catalogueTitle(tab) });
     }
     this.tabsSignal.set(this.sortPinned(normalised));
     this.trimToLimit();
+  }
+
+  /**
+   * A restored tab titled from the catalogue speaks the language in use NOW, not the one it was
+   * saved in. The title is stored already translated, and the language listener only fires on a
+   * change: a tab opened in English on one device came back as «Journals» among Spanish tabs on
+   * another. If the catalogue has not loaded yet `instant` answers the key itself, and the stored
+   * title is kept until the language listener fires.
+   */
+  private catalogueTitle(tab: TabModel): string {
+    if (!tab.titleKey) return tab.title;
+    const translated = this.translate.instant(tab.titleKey);
+    return translated && translated !== tab.titleKey ? translated : tab.title;
   }
 
   /** Lowers the tab count to the limit when the user picks a smaller one. */

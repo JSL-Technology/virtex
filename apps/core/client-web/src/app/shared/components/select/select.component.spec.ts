@@ -1,3 +1,4 @@
+import { provideTranslateService } from '@ngx-translate/core';
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';

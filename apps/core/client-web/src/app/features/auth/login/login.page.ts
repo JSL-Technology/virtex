@@ -10,6 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha-19';
 import { recaptchaToken$ } from '../../../core/auth/recaptcha-token';
+import { ReturnUrlService } from '../../../core/auth/return-url';
 import { LucideAngularModule, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle, ShieldCheck, Camera, Briefcase, Users, Globe, Rocket, Check, ArrowLeft, Info } from 'lucide-angular';
 
 // Shared Components
@@ -62,6 +63,7 @@ export class LoginPage implements OnInit {
   private recaptchaV3Service = inject(ReCaptchaV3Service);
   private translate = inject(TranslateService);
   private errors = inject(ErrorHandlerService);
+  private returnUrl = inject(ReturnUrlService);
 
   public languageService = inject(LanguageService);
   public countryService = inject(CountryService);
@@ -137,6 +139,11 @@ export class LoginPage implements OnInit {
       if (params.get('step') === '2fa') {
         this.show2faInput.set(true);
       }
+      // The page someone was trying to open when they were sent here. The guard already
+      // remembered it; a link that points straight at this page with a destination (an e-mail, a
+      // shared link) is remembered here. Sanitized either way — see `ReturnUrlService`.
+      const destination = params.get('returnUrl');
+      if (destination) this.returnUrl.remember(destination);
     });
 
     this.loginForm = this.fb.group({
@@ -339,7 +346,10 @@ export class LoginPage implements OnInit {
    */
   private handleSuccess(user: unknown): void {
     void user;
-    this.router.navigate(['/overview']);
+    // Every way of signing in that stays on this page —password, second factor, passkey— ends
+    // here, so this is where the link the person opened is honoured. The methods that leave the
+    // app (Google, SSO) come back to the home page, where `authGuard` does the same.
+    void this.router.navigateByUrl(this.returnUrl.consume() ?? '/overview');
     this.isLoggingIn.set(false);
   }
 

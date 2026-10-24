@@ -26,6 +26,9 @@ export class TabRouterService {
   /** Evita el bucle Router→Tab→Router. */
   private suppressOpen = false;
 
+  /** Whether the navigation that loaded the app has been handled (see the Router → Tabs bridge). */
+  private booted = false;
+
   constructor() {
     // Router → Tabs
     this.router.events
@@ -39,7 +42,14 @@ export class TabRouterService {
         if (!this.isWorkspaceUrl(url)) return;
 
         const { path, query } = this.parseUrl(url);
-        this.tabState.openTab({ route: path, queryParams: query, preview: this.readIntent() });
+        // The navigation that loaded the app came from outside it — a bookmark, a shared link, the
+        // address bar — and opens like a link (see `openFromLink`). Every later one comes from a
+        // click inside the app and follows the preview rules.
+        const external = !this.booted;
+        this.booted = true;
+        const intent = this.readIntent();
+        if (external && intent === undefined) this.tabState.openFromLink(path, query);
+        else this.tabState.openTab({ route: path, queryParams: query, preview: intent });
       });
 
     // Tabs → Router

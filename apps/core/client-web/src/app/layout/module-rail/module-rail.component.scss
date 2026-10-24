@@ -77,6 +77,26 @@
   }
 }
 
+//  El módulo de la ventana en pantalla, mientras se explora otro. Una marca más
+//  callada que la del módulo activo —un punto, no una barra ni un fondo— porque
+//  es contexto, no la selección: dice «tu ventana está aquí» sin competir con el
+//  módulo que el usuario está mirando.
+.rail__item--current {
+  color: var(--chrome-content-strong);
+}
+
+.rail__current {
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  pointer-events: none;
+}
+
 //  Visible pero apagado: quien no tiene acceso a un módulo al menos sabe que
 //  existe y puede pedirlo. Esconderlo convierte esa pregunta en un ticket.
 .rail__item--locked {

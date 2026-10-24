@@ -4,18 +4,26 @@
       type="button"
       class="rail__item"
       [class.rail__item--active]="item.module.id === activeId()"
+      [class.rail__item--current]="item.module.id === currentId()"
       [class.rail__item--locked]="!item.allowed"
-      [attr.aria-current]="item.module.id === activeId() ? 'page' : null"
+      [attr.aria-pressed]="item.module.id === activeId()"
+      [attr.aria-controls]="'module-panel'"
       [attr.aria-disabled]="!item.allowed"
       [title]="
-        item.allowed
-          ? (item.module.titleKey | translate)
-          : (item.module.titleKey | translate) + ' — ' + ('shell.module_locked' | translate)
+        !item.allowed
+          ? (item.module.titleKey | translate) + ' — ' + ('shell.module_locked' | translate)
+          : item.module.id === currentId()
+            ? (item.module.titleKey | translate) + ' — ' + ('shell.module_current_window' | translate)
+            : (item.module.titleKey | translate)
       "
       (click)="open(item)"
     >
       <lucide-icon [img]="item.icon" size="18" class="rail__icon" aria-hidden="true"></lucide-icon>
       <span class="rail__label" appFitWord>{{ item.module.titleKey | translate }}</span>
+      @if (item.module.id === currentId()) {
+        <span class="rail__current" aria-hidden="true"></span>
+        <span class="sr-only">{{ 'shell.module_current_window' | translate }}</span>
+      }
       @if (!item.allowed) {
         <lucide-icon [img]="LockIcon" size="10" class="rail__lock" aria-hidden="true"></lucide-icon>
       }

@@ -8,6 +8,9 @@ import { UsersController } from './users.controller';
 import { UserWorkspace } from './workspace/user-workspace.entity';
 import { UserWorkspaceController } from './workspace/user-workspace.controller';
 import { UserWorkspaceService } from './workspace/user-workspace.service';
+import { UserNavigationFavorite } from './favorites/user-navigation-favorite.entity';
+import { UserNavigationFavoritesController } from './favorites/user-navigation-favorites.controller';
+import { UserNavigationFavoritesService } from './favorites/user-navigation-favorites.service';
 import { MailModule } from '../mail/mail.module';
 import { RolesModule } from '../roles/roles.module';
 import { UserSubscriber } from './subscribers/user.subscriber';
@@ -24,7 +27,7 @@ import { OrganizationInvitationsController } from './invitations/organization-in
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Organization, UserWorkspace, OrganizationInvitation]),
+    TypeOrmModule.forFeature([User, Organization, UserWorkspace, UserNavigationFavorite, OrganizationInvitation]),
     RolesModule,
     MailModule,
     UserCacheModule,
@@ -34,9 +37,10 @@ import { OrganizationInvitationsController } from './invitations/organization-in
     forwardRef(() => OrganizationsModule),
   ],
 
-  controllers: [UsersController, UserWorkspaceController, OrganizationInvitationsController],
+  controllers: [UsersController, UserWorkspaceController, UserNavigationFavoritesController, OrganizationInvitationsController],
   providers: [
     UserWorkspaceService,
+    UserNavigationFavoritesService,
     UsersService,
     OrganizationInvitationsService,
     { provide: UserProfilePort, useExisting: UsersService },

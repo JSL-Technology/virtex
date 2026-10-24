@@ -12,7 +12,7 @@ import { of, throwError, Observable } from 'rxjs';
 import { CountryService } from '../../../core/services/country.service';
 import { MockCountryService, US_CONFIG } from '../../../../testing/country.service.mock';
 import { LanguageService } from '../../../core/services/language';
-import { TranslateLoader } from '@ngx-translate/core';
+import { TranslateLoader, provideTranslateLoader } from '@ngx-translate/core';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { UsersService } from '../../../core/api/users.service';
 import { GeoLocationService } from '../../../core/services/geo-location.service';

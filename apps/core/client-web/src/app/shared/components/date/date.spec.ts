@@ -1,3 +1,4 @@
+import { provideTranslateService } from '@ngx-translate/core';
 import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';

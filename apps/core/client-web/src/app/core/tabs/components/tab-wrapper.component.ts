@@ -177,6 +177,9 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
       for (const ev of TabWrapperComponent.EDIT_EVENTS) {
         scroll.addEventListener(ev, this.promoteOnEdit, true);
       }
+      for (const ev of TabWrapperComponent.INTERACTION_EVENTS) {
+        scroll.addEventListener(ev, this.noteInteraction, true);
+      }
     }
 
     // Reenvía hooks de activación/desactivación y pausa la detección de cambios de las inactivas.
@@ -229,6 +232,9 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
       for (const ev of TabWrapperComponent.EDIT_EVENTS) {
         scroll.removeEventListener(ev, this.promoteOnEdit, true);
       }
+      for (const ev of TabWrapperComponent.INTERACTION_EVENTS) {
+        scroll.removeEventListener(ev, this.noteInteraction, true);
+      }
     }
     this.reloadRef?.destroy();
     this.activeSub?.dispose?.();
@@ -268,6 +274,12 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
       this.tabState.markPermanent(this.tabId);
     }
   };
+
+  /** Pulsaciones que pueden abrir otra ventana desde el contenido (clic en una fila, Intro). */
+  private static readonly INTERACTION_EVENTS = ['pointerdown', 'keydown'] as const;
+
+  /** Si lo que se pulsa aquí abre otra ventana, esta vista previa se fija (ver `noteContentInteraction`). */
+  private readonly noteInteraction = (): void => this.tabState.noteContentInteraction(this.tabId);
 
   // ── montaje ────────────────────────────────────────────────────────────
 

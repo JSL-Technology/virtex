@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import { NavigationEnd, Router } from '@angular/router';
-import { ActiveModuleService } from './active-module.service';
+import { ActiveModuleService, normalizeRoute } from './active-module.service';
 import { AuthService } from '../services/auth';
 import { MODULES } from './module-registry';
 import { ModuleManifest } from './module-manifest';
@@ -142,5 +142,80 @@ describe('ActiveModuleService', () => {
     const orden = ['inbox', 'documents', 'masters', 'analysis', 'configuration'];
     const grupos = svc.panel().map((s) => s.group);
     expect(grupos).toEqual(orden.filter((g) => grupos.includes(g as (typeof grupos)[number])));
+  });
+
+  describe('explorar un módulo sin abrir nada', () => {
+    const contabilidad = MODULES.find((m) => m.id === 'contabilidad') as ModuleManifest;
+
+    it('el panel enseña el módulo elegido; la ventana sigue siendo la que era', () => {
+      const svc = make('/invoices', todos());
+
+      svc.browse(contabilidad);
+
+      expect(svc.active()?.id).toBe('contabilidad');
+      expect(svc.current()?.id).toBe('ventas');
+      expect(svc.isBrowsing()).toBe(true);
+      // El panel es el del módulo explorado, y ninguna de sus entradas se marca: no está abierta.
+      expect(svc.panel().length).toBeGreaterThan(0);
+      expect(svc.activeEntry()).toBeNull();
+    });
+
+    it('elegir el módulo de la ventana es volver', () => {
+      const svc = make('/invoices', todos());
+      svc.browse(contabilidad);
+
+      svc.browse(ventas);
+
+      expect(svc.isBrowsing()).toBe(false);
+      expect(svc.active()?.id).toBe('ventas');
+    });
+
+    it('cualquier navegación devuelve el panel a la ventana', () => {
+      // Abrir una entrada, cambiar de pestaña, el botón atrás: en cuanto el usuario actúa, el panel
+      // vuelve a describir lo que hay en pantalla. Es lo que impide que el estado guardado derive.
+      const svc = make('/invoices', todos());
+      svc.browse(contabilidad);
+
+      events.next(new NavigationEnd(3, '/accounting/journals', '/accounting/journals'));
+
+      expect(svc.isBrowsing()).toBe(false);
+      expect(svc.active()?.id).toBe('contabilidad');
+    });
+
+    it('una página que ofrecen dos módulos se abre en el que se exploraba (QA C-05)', () => {
+      const svc = make('/accounting/journals', todos());
+      svc.browse(ventas);
+
+      events.next(new NavigationEnd(4, '/reports/aging/receivables', '/reports/aging/receivables'));
+
+      expect(svc.active()?.id).toBe('ventas');
+    });
+  });
+
+  describe('destinos', () => {
+    it('indexa por ruta, sin empresa, cada entrada que el puesto puede abrir', () => {
+      const svc = make('/invoices', todos());
+
+      const diarios = svc.destinations().get('/accounting/journals');
+      expect(diarios?.module.id).toBe('contabilidad');
+      expect(svc.destinations().has('/no-existe')).toBe(false);
+    });
+
+    it('no indexa lo que el servidor rechazaría', () => {
+      const svc = make('/invoices', []);
+
+      const rutas = [...svc.destinations().values()];
+      expect(rutas.every((d) => d.module.routes.length > 0)).toBe(true);
+      expect(svc.destinations().has('/accounting/journals')).toBe(false);
+    });
+  });
+
+  it.each([
+    ['/e/acme/accounting/journals', '/accounting/journals'],
+    ['/accounting/journals/', '/accounting/journals'],
+    ['accounting/journals?x=1#y', '/accounting/journals'],
+    ['/e/acme', '/'],
+  ])('normalizeRoute(%s) → %s', (raw, expected) => {
+    expect(normalizeRoute(raw)).toBe(expected);
   });
 });

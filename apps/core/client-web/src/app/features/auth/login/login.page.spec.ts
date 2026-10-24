@@ -11,7 +11,7 @@ import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { MockCountryService } from '../../../../testing/country.service.mock';
 import { CountryService } from '../../../core/services/country.service';
 import { LanguageService } from '../../../core/services/language';
-import { TranslateLoader, TranslateService } from '@ngx-translate/core';
+import { TranslateLoader, TranslateService, provideTranslateLoader } from '@ngx-translate/core';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
@@ -100,6 +100,41 @@ describe('LoginPage', () => {
     const second = TestBed.createComponent(LoginPage);
     second.detectChanges();
     expect(second.componentInstance.show2faInput()).toBe(true);
+  });
+
+  /**
+   * A saved link opened without a session: the guard sent the person here with `returnUrl`, and
+   * signing in must take them to that page, not to the home page.
+   */
+  describe('the link the person opened', () => {
+    const succeed = (page: LoginPage) =>
+      (page as unknown as { handleSuccess(user: unknown): void }).handleSuccess({});
+
+    beforeEach(() => sessionStorage.clear());
+
+    it('is where a successful sign-in lands', async () => {
+      const router = TestBed.inject(Router);
+      await router.navigateByUrl('/?returnUrl=%2Fe%2Facme%2Finvoices%2F88');
+      const page = TestBed.createComponent(LoginPage);
+      page.detectChanges();
+      const go = jest.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+      succeed(page.componentInstance);
+
+      expect(go).toHaveBeenCalledWith('/e/acme/invoices/88');
+    });
+
+    it('is ignored when it points off-site, and the sign-in lands on the home page', async () => {
+      const router = TestBed.inject(Router);
+      await router.navigateByUrl('/?returnUrl=%2F%2Fevil.example');
+      const page = TestBed.createComponent(LoginPage);
+      page.detectChanges();
+      const go = jest.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+      succeed(page.componentInstance);
+
+      expect(go).toHaveBeenCalledWith('/overview');
+    });
   });
 
   /** QA C-09: the right password on a locked account was answered "incorrect email or password". */
