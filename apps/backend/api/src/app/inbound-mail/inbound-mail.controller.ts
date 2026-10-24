@@ -41,7 +41,7 @@ function purposeOf(value: string): InboundMailPurpose {
   return purpose;
 }
 
-function require(user: AuthenticatedUser, permission: string): void {
+function requirePermission(user: AuthenticatedUser, permission: string): void {
   if (!hasPermission(user.permissions ?? [], [permission])) throw new ForbiddenError('auth.you_do_not_have_permission_perform');
 }
 
@@ -108,7 +108,7 @@ export class InboundMailController {
   @ApiOperation({ summary: 'What arrived at the address, and what became of it.' })
   messages(@CurrentUser() user: AuthenticatedUser, @Param('purpose') raw: string, @Query('status') status?: string) {
     const purpose = purposeOf(raw);
-    require(user, READ[purpose]);
+    requirePermission(user, READ[purpose]);
     const statuses = (status ?? '').split(',').filter(Boolean) as InboundMessageStatus[];
     return this.inbound.list(user.organizationId, purpose, statuses);
   }
@@ -119,7 +119,7 @@ export class InboundMailController {
   @AuthenticatedOnly('Checked inside against the permission that creates the records the purpose produces (ACT).')
   retry(@CurrentUser() user: AuthenticatedUser, @Param('purpose') raw: string, @Param('id', UuidParamPipe) id: string) {
     const purpose = purposeOf(raw);
-    require(user, ACT[purpose]);
+    requirePermission(user, ACT[purpose]);
     return this.inbound.retry(user.organizationId, purpose, id);
   }
 
@@ -129,7 +129,7 @@ export class InboundMailController {
   @AuthenticatedOnly('Checked inside against the permission that creates the records the purpose produces (ACT).')
   dismiss(@CurrentUser() user: AuthenticatedUser, @Param('purpose') raw: string, @Param('id', UuidParamPipe) id: string) {
     const purpose = purposeOf(raw);
-    require(user, ACT[purpose]);
+    requirePermission(user, ACT[purpose]);
     return this.inbound.dismiss(user.organizationId, purpose, id, user.id);
   }
 
@@ -143,7 +143,7 @@ export class InboundMailController {
     @Param('attachmentId', UuidParamPipe) attachmentId: string,
   ): Promise<StreamableFile> {
     const purpose = purposeOf(raw);
-    require(user, READ[purpose]);
+    requirePermission(user, READ[purpose]);
     const { attachment, file } = await this.inbound.attachment(user.organizationId, purpose, id, attachmentId);
     return new StreamableFile(file.stream, {
       type: attachment.mimeType,
