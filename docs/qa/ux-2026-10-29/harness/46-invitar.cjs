@@ -1,0 +1,27 @@
+const { session, MX, shot, errors, resetThrottle, BASE, SLUG } = require('./flow-lib.cjs');
+(async () => {
+  resetThrottle();
+  const { page, log, close } = await session('state-mx.json', MX);
+  await page.goto(BASE + '/e/' + SLUG + '/overview#settings/users'); await page.waitForTimeout(4000);
+  const dlg = page.locator('[role=dialog]').last();
+  await shot(page, 'T-usr-1-usuarios');
+  console.log((await dlg.innerText()).split('Extensiones')[1]?.replace(/\n{2,}/g, '\n').slice(0, 1200));
+  const inv = dlg.getByRole('button', { name: /Invitar/ }).first(); await inv.click(); await page.waitForTimeout(1500);
+  await shot(page, 'T-usr-2-invitar');
+  const d2 = page.locator('[role=dialog]').last();
+  console.log('INVITAR:', (await d2.innerText()).replace(/\n{2,}/g, '\n').slice(0, 1000));
+  console.log((await d2.locator('input,select').evaluateAll(es => es.filter(e => e.offsetParent).map(e => (e.labels?.[0]?.innerText || e.getAttribute('aria-label') || e.placeholder) + '=' + (e.tagName === 'SELECT' ? [...e.options].map(o => o.text).join('|') : e.value)))).join('\n'));
+  const form = page.locator('[role=dialog]').filter({ hasText: 'Invitar nuevo usuario' }).last();
+  await form.getByLabel(/Nombre/).fill('QA'); await form.getByLabel(/Apellido/).fill('Vendedor Ñ');
+  await form.getByLabel(/Correo/).fill('qa.ux3.vendedor@example.com');
+  const role = form.getByLabel(/Rol/); console.log('rol tag', await role.evaluate(e => e.tagName + ' ' + e.getAttribute('role')));
+  await role.click(); await page.waitForTimeout(800);
+  const opts = await page.locator('[role=option]').allInnerTexts(); console.log('ROLES', opts);
+  await shot(page, 'T-usr-2b-roles');
+  const pick = page.locator('[role=option]').filter({ hasText: /Vendedor|Ventas|Seller/i }).first(); if (await pick.count()) await pick.click(); else await page.locator('[role=option]').nth(1).click();
+  await form.getByRole('button', { name: /Enviar invitación/ }).click(); await page.waitForTimeout(3000);
+  await page.waitForTimeout(1000); await page.getByPlaceholder('Ingresa tu contraseña actual').fill('QA-Test-Pass-2026!'); await page.getByRole('button', { name: 'Confirmar' }).click(); await page.waitForTimeout(3000);
+  console.log('invitar →', await errors(page)); await shot(page, 'T-usr-3-invitado');
+  console.log(log.req.filter(r => /invit|user|member/.test(r)).slice(-5).join('\n'));
+  await close();
+})();

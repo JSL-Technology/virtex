@@ -1,0 +1,32 @@
+﻿sep=;
+Balance general
+Libro contable;Libro principal
+Moneda;MXN
+Período;2026-10-29
+Generado el;2026-10-29T01:27:58.852Z
+
+Código;Cuenta;Categoría;Importe
+Activo
+CURRENT_ASSET
+1110;Efectivo y Equivalentes de Efectivo;CURRENT_ASSET;-9000
+1120;Bancos;CURRENT_ASSET;1000
+1140;Inventarios;CURRENT_ASSET;18000
+;Subtotal;;10000
+
+;Total activo;;10000
+
+Pasivo
+;Total pasivo;;0
+
+Patrimonio
+OWNERS_EQUITY
+3100;Capital Social;OWNERS_EQUITY;1000
+3150;Patrimonio por Saldos Iniciales;OWNERS_EQUITY;18000
+;Subtotal;;19000
+
+;Resultado del ejercicio no cerrado;;-9000
+;Total patrimonio;;10000
+
+;Total pasivo y patrimonio;;10000
+;¿Cuadra?;;true
+;Descuadre;;0

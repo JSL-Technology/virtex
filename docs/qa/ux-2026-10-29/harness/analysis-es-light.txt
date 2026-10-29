@@ -1,0 +1,385 @@
+PAGES 77 avg ms 2636 max 3413
+
+== NOMBRES (menú | tab | title | h1) donde difieren
+Mi trabajo | Inicio | tab=undefined | title= | h1=(ninguno)
+Mi trabajo | Aprobaciones | tab=Aprobaciones | title=Aprobaciones | h1=Centro de aprobaciones
+Mi trabajo | Todos los documentos | tab=Repositorio de documentos | title=Repositorio de documentos | h1=Repositorio de archivos
+Ventas | Recibos | tab=Recibos de cliente | title=Recibos de cliente | h1=Recibos de cliente
+Ventas | Antigüedad de saldos | tab=Antigüedad de cuentas por cobrar | title=Antigüedad de cuentas por cobrar | h1=Antigüedad de cuentas por cobrar
+Compras | Facturas | tab=Facturas de proveedor | title=Facturas de proveedor | h1=Facturas de proveedor
+Compras | Notas de débito | tab=Notas de débito | title=Notas de débito | h1=Notas de débito a proveedores
+Compras | Recepciones | tab=Recepciones | title=Recepciones | h1=Recepciones de mercancía
+Compras | Requisiciones | tab=Requisiciones de compra | title=Requisiciones de compra | h1=Requisiciones de compra
+Compras | Antigüedad de saldos | tab=Antigüedad de cuentas por pagar | title=Antigüedad de cuentas por pagar | h1=Antigüedad de cuentas por pagar
+Inventario | Transferencias | tab=Transferencias | title=Transferencias | h1=Transferencias de inventario
+Inventario | Kárdex | tab=Kárdex | title=Kárdex | h1=Kárdex de inventario
+Tesorería | Tablero | tab=Tesorería | title=Tesorería | h1=Posición de efectivo
+Tesorería | Conciliación — manual | tab=Conciliación de cuentas | title=Conciliación de cuentas | h1=Conciliación bancaria
+Tesorería | Formas de pago | tab=Métodos de pago | title=Métodos de pago | h1=Formas de pago
+Contabilidad | Asientos | tab=Asientos contables | title=Asientos contables | h1=Asientos contables
+Contabilidad | Cierre — anual | tab=Cierre anual | title=Cierre anual | h1=Cierre anual
+Contabilidad | Cierre de período | tab=Listas de cierre | title=Listas de cierre | h1=Cierre de período
+Contabilidad | Plan de cuentas | tab=Catálogo de cuentas | title=Catálogo de cuentas | h1=Catálogo de cuentas
+Contabilidad | Libro: diario | tab=Libro diario | title=Libro diario | h1=Libro diario
+Contabilidad | Libro: mayor | tab=Libro mayor | title=Libro mayor | h1=Libro mayor
+Contabilidad | Flujo de efectivo | tab=Flujo de efectivo | title=Flujo de efectivo | h1=Estado de flujo de efectivo
+Contabilidad | Multilibros | tab=Libros contables | title=Libros contables | h1=Libros contables
+Contabilidad | Periodos contables | tab=Periodos contables | title=Periodos contables | h1=Períodos contables
+Contabilidad | Impuestos | tab=Impuestos | title=Impuestos | h1=Tasas de impuesto
+Contabilidad | Condiciones de pago | tab=Términos de pago | title=Términos de pago | h1=Condiciones de pago
+RR.HH. y nómina | Mis volantes | tab=Mis volantes de pago | title=Mis volantes de pago | h1=Mis volantes de pago
+RR.HH. y nómina | Conceptos | tab=Conceptos de nómina | title=Conceptos de nómina | h1=Conceptos de nómina
+Análisis | DataSheets | tab=Hojas de datos | title=Hojas de datos | h1=DataSheets
+
+== H1 estilos
+[
+  [ '24px/600/30px', 59 ],
+  [ '20px/600/25px', 12 ],
+  [ '30px/600/37.5px', 4 ],
+  [ '24px/700/30px', 1 ]
+]
+H1 count per page [ [ '1', 76 ], [ '0', 1 ] ]
+H2 estilos [
+  [ '17px/600/none', 6 ],
+  [ '30px/600/none', 3 ],
+  [ '15px/600/none', 1 ]
+]
+H3 estilos []
+font families [ [ 'Inter', 89 ] ]
+
+== Botones con fondo (bg|color|radius|h|fs|fw)
+[
+  [ 'rgb(91, 55, 217)|rgb(255, 255, 255)|6px|36|14px|500', 53 ],
+  [ 'rgb(239, 242, 247)|rgb(152, 161, 179)|6px|36|14px|500', 6 ],
+  [ 'rgb(244, 241, 255)|rgb(74, 42, 181)|9999px|26|13px|600', 3 ],
+  [ 'rgb(239, 242, 247)|rgb(17, 21, 29)|0px|28|13px|600', 1 ],
+  [ 'rgb(244, 241, 255)|rgb(74, 42, 181)|999px|32|14px|400', 1 ]
+]
+
+== Clases de botón primario (bg violeta)
+[ [ 'primary-button h36 r6px fs14px', 53 ] ]
+
+== Alturas de botones con texto
+[
+  [ '36', 102 ],
+  [ '24', 62 ],
+  [ '34', 40 ],
+  [ '30', 14 ],
+  [ '26', 12 ],
+  [ '20', 4 ],
+  [ '28', 3 ],
+  [ '32', 2 ]
+]
+== Radios botones
+[ [ '6px', 204 ], [ '0px', 69 ], [ '9999px', 26 ], [ '999px', 2 ] ]
+
+== Campos (tag h radius fs)
+[
+  [ 'INPUT h36 r6px fs14px borderrgb(127, 135, 148)', 31 ],
+  [ 'SELECT h36 r6px fs14px borderrgb(127, 135, 148)', 25 ],
+  [ 'SELECT h28 r6px fs14px borderrgb(127, 135, 148)', 11 ],
+  [ 'INPUT h36 r6px fs13px borderrgb(17, 21, 29)', 10 ],
+  [ 'INPUT h34 r6px fs14px borderrgb(17, 21, 29)', 7 ],
+  [ 'SELECT h36 r6px fs13px borderrgb(215, 221, 232)', 4 ],
+  [ 'SELECT h28 r6px fs13px borderrgb(127, 135, 148)', 3 ],
+  [ 'INPUT h1 r0px fs14px borderrgb(255, 255, 255)', 1 ],
+  [ 'SELECT h36 r4px fs13.6px borderrgb(215, 221, 232)', 1 ],
+  [ 'INPUT h36 r6px fs13px borderrgb(215, 221, 232)', 1 ]
+]
+Campos sin label [
+  'Antigüedad de saldos:INPUT/',
+  'Antigüedad de saldos:INPUT/',
+  'Tablero:INPUT/',
+  'Balance general:INPUT/'
+]
+
+== Tablas
+Clientes rows 1 th 5 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 0/0 
+Categorías rows 1 th 4 thStyle 14px/700/none sticky static td 14px moneyNotRight 0/0 
+Almacenes rows 1 th 5 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 0/0 
+Unidades de medida rows 26 th 4 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 3/3 M2@left;FT2@left
+Tablero rows 1 th 6 thStyle 14px/600/none sticky static td 14px moneyNotRight 0/3 
+Formas de pago rows 7 th 5 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 14/14 01@left;01@left
+Cierre de período rows 7 th 2 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 0/0 
+Plan de cuentas rows 5 th 5 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 0/0 
+Declaraciones fiscales rows 10 th 16 thStyle 14px/700/none sticky static td 14px moneyNotRight 0/0 
+Multilibros rows 1 th 4 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 0/0 
+Diarios rows 11 th 5 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 0/11 
+Periodos contables rows 12 th 5 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 0/0 
+Impuestos rows 3 th 5 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 0/0 
+Monedas rows 23 th 4 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 2/2 RD$@left;US$@left
+Condiciones de pago rows 1 th 3 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 2/2 0@left;1@left
+Conceptos rows 10 th 7 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 2/5 HE35@left;HE100@left
+Parámetros de ley rows 4 th 5 thStyle 12px/700/none sticky static td 14px moneyNotRight 0/0 
+Parámetros de ley rows 2 th 3 thStyle 12px/700/none sticky static td 14px moneyNotRight 0/2 
+Parámetros de ley rows 4 th 5 thStyle 12px/700/none sticky static td 14px moneyNotRight 0/11 
+Rentabilidad por producto rows 1 th 6 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 0/0 
+Rentabilidad por cliente rows 1 th 6 thStyle 13px/600/none sticky sticky td 13px moneyNotRight 0/0 
+
+== th estilos
+[
+  [ '13px/600/none/rgb(74, 82, 102)/rgb(239, 242, 247)', 15 ],
+  [ '12px/700/none/rgb(74, 82, 102)/rgba(0, 0, 0, 0)', 3 ],
+  [ '14px/700/none/rgb(17, 21, 29)/rgba(0, 0, 0, 0)', 2 ],
+  [ '14px/600/none/rgb(74, 82, 102)/rgba(0, 0, 0, 0)', 1 ]
+]
+
+== Vacíos
+Flujos de trabajo | wfl__empty | Aún no hay flujos de trabajo. Crea el primero desde una plantilla: aprobación de compras,  | btn true
+Ejecuciones | wfr__empty | Aún no hay ejecuciones. Las ejecuciones aparecen cuando un proceso publicado se inicia a m | btn false
+Cotizaciones | empty-copy | Aún no hay cotizaciones Una cotización aceptada se convierte en factura con un clic, con l | btn false
+Recibos | empty-invite | No hay recibos de cliente Crea tu primer recibo para registrar un pago. | btn false
+Tickets de punto de venta | empty-copy | Todavía no hay ventas de caja Aquí aparece cada venta cobrada en el punto de venta, en cua | btn false
+Facturas | empty-invite | No hay facturas de proveedor Crea tu primera factura de proveedor para empezar. Crear fact | btn true
+Pagos a proveedores | empty-copy | Sin pagos Los pagos que registres a proveedores aparecerán aquí, con su número y las factu | btn false
+Notas de débito | empty-copy | Sin notas de débito Registra una nota de débito cuando devuelvas mercancía o el proveedor  | btn false
+Recepciones | empty-copy | Sin recepciones Cuando llegue mercancía de una orden enviada, regístrala aquí o desde la o | btn false
+Ajustes de inventario | empty-copy | Sin ajustes Registra un ajuste cuando un conteo físico no coincide con el sistema o cuando | btn false
+Transferencias | empty-copy | Sin transferencias Crea una transferencia para mover existencias de un almacén a otro. | btn false
+Predicciones de demanda | empty-copy | Aún no hay predicciones Se calculan cada noche con tu historial de ventas. Puedes pedir un | btn false
+Existencias | empty-copy | Sin existencias Aún no hay existencias con estos filtros. Recibe una compra o registra un  | btn false
+Kárdex | empty-copy | Sin movimientos No hay movimientos con estos filtros. Las recepciones, ventas, ajustes y t | btn false
+Flujo de caja proyectado | card cf__empty | Todavía no hay una proyección Se calcula cada noche a partir de tu caja, tus facturas abie | btn false
+Flujo de caja proyectado | cf__empty-title | Todavía no hay una proyección | btn false
+Bancos | empty-copy | Todavía no hay bancos en el catálogo Agrega los bancos con los que trabajas para elegirlos | btn false
+Asientos recurrentes | empty-copy | No hay asientos recurrentes Crea los asientos que se repiten —alquiler, seguros, devengos— | btn false
+Plantillas de asiento | empty-copy | No hay plantillas de asiento Crea plantillas para los asientos que registras a menudo con  | btn false
+Activos fijos | empty-copy | No hay activos fijos con estos filtros Registra los bienes que la empresa usa por más de u | btn false
+Ejecutar depreciación | empty-copy | Nada pendiente de depreciar Todos los activos están depreciados hasta ese mes, o aún no ha | btn false
+Presupuestos | empty-copy | Sin presupuestos Crea el presupuesto de un mes y cópialo al resto del año. | btn false
+Libro: diario | journal-empty | Aún no hay asientos. Aparecerán aquí al contabilizar facturas, cobros o asientos manuales. | btn false
+Libro: mayor | empty-invite | Selecciona una cuenta para ver el libro mayor. | btn false
+Análisis de variaciones | empty-copy | Sin presupuesto en estos meses Crea un presupuesto para comparar lo real contra él. | btn false
+Dimensiones analíticas | empty-copy | Aún no hay dimensiones analíticas Crea las dimensiones por las que analizas los resultados | btn false
+Tipos de cambio | empty-copy | Sin tasas Registra o importa las tasas de la empresa, o actualiza las compartidas desde el | btn false
+Informe del gerente | card mr__empty | Todavía no hay informes. Se escribe solo el día 1 de cada mes para el mes que terminó. Tam | btn false
+Anomalías | empty-copy | Sin anomalías que revisar La revisión automática corre cada noche. Si encuentra algo inusu | btn false
+Rentabilidad por producto | empty-state | No hay datos de rentabilidad para el período seleccionado. | btn false
+Rentabilidad por cliente | empty-state | No hay datos de rentabilidad para el período seleccionado. | btn false
+
+== Raw keys
+
+== Truncados
+Flujos de trabajo [ 'Filtrar por inicio' ]
+Almacenes [ 'Acciones' ]
+Unidades de medida [ 'Acciones' ]
+
+== <12px
+Formas de pago [
+  '01@11.7px',
+  '02@11.7px',
+  '03@11.7px',
+  '04@11.7px',
+  '05@11.7px',
+  '06@11.7px'
+]
+Conceptos [
+  'HE35@11.7px',
+  'HE100@11.7px',
+  'NOCT@11.7px',
+  'BONO@11.7px',
+  'COMISION@11.7px',
+  'AFP@11.7px'
+]
+
+== targets<24
+Todos los documentos [ 'Inicio 33x20' ]
+Existencias [ 'INPUT 16x16' ]
+Categorías [ 'INPUT 16x16' ]
+Tablero [ 'Caja general 105x22' ]
+Conciliación — manual [ 'INPUT 16x16' ]
+Cierre de período [ 'Resolver 49x19', 'Resolver 49x19' ]
+Plan de cuentas [ 'Cuenta 63x20', 'Tipo 46x20', 'Saldo 53x20', 'Estado 61x20' ]
+Empleados [ 'INPUT 16x16' ]
+Conceptos [ 'INPUT 16x16' ]
+
+== icon-only sin nombre
+Pagos a proveedores 1
+Notas de débito 1
+Recepciones 1
+Kárdex 1
+Cierre — anual 1
+Libro: mayor 1
+Mayor de terceros 1
+
+== axe
+{
+  'nested-interactive': {
+    impact: 'serious',
+    pages: 77,
+    nodes: 803,
+    ex: '.dv-tab ::   Using a negative tabindex on an element inside an interactive control does not prevent assistive technologies from focusing the element (e'
+  }
+}
+
+== API errs
+
+== console errs
+Inicio [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Aprobaciones [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Mis tareas [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+Todos los documentos [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Facturas [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Cotizaciones [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+Tickets de punto de venta [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Clientes [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+Listas de precios [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+Antigüedad de saldos [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Pagos a proveedores [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Notas de débito [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Órdenes de compra [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Requisiciones [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Antigüedad de saldos [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Transferencias [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+Productos [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Existencias [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Kárdex [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Categorías [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Almacenes [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Tablero [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+Flujo de caja proyectado [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Bancos [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Formas de pago [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Asientos [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Asientos recurrentes [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Activos fijos [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Ejecutar depreciación [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+Libro: mayor [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+Estado de resultados [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Balanza de comprobación [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Declaraciones fiscales [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+Diarios [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+Periodos contables [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Impuestos [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+Monedas [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Tipos de cambio [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Condiciones de pago [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Nóminas [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Conceptos [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Calidad de datos [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Rentabilidad por producto [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Rentabilidad por cliente [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)'
+]
+Mapa de relaciones [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+DataSheets [
+  'warning: [i18n] Missing translation: "common.skip_to_content" (es)',
+  'warning: [i18n] Missing translation: "charts.types.empty_chart" (es)',
+  'warning: [i18n] Missing translation: "charts.types.default_single" (es)'
+]
+
+== crumbs/active
+ACTIVE MISMATCH Inicio undefined
+crumbs any 0

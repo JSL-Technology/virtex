@@ -1,0 +1,680 @@
+[
+ {
+  "name": "1920",
+  "p": "overview",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 1598,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 240,
+  "prim": [
+   {
+    "t": "Nueva factura",
+    "inView": true,
+    "x": 1544,
+    "w": 152
+   }
+  ],
+  "h1": "Buenos días, Dev👋"
+ },
+ {
+  "name": "1920",
+  "p": "invoices",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 1598,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 240,
+  "prim": [],
+  "h1": "Facturas"
+ },
+ {
+  "name": "1920",
+  "p": "invoices/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 1598,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 240,
+  "prim": [
+   {
+    "t": "Emitir factura",
+    "inView": true,
+    "x": 1539,
+    "w": 115
+   },
+   {
+    "t": "Guardar borrador",
+    "inView": true,
+    "x": 1757,
+    "w": 142
+   }
+  ],
+  "h1": "Crear factura de venta"
+ },
+ {
+  "name": "1920",
+  "p": "contacts/customers/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 1598,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 240,
+  "prim": [
+   {
+    "t": "Guardar cliente",
+    "inView": true,
+    "x": 1771,
+    "w": 128
+   }
+  ],
+  "h1": "Nuevo cliente"
+ },
+ {
+  "name": "1920",
+  "p": "reports/financial-statements/balance-sheet",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 1598,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 240,
+  "prim": [
+   {
+    "t": "Actualizar",
+    "inView": true,
+    "x": 1784,
+    "w": 115
+   }
+  ],
+  "h1": "Balance general"
+ },
+ {
+  "name": "1920",
+  "p": "accounting/journal-entries/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 1598,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 240,
+  "prim": [
+   {
+    "t": "Guardar asiento",
+    "inView": true,
+    "x": 1767,
+    "w": 132
+   }
+  ],
+  "h1": "Nuevo asiento contable"
+ },
+ {
+  "name": "1366",
+  "p": "overview",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 1044,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 240,
+  "prim": [
+   {
+    "t": "Nueva factura",
+    "inView": true,
+    "x": 1189,
+    "w": 152
+   }
+  ],
+  "h1": "Buenos días, Dev👋"
+ },
+ {
+  "name": "1366",
+  "p": "invoices",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 1044,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 240,
+  "prim": [],
+  "h1": "Facturas"
+ },
+ {
+  "name": "1366",
+  "p": "invoices/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 1044,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 240,
+  "prim": [
+   {
+    "t": "Emitir factura",
+    "inView": true,
+    "x": 985,
+    "w": 115
+   },
+   {
+    "t": "Guardar borrador",
+    "inView": true,
+    "x": 1203,
+    "w": 142
+   }
+  ],
+  "h1": "Crear factura de venta"
+ },
+ {
+  "name": "1366",
+  "p": "contacts/customers/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 1044,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 240,
+  "prim": [
+   {
+    "t": "Guardar cliente",
+    "inView": true,
+    "x": 1217,
+    "w": 128
+   }
+  ],
+  "h1": "Nuevo cliente"
+ },
+ {
+  "name": "1366",
+  "p": "reports/financial-statements/balance-sheet",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 1044,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 240,
+  "prim": [
+   {
+    "t": "Actualizar",
+    "inView": true,
+    "x": 1230,
+    "w": 115
+   }
+  ],
+  "h1": "Balance general"
+ },
+ {
+  "name": "1366",
+  "p": "accounting/journal-entries/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 1044,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 240,
+  "prim": [
+   {
+    "t": "Guardar asiento",
+    "inView": true,
+    "x": 1213,
+    "w": 132
+   }
+  ],
+  "h1": "Nuevo asiento contable"
+ },
+ {
+  "name": "tablet768",
+  "p": "overview",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 768,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Nueva factura",
+    "inView": true,
+    "x": 588,
+    "w": 152
+   }
+  ],
+  "h1": "Buenos días, Dev👋"
+ },
+ {
+  "name": "tablet768",
+  "p": "invoices",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 768,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [],
+  "h1": "Facturas"
+ },
+ {
+  "name": "tablet768",
+  "p": "invoices/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 768,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Emitir factura",
+    "inView": true,
+    "x": 154,
+    "w": 115
+   },
+   {
+    "t": "Guardar borrador",
+    "inView": true,
+    "x": 371,
+    "w": 142
+   }
+  ],
+  "h1": "Crear factura de venta"
+ },
+ {
+  "name": "tablet768",
+  "p": "contacts/customers/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 768,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Guardar cliente",
+    "inView": true,
+    "x": 248,
+    "w": 128
+   }
+  ],
+  "h1": "Nuevo cliente"
+ },
+ {
+  "name": "tablet768",
+  "p": "reports/financial-statements/balance-sheet",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 768,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Actualizar",
+    "inView": true,
+    "x": 629,
+    "w": 115
+   }
+  ],
+  "h1": "Balance general"
+ },
+ {
+  "name": "tablet768",
+  "p": "accounting/journal-entries/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 768,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Guardar asiento",
+    "inView": true,
+    "x": 612,
+    "w": 132
+   }
+  ],
+  "h1": "Nuevo asiento contable"
+ },
+ {
+  "name": "movil375",
+  "p": "overview",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 375,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Nueva factura",
+    "inView": true,
+    "x": 16,
+    "w": 343
+   }
+  ],
+  "h1": "Buenos días, Dev👋"
+ },
+ {
+  "name": "movil375",
+  "p": "invoices",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 375,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [],
+  "h1": "Facturas"
+ },
+ {
+  "name": "movil375",
+  "p": "invoices/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 375,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Emitir factura",
+    "inView": true,
+    "x": 154,
+    "w": 115
+   },
+   {
+    "t": "Guardar borrador",
+    "inView": true,
+    "x": 118,
+    "w": 142
+   }
+  ],
+  "h1": "Crear factura de venta"
+ },
+ {
+  "name": "movil375",
+  "p": "contacts/customers/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 375,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Guardar cliente",
+    "inView": true,
+    "x": 24,
+    "w": 128
+   }
+  ],
+  "h1": "Nuevo cliente"
+ },
+ {
+  "name": "movil375",
+  "p": "reports/financial-statements/balance-sheet",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 375,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Actualizar",
+    "inView": true,
+    "x": 137,
+    "w": 115
+   }
+  ],
+  "h1": "Balance general"
+ },
+ {
+  "name": "movil375",
+  "p": "accounting/journal-entries/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 375,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Guardar asiento",
+    "inView": true,
+    "x": 24,
+    "w": 132
+   }
+  ],
+  "h1": "Nuevo asiento contable"
+ },
+ {
+  "name": "zoom150",
+  "p": "overview",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 670,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 208,
+  "prim": [
+   {
+    "t": "Nueva factura",
+    "inView": true,
+    "x": 783,
+    "w": 152
+   }
+  ],
+  "h1": "Buenos días, Dev👋"
+ },
+ {
+  "name": "zoom150",
+  "p": "invoices",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 670,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 208,
+  "prim": [],
+  "h1": "Facturas"
+ },
+ {
+  "name": "zoom150",
+  "p": "invoices/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 670,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 208,
+  "prim": [
+   {
+    "t": "Emitir factura",
+    "inView": true,
+    "x": 447,
+    "w": 115
+   },
+   {
+    "t": "Guardar borrador",
+    "inView": true,
+    "x": 664,
+    "w": 142
+   }
+  ],
+  "h1": "Crear factura de venta"
+ },
+ {
+  "name": "zoom150",
+  "p": "contacts/customers/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 670,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 208,
+  "prim": [
+   {
+    "t": "Guardar cliente",
+    "inView": true,
+    "x": 541,
+    "w": 128
+   }
+  ],
+  "h1": "Nuevo cliente"
+ },
+ {
+  "name": "zoom150",
+  "p": "reports/financial-statements/balance-sheet",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 670,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 208,
+  "prim": [
+   {
+    "t": "Actualizar",
+    "inView": true,
+    "x": 657,
+    "w": 115
+   }
+  ],
+  "h1": "Balance general"
+ },
+ {
+  "name": "zoom150",
+  "p": "accounting/journal-entries/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 670,
+  "panelOverflowX": 0,
+  "railW": 71,
+  "sideW": 208,
+  "prim": [
+   {
+    "t": "Guardar asiento",
+    "inView": true,
+    "x": 541,
+    "w": 132
+   }
+  ],
+  "h1": "Nuevo asiento contable"
+ },
+ {
+  "name": "zoom200",
+  "p": "overview",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 720,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Nueva factura",
+    "inView": true,
+    "x": 540,
+    "w": 152
+   }
+  ],
+  "h1": "Buenos días, Dev👋"
+ },
+ {
+  "name": "zoom200",
+  "p": "invoices",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 720,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [],
+  "h1": "Facturas"
+ },
+ {
+  "name": "zoom200",
+  "p": "invoices/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 720,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Emitir factura",
+    "inView": true,
+    "x": 154,
+    "w": 115
+   },
+   {
+    "t": "Guardar borrador",
+    "inView": true,
+    "x": 371,
+    "w": 142
+   }
+  ],
+  "h1": "Crear factura de venta"
+ },
+ {
+  "name": "zoom200",
+  "p": "contacts/customers/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 720,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Guardar cliente",
+    "inView": true,
+    "x": 248,
+    "w": 128
+   }
+  ],
+  "h1": "Nuevo cliente"
+ },
+ {
+  "name": "zoom200",
+  "p": "reports/financial-statements/balance-sheet",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 720,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Actualizar",
+    "inView": true,
+    "x": 581,
+    "w": 115
+   }
+  ],
+  "h1": "Balance general"
+ },
+ {
+  "name": "zoom200",
+  "p": "accounting/journal-entries/new",
+  "docOverflowX": 0,
+  "docOverflowY": 0,
+  "panelW": 720,
+  "panelOverflowX": 0,
+  "railW": 80,
+  "sideW": 0,
+  "prim": [
+   {
+    "t": "Guardar asiento",
+    "inView": true,
+    "x": 564,
+    "w": 132
+   }
+  ],
+  "h1": "Nuevo asiento contable"
+ }
+]

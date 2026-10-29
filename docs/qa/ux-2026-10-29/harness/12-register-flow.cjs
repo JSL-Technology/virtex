@@ -1,0 +1,33 @@
+// Alta completa de una empresa nueva en México (organización vacía). Correo/SMS van a los buzones de desarrollo.
+const { launch, instrument, shot, BASE, fs, path } = require('./lib.cjs'); const { dump } = require('./reglib.cjs');
+const ROOT = path.resolve(__dirname, '../../../..');
+const latest = (dir, re) => { const d = path.join(ROOT, 'tmp', dir); if (!fs.existsSync(d)) return null; const f = fs.readdirSync(d).filter(x => re.test(x)).sort().pop(); return f ? fs.readFileSync(path.join(d, f), 'utf8') : null; };
+const EMAIL = process.env.EMAIL || 'qa.ux3.admin@example.com';
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage(); const log = instrument(page);
+  const step = async (name) => { await page.waitForTimeout(1500); await shot(page, 'R-' + name, true); const d = await dump(page); console.log('\n=====', name, page.url()); console.log(d.main.slice(0, 900)); return d; };
+  await page.goto(BASE + '/es/mx/auth/register'); await page.waitForTimeout(3000);
+  await page.getByRole('button', { name: 'Siguiente' }).click(); await step('03-paso1-vacio');
+  const errs = await page.evaluate(() => [...document.querySelectorAll('[class*=error], [role=alert], .invalid-feedback, small')].filter(e => e.offsetParent).map(e => e.innerText.trim()).filter(Boolean));
+  console.log('ERRORES VISIBLES', errs);
+  const inv = await page.evaluate(() => [...document.querySelectorAll('input')].filter(e => e.offsetParent).map(e => e.getAttribute('aria-invalid') + '/' + e.getAttribute('aria-describedby')));
+  console.log('aria-invalid/describedby', inv.join(' '));
+  console.log('focus after submit:', await page.evaluate(() => document.activeElement.outerHTML.slice(0, 120)));
+  await page.getByLabel('Nombre', { exact: true }).fill('María José');
+  await page.getByLabel('Apellidos').fill("O'Connor-Núñez 🚀");
+  await page.getByLabel('Correo electrónico').fill(EMAIL);
+  await page.getByLabel('Teléfono', { exact: true }).fill('5512345678');
+  await page.getByLabel('Contraseña', { exact: true }).fill('corta');
+  await page.getByLabel('Confirmar contraseña').fill('otra');
+  await page.getByRole('button', { name: 'Siguiente' }).click(); await step('04-paso1-invalido');
+  await page.getByLabel('Contraseña', { exact: true }).fill('QA-Test-Pass-2026!');
+  await page.getByLabel('Confirmar contraseña').fill('QA-Test-Pass-2026!');
+  await page.getByRole('button', { name: 'Siguiente' }).click(); await step('05-paso2');
+  await page.waitForTimeout(2000);
+  const mail = latest('mail-outbox', /\.json$/); console.log('MAIL', (mail || '').slice(0, 600));
+  console.log(log.req.slice(-15).join('\n'));
+  await context.storageState({ path: __dirname + '/state-reg.json' });
+  fs.writeFileSync(__dirname + '/reg-url.txt', page.url());
+  await browser.close();
+})();

@@ -1,0 +1,20 @@
+const lib = require('./flow-lib.cjs'); const { launch, instrument, shot, panel, fields, errors, text, resetThrottle, BASE } = lib;
+(async () => {
+  resetThrottle();
+  const { browser, context } = await launch({ storageState: __dirname + '/state-admin.json' });
+  const page = await context.newPage(); const log = instrument(page);
+  await page.goto(BASE + '/e/virtex-dev/invoices'); await page.waitForTimeout(3500);
+  await shot(page, 'T-do-9-lista-facturas'); console.log((await text(page)).slice(0, 700));
+  await panel(page).locator('tbody tr, [role=row]').filter({ hasText: 'B0200000001' }).first().click(); await page.waitForTimeout(2500);
+  await panel(page).getByRole('button', { name: 'Registrar cobro' }).click(); await page.waitForTimeout(2500);
+  console.log('URL', page.url()); await shot(page, 'T-do-10-cobro-form', true);
+  const dlg = page.locator('[role=dialog]').last(); const root = (await dlg.isVisible().catch(() => false)) ? dlg : panel(page);
+  console.log((await root.innerText()).replace(/\n{2,}/g, '\n').slice(0, 1800));
+  console.log((await root.locator('input,select,textarea').evaluateAll(es => es.filter(e => e.offsetParent).map(e => (e.labels?.[0]?.innerText || e.getAttribute('aria-label') || '') + '=' + (e.tagName === 'SELECT' ? e.selectedOptions[0]?.text : e.value) + ' ' + e.type))).join('\n'));
+  const save = root.getByRole('button', { name: /Registrar|Guardar|Cobrar|Confirmar/ }).last(); console.log('btn', await save.innerText());
+  await save.click(); await page.waitForTimeout(3000);
+  console.log('cobro →', page.url(), await errors(page)); await shot(page, 'T-do-11-cobrado', true);
+  console.log((await text(page)).slice(0, 600));
+  console.log(log.req.filter(r => /receipt|payment|invoice/.test(r)).slice(-6).join('\n'));
+  await browser.close();
+})();

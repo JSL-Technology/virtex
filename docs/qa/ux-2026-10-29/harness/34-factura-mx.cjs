@@ -1,0 +1,28 @@
+const { launch, instrument, shot, panel, fields, errors, text, go, resetThrottle } = require('./flow-lib.cjs');
+(async () => {
+  resetThrottle();
+  const { browser, context } = await launch({ storageState: __dirname + '/state-mx.json' });
+  const page = await context.newPage(); const log = instrument(page); let clicks = 0;
+  await go(page, 'invoices/new'); const P = panel(page);
+  await P.getByLabel(/Cliente/).click(); clicks++; await page.waitForTimeout(800);
+  await shot(page, 'T-fac-2-cliente-dropdown');
+  console.log('opciones cliente:', (await page.locator('[role=option], [role=listbox] li, .dropdown-item, [class*=option]').allInnerTexts()).slice(0, 8));
+  await page.keyboard.type('Ñandú', { delay: 50 }); await page.waitForTimeout(1200);
+  console.log('tras teclear:', (await page.locator('[role=option]').allInnerTexts()).slice(0, 5));
+  await page.locator('[role=option]').first().click(); clicks++; await page.waitForTimeout(1000);
+  console.log('venc tras cliente:', await P.getByLabel('Fecha de vencimiento').inputValue());
+  await P.getByPlaceholder('— Concepto libre —').click(); clicks++; await page.keyboard.type('Café', { delay: 50 }); await page.waitForTimeout(1200);
+  console.log('opciones prod:', (await page.locator('[role=option]').allInnerTexts()).slice(0, 5));
+  await page.locator('[role=option]').first().click(); clicks++; await page.waitForTimeout(1000);
+  const qty = P.locator('input[type=number]').first(); await qty.fill('3'); await qty.blur(); await page.waitForTimeout(800);
+  await shot(page, 'T-fac-3-linea', true);
+  console.log((await text(page)).split('Artículo y descripción')[1]?.slice(0, 600));
+  await P.getByRole('tab', { name: 'Fiscal y cobro' }).or(P.getByText('Fiscal y cobro')).first().click(); clicks++; await page.waitForTimeout(1000);
+  await shot(page, 'T-fac-4-fiscal', true); console.log('FISCAL:', (await text(page)).split('Fiscal y cobro')[1]?.slice(0, 1200)); console.log((await fields(page)).join('\n'));
+  await P.getByRole('button', { name: 'Guardar borrador' }).click(); clicks++; await page.waitForTimeout(2500);
+  console.log('guardar →', page.url(), await errors(page)); await shot(page, 'T-fac-5-borrador', true);
+  console.log('CLICKS', clicks);
+  console.log((await text(page)).slice(0, 1500));
+  console.log(log.req.filter(r => /invoice/.test(r)).join('\n'));
+  await browser.close();
+})();

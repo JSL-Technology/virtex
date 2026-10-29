@@ -1,0 +1,22 @@
+const { launch, instrument, shot, BASE, fs, path } = require('./lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage(); instrument(page);
+  await page.goto(BASE + '/es/mx/auth/register'); await page.waitForTimeout(3000);
+  await page.getByLabel('Nombre', { exact: true }).fill('QA'); await page.getByLabel('Apellidos').fill('OTP');
+  await page.getByLabel('Correo electrónico').fill('qa.ux3.otp' + Date.now() + '@example.com');
+  await page.getByLabel('Teléfono', { exact: true }).fill('5512345679');
+  await page.getByLabel('Contraseña', { exact: true }).fill('QA-Test-Pass-2026!'); await page.getByLabel('Confirmar contraseña').fill('QA-Test-Pass-2026!');
+  await page.getByRole('button', { name: 'Siguiente' }).click(); await page.waitForTimeout(2500);
+  const boxes = page.getByLabel(/Dígito \d de 6/);
+  const vals = async () => (await boxes.evaluateAll(es => es.map(e => e.value || '_'))).join('') + ' focus=' + await page.evaluate(() => document.activeElement.getAttribute('aria-label'));
+  await boxes.first().click(); await page.keyboard.type('123456', { delay: 150 }); console.log('type delay150:', await vals());
+  await page.getByRole('button', { name: 'Limpiar' }).click(); await page.waitForTimeout(300);
+  await boxes.first().click(); for (const c of '654321') { await page.keyboard.press(c); await page.waitForTimeout(250); } console.log('press each 250ms:', await vals());
+  await page.getByRole('button', { name: 'Limpiar' }).click(); await page.waitForTimeout(300);
+  await boxes.first().click();
+  await page.evaluate(() => { const dt = new DataTransfer(); dt.setData('text/plain', '112233'); document.activeElement.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true })); });
+  await page.waitForTimeout(500); console.log('paste:', await vals());
+  await shot(page, 'R-06b-otp-paste');
+  await browser.close();
+})();

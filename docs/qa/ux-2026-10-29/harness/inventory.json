@@ -1,0 +1,427 @@
+[
+ {
+  "module": "Mi trabajo",
+  "items": [
+   {
+    "group": "",
+    "label": "Inicio",
+    "href": "/e/virtex-dev/overview"
+   },
+   {
+    "group": "",
+    "label": "Aprobaciones",
+    "href": "/e/virtex-dev/approvals"
+   },
+   {
+    "group": "",
+    "label": "Mis tareas",
+    "href": "/e/virtex-dev/workflow-tasks"
+   },
+   {
+    "group": "",
+    "label": "Todos los documentos",
+    "href": "/e/virtex-dev/documents/repository"
+   },
+   {
+    "group": "",
+    "label": "Flujos de trabajo",
+    "href": "/e/virtex-dev/workflows"
+   },
+   {
+    "group": "",
+    "label": "Ejecuciones",
+    "href": "/e/virtex-dev/workflow-instances"
+   }
+  ]
+ },
+ {
+  "module": "Ventas",
+  "items": [
+   {
+    "group": "",
+    "label": "Facturas",
+    "href": "/e/virtex-dev/invoices"
+   },
+   {
+    "group": "",
+    "label": "Cotizaciones",
+    "href": "/e/virtex-dev/quotes"
+   },
+   {
+    "group": "",
+    "label": "Cobranza",
+    "href": "/e/virtex-dev/collections"
+   },
+   {
+    "group": "",
+    "label": "Recibos",
+    "href": "/e/virtex-dev/customer-receipts"
+   },
+   {
+    "group": "",
+    "label": "Tickets de punto de venta",
+    "href": "/e/virtex-dev/sales/history"
+   },
+   {
+    "group": "",
+    "label": "Punto de venta",
+    "href": "/e/virtex-dev/sales/pos"
+   },
+   {
+    "group": "",
+    "label": "Clientes",
+    "href": "/e/virtex-dev/contacts/customers"
+   },
+   {
+    "group": "",
+    "label": "Listas de precios",
+    "href": "/e/virtex-dev/masters/price-lists"
+   },
+   {
+    "group": "",
+    "label": "Antigüedad de saldos",
+    "href": "/e/virtex-dev/reports/aging/receivables"
+   }
+  ]
+ },
+ {
+  "module": "Compras",
+  "items": [
+   {
+    "group": "",
+    "label": "Facturas",
+    "href": "/e/virtex-dev/accounts-payable"
+   },
+   {
+    "group": "",
+    "label": "Pagos a proveedores",
+    "href": "/e/virtex-dev/accounts-payable/payments"
+   },
+   {
+    "group": "",
+    "label": "Notas de débito",
+    "href": "/e/virtex-dev/accounts-payable/debit-notes"
+   },
+   {
+    "group": "",
+    "label": "Órdenes de compra",
+    "href": "/e/virtex-dev/purchasing/orders"
+   },
+   {
+    "group": "",
+    "label": "Recepciones",
+    "href": "/e/virtex-dev/purchasing/receipts"
+   },
+   {
+    "group": "",
+    "label": "Requisiciones",
+    "href": "/e/virtex-dev/purchasing/requisitions"
+   },
+   {
+    "group": "",
+    "label": "Proveedores",
+    "href": "/e/virtex-dev/contacts/suppliers"
+   },
+   {
+    "group": "",
+    "label": "Antigüedad de saldos",
+    "href": "/e/virtex-dev/reports/aging/payables"
+   }
+  ]
+ },
+ {
+  "module": "Inventario",
+  "items": [
+   {
+    "group": "",
+    "label": "Ajustes de inventario",
+    "href": "/e/virtex-dev/inventory/adjustments"
+   },
+   {
+    "group": "",
+    "label": "Transferencias",
+    "href": "/e/virtex-dev/inventory/transfers"
+   },
+   {
+    "group": "",
+    "label": "Productos",
+    "href": "/e/virtex-dev/inventory/products"
+   },
+   {
+    "group": "",
+    "label": "Predicciones de demanda",
+    "href": "/e/virtex-dev/inventory/predictions"
+   },
+   {
+    "group": "",
+    "label": "Existencias",
+    "href": "/e/virtex-dev/inventory/stock"
+   },
+   {
+    "group": "",
+    "label": "Kárdex",
+    "href": "/e/virtex-dev/inventory/movements"
+   },
+   {
+    "group": "",
+    "label": "Categorías",
+    "href": "/e/virtex-dev/inventory/categories"
+   },
+   {
+    "group": "",
+    "label": "Almacenes",
+    "href": "/e/virtex-dev/masters/warehouses"
+   },
+   {
+    "group": "",
+    "label": "Unidades de medida",
+    "href": "/e/virtex-dev/masters/units-of-measure"
+   }
+  ]
+ },
+ {
+  "module": "Tesorería",
+  "items": [
+   {
+    "group": "",
+    "label": "Tablero",
+    "href": "/e/virtex-dev/accounting/treasury"
+   },
+   {
+    "group": "",
+    "label": "Conciliación — manual",
+    "href": "/e/virtex-dev/accounting/reconciliation"
+   },
+   {
+    "group": "",
+    "label": "Flujo de caja proyectado",
+    "href": "/e/virtex-dev/accounting/treasury/cash-flow"
+   },
+   {
+    "group": "",
+    "label": "Bancos",
+    "href": "/e/virtex-dev/masters/banks"
+   },
+   {
+    "group": "",
+    "label": "Formas de pago",
+    "href": "/e/virtex-dev/masters/payment-methods"
+   }
+  ]
+ },
+ {
+  "module": "Contabilidad",
+  "items": [
+   {
+    "group": "",
+    "label": "Asientos",
+    "href": "/e/virtex-dev/accounting/journal-entries"
+   },
+   {
+    "group": "",
+    "label": "Asientos recurrentes",
+    "href": "/e/virtex-dev/accounting/recurring-entries"
+   },
+   {
+    "group": "",
+    "label": "Plantillas de asiento",
+    "href": "/e/virtex-dev/accounting/entry-templates"
+   },
+   {
+    "group": "",
+    "label": "Activos fijos",
+    "href": "/e/virtex-dev/accounting/fixed-assets"
+   },
+   {
+    "group": "",
+    "label": "Ejecutar depreciación",
+    "href": "/e/virtex-dev/accounting/fixed-assets/depreciation"
+   },
+   {
+    "group": "",
+    "label": "Presupuestos",
+    "href": "/e/virtex-dev/accounting/budgets"
+   },
+   {
+    "group": "",
+    "label": "Cierre — anual",
+    "href": "/e/virtex-dev/accounting/closing/annual-close"
+   },
+   {
+    "group": "",
+    "label": "Ajustes de auditoría",
+    "href": "/e/virtex-dev/accounting/audit-adjustments"
+   },
+   {
+    "group": "",
+    "label": "Cierre de período",
+    "href": "/e/virtex-dev/accounting/closing/checklist"
+   },
+   {
+    "group": "",
+    "label": "Plan de cuentas",
+    "href": "/e/virtex-dev/accounting/chart-of-accounts"
+   },
+   {
+    "group": "",
+    "label": "Libro: diario",
+    "href": "/e/virtex-dev/accounting/daily-journal"
+   },
+   {
+    "group": "",
+    "label": "Libro: mayor",
+    "href": "/e/virtex-dev/accounting/general-ledger"
+   },
+   {
+    "group": "",
+    "label": "Mayor de terceros",
+    "href": "/e/virtex-dev/accounting/partner-ledger"
+   },
+   {
+    "group": "",
+    "label": "Análisis de variaciones",
+    "href": "/e/virtex-dev/accounting/variance-analysis"
+   },
+   {
+    "group": "",
+    "label": "Balance general",
+    "href": "/e/virtex-dev/reports/financial-statements/balance-sheet"
+   },
+   {
+    "group": "",
+    "label": "Estado de resultados",
+    "href": "/e/virtex-dev/reports/financial-statements/income-statement"
+   },
+   {
+    "group": "",
+    "label": "Balanza de comprobación",
+    "href": "/e/virtex-dev/reports/financial-statements/trial-balance"
+   },
+   {
+    "group": "",
+    "label": "Flujo de efectivo",
+    "href": "/e/virtex-dev/reports/financial-statements/cash-flow"
+   },
+   {
+    "group": "",
+    "label": "Declaraciones fiscales",
+    "href": "/e/virtex-dev/reports/fiscal-returns"
+   },
+   {
+    "group": "",
+    "label": "Dimensiones analíticas",
+    "href": "/e/virtex-dev/accounting/dimensions"
+   },
+   {
+    "group": "",
+    "label": "Multilibros",
+    "href": "/e/virtex-dev/accounting/ledgers"
+   },
+   {
+    "group": "",
+    "label": "Diarios",
+    "href": "/e/virtex-dev/accounting/journals"
+   },
+   {
+    "group": "",
+    "label": "Periodos contables",
+    "href": "/e/virtex-dev/accounting/periods"
+   },
+   {
+    "group": "",
+    "label": "Impuestos",
+    "href": "/e/virtex-dev/masters/taxes"
+   },
+   {
+    "group": "",
+    "label": "Monedas",
+    "href": "/e/virtex-dev/masters/currencies"
+   },
+   {
+    "group": "",
+    "label": "Tipos de cambio",
+    "href": "/e/virtex-dev/masters/currencies/exchange-rates"
+   },
+   {
+    "group": "",
+    "label": "Condiciones de pago",
+    "href": "/e/virtex-dev/masters/payment-terms"
+   }
+  ]
+ },
+ {
+  "module": "RR.HH. y nómina",
+  "items": [
+   {
+    "group": "",
+    "label": "Mis volantes",
+    "href": "/e/virtex-dev/payroll/my-payslips"
+   },
+   {
+    "group": "",
+    "label": "Nóminas",
+    "href": "/e/virtex-dev/payroll/runs"
+   },
+   {
+    "group": "",
+    "label": "Empleados",
+    "href": "/e/virtex-dev/hcm/employees"
+   },
+   {
+    "group": "",
+    "label": "Departamentos",
+    "href": "/e/virtex-dev/hcm/departments"
+   },
+   {
+    "group": "",
+    "label": "Conceptos",
+    "href": "/e/virtex-dev/payroll/concepts"
+   },
+   {
+    "group": "",
+    "label": "Parámetros de ley",
+    "href": "/e/virtex-dev/payroll/parameters"
+   }
+  ]
+ },
+ {
+  "module": "Análisis",
+  "items": [
+   {
+    "group": "",
+    "label": "Calidad de datos",
+    "href": "/e/virtex-dev/reports/data-quality"
+   },
+   {
+    "group": "",
+    "label": "Informe del gerente",
+    "href": "/e/virtex-dev/reports/manager-report"
+   },
+   {
+    "group": "",
+    "label": "Anomalías",
+    "href": "/e/virtex-dev/reports/anomalies"
+   },
+   {
+    "group": "",
+    "label": "Rentabilidad por producto",
+    "href": "/e/virtex-dev/reports/profitability-by-product"
+   },
+   {
+    "group": "",
+    "label": "Rentabilidad por cliente",
+    "href": "/e/virtex-dev/reports/profitability-by-customer"
+   },
+   {
+    "group": "",
+    "label": "Mapa de relaciones",
+    "href": "/e/virtex-dev/reports/relationship-map"
+   },
+   {
+    "group": "",
+    "label": "DataSheets",
+    "href": "/e/virtex-dev/datasheets"
+   }
+  ]
+ }
+]

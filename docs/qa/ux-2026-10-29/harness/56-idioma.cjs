@@ -1,0 +1,22 @@
+const { session, ADMIN, shot, panel, errors, text, resetThrottle, BASE } = require('./flow-lib.cjs');
+(async () => {
+  resetThrottle();
+  const { page, log, close } = await session('state-admin.json', ADMIN);
+  await page.goto(BASE + '/e/virtex-dev/overview'); await page.waitForTimeout(3000);
+  await page.locator('header').getByText('Dev User').click(); await page.waitForTimeout(800);
+  await shot(page, 'L-0-menu-usuario');
+  console.log('MENU USUARIO:', (await page.locator('[role=menu]').last().innerText().catch(() => '')).replace(/\n+/g, ' | '));
+  await page.keyboard.press('Escape');
+  await page.goto(BASE + '/e/virtex-dev/overview#settings/profile'); await page.waitForTimeout(3000);
+  const dlg = page.locator('[role=dialog]').last();
+  await dlg.getByLabel('Idioma preferido').selectOption({ label: 'English' }); await page.waitForTimeout(500);
+  await dlg.getByRole('button', { name: 'Guardar cambios' }).click(); await page.waitForTimeout(3000);
+  console.log('guardar idioma →', await errors(page), page.url());
+  await shot(page, 'L-1-tras-cambiar-a-ingles');
+  console.log('texto modal tras cambiar:', (await dlg.innerText().catch(() => '')).slice(0, 300).replace(/\n+/g, ' | '));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(1500);
+  console.log('URL', page.url(), 'lang attr', await page.evaluate(() => document.documentElement.lang));
+  await shot(page, 'L-2-inicio-ingles');
+  console.log((await text(page)).slice(0, 500).replace(/\n+/g, ' | '));
+  await close();
+})();

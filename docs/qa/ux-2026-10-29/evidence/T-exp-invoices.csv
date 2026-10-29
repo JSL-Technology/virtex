@@ -1,0 +1,3 @@
+﻿sep=;
+Documento;Comprobante fiscal;Tipo de documento;Cliente;Identificación fiscal;Fecha de emisión;Fecha de vencimiento;Gravado;Exento;Impuesto;Total;Saldo;Moneda;Estado;Sucursal
+FAC-00000001;;;QA-Cliente Ñandú Distribuciones del Pacífico, S.A. de C.V. — sucursal Guadalajara (prueba de nombre muy largo);NAN0101015H2;2026-10-28;2026-11-27;1051.5;0;168.24;1219.74;1219.74;MXN;Draft;

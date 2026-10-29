@@ -1,0 +1,26 @@
+const { launch, instrument, shot, BASE, resetThrottle, fs, path } = require('./lib.cjs');
+(async () => {
+  resetThrottle();
+  const { browser, context } = await launch();
+  const page = await context.newPage(); const log = instrument(page);
+  page.on('request', r => { if (r.url().includes('verify-public-code')) console.log(Date.now() % 100000, 'REQ verify', r.postData()); });
+  await page.goto(BASE + '/es/mx/auth/register'); await page.waitForTimeout(3000);
+  await page.getByLabel('Nombre', { exact: true }).fill('QA'); await page.getByLabel('Apellidos').fill('Calls');
+  await page.getByLabel('Correo electrónico').fill(process.env.EMAIL);
+  await page.getByLabel('Teléfono', { exact: true }).fill('5512345677');
+  await page.getByLabel('Contraseña', { exact: true }).fill('QA-Test-Pass-2026!'); await page.getByLabel('Confirmar contraseña').fill('QA-Test-Pass-2026!');
+  await page.getByRole('button', { name: 'Siguiente' }).click(); await page.waitForTimeout(3000);
+  const boxes = page.getByLabel(/Dígito \d de 6/);
+  console.log('--- tecleo código erróneo, sin pulsar Verificar');
+  await boxes.first().click(); await page.keyboard.type('000000', { delay: 150 }); await page.waitForTimeout(3000);
+  console.log('msg:', await page.locator('[role=alert], .error, [class*=error]').allInnerTexts());
+  await shot(page, 'R-10-otp-erroneo');
+  console.log('--- Limpiar y teclear el correcto');
+  await page.getByRole('button', { name: 'Limpiar' }).click();
+  const m = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../tmp/mail-outbox', fs.readdirSync(path.resolve(__dirname, '../../../../tmp/mail-outbox')).filter(f => f.endsWith('.json')).sort().pop())));
+  await boxes.first().click(); await page.keyboard.type(m.context.code, { delay: 150 }); await page.waitForTimeout(4000);
+  console.log('msg:', await page.locator('[role=alert], .error, [class*=error]').allInnerTexts());
+  await shot(page, 'R-11-otp-correcto-tras-erroneo', true);
+  console.log(log.req.filter(r => /verify|send/.test(r)).join('\n'));
+  await browser.close();
+})();

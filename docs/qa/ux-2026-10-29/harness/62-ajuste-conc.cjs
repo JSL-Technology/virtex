@@ -1,0 +1,21 @@
+const { session, MX, shot, panel, errors, text, go, resetThrottle } = require('./flow-lib.cjs');
+(async () => {
+  resetThrottle();
+  const { page, log, close } = await session('state-mx.json', MX);
+  await go(page, 'inventory/adjustments/new'); const P = panel(page);
+  await P.getByLabel(/Motivo/).fill('QA-Conteo físico de fin de mes');
+  await P.getByPlaceholder('Buscar o seleccionar…').click(); await page.waitForTimeout(800); await page.locator('[role=option]').first().click(); await page.waitForTimeout(1000);
+  console.log('linea:', (await text(page)).split('Acciones')[1]?.slice(0, 200).replace(/\n+/g, ' | '));
+  await P.getByLabel('Contado').fill('97'); await P.getByLabel('Contado').blur(); await page.waitForTimeout(600);
+  console.log('tras contado:', (await text(page)).split('Acciones')[1]?.slice(0, 200).replace(/\n+/g, ' | '));
+  await shot(page, 'T-inv-2-ajuste-lleno', true);
+  await P.getByRole('button', { name: 'Guardar' }).click(); await page.waitForTimeout(3000);
+  console.log('ajuste →', page.url(), await errors(page)); console.log((await text(page)).slice(0, 500).replace(/\n+/g, ' | '));
+  console.log('acciones', (await panel(page).getByRole('button').allInnerTexts()).map(s => s.trim()).filter(Boolean));
+  await shot(page, 'T-inv-3-ajuste-guardado', true);
+  await go(page, 'accounting/reconciliation');
+  const imp = panel(page).getByText('Importar estado de cuenta'); console.log('importar tag', await imp.evaluate(e => e.tagName + ' role=' + e.getAttribute('role') + ' ' + e.closest('button,a,label')?.tagName));
+  await imp.click(); await page.waitForTimeout(1500); await shot(page, 'T-conc-2-importar', true);
+  const d = page.locator('[role=dialog]').last(); console.log('IMPORTAR:', (await d.isVisible().catch(() => false)) ? (await d.innerText()).slice(0, 900) : 'sin diálogo (¿abre selector de archivo nativo?)');
+  await close();
+})();
