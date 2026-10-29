@@ -713,5 +713,15 @@
     "es": "Retenciones practicadas al proveedor",
     "en": "Tax withheld from the supplier",
     "pt": "Retenções efetuadas ao fornecedor"
+  },
+  "ledger.inventory.adjustment_revaluation_up": {
+    "es": "Revaluación de costo de inventario (alza)",
+    "en": "Inventory cost revaluation (increase)",
+    "pt": "Reavaliação de custo de estoque (alta)"
+  },
+  "ledger.inventory.adjustment_revaluation_down": {
+    "es": "Revaluación de costo de inventario (baja)",
+    "en": "Inventory cost revaluation (decrease)",
+    "pt": "Reavaliação de custo de estoque (baixa)"
   }
 }

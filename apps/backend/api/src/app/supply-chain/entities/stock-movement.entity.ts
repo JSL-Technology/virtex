@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, Index } from 'typeorm';
 import { Product } from '../../inventory/entities/product.entity';
 import { Warehouse } from './warehouse.entity';
-import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 export type StockMovementType =
@@ -14,6 +14,12 @@ export type StockMovementType =
   /** Goods back from a customer: a credit note that restocks. */
   | 'SALE_RETURN'
   | 'ADJUSTMENT'
+  /**
+   * A change in what the goods are worth with no goods moving: a new unit cost set by an
+   * adjustment. Quantity 0; `value` carries the amount, so the kardex explains every change in the
+   * inventory's value and not only in its quantity.
+   */
+  | 'REVALUATION'
   | 'TRANSFER_OUT'
   | 'TRANSFER_IN';
 
@@ -67,6 +73,18 @@ export class StockMovement {
   /** Unit cost of the movement, in the books' currency. */
   @Column({ type: 'decimal', precision: 18, scale: 6, transformer: numericTransformerNotNull })
   cost: number;
+
+  /**
+   * The value booked for this movement, when the document that moved it booked one.
+   *
+   * `quantity × cost` rounded per row does not always add up to what the books carry: a shortfall
+   * of 2.25 at 5.50 is 12.375, and the ledger can only hold cents. Where the posting computed the
+   * value itself — as the difference between the rounded valuations before and after, so the
+   * stock report and the ledger agree to the cent — it is stored here and the kardex shows it.
+   * Null for movements that never stated one; the kardex falls back to `quantity × cost`.
+   */
+  @Column({ type: 'decimal', precision: 18, scale: 2, nullable: true, transformer: numericTransformer })
+  value: number | null;
 
   @Column()
   type: StockMovementType;

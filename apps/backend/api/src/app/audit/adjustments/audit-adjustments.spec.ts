@@ -245,6 +245,66 @@ describeWithDb('proposing an audit adjustment', () => {
     expect(entry.lines).toHaveLength(2);
   });
 
+  const proposeLines = (lines: Array<{ accountId: string; debit: number; credit: number }>) =>
+    proposals.proposeAdjustment(
+      {
+        fiscalYearId,
+        date: '2025-12-31',
+        description: 'Ajuste',
+        journalId: generalJournalId,
+        lines: lines.map((line) => ({ ...line, description: 'Línea' })),
+      } as CreateProposedAdjustmentDto,
+      organizationId,
+      proposer,
+    );
+
+  it('refuses a line with both sides or neither, and an unbalanced proposal, naming the line', async () => {
+    await expect(
+      proposeLines([
+        { accountId: account['expense'], debit: 10, credit: 5 },
+        { accountId: account['payable'], debit: 0, credit: 5 },
+      ]),
+    ).rejects.toMatchObject({ messageKey: 'audit.adjustment_line_one_side', params: { line: 1 } });
+    await expect(
+      proposeLines([
+        { accountId: account['expense'], debit: 10, credit: 0 },
+        { accountId: account['payable'], debit: 0, credit: 0 },
+      ]),
+    ).rejects.toMatchObject({ messageKey: 'audit.adjustment_line_one_side', params: { line: 2 } });
+    await expect(
+      proposeLines([
+        { accountId: account['expense'], debit: 10, credit: 0 },
+        { accountId: account['payable'], debit: 0, credit: 9.99 },
+      ]),
+    ).rejects.toMatchObject({ messageKey: 'audit.adjustment_unbalanced' });
+    expect(await dataSource.getRepository(ProposedAdjustment).countBy({ organizationId })).toBe(0);
+  });
+
+  it('measures the approval policy against what the adjustment moves, not against zero', async () => {
+    workflows.startApprovalProcess.mockClear();
+    await propose();
+    expect(workflows.startApprovalProcess).toHaveBeenCalledWith(
+      organizationId,
+      expect.any(String),
+      DocumentTypeForApproval.AUDIT_ADJUSTMENT,
+      25_000,
+      proposer.id,
+      expect.anything(),
+    );
+  });
+
+  it('lets a refusal the person can act on keep its own status instead of becoming a 500', async () => {
+    // An account blocked for posting: a 4xx with its own message, not «could not be processed».
+    await dataSource.getRepository(Account).update({ id: account['payable'] }, { isBlockedForPosting: true } as never);
+    const refusal = (await propose().then(
+      () => null,
+      (error: unknown) => error,
+    )) as { getStatus: () => number; messageKey: string } | null;
+    expect(refusal).not.toBeNull();
+    expect(refusal!.getStatus()).toBeLessThan(500);
+    expect(refusal!.messageKey).not.toBe('audit.approved_adjustment_could_not_processed_p1');
+  });
+
   /**
    * The approval granted the adjustment; it did not author it. An entry attributed to whoever
    * clicked approve would be a worse record than one attributed to nobody.

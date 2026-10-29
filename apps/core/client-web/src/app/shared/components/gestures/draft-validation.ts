@@ -37,6 +37,14 @@ const MESSAGE_BY_ERROR: Record<string, string> = {
   dateOrder: 'shell.problem_date_order',
 };
 
+/**
+ * The problem one control has, worded with the same keys the draft summary uses — for the message
+ * under the field, so the field and the summary never say two different things.
+ */
+export function problemForControl(name: string, labelKey: string, control: AbstractControl): DraftProblem | null {
+  return control.invalid ? describe(name, labelKey, control.errors ?? {}) : null;
+}
+
 function describe(name: string, label: string, errors: ValidationErrors): DraftProblem {
   for (const [error, message] of Object.entries(MESSAGE_BY_ERROR)) {
     if (!(error in errors)) continue;

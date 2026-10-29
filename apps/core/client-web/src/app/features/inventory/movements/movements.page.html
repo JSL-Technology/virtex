@@ -59,6 +59,7 @@
           <th class="numeric">{{ 'inventory.movements.in' | translate }}</th>
           <th class="numeric">{{ 'inventory.movements.out' | translate }}</th>
           <th class="numeric">{{ 'inventory.common.unit_cost' | translate }}</th>
+          <th class="numeric">{{ 'inventory.common.value' | translate }}</th>
           @if (showsBalance()) {
             <th class="numeric">{{ 'inventory.movements.balance' | translate }}</th>
           }
@@ -67,7 +68,7 @@
       <tbody>
         @if (showsBalance() && openingBalance() !== null && page() === 1) {
           <tr class="kardex-opening">
-            <td [attr.colspan]="7">{{ 'inventory.movements.opening_balance' | translate }}</td>
+            <td [attr.colspan]="8">{{ 'inventory.movements.opening_balance' | translate }}</td>
             <td class="numeric">{{ openingBalance() | vxNumber: '1.0-6' }}</td>
           </tr>
         }
@@ -91,6 +92,7 @@
             <td class="numeric">{{ row.quantity > 0 ? (row.quantity | vxNumber: '1.0-6') : '' }}</td>
             <td class="numeric">{{ row.quantity < 0 ? (-row.quantity | vxNumber: '1.0-6') : '' }}</td>
             <td class="numeric">{{ row.unitCost | vxNumber: '1.2-6' }}</td>
+            <td class="numeric">{{ row.value | vxMoney }}</td>
             @if (showsBalance()) {
               <td class="numeric kardex-balance">{{ row.balance | vxNumber: '1.0-6' }}</td>
             }

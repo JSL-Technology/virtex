@@ -106,7 +106,8 @@ export class StockQueriesService {
         quantityOnHand: quantity,
         reorderLevel: row['reorderLevel'] === null ? null : Number(row['reorderLevel']),
         unitCost,
-        value: roundAmount(quantity * unitCost),
+        // The value the posting booked, when it stated one; otherwise the row's own product.
+        value: row['value'] === null || row['value'] === undefined ? roundAmount(quantity * unitCost) : Number(row['value']),
       };
     });
     const total = Number(totals?.count ?? 0);
@@ -152,7 +153,7 @@ export class StockQueriesService {
     const ledger = `
       WITH ledger AS (
         SELECT m."id", m."date", m."product_id", m."warehouse_id", m."type", m."reference",
-               m."source_type", m."source_id", m."quantity", m."cost",
+               m."source_type", m."source_id", m."quantity", m."cost", m."value",
                SUM(m."quantity") OVER (PARTITION BY ${partition} ORDER BY m."date", m."id"
                                        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS "balance"
           FROM "stock_movements" m
@@ -165,7 +166,7 @@ export class StockQueriesService {
         `${ledger}
          SELECT l."id", l."date", l."product_id" AS "productId", p."sku", p."name" AS "productName",
                 l."warehouse_id" AS "warehouseId", w."name" AS "warehouseName", l."type", l."reference",
-                l."source_type" AS "sourceType", l."source_id" AS "sourceId", l."quantity", l."cost", l."balance"
+                l."source_type" AS "sourceType", l."source_id" AS "sourceId", l."quantity", l."cost", l."value", l."balance"
            FROM (SELECT * ${filtered}) l
            JOIN "products" p ON p."id" = l."product_id"
            JOIN "warehouses" w ON w."id" = l."warehouse_id"
@@ -210,7 +211,8 @@ export class StockQueriesService {
         sourceId: (row['sourceId'] as string | null) ?? null,
         quantity,
         unitCost,
-        value: roundAmount(quantity * unitCost),
+        // The value the posting booked, when it stated one; otherwise the row's own product.
+        value: row['value'] === null || row['value'] === undefined ? roundAmount(quantity * unitCost) : Number(row['value']),
         balance: Number(row['balance']),
       };
     });

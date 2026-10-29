@@ -295,6 +295,20 @@ export class WorkflowsService {
    * relation order and then walked to the next `order` regardless of threshold, which both skipped
    * levels and applied levels that did not apply.
    */
+  /**
+   * How many approval steps a document of this type and amount would go through — without raising
+   * a request. For the screen to say, before the person submits, whether their document will be
+   * posted at once or wait for someone: the same policy lookup `startApprovalProcess` makes.
+   */
+  async approvalSteps(organizationId: string, documentType: DocumentTypeForApproval, amount: number): Promise<number> {
+    const policy = await this.dataSource.manager.findOne(ApprovalPolicy, {
+      where: { organizationId, documentType },
+      relations: ['steps'],
+    });
+    if (!policy || policy.steps.length === 0) return 0;
+    return this.applicableSteps(policy.steps, amount).length;
+  }
+
   private applicableSteps(steps: ApprovalPolicyStep[], amount: number): ApprovalPolicyStep[] {
     const cents = toMinorUnits(amount, 'USD');
     return [...steps]

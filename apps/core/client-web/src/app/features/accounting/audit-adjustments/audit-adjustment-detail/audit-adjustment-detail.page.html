@@ -1,0 +1,120 @@
+<vx-document-shell
+  [title]="proposal()?.description ?? ('page_titles.audit_adjustment' | translate)"
+  [subtitle]="proposal()?.fiscalYear ? ('audit_adjustments.year_subtitle' | translate: { year: proposal()!.fiscalYear!.endDate.slice(0, 4) }) : null"
+  [statusKey]="status()?.key ?? null"
+  [statusTone]="status()?.tone ?? 'neutral'"
+  [loading]="loading()"
+  [error]="error()"
+  backLabelKey="audit_adjustments.back"
+  (back)="goToList()"
+  (reload)="load()"
+>
+  <ng-container documentActions>
+    @if (canAttach()) {
+      <label *appHasPermission="'audit:propose_adjustment'" class="secondary-button aa-attach" [class.is-busy]="uploading()">
+        <lucide-icon [img]="UploadIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'audit_adjustments.attach_evidence' | translate }}</span>
+        <input #file type="file" class="sr-only" [accept]="evidenceTypes" [disabled]="uploading()" (change)="attach(file)" />
+      </label>
+    }
+  </ng-container>
+
+  @if (proposal(); as doc) {
+    <div class="doc-view">
+      @if (doc.status === 'FAILED') {
+        <div class="banner-error" role="status">{{ 'audit_adjustments.failed_banner' | translate }}</div>
+      }
+      @if (doc.status === 'PENDING_APPROVAL') {
+        <div class="banner-warning" role="status">{{ 'audit_adjustments.pending_banner' | translate }}</div>
+      }
+
+      <section class="doc-card">
+        <dl class="doc-facts">
+          <div>
+            <dt>{{ 'audit_adjustments.fiscal_year' | translate }}</dt>
+            <dd>
+              @if (doc.fiscalYear; as year) {
+                {{ year.startDate | vxDate: 'date' : true }} – {{ year.endDate | vxDate: 'date' : true }}
+              } @else { — }
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'audit_adjustments.entry_date' | translate }}</dt>
+            <dd>{{ doc.date | vxDate: 'date' : true }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'audit_adjustments.journal' | translate }}</dt>
+            <dd>{{ doc.journal ? doc.journal.code + ' — ' + doc.journal.name : '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'audit_adjustments.proposed' | translate }}</dt>
+            <dd>
+              {{ doc.proposer ? doc.proposer.firstName + ' ' + doc.proposer.lastName : ('audit_adjustments.account_deleted' | translate) }}
+              · {{ doc.createdAt | vxDate: 'dateTime' }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'audit_adjustments.amount' | translate }}</dt>
+            <dd>{{ totals().debit | vxMoney }}</dd>
+          </div>
+          @if (entryLink(); as link) {
+            <div>
+              <dt>{{ 'audit_adjustments.entry' | translate }}</dt>
+              <dd><a [routerLink]="link">{{ 'audit_adjustments.view_entry' | translate }}</a></dd>
+            </div>
+          }
+        </dl>
+      </section>
+
+      <section class="doc-card" aria-labelledby="aa-detail-lines">
+        <h2 class="form-section-title" id="aa-detail-lines">{{ 'audit_adjustments.lines' | translate }}</h2>
+        <div class="table-wrapper">
+          <table class="lines-table">
+            <thead>
+              <tr>
+                <th scope="col">{{ 'audit_adjustments.account' | translate }}</th>
+                <th scope="col">{{ 'audit_adjustments.line_description' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'audit_adjustments.debit' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'audit_adjustments.credit' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of doc.lines; track $index) {
+                <tr>
+                  <td>{{ accountNames()[line.accountId] ?? '…' }}</td>
+                  <td>{{ line.description }}</td>
+                  <td class="numeric">{{ line.debit ? (line.debit | vxMoney) : '' }}</td>
+                  <td class="numeric">{{ line.credit ? (line.credit | vxMoney) : '' }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th scope="row" colspan="2" class="aa-total-label">{{ 'audit_adjustments.totals' | translate }}</th>
+                <td class="numeric"><strong>{{ totals().debit | vxMoney }}</strong></td>
+                <td class="numeric"><strong>{{ totals().credit | vxMoney }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc-card" aria-labelledby="aa-detail-evidence">
+        <h2 class="form-section-title" id="aa-detail-evidence">{{ 'audit_adjustments.evidence' | translate }}</h2>
+        @if (doc.evidence?.length) {
+          <ul class="aa-evidence">
+            @for (file of doc.evidence; track file.id) {
+              <li>
+                <lucide-icon [img]="EvidenceIcon" size="14" aria-hidden="true"></lucide-icon>
+                <span class="aa-evidence__name">{{ file.fileName }}</span>
+                <span class="muted">{{ file.fileSize | vxNumber: '1.0-0' }} B · {{ file.createdAt | vxDate: 'dateTime' }}</span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="form-hint">{{ (canAttach() ? 'audit_adjustments.no_evidence_pending' : 'audit_adjustments.no_evidence') | translate }}</p>
+        }
+      </section>
+    </div>
+  }
+</vx-document-shell>

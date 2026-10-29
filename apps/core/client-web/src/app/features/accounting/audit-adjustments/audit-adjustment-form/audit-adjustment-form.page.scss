@@ -1,32 +1,54 @@
-.aa-form {
+//  Ajuste de auditoría: lo propio sobre `document-form.scss`, el mismo armazón que los demás documentos.
+@use '../../../../../assets/styles/design-system' as ds;
+
+.field > label { @include ds.field-label; margin-bottom: 0; }
+.aa-label { @include ds.field-label; margin-bottom: 0; }
+.aa-hint { @include ds.field-hint; }
+
+.aa-readonly {
+  @include ds.input-base;
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  align-items: center;
+  background: var(--surface-sunken);
+  color: var(--content-primary);
+  font-variant-numeric: tabular-nums;
 }
 
-.aa-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 1rem;
+.aa-banner {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+
+  p { margin: 0; flex: 1 1 20rem; }
+  a { color: inherit; font-weight: var(--font-semibold); text-decoration: underline; }
+
+  &--warning { background: var(--warning-surface); border-color: var(--warning-border); color: var(--warning-text); }
+  &--info { background: var(--info-surface); border-color: var(--info-border); color: var(--info-text); }
+  &__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 }
+
+.aa-table-wrapper { border: 1px solid var(--border-default); border-radius: var(--radius-md); }
 
 .aa-lines {
-  padding: 0.5rem;
-  overflow-x: auto;
-
-  input,
-  select {
-    width: 100%;
-  }
+  min-width: 48rem;
+  td { vertical-align: top; }
+  td input { width: 100%; }
+  input[type='number'] { appearance: textfield; -moz-appearance: textfield; }
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  tfoot th, tfoot td { border-bottom: none; font-variant-numeric: tabular-nums; }
+  tfoot tr:first-child th, tfoot tr:first-child td { border-top: 2px solid var(--border-default); }
+  tfoot th { text-align: right; color: var(--content-secondary); font-weight: var(--font-semibold); }
 }
 
-.hint {
-  color: var(--text-tertiary);
-  font-size: 0.75rem;
-}
+.aa-col-account { width: 36%; min-width: 16rem; }
+.aa-row--invalid td { background: var(--error-surface); }
 
-/* Out of balance is a state to notice, not a decoration. */
-.aa-unbalanced {
-  color: var(--error-text);
-  font-weight: 600;
-}
+// Fuera de cuadre es un estado que se nota, y no solo por el color: lleva su texto.
+.aa-unbalanced { color: var(--error-text); font-weight: var(--font-semibold); }
+.aa-balanced { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--success-text); font-weight: var(--font-semibold); }

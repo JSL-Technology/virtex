@@ -73,14 +73,32 @@ export class InvalidFieldDirective {
     const element = this.host.nativeElement;
     if (invalid) element.setAttribute('aria-invalid', 'true');
     else element.removeAttribute('aria-invalid');
+    // The message under the field (`<vx-field-error>`) renders in the change detection after this
+    // one; look for it on the next task, so the description points at an element that exists.
+    setTimeout(() => this.describe(invalid));
+  }
+
+  /**
+   * Points `aria-describedby` at the field's error message, `<id>-error`, while it is invalid —
+   * the half of «tell assistive technology which field to fix» that the attribute alone left out:
+   * a screen reader heard «invalid» but not why. Other descriptions the field carries are kept.
+   */
+  private describe(invalid: boolean): void {
+    const element = this.host.nativeElement;
+    if (!element.id) return;
+    const errorId = `${element.id}-error`;
+    const ids = (element.getAttribute('aria-describedby') ?? '').split(/\s+/).filter((id) => id && id !== errorId);
+    if (invalid && element.ownerDocument?.getElementById(errorId)) ids.push(errorId);
+    if (ids.length) element.setAttribute('aria-describedby', ids.join(' '));
+    else element.removeAttribute('aria-describedby');
   }
 }
 
 /**
  * Spread into a standalone component's `imports` beside `ReactiveFormsModule`.
  *
- * A const array rather than the directive on its own so the next thing every form should carry —
- * `aria-describedby` pointing at its error text, say — can be added in one place instead of in
+ * A const array rather than the directive on its own so what every form should carry can be added
+ * in one place — as `aria-describedby` pointing at the error text now is — instead of in
  * sixty.
  */
 export const VX_FORM_A11Y = [InvalidFieldDirective] as const;

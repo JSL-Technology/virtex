@@ -17,7 +17,7 @@
     <select [value]="fiscalYearId()" (change)="filterByYear($any($event.target).value)">
       <option value="">{{ 'audit_adjustments.all_years' | translate }}</option>
       @for (year of years(); track year.id) {
-        <option [value]="year.id" [selected]="year.id === (fiscalYearId())">{{ year.startDate }} – {{ year.endDate }}</option>
+        <option [value]="year.id" [selected]="year.id === (fiscalYearId())">{{ yearLabel(year.id) }}</option>
       }
     </select>
   </label>
@@ -42,10 +42,10 @@
       </thead>
       <tbody>
         @for (row of table.rows(); track row.id) {
-          <tr>
-            <td>{{ row.date | vxDate }}</td>
+          <tr appRowLink>
+            <td>{{ row.date | vxDate: 'date' : true }}</td>
             <td>{{ yearLabel(row.fiscalYearId) }}</td>
-            <td>{{ row.description }}</td>
+            <td><a class="table-link" [routerLink]="['/accounting/audit-adjustments', row.id]">{{ row.description }}</a></td>
             <td class="text-right">{{ amountOf(row) | vxMoney }}</td>
             <td>
               @if (row.proposer) {

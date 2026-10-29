@@ -1,53 +1,68 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { LucideAngularModule, Plus, Trash2, CheckCircle2, AlertTriangle } from 'lucide-angular';
+import { Observable, catchError, map, of } from 'rxjs';
 
-import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
-import { DraftShellComponent, DraftProblem } from '../../../../shared/components/gestures';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
+import { VxFieldErrorComponent } from '../../../../shared/components/field-error';
+import { DraftAutosave } from '../../../../shared/forms/draft-autosave';
 import { NotificationService } from '../../../../core/services/notification';
+import { DialogService } from '../../../../core/services/dialog.service';
 import { AuditAdjustmentsService } from '../../../../core/api/audit-adjustments.service';
 import { FiscalYear, FiscalYearsService } from '../../../../core/api/fiscal-years.service';
 import { AccountingService } from '../../../../core/api/accounting.service';
 import { JournalsService } from '../../../../core/api/journals.service';
 import { Account } from '../../../../core/models/account.model';
 import { Journal } from '../../../../core/models/journal.model';
-import { TranslateModule, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService, accountNameOf } from '@virteex/shared/ui-i18n';
 import { isChargeable } from '../../../../core/services/account-selection';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { ChartOfAccountsApiService } from '../../data/chart-of-accounts.service';
 import { VX_SELECT } from '../../../../shared/components/select';
-import { Observable, map } from 'rxjs';
+
+const cents = (value: unknown): number => Math.round(Number(value || 0) * 100);
+
+/** A line is a debit or a credit: exactly one side, and more than zero. */
+function oneSide(group: AbstractControl): ValidationErrors | null {
+  const debit = cents(group.get('debit')?.value);
+  const credit = cents(group.get('credit')?.value);
+  return (debit > 0) === (credit > 0) ? { oneSide: true } : null;
+}
 
 /**
- * Proposing a correction to a year that is already closed.
+ * Proposing a correction to a closed fiscal year — what an external audit hands over.
  *
- * ## Why the year offered is only a closed one
+ * ## What the screen says before anything is sent
  *
- * That is what an audit adjustment IS. `createAuditAdjustment` refuses a year that is still open —
- * an open year takes an ordinary entry — and refuses one that is archived, because an archived
- * year is closed to everybody including the auditor. Offering years the server will reject would
- * make the refusal the screen's way of teaching the rule, which is the worst way to teach it.
+ * The entry is dated the year's last day, and the screen shows it; the debits and credits are
+ * totalled in money with the difference still to balance; and «Propose» first says what will
+ * happen — waiting for approval (how many steps), or, with no approval policy, posting into the
+ * closed year at once, in the proposer's name. That last case used to be a silent posting behind a
+ * button labelled «Propose».
  *
- * ## Why it does not post anything
- *
- * It proposes. Whether the proposal becomes an entry depends on the tenant's approval policy for
- * `AUDIT_ADJUSTMENT`: with one, somebody has to grant it; without one it posts immediately. The
- * screen says which of the two happened rather than implying the auditor decided.
+ * With no closed year there is nothing to correct; the screen says so and where years are closed,
+ * instead of offering an empty list.
  */
 @Component({
   selector: 'app-audit-adjustment-form-page',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
+    RouterLink,
     TranslateModule,
+    ...FORMAT_PIPES,
     LucideAngularModule,
     DraftShellComponent,
-    ...VX_FORM_A11Y, ...VX_SELECT],
+    VxFieldErrorComponent,
+    ...VX_FORM_A11Y,
+    ...VX_SELECT,
+  ],
   templateUrl: './audit-adjustment-form.page.html',
-  styleUrls: ['./audit-adjustment-form.page.scss'],
+  styleUrls: ['../../../../shared/styles/document-form.scss', './audit-adjustment-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditAdjustmentFormPage implements OnInit {
@@ -55,91 +70,119 @@ export class AuditAdjustmentFormPage implements OnInit {
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly adjustments = inject(AuditAdjustmentsService);
   private readonly fiscalYears = inject(FiscalYearsService);
   private readonly accounting = inject(AccountingService);
   private readonly chartOfAccounts = inject(ChartOfAccountsApiService);
   private readonly journals = inject(JournalsService);
   private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(DialogService);
+  private readonly format = inject(FormatService);
+  private readonly organization = inject(ActiveOrganizationService);
 
   protected readonly AddIcon = Plus;
   protected readonly RemoveIcon = Trash2;
+  protected readonly OkIcon = CheckCircle2;
+  protected readonly WarnIcon = AlertTriangle;
 
-  form!: FormGroup;
+  readonly form: FormGroup = this.fb.group({
+    fiscalYearId: ['', Validators.required],
+    journalId: ['', Validators.required],
+    description: ['', [Validators.required, Validators.maxLength(500)]],
+    lines: this.fb.array([this.newLine(), this.newLine()]),
+  });
 
   readonly saving = signal(false);
   readonly problems = signal<DraftProblem[]>([]);
   /** Only years that are CLOSED: an open year takes an ordinary entry, an archived one takes none. */
   readonly years = signal<FiscalYear[]>([]);
+  readonly yearsLoaded = signal(false);
   readonly journalOptions = signal<Journal[]>([]);
-  readonly accounts = signal<Account[]>([]);
+  readonly recovered = signal<{ savedAt: number } | null>(null);
+  private readonly revision = signal(0);
+  private readonly autosave = new DraftAutosave<Record<string, unknown>>(`audit-adjustment.${this.organization.slug() ?? 'org'}.new`);
 
-  /**
-   * Every account a correction can be charged to.
-   *
-   * `isChargeable` and not the narrower purchase filter: an audit adjustment can touch any side of
-   * the books — that is what makes it an adjustment — but never a control account the system posts
-   * to by itself, because a manual entry into one of those puts the subledger and the ledger into
-   * permanent disagreement.
-   */
-  /**
-   * Busca cuentas en el servidor y deja fuera las que este documento no puede tocar.
-   *
-   * El filtro sigue siendo del cliente porque es una regla del PRODUCTO, no del esquema: una
-   * cuenta de control es perfectamente válida en otros sitios. Aplicarlo sobre la página que
-   * devuelve el servidor puede dejar menos de `limit` filas, que es un precio muy inferior al de
-   * traerse el plan entero para enseñar diez.
-   */
+  readonly closingLink = computed(() => this.organization.urlFor('/accounting/closing/annual-close'));
+
+  readonly totals = computed(() => {
+    this.revision();
+    let debit = 0;
+    let credit = 0;
+    for (const line of this.lines.controls) {
+      debit += cents(line.get('debit')?.value);
+      credit += cents(line.get('credit')?.value);
+    }
+    return { debit: debit / 100, credit: credit / 100, difference: (debit - credit) / 100, balanced: debit === credit && debit > 0 };
+  });
+
+  /** The year chosen, for the date the entry will carry: its last day. */
+  readonly chosenYear = computed(() => {
+    this.revision();
+    return this.years().find((year) => year.id === this.form.value.fiscalYearId) ?? null;
+  });
+
   protected readonly searchAccounts = (query: string, limit: number): Observable<Account[]> =>
     this.accounting.searchAccounts(query, limit).pipe(map((rows) => rows.filter(isChargeable)));
 
   /** Nombra la cuenta que un id designa: un ajuste guardado se reabre con cuentas puestas. */
-  protected readonly resolveAccount = (id: string): Observable<Account> =>
-    this.chartOfAccounts.getAccountById(id);
+  protected readonly resolveAccount = (id: string): Observable<Account> => this.chartOfAccounts.getAccountById(id);
 
   /** «1101 — Efectivo en caja». El código primero: es como se busca una cuenta. */
-  protected readonly accountLabel = (account: Account): string =>
-    `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
 
   protected readonly accountId = (account: Account): string => account.id;
-
-  readonly totalDebit = signal(0);
-  readonly totalCredit = signal(0);
-  readonly balanced = computed(
-    () => Math.abs(this.totalDebit() - this.totalCredit()) < 0.005 && this.totalDebit() > 0,
-  );
 
   get lines(): FormArray {
     return this.form.get('lines') as FormArray;
   }
 
   ngOnInit(): void {
-    this.form = this.fb.group({
-      fiscalYearId: ['', Validators.required],
-      description: ['', [Validators.required, Validators.maxLength(500)]],
-      journalId: ['', Validators.required],
-      lines: this.fb.array([this.newLine(), this.newLine()]),
+    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.revision.update((n) => n + 1);
+      if (this.problems().length) this.problems.set(this.collectProblems());
+      if (this.form.dirty) this.autosave.save(value);
     });
 
-    this.lines.valueChanges.subscribe(() => this.recalculate());
-
-    this.fiscalYears.list({ status: 'CLOSED' }).subscribe({
-      next: (years) => this.years.set(years),
-      error: () => this.years.set([]),
-    });
+    this.fiscalYears
+      .list({ status: 'CLOSED' })
+      .pipe(catchError(() => of([] as FiscalYear[])))
+      .subscribe((years) => {
+        this.years.set([...years].sort((a, b) => b.endDate.localeCompare(a.endDate)));
+        this.yearsLoaded.set(true);
+        if (years.length === 1 && !this.form.value.fiscalYearId) {
+          this.form.patchValue({ fiscalYearId: years[0].id }, { emitEvent: false });
+          this.revision.update((n) => n + 1);
+        }
+      });
     this.journals.getJournals().subscribe({
-      next: (rows) => this.journalOptions.set(rows),
+      next: (rows) => {
+        this.journalOptions.set(rows);
+        // The general journal is where a manual correction belongs; the person can still pick another.
+        const general = rows.find((journal) => journal.code === 'GENERAL') ?? rows.find((journal) => journal.type === 'GENERAL');
+        if (general && !this.form.value.journalId) this.form.patchValue({ journalId: general.id }, { emitEvent: false });
+      },
       error: () => this.journalOptions.set([]),
     });
+
+    this.tab?.registerSaveHandler(async () => {
+      await this.save();
+      return !this.form.dirty;
+    });
+    const stored = this.autosave.load();
+    if (stored) this.recovered.set({ savedAt: stored.savedAt });
   }
 
-  newLine(): FormGroup {
-    return this.fb.group({
-      accountId: ['', Validators.required],
-      debit: [0, [Validators.required, Validators.min(0)]],
-      credit: [0, [Validators.required, Validators.min(0)]],
-      description: ['', Validators.required],
-    });
+  newLine(values: Partial<{ accountId: string; debit: number | null; credit: number | null; description: string }> = {}): FormGroup {
+    return this.fb.group(
+      {
+        accountId: [values.accountId ?? '', Validators.required],
+        debit: [values.debit ?? null, [Validators.min(0)]],
+        credit: [values.credit ?? null, [Validators.min(0)]],
+        description: [values.description ?? '', Validators.required],
+      },
+      { validators: oneSide },
+    );
   }
 
   addLine(): void {
@@ -147,102 +190,82 @@ export class AuditAdjustmentFormPage implements OnInit {
   }
 
   removeLine(index: number): void {
-    // Two lines is the minimum a double entry can have; below that there is nothing to balance.
     if (this.lines.length <= 2) return;
     this.lines.removeAt(index);
+    this.form.markAsDirty();
   }
 
-  private recalculate(): void {
-    let debit = 0;
-    let credit = 0;
-    for (const line of this.lines.controls) {
-      debit += Number(line.get('debit')?.value ?? 0);
-      credit += Number(line.get('credit')?.value ?? 0);
+  /** Typing on one side clears the other: a line is a debit or a credit. */
+  onAmount(index: number, side: 'debit' | 'credit'): void {
+    const line = this.lines.at(index);
+    const other = side === 'debit' ? 'credit' : 'debit';
+    if (cents(line.get(side)?.value) > 0 && cents(line.get(other)?.value) !== 0) {
+      line.get(other)?.setValue(null);
     }
-    this.totalDebit.set(debit);
-    this.totalCredit.set(credit);
   }
 
-  /**
-   * What is still missing, named field by field.
-   *
-   * `vx-draft-shell` shows these and focuses the one the reader clicks, which is what makes a long
-   * form answerable instead of a form that only says "invalid".
-   */
-  private collectProblems(): DraftProblem[] {
-    const problems: DraftProblem[] = [];
-    if (!this.form.get('fiscalYearId')?.value) {
-      problems.push({ message: 'audit_adjustments.problem.year', fieldId: 'aa-fiscal-year' });
-    }
-    if (!this.form.get('journalId')?.value) {
-      problems.push({ message: 'audit_adjustments.problem.journal', fieldId: 'aa-journal' });
-    }
-    if (!this.form.get('description')?.value?.trim()) {
-      problems.push({
-        message: 'audit_adjustments.problem.description',
-        fieldId: 'aa-description',
-      });
-    }
-    this.lines.controls.forEach((line, index) => {
-      if (!line.get('accountId')?.value) {
-        problems.push({
-          message: 'audit_adjustments.problem.line_account',
-          params: { line: index + 1 },
-          fieldId: `aa-line-account-${index}`,
-        });
-      }
-      if (!line.get('description')?.value?.trim()) {
-        problems.push({
-          message: 'audit_adjustments.problem.line_description',
-          params: { line: index + 1 },
-          fieldId: `aa-line-description-${index}`,
-        });
-      }
-    });
-    if (!this.balanced()) {
-      problems.push({ message: 'audit_adjustments.problem.adjustment_does_not_balance_debits_credits', fieldId: 'aa-lines' });
-    }
-    return problems;
+  protected lineFieldId(index: number, control: string): string {
+    return `aa-line-${index}-${control}`;
   }
 
-  save(): void {
+  /** «Ejercicio 2019 (01/01/2019 – 31/12/2019)». */
+  protected yearLabel(year: FiscalYear): string {
+    return `${year.endDate.slice(0, 4)} (${this.format.date(year.startDate, 'date', { dateOnly: true })} – ${this.format.date(year.endDate, 'date', { dateOnly: true })})`;
+  }
+
+  async save(): Promise<void> {
     const problems = this.collectProblems();
     this.problems.set(problems);
-    if (problems.length > 0) return;
-
-    const year = this.years().find((candidate) => candidate.id === this.form.value.fiscalYearId);
+    if (problems.length > 0) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    const year = this.chosenYear();
     if (!year) return;
+
+    // Say what «Propose» will do before doing it.
+    const route = await new Promise<{ requiresApproval: boolean; steps: number } | null>((resolve) =>
+      this.adjustments.approvalRoute(this.totals().debit).pipe(catchError(() => of(null))).subscribe(resolve),
+    );
+    const confirmed = await this.dialog.confirm({
+      title: 'audit_adjustments.confirm_title',
+      message: route?.requiresApproval ? 'audit_adjustments.confirm_with_approval' : 'audit_adjustments.confirm_without_approval',
+      messageParams: {
+        amount: this.format.money(this.totals().debit),
+        date: this.format.date(year.endDate, 'date', { dateOnly: true }),
+        steps: route?.steps ?? 0,
+      },
+      confirmText: route?.requiresApproval ? 'audit_adjustments.submit_for_approval' : 'audit_adjustments.propose_and_post',
+      variant: route?.requiresApproval ? 'primary' : 'warning',
+    });
+    if (!confirmed) return;
 
     this.saving.set(true);
     this.adjustments
       .propose({
         fiscalYearId: year.id,
-        // The proposal is dated the year it corrects, not the day it was raised: the entry lands
-        // on the year's last day and a proposal dated otherwise would say two different things.
         date: year.endDate,
-        description: this.form.value.description.trim(),
+        description: String(this.form.value.description).trim(),
         journalId: this.form.value.journalId,
-        lines: this.lines.value.map(
-          (line: { accountId: string; debit: number; credit: number; description: string }) => ({
-            accountId: line.accountId,
-            debit: Number(line.debit ?? 0),
-            credit: Number(line.credit ?? 0),
-            description: line.description.trim(),
-          }),
-        ),
+        lines: this.lines.controls.map((line) => ({
+          accountId: line.value.accountId,
+          debit: cents(line.value.debit) / 100,
+          credit: cents(line.value.credit) / 100,
+          description: String(line.value.description).trim(),
+        })),
       })
       .subscribe({
         next: (proposal) => {
           this.saving.set(false);
+          this.autosave.clear();
+          this.form.markAsPristine();
+          this.tab?.markClean();
           this.notifications.showSuccess(
-            proposal.status === 'POSTED'
-              ? 'audit_adjustments.proposed_and_posted'
-              : 'audit_adjustments.proposed_pending',
+            proposal.status === 'POSTED' ? 'audit_adjustments.proposed_and_posted' : 'audit_adjustments.proposed_pending',
           );
-          //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
-          //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
-          //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
-          void this.router.navigate(['/accounting/audit-adjustments']).then(() => this.tab?.close());
+          const detail = `/accounting/audit-adjustments/${proposal.id}`;
+          if (this.tab) this.tab.replaceRoute(detail);
+          else void this.router.navigateByUrl(this.organization.urlFor(detail));
         },
         error: (error: unknown) => {
           this.saving.set(false);
@@ -251,7 +274,61 @@ export class AuditAdjustmentFormPage implements OnInit {
       });
   }
 
-  cancel(): void {
-    this.router.navigate(['/accounting/audit-adjustments']);
+  async cancel(): Promise<void> {
+    if (this.form.dirty) {
+      const decision = await this.dialog.confirmClose({ message: 'audit_adjustments.leave_unsaved', allowSave: false });
+      if (decision === 'cancel') return;
+      this.autosave.clear();
+      this.tab?.markClean();
+    }
+    void this.router.navigateByUrl(this.organization.urlFor('/accounting/audit-adjustments'));
+  }
+
+  restoreRecovered(): void {
+    const stored = this.autosave.load();
+    this.recovered.set(null);
+    if (!stored) return;
+    const value = stored.value as { fiscalYearId?: string; journalId?: string; description?: string; lines?: Array<Record<string, unknown>> };
+    this.lines.clear();
+    for (const line of value.lines ?? []) this.lines.push(this.newLine(line as never));
+    while (this.lines.length < 2) this.lines.push(this.newLine());
+    this.form.patchValue({ fiscalYearId: value.fiscalYearId ?? '', journalId: value.journalId ?? '', description: value.description ?? '' });
+    this.form.markAsDirty();
+    this.tab?.markDirty(true);
+  }
+
+  discardRecovered(): void {
+    this.autosave.clear();
+    this.recovered.set(null);
+  }
+
+  private collectProblems(): DraftProblem[] {
+    const problems: DraftProblem[] = draftProblems(this.form, {
+      fiscalYearId: 'audit_adjustments.fiscal_year',
+      journalId: 'audit_adjustments.journal',
+      description: 'audit_adjustments.description',
+      accountId: 'audit_adjustments.account',
+      debit: 'audit_adjustments.debit',
+      credit: 'audit_adjustments.credit',
+    }).map((problem) => {
+      const match = /^lines\.(\d+)\.(\w+)$/.exec(problem.fieldId ?? '');
+      if (!match) return { ...problem, fieldId: this.fieldIdOf(problem.fieldId) };
+      const index = Number(match[1]);
+      return { ...problem, message: `${problem.message}_line`, fieldId: this.lineFieldId(index, match[2]), params: { ...problem.params, line: index + 1 } };
+    });
+    this.lines.controls.forEach((line, index) => {
+      if (line.hasError('oneSide')) {
+        problems.push({ message: 'audit_adjustments.problem.line_one_side', params: { line: index + 1 }, fieldId: this.lineFieldId(index, 'debit') });
+      }
+    });
+    const totals = this.totals();
+    if (!totals.balanced && totals.debit + totals.credit > 0) {
+      problems.push({ message: 'audit_adjustments.problem.unbalanced_by', params: { difference: this.format.money(Math.abs(totals.difference)) }, fieldId: 'aa-totals' });
+    }
+    return problems;
+  }
+
+  private fieldIdOf(control: string | undefined): string | undefined {
+    return { fiscalYearId: 'aa-fiscal-year', journalId: 'aa-journal', description: 'aa-description' }[control ?? ''] ?? control;
   }
 }

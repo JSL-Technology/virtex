@@ -42,6 +42,8 @@ export interface ProposedAdjustment {
   journalEntryId?: string | null;
   evidence?: ProposedAdjustmentEvidence[];
   createdAt: string;
+  fiscalYear?: { id: string; startDate: string; endDate: string; status: string } | null;
+  journal?: { id: string; code: string; name: string } | null;
 }
 
 export interface ProposeAdjustmentInput {
@@ -82,6 +84,13 @@ export class AuditAdjustmentsService {
 
   propose(input: ProposeAdjustmentInput): Observable<ProposedAdjustment> {
     return this.http.post<ProposedAdjustment>(this.apiUrl, input);
+  }
+
+  /** Whether a proposal of this amount waits for approval or posts as soon as it is proposed. */
+  approvalRoute(amount: number): Observable<{ requiresApproval: boolean; steps: number }> {
+    return this.http.get<{ requiresApproval: boolean; steps: number }>(`${this.apiUrl}/approval-route`, {
+      params: new HttpParams().set('amount', String(amount)),
+    });
   }
 
   /** A working paper: the evidence behind the proposal, uploaded against it. */

@@ -19,7 +19,7 @@ import { FastifyFileInterceptor } from '../../common/interceptors/fastify-file.i
 import { FastifyFile } from '../../common/interfaces/fastify-file.interface';
 import { BadRequestError } from '../../i18n/localized.exception';
 import { AuditAdjustmentsService } from './audit-adjustments.service';
-import { CreateProposedAdjustmentDto } from '../dto/proposed-adjustment.dto';
+import { ApprovalRouteQueryDto, CreateProposedAdjustmentDto } from '../dto/proposed-adjustment.dto';
 import { ListProposedAdjustmentsDto } from '../dto/list-proposed-adjustments.dto';
 import { User } from '../../users/entities/user.entity/user.entity';
 
@@ -61,6 +61,14 @@ export class AuditAdjustmentsController {
   @ApiOperation({ summary: 'Lista las propuestas de ajuste de auditoría del inquilino.' })
   findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: ListProposedAdjustmentsDto) {
     return this.adjustments.findAll(user.organizationId, query);
+  }
+
+  // Declared before `:id`, which would otherwise read «approval-route» as an id.
+  @Get('approval-route')
+  @HasPermission(PERMISSIONS.AUDIT_PROPOSE_ADJUSTMENT)
+  @ApiOperation({ summary: 'Si una propuesta de este importe pasará por aprobación o se contabilizará al proponerla.' })
+  approvalRoute(@Query() query: ApprovalRouteQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.adjustments.approvalRoute(user.organizationId, query.amount ?? 0);
   }
 
   @Get(':id')

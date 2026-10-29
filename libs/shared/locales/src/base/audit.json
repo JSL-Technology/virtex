@@ -18,5 +18,20 @@
     "es": "Solo se puede añadir evidencia a propuestas pendientes de aprobación.",
     "en": "Evidence can only be added to proposals awaiting approval.",
     "pt": "Evidências só podem ser adicionadas a propostas aguardando aprovação."
+  },
+  "audit.adjustment_needs_two_lines": {
+    "es": "Un ajuste necesita al menos dos líneas: un débito y un crédito.",
+    "en": "An adjustment needs at least two lines: a debit and a credit.",
+    "pt": "Um ajuste precisa de pelo menos duas linhas: um débito e um crédito."
+  },
+  "audit.adjustment_line_one_side": {
+    "es": "La línea {{line}} debe tener un débito o un crédito, no ambos ni ninguno.",
+    "en": "Line {{line}} must have a debit or a credit, not both and not neither.",
+    "pt": "A linha {{line}} deve ter um débito ou um crédito, não ambos nem nenhum."
+  },
+  "audit.adjustment_unbalanced": {
+    "es": "El ajuste no cuadra: los débitos y los créditos deben sumar lo mismo.",
+    "en": "The adjustment does not balance: debits and credits must add up to the same amount.",
+    "pt": "O ajuste não fecha: débitos e créditos devem somar o mesmo valor."
   }
 }

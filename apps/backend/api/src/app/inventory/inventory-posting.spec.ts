@@ -374,6 +374,144 @@ describeWithDb('inventory posting', () => {
     expect(await signedBalance('adjustment')).toBe(-1_000);
   });
 
+  describe('an adjustment the books can trust', () => {
+    /** Today in the tenant's calendar (Santo Domingo), which is what the posting checks against. */
+    const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santo_Domingo' }).format(new Date());
+    const draftOf = async (lines: Array<Record<string, unknown>>, over: Record<string, unknown> = {}) =>
+      adjustments.create(
+        { date: today(), warehouseId: (await defaultWarehouse()).id, reason: 'Conteo', lines, ...over } as never,
+        organizationId,
+        ACTOR,
+      );
+    const fiscalYears = () =>
+      dataSource.query(`SELECT COUNT(*)::int AS n FROM "fiscal_years" WHERE "organization_id" = $1`, [organizationId]).then((r) => r[0].n);
+
+    it('refuses a date in the future or outside every period, without opening a fiscal year for it', async () => {
+      const product = await inventory.create(newProduct() as never, organizationId, ACTOR);
+      const before = await fiscalYears();
+      const nextYear = `${Number(today().slice(0, 4)) + 1}-03-01`;
+      await expect(draftOf([{ productId: product.id, quantityChange: -1 }], { date: nextYear })).rejects.toMatchObject({
+        messageKey: 'inventory.adjustment_date_in_future',
+      });
+      await expect(draftOf([{ productId: product.id, quantityChange: -1 }], { date: '2019-01-15' })).rejects.toMatchObject({
+        messageKey: 'inventory.adjustment_date_without_period',
+      });
+      expect(await fiscalYears()).toBe(before);
+    });
+
+    it('refuses to post a count whose balance moved since it was taken, until someone decides', async () => {
+      const product = await inventory.create(newProduct() as never, organizationId, ACTOR);
+      // Counted 48 while the screen said 50: two missing.
+      const count = await draftOf([{ productId: product.id, countedQuantity: 48, expectedQuantity: 50 }]);
+      // Meanwhile somebody books a loss of 10.
+      const other = await draftOf([{ productId: product.id, quantityChange: -10 }]);
+      await adjustments.post(other.id, organizationId, ACTOR);
+
+      await expect(adjustments.post(count.id, organizationId, ACTOR)).rejects.toMatchObject({
+        messageKey: 'inventory.adjustment_balance_changed',
+        params: expect.objectContaining({ count: 1, lines: [expect.objectContaining({ expected: 50, current: 40, counted: 48 })] }),
+      });
+      // Nothing moved while refusing.
+      expect(await ledger.balance(dataSource.manager, product.id, (await defaultWarehouse()).id)).toBe(40);
+
+      // «Keep the difference»: the two found missing are what is booked.
+      const posted = await adjustments.post(count.id, organizationId, ACTOR, 'keep_difference');
+      expect(posted.lines[0]).toMatchObject({ quantityBefore: 40, quantityChange: -2 });
+      expect(await ledger.balance(dataSource.manager, product.id, (await defaultWarehouse()).id)).toBe(38);
+    });
+
+    it('applies the count as the new balance when that is the decision', async () => {
+      const product = await inventory.create(newProduct() as never, organizationId, ACTOR);
+      const count = await draftOf([{ productId: product.id, countedQuantity: 48, expectedQuantity: 50 }]);
+      const other = await draftOf([{ productId: product.id, quantityChange: -10 }]);
+      await adjustments.post(other.id, organizationId, ACTOR);
+      const posted = await adjustments.post(count.id, organizationId, ACTOR, 'apply_count');
+      expect(posted.lines[0]).toMatchObject({ quantityBefore: 40, quantityChange: 8 });
+    });
+
+    it('books shortfalls and revaluations on separate lines instead of netting them', async () => {
+      const shrunk = await inventory.create(newProduct({ cost: 10, stock: 100 }) as never, organizationId, ACTOR);
+      const revalued = await inventory.create(newProduct({ cost: 900, stock: 3 }) as never, organizationId, ACTOR);
+      const draft = await draftOf([
+        { productId: shrunk.id, quantityChange: -5 },
+        { productId: revalued.id, newUnitCost: 950 },
+      ]);
+      const posted = await adjustments.post(draft.id, organizationId, ACTOR);
+      expect(posted.valueChange).toBe(100);
+      expect(posted.lines.map((line) => [line.quantityValue, line.revaluationValue])).toEqual([[-50, 0], [0, 150]]);
+
+      const lines: Array<{ debit: string; credit: string; account_id: string }> = await dataSource.query(
+        `SELECT l."debit", l."credit", l."account_id" FROM "journal_entry_lines" l WHERE l."journal_entry_id" = $1`,
+        [posted.journalEntryId],
+      );
+      const onAdjustment = lines.filter((line) => line.account_id === account['adjustment']).map((line) => [Number(line.debit), Number(line.credit)]);
+      // The loss and the revaluation each have their own line: 50 debited, 150 credited, not one 100 credit.
+      expect(onAdjustment).toEqual(expect.arrayContaining([[50, 0], [0, 150]]));
+      expect(onAdjustment).toHaveLength(2);
+    });
+
+    it('dates the kardex like the document and records a revaluation in it', async () => {
+      const product = await inventory.create(newProduct({ cost: 900, stock: 3 }) as never, organizationId, ACTOR);
+      const start = `${today().slice(0, 4)}-01-02`;
+      const draft = await draftOf([{ productId: product.id, quantityChange: -1, newUnitCost: 950 }], { date: start });
+      await adjustments.post(draft.id, organizationId, ACTOR);
+      const rows: Array<{ type: string; date: Date; quantity: string; value: string }> = await dataSource.query(
+        `SELECT "type", "date", "quantity", "value" FROM "stock_movements" WHERE "source_id" = $1 ORDER BY "type"`,
+        [draft.id],
+      );
+      expect(rows.map((row) => row.type)).toEqual(['ADJUSTMENT', 'REVALUATION']);
+      for (const row of rows) expect(new Date(row.date).toISOString().slice(0, 10)).toBe(start);
+      expect(Number(rows[1].quantity)).toBe(0);
+      expect(Number(rows[1].value)).toBe(100);
+    });
+
+    it('keeps the cent: a shortfall is valued so the ledger and the stock valuation agree', async () => {
+      const product = await inventory.create(newProduct({ cost: 5.5, stock: 20.5 }) as never, organizationId, ACTOR);
+      const draft = await draftOf([{ productId: product.id, quantityChange: -2.25 }]);
+      const posted = await adjustments.post(draft.id, organizationId, ACTOR);
+      // 20.5 × 5.50 = 112.75; 18.25 × 5.50 = 100.375 → 100.38. The loss is the difference: 12.37.
+      expect(posted.lines[0].quantityValue).toBe(-12.37);
+      expect(await signedBalance('inventory')).toBe(100.38);
+    });
+
+    it('keeps the lines in the order they were typed', async () => {
+      const products = [];
+      for (let i = 0; i < 5; i++) products.push(await inventory.create(newProduct() as never, organizationId, ACTOR));
+      const draft = await draftOf(products.map((product) => ({ productId: product.id, quantityChange: -1 })));
+      expect(draft.lines.map((line) => line.productId)).toEqual(products.map((product) => product.id));
+    });
+
+    it('reverses a posted adjustment with its mirror, once, and links the two', async () => {
+      const product = await inventory.create(newProduct({ cost: 10, stock: 100 }) as never, organizationId, ACTOR);
+      const draft = await draftOf([{ productId: product.id, countedQuantity: 95, expectedQuantity: 100 }]);
+      const posted = await adjustments.post(draft.id, organizationId, ACTOR);
+      expect(await signedBalance('adjustment')).toBe(50);
+
+      const reversal = await adjustments.reverse(posted.id, organizationId, ACTOR, { reason: 'Se contó mal' });
+      expect(reversal.status).toBe('POSTED');
+      expect(reversal.reversesNumber).toBe(posted.number);
+      expect(reversal.lines[0]).toMatchObject({ quantityChange: 5, quantityValue: 50 });
+      expect(await ledger.balance(dataSource.manager, product.id, (await defaultWarehouse()).id)).toBe(100);
+      expect(await signedBalance('adjustment')).toBe(0);
+      expect((await adjustments.findOne(posted.id, organizationId)).reversedByNumber).toBe(reversal.number);
+
+      await expect(adjustments.reverse(posted.id, organizationId, ACTOR, { reason: 'Otra vez' })).rejects.toMatchObject({
+        messageKey: 'inventory.adjustment_already_reversed',
+      });
+      await expect(adjustments.reverse(reversal.id, organizationId, ACTOR, { reason: 'Otra vez' })).rejects.toMatchObject({
+        messageKey: 'inventory.adjustment_reversal_not_reversible',
+      });
+    });
+
+    it('records who cancelled a draft', async () => {
+      const product = await inventory.create(newProduct() as never, organizationId, ACTOR);
+      const draft = await draftOf([{ productId: product.id, quantityChange: -1 }]);
+      const cancelled = await adjustments.cancel(draft.id, organizationId, ACTOR);
+      expect(cancelled).toMatchObject({ status: 'CANCELLED', cancelledByUserId: ACTOR });
+      expect(cancelled.cancelledAt).toBeTruthy();
+    });
+  });
+
   it('keeps a product with stock history: it is deactivated, not deleted', async () => {
     const product = await inventory.create(newProduct() as never, organizationId, ACTOR);
     await expect(inventory.remove(product.id, organizationId, ACTOR)).rejects.toMatchObject({

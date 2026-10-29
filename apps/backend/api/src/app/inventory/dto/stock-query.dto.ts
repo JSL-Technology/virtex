@@ -45,6 +45,7 @@ export const MOVEMENT_TYPES = [
   'SALE_DISPATCH',
   'SALE_RETURN',
   'ADJUSTMENT',
+  'REVALUATION',
   'TRANSFER_OUT',
   'TRANSFER_IN',
 ] as const;

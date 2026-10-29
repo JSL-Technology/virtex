@@ -435,6 +435,18 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       entityKeyFn: () => 'contabilidad:audit-adjustment:new',
       load: () => import('../../../features/accounting/audit-adjustments/audit-adjustment-form/audit-adjustment-form.page').then((m) => m.AuditAdjustmentFormPage),
     },
+    // Declared after `new`, so the literal never loses the match to the parameter. A proposal had
+    // no page of its own: the list's rows could not be opened, so nobody could see its lines, its
+    // evidence or the entry it became.
+    {
+      path: 'audit-adjustments/:id',
+      kind: WindowKind.DOCUMENT,
+      permission: 'audit:view_trail',
+      titleKey: 'page_titles.audit_adjustment',
+      icon: 'ScrollText',
+      entityKeyFn: (p) => `contabilidad:audit-adjustment:${p['id']}`,
+      load: () => import('../../../features/accounting/audit-adjustments/audit-adjustment-detail/audit-adjustment-detail.page').then((m) => m.AuditAdjustmentDetailPage),
+    },
     {
       path: 'closing/checklist',
       kind: WindowKind.OVERVIEW,

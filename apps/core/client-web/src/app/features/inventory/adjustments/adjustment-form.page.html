@@ -8,127 +8,346 @@
   [invalid]="form.invalid"
   [problems]="problems()"
   [form]="form"
+  [readOnly]="!editable()"
+  [cancelLabelKey]="editable() ? 'common.cancel' : 'common.back'"
   (save)="save()"
   (cancelled)="cancel()"
 >
+  <!-- The document's own actions sit beside «Save», where the eye already is. -->
+  <ng-container draftActions>
+    @if (current() && status() === 'DRAFT' && editable()) {
+      <button class="danger-button adj-action" type="button" [disabled]="saving()" (click)="cancelDocument()">
+        {{ 'inventory.adjustments.cancel_document' | translate }}
+      </button>
+      <button
+        class="primary-button adj-action"
+        type="button"
+        [disabled]="saving() || form.dirty"
+        [attr.aria-describedby]="form.dirty ? 'adj-post-hint' : null"
+        (click)="post()"
+      >
+        {{ 'inventory.adjustments.post' | translate }}
+      </button>
+    }
+    @if (canReverse()) {
+      <button class="secondary-button adj-action" type="button" [disabled]="saving()" (click)="reverse()">
+        <lucide-icon [img]="ReverseIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'inventory.adjustments.reverse' | translate }}</span>
+      </button>
+    }
+  </ng-container>
+
   <div class="form-body" [formGroup]="form">
+    @if (current() && status() === 'DRAFT' && editable() && form.dirty) {
+      <p class="form-hint adj-post-hint" id="adj-post-hint">{{ 'inventory.common.save_first' | translate }}</p>
+    }
+
+    <!-- What happened to this document, and who did it. -->
     @if (current(); as adjustment) {
-      <div class="doc-status">
+      <div class="doc-status adj-trail" role="group" [attr.aria-label]="'inventory.adjustments.trail_label' | translate">
         <vx-badge [tone]="tone()" [struck]="adjustment.status === 'CANCELLED'">{{ 'inventory.common.status.' + adjustment.status.toLowerCase() | translate }}</vx-badge>
+        @if (adjustment.createdByName) {
+          <span>{{ 'inventory.adjustments.created_by' | translate: { name: adjustment.createdByName, date: (adjustment.createdAt | vxDate: 'dateTime') } }}</span>
+        }
         @if (adjustment.status === 'POSTED') {
-          <span>{{ 'inventory.adjustments.value_moved' | translate }}: {{ (adjustment.valueChange ?? 0) | vxNumber: '1.2-2' }}</span>
+          <span>{{ 'inventory.adjustments.posted_by' | translate: { name: adjustment.postedByName ?? '—', date: (adjustment.postedAt | vxDate: 'dateTime') } }}</span>
+          <span class="adj-trail__value">{{ 'inventory.adjustments.value_moved' | translate }}: <strong>{{ (adjustment.valueChange ?? 0) | vxMoney }}</strong></span>
           @if (journalLink(); as link) {
             <a [routerLink]="link">{{ 'inventory.adjustments.view_entry' | translate }}</a>
           }
         }
+        @if (adjustment.status === 'CANCELLED') {
+          <span>{{ 'inventory.adjustments.cancelled_by' | translate: { name: adjustment.cancelledByName ?? '—', date: (adjustment.cancelledAt | vxDate: 'dateTime') } }}</span>
+        }
+        @if (reversesLink(); as link) {
+          <span>{{ 'inventory.adjustments.reverses' | translate }} <a [routerLink]="link">{{ adjustment.reversesNumber }}</a></span>
+        }
+        @if (reversedByLink(); as link) {
+          <span class="adj-trail__reversed">{{ 'inventory.adjustments.reversed_by' | translate }} <a [routerLink]="link">{{ adjustment.reversedByNumber }}</a></span>
+        }
       </div>
     }
 
-    <section class="form-section">
-      <div class="form-grid">
-        <label class="field" for="adj-date">
-          <span>{{ 'inventory.common.date' | translate }} *</span>
+    @if (!canAdjust() && (!current() || status() === 'DRAFT')) {
+      <div class="adj-banner adj-banner--info" role="note">
+        <p>{{ 'inventory.adjustments.read_only_permission' | translate }}</p>
+      </div>
+    }
+
+    @if (recovered(); as found) {
+      <div class="adj-banner adj-banner--info" role="status">
+        <p>{{ 'inventory.adjustments.recovered' | translate: { date: (found.savedAt | vxDate: 'dateTime') } }}</p>
+        <div class="adj-banner__actions">
+          <button type="button" class="primary-button" (click)="restoreRecovered()">{{ 'inventory.adjustments.recovered_restore' | translate }}</button>
+          <button type="button" class="secondary-button" (click)="discardRecovered()">{{ 'inventory.adjustments.recovered_discard' | translate }}</button>
+        </div>
+      </div>
+    }
+
+    @if (editable() && current()?.readiness?.accountsConfigured === false) {
+      <div class="adj-banner adj-banner--warning" role="alert">
+        <lucide-icon [img]="WarnIcon" size="18" aria-hidden="true"></lucide-icon>
+        <p>
+          {{ 'inventory.adjustments.accounts_missing' | translate }}
+          <a [href]="settingsLink">{{ 'inventory.adjustments.accounts_missing_link' | translate }}</a>
+        </p>
+      </div>
+    }
+
+    <!-- A count whose balance moved since it was taken: a decision, not an error. -->
+    @if (conflicts(); as moved) {
+      <section class="adj-banner adj-banner--warning adj-conflicts" role="alert" aria-labelledby="adj-conflicts-title">
+        <lucide-icon [img]="WarnIcon" size="18" aria-hidden="true"></lucide-icon>
+        <div class="adj-conflicts__body">
+          <h2 id="adj-conflicts-title" class="adj-conflicts__title">{{ 'inventory.adjustments.conflicts_title' | translate: { count: moved.length } }}</h2>
+          <p>{{ 'inventory.adjustments.conflicts_help' | translate }}</p>
+          <table class="lines-table adj-conflicts__table">
+            <thead>
+              <tr>
+                <th scope="col">{{ 'inventory.common.product' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'inventory.adjustments.conflict_expected' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'inventory.adjustments.conflict_current' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'inventory.adjustments.counted' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'inventory.adjustments.conflict_apply_count' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'inventory.adjustments.conflict_keep_difference' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of moved; track row.productId) {
+                <tr>
+                  <th scope="row">{{ row.sku ? row.sku + ' · ' : '' }}{{ row.productName }}</th>
+                  <td class="numeric">{{ row.expected | vxNumber: '1.0-6' }}</td>
+                  <td class="numeric">{{ row.current | vxNumber: '1.0-6' }}</td>
+                  <td class="numeric">{{ row.counted | vxNumber: '1.0-6' }}</td>
+                  <td class="numeric">{{ row.counted - row.current | vxNumber: '1.0-6' }}</td>
+                  <td class="numeric">{{ row.counted - row.expected | vxNumber: '1.0-6' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <div class="adj-banner__actions">
+            <button type="button" class="primary-button" [disabled]="saving()" (click)="post('apply_count')">{{ 'inventory.adjustments.conflict_apply_count_action' | translate }}</button>
+            <button type="button" class="secondary-button" [disabled]="saving()" (click)="post('keep_difference')">{{ 'inventory.adjustments.conflict_keep_difference_action' | translate }}</button>
+            <button type="button" class="secondary-button" (click)="dismissConflicts()">{{ 'common.cancel' | translate }}</button>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- 1. What and when -->
+    <section class="form-section" aria-labelledby="adj-what-title">
+      <h2 class="form-section-title" id="adj-what-title">{{ 'inventory.adjustments.section_what' | translate }}</h2>
+      <div class="form-grid adj-what">
+        <div class="field">
+          <label for="adj-warehouse"><span>{{ 'inventory.common.warehouse' | translate }} <span aria-hidden="true">*</span></span></label>
+          @if (editable()) {
+            <select id="adj-warehouse" formControlName="warehouseId">
+              <option value="" disabled>{{ 'inventory.common.choose_warehouse' | translate }}</option>
+              @for (warehouse of warehouses(); track warehouse.id) {
+                <option [value]="warehouse.id">{{ warehouse.name }}</option>
+              }
+            </select>
+            <vx-field-error [control]="form.get('warehouseId')" fieldId="adj-warehouse" labelKey="inventory.common.warehouse" />
+          } @else {
+            <output id="adj-warehouse" class="adj-readonly">{{ warehouseName() ?? '—' }}</output>
+          }
+        </div>
+        <div class="field">
+          <label for="adj-date"><span>{{ 'inventory.common.date' | translate }} <span aria-hidden="true">*</span></span></label>
           <vx-date-field inputId="adj-date" formControlName="date" />
-        </label>
-        <label class="field" for="adj-warehouse">
-          <span>{{ 'inventory.common.warehouse' | translate }} *</span>
-          <select id="adj-warehouse" formControlName="warehouseId">
-            <option value="" disabled>{{ 'inventory.common.choose_warehouse' | translate }}</option>
-            @for (warehouse of warehouses(); track warehouse.id) {
-              <option [value]="warehouse.id">{{ warehouse.name }}</option>
+          @if (editable() && dateReadiness(); as readiness) {
+            @if (readiness.problem) {
+              <p class="adj-date-note adj-date-note--problem" id="adj-date-error" role="alert">{{ readiness.problem | translate: readiness.params }}</p>
+            } @else if (readiness.period) {
+              <p class="adj-date-note" id="adj-date-period">
+                <lucide-icon [img]="OkIcon" size="14" aria-hidden="true"></lucide-icon>
+                {{ 'inventory.adjustments.period_open' | translate: { name: readiness.period.name } }}
+              </p>
             }
-          </select>
-        </label>
-        <label class="field field--wide" for="adj-reason">
-          <span>{{ 'inventory.adjustments.reason' | translate }} *</span>
-          <input id="adj-reason" type="text" formControlName="reason" maxlength="255"
+          }
+        </div>
+        <div class="field field--wide">
+          <label for="adj-reason"><span>{{ 'inventory.adjustments.reason' | translate }} <span aria-hidden="true">*</span></span></label>
+          <input id="adj-reason" type="text" formControlName="reason" maxlength="255" list="adj-reasons" autocomplete="off"
                  [placeholder]="'inventory.adjustments.reason_placeholder' | translate" />
-        </label>
-        <label class="field field--wide" for="adj-notes">
-          <span>{{ 'inventory.common.notes' | translate }}</span>
-          <textarea id="adj-notes" formControlName="notes" rows="2" maxlength="2000"></textarea>
-        </label>
+          <datalist id="adj-reasons">
+            @for (key of reasonKeys; track key) {
+              <option [value]="key | translate"></option>
+            }
+          </datalist>
+          <vx-field-error [control]="form.get('reason')" fieldId="adj-reason" labelKey="inventory.adjustments.reason" />
+        </div>
       </div>
     </section>
 
-    <section class="form-section">
-      <h2 class="form-section-title">{{ 'inventory.common.lines' | translate }}</h2>
-      <p class="form-hint">{{ 'inventory.adjustments.lines_hint' | translate }}</p>
-      <div class="table-wrapper">
-        <table class="lines-table" formArrayName="lines">
+    <!-- 2. Lines -->
+    <section class="form-section" aria-labelledby="adj-lines-title">
+      <h2 class="form-section-title" id="adj-lines-title">{{ 'inventory.common.lines' | translate }}</h2>
+      @if (editable()) {
+        <p class="form-hint">{{ 'inventory.adjustments.lines_hint' | translate }}</p>
+      }
+      <div class="table-wrapper adj-table-wrapper">
+        <table class="lines-table adj-lines" formArrayName="lines">
           <thead>
             <tr>
-              <th>{{ 'inventory.common.product' | translate }}</th>
-              <th class="numeric">{{ (status() === 'POSTED' ? 'inventory.adjustments.held_before' : 'inventory.adjustments.on_hand') | translate }}</th>
-              <th class="numeric">{{ 'inventory.adjustments.counted' | translate }}</th>
-              <th class="numeric">{{ 'inventory.adjustments.change' | translate }}</th>
-              <th class="numeric">{{ 'inventory.adjustments.unit_cost_in' | translate }}</th>
-              <th class="numeric">{{ 'inventory.adjustments.new_unit_cost' | translate }}</th>
-              @if (status() === 'POSTED') {
-                <th class="numeric">{{ 'inventory.common.value' | translate }}</th>
+              <th scope="col" class="adj-col-product">{{ 'inventory.common.product' | translate }}</th>
+              <th scope="col" class="numeric">{{ (status() === 'POSTED' ? 'inventory.adjustments.held_before' : 'inventory.adjustments.on_hand') | translate }}</th>
+              <th scope="col" class="numeric">{{ 'inventory.adjustments.counted' | translate }}</th>
+              <th scope="col" class="numeric">{{ 'inventory.adjustments.change' | translate }}</th>
+              <th scope="col" class="numeric adj-col-calc">{{ 'inventory.adjustments.difference' | translate }}</th>
+              <th scope="col" class="numeric">{{ 'inventory.adjustments.unit_cost_in' | translate }}</th>
+              <th scope="col" class="numeric">{{ 'inventory.adjustments.new_unit_cost' | translate }}</th>
+              <th scope="col" class="numeric adj-col-calc">{{ (status() === 'POSTED' ? 'inventory.common.value' : 'inventory.adjustments.estimated_value') | translate }}</th>
+              @if (editable()) {
+                <th scope="col"><span class="sr-only">{{ 'common.actions' | translate }}</span></th>
               }
-              <th><span class="sr-only">{{ 'common.actions' | translate }}</span></th>
             </tr>
           </thead>
           <tbody>
             @for (line of lines.controls; track $index; let i = $index) {
+              @let figure = figures()[i];
+              @let product = lineProducts()[i];
               <tr [formGroupName]="i">
-                <td>
-                  <vx-select formControlName="productId" [search]="searchProducts" [resolveWith]="resolveProduct"
-                    [displayWith]="productName" [valueWith]="productValue" [ariaLabel]="'inventory.common.product' | translate"
-                    (optionSelected)="onProductChange(i)" />
+                <td class="adj-col-product">
+                  @if (editable()) {
+                    <vx-select formControlName="productId" [inputId]="lineFieldId(i, 'productId')" [search]="searchProducts" [resolveWith]="resolveProduct"
+                      [displayWith]="productName" [valueWith]="productValue"
+                      [ariaLabel]="('inventory.common.product' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })"
+                      (optionSelected)="onProductChange(i)" />
+                    <vx-field-error [control]="line.get('productId')" [fieldId]="lineFieldId(i, 'productId')" labelKey="inventory.common.product" />
+                  } @else {
+                    @let saved = current()?.lines?.[i];
+                    <span class="adj-product">
+                      <span class="adj-product__sku">{{ saved?.sku }}</span>
+                      <span class="adj-product__name" [title]="saved?.productName ?? ''">{{ saved?.productName }}</span>
+                    </span>
+                  }
+                  @if (product?.unitOfMeasure || current()?.lines?.[i]?.unitOfMeasure) {
+                    <span class="adj-uom" [attr.aria-label]="'inventory.adjustments.unit' | translate">{{ product?.unitOfMeasure ?? current()?.lines?.[i]?.unitOfMeasure }}</span>
+                  }
+                  @if (product && !product.active) {
+                    <span class="adj-inactive">{{ 'inventory.adjustments.product_inactive' | translate }}</span>
+                  }
                 </td>
                 <td class="numeric muted">{{ onHand()[i] !== null && onHand()[i] !== undefined ? (onHand()[i]! | vxNumber: '1.0-6') : '—' }}</td>
                 <td class="numeric">
-                  <input type="number" step="0.000001" min="0" formControlName="countedQuantity" [attr.aria-label]="'inventory.adjustments.counted' | translate" />
+                  <input type="number" step="any" min="0" inputmode="decimal" formControlName="countedQuantity" [id]="lineFieldId(i, 'countedQuantity')"
+                         [attr.aria-label]="('inventory.adjustments.counted' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })" />
+                  <vx-field-error [control]="line.get('countedQuantity')" [fieldId]="lineFieldId(i, 'countedQuantity')" labelKey="inventory.adjustments.counted" />
                 </td>
                 <td class="numeric">
-                  @if (status() === 'POSTED') {
-                    @let moved = postedChange(i);
-                    <span [class]="signClass(moved)">{{ moved | vxNumber: '1.0-6' }}</span>
+                  <input type="number" step="any" inputmode="decimal" formControlName="quantityChange" [id]="lineFieldId(i, 'quantityChange')"
+                         [attr.aria-label]="('inventory.adjustments.change' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })" />
+                </td>
+                <td class="numeric adj-col-calc">
+                  @if (figure?.difference === null) {
+                    <span class="muted" [title]="'inventory.adjustments.difference_unknown' | translate">—</span>
+                  } @else if (figure && figure.difference !== 0) {
+                    <span class="adj-diff" [class]="signClass(figure.difference)">
+                      <lucide-icon [img]="figure.difference > 0 ? UpIcon : DownIcon" size="14" aria-hidden="true"></lucide-icon>
+                      <span class="sr-only">{{ (figure.difference > 0 ? 'inventory.adjustments.surplus' : 'inventory.adjustments.shortfall') | translate }}</span>
+                      {{ figure.difference > 0 ? '+' : '' }}{{ figure.difference | vxNumber: '1.0-6' }}
+                    </span>
                   } @else {
-                    <input type="number" step="0.000001" formControlName="quantityChange" [attr.aria-label]="'inventory.adjustments.change' | translate"
-                           [placeholder]="expectedChange(i) !== null ? (expectedChange(i)! | vxNumber: '1.0-6') : ''" />
+                    <span class="muted">0</span>
                   }
                 </td>
                 <td class="numeric">
-                  <input type="number" step="0.01" min="0" formControlName="unitCost" [attr.aria-label]="'inventory.adjustments.unit_cost_in' | translate"
-                         [placeholder]="'inventory.adjustments.average' | translate" />
+                  <input type="number" step="any" min="0" inputmode="decimal" formControlName="unitCost" [id]="lineFieldId(i, 'unitCost')"
+                         [attr.aria-label]="('inventory.adjustments.unit_cost_in' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })"
+                         [placeholder]="product ? (product.cost | vxNumber: '1.2-6') : ''" />
+                  @if (product && editable()) {
+                    <span class="adj-cell-hint">{{ 'inventory.adjustments.average_cost' | translate }}</span>
+                  }
+                  <vx-field-error [control]="line.get('unitCost')" [fieldId]="lineFieldId(i, 'unitCost')" labelKey="inventory.adjustments.unit_cost_in" />
                 </td>
                 <td class="numeric">
-                  <input type="number" step="0.01" min="0" formControlName="newUnitCost" [attr.aria-label]="'inventory.adjustments.new_unit_cost' | translate" />
+                  <input type="number" step="any" min="0" inputmode="decimal" formControlName="newUnitCost" [id]="lineFieldId(i, 'newUnitCost')"
+                         [attr.aria-label]="('inventory.adjustments.new_unit_cost' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })" />
+                  <vx-field-error [control]="line.get('newUnitCost')" [fieldId]="lineFieldId(i, 'newUnitCost')" labelKey="inventory.adjustments.new_unit_cost" />
                 </td>
-                @if (status() === 'POSTED') {
-                  <td class="numeric">{{ (current()?.lines?.[i]?.valueChange ?? 0) | vxNumber: '1.2-2' }}</td>
-                }
-                <td>
-                  @if (editable()) {
-                    <button class="icon-button" type="button" (click)="removeLine(i)" [attr.aria-label]="'common.delete' | translate">
-                      <lucide-icon [img]="RemoveIcon" size="14"></lucide-icon>
+                <td class="numeric adj-col-calc">
+                  @if (figure && (figure.quantityValue !== 0 || figure.revaluationValue !== 0)) {
+                    <span [class]="signClass(figure.quantityValue + figure.revaluationValue)">{{ figure.quantityValue + figure.revaluationValue | vxMoney }}</span>
+                    @if (figure.revaluationValue !== 0 && figure.quantityValue !== 0) {
+                      <span class="adj-cell-hint">{{ 'inventory.adjustments.split_hint' | translate: { quantity: (figure.quantityValue | vxMoney), revaluation: (figure.revaluationValue | vxMoney) } }}</span>
+                    }
+                  } @else {
+                    <span class="muted">—</span>
+                  }
+                </td>
+                @if (editable()) {
+                  <td>
+                    <button class="icon-button" type="button" (click)="removeLine(i)"
+                            [attr.aria-label]="'inventory.adjustments.remove_line' | translate: { line: i + 1 }"
+                            [title]="'inventory.adjustments.remove_line' | translate: { line: i + 1 }">
+                      <lucide-icon [img]="RemoveIcon" size="16" aria-hidden="true"></lucide-icon>
                     </button>
-                  }
-                </td>
+                  </td>
+                }
               </tr>
             }
           </tbody>
+          @if (lines.length > 0) {
+            <tfoot>
+              <tr>
+                <th scope="row" colspan="4">{{ 'inventory.adjustments.totals' | translate }}</th>
+                <td class="numeric adj-col-calc">
+                  @if (impact().unitsIn) { <span class="positive">+{{ impact().unitsIn | vxNumber: '1.0-6' }}</span> }
+                  @if (impact().unitsOut) { <span class="negative">{{ impact().unitsOut | vxNumber: '1.0-6' }}</span> }
+                </td>
+                <td colspan="2"></td>
+                <td class="numeric adj-col-calc"><strong [class]="signClass(impact().net)">{{ impact().net | vxMoney }}</strong></td>
+                @if (editable()) { <td></td> }
+              </tr>
+            </tfoot>
+          }
         </table>
       </div>
       @if (editable()) {
         <button class="secondary-button add-line" type="button" (click)="addLine()">
-          <lucide-icon [img]="AddIcon" size="14"></lucide-icon>
+          <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
           <span>{{ 'inventory.common.add_line' | translate }}</span>
         </button>
       }
     </section>
 
-    @if (current() && status() === 'DRAFT') {
-      <section class="form-section doc-actions">
-        <button class="primary-button" type="button" [disabled]="saving() || form.dirty" (click)="post()">{{ 'inventory.adjustments.post' | translate }}</button>
-        <button class="danger-button" type="button" [disabled]="saving()" (click)="cancelDocument()">{{ 'inventory.adjustments.cancel_document' | translate }}</button>
-        @if (form.dirty) {
-          <p class="form-hint">{{ 'inventory.common.save_first' | translate }}</p>
+    <!-- 3. Impact, as the journal entry will book it -->
+    <section class="form-section" aria-labelledby="adj-impact-title">
+      <h2 class="form-section-title" id="adj-impact-title">{{ (status() === 'POSTED' ? 'inventory.adjustments.impact_posted' : 'inventory.adjustments.impact') | translate }}</h2>
+      <dl class="adj-impact">
+        <div class="adj-impact__item">
+          <dt>{{ 'inventory.adjustments.impact_shortfall' | translate }}</dt>
+          <dd class="negative">{{ impact().shortfall | vxMoney }}</dd>
+        </div>
+        <div class="adj-impact__item">
+          <dt>{{ 'inventory.adjustments.impact_surplus' | translate }}</dt>
+          <dd class="positive">{{ impact().surplus | vxMoney }}</dd>
+        </div>
+        <div class="adj-impact__item">
+          <dt>{{ 'inventory.adjustments.impact_revaluation' | translate }}</dt>
+          <dd [class]="signClass(impact().revaluation)">{{ impact().revaluation | vxMoney }}</dd>
+        </div>
+        <div class="adj-impact__item adj-impact__item--net">
+          <dt>{{ 'inventory.adjustments.impact_net' | translate }}</dt>
+          <dd [class]="signClass(impact().net)">{{ impact().net | vxMoney }}</dd>
+        </div>
+      </dl>
+      <p class="form-hint">
+        {{ 'inventory.adjustments.impact_hint' | translate }}
+        @if (impact().unknown && editable()) {
+          {{ 'inventory.adjustments.impact_unknown' | translate }}
         }
-      </section>
-    }
+      </p>
+    </section>
+
+    <!-- 4. Notes: secondary, so last. -->
+    <section class="form-section">
+      <details class="adj-notes" [open]="!!form.value.notes || !editable()">
+        <summary>{{ 'inventory.common.notes' | translate }}</summary>
+        <label class="sr-only" for="adj-notes">{{ 'inventory.common.notes' | translate }}</label>
+        <textarea id="adj-notes" formControlName="notes" rows="3" maxlength="2000"></textarea>
+      </details>
+    </section>
   </div>
 </vx-draft-shell>

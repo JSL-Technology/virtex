@@ -693,5 +693,10 @@
     "es": "Almacenes",
     "en": "Warehouses",
     "pt": "Depósitos"
+  },
+  "page_titles.audit_adjustment": {
+    "es": "Ajuste de auditoría",
+    "en": "Audit adjustment",
+    "pt": "Ajuste de auditoria"
   }
 }

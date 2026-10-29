@@ -28,6 +28,12 @@ export interface StockMove {
   sourceId: string | null;
   /** When it happened. Omitted, now. */
   date?: Date;
+  /**
+   * The value the document booked for this movement, signed like the quantity. Omitted, the kardex
+   * shows `quantity × unitCost`. State it whenever the posting computed the value itself, so the
+   * kardex and the journal entry show the same figure.
+   */
+  value?: number;
 }
 
 /** Where a document's stock moves, as far as the document knows. */
@@ -102,11 +108,50 @@ export class StockLedgerService {
         reference: move.reference.slice(0, 255),
         sourceType: move.sourceType,
         sourceId: move.sourceId,
+        value: move.value ?? null,
         ...(move.date ? { date: move.date } : {}),
       }),
     );
 
     return { product, balanceAfter: after };
+  }
+
+  /**
+   * A change in value with no change in quantity: a new unit cost.
+   *
+   * Recorded in the kardex as a `REVALUATION` row of quantity 0 at the warehouse the document
+   * names, carrying the value, so the inventory's value history has no unexplained jumps. The cost
+   * is one per product, so the value covers every warehouse; the reference says so.
+   */
+  async recordRevaluation(
+    manager: EntityManager,
+    organizationId: string,
+    revaluation: {
+      productId: string;
+      warehouseId: string;
+      newUnitCost: number;
+      value: number;
+      reference: string;
+      sourceType: string;
+      sourceId: string | null;
+      date?: Date;
+    },
+  ): Promise<void> {
+    await manager.save(
+      manager.create(StockMovement, {
+        productId: revaluation.productId,
+        organizationId,
+        warehouseId: revaluation.warehouseId,
+        quantity: 0,
+        cost: revaluation.newUnitCost,
+        type: 'REVALUATION',
+        reference: revaluation.reference.slice(0, 255),
+        sourceType: revaluation.sourceType,
+        sourceId: revaluation.sourceId,
+        value: revaluation.value,
+        ...(revaluation.date ? { date: revaluation.date } : {}),
+      }),
+    );
   }
 
   /**
