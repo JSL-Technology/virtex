@@ -1,0 +1,23 @@
+const { launch, instrument, uiLogin, shot, go, panel, panelText, netSince, toasts, errorsShown, stepUpAll } = require('./lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage();
+  const log = instrument(page);
+  await uiLogin(page);
+  const p = panel(page);
+  await go(page, 'invoices');
+  let n = log.requests.length;
+  console.log('ROLE', await p.getByText('Registrar cobro').first().evaluate(e=>e.outerHTML.slice(0,200))); await p.getByText('Registrar cobro').first().click(); await page.waitForTimeout(2500);
+  console.log('URL', page.url().split('/e/')[1], 'FORM', (await panelText(page)).replace(/\s+/g, ' ').slice(0, 1200));
+  const cb = p.locator('input[type=text]').nth(1); await cb.click(); await cb.fill('QA3-6620'); await page.waitForTimeout(1200); await page.locator('[role=option]').first().click(); await page.waitForTimeout(1000);
+  console.log('MONTO', await p.locator('input[formcontrolname=amountReceived]').inputValue());
+  await p.locator('select[formcontrolname=paymentMethod]').selectOption({ label: 'Cheque' });
+  await p.locator('input[formcontrolname=reference]').fill('CHK-QA3-0001');
+  await p.getByRole('button', { name: 'Guardar' }).click(); await page.waitForTimeout(2500); await stepUpAll(page);
+  console.log('RED', JSON.stringify(netSince(log, n)).slice(0, 800), 'TOAST', (await toasts(page)).replace(/\s+/g, ' ').slice(-200));
+  await go(page, 'invoices'); console.log('LISTA', (await panelText(page)).replace(/\s+/g, ' ').slice(300, 600));
+  await go(page, 'accounting/treasury'); console.log('TES', (await panelText(page)).replace(/\s+/g, ' ').slice(0, 500));
+  await go(page, 'reports/aging/receivables'); await page.waitForTimeout(1500); console.log('AGING', (await panelText(page)).replace(/\s+/g, ' ').slice(0, 600));
+  await shot(page, 'cob-aging');
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });

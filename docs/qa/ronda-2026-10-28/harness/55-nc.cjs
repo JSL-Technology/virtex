@@ -1,0 +1,24 @@
+const { launch, instrument, uiLogin, shot, go, panel, panelText, netSince, toasts, errorsShown, stepUpAll } = require('./lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage(); const log = instrument(page);
+  await uiLogin(page);
+  const p = panel(page);
+  await go(page, 'invoices'); await p.locator('tbody tr').filter({ hasText: 'QA3-6061' }).first().click(); await page.waitForTimeout(2500);
+  await p.getByRole('button', { name: 'Nota de crédito' }).first().click(); await page.waitForTimeout(1200);
+  const sec = p.locator('section, form, div').filter({ hasText: /^Emitir nota de crédito/ }).last();
+  const txt = (await panelText(page)); console.log('NC', txt.slice(txt.indexOf('Emitir nota de crédito')).replace(/\s+/g, ' ').slice(0, 900));
+  console.log('CTRLS', JSON.stringify(await p.locator('input, select, textarea, button').evaluateAll((es) => es.filter((e) => e.offsetWidth).map((e) => `${e.tagName}:${e.type}:${e.getAttribute('formcontrolname') || ''}:${(e.innerText || e.placeholder || '').trim().slice(0, 25)}=${e.value || ''}`).slice(-15))));
+  const submit = p.getByRole('button', { name: /Emitir nota|Emitir NC|Emitir$/ }).last();
+  let n = log.requests.length;
+  await submit.click().catch((e) => console.log('submit', e.message.split('\n')[0])); await page.waitForTimeout(1500);
+  console.log('[vacio]', JSON.stringify(netSince(log, n)).slice(0, 500), JSON.stringify(await errorsShown(page)));
+  const reason = p.locator('textarea, input[formcontrolname*=reason], input[formcontrolname*=motivo]').last(); if (await reason.count()) await reason.fill('QA3 devolución total del cliente');
+  const qty = p.locator('input[type=number]').last(); await qty.fill('1'); console.log('qty', await qty.inputValue());
+  n = log.requests.length;
+  await submit.click(); await page.waitForTimeout(3000); await stepUpAll(page); await page.waitForTimeout(1500);
+  console.log('[emitir]', JSON.stringify(netSince(log, n)).slice(0, 900), 'TOAST', (await toasts(page)).replace(/\s+/g, ' ').slice(-250));
+  console.log('DOC', (await panelText(page)).replace(/\s+/g, ' ').slice(0, 500));
+  await shot(page, 'nc-1');
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });

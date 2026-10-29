@@ -1,0 +1,25 @@
+const { launch, instrument, uiLogin, shot, go, panel, panelText, netSince, toasts, errorsShown, stepUpAll } = require('./lib.cjs');
+(async () => {
+  const { browser, context } = await launch(); const page = await context.newPage(); const log = instrument(page);
+  page.on('dialog', (d) => { console.log('   NATIVE', d.message()); d.accept('QA3-Carpeta-6612'); });
+  process.env.STEPUP_PASS = 'QA3-Pass-Segura-2026!';
+  await uiLogin(page, { email: 'qa3-admin2@example.com', password: 'QA3-Pass-Segura-2026!' });
+  const p = panel(page);
+  const T = async (l = 400) => (await panelText(page)).replace(/\s+/g, ' ').slice(0, l);
+  const run = async (name, fn) => { const n = log.requests.length; try { await fn(); } catch (e) { console.log(`[${name}] EXC ${e.message.split('\n')[0]}`); } await page.waitForTimeout(1800); await stepUpAll(page); console.log(`[${name}] toast="${(await toasts(page)).replace(/\s+/g, ' ').slice(-180)}" err=${JSON.stringify(await errorsShown(page)).slice(0, 200)} red=${JSON.stringify(netSince(log, n)).slice(0, 350)}`); await shot(page, `prev-${name}`); };
+  await go(page, 'masters/taxes/new');
+  await run('impuesto-150', async () => { console.log('   CTRLS', JSON.stringify(await p.locator('input, select').evaluateAll((es) => es.map((e) => `${e.getAttribute('formcontrolname')}:${e.type}`)))); const t = p.locator('input[type=text]').first(); await t.fill('QA3-Imp-150'); await p.locator('input[type=number]').first().fill('150'); await p.getByRole('button', { name: /Guardar/ }).click(); });
+  await go(page, 'documents/repository');
+  await run('carpeta', async () => { await p.getByRole('button', { name: 'Nueva carpeta' }).click(); await page.waitForTimeout(1000); const d = page.locator('[role=dialog]').last(); if (await d.count()) { console.log('   DLG', (await d.innerText()).replace(/\s+/g, ' ').slice(0, 200)); await d.locator('input').first().fill('QA3-Carpeta-6612'); await d.getByRole('button').last().click(); } });
+  await run('subir-1', async () => { await p.locator('input[type=file]').first().setInputFiles('/tmp/claude-0/files/QA3-contrato.txt'); await page.waitForTimeout(2500); console.log('   ', await T(300)); });
+  await run('subir-dup', async () => { await p.locator('input[type=file]').first().setInputFiles('/tmp/claude-0/files/QA3-contrato.txt'); await page.waitForTimeout(2500); });
+  await go(page, 'invoices');
+  await run('orden', async () => { const before = await p.locator('tbody tr td:nth-child(1)').allInnerTexts(); await p.getByRole('button', { name: /^Total/ }).first().click().catch(async () => p.locator('th').filter({ hasText: 'Total' }).click()); await page.waitForTimeout(1200); const a = await p.locator('tbody tr td:nth-child(1)').allInnerTexts(); await p.locator('th').filter({ hasText: 'Total' }).click(); await page.waitForTimeout(1200); const b = await p.locator('tbody tr td:nth-child(1)').allInnerTexts(); console.log('   ORDEN', JSON.stringify(before), JSON.stringify(a), JSON.stringify(b)); });
+  await go(page, 'hcm/employees'); await p.locator('tbody tr').first().click(); await page.waitForTimeout(2500); await stepUpAll(page); await page.waitForTimeout(1500);
+  await run('empleado-doc', async () => { console.log('   DOC', await p.locator('[formcontrolname=identityDocument]').inputValue().catch(() => '?'), '| ', (await T(900)).match(/Documento[^|]{0,120}/)?.[0]); });
+  await go(page, 'accounting/ledgers'); await run('libro-editar', async () => { await p.getByRole('button', { name: /Editar/ }).first().click().catch(async () => p.locator('tbody tr').first().click()); await page.waitForTimeout(2000); console.log('   ', await T(200)); });
+  await go(page, 'masters/currencies'); await run('monedas', async () => { console.log('   ', (await T(900)).match(/Peso dominicano[^A-Z]{0,60}/)?.[0]); });
+  await page.evaluate(() => { location.hash = 'settings/extensions'; }); await page.waitForTimeout(2500);
+  await run('extension', async () => { const d = page.locator('[role=dialog]').first(); const i = d.locator('input, textarea'); console.log('   ext ctrls', await i.count()); await d.getByRole('button', { name: /Registrar/ }).first().click(); await page.waitForTimeout(2000); });
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });

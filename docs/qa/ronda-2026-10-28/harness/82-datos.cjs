@@ -1,0 +1,25 @@
+const fs = require('fs');
+const { launch, instrument, uiLogin, shot, go, panel, panelText, netSince, toasts, errorsShown, stepUpAll } = require('./lib.cjs');
+(async () => {
+  const { browser } = await launch();
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'es-ES', acceptDownloads: true });
+  const page = await context.newPage(); const log = instrument(page);
+  process.env.STEPUP_PASS = 'QA3-Pass-Segura-2026!';
+  page.on('download', async (d) => { const f = `/tmp/claude-0/dl-${d.suggestedFilename()}`; await d.saveAs(f); console.log('   DOWNLOAD', f); });
+  await uiLogin(page, { email: 'qa3-admin2@example.com', password: 'QA3-Pass-Segura-2026!' });
+  const p = panel(page);
+  const step = async (name, fn) => { const n = log.requests.length; try { await fn(); } catch (e) { console.log(`[${name}] EXC ${e.message.split('\n')[0]}`); } await page.waitForTimeout(2500); await stepUpAll(page); console.log(`[${name}] toast="${(await toasts(page)).replace(/\s+/g, ' ').slice(-250)}" errores=${JSON.stringify(await errorsShown(page)).slice(0, 300)}\n   red=${JSON.stringify(netSince(log, n)).slice(0, 700)}\n   UI=${(await panelText(page)).replace(/\s+/g, ' ').slice(0, 900)}`); await shot(page, `dat-${name}`); };
+  await go(page, 'data-imports');
+  await step('imp-1-tipo', async () => { await p.locator('select').first().selectOption({ label: 'Clientes' }); });
+  await step('imp-2-archivo-malo', async () => { await p.locator('input[type=file]').setInputFiles('/tmp/claude-0/files/clientes-imp.csv'); await page.waitForTimeout(2000); await p.getByRole('button', { name: 'Validar' }).click(); });
+  await step('imp-3-archivo-ok', async () => { await p.locator('input[type=file]').setInputFiles('/tmp/claude-0/files/clientes-ok.csv'); await page.waitForTimeout(2000); await p.getByRole('button', { name: 'Validar' }).click(); });
+  await step('imp-4-importar', async () => { await p.getByRole('button', { name: 'Importar datos' }).click(); await page.waitForTimeout(3000); });
+  await go(page, 'contacts/customers'); console.log('CLIENTES', (await panelText(page)).replace(/\s+/g, ' ').slice(0, 600));
+  await go(page, 'data-exports');
+  await step('exp-1-clientes', async () => { await p.locator('select').first().selectOption({ label: 'Clientes' }); await p.getByRole('button', { name: 'Generar archivo' }).click(); await page.waitForTimeout(4000); const dl = p.getByRole('button', { name: /Descargar/ }).first(); if (await dl.count()) await dl.click(); });
+  await step('exp-2-pos', async () => { await p.locator('select').first().selectOption({ label: 'Ventas del punto de venta' }); await p.locator('select').nth(1).selectOption({ index: 1 }).catch(() => {}); await p.getByRole('button', { name: 'Generar archivo' }).click(); await page.waitForTimeout(4000); const dl = p.getByRole('button', { name: /Descargar/ }).first(); if (await dl.count()) await dl.click(); });
+  await go(page, 'datasheets');
+  await step('ds-1-nuevo', async () => { await p.getByRole('button', { name: 'Nuevo libro' }).click(); await page.waitForTimeout(2500); const d = page.locator('[role=dialog]').last(); if (await d.count()) console.log('   DLG', (await d.innerText()).replace(/\s+/g, ' ').slice(0, 400)); });
+  await page.waitForTimeout(2000);
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });
