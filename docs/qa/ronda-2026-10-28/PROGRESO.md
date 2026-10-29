@@ -83,3 +83,16 @@ Archivo de avance vivo. Si la sesión se corta, continuar desde aquí.
 - Exportar (RE A-13 export corregido): rentabilidad, facturas, libro diario, plan de cuentas, tickets POS, balanza, BG, ER y flujo descargan CSV con datos reales. Inconsistente: unos con "sep=;" y ";", otros con ","; valores crudos ASSET/CURRENT_ASSET/DEBIT/Posted/Draft/Pending. Libro mayor: Exportar deshabilitado hasta elegir cuenta.
 - Pasada automática: 429 TOO_MANY_REQUESTS al cambiar filtros seguidos (tipos de cambio, checklist de cierre, abrir asientos) — límite de tasa alcanzable por un usuario normal que filtra rápido.
 - Re-verificados: ordenar por columna (RE B-01 corregido, sort en servidor); documento del empleado oculto tras "Ver los datos sensibles" (RE M-15 corregido); Libros "Por defecto: Principal" (RE B-02 corregido); subida duplicada → mensaje claro; impuesto 150 % → "«Tasa» no puede ser mayor que 100" (RE M-04 corregido).
+
+## Estado final de la ronda
+- [x] Levantar entorno (2 reinicios del contenedor; relevantado con los mismos datos)
+- [x] Inventario de rutas (119/119) y de Ajustes (28/28)
+- [x] Pasada automática de clics con datos (119/119) + verificación manual de sospechosos → MATRIZ_COBERTURA.md (1,592 interacciones, 90 % probadas)
+- [x] Formularios principales y flujos por módulo (~70 flujos)
+- [x] Flujos cruzados (22)
+- [x] Roles: Administrador ×2, Vendedor, Contador, Miembro
+- [x] Re-verificación de los 45 hallazgos previos (44 re-verificados; M-13 no)
+- [x] Cambios de la pasada sobre datos no-QA revertidos (categoría "General", almacén predeterminado, auto-confirmación de conciliación)
+- [x] INFORME.md con hallazgos, scorecard, flujos cruzados y cobertura
+- Pendiente para una próxima ronda: levantar `apps/ai-engine` y un proveedor de IA para probar predicciones/flujo proyectado/copiloto; completar 2FA con TOTP; registro de extensiones (M-13); desktop.
+- Evidencia: en el repo solo las capturas citadas en el informe; el set completo (~710 capturas, 94 MB) quedó fuera por tamaño.

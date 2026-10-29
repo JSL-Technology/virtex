@@ -1,0 +1,28 @@
+const { chromium } = require('playwright');
+const { instrument, go, panel, panelText, netSince, BASE, shot } = require('./lib.cjs');
+(async () => {
+  const browser = await chromium.launch(); const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'es-ES', acceptDownloads: true });
+  await context.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+  const page = await context.newPage(); const log = instrument(page);
+  page.on('dialog', (d) => { console.log('   NATIVE', d.type(), d.message()); d.dismiss(); });
+  page.on('download', (d) => console.log('   DOWNLOAD', d.suggestedFilename()));
+  await page.goto(`${BASE}/es/auth/login`); await page.locator('input[type=password]').waitFor();
+  await page.locator('input[type=email], input[formcontrolname=email]').first().fill('qa3-admin2@example.com'); await page.locator('input[type=password]').first().fill('QA3-Pass-Segura-2026!'); await page.locator('button[type=submit]').first().click(); await page.waitForURL((u) => !u.pathname.includes('/auth/')); await page.waitForTimeout(2000);
+  const p = panel(page); page.setDefaultTimeout(6000);
+  const test = async (route, desc, fn) => { await go(page, route); await page.waitForTimeout(2000); const u = page.url(); const t = (await panelText(page)).length; const n = log.requests.length; try { await fn(); } catch (e) { console.log(`${route} › ${desc}: EXC ${e.message.split('\n')[0]}`); return; } await page.waitForTimeout(1800); const d = page.locator('[role=dialog]').last(); console.log(`${route} › ${desc}: url=${page.url() === u ? '=' : page.url().split('/e/')[1]} Δtexto=${(await panelText(page)).length - t} dlg=${(await d.innerText().catch(() => '')).replace(/\s+/g, ' ').slice(0, 120)} red=${JSON.stringify(netSince(log, n)).slice(0, 220)}`); await page.keyboard.press('Escape'); };
+  await test('purchasing/receipts', 'fila GR', async () => p.locator('tbody tr').filter({ hasText: 'GR-2026' }).first().click());
+  await test('accounts-payable/payments', 'fila PAY', async () => p.locator('tbody tr').filter({ hasText: 'PAY-2026' }).first().click());
+  await test('collections', 'fila FAC-2', async () => p.locator('tbody tr').filter({ hasText: 'B0200000001' }).first().click());
+  await test('inventory/movements', 'fila B01', async () => p.locator('tbody tr').filter({ hasText: 'B0100000001' }).first().click());
+  await test('inventory/movements', 'encabezado Entrada', async () => p.locator('thead th').filter({ hasText: 'Entrada' }).first().click());
+  await test('accounting/chart-of-accounts', 'fila grupo 1000', async () => p.locator('tbody tr').filter({ hasText: /^\s*1000/ }).first().click());
+  await test('accounting/chart-of-accounts', 'encabezado Cuenta', async () => p.locator('thead th').filter({ hasText: 'Cuenta' }).first().click());
+  await test('reports/financial-statements/trial-balance', 'fila 1120', async () => p.locator('tbody tr').filter({ hasText: '1120' }).first().click());
+  await test('quotes', 'filtro Aceptada', async () => p.getByRole('button', { name: /^Aceptada/ }).first().click());
+  await test('documents/repository', 'Descargar', async () => p.getByRole('button', { name: 'Descargar' }).first().click());
+  await test('documents/repository', 'Renombrar', async () => p.getByRole('button', { name: 'Renombrar' }).first().click());
+  await test('accounting/closing/checklist', 'Resolver', async () => p.getByRole('link', { name: 'Resolver' }).or(p.getByRole('button', { name: 'Resolver' })).first().click());
+  await test('inventory/products', 'seleccionar fila', async () => { await p.locator('tbody input[type=checkbox]').first().check(); console.log('   acciones masivas:', JSON.stringify((await p.getByRole('button').allInnerTexts()).filter(Boolean))); });
+  await test('overview', 'fila actividad', async () => page.locator('li').filter({ hasText: /creado|contabilizado/ }).first().click());
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });
