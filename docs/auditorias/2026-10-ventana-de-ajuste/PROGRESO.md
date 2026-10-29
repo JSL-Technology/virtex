@@ -12,3 +12,11 @@ Archivo de trabajo. El informe final es `../2026-10-AUDITORIA-VENTANA-DE-AJUSTE.
 - [x] Informe final
 
 Pendiente (ver §11 del informe): otro país, ajuste de auditoría con política de aprobación, error de red, sesión expirada, zoom 125/150 %, edición profunda de 24 secciones de Configuración, app de escritorio.
+
+## Ampliación: Configuración general (a petición)
+
+- [x] Lectura del código del modal y de las 26 secciones (más `sessions`, oculta)
+- [x] Mediciones de layout por sección (`config-layout.json`) y capturas pliegue a pliegue (`capturas/config/`)
+- [x] Modelos de guardado verificados por red (explícito, por fila, autoguardado de IA, aplicación inmediata de densidad); valores restaurados
+- [x] Rol restringido, tema oscuro, 1366×768, Atrás y recarga
+- [x] Informe `../2026-10-AUDITORIA-CONFIGURACION-GENERAL.md` (CG-01…CG-31)

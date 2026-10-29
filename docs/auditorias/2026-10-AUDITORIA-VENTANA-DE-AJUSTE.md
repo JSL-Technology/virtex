@@ -120,7 +120,7 @@ Fuentes: [Odoo 17 Count products](https://www.odoo.com/documentation/17.0/th/app
 
 | Convención | Referencia | Confianza |
 |---|---|---|
-| **Buscador** en la configuración | Odoo (barra de búsqueda en *Ajustes* desde la v14), QuickBooks (*Account and settings* con búsqueda en la ayuda), SAP Fiori (*Manage Your Solution* con búsqueda) | Alta para Odoo, media para el resto |
+| **Buscador** en la configuración | Odoo (barra de búsqueda en *Ajustes*), SAP Fiori (*Manage Your Solution*) | **Media** (conocimiento previo; no verificado en esta sesión, ver el informe ampliado §1) |
 | **Un solo modelo de guardado** por pantalla: barra fija «Guardar / Descartar» (Odoo) o edición por sección con lápiz y «Guardar / Cancelar» (QuickBooks) | Odoo y QuickBooks | Alta |
 | Aviso de cambios sin guardar al salir | Odoo (aviso de descarte en formularios) y patrón general de formularios | Media |
 | Ajustes sensibles con confirmación que explica el impacto y queda auditada | NetSuite (*Enable Features*), SAP (registro de cambios de customizing) | Media |
@@ -419,6 +419,8 @@ Ver la tabla de §6.
 
 ### 5.C Configuración general
 
+> **Informe ampliado:** [2026-10-AUDITORIA-CONFIGURACION-GENERAL.md](2026-10-AUDITORIA-CONFIGURACION-GENERAL.md) evalúa a fondo la arquitectura de la información, el layout y la distribución de componentes, la UX y la UI de las 26 secciones (hallazgos `CG-01…CG-31`, capturas pliegue a pliegue y mediciones). Los hallazgos de abajo se mantienen.
+
 **CFG-01 · C · responsive · Crítica**
 **En móvil (375×812) la Configuración es inutilizable.**
 
@@ -673,12 +675,14 @@ Calibración: 10 = a la altura o por encima de los líderes; 5 = utilizable en e
 
 ### 10.C Configuración general: **global 4/10**
 
+Ver el scorecard ampliado (11 ejes, con layout separado) en el [informe de Configuración general §7](2026-10-AUDITORIA-CONFIGURACION-GENERAL.md#7-scorecard-de-la-configuración-general-110). La arquitectura de la información baja de 5 a 4 tras la evaluación profunda.
+
 | Eje | Nota | Justificación | Para llegar a 10 |
 |---|---|---|---|
-| Arquitectura de la información | 5 | Grupos claros (cuenta, organización, finanzas, operaciones, sistema); sin buscador; 11/26 rótulos ≠ títulos; CFG-09 | 9.C |
+| Arquitectura de la información | 4 | Sin buscador; 11/26 rótulos ≠ títulos; CFG-09; configuración repartida y duplicada (CG-01…CG-06 del informe ampliado) | 9.C |
 | Completabilidad | 4 | CFG-03, CFG-06, CFG-07 | Mensajes de bloqueo, solo lectura por permiso, *step-up* al guardar |
 | Prevención | 3 | CFG-02, CFG-10 | Guardia de cambios, confirmación en ajustes sensibles |
-| Consistencia | 4 | CFG-05 (5 títulos, 3 modelos, 4 rótulos) | Un patrón de sección |
+| Consistencia | 3 | CFG-05; 8 anchos máximos, 5 cabeceras, 5 posiciones de la acción principal, 4 modelos de guardado (informe ampliado §3.1) | Un patrón de sección |
 | Visual | 6 | Cuidada en escritorio; truncados (CFG-11) | Página completa |
 | Accesibilidad | 4 | axe 0, pero CFG-04 (foco) | Patrón *dialog* APG o página |
 | Contenido | 6 | Ayudas buenas; CFG-09 | Revisión de referencias cruzadas |
