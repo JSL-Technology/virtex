@@ -22,6 +22,7 @@ describe('InventoryAdjustmentFormPage', () => {
   const warehouses = [
     { id: 'w-old', name: 'Viejo', code: 'V', isActive: true, isDefault: false },
     { id: 'w-main', name: 'Principal', code: 'P', isActive: true, isDefault: true },
+    { id: 'w-north', name: 'Norte', code: 'N', isActive: true, isDefault: false },
   ];
   const draft: InventoryAdjustment = {
     id: 'adj-1', number: 'AJ-2026-00001', date: '2026-10-01', warehouseId: 'w-main', warehouseName: 'Principal',
@@ -42,9 +43,11 @@ describe('InventoryAdjustmentFormPage', () => {
     confirmClose.mockClear();
   });
 
-  function create(inputs: Record<string, string> = {}) {
+  function create(inputs: Record<string, string> = {}, onHand?: (query: { warehouseId?: string }) => { items: object[] }) {
     stock = {
-      onHand: jest.fn().mockReturnValue(of({ items: [{ quantityOnHand: 10 }], total: 1, page: 1, limit: 1, pages: 1, totalValue: 0 })),
+      onHand: onHand
+        ? jest.fn((query: { warehouseId?: string }) => of({ ...onHand(query), total: 1, page: 1, limit: 1, pages: 1, totalValue: 0 }))
+        : jest.fn().mockReturnValue(of({ items: [{ quantityOnHand: 10 }], total: 1, page: 1, limit: 1, pages: 1, totalValue: 0 })),
       adjustment: jest.fn().mockReturnValue(of(draft)),
       createAdjustment: jest.fn().mockReturnValue(of(draft)),
       updateAdjustment: jest.fn().mockReturnValue(of(draft)),
@@ -83,6 +86,18 @@ describe('InventoryAdjustmentFormPage', () => {
     expect(page.lines.at(0).value.productId).toBe('p1');
     expect(stock['onHand']).toHaveBeenCalledWith(expect.objectContaining({ productId: 'p1', warehouseId: 'w-main' }));
     expect(page.onHand()[0]).toBe(10);
+  });
+
+  it('goes to the warehouse that holds the product and shows its balance there, even when every answer is immediate', () => {
+    // A list served from the cache answers synchronously: the warehouse used to be chosen before
+    // anything listened for it, and the line read «—» (seen in the «after» captures).
+    const page = create({ productId: 'p1' }, (query) =>
+      query.warehouseId
+        ? { items: [{ quantityOnHand: query.warehouseId === 'w-north' ? 83 : 0 }] }
+        : { items: [{ warehouseId: 'w-north', quantityOnHand: 83 }, { warehouseId: 'w-main', quantityOnHand: 2 }] },
+    );
+    expect(page.form.value.warehouseId).toBe('w-north');
+    expect(page.onHand()[0]).toBe(83);
   });
 
   it('refuses a line with both a count and a change, and a line with neither', () => {

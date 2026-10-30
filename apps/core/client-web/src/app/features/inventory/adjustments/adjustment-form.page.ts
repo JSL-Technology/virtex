@@ -242,6 +242,12 @@ export class InventoryAdjustmentFormPage implements OnInit {
   }
 
   ngOnInit(): void {
+    // Subscribed before anything can set the warehouse: a list served from the cache answers at
+    // once, and a warehouse chosen before this existed left the line's balance at «—».
+    this.form
+      .get('warehouseId')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.refreshOnHand());
     this.warehousesApi.list().subscribe({
       next: (rows) => {
         this.warehouses.set(rows.filter((warehouse) => warehouse.isActive || warehouse.id === this.form.value.warehouseId));
@@ -256,10 +262,6 @@ export class InventoryAdjustmentFormPage implements OnInit {
       // Someone who may read adjustments but not warehouses still sees the document's own name.
       error: () => this.warehouses.set([]),
     });
-    this.form
-      .get('warehouseId')
-      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.refreshOnHand());
     this.form
       .get('date')
       ?.valueChanges.pipe(
@@ -538,6 +540,7 @@ export class InventoryAdjustmentFormPage implements OnInit {
           this.form.patchValue({ warehouseId: best.warehouseId });
           this.form.markAsPristine();
         }
+        this.refreshOnHand();
       });
   }
 

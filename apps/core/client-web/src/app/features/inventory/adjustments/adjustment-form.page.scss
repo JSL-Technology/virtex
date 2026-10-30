@@ -136,3 +136,11 @@
 @include ds.bp-down('md') {
   .adj-what { grid-template-columns: 1fr; }
 }
+
+// A posted or cancelled line reads as figures, aligned with the computed columns.
+.adj-readonly-figure {
+  display: inline-block;
+  padding: var(--space-2) 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--content-primary);
+}

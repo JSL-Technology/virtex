@@ -231,13 +231,23 @@
                 </td>
                 <td class="numeric muted">{{ onHand()[i] !== null && onHand()[i] !== undefined ? (onHand()[i]! | vxNumber: '1.0-6') : '—' }}</td>
                 <td class="numeric">
-                  <input type="number" step="any" min="0" inputmode="decimal" formControlName="countedQuantity" [id]="lineFieldId(i, 'countedQuantity')"
-                         [attr.aria-label]="('inventory.adjustments.counted' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })" />
+                  @if (editable()) {
+                    <input type="number" step="any" min="0" inputmode="decimal" formControlName="countedQuantity" [id]="lineFieldId(i, 'countedQuantity')"
+                           [attr.aria-label]="('inventory.adjustments.counted' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })" />
+                  } @else {
+                    <!-- Read only: the figure as text, not a field that looks editable. -->
+                    <span class="adj-readonly-figure">{{ line.get('countedQuantity')?.value === null || line.get('countedQuantity')?.value === undefined || line.get('countedQuantity')?.value === '' ? '—' : (line.get('countedQuantity')?.value | vxNumber: '1.0-6') }}</span>
+                  }
                   <vx-field-error [control]="line.get('countedQuantity')" [fieldId]="lineFieldId(i, 'countedQuantity')" labelKey="inventory.adjustments.counted" />
                 </td>
                 <td class="numeric">
-                  <input type="number" step="any" inputmode="decimal" formControlName="quantityChange" [id]="lineFieldId(i, 'quantityChange')"
-                         [attr.aria-label]="('inventory.adjustments.change' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })" />
+                  @if (editable()) {
+                    <input type="number" step="any" inputmode="decimal" formControlName="quantityChange" [id]="lineFieldId(i, 'quantityChange')"
+                           [attr.aria-label]="('inventory.adjustments.change' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })" />
+                  } @else {
+                    <!-- Read only: the figure as text, not a field that looks editable. -->
+                    <span class="adj-readonly-figure">{{ line.get('quantityChange')?.value === null || line.get('quantityChange')?.value === undefined || line.get('quantityChange')?.value === '' ? '—' : (line.get('quantityChange')?.value | vxNumber: '1.0-6') }}</span>
+                  }
                 </td>
                 <td class="numeric adj-col-calc">
                   @if (figure?.difference === null) {
@@ -253,17 +263,27 @@
                   }
                 </td>
                 <td class="numeric">
-                  <input type="number" step="any" min="0" inputmode="decimal" formControlName="unitCost" [id]="lineFieldId(i, 'unitCost')"
-                         [attr.aria-label]="('inventory.adjustments.unit_cost_in' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })"
-                         [placeholder]="product ? (product.cost | vxNumber: '1.2-6') : ''" />
+                  @if (editable()) {
+                    <input type="number" step="any" min="0" inputmode="decimal" formControlName="unitCost" [id]="lineFieldId(i, 'unitCost')"
+                           [attr.aria-label]="('inventory.adjustments.unit_cost_in' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })"
+                           [placeholder]="product ? (product.cost | vxNumber: '1.2-6') : ''" />
+                  } @else {
+                    <!-- Read only: the figure as text, not a field that looks editable. -->
+                    <span class="adj-readonly-figure">{{ line.get('unitCost')?.value === null || line.get('unitCost')?.value === undefined || line.get('unitCost')?.value === '' ? '—' : (line.get('unitCost')?.value | vxNumber: '1.2-6') }}</span>
+                  }
                   @if (product && editable()) {
                     <span class="adj-cell-hint">{{ 'inventory.adjustments.average_cost' | translate }}</span>
                   }
                   <vx-field-error [control]="line.get('unitCost')" [fieldId]="lineFieldId(i, 'unitCost')" labelKey="inventory.adjustments.unit_cost_in" />
                 </td>
                 <td class="numeric">
-                  <input type="number" step="any" min="0" inputmode="decimal" formControlName="newUnitCost" [id]="lineFieldId(i, 'newUnitCost')"
-                         [attr.aria-label]="('inventory.adjustments.new_unit_cost' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })" />
+                  @if (editable()) {
+                    <input type="number" step="any" min="0" inputmode="decimal" formControlName="newUnitCost" [id]="lineFieldId(i, 'newUnitCost')"
+                           [attr.aria-label]="('inventory.adjustments.new_unit_cost' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })" />
+                  } @else {
+                    <!-- Read only: the figure as text, not a field that looks editable. -->
+                    <span class="adj-readonly-figure">{{ line.get('newUnitCost')?.value === null || line.get('newUnitCost')?.value === undefined || line.get('newUnitCost')?.value === '' ? '—' : (line.get('newUnitCost')?.value | vxNumber: '1.2-6') }}</span>
+                  }
                   <vx-field-error [control]="line.get('newUnitCost')" [fieldId]="lineFieldId(i, 'newUnitCost')" labelKey="inventory.adjustments.new_unit_cost" />
                 </td>
                 <td class="numeric adj-col-calc">
