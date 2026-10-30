@@ -11,15 +11,10 @@
 
   @if (creating()) {
     <div listCreate class="inline-row card">
+      <!-- One month picker instead of a year box and a month box that took 13 (QA R3-M15). -->
       <label class="field">
-        <span>{{ 'payroll.runs.year' | translate }}</span>
-        <input type="number" min="2000" max="2100" [value]="newYear()"
-          (input)="newYear.set(+$any($event.target).value)" />
-      </label>
-      <label class="field">
-        <span>{{ 'payroll.runs.month' | translate }}</span>
-        <input type="number" min="1" max="12" [value]="newMonth()"
-          (input)="newMonth.set(+$any($event.target).value)" />
+        <span>{{ 'payroll.runs.period' | translate }}</span>
+        <input type="month" required [value]="newPeriod()" (input)="setPeriod($any($event.target).value)" />
       </label>
       <label class="field">
         <span>{{ 'payroll.runs.type' | translate }}</span>

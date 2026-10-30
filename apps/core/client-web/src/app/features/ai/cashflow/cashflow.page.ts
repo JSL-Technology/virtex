@@ -17,6 +17,7 @@ import {
   CashflowScenarioResult,
   CashflowService,
 } from './cashflow.service';
+import { AiService } from '../data/ai.service';
 
 const POLL_MS = 5000;
 const pending = (status: string | undefined | null) => status === 'QUEUED' || status === 'RUNNING';
@@ -69,7 +70,10 @@ export class CashflowPage implements OnInit {
   readonly projection = computed(() => this.overview()?.projection ?? null);
   readonly metrics = computed(() => this.projection()?.metrics ?? null);
   readonly currency = computed(() => this.projection()?.baseCurrency ?? null);
-  readonly runInProgress = computed(() => pending(this.overview()?.latest?.status));
+  /** False when the analytics engine is stopped: a queued projection will not move (QA R3-M08). */
+  readonly engineOnline = signal(true);
+  readonly runInProgress = computed(() => this.engineOnline() && pending(this.overview()?.latest?.status));
+  private readonly aiStatus = inject(AiService);
   readonly risk = computed<'high' | 'medium' | 'low'>(() => {
     const p = this.metrics()?.shortfallProbability ?? 0;
     return p >= 0.3 ? 'high' : p >= 0.1 ? 'medium' : 'low';
@@ -81,6 +85,7 @@ export class CashflowPage implements OnInit {
   ngOnInit(): void {
     this.load();
     this.loadPlan();
+    this.aiStatus.status().subscribe({ next: (status) => this.engineOnline.set(status.engine?.online !== false), error: () => undefined });
     this.destroyRef.onDestroy(() => this.polling?.unsubscribe());
   }
 

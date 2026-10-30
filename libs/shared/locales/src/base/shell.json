@@ -64,6 +64,51 @@
     "en": "Undo",
     "pt": "Desfazer"
   },
+  "shell.field.account": {
+    "en": "Account",
+    "es": "Cuenta",
+    "pt": "Conta"
+  },
+  "shell.field.amount": {
+    "en": "Amount",
+    "es": "Monto",
+    "pt": "Valor"
+  },
+  "shell.field.customer": {
+    "en": "Customer",
+    "es": "Cliente",
+    "pt": "Cliente"
+  },
+  "shell.field.description": {
+    "en": "Description",
+    "es": "Descripción",
+    "pt": "Descrição"
+  },
+  "shell.field.product": {
+    "en": "Product",
+    "es": "Producto",
+    "pt": "Produto"
+  },
+  "shell.field.quantity": {
+    "en": "Quantity",
+    "es": "Cantidad",
+    "pt": "Quantidade"
+  },
+  "shell.field.supplier": {
+    "en": "Supplier",
+    "es": "Proveedor",
+    "pt": "Fornecedor"
+  },
+  "shell.field.unit_price": {
+    "en": "Price",
+    "es": "Precio",
+    "pt": "Preço"
+  },
+  "shell.field.warehouse": {
+    "en": "Warehouse",
+    "es": "Almacén",
+    "pt": "Armazém"
+  },
   "shell.field_not_expected_format": {
     "es": "«{{field}}» no tiene el formato esperado",
     "en": "“{{field}}” is not in the expected format",

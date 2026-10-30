@@ -16,7 +16,7 @@
             <span class="ca__note">{{ step.note }}</span>
           }
           @if (step.link && !step.done) {
-            <a class="ca__link" [routerLink]="step.link">{{ 'accounting.checklist.resolve' | translate }}</a>
+            <a class="ca__link" [routerLink]="step.link | appLink">{{ 'accounting.checklist.resolve' | translate }}</a>
           }
         </li>
       }

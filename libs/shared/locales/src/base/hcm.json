@@ -9,6 +9,11 @@
     "en": "The department cannot be deleted because people are assigned to it ({{summary}}). Reassign them to another department first.",
     "pt": "O departamento não pode ser excluído porque há pessoas atribuídas a ele ({{summary}}). Reatribua-as a outro departamento primeiro."
   },
+  "hcm.department_name_taken": {
+    "en": "A department named “{{name}}” already exists.",
+    "es": "Ya existe un departamento llamado «{{name}}».",
+    "pt": "Já existe um departamento chamado «{{name}}»."
+  },
   "hcm.department_not_found": {
     "es": "No se encontró el departamento \"{{id}}\".",
     "en": "Department \"{{id}}\" was not found.",

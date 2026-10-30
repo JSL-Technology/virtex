@@ -250,6 +250,21 @@ export class FiscalSettingsPage implements OnInit {
   provisionSequence(): void {
     if (this.sequenceForm.invalid) {
       this.sequenceForm.markAllAsTouched();
+      // Marking the fields was all it did: an empty form answered «Registrar rango» with nothing at
+      // all (QA R3-M15). It now says which fields are missing and puts the cursor in the first.
+      const labels: Record<string, string> = {
+        type: 'settings.fiscal.type',
+        prefix: 'settings.fiscal.prefix',
+        startsAt: 'settings.fiscal.from',
+        endsAt: 'settings.fiscal.to',
+        expiresAt: 'settings.fiscal.expires_on',
+      };
+      const missing = Object.keys(labels).filter((name) => this.sequenceForm.get(name)?.invalid);
+      this.notifications.showError('settings.fiscal.range_form_incomplete', {
+        fields: missing.map((name) => this.translate.instant(labels[name])).join(', '),
+      });
+      const ids: Record<string, string> = { type: 'range-type', prefix: 'range-prefix', startsAt: 'range-from', endsAt: 'range-to', expiresAt: 'range-expires-at' };
+      if (missing[0]) (document.getElementById(ids[missing[0]]) as HTMLElement | null)?.focus();
       return;
     }
     const value = this.sequenceForm.getRawValue();

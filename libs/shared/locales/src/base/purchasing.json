@@ -555,6 +555,16 @@
     "en": "Confirm rejection",
     "pt": "Confirmar rejeição"
   },
+  "purchasing.requisitions.form.convert_supplier": {
+    "en": "Supplier for the order",
+    "es": "Proveedor de la orden",
+    "pt": "Fornecedor do pedido"
+  },
+  "purchasing.requisitions.form.convert_to_order": {
+    "en": "Convert into a purchase order",
+    "es": "Convertir en orden de compra",
+    "pt": "Converter em pedido de compra"
+  },
   "purchasing.requisitions.form.description": {
     "es": "Descripción",
     "en": "Description",

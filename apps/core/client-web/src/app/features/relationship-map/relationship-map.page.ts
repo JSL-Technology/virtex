@@ -465,7 +465,7 @@ export class RelationshipMapPage {
       node.date ?? '',
       node.amount ?? '',
       node.currencyCode ?? '',
-      this.translate.instant(this.statusKey(node.statusKind)),
+      this.translate.instant(this.statusLabel(node)),
       node.description ?? '',
       node.depth,
     ]);
@@ -483,6 +483,11 @@ export class RelationshipMapPage {
   /** Built as template literals so `verify-catalogues` sees the families. */
   statusKey(kind: FlowStatusKind): string {
     return `relationship_map.status.${kind}`;
+  }
+
+  /** The document's own status where its type names one; otherwise the colour family's word. */
+  statusLabel(item: { statusKind: FlowStatusKind; statusKey?: string | null }): string {
+    return item.statusKey || this.statusKey(item.statusKind);
   }
 
   moduleKey(module: string): string {

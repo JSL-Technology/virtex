@@ -117,6 +117,12 @@ export interface FlowNode {
   statusKind: FlowStatusKind;
   /** The raw status as stored, for a tooltip. */
   statusRaw: string | null;
+  /**
+   * The document's own status as a catalogue key («Cobrada»), when its type has one. The kind says
+   * which colour; this says what the document is — «Cerrado» for a paid invoice read as if it had
+   * been closed off (QA R3-M13).
+   */
+  statusKey?: string | null;
   /** Document total in `currencyCode` (null currency = the tenant's base currency), or null. */
   amount: number | null;
   currencyCode: string | null;
@@ -199,4 +205,5 @@ export interface FlowDocumentSearchHit {
   amount: number | null;
   currencyCode: string | null;
   statusKind: FlowStatusKind;
+  statusKey?: string | null;
 }

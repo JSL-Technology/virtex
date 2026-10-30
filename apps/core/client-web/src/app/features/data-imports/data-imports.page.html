@@ -25,8 +25,9 @@
           </button>
           <p class="columns-hint">
             {{ 'data_imports.required_columns' | translate }}
-            @for (column of dataset.columns; track column.key) {
-              @if (column.required) { <code>{{ column.key }}</code> }
+            <!-- Separated: the codes ran together as «nombrepais» (QA R3-B05). -->
+            @for (column of requiredColumns(dataset); track column.key; let last = $last) {
+              <code>{{ column.key }}</code>@if (!last) {<span>, </span>}
             }
           </p>
           @if (dataset.hintKey) {
@@ -148,7 +149,7 @@
               <tr>
                 <td class="text-right">{{ problem.row || '—' }}</td>
                 <td><code>{{ problem.column ?? '—' }}</code></td>
-                <td>{{ problem.key | translate: problem.params }}</td>
+                <td>{{ problem.key | translate: problemParams(problem.params) }}</td>
               </tr>
             }
           </tbody>

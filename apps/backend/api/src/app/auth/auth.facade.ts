@@ -1,4 +1,5 @@
 
+import { MEMBER_JOINED, MemberJoinedEvent } from '../users/events/member-joined.event';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { SocialUser } from './interfaces/social-user.interface';
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
@@ -70,6 +71,18 @@ export class AuthFacade {
     // user came back with `organizations: []`, so the company guard had nowhere to take them and
     // every new member's first screen was «Access denied» (QA R3-A09, M-02).
     const user = (await this.usersService.findUserForAuth(activated.email)) ?? activated;
+    // Whoever manages the company's people hears that the invitation was taken up (QA R3-M09).
+    const companies = user.organizations?.map((o) => o.id) ?? (user.organizationId ? [user.organizationId] : []);
+    for (const organizationId of companies) {
+      const joined: MemberJoinedEvent = {
+        organizationId,
+        userId: user.id,
+        name: [user.firstName, user.lastName].filter(Boolean).join(' '),
+        email: user.email,
+        invitedById: null,
+      };
+      this.eventEmitter.emit(MEMBER_JOINED, joined);
+    }
     const { accessToken, refreshToken, user: safeUser } = await this.tokenService.generateAuthResponse(user);
     return { user: safeUser, accessToken, refreshToken };
   }

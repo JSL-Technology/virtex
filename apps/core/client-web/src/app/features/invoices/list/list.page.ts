@@ -288,7 +288,8 @@ export class InvoicesListPage implements OnInit {
               invoice.total,
               invoice.balance,
               invoice.currencyCode,
-              invoice.status,
+              // As the list shows it, not the stored code («Pending», «Draft») — QA R3-M05.
+              this.translate.instant(invoiceStatusKey(invoice.status)) as string,
               this.branches.label(invoice.branchId) ?? '',
             ]),
           ];

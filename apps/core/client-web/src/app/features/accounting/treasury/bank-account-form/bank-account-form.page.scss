@@ -43,4 +43,5 @@
   //  La nota bajo un campo bloqueado explica POR QUÉ no se puede cambiar. Sin
   //  ella, un desplegable deshabilitado se lee como una avería.
   .field__note { @include ds.field-hint; }
+  .field__note--warning { color: var(--warning-text, var(--content-secondary)); }
 }

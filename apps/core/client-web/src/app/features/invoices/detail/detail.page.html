@@ -22,6 +22,8 @@
   <app-invoice-toolbar
     documentActions
     [canCopyFrom]="inv.status === 'Draft'"
+    [hasPrevious]="!!navigationIds()?.prev"
+    [hasNext]="!!navigationIds()?.next"
     [canCollect]="canCollect(inv)"
     (collectRequested)="collect(inv)"
     (navigateRequested)="handleNavigate($event)"
@@ -108,6 +110,9 @@
             <th class="text-left">{{ 'invoices.detail.description' | translate }}</th>
             <th class="text-center">{{ 'invoices.detail.qty' | translate }}</th>
             <th class="text-right">{{ 'invoices.detail.price' | translate }}</th>
+            @if (hasLineDiscounts()) {
+              <th class="text-right">{{ 'invoices.detail.discount' | translate }}</th>
+            }
             <th class="text-right">{{ 'invoices.detail.tax' | translate }}</th>
             <th class="text-right">{{ 'invoices.detail.total_label' | translate }}</th>
           </tr>
@@ -118,8 +123,13 @@
             <td class="text-left">{{ item.description }}</td>
             <td class="text-center">{{ item.quantity }}</td>
             <td class="text-right"><vx-amount [value]="item.price" /></td>
+            @if (hasLineDiscounts()) {
+              <td class="text-right"><vx-amount [value]="item.discountAmount || 0" /></td>
+            }
             <td class="text-right"><vx-amount [value]="item.taxAmount || 0" /></td>
-            <td class="text-right"><vx-amount [value]="(item.quantity * item.price) + (item.taxAmount || 0)" /></td>
+            <!-- Net of the discount, as the document total and the PDF: the line used to add
+                 quantity × price and tax, so a discounted line showed more than it charged (QA R3-M01). -->
+            <td class="text-right"><vx-amount [value]="lineTotal(item)" /></td>
           </tr>
           }
         </tbody>
@@ -216,7 +226,8 @@
       Un documento fiscal emitido no se borra ni se edita: se anula o se corrige con una nota de
       crédito, que es lo que la DGII espera ver. La pantalla no ofrecía ninguna de las dos (A-09).
     -->
-    <div class="alert alert-neutral credit-actions" role="group" [attr.aria-label]="'invoices.detail.corrections' | translate">
+    <!-- Only for those who may issue the correction: the seller saw both buttons and met a 403 (QA R3-M04). -->
+    <div *appHasPermission="'invoices:void'" class="alert alert-neutral credit-actions" role="group" [attr.aria-label]="'invoices.detail.corrections' | translate">
       <span>{{ 'invoices.detail.corrections_hint' | translate }}</span>
       <!--
         QA A-18: «Anular» (rojo) iba pegado a «Nota de crédito». La acción destructiva se aparta de

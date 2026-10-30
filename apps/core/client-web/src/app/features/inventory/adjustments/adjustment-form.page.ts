@@ -265,7 +265,7 @@ export class InventoryAdjustmentFormPage implements OnInit {
           date: 'inventory.common.date',
           warehouseId: 'inventory.common.warehouse',
           reason: 'inventory.adjustments.reason',
-        }),
+        }).filter((p) => !/\.(productId)$/.test(p.fieldId ?? '')),  // the line checks below name the line (QA R3-M05)
         ...lineProblems,
       ]);
       return false;

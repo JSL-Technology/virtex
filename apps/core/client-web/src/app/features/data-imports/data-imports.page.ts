@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CheckCircle, Download, File, Loader, LucideAngularModule, ShieldCheck, UploadCloud } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
 import {
   ColumnMappingProposal,
   DataTransferDataset,
@@ -45,6 +46,22 @@ export class DataImportsPage implements OnInit {
   private readonly transfer = inject(DataTransferService);
   private readonly notifications = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
+
+  /**
+   * A row problem's parameters with the field named in the reader's language. The server sends the
+   * field as a catalogue key, as every validation answer does; interpolated untranslated it read
+   * «validation.fields.email no es un correo electrónico válido» (QA R3-M05).
+   */
+  requiredColumns<T extends { required?: boolean }>(dataset: { columns: T[] }): T[] {
+    return dataset.columns.filter((column) => column.required);
+  }
+
+  problemParams(params: Record<string, unknown> | null | undefined): Record<string, unknown> {
+    if (!params) return {};
+    const property = params['property'];
+    return typeof property === 'string' ? { ...params, property: translateOrLiteral(this.translate, property) } : params;
+  }
 
   protected readonly UploadIcon = UploadCloud;
   protected readonly DownloadIcon = Download;

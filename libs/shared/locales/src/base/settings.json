@@ -49,6 +49,11 @@
     "en": "There are no approval policies. Documents are posted without going through approval.",
     "pt": "Não há políticas de aprovação. Os documentos são lançados sem passar por aprovação."
   },
+  "settings.approvals.go_workflows": {
+    "es": "Ir a Flujos de trabajo",
+    "en": "Go to Workflows",
+    "pt": "Ir para Fluxos de trabalho"
+  },
   "settings.approvals.load_failed": {
     "es": "No se pudieron cargar las políticas de aprobación.",
     "en": "The approval policies could not be loaded.",
@@ -133,6 +138,11 @@
     "es": "Quién aprueba qué y a partir de qué monto. Un paso se aplica cuando el monto del documento alcanza su mínimo.",
     "en": "Who approves what, and from which amount. A step applies when the document's amount reaches its minimum.",
     "pt": "Quem aprova o quê e a partir de qual valor. Uma etapa se aplica quando o valor do documento atinge o seu mínimo."
+  },
+  "settings.approvals.workflows_note": {
+    "es": "Aquí defines políticas simples: quién aprueba según el importe. Si necesitas varios pasos, condiciones, plazos o acciones automáticas, diseña un flujo de trabajo. Ambos conviven: si un flujo también decide sobre un tipo de documento con política, se aplican los dos, así que evita duplicar la aprobación.",
+    "en": "Here you set simple policies: who approves by amount. If you need several steps, conditions, deadlines or automatic actions, design a workflow. Both coexist: if a workflow also decides on a document type that has a policy, both apply, so avoid approving twice.",
+    "pt": "Aqui define políticas simples: quem aprova segundo o montante. Se precisar de vários passos, condições, prazos ou ações automáticas, desenhe um fluxo de trabalho. Ambos coexistem: se um fluxo também decide sobre um tipo de documento com política, aplicam-se os dois, por isso evite aprovar duas vezes."
   },
   "settings.billing.amount": {
     "es": "Monto",
@@ -912,6 +922,11 @@
     "en": "Expiring soon",
     "pt": "Vence em breve"
   },
+  "settings.fiscal.range_form_incomplete": {
+    "en": "Fill in before registering the range: {{fields}}.",
+    "es": "Completa antes de registrar el rango: {{fields}}.",
+    "pt": "Preencha antes de registrar a faixa: {{fields}}."
+  },
   "settings.fiscal.range_group_electronic": {
     "es": "Electrónicos (e-CF, serie E)",
     "en": "Electronic (e-CF, E series)",
@@ -1292,6 +1307,11 @@
     "en": "Accounting",
     "pt": "Contabilidade"
   },
+  "settings.modal.ai": {
+    "es": "Inteligencia artificial",
+    "en": "Artificial intelligence",
+    "pt": "Inteligência artificial"
+  },
   "settings.modal.approvals": {
     "es": "Aprobaciones",
     "en": "Approvals",
@@ -1649,6 +1669,11 @@
     "es": "Tipo de documento",
     "en": "Document type",
     "pt": "Tipo de documento"
+  },
+  "settings.pages.einvoicing.dominican_elsewhere": {
+    "en": "In the Dominican Republic, the emission mode, NCF ranges and certificate are configured in:",
+    "es": "En la República Dominicana, la modalidad de emisión, los rangos de NCF y el certificado se configuran en:",
+    "pt": "Na República Dominicana, a modalidade de emissão, as faixas de NCF e o certificado são configurados em:"
   },
   "settings.pages.einvoicing.eight_digits_you_choose_part_document": {
     "es": "Ocho dígitos que eliges tú. Forma parte de la clave del documento.",
@@ -4517,20 +4542,5 @@
     "es": "¿Está seguro que desea eliminar permanentemente al usuario",
     "en": "Are you sure you want to permanently delete the user",
     "pt": "Tem certeza de que deseja excluir permanentemente o usuário"
-  },
-  "settings.modal.ai": {
-    "es": "Inteligencia artificial",
-    "en": "Artificial intelligence",
-    "pt": "Inteligência artificial"
-  },
-  "settings.approvals.workflows_note": {
-    "es": "Aquí defines políticas simples: quién aprueba según el importe. Si necesitas varios pasos, condiciones, plazos o acciones automáticas, diseña un flujo de trabajo. Ambos conviven: si un flujo también decide sobre un tipo de documento con política, se aplican los dos, así que evita duplicar la aprobación.",
-    "en": "Here you set simple policies: who approves by amount. If you need several steps, conditions, deadlines or automatic actions, design a workflow. Both coexist: if a workflow also decides on a document type that has a policy, both apply, so avoid approving twice.",
-    "pt": "Aqui define políticas simples: quem aprova segundo o montante. Se precisar de vários passos, condições, prazos ou ações automáticas, desenhe um fluxo de trabalho. Ambos coexistem: se um fluxo também decide sobre um tipo de documento com política, aplicam-se os dois, por isso evite aprovar duas vezes."
-  },
-  "settings.approvals.go_workflows": {
-    "es": "Ir a Flujos de trabajo",
-    "en": "Go to Workflows",
-    "pt": "Ir para Fluxos de trabalho"
   }
 }

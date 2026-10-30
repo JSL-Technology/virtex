@@ -400,9 +400,26 @@ export class HcmService {
     return department;
   }
 
-  createDepartment(dto: CreateDepartmentDto, organizationId: string): Promise<Department> {
-    const department = this.departmentRepository.create({ ...dto, organizationId });
+  async createDepartment(dto: CreateDepartmentDto, organizationId: string): Promise<Department> {
+    const name = dto.name.trim();
+    await this.assertDepartmentNameFree(organizationId, name);
+    const department = this.departmentRepository.create({ ...dto, name, organizationId });
     return this.departmentRepository.save(department);
+  }
+
+  /**
+   * One department per name in a company (QA R3-M12: two «Operaciones» were accepted, and every
+   * department picker then offered both with nothing to tell them apart). Compared without case or
+   * surrounding spaces, which is how a person reads them.
+   */
+  private async assertDepartmentNameFree(organizationId: string, name: string, exceptId?: string): Promise<void> {
+    const clash = await this.departmentRepository
+      .createQueryBuilder('d')
+      .where('d.organization_id = :organizationId', { organizationId })
+      .andWhere('lower(trim(d.name)) = lower(:name)', { name })
+      .andWhere(exceptId ? 'd.id <> :exceptId' : '1 = 1', { exceptId })
+      .getExists();
+    if (clash) throw new ConflictError('hcm.department_name_taken', { name });
   }
 
   async updateDepartment(
@@ -411,6 +428,10 @@ export class HcmService {
     organizationId: string,
   ): Promise<Department> {
     const department = await this.findOneDepartment(id, organizationId);
+    if (dto.name !== undefined) {
+      dto = { ...dto, name: dto.name.trim() };
+      await this.assertDepartmentNameFree(organizationId, dto.name as string, id);
+    }
     return this.departmentRepository.save(
       this.departmentRepository.merge(department, dto),
     );

@@ -23,6 +23,9 @@
     <span>{{ (runInProgress() ? 'ai.predictions.run_in_progress' : 'ai.predictions.run_now') | translate }}</span>
   </button>
 
+  @if (!engineOnline()) {
+    <p listToolbar class="engine-offline" role="status">{{ 'ai.engine_offline' | translate }}</p>
+  }
   <div listFilters class="doc-filter">
     <label for="pred-warehouse">{{ 'inventory.common.warehouse' | translate }}</label>
     <select id="pred-warehouse" [ngModel]="warehouseFilter()" (ngModelChange)="warehouseFilter.set($event); applyFilters()">

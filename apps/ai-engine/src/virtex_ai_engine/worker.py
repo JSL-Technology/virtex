@@ -18,6 +18,7 @@ import traceback
 import uuid
 
 from bullmq import Worker
+from redis import asyncio as redis_asyncio
 
 from . import ENGINE_VERSION
 from . import config as config_module
@@ -91,6 +92,33 @@ def execute(db: Database, settings: config_module.Settings, data: dict, attempts
     return "SUCCEEDED"
 
 
+HEARTBEAT_KEY = "virtex:ai-engine:heartbeat"
+HEARTBEAT_EVERY_S = 30
+HEARTBEAT_TTL_MS = 90_000
+
+
+async def _heartbeat(settings: config_module.Settings, stop: asyncio.Event) -> None:
+    """Tell the API the engine is up.
+
+    Without it the API could not tell a queued run from one nobody will ever pick up: "Recalcular"
+    left the screen on "Calculando…" forever while the settings page called forecasting available
+    (QA R3-M08). The key expires on its own when the engine stops.
+    """
+    client = redis_asyncio.from_url(settings.redis_url)
+    try:
+        while not stop.is_set():
+            try:
+                await client.set(HEARTBEAT_KEY, ENGINE_VERSION, px=HEARTBEAT_TTL_MS)
+            except Exception:  # noqa: BLE001 — a missed beat is retried; it must not stop the worker
+                log.warning("heartbeat write failed", exc_info=True)
+            try:
+                await asyncio.wait_for(stop.wait(), timeout=HEARTBEAT_EVERY_S)
+            except asyncio.TimeoutError:
+                pass
+    finally:
+        await client.aclose()
+
+
 async def serve(settings: config_module.Settings) -> None:
     db = Database(settings.dsn, max_size=max(2, settings.concurrency * 2))
     stop = asyncio.Event()
@@ -118,7 +146,9 @@ async def serve(settings: config_module.Settings) -> None:
     for sig in (signal.SIGTERM, signal.SIGINT):
         loop.add_signal_handler(sig, stop.set)
     log.info("virtex-ai-engine %s listening on queue %s", ENGINE_VERSION, settings.queue_name)
+    heartbeat = asyncio.create_task(_heartbeat(settings, stop))
     await stop.wait()
+    heartbeat.cancel()
     log.info("shutting down: finishing the jobs in hand")
     await worker.close()
     db.close()

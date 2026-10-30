@@ -59,6 +59,9 @@ export class InvoiceToolbarComponent {
   protected readonly moreOpen = signal(false);
 
   @Input() canNavigate = true;
+  /** Whether there is a document before / after this one; the arrow is disabled when not (QA R3-B04). */
+  @Input() hasPrevious = true;
+  @Input() hasNext = true;
   @Input() canCopy = true;
   /** «Copiar de» trae líneas de otro documento: solo tiene sentido en uno que aún se edita. */
   @Input() canCopyFrom = true;

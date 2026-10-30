@@ -25,6 +25,7 @@ import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
+import { RouterLink } from '@angular/router';
 
 /**
  * Which configuration fields a market's regime actually needs.
@@ -73,6 +74,7 @@ const SECRET_BY_COUNTRY: Record<string, 'CAF_XML' | 'DIAN_TECHNICAL_KEY'> = {
   selector: 'app-einvoicing-regime-page',
   standalone: true,
   imports: [
+    RouterLink,
     ...VX_SORT,
     CommonModule,
     ReactiveFormsModule,

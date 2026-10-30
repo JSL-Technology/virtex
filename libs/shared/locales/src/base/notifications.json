@@ -199,6 +199,16 @@
     "en": "Mark all as read",
     "pt": "Marcar todas como lidas"
   },
+  "notifications.member_joined.body": {
+    "en": "{{name}} ({{email}}) accepted the invitation and now has access.",
+    "es": "{{name}} ({{email}}) aceptó la invitación y ya tiene acceso.",
+    "pt": "{{name}} ({{email}}) aceitou o convite e já tem acesso."
+  },
+  "notifications.member_joined.title": {
+    "en": "New member",
+    "es": "Nuevo miembro",
+    "pt": "Novo membro"
+  },
   "notifications.no_notifications": {
     "es": "No hay notificaciones",
     "en": "No notifications",
@@ -208,6 +218,46 @@
     "es": "Notificaciones",
     "en": "Notifications",
     "pt": "Notificações"
+  },
+  "notifications.overdue_invoices.body": {
+    "en": "{{count}} invoice(s) fell overdue for {{amount}}. In all, {{totalCount}} are overdue for {{totalAmount}}.",
+    "es": "{{count}} factura(s) vencieron por {{amount}}. En total hay {{totalCount}} vencida(s) por {{totalAmount}}.",
+    "pt": "{{count}} fatura(s) venceram somando {{amount}}. No total, {{totalCount}} vencida(s) somando {{totalAmount}}."
+  },
+  "notifications.overdue_invoices.title": {
+    "en": "Overdue invoices",
+    "es": "Facturas vencidas",
+    "pt": "Faturas vencidas"
+  },
+  "notifications.payroll.approved.body": {
+    "en": "Payroll “{{name}}” was approved (net {{amount}}). It can now be paid.",
+    "es": "Se aprobó la nómina «{{name}}» (neto {{amount}}). Ya puede pagarse.",
+    "pt": "A folha «{{name}}» foi aprovada (líquido {{amount}}). Já pode ser paga."
+  },
+  "notifications.payroll.approved.title": {
+    "en": "Payroll approved",
+    "es": "Nómina aprobada",
+    "pt": "Folha aprovada"
+  },
+  "notifications.payroll.calculated.body": {
+    "en": "Payroll “{{name}}” has been calculated (net {{amount}}) and is waiting for your approval.",
+    "es": "La nómina «{{name}}» está calculada (neto {{amount}}) y espera tu aprobación.",
+    "pt": "A folha «{{name}}» foi calculada (líquido {{amount}}) e aguarda sua aprovação."
+  },
+  "notifications.payroll.calculated.title": {
+    "en": "Payroll ready for approval",
+    "es": "Nómina lista para aprobar",
+    "pt": "Folha pronta para aprovar"
+  },
+  "notifications.payroll.paid.body": {
+    "en": "Payroll “{{name}}” was paid: {{amount}}.",
+    "es": "Se pagó la nómina «{{name}}» por {{amount}}.",
+    "pt": "A folha «{{name}}» foi paga: {{amount}}."
+  },
+  "notifications.payroll.paid.title": {
+    "en": "Payroll paid",
+    "es": "Nómina pagada",
+    "pt": "Folha paga"
   },
   "notifications.this_week": {
     "es": "Esta semana",

@@ -25,6 +25,9 @@ import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { UnitOfMeasure, UnitsOfMeasureService } from '../../masters/data/units-of-measure.service';
 
+/** What a product's numeric(18,6) price and cost columns hold; the API refuses more. */
+const MAX_UNIT_AMOUNT = 999_999_999_999;
+
 @Component({
   selector: 'app-product-form-page',
   imports: [ReactiveFormsModule, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, DraftShellComponent, BarcodeScannerComponent, ...VX_FORM_A11Y, ...FORMAT_PIPES],
@@ -161,8 +164,9 @@ export class ProductFormPage implements OnInit {
       sku: [''],
       description: [''],
       categoryId: [null],
-      price: [0, [Validators.required, Validators.min(0)]],
-      cost: [0, [Validators.min(0)]],
+      // The server's ceiling, so a price it would refuse is named here, by field (QA R3-M15).
+      price: [0, [Validators.required, Validators.min(0), Validators.max(MAX_UNIT_AMOUNT)]],
+      cost: [0, [Validators.min(0), Validators.max(MAX_UNIT_AMOUNT)]],
       //  Lo que el artículo tiene al crearlo: su saldo inicial, en el almacén que se elija.
       stock: [0, [Validators.required, Validators.min(0)]],
       warehouseId: [''],

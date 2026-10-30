@@ -23,7 +23,8 @@
   </div>
 
   @if (posted(); as done) {
-    <p class="ls__state-help" role="status">
+    <!-- Slotted: once posted nothing is left due, the list is empty and the shell hid the summary. -->
+    <p listCreate class="ls__state-help" role="status">
       {{ 'fixed_assets.run.posted_summary' | translate: { count: done.assets.length } }}
       @if (entryLink(done.journalEntryId); as link) {
         <a [routerLink]="link">{{ 'fixed_assets.run.view_entry' | translate }}</a>

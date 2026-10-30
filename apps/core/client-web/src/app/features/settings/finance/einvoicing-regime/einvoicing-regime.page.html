@@ -4,7 +4,14 @@
     <p class="s-header__subtitle">{{ 'settings.pages.einvoicing.your_regime_configuration_numbering_ranges_your' | translate }}</p>
   </div>
 
-  @if (!hasRegime()) {
+  @if (countryCode() === 'DO') {
+    <!-- The Dominican regime lives in its own section. Reached by a link, this page used to say the
+         product had no regime for the country, contradicting that section (QA R3-M03). -->
+    <p class="e-empty">
+      {{ 'settings.pages.einvoicing.dominican_elsewhere' | translate }}
+      <a [routerLink]="[]" fragment="settings/fiscal">{{ 'settings.modal.electronic_invoicing' | translate }}</a>
+    </p>
+  } @else if (!hasRegime()) {
     <!--
       Said plainly rather than shown as an empty form. A market with no implemented regime is not
       a market whose configuration is merely unfilled, and a blank form invites the tenant to try.

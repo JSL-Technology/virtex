@@ -7,6 +7,7 @@ import { HasPermission } from '../../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
 import { PaymentMethodsService } from './payment-methods.service';
 import { CreatePaymentMethodDto, UpdatePaymentMethodDto } from '../dto/payment-method.dto';
+import { AuthenticatedOnly } from '../../security/decorators/authenticated-only.decorator';
 
 /**
  * The company's payment methods: read by every form that records how a document is paid, edited
@@ -22,7 +23,10 @@ export class PaymentMethodsController {
   constructor(private readonly methods: PaymentMethodsService) {}
 
   @Get()
-  @HasPermission(PERMISSIONS.TREASURY_VIEW)
+  @AuthenticatedOnly(
+    'The DGII payment-form catalogue the invoice, receipt and bill forms offer. It holds no balance ' +
+      'or account data; a seller creating an invoice met a 403 reading it (QA R3-M04).',
+  )
   @ApiOperation({ summary: 'Formas de pago de la empresa (incluye las retiradas salvo activeOnly=true).' })
   findAll(@CurrentUser() user: AuthenticatedUser, @Query('activeOnly') activeOnly?: string) {
     return this.methods.findAll(user.organizationId, activeOnly !== 'true');

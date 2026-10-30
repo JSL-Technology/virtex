@@ -9,6 +9,10 @@ export interface AiStatus {
   forecasting: { enabledByPlan: boolean; available: boolean };
   anomalies: { enabledByPlan: boolean; available: boolean; explanations: boolean };
   duplicateImageSearch: boolean;
+  /** Whether the analytics engine that computes forecasts, anomalies and projections is running. */
+  engine?: { online: boolean };
+  /** Whether a language model is configured and reachable (drafting, explanations, vision). */
+  languageModel?: { available: boolean };
 }
 
 /** One feature's use this month, by outcome. */

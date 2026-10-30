@@ -98,9 +98,11 @@ export class PredictionsPage implements OnInit {
 
   readonly empty = computed(() => !this.loading() && !this.error() && this.rows().length === 0);
   readonly neverRun = computed(() => !this.summary()?.lastSuccess);
+  /** False when the analytics engine is stopped: a queued run will not move until it is back. */
+  readonly engineOnline = signal(true);
   readonly runInProgress = computed(() => {
     const status = this.summary()?.lastRun?.status;
-    return status === 'QUEUED' || status === 'RUNNING';
+    return this.engineOnline() && (status === 'QUEUED' || status === 'RUNNING');
   });
   readonly medianWape = computed(() => {
     const value = this.summary()?.lastSuccess?.metrics?.['medianWape'];
@@ -126,6 +128,8 @@ export class PredictionsPage implements OnInit {
     });
     this.loadSummary();
     this.load();
+    // Said rather than left on «Calculating…» forever (QA R3-M08).
+    this.ai.status().subscribe({ next: (status) => this.engineOnline.set(status.engine?.online !== false), error: () => undefined });
   }
 
   loadSummary(): void {

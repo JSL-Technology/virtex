@@ -80,9 +80,9 @@
     "pt": "Cada linha precisa de uma quantidade contada, uma variação ou um novo custo."
   },
   "inventory.adjustments.line_needs_product": {
-    "es": "Cada línea necesita un producto.",
-    "en": "Each line needs a product.",
-    "pt": "Cada linha precisa de um produto."
+    "en": "Line {{line}} needs a product.",
+    "es": "La línea {{line}} necesita un producto.",
+    "pt": "A linha {{line}} precisa de um produto."
   },
   "inventory.adjustments.lines_hint": {
     "es": "Indica la cantidad contada (el sistema calcula la diferencia) o el cambio directo. Un costo nuevo revalúa la existencia.",
@@ -859,11 +859,6 @@
     "en": "Error updating the product.",
     "pt": "Erro ao atualizar o produto."
   },
-  "inventory.products.product_created": {
-    "es": "Producto creado.",
-    "en": "Product created.",
-    "pt": "Produto criado."
-  },
   "inventory.products.load_failed": {
     "es": "No se pudieron cargar los productos. Inténtalo de nuevo.",
     "en": "The products could not be loaded. Try again.",
@@ -888,6 +883,11 @@
     "es": "Producto",
     "en": "Product",
     "pt": "Produto"
+  },
+  "inventory.products.product_created": {
+    "es": "Producto creado.",
+    "en": "Product created.",
+    "pt": "Produto criado."
   },
   "inventory.products.product_deactivated": {
     "es": "El producto «{{name}}» quedó inactivo.",
@@ -1055,9 +1055,9 @@
     "pt": "Origem"
   },
   "inventory.transfers.line_needs_quantity": {
-    "es": "Cada línea necesita un producto y una cantidad mayor que cero.",
-    "en": "Each line needs a product and a quantity greater than zero.",
-    "pt": "Cada linha precisa de um produto e uma quantidade maior que zero."
+    "en": "Line {{line}} needs a quantity greater than zero.",
+    "es": "La línea {{line}} necesita una cantidad mayor que cero.",
+    "pt": "A linha {{line}} precisa de uma quantidade maior que zero."
   },
   "inventory.transfers.load_failed": {
     "es": "No se pudieron cargar las transferencias.",
@@ -1108,6 +1108,21 @@
     "es": "Transferencia {{number}} guardada.",
     "en": "Transfer {{number}} saved.",
     "pt": "Transferência {{number}} salva."
+  },
+  "inventory.transfers.short_confirm": {
+    "en": "Save draft",
+    "es": "Guardar borrador",
+    "pt": "Salvar rascunho"
+  },
+  "inventory.transfers.short_message": {
+    "en": "Lines {{lines}} ask for more than the source warehouse holds. The draft will be saved, but it cannot be posted until the stock is there.",
+    "es": "Las líneas {{lines}} piden más de lo que hay en el almacén de origen. El borrador se guarda, pero no podrá contabilizarse hasta que haya existencias.",
+    "pt": "As linhas {{lines}} pedem mais do que há no armazém de origem. O rascunho será salvo, mas não poderá ser lançado até haver estoque."
+  },
+  "inventory.transfers.short_title": {
+    "en": "Save with more than is available?",
+    "es": "¿Guardar con más de lo disponible?",
+    "pt": "Salvar com mais do que o disponível?"
   },
   "inventory.transfers.subtitle": {
     "es": "Movimiento de existencias entre almacenes. Al contabilizar, sale del origen y entra al destino al mismo costo.",

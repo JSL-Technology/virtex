@@ -585,9 +585,10 @@ export class UserManagementPage implements OnInit, OnDestroy {
     }
   }
 
+  /** The roles in the reader's language, as the role picker names them (QA R3-M05: «ADMINISTRATOR»). */
   getRoleNames(user: ApiUser): string {
-    if (!user.roles || user.roles.length === 0) return 'Sin rol';
-    return user.roles.map((r) => r.name).join(', ');
+    if (!user.roles || user.roles.length === 0) return this.translate.instant('users.no_role');
+    return user.roles.map((r) => roleLabel(this.translate, r.name)).join(', ');
   }
 
   statusTone(status: UserStatus): VxTone {

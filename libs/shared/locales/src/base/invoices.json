@@ -154,6 +154,11 @@
     "en": "Description",
     "pt": "Descrição"
   },
+  "invoices.detail.discount": {
+    "en": "Disc.",
+    "es": "Desc.",
+    "pt": "Desc."
+  },
   "invoices.detail.document_draft": {
     "es": "Este documento es un borrador.",
     "en": "This document is a draft.",
@@ -776,6 +781,11 @@
     "en": "the invoice numbering sequence",
     "pt": "a sequência de numeração de faturas"
   },
+  "invoices.gaps.issuer_tax_id": {
+    "en": "your company’s tax id (Settings › Company profile)",
+    "es": "el RNC (identificación fiscal) de tu empresa (Ajustes › Perfil de la empresa)",
+    "pt": "a identificação fiscal da sua empresa (Configurações › Perfil da empresa)"
+  },
   "invoices.gaps.open_period": {
     "es": "un período contable abierto que cubra la fecha de hoy",
     "en": "an open accounting period covering today's date",
@@ -915,9 +925,9 @@
     "pt": "Exportar para Excel"
   },
   "invoices.invoice_toolbar.form_settings": {
-    "es": "Personalizar formulario",
-    "en": "Customize form",
-    "pt": "Personalizar formulário"
+    "en": "Fiscal document settings",
+    "es": "Ajustes de comprobantes fiscales",
+    "pt": "Configurações de comprovantes fiscais"
   },
   "invoices.invoice_toolbar.go_next": {
     "es": "Siguiente",
@@ -983,6 +993,11 @@
     "es": "Un comprobante emitido no se elimina: anúlalo con una nota de crédito.",
     "en": "An issued document is not deleted: void it with a credit note.",
     "pt": "Um documento emitido não é excluído: cancele-o com uma nota de crédito."
+  },
+  "invoices.issuer_tax_id_required": {
+    "en": "A fiscal document cannot be issued without your company’s tax id: the document and the tax returns require it. Record it in Settings › Company profile.",
+    "es": "No se puede emitir un comprobante fiscal sin el RNC de tu empresa: el documento y el 607 lo exigen. Regístralo en Ajustes › Perfil de la empresa.",
+    "pt": "Não é possível emitir um comprovante fiscal sem a identificação fiscal da sua empresa. Registre-a em Configurações › Perfil da empresa."
   },
   "invoices.label_must_expressed_fraction_between": {
     "es": "{{label}} debe expresarse como fracción entre 0 y 1.",

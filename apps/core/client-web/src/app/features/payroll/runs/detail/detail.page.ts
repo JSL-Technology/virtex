@@ -20,6 +20,7 @@ import { Employee, HcmService } from '../../../../core/api/hcm.service';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { refreshWhenStale } from '../../../../core/data/data-version.service';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
+import { AuthService } from '../../../../core/services/auth';
 
 /**
  * One payroll run, from draft to paid.
@@ -70,6 +71,7 @@ export class PayrollRunDetailPage implements OnInit {
   protected readonly AddIcon = Plus;
   protected readonly RemoveIcon = Trash2;
 
+  private readonly auth = inject(AuthService);
   readonly run = signal<PayrollRun | null>(null);
   readonly payslips = signal<Payslip[]>([]);
   readonly inputs = signal<PayrollInput[]>([]);
@@ -155,6 +157,13 @@ export class PayrollRunDetailPage implements OnInit {
   calculate(): void { this.act(this.payroll.calculate(this.id!)); }
 
   async approve(): Promise<void> {
+    // The server refuses the person who calculated the run; say so before asking for a password
+    // that could only lead to that refusal (QA R3-M06).
+    const me = this.auth.currentUser()?.id;
+    if (me && this.run()?.calculatedBy === me) {
+      this.notifications.showWarning('payroll.whoever_approves_payroll_cannot_whoever_calculated');
+      return;
+    }
     // Approving posts to the ledger and closes the run to edits. Worth asking once.
     const confirmed = await this.dialog.confirm({
       title: 'dialog.approve_payroll_run.title',

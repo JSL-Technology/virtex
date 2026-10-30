@@ -4,9 +4,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Queue } from 'bullmq';
 import { In, LessThan, MoreThan, Repository } from 'typeorm';
 import { AiModelRun, AiModelRunKind, AiModelRunTrigger } from '../entities/ai-model-run.entity';
+import { ServiceUnavailableError } from '../../i18n/localized.exception';
 
 /** The queue the Python engine (`apps/ai-engine`) consumes. */
 export const AI_ENGINE_QUEUE = 'ai-engine';
+/** Written by the engine's worker; see `apps/ai-engine/src/virtex_ai_engine/worker.py`. */
+export const ENGINE_HEARTBEAT_KEY = 'virtex:ai-engine:heartbeat';
 
 /** A run older than this that never finished died with its worker; it is marked failed, not waited on. */
 const STALE_AFTER_MS = 6 * 60 * 60 * 1000;
@@ -76,6 +79,20 @@ export class EngineRunsService {
    * Queue a run, unless one of the same kind is already queued or running for the tenant — two
    * runs racing to replace the same results would only waste compute and confuse the screen.
    */
+  /**
+   * Whether the analytics engine (`apps/ai-engine`) is running: it renews a heartbeat key every
+   * 30 s that expires after 90 s. Without this a manual «Recalculate» queued a run nobody would
+   * pick up, and the screen said «Calculating…» forever (QA R3-M08).
+   */
+  async isEngineOnline(): Promise<boolean> {
+    try {
+      const client = await this.queue.client;
+      return (await client.get(ENGINE_HEARTBEAT_KEY)) !== null;
+    } catch {
+      return false;
+    }
+  }
+
   async request(
     organizationId: string,
     kind: AiModelRunKind,
@@ -83,6 +100,11 @@ export class EngineRunsService {
     requestedByUserId: string | null,
     extraParams: Record<string, unknown> = {},
   ): Promise<AiModelRun> {
+    // A person asking now is told the engine is stopped; the nightly schedule still queues, and
+    // the engine works through the queue when it comes back.
+    if (trigger === 'MANUAL' && !(await this.isEngineOnline())) {
+      throw new ServiceUnavailableError('ai.engine_offline');
+    }
     await this.expireStale(organizationId);
     const active = await this.runs.findOne({
       where: { organizationId, kind, status: In(['QUEUED', 'RUNNING']) },

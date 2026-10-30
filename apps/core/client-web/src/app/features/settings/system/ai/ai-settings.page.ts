@@ -10,7 +10,7 @@ import { ActiveOrganizationService } from '../../../../core/tenancy/active-organ
 import { AiAgentsPanelComponent } from '../../../ai/agents/agents-panel.component';
 import { AiPolicyPanelComponent } from '../../../ai/policy/ai-policy-panel.component';
 
-type Availability = 'available' | 'not_in_plan' | 'provider_missing';
+type Availability = 'available' | 'not_in_plan' | 'provider_missing' | 'engine_offline';
 
 interface FeatureUsage {
   feature: string;
@@ -57,10 +57,14 @@ export class AiSettingsPage implements OnInit {
     if (!status) return [];
     const why = (plan: boolean, available: boolean): Availability =>
       !plan ? 'not_in_plan' : available ? 'available' : 'provider_missing';
+    // Forecasts and anomalies come from the analytics engine, not the language model: when they
+    // are unavailable, the reason is that the engine is stopped (QA R3-M08).
+    const byEngine = (plan: boolean, available: boolean): Availability =>
+      !plan ? 'not_in_plan' : available ? 'available' : status.engine?.online === false ? 'engine_offline' : 'provider_missing';
     return [
       { key: 'vision', state: why(status.vision.enabledByPlan, status.vision.available) },
-      { key: 'forecasting', state: why(status.forecasting.enabledByPlan, status.forecasting.available) },
-      { key: 'anomalies', state: why(status.anomalies.enabledByPlan, status.anomalies.available) },
+      { key: 'forecasting', state: byEngine(status.forecasting.enabledByPlan, status.forecasting.available) },
+      { key: 'anomalies', state: byEngine(status.anomalies.enabledByPlan, status.anomalies.available) },
       {
         key: 'explanations',
         state: why(status.anomalies.enabledByPlan, status.anomalies.explanations),

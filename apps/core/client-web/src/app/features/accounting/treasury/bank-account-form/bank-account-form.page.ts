@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { DialogService } from '../../../../core/services/dialog.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -53,6 +54,7 @@ export class BankAccountFormPage implements OnInit {
   private readonly accounts = inject(ChartOfAccountsApiService);
   private readonly currencies = inject(CurrenciesService);
   private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(DialogService);
 
   form!: FormGroup;
   readonly bankAccountId = signal<string | null>(null);
@@ -82,6 +84,8 @@ export class BankAccountFormPage implements OnInit {
 
   /** Whether the form is declaring a balance at all — the extra fields only matter then. */
   readonly declaresOpeningBalance = signal(false);
+  /** An overdrawn opening: allowed (an overdraft is real), but said out loud (QA R3-M15). */
+  readonly negativeOpening = signal(false);
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -117,6 +121,7 @@ export class BankAccountFormPage implements OnInit {
     this.form.get('openingBalance')?.valueChanges.subscribe((value) => {
       const declares = Math.abs(Number(value) || 0) > 0;
       this.declaresOpeningBalance.set(declares);
+      this.negativeOpening.set((Number(value) || 0) < 0);
       const date = this.form.get('openingDate');
       const counterpart = this.form.get('openingBalanceAccountId');
       //  `setValidators`/`clearValidators`, not add/remove: the pair was left requiring a value
@@ -206,7 +211,18 @@ export class BankAccountFormPage implements OnInit {
     void this.router.navigate(['/accounting/treasury']);
   }
 
-  save(): void {
+  async save(): Promise<void> {
+    if (this.form.valid && !this.isEditMode() && (Number(this.form.get('openingBalance')?.value) || 0) < 0) {
+      // A negative opening balance was accepted without a word, and a sign typed by mistake
+      // becomes an entry crediting the bank (QA R3-M15). An overdraft is legitimate, so it is
+      // confirmed rather than refused.
+      const confirmed = await this.dialog.confirm({
+        title: 'treasury.form.negative_opening_title',
+        message: 'treasury.form.negative_opening_message',
+        confirmText: 'treasury.form.negative_opening_confirm',
+      });
+      if (!confirmed) return;
+    }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.problems.set(

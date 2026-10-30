@@ -1,4 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { MEMBER_JOINED, MemberJoinedEvent } from '../events/member-joined.event';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import {
@@ -67,6 +69,8 @@ export class OrganizationInvitationsService {
     private readonly saasService: SaasService,
     private readonly dataSource: DataSource,
     private readonly rolesService: RolesService,
+    /** The inviter hears that the invitation was accepted (QA R3-M09). Optional for hand-built suites. */
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
 
   /**
@@ -218,6 +222,18 @@ export class OrganizationInvitationsService {
     );
 
     await this.userCacheService.clearUserSession(userId);
+    const member = await this.dataSource.query(
+      `SELECT "firstName", "lastName", email FROM users WHERE id = $1`,
+      [userId],
+    ).catch(() => []);
+    const joined: MemberJoinedEvent = {
+      organizationId: invitation.organizationId,
+      userId,
+      name: [member[0]?.firstName, member[0]?.lastName].filter(Boolean).join(' '),
+      email: member[0]?.email ?? '',
+      invitedById: invitation.invitedById ?? null,
+    };
+    this.events?.emit(MEMBER_JOINED, joined);
     this.logger.log(
       { event: 'organization_invitation_accepted', invitationId, userId, organizationId: invitation.organizationId },
       'Invitation accepted',

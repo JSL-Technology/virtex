@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { AppLinkPipe } from '../../../../core/tenancy/app-link.pipe';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, AlertCircle, CheckCircle, Circle, Lock, RefreshCw } from 'lucide-angular';
@@ -35,7 +36,7 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-checklist-page',
   standalone: true,
-  imports: [CloseAssistantComponent, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [AppLinkPipe, CloseAssistantComponent, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './checklist.page.html',
   styleUrls: ['./checklist.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

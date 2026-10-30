@@ -78,7 +78,7 @@
                 </td>
                 <td class="actions-column">
                   @if (item.resolutionLink && !item.isCompleted) {
-                    <a class="table-link" [routerLink]="item.resolutionLink">
+                    <a class="table-link" [routerLink]="item.resolutionLink | appLink">
                       {{ 'accounting.checklist.resolve' | translate }}
                     </a>
                   }

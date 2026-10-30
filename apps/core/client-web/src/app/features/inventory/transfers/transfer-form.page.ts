@@ -142,8 +142,21 @@ export class StockTransferFormPage implements OnInit {
     return held !== null && held !== undefined && quantity > held;
   }
 
-  save(): void {
+  async save(): Promise<void> {
     if (!this.validateForm()) return;
+    // A draft may be saved before the goods arrive, so more than is on hand is not refused here —
+    // the posting refuses it. But it used to pass without a word: 500 units out of a warehouse
+    // holding 38 (QA R3-M15). Now the person confirms they mean it.
+    const shortLines = this.lines.controls.map((_, index) => index).filter((index) => this.short(index));
+    if (shortLines.length) {
+      const confirmed = await this.dialog.confirm({
+        title: 'inventory.transfers.short_title',
+        message: 'inventory.transfers.short_message',
+        messageParams: { lines: shortLines.map((index) => index + 1).join(', ') },
+        confirmText: 'inventory.transfers.short_confirm',
+      });
+      if (!confirmed) return;
+    }
     const body = this.body();
     const existing = this.current();
     const creating = !existing;
@@ -228,7 +241,7 @@ export class StockTransferFormPage implements OnInit {
           date: 'inventory.common.date',
           fromWarehouseId: 'inventory.transfers.from',
           toWarehouseId: 'inventory.transfers.to',
-        }),
+        }).filter((p) => !/\.(productId|quantity)$/.test(p.fieldId ?? '')),  // the line checks below name the line (QA R3-M05)
         ...lineProblems,
       ]);
       return false;

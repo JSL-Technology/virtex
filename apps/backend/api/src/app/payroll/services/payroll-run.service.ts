@@ -1,4 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, In, LessThanOrEqual, Repository } from 'typeorm';
 import { endOfMonthIso, monthBounds, monthsBetween, toIsoDate } from '../../common/dates';
@@ -32,6 +33,12 @@ import {
 import { PayrollAccountingService } from './payroll-accounting.service';
 import { SeveranceResult, SeveranceService } from './severance.service';
 import { organizationToday } from '../../organizations/contracts/fiscal-today.contract';
+import {
+  PAYROLL_RUN_APPROVED,
+  PAYROLL_RUN_CALCULATED,
+  PAYROLL_RUN_PAID,
+  PayrollRunEvent,
+} from '../events/payroll-run.events';
 
 export interface CreateRunInput {
   name?: string;
@@ -95,7 +102,24 @@ export class PayrollRunService {
     private readonly tenantCountry: TenantCountryResolver,
     private readonly accounting: PayrollAccountingService,
     private readonly severance: SeveranceService,
+    /** Who must act next is told (QA R3-M09). Optional for the suites that build this by hand. */
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
+
+  /** Published after the commit, so a rolled-back step is never announced. */
+  private announce(event: string, run: PayrollRun, actorUserId: string): void {
+    const payload: PayrollRunEvent = {
+      organizationId: run.organizationId,
+      runId: run.id,
+      name: run.name,
+      totalNet: Number(run.totalNet),
+      currencyCode: run.currencyCode,
+      calculatedBy: run.calculatedBy ?? null,
+      approvedBy: run.approvedBy ?? null,
+      actorUserId,
+    };
+    this.events?.emit(event, payload);
+  }
 
   /**
    * A termination liquidation for an employee: preaviso, cesantía, vacaciones and regalía under the
@@ -267,7 +291,7 @@ export class PayrollRunService {
         ? await this.loadCorrectedPayslips(organizationId, run.correctsRunId)
         : new Map<string, ComputedPayslip>();
 
-    return this.dataSource.transaction(async (em) => {
+    const calculated = await this.dataSource.transaction(async (em) => {
       // Clear a previous calculation so a recompute is a replacement, not an accumulation.
       const priorSlips = await em.find(Payslip, { where: { organizationId, runId }, select: ['id'] });
       if (priorSlips.length > 0) {
@@ -342,6 +366,8 @@ export class PayrollRunService {
       this.logger.log(`Corrida ${runId} calculada: ${computed.length} volantes.`);
       return saved;
     });
+    this.announce(PAYROLL_RUN_CALCULATED, calculated, actorUserId);
+    return calculated;
   }
 
   /**
@@ -351,7 +377,7 @@ export class PayrollRunService {
    * failure does not double the ledger.
    */
   async approve(runId: string, organizationId: string, actorUserId: string): Promise<PayrollRun> {
-    return this.dataSource.transaction(async (em) => {
+    const approved = await this.dataSource.transaction(async (em) => {
       const run = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
       if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
       if (run.status !== PayrollRunStatus.CALCULATED) {
@@ -377,6 +403,8 @@ export class PayrollRunService {
       run.approvedAt = new Date();
       return em.save(run);
     });
+    this.announce(PAYROLL_RUN_APPROVED, approved, actorUserId);
+    return approved;
   }
 
   /**
@@ -397,7 +425,7 @@ export class PayrollRunService {
     if (!from.bankAccountId && !from.bankGlAccountId) {
       throw new BadRequestError('payroll.paying_payroll_requires_selecting_bank_account');
     }
-    return this.dataSource.transaction(async (em) => {
+    const paid = await this.dataSource.transaction(async (em) => {
       const run = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
       if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
       if (run.status !== PayrollRunStatus.APPROVED) {
@@ -422,6 +450,8 @@ export class PayrollRunService {
       run.paidAt = new Date();
       return em.save(run);
     });
+    this.announce(PAYROLL_RUN_PAID, paid, actorUserId);
+    return paid;
   }
 
   /**

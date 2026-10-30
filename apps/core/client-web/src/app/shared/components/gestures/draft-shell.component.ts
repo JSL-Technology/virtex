@@ -52,6 +52,20 @@ export interface DraftProblem {
  * vista, el formulario simplemente «no guarda» y no dice por qué. El resumen los reúne arriba y
  * cada línea lleva al campo. Es también lo que un lector de pantalla anuncia al fallar el envío.
  */
+/** Catalogue keys for control names that recur across line tables. */
+const COMMON_FIELD_KEYS: Record<string, string> = {
+  productId: 'shell.field.product',
+  accountId: 'shell.field.account',
+  expenseAccountId: 'shell.field.account',
+  warehouseId: 'shell.field.warehouse',
+  quantity: 'shell.field.quantity',
+  amount: 'shell.field.amount',
+  unitPrice: 'shell.field.unit_price',
+  description: 'shell.field.description',
+  customerId: 'shell.field.customer',
+  vendorId: 'shell.field.supplier',
+};
+
 @Component({
   selector: 'vx-draft-shell',
   standalone: true,
@@ -176,7 +190,13 @@ export class DraftShellComponent {
    */
   private fieldLabel(field: string, fieldId?: string): string {
     if (this.hasKey(field)) return this.translate.instant(field);
-    return this.labelFromDom(fieldId ?? field) ?? humanise(field);
+    const fromDom = this.labelFromDom(fieldId ?? field);
+    if (fromDom) return fromDom;
+    // The controls a line table names without a visible label of their own (a product picker, an
+    // account picker): their name in the reader's language, not «Product id» (QA R3-M05).
+    const common = COMMON_FIELD_KEYS[(fieldId ?? field).split('.').pop() ?? field];
+    if (common && this.hasKey(common)) return this.translate.instant(common);
+    return humanise(field);
   }
 
   private hasKey(key: string): boolean {

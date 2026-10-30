@@ -71,7 +71,9 @@
   }
 
   @if (newFolderOpen()) {
-    <div class="new-folder card">
+    <!-- Projected on its own: in an empty folder the shell hides its body, and «New folder» opened
+         nothing there (QA R3-M10, the same defect as the exchange-rate panels). -->
+    <div listCreate class="new-folder card">
       <label class="sr-only" for="new-folder-name">{{ 'documents.repository.folder_name' | translate }}</label>
       <input
         #folderInput

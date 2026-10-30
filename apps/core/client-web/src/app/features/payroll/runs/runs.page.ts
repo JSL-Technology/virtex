@@ -70,6 +70,15 @@ export class PayrollRunsPage {
   // A new run defaults to the month just ended, which is the one being paid.
   readonly newYear = signal(previousMonth().year);
   readonly newMonth = signal(previousMonth().month);
+  /** The two as the month picker reads them: `2026-10`. */
+  readonly newPeriod = computed(() => `${this.newYear()}-${String(this.newMonth()).padStart(2, '0')}`);
+
+  setPeriod(value: string): void {
+    const match = /^(\d{4})-(\d{2})$/.exec(value ?? '');
+    if (!match) return;
+    this.newYear.set(Number(match[1]));
+    this.newMonth.set(Number(match[2]));
+  }
   readonly newType = signal<PayrollRunType>('REGULAR');
 
   readonly isEmpty = computed(() => !this.loading() && this.runs().length === 0);
@@ -79,6 +88,11 @@ export class PayrollRunsPage {
   }
 
   create(): void {
+    const month = this.newMonth();
+    if (!Number.isInteger(month) || month < 1 || month > 12) {
+      this.notifications.showError('payroll.runs.month_invalid');
+      return;
+    }
     this.busy.set(true);
     this.payroll
       .createRun({

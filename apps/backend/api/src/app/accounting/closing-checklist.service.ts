@@ -57,7 +57,7 @@ export class ClosingChecklistService {
       params: { count: unpostedEntriesCount },
       isCompleted: unpostedEntriesCount === 0,
       details: { pendingCount: unpostedEntriesCount },
-      resolutionLink: `/journal-entries?periodId=${periodId}&status=draft,pending_approval`,
+      resolutionLink: `/accounting/journal-entries?periodId=${periodId}&status=draft,pending_approval`,
     });
 
     // Lo que aportan los demás módulos, preguntado sin saber quiénes son.
@@ -92,7 +92,7 @@ export class ClosingChecklistService {
       params: { count: pendingReversals },
       isCompleted: pendingReversals === 0,
       details: { pendingCount: pendingReversals },
-      resolutionLink: `/journal-entries?reversesNextPeriod=true&isReversed=false`,
+      resolutionLink: `/accounting/journal-entries?reversesNextPeriod=true&isReversed=false`,
     });
 
     checklist.push({
@@ -100,7 +100,8 @@ export class ClosingChecklistService {
       descriptionKey: 'accounting.checklist.items.currency_revaluation',
       isCompleted: false,
       noteKey: 'accounting.checklist.manual_step',
-      resolutionLink: `/accounting/currency-revaluation`,
+      // No link: there is no revaluation screen to send anyone to, and the link that was here led
+      // to the home page (QA R3-M11).
     });
 
     checklist.push({
@@ -108,7 +109,7 @@ export class ClosingChecklistService {
       descriptionKey: 'accounting.checklist.items.fixed_assets_depreciation',
       isCompleted: false,
       noteKey: 'accounting.checklist.manual_step',
-      resolutionLink: `/fixed-assets/depreciation`,
+      resolutionLink: `/accounting/fixed-assets/depreciation`,
     });
 
     const pendingApprovalsCount = await this.dataSource

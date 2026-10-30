@@ -198,6 +198,10 @@ describeWithDb('fixed-asset register', () => {
     });
     expect(months.map((row) => row.periodEnd)).toEqual(['2026-01-31', '2026-02-28', '2026-03-31']);
     expect(months[2]).toMatchObject({ accumulatedAfter: 6_000, bookValueAfter: 114_000 });
+    // Each month in its own entry, on its own last day — January's expense is January's (QA R3-M14).
+    expect(new Set(months.map((row) => row.journalEntryId)).size).toBe(3);
+    expect(await balance('vehicleDepreciation', '2026-01-31')).toBe(2_000);
+    expect(await balance('vehicleDepreciation', '2026-02-28')).toBe(4_000);
 
     // Again, for the same month: nothing more for this asset.
     const again = await depreciation.runMonthlyDepreciation(organizationId, '2026-03-31');

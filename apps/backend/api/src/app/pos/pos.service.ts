@@ -365,8 +365,10 @@ export class PosService {
     manager: EntityManager,
     organizationId: string,
   ): Promise<{ ncf: string; type: string } | null> {
-    const organization = await manager.findOne(Organization, { where: { id: organizationId }, select: ['id', 'country'] });
+    const organization = await manager.findOne(Organization, { where: { id: organizationId }, select: ['id', 'country', 'taxId'] });
     if (organization?.country !== 'DO') return null;
+    // A comprobante names its issuer; without the company's RNC it would be invalid (QA R3-A11).
+    if (!organization.taxId?.trim()) return null;
     if (!(await this.compliance.findActiveSequence(organizationId, 'B02'))) return null;
     const assigned = await this.compliance.getNextNcf(organizationId, 'B02', manager);
     return { ncf: assigned.ncf, type: assigned.type };

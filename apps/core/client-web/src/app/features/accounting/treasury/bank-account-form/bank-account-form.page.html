@@ -91,6 +91,9 @@
             cash position of zero and had nothing to tell them why.
           -->
           <small class="field__note">{{ 'treasury.form.posted_opening_journal_entry_against_account' | translate }}</small>
+          @if (negativeOpening()) {
+            <small class="field__note field__note--warning" role="status">{{ 'treasury.form.negative_opening_hint' | translate }}</small>
+          }
         </label>
 
         @if (declaresOpeningBalance()) {

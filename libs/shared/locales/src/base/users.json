@@ -104,6 +104,11 @@
     "en": "There is no pending email change.",
     "pt": "Não há alteração de e-mail pendente."
   },
+  "users.no_role": {
+    "en": "No role",
+    "es": "Sin rol",
+    "pt": "Sem função"
+  },
   "users.only_image_files_are_allowed": {
     "en": "Only image files are allowed.",
     "es": "Solo se permiten archivos de imagen.",

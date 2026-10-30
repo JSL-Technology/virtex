@@ -90,10 +90,15 @@ export class AiController {
       this.entitlements.checkFeature(user.organizationId, 'ai_anomalies'),
     ]);
     const languageModel = this.gateway.isAvailable();
+    // Forecasts, anomalies and the cash projection are computed by the engine, not the language
+    // model: «available» said yes while no engine was running (QA R3-M08).
+    const engineOnline = await this.runs.isEngineOnline();
     return {
       vision: { enabledByPlan: vision, available: vision && languageModel },
-      forecasting: { enabledByPlan: forecasting, available: forecasting },
-      anomalies: { enabledByPlan: anomalies, available: anomalies, explanations: anomalies && languageModel },
+      forecasting: { enabledByPlan: forecasting, available: forecasting && engineOnline },
+      anomalies: { enabledByPlan: anomalies, available: anomalies && engineOnline, explanations: anomalies && languageModel },
+      engine: { online: engineOnline },
+      languageModel: { available: languageModel },
       duplicateImageSearch: this.embeddings.isAvailable(),
     };
   }

@@ -1018,6 +1018,11 @@
     "en": "Month",
     "pt": "Mês"
   },
+  "payroll.runs.month_invalid": {
+    "en": "Choose a valid month for the payroll.",
+    "es": "Elige un mes válido para la nómina.",
+    "pt": "Escolha um mês válido para a folha."
+  },
   "payroll.runs.name": {
     "es": "Nombre",
     "en": "Name",

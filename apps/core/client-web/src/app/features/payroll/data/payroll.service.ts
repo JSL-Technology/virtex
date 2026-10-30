@@ -29,6 +29,8 @@ export interface PayrollRun {
   journalEntryId: string | null;
   paymentJournalEntryId: string | null;
   calculatedAt: string | null;
+  /** Who calculated the run: they may not approve it (segregation of duties). */
+  calculatedBy?: string | null;
   approvedAt: string | null;
   paidAt: string | null;
   createdAt: string;

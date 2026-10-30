@@ -177,6 +177,26 @@
     "en": "Name",
     "pt": "Nome"
   },
+  "treasury.form.negative_opening_confirm": {
+    "en": "Yes, it is overdrawn",
+    "es": "Sí, está sobregirada",
+    "pt": "Sim, está a descoberto"
+  },
+  "treasury.form.negative_opening_hint": {
+    "en": "Negative opening balance: the account starts overdrawn.",
+    "es": "Saldo inicial negativo: la cuenta empieza sobregirada.",
+    "pt": "Saldo inicial negativo: a conta começa a descoberto."
+  },
+  "treasury.form.negative_opening_message": {
+    "en": "The opening balance is negative: an entry crediting the bank will be posted. Confirm only if the account really was overdrawn.",
+    "es": "El saldo inicial es negativo: se registrará un asiento que acredita el banco. Confírmalo solo si la cuenta estaba realmente en sobregiro.",
+    "pt": "O saldo inicial é negativo: será lançado um registro creditando o banco. Confirme apenas se a conta realmente estava a descoberto."
+  },
+  "treasury.form.negative_opening_title": {
+    "en": "Start the account overdrawn?",
+    "es": "¿Empezar la cuenta sobregirada?",
+    "pt": "Começar a conta a descoberto?"
+  },
   "treasury.form.new_bank_account": {
     "es": "Nueva cuenta bancaria",
     "en": "New bank account",

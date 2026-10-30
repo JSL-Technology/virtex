@@ -21,6 +21,9 @@
       @if (overview()?.latest?.status === 'FAILED') {
         <p class="cf__error">{{ 'ai.cashflow.last_run_failed' | translate }}</p>
       }
+      @if (!engineOnline()) {
+        <p class="cf__muted" role="status">{{ 'ai.engine_offline' | translate }}</p>
+      }
     </div>
   } @else {
     @if (metrics(); as m) {
