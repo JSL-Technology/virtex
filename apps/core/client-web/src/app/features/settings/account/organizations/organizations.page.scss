@@ -1,6 +1,7 @@
 @use 'assets/styles/design-system' as ds;
 
-.s-page { padding: var(--space-8); max-width: 1000px; }
+// Width and padding are the settings window's (`.sm-page`).
+.s-page { display: flex; flex-direction: column; gap: var(--space-5); }
 
 .s-header {
   display: flex;

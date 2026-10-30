@@ -19,6 +19,10 @@ export interface SettingsSectionView {
   expectedTypes: Record<string, string | null>;
   fields: Record<string, unknown>;
   baseCurrency?: { code: string; locked: boolean };
+  /** For each account field, the account its chart role points at — the default. */
+  defaultAccounts?: Record<string, SettingsAccountRef | null>;
+  /** For each policy field, the value a new company starts with. */
+  defaultFields?: Record<string, unknown>;
 }
 
 export interface SettingsSectionPatch {

@@ -1,14 +1,10 @@
 <div class="s-page">
-  <div class="s-header">
-    <div>
-      <h1 class="s-header__title">{{ 'branches.settings.title' | translate }}</h1>
-      <p class="s-header__subtitle">{{ 'branches.settings.subtitle' | translate }}</p>
-    </div>
+  <ng-template vxSettingsActions>
     <button *appHasPermission="'branches:manage'" type="button" class="primary-button" (click)="openCreate()">
       <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
       <span>{{ 'branches.settings.new' | translate }}</span>
     </button>
-  </div>
+  </ng-template>
 
   <!-- The difference that the old «Sucursales» screen got wrong, stated where the confusion starts. -->
   <p class="b-note">

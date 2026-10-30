@@ -1,3 +1,5 @@
+import { VxEmptyStateComponent } from '../../../../shared/components/feedback/empty-state.component';
+import { SettingsActionsDirective, SettingsShellService } from '../../shell';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -37,12 +39,15 @@ import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/d
 @Component({
   selector: 'app-tax-jurisdictions-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDateFieldComponent],
+  imports: [VxEmptyStateComponent, SettingsActionsDirective, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDateFieldComponent],
   templateUrl: './tax-jurisdictions.page.html',
   styleUrls: ['./tax-jurisdictions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaxJurisdictionsPage implements OnInit {
+  /** Whether this person may change the section; read-only otherwise (from the settings shell). */
+  protected readonly canEdit = inject(SettingsShellService, { optional: true })?.canEdit ?? signal(true);
+
   private readonly api = inject(FiscalSettingsService);
   private readonly fb = inject(FormBuilder);
   private readonly notifications = inject(NotificationService);

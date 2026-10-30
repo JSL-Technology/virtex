@@ -1,3 +1,5 @@
+import { VxEmptyStateComponent } from '../../../../shared/components/feedback/empty-state.component';
+import { SettingsActionsDirective, SettingsShellService } from '../../shell';
 import { RouterLink } from '@angular/router';
 import { roleLabel } from '../../../../shared/pipes/role-name.pipe';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
@@ -48,12 +50,15 @@ interface PolicyDraft {
 @Component({
   selector: 'app-approval-policies-page',
   standalone: true,
-  imports: [FormsModule, TranslateModule, RouterLink, ...VX_SELECT, ...FORMAT_PIPES],
+  imports: [VxEmptyStateComponent, SettingsActionsDirective, FormsModule, TranslateModule, RouterLink, ...VX_SELECT, ...FORMAT_PIPES],
   templateUrl: './approvals.page.html',
   styleUrls: ['./approvals.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApprovalPoliciesPage implements OnInit {
+  /** Whether this person may change the section; read-only otherwise (from the settings shell). */
+  protected readonly canEdit = inject(SettingsShellService, { optional: true })?.canEdit ?? signal(true);
+
   private readonly http = inject(HttpClient);
   private readonly roles = inject(RolesService);
   private readonly notifications = inject(NotificationService);

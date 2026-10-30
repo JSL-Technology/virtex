@@ -948,9 +948,9 @@
     "pt": "Precisa de"
   },
   "settings.fiscal.screen_configures_dominican_regime_your_market": {
-    "es": "Esta pantalla configura el régimen de la República Dominicana. Para tu mercado, la configuración está en Ajustes → Finanzas → Facturación electrónica.",
-    "en": "This screen configures the Dominican regime. For your market, the configuration is under Settings → Finance → Electronic invoicing.",
-    "pt": "Esta tela configura o regime da República Dominicana. Para o seu mercado, a configuração está em Configurações → Finanças → Nota fiscal eletrônica."
+    "es": "Esta pantalla configura el régimen de la República Dominicana. Para tu mercado, la configuración está en Configuración › Facturación electrónica.",
+    "en": "This screen configures the Dominican regime. For your market, the configuration is under Settings › Electronic invoicing.",
+    "pt": "Esta tela configura o regime da República Dominicana. Para o seu mercado, a configuração está em Configurações › Faturação eletrônica."
   },
   "settings.fiscal.select_certificate_file_p12_pfx": {
     "es": "Selecciona el archivo del certificado (.p12 / .pfx).",
@@ -4532,5 +4532,865 @@
     "es": "Ir a Flujos de trabajo",
     "en": "Go to Workflows",
     "pt": "Ir para Fluxos de trabalho"
+  },
+  "settings.groups.account": {
+    "es": "Tu cuenta",
+    "en": "Your account",
+    "pt": "Sua conta"
+  },
+  "settings.groups.company": {
+    "es": "Empresa",
+    "en": "Company",
+    "pt": "Empresa"
+  },
+  "settings.groups.admin": {
+    "es": "Usuarios y acceso",
+    "en": "Users and access",
+    "pt": "Usuários e acesso"
+  },
+  "settings.groups.accounting": {
+    "es": "Contabilidad e impuestos",
+    "en": "Accounting and tax",
+    "pt": "Contabilidade e impostos"
+  },
+  "settings.groups.operations": {
+    "es": "Operaciones",
+    "en": "Operations",
+    "pt": "Operações"
+  },
+  "settings.scope.personal": {
+    "es": "Solo para ti",
+    "en": "Just for you",
+    "pt": "Só para você"
+  },
+  "settings.scope.company": {
+    "es": "Afecta a toda la empresa",
+    "en": "Affects the whole company",
+    "pt": "Afeta toda a empresa"
+  },
+  "settings.scope.admin": {
+    "es": "Administración",
+    "en": "Administration",
+    "pt": "Administração"
+  },
+  "settings.shell.title": {
+    "es": "Configuración",
+    "en": "Settings",
+    "pt": "Configurações"
+  },
+  "settings.shell.sections": {
+    "es": "Secciones de la configuración",
+    "en": "Settings sections",
+    "pt": "Seções das configurações"
+  },
+  "settings.shell.search_label": {
+    "es": "Buscar en la configuración",
+    "en": "Search settings",
+    "pt": "Pesquisar nas configurações"
+  },
+  "settings.shell.search_placeholder": {
+    "es": "Buscar: NCF, ITBIS, 2FA, logo…",
+    "en": "Search: tax, 2FA, logo…",
+    "pt": "Pesquisar: imposto, 2FA, logotipo…"
+  },
+  "settings.shell.search_results": {
+    "es": "{{count}} secciones encontradas",
+    "en": "{{count}} sections found",
+    "pt": "{{count}} seções encontradas"
+  },
+  "settings.shell.search_empty": {
+    "es": "Nada coincide con «{{query}}».",
+    "en": "Nothing matches “{{query}}”.",
+    "pt": "Nada corresponde a “{{query}}”."
+  },
+  "settings.shell.back_to_sections": {
+    "es": "Volver a las secciones",
+    "en": "Back to sections",
+    "pt": "Voltar às seções"
+  },
+  "settings.shell.autosaved_at": {
+    "es": "Guardado automáticamente a las {{time}}",
+    "en": "Saved automatically at {{time}}",
+    "pt": "Salvo automaticamente às {{time}}"
+  },
+  "settings.shell.autosaves": {
+    "es": "Los cambios se guardan solos",
+    "en": "Changes save automatically",
+    "pt": "As alterações são salvas automaticamente"
+  },
+  "settings.shell.denied": {
+    "es": "Esta sección no está disponible para tu rol o para el país de la empresa.",
+    "en": "This section is not available for your role or for the company’s country.",
+    "pt": "Esta seção não está disponível parsua função ou para o país da empresa."
+  },
+  "settings.shell.read_only": {
+    "es": "Solo lectura: cambiar esta sección requiere el permiso «{{permission}}».",
+    "en": "Read only: changing this section requires the “{{permission}}” permission.",
+    "pt": "Somente leitura: alterar esta seção requer a permissão “{{permission}}”."
+  },
+  "settings.shell.not_found": {
+    "es": "Esa sección de la configuración no existe.",
+    "en": "That settings section does not exist.",
+    "pt": "Essa seção das configurações não existe."
+  },
+  "settings.shell.go_to_profile": {
+    "es": "Ir a Mi perfil",
+    "en": "Go to My profile",
+    "pt": "Ir para Meu perfil"
+  },
+  "settings.shell.unsaved_message": {
+    "es": "Hay cambios sin guardar en «{{section}}».",
+    "en": "There are unsaved changes in “{{section}}”.",
+    "pt": "Há alterações não salvas em “{{section}}”."
+  },
+  "settings.shell.save_bar": {
+    "es": "Cambios de la sección",
+    "en": "Section changes",
+    "pt": "Alterações da seção"
+  },
+  "settings.shell.unsaved_changes": {
+    "es": "Tienes cambios sin guardar.",
+    "en": "You have unsaved changes.",
+    "pt": "Você tem alterações não salvas."
+  },
+  "settings.shell.discard": {
+    "es": "Descartar",
+    "en": "Discard",
+    "pt": "Descartar"
+  },
+  "settings.shell.save": {
+    "es": "Guardar cambios",
+    "en": "Save changes",
+    "pt": "Salvar alterações"
+  },
+  "settings.shell.saving": {
+    "es": "Guardando…",
+    "en": "Saving…",
+    "pt": "Salvando…"
+  },
+  "settings.permission_names.ai_settings_manage": {
+    "es": "Gestionar la IA",
+    "en": "Manage AI",
+    "pt": "Gerenciar a IA"
+  },
+  "settings.permission_names.ai_usage_view": {
+    "es": "Ver el uso de la IA",
+    "en": "View AI usage",
+    "pt": "Ver o uso da IA"
+  },
+  "settings.permission_names.audit_view_trail": {
+    "es": "Ver la pista de auditoría",
+    "en": "View the audit trail",
+    "pt": "Ver o registro de auditoria"
+  },
+  "settings.permission_names.billing_manage": {
+    "es": "Gestionar el plan",
+    "en": "Manage the plan",
+    "pt": "Gerenciar o plano"
+  },
+  "settings.permission_names.billing_view": {
+    "es": "Ver el plan",
+    "en": "View the plan",
+    "pt": "Ver o plano"
+  },
+  "settings.permission_names.branches_manage": {
+    "es": "Gestionar sucursales",
+    "en": "Manage branches",
+    "pt": "Gerenciar filiais"
+  },
+  "settings.permission_names.branches_view": {
+    "es": "Ver sucursales",
+    "en": "View branches",
+    "pt": "Ver filiais"
+  },
+  "settings.permission_names.extensions_manage": {
+    "es": "Gestionar extensiones",
+    "en": "Manage extensions",
+    "pt": "Gerenciar extensões"
+  },
+  "settings.permission_names.extensions_view": {
+    "es": "Ver extensiones",
+    "en": "View extensions",
+    "pt": "Ver extensões"
+  },
+  "settings.permission_names.roles_edit": {
+    "es": "Editar roles",
+    "en": "Edit roles",
+    "pt": "Editar funções"
+  },
+  "settings.permission_names.roles_view": {
+    "es": "Ver roles",
+    "en": "View roles",
+    "pt": "Ver funções"
+  },
+  "settings.permission_names.settings_edit_branding": {
+    "es": "Editar la marca",
+    "en": "Edit the brand",
+    "pt": "Editar a marca"
+  },
+  "settings.permission_names.settings_edit_company": {
+    "es": "Editar la configuración de la empresa",
+    "en": "Edit company settings",
+    "pt": "Editar as configurações da empresa"
+  },
+  "settings.permission_names.taxes_edit": {
+    "es": "Editar impuestos",
+    "en": "Edit taxes",
+    "pt": "Editar impostos"
+  },
+  "settings.permission_names.taxes_view": {
+    "es": "Ver impuestos",
+    "en": "View taxes",
+    "pt": "Ver impostos"
+  },
+  "settings.permission_names.users_edit": {
+    "es": "Editar usuarios",
+    "en": "Edit users",
+    "pt": "Editar usuários"
+  },
+  "settings.permission_names.users_view": {
+    "es": "Ver usuarios",
+    "en": "View users",
+    "pt": "Ver usuários"
+  },
+  "settings.permission_names.workflows_manage": {
+    "es": "Gestionar flujos de aprobación",
+    "en": "Manage approval workflows",
+    "pt": "Gerenciar fluxos de aprovação"
+  },
+  "settings.declarations.accounting": {
+    "es": "Ventas, compras, caja y bancos",
+    "en": "Sales, purchases, cash and banks",
+    "pt": "Vendas, compras, caixa e bancos"
+  },
+  "settings.declarations.taxes": {
+    "es": "Impuestos",
+    "en": "Taxes",
+    "pt": "Impostos"
+  },
+  "settings.declarations.inventory": {
+    "es": "Inventario",
+    "en": "Inventory",
+    "pt": "Inventário"
+  },
+  "settings.declarations.currency": {
+    "es": "Moneda y tipos de cambio",
+    "en": "Currency and exchange rates",
+    "pt": "Moeda e taxas de câmbio"
+  },
+  "settings.declarations.closing": {
+    "es": "Cierre del ejercicio",
+    "en": "Year-end closing",
+    "pt": "Fechamento do exercício"
+  },
+  "settings.declarations.intercompany": {
+    "es": "Intercompañía",
+    "en": "Intercompany",
+    "pt": "Intercompanhia"
+  },
+  "settings.sections.confirm_accounts_title": {
+    "es": "¿Cambiar las cuentas predeterminadas?",
+    "en": "Change the default accounts?",
+    "pt": "Alterar as contas predefinidas?"
+  },
+  "settings.sections.confirm_accounts_message": {
+    "es": "Cambias {{count}} cuenta(s). Los documentos que se contabilicen desde ahora usarán las nuevas; los ya contabilizados no cambian. El cambio queda en la pista de auditoría.",
+    "en": "You are changing {{count}} account(s). Documents posted from now on use the new ones; those already posted do not change. The change is recorded in the audit trail.",
+    "pt": "Você altera {{count}} conta(s). Os documentos lançados a partir de agora usarão as novas; os já lançados não mudam. A alteração fica no registro de auditoria."
+  },
+  "settings.sections.default_is": {
+    "es": "Predeterminada: {{value}}",
+    "en": "Default: {{value}}",
+    "pt": "Predefinida: {{value}}"
+  },
+  "settings.sections.restore_default": {
+    "es": "Restablecer",
+    "en": "Restore default",
+    "pt": "Restaurar padrão"
+  },
+  "settings.sections.default_accounts_links": {
+    "es": "Las cuentas se crean y se editan en el catálogo:",
+    "en": "Accounts are created and edited in the chart:",
+    "pt": "As contas são criadas e editadas no plano:"
+  },
+  "settings.sections.go_chart_of_accounts": {
+    "es": "Catálogo de cuentas",
+    "en": "Chart of accounts",
+    "pt": "Plano de contas"
+  },
+  "settings.sections.policies_links": {
+    "es": "Monedas, tasas de impuesto y períodos se gestionan en Contabilidad:",
+    "en": "Currencies, tax rates and periods are managed in Accounting:",
+    "pt": "Moedas, alíquotas e períodos são gerenciados em Contabilidade:"
+  },
+  "settings.company_profile.blocked_by_field": {
+    "es": "Revisa «{{field}}» para poder guardar.",
+    "en": "Check “{{field}}” to be able to save.",
+    "pt": "Revise “{{field}}” para poder salvar."
+  },
+  "settings.profile.password_title": {
+    "es": "Contraseña",
+    "en": "Password",
+    "pt": "Senha"
+  },
+  "settings.pages.withholding.empty_hint": {
+    "es": "Agrega los regímenes que la empresa aplica a sus proveedores o que le aplican sus clientes.",
+    "en": "Add the regimes the company applies to its suppliers or that its customers apply to it.",
+    "pt": "Adicione os regimes que a empresa aplica aos fornecedores ou que os clientes lhe aplicam."
+  },
+  "settings.pages.tax_jurisdictions.empty_hint": {
+    "es": "Agrega cada estado o municipio donde la empresa recauda impuesto; sin ellos, las ventas a ese destino no se gravan.",
+    "en": "Add each state or municipality where the company collects tax; without them, sales to that destination are not taxed.",
+    "pt": "Adicione cada estado ou município onde a empresa cobra imposto; sem eles, as vendas para esse destino não são tributadas."
+  },
+  "settings.approvals.empty_hint": {
+    "es": "Sin políticas, los documentos se contabilizan sin pedir aprobación.",
+    "en": "Without policies, documents post without asking for approval.",
+    "pt": "Sem políticas, os documentos são lançados sem pedir aprovação."
+  },
+  "settings.sso.no_providers_hint": {
+    "es": "Verifica un dominio y luego agrega el proveedor de identidad de la empresa.",
+    "en": "Verify a domain, then add the company’s identity provider.",
+    "pt": "Verifique um domínio e depois adicione o provedor de identidade da empresa."
+  },
+  "settings.security.mfa_impact": {
+    "es": "Al activarlo, quien no tenga segundo factor deberá configurarlo en su próximo inicio de sesión.",
+    "en": "Once on, anyone without a second factor must set one up at their next sign-in.",
+    "pt": "Ao ativar, quem não tiver segundo fator deverá configurá-lo no próximo login."
+  },
+  "settings.security.open_trail": {
+    "es": "Pista de auditoría",
+    "en": "Audit trail",
+    "pt": "Registro de auditoria"
+  },
+  "settings.security.anyone": {
+    "es": "Cualquier persona",
+    "en": "Anyone",
+    "pt": "Qualquer pessoa"
+  },
+  "settings.security.any_action": {
+    "es": "Cualquier acción",
+    "en": "Any action",
+    "pt": "Qualquer ação"
+  },
+  "settings.security.any_record": {
+    "es": "Cualquier tipo",
+    "en": "Any type",
+    "pt": "Qualquer tipo"
+  },
+  "settings.security.people_only": {
+    "es": "Solo acciones de personas (ocultar las del sistema)",
+    "en": "People’s actions only (hide the system’s)",
+    "pt": "Somente ações de pessoas (ocultar as do sistema)"
+  },
+  "settings.security.range_summary": {
+    "es": "Del {{from}} al {{to}}",
+    "en": "From {{from}} to {{to}}",
+    "pt": "De {{from}} a {{to}}"
+  },
+  "settings.security.trail_empty_filtered": {
+    "es": "Nada coincide con estos filtros.",
+    "en": "Nothing matches these filters.",
+    "pt": "Nada corresponde a estes filtros."
+  },
+  "settings.security.detail": {
+    "es": "Detalle",
+    "en": "Detail",
+    "pt": "Detalhe"
+  },
+  "settings.security.record_id": {
+    "es": "Registro",
+    "en": "Record",
+    "pt": "Registro"
+  },
+  "settings.branding.personal_note": {
+    "es": "Estas preferencias son solo tuyas y se aplican al instante en este equipo. No cambian lo que ven los demás.",
+    "en": "These preferences are yours alone and apply at once on this device. They do not change what others see.",
+    "pt": "Estas preferências são só suas e se aplicam na hora neste dispositivo. Não mudam o que os outros veem."
+  },
+  "settings.branding.language_hint": {
+    "es": "El idioma de la interfaz. Los documentos usan el idioma de la empresa.",
+    "en": "The interface language. Documents use the company’s language.",
+    "pt": "O idioma da interface. Os documentos usam o idioma da empresa."
+  },
+  "settings.branding.appearance": {
+    "es": "Apariencia",
+    "en": "Appearance",
+    "pt": "Aparência"
+  },
+  "settings.branding.logo_hint": {
+    "es": "PNG, JPG o WebP, hasta 2 MB. Aparece en la barra y en los documentos.",
+    "en": "PNG, JPG or WebP, up to 2 MB. It appears in the bar and on documents.",
+    "pt": "PNG, JPG ou WebP, até 2 MB. Aparece na barra e nos documentos."
+  },
+  "settings.branding.replace_logo": {
+    "es": "Reemplazar logo",
+    "en": "Replace logo",
+    "pt": "Substituir logotipo"
+  },
+  "settings.branding.remove_logo": {
+    "es": "Quitar logo",
+    "en": "Remove logo",
+    "pt": "Remover logotipo"
+  },
+  "settings.branding.remove_logo_title": {
+    "es": "¿Quitar el logo de la empresa?",
+    "en": "Remove the company logo?",
+    "pt": "Remover o logotipo da empresa?"
+  },
+  "settings.branding.remove_logo_message": {
+    "es": "Dejará de aparecer para todos y en los documentos nuevos.",
+    "en": "It will stop appearing for everyone and on new documents.",
+    "pt": "Deixará de aparecer para todos e nos novos documentos."
+  },
+  "settings.branding.logo_saved": {
+    "es": "Logo guardado para toda la empresa.",
+    "en": "Logo saved for the whole company.",
+    "pt": "Logotipo salvo para toda a empresa."
+  },
+  "settings.branding.logo_failed": {
+    "es": "No se pudo guardar el logo.",
+    "en": "The logo could not be saved.",
+    "pt": "Não foi possível salvar o logotipo."
+  },
+  "settings.branding.presets": {
+    "es": "Colores sugeridos",
+    "en": "Suggested colours",
+    "pt": "Cores sugeridas"
+  },
+  "settings.branding.accent_hint": {
+    "es": "Botones, enlaces y selección. Se ajusta para que el texto siga siendo legible.",
+    "en": "Buttons, links and selection. It is adjusted so text stays legible.",
+    "pt": "Botões, links e seleção. É ajustada para que o texto continue legível."
+  },
+  "settings.branding.typography_shape": {
+    "es": "Tipografía y forma",
+    "en": "Typography and shape",
+    "pt": "Tipografia e forma"
+  },
+  "settings.branding.preview_hint": {
+    "es": "Así lo verá toda la empresa cuando guardes.",
+    "en": "This is how the whole company will see it once you save.",
+    "pt": "É assim que toda a empresa verá quando você salvar."
+  },
+  "settings.branding.saved_for_everyone": {
+    "es": "Marca guardada: la verá toda la empresa.",
+    "en": "Brand saved: the whole company will see it.",
+    "pt": "Marca salva: toda a empresa a verá."
+  },
+  "settings.branding.save_failed": {
+    "es": "No se pudo guardar la marca.",
+    "en": "The brand could not be saved.",
+    "pt": "Não foi possível salvar a marca."
+  },
+  "settings.branding.reset": {
+    "es": "Restablecer marca",
+    "en": "Reset brand",
+    "pt": "Restaurar marca"
+  },
+  "settings.branding.reset_title": {
+    "es": "¿Volver a la marca de Virtex?",
+    "en": "Go back to the Virtex brand?",
+    "pt": "Voltar à marca da Virtex?"
+  },
+  "settings.branding.reset_message": {
+    "es": "El color, la tipografía y los bordes vuelven a los de Virtex para toda la empresa. El logo se conserva.",
+    "en": "Colour, typeface and corners return to Virtex’s for the whole company. The logo is kept.",
+    "pt": "Cor, tipografia e cantos voltam aos da Virtex para toda a empresa. O logotipo é mantido."
+  },
+  "settings.branding.reset_done": {
+    "es": "Marca restablecida.",
+    "en": "Brand reset.",
+    "pt": "Marca restaurada."
+  },
+  "settings.sections_meta.my_profile.label": {
+    "es": "Mi perfil",
+    "en": "My profile",
+    "pt": "Meu perfil"
+  },
+  "settings.sections_meta.my_profile.description": {
+    "es": "Tu nombre, foto, teléfono y datos de contacto.",
+    "en": "Your name, photo, phone and contact details.",
+    "pt": "Seu nome, foto, telefone e dados de contato."
+  },
+  "settings.sections_meta.my_profile.keywords": {
+    "es": "perfil nombre foto avatar teléfono correo",
+    "en": "profile name photo avatar phone email",
+    "pt": "perfil nome foto avatar telefone email"
+  },
+  "settings.sections_meta.account_security.label": {
+    "es": "Seguridad de la cuenta",
+    "en": "Account security",
+    "pt": "Segurança da conta"
+  },
+  "settings.sections_meta.account_security.description": {
+    "es": "Contraseña, segundo factor, llaves de acceso y sesiones abiertas.",
+    "en": "Password, second factor, passkeys and open sessions.",
+    "pt": "Senha, segundo fator, chaves de acesso e sessões abertas."
+  },
+  "settings.sections_meta.account_security.keywords": {
+    "es": "contraseña 2fa mfa segundo factor llave passkey sesiones dispositivos",
+    "en": "password 2fa mfa second factor passkey sessions devices",
+    "pt": "senha 2fa mfa segundo fator chave passkey sessões dispositivos"
+  },
+  "settings.sections_meta.preferences.label": {
+    "es": "Preferencias",
+    "en": "Preferences",
+    "pt": "Preferências"
+  },
+  "settings.sections_meta.preferences.description": {
+    "es": "Idioma, tema, contraste, densidad y ancho. Solo para ti, en este equipo.",
+    "en": "Language, theme, contrast, density and width. Just for you, on this device.",
+    "pt": "Idioma, tema, contraste, densidade e largura. Só para si, neste dispositivo."
+  },
+  "settings.sections_meta.preferences.keywords": {
+    "es": "idioma tema oscuro claro contraste densidad ancho apariencia",
+    "en": "language theme dark light contrast density width appearance",
+    "pt": "idioma tema escuro claro contraste densidade largura aparência"
+  },
+  "settings.sections_meta.organizations.label": {
+    "es": "Mis empresas",
+    "en": "My companies",
+    "pt": "Minhas empresas"
+  },
+  "settings.sections_meta.organizations.description": {
+    "es": "Las empresas a las que perteneces y cuál está activa.",
+    "en": "The companies you belong to and which one is active.",
+    "pt": "As empresas a que pertence e qual está ativa."
+  },
+  "settings.sections_meta.organizations.keywords": {
+    "es": "empresas organizaciones cambiar empresa",
+    "en": "companies organizations switch company",
+    "pt": "empresas organizações mudar empresa"
+  },
+  "settings.sections_meta.profile.label": {
+    "es": "Perfil de la empresa",
+    "en": "Company profile",
+    "pt": "Perfil da empresa"
+  },
+  "settings.sections_meta.profile.description": {
+    "es": "Razón social, identificación fiscal, dirección y contacto que aparecen en los documentos.",
+    "en": "Legal name, tax ID, address and contact shown on documents.",
+    "pt": "Razão social, identificação fiscal, endereço e contato que aparecem nos documentos."
+  },
+  "settings.sections_meta.profile.keywords": {
+    "es": "empresa rnc nif rfc razón social dirección",
+    "en": "company tax id legal name address",
+    "pt": "empresa nif cnpj razão social endereço"
+  },
+  "settings.sections_meta.branding.label": {
+    "es": "Marca de la empresa",
+    "en": "Company brand",
+    "pt": "Marca da empresa"
+  },
+  "settings.sections_meta.branding.description": {
+    "es": "Logo, color, tipografía y bordes que ve toda la empresa.",
+    "en": "Logo, colour, typeface and corners everyone in the company sees.",
+    "pt": "Logotipo, cor, tipografia e cantos que toda a empresa vê."
+  },
+  "settings.sections_meta.branding.keywords": {
+    "es": "marca logo color acento tipografía fuente",
+    "en": "brand logo colour accent typeface font",
+    "pt": "marca logotipo cor destaque tipografia fonte"
+  },
+  "settings.sections_meta.subsidiaries.label": {
+    "es": "Estructura empresarial",
+    "en": "Company structure",
+    "pt": "Estrutura empresarial"
+  },
+  "settings.sections_meta.subsidiaries.description": {
+    "es": "Subsidiarias y su relación con la empresa principal.",
+    "en": "Subsidiaries and how they relate to the parent company.",
+    "pt": "Subsidiárias e sua relação com a empresa-mãe."
+  },
+  "settings.sections_meta.subsidiaries.keywords": {
+    "es": "subsidiarias filiales grupo consolidación",
+    "en": "subsidiaries group consolidation",
+    "pt": "subsidiárias filiais grupo consolidação"
+  },
+  "settings.sections_meta.branches.label": {
+    "es": "Sucursales",
+    "en": "Branches",
+    "pt": "Filiais"
+  },
+  "settings.sections_meta.branches.description": {
+    "es": "Locales y puntos de venta de la empresa.",
+    "en": "The company’s locations and points of sale.",
+    "pt": "Locais e pontos de venda da empresa."
+  },
+  "settings.sections_meta.branches.keywords": {
+    "es": "sucursales locales tiendas establecimientos",
+    "en": "branches locations stores",
+    "pt": "filiais lojas estabelecimentos"
+  },
+  "settings.sections_meta.smtp.label": {
+    "es": "Correo saliente",
+    "en": "Outgoing email",
+    "pt": "Email de saída"
+  },
+  "settings.sections_meta.smtp.description": {
+    "es": "Remitente y servidor con el que se envían facturas y avisos.",
+    "en": "Sender and server used to send invoices and notices.",
+    "pt": "Remetente e servidor com que se enviam faturas e avisos."
+  },
+  "settings.sections_meta.smtp.keywords": {
+    "es": "correo email smtp remitente",
+    "en": "email smtp sender",
+    "pt": "email smtp remetente"
+  },
+  "settings.sections_meta.billing.label": {
+    "es": "Plan y facturación",
+    "en": "Plan and billing",
+    "pt": "Plano e faturamento"
+  },
+  "settings.sections_meta.billing.description": {
+    "es": "Tu plan, su consumo y las facturas de Virtex.",
+    "en": "Your plan, its usage and Virtex’s invoices.",
+    "pt": "Seu plano, o consumo e as faturas da Virtex."
+  },
+  "settings.sections_meta.billing.keywords": {
+    "es": "plan suscripción pago facturación créditos",
+    "en": "plan subscription payment billing credits",
+    "pt": "plano subscrição pagamento faturamento créditos"
+  },
+  "settings.sections_meta.default_accounts.label": {
+    "es": "Cuentas predeterminadas",
+    "en": "Default accounts",
+    "pt": "Contas predefinidas"
+  },
+  "settings.sections_meta.default_accounts.description": {
+    "es": "Las cuentas en que se contabiliza cada operación: ventas, compras, bancos, impuestos, inventario, moneda, cierre e intercompañía. Un solo guardado.",
+    "en": "The accounts each transaction posts to: sales, purchases, banks, taxes, inventory, currency, closing and intercompany. One save.",
+    "pt": "As contas em que cada operação é lançada: vendas, compras, bancos, impostos, inventário, moeda, fechamento e intercompanhia. Uma só salvamento."
+  },
+  "settings.sections_meta.default_accounts.keywords": {
+    "es": "cuentas contables mapa contable ventas compras bancos impuestos itbis iva inventario diferencial cambiario cierre intercompañía",
+    "en": "accounts mapping sales purchases banks taxes vat inventory exchange difference closing intercompany",
+    "pt": "contas mapeamento vendas compras bancos impostos iva inventário diferença cambial fechamento intercompanhia"
+  },
+  "settings.sections_meta.accounting_policies.label": {
+    "es": "Políticas contables",
+    "en": "Accounting policies",
+    "pt": "Políticas contábeis"
+  },
+  "settings.sections_meta.accounting_policies.description": {
+    "es": "Moneda de los libros, tipos de cambio, cierre y conservación de documentos.",
+    "en": "Book currency, exchange rates, closing and document retention.",
+    "pt": "Moeda dos livros, taxas de câmbio, fechamento e conservação de documentos."
+  },
+  "settings.sections_meta.accounting_policies.keywords": {
+    "es": "moneda multimoneda tipo de cambio tolerancia cierre archivo",
+    "en": "currency multi-currency exchange rate tolerance closing archive",
+    "pt": "moeda multimoeda taxa de câmbio tolerância fechamento arquivo"
+  },
+  "settings.sections_meta.fiscal.label": {
+    "es": "Comprobantes fiscales",
+    "en": "Fiscal documents",
+    "pt": "Comprovantes fiscais"
+  },
+  "settings.sections_meta.fiscal.description": {
+    "es": "Cómo emite la empresa ante la DGII: modalidad, rangos de NCF y certificado.",
+    "en": "How the company issues with the DGII: mode, NCF ranges and certificate.",
+    "pt": "Como a empresa emite perante a DGII: modalidade, faixas de NCF e certificado."
+  },
+  "settings.sections_meta.fiscal.keywords": {
+    "es": "ncf e-cf dgii comprobantes facturación electrónica certificado rangos",
+    "en": "ncf e-cf dgii fiscal receipts electronic invoicing certificate ranges",
+    "pt": "ncf e-cf dgii comprovantes faturamento eletrônico certificado faixas"
+  },
+  "settings.sections_meta.einvoicing_regime.label": {
+    "es": "Facturación electrónica",
+    "en": "Electronic invoicing",
+    "pt": "Faturamento eletrônico"
+  },
+  "settings.sections_meta.einvoicing_regime.description": {
+    "es": "El régimen de facturación electrónica de tu país y su conexión con la autoridad.",
+    "en": "Your country’s electronic invoicing regime and its connection to the authority.",
+    "pt": "O regime de faturamento eletrônico dseu país e sua ligação à autoridade."
+  },
+  "settings.sections_meta.einvoicing_regime.keywords": {
+    "es": "facturación electrónica cfdi sat dian sefaz autoridad fiscal",
+    "en": "electronic invoicing cfdi sat dian sefaz tax authority",
+    "pt": "faturamento eletrônico nfe sefaz autoridade fiscal"
+  },
+  "settings.sections_meta.withholding_regimes.label": {
+    "es": "Retenciones",
+    "en": "Withholdings",
+    "pt": "Retenções"
+  },
+  "settings.sections_meta.withholding_regimes.description": {
+    "es": "Regímenes de retención que la empresa aplica o soporta.",
+    "en": "Withholding regimes the company applies or is subject to.",
+    "pt": "Regimes de retenção que a empresa aplica ou suporta."
+  },
+  "settings.sections_meta.withholding_regimes.keywords": {
+    "es": "retenciones isr itbis retención",
+    "en": "withholding tax",
+    "pt": "retenções irrf retenção"
+  },
+  "settings.sections_meta.tax_jurisdictions.label": {
+    "es": "Jurisdicciones fiscales",
+    "en": "Tax jurisdictions",
+    "pt": "Jurisdições fiscais"
+  },
+  "settings.sections_meta.tax_jurisdictions.description": {
+    "es": "Los estados o municipios donde la empresa recauda impuesto, y sus tasas.",
+    "en": "The states or municipalities where the company collects tax, and their rates.",
+    "pt": "Os estados ou municípios onde a empresa cobra imposto, e suas alíquotas."
+  },
+  "settings.sections_meta.tax_jurisdictions.keywords": {
+    "es": "jurisdicciones estados nexo sales tax icms iss",
+    "en": "jurisdictions states nexus sales tax",
+    "pt": "jurisdições estados nexo icms iss"
+  },
+  "settings.sections_meta.sequences.label": {
+    "es": "Numeración de documentos",
+    "en": "Document numbering",
+    "pt": "Numeração de documentos"
+  },
+  "settings.sections_meta.sequences.description": {
+    "es": "Prefijo y próximo número de cada tipo de documento interno. Los NCF se configuran en Comprobantes fiscales.",
+    "en": "Prefix and next number for each internal document type. Fiscal numbering is set in Fiscal documents.",
+    "pt": "Prefixo e próximo número de cada tipo de documento interno. A numeração fiscal configura-se em Comprovantes fiscais."
+  },
+  "settings.sections_meta.sequences.keywords": {
+    "es": "secuencias numeración prefijo correlativo consecutivo",
+    "en": "sequences numbering prefix counter",
+    "pt": "sequências numeração prefixo contador"
+  },
+  "settings.sections_meta.approvals.label": {
+    "es": "Aprobaciones",
+    "en": "Approvals",
+    "pt": "Aprovações"
+  },
+  "settings.sections_meta.approvals.description": {
+    "es": "Qué documentos necesitan aprobación, desde qué importe y de quién.",
+    "en": "Which documents need approval, from which amount and by whom.",
+    "pt": "Que documentos precisam de aprovação, a partir de que valor e de quem."
+  },
+  "settings.sections_meta.approvals.keywords": {
+    "es": "aprobaciones autorización flujo límite importe",
+    "en": "approvals authorization workflow limit amount",
+    "pt": "aprovações autorização fluxo limite valor"
+  },
+  "settings.sections_meta.users.label": {
+    "es": "Usuarios",
+    "en": "Users",
+    "pt": "Usuários"
+  },
+  "settings.sections_meta.users.description": {
+    "es": "Quién entra a la empresa, con qué rol, e invitaciones pendientes.",
+    "en": "Who can sign in to the company, with which role, and pending invitations.",
+    "pt": "Quem entra na empresa, com que função, e convites pendentes."
+  },
+  "settings.sections_meta.users.keywords": {
+    "es": "usuarios miembros invitar equipo personas",
+    "en": "users members invite team people",
+    "pt": "usuários membros convidar equipe pessoas"
+  },
+  "settings.sections_meta.roles.label": {
+    "es": "Roles y permisos",
+    "en": "Roles and permissions",
+    "pt": "Funções e permissões"
+  },
+  "settings.sections_meta.roles.description": {
+    "es": "Qué puede ver y hacer cada rol.",
+    "en": "What each role can see and do.",
+    "pt": "O que cada função pode ver e fazer."
+  },
+  "settings.sections_meta.roles.keywords": {
+    "es": "roles permisos acceso",
+    "en": "roles permissions access",
+    "pt": "funções permissões acesso"
+  },
+  "settings.sections_meta.security.label": {
+    "es": "Política de seguridad",
+    "en": "Security policy",
+    "pt": "Política de segurança"
+  },
+  "settings.sections_meta.security.description": {
+    "es": "Segundo factor obligatorio y la política de contraseñas de la empresa.",
+    "en": "Mandatory second factor and the company’s password policy.",
+    "pt": "Segundo fator obrigatório e a política de senhas da empresa."
+  },
+  "settings.sections_meta.security.keywords": {
+    "es": "seguridad 2fa mfa obligatorio contraseña política bloqueo",
+    "en": "security 2fa mfa required password policy lockout",
+    "pt": "segurança 2fa mfa obrigatório senha política bloqueio"
+  },
+  "settings.sections_meta.audit_trail.label": {
+    "es": "Pista de auditoría",
+    "en": "Audit trail",
+    "pt": "Registro de auditoria"
+  },
+  "settings.sections_meta.audit_trail.description": {
+    "es": "Quién hizo qué, sobre qué registro y cuándo.",
+    "en": "Who did what, to which record, and when.",
+    "pt": "Quem fez o quê, a que registro e quando."
+  },
+  "settings.sections_meta.audit_trail.keywords": {
+    "es": "auditoría historial registro cambios bitácora log",
+    "en": "audit history record changes log",
+    "pt": "auditoria histórico registro alterações log"
+  },
+  "settings.sections_meta.sso.label": {
+    "es": "Inicio de sesión único (SSO)",
+    "en": "Single sign-on (SSO)",
+    "pt": "Login único (SSO)"
+  },
+  "settings.sections_meta.sso.description": {
+    "es": "Que tu equipo entre con el proveedor de identidad de la empresa (SAML u OIDC).",
+    "en": "Let your team sign in with the company’s identity provider (SAML or OIDC).",
+    "pt": "Que sua equipe entre com o provedor de identidade da empresa (SAML ou OIDC)."
+  },
+  "settings.sections_meta.sso.keywords": {
+    "es": "sso saml oidc azure okta google dominio inicio de sesión único",
+    "en": "sso saml oidc azure okta google domain single sign-on",
+    "pt": "sso saml oidc azure okta google domínio login único"
+  },
+  "settings.sections_meta.integrations.label": {
+    "es": "Integraciones",
+    "en": "Integrations",
+    "pt": "Integrações"
+  },
+  "settings.sections_meta.integrations.description": {
+    "es": "Las conexiones de la empresa con otros sistemas y su estado.",
+    "en": "The company’s connections to other systems and their state.",
+    "pt": "As ligações da empresa a outros sistemas e seu estado."
+  },
+  "settings.sections_meta.integrations.keywords": {
+    "es": "integraciones api correo entrante agentes mcp importar exportar",
+    "en": "integrations api inbound email agents mcp import export",
+    "pt": "integrações api email de entrada agentes mcp importar exportar"
+  },
+  "settings.sections_meta.ai.label": {
+    "es": "Inteligencia artificial",
+    "en": "Artificial intelligence",
+    "pt": "Inteligência artificial"
+  },
+  "settings.sections_meta.ai.description": {
+    "es": "Qué permite la empresa a la IA, cuánto gasta y cómo van sus trabajos.",
+    "en": "What the company allows the AI, what it spends and how its jobs are going.",
+    "pt": "O que a empresa permite à IA, quanto gasta e como correm seus trabalhos."
+  },
+  "settings.sections_meta.ai.keywords": {
+    "es": "ia inteligencia artificial créditos presupuesto agentes predicciones anomalías privacidad",
+    "en": "ai artificial intelligence credits budget agents forecasts anomalies privacy",
+    "pt": "ia inteligência artificial créditos orçamento agentes previsões anomalias privacidade"
+  },
+  "settings.sections_meta.extensions.label": {
+    "es": "Extensiones",
+    "en": "Extensions",
+    "pt": "Extensões"
+  },
+  "settings.sections_meta.extensions.description": {
+    "es": "Extensiones firmadas instaladas en la empresa y los permisos que les das.",
+    "en": "Signed extensions installed in the company and the permissions you grant them.",
+    "pt": "Extensões assinadas instaladas na empresa e as permissões que lhes dá."
+  },
+  "settings.sections_meta.extensions.keywords": {
+    "es": "extensiones plugins complementos aislamiento",
+    "en": "extensions plugins add-ons sandbox",
+    "pt": "extensões plugins complementos isolamento"
   }
 }

@@ -1,3 +1,5 @@
+import { VxEmptyStateComponent } from '../../../../shared/components/feedback/empty-state.component';
+import { SettingsActionsDirective, SettingsShellService } from '../../shell';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -38,12 +40,15 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-withholding-regimes-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [VxEmptyStateComponent, SettingsActionsDirective, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './withholding-regimes.page.html',
   styleUrls: ['./withholding-regimes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WithholdingRegimesPage implements OnInit {
+  /** Whether this person may change the section; read-only otherwise (from the settings shell). */
+  protected readonly canEdit = inject(SettingsShellService, { optional: true })?.canEdit ?? signal(true);
+
   private readonly api = inject(FiscalSettingsService);
   private readonly fb = inject(FormBuilder);
   private readonly notifications = inject(NotificationService);

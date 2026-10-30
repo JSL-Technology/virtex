@@ -1,174 +1,192 @@
-@use '../../../../assets/styles/variables' as *;
-@use '../_settings-shared' as s;
+@use '../../../../assets/styles/design-system' as ds;
 
-// ── Page Shell ───────────────────────────────────────────────────
+// Two sections, one set of controls: the person's preferences and the company's brand. The page
+// draws no header, width or padding of its own: the settings window does (`.sm-page`).
+
 :host { display: block; }
 
 .settings-page-container {
-  padding: var(--space-8);
-  max-width: 1100px;
-  animation: settings-enter 0.25s ease-out;
-}
-
-@keyframes settings-enter {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-// ── Page Header ───────────────────────────────────────────────────
-.page-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-  padding-bottom: var(--space-6);
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: var(--space-7);
-
-  h2 {
-    font-size: var(--text-xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    margin: 0;
-  }
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-bottom: var(--space-4);
 }
 
-// ── Branding Grid ─────────────────────────────────────────────────
+.branding-note {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-md);
+  background: var(--info-surface);
+  color: var(--info-text);
+  font-size: var(--text-sm);
+}
+
+// ── Layout ──────────────────────────────────────────────────────────────────────────────────────
 .branding-grid {
   display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: var(--space-8);
+  grid-template-columns: minmax(20rem, 26rem) minmax(0, 1fr);
+  gap: var(--space-6);
   align-items: start;
 
-  @media (max-width: 900px) {
-    grid-template-columns: 1fr;
-  }
+  @include ds.bp-down('lg') { grid-template-columns: minmax(0, 1fr); }
 }
 
 .controls-column {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-5);
+  min-width: 0;
 }
 
-// ── Form Sections ─────────────────────────────────────────────────
+// ── Cards ───────────────────────────────────────────────────────────────────────────────────────
 .form-section {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-
-  .section-title {
-    font-size: var(--text-sm);
-    font-weight: var(--font-bold);
-    color: var(--text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 0.875rem 1.25rem;
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--bg-primary);
-    margin: 0;
-  }
+  @include ds.surface-card;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  min-width: 0;
 }
 
-// ── Form Fields inside form-section ───────────────────────────────
-.form-section > *:not(.section-title) {
-  padding: var(--space-5);
-}
-
-.form-section > .form-field,
-.form-section > .form-row,
-.form-section > app-language-selector {
-  padding: var(--space-5);
-
-  & + .form-field,
-  & + .form-row {
-    padding-top: 0;
-  }
+.section-title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  min-width: 0;
 
-  label {
-    font-size: var(--text-sm);
-    font-weight: var(--font-semibold);
-    color: var(--text-secondary);
-  }
+  label,
+  .input-label { @include ds.field-label; }
+
+  select { @include ds.input-base; }
 }
+
+.field-hint { @include ds.field-hint; }
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   gap: var(--space-4);
-  padding: var(--space-5);
-
-  .form-field { padding: 0; }
 }
 
-// ── File Input / Logo ─────────────────────────────────────────────
-.file-input-container {
-  border: 2px dashed var(--border-color);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  transition: border-color 0.2s;
+.switch-field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--content-primary);
+  cursor: pointer;
 
-  &:hover { border-color: var(--primary); }
+  input { width: 1rem; height: 1rem; accent-color: var(--accent-solid); }
+  input:focus-visible { @include ds.focus-ring; }
 }
 
-.file-input-label {
+// ── Logo ────────────────────────────────────────────────────────────────────────────────────────
+.logo-row {
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.logo-frame {
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-6);
-  cursor: pointer;
-  min-height: 6rem;
-  color: var(--text-tertiary);
-  font-size: var(--text-md);
-  transition: background-color 0.15s;
+  width: 9rem;
+  height: 5rem;
+  flex-shrink: 0;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--content-tertiary);
 
-  &:hover { background-color: var(--bg-hover); }
-
-  lucide-icon { opacity: 0.5; }
-
-  img {
-    max-width: 160px;
-    max-height: 80px;
-    object-fit: contain;
-    border-radius: var(--radius-sm);
-  }
+  img { max-width: 100%; max-height: 100%; object-fit: contain; padding: var(--space-2); }
 }
 
-input[type="file"] { display: none; }
+.logo-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+  flex: 1 1 10rem;
 
-// ── Color Input ───────────────────────────────────────────────────
-input[type="color"] {
+  label.secondary-button { cursor: pointer; }
+  label.secondary-button:focus-within { @include ds.focus-ring; }
+  .is-busy { opacity: 0.6; pointer-events: none; }
+}
+
+.ghost-button {
+  @include ds.button-link;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--error-text);
+  font-size: var(--text-sm);
+}
+
+// The file input stays reachable by keyboard and screen reader; only its native look is hidden.
+.sr-only { @include ds.visually-hidden; }
+
+// ── Colour ──────────────────────────────────────────────────────────────────────────────────────
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+input[type='color'] {
+  width: 3rem;
   height: 2.375rem;
   padding: var(--space-1);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
+  background: var(--bg-card);
   cursor: pointer;
+
+  &:focus-visible { @include ds.focus-ring; }
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
 }
 
-// ── Range Input ───────────────────────────────────────────────────
-input[type="range"] {
-  height: 2px;
-  padding: 0;
-  border: none;
-  background: var(--border-color);
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.preset {
+  width: 1.75rem;
+  height: 1.75rem;
   border-radius: var(--radius-full);
-  accent-color: var(--primary);
+  border: 2px solid var(--bg-card);
+  box-shadow: 0 0 0 1px var(--border-color);
   cursor: pointer;
 
-  &:focus { box-shadow: none; }
+  &.active { box-shadow: 0 0 0 2px var(--content-primary); }
+  &:focus-visible { @include ds.focus-ring; }
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
 }
 
-// ── Button Group (segmented control) ─────────────────────────────
+// ── Range ───────────────────────────────────────────────────────────────────────────────────────
+input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent-solid);
+  cursor: pointer;
+
+  &:focus-visible { @include ds.focus-ring; }
+  &:disabled { cursor: not-allowed; }
+}
+
+// ── Segmented control ───────────────────────────────────────────────────────────────────────────
 .button-group {
   display: flex;
   border: 1px solid var(--border-color);
@@ -177,43 +195,42 @@ input[type="range"] {
 
   button {
     flex: 1;
-    height: 2.25rem;
+    min-height: 2.25rem;
     padding: 0 0.75rem;
-    background-color: var(--bg-card);
-    color: var(--text-secondary);
     border: none;
-    cursor: pointer;
+    background: var(--bg-card);
+    color: var(--content-secondary);
+    font: inherit;
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
+    cursor: pointer;
     transition: background-color 0.15s, color 0.15s;
-    font-family: inherit;
 
     &:not(:last-child) { border-right: 1px solid var(--border-color); }
+    &:hover:not(.active) { background: var(--bg-hover); color: var(--content-primary); }
+    &:focus-visible { @include ds.focus-ring-inset; }
 
-    &:hover:not(.active) {
-      background-color: var(--bg-hover);
-      color: var(--text-primary);
-    }
-
+    // Solid accent with its own text colour: legible whatever accent the company picked.
     &.active {
-      background-color: var(--primary);
-      color: white;
+      background: var(--accent-solid);
+      color: var(--accent-on-solid);
       font-weight: var(--font-semibold);
     }
   }
 }
 
-// ── Preview column ────────────────────────────────────────────────
+// ── Preview ─────────────────────────────────────────────────────────────────────────────────────
 .preview-column {
   position: sticky;
-  top: 1rem;
+  top: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+
+  @include ds.bp-down('lg') { position: static; }
 }
 
-.section-title:not(.form-section .section-title) {
-  font-size: var(--text-sm);
-  font-weight: var(--font-bold);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: var(--space-4);
+@include ds.bp-reduced-motion {
+  .button-group button { transition: none; }
 }

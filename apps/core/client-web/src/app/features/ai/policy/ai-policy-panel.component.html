@@ -11,7 +11,7 @@
       <h3 class="pol__h3">{{ 'ai.policy.sending' | translate }}</h3>
       <label class="pol__check">
         <input type="checkbox" [checked]="p.settings.languageModels" [disabled]="!canManage() || saving()"
-               (change)="save({ languageModels: $any($event.target).checked })" />
+               (change)="saveSensitive({ languageModels: $any($event.target).checked }, $any($event.target))" />
         <span>{{ 'ai.policy.language_models' | translate }}</span>
       </label>
       <p class="pol__hint">{{ 'ai.policy.language_models_help' | translate }}</p>
@@ -29,21 +29,21 @@
 
       <label class="pol__check">
         <input type="checkbox" [checked]="p.settings.scheduledReports" [disabled]="!canManage() || saving()"
-               (change)="save({ scheduledReports: $any($event.target).checked })" />
+               (change)="saveSensitive({ scheduledReports: $any($event.target).checked }, $any($event.target))" />
         <span>{{ 'ai.policy.scheduled_reports' | translate }}</span>
       </label>
       <p class="pol__hint">{{ 'ai.policy.scheduled_reports_help' | translate }}</p>
 
       <label class="pol__check">
         <input type="checkbox" [checked]="p.settings.imageEmbeddings" [disabled]="!canManage() || saving()"
-               (change)="save({ imageEmbeddings: $any($event.target).checked })" />
+               (change)="saveSensitive({ imageEmbeddings: $any($event.target).checked }, $any($event.target))" />
         <span>{{ 'ai.policy.image_embeddings' | translate }}</span>
       </label>
       <p class="pol__hint">{{ 'ai.policy.image_embeddings_help' | translate }}</p>
 
       <label class="pol__check">
         <input type="checkbox" [checked]="p.settings.maskIdentifiers" [disabled]="!canManage() || saving()"
-               (change)="save({ maskIdentifiers: $any($event.target).checked })" />
+               (change)="saveSensitive({ maskIdentifiers: $any($event.target).checked }, $any($event.target))" />
         <span>{{ 'ai.policy.mask_identifiers' | translate }}</span>
       </label>
       <p class="pol__hint">{{ 'ai.policy.mask_identifiers_help' | translate }}</p>

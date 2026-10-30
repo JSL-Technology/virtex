@@ -3,8 +3,11 @@
 
 // ── Page Shell ───────────────────────────────────────────────────
 .profile-page {
-  @include s.page-shell(1100px);
+  @include s.page-shell;
 }
+
+// A password is a few short fields: they read better at a measure than across the whole width.
+.profile-card__body--narrow { max-width: 34rem; }
 
 .visually-hidden {
   position: absolute;

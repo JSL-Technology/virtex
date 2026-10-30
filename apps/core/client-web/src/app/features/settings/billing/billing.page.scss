@@ -4,8 +4,6 @@
 // Page Shell
 // ──────────────────────────────────────────────
 .billing-page {
-    padding: var(--space-8);
-    max-width: 1100px;
     animation: page-enter 0.25s ease-out;
 
     > * + * { margin-top: var(--space-8); }

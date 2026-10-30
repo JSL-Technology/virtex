@@ -4,7 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { BadRequestError, NotFoundError } from '../../i18n/localized.exception';
 import { OrgSettingsService } from './org-settings.service';
-import { SETTINGS_SECTIONS, SettingsSectionId, isSettingsSection } from './settings-sections';
+import { DEFAULT_ACCOUNT_ROLES, SETTINGS_SECTIONS, SettingsSectionId, isSettingsSection } from './settings-sections';
 
 /** An account as a settings screen shows it: enough to name it, never its balance. */
 export interface SettingsAccountRef {
@@ -22,6 +22,10 @@ export interface SettingsSectionView {
   fields: Record<string, unknown>;
   /** Currencies only: the books' currency, and whether it can still change. */
   baseCurrency?: { code: string; locked: boolean };
+  /** For each account field, the account its chart role points at — what «default» is. */
+  defaultAccounts: Record<string, SettingsAccountRef | null>;
+  /** For each policy field, the value a new company starts with. */
+  defaultFields: Record<string, unknown>;
 }
 
 export interface SettingsSectionPatch {
@@ -66,6 +70,8 @@ export class OrganizationSettingsSectionsService {
       accounts,
       expectedTypes: { ...definition.accounts },
       fields,
+      defaultAccounts: await this.defaultAccounts(organizationId, Object.keys(definition.accounts)),
+      defaultFields: this.defaultFields(Object.keys(definition.fields)),
       ...(section === 'currencies'
         ? { baseCurrency: { code: row.baseCurrency, locked: await this.hasBooks(organizationId) } }
         : {}),
@@ -154,6 +160,39 @@ export class OrganizationSettingsSectionsService {
       [organizationId],
     );
     return Boolean(exists);
+  }
+
+  /** The account each field's chart role points at (null when the field has no role, or the chart lacks it). */
+  private async defaultAccounts(organizationId: string, fields: string[]): Promise<Record<string, SettingsAccountRef | null>> {
+    const roles = fields
+      .map((field) => DEFAULT_ACCOUNT_ROLES[field as keyof typeof DEFAULT_ACCOUNT_ROLES])
+      .filter((role): role is NonNullable<typeof role> => Boolean(role));
+    const rows: Array<SettingsAccountRef & { role: string }> = roles.length
+      ? await this.dataSource.query(
+          `SELECT id, code, name, type::text AS type, system_role::text AS role
+             FROM accounts
+            WHERE organization_id = $1 AND system_role::text = ANY($2::text[])`,
+          [organizationId, roles],
+        )
+      : [];
+    const byRole = new Map(rows.map(({ role, ...account }) => [role, account as SettingsAccountRef]));
+    const out: Record<string, SettingsAccountRef | null> = {};
+    for (const field of fields) {
+      const role = DEFAULT_ACCOUNT_ROLES[field as keyof typeof DEFAULT_ACCOUNT_ROLES];
+      out[field] = role ? (byRole.get(role) ?? null) : null;
+    }
+    return out;
+  }
+
+  /** The column defaults the schema declares, which is what a new company starts with. */
+  private defaultFields(fields: string[]): Record<string, unknown> {
+    const out: Record<string, unknown> = {};
+    for (const field of fields) {
+      const column = this.repo.metadata.findColumnWithPropertyName(field);
+      const raw = column?.default;
+      out[field] = typeof raw === 'function' ? null : raw === undefined ? null : raw;
+    }
+    return out;
   }
 
   /** Accounts of this tenant; with `usable`, only active ones that take postings. */

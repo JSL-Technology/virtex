@@ -25,13 +25,27 @@
 .ss__input--short { max-width: 10rem; }
 .ss__unit { display: inline-flex; align-items: center; gap: var(--space-2); }
 
-.ss__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-3);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--border-color);
-}
 
 .ss__state { color: var(--text-secondary); }
 .ss__state--error { color: var(--error-text); display: flex; flex-direction: column; gap: var(--space-3); align-items: flex-start; }
+
+.ss__block-title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
+  scroll-margin-top: var(--space-4);
+}
+
+.ss { scroll-margin-top: var(--space-4); }
+
+.ss__default {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
+}
+
+.ss__restore { @include ds.button-link; font-size: var(--text-xs); }

@@ -1,4 +1,5 @@
 import { Router } from '@angular/router';
+import { SettingsActionsDirective } from '../../shell';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { catchError, of } from 'rxjs';
 import { CountryService, SupportedCountry } from '../../../../core/services/country.service';
@@ -22,7 +23,7 @@ import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/co
 @Component({
   selector: 'app-subsidiaries',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, ...VX_SELECT, ...FORMAT_PIPES, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent, VxDateFieldComponent, VxBadgeComponent],
+  imports: [SettingsActionsDirective, CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, ...VX_SELECT, ...FORMAT_PIPES, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent, VxDateFieldComponent, VxBadgeComponent],
   templateUrl: './subsidiaries.page.html',
   styleUrls: ['./subsidiaries.page.scss'],
   // Signals and OnPush (QA A-16): the state lived in plain fields under a modal host that does not

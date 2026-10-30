@@ -1,8 +1,9 @@
 <div class="s-page">
-  <div class="s-header">
-    <h1 class="s-header__title">{{ 'settings.pages.approvals.title' | translate }}</h1>
-    <p class="s-header__subtitle">{{ 'settings.approvals.subtitle' | translate }}</p>
-  </div>
+  <ng-template vxSettingsActions>
+    @if (canEdit() && !loading() && !draft() && freeTypes().length > 0) {
+      <button type="button" class="primary-button" (click)="startNew()">{{ 'settings.approvals.new' | translate }}</button>
+    }
+  </ng-template>
   <!-- Two ways to approve a document: a simple policy here, or a process with steps and branches.
        Say so, and where the other one lives (QA A-02). -->
   <p class="ap__workflows" role="note">
@@ -110,7 +111,11 @@
     }
 
     @if (policies().length === 0 && !draft()) {
-      <p class="ap__state">{{ 'settings.approvals.empty' | translate }}</p>
+      <vx-empty-state class="card" titleKey="settings.approvals.empty" descriptionKey="settings.approvals.empty_hint">
+        @if (canEdit() && freeTypes().length > 0) {
+          <button action type="button" class="primary-button" (click)="startNew()">{{ 'settings.approvals.new' | translate }}</button>
+        }
+      </vx-empty-state>
     }
 
     <ul class="ap__list">
@@ -141,12 +146,8 @@
       }
     </ul>
 
-    @if (!draft()) {
-      @if (freeTypes().length > 0) {
-        <button type="button" class="primary-button" (click)="startNew()">{{ 'settings.approvals.new' | translate }}</button>
-      } @else {
-        <p class="ap__hint">{{ 'settings.approvals.all_types_covered' | translate }}</p>
-      }
+    @if (!draft() && freeTypes().length === 0) {
+      <p class="ap__hint">{{ 'settings.approvals.all_types_covered' | translate }}</p>
     }
   }
 

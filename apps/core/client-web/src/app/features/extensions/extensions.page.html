@@ -7,6 +7,7 @@
 -->
 <vx-list-shell
   titleKey="page_titles.extensions"
+  [embedded]="embedded()"
   [count]="extensions().length"
   [loading]="loading()"
   [error]="error()"
@@ -26,7 +27,9 @@
 
   <ng-container listEmpty>
     <lucide-icon [img]="PuzzleIcon" [size]="28" aria-hidden="true"></lucide-icon>
-    <p class="ls__state-title">{{ 'extensions.none_registered' | translate }}</p>
+    <p class="ls__state-title">{{ 'extensions.none_registered_title' | translate }}</p>
+    <!-- Where to register one, said where it is: the panel is below the list, not beside it. -->
+    <p class="ls__state-text">{{ (canPublish() ? 'extensions.none_registered_below' : 'extensions.none_registered_platform') | translate }}</p>
   </ng-container>
 
   <div class="table-container card">
@@ -147,6 +150,7 @@
 
     <section class="ext__card">
       <h2>{{ 'extensions.run_in_sandbox' | translate }}</h2>
+      <p class="ext__hint">{{ 'extensions.run_in_sandbox_help' | translate }}</p>
       <form [formGroup]="executeForm" (ngSubmit)="execute()" class="ext__run">
         <input
           type="text"

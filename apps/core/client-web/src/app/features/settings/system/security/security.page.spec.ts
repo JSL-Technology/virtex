@@ -31,7 +31,7 @@ describe('SecuritySettingsPage', () => {
     timestamp: '2026-10-01T12:00:00Z',
   };
 
-  function create(canReadTrail = true, usersFail = false) {
+  function create(canReadTrail = true, usersFail = false, view: 'policy' | 'trail' = 'trail') {
     TestBed.configureTestingModule({
       imports: [SecuritySettingsPage],
       providers: [
@@ -55,8 +55,9 @@ describe('SecuritySettingsPage', () => {
     useCatalogue({ 'settings.security.entity.bank_accounts': 'Cuenta bancaria' });
     http = TestBed.inject(HttpTestingController);
     const fixture = TestBed.createComponent(SecuritySettingsPage);
+    fixture.componentRef.setInput('view', view);
     fixture.detectChanges();
-    http.expectOne((r) => r.url.endsWith('/organizations/security-settings')).flush({ requireMfa: false });
+    if (view === 'policy') http.expectOne((r) => r.url.endsWith('/organizations/security-settings')).flush({ requireMfa: false });
     return fixture;
   }
 
@@ -77,6 +78,8 @@ describe('SecuritySettingsPage', () => {
     expect(req.request.params.get('from')).toBe('2026-10-01');
     expect(req.request.params.get('to')).toBe('2026-10-31');
     expect(req.request.params.get('page')).toBe('1');
+    // People only, unless the reader asks for the system's own work too.
+    expect(req.request.params.get('peopleOnly')).toBe('true');
     expect(req.request.params.has('userId')).toBe(false);
     req.flush({ rows: [], page: 1, pageSize: 50, total: 0, hasMore: false });
   });
@@ -101,8 +104,29 @@ describe('SecuritySettingsPage', () => {
     expect(page.entityName('price_lists')).toBe('Price lists');
   });
 
+  it('names the record by its number or name, and hides the IP column when no row has one', () => {
+    const page = create().componentInstance;
+    http.expectOne((r) => r.url.endsWith('/audit/entities')).flush([]);
+    http.expectOne((r) => r.url.endsWith('/audit')).flush({ rows: [{ ...row, recordLabel: 'Caja chica' }], page: 1, pageSize: 50, total: 1, hasMore: false });
+    expect(page.recordName({ ...row, recordLabel: 'Caja chica' })).toBe('Caja chica');
+    expect(page.recordName(row)).toBe('settings.security.record_id 9c000000');
+    expect(page.showIp()).toBe(false);
+  });
+
+  it('reads the system’s own work only when asked', () => {
+    const page = create().componentInstance;
+    http.expectOne((r) => r.url.endsWith('/audit/entities')).flush([]);
+    http.expectOne((r) => r.url.endsWith('/audit')).flush({ rows: [], page: 1, pageSize: 50, total: 0, hasMore: false });
+    expect(page.filtered()).toBe(false);
+    page.setFilter({ peopleOnly: false });
+    const req = http.expectOne((r) => r.url.endsWith('/audit'));
+    expect(req.request.params.has('peopleOnly')).toBe(false);
+    expect(page.filtered()).toBe(true);
+    req.flush({ rows: [], page: 1, pageSize: 50, total: 0, hasMore: false });
+  });
+
   it('does not offer the trail without audit:view_trail', () => {
-    const fixture = create(false);
+    const fixture = create(false, false, 'trail');
     http.expectNone((r) => r.url.includes('/audit'));
     expect((fixture.nativeElement as HTMLElement).querySelector('#sec-trail')).toBeNull();
   });
@@ -116,7 +140,7 @@ describe('SecuritySettingsPage', () => {
   });
 
   it('asks before requiring a second factor of everyone, and sends nothing if declined', async () => {
-    const page = create(false).componentInstance;
+    const page = create(false, false, 'policy').componentInstance;
     dialog.confirm.mockResolvedValueOnce(false);
     await page.toggleMfa(true);
     http.expectNone((r) => r.method === 'PATCH');
@@ -130,7 +154,7 @@ describe('SecuritySettingsPage', () => {
   });
 
   it('reports the server’s refusal when the caller is not the owner', async () => {
-    const page = create(false).componentInstance;
+    const page = create(false, false, 'policy').componentInstance;
     await page.toggleMfa(false);
     http
       .expectOne((r) => r.method === 'PATCH')

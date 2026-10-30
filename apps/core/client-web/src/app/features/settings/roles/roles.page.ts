@@ -1,3 +1,4 @@
+import { SettingsActionsDirective } from '../shell';
 import { RoleNamePipe } from '../../../shared/pipes/role-name.pipe';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
@@ -27,7 +28,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 @Component({
   selector: 'app-roles-management-page',
   standalone: true,
-  imports: [RoleNamePipe, 
+  imports: [SettingsActionsDirective, RoleNamePipe, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,

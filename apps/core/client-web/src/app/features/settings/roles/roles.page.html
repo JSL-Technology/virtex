@@ -1,11 +1,10 @@
 <div class="page-container">
-  <div class="page-header">
-    <h1>{{ 'settings.roles.roles_permissions' | translate }}</h1>
-    <button class="primary-button" (click)="openRoleModal()" *appHasPermission="'roles:create'">
-      <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
+  <ng-template vxSettingsActions>
+    <button class="primary-button" type="button" (click)="openRoleModal()" *appHasPermission="'roles:create'">
+      <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
       <span>{{ 'settings.roles.create_role' | translate }}</span>
     </button>
-  </div>
+  </ng-template>
 
   <div class="table-container card">
     <table class="data-table">

@@ -3348,5 +3348,70 @@
     "es": "El servicio de inteligencia artificial no está disponible en este momento. Inténtalo más tarde o continúa manualmente.",
     "en": "The artificial intelligence service is unavailable right now. Try again later or continue manually.",
     "pt": "O serviço de inteligência artificial não está disponível neste momento. Tente mais tarde ou continue manualmente."
+  },
+  "ai.admin.runs_intro": {
+    "es": "Los trabajos programados del motor de IA. Es estado de operación, no un ajuste.",
+    "en": "The AI engine’s scheduled jobs. This is operational state, not a setting.",
+    "pt": "Os trabalhos agendados do motor de IA. É estado operacional, não uma configuração."
+  },
+  "ai.admin.run_waiting": {
+    "es": "En espera de que el motor de IA lo tome. Si no empieza en 30 minutos se da por fallido y podrás reintentarlo.",
+    "en": "Waiting for the AI engine to pick it up. If it does not start within 30 minutes it is marked as failed and you can retry.",
+    "pt": "Aguardando o motor de IA. Se não começar em 30 minutos é dado como falho e você poderá tentar de novo."
+  },
+  "ai.admin.run_working": {
+    "es": "El motor está trabajando en ello.",
+    "en": "The engine is working on it.",
+    "pt": "O motor está trabalhando nisso."
+  },
+  "ai.admin.run_error.not_started": {
+    "es": "El motor de IA no tomó este trabajo: puede que no esté en marcha. Vuelve a intentarlo o avisa a soporte.",
+    "en": "The AI engine did not pick this job up: it may not be running. Try again or tell support.",
+    "pt": "O motor de IA não pegou este trabalho: talvez não esteja em execução. Tente de novo ou avise o suporte."
+  },
+  "ai.admin.run_error.expired": {
+    "es": "El trabajo empezó pero no terminó. Vuelve a intentarlo.",
+    "en": "The job started but did not finish. Try again.",
+    "pt": "O trabalho começou mas não terminou. Tente de novo."
+  },
+  "ai.admin.run_error.enqueue": {
+    "es": "No se pudo poner en cola. Vuelve a intentarlo en unos minutos.",
+    "en": "It could not be queued. Try again in a few minutes.",
+    "pt": "Não foi possível colocar na fila. Tente de novo em alguns minutos."
+  },
+  "ai.admin.run_error.other": {
+    "es": "Falló: {{detail}}",
+    "en": "Failed: {{detail}}",
+    "pt": "Falhou: {{detail}}"
+  },
+  "ai.admin.run_again": {
+    "es": "Reintentar",
+    "en": "Try again",
+    "pt": "Tentar de novo"
+  },
+  "ai.admin.refresh": {
+    "es": "Actualizar estado",
+    "en": "Refresh status",
+    "pt": "Atualizar estado"
+  },
+  "ai.policy.confirm_title": {
+    "es": "¿Enviar datos a un proveedor de IA?",
+    "en": "Send data to an AI provider?",
+    "pt": "Enviar dados a um provedor de IA?"
+  },
+  "ai.policy.confirm_send": {
+    "es": "Desde ahora, partes de los datos de la empresa saldrán hacia el proveedor del modelo cuando se use esta función. El cambio queda auditado y puedes desactivarlo cuando quieras.",
+    "en": "From now on, parts of the company’s data will leave for the model provider when this feature is used. The change is audited and you can turn it off at any time.",
+    "pt": "A partir de agora, partes dos dados da empresa sairão para o provedor do modelo quando esta função for usada. A alteração é auditada e você pode desativá-la quando quiser."
+  },
+  "ai.policy.confirm_unmask": {
+    "es": "Los identificadores (RNC, cédulas, cuentas) se enviarán sin enmascarar al proveedor del modelo. El cambio queda auditado.",
+    "en": "Identifiers (tax IDs, ID numbers, accounts) will be sent unmasked to the model provider. The change is audited.",
+    "pt": "Os identificadores (CNPJ, CPF, contas) serão enviados sem máscara ao provedor do modelo. A alteração é auditada."
+  },
+  "ai.policy.confirm_action": {
+    "es": "Sí, permitir",
+    "en": "Yes, allow",
+    "pt": "Sim, permitir"
   }
 }

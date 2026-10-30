@@ -368,6 +368,16 @@ export class OrganizationSettings {
   fxRateMaxAgeDays!: number;
 
   /**
+   * The company's look: accent colour, typeface, corner radius. One per company, read by every
+   * member's browser when it opens the company.
+   *
+   * It used to live only in the `localStorage` of whoever set it, so the brand an administrator
+   * chose was seen by that administrator, on that browser — and «Save changes» saved nothing.
+   */
+  @Column({ type: 'jsonb', nullable: true })
+  branding: { accentColor?: string; fontFamily?: string; borderRadius?: number } | null = null;
+
+  /**
    * Whether every member of this organization must hold a second factor.
    *
    * `user_security.is_two_factor_enabled` is a per-person choice, and until now it was the ONLY
@@ -383,6 +393,7 @@ export class OrganizationSettings {
    * Off by default: turning this on for an existing tenant interrupts everyone's next sign-in, so
    * it is a decision its administrator makes deliberately.
    */
+
   @Column({ name: 'require_mfa', type: 'boolean', default: false })
   requireMfa!: boolean;
 }

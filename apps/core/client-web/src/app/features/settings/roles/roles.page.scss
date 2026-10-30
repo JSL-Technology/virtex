@@ -2,7 +2,8 @@
 @use 'assets/styles/design-system' as ds;
 
 .page-container {
-    padding: var(--space-8);
+    // Width and padding are the settings window's (`.sm-page`).
+    display: block;
 }
 
 .page-header {

@@ -220,5 +220,25 @@
     "en": "We could not find that version of the extension.",
     "es": "No encontramos esa versión de la extensión.",
     "pt": "Não encontrámos essa versão da extensão."
+  },
+  "extensions.none_registered_title": {
+    "es": "Todavía no hay extensiones instaladas.",
+    "en": "No extensions installed yet.",
+    "pt": "Ainda não há extensões instaladas."
+  },
+  "extensions.none_registered_below": {
+    "es": "Registra una en «Registrar extensión», debajo de esta lista.",
+    "en": "Register one in “Register extension”, below this list.",
+    "pt": "Registre uma em “Registrar extensão”, abaixo desta lista."
+  },
+  "extensions.none_registered_platform": {
+    "es": "El equipo de la plataforma publica las extensiones; cuando haya alguna, aparecerá aquí para que la actives.",
+    "en": "The platform team publishes extensions; when there is one, it will appear here for you to enable.",
+    "pt": "A equipe da plataforma publica as extensões; quando houver alguma, aparecerá aqui para você ativar."
+  },
+  "extensions.run_in_sandbox_help": {
+    "es": "Prueba una extensión instalada sin que toque tus datos: se ejecuta aislada, con solo los permisos que le diste, y verás su resultado y su registro.",
+    "en": "Try an installed extension without it touching your data: it runs isolated, with only the permissions you granted, and you see its result and log.",
+    "pt": "Teste uma extensão instalada sem que ela toque seus dados: roda isolada, só com as permissões que você deu, e você vê o resultado e o log."
   }
 }

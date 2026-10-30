@@ -1,4 +1,5 @@
 import { RoleNamePipe } from '../../../shared/pipes/role-name.pipe';
+import { SettingsSaveBarComponent } from '../shell';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MyProfilePage } from './my-profile.page';
 import { AuthService } from '../../../core/services/auth';
@@ -92,6 +93,8 @@ describe('MyProfilePage', () => {
           PasswordStrengthComponent,
           // The role badge is named in the reader's language, not «ADMINISTRATOR» (QA U79).
           RoleNamePipe,
+          // The section's single save bar (CG-10).
+          SettingsSaveBarComponent,
         ]
       }
     })

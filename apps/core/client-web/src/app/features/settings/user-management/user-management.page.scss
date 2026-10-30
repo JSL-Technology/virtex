@@ -4,14 +4,10 @@
 // Page Shell
 // ──────────────────────────────────────────────
 .settings-page-container {
-    padding: var(--space-8);
-    min-height: 100%;
+    // Width and padding are the settings window's (`.sm-page`).
 }
 
-.page-container {
-    max-width: 1400px;
-    margin: 0 auto;
-}
+.page-container { display: block; }
 
 .page-header {
     display: flex;

@@ -1,5 +1,5 @@
 import { AuthService } from '../../core/services/auth';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -49,6 +49,8 @@ import { VX_SORT, sortable } from '../../shared/components/sort';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExtensionsPage {
+  /** Opened as a section of Settings, which draws the heading. */
+  readonly embedded = input(false);
   /** Sortable by its headers (QA B-01). */
   readonly table = sortable(() => this.extensions());
   /** Turns the API's error contract (`code`, `messageKey`, `params`) into the reader's sentence. */

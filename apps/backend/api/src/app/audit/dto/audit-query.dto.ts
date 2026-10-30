@@ -1,5 +1,5 @@
-import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsISO8601, IsOptional, IsString, IsUUID, Max, MaxLength, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsBoolean, IsEnum, IsInt, IsISO8601, IsOptional, IsString, IsUUID, Max, MaxLength, Min } from 'class-validator';
 import { ActionType } from '../entities/audit-log.entity';
 
 /**
@@ -38,6 +38,15 @@ export class AuditQueryDto {
   @IsISO8601()
   @IsOptional()
   to?: string;
+
+  /**
+   * Only what people did. Work the system does on its own (twelve periods opened with a fiscal year,
+   * a scheduled report) is recorded with no actor and buried the human actions an auditor reads for.
+   */
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  @IsOptional()
+  peopleOnly?: boolean;
 
   @Type(() => Number)
   @IsInt()

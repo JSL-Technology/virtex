@@ -1,12 +1,5 @@
 <div class="sso-settings">
 
-  <!-- Page Header -->
-  <div class="sso-head">
-    <h1>{{ 'settings.sso.single_sign_sso' | translate }}</h1>
-    <p class="muted">
-      {{ 'settings.sso.connect_your_organization_identity_provider_okta' | translate }}
-    </p>
-  </div>
 
   <!-- Alerts -->
   @if (error()) {
@@ -97,7 +90,8 @@
     </div>
 
     @if (!hasVerifiedDomain()) {
-      <div class="alert alert-ok" style="margin: 1.25rem 1.5rem 0; border-radius: var(--radius-md);">
+      <!-- A requirement, not a success: informative, and it says what to do next. -->
+      <div class="alert alert-info sso-requirement" role="note">
         {{ 'settings.sso.you_must_verify_least_one_domain' | translate }}
       </div>
     }
@@ -177,7 +171,7 @@
         </tbody>
       </table>
     } @else {
-      <p class="muted" style="padding: 1.5rem; text-align: center;">{{ 'settings.sso.no_providers_configured' | translate }}</p>
+      <vx-empty-state titleKey="settings.sso.no_providers_configured" descriptionKey="settings.sso.no_providers_hint" />
     }
   </section>
 

@@ -1,8 +1,4 @@
 <div class="s-page">
-  <div class="s-header">
-    <h1 class="s-header__title">{{ 'settings.pages.withholding.title' | translate }}</h1>
-    <p class="s-header__subtitle">{{ 'settings.pages.withholding.what_your_buyers_withhold_when_they' | translate }}</p>
-  </div>
 
   <!--
     What the product does and does not do in this market, stated per capability. `marketStatus`
@@ -29,10 +25,13 @@
     </section>
   }
 
-  <button class="primary-button" type="button" (click)="toggleForm()">
-    {{ (showForm() ? 'settings.pages.withholding.cancel'
-                   : 'settings.pages.withholding.add') | translate }}
-  </button>
+  <ng-template vxSettingsActions>
+    @if (canEdit()) {
+    <button [class]="showForm() ? 'secondary-button' : 'primary-button'" type="button" (click)="toggleForm()" [attr.aria-expanded]="showForm()">
+      {{ (showForm() ? 'settings.pages.withholding.cancel' : 'settings.pages.withholding.add') | translate }}
+    </button>
+    }
+  </ng-template>
 
   @if (showForm()) {
     <form class="card w-form" [formGroup]="form" (ngSubmit)="save()">
@@ -99,7 +98,11 @@
   @if (loading()) {
     <p class="s-state">{{ 'settings.pages.withholding.loading' | translate }}</p>
   } @else if (regimes().length === 0) {
-    <p class="s-state">{{ 'settings.pages.withholding.empty' | translate }}</p>
+    <vx-empty-state class="card" titleKey="settings.pages.withholding.empty" descriptionKey="settings.pages.withholding.empty_hint">
+      @if (canEdit() && !showForm()) {
+        <button action type="button" class="primary-button" (click)="toggleForm()">{{ 'settings.pages.withholding.add' | translate }}</button>
+      }
+    </vx-empty-state>
   } @else {
     <div class="card">
       <table class="w-table">

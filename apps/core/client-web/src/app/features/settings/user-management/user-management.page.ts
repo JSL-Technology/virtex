@@ -1,3 +1,4 @@
+import { SettingsActionsDirective } from '../shell';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { RoleNamePipe, roleLabel } from '../../../shared/pipes/role-name.pipe';
 import {
@@ -81,7 +82,7 @@ import { TableSort, VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-user-management-page',
   standalone: true,
-  imports: [...VX_SORT, ...FORMAT_PIPES, RoleNamePipe, 
+  imports: [SettingsActionsDirective, ...VX_SORT, ...FORMAT_PIPES, RoleNamePipe, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,

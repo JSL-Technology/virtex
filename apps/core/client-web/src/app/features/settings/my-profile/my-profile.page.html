@@ -1,5 +1,5 @@
 <div class="profile-page">
-
+@if (view() === 'profile') {
   <!-- ── Profile Banner ──────────────────────────────────────────── -->
   <div class="profile-card profile-banner">
     <div class="p-avatar-wrap">
@@ -20,16 +20,13 @@
     </div>
   </div>
 
-  <!-- ── Two-column grid ─────────────────────────────────────────── -->
-  <div class="profile-grid">
 
-    <!-- Left: Personal info -->
-    <div class="profile-card">
-      <div class="profile-card__head">
-        <lucide-icon [img]="UserIcon" size="18"></lucide-icon>
-        <h2>{{ 'settings.profile.personal_information' | translate }}</h2>
-      </div>
-      <div class="profile-card__body">
+  <div class="profile-card">
+    <div class="profile-card__head">
+      <lucide-icon [img]="UserIcon" size="18" aria-hidden="true"></lucide-icon>
+      <h2>{{ 'settings.profile.personal_information' | translate }}</h2>
+    </div>
+    <div class="profile-card__body">
         <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
           <div class="pf-grid-2">
             <div class="pf-field">
@@ -118,32 +115,18 @@
             </select>
           </div>
 
-          <div class="pf-actions">
-            <button type="submit"
-                    [disabled]="profileForm.pristine || isLoading"
-                    class="pf-btn-primary">
-              @if (isLoading) {
-                <span class="pf-spinner"></span>
-              } @else {
-                <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-              }
-              {{ 'settings.profile.save_changes' | translate }}
-            </button>
-          </div>
+
         </form>
-      </div>
     </div>
-
-    <!-- Right: Password + 2FA + Sessions -->
-    <div class="profile-right-col">
-
-      <!-- Password card -->
-      <div class="profile-card">
-        <div class="profile-card__head">
-          <lucide-icon [img]="ShieldIcon" size="18"></lucide-icon>
-          <h2>{{ 'settings.profile.security' | translate }}</h2>
-        </div>
-        <div class="profile-card__body">
+  </div>
+  <vx-settings-save-bar [dirty]="profileDirty()" [saving]="saving()" (save)="saveProfile()" (discard)="discardProfile()" />
+} @else {
+  <div class="profile-card">
+    <div class="profile-card__head">
+      <lucide-icon [img]="ShieldIcon" size="18" aria-hidden="true"></lucide-icon>
+      <h2>{{ 'settings.profile.password_title' | translate }}</h2>
+    </div>
+    <div class="profile-card__body profile-card__body--narrow">
           <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
             <!-- Hidden username field for password managers -->
             <input type="text" autocomplete="username"
@@ -152,20 +135,20 @@
 
             <div class="pf-field">
               <label class="pf-label" for="currentpassword">{{ 'settings.profile.current_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
-              <input id="currentpassword" type="password" formControlName="currentPassword" autocomplete="current-password" placeholder="••••••••" required>
+              <input id="currentpassword" type="password" formControlName="currentPassword" autocomplete="current-password" required>
               @if (passwordForm.get('currentPassword')?.hasError('incorrect')) {
                 <small class="pf-error" role="alert">{{ 'settings.profile.errors.current_password_incorrect' | translate }}</small>
               }
             </div>
             <div class="pf-field">
               <label class="pf-label" for="newpassword">{{ 'settings.profile.new_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
-              <input id="newpassword" type="password" formControlName="newPassword" autocomplete="new-password" placeholder="••••••••" required>
+              <input id="newpassword" type="password" formControlName="newPassword" autocomplete="new-password" required>
               <!-- Los requisitos, en vivo: antes una contraseña débil dejaba el botón gris sin decir por qué (QA M-03). -->
               <app-password-strength [password]="passwordForm.get('newPassword')?.value"></app-password-strength>
             </div>
             <div class="pf-field">
               <label class="pf-label" for="confirmpassword">{{ 'settings.profile.confirm_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
-              <input id="confirmpassword" type="password" formControlName="confirmPassword" autocomplete="new-password" placeholder="••••••••" required>
+              <input id="confirmpassword" type="password" formControlName="confirmPassword" autocomplete="new-password" required>
               @if (passwordForm.hasError('passwordsMismatch') && passwordForm.get('confirmPassword')?.touched) {
                 <small class="pf-error" role="alert">{{ 'settings.profile.errors.passwords_do_not_match' | translate }}</small>
               }
@@ -177,14 +160,12 @@
               </button>
             </div>
           </form>
-        </div>
-      </div>
-
-      <!-- 2FA & Sessions (security-settings component) -->
-      <app-security-settings></app-security-settings>
-
     </div>
   </div>
+
+  <!-- Second factor, passkeys and sessions: each card at full width, not squeezed into a column. -->
+  <app-security-settings></app-security-settings>
+}
 </div>
 
 <!-- Phone Verification Modal -->

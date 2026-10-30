@@ -1,4 +1,5 @@
 import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
+import { AccountRole } from '../../chart-of-accounts/enums/account-enums';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { FISCAL_EMISSION_MODES } from '../contracts/fiscal-emission-mode.contract';
 
@@ -127,3 +128,39 @@ export type SettingsSectionId = keyof typeof SETTINGS_SECTIONS;
 export function isSettingsSection(id: string): id is SettingsSectionId {
   return Object.prototype.hasOwnProperty.call(SETTINGS_SECTIONS, id);
 }
+
+/**
+ * The chart role each default account is provisioned from — what «default» means for an account
+ * field. A tenant's settings start as exactly these (see `TenantBookkeepingProvisioner`); the
+ * settings screen shows the account each role points at, so a person who re-pointed a field can see
+ * what it was, and put it back.
+ *
+ * Fields with no role (bank fees, intercompany) have no default: the chart carries no such account
+ * until someone creates one.
+ */
+export const DEFAULT_ACCOUNT_ROLES: Partial<Record<AccountField, AccountRole>> = {
+  defaultAccountsReceivableId: AccountRole.ACCOUNTS_RECEIVABLE,
+  defaultAccountsPayableId: AccountRole.ACCOUNTS_PAYABLE,
+  defaultSalesRevenueId: AccountRole.SALES_REVENUE,
+  defaultServiceRevenueId: AccountRole.SERVICE_REVENUE,
+  defaultSalesDiscountsId: AccountRole.SALES_DISCOUNTS,
+  defaultCashId: AccountRole.CASH,
+  defaultBankId: AccountRole.BANK,
+  defaultCustomerAdvancesAccountId: AccountRole.CUSTOMER_ADVANCES,
+  defaultOpeningBalanceEquityAccountId: AccountRole.OPENING_BALANCE_EQUITY,
+  defaultDepreciationExpenseAccountId: AccountRole.DEPRECIATION_EXPENSE,
+  defaultAccumulatedDepreciationAccountId: AccountRole.ACCUMULATED_DEPRECIATION,
+  defaultInflationAdjustmentAccountId: AccountRole.INFLATION_ADJUSTMENT,
+  defaultForexGainLossAccountId: AccountRole.FOREX_GAIN_LOSS,
+  defaultSalesTaxId: AccountRole.TAX_PAYABLE,
+  defaultPurchaseTaxId: AccountRole.TAX_RECEIVABLE,
+  defaultTaxWithheldReceivableId: AccountRole.WITHHOLDING_RECEIVABLE,
+  defaultTaxWithheldPayableId: AccountRole.WITHHOLDING_PAYABLE,
+  defaultExciseTaxPayableId: AccountRole.EXCISE_TAX_PAYABLE,
+  defaultServiceChargePayableId: AccountRole.SERVICE_CHARGE_PAYABLE,
+  defaultRetainedEarningsAccountId: AccountRole.RETAINED_EARNINGS,
+  defaultInventoryId: AccountRole.INVENTORY,
+  defaultCostOfGoodsSoldId: AccountRole.COST_OF_GOODS_SOLD,
+  defaultInventoryAdjustmentAccountId: AccountRole.INVENTORY_ADJUSTMENT,
+  defaultGoodsReceivedNotInvoicedAccountId: AccountRole.GOODS_RECEIVED_NOT_INVOICED,
+};

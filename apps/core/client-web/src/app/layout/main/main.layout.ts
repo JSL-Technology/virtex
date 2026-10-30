@@ -1,3 +1,4 @@
+import { BrandingService } from '../../core/services/branding';
 import { LanguageService } from '../../core/services/language';
 import { ThemeService } from '../../core/services/theme';
 import { SearchResultTextService } from '../../core/services/search-result-text.service';
@@ -138,6 +139,7 @@ import { resolveRoute } from '../../core/modules/module-registry';
 })
 export class MainLayout implements OnInit {
   notificationCenter = inject(NotificationCenterService);
+  private readonly branding = inject(BrandingService);
   private readonly notifications = inject(NotificationService);
   tabPersistence = inject(TabPersistenceService);
   tabRouter = inject(TabRouterService);
@@ -186,6 +188,16 @@ export class MainLayout implements OnInit {
 
   /** The bell's button, so closing its panel with Escape returns the focus there. */
   private readonly notificationButton = viewChild<ElementRef<HTMLButtonElement>>('notificationButton');
+
+  /**
+   * The company's brand — colour, typeface, logo — comes from the server whenever a company opens,
+   * so every member sees the brand its administrator saved, not whatever this browser cached.
+   */
+  private readonly brandingFollowsCompany = effect(() => {
+    const organizationId = this.authService.currentUser()?.organizationId ?? null;
+    if (!organizationId) return;
+    untracked(() => this.branding.loadFromServer().subscribe());
+  });
 
   /** The bell lists the active company's notices; a switch reloads them. */
   private readonly notificationsFollowCompany = effect(() => {

@@ -8,8 +8,6 @@
 // Page Shell
 // ──────────────────────────────────────────────
 .page-shell {
-    padding: var(--space-8);
-    max-width: 900px;
     animation: page-enter 0.25s ease-out;
 
     > * + * { margin-top: var(--space-6); }
@@ -229,9 +227,6 @@
     margin: 1.75rem 0;
 }
 
-.settings-page-container {
-    padding: var(--space-8);
-}
 
 .error-message {
     font-size: var(--text-xs);

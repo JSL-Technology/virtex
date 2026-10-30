@@ -6,7 +6,10 @@
     <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
   </div>
 } @else if (view()) {
-  <form class="ss" (ngSubmit)="save()">
+  <form class="ss" [id]="anchor() ? 'settings-block-' + anchor() : null" (ngSubmit)="save()">
+    @if (titleKey(); as title) {
+      <h2 class="ss__block-title">{{ title | translate }}</h2>
+    }
     @if (showBaseCurrency() && view()!.baseCurrency; as base) {
       <section class="ss__group">
         <h2 class="ss__title">{{ 'settings.sections.base_currency' | translate }}</h2>
@@ -14,7 +17,7 @@
           <span class="ss__label">{{ 'settings.sections.base_currency_label' | translate }}</span>
           <input id="ss-base-currency" type="text" maxlength="3" class="ss__input ss__input--short"
             [value]="baseCurrencyEdit() ?? base.code"
-            [disabled]="base.locked"
+            [disabled]="base.locked || !canEdit()"
             (input)="setBaseCurrency($any($event.target).value)" />
           <small class="ss__help">
             {{ (base.locked ? 'settings.sections.base_currency_locked' : 'settings.sections.base_currency_open') | translate }}
@@ -40,6 +43,7 @@
                 [displayWith]="accountLabel"
                 [valueWith]="accountValue"
                 placeholderKey="settings.sections.choose_account"
+                [disabled]="!canEdit()"
               />
               <small class="ss__help">
                 @if (item.helpKey) { {{ item.helpKey | translate }} }
@@ -47,6 +51,14 @@
                   {{ 'settings.sections.expects_type' | translate: { type: ('accounting.account_type.' + type | translate) } }}
                 }
               </small>
+              @if (defaultAccountOf(item.field); as fallback) {
+                <small class="ss__default">
+                  {{ 'settings.sections.default_is' | translate: { value: refLabel(fallback) } }}
+                  @if (canEdit() && differsFromDefault(item.field, 'account')) {
+                    <button type="button" class="ss__restore" (click)="restoreDefault(item.field, 'account')">{{ 'settings.sections.restore_default' | translate }}</button>
+                  }
+                </small>
+              }
             </label>
           }
         }
@@ -61,7 +73,7 @@
             <span class="ss__label">{{ policy.labelKey | translate }}</span>
             @switch (policy.kind) {
               @case ('select') {
-                <select class="ss__input" [id]="'ss-' + policy.field"
+                <select class="ss__input" [id]="'ss-' + policy.field" [disabled]="!canEdit()"
                   [ngModel]="fieldValueOf(policy.field) ?? ''" [ngModelOptions]="{ standalone: true }"
                   (ngModelChange)="setField(policy.field, $event === '' ? null : $event)">
                   @if (policy.nullable) { <option value="">{{ 'settings.sections.not_stated' | translate }}</option> }
@@ -72,7 +84,7 @@
               }
               @case ('percent') {
                 <span class="ss__unit">
-                  <input type="number" appPercent class="ss__input ss__input--short" [id]="'ss-' + policy.field"
+                  <input type="number" appPercent class="ss__input ss__input--short" [id]="'ss-' + policy.field" [disabled]="!canEdit()"
                     step="0.01" [min]="policy.min ?? 0" [max]="policy.max ?? 100"
                     [ngModel]="fieldValueOf(policy.field)" [ngModelOptions]="{ standalone: true }"
                     (ngModelChange)="setField(policy.field, $event)" />
@@ -80,25 +92,25 @@
                 </span>
               }
               @default {
-                <input type="number" step="1" class="ss__input ss__input--short" [id]="'ss-' + policy.field"
+                <input type="number" step="1" class="ss__input ss__input--short" [id]="'ss-' + policy.field" [disabled]="!canEdit()"
                   [min]="policy.min ?? 0" [max]="policy.max ?? null"
                   [ngModel]="fieldValueOf(policy.field)" [ngModelOptions]="{ standalone: true }"
                   (ngModelChange)="setField(policy.field, $event === null ? null : +$event)" />
               }
             }
             @if (policy.helpKey) { <small class="ss__help">{{ policy.helpKey | translate }}</small> }
+            @if (defaultFieldOf(policy.field) !== null && canEdit() && differsFromDefault(policy.field, 'field')) {
+              <small class="ss__default">
+                <button type="button" class="ss__restore" (click)="restoreDefault(policy.field, 'field')">{{ 'settings.sections.restore_default' | translate }}</button>
+              </small>
+            }
           </label>
         }
       </section>
     }
 
-    <div class="ss__actions">
-      <button type="button" class="secondary-button" [disabled]="!dirty() || saving()" (click)="discard()">
-        {{ 'common.discard' | translate }}
-      </button>
-      <button type="submit" class="primary-button" [disabled]="!dirty() || saving()">
-        {{ (saving() ? 'common.saving' : 'common.save_changes') | translate }}
-      </button>
-    </div>
+    @if (!embedded() && canEdit()) {
+      <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" (save)="save()" (discard)="discard()" />
+    }
   </form>
 }

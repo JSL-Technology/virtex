@@ -46,6 +46,15 @@ export class AiSettingsPage implements OnInit {
   readonly overview = signal<AiOverview | null>(null);
   readonly loadError = signal(false);
   readonly starting = signal<'forecast' | 'anomaly' | null>(null);
+  protected readonly runKinds = ['forecast', 'anomaly'] as const;
+
+  /** Open the engine's state when something there needs a person: a run that failed or is waiting. */
+  readonly anyRunNeedsAttention = computed(() =>
+    this.runKinds.some((kind) => {
+      const status = this.runOf(kind).latest?.status;
+      return status === 'FAILED' || status === 'QUEUED';
+    }),
+  );
 
   protected readonly k = composeKey;
   protected readonly predictionsLink = computed(() => this.organization.urlFor('/inventory/predictions'));
@@ -121,6 +130,14 @@ export class AiSettingsPage implements OnInit {
 
   runOf(kind: 'forecast' | 'anomaly'): { latest: AiRunSummary | null; lastSucceeded: AiRunSummary | null } {
     return this.overview()?.runs[kind] ?? { latest: null, lastSucceeded: null };
+  }
+
+  /** Why a run failed, in words: the two ways the server gives up on a run, or what it reported. */
+  failureKey(run: AiRunSummary): string {
+    if (run.error?.startsWith('not_started')) return 'ai.admin.run_error.not_started';
+    if (run.error?.startsWith('expired')) return 'ai.admin.run_error.expired';
+    if (run.error?.startsWith('enqueue failed')) return 'ai.admin.run_error.enqueue';
+    return 'ai.admin.run_error.other';
   }
 
   isActive(run: AiRunSummary | null): boolean {

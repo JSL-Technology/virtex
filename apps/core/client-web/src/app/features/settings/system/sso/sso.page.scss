@@ -1,8 +1,6 @@
 :host { display: block; }
 
 .sso-settings {
-  padding: var(--space-8);
-  max-width: 960px;
   display: flex;
   flex-direction: column;
   gap: var(--space-7);
@@ -41,6 +39,14 @@
   color: var(--error);
   border-color: rgba(var(--error-rgb), 0.25);
 }
+
+.alert-info {
+  background-color: var(--info-surface);
+  color: var(--info-text);
+  border-color: var(--info-border);
+}
+
+.sso-requirement { margin: 1.25rem 1.5rem 0; }
 
 .alert-ok {
   background-color: var(--success-bg);
