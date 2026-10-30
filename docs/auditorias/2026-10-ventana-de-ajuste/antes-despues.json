@@ -143,6 +143,16 @@
  },
  {
   "area": "Ajuste de inventario",
+  "codes": "INV-19",
+  "title": "Abrir desde la ficha del producto",
+  "before": "capturas/33-inv-desde-producto.png",
+  "after": [
+   "capturas-despues/33-inv-desde-producto.png"
+  ],
+  "change": "Llega con el producto y con el almacén donde está (no el predeterminado), y la línea muestra su existencia allí."
+ },
+ {
+  "area": "Ajuste de inventario",
   "codes": "INV-06",
   "title": "Rol de solo consulta",
   "before": "capturas/62-restringido-borrador.png",

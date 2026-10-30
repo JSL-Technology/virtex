@@ -35,10 +35,11 @@ Correcciones de los hallazgos de [la auditoría de la ventana de ajuste](2026-10
 
 ## Verificación
 
-- Cliente: todas las suites de Jest en verde; compilación de desarrollo sin errores; lint sin errores.
-- Servidor: todas las suites de Jest en verde contra Postgres local (incluidas tres pruebas desfasadas de la rama base, puestas al día); `tsc` sin errores; migraciones aplicadas; `check:schema-drift` sin deriva nueva.
-- POS: suite completa en verde; compilación sin errores.
-- i18n: `npm run i18n:verify` en verde (112 claves huérfanas podadas, prosa en TypeScript por debajo de la línea base).
+- Cliente: 238 suites, 1.280 pruebas en verde; compilación de desarrollo sin errores; lint sin errores.
+- Servidor: 265 suites, 3.406 pruebas en verde contra Postgres local (3 omitidas ya lo estaban en la rama base; tres pruebas desfasadas de la rama base se pusieron al día); `tsc` sin errores; migraciones aplicadas; `check:schema-drift` sin deriva nueva.
+- POS: 37 pruebas en verde; compilación sin errores.
+- i18n: `npm run i18n:verify` en verde (112 claves huérfanas podadas; prosa en TypeScript por debajo de la línea base).
+- Accesibilidad: axe-core sin violaciones en la ventana de Configuración y en el formulario de ajuste de auditoría; foco atrapado (0 de 60 tabulaciones salen del diálogo).
 - Datos de prueba solo locales y con prefijo `QA-7734`; el formato regional y las cuentas por defecto se restauraron tras las capturas.
 
 ## Comparaciones
@@ -156,6 +157,14 @@ Colores de signo, estados y cifras desde los tokens del tema, legibles en oscuro
 | Antes | Después |
 |---|---|
 | ![Tema oscuro, antes](2026-10-ventana-de-ajuste/capturas/55-inv-oscuro.png) | ![Tema oscuro, después](2026-10-ventana-de-ajuste/capturas-despues/55-inv-oscuro.png) |
+
+#### Abrir desde la ficha del producto · INV-19
+
+Llega con el producto y con el almacén donde está (no el predeterminado), y la línea muestra su existencia allí.
+
+| Antes | Después |
+|---|---|
+| ![Abrir desde la ficha del producto, antes](2026-10-ventana-de-ajuste/capturas/33-inv-desde-producto.png) | ![Abrir desde la ficha del producto, después](2026-10-ventana-de-ajuste/capturas-despues/33-inv-desde-producto.png) |
 
 #### Rol de solo consulta · INV-06
 
