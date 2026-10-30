@@ -1,0 +1,607 @@
+[
+ {
+  "dialogo": null,
+  "nav": "Mi perfil",
+  "ms": 2778,
+  "titulo": "Dev User",
+  "h1": "20px/700",
+  "guardar": [
+   "Guardar cambios",
+   "Actualizar contraseña"
+  ],
+  "botones": [
+   "Cambiar correo",
+   "Verificar",
+   "Guardar cambios",
+   "Actualizar contraseña",
+   "Activar",
+   "Agregar llave de acceso",
+   "Cerrar las demás sesiones (26)",
+   "27 sesiones en este dispositivo\n▾"
+  ],
+  "inputs": 11,
+  "unlabeled": 1,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 925,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Mis empresas",
+  "ms": 2320,
+  "titulo": "Mis empresas",
+  "h1": "20px/600",
+  "guardar": [],
+  "botones": [
+   "Nueva empresa"
+  ],
+  "inputs": 0,
+  "unlabeled": 0,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 141,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Facturación y plan",
+  "ms": 2272,
+  "titulo": "Facturación y plan",
+  "h1": "24px/700",
+  "guardar": [],
+  "botones": [],
+  "inputs": 0,
+  "unlabeled": 0,
+  "ayudas": 7,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 1400,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Perfil de la empresa",
+  "ms": 2249,
+  "titulo": "Perfil de la empresa",
+  "h1": "24px/700",
+  "guardar": [
+   "Guardar cambios"
+  ],
+  "botones": [
+   "Guardar cambios"
+  ],
+  "inputs": 10,
+  "unlabeled": 0,
+  "ayudas": 1,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 3800,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Estructura empresarial",
+  "ms": 2328,
+  "titulo": "Estructura empresarial",
+  "h1": "24px/700",
+  "guardar": [],
+  "botones": [
+   "Nueva subsidiaria",
+   "Crear primera subsidiaria"
+  ],
+  "inputs": 0,
+  "unlabeled": 0,
+  "ayudas": 1,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 490,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Sucursales",
+  "ms": 2268,
+  "titulo": "Sucursales",
+  "h1": "20px/600",
+  "guardar": [],
+  "botones": [
+   "Nueva sucursal",
+   "Crear la casa matriz"
+  ],
+  "inputs": 0,
+  "unlabeled": 0,
+  "ayudas": 1,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 498,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Personalización",
+  "ms": 2260,
+  "titulo": "Personalización avanzada",
+  "h1": "20px/700",
+  "guardar": [
+   "Guardar cambios"
+  ],
+  "botones": [
+   "Guardar cambios",
+   "Español",
+   "English",
+   "Português",
+   "Compacta",
+   "Cómoda",
+   "Normal",
+   "Ancho"
+  ],
+  "inputs": 6,
+  "unlabeled": 0,
+  "ayudas": 2,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 936,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Contabilidad",
+  "ms": 2326,
+  "titulo": "Preferencias contables",
+  "h1": "22px/700",
+  "guardar": [
+   "Guardar cambios"
+  ],
+  "botones": [
+   "Descartar",
+   "Guardar cambios"
+  ],
+  "inputs": 14,
+  "unlabeled": 0,
+  "ayudas": 14,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 1151,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Multimoneda",
+  "ms": 2258,
+  "titulo": "Multimoneda y tasas de cambio",
+  "h1": "22px/700",
+  "guardar": [
+   "Guardar cambios"
+  ],
+  "botones": [
+   "Descartar",
+   "Guardar cambios"
+  ],
+  "inputs": 5,
+  "unlabeled": 0,
+  "ayudas": 5,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 847,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Impuestos",
+  "ms": 2325,
+  "titulo": "Reglas de impuestos",
+  "h1": "22px/700",
+  "guardar": [
+   "Guardar cambios"
+  ],
+  "botones": [
+   "Descartar",
+   "Guardar cambios"
+  ],
+  "inputs": 7,
+  "unlabeled": 0,
+  "ayudas": 7,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 896,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Cierre fiscal",
+  "ms": 2338,
+  "titulo": "Periodos y cierre fiscal",
+  "h1": "22px/700",
+  "guardar": [
+   "Guardar cambios"
+  ],
+  "botones": [
+   "Descartar",
+   "Guardar cambios"
+  ],
+  "inputs": 2,
+  "unlabeled": 0,
+  "ayudas": 2,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 475,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Intercompañía",
+  "ms": 2244,
+  "titulo": "Reglas intercompañía",
+  "h1": "22px/700",
+  "guardar": [
+   "Guardar cambios"
+  ],
+  "botones": [
+   "Descartar",
+   "Guardar cambios"
+  ],
+  "inputs": 2,
+  "unlabeled": 0,
+  "ayudas": 2,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 436,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Comprobantes fiscales",
+  "ms": 2250,
+  "titulo": "Comprobantes fiscales (RD · DGII)",
+  "h1": "20px/700",
+  "guardar": [],
+  "botones": [
+   "Registrar rango",
+   "Subir certificado"
+  ],
+  "inputs": 12,
+  "unlabeled": 0,
+  "ayudas": 3,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 2564,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Retenciones",
+  "ms": 2342,
+  "titulo": "Regímenes de retención",
+  "h1": "22px/700",
+  "guardar": [],
+  "botones": [
+   "Agregar régimen"
+  ],
+  "inputs": 0,
+  "unlabeled": 0,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 586,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Jurisdicciones fiscales",
+  "ms": 2255,
+  "titulo": "Jurisdicciones fiscales",
+  "h1": "22px/700",
+  "guardar": [],
+  "botones": [
+   "Agregar jurisdicción"
+  ],
+  "inputs": 0,
+  "unlabeled": 0,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 376,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Secuencias",
+  "ms": 2273,
+  "titulo": "Secuencias fiscales",
+  "h1": "22px/700",
+  "guardar": [
+   "Guardar",
+   "Guardar",
+   "Guardar",
+   "Guardar",
+   "Guardar"
+  ],
+  "botones": [
+   "Guardar",
+   "Guardar",
+   "Guardar",
+   "Guardar",
+   "Guardar"
+  ],
+  "inputs": 10,
+  "unlabeled": 0,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 461,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Aprobaciones",
+  "ms": 2320,
+  "titulo": "Flujos de aprobación",
+  "h1": "22px/700",
+  "guardar": [],
+  "botones": [
+   "Nueva política"
+  ],
+  "inputs": 0,
+  "unlabeled": 0,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 700,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Inventario",
+  "ms": 2269,
+  "titulo": "Políticas de inventario",
+  "h1": "22px/700",
+  "guardar": [
+   "Guardar cambios"
+  ],
+  "botones": [
+   "Descartar",
+   "Guardar cambios"
+  ],
+  "inputs": 4,
+  "unlabeled": 0,
+  "ayudas": 4,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 560,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Usuarios",
+  "ms": 2262,
+  "titulo": "Gestión de usuarios",
+  "h1": "24px/700",
+  "guardar": [],
+  "botones": [
+   "Invitar usuario",
+   "Todos",
+   "Activo",
+   "Archivado",
+   "Pendiente",
+   "Bloqueado",
+   "Nombre",
+   "Correo electrónico"
+  ],
+  "inputs": 10,
+  "unlabeled": 1,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 336,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Roles y permisos",
+  "ms": 2323,
+  "titulo": "Roles y permisos",
+  "h1": "24px/700",
+  "guardar": [],
+  "botones": [
+   "Crear nuevo rol"
+  ],
+  "inputs": 0,
+  "unlabeled": 0,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 460,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Seguridad y auditoría",
+  "ms": 2259,
+  "titulo": "Seguridad y auditoría",
+  "h1": "22px/700",
+  "guardar": [],
+  "botones": [
+   "Quitar filtros",
+   "Ver cambios",
+   "Ver cambios",
+   "Ver cambios",
+   "Ver cambios",
+   "Ver cambios",
+   "Ver cambios",
+   "Ver cambios"
+  ],
+  "inputs": 6,
+  "unlabeled": 0,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 5270,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": "Verificación de seguridad\n\nAcción protegida\n\nContraseña\nCancelar\nConfirmar",
+  "nav": "Integraciones",
+  "ms": 3459,
+  "titulo": "Integraciones",
+  "h1": "22px/700",
+  "guardar": [],
+  "botones": [
+   "Crear dirección",
+   "Crear dirección"
+  ],
+  "inputs": 0,
+  "unlabeled": 0,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 1814,
+  "errRed": [
+   "GET /auth/sso/admin/providers 401"
+  ],
+  "errConsola": [
+   "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ]
+ },
+ {
+  "dialogo": null,
+  "nav": "Correo saliente",
+  "ms": 2338,
+  "titulo": "Correo saliente",
+  "h1": "22px/700",
+  "guardar": [
+   "Guardar"
+  ],
+  "botones": [
+   "Enviarme una prueba",
+   "Guardar"
+  ],
+  "inputs": 3,
+  "unlabeled": 0,
+  "ayudas": 3,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 696,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": "Verificación de seguridad\n\nAcción protegida\n\nContraseña\nCancelar\nConfirmar",
+  "nav": "SSO",
+  "ms": 3412,
+  "titulo": "Inicio de sesión único (SSO)",
+  "h1": "20px/700",
+  "guardar": [],
+  "botones": [
+   "Agregar dominio",
+   "Agregar proveedor"
+  ],
+  "inputs": 1,
+  "unlabeled": 1,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 662,
+  "errRed": [
+   "GET /auth/sso/admin/providers 401",
+   "GET /auth/sso/admin/domains 401"
+  ],
+  "errConsola": [
+   "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+   "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ],
+  "dialogoTardio": "Verificación de seguridad\n\nAcción protegida\n\nContraseña\nCancelar\nConfirmar"
+ },
+ {
+  "dialogo": null,
+  "nav": "Inteligencia artificial",
+  "ms": 2268,
+  "titulo": "Inteligencia artificial",
+  "h1": "22px/700",
+  "guardar": [],
+  "botones": [
+   "En curso…",
+   "En curso…",
+   "Ejecutar ahora"
+  ],
+  "inputs": 20,
+  "unlabeled": 0,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 3627,
+  "errRed": [],
+  "errConsola": []
+ },
+ {
+  "dialogo": null,
+  "nav": "Extensiones",
+  "ms": 2257,
+  "titulo": "Extensiones",
+  "h1": "24px/600",
+  "guardar": [
+   "Actualizar"
+  ],
+  "botones": [
+   "Actualizar",
+   "Ejecutar"
+  ],
+  "inputs": 1,
+  "unlabeled": 1,
+  "ayudas": 0,
+  "rawKeys": [],
+  "english": [],
+  "vacio": false,
+  "len": 344,
+  "errRed": [],
+  "errConsola": []
+ }
+]

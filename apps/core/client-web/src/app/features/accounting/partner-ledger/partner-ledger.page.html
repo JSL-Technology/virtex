@@ -23,11 +23,11 @@
   </div>
   <div listFilters class="doc-filter">
     <label for="pl-from">{{ 'partner_ledger.from' | translate }}</label>
-    <input id="pl-from" type="date" [ngModel]="from()" (ngModelChange)="from.set($event); load()" />
+    <vx-date-field inputId="pl-from" [max]="to()" [ngModel]="from()" (ngModelChange)="from.set($event); load()" />
   </div>
   <div listFilters class="doc-filter">
     <label for="pl-to">{{ 'partner_ledger.to' | translate }}</label>
-    <input id="pl-to" type="date" [ngModel]="to()" (ngModelChange)="to.set($event); load()" />
+    <vx-date-field inputId="pl-to" [min]="from()" [ngModel]="to()" (ngModelChange)="to.set($event); load()" />
   </div>
   @if (statement(); as st) {
     @if (st.currencies.length > 1) {

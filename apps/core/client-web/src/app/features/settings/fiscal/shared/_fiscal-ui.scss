@@ -241,3 +241,6 @@
   color: var(--content-secondary);
 }
 
+
+// The read-only wrapper draws nothing of its own.
+.fx-readonly { display: contents; border: 0; margin: 0; padding: 0; min-width: 0; }

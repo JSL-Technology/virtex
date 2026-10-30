@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -12,6 +12,7 @@ import { VX_DATE } from '../../../../shared/components/date';
 import { VX_SELECT } from '../../../../shared/components/select';
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '../../../../shared/validators/password.validator';
 import { UsersService } from '../../data/users.service';
+import { SettingsShellService } from '../../shell';
 
 /** The action types the trail records (`ActionType` on the server). */
 export const AUDIT_ACTIONS = ['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'LOGIN_FAILED', 'REFRESH', 'IMPERSONATE', 'READ', 'EXPORT'] as const;
@@ -23,6 +24,8 @@ export interface AuditRow {
   actorName: string | null;
   entity: string;
   entityId: string;
+  /** The record's number or name from the row's snapshot, when it carries one. */
+  recordLabel?: string | null;
   actionType: AuditAction;
   ipAddress?: string | null;
   previousValue?: Record<string, unknown> | null;
@@ -44,7 +47,11 @@ interface AuditFilters {
   entity: string | null;
   from: string | null;
   to: string | null;
+  /** Leave out what the system did on its own. On by default: the trail is read for people. */
+  peopleOnly: boolean;
 }
+
+const NO_FILTERS: AuditFilters = { userId: null, actionType: null, entity: null, from: null, to: null, peopleOnly: true };
 
 interface Person {
   id: string;
@@ -61,7 +68,13 @@ export interface FieldChange {
 const PAGE_SIZE = 50;
 
 /**
- * Organisation security and the audit trail (QA M-09: «Seguridad y auditoría» said «En desarrollo»).
+ * Organisation security and the audit trail, as two sections of one component (`view`).
+ *
+ * They were one screen, «Seguridad y auditoría», where the trail — a report, not a setting — took
+ * most of its four screens of scroll. Now `policy` holds what the company decides (second factor,
+ * password policy) and `trail` the record of who did what, each with its own permission.
+ *
+ * History (QA M-09: «Seguridad y auditoría» said «En desarrollo»):
  *
  * Everything shown here was already enforced or recorded by the server and unreachable:
  * - the organisation-wide second-factor requirement (`MfaEnrolmentGuard` enforces it; nothing
@@ -85,6 +98,10 @@ export class SecuritySettingsPage implements OnInit {
   private readonly dialog = inject(DialogService);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+
+  /** `policy`: second factor and password policy. `trail`: the audit trail. */
+  readonly view = input<'policy' | 'trail'>('policy');
 
   protected readonly passwordMin = PASSWORD_MIN_LENGTH;
   protected readonly passwordMax = PASSWORD_MAX_LENGTH;
@@ -92,6 +109,8 @@ export class SecuritySettingsPage implements OnInit {
 
   /** The trail is privileged reading (`audit:view_trail`); without it the section is not offered. */
   readonly canReadTrail = this.auth.hasPermissions(['audit:view_trail']);
+  /** Changing the policy is the owner's; anyone who may open the section may read it. */
+  readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
 
   readonly requireMfa = signal<boolean | null>(null);
   readonly savingMfa = signal(false);
@@ -102,7 +121,17 @@ export class SecuritySettingsPage implements OnInit {
   readonly entities = signal<string[]>([]);
   readonly people = signal<Person[]>([]);
   readonly expanded = signal<string | null>(null);
-  readonly filters = signal<AuditFilters>({ userId: null, actionType: null, entity: null, from: null, to: null });
+  readonly filters = signal<AuditFilters>({ ...NO_FILTERS });
+  /** Any filter beyond the default one is applied. */
+  readonly filtered = computed(() => {
+    const { peopleOnly, ...rest } = this.filters();
+    return !peopleOnly || Object.values(rest).some(Boolean);
+  });
+  /**
+   * The IP column appears only when some row on the page has one. Rows written by the server for
+   * its own work carry none, and a column of dashes was what the trail showed.
+   */
+  readonly showIp = computed(() => (this.trail()?.rows ?? []).some((row) => !!row.ipAddress));
   readonly page = signal(1);
 
   readonly personLabel = (person: Person): string => person.name;
@@ -111,11 +140,17 @@ export class SecuritySettingsPage implements OnInit {
   readonly entityLabel = (entity: string): string => this.entityName(entity);
 
   ngOnInit(): void {
+    if (this.view() === 'trail') {
+      this.initTrail();
+      return;
+    }
     this.http.get<{ requireMfa: boolean }>(`${environment.apiUrl}/organizations/security-settings`).subscribe({
       next: ({ requireMfa }) => this.requireMfa.set(requireMfa),
       error: (error: unknown) => this.notifications.showHttpError(error, 'settings.security.mfa_load_failed'),
     });
+  }
 
+  private initTrail(): void {
     if (!this.canReadTrail) return;
     this.http.get<string[]>(`${environment.apiUrl}/audit/entities`).subscribe({
       next: (entities) => this.entities.set(entities),
@@ -134,6 +169,7 @@ export class SecuritySettingsPage implements OnInit {
   }
 
   async toggleMfa(next: boolean): Promise<void> {
+    if (!this.canEdit()) return;
     if (next) {
       // Switching it on interrupts the next sign-in of every member without a second factor.
       const confirmed = await this.dialog.confirm({
@@ -165,7 +201,7 @@ export class SecuritySettingsPage implements OnInit {
   }
 
   clearFilters(): void {
-    this.filters.set({ userId: null, actionType: null, entity: null, from: null, to: null });
+    this.filters.set({ ...NO_FILTERS });
     this.page.set(1);
     this.loadTrail();
   }
@@ -183,7 +219,7 @@ export class SecuritySettingsPage implements OnInit {
     }
     let params = new HttpParams().set('page', String(this.page())).set('pageSize', String(PAGE_SIZE));
     for (const [key, value] of Object.entries(filters)) {
-      if (value) params = params.set(key, value);
+      if (value) params = params.set(key, String(value));
     }
     this.trailLoading.set(true);
     this.trailError.set(null);
@@ -203,12 +239,24 @@ export class SecuritySettingsPage implements OnInit {
     this.expanded.update((id) => (id === row.id ? null : row.id));
   }
 
-  /** The entity's name in the reader's language, or the identifier made readable. */
+  /**
+   * The entity's name in the reader's language, or the identifier made readable.
+   *
+   * The trail writes entities two ways — a table (`bank_accounts`) or a class (`BankAccount`) —
+   * so both are brought to snake case before the lookup. A key the catalogue lacks comes back as
+   * itself in production and as `[[key]]` in development; neither may reach the screen.
+   */
   entityName(entity: string): string {
-    const key = `settings.security.entity.${entity.toLowerCase()}`;
+    const snake = entity.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+    const key = `settings.security.entity.${snake}`;
     const label = this.translate.instant(key);
-    if (label !== key) return label;
-    return entity.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
+    if (label && label !== key && label !== `[[${key}]]`) return label;
+    return snake.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
+  }
+
+  /** The record as a person knows it: its number or name, else its type and a short id. */
+  recordName(row: AuditRow): string {
+    return row.recordLabel || `${this.translate.instant('settings.security.record_id')} ${row.entityId.slice(0, 8)}`;
   }
 
   /** What the row changed: every field whose value differs, or every field it recorded. */

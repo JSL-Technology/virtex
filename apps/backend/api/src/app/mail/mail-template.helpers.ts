@@ -6,6 +6,8 @@ import {
   LanguageCode,
   isLanguageCode,
   resolveLocale,
+  normaliseRegionalFormat,
+  withNumberSymbols,
 } from '@virteex/shared/types';
 import { I18nService } from '../i18n/i18n.service';
 import { MAIL_BRAND, MailBrandKey } from './mail-brand';
@@ -83,10 +85,13 @@ export function mailTemplateHelpers(i18n: I18nService): HelperDeclareSpec {
       if (!Number.isFinite(amount)) return '';
       const code = typeof currency === 'string' && currency ? currency.toUpperCase() : 'USD';
       try {
-        return new Intl.NumberFormat(localeOf(options), {
+        const parts = new Intl.NumberFormat(localeOf(options), {
           style: 'currency',
           currency: code,
-        }).format(amount);
+        }).formatToParts(amount);
+        // The issuer's house style when the sender passed it (`regionalFormat` in the context).
+        const house = normaliseRegionalFormat((options?.data?.root as { regionalFormat?: unknown } | undefined)?.regionalFormat);
+        return withNumberSymbols(parts, house.numberFormat);
       } catch {
         // An unknown ISO code must not blank the figure a customer is being asked to pay.
         return `${code} ${amount.toFixed(2)}`;

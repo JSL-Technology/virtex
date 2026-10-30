@@ -1,4 +1,4 @@
-import { translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { FormatService, translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { Injectable, inject, isDevMode } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -100,6 +100,7 @@ interface ErrorBody {
 @Injectable({ providedIn: 'root' })
 export class ErrorHandlerService {
   private readonly translate = inject(TranslateService);
+  private readonly format = inject(FormatService);
   private readonly store = inject(VirtexTranslateStore);
 
   handleError(operation: string, error: HttpErrorResponse): Observable<never> {
@@ -217,7 +218,8 @@ export class ErrorHandlerService {
         params[name] = (value as string[]).map((item) => translateOrLiteral(this.translate, item)).join('; ');
       }
     }
-    return params;
+    // Quantities and calendar dates as the reader writes them: «hay 18,75», «(30/10/2026)».
+    return this.format.localizeParams(params);
   }
 
   /**

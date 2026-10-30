@@ -1,3 +1,4 @@
+import { SettingsShellService } from '../shell';
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -11,7 +12,7 @@ import {
 } from '../../../core/api/fiscal-settings.service';
 import { EmissionModeCardComponent, SigningCertificateCardComponent } from './shared';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../shared/components/badge';
@@ -38,7 +39,7 @@ interface RangeTypeChoice {
 @Component({
   selector: 'app-fiscal-settings-page',
   standalone: true,
-  imports: [
+  imports: [VxNumberInputDirective, 
     ...VX_SORT,
     VxDateFieldComponent,
     CommonModule,
@@ -55,6 +56,9 @@ interface RangeTypeChoice {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FiscalSettingsPage implements OnInit {
+  /** Whether this person may change the fiscal set-up (`taxes:edit`); read only otherwise. */
+  protected readonly canEdit = inject(SettingsShellService, { optional: true })?.canEdit ?? signal(true);
+
   private fb = inject(FormBuilder);
   private einvoicing = inject(EinvoicingService);
   private invoices = inject(InvoicesService);

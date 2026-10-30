@@ -39,7 +39,7 @@ import { TreasuryService } from '../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { toIsoDate } from '../../../shared/utils/date.util';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -94,7 +94,7 @@ interface BillTotals {
 @Component({
   selector: 'app-vendor-bill-form-page',
   standalone: true,
-  imports: [
+  imports: [VxNumberInputDirective, 
     VxBranchPickerComponent,
     CommonModule,
     ReactiveFormsModule,

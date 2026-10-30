@@ -10,7 +10,7 @@ import { ProposedAdjustmentEvidence } from '../entities/proposed-adjustment-evid
 import { AdjustmentsService } from '../../journal-entries/adjustments.service';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { FastifyFile, toUploadableFile } from '../../common/interfaces/fastify-file.interface';
-import { ForbiddenError, InternalServerError, NotFoundError } from '../../i18n/localized.exception';
+import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError, isLocalizedError } from '../../i18n/localized.exception';
 import { toIsoDate } from '../../common/dates';
 import { Page, resolvePaging, toPage } from '../../common/pagination';
 import { LedgerNarrativeService } from '../../journal-entries/ledger-narrative.service';
@@ -36,6 +36,7 @@ export class AuditAdjustmentsService {
     organizationId: string,
     proposer: User,
   ): Promise<ProposedAdjustment> {
+    this.assertLines(dto);
     let raisedRequestId: string | null = null;
     const proposed = await this.dataSource.transaction(async (manager) => {
       this.logger.log(`Usuario ${proposer.id} propone ajuste de auditoría para el año fiscal ${dto.fiscalYearId}`);
@@ -57,7 +58,9 @@ export class AuditAdjustmentsService {
         organizationId,
         savedAdjustment.id,
         DocumentTypeForApproval.AUDIT_ADJUSTMENT,
-        0,
+        // The amount the policy's thresholds are measured against: what the adjustment moves.
+        // It was 0, so a policy «above 10,000 needs the CFO» never applied to any adjustment.
+        this.amountOf(dto),
         proposer.id,
         manager,
       );
@@ -88,6 +91,40 @@ export class AuditAdjustmentsService {
     });
     if (raisedRequestId) await this.workflowsService.announcePending(raisedRequestId);
     return proposed;
+  }
+
+  /**
+   * Whether a proposal of this amount would wait for approval or post at once — told before it is
+   * submitted, so «Propose» is never a surprise posting into a closed year.
+   */
+  async approvalRoute(organizationId: string, amount: number): Promise<{ requiresApproval: boolean; steps: number }> {
+    const steps = await this.workflowsService.approvalSteps(organizationId, DocumentTypeForApproval.AUDIT_ADJUSTMENT, amount);
+    return { requiresApproval: steps > 0, steps };
+  }
+
+  /** What the adjustment moves: its total debit, which is also its total credit. */
+  private amountOf(dto: CreateProposedAdjustmentDto): number {
+    return Math.round(dto.lines.reduce((sum, line) => sum + Number(line.debit ?? 0), 0) * 100) / 100;
+  }
+
+  /**
+   * Each line is a debit or a credit, never both and never neither, and the two sides balance —
+   * checked here, before anything is written, with the line named. The journal posting would also
+   * refuse an unbalanced entry, but only after approval, and with no line to point at.
+   */
+  private assertLines(dto: CreateProposedAdjustmentDto): void {
+    if (dto.lines.length < 2) throw new BadRequestError('audit.adjustment_needs_two_lines');
+    dto.lines.forEach((line, index) => {
+      const debit = Number(line.debit ?? 0);
+      const credit = Number(line.credit ?? 0);
+      if ((debit > 0) === (credit > 0)) {
+        throw new BadRequestError('audit.adjustment_line_one_side', { line: index + 1 });
+      }
+    });
+    const cents = (value: number) => Math.round(value * 100);
+    const debit = dto.lines.reduce((sum, line) => sum + cents(Number(line.debit ?? 0)), 0);
+    const credit = dto.lines.reduce((sum, line) => sum + cents(Number(line.credit ?? 0)), 0);
+    if (debit !== credit) throw new BadRequestError('audit.adjustment_unbalanced');
   }
 
   /**
@@ -233,6 +270,10 @@ export class AuditAdjustmentsService {
         this.logger.error(`Fallo al contabilizar el ajuste de auditoría ${documentId}. Revirtiendo estado.`, (error as Error).stack);
         adjustment.status = AdjustmentStatus.FAILED;
         await adjustmentRepo.save(adjustment);
+        // A refusal the person can act on — a closed subledger, a blocked account, an archived
+        // year — keeps its own status and message. Wrapping it in a 500 told them only that
+        // «the adjustment could not be proposed», with the reason buried in a log.
+        if (isLocalizedError(error) && error.getStatus() < 500) throw error;
         throw new InternalServerError('audit.approved_adjustment_could_not_processed_p1', { p1: (error as Error).message });
       }
     }

@@ -1,3 +1,4 @@
+import { SettingsActionsDirective } from '../shell';
 import { RoleNamePipe } from '../../../shared/pipes/role-name.pipe';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
@@ -27,7 +28,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 @Component({
   selector: 'app-roles-management-page',
   standalone: true,
-  imports: [RoleNamePipe, 
+  imports: [SettingsActionsDirective, RoleNamePipe, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
@@ -95,6 +96,8 @@ export class RolesManagementPage implements OnInit {
 
   /** Abre modal para crear o editar */
   openRoleModal(roleToEdit?: Role): void {
+    // A system role is fixed; the button says so and stays focusable, so the click lands here.
+    if (roleToEdit?.isSystemRole) return;
     this.editingRole.set(roleToEdit ?? null);
     this.roleForm.reset();
     this.permissionsFormArray.clear();
@@ -175,6 +178,7 @@ export class RolesManagementPage implements OnInit {
 
   /** Eliminar un rol */
   async deleteRole(role: Role): Promise<void> {
+    if (role.isSystemRole) return;
     const confirmed = await this.dialog.confirm({
       title: 'dialog.delete_role.title',
       message: 'dialog.delete_role.message',

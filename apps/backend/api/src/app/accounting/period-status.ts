@@ -88,7 +88,13 @@ export async function resolvePostingPeriod(
   // The subledger windows are not waived by the exception above: an audit adjustment is a general
   // ledger entry, and letting it into a closed payables month would put it in a subledger the
   // taxpayer has already reported from.
-  if (moduleStatusOf(period, module) === PeriodStatus.CLOSED) {
+  //
+  // The general ledger's own window IS waived, and only for that exception: closing a period closes
+  // the ledger with it (the year-end close closes every module), so refusing an audit adjustment
+  // because the *ledger* is closed refused it in the one situation it exists for — a closed year —
+  // and every proposal failed with «the GL module is closed for Diciembre» (a 500, at that).
+  const waived = options.allowClosedPeriod === true && module === ModuleSlug.GL;
+  if (!waived && moduleStatusOf(period, module) === PeriodStatus.CLOSED) {
     throw new ForbiddenError('accounting.module_module_closed_period_name', {
       name: period.name,
       module,
@@ -123,8 +129,14 @@ export function moduleStatusOf(
   return period[moduleStatusColumn(module)] as PeriodStatus;
 }
 
-/** The open/closed period whose window contains `isoDate`, or null. */
-function findPeriodCovering(
+/**
+ * The open/closed period whose window contains `isoDate`, or null.
+ *
+ * Exported for the documents that must check a date *before* posting — while it is still a draft
+ * the person can correct — without the side effect `resolvePostingPeriod({ createIfMissing })`
+ * has of opening a whole fiscal year for a mistyped date.
+ */
+export function findPeriodCovering(
   manager: EntityManager,
   organizationId: string,
   isoDate: string,

@@ -31,11 +31,21 @@ const MESSAGE_BY_ERROR: Record<string, string> = {
   minlength: 'shell.problem_minlength',
   maxlength: 'shell.problem_maxlength',
   pattern: 'shell.field_not_expected_format',
+  //  Un número que no se puede leer con la marca decimal en vigor (`VxNumberInputDirective`).
+  localizedNumber: 'shell.problem_number',
   //  El par desde/hasta invertido. `dateOrder` deja el error en el control TARDÍO además de en el
   //  grupo, precisamente para que el resumen pueda nombrar un campo en vez de decir que el
   //  formulario está mal en algún sitio.
   dateOrder: 'shell.problem_date_order',
 };
+
+/**
+ * The problem one control has, worded with the same keys the draft summary uses — for the message
+ * under the field, so the field and the summary never say two different things.
+ */
+export function problemForControl(name: string, labelKey: string, control: AbstractControl): DraftProblem | null {
+  return control.invalid ? describe(name, labelKey, control.errors ?? {}) : null;
+}
 
 function describe(name: string, label: string, errors: ValidationErrors): DraftProblem {
   for (const [error, message] of Object.entries(MESSAGE_BY_ERROR)) {
@@ -48,12 +58,36 @@ function describe(name: string, label: string, errors: ValidationErrors): DraftP
         field: label,
         min: detail?.['min'] ?? detail?.['requiredLength'],
         max: detail?.['max'] ?? detail?.['requiredLength'],
+        example: detail?.['example'],
       },
     };
   }
   //  Un validador propio que este mapa no conoce. Se nombra el campo en vez de callarse: el
   //  usuario no puede arreglar lo que no sabe que está mal.
   return { message: 'shell.problem_invalid', fieldId: name, params: { field: label } };
+}
+
+/**
+ * La misma frase dicha de una línea de una tabla: «… (línea 3)». Literal, clave por clave, para que
+ * el verificador del catálogo las vea: componerlas con `${message}_line` las dejaba huérfanas a sus
+ * ojos, y la poda las borró.
+ */
+const LINE_MESSAGE: Record<string, string> = {
+  'shell.problem_required': 'shell.problem_required_line',
+  'shell.problem_email': 'shell.problem_email_line',
+  'shell.problem_min': 'shell.problem_min_line',
+  'shell.problem_max': 'shell.problem_max_line',
+  'shell.problem_minlength': 'shell.problem_minlength_line',
+  'shell.problem_maxlength': 'shell.problem_maxlength_line',
+  'shell.field_not_expected_format': 'shell.field_not_expected_format_line',
+  'shell.problem_number': 'shell.problem_number_line',
+  'shell.problem_date_order': 'shell.problem_date_order_line',
+  'shell.problem_invalid': 'shell.problem_invalid_line',
+};
+
+/** La clave «de línea» de un mensaje, o el mismo mensaje si no la tiene. */
+export function lineMessage(message: string): string {
+  return LINE_MESSAGE[message] ?? message;
 }
 
 /**

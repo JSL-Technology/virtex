@@ -48,9 +48,14 @@
             <td>{{ row.warehouseName ?? '—' }}</td>
             <td>{{ row.reason }}</td>
             <td class="numeric">{{ row.lineCount ?? 0 }}</td>
-            <td class="numeric">{{ row.valueChange === null ? '—' : (row.valueChange | vxNumber: '1.2-2') }}</td>
+            <td class="numeric">{{ row.valueChange === null ? '—' : (row.valueChange | vxMoney) }}</td>
             <td>
               <vx-badge [tone]="tones[row.status]" [struck]="row.status === 'CANCELLED'">{{ 'inventory.common.status.' + row.status.toLowerCase() | translate }}</vx-badge>
+              @if (row.reversedByAdjustmentId) {
+                <vx-badge tone="warning">{{ 'inventory.adjustments.reversed_badge' | translate }}</vx-badge>
+              } @else if (row.reversesAdjustmentId) {
+                <vx-badge tone="neutral">{{ 'inventory.adjustments.reversal_badge' | translate }}</vx-badge>
+              }
             </td>
           </tr>
         }

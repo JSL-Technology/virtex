@@ -1,3 +1,4 @@
+import { TranslateService } from '@ngx-translate/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -121,6 +122,15 @@ describe('UserManagementPage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('names roles in the reader’s language, not by their stored code (CG-27)', () => {
+    const translate = TestBed.inject(TranslateService);
+    jest.spyOn(translate, 'instant').mockImplementation((key: string | string[]) =>
+      key === 'user.role.administrator' ? 'Administrador' : key === 'user.role.no_role' ? 'Sin rol' : String(key),
+    );
+    expect(component.getRoleNames({ roles: [{ name: 'ADMINISTRATOR' }, { name: 'QA-Caja' }] } as never)).toBe('Administrador, QA-Caja');
+    expect(component.getRoleNames({ roles: [] } as never)).toBe('Sin rol');
   });
 
   it('should load users on init', () => {

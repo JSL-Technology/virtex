@@ -71,6 +71,31 @@ export class InventoryAdjustment extends BaseEntity {
   @Column({ name: 'posted_at', type: 'timestamptz', nullable: true })
   postedAt: Date | null;
 
+  /** Who voided the draft, and when: a cancellation is a decision someone is answerable for. */
+  @Column({ name: 'cancelled_by_user_id', type: 'uuid', nullable: true })
+  cancelledByUserId: string | null;
+
+  @Column({ name: 'cancelled_at', type: 'timestamptz', nullable: true })
+  cancelledAt: Date | null;
+
+  /**
+   * The posted adjustment this one undoes, when it is a reversal.
+   *
+   * A posted adjustment is never edited: it is corrected by its mirror image, posted as a document
+   * of its own (a number, a date, a reason, an entry), so the kardex and the ledger keep both the
+   * mistake and its correction. The two point at each other.
+   */
+  @ManyToOne(() => InventoryAdjustment, { onDelete: 'NO ACTION', nullable: true })
+  @JoinColumn({ name: 'reverses_adjustment_id', foreignKeyConstraintName: 'FK_inventory_adjustments_reverses' })
+  reversesAdjustment?: InventoryAdjustment | null;
+
+  @Column({ name: 'reverses_adjustment_id', type: 'uuid', nullable: true })
+  reversesAdjustmentId: string | null;
+
+  /** The reversal that undid this adjustment, once there is one. An adjustment is reversed once. */
+  @Column({ name: 'reversed_by_adjustment_id', type: 'uuid', nullable: true })
+  reversedByAdjustmentId: string | null;
+
   @OneToMany(() => InventoryAdjustmentLine, (line) => line.adjustment, { cascade: true })
   lines: InventoryAdjustmentLine[];
 
@@ -99,6 +124,23 @@ export class InventoryAdjustmentLine {
   @Column({ name: 'product_id', type: 'uuid' })
   productId: string;
 
+  /**
+   * Where the line sits in the document, from 0. Lines used to come back ordered by their random
+   * UUID, so a document saved as «screws, cable, boxes» reopened as «cable, screws, boxes».
+   */
+  @Column({ type: 'int', default: 0 })
+  position: number;
+
+  /**
+   * What the warehouse held when the person counted — the figure the screen showed beside the count.
+   *
+   * A count is compared with the balance at posting. If something moved in between (a sale, another
+   * adjustment), applying the count as typed would silently undo that movement; with this figure the
+   * posting can tell, and refuses until someone decides (see `post`).
+   */
+  @Column({ name: 'expected_quantity', type: 'decimal', precision: 18, scale: 6, nullable: true, transformer: numericTransformer })
+  expectedQuantity: number | null;
+
   /** What was counted. When set, the change is computed against the balance when posting. */
   @Column({ name: 'counted_quantity', type: 'decimal', precision: 18, scale: 6, nullable: true, transformer: numericTransformer })
   countedQuantity: number | null;
@@ -119,7 +161,20 @@ export class InventoryAdjustmentLine {
   @Column({ name: 'new_unit_cost', type: 'decimal', precision: 18, scale: 6, nullable: true, transformer: numericTransformer })
   newUnitCost: number | null;
 
-  /** The value this line moved once posted. */
+  /** The value this line moved once posted: `quantityValue + revaluationValue`. */
   @Column({ name: 'value_change', type: 'decimal', precision: 18, scale: 2, nullable: true, transformer: numericTransformer })
   valueChange: number | null;
+
+  /**
+   * The value of the quantity moved: positive a surplus, negative a shortfall.
+   *
+   * Kept apart from the revaluation because they are different events — a loss of goods and a
+   * change in what goods are worth — and a single net figure let a revaluation hide a shrinkage.
+   */
+  @Column({ name: 'quantity_value', type: 'decimal', precision: 18, scale: 2, nullable: true, transformer: numericTransformer })
+  quantityValue: number | null;
+
+  /** The value a new unit cost added to (or took from) the product's whole stock. */
+  @Column({ name: 'revaluation_value', type: 'decimal', precision: 18, scale: 2, nullable: true, transformer: numericTransformer })
+  revaluationValue: number | null;
 }

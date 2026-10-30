@@ -1,0 +1,23 @@
+const { launch, uiLogin, api, go } = require('./lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage();
+  await uiLogin(page);
+  await go(page, 'inventory/adjustments');
+  const wh = await api(page, 'GET', '/wms/warehouses');
+  console.log('warehouses', JSON.stringify(wh.body).slice(0, 600));
+  const a = await api(page, 'POST', '/wms/warehouses', { name: 'QA-7734 Almacén Norte', code: 'QA-N' });
+  console.log('wh create', a.status, JSON.stringify(a.body).slice(0, 300));
+  const b = await api(page, 'POST', '/wms/warehouses', { name: 'QA-7734 Almacén Sur con un nombre muy largo para probar el truncado', code: 'QA-S' });
+  console.log('wh2', b.status);
+  const whN = a.body?.id;
+  const mk = async (body) => { const r = await api(page, 'POST', '/inventory', body); console.log('prod', body.sku, r.status, JSON.stringify(r.body).slice(0, 200)); return r.body; };
+  await mk({ name: 'QA-7734 Tornillo hexagonal 1/4"', sku: 'QA-7734-TOR', price: 15, cost: 10, stock: 100, warehouseId: whN, kind: 'GOOD' });
+  await mk({ name: 'QA-7734 Cable eléctrico (metros)', sku: 'QA-7734-CAB', price: 9, cost: 5.5, stock: 20.5, warehouseId: whN, kind: 'GOOD' });
+  await mk({ name: 'QA-7734 Tornillo hexagonal 1/4" (caja x100)', sku: 'QA-7734-TOR-C', price: 1200, cost: 900, stock: 3, warehouseId: whN, kind: 'GOOD' });
+  await mk({ name: 'QA-7734 Servicio de instalación', sku: 'QA-7734-SRV', price: 50, kind: 'SERVICE' });
+  await mk({ name: 'QA-7734 Producto sin existencia', sku: 'QA-7734-CERO', price: 5, cost: 2, kind: 'GOOD' });
+  const s = await api(page, 'GET', '/inventory/stock?includeZero=true&limit=50');
+  console.log('stock', JSON.stringify(s.body).slice(0, 1200));
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });

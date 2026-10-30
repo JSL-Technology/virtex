@@ -1,279 +1,147 @@
 <div class="sm-backdrop" (click)="close()" aria-hidden="true"></div>
 
-<div class="sm-panel" role="dialog" aria-modal="true" [attr.aria-label]="'settings.modal.settings' | translate">
+<div
+  #panel
+  class="sm-panel"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="'settings-dialog-title'"
+  cdkTrapFocus
+  [class.sm-panel--compact]="compact()"
+  [class.sm-panel--show-list]="compact() && pane() === 'list'"
+>
   <div class="sm-header">
-    <h2>{{ 'settings.modal.settings' | translate }}</h2>
-    <button class="sm-close" (click)="close()" [attr.aria-label]="'settings.modal.close_settings' | translate">&#x00D7;</button>
+    <h2 id="settings-dialog-title">{{ 'settings.shell.title' | translate }}</h2>
+    <button type="button" class="sm-close" (click)="close()" [attr.aria-label]="'settings.modal.close_settings' | translate" [title]="'settings.modal.close_settings' | translate">
+      <lucide-icon [img]="CloseIcon" size="18" aria-hidden="true"></lucide-icon>
+    </button>
   </div>
 
   <div class="sm-body">
-    <aside class="sm-sidebar">
+    <aside class="sm-sidebar" [attr.aria-label]="'settings.shell.sections' | translate">
+      <div class="sm-search" role="search">
+        <lucide-icon [img]="SearchIcon" size="16" aria-hidden="true"></lucide-icon>
+        <label class="sr-only" for="settings-search">{{ 'settings.shell.search_label' | translate }}</label>
+        <input
+          id="settings-search"
+          type="search"
+          autocomplete="off"
+          [value]="query()"
+          (input)="query.set($any($event.target).value)"
+          (keydown.enter)="openFirstResult()"
+          [placeholder]="'settings.shell.search_placeholder' | translate"
+          aria-describedby="settings-search-status"
+        />
+      </div>
+      <p id="settings-search-status" class="sr-only" aria-live="polite">
+        @if (results(); as found) {
+          {{ 'settings.shell.search_results' | translate: { count: found.length } }}
+        }
+      </p>
+
       <nav class="sm-nav">
-
-        <!-- GRUPO 1: MI CUENTA -->
-        <div class="nav-group">
-          <h3 class="group-title">{{ 'settings.modal.my_account' | translate }}</h3>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'my-profile'"
-            (click)="navigate('my-profile')"
-          >
-            <lucide-icon [img]="MyProfileIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.my_profile' | translate }}</span>
-          </button>
-          <!-- The companies this person belongs to, and where «Create a new company» leads. -->
-          <button
-            class="nav-link"
-            [class.active]="section() === 'organizations'"
-            (click)="navigate('organizations')"
-          >
-            <lucide-icon [img]="MyCompaniesIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.my_companies' | translate }}</span>
-          </button>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'billing'"
-            (click)="navigate('billing')"
-          >
-            <lucide-icon [img]="BillingIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.billing_plan' | translate }}</span>
-          </button>
-        </div>
-
-        <!-- GRUPO 2: ORGANIZACIÓN -->
-        <div class="nav-group">
-          <h3 class="group-title">{{ 'settings.modal.organization' | translate }}</h3>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'profile'"
-            (click)="navigate('profile')"
-          >
-            <lucide-icon [img]="OrgProfileIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.company_profile' | translate }}</span>
-          </button>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'subsidiaries'"
-            (click)="navigate('subsidiaries')"
-          >
-            <lucide-icon [img]="SubsidiariesIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.company_structure' | translate }}</span>
-          </button>
-          <!-- Same legal entity, other places: not the subsidiaries above, which are other companies. -->
-          <button
-            *appHasPermission="'branches:view'"
-            class="nav-link"
-            [class.active]="section() === 'branches'"
-            (click)="navigate('branches')"
-          >
-            <lucide-icon [img]="BranchesIcon" size="16"></lucide-icon>
-            <span>{{ 'branches.settings.title' | translate }}</span>
-          </button>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'branding'"
-            (click)="navigate('branding')"
-          >
-            <lucide-icon [img]="BrandingIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.personalization' | translate }}</span>
-          </button>
-        </div>
-
-        <!-- GRUPO 3: FINANZAS -->
-        <div class="nav-group">
-          <h3 class="group-title">{{ 'settings.modal.finance' | translate }}</h3>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'accounting'"
-            (click)="navigate('accounting')"
-          >
-            <lucide-icon [img]="AccountingIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.accounting' | translate }}</span>
-          </button>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'currencies'"
-            (click)="navigate('currencies')"
-          >
-            <lucide-icon [img]="CurrenciesIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.multi_currency' | translate }}</span>
-          </button>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'taxes'"
-            (click)="navigate('taxes')"
-          >
-            <lucide-icon [img]="TaxesIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.taxes' | translate }}</span>
-          </button>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'closing-rules'"
-            (click)="navigate('closing-rules')"
-          >
-            <lucide-icon [img]="ClosingIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.cierre_fiscal' | translate }}</span>
-          </button>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'intercompany'"
-            (click)="navigate('intercompany')"
-          >
-            <lucide-icon [img]="IntercompanyIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.intercompany' | translate }}</span>
-          </button>
-          @if (showDominicanFiscal()) {
-            <button
-              class="nav-link"
-              [class.active]="section() === 'fiscal'"
-              (click)="navigate('fiscal')"
-            >
-              <lucide-icon [img]="EInvoicingIcon" size="16"></lucide-icon>
-              <span>{{ 'settings.modal.electronic_invoicing' | translate }}</span>
-            </button>
+        @if (results(); as found) {
+          @if (found.length === 0) {
+            <p class="sm-nav__empty">{{ 'settings.shell.search_empty' | translate: { query: query() } }}</p>
           }
-          @if (showRegimeSettings()) {
-            <button
-              class="nav-link"
-              [class.active]="section() === 'einvoicing-regime'"
-              (click)="navigate('einvoicing-regime')"
-            >
-              <lucide-icon [img]="RegimeIcon" size="16"></lucide-icon>
-              <span>{{ 'settings.modal.einvoicing_regime' | translate }}</span>
-            </button>
+          <ul class="sm-nav__list">
+            @for (section of found; track section.id) {
+              <li>
+                <button type="button" class="nav-link nav-link--result" [class.active]="isActive(section)" [attr.aria-current]="isActive(section) ? 'page' : null" (click)="navigate(section.id)">
+                  <lucide-icon [img]="section.icon" size="16" aria-hidden="true"></lucide-icon>
+                  <span class="nav-link__text">
+                    <span class="nav-link__label">{{ section.labelKey | translate }}</span>
+                    <span class="nav-link__hint">{{ section.descriptionKey | translate }}</span>
+                  </span>
+                </button>
+              </li>
+            }
+          </ul>
+        } @else {
+          @for (entry of sectionsByGroup(); track entry.group.id) {
+            <div class="nav-group">
+              <h3 class="group-title" [id]="'settings-group-' + entry.group.id">{{ entry.group.labelKey | translate }}</h3>
+              <ul class="sm-nav__list" [attr.aria-labelledby]="'settings-group-' + entry.group.id">
+                @for (section of entry.sections; track section.id) {
+                  <li>
+                    <button type="button" class="nav-link" [class.active]="isActive(section)" [attr.aria-current]="isActive(section) ? 'page' : null"
+                            [title]="section.labelKey | translate" (click)="navigate(section.id)">
+                      <lucide-icon [img]="section.icon" size="16" aria-hidden="true"></lucide-icon>
+                      <span class="nav-link__label">{{ section.labelKey | translate }}</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            </div>
           }
-          <button
-            class="nav-link"
-            [class.active]="section() === 'withholding-regimes'"
-            (click)="navigate('withholding-regimes')"
-          >
-            <lucide-icon [img]="WithholdingIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.withholding_regimes' | translate }}</span>
-          </button>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'tax-jurisdictions'"
-            (click)="navigate('tax-jurisdictions')"
-          >
-            <lucide-icon [img]="JurisdictionsIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.tax_jurisdictions' | translate }}</span>
-          </button>
-        </div>
-
-        <!-- GRUPO 4: OPERACIONES -->
-        <div class="nav-group">
-          <h3 class="group-title">{{ 'settings.modal.operations' | translate }}</h3>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'sequences'"
-            (click)="navigate('sequences')"
-          >
-            <lucide-icon [img]="SequencesIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.sequences' | translate }}</span>
-          </button>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'approvals'"
-            (click)="navigate('approvals')"
-          >
-            <lucide-icon [img]="WorkflowsIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.approvals' | translate }}</span>
-          </button>
-          <button
-            class="nav-link"
-            [class.active]="section() === 'inventory-policies'"
-            (click)="navigate('inventory-policies')"
-          >
-            <lucide-icon [img]="InventoryIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.inventory' | translate }}</span>
-          </button>
-        </div>
-
-        <!-- GRUPO 5: SISTEMA -->
-        <div class="nav-group">
-          <h3 class="group-title">{{ 'settings.modal.system_settings' | translate }}</h3>
-          <button
-            *appHasPermission="'users:view'"
-            class="nav-link"
-            [class.active]="section() === 'users'"
-            (click)="navigate('users')"
-          >
-            <lucide-icon [img]="UsersIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.users' | translate }}</span>
-          </button>
-          <button
-            *appHasPermission="'roles:view'"
-            class="nav-link"
-            [class.active]="section() === 'roles'"
-            (click)="navigate('roles')"
-          >
-            <lucide-icon [img]="RolesIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.roles_permissions' | translate }}</span>
-          </button>
-          <button
-            *appHasPermission="'settings:edit_company'"
-            class="nav-link"
-            [class.active]="section() === 'security'"
-            (click)="navigate('security')"
-          >
-            <lucide-icon [img]="SecurityIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.security_audit' | translate }}</span>
-          </button>
-          <button
-            *appHasPermission="'settings:edit_company'"
-            class="nav-link"
-            [class.active]="section() === 'integrations'"
-            (click)="navigate('integrations')"
-          >
-            <lucide-icon [img]="IntegrationsIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.integrations_api' | translate }}</span>
-          </button>
-          <button
-            *appHasPermission="'settings:edit_company'"
-            class="nav-link"
-            [class.active]="section() === 'smtp'"
-            (click)="navigate('smtp')"
-          >
-            <lucide-icon [img]="SmtpIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.mail_server' | translate }}</span>
-          </button>
-          <button
-            *appHasPermission="'settings:edit_company'"
-            class="nav-link"
-            [class.active]="section() === 'sso'"
-            (click)="navigate('sso')"
-          >
-            <lucide-icon [img]="SsoIcon" size="16"></lucide-icon>
-            <span>SSO</span>
-          </button>
-          <button
-            *appHasPermission="'ai_usage:view'"
-            class="nav-link"
-            [class.active]="section() === 'ai'"
-            (click)="navigate('ai')"
-          >
-            <lucide-icon [img]="AiIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.ai' | translate }}</span>
-          </button>
-          <button
-            *appHasPermission="'extensions:view'"
-            class="nav-link"
-            [class.active]="section() === 'extensions'"
-            (click)="navigate('extensions')"
-          >
-            <lucide-icon [img]="ExtensionsIcon" size="16"></lucide-icon>
-            <span>{{ 'settings.modal.extensions' | translate }}</span>
-          </button>
-        </div>
-
+        }
       </nav>
     </aside>
 
-    <main class="sm-content">
-      @if (currentComponent()) {
-        <ng-container *ngComponentOutlet="currentComponent()"></ng-container>
+    <main class="sm-content" #content>
+      @if (current(); as section) {
+        <div class="sm-page">
+          <header class="sm-page__header">
+            <div class="sm-page__lead">
+              @if (compact()) {
+                <button type="button" class="sm-back" (click)="showList()" [attr.aria-label]="'settings.shell.back_to_sections' | translate">
+                  <lucide-icon [img]="BackIcon" size="18" aria-hidden="true"></lucide-icon>
+                </button>
+              }
+              <div class="sm-page__identity">
+                @if (groupLabel(); as group) {
+                  <p class="sm-page__crumb">{{ 'settings.shell.title' | translate }} › {{ group | translate }}</p>
+                }
+                <h1 id="settings-section-title" class="sm-page__title" tabindex="-1">{{ section.labelKey | translate }}</h1>
+                <p class="sm-page__description">{{ section.descriptionKey | translate }}</p>
+                <div class="sm-page__meta">
+                  <span [class]="'sm-scope sm-scope--' + section.scope">{{ scopeKey(section) | translate }}</span>
+                  @if (shell.autosaves()) {
+                    <span class="sm-autosave" aria-live="polite">
+                      <lucide-icon [img]="SavedIcon" size="14" aria-hidden="true"></lucide-icon>
+                      @if (shell.autosavedAt(); as at) {
+                        {{ 'settings.shell.autosaved_at' | translate: { time: (at | vxDate: 'time') } }}
+                      } @else {
+                        {{ 'settings.shell.autosaves' | translate }}
+                      }
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+            @if (shell.actions(); as actions) {
+              <div class="sm-page__actions">
+                <ng-container *ngTemplateOutlet="actions"></ng-container>
+              </div>
+            }
+          </header>
+
+          @if (denied()) {
+            <div class="sm-state" role="alert">
+              <lucide-icon [img]="LockIcon" size="22" aria-hidden="true"></lucide-icon>
+              <p>{{ 'settings.shell.denied' | translate }}</p>
+            </div>
+          } @else {
+            @if (!canEdit()) {
+              <div class="sm-readonly" role="note">
+                <lucide-icon [img]="LockIcon" size="16" aria-hidden="true"></lucide-icon>
+                <p>{{ 'settings.shell.read_only' | translate: { permission: ('settings.permission_names.' + (section.editPermission ?? section.viewPermission ?? '').replace(':', '_') | translate) } }}</p>
+              </div>
+            }
+            @if (component(); as type) {
+              <div class="sm-section" [class.sm-section--readonly]="!canEdit()">
+                <ng-container *ngComponentOutlet="type; inputs: inputs()"></ng-container>
+              </div>
+            } @else {
+              <div class="sm-loading" role="status">{{ 'settings.modal.loading' | translate }}</div>
+            }
+          }
+        </div>
       } @else {
-        <div class="sm-loading">{{ 'settings.modal.loading' | translate }}</div>
+        <div class="sm-state" role="alert">
+          <p>{{ 'settings.shell.not_found' | translate }}</p>
+          <button type="button" class="secondary-button" (click)="navigate('my-profile')">{{ 'settings.shell.go_to_profile' | translate }}</button>
+        </div>
       }
     </main>
   </div>

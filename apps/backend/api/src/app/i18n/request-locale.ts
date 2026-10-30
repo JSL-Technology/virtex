@@ -8,6 +8,9 @@ import {
   matchLanguage,
   negotiateLanguage,
   resolveLocale,
+  RegionalFormat,
+  mergeRegionalFormats,
+  normaliseRegionalFormat,
 } from '@virteex/shared/types';
 
 /**
@@ -79,7 +82,10 @@ export function buildLocaleContext(
     timezone?: string | null;
     booksLanguage?: LanguageCode | null;
   } | null,
+  formats: { company?: RegionalFormat | null; personal?: RegionalFormat | null } = {},
 ): LocaleContextContract {
+  const company = normaliseRegionalFormat(formats.company);
+  const personal = normaliseRegionalFormat(formats.personal);
   // No `|| 'DO'`: a tenant with no country must not be formatted as Dominican (A-08). `resolveLocale`
   // already degrades an unknown country to the language's neutral locale (es-419, en-US, pt-BR), and
   // the country is reported as the empty string it actually is rather than a guessed jurisdiction.
@@ -94,9 +100,11 @@ export function buildLocaleContext(
     // not decide what day a Dominican invoice was issued on.
     timezone: tenant?.timezone || 'UTC',
     booksLanguage: tenant?.booksLanguage ?? language,
-    // Sunday across every market in the launch set. Declared rather than assumed so a market
-    // that starts its week on Monday is a data change.
-    firstDayOfWeek: 0,
+    // The person's choice, then the company's, then Sunday — which is right across every market
+    // in the launch set; a market that starts on Monday is a data change, not a code change.
+    firstDayOfWeek: mergeRegionalFormats(personal, company).firstDayOfWeek ?? 0,
+    companyFormat: Object.keys(company).length ? company : null,
+    personalFormat: Object.keys(personal).length ? personal : null,
   };
 }
 

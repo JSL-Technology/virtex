@@ -12,6 +12,7 @@ export type StockMovementType =
   | 'SALE_DISPATCH'
   | 'SALE_RETURN'
   | 'ADJUSTMENT'
+  | 'REVALUATION'
   | 'TRANSFER_OUT'
   | 'TRANSFER_IN';
 
@@ -22,6 +23,7 @@ export const STOCK_MOVEMENT_TYPES: readonly StockMovementType[] = [
   'SALE_DISPATCH',
   'SALE_RETURN',
   'ADJUSTMENT',
+  'REVALUATION',
   'TRANSFER_OUT',
   'TRANSFER_IN',
 ];
@@ -88,14 +90,30 @@ export interface InventoryAdjustmentLine {
   productId: string;
   productName?: string;
   sku?: string | null;
+  unitOfMeasure?: string | null;
+  position?: number;
   countedQuantity: number | null;
+  /** What the warehouse held when the count was taken. */
+  expectedQuantity?: number | null;
   quantityChange: number;
   quantityBefore?: number | null;
   unitCost: number | null;
   newUnitCost: number | null;
   valueChange?: number | null;
+  /** The value of the quantity moved, and of the revaluation, once posted. */
+  quantityValue?: number | null;
+  revaluationValue?: number | null;
   /** What the warehouse holds now; only on a draft. */
   onHand?: number | null;
+  /** The product's average unit cost now; only on a draft. */
+  currentUnitCost?: number | null;
+}
+
+/** Whether a date can carry an adjustment, and why not. */
+export interface AdjustmentDateReadiness {
+  period: { name: string; open: boolean } | null;
+  problem: string | null;
+  params: Record<string, unknown>;
 }
 
 export interface InventoryAdjustment {
@@ -110,8 +128,31 @@ export interface InventoryAdjustment {
   valueChange: number | null;
   journalEntryId: string | null;
   postedAt: string | null;
+  createdAt?: string;
+  createdByName?: string | null;
+  postedByName?: string | null;
+  cancelledAt?: string | null;
+  cancelledByName?: string | null;
+  reversesAdjustmentId?: string | null;
+  reversesNumber?: string | null;
+  reversedByAdjustmentId?: string | null;
+  reversedByNumber?: string | null;
+  readiness?: { date: AdjustmentDateReadiness; accountsConfigured: boolean } | null;
   lineCount?: number;
   lines?: InventoryAdjustmentLine[];
+}
+
+/** What to do when a count's balance moved between counting and posting. */
+export type BalanceChangeDecision = 'apply_count' | 'keep_difference';
+
+/** One line whose balance moved since the count (the body of a 409 on posting). */
+export interface BalanceConflict {
+  productId: string;
+  productName: string;
+  sku: string | null;
+  counted: number;
+  expected: number;
+  current: number;
 }
 
 export interface SaveInventoryAdjustment {
@@ -122,6 +163,7 @@ export interface SaveInventoryAdjustment {
   lines: Array<{
     productId: string;
     countedQuantity?: number | null;
+    expectedQuantity?: number | null;
     quantityChange?: number | null;
     unitCost?: number | null;
     newUnitCost?: number | null;
@@ -206,8 +248,16 @@ export class StockService {
     return this.http.patch<InventoryAdjustment>(`${this.url}/adjustments/${id}`, body);
   }
 
-  postAdjustment(id: string): Observable<InventoryAdjustment> {
-    return this.http.post<InventoryAdjustment>(`${this.url}/adjustments/${id}/post`, {});
+  postAdjustment(id: string, onBalanceChange?: BalanceChangeDecision): Observable<InventoryAdjustment> {
+    return this.http.post<InventoryAdjustment>(`${this.url}/adjustments/${id}/post`, onBalanceChange ? { onBalanceChange } : {});
+  }
+
+  reverseAdjustment(id: string, body: { reason: string; date?: string }): Observable<InventoryAdjustment> {
+    return this.http.post<InventoryAdjustment>(`${this.url}/adjustments/${id}/reverse`, body);
+  }
+
+  adjustmentDateReadiness(date: string): Observable<AdjustmentDateReadiness> {
+    return this.http.get<AdjustmentDateReadiness>(`${this.url}/adjustments/date-readiness`, { params: toParams({ date }) });
   }
 
   cancelAdjustment(id: string): Observable<InventoryAdjustment> {

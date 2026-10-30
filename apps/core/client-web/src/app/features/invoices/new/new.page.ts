@@ -13,7 +13,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, debounceTime, merge, switchMap, tap } from 'rxjs';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { translateOrLiteral, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
@@ -64,7 +64,7 @@ import { PaymentMethodRow, PaymentMethodsService } from '../../../core/api/payme
 @Component({
   selector: 'app-new-invoice-page',
   standalone: true,
-  imports: [PercentInputDirective, 
+  imports: [VxNumberInputDirective, PercentInputDirective, 
     CommonModule,
     ReactiveFormsModule,
     RouterLink,

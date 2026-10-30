@@ -11,6 +11,9 @@ import {
   matchLanguage,
   isLocaleTag,
   resolveLocale,
+  RegionalFormat,
+  mergeRegionalFormats,
+  normaliseRegionalFormat,
 } from '@virteex/shared/types';
 
 /**
@@ -115,6 +118,34 @@ export class LocaleStore {
 
   readonly direction = computed<'ltr' | 'rtl'>(() => LANGUAGE_DIRECTION[this._language()]);
 
+  /**
+   * A level just saved from this session, applied before the next session refresh brings it back.
+   * `undefined` is «nothing saved here»: the session's value stands.
+   */
+  private readonly _companyFormat = signal<RegionalFormat | null | undefined>(undefined);
+  private readonly _personalFormat = signal<RegionalFormat | null | undefined>(undefined);
+
+  /** How the company writes dates and numbers for everyone, where it decided. */
+  readonly companyFormat = computed<RegionalFormat>(() =>
+    normaliseRegionalFormat(this._companyFormat() !== undefined ? this._companyFormat() : this._tenantContext()?.companyFormat),
+  );
+
+  /** What this person chose for themselves, over the company's. */
+  readonly personalFormat = computed<RegionalFormat>(() =>
+    normaliseRegionalFormat(this._personalFormat() !== undefined ? this._personalFormat() : this._tenantContext()?.personalFormat),
+  );
+
+  /**
+   * The format in force, field by field: the person's, then the company's. A field neither decided
+   * is absent and the locale answers it — see `FormatService`.
+   */
+  readonly regionalFormat = computed<RegionalFormat>(() => mergeRegionalFormats(this.personalFormat(), this.companyFormat()));
+
+  /** The day calendars start on: the person's, the company's, then the market's. */
+  readonly firstDayOfWeek = computed<number>(
+    () => this.regionalFormat().firstDayOfWeek ?? this._tenantContext()?.firstDayOfWeek ?? 0,
+  );
+
   constructor() {
     this._language.set(this.readInitialLanguage());
 
@@ -161,6 +192,19 @@ export class LocaleStore {
 
   setTenantContext(context: LocaleContextContract | null): void {
     this._tenantContext.set(context);
+    // A fresh session carries both levels as the server holds them; nothing local outranks it.
+    this._companyFormat.set(undefined);
+    this._personalFormat.set(undefined);
+  }
+
+  /** Apply the company's format now, as just saved; the next session refresh confirms it. */
+  setCompanyFormat(format: RegionalFormat | null): void {
+    this._companyFormat.set(format ? normaliseRegionalFormat(format) : null);
+  }
+
+  /** Apply this person's format now, as just saved. */
+  setPersonalFormat(format: RegionalFormat | null): void {
+    this._personalFormat.set(format ? normaliseRegionalFormat(format) : null);
   }
 
   /**

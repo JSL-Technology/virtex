@@ -24,11 +24,6 @@
     "en": "The adjustment has no lines.",
     "pt": "O ajuste não tem linhas."
   },
-  "inventory.adjustments.average": {
-    "es": "Promedio actual",
-    "en": "Current average",
-    "pt": "Média atual"
-  },
   "inventory.adjustments.cancel_document": {
     "es": "Anular",
     "en": "Cancel",
@@ -85,9 +80,9 @@
     "pt": "Cada linha precisa de um produto."
   },
   "inventory.adjustments.lines_hint": {
-    "es": "Indica la cantidad contada (el sistema calcula la diferencia) o el cambio directo. Un costo nuevo revalúa la existencia.",
-    "en": "Enter the counted quantity (the system computes the difference) or the change directly. A new cost revalues the stock.",
-    "pt": "Informe a quantidade contada (o sistema calcula a diferença) ou a variação direta. Um novo custo reavalia o estoque."
+    "es": "Indica la cantidad contada (la diferencia con la existencia se calcula sola) o el cambio directo, con signo. Un costo nuevo revalúa toda la existencia del producto, en todos los almacenes.",
+    "en": "Enter the counted quantity (the difference with stock is computed for you) or the signed change. A new cost revalues all of the product's stock, in every warehouse.",
+    "pt": "Informe a quantidade contada (a diferença com o estoque é calculada) ou a variação com sinal. Um novo custo reavalia todo o estoque do produto, em todos os depósitos."
   },
   "inventory.adjustments.load_failed": {
     "es": "No se pudieron cargar los ajustes.",
@@ -118,11 +113,6 @@
     "es": "No se pudo contabilizar el ajuste.",
     "en": "Could not post the adjustment.",
     "pt": "Não foi possível contabilizar o ajuste."
-  },
-  "inventory.adjustments.post_message": {
-    "es": "Al contabilizar {{number}}, la existencia y el costo cambiarán y se registrará el asiento. Un ajuste contabilizado no se edita.",
-    "en": "Posting {{number}} changes stock and cost and books the entry. A posted adjustment cannot be edited.",
-    "pt": "Ao contabilizar {{number}}, o estoque e o custo mudarão e o lançamento será registrado. Um ajuste contabilizado não pode ser editado."
   },
   "inventory.adjustments.post_title": {
     "es": "Contabilizar ajuste",
@@ -1133,5 +1123,400 @@
     "es": "El almacén no existe en esta empresa.",
     "en": "The warehouse does not exist in this company.",
     "pt": "O depósito não existe nesta empresa."
+  },
+  "inventory.adjustment_balance_changed": {
+    "es": "La existencia cambió desde el conteo en {{count}} línea(s) de {{number}}. Decide si se aplica lo contado o la diferencia encontrada.",
+    "en": "Stock changed since the count on {{count}} line(s) of {{number}}. Decide whether to apply the count or the difference found.",
+    "pt": "O estoque mudou desde a contagem em {{count}} linha(s) de {{number}}. Decida se aplica o contado ou a diferença encontrada."
+  },
+  "inventory.adjustment_date_in_future": {
+    "es": "La fecha {{date}} es posterior a hoy ({{today}}). Un ajuste registra lo que ya ocurrió.",
+    "en": "The date {{date}} is after today ({{today}}). An adjustment records what has already happened.",
+    "pt": "A data {{date}} é posterior a hoje ({{today}}). Um ajuste registra o que já aconteceu."
+  },
+  "inventory.adjustment_date_without_period": {
+    "es": "La fecha {{date}} no pertenece a ningún período contable abierto. Revisa el año o abre el ejercicio en Contabilidad › Períodos.",
+    "en": "The date {{date}} is not in any open accounting period. Check the year, or open the fiscal year in Accounting › Periods.",
+    "pt": "A data {{date}} não pertence a nenhum período contábil aberto. Verifique o ano ou abra o exercício em Contabilidade › Períodos."
+  },
+  "inventory.adjustment_date_period_closed": {
+    "es": "El período {{name}} está cerrado. Usa una fecha de un período abierto.",
+    "en": "The period {{name}} is closed. Use a date in an open period.",
+    "pt": "O período {{name}} está fechado. Use uma data de um período aberto."
+  },
+  "inventory.adjustment_date_inventory_closed": {
+    "es": "El período {{name}} está cerrado para inventario. Usa una fecha de un período abierto.",
+    "en": "The period {{name}} is closed for inventory. Use a date in an open period.",
+    "pt": "O período {{name}} está fechado para estoque. Use uma data de um período aberto."
+  },
+  "inventory.adjustment_product_inactive": {
+    "es": "«{{name}}» está inactivo: solo se puede dar de baja lo que queda. Reactívalo para sumar existencia o revaluarlo.",
+    "en": "“{{name}}” is inactive: only what is left can be written off. Reactivate it to add stock or revalue it.",
+    "pt": "“{{name}}” está inativo: só é possível baixar o que resta. Reative-o para adicionar estoque ou reavaliá-lo."
+  },
+  "inventory.adjustment_reverse_not_posted": {
+    "es": "Solo se revierte un ajuste contabilizado; {{number}} no lo está.",
+    "en": "Only a posted adjustment can be reversed; {{number}} is not posted.",
+    "pt": "Só um ajuste contabilizado pode ser revertido; {{number}} não está."
+  },
+  "inventory.adjustment_already_reversed": {
+    "es": "El ajuste {{number}} ya fue revertido.",
+    "en": "Adjustment {{number}} has already been reversed.",
+    "pt": "O ajuste {{number}} já foi revertido."
+  },
+  "inventory.adjustment_reversal_not_reversible": {
+    "es": "{{number}} es una reversión: para corregirla, registra un ajuste nuevo.",
+    "en": "{{number}} is a reversal: to correct it, record a new adjustment.",
+    "pt": "{{number}} é uma reversão: para corrigi-la, registre um novo ajuste."
+  },
+  "inventory.adjustment_reversal_before_original": {
+    "es": "La reversión no puede tener fecha anterior al ajuste {{number}} ({{date}}).",
+    "en": "The reversal cannot be dated before adjustment {{number}} ({{date}}).",
+    "pt": "A reversão não pode ter data anterior ao ajuste {{number}} ({{date}})."
+  },
+  "inventory.adjustment_reversal_revaluation_without_stock": {
+    "es": "No queda existencia de «{{name}}» sobre la cual deshacer la revaluación. Registra el ajuste de costo a mano.",
+    "en": "There is no stock of “{{name}}” left to undo the revaluation on. Record the cost adjustment by hand.",
+    "pt": "Não resta estoque de “{{name}}” para desfazer a reavaliação. Registre o ajuste de custo manualmente."
+  },
+  "inventory.adjustments.reasons.physical_count": {
+    "es": "Conteo físico",
+    "en": "Physical count",
+    "pt": "Contagem física"
+  },
+  "inventory.adjustments.reasons.cycle_count": {
+    "es": "Conteo cíclico",
+    "en": "Cycle count",
+    "pt": "Contagem cíclica"
+  },
+  "inventory.adjustments.reasons.damage": {
+    "es": "Merma o rotura",
+    "en": "Damage or breakage",
+    "pt": "Avaria ou quebra"
+  },
+  "inventory.adjustments.reasons.theft": {
+    "es": "Robo o pérdida",
+    "en": "Theft or loss",
+    "pt": "Roubo ou perda"
+  },
+  "inventory.adjustments.reasons.expiry": {
+    "es": "Vencimiento",
+    "en": "Expiry",
+    "pt": "Vencimento"
+  },
+  "inventory.adjustments.reasons.samples": {
+    "es": "Muestras o regalos",
+    "en": "Samples or gifts",
+    "pt": "Amostras ou brindes"
+  },
+  "inventory.adjustments.reasons.internal_use": {
+    "es": "Consumo interno",
+    "en": "Internal use",
+    "pt": "Consumo interno"
+  },
+  "inventory.adjustments.reasons.data_entry_error": {
+    "es": "Corrección de un error de registro",
+    "en": "Correction of a data entry error",
+    "pt": "Correção de erro de registro"
+  },
+  "inventory.adjustments.reasons.cost_revaluation": {
+    "es": "Revaluación de costo",
+    "en": "Cost revaluation",
+    "pt": "Reavaliação de custo"
+  },
+  "inventory.adjustments.read_only_permission": {
+    "es": "Puedes consultar este ajuste, pero no modificarlo ni contabilizarlo: hace falta el permiso «Ajustar inventario».",
+    "en": "You can view this adjustment but not change or post it: the “Adjust inventory” permission is required.",
+    "pt": "Você pode consultar este ajuste, mas não alterá-lo nem contabilizá-lo: é preciso a permissão “Ajustar estoque”."
+  },
+  "inventory.adjustments.recovered": {
+    "es": "Hay cambios sin guardar de este ajuste, del {{date}}, guardados en este navegador.",
+    "en": "There are unsaved changes to this adjustment from {{date}}, kept in this browser.",
+    "pt": "Há alterações não salvas deste ajuste, de {{date}}, guardadas neste navegador."
+  },
+  "inventory.adjustments.recovered_restore": {
+    "es": "Recuperarlos",
+    "en": "Restore them",
+    "pt": "Recuperá-las"
+  },
+  "inventory.adjustments.recovered_discard": {
+    "es": "Descartarlos",
+    "en": "Discard them",
+    "pt": "Descartá-las"
+  },
+  "inventory.adjustments.accounts_missing": {
+    "es": "Faltan las cuentas de inventario o de ajustes de inventario: el ajuste se puede guardar, pero no contabilizar hasta configurarlas.",
+    "en": "The inventory or inventory adjustment accounts are missing: the adjustment can be saved, but not posted until they are set.",
+    "pt": "Faltam as contas de estoque ou de ajustes de estoque: o ajuste pode ser salvo, mas não contabilizado até configurá-las."
+  },
+  "inventory.adjustments.accounts_missing_link": {
+    "es": "Configurar en Contabilidad › Cuentas predeterminadas",
+    "en": "Set them in Accounting › Default accounts",
+    "pt": "Configurar em Contabilidade › Contas padrão"
+  },
+  "inventory.adjustments.conflicts_title": {
+    "es": "La existencia cambió desde el conteo en {{count}} línea(s)",
+    "en": "Stock changed since the count on {{count}} line(s)",
+    "pt": "O estoque mudou desde a contagem em {{count}} linha(s)"
+  },
+  "inventory.adjustments.conflicts_help": {
+    "es": "Mientras el ajuste estaba en borrador se movió la existencia de estos productos. Elige qué significa ahora lo contado: que el estante tiene esa cantidad, o que falta (o sobra) lo que se encontró al contar.",
+    "en": "While the adjustment was a draft, stock of these products moved. Choose what the count means now: that the shelf holds that quantity, or that what was found missing (or extra) when counting is what changes.",
+    "pt": "Enquanto o ajuste era rascunho, o estoque destes produtos mudou. Escolha o que a contagem significa agora: que a prateleira tem essa quantidade, ou que falta (ou sobra) o que se encontrou ao contar."
+  },
+  "inventory.adjustments.conflict_expected": {
+    "es": "Existencia al contar",
+    "en": "Stock when counted",
+    "pt": "Estoque ao contar"
+  },
+  "inventory.adjustments.conflict_current": {
+    "es": "Existencia ahora",
+    "en": "Stock now",
+    "pt": "Estoque agora"
+  },
+  "inventory.adjustments.conflict_apply_count": {
+    "es": "Cambio si se aplica lo contado",
+    "en": "Change if the count is applied",
+    "pt": "Variação aplicando o contado"
+  },
+  "inventory.adjustments.conflict_keep_difference": {
+    "es": "Cambio si se mantiene la diferencia",
+    "en": "Change if the difference is kept",
+    "pt": "Variação mantendo a diferença"
+  },
+  "inventory.adjustments.conflict_apply_count_action": {
+    "es": "Aplicar lo contado",
+    "en": "Apply the count",
+    "pt": "Aplicar o contado"
+  },
+  "inventory.adjustments.conflict_keep_difference_action": {
+    "es": "Mantener la diferencia encontrada",
+    "en": "Keep the difference found",
+    "pt": "Manter a diferença encontrada"
+  },
+  "inventory.adjustments.section_what": {
+    "es": "Qué y cuándo",
+    "en": "What and when",
+    "pt": "O quê e quando"
+  },
+  "inventory.adjustments.period_open": {
+    "es": "Período {{name}} abierto",
+    "en": "Period {{name}} open",
+    "pt": "Período {{name}} aberto"
+  },
+  "inventory.adjustments.line_n": {
+    "es": "línea {{line}}",
+    "en": "line {{line}}",
+    "pt": "linha {{line}}"
+  },
+  "inventory.adjustments.difference": {
+    "es": "Diferencia",
+    "en": "Difference",
+    "pt": "Diferença"
+  },
+  "inventory.adjustments.estimated_value": {
+    "es": "Valor estimado",
+    "en": "Estimated value",
+    "pt": "Valor estimado"
+  },
+  "inventory.adjustments.unit": {
+    "es": "Unidad de medida",
+    "en": "Unit of measure",
+    "pt": "Unidade de medida"
+  },
+  "inventory.adjustments.product_inactive": {
+    "es": "Inactivo: solo baja",
+    "en": "Inactive: write-off only",
+    "pt": "Inativo: só baixa"
+  },
+  "inventory.adjustments.difference_unknown": {
+    "es": "Se calcula al conocer la existencia del almacén",
+    "en": "Computed once the warehouse stock is known",
+    "pt": "Calculada ao conhecer o estoque do depósito"
+  },
+  "inventory.adjustments.surplus": {
+    "es": "Sobrante",
+    "en": "Surplus",
+    "pt": "Sobra"
+  },
+  "inventory.adjustments.shortfall": {
+    "es": "Faltante",
+    "en": "Shortfall",
+    "pt": "Falta"
+  },
+  "inventory.adjustments.average_cost": {
+    "es": "Vacío: costo promedio",
+    "en": "Empty: average cost",
+    "pt": "Vazio: custo médio"
+  },
+  "inventory.adjustments.split_hint": {
+    "es": "Cantidad {{quantity}} · revaluación {{revaluation}}",
+    "en": "Quantity {{quantity}} · revaluation {{revaluation}}",
+    "pt": "Quantidade {{quantity}} · reavaliação {{revaluation}}"
+  },
+  "inventory.adjustments.remove_line": {
+    "es": "Quitar la línea {{line}}",
+    "en": "Remove line {{line}}",
+    "pt": "Remover a linha {{line}}"
+  },
+  "inventory.adjustments.totals": {
+    "es": "Totales",
+    "en": "Totals",
+    "pt": "Totais"
+  },
+  "inventory.adjustments.impact": {
+    "es": "Impacto al contabilizar",
+    "en": "Impact when posted",
+    "pt": "Impacto ao contabilizar"
+  },
+  "inventory.adjustments.impact_posted": {
+    "es": "Impacto contabilizado",
+    "en": "Posted impact",
+    "pt": "Impacto contabilizado"
+  },
+  "inventory.adjustments.impact_shortfall": {
+    "es": "Faltantes",
+    "en": "Shortfalls",
+    "pt": "Faltas"
+  },
+  "inventory.adjustments.impact_surplus": {
+    "es": "Sobrantes",
+    "en": "Surpluses",
+    "pt": "Sobras"
+  },
+  "inventory.adjustments.impact_revaluation": {
+    "es": "Revaluación de costo",
+    "en": "Cost revaluation",
+    "pt": "Reavaliação de custo"
+  },
+  "inventory.adjustments.impact_net": {
+    "es": "Efecto neto en el inventario",
+    "en": "Net effect on inventory",
+    "pt": "Efeito líquido no estoque"
+  },
+  "inventory.adjustments.impact_hint": {
+    "es": "El asiento registra cada naturaleza en su propia línea contra la cuenta de ajustes de inventario: un faltante nunca se compensa con una revaluación.",
+    "en": "The entry books each kind on its own line against the inventory adjustment account: a shortfall is never netted against a revaluation.",
+    "pt": "O lançamento registra cada natureza em sua própria linha contra a conta de ajustes de estoque: uma falta nunca é compensada com uma reavaliação."
+  },
+  "inventory.adjustments.impact_unknown": {
+    "es": "Algunas líneas aún no tienen la existencia del almacén; su diferencia se calcula al contabilizar.",
+    "en": "Some lines do not have the warehouse stock yet; their difference is computed on posting.",
+    "pt": "Algumas linhas ainda não têm o estoque do depósito; sua diferença é calculada ao contabilizar."
+  },
+  "inventory.adjustments.trail_label": {
+    "es": "Estado e historial del ajuste",
+    "en": "Adjustment status and history",
+    "pt": "Status e histórico do ajuste"
+  },
+  "inventory.adjustments.created_by": {
+    "es": "Creado por {{name}} el {{date}}",
+    "en": "Created by {{name}} on {{date}}",
+    "pt": "Criado por {{name}} em {{date}}"
+  },
+  "inventory.adjustments.posted_by": {
+    "es": "Contabilizado por {{name}} el {{date}}",
+    "en": "Posted by {{name}} on {{date}}",
+    "pt": "Contabilizado por {{name}} em {{date}}"
+  },
+  "inventory.adjustments.cancelled_by": {
+    "es": "Anulado por {{name}} el {{date}}",
+    "en": "Cancelled by {{name}} on {{date}}",
+    "pt": "Anulado por {{name}} em {{date}}"
+  },
+  "inventory.adjustments.reverses": {
+    "es": "Revierte",
+    "en": "Reverses",
+    "pt": "Reverte"
+  },
+  "inventory.adjustments.reversed_by": {
+    "es": "Revertido por",
+    "en": "Reversed by",
+    "pt": "Revertido por"
+  },
+  "inventory.adjustments.reverse": {
+    "es": "Revertir",
+    "en": "Reverse",
+    "pt": "Reverter"
+  },
+  "inventory.adjustments.reverse_title": {
+    "es": "Revertir ajuste",
+    "en": "Reverse adjustment",
+    "pt": "Reverter ajuste"
+  },
+  "inventory.adjustments.reverse_message": {
+    "es": "Se registrará un ajuste nuevo, contabilizado hoy, que deshace {{number}} línea por línea, con su propio asiento. {{number}} queda como estaba, enlazado a su reversión. ¿Por qué se revierte?",
+    "en": "A new adjustment, posted today, will undo {{number}} line by line, with its own entry. {{number}} stays as it is, linked to its reversal. Why is it being reversed?",
+    "pt": "Será registrado um novo ajuste, contabilizado hoje, que desfaz {{number}} linha por linha, com seu próprio lançamento. {{number}} fica como está, vinculado à sua reversão. Por que está sendo revertido?"
+  },
+  "inventory.adjustments.reverse_placeholder": {
+    "es": "Ej.: el conteo se hizo en el almacén equivocado",
+    "en": "E.g. the count was done in the wrong warehouse",
+    "pt": "Ex.: a contagem foi feita no depósito errado"
+  },
+  "inventory.adjustments.reverse_reason_short": {
+    "es": "Escribe el motivo (al menos 3 caracteres).",
+    "en": "Write the reason (at least 3 characters).",
+    "pt": "Escreva o motivo (pelo menos 3 caracteres)."
+  },
+  "inventory.adjustments.reversed": {
+    "es": "{{number}} revertido por {{reversal}}.",
+    "en": "{{number}} reversed by {{reversal}}.",
+    "pt": "{{number}} revertido por {{reversal}}."
+  },
+  "inventory.adjustments.reverse_failed": {
+    "es": "No se pudo revertir el ajuste.",
+    "en": "The adjustment could not be reversed.",
+    "pt": "Não foi possível reverter o ajuste."
+  },
+  "inventory.adjustments.cancelled": {
+    "es": "Ajuste {{number}} anulado.",
+    "en": "Adjustment {{number}} cancelled.",
+    "pt": "Ajuste {{number}} anulado."
+  },
+  "inventory.adjustments.cancel_failed": {
+    "es": "No se pudo anular el ajuste.",
+    "en": "The adjustment could not be cancelled.",
+    "pt": "Não foi possível anular o ajuste."
+  },
+  "inventory.adjustments.post_message_impact": {
+    "es": "Al contabilizar {{number}} se moverán {{lines}} producto(s): faltantes {{shortfall}}, sobrantes {{surplus}}, revaluación {{revaluation}}; efecto neto {{net}}. Se registrará el asiento y el ajuste quedará cerrado: ya no podrás editarlo, solo revertirlo.",
+    "en": "Posting {{number}} moves {{lines}} product(s): shortfalls {{shortfall}}, surpluses {{surplus}}, revaluation {{revaluation}}; net effect {{net}}. The entry is booked and the adjustment can no longer be edited, only reversed.",
+    "pt": "Ao contabilizar {{number}} serão movidos {{lines}} produto(s): faltas {{shortfall}}, sobras {{surplus}}, reavaliação {{revaluation}}; efeito líquido {{net}}. O lançamento será registrado e o ajuste não poderá mais ser editado, apenas revertido."
+  },
+  "inventory.adjustments.post_message_unknown": {
+    "es": "Al contabilizar {{number}}, la diferencia de las líneas contadas se calculará contra la existencia del almacén en ese momento. Se registrará el asiento y el ajuste quedará cerrado: ya no podrás editarlo, solo revertirlo.",
+    "en": "Posting {{number}} computes each counted line's difference against the warehouse stock at that moment. The entry is booked and the adjustment can no longer be edited, only reversed.",
+    "pt": "Ao contabilizar {{number}}, a diferença das linhas contadas será calculada contra o estoque do depósito nesse momento. O lançamento será registrado e o ajuste não poderá mais ser editado, apenas revertido."
+  },
+  "inventory.adjustments.leave_unsaved": {
+    "es": "Tienes cambios sin guardar en el ajuste {{number}}. ¿Qué quieres hacer?",
+    "en": "You have unsaved changes in adjustment {{number}}. What do you want to do?",
+    "pt": "Você tem alterações não salvas no ajuste {{number}}. O que deseja fazer?"
+  },
+  "inventory.adjustments.repeated_product_lines": {
+    "es": "El mismo producto está en las líneas {{lines}}: déjalo en una sola.",
+    "en": "The same product is on lines {{lines}}: keep it on just one.",
+    "pt": "O mesmo produto está nas linhas {{lines}}: mantenha-o em apenas uma."
+  },
+  "inventory.movements.type.revaluation": {
+    "es": "Revaluación de costo",
+    "en": "Cost revaluation",
+    "pt": "Reavaliação de custo"
+  },
+  "inventory.adjustments.reversed_badge": {
+    "es": "Revertido",
+    "en": "Reversed",
+    "pt": "Revertido"
+  },
+  "inventory.adjustments.reversal_badge": {
+    "es": "Reversión",
+    "en": "Reversal",
+    "pt": "Reversão"
+  },
+  "inventory.adjustments.leave_unsaved_new": {
+    "es": "Tienes cambios sin guardar en este ajuste nuevo. ¿Qué quieres hacer?",
+    "en": "You have unsaved changes in this new adjustment. What do you want to do?",
+    "pt": "Você tem alterações não salvas neste novo ajuste. O que deseja fazer?"
   }
 }

@@ -3,8 +3,11 @@
 
 // ── Page Shell ───────────────────────────────────────────────────
 .profile-page {
-  @include s.page-shell(1100px);
+  @include s.page-shell;
 }
+
+// A password is a few short fields: they read better at a measure than across the whole width.
+.profile-card__body--narrow { max-width: 34rem; }
 
 .visually-hidden {
   position: absolute;
@@ -26,6 +29,9 @@
     @include s.card-head;
     flex-wrap: nowrap;
     align-items: center;
+    // Icon and title together, at the start: the shared head spreads its children apart.
+    justify-content: flex-start;
+    gap: var(--space-2);
 
     lucide-icon { color: var(--primary); flex-shrink: 0; }
     h2 { font-size: var(--text-base); font-weight: var(--font-bold); color: var(--text-primary); margin: 0; }

@@ -1,123 +1,143 @@
-<div class="settings-page-container">
+@if (view() === 'personal') {
+  <!-- Preferences: this person's, on this device, applied as they are chosen. -->
+  <div class="settings-page-container">
+    <p class="branding-note" role="note">{{ 'settings.branding.personal_note' | translate }}</p>
+
+    <div class="form-section">
+      <h2 class="section-title">{{ 'settings.branding.language_preferences' | translate }}</h2>
+      <app-language-selector />
+      <small class="field-hint">{{ 'settings.branding.language_hint' | translate }}</small>
+    </div>
+
+    <div class="form-section">
+      <h2 class="section-title">{{ 'settings.branding.appearance' | translate }}</h2>
+      <div class="form-field">
+        <span class="input-label" id="ui-mode-label">{{ 'settings.branding.theme' | translate }}</span>
+        <div class="button-group three-cols" role="radiogroup" aria-labelledby="ui-mode-label">
+          <button type="button" role="radio" [class.active]="themeService.mode() === 'light'" [attr.aria-checked]="themeService.mode() === 'light'"
+            (click)="themeService.setMode('light')">{{ 'settings.branding.light' | translate }}</button>
+          <button type="button" role="radio" [class.active]="themeService.mode() === 'dark'" [attr.aria-checked]="themeService.mode() === 'dark'"
+            (click)="themeService.setMode('dark')">{{ 'settings.branding.dark' | translate }}</button>
+          <button type="button" role="radio" [class.active]="themeService.mode() === 'system'" [attr.aria-checked]="themeService.mode() === 'system'"
+            (click)="themeService.setMode('system')">{{ 'settings.branding.system_settings' | translate }}</button>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="switch-field" for="branding-contrast">
+          <input id="branding-contrast" type="checkbox" [checked]="themeService.contrast() === 'high'"
+            (change)="themeService.setContrast(themeService.contrast() === 'high' ? 'normal' : 'high')">
+          <span>{{ 'settings.branding.high_contrast' | translate }}</span>
+        </label>
+        <small class="field-hint">{{ 'settings.branding.strengthens_borders_secondary_text_works_with' | translate }}</small>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <span class="input-label" id="branding-density">{{ 'settings.branding.density' | translate }}</span>
+          <div class="button-group" role="radiogroup" aria-labelledby="branding-density">
+            <button type="button" role="radio" [class.active]="brandingService.settings().density === 'compact'" [attr.aria-checked]="brandingService.settings().density === 'compact'"
+              (click)="setDensity('compact')">{{ 'settings.branding.compact' | translate }}</button>
+            <button type="button" role="radio" [class.active]="brandingService.settings().density === 'comfy'" [attr.aria-checked]="brandingService.settings().density === 'comfy'"
+              (click)="setDensity('comfy')">{{ 'settings.branding.comfortable' | translate }}</button>
+          </div>
+        </div>
+        <div class="form-field">
+          <span class="input-label" id="branding-width">{{ 'settings.branding.content_width' | translate }}</span>
+          <div class="button-group" role="radiogroup" aria-labelledby="branding-width">
+            <button type="button" role="radio" [class.active]="brandingService.settings().contentWidth === 'normal'" [attr.aria-checked]="brandingService.settings().contentWidth === 'normal'"
+              (click)="setContentWidth('normal')">{{ 'settings.branding.normal' | translate }}</button>
+            <button type="button" role="radio" [class.active]="brandingService.settings().contentWidth === 'wide'" [attr.aria-checked]="brandingService.settings().contentWidth === 'wide'"
+              (click)="setContentWidth('wide')">{{ 'settings.branding.wide' | translate }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dates, numbers and times as this person reads them, over the company's default. -->
+    <app-regional-format-page view="personal" />
+  </div>
+} @else {
+  <!-- The company's brand: everyone's, previewed until saved. -->
+  @if (canEdit()) {
+    <ng-template appSettingsActions>
+      <button type="button" class="secondary-button" (click)="resetBranding()">{{ 'settings.branding.reset' | translate }}</button>
+    </ng-template>
+  }
+  <div class="settings-page-container">
     <form [formGroup]="brandingForm" (ngSubmit)="saveBranding()">
-        <div class="page-header">
-            <!-- <h2>Personalización Avanzada</h2> -->
-                   <h2>{{ 'settings.branding.title' | translate }}</h2>
-            <button type="submit" class="primary-button" [disabled]="brandingForm.pristine">
-                <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-                <span>{{ 'settings.branding.save_changes' | translate }}</span>
-            </button>
+      <div class="branding-grid">
+        <div class="controls-column">
+          <div class="form-section">
+            <h2 class="section-title">{{ 'settings.branding.company_logo' | translate }}</h2>
+            <div class="logo-row">
+              <div class="logo-frame">
+                @if (brandingService.logoUrl(); as logo) {
+                  <img [src]="logo" [alt]="'settings.branding.logo_preview' | translate">
+                } @else {
+                  <lucide-icon [img]="ImageIcon" size="28" aria-hidden="true" />
+                }
+              </div>
+              @if (canEdit()) {
+                <div class="logo-actions">
+                  <label class="secondary-button" for="logoFile" [class.is-busy]="uploading()">
+                    {{ (brandingService.logoUrl() ? 'settings.branding.replace_logo' : 'settings.branding.upload_logo') | translate }}
+                  </label>
+                  <input type="file" id="logoFile" class="sr-only" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/webp" [disabled]="uploading()">
+                  @if (brandingService.logoUrl()) {
+                    <button type="button" class="ghost-button" (click)="removeLogo()">
+                      <lucide-icon [img]="RemoveIcon" size="14" aria-hidden="true" />
+                      <span>{{ 'settings.branding.remove_logo' | translate }}</span>
+                    </button>
+                  }
+                  <small class="field-hint">{{ 'settings.branding.logo_hint' | translate }}</small>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h2 class="section-title">{{ 'settings.branding.accent_colour' | translate }}</h2>
+            <div class="color-row">
+              <input type="color" id="accentColor" formControlName="accentColor" [attr.aria-label]="'settings.branding.accent_colour' | translate">
+              <div class="presets" role="group" [attr.aria-label]="'settings.branding.presets' | translate">
+                @for (color of colorPresets; track color) {
+                  <button type="button" class="preset" [style.background]="color" [disabled]="!canEdit()"
+                    [class.active]="brandingForm.value.accentColor === color" [attr.aria-pressed]="brandingForm.value.accentColor === color"
+                    [attr.aria-label]="color" (click)="pickPreset(color)"></button>
+                }
+              </div>
+            </div>
+            <small class="field-hint">{{ 'settings.branding.accent_hint' | translate }}</small>
+          </div>
+
+          <div class="form-section">
+            <h2 class="section-title">{{ 'settings.branding.typography_shape' | translate }}</h2>
+            <div class="form-field">
+              <label for="fontFamily">{{ 'settings.branding.typeface' | translate }}</label>
+              <select id="fontFamily" formControlName="fontFamily">
+                @for (font of fonts; track font.id) {
+                  <option [value]="font.id">{{ font.id }} ({{ font.styleKey | translate }})</option>
+                }
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="borderRadius">{{ 'settings.branding.corner_radius_value_px' | translate: { value: brandingForm.get('borderRadius')?.value } }}</label>
+              <input type="range" id="borderRadius" formControlName="borderRadius" min="0" max="24" step="2">
+            </div>
+          </div>
         </div>
 
-        <div class="branding-grid">
-            <div class="controls-column">
-                <div class="form-section">
-                    <h3 class="section-title">{{ 'settings.branding.language_preferences' | translate }}</h3>
-                    <app-language-selector />
-                </div>
-                <div class="form-section">
-                    <h3 class="section-title">{{ 'settings.branding.logo_colours' | translate }}</h3>
-                    <div class="form-field"><label for="logoFile">{{ 'settings.branding.company_logo' | translate }}</label>
-                        <div class="file-input-container logo-container">
-                            <input type="file" id="logoFile" (change)="onFileSelected($event)"
-                                accept="image/png, image/jpeg, image/svg+xml">
-                            <label for="logoFile" class="file-input-label">
-                                @if (logoPreview()) { <img [src]="logoPreview()" [alt]="'settings.branding.logo_preview' | translate"> }
-                                @else { <lucide-icon [img]="ImageIcon" size="32" /><span>{{ 'settings.branding.upload_logo' | translate }}</span> }
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-field"><label for="accentColor">{{ 'settings.branding.accent_colour' | translate }}</label><input type="color"
-                                id="accentColor" formControlName="accentColor"></div>
-                        <!--
-                          El campo «Color Neutro» se retira a propósito. Los
-                          neutros son los que sostienen el contraste verificado
-                          de toda la interfaz; dejarlos personalizar permitía
-                          volver ilegible la aplicación entera desde un selector
-                          de color. El acento sí es personalizable porque su
-                          legibilidad se recalcula automáticamente.
-                        -->
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h3 class="section-title">{{ 'settings.branding.appearance_layout' | translate }}</h3>
-                    <div class="form-field"><label for="fontFamily">{{ 'settings.branding.typeface' | translate }}</label><select id="fontFamily"
-                            formControlName="fontFamily">@for(font of fonts; track font.id){<option [value]="font.id">
-                                {{ font.id }} ({{ font.styleKey | translate }})</option>}</select></div>
-                    <div class="form-field"><label for="borderRadius">{{ 'settings.branding.corner_radius_value_px' | translate: { value: brandingForm.get('borderRadius')?.value } }}</label><input type="range" id="borderRadius"
-                            formControlName="borderRadius" min="0" max="24" step="2"></div>
-
-                    <div class="form-row">
-                        <div class="form-field"><span class="input-label" id="branding-group-2">{{ 'settings.branding.density' | translate }}</span>
-                            <div class="button-group" role="group" aria-labelledby="branding-group-2">
-                                <button type="button" [class.active]="brandingForm.get('density')?.value==='compact'"
-                                    (click)="brandingForm.get('density')?.setValue('compact')">{{ 'settings.branding.compact' | translate }}</button>
-                                <button type="button" [class.active]="brandingForm.get('density')?.value==='comfy'"
-                                    (click)="brandingForm.get('density')?.setValue('comfy')">{{ 'settings.branding.comfortable' | translate }}</button>
-                            </div>
-                        </div>
-                        <div class="form-field"><span class="input-label" id="branding-group-3">{{ 'settings.branding.content_width' | translate }}</span>
-                            <div class="button-group" role="group" aria-labelledby="branding-group-3">
-                                <button type="button"
-                                    [class.active]="brandingForm.get('contentWidth')?.value==='normal'"
-                                    (click)="brandingForm.get('contentWidth')?.setValue('normal')">{{ 'settings.branding.normal' | translate }}</button>
-                                <button type="button" [class.active]="brandingForm.get('contentWidth')?.value==='wide'"
-                                    (click)="brandingForm.get('contentWidth')?.setValue('wide')">{{ 'settings.branding.wide' | translate }}</button>
-                            </div>
-                        </div>
-                    </div>
-                    <!--
-                      El tema deja de vivir en el formulario de marca: es una
-                      preferencia del usuario, no de la organización, y la
-                      gobierna ThemeService. Antes este control y el conmutador
-                      de la barra superior escribían en almacenes distintos, así
-                      que se contradecían entre sí.
-                    -->
-                    <div class="form-field">
-                        <span class="input-label" id="ui-mode-label">{{ 'settings.branding.theme' | translate }}</span>
-                        <div class="button-group three-cols" role="radiogroup" aria-labelledby="ui-mode-label">
-                            <button type="button" role="radio"
-                                [class.active]="themeService.mode() === 'light'"
-                                [attr.aria-checked]="themeService.mode() === 'light'"
-                                (click)="themeService.setMode('light')">{{ 'settings.branding.light' | translate }}</button>
-                            <button type="button" role="radio"
-                                [class.active]="themeService.mode() === 'dark'"
-                                [attr.aria-checked]="themeService.mode() === 'dark'"
-                                (click)="themeService.setMode('dark')">{{ 'settings.branding.dark' | translate }}</button>
-                            <button type="button" role="radio"
-                                [class.active]="themeService.mode() === 'system'"
-                                [attr.aria-checked]="themeService.mode() === 'system'"
-                                (click)="themeService.setMode('system')">{{ 'settings.branding.system_settings' | translate }}</button>
-                        </div>
-                    </div>
-
-                    <!--
-                      El alto contraste es ortogonal a claro/oscuro: refuerza
-                      bordes y texto tenue sobre CUALQUIERA de los dos temas.
-                      Antes era un tercer valor excluyente de «modo», lo que
-                      obligaba a renunciar al tema oscuro para poder usarlo.
-                    -->
-                    <div class="form-field">
-                        <label class="switch-field" for="field">
-                            <input id="field" type="checkbox"
-                                [checked]="themeService.contrast() === 'high'"
-                                (change)="themeService.setContrast(
-                                    themeService.contrast() === 'high' ? 'normal' : 'high')">
-                            <span>{{ 'settings.branding.high_contrast' | translate }}</span>
-                        </label>
-                        <small class="field-hint">
-                            {{ 'settings.branding.strengthens_borders_secondary_text_works_with' | translate }}
-                        </small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="preview-column">
-                <h3 class="section-title">{{ 'settings.branding.live_preview' | translate }}</h3>
-                <app-live-preview />
-            </div>
+        <div class="preview-column">
+          <h2 class="section-title">{{ 'settings.branding.live_preview' | translate }}</h2>
+          <app-live-preview />
+          <small class="field-hint">{{ 'settings.branding.preview_hint' | translate }}</small>
         </div>
+      </div>
     </form>
-</div>
+
+    @if (canEdit()) {
+      <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" (save)="saveBranding()" (discard)="discard()" />
+    }
+  </div>
+}

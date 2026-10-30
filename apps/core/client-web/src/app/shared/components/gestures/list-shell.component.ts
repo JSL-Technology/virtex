@@ -48,6 +48,11 @@ export class ListShellComponent {
   /** Clave i18n del título. La ventana ya lleva el nombre; esto es el encabezado de la página. */
   readonly titleKey = input.required<string>();
   readonly subtitleKey = input<string | null>(null);
+  /**
+   * Drawn inside a page that already names it — a section of Settings. The heading is left to that
+   * page (it said «Extensiones» twice, one above the other) and so are the padding and the canvas.
+   */
+  readonly embedded = input(false);
 
   /** Número de registros mostrados. `null` lo oculta — no todas las listas lo saben. */
   readonly count = input<number | null>(null);

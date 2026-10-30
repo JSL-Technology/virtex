@@ -1,0 +1,507 @@
+{
+ "ajuste_inventario": [
+  {
+   "q": "h1",
+   "font": "Inter 20px/600",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 25,
+   "w": 139,
+   "pad": "0px"
+  },
+  {
+   "q": "label span, label, .form-group label",
+   "font": "Inter 13px/500",
+   "color": "rgb(74, 82, 102)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(74, 82, 102) 0px",
+   "radius": "0px",
+   "h": 20,
+   "w": 256,
+   "pad": "0px"
+  },
+  {
+   "q": "input[type=text], input:not([type])",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(127, 135, 148) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 256,
+   "pad": "1px 36px 1px 12px"
+  },
+  {
+   "q": "select",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(127, 135, 148) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 256,
+   "pad": "0px 12px"
+  },
+  {
+   "q": "button[type=submit]",
+   "font": "Inter 14px/500",
+   "color": "rgb(255, 255, 255)",
+   "bg": "rgb(91, 55, 217)",
+   "border": "rgba(0, 0, 0, 0) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 80,
+   "pad": "1px 12px"
+  },
+  {
+   "q": ".dr__cancel, button.secondary-button",
+   "font": "Inter 14px/500",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(215, 221, 232) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 86,
+   "pad": "1px 12px"
+  },
+  {
+   "q": "th",
+   "font": "Inter 12px/700",
+   "color": "rgb(74, 82, 102)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(74, 82, 102) 0px",
+   "radius": "0px",
+   "h": 32,
+   "w": 288,
+   "pad": "6.4px 8px"
+  },
+  {
+   "q": "td",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 50,
+   "w": 288,
+   "pad": "6.4px 8px"
+  },
+  {
+   "q": ".form-section-title, h2",
+   "font": "Inter 17px/600",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 21,
+   "w": 1070,
+   "pad": "0px"
+  },
+  null,
+  {
+   "q": ".form-hint, small.hint",
+   "font": "Inter 13px/400",
+   "color": "rgb(74, 82, 102)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(74, 82, 102) 0px",
+   "radius": "0px",
+   "h": 40,
+   "w": 1070,
+   "pad": "0px"
+  }
+ ],
+ "transferencia": [
+  {
+   "q": "h1",
+   "font": "Inter 20px/600",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 25,
+   "w": 190,
+   "pad": "0px"
+  },
+  {
+   "q": "label span, label, .form-group label",
+   "font": "Inter 14px/400",
+   "color": "rgb(74, 82, 102)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(74, 82, 102) 0px",
+   "radius": "0px",
+   "h": 70,
+   "w": 256,
+   "pad": "0px"
+  },
+  {
+   "q": "input[type=text], input:not([type])",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(127, 135, 148) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 256,
+   "pad": "1px 36px 1px 12px"
+  },
+  {
+   "q": "select",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(127, 135, 148) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 256,
+   "pad": "0px 12px"
+  },
+  {
+   "q": "button[type=submit]",
+   "font": "Inter 14px/500",
+   "color": "rgb(255, 255, 255)",
+   "bg": "rgb(91, 55, 217)",
+   "border": "rgba(0, 0, 0, 0) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 80,
+   "pad": "1px 12px"
+  },
+  {
+   "q": ".dr__cancel, button.secondary-button",
+   "font": "Inter 14px/500",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(215, 221, 232) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 86,
+   "pad": "1px 12px"
+  },
+  {
+   "q": "th",
+   "font": "Inter 12px/700",
+   "color": "rgb(74, 82, 102)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(74, 82, 102) 0px",
+   "radius": "0px",
+   "h": 32,
+   "w": 467,
+   "pad": "6.4px 8px"
+  },
+  {
+   "q": "td",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 50,
+   "w": 467,
+   "pad": "6.4px 8px"
+  },
+  {
+   "q": ".form-section-title, h2",
+   "font": "Inter 17px/600",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 21,
+   "w": 1070,
+   "pad": "0px"
+  },
+  null,
+  null
+ ],
+ "ajuste_auditoria": [
+  {
+   "q": "h1",
+   "font": "Inter 20px/600",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 25,
+   "w": 496,
+   "pad": "0px"
+  },
+  {
+   "q": "label span, label, .form-group label",
+   "font": "Inter 13px/500",
+   "color": "rgb(74, 82, 102)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(74, 82, 102) 0px",
+   "radius": "0px",
+   "h": 20,
+   "w": 256,
+   "pad": "0px"
+  },
+  {
+   "q": "input[type=text], input:not([type])",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(127, 135, 148) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 1070,
+   "pad": "1px 12px"
+  },
+  {
+   "q": "select",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(127, 135, 148) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 256,
+   "pad": "0px 12px"
+  },
+  {
+   "q": "button[type=submit]",
+   "font": "Inter 14px/500",
+   "color": "rgb(255, 255, 255)",
+   "bg": "rgb(91, 55, 217)",
+   "border": "rgba(0, 0, 0, 0) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 132,
+   "pad": "1px 12px"
+  },
+  {
+   "q": ".dr__cancel, button.secondary-button",
+   "font": "Inter 14px/500",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(215, 221, 232) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 86,
+   "pad": "1px 12px"
+  },
+  {
+   "q": "th",
+   "font": "Inter 12px/700",
+   "color": "rgb(74, 82, 102)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(74, 82, 102) 0px",
+   "radius": "0px",
+   "h": 32,
+   "w": 384,
+   "pad": "6.4px 8px"
+  },
+  {
+   "q": "td",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 50,
+   "w": 384,
+   "pad": "6.4px 8px"
+  },
+  {
+   "q": ".form-section-title, h2",
+   "font": "Inter 17px/600",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 21,
+   "w": 1070,
+   "pad": "0px"
+  },
+  null,
+  {
+   "q": ".form-hint, small.hint",
+   "font": "Inter 13px/400",
+   "color": "rgb(74, 82, 102)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(74, 82, 102) 0px",
+   "radius": "0px",
+   "h": 20,
+   "w": 1070,
+   "pad": "0px"
+  }
+ ],
+ "asiento": [
+  {
+   "q": "h1",
+   "font": "Inter 20px/600",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 25,
+   "w": 221,
+   "pad": "0px"
+  },
+  {
+   "q": "label span, label, .form-group label",
+   "font": "Inter 13px/500",
+   "color": "rgb(74, 82, 102)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(74, 82, 102) 0px",
+   "radius": "0px",
+   "h": 20,
+   "w": 245,
+   "pad": "0px"
+  },
+  {
+   "q": "input[type=text], input:not([type])",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(127, 135, 148) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 245,
+   "pad": "1px 36px 1px 12px"
+  },
+  {
+   "q": "select",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(127, 135, 148) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 245,
+   "pad": "0px 12px"
+  },
+  {
+   "q": "button[type=submit]",
+   "font": "Inter 14px/500",
+   "color": "rgb(255, 255, 255)",
+   "bg": "rgb(91, 55, 217)",
+   "border": "rgba(0, 0, 0, 0) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 132,
+   "pad": "1px 12px"
+  },
+  {
+   "q": ".dr__cancel, button.secondary-button",
+   "font": "Inter 14px/500",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(215, 221, 232) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 86,
+   "pad": "1px 12px"
+  },
+  {
+   "q": "th",
+   "font": "Inter 13px/600",
+   "color": "rgb(74, 82, 102)",
+   "bg": "rgb(239, 242, 247)",
+   "border": "rgb(74, 82, 102) 0px",
+   "radius": "0px",
+   "h": 45,
+   "w": 278,
+   "pad": "12px 16px"
+  },
+  {
+   "q": "td",
+   "font": "Inter 13px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 61,
+   "w": 278,
+   "pad": "12px 16px"
+  },
+  null,
+  null,
+  null
+ ],
+ "producto": [
+  {
+   "q": "h1",
+   "font": "Inter 20px/600",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 25,
+   "w": 399,
+   "pad": "0px"
+  },
+  {
+   "q": "label span, label, .form-group label",
+   "font": "Inter 13px/500",
+   "color": "rgb(74, 82, 102)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(74, 82, 102) 0px",
+   "radius": "0px",
+   "h": 20,
+   "w": 428,
+   "pad": "0px"
+  },
+  {
+   "q": "input[type=text], input:not([type])",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(127, 135, 148) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 428,
+   "pad": "1px 12px"
+  },
+  {
+   "q": "select",
+   "font": "Inter 14px/400",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(127, 135, 148) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 206,
+   "pad": "0px 12px"
+  },
+  {
+   "q": "button[type=submit]",
+   "font": "Inter 14px/500",
+   "color": "rgb(255, 255, 255)",
+   "bg": "rgb(91, 55, 217)",
+   "border": "rgba(0, 0, 0, 0) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 144,
+   "pad": "1px 12px"
+  },
+  {
+   "q": ".dr__cancel, button.secondary-button",
+   "font": "Inter 14px/500",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(215, 221, 232) 1px",
+   "radius": "6px",
+   "h": 36,
+   "w": 86,
+   "pad": "1px 12px"
+  },
+  null,
+  null,
+  {
+   "q": ".form-section-title, h2",
+   "font": "Inter 14px/600",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 18,
+   "w": 428,
+   "pad": "0px"
+  },
+  null,
+  null
+ ]
+}

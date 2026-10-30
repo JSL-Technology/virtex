@@ -278,5 +278,60 @@
     "es": "Sin guardar",
     "en": "Unsaved",
     "pt": "Não salvo"
+  },
+  "shell.problem_required_line": {
+    "es": "«{{field}}» es obligatorio (línea {{line}})",
+    "en": "“{{field}}” is required (line {{line}})",
+    "pt": "“{{field}}” é obrigatório (linha {{line}})"
+  },
+  "shell.problem_number": {
+    "es": "«{{field}}» no es un número. Escríbelo como {{example}}.",
+    "en": "“{{field}}” is not a number. Write it as {{example}}.",
+    "pt": "“{{field}}” não é um número. Escreva como {{example}}."
+  },
+  "shell.problem_min_line": {
+    "es": "«{{field}}» no puede ser menor que {{min}} (línea {{line}})",
+    "en": "“{{field}}” cannot be lower than {{min}} (line {{line}})",
+    "pt": "“{{field}}” não pode ser menor que {{min}} (linha {{line}})"
+  },
+  "shell.problem_max_line": {
+    "es": "«{{field}}» no puede ser mayor que {{max}} (línea {{line}})",
+    "en": "“{{field}}” cannot be greater than {{max}} (line {{line}})",
+    "pt": "“{{field}}” não pode ser maior que {{max}} (linha {{line}})"
+  },
+  "shell.problem_minlength_line": {
+    "es": "«{{field}}» necesita al menos {{min}} caracteres (línea {{line}})",
+    "en": "“{{field}}” needs at least {{min}} characters (line {{line}})",
+    "pt": "“{{field}}” precisa de pelo menos {{min}} caracteres (linha {{line}})"
+  },
+  "shell.problem_maxlength_line": {
+    "es": "«{{field}}» admite como máximo {{max}} caracteres (línea {{line}})",
+    "en": "“{{field}}” allows at most {{max}} characters (line {{line}})",
+    "pt": "“{{field}}” aceita no máximo {{max}} caracteres (linha {{line}})"
+  },
+  "shell.problem_email_line": {
+    "es": "«{{field}}» no es un correo válido (línea {{line}})",
+    "en": "“{{field}}” is not a valid email (line {{line}})",
+    "pt": "“{{field}}” não é um e-mail válido (linha {{line}})"
+  },
+  "shell.field_not_expected_format_line": {
+    "es": "«{{field}}» no tiene el formato esperado (línea {{line}})",
+    "en": "“{{field}}” is not in the expected format (line {{line}})",
+    "pt": "“{{field}}” não está no formato esperado (linha {{line}})"
+  },
+  "shell.problem_invalid_line": {
+    "es": "Revisa «{{field}}» (línea {{line}})",
+    "en": "Check “{{field}}” (line {{line}})",
+    "pt": "Revise “{{field}}” (linha {{line}})"
+  },
+  "shell.problem_date_order_line": {
+    "es": "«{{field}}» no puede ser anterior a la fecha inicial (línea {{line}})",
+    "en": "“{{field}}” cannot be before the start date (line {{line}})",
+    "pt": "“{{field}}” não pode ser anterior à data inicial (linha {{line}})"
+  },
+  "shell.problem_number_line": {
+    "es": "«{{field}}» no es un número; escríbelo como {{example}} (línea {{line}})",
+    "en": "“{{field}}” is not a number; write it as {{example}} (line {{line}})",
+    "pt": "“{{field}}” não é um número; escreva como {{example}} (linha {{line}})"
   }
 }

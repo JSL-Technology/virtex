@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { SettingsActionsDirective } from '../../shell';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -41,7 +42,7 @@ const FISCAL_CODE_PATTERN = /^[0-9A-Za-z]*$/;
 @Component({
   selector: 'app-branches-settings',
   standalone: true,
-  imports: [
+  imports: [SettingsActionsDirective, 
     CommonModule,
     RouterLink,
     ReactiveFormsModule,

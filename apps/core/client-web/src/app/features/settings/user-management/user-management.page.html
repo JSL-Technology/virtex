@@ -1,20 +1,11 @@
 <div class="settings-page-container">
   <div class="page-container">
-    <div class="page-header">
-      <div>
-        <h1>{{ 'settings.user_management.user_management' | translate }}</h1>
-        <div class="breadcrumb">
-          <a href="javascript:void(0)" onclick="window.history.back()">{{ 'settings.user_management.administration' | translate }}</a>
-          <span class="divider">/</span>
-          <span>{{ 'settings.user_management.users' | translate }}</span>
-        </div>
-      </div>
-      <div class="page-header-actions">
-        <button class="btn btn-primary" (click)="openInviteModal()">
-          <lucide-icon [name]="UserPlusIcon" size="16"></lucide-icon> {{ 'settings.user_management.invite_user' | translate }}
-        </button>
-      </div>
-    </div>
+    <ng-template appSettingsActions>
+      <button type="button" class="primary-button" *appHasPermission="'users:create'" (click)="openInviteModal()">
+        <lucide-icon [name]="UserPlusIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'settings.user_management.invite_user' | translate }}</span>
+      </button>
+    </ng-template>
 
     <div class="card">
       <div class="toolbar">

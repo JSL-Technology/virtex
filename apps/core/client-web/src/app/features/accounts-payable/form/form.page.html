@@ -84,7 +84,7 @@
           }
           @for (note of captureNotes(); track note.key) {
             <p class="bill-document__note" [class.bill-document__note--warning]="note.tone === 'warning'" [class.bill-document__note--info]="note.tone === 'info'">
-              {{ note.key | translate: note.params }}
+              {{ note.key | translate: (note.params | vxParams) }}
             </p>
           }
           <p class="hint">{{ 'accounts_payable.capture.review_hint' | translate }}</p>

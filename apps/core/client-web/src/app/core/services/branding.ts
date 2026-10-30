@@ -7,6 +7,9 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, catchError, of, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { isPlatformBrowser } from '@angular/common';
 
 import {
@@ -91,16 +94,35 @@ const DEFAULTS: BrandingSettings = {
  *  `--primary` y `--border-color`.
  * =============================================================================
  */
+/** The company's part of the branding, as the server keeps it. */
+export interface CompanyBranding {
+  accentColor: string | null;
+  fontFamily: UiFont | null;
+  borderRadius: number | null;
+  logoUrl: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class BrandingService {
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly theme = inject(ThemeService);
+  private readonly http = inject(HttpClient);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private readonly url = `${environment.apiUrl}/organizations/branding`;
 
   readonly settings = signal<BrandingSettings>(this.load());
 
   readonly logoUrl = computed(() => this.settings().logoUrl);
+
+  /**
+   * What the server holds for the company — the brand every member sees.
+   *
+   * The settings signal may run ahead of it while someone previews a change; `discardPreview`
+   * returns to it and `saveCompany` moves it. Before the server held the brand, the preview WAS the
+   * save, in one browser only, and «Save changes» merely cleared a dirty flag.
+   */
+  readonly company = signal<CompanyBranding | null>(null);
 
   constructor() {
     effect(() => {
@@ -116,23 +138,80 @@ export class BrandingService {
     });
   }
 
+  /** Live preview: applied at once, saved by nobody until `saveCompany`. */
   updateSettings(changes: Partial<BrandingSettings>): void {
     this.settings.update((current) => ({ ...current, ...changes }));
   }
 
-  updateLogo(file: File): void {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const url = event.target?.result;
-      if (typeof url === 'string') {
-        this.settings.update((current) => ({ ...current, logoUrl: url }));
-      }
-    };
-    reader.readAsDataURL(file);
+  /**
+   * The person's own layout preferences — density and content width. They are this person's, on
+   * this device, applied and kept at once; they are not the company's brand.
+   */
+  setPersonal(changes: Partial<Pick<BrandingSettings, 'density' | 'contentWidth'>>): void {
+    this.settings.update((current) => ({ ...current, ...changes }));
   }
+
+  /** Reads the company's brand from the server and applies it. Called when a company opens. */
+  loadFromServer(): Observable<CompanyBranding | null> {
+    return this.http.get<CompanyBranding>(this.url).pipe(
+      tap((company) => this.acceptCompany(company)),
+      catchError(() => of(null)),
+    );
+  }
+
+  /** Saves the company part of what is being previewed. */
+  saveCompany(): Observable<CompanyBranding> {
+    const { accentColor, fontFamily, borderRadius } = this.settings();
+    return this.http.patch<CompanyBranding>(this.url, { accentColor, fontFamily, borderRadius }).pipe(tap((company) => this.acceptCompany(company)));
+  }
+
+  /** Uploads the company logo; it is everyone's as soon as the server has it. */
+  uploadLogo(file: File): Observable<CompanyBranding> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<CompanyBranding>(`${this.url}/logo`, form).pipe(tap((company) => this.acceptCompany(company)));
+  }
+
+  removeLogo(): Observable<CompanyBranding> {
+    return this.http.delete<CompanyBranding>(`${this.url}/logo`).pipe(tap((company) => this.acceptCompany(company)));
+  }
+
+  /** Back to the product's default colour, typeface and radius, for the whole company. */
+  resetCompany(): Observable<CompanyBranding> {
+    return this.http.delete<CompanyBranding>(this.url).pipe(tap((company) => this.acceptCompany(company)));
+  }
+
+  /** Drops what is being previewed and shows the company's saved brand again. */
+  discardPreview(): void {
+    const company = this.company();
+    if (company) this.acceptCompany(company);
+  }
+
+  /** Whether the preview differs from what the company has saved. */
+  readonly previewDiffers = computed(() => {
+    const company = this.company();
+    const current = this.settings();
+    if (!company) return false;
+    return (
+      (company.accentColor ?? DEFAULTS.accentColor) !== current.accentColor ||
+      (company.fontFamily ?? DEFAULTS.fontFamily) !== current.fontFamily ||
+      (company.borderRadius ?? DEFAULTS.borderRadius) !== current.borderRadius
+    );
+  });
 
   resetToDefaults(): void {
     this.settings.set({ ...DEFAULTS });
+  }
+
+  private acceptCompany(company: CompanyBranding): void {
+    this.company.set(company);
+    this.settings.update((current) => ({
+      ...current,
+      accentColor: company.accentColor ?? DEFAULTS.accentColor,
+      fontFamily: company.fontFamily ?? DEFAULTS.fontFamily,
+      borderRadius: company.borderRadius ?? DEFAULTS.borderRadius,
+      logoUrl: company.logoUrl,
+    }));
   }
 
   /* ── Aplicación ──────────────────────────────────────────────────────────── */

@@ -1,19 +1,21 @@
-<section class="ls">
+<section class="ls" [class.ls--embedded]="embedded()">
   <header class="ls__header">
-    <div class="ls__identity">
-      <!-- The count sits BESIDE the heading, not inside it: «Clientes 1» was read as the title (QA M-09). -->
-      <div class="ls__title-row">
-        <h1 class="ls__title">{{ titleKey() | translate }}</h1>
-        @if (count() !== null && state() === 'content') {
-          <span class="ls__count" [attr.aria-label]="'shell.count' | translate: { count: count() }">
-            {{ count() }}
-          </span>
+    @if (!embedded()) {
+      <div class="ls__identity">
+        <!-- The count sits BESIDE the heading, not inside it: «Clientes 1» was read as the title (QA M-09). -->
+        <div class="ls__title-row">
+          <h1 class="ls__title">{{ titleKey() | translate }}</h1>
+          @if (count() !== null && state() === 'content') {
+            <span class="ls__count" [attr.aria-label]="'shell.count' | translate: { count: count() }">
+              {{ count() }}
+            </span>
+          }
+        </div>
+        @if (subtitleKey()) {
+          <p class="ls__subtitle">{{ subtitleKey() | translate }}</p>
         }
       </div>
-      @if (subtitleKey()) {
-        <p class="ls__subtitle">{{ subtitleKey() | translate }}</p>
-      }
-    </div>
+    }
 
     <div class="ls__actions">
       <ng-content select="[listActions]"></ng-content>

@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../../core/services/notification';
 import {
   PurchaseRequisition,
@@ -39,7 +39,7 @@ import { VX_SELECT } from '../../../../shared/components/select';
 @Component({
   selector: 'app-requisition-form-page',
   standalone: true,
-  imports: [
+  imports: [VxNumberInputDirective, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,

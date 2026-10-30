@@ -30,12 +30,15 @@ import { StepUpScope } from './enums/step-up-scope.enum';
  * at the ADMINISTRATOR role would have made every new account from a verified domain a super-admin;
  * `SsoAdminService.assertRoleIsDelegable` now refuses that outright, and the step-up here means
  * the rest of the IdP configuration also costs a fresh proof of identity.
+ *
+ * Step-up guards the **changes**, method by method, not the reading. On the class it asked for the
+ * password just to open the section — and the Integrations card, which only counts providers,
+ * told an administrator «Sin acceso». Reading which providers and domains exist changes nothing
+ * and is already behind `settings:edit_company`.
  */
 @ApiTags('Auth/SSO Admin')
 @Controller('auth/sso/admin')
 @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
-@UseGuards(StepUpGuard)
-@StepUp(StepUpScope.MANAGE_SSO)
 // Configuring a per-tenant identity provider is the capability the Enterprise tier is named for.
 @CheckFeature('enterprise_sso')
 export class SsoAdminController {
@@ -57,6 +60,8 @@ export class SsoAdminController {
   }
 
   @Post('providers')
+  @UseGuards(StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_SSO)
   @ApiOperation({ summary: 'Create an SSO identity provider (disabled until a domain is verified)' })
   createProvider(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateIdentityProviderDto) {
     // The actor travels through: `defaultRoleId` is a role assignment and goes through the same
@@ -65,6 +70,8 @@ export class SsoAdminController {
   }
 
   @Patch('providers/:id')
+  @UseGuards(StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_SSO)
   @ApiOperation({ summary: 'Update an SSO identity provider' })
   updateProvider(
     @CurrentUser() user: AuthenticatedUser,
@@ -75,6 +82,8 @@ export class SsoAdminController {
   }
 
   @Delete('providers/:id')
+  @UseGuards(StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_SSO)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an SSO identity provider' })
   async deleteProvider(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
@@ -90,12 +99,16 @@ export class SsoAdminController {
   }
 
   @Post('domains')
+  @UseGuards(StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_SSO)
   @ApiOperation({ summary: 'Register an email domain (returns the DNS TXT record to publish)' })
   addDomain(@CurrentUser() user: AuthenticatedUser, @Body() dto: AddDomainDto) {
     return this.ssoAdminService.addDomain(this.orgId(user), dto.domain);
   }
 
   @Post('domains/:id/verify')
+  @UseGuards(StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_SSO)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify domain ownership via the DNS TXT record' })
   verifyDomain(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
@@ -103,6 +116,8 @@ export class SsoAdminController {
   }
 
   @Delete('domains/:id')
+  @UseGuards(StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_SSO)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an email domain' })
   async deleteDomain(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {

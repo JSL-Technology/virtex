@@ -42,7 +42,7 @@ describe('ExchangeRatesPage', () => {
         provideRouter([]),
         { provide: ExchangeRatesService, useValue: rates },
         { provide: CurrenciesService, useValue: { getCurrencies: () => of([{ id: '1', code: 'USD', name: 'Dólar' }, { id: '2', code: 'DOP', name: 'Peso' }]) } },
-        { provide: LocaleStore, useValue: { currency: () => 'DOP' } },
+        { provide: LocaleStore, useValue: { currency: () => 'DOP', locale: () => 'es-DO', timezone: () => 'America/Santo_Domingo', regionalFormat: () => ({}) } },
         { provide: NotificationService, useValue: notifications },
         { provide: DialogService, useValue: { confirm: jest.fn().mockResolvedValue(true) } },
         { provide: AuthService, useValue: { isAuthenticated$: of(true), getPermissions$: () => of(['exchange_rates:manage']), hasPermissions: () => true } },

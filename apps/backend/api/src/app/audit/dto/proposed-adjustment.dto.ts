@@ -60,3 +60,10 @@ export class CreateProposedAdjustmentDto {
   @Type(() => ProposedAdjustmentLineDto)
   lines: ProposedAdjustmentLineDto[];
 }
+export class ApprovalRouteQueryDto {
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  @IsOptional()
+  amount?: number;
+}

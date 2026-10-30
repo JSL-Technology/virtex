@@ -1,9 +1,11 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../shell';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { catchError, of } from 'rxjs';
 import { CountryConfig, CountryService } from '../../../core/services/country.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Save, Lock } from 'lucide-angular';
+import { LucideAngularModule, Lock } from 'lucide-angular';
 import { OrganizationProfile, OrganizationService } from '../../../shared/service/organization.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
@@ -43,7 +45,7 @@ const OPTIONAL_FIELDS = ['industry', 'address', 'city', 'state', 'postalCode', '
 @Component({
   selector: 'app-company-profile-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, CountryFlagComponent, ...VX_FORM_A11Y],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, CountryFlagComponent, SettingsSaveBarComponent, ...VX_FORM_A11Y],
   templateUrl: './company-profile.page.html',
   styleUrls: ['./company-profile.page.scss']
 })
@@ -54,12 +56,29 @@ export class CompanyProfilePage implements OnInit {
   private readonly countryService = inject(CountryService);
   private readonly countryNames = inject(CountryNamesService);
 
-  protected readonly SaveIcon = Save;
   protected readonly LockIcon = Lock;
   protected readonly industries = INDUSTRIES;
 
   profileForm!: FormGroup;
   isLoading = false;
+
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  private readonly destroyRef = inject(DestroyRef);
+  /** The form holds edits nobody saved. A signal, so the shell can ask before they are lost. */
+  protected readonly dirty = signal(false);
+  protected readonly saving = signal(false);
+  /** Whether the person may change the profile (it takes `settings:edit_company`). */
+  protected readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
+  /**
+   * Why the profile cannot be saved yet — a required field left empty, named — instead of a grey
+   * button: editing the website of a company whose tax id was never filled in did nothing, silently.
+   */
+  protected readonly blocked = signal<{ key: string; params: Record<string, unknown> } | null>(null);
+  private readonly changes: SettingsChanges = {
+    dirty: this.dirty,
+    save: () => this.saveAsync(),
+    discard: () => this.loadCompanyData(),
+  };
 
   /** Whether the country can still be changed; the server says. */
   readonly countryLocked = signal(false);
@@ -99,8 +118,30 @@ export class CompanyProfilePage implements OnInit {
     });
 
     this.profileForm.get('country')?.valueChanges.subscribe((country: string) => this.onCountryChanged(country));
+    this.profileForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.refreshState());
 
+    if (this.shell) {
+      this.shell.register(this.changes);
+      this.destroyRef.onDestroy(() => this.shell?.unregister(this.changes));
+    }
     this.loadCompanyData();
+  }
+
+  /** Dirty, and if it cannot be saved, why. */
+  private refreshState(): void {
+    this.dirty.set(this.profileForm.dirty);
+    const missing = Object.entries(this.profileForm.controls).find(([, control]) => control.enabled && control.invalid);
+    this.blocked.set(missing ? { key: 'settings.company_profile.blocked_by_field', params: { field: this.fieldLabel(missing[0]) } } : null);
+  }
+
+  /** The label the form shows for a control, for the message that names it. */
+  private fieldLabel(name: string): string {
+    const label = (globalThis.document?.querySelector(`label[for="${name}"]`)?.textContent ?? name).replace('*', '').trim();
+    return label || name;
+  }
+
+  saveAsync(): Promise<boolean> {
+    return new Promise((resolve) => this.saveProfile(resolve));
   }
 
   /** Load (once per country) the configuration that labels and validates the form. */
@@ -151,12 +192,13 @@ export class CompanyProfilePage implements OnInit {
           website: data.website ?? '',
         });
         if (data.countryLocked) this.profileForm.get('country')?.disable({ emitEvent: false });
+        if (!this.canEdit()) this.profileForm.disable({ emitEvent: false });
         this.profileForm.markAsPristine();
+        this.refreshState();
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error loading company profile', error);
-        this.notificationService.showError('settings.company_profile.error_loading_company_profile');
+        this.notificationService.showHttpError(error, 'settings.company_profile.error_loading_company_profile');
         this.isLoading = false;
       }
     });
@@ -168,9 +210,15 @@ export class CompanyProfilePage implements OnInit {
     return !!value && !(INDUSTRIES as readonly string[]).includes(value);
   }
 
-  saveProfile(): void {
-    if (!this.profileForm.valid) return;
+  saveProfile(done: (ok: boolean) => void = () => undefined): void {
+    if (!this.canEdit()) return done(false);
+    if (!this.profileForm.valid) {
+      this.profileForm.markAllAsTouched();
+      this.refreshState();
+      return done(false);
+    }
     this.isLoading = true;
+    this.saving.set(true);
 
     // Only what changed, so an untouched tax id is not re-validated, and a locked country never
     // travels. Emptied optional fields go as `null`: "" is not a URL, and not a value.
@@ -189,12 +237,16 @@ export class CompanyProfilePage implements OnInit {
           this.profileForm.get('taxId')?.setValue(formatTaxId(data.taxId, this.taxIdExample()), { emitEvent: false });
         }
         this.profileForm.markAsPristine();
+        this.refreshState();
         this.isLoading = false;
+        this.saving.set(false);
+        done(true);
       },
       error: (error) => {
-        console.error('Error updating profile', error);
-        this.notificationService.showError('settings.company_profile.error_updating_profile');
+        this.notificationService.showHttpError(error, 'settings.company_profile.error_updating_profile');
         this.isLoading = false;
+        this.saving.set(false);
+        done(false);
       }
     });
   }

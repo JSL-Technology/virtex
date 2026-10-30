@@ -3,117 +3,153 @@
   [subtitle]="'audit_adjustments.raised_against_closed_year_posted_when' | translate"
   [dirty]="form.dirty"
   [saving]="saving()"
-  [invalid]="form.invalid || !balanced()"
+  [invalid]="form.invalid || !totals().balanced"
   [problems]="problems()"
   [form]="form"
   saveLabelKey="audit_adjustments.propose"
   (save)="save()"
   (cancelled)="cancel()"
 >
-  <form [formGroup]="form" class="aa-form">
-    <div class="aa-grid">
-      <div class="form-group">
-        <label for="aa-fiscal-year">{{ 'audit_adjustments.fiscal_year' | translate }}</label>
-        <select id="aa-fiscal-year" formControlName="fiscalYearId">
-          <option value="">{{ 'audit_adjustments.choose_year' | translate }}</option>
-          @for (year of years(); track year.id) {
-            <option [value]="year.id">{{ year.startDate }} – {{ year.endDate }}</option>
-          }
-        </select>
-        <!-- Only closed years are offered: an open year takes an ordinary entry. -->
-        <small class="hint">{{ 'audit_adjustments.closed_years_only' | translate }}</small>
+  <div class="form-body" [formGroup]="form">
+    @if (recovered(); as found) {
+      <div class="aa-banner aa-banner--info" role="status">
+        <p>{{ 'audit_adjustments.recovered' | translate: { date: (found.savedAt | vxDate: 'dateTime') } }}</p>
+        <div class="aa-banner__actions">
+          <button type="button" class="primary-button" (click)="restoreRecovered()">{{ 'inventory.adjustments.recovered_restore' | translate }}</button>
+          <button type="button" class="secondary-button" (click)="discardRecovered()">{{ 'inventory.adjustments.recovered_discard' | translate }}</button>
+        </div>
       </div>
+    }
 
-      <div class="form-group">
-        <label for="aa-journal">{{ 'audit_adjustments.journal' | translate }}</label>
-        <select id="aa-journal" formControlName="journalId">
-          <option value="">{{ 'audit_adjustments.choose_journal' | translate }}</option>
-          @for (journal of journalOptions(); track journal.id) {
-            <option [value]="journal.id">{{ journal.code }} — {{ journal.name }}</option>
-          }
-        </select>
+    @if (yearsLoaded() && years().length === 0) {
+      <!-- Nothing to correct yet: say why, and where years are closed. -->
+      <div class="aa-banner aa-banner--warning" role="note">
+        <lucide-icon [img]="WarnIcon" size="18" aria-hidden="true"></lucide-icon>
+        <p>
+          {{ 'audit_adjustments.no_closed_years' | translate }}
+          <a [routerLink]="closingLink()">{{ 'audit_adjustments.go_to_annual_close' | translate }}</a>
+        </p>
       </div>
-    </div>
+    }
 
-    <div class="form-group">
-      <label for="aa-description">{{ 'audit_adjustments.description' | translate }}</label>
-      <input
-        id="aa-description"
-        type="text"
-        maxlength="500"
-        formControlName="description"
-        [placeholder]="'audit_adjustments.accrued_expense_not_recorded' | translate"
-      />
-    </div>
+    <section class="form-section" aria-labelledby="aa-what-title">
+      <h2 class="form-section-title" id="aa-what-title">{{ 'audit_adjustments.section_what' | translate }}</h2>
+      <div class="form-grid">
+        <div class="field">
+          <label for="aa-fiscal-year"><span>{{ 'audit_adjustments.fiscal_year' | translate }} <span aria-hidden="true">*</span></span></label>
+          <select id="aa-fiscal-year" formControlName="fiscalYearId" aria-describedby="aa-fiscal-year-hint">
+            <option value="" disabled>{{ 'audit_adjustments.choose_year' | translate }}</option>
+            @for (year of years(); track year.id) {
+              <option [value]="year.id">{{ 'audit_adjustments.year_option' | translate: { label: yearLabel(year) } }}</option>
+            }
+          </select>
+          <small class="aa-hint" id="aa-fiscal-year-hint">{{ 'audit_adjustments.closed_years_only' | translate }}</small>
+          <vx-field-error [control]="form.get('fiscalYearId')" fieldId="aa-fiscal-year" labelKey="audit_adjustments.fiscal_year" />
+        </div>
+        <div class="field">
+          <span class="aa-label">{{ 'audit_adjustments.entry_date' | translate }}</span>
+          <output class="aa-readonly" aria-live="polite">
+            {{ chosenYear() ? (chosenYear()!.endDate | vxDate: 'date' : true) : '—' }}
+          </output>
+          <small class="aa-hint">{{ 'audit_adjustments.entry_date_hint' | translate }}</small>
+        </div>
+        <div class="field">
+          <label for="aa-journal"><span>{{ 'audit_adjustments.journal' | translate }} <span aria-hidden="true">*</span></span></label>
+          <select id="aa-journal" formControlName="journalId">
+            <option value="" disabled>{{ 'audit_adjustments.choose_journal' | translate }}</option>
+            @for (journal of journalOptions(); track journal.id) {
+              <option [value]="journal.id">{{ journal.code }} — {{ journal.name }}</option>
+            }
+          </select>
+          <vx-field-error [control]="form.get('journalId')" fieldId="aa-journal" labelKey="audit_adjustments.journal" />
+        </div>
+        <div class="field field--wide">
+          <label for="aa-description"><span>{{ 'audit_adjustments.description' | translate }} <span aria-hidden="true">*</span></span></label>
+          <input id="aa-description" type="text" maxlength="500" formControlName="description"
+                 [placeholder]="'audit_adjustments.accrued_expense_not_recorded' | translate" />
+          <vx-field-error [control]="form.get('description')" fieldId="aa-description" labelKey="audit_adjustments.description" />
+        </div>
+      </div>
+    </section>
 
-    <div class="aa-lines card" id="aa-lines" formArrayName="lines">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>{{ 'audit_adjustments.account' | translate }}</th>
-            <th>{{ 'audit_adjustments.line_description' | translate }}</th>
-            <th class="text-right">{{ 'audit_adjustments.debit' | translate }}</th>
-            <th class="text-right">{{ 'audit_adjustments.credit' | translate }}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (line of lines.controls; track $index; let i = $index) {
-            <tr [formGroupName]="i">
-              <td>
-                <!-- Era el plan contable entero dentro de un `<select>`, por línea del ajuste. -->
-                <vx-select
-                  [inputId]="'aa-line-account-' + i"
-                  formControlName="accountId"
-                  [search]="searchAccounts"
-                  [resolveWith]="resolveAccount"
-                  [displayWith]="accountLabel"
-                  [valueWith]="accountId"
-                  placeholderKey="audit_adjustments.choose_account"
-                />
-              </td>
-              <td>
-                <input
-                  [id]="'aa-line-description-' + i"
-                  type="text"
-                  maxlength="200"
-                  formControlName="description"
-                />
-              </td>
-              <td class="text-right">
-                <input type="number" min="0" step="0.01" formControlName="debit" />
-              </td>
-              <td class="text-right">
-                <input type="number" min="0" step="0.01" formControlName="credit" />
-              </td>
-              <td class="text-right">
-                <button
-                  type="button"
-                  class="icon-button"
-                  [disabled]="lines.length <= 2"
-                  (click)="removeLine(i)"
-                  [attr.aria-label]="'audit_adjustments.remove_line' | translate"
-                >
-                  <lucide-icon [img]="RemoveIcon" size="15" aria-hidden="true"></lucide-icon>
-                </button>
-              </td>
+    <section class="form-section" aria-labelledby="aa-lines-title">
+      <h2 class="form-section-title" id="aa-lines-title">{{ 'audit_adjustments.lines' | translate }}</h2>
+      <p class="form-hint">{{ 'audit_adjustments.lines_hint' | translate }}</p>
+      <div class="table-wrapper aa-table-wrapper" id="aa-lines">
+        <table class="lines-table aa-lines" formArrayName="lines">
+          <thead>
+            <tr>
+              <th scope="col" class="aa-col-account">{{ 'audit_adjustments.account' | translate }}</th>
+              <th scope="col">{{ 'audit_adjustments.line_description' | translate }}</th>
+              <th scope="col" class="numeric">{{ 'audit_adjustments.debit' | translate }}</th>
+              <th scope="col" class="numeric">{{ 'audit_adjustments.credit' | translate }}</th>
+              <th scope="col"><span class="sr-only">{{ 'common.actions' | translate }}</span></th>
             </tr>
-          }
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="2">
-              <button type="button" class="secondary-button" (click)="addLine()">
-                <lucide-icon [img]="AddIcon" size="15" aria-hidden="true"></lucide-icon>
-                <span>{{ 'audit_adjustments.add_line' | translate }}</span>
-              </button>
-            </td>
-            <td class="text-right" [class.aa-unbalanced]="!balanced()">{{ totalDebit() }}</td>
-            <td class="text-right" [class.aa-unbalanced]="!balanced()">{{ totalCredit() }}</td>
-            <td></td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  </form>
+          </thead>
+          <tbody>
+            @for (line of lines.controls; track $index; let i = $index) {
+              <tr [formGroupName]="i" [class.aa-row--invalid]="line.hasError('oneSide') && line.touched">
+                <td class="aa-col-account">
+                  <vx-select
+                    [inputId]="lineFieldId(i, 'accountId')"
+                    formControlName="accountId"
+                    [search]="searchAccounts"
+                    [resolveWith]="resolveAccount"
+                    [displayWith]="accountLabel"
+                    [valueWith]="accountId"
+                    [ariaLabel]="('audit_adjustments.account' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })"
+                    placeholderKey="audit_adjustments.choose_account"
+                  />
+                  <vx-field-error [control]="line.get('accountId')" [fieldId]="lineFieldId(i, 'accountId')" labelKey="audit_adjustments.account" />
+                </td>
+                <td>
+                  <input [id]="lineFieldId(i, 'description')" type="text" maxlength="200" formControlName="description"
+                         [attr.aria-label]="('audit_adjustments.line_description' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })" />
+                  <vx-field-error [control]="line.get('description')" [fieldId]="lineFieldId(i, 'description')" labelKey="audit_adjustments.line_description" />
+                </td>
+                <td class="numeric">
+                  <input [id]="lineFieldId(i, 'debit')" type="number" min="0" step="0.01" inputmode="decimal" formControlName="debit" (input)="onAmount(i, 'debit')"
+                         [attr.aria-label]="('audit_adjustments.debit' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })" />
+                </td>
+                <td class="numeric">
+                  <input [id]="lineFieldId(i, 'credit')" type="number" min="0" step="0.01" inputmode="decimal" formControlName="credit" (input)="onAmount(i, 'credit')"
+                         [attr.aria-label]="('audit_adjustments.credit' | translate) + ' · ' + ('inventory.adjustments.line_n' | translate: { line: i + 1 })" />
+                </td>
+                <td>
+                  <button type="button" class="icon-button" [disabled]="lines.length <= 2" (click)="removeLine(i)"
+                          [attr.aria-label]="'inventory.adjustments.remove_line' | translate: { line: i + 1 }"
+                          [title]="(lines.length <= 2 ? 'audit_adjustments.two_lines_minimum' : 'inventory.adjustments.remove_line') | translate: { line: i + 1 }">
+                    <lucide-icon [img]="RemoveIcon" size="16" aria-hidden="true"></lucide-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot id="aa-totals">
+            <tr>
+              <th scope="row" colspan="2">{{ 'audit_adjustments.totals' | translate }}</th>
+              <td class="numeric"><strong>{{ totals().debit | vxMoney }}</strong></td>
+              <td class="numeric"><strong>{{ totals().credit | vxMoney }}</strong></td>
+              <td></td>
+            </tr>
+            <tr>
+              <th scope="row" colspan="2">{{ 'audit_adjustments.difference' | translate }}</th>
+              <td colspan="2" class="numeric">
+                @if (totals().balanced) {
+                  <span class="aa-balanced"><lucide-icon [img]="OkIcon" size="14" aria-hidden="true"></lucide-icon> {{ 'audit_adjustments.balanced' | translate }}</span>
+                } @else {
+                  <span class="aa-unbalanced">{{ totals().difference | vxMoney }} · {{ (totals().difference > 0 ? 'audit_adjustments.missing_credit' : 'audit_adjustments.missing_debit') | translate }}</span>
+                }
+              </td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <button type="button" class="secondary-button add-line" (click)="addLine()">
+        <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'audit_adjustments.add_line' | translate }}</span>
+      </button>
+    </section>
+  </div>
 </vx-draft-shell>

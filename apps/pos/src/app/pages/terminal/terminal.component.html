@@ -14,7 +14,11 @@
 
     <div class="status">
       <span class="chip" [title]="'pos.settings.terminal' | translate">
-        {{ 'pos.terminal_label' | translate: { id: till.terminalId() } }}
+        @if (till.terminalId() === defaultTerminal) {
+          {{ 'pos.terminal_default_label' | translate }}
+        } @else {
+          {{ 'pos.terminal_label' | translate: { id: till.terminalId() } }}
+        }
       </span>
       @if (till.shiftReady()) {
         <button
@@ -96,6 +100,15 @@
       <button
         type="button"
         class="icon-btn"
+        (click)="open('shortcuts')"
+        [attr.aria-label]="'pos.shortcuts.title' | translate"
+        [title]="('pos.shortcuts.title' | translate) + ' (F1)'"
+      >
+        <lucide-icon [img]="icons.shortcuts" size="18" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        class="icon-btn"
         (click)="open('settings')"
         [attr.aria-label]="'pos.settings.title' | translate"
         [title]="'pos.settings.title' | translate"
@@ -165,7 +178,10 @@
     <pos-journal-dialog (closed)="closeDialog()" />
   }
   @case ('settings') {
-    <pos-settings-dialog (closed)="closeDialog()" />
+    <pos-settings-dialog (closed)="closeDialog()" (showShortcuts)="open('shortcuts')" />
+  }
+  @case ('shortcuts') {
+    <pos-shortcuts-dialog (closed)="closeDialog()" />
   }
   @case ('parked') {
     <pos-parked-dialog (closed)="closeDialog()" />

@@ -248,5 +248,40 @@
     "es": "Close",
     "en": "Close",
     "pt": "Fechar"
+  },
+  "shared.date_field.open_calendar": {
+    "es": "Abrir calendario",
+    "en": "Open calendar",
+    "pt": "Abrir calendário"
+  },
+  "shared.date_field.day_letter": {
+    "es": "d",
+    "en": "d",
+    "pt": "d"
+  },
+  "shared.date_field.month_letter": {
+    "es": "m",
+    "en": "m",
+    "pt": "m"
+  },
+  "shared.date_field.year_letter": {
+    "es": "a",
+    "en": "y",
+    "pt": "a"
+  },
+  "shared.date_field.unreadable": {
+    "es": "No es una fecha válida. Escríbela como {{pattern}}.",
+    "en": "Not a valid date. Write it as {{pattern}}.",
+    "pt": "Não é uma data válida. Escreva como {{pattern}}."
+  },
+  "shared.date_field.before_min": {
+    "es": "Debe ser el {{date}} o posterior.",
+    "en": "Must be {{date}} or later.",
+    "pt": "Deve ser {{date}} ou posterior."
+  },
+  "shared.date_field.after_max": {
+    "es": "Debe ser el {{date}} o anterior.",
+    "en": "Must be {{date}} or earlier.",
+    "pt": "Deve ser {{date}} ou anterior."
   }
 }

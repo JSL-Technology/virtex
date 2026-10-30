@@ -7,13 +7,14 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
+  input,
   ChangeDetectorRef,
   DestroyRef,
   ViewContainerRef
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -60,6 +61,7 @@ const passwordsMatchValidator: ValidatorFn = (group: AbstractControl): Validatio
   return next && confirm && next !== confirm ? { passwordsMismatch: true } : null;
 };
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../shell';
 
 // Typed Form Interface
 interface ProfileForm {
@@ -83,6 +85,7 @@ interface ProfileForm {
     PhoneVerificationModalComponent,
     PasswordStrengthComponent,
     RoleNamePipe,
+    SettingsSaveBarComponent,
     ...VX_FORM_A11Y,
   ],
   templateUrl: './my-profile.page.html',
@@ -90,6 +93,24 @@ interface ProfileForm {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyProfilePage implements OnInit {
+  /**
+   * Which half of the account this instance shows: the person's details, or how they sign in
+   * (password, second factor, passkeys, sessions). They were two columns of one screen, the right
+   * one squeezed until «Two-factor authentication» broke a word per line; each is a section now.
+   */
+  readonly view = input<'profile' | 'security'>('profile');
+  /** A block to bring into view — `sessions`, from the old `#settings/sessions` link. */
+  readonly focus = input<string | null>(null);
+
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  /** Whether the details form holds edits nobody saved: what the shell asks about before leaving. */
+  protected readonly profileDirty = signal(false);
+  protected readonly saving = signal(false);
+  private readonly changes: SettingsChanges = {
+    dirty: this.profileDirty,
+    save: () => this.saveProfileAsync(),
+    discard: () => this.discardProfile(),
+  };
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   /**
@@ -104,6 +125,7 @@ export class MyProfilePage implements OnInit {
   private stepUpService = inject(StepUpService);
   private viewContainerRef = inject(ViewContainerRef);
   private readonly locale = inject(LocaleStore);
+  private readonly document = inject(DOCUMENT);
 
   // Icons
   protected readonly UserIcon = UserIcon;
@@ -171,6 +193,33 @@ export class MyProfilePage implements OnInit {
     }
 
     this.consumeEmailChangeToken();
+
+    this.profileForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.profileDirty.set(this.profileForm.dirty));
+    if (this.view() === 'profile' && this.shell) {
+      this.shell.register(this.changes);
+      this.destroyRef.onDestroy(() => this.shell?.unregister(this.changes));
+    }
+    const focus = this.focus();
+    if (focus) queueMicrotask(() => this.document.getElementById(`settings-block-${focus}`)?.scrollIntoView({ block: 'start' }));
+  }
+
+  /** Back to what is saved. */
+  discardProfile(): void {
+    const user = this.currentUser();
+    this.profileForm.reset({
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+      jobTitle: user?.jobTitle || '',
+      preferredLanguage: user?.preferredLanguage || this.profileForm.value.preferredLanguage,
+    });
+    this.profileDirty.set(false);
+  }
+
+  /** `saveProfile`, awaitable: the shell's «Save» in the unsaved-changes question uses it. */
+  saveProfileAsync(): Promise<boolean> {
+    return new Promise((resolve) => this.saveProfile(resolve));
   }
 
   /**
@@ -244,15 +293,17 @@ export class MyProfilePage implements OnInit {
     this.cdr.markForCheck();
   }
 
-  saveProfile(): void {
+  saveProfile(done: (ok: boolean) => void = () => undefined): void {
     if (this.profileForm.invalid) {
       //  El botón ya no se apaga sin explicación: se marca cada campo y se dice cuál falla.
       this.profileForm.markAllAsTouched();
       this.notificationService.showError('settings.profile.errors.check_fields');
+      done(false);
       return;
     }
     {
       this.isLoading = true;
+      this.saving.set(true);
       const { firstName, lastName, preferredLanguage, phone, jobTitle } = this.profileForm.getRawValue();
 
       //  Sin `email`: el servidor no lo admite en este endpoint (se cambia con su flujo de
@@ -263,6 +314,8 @@ export class MyProfilePage implements OnInit {
       const e164 = trimmedPhone ? toE164(trimmedPhone, region) : null;
       if (trimmedPhone && !e164) {
         this.isLoading = false;
+        this.saving.set(false);
+        done(false);
         this.profileForm.get('phone')?.setErrors({ phone: true });
         this.profileForm.get('phone')?.markAsTouched();
         this.notificationService.showError('settings.profile.errors.invalid_phone');
@@ -281,13 +334,18 @@ export class MyProfilePage implements OnInit {
           this.notificationService.showSuccess('settings.profile.updated');
           this.authService.reloadSession().subscribe();
           this.profileForm.markAsPristine();
+          this.profileDirty.set(false);
           this.isLoading = false;
+          this.saving.set(false);
           this.cdr.markForCheck();
+          done(true);
         },
         error: (err) => {
           this.notificationService.showHttpError(err, 'settings.profile.errors.update_failed');
           this.isLoading = false;
+          this.saving.set(false);
           this.cdr.markForCheck();
+          done(false);
         }
       });
     }

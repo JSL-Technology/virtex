@@ -208,5 +208,15 @@
     "es": "No tienes acceso a esa organización.",
     "en": "You do not have access to that organization.",
     "pt": "Você não tem acesso a essa organização."
+  },
+  "organizations.logo_type_not_allowed": {
+    "es": "El logo debe ser una imagen PNG, JPEG o WebP.",
+    "en": "The logo must be a PNG, JPEG or WebP image.",
+    "pt": "O logotipo deve ser uma imagem PNG, JPEG ou WebP."
+  },
+  "organizations.logo_file_required": {
+    "es": "Elige el archivo del logo.",
+    "en": "Choose the logo file.",
+    "pt": "Escolha o arquivo do logotipo."
   }
 }

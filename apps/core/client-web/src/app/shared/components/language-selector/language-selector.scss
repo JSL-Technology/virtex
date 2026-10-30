@@ -58,8 +58,10 @@
       }
 
       &.active {
-        background-color: var(--accent-primary);
-        color: var(--accent-text);
+        // A filled control carries the colour MADE for text on the accent fill. `--accent-text` is the
+        // accent as text on the page's surface; in the light theme it is the fill's own colour, so the label vanished.
+        background-color: var(--accent-solid);
+        color: var(--accent-on-solid);
       }
     }
   }

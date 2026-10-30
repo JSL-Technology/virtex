@@ -1,13 +1,15 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { Observable, map, of, throwError } from 'rxjs';
-import { TranslateModule, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, accountNameOf, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_SELECT } from '../../../shared/components/select';
 import { PercentInputDirective } from '../../../shared/directives/percent-input.directive';
 import { AccountingService } from '../../../core/api/accounting.service';
 import { Account } from '../../../core/models/account.model';
 import { NotificationService } from '../../../core/services/notification';
+import { DialogService } from '../../../core/services/dialog.service';
+import { SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../shell';
 import {
   OrganizationSettingsService,
   SettingsAccountRef,
@@ -48,7 +50,7 @@ export interface PolicyField {
 @Component({
   selector: 'app-settings-section',
   standalone: true,
-  imports: [FormsModule, TranslateModule, PercentInputDirective, ...VX_SELECT],
+  imports: [VxNumberInputDirective, FormsModule, TranslateModule, PercentInputDirective, SettingsSaveBarComponent, ...VX_SELECT],
   templateUrl: './settings-section.component.html',
   styleUrls: ['./settings-section.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,8 +59,21 @@ export class SettingsSectionComponent implements OnInit {
   private readonly api = inject(OrganizationSettingsService);
   private readonly accounting = inject(AccountingService);
   private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(DialogService);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly section = input.required<SettingsSectionId>();
+  /**
+   * Inside a page that shows several sections and saves them together («Default accounts»): no save
+   * bar of its own, and the page — not this — tells the shell about unsaved work.
+   */
+  readonly embedded = input(false);
+  /** The heading of this block, when the page shows several. */
+  readonly titleKey = input<string | null>(null);
+  /** The anchor an old link brings into view (`#settings/inventory-policies` → `inventory`). */
+  readonly anchor = input<string | null>(null);
   readonly groups = input<readonly AccountGroup[]>([]);
   readonly policies = input<readonly PolicyField[]>([]);
   /** Currencies only: show the books' currency, editable until there are books. */
@@ -74,16 +89,37 @@ export class SettingsSectionComponent implements OnInit {
   protected readonly fieldEdits = signal<Record<string, unknown>>({});
   protected readonly baseCurrencyEdit = signal<string | null>(null);
 
-  protected readonly dirty = computed(
+  /** Whether the person may change these settings: the shell says, from the edit permission. */
+  readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
+
+  readonly dirty = computed(
     () =>
       Object.keys(this.accountEdits()).length > 0 ||
       Object.keys(this.fieldEdits()).length > 0 ||
       this.baseCurrencyEdit() !== null,
   );
 
+  private readonly changes: SettingsChanges = {
+    dirty: this.dirty,
+    save: () => this.save(),
+    discard: () => this.discard(),
+  };
+
   ngOnInit(): void {
     this.load();
+    if (!this.embedded() && this.shell) {
+      this.shell.register(this.changes);
+      this.destroyRef.onDestroy(() => this.shell?.unregister(this.changes));
+    }
   }
+
+  /** How many fields have been changed: for the page that saves several sections at once. */
+  readonly changeCount = computed(
+    () => Object.keys(this.accountEdits()).length + Object.keys(this.fieldEdits()).length + (this.baseCurrencyEdit() !== null ? 1 : 0),
+  );
+
+  /** Whether the edits include a default account: the change that moves future postings. */
+  readonly changesAccounts = computed(() => Object.keys(this.accountEdits()).length > 0);
 
   load(): void {
     this.loading.set(true);
@@ -134,24 +170,75 @@ export class SettingsSectionComponent implements OnInit {
     this.baseCurrencyEdit.set(code.trim().toUpperCase() === saved ? null : code.trim().toUpperCase());
   }
 
-  save(): void {
-    if (!this.dirty()) return;
+  /**
+   * Saves the edits. Default accounts decide where every future posting lands, so changing one is
+   * confirmed first, saying so — unless the page saving several sections already asked.
+   */
+  async save(options: { confirmed?: boolean } = {}): Promise<boolean> {
+    if (!this.dirty() || !this.canEdit()) return false;
+    if (this.changesAccounts() && !options.confirmed) {
+      const confirmed = await this.dialog.confirm({
+        title: 'settings.sections.confirm_accounts_title',
+        message: 'settings.sections.confirm_accounts_message',
+        messageParams: { count: Object.keys(this.accountEdits()).length },
+        confirmText: 'settings.shell.save',
+        variant: 'warning',
+      });
+      if (!confirmed) return false;
+    }
     const patch: SettingsSectionPatch = {};
     if (Object.keys(this.accountEdits()).length) patch.accounts = this.accountEdits();
     if (Object.keys(this.fieldEdits()).length) patch.fields = this.fieldEdits();
     if (this.baseCurrencyEdit()) patch.baseCurrency = this.baseCurrencyEdit()!;
     this.saving.set(true);
-    this.api.update(this.section(), patch).subscribe({
-      next: (view) => {
-        this.saving.set(false);
-        this.accept(view);
-        this.notifications.showSuccess('settings.sections.saved');
-      },
-      error: (error: unknown) => {
-        this.saving.set(false);
-        this.notifications.showHttpError(error, 'settings.sections.save_failed');
-      },
+    return new Promise((resolve) => {
+      this.api.update(this.section(), patch).subscribe({
+        next: (view) => {
+          this.saving.set(false);
+          this.accept(view);
+          if (!this.embedded()) this.notifications.showSuccess('settings.sections.saved');
+          resolve(true);
+        },
+        error: (error: unknown) => {
+          this.saving.set(false);
+          this.notifications.showHttpError(error, 'settings.sections.save_failed');
+          resolve(false);
+        },
+      });
     });
+  }
+
+  /** The default an account field returns to: the account its chart role points at. */
+  protected defaultAccountOf(field: string): SettingsAccountRef | null {
+    return this.view()?.defaultAccounts?.[field] ?? null;
+  }
+
+  protected defaultFieldOf(field: string): unknown {
+    return this.view()?.defaultFields?.[field] ?? null;
+  }
+
+  /** Whether a field currently differs from its default, so «Restore default» is worth offering. */
+  protected differsFromDefault(field: string, kind: 'account' | 'field'): boolean {
+    if (kind === 'account') {
+      const fallback = this.defaultAccountOf(field);
+      return Boolean(fallback) && this.accountIdOf(field) !== fallback!.id;
+    }
+    const fallback = this.defaultFieldOf(field);
+    return fallback !== null && fallback !== undefined && String(this.fieldValueOf(field) ?? '') !== String(fallback);
+  }
+
+  protected restoreDefault(field: string, kind: 'account' | 'field'): void {
+    if (kind === 'account') this.setAccount(field, this.defaultAccountOf(field)?.id ?? null);
+    else {
+      const fallback = this.defaultFieldOf(field);
+      this.setField(field, typeof this.fieldValueOf(field) === 'number' ? Number(fallback) : fallback);
+    }
+  }
+
+  /** Brings this block into view when an old link pointed at it. */
+  private reveal(): void {
+    if (!this.anchor()) return;
+    queueMicrotask(() => this.host.nativeElement.scrollIntoView({ block: 'start', behavior: 'smooth' }));
   }
 
   discard(): void {
@@ -198,8 +285,15 @@ export class SettingsSectionComponent implements OnInit {
   }
 
   private accept(view: SettingsSectionView): void {
+    const first = this.view() === null;
     this.view.set(view);
     this.discard();
     this.loading.set(false);
+    if (first) this.reveal();
+  }
+
+  /** The account's label, for a default shown as a hint. */
+  protected refLabel(account: SettingsAccountRef): string {
+    return `${account.code} — ${accountNameOf(account.name as never)}`;
   }
 }

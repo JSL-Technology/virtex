@@ -1,11 +1,10 @@
 <div class="page-container">
-  <div class="page-header">
-    <h1>{{ 'settings.roles.roles_permissions' | translate }}</h1>
-    <button class="primary-button" (click)="openRoleModal()" *appHasPermission="'roles:create'">
-      <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
+  <ng-template appSettingsActions>
+    <button class="primary-button" type="button" (click)="openRoleModal()" *appHasPermission="'roles:create'">
+      <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
       <span>{{ 'settings.roles.create_role' | translate }}</span>
     </button>
-  </div>
+  </ng-template>
 
   <div class="table-container card">
     <table class="data-table">
@@ -14,7 +13,7 @@
           <th>{{ 'settings.roles.role_name' | translate }}</th>
           <th>{{ 'settings.roles.description' | translate }}</th>
           <th>{{ 'settings.roles.type' | translate }}</th>
-          <th class="actions-column">{{ 'settings.roles.actions' | translate }}</th>
+          <th scope="col" class="actions-column">{{ 'settings.roles.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -24,19 +23,35 @@
           <td>{{ role.descriptionKey ? (role.descriptionKey | translate) : role.description }}</td>
           <td>
             <vx-badge [tone]="role.isSystemRole ? 'accent' : 'neutral'">
-              {{ role.isSystemRole ? 'Sistema' : 'Personalizado' }}
+              {{ (role.isSystemRole ? 'settings.roles.kind_system' : 'settings.roles.kind_custom') | translate }}
             </vx-badge>
           </td>
           <td class="actions-column">
-            <button class="icon-button" (click)="cloneRole(role)" [title]="'settings.roles.clone_role' | translate" *appHasPermission="'roles:create'">
-              <lucide-icon [img]="CloneIcon" size="18"></lucide-icon>
-            </button>
-            <button class="icon-button" (click)="openRoleModal(role)" [disabled]="role.isSystemRole" [title]="'settings.roles.edit_role' | translate" *appHasPermission="'roles:edit'">
-              <lucide-icon [img]="EditIcon" size="18"></lucide-icon>
-            </button>
-            <button class="icon-button danger" (click)="deleteRole(role)" [disabled]="role.isSystemRole" [title]="'settings.roles.delete_role' | translate" *appHasPermission="'roles:delete'">
-              <lucide-icon [img]="TrashIcon" size="18"></lucide-icon>
-            </button>
+            <!-- A cell, not a flex box: as a flex box it dropped out of the row and broke its rule (CG-26). -->
+            <div class="row-actions">
+              <button type="button" class="icon-button" (click)="cloneRole(role)" *appHasPermission="'roles:create'"
+                [title]="'settings.roles.clone_role' | translate" [attr.aria-label]="('settings.roles.clone_role' | translate) + ' · ' + (role | vxRoleName)">
+                <lucide-icon [img]="CloneIcon" size="18" aria-hidden="true"></lucide-icon>
+              </button>
+              <!--
+                A system role cannot be edited or deleted. The buttons stay focusable (aria-disabled,
+                not disabled) so the reason can be read: a disabled button shows no tooltip and a
+                screen reader skips it (CG-31).
+              -->
+              @let systemReason = 'settings.roles.system_role_locked' | translate;
+              <button type="button" class="icon-button" (click)="openRoleModal(role)" *appHasPermission="'roles:edit'"
+                [attr.aria-disabled]="role.isSystemRole ? 'true' : null"
+                [title]="role.isSystemRole ? systemReason : ('settings.roles.edit_role' | translate)"
+                [attr.aria-label]="(role.isSystemRole ? systemReason : ('settings.roles.edit_role' | translate)) + ' · ' + (role | vxRoleName)">
+                <lucide-icon [img]="EditIcon" size="18" aria-hidden="true"></lucide-icon>
+              </button>
+              <button type="button" class="icon-button danger" (click)="deleteRole(role)" *appHasPermission="'roles:delete'"
+                [attr.aria-disabled]="role.isSystemRole ? 'true' : null"
+                [title]="role.isSystemRole ? systemReason : ('settings.roles.delete_role' | translate)"
+                [attr.aria-label]="(role.isSystemRole ? systemReason : ('settings.roles.delete_role' | translate)) + ' · ' + (role | vxRoleName)">
+                <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>
+              </button>
+            </div>
           </td>
         </tr>
         }

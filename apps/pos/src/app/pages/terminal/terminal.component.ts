@@ -1,3 +1,4 @@
+import { DEFAULT_TERMINAL_ID } from '../../core/terminal-config.service';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,6 +15,7 @@ import {
   ReceiptText,
   ClipboardList,
   Settings,
+  Keyboard,
   Maximize,
   Minimize,
   LogOut,
@@ -36,12 +38,13 @@ import { ParkedDialogComponent } from './components/parked-dialog.component';
 import { PaymentDialogComponent } from './components/payment-dialog.component';
 import { ReceiptDialogComponent } from './components/receipt-dialog.component';
 import { SettingsDialogComponent } from './components/settings-dialog.component';
+import { ShortcutsDialogComponent } from './components/shortcuts-dialog.component';
 import { ShiftDialogComponent } from './components/shift-dialog.component';
 import { TicketPanelComponent } from './components/ticket-panel.component';
 import { ToastsComponent } from './components/toasts.component';
 
 type Dialog =
-  'payment' | 'receipt' | 'shift' | 'journal' | 'settings' | 'parked' | null;
+  'payment' | 'receipt' | 'shift' | 'journal' | 'settings' | 'shortcuts' | 'parked' | null;
 
 /**
  * The till: one full-screen surface — catalogue on the left, ticket on the right, the whole
@@ -67,6 +70,7 @@ type Dialog =
     ShiftDialogComponent,
     JournalDialogComponent,
     SettingsDialogComponent,
+    ShortcutsDialogComponent,
     ParkedDialogComponent,
     ToastsComponent,
   ],
@@ -85,10 +89,12 @@ export class TerminalComponent {
   private readonly catalog = viewChild(CatalogPanelComponent);
 
   protected readonly erpUrl = environment.erpUrl;
+  protected readonly defaultTerminal = DEFAULT_TERMINAL_ID;
   protected readonly icons = {
     journal: ReceiptText,
     shift: ClipboardList,
     settings: Settings,
+    shortcuts: Keyboard,
     maximize: Maximize,
     minimize: Minimize,
     logout: LogOut,
@@ -170,6 +176,10 @@ export class TerminalComponent {
     const typing = !!target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName);
     const selected = this.till.selectedId();
     switch (event.key) {
+      case 'F1':
+        event.preventDefault();
+        this.open('shortcuts');
+        return;
       case 'F2':
         event.preventDefault();
         this.catalog()?.focusSearch();

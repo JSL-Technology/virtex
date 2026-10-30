@@ -6,6 +6,7 @@ import { DataSource, Repository } from 'typeorm';
 import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { TenantCurrencyPort } from '../../i18n/ports/tenant-currency.port';
+import { RegionalFormat, normaliseRegionalFormat } from '@virteex/shared/types';
 
 /**
  * The tenant's functional currency for the session's locale context (QA A-12).
@@ -21,6 +22,10 @@ export class TenantCurrencyService extends TenantCurrencyPort {
 
   static key(organizationId: string): string {
     return `functional_currency:${organizationId}`;
+  }
+
+  static formatKey(organizationId: string): string {
+    return `regional_format:${organizationId}`;
   }
 
   constructor(
@@ -50,5 +55,25 @@ export class TenantCurrencyService extends TenantCurrencyPort {
       await this.cache?.set(key, currency, TenantCurrencyService.TTL_MS).catch(() => undefined);
     }
     return currency;
+  }
+
+  /**
+   * The company's regional format, cleaned. Cached like the currency; saving it evicts the entry
+   * (`RegionalFormatController`). An empty object is cached too — «nothing decided» is the common
+   * answer and the one most worth not asking the database for.
+   */
+  async regionalFormat(organizationId: string): Promise<RegionalFormat | null> {
+    const key = TenantCurrencyService.formatKey(organizationId);
+    try {
+      const cached = await this.cache?.get<RegionalFormat>(key);
+      if (cached && typeof cached === 'object') return Object.keys(cached).length ? cached : null;
+    } catch (error) {
+      this.logger.warn(`Regional format cache read failed: ${(error as Error).message}`);
+    }
+    const read = () => this.repo.findOne({ where: { organizationId }, select: ['id', 'regionalFormat'] });
+    const settings = this.dataSource ? await runAsTenantJob(this.dataSource, organizationId, read) : await read();
+    const format = normaliseRegionalFormat(settings?.regionalFormat);
+    await this.cache?.set(key, format, TenantCurrencyService.TTL_MS).catch(() => undefined);
+    return Object.keys(format).length ? format : null;
   }
 }

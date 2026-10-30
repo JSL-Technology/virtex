@@ -209,3 +209,14 @@
   @include ds.button-secondary('md');
   gap: var(--space-2);
 }
+
+// Inside a page that has its own heading, which names the list: no second heading, no canvas.
+.ls--embedded {
+  height: auto;
+  padding: 0;
+  background-color: transparent;
+
+  .ls__header { justify-content: flex-end; }
+  .ls__header:has(.ls__actions:empty) { display: none; }
+}
+

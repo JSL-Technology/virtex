@@ -171,4 +171,20 @@ describe('InvoiceRendererService', () => {
     expect(english.language).toBe('en');
     expect(english.dueDate).toMatch(/November 9, 2026|9 November 2026/);
   });
+
+  it('writes the figures and dates in the issuer’s house style when the company chose one', async () => {
+    const renderer = new InvoiceRendererService({} as never);
+    const summary = renderer.emailSummary({ invoice, organization, regionalFormat: { numberFormat: 'dot_comma' } });
+    expect(summary.total.replace(/\s/g, ' ')).toBe('DOP 7.080,00');
+
+    const html = await new InvoiceRendererService(new I18nService()).renderHtml({
+      invoice,
+      organization,
+      language: 'es',
+      locale: 'es-DO',
+      regionalFormat: { numberFormat: 'dot_comma', dateOrder: 'YMD', dateSeparator: '-' },
+    });
+    expect(html).toContain('7.080,00');
+    expect(html).toContain('2026-11-09');
+  });
 });

@@ -17,7 +17,7 @@ import type { Organization } from '../../../organizations/entities/organization.
 import { Role } from '../../../roles/entities/role.entity';
 import { Passkey } from '../passkey.entity';
 import { UserSecurity } from '../user-security.entity';
-import type { LanguageCode } from '@virteex/shared/types';
+import type { LanguageCode, RegionalFormat } from '@virteex/shared/types';
 
 export enum UserStatus {
   PENDING = 'PENDING',
@@ -130,6 +130,13 @@ export class User {
    */
   @Column({ name: 'preferred_language', type: 'varchar', length: 5, nullable: true })
   preferredLanguage?: LanguageCode | null;
+
+  /**
+   * How this person wants dates, numbers and times written, over the company's default — see
+   * `RegionalFormat`. Null, or an absent field, follows the company.
+   */
+  @Column({ name: 'regional_format', type: 'jsonb', nullable: true })
+  regionalFormat?: RegionalFormat | null;
 
   /**
    * Not unique across the platform. Nothing looks an account up by phone, and a shared company

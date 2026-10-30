@@ -8,11 +8,11 @@ import { TaxType, taxTypeLabel } from '../../../../core/models/tax.model';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 @Component({
   selector: 'app-tax-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [VxNumberInputDirective, ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './tax-form.page.html',
   styleUrls: ['./tax-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

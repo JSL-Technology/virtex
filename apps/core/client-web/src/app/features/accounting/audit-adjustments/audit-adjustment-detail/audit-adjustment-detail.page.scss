@@ -1,0 +1,14 @@
+.aa-attach { cursor: pointer; display: inline-flex; align-items: center; gap: var(--space-2); }
+.aa-attach.is-busy { opacity: 0.6; pointer-events: none; }
+.aa-total-label { text-align: right; color: var(--content-secondary); }
+.aa-evidence {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  li { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+  &__name { font-weight: var(--font-medium); color: var(--content-primary); }
+}
+.muted { color: var(--content-tertiary); font-size: var(--text-sm); }

@@ -1,3 +1,5 @@
+import type { RegionalFormat } from './regional-format.contract';
+
 /**
  * THE definition of what languages and regions this product speaks.
  *
@@ -262,6 +264,13 @@ export interface LocaleContextContract {
   timezone: string;
   /** The tenant's statutory language — see {@link LanguageAxis.Books}. */
   booksLanguage: LanguageCode;
-  /** First day of the week for calendars, 0 = Sunday. */
+  /** First day of the week for calendars, 0 = Sunday. The resolved value: person, company, market. */
   firstDayOfWeek: number;
+  /**
+   * How the company writes dates and numbers for everyone, where it decided (see
+   * `RegionalFormat`). Absent fields follow {@link locale}.
+   */
+  companyFormat?: RegionalFormat | null;
+  /** What this person chose for themselves, over the company's. Absent fields follow the company. */
+  personalFormat?: RegionalFormat | null;
 }

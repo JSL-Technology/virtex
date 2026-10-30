@@ -1,0 +1,146 @@
+//  Ajuste de inventario: lo que solo este documento necesita sobre `document-form.scss`.
+@use '../../../../assets/styles/design-system' as ds;
+
+.field > label { @include ds.field-label; margin-bottom: 0; }
+
+.adj-readonly {
+  @include ds.input-base;
+  display: flex;
+  align-items: center;
+  background: var(--surface-sunken);
+  color: var(--content-primary);
+}
+
+.adj-action { white-space: nowrap; display: inline-flex; align-items: center; gap: var(--space-2); }
+.adj-post-hint { margin-top: calc(-1 * var(--space-3)); }
+
+// ── Rastro: quién, cuándo, qué asiento ─────────────────────────────────────────────────────────
+.adj-trail {
+  gap: var(--space-2) var(--space-4);
+  &__value strong { font-variant-numeric: tabular-nums; color: var(--content-primary); }
+  &__reversed { color: var(--warning-text); font-weight: var(--font-medium); }
+}
+
+// ── Avisos dentro del documento ────────────────────────────────────────────────────────────────
+.adj-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  flex-wrap: wrap;
+
+  p { margin: 0; flex: 1 1 20rem; }
+  a { color: inherit; font-weight: var(--font-semibold); text-decoration: underline; }
+
+  &--warning { background: var(--warning-surface); border-color: var(--warning-border); color: var(--warning-text); }
+  &--info { background: var(--info-surface); border-color: var(--info-border); color: var(--info-text); }
+
+  &__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+}
+
+.adj-conflicts {
+  &__body { flex: 1; display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+  &__title { margin: 0; font-size: var(--text-md); font-weight: var(--font-semibold); }
+  &__table { background: var(--bg-card); color: var(--content-primary); border-radius: var(--radius-sm); }
+  &__table th[scope='row'] { font-weight: var(--font-medium); text-align: left; }
+}
+
+// ── Fecha: el período, al elegirla ─────────────────────────────────────────────────────────────
+.adj-date-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  color: var(--success-text);
+
+  &--problem { color: var(--error-text); }
+}
+
+// ── Líneas ─────────────────────────────────────────────────────────────────────────────────────
+.adj-table-wrapper { border: 1px solid var(--border-default); border-radius: var(--radius-md); }
+
+.adj-lines {
+  min-width: 62rem;
+
+  th { white-space: nowrap; }
+  td { vertical-align: top; }
+  td input { min-width: 5.5rem; width: 100%; }
+  // Sin flechas de incremento: una cantidad se escribe, no se ajusta de uno en uno.
+  input[type='number'] { appearance: textfield; -moz-appearance: textfield; }
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  tfoot th, tfoot td { border-bottom: none; border-top: 2px solid var(--border-default); font-weight: var(--font-semibold); }
+  tfoot th { text-align: right; color: var(--content-secondary); }
+}
+
+.adj-col-product { width: 32%; min-width: 18rem; }
+.adj-col-calc { background: var(--surface-sunken); }
+
+.adj-product {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  &__sku { font-size: var(--text-xs); color: var(--content-tertiary); font-variant-numeric: tabular-nums; }
+  &__name { @include ds.truncate; color: var(--content-primary); }
+}
+
+.adj-uom,
+.adj-inactive {
+  display: inline-block;
+  margin-top: var(--space-1);
+  margin-right: var(--space-1);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-2xs);
+  line-height: 1.6;
+}
+.adj-uom { background: var(--surface-sunken); color: var(--content-secondary); }
+.adj-inactive { background: var(--warning-surface); color: var(--warning-text); }
+
+.adj-diff { display: inline-flex; align-items: center; justify-content: flex-end; gap: 2px; font-weight: var(--font-semibold); }
+
+.adj-cell-hint { display: block; margin-top: 2px; font-size: var(--text-2xs); color: var(--content-tertiary); white-space: nowrap; }
+
+// ── Impacto ────────────────────────────────────────────────────────────────────────────────────
+.adj-impact {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+
+  &__item {
+    @include ds.surface-card;
+    padding: var(--space-3) var(--space-4);
+
+    dt { font-size: var(--text-xs); color: var(--content-secondary); }
+    dd { margin: var(--space-1) 0 0; font-size: var(--text-lg); font-weight: var(--font-semibold); font-variant-numeric: tabular-nums; }
+
+    &--net { border-color: var(--accent-border); }
+  }
+
+  .positive { color: var(--success-text); }
+  .negative { color: var(--error-text); }
+}
+
+// ── Notas: plegadas, al final ──────────────────────────────────────────────────────────────────
+.adj-notes {
+  summary { cursor: pointer; font-weight: var(--font-medium); color: var(--content-secondary); }
+  textarea { @include ds.input-base; width: 100%; margin-top: var(--space-2); min-height: 4.5rem; }
+}
+
+@include ds.bp-down('md') {
+  .adj-what { grid-template-columns: 1fr; }
+}
+
+// A posted or cancelled line reads as figures, aligned with the computed columns.
+.adj-readonly-figure {
+  display: inline-block;
+  padding: var(--space-2) 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--content-primary);
+}

@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { Observable, map, startWith } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxDateFieldComponent } from '../../../shared/components/date';
@@ -59,7 +59,7 @@ const VALUATION_CONTROLS = [
 @Component({
   selector: 'app-fixed-asset-form-page',
   standalone: true,
-  imports: [
+  imports: [VxNumberInputDirective, 
     ReactiveFormsModule,
     TranslateModule,
     ...FORMAT_PIPES,

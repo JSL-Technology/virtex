@@ -4,8 +4,6 @@
 // Page Shell
 // ──────────────────────────────────────────────
 .billing-page {
-    padding: var(--space-8);
-    max-width: 1100px;
     animation: page-enter 0.25s ease-out;
 
     > * + * { margin-top: var(--space-8); }
@@ -164,7 +162,8 @@
         font-size: var(--text-sm);
         font-weight: var(--font-medium);
         color: var(--text-secondary);
-        text-transform: capitalize;
+        // The catalogue writes the name as a sentence («Créditos de IA»); forcing title case printed
+        // «Créditos De IA» beside lower-case names everywhere else (CG-30).
     }
 
     &__value {

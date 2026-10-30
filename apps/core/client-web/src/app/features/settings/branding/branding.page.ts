@@ -1,19 +1,44 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy, effect } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, ChangeDetectionStrategy, computed, input } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Save, Image } from 'lucide-angular';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LucideAngularModule, Image, Trash2 } from 'lucide-angular';
 import { BrandingService, UiFont } from '../../../core/services/branding';
 import { ThemeService } from '../../../core/services/theme';
+import { DialogService } from '../../../core/services/dialog.service';
+import { NotificationService } from '../../../core/services/notification';
 import { LivePreview } from '../../../shared/components/live-preview/live-preview';
 import { LanguageSelector } from '../../../shared/components/language-selector/language-selector';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-// import { LivePreview } from '../../../shared/components/live-preview/live-preview'; // Importar el nuevo componente
+import { SettingsActionsDirective, SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../shell';
+import { RegionalFormatPage } from '../regional-format/regional-format.page';
 
+/**
+ * Two sections in one component, because they draw the same tokens: the person's own
+ * **preferences** (language, theme, contrast, density, width — theirs, on this device, applied at
+ * once) and the company's **brand** (logo, accent colour, typeface, corners — everyone's, saved to
+ * the server, previewed until saved).
+ *
+ * They were one screen called «Personalización avanzada»: an administrator choosing the company
+ * colour also set their own density, the density applied at once but «Save» stayed grey, and the
+ * brand itself was kept only in that administrator's browser.
+ */
 @Component({
   selector: 'app-branding-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, LivePreview, LanguageSelector, TranslateModule, ...VX_FORM_A11Y], // Añadir LivePreview
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    LucideAngularModule,
+    LivePreview,
+    LanguageSelector,
+    TranslateModule,
+    SettingsActionsDirective,
+    SettingsSaveBarComponent,
+    RegionalFormatPage,
+    ...VX_FORM_A11Y,
+  ],
   templateUrl: './branding.page.html',
   styleUrls: ['./branding.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,13 +47,30 @@ export class BrandingPage implements OnInit {
   private fb = inject(FormBuilder);
   public brandingService = inject(BrandingService);
   public themeService = inject(ThemeService);
+  private readonly dialog = inject(DialogService);
+  private readonly notifications = inject(NotificationService);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly SaveIcon = Save;
+  /** `personal`: this person's preferences. `company`: the company's brand. */
+  readonly view = input<'personal' | 'company'>('company');
+
   protected readonly ImageIcon = Image;
-  
+  protected readonly RemoveIcon = Trash2;
+
   brandingForm!: FormGroup;
-  logoPreview = signal<string | ArrayBuffer | null>(null);
-  
+  protected readonly saving = signal(false);
+  protected readonly uploading = signal(false);
+  protected readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
+  /** The company brand being previewed differs from the one saved. */
+  protected readonly dirty = computed(() => this.view() === 'company' && this.brandingService.previewDiffers());
+
+  private readonly changes: SettingsChanges = {
+    dirty: this.dirty,
+    save: () => this.saveAsync(),
+    discard: () => this.discard(),
+  };
+
   //  Preselección de acentos. Cada uno alcanza al menos 4.5:1 con texto blanco,
   //  de modo que elegir cualquiera de ellos produce botones legibles sin
   //  depender del ajuste automático de contraste.
@@ -53,44 +95,133 @@ export class BrandingPage implements OnInit {
     { id: 'Playfair Display', styleKey: 'settings.branding.font_style.elegant_serif' },
     { id: 'Source Code Pro', styleKey: 'settings.branding.font_style.monospace' },
   ];
-  
-  ngOnInit(): void {
-    const currentSettings = this.brandingService.settings();
-    this.logoPreview.set(currentSettings.logoUrl);
-    
-    this.brandingForm = this.fb.group({
-      accentColor: [currentSettings.accentColor],
-      fontFamily: [currentSettings.fontFamily],
-      borderRadius: [currentSettings.borderRadius],
-      density: [currentSettings.density],
-      contentWidth: [currentSettings.contentWidth],
-    });
 
-    // Actualiza el servicio en tiempo real para la vista previa
-    this.brandingForm.valueChanges.subscribe(values => {
+  ngOnInit(): void {
+    const current = this.brandingService.settings();
+    this.brandingForm = this.fb.group({
+      accentColor: [current.accentColor],
+      fontFamily: [current.fontFamily],
+      borderRadius: [current.borderRadius],
+    });
+    if (!this.canEdit()) this.brandingForm.disable({ emitEvent: false });
+
+    // The preview follows the form; nothing is saved until «Save».
+    this.brandingForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((values) => {
       this.brandingService.updateSettings(values);
     });
-  }
 
-  onFileSelected(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      this.brandingService.updateLogo(file);
-      // Creamos una URL temporal para el preview inmediato sin esperar a localStorage
-      this.logoPreview.set(URL.createObjectURL(file));
-      this.brandingForm.markAsDirty();
+    if (this.view() === 'company') {
+      // What the server holds, not what this browser last cached.
+      this.brandingService.loadFromServer().subscribe(() => this.syncForm());
+      if (this.shell) {
+        this.shell.register(this.changes);
+        this.destroyRef.onDestroy(() => {
+          this.shell?.unregister(this.changes);
+          // Leaving without saving must not leave a preview applied to the whole application.
+          if (this.brandingService.previewDiffers()) this.brandingService.discardPreview();
+        });
+      }
     }
   }
 
-  saveBranding(): void {
-    //  El servicio ya persiste en cada cambio para alimentar la vista previa en
-    //  vivo; este botón solo confirma al usuario que lo aplicado es definitivo.
-    this.brandingForm.markAsPristine();
+  // ── Personal ────────────────────────────────────────────────────────────
+
+  setDensity(density: 'compact' | 'comfy'): void {
+    this.brandingService.setPersonal({ density });
   }
 
-  resetBranding(): void {
-    this.brandingService.resetToDefaults();
-    this.brandingForm.patchValue(this.brandingService.settings(), { emitEvent: false });
+  setContentWidth(contentWidth: 'normal' | 'wide'): void {
+    this.brandingService.setPersonal({ contentWidth });
+  }
+
+  // ── Company ─────────────────────────────────────────────────────────────
+
+  pickPreset(color: string): void {
+    this.brandingForm.get('accentColor')?.setValue(color);
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    this.uploading.set(true);
+    this.brandingService.uploadLogo(file).subscribe({
+      next: () => {
+        this.uploading.set(false);
+        this.notifications.showSuccess('settings.branding.logo_saved');
+      },
+      error: (error: unknown) => {
+        this.uploading.set(false);
+        this.notifications.showHttpError(error, 'settings.branding.logo_failed');
+      },
+    });
+  }
+
+  async removeLogo(): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'settings.branding.remove_logo_title',
+      message: 'settings.branding.remove_logo_message',
+      confirmText: 'settings.branding.remove_logo',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+    this.brandingService.removeLogo().subscribe({
+      error: (error: unknown) => this.notifications.showHttpError(error, 'settings.branding.logo_failed'),
+    });
+  }
+
+  saveBranding(): void {
+    void this.saveAsync();
+  }
+
+  saveAsync(): Promise<boolean> {
+    if (!this.canEdit()) return Promise.resolve(false);
+    this.saving.set(true);
+    return new Promise((resolve) =>
+      this.brandingService.saveCompany().subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.notifications.showSuccess('settings.branding.saved_for_everyone');
+          resolve(true);
+        },
+        error: (error: unknown) => {
+          this.saving.set(false);
+          this.notifications.showHttpError(error, 'settings.branding.save_failed');
+          resolve(false);
+        },
+      }),
+    );
+  }
+
+  discard(): void {
+    this.brandingService.discardPreview();
+    this.syncForm();
+  }
+
+  async resetBranding(): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'settings.branding.reset_title',
+      message: 'settings.branding.reset_message',
+      confirmText: 'settings.branding.reset',
+      variant: 'warning',
+    });
+    if (!confirmed) return;
+    this.brandingService.resetCompany().subscribe({
+      next: () => {
+        this.syncForm();
+        this.notifications.showSuccess('settings.branding.reset_done');
+      },
+      error: (error: unknown) => this.notifications.showHttpError(error, 'settings.branding.save_failed'),
+    });
+  }
+
+  private syncForm(): void {
+    const settings = this.brandingService.settings();
+    this.brandingForm.patchValue(
+      { accentColor: settings.accentColor, fontFamily: settings.fontFamily, borderRadius: settings.borderRadius },
+      { emitEvent: false },
+    );
     this.brandingForm.markAsPristine();
   }
 }

@@ -1,4 +1,6 @@
 @if (required()) {
+  <!-- Read only without the edit permission: every control in the card at once. -->
+  <fieldset class="fx-readonly" [disabled]="readonly()">
   <section class="card" aria-labelledby="certificate-title">
     <div class="card__head">
       <h2 id="certificate-title" class="card__title">{{ 'settings.fiscal.digital_certificate' | translate }}</h2>
@@ -95,4 +97,5 @@
       }
     </div>
   </section>
+  </fieldset>
 }

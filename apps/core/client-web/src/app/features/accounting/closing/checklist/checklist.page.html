@@ -70,10 +70,10 @@
                 <td>
                   <div class="name-cell">
                     <lucide-icon [img]="iconFor(item)" size="18"></lucide-icon>
-                    <span>{{ item.descriptionKey | translate: item.params }}</span>
+                    <span>{{ item.descriptionKey | translate: (item.params | vxParams) }}</span>
                   </div>
                   @if (item.noteKey) {
-                    <p class="item-note">{{ item.noteKey | translate: item.params }}</p>
+                    <p class="item-note">{{ item.noteKey | translate: (item.params | vxParams) }}</p>
                   }
                 </td>
                 <td class="actions-column">

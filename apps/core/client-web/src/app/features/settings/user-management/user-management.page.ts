@@ -1,3 +1,4 @@
+import { SettingsActionsDirective } from '../shell';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { RoleNamePipe, roleLabel } from '../../../shared/pipes/role-name.pipe';
 import {
@@ -81,7 +82,7 @@ import { TableSort, VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-user-management-page',
   standalone: true,
-  imports: [...VX_SORT, ...FORMAT_PIPES, RoleNamePipe, 
+  imports: [SettingsActionsDirective, ...VX_SORT, ...FORMAT_PIPES, RoleNamePipe, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
@@ -585,9 +586,10 @@ export class UserManagementPage implements OnInit, OnDestroy {
     }
   }
 
+  /** The user's roles in the reader's language: «Administrador», not «ADMINISTRATOR» (CG-27). */
   getRoleNames(user: ApiUser): string {
-    if (!user.roles || user.roles.length === 0) return 'Sin rol';
-    return user.roles.map((r) => r.name).join(', ');
+    if (!user.roles || user.roles.length === 0) return roleLabel(this.translate, null);
+    return user.roles.map((r) => roleLabel(this.translate, r.name)).join(', ');
   }
 
   statusTone(status: UserStatus): VxTone {

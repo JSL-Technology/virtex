@@ -12,12 +12,16 @@
 }
 
 // ── Page Shell ──────────────────────────────────────────────────
-@mixin page-shell($max-width: 960px) {
-  padding: var(--space-8);
-  max-width: $max-width;
+// The settings shell (`.sm-page`) sets every section's width and margins; a section only stacks its
+// blocks. Each section used to set its own — eight different maximum widths between 760 and 1,100
+// px and three paddings — so the content edge jumped from one section to the next. The parameter is
+// kept so the call sites compile; it no longer decides anything.
+@mixin page-shell($max-width: null) {
   animation: settings-enter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
-  > * + * { margin-top: var(--space-7); }
+  > * + * { margin-top: var(--space-6); }
+
+  @media (prefers-reduced-motion: reduce) { animation: none; }
 }
 
 // ── Page Header ─────────────────────────────────────────────────

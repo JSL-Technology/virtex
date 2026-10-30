@@ -1,8 +1,4 @@
 <div class="fiscal-page">
-  <header class="page-header">
-    <h1 class="page-header__title">{{ 'settings.fiscal.do.page_title' | translate }}</h1>
-    <p class="page-header__subtitle">{{ 'settings.fiscal.do.page_description' | translate }}</p>
-  </header>
 
   @if (!isDominican()) {
     <!-- A tenant in another market has landed on the Dominican page: say so before the forms. -->
@@ -12,7 +8,7 @@
   }
 
   <!-- ── 1. How the company issues, and what it can issue today ────────────────── -->
-  <vx-emission-mode-card [context]="invoicing()" (modeChange)="onModeChange($event)" (changed)="refreshInvoicingState()" />
+  <vx-emission-mode-card [context]="invoicing()" [readonly]="!canEdit()" (modeChange)="onModeChange($event)" (changed)="refreshInvoicingState()" />
 
   <!-- ── 2. Authorised ranges (both series) ──────────────────────────────────────── -->
   <section class="card" aria-labelledby="ranges-title">
@@ -21,6 +17,8 @@
       <p class="card__subtitle">{{ 'settings.fiscal.do.ncf_ranges_description' | translate }}</p>
     </div>
     <div class="card__body">
+      <!-- Registering a range is `taxes:edit`; without it the ranges are read, not added to (CG-17). -->
+      @if (canEdit()) {
       <form [formGroup]="sequenceForm" (ngSubmit)="provisionSequence()" class="range-form">
         <div class="field field--wide">
           <label for="range-type">{{ 'settings.fiscal.type' | translate }} *</label>
@@ -60,6 +58,7 @@
           </button>
         </div>
       </form>
+      }
 
       @if (sequences().length) {
         <div class="table-scroll">
@@ -105,7 +104,7 @@
   </section>
 
   <!-- ── 3. Signing certificate (electronic only) ───────────────────────────────── -->
-  <vx-signing-certificate-card [context]="invoicing()" (changed)="refreshInvoicingState()" />
+  <vx-signing-certificate-card [context]="invoicing()" [readonly]="!canEdit()" (changed)="refreshInvoicingState()" />
 
   <!-- ── 4. What the product covers in this market ─────────────────────────────── -->
   @if (coverage(); as market) {

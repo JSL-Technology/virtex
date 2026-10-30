@@ -1,12 +1,30 @@
-.s-page { padding: 2rem; max-width: 860px; }
-.s-header { padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.75rem; }
-.s-header__title { font-size: 1.375rem; font-weight: 700; color: var(--text-primary); margin-bottom: .25rem; }
-.s-header__subtitle { font-size: .875rem; color: var(--text-secondary); }
+@use '../../../../../assets/styles/design-system' as ds;
 
-.ai-admin__section { margin-bottom: var(--space-6); }
+// Width and padding come from the settings window (`.sm-page`).
+.ai-admin { display: flex; flex-direction: column; gap: var(--space-6); }
+.ai-admin__section { display: block; }
+.ai-admin__error {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4); border: 1px solid var(--error-border); border-radius: var(--radius-md);
+  background: var(--error-surface); color: var(--error-text);
+  p { margin: 0; }
+}
+.ai-admin__ops {
+  @include ds.surface-card;
+  padding: var(--space-4) var(--space-5);
+  > summary { cursor: pointer; margin: 0; }
+  > summary:focus-visible { @include ds.focus-ring; }
+  &[open] > summary { margin-bottom: var(--space-3); }
+  .ai-admin__pending { margin-top: var(--space-2); }
+  > .ai-admin__run-title { margin-top: var(--space-4); }
+}
+.ai-admin__run-actions { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.ai-admin__link { @include ds.button-link; font-size: var(--text-sm); }
+.ai-admin__state--run-failed { color: var(--error-text); }
+.ai-admin__state--run-succeeded { color: var(--success-text); }
+.ai-admin__state--run-queued, .ai-admin__state--run-running { color: var(--warning-text); }
 .ai-admin__heading { margin: 0 0 var(--space-3); font-size: var(--text-md); font-weight: 600; color: var(--text-primary); }
 .ai-admin__muted { font-size: var(--text-sm); color: var(--text-secondary); }
-.ai-admin__error { color: var(--error-text); }
 .ai-admin__error-text { font-size: var(--text-sm); color: var(--error-text); }
 
 .ai-admin__features, .ai-admin__pending { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-2); }

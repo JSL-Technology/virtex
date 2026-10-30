@@ -1,3 +1,6 @@
+import { BrandingController } from './branding.controller';
+import { RegionalFormatController } from './regional-format.controller';
+import { StorageModule } from '../storage/storage.module';
 import { MailSettingsController } from './mail-settings.controller';
 import { MailModule } from '../mail/mail.module';
 import { OrganizationSettingsController } from './organization-settings.controller';
@@ -36,6 +39,8 @@ import { OrganizationLookupPort } from '../shared/tenancy/ports/active-tenant.po
       UserBranchAccess,
     ]),
     OrgSettingsModule,
+    // The company logo is a stored file, like an avatar.
+    StorageModule,
     ChartOfAccountsModule,
     // LocalizationProvisioningModule (leaf) provides the two methods needed by
     // OrganizationsService: findRegionByCountryCode() and applyFiscalPackage().
@@ -51,7 +56,7 @@ import { OrganizationLookupPort } from '../shared/tenancy/ports/active-tenant.po
     MailModule,
   ],
   // Settings by section (QA M-09). Declared first: its paths are more specific than `:id`.
-  controllers: [OrganizationSettingsController, MailSettingsController, BranchesController, OrganizationsController],
+  controllers: [OrganizationSettingsController, MailSettingsController, BranchesController, BrandingController, RegionalFormatController, OrganizationsController],
   providers: [
     OrganizationsService,
     MembershipService,

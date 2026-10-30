@@ -15,6 +15,7 @@
  */
 export * from './lib/locale.store';
 export * from './lib/format.service';
+export * from './lib/number-input.directive';
 export * from './lib/format.pipes';
 export * from './lib/localized-name';
 export * from './lib/localized-name.pipe';

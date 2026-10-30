@@ -1,19 +1,5 @@
 <div class="page-shell">
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="page-header__text">
-            <h1 class="page-header__title">{{ 'settings.company_profile.company_profile' | translate }}</h1>
-            <p class="page-header__subtitle">{{ 'settings.company_profile.manage_your_organization_legal_contact_information' | translate }}</p>
-        </div>
-        <button type="button"
-                class="btn-primary"
-                [disabled]="profileForm.pristine || profileForm.invalid || isLoading"
-                (click)="saveProfile()">
-            <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-            <span>{{ (isLoading ? 'common.saving' : 'common.save_changes') | translate }}</span>
-        </button>
-    </div>
 
     <form [formGroup]="profileForm">
 
@@ -175,5 +161,12 @@
         </div>
 
     </form>
+
+    @if (canEdit()) {
+        <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()"
+            [blockedKey]="blocked()?.key ?? null" [blockedParams]="blocked()?.params ?? {}"
+            (save)="saveProfile()" (discard)="loadCompanyData()" />
+    }
+
 
 </div>

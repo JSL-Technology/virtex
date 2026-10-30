@@ -7,7 +7,7 @@ import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
 
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -35,7 +35,7 @@ import { VX_SELECT } from '../../../shared/components/select';
 @Component({
   selector: 'app-vendor-payment-page',
   standalone: true,
-  imports: [
+  imports: [VxNumberInputDirective, 
     VxBranchPickerComponent,
     CommonModule,
     ReactiveFormsModule,

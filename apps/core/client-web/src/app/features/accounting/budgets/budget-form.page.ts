@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { Copy, LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable, map } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -38,7 +38,7 @@ export function restOfYear(period: string): string[] {
 @Component({
   selector: 'app-budget-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, HasPermissionDirective],
+  imports: [VxNumberInputDirective, ReactiveFormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, HasPermissionDirective],
   templateUrl: './budget-form.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss', '../../../shared/styles/document-list.scss', './budget-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

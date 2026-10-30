@@ -47,6 +47,10 @@ const valueOf = (v: Valuation): number => roundAmount(v.quantity * v.unitCost);
  * Purchases and sales are *not* handled here. A vendor bill already debits inventory and an invoice
  * already relieves it; posting again from the catalogue would double-count both.
  */
+
+/** What an adjustment line's value is: goods found or lost, or a change in what goods are worth. */
+export type AdjustmentValueKind = 'quantity' | 'revaluation';
+
 @Injectable()
 export class InventoryPostingService {
   private readonly logger = new Logger(InventoryPostingService.name);
@@ -260,6 +264,11 @@ export class InventoryPostingService {
    * `AccountRole.INVENTORY_ADJUSTMENT`, a line per product so the entry reads like the document.
    *
    * Each line's amount is signed — positive a surplus or an upward revaluation, negative a loss.
+   * The counterpart is booked **by nature**, never netted: shortfalls, surpluses and revaluations
+   * each get their own line on the adjustment account. A single net line let a revaluation of
+   * +150 swallow a shrinkage of −62.38 and show the whole document as an 87.62 «surplus», which is
+   * exactly the loss an auditor looks for and could no longer see.
+   *
    * Idempotent per adjustment: posting the same document twice cannot book it twice.
    */
   async postAdjustment(
@@ -270,7 +279,7 @@ export class InventoryPostingService {
       number: string;
       date: string;
       reason: string;
-      lines: ReadonlyArray<{ description: string; amount: number }>;
+      lines: ReadonlyArray<{ description: string; amount: number; kind: AdjustmentValueKind }>;
     },
     actorUserId: string | null,
   ): Promise<string | null> {
@@ -284,12 +293,24 @@ export class InventoryPostingService {
       throw new BadRequestError('inventory.organization_has_no_inventory_inventory_adjustment');
     }
 
-    const net = roundAmount(lines.reduce((sum, line) => sum + line.amount, 0));
     const words = await this.words(manager, organizationId, {
       entry: { key: 'ledger.inventory.adjustment_document_entry', params: { number: adjustment.number } },
       surplus: { key: 'ledger.inventory.adjustment_surplus' },
       shortfall: { key: 'ledger.inventory.adjustment_shortfall' },
+      revaluation_up: { key: 'ledger.inventory.adjustment_revaluation_up' },
+      revaluation_down: { key: 'ledger.inventory.adjustment_revaluation_down' },
     });
+
+    // One counterpart per nature and direction: what the inventory gained or lost by quantity, and
+    // what it gained or lost in value. Each is the exact mirror of its inventory lines.
+    const bucket = (kind: AdjustmentValueKind, sign: 1 | -1) =>
+      roundAmount(lines.filter((line) => line.kind === kind && Math.sign(line.amount) === sign).reduce((sum, line) => sum + line.amount, 0));
+    const counterparts = [
+      { amount: bucket('quantity', -1), description: words.shortfall },
+      { amount: bucket('quantity', 1), description: words.surplus },
+      { amount: bucket('revaluation', 1), description: words.revaluation_up },
+      { amount: bucket('revaluation', -1), description: words.revaluation_down },
+    ].filter((counterpart) => toCents(counterpart.amount) !== 0);
 
     return this.post(
       manager,
@@ -307,16 +328,12 @@ export class InventoryPostingService {
             credit: line.amount < 0 ? roundAmount(-line.amount) : 0,
             description: line.description,
           })),
-          ...(toCents(net) === 0
-            ? []
-            : [
-                {
-                  accountId: adjustmentId,
-                  debit: net < 0 ? roundAmount(-net) : 0,
-                  credit: net > 0 ? roundAmount(net) : 0,
-                  description: net > 0 ? words.surplus : words.shortfall,
-                },
-              ]),
+          ...counterparts.map((counterpart) => ({
+            accountId: adjustmentId,
+            debit: counterpart.amount < 0 ? roundAmount(-counterpart.amount) : 0,
+            credit: counterpart.amount > 0 ? roundAmount(counterpart.amount) : 0,
+            description: counterpart.description,
+          })),
         ],
       },
       {

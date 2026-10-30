@@ -170,6 +170,10 @@ const AUDITED_TABLES: ReadonlySet<string> = new Set([
   // inventory account on the balance sheet is worth, and changing either now posts an entry. While
   // this was absent, the one change that could move an asset by hand left no trace of who made it.
   'products',
+  // An inventory adjustment moves the same asset by hand: who drafted, posted, cancelled or
+  // reversed it — and what it said at each step — is the trail a stock count is audited by. Its
+  // lines are audited through the document, like an invoice's.
+  'inventory_adjustments',
   // Treasury
   'bank_accounts',
   'bank_transfers',

@@ -1,5 +1,11 @@
 //  Listas de documentos (inventario, compras, cuentas por pagar): filtros en la barra del armazón.
 @use '../../../assets/styles/design-system' as ds;
+@use '../../../assets/styles/list-page' as list;
+
+//  The table, its card and its actions column, as every list in the product draws them. These 24
+//  lists skipped the partial, so their `.data-table` fell back to the browser's own table: headers
+//  bold and centred over left-aligned cells, no row rules, no hover.
+@include list.list-page;
 
 .doc-filter {
   display: inline-flex;

@@ -9,7 +9,13 @@ import { StockQueriesService } from './stock-queries.service';
 import { InventoryAdjustmentsService } from './inventory-adjustments.service';
 import { StockTransfersService } from './stock-transfers.service';
 import { StockMovementsQueryDto, StockOnHandQueryDto } from './dto/stock-query.dto';
-import { InventoryAdjustmentQueryDto, SaveInventoryAdjustmentDto } from './dto/inventory-adjustment.dto';
+import {
+  AdjustmentDateQueryDto,
+  InventoryAdjustmentQueryDto,
+  PostInventoryAdjustmentDto,
+  ReverseInventoryAdjustmentDto,
+  SaveInventoryAdjustmentDto,
+} from './dto/inventory-adjustment.dto';
 import { SaveStockTransferDto, StockTransferQueryDto } from './dto/stock-transfer.dto';
 
 /**
@@ -49,6 +55,14 @@ export class StockController {
     return this.adjustments.findAll(user.organizationId, query);
   }
 
+  // Declared before `adjustments/:id`, which would otherwise take «date-readiness» for an id.
+  @Get('adjustments/date-readiness')
+  @HasPermission(PERMISSIONS.INVENTORY_VIEW_STOCK)
+  @ApiOperation({ summary: 'Si una fecha admite un ajuste: período, cierre y fecha futura.' })
+  adjustmentDateReadiness(@Query() query: AdjustmentDateQueryDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.adjustments.checkDate(user.organizationId, query.date);
+  }
+
   @Get('adjustments/:id')
   @HasPermission(PERMISSIONS.INVENTORY_VIEW_STOCK)
   getAdjustment(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
@@ -74,14 +88,29 @@ export class StockController {
   @Post('adjustments/:id/post')
   @HasPermission(PERMISSIONS.INVENTORY_ADJUST)
   @ApiOperation({ summary: 'Contabiliza el ajuste: mueve existencias y registra el asiento.' })
-  postAdjustment(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.adjustments.post(id, user.organizationId, user.id);
+  postAdjustment(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: PostInventoryAdjustmentDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.adjustments.post(id, user.organizationId, user.id, dto?.onBalanceChange);
   }
 
   @Post('adjustments/:id/cancel')
   @HasPermission(PERMISSIONS.INVENTORY_ADJUST)
   cancelAdjustment(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.adjustments.cancel(id, user.organizationId);
+    return this.adjustments.cancel(id, user.organizationId, user.id);
+  }
+
+  @Post('adjustments/:id/reverse')
+  @HasPermission(PERMISSIONS.INVENTORY_ADJUST)
+  @ApiOperation({ summary: 'Revierte un ajuste contabilizado con otro ajuste, su imagen especular.' })
+  reverseAdjustment(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: ReverseInventoryAdjustmentDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.adjustments.reverse(id, user.organizationId, user.id, dto);
   }
 
   // ── Transfers ─────────────────────────────────────────────────────────────

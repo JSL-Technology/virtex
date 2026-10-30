@@ -1,3 +1,4 @@
+import { VxEmptyStateComponent } from '../../../../shared/components/feedback/empty-state.component';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
@@ -21,7 +22,7 @@ import { VX_SORT, sortable } from '../../../../shared/components/sort';
 @Component({
   selector: 'app-sso-settings',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [VxEmptyStateComponent, ...VX_SORT, CommonModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './sso.page.html',
   styleUrls: ['./sso.page.scss'],
 })

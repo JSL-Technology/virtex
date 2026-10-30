@@ -30,10 +30,14 @@ abstract class LocaleAwarePipe {
   private lastKey: string | null = null;
   private lastResult = '';
 
-  /** Memoise on the arguments AND on the locale, so a language change invalidates the answer. */
+  /**
+   * Memoise on the arguments AND on the locale and the chosen format, so a change of language —
+   * or of the decimal mark or the date order — invalidates the answer. Without the format in the
+   * key, a figure already on screen kept its old marks until its value changed.
+   */
   protected memo(key: string, compute: () => string): string {
     // Read inside the reactive context: this is the subscription that makes the view re-render.
-    const localeKey = `${this.store.locale()}|${this.store.timezone()}`;
+    const localeKey = `${this.store.locale()}|${this.store.timezone()}|${JSON.stringify(this.store.regionalFormat())}`;
     const full = `${localeKey}|${key}`;
     if (full === this.lastKey) return this.lastResult;
     this.lastKey = full;
@@ -209,7 +213,33 @@ export class VxCurrencyNamePipe extends LocaleAwarePipe implements PipeTransform
  * Grouped so a component adds `FORMAT_PIPES` rather than remembering which seven symbols it
  * needs, which is how a template ends up reaching for `| number` again.
  */
+/**
+ * A server message's parameters as the reader writes them, for the translate pipe:
+ *
+ *     {{ problem.key | translate: (problem.params | vxParams) }}
+ *
+ * Quantities and amounts by name, calendar dates always (`FormatService.localizeParams`). Returns
+ * the same object while nothing changed, so change detection does not see a new value each pass.
+ */
+@Pipe({ name: 'vxParams', standalone: true, pure: false })
+export class VxParamsPipe implements PipeTransform {
+  private readonly format = inject(FormatService);
+  private readonly store = inject(LocaleStore);
+  private lastKey: string | null = null;
+  private lastResult: Record<string, unknown> = {};
+
+  transform(params: Record<string, unknown> | null | undefined): Record<string, unknown> {
+    const key = `${this.store.locale()}|${JSON.stringify(this.store.regionalFormat())}|${JSON.stringify(params ?? {})}`;
+    if (key !== this.lastKey) {
+      this.lastKey = key;
+      this.lastResult = this.format.localizeParams(params);
+    }
+    return this.lastResult;
+  }
+}
+
 export const FORMAT_PIPES = [
+  VxParamsPipe,
   VxNumberPipe,
   VxMoneyPipe,
   VxPercentPipe,

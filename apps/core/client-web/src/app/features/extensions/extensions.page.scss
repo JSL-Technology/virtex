@@ -275,3 +275,19 @@
 }
 
 .ext__hint { font-size: var(--text-sm); color: var(--text-secondary); }
+
+// The empty state's second line: where to register one.
+.ls__state-text {
+  margin: 0;
+  max-width: 32rem;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+// Registering and trying an extension, side by side when there is room.
+.ext__panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: var(--space-5);
+  align-items: start;
+}

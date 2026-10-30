@@ -10,6 +10,15 @@ export const AI_ENGINE_QUEUE = 'ai-engine';
 
 /** A run older than this that never finished died with its worker; it is marked failed, not waited on. */
 const STALE_AFTER_MS = 6 * 60 * 60 * 1000;
+/**
+ * A run still QUEUED after this was never picked up: the engine is not consuming the queue. Waiting
+ * six hours to say so left the screen reading «En cola» with a disabled «En curso…» for a day.
+ */
+const NOT_STARTED_AFTER_MS = 30 * 60 * 1000;
+
+/** Why a run was given up on, as stored in `error`; the screen explains each in words. */
+export const RUN_EXPIRED = 'expired: the engine did not finish this run';
+export const RUN_NOT_STARTED = 'not_started: the engine did not pick this run up';
 
 /** The payload of every engine job. The engine sets the tenant from `organizationId` before reading. */
 export interface EngineJobData {
@@ -119,7 +128,9 @@ export class EngineRunsService {
     return run;
   }
 
-  latest(organizationId: string, kind: AiModelRunKind): Promise<AiModelRun | null> {
+  /** The latest run of a kind, with any run that can no longer finish already marked as failed. */
+  async latest(organizationId: string, kind: AiModelRunKind): Promise<AiModelRun | null> {
+    await this.expireStale(organizationId);
     return this.runs.findOne({ where: { organizationId, kind }, order: { createdAt: 'DESC' } });
   }
 
@@ -136,15 +147,26 @@ export class EngineRunsService {
   }
 
   private async expireStale(organizationId: string): Promise<void> {
-    const cutoff = new Date(Date.now() - STALE_AFTER_MS);
-    const stale = await this.runs.find({
-      where: { organizationId, status: In(['QUEUED', 'RUNNING']), createdAt: LessThan(cutoff) },
-    });
-    for (const run of stale) {
-      run.status = 'FAILED';
-      run.error = run.error ?? 'expired: the engine did not finish this run';
-      run.finishedAt = new Date();
+    const now = Date.now();
+    const [unfinished, unstarted] = await Promise.all([
+      this.runs.find({
+        where: { organizationId, status: In(['QUEUED', 'RUNNING']), createdAt: LessThan(new Date(now - STALE_AFTER_MS)) },
+      }),
+      this.runs.find({ where: { organizationId, status: 'QUEUED', createdAt: LessThan(new Date(now - NOT_STARTED_AFTER_MS)) } }),
+    ]);
+    const stale = new Map<string, AiModelRun>();
+    for (const run of unstarted) {
+      run.error = run.error ?? RUN_NOT_STARTED;
+      stale.set(run.id, run);
     }
-    if (stale.length) await this.runs.save(stale);
+    for (const run of unfinished) {
+      run.error = run.error ?? RUN_EXPIRED;
+      stale.set(run.id, run);
+    }
+    for (const run of stale.values()) {
+      run.status = 'FAILED';
+      run.finishedAt = new Date(now);
+    }
+    if (stale.size) await this.runs.save([...stale.values()]);
   }
 }

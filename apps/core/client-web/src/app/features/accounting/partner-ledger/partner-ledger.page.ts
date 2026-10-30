@@ -1,3 +1,4 @@
+import { VX_DATE } from '../../../shared/components/date';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -36,7 +37,7 @@ interface Partner {
 @Component({
   selector: 'app-partner-ledger-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent],
+  imports: [...VX_DATE, FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent],
   templateUrl: './partner-ledger.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './partner-ledger.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

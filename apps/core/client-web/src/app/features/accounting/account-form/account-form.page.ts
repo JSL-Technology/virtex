@@ -6,7 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChartOfAccountsApiService, CreateAccountDto, UpdateAccountDto } from '../../../core/api/chart-of-accounts.service';
 import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
 import { take } from 'rxjs/operators';
-import { accountNameOf } from '@virteex/shared/ui-i18n';
+import { accountNameOf, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType } from '@virteex/shared/types';
 import { AccountType, AccountCategory, AccountNature, CashFlowCategory, RequiredDimension } from '../../../core/models/account.model';
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
@@ -25,7 +25,7 @@ type ParentOption = { id: string; name: string; code: string };
 @Component({
   selector: 'app-account-form-page',
   standalone: true,
-  imports: [
+  imports: [VxNumberInputDirective, 
     CommonModule,
     ReactiveFormsModule,
     RouterLink,

@@ -3,8 +3,40 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { AuditLog, ActionType } from './entities/audit-log.entity';
 
-/** A trail row as read: the log plus the actor's display name, when there is a person. */
-export type AuditTrailRow = AuditLog & { actorName: string | null };
+/**
+ * A trail row as read: the log plus what a reader needs to recognise it — the actor's display name,
+ * when there is a person, and the record's own name or number, when its snapshot carries one.
+ */
+export type AuditTrailRow = AuditLog & { actorName: string | null; recordLabel: string | null };
+
+/**
+ * The fields that name a record, in the order a person would recognise it by. A document is known
+ * by its number, a master record by its code and name, a person by their e-mail.
+ */
+const NUMBER_FIELDS = ['number', 'documentNumber', 'entryNumber', 'invoiceNumber', 'reference', 'code', 'sequenceNumber', 'ncf'];
+const NAME_FIELDS = ['name', 'legalName', 'title', 'description', 'email'];
+
+/**
+ * The record's name as of the row: its number and name from the snapshot the row recorded.
+ *
+ * The trail showed the first eight characters of the record's UUID («8fcabd9c»), which identifies
+ * nothing to a person. The snapshot is the right source rather than a lookup of the record today:
+ * a deleted record has no row left to look up, and a renamed one should read as it was named then.
+ */
+export function recordLabelOf(log: Pick<AuditLog, 'newValue' | 'previousValue'>): string | null {
+  const snapshot = { ...((log.previousValue as Record<string, unknown>) ?? {}), ...((log.newValue as Record<string, unknown>) ?? {}) };
+  const pick = (fields: string[]): string | null => {
+    for (const field of fields) {
+      const value = snapshot[field];
+      if ((typeof value === 'string' && value.trim()) || typeof value === 'number') return String(value).trim();
+    }
+    return null;
+  };
+  const number = pick(NUMBER_FIELDS);
+  const name = pick(NAME_FIELDS);
+  if (number && name && number !== name) return `${number} — ${name}`.slice(0, 160);
+  return (number ?? name)?.slice(0, 160) ?? null;
+}
 
 @Injectable()
 export class AuditTrailService {
@@ -159,6 +191,7 @@ export class AuditTrailService {
       actionType?: ActionType;
       from?: string;
       to?: string;
+      peopleOnly?: boolean;
       page?: number;
       pageSize?: number;
     } = {},
@@ -176,6 +209,7 @@ export class AuditTrailService {
     if (filters.entityId) query.andWhere('log.entityId = :entityId', { entityId: filters.entityId });
     if (filters.userId) query.andWhere('log.userId = :userId', { userId: filters.userId });
     if (filters.actionType) query.andWhere('log.actionType = :actionType', { actionType: filters.actionType });
+    if (filters.peopleOnly) query.andWhere('log.userId IS NOT NULL');
     if (filters.from) query.andWhere('log.timestamp >= :from', { from: filters.from });
     if (filters.to) {
       // A bare date is the whole of that day, not its first instant.
@@ -195,7 +229,11 @@ export class AuditTrailService {
       );
       for (const person of people) names.set(person.id, person.name);
     }
-    const rows = logs.map((log) => ({ ...log, actorName: log.userId ? names.get(log.userId) ?? null : null }));
+    const rows = logs.map((log) => ({
+      ...log,
+      actorName: log.userId ? names.get(log.userId) ?? null : null,
+      recordLabel: recordLabelOf(log),
+    }));
 
     return { rows, page, pageSize, total, hasMore: page * pageSize < total };
   }
@@ -210,6 +248,4 @@ export class AuditTrailService {
       .getRawMany();
     return rows.map((row) => row.entity);
   }
-
-  
 }

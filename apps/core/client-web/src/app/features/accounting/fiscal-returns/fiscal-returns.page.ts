@@ -1,3 +1,4 @@
+import { VX_DATE } from '../../../shared/components/date';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -55,7 +56,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 @Component({
   selector: 'app-fiscal-returns-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_DATE, FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './fiscal-returns.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './fiscal-returns.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

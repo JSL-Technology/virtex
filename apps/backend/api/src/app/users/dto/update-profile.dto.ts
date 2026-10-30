@@ -1,4 +1,6 @@
-import { IsString, IsOptional, MaxLength, IsIn, IsUrl } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsIn, IsUrl, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { RegionalFormatDto } from '../../i18n/dto/regional-format.dto';
 import { IsE164PhoneNumber } from '../../common/validators/is-e164-phone-number.validator';
 import { LanguageCode, SUPPORTED_LANGUAGES } from '@virteex/shared/types';
 
@@ -47,6 +49,15 @@ export class UpdateProfileDto {
     message: `preferredLanguage must be one of: ${SUPPORTED_LANGUAGES.join(', ')}`,
   })
   preferredLanguage?: LanguageCode;
+
+  /**
+   * How this person wants dates, numbers and times written, over the company's default. Replaces
+   * the whole preference; `null` returns every field to the company's.
+   */
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => RegionalFormatDto)
+  regionalFormat?: RegionalFormatDto | null;
 
   @IsOptional()
   @IsUrl({ protocols: ['https'], require_protocol: true }, { message: 'validation.update_profile.avatar_url_must_valid_https_address' })

@@ -1,0 +1,402 @@
+[
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-05 · INV-13 · INV-20",
+  "title": "Formulario nuevo",
+  "before": "capturas/10-inv-nuevo-vacio.png",
+  "after": [
+   "capturas-despues/10-inv-nuevo-vacio.png"
+  ],
+  "change": "Secciones «Qué y cuándo» y «Líneas», período de la fecha comprobado al instante, columnas de existencia, diferencia, costos y valor estimado, y guardado o salida con guardia de cambios."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-11 · INV-12 · INV-20",
+  "title": "Guardar vacío",
+  "before": "capturas/11-inv-guardar-vacio.png",
+  "after": [
+   "capturas-despues/11-inv-guardar-vacio.png"
+  ],
+  "change": "Cada problema con el nombre del campo y enlazado a él; el mensaje queda junto al campo con aria-describedby."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-05 · INV-10 · INV-18",
+  "title": "Borrador con tres líneas",
+  "before": "capturas/12-inv-borrador-lleno.png",
+  "after": [
+   "capturas-despues/12-inv-borrador-lleno.png"
+  ],
+  "change": "La diferencia contada se calcula y se muestra con su signo; costo de entrada con el promedio como pista; valor estimado por línea y total."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-05 · INV-09",
+  "title": "Confirmar contabilización",
+  "before": "capturas/14-inv-confirmar-contabilizar.png",
+  "after": [
+   "capturas-despues/14-inv-confirmar-contabilizar.png"
+  ],
+  "change": "El diálogo dice qué se moverá: faltantes, sobrantes, revaluación y efecto neto, y que el ajuste quedará cerrado."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-07 · INV-09 · INV-17 · INV-21",
+  "title": "Ajuste contabilizado",
+  "before": "capturas/15-inv-contabilizado.png",
+  "after": [
+   "capturas-despues/15-inv-contabilizado.png"
+  ],
+  "change": "Solo lectura de verdad: las cifras se leen como texto, quién creó y contabilizó, impacto contabilizado por naturaleza y acción «Revertir»."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-07",
+  "title": "Guardar sobre un contabilizado",
+  "before": "capturas/16-inv-guardar-sobre-contabilizado.png",
+  "after": [
+   "capturas-despues/16-inv-guardar-sobre-contabilizado.png"
+  ],
+  "change": "No hay botón «Guardar» en un documento contabilizado ni campos que inviten a editarlo."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-01",
+  "title": "Existencia cambiada por otra sesión",
+  "before": "capturas/22-inv-obsoleto-despues.png",
+  "after": [
+   "capturas-despues/22-inv-obsoleto-despues.png"
+  ],
+  "change": "El servidor detecta el saldo cambiado y pide decidir (aplicar el conteo o mantener la diferencia) en vez de contabilizar con una existencia vieja."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-02 · INV-13",
+  "title": "Fecha en un ejercicio cerrado",
+  "before": "capturas/26-inv-fecha-2019-borrador.png",
+  "after": [
+   "capturas-despues/26-inv-fecha-2019-borrador.png"
+  ],
+  "change": "El formulario avisa al escribir la fecha: «El período Junio 2019 está cerrado». Antes se creaba el borrador y se abría un ejercicio solo."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-02",
+  "title": "Fecha futura",
+  "before": "capturas/27-inv-periodo-cerrado.png",
+  "after": [
+   "capturas-despues/27-inv-periodo-cerrado.png"
+  ],
+  "change": "«La fecha 10/08/2031 es posterior a hoy (30/10/2026)», en el formato del lector; la API también la rechaza."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-04 · INV-17",
+  "title": "Anular y revertir",
+  "before": "capturas/29-inv-anulado.png",
+  "after": [
+   "capturas-despues/29-inv-anulado.png",
+   "capturas-despues/34-inv-revertir-dialogo.png",
+   "capturas-despues/35-inv-revertido.png"
+  ],
+  "change": "El anulado dice quién y cuándo. Un contabilizado ahora se revierte con su propio asiento, motivo y enlace entre ambos documentos."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-08",
+  "title": "Cancelar con cambios",
+  "before": "capturas/59-inv-cancelar-sucio.png",
+  "after": [
+   "capturas-despues/59-inv-cancelar-sucio.png"
+  ],
+  "change": "Cancelar pregunta: guardar, descartar o seguir. El borrador se recupera tras una recarga."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-08",
+  "title": "Recarga con cambios sin guardar",
+  "before": "capturas/58-inv-tras-recarga.png",
+  "after": [
+   "capturas-despues/58-inv-tras-recarga.png"
+  ],
+  "change": "Antes la recarga perdía el borrador. Ahora ofrece recuperar los cambios guardados en el navegador, con su fecha, o descartarlos."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-20 · CFG-01",
+  "title": "Móvil",
+  "before": "capturas/50-inv-movil.png",
+  "after": [
+   "capturas-despues/50-inv-movil.png"
+  ],
+  "change": "Los campos se apilan a una columna con su mensaje debajo; la tabla de líneas se desplaza dentro de su propio contenedor sin ensanchar la página."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-23",
+  "title": "Tema oscuro",
+  "before": "capturas/55-inv-oscuro.png",
+  "after": [
+   "capturas-despues/55-inv-oscuro.png"
+  ],
+  "change": "Colores de signo, estados y cifras desde los tokens del tema, legibles en oscuro."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-19",
+  "title": "Abrir desde la ficha del producto",
+  "before": "capturas/33-inv-desde-producto.png",
+  "after": [
+   "capturas-despues/33-inv-desde-producto.png"
+  ],
+  "change": "Llega con el producto y con el almacén donde está (no el predeterminado), y la línea muestra su existencia allí."
+ },
+ {
+  "area": "Ajuste de inventario",
+  "codes": "INV-06",
+  "title": "Rol de solo consulta",
+  "before": "capturas/62-restringido-borrador.png",
+  "after": [
+   "capturas-despues/62-restringido-borrador.png"
+  ],
+  "change": "Quien solo puede ver existencias no recibe un formulario editable ni botones que fallarían."
+ },
+ {
+  "area": "Ajuste de auditoría",
+  "codes": "AUD-04 · AUD-05 · AUD-06",
+  "title": "Formulario con ejercicio cerrado",
+  "before": "capturas/71-aud-form-cerrado.png",
+  "after": [
+   "capturas-despues/71-aud-form-cerrado.png"
+  ],
+  "change": "Totales en céntimos, validación de línea con un solo lado y aviso cuando no hay ejercicios cerrados."
+ },
+ {
+  "area": "Ajuste de auditoría",
+  "codes": "AUD-02 · AUD-06 · AUD-08",
+  "title": "Problemas antes de guardar",
+  "before": "capturas/73-aud-problemas-cerrado.png",
+  "after": [
+   "capturas-despues/73-aud-problemas-cerrado.png"
+  ],
+  "change": "Cada problema nombra su línea («Cuenta es obligatorio (línea 2)») y el descuadre se dice con su importe."
+ },
+ {
+  "area": "Ajuste de auditoría",
+  "codes": "AUD-01 · AUD-03 · AUD-04",
+  "title": "Proponer",
+  "before": "capturas/75-aud-tras-proponer.png",
+  "after": [
+   "capturas-despues/74b-aud-ruta-aprobacion.png",
+   "capturas-despues/75-aud-tras-proponer.png"
+  ],
+  "change": "Antes: error 500. Ahora dice la ruta de aprobación antes de enviar y abre el detalle del ajuste contabilizado en el ejercicio cerrado, con su asiento."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CFG-04 · CG-01 · CG-07 · CG-09",
+  "title": "Abrir la configuración",
+  "before": "capturas/81-config-abierta.png",
+  "after": [
+   "capturas-despues/81-config-abierta.png"
+  ],
+  "change": "Buscador, grupos por quién afecta, cabecera común (ruta, título, descripción, alcance), foco en el título y título de pestaña."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CG-03 · CFG-10",
+  "title": "Cuentas predeterminadas",
+  "before": "capturas/82-config-politicas-inventario.png",
+  "after": [
+   "capturas-despues/82-config-cuentas-predeterminadas.png"
+  ],
+  "change": "Seis secciones en una, con un solo guardado, confirmación del cambio de cuentas y «Restablecer» cuando difiere de la predeterminada. Los enlaces antiguos siguen llevando aquí."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CFG-02 · CG-16",
+  "title": "Escape con cambios sin guardar",
+  "before": "capturas/84-config-tras-escape.png",
+  "after": [
+   "capturas-despues/84-config-tras-escape.png"
+  ],
+  "change": "Antes se cerraba y se perdía el cambio. Ahora pregunta: cancelar, descartar o guardar."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CFG-01 · CG-08",
+  "title": "Móvil",
+  "before": "capturas/86-config-movil.png",
+  "after": [
+   "capturas-despues/C-cfg-movil.png",
+   "capturas-despues/C-cfg-movil-lista.png"
+  ],
+  "change": "La lista y la sección se turnan; la sección usa todo el ancho en vez de 105 px."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CFG-06 · CG-17",
+  "title": "Usuario restringido",
+  "before": "capturas/C-restringido.png",
+  "after": [
+   "capturas-despues/C-restringido.png",
+   "capturas-despues/Y-restringido-accounting.png"
+  ],
+  "change": "Solo ve lo que puede abrir (8 secciones en vez de 17) y una sección pedida por enlace dice que no está disponible para su rol."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CFG-03",
+  "title": "Perfil de la empresa",
+  "before": "capturas/C-perfil-guardar-deshabilitado.png",
+  "after": [
+   "capturas-despues/config/05-profile-pliegue.png"
+  ],
+  "change": "La barra de guardado dice qué falta para poder guardar en lugar de un botón gris sin explicación."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CG-02 · CG-25",
+  "title": "Preferencias y marca",
+  "before": "capturas/config/07-personalizacion-p1.png",
+  "after": [
+   "capturas-despues/config/03-preferences-pliegue.png",
+   "capturas-despues/config/07-branding-pliegue.png"
+  ],
+  "change": "Preferencias personales (inmediatas) separadas de la marca de la empresa (guardada en el servidor para todos). La opción elegida se ve en tema claro."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CG-04 · CG-15 · CG-19",
+  "title": "Numeración de documentos",
+  "before": "capturas/config/16-secuencias-p1.png",
+  "after": [
+   "capturas-despues/C-secuencias-cambio.png",
+   "capturas-despues/C-secuencias-confirmar.png"
+  ],
+  "change": "Un nombre que coincide con su contenido, un solo guardado en vez de cinco y confirmación con el antes y el después de cada serie."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CG-05 · CG-29",
+  "title": "Seguridad y pista de auditoría",
+  "before": "capturas/config/21-seguridad-y-auditoria-p2.png",
+  "after": [
+   "capturas-despues/21-politica-seguridad.png",
+   "capturas-despues/21-pista-auditoria.png"
+  ],
+  "change": "Política y pista como secciones distintas. La pista nombra el registro, oculta por defecto el trabajo del sistema, prescinde de la IP vacía y escribe las fechas en el formato del lector."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CFG-07 · CG-18",
+  "title": "SSO sin pedir contraseña para mirar",
+  "before": "capturas/config/24-sso-stepup.png",
+  "after": [
+   "capturas-despues/config/16-sso-pliegue.png"
+  ],
+  "change": "La verificación de seguridad se pide al cambiar, no al abrir. El requisito de dominio se muestra como aviso informativo, no en verde de éxito."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CG-12 · CG-18",
+  "title": "Integraciones",
+  "before": "capturas/config/22-integraciones-p1.png",
+  "after": [
+   "capturas-despues/config/17-integrations-pliegue.png"
+  ],
+  "change": "La tarjeta SSO ya no dice «Sin acceso» al administrador y los bloques tienen separación."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CG-15 · CG-22",
+  "title": "Inteligencia artificial",
+  "before": "capturas/config/25-inteligencia-artificial-p1.png",
+  "after": [
+   "capturas-despues/config/18-ai-pliegue.png"
+  ],
+  "change": "Lo que la empresa permite va primero y dice que se guarda solo. Activar el envío de datos pide confirmación. Los trabajos que el motor no toma caducan y se explican."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CG-21",
+  "title": "Extensiones",
+  "before": "capturas/config/26-extensiones-p1.png",
+  "after": [
+   "capturas-despues/config/19-extensions-pliegue.png"
+  ],
+  "change": "Sin título duplicado, el estado vacío dice dónde registrar («debajo de esta lista») y el aislamiento explica para qué sirve."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CG-26 · CG-31",
+  "title": "Roles y permisos",
+  "before": "capturas/config/20-roles-y-permisos-p1.png",
+  "after": [
+   "capturas-despues/config/13-roles-pliegue.png"
+  ],
+  "change": "Las líneas de la tabla son continuas y los botones bloqueados dicen por qué («los roles del sistema no se editan: duplícalo»)."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CG-27",
+  "title": "Usuarios",
+  "before": "capturas/config/19-usuarios-p1.png",
+  "after": [
+   "capturas-despues/config/12-users-pliegue.png"
+  ],
+  "change": "El rol se lee «Administrador», no «ADMINISTRATOR»."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CG-28",
+  "title": "Correo saliente",
+  "before": "capturas/config/23-correo-saliente-p1.png",
+  "after": [
+   "capturas-despues/config/10-smtp-pliegue.png"
+  ],
+  "change": "«Las respuestas no llegarán a nadie» aparece como advertencia, no como texto normal."
+ },
+ {
+  "area": "Configuración",
+  "codes": "CG-05 · CG-13",
+  "title": "Retenciones",
+  "before": "capturas/config/14-retenciones-p1.png",
+  "after": [
+   "capturas-despues/config/23-withholding-regimes-pliegue.png"
+  ],
+  "change": "La matriz de cobertura del producto va plegada al pie, como en Comprobantes fiscales, y el estado vacío es el común."
+ },
+ {
+  "area": "Formato regional (nuevo)",
+  "codes": "Pedido",
+  "title": "Fechas, separadores decimales y hora",
+  "before": "capturas/config/07-personalizacion-p1.png",
+  "after": [
+   "capturas-despues/R-formato-empresa.png",
+   "capturas-despues/R-preferencias-formato-elegido.png",
+   "capturas-despues/R-existencias-con-formato.png"
+  ],
+  "change": "No existía. Ahora la empresa fija un formato para todos y cada persona puede elegir el suyo: orden y separador de fecha, miles y decimales, reloj y primer día de la semana, con vista previa. Se aplica al mostrar y al escribir en toda la aplicación y en las facturas."
+ },
+ {
+  "area": "POS",
+  "codes": "POS-01 · POS-02 · POS-04",
+  "title": "Ajustes de la caja",
+  "before": "capturas/92-pos-ajustes-invalido.png",
+  "after": [
+   "capturas-despues/92-pos-ajustes-invalido.png"
+  ],
+  "change": "El identificador inválido dice por qué bajo el campo, los atajos están en su propio diálogo (F1) y se aclara que los ajustes son de este equipo."
+ },
+ {
+  "area": "POS",
+  "codes": "POS-03",
+  "title": "Caja predeterminada",
+  "before": "capturas/90-pos-terminal.png",
+  "after": [
+   "capturas-despues/90-pos-terminal.png"
+  ],
+  "change": "«Caja principal» en lugar de «Caja main»; el identificador guardado no cambia y los turnos existentes siguen asociados."
+ }
+]

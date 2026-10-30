@@ -211,6 +211,28 @@ describeWithDb('audit adjustments to a closed year', () => {
     expect(await signedBalance('payable')).toBe(-25_000);
   });
 
+  it('posts into a year closed the way the year-end close leaves it: every module closed too', async () => {
+    // The year-end close closes the period AND each module's window (GL, AP, AR, inventory). The
+    // ledger's own window was then checked and refused — «the GL module is closed for December» —
+    // so every real proposal failed, with a 500, in the only situation the feature exists for.
+    await dataSource.getRepository(AccountingPeriod).update(
+      { organizationId },
+      {
+        status: PeriodStatus.CLOSED,
+        generalLedgerStatus: PeriodStatus.CLOSED,
+        accountsPayableStatus: PeriodStatus.CLOSED,
+        accountsReceivableStatus: PeriodStatus.CLOSED,
+        inventoryStatus: PeriodStatus.CLOSED,
+      },
+    );
+    const entry = await propose([
+      { accountId: account['expense'], debit: 1_250.5 },
+      { accountId: account['payable'], credit: 1_250.5 },
+    ]);
+    expect(entry.entryType).toBe(JournalEntryType.AUDIT_ADJUSTMENT);
+    expect(await signedBalance('payable')).toBe(-1_250.5);
+  });
+
   it('carries the adjustment through to retained earnings', async () => {
     await propose([
       { accountId: account['expense'], debit: 25_000 },

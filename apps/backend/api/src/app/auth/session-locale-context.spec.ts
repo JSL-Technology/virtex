@@ -16,10 +16,10 @@ import { TenantCurrencyPort } from '../i18n/ports/tenant-currency.port';
 describe('LocaleInterceptor', () => {
   const http = { getType: () => 'http', switchToHttp: () => ({ getRequest: () => ({}) }) } as unknown as ExecutionContext;
 
-  const user = (organization: Record<string, unknown>) =>
+  const user = (organization: Record<string, unknown>, extra: Record<string, unknown> = {}) =>
     plainToInstance(
       UserResponseDto,
-      { id: 'u-1', email: 'a@b.test', organization },
+      { id: 'u-1', email: 'a@b.test', organization, ...extra },
       { excludeExtraneousValues: true },
     );
 
@@ -29,7 +29,10 @@ describe('LocaleInterceptor', () => {
     return firstValueFrom(interceptor.intercept(http, handler));
   }
 
-  const dop: TenantCurrencyPort = { functionalCurrency: jest.fn(async () => 'DOP') };
+  const dop: TenantCurrencyPort = {
+    functionalCurrency: jest.fn(async () => 'DOP'),
+    regionalFormat: jest.fn(async () => null),
+  };
 
   beforeEach(() => jest.clearAllMocks());
 
@@ -54,11 +57,39 @@ describe('LocaleInterceptor', () => {
   });
 
   it('still serves the session when the currency cannot be read', async () => {
-    const failing: TenantCurrencyPort = { functionalCurrency: jest.fn(async () => { throw new Error('db down'); }) };
+    const failing: TenantCurrencyPort = {
+      functionalCurrency: jest.fn(async () => { throw new Error('db down'); }),
+      regionalFormat: jest.fn(async () => { throw new Error('db down'); }),
+    };
     const dto = user({ id: 'org-1', legalName: 'A', slug: 'a' });
     await run({ user: dto }, failing);
 
     expect(dto.localeContext?.currency).toBe('USD');
+    expect(dto.localeContext?.companyFormat).toBeNull();
+  });
+
+  it('carries the company’s format and the person’s own over it, field by field', async () => {
+    const port: TenantCurrencyPort = {
+      functionalCurrency: jest.fn(async () => 'DOP'),
+      regionalFormat: jest.fn(async () => ({ numberFormat: 'dot_comma' as const, firstDayOfWeek: 1 as const })),
+    };
+    const dto = user({ id: 'org-1', legalName: 'A', slug: 'a', country: 'do' }, { regionalFormat: { dateOrder: 'YMD', firstDayOfWeek: 0 } });
+    await run(dto, port);
+
+    expect(dto.localeContext).toEqual(
+      expect.objectContaining({
+        companyFormat: { numberFormat: 'dot_comma', firstDayOfWeek: 1 },
+        personalFormat: { dateOrder: 'YMD', firstDayOfWeek: 0 },
+        // The person's week, not the company's.
+        firstDayOfWeek: 0,
+      }),
+    );
+  });
+
+  it('drops a stored value it does not know instead of handing it to a formatter', async () => {
+    const dto = user({ id: 'org-1', legalName: 'A', slug: 'a' }, { regionalFormat: { numberFormat: 'semicolon', timeFormat: 'h12' } });
+    await run(dto, dop);
+    expect(dto.localeContext?.personalFormat).toEqual({ timeFormat: 'h12' });
   });
 
   it('does not take free text for a country', async () => {

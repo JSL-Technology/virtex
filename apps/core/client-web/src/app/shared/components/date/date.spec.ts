@@ -2,7 +2,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { LocaleStore, TranslateModule } from '@virteex/shared/ui-i18n';
 import { VX_DATE, dateOrder, toCalendarDate } from './index';
 
 @Component({
@@ -31,19 +31,33 @@ class FormHost {
   });
 }
 
+/** A Dominican company: dates read day first, whatever the browser running the tests says. */
+function dominican(format: { dateOrder?: 'DMY' | 'MDY' | 'YMD'; dateSeparator?: '/' | '-' | '.' } | null = null): void {
+  const store = TestBed.inject(LocaleStore);
+  store.setLanguage('es');
+  store.setTenantContext({
+    language: 'es', locale: 'es-DO', direction: 'ltr', countryCode: 'DO', currency: 'DOP',
+    timezone: 'America/Santo_Domingo', booksLanguage: 'es', firstDayOfWeek: 0, personalFormat: format,
+  });
+}
+
+const textInputs = (root: HTMLElement): HTMLInputElement[] => Array.from(root.querySelectorAll('input.vx-date-field__input'));
+const nativeInputs = (root: HTMLElement): HTMLInputElement[] => Array.from(root.querySelectorAll('input[type="date"]'));
+
 describe('campos de fecha', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   describe('vx-date-range', () => {
     function build() {
       TestBed.configureTestingModule({ providers: [provideTranslateService()], imports: [RangeHost] });
+      dominican();
       const fixture = TestBed.createComponent(RangeHost);
       fixture.detectChanges();
       return fixture;
     }
 
     function inputs(fixture: ReturnType<typeof build>): HTMLInputElement[] {
-      return Array.from(fixture.nativeElement.querySelectorAll('input[type="date"]'));
+      return textInputs(fixture.nativeElement);
     }
 
     function type(fixture: ReturnType<typeof build>, index: number, value: string): void {
@@ -56,11 +70,11 @@ describe('campos de fecha', () => {
     it('acota cada extremo con el otro', () => {
       //  Las quince páginas que emparejan dos fechas tenían CERO `min` y CERO `max` entre todas.
       const fixture = build();
-      type(fixture, 0, '2026-03-01');
-      expect(inputs(fixture)[1].getAttribute('min')).toBe('2026-03-01');
+      type(fixture, 0, '01/03/2026');
+      expect(nativeInputs(fixture.nativeElement)[1].getAttribute('min')).toBe('2026-03-01');
 
-      type(fixture, 1, '2026-03-31');
-      expect(inputs(fixture)[0].getAttribute('max')).toBe('2026-03-31');
+      type(fixture, 1, '31/03/2026');
+      expect(nativeInputs(fixture.nativeElement)[0].getAttribute('max')).toBe('2026-03-31');
     });
 
     it('dice que el rango está invertido en vez de devolver un informe vacío', () => {
@@ -93,27 +107,63 @@ describe('campos de fecha', () => {
   describe('vx-date-field dentro de un formulario', () => {
     function build() {
       TestBed.configureTestingModule({ providers: [provideTranslateService()], imports: [FormHost] });
+      dominican();
       const fixture = TestBed.createComponent(FormHost);
       fixture.detectChanges();
       return fixture;
     }
 
-    it('funciona como control nativo', () => {
+    it('muestra y lee la fecha en el formato de la empresa, y guarda el día ISO', () => {
       const fixture = build();
-      const input = fixture.nativeElement.querySelector('input[type="date"]') as HTMLInputElement;
+      const input = textInputs(fixture.nativeElement)[0];
 
       fixture.componentInstance.form.patchValue({ issueDate: '2026-02-14' });
       fixture.detectChanges();
-      expect(input.value).toBe('2026-02-14');
+      expect(input.value).toBe('14/02/2026');
 
-      input.value = '2026-02-20';
+      input.value = '20/2/2026';
       input.dispatchEvent(new Event('input'));
       expect(fixture.componentInstance.form.get('issueDate')?.value).toBe('2026-02-20');
+      input.dispatchEvent(new Event('blur'));
+      fixture.detectChanges();
+      expect(input.value).toBe('20/02/2026');
+    });
+
+    it('sigue el orden que la persona eligió, también al escribir', () => {
+      const fixture = build();
+      TestBed.inject(LocaleStore).setPersonalFormat({ dateOrder: 'YMD', dateSeparator: '-' });
+      fixture.componentInstance.form.patchValue({ issueDate: '2026-02-14' });
+      fixture.detectChanges();
+      const input = textInputs(fixture.nativeElement)[0];
+      expect(input.value).toBe('2026-02-14');
+    });
+
+    it('dice que no entiende una fecha imposible y deja el valor vacío, sin pasarla a marzo', () => {
+      const fixture = build();
+      const input = textInputs(fixture.nativeElement)[0];
+      input.value = '31/02/2026';
+      input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new Event('blur'));
+      fixture.detectChanges();
+      expect(fixture.componentInstance.form.get('issueDate')?.value).toBeNull();
+      expect(input.value).toBe('31/02/2026');
+      expect(input.getAttribute('aria-invalid')).toBe('true');
+      expect(fixture.nativeElement.querySelector('.vx-date-field__problem')).not.toBeNull();
+    });
+
+    it('toma la fecha del calendario de la plataforma', () => {
+      const fixture = build();
+      const native = nativeInputs(fixture.nativeElement)[0];
+      native.value = '2026-07-04';
+      native.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+      expect(fixture.componentInstance.form.get('issueDate')?.value).toBe('2026-07-04');
+      expect(textInputs(fixture.nativeElement)[0].value).toBe('04/07/2026');
     });
 
     it('marca el campo inválido sobre el input, no sobre el envoltorio', () => {
       const fixture = build();
-      const input = fixture.nativeElement.querySelector('input[type="date"]') as HTMLInputElement;
+      const input = textInputs(fixture.nativeElement)[0];
       expect(input.getAttribute('aria-invalid')).toBeNull();
 
       fixture.componentInstance.form.get('issueDate')?.markAsTouched();
@@ -126,7 +176,7 @@ describe('campos de fecha', () => {
       fixture.componentInstance.form.disable();
       fixture.detectChanges();
       expect(
-        (fixture.nativeElement.querySelector('input[type="date"]') as HTMLInputElement).disabled,
+        textInputs(fixture.nativeElement)[0].disabled,
       ).toBe(true);
     });
   });

@@ -1,8 +1,4 @@
-<div class="s-page">
-  <div class="s-header">
-    <h1 class="s-header__title">{{ 'ai.admin.title' | translate }}</h1>
-    <p class="s-header__subtitle">{{ 'ai.admin.subtitle' | translate }}</p>
-  </div>
+<div class="ai-admin">
 
   @if (loadError()) {
     <div class="ai-admin__error" role="alert">
@@ -10,6 +6,10 @@
       <button type="button" class="btn-secondary" (click)="load()">{{ 'common.retry' | translate }}</button>
     </div>
   } @else if (overview(); as o) {
+    <!-- The settings first: what the company allows (changed with ai_settings:manage) and its agents. -->
+    <app-ai-policy-panel class="ai-admin__section" />
+    <app-ai-agents-panel class="ai-admin__section" />
+
     <section class="ai-admin__section" aria-labelledby="ai-availability">
       <h2 id="ai-availability" class="ai-admin__heading">{{ 'ai.admin.availability' | translate }}</h2>
       <ul class="ai-admin__features">
@@ -79,20 +79,29 @@
       }
     </section>
 
-    <section class="ai-admin__section" aria-labelledby="ai-runs">
-      <h2 id="ai-runs" class="ai-admin__heading">{{ 'ai.admin.runs' | translate }}</h2>
+    <!--
+      The engine's state is operations, not a setting: it sits last, folded, and says in words what a
+      run is waiting for or why it was given up on, instead of «En cola» beside a disabled «En curso…».
+    -->
+    <details class="ai-admin__section ai-admin__ops" [open]="anyRunNeedsAttention()">
+      <summary class="ai-admin__heading" id="ai-runs">{{ 'ai.admin.runs' | translate }}</summary>
+      <p class="ai-admin__muted">{{ 'ai.admin.runs_intro' | translate }}</p>
       <div class="ai-admin__runs">
-        @for (kind of ['forecast', 'anomaly']; track kind) {
-          @let r = runOf($any(kind));
+        @for (kind of runKinds; track kind) {
+          @let r = runOf(kind);
           <article class="ai-admin__run">
             <h3 class="ai-admin__run-title">{{ k('ai.admin.run_kind', kind) | translate }}</h3>
             @if (r.latest; as latest) {
               <p>
-                {{ k('ai.admin.run_status', latest.status) | translate }}
-                · {{ (latest.finishedAt ?? latest.createdAt) | vxDate: 'medium' }}
+                <span [class]="'ai-admin__state ai-admin__state--run-' + latest.status.toLowerCase()">{{ k('ai.admin.run_status', latest.status) | translate }}</span>
+                · {{ (latest.finishedAt ?? latest.startedAt ?? latest.createdAt) | vxDate: 'dateTime' }}
               </p>
-              @if (latest.error && latest.status === 'FAILED') {
-                <p class="ai-admin__error-text">{{ latest.error }}</p>
+              @if (latest.status === 'QUEUED') {
+                <p class="ai-admin__muted">{{ 'ai.admin.run_waiting' | translate }}</p>
+              } @else if (latest.status === 'RUNNING') {
+                <p class="ai-admin__muted">{{ 'ai.admin.run_working' | translate }}</p>
+              } @else if (latest.status === 'FAILED') {
+                <p class="ai-admin__error-text">{{ failureKey(latest) | translate: { detail: latest.error ?? '' } }}</p>
               }
             } @else {
               <p class="ai-admin__muted">{{ 'ai.admin.never_ran' | translate }}</p>
@@ -113,18 +122,21 @@
                 }
               </dl>
             }
-            <button type="button" class="btn-secondary"
-                    *appHasPermission="kind === 'forecast' ? 'ai_forecasts:run' : 'ai_anomalies:resolve'"
-                    [disabled]="isActive(r.latest) || starting() !== null" (click)="run($any(kind))">
-              {{ (isActive(r.latest) ? 'ai.admin.running' : 'ai.admin.run_now') | translate }}
-            </button>
+            <div class="ai-admin__run-actions">
+              <button type="button" class="btn-secondary"
+                      *appHasPermission="kind === 'forecast' ? 'ai_forecasts:run' : 'ai_anomalies:resolve'"
+                      [disabled]="isActive(r.latest) || starting() !== null" (click)="run(kind)">
+                {{ (isActive(r.latest) ? 'ai.admin.running' : (r.latest?.status === 'FAILED' ? 'ai.admin.run_again' : 'ai.admin.run_now')) | translate }}
+              </button>
+              @if (isActive(r.latest)) {
+                <button type="button" class="ai-admin__link" (click)="load()">{{ 'ai.admin.refresh' | translate }}</button>
+              }
+            </div>
           </article>
         }
       </div>
-    </section>
 
-    <section class="ai-admin__section" aria-labelledby="ai-pending">
-      <h2 id="ai-pending" class="ai-admin__heading">{{ 'ai.admin.pending' | translate }}</h2>
+      <h3 class="ai-admin__run-title" id="ai-pending">{{ 'ai.admin.pending' | translate }}</h3>
       <ul class="ai-admin__pending">
         <li>
           <a [routerLink]="predictionsLink()">{{ 'ai.admin.pending_stockouts' | translate: { count: o.pending.stockoutRisks } }}</a>
@@ -135,12 +147,7 @@
           </a>
         </li>
       </ul>
-    </section>
-
-    <!-- What the company allows: changed with ai_settings:manage, read by everyone here. -->
-    <app-ai-policy-panel class="ai-admin__section" />
-    <!-- Turning an agent on and bounding it is the AI administrator's; seeing its log is everyone's here. -->
-    <app-ai-agents-panel class="ai-admin__section" />
+    </details>
   } @else {
     <p class="ai-admin__muted" role="status">{{ 'common.loading' | translate }}</p>
   }
