@@ -32,6 +32,7 @@
     [attr.aria-invalid]="controlInvalid() ? 'true' : null"
     [disabled]="isDisabled()"
     [value]="text()"
+    [attr.title]="text() || null"
     [attr.placeholder]="placeholderKey() | translate"
     (input)="onInput($event)"
     (keydown)="onKeydown($event)"
@@ -137,6 +138,7 @@
                   [class.is-selected]="isSelected(option)"
                   [class.is-disabled]="isOptionDisabled(option)"
                   [style.height.px]="rowHeight()"
+                  [attr.title]="displayWith()(option)"
                   (click)="selectOption(option)"
                   (mouseenter)="activeIndex.set(i)"
                 >

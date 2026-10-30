@@ -42,6 +42,8 @@ export class SigningCertificateCardComponent {
   private readonly notifications = inject(NotificationService);
 
   readonly context = input<InvoicingContext | null>(null);
+  /** Shown, not changeable: the reader may see the fiscal set-up without `taxes:edit`. */
+  readonly readonly = input(false);
   /** A certificate was loaded or switched off: readiness should be read again. */
   readonly changed = output<void>();
 

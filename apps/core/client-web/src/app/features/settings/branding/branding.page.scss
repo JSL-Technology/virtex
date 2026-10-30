@@ -76,8 +76,10 @@
   gap: var(--space-4);
 }
 
+.form-field .switch-field,
 .switch-field {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: var(--space-2);
   font-size: var(--text-sm);

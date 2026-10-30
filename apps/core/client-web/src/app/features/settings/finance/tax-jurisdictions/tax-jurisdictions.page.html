@@ -7,7 +7,7 @@
   -->
   <p class="s-note">{{ 'settings.pages.tax_jurisdictions.nexus_note' | translate }}</p>
 
-  <ng-template vxSettingsActions>
+  <ng-template appSettingsActions>
     @if (canEdit()) {
     <button [class]="showForm() ? 'secondary-button' : 'primary-button'" type="button" (click)="toggleForm()" [attr.aria-expanded]="showForm()">
       {{ (showForm() ? 'settings.pages.tax_jurisdictions.cancel' : 'settings.pages.tax_jurisdictions.add') | translate }}

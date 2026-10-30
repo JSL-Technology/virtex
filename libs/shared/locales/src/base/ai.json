@@ -194,16 +194,6 @@
     "en": "The server has no AI provider configured",
     "pt": "O servidor não tem o provedor de IA configurado"
   },
-  "ai.admin.subtitle": {
-    "es": "Qué hace la IA por la empresa, cuánto ha usado este mes y cuánto ha costado.",
-    "en": "What the AI does for the company, how much it has used this month and what it has cost.",
-    "pt": "O que a IA faz pela empresa, quanto usou neste mês e quanto custou."
-  },
-  "ai.admin.title": {
-    "es": "Inteligencia artificial",
-    "en": "Artificial intelligence",
-    "pt": "Inteligência artificial"
-  },
   "ai.admin.total_cost": {
     "es": "Total estimado",
     "en": "Estimated total",

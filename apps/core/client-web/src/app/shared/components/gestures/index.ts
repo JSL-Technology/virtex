@@ -8,7 +8,7 @@
 export { ListShellComponent } from './list-shell.component';
 export { DocumentShellComponent, type DocumentTone } from './document-shell.component';
 export { DraftShellComponent, type DraftProblem } from './draft-shell.component';
-export { draftProblems, problemForControl } from './draft-validation';
+export { draftProblems, lineMessage, problemForControl } from './draft-validation';
 export {
   InboxShellComponent,
   type InboxItem,

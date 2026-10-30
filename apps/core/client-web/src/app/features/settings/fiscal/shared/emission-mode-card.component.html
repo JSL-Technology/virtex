@@ -1,4 +1,6 @@
 @if (hasTypes()) {
+  <!-- Read only without the edit permission: every control in the card at once. -->
+  <fieldset class="fx-readonly" [disabled]="readonly()">
   <section class="card" aria-labelledby="emission-mode-title">
     <div class="card__head">
       @if (applies()) {
@@ -53,4 +55,5 @@
       }
     </div>
   </section>
+  </fieldset>
 }

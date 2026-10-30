@@ -1,5 +1,5 @@
 <div class="page-container">
-  <ng-template vxSettingsActions>
+  <ng-template appSettingsActions>
     <button class="primary-button" type="button" (click)="openRoleModal()" *appHasPermission="'roles:create'">
       <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
       <span>{{ 'settings.roles.create_role' | translate }}</span>

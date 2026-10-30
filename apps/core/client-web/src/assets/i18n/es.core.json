@@ -587,6 +587,7 @@
   "shell.problem_minlength": "«{{field}}» necesita al menos {{min}} caracteres",
   "shell.problem_minlength_line": "«{{field}}» necesita al menos {{min}} caracteres (línea {{line}})",
   "shell.problem_number": "«{{field}}» no es un número. Escríbelo como {{example}}.",
+  "shell.problem_number_line": "«{{field}}» no es un número; escríbelo como {{example}} (línea {{line}})",
   "shell.problem_required": "«{{field}}» es obligatorio",
   "shell.problem_required_line": "«{{field}}» es obligatorio (línea {{line}})",
   "shell.problems": "Revisa {{count}} punto(s) antes de guardar",

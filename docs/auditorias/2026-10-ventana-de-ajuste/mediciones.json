@@ -13,12 +13,12 @@
   },
   {
    "q": "label span, label, .form-group label",
-   "font": "Inter 14px/400",
+   "font": "Inter 13px/500",
    "color": "rgb(74, 82, 102)",
    "bg": "rgba(0, 0, 0, 0)",
    "border": "rgb(74, 82, 102) 0px",
    "radius": "0px",
-   "h": 70,
+   "h": 20,
    "w": 256,
    "pad": "0px"
   },
@@ -27,11 +27,11 @@
    "font": "Inter 14px/400",
    "color": "rgb(17, 21, 29)",
    "bg": "rgb(255, 255, 255)",
-   "border": "rgb(98, 105, 128) 1px",
+   "border": "rgb(127, 135, 148) 1px",
    "radius": "6px",
    "h": 36,
-   "w": 1070,
-   "pad": "1px 12px"
+   "w": 256,
+   "pad": "1px 36px 1px 12px"
   },
   {
    "q": "select",
@@ -73,8 +73,8 @@
    "bg": "rgba(0, 0, 0, 0)",
    "border": "rgb(74, 82, 102) 0px",
    "radius": "0px",
-   "h": 50,
-   "w": 283,
+   "h": 32,
+   "w": 288,
    "pad": "6.4px 8px"
   },
   {
@@ -85,7 +85,7 @@
    "border": "rgb(17, 21, 29) 0px",
    "radius": "0px",
    "h": 50,
-   "w": 283,
+   "w": 288,
    "pad": "6.4px 8px"
   },
   {
@@ -99,17 +99,7 @@
    "w": 1070,
    "pad": "0px"
   },
-  {
-   "q": "input[type=number]",
-   "font": "Inter 14px/400",
-   "color": "rgb(17, 21, 29)",
-   "bg": "rgb(255, 255, 255)",
-   "border": "rgb(127, 135, 148) 1px",
-   "radius": "6px",
-   "h": 36,
-   "w": 147,
-   "pad": "1px 12px"
-  },
+  null,
   {
    "q": ".form-hint, small.hint",
    "font": "Inter 13px/400",
@@ -117,7 +107,7 @@
    "bg": "rgba(0, 0, 0, 0)",
    "border": "rgb(74, 82, 102) 0px",
    "radius": "0px",
-   "h": 20,
+   "h": 40,
    "w": 1070,
    "pad": "0px"
   }
@@ -149,12 +139,12 @@
    "q": "input[type=text], input:not([type])",
    "font": "Inter 14px/400",
    "color": "rgb(17, 21, 29)",
-   "bg": "rgba(0, 0, 0, 0)",
-   "border": "rgb(17, 21, 29) 0px",
+   "bg": "rgb(255, 255, 255)",
+   "border": "rgb(127, 135, 148) 1px",
    "radius": "6px",
-   "h": 34,
-   "w": 381,
-   "pad": "0px"
+   "h": 36,
+   "w": 256,
+   "pad": "1px 36px 1px 12px"
   },
   {
    "q": "select",
@@ -222,17 +212,7 @@
    "w": 1070,
    "pad": "0px"
   },
-  {
-   "q": "input[type=number]",
-   "font": "Inter 14px/400",
-   "color": "rgb(17, 21, 29)",
-   "bg": "rgb(255, 255, 255)",
-   "border": "rgb(127, 135, 148) 1px",
-   "radius": "6px",
-   "h": 36,
-   "w": 383,
-   "pad": "1px 12px"
-  },
+  null,
   null
  ],
  "ajuste_auditoria": [
@@ -249,13 +229,13 @@
   },
   {
    "q": "label span, label, .form-group label",
-   "font": "Inter 14px/400",
+   "font": "Inter 13px/500",
    "color": "rgb(74, 82, 102)",
    "bg": "rgba(0, 0, 0, 0)",
    "border": "rgb(74, 82, 102) 0px",
    "radius": "0px",
-   "h": 17,
-   "w": 56,
+   "h": 20,
+   "w": 256,
    "pad": "0px"
   },
   {
@@ -263,7 +243,7 @@
    "font": "Inter 14px/400",
    "color": "rgb(17, 21, 29)",
    "bg": "rgb(255, 255, 255)",
-   "border": "rgb(98, 105, 128) 1px",
+   "border": "rgb(127, 135, 148) 1px",
    "radius": "6px",
    "h": 36,
    "w": 1070,
@@ -277,7 +257,7 @@
    "border": "rgb(127, 135, 148) 1px",
    "radius": "6px",
    "h": 36,
-   "w": 527,
+   "w": 256,
    "pad": "0px 12px"
   },
   {
@@ -304,14 +284,14 @@
   },
   {
    "q": "th",
-   "font": "Inter 14px/700",
-   "color": "rgb(17, 21, 29)",
+   "font": "Inter 12px/700",
+   "color": "rgb(74, 82, 102)",
    "bg": "rgba(0, 0, 0, 0)",
-   "border": "rgb(17, 21, 29) 0px",
+   "border": "rgb(74, 82, 102) 0px",
    "radius": "0px",
-   "h": 24,
-   "w": 286,
-   "pad": "1px"
+   "h": 32,
+   "w": 384,
+   "pad": "6.4px 8px"
   },
   {
    "q": "td",
@@ -320,31 +300,31 @@
    "bg": "rgba(0, 0, 0, 0)",
    "border": "rgb(17, 21, 29) 0px",
    "radius": "0px",
-   "h": 38,
-   "w": 286,
-   "pad": "1px"
+   "h": 50,
+   "w": 384,
+   "pad": "6.4px 8px"
+  },
+  {
+   "q": ".form-section-title, h2",
+   "font": "Inter 17px/600",
+   "color": "rgb(17, 21, 29)",
+   "bg": "rgba(0, 0, 0, 0)",
+   "border": "rgb(17, 21, 29) 0px",
+   "radius": "0px",
+   "h": 21,
+   "w": 1070,
+   "pad": "0px"
   },
   null,
   {
-   "q": "input[type=number]",
-   "font": "Inter 14px/400",
-   "color": "rgb(17, 21, 29)",
-   "bg": "rgb(255, 255, 255)",
-   "border": "rgb(127, 135, 148) 1px",
-   "radius": "6px",
-   "h": 36,
-   "w": 240,
-   "pad": "1px 12px"
-  },
-  {
    "q": ".form-hint, small.hint",
-   "font": "Inter 12px/400",
-   "color": "rgb(98, 105, 128)",
+   "font": "Inter 13px/400",
+   "color": "rgb(74, 82, 102)",
    "bg": "rgba(0, 0, 0, 0)",
-   "border": "rgb(98, 105, 128) 0px",
+   "border": "rgb(74, 82, 102) 0px",
    "radius": "0px",
-   "h": 15,
-   "w": 433,
+   "h": 20,
+   "w": 1070,
    "pad": "0px"
   }
  ],
@@ -376,11 +356,11 @@
    "font": "Inter 14px/400",
    "color": "rgb(17, 21, 29)",
    "bg": "rgb(255, 255, 255)",
-   "border": "rgb(98, 105, 128) 1px",
+   "border": "rgb(127, 135, 148) 1px",
    "radius": "6px",
    "h": 36,
-   "w": 1028,
-   "pad": "1px 12px"
+   "w": 245,
+   "pad": "1px 36px 1px 12px"
   },
   {
    "q": "select",
@@ -438,17 +418,7 @@
    "pad": "12px 16px"
   },
   null,
-  {
-   "q": "input[type=number]",
-   "font": "Inter 13px/400",
-   "color": "rgb(17, 21, 29)",
-   "bg": "rgb(255, 255, 255)",
-   "border": "rgb(127, 135, 148) 1px",
-   "radius": "6px",
-   "h": 36,
-   "w": 194,
-   "pad": "1px 12px"
-  },
+  null,
   null
  ],
  "producto": [
@@ -531,17 +501,7 @@
    "w": 428,
    "pad": "0px"
   },
-  {
-   "q": "input[type=number]",
-   "font": "Inter 14px/400",
-   "color": "rgb(17, 21, 29)",
-   "bg": "rgb(255, 255, 255)",
-   "border": "rgb(127, 135, 148) 1px",
-   "radius": "6px",
-   "h": 36,
-   "w": 206,
-   "pad": "1px 12px"
-  },
+  null,
   null
  ]
 }

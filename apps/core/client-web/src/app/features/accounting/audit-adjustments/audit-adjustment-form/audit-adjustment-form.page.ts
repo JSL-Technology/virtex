@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2, CheckCircle2, AlertTriangle } from 'lucide-angular';
 import { Observable, catchError, map, of } from 'rxjs';
 
-import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
+import { DraftShellComponent, DraftProblem, draftProblems, lineMessage } from '../../../../shared/components/gestures';
 import { VxFieldErrorComponent } from '../../../../shared/components/field-error';
 import { DraftAutosave } from '../../../../shared/forms/draft-autosave';
 import { NotificationService } from '../../../../core/services/notification';
@@ -314,7 +314,7 @@ export class AuditAdjustmentFormPage implements OnInit {
       const match = /^lines\.(\d+)\.(\w+)$/.exec(problem.fieldId ?? '');
       if (!match) return { ...problem, fieldId: this.fieldIdOf(problem.fieldId) };
       const index = Number(match[1]);
-      return { ...problem, message: `${problem.message}_line`, fieldId: this.lineFieldId(index, match[2]), params: { ...problem.params, line: index + 1 } };
+      return { ...problem, message: lineMessage(problem.message), fieldId: this.lineFieldId(index, match[2]), params: { ...problem.params, line: index + 1 } };
     });
     this.lines.controls.forEach((line, index) => {
       if (line.hasError('oneSide')) {

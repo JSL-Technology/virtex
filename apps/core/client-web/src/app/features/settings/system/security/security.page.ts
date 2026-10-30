@@ -239,12 +239,19 @@ export class SecuritySettingsPage implements OnInit {
     this.expanded.update((id) => (id === row.id ? null : row.id));
   }
 
-  /** The entity's name in the reader's language, or the identifier made readable. */
+  /**
+   * The entity's name in the reader's language, or the identifier made readable.
+   *
+   * The trail writes entities two ways — a table (`bank_accounts`) or a class (`BankAccount`) —
+   * so both are brought to snake case before the lookup. A key the catalogue lacks comes back as
+   * itself in production and as `[[key]]` in development; neither may reach the screen.
+   */
   entityName(entity: string): string {
-    const key = `settings.security.entity.${entity.toLowerCase()}`;
+    const snake = entity.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+    const key = `settings.security.entity.${snake}`;
     const label = this.translate.instant(key);
-    if (label !== key) return label;
-    return entity.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
+    if (label && label !== key && label !== `[[${key}]]`) return label;
+    return snake.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
   }
 
   /** The record as a person knows it: its number or name, else its type and a short id. */

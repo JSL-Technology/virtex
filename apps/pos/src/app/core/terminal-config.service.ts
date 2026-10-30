@@ -2,6 +2,13 @@ import { Injectable, signal } from '@angular/core';
 
 const STORAGE_KEY = 'virtex.pos.terminal';
 const AUTO_PRINT_KEY = 'virtex.pos.autoPrint';
+/**
+ * The till a device is until someone names it. An identifier, not a name: it keys the shifts and
+ * sales already recorded under it, so it stays `main`; what the cashier READS is
+ * `pos.terminal_default_label` («Caja principal»), never «Caja main» (POS-03).
+ */
+export const DEFAULT_TERMINAL_ID = 'main';
+
 /** What a terminal id may look like: short, printable, safe on a ticket and in a URL. */
 export const TERMINAL_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$/;
 
@@ -59,6 +66,6 @@ export class TerminalConfigService {
     } catch {
       // Unavailable storage falls back to the default till.
     }
-    return 'main';
+    return DEFAULT_TERMINAL_ID;
   }
 }

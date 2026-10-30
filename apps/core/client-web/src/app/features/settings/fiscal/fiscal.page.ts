@@ -1,3 +1,4 @@
+import { SettingsShellService } from '../shell';
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -55,6 +56,9 @@ interface RangeTypeChoice {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FiscalSettingsPage implements OnInit {
+  /** Whether this person may change the fiscal set-up (`taxes:edit`); read only otherwise. */
+  protected readonly canEdit = inject(SettingsShellService, { optional: true })?.canEdit ?? signal(true);
+
   private fb = inject(FormBuilder);
   private einvoicing = inject(EinvoicingService);
   private invoices = inject(InvoicesService);

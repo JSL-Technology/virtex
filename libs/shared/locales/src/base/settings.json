@@ -129,11 +129,6 @@
     "en": "Add at least one step.",
     "pt": "Adicione pelo menos uma etapa."
   },
-  "settings.approvals.subtitle": {
-    "es": "Quién aprueba qué y a partir de qué monto. Un paso se aplica cuando el monto del documento alcanza su mínimo.",
-    "en": "Who approves what, and from which amount. A step applies when the document's amount reaches its minimum.",
-    "pt": "Quem aprova o quê e a partir de qual valor. Uma etapa se aplica quando o valor do documento atinge o seu mínimo."
-  },
   "settings.billing.amount": {
     "es": "Monto",
     "en": "Amount",
@@ -144,11 +139,6 @@
     "en": "Billing history",
     "pt": "Histórico de faturamento"
   },
-  "settings.billing.billing_plan": {
-    "es": "Facturación y plan",
-    "en": "Billing and plan",
-    "pt": "Faturamento e plano"
-  },
   "settings.billing.change_plan": {
     "es": "Cambiar de plan",
     "en": "Change plan",
@@ -158,11 +148,6 @@
     "es": "Elige tu plan",
     "en": "Choose your plan",
     "pt": "Escolhe o teu plano"
-  },
-  "settings.billing.choose_plan_best_fits_your_organization": {
-    "es": "Selecciona el plan que mejor se adapte a tu organización y gestiona tu suscripción.",
-    "en": "Choose the plan that best fits your organization and manage your subscription.",
-    "pt": "Escolha o plano que melhor se adapta à sua organização e gerencie sua assinatura."
   },
   "settings.billing.choose_plan_prompt": {
     "es": "Selecciona el plan que mejor se adapte a tu organización.",
@@ -354,11 +339,6 @@
     "en": "Accent colour",
     "pt": "Cor de destaque"
   },
-  "settings.branding.appearance_layout": {
-    "es": "Apariencia y diseño",
-    "en": "Appearance and layout",
-    "pt": "Aparência e layout"
-  },
   "settings.branding.comfortable": {
     "es": "Cómoda",
     "en": "Comfortable",
@@ -464,11 +444,6 @@
     "en": "Live preview",
     "pt": "Visualização ao vivo"
   },
-  "settings.branding.logo_colours": {
-    "es": "Logo y colores",
-    "en": "Logo and colours",
-    "pt": "Logotipo e cores"
-  },
   "settings.branding.logo_preview": {
     "es": "Vista previa del logo",
     "en": "Logo preview",
@@ -476,11 +451,6 @@
   },
   "settings.branding.normal": {
     "literal": "Normal"
-  },
-  "settings.branding.save_changes": {
-    "es": "Guardar cambios",
-    "en": "Save changes",
-    "pt": "Salvar alterações"
   },
   "settings.branding.strengthens_borders_secondary_text_works_with": {
     "es": "Refuerza bordes y texto secundario. Compatible con el tema claro y el oscuro.",
@@ -496,11 +466,6 @@
     "es": "Tema",
     "en": "Theme",
     "pt": "Tema"
-  },
-  "settings.branding.title": {
-    "es": "Personalización avanzada",
-    "en": "Advanced customization",
-    "pt": "Personalização avançada"
   },
   "settings.branding.typeface": {
     "es": "Tipografía",
@@ -536,11 +501,6 @@
     "es": "Datos legales y de identificación de la empresa.",
     "en": "The company's legal and identification details.",
     "pt": "Dados legais e de identificação da empresa."
-  },
-  "settings.company_profile.company_profile": {
-    "es": "Perfil de la empresa",
-    "en": "Company profile",
-    "pt": "Perfil da empresa"
   },
   "settings.company_profile.country": {
     "es": "País",
@@ -601,11 +561,6 @@
     "es": "El nombre legal es requerido.",
     "en": "The legal name is required.",
     "pt": "A razão social é obrigatória."
-  },
-  "settings.company_profile.manage_your_organization_legal_contact_information": {
-    "es": "Gestiona la información legal y de contacto de tu organización.",
-    "en": "Manage your organization's legal and contact information.",
-    "pt": "Gerencie as informações legais e de contato da sua organização."
   },
   "settings.company_profile.phone": {
     "es": "Teléfono",
@@ -761,16 +716,6 @@
     "es": "Aún no has registrado rangos de e-NCF.",
     "en": "You have not registered any e-NCF ranges yet.",
     "pt": "Você ainda não registrou faixas de e-NCF."
-  },
-  "settings.fiscal.do.page_description": {
-    "es": "Elige cómo emites tus comprobantes, registra los rangos que te autorizó la DGII y, si emites e-CF, carga tu certificado de firma.",
-    "en": "Choose how you issue your fiscal documents, register the ranges the DGII authorised and, if you issue e-CF, upload your signing certificate.",
-    "pt": "Escolha como você emite seus comprovantes, registre as faixas autorizadas pela DGII e, se emitir e-CF, envie seu certificado de assinatura."
-  },
-  "settings.fiscal.do.page_title": {
-    "es": "Comprobantes fiscales (RD · DGII)",
-    "en": "Fiscal documents (DR · DGII)",
-    "pt": "Comprovantes fiscais (RD · DGII)"
   },
   "settings.fiscal.document_types_load_failed": {
     "es": "No se pudieron cargar los tipos de comprobante de tu país.",
@@ -1152,16 +1097,6 @@
     "en": "You are not allowed to see the state of this integration.",
     "pt": "Você não tem permissão para ver o estado desta integração."
   },
-  "settings.integrations.subtitle": {
-    "es": "Las conexiones de tu empresa con otros sistemas, su estado y dónde se administran.",
-    "en": "Your company's connections to other systems, their state and where they are managed.",
-    "pt": "As conexões da sua empresa com outros sistemas, seu estado e onde são administradas."
-  },
-  "settings.integrations.title": {
-    "es": "Integraciones",
-    "en": "Integrations",
-    "pt": "Integrações"
-  },
   "settings.language.choose": {
     "es": "Elegir idioma",
     "en": "Choose a language",
@@ -1267,11 +1202,6 @@
     "en": "Empty: the company's trade name, or its legal name.",
     "pt": "Vazio: o nome fantasia da empresa, ou sua razão social."
   },
-  "settings.mail.subtitle": {
-    "es": "Cómo aparece tu empresa en las facturas y documentos que envía por correo a sus clientes.",
-    "en": "How your company appears on the invoices and documents it e-mails to its customers.",
-    "pt": "Como sua empresa aparece nas faturas e documentos que envia por e-mail aos clientes."
-  },
   "settings.mail.test_failed": {
     "es": "No se pudo enviar la prueba.",
     "en": "The test could not be sent.",
@@ -1282,170 +1212,15 @@
     "en": "Test sent to {{to}}.",
     "pt": "Teste enviado para {{to}}."
   },
-  "settings.mail.title": {
-    "es": "Correo saliente",
-    "en": "Outgoing e-mail",
-    "pt": "E-mail de saída"
-  },
-  "settings.modal.accounting": {
-    "es": "Contabilidad",
-    "en": "Accounting",
-    "pt": "Contabilidade"
-  },
-  "settings.modal.approvals": {
-    "es": "Aprobaciones",
-    "en": "Approvals",
-    "pt": "Aprovações"
-  },
-  "settings.modal.billing_plan": {
-    "es": "Facturación y plan",
-    "en": "Billing and plan",
-    "pt": "Faturamento e plano"
-  },
-  "settings.modal.cierre_fiscal": {
-    "es": "Cierre fiscal",
-    "en": "Fiscal close",
-    "pt": "Fechamento fiscal"
-  },
   "settings.modal.close_settings": {
     "es": "Cerrar configuración",
     "en": "Close settings",
     "pt": "Fechar configurações"
   },
-  "settings.modal.company_profile": {
-    "es": "Perfil de la empresa",
-    "en": "Company profile",
-    "pt": "Perfil da empresa"
-  },
-  "settings.modal.company_structure": {
-    "es": "Estructura empresarial",
-    "en": "Company structure",
-    "pt": "Estrutura empresarial"
-  },
-  "settings.modal.einvoicing_regime": {
-    "es": "Facturación electrónica",
-    "en": "Electronic invoicing",
-    "pt": "Faturamento eletrônico"
-  },
-  "settings.modal.electronic_invoicing": {
-    "es": "Comprobantes fiscales",
-    "en": "Fiscal documents",
-    "pt": "Comprovantes fiscais"
-  },
-  "settings.modal.extensions": {
-    "es": "Extensiones",
-    "en": "Extensions",
-    "pt": "Extensões"
-  },
-  "settings.modal.finance": {
-    "es": "Finanzas",
-    "en": "Finance",
-    "pt": "Finanças"
-  },
-  "settings.modal.integrations_api": {
-    "es": "Integraciones",
-    "en": "Integrations & API",
-    "pt": "Integrações"
-  },
-  "settings.modal.intercompany": {
-    "en": "Intercompany",
-    "es": "Intercompañía",
-    "pt": "Intercompanhia"
-  },
-  "settings.modal.inventory": {
-    "es": "Inventario",
-    "en": "Inventory",
-    "pt": "Estoque"
-  },
   "settings.modal.loading": {
     "es": "Cargando...",
     "en": "Loading...",
     "pt": "Carregando..."
-  },
-  "settings.modal.mail_server": {
-    "es": "Correo saliente",
-    "en": "Outgoing e-mail",
-    "pt": "E-mail de saída"
-  },
-  "settings.modal.multi_currency": {
-    "es": "Multimoneda",
-    "en": "Multi-currency",
-    "pt": "Multimoeda"
-  },
-  "settings.modal.my_account": {
-    "es": "Mi cuenta",
-    "en": "My account",
-    "pt": "Minha conta"
-  },
-  "settings.modal.my_companies": {
-    "es": "Mis empresas",
-    "en": "My companies",
-    "pt": "Minhas empresas"
-  },
-  "settings.modal.my_profile": {
-    "es": "Mi perfil",
-    "en": "My profile",
-    "pt": "Meu perfil"
-  },
-  "settings.modal.operations": {
-    "es": "Operaciones",
-    "en": "Operations",
-    "pt": "Operações"
-  },
-  "settings.modal.organization": {
-    "es": "Organización",
-    "en": "Organization",
-    "pt": "Organização"
-  },
-  "settings.modal.personalization": {
-    "es": "Personalización",
-    "en": "Personalization",
-    "pt": "Personalização"
-  },
-  "settings.modal.roles_permissions": {
-    "es": "Roles y permisos",
-    "en": "Roles and permissions",
-    "pt": "Perfis e permissões"
-  },
-  "settings.modal.security_audit": {
-    "es": "Seguridad y auditoría",
-    "en": "Security and audit",
-    "pt": "Segurança e auditoria"
-  },
-  "settings.modal.sequences": {
-    "es": "Secuencias",
-    "en": "Sequences",
-    "pt": "Sequências"
-  },
-  "settings.modal.settings": {
-    "es": "Configuración",
-    "en": "Settings",
-    "pt": "Configurações"
-  },
-  "settings.modal.system_settings": {
-    "es": "Sistema",
-    "en": "System settings",
-    "pt": "Sistema"
-  },
-  "settings.modal.tax_jurisdictions": {
-    "es": "Jurisdicciones fiscales",
-    "en": "Tax jurisdictions",
-    "pt": "Jurisdições fiscais"
-  },
-  "settings.modal.taxes": {
-    "es": "Impuestos",
-    "en": "Taxes",
-    "pt": "Impostos"
-  },
-  "settings.modal.users": {
-    "es": "Usuarios",
-    "en": "Users",
-    "pt": "Usuários"
-  },
-  "settings.modal.withholding_regimes": {
-    "es": "Retenciones",
-    "en": "Withholding",
-    "pt": "Retenções"
   },
   "settings.my_companies.add": {
     "es": "Nueva empresa",
@@ -1537,16 +1312,6 @@
     "en": "Steps",
     "pt": "Etapas"
   },
-  "settings.my_companies.subtitle": {
-    "es": "Las empresas en las que trabajas. Cada una tiene sus propios libros, usuarios y configuración.",
-    "en": "The companies you work in. Each has its own books, users and settings.",
-    "pt": "As empresas em que você trabalha. Cada uma tem seus próprios livros, usuários e configurações."
-  },
-  "settings.my_companies.title": {
-    "es": "Mis empresas",
-    "en": "My companies",
-    "pt": "Minhas empresas"
-  },
   "settings.my_profile.avatar": {
     "literal": "Avatar"
   },
@@ -1569,41 +1334,6 @@
     "es": "Idioma preferido",
     "en": "Preferred language",
     "pt": "Idioma preferido"
-  },
-  "settings.pages.accounting.set_default_accounts_posting_rules_your": {
-    "es": "Define las cuentas contables predeterminadas y las reglas de registro para tu organización.",
-    "en": "Set the default accounts and posting rules for your organisation.",
-    "pt": "Defina as contas contábeis padrão e as regras de lançamento da sua organização."
-  },
-  "settings.pages.accounting.title": {
-    "es": "Preferencias contables",
-    "en": "Accounting preferences",
-    "pt": "Preferências contábeis"
-  },
-  "settings.pages.approvals.title": {
-    "es": "Flujos de aprobación",
-    "en": "Approval workflows",
-    "pt": "Fluxos de aprovação"
-  },
-  "settings.pages.closing_rules.subtitle": {
-    "es": "La cuenta que recibe el resultado del ejercicio y cuánto tiempo se conservan los documentos fiscales.",
-    "en": "The account that receives the year's result, and how long fiscal documents are kept.",
-    "pt": "A conta que recebe o resultado do exercício e por quanto tempo os documentos fiscais são guardados."
-  },
-  "settings.pages.closing_rules.title": {
-    "es": "Periodos y cierre fiscal",
-    "en": "Fiscal periods and closing",
-    "pt": "Períodos e fechamento fiscal"
-  },
-  "settings.pages.currencies.subtitle": {
-    "es": "La moneda de tus libros y cómo se eligen y controlan las tasas de cambio.",
-    "en": "Your books' currency, and how exchange rates are chosen and checked.",
-    "pt": "A moeda dos seus livros e como as taxas de câmbio são escolhidas e verificadas."
-  },
-  "settings.pages.currencies.title": {
-    "es": "Multimoneda y tasas de cambio",
-    "en": "Multicurrency and exchange rates",
-    "pt": "Multimoeda e taxas de câmbio"
   },
   "settings.pages.einvoicing.activity_code": {
     "es": "Código de actividad económica",
@@ -1825,11 +1555,6 @@
     "en": "State IBGE code",
     "pt": "Código IBGE do estado"
   },
-  "settings.pages.einvoicing.title": {
-    "es": "Facturación electrónica",
-    "en": "E-invoicing",
-    "pt": "Emissão eletrônica"
-  },
   "settings.pages.einvoicing.valid_until": {
     "es": "Vigente hasta",
     "en": "Valid until",
@@ -1839,41 +1564,6 @@
     "es": "El archivo CAF completo en Chile, la clave técnica en Colombia. Se guarda cifrado y nunca se devuelve: para reemplazarlo, carga uno nuevo.",
     "en": "The whole CAF file in Chile, the technical key in Colombia. Stored encrypted and never returned: to replace it, upload a new one.",
     "pt": "O arquivo CAF completo no Chile, a chave técnica na Colômbia. Guardado criptografado e nunca devolvido: para substituí-lo, carregue um novo."
-  },
-  "settings.pages.einvoicing.your_regime_configuration_numbering_ranges_your": {
-    "es": "La configuración de tu régimen y los rangos de numeración que te autorizó la autoridad.",
-    "en": "Your regime configuration and the numbering ranges your authority granted you.",
-    "pt": "A configuração do seu regime e as faixas de numeração que a autoridade lhe concedeu."
-  },
-  "settings.pages.intercompany.subtitle": {
-    "es": "Las cuentas puente que registran lo que se deben las empresas del grupo.",
-    "en": "The bridge accounts that record what the group's companies owe each other.",
-    "pt": "As contas-ponte que registram o que as empresas do grupo devem entre si."
-  },
-  "settings.pages.intercompany.title": {
-    "es": "Reglas intercompañía",
-    "en": "Intercompany rules",
-    "pt": "Regras intercompanhia"
-  },
-  "settings.pages.inventory_policies.subtitle": {
-    "es": "Las cuentas que mueven las entradas, salidas y ajustes de inventario.",
-    "en": "The accounts that receipts, issues and adjustments of stock post to.",
-    "pt": "As contas que movimentam entradas, saídas e ajustes de estoque."
-  },
-  "settings.pages.inventory_policies.title": {
-    "es": "Políticas de inventario",
-    "en": "Inventory policies",
-    "pt": "Políticas de estoque"
-  },
-  "settings.pages.security.title": {
-    "es": "Seguridad y auditoría",
-    "en": "Security and audit",
-    "pt": "Segurança e auditoria"
-  },
-  "settings.pages.sequences.title": {
-    "es": "Secuencias fiscales",
-    "en": "Fiscal sequences",
-    "pt": "Sequências fiscais"
   },
   "settings.pages.tax_jurisdictions.add": {
     "es": "Agregar jurisdicción",
@@ -2035,30 +1725,10 @@
     "en": "State or province",
     "pt": "Estado"
   },
-  "settings.pages.tax_jurisdictions.title": {
-    "es": "Jurisdicciones fiscales",
-    "en": "Tax jurisdictions",
-    "pt": "Jurisdições fiscais"
-  },
-  "settings.pages.tax_jurisdictions.where_you_registered_collect_sales_tax": {
-    "es": "Dónde estás registrado para recaudar impuesto sobre las ventas, y a qué tasa.",
-    "en": "Where you are registered to collect sales tax, and at what rate.",
-    "pt": "Onde você está registrado para recolher imposto sobre vendas, e a que alíquota."
-  },
   "settings.pages.tax_jurisdictions.yes": {
     "es": "Sí",
     "en": "Yes",
     "pt": "Sim"
-  },
-  "settings.pages.taxes.subtitle": {
-    "es": "Tu condición de contribuyente y las cuentas donde se registran impuestos y retenciones.",
-    "en": "Your taxpayer status and the accounts taxes and withholdings post to.",
-    "pt": "Sua condição de contribuinte e as contas em que impostos e retenções são lançados."
-  },
-  "settings.pages.taxes.title": {
-    "es": "Reglas de impuestos",
-    "en": "Tax rules",
-    "pt": "Regras de impostos"
   },
   "settings.pages.withholding.add": {
     "es": "Agregar régimen",
@@ -2255,20 +1925,10 @@
     "en": "“On the tax” withholds part of the tax charged; “on the base” withholds part of the taxable base.",
     "pt": "«Sobre o imposto» retém parte do imposto faturado; «sobre a base» retém parte da base de cálculo."
   },
-  "settings.pages.withholding.title": {
-    "es": "Regímenes de retención",
-    "en": "Withholding regimes",
-    "pt": "Regimes de retenção"
-  },
   "settings.pages.withholding.what_product_covers_country": {
     "es": "Qué cubre el producto en {{country}}",
     "en": "What the product covers in {{country}}",
     "pt": "O que o produto cobre em {{country}}"
-  },
-  "settings.pages.withholding.what_your_buyers_withhold_when_they": {
-    "es": "Lo que tus compradores retienen al pagarte, y con qué fundamento.",
-    "en": "What your buyers withhold when they pay you, and on what authority.",
-    "pt": "O que seus compradores retêm ao te pagar, e com que fundamento."
   },
   "settings.profile.avatar_updated": {
     "es": "Imagen actualizada exitosamente.",
@@ -2490,16 +2150,6 @@
     "en": "Phone verified.",
     "pt": "Telefone verificado."
   },
-  "settings.profile.save_changes": {
-    "es": "Guardar cambios",
-    "en": "Save changes",
-    "pt": "Salvar alterações"
-  },
-  "settings.profile.security": {
-    "es": "Seguridad",
-    "en": "Security",
-    "pt": "Segurança"
-  },
   "settings.profile.select_job_title": {
     "es": "Selecciona un cargo",
     "en": "Select a job title",
@@ -2605,11 +2255,6 @@
     "en": "Role updated successfully.",
     "pt": "Perfil atualizado com sucesso."
   },
-  "settings.roles.roles_permissions": {
-    "es": "Roles y permisos",
-    "en": "Roles and permissions",
-    "pt": "Perfis e permissões"
-  },
   "settings.roles.save": {
     "es": "Guardar",
     "en": "Save",
@@ -2644,16 +2289,6 @@
     "es": "Busca una cuenta",
     "en": "Search an account",
     "pt": "Busque uma conta"
-  },
-  "settings.sections.closing_links": {
-    "es": "El cierre de cada período se hace desde Contabilidad:",
-    "en": "Each period is closed from Accounting:",
-    "pt": "O fechamento de cada período é feito em Contabilidade:"
-  },
-  "settings.sections.currencies_links": {
-    "es": "Las monedas activas y sus tasas se gestionan en Maestros:",
-    "en": "Active currencies and their rates are managed in Masters:",
-    "pt": "As moedas ativas e suas taxas são gerenciadas em Cadastros:"
   },
   "settings.sections.expects_type": {
     "es": "Cuenta de tipo {{type}}.",
@@ -2920,11 +2555,6 @@
     "en": "Decides which withholdings your customers apply to you.",
     "pt": "Define quais retenções seus clientes aplicam a você."
   },
-  "settings.sections.go_closing_checklist": {
-    "es": "Lista de cierre",
-    "en": "Closing checklist",
-    "pt": "Lista de fechamento"
-  },
   "settings.sections.go_currencies": {
     "es": "Monedas",
     "en": "Currencies",
@@ -2934,11 +2564,6 @@
     "es": "Períodos contables",
     "en": "Accounting periods",
     "pt": "Períodos contábeis"
-  },
-  "settings.sections.go_structure": {
-    "es": "Estructura empresarial",
-    "en": "Company structure",
-    "pt": "Estrutura empresarial"
   },
   "settings.sections.go_tax_rates": {
     "es": "Tasas de impuesto",
@@ -2990,16 +2615,6 @@
     "en": "Tax accounts",
     "pt": "Contas de impostos"
   },
-  "settings.sections.intercompany_links": {
-    "es": "Las empresas del grupo se registran en:",
-    "en": "The group's companies are registered in:",
-    "pt": "As empresas do grupo são registradas em:"
-  },
-  "settings.sections.inventory_valuation_note": {
-    "es": "El inventario se valora a costo promedio ponderado; los mínimos y puntos de pedido se fijan en cada producto.",
-    "en": "Stock is valued at weighted average cost; minimums and reorder points are set on each product.",
-    "pt": "O estoque é avaliado pelo custo médio ponderado; mínimos e pontos de reposição são definidos em cada produto."
-  },
   "settings.sections.load_failed": {
     "es": "No se pudo cargar esta configuración.",
     "en": "These settings could not be loaded.",
@@ -3049,11 +2664,6 @@
     "es": "Cambios guardados.",
     "en": "Changes saved.",
     "pt": "Alterações salvas."
-  },
-  "settings.sections.taxes_links": {
-    "es": "Las tasas de cada impuesto se gestionan en Maestros:",
-    "en": "Each tax's rates are managed in Masters:",
-    "pt": "As alíquotas de cada imposto são gerenciadas em Cadastros:"
   },
   "settings.sections.taxpayer_type.company": {
     "es": "Persona jurídica",
@@ -3565,11 +3175,6 @@
     "en": "The second-factor setting could not be read.",
     "pt": "Não foi possível ler a configuração de segundo fator."
   },
-  "settings.security.mfa_owner_only": {
-    "es": "Solo el propietario de la organización puede cambiar este ajuste.",
-    "en": "Only the organization's owner can change this setting.",
-    "pt": "Somente o proprietário da organização pode alterar esta configuração."
-  },
   "settings.security.mfa_require": {
     "es": "Exigir segundo factor a todos los miembros",
     "en": "Require a second factor from every member",
@@ -3705,20 +3310,10 @@
     "en": "Single sign-on (SSO)",
     "pt": "Login único (SSO)"
   },
-  "settings.security.subtitle": {
-    "es": "Segundo factor de la organización, política de contraseñas y la pista de auditoría: quién hizo qué y cuándo.",
-    "en": "The organization's second factor, the password policy and the audit trail: who did what, and when.",
-    "pt": "Segundo fator da organização, política de senhas e a trilha de auditoria: quem fez o quê e quando."
-  },
   "settings.security.system_actor": {
     "es": "Sistema",
     "en": "System",
     "pt": "Sistema"
-  },
-  "settings.security.trail_description": {
-    "es": "Cada cambio a documentos financieros, cada inicio de sesión y cada exportación queda registrado y no se puede modificar.",
-    "en": "Every change to financial documents, every sign-in and every export is recorded and cannot be altered.",
-    "pt": "Cada alteração em documentos financeiros, cada login e cada exportação fica registrado e não pode ser modificado."
   },
   "settings.security.trail_empty": {
     "es": "No hay registros con estos filtros.",
@@ -3834,11 +3429,6 @@
     "es": "Secuencia guardada.",
     "en": "Sequence saved.",
     "pt": "Sequência salva."
-  },
-  "settings.sequences.subtitle": {
-    "es": "La numeración interna de cada tipo de documento: prefijo y próximo número.",
-    "en": "The internal numbering of each document type: prefix and next number.",
-    "pt": "A numeração interna de cada tipo de documento: prefixo e próximo número."
   },
   "settings.sequences.type.credit_note": {
     "es": "Nota de crédito",
@@ -3997,11 +3587,6 @@
     "en": "Configure your OIDC provider. At least one verified domain is required to enable it.",
     "pt": "Configure seu provedor OIDC. É necessário ao menos um domínio verificado para ativá-lo."
   },
-  "settings.sso.connect_your_organization_identity_provider_okta": {
-    "es": "Conecta el proveedor de identidad de tu organización (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Los usuarios de dominios verificados serán redirigidos\n      automáticamente a tu SSO al iniciar sesión.",
-    "en": "Connect your organization's identity provider (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Users from verified domains are redirected\n      automatically to your SSO when they sign in.",
-    "pt": "Conecte o provedor de identidade da sua organização (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Os usuários de domínios verificados serão redirecionados\n      automaticamente ao seu SSO ao entrar."
-  },
   "settings.sso.copy": {
     "es": "copiar",
     "en": "copy",
@@ -4090,11 +3675,6 @@
   "settings.sso.scopes": {
     "literal": "Scopes"
   },
-  "settings.sso.single_sign_sso": {
-    "es": "Inicio de sesión único (SSO)",
-    "en": "Single sign-on (SSO)",
-    "pt": "Login único (SSO)"
-  },
   "settings.sso.status": {
     "es": "Estado",
     "en": "Status",
@@ -4159,11 +3739,6 @@
     "es": "Cancelar",
     "en": "Cancel",
     "pt": "Cancelar"
-  },
-  "settings.subsidiaries.company_structure": {
-    "es": "Estructura empresarial",
-    "en": "Company structure",
-    "pt": "Estrutura empresarial"
   },
   "settings.subsidiaries.control_ended": {
     "es": "Fin del control",
@@ -4285,11 +3860,6 @@
     "en": "Choose the country",
     "pt": "Escolha o país"
   },
-  "settings.subsidiaries.subtitle": {
-    "es": "Las otras empresas que controla la tuya: cada una con su propia identificación fiscal y sus propios libros. Operan entre compañías y se consolidan en los estados del grupo. Las tiendas u oficinas de esta misma empresa son sucursales.",
-    "en": "The other companies yours controls: each with its own tax id and its own books. They trade intercompany and consolidate into the group's statements. Stores or offices of this same company are branches.",
-    "pt": "As outras empresas que a sua controla: cada uma com seu próprio CNPJ e seus próprios livros. Operam entre companhias e consolidam-se nas demonstrações do grupo. Lojas ou escritórios desta mesma empresa são filiais."
-  },
   "settings.subsidiaries.tax_id": {
     "en": "Tax ID",
     "es": "Identificación fiscal",
@@ -4309,11 +3879,6 @@
     "es": "Esta acción no se puede deshacer.",
     "en": "This action cannot be undone.",
     "pt": "Esta ação não pode ser desfeita."
-  },
-  "settings.user_management.administration": {
-    "es": "Administración",
-    "en": "Administration",
-    "pt": "Administração"
   },
   "settings.user_management.block_sign_out": {
     "es": "Bloquear y cerrar sesión",
@@ -4485,11 +4050,6 @@
     "en": "User invited successfully.",
     "pt": "Usuário convidado com sucesso."
   },
-  "settings.user_management.user_management": {
-    "es": "Gestión de usuarios",
-    "en": "User management",
-    "pt": "Gestão de usuários"
-  },
   "settings.user_management.user_session_has_closed": {
     "es": "La sesión del usuario ha sido cerrada.",
     "en": "The user's session has been closed.",
@@ -4499,11 +4059,6 @@
     "es": "Usuario actualizado con éxito.",
     "en": "User updated successfully.",
     "pt": "Usuário atualizado com sucesso."
-  },
-  "settings.user_management.users": {
-    "es": "Usuarios",
-    "en": "Users",
-    "pt": "Usuários"
   },
   "settings.user_management.users_could_not_loaded": {
     "es": "No se pudieron cargar los usuarios.",
@@ -4517,11 +4072,6 @@
     "es": "¿Está seguro que desea eliminar permanentemente al usuario",
     "en": "Are you sure you want to permanently delete the user",
     "pt": "Tem certeza de que deseja excluir permanentemente o usuário"
-  },
-  "settings.modal.ai": {
-    "es": "Inteligencia artificial",
-    "en": "Artificial intelligence",
-    "pt": "Inteligência artificial"
   },
   "settings.approvals.workflows_note": {
     "es": "Aquí defines políticas simples: quién aprueba según el importe. Si necesitas varios pasos, condiciones, plazos o acciones automáticas, diseña un flujo de trabajo. Ambos conviven: si un flujo también decide sobre un tipo de documento con política, se aplican los dos, así que evita duplicar la aprobación.",
@@ -4589,9 +4139,9 @@
     "pt": "Pesquisar nas configurações"
   },
   "settings.shell.search_placeholder": {
-    "es": "Buscar: NCF, ITBIS, 2FA, logo…",
-    "en": "Search: tax, 2FA, logo…",
-    "pt": "Pesquisar: imposto, 2FA, logotipo…"
+    "es": "Buscar",
+    "en": "Search",
+    "pt": "Pesquisar"
   },
   "settings.shell.search_results": {
     "es": "{{count}} secciones encontradas",
@@ -4854,7 +4404,7 @@
     "pt": "Verifique um domínio e depois adicione o provedor de identidade da empresa."
   },
   "settings.security.mfa_impact": {
-    "es": "Al activarlo, quien no tenga segundo factor deberá configurarlo en su próximo inicio de sesión.",
+    "es": "Al activarlo, quien aún no use segundo factor lo configura en su próximo inicio de sesión, antes de entrar.",
     "en": "Once on, anyone without a second factor must set one up at their next sign-in.",
     "pt": "Ao ativar, quem não tiver segundo fator deverá configurá-lo no próximo login."
   },
@@ -5404,7 +4954,7 @@
     "pt": "Os documentos emitidos a partir de agora usarão a nova numeração; os já emitidos mantêm a sua. {{changes}}"
   },
   "settings.sequences.confirm_message_gap": {
-    "es": "Los documentos que se emitan desde ahora usarán la nueva numeración. Saltar números deja un hueco en la serie que no se podrá rellenar. {{changes}}",
+    "es": "Los documentos que se emitan desde ahora usarán la nueva numeración. Saltar números deja en la serie un hueco que ya no tiene arreglo. {{changes}}",
     "en": "Documents issued from now on use the new numbering. Skipping numbers leaves a gap in the series that cannot be filled. {{changes}}",
     "pt": "Os documentos emitidos a partir de agora usarão a nova numeração. Pular números deixa uma lacuna na série que não poderá ser preenchida. {{changes}}"
   },
@@ -5592,5 +5142,140 @@
     "es": "Cada persona verá el formato de su idioma en el país de la empresa, salvo quien haya elegido el suyo.",
     "en": "Each person will see their language’s format in the company’s country, except those who chose their own.",
     "pt": "Cada pessoa verá o formato do seu idioma no país da empresa, exceto quem escolheu o seu."
+  },
+  "settings.security.entity.ai_organization_settings": {
+    "es": "Política de IA",
+    "en": "AI policy",
+    "pt": "Política de IA"
+  },
+  "settings.security.entity.inventory_adjustments": {
+    "es": "Ajuste de inventario",
+    "en": "Inventory adjustment",
+    "pt": "Ajuste de estoque"
+  },
+  "settings.security.entity.bank_account": {
+    "es": "Cuenta bancaria",
+    "en": "Bank account",
+    "pt": "Conta bancária"
+  },
+  "settings.security.entity.bank_transfer": {
+    "es": "Transferencia bancaria",
+    "en": "Bank transfer",
+    "pt": "Transferência bancária"
+  },
+  "settings.security.entity.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "settings.security.entity.customer_payment": {
+    "es": "Cobro",
+    "en": "Customer payment",
+    "pt": "Recebimento"
+  },
+  "settings.security.entity.customer_payment_line": {
+    "es": "Línea de cobro",
+    "en": "Payment line",
+    "pt": "Linha de recebimento"
+  },
+  "settings.security.entity.ecf_submission": {
+    "es": "Envío de e-CF",
+    "en": "e-CF submission",
+    "pt": "Envio de e-CF"
+  },
+  "settings.security.entity.fixed_asset_depreciation": {
+    "es": "Depreciación de activo",
+    "en": "Asset depreciation",
+    "pt": "Depreciação de ativo"
+  },
+  "settings.security.entity.intercompany_transaction": {
+    "es": "Operación intercompañía",
+    "en": "Intercompany transaction",
+    "pt": "Operação intercompanhia"
+  },
+  "settings.security.entity.inventory_adjustment": {
+    "es": "Ajuste de inventario",
+    "en": "Inventory adjustment",
+    "pt": "Ajuste de estoque"
+  },
+  "settings.security.entity.invoice": {
+    "es": "Factura",
+    "en": "Invoice",
+    "pt": "Fatura"
+  },
+  "settings.security.entity.journal_entry": {
+    "es": "Asiento contable",
+    "en": "Journal entry",
+    "pt": "Lançamento contábil"
+  },
+  "settings.security.entity.journal_entry_line": {
+    "es": "Línea de asiento",
+    "en": "Journal entry line",
+    "pt": "Linha de lançamento"
+  },
+  "settings.security.entity.opportunity": {
+    "es": "Oportunidad",
+    "en": "Opportunity",
+    "pt": "Oportunidade"
+  },
+  "settings.security.entity.organization": {
+    "es": "Empresa",
+    "en": "Company",
+    "pt": "Empresa"
+  },
+  "settings.security.entity.payment_batch": {
+    "es": "Lote de pagos",
+    "en": "Payment batch",
+    "pt": "Lote de pagamentos"
+  },
+  "settings.security.entity.payroll_run": {
+    "es": "Nómina",
+    "en": "Payroll run",
+    "pt": "Folha de pagamento"
+  },
+  "settings.security.entity.pos_sale": {
+    "es": "Venta de caja",
+    "en": "Till sale",
+    "pt": "Venda no caixa"
+  },
+  "settings.security.entity.purchase_order": {
+    "es": "Orden de compra",
+    "en": "Purchase order",
+    "pt": "Pedido de compra"
+  },
+  "settings.security.entity.purchase_order_receipt": {
+    "es": "Recepción de compra",
+    "en": "Purchase receipt",
+    "pt": "Recebimento de compra"
+  },
+  "settings.security.entity.purchase_requisition": {
+    "es": "Solicitud de compra",
+    "en": "Purchase requisition",
+    "pt": "Requisição de compra"
+  },
+  "settings.security.entity.quote": {
+    "es": "Cotización",
+    "en": "Quote",
+    "pt": "Orçamento"
+  },
+  "settings.security.entity.session": {
+    "es": "Sesión",
+    "en": "Session",
+    "pt": "Sessão"
+  },
+  "settings.security.entity.supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "settings.security.entity.user_security": {
+    "es": "Seguridad de la cuenta",
+    "en": "Account security",
+    "pt": "Segurança da conta"
+  },
+  "settings.security.entity.vendor_bill": {
+    "es": "Factura de proveedor",
+    "en": "Supplier bill",
+    "pt": "Fatura de fornecedor"
   }
 }

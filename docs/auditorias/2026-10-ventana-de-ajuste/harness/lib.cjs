@@ -3,11 +3,12 @@ const path = require('path');
 const fs = require('fs');
 process.env.QA_PASS = process.env.QA_PASS || 'QA-Ajuste-2026!';
 const base = require('../../../qa/harness/lib.cjs');
-const CAP = path.resolve(__dirname, '..', 'capturas');
+// `CAP_DIR=capturas-despues` repite los mismos guiones para las capturas posteriores a las correcciones.
+const CAP = path.resolve(__dirname, '..', process.env.CAP_DIR || 'capturas');
 async function snap(page, name, opts = {}) {
   fs.mkdirSync(CAP, { recursive: true });
   await page.screenshot({ path: path.join(CAP, `${name}.png`), fullPage: !!opts.full, timeout: 15000, animations: 'disabled' }).catch((e) => console.log('snap fail', e.message));
-  return `capturas/${name}.png`;
+  return `${path.basename(CAP)}/${name}.png`;
 }
 module.exports = { ...base, CAP, snap };
 /** Llama a la API real con la sesión y el token CSRF del navegador. */

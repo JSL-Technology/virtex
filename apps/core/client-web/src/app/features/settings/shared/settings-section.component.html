@@ -51,10 +51,12 @@
                   {{ 'settings.sections.expects_type' | translate: { type: ('accounting.account_type.' + type | translate) } }}
                 }
               </small>
-              @if (defaultAccountOf(item.field); as fallback) {
+              <!-- Said only where it differs: «Predeterminada: 1130…» under a field holding 1130 was noise. -->
+              @if (defaultAccountOf(item.field) && differsFromDefault(item.field, 'account')) {
+                @let fallback = defaultAccountOf(item.field)!;
                 <small class="ss__default">
                   {{ 'settings.sections.default_is' | translate: { value: refLabel(fallback) } }}
-                  @if (canEdit() && differsFromDefault(item.field, 'account')) {
+                  @if (canEdit()) {
                     <button type="button" class="ss__restore" (click)="restoreDefault(item.field, 'account')">{{ 'settings.sections.restore_default' | translate }}</button>
                   }
                 </small>

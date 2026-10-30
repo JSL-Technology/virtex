@@ -1,3 +1,4 @@
+import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService, TranslateStore, provideMissingTranslationHandler } from '@ngx-translate/core';
@@ -31,6 +32,8 @@ describe('ErrorHandlerService key resolution', () => {
     'errors.http_400': 'That request was not valid.',
     'errors.account_locked': 'This account is locked.',
     'pos.sale_error': 'We could not complete the sale.',
+    'inventory.not_enough_stock_in_warehouse': 'Only {{available}} left, {{quantity}} needed, line {{line}}.',
+    'inventory.adjustment_date_future': 'The date {{date}} is after today ({{today}}).',
   };
 
   beforeEach(() => {
@@ -79,6 +82,27 @@ describe('ErrorHandlerService key resolution', () => {
       failure(400, { statusCode: 400, code: 'NOPE', messageKey: 'pos.not_in_catalogue' }),
     );
     expect(unknown).toBe('errors.http_400');
+  });
+
+  it('writes the quantities of a server message as the reader writes numbers, and leaves other numbers alone', () => {
+    TestBed.inject(LocaleStore).setPersonalFormat({ numberFormat: 'dot_comma' });
+    const described = service.describe(
+      failure(400, {
+        statusCode: 400,
+        code: 'BAD_REQUEST',
+        messageKey: 'inventory.not_enough_stock_in_warehouse',
+        params: { available: 18.75, quantity: 1000, line: 1200 },
+      }),
+    );
+    expect(described.message).toBe('Only 18,75 left, 1.000 needed, line 1200.');
+  });
+
+  it('writes the calendar dates of a server message in the order in force', () => {
+    TestBed.inject(LocaleStore).setPersonalFormat({ dateOrder: 'DMY', dateSeparator: '/' });
+    const described = service.describe(
+      failure(400, { statusCode: 400, code: 'BAD_REQUEST', messageKey: 'inventory.adjustment_date_future', params: { date: '2031-08-10', today: '2026-10-30' } }),
+    );
+    expect(described.message).toBe('The date 10/08/2031 is after today (30/10/2026).');
   });
 
   it('never resolves to a key the catalogue cannot render', () => {

@@ -112,11 +112,6 @@
     "en": "No UI extensions are enabled for this tenant.",
     "pt": "Este inquilino não tem nenhuma extensão de interface ativada."
   },
-  "extensions.none_registered": {
-    "es": "Todavía no hay extensiones registradas. Registra una a la derecha.",
-    "en": "No extensions registered yet. Register one on the right.",
-    "pt": "Ainda não há extensões registadas. Registe uma à direita."
-  },
   "extensions.open_runtime": {
     "es": "Abrir ejecución",
     "en": "Open runtime",

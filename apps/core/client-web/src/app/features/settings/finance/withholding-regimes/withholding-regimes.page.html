@@ -1,31 +1,5 @@
 <div class="s-page">
-
-  <!--
-    What the product does and does not do in this market, stated per capability. `marketStatus`
-    alone was `available` or `preview`, and "preview" reads as "coming soon" rather than "you can
-    keep books here and you cannot issue a stamped document".
-  -->
-  @if (coverage(); as market) {
-    <section class="card w-coverage">
-      <h2>{{ 'settings.pages.withholding.what_product_covers_country' | translate: { country: market.countryCode } }}</h2>
-      <ul>
-        @for (capability of market.capabilities; track capability.capability) {
-          <li [class]="'w-level w-level--' + capability.level">
-            <span class="w-capability">{{ capabilityKey(capability.capability) | translate }}</span>
-            <span class="w-status">{{ levelKey(capability.level) | translate }}</span>
-            @if (capability.detail) { <span class="w-detail">{{ capability.detail }}</span> }
-            @if (capability.requires) {
-              <span class="w-requires">
-                {{ 'settings.pages.withholding.requires' | translate }}: {{ capability.requires }}
-              </span>
-            }
-          </li>
-        }
-      </ul>
-    </section>
-  }
-
-  <ng-template vxSettingsActions>
+  <ng-template appSettingsActions>
     @if (canEdit()) {
     <button [class]="showForm() ? 'secondary-button' : 'primary-button'" type="button" (click)="toggleForm()" [attr.aria-expanded]="showForm()">
       {{ (showForm() ? 'settings.pages.withholding.cancel' : 'settings.pages.withholding.add') | translate }}
@@ -134,5 +108,31 @@
         </tbody>
       </table>
     </div>
+  }
+  <!--
+    What the product does and does not do in this market, stated per capability. Product status,
+    not a setting: at the foot and folded, as in «Comprobantes fiscales» — it opened this section,
+    expanded, above the regimes the section is for (CG-05).
+  -->
+  @if (coverage(); as market) {
+    <section class="card w-coverage">
+      <details>
+        <summary><h2>{{ 'settings.pages.withholding.what_product_covers_country' | translate: { country: market.countryCode } }}</h2></summary>
+        <ul>
+          @for (capability of market.capabilities; track capability.capability) {
+            <li [class]="'w-level w-level--' + capability.level">
+              <span class="w-capability">{{ capabilityKey(capability.capability) | translate }}</span>
+              <span class="w-status">{{ levelKey(capability.level) | translate }}</span>
+              @if (capability.detail) { <span class="w-detail">{{ capability.detail }}</span> }
+              @if (capability.requires) {
+                <span class="w-requires">
+                  {{ 'settings.pages.withholding.requires' | translate }}: {{ capability.requires }}
+                </span>
+              }
+            </li>
+          }
+        </ul>
+      </details>
+    </section>
   }
 </div>

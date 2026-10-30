@@ -359,7 +359,9 @@ describeWithDb('tenant deletion', () => {
     // Platform events have no tenant; what an erasure does to the audit trail is a retention
     // policy of its own, not a cascade. A user is an identity that can belong to several tenants:
     // their default tenant going away clears the pointer (SET NULL); membership is what cascades.
-    const exempt = ['audit_logs', 'users'];
+    // A legal acceptance is that person's consent to the terms, kept as evidence after the company
+    // that gave it context is gone (SET NULL; `tenant-table-classification.ts`).
+    const exempt = ['audit_logs', 'users', 'legal_acceptances'];
     const unowned = (await dataSource.query(
       `SELECT c.table_name AS table
          FROM information_schema.columns c

@@ -1,5 +1,5 @@
 <div class="s-page">
-  <ng-template vxSettingsActions>
+  <ng-template appSettingsActions>
     @if (canEdit() && !loading() && !draft() && freeTypes().length > 0) {
       <button type="button" class="primary-button" (click)="startNew()">{{ 'settings.approvals.new' | translate }}</button>
     }

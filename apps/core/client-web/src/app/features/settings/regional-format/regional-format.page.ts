@@ -28,7 +28,7 @@ const same = (a: RegionalFormat, b: RegionalFormat): boolean =>
   template: `
     @if (view() === 'company') {
       @if (canEdit() && saved() && !isEmpty(saved()!)) {
-        <ng-template vxSettingsActions>
+        <ng-template appSettingsActions>
           <button type="button" class="secondary-button" (click)="resetCompany()">{{ 'settings.regional_format.reset_company' | translate }}</button>
         </ng-template>
       }

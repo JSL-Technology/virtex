@@ -178,7 +178,7 @@
                   -->
                   @for (error of entry.errors; track error.messageKey) {
                     <tr class="row--detail">
-                      <td colspan="4">{{ error.messageKey | translate: error.params ?? {} }}</td>
+                      <td colspan="4">{{ error.messageKey | translate: (error.params | vxParams) }}</td>
                     </tr>
                   }
                   @for (row of entry.rows; track row.lineNumber) {
@@ -186,7 +186,7 @@
                       <tr class="row--detail">
                         <td colspan="4">
                           {{ 'accounting.import.line_line' | translate: { line: row.lineNumber } }}
-                          — {{ rowError.messageKey | translate: rowError.params ?? {} }}
+                          — {{ rowError.messageKey | translate: (rowError.params | vxParams) }}
                         </td>
                       </tr>
                     }

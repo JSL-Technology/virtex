@@ -144,10 +144,10 @@
               {{ 'fiscal_returns.complementary' | translate }}
             </label>
             @if (complementary()) {
-              <label class="doc-filter">
-                <span>{{ 'fiscal_returns.modified_on' | translate }}</span>
-                <vx-date-field [ngModel]="modifiedOn()" (ngModelChange)="modifiedOn.set($event)" />
-              </label>
+              <div class="doc-filter">
+                <label for="fr-modified-on">{{ 'fiscal_returns.modified_on' | translate }}</label>
+                <vx-date-field inputId="fr-modified-on" [ngModel]="modifiedOn()" (ngModelChange)="modifiedOn.set($event)" />
+              </div>
             }
           </div>
         }

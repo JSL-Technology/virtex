@@ -68,6 +68,29 @@ function describe(name: string, label: string, errors: ValidationErrors): DraftP
 }
 
 /**
+ * La misma frase dicha de una línea de una tabla: «… (línea 3)». Literal, clave por clave, para que
+ * el verificador del catálogo las vea: componerlas con `${message}_line` las dejaba huérfanas a sus
+ * ojos, y la poda las borró.
+ */
+const LINE_MESSAGE: Record<string, string> = {
+  'shell.problem_required': 'shell.problem_required_line',
+  'shell.problem_email': 'shell.problem_email_line',
+  'shell.problem_min': 'shell.problem_min_line',
+  'shell.problem_max': 'shell.problem_max_line',
+  'shell.problem_minlength': 'shell.problem_minlength_line',
+  'shell.problem_maxlength': 'shell.problem_maxlength_line',
+  'shell.field_not_expected_format': 'shell.field_not_expected_format_line',
+  'shell.problem_number': 'shell.problem_number_line',
+  'shell.problem_date_order': 'shell.problem_date_order_line',
+  'shell.problem_invalid': 'shell.problem_invalid_line',
+};
+
+/** La clave «de línea» de un mensaje, o el mismo mensaje si no la tiene. */
+export function lineMessage(message: string): string {
+  return LINE_MESSAGE[message] ?? message;
+}
+
+/**
  * Un problema por control inválido, con la clave i18n de su rótulo.
  *
  * `labels` mapea el nombre del control a la clave de su etiqueta — la misma que ya usa el `<label>`

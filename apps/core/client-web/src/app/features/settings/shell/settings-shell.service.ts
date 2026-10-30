@@ -21,7 +21,7 @@ export interface SettingsChanges {
  * asks before anything throws it away — the same three-way question a document tab asks.
  *
  * It also carries what the shell draws for the section so that every section looks alike: the
- * actions beside the title (`vxSettingsActions`), whether the section saves on its own
+ * actions beside the title (`appSettingsActions`), whether the section saves on its own
  * (`autosaved`), and whether the person may change it at all (`canEdit`).
  *
  * Provided by the shell, so it is optional for a section: shown on its own (a test, a future

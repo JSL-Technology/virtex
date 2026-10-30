@@ -587,6 +587,7 @@
   "shell.problem_minlength": "“{{field}}” needs at least {{min}} characters",
   "shell.problem_minlength_line": "“{{field}}” needs at least {{min}} characters (line {{line}})",
   "shell.problem_number": "“{{field}}” is not a number. Write it as {{example}}.",
+  "shell.problem_number_line": "“{{field}}” is not a number; write it as {{example}} (line {{line}})",
   "shell.problem_required": "“{{field}}” is required",
   "shell.problem_required_line": "“{{field}}” is required (line {{line}})",
   "shell.problems": "Check {{count}} item(s) before saving",

@@ -60,7 +60,7 @@
 } @else {
   <!-- The company's brand: everyone's, previewed until saved. -->
   @if (canEdit()) {
-    <ng-template vxSettingsActions>
+    <ng-template appSettingsActions>
       <button type="button" class="secondary-button" (click)="resetBranding()">{{ 'settings.branding.reset' | translate }}</button>
     </ng-template>
   }

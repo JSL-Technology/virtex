@@ -61,7 +61,7 @@ export class BrandingController {
   ) {}
 
   @Get()
-  @AuthenticatedOnly('Every member draws the company with its branding; it is not sensitive.')
+  @AuthenticatedOnly('Every member draws the company with its branding — colour, typeface, logo — which is shown to anyone signed in and is not sensitive.')
   @ApiOperation({ summary: 'La marca de la empresa: color, tipografía, radio y logo.' })
   async get(@CurrentUser() user: AuthenticatedUser) {
     return this.view(user.organizationId);

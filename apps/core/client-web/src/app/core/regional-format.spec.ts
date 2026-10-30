@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { FormatService, LocaleStore, parseLocalizedDate, parseLocalizedNumber } from '@virteex/shared/ui-i18n';
+import { FormatService, LocaleStore, VxNumberPipe, VxParamsPipe, parseLocalizedDate, parseLocalizedNumber } from '@virteex/shared/ui-i18n';
 import { LocaleContextContract, RegionalFormat } from '@virteex/shared/types';
 
 /**
@@ -74,6 +74,23 @@ describe('regional format', () => {
     expect(format.parseDate('9/14/2026')).toBe('2026-09-14');
     expect(format.parseDate('14/09/2026')).toBeNull();
     expect(format.datePlaceholder({ day: 'd', month: 'm', year: 'a' })).toBe('mm/dd/aaaa');
+  });
+
+  it('repaints a figure already on screen when the format changes, not only when its value does', () => {
+    store.setTenantContext(context());
+    const pipe = TestBed.runInInjectionContext(() => new VxNumberPipe());
+    expect(pipe.transform(1234.5, '1.1-1')).toBe('1,234.5');
+    store.setPersonalFormat({ numberFormat: 'dot_comma' });
+    expect(pipe.transform(1234.5, '1.1-1')).toBe('1.234,5');
+  });
+
+  it('writes a server message’s quantities and dates as the reader does, and keeps the same object while nothing changes', () => {
+    store.setTenantContext(context({ numberFormat: 'dot_comma' }));
+    const pipe = TestBed.runInInjectionContext(() => new VxParamsPipe());
+    const params = { available: 18.75, year: 2026, today: '2026-10-30', name: 'Cable' };
+    const first = pipe.transform(params);
+    expect(first).toEqual({ available: '18,75', year: 2026, today: '30/10/2026', name: 'Cable' });
+    expect(pipe.transform({ ...params })).toBe(first);
   });
 
   it('shows and reads a number field with the decimal mark in force', () => {

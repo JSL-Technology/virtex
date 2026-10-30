@@ -157,7 +157,7 @@
           <vx-date-field inputId="adj-date" formControlName="date" />
           @if (editable() && dateReadiness(); as readiness) {
             @if (readiness.problem) {
-              <p class="adj-date-note adj-date-note--problem" id="adj-date-error" role="alert">{{ readiness.problem | translate: readiness.params }}</p>
+              <p class="adj-date-note adj-date-note--problem" id="adj-date-error" role="alert">{{ readiness.problem | translate: (readiness.params | vxParams) }}</p>
             } @else if (readiness.period) {
               <p class="adj-date-note" id="adj-date-period">
                 <lucide-icon [img]="OkIcon" size="14" aria-hidden="true"></lucide-icon>

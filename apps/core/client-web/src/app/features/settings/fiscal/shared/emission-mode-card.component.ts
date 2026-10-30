@@ -35,6 +35,8 @@ export class EmissionModeCardComponent {
 
   /** What the invoice form will offer, as the server computes it. */
   readonly context = input<InvoicingContext | null>(null);
+  /** Shown, not changeable: the reader may see the fiscal set-up without `taxes:edit`. */
+  readonly readonly = input(false);
   /** The mode, once read and every time it is changed. */
   readonly modeChange = output<FiscalEmissionMode>();
   /** The mode was saved: whatever depends on it should be read again. */

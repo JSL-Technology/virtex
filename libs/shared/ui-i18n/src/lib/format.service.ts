@@ -256,6 +256,24 @@ export class FormatService {
   }
 
   /**
+   * The parameters of a message from the server, written as the reader writes them.
+   *
+   * The server sends numbers and calendar dates as data (`{ available: 18.75 }`,
+   * `{ today: '2026-10-30' }`) and the catalogue interpolates them as they come — «hay 18.75» and
+   * «(2026-10-30)» beside screens in `1.234,56` and `30/10/2026`. A calendar date is always a date;
+   * a number is formatted only when its name says it measures something, because a year or a line
+   * number is a number that must not be grouped.
+   */
+  localizeParams(params: Record<string, unknown> | null | undefined): Record<string, unknown> {
+    const out: Record<string, unknown> = { ...(params ?? {}) };
+    for (const [name, value] of Object.entries(out)) {
+      if (typeof value === 'number' && MEASURED_PARAM.test(name)) out[name] = this.number(value, '1.0-6');
+      else if (isCalendarDate(value)) out[name] = this.date(value as string);
+    }
+    return out;
+  }
+
+  /**
    * "hace 5 minutos" / "5 minutes ago", chosen by CLDR rather than by an `if`.
    *
    * `numeric: 'auto'` is what produces "ayer" instead of "hace 1 día"; writing that rule by hand
@@ -495,6 +513,9 @@ const DATE_PRESETS: Readonly<Record<DatePreset, Intl.DateTimeFormatOptions>> = {
   weekday: { weekday: 'long', day: 'numeric', month: 'long' },
 };
 
+/** Parameters that carry a quantity or an amount, by the end of their name. */
+const MEASURED_PARAM = /(quantity|available|amount|total|difference|balance|value|cost|price|limit|remaining|required|expected|counted)$/i;
+
 /** The group and decimal marks a locale writes, read from CLDR. */
 export function localeNumberSymbols(locale: string): { group: string; decimal: string } {
   const parts = new Intl.NumberFormat(locale, { useGrouping: true }).formatToParts(1234567.5);
@@ -549,7 +570,7 @@ export function parseLocalizedDate(text: string | null | undefined, order: DateO
   const value = String(text).trim();
   if (!value) return null;
   const iso = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(value);
-  const parts = iso ? [iso[1], iso[2], iso[3]] : value.split(/[\/\-.\s]+/);
+  const parts = iso ? [iso[1], iso[2], iso[3]] : value.split(/[/\-.\s]+/);
   if (parts.length !== 3 || parts.some((part) => !/^\d+$/.test(part))) return null;
   const effective: DateOrder = iso ? 'YMD' : order;
   const at = (letter: 'D' | 'M' | 'Y') => parts[effective.indexOf(letter)];

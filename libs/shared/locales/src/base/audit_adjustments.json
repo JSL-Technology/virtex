@@ -104,36 +104,6 @@
     "en": "Line description",
     "pt": "Histórico"
   },
-  "audit_adjustments.problem.adjustment_does_not_balance_debits_credits": {
-    "es": "El ajuste no cuadra: los débitos y los créditos deben sumar lo mismo.",
-    "en": "The adjustment does not balance: debits and credits must add up to the same.",
-    "pt": "O ajuste não fecha: os débitos e os créditos têm de somar o mesmo."
-  },
-  "audit_adjustments.problem.description": {
-    "es": "Describe el ajuste.",
-    "en": "Describe the adjustment.",
-    "pt": "Descreva o ajuste."
-  },
-  "audit_adjustments.problem.journal": {
-    "es": "Elige el diario donde se registrará.",
-    "en": "Choose the journal it will be recorded in.",
-    "pt": "Escolha o diário onde será registado."
-  },
-  "audit_adjustments.problem.line_account": {
-    "es": "Línea {{line}}: falta la cuenta.",
-    "en": "Line {{line}}: the account is missing.",
-    "pt": "Linha {{line}}: falta a conta."
-  },
-  "audit_adjustments.problem.line_description": {
-    "es": "Línea {{line}}: falta el concepto.",
-    "en": "Line {{line}}: the description is missing.",
-    "pt": "Linha {{line}}: falta o histórico."
-  },
-  "audit_adjustments.problem.year": {
-    "es": "Elige el ejercicio que se corrige.",
-    "en": "Choose the year being corrected.",
-    "pt": "Escolha o exercício que está a corrigir."
-  },
   "audit_adjustments.propose": {
     "es": "Proponer ajuste",
     "en": "Propose adjustment",
@@ -168,11 +138,6 @@
     "es": "Se propone sobre un ejercicio cerrado y se contabiliza cuando se aprueba.",
     "en": "Raised against a closed year, and posted when it is approved.",
     "pt": "Proposto sobre um exercício encerrado e lançado quando for aprovado."
-  },
-  "audit_adjustments.remove_line": {
-    "es": "Quitar la línea",
-    "en": "Remove the line",
-    "pt": "Remover a linha"
   },
   "audit_adjustments.state": {
     "es": "Estado",

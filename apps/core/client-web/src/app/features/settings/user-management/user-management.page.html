@@ -1,6 +1,6 @@
 <div class="settings-page-container">
   <div class="page-container">
-    <ng-template vxSettingsActions>
+    <ng-template appSettingsActions>
       <button type="button" class="primary-button" *appHasPermission="'users:create'" (click)="openInviteModal()">
         <lucide-icon [name]="UserPlusIcon" size="16" aria-hidden="true"></lucide-icon>
         <span>{{ 'settings.user_management.invite_user' | translate }}</span>

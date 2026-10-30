@@ -8,7 +8,7 @@ import { LucideAngularModule, Plus, Trash2, ArrowDownRight, ArrowUpRight, AlertT
 import { Observable, catchError, debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
 import { TranslateModule, FORMAT_PIPES, FormatService, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
+import { DraftShellComponent, DraftProblem, draftProblems, lineMessage } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -191,7 +191,7 @@ export class InventoryAdjustmentFormPage implements OnInit {
     const id = this.current()?.warehouseId;
     return this.warehouses().find((warehouse) => warehouse.id === id)?.name ?? this.current()?.warehouseName ?? null;
   });
-  readonly settingsLink = '#settings/inventory-policies';
+  readonly settingsLink = '#settings/default-accounts/inventory';
 
   /** Line by line, what the posting will move — or, once posted, what it moved. */
   readonly figures = computed<LineFigures[]>(() => {
@@ -478,9 +478,11 @@ export class InventoryAdjustmentFormPage implements OnInit {
   /** «Cancel»: back to the list — after asking, when there is something to lose. */
   async cancel(): Promise<void> {
     if (this.form.dirty && this.editable()) {
+      // A draft not yet saved has no number: «en el ajuste .» read as a typo.
+      const number = this.current()?.number;
       const decision = await this.dialog.confirmClose({
-        message: 'inventory.adjustments.leave_unsaved',
-        messageParams: { number: this.current()?.number ?? '' },
+        message: number ? 'inventory.adjustments.leave_unsaved' : 'inventory.adjustments.leave_unsaved_new',
+        messageParams: number ? { number } : {},
       });
       if (decision === 'cancel') return;
       if (decision === 'save') {
@@ -621,7 +623,7 @@ export class InventoryAdjustmentFormPage implements OnInit {
     const index = Number(match[1]);
     return {
       ...problem,
-      message: `${problem.message}_line`,
+      message: lineMessage(problem.message),
       fieldId: this.lineFieldId(index, match[2]),
       params: { ...problem.params, line: index + 1 },
     };

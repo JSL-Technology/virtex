@@ -24,7 +24,7 @@ export class RegionalFormatController {
   constructor(private readonly settings: OrgSettingsService) {}
 
   @Get()
-  @AuthenticatedOnly('Every member formats with the company default; it is not sensitive.')
+  @AuthenticatedOnly('Every member formats dates and numbers with the company default, which the session already carries and which is not sensitive.')
   @ApiOperation({ summary: 'Formato de fechas, números y hora de la empresa.' })
   async get(@CurrentUser() user: AuthenticatedUser): Promise<RegionalFormat> {
     return normaliseRegionalFormat((await this.settings.getForOrg(user.organizationId))?.regionalFormat);

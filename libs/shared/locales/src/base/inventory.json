@@ -24,11 +24,6 @@
     "en": "The adjustment has no lines.",
     "pt": "O ajuste não tem linhas."
   },
-  "inventory.adjustments.average": {
-    "es": "Promedio actual",
-    "en": "Current average",
-    "pt": "Média atual"
-  },
   "inventory.adjustments.cancel_document": {
     "es": "Anular",
     "en": "Cancel",
@@ -118,11 +113,6 @@
     "es": "No se pudo contabilizar el ajuste.",
     "en": "Could not post the adjustment.",
     "pt": "Não foi possível contabilizar o ajuste."
-  },
-  "inventory.adjustments.post_message": {
-    "es": "Al contabilizar {{number}}, la existencia y el costo cambiarán y se registrará el asiento. Un ajuste contabilizado no se edita.",
-    "en": "Posting {{number}} changes stock and cost and books the entry. A posted adjustment cannot be edited.",
-    "pt": "Ao contabilizar {{number}}, o estoque e o custo mudarão e o lançamento será registrado. Um ajuste contabilizado não pode ser editado."
   },
   "inventory.adjustments.post_title": {
     "es": "Contabilizar ajuste",
@@ -1490,12 +1480,12 @@
     "pt": "Não foi possível anular o ajuste."
   },
   "inventory.adjustments.post_message_impact": {
-    "es": "Al contabilizar {{number}} se moverán {{lines}} producto(s): faltantes {{shortfall}}, sobrantes {{surplus}}, revaluación {{revaluation}}; efecto neto {{net}}. Se registrará el asiento y el ajuste ya no se podrá editar, solo revertir.",
+    "es": "Al contabilizar {{number}} se moverán {{lines}} producto(s): faltantes {{shortfall}}, sobrantes {{surplus}}, revaluación {{revaluation}}; efecto neto {{net}}. Se registrará el asiento y el ajuste quedará cerrado: ya no podrás editarlo, solo revertirlo.",
     "en": "Posting {{number}} moves {{lines}} product(s): shortfalls {{shortfall}}, surpluses {{surplus}}, revaluation {{revaluation}}; net effect {{net}}. The entry is booked and the adjustment can no longer be edited, only reversed.",
     "pt": "Ao contabilizar {{number}} serão movidos {{lines}} produto(s): faltas {{shortfall}}, sobras {{surplus}}, reavaliação {{revaluation}}; efeito líquido {{net}}. O lançamento será registrado e o ajuste não poderá mais ser editado, apenas revertido."
   },
   "inventory.adjustments.post_message_unknown": {
-    "es": "Al contabilizar {{number}}, la diferencia de las líneas contadas se calculará contra la existencia del almacén en ese momento. Se registrará el asiento y el ajuste ya no se podrá editar, solo revertir.",
+    "es": "Al contabilizar {{number}}, la diferencia de las líneas contadas se calculará contra la existencia del almacén en ese momento. Se registrará el asiento y el ajuste quedará cerrado: ya no podrás editarlo, solo revertirlo.",
     "en": "Posting {{number}} computes each counted line's difference against the warehouse stock at that moment. The entry is booked and the adjustment can no longer be edited, only reversed.",
     "pt": "Ao contabilizar {{number}}, a diferença das linhas contadas será calculada contra o estoque do depósito nesse momento. O lançamento será registrado e o ajuste não poderá mais ser editado, apenas revertido."
   },
@@ -1523,5 +1513,10 @@
     "es": "Reversión",
     "en": "Reversal",
     "pt": "Reversão"
+  },
+  "inventory.adjustments.leave_unsaved_new": {
+    "es": "Tienes cambios sin guardar en este ajuste nuevo. ¿Qué quieres hacer?",
+    "en": "You have unsaved changes in this new adjustment. What do you want to do?",
+    "pt": "Você tem alterações não salvas neste novo ajuste. O que deseja fazer?"
   }
 }

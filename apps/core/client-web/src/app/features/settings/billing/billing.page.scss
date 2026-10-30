@@ -162,7 +162,8 @@
         font-size: var(--text-sm);
         font-weight: var(--font-medium);
         color: var(--text-secondary);
-        text-transform: capitalize;
+        // The catalogue writes the name as a sentence («Créditos de IA»); forcing title case printed
+        // «Créditos De IA» beside lower-case names everywhere else (CG-30).
     }
 
     &__value {

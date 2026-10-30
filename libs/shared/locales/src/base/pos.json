@@ -710,9 +710,9 @@
     "pt": "Terminal deste dispositivo"
   },
   "pos.settings.terminal_hint": {
-    "es": "Un nombre único por caja (p. ej. CAJA-1). Cada caja tiene su propio turno.",
-    "en": "A unique name per till (e.g. TILL-1). Each till has its own shift.",
-    "pt": "Um nome único por caixa (ex.: CAIXA-1). Cada caixa tem o seu próprio turno."
+    "es": "Un nombre único por caja (p. ej. CAJA-1). Cada caja tiene su propio turno. Sin nombre, es la caja principal.",
+    "en": "A unique name per till (e.g. TILL-1). Each till has its own shift. Unnamed, it is the main till.",
+    "pt": "Um nome único por caixa (ex.: CAIXA-1). Cada caixa tem o seu próprio turno. Sem nome, é o caixa principal."
   },
   "pos.settings.terminal_open_shift": {
     "es": "El turno abierto pertenece a la terminal actual y seguirá abierto en ella.",
@@ -984,5 +984,30 @@
     "es": "Consumidor final",
     "en": "Walk-in customer",
     "pt": "Consumidor final"
+  },
+  "pos.settings.device_note": {
+    "es": "Estos ajustes se guardan solo en este equipo: cada caja tiene los suyos.",
+    "en": "These settings are kept on this device only: each till has its own.",
+    "pt": "Estas configurações ficam só neste dispositivo: cada caixa tem as suas."
+  },
+  "pos.settings.terminal_invalid": {
+    "es": "Usa solo letras, números, punto, guion o guion bajo, sin espacios ni tildes (p. ej. CAJA-1). Hasta 40 caracteres.",
+    "en": "Use only letters, numbers, dot, hyphen or underscore, with no spaces or accents (e.g. TILL-1). Up to 40 characters.",
+    "pt": "Use só letras, números, ponto, hífen ou sublinhado, sem espaços nem acentos (ex.: CAIXA-1). Até 40 caracteres."
+  },
+  "pos.settings.see_shortcuts": {
+    "es": "Ver los atajos de teclado (F1)",
+    "en": "See the keyboard shortcuts (F1)",
+    "pt": "Ver os atalhos de teclado (F1)"
+  },
+  "pos.terminal_default_label": {
+    "es": "Caja principal",
+    "en": "Main till",
+    "pt": "Caixa principal"
+  },
+  "pos.shortcuts.help": {
+    "es": "Ver estos atajos",
+    "en": "See these shortcuts",
+    "pt": "Ver estes atalhos"
   }
 }

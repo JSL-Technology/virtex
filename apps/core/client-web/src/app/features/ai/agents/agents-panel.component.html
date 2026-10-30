@@ -48,7 +48,7 @@
             </span>
           }
           @for (note of run.notes; track $index) {
-            <span class="ag__note">{{ k('ai.agents.note', note.key) | translate: note.params ?? {} }}</span>
+            <span class="ag__note">{{ k('ai.agents.note', note.key) | translate: (note.params | vxParams) }}</span>
           }
         </li>
       }

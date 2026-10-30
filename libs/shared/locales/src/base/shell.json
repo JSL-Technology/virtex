@@ -284,6 +284,11 @@
     "en": "“{{field}}” is required (line {{line}})",
     "pt": "“{{field}}” é obrigatório (linha {{line}})"
   },
+  "shell.problem_number": {
+    "es": "«{{field}}» no es un número. Escríbelo como {{example}}.",
+    "en": "“{{field}}” is not a number. Write it as {{example}}.",
+    "pt": "“{{field}}” não é um número. Escreva como {{example}}."
+  },
   "shell.problem_min_line": {
     "es": "«{{field}}» no puede ser menor que {{min}} (línea {{line}})",
     "en": "“{{field}}” cannot be lower than {{min}} (line {{line}})",
@@ -324,9 +329,9 @@
     "en": "“{{field}}” cannot be before the start date (line {{line}})",
     "pt": "“{{field}}” não pode ser anterior à data inicial (linha {{line}})"
   },
-  "shell.problem_number": {
-    "es": "«{{field}}» no es un número. Escríbelo como {{example}}.",
-    "en": "“{{field}}” is not a number. Write it as {{example}}.",
-    "pt": "“{{field}}” não é um número. Escreva como {{example}}."
+  "shell.problem_number_line": {
+    "es": "«{{field}}» no es un número; escríbelo como {{example}} (línea {{line}})",
+    "en": "“{{field}}” is not a number; write it as {{example}} (line {{line}})",
+    "pt": "“{{field}}” não é um número; escreva como {{example}} (linha {{line}})"
   }
 }

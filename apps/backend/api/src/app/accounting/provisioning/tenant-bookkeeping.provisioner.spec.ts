@@ -179,13 +179,20 @@ describeWithDb('tenant bookkeeping provisioning', () => {
     expect(rows).toEqual([{ is_final_consumer: true }]);
   });
 
-  it('writes the seeded names in the language of the books, and no payroll outside the Dominican engine', async () => {
+  it('writes the seeded names in the language of the books, and the market’s own payroll concepts', async () => {
     const { organizationId } = await provision('en', 'US');
     const [consumer] = await dataSource.query(
       `SELECT "companyName" FROM "customers" WHERE "organization_id" = $1 AND "is_final_consumer"`,
       [organizationId],
     );
-    expect(consumer.companyName).toBe('Final consumer');
-    expect(await countOf(`SELECT count(*) FROM "payroll_concepts" WHERE "organization_id" = $1`, organizationId)).toBe(0);
+    // The United States pack names the counter sale's customer as Americans do (`country-pack.ts`).
+    expect(consumer.companyName).toBe('Walk-in customer');
+    // The United States pack carries its own payroll (federal and state withholding, FICA); none of
+    // the Dominican TSS concepts may leak into it.
+    const concepts: { code: string }[] = await dataSource.query(`SELECT "code" FROM "payroll_concepts" WHERE "organization_id" = $1`, [organizationId]);
+    const codes = concepts.map((row) => row.code);
+    expect(codes).toEqual(expect.arrayContaining(['SS', 'MEDICARE', 'FIT']));
+    expect(codes).not.toEqual(expect.arrayContaining(['AFP']));
+    expect(codes).not.toEqual(expect.arrayContaining(['SFS']));
   });
 });

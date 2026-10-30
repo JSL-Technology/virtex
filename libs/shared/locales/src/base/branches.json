@@ -334,16 +334,6 @@
     "en": "Province / state",
     "pt": "Estado"
   },
-  "branches.settings.subtitle": {
-    "es": "Los lugares desde los que opera esta empresa: tiendas, oficinas, puntos de emisión.",
-    "en": "The places this company operates from: stores, offices, points of issue.",
-    "pt": "Os locais de onde esta empresa opera: lojas, escritórios, pontos de emissão."
-  },
-  "branches.settings.title": {
-    "es": "Sucursales",
-    "en": "Branches",
-    "pt": "Filiais"
-  },
   "branches.settings.updated": {
     "es": "Sucursal actualizada.",
     "en": "Branch updated.",

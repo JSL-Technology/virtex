@@ -224,8 +224,10 @@
     font-weight: var(--font-bold);
     line-height: 1.2;
     color: var(--content-primary);
-    &:focus { outline: none; }
-    &:focus-visible { @include ds.focus-ring; }
+    // Focused on arrival so a screen reader announces where the dialog opened; it is not a
+    // control, so it draws no ring.
+    &:focus,
+    &:focus-visible { outline: none; box-shadow: none; }
   }
 
   &__description { margin: var(--space-2) 0 0; max-width: 46rem; font-size: var(--text-md); color: var(--content-secondary); }
