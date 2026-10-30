@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { Observable, map } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SELECT } from '../../../shared/components/select';
 import { NotificationService } from '../../../core/services/notification';
@@ -14,10 +14,8 @@ import { Supplier } from '../../../core/models/supplier.model';
 import { PartnerKind, PartnerStatement, StatementsService, documentRoute } from '../data/statements.service';
 
 const pad = (n: number) => String(n).padStart(2, '0');
-const todayIso = (): string => {
-  const now = new Date();
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-};
+// The company's today, not the browser's or UTC (QA R3-M02).
+const todayIso = (): string => tenantToday();
 
 interface Partner {
   id: string;

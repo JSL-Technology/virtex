@@ -121,6 +121,8 @@ export interface PosSale {
   status: 'PAID' | 'CANCELLED';
   voidedAt?: string | null;
   voidReason?: string | null;
+  /** The comprobante fiscal (B02 in the Dominican Republic), when the company has a range in force. */
+  fiscalNumber?: string | null;
   createdAt: string;
 }
 

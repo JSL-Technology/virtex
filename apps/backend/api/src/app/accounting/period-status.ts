@@ -147,7 +147,12 @@ function findPeriodCovering(
  * period was created deliberately; it simply will not create one by itself.
  */
 const AUTO_OPEN_YEARS_BACK = 15;
-const AUTO_OPEN_YEARS_AHEAD = 5;
+/**
+ * One year ahead: a next-year accrual or a January invoice keyed in December opens its year, but a
+ * mistyped `2031` for `2026` no longer conjures five years of open periods (QA R3-A01). A date
+ * further out posts only into a period someone created on purpose.
+ */
+const AUTO_OPEN_YEARS_AHEAD = 1;
 
 /**
  * Open, on demand, the fiscal year the date belongs to, and return the period that now covers it.

@@ -29,7 +29,7 @@ export class CoaImportController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
-          new FileTypeValidator({ fileType: /(text\/csv|spreadsheetml\.sheet)/ }),
+          new FileTypeValidator({ fileType: /(text\/csv|spreadsheetml\.sheet)/, fallbackToMimetype: true }),
         ],
       }),
     ) file: FastifyFile,

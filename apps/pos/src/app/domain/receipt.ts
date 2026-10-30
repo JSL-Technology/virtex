@@ -86,6 +86,13 @@ export function receiptHtml(
   const body = [
     headerHtml(header, f),
     `<hr>`,
+    // The comprobante fiscal is what makes the ticket a tax document (QA R3-C02); without one the
+    // ticket says so instead of passing for a receipt the customer can claim.
+    sale.fiscalNumber
+      ? `<p><strong>${escapeHtml(f.t('pos.ticket.fiscal_number', { number: sale.fiscalNumber }))}</strong></p>`
+      : header.context?.organization?.country === 'DO'
+        ? `<p class="muted">${escapeHtml(f.t('pos.ticket.not_fiscal'))}</p>`
+        : '',
     `<p>${escapeHtml(f.t('pos.ticket.number', { number: sale.id.slice(0, 8).toUpperCase() }))}</p>`,
     `<p>${escapeHtml(f.dateTime(sale.createdAt))}</p>`,
     `<p>${escapeHtml(f.t('pos.ticket.terminal_cashier', { terminal: header.terminalId, cashier: header.cashier }))}</p>`,

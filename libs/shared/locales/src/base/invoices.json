@@ -469,9 +469,9 @@
     "pt": "O tipo de comprovante só pode conter letras e números."
   },
   "invoices.document_type_not_allowed_by_emission_mode": {
-    "es": "Tu empresa no emite comprobantes {{type}}: revisa la modalidad de emisión en Ajustes › Facturación electrónica.",
-    "en": "Your company does not issue {{type}} documents: check the emission mode in Settings › Electronic invoicing.",
-    "pt": "Sua empresa não emite comprovantes {{type}}: verifique a modalidade de emissão em Configurações › Faturamento eletrônico."
+    "es": "Tu empresa no emite comprobantes {{type}}: revisa la modalidad de emisión en Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país.",
+    "en": "Your company does not issue {{type}} documents: check the emission mode in Settings › Fiscal documents or Electronic invoicing, depending on your country.",
+    "pt": "Sua empresa não emite comprovantes {{type}}: verifique a modalidade de emissão em Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país."
   },
   "invoices.document_type_type_does_not_exist": {
     "es": "El tipo de comprobante {{type}} no existe en el régimen de {{country}}.",
@@ -752,19 +752,19 @@
     "pt": "o livro contábil padrão"
   },
   "invoices.gaps.fiscal_sequence": {
-    "es": "un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E) (Ajustes › Facturación electrónica)",
-    "en": "a current fiscal document range, traditional (B series) or electronic (E series) (Settings › Electronic invoicing)",
-    "pt": "uma faixa de comprovantes vigente, tradicional (série B) ou eletrônica (série E) (Configurações › Faturamento eletrônico)"
+    "es": "un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E) (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a current fiscal document range, traditional (B series) or electronic (E series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "uma faixa de comprovantes vigente, tradicional (série B) ou eletrônica (série E) (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_sequence_electronic": {
-    "es": "un rango de comprobantes electrónicos (serie E) vigente (Ajustes › Facturación electrónica)",
-    "en": "a current electronic document range (E series) (Settings › Electronic invoicing)",
-    "pt": "uma faixa de comprovantes eletrônicos (série E) vigente (Configurações › Faturamento eletrônico)"
+    "es": "un rango de comprobantes electrónicos (serie E) vigente (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a current electronic document range (E series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "uma faixa de comprovantes eletrônicos (série E) vigente (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_sequence_traditional": {
-    "es": "un rango de comprobantes tradicionales (serie B) vigente (Ajustes › Facturación electrónica)",
-    "en": "a current traditional document range (B series) (Settings › Electronic invoicing)",
-    "pt": "uma faixa de comprovantes tradicionais (série B) vigente (Configurações › Faturamento eletrônico)"
+    "es": "un rango de comprobantes tradicionales (serie B) vigente (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a current traditional document range (B series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "uma faixa de comprovantes tradicionais (série B) vigente (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_year": {
     "es": "un año fiscal con sus períodos contables",
@@ -812,8 +812,8 @@
     "pt": "a conta de taxa de serviço a pagar"
   },
   "invoices.gaps.signing_certificate": {
-    "es": "un certificado digital vigente para firmar comprobantes electrónicos (Ajustes › Facturación electrónica)",
-    "en": "a valid digital certificate to sign electronic documents (Settings › Electronic invoicing)",
+    "es": "un certificado digital vigente para firmar comprobantes electrónicos (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a valid digital certificate to sign electronic documents (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
     "pt": "um certificado digital válido para assinar comprovativos eletrónicos (Definições › Faturação eletrónica)"
   },
   "invoices.gaps.tax_withheld_account": {

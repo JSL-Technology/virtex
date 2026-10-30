@@ -14,7 +14,7 @@ import { JournalsService } from '../../../core/api/journals.service';
 import { Ledger } from '../../../core/models/ledger.model';
 import { Journal } from '../../../core/models/journal.model';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, tenantToday } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -150,7 +150,7 @@ export class JournalEntryFormPage implements OnInit {
   protected readonly valueLabel = valueLabel;
 
   ngOnInit(): void {
-    const today = new Date().toISOString().split('T')[0];
+    const today = tenantToday();
 
     this.entryForm = this.fb.group({
       date: [today, Validators.required],

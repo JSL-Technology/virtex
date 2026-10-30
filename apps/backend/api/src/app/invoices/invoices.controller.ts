@@ -19,7 +19,7 @@ import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { InvoicesService, InvoiceListQuery } from './invoices.service';
 import { InvoiceRendererService } from './services/invoice-renderer.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
-import { CreateCreditNoteDto } from './dto/create-credit-note.dto';
+import { CreditNoteBodyDto } from './dto/create-credit-note.dto';
 import { IssueInvoiceDto } from './dto/issue-invoice.dto';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import type { HttpResponse as Response } from '../common/http/http.types';
@@ -194,7 +194,7 @@ export class InvoicesController {
   @HttpCode(HttpStatus.CREATED)
   createCreditNote(
     @Param('id', UuidParamPipe) id: string,
-    @Body() dto: CreateCreditNoteDto,
+    @Body() dto: CreditNoteBodyDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.invoicesService.createCreditNote(

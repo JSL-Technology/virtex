@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, si
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxDateFieldComponent } from '../../../shared/components/date';
@@ -15,10 +15,8 @@ import { PurchaseOrder, PurchasingService } from '../data/purchasing.service';
 
 const QUANTITY_EPSILON = 0.000001;
 const round6 = (value: number): number => Math.round(value * 1e6) / 1e6;
-const todayIso = (): string => {
-  const now = new Date();
-  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
-};
+// The company's today, not the browser's or UTC (QA R3-M02).
+const todayIso = (): string => tenantToday();
 
 interface ReceiptLineValue {
   lineId: string;

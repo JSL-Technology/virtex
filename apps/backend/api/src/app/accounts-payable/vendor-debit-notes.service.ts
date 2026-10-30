@@ -26,6 +26,8 @@ import { applyBranchScope, assertDocumentInScope, loadBranchScope } from '../org
 import { assertPostableAccount, resolvePurchaseTaxAccount } from './payables-accounts';
 import { VendorDebitNoteQueryDto } from './dto/vendor-debit-note-query.dto';
 import { billPayable } from './vendor-bill-balance';
+import { Account } from '../chart-of-accounts/entities/account.entity';
+import { AccountRole } from '../chart-of-accounts/enums/account-enums';
 
 /** One page of a list. */
 export interface Paged<T> {
@@ -127,6 +129,17 @@ export class VendorDebitNotesService {
       const settings = await this.orgSettings.getForOrg(organizationId, manager);
       if (!settings || !settings.defaultAccountsPayableId) {
         throw new BadRequestError('accounts_payable.default_payable_account_not_configured');
+      }
+      // The inventory control account is not a counterpart a note can credit: the note moves no
+      // stock, so the books' inventory fell below the warehouse's by the note's amount (QA R3-A10).
+      // Goods going back are an inventory adjustment (stock out); the note then credits the
+      // adjustment account, and together they post exactly «payable against inventory».
+      const counterpart = await manager.findOne(Account, {
+        where: { id: dto.expenseAccountId, organizationId },
+        select: ['id', 'systemRole'],
+      });
+      if (dto.expenseAccountId === settings.defaultInventoryId || counterpart?.systemRole === AccountRole.INVENTORY) {
+        throw new BadRequestError('accounts_payable.debit_note_counterpart_cannot_be_inventory');
       }
       const taxAccountId =
         toCents(taxAmount) > 0

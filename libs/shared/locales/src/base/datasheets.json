@@ -54,6 +54,11 @@
     "en": "Number",
     "pt": "Número"
   },
+  "datasheets.cell_type_hint": {
+    "en": "Applies to the selected cells.",
+    "es": "Se aplica a las celdas seleccionadas.",
+    "pt": "Aplica-se às células selecionadas."
+  },
   "datasheets.chart_configuration": {
     "es": "Configuración de gráfico",
     "en": "Chart configuration",
@@ -93,6 +98,11 @@
     "es": "Variables del ERP",
     "en": "ERP variables",
     "pt": "Variáveis do ERP"
+  },
+  "datasheets.formula": {
+    "en": "Formula",
+    "es": "Fórmula",
+    "pt": "Fórmula"
   },
   "datasheets.formula_placeholder": {
     "es": "Introduce una fórmula o un valor…",
@@ -174,6 +184,11 @@
     "en": "New book",
     "pt": "Nova pasta de trabalho"
   },
+  "datasheets.no_import_modules": {
+    "en": "There is no ERP data available to import.",
+    "es": "No hay datos del ERP disponibles para importar.",
+    "pt": "Não há dados do ERP disponíveis para importar."
+  },
   "datasheets.no_invoiced_sales_period": {
     "es": "No hay ventas facturadas en el período.",
     "en": "There are no invoiced sales in the period.",
@@ -234,6 +249,11 @@
     "en": "Save",
     "pt": "Guardar"
   },
+  "datasheets.save_failed": {
+    "en": "The workbook could not be saved.",
+    "es": "No se pudo guardar el libro.",
+    "pt": "Não foi possível salvar a pasta."
+  },
   "datasheets.select_range_for_chart": {
     "es": "Selecciona un rango de datos para crear un gráfico.",
     "en": "Select a data range to create a chart.",
@@ -251,6 +271,11 @@
   },
   "datasheets.title": {
     "literal": "DataSheets"
+  },
+  "datasheets.untitled_book": {
+    "en": "Untitled workbook",
+    "es": "Libro sin título",
+    "pt": "Pasta sem título"
   },
   "datasheets.variable_name_catalogued_but_has_no": {
     "es": "La variable «{{name}}» está en el catálogo pero no tiene implementación.",

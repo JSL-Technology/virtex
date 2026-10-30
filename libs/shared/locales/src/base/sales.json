@@ -54,13 +54,18 @@
     "en": "Status",
     "pt": "Situação"
   },
+  "sales.history.ticket": {
+    "en": "Receipt",
+    "es": "Comprobante",
+    "pt": "Comprovante"
+  },
   "sales.history.total": {
     "literal": "Total"
   },
   "sales.history.walk_in": {
-    "es": "Cliente general",
     "en": "Walk-in customer",
-    "pt": "Cliente geral"
+    "es": "Consumidor final",
+    "pt": "Consumidor final"
   },
   "sales.lead_not_found": {
     "es": "Lead no encontrado.",

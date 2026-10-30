@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
 import { Bank, TreasuryService } from '../../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../../core/api/chart-of-accounts.service';
 import { CurrenciesService } from '../../../../core/api/currencies.service';
@@ -133,7 +133,7 @@ export class BankAccountFormPage implements OnInit {
         control.updateValueAndValidity();
       }
       if (declares) {
-        const today = new Date().toISOString().slice(0, 10);
+        const today = tenantToday();
         if (date && !date.value) date.setValue(today);
         //  Opening-balance equity is THE account for this, which is why the chart carries a role
         //  for it. Preselected, never retained earnings.

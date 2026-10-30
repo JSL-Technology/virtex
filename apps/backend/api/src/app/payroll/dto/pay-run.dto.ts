@@ -1,4 +1,5 @@
-import { IsOptional, IsUUID } from 'class-validator';
+import {
+  IsDateString, IsOptional, IsUUID } from 'class-validator';
 
 /**
  * Which account the net wages leave from.
@@ -17,4 +18,13 @@ export class PayPayrollRunDto {
   @IsUUID('4')
   @IsOptional()
   bankGlAccountId?: string;
+
+  /**
+   * The day the money left the bank. Defaults to today in the company's timezone: the entry used
+   * to take the run's planned pay date (the period's last day), so a payroll paid on the 28th
+   * showed in the bank on the 31st (QA R3-M02).
+   */
+  @IsDateString()
+  @IsOptional()
+  paymentDate?: string;
 }

@@ -1,5 +1,6 @@
 import { Injectable, computed, effect, inject, signal, PLATFORM_ID } from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { calendarDateIn, setTenantTimeZone } from './calendar-date-in';
 import {
   DEFAULT_LANGUAGE,
   LANGUAGE_DIRECTION,
@@ -105,6 +106,19 @@ export class LocaleStore {
     () => this._tenantContext()?.timezone ?? this.browserTimezone(),
   );
 
+  /**
+   * Today's calendar date (`YYYY-MM-DD`) as the company's books read it: in the tenant's timezone.
+   *
+   * Forms used to default their dates from `new Date().toISOString()` (UTC) or from the browser's
+   * clock, so after 20:00 in Santo Domingo a bank account's opening balance, a stock adjustment or a
+   * receipt was dated tomorrow, while the invoice keyed a minute earlier was dated today — and the
+   * cash position "as of today" left the opening balance out (QA R3-M02, R3-A07). Every form asks
+   * here instead.
+   */
+  today(at: Date = new Date()): string {
+    return calendarDateIn(this.timezone(), at);
+  }
+
   /** The tenant's functional currency, used for amounts that carry no code of their own. */
   readonly currency = computed<string>(() => this._tenantContext()?.currency ?? 'USD');
 
@@ -161,6 +175,8 @@ export class LocaleStore {
 
   setTenantContext(context: LocaleContextContract | null): void {
     this._tenantContext.set(context);
+    // `tenantToday()` serves forms that default a date outside an injection context.
+    setTenantTimeZone(context?.timezone ?? null);
   }
 
   /**
@@ -233,3 +249,4 @@ export class LocaleStore {
     }
   }
 }
+

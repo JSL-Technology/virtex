@@ -182,6 +182,8 @@ export class PayrollAccountingService {
     bankGlAccountId: string,
     netAmount: number,
     context: PostingContext,
+    /** When the money left; the run's planned pay date only for callers that do not know. */
+    paymentDate?: string,
   ): Promise<string | null> {
     if (netAmount === 0) return null;
 
@@ -215,7 +217,7 @@ export class PayrollAccountingService {
     const entry = await this.posting.createWithManager(
       manager,
       {
-        date: run.payDate,
+        date: paymentDate ?? run.payDate,
         description: paid.entry,
         journalId: journal.id,
         entryType: JournalEntryType.SYSTEM_GENERATED,

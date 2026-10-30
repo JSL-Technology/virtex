@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { DataSource } from 'typeorm';
 import { InventoryService } from '../inventory.service';
+import { organizationToday } from '../../organizations/contracts/fiscal-today.contract';
 
 /** The subset of a vendor bill line needed to adjust stock. */
 export interface VendorBillLine {
@@ -88,7 +89,7 @@ export class VendorBillInventoryHandler {
             reference: productLines[0]?.reference ?? payload.billId.slice(0, 8),
             sourceType: 'vendor_bill',
             sourceId: payload.billId,
-            date: new Date().toISOString().slice(0, 10),
+            date: await organizationToday(manager, payload.organizationId),
             post: false,
             place: { branchId: payload.branchId ?? null },
             lines: productLines.map((line) => ({

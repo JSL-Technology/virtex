@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, tenantToday } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxDateFieldComponent } from '../../../shared/components/date';
@@ -29,10 +29,8 @@ import {
   allocateTemplate,
 } from '../data/recurring-entries.service';
 
-const todayIso = (): string => {
-  const now = new Date();
-  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
-};
+// The company's today, not the browser's or UTC (QA R3-M02).
+const todayIso = (): string => tenantToday();
 
 /** What the server would refuse in a template's lines; a translation key and its parameters, or null. */
 export function templateProblem(lines: readonly TemplateLine[]): { message: string; params?: Record<string, unknown> } | null {

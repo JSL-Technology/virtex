@@ -28,6 +28,7 @@ import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
+import { RecordVendorBillNcfDto } from './dto/record-vendor-bill-ncf.dto';
 
 @ApiTags('Accounts Payable')
 @ApiBearerAuth()
@@ -112,6 +113,18 @@ export class AccountsPayableController {
       user.organizationId,
       user.id,
     );
+  }
+
+  /** Record the NCF on a posted bill that has none — what the 606 asks for (QA R3-A04). */
+  @Post(':id/ncf')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_EDIT)
+  recordNcf(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: RecordVendorBillNcfDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.accountsPayableService.recordNcf(id, user.organizationId, dto.ncf);
   }
 
   @Post(':id/submit-for-approval')

@@ -6,6 +6,10 @@ import { hasPermission } from '@virteex/shared/util-auth';
 import { PosShift, PosShiftStatus } from './entities/pos-shift.entity';
 import { PosPayment, PosSale, PosSaleItem, PosSaleStatus } from './entities/pos-sale.entity';
 import { InventoryService } from '../inventory/inventory.service';
+import { PosPostingService } from './pos-posting.service';
+import { ComplianceService } from '../compliance/compliance.service';
+import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
+import { Organization } from '../organizations/entities/organization.entity';
 import {
   SellableCatalogueItem,
   findSellableProduct,
@@ -107,6 +111,8 @@ export class PosService {
     @InjectRepository(PosSale) private readonly sales: Repository<PosSale>,
     private readonly inventory: InventoryService,
     private readonly dataSource: DataSource,
+    private readonly postingService: PosPostingService,
+    private readonly compliance: ComplianceService,
   ) {}
 
   getActiveShift(organizationId: string, terminalId: string): Promise<PosShift | null> {
@@ -218,6 +224,11 @@ export class PosService {
       // The sale's id is chosen before its stock moves, so the kardex can point at the sale.
       const saleId = randomUUID();
       const lines: PosSaleItem[] = [];
+      // What the books need beyond the ticket: revenue split by goods and services, and the cost
+      // of the goods at the unit cost the kardex used (QA R3-C02).
+      let goodsRevenue = 0;
+      let servicesRevenue = 0;
+      let costOfSale = 0;
       for (const item of dto.items) {
         const product = await findSellableProduct(manager, organizationId, item.productId);
         if (!product) {
@@ -234,7 +245,8 @@ export class PosService {
         const lineTax = roundAmount(lineSubtotal * taxRate);
 
         if (product.stocked) {
-          await this.inventory.decreaseStock(product.id, item.quantity, manager, organizationId, {
+          goodsRevenue += lineSubtotal;
+          const { unitCost } = await this.inventory.decreaseStock(product.id, item.quantity, manager, organizationId, {
             // The till's shift belongs to a branch; its warehouse is where the goods leave from.
             place: { branchId: shift.branchId },
             type: 'SALE_DISPATCH',
@@ -242,6 +254,9 @@ export class PosService {
             sourceType: 'pos_sale',
             sourceId: saleId,
           });
+          costOfSale += unitCost * item.quantity;
+        } else {
+          servicesRevenue += lineSubtotal;
         }
 
         lines.push({
@@ -252,6 +267,7 @@ export class PosService {
           taxRate,
           lineSubtotal,
           lineTax,
+          isService: !product.stocked,
         });
       }
 
@@ -289,7 +305,37 @@ export class PosService {
         amountTendered: tender.amountTendered,
         changeDue: tender.changeDue,
         status: PosSaleStatus.PAID,
+        costOfSale: roundAmount(costOfSale),
       });
+
+      // The comprobante fiscal of a consumer sale. In the Dominican Republic a till ticket is a
+      // factura de consumo (B02) drawn from the company's authorised range; without one in force
+      // the ticket is not a fiscal document, as before, and says so.
+      const fiscal = await this.drawConsumerReceipt(manager, organizationId);
+      sale.fiscalNumber = fiscal?.ncf ?? null;
+      sale.fiscalDocumentType = fiscal?.type ?? null;
+
+      // Posted in this transaction, so a sale exists in the books exactly when it exists on the
+      // shelf and in the drawer.
+      const cashKeptForBooks = tender.payments.length
+        ? tender.cashKept
+        : paymentMethod === null || CASH_METHODS.has(paymentMethod)
+          ? total
+          : 0;
+      await this.postingService.post(
+        manager,
+        sale,
+        {
+          cash: cashKeptForBooks,
+          nonCash: roundAmount(total - cashKeptForBooks),
+          goodsRevenue: roundAmount(goodsRevenue),
+          servicesRevenue: roundAmount(servicesRevenue),
+          tax,
+          costOfSale,
+        },
+        await organizationToday(manager, organizationId),
+        cashier.id,
+      );
       const saved = await manager.save(PosSale, sale);
 
       shift.salesTotal = sumAmounts([Number(shift.salesTotal), total]);
@@ -309,6 +355,21 @@ export class PosService {
       this.logger.log(`POS sale ${saved.id} on terminal ${dto.terminalId} (${total})`);
       return saved;
     });
+  }
+
+  /**
+   * A consumer receipt number (B02) for a Dominican company that has a traditional range in force;
+   * null for any other market or when no range is registered.
+   */
+  private async drawConsumerReceipt(
+    manager: EntityManager,
+    organizationId: string,
+  ): Promise<{ ncf: string; type: string } | null> {
+    const organization = await manager.findOne(Organization, { where: { id: organizationId }, select: ['id', 'country'] });
+    if (organization?.country !== 'DO') return null;
+    if (!(await this.compliance.findActiveSequence(organizationId, 'B02'))) return null;
+    const assigned = await this.compliance.getNextNcf(organizationId, 'B02', manager);
+    return { ncf: assigned.ncf, type: assigned.type };
   }
 
   /** The till's catalogue, priced and taxed as the server will charge it. */
@@ -441,6 +502,15 @@ export class PosService {
           sourceId: sale.id,
         });
       }
+
+      // The ticket's entries are reversed with its stock, so a void nets to nothing in the books.
+      await this.postingService.reverse(
+        manager,
+        sale,
+        await organizationToday(manager, organizationId),
+        dto.reason.trim(),
+        actor.id,
+      );
 
       sale.status = PosSaleStatus.CANCELLED;
       sale.voidedAt = new Date();

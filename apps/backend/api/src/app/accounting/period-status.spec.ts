@@ -74,6 +74,17 @@ describe('resolvePostingPeriod', () => {
     expect(ensureMock).not.toHaveBeenCalled();
   });
 
+  // QA R3-A01: a manual entry dated 2031 in 2026 opened twelve periods of 2031 without a word.
+  it('will not open a year five years ahead either: only the next one opens by itself', async () => {
+    const findOne = jest.fn().mockResolvedValueOnce(null);
+    const manager = { findOne } as unknown as EntityManager;
+
+    await expect(
+      resolvePostingPeriod(manager, ORG, `${thisYear + 5}-05-01`, undefined, { createIfMissing: true }),
+    ).rejects.toBeDefined();
+    expect(ensureMock).not.toHaveBeenCalled();
+  });
+
   it('never reopens a closed or locked fiscal year', async () => {
     const findOne = jest
       .fn()

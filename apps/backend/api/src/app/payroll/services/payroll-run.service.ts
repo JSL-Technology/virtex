@@ -31,6 +31,7 @@ import {
 } from './payroll-calculation.service';
 import { PayrollAccountingService } from './payroll-accounting.service';
 import { SeveranceResult, SeveranceService } from './severance.service';
+import { organizationToday } from '../../organizations/contracts/fiscal-today.contract';
 
 export interface CreateRunInput {
   name?: string;
@@ -388,10 +389,11 @@ export class PayrollRunService {
     runId: string,
     organizationId: string,
     actorUserId: string,
-    source: { bankAccountId?: string; bankGlAccountId?: string } | string = {},
+    source: { bankAccountId?: string; bankGlAccountId?: string; paymentDate?: string } | string = {},
   ): Promise<PayrollRun> {
     // A bare string is the ledger account id, as older callers pass it.
-    const from = typeof source === 'string' ? { bankGlAccountId: source } : source;
+    const from: { bankAccountId?: string; bankGlAccountId?: string; paymentDate?: string } =
+      typeof source === 'string' ? { bankGlAccountId: source } : source;
     if (!from.bankAccountId && !from.bankGlAccountId) {
       throw new BadRequestError('payroll.paying_payroll_requires_selecting_bank_account');
     }
@@ -405,12 +407,14 @@ export class PayrollRunService {
 
       // The cash actually leaves here: DR net-wages-payable / CR bank, idempotent on the run, so an
       // approved run and a paid run cannot drift and the payable approval created is cleared.
+      const paymentDate = from.paymentDate?.slice(0, 10) ?? (await organizationToday(em, organizationId));
       const paymentEntryId = await this.accounting.postPayment(
         em,
         run,
         bankGlAccountId,
         run.totalNet,
         { actorUserId, systemReason: 'payroll-payment' },
+        paymentDate,
       );
 
       run.paymentJournalEntryId = paymentEntryId;

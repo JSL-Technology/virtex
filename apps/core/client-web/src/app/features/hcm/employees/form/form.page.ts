@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { LucideAngularModule, Eye } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../../core/services/notification';
 import {
   Department,
@@ -494,8 +494,6 @@ export class EmployeeFormPage implements OnInit {
 }
 
 function todayIso(): string {
-  const now = new Date();
-  const month = `${now.getMonth() + 1}`.padStart(2, '0');
-  const day = `${now.getDate()}`.padStart(2, '0');
-  return `${now.getFullYear()}-${month}-${day}`;
+  // The company's today, not the browser's or UTC (QA R3-M02).
+  return tenantToday();
 }

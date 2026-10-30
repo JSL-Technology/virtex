@@ -14,7 +14,7 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 import { VX_SELECT } from '../../../../shared/components/select';
-import { TranslateModule, LocaleStore, VxCurrencyNamePipe } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore, VxCurrencyNamePipe, tenantToday } from '@virteex/shared/ui-i18n';
 import { CurrenciesService, Currency } from '../../../../core/api/currencies.service';
 
 @Component({
@@ -101,7 +101,7 @@ export class PriceListFormPage implements OnInit {
   }
 
   ngOnInit(): void {
-    const today = new Date().toISOString().split('T')[0];
+    const today = tenantToday();
     // Without permission to read the catalogue (a seller), the books currency is still offered.
     this.currencies.getCurrencies().subscribe({
       next: (all) => this.tenantCurrencies.set(all.map(({ code, name }) => ({ code, name }))),

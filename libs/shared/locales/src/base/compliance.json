@@ -80,8 +80,8 @@
     "pt": "A sequência NCF do tipo {{type}} tem limites não numéricos."
   },
   "compliance.no_active_ncf_sequence_type_type": {
-    "es": "No hay una secuencia de NCF activa para el tipo {{type}}. Registra el rango autorizado por la DGII en Ajustes → Facturación Electrónica antes de emitir este comprobante.",
-    "en": "There is no active NCF sequence for type {{type}}. Register the range authorised by the DGII under Settings → Electronic Invoicing before issuing this document.",
+    "es": "No hay una secuencia de NCF activa para el tipo {{type}}. Registra el rango autorizado por la DGII en Ajustes › Comprobantes fiscales antes de emitir este comprobante.",
+    "en": "There is no active NCF sequence for type {{type}}. Register the range authorised by the DGII under Settings › Fiscal documents before issuing this document.",
     "pt": "Não há uma sequência de NCF ativa para o tipo {{type}}. Registe o intervalo autorizado pela DGII em Definições → Faturação Eletrónica antes de emitir este documento."
   },
   "compliance.organization_has_no_default_ledger": {
@@ -115,9 +115,9 @@
     "pt": "Indique a data de vencimento que a autoridade fiscal atribuiu ao intervalo {{type}}."
   },
   "compliance.report_606_credit_note_without_modified_ncf": {
-    "es": "El 606 no se generó: {{count}} nota(s) de crédito de proveedor con NCF modifican una factura sin NCF ({{notes}}). Registra el NCF de la factura de proveedor y vuelve a generarlo.",
-    "en": "The 606 was not generated: {{count}} supplier credit note(s) with an NCF modify a bill without an NCF ({{notes}}). Record the vendor bill's NCF and generate it again.",
-    "pt": "O 606 não foi gerado: {{count}} nota(s) de crédito de fornecedor com NCF modificam uma fatura sem NCF ({{notes}}). Registre o NCF da fatura do fornecedor e gere novamente."
+    "en": "The 606 was not generated: {{count}} supplier debit note(s) (the credit-note NCF the supplier issued you) modify a vendor bill without an NCF ({{notes}}). Open that bill and use “Record NCF”, then generate the 606 again.",
+    "es": "El 606 no se generó: {{count}} nota(s) de débito a proveedor (el NCF de nota de crédito que te emitió el proveedor) modifican una factura de proveedor sin NCF ({{notes}}). Abre esa factura y usa «Registrar NCF»; luego genera el 606 de nuevo.",
+    "pt": "O 606 não foi gerado: {{count}} nota(s) de débito a fornecedor (o NCF de nota de crédito emitido pelo fornecedor) modificam uma fatura sem NCF ({{notes}}). Abra essa fatura e use «Registrar NCF»; depois gere o 606 novamente."
   },
   "compliance.report_606_supplier_tax_id_missing": {
     "es": "El 606 no se generó: {{count}} factura(s) de proveedor con NCF no tienen un RNC o cédula válido del proveedor ({{bills}}). Corrige el RNC en la ficha del proveedor y vuelve a generarlo.",

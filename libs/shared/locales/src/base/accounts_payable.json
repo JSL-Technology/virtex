@@ -234,6 +234,11 @@
     "en": "The debit note cannot be larger than the invoice balance.",
     "pt": "O valor da nota de débito não pode ser maior que o saldo da fatura."
   },
+  "accounts_payable.debit_note_counterpart_cannot_be_inventory": {
+    "en": "The inventory account cannot be a debit note’s counterpart: the note moves no stock, so the books’ inventory would stop matching the warehouse. To return goods, first record an inventory adjustment (stock out) and use the inventory adjustments account here.",
+    "es": "La cuenta de inventario no puede ser la contrapartida de una nota de débito: la nota no mueve existencias y el inventario contable dejaría de cuadrar con el almacén. Para devolver mercancía, registra primero un ajuste de inventario (salida) y usa aquí la cuenta de ajustes de inventario.",
+    "pt": "A conta de estoque não pode ser a contrapartida de uma nota de débito: a nota não movimenta estoque e o estoque contábil deixaria de bater com o armazém. Para devolver mercadoria, registre primeiro um ajuste de estoque (saída) e use aqui a conta de ajustes de estoque."
+  },
   "accounts_payable.debit_note_delete_use_void": {
     "es": "Una nota de débito emitida no se elimina: su asiento está en el mayor. Anúlala para revertirlo.",
     "en": "An issued debit note cannot be deleted: its entry is in the ledger. Void it to reverse the entry.",
@@ -629,6 +634,16 @@
     "en": "Item",
     "pt": "Descrição"
   },
+  "accounts_payable.detail.ncf_not_recorded": {
+    "en": "The NCF could not be recorded.",
+    "es": "No se pudo registrar el NCF.",
+    "pt": "Não foi possível registrar o NCF."
+  },
+  "accounts_payable.detail.ncf_recorded": {
+    "en": "NCF recorded.",
+    "es": "NCF registrado.",
+    "pt": "NCF registrado."
+  },
   "accounts_payable.detail.no_debit_notes": {
     "es": "Esta factura no tiene notas de débito.",
     "en": "This bill has no debit notes.",
@@ -658,6 +673,31 @@
     "es": "Cantidad",
     "en": "Quantity",
     "pt": "Quantidade"
+  },
+  "accounts_payable.detail.record_ncf": {
+    "en": "Record NCF",
+    "es": "Registrar NCF",
+    "pt": "Registrar NCF"
+  },
+  "accounts_payable.detail.record_ncf_message": {
+    "en": "Type the comprobante printed on the supplier’s bill. It is needed to deduct the ITBIS and for the 606.",
+    "es": "Escribe el comprobante que figura en la factura del proveedor. Es necesario para descontar el ITBIS y para el 606.",
+    "pt": "Digite o comprovante impresso na fatura do fornecedor. É necessário para deduzir o ITBIS e para o 606."
+  },
+  "accounts_payable.detail.record_ncf_placeholder": {
+    "en": "B0100000123",
+    "es": "B0100000123",
+    "pt": "B0100000123"
+  },
+  "accounts_payable.detail.record_ncf_title": {
+    "en": "Record the supplier’s NCF",
+    "es": "Registrar el NCF del proveedor",
+    "pt": "Registrar o NCF do fornecedor"
+  },
+  "accounts_payable.detail.record_ncf_too_short": {
+    "en": "An NCF has at least 11 characters (B01 + 8 digits).",
+    "es": "Un NCF tiene al menos 11 caracteres (B01 + 8 dígitos).",
+    "pt": "Um NCF tem pelo menos 11 caracteres (B01 + 8 dígitos)."
   },
   "accounts_payable.detail.reversing_entry_posted_general_ledger": {
     "es": "Se registró el asiento de reversión en el libro mayor.",
@@ -1026,10 +1066,25 @@
     "en": "NCF {{ncf}} from {{supplier}} is already recorded on another bill.",
     "pt": "O NCF {{ncf}} de {{supplier}} já está registado noutra fatura."
   },
+  "accounts_payable.ncf_already_recorded_on_bill": {
+    "en": "This bill already carries NCF {{ncf}}. A declared comprobante is corrected by voiding the bill.",
+    "es": "Esta factura ya tiene el NCF {{ncf}}. Un comprobante declarado se corrige anulando la factura.",
+    "pt": "Esta fatura já tem o NCF {{ncf}}. Um comprovante declarado é corrigido anulando a fatura."
+  },
   "accounts_payable.ncf_invalid_format": {
     "es": "El NCF {{ncf}} no tiene el formato de la DGII: B + tipo + 8 dígitos (11 caracteres) o E + tipo + 10 dígitos (13).",
     "en": "NCF {{ncf}} is not in the DGII format: B + type + 8 digits (11 characters) or E + type + 10 digits (13).",
     "pt": "O NCF {{ncf}} não tem o formato da DGII: B + tipo + 8 dígitos (11 caracteres) ou E + tipo + 10 dígitos (13)."
+  },
+  "accounts_payable.ncf_record_only_posted_bills": {
+    "en": "A draft’s NCF is corrected by editing it; a voided or rejected bill is not changed.",
+    "es": "El NCF de un borrador se corrige editándolo; una factura anulada o rechazada no se modifica.",
+    "pt": "O NCF de um rascunho é corrigido editando-o; uma fatura anulada ou rejeitada não é alterada."
+  },
+  "accounts_payable.ncf_required_for_supplier_with_rnc": {
+    "en": "The bill from {{supplier}} needs its NCF: without it the ITBIS cannot be deducted nor reported in the 606. If the supplier is informal, record it without an RNC and issue a purchase voucher (B11).",
+    "es": "La factura de {{supplier}} necesita su NCF: sin él no se puede descontar el ITBIS ni declarar en el 606. Si el proveedor es informal, regístralo sin RNC y emite un comprobante de compras (B11).",
+    "pt": "A fatura de {{supplier}} precisa do NCF: sem ele não se pode deduzir o ITBIS nem declará-lo no 606. Se o fornecedor for informal, registre-o sem RNC e emita um comprovante de compras (B11)."
   },
   "accounts_payable.ncf_requires_supplier_tax_id": {
     "es": "La factura con NCF {{ncf}} necesita el RNC o la cédula del proveedor {{supplier}}. Regístralo en la ficha del proveedor: el 606 identifica cada compra por él y la DGII rechaza las que no lo tienen.",

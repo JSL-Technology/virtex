@@ -14,6 +14,7 @@
  * — generated from `libs/shared/locales` by `tools/i18n/build-catalogues.mjs`.
  */
 export * from './lib/locale.store';
+export * from './lib/calendar-date-in';
 export * from './lib/format.service';
 export * from './lib/format.pipes';
 export * from './lib/localized-name';

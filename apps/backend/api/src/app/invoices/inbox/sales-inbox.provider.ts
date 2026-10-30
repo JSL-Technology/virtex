@@ -10,6 +10,7 @@ import {
 } from '../../shared/inbox/module-inbox.port';
 import { ModuleInboxRegistry } from '../../shared/inbox/module-inbox.registry';
 import { Invoice, InvoiceStatus } from '../entities/invoice.entity';
+import { organizationToday } from '../../organizations/contracts/fiscal-today.contract';
 
 /**
  * Lo que tiene bloqueado Ventas.
@@ -46,7 +47,7 @@ export class SalesInboxProvider extends ModuleInboxPort implements OnModuleInit 
       take: INBOX_ITEM_LIMIT,
     });
 
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = await organizationToday(this.invoices.manager, organizationId);
     const [overdue, overdueCount] = await this.invoices.findAndCount({
       where: {
         organizationId,

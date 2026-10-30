@@ -12,6 +12,7 @@ import { PERMISSIONS } from '../shared/permissions';
 import { InvoicesService } from './invoices.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { InvoiceStatus } from './entities/invoice.entity';
+import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 
 const LINE = s.object({
   product_id: s.nullable(s.string('Product id from search_products; null for a free-text line')),
@@ -164,7 +165,7 @@ export class InvoicesCopilotTools implements OnModuleInit {
   }
 
   private async toDto(ctx: CopilotToolContext, input: Record<string, unknown>): Promise<CreateInvoiceDto> {
-    const issueDate = opt<string>(input, 'issue_date') ?? new Date().toISOString().slice(0, 10);
+    const issueDate = opt<string>(input, 'issue_date') ?? (await organizationToday(this.dataSource.manager, ctx.organizationId));
     let dueDate = opt<string>(input, 'due_date');
     if (!dueDate) {
       const [terms] = await this.dataSource.query(

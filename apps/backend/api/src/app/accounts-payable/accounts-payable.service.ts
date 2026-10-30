@@ -405,6 +405,54 @@ export class AccountsPayableService {
    *
    * Outside the Dominican Republic the field is not a DGII comprobante and nothing here applies.
    */
+  /**
+   * In the Dominican Republic a purchase from a supplier with an RNC is backed by that supplier's
+   * comprobante, or it cannot be reported in the 606 nor its ITBIS deducted (QA R3-A04): a bill
+   * posted without one took the tax as a credit, and the month's 606 then refused to generate with
+   * no way to repair it. An informal supplier (no RNC) is covered by the B11 the company issues.
+   */
+  private async assertNcfPresent(
+    manager: EntityManager,
+    organizationId: string,
+    bill: Pick<VendorBill, 'ncf'> & { vendor?: Pick<Supplier, 'name' | 'taxId'> | null },
+  ): Promise<void> {
+    if (bill.ncf?.trim()) return;
+    const [organization] = await manager.query('SELECT country FROM organizations WHERE id = $1', [organizationId]);
+    if ((organization?.country ?? '').toUpperCase() !== 'DO') return;
+    if (bill.vendor?.taxId && isValidDominicanTaxId(bill.vendor.taxId)) {
+      throw new BadRequestError('accounts_payable.ncf_required_for_supplier_with_rnc', {
+        supplier: bill.vendor.name,
+      });
+    }
+  }
+
+  /**
+   * Record the supplier's NCF on a bill already posted without one — the repair the 606 asks for
+   * (QA R3-A04). Only when the bill has none: a recorded comprobante is corrected by voiding the
+   * bill, not by overwriting what was declared. The same checks as at entry apply.
+   */
+  async recordNcf(billId: string, organizationId: string, ncf: string): Promise<VendorBill> {
+    return this.dataSource.transaction(async (manager) => {
+      const bill = await manager.findOne(VendorBill, {
+        where: { id: billId, organizationId },
+        relations: ['vendor'],
+        lock: { mode: 'pessimistic_write', tables: ['vendor_bills'] },
+      });
+      if (!bill) {
+        throw new NotFoundError('accounts_payable.vendor_bill_id_not_found', { id: billId });
+      }
+      if ([VendorBillStatus.DRAFT, VendorBillStatus.VOID, VendorBillStatus.REJECTED].includes(bill.status)) {
+        throw new BadRequestError('accounts_payable.ncf_record_only_posted_bills');
+      }
+      if (bill.ncf?.trim()) {
+        throw new ConflictError('accounts_payable.ncf_already_recorded_on_bill', { ncf: bill.ncf });
+      }
+      const normalized = await this.assertFiscalIdentity(manager, organizationId, ncf, bill.vendor, bill.id);
+      bill.ncf = normalized ?? ncf.trim();
+      return manager.save(VendorBill, bill);
+    });
+  }
+
   private async assertFiscalIdentity(
     manager: EntityManager,
     organizationId: string,
@@ -521,6 +569,7 @@ export class AccountsPayableService {
       }
       // Again here: a draft's supplier and NCF can both change after it was created.
       await this.assertFiscalIdentity(manager, organizationId, bill.ncf, bill.vendor, bill.id);
+      await this.assertNcfPresent(manager, organizationId, bill);
 
       for (const line of bill.lines) {
         if (!line.expenseAccountId) continue;

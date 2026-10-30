@@ -30,6 +30,25 @@ import { isValidDominicanTaxId } from '../../localization/contracts/tax-id.contr
  * Every figure comes from a stored, document-level field. Nothing is inferred from a total, because
  * a return derived by arithmetic from an inclusive amount is a guess presented as a declaration.
  */
+/**
+ * A point-of-sale ticket that carries a comprobante fiscal (B02), as the 607 and 608 need it.
+ * Read by `ComplianceService` from the tills' journal; amounts are already net of change.
+ */
+export interface TillFiscalSale {
+  fiscalNumber: string;
+  /** The sale's date in the company's fiscal time zone, `YYYY-MM-DD`. */
+  date: string;
+  goods: number;
+  services: number;
+  tax: number;
+  cash: number;
+  card: number;
+  transfer: number;
+  other: number;
+  voided: boolean;
+  voidReason: string | null;
+}
+
 export class DominicanRepublicReports {
   // ── 607: Ventas de bienes y servicios ──────────────────────────────────────
 
@@ -46,6 +65,7 @@ export class DominicanRepublicReports {
     month: number,
     invoiceRepository: Repository<Invoice>,
     organization: Organization,
+    tillSales: readonly TillFiscalSale[] = [],
   ): Promise<string> {
     const { from, to } = monthBounds(year, month);
 
@@ -97,7 +117,43 @@ export class DominicanRepublicReports {
       ].join('|');
     });
 
-    const totalInvoiced = sales.reduce((sum, s) => sum + (s.subtotal - s.discountTotal), 0);
+    // Till tickets with a B02 are consumer comprobantes like any other (QA R3-C02): they were
+    // missing, so every sale rung at a till was left out of the return.
+    const tillRows = tillSales
+      .filter((sale) => !sale.voided)
+      .map((sale) =>
+        [
+          '',
+          '',
+          sale.fiscalNumber,
+          '',
+          incomeType,
+          compactDate(sale.date),
+          money(sale.services),
+          money(sale.goods),
+          money(sale.goods + sale.services),
+          money(sale.tax),
+          money(0),
+          money(0),
+          money(0),
+          money(0),
+          money(0),
+          money(0),
+          money(0),
+          money(sale.cash),
+          money(sale.transfer),
+          money(sale.card),
+          money(0),
+          money(0),
+          money(0),
+          money(sale.other),
+        ].join('|'),
+      );
+    rows.push(...tillRows);
+
+    const totalInvoiced =
+      sales.reduce((sum, s) => sum + (s.subtotal - s.discountTotal), 0) +
+      tillSales.filter((sale) => !sale.voided).reduce((sum, sale) => sum + sale.goods + sale.services, 0);
     const header = [
       '607',
       digitsOnly(organization.taxId),
@@ -209,6 +265,7 @@ export class DominicanRepublicReports {
     month: number,
     invoiceRepository: Repository<Invoice>,
     organization: Organization,
+    tillSales: readonly TillFiscalSale[] = [],
   ): Promise<string> {
     const { from, to } = monthBounds(year, month);
 
@@ -229,6 +286,10 @@ export class DominicanRepublicReports {
         annulmentCode(invoice.voidReason),
       ].join('|'),
     );
+    // A voided till ticket whose B02 was printed is an annulled comprobante too.
+    for (const sale of tillSales.filter((t) => t.voided)) {
+      rows.push([sale.fiscalNumber, compactDate(sale.date), annulmentCode(sale.voidReason)].join('|'));
+    }
 
     const header = [
       '608',

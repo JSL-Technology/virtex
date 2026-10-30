@@ -1227,6 +1227,23 @@ export class JournalEntriesService {
    * rows, and the original is marked MODIFIED and linked forward, so the correction is legible in
    * the book rather than hidden.
    */
+  /** The original's own date while its period is open; otherwise the correction's date. */
+  private async modificationReversalDate(
+    manager: EntityManager,
+    organizationId: string,
+    original: JournalEntry,
+    correctedDate: string,
+  ): Promise<string> {
+    const originalDate =
+      typeof original.date === 'string' ? (original.date as string).slice(0, 10) : new Date(original.date).toISOString().slice(0, 10);
+    try {
+      await resolvePostingPeriod(manager, organizationId, originalDate);
+      return originalDate;
+    } catch {
+      return correctedDate;
+    }
+  }
+
   async update(
     id: string,
     organizationId: string,
@@ -1259,11 +1276,18 @@ export class JournalEntriesService {
         );
       }
 
+      // The reversal undoes the original where the original lives: on its own date, in its own
+      // period. It used to take the corrected date, so moving an entry from 2031 to 2026 left the
+      // original in 2031 and put its reversal beside the replacement in 2026, where the two
+      // cancelled out — the correction corrected nothing (QA R3-A02). Only when the original's
+      // period is already closed does the reversal fall on the correction's date, as an
+      // adjustment in the open book rather than a change to a sealed one.
+      const reversalDate = await this.modificationReversalDate(manager, organizationId, original, updateDto.date);
       await this.reverseWithin(
         id,
         organizationId,
         {
-          reversalDate: updateDto.date,
+          reversalDate,
           reason: `Modificación: ${updateDto.modificationReason}`,
         },
         manager,

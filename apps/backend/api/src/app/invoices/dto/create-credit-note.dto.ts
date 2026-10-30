@@ -10,6 +10,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { OmitType } from '@nestjs/mapped-types';
 import { ModificationCode } from '../entities/invoice.entity';
 
 export class CreditNoteLineItemDto {
@@ -58,3 +59,10 @@ export class CreateCreditNoteDto {
   @IsOptional()
   restockGoods?: boolean;
 }
+
+/**
+ * The body of `POST /invoices/:id/credit-note`. The invoice comes from the route, so the body must
+ * not be required to repeat it: it was, and every credit note and annulment from the UI failed
+ * validation with «invoice es obligatorio» before reaching the service (QA R3-C01).
+ */
+export class CreditNoteBodyDto extends OmitType(CreateCreditNoteDto, ['invoiceId'] as const) {}

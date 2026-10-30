@@ -1,4 +1,9 @@
 {
+  "pos.accounting_setup_incomplete": {
+    "en": "The till cannot post this sale: configure the cash, bank, sales revenue and output tax accounts in Settings › Accounting.",
+    "es": "La caja no puede contabilizar esta venta: configura las cuentas de caja, banco, ingresos por ventas e ITBIS en Ajustes › Contabilidad.",
+    "pt": "O caixa não pode contabilizar esta venda: configure as contas de caixa, banco, receita de vendas e imposto em Configurações › Contabilidade."
+  },
   "pos.actions": {
     "es": "Acciones de la caja",
     "en": "Till actions",
@@ -624,6 +629,11 @@
     "en": "Sale recorded.",
     "pt": "Venda registada."
   },
+  "pos.sale_entry_does_not_balance": {
+    "en": "The sale entry does not balance (debit {{debit}}, credit {{credit}}). Reload the till and try again.",
+    "es": "El asiento de la venta no cuadra (débito {{debit}}, crédito {{credit}}). Recarga la caja e inténtalo de nuevo.",
+    "pt": "O lançamento da venda não fecha (débito {{debit}}, crédito {{credit}}). Recarregue o caixa e tente novamente."
+  },
   "pos.sale_error": {
     "es": "No pudimos completar la venta.",
     "en": "We could not complete the sale.",
@@ -891,6 +901,16 @@
     "en": "There is already an open shift on this terminal.",
     "es": "Ya hay un turno abierto en esta terminal.",
     "pt": "Já existe um turno aberto neste terminal."
+  },
+  "pos.ticket.fiscal_number": {
+    "en": "NCF: {{number}}",
+    "es": "NCF: {{number}}",
+    "pt": "NCF: {{number}}"
+  },
+  "pos.ticket.not_fiscal": {
+    "en": "Not a fiscal receipt: the company has no authorised range in force.",
+    "es": "No es un comprobante fiscal: la empresa no tiene un rango autorizado vigente.",
+    "pt": "Não é um comprovante fiscal: a empresa não tem uma faixa autorizada vigente."
   },
   "pos.ticket.number": {
     "es": "Ticket n.º {{number}}",

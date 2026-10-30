@@ -35,7 +35,7 @@
     <table [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
-          <th appSortHeader="id">{{ 'sales.history.id_venta' | translate }}</th>
+          <th appSortHeader="fiscalNumber">{{ 'sales.history.ticket' | translate }}</th>
           <th appSortHeader="createdAt">{{ 'sales.history.date' | translate }}</th>
           <th appSortHeader="customerName">{{ 'sales.history.customer' | translate }}</th>
           <th appSortHeader="total" class="text-right">{{ 'sales.history.total' | translate }}</th>
@@ -49,11 +49,17 @@
       <tbody>
         @for (sale of table.rows(); track sale.id) {
           <tr>
-            <td><code>{{ sale.id.slice(0, 8) }}</code></td>
+            <!-- The comprobante first, as the customer's ticket shows it; the internal id under it. -->
+            <td>
+              @if (sale.fiscalNumber) {
+                <span class="fiscal-number">{{ sale.fiscalNumber }}</span><br>
+              }
+              <code class="muted">{{ sale.id.slice(0, 8).toUpperCase() }}</code>
+            </td>
             <td>{{ sale.createdAt | vxDate: 'dateTime' }}</td>
             <td>{{ sale.customerName || ('sales.history.walk_in' | translate) }}</td>
             <td class="text-right"><vx-amount [value]="sale.total" /></td>
-            <td>{{ sale.paymentMethod || '—' }}</td>
+            <td>{{ sale.paymentMethod ? ('pos.pay.method.' + sale.paymentMethod | translate) : '—' }}</td>
             <td>
               <vx-badge [tone]="statusTone(sale.status)" [struck]="isCancelled(sale.status)">
                 {{ 'pos.sale_status.' + sale.status | translate }}

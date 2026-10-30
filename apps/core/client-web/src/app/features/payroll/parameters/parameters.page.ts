@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
 import { LucideAngularModule, Plus, Save, Trash2 } from 'lucide-angular';
 import { catchError, forkJoin, of } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore, tenantToday } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 import {
   CompanyParameterKind,
@@ -395,10 +395,8 @@ export class PayrollParametersPage {
 }
 
 function todayIso(): string {
-  const now = new Date();
-  const month = `${now.getMonth() + 1}`.padStart(2, '0');
-  const day = `${now.getDate()}`.padStart(2, '0');
-  return `${now.getFullYear()}-${month}-${day}`;
+  // The company's today, not the browser's or UTC (QA R3-M02).
+  return tenantToday();
 }
 
 /** 6.2 stays 6.2 after `0.062 * 100` (6.200000000000001). */

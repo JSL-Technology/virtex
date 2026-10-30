@@ -14,6 +14,7 @@ interface AtomicRedisClient {
   get(key: string): Promise<string | null>;
   incr(key: string): Promise<number>;
   pExpire(key: string, ms: number): Promise<boolean | number>;
+  del(key: string): Promise<number>;
 }
 
 /**
@@ -128,8 +129,19 @@ export class AtomicCacheService implements OnApplicationBootstrap {
     return next;
   }
 
-  /** Forget a counter — called when a challenge succeeds, so failures keep accumulating. */
+  /**
+   * Forget a counter — called when a challenge succeeds, so only failures accumulate.
+   *
+   * It must delete the key `increment` wrote. `increment` writes the raw key through the Redis
+   * client, while `cacheManager.del` prefixes Keyv's namespace — so the reset removed a key that did
+   * not exist, every successful step-up stayed counted, and an administrator doing ordinary work was
+   * locked out without ever typing a wrong password (QA R3-A08, A-02).
+   */
   async reset(key: string): Promise<void> {
+    if (this.client) {
+      await this.client.del(key);
+      return;
+    }
     await this.cacheManager.del(key);
   }
 
@@ -150,7 +162,8 @@ export class AtomicCacheService implements OnApplicationBootstrap {
         candidate &&
         typeof (candidate as AtomicRedisClient).set === 'function' &&
         typeof (candidate as AtomicRedisClient).incr === 'function' &&
-        typeof (candidate as AtomicRedisClient).pExpire === 'function'
+        typeof (candidate as AtomicRedisClient).pExpire === 'function' &&
+        typeof (candidate as AtomicRedisClient).del === 'function'
       ) {
         return candidate as AtomicRedisClient;
       }

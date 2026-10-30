@@ -2746,8 +2746,8 @@
     "pt": "A data da transação está em um período contábil ({{name}}) que já foi encerrado."
   },
   "accounting.transaction_date_p1_does_not_fall": {
-    "es": "La fecha de la transacción {{p1}} no pertenece a ningún período contable definido.",
-    "en": "The transaction date {{p1}} does not fall in any defined accounting period.",
-    "pt": "A data da transação {{p1}} não pertence a nenhum período contábil definido."
+    "en": "The date {{p1}} does not fall in any accounting period. Check the year; if it is right, create that fiscal year first in Accounting › Accounting periods.",
+    "es": "La fecha {{p1}} no pertenece a ningún período contable. Revisa el año; si es correcto, crea primero ese ejercicio en Contabilidad › Períodos contables.",
+    "pt": "A data {{p1}} não pertence a nenhum período contábil. Verifique o ano; se estiver correto, crie primeiro esse exercício em Contabilidade › Períodos contábeis."
   }
 }

@@ -5,4 +5,13 @@
 
   .action-buttons { display: inline-flex; gap: var(--space-1); }
   .placeholder { margin: 0; max-width: 32rem; }
+
+  // The tax id under the name, as on the customers' list (QA R3-A03).
+  .supplier-tax-id {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--text-xs);
+    color: var(--content-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
 }

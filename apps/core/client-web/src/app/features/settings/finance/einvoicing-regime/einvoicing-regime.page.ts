@@ -21,7 +21,7 @@ import {
 import { FiscalEmissionMode, InvoicesService, InvoicingContext } from '../../../../core/services/invoices';
 import { EmissionModeCardComponent, SigningCertificateCardComponent } from '../../fiscal/shared';
 import { NotificationService } from '../../../../core/services/notification';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
@@ -356,6 +356,6 @@ export class EinvoicingRegimePage implements OnInit {
 
   /** Whether the authorisation has expired, which makes the range unusable however many remain. */
   expired(range: FiscalRange): boolean {
-    return Boolean(range.validUntil && range.validUntil < new Date().toISOString().slice(0, 10));
+    return Boolean(range.validUntil && range.validUntil < tenantToday());
   }
 }

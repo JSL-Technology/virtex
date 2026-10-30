@@ -467,7 +467,7 @@ export class InvoicesService {
     // one the company issues at all. A credit note follows the document it modifies instead.
     const organization = await manager
       .getRepository(Organization)
-      .findOne({ where: { id: organizationId }, select: ['id', 'country'] });
+      .findOne({ where: { id: organizationId }, select: ['id', 'country', 'taxId'] });
     const countryCode = organization?.country ?? null;
     let emissionKind: EmissionKind | null = null;
     if (invoice.type !== InvoiceType.CREDIT_NOTE) {
@@ -483,6 +483,12 @@ export class InvoicesService {
         });
       }
       emissionKind = requestedType ? null : issuable.automaticKind;
+    }
+
+    // The same requirement the context reports, enforced where the number is drawn (QA R3-A11).
+    if ((await this.issuableTypes(organizationId, countryCode, await this.fiscalToday(organizationId, manager), manager)).options.length > 0
+      && !organization?.taxId?.trim()) {
+      throw new BadRequestError('invoices.issuer_tax_id_required');
     }
 
     const assignment =
@@ -1701,7 +1707,7 @@ export class InvoicesService {
       this.bookkeeping.invoicingGaps(organizationId, this.dataSource.manager),
       this.dataSource.getRepository(Organization).findOne({
         where: { id: organizationId },
-        select: ['id', 'country'],
+        select: ['id', 'country', 'taxId'],
       }),
       this.orgSettings.getForOrg(organizationId),
     ]);
@@ -1746,6 +1752,14 @@ export class InvoicesService {
       } else if (!issuable.certificateReady) {
         gaps.push('invoices.gaps.signing_certificate');
       }
+    }
+
+    // A comprobante names its issuer: without the company's own tax id the document carries an
+    // empty «RNC:» and the 607 an empty header, which the authority rejects (QA R3-A11). Nothing is
+    // issuable until it is recorded.
+    if (issuable.options.length > 0 && !organization?.taxId?.trim()) {
+      gaps.push('invoices.gaps.issuer_tax_id');
+      for (const option of issuable.options) option.issuable = false;
     }
 
     return {

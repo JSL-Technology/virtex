@@ -247,7 +247,9 @@ export class ReconciliationController {
           new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
           // CSV, OFX (often served as text/plain or octet-stream) or camt.053 XML; the content
           // decides which, not the declared type.
-          new FileTypeValidator({ fileType: /(csv|xml|ofx|plain|octet-stream|vnd\.ms-excel)/ }),
+          // Text formats (CSV, OFX) carry no magic number, and Nest 11 rejects them unless it may fall
+          // back to the declared type — every CSV upload here failed with a bare 400 (QA R3-A05).
+          new FileTypeValidator({ fileType: /(csv|xml|ofx|plain|octet-stream|vnd\.ms-excel)/, fallbackToMimetype: true }),
         ],
       }),
     )

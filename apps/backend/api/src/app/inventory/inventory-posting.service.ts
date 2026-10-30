@@ -12,6 +12,7 @@ import { ModuleSlug } from '../journal-entries/accounting-posting.port';
 import { BadRequestError } from '../i18n/localized.exception';
 import { roundAmount, toCents } from '../common/money';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 
 /** What an item was worth on the books at a point in time. */
 interface Valuation {
@@ -91,7 +92,7 @@ export class InventoryPostingService {
       manager,
       product.organizationId,
       {
-        date: new Date().toISOString(),
+        date: await organizationToday(manager, product.organizationId),
         description: words.entry,
         journalId: journal.id,
         currencyCode: settings.baseCurrency ?? 'USD',
@@ -164,7 +165,7 @@ export class InventoryPostingService {
       manager,
       product.organizationId,
       {
-        date: new Date().toISOString(),
+        date: await organizationToday(manager, product.organizationId),
         description: reason ? `${words.entry} — ${reason}` : words.entry,
         journalId: journal.id,
         currencyCode: settings.baseCurrency ?? 'USD',

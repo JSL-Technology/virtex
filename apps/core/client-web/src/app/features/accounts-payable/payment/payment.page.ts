@@ -7,7 +7,7 @@ import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
 
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService, tenantToday } from '@virteex/shared/ui-i18n';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -362,8 +362,6 @@ function round(value: number): number {
 }
 
 function todayIso(): string {
-  const now = new Date();
-  const month = `${now.getMonth() + 1}`.padStart(2, '0');
-  const day = `${now.getDate()}`.padStart(2, '0');
-  return `${now.getFullYear()}-${month}-${day}`;
+  // The company's today, not the browser's or UTC (QA R3-M02).
+  return tenantToday();
 }

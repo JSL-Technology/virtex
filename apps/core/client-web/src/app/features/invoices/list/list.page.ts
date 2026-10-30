@@ -12,7 +12,7 @@ import {
 } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
 import { invoiceStatusKey, invoiceStatusTone } from '../../../core/services/invoice-status';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TranslateService } from '@ngx-translate/core';
 import {
@@ -68,7 +68,7 @@ export class InvoicesListPage implements OnInit {
   readonly sort = new TableSort<Invoice, InvoiceSortKey>();
   isLoading = signal(true);
   error = signal<string | null>(null);
-  today = new Date().toISOString().split('T')[0];
+  today = tenantToday();
 
   searchTerm = signal('');
   statusFilter = signal<InvoiceStatus | 'All'>('All');

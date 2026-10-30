@@ -16,12 +16,13 @@ import { ComputedDocument } from '../../invoices/sales-tax.engine';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import { ExchangeRateResolver } from '../../currencies/exchange-rate-resolver.service';
 import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
+import { Organization } from '../../organizations/entities/organization.entity';
+import { fiscalDate, organizationTimeZone } from '../../shared/fiscal-clock';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../../organizations/contracts/branch.contract';
 
 /** A quote as read: the row plus whether its validity has run out. */
 export type QuoteView = Quote & { expired: boolean };
 
-const today = (): string => new Date().toISOString().slice(0, 10);
 const isoDate = (value: Date | string): string => String(value instanceof Date ? value.toISOString() : value).slice(0, 10);
 
 /**
@@ -182,8 +183,9 @@ export class QuotesService {
    * «sent». Refused once expired: the customer is accepting a price no longer promised.
    */
   async accept(id: string, organizationId: string): Promise<QuoteView> {
+    const today = await this.todayFor(organizationId);
     const view = await this.transition(id, organizationId, [QuoteStatus.DRAFT, QuoteStatus.SENT], (quote) => {
-      if (isoDate(quote.expiryDate) < today()) {
+      if (isoDate(quote.expiryDate) < today) {
         throw new ConflictError('sales.quote_expired_cannot_accept', { quoteNumber: quote.quoteNumber });
       }
       quote.status = QuoteStatus.ACCEPTED;
@@ -224,7 +226,7 @@ export class QuotesService {
       1,
       Math.round((Date.parse(isoDate(source.expiryDate)) - Date.parse(isoDate(source.issueDate))) / 86_400_000),
     );
-    const issueDate = today();
+    const issueDate = await this.todayFor(organizationId);
     const expiryDate = new Date(Date.parse(issueDate) + validityDays * 86_400_000).toISOString().slice(0, 10);
     return this.create(
       {
@@ -280,7 +282,7 @@ export class QuotesService {
     try {
       const settings = await this.orgSettingsRepository.findOne({ where: { organizationId } });
       const termDays = quote.customer?.paymentTermDays ?? settings?.defaultPaymentTermDays ?? 30;
-      const issueDate = today();
+      const issueDate = await this.todayFor(organizationId);
       const dueDate = new Date(Date.parse(issueDate) + Math.max(0, termDays) * 86_400_000).toISOString().slice(0, 10);
 
       const invoice = await this.invoicesService.create(
@@ -425,8 +427,25 @@ export class QuotesService {
     return [...(quote.lines ?? [])].sort((a, b) => a.lineOrder - b.lineOrder);
   }
 
+  /**
+   * Today in the company's fiscal timezone (QA R3-M02): a quote converted at 21:00 in Santo Domingo
+   * was dated tomorrow, from the server's UTC clock. The zone is remembered per company so the
+   * synchronous `view` reads the same calendar.
+   */
+  private readonly zones = new Map<string, string>();
+  private async todayFor(organizationId: string): Promise<string> {
+    const organization = await this.dataSource.manager.findOne(Organization, {
+      where: { id: organizationId },
+      select: ['id', 'country', 'timezone'],
+    });
+    const zone = organizationTimeZone(organization);
+    this.zones.set(organizationId, zone);
+    return fiscalDate(zone);
+  }
+
   private view(quote: Quote): QuoteView {
-    const expired = [QuoteStatus.DRAFT, QuoteStatus.SENT].includes(quote.status) && isoDate(quote.expiryDate) < today();
+    const today = fiscalDate(this.zones.get(quote.organizationId) ?? 'UTC');
+    const expired = [QuoteStatus.DRAFT, QuoteStatus.SENT].includes(quote.status) && isoDate(quote.expiryDate) < today;
     return Object.assign(quote, { lines: this.sortedLines(quote), expired });
   }
 }

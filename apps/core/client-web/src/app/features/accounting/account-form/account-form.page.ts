@@ -6,7 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChartOfAccountsApiService, CreateAccountDto, UpdateAccountDto } from '../../../core/api/chart-of-accounts.service';
 import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
 import { take } from 'rxjs/operators';
-import { accountNameOf } from '@virteex/shared/ui-i18n';
+import { accountNameOf, tenantToday } from '@virteex/shared/ui-i18n';
 import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType } from '@virteex/shared/types';
 import { AccountType, AccountCategory, AccountNature, CashFlowCategory, RequiredDimension } from '../../../core/models/account.model';
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
@@ -147,7 +147,7 @@ export class AccountFormPage implements OnInit {
       advanced: this.fb.group({
         version: [{ value: 1, disabled: true }],
         hierarchyType: [{ value: 'LEGAL', disabled: true }],
-        effectiveFrom: [new Date().toISOString().split('T')[0]],
+        effectiveFrom: [tenantToday()],
         effectiveTo: [null]
       })
     });
@@ -183,7 +183,7 @@ export class AccountFormPage implements OnInit {
             hierarchyType: 'LEGAL',
             effectiveFrom: (account as any).effectiveFrom
               ? new Date((account as any).effectiveFrom).toISOString().split('T')[0]
-              : new Date().toISOString().split('T')[0],
+              : tenantToday(),
             effectiveTo: (account as any).effectiveTo
               ? new Date((account as any).effectiveTo).toISOString().split('T')[0]
               : null,

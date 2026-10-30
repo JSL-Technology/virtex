@@ -13,7 +13,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, debounceTime, merge, switchMap, tap } from 'rxjs';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { translateOrLiteral, tenantToday } from '@virteex/shared/ui-i18n';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
@@ -818,7 +818,7 @@ export class NewInvoicePage implements OnInit {
 }
 
 function today(): string {
-  return new Date().toISOString().split('T')[0];
+  return tenantToday();
 }
 
 /**

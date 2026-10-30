@@ -5,7 +5,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
-import { LucideAngularModule, Save, Download, Share2, History, Settings, RefreshCw, BarChart3, Database, FileSpreadsheet, Plus } from 'lucide-angular';
+import { TranslateService } from '@ngx-translate/core';
+import { LucideAngularModule, Save, RefreshCw, Database, FileSpreadsheet } from 'lucide-angular';
 import { DatasheetGridComponent } from '../../components/datasheet-grid.component';
 import { DatasheetSidebarComponent } from '../../components/datasheet-sidebar.component';
 import { DatasheetVariablesService } from '../../services/datasheet-variables.service';
@@ -31,13 +32,10 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
           </div>
           <div class="separator"></div>
           <div class="actions">
-            <button (click)="saveBook()" class="btn-icon" [title]="'datasheets.save' | translate">
+            <button type="button" (click)="saveBook()" class="btn-icon" [title]="'datasheets.save' | translate" [attr.aria-label]="'datasheets.save' | translate">
               <lucide-icon [name]="SaveIcon" [size]="18"></lucide-icon>
             </button>
-            <button class="btn-icon" [title]="'datasheets.history' | translate">
-              <lucide-icon [name]="HistoryIcon" [size]="18"></lucide-icon>
-            </button>
-            <button (click)="refreshGrid()" class="btn-icon" [title]="'datasheets.refresh_data' | translate">
+            <button type="button" (click)="refreshGrid()" class="btn-icon" [title]="'datasheets.refresh_data' | translate" [attr.aria-label]="'datasheets.refresh_data' | translate">
               <lucide-icon [name]="RefreshIcon" [size]="18"></lucide-icon>
             </button>
             <div class="separator"></div>
@@ -50,26 +48,19 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
           </div>
         </div>
 
+        <!-- History, Share and Insert chart were buttons with nothing behind them (QA R3-A06); they
+             return when they do something. «Import from the ERP» opens the wizard. -->
         <div class="toolbar-right">
-          <button class="btn-secondary">
+          <button type="button" class="btn-secondary" (click)="sidebarTab.set('import')">
             <lucide-icon [name]="DatabaseIcon" [size]="16"></lucide-icon>
             {{ 'datasheets.import_erp' | translate }}
-          </button>
-          <button class="btn-secondary">
-            <lucide-icon [name]="ChartIcon" [size]="16"></lucide-icon>
-            {{ 'datasheets.insert_chart' | translate }}
-          </button>
-          <div class="separator"></div>
-          <button class="btn-primary">
-            <lucide-icon [name]="ShareIcon" [size]="16"></lucide-icon>
-            {{ 'datasheets.share' | translate }}
           </button>
         </div>
       </div>
 
       <!-- Formula Bar -->
       <div class="formula-bar">
-        <div class="cell-address">B2</div>
+        <div class="cell-address">{{ 'datasheets.formula' | translate }}</div>
         <div class="separator"></div>
         <div class="fx-icon">fx</div>
         <input
@@ -106,19 +97,16 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
         <!-- Sidebar -->
         <div class="sidebar-container">
-           <app-datasheet-sidebar (importRequested)="onImportRequested($event)"></app-datasheet-sidebar>
+           <app-datasheet-sidebar [activeTab]="sidebarTab()" (importRequested)="onImportRequested($event)" (cellTypeChange)="grid.setCellType($event)"></app-datasheet-sidebar>
         </div>
       </div>
 
-      <!-- Footer / Sheet Tabs -->
+      <!-- One sheet: a second tab and a «+» that did nothing implied a multi-sheet book that does
+           not exist (QA R3-A06). -->
       <div class="footer">
         <div class="tabs-container">
-           <button class="tab-button active">{{ 'datasheets.sheet_numbered' | translate: { number: 1 } }}</button>
-           <button class="tab-button inactive">{{ 'datasheets.sheet_numbered' | translate: { number: 2 } }}</button>
+           <span class="tab-button active">{{ 'datasheets.sheet_numbered' | translate: { number: 1 } }}</span>
         </div>
-        <button class="add-sheet-btn">
-           <lucide-icon [name]="PlusIcon" [size]="14"></lucide-icon>
-        </button>
       </div>
     </div>
   `
@@ -128,16 +116,13 @@ export class DatasheetEditorPage implements OnInit {
   @ViewChild(DatasheetGridComponent) grid!: DatasheetGridComponent;
 
   SaveIcon = Save;
-  HistoryIcon = History;
   RefreshIcon = RefreshCw;
   DatabaseIcon = Database;
-  ChartIcon = BarChart3;
-  ShareIcon = Share2;
-  SettingsIcon = Settings;
   FileSpreadsheetIcon = FileSpreadsheet;
-  PlusIcon = Plus;
 
-  bookName = signal<string>('Libro sin título');
+  bookName = signal<string>('');
+  readonly sidebarTab = signal<'properties' | 'import'>('properties');
+  private readonly translate = inject(TranslateService);
   bookId: string | null = null;
   isSnapshot = false;
 
@@ -155,9 +140,14 @@ export class DatasheetEditorPage implements OnInit {
 
 async ngOnInit(): Promise<void> {
     this.bookId = this.route.snapshot.paramMap.get('id');
+    if (!this.bookId || this.bookId === 'new') {
+       this.bookName.set(this.translate.instant('datasheets.untitled_book'));
+    }
     if (this.bookId && this.bookId !== 'new') {
        const book = await firstValueFrom(this.variablesService.getBook(this.bookId));
        this.bookName.set(book.name);
+       // The saved cells: a reopened book used to show an empty grid, as if nothing had been kept.
+       this.grid?.load(book.sheets?.[0]?.cells);
        //  La hoja se llama por su nombre, no por el UUID con el que se abrió la pestaña.
        this.tab?.setTitle(book.name);
        this.isSnapshot = book.mode === 'snapshot';
@@ -189,16 +179,20 @@ async ngOnInit(): Promise<void> {
   }
 
   async saveBook() {
-    const hot = (window as any).Handsontable.getInstance(document.getElementById(this.grid.id));
-    const data = hot.getData();
-
-    await firstValueFrom(this.variablesService.saveBook({
-       id: this.bookId || undefined,
-       name: this.bookName(),
-       mode: 'live',
-       sheets: [{ name: 'Sheet1', cells: data }]
-    }));
-    this.notificationService.showSuccess('dialog.notify.workbook_saved');
+    try {
+      const saved = await firstValueFrom(this.variablesService.saveBook({
+         id: this.bookId && this.bookId !== 'new' ? this.bookId : undefined,
+         name: this.bookName().trim() || this.translate.instant('datasheets.untitled_book'),
+         mode: this.isSnapshot ? 'snapshot' : 'live',
+         sheets: [{ name: 'Sheet1', cells: this.grid.getCells() }]
+      }));
+      // A new book keeps its id, so the next save updates it instead of creating another.
+      if (saved?.id) this.bookId = saved.id;
+      this.tab?.setTitle(this.bookName());
+      this.notificationService.showSuccess('dialog.notify.workbook_saved');
+    } catch {
+      this.notificationService.showError('datasheets.save_failed');
+    }
   }
 
   onImportRequested(formula: string) {

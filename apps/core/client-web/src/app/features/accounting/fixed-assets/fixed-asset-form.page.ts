@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { Observable, map, startWith } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, tenantToday } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxDateFieldComponent } from '../../../shared/components/date';
@@ -30,10 +30,8 @@ import {
 } from '../data/fixed-assets.service';
 
 const round2 = (value: number): number => Math.round(value * 100) / 100;
-const todayIso = (): string => {
-  const now = new Date();
-  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
-};
+// The company's today, not the browser's or UTC (QA R3-M02).
+const todayIso = (): string => tenantToday();
 
 /** The fields that value the asset; fixed once a month has been charged (see the server). */
 const VALUATION_CONTROLS = [

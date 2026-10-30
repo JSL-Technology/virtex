@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, tenantToday } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxDateFieldComponent } from '../../../shared/components/date';
@@ -30,10 +30,8 @@ import {
   StoredEntryLine,
 } from '../data/recurring-entries.service';
 
-const todayIso = (): string => {
-  const now = new Date();
-  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
-};
+// The company's today, not the browser's or UTC (QA R3-M02).
+const todayIso = (): string => tenantToday();
 const cents = (value: unknown): number => Math.round((Number(value) || 0) * 100);
 const blankLine = (): StoredEntryLine => ({ accountId: '', description: '', debit: 0, credit: 0, dimensions: {} });
 

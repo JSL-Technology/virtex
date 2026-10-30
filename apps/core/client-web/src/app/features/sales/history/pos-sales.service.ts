@@ -20,6 +20,8 @@ export interface PosSale {
   tax: number;
   total: number;
   paymentMethod: string | null;
+  /** The comprobante fiscal printed on the ticket, when the company had a range in force. */
+  fiscalNumber?: string | null;
   customerName: string | null;
   invoiceId: string | null;
   status: string;

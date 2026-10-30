@@ -8,7 +8,7 @@ import { PurchaseFiscalRecordsRegistry } from '../contracts/fiscal-records/purch
 import { monthBounds } from '../common/dates';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
-import { DominicanRepublicReports } from './reports/dr-reports';
+import { DominicanRepublicReports, TillFiscalSale } from './reports/dr-reports';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 import { DataSource } from 'typeorm';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
@@ -17,6 +17,7 @@ import {
   MexicanElectronicAccounting,
   PolizasRequestType,
 } from './reports/mx-electronic-accounting';
+import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 
 /** A fiscal number, together with the authorization window it was drawn from. */
 export interface AssignedFiscalNumber {
@@ -154,7 +155,7 @@ export class ComplianceService {
     }
 
     if (sequence.expiresAt) {
-      const today = new Date().toISOString().split('T')[0];
+      const today = await organizationToday(manager, organizationId);
       if (sequence.expiresAt < today) {
         throw new BadRequestError('compliance.authorisation_ncf_sequence_type_type_expired', {
           type,
@@ -324,7 +325,7 @@ export class ComplianceService {
       where: { organizationId },
       order: { type: 'ASC', startsAt: 'ASC' },
     });
-    const today = new Date().toISOString().split('T')[0];
+    const today = await organizationToday(this.ncfSequenceRepository.manager, organizationId);
 
     return rows.map((row) => {
       const startsAt = Number(row.startsAt);
@@ -363,13 +364,67 @@ export class ComplianceService {
 
   async generate607Report(organizationId: string, year: number, month: number): Promise<string> {
     await this.assertDominicanRepublic(organizationId, '607');
+    const organization = await this.requireOrganization(organizationId);
     return DominicanRepublicReports.generate607Report(
       organizationId,
       year,
       month,
       this.invoiceRepository,
-      await this.requireOrganization(organizationId),
+      organization,
+      await this.tillFiscalSales(organization, year, month),
     );
+  }
+
+  /**
+   * The month's till tickets that carry a comprobante, dated in the company's fiscal time zone
+   * (QA R3-C02). Read straight from the tills' journal so the fiscal module does not depend on the
+   * point-of-sale module's entities.
+   */
+  private async tillFiscalSales(organization: Organization, year: number, month: number): Promise<TillFiscalSale[]> {
+    const { from, to } = monthBounds(year, month);
+    const timeZone = organizationTimeZone(organization);
+    const rows: Array<{
+      fiscal_number: string;
+      sale_date: string;
+      items: Array<{ lineSubtotal: number; isService?: boolean }>;
+      tax: string;
+      total: string;
+      change_due: string;
+      payments: Array<{ method: string; amount: number }>;
+      payment_method: string | null;
+      status: string;
+      void_reason: string | null;
+    }> = await this.invoiceRepository.manager.query(
+      `SELECT fiscal_number, to_char(created_at AT TIME ZONE $2, 'YYYY-MM-DD') AS sale_date, items, tax, total,
+              change_due, payments, payment_method, status, void_reason
+         FROM pos_sales
+        WHERE organization_id = $1 AND fiscal_number IS NOT NULL
+          AND (created_at AT TIME ZONE $2)::date BETWEEN $3::date AND $4::date
+        ORDER BY created_at`,
+      [organization.id, timeZone, from, to],
+    );
+    return rows.map((row) => {
+      const services = (row.items ?? []).filter((i) => i.isService).reduce((sum, i) => sum + Number(i.lineSubtotal), 0);
+      const goods = (row.items ?? []).filter((i) => !i.isService).reduce((sum, i) => sum + Number(i.lineSubtotal), 0);
+      const by = { cash: 0, card: 0, transfer: 0, other: 0 } as Record<'cash' | 'card' | 'transfer' | 'other', number>;
+      const payments = row.payments?.length ? row.payments : [{ method: row.payment_method ?? 'cash', amount: Number(row.total) + Number(row.change_due) }];
+      for (const p of payments) {
+        const method = (['cash', 'card', 'transfer'] as const).find((m) => m === p.method) ?? 'other';
+        by[method] += Number(p.amount);
+      }
+      // Change always comes out of the cash tendered.
+      by.cash = Math.max(0, by.cash - Number(row.change_due));
+      return {
+        fiscalNumber: row.fiscal_number,
+        date: row.sale_date,
+        goods,
+        services,
+        tax: Number(row.tax),
+        ...by,
+        voided: row.status !== 'PAID',
+        voidReason: row.void_reason,
+      };
+    });
   }
 
   async generate606Report(organizationId: string, year: number, month: number): Promise<string> {
@@ -387,12 +442,14 @@ export class ComplianceService {
 
   async generate608Report(organizationId: string, year: number, month: number): Promise<string> {
     await this.assertDominicanRepublic(organizationId, '608');
+    const organization = await this.requireOrganization(organizationId);
     return DominicanRepublicReports.generate608Report(
       organizationId,
       year,
       month,
       this.invoiceRepository,
-      await this.requireOrganization(organizationId),
+      organization,
+      await this.tillFiscalSales(organization, year, month),
     );
   }
 

@@ -16,7 +16,7 @@ import {
   TaxJurisdiction,
 } from '../../../../core/api/fiscal-settings.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 
@@ -82,7 +82,7 @@ export class TaxJurisdictionsPage implements OnInit {
     ratePercent: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
     isRegistered: [true],
     sourcing: ['DESTINATION'],
-    effectiveFrom: [new Date().toISOString().slice(0, 10), Validators.required],
+    effectiveFrom: [tenantToday(), Validators.required],
     effectiveTo: [''],
   },
       {
@@ -163,7 +163,7 @@ export class TaxJurisdictionsPage implements OnInit {
             sourcing: 'DESTINATION',
             isRegistered: true,
             ratePercent: 0,
-            effectiveFrom: new Date().toISOString().slice(0, 10),
+            effectiveFrom: tenantToday(),
           });
           this.load();
         },

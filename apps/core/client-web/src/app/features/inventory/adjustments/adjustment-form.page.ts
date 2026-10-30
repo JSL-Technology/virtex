@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 
 import { Observable, catchError, map, of } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
@@ -26,7 +26,7 @@ export const STOCK_DOCUMENT_TONE: Record<StockDocumentStatus, VxTone> = {
   CANCELLED: 'neutral',
 };
 
-const todayIso = (): string => new Date().toISOString().slice(0, 10);
+const todayIso = (): string => tenantToday();
 
 /**
  * An inventory adjustment: a count, a breakage, a revaluation — written, reviewed, then posted.
