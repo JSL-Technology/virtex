@@ -6,7 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2, ArrowDownRight, ArrowUpRight, AlertTriangle, Undo2, CheckCircle2 } from 'lucide-angular';
 
 import { Observable, catchError, debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
@@ -92,7 +92,7 @@ const round2 = (value: number): number => Math.round((value + Number.EPSILON) * 
 @Component({
   selector: 'app-inventory-adjustment-form',
   standalone: true,
-  imports: [
+  imports: [VxNumberInputDirective, 
     ReactiveFormsModule,
     RouterLink,
     LucideAngularModule,

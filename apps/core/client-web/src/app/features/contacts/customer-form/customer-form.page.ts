@@ -8,7 +8,7 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../share
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import { formPayload } from '../../../shared/utils/form-payload.util';
@@ -21,7 +21,7 @@ import { CountryPackService } from '../../../core/api/country-pack.service';
 
 @Component({
   selector: 'app-customer-form-page',
-  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [VxNumberInputDirective, ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './customer-form.page.html',
   styleUrls: ['./customer-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

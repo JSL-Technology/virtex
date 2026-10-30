@@ -1,4 +1,5 @@
 import { BrandingController } from './branding.controller';
+import { RegionalFormatController } from './regional-format.controller';
 import { StorageModule } from '../storage/storage.module';
 import { MailSettingsController } from './mail-settings.controller';
 import { MailModule } from '../mail/mail.module';
@@ -55,7 +56,7 @@ import { OrganizationLookupPort } from '../shared/tenancy/ports/active-tenant.po
     MailModule,
   ],
   // Settings by section (QA M-09). Declared first: its paths are more specific than `:id`.
-  controllers: [OrganizationSettingsController, MailSettingsController, BranchesController, BrandingController, OrganizationsController],
+  controllers: [OrganizationSettingsController, MailSettingsController, BranchesController, BrandingController, RegionalFormatController, OrganizationsController],
   providers: [
     OrganizationsService,
     MembershipService,

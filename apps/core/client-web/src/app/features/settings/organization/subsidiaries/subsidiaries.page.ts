@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Building, Plus, X, Pencil } from 'lucide-angular';
 import { SubsidiariesService, Subsidiary, CreateSubsidiaryDto, UpdateSubsidiaryDto } from './subsidiaries.service';
 import { Observable, map } from 'rxjs';
-import { TranslateModule, accountNameOf, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, accountNameOf, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { Account, AccountType } from '../../../../core/models/account.model';
 import { ChartOfAccountsApiService } from '../../../accounting/data/chart-of-accounts.service';
 import { VX_SELECT } from '../../../../shared/components/select';
@@ -23,7 +23,7 @@ import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/co
 @Component({
   selector: 'app-subsidiaries',
   standalone: true,
-  imports: [SettingsActionsDirective, CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, ...VX_SELECT, ...FORMAT_PIPES, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent, VxDateFieldComponent, VxBadgeComponent],
+  imports: [VxNumberInputDirective, SettingsActionsDirective, CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, ...VX_SELECT, ...FORMAT_PIPES, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent, VxDateFieldComponent, VxBadgeComponent],
   templateUrl: './subsidiaries.page.html',
   styleUrls: ['./subsidiaries.page.scss'],
   // Signals and OnPush (QA A-16): the state lived in plain fields under a modal host that does not

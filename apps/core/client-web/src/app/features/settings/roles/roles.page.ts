@@ -96,6 +96,8 @@ export class RolesManagementPage implements OnInit {
 
   /** Abre modal para crear o editar */
   openRoleModal(roleToEdit?: Role): void {
+    // A system role is fixed; the button says so and stays focusable, so the click lands here.
+    if (roleToEdit?.isSystemRole) return;
     this.editingRole.set(roleToEdit ?? null);
     this.roleForm.reset();
     this.permissionsFormArray.clear();
@@ -176,6 +178,7 @@ export class RolesManagementPage implements OnInit {
 
   /** Eliminar un rol */
   async deleteRole(role: Role): Promise<void> {
+    if (role.isSystemRole) return;
     const confirmed = await this.dialog.confirm({
       title: 'dialog.delete_role.title',
       message: 'dialog.delete_role.message',

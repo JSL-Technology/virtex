@@ -24,7 +24,7 @@
         @if (invalid().replyTo) {
           <small class="mail__invalid" role="alert">{{ 'settings.mail.invalid_address' | translate }}</small>
         } @else if (!replyPreview()) {
-          <small class="mail__warn">{{ 'settings.mail.no_reply_address' | translate }}</small>
+          <small class="mail__warn" role="note">{{ 'settings.mail.no_reply_address' | translate }}</small>
         } @else {
           <small>{{ 'settings.mail.reply_to_hint' | translate }}</small>
         }

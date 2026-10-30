@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { environment } from '../../../../../environments/environment';
 import { NotificationService } from '../../../../core/services/notification';
 import { DialogService } from '../../../../core/services/dialog.service';
@@ -50,7 +50,7 @@ interface PolicyDraft {
 @Component({
   selector: 'app-approval-policies-page',
   standalone: true,
-  imports: [VxEmptyStateComponent, SettingsActionsDirective, FormsModule, TranslateModule, RouterLink, ...VX_SELECT, ...FORMAT_PIPES],
+  imports: [VxNumberInputDirective, VxEmptyStateComponent, SettingsActionsDirective, FormsModule, TranslateModule, RouterLink, ...VX_SELECT, ...FORMAT_PIPES],
   templateUrl: './approvals.page.html',
   styleUrls: ['./approvals.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

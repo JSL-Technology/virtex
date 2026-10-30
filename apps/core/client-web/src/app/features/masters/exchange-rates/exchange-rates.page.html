@@ -44,11 +44,11 @@
   </div>
   <div listFilters class="doc-filter">
     <label for="rate-from">{{ 'currencies.rates.from_date' | translate }}</label>
-    <input id="rate-from" type="date" [ngModel]="fromFilter()" (ngModelChange)="fromFilter.set($event); applyFilters()" />
+    <vx-date-field inputId="rate-from" [max]="toFilter()" [ngModel]="fromFilter()" (ngModelChange)="fromFilter.set($event); applyFilters()" />
   </div>
   <div listFilters class="doc-filter">
     <label for="rate-to">{{ 'currencies.rates.to_date' | translate }}</label>
-    <input id="rate-to" type="date" [ngModel]="toFilter()" (ngModelChange)="toFilter.set($event); applyFilters()" />
+    <vx-date-field inputId="rate-to" [min]="fromFilter()" [ngModel]="toFilter()" (ngModelChange)="toFilter.set($event); applyFilters()" />
   </div>
 
   @if (recording()) {

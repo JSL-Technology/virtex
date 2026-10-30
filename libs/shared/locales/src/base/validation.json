@@ -2095,5 +2095,30 @@
     "es": "El año está fuera del rango permitido.",
     "en": "The year is outside the allowed range.",
     "pt": "O ano está fora do intervalo permitido."
+  },
+  "validation.regional_format.date_order": {
+    "es": "El orden de la fecha no es válido.",
+    "en": "The date order is not valid.",
+    "pt": "A ordem da data não é válida."
+  },
+  "validation.regional_format.date_separator": {
+    "es": "El separador de la fecha no es válido.",
+    "en": "The date separator is not valid.",
+    "pt": "O separador da data não é válido."
+  },
+  "validation.regional_format.number_format": {
+    "es": "El formato de número no es válido.",
+    "en": "The number format is not valid.",
+    "pt": "O formato de número não é válido."
+  },
+  "validation.regional_format.time_format": {
+    "es": "El formato de hora no es válido.",
+    "en": "The time format is not valid.",
+    "pt": "O formato de hora não é válido."
+  },
+  "validation.regional_format.first_day_of_week": {
+    "es": "El primer día de la semana no es válido.",
+    "en": "The first day of the week is not valid.",
+    "pt": "O primeiro dia da semana não é válido."
   }
 }

@@ -6,7 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 
 import { Observable, Subject, debounceTime, switchMap, tap, catchError, of } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
@@ -43,7 +43,7 @@ const DEFAULT_VALIDITY_DAYS = 15;
 @Component({
   selector: 'app-quote-form-page',
   standalone: true,
-  imports: [AiProvenanceBadgeComponent, 
+  imports: [VxNumberInputDirective, AiProvenanceBadgeComponent, 
     VxBranchPickerComponent,
     ReactiveFormsModule,
     RouterLink,

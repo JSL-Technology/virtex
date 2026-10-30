@@ -1,3 +1,4 @@
+import { VX_DATE } from '../../../shared/components/date';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
@@ -43,7 +44,7 @@ export function fieldProblems(
 @Component({
   selector: 'app-workflow-fields',
   standalone: true,
-  imports: [FormsModule, TranslateModule, ...VX_SELECT, ...VX_FORM_A11Y],
+  imports: [...VX_DATE, FormsModule, TranslateModule, ...VX_SELECT, ...VX_FORM_A11Y],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @for (field of fields(); track field.name) {
@@ -73,9 +74,9 @@ export function fieldProblems(
                 (input)="setNumber(field, $any($event.target).value)" />
             }
             @case ('date') {
-              <input [id]="idFor(field)" type="date" [value]="text(field)" [readOnly]="readonly()"
-                [attr.aria-required]="field.required || null" [attr.aria-invalid]="showProblem(field) || null" [attr.aria-describedby]="showProblem(field) ? idFor(field) + '-err' : null"
-                (input)="set(field, $any($event.target).value)" />
+              <vx-date-field [inputId]="idFor(field)" [value]="text(field) || null" [readonly]="readonly()" [required]="!!field.required"
+                [ariaDescribedBy]="showProblem(field) ? idFor(field) + '-err' : null"
+                (valueChange)="set(field, $event ?? '')" />
             }
             @case ('select') {
               <select [id]="idFor(field)" [value]="text(field)" [disabled]="readonly()" [attr.aria-required]="field.required || null"

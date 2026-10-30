@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { InvoicesService } from '../../../core/services/invoices';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -27,7 +27,7 @@ import { UnitOfMeasure, UnitsOfMeasureService } from '../../masters/data/units-o
 
 @Component({
   selector: 'app-product-form-page',
-  imports: [ReactiveFormsModule, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, DraftShellComponent, BarcodeScannerComponent, ...VX_FORM_A11Y, ...FORMAT_PIPES],
+  imports: [VxNumberInputDirective, ReactiveFormsModule, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, DraftShellComponent, BarcodeScannerComponent, ...VX_FORM_A11Y, ...FORMAT_PIPES],
   templateUrl: './product-form.page.html',
   styleUrls: ['./product-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

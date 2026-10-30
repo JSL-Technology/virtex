@@ -12,6 +12,7 @@ import { LanguageSelector } from '../../../shared/components/language-selector/l
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { SettingsActionsDirective, SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../shell';
+import { RegionalFormatPage } from '../regional-format/regional-format.page';
 
 /**
  * Two sections in one component, because they draw the same tokens: the person's own
@@ -35,6 +36,7 @@ import { SettingsActionsDirective, SettingsChanges, SettingsSaveBarComponent, Se
     TranslateModule,
     SettingsActionsDirective,
     SettingsSaveBarComponent,
+    RegionalFormatPage,
     ...VX_FORM_A11Y,
   ],
   templateUrl: './branding.page.html',

@@ -323,5 +323,10 @@
     "es": "«{{field}}» no puede ser anterior a la fecha inicial (línea {{line}})",
     "en": "“{{field}}” cannot be before the start date (line {{line}})",
     "pt": "“{{field}}” não pode ser anterior à data inicial (linha {{line}})"
+  },
+  "shell.problem_number": {
+    "es": "«{{field}}» no es un número. Escríbelo como {{example}}.",
+    "en": "“{{field}}” is not a number. Write it as {{example}}.",
+    "pt": "“{{field}}” não é um número. Escreva como {{example}}."
   }
 }

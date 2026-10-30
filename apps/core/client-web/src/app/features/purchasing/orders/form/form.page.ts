@@ -8,7 +8,7 @@ import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { CurrenciesService } from '../../../../core/api/currencies.service';
 import { NotificationService } from '../../../../core/services/notification';
 import {
@@ -46,7 +46,7 @@ import { AiProvenanceBadgeComponent } from '../../../ai/provenance/ai-provenance
 @Component({
   selector: 'app-purchase-order-form-page',
   standalone: true,
-  imports: [AiProvenanceBadgeComponent, PercentInputDirective, VxBranchPickerComponent,
+  imports: [VxNumberInputDirective, AiProvenanceBadgeComponent, PercentInputDirective, VxBranchPickerComponent,
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,

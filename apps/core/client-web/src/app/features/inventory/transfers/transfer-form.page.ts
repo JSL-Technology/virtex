@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 
 import { Observable, catchError, map, of } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
@@ -39,7 +39,7 @@ function distinctWarehouses(group: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-stock-transfer-form',
   standalone: true,
-  imports: [
+  imports: [VxNumberInputDirective, 
     ReactiveFormsModule,
     LucideAngularModule,
     TranslateModule,

@@ -23,6 +23,7 @@
  */
 
 import type { LanguageCode, LocaleContextContract } from '../i18n/locale.contract';
+import type { RegionalFormat } from '../i18n/regional-format.contract';
 
 /** Status values a user account can hold. Mirrors the backend `UserStatus` enum. */
 export type UserStatusValue = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED' | 'BLOCKED';
@@ -114,6 +115,8 @@ export interface AuthUserContract {
    * `null` means "never chosen"; the server negotiates one and does not invent a stored answer.
    */
   preferredLanguage?: LanguageCode | null;
+  /** This person's own date, number and time format, over the company's. */
+  regionalFormat?: RegionalFormat | null;
 
   // ---- Account state ----
   isEmailVerified: boolean;

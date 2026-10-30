@@ -1,3 +1,4 @@
+import type { RegionalFormat } from '@virteex/shared/types';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -23,6 +24,8 @@ export interface UpdateProfileDto {
   firstName?: string;
   lastName?: string;
   preferredLanguage?: string;
+  /** This person's date, number and time format; `null` returns every field to the company's. */
+  regionalFormat?: RegionalFormat | null;
   phone?: string;
   jobTitle?: string;
   email?: string;

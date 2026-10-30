@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { NotificationService } from '../../../core/services/notification';
@@ -21,7 +21,7 @@ import { AiPolicy, AiPolicyChange, AiPolicyService } from './ai-policy.service';
 @Component({
   selector: 'app-ai-policy-panel',
   standalone: true,
-  imports: [FormsModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [VxNumberInputDirective, FormsModule, TranslatePipe, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './ai-policy-panel.component.html',
   styleUrl: './ai-policy-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

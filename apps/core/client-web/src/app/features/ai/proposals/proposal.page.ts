@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, TriangleAlert } from 'lucide-angular';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { NotificationService } from '../../../core/services/notification';
+import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 import { CopilotApiService, CopilotProposal } from '../copilot/copilot-api.service';
 
 /**
@@ -15,13 +16,21 @@ import { CopilotApiService, CopilotProposal } from '../copilot/copilot-api.servi
 @Component({
   selector: 'app-proposal-page',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule, RouterLink, ...FORMAT_PIPES],
+  imports: [TranslatePipe, LucideAngularModule, RouterLink, DocumentShellComponent, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <!-- A document window like every other: its header, its state, its loading and its error. -->
+    <vx-document-shell
+      [title]="proposal() ? (k('ai.copilot.proposal', proposal()!.tool) | translate) : ('page_titles.ai_proposal' | translate)"
+      [subtitle]="proposal()?.summary ?? null"
+      [statusKey]="proposal() ? k('ai.copilot.proposal_status', proposal()!.status) : null"
+      [statusTone]="tone()"
+      [loading]="!proposal() && !missing()"
+      [error]="missing() ? 'ai.copilot.proposal_not_found' : null"
+      (reload)="load()"
+    >
     <section class="proposal card">
       @if (proposal(); as p) {
-        <h1 class="proposal__title">{{ k('ai.copilot.proposal', p.tool) | translate }}</h1>
-        <p>{{ p.summary }}</p>
         @if (p.channel === 'MCP' || p.afterExternalText) {
           <p class="proposal__warning" role="note">
             <lucide-icon [img]="WarnIcon" size="14" aria-hidden="true"></lucide-icon>
@@ -56,14 +65,12 @@ import { CopilotApiService, CopilotProposal } from '../copilot/copilot-api.servi
             <p>{{ k('ai.copilot.proposal_status', p.status) | translate }}</p>
           }
         }
-      } @else if (missing()) {
-        <p role="alert">{{ 'ai.copilot.proposal_not_found' | translate }}</p>
       }
     </section>
+    </vx-document-shell>
   `,
   styles: [
-    `.proposal { max-width: 44rem; margin: var(--space-6) auto; padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); }
-     .proposal__title { margin: 0; font-size: var(--text-lg); }
+    `.proposal { max-width: 44rem; padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); }
      .proposal__warning { display: flex; gap: var(--space-1); color: var(--warning-text); font-size: var(--text-sm); margin: 0; }
      .proposal__actions { display: flex; gap: var(--space-2); }`,
   ],
@@ -79,8 +86,19 @@ export class ProposalPage implements OnInit {
   protected readonly WarnIcon = TriangleAlert;
   protected readonly k = composeKey;
 
+  /** Waiting for a decision reads as a warning; confirmed as success; the rest as neutral. */
+  readonly tone = computed<DocumentTone>(() => {
+    const status = this.proposal()?.status;
+    return status === 'PROPOSED' ? 'warning' : status === 'CONFIRMED' ? 'ok' : status === 'FAILED' ? 'danger' : 'neutral';
+  });
+
   ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
     const id = this.route.snapshot.paramMap.get('id') ?? '';
+    this.missing.set(false);
     this.api.proposal(id).subscribe({ next: (proposal) => this.proposal.set(proposal), error: () => this.missing.set(true) });
   }
 

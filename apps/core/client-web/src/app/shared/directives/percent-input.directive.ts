@@ -1,5 +1,6 @@
-import { Directive, ElementRef, forwardRef, inject } from '@angular/core';
+import { Directive, ElementRef, effect, forwardRef, inject, untracked } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FormatService } from '@virteex/shared/ui-i18n';
 
 /**
  * A rate field people type as a percentage, held by the form as a fraction (QA M-05).
@@ -14,6 +15,10 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * so `Validators.max(1)` still means "at most 100 %".
  *
  *     <input type="number" appPercent formControlName="taxRate" />
+ *
+ * It shows and reads the decimal mark in force (`RegionalFormat`): «12,5» with a decimal comma,
+ * «12.5» otherwise. It used to replace the first comma with a point whatever the format, which
+ * read «1,250» — a grouped twelve-hundred-fifty to a reader of `1,234.56` — as one point two five.
  */
 @Directive({
   selector: 'input[appPercent]',
@@ -27,12 +32,28 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 })
 export class PercentInputDirective implements ControlValueAccessor {
   private readonly element = inject<ElementRef<HTMLInputElement>>(ElementRef);
+  private readonly format = inject(FormatService);
+  private fraction: number | null = null;
   private onChange: (value: number | null) => void = () => undefined;
   protected onTouched: () => void = () => undefined;
 
+  constructor() {
+    // Text, so a decimal comma is neither rewritten nor dropped by the browser.
+    this.element.nativeElement.type = 'text';
+    effect(() => {
+      this.format.numberSymbols();
+      untracked(() => this.show());
+    });
+  }
+
   writeValue(fraction: unknown): void {
     const value = fraction === null || fraction === undefined || fraction === '' ? null : Number(fraction);
-    this.element.nativeElement.value = value === null || !Number.isFinite(value) ? '' : String(toPercent(value));
+    this.fraction = value === null || !Number.isFinite(value) ? null : value;
+    this.show();
+  }
+
+  private show(): void {
+    this.element.nativeElement.value = this.fraction === null ? '' : this.format.numberForInput(toPercent(this.fraction), 6);
   }
 
   registerOnChange(fn: (value: number | null) => void): void {
@@ -48,13 +69,9 @@ export class PercentInputDirective implements ControlValueAccessor {
   }
 
   protected onInput(raw: string): void {
-    const trimmed = raw.trim().replace(',', '.');
-    if (trimmed === '') {
-      this.onChange(null);
-      return;
-    }
-    const percent = Number(trimmed);
-    this.onChange(Number.isFinite(percent) ? toFraction(percent) : null);
+    const percent = this.format.parseNumber(raw.replace('%', ''));
+    this.fraction = percent === null ? null : toFraction(percent);
+    this.onChange(this.fraction);
   }
 }
 

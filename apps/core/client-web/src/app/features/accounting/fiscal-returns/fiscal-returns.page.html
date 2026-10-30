@@ -146,7 +146,7 @@
             @if (complementary()) {
               <label class="doc-filter">
                 <span>{{ 'fiscal_returns.modified_on' | translate }}</span>
-                <input type="date" [ngModel]="modifiedOn()" (ngModelChange)="modifiedOn.set($event)" />
+                <vx-date-field [ngModel]="modifiedOn()" (ngModelChange)="modifiedOn.set($event)" />
               </label>
             }
           </div>

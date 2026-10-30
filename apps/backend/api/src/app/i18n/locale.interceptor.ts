@@ -1,6 +1,6 @@
 import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor, Optional } from '@nestjs/common';
 import { Observable, mergeMap } from 'rxjs';
-import { LanguageCode } from '@virteex/shared/types';
+import { LanguageCode, RegionalFormat } from '@virteex/shared/types';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { buildLocaleContext, currentLanguage, preferenceLanguage, setRequestLocale } from './request-locale';
 import { I18nService } from './i18n.service';
@@ -31,6 +31,12 @@ import { TenantCurrencyPort } from './ports/tenant-currency.port';
  * The context has to be computed server-side because the browser cannot: it knows its own
  * timezone and locale, and an ERP needs the tenant's.
  */
+/** What a tenant decides about formatting for every member: its books currency and its format. */
+interface TenantDefaults {
+  currency: string | null;
+  format: RegionalFormat | null;
+}
+
 @Injectable()
 export class LocaleInterceptor implements NestInterceptor {
   private readonly logger = new Logger(LocaleInterceptor.name);
@@ -60,24 +66,29 @@ export class LocaleInterceptor implements NestInterceptor {
   private async stamp(body: unknown, language: LanguageCode): Promise<unknown> {
     const users = usersIn(body);
     if (users.length === 0) return body;
-    const currencies = await this.functionalCurrencies(users);
-    for (const user of users) this.withContext(user, language, currencies);
+    const defaults = await this.tenantDefaults(users);
+    for (const user of users) this.withContext(user, language, defaults);
     return body;
   }
 
-  /** One lookup per tenant in the response, never one per user. */
-  private async functionalCurrencies(users: UserResponseDto[]): Promise<Map<string, string | null>> {
+  /** One lookup per tenant in the response, never one per user: its currency and its format. */
+  private async tenantDefaults(users: UserResponseDto[]): Promise<Map<string, TenantDefaults>> {
     const ids = [...new Set(users.map((u) => u.organization?.id).filter((id): id is string => !!id))];
     const entries = await Promise.all(
-      ids.map(async (id): Promise<[string, string | null]> => {
-        if (!this.tenantCurrency) return [id, null];
-        try {
-          return [id, await this.tenantCurrency.functionalCurrency(id)];
-        } catch (error) {
-          // The session is still served; only its formatting falls back.
-          this.logger.warn(`Could not read the functional currency of ${id}: ${(error as Error).message}`);
-          return [id, null];
-        }
+      ids.map(async (id): Promise<[string, TenantDefaults]> => {
+        if (!this.tenantCurrency) return [id, { currency: null, format: null }];
+        const [currency, format] = await Promise.all([
+          this.tenantCurrency.functionalCurrency(id).catch((error: Error) => {
+            // The session is still served; only its formatting falls back.
+            this.logger.warn(`Could not read the functional currency of ${id}: ${error.message}`);
+            return null;
+          }),
+          this.tenantCurrency.regionalFormat(id).catch((error: Error) => {
+            this.logger.warn(`Could not read the regional format of ${id}: ${error.message}`);
+            return null;
+          }),
+        ]);
+        return [id, { currency, format }];
       }),
     );
     return new Map(entries);
@@ -121,15 +132,19 @@ export class LocaleInterceptor implements NestInterceptor {
   private withContext(
     user: UserResponseDto,
     language: LanguageCode,
-    currencies: Map<string, string | null>,
+    defaults: Map<string, TenantDefaults>,
   ): UserResponseDto {
     const organization = user.organization;
+    const tenant = organization ? defaults.get(organization.id) : undefined;
     if (organization) {
       // The books currency, from the tenant's settings: the DTO declared `currency` and nothing
       // ever set it, so every tenant was formatted in the `USD` fallback (QA A-12).
-      organization.currency = currencies.get(organization.id) ?? organization.currency ?? null;
+      organization.currency = tenant?.currency ?? organization.currency ?? null;
     }
-    user.localeContext = buildLocaleContext(language, organization);
+    user.localeContext = buildLocaleContext(language, organization, {
+      company: tenant?.format ?? null,
+      personal: user.regionalFormat ?? null,
+    });
     return user;
   }
 }

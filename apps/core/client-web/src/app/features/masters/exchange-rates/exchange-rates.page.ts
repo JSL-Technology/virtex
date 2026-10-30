@@ -1,8 +1,9 @@
+import { VX_DATE } from '../../../shared/components/date';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { LucideAngularModule, PlusCircle, Trash2, Upload } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
@@ -40,7 +41,7 @@ const todayIso = (): string => {
 @Component({
   selector: 'app-exchange-rates-page',
   standalone: true,
-  imports: [
+  imports: [VxNumberInputDirective, ...VX_DATE, 
     FormsModule,
     ReactiveFormsModule,
     TranslateModule,

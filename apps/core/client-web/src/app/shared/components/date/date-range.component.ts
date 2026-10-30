@@ -30,6 +30,7 @@ let nextId = 0;
         [inputId]="fromId"
         [value]="from()"
         [max]="to()"
+        [boundsMessage]="false"
         [ariaDescribedBy]="inverted() ? messageId : null"
         (valueChange)="from.set($event)"
       />
@@ -41,6 +42,7 @@ let nextId = 0;
         [inputId]="toId"
         [value]="to()"
         [min]="from()"
+        [boundsMessage]="false"
         [ariaDescribedBy]="inverted() ? messageId : null"
         (valueChange)="to.set($event)"
       />

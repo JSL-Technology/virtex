@@ -16,6 +16,10 @@ import {
   isLanguageCode,
   matchLanguage,
   resolveLocale,
+  RegionalFormat,
+  normaliseRegionalFormat,
+  withDateFormat,
+  withNumberSymbols,
 } from '@virteex/shared/types';
 import { I18nService } from '../../i18n/i18n.service';
 import {
@@ -43,6 +47,13 @@ export interface InvoiceRenderContext {
    */
   locale?: string;
   language?: LanguageCode;
+  /**
+   * How the ISSUER writes dates and numbers (`organization_settings.regional_format`): the
+   * company's house style for what it sends. The language still follows the recipient; only the
+   * marks and the order of a numeric date follow this. A person's own preference never applies —
+   * it is how they read their screen, not how the company writes to its customers.
+   */
+  regionalFormat?: RegionalFormat | null;
 }
 
 /** The printed invoice. Named apart from the e-mail's `invoice.hbs` so the two can never collide. */
@@ -132,7 +143,7 @@ export class InvoiceRendererService implements OnModuleDestroy {
   }
 
   /** The total, the balance and the due date as the e-mail states them, in the document's own language and format. */
-  emailSummary(context: Pick<InvoiceRenderContext, 'invoice' | 'organization' | 'language' | 'locale'>): {
+  emailSummary(context: Pick<InvoiceRenderContext, 'invoice' | 'organization' | 'language' | 'locale' | 'regionalFormat'>): {
     language: LanguageCode;
     total: string;
     balance: string;
@@ -140,16 +151,18 @@ export class InvoiceRendererService implements OnModuleDestroy {
   } {
     const { language, locale } = this.readerOf(context);
     const { invoice } = context;
+    const house = normaliseRegionalFormat(context.regionalFormat);
     const decimals = minorUnitsFor(invoice.currencyCode);
     const money = (amount: number): string => {
       try {
-        return new Intl.NumberFormat(locale, {
+        const formatter = new Intl.NumberFormat(locale, {
           style: 'currency',
           currency: (invoice.currencyCode ?? '').toUpperCase(),
           currencyDisplay: 'code',
           minimumFractionDigits: decimals,
           maximumFractionDigits: decimals,
-        }).format(amount);
+        });
+        return withNumberSymbols(formatter.formatToParts(amount), house.numberFormat);
       } catch {
         // An unrecognised currency code must not blank the figure the customer is asked to pay.
         return `${invoice.currencyCode ?? ''} ${amount.toFixed(decimals)}`.trim();
@@ -186,6 +199,7 @@ export class InvoiceRendererService implements OnModuleDestroy {
   async renderHtml(context: InvoiceRenderContext): Promise<string> {
     const template = this.compiledTemplate();
     const { invoice, organization, submission } = context;
+    const house = normaliseRegionalFormat(context.regionalFormat);
 
     const qrDataUri = submission?.qrUrl ? await this.qrDataUri(submission.qrUrl) : null;
     const decimals = minorUnitsFor(invoice.currencyCode);
@@ -220,11 +234,14 @@ export class InvoiceRendererService implements OnModuleDestroy {
       : null;
 
     const format = (value: number): string =>
-      new Intl.NumberFormat(locale, {
-        style: 'decimal',
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals,
-      }).format(Number(value) || 0);
+      withNumberSymbols(
+        new Intl.NumberFormat(locale, {
+          style: 'decimal',
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        }).formatToParts(Number(value) || 0),
+        house.numberFormat,
+      );
 
     return template({
       organization,
@@ -257,8 +274,8 @@ export class InvoiceRendererService implements OnModuleDestroy {
           : this.i18n.translate('invoices.detail.tax_id_generic', language)),
       title: this.i18n.translate(this.documentTitleKey(invoice), language),
       currencyCode: invoice.currencyCode,
-      issueDate: formatDate(invoice.issueDate, locale),
-      dueDate: formatDate(invoice.dueDate, locale),
+      issueDate: formatDate(invoice.issueDate, locale, house),
+      dueDate: formatDate(invoice.dueDate, locale, house),
       totals: {
         subtotal: format(invoice.subtotal),
         discount: invoice.discountTotal > 0 ? format(invoice.discountTotal) : null,
@@ -276,9 +293,9 @@ export class InvoiceRendererService implements OnModuleDestroy {
       fiscal: {
         ncf: invoice.fiscalNumber,
         documentType: invoice.fiscalDocumentType,
-        validUntil: invoice.fiscalNumberExpiresAt ? formatDate(invoice.fiscalNumberExpiresAt, locale) : null,
+        validUntil: invoice.fiscalNumberExpiresAt ? formatDate(invoice.fiscalNumberExpiresAt, locale, house) : null,
         securityCode: submission?.securityCode ?? null,
-        signedAt: submission?.sentAt ? formatDateTime(submission.sentAt, locale) : null,
+        signedAt: submission?.sentAt ? formatDateTime(submission.sentAt, locale, house) : null,
         status: submission?.status ?? null,
         qrDataUri,
         qrUrl: submission?.qrUrl ?? null,
@@ -428,14 +445,15 @@ function trimTrailingZeros(value: number): string {
   return text.replace(/\.?0+$/, '') || '0';
 }
 
-function formatDate(value: string | Date, locale: string): string {
+function formatDate(value: string | Date, locale: string, house: RegionalFormat = {}): string {
   const date = value instanceof Date ? value : new Date(`${String(value).split('T')[0]}T12:00:00Z`);
-  return new Intl.DateTimeFormat(locale, {
+  const parts = new Intl.DateTimeFormat(locale, {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     timeZone: 'UTC',
-  }).format(date);
+  }).formatToParts(date);
+  return withDateFormat(parts, house);
 }
 
 /** «10 de noviembre de 2026»: a date in running text, where `10/11/2026` reads both ways. */
@@ -444,13 +462,15 @@ function formatLongDate(value: string | Date, locale: string): string {
   return new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(date);
 }
 
-function formatDateTime(value: Date, locale: string): string {
-  return new Intl.DateTimeFormat(locale, {
+function formatDateTime(value: Date, locale: string, house: RegionalFormat = {}): string {
+  const parts = new Intl.DateTimeFormat(locale, {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-  }).format(value);
+    ...(house.timeFormat ? { hourCycle: house.timeFormat } : {}),
+  }).formatToParts(value);
+  return withDateFormat(parts, house);
 }

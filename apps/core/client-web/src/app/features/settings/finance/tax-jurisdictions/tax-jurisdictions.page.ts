@@ -18,7 +18,7 @@ import {
   TaxJurisdiction,
 } from '../../../../core/api/fiscal-settings.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 
@@ -39,7 +39,7 @@ import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/d
 @Component({
   selector: 'app-tax-jurisdictions-page',
   standalone: true,
-  imports: [VxEmptyStateComponent, SettingsActionsDirective, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDateFieldComponent],
+  imports: [VxNumberInputDirective, VxEmptyStateComponent, SettingsActionsDirective, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDateFieldComponent],
   templateUrl: './tax-jurisdictions.page.html',
   styleUrls: ['./tax-jurisdictions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

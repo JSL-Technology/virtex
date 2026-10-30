@@ -231,7 +231,7 @@
               <div class="co__row-fields">
                 <label class="field">
                   <span>{{ 'collections.promised_date' | translate }} *</span>
-                  <input type="date" [ngModel]="logDate()" (ngModelChange)="logDate.set($event)" />
+                  <vx-date-field [ngModel]="logDate()" (ngModelChange)="logDate.set($event)" />
                 </label>
                 <label class="field">
                   <span>{{ 'collections.promised_amount' | translate }}</span>

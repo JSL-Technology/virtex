@@ -1,4 +1,5 @@
 
+import type { RegionalFormat } from '@virteex/shared/types';
 import {
   Check,
   Entity,
@@ -376,6 +377,15 @@ export class OrganizationSettings {
    */
   @Column({ type: 'jsonb', nullable: true })
   branding: { accentColor?: string; fontFamily?: string; borderRadius?: number } | null = null;
+
+  /**
+   * How the company writes dates, numbers and times for everyone (`RegionalFormat`): the order of
+   * a date, the decimal mark, the clock, the first day of the week. Each field absent is
+   * «automatic», decided by the reader's language in the company's country — which was the only
+   * answer there was. A member may override any field for themselves (`users.regional_format`).
+   */
+  @Column({ name: 'regional_format', type: 'jsonb', nullable: true })
+  regionalFormat: RegionalFormat | null = null;
 
   /**
    * Whether every member of this organization must hold a second factor.

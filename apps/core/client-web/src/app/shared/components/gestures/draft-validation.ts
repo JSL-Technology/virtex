@@ -31,6 +31,8 @@ const MESSAGE_BY_ERROR: Record<string, string> = {
   minlength: 'shell.problem_minlength',
   maxlength: 'shell.problem_maxlength',
   pattern: 'shell.field_not_expected_format',
+  //  Un número que no se puede leer con la marca decimal en vigor (`VxNumberInputDirective`).
+  localizedNumber: 'shell.problem_number',
   //  El par desde/hasta invertido. `dateOrder` deja el error en el control TARDÍO además de en el
   //  grupo, precisamente para que el resumen pueda nombrar un campo en vez de decir que el
   //  formulario está mal en algún sitio.
@@ -56,6 +58,7 @@ function describe(name: string, label: string, errors: ValidationErrors): DraftP
         field: label,
         min: detail?.['min'] ?? detail?.['requiredLength'],
         max: detail?.['max'] ?? detail?.['requiredLength'],
+        example: detail?.['example'],
       },
     };
   }

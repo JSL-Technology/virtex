@@ -18,7 +18,7 @@ import {
   WithholdingRegime,
 } from '../../../../core/api/fiscal-settings.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
@@ -40,7 +40,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-withholding-regimes-page',
   standalone: true,
-  imports: [VxEmptyStateComponent, SettingsActionsDirective, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [VxNumberInputDirective, VxEmptyStateComponent, SettingsActionsDirective, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './withholding-regimes.page.html',
   styleUrls: ['./withholding-regimes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -586,9 +586,10 @@ export class UserManagementPage implements OnInit, OnDestroy {
     }
   }
 
+  /** The user's roles in the reader's language: «Administrador», not «ADMINISTRATOR» (CG-27). */
   getRoleNames(user: ApiUser): string {
-    if (!user.roles || user.roles.length === 0) return 'Sin rol';
-    return user.roles.map((r) => r.name).join(', ');
+    if (!user.roles || user.roles.length === 0) return roleLabel(this.translate, null);
+    return user.roles.map((r) => roleLabel(this.translate, r.name)).join(', ');
   }
 
   statusTone(status: UserStatus): VxTone {

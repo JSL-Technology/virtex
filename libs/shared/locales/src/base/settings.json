@@ -5039,14 +5039,14 @@
     "pt": "Preferências"
   },
   "settings.sections_meta.preferences.description": {
-    "es": "Idioma, tema, contraste, densidad y ancho. Solo para ti, en este equipo.",
-    "en": "Language, theme, contrast, density and width. Just for you, on this device.",
-    "pt": "Idioma, tema, contraste, densidade e largura. Só para si, neste dispositivo."
+    "es": "Idioma, tema, densidad y cómo ves fechas y números. Solo para ti.",
+    "en": "Language, theme, density and how you see dates and numbers. Just for you.",
+    "pt": "Idioma, tema, densidade e como você vê datas e números. Só para você."
   },
   "settings.sections_meta.preferences.keywords": {
-    "es": "idioma tema oscuro claro contraste densidad ancho apariencia",
-    "en": "language theme dark light contrast density width appearance",
-    "pt": "idioma tema escuro claro contraste densidade largura aparência"
+    "es": "idioma tema oscuro claro contraste densidad ancho apariencia formato fecha número decimal hora",
+    "en": "language theme dark light contrast density width appearance format date number decimal time",
+    "pt": "idioma tema escuro claro contraste densidade largura aparência formato data número decimal hora"
   },
   "settings.sections_meta.organizations.label": {
     "es": "Mis empresas",
@@ -5392,5 +5392,205 @@
     "es": "extensiones plugins complementos aislamiento",
     "en": "extensions plugins add-ons sandbox",
     "pt": "extensões plugins complementos isolamento"
+  },
+  "settings.sequences.confirm_title": {
+    "es": "¿Cambiar la numeración?",
+    "en": "Change the numbering?",
+    "pt": "Alterar a numeração?"
+  },
+  "settings.sequences.confirm_message": {
+    "es": "Los documentos que se emitan desde ahora usarán la nueva numeración; los ya emitidos conservan la suya. {{changes}}",
+    "en": "Documents issued from now on use the new numbering; those already issued keep theirs. {{changes}}",
+    "pt": "Os documentos emitidos a partir de agora usarão a nova numeração; os já emitidos mantêm a sua. {{changes}}"
+  },
+  "settings.sequences.confirm_message_gap": {
+    "es": "Los documentos que se emitan desde ahora usarán la nueva numeración. Saltar números deja un hueco en la serie que no se podrá rellenar. {{changes}}",
+    "en": "Documents issued from now on use the new numbering. Skipping numbers leaves a gap in the series that cannot be filled. {{changes}}",
+    "pt": "Os documentos emitidos a partir de agora usarão a nova numeração. Pular números deixa uma lacuna na série que não poderá ser preenchida. {{changes}}"
+  },
+  "settings.sequences.confirm_line": {
+    "es": "{{document}}: {{from}} → {{to}}",
+    "en": "{{document}}: {{from}} → {{to}}",
+    "pt": "{{document}}: {{from}} → {{to}}"
+  },
+  "settings.sequences.confirm_action": {
+    "es": "Cambiar numeración",
+    "en": "Change numbering",
+    "pt": "Alterar numeração"
+  },
+  "settings.sequences.was": {
+    "es": "Antes: {{value}}",
+    "en": "Was: {{value}}",
+    "pt": "Antes: {{value}}"
+  },
+  "settings.sequences.blocked_goes_back": {
+    "es": "Un próximo número no puede bajar: corrígelo para guardar.",
+    "en": "A next number cannot go down: correct it to save.",
+    "pt": "Um próximo número não pode diminuir: corrija-o para salvar."
+  },
+  "settings.roles.system_role_locked": {
+    "es": "Los roles del sistema no se editan ni se eliminan: duplícalo para adaptarlo",
+    "en": "System roles cannot be edited or deleted: duplicate it to adapt it",
+    "pt": "Funções do sistema não podem ser editadas nem excluídas: duplique-a para adaptá-la"
+  },
+  "settings.roles.kind_system": {
+    "es": "Sistema",
+    "en": "System",
+    "pt": "Sistema"
+  },
+  "settings.roles.kind_custom": {
+    "es": "Personalizado",
+    "en": "Custom",
+    "pt": "Personalizado"
+  },
+  "settings.sections_meta.regional_format.label": {
+    "es": "Formato regional",
+    "en": "Regional format",
+    "pt": "Formato regional"
+  },
+  "settings.sections_meta.regional_format.description": {
+    "es": "Cómo se escriben las fechas, los números y la hora para toda la empresa. Cada persona puede elegir el suyo en Preferencias.",
+    "en": "How dates, numbers and times are written for the whole company. Each person can choose their own in Preferences.",
+    "pt": "Como datas, números e horas são escritos para toda a empresa. Cada pessoa pode escolher o seu em Preferências."
+  },
+  "settings.sections_meta.regional_format.keywords": {
+    "es": "formato fecha dd/mm/aaaa número decimal coma punto separador miles hora 24 horas 12 horas semana",
+    "en": "format date dd/mm/yyyy number decimal comma point separator thousands time 24-hour 12-hour week",
+    "pt": "formato data dd/mm/aaaa número decimal vírgula ponto separador milhar hora 24 horas 12 horas semana"
+  },
+  "settings.regional_format.date_order": {
+    "es": "Orden de la fecha",
+    "en": "Date order",
+    "pt": "Ordem da data"
+  },
+  "settings.regional_format.date_separator": {
+    "es": "Separador de la fecha",
+    "en": "Date separator",
+    "pt": "Separador da data"
+  },
+  "settings.regional_format.number_format": {
+    "es": "Miles y decimales",
+    "en": "Thousands and decimals",
+    "pt": "Milhares e decimais"
+  },
+  "settings.regional_format.number_hint": {
+    "es": "Se usa al mostrar importes y al escribirlos en los campos.",
+    "en": "Used to show amounts and to type them into fields.",
+    "pt": "Usado para mostrar valores e para digitá-los nos campos."
+  },
+  "settings.regional_format.time_format": {
+    "es": "Hora",
+    "en": "Time",
+    "pt": "Hora"
+  },
+  "settings.regional_format.first_day_of_week": {
+    "es": "Primer día de la semana",
+    "en": "First day of the week",
+    "pt": "Primeiro dia da semana"
+  },
+  "settings.regional_format.automatic": {
+    "es": "Automático · {{example}}",
+    "en": "Automatic · {{example}}",
+    "pt": "Automático · {{example}}"
+  },
+  "settings.regional_format.preview": {
+    "es": "Así se verá",
+    "en": "How it will look",
+    "pt": "Como ficará"
+  },
+  "settings.regional_format.preview_date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "settings.regional_format.preview_date_time": {
+    "es": "Fecha y hora",
+    "en": "Date and time",
+    "pt": "Data e hora"
+  },
+  "settings.regional_format.preview_amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "settings.regional_format.preview_number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "settings.regional_format.preview_week": {
+    "es": "La semana empieza el",
+    "en": "The week starts on",
+    "pt": "A semana começa em"
+  },
+  "settings.regional_format.preview_note": {
+    "es": "Las fechas escritas con palabras («14 de septiembre de 2026») siguen la gramática del idioma. Los datos guardados, las exportaciones y la API no cambian.",
+    "en": "Dates written in words (“September 14, 2026”) follow the language’s grammar. Stored data, exports and the API do not change.",
+    "pt": "Datas escritas por extenso (“14 de setembro de 2026”) seguem a gramática do idioma. Os dados salvos, as exportações e a API não mudam."
+  },
+  "settings.regional_format.company_note": {
+    "es": "Lo que elijas aquí lo verá toda la empresa, salvo quien haya elegido otro formato para sí en Preferencias. «Automático» sigue el idioma de cada persona y el país de la empresa.",
+    "en": "What you choose here is what the whole company sees, except people who chose another format for themselves in Preferences. “Automatic” follows each person’s language and the company’s country.",
+    "pt": "O que você escolher aqui será visto por toda a empresa, exceto quem escolheu outro formato para si em Preferências. “Automático” segue o idioma de cada pessoa e o país da empresa."
+  },
+  "settings.regional_format.personal_title": {
+    "es": "Fechas, números y hora",
+    "en": "Dates, numbers and time",
+    "pt": "Datas, números e hora"
+  },
+  "settings.regional_format.personal_note": {
+    "es": "Solo para ti y en todos tus dispositivos. «Automático» sigue el formato de la empresa.",
+    "en": "Just for you, on all your devices. “Automatic” follows the company’s format.",
+    "pt": "Só para você, em todos os seus dispositivos. “Automático” segue o formato da empresa."
+  },
+  "settings.regional_format.follow_company": {
+    "es": "Usar el formato de la empresa en todo",
+    "en": "Use the company’s format for everything",
+    "pt": "Usar o formato da empresa em tudo"
+  },
+  "settings.regional_format.load_failed": {
+    "es": "No se pudo leer el formato de la empresa.",
+    "en": "The company’s format could not be read.",
+    "pt": "Não foi possível ler o formato da empresa."
+  },
+  "settings.regional_format.save_failed": {
+    "es": "No se pudo guardar el formato.",
+    "en": "The format could not be saved.",
+    "pt": "Não foi possível salvar o formato."
+  },
+  "settings.regional_format.saved_company": {
+    "es": "Formato guardado para toda la empresa.",
+    "en": "Format saved for the whole company.",
+    "pt": "Formato salvo para toda a empresa."
+  },
+  "settings.regional_format.confirm_title": {
+    "es": "¿Cambiar el formato de toda la empresa?",
+    "en": "Change the format for the whole company?",
+    "pt": "Alterar o formato de toda a empresa?"
+  },
+  "settings.regional_format.confirm_message": {
+    "es": "Todas las fechas, importes y horas de la aplicación se verán y se escribirán así para quien no haya elegido otro formato. Los datos guardados no cambian.",
+    "en": "Every date, amount and time in the application will be shown and typed this way for anyone who has not chosen another format. Stored data does not change.",
+    "pt": "Todas as datas, valores e horas do aplicativo serão exibidos e digitados assim para quem não escolheu outro formato. Os dados salvos não mudam."
+  },
+  "settings.regional_format.confirm_action": {
+    "es": "Cambiar formato",
+    "en": "Change format",
+    "pt": "Alterar formato"
+  },
+  "settings.regional_format.reset_company": {
+    "es": "Volver a automático",
+    "en": "Back to automatic",
+    "pt": "Voltar ao automático"
+  },
+  "settings.regional_format.reset_title": {
+    "es": "¿Volver al formato automático?",
+    "en": "Go back to the automatic format?",
+    "pt": "Voltar ao formato automático?"
+  },
+  "settings.regional_format.reset_message": {
+    "es": "Cada persona verá el formato de su idioma en el país de la empresa, salvo quien haya elegido el suyo.",
+    "en": "Each person will see their language’s format in the company’s country, except those who chose their own.",
+    "pt": "Cada pessoa verá o formato do seu idioma no país da empresa, exceto quem escolheu o seu."
   }
 }

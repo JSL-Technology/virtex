@@ -16,7 +16,7 @@ import { AccountingService } from '../../../../core/api/accounting.service';
 import { JournalsService } from '../../../../core/api/journals.service';
 import { Account } from '../../../../core/models/account.model';
 import { Journal } from '../../../../core/models/journal.model';
-import { TranslateModule, FORMAT_PIPES, FormatService, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService, accountNameOf, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { isChargeable } from '../../../../core/services/account-selection';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
@@ -50,7 +50,7 @@ function oneSide(group: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-audit-adjustment-form-page',
   standalone: true,
-  imports: [
+  imports: [VxNumberInputDirective, 
     ReactiveFormsModule,
     RouterLink,
     TranslateModule,

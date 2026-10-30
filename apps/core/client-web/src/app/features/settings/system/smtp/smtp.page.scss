@@ -11,7 +11,18 @@
 .mail__field > span { font-weight: 500; color: var(--text-primary); }
 .mail__input { @include ds.input-base; }
 .mail__invalid { color: var(--error-text); }
-.mail__warn { color: var(--text-primary); font-weight: 500; }
+.mail__warn {
+  // A consequence the reader has to act on: replies would reach nobody (CG-28).
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-md);
+  background: var(--warning-surface);
+  color: var(--warning-text);
+  font-weight: var(--font-medium);
+}
 .mail__error { color: var(--error-text); }
 .mail__hint { font-size: var(--text-sm); color: var(--text-secondary); }
 

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, OnInit, com
 import { FormsModule } from '@angular/forms';
 
 import { Observable, map, of, throwError } from 'rxjs';
-import { TranslateModule, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, accountNameOf, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_SELECT } from '../../../shared/components/select';
 import { PercentInputDirective } from '../../../shared/directives/percent-input.directive';
 import { AccountingService } from '../../../core/api/accounting.service';
@@ -50,7 +50,7 @@ export interface PolicyField {
 @Component({
   selector: 'app-settings-section',
   standalone: true,
-  imports: [FormsModule, TranslateModule, PercentInputDirective, SettingsSaveBarComponent, ...VX_SELECT],
+  imports: [VxNumberInputDirective, FormsModule, TranslateModule, PercentInputDirective, SettingsSaveBarComponent, ...VX_SELECT],
   templateUrl: './settings-section.component.html',
   styleUrls: ['./settings-section.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

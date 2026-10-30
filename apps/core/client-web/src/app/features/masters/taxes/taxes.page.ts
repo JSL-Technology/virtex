@@ -8,7 +8,7 @@ import { TaxesService } from '../../../core/api/taxes.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
@@ -35,7 +35,7 @@ import { LocaleStore } from '@virteex/shared/ui-i18n';
 @Component({
   selector: 'app-taxes-page',
   standalone: true,
-  imports: [...VX_SORT, ReactiveFormsModule, VxDateFieldComponent, CanOpenDirective, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, VxAmountComponent],
+  imports: [VxNumberInputDirective, ...VX_SORT, ReactiveFormsModule, VxDateFieldComponent, CanOpenDirective, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, VxAmountComponent],
   templateUrl: './taxes.page.html',
   styleUrls: ['./taxes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

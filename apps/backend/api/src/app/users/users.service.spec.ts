@@ -172,6 +172,23 @@ describe('UsersService', () => {
       expect(updatedUser.isPhoneVerified).toBe(true);
       expect(updatedUser.firstName).toBe('NewName');
     });
+
+    it('stores a person’s regional format cleaned, and no preference for «all automatic»', async () => {
+      const user = new User();
+      user.id = '123';
+      userRepositoryMock.findOne.mockResolvedValue(user);
+      userRepositoryMock.save.mockImplementation((u: User) => Promise.resolve(u));
+
+      const kept = await service.updateProfile(
+        '123',
+        { regionalFormat: { dateOrder: 'YMD', numberFormat: null } } as UpdateProfileDto,
+        'org-1',
+      );
+      expect(kept.regionalFormat).toEqual({ dateOrder: 'YMD' });
+
+      const cleared = await service.updateProfile('123', { regionalFormat: {} } as UpdateProfileDto, 'org-1');
+      expect(cleared.regionalFormat).toBeNull();
+    });
   });
 
   /**

@@ -1576,7 +1576,10 @@ export class InvoicesService {
       where: { invoiceId: invoice.id, organizationId },
     });
 
-    return { invoice, context: { invoice, organization, submission } };
+    // The issuer's house style for the numbers and dates it sends (`regional_format`).
+    const regionalFormat = (await this.orgSettings.getForOrg(organizationId))?.regionalFormat ?? null;
+
+    return { invoice, context: { invoice, organization, submission, regionalFormat } };
   }
 
   /**

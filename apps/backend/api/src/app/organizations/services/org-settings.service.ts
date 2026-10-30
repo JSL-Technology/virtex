@@ -251,6 +251,10 @@ export class OrgSettingsService extends MfaPolicyPort {
       // Every session must format in the new currency from its next response on.
       await this.cache?.del(TenantCurrencyService.key(organizationId)).catch(() => undefined);
     }
+    if (partial.regionalFormat !== undefined) {
+      // Every member's next response must carry the new format.
+      await this.cache?.del(TenantCurrencyService.formatKey(organizationId)).catch(() => undefined);
+    }
     return saved;
   }
 }

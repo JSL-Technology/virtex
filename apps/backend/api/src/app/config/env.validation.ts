@@ -408,7 +408,8 @@ export const envValidation = Joi.object({
   MAIL_PASSWORD: optionalInDev(),
   MAIL_FROM_ADDRESS: Joi.when('NODE_ENV', {
     is: DEV_LIKE,
-    then: Joi.string().email().default('no-reply@virteex.local'),
+    // The product is Virtex: the sender read «no-reply@virteex.local» to every recipient (CG-30).
+    then: Joi.string().email().default('no-reply@virtex.local'),
     otherwise: Joi.string().email().required(),
   }),
   MAIL_FROM_NAME: devDefault('Virtex'),

@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule, Plus } from 'lucide-angular';
 
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { CustomerAdvance, CustomerReceiptsService } from '../../../core/services/customer-receipts';
 import { InvoicesService, Invoice } from '../../../core/services/invoices';
 import { CustomersService } from '../../../core/api/customers.service';
@@ -45,7 +45,7 @@ import { Observable } from 'rxjs';
 @Component({
   selector: 'app-customer-receipt-form-page',
   standalone: true,
-  imports: [
+  imports: [VxNumberInputDirective, 
     VxBranchPickerComponent,
     CommonModule,
     ReactiveFormsModule,

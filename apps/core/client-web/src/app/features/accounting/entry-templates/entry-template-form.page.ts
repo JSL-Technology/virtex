@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxDateFieldComponent } from '../../../shared/components/date';
@@ -66,7 +66,7 @@ const blankLine = (type: TemplateSide): TemplateLine => ({ accountId: '', descri
 @Component({
   selector: 'app-entry-template-form-page',
   standalone: true,
-  imports: [
+  imports: [VxNumberInputDirective, 
     ReactiveFormsModule,
     FormsModule,
     RouterLink,

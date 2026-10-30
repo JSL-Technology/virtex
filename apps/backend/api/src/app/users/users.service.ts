@@ -1,3 +1,4 @@
+import { normaliseRegionalFormat } from '@virteex/shared/types';
 
 import { Injectable, Inject, forwardRef, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserProfilePort } from './ports/user-profile.port';
@@ -109,6 +110,11 @@ export class UsersService extends UserProfilePort {
       if (value !== undefined) {
         (user as unknown as Record<string, unknown>)[field] = value;
       }
+    }
+    // Stored cleaned: only the known fields with known values, and no row at all for «automatic».
+    if (updateProfileDto.regionalFormat !== undefined) {
+      const format = normaliseRegionalFormat(updateProfileDto.regionalFormat);
+      user.regionalFormat = Object.keys(format).length > 0 ? format : null;
     }
 
     await this.userCacheService.clearUserSession(id);

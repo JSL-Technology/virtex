@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, RefreshCw, Sparkles, FlaskConical } from 'lucide-angular';
 import { Subscription, timer } from 'rxjs';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { composeKey } from '@virteex/shared/types';
 import { NotificationService } from '../../../core/services/notification';
@@ -33,7 +33,7 @@ const pending = (status: string | undefined | null) => status === 'QUEUED' || st
 @Component({
   selector: 'app-cashflow-page',
   standalone: true,
-  imports: [FormsModule, KeyValuePipe, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, CashflowChartComponent],
+  imports: [VxNumberInputDirective, FormsModule, KeyValuePipe, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, CashflowChartComponent],
   templateUrl: './cashflow.page.html',
   styleUrl: './cashflow.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -5,51 +5,53 @@
   } @else if (loadError(); as message) {
     <div class="seq__state seq__state--error" role="alert">
       <p>{{ message }}</p>
-      <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
+      <!-- A refusal is not a hiccup: retrying cannot change a permission. -->
+      @if (!forbidden()) {
+        <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
+      }
     </div>
   } @else if (rows().length === 0) {
     <p class="seq__state">{{ 'settings.sequences.empty' | translate }}</p>
   } @else {
-    <div class="table-container">
+    <div class="table-container card">
       <table class="seq__table">
         <thead>
           <tr>
-            <th>{{ 'settings.sequences.document' | translate }}</th>
-            <th>{{ 'settings.sequences.prefix' | translate }}</th>
-            <th>{{ 'settings.sequences.next_number' | translate }}</th>
-            <th>{{ 'settings.sequences.next_document' | translate }}</th>
-            <th></th>
+            <th scope="col">{{ 'settings.sequences.document' | translate }}</th>
+            <th scope="col">{{ 'settings.sequences.prefix' | translate }}</th>
+            <th scope="col">{{ 'settings.sequences.next_number' | translate }}</th>
+            <th scope="col">{{ 'settings.sequences.next_document' | translate }}</th>
           </tr>
         </thead>
         <tbody>
           @for (row of rows(); track row.type) {
-            <tr>
-              <td>{{ 'settings.sequences.type.' + row.type | translate }}</td>
+            @let name = 'settings.sequences.type.' + row.type | translate;
+            <tr [class.seq__row--changed]="changed(row)">
+              <th scope="row">{{ name }}</th>
               <td>
-                <input class="seq__input" type="text" maxlength="20"
-                  [attr.aria-label]="'settings.sequences.prefix' | translate"
+                <input class="seq__input" type="text" maxlength="20" [disabled]="!canEdit() || saving()"
+                  [attr.aria-label]="('settings.sequences.prefix' | translate) + ' · ' + name"
                   [value]="draftOf(row).prefix"
                   (input)="edit(row, { prefix: $any($event.target).value })" />
               </td>
               <td>
-                <input class="seq__input seq__input--number" type="number" min="1" step="1"
-                  [attr.aria-label]="'settings.sequences.next_number' | translate"
+                <input class="seq__input seq__input--number" type="number" [min]="row.nextNumber" step="1" [disabled]="!canEdit() || saving()"
+                  [attr.aria-label]="('settings.sequences.next_number' | translate) + ' · ' + name"
                   [attr.aria-invalid]="goesBack(row)"
+                  [attr.aria-describedby]="goesBack(row) ? 'seq-error-' + row.type : null"
                   [value]="draftOf(row).nextNumber"
                   (input)="edit(row, { nextNumber: +$any($event.target).value })" />
                 @if (goesBack(row)) {
-                  <small class="seq__error" role="alert">
+                  <small class="seq__error" [id]="'seq-error-' + row.type" role="alert">
                     {{ 'shared.document_sequence_cannot_go_back' | translate: { current: row.nextNumber } }}
                   </small>
                 }
               </td>
-              <td><code>{{ preview(row) }}</code></td>
               <td>
-                <button type="button" class="primary-button"
-                  [disabled]="!changed(row) || goesBack(row) || savingType() === row.type"
-                  (click)="save(row)">
-                  {{ 'common.save' | translate }}
-                </button>
+                <code>{{ preview(row) }}</code>
+                @if (changed(row)) {
+                  <small class="seq__was">{{ 'settings.sequences.was' | translate: { value: row.nextFormatted } }}</small>
+                }
               </td>
             </tr>
           }
@@ -62,4 +64,10 @@
     {{ 'settings.sequences.fiscal_note' | translate }}
     <a [routerLink]="[]" fragment="settings/fiscal">{{ 'settings.sequences.go_fiscal' | translate }}</a>
   </p>
+
+  @if (canEdit()) {
+    <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()"
+      [blockedKey]="invalid() ? 'settings.sequences.blocked_goes_back' : null"
+      (save)="save()" (discard)="drafts.set({})" />
+  }
 </div>

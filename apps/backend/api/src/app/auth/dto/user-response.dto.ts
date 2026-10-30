@@ -4,6 +4,7 @@ import type {
   AuthUserContract,
   LanguageCode,
   LocaleContextContract,
+  RegionalFormat,
   OrganizationContract,
   RoleContract,
   UserStatusValue,
@@ -184,6 +185,11 @@ export class UserResponseDto implements AuthUserContract {
   @ApiPropertyOptional()
   @Expose()
   preferredLanguage: LanguageCode | null;
+
+  /** This person's own date, number and time format, over the company's (`RegionalFormat`). */
+  @ApiPropertyOptional()
+  @Expose()
+  regionalFormat: RegionalFormat | null;
 
   /**
    * Country, currency, timezone and formatting locale for this session.

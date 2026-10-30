@@ -85,7 +85,11 @@ table {
 .actions-column {
     width: 1%;
     white-space: nowrap;
+}
+
+.row-actions {
     display: flex;
+    justify-content: flex-end;
     gap: var(--space-1);
 }
 
@@ -113,7 +117,8 @@ table {
         color: var(--error);
     }
 
-    &:disabled {
+    &:disabled,
+    &[aria-disabled='true'] {
         opacity: 0.35;
         cursor: not-allowed;
     }

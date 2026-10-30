@@ -26,6 +26,7 @@ import {
   UserCircle,
   Users,
   Workflow,
+  Languages,
 } from 'lucide-angular';
 
 /** Who a section's settings affect: the reader alone, the whole company, or how it is administered. */
@@ -124,6 +125,12 @@ export const SETTINGS_SECTIONS: readonly SettingsSectionDef[] = [
     labelKey: 'settings.sections_meta.profile.label', descriptionKey: 'settings.sections_meta.profile.description',
     keywordsKey: 'settings.sections_meta.profile.keywords', editPermission: 'settings:edit_company',
     load: () => import('../company-profile/company-profile.page').then((m) => m.CompanyProfilePage),
+  },
+  {
+    id: 'regional-format', group: 'company', scope: 'company', icon: Languages,
+    labelKey: 'settings.sections_meta.regional_format.label', descriptionKey: 'settings.sections_meta.regional_format.description',
+    keywordsKey: 'settings.sections_meta.regional_format.keywords', editPermission: 'settings:edit_company', inputs: { view: 'company' },
+    load: () => import('../regional-format/regional-format.page').then((m) => m.RegionalFormatPage),
   },
   {
     id: 'branding', group: 'company', scope: 'company', icon: Palette,
