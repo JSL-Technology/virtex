@@ -196,3 +196,21 @@ respaldos, monitoreo, soporte).
 
 Las fases 0 a 3 son el mínimo para empezar a cobrar. La 4 es lo que convence al contador, que es
 quien recomienda el sistema. La 5 abre segmentos.
+
+---
+
+## 8. Estado tras la implementación (2026-10-31)
+
+| Brecha | Estado | Dónde |
+|---|---|---|
+| P0-1 e-CF desde el POS | ✅ E32/E31 por venta, cobro y asiento, E34 al anular, ticket con e-NCF, código de seguridad y QR, contingencia sin conexión | `pos/pos-fiscal.service.ts`, `apps/pos`, `verify:pos-fiscal` |
+| P0-2 Receptor e-CF | ✅ Semilla/token, recepción con ARECF firmado, ACECF entrante, bandeja «Comprobantes recibidos» | `einvoicing/ecf-receptor.controller.ts`, `docs/RECEPCION_ECF.md`, `verify:ecf-receptor` |
+| P0-3 Certificación DGII | ⏳ Trámite: el código está listo; falta el certificado real y el set de pruebas | — |
+| P0-4 Cobro en RD | ✅ Azul (Página de Pagos + DataVault), precios en DOP con ITBIS, renovación, e-CF propio por cobro | `payment/adapters/azul-payment.adapter.ts`, `verify:platform-billing` |
+| IT-1, IR-17, IR-3 | ✅ Calculados casilla por casilla y descargables | `compliance/reports/dr-declarations.ts`, `payroll-declarations.service.ts` |
+| Fix 607/608 con notas de crédito | ✅ La factura anulada por NC sigue en el 607; el 608 declara las anulaciones ANECF | `dr-reports.ts` |
+| Archivo de pago de nómina por banco | ✅ GENERIC/BANRESERVAS/POPULAR/BHD (validar plantilla con cada banco) | `GET /payroll/runs/:id/bank-file` |
+| Vacaciones y licencias | ✅ API (arts. 177 y 180) · ⏳ pantalla en el portal | `payroll/services/leave.service.ts` |
+| Despliegue, respaldos, salud, alertas | ✅ | `deploy/`, `docs/DEPLOYMENT.md §0` |
+| Pedido/conduce, facturación recurrente, lotes/series, comisiones, cheques, WhatsApp, portal del cliente, DGT-3/4 | ⏳ Pendiente (fase 5) | — |
+| Legal (Ley 172-13, términos, SLA), soporte, onboarding guiado | ⏳ Fuera del código | — |
