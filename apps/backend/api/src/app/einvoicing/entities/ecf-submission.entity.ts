@@ -115,6 +115,20 @@ export class EcfSubmission {
   // migration created `timestamptz`, which is what `check:schema-drift` — a CI gate — reported on
   // every build. For an auditable fiscal record in a product sold from Mexico to Argentina, a
   // timestamp without a zone is a defect in itself, not only a drift.
+  /**
+   * The buyer's commercial verdict on this document (their ACECF, received by this tenant's
+   * reception service): `APPROVED` or `REJECTED`. Null until they answer — silence for three
+   * business days counts as acceptance.
+   */
+  @Column({ name: 'commercial_status', type: 'varchar', length: 16, nullable: true })
+  commercialStatus?: string | null;
+
+  @Column({ name: 'commercial_reason', type: 'text', nullable: true })
+  commercialReason?: string | null;
+
+  @Column({ name: 'commercial_at', type: 'timestamptz', nullable: true })
+  commercialAt?: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

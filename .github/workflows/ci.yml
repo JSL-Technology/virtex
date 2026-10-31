@@ -355,6 +355,13 @@ jobs:
       # print a ticket with no e-NCF and post nothing at all.
       - run: npm run verify:pos-fiscal
 
+      # Proves the tenant RECEIVES e-CF the way the DGII specifies, over real HTTP: seed → signed
+      # seed → token; reception answered with a signed ARECF; duplicate (3), bad signature (2) and
+      # wrong buyer (4) answered «no recibido» with their code; a buyer's ACECF recorded on the
+      # issuer's document; one tenant's inbox invisible to another. Being a receiver is part of the
+      # DGII certification, and the product exposed no reception service at all.
+      - run: npm run verify:ecf-receptor
+
       # Nx Cloud's self-healing. It needs an Nx Cloud workspace, and without one it can only fail —
       # which turned every run red after every other step had passed. The token is scoped to this
       # step alone rather than the job: `npm ci` runs third-party install scripts, and a secret in

@@ -529,6 +529,18 @@ export const CONTABILIDAD_REPORTS_MODULE: ModuleManifest = {
       menu: { group: 'analysis', labelKey: 'page_titles.fiscal_returns' },
       load: () => import('../../../features/accounting/fiscal-returns/fiscal-returns.page').then((m) => m.FiscalReturnsPage),
     },
+    // e-CF received from suppliers through the company's DGII reception service, and the
+    // commercial verdict (ACECF) owed on each within three business days.
+    {
+      path: 'received-ecf',
+      kind: WindowKind.LIST,
+      permission: 'invoices:view',
+      titleKey: 'page_titles.received_ecf',
+      icon: 'Receipt',
+      entityKeyFn: () => 'contabilidad:received-ecf',
+      menu: { group: 'analysis', labelKey: 'page_titles.received_ecf' },
+      load: () => import('../../../features/accounting/received-ecf/received-ecf.page').then((m) => m.ReceivedEcfPage),
+    },
   ],
 };
 

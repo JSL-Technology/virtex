@@ -698,5 +698,10 @@
     "es": "Ajuste de auditoría",
     "en": "Audit adjustment",
     "pt": "Ajuste de auditoria"
+  },
+  "page_titles.received_ecf": {
+    "es": "Comprobantes recibidos",
+    "en": "Received e-invoices",
+    "pt": "Comprovantes recebidos"
   }
 }

@@ -10,6 +10,9 @@ import type { HttpResponse as Response } from '../common/http/http.types';
 import { EcfCertificateService } from './services/ecf-certificate.service';
 import { EcfSubmissionService } from './services/ecf-submission.service';
 import { EcfLifecycleService } from './services/ecf-lifecycle.service';
+import { EcfReceptorService } from './services/ecf-receptor.service';
+import { ReceivedEcfStatus } from './entities/ecf-received-document.entity';
+import { AnswerReceivedDocumentDto } from './dto/answer-received-document.dto';
 import { CommercialApprovalDto } from './dto/commercial-approval.dto';
 import { VoidSequenceRangeDto } from './dto/void-sequence-range.dto';
 import { EcfMessageKind } from './entities/ecf-lifecycle-message.entity';
@@ -26,7 +29,45 @@ export class EinvoicingController {
     private readonly certificates: EcfCertificateService,
     private readonly submissions: EcfSubmissionService,
     private readonly lifecycle: EcfLifecycleService,
+    private readonly receptor: EcfReceptorService,
   ) {}
+
+  // ── Comprobantes recibidos ─────────────────────────────────────────────────
+
+  /** What suppliers sent to this company's reception service, newest first. */
+  @Get('received')
+  @HasPermission(PERMISSIONS.INVOICES_VIEW)
+  listReceived(@CurrentUser() user: AuthenticatedUser, @Query('status') status?: string) {
+    if (status && !(Object.values(ReceivedEcfStatus) as string[]).includes(status)) {
+      throw new BadRequestError('einvoicing.receptor.status_unknown', { status });
+    }
+    return this.receptor.listReceived(user.organizationId, status as ReceivedEcfStatus | undefined);
+  }
+
+  /** The received comprobante as the supplier signed it — the legal document. */
+  @Get('received/:id/xml')
+  @HasPermission(PERMISSIONS.INVOICES_VIEW)
+  async receivedXml(
+    @Param('id', UuidParamPipe) id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Res() res: Response,
+  ) {
+    const document = await this.receptor.getReceived(user.organizationId, id);
+    res.header('Content-Type', 'application/xml; charset=utf-8');
+    res.header('Content-Disposition', `attachment; filename="${document.issuerRnc}-${document.ncf}.xml"`);
+    res.send(document.xml);
+  }
+
+  /** Accept or dispute a received comprobante (ACECF). */
+  @Post('received/:id/answer')
+  @HasPermission(PERMISSIONS.INVOICES_CREATE)
+  answerReceivedDocument(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: AnswerReceivedDocumentDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.receptor.answer(user.organizationId, id, dto.verdict, dto.rejectionReason);
+  }
 
   @Post('certificates')
   @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)

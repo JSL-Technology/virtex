@@ -118,7 +118,8 @@
       "widgets",
       "wms",
       "workflow_engine",
-      "workflows"
+      "workflows",
+      "received_ecf"
     ],
     "$core_why": "The namespaces the application shell needs when a language chunk cannot be fetched at all. Emitted as <lang>.core.json and bundled, so a reader on a failing connection sees the sign-in page and the error wording rather than a screen of dotted identifiers. Everything else arrives with the language chunk.",
     "core": [

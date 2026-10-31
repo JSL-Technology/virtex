@@ -563,5 +563,75 @@
     "es": "Indicaste material secreto para el rango pero no de qué tipo es (CAF o clave técnica).",
     "en": "You supplied secret material for the range but not which kind it is (CAF or technical key).",
     "pt": "Você indicou material secreto para a faixa, mas não de que tipo é (CAF ou chave técnica)."
+  },
+  "einvoicing.receptor.seed_invalid": {
+    "es": "La semilla no fue emitida por este receptor.",
+    "en": "The seed was not issued by this receiver.",
+    "pt": "A semente não foi emitida por este receptor."
+  },
+  "einvoicing.receptor.seed_expired": {
+    "es": "La semilla venció. Solicita una nueva.",
+    "en": "The seed has expired. Request a new one.",
+    "pt": "A semente expirou. Solicite uma nova."
+  },
+  "einvoicing.receptor.seed_signature_invalid": {
+    "es": "La firma de la semilla no es válida.",
+    "en": "The seed's signature is not valid.",
+    "pt": "A assinatura da semente não é válida."
+  },
+  "einvoicing.receptor.token_invalid": {
+    "es": "Token de receptor inválido o vencido. Autentícate de nuevo con la semilla.",
+    "en": "Invalid or expired receiver token. Authenticate again with the seed.",
+    "pt": "Token do receptor inválido ou expirado. Autentique-se novamente com a semente."
+  },
+  "einvoicing.receptor.approval_malformed": {
+    "es": "La aprobación comercial no corresponde a un comprobante de este emisor o está incompleta.",
+    "en": "The commercial approval does not refer to a document from this issuer or is incomplete.",
+    "pt": "A aprovação comercial não corresponde a um documento deste emissor ou está incompleta."
+  },
+  "einvoicing.receptor.approval_signature_invalid": {
+    "es": "La firma de la aprobación comercial no es válida.",
+    "en": "The commercial approval's signature is not valid.",
+    "pt": "A assinatura da aprovação comercial não é válida."
+  },
+  "einvoicing.receptor.approval_document_unknown": {
+    "es": "Este emisor no emitió el comprobante {{ncf}}.",
+    "en": "This issuer did not issue document {{ncf}}.",
+    "pt": "Este emissor não emitiu o documento {{ncf}}."
+  },
+  "einvoicing.receptor.unknown_receiver": {
+    "es": "No hay un receptor electrónico con ese RNC.",
+    "en": "There is no electronic receiver with that RNC.",
+    "pt": "Não há receptor eletrônico com esse RNC."
+  },
+  "einvoicing.receptor.xml_malformed": {
+    "es": "El XML no está bien formado.",
+    "en": "The XML is not well formed.",
+    "pt": "O XML não está bem formado."
+  },
+  "einvoicing.receptor.xml_missing": {
+    "es": "Falta el XML del comprobante.",
+    "en": "The document's XML is missing.",
+    "pt": "Falta o XML do documento."
+  },
+  "einvoicing.receptor.xml_too_large": {
+    "es": "El XML excede el tamaño máximo de 2 MB.",
+    "en": "The XML exceeds the 2 MB maximum.",
+    "pt": "O XML excede o tamanho máximo de 2 MB."
+  },
+  "einvoicing.receptor.document_not_found": {
+    "es": "No se encontró el comprobante recibido.",
+    "en": "The received document was not found.",
+    "pt": "O documento recebido não foi encontrado."
+  },
+  "einvoicing.receptor.document_already_answered": {
+    "es": "Este comprobante ya fue aprobado o rechazado.",
+    "en": "This document has already been approved or rejected.",
+    "pt": "Este documento já foi aprovado ou rejeitado."
+  },
+  "einvoicing.receptor.status_unknown": {
+    "es": "Estado desconocido: {{status}}.",
+    "en": "Unknown status: {{status}}.",
+    "pt": "Status desconhecido: {{status}}."
   }
 }
