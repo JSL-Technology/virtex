@@ -276,6 +276,59 @@ export class InvoicesService {
     return created;
   }
 
+  /**
+   * The fiscal document of a point-of-sale sale, issued inside the sale's own transaction.
+   *
+   * In the Dominican Republic every sale needs a comprobante: a till ticket that carries no e-NCF
+   * is a sale the DGII never hears of. The till's sale is therefore also an invoice — numbered by
+   * the market's adapter (E32 to the final consumer, E31 when the buyer gives a valid RNC or
+   * cédula), posted to the ledger (revenue, ITBIS and cost of sale) and registered for
+   * transmission — in the same transaction as the sale, so neither exists without the other.
+   *
+   * Stock is NOT moved here: the till already moved it against its own sale and branch.
+   *
+   * The caller hands the result to {@link dispatchIssued} AFTER its transaction commits; a slow
+   * DGII must never hold the counter or roll a sale back.
+   */
+  async issueForPointOfSale(
+    input: PointOfSaleInvoiceInput,
+    organizationId: string,
+    manager: EntityManager,
+  ): Promise<Invoice> {
+    // A sale rung while the till was offline is dated the day it was rung, not the day it synced.
+    const issueDate = await this.fiscalToday(organizationId, manager, input.capturedAt ?? undefined);
+    const dto: CreateInvoiceDto = {
+      customerId: input.customerId,
+      branchId: input.branchId ?? undefined,
+      issueDate,
+      dueDate: issueDate,
+      lineItems: input.lines.map((line) => ({
+        productId: line.productId,
+        quantity: line.quantity,
+        unitPrice: line.unitPrice,
+      })),
+      paymentMethod: input.paymentMethod,
+      notes: input.notes,
+      issue: true,
+    } as CreateInvoiceDto;
+    const invoice = await this.buildDocument(dto, organizationId, manager);
+    invoice.branchId = input.branchId ?? null;
+    const saved = await manager.save(invoice);
+    return this.issueWithin(saved, input.fiscalDocumentType ?? null, organizationId, manager, {
+      moveStock: false,
+    });
+  }
+
+  /**
+   * What `create` does after its transaction commits, for documents issued inside someone else's
+   * transaction (the point of sale): the `invoice.issued` event and the e-CF transmission.
+   */
+  dispatchIssued(invoice: Invoice): void {
+    if (invoice.status === InvoiceStatus.DRAFT) return;
+    if (invoice.type === InvoiceType.INVOICE) this.eventEmitter.emit('invoice.issued', invoice);
+    this.triggerEcfSubmission(invoice);
+  }
+
   /** Turn an existing draft into an issued document. */
   async issue(invoiceId: string, organizationId: string, type?: string): Promise<Invoice> {
     const issued = await this.dataSource.transaction(async (manager) => {
@@ -457,6 +510,7 @@ export class InvoicesService {
     requestedType: string | null,
     organizationId: string,
     manager: EntityManager,
+    options: { moveStock?: boolean } = {},
   ): Promise<Invoice> {
     // Counted at issuance, not at draft: a plan quota is about documents that exist fiscally.
     await this.saasService.enforceLimit(manager, organizationId, SaasResource.INVOICES);
@@ -512,7 +566,9 @@ export class InvoicesService {
     invoice.status =
       invoice.type === InvoiceType.CREDIT_NOTE ? InvoiceStatus.CREDIT_NOTE : InvoiceStatus.PENDING;
 
-    if (invoice.type === InvoiceType.INVOICE) {
+    // The point of sale moves its own stock, against the till's sale and its branch, before it
+    // asks for the fiscal document; moving it again here would ship every item twice.
+    if (invoice.type === InvoiceType.INVOICE && options.moveStock !== false) {
       await this.moveStockForIssue(invoice, manager);
     }
 
@@ -1174,241 +1230,253 @@ export class InvoicesService {
    * checked before the note is built, and the note reduces the outstanding balance.
    */
   async createCreditNote(dto: CreateCreditNoteDto, organizationId: string): Promise<Invoice> {
-    const created = await this.dataSource.transaction(async (manager) => {
-      const repo = manager.getRepository(Invoice);
-
-      // Serialise concurrent credit notes against the same invoice: two of them checking the
-      // remaining creditable amount at once would both pass and together over-credit it. The lock
-      // is taken on the invoice row alone — `FOR UPDATE` cannot be applied to the nullable side of
-      // the outer joins that loading the relations produces.
-      await repo
-        .createQueryBuilder('invoice')
-        .where('invoice.id = :id', { id: dto.invoiceId })
-        .andWhere('invoice.organizationId = :organizationId', { organizationId })
-        .setLock('pessimistic_write')
-        .getOne();
-
-      const original = await repo.findOne({
-        where: { id: dto.invoiceId, organizationId },
-        relations: ['lineItems', 'customer'],
-      });
-
-      if (!original) {
-        throw new NotFoundError('invoices.original_invoice_invoice_id_not_found', { invoiceId: dto.invoiceId });
-      }
-      if (original.status === InvoiceStatus.DRAFT) {
-        throw new BadRequestError('invoices.draft_not_credited_delete_edit_directly');
-      }
-      if (original.status === InvoiceStatus.VOID) {
-        throw new ConflictError('invoices.invoice_has_already_voided_full');
-      }
-      if (original.type !== InvoiceType.INVOICE) {
-        throw new BadRequestError('invoices.only_invoice_can_credited');
-      }
-
-      const selections = this.resolveCreditSelections(original, dto);
-      const isFullCredit = this.isFullCredit(original, selections);
-      const baseCurrency =
-        (await this.orgSettings.getForOrg(organizationId, manager))?.baseCurrency ?? 'USD';
-
-      const computed = computeDocument({
-        countryCode: (
-          await manager
-            .getRepository(Organization)
-            .findOne({ where: { id: organizationId }, select: ['id', 'country'] })
-        )?.country,
-        currencyCode: original.currencyCode,
-        // A credit note re-prices lines of a document that was already accepted, so the rates it
-        // carries must be the ones the tenant can levy, not only the ones the table lists.
-        tenantTaxRates: await this.tenantTaxRates(organizationId, manager),
-        lines: selections.map((s) => ({
-          quantity: s.quantity,
-          unitPrice: s.line.price,
-          discountRate: s.line.discountRate,
-          taxTreatment: s.line.taxTreatment,
-          taxRate: s.line.taxRate,
-          // The excise the original line bore, as a rate, so the note credits it too. Omitting it
-          // credited the tax and the base and left the customer charged the excise for goods they
-          // returned.
-          exciseRate: proportion(s.line.exciseAmount, s.line.taxableBase || s.line.lineSubtotal),
-          isService: s.line.isService,
-        })),
-        // The note inherits the invoice's document-level rates so the credit mirrors what was
-        // actually charged, proportionally.
-        documentDiscountRate: proportion(original.discountTotal, original.subtotal),
-        serviceChargeRate: proportion(
-          original.serviceCharge,
-          original.subtotal - original.discountTotal,
-        ),
-        taxWithholdingRate: proportion(original.taxWithheld, original.tax),
-        incomeTaxWithholdingRate: proportion(
-          original.incomeTaxWithheld,
-          original.subtotal - original.discountTotal,
-        ),
-      });
-
-      if (
-        toMinorUnits(computed.total, original.currencyCode) >
-        toMinorUnits(original.creditableRemaining, original.currencyCode)
-      ) {
-        throw new BadRequestError('invoices.amount_credit_amount_exceeds_creditable_balance', {
-          amount: computed.total,
-          invoiceNumber: original.invoiceNumber,
-          remaining: original.creditableRemaining,
-        });
-      }
-
-      const creditNoteNumber = await this.documentSequencesService.getNextNumber(
-        organizationId,
-        DocumentType.CREDIT_NOTE,
-        manager,
-      );
-
-      // The credit note's own date, in the TENANT's zone. Taken from the server clock in UTC, a
-      // note raised in Santo Domingo after 20:00 was dated tomorrow — and a note dated after the
-      // period close lands in a month the taxpayer has already reported.
-      const today = await this.fiscalToday(organizationId, manager);
-      const noteLines = selections.map((s, index) => {
-        const c = computed.lines[index];
-        return manager.create(InvoiceLineItem, {
-          productId: s.line.productId,
-          sourceLineId: s.line.id,
-          description: s.line.description,
-          sortOrder: index,
-          quantity: s.quantity,
-          unitOfMeasure: s.line.unitOfMeasure,
-          price: s.line.price,
-          discountRate: s.line.discountRate,
-          discountAmount: c.discountAmount,
-          lineSubtotal: c.subtotal,
-          documentDiscountAmount: c.documentDiscountAmount,
-          taxableBase: c.taxableBase,
-          taxRate: c.taxRate,
-          taxAmount: c.taxAmount,
-          taxTreatment: c.taxTreatment,
-          isService: c.isService,
-          exciseAmount: c.exciseAmount,
-          unitCost: s.line.unitCost,
-          creditedQuantity: 0,
-        });
-      });
-
-      const restock = dto.restockGoods !== false;
-      const costOfSale = restock
-        ? roundToCurrency(
-            selections.reduce(
-              (sum, s) => (s.line.productId && !s.line.isService ? sum + s.quantity * s.line.unitCost : sum),
-              0,
-            ),
-            original.currencyCode,
-          )
-        : 0;
-
-      const creditNote = manager.create(Invoice, {
-        organizationId,
-        invoiceNumber: creditNoteNumber,
-        originalInvoiceId: original.id,
-        modificationCode:
-          dto.modificationCode ??
-          (isFullCredit ? ModificationCode.ANNULMENT : ModificationCode.AMOUNT_CORRECTION),
-        status: InvoiceStatus.DRAFT,
-        type: InvoiceType.CREDIT_NOTE,
-        // Issued where the invoice it corrects was issued.
-        branchId: original.branchId,
-        customerId: original.customerId,
-        customerName: original.customerName,
-        customerAddress: original.customerAddress,
-        customerTaxId: original.customerTaxId,
-        issueDate: today,
-        dueDate: today,
-        currencyCode: original.currencyCode,
-        exchangeRate: original.exchangeRate,
-        paymentMethod: original.paymentMethod,
-        paymentMethodCode: original.paymentMethodCode ?? null,
-        lineItems: noteLines,
-        subtotal: computed.subtotal,
-        discountTotal: computed.discountTotal,
-        taxedTotal: computed.taxedTotal,
-        exemptTotal: computed.exemptTotal,
-        goodsTotal: computed.goodsTotal,
-        servicesTotal: computed.servicesTotal,
-        tax: computed.tax,
-        excise: computed.excise,
-        serviceCharge: computed.serviceCharge,
-        taxWithheld: computed.taxWithheld,
-        incomeTaxWithheld: computed.incomeTaxWithheld,
-        total: computed.total,
-        netReceivable: computed.netReceivable,
-        balance: 0,
-        creditedTotal: 0,
-        totalInBaseCurrency: roundToCurrency(
-          computed.total * original.exchangeRate,
-          baseCurrency,
-        ),
-        costOfSale,
-        notes: dto.reason || `Nota de crédito de la factura ${original.invoiceNumber}`,
-      });
-
-      const savedNote = await manager.save(creditNote);
-      const issuedNote = await this.issueWithin(savedNote, null, organizationId, manager);
-
-      // Return the goods to stock, unless the credit is a price adjustment or the goods came back
-      // unsellable.
-      if (restock) {
-        for (const selection of selections) {
-          if (!selection.line.productId || selection.line.isService) continue;
-          await this.inventoryService.increaseStock(
-            selection.line.productId,
-            selection.quantity,
-            manager,
-            organizationId,
-            {
-              // Back into the warehouse of the branch that sold them.
-              place: { branchId: original.branchId },
-              type: 'SALE_RETURN',
-              reference: issuedNote.fiscalNumber ?? issuedNote.invoiceNumber,
-              sourceType: 'credit_note',
-              sourceId: issuedNote.id,
-            },
-          );
-        }
-      }
-
-      // Record the credit against the original, so a second note cannot credit the same goods.
-      for (const selection of selections) {
-        selection.line.creditedQuantity = round6(
-          selection.line.creditedQuantity + selection.quantity,
-        );
-        await manager.save(selection.line);
-      }
-      original.creditedTotal = roundToCurrency(
-        original.creditedTotal + computed.total,
-        original.currencyCode,
-      );
-      original.balance = roundToCurrency(
-        Math.max(0, original.balance - computed.netReceivable),
-        original.currencyCode,
-      );
-      if (isFullCredit) {
-        original.status = InvoiceStatus.VOID;
-        original.voidedAt = new Date();
-        original.voidReason = dto.reason ?? 'Anulada por nota de crédito total';
-        original.balance = 0;
-      } else if (original.balance <= 0.005) {
-        original.status = InvoiceStatus.PAID;
-        original.balance = 0;
-      }
-      await manager.save(original);
-
-      this.eventEmitter.emit('invoice.credit-note-created', {
-        originalInvoice: original,
-        creditNote: issuedNote,
-      });
-      return issuedNote;
-    });
+    const created = await this.dataSource.transaction((manager) =>
+      this.createCreditNoteWithin(dto, organizationId, manager),
+    );
 
     this.triggerEcfSubmission(created);
     return created;
+  }
+
+  /**
+   * {@link createCreditNote} inside the caller's transaction. The caller must hand the returned
+   * note to {@link dispatchIssued} once its transaction commits, or the reconciler sends it later.
+   */
+  async createCreditNoteWithin(
+    dto: CreateCreditNoteDto,
+    organizationId: string,
+    manager: EntityManager,
+  ): Promise<Invoice> {
+    const repo = manager.getRepository(Invoice);
+
+    // Serialise concurrent credit notes against the same invoice: two of them checking the
+    // remaining creditable amount at once would both pass and together over-credit it. The lock
+    // is taken on the invoice row alone — `FOR UPDATE` cannot be applied to the nullable side of
+    // the outer joins that loading the relations produces.
+    await repo
+      .createQueryBuilder('invoice')
+      .where('invoice.id = :id', { id: dto.invoiceId })
+      .andWhere('invoice.organizationId = :organizationId', { organizationId })
+      .setLock('pessimistic_write')
+      .getOne();
+
+    const original = await repo.findOne({
+      where: { id: dto.invoiceId, organizationId },
+      relations: ['lineItems', 'customer'],
+    });
+
+    if (!original) {
+      throw new NotFoundError('invoices.original_invoice_invoice_id_not_found', { invoiceId: dto.invoiceId });
+    }
+    if (original.status === InvoiceStatus.DRAFT) {
+      throw new BadRequestError('invoices.draft_not_credited_delete_edit_directly');
+    }
+    if (original.status === InvoiceStatus.VOID) {
+      throw new ConflictError('invoices.invoice_has_already_voided_full');
+    }
+    if (original.type !== InvoiceType.INVOICE) {
+      throw new BadRequestError('invoices.only_invoice_can_credited');
+    }
+
+    const selections = this.resolveCreditSelections(original, dto);
+    const isFullCredit = this.isFullCredit(original, selections);
+    const baseCurrency =
+      (await this.orgSettings.getForOrg(organizationId, manager))?.baseCurrency ?? 'USD';
+
+    const computed = computeDocument({
+      countryCode: (
+        await manager
+          .getRepository(Organization)
+          .findOne({ where: { id: organizationId }, select: ['id', 'country'] })
+      )?.country,
+      currencyCode: original.currencyCode,
+      // A credit note re-prices lines of a document that was already accepted, so the rates it
+      // carries must be the ones the tenant can levy, not only the ones the table lists.
+      tenantTaxRates: await this.tenantTaxRates(organizationId, manager),
+      lines: selections.map((s) => ({
+        quantity: s.quantity,
+        unitPrice: s.line.price,
+        discountRate: s.line.discountRate,
+        taxTreatment: s.line.taxTreatment,
+        taxRate: s.line.taxRate,
+        // The excise the original line bore, as a rate, so the note credits it too. Omitting it
+        // credited the tax and the base and left the customer charged the excise for goods they
+        // returned.
+        exciseRate: proportion(s.line.exciseAmount, s.line.taxableBase || s.line.lineSubtotal),
+        isService: s.line.isService,
+      })),
+      // The note inherits the invoice's document-level rates so the credit mirrors what was
+      // actually charged, proportionally.
+      documentDiscountRate: proportion(original.discountTotal, original.subtotal),
+      serviceChargeRate: proportion(
+        original.serviceCharge,
+        original.subtotal - original.discountTotal,
+      ),
+      taxWithholdingRate: proportion(original.taxWithheld, original.tax),
+      incomeTaxWithholdingRate: proportion(
+        original.incomeTaxWithheld,
+        original.subtotal - original.discountTotal,
+      ),
+    });
+
+    if (
+      toMinorUnits(computed.total, original.currencyCode) >
+      toMinorUnits(original.creditableRemaining, original.currencyCode)
+    ) {
+      throw new BadRequestError('invoices.amount_credit_amount_exceeds_creditable_balance', {
+        amount: computed.total,
+        invoiceNumber: original.invoiceNumber,
+        remaining: original.creditableRemaining,
+      });
+    }
+
+    const creditNoteNumber = await this.documentSequencesService.getNextNumber(
+      organizationId,
+      DocumentType.CREDIT_NOTE,
+      manager,
+    );
+
+    // The credit note's own date, in the TENANT's zone. Taken from the server clock in UTC, a
+    // note raised in Santo Domingo after 20:00 was dated tomorrow — and a note dated after the
+    // period close lands in a month the taxpayer has already reported.
+    const today = await this.fiscalToday(organizationId, manager);
+    const noteLines = selections.map((s, index) => {
+      const c = computed.lines[index];
+      return manager.create(InvoiceLineItem, {
+        productId: s.line.productId,
+        sourceLineId: s.line.id,
+        description: s.line.description,
+        sortOrder: index,
+        quantity: s.quantity,
+        unitOfMeasure: s.line.unitOfMeasure,
+        price: s.line.price,
+        discountRate: s.line.discountRate,
+        discountAmount: c.discountAmount,
+        lineSubtotal: c.subtotal,
+        documentDiscountAmount: c.documentDiscountAmount,
+        taxableBase: c.taxableBase,
+        taxRate: c.taxRate,
+        taxAmount: c.taxAmount,
+        taxTreatment: c.taxTreatment,
+        isService: c.isService,
+        exciseAmount: c.exciseAmount,
+        unitCost: s.line.unitCost,
+        creditedQuantity: 0,
+      });
+    });
+
+    const restock = dto.restockGoods !== false;
+    const costOfSale = restock
+      ? roundToCurrency(
+          selections.reduce(
+            (sum, s) => (s.line.productId && !s.line.isService ? sum + s.quantity * s.line.unitCost : sum),
+            0,
+          ),
+          original.currencyCode,
+        )
+      : 0;
+
+    const creditNote = manager.create(Invoice, {
+      organizationId,
+      invoiceNumber: creditNoteNumber,
+      originalInvoiceId: original.id,
+      modificationCode:
+        dto.modificationCode ??
+        (isFullCredit ? ModificationCode.ANNULMENT : ModificationCode.AMOUNT_CORRECTION),
+      status: InvoiceStatus.DRAFT,
+      type: InvoiceType.CREDIT_NOTE,
+      // Issued where the invoice it corrects was issued.
+      branchId: original.branchId,
+      customerId: original.customerId,
+      customerName: original.customerName,
+      customerAddress: original.customerAddress,
+      customerTaxId: original.customerTaxId,
+      issueDate: today,
+      dueDate: today,
+      currencyCode: original.currencyCode,
+      exchangeRate: original.exchangeRate,
+      paymentMethod: original.paymentMethod,
+      paymentMethodCode: original.paymentMethodCode ?? null,
+      lineItems: noteLines,
+      subtotal: computed.subtotal,
+      discountTotal: computed.discountTotal,
+      taxedTotal: computed.taxedTotal,
+      exemptTotal: computed.exemptTotal,
+      goodsTotal: computed.goodsTotal,
+      servicesTotal: computed.servicesTotal,
+      tax: computed.tax,
+      excise: computed.excise,
+      serviceCharge: computed.serviceCharge,
+      taxWithheld: computed.taxWithheld,
+      incomeTaxWithheld: computed.incomeTaxWithheld,
+      total: computed.total,
+      netReceivable: computed.netReceivable,
+      balance: 0,
+      creditedTotal: 0,
+      totalInBaseCurrency: roundToCurrency(
+        computed.total * original.exchangeRate,
+        baseCurrency,
+      ),
+      costOfSale,
+      notes: dto.reason || `Nota de crédito de la factura ${original.invoiceNumber}`,
+    });
+
+    const savedNote = await manager.save(creditNote);
+    const issuedNote = await this.issueWithin(savedNote, null, organizationId, manager);
+
+    // Return the goods to stock, unless the credit is a price adjustment or the goods came back
+    // unsellable.
+    if (restock) {
+      for (const selection of selections) {
+        if (!selection.line.productId || selection.line.isService) continue;
+        await this.inventoryService.increaseStock(
+          selection.line.productId,
+          selection.quantity,
+          manager,
+          organizationId,
+          {
+            // Back into the warehouse of the branch that sold them.
+            place: { branchId: original.branchId },
+            type: 'SALE_RETURN',
+            reference: issuedNote.fiscalNumber ?? issuedNote.invoiceNumber,
+            sourceType: 'credit_note',
+            sourceId: issuedNote.id,
+          },
+        );
+      }
+    }
+
+    // Record the credit against the original, so a second note cannot credit the same goods.
+    for (const selection of selections) {
+      selection.line.creditedQuantity = round6(
+        selection.line.creditedQuantity + selection.quantity,
+      );
+      await manager.save(selection.line);
+    }
+    original.creditedTotal = roundToCurrency(
+      original.creditedTotal + computed.total,
+      original.currencyCode,
+    );
+    original.balance = roundToCurrency(
+      Math.max(0, original.balance - computed.netReceivable),
+      original.currencyCode,
+    );
+    if (isFullCredit) {
+      original.status = InvoiceStatus.VOID;
+      original.voidedAt = new Date();
+      original.voidReason = dto.reason ?? 'Anulada por nota de crédito total';
+      original.balance = 0;
+    } else if (original.balance <= 0.005) {
+      original.status = InvoiceStatus.PAID;
+      original.balance = 0;
+    }
+    await manager.save(original);
+
+    this.eventEmitter.emit('invoice.credit-note-created', {
+      originalInvoice: original,
+      creditNote: issuedNote,
+    });
+    return issuedNote;
   }
 
   /** Which lines and quantities the note credits, validated against what is still creditable. */
@@ -1814,7 +1882,7 @@ export class InvoicesService {
    * dated a day into the future, and on the last evening of a month, a document reported in the
    * wrong period.
    */
-  private async fiscalToday(organizationId: string, manager?: EntityManager): Promise<string> {
+  private async fiscalToday(organizationId: string, manager?: EntityManager, at?: Date): Promise<string> {
     const repo = manager
       ? manager.getRepository(Organization)
       : this.dataSource.getRepository(Organization);
@@ -1822,7 +1890,7 @@ export class InvoicesService {
       where: { id: organizationId },
       select: ['id', 'country', 'timezone'],
     });
-    return fiscalDate(organizationTimeZone(org));
+    return fiscalDate(organizationTimeZone(org), at ?? new Date());
   }
 
   // ── e-CF ───────────────────────────────────────────────────────────────────
@@ -1880,4 +1948,17 @@ function proportion(part: number, whole: number): number {
 
 function round6(value: number): number {
   return roundAmount(value, 6);
+}
+
+/** What the point of sale states about a sale it needs a fiscal document for. */
+export interface PointOfSaleInvoiceInput {
+  customerId: string;
+  branchId: string | null;
+  lines: Array<{ productId: string; quantity: number; unitPrice: number }>;
+  paymentMethod: PaymentMethod;
+  /** A type the buyer asked for (E31 with an RNC); otherwise the adapter decides. */
+  fiscalDocumentType?: string | null;
+  notes?: string;
+  /** When the till rang the sale, if it was captured offline and sent later. */
+  capturedAt?: Date | null;
 }

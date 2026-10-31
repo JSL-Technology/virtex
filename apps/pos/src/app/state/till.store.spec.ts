@@ -36,6 +36,7 @@ describe('TillStore', () => {
 
   beforeEach(() => {
     localStorage.clear();
+    localStorage.clear();
     toast = {
       success: jest.fn(),
       error: jest.fn(),
@@ -75,11 +76,10 @@ describe('TillStore', () => {
 
   afterEach(() => http.verify());
 
-  it('sends the same idempotency key when the same cart is charged again after a failure', () => {
+  it('a sale that cannot reach the server is kept in the outbox and sent later with the same key', async () => {
     till.add(coffee);
-    till
-      .charge({ ...startTender(118), cash: 200 })
-      .subscribe({ error: () => void 0 });
+    let result: unknown;
+    till.charge({ ...startTender(118), cash: 200 }).subscribe((sale) => (result = sale));
     const first = http.expectOne(`${POS}/sales`);
     const key = first.request.headers.get('Idempotency-Key');
     expect(key).toBeTruthy();
@@ -91,9 +91,16 @@ describe('TillStore', () => {
     });
     first.error(new ProgressEvent('error'), { status: 0 });
 
-    till.charge({ ...startTender(118), cash: 200 }).subscribe();
+    // The counter is not blocked: the ticket clears and a provisional sale is shown.
+    expect(till.lines()).toEqual([]);
+    expect((result as { status: string }).status).toBe('PENDING_SYNC');
+    expect(till.outbox.pending().map((e) => e.key)).toEqual([key]);
+    expect(till.outbox.pending()[0].payload.capturedAt).toBeTruthy();
+
+    const sync = till.outbox.sync();
     const retry = http.expectOne(`${POS}/sales`);
     expect(retry.request.headers.get('Idempotency-Key')).toBe(key);
+    expect(retry.request.body.capturedAt).toBeTruthy();
     retry.flush({
       id: 'sale-1',
       total: 118,
@@ -103,11 +110,24 @@ describe('TillStore', () => {
       status: 'PAID',
       createdAt: '',
     });
+    await sync;
     http.expectOne(`${POS}/catalog`).flush([coffee]);
+    http.expectOne((r) => r.url === `${POS}/shifts/active`).flush(null);
+    expect(till.outbox.entries()).toEqual([]);
+  });
 
-    expect(till.lines()).toEqual([]);
-    expect(till.lastSale()?.id).toBe('sale-1');
-    expect(till.shift()?.salesCount).toBe(1);
+  it('a sale the server refuses from the outbox is set aside for the cashier, not retried forever', async () => {
+    till.add(coffee);
+    till.charge(startTender(118)).subscribe();
+    http.expectOne(`${POS}/sales`).error(new ProgressEvent('error'), { status: 0 });
+
+    const sync = till.outbox.sync();
+    http
+      .expectOne(`${POS}/sales`)
+      .flush({ messageKey: 'pos.product_not_available' }, { status: 400, statusText: 'Bad Request' });
+    await sync;
+    expect(till.outbox.pending()).toEqual([]);
+    expect(till.outbox.failed()).toHaveLength(1);
   });
 
   it('a new cart gets a new key', () => {
@@ -115,12 +135,22 @@ describe('TillStore', () => {
     till.charge(startTender(118)).subscribe({ error: () => void 0 });
     const first = http.expectOne(`${POS}/sales`);
     const key = first.request.headers.get('Idempotency-Key');
-    first.error(new ProgressEvent('error'), { status: 0 });
+    first.flush({ messageKey: 'pos.totals_changed' }, { status: 409, statusText: 'Conflict' });
+    http.expectOne(`${POS}/catalog`).flush([coffee]);
     till.increment('p1', 1);
     till.charge(startTender(236)).subscribe({ error: () => void 0 });
     const second = http.expectOne(`${POS}/sales`);
     expect(second.request.headers.get('Idempotency-Key')).not.toBe(key);
-    second.error(new ProgressEvent('error'), { status: 0 });
+    second.flush({ messageKey: 'pos.sale_error' }, { status: 400, statusText: 'Bad Request' });
+  });
+
+  it('sends the buyer\'s RNC, digits only, when one is given', () => {
+    till.add(coffee);
+    till.customerTaxId.set('1-01-00000-1');
+    till.charge(startTender(118)).subscribe({ error: () => void 0 });
+    const req = http.expectOne(`${POS}/sales`);
+    expect(req.request.body.customerTaxId).toBe('101000001');
+    req.flush({ messageKey: 'pos.sale_error' }, { status: 400, statusText: 'Bad Request' });
   });
 
   it('when the server says prices moved, the catalogue is reloaded and the ticket re-priced', () => {

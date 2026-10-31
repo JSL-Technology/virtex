@@ -1,9 +1,16 @@
 import type {
   PosContext,
+  PosFiscalStatus,
   PosSale,
   ShiftReport,
   TenderMethod,
 } from '../core/pos-api.service';
+
+/** The sale's comprobante as the ticket prints it, and its QR already rendered as an image. */
+export interface ReceiptFiscal {
+  status: PosFiscalStatus | null;
+  qrDataUri: string | null;
+}
 
 /** What the documents need to put words and amounts on paper, in the tenant's language and locale. */
 export interface PrintFormat {
@@ -46,16 +53,61 @@ const STYLE = `
   td { padding: 1px 0; vertical-align: top; }
   .big td { font-size: 14px; font-weight: 700; padding-top: 3px; }
   .void { border: 2px solid #000; text-align: center; font-weight: 700; padding: 4px; margin: 6px 0; letter-spacing: 2px; }
+  .doc { text-align: center; font-weight: 700; margin: 4px 0; }
+  .qr { display: block; margin: 6px auto; width: 34mm; height: 34mm; }
 `;
 
 function headerHtml(header: ReceiptHeader, f: PrintFormat): string {
   const org = header.context?.organization;
+  const address = [org?.address, org?.city].filter(Boolean).join(', ');
   return [
     `<h1>${escapeHtml(org?.legalName || f.t('apps.pos'))}</h1>`,
     org?.taxId
       ? `<p class="c">${escapeHtml(f.t('pos.ticket.tax_id', { taxId: org.taxId }))}</p>`
       : '',
+    address ? `<p class="c">${escapeHtml(address)}</p>` : '',
     header.branch ? `<p class="c">${escapeHtml(header.branch)}</p>` : '',
+  ].join('');
+}
+
+/**
+ * The comprobante's own block: which document it is, its e-NCF and, for a crédito fiscal, the
+ * buyer. A sale still in the outbox says so instead — it has no e-NCF until the server issues it.
+ */
+function fiscalHeadHtml(sale: PosSale, fiscal: ReceiptFiscal | null, f: PrintFormat): string {
+  if (sale.status === 'PENDING_SYNC') {
+    return `<div class="void">${escapeHtml(f.t('pos.ticket.provisional'))}</div><p class="c">${escapeHtml(f.t('pos.ticket.provisional_note'))}</p>`;
+  }
+  const status = fiscal?.status;
+  const ncf = status?.fiscalNumber ?? sale.fiscalNumber;
+  if (!ncf) return '';
+  const type = (status?.fiscalDocumentType ?? sale.fiscalDocumentType ?? ncf.slice(0, 3)).toUpperCase();
+  const taxId = status?.customer.taxId ?? sale.customerTaxId;
+  return [
+    `<p class="doc">${escapeHtml(f.t('pos.ticket.document_type.' + type.toLowerCase()))}</p>`,
+    `<p class="c">${escapeHtml(f.t('pos.ticket.encf', { ncf }))}</p>`,
+    taxId
+      ? `<p>${escapeHtml(f.t('pos.ticket.buyer_tax_id', { taxId }))}</p><p>${escapeHtml(f.t('pos.ticket.buyer_name', { name: status?.customer.name ?? sale.customerName ?? '' }))}</p>`
+      : '',
+  ].join('');
+}
+
+/** The security code, the signature's date and the timbre QR that let anyone check the document. */
+function fiscalFootHtml(sale: PosSale, fiscal: ReceiptFiscal | null, f: PrintFormat): string {
+  const status = fiscal?.status;
+  if (sale.status === 'PENDING_SYNC' || !(status?.fiscalNumber ?? sale.fiscalNumber)) return '';
+  return [
+    status?.securityCode
+      ? `<p>${escapeHtml(f.t('pos.ticket.security_code', { code: status.securityCode }))}</p>`
+      : `<p>${escapeHtml(f.t('pos.ticket.security_code_pending'))}</p>`,
+    status?.signedAt
+      ? `<p>${escapeHtml(f.t('pos.ticket.signed_at', { when: f.dateTime(status.signedAt) }))}</p>`
+      : '',
+    fiscal?.qrDataUri ? `<img class="qr" src="${escapeHtml(fiscal.qrDataUri)}" alt="">` : '',
+    status?.creditNoteFiscalNumber
+      ? `<p class="c">${escapeHtml(f.t('pos.ticket.cancelled_by', { ncf: status.creditNoteFiscalNumber }))}</p>`
+      : '',
+    `<hr>`,
   ].join('');
 }
 
@@ -68,6 +120,7 @@ export function receiptHtml(
   sale: PosSale,
   header: ReceiptHeader,
   f: PrintFormat,
+  fiscal: ReceiptFiscal | null = null,
 ): string {
   const rows = (sale.items ?? [])
     .map(
@@ -86,6 +139,7 @@ export function receiptHtml(
   const body = [
     headerHtml(header, f),
     `<hr>`,
+    fiscalHeadHtml(sale, fiscal, f),
     `<p>${escapeHtml(f.t('pos.ticket.number', { number: sale.id.slice(0, 8).toUpperCase() }))}</p>`,
     `<p>${escapeHtml(f.dateTime(sale.createdAt))}</p>`,
     `<p>${escapeHtml(f.t('pos.ticket.terminal_cashier', { terminal: header.terminalId, cashier: header.cashier }))}</p>`,
@@ -103,6 +157,7 @@ export function receiptHtml(
       ? `<tr><td>${escapeHtml(f.t('pos.pay.change'))}</td><td class="r">${escapeHtml(f.money(sale.changeDue))}</td></tr>`
       : '',
     `</table><hr>`,
+    fiscalFootHtml(sale, fiscal, f),
     `<p class="c">${escapeHtml(f.t('pos.ticket.thanks'))}</p>`,
   ].join('');
   return document(f.t('pos.ticket.title'), f.lang, body);

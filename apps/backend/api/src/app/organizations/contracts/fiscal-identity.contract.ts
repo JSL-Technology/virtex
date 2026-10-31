@@ -10,6 +10,9 @@ export interface OrganizationFiscalIdentity {
   /** `company` or `individual`, where the market tells them apart. */
   taxpayerKind: string | null;
   legalName: string | null;
+  /** The registered address, as the printed representation of a comprobante states it. */
+  address: string | null;
+  city: string | null;
 }
 
 /**
@@ -24,7 +27,7 @@ export async function organizationFiscalIdentity(
 ): Promise<OrganizationFiscalIdentity | null> {
   const organization = await manager.findOne(Organization, {
     where: { id: organizationId },
-    select: ['id', 'country', 'taxId', 'taxpayerKind', 'legalName'],
+    select: ['id', 'country', 'taxId', 'taxpayerKind', 'legalName', 'address', 'city'],
   });
   if (!organization) return null;
   return {
@@ -32,5 +35,7 @@ export async function organizationFiscalIdentity(
     taxId: organization.taxId ?? null,
     taxpayerKind: organization.taxpayerKind ?? null,
     legalName: organization.legalName ?? null,
+    address: organization.address ?? null,
+    city: organization.city ?? null,
   };
 }

@@ -349,6 +349,12 @@ jobs:
       # an invoice end to end. `POST /invoices` failed for every customer on their first attempt.
       - run: npm run verify:invoicing
 
+      # Proves that a Dominican till sale is a fiscal document: an E32 to the final consumer or an
+      # E31 to a buyer with a valid RNC, posted, settled into the till's cash net of change, signed,
+      # stock moved once — and that a void issues the E34 and reverses the receipt. The till used to
+      # print a ticket with no e-NCF and post nothing at all.
+      - run: npm run verify:pos-fiscal
+
       # Nx Cloud's self-healing. It needs an Nx Cloud workspace, and without one it can only fail —
       # which turned every run red after every other step had passed. The token is scoped to this
       # step alone rather than the job: `npm ci` runs third-party install scripts, and a secret in

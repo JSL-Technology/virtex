@@ -7,16 +7,27 @@ import { PosService } from './pos.service';
 import { InventoryModule } from '../inventory/inventory.module';
 import { AuthModule } from '../auth/auth.module';
 import { PosSalesDataTransferProvider } from './pos-data-transfer.provider';
+import { PosSettings } from './entities/pos-settings.entity';
+import { PosFiscalService } from './pos-fiscal.service';
+import { InvoicesModule } from '../invoices/invoices.module';
+import { CustomersModule } from '../customers/customers.module';
 
 /**
  * Point of sale, consolidated from special-enigma's POS domain. Reuses InventoryModule for
  * row-locked, tenant-scoped stock movement rather than reimplementing it.
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([PosShift, PosSale]), InventoryModule, AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([PosShift, PosSale, PosSettings]),
+    InventoryModule,
+    AuthModule,
+    // A Dominican till sale is a fiscal document: issued, posted and settled by these two.
+    InvoicesModule,
+    CustomersModule,
+  ],
   controllers: [PosController],
   // The sales history's export (QA A-13).
-  providers: [PosService, PosSalesDataTransferProvider],
+  providers: [PosService, PosFiscalService, PosSalesDataTransferProvider],
   exports: [PosService],
 })
 export class PosModule {}

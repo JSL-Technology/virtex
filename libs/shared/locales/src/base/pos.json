@@ -1009,5 +1009,167 @@
     "es": "Ver estos atajos",
     "en": "See these shortcuts",
     "pt": "Ver estes atalhos"
+  },
+  "pos.fiscal_mode_required_in_market": {
+    "es": "En este país cada venta de caja debe emitir su comprobante fiscal: el modo fiscal no se puede desactivar.",
+    "en": "In this country every till sale must issue its fiscal receipt: fiscal mode cannot be turned off.",
+    "pt": "Neste país cada venda do caixa deve emitir o seu documento fiscal: o modo fiscal não pode ser desativado."
+  },
+  "pos.settings_bank_account_unknown": {
+    "es": "La cuenta de tesorería indicada no existe o está inactiva.",
+    "en": "The treasury account given does not exist or is inactive.",
+    "pt": "A conta de tesouraria indicada não existe ou está inativa."
+  },
+  "pos.fiscal_total_mismatch": {
+    "es": "El comprobante fiscal suma {{document}} y el ticket {{ticket}}. Recarga el catálogo y vuelve a cobrar.",
+    "en": "The fiscal document totals {{document}} and the ticket {{ticket}}. Reload the catalogue and charge again.",
+    "pt": "O documento fiscal soma {{document}} e o cupom {{ticket}}. Recarregue o catálogo e cobre novamente."
+  },
+  "pos.final_consumer_missing": {
+    "es": "La empresa no tiene el cliente «Consumidor final» al que se emiten las ventas sin identificar. Créalo en Clientes.",
+    "en": "The company has no «Final consumer» customer that unidentified sales are issued to. Create it under Customers.",
+    "pt": "A empresa não tem o cliente «Consumidor final» para o qual se emitem as vendas sem identificação. Crie-o em Clientes."
+  },
+  "pos.buyer_tax_id_invalid": {
+    "es": "El RNC o cédula {{taxId}} no es válido: revisa los dígitos.",
+    "en": "The RNC or cédula {{taxId}} is not valid: check the digits.",
+    "pt": "O RNC ou cédula {{taxId}} não é válido: confira os dígitos."
+  },
+  "pos.buyer_name_required": {
+    "es": "Es la primera venta a este RNC o cédula: indica el nombre o razón social del comprador.",
+    "en": "This is the first sale to this RNC or cédula: enter the buyer's name or company name.",
+    "pt": "É a primeira venda para este RNC ou cédula: informe o nome ou razão social do comprador."
+  },
+  "pos.captured_at_invalid": {
+    "es": "La hora de la venta no es válida.",
+    "en": "The sale's time is not valid.",
+    "pt": "A hora da venda não é válida."
+  },
+  "pos.captured_at_too_old": {
+    "es": "La venta se registró sin conexión hace más de 72 horas y ya no se puede enviar desde la caja. Emítela como factura en el ERP.",
+    "en": "The sale was recorded offline more than 72 hours ago and can no longer be sent from the till. Issue it as an invoice in the ERP.",
+    "pt": "A venda foi registrada sem conexão há mais de 72 horas e não pode mais ser enviada do caixa. Emita-a como fatura no ERP."
+  },
+  "pos.buyer_tax_id": {
+    "es": "RNC o cédula del comprador",
+    "en": "Buyer's RNC or cédula",
+    "pt": "RNC ou cédula do comprador"
+  },
+  "pos.buyer_tax_id_placeholder": {
+    "es": "RNC o cédula (crédito fiscal)",
+    "en": "RNC or cédula (tax credit)",
+    "pt": "RNC ou cédula (crédito fiscal)"
+  },
+  "pos.document_kind.credit": {
+    "es": "Crédito fiscal",
+    "en": "Tax credit invoice",
+    "pt": "Crédito fiscal"
+  },
+  "pos.document_kind.consumer": {
+    "es": "Consumo",
+    "en": "Consumer invoice",
+    "pt": "Consumo"
+  },
+  "pos.offline.queued": {
+    "es": "Sin conexión: la venta quedó guardada en esta caja y se enviará al volver la conexión.",
+    "en": "Offline: the sale was saved on this till and will be sent when the connection returns.",
+    "pt": "Sem conexão: a venda foi salva neste caixa e será enviada quando a conexão voltar."
+  },
+  "pos.offline.pending": {
+    "es": "{{count}} por enviar",
+    "en": "{{count}} to send",
+    "pt": "{{count}} para enviar"
+  },
+  "pos.offline.failed_title": {
+    "es": "{{count}} venta(s) guardadas sin conexión fueron rechazadas al enviarse. Corrígelas y reintenta, o descártalas.",
+    "en": "{{count}} sale(s) saved offline were refused when sent. Fix and retry them, or discard them.",
+    "pt": "{{count}} venda(s) salvas sem conexão foram recusadas ao enviar. Corrija e tente de novo, ou descarte-as."
+  },
+  "pos.offline.retry": {
+    "es": "Reintentar",
+    "en": "Retry",
+    "pt": "Tentar de novo"
+  },
+  "pos.offline.discard": {
+    "es": "Descartar",
+    "en": "Discard",
+    "pt": "Descartar"
+  },
+  "pos.offline.discard_confirm": {
+    "es": "Esta venta nunca llegó al servidor: su inventario no se movió y su dinero quedará como diferencia en el cierre. ¿Descartarla?",
+    "en": "This sale never reached the server: its stock did not move and its money will show as a variance at close. Discard it?",
+    "pt": "Esta venda nunca chegou ao servidor: o estoque não foi movido e o dinheiro aparecerá como diferença no fechamento. Descartá-la?"
+  },
+  "pos.ticket.provisional": {
+    "es": "COMPROBANTE PROVISIONAL",
+    "en": "PROVISIONAL RECEIPT",
+    "pt": "COMPROVANTE PROVISÓRIO"
+  },
+  "pos.ticket.provisional_note": {
+    "es": "Venta registrada sin conexión. El comprobante fiscal se emitirá al recuperar la conexión; solicítalo en caja.",
+    "en": "Sale recorded offline. The fiscal document will be issued when the connection returns; ask for it at the till.",
+    "pt": "Venda registrada sem conexão. O documento fiscal será emitido quando a conexão voltar; solicite-o no caixa."
+  },
+  "pos.ticket.document_type.e31": {
+    "literal": "Factura de Crédito Fiscal Electrónica"
+  },
+  "pos.ticket.document_type.e32": {
+    "literal": "Factura de Consumo Electrónica"
+  },
+  "pos.ticket.document_type.e33": {
+    "literal": "Nota de Débito Electrónica"
+  },
+  "pos.ticket.document_type.e34": {
+    "literal": "Nota de Crédito Electrónica"
+  },
+  "pos.ticket.document_type.e44": {
+    "literal": "Comprobante Electrónico para Regímenes Especiales"
+  },
+  "pos.ticket.document_type.e45": {
+    "literal": "Comprobante Electrónico Gubernamental"
+  },
+  "pos.ticket.document_type.b01": {
+    "literal": "Factura de Crédito Fiscal"
+  },
+  "pos.ticket.document_type.b02": {
+    "literal": "Factura de Consumo"
+  },
+  "pos.ticket.document_type.b04": {
+    "literal": "Nota de Crédito"
+  },
+  "pos.ticket.encf": {
+    "es": "e-NCF: {{ncf}}",
+    "en": "e-NCF: {{ncf}}",
+    "pt": "e-NCF: {{ncf}}"
+  },
+  "pos.ticket.buyer_tax_id": {
+    "es": "RNC/Cédula comprador: {{taxId}}",
+    "en": "Buyer RNC/Cédula: {{taxId}}",
+    "pt": "RNC/Cédula do comprador: {{taxId}}"
+  },
+  "pos.ticket.buyer_name": {
+    "es": "Razón social: {{name}}",
+    "en": "Name: {{name}}",
+    "pt": "Razão social: {{name}}"
+  },
+  "pos.ticket.security_code": {
+    "es": "Código de seguridad: {{code}}",
+    "en": "Security code: {{code}}",
+    "pt": "Código de segurança: {{code}}"
+  },
+  "pos.ticket.security_code_pending": {
+    "es": "Código de seguridad: pendiente de firma. Reimprime desde el diario.",
+    "en": "Security code: awaiting signature. Reprint from the journal.",
+    "pt": "Código de segurança: aguardando assinatura. Reimprima pelo diário."
+  },
+  "pos.ticket.signed_at": {
+    "es": "Fecha de firma digital: {{when}}",
+    "en": "Digital signature date: {{when}}",
+    "pt": "Data da assinatura digital: {{when}}"
+  },
+  "pos.ticket.cancelled_by": {
+    "es": "Anulado por la nota de crédito {{ncf}}",
+    "en": "Cancelled by credit note {{ncf}}",
+    "pt": "Anulado pela nota de crédito {{ncf}}"
   }
 }

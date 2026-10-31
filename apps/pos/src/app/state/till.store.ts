@@ -20,9 +20,16 @@ import {
   PosContext,
   PosSale,
   PosShift,
+  ProcessSalePayload,
   ShiftReport,
 } from '../core/pos-api.service';
 import { TerminalConfigService } from '../core/terminal-config.service';
+import { ConnectivityService } from '../core/connectivity.service';
+import {
+  OutboxService,
+  isNetworkFailure,
+  provisionalSale,
+} from '../core/outbox.service';
 import { ToastService } from '../core/toast.service';
 import {
   CartLine,
@@ -62,8 +69,18 @@ export class TillStore {
   private readonly config = inject(TerminalConfigService);
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
+  private readonly connectivity = inject(ConnectivityService);
+  readonly outbox = inject(OutboxService);
 
   readonly terminalId = this.config.terminalId;
+
+  constructor() {
+    // A sale the outbox delivered moved stock and the shift's totals on the server.
+    this.outbox.onSynced = () => {
+      this.loadCatalogue();
+      this.loadShift();
+    };
+  }
 
   // ── Company context ──────────────────────────────────────────────────────────
   readonly context = signal<PosContext | null>(null);
@@ -72,6 +89,8 @@ export class TillStore {
   readonly taxNeedsConfiguration = computed(
     () => this.context()?.taxRequiresConfiguration === true,
   );
+  /** Each sale is a fiscal document: the till asks for the RNC and prints the e-NCF and QR. */
+  readonly fiscal = computed(() => this.context()?.issuesFiscalDocuments === true);
 
   // ── Catalogue ────────────────────────────────────────────────────────────────
   readonly catalogue = signal<CatalogueItem[]>([]);
@@ -119,6 +138,8 @@ export class TillStore {
   readonly lines = signal<CartLine[]>([]);
   /** Empty means the walk-in customer. */
   readonly customer = signal('');
+  /** The buyer's RNC or cédula, for a crédito fiscal (E31). Empty: consumo (E32). */
+  readonly customerTaxId = signal('');
   /** The line the keyboard acts on (+, −, Delete). */
   readonly selectedId = signal<string | null>(null);
   readonly totals = computed(() =>
@@ -175,6 +196,7 @@ export class TillStore {
   switchTerminal(id: string): boolean {
     if (!this.config.setTerminalId(id)) return false;
     this.parked.set(this.readParked());
+    this.outbox.reload();
     this.loadShift();
     return true;
   }
@@ -317,6 +339,7 @@ export class TillStore {
   clearTicket(): void {
     this.lines.set([]);
     this.customer.set('');
+    this.customerTaxId.set('');
     this.selectedId.set(null);
     this.cartChanged();
   }
@@ -383,64 +406,91 @@ export class TillStore {
     const totals = this.totals();
     this.charging.set(true);
     const customer = this.customer().trim();
-    return this.api
-      .processSale(
-        {
-          terminalId: this.terminalId(),
-          items: this.lines().map((line) => ({
-            productId: line.productId,
-            productName: line.name,
-            price: line.price,
-            quantity: line.quantity,
-          })),
-          subtotal: totals.subtotal,
-          tax: totals.tax,
-          total: totals.total,
-          ...(customer ? { customerName: customer } : {}),
-          payments: tenders(draft, totals.total),
-        },
-        this.saleKey,
-      )
-      .pipe(
-        tap((sale) => {
-          this.lastSale.set(sale);
-          this.shift.update((shift) =>
-            shift
-              ? {
-                  ...shift,
-                  salesCount: shift.salesCount + 1,
-                  salesTotal:
-                    Math.round(
-                      (Number(shift.salesTotal) + Number(sale.total)) * 100,
-                    ) / 100,
-                }
-              : shift,
-          );
-          this.lines.set([]);
-          this.customer.set('');
-          this.selectedId.set(null);
-          this.saleKey = newIdempotencyKey();
-          this.toast.success('pos.sale_completed');
-          // Reflect the stock the sale consumed.
+    const taxId = this.customerTaxId().replace(/\D/g, '');
+    const payload: ProcessSalePayload = {
+      terminalId: this.terminalId(),
+      items: this.lines().map((line) => ({
+        productId: line.productId,
+        productName: line.name,
+        price: line.price,
+        quantity: line.quantity,
+      })),
+      subtotal: totals.subtotal,
+      tax: totals.tax,
+      total: totals.total,
+      ...(customer ? { customerName: customer } : {}),
+      ...(taxId ? { customerTaxId: taxId } : {}),
+      payments: tenders(draft, totals.total),
+    };
+    const key = this.saleKey;
+
+    // No connection: the counter keeps selling, and the outbox sends the sale when it returns.
+    if (!this.connectivity.online()) {
+      this.charging.set(false);
+      return of(this.queueOffline(key, payload));
+    }
+
+    return this.api.processSale(payload, key).pipe(
+      tap((sale) => {
+        this.lastSale.set(sale);
+        this.shift.update((shift) =>
+          shift
+            ? {
+                ...shift,
+                salesCount: shift.salesCount + 1,
+                salesTotal:
+                  Math.round(
+                    (Number(shift.salesTotal) + Number(sale.total)) * 100,
+                  ) / 100,
+              }
+            : shift,
+        );
+        this.resetAfterSale();
+        this.toast.success('pos.sale_completed');
+        // Reflect the stock the sale consumed.
+        this.loadCatalogue();
+        // Anything rung offline goes now that the server answers again.
+        if (this.outbox.pending().length) void this.outbox.sync();
+      }),
+      catchError((err) => {
+        // The request never reached the application: the sale is kept and sent later, with the
+        // same key, so a sale whose response was the only thing lost is still rung once.
+        if (isNetworkFailure(err)) return of(this.queueOffline(key, payload));
+        const errorKey = this.errorKey(err, 'pos.sale_error');
+        if (
+          errorKey === 'pos.prices_changed' ||
+          errorKey === 'pos.totals_changed' ||
+          errorKey === 'pos.fiscal_total_mismatch' ||
+          errorKey === 'pos.product_not_available'
+        ) {
           this.loadCatalogue();
-        }),
-        catchError((err) => {
-          const key = this.errorKey(err, 'pos.sale_error');
-          if (
-            key === 'pos.prices_changed' ||
-            key === 'pos.totals_changed' ||
-            key === 'pos.product_not_available'
-          ) {
-            this.loadCatalogue();
-            this.cartChanged();
-          }
-          if (key === 'pos.no_open_shift') this.loadShift();
-          this.toast.error(key);
-          return throwError(() => err);
-        }),
-        finalize(() => this.charging.set(false)),
-        map((sale) => sale as PosSale | null),
-      );
+          this.cartChanged();
+        }
+        if (errorKey === 'pos.no_open_shift') this.loadShift();
+        this.toast.error(errorKey);
+        return throwError(() => err);
+      }),
+      finalize(() => this.charging.set(false)),
+      map((sale) => sale as PosSale | null),
+    );
+  }
+
+  /** Keep the sale on the device, show it as provisional, and start the next one. */
+  private queueOffline(key: string, payload: ProcessSalePayload): PosSale {
+    const entry = this.outbox.enqueue(key, payload);
+    const sale = provisionalSale(entry, this.standardRate());
+    this.lastSale.set(sale);
+    this.resetAfterSale();
+    this.toast.warning('pos.offline.queued');
+    return sale;
+  }
+
+  private resetAfterSale(): void {
+    this.lines.set([]);
+    this.customer.set('');
+    this.customerTaxId.set('');
+    this.selectedId.set(null);
+    this.saleKey = newIdempotencyKey();
   }
 
   // ── Journal ──────────────────────────────────────────────────────────────────
