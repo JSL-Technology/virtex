@@ -90,5 +90,5 @@ async function readXml(req: FastifyRequest): Promise<string> {
 function guard(buffer: Buffer): string {
   if (buffer.length === 0) throw new BadRequestError('einvoicing.receptor.xml_missing');
   if (buffer.length > MAX_XML_BYTES) throw new BadRequestError('einvoicing.receptor.xml_too_large');
-  return buffer.toString('utf8').replace(/^﻿/, '');
+  return buffer.toString('utf8').replace(/^\uFEFF/, '');
 }
