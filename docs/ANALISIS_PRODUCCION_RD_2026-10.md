@@ -43,34 +43,35 @@ respaldos, monitoreo, soporte).
 
 ## 2. Lo que ya existe (inventario verificado)
 
-| Área | Estado | Evidencia |
-|---|---|---|
-| e-CF emisor (E31–E47, B01/B02/B04): firma XAdES, semilla/token, envío, E32 a Factura de Consumo, sondeo, conciliador, idempotencia por trackId, anulación de rangos, QR y código de seguridad | ✅ Completo | `einvoicing/` (~9.000 LOC), `tools/verify/ecf-conformance.ts` |
-| Formatos 606/607/608/609 en TXT con `\|` y registro de presentaciones | ✅ | `compliance/reports/dr-reports.ts`, `fiscal-report-filings.service.ts` |
-| RNC/cédula con dígito verificador, ITBIS, retenciones ITBIS/ISR | ✅ | `localization/fiscal/` |
-| Contabilidad: asientos, plantillas, recurrentes, cierres de período y de año, presupuestos, centros de costo, dimensiones, consolidación, intercompañía, activos fijos, multimoneda | ✅ | `accounting`, `journal-entries`, `consolidation`, `fixed-assets`… |
-| Ventas: cotizaciones, facturas, NC/ND, listas de precios, cobros, anticipos, cobranza | ✅ Parcial | `sales/` solo tiene `quotes`; ver §4 |
-| Compras: requisiciones, órdenes, recepciones, facturas de proveedor, lotes de pago, portal de proveedores | ✅ | `procurement`, `accounts-payable` |
-| Inventario: almacenes, ubicaciones, movimientos, transferencias, ajustes, costos de importación (landed cost), WMS | ✅ Parcial | sin lotes, series ni vencimientos |
-| Tesorería: bancos (catálogo DO), cuentas, transferencias, importación de extractos (CSV y formatos bancarios), conciliación con reglas y asistida por IA | ✅ | `treasury`, `reconciliation` |
-| **Nómina RD**: conceptos, novedades, cálculo con SFS/AFP/SRL/INFOTEP, tabla ISR, horas extra, regalía pascual, prestaciones (preaviso, cesantía, vacaciones), contabilización, volante propio, novedades TSS, autodeterminación, archivo SUIR | ✅ Nuevo desde septiembre | `payroll/` (~4.400 LOC), `hcm/` |
-| POS separado: turnos, X/Z, arqueo, cobro mixto, anulación con supervisor, idempotencia | ✅ Sin e-CF | `apps/pos`, `pos/` |
-| Multi-empresa: RLS forzado y comprobado al arrancar, guard de CI para `find()` sin tenant, sucursales y acceso por sucursal | ✅ | `shared/tenancy/tenant-isolation.check.ts`, `branch.entity.ts` |
-| Seguridad: Argon2, passkeys, 2FA, CSRF `__Host-`, step-up, revocación, auditoría | ✅ | `auth/`, `audit/` |
-| Plataforma: flujos de aprobación, motor de workflows, documentos, correo entrante, notificaciones, búsqueda global, importación/exportación de datos, BI, IA (copiloto, MCP, agentes), extensiones en sandbox, escritorio Electron, PWA | ✅ | varios |
-| Legal: páginas de términos, privacidad y seguridad versionadas, aceptación registrada | ✅ Estructura | `legal/`, `legal_acceptances`; el texto lo tiene que revisar un abogado |
+| Área                                                                                                                                                                                                                                          | Estado                    | Evidencia                                                               |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------- |
+| e-CF emisor (E31–E47, B01/B02/B04): firma XAdES, semilla/token, envío, E32 a Factura de Consumo, sondeo, conciliador, idempotencia por trackId, anulación de rangos, QR y código de seguridad                                                 | ✅ Completo               | `einvoicing/` (~9.000 LOC), `tools/verify/ecf-conformance.ts`           |
+| Formatos 606/607/608/609 en TXT con `\|` y registro de presentaciones                                                                                                                                                                         | ✅                        | `compliance/reports/dr-reports.ts`, `fiscal-report-filings.service.ts`  |
+| RNC/cédula con dígito verificador, ITBIS, retenciones ITBIS/ISR                                                                                                                                                                               | ✅                        | `localization/fiscal/`                                                  |
+| Contabilidad: asientos, plantillas, recurrentes, cierres de período y de año, presupuestos, centros de costo, dimensiones, consolidación, intercompañía, activos fijos, multimoneda                                                           | ✅                        | `accounting`, `journal-entries`, `consolidation`, `fixed-assets`…       |
+| Ventas: cotizaciones, facturas, NC/ND, listas de precios, cobros, anticipos, cobranza                                                                                                                                                         | ✅ Parcial                | `sales/` solo tiene `quotes`; ver §4                                    |
+| Compras: requisiciones, órdenes, recepciones, facturas de proveedor, lotes de pago, portal de proveedores                                                                                                                                     | ✅                        | `procurement`, `accounts-payable`                                       |
+| Inventario: almacenes, ubicaciones, movimientos, transferencias, ajustes, costos de importación (landed cost), WMS                                                                                                                            | ✅ Parcial                | sin lotes, series ni vencimientos                                       |
+| Tesorería: bancos (catálogo DO), cuentas, transferencias, importación de extractos (CSV y formatos bancarios), conciliación con reglas y asistida por IA                                                                                      | ✅                        | `treasury`, `reconciliation`                                            |
+| **Nómina RD**: conceptos, novedades, cálculo con SFS/AFP/SRL/INFOTEP, tabla ISR, horas extra, regalía pascual, prestaciones (preaviso, cesantía, vacaciones), contabilización, volante propio, novedades TSS, autodeterminación, archivo SUIR | ✅ Nuevo desde septiembre | `payroll/` (~4.400 LOC), `hcm/`                                         |
+| POS separado: turnos, X/Z, arqueo, cobro mixto, anulación con supervisor, idempotencia                                                                                                                                                        | ✅ Sin e-CF               | `apps/pos`, `pos/`                                                      |
+| Multi-empresa: RLS forzado y comprobado al arrancar, guard de CI para `find()` sin tenant, sucursales y acceso por sucursal                                                                                                                   | ✅                        | `shared/tenancy/tenant-isolation.check.ts`, `branch.entity.ts`          |
+| Seguridad: Argon2, passkeys, 2FA, CSRF `__Host-`, step-up, revocación, auditoría                                                                                                                                                              | ✅                        | `auth/`, `audit/`                                                       |
+| Plataforma: flujos de aprobación, motor de workflows, documentos, correo entrante, notificaciones, búsqueda global, importación/exportación de datos, BI, IA (copiloto, MCP, agentes), extensiones en sandbox, escritorio Electron, PWA       | ✅                        | varios                                                                  |
+| Legal: páginas de términos, privacidad y seguridad versionadas, aceptación registrada                                                                                                                                                         | ✅ Estructura             | `legal/`, `legal_acceptances`; el texto lo tiene que revisar un abogado |
 
 ---
 
 ## 3. Bloqueantes para vender (P0)
 
 ### P0-1. e-CF desde el POS
+
 - Al cerrar la venta, emitir un E32 (o un E31 si el cliente da RNC) usando el mismo pipeline de
   `einvoicing`: numeración, firma, envío al resumen de Factura de Consumo bajo el umbral, y de
   forma asíncrona para no frenar la caja.
 - Imprimir en el ticket el e-NCF, el código de seguridad, el QR de timbre y la fecha de firma.
 - **Contingencia.** Si no hay internet o la DGII no responde, la venta tiene que poder emitirse y
-  transmitirse después. El POS de hoy solo *muestra* que está sin conexión
+  transmitirse después. El POS de hoy solo _muestra_ que está sin conexión
   (`connectivity.service.ts`): no guarda ventas para enviarlas más tarde. Hace falta una cola local
   (IndexedDB) con reenvío idempotente; el `idempotency.ts` actual sirve de base.
 - Las anulaciones de ventas ya emitidas tienen que salir como NC E34, no como un simple sello
@@ -79,6 +80,7 @@ respaldos, monitoreo, soporte).
   `window.print()` desde un iframe.
 
 ### P0-2. Receptor e-CF
+
 - Endpoints públicos con el contrato de la DGII: semilla y validación de semilla del receptor,
   recepción del e-CF y respuesta con el ARECF firmado, y recepción de la aprobación comercial.
 - Bandeja de «comprobantes recibidos» que cree el borrador de factura de proveedor con el NCF ya
@@ -87,6 +89,7 @@ respaldos, monitoreo, soporte).
 - La URL del receptor tiene que estar registrada ante la DGII como parte de la certificación.
 
 ### P0-3. Certificación DGII
+
 - Conseguir un certificado digital de un emisor piloto y correr el set de pruebas de TesteCF y
   CerteCF. Eso incluye las pruebas de receptor, así que depende de P0-2.
 - Hacer el piloto con al menos un contribuyente real antes de abrir ventas.
@@ -97,6 +100,7 @@ respaldos, monitoreo, soporte).
   propias.
 
 ### P0-4. Cobro y facturación de la suscripción en RD
+
 - Un adaptador de pasarela local (Azul, CardNet o similar) detrás de `PaymentGateway`, más
   transferencia o depósito con conciliación manual como alternativa.
 - Precios en DOP y cálculo de ITBIS sobre la suscripción.
@@ -111,47 +115,50 @@ respaldos, monitoreo, soporte).
 ## 4. Brechas funcionales que el mercado dominicano va a pedir (P1)
 
 ### Fiscal y tributario
-| Falta | Por qué |
-|---|---|
-| **IT-1** (declaración mensual de ITBIS) | Es la declaración que el contador presenta cada mes. Está listada en `country-profiles.ts:730`, pero no hay generador. Debería salir del 606/607 ya calculado. |
-| **IR-17** (retenciones) e **IR-3** (retenciones a asalariados) | Las retenciones ya se calculan (en facturas de proveedor y en nómina). Falta el reporte o declaración. |
-| IR-2 / IR-1 anuales, anticipos, activos (ACT) | Útiles para el contador. Pueden ir en una fase posterior. |
-| Proporcionalidad del ITBIS y su conciliación entre 606/607 e IT-1 | Es un error frecuente en auditorías de la DGII. |
-| Validación de RNC contra el padrón DGII (nombre/razón social) | Hoy solo se valida el dígito verificador. Autocompletar el nombre del cliente ahorra trabajo y errores. |
+
+| Falta                                                             | Por qué                                                                                                                                                        |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **IT-1** (declaración mensual de ITBIS)                           | Es la declaración que el contador presenta cada mes. Está listada en `country-profiles.ts:730`, pero no hay generador. Debería salir del 606/607 ya calculado. |
+| **IR-17** (retenciones) e **IR-3** (retenciones a asalariados)    | Las retenciones ya se calculan (en facturas de proveedor y en nómina). Falta el reporte o declaración.                                                         |
+| IR-2 / IR-1 anuales, anticipos, activos (ACT)                     | Útiles para el contador. Pueden ir en una fase posterior.                                                                                                      |
+| Proporcionalidad del ITBIS y su conciliación entre 606/607 e IT-1 | Es un error frecuente en auditorías de la DGII.                                                                                                                |
+| Validación de RNC contra el padrón DGII (nombre/razón social)     | Hoy solo se valida el dígito verificador. Autocompletar el nombre del cliente ahorra trabajo y errores.                                                        |
 
 ### Nómina y RR. HH.
-| Falta | Por qué |
-|---|---|
+
+| Falta                                                                         | Por qué                                                                                    |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | Validar el layout del archivo SUIR contra la especificación oficial de la TSS | El código lo deja aislado en `toSuirLine` y dice explícitamente que falta esta validación. |
-| Archivo de pago de nómina por banco (Banreservas, Popular, BHD…) | Así se paga la nómina en RD. Hoy no hay exportación bancaria ni en nómina ni en CxP. |
-| Solicitud y saldo de vacaciones, licencias y ausencias | Hoy las vacaciones solo aparecen dentro de la liquidación por prestaciones. |
-| Planillas del Ministerio de Trabajo (DGT-3, DGT-4) | Obligación anual o por cambios de personal. |
-| Asistencia y ponchado (opcional) | Lo pide la PYME que paga horas extra. |
+| Archivo de pago de nómina por banco (Banreservas, Popular, BHD…)              | Así se paga la nómina en RD. Hoy no hay exportación bancaria ni en nómina ni en CxP.       |
+| Solicitud y saldo de vacaciones, licencias y ausencias                        | Hoy las vacaciones solo aparecen dentro de la liquidación por prestaciones.                |
+| Planillas del Ministerio de Trabajo (DGT-3, DGT-4)                            | Obligación anual o por cambios de personal.                                                |
+| Asistencia y ponchado (opcional)                                              | Lo pide la PYME que paga horas extra.                                                      |
 
 ### Comercial y operación
-| Falta | Por qué |
-|---|---|
-| **Pedido de venta** y **conduce** (nota de entrega) | Hoy el flujo es cotización → factura. El distribuidor dominicano trabaja con pedido → conduce → factura, con despacho parcial. No hay entidades `sales_orders` ni de entrega. |
-| **Facturación recurrente** (igualas, alquileres, servicios mensuales) | Solo hay asientos recurrentes. El segmento de servicios profesionales lo necesita. |
-| **Lotes, series y fechas de vencimiento** en inventario | Lo exigen farmacias, alimentos y repuestos. No existe en ninguna entidad de inventario. |
-| Comisiones de vendedores | Es habitual en distribución. |
-| Cheques: impresión y control de chequeras | Todavía se usan mucho para pagar a proveedores en RD. |
-| Envío de factura y estado de cuenta por WhatsApp | Es el canal real de cobro en RD. Hoy solo hay correo. |
-| Portal del cliente (ver y descargar facturas, pagar) | Ya existe el de proveedores, falta el del cliente. |
+
+| Falta                                                                 | Por qué                                                                                                                                                                       |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Pedido de venta** y **conduce** (nota de entrega)                   | Hoy el flujo es cotización → factura. El distribuidor dominicano trabaja con pedido → conduce → factura, con despacho parcial. No hay entidades `sales_orders` ni de entrega. |
+| **Facturación recurrente** (igualas, alquileres, servicios mensuales) | Solo hay asientos recurrentes. El segmento de servicios profesionales lo necesita.                                                                                            |
+| **Lotes, series y fechas de vencimiento** en inventario               | Lo exigen farmacias, alimentos y repuestos. No existe en ninguna entidad de inventario.                                                                                       |
+| Comisiones de vendedores                                              | Es habitual en distribución.                                                                                                                                                  |
+| Cheques: impresión y control de chequeras                             | Todavía se usan mucho para pagar a proveedores en RD.                                                                                                                         |
+| Envío de factura y estado de cuenta por WhatsApp                      | Es el canal real de cobro en RD. Hoy solo hay correo.                                                                                                                         |
+| Portal del cliente (ver y descargar facturas, pagar)                  | Ya existe el de proveedores, falta el del cliente.                                                                                                                            |
 
 ---
 
 ## 5. Producción y operación (P0/P1 técnicos)
 
-| Falta | Detalle |
-|---|---|
-| **Imagen y pipeline de despliegue** | Solo `apps/ai-engine` tiene Dockerfile. No hay imagen de la API, ni manifiesto de infraestructura, ni workflow de CD: CI construye y prueba, pero no despliega. `DEPLOYMENT.md` describe pasos manuales. |
-| **Respaldos y recuperación** | No hay política documentada (respaldo automático, PITR, restauración probada, RPO/RTO). En un ERP con contabilidad y comprobantes fiscales, que la DGII obliga a conservar 10 años, esto es obligatorio. |
-| **Monitoreo y alertas** | Hay `prom-client`, logs con pino y un `health` mínimo (50 LOC). Faltan rastreo de errores (Sentry o similar), tablero, alertas de colas BullMQ fallidas y alertas de **e-CF rechazados o pendientes**, que son la falla más cara. |
-| Ambientes | Separar staging y producción. La configuración solo acepta `development`/`test`/`production`, y staging tendría que correr como `production` con sus propios secretos. |
-| Pruebas de carga | No hay. Hay que medir, como mínimo, el cierre de mes y la hora pico del POS con varios inquilinos. |
-| Escritorio | `electron-builder.json` no tiene firma de código ni auto-actualización. Sin eso, Windows SmartScreen bloquea el instalador. |
-| Residencia y latencia de datos | Elegir una región cercana (us-east) y declararla en la política de privacidad. |
+| Falta                               | Detalle                                                                                                                                                                                                                           |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Imagen y pipeline de despliegue** | Solo `apps/ai-engine` tiene Dockerfile. No hay imagen de la API, ni manifiesto de infraestructura, ni workflow de CD: CI construye y prueba, pero no despliega. `DEPLOYMENT.md` describe pasos manuales.                          |
+| **Respaldos y recuperación**        | No hay política documentada (respaldo automático, PITR, restauración probada, RPO/RTO). En un ERP con contabilidad y comprobantes fiscales, que la DGII obliga a conservar 10 años, esto es obligatorio.                          |
+| **Monitoreo y alertas**             | Hay `prom-client`, logs con pino y un `health` mínimo (50 LOC). Faltan rastreo de errores (Sentry o similar), tablero, alertas de colas BullMQ fallidas y alertas de **e-CF rechazados o pendientes**, que son la falla más cara. |
+| Ambientes                           | Separar staging y producción. La configuración solo acepta `development`/`test`/`production`, y staging tendría que correr como `production` con sus propios secretos.                                                            |
+| Pruebas de carga                    | No hay. Hay que medir, como mínimo, el cierre de mes y la hora pico del POS con varios inquilinos.                                                                                                                                |
+| Escritorio                          | `electron-builder.json` no tiene firma de código ni auto-actualización. Sin eso, Windows SmartScreen bloquea el instalador.                                                                                                       |
+| Residencia y latencia de datos      | Elegir una región cercana (us-east) y declararla en la política de privacidad.                                                                                                                                                    |
 
 ---
 
@@ -178,14 +185,14 @@ respaldos, monitoreo, soporte).
 
 ## 7. Hoja de ruta sugerida
 
-| Fase | Contenido | Salida |
-|---|---|---|
-| **0 · Regulatorio** (en paralelo, empezar ya) | Certificado del piloto, receptor e-CF (P0-2), set de pruebas TesteCF/CerteCF (P0-3), decisión sobre proveedor de servicios autorizado | Un e-CF emitido **y otro recibido** aceptados en CerteCF |
-| **1 · POS fiscal** | P0-1 completo, con contingencia sin conexión e impresión térmica | Una venta de caja con E32 válido, también tras un corte de internet |
-| **2 · Producción** | Imagen y CD, staging, respaldos con restauración probada, monitoreo y alertas fiscales, pruebas de carga | Un despliegue reproducible y una restauración probada |
-| **3 · Comercialización** | P0-4 (pasarela local, DOP, e-CF propio), términos, privacidad y SLA, onboarding guiado, soporte | Primer cliente de pago cobrado y facturado en RD |
-| **4 · Contador** | IT-1, IR-17, IR-3, validación SUIR, archivo de pago bancario, padrón RNC | Un contador cierra el mes completo sin salir del sistema |
-| **5 · Verticales** | Pedido y conduce, facturación recurrente, lotes/series/vencimientos, comisiones, cheques, WhatsApp, portal del cliente, vacaciones y DGT | Cobertura de distribución, farmacia y servicios |
+| Fase                                          | Contenido                                                                                                                                | Salida                                                              |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **0 · Regulatorio** (en paralelo, empezar ya) | Certificado del piloto, receptor e-CF (P0-2), set de pruebas TesteCF/CerteCF (P0-3), decisión sobre proveedor de servicios autorizado    | Un e-CF emitido **y otro recibido** aceptados en CerteCF            |
+| **1 · POS fiscal**                            | P0-1 completo, con contingencia sin conexión e impresión térmica                                                                         | Una venta de caja con E32 válido, también tras un corte de internet |
+| **2 · Producción**                            | Imagen y CD, staging, respaldos con restauración probada, monitoreo y alertas fiscales, pruebas de carga                                 | Un despliegue reproducible y una restauración probada               |
+| **3 · Comercialización**                      | P0-4 (pasarela local, DOP, e-CF propio), términos, privacidad y SLA, onboarding guiado, soporte                                          | Primer cliente de pago cobrado y facturado en RD                    |
+| **4 · Contador**                              | IT-1, IR-17, IR-3, validación SUIR, archivo de pago bancario, padrón RNC                                                                 | Un contador cierra el mes completo sin salir del sistema            |
+| **5 · Verticales**                            | Pedido y conduce, facturación recurrente, lotes/series/vencimientos, comisiones, cheques, WhatsApp, portal del cliente, vacaciones y DGT | Cobertura de distribución, farmacia y servicios                     |
 
 Las fases 0 a 3 son el mínimo para empezar a cobrar. La 4 es lo que convence al contador, que es
 quien recomienda el sistema. La 5 abre segmentos.
