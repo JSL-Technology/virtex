@@ -36,6 +36,14 @@ const optionalInDev = () =>
     otherwise: Joi.string().required(),
   });
 
+/** A Stripe credential: as `optionalInDev`, unless subscriptions are charged through Azul. */
+const unlessAzul = () =>
+  Joi.when('PAYMENT_PROVIDER', { is: 'azul', then: Joi.string().optional(), otherwise: optionalInDev() });
+
+/** An Azul credential: required when Azul is the payment provider, in any environment. */
+const requiredForAzul = () =>
+  Joi.when('PAYMENT_PROVIDER', { is: 'azul', then: Joi.string().required(), otherwise: Joi.string().optional() });
+
 /** A value that is required in a deployment and has a working local default in development. */
 const devDefault = (value: string, base: Joi.StringSchema = Joi.string()) =>
   Joi.when('NODE_ENV', {
@@ -304,9 +312,9 @@ export const envValidation = Joi.object({
   // Stripe price ids, one per plan. Without them the plans exist but cannot be subscribed to, and
   // signup fails at the last step with "this plan is not available" — which is the correct local
   // behaviour, and a much better one than refusing to start the whole API.
-  STRIPE_PRICE_STARTER: optionalInDev(),
-  STRIPE_PRICE_PRO: optionalInDev(),
-  STRIPE_PRICE_ENTERPRISE: optionalInDev(),
+  STRIPE_PRICE_STARTER: unlessAzul(),
+  STRIPE_PRICE_PRO: unlessAzul(),
+  STRIPE_PRICE_ENTERPRISE: unlessAzul(),
 
   // Outbound SMS fraud controls. Both have safe defaults; naming them here documents that they
   // exist and are meant to be tuned per market.
@@ -471,17 +479,36 @@ export const envValidation = Joi.object({
   // Which processor backs subscriptions. `simulated` completes checkouts without charging so the
   // signup and billing flows can be used on a machine with no Stripe account; it is the default
   // there when no Stripe key is set. Outside development/test only `stripe` is accepted.
+  // `azul` (Dominican acquirer) is accepted everywhere; it then needs its own credentials and makes
+  // the Stripe ones optional.
   PAYMENT_PROVIDER: Joi.when('NODE_ENV', {
     is: DEV_LIKE,
     then: Joi.string()
-      .valid('stripe', 'simulated')
+      .valid('stripe', 'simulated', 'azul')
       .when('STRIPE_SECRET_KEY', { is: Joi.exist(), then: Joi.any().default('stripe'), otherwise: Joi.any().default('simulated') }),
-    otherwise: Joi.string().valid('stripe').default('stripe').messages({
+    otherwise: Joi.string().valid('stripe', 'azul').default('stripe').messages({
       'any.only': 'PAYMENT_PROVIDER=simulated cannot be used outside development/test.',
     }),
   }),
-  STRIPE_SECRET_KEY: optionalInDev(),
-  STRIPE_WEBHOOK_SECRET: optionalInDev(),
+  STRIPE_SECRET_KEY: unlessAzul(),
+  STRIPE_WEBHOOK_SECRET: unlessAzul(),
+  AZUL_MERCHANT_ID: requiredForAzul(),
+  AZUL_MERCHANT_NAME: requiredForAzul(),
+  AZUL_AUTH_KEY: requiredForAzul(),
+  AZUL_MERCHANT_TYPE: Joi.string().optional(),
+  AZUL_ENVIRONMENT: Joi.string().valid('test', 'production').default('test'),
+  // The web service (renewals, voids): mutual TLS with the certificate Azul issues the merchant.
+  AZUL_AUTH1: requiredForAzul(),
+  AZUL_AUTH2: requiredForAzul(),
+  AZUL_CERT_PATH: requiredForAzul(),
+  AZUL_KEY_PATH: requiredForAzul(),
+  AZUL_ITBIS_RATE: Joi.number().min(0).max(0.99).optional(),
+  // Where Azul sends the buyer back: the API's public URL, prefix included (https://app.example.com/api/v1).
+  PUBLIC_API_URL: Joi.when('PAYMENT_PROVIDER', { is: 'azul', then: Joi.string().uri().required(), otherwise: Joi.string().uri().optional() }),
+  // The platform's own e-CF for each subscription charge: the tenant that is the platform company,
+  // and the service product the charge is invoiced as.
+  PLATFORM_BILLING_ORGANIZATION_ID: Joi.string().guid().optional(),
+  PLATFORM_BILLING_PRODUCT_ID: Joi.string().guid().optional(),
 
   // Stripe Tax. Computing tax needs the Stripe ACCOUNT to have a registered origin (head office)
   // address and Stripe Tax activated — setup a local run does not have, so `automatic_tax` fails

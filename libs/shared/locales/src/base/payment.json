@@ -162,5 +162,45 @@
     "es": "Los avisos de pago no están disponibles con el proveedor de pagos simulado.",
     "en": "Payment notifications are not available with the simulated payment provider.",
     "pt": "As notificações de pagamento não estão disponíveis com o provedor de pagamentos simulado."
+  },
+  "payment.plan_not_available_local_currency": {
+    "es": "El plan {{plan}} no tiene precio en pesos dominicanos.",
+    "en": "Plan {{plan}} has no price in Dominican pesos.",
+    "pt": "O plano {{plan}} não tem preço em pesos dominicanos."
+  },
+  "payment.checkout_no_longer_payable": {
+    "es": "Este pago ya no está disponible. Vuelve a iniciar el proceso de contratación.",
+    "en": "This payment is no longer available. Start the checkout again.",
+    "pt": "Este pagamento não está mais disponível. Reinicie a contratação."
+  },
+  "payment.azul_response_not_authentic": {
+    "es": "La respuesta del procesador de pagos no es auténtica.",
+    "en": "The payment processor's response is not authentic.",
+    "pt": "A resposta do processador de pagamentos não é autêntica."
+  },
+  "payment.checkout_not_paid": {
+    "es": "El pago no se completó.",
+    "en": "The payment was not completed.",
+    "pt": "O pagamento não foi concluído."
+  },
+  "payment.no_portal_local_acquirer": {
+    "es": "Para cambiar la tarjeta, paga el próximo período desde Facturación con la nueva tarjeta.",
+    "en": "To change the card, pay the next period from Billing with the new card.",
+    "pt": "Para trocar o cartão, pague o próximo período em Faturamento com o novo cartão."
+  },
+  "payment.webhooks_unavailable_local_acquirer": {
+    "es": "El procesador de pagos local no usa webhooks.",
+    "en": "The local payment processor does not use webhooks.",
+    "pt": "O processador de pagamentos local não usa webhooks."
+  },
+  "payment.azul_void_failed": {
+    "es": "No se pudo anular el cobro en Azul. Anúlalo desde el portal de Azul.",
+    "en": "The charge could not be voided at Azul. Void it from the Azul portal.",
+    "pt": "Não foi possível estornar a cobrança na Azul. Estorne pelo portal da Azul."
+  },
+  "payment.azul_not_configured": {
+    "es": "El cobro con Azul no está configurado.",
+    "en": "Azul payments are not configured.",
+    "pt": "Os pagamentos com Azul não estão configurados."
   }
 }

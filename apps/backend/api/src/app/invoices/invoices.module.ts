@@ -2,6 +2,7 @@ import { InvoicesCopilotTools } from './invoices.copilot-tools';
 import { InvoicesDataTransferProvider, SalesLinesDataTransferProvider } from './invoices-data-transfer.provider';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PlatformBillingListener } from './platform-billing.listener';
 import { InvoicesService } from './invoices.service';
 import { InvoicesController } from './invoices.controller';
 import { InvoicePostingService } from './services/invoice-posting.service';
@@ -67,6 +68,7 @@ import { MailModule } from '../mail/mail.module';
   ],
   controllers: [InvoicesController],
   providers: [InvoicesCopilotTools, 
+    PlatformBillingListener,
     SalesInboxProvider,
     InvoicesDataTransferProvider,
     SalesLinesDataTransferProvider,

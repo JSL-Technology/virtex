@@ -185,6 +185,10 @@ export const CROSS_TENANT_TABLES: readonly UnscopedTable[] = [
   { table: 'passkeys', why: 'Credencial WebAuthn de una persona, no de una empresa.' },
   { table: 'verification_codes', why: 'Códigos de un solo uso emitidos durante la autenticación.' },
   { table: 'pending_registrations', why: 'Un alta en curso: todavía no hay empresa a la que pertenecer.' },
+  {
+    table: 'billing_payment_intents',
+    why: 'Cobros de la suscripción por la pasarela local (Azul): el primero ocurre en el alta, antes de que exista la empresa; lo lee solo el módulo de pagos de la plataforma.',
+  },
   { table: 'legal_acceptances', why: 'Aceptación de los Términos y la Privacidad por una PERSONA; se escribe al materializar el alta, cuando la empresa aún no da contexto, y sigue siendo de la persona aunque la empresa desaparezca.' },
   { table: 'market_waitlist', why: 'Visitantes de países donde aún no hay producto; no existe empresa a la que pertenecer.' },
   { table: 'notification', why: 'Notificación dirigida a una PERSONA (`userId`), que puede pertenecer a varias empresas.' },

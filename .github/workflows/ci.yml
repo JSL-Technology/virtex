@@ -362,6 +362,11 @@ jobs:
       # DGII certification, and the product exposed no reception service at all.
       - run: npm run verify:ecf-receptor
 
+      # Proves the platform documents what it charges: an approved subscription charge becomes an
+      # E31 of the platform company to the customer's RNC for the amount charged, exactly once, and
+      # waits (is not lost) while the platform tenant is not configured.
+      - run: npm run verify:platform-billing
+
       # Nx Cloud's self-healing. It needs an Nx Cloud workspace, and without one it can only fail —
       # which turned every run red after every other step had passed. The token is scoped to this
       # step alone rather than the job: `npm ci` runs third-party install scripts, and a secret in
