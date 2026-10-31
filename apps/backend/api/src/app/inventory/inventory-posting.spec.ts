@@ -321,7 +321,7 @@ describeWithDb('inventory posting', () => {
     const warehouse = await defaultWarehouse();
     const draft = await adjustments.create(
       {
-        date: new Date().toISOString().slice(0, 10),
+        date: new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santo_Domingo' }).format(new Date()),
         warehouseId: warehouse.id,
         reason: 'Conteo físico de fin de mes',
         lines: [{ productId: product.id, countedQuantity: 48 }],
@@ -360,7 +360,7 @@ describeWithDb('inventory posting', () => {
     const warehouse = await defaultWarehouse();
     const draft = await adjustments.create(
       {
-        date: new Date().toISOString().slice(0, 10),
+        date: new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santo_Domingo' }).format(new Date()),
         warehouseId: warehouse.id,
         reason: 'Nuevo costo del proveedor',
         lines: [{ productId: product.id, newUnitCost: 420 }],

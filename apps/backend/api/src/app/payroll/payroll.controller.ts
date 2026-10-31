@@ -11,9 +11,17 @@ import {
   Patch,
   Post,
   Put,
+  ParseIntPipe,
   Query,
+  Res,
   UseInterceptors,
 } from '@nestjs/common';
+import type { HttpResponse as Response } from '../common/http/http.types';
+import { BadRequestError } from '../i18n/localized.exception';
+import { PayrollDeclarationsService } from './services/payroll-declarations.service';
+import { LeaveService } from './services/leave.service';
+import { DecideLeaveDto, RequestLeaveDto } from './dto/leave.dto';
+import { LeaveStatus } from './entities/employee-leave.entity';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../security/principal';
@@ -60,6 +68,8 @@ export class PayrollController {
   constructor(
     private readonly runs: PayrollRunService,
     private readonly tss: PayrollTssService,
+    private readonly declarations: PayrollDeclarationsService,
+    private readonly leave: LeaveService,
     private readonly concepts: PayrollConceptService,
     private readonly inputs: PayrollInputService,
     private readonly parameters: PayrollParametersService,
@@ -363,6 +373,115 @@ export class PayrollController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.tss.autodeterminacion(id, user.organizationId);
+  }
+
+  // ── Vacations and leave ──────────────────────────────────────────────────────
+
+  /** The vacation the law grants the employee for the current service year, and what is left. */
+  @Get('employees/:employeeId/vacation-balance')
+  @HasPermission(PERMISSIONS.HCM_VIEW)
+  vacationBalance(
+    @Param('employeeId', UuidParamPipe) employeeId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('asOf') asOf?: string,
+  ) {
+    return this.leave.balance(user.organizationId, employeeId, asOf && /^\d{4}-\d{2}-\d{2}$/.test(asOf) ? asOf : undefined);
+  }
+
+  @Get('leaves')
+  @HasPermission(PERMISSIONS.HCM_VIEW)
+  listLeaves(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('employeeId') employeeId?: string,
+    @Query('status') status?: string,
+  ) {
+    if (status && !(Object.values(LeaveStatus) as string[]).includes(status)) {
+      throw new BadRequestError('payroll.leave.status_unknown', { status });
+    }
+    return this.leave.list(user.organizationId, {
+      employeeId: employeeId && /^[0-9a-f-]{36}$/i.test(employeeId) ? employeeId : undefined,
+      status: status as LeaveStatus | undefined,
+    });
+  }
+
+  @Post('employees/:employeeId/leaves')
+  @HasPermission(PERMISSIONS.HCM_MANAGE)
+  requestLeave(
+    @Param('employeeId', UuidParamPipe) employeeId: string,
+    @Body() dto: RequestLeaveDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.leave.request(user.organizationId, employeeId, dto, user.id);
+  }
+
+  @Post('leaves/:id/approve')
+  @HasPermission(PERMISSIONS.HCM_MANAGE)
+  approveLeave(@Param('id', UuidParamPipe) id: string, @Body() dto: DecideLeaveDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.leave.decide(user.organizationId, id, 'approve', user.id, dto.note);
+  }
+
+  @Post('leaves/:id/reject')
+  @HasPermission(PERMISSIONS.HCM_MANAGE)
+  rejectLeave(@Param('id', UuidParamPipe) id: string, @Body() dto: DecideLeaveDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.leave.decide(user.organizationId, id, 'reject', user.id, dto.note);
+  }
+
+  @Post('leaves/:id/cancel')
+  @HasPermission(PERMISSIONS.HCM_MANAGE)
+  cancelLeave(@Param('id', UuidParamPipe) id: string, @Body() dto: DecideLeaveDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.leave.decide(user.organizationId, id, 'cancel', user.id, dto.note);
+  }
+
+  // ── DGII and the bank ────────────────────────────────────────────────────────
+
+  /** The IR-3: ISR withheld on the salaries paid in the month, employee by employee. */
+  @Get('declarations/ir3')
+  @HasPermission(PERMISSIONS.TSS_EXPORT)
+  @AuditAccess({ entity: 'dgii_ir3', action: ActionType.EXPORT, identifiers: ['year', 'month'] })
+  async ir3(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('year', ParseIntPipe) year: number,
+    @Query('month', ParseIntPipe) month: number,
+    @Res() res: Response,
+    @Query('format') format?: string,
+  ) {
+    if (month < 1 || month > 12 || year < 2000 || year > 2100) throw new BadRequestError('compliance.month_must_between_12');
+    const ir3 = await this.declarations.ir3(user.organizationId, year, month);
+    if (format !== 'csv') return res.header('Content-Type', 'application/json; charset=utf-8').send(ir3);
+    const quote = (v: string | number | null) => {
+      const t = typeof v === 'number' ? v.toFixed(2) : (v ?? '');
+      return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+    };
+    const lines = [
+      'cedula,nombre,ingresos,seguridad_social,base_imponible,isr_retenido',
+      ...ir3.rows.map((r) =>
+        [r.identityDocument, r.employeeName, r.grossEarnings, r.socialSecurity, r.taxableBase, r.incomeTax].map(quote).join(','),
+      ),
+    ];
+    return res
+      .header('Content-Type', 'text/csv; charset=utf-8')
+      .header('Content-Disposition', `attachment; filename="DGII_IR3_${ir3.period}.csv"`)
+      .send(lines.join('\n'));
+  }
+
+  /** The file the bank pays an approved run's net wages from, in the bank's layout. */
+  @Get('runs/:id/bank-file')
+  @HasPermission(PERMISSIONS.PAYROLL_PAY)
+  @AuditAccess({ entity: 'payroll_bank_file', action: ActionType.EXPORT, identifiers: ['id'] })
+  async bankFile(
+    @Param('id', UuidParamPipe) id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Res() res: Response,
+    @Query('layout') layout?: string,
+  ) {
+    const file = await this.declarations.bankFile(user.organizationId, id, layout || 'GENERIC');
+    return res
+      .header('Content-Type', 'text/plain; charset=utf-8')
+      .header('Content-Disposition', `attachment; filename="${file.fileName}"`)
+      .header('X-Payroll-Transfers', String(file.transfers))
+      .header('X-Payroll-Total', file.total.toFixed(2))
+      .header('X-Payroll-Without-Account', String(file.withoutAccount.length))
+      .send(file.body);
   }
 
   @Get('runs/:id/tss/suir')

@@ -1,7 +1,14 @@
 import { Repository, Between, Not, IsNull, In } from 'typeorm';
 import { Invoice, InvoiceStatus, InvoiceType, PaymentMethod } from '../../invoices/entities/invoice.entity';
 import { PurchaseFiscalDocument } from '../../contracts/fiscal-records/purchase-fiscal-records.contract';
-import { Organization } from '../../organizations/entities/organization.entity';
+/**
+ * What the formats read of the declaring company: its RNC, and the income type it declared
+ * (`fiscalProfile.tipoIngreso`). Structural, so the reports do not import Identity's entity.
+ */
+export interface DeclaringCompany {
+  taxId: string | null;
+  fiscalProfile?: Record<string, string> | null;
+}
 import { roundAmount } from '../../common/money';
 import { UnprocessableEntityError } from '../../i18n/localized.exception';
 import { isValidDominicanTaxId } from '../../localization/contracts/tax-id.contract';
@@ -30,6 +37,22 @@ import { isValidDominicanTaxId } from '../../localization/contracts/tax-id.contr
  * Every figure comes from a stored, document-level field. Nothing is inferred from a total, because
  * a return derived by arithmetic from an inclusive amount is a guess presented as a declaration.
  */
+/** One annulled fiscal number, as the 608 reports it. */
+export interface AnnulledFiscalNumber {
+  ncf: string;
+  /** `YYYY-MM-DD` — the day the annulment was declared. */
+  date: string;
+  /** DGII «tipo de anulación». */
+  code: string;
+}
+
+/**
+ * «Tipo de anulación» for numbers of an authorized range declared unused through the ANECF.
+ * *Verificar con contabilidad:* the DGII's table names «errores en secuencia» (08) and «cese de
+ * operaciones» (09); a range voided because the company stops issuing it is the latter.
+ */
+export const SEQUENCE_VOID_ANNULMENT_CODE = '08';
+
 export class DominicanRepublicReports {
   // ── 607: Ventas de bienes y servicios ──────────────────────────────────────
 
@@ -45,7 +68,7 @@ export class DominicanRepublicReports {
     year: number,
     month: number,
     invoiceRepository: Repository<Invoice>,
-    organization: Organization,
+    organization: DeclaringCompany,
   ): Promise<string> {
     const { from, to } = monthBounds(year, month);
 
@@ -55,7 +78,11 @@ export class DominicanRepublicReports {
         organizationId,
         issueDate: Between(from, to),
         fiscalNumber: Not(IsNull()),
-        status: Not(In([InvoiceStatus.DRAFT, InvoiceStatus.VOID])),
+        // An issued comprobante later cancelled by a full credit note (status VOID) STAYS: it was
+        // issued and the DGII received it; the credit note that cancels it is reported beside it,
+        // with it as «NCF modificado». Leaving it out — and sending it to the 608 — reduced the
+        // month's sales twice, once by its absence and again by its credit note.
+        status: Not(In([InvoiceStatus.DRAFT])),
       },
       order: { issueDate: 'ASC', invoiceNumber: 'ASC' },
     });
@@ -125,7 +152,7 @@ export class DominicanRepublicReports {
     year: number,
     month: number,
     documents: readonly PurchaseFiscalDocument[],
-    organization: Organization,
+    organization: DeclaringCompany,
   ): string {
     // Every line of the 606 identifies the supplier by RNC or cédula, and the DGII rejects the
     // whole file over one that does not (QA B-02: a bill without one was reported anyway). The
@@ -200,34 +227,22 @@ export class DominicanRepublicReports {
   // ── 608: Comprobantes anulados ─────────────────────────────────────────────
 
   /**
-   * Voided comprobantes. A fiscal number that was assigned and then annulled must be declared, or
-   * the DGII sees a gap in the taxpayer's numbering and asks about it.
+   * Annulled fiscal numbers: numbers the taxpayer declared it will never use (the ANECF of an
+   * authorized e-NCF range), so the DGII does not read them as a gap in the sequence.
+   *
+   * NOT the comprobantes cancelled by a credit note. Those were issued and received by the DGII;
+   * they stay in the 607 with their credit note. The previous version listed every invoice in
+   * status VOID here — which is exactly the set cancelled by a credit note — and dropped them from
+   * the 607, so a cancelled sale was subtracted from the month twice.
    */
-  static async generate608Report(
-    organizationId: string,
+  static generate608Report(
     year: number,
     month: number,
-    invoiceRepository: Repository<Invoice>,
-    organization: Organization,
-  ): Promise<string> {
-    const { from, to } = monthBounds(year, month);
-
-    const voided = await invoiceRepository.find({
-      where: {
-        organizationId,
-        issueDate: Between(from, to),
-        fiscalNumber: Not(IsNull()),
-        status: InvoiceStatus.VOID,
-      },
-      order: { issueDate: 'ASC' },
-    });
-
-    const rows = voided.map((invoice) =>
-      [
-        invoice.fiscalNumber ?? '',
-        compactDate(invoice.issueDate),
-        annulmentCode(invoice.voidReason),
-      ].join('|'),
+    annulled: readonly AnnulledFiscalNumber[],
+    organization: DeclaringCompany,
+  ): string {
+    const rows = annulled.map((entry) =>
+      [entry.ncf, compactDate(entry.date), entry.code].join('|'),
     );
 
     const header = [
@@ -240,6 +255,13 @@ export class DominicanRepublicReports {
     return [header, ...rows].join('\n');
   }
 
+  /** Every e-NCF of an annulled range, in order. */
+  static expandRange(ecfType: string, from: number, to: number): string[] {
+    const numbers: string[] = [];
+    for (let n = from; n <= to; n++) numbers.push(`E${ecfType}${String(n).padStart(10, '0')}`);
+    return numbers;
+  }
+
   // ── 609: Pagos al exterior ─────────────────────────────────────────────────
 
   /**
@@ -250,7 +272,7 @@ export class DominicanRepublicReports {
     year: number,
     month: number,
     documents: readonly PurchaseFiscalDocument[],
-    organization: Organization,
+    organization: DeclaringCompany,
   ): string {
     const rows = documents.map((document) =>
       [

@@ -22,6 +22,13 @@ import { AuthModule } from '../auth/auth.module';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { CurrenciesModule } from '../currencies/currencies.module';
 import { Customer } from '../customers/entities/customer.entity';
+import { InventoryModule } from '../inventory/inventory.module';
+import { SalesOrder } from './entities/sales-order.entity';
+import { SalesOrderLine } from './entities/sales-order-line.entity';
+import { DeliveryNote } from './entities/delivery-note.entity';
+import { DeliveryNoteLine } from './entities/delivery-note-line.entity';
+import { SalesOrdersController } from './controllers/sales-orders.controller';
+import { SalesOrdersService } from './services/sales-orders.service';
 
 @Module({
   imports: [
@@ -35,17 +42,23 @@ import { Customer } from '../customers/entities/customer.entity';
       // `LeadsService` injects the customer repository directly. The module never declared it,
       // which nothing noticed because the module itself was never loaded by the application.
       Customer,
+      SalesOrder,
+      SalesOrderLine,
+      DeliveryNote,
+      DeliveryNoteLine,
     ]),
     AuthModule,
     CustomersModule,
     SharedModule,
     InvoicesModule,
     CurrenciesModule,
+    InventoryModule,
   ],
   controllers: [
     LeadsController, 
     OpportunitiesController,
     QuotesController,
+    SalesOrdersController,
   ],
   providers: [
     // Customer orders received at the company's address (inbound-mail) become draft quotes.
@@ -53,7 +66,8 @@ import { Customer } from '../customers/entities/customer.entity';
     LeadsService,
     OpportunitiesService,
     QuotesService,
+    SalesOrdersService,
   ],
-  exports: [QuotesService],
+  exports: [QuotesService, SalesOrdersService],
 })
 export class SalesModule {}

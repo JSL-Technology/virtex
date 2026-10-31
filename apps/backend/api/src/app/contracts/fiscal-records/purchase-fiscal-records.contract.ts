@@ -67,4 +67,12 @@ export interface PurchaseFiscalRecordsSource {
    * domestic.
    */
   foreignPurchases(query: PurchaseFiscalQuery, homeCountry: string): Promise<PurchaseFiscalDocument[]>;
+
+  /**
+   * Bills PAID in the period on which the company withheld ISR or ITBIS, whatever their date.
+   *
+   * Withholdings are declared (IR-17) in the month the payment is made, not the month the bill is
+   * dated: a December bill paid in January is January's retention.
+   */
+  withholdingsPaid(query: PurchaseFiscalQuery): Promise<PurchaseFiscalDocument[]>;
 }

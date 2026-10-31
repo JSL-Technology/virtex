@@ -50,6 +50,7 @@ export interface PosPayment {
 @Entity({ name: 'pos_sales' })
 @Index('IDX_pos_sales_org_created', ['organizationId', 'createdAt'])
 @Index('IDX_pos_sales_org_shift', ['organizationId', 'shiftId'])
+@Index('IDX_pos_sales_org_invoice', ['organizationId', 'invoiceId'], { where: '"invoiceId" IS NOT NULL' })
 export class PosSale {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -113,8 +114,40 @@ export class PosSale {
   @Column({ name: 'change_due', type: 'numeric', precision: 14, scale: 2, transformer: numericTransformerNotNull, default: 0 })
   changeDue: number;
 
+  /** The fiscal document the sale was issued as, where the company issues one per sale. */
   @Column({ type: 'uuid', nullable: true })
   invoiceId: string | null;
+
+  /** Its e-NCF, copied for the ticket and the till's history (`E320000000123`). */
+  @Column({ name: 'fiscal_number', type: 'varchar', length: 19, nullable: true })
+  fiscalNumber: string | null;
+
+  /** `E32` to the final consumer, `E31` when the buyer gave a valid RNC or cédula. */
+  @Column({ name: 'fiscal_document_type', type: 'varchar', length: 8, nullable: true })
+  fiscalDocumentType: string | null;
+
+  /** The customer the document was issued to: the company's «Consumidor final» unless named. */
+  @Column({ name: 'customer_id', type: 'uuid', nullable: true })
+  customerId: string | null;
+
+  /** The RNC or cédula the buyer gave at the counter, as entered (digits only). */
+  @Column({ name: 'customer_tax_id', type: 'varchar', length: 20, nullable: true })
+  customerTaxId: string | null;
+
+  /** The receipts that settled the document, one per account the takings landed in. */
+  @Column({ name: 'receipt_ids', type: 'jsonb', default: () => "'[]'" })
+  receiptIds: string[];
+
+  /** The credit note (E34) a void issued against the document. */
+  @Column({ name: 'credit_note_id', type: 'uuid', nullable: true })
+  creditNoteId: string | null;
+
+  /**
+   * When the till rang it, where that differs from when the server received it: a sale captured
+   * while the till was offline and sent on reconnection. Null for a sale sent at once.
+   */
+  @Column({ name: 'captured_at', type: 'timestamptz', nullable: true })
+  capturedAt: Date | null;
 
   @Column({ type: 'enum', enum: PosSaleStatus, default: PosSaleStatus.PAID })
   status: PosSaleStatus;

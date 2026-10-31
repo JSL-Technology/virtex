@@ -1,5 +1,4 @@
 import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
-import { AccountRole } from '../../chart-of-accounts/enums/account-enums';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { FISCAL_EMISSION_MODES } from '../contracts/fiscal-emission-mode.contract';
 
@@ -138,29 +137,36 @@ export function isSettingsSection(id: string): id is SettingsSectionId {
  * Fields with no role (bank fees, intercompany) have no default: the chart carries no such account
  * until someone creates one.
  */
-export const DEFAULT_ACCOUNT_ROLES: Partial<Record<AccountField, AccountRole>> = {
-  defaultAccountsReceivableId: AccountRole.ACCOUNTS_RECEIVABLE,
-  defaultAccountsPayableId: AccountRole.ACCOUNTS_PAYABLE,
-  defaultSalesRevenueId: AccountRole.SALES_REVENUE,
-  defaultServiceRevenueId: AccountRole.SERVICE_REVENUE,
-  defaultSalesDiscountsId: AccountRole.SALES_DISCOUNTS,
-  defaultCashId: AccountRole.CASH,
-  defaultBankId: AccountRole.BANK,
-  defaultCustomerAdvancesAccountId: AccountRole.CUSTOMER_ADVANCES,
-  defaultOpeningBalanceEquityAccountId: AccountRole.OPENING_BALANCE_EQUITY,
-  defaultDepreciationExpenseAccountId: AccountRole.DEPRECIATION_EXPENSE,
-  defaultAccumulatedDepreciationAccountId: AccountRole.ACCUMULATED_DEPRECIATION,
-  defaultInflationAdjustmentAccountId: AccountRole.INFLATION_ADJUSTMENT,
-  defaultForexGainLossAccountId: AccountRole.FOREX_GAIN_LOSS,
-  defaultSalesTaxId: AccountRole.TAX_PAYABLE,
-  defaultPurchaseTaxId: AccountRole.TAX_RECEIVABLE,
-  defaultTaxWithheldReceivableId: AccountRole.WITHHOLDING_RECEIVABLE,
-  defaultTaxWithheldPayableId: AccountRole.WITHHOLDING_PAYABLE,
-  defaultExciseTaxPayableId: AccountRole.EXCISE_TAX_PAYABLE,
-  defaultServiceChargePayableId: AccountRole.SERVICE_CHARGE_PAYABLE,
-  defaultRetainedEarningsAccountId: AccountRole.RETAINED_EARNINGS,
-  defaultInventoryId: AccountRole.INVENTORY,
-  defaultCostOfGoodsSoldId: AccountRole.COST_OF_GOODS_SOLD,
-  defaultInventoryAdjustmentAccountId: AccountRole.INVENTORY_ADJUSTMENT,
-  defaultGoodsReceivedNotInvoicedAccountId: AccountRole.GOODS_RECEIVED_NOT_INVOICED,
+/**
+ * A chart account's `system_role`, as the database stores it. A string rather than Accounting's
+ * `AccountRole` enum: Identity may not depend on Accounting (module-boundaries.config.mjs), and the
+ * value is only ever compared, as text, against `accounts.system_role`.
+ */
+type AccountRoleCode = string;
+
+export const DEFAULT_ACCOUNT_ROLES: Partial<Record<AccountField, AccountRoleCode>> = {
+  defaultAccountsReceivableId: 'ACCOUNTS_RECEIVABLE',
+  defaultAccountsPayableId: 'ACCOUNTS_PAYABLE',
+  defaultSalesRevenueId: 'SALES_REVENUE',
+  defaultServiceRevenueId: 'SERVICE_REVENUE',
+  defaultSalesDiscountsId: 'SALES_DISCOUNTS',
+  defaultCashId: 'CASH',
+  defaultBankId: 'BANK',
+  defaultCustomerAdvancesAccountId: 'CUSTOMER_ADVANCES',
+  defaultOpeningBalanceEquityAccountId: 'OPENING_BALANCE_EQUITY',
+  defaultDepreciationExpenseAccountId: 'DEPRECIATION_EXPENSE',
+  defaultAccumulatedDepreciationAccountId: 'ACCUMULATED_DEPRECIATION',
+  defaultInflationAdjustmentAccountId: 'INFLATION_ADJUSTMENT',
+  defaultForexGainLossAccountId: 'FOREX_GAIN_LOSS',
+  defaultSalesTaxId: 'TAX_PAYABLE',
+  defaultPurchaseTaxId: 'TAX_RECEIVABLE',
+  defaultTaxWithheldReceivableId: 'WITHHOLDING_RECEIVABLE',
+  defaultTaxWithheldPayableId: 'WITHHOLDING_PAYABLE',
+  defaultExciseTaxPayableId: 'EXCISE_TAX_PAYABLE',
+  defaultServiceChargePayableId: 'SERVICE_CHARGE_PAYABLE',
+  defaultRetainedEarningsAccountId: 'RETAINED_EARNINGS',
+  defaultInventoryId: 'INVENTORY',
+  defaultCostOfGoodsSoldId: 'COST_OF_GOODS_SOLD',
+  defaultInventoryAdjustmentAccountId: 'INVENTORY_ADJUSTMENT',
+  defaultGoodsReceivedNotInvoicedAccountId: 'GOODS_RECEIVED_NOT_INVOICED',
 };

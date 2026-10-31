@@ -1733,5 +1733,315 @@
     "es": "Pediste el tipo {{requested}} y este documento corresponde al tipo {{resolved}}. El tipo lo determina el documento, no la solicitud.",
     "en": "You asked for type {{requested}} and this document is type {{resolved}}. The document determines the type, not the request.",
     "pt": "Você pediu o tipo {{requested}} e este documento corresponde ao tipo {{resolved}}. O tipo é determinado pelo documento, não pela solicitação."
+  },
+  "invoices.recurring.end_before_start": {
+    "es": "La fecha final no puede ser anterior a la de inicio.",
+    "en": "The end date cannot be before the start date.",
+    "pt": "A data final não pode ser anterior à inicial."
+  },
+  "invoices.recurring.ended": {
+    "es": "La facturación recurrente terminó y ya no se modifica.",
+    "en": "The recurring invoice has ended and can no longer be changed.",
+    "pt": "O faturamento recorrente terminou e não pode mais ser alterado."
+  },
+  "invoices.recurring.frequency_invalid": {
+    "es": "Frecuencia no válida.",
+    "en": "Invalid frequency.",
+    "pt": "Frequência inválida."
+  },
+  "invoices.recurring.line_needs_product_or_description": {
+    "es": "Cada línea necesita un producto o una descripción.",
+    "en": "Each line needs a product or a description.",
+    "pt": "Cada linha precisa de um produto ou uma descrição."
+  },
+  "invoices.recurring.name_required": {
+    "es": "Ponle un nombre a la facturación recurrente.",
+    "en": "Give the recurring invoice a name.",
+    "pt": "Dê um nome ao faturamento recorrente."
+  },
+  "invoices.recurring.no_lines": {
+    "es": "La facturación recurrente no tiene líneas.",
+    "en": "The recurring invoice has no lines.",
+    "pt": "O faturamento recorrente não tem linhas."
+  },
+  "invoices.recurring.not_active": {
+    "es": "Solo se emite una facturación recurrente activa.",
+    "en": "Only an active recurring invoice can be issued.",
+    "pt": "Só um faturamento recorrente ativo pode ser emitido."
+  },
+  "invoices.recurring.not_found": {
+    "es": "No se encontró la facturación recurrente.",
+    "en": "The recurring invoice was not found.",
+    "pt": "O faturamento recorrente não foi encontrado."
+  },
+  "invoices.recurring.quantity_positive": {
+    "es": "Las cantidades deben ser mayores que cero.",
+    "en": "Quantities must be greater than zero.",
+    "pt": "As quantidades devem ser maiores que zero."
+  },
+  "invoices.recurring.start_date_invalid": {
+    "es": "La fecha de inicio no es válida.",
+    "en": "The start date is not valid.",
+    "pt": "A data inicial não é válida."
+  },
+  "invoices.recurring_ui.title": {
+    "es": "Facturación recurrente",
+    "en": "Recurring invoices",
+    "pt": "Faturamento recorrente"
+  },
+  "invoices.recurring_ui.subtitle": {
+    "es": "Igualas, alquileres y servicios que se facturan solos en su fecha.",
+    "en": "Retainers, rents and services that bill themselves on their date.",
+    "pt": "Mensalidades, aluguéis e serviços faturados sozinhos na data."
+  },
+  "invoices.recurring_ui.new": {
+    "es": "Nueva facturación recurrente",
+    "en": "New recurring invoice",
+    "pt": "Novo faturamento recorrente"
+  },
+  "invoices.recurring_ui.edit": {
+    "es": "Editar facturación recurrente",
+    "en": "Edit recurring invoice",
+    "pt": "Editar faturamento recorrente"
+  },
+  "invoices.recurring_ui.empty_title": {
+    "es": "No hay facturación recurrente",
+    "en": "No recurring invoices",
+    "pt": "Nenhum faturamento recorrente"
+  },
+  "invoices.recurring_ui.empty_help": {
+    "es": "Crea una para las igualas o servicios que cobras cada mes.",
+    "en": "Create one for the retainers or services you bill every month.",
+    "pt": "Crie um para as mensalidades ou serviços cobrados todo mês."
+  },
+  "invoices.recurring_ui.name": {
+    "es": "Nombre",
+    "en": "Name",
+    "pt": "Nome"
+  },
+  "invoices.recurring_ui.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "invoices.recurring_ui.frequency": {
+    "es": "Frecuencia",
+    "en": "Frequency",
+    "pt": "Frequência"
+  },
+  "invoices.recurring_ui.frequencies.monthly": {
+    "es": "Mensual",
+    "en": "Monthly",
+    "pt": "Mensal"
+  },
+  "invoices.recurring_ui.frequencies.bimonthly": {
+    "es": "Bimestral",
+    "en": "Every two months",
+    "pt": "Bimestral"
+  },
+  "invoices.recurring_ui.frequencies.quarterly": {
+    "es": "Trimestral",
+    "en": "Quarterly",
+    "pt": "Trimestral"
+  },
+  "invoices.recurring_ui.frequencies.semiannual": {
+    "es": "Semestral",
+    "en": "Every six months",
+    "pt": "Semestral"
+  },
+  "invoices.recurring_ui.frequencies.annual": {
+    "es": "Anual",
+    "en": "Annual",
+    "pt": "Anual"
+  },
+  "invoices.recurring_ui.status.active": {
+    "es": "Activa",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "invoices.recurring_ui.status.paused": {
+    "es": "En pausa",
+    "en": "Paused",
+    "pt": "Pausado"
+  },
+  "invoices.recurring_ui.status.ended": {
+    "es": "Terminada",
+    "en": "Ended",
+    "pt": "Encerrado"
+  },
+  "invoices.recurring_ui.next_run": {
+    "es": "Próxima emisión",
+    "en": "Next issue",
+    "pt": "Próxima emissão"
+  },
+  "invoices.recurring_ui.issued": {
+    "es": "Emitidas",
+    "en": "Issued",
+    "pt": "Emitidas"
+  },
+  "invoices.recurring_ui.state": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
+  },
+  "invoices.recurring_ui.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "invoices.recurring_ui.last_error": {
+    "es": "Última emisión fallida",
+    "en": "Last issue failed",
+    "pt": "Última emissão falhou"
+  },
+  "invoices.recurring_ui.run": {
+    "es": "Emitir ahora",
+    "en": "Issue now",
+    "pt": "Emitir agora"
+  },
+  "invoices.recurring_ui.pause": {
+    "es": "Pausar",
+    "en": "Pause",
+    "pt": "Pausar"
+  },
+  "invoices.recurring_ui.resume": {
+    "es": "Reanudar",
+    "en": "Resume",
+    "pt": "Retomar"
+  },
+  "invoices.recurring_ui.end": {
+    "es": "Terminar",
+    "en": "End",
+    "pt": "Encerrar"
+  },
+  "invoices.recurring_ui.run_title": {
+    "es": "Emitir ahora",
+    "en": "Issue now",
+    "pt": "Emitir agora"
+  },
+  "invoices.recurring_ui.run_message": {
+    "es": "Se emitirá ya la próxima factura de «{{name}}».",
+    "en": "The next invoice of «{{name}}» will be issued now.",
+    "pt": "A próxima fatura de «{{name}}» será emitida agora."
+  },
+  "invoices.recurring_ui.end_title": {
+    "es": "Terminar",
+    "en": "End",
+    "pt": "Encerrar"
+  },
+  "invoices.recurring_ui.end_message": {
+    "es": "«{{name}}» dejará de facturarse. No se puede reactivar.",
+    "en": "«{{name}}» will stop being invoiced. It cannot be reactivated.",
+    "pt": "«{{name}}» deixará de ser faturado. Não pode ser reativado."
+  },
+  "invoices.recurring_ui.run_done": {
+    "es": "Factura emitida.",
+    "en": "Invoice issued.",
+    "pt": "Fatura emitida."
+  },
+  "invoices.recurring_ui.pause_done": {
+    "es": "En pausa.",
+    "en": "Paused.",
+    "pt": "Pausado."
+  },
+  "invoices.recurring_ui.resume_done": {
+    "es": "Reanudada.",
+    "en": "Resumed.",
+    "pt": "Retomado."
+  },
+  "invoices.recurring_ui.end_done": {
+    "es": "Terminada.",
+    "en": "Ended.",
+    "pt": "Encerrado."
+  },
+  "invoices.recurring_ui.action_failed": {
+    "es": "No se pudo completar la acción.",
+    "en": "The action could not be completed.",
+    "pt": "Não foi possível concluir a ação."
+  },
+  "invoices.recurring_ui.load_failed": {
+    "es": "No se pudo cargar la facturación recurrente.",
+    "en": "Recurring invoices could not be loaded.",
+    "pt": "Não foi possível carregar o faturamento recorrente."
+  },
+  "invoices.recurring_ui.start_date": {
+    "es": "Primera emisión",
+    "en": "First issue",
+    "pt": "Primeira emissão"
+  },
+  "invoices.recurring_ui.end_date": {
+    "es": "Última emisión (opcional)",
+    "en": "Last issue (optional)",
+    "pt": "Última emissão (opcional)"
+  },
+  "invoices.recurring_ui.payment_term_days": {
+    "es": "Días de crédito",
+    "en": "Payment term (days)",
+    "pt": "Prazo (dias)"
+  },
+  "invoices.recurring_ui.auto_issue": {
+    "es": "Emitir automáticamente (si no, queda como borrador)",
+    "en": "Issue automatically (otherwise left as a draft)",
+    "pt": "Emitir automaticamente (senão fica como rascunho)"
+  },
+  "invoices.recurring_ui.product": {
+    "es": "Producto o servicio",
+    "en": "Product or service",
+    "pt": "Produto ou serviço"
+  },
+  "invoices.recurring_ui.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "invoices.recurring_ui.quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "invoices.recurring_ui.unit_price": {
+    "es": "Precio",
+    "en": "Price",
+    "pt": "Preço"
+  },
+  "invoices.recurring_ui.catalogue_price": {
+    "es": "Precio del catálogo",
+    "en": "Catalogue price",
+    "pt": "Preço do catálogo"
+  },
+  "invoices.recurring_ui.remove_line": {
+    "es": "Quitar",
+    "en": "Remove",
+    "pt": "Remover"
+  },
+  "invoices.recurring_ui.add_line": {
+    "es": "Agregar línea",
+    "en": "Add line",
+    "pt": "Adicionar linha"
+  },
+  "invoices.recurring_ui.notes": {
+    "es": "Notas",
+    "en": "Notes",
+    "pt": "Notas"
+  },
+  "invoices.recurring_ui.save": {
+    "es": "Guardar",
+    "en": "Save",
+    "pt": "Salvar"
+  },
+  "invoices.recurring_ui.back": {
+    "es": "Volver",
+    "en": "Back",
+    "pt": "Voltar"
+  },
+  "invoices.recurring_ui.saved": {
+    "es": "Facturación recurrente guardada.",
+    "en": "Recurring invoice saved.",
+    "pt": "Faturamento recorrente salvo."
+  },
+  "invoices.recurring_ui.save_failed": {
+    "es": "No se pudo guardar.",
+    "en": "It could not be saved.",
+    "pt": "Não foi possível salvar."
   }
 }

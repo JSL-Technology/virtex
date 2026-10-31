@@ -1,0 +1,64 @@
+<vx-list-shell
+  titleKey="invoices.recurring_ui.title"
+  subtitleKey="invoices.recurring_ui.subtitle"
+  [count]="rows().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  @if (canEdit()) {
+    <a listActions routerLink="/invoices/recurring/new" class="primary-button">
+      <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+      <span>{{ 'invoices.recurring_ui.new' | translate }}</span>
+    </a>
+  }
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'invoices.recurring_ui.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'invoices.recurring_ui.empty_help' | translate }}</p>
+  </div>
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col">{{ 'invoices.recurring_ui.name' | translate }}</th>
+          <th scope="col">{{ 'invoices.recurring_ui.customer' | translate }}</th>
+          <th scope="col">{{ 'invoices.recurring_ui.frequency' | translate }}</th>
+          <th scope="col">{{ 'invoices.recurring_ui.next_run' | translate }}</th>
+          <th scope="col" class="text-right">{{ 'invoices.recurring_ui.issued' | translate }}</th>
+          <th scope="col" class="text-center">{{ 'invoices.recurring_ui.state' | translate }}</th>
+          <th scope="col"><span class="sr-only">{{ 'invoices.recurring_ui.actions' | translate }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr>
+            <td>
+              <a class="table-link" [routerLink]="['/invoices/recurring', row.id]">{{ row.name }}</a>
+              @if (row.lastError) {
+                <div class="danger" role="note">{{ 'invoices.recurring_ui.last_error' | translate }}: {{ row.lastError | translate }}</div>
+              }
+            </td>
+            <td>{{ row.customer?.companyName }}</td>
+            <td>{{ 'invoices.recurring_ui.frequencies.' + row.frequency.toLowerCase() | translate }}</td>
+            <td>{{ row.nextRunDate ? (row.nextRunDate | vxDate: 'date' : true) : '—' }}</td>
+            <td class="text-right">{{ row.runCount }}</td>
+            <td class="text-center"><vx-badge [tone]="tone[row.status]">{{ 'invoices.recurring_ui.status.' + row.status.toLowerCase() | translate }}</vx-badge></td>
+            <td class="text-right">
+              @if (canEdit() && row.status === 'ACTIVE') {
+                <button type="button" class="btn btn-ghost btn-sm" [disabled]="busy() === row.id" (click)="act(row, 'run')">{{ 'invoices.recurring_ui.run' | translate }}</button>
+                <button type="button" class="btn btn-ghost btn-sm" [disabled]="busy() === row.id" (click)="act(row, 'pause')">{{ 'invoices.recurring_ui.pause' | translate }}</button>
+              }
+              @if (canEdit() && row.status === 'PAUSED') {
+                <button type="button" class="btn btn-ghost btn-sm" [disabled]="busy() === row.id" (click)="act(row, 'resume')">{{ 'invoices.recurring_ui.resume' | translate }}</button>
+              }
+              @if (canEdit() && row.status !== 'ENDED') {
+                <button type="button" class="btn btn-ghost btn-sm" [disabled]="busy() === row.id" (click)="act(row, 'end')">{{ 'invoices.recurring_ui.end' | translate }}</button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

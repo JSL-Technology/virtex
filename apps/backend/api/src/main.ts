@@ -190,6 +190,15 @@ async function bootstrap() {
      attachFieldsToBody: true,
   });
 
+  // The DGII and other issuers' e-CF services may send a document as a raw XML body instead of a
+  // multipart file. Kept as the bytes received: the signature is verified over them.
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .addContentTypeParser(['application/xml', 'text/xml'], { parseAs: 'string', bodyLimit: 2 * 1024 * 1024 }, (_req, body, done) =>
+      done(null, body),
+    );
+
   // H-01 FIX: corsOrigins already declared at top of bootstrap — reuse it here (CWE-703)
   app.enableCors({
     origin: [...corsOrigins],

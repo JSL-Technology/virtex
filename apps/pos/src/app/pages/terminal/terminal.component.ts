@@ -25,6 +25,7 @@ import {
   Store,
 } from 'lucide-angular';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth.service';
 import { ConnectivityService } from '../../core/connectivity.service';
@@ -79,6 +80,7 @@ type Dialog =
   styleUrl: './terminal.component.scss',
 })
 export class TerminalComponent {
+  private readonly translate = inject(TranslateService);
   protected readonly till = inject(TillStore);
   protected readonly auth = inject(AuthService);
   protected readonly connectivity = inject(ConnectivityService);
@@ -146,6 +148,17 @@ export class TerminalComponent {
   protected saleCompleted(sale: PosSale): void {
     this.dialog.set('receipt');
     if (this.config.autoPrint()) void this.documents.printReceipt(sale);
+  }
+
+  /**
+   * Drop a sale the server refused. It was never recorded there, so its stock never moved and its
+   * money is in the drawer with no sale behind it: the cashier is asked to confirm, and the drawer's
+   * variance at close will show it unless the sale is rung again.
+   */
+  protected discardQueued(key: string): void {
+    if (window.confirm(this.translate.instant('pos.offline.discard_confirm'))) {
+      this.till.outbox.discard(key);
+    }
   }
 
   protected newSale(): void {

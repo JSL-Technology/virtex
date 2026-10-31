@@ -59,6 +59,18 @@
         />
         {{ (connectivity.online() ? 'pos.online' : 'pos.offline') | translate }}
       </span>
+      @if (till.outbox.pending().length) {
+        <button
+          type="button"
+          class="chip chip--offline"
+          role="status"
+          (click)="till.outbox.sync()"
+          [disabled]="till.outbox.syncing() || !connectivity.online()"
+          data-testid="pos-outbox-pending"
+        >
+          {{ 'pos.offline.pending' | translate: { count: till.outbox.pending().length } }}
+        </button>
+      }
     </div>
 
     <nav class="actions" [attr.aria-label]="'pos.actions' | translate">
@@ -148,6 +160,27 @@
       </button>
     </nav>
   </header>
+  @if (till.outbox.failed().length) {
+    <section class="outbox-failed" role="alert" data-testid="pos-outbox-failed">
+      <p>{{ 'pos.offline.failed_title' | translate: { count: till.outbox.failed().length } }}</p>
+      <ul>
+        @for (entry of till.outbox.failed(); track entry.key) {
+          <li>
+            <span class="num">{{ entry.payload.total | vxMoney: till.currency() }}</span>
+            · {{ entry.payload.capturedAt ?? entry.queuedAt | vxDate: 'dateTime' }}
+            · {{ entry.failedKey ?? 'pos.sale_error' | translate }}
+            <button type="button" class="btn btn-ghost btn-sm" (click)="till.outbox.retry(entry.key)">
+              {{ 'pos.offline.retry' | translate }}
+            </button>
+            <button type="button" class="btn btn-ghost btn-sm" (click)="discardQueued(entry.key)">
+              {{ 'pos.offline.discard' | translate }}
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
 
   <main class="body">
     <pos-catalog-panel class="catalog" />

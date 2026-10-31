@@ -348,5 +348,120 @@
     "es": "Año",
     "en": "Year",
     "pt": "Ano"
+  },
+  "fiscal_returns.declarations.box.it1_sales_total": {
+    "es": "Total de operaciones del período",
+    "en": "Total operations for the period",
+    "pt": "Total de operações do período"
+  },
+  "fiscal_returns.declarations.box.it1_sales_exports": {
+    "es": "Exportaciones",
+    "en": "Exports",
+    "pt": "Exportações"
+  },
+  "fiscal_returns.declarations.box.it1_sales_exempt": {
+    "es": "Operaciones exentas",
+    "en": "Exempt operations",
+    "pt": "Operações isentas"
+  },
+  "fiscal_returns.declarations.box.it1_sales_taxed": {
+    "es": "Operaciones gravadas",
+    "en": "Taxed operations",
+    "pt": "Operações tributadas"
+  },
+  "fiscal_returns.declarations.box.it1_tax_charged": {
+    "es": "ITBIS facturado (cobrado)",
+    "en": "ITBIS charged",
+    "pt": "ITBIS faturado"
+  },
+  "fiscal_returns.declarations.box.it1_purchases_tax_paid": {
+    "es": "ITBIS pagado en compras",
+    "en": "ITBIS paid on purchases",
+    "pt": "ITBIS pago nas compras"
+  },
+  "fiscal_returns.declarations.box.it1_purchases_tax_to_cost": {
+    "es": "ITBIS llevado al costo",
+    "en": "ITBIS taken to cost",
+    "pt": "ITBIS levado ao custo"
+  },
+  "fiscal_returns.declarations.box.it1_purchases_tax_proportional": {
+    "es": "ITBIS sujeto a proporcionalidad",
+    "en": "ITBIS subject to proportionality",
+    "pt": "ITBIS sujeito a proporcionalidade"
+  },
+  "fiscal_returns.declarations.box.it1_purchases_tax_proportional_deductible": {
+    "es": "ITBIS proporcional deducible",
+    "en": "Deductible proportional ITBIS",
+    "pt": "ITBIS proporcional dedutível"
+  },
+  "fiscal_returns.declarations.box.it1_purchases_tax_deductible": {
+    "es": "ITBIS adelantado deducible",
+    "en": "Deductible input ITBIS",
+    "pt": "ITBIS antecipado dedutível"
+  },
+  "fiscal_returns.declarations.box.it1_credits_withheld_by_customers": {
+    "es": "ITBIS retenido por terceros",
+    "en": "ITBIS withheld by customers",
+    "pt": "ITBIS retido por terceiros"
+  },
+  "fiscal_returns.declarations.box.it1_credits_prior_balance": {
+    "es": "Saldo a favor anterior",
+    "en": "Prior credit balance",
+    "pt": "Saldo credor anterior"
+  },
+  "fiscal_returns.declarations.box.it1_result_payable": {
+    "es": "ITBIS a pagar",
+    "en": "ITBIS payable",
+    "pt": "ITBIS a pagar"
+  },
+  "fiscal_returns.declarations.box.it1_result_credit_forward": {
+    "es": "Saldo a favor para el próximo período",
+    "en": "Credit carried forward",
+    "pt": "Saldo credor para o próximo período"
+  },
+  "fiscal_returns.declarations.title": {
+    "es": "Declaraciones mensuales (IT-1, IR-17, IR-3)",
+    "en": "Monthly returns (IT-1, IR-17, IR-3)",
+    "pt": "Declarações mensais (IT-1, IR-17, IR-3)"
+  },
+  "fiscal_returns.declarations.hint": {
+    "es": "Calculadas desde los mismos comprobantes del 606/607 y de la nómina, casilla por casilla, para transcribirlas en la Oficina Virtual de la DGII. Vencen el día 20 (IT-1) y el 10 (IR-17, IR-3) del mes siguiente.",
+    "en": "Worked out from the same documents as the 606/607 and payroll, box by box, to transcribe into the DGII Oficina Virtual. Due on the 20th (IT-1) and the 10th (IR-17, IR-3) of the following month.",
+    "pt": "Calculadas a partir dos mesmos documentos do 606/607 e da folha, campo a campo, para transcrever na Oficina Virtual da DGII. Vencem no dia 20 (IT-1) e 10 (IR-17, IR-3) do mês seguinte."
+  },
+  "fiscal_returns.declarations.prior_credit": {
+    "es": "Saldo a favor anterior",
+    "en": "Prior credit balance",
+    "pt": "Saldo credor anterior"
+  },
+  "fiscal_returns.declarations.compute_it1": {
+    "es": "Calcular IT-1",
+    "en": "Compute IT-1",
+    "pt": "Calcular IT-1"
+  },
+  "fiscal_returns.declarations.download_it1": {
+    "es": "IT-1 (CSV)",
+    "en": "IT-1 (CSV)",
+    "pt": "IT-1 (CSV)"
+  },
+  "fiscal_returns.declarations.download_ir17": {
+    "es": "IR-17 (CSV)",
+    "en": "IR-17 (CSV)",
+    "pt": "IR-17 (CSV)"
+  },
+  "fiscal_returns.declarations.download_ir3": {
+    "es": "IR-3 (CSV)",
+    "en": "IR-3 (CSV)",
+    "pt": "IR-3 (CSV)"
+  },
+  "fiscal_returns.declarations.proportionality": {
+    "es": "Factor de proporcionalidad",
+    "en": "Proportionality factor",
+    "pt": "Fator de proporcionalidade"
+  },
+  "fiscal_returns.declarations.error": {
+    "es": "No se pudo calcular la declaración.",
+    "en": "The return could not be computed.",
+    "pt": "Não foi possível calcular a declaração."
   }
 }

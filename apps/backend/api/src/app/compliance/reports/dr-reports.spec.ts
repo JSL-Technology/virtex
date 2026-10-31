@@ -258,15 +258,24 @@ describe('DGII periodic reports', () => {
   });
 
   describe('608 — comprobantes anulados', () => {
-    it('reports an annulled comprobante with its annulment code', async () => {
-      const body = await DominicanRepublicReports.generate608Report(
-        'org-1', 2026, 8,
-        repositoryOf([invoice({ status: InvoiceStatus.VOID, voidReason: 'Duplicado por error' })]),
+    it('reports each number of a range declared unused, with its annulment code', () => {
+      const body = DominicanRepublicReports.generate608Report(
+        2026, 8,
+        DominicanRepublicReports.expandRange('31', 41, 42).map((ncf) => ({ ncf, date: '2026-08-15', code: '08' })),
         organization,
       );
-      const [header, row] = body.split('\n');
-      expect(header).toBe('608|131190317|202608|1');
-      expect(row).toBe('E310000000001|20260815|03');
+      const [header, ...rows] = body.split('\n');
+      expect(header).toBe('608|131190317|202608|2');
+      expect(rows).toEqual(['E310000000041|20260815|08', 'E310000000042|20260815|08']);
+    });
+
+    it('a comprobante cancelled by a credit note is not an annulled number: it stays in the 607', async () => {
+      const body = await DominicanRepublicReports.generate607Report(
+        'org-1', 2026, 8,
+        repositoryOf([invoice({ status: InvoiceStatus.VOID, voidReason: 'Anulada por nota de crédito total' })]),
+        organization,
+      );
+      expect(body.split('\n')[0]).toBe('607|131190317|202608|1|1000.00');
     });
   });
 

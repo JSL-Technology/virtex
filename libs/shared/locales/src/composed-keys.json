@@ -1669,6 +1669,62 @@
       "users_edit",
       "users_view",
       "workflows_manage"
+    ],
+    "pos.ticket.document_type": [
+      "E31",
+      "E32",
+      "E33",
+      "E34",
+      "E44",
+      "E45",
+      "B01",
+      "B02",
+      "B04"
+    ],
+    "received_ecf.status": [
+      "RECEIVED",
+      "APPROVED",
+      "REJECTED"
+    ],
+    "fiscal_returns.declarations.box": [
+      "it1_sales_total",
+      "it1_sales_exports",
+      "it1_sales_exempt",
+      "it1_sales_taxed",
+      "it1_tax_charged",
+      "it1_purchases_tax_paid",
+      "it1_purchases_tax_to_cost",
+      "it1_purchases_tax_proportional",
+      "it1_purchases_tax_proportional_deductible",
+      "it1_purchases_tax_deductible",
+      "it1_credits_withheld_by_customers",
+      "it1_credits_prior_balance",
+      "it1_result_payable",
+      "it1_result_credit_forward"
+    ],
+    "sales.orders.status": [
+      "CONFIRMED",
+      "PARTIALLY_DELIVERED",
+      "DELIVERED",
+      "CLOSED",
+      "CANCELLED"
+    ],
+    "sales.orders.delivery_status": [
+      "POSTED",
+      "INVOICED",
+      "VOIDED"
+    ],
+    "invoices.recurring_ui.frequencies": [
+      "MONTHLY",
+      "BIMONTHLY",
+      "QUARTERLY",
+      "SEMIANNUAL",
+      "ANNUAL"
+    ],
+    "invoices.recurring_ui.status": [
+      "ACTIVE",
+      "PAUSED",
+      "ENDED"
     ]
   },
   "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",

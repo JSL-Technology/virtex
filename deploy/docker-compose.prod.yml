@@ -1,0 +1,151 @@
+# Virteex in production on one host (a VPS or a dedicated server), behind its own HTTPS.
+#
+#   cp deploy/.env.production.example deploy/.env.production   # fill it in
+#   docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env.production up -d --build
+#
+# Services:
+#   web       Caddy: TLS (Let's Encrypt), the ERP at /, the POS at /pos/, the API proxied at /api/.
+#   api       NestJS API. Two replicas by default; the cron jobs coordinate through
+#             `scheduled_job_runs`, so no renewal is charged twice and no e-CF sent twice.
+#   migrate   One-shot: runs the migrations before the API starts, from the same image.
+#   postgres  PostgreSQL 16 + pgvector, data on a named volume.
+#   redis     Sessions, rate limits, queues. AOF persistence.
+#   backup    Nightly pg_dump with retention, optional off-site copy (S3-compatible), and a
+#             weekly restore test into a scratch database. See deploy/backup/README.md.
+#
+# For a managed database (RDS, Cloud SQL, DigitalOcean), drop `postgres`, point DB_HOST at it, and
+# keep `backup` — a provider snapshot is not a restore you have tested.
+
+name: virteex
+
+x-api-env: &api-env
+  env_file: .env.production
+  environment:
+    NODE_ENV: production
+    DB_HOST: ${DB_HOST:-postgres}
+    REDIS_HOST: ${REDIS_HOST:-redis}
+    TRUST_PROXY: '1'
+    STORAGE_DRIVER: ${STORAGE_DRIVER:-local}
+    PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    shm_size: 256mb
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes', '--requirepass', '${REDIS_PASSWORD}']
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli -a "$${REDIS_PASSWORD}" ping | grep PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+  migrate:
+    <<: *api-env
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: api
+      args:
+        API_URL: https://${DOMAIN}/api/v1
+        RECAPTCHA_V3_SITE_KEY: ${RECAPTCHA_V3_SITE_KEY}
+        VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+    image: ${IMAGE_PREFIX:-virteex}/api:${IMAGE_TAG:-latest}
+    command: ['npm', 'run', 'migration:run']
+    restart: 'no'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    <<: *api-env
+    image: ${IMAGE_PREFIX:-virteex}/api:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    deploy:
+      replicas: ${API_REPLICAS:-2}
+    volumes:
+      - uploads:/app/uploads
+      # Azul's client certificate and key, and anything else mounted as a secret file.
+      - ./secrets:/run/secrets:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: web
+      args:
+        API_URL: https://${DOMAIN}/api/v1
+        RECAPTCHA_V3_SITE_KEY: ${RECAPTCHA_V3_SITE_KEY}
+        VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+    image: ${IMAGE_PREFIX:-virteex}/web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+      API_UPSTREAM: api:3000
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on:
+      - api
+
+  backup:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    entrypoint: ['/bin/bash', '/backup/run.sh']
+    environment:
+      PGHOST: ${DB_HOST:-postgres}
+      PGUSER: ${DB_USERNAME}
+      PGPASSWORD: ${DB_PASSWORD}
+      PGDATABASE: ${DB_NAME}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-35}
+      BACKUP_HOUR_UTC: ${BACKUP_HOUR_UTC:-7}
+      BACKUP_S3_URI: ${BACKUP_S3_URI:-}
+      AWS_ACCESS_KEY_ID: ${BACKUP_AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${BACKUP_AWS_SECRET_ACCESS_KEY:-}
+      AWS_DEFAULT_REGION: ${BACKUP_AWS_REGION:-us-east-1}
+      AWS_ENDPOINT_URL: ${BACKUP_S3_ENDPOINT:-}
+      BACKUP_ENCRYPTION_PASSPHRASE: ${BACKUP_ENCRYPTION_PASSPHRASE:-}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+    volumes:
+      - ./backup:/backup:ro
+      - backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:
+  backups:
+  caddydata:
+  caddyconfig:

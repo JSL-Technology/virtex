@@ -134,4 +134,58 @@ describe('receipt', () => {
     expect(x).toContain('pos.report.x_title');
     expect(x).not.toContain('pos.report.variance');
   });
+
+  describe('the comprobante', () => {
+    const fiscal = {
+      status: {
+        saleId: 's',
+        fiscal: true,
+        invoiceId: 'i',
+        invoiceNumber: 'FAC-1',
+        fiscalNumber: 'E310000000007',
+        fiscalDocumentType: 'E31',
+        securityCode: 'A1b2C3',
+        qrUrl: 'https://ecf.dgii.gov.do/consultatimbre?x=1',
+        status: 'SIGNED',
+        signedAt: '2026-10-20T14:00:05Z',
+        creditNoteId: null,
+        creditNoteFiscalNumber: null,
+        customer: { name: 'Ferretería <Uno>', taxId: '101000001' },
+      },
+      qrDataUri: 'data:image/png;base64,AAAA',
+    };
+
+    it('prints the document type, e-NCF, buyer, security code, signature date and QR', () => {
+      const html = receiptHtml(sale({ invoiceId: 'i', fiscalNumber: 'E310000000007' }), header, f, fiscal);
+      expect(html).toContain('pos.ticket.document_type.e31');
+      expect(html).toContain('E310000000007');
+      expect(html).toContain('101000001');
+      expect(html).toContain('Ferretería &lt;Uno&gt;');
+      expect(html).toContain('A1b2C3');
+      expect(html).toContain('pos.ticket.signed_at');
+      expect(html).toContain('<img class="qr" src="data:image/png;base64,AAAA"');
+    });
+
+    it('says the security code is pending when the document is not signed yet', () => {
+      const html = receiptHtml(sale({ fiscalNumber: 'E320000000001' }), header, f, {
+        status: { ...fiscal.status, fiscalNumber: 'E320000000001', fiscalDocumentType: 'E32', securityCode: null, qrUrl: null, signedAt: null, customer: { name: null, taxId: null } },
+        qrDataUri: null,
+      });
+      expect(html).toContain('pos.ticket.document_type.e32');
+      expect(html).toContain('pos.ticket.security_code_pending');
+      expect(html).not.toContain('<img');
+    });
+
+    it('marks a sale still waiting in the outbox as provisional, with no e-NCF', () => {
+      const html = receiptHtml(sale({ status: 'PENDING_SYNC' }), header, f, null);
+      expect(html).toContain('pos.ticket.provisional');
+      expect(html).not.toContain('pos.ticket.encf');
+    });
+
+    it('prints no fiscal block where the company issues no document per sale', () => {
+      const html = receiptHtml(sale(), header, f, null);
+      expect(html).not.toContain('pos.ticket.encf');
+      expect(html).not.toContain('pos.ticket.provisional');
+    });
+  });
 });

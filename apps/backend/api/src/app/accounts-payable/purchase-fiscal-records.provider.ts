@@ -69,6 +69,21 @@ export class PurchaseFiscalRecordsProvider implements PurchaseFiscalRecordsSourc
       .map(({ document }) => document);
   }
 
+  async withholdingsPaid(query: PurchaseFiscalQuery): Promise<PurchaseFiscalDocument[]> {
+    const bills = await this.bills
+      .createQueryBuilder('bill')
+      .leftJoinAndSelect('bill.vendor', 'vendor')
+      .where('bill.organizationId = :organizationId', { organizationId: query.organizationId })
+      .andWhere('bill.paidAt IS NOT NULL')
+      .andWhere('bill.paidAt::date BETWEEN :fromDate AND :toDate', { fromDate: query.from, toDate: query.to })
+      .andWhere('bill.status NOT IN (:...excluded)', { excluded: NOT_ISSUED })
+      .andWhere('(COALESCE(bill.incomeTaxWithheld, 0) > 0 OR COALESCE(bill.taxWithheld, 0) > 0)')
+      .orderBy('bill.paidAt', 'ASC')
+      .addOrderBy('bill.id', 'ASC')
+      .getMany();
+    return bills.map(fromBill);
+  }
+
   async foreignPurchases(query: PurchaseFiscalQuery, homeCountry: string): Promise<PurchaseFiscalDocument[]> {
     const bills = await this.bills
       .createQueryBuilder('bill')

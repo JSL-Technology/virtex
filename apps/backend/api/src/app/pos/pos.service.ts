@@ -30,6 +30,12 @@ import {
   NotFoundError,
 } from '../i18n/localized.exception';
 import { applyBranchScope, loadBranchScope, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
+import { InvoicesService } from '../invoices/invoices.service';
+import { Invoice } from '../invoices/entities/invoice.entity';
+import { PosFiscalService, PosFiscalStatus } from './pos-fiscal.service';
+
+/** How old a sale captured offline may be when it reaches the server. */
+const MAX_OFFLINE_AGE_MS = 72 * 60 * 60 * 1000;
 
 /** Payment methods that put money in the drawer. A sale that names none is a cash sale. */
 const CASH_METHODS = new Set(['cash', 'efectivo', 'dinheiro']);
@@ -41,13 +47,24 @@ type TenderMethod = (typeof TENDER_METHODS)[number];
 /** What a till needs to know about the company it sells for, before the first sale. */
 export interface PosContext {
   /** Printed on the ticket's header. */
-  organization: { legalName: string | null; taxId: string | null; country: string | null };
+  organization: {
+    legalName: string | null;
+    taxId: string | null;
+    country: string | null;
+    address?: string | null;
+    city?: string | null;
+  };
   /** ISO 4217 — every amount the till shows is in it. */
   currency: string;
   /** The rate a taxed product with no rate of its own is charged at, as a fraction. */
   standardTaxRate: number;
   /** True where the market has no national rate and the tenant must configure one (US, Brazil). */
   taxRequiresConfiguration: boolean;
+  /**
+   * Whether each sale is issued as a fiscal document (e-CF in the Dominican Republic). The till
+   * then asks for the buyer's RNC or cédula and prints the e-NCF, security code and QR.
+   */
+  issuesFiscalDocuments: boolean;
 }
 
 /**
@@ -107,6 +124,8 @@ export class PosService {
     @InjectRepository(PosSale) private readonly sales: Repository<PosSale>,
     private readonly inventory: InventoryService,
     private readonly dataSource: DataSource,
+    private readonly fiscal: PosFiscalService,
+    private readonly invoices: InvoicesService,
   ) {}
 
   getActiveShift(organizationId: string, terminalId: string): Promise<PosShift | null> {
@@ -205,7 +224,9 @@ export class PosService {
     cashier: AuthenticatedUser,
     dto: ProcessSaleDto,
   ): Promise<PosSale> {
-    return this.dataSource.transaction(async (manager) => {
+    const capturedAt = PosService.capturedAt(dto.capturedAt);
+    let document: Invoice | null = null;
+    const result = await this.dataSource.transaction(async (manager) => {
       const shift = await this.lockShift(manager, organizationId, {
         terminalId: dto.terminalId,
         status: PosShiftStatus.OPEN,
@@ -289,7 +310,22 @@ export class PosService {
         amountTendered: tender.amountTendered,
         changeDue: tender.changeDue,
         status: PosSaleStatus.PAID,
+        capturedAt,
+        receiptIds: [],
       });
+      const cashKeptForReceipt = tender.payments.length ? tender.cashKept : total;
+      // The comprobante, its ledger entry and the receipts that settle it, in this transaction:
+      // in the Dominican Republic a till sale without its fiscal document is not a sale.
+      if (await this.fiscal.issuesFiscalDocuments(organizationId, manager)) {
+        document = await this.fiscal.issue(
+          manager,
+          organizationId,
+          cashier,
+          sale,
+          { taxId: dto.customerTaxId, name: dto.customerName },
+          cashKeptForReceipt,
+        );
+      }
       const saved = await manager.save(PosSale, sale);
 
       shift.salesTotal = sumAmounts([Number(shift.salesTotal), total]);
@@ -309,6 +345,31 @@ export class PosService {
       this.logger.log(`POS sale ${saved.id} on terminal ${dto.terminalId} (${total})`);
       return saved;
     });
+    // After the commit: the DGII is told without holding the counter. If this never runs, the
+    // e-CF reconciler sends the PENDING submission that committed with the sale.
+    if (document) this.invoices.dispatchIssued(document);
+    return result;
+  }
+
+  /** The sale's fiscal document as the ticket prints it: e-NCF, security code, QR. */
+  async fiscalStatus(organizationId: string, saleId: string): Promise<PosFiscalStatus> {
+    const sale = await this.getSale(organizationId, saleId);
+    return this.fiscal.status(this.dataSource.manager, organizationId, sale);
+  }
+
+  /**
+   * When an offline-captured sale was rung. A timestamp from the future, or older than the window a
+   * till may reasonably stay offline, is refused: it would date a fiscal document arbitrarily.
+   */
+  static capturedAt(raw: string | undefined, now: Date = new Date()): Date | null {
+    if (!raw) return null;
+    const at = new Date(raw);
+    if (Number.isNaN(at.getTime())) throw new BadRequestError('pos.captured_at_invalid');
+    // Five minutes of clock skew between the till and the server is not a sale from the future.
+    if (at.getTime() > now.getTime() + 5 * 60 * 1000) throw new BadRequestError('pos.captured_at_invalid');
+    if (now.getTime() - at.getTime() > MAX_OFFLINE_AGE_MS) throw new BadRequestError('pos.captured_at_too_old');
+    // Within a minute of now it is simply a sale sent at once.
+    return now.getTime() - at.getTime() < 60 * 1000 ? null : at;
   }
 
   /** The till's catalogue, priced and taxed as the server will charge it. */
@@ -319,10 +380,11 @@ export class PosService {
   /** Currency, standard rate and the company's fiscal identity, for the till and its tickets. */
   async context(organizationId: string): Promise<PosContext> {
     const manager = this.dataSource.manager;
-    const [identity, currency, standardTaxRate] = await Promise.all([
+    const [identity, currency, standardTaxRate, issuesFiscalDocuments] = await Promise.all([
       organizationFiscalIdentity(manager, organizationId),
       organizationBaseCurrency(manager, organizationId),
       standardSalesTaxRate(manager, organizationId),
+      this.fiscal.issuesFiscalDocuments(organizationId, manager),
     ]);
     const country = identity?.country ?? null;
     return {
@@ -330,10 +392,13 @@ export class PosService {
         legalName: identity?.legalName ?? null,
         taxId: identity?.taxId ?? null,
         country,
+        address: identity?.address ?? null,
+        city: identity?.city ?? null,
       },
       currency,
       standardTaxRate,
       taxRequiresConfiguration: country ? findTaxScheme(country)?.configurationRequired ?? true : true,
+      issuesFiscalDocuments,
     };
   }
 
@@ -416,7 +481,8 @@ export class PosService {
     dto: VoidSaleDto,
     actor: AuthenticatedUser,
   ): Promise<PosSale> {
-    return this.dataSource.transaction(async (manager) => {
+    let creditNote: Invoice | null = null;
+    const result = await this.dataSource.transaction(async (manager) => {
       const sale = await manager
         .createQueryBuilder(PosSale, 'sale')
         .where('sale.organizationId = :organizationId', { organizationId })
@@ -446,6 +512,9 @@ export class PosService {
       sale.voidedAt = new Date();
       sale.voidedById = actor.id;
       sale.voidReason = dto.reason.trim();
+      // An issued comprobante cannot be deleted: it is cancelled by a credit note (E34), and the
+      // receipts that settled it are voided so the cash leaves the drawer in the books too.
+      creditNote = await this.fiscal.cancel(manager, organizationId, actor, sale, sale.voidReason);
       const saved = await manager.save(PosSale, sale);
 
       const cashKept = PosService.tenderBreakdown(sale).cash ?? 0;
@@ -469,6 +538,8 @@ export class PosService {
       );
       return saved;
     });
+    if (creditNote) this.invoices.dispatchIssued(creditNote);
+    return result;
   }
 
   /**

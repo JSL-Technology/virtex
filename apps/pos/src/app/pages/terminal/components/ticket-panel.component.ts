@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import {
   LucideAngularModule,
   Minus,
@@ -16,6 +17,7 @@ import {
   PauseCircle,
   PlayCircle,
   UserRound,
+  IdCard,
   Lock,
   Eraser,
 } from 'lucide-angular';
@@ -33,7 +35,7 @@ import { TillStore } from '../../../state/till.store';
 @Component({
   selector: 'pos-ticket-panel',
   standalone: true,
-  imports: [FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [FormsModule, ...VX_FORM_A11Y, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="head">
@@ -78,6 +80,25 @@ import { TillStore } from '../../../state/till.store';
         data-testid="pos-customer"
       />
     </label>
+    @if (till.fiscal()) {
+      <label class="customer">
+        <lucide-icon [img]="TaxIdIcon" size="16" aria-hidden="true" />
+        <span class="sr-only">{{ 'pos.buyer_tax_id' | translate }}</span>
+        <input
+          type="text"
+          inputmode="numeric"
+          maxlength="13"
+          autocomplete="off"
+          [placeholder]="'pos.buyer_tax_id_placeholder' | translate"
+          [ngModel]="till.customerTaxId()"
+          (ngModelChange)="till.customerTaxId.set($event)"
+          data-testid="pos-customer-tax-id"
+        />
+        <span class="doc-kind">{{
+          (till.customerTaxId().replace(nonDigits, '') ? 'pos.document_kind.credit' : 'pos.document_kind.consumer') | translate
+        }}</span>
+      </label>
+    }
 
     <div
       class="lines"
@@ -373,6 +394,10 @@ import { TillStore } from '../../../state/till.store';
       .customer input:focus-visible {
         box-shadow: none;
       }
+      .doc-kind {
+        font-size: 0.72rem;
+        white-space: nowrap;
+      }
       .lines {
         flex: 1;
         min-height: 0;
@@ -541,6 +566,8 @@ export class TicketPanelComponent {
   protected readonly ParkIcon = PauseCircle;
   protected readonly RecallIcon = PlayCircle;
   protected readonly UserIcon = UserRound;
+  protected readonly TaxIdIcon = IdCard;
+  protected readonly nonDigits = /\D/g;
   protected readonly LockIcon = Lock;
   protected readonly ClearIcon = Eraser;
 

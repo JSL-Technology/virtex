@@ -11,9 +11,13 @@ import { isDevLikeEnvironment } from '../config/environment';
  *   through the interface at all: the last step answered with a generic error because the plan had
  *   no Stripe price.
  */
-export type PaymentProvider = 'stripe' | 'simulated';
+export type PaymentProvider = 'stripe' | 'simulated' | 'azul';
 
-export const PAYMENT_PROVIDERS: readonly PaymentProvider[] = ['stripe', 'simulated'];
+/**
+ * - `azul`: Azul, the Dominican acquirer (Banco Popular). For a platform company established in the
+ *   Dominican Republic, which Stripe does not take as a merchant, charging customers in pesos.
+ */
+export const PAYMENT_PROVIDERS: readonly PaymentProvider[] = ['stripe', 'simulated', 'azul'];
 
 /**
  * The provider this process uses.
@@ -23,8 +27,9 @@ export const PAYMENT_PROVIDERS: readonly PaymentProvider[] = ['stripe', 'simulat
  * deployment hand out subscriptions without charging for them.
  */
 export function resolvePaymentProvider(config: ConfigService): PaymentProvider {
-  if (!isDevLikeEnvironment()) return 'stripe';
   const configured = config.get<string>('PAYMENT_PROVIDER');
+  if (configured === 'azul') return 'azul';
+  if (!isDevLikeEnvironment()) return 'stripe';
   if (configured === 'stripe' || configured === 'simulated') return configured;
   return config.get<string>('STRIPE_SECRET_KEY') ? 'stripe' : 'simulated';
 }

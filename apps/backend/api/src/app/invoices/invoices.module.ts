@@ -2,6 +2,10 @@ import { InvoicesCopilotTools } from './invoices.copilot-tools';
 import { InvoicesDataTransferProvider, SalesLinesDataTransferProvider } from './invoices-data-transfer.provider';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PlatformBillingListener } from './platform-billing.listener';
+import { RecurringInvoicesService } from './recurring-invoices.service';
+import { RecurringInvoicesController } from './recurring-invoices.controller';
+import { RecurringInvoice, RecurringInvoiceRun } from './entities/recurring-invoice.entity';
 import { InvoicesService } from './invoices.service';
 import { InvoicesController } from './invoices.controller';
 import { InvoicePostingService } from './services/invoice-posting.service';
@@ -48,6 +52,8 @@ import { MailModule } from '../mail/mail.module';
     TypeOrmModule.forFeature([
       Invoice,
       InvoiceLineItem,
+      RecurringInvoice,
+      RecurringInvoiceRun,
       Organization,
       TenantWithholdingRegime,
     ]),
@@ -65,8 +71,10 @@ import { MailModule } from '../mail/mail.module';
     EinvoicingModule,
     SharedModule,
   ],
-  controllers: [InvoicesController],
+  controllers: [RecurringInvoicesController, InvoicesController],
   providers: [InvoicesCopilotTools, 
+    PlatformBillingListener,
+    RecurringInvoicesService,
     SalesInboxProvider,
     InvoicesDataTransferProvider,
     SalesLinesDataTransferProvider,

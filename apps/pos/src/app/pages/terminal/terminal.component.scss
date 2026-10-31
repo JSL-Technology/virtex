@@ -172,3 +172,13 @@ button.chip:hover {
     display: none;
   }
 }
+
+.outbox-failed {
+  margin: 0 16px;
+  padding: 8px 12px;
+  border: 1px solid var(--pos-danger);
+  border-radius: var(--pos-radius);
+  color: var(--pos-danger);
+  p { margin: 0 0 4px; font-weight: 600; }
+  ul { margin: 0; padding-left: 16px; }
+}

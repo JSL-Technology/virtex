@@ -26,6 +26,7 @@ import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../security/principal';
 import type { HttpResponse as Response } from '../common/http/http.types';
+import { worksheetCsv } from './reports/dr-declarations';
 import { BadRequestError } from '../i18n/localized.exception';
 import { AuditAccessInterceptor } from '../audit/audit-access.interceptor';
 import { AuditAccess } from '../audit/audit-access.decorator';
@@ -106,6 +107,56 @@ export class ComplianceController {
       .header('Content-Type', 'text/plain; charset=utf-8')
       .header('Content-Disposition', `attachment; filename="${fileName}"`)
       .send(body);
+  }
+
+  /**
+   * The Dominican monthly declarations worked out from the books, box by box: `it1` (ITBIS) and
+   * `ir17` (withholdings to third parties). JSON for the screen; `format=csv` for working papers.
+   * The IR-3 (withholdings on salaries) is Payroll's: `GET /payroll/declarations/ir3`.
+   */
+  @Get('declarations/:kind')
+  @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  @AuditAccess({ entity: 'dgii_declaration', action: ActionType.EXPORT, identifiers: ['kind', 'year', 'month'] })
+  async declaration(
+    @Param('kind') kind: string,
+    @Query('year', ParseIntPipe) year: number,
+    @Query('month', ParseIntPipe) month: number,
+    @CurrentUser() user: AuthenticatedUser,
+    @Res() res: Response,
+    @Query('priorCredit') priorCredit?: string,
+    @Query('format') format?: string,
+  ) {
+    this.assertPeriod(year, month);
+    const credit = priorCredit === undefined || priorCredit === '' ? 0 : Number(priorCredit);
+    if (!Number.isFinite(credit) || credit < 0) throw new BadRequestError('compliance.prior_credit_invalid');
+    let rows: Array<[string, string | number]>;
+    let body: unknown;
+    if (kind === 'it1') {
+      const it1 = await this.complianceService.it1(user.organizationId, year, month, credit);
+      body = it1;
+      rows = [['rnc', it1.rnc], ['period', it1.period], ...it1.lines.map((l) => [l.code, l.amount] as [string, number])];
+    } else if (kind === 'ir17') {
+      const ir17 = await this.complianceService.ir17(user.organizationId, year, month);
+      body = ir17;
+      rows = [
+        ['rnc', ir17.rnc],
+        ['period', ir17.period],
+        ...ir17.isr.flatMap((l) => [[`ir17.isr.${l.type}.base`, l.base], [`ir17.isr.${l.type}.withheld`, l.withheld]] as Array<[string, number]>),
+        ['ir17.itbis.base', ir17.itbis.base],
+        ['ir17.itbis.withheld', ir17.itbis.withheld],
+        ['ir17.total', ir17.totalWithheld],
+      ];
+    } else {
+      throw new BadRequestError('compliance.declaration_kind_unknown', { kind });
+    }
+    if (format === 'csv') {
+      const fileName = `DGII_${kind.toUpperCase()}_${year}${String(month).padStart(2, '0')}.csv`;
+      return res
+        .header('Content-Type', 'text/csv; charset=utf-8')
+        .header('Content-Disposition', `attachment; filename="${fileName}"`)
+        .send(worksheetCsv(rows));
+    }
+    return res.header('Content-Type', 'application/json; charset=utf-8').send(body);
   }
 
   /**

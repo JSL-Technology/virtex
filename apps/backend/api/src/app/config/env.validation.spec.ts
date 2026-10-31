@@ -128,6 +128,26 @@ describe('environment validation', () => {
       expect(value.PAYMENT_PROVIDER).toBe('stripe');
     });
 
+    it('accepts Azul in a deployment, without Stripe credentials, once its own are set', () => {
+      const env = productionEnv();
+      for (const key of Object.keys(env)) if (key.startsWith('STRIPE_')) delete env[key];
+      const azul = {
+        ...env,
+        PAYMENT_PROVIDER: 'azul',
+        AZUL_MERCHANT_ID: '39038540035',
+        AZUL_MERCHANT_NAME: 'VIRTEEX',
+        AZUL_AUTH_KEY: 'k',
+        AZUL_AUTH1: 'a1',
+        AZUL_AUTH2: 'a2',
+        AZUL_CERT_PATH: '/run/secrets/azul.crt',
+        AZUL_KEY_PATH: '/run/secrets/azul.key',
+        PUBLIC_API_URL: 'https://app.virteex.do/api/v1',
+      };
+      expect(check(azul).error).toBeUndefined();
+      const { error } = check({ ...azul, AZUL_AUTH_KEY: undefined } as never);
+      expect(error?.message).toContain('AZUL_AUTH_KEY');
+    });
+
     it('refuses to boot a deployment that asks for simulated payments', () => {
       const { error } = check({ ...productionEnv(), PAYMENT_PROVIDER: 'simulated' });
       expect(error?.message).toContain('PAYMENT_PROVIDER=simulated cannot be used outside development/test.');

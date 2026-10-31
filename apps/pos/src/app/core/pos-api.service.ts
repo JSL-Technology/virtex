@@ -28,10 +28,14 @@ export interface PosContext {
     legalName: string | null;
     taxId: string | null;
     country: string | null;
+    address?: string | null;
+    city?: string | null;
   };
   currency: string;
   standardTaxRate: number;
   taxRequiresConfiguration: boolean;
+  /** Each sale is a fiscal document (e-CF in the DR): ask for the RNC, print the e-NCF and QR. */
+  issuesFiscalDocuments?: boolean;
 }
 
 export interface MyBranches {
@@ -89,7 +93,11 @@ export interface ProcessSalePayload {
   tax: number;
   total: number;
   customerName?: string;
+  /** The buyer's RNC or cédula, for a crédito fiscal (E31). */
+  customerTaxId?: string;
   payments: PosPayment[];
+  /** When the till rang it, for a sale captured offline and sent later. */
+  capturedAt?: string;
 }
 
 /** A line as the server priced and stored it. */
@@ -118,10 +126,37 @@ export interface PosSale {
   payments: PosPayment[];
   amountTendered: number | null;
   changeDue: number;
-  status: 'PAID' | 'CANCELLED';
+  /**
+   * `PENDING_SYNC` exists only on the till: a sale captured offline, waiting in the outbox. Its
+   * fiscal document is issued when it reaches the server.
+   */
+  status: 'PAID' | 'CANCELLED' | 'PENDING_SYNC';
   voidedAt?: string | null;
   voidReason?: string | null;
   createdAt: string;
+  invoiceId?: string | null;
+  fiscalNumber?: string | null;
+  fiscalDocumentType?: string | null;
+  customerTaxId?: string | null;
+  creditNoteId?: string | null;
+  capturedAt?: string | null;
+}
+
+/** `GET /pos/sales/:id/fiscal` — what the ticket prints about the sale's comprobante. */
+export interface PosFiscalStatus {
+  saleId: string;
+  fiscal: boolean;
+  invoiceId: string | null;
+  invoiceNumber: string | null;
+  fiscalNumber: string | null;
+  fiscalDocumentType: string | null;
+  securityCode: string | null;
+  qrUrl: string | null;
+  status: string | null;
+  signedAt: string | null;
+  creditNoteId: string | null;
+  creditNoteFiscalNumber: string | null;
+  customer: { name: string | null; taxId: string | null };
 }
 
 /** The X report of an open shift, the Z report of a closed one. */
@@ -210,6 +245,11 @@ export class PosApiService {
     return this.http.post<PosSale>(`${this.api}/sales`, payload, {
       headers: { 'Idempotency-Key': idempotencyKey },
     });
+  }
+
+  /** The sale's fiscal document: e-NCF, security code and timbre QR once signed. */
+  fiscalStatus(saleId: string): Observable<PosFiscalStatus> {
+    return this.http.get<PosFiscalStatus>(`${this.api}/sales/${saleId}/fiscal`);
   }
 
   /** The shift's sales, newest first. */

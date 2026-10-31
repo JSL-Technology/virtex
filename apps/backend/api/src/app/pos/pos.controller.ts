@@ -7,6 +7,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   ParseUUIDPipe,
 } from '@nestjs/common';
@@ -21,6 +22,9 @@ import { CloseShiftDto } from './dto/close-shift.dto';
 import { ProcessSaleDto } from './dto/process-sale.dto';
 import { VoidSaleDto } from './dto/void-sale.dto';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
+import { DataSource } from 'typeorm';
+import { PosFiscalService } from './pos-fiscal.service';
+import { UpdatePosSettingsDto } from './dto/pos-settings.dto';
 
 /**
  * The till's HTTP surface. Everything is tenant-scoped from the authenticated principal — a
@@ -28,7 +32,11 @@ import { Idempotent } from '../shared/idempotency/idempotent.decorator';
  */
 @Controller('pos')
 export class PosController {
-  constructor(private readonly pos: PosService) {}
+  constructor(
+    private readonly pos: PosService,
+    private readonly fiscal: PosFiscalService,
+    private readonly dataSource: DataSource,
+  ) {}
 
   /**
    * The till's catalogue: active products, priced and taxed exactly as a sale will be. Behind
@@ -97,6 +105,32 @@ export class PosController {
     @Query('branchId', new ParseUUIDPipe({ optional: true })) branchId?: string,
   ) {
     return this.pos.listSales(user.organizationId, shiftId || undefined, { branchId, actorUserId: user.id });
+  }
+
+  /**
+   * The sale's fiscal document as the ticket prints it — e-NCF, security code and the timbre QR.
+   * The till polls this after a sale until the document is signed (a second or two).
+   */
+  @Get('sales/:id/fiscal')
+  @HasPermission(PERMISSIONS.POS_VIEW)
+  @BranchScoped(PosSale)
+  fiscalStatus(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.pos.fiscalStatus(user.organizationId, id);
+  }
+
+  /** Which treasury accounts the till's takings land in, and whether each sale is a fiscal document. */
+  @Get('settings')
+  @HasPermission(PERMISSIONS.POS_VIEW)
+  settings(@CurrentUser() user: AuthenticatedUser) {
+    return this.fiscal.settings(user.organizationId);
+  }
+
+  @Put('settings')
+  @HasPermission(PERMISSIONS.POS_MANAGE_SHIFTS)
+  updateSettings(@Body() dto: UpdatePosSettingsDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.dataSource.transaction((manager) =>
+      this.fiscal.updateSettings(user.organizationId, dto, manager),
+    );
   }
 
   @Get('sales/:id')

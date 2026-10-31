@@ -34,7 +34,7 @@ describe('PosService', () => {
     },
   };
 
-  const makeService = (overrides: { activeShift?: any; inventory?: any } = {}) => {
+  const makeService = (overrides: { activeShift?: any; inventory?: any; fiscal?: any } = {}) => {
     const shift = overrides.activeShift ?? null;
     const shiftsRepo: any = {
       findOne: jest.fn().mockResolvedValue(shift),
@@ -58,8 +58,14 @@ describe('PosService', () => {
       query: jest.fn(async () => [{ rate: 18 }]),
     };
     const dataSource: any = { transaction: jest.fn(async (cb) => cb(manager)) };
-    const service = new PosService(shiftsRepo, salesRepo, inventory, dataSource);
-    return { service, shiftsRepo, salesRepo, inventory, manager, lockedQuery };
+    const fiscal: any = overrides.fiscal ?? {
+      issuesFiscalDocuments: jest.fn(async () => false),
+      issue: jest.fn(),
+      cancel: jest.fn(async () => null),
+    };
+    const invoices: any = { dispatchIssued: jest.fn() };
+    const service = new PosService(shiftsRepo, salesRepo, inventory, dataSource, fiscal, invoices);
+    return { service, shiftsRepo, salesRepo, inventory, manager, lockedQuery, fiscal, invoices };
   };
 
   const openShift = (over: Record<string, unknown> = {}) => ({
@@ -230,6 +236,101 @@ describe('PosService', () => {
       service.closeShift('org-1', 's1', { closingBalance: 0 }, cashier),
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
+
+  describe('the fiscal document (DR: every till sale is an e-CF)', () => {
+    const fiscalMock = () => ({
+      issuesFiscalDocuments: jest.fn(async () => true),
+      issue: jest.fn(async (_m: unknown, _o: unknown, _c: unknown, sale: any) => {
+        sale.invoiceId = 'inv-1';
+        sale.fiscalNumber = 'E320000000001';
+        sale.receiptIds = ['rcpt-1'];
+        return { id: 'inv-1', status: 'Paid', fiscalNumber: 'E320000000001' };
+      }),
+      cancel: jest.fn(async (_m: unknown, _o: unknown, _a: unknown, sale: any) => {
+        sale.creditNoteId = 'cn-1';
+        return { id: 'cn-1', fiscalNumber: 'E340000000001' };
+      }),
+    });
+
+    it('issues the document inside the sale and transmits it only after the commit', async () => {
+      const fiscal = fiscalMock();
+      const { service, invoices, dataSource } = makeService({ activeShift: openShift(), fiscal }) as any;
+      const sale = await service.processSale('org-1', cashier, {
+        terminalId: 'main',
+        items: [{ productId: WIDGET, price: 10, quantity: 2 }],
+        subtotal: 20,
+        tax: 3.6,
+        total: 23.6,
+        customerTaxId: '101000001',
+        customerName: 'Ferretería Uno',
+        payments: [{ method: 'cash', amount: 30 }],
+      } as never);
+      expect(fiscal.issue).toHaveBeenCalledTimes(1);
+      const [, , , , buyer, cashKept] = fiscal.issue.mock.calls[0] as unknown[];
+      expect(buyer).toEqual({ taxId: '101000001', name: 'Ferretería Uno' });
+      // The change came out of the drawer: what the receipt settles in cash is what stayed.
+      expect(cashKept).toBe(23.6);
+      expect(sale.fiscalNumber).toBe('E320000000001');
+      expect(invoices.dispatchIssued).toHaveBeenCalledWith(expect.objectContaining({ id: 'inv-1' }));
+      void dataSource;
+    });
+
+    it('does not transmit anything when the sale fails', async () => {
+      const fiscal = fiscalMock();
+      fiscal.issue.mockRejectedValueOnce(new ConflictException('pos.fiscal_total_mismatch'));
+      const { service, invoices } = makeService({ activeShift: openShift(), fiscal });
+      await expect(
+        service.processSale('org-1', cashier, {
+          terminalId: 'main',
+          items: [{ productId: WIDGET, price: 10, quantity: 1 }],
+          subtotal: 10,
+          tax: 1.8,
+          total: 11.8,
+        } as never),
+      ).rejects.toBeInstanceOf(ConflictException);
+      expect(invoices.dispatchIssued).not.toHaveBeenCalled();
+    });
+
+    it('a void cancels the document with a credit note and transmits the note', async () => {
+      const fiscal = fiscalMock();
+      const { service, invoices, lockedQuery } = makeService({ activeShift: openShift(), fiscal }) as any;
+      const stored = {
+        id: 'sale-1',
+        organizationId: 'org-1',
+        shiftId: 's1',
+        status: PosSaleStatus.PAID,
+        total: 11.8,
+        items: [],
+        payments: [{ method: 'cash', amount: 11.8 }],
+        changeDue: 0,
+        invoiceId: 'inv-1',
+        receiptIds: ['rcpt-1'],
+      };
+      lockedQuery.getOne
+        .mockResolvedValueOnce(stored)
+        .mockResolvedValueOnce(openShift({ salesTotal: 11.8, salesCount: 1, cashSalesTotal: 11.8 }));
+      const voided = await service.voidSale('org-1', 'sale-1', { reason: 'Error de digitación' } as never, supervisor);
+      expect(fiscal.cancel).toHaveBeenCalledWith(expect.anything(), 'org-1', supervisor, expect.objectContaining({ id: 'sale-1' }), 'Error de digitación');
+      expect(voided.creditNoteId).toBe('cn-1');
+      expect(invoices.dispatchIssued).toHaveBeenCalledWith(expect.objectContaining({ id: 'cn-1' }));
+    });
+  });
+
+  describe('capturedAt (offline sales)', () => {
+    const now = new Date('2026-10-30T12:00:00Z');
+    it('is null for a sale sent at once', () => {
+      expect(PosService.capturedAt(undefined, now)).toBeNull();
+      expect(PosService.capturedAt('2026-10-30T11:59:30Z', now)).toBeNull();
+    });
+    it('keeps the moment an offline sale was rung', () => {
+      expect(PosService.capturedAt('2026-10-30T08:00:00Z', now)?.toISOString()).toBe('2026-10-30T08:00:00.000Z');
+    });
+    it('refuses a sale from the future or older than 72 hours', () => {
+      expect(() => PosService.capturedAt('2026-10-30T13:00:00Z', now)).toThrow(BadRequestException);
+      expect(() => PosService.capturedAt('2026-10-27T11:00:00Z', now)).toThrow(BadRequestException);
+    });
+  });
+
 });
 
 /** QA C-04: la caja registraba la venta sin preguntar cómo se pagó. */
@@ -342,7 +443,8 @@ describe('PosService — reports and voids', () => {
     };
     const inventory: any = { increaseStock: jest.fn().mockResolvedValue(undefined) };
     const dataSource: any = { transaction: jest.fn(async (cb) => cb(manager)) };
-    const service = new PosService({} as never, {} as never, inventory, dataSource);
+    const fiscal: any = { issuesFiscalDocuments: jest.fn(async () => false), cancel: jest.fn(async () => null) };
+    const service = new PosService({} as never, {} as never, inventory, dataSource, fiscal, { dispatchIssued: jest.fn() } as never);
     return { service, inventory, manager };
   };
 

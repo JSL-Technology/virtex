@@ -68,3 +68,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 *.egg-info/
+
+# Producción: la configuración y los secretos montados por deploy/docker-compose.prod.yml.
+deploy/.env.production
+deploy/secrets/

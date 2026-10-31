@@ -1,0 +1,5 @@
+.ri { display: grid; gap: 16px; padding: 16px; max-width: 960px; }
+.ri .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.ri .field { display: grid; gap: 4px; }
+.ri .lines td input { width: 100%; }
+.ri .actions { display: flex; gap: 8px; }

@@ -1,0 +1,81 @@
+<vx-list-shell
+  titleKey="received_ecf.title"
+  subtitleKey="received_ecf.subtitle"
+  [count]="documents().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <div listFilters class="doc-filter">
+    <label for="recf-status">{{ 'received_ecf.filter' | translate }}</label>
+    <select id="recf-status" [ngModel]="filter()" (ngModelChange)="setFilter($event)">
+      <option value="RECEIVED">{{ 'received_ecf.status.received' | translate }}</option>
+      <option value="APPROVED">{{ 'received_ecf.status.approved' | translate }}</option>
+      <option value="REJECTED">{{ 'received_ecf.status.rejected' | translate }}</option>
+      <option value="">{{ 'received_ecf.status.all' | translate }}</option>
+    </select>
+  </div>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'received_ecf.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'received_ecf.empty_help' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col">{{ 'received_ecf.supplier' | translate }}</th>
+          <th scope="col">{{ 'received_ecf.ncf' | translate }}</th>
+          <th scope="col">{{ 'received_ecf.issue_date' | translate }}</th>
+          <th scope="col" class="num">{{ 'received_ecf.itbis' | translate }}</th>
+          <th scope="col" class="num">{{ 'received_ecf.total' | translate }}</th>
+          <th scope="col">{{ 'received_ecf.status_label' | translate }}</th>
+          <th scope="col">{{ 'received_ecf.deadline' | translate }}</th>
+          <th scope="col"><span class="sr-only">{{ 'received_ecf.actions' | translate }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (doc of documents(); track doc.id) {
+          <tr>
+            <td>
+              <div>{{ doc.issuerName ?? doc.issuerRnc }}</div>
+              <div class="muted">{{ 'received_ecf.rnc' | translate: { rnc: doc.issuerRnc } }}</div>
+            </td>
+            <td>{{ doc.ncf }}</td>
+            <td>{{ doc.issueDate | vxDate }}</td>
+            <td class="num">{{ doc.itbis | vxMoney: doc.currencyCode }}</td>
+            <td class="num">{{ doc.total | vxMoney: doc.currencyCode }}</td>
+            <td>
+              <vx-badge [tone]="tone[doc.status]">{{ 'received_ecf.status.' + doc.status.toLowerCase() | translate }}</vx-badge>
+              @if (!doc.signatureValid) {
+                <vx-badge tone="danger">{{ 'received_ecf.signature_invalid' | translate }}</vx-badge>
+              }
+            </td>
+            <td>
+              @if (doc.status === 'RECEIVED') {
+                <span [class.danger]="overdue(doc)">{{ deadline(doc) | vxDate }}</span>
+              } @else if (doc.rejectionReason) {
+                <span class="muted">{{ doc.rejectionReason }}</span>
+              }
+            </td>
+            <td class="actions">
+              <button type="button" class="btn btn-ghost btn-sm" (click)="download(doc)">
+                {{ 'received_ecf.download_xml' | translate }}
+              </button>
+              @if (doc.status === 'RECEIVED' && canAnswer()) {
+                <button type="button" class="btn btn-primary btn-sm" [disabled]="busy() === doc.id" (click)="approve(doc)">
+                  {{ 'received_ecf.approve' | translate }}
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm" [disabled]="busy() === doc.id" (click)="reject(doc)">
+                  {{ 'received_ecf.reject' | translate }}
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

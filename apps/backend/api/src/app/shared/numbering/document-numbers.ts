@@ -58,4 +58,8 @@ export const DOCUMENT_SEQUENCE_SCOPE = {
   VENDOR_DEBIT_NOTE: '00000000-0000-4000-8000-000000000008',
   /** The fixed-asset register: `AF-2026-000042`, by year of acquisition. */
   FIXED_ASSET: '00000000-0000-4000-8000-000000000009',
+  /** Customer sales orders: `PED-2026-000042`. */
+  SALES_ORDER: '00000000-0000-4000-8000-000000000010',
+  /** Delivery notes (conduces) against a sales order: `CON-2026-000042`. */
+  DELIVERY_NOTE: '00000000-0000-4000-8000-000000000011',
 } as const;

@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  IsDateString,
   Max,
   MaxLength,
   Min,
@@ -99,4 +100,21 @@ export class ProcessSaleDto {
   @ValidateNested({ each: true })
   @Type(() => PosPaymentDto)
   payments?: PosPaymentDto[];
+
+  /**
+   * The buyer's RNC (9 digits) or cédula (11), when they want a crédito fiscal (E31). Without it
+   * the sale is issued to the final consumer (E32). Validated by its check digit on the server.
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(20, { message: 'validation.constraints.max_length|{"max":20}' })
+  customerTaxId?: string;
+
+  /**
+   * When the till rang the sale, for a sale captured offline and sent on reconnection. The fiscal
+   * document is dated that day. Refused when it is in the future or more than 72 hours old.
+   */
+  @IsOptional()
+  @IsDateString({}, { message: 'validation.constraints.is_date_string' })
+  capturedAt?: string;
 }

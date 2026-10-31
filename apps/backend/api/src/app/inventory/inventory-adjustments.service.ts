@@ -19,11 +19,10 @@ import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbe
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 import { roundAmount } from '../common/money';
 import { toIsoDate } from '../common/dates';
-import { findPeriodCovering, moduleStatusOf } from '../accounting/period-status';
-import { ModuleSlug, PeriodStatus } from '../accounting/entities/accounting-period.entity';
+import { postingPeriodCovering } from '../contracts/closing/posting-period.contract';
 import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { User } from '../users/entities/user.entity/user.entity';
+import { inventoryAccountsConfigured } from '../organizations/contracts/default-accounts.contract';
+import { userDisplayNames } from '../users/contracts/user-names.contract';
 
 const round6 = (value: number): number => Math.round(value * 1e6) / 1e6;
 const EPSILON = 1e-9;
@@ -508,22 +507,14 @@ export class InventoryAdjustmentsService {
   private async dateReadiness(manager: EntityManager, organizationId: string, date: string): Promise<AdjustmentDateReadiness> {
     const iso = toIsoDate(date);
     const today = await organizationToday(manager, organizationId);
-    const period = await findPeriodCovering(manager, organizationId, iso);
-    const view = period
-      ? {
-          name: period.name,
-          open:
-            period.status !== PeriodStatus.CLOSED &&
-            moduleStatusOf(period, ModuleSlug.GL) !== PeriodStatus.CLOSED &&
-            moduleStatusOf(period, ModuleSlug.INVENTORY) !== PeriodStatus.CLOSED,
-        }
-      : null;
+    const period = await postingPeriodCovering(manager, organizationId, iso, 'inventory');
+    const view = period ? { name: period.name, open: !period.closed && !period.moduleClosed } : null;
     if (iso > today) return { period: view, problem: 'inventory.adjustment_date_in_future', params: { date: iso, today } };
     if (!period) return { period: null, problem: 'inventory.adjustment_date_without_period', params: { date: iso } };
-    if (period.status === PeriodStatus.CLOSED || moduleStatusOf(period, ModuleSlug.GL) === PeriodStatus.CLOSED) {
+    if (period.closed) {
       return { period: view, problem: 'inventory.adjustment_date_period_closed', params: { name: period.name } };
     }
-    if (moduleStatusOf(period, ModuleSlug.INVENTORY) === PeriodStatus.CLOSED) {
+    if (period.moduleClosed) {
       return { period: view, problem: 'inventory.adjustment_date_inventory_closed', params: { name: period.name } };
     }
     return { period: view, problem: null, params: {} };
@@ -539,11 +530,7 @@ export class InventoryAdjustmentsService {
   }
 
   private async accountsConfigured(manager: EntityManager, organizationId: string): Promise<boolean> {
-    const settings = await manager.findOne(OrganizationSettings, {
-      where: { organizationId },
-      select: { id: true, defaultInventoryId: true, defaultInventoryAdjustmentAccountId: true },
-    });
-    return Boolean(settings?.defaultInventoryId && settings?.defaultInventoryAdjustmentAccountId);
+    return inventoryAccountsConfigured(manager, organizationId);
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -585,10 +572,7 @@ export class InventoryAdjustmentsService {
   }
 
   private async namesOf(manager: EntityManager, ids: Array<string | null>): Promise<Map<string, string>> {
-    const wanted = [...new Set(ids.filter((id): id is string => Boolean(id)))];
-    if (wanted.length === 0) return new Map();
-    const users = await manager.find(User, { where: { id: In(wanted) }, select: { id: true, firstName: true, lastName: true } });
-    return new Map(users.map((user) => [user.id, `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim()]));
+    return userDisplayNames(manager, ids.filter((id): id is string => Boolean(id)));
   }
 
   private async numbersOf(manager: EntityManager, organizationId: string, ids: Array<string | null>): Promise<Map<string, string>> {

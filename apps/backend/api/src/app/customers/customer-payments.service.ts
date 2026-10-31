@@ -177,375 +177,9 @@ export class CustomerPaymentsService {
     organizationId: string,
     actorUserId: string,
   ): Promise<CustomerPayment> {
-    const received = await this.dataSource.transaction(async (manager) => {
-      const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
-      if (!settings?.defaultAccountsReceivableId) {
-        throw new BadRequestError(
-          'customers.default_receivable_account_not_configured_organization',
-        );
-      }
-      const baseCurrency = settings.baseCurrency ?? 'USD';
-      const currencyCode = (dto.currencyCode ?? baseCurrency).toUpperCase();
-
-      const customer = await manager.findOneBy(Customer, {
-        id: dto.customerId,
-        organizationId,
-      });
-      if (!customer) throw new NotFoundError('customers.customer_not_found');
-
-      // A receipt may be funded by fresh cash, by money the customer already left on account, or by
-      // both — but not by nothing.
-      const advanceDraw = roundAmount(dto.advanceApplied ?? 0);
-      if (toCents(dto.amountReceived) + toCents(advanceDraw) <= 0) {
-        throw new BadRequestError('customers.receipt_has_no_funds_enter_amount');
-      }
-
-      const ledger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
-      if (!ledger) {
-        throw new BadRequestError(
-          'customers.no_default_ledger_has_configured_organization',
-        );
-      }
-
-      const collectionJournal = await manager.findOneBy(Journal, {
-        organizationId,
-        code: 'COBROS',
-      });
-      if (!collectionJournal) {
-        throw new BadRequestError('customers.collections_journal_cobros_not_found_create');
-      }
-
-      // A real bank account, not a chart-of-accounts row. Which account the funds landed in is
-      // what lets a bank statement be reconciled against this receipt later; a control account
-      // shared by four bank accounts cannot answer that.
-      const bankAccount = await manager.findOneBy(BankAccount, {
-        id: dto.bankAccountId,
-        organizationId,
-      });
-      if (!bankAccount) throw new BadRequestError('customers.specified_bank_account_does_not_exist');
-      if (!bankAccount.isActive) {
-        throw new BadRequestError('customers.bank_account_name_inactive_cannot_take', {
-          name: bankAccount.name,
-        });
-      }
-      // Either the funds arrive in the account's own currency, or the account keeps the books'
-      // currency and the bank converted on the way in — that second case is the one the ledger
-      // can still measure, at the day's rate. Anything else (a USD receipt into a EUR account)
-      // needs a rate nobody has stated, and guessing one would misstate cash.
-      if (
-        bankAccount.currencyCode !== currencyCode &&
-        bankAccount.currencyCode !== baseCurrency
-      ) {
-        throw new BadRequestError('customers.receipt_receipt_cannot_land_account_account', {
-          receipt: currencyCode,
-          account: bankAccount.currencyCode,
-        });
-      }
-
-      const receiptRate = await this.exchangeRates.rateFor(
-        currencyCode,
-        baseCurrency,
-        dto.paymentDate,
-        manager,
-      );
-
-      const lines = dto.lines ?? [];
-      const invoices = lines.length
-        ? await manager.find(Invoice, {
-            where: {
-              id: In(lines.map((line) => line.invoiceId)),
-              organizationId,
-              customerId: dto.customerId,
-            },
-          })
-        : [];
-      const invoicesById = new Map(invoices.map((invoice) => [invoice.id, invoice]));
-      // Any branch may collect for another (a customer pays at the nearest store), but only
-      // invoices the collector could open: a restricted person cannot settle a branch they cannot see.
-      const collectorScope = await loadBranchScope(manager, organizationId, actorUserId);
-      for (const invoice of invoices) assertDocumentInScope(collectorScope, invoice.branchId);
-
-      const payment = await manager.save(
-        manager.create(CustomerPayment, {
-          branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
-          organizationId,
-          customerId: dto.customerId,
-          paymentDate: toIsoDate(dto.paymentDate) as unknown as Date,
-          bankAccountId: dto.bankAccountId,
-          reference: dto.reference ?? null,
-          paymentMethod: dto.paymentMethod,
-          currencyCode,
-          exchangeRate: receiptRate,
-          totalAmount: dto.amountReceived,
-          unappliedAmount: 0,
-          status: CustomerPaymentStatus.POSTED,
-          createdByUserId: actorUserId,
-          receiptNumber: await this.nextReceiptNumber(manager, organizationId, dto.paymentDate),
-        }),
-      );
-
-      let cashInBase = 0;
-      let receivableCreditBase = 0;
-      let withheldTaxBase = 0;
-      let withheldIncomeBase = 0;
-      let discountBase = 0;
-      let exchangeDifferenceBase = 0;
-      let appliedInReceiptCurrency = 0;
-
-      for (const line of lines) {
-        const invoice = invoicesById.get(line.invoiceId);
-        if (!invoice) {
-          throw new BadRequestError('customers.one_more_invoices_invalid_do_not');
-        }
-        if (
-          invoice.status !== InvoiceStatus.PENDING &&
-          invoice.status !== InvoiceStatus.PARTIALLY_PAID
-        ) {
-          throw new BadRequestError('customers.invoice_invoice_number_status_cannot_take', {
-            invoiceNumber: invoice.invoiceNumber,
-            status: invoice.status,
-          });
-        }
-
-        const taxWithheld = roundAmount(line.taxWithheld ?? 0);
-        const incomeTaxWithheld = roundAmount(line.incomeTaxWithheld ?? 0);
-        const discount = roundAmount(line.discount ?? 0);
-        // What comes off the invoice is the cash plus everything that settled it without cash.
-        const relieved = roundAmount(
-          line.amount + taxWithheld + incomeTaxWithheld + discount,
-        );
-
-        if (toCents(relieved) > toCents(invoice.balance)) {
-          throw new BadRequestError('customers.payment_invoice_invoice_number_amount_exceeds', {
-            invoiceNumber: invoice.invoiceNumber,
-            amount: relieved,
-            balance: invoice.balance,
-          });
-        }
-
-        // The invoice was booked at its own rate; the receipt arrives at today's. The gap on the
-        // amount relieved is a realised gain or loss, and without it the receivable cannot clear.
-        const invoiceRate = Number(invoice.exchangeRate) || 1;
-        const relievedAtInvoiceRate = convert(relieved, invoiceRate);
-        const cashAtReceiptRate = convert(line.amount, receiptRate);
-        const taxAtReceiptRate = convert(taxWithheld, receiptRate);
-        const incomeAtReceiptRate = convert(incomeTaxWithheld, receiptRate);
-        const discountAtReceiptRate = convert(discount, receiptRate);
-        const difference = roundAmount(
-          relievedAtInvoiceRate -
-            (cashAtReceiptRate +
-              taxAtReceiptRate +
-              incomeAtReceiptRate +
-              discountAtReceiptRate),
-        );
-
-        cashInBase = roundAmount(cashInBase + cashAtReceiptRate);
-        receivableCreditBase = roundAmount(receivableCreditBase + relievedAtInvoiceRate);
-        withheldTaxBase = roundAmount(withheldTaxBase + taxAtReceiptRate);
-        withheldIncomeBase = roundAmount(withheldIncomeBase + incomeAtReceiptRate);
-        discountBase = roundAmount(discountBase + discountAtReceiptRate);
-        exchangeDifferenceBase = roundAmount(exchangeDifferenceBase + difference);
-        appliedInReceiptCurrency = roundAmount(appliedInReceiptCurrency + line.amount);
-
-        invoice.balance = roundAmount(invoice.balance - relieved);
-        invoice.status =
-          toCents(invoice.balance) === 0
-            ? InvoiceStatus.PAID
-            : InvoiceStatus.PARTIALLY_PAID;
-        await manager.save(invoice);
-
-        await manager.save(
-          manager.create(CustomerPaymentLine, {
-            paymentId: payment.id,
-            invoiceId: invoice.id,
-            amount: relieved,
-            taxWithheld,
-            incomeTaxWithheld,
-            discount,
-            exchangeDifference: difference,
-          }),
-        );
-      }
-
-      // Drawing on an advance only makes sense against the currency it was received in: the money
-      // held is a number of pesos or of dollars, and spending it as the other would invent a rate
-      // nobody agreed to.
-      let advanceDrawBase = 0;
-      if (toCents(advanceDraw) > 0) {
-        const held = await this.advanceOutstanding(
-          manager,
-          organizationId,
-          dto.customerId,
-          currencyCode,
-        );
-        if (toCents(advanceDraw) > toCents(held.amount)) {
-          throw new BadRequestError('customers.customer_only_holds_available_currency_advances', {
-            requested: advanceDraw,
-            available: held.amount,
-            currency: currencyCode,
-          });
-        }
-        // Retired at what the customer actually paid — the weighted average of the receipts still
-        // holding money — so the liability leaves the books for the amount it entered them at.
-        advanceDrawBase = roundAmount(advanceDraw * (held.averageRate ?? receiptRate));
-        // The gap against today's rate is realised here, exactly as it is on an invoice.
-        exchangeDifferenceBase = roundAmount(
-          exchangeDifferenceBase + (convert(advanceDraw, receiptRate) - advanceDrawBase),
-        );
-      }
-
-      // Anything received beyond what was applied is held as a customer advance.
-      const unapplied = roundAmount(dto.amountReceived + advanceDraw - appliedInReceiptCurrency);
-      if (toCents(unapplied) < 0) {
-        throw new BadRequestError('customers.amount_applied_invoices_applied_exceeds_amount', {
-          received: roundAmount(dto.amountReceived + advanceDraw),
-          applied: appliedInReceiptCurrency,
-        });
-      }
-      // Taking money off account only to put it straight back is not a transaction; it would leave
-      // the drawn receipt looking spent and the ledger unchanged.
-      if (toCents(advanceDraw) > 0 && toCents(unapplied) > 0) {
-        throw new BadRequestError('customers.drawn_drawn_from_advance_but_unapplied', {
-          drawn: advanceDraw,
-          unapplied,
-        });
-      }
-      const unappliedBase = convert(unapplied, receiptRate);
-      cashInBase = roundAmount(cashInBase + unappliedBase);
-      payment.unappliedAmount = unapplied;
-      payment.advanceAppliedAmount = advanceDraw;
-      payment.advanceAppliedBaseAmount = advanceDrawBase;
-
-      const entryLines: CreateJournalEntryLineDto[] = [];
-      const push = (
-        accountId: string,
-        debit: number,
-        credit: number,
-        description: string,
-      ) => {
-        if (toCents(debit) === 0 && toCents(credit) === 0) return;
-        entryLines.push({
-          accountId,
-          debit,
-          credit,
-          description,
-          valuations: [{ ledgerId: ledger.id, debit, credit }],
-        });
-      };
-
-      //  El relato del asiento, en el idioma en que se llevan los libros de este inquilino.
-      //  Eran literales castellanos, de modo que un inquilino estadounidense abría su mayor y leía
-      //  su propia contabilidad en un idioma que nadie en la empresa habla.
-      const words = await this.narrative.describeAll(manager, organizationId, {
-        bankIn: { key: 'ledger.collection.bank_in' },
-        receivable: {
-          key: 'ledger.collection.receivable_settled',
-          params: { customer: customer.companyName ?? customer.id },
-        },
-        withheld: { key: 'ledger.collection.withheld_by_customer' },
-        discount: { key: 'ledger.collection.early_payment_discount' },
-        advanceApplied: { key: 'ledger.collection.advance_applied' },
-        advanceHeld: { key: 'ledger.collection.advance_held' },
-        forex: { key: 'ledger.collection.exchange_difference' },
-      });
-
-      // Only the cash that actually arrived hits the bank. The part funded from an advance moved
-      // between two balance-sheet lines and never touched the account.
-      const bankDebitBase = roundAmount(cashInBase - convert(advanceDraw, receiptRate));
-      push(bankAccount.glAccountId, bankDebitBase, 0, words.bankIn);
-      push(settings.defaultAccountsReceivableId, 0, receivableCreditBase, words.receivable);
-
-      if (toCents(withheldTaxBase) !== 0 || toCents(withheldIncomeBase) !== 0) {
-        const withholdingReceivableId = await this.resolveAccount(
-          manager,
-          organizationId,
-          AccountRole.WITHHOLDING_RECEIVABLE,
-          settings.defaultTaxWithheldReceivableId,
-        );
-        if (!withholdingReceivableId) {
-          throw new BadRequestError('customers.no_withholding_receivable_account_configured_customer');
-        }
-        // An asset: the customer paid it to the authority on our behalf and we recover it.
-        push(
-          withholdingReceivableId,
-          roundAmount(withheldTaxBase + withheldIncomeBase),
-          0,
-          words.withheld,
-        );
-      }
-
-      if (toCents(discountBase) !== 0) {
-        const discountAccountId = await this.resolveAccount(
-          manager,
-          organizationId,
-          AccountRole.SALES_DISCOUNTS,
-          settings.defaultSalesDiscountsId,
-        );
-        if (!discountAccountId) {
-          throw new BadRequestError('customers.no_discount_account_configured_receipt_grants');
-        }
-        push(discountAccountId, discountBase, 0, words.discount);
-      }
-
-      if (toCents(unappliedBase) !== 0 || toCents(advanceDrawBase) !== 0) {
-        const advanceAccountId = await this.resolveAdvanceAccount(
-          manager,
-          organizationId,
-          settings,
-        );
-        // Held, not earned: money against no document is owed back until it is applied — and when
-        // it is applied, the obligation is discharged rather than the receivable credited twice.
-        push(
-          advanceAccountId,
-          advanceDrawBase,
-          unappliedBase,
-          toCents(advanceDrawBase) > 0 ? words.advanceApplied : words.advanceHeld,
-        );
-      }
-
-      if (toCents(exchangeDifferenceBase) !== 0) {
-        const forexAccountId = await this.resolveAccount(
-          manager,
-          organizationId,
-          AccountRole.FOREX_GAIN_LOSS,
-          settings.defaultForexGainLossAccountId,
-        );
-        if (!forexAccountId) {
-          throw new BadRequestError('customers.no_exchange_difference_account_configured_receipt');
-        }
-        push(
-          forexAccountId,
-          exchangeDifferenceBase > 0 ? exchangeDifferenceBase : 0,
-          exchangeDifferenceBase < 0 ? Math.abs(exchangeDifferenceBase) : 0,
-          words.forex,
-        );
-      }
-
-      const entry = await this.posting.createWithManager(
-        manager,
-        {
-          date: toIsoDate(dto.paymentDate),
-          description: await this.narrative.describe(
-            manager,
-            organizationId,
-            'ledger.collection.receipt',
-            { number: payment.receiptNumber ?? payment.id.slice(0, 8) },
-          ),
-          journalId: collectionJournal.id,
-          lines: entryLines,
-        } as CreateJournalEntryDto,
-        organizationId,
-        { actorUserId, module: ModuleSlug.AR, systemReason: 'customer-collection' },
-      );
-
-      payment.journalEntryId = entry.id;
-      const saved = await manager.save(payment);
-
-      this.logger.log(
-        `Cobro ${saved.receiptNumber} contabilizado en ${entry.entryNumber}.`,
-      );
-      return saved;
-    });
+    const received = await this.dataSource.transaction((manager) =>
+      this.receiveWithin(manager, dto, organizationId, actorUserId),
+    );
     this.events?.emit(BUSINESS_EVENTS.CUSTOMER_PAYMENT_RECEIVED, {
       organizationId,
       actorUserId,
@@ -556,6 +190,388 @@ export class CustomerPaymentsService {
       customerId: received.customerId ?? null,
     });
     return received;
+  }
+
+  /**
+   * The receipt itself, inside the caller's transaction, without the business event.
+   *
+   * `create` wraps it in its own transaction; the point of sale calls it inside the sale's, so a
+   * till sale, its fiscal document and the receipt that settles it commit together or not at all.
+   * The caller that commits emits {@link BUSINESS_EVENTS.CUSTOMER_PAYMENT_RECEIVED} if it wants it.
+   */
+  async receiveWithin(
+    manager: EntityManager,
+    dto: CreateCustomerPaymentDto,
+    organizationId: string,
+    actorUserId: string,
+  ): Promise<CustomerPayment> {
+    const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
+    if (!settings?.defaultAccountsReceivableId) {
+      throw new BadRequestError(
+        'customers.default_receivable_account_not_configured_organization',
+      );
+    }
+    const baseCurrency = settings.baseCurrency ?? 'USD';
+    const currencyCode = (dto.currencyCode ?? baseCurrency).toUpperCase();
+
+    const customer = await manager.findOneBy(Customer, {
+      id: dto.customerId,
+      organizationId,
+    });
+    if (!customer) throw new NotFoundError('customers.customer_not_found');
+
+    // A receipt may be funded by fresh cash, by money the customer already left on account, or by
+    // both — but not by nothing.
+    const advanceDraw = roundAmount(dto.advanceApplied ?? 0);
+    if (toCents(dto.amountReceived) + toCents(advanceDraw) <= 0) {
+      throw new BadRequestError('customers.receipt_has_no_funds_enter_amount');
+    }
+
+    const ledger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
+    if (!ledger) {
+      throw new BadRequestError(
+        'customers.no_default_ledger_has_configured_organization',
+      );
+    }
+
+    const collectionJournal = await manager.findOneBy(Journal, {
+      organizationId,
+      code: 'COBROS',
+    });
+    if (!collectionJournal) {
+      throw new BadRequestError('customers.collections_journal_cobros_not_found_create');
+    }
+
+    // A real bank account, not a chart-of-accounts row. Which account the funds landed in is
+    // what lets a bank statement be reconciled against this receipt later; a control account
+    // shared by four bank accounts cannot answer that.
+    const bankAccount = await manager.findOneBy(BankAccount, {
+      id: dto.bankAccountId,
+      organizationId,
+    });
+    if (!bankAccount) throw new BadRequestError('customers.specified_bank_account_does_not_exist');
+    if (!bankAccount.isActive) {
+      throw new BadRequestError('customers.bank_account_name_inactive_cannot_take', {
+        name: bankAccount.name,
+      });
+    }
+    // Either the funds arrive in the account's own currency, or the account keeps the books'
+    // currency and the bank converted on the way in — that second case is the one the ledger
+    // can still measure, at the day's rate. Anything else (a USD receipt into a EUR account)
+    // needs a rate nobody has stated, and guessing one would misstate cash.
+    if (
+      bankAccount.currencyCode !== currencyCode &&
+      bankAccount.currencyCode !== baseCurrency
+    ) {
+      throw new BadRequestError('customers.receipt_receipt_cannot_land_account_account', {
+        receipt: currencyCode,
+        account: bankAccount.currencyCode,
+      });
+    }
+
+    const receiptRate = await this.exchangeRates.rateFor(
+      currencyCode,
+      baseCurrency,
+      dto.paymentDate,
+      manager,
+    );
+
+    const lines = dto.lines ?? [];
+    const invoices = lines.length
+      ? await manager.find(Invoice, {
+          where: {
+            id: In(lines.map((line) => line.invoiceId)),
+            organizationId,
+            customerId: dto.customerId,
+          },
+        })
+      : [];
+    const invoicesById = new Map(invoices.map((invoice) => [invoice.id, invoice]));
+    // Any branch may collect for another (a customer pays at the nearest store), but only
+    // invoices the collector could open: a restricted person cannot settle a branch they cannot see.
+    const collectorScope = await loadBranchScope(manager, organizationId, actorUserId);
+    for (const invoice of invoices) assertDocumentInScope(collectorScope, invoice.branchId);
+
+    const payment = await manager.save(
+      manager.create(CustomerPayment, {
+        branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
+        organizationId,
+        customerId: dto.customerId,
+        paymentDate: toIsoDate(dto.paymentDate) as unknown as Date,
+        bankAccountId: dto.bankAccountId,
+        reference: dto.reference ?? null,
+        paymentMethod: dto.paymentMethod,
+        currencyCode,
+        exchangeRate: receiptRate,
+        totalAmount: dto.amountReceived,
+        unappliedAmount: 0,
+        status: CustomerPaymentStatus.POSTED,
+        createdByUserId: actorUserId,
+        receiptNumber: await this.nextReceiptNumber(manager, organizationId, dto.paymentDate),
+      }),
+    );
+
+    let cashInBase = 0;
+    let receivableCreditBase = 0;
+    let withheldTaxBase = 0;
+    let withheldIncomeBase = 0;
+    let discountBase = 0;
+    let exchangeDifferenceBase = 0;
+    let appliedInReceiptCurrency = 0;
+
+    for (const line of lines) {
+      const invoice = invoicesById.get(line.invoiceId);
+      if (!invoice) {
+        throw new BadRequestError('customers.one_more_invoices_invalid_do_not');
+      }
+      if (
+        invoice.status !== InvoiceStatus.PENDING &&
+        invoice.status !== InvoiceStatus.PARTIALLY_PAID
+      ) {
+        throw new BadRequestError('customers.invoice_invoice_number_status_cannot_take', {
+          invoiceNumber: invoice.invoiceNumber,
+          status: invoice.status,
+        });
+      }
+
+      const taxWithheld = roundAmount(line.taxWithheld ?? 0);
+      const incomeTaxWithheld = roundAmount(line.incomeTaxWithheld ?? 0);
+      const discount = roundAmount(line.discount ?? 0);
+      // What comes off the invoice is the cash plus everything that settled it without cash.
+      const relieved = roundAmount(
+        line.amount + taxWithheld + incomeTaxWithheld + discount,
+      );
+
+      if (toCents(relieved) > toCents(invoice.balance)) {
+        throw new BadRequestError('customers.payment_invoice_invoice_number_amount_exceeds', {
+          invoiceNumber: invoice.invoiceNumber,
+          amount: relieved,
+          balance: invoice.balance,
+        });
+      }
+
+      // The invoice was booked at its own rate; the receipt arrives at today's. The gap on the
+      // amount relieved is a realised gain or loss, and without it the receivable cannot clear.
+      const invoiceRate = Number(invoice.exchangeRate) || 1;
+      const relievedAtInvoiceRate = convert(relieved, invoiceRate);
+      const cashAtReceiptRate = convert(line.amount, receiptRate);
+      const taxAtReceiptRate = convert(taxWithheld, receiptRate);
+      const incomeAtReceiptRate = convert(incomeTaxWithheld, receiptRate);
+      const discountAtReceiptRate = convert(discount, receiptRate);
+      const difference = roundAmount(
+        relievedAtInvoiceRate -
+          (cashAtReceiptRate +
+            taxAtReceiptRate +
+            incomeAtReceiptRate +
+            discountAtReceiptRate),
+      );
+
+      cashInBase = roundAmount(cashInBase + cashAtReceiptRate);
+      receivableCreditBase = roundAmount(receivableCreditBase + relievedAtInvoiceRate);
+      withheldTaxBase = roundAmount(withheldTaxBase + taxAtReceiptRate);
+      withheldIncomeBase = roundAmount(withheldIncomeBase + incomeAtReceiptRate);
+      discountBase = roundAmount(discountBase + discountAtReceiptRate);
+      exchangeDifferenceBase = roundAmount(exchangeDifferenceBase + difference);
+      appliedInReceiptCurrency = roundAmount(appliedInReceiptCurrency + line.amount);
+
+      invoice.balance = roundAmount(invoice.balance - relieved);
+      invoice.status =
+        toCents(invoice.balance) === 0
+          ? InvoiceStatus.PAID
+          : InvoiceStatus.PARTIALLY_PAID;
+      await manager.save(invoice);
+
+      await manager.save(
+        manager.create(CustomerPaymentLine, {
+          paymentId: payment.id,
+          invoiceId: invoice.id,
+          amount: relieved,
+          taxWithheld,
+          incomeTaxWithheld,
+          discount,
+          exchangeDifference: difference,
+        }),
+      );
+    }
+
+    // Drawing on an advance only makes sense against the currency it was received in: the money
+    // held is a number of pesos or of dollars, and spending it as the other would invent a rate
+    // nobody agreed to.
+    let advanceDrawBase = 0;
+    if (toCents(advanceDraw) > 0) {
+      const held = await this.advanceOutstanding(
+        manager,
+        organizationId,
+        dto.customerId,
+        currencyCode,
+      );
+      if (toCents(advanceDraw) > toCents(held.amount)) {
+        throw new BadRequestError('customers.customer_only_holds_available_currency_advances', {
+          requested: advanceDraw,
+          available: held.amount,
+          currency: currencyCode,
+        });
+      }
+      // Retired at what the customer actually paid — the weighted average of the receipts still
+      // holding money — so the liability leaves the books for the amount it entered them at.
+      advanceDrawBase = roundAmount(advanceDraw * (held.averageRate ?? receiptRate));
+      // The gap against today's rate is realised here, exactly as it is on an invoice.
+      exchangeDifferenceBase = roundAmount(
+        exchangeDifferenceBase + (convert(advanceDraw, receiptRate) - advanceDrawBase),
+      );
+    }
+
+    // Anything received beyond what was applied is held as a customer advance.
+    const unapplied = roundAmount(dto.amountReceived + advanceDraw - appliedInReceiptCurrency);
+    if (toCents(unapplied) < 0) {
+      throw new BadRequestError('customers.amount_applied_invoices_applied_exceeds_amount', {
+        received: roundAmount(dto.amountReceived + advanceDraw),
+        applied: appliedInReceiptCurrency,
+      });
+    }
+    // Taking money off account only to put it straight back is not a transaction; it would leave
+    // the drawn receipt looking spent and the ledger unchanged.
+    if (toCents(advanceDraw) > 0 && toCents(unapplied) > 0) {
+      throw new BadRequestError('customers.drawn_drawn_from_advance_but_unapplied', {
+        drawn: advanceDraw,
+        unapplied,
+      });
+    }
+    const unappliedBase = convert(unapplied, receiptRate);
+    cashInBase = roundAmount(cashInBase + unappliedBase);
+    payment.unappliedAmount = unapplied;
+    payment.advanceAppliedAmount = advanceDraw;
+    payment.advanceAppliedBaseAmount = advanceDrawBase;
+
+    const entryLines: CreateJournalEntryLineDto[] = [];
+    const push = (
+      accountId: string,
+      debit: number,
+      credit: number,
+      description: string,
+    ) => {
+      if (toCents(debit) === 0 && toCents(credit) === 0) return;
+      entryLines.push({
+        accountId,
+        debit,
+        credit,
+        description,
+        valuations: [{ ledgerId: ledger.id, debit, credit }],
+      });
+    };
+
+    //  El relato del asiento, en el idioma en que se llevan los libros de este inquilino.
+    //  Eran literales castellanos, de modo que un inquilino estadounidense abría su mayor y leía
+    //  su propia contabilidad en un idioma que nadie en la empresa habla.
+    const words = await this.narrative.describeAll(manager, organizationId, {
+      bankIn: { key: 'ledger.collection.bank_in' },
+      receivable: {
+        key: 'ledger.collection.receivable_settled',
+        params: { customer: customer.companyName ?? customer.id },
+      },
+      withheld: { key: 'ledger.collection.withheld_by_customer' },
+      discount: { key: 'ledger.collection.early_payment_discount' },
+      advanceApplied: { key: 'ledger.collection.advance_applied' },
+      advanceHeld: { key: 'ledger.collection.advance_held' },
+      forex: { key: 'ledger.collection.exchange_difference' },
+    });
+
+    // Only the cash that actually arrived hits the bank. The part funded from an advance moved
+    // between two balance-sheet lines and never touched the account.
+    const bankDebitBase = roundAmount(cashInBase - convert(advanceDraw, receiptRate));
+    push(bankAccount.glAccountId, bankDebitBase, 0, words.bankIn);
+    push(settings.defaultAccountsReceivableId, 0, receivableCreditBase, words.receivable);
+
+    if (toCents(withheldTaxBase) !== 0 || toCents(withheldIncomeBase) !== 0) {
+      const withholdingReceivableId = await this.resolveAccount(
+        manager,
+        organizationId,
+        AccountRole.WITHHOLDING_RECEIVABLE,
+        settings.defaultTaxWithheldReceivableId,
+      );
+      if (!withholdingReceivableId) {
+        throw new BadRequestError('customers.no_withholding_receivable_account_configured_customer');
+      }
+      // An asset: the customer paid it to the authority on our behalf and we recover it.
+      push(
+        withholdingReceivableId,
+        roundAmount(withheldTaxBase + withheldIncomeBase),
+        0,
+        words.withheld,
+      );
+    }
+
+    if (toCents(discountBase) !== 0) {
+      const discountAccountId = await this.resolveAccount(
+        manager,
+        organizationId,
+        AccountRole.SALES_DISCOUNTS,
+        settings.defaultSalesDiscountsId,
+      );
+      if (!discountAccountId) {
+        throw new BadRequestError('customers.no_discount_account_configured_receipt_grants');
+      }
+      push(discountAccountId, discountBase, 0, words.discount);
+    }
+
+    if (toCents(unappliedBase) !== 0 || toCents(advanceDrawBase) !== 0) {
+      const advanceAccountId = await this.resolveAdvanceAccount(
+        manager,
+        organizationId,
+        settings,
+      );
+      // Held, not earned: money against no document is owed back until it is applied — and when
+      // it is applied, the obligation is discharged rather than the receivable credited twice.
+      push(
+        advanceAccountId,
+        advanceDrawBase,
+        unappliedBase,
+        toCents(advanceDrawBase) > 0 ? words.advanceApplied : words.advanceHeld,
+      );
+    }
+
+    if (toCents(exchangeDifferenceBase) !== 0) {
+      const forexAccountId = await this.resolveAccount(
+        manager,
+        organizationId,
+        AccountRole.FOREX_GAIN_LOSS,
+        settings.defaultForexGainLossAccountId,
+      );
+      if (!forexAccountId) {
+        throw new BadRequestError('customers.no_exchange_difference_account_configured_receipt');
+      }
+      push(
+        forexAccountId,
+        exchangeDifferenceBase > 0 ? exchangeDifferenceBase : 0,
+        exchangeDifferenceBase < 0 ? Math.abs(exchangeDifferenceBase) : 0,
+        words.forex,
+      );
+    }
+
+    const entry = await this.posting.createWithManager(
+      manager,
+      {
+        date: toIsoDate(dto.paymentDate),
+        description: await this.narrative.describe(
+          manager,
+          organizationId,
+          'ledger.collection.receipt',
+          { number: payment.receiptNumber ?? payment.id.slice(0, 8) },
+        ),
+        journalId: collectionJournal.id,
+        lines: entryLines,
+      } as CreateJournalEntryDto,
+      organizationId,
+      { actorUserId, module: ModuleSlug.AR, systemReason: 'customer-collection' },
+    );
+
+    payment.journalEntryId = entry.id;
+    const saved = await manager.save(payment);
+
+    this.logger.log(
+      `Cobro ${saved.receiptNumber} contabilizado en ${entry.entryNumber}.`,
+    );
+    return saved;
   }
 
   /**
@@ -571,73 +587,84 @@ export class CustomerPaymentsService {
     organizationId: string,
     actorUserId: string,
   ): Promise<CustomerPayment> {
-    return this.dataSource.transaction(async (manager) => {
-      const payment = await manager.findOne(CustomerPayment, {
-        where: { id, organizationId },
-        relations: ['lines'],
-      });
-      if (!payment) throw new NotFoundError('customers.receipt_not_found');
-      if (payment.status === CustomerPaymentStatus.VOID) {
-        throw new BadRequestError('customers.receipt_has_already_voided');
-      }
+    return this.dataSource.transaction((manager) =>
+      this.voidWithin(manager, id, dto, organizationId, actorUserId),
+    );
+  }
 
-      // An advance this receipt created may already have been spent on a later invoice. Reversing
-      // it anyway would leave the customer holding a negative balance on account and the liability
-      // account short by the amount someone else's receipt already relieved.
-      if (toCents(payment.unappliedAmount - payment.advanceAppliedAmount) > 0) {
-        const held = await this.advanceOutstanding(
-          manager,
-          payment.organizationId,
-          payment.customerId,
-          payment.currencyCode,
-        );
-        const remaining = roundAmount(
-          held.amount - (payment.unappliedAmount - payment.advanceAppliedAmount),
-        );
-        if (toCents(remaining) < 0) {
-          throw new BadRequestError('customers.receipt_receipt_cannot_voided_applied_advance', {
-            receipt: payment.receiptNumber ?? payment.id,
-            applied: roundAmount(Math.abs(remaining)),
-          });
-        }
-      }
-
-      for (const line of payment.lines) {
-        const invoice = await manager.findOneBy(Invoice, {
-          id: line.invoiceId,
-          organizationId,
-        });
-        if (!invoice) continue;
-        invoice.balance = roundAmount(invoice.balance + line.amount);
-        invoice.status =
-          toCents(invoice.balance) >= toCents(invoice.netReceivable ?? invoice.balance)
-            ? InvoiceStatus.PENDING
-            : InvoiceStatus.PARTIALLY_PAID;
-        await manager.save(invoice);
-      }
-
-      if (payment.journalEntryId) {
-        const reversal = await this.posting.createSystemReversal(
-          payment.journalEntryId,
-          organizationId,
-          {
-            reversalDate: toIsoDate(dto.reversalDate ?? new Date()),
-            reason: `Anulación de cobro: ${dto.reason}`,
-          },
-          manager,
-          { actorUserId, module: ModuleSlug.AR, systemReason: 'customer-collection-void' },
-        );
-        payment.reversalJournalEntryId = reversal.id;
-      }
-
-      payment.status = CustomerPaymentStatus.VOID;
-      payment.voidReason = dto.reason;
-      payment.voidedAt = new Date();
-      const saved = await manager.save(payment);
-
-      this.logger.log(`Cobro ${payment.receiptNumber} anulado: ${dto.reason}`);
-      return saved;
+  /** {@link voidPayment} inside the caller's transaction — the point of sale's void uses it. */
+  async voidWithin(
+    manager: EntityManager,
+    id: string,
+    dto: VoidCustomerPaymentDto,
+    organizationId: string,
+    actorUserId: string,
+  ): Promise<CustomerPayment> {
+    const payment = await manager.findOne(CustomerPayment, {
+      where: { id, organizationId },
+      relations: ['lines'],
     });
+    if (!payment) throw new NotFoundError('customers.receipt_not_found');
+    if (payment.status === CustomerPaymentStatus.VOID) {
+      throw new BadRequestError('customers.receipt_has_already_voided');
+    }
+
+    // An advance this receipt created may already have been spent on a later invoice. Reversing
+    // it anyway would leave the customer holding a negative balance on account and the liability
+    // account short by the amount someone else's receipt already relieved.
+    if (toCents(payment.unappliedAmount - payment.advanceAppliedAmount) > 0) {
+      const held = await this.advanceOutstanding(
+        manager,
+        payment.organizationId,
+        payment.customerId,
+        payment.currencyCode,
+      );
+      const remaining = roundAmount(
+        held.amount - (payment.unappliedAmount - payment.advanceAppliedAmount),
+      );
+      if (toCents(remaining) < 0) {
+        throw new BadRequestError('customers.receipt_receipt_cannot_voided_applied_advance', {
+          receipt: payment.receiptNumber ?? payment.id,
+          applied: roundAmount(Math.abs(remaining)),
+        });
+      }
+    }
+
+    for (const line of payment.lines) {
+      const invoice = await manager.findOneBy(Invoice, {
+        id: line.invoiceId,
+        organizationId,
+      });
+      if (!invoice) continue;
+      invoice.balance = roundAmount(invoice.balance + line.amount);
+      invoice.status =
+        toCents(invoice.balance) >= toCents(invoice.netReceivable ?? invoice.balance)
+          ? InvoiceStatus.PENDING
+          : InvoiceStatus.PARTIALLY_PAID;
+      await manager.save(invoice);
+    }
+
+    if (payment.journalEntryId) {
+      const reversal = await this.posting.createSystemReversal(
+        payment.journalEntryId,
+        organizationId,
+        {
+          reversalDate: toIsoDate(dto.reversalDate ?? new Date()),
+          reason: `Anulación de cobro: ${dto.reason}`,
+        },
+        manager,
+        { actorUserId, module: ModuleSlug.AR, systemReason: 'customer-collection-void' },
+      );
+      payment.reversalJournalEntryId = reversal.id;
+    }
+
+    payment.status = CustomerPaymentStatus.VOID;
+    payment.voidReason = dto.reason;
+    payment.voidedAt = new Date();
+    const saved = await manager.save(payment);
+
+    this.logger.log(`Cobro ${payment.receiptNumber} anulado: ${dto.reason}`);
+    return saved;
   }
 
   // ───────────────────────────────────────────────────────────────────────────

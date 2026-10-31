@@ -349,6 +349,30 @@ jobs:
       # an invoice end to end. `POST /invoices` failed for every customer on their first attempt.
       - run: npm run verify:invoicing
 
+      # Proves that a Dominican till sale is a fiscal document: an E32 to the final consumer or an
+      # E31 to a buyer with a valid RNC, posted, settled into the till's cash net of change, signed,
+      # stock moved once — and that a void issues the E34 and reverses the receipt. The till used to
+      # print a ticket with no e-NCF and post nothing at all.
+      - run: npm run verify:pos-fiscal
+
+      # Proves the tenant RECEIVES e-CF the way the DGII specifies, over real HTTP: seed → signed
+      # seed → token; reception answered with a signed ARECF; duplicate (3), bad signature (2) and
+      # wrong buyer (4) answered «no recibido» with their code; a buyer's ACECF recorded on the
+      # issuer's document; one tenant's inbox invisible to another. Being a receiver is part of the
+      # DGII certification, and the product exposed no reception service at all.
+      - run: npm run verify:ecf-receptor
+
+      # Proves the platform documents what it charges: an approved subscription charge becomes an
+      # E31 of the platform company to the customer's RNC for the amount charged, exactly once, and
+      # waits (is not lost) while the platform tenant is not configured.
+      - run: npm run verify:platform-billing
+
+      # Proves the distributor's cycle and recurring invoicing: an order delivered in parts with
+      # conduces that move the stock, invoiced as an E31 without moving it again, a voided conduce
+      # bringing the goods back, the order closed; and a monthly template that catches up the missed
+      # months once and never bills the same month twice.
+      - run: npm run verify:sales-cycle
+
       # Nx Cloud's self-healing. It needs an Nx Cloud workspace, and without one it can only fail —
       # which turned every run red after every other step had passed. The token is scoped to this
       # step alone rather than the job: `npm ci` runs third-party install scripts, and a secret in

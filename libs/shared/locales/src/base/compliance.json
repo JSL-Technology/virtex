@@ -133,5 +133,15 @@
     "es": "El año no es válido.",
     "en": "The year is not valid.",
     "pt": "O ano não é válido."
+  },
+  "compliance.prior_credit_invalid": {
+    "es": "El saldo a favor anterior debe ser un número positivo.",
+    "en": "The prior credit balance must be a positive number.",
+    "pt": "O saldo credor anterior deve ser um número positivo."
+  },
+  "compliance.declaration_kind_unknown": {
+    "es": "Declaración desconocida: {{kind}}. Disponibles: it1, ir17.",
+    "en": "Unknown declaration: {{kind}}. Available: it1, ir17.",
+    "pt": "Declaração desconhecida: {{kind}}. Disponíveis: it1, ir17."
   }
 }

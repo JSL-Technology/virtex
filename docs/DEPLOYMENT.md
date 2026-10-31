@@ -22,6 +22,50 @@ Three things used to make a reproducible deployment impossible:
   pinned through `overrides` in `package.json`; the API surface actually consumed — `DockviewApi`,
   `DockviewComponent`, `DockviewGroupPanel`, `IDockviewPanel` — is stable across that range.
 
+## 0. Production with Docker (recommended)
+
+Everything below is packaged in `deploy/`:
+
+| File | What it is |
+|---|---|
+| `deploy/Dockerfile` | One build, two images: `api` (NestJS + Chromium for PDFs; also runs the migrations) and `web` (Caddy serving the ERP at `/`, the POS at `/pos/` and proxying `/api/` — **one origin**, §4). |
+| `deploy/docker-compose.prod.yml` | Postgres 16 + pgvector, Redis, `migrate` (one-shot, before the API), `api` ×2, `web` (automatic HTTPS), `backup`. |
+| `deploy/.env.production.example` | Every value a Dominican production needs, Azul and DGII included. |
+| `deploy/backup/` | Nightly `pg_dump`, off-site copy, encryption, **weekly restore test**, restore runbook. See its README. |
+| `.github/workflows/release.yml` | On a `v*.*.*` tag, builds both images and publishes them to GHCR. |
+
+```bash
+cp deploy/.env.production.example deploy/.env.production   # fill it in
+mkdir -p deploy/secrets && cp azul.crt azul.key deploy/secrets/   # Azul's client certificate
+docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env.production up -d --build
+```
+
+### Health, metrics and alerts
+
+| Endpoint | Use |
+|---|---|
+| `GET /api/v1/health/live` | Liveness: restart the container when it fails. |
+| `GET /api/v1/health/ready` | Readiness: database and Redis answer. Take the instance out of rotation when it fails (503). |
+| `GET /api/v1/health/metrics` | Prometheus, with `Authorization: Bearer $METRICS_TOKEN`. Not served without a token; Caddy also blocks it on the public origin, so scrape the `api` service on the internal network. |
+
+Operational alerts are posted as `{ "text": … }` to `ALERT_WEBHOOK_URL` (Slack, Teams, Google
+Chat): e-CF unresolved for over an hour (`virteex_ecf_unresolved{status}` in Prometheus too), a
+failed backup and a failed restore test. Logs are JSON (pino) on stdout; ship them to the
+aggregator of your choice.
+
+### Scheduled jobs and several replicas
+
+Every cron — e-CF reconciliation and monitoring, Azul renewals, the platform's own invoicing —
+claims its run in `scheduled_job_runs`, so any number of API replicas is safe: no renewal is
+charged twice and no e-CF transmitted twice.
+
+### Desktop app
+
+`apps/desktop/electron-builder.json` is set up for signed builds (Windows `sha256`, macOS hardened
+runtime + notarization) and GitHub Releases as the update channel. Building it needs
+`electron-builder` and the signing certificates (`CSC_LINK`/`CSC_KEY_PASSWORD`, `APPLE_ID`/
+`APPLE_APP_SPECIFIC_PASSWORD`); an unsigned Windows installer is blocked by SmartScreen.
+
 ## Prerequisites
 
 | Component  | Version | Notes |
