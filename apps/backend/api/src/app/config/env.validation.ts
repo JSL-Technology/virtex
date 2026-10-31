@@ -509,6 +509,10 @@ export const envValidation = Joi.object({
   // and the service product the charge is invoiced as.
   PLATFORM_BILLING_ORGANIZATION_ID: Joi.string().guid().optional(),
   PLATFORM_BILLING_PRODUCT_ID: Joi.string().guid().optional(),
+  // Operations: the bearer Prometheus scrapes /health/metrics with, and where operational alerts
+  // (e-CF stuck, renewals declined) are posted as `{ text }` — Slack, Teams or Google Chat.
+  METRICS_TOKEN: Joi.string().min(24).optional(),
+  ALERT_WEBHOOK_URL: Joi.string().uri({ scheme: ['https'] }).optional(),
 
   // Stripe Tax. Computing tax needs the Stripe ACCOUNT to have a registered origin (head office)
   // address and Stripe Tax activated — setup a local run does not have, so `automatic_tax` fails

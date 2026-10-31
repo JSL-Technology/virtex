@@ -7,6 +7,7 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { SaasService } from '../../saas/saas.service';
 import type { BillingPeriod } from '../../saas/enums/billing-period.enum';
 import { AzulPaymentAdapter } from '../adapters/azul-payment.adapter';
+import { SchedulerLockService } from '../../shared/scheduler/scheduler-lock.service';
 import { BillingIntentStatus, BillingPaymentIntent } from '../entities/billing-payment-intent.entity';
 import {
   SUBSCRIPTION_CHARGED,
@@ -32,10 +33,24 @@ export class AzulRenewalService {
     private readonly azul: AzulPaymentAdapter,
     private readonly saas: SaasService,
     private readonly events: EventEmitter2,
+    private readonly schedulerLock: SchedulerLockService,
   ) {}
 
-  /** 06:15 in Santo Domingo (10:15 UTC), every day. */
+  /**
+   * 06:15 in Santo Domingo (10:15 UTC), every day.
+   *
+   * Claimed through `SchedulerLockService` twice over: the run, by day, so several API instances
+   * never run it together; and each organization's charge, by its period end and the day, so even
+   * a run repeated by hand cannot charge a customer twice for the same period on the same day.
+   */
   @Cron('15 10 * * *', { name: 'azul-renewals' })
+  async renewDueOnce(): Promise<void> {
+    const today = new Date().toISOString().slice(0, 10);
+    await this.schedulerLock.runOnce('azul-renewals', today, async () => {
+      await this.renewDue();
+    });
+  }
+
   async renewDue(now: Date = new Date()): Promise<{ renewed: number; declined: number; suspended: number }> {
     const due = await this.organizations.find({
       where: {
@@ -52,10 +67,21 @@ export class AzulRenewalService {
       if (!organization.plan) continue;
       const last = (await this.azul.chargesOf(organization)).find((c) => c.status === BillingIntentStatus.APPROVED);
       const period = ((last?.billingPeriod as BillingPeriod) ?? 'monthly') as BillingPeriod;
-      const charge = await this.azul.renew(organization, organization.plan.slug, period);
-      if (charge.status === BillingIntentStatus.APPROVED) {
+      const periodKey = organization.subscriptionPeriodEnd
+        ? new Date(organization.subscriptionPeriodEnd).toISOString().slice(0, 10)
+        : 'none';
+      let charge: BillingPaymentIntent | null = null;
+      const claimed = await this.schedulerLock.runOnce(
+        `azul-renew:${organization.id}`,
+        `${periodKey}:${now.toISOString().slice(0, 10)}`,
+        async () => {
+          charge = await this.azul.renew(organization, organization.plan!.slug, period);
+        },
+      );
+      if (!claimed || !charge) continue;
+      if ((charge as BillingPaymentIntent).status === BillingIntentStatus.APPROVED) {
         organization.subscriptionStatus = 'active';
-        organization.subscriptionPeriodEnd = charge.periodEnd;
+        organization.subscriptionPeriodEnd = (charge as BillingPaymentIntent).periodEnd;
         renewed++;
       } else {
         const lapsedFor = organization.subscriptionPeriodEnd
@@ -69,7 +95,7 @@ export class AzulRenewalService {
           declined++;
         }
         this.logger.warn(
-          { event: 'azul_renewal_declined', organizationId: organization.id, chargeId: charge.id, lapsedDays: Math.floor(lapsedFor) },
+          { event: 'azul_renewal_declined', organizationId: organization.id, chargeId: (charge as BillingPaymentIntent).id, lapsedDays: Math.floor(lapsedFor) },
           'Azul renewal declined',
         );
       }
@@ -85,6 +111,14 @@ export class AzulRenewalService {
    * it. Every ten minutes, so a signup's first charge is invoiced shortly after the account exists.
    */
   @Cron('*/10 * * * *', { name: 'azul-platform-invoices' })
+  async invoicePendingOnce(): Promise<void> {
+    const now = new Date();
+    const slot = `${now.toISOString().slice(0, 13)}:${Math.floor(now.getUTCMinutes() / 10)}`;
+    await this.schedulerLock.runOnce('azul-platform-invoices', slot, async () => {
+      await this.invoicePending();
+    });
+  }
+
   async invoicePending(): Promise<number> {
     const charges = await this.intents.find({
       where: { provider: 'azul', status: BillingIntentStatus.APPROVED, invoicedAt: IsNull() },

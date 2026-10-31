@@ -50,6 +50,7 @@ export interface PosPayment {
 @Entity({ name: 'pos_sales' })
 @Index('IDX_pos_sales_org_created', ['organizationId', 'createdAt'])
 @Index('IDX_pos_sales_org_shift', ['organizationId', 'shiftId'])
+@Index('IDX_pos_sales_org_invoice', ['organizationId', 'invoiceId'], { where: '"invoiceId" IS NOT NULL' })
 export class PosSale {
   @PrimaryGeneratedColumn('uuid')
   id: string;

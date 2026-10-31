@@ -1,4 +1,5 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Check, Column, Entity, Index, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 export enum ReceivedEcfStatus {
@@ -15,14 +16,18 @@ export enum ReceivedEcfStatus {
  * from it — with the fields the inbox and the purchase register need lifted out of it.
  */
 @Entity({ name: 'ecf_received_documents' })
-@Index('UQ_ecf_received_documents_org_issuer_ncf', ['organizationId', 'issuerRnc', 'ncf'], { unique: true })
+@Unique('UQ_ecf_received_documents_org_issuer_ncf', ['organizationId', 'issuerRnc', 'ncf'])
+@Check('CHK_ecf_received_documents_status', `"status" IN ('RECEIVED', 'APPROVED', 'REJECTED')`)
 @Index('IDX_ecf_received_documents_org_status', ['organizationId', 'status', 'receivedAt'])
 export class EcfReceivedDocument {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid', { primaryKeyConstraintName: 'PK_ecf_received_documents' })
   id: string;
 
   @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
+
+  @TenantOwned('FK_ecf_received_documents_organization')
+  organization?: TenantRef;
 
   @Column({ name: 'issuer_rnc', type: 'varchar', length: 16 })
   issuerRnc: string;

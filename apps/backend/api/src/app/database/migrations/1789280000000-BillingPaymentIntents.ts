@@ -45,7 +45,11 @@ export class BillingPaymentIntents1789280000000 implements MigrationInterface {
         CONSTRAINT "PK_billing_payment_intents" PRIMARY KEY ("id"),
         CONSTRAINT "UQ_billing_payment_intents_order" UNIQUE ("provider", "order_number"),
         CONSTRAINT "CHK_billing_payment_intents_status" CHECK ("status" IN ('PENDING', 'APPROVED', 'DECLINED', 'CANCELLED', 'VOIDED')),
-        CONSTRAINT "CHK_billing_payment_intents_kind" CHECK ("kind" IN ('registration', 'organization', 'renewal'))
+        CONSTRAINT "CHK_billing_payment_intents_kind" CHECK ("kind" IN ('registration', 'organization', 'renewal')),
+        -- The PLATFORM's record of what it charged: it outlives the customer company (its own books
+        -- and e-CF refer to it), so erasing the company clears the link instead of the charge.
+        CONSTRAINT "FK_billing_payment_intents_organization" FOREIGN KEY ("organization_id")
+          REFERENCES "organizations"("id") ON DELETE SET NULL
       )
     `);
     await q.query(

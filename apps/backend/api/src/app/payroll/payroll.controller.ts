@@ -19,6 +19,9 @@ import {
 import type { HttpResponse as Response } from '../common/http/http.types';
 import { BadRequestError } from '../i18n/localized.exception';
 import { PayrollDeclarationsService } from './services/payroll-declarations.service';
+import { LeaveService } from './services/leave.service';
+import { DecideLeaveDto, RequestLeaveDto } from './dto/leave.dto';
+import { LeaveStatus } from './entities/employee-leave.entity';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../security/principal';
@@ -66,6 +69,7 @@ export class PayrollController {
     private readonly runs: PayrollRunService,
     private readonly tss: PayrollTssService,
     private readonly declarations: PayrollDeclarationsService,
+    private readonly leave: LeaveService,
     private readonly concepts: PayrollConceptService,
     private readonly inputs: PayrollInputService,
     private readonly parameters: PayrollParametersService,
@@ -369,6 +373,63 @@ export class PayrollController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.tss.autodeterminacion(id, user.organizationId);
+  }
+
+  // ── Vacations and leave ──────────────────────────────────────────────────────
+
+  /** The vacation the law grants the employee for the current service year, and what is left. */
+  @Get('employees/:employeeId/vacation-balance')
+  @HasPermission(PERMISSIONS.HCM_VIEW)
+  vacationBalance(
+    @Param('employeeId', UuidParamPipe) employeeId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('asOf') asOf?: string,
+  ) {
+    return this.leave.balance(user.organizationId, employeeId, asOf && /^\d{4}-\d{2}-\d{2}$/.test(asOf) ? asOf : undefined);
+  }
+
+  @Get('leaves')
+  @HasPermission(PERMISSIONS.HCM_VIEW)
+  listLeaves(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('employeeId') employeeId?: string,
+    @Query('status') status?: string,
+  ) {
+    if (status && !(Object.values(LeaveStatus) as string[]).includes(status)) {
+      throw new BadRequestError('payroll.leave.status_unknown', { status });
+    }
+    return this.leave.list(user.organizationId, {
+      employeeId: employeeId && /^[0-9a-f-]{36}$/i.test(employeeId) ? employeeId : undefined,
+      status: status as LeaveStatus | undefined,
+    });
+  }
+
+  @Post('employees/:employeeId/leaves')
+  @HasPermission(PERMISSIONS.HCM_MANAGE)
+  requestLeave(
+    @Param('employeeId', UuidParamPipe) employeeId: string,
+    @Body() dto: RequestLeaveDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.leave.request(user.organizationId, employeeId, dto, user.id);
+  }
+
+  @Post('leaves/:id/approve')
+  @HasPermission(PERMISSIONS.HCM_MANAGE)
+  approveLeave(@Param('id', UuidParamPipe) id: string, @Body() dto: DecideLeaveDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.leave.decide(user.organizationId, id, 'approve', user.id, dto.note);
+  }
+
+  @Post('leaves/:id/reject')
+  @HasPermission(PERMISSIONS.HCM_MANAGE)
+  rejectLeave(@Param('id', UuidParamPipe) id: string, @Body() dto: DecideLeaveDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.leave.decide(user.organizationId, id, 'reject', user.id, dto.note);
+  }
+
+  @Post('leaves/:id/cancel')
+  @HasPermission(PERMISSIONS.HCM_MANAGE)
+  cancelLeave(@Param('id', UuidParamPipe) id: string, @Body() dto: DecideLeaveDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.leave.decide(user.organizationId, id, 'cancel', user.id, dto.note);
   }
 
   // ── DGII and the bank ────────────────────────────────────────────────────────

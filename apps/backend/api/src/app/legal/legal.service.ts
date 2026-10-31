@@ -56,6 +56,8 @@ export class LegalService {
   async joinWaitlist(dto: MarketWaitlistDto, ipAddress: string | null): Promise<void> {
     const countryCode = dto.countryCode.toUpperCase();
     await this.waitlist
+      // tenant-scope-guard-allow: `market_waitlist` is visitors from countries the product does not
+      // serve yet — there is no tenant to scope by (CROSS_TENANT in tenant-table-classification.ts).
       .createQueryBuilder()
       .insert()
       .into(MarketWaitlistEntry)

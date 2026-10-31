@@ -41,13 +41,9 @@ export class PosFiscalDocuments1789260000000 implements MigrationInterface {
         CONSTRAINT "PK_pos_settings" PRIMARY KEY ("organization_id"),
         CONSTRAINT "CHK_pos_settings_fiscal_mode" CHECK ("fiscal_mode" IN ('AUTO', 'REQUIRED', 'OFF')),
         CONSTRAINT "FK_pos_settings_organization" FOREIGN KEY ("organization_id")
-          REFERENCES "organizations"("id") ON DELETE CASCADE,
-        CONSTRAINT "FK_pos_settings_cash_account" FOREIGN KEY ("cash_bank_account_id")
-          REFERENCES "bank_accounts"("id") ON DELETE SET NULL,
-        CONSTRAINT "FK_pos_settings_card_account" FOREIGN KEY ("card_bank_account_id")
-          REFERENCES "bank_accounts"("id") ON DELETE SET NULL,
-        CONSTRAINT "FK_pos_settings_transfer_account" FOREIGN KEY ("transfer_bank_account_id")
-          REFERENCES "bank_accounts"("id") ON DELETE SET NULL
+          REFERENCES "organizations"("id") ON DELETE CASCADE
+        -- The treasury accounts are validated by the service: a foreign key into treasury's table
+        -- would tie Sales to how Finance lays out its rows (module-boundaries.config.mjs).
       )
     `);
     await q.query(`ALTER TABLE "pos_settings" ENABLE ROW LEVEL SECURITY`);

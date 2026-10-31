@@ -1,0 +1,13 @@
+node_modules
+dist
+tmp
+coverage
+.nx
+.angular
+.git
+**/*.spec.ts
+docs
+apps/ai-engine
+.env
+.env.*
+!.env.example

@@ -24,6 +24,8 @@ import { SeveranceService } from './services/severance.service';
 import { PayrollAccountingService } from './services/payroll-accounting.service';
 import { PayrollRunService } from './services/payroll-run.service';
 import { PayrollDeclarationsService } from './services/payroll-declarations.service';
+import { LeaveService } from './services/leave.service';
+import { EmployeeLeave } from './entities/employee-leave.entity';
 import { PayrollTssService } from './services/payroll-tss.service';
 import { PayrollConceptService } from './services/payroll-concept.service';
 import { PayrollInputService } from './services/payroll-input.service';
@@ -51,6 +53,7 @@ import { PayrollController } from './payroll.controller';
       CompanyPayrollParameter,
       Employee,
       EmployeeCompensation,
+      EmployeeLeave,
     ]),
     forwardRef(() => AuthModule),
     forwardRef(() => JournalEntriesModule),
@@ -73,6 +76,7 @@ import { PayrollController } from './payroll.controller';
     PayrollConceptService,
     PayrollInputService,
     PayrollDeclarationsService,
+    LeaveService,
   ],
   exports: [PayrollCalculationService, SeveranceService, PayrollRunService],
 })

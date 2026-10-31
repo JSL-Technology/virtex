@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Check, Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
+import { Organization } from '../../organizations/entities/organization.entity';
 import { encryptedColumnTransformer } from '../../common/database/encrypted-column.transformer';
 
 export enum BillingIntentStatus {
@@ -13,9 +14,13 @@ export type BillingIntentKind = 'registration' | 'organization' | 'renewal';
 
 /** One subscription charge through a local acquirer. See the migration for why it exists. */
 @Entity('billing_payment_intents')
-@Index('UQ_billing_payment_intents_order', ['provider', 'orderNumber'], { unique: true })
+@Unique('UQ_billing_payment_intents_order', ['provider', 'orderNumber'])
+@Index('IDX_billing_payment_intents_org', ['organizationId', 'createdAt'])
+@Index('IDX_billing_payment_intents_uninvoiced', ['status'], { where: '"invoiced_at" IS NULL' })
+@Check('CHK_billing_payment_intents_status', `"status" IN ('PENDING', 'APPROVED', 'DECLINED', 'CANCELLED', 'VOIDED')`)
+@Check('CHK_billing_payment_intents_kind', `"kind" IN ('registration', 'organization', 'renewal')`)
 export class BillingPaymentIntent {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid', { primaryKeyConstraintName: 'PK_billing_payment_intents' })
   id: string;
 
   @Column({ type: 'varchar', length: 16 })
@@ -33,6 +38,11 @@ export class BillingPaymentIntent {
 
   @Column({ name: 'organization_id', type: 'uuid', nullable: true })
   organizationId: string | null;
+
+  /** SET NULL, not CASCADE: the charge is the platform's record and outlives the customer. */
+  @ManyToOne(() => Organization, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'organization_id', foreignKeyConstraintName: 'FK_billing_payment_intents_organization' })
+  organization?: Organization | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   email: string | null;

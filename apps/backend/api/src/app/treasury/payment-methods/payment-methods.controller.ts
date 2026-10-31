@@ -1,3 +1,4 @@
+import { RequireStepUp, StepUpScope } from '../../auth/contracts/step-up.contract';
 import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
@@ -30,6 +31,8 @@ export class PaymentMethodsController {
 
   @Post()
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
+  // Which payment kind a method maps to decides the e-CF's «FormaPago» and the 607's columns.
+  @RequireStepUp(StepUpScope.MANAGE_BANK_ACCOUNTS)
   create(@Body() dto: CreatePaymentMethodDto, @CurrentUser() user: AuthenticatedUser) {
     return this.methods.create(dto, user.organizationId);
   }
@@ -37,6 +40,7 @@ export class PaymentMethodsController {
   /** Rename, re-map, reorder, retire or reinstate. Never delete: documents keep the code. */
   @Patch(':id')
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
+  @RequireStepUp(StepUpScope.MANAGE_BANK_ACCOUNTS)
   update(
     @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdatePaymentMethodDto,

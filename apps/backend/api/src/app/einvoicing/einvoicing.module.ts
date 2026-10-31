@@ -24,6 +24,7 @@ import { EcfLifecycleService } from './services/ecf-lifecycle.service';
 import { EinvoicingController } from './einvoicing.controller';
 import { EcfReceptorController } from './ecf-receptor.controller';
 import { EcfReceptorService } from './services/ecf-receptor.service';
+import { EcfMonitorService } from './services/ecf-monitor.service';
 import { EcfReceivedDocument } from './entities/ecf-received-document.entity';
 import { FiscalRangeService } from './services/fiscal-range.service';
 import { FiscalRegimeSettingsService } from './services/fiscal-regime-settings.service';
@@ -78,6 +79,7 @@ import { AfipRegimeAdapter } from './regimes/ar/afip.adapter';
     EcfLifecycleXmlBuilder,
     EcfLifecycleService,
     EcfReceptorService,
+    EcfMonitorService,
     // The seven-regime backbone. `XmlSignatureService` and `RegimeTransportService` were written,
     // tested and left unregistered, which is why every market but the Dominican Republic still
     // resolved to the generic adapter: the code existed and the container had never heard of it.

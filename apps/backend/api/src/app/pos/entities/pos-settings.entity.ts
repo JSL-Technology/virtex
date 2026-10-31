@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { Check, Column, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 /**
  * Whether the till issues a fiscal document per sale.
@@ -15,9 +16,13 @@ export enum PosFiscalMode {
 
 /** The point of sale's configuration, one row per company. */
 @Entity('pos_settings')
+@Check('CHK_pos_settings_fiscal_mode', `"fiscal_mode" IN ('AUTO', 'REQUIRED', 'OFF')`)
 export class PosSettings {
-  @PrimaryColumn({ name: 'organization_id', type: 'uuid' })
+  @PrimaryColumn({ name: 'organization_id', type: 'uuid', primaryKeyConstraintName: 'PK_pos_settings' })
   organizationId: string;
+
+  @TenantOwned('FK_pos_settings_organization')
+  organization?: TenantRef;
 
   @Column({ name: 'fiscal_mode', type: 'varchar', length: 16, default: PosFiscalMode.AUTO })
   fiscalMode: PosFiscalMode;

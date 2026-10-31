@@ -1208,5 +1208,65 @@
     "es": "Solo se puede generar el archivo de pago de una nómina aprobada.",
     "en": "The payment file can only be generated for an approved payroll.",
     "pt": "O arquivo de pagamento só pode ser gerado para uma folha aprovada."
+  },
+  "payroll.leave.end_before_start": {
+    "es": "La fecha final no puede ser anterior a la inicial.",
+    "en": "The end date cannot be before the start date.",
+    "pt": "A data final não pode ser anterior à inicial."
+  },
+  "payroll.leave.before_hire": {
+    "es": "La licencia empieza antes de la fecha de ingreso del empleado.",
+    "en": "The leave starts before the employee's hire date.",
+    "pt": "A licença começa antes da data de admissão do funcionário."
+  },
+  "payroll.leave.no_working_days": {
+    "es": "El período no incluye días laborables.",
+    "en": "The period includes no working days.",
+    "pt": "O período não inclui dias úteis."
+  },
+  "payroll.leave.overlaps": {
+    "es": "El empleado ya tiene una licencia en esas fechas.",
+    "en": "The employee already has leave on those dates.",
+    "pt": "O funcionário já tem licença nessas datas."
+  },
+  "payroll.leave.vacation_not_yet_earned": {
+    "es": "El empleado aún no ha generado vacaciones: se generan a partir de cinco meses de servicio (art. 180).",
+    "en": "The employee has not earned vacation yet: it accrues from five months of service (art. 180).",
+    "pt": "O funcionário ainda não adquiriu férias: elas são geradas a partir de cinco meses de serviço (art. 180)."
+  },
+  "payroll.leave.vacation_exceeds_balance": {
+    "es": "Se solicitan {{requested}} días laborables y quedan {{available}} en el año de servicio.",
+    "en": "{{requested}} working days requested; {{available}} left in the service year.",
+    "pt": "Foram solicitados {{requested}} dias úteis e restam {{available}} no ano de serviço."
+  },
+  "payroll.leave.not_found": {
+    "es": "No se encontró la licencia.",
+    "en": "The leave was not found.",
+    "pt": "A licença não foi encontrada."
+  },
+  "payroll.leave.already_closed": {
+    "es": "La licencia ya fue rechazada o cancelada.",
+    "en": "The leave was already rejected or cancelled.",
+    "pt": "A licença já foi rejeitada ou cancelada."
+  },
+  "payroll.leave.already_decided": {
+    "es": "La licencia ya fue aprobada o rechazada.",
+    "en": "The leave was already approved or rejected.",
+    "pt": "A licença já foi aprovada ou rejeitada."
+  },
+  "payroll.leave.rejection_reason_required": {
+    "es": "Indica por qué se rechaza la licencia.",
+    "en": "State why the leave is rejected.",
+    "pt": "Informe por que a licença é rejeitada."
+  },
+  "payroll.leave.employee_not_found": {
+    "es": "No se encontró el empleado.",
+    "en": "The employee was not found.",
+    "pt": "O funcionário não foi encontrado."
+  },
+  "payroll.leave.status_unknown": {
+    "es": "Estado desconocido: {{status}}.",
+    "en": "Unknown status: {{status}}.",
+    "pt": "Status desconhecido: {{status}}."
   }
 }

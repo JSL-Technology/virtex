@@ -361,7 +361,9 @@ describeWithDb('tenant deletion', () => {
     // their default tenant going away clears the pointer (SET NULL); membership is what cascades.
     // A legal acceptance is that person's consent to the terms, kept as evidence after the company
     // that gave it context is gone (SET NULL; `tenant-table-classification.ts`).
-    const exempt = ['audit_logs', 'users', 'legal_acceptances'];
+    // A subscription charge is the PLATFORM's record of what it collected — its own books and e-CF
+    // refer to it — so the customer company going away clears the link (SET NULL), not the charge.
+    const exempt = ['audit_logs', 'users', 'legal_acceptances', 'billing_payment_intents'];
     const unowned = (await dataSource.query(
       `SELECT c.table_name AS table
          FROM information_schema.columns c
