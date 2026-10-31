@@ -1,0 +1,8 @@
+.so { display: grid; gap: 16px; padding: 16px; }
+.so header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.so h1 { margin: 0; font-size: 1.3rem; }
+.so .meta { display: flex; flex-wrap: wrap; gap: 16px; color: var(--vx-text-muted, #555); }
+.so .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.so .delivery-form { display: grid; gap: 12px; padding: 16px; }
+.so .delivery-form .fields { display: flex; flex-wrap: wrap; gap: 12px; }
+.so .delivery-form input[type='number'] { width: 110px; }

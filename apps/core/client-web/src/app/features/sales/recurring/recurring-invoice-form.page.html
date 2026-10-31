@@ -1,0 +1,73 @@
+<form class="ri" [formGroup]="form" (ngSubmit)="save()">
+  <h1>{{ (id ? 'invoices.recurring_ui.edit' : 'invoices.recurring_ui.new') | translate }}</h1>
+  <div class="grid card">
+    <label class="field" for="ri-name">
+      <span>{{ 'invoices.recurring_ui.name' | translate }} *</span>
+      <input id="ri-name" type="text" maxlength="160" formControlName="name" />
+    </label>
+    <label class="field" for="ri-customer">
+      <span>{{ 'invoices.recurring_ui.customer' | translate }} *</span>
+      <vx-select inputId="ri-customer" formControlName="customerId" [search]="searchCustomers" [resolveWith]="resolveCustomer"
+        [displayWith]="customerName" [valueWith]="customerId" [required]="true" />
+    </label>
+    <label class="field" for="ri-frequency">
+      <span>{{ 'invoices.recurring_ui.frequency' | translate }} *</span>
+      <select id="ri-frequency" formControlName="frequency">
+        @for (f of frequencies; track f) {
+          <option [value]="f">{{ 'invoices.recurring_ui.frequencies.' + f.toLowerCase() | translate }}</option>
+        }
+      </select>
+    </label>
+    <label class="field" for="ri-start">
+      <span>{{ 'invoices.recurring_ui.start_date' | translate }} *</span>
+      <vx-date-field inputId="ri-start" formControlName="startDate" />
+    </label>
+    <label class="field" for="ri-end">
+      <span>{{ 'invoices.recurring_ui.end_date' | translate }}</span>
+      <vx-date-field inputId="ri-end" formControlName="endDate" />
+    </label>
+    <label class="field" for="ri-term">
+      <span>{{ 'invoices.recurring_ui.payment_term_days' | translate }}</span>
+      <input id="ri-term" type="number" min="0" max="365" formControlName="paymentTermDays" />
+    </label>
+    <label class="field" for="ri-auto">
+      <span><input id="ri-auto" type="checkbox" formControlName="autoIssue" /> {{ 'invoices.recurring_ui.auto_issue' | translate }}</span>
+    </label>
+  </div>
+
+  <div class="card table-container">
+    <table class="data-table lines">
+      <thead>
+        <tr>
+          <th scope="col">{{ 'invoices.recurring_ui.product' | translate }}</th>
+          <th scope="col">{{ 'invoices.recurring_ui.description' | translate }}</th>
+          <th scope="col">{{ 'invoices.recurring_ui.quantity' | translate }}</th>
+          <th scope="col">{{ 'invoices.recurring_ui.unit_price' | translate }}</th>
+          <th scope="col"><span class="sr-only">{{ 'invoices.recurring_ui.actions' | translate }}</span></th>
+        </tr>
+      </thead>
+      <tbody formArrayName="lines">
+        @for (line of lines.controls; track $index; let i = $index) {
+          <tr [formGroupName]="i">
+            <td><vx-select [inputId]="'ri-p-' + i" formControlName="productId" [search]="searchProducts" [resolveWith]="resolveProduct" [displayWith]="productName" [valueWith]="productId" /></td>
+            <td><input [attr.aria-label]="'invoices.recurring_ui.description' | translate" type="text" maxlength="500" formControlName="description" /></td>
+            <td><input [attr.aria-label]="'invoices.recurring_ui.quantity' | translate" type="number" min="0" step="any" formControlName="quantity" /></td>
+            <td><input [attr.aria-label]="'invoices.recurring_ui.unit_price' | translate" type="number" min="0" step="any" formControlName="unitPrice" [placeholder]="'invoices.recurring_ui.catalogue_price' | translate" /></td>
+            <td><button type="button" class="btn btn-ghost btn-sm" (click)="removeLine(i)" [disabled]="lines.length === 1">{{ 'invoices.recurring_ui.remove_line' | translate }}</button></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <button type="button" class="secondary-button" (click)="addLine()">{{ 'invoices.recurring_ui.add_line' | translate }}</button>
+  </div>
+
+  <label class="field" for="ri-notes">
+    <span>{{ 'invoices.recurring_ui.notes' | translate }}</span>
+    <textarea id="ri-notes" rows="3" maxlength="2000" formControlName="notes"></textarea>
+  </label>
+
+  <div class="actions">
+    <button type="submit" class="primary-button" [disabled]="saving()">{{ 'invoices.recurring_ui.save' | translate }}</button>
+    <a class="secondary-button" routerLink="/invoices/recurring">{{ 'invoices.recurring_ui.back' | translate }}</a>
+  </div>
+</form>

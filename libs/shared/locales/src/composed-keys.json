@@ -1701,6 +1701,30 @@
       "it1_credits_prior_balance",
       "it1_result_payable",
       "it1_result_credit_forward"
+    ],
+    "sales.orders.status": [
+      "CONFIRMED",
+      "PARTIALLY_DELIVERED",
+      "DELIVERED",
+      "CLOSED",
+      "CANCELLED"
+    ],
+    "sales.orders.delivery_status": [
+      "POSTED",
+      "INVOICED",
+      "VOIDED"
+    ],
+    "invoices.recurring_ui.frequencies": [
+      "MONTHLY",
+      "BIMONTHLY",
+      "QUARTERLY",
+      "SEMIANNUAL",
+      "ANNUAL"
+    ],
+    "invoices.recurring_ui.status": [
+      "ACTIVE",
+      "PAUSED",
+      "ENDED"
     ]
   },
   "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",

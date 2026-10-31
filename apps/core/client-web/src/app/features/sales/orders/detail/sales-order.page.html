@@ -1,0 +1,138 @@
+@if (order(); as o) {
+  <div class="so">
+    <header>
+      <div>
+        <h1>{{ 'sales.orders.order' | translate: { number: o.orderNumber } }}</h1>
+        <div class="meta">
+          <span>{{ o.customer?.companyName }}</span>
+          <span>{{ o.orderDate | vxDate: 'date' : true }}</span>
+          @if (o.customerReference) {
+            <span>{{ 'sales.orders.customer_reference' | translate }}: {{ o.customerReference }}</span>
+          }
+          <span>{{ o.total | vxMoney: o.currencyCode }}</span>
+          <vx-badge [tone]="tone[o.status]">{{ 'sales.orders.status.' + o.status.toLowerCase() | translate }}</vx-badge>
+        </div>
+      </div>
+      @if (canAct() && open()) {
+        <div class="actions">
+          @if (pendingDelivery()) {
+            <button type="button" class="primary-button" [disabled]="busy()" (click)="startDelivery()">{{ 'sales.orders.new_delivery' | translate }}</button>
+          }
+          @if (invoiceable()) {
+            <button type="button" class="primary-button" [disabled]="busy()" (click)="invoice()">{{ 'sales.orders.invoice' | translate }}</button>
+          }
+          <button type="button" class="secondary-button" [disabled]="busy()" (click)="close()">{{ 'sales.orders.close' | translate }}</button>
+          @if (canVoid() && o.status === 'CONFIRMED') {
+            <button type="button" class="danger-button" [disabled]="busy()" (click)="cancel()">{{ 'sales.orders.cancel' | translate }}</button>
+          }
+        </div>
+      }
+    </header>
+
+    @if (delivering()) {
+      <section class="card delivery-form" aria-labelledby="so-delivery-title">
+        <h2 id="so-delivery-title">{{ 'sales.orders.new_delivery' | translate }}</h2>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'sales.orders.description' | translate }}</th>
+              <th scope="col" class="text-right">{{ 'sales.orders.remaining' | translate }}</th>
+              <th scope="col" class="text-right">{{ 'sales.orders.deliver_now' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of o.lines; track line.id) {
+              @if (line.isStocked && remaining(line) > 0) {
+                <tr>
+                  <td>{{ line.description }}</td>
+                  <td class="text-right">{{ remaining(line) | vxNumber }}</td>
+                  <td class="text-right">
+                    <label class="sr-only" [for]="'so-q-' + line.id">{{ 'sales.orders.deliver_now' | translate }}</label>
+                    <input [id]="'so-q-' + line.id" type="number" min="0" [max]="remaining(line)" step="any" [ngModel]="draft()[line.id]" (ngModelChange)="setQuantity(line.id, $event)" />
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+        <div class="fields">
+          <label>{{ 'sales.orders.driver' | translate }} <input type="text" maxlength="120" [(ngModel)]="driverName" /></label>
+          <label>{{ 'sales.orders.vehicle_plate' | translate }} <input type="text" maxlength="20" [(ngModel)]="vehiclePlate" /></label>
+          <label>{{ 'sales.orders.received_by' | translate }} <input type="text" maxlength="120" [(ngModel)]="receivedBy" /></label>
+        </div>
+        <div class="actions">
+          <button type="button" class="primary-button" [disabled]="busy()" (click)="deliver()">{{ 'sales.orders.confirm_delivery' | translate }}</button>
+          <button type="button" class="secondary-button" (click)="delivering.set(false)">{{ 'sales.orders.discard' | translate }}</button>
+        </div>
+      </section>
+    }
+
+    <section class="table-container card" aria-labelledby="so-lines-title">
+      <h2 id="so-lines-title" class="sr-only">{{ 'sales.orders.lines' | translate }}</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">{{ 'sales.orders.description' | translate }}</th>
+            <th scope="col" class="text-right">{{ 'sales.orders.ordered' | translate }}</th>
+            <th scope="col" class="text-right">{{ 'sales.orders.delivered_qty' | translate }}</th>
+            <th scope="col" class="text-right">{{ 'sales.orders.invoiced_qty' | translate }}</th>
+            <th scope="col" class="text-right">{{ 'sales.orders.unit_price' | translate }}</th>
+            <th scope="col" class="text-right">{{ 'sales.orders.amount' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (line of o.lines; track line.id) {
+            <tr>
+              <td>{{ line.description }}@if (!line.isStocked) { <span class="muted"> · {{ 'sales.orders.service' | translate }}</span> }</td>
+              <td class="text-right">{{ line.quantity | vxNumber }}</td>
+              <td class="text-right">{{ line.isStocked ? (line.deliveredQuantity | vxNumber) : '—' }}</td>
+              <td class="text-right">{{ line.invoicedQuantity | vxNumber }}</td>
+              <td class="text-right">{{ line.unitPrice | vxMoney: o.currencyCode }}</td>
+              <td class="text-right">{{ line.lineTotal | vxMoney: o.currencyCode }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="table-container card" aria-labelledby="so-deliveries-title">
+      <h2 id="so-deliveries-title">{{ 'sales.orders.deliveries' | translate }}</h2>
+      @if (!o.deliveries?.length) {
+        <p class="muted">{{ 'sales.orders.no_deliveries' | translate }}</p>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'sales.orders.delivery_number' | translate }}</th>
+              <th scope="col">{{ 'sales.orders.delivery_date' | translate }}</th>
+              <th scope="col">{{ 'sales.orders.driver' | translate }}</th>
+              <th scope="col" class="text-center">{{ 'sales.orders.state' | translate }}</th>
+              <th scope="col"><span class="sr-only">{{ 'sales.orders.actions' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (note of o.deliveries; track note.id) {
+              <tr>
+                <td>{{ note.number }}</td>
+                <td>{{ note.deliveryDate | vxDate: 'date' : true }}</td>
+                <td>{{ note.driverName }} {{ note.vehiclePlate }}</td>
+                <td class="text-center"><vx-badge [tone]="deliveryTone[note.status]">{{ 'sales.orders.delivery_status.' + note.status.toLowerCase() | translate }}</vx-badge></td>
+                <td class="text-right">
+                  <button type="button" class="btn btn-ghost btn-sm" (click)="print(note)">{{ 'sales.orders.print' | translate }}</button>
+                  @if (note.invoiceId) {
+                    <a class="btn btn-ghost btn-sm" [routerLink]="['/invoices', note.invoiceId]">{{ 'sales.orders.view_invoice' | translate }}</a>
+                  }
+                  @if (note.status === 'POSTED' && canVoid()) {
+                    <button type="button" class="btn btn-ghost btn-sm" [disabled]="busy()" (click)="voidDelivery(note)">{{ 'sales.orders.void' | translate }}</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  </div>
+} @else if (loading()) {
+  <p class="muted" role="status">{{ 'sales.orders.loading' | translate }}</p>
+}

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VX_DATE } from '../../../shared/components/date';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
@@ -30,7 +31,7 @@ const ANSWER_BUSINESS_DAYS = 3;
 @Component({
   selector: 'app-received-ecf-page',
   standalone: true,
-  imports: [...VX_DATE, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_DATE, FormsModule, ...VX_FORM_A11Y, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './received-ecf.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

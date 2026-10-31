@@ -591,5 +591,380 @@
     "es": "Indica por qué se anula el conduce.",
     "en": "State why the delivery note is voided.",
     "pt": "Informe por que a guia é anulada."
+  },
+  "sales.orders.title": {
+    "es": "Pedidos de venta",
+    "en": "Sales orders",
+    "pt": "Pedidos de venda"
+  },
+  "sales.orders.subtitle": {
+    "es": "Lo que los clientes pidieron, cuánto salió con conduce y cuánto está facturado.",
+    "en": "What customers ordered, how much left with a delivery note and how much is invoiced.",
+    "pt": "O que os clientes pediram, quanto saiu com guia e quanto está faturado."
+  },
+  "sales.orders.deliveries_title": {
+    "es": "Conduces",
+    "en": "Delivery notes",
+    "pt": "Guias de remessa"
+  },
+  "sales.orders.deliveries_subtitle": {
+    "es": "Cada entrega que salió del almacén y si ya se facturó.",
+    "en": "Every delivery that left the warehouse and whether it has been invoiced.",
+    "pt": "Cada entrega que saiu do armazém e se já foi faturada."
+  },
+  "sales.orders.empty_title": {
+    "es": "No hay pedidos",
+    "en": "No orders",
+    "pt": "Nenhum pedido"
+  },
+  "sales.orders.empty_help": {
+    "es": "Convierte una cotización aceptada en pedido para despacharla con conduces.",
+    "en": "Turn an accepted quote into an order to dispatch it with delivery notes.",
+    "pt": "Converta uma cotação aceita em pedido para despachá-la com guias."
+  },
+  "sales.orders.filter": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
+  },
+  "sales.orders.all": {
+    "es": "Todos",
+    "en": "All",
+    "pt": "Todos"
+  },
+  "sales.orders.status.confirmed": {
+    "es": "Confirmado",
+    "en": "Confirmed",
+    "pt": "Confirmado"
+  },
+  "sales.orders.status.partially_delivered": {
+    "es": "Entregado en parte",
+    "en": "Partially delivered",
+    "pt": "Entregue em parte"
+  },
+  "sales.orders.status.delivered": {
+    "es": "Entregado",
+    "en": "Delivered",
+    "pt": "Entregue"
+  },
+  "sales.orders.status.closed": {
+    "es": "Cerrado",
+    "en": "Closed",
+    "pt": "Fechado"
+  },
+  "sales.orders.status.cancelled": {
+    "es": "Cancelado",
+    "en": "Cancelled",
+    "pt": "Cancelado"
+  },
+  "sales.orders.delivery_status.posted": {
+    "es": "Por facturar",
+    "en": "To invoice",
+    "pt": "A faturar"
+  },
+  "sales.orders.delivery_status.invoiced": {
+    "es": "Facturado",
+    "en": "Invoiced",
+    "pt": "Faturado"
+  },
+  "sales.orders.delivery_status.voided": {
+    "es": "Anulado",
+    "en": "Voided",
+    "pt": "Anulado"
+  },
+  "sales.orders.number": {
+    "es": "Pedido",
+    "en": "Order",
+    "pt": "Pedido"
+  },
+  "sales.orders.customer": {
+    "es": "Cliente",
+    "en": "Customer",
+    "pt": "Cliente"
+  },
+  "sales.orders.order_date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "sales.orders.customer_reference": {
+    "es": "Orden del cliente",
+    "en": "Customer PO",
+    "pt": "Pedido do cliente"
+  },
+  "sales.orders.total": {
+    "es": "Total",
+    "en": "Total",
+    "pt": "Total"
+  },
+  "sales.orders.state": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Status"
+  },
+  "sales.orders.order": {
+    "es": "Pedido {{number}}",
+    "en": "Order {{number}}",
+    "pt": "Pedido {{number}}"
+  },
+  "sales.orders.new_delivery": {
+    "es": "Nuevo conduce",
+    "en": "New delivery note",
+    "pt": "Nova guia"
+  },
+  "sales.orders.invoice": {
+    "es": "Facturar lo entregado",
+    "en": "Invoice what was delivered",
+    "pt": "Faturar o entregue"
+  },
+  "sales.orders.close": {
+    "es": "Cerrar pedido",
+    "en": "Close order",
+    "pt": "Fechar pedido"
+  },
+  "sales.orders.cancel": {
+    "es": "Cancelar pedido",
+    "en": "Cancel order",
+    "pt": "Cancelar pedido"
+  },
+  "sales.orders.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "sales.orders.remaining": {
+    "es": "Pendiente",
+    "en": "Remaining",
+    "pt": "Pendente"
+  },
+  "sales.orders.deliver_now": {
+    "es": "Entregar ahora",
+    "en": "Deliver now",
+    "pt": "Entregar agora"
+  },
+  "sales.orders.driver": {
+    "es": "Chofer",
+    "en": "Driver",
+    "pt": "Motorista"
+  },
+  "sales.orders.vehicle_plate": {
+    "es": "Placa",
+    "en": "Plate",
+    "pt": "Placa"
+  },
+  "sales.orders.received_by": {
+    "es": "Recibe",
+    "en": "Received by",
+    "pt": "Recebido por"
+  },
+  "sales.orders.confirm_delivery": {
+    "es": "Despachar e imprimir conduce",
+    "en": "Dispatch and print delivery note",
+    "pt": "Despachar e imprimir guia"
+  },
+  "sales.orders.discard": {
+    "es": "Descartar",
+    "en": "Discard",
+    "pt": "Descartar"
+  },
+  "sales.orders.lines": {
+    "es": "Líneas",
+    "en": "Lines",
+    "pt": "Linhas"
+  },
+  "sales.orders.ordered": {
+    "es": "Pedido",
+    "en": "Ordered",
+    "pt": "Pedido"
+  },
+  "sales.orders.delivered_qty": {
+    "es": "Entregado",
+    "en": "Delivered",
+    "pt": "Entregue"
+  },
+  "sales.orders.invoiced_qty": {
+    "es": "Facturado",
+    "en": "Invoiced",
+    "pt": "Faturado"
+  },
+  "sales.orders.unit_price": {
+    "es": "Precio",
+    "en": "Price",
+    "pt": "Preço"
+  },
+  "sales.orders.amount": {
+    "es": "Importe",
+    "en": "Amount",
+    "pt": "Valor"
+  },
+  "sales.orders.service": {
+    "es": "servicio",
+    "en": "service",
+    "pt": "serviço"
+  },
+  "sales.orders.deliveries": {
+    "es": "Conduces",
+    "en": "Delivery notes",
+    "pt": "Guias"
+  },
+  "sales.orders.no_deliveries": {
+    "es": "Aún no hay conduces.",
+    "en": "No delivery notes yet.",
+    "pt": "Ainda não há guias."
+  },
+  "sales.orders.delivery_number": {
+    "es": "Conduce",
+    "en": "Delivery note",
+    "pt": "Guia"
+  },
+  "sales.orders.delivery_date": {
+    "es": "Fecha de entrega",
+    "en": "Delivery date",
+    "pt": "Data de entrega"
+  },
+  "sales.orders.actions": {
+    "es": "Acciones",
+    "en": "Actions",
+    "pt": "Ações"
+  },
+  "sales.orders.print": {
+    "es": "Imprimir",
+    "en": "Print",
+    "pt": "Imprimir"
+  },
+  "sales.orders.view_invoice": {
+    "es": "Ver factura",
+    "en": "View invoice",
+    "pt": "Ver fatura"
+  },
+  "sales.orders.void": {
+    "es": "Anular",
+    "en": "Void",
+    "pt": "Anular"
+  },
+  "sales.orders.loading": {
+    "es": "Cargando el pedido…",
+    "en": "Loading the order…",
+    "pt": "Carregando o pedido…"
+  },
+  "sales.orders.load_failed": {
+    "es": "No se pudieron cargar los pedidos.",
+    "en": "Orders could not be loaded.",
+    "pt": "Não foi possível carregar os pedidos."
+  },
+  "sales.orders.delivered": {
+    "es": "Conduce {{number}} despachado.",
+    "en": "Delivery note {{number}} dispatched.",
+    "pt": "Guia {{number}} despachada."
+  },
+  "sales.orders.deliver_failed": {
+    "es": "No se pudo despachar el conduce.",
+    "en": "The delivery note could not be dispatched.",
+    "pt": "Não foi possível despachar a guia."
+  },
+  "sales.orders.invoice_title": {
+    "es": "Facturar el pedido",
+    "en": "Invoice the order",
+    "pt": "Faturar o pedido"
+  },
+  "sales.orders.invoice_message": {
+    "es": "Se emitirá el comprobante fiscal de lo entregado en los conduces del pedido {{number}} y de sus servicios pendientes. El inventario ya salió con los conduces y no se mueve de nuevo.",
+    "en": "The fiscal document for what the delivery notes of order {{number}} delivered, and its pending services, will be issued. Stock already left with the delivery notes and does not move again.",
+    "pt": "Será emitido o documento fiscal do que as guias do pedido {{number}} entregaram e dos serviços pendentes. O estoque já saiu com as guias e não se move de novo."
+  },
+  "sales.orders.invoiced": {
+    "es": "Facturado: {{number}}.",
+    "en": "Invoiced: {{number}}.",
+    "pt": "Faturado: {{number}}."
+  },
+  "sales.orders.invoice_failed": {
+    "es": "No se pudo facturar el pedido.",
+    "en": "The order could not be invoiced.",
+    "pt": "Não foi possível faturar o pedido."
+  },
+  "sales.orders.close_title": {
+    "es": "Cerrar el pedido",
+    "en": "Close the order",
+    "pt": "Fechar o pedido"
+  },
+  "sales.orders.close_message": {
+    "es": "Lo entregado y facturado se mantiene; lo pendiente deja de esperarse.",
+    "en": "What was delivered and invoiced stands; the remainder is no longer expected.",
+    "pt": "O entregue e faturado permanece; o pendente deixa de ser esperado."
+  },
+  "sales.orders.closed": {
+    "es": "Pedido cerrado.",
+    "en": "Order closed.",
+    "pt": "Pedido fechado."
+  },
+  "sales.orders.cancel_title": {
+    "es": "Cancelar el pedido",
+    "en": "Cancel the order",
+    "pt": "Cancelar o pedido"
+  },
+  "sales.orders.cancel_message": {
+    "es": "Indica por qué se cancela.",
+    "en": "State why it is cancelled.",
+    "pt": "Informe por que é cancelado."
+  },
+  "sales.orders.cancelled": {
+    "es": "Pedido cancelado.",
+    "en": "Order cancelled.",
+    "pt": "Pedido cancelado."
+  },
+  "sales.orders.void_title": {
+    "es": "Anular el conduce",
+    "en": "Void the delivery note",
+    "pt": "Anular a guia"
+  },
+  "sales.orders.void_message": {
+    "es": "La mercancía del conduce {{number}} vuelve al almacén. Indica por qué.",
+    "en": "The goods on delivery note {{number}} go back to the warehouse. State why.",
+    "pt": "A mercadoria da guia {{number}} volta ao armazém. Informe por quê."
+  },
+  "sales.orders.voided": {
+    "es": "Conduce anulado.",
+    "en": "Delivery note voided.",
+    "pt": "Guia anulada."
+  },
+  "sales.orders.reason_short": {
+    "es": "Escribe un motivo de al menos 3 caracteres.",
+    "en": "Write a reason of at least 3 characters.",
+    "pt": "Escreva um motivo de pelo menos 3 caracteres."
+  },
+  "sales.orders.action_failed": {
+    "es": "No se pudo completar la acción.",
+    "en": "The action could not be completed.",
+    "pt": "Não foi possível concluir a ação."
+  },
+  "sales.orders.print_failed": {
+    "es": "No se pudo imprimir el conduce.",
+    "en": "The delivery note could not be printed.",
+    "pt": "Não foi possível imprimir a guia."
+  },
+  "sales.orders.from_quote": {
+    "es": "Convertir en pedido",
+    "en": "Turn into order",
+    "pt": "Converter em pedido"
+  },
+  "sales.orders.from_quote_title": {
+    "es": "Convertir en pedido",
+    "en": "Turn into order",
+    "pt": "Converter em pedido"
+  },
+  "sales.orders.from_quote_message": {
+    "es": "La cotización {{number}} se convertirá en un pedido que se despacha con conduces y se factura según se entregue.",
+    "en": "Quote {{number}} will become an order dispatched with delivery notes and invoiced as it is delivered.",
+    "pt": "A cotação {{number}} vira um pedido despachado com guias e faturado conforme for entregue."
+  },
+  "sales.orders.created": {
+    "es": "Pedido {{number}} creado.",
+    "en": "Order {{number}} created.",
+    "pt": "Pedido {{number}} criado."
+  },
+  "sales.orders.create_failed": {
+    "es": "No se pudo crear el pedido.",
+    "en": "The order could not be created.",
+    "pt": "Não foi possível criar o pedido."
   }
 }

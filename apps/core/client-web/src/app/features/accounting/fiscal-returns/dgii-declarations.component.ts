@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angu
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { environment } from '../../../../environments/environment';
 import { NotificationService } from '../../../core/services/notification';
 import { saveFile } from '../../../core/api/data-transfer.service';
@@ -29,7 +30,7 @@ type DeclarationKind = 'it1' | 'ir17' | 'ir3';
 @Component({
   selector: 'app-dgii-declarations',
   standalone: true,
-  imports: [FormsModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [FormsModule, ...VX_FORM_A11Y, TranslateModule, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="card dd" aria-labelledby="dd-title">

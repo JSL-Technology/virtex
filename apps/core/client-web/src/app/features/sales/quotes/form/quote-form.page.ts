@@ -25,6 +25,7 @@ import { InvoicePreview } from '../../../../core/services/invoices';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { Quote, QuoteInput, QuotesService } from '../data/quotes.service';
+import { SalesOrdersService } from '../../orders/data/sales-orders.service';
 import { QUOTE_TONE } from '../list/quotes.page';
 import { AiProvenanceBadgeComponent } from '../../../ai/provenance/ai-provenance-badge.component';
 import { InboundMailService } from '../../../inbound-mail/inbound-mail.service';
@@ -66,6 +67,7 @@ export class QuoteFormPage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly quotes = inject(QuotesService);
+  private readonly salesOrders = inject(SalesOrdersService);
   private readonly customersApi = inject(CustomersService);
   private readonly inventory = inject(InventoryService);
   private readonly currencies = inject(CurrenciesService);
@@ -376,6 +378,28 @@ export class QuoteFormPage implements OnInit {
         void this.router.navigateByUrl(this.organization.urlFor(`/invoices/${invoice.id}`));
       },
       error: (error: unknown) => this.fail(error, 'sales.quotes.convert_failed'),
+    });
+  }
+
+  /** The distributor's path: the accepted quote becomes an order delivered with conduces. */
+  async convertToOrder(): Promise<void> {
+    const quote = this.current();
+    if (!quote) return;
+    const confirmed = await this.dialog.confirm({
+      title: 'sales.orders.from_quote_title',
+      message: 'sales.orders.from_quote_message',
+      messageParams: { number: quote.quoteNumber },
+      confirmText: 'sales.orders.from_quote',
+    });
+    if (!confirmed) return;
+    this.saving.set(true);
+    this.salesOrders.fromQuote(quote.id).subscribe({
+      next: (order) => {
+        this.saving.set(false);
+        this.notifications.showSuccess('sales.orders.created', { number: order.orderNumber });
+        void this.router.navigateByUrl(this.organization.urlFor(`/sales/orders/${order.id}`));
+      },
+      error: (error: unknown) => this.fail(error, 'sales.orders.create_failed'),
     });
   }
 

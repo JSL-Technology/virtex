@@ -1,0 +1,52 @@
+<vx-list-shell
+  titleKey="sales.orders.title"
+  subtitleKey="sales.orders.subtitle"
+  [count]="rows().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'sales.orders.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'sales.orders.empty_help' | translate }}</p>
+  </div>
+
+  <div class="doc-filter" role="group" [attr.aria-label]="'sales.orders.filter' | translate">
+    <button type="button" class="chip" [class.chip--active]="filter() === null" (click)="setFilter(null)">{{ 'sales.orders.all' | translate }}</button>
+    @for (status of statuses; track status) {
+      <button type="button" class="chip" [class.chip--active]="filter() === status" (click)="setFilter(status)">
+        {{ 'sales.orders.status.' + status.toLowerCase() | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col">{{ 'sales.orders.number' | translate }}</th>
+          <th scope="col">{{ 'sales.orders.customer' | translate }}</th>
+          <th scope="col">{{ 'sales.orders.order_date' | translate }}</th>
+          <th scope="col">{{ 'sales.orders.customer_reference' | translate }}</th>
+          <th scope="col" class="text-right">{{ 'sales.orders.total' | translate }}</th>
+          <th scope="col" class="text-center">{{ 'sales.orders.state' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (order of rows(); track order.id) {
+          <tr appRowLink>
+            <td><a [routerLink]="['/sales/orders', order.id]" class="table-link">{{ order.orderNumber }}</a></td>
+            <td>{{ order.customer?.companyName }}</td>
+            <td>{{ order.orderDate | vxDate: 'date' : true }}</td>
+            <td>{{ order.customerReference }}</td>
+            <td class="text-right">{{ order.total | vxMoney: order.currencyCode }}</td>
+            <td class="text-center">
+              <vx-badge [tone]="tone[order.status]" [struck]="order.status === 'CANCELLED'">{{ 'sales.orders.status.' + order.status.toLowerCase() | translate }}</vx-badge>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

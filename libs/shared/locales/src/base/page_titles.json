@@ -703,5 +703,35 @@
     "es": "Comprobantes recibidos",
     "en": "Received e-invoices",
     "pt": "Comprovantes recebidos"
+  },
+  "page_titles.sales_orders": {
+    "es": "Pedidos de venta",
+    "en": "Sales orders",
+    "pt": "Pedidos de venda"
+  },
+  "page_titles.sales_order": {
+    "es": "Pedido de venta",
+    "en": "Sales order",
+    "pt": "Pedido de venda"
+  },
+  "page_titles.delivery_notes": {
+    "es": "Conduces",
+    "en": "Delivery notes",
+    "pt": "Guias de remessa"
+  },
+  "page_titles.recurring_invoices": {
+    "es": "Facturación recurrente",
+    "en": "Recurring invoices",
+    "pt": "Faturamento recorrente"
+  },
+  "page_titles.recurring_invoice_new": {
+    "es": "Nueva facturación recurrente",
+    "en": "New recurring invoice",
+    "pt": "Novo faturamento recorrente"
+  },
+  "page_titles.recurring_invoice": {
+    "es": "Facturación recurrente",
+    "en": "Recurring invoice",
+    "pt": "Faturamento recorrente"
   }
 }

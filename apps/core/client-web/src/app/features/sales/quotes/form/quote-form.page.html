@@ -137,6 +137,9 @@
         @if (canConvert()) {
           <button class="primary-button" type="button" [disabled]="saving()" (click)="convert()">{{ 'sales.quotes.convert' | translate }}</button>
         }
+        @if (canConvert()) {
+          <button class="secondary-button" type="button" [disabled]="saving()" (click)="convertToOrder()">{{ 'sales.orders.from_quote' | translate }}</button>
+        }
         @if (canReject()) {
           <button class="danger-button" type="button" [disabled]="saving()" (click)="reject()">{{ 'sales.quotes.reject' | translate }}</button>
         }

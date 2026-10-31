@@ -1,0 +1,47 @@
+<vx-list-shell
+  titleKey="sales.orders.deliveries_title"
+  subtitleKey="sales.orders.deliveries_subtitle"
+  [count]="rows().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="empty()"
+  (reload)="load()"
+>
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'sales.orders.no_deliveries' | translate }}</p>
+  </div>
+  <div class="doc-filter" role="group" [attr.aria-label]="'sales.orders.filter' | translate">
+    <button type="button" class="chip" [class.chip--active]="filter() === null" (click)="setFilter(null)">{{ 'sales.orders.all' | translate }}</button>
+    @for (status of statuses; track status) {
+      <button type="button" class="chip" [class.chip--active]="filter() === status" (click)="setFilter(status)">
+        {{ 'sales.orders.delivery_status.' + status.toLowerCase() | translate }}
+      </button>
+    }
+  </div>
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col">{{ 'sales.orders.delivery_number' | translate }}</th>
+          <th scope="col">{{ 'sales.orders.delivery_date' | translate }}</th>
+          <th scope="col">{{ 'sales.orders.customer' | translate }}</th>
+          <th scope="col">{{ 'sales.orders.number' | translate }}</th>
+          <th scope="col" class="text-center">{{ 'sales.orders.state' | translate }}</th>
+          <th scope="col"><span class="sr-only">{{ 'sales.orders.actions' | translate }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (note of rows(); track note.id) {
+          <tr>
+            <td>{{ note.number }}</td>
+            <td>{{ note.deliveryDate | vxDate: 'date' : true }}</td>
+            <td>{{ note.customer?.companyName }}</td>
+            <td><a class="table-link" [routerLink]="['/sales/orders', note.orderId]">{{ note.order?.orderNumber }}</a></td>
+            <td class="text-center"><vx-badge [tone]="tone[note.status]">{{ 'sales.orders.delivery_status.' + note.status.toLowerCase() | translate }}</vx-badge></td>
+            <td class="text-right"><button type="button" class="btn btn-ghost btn-sm" (click)="print(note)">{{ 'sales.orders.print' | translate }}</button></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

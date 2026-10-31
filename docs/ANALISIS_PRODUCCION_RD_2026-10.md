@@ -212,5 +212,7 @@ quien recomienda el sistema. La 5 abre segmentos.
 | Archivo de pago de nómina por banco | ✅ GENERIC/BANRESERVAS/POPULAR/BHD (validar plantilla con cada banco) | `GET /payroll/runs/:id/bank-file` |
 | Vacaciones y licencias | ✅ API (arts. 177 y 180) · ⏳ pantalla en el portal | `payroll/services/leave.service.ts` |
 | Despliegue, respaldos, salud, alertas | ✅ | `deploy/`, `docs/DEPLOYMENT.md §0` |
-| Pedido/conduce, facturación recurrente, lotes/series, comisiones, cheques, WhatsApp, portal del cliente, DGT-3/4 | ⏳ Pendiente (fase 5) | — |
+| Pedido de venta y conduce | ✅ Pedido directo o desde cotización, conduces parciales que mueven inventario, impresión con firma, anulación, facturación de lo entregado sin doble salida | `sales/services/sales-orders.service.ts`, portal *Ventas › Pedidos / Conduces*, `verify:sales-cycle` |
+| Facturación recurrente | ✅ Mensual a anual, emisión diaria idempotente con recuperación de atrasos, pausa/fin, «emitir ahora» | `invoices/recurring-invoices.service.ts`, portal *Ventas › Facturación recurrente* |
+| Lotes/series/vencimientos, comisiones, cheques, WhatsApp, portal del cliente, DGT-3/4 | ⏳ Pendiente (fase 5) | — |
 | Legal (Ley 172-13, términos, SLA), soporte, onboarding guiado | ⏳ Fuera del código | — |

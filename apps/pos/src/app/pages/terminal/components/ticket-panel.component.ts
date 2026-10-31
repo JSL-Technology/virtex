@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import {
   LucideAngularModule,
   Minus,
@@ -34,7 +35,7 @@ import { TillStore } from '../../../state/till.store';
 @Component({
   selector: 'pos-ticket-panel',
   standalone: true,
-  imports: [FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [FormsModule, ...VX_FORM_A11Y, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="head">
