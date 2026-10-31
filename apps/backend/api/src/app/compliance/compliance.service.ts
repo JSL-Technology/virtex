@@ -6,9 +6,11 @@ import { FiscalDocumentTypeDefinition } from '../localization/entities/fiscal-do
 import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
 import { PurchaseFiscalRecordsRegistry } from '../contracts/fiscal-records/purchase-fiscal-records.registry';
 import { monthBounds } from '../common/dates';
-import { Invoice } from '../invoices/entities/invoice.entity';
+import { Invoice, InvoiceStatus, InvoiceType } from '../invoices/entities/invoice.entity';
+import { Between, In, IsNull, Not } from 'typeorm';
+import { It1Worksheet, Ir17Worksheet, buildIr17, buildIt1 } from './reports/dr-declarations';
 import { Organization } from '../organizations/entities/organization.entity';
-import { DominicanRepublicReports } from './reports/dr-reports';
+import { DominicanRepublicReports, SEQUENCE_VOID_ANNULMENT_CODE } from './reports/dr-reports';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 import { DataSource } from 'typeorm';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
@@ -387,11 +389,29 @@ export class ComplianceService {
 
   async generate608Report(organizationId: string, year: number, month: number): Promise<string> {
     await this.assertDominicanRepublic(organizationId, '608');
+    const { from, to } = monthBounds(year, month);
+    // The ranges declared unused (ANECF) in the month that the DGII did not refuse.
+    const voids: Array<{ ecf_type: string; sequence_from: string; sequence_to: string; day: string }> =
+      await this.dataSource.query(
+        `SELECT "ecf_type", "sequence_from", "sequence_to", to_char("created_at", 'YYYY-MM-DD') AS day
+           FROM "ecf_lifecycle_messages"
+          WHERE "organization_id" = $1 AND "kind" = 'SEQUENCE_VOID'
+            AND "status" NOT IN ('ERROR', 'REJECTED')
+            AND "created_at"::date BETWEEN $2 AND $3
+          ORDER BY "created_at" ASC`,
+        [organizationId, from, to],
+      );
+    const annulled = voids.flatMap((v) =>
+      DominicanRepublicReports.expandRange(
+        String(v.ecf_type).replace(/^E/i, ''),
+        Number(v.sequence_from),
+        Number(v.sequence_to),
+      ).map((ncf) => ({ ncf, date: v.day, code: SEQUENCE_VOID_ANNULMENT_CODE })),
+    );
     return DominicanRepublicReports.generate608Report(
-      organizationId,
       year,
       month,
-      this.invoiceRepository,
+      annulled,
       await this.requireOrganization(organizationId),
     );
   }
@@ -407,6 +427,58 @@ export class ComplianceService {
       documents,
       await this.requireOrganization(organizationId),
     );
+  }
+
+  // ── DGII monthly declarations (forms) ─────────────────────────────────────
+
+  /**
+   * The IT-1 worked out box by box from the month's comprobantes: what the 607 and 606 already told
+   * the DGII, so the declaration reconciles with them. `priorCredit` is last month's saldo a favor.
+   */
+  async it1(organizationId: string, year: number, month: number, priorCredit = 0): Promise<It1Worksheet> {
+    await this.assertDominicanRepublic(organizationId, 'IT-1');
+    const { from, to } = monthBounds(year, month);
+    const [sales, purchases, organization] = await Promise.all([
+      this.invoiceRepository.find({
+        where: {
+          organizationId,
+          issueDate: Between(from, to),
+          fiscalNumber: Not(IsNull()),
+          // As in the 607: a comprobante cancelled by a credit note stays, and its note subtracts.
+          status: Not(In([InvoiceStatus.DRAFT])),
+        },
+      }),
+      this.purchaseRecords.source().fiscalDocuments({ organizationId, from, to }),
+      this.requireOrganization(organizationId),
+    ]);
+    return buildIt1({
+      rnc: organization.taxId ?? '',
+      year,
+      month,
+      priorCredit,
+      purchases,
+      sales: sales.map((sale) => ({
+        isCreditNote: sale.type === InvoiceType.CREDIT_NOTE,
+        exchangeRate: Number(sale.exchangeRate) || 1,
+        netAmount: Number(sale.subtotal) - Number(sale.discountTotal ?? 0),
+        taxedAmount: Number(sale.taxedTotal ?? 0),
+        exemptAmount: Number(sale.exemptTotal ?? 0),
+        tax: Number(sale.tax ?? 0),
+        taxWithheld: Number(sale.taxWithheld ?? 0),
+        isExport: (sale.fiscalDocumentType ?? sale.fiscalNumber ?? '').toUpperCase().startsWith('E46'),
+      })),
+    });
+  }
+
+  /** The IR-17: ISR and ITBIS withheld from suppliers on the bills PAID in the month. */
+  async ir17(organizationId: string, year: number, month: number): Promise<Ir17Worksheet> {
+    await this.assertDominicanRepublic(organizationId, 'IR-17');
+    const { from, to } = monthBounds(year, month);
+    const [paid, organization] = await Promise.all([
+      this.purchaseRecords.source().withholdingsPaid({ organizationId, from, to }),
+      this.requireOrganization(organizationId),
+    ]);
+    return buildIr17({ rnc: organization.taxId ?? '', year, month, paid });
   }
 
   private async requireOrganization(organizationId: string): Promise<Organization> {

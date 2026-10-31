@@ -1198,5 +1198,15 @@
     "es": "Quien aprueba la nómina no puede ser quien la calculó (segregación de funciones).",
     "en": "Whoever approves the payroll cannot be whoever calculated it (segregation of duties).",
     "pt": "Quem aprova a folha não pode ser quem a calculou (segregação de funções)."
+  },
+  "payroll.bank_file.layout_unknown": {
+    "es": "Formato de banco desconocido: {{layout}}. Disponibles: GENERIC, BANRESERVAS, POPULAR, BHD.",
+    "en": "Unknown bank layout: {{layout}}. Available: GENERIC, BANRESERVAS, POPULAR, BHD.",
+    "pt": "Layout bancário desconhecido: {{layout}}. Disponíveis: GENERIC, BANRESERVAS, POPULAR, BHD."
+  },
+  "payroll.bank_file.run_not_approved": {
+    "es": "Solo se puede generar el archivo de pago de una nómina aprobada.",
+    "en": "The payment file can only be generated for an approved payroll.",
+    "pt": "O arquivo de pagamento só pode ser gerado para uma folha aprovada."
   }
 }

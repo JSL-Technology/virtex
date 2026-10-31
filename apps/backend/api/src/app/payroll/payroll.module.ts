@@ -23,6 +23,7 @@ import { PayrollCalculationService } from './services/payroll-calculation.servic
 import { SeveranceService } from './services/severance.service';
 import { PayrollAccountingService } from './services/payroll-accounting.service';
 import { PayrollRunService } from './services/payroll-run.service';
+import { PayrollDeclarationsService } from './services/payroll-declarations.service';
 import { PayrollTssService } from './services/payroll-tss.service';
 import { PayrollConceptService } from './services/payroll-concept.service';
 import { PayrollInputService } from './services/payroll-input.service';
@@ -71,6 +72,7 @@ import { PayrollController } from './payroll.controller';
     PayrollTssService,
     PayrollConceptService,
     PayrollInputService,
+    PayrollDeclarationsService,
   ],
   exports: [PayrollCalculationService, SeveranceService, PayrollRunService],
 })

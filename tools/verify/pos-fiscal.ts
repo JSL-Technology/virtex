@@ -237,6 +237,13 @@ async function main(): Promise<void> {
   );
   check('la mercancía vuelve una sola vez', restock?.n === 1, `${restock?.n} entradas`);
 
+  // ── The IT-1 reconciles with what the till issued ──────────────────────────
+  // E32 (ITBIS 36) + E31 (18) − E34 cancelling the E32 (36) = 18 charged in the month.
+  const now = new Date();
+  const it1 = await runAsTenantJob(ds, orgId, () => compliance.it1(orgId, now.getFullYear(), now.getMonth() + 1));
+  const charged = it1.lines.find((l) => l.code === 'it1.tax.charged')?.amount;
+  check('el IT-1 del mes cuadra con las ventas de caja y su nota de crédito', charged === 18, `ITBIS cobrado ${charged}`);
+
   await app.close();
   if (failures.length) {
     console.error(`\n${failures.length} comprobación(es) fallaron:`);

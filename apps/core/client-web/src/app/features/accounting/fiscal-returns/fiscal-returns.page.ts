@@ -7,6 +7,7 @@ import { RouterLink } from '@angular/router';
 import { Observable, catchError, filter, forkJoin, map, of, take } from 'rxjs';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { DgiiDeclarationsComponent } from './dgii-declarations.component';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { AuthService } from '../../../core/services/auth';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -56,7 +57,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 @Component({
   selector: 'app-fiscal-returns-page',
   standalone: true,
-  imports: [...VX_DATE, FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_DATE, FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, DgiiDeclarationsComponent],
   templateUrl: './fiscal-returns.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './fiscal-returns.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
