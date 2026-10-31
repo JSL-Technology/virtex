@@ -31,6 +31,7 @@ import { AuthConfig } from '../../apps/backend/api/src/app/auth/auth.config';
 import { I18nService } from '../../apps/backend/api/src/app/i18n/i18n.service';
 import { localizedValidationExceptionFactory } from '../../apps/backend/api/src/app/i18n/validation-messages';
 import { purgeProbeAccounts } from './probe-cleanup';
+import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
 import {
   PendingRegistration,
   PendingRegistrationStatus,
@@ -288,6 +289,16 @@ async function main() {
     city: 'Santo Domingo',
     state: '32',
     postalCode: '10101',
+    acceptTerms: true,
+  };
+  // The consent the HTTP route records with every signup; the service refuses a pending
+  // registration without it, so the gates below would never be reached without it.
+  const signupConsent = {
+    termsVersion: LEGAL_DOCUMENTS.terms.version,
+    privacyVersion: LEGAL_DOCUMENTS.privacy.version,
+    acceptedAt: new Date(),
+    ipAddress: null,
+    userAgent: 'verify:auth-contract',
   };
 
   let emailGateEnforced = false;
@@ -296,6 +307,7 @@ async function main() {
     await registration.createPendingRegistration(
       { ...baseSignup, email: `unverified-${Date.now()}@example.test` } as never,
       plan.slug,
+      signupConsent,
     );
   } catch (e) {
     // The message KEY, not the Spanish sentence it used to carry. Server errors are raised as
@@ -327,6 +339,7 @@ async function main() {
     await registration.createPendingRegistration(
       { ...baseSignup, email: duplicateEmail, emailVerificationCode: preVerified } as never,
       plan.slug,
+      signupConsent,
     );
   } catch (e) {
     duplicateRejected = (e as { status?: number }).status === 409;
