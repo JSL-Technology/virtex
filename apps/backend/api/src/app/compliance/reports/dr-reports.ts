@@ -1,7 +1,14 @@
 import { Repository, Between, Not, IsNull, In } from 'typeorm';
 import { Invoice, InvoiceStatus, InvoiceType, PaymentMethod } from '../../invoices/entities/invoice.entity';
 import { PurchaseFiscalDocument } from '../../contracts/fiscal-records/purchase-fiscal-records.contract';
-import { Organization } from '../../organizations/entities/organization.entity';
+/**
+ * What the formats read of the declaring company: its RNC, and the income type it declared
+ * (`fiscalProfile.tipoIngreso`). Structural, so the reports do not import Identity's entity.
+ */
+export interface DeclaringCompany {
+  taxId: string | null;
+  fiscalProfile?: Record<string, string> | null;
+}
 import { roundAmount } from '../../common/money';
 import { UnprocessableEntityError } from '../../i18n/localized.exception';
 import { isValidDominicanTaxId } from '../../localization/contracts/tax-id.contract';
@@ -61,7 +68,7 @@ export class DominicanRepublicReports {
     year: number,
     month: number,
     invoiceRepository: Repository<Invoice>,
-    organization: Organization,
+    organization: DeclaringCompany,
   ): Promise<string> {
     const { from, to } = monthBounds(year, month);
 
@@ -145,7 +152,7 @@ export class DominicanRepublicReports {
     year: number,
     month: number,
     documents: readonly PurchaseFiscalDocument[],
-    organization: Organization,
+    organization: DeclaringCompany,
   ): string {
     // Every line of the 606 identifies the supplier by RNC or cédula, and the DGII rejects the
     // whole file over one that does not (QA B-02: a bill without one was reported anyway). The
@@ -232,7 +239,7 @@ export class DominicanRepublicReports {
     year: number,
     month: number,
     annulled: readonly AnnulledFiscalNumber[],
-    organization: Organization,
+    organization: DeclaringCompany,
   ): string {
     const rows = annulled.map((entry) =>
       [entry.ncf, compactDate(entry.date), entry.code].join('|'),
@@ -265,7 +272,7 @@ export class DominicanRepublicReports {
     year: number,
     month: number,
     documents: readonly PurchaseFiscalDocument[],
-    organization: Organization,
+    organization: DeclaringCompany,
   ): string {
     const rows = documents.map((document) =>
       [

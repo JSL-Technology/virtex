@@ -367,6 +367,12 @@ jobs:
       # waits (is not lost) while the platform tenant is not configured.
       - run: npm run verify:platform-billing
 
+      # Proves the distributor's cycle and recurring invoicing: an order delivered in parts with
+      # conduces that move the stock, invoiced as an E31 without moving it again, a voided conduce
+      # bringing the goods back, the order closed; and a monthly template that catches up the missed
+      # months once and never bills the same month twice.
+      - run: npm run verify:sales-cycle
+
       # Nx Cloud's self-healing. It needs an Nx Cloud workspace, and without one it can only fail —
       # which turned every run red after every other step had passed. The token is scoped to this
       # step alone rather than the job: `npm ci` runs third-party install scripts, and a secret in

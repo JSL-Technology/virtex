@@ -80,6 +80,8 @@ export const INHERITED_TENANT_TABLES: readonly InheritedTenantTable[] = [
   { table: 'price_list_items', parent: 'price_lists', foreignKey: 'price_list_id', why: 'Artículos de una lista de precios.' },
   { table: 'proposed_adjustment_evidence', parent: 'proposed_audit_adjustments', foreignKey: 'proposed_adjustment_id', why: 'Evidencia de un ajuste propuesto.' },
   { table: 'quote_lines', parent: 'quotes', foreignKey: 'quote_id', why: 'Líneas de una cotización.' },
+  { table: 'sales_order_lines', parent: 'sales_orders', foreignKey: 'order_id', why: 'Líneas de un pedido de venta.' },
+  { table: 'delivery_note_lines', parent: 'delivery_notes', foreignKey: 'delivery_note_id', why: 'Líneas de un conduce.' },
   { table: 'reconciliation_match_lines', parent: 'reconciliation_matches', foreignKey: 'match_id', why: 'Líneas de una conciliación.' },
   { table: 'tax_rules', parent: 'taxes', foreignKey: 'tax_id', why: 'Reglas de un impuesto.' },
   { table: 'vendor_bill_line', parent: 'vendor_bills', foreignKey: '"vendorBillId"', why: 'Líneas de una factura de proveedor.' },

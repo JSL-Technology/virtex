@@ -7,7 +7,7 @@ import {
   JournalEntryStatus,
 } from '../../journal-entries/entities/journal-entry.entity';
 import { Ledger } from '../../accounting/entities/ledger.entity';
-import { Organization } from '../../organizations/entities/organization.entity';
+import { organizationFiscalIdentity } from '../../organizations/contracts/fiscal-identity.contract';
 import {
   AccountBalancesService,
   toIsoDate,
@@ -292,10 +292,7 @@ export class MexicanElectronicAccounting {
    * worse way to learn it than being told here.
    */
   private async taxpayer(organizationId: string): Promise<{ rfc: string }> {
-    const organization = await this.manager.findOne(Organization, {
-      where: { id: organizationId },
-      select: ['id', 'taxId', 'country'],
-    });
+    const organization = await organizationFiscalIdentity(this.manager, organizationId);
     const rfc = organization?.taxId?.trim().toUpperCase();
     if (!rfc) {
       throw new BadRequestError('compliance.organization_has_no_rfc_file_sat');

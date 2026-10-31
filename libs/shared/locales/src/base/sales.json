@@ -476,5 +476,120 @@
     "es": "Ver la factura",
     "en": "View the invoice",
     "pt": "Ver a fatura"
+  },
+  "sales.orders.already_cancelled": {
+    "es": "El pedido está cancelado.",
+    "en": "The order is cancelled.",
+    "pt": "O pedido está cancelado."
+  },
+  "sales.orders.cancel_reason_required": {
+    "es": "Indica por qué se cancela el pedido.",
+    "en": "State why the order is cancelled.",
+    "pt": "Informe por que o pedido é cancelado."
+  },
+  "sales.orders.cannot_cancel_delivered": {
+    "es": "El pedido ya tiene entregas o facturas: ciérralo en vez de cancelarlo.",
+    "en": "The order already has deliveries or invoices: close it instead of cancelling it.",
+    "pt": "O pedido já tem entregas ou faturas: feche-o em vez de cancelá-lo."
+  },
+  "sales.orders.close_with_uninvoiced_deliveries": {
+    "es": "Hay conduces sin facturar: factúralos o anúlalos antes de cerrar el pedido.",
+    "en": "There are uninvoiced delivery notes: invoice or void them before closing the order.",
+    "pt": "Há guias de remessa não faturadas: fature-as ou anule-as antes de fechar o pedido."
+  },
+  "sales.orders.delivery_before_order": {
+    "es": "La entrega no puede ser anterior a la fecha del pedido.",
+    "en": "The delivery cannot be before the order date.",
+    "pt": "A entrega não pode ser anterior à data do pedido."
+  },
+  "sales.orders.delivery_exceeds_remaining": {
+    "es": "De «{{description}}» quedan {{remaining}} por entregar.",
+    "en": "{{remaining}} of «{{description}}» remain to be delivered.",
+    "pt": "De «{{description}}» restam {{remaining}} a entregar."
+  },
+  "sales.orders.delivery_no_lines": {
+    "es": "El conduce no tiene líneas.",
+    "en": "The delivery note has no lines.",
+    "pt": "A guia de remessa não tem linhas."
+  },
+  "sales.orders.delivery_not_found": {
+    "es": "No se encontró el conduce.",
+    "en": "The delivery note was not found.",
+    "pt": "A guia de remessa não foi encontrada."
+  },
+  "sales.orders.delivery_not_invoiceable": {
+    "es": "Alguno de los conduces indicados ya fue facturado, anulado o no es de este pedido.",
+    "en": "Some of the delivery notes given were already invoiced, voided or belong to another order.",
+    "pt": "Alguma das guias indicadas já foi faturada, anulada ou não pertence a este pedido."
+  },
+  "sales.orders.delivery_not_voidable": {
+    "es": "Solo se anula un conduce que aún no se ha facturado.",
+    "en": "Only a delivery note not yet invoiced can be voided.",
+    "pt": "Só se anula uma guia ainda não faturada."
+  },
+  "sales.orders.expected_before_order": {
+    "es": "La fecha de entrega esperada no puede ser anterior al pedido.",
+    "en": "The expected delivery date cannot be before the order.",
+    "pt": "A data de entrega prevista não pode ser anterior ao pedido."
+  },
+  "sales.orders.line_not_in_order": {
+    "es": "La línea no pertenece a este pedido.",
+    "en": "The line does not belong to this order.",
+    "pt": "A linha não pertence a este pedido."
+  },
+  "sales.orders.line_repeated": {
+    "es": "Una línea aparece dos veces en el conduce.",
+    "en": "A line appears twice on the delivery note.",
+    "pt": "Uma linha aparece duas vezes na guia."
+  },
+  "sales.orders.no_lines": {
+    "es": "El pedido no tiene líneas.",
+    "en": "The order has no lines.",
+    "pt": "O pedido não tem linhas."
+  },
+  "sales.orders.not_found": {
+    "es": "No se encontró el pedido.",
+    "en": "The order was not found.",
+    "pt": "O pedido não foi encontrado."
+  },
+  "sales.orders.not_open": {
+    "es": "El pedido no admite más entregas ({{status}}).",
+    "en": "The order accepts no more deliveries ({{status}}).",
+    "pt": "O pedido não aceita mais entregas ({{status}})."
+  },
+  "sales.orders.nothing_to_invoice": {
+    "es": "No hay nada por facturar: entrega mercancía primero.",
+    "en": "There is nothing to invoice: deliver goods first.",
+    "pt": "Não há nada a faturar: entregue mercadoria primeiro."
+  },
+  "sales.orders.quantity_positive": {
+    "es": "Las cantidades deben ser mayores que cero.",
+    "en": "Quantities must be greater than zero.",
+    "pt": "As quantidades devem ser maiores que zero."
+  },
+  "sales.orders.quote_already_ordered": {
+    "es": "Esta cotización ya se convirtió en el pedido {{orderNumber}}.",
+    "en": "This quote already became order {{orderNumber}}.",
+    "pt": "Esta cotação já virou o pedido {{orderNumber}}."
+  },
+  "sales.orders.quote_not_accepted": {
+    "es": "Solo una cotización aceptada se convierte en pedido.",
+    "en": "Only an accepted quote becomes an order.",
+    "pt": "Só uma cotação aceita vira pedido."
+  },
+  "sales.orders.quote_not_found": {
+    "es": "No se encontró la cotización.",
+    "en": "The quote was not found.",
+    "pt": "A cotação não foi encontrada."
+  },
+  "sales.orders.status_unknown": {
+    "es": "Estado desconocido: {{status}}.",
+    "en": "Unknown status: {{status}}.",
+    "pt": "Status desconhecido: {{status}}."
+  },
+  "sales.orders.void_reason_required": {
+    "es": "Indica por qué se anula el conduce.",
+    "en": "State why the delivery note is voided.",
+    "pt": "Informe por que a guia é anulada."
   }
 }

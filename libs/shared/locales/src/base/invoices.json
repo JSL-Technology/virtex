@@ -1733,5 +1733,55 @@
     "es": "Pediste el tipo {{requested}} y este documento corresponde al tipo {{resolved}}. El tipo lo determina el documento, no la solicitud.",
     "en": "You asked for type {{requested}} and this document is type {{resolved}}. The document determines the type, not the request.",
     "pt": "Você pediu o tipo {{requested}} e este documento corresponde ao tipo {{resolved}}. O tipo é determinado pelo documento, não pela solicitação."
+  },
+  "invoices.recurring.end_before_start": {
+    "es": "La fecha final no puede ser anterior a la de inicio.",
+    "en": "The end date cannot be before the start date.",
+    "pt": "A data final não pode ser anterior à inicial."
+  },
+  "invoices.recurring.ended": {
+    "es": "La facturación recurrente terminó y ya no se modifica.",
+    "en": "The recurring invoice has ended and can no longer be changed.",
+    "pt": "O faturamento recorrente terminou e não pode mais ser alterado."
+  },
+  "invoices.recurring.frequency_invalid": {
+    "es": "Frecuencia no válida.",
+    "en": "Invalid frequency.",
+    "pt": "Frequência inválida."
+  },
+  "invoices.recurring.line_needs_product_or_description": {
+    "es": "Cada línea necesita un producto o una descripción.",
+    "en": "Each line needs a product or a description.",
+    "pt": "Cada linha precisa de um produto ou uma descrição."
+  },
+  "invoices.recurring.name_required": {
+    "es": "Ponle un nombre a la facturación recurrente.",
+    "en": "Give the recurring invoice a name.",
+    "pt": "Dê um nome ao faturamento recorrente."
+  },
+  "invoices.recurring.no_lines": {
+    "es": "La facturación recurrente no tiene líneas.",
+    "en": "The recurring invoice has no lines.",
+    "pt": "O faturamento recorrente não tem linhas."
+  },
+  "invoices.recurring.not_active": {
+    "es": "Solo se emite una facturación recurrente activa.",
+    "en": "Only an active recurring invoice can be issued.",
+    "pt": "Só um faturamento recorrente ativo pode ser emitido."
+  },
+  "invoices.recurring.not_found": {
+    "es": "No se encontró la facturación recurrente.",
+    "en": "The recurring invoice was not found.",
+    "pt": "O faturamento recorrente não foi encontrado."
+  },
+  "invoices.recurring.quantity_positive": {
+    "es": "Las cantidades deben ser mayores que cero.",
+    "en": "Quantities must be greater than zero.",
+    "pt": "As quantidades devem ser maiores que zero."
+  },
+  "invoices.recurring.start_date_invalid": {
+    "es": "La fecha de inicio no es válida.",
+    "en": "The start date is not valid.",
+    "pt": "A data inicial não é válida."
   }
 }

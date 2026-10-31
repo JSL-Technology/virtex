@@ -329,6 +329,29 @@ export class InvoicesService {
     this.triggerEcfSubmission(invoice);
   }
 
+  /**
+   * {@link create} inside the caller's transaction, for a document that is one step of a larger
+   * one — the invoice of a sales order's delivered goods, with the order's invoiced quantities.
+   *
+   * `moveStock: false` when the goods already left with their delivery note (conduce): moving them
+   * again here would dispatch everything twice. The caller hands the result to
+   * {@link dispatchIssued} once its transaction commits.
+   */
+  async createWithin(
+    dto: CreateInvoiceDto,
+    organizationId: string,
+    manager: EntityManager,
+    options: { actorUserId?: string | null; moveStock?: boolean } = {},
+  ): Promise<Invoice> {
+    const invoice = await this.buildDocument(dto, organizationId, manager);
+    invoice.branchId = await resolveDocumentBranch(manager, organizationId, options.actorUserId ?? null, dto.branchId);
+    const saved = await manager.save(invoice);
+    if (dto.issue === false) return saved;
+    return this.issueWithin(saved, dto.fiscalDocumentType ?? null, organizationId, manager, {
+      moveStock: options.moveStock,
+    });
+  }
+
   /** Turn an existing draft into an issued document. */
   async issue(invoiceId: string, organizationId: string, type?: string): Promise<Invoice> {
     const issued = await this.dataSource.transaction(async (manager) => {
