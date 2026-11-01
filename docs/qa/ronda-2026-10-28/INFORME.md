@@ -348,8 +348,8 @@ verificado en el entorno local con datos reales, mediante la interfaz o la API, 
 ### 10.6 Validación final
 
 - **Pruebas:**
-  - API: 3,386 pruebas con base de datos (268 suites);
-  - web: 1,225 pruebas;
+  - API: 3,400 pruebas con base de datos (269 suites; 3 omitidas por diseño);
+  - web: 1,230 pruebas;
   - POS: 33 pruebas.
 - **Estáticos:**
   - typecheck limpio de API, web y POS;
