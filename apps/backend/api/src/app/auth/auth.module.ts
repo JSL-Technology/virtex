@@ -4,9 +4,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
-import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
-import { isDevLikeEnvironment } from '../config/environment';
 import { GoogleRecaptchaModule, GoogleRecaptchaGuard } from '@nestlab/google-recaptcha';
 import { AuthController } from './auth.controller';
 import { AuthRegistrationController } from './auth-registration.controller';
@@ -117,37 +114,6 @@ import { KeyManagementModule } from './services/key-management.module';
           expiresIn: config.get<string>('JWT_EXPIRATION_TIME', '1h') as `${number}h`,
         },
       }),
-    }),
-    ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService): ThrottlerModuleOptions => {
-        const redisHost = config.get<string>('REDIS_HOST');
-        // The project's allow-list. Same reasoning as the identical gate in `app.module.ts`: a
-        // per-process rate-limit bucket is not a rate limit in a multi-replica deployment.
-        const isDeployment = !isDevLikeEnvironment();
-
-        if (isDeployment && !redisHost) {
-          throw new Error('REDIS_HOST is required for distributed throttling outside development/test');
-        }
-
-        const storage = redisHost
-          ? new ThrottlerStorageRedisService({
-              host: redisHost,
-              port: config.get<number>('REDIS_PORT', 6379),
-            })
-          : undefined;
-
-        return {
-          throttlers: [
-            {
-              ttl: Number(config.get('THROTTLE_TTL', 60000)),
-              limit: Number(config.get('THROTTLE_LIMIT', 10)),
-            },
-          ],
-          storage,
-        };
-      },
     }),
     // reCAPTCHA is configured ONCE, in AppModule.
     //

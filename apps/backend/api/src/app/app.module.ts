@@ -5,7 +5,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { FinancialAuditSubscriber } from './audit/financial-audit.subscriber';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
+import { PrincipalThrottlerGuard } from './shared/rate-limit/principal-throttler.guard';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { APP_GUARD } from '@nestjs/core';
 import { PermissionsGuard } from './security/guards/permissions.guard';
@@ -265,8 +266,15 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
           ? new ThrottlerStorageRedisService(redisConnectionOptions(config))
           : undefined; // Development only: an in-memory bucket, correct for a single process.
 
+        // The one rate-limit configuration of the application (AuthModule used to declare a
+        // second, contradictory one). Validated by the environment schema: TTL in milliseconds.
         return {
-          throttlers: [{ ttl: 60000, limit: 20 }],
+          throttlers: [
+            {
+              ttl: Number(config.get('THROTTLE_TTL', 60_000)),
+              limit: Number(config.get('THROTTLE_LIMIT', 600)),
+            },
+          ],
           storage,
         };
       },
@@ -389,10 +397,6 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-    {
-      provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
     {
@@ -423,6 +427,13 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
       // permisos que tiene en la A.
       provide: APP_GUARD,
       useClass: ActiveTenantGuard,
+    },
+    {
+      // Rate limiting, keyed by the principal in the company it acts in (anonymous requests by
+      // client address). After authentication and the active tenant, so the key can name them;
+      // before authorisation, so a flood of forbidden requests is still counted.
+      provide: APP_GUARD,
+      useClass: PrincipalThrottlerGuard,
     },
     {
       // Authorisation, enforced by default. Declared per-endpoint it reached 47 of 76 controllers

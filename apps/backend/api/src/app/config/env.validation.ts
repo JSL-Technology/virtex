@@ -394,6 +394,17 @@ export const envValidation = Joi.object({
   REDIS_NAMESPACE: Joi.string().default('virteex'),
 
   /**
+   * Rate limiting (one configuration, AppModule). Counted per person per company when signed in,
+   * per client address otherwise. TTL is in MILLISECONDS — the previous `.env.example` said
+   * `THROTTLE_TTL=60`, which under @nestjs/throttler 6 is a 60 ms window, i.e. no limit at all. The
+   * minimum below refuses that mistake at boot instead of shipping it.
+   */
+  THROTTLE_TTL: Joi.number().integer().min(1000).default(60_000),
+  THROTTLE_LIMIT: Joi.number().integer().min(1).default(600),
+  AUTH_THROTTLE_TTL: Joi.number().integer().min(1000).default(60_000),
+  AUTH_THROTTLE_LIMIT: Joi.number().integer().min(1).default(5),
+
+  /**
    * Outbound mail. Required in a deployment, and this is not a nicety.
    *
    * Signup demands an emailed verification code before it will accept a registration, so an API
