@@ -5,7 +5,12 @@ import { ApprovalDecidedEvent, ApprovalRequestedEvent } from '../../workflows/ev
 describe('ApprovalNotificationsListener', () => {
   const notifications = { createLocalizedNotification: jest.fn() };
   const query = jest.fn();
-  const listener = new ApprovalNotificationsListener(notifications as never, { query } as never);
+  // A connection of its own, as the listener opens one (the request's is gone by then).
+  const runner = { connect: jest.fn(), query: jest.fn(async () => undefined), release: jest.fn(async () => undefined) };
+  const listener = new ApprovalNotificationsListener(
+    notifications as never,
+    { query, createQueryRunner: () => runner, createEntityManager: () => ({}), manager: { findOne: jest.fn(async () => ({ country: 'DO', baseCurrency: 'DOP' })) } } as never,
+  );
 
   beforeEach(() => jest.clearAllMocks());
 
@@ -33,7 +38,8 @@ describe('ApprovalNotificationsListener', () => {
     expect(notifications.createLocalizedNotification).toHaveBeenCalledWith('cfo-1', 'en', {
       titleKey: 'notifications.approval.requested.title',
       bodyKey: 'notifications.approval.requested.body_step',
-      params: { documentKey: 'notifications.document_type.vendor_bill', amount: '15,000.00', step: 2 },
+      params: { documentKey: 'notifications.document_type.vendor_bill', // The books' currency when the request names none, written as the company writes it.
+        amount: new Intl.NumberFormat('en-DO', { style: 'currency', currency: 'DOP' }).format(15000), step: 2 },
       link: '/approvals',
       organizationId: 'org-1',
     });

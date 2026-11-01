@@ -44,7 +44,7 @@
   />
 
   <div class="table-container card">
-    <table [appSort]="sort" class="data-table">
+    <table [appSort]="sort" [appTableMenu]="invoicesMenu" class="data-table">
       <thead>
         <tr>
           <th appSortHeader="number">{{ 'invoices.list.invoice_number' | translate }}</th>
@@ -68,7 +68,7 @@
             Clic simple en el número abre en vista previa (una sola pestaña efímera que se reutiliza
             al hojear). Doble clic en la fila la fija, como en VS Code.
           -->
-          <tr appRowLink (dblclick)="openPermanent(invoice.id)">
+          <tr appRowLink [appRowMenu]="invoice" (dblclick)="openPermanent(invoice.id)">
             <td>
               <a [routerLink]="['/invoices', invoice.id]" class="table-link">
                 {{ invoice.invoiceNumber }}

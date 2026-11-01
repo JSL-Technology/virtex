@@ -7,6 +7,9 @@ import { composeKey } from '@virteex/shared/types';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
 import { InvoicesService, MessageTone } from '../../../../core/services/invoices';
 import { NotificationService } from '../../../../core/services/notification';
+import { AiService } from '../../../ai/data/ai.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, map, of } from 'rxjs';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const MAX_NOTE_CHARS = 1000;
@@ -29,6 +32,7 @@ export const MAX_NOTE_CHARS = 1000;
 export class InvoiceEmailDialogComponent {
   private readonly invoices = inject(InvoicesService);
   private readonly notifications = inject(NotificationService);
+  private readonly ai = inject(AiService);
 
   readonly invoiceId = input.required<string>();
   readonly number = input<string>('');
@@ -49,6 +53,20 @@ export class InvoiceEmailDialogComponent {
   readonly message = signal('');
   readonly tone = signal<MessageTone>('cordial');
   readonly composing = signal(false);
+
+  /**
+   * Whether a language model is there to draft with. The «Draft with AI» button used to show with
+   * no provider configured and answered every press with an error (QA R3-M08); it now shows only
+   * when the permission, the plan and a reachable model all allow it.
+   */
+  private readonly modelAvailable = toSignal(
+    this.ai.status().pipe(
+      map((status) => status.languageModel?.available ?? false),
+      catchError(() => of(false)),
+    ),
+    { initialValue: false },
+  );
+  readonly composeAvailable = computed(() => this.canCompose() && this.modelAvailable());
 
   readonly addressInvalid = computed(() => {
     const address = this.to().trim();

@@ -1,9 +1,12 @@
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { PhonePipe } from '../../../shared/pipes/phone.pipe';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DialogService } from '../../../core/services/dialog.service';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2, ScrollText } from 'lucide-angular';
+import { Edit, FilePen, FileText, Filter, HandCoins, LucideAngularModule, MoreHorizontal, Pencil, PlusCircle, RotateCw, ScrollText, Trash2 } from 'lucide-angular';
 import { Customer } from '../../../core/models/customer.model';
 import { CustomersService } from '../../../core/api/customers.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -17,12 +20,42 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 
 @Component({
   selector: 'app-customers-page',
-  imports: [PhonePipe, HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_CONTEXT_MENU, PhonePipe, HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
   templateUrl: './customers.page.html',
   styleUrls: ['./customers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomersPage implements OnInit {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly customersMenu: ListMenuConfig<Customer> = {
+    resource: 'customers',
+    row: (ctx) => {
+      const customer = ctx.entity as Customer;
+      const open = (path: string) => this.menuNavigation.open(path, 'preview');
+      return [
+        {
+          id: 'sell',
+          items: [
+            { id: 'invoice', label: 'contacts.customers.menu.new_invoice', icon: FileText, permission: 'invoices:create', run: () => open(`/invoices/new?customerId=${customer.id}`) },
+            { id: 'quote', label: 'contacts.customers.menu.new_quote', icon: FilePen, permission: 'invoices:create', run: () => open(`/quotes/new?customerId=${customer.id}`) },
+            { id: 'collect', label: 'contacts.customers.menu.register_collection', icon: HandCoins, permission: 'accounts_receivable:collect', visible: () => !customer.isFinalConsumer, run: () => open(`/customer-receipts/new?customerId=${customer.id}`) },
+            { id: 'statement', label: 'contacts.customers.menu.statement', icon: ScrollText, permission: 'accounting:view', run: () => open(`/accounting/partner-ledger?type=customer&partnerId=${customer.id}`) },
+          ],
+        },
+        {
+          id: 'record',
+          items: [
+            { id: 'edit', label: 'contacts.customers.edit', icon: Pencil, permission: 'customers:edit', run: () => open(`/contacts/customers/${customer.id}/edit`) },
+            { id: 'delete', label: 'contacts.customers.delete', icon: Trash2, danger: true, permission: 'customers:delete', visible: () => !customer.isFinalConsumer, run: () => this.deleteCustomer(customer) },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.loadCustomers() }] },
+      ];
+    },
+  };
+
   /** Sortable by its headers (QA B-01). */
   readonly table = sortable(() => this.customers());
   private readonly dialog = inject(DialogService);

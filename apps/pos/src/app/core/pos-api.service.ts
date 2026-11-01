@@ -121,6 +121,8 @@ export interface PosSale {
   status: 'PAID' | 'CANCELLED';
   voidedAt?: string | null;
   voidReason?: string | null;
+  /** The comprobante fiscal (B02 in the Dominican Republic), when the company has a range in force. */
+  fiscalNumber?: string | null;
   createdAt: string;
 }
 
@@ -188,9 +190,10 @@ export class PosApiService {
     });
   }
 
-  closeShift(shiftId: string, closingBalance: number): Observable<PosShift> {
+  closeShift(shiftId: string, closingBalance: number, closingNotes?: string): Observable<PosShift> {
     return this.http.post<PosShift>(`${this.api}/shifts/${shiftId}/close`, {
       closingBalance,
+      ...(closingNotes ? { closingNotes } : {}),
     });
   }
 

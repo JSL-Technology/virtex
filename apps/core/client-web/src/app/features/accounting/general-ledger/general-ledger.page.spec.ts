@@ -14,14 +14,17 @@ describe('GeneralLedgerPage', () => {
   let http: HttpTestingController;
   const exporter = { exportGeneralLedger: jest.fn() };
 
-  function create(accountId: string | null) {
+  function create(accountId: string | null, query: Record<string, string> = {}) {
     TestBed.configureTestingModule({
       imports: [GeneralLedgerPage],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap(accountId ? { accountId } : {}) } } },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap(accountId ? { accountId } : {}), queryParamMap: convertToParamMap(query) } },
+        },
         { provide: StatementExportService, useValue: exporter },
       ],
     });
@@ -41,6 +44,18 @@ describe('GeneralLedgerPage', () => {
   afterEach(() => {
     http.verify();
     jest.clearAllMocks();
+  });
+
+  it('opens on the account and period the trial balance links to (QA R3-B02)', async () => {
+    const fixture = create(null, { accountId: 'acc-1', from: '2026-01-01', to: '2026-03-31' });
+    const req = http.expectOne((r) => r.url.endsWith('/general-ledger'));
+    expect(req.request.params.get('accountId')).toBe('acc-1');
+    expect(JSON.stringify(req.request.params.keys().map((k) => req.request.params.get(k)))).toContain('2026-01-01');
+    expect(JSON.stringify(req.request.params.keys().map((k) => req.request.params.get(k)))).toContain('2026-03-31');
+    req.flush(ledger);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    http.expectOne((r) => r.url.endsWith('/chart-of-accounts/acc-1')).flush(ledger.account);
   });
 
   it('opened from the menu, asks for an account instead of failing', () => {

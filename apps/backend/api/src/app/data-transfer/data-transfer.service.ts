@@ -16,6 +16,9 @@ import { AiAssistPort, SAMPLE_ROWS_SENT, redactSampleCell } from '../contracts/a
 import { applyMapping, ColumnMapping, deterministicMapping, missingRequired } from './column-mapping';
 import { BadRequestError, ForbiddenError, NotFoundError, isLocalizedError } from '../i18n/localized.exception';
 import { I18nService } from '../i18n/i18n.service';
+import { currentLanguage } from '../i18n/request-locale';
+import { organizationTimeZoneOf } from '../organizations/contracts/fiscal-today.contract';
+import { fiscalDate } from '../shared/fiscal-clock';
 import { describeValidationError, flatten } from '../i18n/validation-messages';
 import { AuthenticatedUser } from '../security/principal';
 import {
@@ -127,9 +130,12 @@ export class DataTransferService {
       if (page.rows.length < EXPORT_PAGE || rows.length >= page.total) break;
     }
 
-    const fileName = `${dataset.id}_${new Date().toISOString().slice(0, 10)}.${format}`;
+    // Dates are the company's calendar days, not UTC ones: a till sale rung at 21:00 in Santo
+    // Domingo was exported as the next day (QA R3-B10, R3-M02).
+    const timeZone = await this.timeZoneOf(user.organizationId);
+    const fileName = `${dataset.id}_${fiscalDate(timeZone)}.${format}`;
     const body =
-      format === 'xlsx' ? await this.toXlsx(dataset.columns, rows) : this.toCsv(dataset.columns, rows);
+      format === 'xlsx' ? await this.toXlsx(dataset.columns, rows) : this.toCsv(dataset.columns, rows, timeZone);
 
     await this.record(user, {
       kind: DataTransferKind.EXPORT,
@@ -505,11 +511,15 @@ export class DataTransferService {
 
   private parseCsv(buffer: Buffer): { headers: string[]; rows: Array<Record<string, string>> } {
     // Excel's UTF-8 byte-order mark would otherwise become part of the first header.
-    const content = buffer.toString('utf-8').replace(/^\uFEFF/, '');
+    let content = buffer.toString('utf-8').replace(/^\uFEFF/, '');
+    // Our own exports (and Excel's) may open with `sep=;`: it names the delimiter and is not a row.
+    const declared = /^sep=(.)\r?\n/i.exec(content);
+    if (declared) content = content.slice(declared[0].length);
     const firstLine = content.split(/\r?\n/, 1)[0] ?? '';
     // Spanish-locale spreadsheets save CSV with semicolons; detected from the header, not guessed
     // per row.
-    const delimiter = (firstLine.match(/;/g)?.length ?? 0) > (firstLine.match(/,/g)?.length ?? 0) ? ';' : ',';
+    const delimiter =
+      declared?.[1] ?? ((firstLine.match(/;/g)?.length ?? 0) > (firstLine.match(/,/g)?.length ?? 0) ? ';' : ',');
     const parsed = Papa.parse<Record<string, string>>(content, {
       header: true,
       skipEmptyLines: 'greedy',
@@ -554,17 +564,33 @@ export class DataTransferService {
     return { headers: headers.filter(Boolean), rows };
   }
 
-  private toCsv(columns: readonly DataTransferColumn[], rows: ReadonlyArray<Record<string, unknown>>): Buffer {
+  /**
+   * The same CSV dialect as every export the client writes (QA R3-B10: two dialects, one with
+   * `sep=;` and semicolons, this one with bare commas that a Spanish Excel put in column A). The
+   * delimiter follows the reader's language — a semicolon where the decimal mark is a comma — and
+   * `sep=` tells Excel which; the importer reads that line back.
+   */
+  private toCsv(
+    columns: readonly DataTransferColumn[],
+    rows: ReadonlyArray<Record<string, unknown>>,
+    timeZone?: string,
+  ): Buffer {
+    const delimiter = currentLanguage() === 'en' ? ',' : ';';
     const escape = (value: unknown): string => {
-      const text = defuse(formatCell(value));
-      return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+      const text = defuse(formatCell(value, timeZone));
+      return text.includes(delimiter) || /["\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
     };
     const lines = [
-      columns.map((column) => column.key).join(','),
-      ...rows.map((row) => columns.map((column) => escape(row[column.property])).join(',')),
+      `sep=${delimiter}`,
+      columns.map((column) => column.key).join(delimiter),
+      ...rows.map((row) => columns.map((column) => escape(row[column.property])).join(delimiter)),
     ];
     // BOM so Excel reads UTF-8 accents correctly; CRLF per RFC 4180.
     return Buffer.from(`\uFEFF${lines.join('\r\n')}\r\n`, 'utf-8');
+  }
+
+  private timeZoneOf(organizationId: string): Promise<string> {
+    return organizationTimeZoneOf(this.runs.manager, organizationId);
   }
 
   private async toXlsx(
@@ -592,9 +618,9 @@ export class DataTransferService {
   }
 }
 
-function formatCell(value: unknown): string {
+function formatCell(value: unknown, timeZone?: string): string {
   if (value === null || value === undefined) return '';
-  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  if (value instanceof Date) return timeZone ? fiscalDate(timeZone, value) : value.toISOString().slice(0, 10);
   if (typeof value === 'object') {
     // A localized name (`{ es, en }`) exports in the first language it has.
     const values = Object.values(value as Record<string, unknown>).filter((v) => typeof v === 'string');

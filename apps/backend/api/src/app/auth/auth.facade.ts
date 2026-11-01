@@ -1,4 +1,5 @@
 
+import { MEMBER_JOINED, MemberJoinedEvent } from '../users/events/member-joined.event';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { SocialUser } from './interfaces/social-user.interface';
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
@@ -12,6 +13,7 @@ import { ImpersonationService } from './services/impersonation.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AuthEvents, AuthImpersonateEvent } from './events/auth.events';
 import { AuthenticatedUser } from '../security/principal';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthFacade {
@@ -22,7 +24,8 @@ export class AuthFacade {
     private readonly socialAuthService: SocialAuthService,
     private readonly tokenService: TokenService,
     private readonly impersonationService: ImpersonationService,
-    private readonly eventEmitter: EventEmitter2
+    private readonly eventEmitter: EventEmitter2,
+    private readonly usersService: UsersService,
   ) {}
 
   /** Payment-first signup: validate + stash a pending registration (no account yet). */
@@ -63,7 +66,23 @@ export class AuthFacade {
   }
 
   async setPasswordFromInvitation(dto: SetPasswordFromInvitationDto) {
-    const user = await this.passwordRecoveryService.setPasswordFromInvitation(dto);
+    const activated = await this.passwordRecoveryService.setPasswordFromInvitation(dto);
+    // Loaded exactly as a sign-in loads it — with the companies the person may act in. The invited
+    // user came back with `organizations: []`, so the company guard had nowhere to take them and
+    // every new member's first screen was «Access denied» (QA R3-A09, M-02).
+    const user = (await this.usersService.findUserForAuth(activated.email)) ?? activated;
+    // Whoever manages the company's people hears that the invitation was taken up (QA R3-M09).
+    const companies = user.organizations?.map((o) => o.id) ?? (user.organizationId ? [user.organizationId] : []);
+    for (const organizationId of companies) {
+      const joined: MemberJoinedEvent = {
+        organizationId,
+        userId: user.id,
+        name: [user.firstName, user.lastName].filter(Boolean).join(' '),
+        email: user.email,
+        invitedById: null,
+      };
+      this.eventEmitter.emit(MEMBER_JOINED, joined);
+    }
     const { accessToken, refreshToken, user: safeUser } = await this.tokenService.generateAuthResponse(user);
     return { user: safeUser, accessToken, refreshToken };
   }

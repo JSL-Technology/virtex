@@ -34,6 +34,8 @@
         "styles": [
           "node_modules/dockview/dist/styles/dockview.css",
           "node_modules/@angular/cdk/overlay-prebuilt.css",
+          "node_modules/handsontable/styles/handsontable.min.css",
+          "node_modules/handsontable/styles/ht-theme-main.min.css",
           "apps/core/client-web/src/styles.scss"
         ],
         "stylePreprocessorOptions": {

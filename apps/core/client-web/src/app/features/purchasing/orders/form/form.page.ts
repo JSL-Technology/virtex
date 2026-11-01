@@ -1,4 +1,5 @@
 import { VxBranchPickerComponent } from '../../../../shared/components/branch-picker';
+import { handleDocumentIntents } from '../../../../core/navigation/document-intent.service';
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,7 +9,7 @@ import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
 import { CurrenciesService } from '../../../../core/api/currencies.service';
 import { NotificationService } from '../../../../core/services/notification';
 import {
@@ -60,6 +61,23 @@ import { AiProvenanceBadgeComponent } from '../../../ai/provenance/ai-provenance
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PurchaseOrderFormPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => (this.current()?.id ? `/purchasing/orders/${this.current()!.id}/edit` : null),
+    ready: () => !!this.current(),
+    actions: {
+      'submit': () => this.canSubmit() && this.submit(),
+      'approve': () => this.canApprove() && this.approve(),
+      'send': () => this.canSend() && this.send(),
+      'create-bill': () => this.canBill() && this.createBill(),
+      'reject': () => this.canApprove() && this.startReject(),
+      'cancel': () => this.canCancel() && this.startCancel(),
+    },
+  });
+
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly purchasing = inject(PurchasingService);
@@ -72,6 +90,8 @@ export class PurchaseOrderFormPage implements OnInit {
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   @Input() id?: string;
+  /** A new order for this supplier — from the supplier's row menu (QA R3-B08). */
+  @Input('supplierId') presetSupplierId?: string;
 
   protected readonly AddIcon = Plus;
   protected readonly RemoveIcon = Trash2;
@@ -222,6 +242,7 @@ export class PurchaseOrderFormPage implements OnInit {
     this.currencyCode.set(this.locale.currency());
     this.form.get('currencyCode')?.valueChanges.subscribe((code: string) => this.currencyCode.set(code || null));
 
+    if (!this.id && this.presetSupplierId) this.form.patchValue({ supplierId: this.presetSupplierId });
     if (this.id) {
       this.purchasing.getOrder(this.id).subscribe({
         next: (order) => {
@@ -355,9 +376,9 @@ export class PurchaseOrderFormPage implements OnInit {
     });
   }
 
-  submit(): void { this.act(this.purchasing.submitOrder(this.current()!.id)); }
-  approve(): void { this.act(this.purchasing.approveOrder(this.current()!.id)); }
-  send(): void { this.act(this.purchasing.sendOrder(this.current()!.id)); }
+  submit(): void { this.act(this.purchasing.submitOrder(this.current()!.id), 'purchasing.orders.form.done.submitted'); }
+  approve(): void { this.act(this.purchasing.approveOrder(this.current()!.id), 'purchasing.orders.form.done.approved'); }
+  send(): void { this.act(this.purchasing.sendOrder(this.current()!.id), 'purchasing.orders.form.done.sent'); }
 
   /** Open a supplier invoice for what this order still has to bill. */
   createBill(): void {
@@ -383,14 +404,14 @@ export class PurchaseOrderFormPage implements OnInit {
   confirmReject(): void {
     const reason = this.rejectionReason().trim();
     if (reason.length < 3) return;
-    this.act(this.purchasing.rejectOrder(this.current()!.id, reason));
+    this.act(this.purchasing.rejectOrder(this.current()!.id, reason), 'purchasing.orders.form.done.rejected');
     this.abortReject();
   }
 
   confirmCancel(): void {
     const reason = this.cancellationReason().trim();
     if (reason.length < 3) return;
-    this.act(this.purchasing.cancelOrder(this.current()!.id, reason));
+    this.act(this.purchasing.cancelOrder(this.current()!.id, reason), 'purchasing.orders.form.done.cancelled');
     this.abortCancel();
   }
 
@@ -400,11 +421,13 @@ export class PurchaseOrderFormPage implements OnInit {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
-  private act(request: Observable<PurchaseOrder>): void {
+  /** A step on the order, confirmed in words: they used to change the badge and nothing else (QA R3-B01). */
+  private act(request: Observable<PurchaseOrder>, doneKey: string): void {
     this.saving.set(true);
     request.subscribe({
       next: (order) => {
         this.saving.set(false);
+        this.notifications.showSuccess(doneKey, { number: order.number ?? '' });
         this.load(order);
       },
       error: (error: unknown) => this.fail(error),
@@ -478,8 +501,6 @@ function round(value: number): number {
 }
 
 function todayIso(): string {
-  const now = new Date();
-  const month = `${now.getMonth() + 1}`.padStart(2, '0');
-  const day = `${now.getDate()}`.padStart(2, '0');
-  return `${now.getFullYear()}-${month}-${day}`;
+  // The company's today, not the browser's or UTC (QA R3-M02).
+  return tenantToday();
 }

@@ -19,7 +19,7 @@ import {
   FLOW_DOCUMENT_TYPES,
 } from './contracts/document-flow.contracts';
 import { CompiledEdge, CompiledNode, DocumentFlowCatalog } from './document-flow.catalog';
-import { relationKey, statusKindOf } from './document-flow.specs';
+import { relationKey, statusKindOf, statusLabelKeyOf } from './document-flow.specs';
 
 /** Who is asking. The map is filtered by their tenant, their permissions and their branches. */
 export interface FlowPrincipal {
@@ -259,11 +259,15 @@ export class DocumentFlowService {
           rows = await manager.query(...this.describeSql(spec, [term], principal.organizationId));
         } else {
           const number = spec.selects['number'];
+          const description = spec.spec.searchDescription ? spec.selects['description'] : undefined;
+          const matches = description
+            ? `(${number} ILIKE $1 ESCAPE '\\' OR ${description} ILIKE $1 ESCAPE '\\')`
+            : `${number} ILIKE $1 ESCAPE '\\'`;
           const [sql, params] = this.selectSql(
             spec,
-            `${number} ILIKE $1 ESCAPE '\\'`,
+            matches,
             [pattern, principal.organizationId],
-            `ORDER BY (${number} ILIKE $3 ESCAPE '\\') DESC, ${spec.selects['date'] ?? 'NULL'} DESC NULLS LAST LIMIT ${FLOW_LIMITS.searchPerType}`,
+            `ORDER BY (${number} ILIKE $3 ESCAPE '\\'${description ? ` OR ${description} ILIKE $3 ESCAPE '\\'` : ''}) DESC, ${spec.selects['date'] ?? 'NULL'} DESC NULLS LAST LIMIT ${FLOW_LIMITS.searchPerType}`,
           );
           rows = await manager.query(sql, [...params, prefix]);
         }
@@ -271,8 +275,9 @@ export class DocumentFlowService {
           if (spec.branch && scope.allowed && !(row['branch'] && scope.allowed.includes(row['branch']))) continue;
           const entry = this.toEntry(spec, row, 0);
           const node = entry.node;
-          const number = node.number ?? '';
-          const rank = number.toLowerCase() === term.toLowerCase() ? 0 : number.toLowerCase().startsWith(term.toLowerCase()) ? 1 : 2;
+          const lowered = term.toLowerCase();
+          const candidates = [node.number ?? '', spec.spec.searchDescription ? node.description ?? '' : ''].map((v) => v.toLowerCase());
+          const rank = candidates.includes(lowered) ? 0 : candidates.some((v) => v.startsWith(lowered)) ? 1 : 2;
           hits.push({
             rank,
             key: node.key,
@@ -287,6 +292,7 @@ export class DocumentFlowService {
             amount: node.amount,
             currencyCode: node.currencyCode,
             statusKind: node.statusKind,
+            statusKey: node.statusKey ?? null,
           });
         }
       }
@@ -516,6 +522,7 @@ export class DocumentFlowService {
         date: row['date'] ? String(row['date']).slice(0, 10) : null,
         statusKind: statusKindOf(spec, statusRaw),
         statusRaw,
+        statusKey: statusLabelKeyOf(spec, statusRaw),
         amount: total != null && total !== '' && Number.isFinite(Number(total)) ? Number(total) : null,
         currencyCode: row['currency'] ?? null,
         party: row['party'] ?? null,
@@ -543,6 +550,7 @@ export class DocumentFlowService {
       date: null,
       statusKind: 'unknown',
       statusRaw: null,
+      statusKey: null,
       amount: null,
       currencyCode: null,
       party: null,

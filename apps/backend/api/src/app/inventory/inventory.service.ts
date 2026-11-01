@@ -300,8 +300,10 @@ export class InventoryService implements GoodsReceiptPort {
     manager: EntityManager,
     organizationId: string,
     movement: StockMovementContext,
-  ): Promise<void> {
-    await this.ledger.move(manager, organizationId, {
+  ): Promise<{ unitCost: number }> {
+    // The unit cost the goods left at, so a caller posting the cost of sale (the till) values it
+    // exactly as the kardex line does.
+    const { product } = await this.ledger.move(manager, organizationId, {
       productId,
       warehouseId: await this.ledger.resolveWarehouse(manager, organizationId, movement.place),
       quantity: -Math.abs(quantity),
@@ -310,6 +312,7 @@ export class InventoryService implements GoodsReceiptPort {
       sourceType: movement.sourceType,
       sourceId: movement.sourceId,
     });
+    return { unitCost: Number(product.cost) };
   }
 
   /** Goods coming back — a credit note that restocks — into the document's warehouse. */

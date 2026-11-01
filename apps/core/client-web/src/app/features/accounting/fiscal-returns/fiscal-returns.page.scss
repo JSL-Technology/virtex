@@ -7,7 +7,9 @@
   padding: var(--space-2) var(--space-3);
   margin: var(--space-3) 0;
 }
-.fr-calendar th[scope='row'] { text-transform: capitalize; font-weight: var(--font-semibold); white-space: nowrap; }
+// Only the first letter: `capitalize` raised every word — «Enero De 2026» (QA R3-B03).
+.fr-calendar th[scope='row'] { font-weight: var(--font-semibold); white-space: nowrap; }
+.fr-calendar th[scope='row']::first-letter { text-transform: uppercase; }
 .fr-cell {
   display: inline-flex;
   flex-direction: column;
@@ -28,7 +30,8 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  h2 { margin: 0; font-size: var(--text-lg); text-transform: capitalize; }
+  h2 { margin: 0; font-size: var(--text-lg); }
+  h2::first-letter { text-transform: uppercase; }
 }
 .fr-facts {
   display: grid;

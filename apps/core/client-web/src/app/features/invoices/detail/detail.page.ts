@@ -1,4 +1,5 @@
 import { CountryService } from '../../../core/services/country.service';
+import { handleDocumentIntents } from '../../../core/navigation/document-intent.service';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { Component, ChangeDetectionStrategy, HostListener, Input, signal, inject, OnInit, effect, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
@@ -14,7 +15,7 @@ import { FormsModule } from '@angular/forms';
 // Se importa ActivatedRoute para acceder a los parámetros de la URL.
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { CreditNoteRequest, Invoice, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
+import { CreditNoteRequest, Invoice, InvoiceLineItem, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
 import { EinvoicingService, EcfSubmissionView } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
 import { translateOrLiteral } from '@virteex/shared/ui-i18n';
@@ -37,6 +38,7 @@ import { finalize } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { IdentityDocumentsService } from '../../../core/api/identity-documents.service';
 import { AiProvenanceBadgeComponent } from '../../ai/provenance/ai-provenance-badge.component';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 
 /** Each e-CF state's name and what it means for the person reading it. */
 const ECF_STATUS: Record<string, { label: string; hint: string }> = {
@@ -56,7 +58,7 @@ const ECF_STATUS: Record<string, { label: string; hint: string }> = {
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
-  imports: [AiProvenanceBadgeComponent, TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
+  imports: [HasPermissionDirective, AiProvenanceBadgeComponent, TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
     // a text link instead, while `angularx-qrcode` was already a dependency of the project.
     QRCodeComponent, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent,
     ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxTabsComponent, InvoiceEmailDialogComponent],
@@ -238,7 +240,7 @@ export class InvoiceDetailPage implements OnInit {
   invoice = signal<Invoice | undefined>(undefined);
   ecf = signal<EcfSubmissionView | null>(null);
   ecfBusy = signal(false);
-  navigationIds = signal<{ first: string, prev: string, next: string, last: string } | null>(null);
+  navigationIds = signal<{ first: string; prev: string | null; next: string | null; last: string } | null>(null);
   activeTab = signal<'content' | 'logistics' | 'finance'>('content');
 
   /** Las secciones del documento, como datos: `vx-tabs` las dibuja. */
@@ -258,6 +260,35 @@ export class InvoiceDetailPage implements OnInit {
       item.description.toLowerCase().includes(search) ||
       item.productId?.toLowerCase().includes(search)
     );
+  });
+
+  /** Whether any line carries a discount, to show the discount column only when it says something. */
+  readonly hasLineDiscounts = computed(() => (this.invoice()?.lineItems ?? []).some((item) => Number(item.discountAmount) > 0));
+
+  /** A line's total as charged: its net subtotal (after discount) plus its tax (QA R3-M01). */
+  lineTotal(item: InvoiceLineItem): number {
+    const net = item.lineSubtotal ?? item.quantity * item.price - (item.discountAmount || 0);
+    return Number(net) + Number(item.taxAmount || 0);
+  }
+
+  /**
+   * What a list row's menu asked of this invoice (QA R3-B08): the same methods its own buttons run,
+   * with their dialogs, checks and messages, once the invoice has loaded.
+   */
+  private readonly intents = handleDocumentIntents({
+    route: () => (this.id() ? `/invoices/${this.id()}` : null),
+    ready: () => this.invoice()?.id === this.id(),
+    actions: {
+      issue: () => this.previewIssue(),
+      collect: () => this.collect(this.invoice()!),
+      email: () => this.emailInvoice(),
+      pdf: () => this.downloadPdf(),
+      print: () => this.printInvoice(),
+      duplicate: () => this.handleCopyTo(),
+      'credit-note': () => this.createCreditNote(this.id()),
+      void: () => this.voidInvoice(this.invoice()!),
+      'delete-draft': () => this.discardDraft(),
+    },
   });
 
   constructor() {
@@ -402,8 +433,9 @@ export class InvoiceDetailPage implements OnInit {
       }
       this.navigationIds.set({
         first: ids[0],
-        prev: ids[index - 1] ?? ids[0],
-        next: ids[index + 1] ?? ids[ids.length - 1],
+        // None at the ends: the arrows used to «go» to the same invoice (QA R3-B04).
+        prev: ids[index - 1] ?? null,
+        next: ids[index + 1] ?? null,
         last: ids[ids.length - 1],
       });
     });

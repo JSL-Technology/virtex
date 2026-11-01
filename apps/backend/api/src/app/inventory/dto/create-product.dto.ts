@@ -17,6 +17,9 @@ import {
 } from 'class-validator';
 import { ProductKind, ProductStatus } from '../entities/product.entity';
 
+/** The largest unit price or cost a product's numeric(18,6) columns hold. */
+export const MAX_UNIT_AMOUNT = 999_999_999_999;
+
 export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
@@ -43,13 +46,17 @@ export class CreateProductDto {
   @IsOptional()
   categoryId?: string | null;
 
+  // The columns are numeric(18,6): twelve integer digits. Past that the database refused the
+  // row with «a numeric value is out of range» and no word of which one (QA R3-M15).
   @IsNumber()
   @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @Max(MAX_UNIT_AMOUNT, { message: `validation.constraints.max|{"max":${MAX_UNIT_AMOUNT}}` })
   price: number;
-  
+
   @IsNumber()
   @IsOptional()
   @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @Max(MAX_UNIT_AMOUNT, { message: `validation.constraints.max|{"max":${MAX_UNIT_AMOUNT}}` })
   cost?: number;
 
   /**

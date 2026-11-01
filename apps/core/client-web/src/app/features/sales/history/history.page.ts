@@ -1,9 +1,12 @@
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { FormsModule } from '@angular/forms';
 import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { BranchesService } from '../../../core/tenancy/branches.service';
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { LucideAngularModule, PlusCircle, FileDown } from 'lucide-angular';
+import { FileDown, LucideAngularModule, PlusCircle, RotateCw } from 'lucide-angular';
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 
@@ -33,12 +36,21 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-history-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_CONTEXT_MENU, ...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './history.page.html',
   styleUrls: ['./history.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HistoryPage implements OnInit {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly salesMenu: ListMenuConfig<PosSale> = {
+    resource: 'pos-sales',
+    relationshipMapType: 'POS_SALE',
+    row: () => [{ id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.load() }] }],
+  };
+
   private readonly translate = inject(TranslateService);
   /** Sortable by its headers (QA B-01). */
   readonly table = sortable(() => this.sales(), { status: (sale) => this.translate.instant('pos.sale_status.' + sale.status) });

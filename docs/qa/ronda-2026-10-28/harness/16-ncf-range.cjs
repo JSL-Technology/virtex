@@ -1,0 +1,43 @@
+// Ajustes → Comprobantes fiscales: rangos (vacío, invertido, negativo, prefijo inválido, vencido, válido, solapado).
+const { launch, instrument, uiLogin, shot, netSince, toasts } = require('./lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage();
+  const log = instrument(page);
+  await uiLogin(page);
+  await page.evaluate(() => { location.hash = 'settings/fiscal'; });
+  await page.waitForTimeout(2500);
+  const dlg = page.locator('[role=dialog]').last();
+  const sel = dlg.locator('select[formcontrolname=type]');
+  const pre = dlg.locator('input[formcontrolname=prefix]');
+  const from = dlg.locator('input[formcontrolname=startsAt]');
+  const to = dlg.locator('input[formcontrolname=endsAt]');
+  const exp = dlg.locator('input[type=date]').first();
+  const btn = dlg.getByRole('button', { name: 'Registrar rango' });
+  const attempt = async (name, t, p, a, b, d) => {
+    const n = log.requests.length;
+    if (t) await sel.selectOption({ label: t });
+    await pre.fill(p); await from.fill(a); await to.fill(b); await exp.fill(d);
+    const dis = await btn.isDisabled();
+    if (!dis) await btn.click();
+    await page.waitForTimeout(1800);
+    const msg = await dlg.locator('[class*=error], [role=alert], .invalid, small, [class*=hint]').allInnerTexts();
+    console.log(`[${name}] deshab=${dis} red=${JSON.stringify(netSince(log, n))} msgs=${JSON.stringify(msg.filter(Boolean).slice(0, 5))} toast="${(await toasts(page)).replace(/\s+/g, ' ').slice(-200)}"`);
+    await shot(page, `ncf-${name}`);
+  };
+  await attempt('1-vacio', null, '', '', '', '');
+  await attempt('2-invertido', 'E32 · Factura de Consumo Electrónica', 'E32', '100', '1', '2027-12-31');
+  await attempt('3-negativo', null, 'E32', '-5', '10', '2027-12-31');
+  await attempt('4-prefijo-invalido', null, 'ZZ<script>', '1', '10', '2027-12-31');
+  await attempt('5-vencido', null, 'E32', '1', '10', '2020-01-01');
+  await attempt('6-valido-E32', null, 'E32', '1', '500', '2027-12-31');
+  await attempt('7-solapado-E32', null, 'E32', '100', '200', '2027-12-31');
+  await attempt('8-valido-E31', 'E31 · Factura de Crédito Fiscal Electrónica', 'E31', '1', '500', '2027-12-31');
+  await attempt('9-valido-B02', 'B02 · Factura de Consumo', 'B02', '1', '500', '2027-12-31');
+  await attempt('10-valido-E34', 'E34 · Nota de Crédito Electrónica', 'E34', '1', '100', '2027-12-31');
+  await attempt('11-valido-B04', 'B04 · Nota de Crédito', 'B04', '1', '100', '2027-12-31');
+  const txt = await dlg.innerText();
+  console.log('RANGOS', txt.slice(txt.indexOf('Registrar rango'), txt.indexOf('Certificado digital')).replace(/\n+/g, ' | '));
+  console.log('ESTADO', txt.slice(txt.indexOf('Solo tradicionales'), txt.indexOf('Rangos de comprobantes')).replace(/\n+/g, ' | '));
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });

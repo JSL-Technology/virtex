@@ -1,117 +1,117 @@
-
-import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, ChevronRight, CheckCircle2 } from 'lucide-angular';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { DatasheetImportService, ImportModule } from '../services/datasheet-import.service';
 import { firstValueFrom } from 'rxjs';
 
+export type DatasheetSidebarTab = 'properties' | 'import';
+export type DatasheetCellType = 'general' | 'number' | 'currency' | 'date';
+
+/**
+ * The editor's side panel: the selected cells' format and the ERP import wizard.
+ *
+ * It was written in Tailwind utility classes the application does not load, so it rendered as
+ * bare browser-default HTML beside the grid (QA R3-A06). It now carries its own styles on the
+ * design tokens. The «Charts» tab only ever said «select a range», with nothing behind it, and is
+ * gone until there is a chart to insert.
+ */
 @Component({
   selector: 'app-datasheet-sidebar',
   standalone: true,
   imports: [CommonModule, LucideAngularModule, TranslateModule],
   template: `
-    <div class="h-full flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800">
-      <div class="flex border-b border-slate-200 dark:border-slate-800">
-        <button
-          (click)="activeTab = 'properties'"
-          [class.border-primary]="activeTab === 'properties'"
-          class="flex-1 py-3 text-sm font-medium border-b-2 transition-colors hover:text-primary"
-        >
+    <div class="ds-side">
+      <div class="ds-side__tabs" role="tablist">
+        <button type="button" role="tab" [attr.aria-selected]="activeTab === 'properties'" [class.is-active]="activeTab === 'properties'" (click)="activeTab = 'properties'">
           {{ 'datasheets.properties' | translate }}
         </button>
-        <button
-          (click)="activeTab = 'import'"
-          [class.border-primary]="activeTab === 'import'"
-          class="flex-1 py-3 text-sm font-medium border-b-2 transition-colors hover:text-primary"
-        >
+        <button type="button" role="tab" [attr.aria-selected]="activeTab === 'import'" [class.is-active]="activeTab === 'import'" (click)="activeTab = 'import'">
           {{ 'datasheets.import' | translate }}
         </button>
-        <button
-          (click)="activeTab = 'charts'"
-          [class.border-primary]="activeTab === 'charts'"
-          class="flex-1 py-3 text-sm font-medium border-b-2 transition-colors hover:text-primary"
-        >
-          {{ 'datasheets.charts' | translate }}
-        </button>
       </div>
 
-      <div class="flex-1 overflow-auto p-4">
-        <div *ngIf="activeTab === 'properties'">
-           <h3 class="text-xs font-semibold uppercase text-slate-400 mb-4">{{ 'datasheets.cell_format' | translate }}</h3>
-           <!-- Formatting tools -->
-           <div class="space-y-4">
-              <div>
-                <label class="text-xs text-slate-500 block mb-1" for="datasheet-cell-type">{{ 'datasheets.cell_type' | translate }}</label>
-                <select id="datasheet-cell-type" class="w-full text-sm rounded-md border-slate-200 dark:bg-slate-800 dark:border-slate-700">
-                  <option>{{ 'datasheets.cell_type.general' | translate }}</option>
-                  <option>{{ 'datasheets.cell_type.number' | translate }}</option>
-                  <option>{{ 'datasheets.cell_type.currency' | translate }}</option>
-                  <option>{{ 'datasheets.cell_type.date' | translate }}</option>
-                </select>
-              </div>
-           </div>
-        </div>
+      <div class="ds-side__body">
+        @if (activeTab === 'properties') {
+          <h3 class="ds-side__heading">{{ 'datasheets.cell_format' | translate }}</h3>
+          <label class="ds-side__label" for="datasheet-cell-type">{{ 'datasheets.cell_type' | translate }}</label>
+          <select id="datasheet-cell-type" class="ds-side__select" (change)="cellTypeChange.emit($any($event.target).value)">
+            <option value="general">{{ 'datasheets.cell_type.general' | translate }}</option>
+            <option value="number">{{ 'datasheets.cell_type.number' | translate }}</option>
+            <option value="currency">{{ 'datasheets.cell_type.currency' | translate }}</option>
+            <option value="date">{{ 'datasheets.cell_type.date' | translate }}</option>
+          </select>
+          <p class="ds-side__hint">{{ 'datasheets.cell_type_hint' | translate }}</p>
+        }
 
-        <div *ngIf="activeTab === 'import'">
-           <h3 class="text-xs font-semibold uppercase text-slate-400 mb-4">{{ 'datasheets.import_wizard' | translate }}</h3>
+        @if (activeTab === 'import') {
+          <h3 class="ds-side__heading">{{ 'datasheets.import_wizard' | translate }}</h3>
 
-           <div *ngIf="!selectedModule" class="space-y-2">
-              <button
-                *ngFor="let mod of importModules"
-                (click)="selectedModule = mod"
-                class="w-full flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary transition-colors text-left"
-              >
-                <div>
-                  <p class="text-sm font-medium">{{ mod.nameEn }}</p>
-                  <p class="text-xs text-slate-500">{{ 'datasheets.available_sets' | translate: { count: mod.sets.length } }}</p>
-                </div>
-                <lucide-icon [name]="ChevronRightIcon" [size]="16"></lucide-icon>
+          @if (!selectedModule) {
+            @for (mod of importModules; track mod.id) {
+              <button type="button" class="ds-side__option" (click)="selectedModule = mod">
+                <span>
+                  <span class="ds-side__option-title">{{ mod.nameEn }}</span>
+                  <span class="ds-side__option-sub">{{ 'datasheets.available_sets' | translate: { count: mod.sets.length } }}</span>
+                </span>
+                <lucide-icon [img]="ChevronRightIcon" [size]="16" aria-hidden="true"></lucide-icon>
               </button>
-           </div>
-
-           <div *ngIf="selectedModule && !selectedSet" class="space-y-2">
-              <button (click)="selectedModule = null" class="text-xs text-primary mb-2 flex items-center gap-1">← {{ 'datasheets.back' | translate }}</button>
-              <button
-                *ngFor="let set of selectedModule.sets"
-                (click)="selectedSet = set"
-                class="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary transition-colors text-left text-sm"
-              >
-                {{ set | titlecase }}
-              </button>
-           </div>
-
-           <div *ngIf="selectedSet" class="space-y-4">
-              <button (click)="selectedSet = null" class="text-xs text-primary flex items-center gap-1">← {{ 'datasheets.back' | translate }}</button>
-              <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                 <p class="text-xs font-medium mb-2">{{ 'datasheets.columns_to_import' | translate }}</p>
-                 <div class="space-y-1">
-                    <label *ngFor="let col of importColumnKeys" class="flex items-center gap-2 text-sm">
-                       <input type="checkbox" checked class="rounded border-slate-300 text-primary focus:ring-primary">
-                       {{ col | translate }}
-                    </label>
-                 </div>
-              </div>
-              <button
-                (click)="confirmImport()"
-                class="w-full py-2 bg-primary text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2"
-              >
-                 <lucide-icon [name]="CheckIcon" [size]="16"></lucide-icon>
-                 {{ 'datasheets.confirm_import' | translate }}
-              </button>
-           </div>
-        </div>
-
-        <div *ngIf="activeTab === 'charts'">
-           <h3 class="text-xs font-semibold uppercase text-slate-400 mb-4">{{ 'datasheets.chart_configuration' | translate }}</h3>
-           <p class="text-sm text-slate-500 italic">{{ 'datasheets.select_range_for_chart' | translate }}</p>
-        </div>
+            } @empty {
+              <p class="ds-side__hint">{{ 'datasheets.no_import_modules' | translate }}</p>
+            }
+          } @else if (!selectedSet) {
+            <button type="button" class="ds-side__back" (click)="selectedModule = null">← {{ 'datasheets.back' | translate }}</button>
+            @for (set of selectedModule.sets; track set) {
+              <button type="button" class="ds-side__option" (click)="selectedSet = set">{{ set | titlecase }}</button>
+            }
+          } @else {
+            <button type="button" class="ds-side__back" (click)="selectedSet = null">← {{ 'datasheets.back' | translate }}</button>
+            <div class="ds-side__box">
+              <p class="ds-side__label">{{ 'datasheets.columns_to_import' | translate }}</p>
+              @for (col of importColumnKeys; track col) {
+                <label class="ds-side__check"><input type="checkbox" checked disabled /> {{ col | translate }}</label>
+              }
+            </div>
+            <button type="button" class="primary-button ds-side__confirm" (click)="confirmImport()">
+              <lucide-icon [img]="CheckIcon" [size]="16" aria-hidden="true"></lucide-icon>
+              {{ 'datasheets.confirm_import' | translate }}
+            </button>
+          }
+        }
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    :host { display: block; height: 100%; }
+    .ds-side { display: flex; flex-direction: column; height: 100%; background: var(--bg-primary); color: var(--text-primary); }
+    .ds-side__tabs { display: flex; border-bottom: 1px solid var(--border-color); }
+    .ds-side__tabs button {
+      flex: 1; padding: var(--space-3) var(--space-2); background: none; border: 0; border-bottom: 2px solid transparent;
+      font: inherit; font-size: var(--text-sm); font-weight: 500; color: var(--text-secondary); cursor: pointer;
+    }
+    .ds-side__tabs button:hover { color: var(--text-primary); }
+    .ds-side__tabs button.is-active { color: var(--accent-text); border-bottom-color: var(--accent-primary); }
+    .ds-side__body { flex: 1; overflow: auto; padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); }
+    .ds-side__heading { margin: 0 0 var(--space-2); font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary); }
+    .ds-side__label { font-size: var(--text-xs); color: var(--text-secondary); }
+    .ds-side__select { width: 100%; }
+    .ds-side__hint { margin: 0; font-size: var(--text-xs); color: var(--text-secondary); }
+    .ds-side__option {
+      display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); width: 100%;
+      padding: var(--space-3); text-align: left; font: inherit; font-size: var(--text-sm); color: inherit;
+      background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;
+    }
+    .ds-side__option:hover { border-color: var(--accent-primary); }
+    .ds-side__option-title { display: block; font-weight: 500; }
+    .ds-side__option-sub { display: block; font-size: var(--text-xs); color: var(--text-secondary); }
+    .ds-side__back { align-self: flex-start; padding: 0; background: none; border: 0; font: inherit; font-size: var(--text-xs); color: var(--accent-text); cursor: pointer; }
+    .ds-side__box { padding: var(--space-3); background: var(--bg-secondary); border-radius: var(--radius-md); display: flex; flex-direction: column; gap: var(--space-1); }
+    .ds-side__check { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
+    .ds-side__confirm { justify-content: center; }
+  `],
 })
 export class DatasheetSidebarComponent implements OnInit {
-  activeTab: 'properties' | 'import' | 'charts' = 'properties';
+  @Input() activeTab: DatasheetSidebarTab = 'properties';
   importModules: ImportModule[] = [];
 
   /**
@@ -130,23 +130,23 @@ export class DatasheetSidebarComponent implements OnInit {
   selectedSet: string | null = null;
 
   @Output() importRequested = new EventEmitter<string>();
+  /** The format chosen for the selected cells (it used to be a select wired to nothing). */
+  @Output() cellTypeChange = new EventEmitter<DatasheetCellType>();
 
-  ChevronRightIcon = ChevronRight;
-  CheckIcon = CheckCircle2;
+  readonly ChevronRightIcon = ChevronRight;
+  readonly CheckIcon = CheckCircle2;
 
   private importService = inject(DatasheetImportService);
-async ngOnInit() {
+
+  async ngOnInit() {
     this.importModules = await firstValueFrom(this.importService.getModules());
   }
 
   confirmImport() {
     if (this.selectedModule && this.selectedSet) {
       const fnName = `IMPORTAR_${this.selectedModule.id.toUpperCase()}_${this.selectedSet.toUpperCase()}`;
-      // Simplified: always import a few columns
       const formula = `=${fnName}("Nombre", "Precio", "Stock")`;
       this.importRequested.emit(formula);
-
-      // Reset wizard
       this.selectedModule = null;
       this.selectedSet = null;
     }

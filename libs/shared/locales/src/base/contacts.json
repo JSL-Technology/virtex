@@ -285,6 +285,26 @@
     "en": "Manage your customer database and its history.",
     "pt": "Gerencie sua base de clientes e o histórico deles."
   },
+  "contacts.customers.menu.new_invoice": {
+    "en": "New invoice for this customer",
+    "es": "Nueva factura para este cliente",
+    "pt": "Nova fatura para este cliente"
+  },
+  "contacts.customers.menu.new_quote": {
+    "en": "New quote",
+    "es": "Nueva cotización",
+    "pt": "Novo orçamento"
+  },
+  "contacts.customers.menu.register_collection": {
+    "en": "Record a collection",
+    "es": "Registrar cobro",
+    "pt": "Registrar recebimento"
+  },
+  "contacts.customers.menu.statement": {
+    "en": "Statement of account",
+    "es": "Estado de cuenta",
+    "pt": "Extrato da conta"
+  },
   "contacts.customers.phone": {
     "es": "Teléfono",
     "en": "Phone",
@@ -349,6 +369,21 @@
     "es": "Administra la información de tus proveedores.",
     "en": "Manage your suppliers' information.",
     "pt": "Gerencie as informações dos seus fornecedores."
+  },
+  "contacts.suppliers.menu.new_bill": {
+    "en": "New bill from this supplier",
+    "es": "Nueva factura de este proveedor",
+    "pt": "Nova fatura deste fornecedor"
+  },
+  "contacts.suppliers.menu.new_order": {
+    "en": "New purchase order",
+    "es": "Nueva orden de compra",
+    "pt": "Novo pedido de compra"
+  },
+  "contacts.suppliers.menu.statement": {
+    "en": "Statement of account",
+    "es": "Estado de cuenta",
+    "pt": "Extrato da conta"
   },
   "contacts.suppliers.new_supplier": {
     "es": "Nuevo proveedor",

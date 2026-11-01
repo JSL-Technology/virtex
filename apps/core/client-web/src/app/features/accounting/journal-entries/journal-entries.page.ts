@@ -1,9 +1,14 @@
+import { DialogService } from '../../../core/services/dialog.service';
+import { NotificationService } from '../../../core/services/notification';
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, PlusCircle, MoreHorizontal } from 'lucide-angular';
+import { LucideAngularModule, MoreHorizontal, PlusCircle, RotateCw, Undo2 } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
 import {
   JournalEntriesApiService,
   JournalEntry,
@@ -37,13 +42,69 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-journal-entries-page',
   standalone: true,
-  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxPagerComponent],
+  imports: [...VX_CONTEXT_MENU, ...VX_SORT, RowLinkDirective, CanOpenDirective, CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxPagerComponent],
   templateUrl: './journal-entries.page.html',
   styleUrls: ['./journal-entries.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JournalEntriesPage {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly entriesMenu: ListMenuConfig<JournalEntry> = {
+    resource: 'journal-entries',
+    relationshipMapType: 'JOURNAL_ENTRY',
+    row: (ctx) => {
+      const entry = ctx.entity as JournalEntry;
+      return [
+        {
+          id: 'corrections',
+          items: [
+            {
+              id: 'reverse',
+              label: 'accounting.journal_entries.reverse',
+              icon: Undo2,
+              danger: true,
+              permission: 'journal_entries:create',
+              // Only a posted entry a person wrote: one a document posted is voided through it.
+              visible: () => entry.status === 'Posted' && !entry.isReversed && !entry.systemReason,
+              run: () => this.reverseEntry(entry),
+            },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.load() }] },
+      ];
+    },
+  };
+
   private readonly entriesApi = inject(JournalEntriesApiService);
+  private readonly dialog = inject(DialogService);
+  private readonly notifications = inject(NotificationService);
+
+  /**
+   * Reverse a posted entry from its row (QA R3-B08): the reason is asked for, as the API requires,
+   * and the reversal is dated today in the company's calendar. The API had the route and no screen
+   * offered it.
+   */
+  async reverseEntry(entry: JournalEntry): Promise<void> {
+    const reason = await this.dialog.prompt({
+      title: 'accounting.journal_entries.reverse_title',
+      message: 'accounting.journal_entries.reverse_message',
+      messageParams: { number: entry.entryNumber ?? '' },
+      confirmText: 'accounting.journal_entries.reverse',
+      variant: 'danger',
+      minLength: 3,
+      tooShort: 'accounting.journal_entries.reverse_reason_required',
+    });
+    if (!reason) return;
+    this.entriesApi.reverse(entry.id, { reversalDate: tenantToday(), reason: reason.trim() }).subscribe({
+      next: (reversal) => {
+        this.notifications.showSuccess('accounting.journal_entries.reversed', { number: entry.entryNumber ?? '', reversal: reversal.entryNumber ?? '' });
+        this.load();
+      },
+      error: (error: unknown) => this.notifications.showHttpError(error, 'accounting.journal_entries.reverse_failed'),
+    });
+  }
 
   protected readonly PlusCircleIcon = PlusCircle;
   protected readonly MoreHorizontalIcon = MoreHorizontal;

@@ -56,6 +56,27 @@ export class TreasuryController {
     return this.banksService.findAll(user.organizationId);
   }
 
+  @Get('banks/reference')
+  @HasPermission(PERMISSIONS.TREASURY_VIEW)
+  @ApiOperation({
+    summary: 'Cuántos bancos de la lista oficial del país de la empresa faltan en su catálogo.',
+  })
+  referenceBanksStatus(@CurrentUser() user: AuthenticatedUser) {
+    return this.banksService.referenceStatus(user.organizationId);
+  }
+
+  // step-up-exempt: adds institutions from the regulator's list and routes nothing, like adding one
+  // by hand; it never changes a bank already in the catalogue, so no account's BIC moves.
+  @Post('banks/reference-import')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
+  @ApiOperation({
+    summary: 'Agrega al catálogo los bancos de la lista oficial del país de la empresa que aún no tiene.',
+  })
+  importReferenceBanks(@CurrentUser() user: AuthenticatedUser) {
+    return this.banksService.importReference(user.organizationId);
+  }
+
   @Get('banks/:id')
   @HasPermission(PERMISSIONS.TREASURY_VIEW)
   findBank(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {

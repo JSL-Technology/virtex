@@ -170,7 +170,7 @@ export class StockQueriesService {
            FROM (SELECT * ${filtered}) l
            JOIN "products" p ON p."id" = l."product_id"
            JOIN "warehouses" w ON w."id" = l."warehouse_id"
-          ORDER BY l."date" ASC, l."id" ASC
+          ORDER BY ${movementOrder(query)}
           LIMIT ${limit} OFFSET ${offset}`,
         params,
       ),
@@ -219,4 +219,24 @@ export class StockQueriesService {
     const total = Number(count?.count ?? 0);
     return { items, total, page: current, limit, pages: Math.max(1, Math.ceil(total / limit)), openingBalance };
   }
+}
+
+/** Whitelisted: the column comes from the query string and goes into SQL. */
+const MOVEMENT_ORDER_COLUMNS: Record<NonNullable<StockMovementsQueryDto['sort']>, string> = {
+  date: 'l."date"',
+  product: 'p."name"',
+  warehouse: 'w."name"',
+  type: 'l."type"',
+  reference: 'l."reference"',
+  quantity: 'l."quantity"',
+  cost: 'l."cost"',
+};
+
+/** The requested order, then chronological, so equal values keep the kardex's own order. */
+function movementOrder(query: StockMovementsQueryDto): string {
+  const column = query.sort ? MOVEMENT_ORDER_COLUMNS[query.sort] : undefined;
+  const chronological = 'l."date" ASC, l."id" ASC';
+  if (!column) return chronological;
+  const direction = query.direction === 'desc' ? 'DESC' : 'ASC';
+  return `${column} ${direction} NULLS LAST, ${chronological}`;
 }

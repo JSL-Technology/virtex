@@ -35,7 +35,12 @@ export class ContextMenuService {
     this.sections.set(sections);
     this.context.set(context);
     const { x, y } = coordsOf(event);
-    this.host.openAt(x, y);
+    const host = this.host;
+    // On the next task, not during the event: opened inside the `contextmenu` that asked for it,
+    // the overlay was still in that event's path, and the overlay's outside-click handler — seeing
+    // the same event reach the page — closed it before it painted. No row menu ever stayed open
+    // (QA R3-B08). Deferred, the event has finished before the menu exists.
+    setTimeout(() => host.openAt(x, y));
   }
 
   close(): void {

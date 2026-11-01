@@ -29,11 +29,6 @@
     "en": "Export",
     "pt": "Exportar"
   },
-  "sales.history.id_venta": {
-    "es": "ID venta",
-    "en": "Sale ID",
-    "pt": "ID da venda"
-  },
   "sales.history.new_sale": {
     "es": "Nueva venta",
     "en": "New sale",
@@ -54,13 +49,18 @@
     "en": "Status",
     "pt": "Situação"
   },
+  "sales.history.ticket": {
+    "en": "Receipt",
+    "es": "Comprobante",
+    "pt": "Comprovante"
+  },
   "sales.history.total": {
     "literal": "Total"
   },
   "sales.history.walk_in": {
-    "es": "Cliente general",
     "en": "Walk-in customer",
-    "pt": "Cliente geral"
+    "es": "Consumidor final",
+    "pt": "Consumidor final"
   },
   "sales.lead_not_found": {
     "es": "Lead no encontrado.",

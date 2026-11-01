@@ -12,7 +12,7 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+    <table [appTableMenu]="requisitionsMenu" [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
           <th appSortHeader="number">{{ 'purchasing.requisitions.requisition' | translate }}</th>
@@ -30,7 +30,7 @@
       </thead>
       <tbody>
         @for (req of table.rows(); track req.id) {
-          <tr appRowLink>
+          <tr appRowLink [appRowMenu]="req">
             <td>
               <a [routerLink]="['/purchasing/requisitions', req.id, 'edit']" class="table-link">
                 {{ req.number }}

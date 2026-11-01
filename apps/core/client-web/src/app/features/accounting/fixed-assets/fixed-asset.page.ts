@@ -1,3 +1,4 @@
+import { handleDocumentIntents } from '../../../core/navigation/document-intent.service';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
@@ -29,6 +30,18 @@ import { FIXED_ASSET_TONE } from './fixed-assets.page';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FixedAssetPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => `/accounting/fixed-assets/${this.id()}`,
+    ready: () => !!this.asset(),
+    actions: {
+      'delete': () => this.deletable() && this.remove(),
+    },
+  });
+
   private readonly assets = inject(FixedAssetsService);
   private readonly dialog = inject(DialogService);
   private readonly notifications = inject(NotificationService);

@@ -56,7 +56,7 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appTableMenu]="receiptsMenu" class="data-table">
       <thead>
         <tr>
           <th>{{ 'purchasing.receipts.number' | translate }}</th>
@@ -74,7 +74,7 @@
       </thead>
       <tbody>
         @for (row of rows(); track row.id) {
-          <tr appRowLink>
+          <tr appRowLink [appRowMenu]="row">
             <td><a class="table-link" [routerLink]="['/purchasing/receipts', row.id]">{{ row.number }}</a></td>
             <td>{{ row.receivedAt | vxDate: 'date' }}</td>
             <td><a [routerLink]="['/purchasing/orders', row.orderId, 'edit']">{{ row.orderNumber }}</a></td>

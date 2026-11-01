@@ -47,7 +47,7 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appTableMenu]="notesMenu" class="data-table">
       <thead>
         <tr>
           <th>{{ 'accounts_payable.debit_notes.number' | translate }}</th>
@@ -65,7 +65,7 @@
       </thead>
       <tbody>
         @for (row of rows(); track row.id) {
-          <tr appRowLink>
+          <tr appRowLink [appRowMenu]="row">
             <td><a class="table-link" [routerLink]="['/accounts-payable/debit-notes', row.id]">{{ row.number }}</a></td>
             <td>{{ row.date | vxDate: 'date' : true }}</td>
             <td>{{ row.supplierName ?? '—' }}</td>

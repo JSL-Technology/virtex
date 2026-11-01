@@ -154,6 +154,11 @@
     "en": "Description",
     "pt": "Descrição"
   },
+  "invoices.detail.discount": {
+    "en": "Disc.",
+    "es": "Desc.",
+    "pt": "Desc."
+  },
   "invoices.detail.document_draft": {
     "es": "Este documento es un borrador.",
     "en": "This document is a draft.",
@@ -469,9 +474,9 @@
     "pt": "O tipo de comprovante só pode conter letras e números."
   },
   "invoices.document_type_not_allowed_by_emission_mode": {
-    "es": "Tu empresa no emite comprobantes {{type}}: revisa la modalidad de emisión en Configuración › Comprobantes fiscales.",
-    "en": "Your company does not issue {{type}} documents: check the emission mode in Settings › Fiscal documents.",
-    "pt": "Sua empresa não emite comprovantes {{type}}: verifique a modalidade de emissão em Configurações › Comprovantes fiscais."
+    "es": "Tu empresa no emite comprobantes {{type}}: revisa la modalidad de emisión en Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país.",
+    "en": "Your company does not issue {{type}} documents: check the emission mode in Settings › Fiscal documents or Electronic invoicing, depending on your country.",
+    "pt": "Sua empresa não emite comprovantes {{type}}: verifique a modalidade de emissão em Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país."
   },
   "invoices.document_type_type_does_not_exist": {
     "es": "El tipo de comprobante {{type}} no existe en el régimen de {{country}}.",
@@ -752,19 +757,19 @@
     "pt": "o livro contábil padrão"
   },
   "invoices.gaps.fiscal_sequence": {
-    "es": "un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E) (Configuración › Comprobantes fiscales)",
-    "en": "a current fiscal document range, traditional (B series) or electronic (E series) (Settings › Fiscal documents)",
-    "pt": "uma faixa de comprovantes vigente, tradicional (série B) ou eletrônica (série E) (Configurações › Comprovantes fiscais)"
+    "es": "un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E) (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a current fiscal document range, traditional (B series) or electronic (E series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "uma faixa de comprovantes vigente, tradicional (série B) ou eletrônica (série E) (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_sequence_electronic": {
-    "es": "un rango de comprobantes electrónicos (serie E) vigente (Configuración › Comprobantes fiscales)",
-    "en": "a current electronic document range (E series) (Settings › Fiscal documents)",
-    "pt": "uma faixa de comprovantes eletrônicos (série E) vigente (Configurações › Comprovantes fiscais)"
+    "es": "un rango de comprobantes electrónicos (serie E) vigente (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a current electronic document range (E series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "uma faixa de comprovantes eletrônicos (série E) vigente (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_sequence_traditional": {
-    "es": "un rango de comprobantes tradicionales (serie B) vigente (Configuración › Comprobantes fiscales)",
-    "en": "a current traditional document range (B series) (Settings › Fiscal documents)",
-    "pt": "uma faixa de comprovantes tradicionais (série B) vigente (Configurações › Comprovantes fiscais)"
+    "es": "un rango de comprobantes tradicionales (serie B) vigente (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a current traditional document range (B series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "uma faixa de comprovantes tradicionais (série B) vigente (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_year": {
     "es": "un año fiscal con sus períodos contables",
@@ -775,6 +780,11 @@
     "es": "la secuencia de numeración de facturas",
     "en": "the invoice numbering sequence",
     "pt": "a sequência de numeração de faturas"
+  },
+  "invoices.gaps.issuer_tax_id": {
+    "en": "your company’s tax id (Settings › Company profile)",
+    "es": "el RNC (identificación fiscal) de tu empresa (Ajustes › Perfil de la empresa)",
+    "pt": "a identificação fiscal da sua empresa (Configurações › Perfil da empresa)"
   },
   "invoices.gaps.open_period": {
     "es": "un período contable abierto que cubra la fecha de hoy",
@@ -812,9 +822,9 @@
     "pt": "a conta de taxa de serviço a pagar"
   },
   "invoices.gaps.signing_certificate": {
-    "es": "un certificado digital vigente para firmar comprobantes electrónicos (Configuración › Comprobantes fiscales)",
-    "en": "a valid digital certificate to sign electronic documents (Settings › Fiscal documents)",
-    "pt": "um certificado digital válido para assinar comprovativos eletrónicos (Configurações › Comprovantes fiscais)"
+    "es": "un certificado digital vigente para firmar comprobantes electrónicos (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a valid digital certificate to sign electronic documents (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "um certificado digital válido para assinar comprovativos eletrónicos (Definições › Faturação eletrónica)"
   },
   "invoices.gaps.tax_withheld_account": {
     "es": "la cuenta de retenciones recibidas (impuesto retenido por el cliente)",
@@ -915,9 +925,9 @@
     "pt": "Exportar para Excel"
   },
   "invoices.invoice_toolbar.form_settings": {
-    "es": "Personalizar formulario",
-    "en": "Customize form",
-    "pt": "Personalizar formulário"
+    "en": "Fiscal document settings",
+    "es": "Ajustes de comprobantes fiscales",
+    "pt": "Configurações de comprovantes fiscais"
   },
   "invoices.invoice_toolbar.go_next": {
     "es": "Siguiente",
@@ -983,6 +993,11 @@
     "es": "Un comprobante emitido no se elimina: anúlalo con una nota de crédito.",
     "en": "An issued document is not deleted: void it with a credit note.",
     "pt": "Um documento emitido não é excluído: cancele-o com uma nota de crédito."
+  },
+  "invoices.issuer_tax_id_required": {
+    "en": "A fiscal document cannot be issued without your company’s tax id: the document and the tax returns require it. Record it in Settings › Company profile.",
+    "es": "No se puede emitir un comprobante fiscal sin el RNC de tu empresa: el documento y el 607 lo exigen. Regístralo en Ajustes › Perfil de la empresa.",
+    "pt": "Não é possível emitir um comprovante fiscal sem a identificação fiscal da sua empresa. Registre-a em Configurações › Perfil da empresa."
   },
   "invoices.label_must_expressed_fraction_between": {
     "es": "{{label}} debe expresarse como fracción entre 0 y 1.",

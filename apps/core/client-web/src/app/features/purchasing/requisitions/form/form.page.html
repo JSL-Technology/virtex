@@ -121,6 +121,25 @@
             {{ 'purchasing.requisitions.form.submit' | translate }}
           </button>
         }
+        @if (canConvert()) {
+          <!-- The order the approval was for (QA R3-M07): the lines carry across to the chosen supplier. -->
+          <label class="field convert-supplier" for="convertSupplier">
+            <span>{{ 'purchasing.requisitions.form.convert_supplier' | translate }} *</span>
+            <vx-select
+              inputId="convertSupplier"
+              [formControl]="convertSupplier"
+              [search]="searchSuppliers"
+              [resolveWith]="resolveSupplier"
+              [displayWith]="supplierName"
+              [valueWith]="supplierIdOf"
+              [describeWith]="supplierTaxId"
+              [required]="true"
+            />
+          </label>
+          <button class="primary-button" type="button" [disabled]="saving() || !convertSupplier.value" (click)="convertToOrder()">
+            {{ 'purchasing.requisitions.form.convert_to_order' | translate }}
+          </button>
+        }
         @if (canDecide()) {
           <button class="primary-button" type="button" [disabled]="saving()" (click)="approve()">
             {{ 'purchasing.requisitions.form.approve' | translate }}

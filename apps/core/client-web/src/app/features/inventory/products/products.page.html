@@ -20,6 +20,23 @@
     <span>{{ 'inventory.products.new_product' | translate }}</span>
   </a>
 
+  <!-- What a selection can do, in sight (QA R3-B08): it was only in the right-click menu. -->
+  @if (selection.count() > 0) {
+    <div class="selection-bar card" role="region" [attr.aria-label]="'actions.selection' | translate">
+      <span class="selection-bar__count" role="status">{{ 'actions.selected_n' | translate: { n: selection.count() } }}</span>
+      <button type="button" class="secondary-button" *appHasPermission="'products:edit'" (click)="archiveSelected()">
+        {{ 'actions.archive_n' | translate: { n: selection.count() } }}
+      </button>
+      <button type="button" class="secondary-button" (click)="exportSelected(selection.selected())">
+        {{ 'actions.export_n' | translate: { n: selection.count() } }}
+      </button>
+      <button type="button" class="danger-button" *appHasPermission="'products:delete'" (click)="deleteSelected()">
+        {{ 'actions.delete_n' | translate: { n: selection.count() } }}
+      </button>
+      <button type="button" class="link-button" (click)="selection.clear()">{{ 'actions.clear_selection' | translate }}</button>
+    </div>
+  }
+
   <div class="table-container card">
     <table [appTableMenu]="productsMenu" #tableMenu="appTableMenu" [appSort]="table.sort" class="data-table">
       <thead>

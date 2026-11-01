@@ -68,6 +68,11 @@ export interface NodeSpec {
   /** Kind for a value missing from `statusMap`, or for a type with no status at all. Default `unknown`. */
   statusFallback?: FlowStatusKind;
   /**
+   * Catalogue prefix of the document's own status labels (`invoices.status` + `paid`). The raw
+   * value is lower-cased with spaces as underscores, as the document's screens name it.
+   */
+  statusLabelPrefix?: string;
+  /**
    * A hub collects links from many unrelated documents — a journal entry can be shared by a whole
    * payment batch, a depreciation run by every asset. When the map *passes through* a hub it does
    * not fan back out of it into other documents (only into other hubs: a reversal of the entry),
@@ -77,6 +82,11 @@ export interface NodeSpec {
   hub?: boolean;
   /** The number can be searched for from the picker. Needs `numberProp`. */
   searchable?: boolean;
+  /**
+   * The description is a second number people search by — an invoice's e-NCF. Searching
+   * «B0100000001» found nothing while «FAC-00000001» did (QA R3-M13).
+   */
+  searchDescription?: boolean;
 }
 
 /**
@@ -233,7 +243,9 @@ export const NODE_SPECS: Record<FlowDocumentType, NodeSpec> = {
       },
     },
     statusMap: STATUS_MAPS.invoice,
+    statusLabelPrefix: 'invoices.status',
     searchable: true,
+    searchDescription: true,
   },
   [T.CUSTOMER_PAYMENT]: {
     type: T.CUSTOMER_PAYMENT,
@@ -527,6 +539,11 @@ export function relationKey(relation: string): string {
 }
 
 /** Normalise a raw status into a kind, using the spec's explicit map only. */
+export function statusLabelKeyOf(spec: NodeSpec, raw: string | null): string | null {
+  if (!spec.statusLabelPrefix || raw == null || raw === '') return null;
+  return `${spec.statusLabelPrefix}.${raw.trim().toLowerCase().replace(/\s+/g, '_')}`;
+}
+
 export function statusKindOf(spec: NodeSpec, raw: string | null): FlowStatusKind {
   if (raw == null || raw === '') return spec.statusFallback ?? 'unknown';
   return spec.statusMap?.[raw] ?? spec.statusFallback ?? 'unknown';

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
-import { TreasuryService } from '../../../../core/api/treasury.service';
+import { BANK_KINDS, TreasuryService } from '../../../../core/api/treasury.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 import { DraftProblem, DraftShellComponent, draftProblems } from '../../../../shared/components/gestures';
@@ -40,10 +40,14 @@ export class BankFormPage implements OnInit {
   readonly isEditMode = signal(false);
   readonly saving = signal(false);
   readonly problems = signal<DraftProblem[]>([]);
+  protected readonly kinds = BANK_KINDS;
 
   ngOnInit(): void {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(120)]],
+      legalName: ['', [Validators.maxLength(200)]],
+      taxId: ['', [Validators.maxLength(20)]],
+      kind: [''],
       swiftBic: ['', [Validators.maxLength(11), bicValidator]],
       // The tenant's own country as the starting point: most of its banks are local.
       countryCode: [this.locale.tenantContext()?.countryCode ?? '', [Validators.pattern(/^[A-Za-z]{2}$/)]],
@@ -57,6 +61,9 @@ export class BankFormPage implements OnInit {
         next: (bank) => {
           this.form.patchValue({
             name: bank.name,
+            legalName: bank.legalName ?? '',
+            taxId: bank.taxId ?? '',
+            kind: bank.kind ?? '',
             swiftBic: bank.swiftBic ?? '',
             countryCode: bank.countryCode ?? '',
             localCode: bank.localCode ?? '',
@@ -79,6 +86,8 @@ export class BankFormPage implements OnInit {
       this.problems.set(
         draftProblems(this.form, {
           name: 'masters.banks.bank_name',
+          legalName: 'masters.banks.legal_name',
+          taxId: 'masters.banks.tax_id',
           swiftBic: 'masters.banks.swift_code',
           countryCode: 'masters.banks.country',
           localCode: 'masters.banks.local_code',
@@ -92,6 +101,9 @@ export class BankFormPage implements OnInit {
     const raw = this.form.getRawValue();
     const body = {
       name: String(raw.name).trim(),
+      legalName: raw.legalName ? String(raw.legalName).trim() : null,
+      taxId: raw.taxId ? String(raw.taxId).trim() : null,
+      kind: raw.kind || null,
       swiftBic: raw.swiftBic ? String(raw.swiftBic).trim().toUpperCase() : null,
       countryCode: raw.countryCode ? String(raw.countryCode).toUpperCase() : null,
       localCode: raw.localCode ? String(raw.localCode).trim() : null,

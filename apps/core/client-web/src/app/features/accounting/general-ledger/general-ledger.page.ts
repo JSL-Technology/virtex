@@ -95,7 +95,12 @@ export class GeneralLedgerPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.accountId.set(this.route.snapshot.paramMap.get('accountId'));
+    // From the trial balance: the account and the period it was looking at (QA R3-B02).
+    const query = this.route.snapshot.queryParamMap;
+    this.accountId.set(query.get('accountId') ?? this.route.snapshot.paramMap.get('accountId'));
+    const isoDate = /^\d{4}-\d{2}-\d{2}$/;
+    if (isoDate.test(query.get('from') ?? '')) this.startDate = query.get('from')!;
+    if (isoDate.test(query.get('to') ?? '')) this.endDate = query.get('to')!;
     this.loadLedgerData();
   }
 

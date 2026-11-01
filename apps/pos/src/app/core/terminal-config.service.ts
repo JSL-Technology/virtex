@@ -13,6 +13,14 @@ export const DEFAULT_TERMINAL_ID = 'main';
 export const TERMINAL_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$/;
 
 /**
+ * What to call a till on screen and on a ticket: the default one by a word in the reader's
+ * language, not its id — «Caja main» was the id showing through (QA R3-B09).
+ */
+export function terminalDisplayName(id: string, translate: (key: string) => string): string {
+  return id === DEFAULT_TERMINAL_ID ? translate('pos.terminal_default_name') : id;
+}
+
+/**
  * Which till this device is.
  *
  * Every shift and every sale is keyed by terminal; the till used to hard-code `'main'`, so two

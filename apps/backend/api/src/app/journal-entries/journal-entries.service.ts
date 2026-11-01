@@ -504,6 +504,11 @@ export class JournalEntriesService {
       // produced a posting — the cash flow statement's exchange-rate line, above all — can only
       // read the ledger.
       systemReason: context.systemReason ?? null,
+      // An entry the system posted for a subledger is SYSTEM_GENERATED unless its caller names a
+      // type. They all arrived as MANUAL — a till sale, a receipt, depreciation — so the ledger
+      // could not tell what a person wrote from what a document produced (found re-verifying the
+      // POS posting, QA R3-C02).
+      entryType: entryData.entryType ?? (context.systemReason ? JournalEntryType.SYSTEM_GENERATED : JournalEntryType.MANUAL),
       ledgerId: postingLedger.id,
       status: JournalEntryStatus.DRAFT,
       entryNumber: null,
@@ -1056,9 +1061,22 @@ export class JournalEntriesService {
     reverseDto: ReverseJournalEntryDto,
     context: PostingContext,
   ): Promise<JournalEntry> {
-    return this.dataSource.transaction((manager) =>
-      this.reverseWithin(id, organizationId, reverseDto, manager, context),
-    );
+    return this.dataSource.transaction(async (manager) => {
+      // A person reverses entries a person wrote. An entry a document posted — an invoice, a till
+      // sale, a receipt — is reversed by voiding that document, which reverses it and puts the
+      // document's own state right; reversed here, the ledger would say «void» while the invoice
+      // still said «pending» (found when the reversal was offered from the entry's menu, QA R3-B08).
+      const original = await manager.findOne(JournalEntry, {
+        where: { id, organizationId },
+        select: { id: true, systemReason: true, entryNumber: true },
+      });
+      if (original?.systemReason) {
+        throw new BadRequestError('journal_entries.document_entry_reverse_through_document', {
+          number: original.entryNumber ?? '',
+        });
+      }
+      return this.reverseWithin(id, organizationId, reverseDto, manager, context);
+    });
   }
 
   /** Reverse on the caller's transaction — used by the close and by subledger voids. */
@@ -1227,6 +1245,23 @@ export class JournalEntriesService {
    * rows, and the original is marked MODIFIED and linked forward, so the correction is legible in
    * the book rather than hidden.
    */
+  /** The original's own date while its period is open; otherwise the correction's date. */
+  private async modificationReversalDate(
+    manager: EntityManager,
+    organizationId: string,
+    original: JournalEntry,
+    correctedDate: string,
+  ): Promise<string> {
+    const originalDate =
+      typeof original.date === 'string' ? (original.date as string).slice(0, 10) : new Date(original.date).toISOString().slice(0, 10);
+    try {
+      await resolvePostingPeriod(manager, organizationId, originalDate);
+      return originalDate;
+    } catch {
+      return correctedDate;
+    }
+  }
+
   async update(
     id: string,
     organizationId: string,
@@ -1259,11 +1294,18 @@ export class JournalEntriesService {
         );
       }
 
+      // The reversal undoes the original where the original lives: on its own date, in its own
+      // period. It used to take the corrected date, so moving an entry from 2031 to 2026 left the
+      // original in 2031 and put its reversal beside the replacement in 2026, where the two
+      // cancelled out — the correction corrected nothing (QA R3-A02). Only when the original's
+      // period is already closed does the reversal fall on the correction's date, as an
+      // adjustment in the open book rather than a change to a sealed one.
+      const reversalDate = await this.modificationReversalDate(manager, organizationId, original, updateDto.date);
       await this.reverseWithin(
         id,
         organizationId,
         {
-          reversalDate: updateDto.date,
+          reversalDate,
           reason: `Modificación: ${updateDto.modificationReason}`,
         },
         manager,

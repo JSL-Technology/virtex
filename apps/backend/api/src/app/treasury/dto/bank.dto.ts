@@ -1,12 +1,27 @@
-import { IsBoolean, IsOptional, IsString, Length, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsBoolean, IsIn, IsOptional, IsString, Length, Matches, MaxLength, MinLength } from 'class-validator';
 import { PartialType } from '@nestjs/swagger';
 import { IsBic } from '../../common/validators/bank-identifiers.validator';
+import { BANK_KINDS, type BankKind } from '../entities/bank.entity';
 
 export class CreateBankDto {
   @IsString()
   @MinLength(1, { message: 'validation.constraints.min_length|{"min":1}' })
   @MaxLength(120, { message: 'validation.constraints.max_length|{"max":120}' })
   name: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(200, { message: 'validation.constraints.max_length|{"max":200}' })
+  legalName?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(20, { message: 'validation.constraints.max_length|{"max":20}' })
+  taxId?: string;
+
+  @IsOptional()
+  @IsIn(BANK_KINDS, { message: 'validation.constraints.is_in' })
+  kind?: BankKind;
 
   @IsString()
   @IsOptional()

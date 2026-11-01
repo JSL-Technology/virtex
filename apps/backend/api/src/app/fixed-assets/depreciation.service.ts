@@ -20,6 +20,8 @@ import { endOfMonthIso, toIsoDate, toIsoMonth, type IsoDate } from '../common/da
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 import { chargesDue, ScheduledCharge } from './depreciation-schedule';
+import { resolvePostingPeriod } from '../accounting/period-status';
+import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
 
 /** Why an asset due a charge was left out of a run. */
 export type DepreciationSkipReason = 'missing_accounts';
@@ -65,7 +67,8 @@ interface PlannedAsset {
  *
  * Every run charges each asset every month it is due, through the run's month (`chargesDue`), to
  * the asset's own accounts (the company's defaults only where the asset names none), in one entry
- * dated on the month's last day, and records each asset-month in `fixed_asset_depreciations`. The
+ * per month dated on that month's last day (a month whose period is closed is booked in the run's
+ * month instead), and records each asset-month in `fixed_asset_depreciations`. The
  * unique (asset, month) row and the asset's `depreciatedThrough` make any run idempotent — the
  * scheduler's, the period close's, a manual one, or two at once — and a transaction-scoped
  * advisory lock per tenant serialises concurrent runs so the second sees the first's work.
@@ -192,47 +195,74 @@ export class DepreciationService extends DepreciationPort {
     const journal = await this.journalLookup.findByCode(organizationId, 'DEPREC', em);
     if (!journal) throw new BadRequestError('fixed_assets.depreciation_journal_deprec_not_found_create');
 
-    const month = toIsoMonth(periodEnd);
-    const lines: CreateJournalEntryLineDto[] = [];
-    for (const { asset, amount, expenseAccountId, accumulatedAccountId } of planned) {
-      const words = await this.narrative.describeAll(em, organizationId, {
-        expense: { key: 'ledger.depreciation.expense', params: { month, asset: `${asset.number} ${asset.name}` } },
-        accumulated: { key: 'ledger.depreciation.accumulated', params: { month, asset: `${asset.number} ${asset.name}` } },
-      });
-      lines.push(
-        {
-          accountId: expenseAccountId,
-          debit: amount,
-          credit: 0,
-          description: words.expense,
-          valuations: [{ ledgerId: defaultLedger.id, debit: amount, credit: 0 }],
-        },
-        {
-          accountId: accumulatedAccountId,
-          debit: 0,
-          credit: amount,
-          description: words.accumulated,
-          valuations: [{ ledgerId: defaultLedger.id, debit: 0, credit: amount }],
-        },
-      );
+    // One entry per month, dated on that month's last day (QA R3-M14: a run that caught up August
+    // and September booked both in one entry dated 30/09, so August's expense sat in September's
+    // income statement). A month whose period is already closed cannot take its own entry; its
+    // charge goes into the run's month instead, still described as the month it belongs to.
+    const postingDates = new Map<IsoDate, IsoDate>();
+    for (const { charges } of planned) {
+      for (const charge of charges) {
+        if (!postingDates.has(charge.periodEnd)) {
+          postingDates.set(
+            charge.periodEnd,
+            charge.periodEnd === periodEnd || (await this.isPostable(em, organizationId, charge.periodEnd))
+              ? charge.periodEnd
+              : periodEnd,
+          );
+        }
+      }
     }
 
-    const entry = await this.assetPosting.createWithManager(
-      em,
-      {
-        date: periodEnd,
-        description: await this.narrative.describe(em, organizationId, 'ledger.depreciation.entry', { month }),
-        journalId: journal.id,
-        lines,
-      } as CreateJournalEntryDto,
-      organizationId,
-      { actorUserId: null, systemReason },
-    );
+    const groups = new Map<IsoDate, { lines: CreateJournalEntryLineDto[]; rows: Array<{ asset: FixedAsset; charge: ScheduledCharge }> }>();
+    for (const { asset, charges, expenseAccountId, accumulatedAccountId } of planned) {
+      for (const charge of charges) {
+        const postOn = postingDates.get(charge.periodEnd) ?? periodEnd;
+        const group = groups.get(postOn) ?? { lines: [], rows: [] };
+        groups.set(postOn, group);
+        const month = toIsoMonth(charge.periodEnd);
+        const amount = roundAmount(charge.amount);
+        const words = await this.narrative.describeAll(em, organizationId, {
+          expense: { key: 'ledger.depreciation.expense', params: { month, asset: `${asset.number} ${asset.name}` } },
+          accumulated: { key: 'ledger.depreciation.accumulated', params: { month, asset: `${asset.number} ${asset.name}` } },
+        });
+        group.lines.push(
+          {
+            accountId: expenseAccountId,
+            debit: amount,
+            credit: 0,
+            description: words.expense,
+            valuations: [{ ledgerId: defaultLedger.id, debit: amount, credit: 0 }],
+          },
+          {
+            accountId: accumulatedAccountId,
+            debit: 0,
+            credit: amount,
+            description: words.accumulated,
+            valuations: [{ ledgerId: defaultLedger.id, debit: 0, credit: amount }],
+          },
+        );
+        group.rows.push({ asset, charge });
+      }
+    }
 
-    for (const { asset, charges } of planned) {
+    let runEntryId: string | null = null;
+    for (const postOn of [...groups.keys()].sort()) {
+      const group = groups.get(postOn)!;
+      const entry = await this.assetPosting.createWithManager(
+        em,
+        {
+          date: postOn,
+          description: await this.narrative.describe(em, organizationId, 'ledger.depreciation.entry', { month: toIsoMonth(postOn) }),
+          journalId: journal.id,
+          lines: group.lines,
+        } as CreateJournalEntryDto,
+        organizationId,
+        { actorUserId: null, systemReason },
+      );
+      runEntryId = entry.id;
       await em.insert(
         FixedAssetDepreciation,
-        charges.map((charge) => ({
+        group.rows.map(({ asset, charge }) => ({
           organizationId,
           fixedAssetId: asset.id,
           periodEnd: charge.periodEnd,
@@ -242,6 +272,9 @@ export class DepreciationService extends DepreciationPort {
           journalEntryId: entry.id,
         })),
       );
+    }
+
+    for (const { asset, charges } of planned) {
       const last = charges[charges.length - 1];
       await em.update(
         FixedAsset,
@@ -257,7 +290,9 @@ export class DepreciationService extends DepreciationPort {
       asset.depreciatedThrough = last.periodEnd;
     }
 
-    const result = summarise(periodEnd, entry.id, planned, skipped);
+    const month = toIsoMonth(periodEnd);
+    // The latest entry: the run's own month whenever anything was due in it.
+    const result = summarise(periodEnd, runEntryId, planned, skipped);
     this.logger.log(
       `Depreciación hasta ${month} registrada en ${organizationId}: ${planned.length} activos, ${result.total}.`,
     );
@@ -291,6 +326,16 @@ export class DepreciationService extends DepreciationPort {
       planned.push({ asset, charges, amount, expenseAccountId, accumulatedAccountId });
     }
     return { planned, skipped };
+  }
+
+  /** Whether a past month can still take its own entry: its period exists and is open. */
+  private async isPostable(em: EntityManager, organizationId: string, date: IsoDate): Promise<boolean> {
+    try {
+      await resolvePostingPeriod(em, organizationId, date, ModuleSlug.GL);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /**

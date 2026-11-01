@@ -33,6 +33,12 @@ export function resolvePurchaseTaxAccount(
  * The account a caller named exists in this company, is active and takes postings — a header
  * account cannot carry a line, and an account from another company must not be named at all.
  */
+/** Whether the account is the books' inventory control account (by its system role). */
+export async function isInventoryAccount(manager: EntityManager, organizationId: string, accountId: string): Promise<boolean> {
+  const account = await manager.findOne(Account, { where: { id: accountId, organizationId }, select: ['id', 'systemRole'] });
+  return account?.systemRole === AccountRole.INVENTORY;
+}
+
 export async function assertPostableAccount(
   manager: EntityManager,
   organizationId: string,

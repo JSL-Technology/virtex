@@ -10,6 +10,7 @@ import { AiReport, AiReportAudience, AiReportKind } from '../entities/ai-report.
 import { NotFoundError } from '../../i18n/localized.exception';
 import { MemberAccess, holdsAll, loadMemberAccess } from '../../roles/contracts/member-access.contract';
 import { AI_PERMISSIONS } from '../../shared/ai.permissions';
+import { ServiceUnavailableError } from '../../i18n/localized.exception';
 
 export const AI_REPORTS_QUEUE = 'ai-reports';
 
@@ -125,6 +126,11 @@ export class ReportsService {
     kind: AiReportKind,
     options: { period?: string | null; language: string; sourceRunId?: string | null },
   ): Promise<AiReport> {
+    // A person asking is told now: the report used to be queued, fail twice in the background and
+    // come back as «could not be written, try again» — which no retry could fix (QA R3-M08).
+    if (userId && !this.gateway.isAvailable()) {
+      throw new ServiceUnavailableError('ai.not_configured');
+    }
     const builder = this.builders.get(kind);
     const audience: AiReportAudience = userId ? (builder?.requestedAudience ?? 'REQUESTER') : 'ORGANIZATION';
     const active = await this.reports.findOne({

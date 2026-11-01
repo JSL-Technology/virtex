@@ -28,6 +28,8 @@ export interface PosSaleItem {
   taxRate: number;
   lineSubtotal: number;
   lineTax: number;
+  /** A service line: reported as services in the 607 and credited to service revenue. */
+  isService?: boolean;
 }
 
 /** One tender of a till sale. */
@@ -130,6 +132,25 @@ export class PosSale {
   /** Why, in the supervisor's words. Required to void. */
   @Column({ name: 'void_reason', type: 'varchar', length: 255, nullable: true })
   voidReason: string | null;
+
+  /** The revenue entry: cash/bank against revenue and output tax (QA R3-C02). */
+  @Column({ name: 'journal_entry_id', type: 'uuid', nullable: true })
+  journalEntryId: string | null;
+
+  /** The cost-of-sale entry, when stocked goods left the warehouse. */
+  @Column({ name: 'cost_journal_entry_id', type: 'uuid', nullable: true })
+  costJournalEntryId: string | null;
+
+  /** What the goods cost when they left, valued as the kardex valued them. */
+  @Column({ name: 'cost_of_sale', type: 'numeric', precision: 14, scale: 2, transformer: numericTransformerNotNull, default: 0 })
+  costOfSale: number;
+
+  /** The comprobante fiscal printed on the ticket (B02 in the Dominican Republic), when drawn. */
+  @Column({ name: 'fiscal_number', type: 'varchar', length: 19, nullable: true })
+  fiscalNumber: string | null;
+
+  @Column({ name: 'fiscal_document_type', type: 'varchar', length: 8, nullable: true })
+  fiscalDocumentType: string | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

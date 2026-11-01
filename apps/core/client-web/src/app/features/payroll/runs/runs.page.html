@@ -11,15 +11,10 @@
 
   @if (creating()) {
     <div listCreate class="inline-row card">
+      <!-- One month picker instead of a year box and a month box that took 13 (QA R3-M15). -->
       <label class="field">
-        <span>{{ 'payroll.runs.year' | translate }}</span>
-        <input type="number" min="2000" max="2100" [value]="newYear()"
-          (input)="newYear.set(+$any($event.target).value)" />
-      </label>
-      <label class="field">
-        <span>{{ 'payroll.runs.month' | translate }}</span>
-        <input type="number" min="1" max="12" [value]="newMonth()"
-          (input)="newMonth.set(+$any($event.target).value)" />
+        <span>{{ 'payroll.runs.period' | translate }}</span>
+        <input type="month" required [value]="newPeriod()" (input)="setPeriod($any($event.target).value)" />
       </label>
       <label class="field">
         <span>{{ 'payroll.runs.type' | translate }}</span>
@@ -42,7 +37,7 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+    <table [appTableMenu]="runsMenu" [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
           <th appSortHeader="period">{{ 'payroll.runs.period' | translate }}</th>
@@ -56,7 +51,7 @@
       </thead>
       <tbody>
         @for (run of table.rows(); track run.id) {
-          <tr appRowLink>
+          <tr appRowLink [appRowMenu]="run">
             <td>
               <a [routerLink]="['/payroll/runs', run.id]" class="table-link">{{ periodOf(run) }}</a>
             </td>

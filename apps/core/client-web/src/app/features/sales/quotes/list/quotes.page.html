@@ -37,7 +37,7 @@
   </div>
 
   <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+    <table [appTableMenu]="quotesMenu" [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
           <th appSortHeader="quoteNumber">{{ 'sales.quotes.number' | translate }}</th>
@@ -53,7 +53,7 @@
       </thead>
       <tbody>
         @for (quote of table.rows(); track quote.id) {
-          <tr appRowLink>
+          <tr appRowLink [appRowMenu]="quote">
             <td><a [routerLink]="['/quotes', quote.id, 'edit']" class="table-link">{{ quote.quoteNumber }}</a></td>
             <td>{{ quote.customer?.companyName ?? quote.customer?.name }}</td>
             <td>{{ quote.issueDate | vxDate: 'date' : true }}</td>

@@ -71,9 +71,23 @@ export interface BankTransfer {
 }
 
 /** An institution in the tenant's bank catalogue. */
+/** The categories banking regulators license institutions under; translated as `masters.banks.kind.*`. */
+export const BANK_KINDS = [
+  'multiple_bank',
+  'savings_credit_bank',
+  'savings_loan_association',
+  'credit_corporation',
+  'other',
+] as const;
+export type BankKind = (typeof BANK_KINDS)[number];
+
 export interface Bank {
   id: string;
   name: string;
+  legalName?: string | null;
+  /** The institution's taxpayer number (RNC in the Dominican Republic). */
+  taxId?: string | null;
+  kind?: BankKind | null;
   swiftBic: string | null;
   countryCode: string | null;
   localCode: string | null;
@@ -82,8 +96,23 @@ export interface Bank {
   accountCount?: number;
 }
 
+export interface ReferenceBanksStatus {
+  country: string | null;
+  available: number;
+  missing: number;
+}
+
+export interface ReferenceBanksImport {
+  country: string | null;
+  added: number;
+  skipped: number;
+}
+
 export interface SaveBank {
   name?: string;
+  legalName?: string | null;
+  taxId?: string | null;
+  kind?: BankKind | null;
   swiftBic?: string | null;
   countryCode?: string | null;
   localCode?: string | null;
@@ -136,6 +165,16 @@ export class TreasuryService {
 
   listBanks(): Observable<Bank[]> {
     return this.http.get<Bank[]>(`${this.apiUrl}/banks`);
+  }
+
+  /** How many institutions of the official list for the company's country its catalogue lacks. */
+  referenceBanks(): Observable<ReferenceBanksStatus> {
+    return this.http.get<ReferenceBanksStatus>(`${this.apiUrl}/banks/reference`);
+  }
+
+  /** Adds the ones it lacks; never changes a bank already in the catalogue. */
+  importReferenceBanks(): Observable<ReferenceBanksImport> {
+    return this.http.post<ReferenceBanksImport>(`${this.apiUrl}/banks/reference-import`, {});
   }
 
   findBank(id: string): Observable<Bank> {

@@ -83,7 +83,12 @@ export interface StockMovementsQuery {
   type?: StockMovementType | null;
   page?: number;
   limit?: number;
+  sort?: StockMovementSort | null;
+  direction?: 'asc' | 'desc' | null;
 }
+
+/** The kardex columns the server orders by; any order keeps each row's balance right. */
+export type StockMovementSort = 'date' | 'product' | 'warehouse' | 'type' | 'reference' | 'quantity' | 'cost';
 
 export interface InventoryAdjustmentLine {
   id?: string;

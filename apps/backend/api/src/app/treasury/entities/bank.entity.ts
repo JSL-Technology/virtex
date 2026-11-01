@@ -1,4 +1,5 @@
 import {
+  Check,
   Entity,
   PrimaryGeneratedColumn,
   Column,
@@ -8,6 +9,20 @@ import {
 } from 'typeorm';
 import { blankToNullTransformer } from '../../common/database/blank-to-null.transformer';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
+
+/**
+ * The kind of institution, in the categories banking regulators license them under. Kept as the
+ * category rather than a national label («banco múltiple», «asociación») so one list serves every
+ * country; the label is the client's to translate.
+ */
+export const BANK_KINDS = [
+  'multiple_bank',
+  'savings_credit_bank',
+  'savings_loan_association',
+  'credit_corporation',
+  'other',
+] as const;
+export type BankKind = (typeof BANK_KINDS)[number];
 
 /**
  * A bank the tenant deals with: the institution, not an account at it.
@@ -26,6 +41,10 @@ import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-own
  */
 @Entity({ name: 'banks' })
 @Index('UQ_banks_org_name', ['organizationId', 'name'], { unique: true })
+@Check(
+  'CHK_banks_kind',
+  `"kind" IS NULL OR "kind" IN ('multiple_bank','savings_credit_bank','savings_loan_association','credit_corporation','other')`,
+)
 export class Bank {
   @PrimaryGeneratedColumn('uuid', { primaryKeyConstraintName: 'PK_banks' })
   id: string;
@@ -40,6 +59,20 @@ export class Bank {
   /** «Banco Popular Dominicano». Unique per tenant: one institution, one entry. */
   @Column({ length: 120 })
   name: string;
+
+  /**
+   * The registered name («Banco Popular Dominicano, S. A. - Banco Múltiple»), which is what a
+   * statement, a withholding certificate or a tax form names the bank by.
+   */
+  @Column({ name: 'legal_name', type: 'varchar', length: 200, nullable: true, transformer: blankToNullTransformer })
+  legalName: string | null;
+
+  /** The institution's taxpayer number (the RNC in the Dominican Republic), as entered. */
+  @Column({ name: 'tax_id', type: 'varchar', length: 20, nullable: true, transformer: blankToNullTransformer })
+  taxId: string | null;
+
+  @Column({ type: 'varchar', length: 32, nullable: true, transformer: blankToNullTransformer })
+  kind: BankKind | null;
 
   @Column({ name: 'swift_bic', type: 'varchar', length: 11, nullable: true, transformer: blankToNullTransformer })
   swiftBic: string | null;

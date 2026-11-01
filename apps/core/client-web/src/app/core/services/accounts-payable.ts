@@ -489,6 +489,11 @@ export class AccountsPayableService {
     return this.http.post<VendorDebitNote>(`${this.debitNotesUrl}/${id}/void`, { reason, reversalDate });
   }
 
+  /** Record the supplier's NCF on a posted bill that has none (QA R3-A04). */
+  recordNcf(id: string, ncf: string): Observable<VendorBill> {
+    return this.http.post<VendorBill>(`${this.apiUrl}/${id}/ncf`, { ncf });
+  }
+
   voidBill(id: string, reason: string, reversalDate?: string): Observable<VendorBill> {
     return this.http.post<VendorBill>(`${this.apiUrl}/${id}/void`, { reason, reversalDate });
   }

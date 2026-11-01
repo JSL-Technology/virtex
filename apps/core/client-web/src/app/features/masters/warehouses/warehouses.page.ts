@@ -85,8 +85,19 @@ export class WarehousesPage implements OnInit {
     if (!this.creating()) this.resetDraft();
   }
 
+  /** Set when Save was pressed with no name: the field says so (QA R3-B08). */
+  readonly nameMissing = signal(false);
+
   save(): void {
-    if (!this.canSave()) return;
+    if (this.saving()) return;
+    if (!this.draftName().trim()) {
+      // The button used to be disabled with nothing saying why; now it explains and points.
+      this.nameMissing.set(true);
+      this.notifications.showError('masters.warehouses.name_required');
+      document.getElementById('warehouse-name')?.focus();
+      return;
+    }
+    this.nameMissing.set(false);
     this.saving.set(true);
     this.api
       .create({

@@ -3,3 +3,13 @@
 :host {
   @include list.list-page;
 }
+
+// The comprobante above the internal id (QA R3-C02).
+.fiscal-number {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--content-secondary);
+}

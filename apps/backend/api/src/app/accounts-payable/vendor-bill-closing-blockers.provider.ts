@@ -49,7 +49,7 @@ export class VendorBillClosingBlockersProvider implements ClosingBlockerProvider
         params: { count: pendingCount },
         isCompleted: pendingCount === 0,
         details: { pendingCount },
-        resolutionLink: `/accounts-payable/bills?periodId=${period.periodId}&status=draft,pending_approval`,
+        resolutionLink: `/accounts-payable?periodId=${period.periodId}&status=draft,pending_approval`,
       },
     ];
   }

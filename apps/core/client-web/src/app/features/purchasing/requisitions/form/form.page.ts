@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
+import { handleDocumentIntents } from '../../../../core/navigation/document-intent.service';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { Observable } from 'rxjs';
@@ -23,6 +24,8 @@ import { VxLifecycleStripComponent } from '../../../../shared/components/lifecyc
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { VX_SELECT } from '../../../../shared/components/select';
+import { SuppliersService } from '../../../../core/api/suppliers.service';
+import { Supplier } from '../../../../core/models/supplier.model';
 
 /**
  * Raising and deciding a purchase requisition.
@@ -52,6 +55,22 @@ import { VX_SELECT } from '../../../../shared/components/select';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RequisitionFormPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => (this.current()?.id ? `/purchasing/requisitions/${this.current()!.id}/edit` : null),
+    ready: () => !!this.current(),
+    actions: {
+      'submit': () => this.canSubmit() && this.submit(),
+      'approve': () => this.canDecide() && this.approve(),
+      'reject': () => this.canDecide() && this.startReject(),
+      'reopen': () => this.canReopen() && this.reopen(),
+      'convert': () => this.canConvert() && document.getElementById('convertSupplier')?.focus(),
+    },
+  });
+
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly purchasing = inject(PurchasingService);
@@ -94,6 +113,16 @@ export class RequisitionFormPage implements OnInit {
   readonly editable = computed(() => this.isNew() || this.status() === 'DRAFT');
   readonly canSubmit = computed(() => this.status() === 'DRAFT');
   readonly canDecide = computed(() => this.status() === 'PENDING_APPROVAL');
+  /** An approved requisition becomes an order: the step the lifecycle shows next (QA R3-M07). */
+  readonly canConvert = computed(() => this.status() === 'APPROVED');
+  readonly convertSupplier = new FormControl<string | null>(null, Validators.required);
+  private readonly suppliersApi = inject(SuppliersService);
+  protected readonly searchSuppliers = (query: string, limit: number): Observable<Supplier[]> =>
+    this.suppliersApi.searchSuppliers(query, limit);
+  protected readonly resolveSupplier = (id: string): Observable<Supplier> => this.suppliersApi.getSupplierById(id);
+  protected readonly supplierName = (supplier: Supplier): string => supplier.name;
+  protected readonly supplierIdOf = (supplier: Supplier): string => supplier.id;
+  protected readonly supplierTaxId = (supplier: Supplier): string | null => supplier.taxId ?? null;
   readonly canReopen = computed(
     () => this.status() === 'REJECTED' || this.status() === 'PENDING_APPROVAL',
   );
@@ -246,6 +275,22 @@ export class RequisitionFormPage implements OnInit {
 
   submit(): void {
     this.act(this.purchasing.submitRequisition(this.current()!.id));
+  }
+
+  convertToOrder(): void {
+    const supplierId = this.convertSupplier.value;
+    if (!supplierId) {
+      this.convertSupplier.markAsTouched();
+      return;
+    }
+    this.saving.set(true);
+    this.purchasing.orderFromRequisition(this.current()!.id, supplierId).subscribe({
+      next: (order) => {
+        this.saving.set(false);
+        void this.router.navigate(['/purchasing/orders', order.id, 'edit']);
+      },
+      error: (error: unknown) => this.fail(error),
+    });
   }
 
   approve(): void {

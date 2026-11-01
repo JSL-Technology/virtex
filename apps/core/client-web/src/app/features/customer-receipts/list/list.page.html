@@ -24,7 +24,7 @@
   </div>
 
   <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+    <table [appTableMenu]="receiptsMenu" [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
           <th appSortHeader="receiptNumber">{{ 'customer_receipts.list.number' | translate }}</th>
@@ -40,7 +40,7 @@
       </thead>
       <tbody>
         @for (receipt of table.rows(); track receipt.id) {
-          <tr [class.voided]="receipt.status === 'VOID'">
+          <tr [appRowMenu]="receipt" [class.voided]="receipt.status === 'VOID'">
             <td>{{ receipt.receiptNumber ?? '—' }}</td>
             <td>{{ customerName(receipt.customerId) }}</td>
             <td>{{ receipt.paymentDate | vxDate: 'date' : true }}</td>

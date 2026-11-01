@@ -56,6 +56,8 @@ export class LegalService {
   async joinWaitlist(dto: MarketWaitlistDto, ipAddress: string | null): Promise<void> {
     const countryCode = dto.countryCode.toUpperCase();
     await this.waitlist
+      // tenant-scope-guard-allow: the waitlist is global — a visitor asking for a country we do not
+      // serve yet belongs to no company, and the write happens before any tenant exists.
       .createQueryBuilder()
       .insert()
       .into(MarketWaitlistEntry)

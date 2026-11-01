@@ -70,6 +70,9 @@ export const DEFAULT_ROLES: DefaultRole[] = [
         // Reading the period calendar is what tells an accountant which month they may still post
         // into. Closing and reopening it stay separate permissions.
         PERMISSIONS.ACCOUNTING_VIEW,
+        // The journal-entry form and the financial statements read the analytical dimensions; an
+        // accountant without them met a 403 on opening either (QA R3-M04).
+        PERMISSIONS.DIMENSIONS_VIEW,
       ],
       isSystemRole: true,
     },

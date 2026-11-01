@@ -53,7 +53,7 @@ import {
   RelationshipMapService,
 } from './data/relationship-map.service';
 import { presentationOf } from './data/relationship-map.registry';
-import { toCsv } from './relationship-map.csv';
+import { downloadCsv, toCsv } from '../../core/export/csv-export';
 
 /** One card as the canvas draws it: the document plus how it sits relative to the selection. */
 export interface MapCard {
@@ -465,17 +465,16 @@ export class RelationshipMapPage {
       node.date ?? '',
       node.amount ?? '',
       node.currencyCode ?? '',
-      this.translate.instant(this.statusKey(node.statusKind)),
+      this.translate.instant(this.statusLabel(node)),
       node.description ?? '',
       node.depth,
     ]);
-    const blob = new Blob(['﻿' + toCsv([header, ...lines])], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${this.translate.instant('relationship_map.csv.file')}-${(root.number ?? root.id).replace(/[^\w.-]+/g, '_')}.csv`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 0);
+    // The product's one CSV writer: the reader's delimiter, `sep=`, the BOM and formula-safe text
+    // (QA R3-B10). This page had its own comma-only dialect.
+    downloadCsv(
+      `${this.translate.instant('relationship_map.csv.file')}-${(root.number ?? root.id).replace(/[^\w.-]+/g, '_')}.csv`,
+      toCsv([header, ...lines], { locale: this.translate.getCurrentLang() }),
+    );
   }
 
   // ── Presentation helpers ─────────────────────────────────────────────────────
@@ -483,6 +482,11 @@ export class RelationshipMapPage {
   /** Built as template literals so `verify-catalogues` sees the families. */
   statusKey(kind: FlowStatusKind): string {
     return `relationship_map.status.${kind}`;
+  }
+
+  /** The document's own status where its type names one; otherwise the colour family's word. */
+  statusLabel(item: { statusKind: FlowStatusKind; statusKey?: string | null }): string {
+    return item.statusKey || this.statusKey(item.statusKind);
   }
 
   moduleKey(module: string): string {

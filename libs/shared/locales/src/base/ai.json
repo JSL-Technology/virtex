@@ -2354,6 +2354,11 @@
     "en": "AI is turned off for your company. An administrator can turn it on under Administration › AI.",
     "pt": "A IA está desativada para a sua empresa. Um administrador pode ativá-la em Administração › IA."
   },
+  "ai.engine_offline": {
+    "en": "The analytics engine is not running, so this cannot be calculated now. The nightly run will happen once it is back; let your administrator know.",
+    "es": "El motor de análisis no está en marcha, así que no se puede calcular ahora. El cálculo nocturno se hará en cuanto el motor esté de nuevo en marcha; avisa a tu administrador.",
+    "pt": "O motor de análise não está em execução, então não é possível calcular agora. O cálculo noturno ocorrerá quando ele voltar; avise o administrador."
+  },
   "ai.feature_disabled_for_organization": {
     "es": "Tu empresa desactivó esta función de IA. Puedes continuar manualmente.",
     "en": "Your company turned this AI feature off. You can continue manually.",

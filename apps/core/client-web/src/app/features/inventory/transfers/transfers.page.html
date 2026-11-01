@@ -28,7 +28,7 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appTableMenu]="transfersMenu" class="data-table">
       <thead>
         <tr>
           <th>{{ 'inventory.common.number' | translate }}</th>
@@ -41,7 +41,7 @@
       </thead>
       <tbody>
         @for (row of rows(); track row.id) {
-          <tr appRowLink>
+          <tr appRowLink [appRowMenu]="row">
             <td><a class="table-link" [routerLink]="['/inventory/transfers', row.id]">{{ row.number }}</a></td>
             <td>{{ row.date | vxDate: 'date' : true }}</td>
             <td>{{ row.fromWarehouseName ?? '—' }}</td>

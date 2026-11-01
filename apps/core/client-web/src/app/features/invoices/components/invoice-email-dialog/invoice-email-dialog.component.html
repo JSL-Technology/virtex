@@ -31,7 +31,7 @@
       <p class="field-hint">{{ 'invoices.email.message_hint' | translate }}</p>
     </div>
 
-    @if (canCompose()) {
+    @if (composeAvailable()) {
       <div class="email-dialog__compose">
         <label for="emailTone">{{ 'invoices.email.tone' | translate }}</label>
         <select id="emailTone" name="tone" [ngModel]="tone()" (ngModelChange)="tone.set($event)">
