@@ -357,17 +357,56 @@ describeWithDb('ledger invariants (enforced by the database)', () => {
 
     // ── What a correction IS allowed to do ──────────────────────────────────
 
-    it('permits marking a posted entry reversed and superseded', async () => {
+    it('permits marking a posted entry reversed and superseded by its replacement', async () => {
       const entry = await seedEntry();
       await postBalancedPair(entry, 100);
+      const replacement = await seedEntry();
+      await postBalancedPair(replacement, 90);
       await expect(
         dataSource.query(
           `UPDATE journal_entries
-           SET is_reversed = true, status = 'Modified', modification_reason = 'corrección'
+           SET is_reversed = true, status = 'Modified', modification_reason = 'corrección',
+               modified_to_entry_id = $2
            WHERE id = $1`,
-          [entry],
+          [entry, replacement],
         ),
       ).resolves.toBeDefined();
+    });
+
+    // ── GL-03 (audit 2026-10-31): what the earlier guards still let through ─────
+
+    it('refuses adding lines to a posted entry from a later transaction', async () => {
+      const entry = await seedEntry();
+      await postBalancedPair(entry, 100);
+      await expect(postBalancedPair(entry, 50)).rejects.toThrow(/No se pueden añadir líneas/);
+    });
+
+    it('refuses marking an entry Modified without the replacement it was modified into', async () => {
+      const entry = await seedEntry();
+      await postBalancedPair(entry, 100);
+      await expect(
+        dataSource.query(`UPDATE journal_entries SET status = 'Modified' WHERE id = $1`, [entry]),
+      ).rejects.toThrow(/no puede cambiar de estado/);
+    });
+
+    it('refuses voiding a posted entry: voiding is a reversal', async () => {
+      const entry = await seedEntry();
+      await postBalancedPair(entry, 100);
+      await expect(
+        dataSource.query(`UPDATE journal_entries SET status = 'Void' WHERE id = $1`, [entry]),
+      ).rejects.toThrow(/no puede cambiar de estado/);
+    });
+
+    it('refuses rewriting where a posted entry came from or un-reversing it', async () => {
+      const entry = await seedEntry();
+      await postBalancedPair(entry, 100);
+      await expect(
+        dataSource.query(`UPDATE journal_entries SET idempotency_key = 'otra' WHERE id = $1`, [entry]),
+      ).rejects.toThrow(/No se puede modificar un asiento contabilizado/);
+      await dataSource.query(`UPDATE journal_entries SET is_reversed = true WHERE id = $1`, [entry]);
+      await expect(
+        dataSource.query(`UPDATE journal_entries SET is_reversed = false WHERE id = $1`, [entry]),
+      ).rejects.toThrow(/no puede deshacerse/);
     });
 
     it('permits clearing a posted line against a bank statement', async () => {

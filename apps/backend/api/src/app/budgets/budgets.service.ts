@@ -1,3 +1,4 @@
+import { LEDGER_STATUS_VALUES } from '../contracts/accounting/ledger-statuses.contract';
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,7 +11,6 @@ import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line
 import { BudgetLine } from './entities/budget-line.entity';
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 import { Ledger } from '../accounting/entities/ledger.entity';
-import { JournalEntryStatus } from '../journal-entries/entities/journal-entry.entity';
 import { Account, AccountType } from '../chart-of-accounts/entities/account.entity';
 import { endOfMonthIso, startOfMonthIso, toIsoDate } from '../common/dates';
 import { roundAmount } from '../common/money';
@@ -225,7 +225,7 @@ export class BudgetsService {
         .innerJoin('line.journalEntry', 'entry')
         .innerJoin('line.valuations', 'valuation')
         .where('entry.organizationId = :organizationId', { organizationId })
-        .andWhere('entry.status = :posted', { posted: JournalEntryStatus.POSTED })
+        .andWhere('entry.status IN (:...ledgerStatuses)', { ledgerStatuses: LEDGER_STATUS_VALUES })
         .andWhere('entry.date BETWEEN :startDate AND :endDate', { startDate, endDate })
         .andWhere('line.accountId IN (:...accountIds)', { accountIds });
       if (ledger) q.andWhere('valuation.ledgerId = :ledgerId', { ledgerId: ledger.id });
@@ -368,7 +368,7 @@ export class BudgetsService {
       .innerJoin('line.journalEntry', 'entry')
       .innerJoin('line.valuations', 'valuation')
       .where('entry.organizationId = :organizationId', { organizationId })
-      .andWhere('entry.status = :posted', { posted: JournalEntryStatus.POSTED })
+      .andWhere('entry.status IN (:...ledgerStatuses)', { ledgerStatuses: LEDGER_STATUS_VALUES })
       .andWhere('entry.date BETWEEN :startDate AND :endDate', { startDate, endDate })
       .andWhere('line.accountId IN (:...accountIds)', { accountIds });
 

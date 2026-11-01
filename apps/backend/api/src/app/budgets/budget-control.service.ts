@@ -1,10 +1,10 @@
+import { LEDGER_STATUS_VALUES } from '../contracts/accounting/ledger-statuses.contract';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Budget } from './entities/budget.entity';
 import { BudgetLine } from './entities/budget-line.entity';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
-import { JournalEntryStatus } from '../journal-entries/entities/journal-entry.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { AccountType } from '../chart-of-accounts/entities/account.entity';
 import { LocalizedMessage } from '../i18n/localized-message';
@@ -112,7 +112,7 @@ export class BudgetControlService {
       .where('entry.organizationId = :organizationId', { organizationId })
       // Only what is actually in the books. A draft is a proposal, not a commitment — commitment
       // accounting against purchase orders is a separate control with its own ledger.
-      .andWhere('entry.status = :posted', { posted: JournalEntryStatus.POSTED })
+      .andWhere('entry.status IN (:...ledgerStatuses)', { ledgerStatuses: LEDGER_STATUS_VALUES })
       .andWhere('entry.date BETWEEN :start AND :end', { start, end })
       .andWhere('line.accountId = :accountId', { accountId });
 

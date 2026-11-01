@@ -1,10 +1,10 @@
+import { LEDGER_STATUS_VALUES } from '../../contracts/accounting/ledger-statuses.contract';
 import * as xmlbuilder from 'xmlbuilder';
 import { EntityManager } from 'typeorm';
 import { Account, AccountType } from '../../chart-of-accounts/entities/account.entity';
 import { AccountNature } from '../../chart-of-accounts/enums/account-enums';
 import {
   JournalEntry,
-  JournalEntryStatus,
 } from '../../journal-entries/entities/journal-entry.entity';
 import { Ledger } from '../../accounting/entities/ledger.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
@@ -227,7 +227,7 @@ export class MexicanElectronicAccounting {
       .where('entry.organizationId = :organizationId', {
         organizationId: period.organizationId,
       })
-      .andWhere('entry.status = :status', { status: JournalEntryStatus.POSTED })
+      .andWhere('entry.status IN (:...ledgerStatuses)', { ledgerStatuses: LEDGER_STATUS_VALUES })
       .andWhere('entry.date BETWEEN :from AND :to', { from, to })
       .orderBy('entry.date', 'ASC')
       .addOrderBy('entry.entryNumber', 'ASC')

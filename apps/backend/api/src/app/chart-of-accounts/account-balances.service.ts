@@ -1,3 +1,4 @@
+import { LEDGER_STATUSES } from '../journal-entries/entities/journal-entry.entity';
 import { Injectable } from '@nestjs/common';
 import { DataSource, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
@@ -161,8 +162,8 @@ export class AccountBalancesService {
       .where('entry.organizationId = :organizationId', {
         organizationId: scope.organizationId,
       })
-      .andWhere('entry.status = :postedStatus', {
-        postedStatus: JournalEntryStatus.POSTED,
+      .andWhere('entry.status IN (:...ledgerStatuses)', {
+        ledgerStatuses: LEDGER_STATUSES,
       })
       .andWhere('valuation.ledgerId = :ledgerId', { ledgerId: scope.ledgerId });
 
