@@ -504,6 +504,11 @@ export class JournalEntriesService {
       // produced a posting — the cash flow statement's exchange-rate line, above all — can only
       // read the ledger.
       systemReason: context.systemReason ?? null,
+      // An entry the system posted for a subledger is SYSTEM_GENERATED unless its caller names a
+      // type. They all arrived as MANUAL — a till sale, a receipt, depreciation — so the ledger
+      // could not tell what a person wrote from what a document produced (found re-verifying the
+      // POS posting, QA R3-C02).
+      entryType: entryData.entryType ?? (context.systemReason ? JournalEntryType.SYSTEM_GENERATED : JournalEntryType.MANUAL),
       ledgerId: postingLedger.id,
       status: JournalEntryStatus.DRAFT,
       entryNumber: null,

@@ -8,8 +8,6 @@ import { InventoryModule } from '../inventory/inventory.module';
 import { AuthModule } from '../auth/auth.module';
 import { PosSalesDataTransferProvider } from './pos-data-transfer.provider';
 import { PosPostingService } from './pos-posting.service';
-import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
-import { OrgSettingsModule } from '../organizations/org-settings.module';
 import { ComplianceModule } from '../compliance/compliance.module';
 
 /**
@@ -17,8 +15,9 @@ import { ComplianceModule } from '../compliance/compliance.module';
  * row-locked, tenant-scoped stock movement rather than reimplementing it.
  */
 @Module({
-  // The ledger and the fiscal ranges: a till sale posts its entries and draws its comprobante (QA R3-C02).
-  imports: [TypeOrmModule.forFeature([PosShift, PosSale]), InventoryModule, AuthModule, JournalEntriesModule, OrgSettingsModule, ComplianceModule],
+  // The fiscal ranges: a till sale draws its comprobante (QA R3-C02). It posts through the global
+  // ledger-posting contract, so accounting is not imported here.
+  imports: [TypeOrmModule.forFeature([PosShift, PosSale]), InventoryModule, AuthModule, ComplianceModule],
   controllers: [PosController],
   // The sales history's export (QA A-13).
   providers: [PosService, PosSalesDataTransferProvider, PosPostingService],

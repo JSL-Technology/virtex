@@ -11,6 +11,8 @@ import {
 } from '../../contracts/business-events/payroll-run.events';
 import { MEMBER_JOINED, MemberJoinedEvent } from '../../users/events/member-joined.event';
 import { NotificationsService } from '../notifications.service';
+import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
+import { amountFormatterFor } from '../amount-format';
 import { Recipient, membersWithPermission } from '../recipients';
 
 /**
@@ -65,19 +67,7 @@ export class OperationsNotificationsListener {
   @OnEvent(MEMBER_JOINED, { async: true })
   async onMemberJoined(event: MemberJoinedEvent): Promise<void> {
     try {
-      let recipients = await this.members(event.organizationId, [event.invitedById], event.userId);
-      if (recipients.length === 0) {
-        recipients = await membersWithPermission(this.dataSource, event.organizationId, PERMISSIONS.USERS_EDIT, event.userId);
-      }
-      for (const recipient of recipients) {
-        await this.notifications.createLocalizedNotification(recipient.id, this.languageOf(recipient), {
-          titleKey: 'notifications.member_joined.title',
-          bodyKey: 'notifications.member_joined.body',
-          params: { name: event.name || event.email, email: event.email },
-          link: '#settings/users',
-          organizationId: event.organizationId,
-        });
-      }
+      await runAsTenantJob(this.dataSource, event.organizationId, () => this.announceMember(event));
     } catch (error) {
       this.logger.warn(
         { event: 'member_joined_notice_failed', userId: event.userId },
@@ -86,13 +76,31 @@ export class OperationsNotificationsListener {
     }
   }
 
+  private async announceMember(event: MemberJoinedEvent): Promise<void> {
+    let recipients = await this.members(event.organizationId, [event.invitedById], event.userId);
+    if (recipients.length === 0) {
+      recipients = await membersWithPermission(this.dataSource, event.organizationId, PERMISSIONS.USERS_EDIT, event.userId);
+    }
+    for (const recipient of recipients) {
+      await this.notifications.createLocalizedNotification(recipient.id, this.languageOf(recipient), {
+        titleKey: 'notifications.member_joined.title',
+        bodyKey: 'notifications.member_joined.body',
+        params: { name: event.name || event.email, email: event.email },
+        link: '#settings/users',
+        organizationId: event.organizationId,
+      });
+    }
+  }
+
   private async notifyPayroll(recipients: Recipient[], event: PayrollRunEvent, step: 'calculated' | 'approved' | 'paid') {
+    if (recipients.length === 0) return;
+    const format = await amountFormatterFor(this.dataSource.manager, event.organizationId);
     for (const recipient of recipients) {
       const language = this.languageOf(recipient);
       await this.notifications.createLocalizedNotification(recipient.id, language, {
         titleKey: PAYROLL_KEYS[step].title,
         bodyKey: PAYROLL_KEYS[step].body,
-        params: { name: event.name, amount: formatAmount(event.totalNet, language, event.currencyCode) },
+        params: { name: event.name, amount: format(event.totalNet, language, event.currencyCode) },
         link: `/payroll/runs/${event.runId}`,
         organizationId: event.organizationId,
       });
@@ -112,9 +120,14 @@ export class OperationsNotificationsListener {
     );
   }
 
+  /**
+   * In a tenant context of its own: the event is handled after the request that raised it has
+   * given its connection back, and reading through that one failed with «Query runner already
+   * released» — so no payroll notice was ever written (found re-verifying QA R3-M09).
+   */
   private async safely(event: PayrollRunEvent, work: () => Promise<void>): Promise<void> {
     try {
-      await work();
+      await runAsTenantJob(this.dataSource, event.organizationId, work);
     } catch (error) {
       this.logger.warn(
         { event: 'payroll_notice_failed', runId: event.runId },
@@ -134,14 +147,3 @@ const PAYROLL_KEYS = {
   approved: { title: 'notifications.payroll.approved.title', body: 'notifications.payroll.approved.body' },
   paid: { title: 'notifications.payroll.paid.title', body: 'notifications.payroll.paid.body' },
 } as const;
-
-export function formatAmount(amount: number, language: LanguageCode, currencyCode?: string | null): string {
-  const options: Intl.NumberFormatOptions = currencyCode
-    ? { style: 'currency', currency: currencyCode }
-    : { minimumFractionDigits: 2, maximumFractionDigits: 2 };
-  try {
-    return new Intl.NumberFormat(language, options).format(amount);
-  } catch {
-    return new Intl.NumberFormat(language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
-  }
-}

@@ -1,11 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { PosSale } from './entities/pos-sale.entity';
-import { AccountingPostingPort, ModuleSlug } from '../journal-entries/accounting-posting.port';
-import { CreateJournalEntryLineDto } from '../journal-entries/dto/create-journal-entry.dto';
-import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
-import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
-import { OrgSettingsService } from '../organizations/services/org-settings.service';
+import { LedgerPostingLine, LedgerPostingRegistry } from '../contracts/ledger-posting/ledger-posting.contract';
+import { organizationPostingAccounts } from '../organizations/contracts/posting-accounts.contract';
 import { BadRequestError } from '../i18n/localized.exception';
 import { roundAmount, sumAmounts } from '../common/money';
 
@@ -46,15 +43,13 @@ export interface PosSalePosting {
  *
  * A void reverses exactly those two entries, dated the day of the void, alongside the stock it puts
  * back — so a voided ticket nets to nothing in every report, as it does on the shelf.
+ *
+ * It speaks to accounting only through the ledger-posting contract and reads the default accounts
+ * through the organizations contract: sales does not reach into either module's insides.
  */
 @Injectable()
 export class PosPostingService {
-  constructor(
-    private readonly posting: AccountingPostingPort,
-    private readonly narrative: LedgerNarrativeService,
-    private readonly orgSettings: OrgSettingsService,
-    private readonly journalLookup: JournalLookupService,
-  ) {}
+  constructor(private readonly ledger: LedgerPostingRegistry) {}
 
   /** Post a sale's entries and stamp their ids on it. The caller saves the sale. */
   async post(
@@ -64,12 +59,12 @@ export class PosPostingService {
     date: string,
     actorUserId: string,
   ): Promise<void> {
-    const settings = await this.orgSettings.getForOrg(sale.organizationId, manager);
-    const cashAccountId = settings?.defaultCashId ?? null;
-    const bankAccountId = settings?.defaultBankId ?? cashAccountId;
+    const settings = await organizationPostingAccounts(manager, sale.organizationId);
+    const cashAccountId = settings?.cashId ?? null;
+    const bankAccountId = settings?.bankId ?? cashAccountId;
     if (
-      !settings?.defaultSalesRevenueId ||
-      !settings.defaultSalesTaxId ||
+      !settings?.salesRevenueId ||
+      !settings.salesTaxId ||
       (amounts.cash > 0 && !cashAccountId) ||
       (amounts.nonCash > 0 && !bankAccountId)
     ) {
@@ -79,7 +74,7 @@ export class PosPostingService {
     }
 
     const ticket = sale.id.substring(0, 8).toUpperCase();
-    const words = await this.narrative.describeAll(manager, sale.organizationId, {
+    const words = await this.ledger.describeAll(manager, sale.organizationId, {
       header: {
         key: 'ledger.pos.sale',
         params: { ticket, fiscal: sale.fiscalNumber ? ` (${sale.fiscalNumber})` : '', terminal: sale.terminalId },
@@ -91,16 +86,16 @@ export class PosPostingService {
       costHeader: { key: 'ledger.pos.cost_of', params: { ticket } },
     });
 
-    const lines: CreateJournalEntryLineDto[] = [];
+    const lines: LedgerPostingLine[] = [];
     const add = (accountId: string | null | undefined, debit: number, credit: number, description: string) => {
       if (!accountId || roundAmount(debit) + roundAmount(credit) === 0) return;
       lines.push({ accountId, debit: roundAmount(debit), credit: roundAmount(credit), description });
     };
     add(cashAccountId, amounts.cash, 0, words.cash);
     add(bankAccountId, amounts.nonCash, 0, words.nonCash);
-    add(settings.defaultSalesRevenueId, 0, amounts.goodsRevenue, words.header);
-    add(settings.defaultServiceRevenueId ?? settings.defaultSalesRevenueId, 0, amounts.servicesRevenue, words.header);
-    add(settings.defaultSalesTaxId, 0, amounts.tax, words.header);
+    add(settings.salesRevenueId, 0, amounts.goodsRevenue, words.header);
+    add(settings.serviceRevenueId ?? settings.salesRevenueId, 0, amounts.servicesRevenue, words.header);
+    add(settings.salesTaxId, 0, amounts.tax, words.header);
 
     const debit = sumAmounts(lines.map((l) => l.debit));
     const credit = sumAmounts(lines.map((l) => l.credit));
@@ -109,41 +104,39 @@ export class PosPostingService {
     }
 
     if (lines.length) {
-      const sales = await this.requireJournal(manager, sale.organizationId, 'VENTAS');
-      const entry = await this.posting.createWithManager(
+      const entry = await this.ledger.post(
         manager,
+        sale.organizationId,
         {
-          date: new Date(`${date}T00:00:00.000Z`).toISOString(),
+          journalCode: 'VENTAS',
+          date,
           description: words.header,
-          journalId: sales.id,
-          currencyCode: settings.baseCurrency,
+          currencyCode: settings.baseCurrency ?? undefined,
           exchangeRate: 1,
           lines,
         },
-        sale.organizationId,
-        { actorUserId, module: ModuleSlug.AR, systemReason: 'pos-sale', idempotencyKey: `pos-sale:${sale.id}:revenue` },
+        { actorUserId, module: 'accounts-receivable', systemReason: 'pos-sale', idempotencyKey: `pos-sale:${sale.id}:revenue` },
       );
       sale.journalEntryId = entry.id;
     }
 
     const cost = roundAmount(amounts.costOfSale);
-    if (cost > 0 && settings.defaultCostOfGoodsSoldId && settings.defaultInventoryId) {
-      const general = await this.requireJournal(manager, sale.organizationId, 'GENERAL');
-      const entry = await this.posting.createWithManager(
+    if (cost > 0 && settings.costOfGoodsSoldId && settings.inventoryId) {
+      const entry = await this.ledger.post(
         manager,
+        sale.organizationId,
         {
-          date: new Date(`${date}T00:00:00.000Z`).toISOString(),
+          journalCode: 'GENERAL',
+          date,
           description: words.costHeader,
-          journalId: general.id,
-          currencyCode: settings.baseCurrency,
+          currencyCode: settings.baseCurrency ?? undefined,
           exchangeRate: 1,
           lines: [
-            { accountId: settings.defaultCostOfGoodsSoldId, debit: cost, credit: 0, description: words.cost },
-            { accountId: settings.defaultInventoryId, debit: 0, credit: cost, description: words.stock },
+            { accountId: settings.costOfGoodsSoldId, debit: cost, credit: 0, description: words.cost },
+            { accountId: settings.inventoryId, debit: 0, credit: cost, description: words.stock },
           ],
         },
-        sale.organizationId,
-        { actorUserId, module: ModuleSlug.INVENTORY, systemReason: 'pos-sale-cost', idempotencyKey: `pos-sale:${sale.id}:cost` },
+        { actorUserId, module: 'inventory', systemReason: 'pos-sale-cost', idempotencyKey: `pos-sale:${sale.id}:cost` },
       );
       sale.costJournalEntryId = entry.id;
     }
@@ -153,19 +146,13 @@ export class PosPostingService {
   async reverse(manager: EntityManager, sale: PosSale, date: string, reason: string, actorUserId: string): Promise<void> {
     for (const entryId of [sale.journalEntryId, sale.costJournalEntryId]) {
       if (!entryId) continue;
-      await this.posting.createSystemReversal(
-        entryId,
-        sale.organizationId,
-        { reversalDate: date, reason },
+      await this.ledger.reverse(
         manager,
-        { actorUserId, module: ModuleSlug.AR, systemReason: 'pos-sale-void', idempotencyKey: `pos-void:${sale.id}:${entryId}` },
+        sale.organizationId,
+        entryId,
+        { date, reason },
+        { actorUserId, module: 'accounts-receivable', systemReason: 'pos-sale-void', idempotencyKey: `pos-void:${sale.id}:${entryId}` },
       );
     }
-  }
-
-  private async requireJournal(manager: EntityManager, organizationId: string, code: string) {
-    const journal = await this.journalLookup.findByCode(organizationId, code, manager);
-    if (!journal) throw new BadRequestError('invoices.no_journal_code_organization_create_under', { code });
-    return journal;
   }
 }

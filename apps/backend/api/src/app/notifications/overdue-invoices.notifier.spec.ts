@@ -12,7 +12,7 @@ describe('OverdueInvoicesNotifier (QA R3-M09)', () => {
     query = jest.fn();
     create = jest.fn().mockResolvedValue({});
     notifier = new OverdueInvoicesNotifier(
-      { query } as unknown as DataSource,
+      { query, manager: { findOne: jest.fn(async () => ({ country: 'DO', baseCurrency: 'DOP' })) } } as unknown as DataSource,
       { createLocalizedNotification: create } as unknown as NotificationsService,
       {} as SchedulerLockService,
     );

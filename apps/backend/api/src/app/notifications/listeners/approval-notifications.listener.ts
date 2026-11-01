@@ -10,6 +10,8 @@ import {
 } from '../../workflows/events/approval.events';
 import { NotificationsService } from '../notifications.service';
 import { Recipient, membersWithPermission } from '../recipients';
+import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
+import { amountFormatterFor } from '../amount-format';
 
 /** Where the document behind a request is opened in the client, by type. */
 const DOCUMENT_LINKS: Readonly<Record<string, (id: string) => string>> = {
@@ -45,27 +47,10 @@ export class ApprovalNotificationsListener {
   @OnEvent(APPROVAL_REQUESTED)
   async onRequested(event: ApprovalRequestedEvent): Promise<void> {
     try {
-      const recipients = event.roleId
-        ? await this.membersWithRole(event.organizationId, event.roleId, event.requestedByUserId)
-        : event.permission
-          ? await this.membersWithPermission(event.organizationId, event.permission, event.requestedByUserId)
-          : [];
-      for (const recipient of recipients) {
-        const language = this.languageOf(recipient);
-        await this.notifications.createLocalizedNotification(recipient.id, language, {
-          titleKey: 'notifications.approval.requested.title',
-          bodyKey: event.reference
-            ? 'notifications.approval.requested.body_reference'
-            : 'notifications.approval.requested.body_step',
-          params: {
-            documentKey: documentKey(event.documentType),
-            amount: formatAmount(event.amount, language, event.currencyCode),
-            ...(event.reference ? { reference: event.reference } : { step: event.stepOrder ?? 1 }),
-          },
-          link: '/approvals',
-          organizationId: event.organizationId,
-        });
-      }
+      // Its own tenant context: the event is published after the request's commit, often after
+      // its connection was given back — reading through that one failed «Query runner already
+      // released» and the approvers were never told (QA R3-M09).
+      await runAsTenantJob(this.dataSource, event.organizationId, () => this.announceRequest(event));
     } catch (error) {
       this.logger.warn(
         { event: 'approval_notice_failed', requestId: event.requestId },
@@ -74,43 +59,72 @@ export class ApprovalNotificationsListener {
     }
   }
 
+  private async announceRequest(event: ApprovalRequestedEvent): Promise<void> {
+    const recipients = event.roleId
+      ? await this.membersWithRole(event.organizationId, event.roleId, event.requestedByUserId)
+      : event.permission
+        ? await this.membersWithPermission(event.organizationId, event.permission, event.requestedByUserId)
+        : [];
+    const format = await amountFormatterFor(this.dataSource.manager, event.organizationId);
+    for (const recipient of recipients) {
+      const language = this.languageOf(recipient);
+      await this.notifications.createLocalizedNotification(recipient.id, language, {
+        titleKey: 'notifications.approval.requested.title',
+        bodyKey: event.reference
+          ? 'notifications.approval.requested.body_reference'
+          : 'notifications.approval.requested.body_step',
+        params: {
+          documentKey: documentKey(event.documentType),
+          amount: format(event.amount, language, event.currencyCode),
+          ...(event.reference ? { reference: event.reference } : { step: event.stepOrder ?? 1 }),
+        },
+        link: '/approvals',
+        organizationId: event.organizationId,
+      });
+    }
+  }
+
   @OnEvent(APPROVAL_DECIDED)
   async onDecided(event: ApprovalDecidedEvent): Promise<void> {
     if (!event.requestedByUserId || event.requestedByUserId === event.actorUserId) return;
     const requesterId = event.requestedByUserId;
     try {
-      const [recipient] = await this.dataSource.query(
-        `SELECT u.id, u.preferred_language AS language
-           FROM users u
-           JOIN user_organizations m ON m.user_id = u.id AND m.organization_id = $2 AND m.suspended_at IS NULL
-          WHERE u.id = $1 AND u.status = 'ACTIVE'`,
-        [requesterId, event.organizationId],
-      );
-      if (!recipient) return;
-      const approved = event.decision === 'APPROVED';
-      await this.notifications.createLocalizedNotification(recipient.id, this.languageOf(recipient), {
-        titleKey: approved ? 'notifications.approval.approved.title' : 'notifications.approval.rejected.title',
-        bodyKey: approved
-          ? event.reference
-            ? 'notifications.approval.approved.body_reference'
-            : 'notifications.approval.approved.body'
-          : event.reference
-            ? 'notifications.approval.rejected.body_reference'
-            : 'notifications.approval.rejected.body',
-        params: {
-          documentKey: documentKey(event.documentType),
-          reason: event.reason ?? '',
-          ...(event.reference ? { reference: event.reference } : {}),
-        },
-        link: DOCUMENT_LINKS[event.documentType]?.(event.documentId) ?? null,
-        organizationId: event.organizationId,
-      });
+      await runAsTenantJob(this.dataSource, event.organizationId, () => this.announceDecision(event, requesterId));
     } catch (error) {
       this.logger.warn(
         { event: 'approval_decision_notice_failed', requestId: event.requestId },
         `Approval decided but the requester could not be notified: ${(error as Error).message}`,
       );
     }
+  }
+
+  private async announceDecision(event: ApprovalDecidedEvent, requesterId: string): Promise<void> {
+    const [recipient] = await this.dataSource.query(
+      `SELECT u.id, u.preferred_language AS language
+         FROM users u
+         JOIN user_organizations m ON m.user_id = u.id AND m.organization_id = $2 AND m.suspended_at IS NULL
+        WHERE u.id = $1 AND u.status = 'ACTIVE'`,
+      [requesterId, event.organizationId],
+    );
+    if (!recipient) return;
+    const approved = event.decision === 'APPROVED';
+    await this.notifications.createLocalizedNotification(recipient.id, this.languageOf(recipient), {
+      titleKey: approved ? 'notifications.approval.approved.title' : 'notifications.approval.rejected.title',
+      bodyKey: approved
+        ? event.reference
+          ? 'notifications.approval.approved.body_reference'
+          : 'notifications.approval.approved.body'
+        : event.reference
+          ? 'notifications.approval.rejected.body_reference'
+          : 'notifications.approval.rejected.body',
+      params: {
+        documentKey: documentKey(event.documentType),
+        reason: event.reason ?? '',
+        ...(event.reference ? { reference: event.reference } : {}),
+      },
+      link: DOCUMENT_LINKS[event.documentType]?.(event.documentId) ?? null,
+      organizationId: event.organizationId,
+    });
   }
 
   /** Active, unsuspended members of this company holding a permission here; never the requester. */
@@ -138,15 +152,4 @@ export class ApprovalNotificationsListener {
 
 function documentKey(documentType: string): string {
   return composeKey('notifications.document_type', documentType);
-}
-
-function formatAmount(amount: number, language: LanguageCode, currencyCode?: string | null): string {
-  const options: Intl.NumberFormatOptions = currencyCode
-    ? { style: 'currency', currency: currencyCode }
-    : { minimumFractionDigits: 2, maximumFractionDigits: 2 };
-  try {
-    return new Intl.NumberFormat(language, options).format(amount);
-  } catch {
-    return new Intl.NumberFormat(language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
-  }
 }

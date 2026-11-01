@@ -8,7 +8,7 @@ import { forEachTenant } from '../shared/tenancy/tenant-job';
 import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 import { NotificationsService } from './notifications.service';
 import { membersWithPermission } from './recipients';
-import { formatAmount } from './listeners/operations-notifications.listener';
+import { amountFormatterFor } from './amount-format';
 
 const TITLE_KEY = 'notifications.overdue_invoices.title';
 /** How far back a first digest looks, so a company does not get its whole history at once. */
@@ -72,6 +72,7 @@ export class OverdueInvoicesNotifier {
     if (!row || row.newCount === 0) return 0;
 
     const recipients = await membersWithPermission(this.dataSource, organizationId, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW);
+    const format = await amountFormatterFor(this.dataSource.manager, organizationId);
     for (const recipient of recipients) {
       const language = matchLanguage(recipient.language) ?? 'es';
       await this.notifications.createLocalizedNotification(recipient.id, language, {
@@ -79,9 +80,9 @@ export class OverdueInvoicesNotifier {
         bodyKey: 'notifications.overdue_invoices.body',
         params: {
           count: row.newCount,
-          amount: formatAmount(Number(row.newAmount), language, row.currency),
+          amount: format(Number(row.newAmount), language, row.currency),
           totalCount: row.totalCount,
-          totalAmount: formatAmount(Number(row.totalAmount), language, row.currency),
+          totalAmount: format(Number(row.totalAmount), language, row.currency),
         },
         link: '/collections',
         organizationId,

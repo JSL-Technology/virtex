@@ -17,13 +17,15 @@ describe('OperationsNotificationsListener (QA R3-M09)', () => {
   let query: jest.Mock;
   let create: jest.Mock;
   let listener: OperationsNotificationsListener;
+  let runner: { connect: jest.Mock; query: jest.Mock; release: jest.Mock };
 
   beforeEach(() => {
     query = jest.fn();
     create = jest.fn().mockResolvedValue({});
+    runner = { connect: jest.fn(), query: jest.fn(async () => undefined), release: jest.fn(async () => undefined) };
     listener = new OperationsNotificationsListener(
       { createLocalizedNotification: create } as unknown as NotificationsService,
-      { query } as unknown as DataSource,
+      { query, createQueryRunner: () => runner, createEntityManager: () => ({}), manager: { findOne: jest.fn(async () => ({ country: 'DO', baseCurrency: 'DOP' })) } } as unknown as DataSource,
     );
   });
 
@@ -39,8 +41,16 @@ describe('OperationsNotificationsListener (QA R3-M09)', () => {
     const recipients = create.mock.calls.map((call) => call[0]);
     expect(recipients).toContain('approver-1');
     expect(recipients).not.toContain('seller-1');
+    // In a tenant context of its own, released afterwards: the request's connection is gone by the
+    // time the event is handled («Query runner already released», found re-verifying R3-M09).
+    expect(runner.query).toHaveBeenCalledWith(expect.stringContaining('app.current_organization'), ['org-1']);
+    expect(runner.release).toHaveBeenCalled();
     expect(create.mock.calls.find((call) => call[0] === 'approver-1')?.[2]).toMatchObject({
       titleKey: 'notifications.payroll.calculated.title',
+      // As the company's screens write it: the reader's language, the company's country.
+      params: expect.objectContaining({
+        amount: new Intl.NumberFormat('en-DO', { style: 'currency', currency: 'DOP' }).format(51234.5),
+      }),
       link: '/payroll/runs/run-1',
       organizationId: 'org-1',
     });
