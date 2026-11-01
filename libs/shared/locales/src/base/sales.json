@@ -29,11 +29,6 @@
     "en": "Export",
     "pt": "Exportar"
   },
-  "sales.history.id_venta": {
-    "es": "ID venta",
-    "en": "Sale ID",
-    "pt": "ID da venda"
-  },
   "sales.history.new_sale": {
     "es": "Nueva venta",
     "en": "New sale",

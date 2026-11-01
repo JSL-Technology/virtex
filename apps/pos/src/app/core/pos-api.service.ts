@@ -190,9 +190,10 @@ export class PosApiService {
     });
   }
 
-  closeShift(shiftId: string, closingBalance: number): Observable<PosShift> {
+  closeShift(shiftId: string, closingBalance: number, closingNotes?: string): Observable<PosShift> {
     return this.http.post<PosShift>(`${this.api}/shifts/${shiftId}/close`, {
       closingBalance,
+      ...(closingNotes ? { closingNotes } : {}),
     });
   }
 

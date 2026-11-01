@@ -59,16 +59,6 @@
     "es": "Se aplica a las celdas seleccionadas.",
     "pt": "Aplica-se às células selecionadas."
   },
-  "datasheets.chart_configuration": {
-    "es": "Configuración de gráfico",
-    "en": "Chart configuration",
-    "pt": "Configuração do gráfico"
-  },
-  "datasheets.charts": {
-    "es": "Gráficos",
-    "en": "Charts",
-    "pt": "Gráficos"
-  },
   "datasheets.columns_to_import": {
     "es": "Columnas a importar",
     "en": "Columns to import",
@@ -109,11 +99,6 @@
     "en": "Enter a formula or a value…",
     "pt": "Introduz uma fórmula ou um valor…"
   },
-  "datasheets.history": {
-    "es": "Historial",
-    "en": "History",
-    "pt": "Histórico"
-  },
   "datasheets.import": {
     "es": "Importar",
     "en": "Import",
@@ -148,11 +133,6 @@
     "es": "Asistente de importación",
     "en": "Import wizard",
     "pt": "Assistente de importação"
-  },
-  "datasheets.insert_chart": {
-    "es": "Insertar gráfico",
-    "en": "Insert chart",
-    "pt": "Inserir gráfico"
   },
   "datasheets.last_modified": {
     "es": "Última modificación",
@@ -253,16 +233,6 @@
     "en": "The workbook could not be saved.",
     "es": "No se pudo guardar el libro.",
     "pt": "Não foi possível salvar a pasta."
-  },
-  "datasheets.select_range_for_chart": {
-    "es": "Selecciona un rango de datos para crear un gráfico.",
-    "en": "Select a data range to create a chart.",
-    "pt": "Seleciona um intervalo de dados para criar um gráfico."
-  },
-  "datasheets.share": {
-    "es": "Compartir",
-    "en": "Share",
-    "pt": "Compartilhar"
   },
   "datasheets.sheet_numbered": {
     "es": "Hoja {{number}}",

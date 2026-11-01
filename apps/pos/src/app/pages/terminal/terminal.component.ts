@@ -28,7 +28,7 @@ import { AuthService } from '../../core/auth.service';
 import { ConnectivityService } from '../../core/connectivity.service';
 import { DocumentsService } from '../../core/documents.service';
 import { PosSale } from '../../core/pos-api.service';
-import { TerminalConfigService } from '../../core/terminal-config.service';
+import { DEFAULT_TERMINAL_ID, TerminalConfigService } from '../../core/terminal-config.service';
 import { TillStore } from '../../state/till.store';
 import { CatalogPanelComponent } from './components/catalog-panel.component';
 import { JournalDialogComponent } from './components/journal-dialog.component';
@@ -76,6 +76,8 @@ type Dialog =
 })
 export class TerminalComponent {
   protected readonly till = inject(TillStore);
+  /** The default till is named in words, not by its id «main» (QA R3-B09). */
+  protected readonly DEFAULT_TERMINAL_ID = DEFAULT_TERMINAL_ID;
   protected readonly auth = inject(AuthService);
   protected readonly connectivity = inject(ConnectivityService);
   private readonly config = inject(TerminalConfigService);

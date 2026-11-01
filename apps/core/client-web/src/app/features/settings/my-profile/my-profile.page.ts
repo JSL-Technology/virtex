@@ -308,7 +308,8 @@ export class MyProfilePage implements OnInit {
     }
     const { currentPassword, newPassword } = this.passwordForm.getRawValue();
 
-    this.stepUpService.requireStepUp(StepUpScope.CHANGE_PASSWORD, this.viewContainerRef, () =>
+    // The current password is the step-up proof too: it is not asked for twice (QA R3-B07).
+    this.stepUpService.requireStepUpWithPassword(StepUpScope.CHANGE_PASSWORD, this.viewContainerRef, currentPassword ?? '', () =>
       this.authService.changePassword({ currentPassword: currentPassword ?? '', newPassword: newPassword ?? '' }),
     ).pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
@@ -318,8 +319,10 @@ export class MyProfilePage implements OnInit {
       },
       error: (err) => {
         //  Contraseña actual incorrecta: se dice exactamente eso, sin cerrar la sesión.
+        //  Rechazada en el step-up (la misma contraseña) o en el cambio: es la misma respuesta.
         const wrongCurrent =
-          err?.status === 400 && err?.error?.code === 'AUTH_INVALID_CREDENTIALS';
+          (err?.status === 400 && err?.error?.code === 'AUTH_INVALID_CREDENTIALS') ||
+          err?.error?.code === 'STEP_UP_INVALID_CREDENTIALS';
         if (wrongCurrent) {
           this.passwordForm.get('currentPassword')?.setErrors({ incorrect: true });
           this.notificationService.showError('settings.profile.errors.current_password_incorrect');

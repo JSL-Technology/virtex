@@ -1013,11 +1013,6 @@
     "en": "Inputs saved.",
     "pt": "Variáveis guardadas."
   },
-  "payroll.runs.month": {
-    "es": "Mes",
-    "en": "Month",
-    "pt": "Mês"
-  },
   "payroll.runs.month_invalid": {
     "en": "Choose a valid month for the payroll.",
     "es": "Elige un mes válido para la nómina.",
@@ -1178,11 +1173,6 @@
     "es": "Ordinaria",
     "en": "Regular",
     "pt": "Regular"
-  },
-  "payroll.runs.year": {
-    "es": "Año",
-    "en": "Year",
-    "pt": "Ano"
   },
   "payroll.self_assessment_requires_approved_run": {
     "es": "La Autodeterminación requiere una corrida aprobada.",

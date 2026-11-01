@@ -14,7 +14,7 @@
 
     <div class="status">
       <span class="chip" [title]="'pos.settings.terminal' | translate">
-        {{ 'pos.terminal_label' | translate: { id: till.terminalId() } }}
+        {{ 'pos.terminal_label' | translate: { id: till.terminalId() === DEFAULT_TERMINAL_ID ? ('pos.terminal_default_name' | translate) : till.terminalId() } }}
       </span>
       @if (till.shiftReady()) {
         <button

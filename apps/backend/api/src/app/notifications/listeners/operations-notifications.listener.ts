@@ -8,7 +8,7 @@ import {
   PAYROLL_RUN_CALCULATED,
   PAYROLL_RUN_PAID,
   PayrollRunEvent,
-} from '../../payroll/events/payroll-run.events';
+} from '../../contracts/business-events/payroll-run.events';
 import { MEMBER_JOINED, MemberJoinedEvent } from '../../users/events/member-joined.event';
 import { NotificationsService } from '../notifications.service';
 import { Recipient, membersWithPermission } from '../recipients';
@@ -90,8 +90,8 @@ export class OperationsNotificationsListener {
     for (const recipient of recipients) {
       const language = this.languageOf(recipient);
       await this.notifications.createLocalizedNotification(recipient.id, language, {
-        titleKey: `notifications.payroll.${step}.title`,
-        bodyKey: `notifications.payroll.${step}.body`,
+        titleKey: PAYROLL_KEYS[step].title,
+        bodyKey: PAYROLL_KEYS[step].body,
         params: { name: event.name, amount: formatAmount(event.totalNet, language, event.currencyCode) },
         link: `/payroll/runs/${event.runId}`,
         organizationId: event.organizationId,
@@ -127,6 +127,13 @@ export class OperationsNotificationsListener {
     return matchLanguage(recipient.language) ?? 'es';
   }
 }
+
+/** Written out, not composed, so the catalogue check sees every key used. */
+const PAYROLL_KEYS = {
+  calculated: { title: 'notifications.payroll.calculated.title', body: 'notifications.payroll.calculated.body' },
+  approved: { title: 'notifications.payroll.approved.title', body: 'notifications.payroll.approved.body' },
+  paid: { title: 'notifications.payroll.paid.title', body: 'notifications.payroll.paid.body' },
+} as const;
 
 export function formatAmount(amount: number, language: LanguageCode, currencyCode?: string | null): string {
   const options: Intl.NumberFormatOptions = currencyCode

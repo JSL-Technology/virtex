@@ -319,6 +319,14 @@ export class UserManagementPage implements OnInit, OnDestroy {
     this.isEditMode.set(false);
     this.userForm.reset({ roleId: null });
     this.userModalOpen.set(true);
+    this.focusUserModal();
+  }
+
+  /** Focus moves into the dialog, so the keyboard — and Escape — act on it, not on what is behind. */
+  private focusUserModal(): void {
+    setTimeout(() =>
+      document.querySelector<HTMLElement>('[aria-labelledby="user-modal-title"] input, [aria-labelledby="user-modal-title"]')?.focus(),
+    );
   }
 
   openEditModal(user: ApiUser): void {
@@ -332,6 +340,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
       roleId: user.roles?.[0]?.id || null,
     });
     this.userModalOpen.set(true);
+    this.focusUserModal();
   }
 
   closeUserModal(): void {

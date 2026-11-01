@@ -63,7 +63,11 @@ function cell(value: CsvValue, delimiter: string): string {
   }
   if (typeof value === 'boolean') return value ? 'true' : 'false';
 
-  const text = String(value);
+  let text = String(value);
+  // User-entered text that a spreadsheet would run as a formula — `=HYPERLINK(…)`, `+1`, `@SUM` —
+  // is written as text. The relationship map's own writer did this and the shared one did not, so
+  // one product had two CSV dialects (QA R3-B10); there is one now, and it is the careful one.
+  if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
   const needsQuotes =
     text.includes(delimiter) || text.includes('"') || text.includes('\n') || text.includes('\r');
   return needsQuotes ? `"${text.replace(/"/g, '""')}"` : text;

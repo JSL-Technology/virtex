@@ -68,12 +68,18 @@
             }
           </select>
         </label>
-        <label class="field">
-          <span>{{ 'hcm.employees.form.document' | translate }}</span>
-          <input type="text" formControlName="identityDocument" maxlength="32"
-            [placeholder]="documentPlaceholder()" />
-          <small class="field__note">{{ 'hcm.employees.form.document_help' | translate }}</small>
-        </label>
+        <!-- The note sits outside the label: inside it, it became part of the field's name, and the
+             required-field error read «DocumentoCifrado. Déjalo en blanco…» — on a new employee,
+             where there is nothing to keep (QA R3-B05). It now describes the field, when editing. -->
+        <div class="field">
+          <label for="employee-document">{{ 'hcm.employees.form.document' | translate }}</label>
+          <input id="employee-document" type="text" formControlName="identityDocument" maxlength="32"
+            [placeholder]="documentPlaceholder()"
+            [attr.aria-describedby]="isNew() ? null : 'employee-document-help'" />
+          @if (!isNew()) {
+            <small id="employee-document-help" class="field__note">{{ 'hcm.employees.form.document_help' | translate }}</small>
+          }
+        </div>
         <!--
           The statutory fields are data now: the country's payroll strategy declares which social-
           security identifiers it needs, what to call each and what shape it takes, and the server

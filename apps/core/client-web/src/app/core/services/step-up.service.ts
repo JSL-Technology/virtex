@@ -192,6 +192,32 @@ export class StepUpService {
   }
 
   /**
+   * `requireStepUp` for an action whose form already asked for the password — changing it.
+   *
+   * The step-up dialog asked for the password a second time, right after the «current password»
+   * field (QA R3-B07). Where the server's challenge is the password, that typed password is the
+   * proof: it is presented here, silently. A wrong one fails the action with the server's own
+   * error, which the form reads as «current password incorrect». An account whose challenge is a
+   * second factor or its identity provider still gets the prompt: that is not a repetition.
+   */
+  requireStepUpWithPassword<T>(
+    scope: StepUpScope,
+    viewContainerRef: ViewContainerRef,
+    password: string,
+    action: () => Observable<T>,
+  ): Observable<T> {
+    return this.challenge().pipe(
+      take(1),
+      switchMap((challenge) => {
+        if (challenge.factor !== 'password') return this.requireStepUp(scope, viewContainerRef, action);
+        return this.http
+          .post<{ success: boolean }>(`${this.apiUrl}/step-up`, { scope, password }, { withCredentials: true })
+          .pipe(switchMap(() => action()));
+      }),
+    );
+  }
+
+  /**
    * One prompt per scope at a time.
    *
    * A screen that fires two guarded requests in parallel — a dashboard, a detail page with several

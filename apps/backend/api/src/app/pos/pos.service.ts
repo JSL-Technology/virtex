@@ -9,7 +9,6 @@ import { InventoryService } from '../inventory/inventory.service';
 import { PosPostingService } from './pos-posting.service';
 import { ComplianceService } from '../compliance/compliance.service';
 import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
-import { Organization } from '../organizations/entities/organization.entity';
 import {
   SellableCatalogueItem,
   findSellableProduct,
@@ -173,10 +172,19 @@ export class PosService {
       const counted = roundAmount(dto.closingBalance);
       const expected = sumAmounts([Number(shift.openingBalance), Number(shift.cashSalesTotal)]);
 
+      const variance = roundAmount(counted - expected);
+      const notes = dto.closingNotes?.trim() || null;
+      // A drawer over or short is explained by whoever counted it, while they still remember why
+      // (QA R3-B09: 475 over was recorded without a question).
+      if (variance !== 0 && (!notes || notes.length < 3)) {
+        throw new BadRequestError('pos.variance_needs_explanation', { variance });
+      }
+
       shift.status = PosShiftStatus.CLOSED;
       shift.closingBalance = counted;
       shift.expectedBalance = expected;
-      shift.closingVariance = roundAmount(counted - expected);
+      shift.closingVariance = variance;
+      shift.closingNotes = notes;
       shift.closedAt = new Date();
       shift.closedById = actor.id;
       const saved = await manager.save(PosShift, shift);
@@ -365,7 +373,7 @@ export class PosService {
     manager: EntityManager,
     organizationId: string,
   ): Promise<{ ncf: string; type: string } | null> {
-    const organization = await manager.findOne(Organization, { where: { id: organizationId }, select: ['id', 'country', 'taxId'] });
+    const organization = await organizationFiscalIdentity(manager, organizationId);
     if (organization?.country !== 'DO') return null;
     // A comprobante names its issuer; without the company's RNC it would be invalid (QA R3-A11).
     if (!organization.taxId?.trim()) return null;

@@ -1,6 +1,7 @@
 import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
 import { computed,
   Component,
+  ElementRef,
   HostListener,
   inject,
   signal,
@@ -27,6 +28,7 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 })
 export class SettingsModalComponent {
   protected readonly router = inject(Router);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   /**
    * Which electronic-invoicing page applies. There were two entries side by side — «Facturación
    * electrónica» and «Régimen de facturación electrónica» — one for the Dominican DGII and one for
@@ -147,8 +149,17 @@ export class SettingsModalComponent {
     this.router.navigateByUrl(pathWithoutFragment);
   }
 
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
+  /**
+   * Escape closes Settings — unless it belongs to a dialog open inside it. «Invitar usuario» and
+   * the delete confirmation are dialogs over this one, and Escape there closed Settings as a whole,
+   * form and all (QA R3-B06). Such a dialog handles the key and marks it handled, or is simply open.
+   */
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscape(event?: Event): void {
+    if (event?.defaultPrevented) return;
+    const nested = [...this.host.nativeElement.querySelectorAll<HTMLElement>('.sm-panel [role="dialog"][aria-modal="true"], .sm-panel [role="alertdialog"][aria-modal="true"]')]
+      .some((dialog) => dialog.offsetParent !== null || dialog.getClientRects().length > 0);
+    if (nested) return;
     this.close();
   }
 

@@ -4,6 +4,16 @@ const STORAGE_KEY = 'virtex.pos.terminal';
 const AUTO_PRINT_KEY = 'virtex.pos.autoPrint';
 /** What a terminal id may look like: short, printable, safe on a ticket and in a URL. */
 export const TERMINAL_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$/;
+/** The till a device is until someone names it. */
+export const DEFAULT_TERMINAL_ID = 'main';
+
+/**
+ * What to call a till on screen and on a ticket: the default one by a word in the reader's
+ * language, not its id — «Caja main» was the id showing through (QA R3-B09).
+ */
+export function terminalDisplayName(id: string, translate: (key: string) => string): string {
+  return id === DEFAULT_TERMINAL_ID ? translate('pos.terminal_default_name') : id;
+}
 
 /**
  * Which till this device is.
@@ -59,6 +69,6 @@ export class TerminalConfigService {
     } catch {
       // Unavailable storage falls back to the default till.
     }
-    return 'main';
+    return DEFAULT_TERMINAL_ID;
   }
 }

@@ -38,7 +38,7 @@ import {
   PAYROLL_RUN_CALCULATED,
   PAYROLL_RUN_PAID,
   PayrollRunEvent,
-} from '../events/payroll-run.events';
+} from '../../contracts/business-events/payroll-run.events';
 
 export interface CreateRunInput {
   name?: string;

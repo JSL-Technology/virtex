@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { AppLinkPipe } from '../../../../core/tenancy/app-link.pipe';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, AlertTriangle, Calendar, CheckCircle2, FileDown, RefreshCw } from 'lucide-angular';
 
@@ -27,7 +29,7 @@ import { VX_SORT, sortable } from '../../../../shared/components/sort';
 @Component({
   selector: 'app-trial-balance-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
+  imports: [...VX_SORT, AppLinkPipe, RouterLink, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
   templateUrl: './trial-balance.page.html',
   styleUrls: ['./trial-balance.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,6 +48,12 @@ export class TrialBalancePage {
 
   readonly startDate = signal(defaultPeriod().startDate);
   readonly endDate = signal(defaultPeriod().endDate);
+
+  /** The account's ledger over the same period: what a balance is made of (QA R3-B02). */
+  ledgerLink(accountId: string): string {
+    const query = new URLSearchParams({ accountId, from: this.startDate(), to: this.endDate() });
+    return `/accounting/general-ledger?${query.toString()}`;
+  }
   readonly report = signal<TrialBalanceReport | null>(null);
   readonly loading = signal(true);
   readonly failed = signal(false);

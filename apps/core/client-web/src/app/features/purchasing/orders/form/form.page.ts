@@ -355,9 +355,9 @@ export class PurchaseOrderFormPage implements OnInit {
     });
   }
 
-  submit(): void { this.act(this.purchasing.submitOrder(this.current()!.id)); }
-  approve(): void { this.act(this.purchasing.approveOrder(this.current()!.id)); }
-  send(): void { this.act(this.purchasing.sendOrder(this.current()!.id)); }
+  submit(): void { this.act(this.purchasing.submitOrder(this.current()!.id), 'purchasing.orders.form.done.submitted'); }
+  approve(): void { this.act(this.purchasing.approveOrder(this.current()!.id), 'purchasing.orders.form.done.approved'); }
+  send(): void { this.act(this.purchasing.sendOrder(this.current()!.id), 'purchasing.orders.form.done.sent'); }
 
   /** Open a supplier invoice for what this order still has to bill. */
   createBill(): void {
@@ -383,14 +383,14 @@ export class PurchaseOrderFormPage implements OnInit {
   confirmReject(): void {
     const reason = this.rejectionReason().trim();
     if (reason.length < 3) return;
-    this.act(this.purchasing.rejectOrder(this.current()!.id, reason));
+    this.act(this.purchasing.rejectOrder(this.current()!.id, reason), 'purchasing.orders.form.done.rejected');
     this.abortReject();
   }
 
   confirmCancel(): void {
     const reason = this.cancellationReason().trim();
     if (reason.length < 3) return;
-    this.act(this.purchasing.cancelOrder(this.current()!.id, reason));
+    this.act(this.purchasing.cancelOrder(this.current()!.id, reason), 'purchasing.orders.form.done.cancelled');
     this.abortCancel();
   }
 
@@ -400,11 +400,13 @@ export class PurchaseOrderFormPage implements OnInit {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
-  private act(request: Observable<PurchaseOrder>): void {
+  /** A step on the order, confirmed in words: they used to change the badge and nothing else (QA R3-B01). */
+  private act(request: Observable<PurchaseOrder>, doneKey: string): void {
     this.saving.set(true);
     request.subscribe({
       next: (order) => {
         this.saving.set(false);
+        this.notifications.showSuccess(doneKey, { number: order.number ?? '' });
         this.load(order);
       },
       error: (error: unknown) => this.fail(error),

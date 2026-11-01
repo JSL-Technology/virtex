@@ -20,10 +20,24 @@ import {
 } from '../../../core/api/product-categories.service';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { TranslateService } from '@ngx-translate/core';
-import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
+import { DraftShellComponent, DraftProblem, applyServerFieldErrors, draftProblems } from '../../../shared/components/gestures';
+import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { UnitOfMeasure, UnitsOfMeasureService } from '../../masters/data/units-of-measure.service';
+
+/** The form's controls and their label keys: what the problem summary names. */
+const PRODUCT_FIELD_LABELS: Record<string, string> = {
+  name: 'inventory.product_form.product_name',
+  sku: 'inventory.product_form.sku_product_code',
+  description: 'inventory.product_form.description',
+  price: 'inventory.product_form.sale_price',
+  cost: 'inventory.product_form.unit_cost',
+  stock: 'inventory.product_form.quantity_stock',
+  reorderLevel: 'inventory.product_form.reorder_level',
+  categoryId: 'inventory.product_form.category',
+  status: 'inventory.product_form.status',
+};
 
 /** What a product's numeric(18,6) price and cost columns hold; the API refuses more. */
 const MAX_UNIT_AMOUNT = 999_999_999_999;
@@ -42,6 +56,7 @@ export class ProductFormPage implements OnInit {
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private readonly errorHandler = inject(ErrorHandlerService);
   // private route = inject(ActivatedRoute);
   private inventoryService = inject(InventoryService);
   private notificationService = inject(NotificationService);
@@ -470,17 +485,7 @@ export class ProductFormPage implements OnInit {
     if (this.productForm.invalid) {
       this.productForm.markAllAsTouched();
       this.problems.set(
-        draftProblems(this.productForm, {
-          name: 'inventory.product_form.product_name',
-          sku: 'inventory.product_form.sku_product_code',
-          description: 'inventory.product_form.description',
-          price: 'inventory.product_form.sale_price',
-          cost: 'inventory.product_form.unit_cost',
-          stock: 'inventory.product_form.quantity_stock',
-          reorderLevel: 'inventory.product_form.reorder_level',
-          categoryId: 'inventory.product_form.category',
-          status: 'inventory.product_form.status',
-        }),
+        draftProblems(this.productForm, PRODUCT_FIELD_LABELS),
       );
       return;
     }
@@ -526,6 +531,10 @@ export class ProductFormPage implements OnInit {
           this.isEditMode() ? 'inventory.product_form.error_updating_product' : 'inventory.product_form.error_creating_product',
         );
         this.isLoading.set(false);
+        // The field the server named is marked and listed, not only mentioned (QA R3-B01).
+        if (applyServerFieldErrors(this.productForm, this.errorHandler.describe(err).fieldErrors)) {
+          this.problems.set(draftProblems(this.productForm, PRODUCT_FIELD_LABELS));
+        }
       }
     });
   }

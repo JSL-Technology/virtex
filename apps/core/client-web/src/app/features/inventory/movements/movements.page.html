@@ -46,26 +46,26 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table class="data-table" [appSort]="sort">
       <thead>
         <tr>
-          <th>{{ 'inventory.movements.date' | translate }}</th>
+          <th appSortHeader="date">{{ 'inventory.movements.date' | translate }}</th>
           @if (!showsBalance()) {
-            <th>{{ 'inventory.common.product' | translate }}</th>
+            <th appSortHeader="product">{{ 'inventory.common.product' | translate }}</th>
           }
-          <th>{{ 'inventory.common.warehouse' | translate }}</th>
-          <th>{{ 'inventory.movements.type_label' | translate }}</th>
-          <th>{{ 'inventory.movements.reference' | translate }}</th>
-          <th class="numeric">{{ 'inventory.movements.in' | translate }}</th>
+          <th appSortHeader="warehouse">{{ 'inventory.common.warehouse' | translate }}</th>
+          <th appSortHeader="type">{{ 'inventory.movements.type_label' | translate }}</th>
+          <th appSortHeader="reference">{{ 'inventory.movements.reference' | translate }}</th>
+          <th appSortHeader="quantity" class="numeric">{{ 'inventory.movements.in' | translate }}</th>
           <th class="numeric">{{ 'inventory.movements.out' | translate }}</th>
-          <th class="numeric">{{ 'inventory.common.unit_cost' | translate }}</th>
+          <th appSortHeader="cost" class="numeric">{{ 'inventory.common.unit_cost' | translate }}</th>
           @if (showsBalance()) {
             <th class="numeric">{{ 'inventory.movements.balance' | translate }}</th>
           }
         </tr>
       </thead>
       <tbody>
-        @if (showsBalance() && openingBalance() !== null && page() === 1) {
+        @if (showsBalance() && openingBalance() !== null && page() === 1 && chronological()) {
           <tr class="kardex-opening">
             <td [attr.colspan]="7">{{ 'inventory.movements.opening_balance' | translate }}</td>
             <td class="numeric">{{ openingBalance() | vxNumber: '1.0-6' }}</td>

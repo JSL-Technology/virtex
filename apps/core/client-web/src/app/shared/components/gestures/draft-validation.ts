@@ -38,6 +38,10 @@ const MESSAGE_BY_ERROR: Record<string, string> = {
 };
 
 function describe(name: string, label: string, errors: ValidationErrors): DraftProblem {
+  //  Lo que el servidor dijo de este campo (`applyServerFieldErrors`), ya traducido.
+  if (typeof errors['server'] === 'string') {
+    return { message: errors['server'] as string, fieldId: name, params: { field: label } };
+  }
   for (const [error, message] of Object.entries(MESSAGE_BY_ERROR)) {
     if (!(error in errors)) continue;
     const detail = errors[error] as Record<string, unknown> | undefined;
@@ -93,4 +97,31 @@ export function draftProblems(
   }
 
   return problems;
+}
+
+/**
+ * Pone en cada control el error que el servidor devolvió para él —un SKU repetido— y lo marca
+ * tocado, para que el campo se vea en rojo y el resumen lo nombre (QA R3-B01: el campo SKU no se
+ * marcaba pese a que la respuesta traía `fieldErrors`). El error se va en cuanto el campo cambia.
+ *
+ * Devuelve cuántos controles marcó; los mensajes de campos que el formulario no tiene se ignoran
+ * aquí y siguen en el aviso general.
+ */
+export function applyServerFieldErrors(group: FormGroup, fieldErrors: Record<string, string[]> | undefined): number {
+  let marked = 0;
+  for (const [name, messages] of Object.entries(fieldErrors ?? {})) {
+    const control = group.get(name);
+    if (!control || !messages?.length) continue;
+    control.setErrors({ ...(control.errors ?? {}), server: messages[0] });
+    control.markAsTouched();
+    const subscription = control.valueChanges.subscribe(() => {
+      subscription.unsubscribe();
+      if (!control.errors?.['server']) return;
+      const rest = { ...control.errors };
+      delete rest['server'];
+      control.setErrors(Object.keys(rest).length ? rest : null);
+    });
+    marked++;
+  }
+  return marked;
 }

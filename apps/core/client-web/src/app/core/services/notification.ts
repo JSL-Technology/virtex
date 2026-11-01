@@ -94,7 +94,11 @@ export class NotificationService {
     if (!described) return fallback;
 
     const generic = GENERIC_ERROR_KEYS.test(described.messageKey ?? '');
-    const fieldMessages = Object.values(described.fieldErrors ?? {}).flat().filter(Boolean);
+    // De-duplicated, and never the main message again: a duplicate SKU said the same sentence twice,
+    // once as the error and once as its field's error (QA R3-B01).
+    const fieldMessages = [...new Set(Object.values(described.fieldErrors ?? {}).flat().filter(Boolean))].filter(
+      (message) => message !== described.message,
+    );
     if (fieldMessages.length) {
       return generic ? fieldMessages.join(' ') : `${described.message} ${fieldMessages.join(' ')}`;
     }

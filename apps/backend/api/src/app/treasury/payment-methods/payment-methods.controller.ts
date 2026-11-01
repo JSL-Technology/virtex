@@ -32,6 +32,8 @@ export class PaymentMethodsController {
     return this.methods.findAll(user.organizationId, activeOnly !== 'true');
   }
 
+  // step-up-exempt: adds a label to the payment-form catalogue, mapped to a DGII code. It moves no
+  // money and names no account or credential; what a payment debits is chosen on the payment.
   @Post()
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
   create(@Body() dto: CreatePaymentMethodDto, @CurrentUser() user: AuthenticatedUser) {
@@ -39,6 +41,7 @@ export class PaymentMethodsController {
   }
 
   /** Rename, re-map, reorder, retire or reinstate. Never delete: documents keep the code. */
+  // step-up-exempt: edits that same catalogue label; no money, account or credential changes.
   @Patch(':id')
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
   update(

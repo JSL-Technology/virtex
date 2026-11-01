@@ -9,6 +9,11 @@
     "en": "Archive {{n}}",
     "pt": "Arquivar {{n}}"
   },
+  "actions.clear_selection": {
+    "en": "Clear selection",
+    "es": "Quitar selección",
+    "pt": "Limpar seleção"
+  },
   "actions.create_new": {
     "es": "Crear nuevo",
     "en": "Create new",
@@ -44,21 +49,6 @@
     "en": "Export {{n}}",
     "pt": "Exportar {{n}}"
   },
-  "actions.refresh": {
-    "es": "Refrescar",
-    "en": "Refresh",
-    "pt": "Atualizar"
-  },
-  "actions.row_actions": {
-    "es": "Acciones de la fila",
-    "en": "Row actions",
-    "pt": "Ações da linha"
-  },
-  "actions.select_all": {
-    "es": "Seleccionar todo",
-    "en": "Select all",
-    "pt": "Selecionar tudo"
-  },
   "actions.new_customer": {
     "es": "Nuevo cliente",
     "en": "New customer",
@@ -78,5 +68,30 @@
     "es": "Nueva cotización",
     "en": "New quote",
     "pt": "Novo orçamento"
+  },
+  "actions.refresh": {
+    "es": "Refrescar",
+    "en": "Refresh",
+    "pt": "Atualizar"
+  },
+  "actions.row_actions": {
+    "es": "Acciones de la fila",
+    "en": "Row actions",
+    "pt": "Ações da linha"
+  },
+  "actions.select_all": {
+    "es": "Seleccionar todo",
+    "en": "Select all",
+    "pt": "Selecionar tudo"
+  },
+  "actions.selected_n": {
+    "en": "{{n}} selected",
+    "es": "{{n}} seleccionado(s)",
+    "pt": "{{n}} selecionado(s)"
+  },
+  "actions.selection": {
+    "en": "Selection",
+    "es": "Selección",
+    "pt": "Seleção"
   }
 }

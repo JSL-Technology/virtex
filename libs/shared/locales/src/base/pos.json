@@ -892,6 +892,11 @@
     "en": "Taxes",
     "pt": "Impostos"
   },
+  "pos.terminal_default_name": {
+    "en": "main",
+    "es": "principal",
+    "pt": "principal"
+  },
   "pos.terminal_label": {
     "es": "Caja {{id}}",
     "en": "Till {{id}}",
@@ -964,6 +969,16 @@
     "es": "Usar otra cuenta",
     "en": "Use another account",
     "pt": "Usar outra conta"
+  },
+  "pos.variance_needs_explanation": {
+    "en": "The count differs from what was expected by {{variance}}: explain the difference before closing.",
+    "es": "El conteo difiere de lo esperado en {{variance}}: explica la diferencia antes de cerrar.",
+    "pt": "A contagem difere do esperado em {{variance}}: explique a diferença antes de fechar."
+  },
+  "pos.variance_reason": {
+    "en": "Why does it not balance? (required)",
+    "es": "¿Por qué no cuadra? (obligatorio)",
+    "pt": "Por que não fecha? (obrigatório)"
   },
   "pos.verify_code": {
     "es": "Verificar",

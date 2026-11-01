@@ -215,14 +215,29 @@ describe('PosService', () => {
     const shift = openShift({ cashSalesTotal: 250 });
     const { service } = makeService({ activeShift: shift });
 
-    const closed = await service.closeShift('org-1', 's1', { closingBalance: 340 }, cashier);
+    const closed = await service.closeShift('org-1', 's1', { closingBalance: 340, closingNotes: 'Cambio mal dado' }, cashier);
 
     expect(closed).toMatchObject({
       status: PosShiftStatus.CLOSED,
       expectedBalance: 350,
       closingBalance: 340,
       closingVariance: -10,
+      closingNotes: 'Cambio mal dado',
       closedById: 'cashier-1',
+    });
+  });
+
+  // QA R3-B09: a drawer 475 over closed without a question.
+  it('will not close over or short without an explanation, and needs none when the count matches', async () => {
+    const { service } = makeService({ activeShift: openShift({ cashSalesTotal: 250 }) });
+    await expect(service.closeShift('org-1', 's1', { closingBalance: 825 }, cashier)).rejects.toMatchObject({
+      messageKey: 'pos.variance_needs_explanation',
+    });
+
+    const exact = makeService({ activeShift: openShift({ cashSalesTotal: 250 }) });
+    await expect(exact.service.closeShift('org-1', 's1', { closingBalance: 350 }, cashier)).resolves.toMatchObject({
+      closingVariance: 0,
+      closingNotes: null,
     });
   });
 

@@ -1,3 +1,4 @@
+import { terminalDisplayName } from '../core/terminal-config.service';
 import type {
   PosContext,
   PosSale,
@@ -95,7 +96,7 @@ export function receiptHtml(
         : '',
     `<p>${escapeHtml(f.t('pos.ticket.number', { number: sale.id.slice(0, 8).toUpperCase() }))}</p>`,
     `<p>${escapeHtml(f.dateTime(sale.createdAt))}</p>`,
-    `<p>${escapeHtml(f.t('pos.ticket.terminal_cashier', { terminal: header.terminalId, cashier: header.cashier }))}</p>`,
+    `<p>${escapeHtml(f.t('pos.ticket.terminal_cashier', { terminal: terminalDisplayName(header.terminalId, (key) => f.t(key)), cashier: header.cashier }))}</p>`,
     `<p>${escapeHtml(f.t('pos.customer'))}: ${escapeHtml(sale.customerName || f.t('pos.walk_in_customer'))}</p>`,
     sale.status === 'CANCELLED'
       ? `<div class="void">${escapeHtml(f.t('pos.ticket.voided'))}</div>${sale.voidReason ? `<p>${escapeHtml(sale.voidReason)}</p>` : ''}`
@@ -130,7 +131,7 @@ export function shiftReportHtml(
   const body = [
     headerHtml(header, f),
     `<hr><h1>${escapeHtml(f.t(closed ? 'pos.report.z_title' : 'pos.report.x_title'))}</h1>`,
-    `<p class="c">${escapeHtml(f.t('pos.ticket.terminal_cashier', { terminal: header.terminalId, cashier: header.cashier }))}</p>`,
+    `<p class="c">${escapeHtml(f.t('pos.ticket.terminal_cashier', { terminal: terminalDisplayName(header.terminalId, (key) => f.t(key)), cashier: header.cashier }))}</p>`,
     `<p class="c">${escapeHtml(f.t('pos.report.opened_at', { when: f.dateTime(shift.openedAt) }))}</p>`,
     closed && shift.closedAt
       ? `<p class="c">${escapeHtml(f.t('pos.report.closed_at', { when: f.dateTime(shift.closedAt) }))}</p>`

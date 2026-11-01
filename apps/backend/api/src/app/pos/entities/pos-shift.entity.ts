@@ -108,6 +108,10 @@ export class PosShift {
   @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformer, nullable: true })
   closingVariance: number | null;
 
+  /** The cashier's explanation of a variance; required when there is one (QA R3-B09). */
+  @Column({ name: 'closing_notes', type: 'varchar', length: 500, nullable: true })
+  closingNotes: string | null;
+
   /** Who closed it — the cashier who opened it, or a supervisor holding `pos:manage_shifts`. */
   @Column({ type: 'uuid', nullable: true })
   closedById: string | null;

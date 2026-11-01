@@ -16,8 +16,8 @@ import { ComputedDocument } from '../../invoices/sales-tax.engine';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import { ExchangeRateResolver } from '../../currencies/exchange-rate-resolver.service';
 import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
-import { Organization } from '../../organizations/entities/organization.entity';
-import { fiscalDate, organizationTimeZone } from '../../shared/fiscal-clock';
+import { organizationTimeZoneOf } from '../../organizations/contracts/fiscal-today.contract';
+import { fiscalDate } from '../../shared/fiscal-clock';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../../organizations/contracts/branch.contract';
 
 /** A quote as read: the row plus whether its validity has run out. */
@@ -434,11 +434,7 @@ export class QuotesService {
    */
   private readonly zones = new Map<string, string>();
   private async todayFor(organizationId: string): Promise<string> {
-    const organization = await this.dataSource.manager.findOne(Organization, {
-      where: { id: organizationId },
-      select: ['id', 'country', 'timezone'],
-    });
-    const zone = organizationTimeZone(organization);
+    const zone = await organizationTimeZoneOf(this.dataSource.manager, organizationId);
     this.zones.set(organizationId, zone);
     return fiscalDate(zone);
   }

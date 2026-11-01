@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import { OperationsNotificationsListener } from './operations-notifications.listener';
 import { NotificationsService } from '../notifications.service';
-import { PayrollRunEvent } from '../../payroll/events/payroll-run.events';
+import { PayrollRunEvent } from '../../contracts/business-events/payroll-run.events';
 
 describe('OperationsNotificationsListener (QA R3-M09)', () => {
   const run: PayrollRunEvent = {

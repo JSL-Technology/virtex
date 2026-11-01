@@ -160,10 +160,11 @@
 </div>
 
 <!-- User Invite/Edit Modal -->
-<div class="modal" [style.display]="userModalOpen() ? 'flex' : 'none'">
-  <div class="modal-content">
+<!-- A dialog, said so (QA R3-B06): it was a bare div, and Escape inside it closed Settings. -->
+<div class="modal" [style.display]="userModalOpen() ? 'flex' : 'none'" (keydown.escape)="$event.preventDefault(); closeUserModal()">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="user-modal-title" tabindex="-1">
     <div class="modal-header">
-      <h3 class="modal-title">{{ (isEditMode() ? 'settings.user_management.edit_user' : 'settings.user_management.invite_new_user') | translate }}</h3>
+      <h3 class="modal-title" id="user-modal-title">{{ (isEditMode() ? 'settings.user_management.edit_user' : 'settings.user_management.invite_new_user') | translate }}</h3>
       <button class="modal-close" type="button" (click)="closeUserModal()" [attr.aria-label]="'common.close' | translate">{{ 'settings.user_management.value' | translate }}</button>
     </div>
     <div class="modal-body">
@@ -223,11 +224,11 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div class="modal" [style.display]="deleteModalOpen() ? 'flex' : 'none'">
-  <div class="modal-content">
+<div class="modal" [style.display]="deleteModalOpen() ? 'flex' : 'none'" (keydown.escape)="$event.preventDefault(); closeDeleteModal()">
+  <div class="modal-content" role="alertdialog" aria-modal="true" aria-labelledby="delete-modal-title" tabindex="-1">
     <div class="modal-header">
-      <h3 class="modal-title">{{ 'settings.user_management.delete_user' | translate }}</h3>
-      <button class="modal-close" (click)="closeDeleteModal()">{{ 'settings.user_management.value' | translate }}</button>
+      <h3 class="modal-title" id="delete-modal-title">{{ 'settings.user_management.delete_user' | translate }}</h3>
+      <button class="modal-close" type="button" (click)="closeDeleteModal()" [attr.aria-label]="'common.close' | translate">{{ 'settings.user_management.value' | translate }}</button>
     </div>
     <div class="modal-body">
       <p>{{ 'settings.user_management.you_sure_you_want_permanently_delete' | translate }} <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong>?</p>

@@ -1094,6 +1094,11 @@
     "en": "Name",
     "pt": "Nome"
   },
+  "masters.warehouses.name_required": {
+    "en": "Enter the warehouse name.",
+    "es": "Escribe el nombre del almacén.",
+    "pt": "Informe o nome do armazém."
+  },
   "masters.warehouses.new_warehouse": {
     "es": "Nuevo almacén",
     "en": "New warehouse",

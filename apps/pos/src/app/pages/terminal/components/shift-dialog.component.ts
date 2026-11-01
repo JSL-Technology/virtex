@@ -180,6 +180,20 @@ import { DialogComponent } from './dialog.component';
                     }}
                   }
                 </p>
+                @if (variance() !== 0) {
+                  <!-- Over or short is explained while the cashier still remembers why (QA R3-B09). -->
+                  <label class="field">
+                    {{ 'pos.variance_reason' | translate }}
+                    <textarea
+                      rows="2"
+                      maxlength="500"
+                      required
+                      [value]="notes()"
+                      (input)="notes.set($any($event.target).value)"
+                      data-testid="pos-variance-reason"
+                    ></textarea>
+                  </label>
+                }
               }
             } @else {
               <p class="alert alert-info">
@@ -214,7 +228,7 @@ import { DialogComponent } from './dialog.component';
             <button
               type="button"
               class="btn btn-danger"
-              [disabled]="variance() === null || closing()"
+              [disabled]="variance() === null || closing() || !explained()"
               (click)="close()"
               data-testid="pos-confirm-close"
             >
@@ -339,6 +353,9 @@ export class ShiftDialogComponent {
   protected readonly loading = signal(true);
   protected readonly report = signal<ShiftReport | null>(null);
   protected readonly counted = signal<number | null>(null);
+  protected readonly notes = signal('');
+  /** A matching count needs no words; a variance needs a reason, as the server requires. */
+  protected readonly explained = computed(() => this.variance() === 0 || this.notes().trim().length >= 3);
   protected readonly closing = signal(false);
   protected readonly closedReport = computed(
     () => this.report()?.shift.status === 'CLOSED',
@@ -376,9 +393,9 @@ export class ShiftDialogComponent {
   protected close(): void {
     const counted = this.counted();
     const shiftId = this.report()?.shift.id;
-    if (counted === null || this.closing() || !shiftId) return;
+    if (counted === null || this.closing() || !shiftId || !this.explained()) return;
     this.closing.set(true);
-    this.till.closeShift(round2(counted)).subscribe({
+    this.till.closeShift(round2(counted), this.variance() === 0 ? undefined : this.notes().trim()).subscribe({
       next: () => {
         this.closing.set(false);
         // The Z report: the closed shift, with its counted cash and variance.

@@ -689,7 +689,9 @@ export class AccountsPayableService {
       },
       entry: {
         key: 'ledger.purchase.bill',
-        params: { number: bill.ncf ?? bill.id.slice(0, 8) },
+        // Without an NCF the bill has no number of its own; it was described by eight characters of
+        // its database id. The supplier and the date say which bill it is.
+        params: { number: bill.ncf ?? `${bill.vendor?.name ?? ''} ${toIsoDate(bill.date)}`.trim() },
       },
     });
 

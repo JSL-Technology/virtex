@@ -59,6 +59,7 @@ describe('PredictionsPage', () => {
       ),
       series: jest.fn().mockReturnValue(of({ history: [{ date: '2026-10-01', quantity: 9 }], forecast: [{ date: '2026-10-14', p10: 6, p50: 10, p90: 14, model: 'AutoETS' }] })),
       runForecast: jest.fn().mockReturnValue(of({ id: 'r2', status: 'QUEUED', createdAt: '' })),
+      status: jest.fn().mockReturnValue(of({ engine: { online: true } })),
     };
     await TestBed.configureTestingModule({
       imports: [PredictionsPage],
@@ -78,6 +79,13 @@ describe('PredictionsPage', () => {
     expect(ai['insights']).toHaveBeenCalledWith(expect.objectContaining({ sort: 'risk', offset: 0 }));
     expect(component.rows()).toHaveLength(1);
     expect(component.medianWape()).toBe(0.25);
+  });
+
+  it('says the engine is down instead of «Calculating…» forever (QA R3-M08)', () => {
+    ai['status'].mockReturnValue(of({ engine: { online: false } }));
+    component.ngOnInit();
+    fixture.detectChanges();
+    expect(component.engineOnline()).toBe(false);
   });
 
   it('groups the best sellers by branch', () => {

@@ -184,11 +184,6 @@
     "en": "Available",
     "pt": "Disponível"
   },
-  "ai.admin.state.engine_offline": {
-    "en": "The analytics engine is not running",
-    "es": "El motor de análisis no está en marcha",
-    "pt": "O motor de análise não está em execução"
-  },
   "ai.admin.state.not_in_plan": {
     "es": "No incluido en el plan",
     "en": "Not included in the plan",
@@ -1929,6 +1924,11 @@
     "en": "Discarded.",
     "pt": "Descartada."
   },
+  "ai.copilot.proposal_title": {
+    "en": "Proposal",
+    "es": "Propuesta",
+    "pt": "Proposta"
+  },
   "ai.copilot.records": {
     "es": "Registros consultados",
     "en": "Records consulted",
@@ -2371,7 +2371,7 @@
   },
   "ai.engine_offline": {
     "en": "The analytics engine is not running, so this cannot be calculated now. The nightly run will happen once it is back; let your administrator know.",
-    "es": "El motor de análisis no está en marcha, así que no se puede calcular ahora. El cálculo nocturno se hará cuando vuelva a funcionar; avisa a tu administrador.",
+    "es": "El motor de análisis no está en marcha, así que no se puede calcular ahora. El cálculo nocturno se hará en cuanto el motor esté de nuevo en marcha; avisa a tu administrador.",
     "pt": "O motor de análise não está em execução, então não é possível calcular agora. O cálculo noturno ocorrerá quando ele voltar; avise o administrador."
   },
   "ai.feature_disabled_for_organization": {
