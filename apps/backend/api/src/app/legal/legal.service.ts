@@ -55,6 +55,7 @@ export class LegalService {
    */
   async joinWaitlist(dto: MarketWaitlistDto, ipAddress: string | null): Promise<void> {
     const countryCode = dto.countryCode.toUpperCase();
+    // tenant-scope-guard-allow: market_waitlist is platform data (visitors with no tenant yet), and this is an upsert, not a read.
     await this.waitlist
       .createQueryBuilder()
       .insert()

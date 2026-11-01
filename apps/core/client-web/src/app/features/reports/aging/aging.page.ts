@@ -11,6 +11,7 @@ import { toIsoDate } from '../financial-statements/report-period';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 export type AgingSide = 'payables' | 'receivables';
 
@@ -28,7 +29,7 @@ export type AgingSide = 'payables' | 'receivables';
 @Component({
   selector: 'app-aging-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent, FormsModule, VxBranchPickerComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent],
   templateUrl: './aging.page.html',
   styleUrls: ['./aging.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

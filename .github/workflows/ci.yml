@@ -177,12 +177,15 @@ jobs:
       #     application, including inline templates and the Handlebars e-mail and invoice templates,
       #     which is the 40 % of the interface the previous scanner never read.
       - name: generated catalogues match the locale source
+        if: ${{ !cancelled() }}
         run: node tools/i18n/build-catalogues.mjs --check
 
       - name: translation invariants
+        if: ${{ !cancelled() }}
         run: node tools/i18n/verify-catalogues.mjs
 
       - name: no untranslated interface text
+        if: ${{ !cancelled() }}
         run: node tools/i18n/scan-hardcoded-strings.mjs --list
 
       # The design system: no literal colours outside it, no token used that nothing defines, and
@@ -190,35 +193,56 @@ jobs:
       # module rail's notification badge shipped with `var(--color-danger)` — defined on two pages
       # only — so everywhere else it rendered with no background at all.
       - name: design system tokens and contrast
+        if: ${{ !cancelled() }}
         run: npm run lint:design-system
+
+      # Forms: every invalid field is announced (aria-invalid) and every required marker matches its
+      # validator. Both scripts existed and both were failing, because nothing ran them.
+      - name: form accessibility
+        if: ${{ !cancelled() }}
+        run: npm run verify:form-a11y
+
+      - name: required markers match validators
+        if: ${{ !cancelled() }}
+        run: npm run verify:required-markers
 
       # Proves no account name reaches a template as a raw translation map. `accounts.name` is
       # stored as `{ es, en }`, and printing it unguarded renders `[object Object]` — which is not
       # a type error, not a compile error and not a failed render. It is how the manual journal
       # entry form came to show `[object Object]` for all 55 of its account options.
-      - run: npm run verify:localized-names
+      - name: npm run verify:localized-names
+        if: ${{ !cancelled() }}
+        run: npm run verify:localized-names
 
       # Proves every `numeric` column is paired with the transformer its nullability requires. The
       # nullable one maps `undefined` to `NULL`, so using it on a `NOT NULL` column writes an
       # explicit `NULL` instead of letting the default apply — which is why opening a POS shift
       # failed with a not-null violation on every attempt.
-      - run: npm run verify:numeric-transformers
+      - name: npm run verify:numeric-transformers
+        if: ${{ !cancelled() }}
+        run: npm run verify:numeric-transformers
 
       # Proves a calendar date is never declared as an instant. A `date` column has no time to
       # convert, and typing one `Date` builds it as `timestamp` — which is why every supplier bill
       # displayed the day before its own date for a tenant in UTC-4.
-      - run: npm run verify:date-columns
+      - name: npm run verify:date-columns
+        if: ${{ !cancelled() }}
+        run: npm run verify:date-columns
 
       # Proves the migrations and the entities describe the same schema. A missing migration is
       # invisible locally (where the schema was created by an earlier `synchronize`) and only
       # surfaces as a broken deploy; this turns it into a failing build.
-      - run: npm run check:schema-drift
+      - name: npm run check:schema-drift
+        if: ${{ !cancelled() }}
+        run: npm run check:schema-drift
 
       # Proves no service reads a tenant table without a tenant filter. Application-level isolation
       # is a `WHERE` clause that must be remembered, and the audit that added this found the one
       # place it had been forgotten (a `manufacturing` list that returned every tenant's orders).
       # Until the row-level-security cutover makes the database enforce it, this static guard does.
-      - run: npm run verify:tenant-scope
+      - name: npm run verify:tenant-scope
+        if: ${{ !cancelled() }}
+        run: npm run verify:tenant-scope
 
       # Cuatro reglas de seguridad que el proyecto ya había escrito —en comentarios— y que no
       # llegaban a todos sus sitios. Una auditoría encontró cinco de ellas contradichas por un
@@ -234,7 +258,9 @@ jobs:
       #                       Eran «los únicos dos» según un comentario, y había un tercero.
       #   session-revocation  todo validador de token de sesión consulta la lista de revocación.
       #                       El WebSocket tenía copia propia y era la copia la que divergía.
-      - run: npm run verify:security
+      - name: npm run verify:security
+        if: ${{ !cancelled() }}
+        run: npm run verify:security
 
       # Las políticas de aislamiento existían y NADIE comprobaba su cobertura. La migración que
       # las instala deriva su lista de `information_schema`, pero la evalúa una sola vez: todo lo
@@ -244,6 +270,7 @@ jobs:
       #
       # Que el verificador exista y no se ejecute es indistinguible de que no exista.
       - name: tenant isolation policies cover every tenant table
+        if: ${{ !cancelled() }}
         run: npm run verify:rls
 
       # Lo mismo a través de la aplicación y como el rol `virtex_app`, que es el que no posee las
@@ -255,6 +282,7 @@ jobs:
       # prove the row-level policies bind it like they bind the API. The runner's Python is used, so
       # no unpinned action enters the job; dependencies are the locked ones the image installs.
       - name: AI engine — install
+        if: ${{ !cancelled() }}
         working-directory: apps/ai-engine
         run: |
           python3 -m venv .venv
@@ -262,6 +290,7 @@ jobs:
           .venv/bin/pip install --quiet --no-deps -e .
 
       - name: AI engine — tests (unit, and as its own role against the database)
+        if: ${{ !cancelled() }}
         working-directory: apps/ai-engine
         env:
           NIXTLA_NUMBA_CACHE: '1'
@@ -270,6 +299,7 @@ jobs:
         run: .venv/bin/python -m pytest -W ignore
 
       - name: tenant isolation holds through the application
+        if: ${{ !cancelled() }}
         env:
           # El rol lo crea la propia migración, con la contraseña que le puso ese mismo
           # APP_DB_PASSWORD (ver el paso de migraciones). `pg_hba.conf` exige contraseña en toda
@@ -285,6 +315,7 @@ jobs:
       # en el paso «provisionar inquilinos existentes» de la migración de Nómina: su bucle solo
       # tiene cuerpo si `organizations` tiene filas, así que en CI daba cero vueltas.
       - name: migrations apply to a database that already has a tenant
+        if: ${{ !cancelled() }}
         run: npm run verify:upgrade-path
 
       # Proves the frontera entre módulos no retrocede. La auditoría de septiembre de 2026 midió
@@ -293,16 +324,22 @@ jobs:
       # gratis y no requiere tocar nada aquí: `npm run verify:boundaries -- --update` fija el avance.
       # Sin este trinquete, cada corrección de acoplamiento se degrada en semanas — que es
       # exactamente cómo se llegó a 1.686.
-      - run: npm run verify:boundaries
+      - name: npm run verify:boundaries
+        if: ${{ !cancelled() }}
+        run: npm run verify:boundaries
 
       # Proves that a tenant's fiscal identity survives storage, and that two distinct taxpayers
       # no longer collide on the unique index over (tax_id, fiscal_region_id). The failure this
       # guards is a database constraint firing on the second insert, which no unit test can show.
-      - run: npm run verify:fiscal-identity
+      - name: npm run verify:fiscal-identity
+        if: ${{ !cancelled() }}
+        run: npm run verify:fiscal-identity
 
       # Proves multi-tenancy actually holds: one identity across tenants, per-tenant permissions,
       # and a tenant the user does not belong to refused.
-      - run: npm run verify:tenancy
+      - name: npm run verify:tenancy
+        if: ${{ !cancelled() }}
+        run: npm run verify:tenancy
 
       # Proves the application can actually START. A build only proves the code compiles; a missing
       # provider, an unexported service, a module registered twice, or a constructor that throws on
@@ -311,34 +348,44 @@ jobs:
       # conflicting disable logic, a push-notification constructor that threw on an undeclared
       # VAPID key and took the whole process down with it, and `DB_SSL=false` enabling TLS because
       # the flag was never coerced from its string form.
-      - run: npm run verify:boot
+      - name: npm run verify:boot
+        if: ${{ !cancelled() }}
+        run: npm run verify:boot
 
       # Proves every one of the nineteen markets can actually be provisioned, through the real
       # services rather than a fixture: a chart of accounts, its segment definitions, and the
       # consumption taxes the country's scheme calls for. A market that seeds nothing is a
       # customer with an ERP that cannot post a journal entry, and nothing else in the build
       # would notice.
-      - run: npm run verify:markets
+      - name: npm run verify:markets
+        if: ${{ !cancelled() }}
+        run: npm run verify:markets
 
       # Proves that a PAID signup materialises a working tenant, end to end, for a representative
       # spread of fiscal regimes — ledger, roles, owner membership, plan, subscription, verified
       # fiscal identity — and that completing it twice yields one account rather than two. The
       # webhook and the browser redirect race each other on every real signup, so idempotency
       # here is not a nicety.
-      - run: npm run verify:provisioning
+      - name: npm run verify:provisioning
+        if: ${{ !cancelled() }}
+        run: npm run verify:provisioning
 
       # Proves the authentication surface over real HTTP: cookie-only tokens with the lifetimes
       # they claim, CSRF enforced and rotated, refresh rotation, step-up refused without proof,
       # enumeration parity between a wrong password and an unknown mailbox, and a revoked session
       # dying immediately. This is what the Nx e2e placeholders were standing in for.
-      - run: npm run verify:auth-contract
+      - name: npm run verify:auth-contract
+        if: ${{ !cancelled() }}
+        run: npm run verify:auth-contract
 
       # Proves that a comprobante fiscal electrónico is BUILT, VALIDATED and SIGNED the way the DGII
       # requires, with real certificate material and a real signature verification. The builder used
       # to emit eleven elements and omit everything else the schema marks mandatory, and nothing
       # validated a document before spending an e-NCF on it — so the first sign of a defect was a
       # rejection with the number already consumed. This needs no network.
-      - run: npm run verify:ecf
+      - name: npm run verify:ecf
+        if: ${{ !cancelled() }}
+        run: npm run verify:ecf
 
       # Proves the whole sales cycle against a real database: that a freshly provisioned tenant can
       # issue at all, that a draft consumes no fiscal numbering, that issuing assigns the e-NCF and
@@ -347,7 +394,9 @@ jobs:
       #
       # Every one of those was broken and every one passed the previous suite, because no test drove
       # an invoice end to end. `POST /invoices` failed for every customer on their first attempt.
-      - run: npm run verify:invoicing
+      - name: npm run verify:invoicing
+        if: ${{ !cancelled() }}
+        run: npm run verify:invoicing
 
       # Nx Cloud's self-healing. It needs an Nx Cloud workspace, and without one it can only fail —
       # which turned every run red after every other step had passed. The token is scoped to this

@@ -6,6 +6,7 @@ import { PurchaseFiscalRecordsRegistry } from './fiscal-records/purchase-fiscal-
 import { CopilotToolRegistry } from './copilot/copilot-tools.contract';
 import { InboundMailHandlerRegistry } from './inbound-mail/inbound-mail.contract';
 import { CloseReadinessRegistry } from './closing/close-readiness.contract';
+import { PeriodGateRegistry } from './closing/period-gate.contract';
 import { CashPositionRegistry } from './treasury/cash-position.contract';
 import { PaymentLikelihoodRegistry } from './ai/payment-likelihood.contract';
 import { DuplicateSourceRegistry } from './data-quality/duplicate-sources.contract';
@@ -27,7 +28,7 @@ import { ReorderSuggestionRegistry } from './ai/reorder-suggestions.contract';
  */
 @Global()
 @Module({
-  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry],
-  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry],
+  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, PeriodGateRegistry],
+  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, PeriodGateRegistry],
 })
 export class ContractsModule {}

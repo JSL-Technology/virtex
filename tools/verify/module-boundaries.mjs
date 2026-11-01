@@ -222,6 +222,12 @@ for (const file of files) {
     if (!imp) continue;
     const t = relative(APP, resolve(dirname(file), imp[1])).split('\\').join('/');
     if (t.startsWith('..')) continue;
+    // A registry declared in `contracts/` is the sanctioned seam: the transaction crosses an
+    // explicit, typed contract whose implementation the owning module registers. That is the
+    // legitimate, bounded form of a shared transaction (e.g. checking the accounting period inside
+    // the inventory adjustment's own transaction, so a close cannot slip in between). What this
+    // rule exists to catch is a module reaching ANOTHER module's service with its manager.
+    if (t.startsWith('contracts/')) continue;
     const mod = MODULE_OF_FOLDER[t.split('/')[0]];
     if (mod) propModule.set(prop, mod);
   }

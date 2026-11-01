@@ -10,6 +10,7 @@ import { NotificationService } from '../../../../core/services/notification';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { VX_SELECT } from '../../../../shared/components/select';
 import { FiscalYear, FiscalYearsService, YearEndCheckId, YearEndReadiness } from '../../data/fiscal-years.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /** The copy and the place to fix each check. Literal keys, so the catalogue check sees them. */
 const CHECKS: Record<YearEndCheckId, { label: string; failing: string; link?: string; fragment?: string }> = {
@@ -34,7 +35,7 @@ const CHECKS: Record<YearEndCheckId, { label: string; failing: string; link?: st
 @Component({
   selector: 'app-annual-close-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...VX_SELECT, ...FORMAT_PIPES],
+  imports: [FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, LucideAngularModule, ...VX_SELECT, ...FORMAT_PIPES],
   templateUrl: './annual-close.page.html',
   styleUrls: ['./annual-close.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

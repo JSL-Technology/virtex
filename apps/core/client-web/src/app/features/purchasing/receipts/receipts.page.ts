@@ -18,6 +18,7 @@ import { SuppliersService } from '../../../core/api/suppliers.service';
 import { Supplier } from '../../../core/models/supplier.model';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
 import { GoodsReceiptRow, GoodsReceiptStatus, PurchasingService } from '../data/purchasing.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 export const GOODS_RECEIPT_TONE: Record<GoodsReceiptStatus, VxTone> = { POSTED: 'ok', VOID: 'neutral' };
 
@@ -30,7 +31,7 @@ export const GOODS_RECEIPT_TONE: Record<GoodsReceiptStatus, VxTone> = { POSTED: 
   selector: 'app-goods-receipts-page',
   standalone: true,
   imports: [
-    FormsModule,
+    FormsModule, ...VX_FORM_A11Y,
     RouterLink,
     TranslateModule,
     LucideAngularModule,

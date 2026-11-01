@@ -13,6 +13,7 @@ import { NotificationService } from '../../../../core/services/notification';
 import { DialogService } from '../../../../core/services/dialog.service';
 import { VX_SELECT } from '../../../../shared/components/select';
 import { RolesService, Role } from '../../data/roles.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 export const APPROVAL_DOCUMENT_TYPES = ['VENDOR_BILL', 'PAYMENT_BATCH', 'JOURNAL_ENTRY', 'PERIOD_REOPENING', 'AUDIT_ADJUSTMENT'] as const;
 type ApprovalDocumentType = (typeof APPROVAL_DOCUMENT_TYPES)[number];
@@ -50,7 +51,7 @@ interface PolicyDraft {
 @Component({
   selector: 'app-approval-policies-page',
   standalone: true,
-  imports: [VxNumberInputDirective, VxEmptyStateComponent, SettingsActionsDirective, FormsModule, TranslateModule, RouterLink, ...VX_SELECT, ...FORMAT_PIPES],
+  imports: [VxNumberInputDirective, VxEmptyStateComponent, SettingsActionsDirective, FormsModule, ...VX_FORM_A11Y, TranslateModule, RouterLink, ...VX_SELECT, ...FORMAT_PIPES],
   templateUrl: './approvals.page.html',
   styleUrls: ['./approvals.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

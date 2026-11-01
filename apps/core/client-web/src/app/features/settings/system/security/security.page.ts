@@ -13,6 +13,7 @@ import { VX_SELECT } from '../../../../shared/components/select';
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '../../../../shared/validators/password.validator';
 import { UsersService } from '../../data/users.service';
 import { SettingsShellService } from '../../shell';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /** The action types the trail records (`ActionType` on the server). */
 export const AUDIT_ACTIONS = ['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'LOGIN_FAILED', 'REFRESH', 'IMPERSONATE', 'READ', 'EXPORT'] as const;
@@ -86,7 +87,7 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-security-settings-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, ...VX_SELECT, ...VX_DATE, ...FORMAT_PIPES],
+  imports: [FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...VX_SELECT, ...VX_DATE, ...FORMAT_PIPES],
   templateUrl: './security.page.html',
   styleUrls: ['./security.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -7,6 +7,7 @@ import { HasPermission } from '../../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
 import { PaymentMethodsService } from './payment-methods.service';
 import { CreatePaymentMethodDto, UpdatePaymentMethodDto } from '../dto/payment-method.dto';
+import { RequireStepUp, StepUpScope } from '../../auth/contracts/step-up.contract';
 
 /**
  * The company's payment methods: read by every form that records how a document is paid, edited
@@ -28,8 +29,11 @@ export class PaymentMethodsController {
     return this.methods.findAll(user.organizationId, activeOnly !== 'true');
   }
 
+  // Same re-authentication as the bank catalogue: a method decides how a collection is mapped and
+  // posted, so changing one is changing where money is booked.
   @Post()
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
+  @RequireStepUp(StepUpScope.MANAGE_BANK_ACCOUNTS)
   create(@Body() dto: CreatePaymentMethodDto, @CurrentUser() user: AuthenticatedUser) {
     return this.methods.create(dto, user.organizationId);
   }
@@ -37,6 +41,7 @@ export class PaymentMethodsController {
   /** Rename, re-map, reorder, retire or reinstate. Never delete: documents keep the code. */
   @Patch(':id')
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
+  @RequireStepUp(StepUpScope.MANAGE_BANK_ACCOUNTS)
   update(
     @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdatePaymentMethodDto,

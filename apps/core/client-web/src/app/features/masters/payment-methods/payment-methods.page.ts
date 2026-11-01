@@ -16,6 +16,7 @@ import {
   SETTLEMENT_KINDS,
 } from '../../../core/api/payment-methods.service';
 import type { PaymentMethod as SettlementKind } from '../../../core/services/invoices';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * The company's payment methods.
@@ -38,7 +39,7 @@ import type { PaymentMethod as SettlementKind } from '../../../core/services/inv
   standalone: true,
   imports: [
     ...VX_SORT,
-    ReactiveFormsModule,
+    ReactiveFormsModule, ...VX_FORM_A11Y,
     LucideAngularModule,
     TranslateModule,
     ListShellComponent,

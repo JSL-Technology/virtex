@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { environment } from '../../../../../environments/environment';
 import { NotificationService } from '../../../../core/services/notification';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 export interface MailSettings {
   senderName: string;
@@ -35,7 +36,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 @Component({
   selector: 'app-smtp-settings-page',
   standalone: true,
-  imports: [FormsModule, TranslateModule],
+  imports: [FormsModule, ...VX_FORM_A11Y, TranslateModule],
   templateUrl: './smtp.page.html',
   styleUrls: ['./smtp.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

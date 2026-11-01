@@ -1,3 +1,5 @@
+import { PeriodGateRegistry } from '../contracts/closing/period-gate.contract';
+import { PeriodGateSourceService } from '../accounting/period-gate.source';
 import { DataSource } from 'typeorm';
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
@@ -45,6 +47,13 @@ import { I18nService } from '../i18n/i18n.service';
  */
 const DB_AVAILABLE = Boolean(process.env['DB_HOST'] && process.env['DB_NAME']);
 const describeWithDb = DB_AVAILABLE ? describe : describe.skip;
+
+/** The real accounting answer, registered as accounting registers it at startup. */
+function periodGate(): PeriodGateRegistry {
+  const registry = new PeriodGateRegistry();
+  new PeriodGateSourceService(registry).onModuleInit();
+  return registry;
+}
 
 describeWithDb('inventory posting', () => {
   jest.setTimeout(120_000);
@@ -120,6 +129,7 @@ describeWithDb('inventory posting', () => {
         new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
         new JournalLookupService(dataSource.getRepository(Journal)),
       ),
+      periodGate(),
     );
   });
 

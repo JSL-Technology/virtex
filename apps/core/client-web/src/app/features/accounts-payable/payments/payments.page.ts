@@ -23,6 +23,7 @@ import {
   PaymentBatchStatus,
   VendorPaymentRow,
 } from '../../../core/services/accounts-payable';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 export const PAYMENT_TONE: Record<PaymentBatchStatus, VxTone> = {
   PENDING: 'draft',
@@ -40,7 +41,7 @@ export const PAYMENT_TONE: Record<PaymentBatchStatus, VxTone> = {
   selector: 'app-vendor-payments-page',
   standalone: true,
   imports: [
-    FormsModule,
+    FormsModule, ...VX_FORM_A11Y,
     RouterLink,
     TranslateModule,
     LucideAngularModule,

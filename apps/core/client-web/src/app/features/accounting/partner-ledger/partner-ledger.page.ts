@@ -13,6 +13,7 @@ import { SuppliersService } from '../../contacts/data/suppliers.service';
 import { Customer } from '../../../core/models/customer.model';
 import { Supplier } from '../../../core/models/supplier.model';
 import { PartnerKind, PartnerStatement, StatementsService, documentRoute } from '../data/statements.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const todayIso = (): string => {
@@ -37,7 +38,7 @@ interface Partner {
 @Component({
   selector: 'app-partner-ledger-page',
   standalone: true,
-  imports: [...VX_DATE, FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent],
+  imports: [...VX_DATE, FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent],
   templateUrl: './partner-ledger.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './partner-ledger.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -17,6 +17,7 @@ import {
   SettingsSectionPatch,
   SettingsSectionView,
 } from '../data/organization-settings.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /** A group of default accounts, as one block of the screen. */
 export interface AccountGroup {
@@ -50,7 +51,7 @@ export interface PolicyField {
 @Component({
   selector: 'app-settings-section',
   standalone: true,
-  imports: [VxNumberInputDirective, FormsModule, TranslateModule, PercentInputDirective, SettingsSaveBarComponent, ...VX_SELECT],
+  imports: [VxNumberInputDirective, FormsModule, ...VX_FORM_A11Y, TranslateModule, PercentInputDirective, SettingsSaveBarComponent, ...VX_SELECT],
   templateUrl: './settings-section.component.html',
   styleUrls: ['./settings-section.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

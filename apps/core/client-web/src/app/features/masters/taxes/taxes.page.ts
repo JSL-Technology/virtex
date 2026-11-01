@@ -17,6 +17,7 @@ import { CountryPackService } from '../../../core/api/country-pack.service';
 import { FiscalSettingsService, TaxJurisdiction } from '../../../core/api/fiscal-settings.service';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * The company's taxes.
@@ -35,7 +36,7 @@ import { LocaleStore } from '@virteex/shared/ui-i18n';
 @Component({
   selector: 'app-taxes-page',
   standalone: true,
-  imports: [VxNumberInputDirective, ...VX_SORT, ReactiveFormsModule, VxDateFieldComponent, CanOpenDirective, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, VxAmountComponent],
+  imports: [VxNumberInputDirective, ...VX_SORT, ReactiveFormsModule, ...VX_FORM_A11Y, VxDateFieldComponent, CanOpenDirective, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, VxAmountComponent],
   templateUrl: './taxes.page.html',
   styleUrls: ['./taxes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

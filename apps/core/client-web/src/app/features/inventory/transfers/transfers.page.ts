@@ -11,12 +11,13 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 import { NotificationService } from '../../../core/services/notification';
 import { StockTransfer, StockDocumentStatus, StockService } from '../data/stock.service';
 import { STOCK_DOCUMENT_TONE } from '../adjustments/adjustment-form.page';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /** Transfers between warehouses: drafts, and what was posted, newest first. */
 @Component({
   selector: 'app-stock-transfers-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, HasPermissionDirective, RowLinkDirective],
+  imports: [FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, HasPermissionDirective, RowLinkDirective],
   templateUrl: './transfers.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

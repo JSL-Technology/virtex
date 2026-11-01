@@ -13,6 +13,7 @@ import { InventoryService } from '../../../core/api/inventory.service';
 import { Product } from '../../../core/models/product.model';
 import { STOCK_MOVEMENT_TYPES, StockMovementRow, StockMovementType, StockService } from '../data/stock.service';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /** Where a movement's source document opens, when it has a screen of its own. */
 const SOURCE_ROUTES: Record<string, (id: string) => string> = {
@@ -36,7 +37,7 @@ const SOURCE_ROUTES: Record<string, (id: string) => string> = {
 @Component({
   selector: 'app-stock-movements-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
+  imports: [FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
   templateUrl: './movements.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './movements.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
