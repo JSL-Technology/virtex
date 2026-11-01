@@ -1,7 +1,22 @@
 {
+  "price_lists.duplicate_product": {
+    "es": "Un producto aparece más de una vez en la lista de precios.",
+    "en": "A product appears more than once in the price list.",
+    "pt": "Um produto aparece mais de uma vez na lista de preços."
+  },
   "price_lists.price_list_with_id_not_found": {
     "es": "No se encontró la lista de precios \"{{id}}\".",
     "en": "Price list \"{{id}}\" was not found.",
     "pt": "A tabela de preços \"{{id}}\" não foi encontrada."
+  },
+  "price_lists.product_not_found": {
+    "es": "Uno de los productos indicados no existe en esta empresa.",
+    "en": "One of the products does not exist in this company.",
+    "pt": "Um dos produtos indicados não existe nesta empresa."
+  },
+  "price_lists.valid_to_before_valid_from": {
+    "es": "La fecha de fin de vigencia es anterior a la de inicio.",
+    "en": "The end date is before the start date.",
+    "pt": "A data de fim de vigência é anterior à de início."
   }
 }

@@ -41,6 +41,7 @@ import {
   NotFoundError,
 } from '../i18n/localized.exception';
 import { LocalizedMessage } from '../i18n/localized-message';
+import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { moduleStatusColumn } from './period-status';
 import { previousDay, toIsoDate } from '../common/dates';
@@ -492,6 +493,11 @@ export class PeriodClosingService {
     dto: LockAccountInPeriodDto,
     organizationId: string,
   ): Promise<AccountPeriodLock> {
+    // Both ids must be this organization's (audit 2026-10-31: an account of another tenant was
+    // accepted and locked under this one).
+    const manager = this.accountLockRepository.manager;
+    await assertTenantOwns(manager, Account, dto.accountId, organizationId, { field: 'accountId' });
+    await assertTenantOwns(manager, AccountingPeriod, dto.periodId, organizationId, { field: 'periodId' });
     const existing = await this.accountLockRepository.findOneBy({
       ...dto,
       organizationId,

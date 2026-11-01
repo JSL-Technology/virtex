@@ -3,6 +3,9 @@ import { Customer } from './customer.entity';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 @Entity({ name: 'customer_groups' })
+// Unique per company, not across the platform: a global unique name let one tenant block — and
+// detect — another's group names (audit 2026-11).
+@Index('UQ_customer_groups_org_name', ['organizationId', 'name'], { unique: true })
 export class CustomerGroup {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -11,7 +14,7 @@ export class CustomerGroup {
   @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
-  @Column({ unique: true })
+  @Column()
   name: string;
 
   @Column({ type: 'text', nullable: true })

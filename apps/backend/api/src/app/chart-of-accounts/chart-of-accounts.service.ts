@@ -30,6 +30,7 @@ import { JournalEntryLineValuation } from '../journal-entries/entities/journal-e
 import { MergeAccountsDto } from './dto/merge-accounts.dto';
 import { AccountHierarchyVersion } from './entities/account-hierarchy-version.entity';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
+import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
 import { likeTerm } from '../common/database/search-term';
 import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType } from '@virteex/shared/types';
 
@@ -109,6 +110,13 @@ export class ChartOfAccountsService {
       segments: segmentValues,
       ...accountData
     } = createAccountDto;
+
+    // The parent must be one of THIS organization's accounts (audit 2026-10-31, COA-01: a parent
+    // from another tenant was accepted, and the other company's account came back as `parent`).
+    await assertTenantOwns(manager, Account, parentId, organizationId, {
+      errorKey: 'chart_of_accounts.parent_account_not_found',
+      field: 'parentId',
+    });
 
     const segmentDefinitions = await manager.find(AccountSegmentDefinition, {
       where: { organizationId },
@@ -251,7 +259,37 @@ export class ChartOfAccountsService {
     if (!account) {
       throw new NotFoundError('chart_of_accounts.account_id_not_found', { id });
     }
+    // Defence in depth: a relation loaded by id must never surface another tenant's row, even if
+    // one was linked before references were validated (rows written before 2026-11).
+    account.children = (account.children ?? []).filter((child) => child.organizationId === organizationId);
+    if (account.parent && account.parent.organizationId !== organizationId) {
+      account.parent = null as never;
+    }
     return account;
+  }
+
+  /** A parent cannot be the account itself or one of its descendants: the tree would loop. */
+  private async assertNotOwnDescendant(
+    manager: EntityManager,
+    accountId: string,
+    parentId: string,
+    organizationId: string,
+  ): Promise<void> {
+    if (parentId === accountId) {
+      throw new BadRequestError('chart_of_accounts.parent_cannot_be_descendant');
+    }
+    const [row] = await manager.query(
+      `WITH RECURSIVE descendants AS (
+         SELECT id FROM accounts WHERE parent_id = $1 AND organization_id = $3
+         UNION
+         SELECT a.id FROM accounts a JOIN descendants d ON a.parent_id = d.id WHERE a.organization_id = $3
+       )
+       SELECT EXISTS (SELECT 1 FROM descendants WHERE id = $2) AS loops`,
+      [accountId, parentId, organizationId],
+    );
+    if (row?.loops) {
+      throw new BadRequestError('chart_of_accounts.parent_cannot_be_descendant');
+    }
   }
 
   async update(
@@ -309,6 +347,11 @@ export class ChartOfAccountsService {
 
 
       if (parentId !== undefined && parentId !== account.parentId) {
+        await assertTenantOwns(manager, Account, parentId, organizationId, {
+          errorKey: 'chart_of_accounts.parent_account_not_found',
+          field: 'parentId',
+        });
+        if (parentId) await this.assertNotOwnDescendant(manager, id, parentId, organizationId);
         const hasMovements = await this.journalQuery.hasMovementsForAccount(id, manager);
         if (hasMovements) {
           throw new BadRequestError('chart_of_accounts.hierarchy_account_p1_cannot_changed_because', { p1: account.name['es'] });
