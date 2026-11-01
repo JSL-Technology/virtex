@@ -212,7 +212,9 @@ function parseQuotes(payload: XeHistoricRateResponse, logger: Logger): XeQuote[]
   const quotes: XeQuote[] = [];
   for (const candidate of candidates) {
     const currency = String(candidate.currency ?? '').toUpperCase();
-    const rate = roundAmount(Number(candidate.rate), 6);
+    // Validated BEFORE rounding: a null or non-numeric quote is dropped, not rounded.
+    const raw = Number(candidate.rate);
+    const rate = Number.isFinite(raw) ? roundAmount(raw, 6) : Number.NaN;
     if (!/^[A-Z]{3}$/.test(currency) || !Number.isFinite(rate) || rate <= 0) {
       logger.warn(
         `XE devolvió una cotización inutilizable para "${String(candidate.currency)}": ` +
