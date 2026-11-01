@@ -116,6 +116,7 @@
   "common.previous_page": "Página anterior",
   "common.rate_limited": "Muitas solicitações seguidas. Tente novamente em {{seconds}} segundos.",
   "common.record_deactivated": "“{{name}}” foi desativado.",
+  "common.referenced_record_not_found": "Um dos registros indicados não existe ou não está disponível nesta empresa.",
   "common.refresh": "Atualizar",
   "common.retry": "Tentar novamente",
   "common.rows_per_page": "Linhas por página",
