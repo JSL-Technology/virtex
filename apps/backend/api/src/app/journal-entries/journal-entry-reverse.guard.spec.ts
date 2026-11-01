@@ -10,7 +10,7 @@ describe('JournalEntriesService.reverse — entries posted by a document', () =>
     const internals = service as unknown as Record<string, unknown>;
     const manager = { findOne: jest.fn(async () => found) };
     internals['dataSource'] = { transaction: (work: (m: unknown) => unknown) => work(manager) };
-    const reverseWithin = jest.fn(async (..._args: unknown[]) => ({ id: 'reversal' }));
+    const reverseWithin = jest.fn<Promise<{ id: string }>, unknown[]>(async () => ({ id: 'reversal' }));
     internals['reverseWithin'] = reverseWithin;
     return { service, reverseWithin };
   }

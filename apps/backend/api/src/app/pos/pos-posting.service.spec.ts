@@ -25,7 +25,7 @@ describe('PosPostingService', () => {
         Object.fromEntries(Object.keys(words).map((k) => [k, k])),
       ),
       post: jest.fn(async (...args: unknown[]) => ({ id: `je-${(args[2] as { journalCode: string }).journalCode}` })),
-      reverse: jest.fn(async (..._args: unknown[]) => undefined),
+      reverse: jest.fn<Promise<undefined>, unknown[]>(async () => undefined),
     };
     return { service: new PosPostingService(ledger as unknown as LedgerPostingRegistry), ledger, manager };
   }

@@ -7,6 +7,8 @@
 
 ## 1. Resumen ejecutivo
 
+> **Actualización 2026-11-01:** todos los hallazgos de esta ronda están corregidos y verificados; ver la sección 10.
+
 Desde la ronda anterior (28-09) la aplicación dio un salto grande. **De los 9 defectos críticos previos, 8 están corregidos y 1 parcialmente** (POS): ya renderizan todas las páginas, F5 funciona, se crean clientes y proveedores, hay asientos manuales, cierre de período con confirmación, la recepción de compras mueve stock y contabiliza, borrar maestros con documentos está bloqueado, y la nómina se paga. Ajustes ya no tiene secciones "en desarrollo", desaparecieron las pantallas mock (importar/exportar reales) y se agregaron cotizaciones, inventario multi-almacén, activos fijos, presupuestos, aprobaciones con bandeja, app POS separada, riel de módulos con favoritos y menú contextual.
 
 Quedan **2 críticos nuevos** y varios altos, concentrados en las **costuras entre módulos**:
@@ -249,3 +251,111 @@ Ejes: **Mad** = madurez · **Rob** = robustez · **Seg** = seguridad observable 
 
 ## 9. Reproducibilidad
 Scripts en `harness/` (Playwright, CommonJS): `node <script>.cjs` con API, web y POS levantados como en §2. `01-inventory.cjs` (inventario), `08-click-all.cjs` (pasada de clics, `RESUME=1` para continuar), `gen-matriz.cjs` (regenera la matriz con las reclasificaciones manuales), y los flujos numerados `10-…` a `102-…` citados en cada hallazgo. `db-asientos.sh [desde]` y `db-stock.sh` son las consultas de verificación a la base local usadas para contrastar cada acción de la UI con lo persistido.
+
+## 10. Estado de las correcciones (actualizado 2026-11-01)
+
+Todos los hallazgos de la ronda están corregidos en la rama `ccr-70984013-xq4s0b`. «Vivo» significa
+verificado en el entorno local con datos reales, mediante la interfaz o la API, con los guiones
+`harness/110-verificacion-api.cjs`, `111-verificacion-ui.cjs` y `112-verificacion-pos.cjs`.
+«Pruebas» significa cubierto por pruebas automáticas nuevas o actualizadas.
+
+### 10.1 Críticos y altos
+
+| ID | Corrección | Verificación |
+|---|---|---|
+| R3-C01 | El DTO de nota de crédito ya no exige `invoiceId` en el cuerpo (lo toma de la ruta); anular = nota de crédito total. | Pruebas del DTO · `verify:invoicing` sobre un inquilino nuevo con RNC (NC parcial E34, saldo reducido, sin acreditar de más) · en vivo, la API de la empresa de desarrollo rechaza la NC por falta de RNC del emisor, que es lo que exige R3-A11 |
+| R3-C02 | Las ventas de caja se contabilizan en la misma transacción que mueven el stock: VENTAS (caja/banco, ventas, servicios, ITBIS) y GENERAL (costo/inventario); la anulación revierte ambos asientos. Para RD con RNC y rango B02 vigente, el ticket lleva NCF y entra en el 607/608. La contabilización va por el contrato `contracts/ledger-posting`: el módulo de caja no importa contabilidad. | Pruebas · vivo (VENTAS-2026-000007: Dr 1110 1,475 / Cr 2130 225 / Cr 4100 1,250; GENERAL-2026-000011: Dr 5100 695.24 / Cr 1140; la anulación generó las dos reversiones) |
+| R3-A01 | Solo se abre en automático el año siguiente al actual (`AUTO_OPEN_YEARS_AHEAD = 1`); 2031 se rechaza. | Pruebas |
+| R3-A02 | La reversión de un asiento modificado se fecha en el período del original. | Pruebas |
+| R3-A03 | La lista de proveedores lee `name`. | Vivo |
+| R3-A04 | Un proveedor dominicano con RNC exige NCF para enviar la factura a aprobación; «Registrar NCF» permite completar una ya contabilizada. | Pruebas · vivo |
+| R3-A05 | `FileTypeValidator` con `fallbackToMimetype` (un CSV no tiene «número mágico»); también en la importación de catálogo y de asientos. | Vivo |
+| R3-A06 | Handsontable 18: tema y CSS cargados y panel lateral con estilos propios; guardar lee las celdas de la cuadrícula. | Vivo |
+| R3-A07 | Causa raíz: fechas por defecto en UTC (saldo «a hoy» = mañana vacío). Todas las fechas por defecto usan el «hoy» de la empresa (`organizationToday`, `tenantToday`). | Pruebas · vivo |
+| R3-A08 | El reinicio del contador de fallos de step-up borraba una clave con el prefijo de Keyv que no existía: ahora borra la clave real en Redis. | Pruebas |
+| R3-A09 | Tras activar la invitación, la sesión se emite con el usuario recargado con sus empresas. | Vivo |
+| R3-A10 | Una nota de débito no puede tener la cuenta de inventario como contrapartida (la mercancía devuelta es un ajuste de inventario). | Pruebas |
+| R3-A11 | Sin RNC del emisor no se emite comprobante fiscal (factura y caja); el checklist fiscal lo muestra. | Pruebas · vivo (la caja emite ticket no fiscal sin RNC) |
+
+### 10.2 Medios
+
+| ID | Corrección | Verificación |
+|---|---|---|
+| R3-M01 | La línea muestra el descuento y la columna de descuento aparece cuando la hay. | Vivo |
+| R3-M02 | «Hoy» de la empresa en ~25 formularios, servicios y exportaciones; la nómina se paga en la fecha elegida. | Pruebas · vivo (CSV de caja con la fecha de RD) |
+| R3-M03 | «Facturación electrónica» en RD remite a «Comprobantes fiscales (RD · DGII)». | Vivo |
+| R3-M04 | Contador con `dimensions:view` (migración); formas de pago legibles para todo usuario autenticado; «Anular» y «Nota de crédito» solo con `invoices:void`. | Vivo |
+| R3-M05 | Claves crudas traducidas (campos, roles, métodos de pago, estados en exportaciones). | i18n:verify |
+| R3-M06 | En nómina la regla de separación de funciones se avisa antes de pedir el step-up. La «OC sin SoD» resultó ser la excepción documentada para empresas de un solo miembro. | Vivo |
+| R3-M07 | La requisición aprobada ofrece «Convertir en orden» con selección de proveedor. | Vivo |
+| R3-M08 | Predicciones y flujo de caja dicen que el motor no está en marcha; «Redactar con IA» solo con modelo de lenguaje. | Pruebas · vivo |
+| R3-M09 | Avisos de nómina (calculada/aprobada/pagada), nuevo miembro y resumen diario de facturas vencidas. Durante la re-verificación apareció la causa de que tampoco llegaran los de aprobaciones: los listeners leían por la conexión de la petición ya liberada; ahora trabajan en su propio contexto de inquilino. Los importes se escriben como la empresa: RD$3,250.00. | Pruebas · vivo (campana de qa3-admin2 con aprobación, nómina y vencidas) |
+| R3-M10 | Los paneles de «Registrar tasa» e «Importar» (y «Nueva carpeta», y el resumen de depreciación) se ven aunque la lista esté vacía. | Vivo |
+| R3-M11 | «Resolver» lleva a la pantalla del paso, en la empresa activa (pipe `appLink`). | Vivo |
+| R3-M12 | Nombre de departamento único (servidor y cliente). | Vivo (409 y aviso) |
+| R3-M13 | El mapa de relaciones busca por e-NCF y muestra el estado propio del documento («Cobrada»). | Vivo |
+| R3-M14 | Un asiento de depreciación por mes, fechado el último día de cada mes. | Pruebas con base de datos |
+| R3-M15 | Tope de precio/costo nombrado por campo; selector de mes en nómina; rango NCF incompleto explicado; saldo inicial negativo confirmado; transferencia por encima de lo disponible confirmada. | Pruebas · vivo |
+
+### 10.3 Bajos
+
+| ID | Corrección | Verificación |
+|---|---|---|
+| R3-B01 | Avisos en los pasos de la OC; el SKU duplicado marca el campo y no repite la frase. Perfil, invitación y recibo ya mostraban aviso (el arnés no lo capturaba). | Pruebas |
+| R3-B02 | La balanza abre el mayor de la cuenta en su período; el kárdex ordena en el servidor sin romper el saldo. | Vivo |
+| R3-B03 | «Enero de 2026», «Pagos al exterior». | Vivo |
+| R3-B04 | Flechas deshabilitadas en los extremos; «Ajustes de comprobantes fiscales». | Vivo |
+| R3-B05 | La ayuda del documento sale de la etiqueta y solo aparece al editar; columnas obligatorias separadas. | Pruebas |
+| R3-B06 | «Invitar usuario» y «Eliminar» son diálogos accesibles; Escape cierra el diálogo, no Ajustes. | Vivo |
+| R3-B07 | La contraseña actual sirve de step-up: no se pide dos veces. | Pruebas |
+| R3-B08 | Menús contextuales en toda la aplicación (ver 10.4); confirmación al retirar categoría; «Nuevo almacén» vacío explica qué falta; barra de selección de productos. El catálogo de bancos sigue vacío por diseño: el SWIFT se valida (ISO 9362) pero no se precarga. | Pruebas · vivo |
+| R3-B09 | «Caja principal»; un cierre con diferencia exige justificación (columna `closing_notes`). | Pruebas · vivo (cierre con sobrante de 475) |
+| R3-B10 | Un solo dialecto CSV (delimitador del idioma, `sep=`, BOM, texto anti-fórmula) en cliente y servidor; el importador lee `sep=`; fechas en la zona de la empresa. | Pruebas con base de datos · vivo |
+
+### 10.4 Menús contextuales (ampliación pedida)
+
+- **Toda fila de tabla y todo elemento de bandeja** tiene menú. Ofrece:
+  - sus destinos: «Abrir», «Abrir en…» (pestaña nueva, segundo plano, al lado, ventana) y «Copiar enlace»;
+  - sus propios botones, con su nombre, permiso y estado;
+  - en el cromo de la tabla, los comandos de la pantalla.
+- **Documentos.** Ofrecen lo que el ítem permite en su estado, más su «Mapa de relaciones». Lo que requiere un formulario lo ejecuta el propio documento (`DocumentIntentService`) con el mismo método, diálogo y comprobaciones que su botón:
+  - facturas: emitir, cobrar, enviar, PDF, imprimir, duplicar, nota de crédito, anular, eliminar borrador;
+  - facturas de proveedor: editar, enviar a aprobación, pagar, nota de débito, registrar NCF, anular;
+  - pagos y recepciones: anular;
+  - cotizaciones: enviar, aceptar, convertir, duplicar, rechazar, cancelar;
+  - órdenes: enviar a aprobación, aprobar, enviar, recibir, facturar, rechazar, cancelar;
+  - requisiciones: enviar, aprobar, convertir, devolver, rechazar;
+  - ajustes y transferencias: contabilizar, cancelar;
+  - nóminas: calcular, aprobar, pagar, SUIR, cancelar;
+  - notas de débito: ver factura, anular;
+  - activos: editar, dar de baja, eliminar;
+  - empleados: calcular prestaciones.
+- **Clientes y proveedores.** Nueva factura, cotización u orden para ese cliente o proveedor, registrar cobro, estado de cuenta, editar y eliminar.
+- **Acciones nuevas** que la API tenía y ninguna pantalla ofrecía: revertir un asiento manual (verificado: GENERAL-2026-000004 → GENERAL-2026-000013) y anular un cobro de cliente.
+- **Defecto previo encontrado.** El menú contextual estaba roto en toda la aplicación: se abría durante el propio clic derecho y el overlay se cerraba con ese mismo evento.
+
+### 10.5 Defectos adicionales encontrados y corregidos durante la re-verificación
+
+- **Asientos revertibles a mano.** Un asiento generado por un documento podía revertirse directamente, dejando el libro y el documento en desacuerdo. Ahora se exige anular el documento.
+- **Tipo de los asientos del sistema.** Los asientos que el sistema contabiliza para un submayor nacen `SYSTEM_GENERATED` (todos salían `MANUAL`). Los ya contabilizados no se reescriben: el libro es inmutable por diseño, y un disparador de la base lo impide.
+- **Verificaciones que ya fallaban antes de esta rama:**
+  - `step-up-coverage`: formas de pago exentas, con su motivo;
+  - `tenant-scope`: lista de espera global;
+  - conformidad de gestos: la propuesta de IA va en `vx-document-shell`;
+  - iconos del manifiesto;
+  - dos pruebas de base de datos desactualizadas.
+
+### 10.6 Validación final
+
+- **Pruebas:**
+  - API: 3,386 pruebas con base de datos (268 suites);
+  - web: 1,225 pruebas;
+  - POS: 33 pruebas.
+- **Estáticos:**
+  - typecheck limpio de API, web y POS;
+  - lint sin errores;
+  - `i18n:verify` sin problemas;
+  - `verify:boot`, `tenant-scope`, `step-up-coverage`, `migration-identities` y fronteras en verde. El baseline de fronteras bajó de 1,252 a 1,240 (1,236 en el punto de partida).
+- **Fuera de alcance:**
+  - verificar el catálogo de bancos contra fuentes oficiales: `sb.gob.do` y `aba.org.do` no son accesibles desde la red de esta sesión;
+  - el envío real de correos y la DGII siguen sin probarse, por política de la ronda.

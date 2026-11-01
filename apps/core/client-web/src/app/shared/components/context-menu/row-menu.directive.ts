@@ -81,11 +81,17 @@ export class RowMenuDirective<E = unknown> {
             },
           ]
         : [];
+    // The item's own sections first; a list-level one (`id: 'list'`, «Refrescar») goes with the
+    // table's commands at the end, not between the item's actions and its relationships.
+    const rowSections = config.row ? config.row(ctx) : [];
+    const own = rowSections.filter((section) => section.id !== 'list');
+    const listLevel = rowSections.filter((section) => section.id === 'list');
     const sections = [
       ...(navigation ? [navigation.open] : []),
-      ...(config.row ? config.row(ctx) : []),
+      ...own,
       ...relationship,
       ...(navigation ? [navigation.share] : []),
+      ...listLevel,
       ...(config.table ?? screenActionSections(this.table.host.nativeElement)),
     ] as MenuSection[];
     this.menu.open(event, sections, ctx as MenuContext);
