@@ -631,6 +631,11 @@ export class VendorBillFormPage implements OnInit {
   }
 
   private checkMode(): void {
+    // A new bill from this supplier — from the supplier's row menu (QA R3-B08).
+    const presetSupplier = this.route.snapshot?.queryParamMap?.get('supplierId');
+    if (presetSupplier && !this.route.snapshot?.paramMap?.get('id')) {
+      this.form.get('vendorId')?.setValue(presetSupplier);
+    }
     const fromOrder = this.route.snapshot?.queryParamMap?.get('purchaseOrderId');
     if (fromOrder && !this.route.snapshot?.paramMap?.get('id')) {
       this.prefillFromPurchaseOrder(fromOrder);

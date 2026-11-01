@@ -1,8 +1,11 @@
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { LucideAngularModule, Plus } from 'lucide-angular';
+import { Ban, Banknote, Calculator, CheckCircle, FileDown, LucideAngularModule, Plus, RotateCw } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -46,12 +49,43 @@ const STATUS_TONE: Record<PayrollRunStatus, VxTone> = {
 @Component({
   selector: 'app-payroll-runs-page',
   standalone: true,
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_CONTEXT_MENU, RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './runs.page.html',
   styleUrls: ['./runs.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PayrollRunsPage {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly runsMenu: ListMenuConfig<PayrollRun> = {
+    resource: 'payroll-runs',
+    relationshipMapType: 'PAYROLL_RUN',
+    row: (ctx) => {
+      const run = ctx.entity as PayrollRun;
+      const path = `/payroll/runs/${run.id}`;
+      const ask = (action: string) => this.menuIntents.request(path, action);
+      return [
+        {
+          id: 'document',
+          items: [
+            { id: 'calculate', label: 'payroll.runs.calculate', icon: Calculator, permission: 'payroll:process', visible: () => ['DRAFT', 'CALCULATED'].includes(run.status), run: () => ask('calculate') },
+            { id: 'approve', label: 'payroll.runs.approve', icon: CheckCircle, permission: 'payroll:approve', visible: () => run.status === 'CALCULATED', run: () => ask('approve') },
+            { id: 'pay', label: 'payroll.runs.pay', icon: Banknote, permission: 'payroll:pay', visible: () => run.status === 'APPROVED', run: () => ask('pay') },
+            { id: 'export-suir', label: 'payroll.runs.export_suir', icon: FileDown, visible: () => ['APPROVED', 'PAID'].includes(run.status), run: () => ask('export-suir') },
+          ],
+        },
+        {
+          id: 'corrections',
+          items: [
+            { id: 'cancel', label: 'payroll.runs.cancel', icon: Ban, danger: true, permission: 'payroll:process', visible: () => ['DRAFT', 'CALCULATED'].includes(run.status), run: () => ask('cancel') },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.reload() }] },
+      ];
+    },
+  };
+
   private readonly translate = inject(TranslateService);
   /** Sortable by its headers (QA B-01). */
   readonly table = sortable(() => this.runs(), { period: (run) => run.periodStart, runType: (run) => this.translate.instant('payroll.runs.type_label.' + run.runType), status: (run) => this.translate.instant('payroll.runs.status_label.' + run.status) });

@@ -1,8 +1,11 @@
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { FileMinus, LucideAngularModule } from 'lucide-angular';
+import { Ban, FileMinus, FileText, LucideAngularModule, RotateCw } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -33,7 +36,7 @@ export const DEBIT_NOTE_TONE: Record<VendorDebitNoteStatus, VxTone> = { POSTED: 
 @Component({
   selector: 'app-vendor-debit-notes-page',
   standalone: true,
-  imports: [
+  imports: [...VX_CONTEXT_MENU, 
     FormsModule,
     RouterLink,
     TranslateModule,
@@ -54,6 +57,34 @@ export const DEBIT_NOTE_TONE: Record<VendorDebitNoteStatus, VxTone> = { POSTED: 
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorDebitNotesPage implements OnInit {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly notesMenu: ListMenuConfig<VendorDebitNoteRow> = {
+    resource: 'vendor-debit-notes',
+    relationshipMapType: 'VENDOR_DEBIT_NOTE',
+    row: (ctx) => {
+      const note = ctx.entity as VendorDebitNoteRow;
+      const path = `/accounts-payable/debit-notes/${note.id}`;
+      const ask = (action: string) => this.menuIntents.request(path, action);
+      return [
+        {
+          id: 'document',
+          items: [
+            { id: 'bill', label: 'accounts_payable.debit_notes.view_bill', icon: FileText, visible: () => !!note.vendorBillId, run: () => this.menuNavigation.open(`/accounts-payable/${note.vendorBillId}`, 'preview') },
+          ],
+        },
+        {
+          id: 'corrections',
+          items: [
+            { id: 'void', label: 'accounts_payable.debit_notes.void', icon: Ban, danger: true, permission: 'accounts_payable:void', visible: () => note.status === 'POSTED', run: () => ask('void') },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.load() }] },
+      ];
+    },
+  };
+
   private readonly payables = inject(AccountsPayableService);
   private readonly suppliersApi = inject(SuppliersService);
   private readonly notifications = inject(NotificationService);

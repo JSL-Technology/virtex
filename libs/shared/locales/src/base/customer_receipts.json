@@ -243,5 +243,35 @@
     "es": "Anulado",
     "en": "Voided",
     "pt": "Cancelado"
+  },
+  "customer_receipts.void": {
+    "en": "Void receipt",
+    "es": "Anular cobro",
+    "pt": "Anular recebimento"
+  },
+  "customer_receipts.void_failed": {
+    "en": "The receipt could not be voided.",
+    "es": "No se pudo anular el cobro.",
+    "pt": "Não foi possível anular o recebimento."
+  },
+  "customer_receipts.void_message": {
+    "en": "Receipt {{number}} will be voided: its entry is reversed and the invoices it paid become outstanding again. Give the reason.",
+    "es": "El cobro {{number}} quedará anulado: se revierte su asiento y las facturas que pagaba vuelven a quedar pendientes. Indica el motivo.",
+    "pt": "O recebimento {{number}} será anulado: o lançamento é estornado e as faturas que pagava voltam a ficar pendentes. Informe o motivo."
+  },
+  "customer_receipts.void_reason_required": {
+    "en": "Enter the reason (at least 3 characters).",
+    "es": "Escribe el motivo (al menos 3 caracteres).",
+    "pt": "Informe o motivo (pelo menos 3 caracteres)."
+  },
+  "customer_receipts.void_title": {
+    "en": "Void the receipt",
+    "es": "Anular el cobro",
+    "pt": "Anular o recebimento"
+  },
+  "customer_receipts.voided": {
+    "en": "Receipt {{number}} voided.",
+    "es": "Cobro {{number}} anulado.",
+    "pt": "Recebimento {{number}} anulado."
   }
 }

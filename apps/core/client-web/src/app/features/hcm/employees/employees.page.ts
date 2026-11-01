@@ -1,8 +1,11 @@
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { LucideAngularModule, UserPlus } from 'lucide-angular';
+import { Calculator, LucideAngularModule, RotateCw, UserPlus } from 'lucide-angular';
 import { forkJoin, catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -38,12 +41,33 @@ const STATUS_TONE: Record<EmploymentStatus, VxTone> = {
 @Component({
   selector: 'app-employees-page',
   standalone: true,
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_CONTEXT_MENU, RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './employees.page.html',
   styleUrls: ['./employees.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeesPage {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly employeesMenu: ListMenuConfig<Employee> = {
+    resource: 'employees',
+    row: (ctx) => {
+      const employee = ctx.entity as Employee;
+      const path = `/hcm/employees/${employee.id}/edit`;
+      const ask = (action: string) => this.menuIntents.request(path, action);
+      return [
+        {
+          id: 'document',
+          items: [
+            { id: 'severance', label: 'hcm.employees.form.severance_calculation', icon: Calculator, permission: 'payroll:view_compensation', run: () => ask('severance') },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.reloadEmployees() }] },
+      ];
+    },
+  };
+
   private readonly translate = inject(TranslateService);
   /** Sortable by its headers (QA B-01). */
   readonly table = sortable(() => this.visible(), { name: (employee) => `${employee.lastName}, ${employee.firstName}`, department: (employee) => this.departmentOf(employee), status: (employee) => this.translate.instant('hcm.employees.status_label.' + employee.employmentStatus) });
@@ -77,6 +101,12 @@ export class EmployeesPage {
   );
 
   constructor() {
+    this.reloadEmployees();
+  }
+
+  /** The list and its departments, asked again — on start and from the menu's «Refrescar». */
+  reloadEmployees(): void {
+    this.loading.set(true);
     forkJoin({
       employees: this.hcm.listEmployees({ pageSize: 200 }).pipe(catchError(() => of(null))),
       departments: this.hcm.listDepartments().pipe(catchError(() => of([] as Department[]))),

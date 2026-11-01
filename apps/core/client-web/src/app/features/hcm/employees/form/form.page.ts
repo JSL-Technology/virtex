@@ -1,3 +1,4 @@
+import { handleDocumentIntents } from '../../../../core/navigation/document-intent.service';
 import { AuthService } from '../../../../core/services/auth';
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -58,6 +59,18 @@ import { refreshWhenStale } from '../../../../core/data/data-version.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeFormPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => (this.current()?.id ? `/hcm/employees/${this.current()!.id}/edit` : null),
+    ready: () => !!this.current(),
+    actions: {
+      'severance': () => document.getElementById('balanceSheetAsOf')?.focus(),
+    },
+  });
+
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly hcm = inject(HcmService);

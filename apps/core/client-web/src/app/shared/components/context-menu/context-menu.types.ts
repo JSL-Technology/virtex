@@ -33,6 +33,11 @@ export interface MenuItem<C extends MenuContext = MenuContext> {
   id: string;
   /** Clave i18n, o función para un label dinámico dependiente del contexto. */
   label: string | ((ctx: C) => MenuLabel | string);
+  /**
+   * Text already in the reader's language, shown as it is instead of `label`: the name of a control
+   * the screen rendered (a row's own «Eliminar»), which is not a catalogue key.
+   */
+  text?: string;
   icon?: LucideIconData;
   chord?: KeyChord;
   /** Se oculta si el usuario no tiene el/los permiso(s) (mismo criterio que `*appHasPermission`). */
@@ -59,6 +64,11 @@ export interface MenuSection<C extends MenuContext = MenuContext> {
  */
 export interface ListMenuConfig<E = unknown> {
   resource: string;
+  /**
+   * The relationship map's type for these items (`SALES_INVOICE`): each row then offers «Mapa de
+   * relaciones», what the document's own screen offers, without leaving the list.
+   */
+  relationshipMapType?: string;
   table?: MenuSection<MenuContext<E>>[];
   row?: (ctx: MenuContext<E>) => MenuSection<MenuContext<E>>[];
 }

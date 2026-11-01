@@ -1,3 +1,4 @@
+import { handleDocumentIntents } from '../../../core/navigation/document-intent.service';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
@@ -25,6 +26,18 @@ import { DEBIT_NOTE_TONE } from './debit-notes.page';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorDebitNotePage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => `/accounts-payable/debit-notes/${this.id()}`,
+    ready: () => !!this.note(),
+    actions: {
+      'void': () => this.canVoid() && this.voidNote(),
+    },
+  });
+
   private readonly payables = inject(AccountsPayableService);
   private readonly dialog = inject(DialogService);
   private readonly notifications = inject(NotificationService);

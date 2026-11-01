@@ -22,7 +22,7 @@
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
   <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+    <table [appTableMenu]="employeesMenu" [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
           <th appSortHeader="name">{{ 'hcm.employees.name' | translate }}</th>
@@ -34,7 +34,7 @@
       </thead>
       <tbody>
         @for (employee of table.rows(); track employee.id) {
-          <tr appRowLink>
+          <tr appRowLink [appRowMenu]="employee">
             <td>
               <a [routerLink]="['/hcm/employees', employee.id, 'edit']" class="table-link">
                 {{ employee.lastName }}, {{ employee.firstName }}

@@ -32,7 +32,7 @@
   </div>
 
   <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+    <table [appTableMenu]="salesMenu" [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
           <th appSortHeader="fiscalNumber">{{ 'sales.history.ticket' | translate }}</th>
@@ -48,7 +48,7 @@
       </thead>
       <tbody>
         @for (sale of table.rows(); track sale.id) {
-          <tr>
+          <tr [appRowMenu]="sale">
             <!-- The comprobante first, as the customer's ticket shows it; the internal id under it. -->
             <td>
               @if (sale.fiscalNumber) {

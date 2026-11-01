@@ -1,3 +1,4 @@
+import { handleDocumentIntents } from '../../../core/navigation/document-intent.service';
 import {
   Component,
   ChangeDetectionStrategy,
@@ -50,6 +51,20 @@ import { AiProvenanceBadgeComponent } from '../../ai/provenance/ai-provenance-ba
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorBillDetailPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => (this.bill()?.id ? `/accounts-payable/${this.bill()!.id}` : null),
+    ready: () => !!this.bill(),
+    actions: {
+      'submit': () => this.canSubmit() && this.submitForApproval(),
+      'record-ncf': () => this.canRecordNcf() && this.recordNcf(),
+      'void': () => this.canVoid() && this.voidBill(),
+    },
+  });
+
   protected readonly BackIcon = ChevronLeft;
   protected readonly EditIcon = Edit;
   protected readonly SubmitIcon = Send;

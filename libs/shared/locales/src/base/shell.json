@@ -219,6 +219,11 @@
     "en": "Open",
     "pt": "Abrir"
   },
+  "shell.nav.open_in": {
+    "en": "Open in…",
+    "es": "Abrir en…",
+    "pt": "Abrir em…"
+  },
   "shell.nav.open_in_background": {
     "es": "Abrir en segundo plano",
     "en": "Open in the background",

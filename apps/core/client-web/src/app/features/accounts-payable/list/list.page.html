@@ -34,7 +34,7 @@
   </div>
 
   <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+    <table [appTableMenu]="billsMenu" [appSort]="table.sort" class="data-table">
       <thead>
         <tr>
           <th appSortHeader="vendor">{{ 'accounts_payable.list.supplier' | translate }}</th>
@@ -51,7 +51,7 @@
       </thead>
       <tbody>
         @for (bill of table.rows(); track bill.id) {
-          <tr appRowLink>
+          <tr appRowLink [appRowMenu]="bill">
             <td>{{ bill.vendor?.name ?? '—' }}</td>
             <td>
               <!--

@@ -1,4 +1,5 @@
 import { CountryService } from '../../../core/services/country.service';
+import { handleDocumentIntents } from '../../../core/navigation/document-intent.service';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { Component, ChangeDetectionStrategy, HostListener, Input, signal, inject, OnInit, effect, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
@@ -269,6 +270,26 @@ export class InvoiceDetailPage implements OnInit {
     const net = item.lineSubtotal ?? item.quantity * item.price - (item.discountAmount || 0);
     return Number(net) + Number(item.taxAmount || 0);
   }
+
+  /**
+   * What a list row's menu asked of this invoice (QA R3-B08): the same methods its own buttons run,
+   * with their dialogs, checks and messages, once the invoice has loaded.
+   */
+  private readonly intents = handleDocumentIntents({
+    route: () => (this.id() ? `/invoices/${this.id()}` : null),
+    ready: () => this.invoice()?.id === this.id(),
+    actions: {
+      issue: () => this.previewIssue(),
+      collect: () => this.collect(this.invoice()!),
+      email: () => this.emailInvoice(),
+      pdf: () => this.downloadPdf(),
+      print: () => this.printInvoice(),
+      duplicate: () => this.handleCopyTo(),
+      'credit-note': () => this.createCreditNote(this.id()),
+      void: () => this.voidInvoice(this.invoice()!),
+      'delete-draft': () => this.discardDraft(),
+    },
+  });
 
   constructor() {
     // An issued invoice is read here, not edited: when a payment or a credit note lands from

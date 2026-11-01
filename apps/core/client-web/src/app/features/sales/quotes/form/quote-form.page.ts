@@ -1,4 +1,5 @@
 import { VxBranchPickerComponent } from '../../../../shared/components/branch-picker';
+import { handleDocumentIntents } from '../../../../core/navigation/document-intent.service';
 import { ChangeDetectionStrategy, Component, DestroyRef, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -63,6 +64,23 @@ const DEFAULT_VALIDITY_DAYS = 15;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuoteFormPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => (this.current()?.id ? `/quotes/${this.current()!.id}/edit` : null),
+    ready: () => !!this.current(),
+    actions: {
+      'mark-sent': () => this.canSend() && this.markSent(),
+      'accept': () => this.canAccept() && this.accept(),
+      'convert': () => this.canConvert() && this.convert(),
+      'duplicate': () => this.canDuplicate() && this.duplicate(),
+      'reject': () => this.canReject() && this.reject(),
+      'cancel': () => this.canCancel() && this.cancelQuote(),
+    },
+  });
+
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly quotes = inject(QuotesService);
@@ -77,6 +95,8 @@ export class QuoteFormPage implements OnInit {
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   @Input() id?: string;
+  /** A new quote for this customer — from the customer's row menu (QA R3-B08). */
+  @Input('customerId') presetCustomerId?: string;
   /** A customer's order that arrived by mail and waits for a person: it fills the new quote. */
   @Input() fromMail?: string;
   private readonly inboundMail = inject(InboundMailService);
@@ -156,6 +176,7 @@ export class QuoteFormPage implements OnInit {
       },
       { validators: dateOrder('issueDate', 'expiryDate') },
     );
+    if (!this.id && this.presetCustomerId) this.form.patchValue({ customerId: this.presetCustomerId });
     this.currencyCode.set(this.locale.currency());
     this.form.get('currencyCode')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((code: string) => this.currencyCode.set(code));
 

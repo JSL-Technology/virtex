@@ -459,6 +459,11 @@
     "en": "Debit notes to suppliers",
     "pt": "Notas de débito a fornecedores"
   },
+  "accounts_payable.debit_notes.view_bill": {
+    "en": "View the vendor bill",
+    "es": "Ver la factura del proveedor",
+    "pt": "Ver a fatura do fornecedor"
+  },
   "accounts_payable.debit_notes.view_entry": {
     "es": "Ver asiento",
     "en": "View entry",

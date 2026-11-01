@@ -1,3 +1,4 @@
+import { handleDocumentIntents } from '../../../../core/navigation/document-intent.service';
 import { TranslateModule, FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -50,6 +51,22 @@ import { AuthService } from '../../../../core/services/auth';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PayrollRunDetailPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => (this.run()?.id ? `/payroll/runs/${this.run()!.id}` : null),
+    ready: () => !!this.run(),
+    actions: {
+      'calculate': () => this.canCalculate() && this.calculate(),
+      'approve': () => this.canApprove() && this.approve(),
+      'pay': () => this.canPay() && this.pay(),
+      'export-suir': () => this.canExport() && this.downloadSuir(),
+      'cancel': () => this.canCancel() && this.cancel(),
+    },
+  });
+
   /** Sortable by its headers (QA B-01). */
   readonly payslipsTable = sortable(() => this.payslips());
   private readonly payroll = inject(PayrollService);

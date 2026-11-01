@@ -1061,9 +1061,22 @@ export class JournalEntriesService {
     reverseDto: ReverseJournalEntryDto,
     context: PostingContext,
   ): Promise<JournalEntry> {
-    return this.dataSource.transaction((manager) =>
-      this.reverseWithin(id, organizationId, reverseDto, manager, context),
-    );
+    return this.dataSource.transaction(async (manager) => {
+      // A person reverses entries a person wrote. An entry a document posted — an invoice, a till
+      // sale, a receipt — is reversed by voiding that document, which reverses it and puts the
+      // document's own state right; reversed here, the ledger would say «void» while the invoice
+      // still said «pending» (found when the reversal was offered from the entry's menu, QA R3-B08).
+      const original = await manager.findOne(JournalEntry, {
+        where: { id, organizationId },
+        select: { id: true, systemReason: true, entryNumber: true },
+      });
+      if (original?.systemReason) {
+        throw new BadRequestError('journal_entries.document_entry_reverse_through_document', {
+          number: original.entryNumber ?? '',
+        });
+      }
+      return this.reverseWithin(id, organizationId, reverseDto, manager, context);
+    });
   }
 
   /** Reverse on the caller's transaction — used by the close and by subledger voids. */

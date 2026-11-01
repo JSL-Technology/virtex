@@ -1,8 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { LucideAngularModule, PlusCircle } from 'lucide-angular';
+import { Ban, CheckCircle, LucideAngularModule, PlusCircle, RotateCw } from 'lucide-angular';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
@@ -16,12 +19,40 @@ import { STOCK_DOCUMENT_TONE } from './adjustment-form.page';
 @Component({
   selector: 'app-inventory-adjustments-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, HasPermissionDirective, RowLinkDirective],
+  imports: [...VX_CONTEXT_MENU, FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, HasPermissionDirective, RowLinkDirective],
   templateUrl: './adjustments.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InventoryAdjustmentsPage implements OnInit {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly adjustmentsMenu: ListMenuConfig<InventoryAdjustment> = {
+    resource: 'adjustments',
+    relationshipMapType: 'INVENTORY_ADJUSTMENT',
+    row: (ctx) => {
+      const doc = ctx.entity as InventoryAdjustment;
+      const path = `/inventory/adjustments/${doc.id}`;
+      const ask = (action: string) => this.menuIntents.request(path, action);
+      return [
+        {
+          id: 'document',
+          items: [
+            { id: 'post', label: 'inventory.adjustments.post', icon: CheckCircle, permission: 'inventory:adjust', visible: () => doc.status === 'DRAFT', run: () => ask('post') },
+          ],
+        },
+        {
+          id: 'corrections',
+          items: [
+            { id: 'cancel', label: 'inventory.adjustments.cancel_document', icon: Ban, danger: true, permission: 'inventory:adjust', visible: () => doc.status === 'DRAFT', run: () => ask('cancel') },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.load() }] },
+      ];
+    },
+  };
+
   private readonly stock = inject(StockService);
   private readonly notifications = inject(NotificationService);
 

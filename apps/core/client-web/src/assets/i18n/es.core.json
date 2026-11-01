@@ -574,6 +574,7 @@
   "shell.nav.link_copied": "Enlace copiado. Quien lo abra irá directo a esta página, después de iniciar sesión si hace falta.",
   "shell.nav.link_copy_failed": "No se pudo copiar el enlace. Cópialo desde la barra de direcciones.",
   "shell.nav.open": "Abrir",
+  "shell.nav.open_in": "Abrir en…",
   "shell.nav.open_in_background": "Abrir en segundo plano",
   "shell.nav.open_new_tab": "Abrir en una pestaña nueva",
   "shell.nav.open_new_window": "Abrir en una ventana nueva del navegador",

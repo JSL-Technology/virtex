@@ -1,5 +1,10 @@
-import { Directive, inject, input } from '@angular/core';
+import { Directive, ElementRef, inject, input } from '@angular/core';
 import { ContextMenuService } from './context-menu.service';
+import { rowLinkOf, rowNavigationSections } from './row-navigation';
+import { screenActionSections } from './row-actions';
+import { Share2 } from 'lucide-angular';
+import { RELATIONSHIP_MAP_PERMISSION, relationshipMapPath } from '../relationship-map-link/relationship-map-link.component';
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
 import { ListSelectionService } from './list-selection.service';
 import { TableMenuDirective } from './table-menu.directive';
 import { MenuContext, MenuSection } from './context-menu.types';
@@ -32,6 +37,8 @@ export class RowMenuDirective<E = unknown> {
   private readonly table = inject<TableMenuDirective<E>>(TableMenuDirective);
   private readonly selection = inject<ListSelectionService<E> | null>(ListSelectionService, { optional: true });
   private readonly menu = inject(ContextMenuService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly navigation = inject(NavigationActionsService, { optional: true });
 
   onPointer(event: MouseEvent): void {
     event.stopPropagation();
@@ -52,7 +59,35 @@ export class RowMenuDirective<E = unknown> {
     const selection = this.selection && this.selection.count() > 0 ? this.selection.selected() : [entity];
     const ctx: MenuContext<E> = { kind: 'row', entity, selection, event };
     const config = this.table.config();
-    const sections = [...(config.row ? config.row(ctx) : []), ...(config.table ?? [])] as MenuSection[];
+    // One row: its destinations first, then what can be done to it, then its link to share; the
+    // table's own actions last. Several rows: only what applies to all of them (QA R3-B08).
+    const link = selection.length === 1 && this.navigation ? rowLinkOf(this.host.nativeElement) : null;
+    const navigation = link && this.navigation ? rowNavigationSections(link, this.navigation) : null;
+    const mapType = config.relationshipMapType;
+    const relationship: MenuSection[] =
+      mapType && selection.length === 1 && this.navigation
+        ? [
+            {
+              id: 'relationships',
+              items: [
+                {
+                  id: 'relationship-map',
+                  label: 'relationship_map.title',
+                  icon: Share2,
+                  permission: RELATIONSHIP_MAP_PERMISSION,
+                  run: () => this.navigation!.open(relationshipMapPath(mapType, this.rowId()(entity)), 'preview'),
+                },
+              ],
+            },
+          ]
+        : [];
+    const sections = [
+      ...(navigation ? [navigation.open] : []),
+      ...(config.row ? config.row(ctx) : []),
+      ...relationship,
+      ...(navigation ? [navigation.share] : []),
+      ...(config.table ?? screenActionSections(this.table.host.nativeElement)),
+    ] as MenuSection[];
     this.menu.open(event, sections, ctx as MenuContext);
   }
 }

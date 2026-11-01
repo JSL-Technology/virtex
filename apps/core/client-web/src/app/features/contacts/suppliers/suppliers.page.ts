@@ -1,8 +1,11 @@
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DialogService } from '../../../core/services/dialog.service';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2, ScrollText } from 'lucide-angular';
+import { Edit, FileText, Filter, LucideAngularModule, MoreHorizontal, Pencil, PlusCircle, RotateCw, ScrollText, ShoppingCart, Trash2 } from 'lucide-angular';
 import { Supplier } from '../../../core/models/supplier.model';
 import { SuppliersService } from '../../../core/api/suppliers.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -15,12 +18,41 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 
 @Component({
   selector: 'app-suppliers-page',
-  imports: [HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [...VX_CONTEXT_MENU, HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './suppliers.page.html',
   styleUrls: ['./suppliers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SuppliersPage implements OnInit {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly suppliersMenu: ListMenuConfig<Supplier> = {
+    resource: 'suppliers',
+    row: (ctx) => {
+      const supplier = ctx.entity as Supplier;
+      const open = (path: string) => this.menuNavigation.open(path, 'preview');
+      return [
+        {
+          id: 'buy',
+          items: [
+            { id: 'bill', label: 'contacts.suppliers.menu.new_bill', icon: FileText, permission: 'accounts_payable:create', run: () => open(`/accounts-payable/new?supplierId=${supplier.id}`) },
+            { id: 'order', label: 'contacts.suppliers.menu.new_order', icon: ShoppingCart, permission: 'procurement:manage', run: () => open(`/purchasing/orders/new?supplierId=${supplier.id}`) },
+            { id: 'statement', label: 'contacts.suppliers.menu.statement', icon: ScrollText, permission: 'accounting:view', run: () => open(`/accounting/partner-ledger?type=supplier&partnerId=${supplier.id}`) },
+          ],
+        },
+        {
+          id: 'record',
+          items: [
+            { id: 'edit', label: 'contacts.suppliers.edit', icon: Pencil, permission: 'suppliers:edit', run: () => open(`/contacts/suppliers/${supplier.id}/edit`) },
+            { id: 'delete', label: 'contacts.suppliers.delete', icon: Trash2, danger: true, permission: 'suppliers:delete', run: () => this.deleteSupplier(supplier) },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.loadSuppliers() }] },
+      ];
+    },
+  };
+
   /** Sortable by its headers (QA B-01). */
   readonly table = sortable(() => this.suppliers());
   private readonly dialog = inject(DialogService);

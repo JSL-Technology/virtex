@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
+import { handleDocumentIntents } from '../../../../core/navigation/document-intent.service';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -54,6 +55,22 @@ import { Supplier } from '../../../../core/models/supplier.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RequisitionFormPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => (this.current()?.id ? `/purchasing/requisitions/${this.current()!.id}/edit` : null),
+    ready: () => !!this.current(),
+    actions: {
+      'submit': () => this.canSubmit() && this.submit(),
+      'approve': () => this.canDecide() && this.approve(),
+      'reject': () => this.canDecide() && this.startReject(),
+      'reopen': () => this.canReopen() && this.reopen(),
+      'convert': () => this.canConvert() && document.getElementById('convertSupplier')?.focus(),
+    },
+  });
+
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly purchasing = inject(PurchasingService);

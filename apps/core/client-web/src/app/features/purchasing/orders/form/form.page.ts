@@ -1,4 +1,5 @@
 import { VxBranchPickerComponent } from '../../../../shared/components/branch-picker';
+import { handleDocumentIntents } from '../../../../core/navigation/document-intent.service';
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -60,6 +61,23 @@ import { AiProvenanceBadgeComponent } from '../../../ai/provenance/ai-provenance
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PurchaseOrderFormPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => (this.current()?.id ? `/purchasing/orders/${this.current()!.id}/edit` : null),
+    ready: () => !!this.current(),
+    actions: {
+      'submit': () => this.canSubmit() && this.submit(),
+      'approve': () => this.canApprove() && this.approve(),
+      'send': () => this.canSend() && this.send(),
+      'create-bill': () => this.canBill() && this.createBill(),
+      'reject': () => this.canApprove() && this.startReject(),
+      'cancel': () => this.canCancel() && this.startCancel(),
+    },
+  });
+
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly purchasing = inject(PurchasingService);
@@ -72,6 +90,8 @@ export class PurchaseOrderFormPage implements OnInit {
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   @Input() id?: string;
+  /** A new order for this supplier — from the supplier's row menu (QA R3-B08). */
+  @Input('supplierId') presetSupplierId?: string;
 
   protected readonly AddIcon = Plus;
   protected readonly RemoveIcon = Trash2;
@@ -222,6 +242,7 @@ export class PurchaseOrderFormPage implements OnInit {
     this.currencyCode.set(this.locale.currency());
     this.form.get('currencyCode')?.valueChanges.subscribe((code: string) => this.currencyCode.set(code || null));
 
+    if (!this.id && this.presetSupplierId) this.form.patchValue({ supplierId: this.presetSupplierId });
     if (this.id) {
       this.purchasing.getOrder(this.id).subscribe({
         next: (order) => {

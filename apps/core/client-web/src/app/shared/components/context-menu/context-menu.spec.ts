@@ -212,4 +212,33 @@ describe('ContextMenuComponent (overlay rendering)', () => {
     expect(document.querySelectorAll('.cdk-overlay-container .vx-ctx-trigger')).toHaveLength(1);
     target.remove();
   });
+
+  // QA R3-B08: every table row has a menu, from what the row offers, with no declaration.
+  it('gives a plain table row its own controls as a menu, and leaves a declared menu alone', async () => {
+    TestBed.configureTestingModule({
+      imports: [HostApp],
+      providers: [{ provide: AuthService, useValue: { hasPermissions: () => true } }],
+    });
+    const fixture = TestBed.createComponent(HostApp);
+    fixture.detectChanges();
+    const host = document.createElement('div');
+    host.innerHTML = '<table><tbody><tr><td>Almacén central</td><td><button type="button">Desactivar</button></td></tr></tbody></table>';
+    document.body.appendChild(host);
+    const cell = host.querySelector('td') as HTMLElement;
+
+    cell.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 5, clientY: 5 }));
+    await new Promise((resolve) => setTimeout(resolve));
+    fixture.detectChanges();
+    const labels = Array.from(document.querySelectorAll<HTMLElement>('.cdk-overlay-container .vx-ctx-trigger')).map((el) => el.textContent?.trim());
+    expect(labels).toEqual(['Desactivar']);
+
+    // A list that answered first (it called preventDefault) is not overridden.
+    TestBed.inject(ContextMenuService).close();
+    const handled = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+    handled.preventDefault();
+    const spy = jest.spyOn(TestBed.inject(ContextMenuService), 'open');
+    cell.dispatchEvent(handled);
+    expect(spy).not.toHaveBeenCalled();
+    host.remove();
+  });
 });

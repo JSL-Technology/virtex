@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import { handleDocumentIntents } from '../../../core/navigation/document-intent.service';
 import { Router, RouterLink } from '@angular/router';
 
 import { Ban, LucideAngularModule } from 'lucide-angular';
@@ -31,6 +32,18 @@ const QUANTITY_EPSILON = 0.000001;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GoodsReceiptPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => `/purchasing/receipts/${this.id()}`,
+    ready: () => !!this.receipt(),
+    actions: {
+      'void': () => this.canVoid() && this.voidReceipt(),
+    },
+  });
+
   private readonly purchasing = inject(PurchasingService);
   private readonly warehousesApi = inject(WarehousesService);
   private readonly dialog = inject(DialogService);

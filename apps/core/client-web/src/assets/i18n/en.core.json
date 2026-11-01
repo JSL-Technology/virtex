@@ -574,6 +574,7 @@
   "shell.nav.link_copied": "Link copied. Whoever opens it goes straight to this page, after signing in if needed.",
   "shell.nav.link_copy_failed": "The link could not be copied. Copy it from the address bar.",
   "shell.nav.open": "Open",
+  "shell.nav.open_in": "Open in…",
   "shell.nav.open_in_background": "Open in the background",
   "shell.nav.open_new_tab": "Open in a new tab",
   "shell.nav.open_new_window": "Open in a new browser window",

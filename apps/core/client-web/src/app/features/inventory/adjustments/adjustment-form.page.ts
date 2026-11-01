@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core';
+import { handleDocumentIntents } from '../../../core/navigation/document-intent.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -56,6 +57,19 @@ const todayIso = (): string => tenantToday();
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InventoryAdjustmentFormPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => (this.current()?.id ? `/inventory/adjustments/${this.current()!.id}` : null),
+    ready: () => !!this.current(),
+    actions: {
+      'post': () => this.status() === 'DRAFT' && this.post(),
+      'cancel': () => this.status() === 'DRAFT' && this.cancelDocument(),
+    },
+  });
+
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly stock = inject(StockService);

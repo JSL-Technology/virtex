@@ -523,6 +523,11 @@ export class NewInvoicePage implements OnInit {
   private settingDueDate = false;
 
   private checkCopyFrom(): void {
+    // A new invoice for this customer — from the customer's row menu (QA R3-B08).
+    const presetCustomer = this.route.snapshot.queryParamMap.get('customerId');
+    if (presetCustomer && !this.invoiceForm.get('customerId')!.value) {
+      this.invoiceForm.get('customerId')!.setValue(presetCustomer);
+    }
     const copyFromId = this.route.snapshot.queryParamMap.get('copyFrom');
     if (copyFromId) this.copyFromInvoice(copyFromId);
     //  «Copiar de» desde un borrador ya guardado abre el selector nada más llegar.
