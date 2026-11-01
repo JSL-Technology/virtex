@@ -300,7 +300,7 @@ describe('UsersService', () => {
     it('refuses to change the email of a member homed in another organization', async () => {
       userRepositoryMock.findOne.mockResolvedValue(guest());
       await expectLocalizedError(
-        service.adminChangeEmail('victim', 'attacker@evil.test', 'org-b'),
+        service.adminChangeEmail('victim', 'attacker@evil.test', 'org-b', { id: 'admin', permissions: ['*'] } as never),
         'users.identity_managed_by_home_organization',
       );
       expect(managerMock.save).not.toHaveBeenCalled();
@@ -309,7 +309,7 @@ describe('UsersService', () => {
     it('refuses a password reset for a member homed in another organization', async () => {
       userRepositoryMock.findOne.mockResolvedValue(guest());
       await expectLocalizedError(
-        service.resetPassword('victim', 'org-b'),
+        service.resetPassword('victim', 'org-b', { id: 'admin', permissions: ['*'] } as never),
         'users.identity_managed_by_home_organization',
       );
       expect(managerMock.save).not.toHaveBeenCalled();
@@ -318,7 +318,7 @@ describe('UsersService', () => {
     it('refuses to end the global sessions of a member homed in another organization', async () => {
       userRepositoryMock.findOne.mockResolvedValue(guest());
       await expectLocalizedError(
-        service.forceLogout('victim', 'org-b'),
+        service.forceLogout('victim', 'org-b', { id: 'admin', permissions: ['*'] } as never),
         'users.identity_managed_by_home_organization',
       );
       expect(sessionInvalidatorMock.terminateAllSessions).not.toHaveBeenCalled();
@@ -336,7 +336,7 @@ describe('UsersService', () => {
       const user = guest();
       userRepositoryMock.findOne.mockResolvedValue(user);
 
-      await service.updateUserStatus('victim', UserStatus.BLOCKED, 'org-b', 'admin');
+      await service.updateUserStatus('victim', UserStatus.BLOCKED, 'org-b', { id: 'admin', permissions: ['*'] } as never);
 
       expect(membershipMock.suspend).toHaveBeenCalledWith('victim', 'org-b');
       expect(managerMock.save).not.toHaveBeenCalled();
@@ -345,7 +345,7 @@ describe('UsersService', () => {
 
     it('block-and-logout of a guest member suspends the membership only', async () => {
       userRepositoryMock.findOne.mockResolvedValue(guest());
-      const result = await service.blockAndLogout('victim', 'org-b');
+      const result = await service.blockAndLogout('victim', 'org-b', { id: 'admin', permissions: ['*'] } as never);
       expect(result).toEqual({ messageKey: 'users.membership_suspended' });
       expect(membershipMock.suspend).toHaveBeenCalledWith('victim', 'org-b');
       expect(managerMock.save).not.toHaveBeenCalled();
@@ -355,7 +355,7 @@ describe('UsersService', () => {
       const user = Object.assign(guest(), { organizationId: 'org-b' });
       userRepositoryMock.findOne.mockResolvedValue(user);
 
-      await service.updateUserStatus('victim', UserStatus.BLOCKED, 'org-b', 'admin');
+      await service.updateUserStatus('victim', UserStatus.BLOCKED, 'org-b', { id: 'admin', permissions: ['*'] } as never);
 
       expect(user.status).toBe(UserStatus.BLOCKED);
       expect(sessionInvalidatorMock.terminateAllSessions).toHaveBeenCalledWith('victim');
@@ -369,11 +369,57 @@ describe('UsersService', () => {
         Promise.resolve(options?.where?.email ? null : user),
       );
 
-      await service.adminChangeEmail('victim', 'New@B.test', 'org-b');
+      await service.adminChangeEmail('victim', 'New@B.test', 'org-b', { id: 'admin', permissions: ['*'] } as never);
 
       expect(user.email).toBe('new@b.test');
       expect(sessionInvalidatorMock.terminateAllSessions).toHaveBeenCalledWith('victim');
       expect(mailMock.sendEmailChangedNotice).toHaveBeenCalledWith('victim@a.test', undefined, 'new@b.test');
+    });
+  });
+
+  /**
+   * USR-01 (audit 2026-10-31): a user holding `users:edit` rewrote an ADMINISTRATOR's e-mail. Every
+   * administrative action on a person now requires the actor to outrank them, by the same rule
+   * role assignment uses.
+   */
+  describe('the actor must outrank the person they manage', () => {
+    const adminRole = { id: 'role-admin', name: 'ADMINISTRATOR', permissions: ['*'] };
+    const target = () =>
+      Object.assign(new User(), {
+        id: 'boss',
+        email: 'boss@b.test',
+        organizationId: 'org-b',
+        status: UserStatus.ACTIVE,
+        roles: [adminRole],
+        security: { tokenVersion: 0 },
+      });
+    const editor = { id: 'editor', permissions: ['users:view', 'users:edit'] } as never;
+
+    beforeEach(() => {
+      rolesServiceMock.assertCanAssignRole.mockImplementation((_actor: unknown, role: { permissions: string[] }) => {
+        if (role.permissions.includes('*')) throw new Error('users.cannot_manage_higher_role');
+      });
+      userRepositoryMock.findOne.mockImplementation((options?: { where?: { email?: string } }) =>
+        Promise.resolve(options?.where?.email ? null : target()),
+      );
+    });
+
+    it.each([
+      ['change their e-mail', (svc: UsersService) => svc.adminChangeEmail('boss', 'attacker@evil.test', 'org-b', editor)],
+      ['reset their password', (svc: UsersService) => svc.resetPassword('boss', 'org-b', editor)],
+      ['close their sessions', (svc: UsersService) => svc.forceLogout('boss', 'org-b', editor)],
+      ['block and log them out', (svc: UsersService) => svc.blockAndLogout('boss', 'org-b', editor)],
+      ['change their status', (svc: UsersService) => svc.updateUserStatus('boss', UserStatus.BLOCKED, 'org-b', editor)],
+      ['rename them', (svc: UsersService) => svc.updateUser('boss', { firstName: 'X' }, 'org-b', editor)],
+    ])('refuses to %s when the actor does not outrank them', async (_label, act) => {
+      await expect(act(service)).rejects.toThrow('users.cannot_manage_higher_role');
+      expect(managerMock.save).not.toHaveBeenCalled();
+      expect(sessionInvalidatorMock.terminateAllSessions).not.toHaveBeenCalled();
+    });
+
+    it('lets an actor who outranks the target proceed', async () => {
+      await service.forceLogout('boss', 'org-b', { id: 'owner', permissions: ['*'] } as never).catch(() => undefined);
+      expect(rolesServiceMock.assertCanAssignRole).toHaveBeenCalled();
     });
   });
 
