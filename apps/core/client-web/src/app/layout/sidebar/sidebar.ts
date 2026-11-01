@@ -5,7 +5,6 @@ import { TranslateModule } from '@virteex/shared/ui-i18n';
 import {
   LucideAngularModule,
   ArrowDown,
-  ArrowLeft,
   ArrowUp,
   ChevronDown,
   Columns2,
@@ -93,14 +92,13 @@ export class Sidebar {
   private readonly navigation = inject(NavigationActionsService);
 
   protected readonly icons = {
-    ArrowDown, ArrowLeft, ArrowUp, ChevronDown, Columns2, CornerDownLeft, ExternalLink, Layers, Link, Pin, Star,
+    ArrowDown, ArrowUp, ChevronDown, Columns2, CornerDownLeft, ExternalLink, Layers, Link, Pin, Star,
   };
 
   /** The module whose panel is on screen. Derived from the URL, never stored. */
   protected readonly module = this.modules.active;
 
-  /** The module of the window on screen, named by the way back while another one is browsed. */
-  protected readonly currentModule = this.modules.current;
+  /** Whether another module than the window's is being browsed — still used by the Escape way back. */
   protected readonly isBrowsing = this.modules.isBrowsing;
 
   /** Its four groups, in fixed order, holding only what this seat may open. */
@@ -158,10 +156,6 @@ export class Sidebar {
     event?.preventDefault();
     event?.stopPropagation();
     this.favorites.toggle(path);
-  }
-
-  protected backToCurrent(): void {
-    this.modules.stopBrowsing();
   }
 
   /** Escape while browsing another module goes back to the window's own — the way back, by key. */

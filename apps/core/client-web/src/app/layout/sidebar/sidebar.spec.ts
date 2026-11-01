@@ -16,7 +16,7 @@ import { provideTranslateService } from '@ngx-translate/core';
  * What it renders is `ActiveModuleService.panel()` — already resolved from the URL and already
  * filtered to the seat's permissions — so these tests are about presentation and gestures: the
  * module is named, the groups keep the order they arrive in, an empty module explains itself,
- * exactly one entry is lit, browsing another module offers the way back, and each gesture on an
+ * exactly one entry is lit, Escape returns from browsing another module, and each gesture on an
  * entry asks for the right way of opening it. The rules behind them are covered in the services'
  * own specs.
  */
@@ -127,26 +127,12 @@ describe('Sidebar (panel de módulo)', () => {
   });
 
   describe('explorando otro módulo', () => {
-    it('lo dice, y ofrece volver al módulo de la ventana', async () => {
-      const el = await render(panelCompleto, { browsing: true });
-
-      expect(el.querySelector('.browsing__hint')).not.toBeNull();
-      (el.querySelector('.browsing__back') as HTMLButtonElement).click();
-      expect(stopBrowsing).toHaveBeenCalled();
-    });
-
-    it('Escape también vuelve', async () => {
+    it('Escape vuelve al módulo de la ventana', async () => {
       const el = await render(panelCompleto, { browsing: true });
 
       // Desde la entrada enfocada, como llega de verdad: la tecla sube hasta el panel.
       el.querySelector('a.menu-item')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       expect(stopBrowsing).toHaveBeenCalled();
-    });
-
-    it('sin explorar no hay franja ni vuelta que ofrecer', async () => {
-      const el = await render(panelCompleto);
-
-      expect(el.querySelector('.browsing')).toBeNull();
     });
   });
 

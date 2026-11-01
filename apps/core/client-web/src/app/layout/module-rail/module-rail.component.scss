@@ -2,7 +2,12 @@
 
 :host {
   display: block;
-  height: 100%;
+  //  Sin `height: 100%`: como ítem de rejilla, eso valía el 100% del ÁREA de la
+  //  pista IGNORANDO los márgenes de la tarjeta, así que el riel se desbordaba por
+  //  abajo (se metía bajo la barra de estado y no casaba con el panel contiguo).
+  //  Al dejarlo estirar (`align-self: stretch` por defecto) ocupa el área MENOS los
+  //  márgenes, igual que `.main-sidebar`. En móvil el media query le pone
+  //  `position: fixed; height: 100vh`, que manda ahí.
   min-height: 0;
 }
 

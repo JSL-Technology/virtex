@@ -22,11 +22,13 @@
 .dockview-theme-light,
 .dockview-theme-dark {
   --dv-group-view-background-color: var(--surface-base);
-  //  La franja de pestañas comparte el color de la barra superior (el «chrome»):
-  //  así el borde superior del editor se lee como una continuación de la barra, y
-  //  la pestaña activa —que adopta la superficie del contenido— resalta sobre ella
-  //  como en un navegador.
-  --dv-tabs-and-actions-container-background-color: var(--chrome-surface);
+  //  La franja de pestañas es una superficie HUNDIDA (un canal rebajado), no el
+  //  color de la barra superior: en el tema claro `--chrome-surface` es blanco,
+  //  idéntico al contenido, y la franja quedaba plana —la pestaña activa no
+  //  resaltaba—. Con la franja hundida, la pestaña activa y el contenido comparten
+  //  la MISMA superficie clara y se leen como una sola pieza que flota sobre el
+  //  canal, exactamente como la pestaña activa de un navegador.
+  --dv-tabs-and-actions-container-background-color: var(--surface-sunken);
   --dv-tabs-and-actions-container-height: 40px;
   --dv-tabs-and-actions-container-font-size: var(--text-sm);
 
@@ -129,7 +131,7 @@
 
     border: 1px solid transparent;
     border-bottom: none;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     overflow: hidden;
 
     transition: background-color var(--duration-fast) var(--ease-standard);
@@ -170,16 +172,17 @@
       transition: opacity var(--duration-fast) var(--ease-standard);
     }
 
-    //  Hover al estilo de Chrome: la pestaña se rellena HACIA la superficie del
-    //  panel, pero quedándose a medio camino entre la franja y la activa, de modo
-    //  que se nota que responde sin confundirse con la pestaña seleccionada. El
-    //  `color-mix` da ese punto intermedio en AMBOS temas, donde la escala de
+    //  Hover al estilo de Chrome: la pestaña se rellena claramente HACIA la
+    //  superficie del panel —un fondo bien visible sobre el canal hundido, de modo
+    //  que no quede duda de que la pestaña responde—, pero sin igualar a la activa:
+    //  ésta se distingue además por su barra de acento, su sombra y que se funde con
+    //  el contenido. El `color-mix` da ese punto en AMBOS temas, donde la escala de
     //  grises no ofrece un token exacto (en oscuro, `--surface-hover` sería más
     //  claro que la activa, justo lo contrario de lo que queremos). La primera
     //  declaración es el repliegue para navegadores sin `color-mix`.
-    &:hover {
+    &:not(.dv-active-tab):hover {
       background-color: var(--surface-hover);
-      background-color: color-mix(in srgb, var(--surface-base) 62%, var(--chrome-surface));
+      background-color: color-mix(in srgb, var(--surface-base) 82%, var(--surface-sunken));
     }
 
     &:focus-visible {
@@ -199,11 +202,21 @@
     opacity: 0;
   }
 
-  //  Pestaña activa: adopta la superficie del panel —sin borde, al estilo de un
-  //  editor moderno— de modo que su contraste con la franja la eleva como una
-  //  tarjeta, y el acento superior (arriba) se despliega para señalarla.
+  //  Pestaña activa: adopta la superficie del panel y se FUNDE con él. Baja 1px
+  //  (`margin-bottom`) para compartir el borde con el contenido y tapar la costura
+  //  entre la franja y el panel —la pestaña pasa a ser el borde superior del
+  //  contenido—, y se eleva del canal hundido con una sombra suave SOLO en la
+  //  parte superior y los lados (nunca abajo, donde se une al panel). El resultado:
+  //  pestaña activa y contenido se leen como una sola pieza sobre la franja, como
+  //  en un navegador. El acento superior se despliega para señalarla.
   .dv-tab.dv-active-tab {
     background-color: var(--surface-base);
+    overflow: visible;
+    margin-bottom: -1px;
+    box-shadow:
+      0 -1px 1px rgba(var(--shadow-color-rgb), 0.06),
+      -1px 0 2px rgba(var(--shadow-color-rgb), 0.05),
+      1px 0 2px rgba(var(--shadow-color-rgb), 0.05);
 
     &::before {
       opacity: 1;

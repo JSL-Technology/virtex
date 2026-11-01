@@ -129,16 +129,6 @@
     "en": "Modules",
     "pt": "Módulos"
   },
-  "shell.nav.back_to_module": {
-    "es": "Volver a {{module}}",
-    "en": "Back to {{module}}",
-    "pt": "Voltar para {{module}}"
-  },
-  "shell.nav.browsing_hint": {
-    "es": "Elige qué abrir, o cambia de módulo. Nada se abre hasta que lo elijas.",
-    "en": "Choose what to open, or switch modules. Nothing opens until you choose.",
-    "pt": "Escolha o que abrir ou troque de módulo. Nada abre até você escolher."
-  },
   "shell.nav.copy_link": {
     "es": "Copiar enlace",
     "en": "Copy link",

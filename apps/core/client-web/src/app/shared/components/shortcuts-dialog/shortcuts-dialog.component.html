@@ -55,7 +55,8 @@
             [class.ks__chevron--collapsed]="isCollapsed(group.id)"
             aria-hidden="true"
           />
-          <span>{{ group.titleKey | translate }}</span>
+          <span class="ks__group-title">{{ group.titleKey | translate }}</span>
+          <span class="ks__count" aria-hidden="true">{{ group.shortcuts.length }}</span>
         </button>
 
         @if (!isCollapsed(group.id)) {
