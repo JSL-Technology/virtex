@@ -308,7 +308,7 @@ verificado en el entorno local con datos reales, mediante la interfaz o la API, 
 | R3-B05 | La ayuda del documento sale de la etiqueta y solo aparece al editar; columnas obligatorias separadas. | Pruebas |
 | R3-B06 | «Invitar usuario» y «Eliminar» son diálogos accesibles; Escape cierra el diálogo, no Ajustes. | Vivo |
 | R3-B07 | La contraseña actual sirve de step-up: no se pide dos veces. | Pruebas |
-| R3-B08 | Menús contextuales en toda la aplicación (ver 10.4); confirmación al retirar categoría; «Nuevo almacén» vacío explica qué falta; barra de selección de productos. El catálogo de bancos sigue vacío por diseño: el SWIFT se valida (ISO 9362) pero no se precarga. | Pruebas · vivo |
+| R3-B08 | Menús contextuales en toda la aplicación (ver 10.4); confirmación al retirar categoría; «Nuevo almacén» vacío explica qué falta; barra de selección de productos. Catálogo de bancos: la empresa de RD puede cargar con un clic la lista oficial (ver 10.7). | Pruebas · vivo |
 | R3-B09 | «Caja principal»; un cierre con diferencia exige justificación (columna `closing_notes`). | Pruebas · vivo (cierre con sobrante de 475) |
 | R3-B10 | Un solo dialecto CSV (delimitador del idioma, `sep=`, BOM, texto anti-fórmula) en cliente y servidor; el importador lee `sep=`; fechas en la zona de la empresa. | Pruebas con base de datos · vivo |
 
@@ -357,5 +357,62 @@ verificado en el entorno local con datos reales, mediante la interfaz o la API, 
   - `i18n:verify` sin problemas;
   - `verify:boot`, `tenant-scope`, `step-up-coverage`, `migration-identities` y fronteras en verde. El baseline de fronteras bajó de 1,252 a 1,240 (1,236 en el punto de partida).
 - **Fuera de alcance:**
-  - verificar el catálogo de bancos contra fuentes oficiales: `sb.gob.do` y `aba.org.do` no son accesibles desde la red de esta sesión;
   - el envío real de correos y la DGII siguen sin probarse, por política de la ronda.
+
+### 10.7 Catálogo de bancos de República Dominicana
+
+**Fuente.** La lista la investigó el usuario contra fuentes oficiales, porque `sb.gob.do` y `aba.org.do` no eran accesibles desde esta sesión. Cubre las 43 entidades «Operando» de la Superintendencia de Bancos, consultadas el 1/11/2026:
+
+| Tipo | Entidades |
+| --- | --- |
+| Bancos múltiples | 16 |
+| Bancos de ahorro y crédito | 14 |
+| Asociaciones de ahorros y préstamos | 10 |
+| Corporaciones de crédito | 3 |
+
+**Datos que se cargan.** Solo lo que una fuente oficial confirma:
+
+- **Nombre:** el que se usa a diario.
+- **Razón social y RNC:** de la ficha SB de cada entidad. El RNC se guarda en 9 dígitos y los 37 pasan el dígito verificador de la DGII. Seis entidades no lo traen.
+- **SWIFT:** solo si es confirmado y conectado. Lo tienen 25 entidades. Un BIC pasivo (8.º carácter `1`) no se carga como SWIFT. A Duarte y Peravia se les guarda solo el código de participante del BCRD.
+- **Sin SWIFT:**
+  - Adopem, Confisa y Fihogar: los directorios discrepan;
+  - otras 13 entidades: nada oficial lo confirma.
+- **Código local:** el código de participante del SIPARD, que en RD es el BIC de 11 caracteres.
+- **Tipo de entidad:** columna nueva `kind`, con un `CHECK` en la base.
+
+El dataset está en `treasury/reference/do-banks.ts`, con las URLs de origen de cada entidad. `do-banks.spec.ts` comprueba cada regla en cada entrada.
+
+**Carga.** No se precarga a nadie. Cada empresa decide:
+
+- **Botón:** el estado vacío del catálogo y la barra de la lista ofrecen «Agregar bancos de República Dominicana (N)». Solo aparecen si el país de la empresa tiene lista y le faltan bancos.
+- **Endpoints:**
+  - `GET /treasury/banks/reference`;
+  - `POST /treasury/banks/reference-import`, con el permiso `treasury:manage_accounts`.
+- **No duplica:** la importación es idempotente y aditiva. Un banco que la empresa ya tiene no se toca ni se duplica, ya sea por nombre, razón social (sin importar mayúsculas, tildes ni puntuación), BIC o RNC. Dos importaciones simultáneas no duplican: el nombre es único por empresa (`ON CONFLICT DO NOTHING`).
+
+**BIC retirados.** Se rechazan al crear y al cambiar el BIC de un banco. El mensaje nombra la entidad y, si existe, el BIC sucesor:
+
+- `BELNDOSD` (Bellbank) → `AHRIDOS2`;
+- `BPYMDOS1` (BHD León, pasivo) → `BCBHDOSD`;
+- `AHCSDOSD` (Bancamérica);
+- `PVDLDOSD` (Activo).
+
+**Formulario y lista.** El formulario agrega razón social, RNC y tipo de entidad. La lista los muestra.
+
+**Verificación.**
+
+- **Pruebas:**
+  - dataset: 9;
+  - base de datos: 5. Cubren la importación, la idempotencia, que no sobrescribe lo existente, el aislamiento entre empresas y los BIC retirados;
+  - web: 5.
+- **En vivo** (`harness/113-bancos-rd.cjs`, `evidence/113-bancos-rd.jsonl`), en la empresa de RD con catálogo vacío:
+  - el estado vacío ofrece «Agregar bancos de República Dominicana (43)»;
+  - un clic agrega 43 bancos;
+  - en la base hay 25 con SWIFT, 37 con RNC y 16/14/10/3 por tipo;
+  - la segunda importación responde `added: 0` sin modificar ninguna fila;
+  - los BIC retirados responden 400 con `treasury.bank_bic_replaced` o `treasury.bank_bic_retired`;
+  - el formulario de Banco Popular muestra su razón social, el RNC 101010632, «Banco múltiple» y BPDODOSX.
+- **Capturas:** `r3-bancos-rd-vacio.png`, `r3-bancos-rd-lista.png` y `r3-bancos-rd-formulario.png`.
+- **Limpieza:** los 43 bancos creados por la prueba se borraron después; la empresa queda como estaba.
+- **Límite de tasa:** el borrado en ráfaga choca con el límite de la API (429), como corresponde. El script espera y reintenta.

@@ -39,6 +39,16 @@
     "en": "Bank accounts",
     "pt": "Contas bancárias"
   },
+  "treasury.bank_bic_replaced": {
+    "en": "BIC {{bic}} belonged to {{institution}} and is no longer in use. Use {{successor}}.",
+    "es": "El BIC {{bic}} era de {{institution}} y ya no está en uso. Usa {{successor}}.",
+    "pt": "O BIC {{bic}} era de {{institution}} e não está mais em uso. Use {{successor}}."
+  },
+  "treasury.bank_bic_retired": {
+    "en": "BIC {{bic}} belonged to {{institution}}, which no longer operates. A payment sent to it would not arrive.",
+    "es": "El BIC {{bic}} era de {{institution}}, que ya no opera. Un pago enviado a él no llegaría.",
+    "pt": "O BIC {{bic}} era de {{institution}}, que não opera mais. Um pagamento enviado a ele não chegaria."
+  },
   "treasury.bank_in_use": {
     "es": "No se puede eliminar: {{count}} cuentas bancarias están en este banco. Desactívalo en su lugar.",
     "en": "It cannot be deleted: {{count}} bank accounts are held at this bank. Deactivate it instead.",

@@ -7,6 +7,14 @@
   [empty]="!loading() && !error() && banks().length === 0"
   (reload)="load()"
 >
+  @if (canImport()) {
+    <button listActions type="button" class="secondary-button" data-testid="banks-import-reference"
+      *appHasPermission="'treasury:manage_accounts'"
+      [disabled]="importing()" (click)="importReference()">
+      <lucide-icon [img]="ImportIcon" size="16" aria-hidden="true"></lucide-icon>
+      <span>{{ 'masters.banks.reference_import' | translate: { country: referenceCountry(), count: reference()?.missing } }}</span>
+    </button>
+  }
   <a listActions class="primary-button" routerLink="/masters/banks/new" appCanOpen="/masters/banks/new">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'masters.banks.new_bank' | translate }}</span>
@@ -15,6 +23,15 @@
   <div listEmpty class="empty-copy">
     <p class="ls__state-title">{{ 'masters.banks.empty_title' | translate }}</p>
     <p class="ls__state-help">{{ 'masters.banks.empty_help' | translate }}</p>
+    @if (canImport()) {
+      <p class="ls__state-help">{{ 'masters.banks.reference_empty_help' | translate: { country: referenceCountry(), count: reference()?.missing } }}</p>
+      <button type="button" class="primary-button" data-testid="banks-import-reference-empty"
+        *appHasPermission="'treasury:manage_accounts'"
+        [disabled]="importing()" (click)="importReference()">
+        <lucide-icon [img]="ImportIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'masters.banks.reference_import' | translate: { country: referenceCountry(), count: reference()?.missing } }}</span>
+      </button>
+    }
   </div>
 
   <div class="table-container card">
@@ -22,6 +39,8 @@
       <thead>
         <tr>
           <th appSortHeader="name">{{ 'masters.banks.bank_name' | translate }}</th>
+          <th appSortHeader="kind">{{ 'masters.banks.kind_label' | translate }}</th>
+          <th appSortHeader="taxId">{{ 'masters.banks.tax_id' | translate }}</th>
           <th appSortHeader="swiftBic">{{ 'masters.banks.swift_code' | translate }}</th>
           <th appSortHeader="countryCode">{{ 'masters.banks.country' | translate }}</th>
           <th appSortHeader="localCode">{{ 'masters.banks.local_code' | translate }}</th>
@@ -35,7 +54,12 @@
           <tr>
             <td>
               <a class="table-link" [routerLink]="['/masters/banks', bank.id, 'edit']">{{ bank.name }}</a>
+              @if (bank.legalName && bank.legalName !== bank.name) {
+                <div class="bank-legal-name">{{ bank.legalName }}</div>
+              }
             </td>
+            <td>{{ bank.kind ? ('masters.banks.kind.' + bank.kind | translate) : '—' }}</td>
+            <td>{{ bank.taxId || '—' }}</td>
             <td>{{ bank.swiftBic || '—' }}</td>
             <td>{{ bank.countryCode || '—' }}</td>
             <td>{{ bank.localCode || '—' }}</td>

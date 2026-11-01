@@ -761,6 +761,13 @@
       "security",
       "sales"
     ],
+    "masters.banks.kind": [
+      "multiple_bank",
+      "savings_credit_bank",
+      "savings_loan_association",
+      "credit_corporation",
+      "other"
+    ],
     "masters.price_lists.status_label": [
       "Draft",
       "Active",

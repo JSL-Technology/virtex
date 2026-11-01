@@ -103,3 +103,4 @@ Archivo de avance vivo. Si la sesión se corta, continuar desde aquí.
 - [x] Re-verificación en vivo con `harness/110` (API), `111` (UI) y `112` (POS); defectos adicionales que salieron de ella, corregidos (§10.5).
 - [x] Suites completas: API 3,386 pruebas con base de datos, web 1,225, POS 33; typecheck, lint, i18n y verificadores en verde.
 - Datos creados por la re-verificación (todos con prefijo QA3, solo de sesión): ventas de caja y sus anulaciones, turnos cerrados con sobrante justificado, nóminas 11 y 12/2026 calculadas y canceladas, requisiciones REQ-2026-000002/3, reversión GENERAL-2026-000013.
+- [x] Catálogo oficial de bancos de RD (lista SB/BCRD aportada por el usuario): importación opcional por empresa, idempotente y sin sobrescribir; razón social, RNC y tipo de entidad; BIC retirados bloqueados. Detalle en INFORME.md §10.7; verificado en vivo con `harness/113` y limpiado.
