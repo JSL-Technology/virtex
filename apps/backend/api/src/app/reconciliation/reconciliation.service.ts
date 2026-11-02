@@ -37,7 +37,7 @@ import { BankAccount } from '../treasury/entities/bank-account.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { Journal } from '../journal-entries/entities/journal.entity';
-import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
+import { AccountingPostingPort, ModuleSlug } from '../journal-entries/accounting-posting.port';
 import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
@@ -756,7 +756,7 @@ export class ReconciliationService {
       const line = await this.postMissingEntry(manager, statement, bankAccount, transaction, {
         targetAccountId: account.id,
         lineNarrative: { key: 'ledger.reconciliation.category_line', params: { account: account.name } },
-        idempotencyKey: `bank-category:${transaction.id}`,
+        idempotencyKey: await this.generationKey(manager, `bank-category:${transaction.id}`, organizationId),
       }, organizationId, actorUserId);
       const match = await this.writeMatch(manager, {
         statement,
@@ -999,6 +999,36 @@ export class ReconciliationService {
 
       const lineIds = match.lines.map((line) => line.journalEntryLineId);
       await this.journalQuery.unmarkLinesReconciled(lineIds, manager);
+
+      // A match created by categorising a bank line (or by a rule) POSTED its own entry — the bank
+      // fee, the interest. Undoing the match without undoing that entry left the expense booked
+      // with nothing behind it; categorising again booked it twice (audit 2026-10-31, REC-05).
+      // The entries this reconciliation generated are reversed with the match.
+      const generated: Array<{ id: string }> = lineIds.length
+        ? await manager.query(
+            `SELECT DISTINCT e."id"
+               FROM "journal_entry_lines" l
+               JOIN "journal_entries" e ON e."id" = l."journal_entry_id"
+              WHERE l."id" = ANY($1::uuid[])
+                AND e."organization_id" = $2
+                AND e."system_reason" LIKE 'bank-reconciliation:%'
+                AND e."status" = 'Posted'
+                AND NOT e."is_reversed"`,
+            [lineIds, organizationId],
+          )
+        : [];
+      for (const entry of generated) {
+        await this.posting.createSystemReversal(
+          entry.id,
+          organizationId,
+          {
+            reversalDate: toIsoDate(new Date()),
+            reason: 'Conciliación deshecha: se revierte el asiento que generó',
+          },
+          manager,
+          { actorUserId, module: ModuleSlug.GL, systemReason: 'bank-reconciliation-undo' },
+        );
+      }
       await manager.update(
         BankTransaction,
         { matchId: match.id },
@@ -1345,7 +1375,7 @@ export class ReconciliationService {
             targetAccountId: rule.targetAccountId,
             lineNarrative: { key: 'ledger.reconciliation.rule_line', params: { rule: rule.name } },
             // One rule-created entry per statement line, however many times the rules are re-run.
-            idempotencyKey: `bank-rule:${transaction.id}`,
+            idempotencyKey: await this.generationKey(manager, `bank-rule:${transaction.id}`, organizationId),
           },
           organizationId,
           actorUserId,
@@ -1771,6 +1801,23 @@ export class ReconciliationService {
     }
     return { id: line.id };
   }
+  /**
+   * An idempotency key for an entry generated from a bank line, aware of earlier generations.
+   *
+   * The key makes a retried categorisation reuse its entry. After an undo reversed that entry, the
+   * same key would hand the reversed entry back; the generation suffix (how many reversed
+   * generations exist) makes the next categorisation a new intention.
+   */
+  private async generationKey(manager: EntityManager, base: string, organizationId: string): Promise<string> {
+    const [{ reversed }] = await manager.query(
+      `SELECT COUNT(*)::int AS reversed FROM "journal_entries"
+        WHERE "organization_id" = $1 AND ("idempotency_key" = $2 OR "idempotency_key" LIKE $2 || ':%')
+          AND "is_reversed"`,
+      [organizationId, base],
+    );
+    return reversed > 0 ? `${base}:${reversed}` : base;
+  }
+
 }
 
 /**

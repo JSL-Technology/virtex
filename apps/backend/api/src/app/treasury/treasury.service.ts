@@ -14,6 +14,7 @@ import { Ledger } from '../accounting/entities/ledger.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { AccountRole } from '../chart-of-accounts/enums/account-enums';
+import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
 import {
   CreateJournalEntryDto,
@@ -111,6 +112,7 @@ export class TreasuryService {
     private readonly calendar: FiscalCalendarService,
     private readonly dataSource: DataSource,
     private readonly bankCatalogue: BanksService,
+    private readonly journalQuery: JournalQueryService,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
       new I18nService(),
@@ -195,6 +197,15 @@ export class TreasuryService {
         actorUserId,
       );
       account.openingJournalEntryId = entry.id;
+      // The opening balance IS the bank's balance on that date — that is what the person typed it
+      // from — so its bank-side line is reconciled the moment it is posted: the account's initial
+      // reconciliation. Left open, it sat in every reconciliation as an item "in the books but not
+      // on the statement" for the whole opening amount, and no statement could ever close
+      // (audit 2026-10-31, REC-01).
+      const openingLines = (entry.lines ?? [])
+        .filter((line) => line.accountId === account.glAccountId)
+        .map((line) => line.id);
+      await this.journalQuery.markLinesReconciled(openingLines, manager);
       return manager.save(account);
     });
   }

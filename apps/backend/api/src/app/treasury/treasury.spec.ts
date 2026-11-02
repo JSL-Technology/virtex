@@ -1,3 +1,4 @@
+import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 import { BanksService } from './banks.service';
 import { Bank } from './entities/bank.entity';
 import { DataSource } from 'typeorm';
@@ -115,6 +116,7 @@ describeWithDb('treasury', () => {
       new FiscalCalendarService(dataSource.getRepository(FiscalYear), dataSource),
       dataSource,
       banks,
+      new JournalQueryService(dataSource),
     );
   });
 
@@ -658,6 +660,15 @@ describeWithDb('treasury', () => {
       expect(
         position.accounts.find((row) => row.bankAccountId === opened.id)?.balanceInBaseCurrency,
       ).toBe(250_000);
+
+      // REC-01: the opening is the bank's own balance on that date — the account's initial
+      // reconciliation — so its bank-side line is never an outstanding item.
+      const [line] = await dataSource.query(
+        `SELECT "is_reconciled" FROM "journal_entry_lines"
+          WHERE "journal_entry_id" = $1 AND "account_id" = $2`,
+        [opened.openingJournalEntryId, account['bankDop']],
+      );
+      expect(line.is_reconciled).toBe(true);
     });
 
     it('refuses an opening balance with no counterpart account', async () => {
