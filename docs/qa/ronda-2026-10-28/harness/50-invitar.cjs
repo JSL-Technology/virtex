@@ -1,0 +1,22 @@
+const { launch, instrument, uiLogin, shot, netSince, toasts, stepUpAll } = require('./lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage();
+  const log = instrument(page);
+  await uiLogin(page);
+  const goUsers = async () => { await page.evaluate(() => { location.hash = ''; }); await page.waitForTimeout(300); await page.evaluate(() => { location.hash = 'settings/users'; }); await page.waitForTimeout(2000); };
+  await goUsers();
+  const settings = page.locator('[role=dialog]').first();
+  const m = page.locator('[role=dialog] .modal').filter({ has: page.getByPlaceholder('usuario@empresa.com') });
+  const open = async () => { if (!(await page.locator('[role=dialog]').count())) await goUsers(); await settings.getByRole('button', { name: 'Invitar usuario' }).click(); await page.waitForTimeout(900); };
+  const pickRole = async (name) => { const r = m.getByPlaceholder('Seleccionar rol'); await r.click(); await page.waitForTimeout(700); const opts = page.locator('[role=option]'); const all = await opts.allInnerTexts(); const o = opts.filter({ hasText: name }).first(); const box = await o.boundingBox().catch(() => null); const hit = box ? await page.evaluate(([x, y]) => { const el = document.elementFromPoint(x, y); return el && el.closest('[role=option]') ? 'visible-encima' : (el ? el.className.toString().slice(0, 50) : 'nada'); }, [box.x + 10, box.y + box.height / 2]) : 'sin-caja'; await o.click({ timeout: 3000 }).catch(async (e) => { console.log('   clic-rol falla', e.message.split('\n')[0]); await r.press('ArrowDown'); await r.press('Enter'); }); await page.waitForTimeout(400); return { all, hit }; };
+  const send = async () => { const b = m.getByRole('button', { name: /Enviar/ }); const dis = await b.isDisabled(); if (!dis) await b.click(); await page.waitForTimeout(2000); await stepUpAll(page); return dis; };
+  const tryInv = async (name, fn, data) => { await open(); const n = log.requests.length; let extra = ''; try { extra = JSON.stringify(await fn()); } catch (e) { extra = 'EXC ' + e.message.split('\n')[0]; } console.log(`[${name}] ${extra} red=${JSON.stringify(netSince(log, n)).slice(0, 500)} toast="${(await toasts(page)).replace(/\s+/g, ' ').slice(-200)}" modal="${(await m.innerText().catch(() => 'cerrado')).replace(/\s+/g, ' ').slice(0, 250)}"`); await shot(page, `inv-${name}`); await page.keyboard.press('Escape'); await page.waitForTimeout(500); };
+  await tryInv('1-vacio', async () => ({ deshab: await send() }));
+  await tryInv('2-invalido', async () => { await m.getByPlaceholder('Nombre').fill('QA3'); await m.getByPlaceholder('usuario@empresa.com').fill('no-correo'); const r = await pickRole('Vendedor'); return { r, deshab: await send() }; });
+  const users = [['QA3', 'Admin2', 'qa3-admin2@example.com', 'Administrador'], ['QA3', 'Vendedor', 'qa3-vendedor@example.com', 'Vendedor'], ['QA3', 'Contador', 'qa3-contador@example.com', 'Contador'], ['QA3', 'Miembro', 'qa3-miembro@example.com', 'Miembro']];
+  for (const [f, l, e, role] of users) await tryInv(`3-${l}`, async () => { await m.getByPlaceholder('Nombre').fill(f); await m.getByPlaceholder('Apellido').fill(l); await m.getByPlaceholder('usuario@empresa.com').fill(e); const r = await pickRole(role); return { r, deshab: await send() }; });
+  await tryInv('4-duplicado', async () => { await m.getByPlaceholder('Nombre').fill('QA3'); await m.getByPlaceholder('Apellido').fill('Dup'); await m.getByPlaceholder('usuario@empresa.com').fill('qa3-vendedor@example.com'); await pickRole('Vendedor'); return { deshab: await send() }; });
+  await goUsers(); console.log('LISTA', (await settings.innerText()).split('Gestión de usuarios')[1]?.replace(/\s+/g, ' ').slice(0, 800));
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });

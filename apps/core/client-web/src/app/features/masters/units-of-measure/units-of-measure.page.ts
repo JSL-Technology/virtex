@@ -13,7 +13,6 @@ import { ErrorHandlerService } from '../../../core/services/error-handler.servic
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 
@@ -32,7 +31,7 @@ type Category = (typeof UNIT_CATEGORIES)[number];
 @Component({
   selector: 'app-units-of-measure-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [...VX_SORT, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './units-of-measure.page.html',
   styleUrls: ['./units-of-measure.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

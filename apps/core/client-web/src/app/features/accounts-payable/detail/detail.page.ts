@@ -1,3 +1,4 @@
+import { handleDocumentIntents } from '../../../core/navigation/document-intent.service';
 import {
   Component,
   ChangeDetectionStrategy,
@@ -50,6 +51,20 @@ import { AiProvenanceBadgeComponent } from '../../ai/provenance/ai-provenance-ba
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorBillDetailPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => (this.bill()?.id ? `/accounts-payable/${this.bill()!.id}` : null),
+    ready: () => !!this.bill(),
+    actions: {
+      'submit': () => this.canSubmit() && this.submitForApproval(),
+      'record-ncf': () => this.canRecordNcf() && this.recordNcf(),
+      'void': () => this.canVoid() && this.voidBill(),
+    },
+  });
+
   protected readonly BackIcon = ChevronLeft;
   protected readonly EditIcon = Edit;
   protected readonly SubmitIcon = Send;
@@ -82,6 +97,11 @@ export class VendorBillDetailPage implements OnInit {
   /** Only a draft can be edited or submitted; only an unpaid bill can be annulled. */
   readonly canEdit = computed(() => this.bill()?.status === 'DRAFT');
   readonly canSubmit = computed(() => this.bill()?.status === 'DRAFT');
+  /** A posted bill without its comprobante can still receive it — what the 606 asks for (QA R3-A04). */
+  readonly canRecordNcf = computed(() => {
+    const bill = this.bill();
+    return !!bill && !bill.ncf && !['DRAFT', 'VOID', 'REJECTED'].includes(bill.status);
+  });
   readonly canVoid = computed(() => {
     const status = this.bill()?.status;
     return status !== undefined && status !== 'VOID' && this.livePayments().length === 0;
@@ -174,6 +194,28 @@ export class VendorBillDetailPage implements OnInit {
           serverMessage(error) ?? 'accounts_payable.detail.bill_could_not_submitted_approval',
         );
         this.isLoading.set(false);
+      },
+    });
+  }
+
+  async recordNcf(): Promise<void> {
+    const id = this.bill()?.id;
+    if (!id) return;
+    const ncf = await this.dialog.prompt({
+      title: 'accounts_payable.detail.record_ncf_title',
+      message: 'accounts_payable.detail.record_ncf_message',
+      placeholder: 'accounts_payable.detail.record_ncf_placeholder',
+      minLength: 11,
+      tooShort: 'accounts_payable.detail.record_ncf_too_short',
+    });
+    if (!ncf) return;
+    this.accountsPayable.recordNcf(id, ncf.trim()).subscribe({
+      next: () => {
+        this.notifications.showSuccess('accounts_payable.detail.ncf_recorded');
+        this.load();
+      },
+      error: (error: unknown) => {
+        this.notifications.showError(serverMessage(error) ?? 'accounts_payable.detail.ncf_not_recorded');
       },
     });
   }

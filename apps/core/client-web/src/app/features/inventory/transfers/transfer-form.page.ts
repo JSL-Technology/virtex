@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core';
+import { handleDocumentIntents } from '../../../core/navigation/document-intent.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 
 import { Observable, catchError, map, of } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
@@ -21,7 +22,7 @@ import { SaveStockTransfer, StockService, StockTransfer } from '../data/stock.se
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
 import { STOCK_DOCUMENT_TONE } from '../adjustments/adjustment-form.page';
 
-const todayIso = (): string => new Date().toISOString().slice(0, 10);
+const todayIso = (): string => tenantToday();
 
 /** Origin and destination must differ: a transfer to the same place moves nothing. */
 function distinctWarehouses(group: AbstractControl): ValidationErrors | null {
@@ -55,6 +56,19 @@ function distinctWarehouses(group: AbstractControl): ValidationErrors | null {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StockTransferFormPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => (this.current()?.id ? `/inventory/transfers/${this.current()!.id}` : null),
+    ready: () => !!this.current(),
+    actions: {
+      'post': () => this.status() === 'DRAFT' && this.post(),
+      'cancel': () => this.status() === 'DRAFT' && this.cancelDocument(),
+    },
+  });
+
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly stock = inject(StockService);
@@ -142,8 +156,21 @@ export class StockTransferFormPage implements OnInit {
     return held !== null && held !== undefined && quantity > held;
   }
 
-  save(): void {
+  async save(): Promise<void> {
     if (!this.validateForm()) return;
+    // A draft may be saved before the goods arrive, so more than is on hand is not refused here —
+    // the posting refuses it. But it used to pass without a word: 500 units out of a warehouse
+    // holding 38 (QA R3-M15). Now the person confirms they mean it.
+    const shortLines = this.lines.controls.map((_, index) => index).filter((index) => this.short(index));
+    if (shortLines.length) {
+      const confirmed = await this.dialog.confirm({
+        title: 'inventory.transfers.short_title',
+        message: 'inventory.transfers.short_message',
+        messageParams: { lines: shortLines.map((index) => index + 1).join(', ') },
+        confirmText: 'inventory.transfers.short_confirm',
+      });
+      if (!confirmed) return;
+    }
     const body = this.body();
     const existing = this.current();
     const creating = !existing;
@@ -228,7 +255,7 @@ export class StockTransferFormPage implements OnInit {
           date: 'inventory.common.date',
           fromWarehouseId: 'inventory.transfers.from',
           toWarehouseId: 'inventory.transfers.to',
-        }),
+        }).filter((p) => !/\.(productId|quantity)$/.test(p.fieldId ?? '')),  // the line checks below name the line (QA R3-M05)
         ...lineProblems,
       ]);
       return false;

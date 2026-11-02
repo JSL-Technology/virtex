@@ -6,7 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2, ArrowDownRight, ArrowUpRight, AlertTriangle, Undo2, CheckCircle2 } from 'lucide-angular';
 
 import { Observable, catchError, debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, FormatService, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems, lineMessage } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
@@ -699,9 +699,9 @@ export class InventoryAdjustmentFormPage implements OnInit {
     return this.format.money(value);
   }
 
+  /** The company's today, not the browser's: the default date respects the tenant time zone (QA R3). */
   private today(): string {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    return tenantToday();
   }
 
   private toLineProduct(product: Product): LineProduct {

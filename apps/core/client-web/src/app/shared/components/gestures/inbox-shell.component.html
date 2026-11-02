@@ -63,7 +63,8 @@
             } @else {
               <ul class="ib__list">
                 @for (item of section.items; track item.id) {
-                  <li class="ib__item" [class.ib__item--overdue]="item.overdue">
+                  <!-- data-context-item: its right-click menu offers its link and its own actions (QA R3-B08). -->
+                  <li class="ib__item" data-context-item [class.ib__item--overdue]="item.overdue">
                     <div class="ib__item-main">
                       @if (item.link) {
                         <a [routerLink]="item.link" class="ib__item-title">{{ item.title }}</a>

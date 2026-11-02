@@ -3,6 +3,7 @@ import { of, throwError } from 'rxjs';
 import { InvoiceEmailDialogComponent } from './invoice-email-dialog.component';
 import { InvoicesService } from '../../../../core/services/invoices';
 import { NotificationService } from '../../../../core/services/notification';
+import { AiService } from '../../../ai/data/ai.service';
 
 describe('InvoiceEmailDialogComponent', () => {
   let fixture: ComponentFixture<InvoiceEmailDialogComponent>;
@@ -18,6 +19,7 @@ describe('InvoiceEmailDialogComponent', () => {
       providers: [
         { provide: InvoicesService, useValue: invoices },
         { provide: NotificationService, useValue: notifications },
+        { provide: AiService, useValue: { status: () => of({ languageModel: { available: true } }) } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(InvoiceEmailDialogComponent);
@@ -56,5 +58,24 @@ describe('InvoiceEmailDialogComponent', () => {
     component.compose();
     expect(component.message()).toBe('Mi nota');
     expect(notifications.showHttpError).toHaveBeenCalled();
+  });
+});
+
+describe('InvoiceEmailDialogComponent without a language model', () => {
+  it('does not offer to draft the note (QA R3-M08)', async () => {
+    await TestBed.configureTestingModule({
+      imports: [InvoiceEmailDialogComponent],
+      providers: [
+        { provide: InvoicesService, useValue: { composeMessage: jest.fn() } },
+        { provide: NotificationService, useValue: { showHttpError: jest.fn() } },
+        { provide: AiService, useValue: { status: () => of({ languageModel: { available: false } }) } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(InvoiceEmailDialogComponent);
+    fixture.componentRef.setInput('invoiceId', 'inv-1');
+    fixture.componentRef.setInput('canCompose', true);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.composeAvailable()).toBe(false);
+    expect(fixture.nativeElement.querySelector('.email-dialog__compose')).toBeNull();
   });
 });

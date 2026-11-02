@@ -141,6 +141,10 @@ export class StatementImportPage implements OnInit {
     this.file.set(file);
     this.importError.set(null);
     this.proposal.set(null);
+    // The summary listed «choose the file» until the next submit, even with a file chosen (QA R3-A05).
+    if (file) {
+      this.problems.update((problems) => problems.filter((p) => p.message !== 'accounting.reconciliation.import.choose_statement_file'));
+    }
     this.applyFormat('csv');
     if (file) this.detect(file);
   }

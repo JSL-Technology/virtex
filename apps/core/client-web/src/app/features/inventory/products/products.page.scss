@@ -38,3 +38,14 @@
     background: var(--accent-surface);
   }
 }
+
+// The selection, and what it can do (QA R3-B08).
+.selection-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.selection-bar__count { font-weight: var(--font-medium); margin-right: auto; }

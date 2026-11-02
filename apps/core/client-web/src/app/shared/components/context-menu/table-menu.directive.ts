@@ -1,5 +1,6 @@
-import { Directive, inject, input } from '@angular/core';
+import { Directive, ElementRef, inject, input } from '@angular/core';
 import { ContextMenuService } from './context-menu.service';
+import { screenActionSections } from './row-actions';
 import { ListSelectionService } from './list-selection.service';
 import { ListMenuConfig, MenuContext, MenuSection } from './context-menu.types';
 
@@ -26,6 +27,7 @@ export class TableMenuDirective<E = unknown> {
   /** Opcional: presente sólo si la página la provee para acciones en lote. */
   readonly selection = inject<ListSelectionService<E> | null>(ListSelectionService, { optional: true });
   private readonly menu = inject(ContextMenuService);
+  readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   onContextMenu(event: MouseEvent): void {
     if ((event.target as HTMLElement | null)?.closest('tbody tr')) return;
@@ -34,7 +36,8 @@ export class TableMenuDirective<E = unknown> {
 
   /** También lo usa el botón ⋮ de la cabecera. */
   open(event: MouseEvent): void {
-    const sections = (this.config().table ?? []) as MenuSection[];
+    // A list that names no table actions offers its screen's own commands (its header buttons).
+    const sections = (this.config().table ?? screenActionSections(this.host.nativeElement)) as MenuSection[];
     this.menu.open(event, sections, this.context(event));
   }
 

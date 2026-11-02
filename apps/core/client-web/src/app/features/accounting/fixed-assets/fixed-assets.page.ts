@@ -1,8 +1,11 @@
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { CalendarClock, LucideAngularModule, PlusCircle } from 'lucide-angular';
+import { CalendarClock, LucideAngularModule, PackageX, Pencil, PlusCircle, RotateCw, Trash2 } from 'lucide-angular';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
@@ -13,7 +16,7 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 import { NotificationService } from '../../../core/services/notification';
 import { BranchesService } from '../../../core/tenancy/branches.service';
-import { FixedAsset, FixedAssetStatus, FixedAssetsService } from '../data/fixed-assets.service';
+import { FixedAsset, FixedAssetStatus, FixedAssetsService, hasBeenDepreciated } from '../data/fixed-assets.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 export const FIXED_ASSET_TONE: Record<FixedAssetStatus, VxTone> = { IN_USE: 'ok', SOLD: 'neutral', DISPOSED: 'neutral' };
@@ -26,7 +29,7 @@ export const FIXED_ASSET_TONE: Record<FixedAssetStatus, VxTone> = { IN_USE: 'ok'
 @Component({
   selector: 'app-fixed-assets-page',
   standalone: true,
-  imports: [
+  imports: [...VX_CONTEXT_MENU, 
     FormsModule, ...VX_FORM_A11Y,
     RouterLink,
     TranslateModule,
@@ -46,6 +49,35 @@ export const FIXED_ASSET_TONE: Record<FixedAssetStatus, VxTone> = { IN_USE: 'ok'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FixedAssetsPage implements OnInit {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly assetsMenu: ListMenuConfig<FixedAsset> = {
+    resource: 'fixed-assets',
+    relationshipMapType: 'FIXED_ASSET',
+    row: (ctx) => {
+      const asset = ctx.entity as FixedAsset;
+      const path = `/accounting/fixed-assets/${asset.id}`;
+      const ask = (action: string) => this.menuIntents.request(path, action);
+      return [
+        {
+          id: 'document',
+          items: [
+            { id: 'edit', label: 'fixed_assets.document.edit', icon: Pencil, permission: 'fixed_assets:manage', visible: () => asset.status === 'IN_USE', run: () => this.menuNavigation.open(`/accounting/fixed-assets/${asset.id}/edit`, 'preview') },
+            { id: 'dispose', label: 'fixed_assets.document.dispose', icon: PackageX, permission: 'fixed_assets:dispose', visible: () => asset.status === 'IN_USE', run: () => this.menuNavigation.open(`/accounting/fixed-assets/${asset.id}/dispose`, 'preview') },
+          ],
+        },
+        {
+          id: 'corrections',
+          items: [
+            { id: 'delete', label: 'fixed_assets.document.delete', icon: Trash2, danger: true, permission: 'fixed_assets:manage', visible: () => asset.status === 'IN_USE' && !hasBeenDepreciated(asset), run: () => ask('delete') },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.load() }] },
+      ];
+    },
+  };
+
   private readonly assets = inject(FixedAssetsService);
   private readonly notifications = inject(NotificationService);
   protected readonly branches = inject(BranchesService);

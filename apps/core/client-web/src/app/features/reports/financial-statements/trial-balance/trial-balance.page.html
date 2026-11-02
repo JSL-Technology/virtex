@@ -97,7 +97,9 @@
             @for (row of table.rows(); track row.accountId) {
               <tr>
                 <td class="account-column">
-                  <span class="account-code">{{ row.code }}</span> {{ row.name | vxName }}
+                  <a class="account-link" [routerLink]="ledgerLink(row.accountId) | appLink">
+                    <span class="account-code">{{ row.code }}</span> {{ row.name | vxName }}
+                  </a>
                 </td>
                 <td class="numeric"><vx-amount [value]="row.openingDebit" /></td>
                 <td class="numeric"><vx-amount [value]="row.openingCredit" /></td>

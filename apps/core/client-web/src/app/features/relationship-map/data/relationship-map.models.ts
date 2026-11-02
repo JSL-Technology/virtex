@@ -40,6 +40,8 @@ export interface FlowNode {
   description: string | null;
   date: string | null;
   statusKind: FlowStatusKind;
+  /** The document's own status label («Cobrada»), when its type has one (QA R3-M13). */
+  statusKey?: string | null;
   statusRaw: string | null;
   amount: number | null;
   currencyCode: string | null;
@@ -95,6 +97,8 @@ export interface FlowDocumentSearchHit {
   amount: number | null;
   currencyCode: string | null;
   statusKind: FlowStatusKind;
+  /** The document's own status label («Cobrada»), when its type has one (QA R3-M13). */
+  statusKey?: string | null;
 }
 
 export interface FlowMapOptions {

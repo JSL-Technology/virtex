@@ -334,6 +334,26 @@
     "en": "SFS payable (TSS)",
     "pt": "SFS a pagar (TSS)"
   },
+  "ledger.pos.cash_in": {
+    "es": "Efectivo cobrado en caja",
+    "en": "Cash taken at the till",
+    "pt": "Dinheiro recebido no caixa"
+  },
+  "ledger.pos.cost_of": {
+    "es": "Costo de la venta de punto de venta {{ticket}}",
+    "en": "Cost of point-of-sale sale {{ticket}}",
+    "pt": "Custo da venda de ponto de venda {{ticket}}"
+  },
+  "ledger.pos.non_cash_in": {
+    "es": "Cobro con tarjeta o transferencia",
+    "en": "Card or transfer collected",
+    "pt": "Recebimento por cartão ou transferência"
+  },
+  "ledger.pos.sale": {
+    "es": "Venta de punto de venta {{ticket}}{{fiscal}} — caja {{terminal}}",
+    "en": "Point-of-sale sale {{ticket}}{{fiscal}} — till {{terminal}}",
+    "pt": "Venda de ponto de venda {{ticket}}{{fiscal}} — caixa {{terminal}}"
+  },
   "ledger.provisioning.cash_account": {
     "es": "Caja general",
     "en": "Main cash",

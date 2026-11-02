@@ -1,9 +1,12 @@
 import { FormsModule } from '@angular/forms';
+import { NavigationActionsService } from '../../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../../shared/components/context-menu';
 import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../../shared/components/branch-picker';
 import { BranchesService } from '../../../../core/tenancy/branches.service';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, PlusCircle } from 'lucide-angular';
+import { Ban, CheckCircle, Copy, FileText, LucideAngularModule, PlusCircle, RotateCw, Send, XCircle } from 'lucide-angular';
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../../shared/components/gestures';
@@ -36,12 +39,44 @@ export const QUOTE_STATUSES: QuoteStatus[] = ['DRAFT', 'SENT', 'ACCEPTED', 'REJE
 @Component({
   selector: 'app-quotes-page',
   standalone: true,
-  imports: [InboundMailInboxComponent, ...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_CONTEXT_MENU, InboundMailInboxComponent, ...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './quotes.page.html',
   styleUrls: ['./quotes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuotesPage implements OnInit {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly quotesMenu: ListMenuConfig<Quote> = {
+    resource: 'quotes',
+    relationshipMapType: 'SALES_QUOTE',
+    row: (ctx) => {
+      const quote = ctx.entity as Quote;
+      const path = `/quotes/${quote.id}/edit`;
+      const ask = (action: string) => this.menuIntents.request(path, action);
+      return [
+        {
+          id: 'document',
+          items: [
+            { id: 'mark-sent', label: 'sales.quotes.mark_sent', icon: Send, permission: 'invoices:create', visible: () => quote.status === 'DRAFT', run: () => ask('mark-sent') },
+            { id: 'accept', label: 'sales.quotes.accept', icon: CheckCircle, permission: 'invoices:create', visible: () => ['DRAFT', 'SENT'].includes(quote.status), run: () => ask('accept') },
+            { id: 'convert', label: 'sales.quotes.convert', icon: FileText, permission: 'invoices:create', visible: () => quote.status === 'ACCEPTED', run: () => ask('convert') },
+            { id: 'duplicate', label: 'sales.quotes.duplicate', icon: Copy, permission: 'invoices:create', run: () => ask('duplicate') },
+          ],
+        },
+        {
+          id: 'corrections',
+          items: [
+            { id: 'reject', label: 'sales.quotes.reject', icon: XCircle, danger: true, permission: 'invoices:create', visible: () => ['DRAFT', 'SENT', 'ACCEPTED'].includes(quote.status), run: () => ask('reject') },
+            { id: 'cancel', label: 'sales.quotes.cancel_quote', icon: Ban, danger: true, permission: 'invoices:create', visible: () => ['DRAFT', 'SENT'].includes(quote.status), run: () => ask('cancel') },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.load() }] },
+      ];
+    },
+  };
+
   private readonly translate = inject(TranslateService);
   /** Sortable by its headers (QA B-01). */
   readonly table = sortable(() => this.rows(), { customer: (quote) => quote.customer?.companyName ?? quote.customer?.name, status: (quote) => this.translate.instant(this.statusKey(quote)) });

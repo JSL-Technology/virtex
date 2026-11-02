@@ -18,6 +18,26 @@
 
       <div class="form-grid">
         <div class="form-field">
+          <label for="bankLegalName">{{ 'masters.banks.legal_name' | translate }}</label>
+          <input id="bankLegalName" formControlName="legalName" maxlength="200" autocomplete="off" />
+        </div>
+        <div class="form-field">
+          <label for="bankTaxId">{{ 'masters.banks.tax_id' | translate }}</label>
+          <input id="bankTaxId" formControlName="taxId" maxlength="20" autocomplete="off" />
+        </div>
+        <div class="form-field">
+          <label for="bankKind">{{ 'masters.banks.kind_label' | translate }}</label>
+          <select id="bankKind" formControlName="kind">
+            <option value="">—</option>
+            @for (kind of kinds; track kind) {
+              <option [value]="kind">{{ 'masters.banks.kind.' + kind | translate }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-field">
           <label for="bankSwift">{{ 'masters.banks.swift_code' | translate }}</label>
           <input id="bankSwift" formControlName="swiftBic" maxlength="11" autocomplete="off" />
         </div>

@@ -69,6 +69,7 @@ describeWithDb('treasury', () => {
   let entries: JournalEntriesService;
 
   let organizationId: string;
+  let banks: BanksService;
   let ledgerId: string;
   const account: Record<string, string> = {};
 
@@ -103,6 +104,7 @@ describeWithDb('treasury', () => {
       testExchangeRateResolver(dataSource),
     );
 
+    banks = new BanksService(dataSource.getRepository(Bank), dataSource.getRepository(BankAccount));
     treasury = new TreasuryService(
       dataSource.getRepository(BankAccount),
       entries,
@@ -112,7 +114,7 @@ describeWithDb('treasury', () => {
       // lee el inquilino por el DataSource. Con la firma vieja el spec no compilaba.
       new FiscalCalendarService(dataSource.getRepository(FiscalYear), dataSource),
       dataSource,
-      new BanksService(dataSource.getRepository(Bank), dataSource.getRepository(BankAccount)),
+      banks,
     );
   });
 
@@ -225,6 +227,99 @@ describeWithDb('treasury', () => {
 
   const signedBalance = async (key: string, asOf = '2026-03-31') =>
     (await balances.balancesAsOf({ organizationId, ledgerId, asOf })).get(account[key]) ?? 0;
+
+  // ── bank catalogue: official list and retired BICs ────────────────────────
+
+  describe('bank catalogue reference import', () => {
+    const setCountry = (country: string | null) =>
+      dataSource.getRepository(Organization).update({ id: organizationId }, { country });
+
+    it('offers nothing where the product ships no list for the country', async () => {
+      await setCountry('MX');
+      await expect(banks.referenceStatus(organizationId)).resolves.toEqual({ country: 'MX', available: 0, missing: 0 });
+      await expect(banks.importReference(organizationId)).resolves.toEqual({ country: 'MX', added: 0, skipped: 0 });
+      await setCountry(null);
+      await expect(banks.referenceStatus(organizationId)).resolves.toMatchObject({ country: null, available: 0 });
+    });
+
+    it('adds the Dominican list with only what an official source confirms, once', async () => {
+      await setCountry('DO');
+      await expect(banks.referenceStatus(organizationId)).resolves.toEqual({ country: 'DO', available: 43, missing: 43 });
+
+      await expect(banks.importReference(organizationId)).resolves.toEqual({ country: 'DO', added: 43, skipped: 0 });
+      const list = await banks.findAll(organizationId);
+      const byName = new Map(list.map((bank) => [bank.name, bank]));
+      expect(list).toHaveLength(43);
+      expect(byName.get('Banco Popular')).toMatchObject({
+        legalName: 'Banco Popular Dominicano, S. A. - Banco Múltiple',
+        kind: 'multiple_bank',
+        swiftBic: 'BPDODOSX',
+        localCode: 'BPDODOSXXXX',
+        taxId: '101010632',
+        countryCode: 'DO',
+        isActive: true,
+      });
+      // No RNC on its SB page: left empty rather than guessed.
+      expect(byName.get('Banco BHD')).toMatchObject({ swiftBic: 'BCBHDOSD', taxId: null });
+      // A passive BIC is not a SWIFT address; the BCRD participant code is kept.
+      expect(byName.get('Asociación Duarte')).toMatchObject({ swiftBic: null, localCode: 'ADUADOS1XXX' });
+      // Directories disagree and nothing official settles it.
+      expect(byName.get('Banco Adopem')).toMatchObject({ swiftBic: null, localCode: null, taxId: '103003109' });
+
+      // Idempotent: a second run adds nothing.
+      await expect(banks.importReference(organizationId)).resolves.toEqual({ country: 'DO', added: 0, skipped: 43 });
+      await expect(banks.referenceStatus(organizationId)).resolves.toMatchObject({ missing: 0 });
+      expect(await dataSource.getRepository(Bank).count({ where: { organizationId } })).toBe(43);
+    });
+
+    it('never overwrites or duplicates a bank the company already keeps, whatever it called it', async () => {
+      await setCountry('DO');
+      // Typed by hand: the legal name in capitals without accents, a nickname with only the BIC,
+      // and one known only by its RNC.
+      const mine = await banks.create({ name: 'BANCO POPULAR DOMINICANO, S.A. - BANCO MULTIPLE', localCode: 'MINE' }, organizationId);
+      const bic = await banks.create({ name: 'Mi banco de nómina', swiftBic: 'BRRDDOSDXXX' }, organizationId);
+      const rnc = await banks.create({ name: 'Cooperativa X', taxId: '1-01-74527-4' }, organizationId);
+
+      await expect(banks.importReference(organizationId)).resolves.toEqual({ country: 'DO', added: 40, skipped: 3 });
+
+      const all = await banks.findAll(organizationId);
+      expect(all).toHaveLength(43);
+      expect(all.find((bank) => bank.id === mine.id)).toMatchObject({ name: mine.name, swiftBic: null, localCode: 'MINE', legalName: null });
+      expect(all.find((bank) => bank.id === bic.id)).toMatchObject({ name: 'Mi banco de nómina', swiftBic: 'BRRDDOSDXXX' });
+      expect(all.find((bank) => bank.id === rnc.id)).toMatchObject({ name: 'Cooperativa X', kind: null });
+      expect(all.some((bank) => ['Banco Popular', 'Banreservas', 'Banco Ademi'].includes(bank.name))).toBe(false);
+    });
+
+    it('keeps each tenant\'s import to itself', async () => {
+      await setCountry('DO');
+      const other = await dataSource.getRepository(Organization).save(
+        dataSource.getRepository(Organization).create({ legalName: `TR other ${Date.now()}`, timezone: 'America/Santo_Domingo', country: 'DO' }),
+      );
+      await banks.importReference(other.id);
+      await expect(banks.referenceStatus(organizationId)).resolves.toMatchObject({ missing: 43 });
+      await dataSource.getRepository(Bank).delete({ organizationId: other.id });
+      await dataSource.getRepository(Organization).delete({ id: other.id });
+    });
+
+    it('refuses a retired BIC on create and on change, naming the successor when there is one', async () => {
+      await expect(banks.create({ name: 'QA Bellbank', swiftBic: 'BELNDOSD' }, organizationId)).rejects.toMatchObject({
+        messageKey: 'treasury.bank_bic_replaced',
+      });
+      await expect(banks.create({ name: 'QA Bancamérica', swiftBic: 'ahcsdosdxxx' }, organizationId)).rejects.toMatchObject({
+        messageKey: 'treasury.bank_bic_retired',
+      });
+      const bank = await banks.create({ name: 'QA BHD', swiftBic: 'BCBHDOSD', kind: 'multiple_bank' }, organizationId);
+      await expect(banks.update(bank.id, { swiftBic: 'BPYMDOS1' }, organizationId)).rejects.toMatchObject({
+        messageKey: 'treasury.bank_bic_replaced',
+      });
+      await expect(banks.update(bank.id, { legalName: '  Banco Múltiple BHD, S. A. ', taxId: '' }, organizationId)).resolves.toMatchObject({
+        swiftBic: 'BCBHDOSD',
+        legalName: 'Banco Múltiple BHD, S. A.',
+        taxId: null,
+        kind: 'multiple_bank',
+      });
+    });
+  });
 
   // ── bank accounts ──────────────────────────────────────────────────────────
 

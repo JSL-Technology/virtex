@@ -50,6 +50,9 @@ export const MOVEMENT_TYPES = [
   'TRANSFER_IN',
 ] as const;
 
+/** The kardex columns that sort (QA R3-B02). */
+export const MOVEMENT_SORTS = ['date', 'product', 'warehouse', 'type', 'reference', 'quantity', 'cost'] as const;
+
 export class StockMovementsQueryDto {
   @IsUUID()
   @IsOptional()
@@ -83,4 +86,13 @@ export class StockMovementsQueryDto {
   @Max(500)
   @IsOptional()
   limit?: number;
+
+  /** A column to order by; chronological when absent. The balance column is computed first, so any order keeps it right. */
+  @IsIn(MOVEMENT_SORTS)
+  @IsOptional()
+  sort?: (typeof MOVEMENT_SORTS)[number];
+
+  @IsIn(['asc', 'desc'])
+  @IsOptional()
+  direction?: 'asc' | 'desc';
 }

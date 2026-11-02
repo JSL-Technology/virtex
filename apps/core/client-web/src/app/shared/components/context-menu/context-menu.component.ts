@@ -1,9 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, ViewChild, computed, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { CdkContextMenuTrigger, CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 import { AuthService } from '../../../core/services/auth';
 import { ContextMenuService } from './context-menu.service';
 import { ContextMenuItemComponent } from './context-menu-item.component';
 import { MenuContext, MenuItem, MenuSection } from './context-menu.types';
+import { rowActionSections, screenActionSections } from './row-actions';
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
 
 /**
  * El host único del menú contextual — se monta UNA vez en `app.html`.
@@ -31,6 +34,9 @@ import { MenuContext, MenuItem, MenuSection } from './context-menu.types';
 export class ContextMenuComponent implements OnInit {
   private readonly service = inject(ContextMenuService);
   private readonly auth = inject(AuthService);
+  private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly navigation = inject(NavigationActionsService, { optional: true });
 
   @ViewChild(CdkContextMenuTrigger, { static: true }) private trigger!: CdkContextMenuTrigger;
 
@@ -51,6 +57,36 @@ export class ContextMenuComponent implements OnInit {
       openAt: (x, y) => this.trigger.open({ x, y }),
       close: () => this.trigger.close(),
     });
+    // Every table in the product has a menu: a row's own actions, the screen's commands on the
+    // table's chrome (QA R3-B08). Last in the event's path, so a list that declared its menu
+    // (`appRowMenu`, `appTableMenu`) has already answered and marked the event handled.
+    const onMenu = (event: Event) => this.openForTable(event as MouseEvent | KeyboardEvent);
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu') this.openForTable(event);
+    };
+    this.document.addEventListener('contextmenu', onMenu);
+    this.document.addEventListener('keydown', onKey);
+    this.destroyRef.onDestroy(() => {
+      this.document.removeEventListener('contextmenu', onMenu);
+      this.document.removeEventListener('keydown', onKey);
+    });
+  }
+
+  private openForTable(event: MouseEvent | KeyboardEvent): void {
+    if (event.defaultPrevented) return;
+    const target = event.target as HTMLElement | null;
+    // A field keeps the browser's own menu (copy, paste, spelling); the menu itself is not a table.
+    if (!target || target.closest('input, textarea, select, [contenteditable], .cdk-overlay-container')) return;
+    // A table row, or any item a screen marks as one (an inbox's request, a card).
+    const row = target.closest<HTMLElement>('tbody tr, [data-context-item]');
+    const table = target.closest<HTMLElement>('table');
+    if (!row && !table) return;
+    const sections = [
+      ...(row ? rowActionSections(row, this.navigation) : []),
+      ...(table ? screenActionSections(table) : []),
+    ];
+    if (sections.length === 0) return;
+    this.service.open(event, sections, { kind: row ? 'row' : 'table', selection: [], event });
   }
 
   protected isVisible(item: MenuItem, ctx: MenuContext): boolean {

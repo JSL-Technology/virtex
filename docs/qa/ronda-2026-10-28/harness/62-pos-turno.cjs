@@ -1,0 +1,23 @@
+const { launch, instrument, shot, ADMIN, netSince } = require('./lib.cjs');
+const POS = 'http://localhost:4300';
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage(); const log = instrument(page);
+  await page.addInitScript(() => { window.__printed = 0; window.print = () => { window.__printed++; }; });
+  page.on('dialog', (d) => { console.log('DIALOG', d.message()); d.accept(); });
+  await page.goto(POS + '/login'); await page.waitForTimeout(2500);
+  await page.locator('input[type=email], input[autocomplete=username]').first().fill(ADMIN.email); await page.locator('input[type=password]').first().fill(ADMIN.password); await page.locator('button[type=submit]').first().click(); await page.waitForTimeout(5000);
+  const dlg = () => page.locator('[role=dialog], dialog[open]').last();
+  const D = async () => (await dlg().innerText().catch(() => '')).replace(/\s+/g, ' ');
+  const step = async (name, fn) => { const n = log.requests.length; try { await fn(); } catch (e) { console.log(`[${name}] EXC ${e.message.split('\n')[0]}`); } await page.waitForTimeout(1500); const pr = await page.evaluate(() => window.__printed).catch(() => '?'); console.log(`[${name}] print=${pr} red=${JSON.stringify(netSince(log, n)).slice(0, 600)}\n   DLG=${(await D()).slice(0, 700)}`); await shot(page, `post-${name}`); };
+  await step('1-insuf', async () => { await page.getByRole('button', { name: /Cobrar/ }).first().click(); await page.waitForTimeout(800); const inp = dlg().getByRole('textbox').or(dlg().locator('input[type=number], input[inputmode]')).first(); await inp.fill('100'); await page.waitForTimeout(500); console.log('   deshab', await dlg().getByRole('button', { name: /Confirmar cobro/ }).isDisabled()); });
+  await step('2-mixto', async () => { await dlg().getByRole('radio', { name: /Mixto/ }).click(); await page.waitForTimeout(600); console.log('   inputs', await dlg().locator('input').count()); });
+  await step('2b-transfer', async () => { await dlg().getByRole('radio', { name: /Transferencia/ }).click(); await page.waitForTimeout(600); });
+  await step('3-tarjeta', async () => { await dlg().getByRole('radio', { name: /Tarjeta/ }).click(); await page.waitForTimeout(400); console.log('   tarjeta', await D()); await page.waitForTimeout(600); await dlg().getByRole('button', { name: /Confirmar cobro/ }).click(); await page.waitForTimeout(2500); });
+  await step('3b-imprimir', async () => { const b = dlg().getByRole('button', { name: 'Imprimir ticket' }); if (await b.count()) await b.click(); await page.waitForTimeout(1500); const b2 = dlg().getByRole('button', { name: 'Nueva venta' }); if (await b2.count()) await b2.click(); });
+  await step('4-diario', async () => { await page.keyboard.press('F6'); await page.waitForTimeout(1500); });
+  await step('5-anular', async () => { const b = dlg().getByRole('button', { name: /Anular/ }).first(); console.log('   anular-btns', await dlg().getByRole('button', { name: /Anular/ }).count()); if (await b.count()) { await b.click(); await page.waitForTimeout(800); console.log('   ', await D()); const r = dlg().locator('textarea, input[type=text]').first(); if (await r.count()) await r.fill('QA3 anulación de prueba'); await dlg().getByRole('button', { name: /Anular|Confirmar/ }).last().click(); await page.waitForTimeout(2000); } });
+  await page.keyboard.press('Escape'); await page.waitForTimeout(500);
+  await step('6-cerrar-turno', async () => { await page.keyboard.press('F7'); await page.waitForTimeout(1500); });
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });

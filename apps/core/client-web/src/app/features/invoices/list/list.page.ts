@@ -3,7 +3,9 @@ import { BranchesService } from '../../../core/tenancy/branches.service';
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed, effect, untracked } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, PlusCircle, FileSpreadsheet } from 'lucide-angular';
+import { Ban, Copy, Download, FileDown, FileMinus, FileSpreadsheet, HandCoins, LucideAngularModule, Mail, PlusCircle, Printer, RotateCw, Send, Trash2 } from 'lucide-angular';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
 import {
   InvoicesService,
   Invoice,
@@ -12,7 +14,7 @@ import {
 } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
 import { invoiceStatusKey, invoiceStatusTone } from '../../../core/services/invoice-status';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TranslateService } from '@ngx-translate/core';
 import {
@@ -44,10 +46,19 @@ type InvoiceSortKey = 'number' | 'fiscalNumber' | 'customer' | 'issueDate' | 'du
  * that page only, which is worse than not offering it. A header click sends the column and returns
  * to the first page; with no column chosen the order is the server's, newest first.
  */
+/** What the detail page's `canCredit` says: an issued invoice not yet fully credited. */
+function creditable(invoice: Invoice): boolean {
+  return (
+    invoice.type === 'INVOICE' &&
+    !['Draft', 'Void', 'Credit Note'].includes(invoice.status) &&
+    Number(invoice.creditedTotal ?? 0) < Number(invoice.total ?? 0)
+  );
+}
+
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_SORT, ...VX_CONTEXT_MENU, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,6 +71,54 @@ export class InvoicesListPage implements OnInit {
   private notificationService = inject(NotificationService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly intents = inject(DocumentIntentService);
+
+  /**
+   * The row's menu (QA R3-B08): what this invoice allows in its state, for this user — the same
+   * actions its own screen offers, which run there (`DocumentIntentService`), with their dialogs.
+   * The table's menu: a new invoice, refresh and export.
+   */
+  readonly invoicesMenu: ListMenuConfig<Invoice> = {
+    resource: 'invoices',
+    relationshipMapType: 'SALES_INVOICE',
+    table: [
+      {
+        id: 'list',
+        items: [
+          { id: 'new', label: 'invoices.list.new_sales_invoice', icon: PlusCircle, permission: 'invoices:create', run: () => void this.router.navigate(['/invoices/new']) },
+          { id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.loadInvoices() },
+          { id: 'export', label: 'actions.export', icon: Download, run: () => this.exportToCsv() },
+        ],
+      },
+    ],
+    row: (ctx) => {
+      const invoice = ctx.entity as Invoice;
+      const ask = (action: string) => () => this.intents.request(`/invoices/${invoice.id}`, action);
+      const draft = invoice.status === 'Draft';
+      const issued = !draft && invoice.status !== 'Void';
+      return [
+        {
+          id: 'document',
+          items: [
+            { id: 'issue', label: 'invoices.detail.issue_document', icon: Send, permission: 'invoices:create', visible: () => draft, run: ask('issue') },
+            { id: 'collect', label: 'invoices.invoice_toolbar.collect', icon: HandCoins, permission: 'accounts_receivable:collect', visible: () => this.canCollect(invoice), run: ask('collect') },
+            { id: 'email', label: 'invoices.invoice_toolbar.send', icon: Mail, visible: () => issued, run: ask('email') },
+            { id: 'pdf', label: 'invoices.invoice_toolbar.pdf', icon: FileDown, visible: () => !draft, run: ask('pdf') },
+            { id: 'print', label: 'invoices.invoice_toolbar.print', icon: Printer, visible: () => !draft, run: ask('print') },
+            { id: 'duplicate', label: 'actions.duplicate', icon: Copy, permission: 'invoices:create', visible: () => invoice.type === 'INVOICE', run: ask('duplicate') },
+          ],
+        },
+        {
+          id: 'corrections',
+          items: [
+            { id: 'credit-note', label: 'invoices.detail.credit_note', icon: FileMinus, permission: 'invoices:void', visible: () => creditable(invoice), run: ask('credit-note') },
+            { id: 'void', label: 'invoices.detail.void_invoice', icon: Ban, danger: true, permission: 'invoices:void', visible: () => creditable(invoice), run: ask('void') },
+            { id: 'delete-draft', label: 'invoices.detail.delete_draft', icon: Trash2, danger: true, permission: 'invoices:edit', visible: () => draft, run: ask('delete-draft') },
+          ],
+        },
+      ];
+    },
+  };
   /** The branch column and filter appear only for a company that uses branches. */
   protected readonly branches = inject(BranchesService);
 
@@ -68,7 +127,7 @@ export class InvoicesListPage implements OnInit {
   readonly sort = new TableSort<Invoice, InvoiceSortKey>();
   isLoading = signal(true);
   error = signal<string | null>(null);
-  today = new Date().toISOString().split('T')[0];
+  today = tenantToday();
 
   searchTerm = signal('');
   statusFilter = signal<InvoiceStatus | 'All'>('All');
@@ -288,7 +347,8 @@ export class InvoicesListPage implements OnInit {
               invoice.total,
               invoice.balance,
               invoice.currencyCode,
-              invoice.status,
+              // As the list shows it, not the stored code («Pending», «Draft») — QA R3-M05.
+              this.translate.instant(invoiceStatusKey(invoice.status)) as string,
               this.branches.label(invoice.branchId) ?? '',
             ]),
           ];

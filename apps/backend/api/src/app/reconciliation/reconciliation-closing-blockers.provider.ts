@@ -47,7 +47,7 @@ export class ReconciliationClosingBlockersProvider implements ClosingBlockerProv
         params: { count: unreconciledCount },
         isCompleted: unreconciledCount === 0,
         details: { unreconciledCount },
-        resolutionLink: `/reconciliation?periodId=${period.periodId}`,
+        resolutionLink: `/accounting/reconciliation?periodId=${period.periodId}`,
       },
     ];
   }

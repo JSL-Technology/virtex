@@ -69,7 +69,12 @@ describe('ContextMenuService', () => {
     const svc = new ContextMenuService();
     const calls: Array<{ x: number; y: number }> = [];
     svc.registerHost({ openAt: (x, y) => calls.push({ x, y }), close: () => undefined });
+    jest.useFakeTimers();
     svc.open(new MouseEvent('contextmenu', { clientX: 42, clientY: 7 }), [section], ctx);
+    // Not during the event that asked for it (QA R3-B08: the overlay closed itself on that event).
+    expect(calls).toEqual([]);
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
     expect(calls).toEqual([{ x: 42, y: 7 }]);
     expect(svc.sections()).toHaveLength(1);
     expect(svc.context()?.kind).toBe('row');
@@ -139,7 +144,7 @@ describe('ContextMenuComponent (overlay rendering)', () => {
   // Catches the cdk-menu-stack regression: rendering items through ngTemplateOutlet broke the
   // injector chain so every cdkMenuItem threw NG0201 and the overlay never painted. Rendering the
   // real panel through the overlay is the only thing that exercises that wiring.
-  it('paints the menu items in the overlay and runs the clicked one', () => {
+  it('paints the menu items in the overlay and runs the clicked one', async () => {
     TestBed.configureTestingModule({
       imports: [HostApp],
       providers: [{ provide: AuthService, useValue: { hasPermissions: () => true } }],
@@ -155,6 +160,7 @@ describe('ContextMenuComponent (overlay rendering)', () => {
       { id: 'a', label: 'Alpha', run: () => { ran.push('a'); } },
       { id: 'b', label: 'Beta', run: () => { ran.push('b'); } },
     ] }], ctx);
+    await new Promise((resolve) => setTimeout(resolve));
     fixture.detectChanges();
 
     const items = Array.from(document.querySelectorAll<HTMLElement>('.cdk-overlay-container .vx-ctx-trigger'));
@@ -164,7 +170,7 @@ describe('ContextMenuComponent (overlay rendering)', () => {
     expect(ran).toEqual(['a']);
   });
 
-  it('hides an item the user lacks permission for', () => {
+  it('hides an item the user lacks permission for', async () => {
     TestBed.configureTestingModule({
       imports: [HostApp],
       providers: [{ provide: AuthService, useValue: { hasPermissions: (perms: string[]) => !perms.includes('secret') } }],
@@ -178,9 +184,61 @@ describe('ContextMenuComponent (overlay rendering)', () => {
       { id: 'a', label: 'Alpha' },
       { id: 'b', label: 'Beta', permission: 'secret' },
     ] }], { kind: 'row', selection: [], event });
+    await new Promise((resolve) => setTimeout(resolve));
     fixture.detectChanges();
 
     const items = Array.from(document.querySelectorAll<HTMLElement>('.cdk-overlay-container .vx-ctx-trigger'));
     expect(items).toHaveLength(1);
+  });
+
+  // QA R3-B08: opened during the right-click, the overlay saw that same event reach the page and
+  // closed itself before it painted. It must still be open once the event is over.
+  it('stays open after the right-click that opened it has reached the page', async () => {
+    TestBed.configureTestingModule({
+      imports: [HostApp],
+      providers: [{ provide: AuthService, useValue: { hasPermissions: () => true } }],
+    });
+    const fixture = TestBed.createComponent(HostApp);
+    fixture.detectChanges();
+    const service = TestBed.inject(ContextMenuService);
+    const target = document.createElement('div');
+    document.body.appendChild(target);
+    target.addEventListener('contextmenu', (event) =>
+      service.open(event, [{ id: 's', items: [{ id: 'a', label: 'Alpha' }] }], { kind: 'row', selection: [], event }),
+    );
+    target.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 10, clientY: 10 }));
+    await new Promise((resolve) => setTimeout(resolve));
+    fixture.detectChanges();
+    expect(document.querySelectorAll('.cdk-overlay-container .vx-ctx-trigger')).toHaveLength(1);
+    target.remove();
+  });
+
+  // QA R3-B08: every table row has a menu, from what the row offers, with no declaration.
+  it('gives a plain table row its own controls as a menu, and leaves a declared menu alone', async () => {
+    TestBed.configureTestingModule({
+      imports: [HostApp],
+      providers: [{ provide: AuthService, useValue: { hasPermissions: () => true } }],
+    });
+    const fixture = TestBed.createComponent(HostApp);
+    fixture.detectChanges();
+    const host = document.createElement('div');
+    host.innerHTML = '<table><tbody><tr><td>Almacén central</td><td><button type="button">Desactivar</button></td></tr></tbody></table>';
+    document.body.appendChild(host);
+    const cell = host.querySelector('td') as HTMLElement;
+
+    cell.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 5, clientY: 5 }));
+    await new Promise((resolve) => setTimeout(resolve));
+    fixture.detectChanges();
+    const labels = Array.from(document.querySelectorAll<HTMLElement>('.cdk-overlay-container .vx-ctx-trigger')).map((el) => el.textContent?.trim());
+    expect(labels).toEqual(['Desactivar']);
+
+    // A list that answered first (it called preventDefault) is not overridden.
+    TestBed.inject(ContextMenuService).close();
+    const handled = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+    handled.preventDefault();
+    const spy = jest.spyOn(TestBed.inject(ContextMenuService), 'open');
+    cell.dispatchEvent(handled);
+    expect(spy).not.toHaveBeenCalled();
+    host.remove();
   });
 });

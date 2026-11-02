@@ -39,6 +39,16 @@
     "en": "Bank accounts",
     "pt": "Contas bancárias"
   },
+  "treasury.bank_bic_replaced": {
+    "en": "BIC {{bic}} belonged to {{institution}} and is no longer in use. Use {{successor}}.",
+    "es": "El BIC {{bic}} era de {{institution}} y ya no está en uso. Usa {{successor}}.",
+    "pt": "O BIC {{bic}} era de {{institution}} e não está mais em uso. Use {{successor}}."
+  },
+  "treasury.bank_bic_retired": {
+    "en": "BIC {{bic}} belonged to {{institution}}, which no longer operates. A payment sent to it would not arrive.",
+    "es": "El BIC {{bic}} era de {{institution}}, que ya no opera. Un pago enviado a él no llegaría.",
+    "pt": "O BIC {{bic}} era de {{institution}}, que não opera mais. Um pagamento enviado a ele não chegaria."
+  },
   "treasury.bank_in_use": {
     "es": "No se puede eliminar: {{count}} cuentas bancarias están en este banco. Desactívalo en su lugar.",
     "en": "It cannot be deleted: {{count}} bank accounts are held at this bank. Deactivate it instead.",
@@ -176,6 +186,26 @@
     "es": "Nombre",
     "en": "Name",
     "pt": "Nome"
+  },
+  "treasury.form.negative_opening_confirm": {
+    "en": "Yes, it is overdrawn",
+    "es": "Sí, está sobregirada",
+    "pt": "Sim, está a descoberto"
+  },
+  "treasury.form.negative_opening_hint": {
+    "en": "Negative opening balance: the account starts overdrawn.",
+    "es": "Saldo inicial negativo: la cuenta empieza sobregirada.",
+    "pt": "Saldo inicial negativo: a conta começa a descoberto."
+  },
+  "treasury.form.negative_opening_message": {
+    "en": "The opening balance is negative: an entry crediting the bank will be posted. Confirm only if the account really was overdrawn.",
+    "es": "El saldo inicial es negativo: se registrará un asiento que acredita el banco. Confírmalo solo si la cuenta estaba realmente en sobregiro.",
+    "pt": "O saldo inicial é negativo: será lançado um registro creditando o banco. Confirme apenas se a conta realmente estava a descoberto."
+  },
+  "treasury.form.negative_opening_title": {
+    "en": "Start the account overdrawn?",
+    "es": "¿Empezar la cuenta sobregirada?",
+    "pt": "Começar a conta a descoberto?"
   },
   "treasury.form.new_bank_account": {
     "es": "Nueva cuenta bancaria",

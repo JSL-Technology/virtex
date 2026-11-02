@@ -11,6 +11,7 @@ import { CashPositionRegistry } from './treasury/cash-position.contract';
 import { PaymentLikelihoodRegistry } from './ai/payment-likelihood.contract';
 import { DuplicateSourceRegistry } from './data-quality/duplicate-sources.contract';
 import { ReorderSuggestionRegistry } from './ai/reorder-suggestions.contract';
+import { LedgerPostingRegistry } from './ledger-posting/ledger-posting.contract';
 
 /**
  * Los contratos por los que dos módulos se hablan sin conocerse.
@@ -28,7 +29,7 @@ import { ReorderSuggestionRegistry } from './ai/reorder-suggestions.contract';
  */
 @Global()
 @Module({
-  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, PeriodGateRegistry],
-  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, PeriodGateRegistry],
+  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry],
+  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry],
 })
 export class ContractsModule {}

@@ -23,18 +23,25 @@ registerAllModules();
   selector: 'app-datasheet-grid',
   standalone: true,
   imports: [CommonModule, HotTableComponent],
-  template: `
-    <hot-table
-      [settings]="hotSettings"
-      class="w-full h-full"
-    ></hot-table>
-  `,
-  styleUrls: [],
+  template: `<hot-table [settings]="hotSettings"></hot-table>`,
+  // The grid fills its container. Handsontable 18 draws nothing without a theme and a sized host
+  // (QA R3-A06: the editor opened onto a blank area).
+  styles: [`app-datasheet-grid, app-datasheet-grid hot-table { display: block; width: 100%; height: 100%; }`],
   encapsulation: ViewEncapsulation.None
 })
 export class DatasheetGridComponent implements OnInit, OnDestroy {
   private readonly notificationService = inject(NotificationService);
   @Input() id = 'hot-editor';
+  @ViewChild(HotTableComponent) private hotTable?: HotTableComponent;
+
+  /**
+   * The live grid. It was looked up with `window.Handsontable.getInstance(...)`, an API Handsontable
+   * does not have, by an element id the grid never received — so saving, refreshing and the
+   * ERP-formula guard all threw before doing anything.
+   */
+  get hot(): Handsontable | undefined {
+    return this.hotTable?.hotInstance ?? undefined;
+  }
 
   private hfInstance: any;
   private erpVariables: any[] = [];
@@ -53,6 +60,7 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
     rowHeaders: true,
     height: '100%',
     width: '100%',
+    themeName: 'ht-theme-main',
     licenseKey: 'non-commercial-and-evaluation',
     formulas: {
       engine: HyperFormula,
@@ -64,8 +72,7 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
        return cellProperties;
     },
     beforeBeginEditing: (row: number, col: number) => {
-       const hot = (window as any).Handsontable.getInstance(document.getElementById(this.id));
-       const value = hot.getSourceDataAtCell(row, col);
+       const value = this.hot?.getSourceDataAtCell(row, col);
        if (typeof value === 'string' && value.startsWith('=')) {
           // Check if it's an ERP variable
           if (this.isERPVariableFormula(value)) {
@@ -110,8 +117,38 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
     await this.registerERPFuntions();
   }
 
+  /** Replace the grid's contents — a saved book being reopened. */
+  load(cells: unknown[][] | null | undefined): void {
+    if (!cells?.length) return;
+    this.hot?.loadData(cells as Handsontable.CellValue[][]);
+  }
+
+  /** The grid's contents, formulas included, for saving. */
+  getCells(): unknown[][] {
+    return (this.hot?.getSourceData() as unknown[][]) ?? [];
+  }
+
+  /** Format the selected cells: general text, number, currency or date. */
+  setCellType(type: 'general' | 'number' | 'currency' | 'date'): void {
+    const hot = this.hot;
+    const selected = hot?.getSelected();
+    if (!hot || !selected?.length) return;
+    for (const [r1, c1, r2, c2] of selected) {
+      for (let row = Math.min(r1, r2); row <= Math.max(r1, r2); row++) {
+        for (let col = Math.min(c1, c2); col <= Math.max(c1, c2); col++) {
+          if (type === 'general') hot.setCellMetaObject(row, col, { type: 'text', numericFormat: undefined });
+          if (type === 'number') hot.setCellMetaObject(row, col, { type: 'numeric', numericFormat: { pattern: '0,0.00' } });
+          if (type === 'currency') hot.setCellMetaObject(row, col, { type: 'numeric', numericFormat: { pattern: '$0,0.00' } });
+          if (type === 'date') hot.setCellMetaObject(row, col, { type: 'date', dateFormat: 'YYYY-MM-DD', correctFormat: true });
+        }
+      }
+    }
+    hot.render();
+  }
+
   setCellFormula(formula: string) {
-     const hot = (window as any).Handsontable.getInstance(document.getElementById(this.id));
+     const hot = this.hot;
+     if (!hot) return;
      const selected = hot.getSelected() || [[0, 0]];
      const [row, col] = selected[0];
      hot.setDataAtCell(row, col, formula);
@@ -164,7 +201,8 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
   }
 
   async refreshData() {
-    const hot = (window as any).Handsontable.getInstance(document.getElementById(this.id));
+    const hot = this.hot;
+    if (!hot) return;
     const formulas = hot.getData().flat().filter((v: any) => typeof v === 'string' && v.startsWith('='));
 
     const varsToResolve: any[] = [];
@@ -187,8 +225,7 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
     // The Handsontable instance owns DOM nodes and listeners that outlive the component unless it
     // is destroyed explicitly; the method was previously an empty body with a `// Cleanup logic`
     // comment, so every visit to a datasheet leaked one.
-    const instance = (window as never as { Handsontable?: { getInstance(el: HTMLElement | null): { destroy?(): void } | undefined } })
-      .Handsontable?.getInstance(document.getElementById(this.id));
-    instance?.destroy?.();
+    const instance = this.hot;
+    if (instance && !instance.isDestroyed) instance.destroy();
   }
 }

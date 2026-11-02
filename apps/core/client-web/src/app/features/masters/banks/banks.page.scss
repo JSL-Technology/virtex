@@ -3,3 +3,10 @@
 :host {
   @include list.list-page;
 }
+
+/* The registered name under the one people use: what a statement or a tax form calls the bank. */
+.bank-legal-name {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: var(--content-secondary);
+}

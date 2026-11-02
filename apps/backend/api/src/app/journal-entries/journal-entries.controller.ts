@@ -129,7 +129,7 @@ export class JournalEntriesController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
-          new FileTypeValidator({ fileType: /(text\/csv|spreadsheetml\.sheet)/ }),
+          new FileTypeValidator({ fileType: /(text\/csv|spreadsheetml\.sheet)/, fallbackToMimetype: true }),
         ],
       }),
     )
@@ -146,7 +146,7 @@ export class JournalEntriesController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
-          new FileTypeValidator({ fileType: /(text\/csv|spreadsheetml\.sheet)/ }),
+          new FileTypeValidator({ fileType: /(text\/csv|spreadsheetml\.sheet)/, fallbackToMimetype: true }),
         ],
       }),
     )

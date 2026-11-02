@@ -1,9 +1,12 @@
 import { FormsModule } from '@angular/forms';
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { VxBranchLabelComponent, VxBranchPickerComponent } from '../../../shared/components/branch-picker';
 import { BranchesService } from '../../../core/tenancy/branches.service';
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, PlusCircle, MoreHorizontal } from 'lucide-angular';
+import { Ban, FileCheck, FileMinus, HandCoins, LucideAngularModule, MoreHorizontal, Pencil, PlusCircle, RotateCw, Send } from 'lucide-angular';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateService } from '@ngx-translate/core';
@@ -20,12 +23,44 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-vendor-bills-list-page',
   standalone: true,
-  imports: [InboundMailInboxComponent, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_CONTEXT_MENU, InboundMailInboxComponent, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorBillsListPage implements OnInit {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly billsMenu: ListMenuConfig<VendorBill> = {
+    resource: 'vendor-bills',
+    relationshipMapType: 'VENDOR_BILL',
+    row: (ctx) => {
+      const bill = ctx.entity as VendorBill;
+      const path = `/accounts-payable/${bill.id}`;
+      const ask = (action: string) => this.menuIntents.request(path, action);
+      return [
+        {
+          id: 'document',
+          items: [
+            { id: 'edit', label: 'accounts_payable.detail.edit', icon: Pencil, permission: 'accounts_payable:edit', visible: () => bill.status === 'DRAFT', run: () => this.menuNavigation.open(`/accounts-payable/${bill.id}/edit`, 'preview') },
+            { id: 'submit', label: 'accounts_payable.detail.submit_approval', icon: Send, permission: 'accounts_payable:approve', visible: () => bill.status === 'DRAFT', run: () => ask('submit') },
+            { id: 'pay', label: 'accounts_payable.detail.pay', icon: HandCoins, permission: 'accounts_payable:pay', visible: () => ['OPEN', 'PARTIALLY_PAID'].includes(bill.status) && Number(bill.balance) > 0, run: () => this.menuNavigation.open(`/accounts-payable/payments/new?billId=${bill.id}`, 'preview') },
+            { id: 'debit-note', label: 'accounts_payable.detail.debit_note', icon: FileMinus, permission: 'accounts_payable:create', visible: () => ['OPEN', 'PARTIALLY_PAID'].includes(bill.status) && Number(bill.balance) > 0, run: () => this.menuNavigation.open(`/accounts-payable/debit-notes/new?billId=${bill.id}`, 'preview') },
+            { id: 'record-ncf', label: 'accounts_payable.detail.record_ncf', icon: FileCheck, permission: 'accounts_payable:edit', visible: () => !bill.ncf && !['DRAFT', 'VOID', 'REJECTED'].includes(bill.status), run: () => ask('record-ncf') },
+          ],
+        },
+        {
+          id: 'corrections',
+          items: [
+            { id: 'void', label: 'accounts_payable.detail.void', icon: Ban, danger: true, permission: 'accounts_payable:void', visible: () => !['VOID', 'PAID', 'PARTIALLY_PAID'].includes(bill.status), run: () => ask('void') },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.loadVendorBills() }] },
+      ];
+    },
+  };
+
   private readonly translate = inject(TranslateService);
   /** Sortable by its headers (QA B-01). */
   readonly table = sortable(() => this.vendorBills(), { vendor: (bill) => bill.vendor?.name, status: (bill) => this.translate.instant(this.statusKey(bill.status)) });

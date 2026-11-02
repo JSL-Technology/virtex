@@ -26,7 +26,7 @@ import { MenuContext, MenuItem } from './context-menu.types';
     @if (item().icon; as icon) {
       <lucide-icon class="vx-ctx-item__icon" [img]="icon" size="16" aria-hidden="true" />
     }
-    <span class="vx-ctx-item__label">{{ label().key | translate: label().params }}</span>
+    <span class="vx-ctx-item__label">{{ item().text ?? (label().key | translate: label().params) }}</span>
     @if (item().chord; as chord) {
       <vx-kbd class="vx-ctx-item__kbd" [chord]="chord" />
     }

@@ -10,8 +10,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * it CONCURRENTLY — and TypeORM's recorded definition is updated so the entity and the database
  * describe the same view.
  */
-export class AnalyticalViewLedgerStatuses1789280000000 implements MigrationInterface {
-  name = 'AnalyticalViewLedgerStatuses1789280000000';
+export class AnalyticalViewLedgerStatuses1789320000000 implements MigrationInterface {
+  name = 'AnalyticalViewLedgerStatuses1789320000000';
 
   public async up(q: QueryRunner): Promise<void> {
     await this.rebuild(q, `('Posted', 'Modified')`);

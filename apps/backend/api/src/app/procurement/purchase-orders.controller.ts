@@ -28,6 +28,7 @@ import {
   RejectDto,
   UpdatePurchaseOrderDto,
 } from './dto/purchase-order.dto';
+import { OrderFromRequisitionDto } from './dto/order-from-requisition.dto';
 
 /**
  * Purchase orders.
@@ -73,7 +74,7 @@ export class PurchaseOrdersController {
   @ApiOperation({ summary: 'Convierte una requisición aprobada en una orden a un proveedor.' })
   fromRequisition(
     @Param('requisitionId', UuidParamPipe) requisitionId: string,
-    @Body() body: { supplierId: string },
+    @Body() body: OrderFromRequisitionDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.orders.createFromRequisition(

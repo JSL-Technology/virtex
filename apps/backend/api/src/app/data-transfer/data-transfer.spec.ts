@@ -242,11 +242,24 @@ describeWithDb('data transfer', () => {
     const file = await service.export(admin(), 'contacts', 'csv');
     const text = file.body.toString('utf-8');
 
-    expect(text.startsWith('\uFEFFnombre,correo,codigo\r\n')).toBe(true);
+    // The product's one dialect (QA R3-B10): `sep=` and the reader's delimiter — a semicolon for
+    // a Spanish reader, whose Excel put a comma-separated file in column A.
+    expect(text.startsWith('\uFEFFsep=;\r\nnombre;correo;codigo\r\n')).toBe(true);
     // A formula is text; a negative number stays a number.
-    expect(text).toContain(`"'=HYPERLINK(""http://evil"")"`);
-    expect(text).toContain(',-500\r\n');
-    expect(text).toContain('"Comas, ""y"" comillas",,C-2');
+    expect(text).toContain(`'=HYPERLINK(""http://evil"")`);
+    expect(text).toContain(';-500\r\n');
+    expect(text).toContain('"Comas, ""y"" comillas";;C-2');
+  });
+
+  it('reads back its own export: the `sep=` line names the delimiter and is not a row', async () => {
+    const report = await service.import(
+      ledgerUser(),
+      'balances',
+      csv('sep=;\ncuenta;importe\nA;100\nB;-100\n'),
+      'validate',
+    );
+    expect(report.problems.filter((problem) => problem.key === 'data_transfer.file_unreadable')).toEqual([]);
+    expect(report.totalRows).toBe(2);
   });
 
   it('checks the file as a whole, and names the row a file-level problem is about', async () => {

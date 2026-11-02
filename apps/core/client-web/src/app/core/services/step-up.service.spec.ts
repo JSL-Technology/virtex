@@ -194,4 +194,34 @@ describe('StepUpService', () => {
     http.expectOne(`${api}/step-up/challenge`).flush({ factor: 'password' });
     expect(action).not.toHaveBeenCalled();
   });
+
+  describe('requireStepUpWithPassword (QA R3-B07)', () => {
+    it('uses the password the form already asked for, without a second prompt', () => {
+      const create = jest.spyOn(vcr, 'createComponent');
+      const emitted: string[] = [];
+      service
+        .requireStepUpWithPassword(StepUpScope.CHANGE_PASSWORD, vcr, 'Actual-123!', () => of('changed'))
+        .subscribe((v) => emitted.push(v));
+      http.expectOne(`${api}/step-up/challenge`).flush({ factor: 'password' });
+      const proof = http.expectOne(`${api}/step-up`);
+      expect(proof.request.body).toEqual({ scope: StepUpScope.CHANGE_PASSWORD, password: 'Actual-123!' });
+      proof.flush({ success: true });
+      expect(emitted).toEqual(['changed']);
+      expect(create).not.toHaveBeenCalled();
+    });
+
+    it('fails the action with the server error when that password is wrong', () => {
+      const errors: unknown[] = [];
+      const action = jest.fn(() => of('changed'));
+      service
+        .requireStepUpWithPassword(StepUpScope.CHANGE_PASSWORD, vcr, 'mala', action)
+        .subscribe({ error: (e) => errors.push(e) });
+      http.expectOne(`${api}/step-up/challenge`).flush({ factor: 'password' });
+      http
+        .expectOne(`${api}/step-up`)
+        .flush({ code: 'STEP_UP_INVALID_CREDENTIALS' }, { status: 400, statusText: 'Bad Request' });
+      expect(action).not.toHaveBeenCalled();
+      expect((errors[0] as { error: { code: string } }).error.code).toBe('STEP_UP_INVALID_CREDENTIALS');
+    });
+  });
 });

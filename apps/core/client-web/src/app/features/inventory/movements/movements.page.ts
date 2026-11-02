@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -11,7 +11,8 @@ import { VxDateRangeComponent } from '../../../shared/components/date';
 import { NotificationService } from '../../../core/services/notification';
 import { InventoryService } from '../../../core/api/inventory.service';
 import { Product } from '../../../core/models/product.model';
-import { STOCK_MOVEMENT_TYPES, StockMovementRow, StockMovementType, StockService } from '../data/stock.service';
+import { STOCK_MOVEMENT_TYPES, StockMovementRow, StockMovementSort, StockMovementType, StockService } from '../data/stock.service';
+import { TableSort, VX_SORT } from '../../../shared/components/sort';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
@@ -37,7 +38,7 @@ const SOURCE_ROUTES: Record<string, (id: string) => string> = {
 @Component({
   selector: 'app-stock-movements-page',
   standalone: true,
-  imports: [FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
+  imports: [...VX_SORT, FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
   templateUrl: './movements.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './movements.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,6 +69,29 @@ export class StockMovementsPage implements OnInit {
   readonly typeFilter = signal<StockMovementType | ''>('');
   readonly from = signal<string | null>(null);
   readonly to = signal<string | null>(null);
+
+  /**
+   * Sorted by the server: the list is paged, and sorting one page sorts the wrong rows (QA R3-B02).
+   * The balance is computed in date order before the rows are ordered, so it stays right.
+   */
+  readonly sort = new TableSort<StockMovementRow, StockMovementSort>();
+  /** The opening row belongs above the first movement in date order only. */
+  readonly chronological = computed(() => {
+    const { key, direction } = this.sort.state();
+    return !key || (key === 'date' && direction === 'asc');
+  });
+
+  constructor() {
+    let first = true;
+    effect(() => {
+      this.sort.state();
+      if (first) {
+        first = false;
+        return;
+      }
+      untracked(() => this.applyFilters());
+    });
+  }
 
   readonly empty = computed(() => !this.loading() && !this.error() && this.rows().length === 0);
   /** The balance column means something only for one product. */
@@ -101,6 +125,8 @@ export class StockMovementsPage implements OnInit {
         to: this.to(),
         page: this.page(),
         limit: this.limit(),
+        sort: this.sort.state().key,
+        direction: this.sort.state().key ? this.sort.state().direction : null,
       })
       .subscribe({
         next: (result) => {

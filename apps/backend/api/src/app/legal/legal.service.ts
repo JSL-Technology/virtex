@@ -57,6 +57,8 @@ export class LegalService {
     const countryCode = dto.countryCode.toUpperCase();
     // tenant-scope-guard-allow: market_waitlist is platform data (visitors with no tenant yet), and this is an upsert, not a read.
     await this.waitlist
+      // tenant-scope-guard-allow: the waitlist is global — a visitor asking for a country we do not
+      // serve yet belongs to no company, and the write happens before any tenant exists.
       .createQueryBuilder()
       .insert()
       .into(MarketWaitlistEntry)

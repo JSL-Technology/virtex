@@ -23,7 +23,7 @@ import { roundAmount, toCents } from '../common/money';
 import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbering/document-numbers';
 import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope } from '../organizations/contracts/branch.contract';
-import { assertPostableAccount, resolvePurchaseTaxAccount } from './payables-accounts';
+import { assertPostableAccount, isInventoryAccount, resolvePurchaseTaxAccount } from './payables-accounts';
 import { VendorDebitNoteQueryDto } from './dto/vendor-debit-note-query.dto';
 import { billPayable } from './vendor-bill-balance';
 
@@ -128,6 +128,16 @@ export class VendorDebitNotesService {
       if (!settings || !settings.defaultAccountsPayableId) {
         throw new BadRequestError('accounts_payable.default_payable_account_not_configured');
       }
+      // The inventory control account is not a counterpart a note can credit: the note moves no
+      // stock, so the books' inventory fell below the warehouse's by the note's amount (QA R3-A10).
+      // Goods going back are an inventory adjustment (stock out); the note then credits the
+      // adjustment account, and together they post exactly «payable against inventory».
+      if (
+        dto.expenseAccountId === settings.defaultInventoryId ||
+        (await isInventoryAccount(manager, organizationId, dto.expenseAccountId))
+      ) {
+        throw new BadRequestError('accounts_payable.debit_note_counterpart_cannot_be_inventory');
+      }
       const taxAccountId =
         toCents(taxAmount) > 0
           ? await resolvePurchaseTaxAccount(manager, organizationId, settings.defaultPurchaseTaxId)
@@ -175,7 +185,7 @@ export class VendorDebitNotesService {
         header: { key: 'ledger.debit_note.vendor_entry', params: { reason: `${number} · ${reason}` } },
         payable: {
           key: 'ledger.debit_note.vendor_payable',
-          params: { bill: vendorBill.ncf || vendorBill.id.substring(0, 8) },
+          params: { bill: vendorBill.ncf || `${vendorBill.vendor?.name ?? ''} ${String(vendorBill.date).slice(0, 10)}`.trim() },
         },
         counterpart: { key: 'ledger.debit_note.vendor_counterpart', params: { reason } },
         tax: { key: 'ledger.debit_note.vendor_tax_returned' },

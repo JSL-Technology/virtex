@@ -18,6 +18,8 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 import { VX_CONTEXT_MENU, ListSelectionService, ListMenuConfig } from '../../../shared/components/context-menu';
 import { DatasetExportService } from '../../../core/export/dataset-export';
 import { forkJoin } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { downloadCsv, reportFilename, toCsv } from '../../../core/export/csv-export';
 
 @Component({
   selector: 'app-products-page',
@@ -37,6 +39,7 @@ export class ProductsPage implements OnInit {
   private readonly safeDelete = inject(SafeDeleteService);
   private readonly router = inject(Router);
   private readonly datasetExport = inject(DatasetExportService);
+  private readonly translate = inject(TranslateService);
   /** Selección múltiple de la lista; alimenta las acciones en lote del menú contextual. */
   readonly selection = inject<ListSelectionService<Product>>(ListSelectionService);
 
@@ -101,7 +104,7 @@ export class ProductsPage implements OnInit {
             items: [
               { id: 'archive', label: () => ({ key: 'actions.archive_n', params: { n } }), icon: Archive, permission: 'products:edit', run: () => this.archiveMany(items) },
               { id: 'delete', label: () => ({ key: 'actions.delete_n', params: { n } }), icon: Trash2, danger: true, permission: 'products:delete', run: () => this.deleteMany(items) },
-              { id: 'export', label: () => ({ key: 'actions.export_n', params: { n } }), icon: Download, run: () => this.datasetExport.export('products') },
+              { id: 'export', label: () => ({ key: 'actions.export_n', params: { n } }), icon: Download, run: () => this.exportSelected(items) },
             ],
           },
         ];
@@ -199,6 +202,44 @@ export class ProductsPage implements OnInit {
       next: () => { this.notificationService.showSuccess('inventory.products.product_deactivated'); this.loadProducts(); },
       error: (err) => this.notificationService.showHttpError(err, 'inventory.products.error_updating_product'),
     });
+  }
+
+  /**
+   * «Exportar N» exports those N. It exported every product of the company, whatever was selected
+   * (QA R3-B08); the whole catalogue is the table menu's «Exportar».
+   */
+  protected exportSelected(items: Product[]): void {
+    const header = [
+      'inventory.products.export_column.product',
+      'inventory.products.export_column.sku',
+      'inventory.products.export_column.category',
+      'inventory.products.export_column.price',
+      'inventory.products.export_column.cost',
+      'inventory.products.export_column.stock',
+      'inventory.products.export_column.status',
+    ].map((key) => this.translate.instant(key));
+    const rows = items.map((product) => [
+      product.name,
+      product.sku,
+      product.category?.name ?? '',
+      Number(product.price),
+      Number(product.cost ?? 0),
+      Number(product.stock ?? 0),
+      this.translate.instant(this.stockLabel(product)),
+    ]);
+    downloadCsv(
+      reportFilename(this.translate.instant('inventory.products.export_file'), String(items.length)),
+      toCsv([header, ...rows], { locale: this.translate.getCurrentLang() }),
+    );
+  }
+
+  /** The selection bar's archive: the same action the row menu offers for a selection. */
+  protected archiveSelected(): void {
+    this.archiveMany(this.selection.selected());
+  }
+
+  protected deleteSelected(): void {
+    void this.deleteMany(this.selection.selected());
   }
 
   protected archiveMany(items: Product[]): void {

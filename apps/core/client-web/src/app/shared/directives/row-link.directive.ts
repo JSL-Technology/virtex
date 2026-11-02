@@ -1,4 +1,5 @@
 import { Directive, ElementRef, inject } from '@angular/core';
+import { rowLinkOf } from '../components/context-menu/row-navigation';
 
 const INTERACTIVE = 'a, button, input, select, textarea, label, summary, [role="button"], [role="menuitem"], [contenteditable]';
 
@@ -11,6 +12,9 @@ const INTERACTIVE = 'a, button, input, select, textarea, label, summary, [role="
  * modifier keys behave exactly as the link does. The link stays the keyboard path: the row is not
  * a second tab stop for the same destination. Clicks on the row's own controls, and a drag that
  * selects text to copy, are left alone.
+ *
+ * Its context menu (open it, open it elsewhere, its own actions, copy its link) is the one every
+ * table row gets — see `row-actions.ts` and `ContextMenuComponent`.
  */
 @Directive({
   selector: 'tr[appRowLink]',
@@ -27,7 +31,7 @@ export class RowLinkDirective {
     const target = event.target as Element | null;
     if (!target || target.closest(INTERACTIVE)) return;
     if (typeof window !== 'undefined' && window.getSelection()?.toString()) return;
-    const link = this.row.nativeElement.querySelector<HTMLAnchorElement>('a.table-link, a[href]');
+    const link = this.link();
     if (!link) return;
     link.dispatchEvent(
       new MouseEvent('click', {
@@ -40,5 +44,9 @@ export class RowLinkDirective {
         altKey: event.altKey,
       }),
     );
+  }
+
+  private link(): HTMLAnchorElement | null {
+    return rowLinkOf(this.row.nativeElement);
   }
 }

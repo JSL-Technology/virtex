@@ -31,28 +31,15 @@
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  //  Fondo SÓLIDO, el mismo del topbar: todo el armazón comparte un único color
+  //  de lienzo, sin degradado. Antes un `::before` pintaba una «aurora» de dos
+  //  gradientes radiales para que el cristal translúcido tuviera algo que recoger;
+  //  se retira a propósito para que el fondo sea plano y uniforme.
   background-color: var(--surface-canvas);
   font-family: inherit;
   transition: grid-template-columns 0.3s ease-in-out;
   position: relative;
   isolation: isolate;
-
-  //  Ambiente. Sin algo de color detrás, una superficie translúcida sobre un
-  //  gris plano se ve simplemente gris: el desenfoque no tiene nada que
-  //  recoger. Este velo es deliberadamente tenue —es un ERP, no una portada— y
-  //  no se mueve: la aurora animada pertenece a las pantallas públicas, donde
-  //  el usuario está de paso.
-  &::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0.5;
-    background:
-      radial-gradient(60rem 32rem at 6% -8%, var(--aurora-1), transparent 68%),
-      radial-gradient(48rem 28rem at 104% 2%, var(--aurora-2), transparent 70%);
-  }
 
   // --- Variables para la Búsqueda Global ---
   --search-popover-bg: var(--glass-bg-strong);
@@ -199,7 +186,13 @@
 //  que la navegación cambie según una preferencia visual de la organización.
 :host {
   grid-template-columns: var(--rail-width) var(--panel-width) 1fr;
-  grid-template-rows: auto 56px 1fr auto;
+  //  `minmax(0, 1fr)` y NO `1fr`: una pista `1fr` es en realidad `minmax(auto, 1fr)`,
+  //  cuyo mínimo es el contenido. Un módulo con muchas secciones (o un listado
+  //  largo en el editor) estiraba esta fila MUY por debajo del viewport, el
+  //  `overflow: hidden` del host la recortaba y nada scrolleaba: los últimos
+  //  elementos quedaban inalcanzables. Con `minmax(0, …)` la fila se queda en el
+  //  alto disponible y son los contenedores internos los que desplazan.
+  grid-template-rows: auto 56px minmax(0, 1fr) auto;
   grid-template-areas:
     'banner  banner  banner'
     'topbar  topbar  topbar'
@@ -209,6 +202,8 @@
   .main-sidebar {
     grid-area: sidebar;
     display: flex;
+    //  El ítem de rejilla no debe crecer con su contenido (ver la fila arriba).
+    min-height: 0;
   }
 
   .main-topbar {
@@ -218,6 +213,7 @@
 
   .main-content {
     grid-area: content;
+    min-height: 0;
   }
 }
 
@@ -241,6 +237,15 @@
   border-block: 0;
   border-left: 0;
   @include ds.transition(background-color, border-color);
+
+  //  `app-sidebar` llena el alto que deja el conmutador de empresa y desplaza su
+  //  propio cuerpo. Sin `flex: 1; min-height: 0` tomaba el 100% del panel ADEMÁS
+  //  del `.logo-container`: se desbordaba por abajo y sus últimas secciones
+  //  quedaban recortadas, sin forma de llegar a ellas (no había scroll).
+  app-sidebar {
+    flex: 1;
+    min-height: 0;
+  }
 
   .logo-container {
     padding: var(--space-5) var(--space-4) var(--space-4);
@@ -336,7 +341,10 @@
   padding: 0 var(--space-8);
   position: relative;
   z-index: 100;
-  background-color: var(--chrome-surface);
+  //  Mismo color que el lienzo (el fondo del body): la barra superior se funde con
+  //  él y no se lee como una franja aparte. La barra de estado ya es transparente
+  //  sobre el mismo lienzo, así que ambas comparten el fondo del armazón.
+  background-color: var(--surface-canvas);
   color: var(--chrome-content);
   //  Sin bordes: la barra superior se funde con el lienzo y la separación con el
   //  área de trabajo la da el hueco que dejan las tarjetas flotantes de abajo.
@@ -407,7 +415,7 @@
   //  controles de Windows caen sobre ella, no sobre un banner. Los avisos
   //  (suplantación, pago pendiente) pasan justo debajo, con la misma anchura y
   //  sin perder prominencia.
-  grid-template-rows: 56px auto 1fr auto;
+  grid-template-rows: 56px auto minmax(0, 1fr) auto;
   grid-template-areas:
     'topbar  topbar  topbar'
     'banner  banner  banner'
@@ -518,8 +526,17 @@
 
 .main-content {
   overflow: hidden;
-  height: 100%;
-  width: 100%;
+  //  Sin `height: 100%`: como ítem de rejilla, eso valía el 100% del ÁREA de la
+  //  pista SIN descontar los márgenes de la tarjeta, de modo que el editor se
+  //  desbordaba 16px por abajo (se metía bajo la barra de estado, sin el hueco
+  //  inferior). Al estirarse con la rejilla (`align-self: stretch`) ocupa el área
+  //  MENOS los márgenes —igual que `.main-sidebar`—; `app-tab-container` sigue
+  //  resolviendo su `height: 100%` porque un ítem estirado tiene alto definido.
+  //  Tampoco `width: 100%` (mismo motivo en horizontal): valía el 100% del ancho
+  //  de la COLUMNA sin descontar los márgenes, así que el editor se desbordaba 4px
+  //  por la derecha y quedaba pegado al borde de la pantalla, sin el inset que SÍ
+  //  tiene el riel por la izquierda. Al estirarse con la rejilla ocupa el ancho de
+  //  la columna MENOS los márgenes y queda simétrico con el lado izquierdo.
   //  A grid item's minimum is its content's by default: the docked windows asked for 435px and a
   //  390px phone cut every page's right edge (buttons, badges, the footer). It shrinks to its track.
   min-width: 0;
@@ -558,26 +575,30 @@
 //  Tarjeta izquierda = riel + panel, UNIDOS en una sola tarjeta. El riel flota
 //  también por la izquierda (un poco separado del borde de la ventana); el
 //  divisor interior lo aporta su propio borde derecho.
+//  Sin inset VERTICAL: las tarjetas se pegan al topbar por arriba y a la barra de
+//  estado por abajo. Solo queda el inset LATERAL (y el hueco entre paneles).
 app-module-rail {
-  margin: var(--workbench-inset) 0 var(--workbench-inset) var(--workbench-inset);
+  margin: 0 0 0 var(--workbench-inset);
   border: 1px solid var(--border-default);
   border-right: 0;
   border-radius: var(--panel-radius) 0 0 var(--panel-radius);
   overflow: hidden;
+  min-height: 0;
 }
 
 .main-sidebar {
-  margin-block: var(--workbench-inset);
+  margin-block: 0;
   border: 1px solid var(--border-default);
   border-left: 0;
   border-radius: 0 var(--panel-radius) var(--panel-radius) 0;
 }
 
 //  Tarjeta derecha = editor (contenedor de pestañas). Hueco ESTRECHO a la
-//  izquierda (donde vive el tirador) e inset normal en los otros tres lados.
+//  izquierda (donde vive el tirador) e inset normal a la derecha; pegada arriba y
+//  abajo (sin inset vertical).
 //  `overflow: hidden` (ya existente) redondea la franja de pestañas con la tarjeta.
 .main-content {
-  margin: var(--workbench-inset) var(--workbench-inset) var(--workbench-inset) var(--workbench-gap);
+  margin: 0 var(--workbench-inset) 0 var(--workbench-gap);
   border: 1px solid var(--border-default);
   border-radius: var(--panel-radius);
 }
@@ -585,8 +606,15 @@ app-module-rail {
 //  El tirador se centra en el hueco estrecho, con un área de agarre algo mayor
 //  que se mete un poco en cada tarjeta. El selector es más específico que el
 //  `:host(.vx-resize-handle--end)` interno del componente, para ganarle.
+//  El `-6px` (y no `-5px`) compensa el `border-right: 1px` de la tarjeta del
+//  panel: como el tirador se posiciona en absoluto dentro del panel, su bloque
+//  contenedor es la CAJA DE RELLENO (sin el borde), así que un `-5px` dejaba el
+//  tirador —y con él la línea de acento y los puntos, centrados en su caja— 1px
+//  a la izquierda del centro real del hueco, pegados al borde del panel. Con
+//  `-6px` el tirador queda centrado en el hueco y su agarre entra 5px en cada
+//  tarjeta por igual.
 .main-sidebar vx-resize-handle.sidebar-resizer {
-  right: calc(-1 * var(--workbench-gap) - 5px);
+  right: calc(-1 * var(--workbench-gap) - 6px);
   width: calc(var(--workbench-gap) + 10px);
 }
 

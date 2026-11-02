@@ -49,6 +49,31 @@
     "en": "Description",
     "pt": "Descrição"
   },
+  "purchasing.orders.form.done.approved": {
+    "en": "Order {{number}} approved.",
+    "es": "Orden {{number}} aprobada.",
+    "pt": "Pedido {{number}} aprovado."
+  },
+  "purchasing.orders.form.done.cancelled": {
+    "en": "Order {{number}} cancelled.",
+    "es": "Orden {{number}} cancelada.",
+    "pt": "Pedido {{number}} cancelado."
+  },
+  "purchasing.orders.form.done.rejected": {
+    "en": "Order {{number}} returned to draft.",
+    "es": "Orden {{number}} devuelta a borrador.",
+    "pt": "Pedido {{number}} devolvido a rascunho."
+  },
+  "purchasing.orders.form.done.sent": {
+    "en": "Order {{number}} marked as sent to the supplier.",
+    "es": "Orden {{number}} marcada como enviada al proveedor.",
+    "pt": "Pedido {{number}} marcado como enviado ao fornecedor."
+  },
+  "purchasing.orders.form.done.submitted": {
+    "en": "Order {{number}} submitted for approval.",
+    "es": "Orden {{number}} enviada a aprobación.",
+    "pt": "Pedido {{number}} enviado para aprovação."
+  },
   "purchasing.orders.form.expected_date": {
     "es": "Fecha esperada",
     "en": "Expected date",
@@ -554,6 +579,16 @@
     "es": "Confirmar rechazo",
     "en": "Confirm rejection",
     "pt": "Confirmar rejeição"
+  },
+  "purchasing.requisitions.form.convert_supplier": {
+    "en": "Supplier for the order",
+    "es": "Proveedor de la orden",
+    "pt": "Fornecedor do pedido"
+  },
+  "purchasing.requisitions.form.convert_to_order": {
+    "en": "Convert into a purchase order",
+    "es": "Convertir en orden de compra",
+    "pt": "Converter em pedido de compra"
   },
   "purchasing.requisitions.form.description": {
     "es": "Descripción",

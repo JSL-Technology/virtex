@@ -48,6 +48,9 @@ export interface JournalEntry {
   description: string;
   currencyCode?: string;
   status: JournalEntryStatus;
+  /** Why the system posted it — set on every entry a document produced, absent on a person's. */
+  systemReason?: string | null;
+  isReversed?: boolean;
   lines: JournalEntryLine[];
 }
 
@@ -91,5 +94,13 @@ export class JournalEntriesApiService {
 
   getById(id: string): Observable<JournalEntry> {
     return this.http.get<JournalEntry>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Post the entry's mirror image, dated `reversalDate`, citing `reason`. Only an entry a person
+   * wrote: the server refuses one a document posted (void the document instead).
+   */
+  reverse(id: string, body: { reversalDate: string; reason: string }): Observable<JournalEntry> {
+    return this.http.post<JournalEntry>(`${this.apiUrl}/${id}/reverse`, body);
   }
 }

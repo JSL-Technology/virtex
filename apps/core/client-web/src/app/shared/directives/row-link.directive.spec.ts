@@ -6,7 +6,7 @@ import { RowLinkDirective } from './row-link.directive';
   standalone: true,
   imports: [RowLinkDirective],
   template: `<table><tbody><tr appRowLink>
-    <td><a class="table-link" href="#" (click)="opened = opened + 1; $event.preventDefault()">2026-08</a></td>
+    <td><a class="table-link" href="/e/acme/invoices/inv-1" (click)="opened = opened + 1; $event.preventDefault()">2026-08</a></td>
     <td class="amount">1,000.00</td>
     <td><button type="button" (click)="pressed = pressed + 1">Aprobar</button></td>
   </tr></tbody></table>`,

@@ -1,3 +1,4 @@
+import { handleDocumentIntents } from '../../../../core/navigation/document-intent.service';
 import { AuthService } from '../../../../core/services/auth';
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -7,7 +8,7 @@ import { Router } from '@angular/router';
 import { LucideAngularModule, Eye } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
 import { NotificationService } from '../../../../core/services/notification';
 import {
   Department,
@@ -58,6 +59,18 @@ import { refreshWhenStale } from '../../../../core/data/data-version.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeFormPage implements OnInit {
+  /**
+   * What a list row's menu asked of this document (QA R3-B08): the same methods its own buttons
+   * run, once it has loaded, and only while its own rules still allow them.
+   */
+  private readonly documentIntents = handleDocumentIntents({
+    route: () => (this.current()?.id ? `/hcm/employees/${this.current()!.id}/edit` : null),
+    ready: () => !!this.current(),
+    actions: {
+      'severance': () => document.getElementById('balanceSheetAsOf')?.focus(),
+    },
+  });
+
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly hcm = inject(HcmService);
@@ -494,8 +507,6 @@ export class EmployeeFormPage implements OnInit {
 }
 
 function todayIso(): string {
-  const now = new Date();
-  const month = `${now.getMonth() + 1}`.padStart(2, '0');
-  const day = `${now.getDate()}`.padStart(2, '0');
-  return `${now.getFullYear()}-${month}-${day}`;
+  // The company's today, not the browser's or UTC (QA R3-M02).
+  return tenantToday();
 }

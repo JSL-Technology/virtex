@@ -1,8 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { Banknote, LucideAngularModule } from 'lucide-angular';
+import { Ban, Banknote, LucideAngularModule, RotateCw } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -40,7 +43,7 @@ export const PAYMENT_TONE: Record<PaymentBatchStatus, VxTone> = {
 @Component({
   selector: 'app-vendor-payments-page',
   standalone: true,
-  imports: [
+  imports: [...VX_CONTEXT_MENU, 
     FormsModule, ...VX_FORM_A11Y,
     RouterLink,
     TranslateModule,
@@ -61,6 +64,28 @@ export const PAYMENT_TONE: Record<PaymentBatchStatus, VxTone> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorPaymentsPage implements OnInit {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly paymentsMenu: ListMenuConfig<VendorPaymentRow> = {
+    resource: 'vendor-payments',
+    relationshipMapType: 'VENDOR_PAYMENT',
+    row: (ctx) => {
+      const payment = ctx.entity as VendorPaymentRow;
+      const path = `/accounts-payable/payments/${payment.id}`;
+      const ask = (action: string) => this.menuIntents.request(path, action);
+      return [
+        {
+          id: 'corrections',
+          items: [
+            { id: 'void', label: 'accounts_payable.payments.void', icon: Ban, danger: true, permission: 'accounts_payable:void', visible: () => payment.status === 'PAID', run: () => ask('void') },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.load() }] },
+      ];
+    },
+  };
+
   private readonly payables = inject(AccountsPayableService);
   private readonly suppliersApi = inject(SuppliersService);
   private readonly treasury = inject(TreasuryService);

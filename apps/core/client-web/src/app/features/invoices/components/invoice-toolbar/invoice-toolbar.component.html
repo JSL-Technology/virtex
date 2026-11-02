@@ -7,10 +7,10 @@
 <div class="doc-toolbar" role="toolbar" [attr.aria-label]="'invoices.invoice_toolbar.label' | translate">
   @if (canNavigate) {
     <div class="toolbar-group" role="group" [attr.aria-label]="'invoices.invoice_toolbar.records' | translate">
-      <button class="tool-btn" (click)="onNavigate('prev')" [title]="'invoices.invoice_toolbar.previous' | translate" [attr.aria-label]="'invoices.invoice_toolbar.previous' | translate" type="button">
+      <button class="tool-btn" (click)="onNavigate('prev')" [disabled]="!hasPrevious" [title]="'invoices.invoice_toolbar.previous' | translate" [attr.aria-label]="'invoices.invoice_toolbar.previous' | translate" type="button">
         <lucide-icon [img]="PrevIcon" size="18" aria-hidden="true"></lucide-icon>
       </button>
-      <button class="tool-btn" (click)="onNavigate('next')" [title]="'invoices.invoice_toolbar.go_next' | translate" [attr.aria-label]="'invoices.invoice_toolbar.go_next' | translate" type="button">
+      <button class="tool-btn" (click)="onNavigate('next')" [disabled]="!hasNext" [title]="'invoices.invoice_toolbar.go_next' | translate" [attr.aria-label]="'invoices.invoice_toolbar.go_next' | translate" type="button">
         <lucide-icon [img]="NextIcon" size="18" aria-hidden="true"></lucide-icon>
       </button>
     </div>

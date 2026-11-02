@@ -370,9 +370,9 @@
     "pt": "a província deve ser declarada com o código de dois dígitos da DGII"
   },
   "einvoicing.do.range_authorization_has_no_expiry_date": {
-    "es": "la autorización del rango no tiene fecha de vencimiento registrada; añádela en Ajustes → Facturación Electrónica",
-    "en": "the range's authorization has no expiry date on record; add it under Settings → Electronic Invoicing",
-    "pt": "a autorização da faixa não tem data de vencimento registrada; adicione-a em Configurações → Faturamento Eletrônico"
+    "es": "la autorización del rango no tiene fecha de vencimiento registrada; añádela en Ajustes › Comprobantes fiscales",
+    "en": "the range's authorization has no expiry date on record; add it under Settings › Fiscal documents",
+    "pt": "a autorização da faixa não tem data de vencimento registrada; adicione-a em Configurações › Comprovantes fiscais"
   },
   "einvoicing.do.signed_document_contains_no_signature_value": {
     "es": "El documento firmado no contiene un SignatureValue.",

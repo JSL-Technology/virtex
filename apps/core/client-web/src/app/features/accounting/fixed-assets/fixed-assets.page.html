@@ -45,7 +45,7 @@
   </div>
 
   <div class="table-container card">
-    <table class="data-table">
+    <table [appTableMenu]="assetsMenu" class="data-table">
       <thead>
         <tr>
           <th>{{ 'fixed_assets.page.number' | translate }}</th>
@@ -63,7 +63,7 @@
       </thead>
       <tbody>
         @for (row of rows(); track row.id) {
-          <tr appRowLink>
+          <tr appRowLink [appRowMenu]="row">
             <td><a class="table-link" [routerLink]="['/accounting/fixed-assets', row.id]">{{ row.number }}</a></td>
             <td>{{ row.name }}</td>
             <td>{{ row.acquisitionDate | vxDate: 'date' : true }}</td>

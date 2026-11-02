@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { AppLinkPipe } from '../../../core/tenancy/app-link.pipe';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, CheckCircle2, Circle, Sparkles } from 'lucide-angular';
@@ -19,7 +20,7 @@ const pending = (status: string | undefined | null) => status === 'QUEUED' || st
 @Component({
   selector: 'app-close-assistant',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, LucideAngularModule],
+  imports: [AppLinkPipe, RouterLink, TranslatePipe, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './close-assistant.component.html',
   styleUrl: './close-assistant.component.scss',

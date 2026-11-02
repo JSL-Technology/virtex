@@ -45,7 +45,8 @@
 
   &--wide { grid-column: 1 / -1; }
 
-  > span {
+  > span,
+  > label {
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
     color: var(--text-secondary);

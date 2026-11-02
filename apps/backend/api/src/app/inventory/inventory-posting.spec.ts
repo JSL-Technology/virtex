@@ -55,6 +55,14 @@ function periodGate(): PeriodGateRegistry {
   return registry;
 }
 
+/**
+ * Today as the test company's books read it (America/Santo_Domingo), which is what the server
+ * compares against. The UTC date made these tests fail every evening from 20:00 in Santo Domingo,
+ * when UTC has already moved to tomorrow and the adjustment reads as dated in the future.
+ */
+const companyToday = (): string =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santo_Domingo' }).format(new Date());
+
 describeWithDb('inventory posting', () => {
   jest.setTimeout(120_000);
   let inventory: InventoryService;
@@ -331,7 +339,7 @@ describeWithDb('inventory posting', () => {
     const warehouse = await defaultWarehouse();
     const draft = await adjustments.create(
       {
-        date: new Date().toISOString().slice(0, 10),
+        date: companyToday(),
         warehouseId: warehouse.id,
         reason: 'Conteo físico de fin de mes',
         lines: [{ productId: product.id, countedQuantity: 48 }],
@@ -370,7 +378,7 @@ describeWithDb('inventory posting', () => {
     const warehouse = await defaultWarehouse();
     const draft = await adjustments.create(
       {
-        date: new Date().toISOString().slice(0, 10),
+        date: companyToday(),
         warehouseId: warehouse.id,
         reason: 'Nuevo costo del proveedor',
         lines: [{ productId: product.id, newUnitCost: 420 }],
@@ -582,7 +590,7 @@ describeWithDb('inventory posting', () => {
         .update({ organizationId }, { defaultGoodsReceivedNotInvoicedAccountId: grni.id });
     });
 
-    const today = () => new Date().toISOString().slice(0, 10);
+    const today = () => companyToday();
     const receive = (productId: string, quantity: number, unitCost: number, sourceId: string) =>
       dataSource.transaction((manager) =>
         inventory.receiveGoods(

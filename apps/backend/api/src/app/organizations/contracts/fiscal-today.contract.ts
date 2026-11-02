@@ -16,3 +16,12 @@ export async function organizationToday(manager: EntityManager, organizationId: 
   });
   return fiscalDate(organizationTimeZone(organization));
 }
+
+/** The company's fiscal time zone, for a caller that turns several instants into its dates. */
+export async function organizationTimeZoneOf(manager: EntityManager, organizationId: string): Promise<string> {
+  const organization = await manager.findOne(Organization, {
+    where: { id: organizationId },
+    select: ['id', 'country', 'timezone'],
+  });
+  return organizationTimeZone(organization);
+}

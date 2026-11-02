@@ -4,6 +4,7 @@ import { CopilotToolContext, CopilotToolRegistry, asValidDto, opt, partyName, s 
 import { PERMISSIONS } from '../shared/permissions';
 import { QuotesService } from './services/quotes.service';
 import { CreateQuoteDto } from './dto/create-quote.dto';
+import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 
 const QUOTE_VALID_DAYS = 15;
 
@@ -124,7 +125,7 @@ export class SalesCopilotTools implements OnModuleInit {
       for (const row of rows) catalogue.set(row.id, { name: row.name, price: Number(row.price) });
     }
     // A frozen proposal carries its issue date; the model's input never does (not in its schema).
-    const issueDate = opt<string>(input, 'issue_date') ?? new Date().toISOString().slice(0, 10);
+    const issueDate = opt<string>(input, 'issue_date') ?? (await organizationToday(this.dataSource.manager, ctx.organizationId));
     const validDays = Math.min(Math.max(Number(opt(input, 'valid_days') ?? QUOTE_VALID_DAYS), 1), 365);
     return asValidDto(CreateQuoteDto, {
       customerId: input['customer_id'],

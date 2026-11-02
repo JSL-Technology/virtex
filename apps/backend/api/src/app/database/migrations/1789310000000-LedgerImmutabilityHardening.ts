@@ -18,8 +18,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  *
  * The guard function keeps everything LedgerInvariants already enforced.
  */
-export class LedgerImmutabilityHardening1789270000000 implements MigrationInterface {
-  name = 'LedgerImmutabilityHardening1789270000000';
+export class LedgerImmutabilityHardening1789310000000 implements MigrationInterface {
+  name = 'LedgerImmutabilityHardening1789310000000';
 
   public async up(q: QueryRunner): Promise<void> {
     await q.query(`

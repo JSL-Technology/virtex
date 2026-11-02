@@ -44,6 +44,12 @@ describe('CSV export', () => {
     expect(toCsv([[1234.56]], { locale: 'es' })).not.toContain('1.234,56');
   });
 
+  /** A cell a spreadsheet would run — the classic CSV injection — is written as text (QA R3-B10). */
+  it('neutralises text a spreadsheet would execute, and keeps negative amounts numeric', () => {
+    const csv = toCsv([['=HYPERLINK("http://evil")', '+1', '-2', '@SUM(A1)', -150.5]], { locale: 'en' });
+    expect(csv).toContain(`"'=HYPERLINK(""http://evil"")",'+1,'-2,'@SUM(A1),-150.5`);
+  });
+
   it('writes nothing rather than a figure a reader cannot distinguish from data', () => {
     const csv = toCsv([[Number.NaN, Number.POSITIVE_INFINITY, 0]], { locale: 'en-US' });
     expect(csv).toContain(',,0');

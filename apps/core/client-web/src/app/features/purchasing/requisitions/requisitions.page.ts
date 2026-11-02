@@ -1,9 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, PlusCircle } from 'lucide-angular';
+import { CheckCircle, LucideAngularModule, PlusCircle, RotateCcw, RotateCw, Send, ShoppingCart, XCircle } from 'lucide-angular';
 import { TranslateService } from '@ngx-translate/core';
-import { catchError, of } from 'rxjs';
+import { catchError, of, startWith, switchMap } from 'rxjs';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import {
@@ -37,12 +40,43 @@ const STATUS_TONE: Record<PurchaseRequisitionStatus, VxTone> = {
 @Component({
   selector: 'app-requisitions-page',
   standalone: true,
-  imports: [...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_CONTEXT_MENU, ...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './requisitions.page.html',
   styleUrls: ['./requisitions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RequisitionsPage {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly requisitionsMenu: ListMenuConfig<PurchaseRequisition> = {
+    resource: 'purchase-requisitions',
+    relationshipMapType: 'PURCHASE_REQUISITION',
+    row: (ctx) => {
+      const req = ctx.entity as PurchaseRequisition;
+      const path = `/purchasing/requisitions/${req.id}/edit`;
+      const ask = (action: string) => this.menuIntents.request(path, action);
+      return [
+        {
+          id: 'document',
+          items: [
+            { id: 'submit', label: 'purchasing.requisitions.form.submit', icon: Send, permission: 'procurement:manage', visible: () => req.status === 'DRAFT', run: () => ask('submit') },
+            { id: 'approve', label: 'purchasing.requisitions.form.approve', icon: CheckCircle, permission: 'procurement:approve', visible: () => req.status === 'PENDING_APPROVAL', run: () => ask('approve') },
+            { id: 'convert', label: 'purchasing.requisitions.form.convert_to_order', icon: ShoppingCart, permission: 'procurement:manage', visible: () => req.status === 'APPROVED', run: () => ask('convert') },
+            { id: 'reopen', label: 'purchasing.requisitions.form.reopen', icon: RotateCcw, permission: 'procurement:manage', visible: () => ['REJECTED', 'PENDING_APPROVAL'].includes(req.status), run: () => ask('reopen') },
+          ],
+        },
+        {
+          id: 'corrections',
+          items: [
+            { id: 'reject', label: 'purchasing.requisitions.form.reject', icon: XCircle, danger: true, permission: 'procurement:approve', visible: () => req.status === 'PENDING_APPROVAL', run: () => ask('reject') },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.refresh() }] },
+      ];
+    },
+  };
+
   private readonly translate = inject(TranslateService);
   /** Sortable by its headers (QA B-01). */
   readonly table = sortable(() => this.requisitions(), { items: (req) => this.itemCount(req), status: (req) => this.translate.instant('purchasing.requisitions.status_label.' + req.status) });
@@ -50,8 +84,17 @@ export class RequisitionsPage {
 
   protected readonly PlusCircleIcon = PlusCircle;
 
+  /** Bumped to ask again — the row menu's «Refrescar». */
+  private readonly refreshTick = signal(0);
+
+  refresh(): void {
+    this.refreshTick.update((tick) => tick + 1);
+  }
+
   private readonly page = toSignal(
-    this.purchasing.listRequisitions().pipe(catchError(() => of(null))),
+    toObservable(this.refreshTick).pipe(
+      switchMap(() => this.purchasing.listRequisitions().pipe(catchError(() => of(null)), startWith(undefined))),
+    ),
     { initialValue: undefined },
   );
 

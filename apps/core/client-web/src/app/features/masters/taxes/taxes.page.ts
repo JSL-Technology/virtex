@@ -8,7 +8,7 @@ import { TaxesService } from '../../../core/api/taxes.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
@@ -203,6 +203,6 @@ export class TaxesPage implements OnInit {
 }
 
 function todayIso(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  // The company's today, not the browser's or UTC (QA R3-M02).
+  return tenantToday();
 }

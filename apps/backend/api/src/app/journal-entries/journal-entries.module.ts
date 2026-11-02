@@ -1,4 +1,5 @@
 import { JournalEntryLinesDataTransferProvider } from './journal-entries-data-transfer.provider';
+import { LedgerPostingGatewayImpl } from './ledger-posting.gateway';
 import { OpeningBalancesDataTransferProvider } from './opening-balances-data-transfer.provider';
 
 import { Module, forwardRef } from '@nestjs/common';
@@ -86,6 +87,9 @@ import { JournalQueryService } from './services/journal-query.service';
     { provide: AccountingPostingPort, useExisting: JournalEntriesService },
     // The narrative on a system-generated entry, in the tenant's books language.
     LedgerNarrativeService,
+    // Accounting's side of the ledger-posting contract, registered on start: how a module that may
+    // not import accounting (a till sale) posts its entry.
+    LedgerPostingGatewayImpl,
     JournalEntryNumberingService,
     RecurringJournalEntriesService,
     JournalEntryTemplatesService,

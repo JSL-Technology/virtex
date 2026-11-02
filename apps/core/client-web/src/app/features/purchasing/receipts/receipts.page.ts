@@ -1,8 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import { NavigationActionsService } from '../../../core/navigation/navigation-actions.service';
+import { DocumentIntentService } from '../../../core/navigation/document-intent.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { LucideAngularModule, PackagePlus } from 'lucide-angular';
+import { Ban, LucideAngularModule, PackagePlus, RotateCw } from 'lucide-angular';
 import { Observable } from 'rxjs';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
@@ -30,7 +33,7 @@ export const GOODS_RECEIPT_TONE: Record<GoodsReceiptStatus, VxTone> = { POSTED: 
 @Component({
   selector: 'app-goods-receipts-page',
   standalone: true,
-  imports: [
+  imports: [...VX_CONTEXT_MENU, 
     FormsModule, ...VX_FORM_A11Y,
     RouterLink,
     TranslateModule,
@@ -50,6 +53,28 @@ export const GOODS_RECEIPT_TONE: Record<GoodsReceiptStatus, VxTone> = { POSTED: 
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GoodsReceiptsPage implements OnInit {
+  private readonly menuIntents = inject(DocumentIntentService);
+  private readonly menuNavigation = inject(NavigationActionsService);
+
+  readonly receiptsMenu: ListMenuConfig<GoodsReceiptRow> = {
+    resource: 'goods-receipts',
+    relationshipMapType: 'GOODS_RECEIPT',
+    row: (ctx) => {
+      const receipt = ctx.entity as GoodsReceiptRow;
+      const path = `/purchasing/receipts/${receipt.id}`;
+      const ask = (action: string) => this.menuIntents.request(path, action);
+      return [
+        {
+          id: 'corrections',
+          items: [
+            { id: 'void', label: 'purchasing.receipts.void', icon: Ban, danger: true, permission: 'procurement:manage', visible: () => receipt.status === 'POSTED', run: () => ask('void') },
+          ],
+        },
+        { id: 'list', items: [{ id: 'refresh', label: 'actions.refresh', icon: RotateCw, run: () => this.load() }] },
+      ];
+    },
+  };
+
   private readonly purchasing = inject(PurchasingService);
   private readonly suppliersApi = inject(SuppliersService);
   private readonly warehousesApi = inject(WarehousesService);

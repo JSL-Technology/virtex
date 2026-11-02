@@ -54,15 +54,10 @@
     "en": "Number",
     "pt": "Número"
   },
-  "datasheets.chart_configuration": {
-    "es": "Configuración de gráfico",
-    "en": "Chart configuration",
-    "pt": "Configuração do gráfico"
-  },
-  "datasheets.charts": {
-    "es": "Gráficos",
-    "en": "Charts",
-    "pt": "Gráficos"
+  "datasheets.cell_type_hint": {
+    "en": "Applies to the selected cells.",
+    "es": "Se aplica a las celdas seleccionadas.",
+    "pt": "Aplica-se às células selecionadas."
   },
   "datasheets.columns_to_import": {
     "es": "Columnas a importar",
@@ -94,15 +89,15 @@
     "en": "ERP variables",
     "pt": "Variáveis do ERP"
   },
+  "datasheets.formula": {
+    "en": "Formula",
+    "es": "Fórmula",
+    "pt": "Fórmula"
+  },
   "datasheets.formula_placeholder": {
     "es": "Introduce una fórmula o un valor…",
     "en": "Enter a formula or a value…",
     "pt": "Introduz uma fórmula ou um valor…"
-  },
-  "datasheets.history": {
-    "es": "Historial",
-    "en": "History",
-    "pt": "Histórico"
   },
   "datasheets.import": {
     "es": "Importar",
@@ -139,11 +134,6 @@
     "en": "Import wizard",
     "pt": "Assistente de importação"
   },
-  "datasheets.insert_chart": {
-    "es": "Insertar gráfico",
-    "en": "Insert chart",
-    "pt": "Inserir gráfico"
-  },
   "datasheets.last_modified": {
     "es": "Última modificación",
     "en": "Last modified",
@@ -173,6 +163,11 @@
     "es": "Nuevo libro",
     "en": "New book",
     "pt": "Nova pasta de trabalho"
+  },
+  "datasheets.no_import_modules": {
+    "en": "There is no ERP data available to import.",
+    "es": "No hay datos del ERP disponibles para importar.",
+    "pt": "Não há dados do ERP disponíveis para importar."
   },
   "datasheets.no_invoiced_sales_period": {
     "es": "No hay ventas facturadas en el período.",
@@ -234,15 +229,10 @@
     "en": "Save",
     "pt": "Guardar"
   },
-  "datasheets.select_range_for_chart": {
-    "es": "Selecciona un rango de datos para crear un gráfico.",
-    "en": "Select a data range to create a chart.",
-    "pt": "Seleciona um intervalo de dados para criar um gráfico."
-  },
-  "datasheets.share": {
-    "es": "Compartir",
-    "en": "Share",
-    "pt": "Compartilhar"
+  "datasheets.save_failed": {
+    "en": "The workbook could not be saved.",
+    "es": "No se pudo guardar el libro.",
+    "pt": "Não foi possível salvar a pasta."
   },
   "datasheets.sheet_numbered": {
     "es": "Hoja {{number}}",
@@ -251,6 +241,11 @@
   },
   "datasheets.title": {
     "literal": "DataSheets"
+  },
+  "datasheets.untitled_book": {
+    "en": "Untitled workbook",
+    "es": "Libro sin título",
+    "pt": "Pasta sem título"
   },
   "datasheets.variable_name_catalogued_but_has_no": {
     "es": "La variable «{{name}}» está en el catálogo pero no tiene implementación.",

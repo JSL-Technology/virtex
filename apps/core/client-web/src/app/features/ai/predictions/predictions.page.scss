@@ -136,3 +136,14 @@
 }
 .pred-leadtimes__title { cursor: pointer; font-weight: 600; }
 .pred-leadtimes__hint { margin: var(--space-2) 0; font-size: var(--text-sm); color: var(--content-secondary); }
+
+// The engine is stopped (QA R3-M08): a notice, not an error — nothing the reader did is wrong.
+.engine-offline {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}

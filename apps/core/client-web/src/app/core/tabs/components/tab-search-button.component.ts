@@ -42,17 +42,23 @@ import { TabSearchService } from '../tab-search.service';
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        box-sizing: border-box;
         width: 1.75rem;
         height: 1.75rem;
-        border: 0;
+        //  Un fondo sutil, un pelín más claro que la franja hundida, con un filo
+        //  tenue: basta para leerlo como un BOTÓN sin convertirlo en un acento. No
+        //  compite con las pestañas ni con las acciones de la derecha.
+        border: 1px solid var(--border-subtle);
         border-radius: var(--radius-md);
-        background: transparent;
+        background: var(--surface-base);
         color: var(--content-tertiary);
         cursor: pointer;
-        transition: background-color 0.12s ease, color 0.12s ease;
+        transition: background-color 0.12s ease, border-color 0.12s ease,
+          color 0.12s ease;
       }
       .tsb:hover {
         background: var(--surface-hover);
+        border-color: var(--border-default);
         color: var(--content-primary);
       }
       .tsb.is-open {

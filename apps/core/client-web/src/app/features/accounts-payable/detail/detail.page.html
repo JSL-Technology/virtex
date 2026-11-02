@@ -33,6 +33,12 @@
         <span>{{ 'accounts_payable.detail.debit_note' | translate }}</span>
       </a>
     }
+    @if (canRecordNcf()) {
+      <button *appHasPermission="'accounts_payable:edit'" type="button" (click)="recordNcf()" class="secondary-button">
+        <lucide-icon [img]="EditIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'accounts_payable.detail.record_ncf' | translate }}</span>
+      </button>
+    }
     @if (canVoid()) {
       <button type="button" (click)="voidBill()" class="danger-button">
         <lucide-icon [img]="VoidIcon" size="16" aria-hidden="true"></lucide-icon>

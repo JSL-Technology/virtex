@@ -155,7 +155,18 @@ export class CategoriesPage {
    * A category that has been used is part of the record of what was sold under it. Deactivating
    * takes it out of every dropdown without reclassifying a single product.
    */
-  setActive(category: ProductCategory, isActive: boolean): void {
+  async setActive(category: ProductCategory, isActive: boolean): Promise<void> {
+    if (!isActive) {
+      // Retiring hides it from every product form at once; it used to happen on one click with no
+      // word of that (QA R3-B08). Reactivating needs no confirmation.
+      const confirmed = await this.dialog.confirm({
+        title: 'inventory.categories.deactivate_title',
+        message: 'inventory.categories.deactivate_message',
+        messageParams: { name: category.name },
+        confirmText: 'inventory.categories.deactivate',
+      });
+      if (!confirmed) return;
+    }
     this.busy.set(true);
     this.categoriesService.update(category.id, { isActive }).subscribe({
       next: () => {

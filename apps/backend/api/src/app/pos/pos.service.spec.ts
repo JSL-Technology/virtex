@@ -42,7 +42,7 @@ describe('PosService', () => {
       save: jest.fn(async (v) => ({ id: 'shift-1', ...v })),
     };
     const salesRepo: any = { find: jest.fn(), create: jest.fn(), save: jest.fn() };
-    const inventory: any = overrides.inventory ?? { decreaseStock: jest.fn().mockResolvedValue(undefined) };
+    const inventory: any = overrides.inventory ?? { decreaseStock: jest.fn().mockResolvedValue({ unitCost: 4 }) };
     const lockedQuery: any = {
       where: jest.fn().mockReturnThis(),
       andWhere: jest.fn().mockReturnThis(),
@@ -58,8 +58,10 @@ describe('PosService', () => {
       query: jest.fn(async () => [{ rate: 18 }]),
     };
     const dataSource: any = { transaction: jest.fn(async (cb) => cb(manager)) };
-    const service = new PosService(shiftsRepo, salesRepo, inventory, dataSource);
-    return { service, shiftsRepo, salesRepo, inventory, manager, lockedQuery };
+    const posting: any = { post: jest.fn().mockResolvedValue(undefined), reverse: jest.fn().mockResolvedValue(undefined) };
+    const compliance: any = { findActiveSequence: jest.fn().mockResolvedValue(null), getNextNcf: jest.fn() };
+    const service = new PosService(shiftsRepo, salesRepo, inventory, dataSource, posting, compliance);
+    return { service, shiftsRepo, salesRepo, inventory, manager, lockedQuery, posting };
   };
 
   const openShift = (over: Record<string, unknown> = {}) => ({
@@ -213,14 +215,29 @@ describe('PosService', () => {
     const shift = openShift({ cashSalesTotal: 250 });
     const { service } = makeService({ activeShift: shift });
 
-    const closed = await service.closeShift('org-1', 's1', { closingBalance: 340 }, cashier);
+    const closed = await service.closeShift('org-1', 's1', { closingBalance: 340, closingNotes: 'Cambio mal dado' }, cashier);
 
     expect(closed).toMatchObject({
       status: PosShiftStatus.CLOSED,
       expectedBalance: 350,
       closingBalance: 340,
       closingVariance: -10,
+      closingNotes: 'Cambio mal dado',
       closedById: 'cashier-1',
+    });
+  });
+
+  // QA R3-B09: a drawer 475 over closed without a question.
+  it('will not close over or short without an explanation, and needs none when the count matches', async () => {
+    const { service } = makeService({ activeShift: openShift({ cashSalesTotal: 250 }) });
+    await expect(service.closeShift('org-1', 's1', { closingBalance: 825 }, cashier)).rejects.toMatchObject({
+      messageKey: 'pos.variance_needs_explanation',
+    });
+
+    const exact = makeService({ activeShift: openShift({ cashSalesTotal: 250 }) });
+    await expect(exact.service.closeShift('org-1', 's1', { closingBalance: 350 }, cashier)).resolves.toMatchObject({
+      closingVariance: 0,
+      closingNotes: null,
     });
   });
 
@@ -229,6 +246,30 @@ describe('PosService', () => {
     await expect(
       service.closeShift('org-1', 's1', { closingBalance: 0 }, cashier),
     ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  // QA R3-C02: a till sale used to move stock and post nothing at all.
+  it('posts the sale: revenue split by goods and services, tax, the tender, and the cost of the goods', async () => {
+    const { service, posting } = makeService({ activeShift: openShift() });
+
+    await service.processSale('org-1', cashier, {
+      terminalId: 'main',
+      items: [
+        { productId: WIDGET, price: 10, quantity: 2 },
+        { productId: SERVICE, price: 50, quantity: 1 },
+      ],
+      subtotal: 70,
+      tax: 3.6,
+      total: 73.6,
+    });
+
+    expect(posting.post).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ costOfSale: 8 }),
+      { cash: 73.6, nonCash: 0, goodsRevenue: 20, servicesRevenue: 50, tax: 3.6, costOfSale: 8 },
+      expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      'cashier-1',
+    );
   });
 });
 
@@ -342,8 +383,9 @@ describe('PosService — reports and voids', () => {
     };
     const inventory: any = { increaseStock: jest.fn().mockResolvedValue(undefined) };
     const dataSource: any = { transaction: jest.fn(async (cb) => cb(manager)) };
-    const service = new PosService({} as never, {} as never, inventory, dataSource);
-    return { service, inventory, manager };
+    const posting: any = { post: jest.fn(), reverse: jest.fn().mockResolvedValue(undefined) };
+    const service = new PosService({} as never, {} as never, inventory, dataSource, posting, {} as never);
+    return { service, inventory, manager, posting };
   };
 
   it('voiding returns the goods, takes the sale out of the takings and records who and why', async () => {
@@ -377,5 +419,11 @@ describe('PosService — reports and voids', () => {
       BadRequestException,
     );
     expect(inventory.increaseStock).not.toHaveBeenCalled();
+  });
+
+  it('reverses the sale entries when it is voided', async () => {
+    const { service, posting } = makeVoid({ sale: sale(), shift: shift() });
+    await service.voidSale('org-1', 'sale-1', { reason: 'cobro duplicado' }, supervisor);
+    expect(posting.reverse).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ id: 'sale-1' }), expect.any(String), 'cobro duplicado', 'sup-1');
   });
 });

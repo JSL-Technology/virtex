@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { OnEvent } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -251,47 +252,61 @@ export class BillingNotificationsListener {
     const { emailToo = true } = options;
 
     try {
-      const people = await this.recipients(organizationId);
-      if (people.length === 0) {
-        this.logger.warn(
-          { event: 'billing_notification_no_recipients', organizationId, notification: event },
-          'A billing notification has nobody to go to.',
-        );
-        return;
-      }
-
-      for (const person of people) {
-        // Each person in their own language: a tenant is not monolingual, and the one message a
-        // customer must not misread is the one telling them their card was declined.
-        await this.notifications
-          .createLocalizedNotification(
-            person.id,
-            matchLanguage(person.preferredLanguage) ?? DEFAULT_LANGUAGE,
-            message,
-          )
-          .catch((error) =>
-            this.logger.warn(
-              { event: 'billing_notification_failed', organizationId, notification: event },
-              `In-app notification failed: ${(error as Error).message}`,
-            ),
-          );
-      }
-
-      if (emailToo) {
-        await this.mailService
-          .sendBillingNotice(people, message)
-          .catch((error) =>
-            this.logger.warn(
-              { event: 'billing_email_not_queued', organizationId, notification: event },
-              `Billing email could not be queued: ${(error as Error).message}`,
-            ),
-          );
-      }
+      // In a tenant context of its own: the emitter's unit of work may have handed back its
+      // connection by the time this async handler reads, and reading through it fails with «Query
+      // runner already released» — how the payroll and approval notices were lost (QA R3-M09).
+      await runAsTenantJob(this.userRepository.manager.connection, organizationId, () =>
+        this.deliver(organizationId, event, message, emailToo),
+      );
     } catch (error) {
       this.logger.error(
         { event: 'billing_notification_error', organizationId, notification: event },
         `Could not notify the tenant: ${(error as Error).message}`,
       );
+    }
+  }
+
+  private async deliver(
+    organizationId: string,
+    event: string,
+    message: { titleKey: string; bodyKey: string; params?: Record<string, unknown> },
+    emailToo: boolean,
+  ): Promise<void> {
+    const people = await this.recipients(organizationId);
+    if (people.length === 0) {
+      this.logger.warn(
+        { event: 'billing_notification_no_recipients', organizationId, notification: event },
+        'A billing notification has nobody to go to.',
+      );
+      return;
+    }
+
+    for (const person of people) {
+      // Each person in their own language: a tenant is not monolingual, and the one message a
+      // customer must not misread is the one telling them their card was declined.
+      await this.notifications
+        .createLocalizedNotification(
+          person.id,
+          matchLanguage(person.preferredLanguage) ?? DEFAULT_LANGUAGE,
+          message,
+        )
+        .catch((error) =>
+          this.logger.warn(
+            { event: 'billing_notification_failed', organizationId, notification: event },
+            `In-app notification failed: ${(error as Error).message}`,
+          ),
+        );
+    }
+
+    if (emailToo) {
+      await this.mailService
+        .sendBillingNotice(people, message)
+        .catch((error) =>
+          this.logger.warn(
+            { event: 'billing_email_not_queued', organizationId, notification: event },
+            `Billing email could not be queued: ${(error as Error).message}`,
+          ),
+        );
     }
   }
 }

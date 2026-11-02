@@ -7,20 +7,6 @@
     <h2 class="module-title">{{ active.titleKey | translate }}</h2>
   }
 
-  <!--
-    Exploring another module than the window's: say so, and offer the way back. Without it the
-    panel shows Sales while the window shows a journal entry, and nothing on screen connects them.
-  -->
-  @if (isBrowsing() && currentModule(); as current) {
-    <div class="browsing" role="status">
-      <p class="browsing__hint">{{ 'shell.nav.browsing_hint' | translate }}</p>
-      <button type="button" class="browsing__back" (click)="backToCurrent()">
-        <lucide-icon [img]="icons.ArrowLeft" size="14" aria-hidden="true"></lucide-icon>
-        <span>{{ 'shell.nav.back_to_module' | translate: { module: (current.titleKey | translate) } }}</span>
-      </button>
-    </div>
-  }
-
   <div class="sidebar-body">
     @if (favoriteItems().length > 0) {
       <div class="menu-group menu-group--favorites">

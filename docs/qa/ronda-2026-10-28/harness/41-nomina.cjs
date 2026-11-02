@@ -1,0 +1,20 @@
+const { launch, instrument, uiLogin, shot, go, panel, panelText, netSince, toasts, errorsShown, stepUpAll } = require('./lib.cjs');
+(async () => {
+  const { browser, context } = await launch();
+  const page = await context.newPage();
+  const log = instrument(page);
+  page.on('dialog', (d) => { console.log('DIALOG', d.message()); d.accept(); });
+  await uiLogin(page);
+  const p = panel(page);
+  const step = async (name, fn) => { const n = log.requests.length; try { await fn(); } catch (e) { console.log(`[${name}] EXC ${e.message.split('\n')[0]}`); } await page.waitForTimeout(2000); const k = await stepUpAll(page); await page.waitForTimeout(1500); console.log(`[${name}] stepups=${k} url=${page.url().split('/e/')[1]} toast="${(await toasts(page)).replace(/\s+/g, ' ').slice(-250)}" errores=${JSON.stringify(await errorsShown(page))}\n   red=${JSON.stringify(netSince(log, n)).slice(0, 1000)}\n   botones=${JSON.stringify((await p.getByRole('button').allInnerTexts()).filter(Boolean)).slice(0, 300)}`); await shot(page, `nom-${name}`); };
+  const scope = async () => (await page.locator('[role=dialog]').count()) ? page.locator('[role=dialog]').last() : p;
+  await go(page, 'payroll/runs');
+  await step('1-nueva', async () => { await p.getByRole('button', { name: 'Nueva nómina' }).click(); await page.waitForTimeout(1500); const s = await scope(); console.log('   FORM', (await s.innerText()).replace(/\s+/g, ' ').slice(0, 700)); console.log('   CTRLS', JSON.stringify(await s.locator('input, select').evaluateAll((es) => es.filter((e) => e.offsetWidth).map((e) => `${e.getAttribute('formcontrolname') || e.type}=${e.value}${e.tagName === 'SELECT' ? '{' + [...e.options].map((o) => o.text.trim()).join('|').slice(0, 150) + '}' : ''}`)))); });
+  await step('2-mes-13', async () => { const s = await scope(); await s.locator('input[type=number]').nth(1).fill('13'); await s.getByRole('button', { name: 'Crear' }).click(); });
+  await step('3-crear-oct', async () => { const s = await scope(); await s.locator('input[type=number]').nth(1).fill('10'); await s.getByRole('button', { name: 'Crear' }).click(); await page.waitForTimeout(2000); console.log('   LISTA', (await panelText(page)).replace(/\s+/g, ' ').slice(0, 400)); });
+  await step('4-duplicada', async () => { await p.getByRole('button', { name: 'Nueva nómina' }).click(); await page.waitForTimeout(800); const s = await scope(); await s.locator('input[type=number]').nth(1).fill('10'); await s.getByRole('button', { name: 'Crear' }).click(); });
+  await page.keyboard.press('Escape');
+  await step('5-abrir', async () => { await p.locator('tbody tr').first().locator('a, td').first().click(); await page.waitForTimeout(3000); console.log('   DOC', (await panelText(page)).replace(/\s+/g, ' ').slice(0, 900)); });
+  await step('6-calcular', async () => { await p.getByRole('button', { name: /Calcular/ }).first().click(); await page.waitForTimeout(3000); await stepUpAll(page); await page.waitForTimeout(2500); console.log('   DOC', (await panelText(page)).replace(/\s+/g, ' ').slice(0, 1500)); });
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });

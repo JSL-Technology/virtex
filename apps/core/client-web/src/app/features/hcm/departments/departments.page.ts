@@ -62,6 +62,11 @@ export class DepartmentsPage {
       nameInput.focus();
       return;
     }
+    if (this.nameTaken(trimmed)) {
+      this.notifications.showError('hcm.department_name_taken', { name: trimmed });
+      nameInput.focus();
+      return;
+    }
     this.busy.set(true);
     this.hcm.createDepartment({ name: trimmed, costCenter: costInput.value.trim() || undefined }).subscribe({
       next: () => {
@@ -80,6 +85,10 @@ export class DepartmentsPage {
     const trimmed = name.trim();
     if (!trimmed) {
       this.nameError.set(true);
+      return;
+    }
+    if (this.nameTaken(trimmed, department.id)) {
+      this.notifications.showError('hcm.department_name_taken', { name: trimmed });
       return;
     }
     this.busy.set(true);
@@ -106,6 +115,12 @@ export class DepartmentsPage {
       next: () => { this.busy.set(false); this.reload(); },
       error: (error) => this.fail(error),
     });
+  }
+
+  /** Whether another department already has this name, as a person reads it (QA R3-M12). */
+  private nameTaken(name: string, exceptId?: string): boolean {
+    const wanted = name.trim().toLocaleLowerCase();
+    return this.departments().some((d) => d.id !== exceptId && d.name.trim().toLocaleLowerCase() === wanted);
   }
 
   private reload(): void {

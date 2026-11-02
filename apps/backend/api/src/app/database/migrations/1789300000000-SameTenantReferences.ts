@@ -34,8 +34,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * The violation is raised as SQLSTATE 23503 with a message that the exception filter maps to a 400
  * ("references a record that does not exist") — it never says the row exists elsewhere.
  */
-export class SameTenantReferences1789260000000 implements MigrationInterface {
-  name = 'SameTenantReferences1789260000000';
+export class SameTenantReferences1789300000000 implements MigrationInterface {
+  name = 'SameTenantReferences1789300000000';
 
   public async up(q: QueryRunner): Promise<void> {
     await q.query(`

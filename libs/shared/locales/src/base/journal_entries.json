@@ -54,6 +54,11 @@
     "en": "The currency conversion left a rounding difference and no exchange difference account is configured.",
     "pt": "A conversão de moeda deixou uma diferença de arredondamento e não há conta de variação cambial configurada."
   },
+  "journal_entries.document_entry_reverse_through_document": {
+    "en": "Entry {{number}} was posted by a document (invoice, receipt, till sale…). Void that document: it reverses the entry and keeps the document in the right state.",
+    "es": "El asiento {{number}} lo generó un documento (factura, cobro, venta de caja…). Anula ese documento: así se revierte el asiento y el documento queda en su estado correcto.",
+    "pt": "O lançamento {{number}} foi gerado por um documento (fatura, recebimento, venda de caixa…). Anule esse documento: assim o lançamento é estornado e o documento fica no estado correto."
+  },
   "journal_entries.entry_containing_reconciled_lines_cannot_modified": {
     "es": "No se puede modificar un asiento que contiene líneas conciliadas.",
     "en": "An entry containing reconciled lines cannot be modified.",

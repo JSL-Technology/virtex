@@ -69,6 +69,41 @@
     "en": "Inactive",
     "pt": "Inativo"
   },
+  "masters.banks.kind.credit_corporation": {
+    "en": "Credit corporation",
+    "es": "Corporación de crédito",
+    "pt": "Corporação de crédito"
+  },
+  "masters.banks.kind.multiple_bank": {
+    "en": "Commercial bank",
+    "es": "Banco múltiple",
+    "pt": "Banco múltiplo"
+  },
+  "masters.banks.kind.other": {
+    "en": "Other",
+    "es": "Otra",
+    "pt": "Outra"
+  },
+  "masters.banks.kind.savings_credit_bank": {
+    "en": "Savings and credit bank",
+    "es": "Banco de ahorro y crédito",
+    "pt": "Banco de poupança e crédito"
+  },
+  "masters.banks.kind.savings_loan_association": {
+    "en": "Savings and loan association",
+    "es": "Asociación de ahorros y préstamos",
+    "pt": "Associação de poupança e empréstimo"
+  },
+  "masters.banks.kind_label": {
+    "en": "Institution type",
+    "es": "Tipo de entidad",
+    "pt": "Tipo de instituição"
+  },
+  "masters.banks.legal_name": {
+    "en": "Legal name",
+    "es": "Razón social",
+    "pt": "Razão social"
+  },
   "masters.banks.load_failed": {
     "es": "No se pudo cargar el catálogo de bancos.",
     "en": "The bank catalogue could not be loaded.",
@@ -80,14 +115,39 @@
     "pt": "Código local"
   },
   "masters.banks.local_code_help": {
-    "es": "El código de compensación nacional (ACH, ruta bancaria).",
-    "en": "The national clearing code (ACH, routing number).",
-    "pt": "O código de compensação nacional (ACH, número de roteamento)."
+    "en": "The code the central bank assigns for its payment systems (ACH, routing number). In the Dominican Republic it is the BCRD participant code.",
+    "es": "El código que el banco central asigna para sus sistemas de pago (ACH, número de ruta). En República Dominicana es el código de participante del BCRD.",
+    "pt": "O código que o banco central atribui para seus sistemas de pagamento (ACH, número de roteamento). Na República Dominicana é o código de participante do BCRD."
   },
   "masters.banks.new_bank": {
     "es": "Nuevo banco",
     "en": "New bank",
     "pt": "Novo banco"
+  },
+  "masters.banks.reference_empty_help": {
+    "en": "Or add at once the {{count}} institutions the banking regulator lists in {{country}}, with their legal name, tax ID and the SWIFT code an official source confirms.",
+    "es": "O agrega de una vez las {{count}} entidades que el regulador bancario lista en {{country}}, con su razón social, RNC y el SWIFT confirmado por fuente oficial.",
+    "pt": "Ou adicione de uma vez as {{count}} instituições que o regulador bancário lista em {{country}}, com razão social, identificação fiscal e o SWIFT confirmado por fonte oficial."
+  },
+  "masters.banks.reference_import": {
+    "en": "Add banks of {{country}} ({{count}})",
+    "es": "Agregar bancos de {{country}} ({{count}})",
+    "pt": "Adicionar bancos de {{country}} ({{count}})"
+  },
+  "masters.banks.reference_import_failed": {
+    "en": "The banks could not be added.",
+    "es": "No se pudieron agregar los bancos.",
+    "pt": "Não foi possível adicionar os bancos."
+  },
+  "masters.banks.reference_imported": {
+    "en": "{{count}} banks of {{country}} were added. The ones you already had were left unchanged.",
+    "es": "Se agregaron {{count}} bancos de {{country}}. Los que ya tenías no se modificaron.",
+    "pt": "Foram adicionados {{count}} bancos de {{country}}. Os que você já tinha não foram alterados."
+  },
+  "masters.banks.reference_up_to_date": {
+    "en": "Your catalogue already has every bank on the official list.",
+    "es": "Tu catálogo ya tiene todos los bancos de la lista oficial.",
+    "pt": "Seu catálogo já tem todos os bancos da lista oficial."
   },
   "masters.banks.save_failed": {
     "es": "No se pudo guardar el banco.",
@@ -108,6 +168,11 @@
     "es": "Código SWIFT",
     "en": "SWIFT code",
     "pt": "Código SWIFT"
+  },
+  "masters.banks.tax_id": {
+    "en": "Tax ID",
+    "es": "RNC / identificación fiscal",
+    "pt": "Identificação fiscal"
   },
   "masters.banks.updated": {
     "es": "Banco actualizado. Sus cuentas bancarias toman el cambio.",
@@ -1093,6 +1158,11 @@
     "es": "Nombre",
     "en": "Name",
     "pt": "Nome"
+  },
+  "masters.warehouses.name_required": {
+    "en": "Enter the warehouse name.",
+    "es": "Escribe el nombre del almacén.",
+    "pt": "Informe o nome do armazém."
   },
   "masters.warehouses.new_warehouse": {
     "es": "Nuevo almacén",

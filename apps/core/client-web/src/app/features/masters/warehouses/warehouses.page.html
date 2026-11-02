@@ -15,8 +15,9 @@
     <div listCreate class="inline-row card">
       <label class="field">
         <span>{{ 'masters.warehouses.name' | translate }}</span>
-        <input id="warehouse-name" type="text" maxlength="120"
-          [ngModel]="draftName()" (ngModelChange)="draftName.set($event)" />
+        <input id="warehouse-name" type="text" maxlength="120" required
+          [attr.aria-invalid]="nameMissing() ? 'true' : null"
+          [ngModel]="draftName()" (ngModelChange)="draftName.set($event); nameMissing.set(false)" />
       </label>
       <label class="field">
         <span>{{ 'masters.warehouses.code' | translate }}</span>
@@ -31,7 +32,7 @@
       <!-- A store's own stock room, or none: a central warehouse serves every branch. -->
       <vx-branch-picker class="field" inputId="warehouse-branch" [optional]="true"
         [ngModel]="draftBranch()" (ngModelChange)="draftBranch.set($event)" />
-      <button type="button" class="primary-button" [disabled]="!canSave()" (click)="save()">
+      <button type="button" class="primary-button" [disabled]="saving()" (click)="save()">
         {{ 'common.save' | translate }}
       </button>
       <button type="button" class="secondary-button" (click)="toggleCreate()">

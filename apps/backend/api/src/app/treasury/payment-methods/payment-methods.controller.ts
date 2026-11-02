@@ -7,7 +7,7 @@ import { HasPermission } from '../../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
 import { PaymentMethodsService } from './payment-methods.service';
 import { CreatePaymentMethodDto, UpdatePaymentMethodDto } from '../dto/payment-method.dto';
-import { RequireStepUp, StepUpScope } from '../../auth/contracts/step-up.contract';
+import { AuthenticatedOnly } from '../../security/decorators/authenticated-only.decorator';
 
 /**
  * The company's payment methods: read by every form that records how a document is paid, edited
@@ -23,25 +23,27 @@ export class PaymentMethodsController {
   constructor(private readonly methods: PaymentMethodsService) {}
 
   @Get()
-  @HasPermission(PERMISSIONS.TREASURY_VIEW)
+  @AuthenticatedOnly(
+    'The DGII payment-form catalogue the invoice, receipt and bill forms offer. It holds no balance ' +
+      'or account data; a seller creating an invoice met a 403 reading it (QA R3-M04).',
+  )
   @ApiOperation({ summary: 'Formas de pago de la empresa (incluye las retiradas salvo activeOnly=true).' })
   findAll(@CurrentUser() user: AuthenticatedUser, @Query('activeOnly') activeOnly?: string) {
     return this.methods.findAll(user.organizationId, activeOnly !== 'true');
   }
 
-  // Same re-authentication as the bank catalogue: a method decides how a collection is mapped and
-  // posted, so changing one is changing where money is booked.
+  // step-up-exempt: adds a label to the payment-form catalogue, mapped to a DGII code. It moves no
+  // money and names no account or credential; what a payment debits is chosen on the payment.
   @Post()
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
-  @RequireStepUp(StepUpScope.MANAGE_BANK_ACCOUNTS)
   create(@Body() dto: CreatePaymentMethodDto, @CurrentUser() user: AuthenticatedUser) {
     return this.methods.create(dto, user.organizationId);
   }
 
   /** Rename, re-map, reorder, retire or reinstate. Never delete: documents keep the code. */
+  // step-up-exempt: edits that same catalogue label; no money, account or credential changes.
   @Patch(':id')
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
-  @RequireStepUp(StepUpScope.MANAGE_BANK_ACCOUNTS)
   update(
     @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdatePaymentMethodDto,

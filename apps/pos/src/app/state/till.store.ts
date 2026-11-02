@@ -239,10 +239,10 @@ export class TillStore {
    * Close with the cash the cashier COUNTED. The till once sent the shift's sales total as the
    * closing balance, so the cash-up compared the takings with themselves and always balanced.
    */
-  closeShift(countedCash: number): Observable<PosShift> {
+  closeShift(countedCash: number, notes?: string): Observable<PosShift> {
     const shift = this.shift();
     if (!shift) return throwError(() => new Error('no shift'));
-    return this.api.closeShift(shift.id, countedCash).pipe(
+    return this.api.closeShift(shift.id, countedCash, notes).pipe(
       tap((closed) => {
         this.shift.set(null);
         const variance = Number(closed?.closingVariance ?? 0);

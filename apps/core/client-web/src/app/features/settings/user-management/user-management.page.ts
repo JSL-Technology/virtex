@@ -320,6 +320,14 @@ export class UserManagementPage implements OnInit, OnDestroy {
     this.isEditMode.set(false);
     this.userForm.reset({ roleId: null });
     this.userModalOpen.set(true);
+    this.focusUserModal();
+  }
+
+  /** Focus moves into the dialog, so the keyboard — and Escape — act on it, not on what is behind. */
+  private focusUserModal(): void {
+    setTimeout(() =>
+      document.querySelector<HTMLElement>('[aria-labelledby="user-modal-title"] input, [aria-labelledby="user-modal-title"]')?.focus(),
+    );
   }
 
   openEditModal(user: ApiUser): void {
@@ -333,6 +341,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
       roleId: user.roles?.[0]?.id || null,
     });
     this.userModalOpen.set(true);
+    this.focusUserModal();
   }
 
   closeUserModal(): void {
@@ -586,7 +595,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
     }
   }
 
-  /** The user's roles in the reader's language: «Administrador», not «ADMINISTRATOR» (CG-27). */
+  /** The user's roles in the reader's language: «Administrador», not «ADMINISTRATOR» (CG-27, QA R3-M05). */
   getRoleNames(user: ApiUser): string {
     if (!user.roles || user.roles.length === 0) return roleLabel(this.translate, null);
     return user.roles.map((r) => roleLabel(this.translate, r.name)).join(', ');
