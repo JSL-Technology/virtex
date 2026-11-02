@@ -84,6 +84,13 @@ export class TenantConnectionInterceptor implements NestInterceptor {
           const store = {
             organizationId,
             manager: this.dataSource.createEntityManager(runner),
+            // Read by the financial audit subscriber: the trail of every document written during
+            // this request names its author and address (audit 2026-10-31, AUD-01 — 71 of 71
+            // invoice audit rows had no author).
+            actor: {
+              userId: request.user?.id ?? null,
+              ipAddress: (request as { ip?: string }).ip ?? null,
+            },
           };
 
           // El contexto se abre alrededor de la SUSCRIPCIÓN, no de la construcción.

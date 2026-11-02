@@ -220,7 +220,6 @@
     "luxon": "^3.7.2",
     "ms": "^2.1.3",
     "nestjs-pino": "^4.5.0",
-    "nestjs-request-context": "^4.0.0",
     "nestjs-throttler-storage-redis": "^0.5.1",
     "nestjs-typeorm-paginate": "^4.1.0",
     "ng-recaptcha-19": "^20.0.4",
