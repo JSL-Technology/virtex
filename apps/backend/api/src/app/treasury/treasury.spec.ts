@@ -1,4 +1,3 @@
-import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 import { BanksService } from './banks.service';
 import { Bank } from './entities/bank.entity';
 import { DataSource } from 'typeorm';
@@ -116,7 +115,6 @@ describeWithDb('treasury', () => {
       new FiscalCalendarService(dataSource.getRepository(FiscalYear), dataSource),
       dataSource,
       banks,
-      new JournalQueryService(dataSource),
     );
   });
 
