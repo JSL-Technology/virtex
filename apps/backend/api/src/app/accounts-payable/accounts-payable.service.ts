@@ -977,6 +977,14 @@ export class AccountsPayableService {
       }
 
       const billIds = dto.lines.map((line) => line.vendorBillId);
+      // Locked in id order before their balances are read: two payers settling the same bill at
+      // once must not both see it open (audit 2026-10-31, AP-04 — the step-up token only stopped a
+      // single session from racing itself). By id, not `find({ lock })`: the bill's eager
+      // relations load through outer joins, which PostgreSQL refuses to lock.
+      await manager.query(
+        `SELECT "id" FROM "vendor_bills" WHERE "id" = ANY($1::uuid[]) AND "organization_id" = $2 ORDER BY "id" FOR UPDATE`,
+        [[...new Set(billIds)].sort(), organizationId],
+      );
       const bills = await manager.find(VendorBill, {
         where: { id: In(billIds), organizationId },
       });
@@ -1422,6 +1430,12 @@ export class AccountsPayableService {
   ): Promise<VendorBill> {
     const { reason } = dto;
     return this.dataSource.transaction(async (manager) => {
+      // Locked first: a payment or a debit note being recorded against this bill right now must
+      // either finish before the void reads the bill, or see it voided.
+      await manager.query(
+        `SELECT "id" FROM "vendor_bills" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`,
+        [id, organizationId],
+      );
       const bill = await manager.findOne(VendorBill, {
         where: { id, organizationId },
         relations: ['lines', 'vendor'],
@@ -1431,6 +1445,19 @@ export class AccountsPayableService {
       }
       if (bill.status === VendorBillStatus.VOID) {
         throw new BadRequestError('accounts_payable.invoice_has_already_voided');
+      }
+
+      // Same rule as payments: a standing debit note reduces THIS bill, and voiding the bill under
+      // it left the note alive and un-voidable (its bill was gone) while the payables control
+      // account drifted from the aging by the note's amount (audit 2026-10-31, AP-01). The notes
+      // are voided first, each with its own reversal; then the bill.
+      const [{ notes }] = await manager.query(
+        `SELECT COUNT(*)::int AS notes FROM "vendor_debit_note"
+          WHERE "vendor_bill_id" = $1 AND "organization_id" = $2 AND "status" <> 'VOIDED'`,
+        [id, organizationId],
+      );
+      if (notes > 0) {
+        throw new BadRequestError('accounts_payable.bill_with_debit_notes_cannot_voided', { count: notes });
       }
 
       // A bill with payments against it cannot be annulled: the payments would be left pointing at

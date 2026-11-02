@@ -62,7 +62,10 @@ export class InvoicesController {
     private readonly ai: AiAssistPort,
   ) {}
 
+  // Idempotent: creating issues by default (fiscal number, stock, ledger). A retry of the same
+  // request used to issue a second invoice with a new NCF (audit 2026-10-31, FLOW-03).
   @Post()
+  @Idempotent()
   @UseGuards(PeriodLockGuard, PlanLimitCheckGuard)
   @HasPermission(PERMISSIONS.INVOICES_CREATE)
   @CheckPlanLimit(SaasResource.INVOICES, 1)

@@ -90,6 +90,8 @@ export class NewInvoicePage implements OnInit {
   protected router = inject(Router);
   private route = inject(ActivatedRoute);
   private invoicesService = inject(InvoicesService);
+  /** One per form opened: every attempt to create THIS invoice shares the idempotency key. */
+  private readonly draftKey = crypto.randomUUID();
   private customersService = inject(CustomersService);
   private inventoryService = inject(InventoryService);
   private currenciesService = inject(CurrenciesService);
@@ -794,7 +796,7 @@ export class NewInvoicePage implements OnInit {
     const payload = this.buildPayload(issue);
 
     this.isSaving.set(true);
-    this.invoicesService.createInvoice(payload).subscribe({
+    this.invoicesService.createInvoice(payload, this.draftKey).subscribe({
       next: (invoice) => {
         //  Estaban compuestos con literales en español dentro del componente, donde ninguna
         //  revisión de plantillas los habría encontrado.

@@ -64,6 +64,11 @@
     "en": "A vendor bill can refer to only one purchase order.",
     "pt": "Uma fatura de fornecedor só pode se referir a um pedido de compra."
   },
+  "accounts_payable.bill_with_debit_notes_cannot_voided": {
+    "es": "La factura tiene {{count}} nota(s) de débito vigente(s). Anúlalas primero; después podrás anular la factura.",
+    "en": "The bill has {{count}} standing debit note(s). Void them first; then the bill can be voided.",
+    "pt": "A fatura tem {{count}} nota(s) de débito vigente(s). Anule-as primeiro; depois poderá anular a fatura."
+  },
   "accounts_payable.bill_with_payments_applied_cannot_voided": {
     "es": "No puede anular una factura con pagos aplicados. Anule primero los pagos.",
     "en": "A bill with payments applied cannot be voided. Void the payments first.",

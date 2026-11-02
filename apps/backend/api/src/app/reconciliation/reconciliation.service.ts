@@ -525,6 +525,7 @@ export class ReconciliationService {
     let applied = 0;
     for (const suggestion of safe) {
       await this.dataSource.transaction(async (manager) => {
+        await this.lockStatement(manager, statementId, organizationId);
         const statement = await manager.findOne(BankStatement, { where: { id: statementId, organizationId } });
         if (!statement || statement.status === StatementStatus.RECONCILED) return;
         const match = await this.writeMatch(manager, {
@@ -740,6 +741,7 @@ export class ReconciliationService {
     suggested: { probability: number; suggestedAccountId: string } | null,
   ) {
     return this.dataSource.transaction(async (manager) => {
+      await this.lockStatement(manager, statementId, organizationId);
       const statement = await manager.findOne(BankStatement, { where: { id: statementId, organizationId } });
       if (!statement) throw new NotFoundError('reconciliation.statement_not_found');
       if (statement.status === StatementStatus.RECONCILED) {
@@ -956,6 +958,7 @@ export class ReconciliationService {
     actorUserId: string,
   ): Promise<ReconciliationMatch> {
     return this.dataSource.transaction(async (manager) => {
+      await this.lockStatement(manager, dto.statementId, organizationId);
       const statement = await manager.findOne(BankStatement, {
         where: { id: dto.statementId, organizationId },
       });
@@ -980,6 +983,11 @@ export class ReconciliationService {
   /** Undo a match. Both sides go back to being outstanding items. */
   async unmatch(matchId: string, organizationId: string, actorUserId: string | null = null): Promise<void> {
     await this.dataSource.transaction(async (manager) => {
+      const [owner] = await manager.query(
+        `SELECT "statement_id" FROM "reconciliation_matches" WHERE "id" = $1 AND "organization_id" = $2`,
+        [matchId, organizationId],
+      );
+      if (owner?.statement_id) await this.lockStatement(manager, owner.statement_id, organizationId);
       const match = await manager.findOne(ReconciliationMatch, {
         where: { id: matchId, organizationId },
         relations: ['lines', 'statement'],
@@ -1036,6 +1044,13 @@ export class ReconciliationService {
     organizationId: string,
   ): Promise<BankTransaction> {
     return this.dataSource.transaction(async (manager) => {
+      const [owner] = await manager.query(
+        `SELECT t."statement_id" FROM "bank_transactions" t
+           JOIN "bank_statements" s ON s."id" = t."statement_id"
+          WHERE t."id" = $1 AND s."organization_id" = $2`,
+        [transactionId, organizationId],
+      );
+      if (owner?.statement_id) await this.lockStatement(manager, owner.statement_id, organizationId);
       const transaction = await manager.findOne(BankTransaction, {
         where: { id: transactionId, statement: { organizationId } },
         relations: ['statement'],
@@ -1067,6 +1082,21 @@ export class ReconciliationService {
     organizationId: string,
     actorUserId: string,
   ): Promise<BankStatement> {
+    // Closing is a decision about a state: the statement is locked for the whole decision, and
+    // every change to its matches takes the same lock (lockStatement), so an unmatch or a new
+    // match cannot land between the proof and the seal (audit 2026-10-31, REC-04).
+    return this.dataSource.transaction(async (manager) => {
+      await this.lockStatement(manager, statementId, organizationId);
+      return this.closeLocked(manager, statementId, organizationId, actorUserId);
+    });
+  }
+
+  private async closeLocked(
+    manager: EntityManager,
+    statementId: string,
+    organizationId: string,
+    actorUserId: string,
+  ): Promise<BankStatement> {
     const summary = await this.summary(statementId, organizationId);
     if (summary.status === StatementStatus.RECONCILED) {
       throw new BadRequestError('reconciliation.statement_already_reconciled_reopen_before_changing');
@@ -1090,14 +1120,25 @@ export class ReconciliationService {
       });
     }
 
-    const statement = await this.statements.findOneByOrFail({
+    const statement = await manager.findOneByOrFail(BankStatement, {
       id: statementId,
       organizationId,
     });
     statement.status = StatementStatus.RECONCILED;
     statement.reconciledAt = new Date();
     statement.reconciledByUserId = actorUserId;
-    return this.statements.save(statement);
+    return manager.save(statement);
+  }
+
+  /**
+   * Serialises every change to one statement's reconciliation: matching, unmatching, categorising,
+   * excluding, applying rules, closing and reopening all take this row lock first.
+   */
+  private async lockStatement(manager: EntityManager, statementId: string, organizationId: string): Promise<void> {
+    await manager.query(
+      `SELECT "id" FROM "bank_statements" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`,
+      [statementId, organizationId],
+    );
   }
 
   /**
@@ -1218,6 +1259,7 @@ export class ReconciliationService {
     actorUserId: string,
   ): Promise<{ matched: number; created: number }> {
     return this.dataSource.transaction(async (manager) => {
+      await this.lockStatement(manager, statementId, organizationId);
       const statement = await manager.findOne(BankStatement, {
         where: { id: statementId, organizationId },
         relations: ['transactions'],

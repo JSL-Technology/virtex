@@ -48,7 +48,9 @@ export class JournalEntriesController {
     private readonly importService: JournalEntryImportService,
   ) {}
 
+  // Idempotent: a double submit of a manual entry posted it twice.
   @Post()
+  @Idempotent()
   @UseGuards(PeriodLockGuard, TemporalValidityGuard)
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
   create(

@@ -171,6 +171,14 @@ export class PeriodClosingService {
     actorUserId: string,
   ): Promise<AccountingPeriod> {
     return this.dataSource.transaction(async (manager) => {
+      // Exclusive: postings into this period hold it FOR SHARE (resolvePostingPeriod), so this waits
+      // for any posting in flight to commit, and any posting that starts now waits for this and
+      // then reads the new status. A close can no longer slip between a posting's check and its
+      // write (audit 2026-10-31, GL-04).
+      await manager.query(
+        `SELECT "id" FROM "accounting_periods" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`,
+        [periodId, organizationId],
+      );
       const period = await manager.findOneBy(AccountingPeriod, {
         id: periodId,
         organizationId,
@@ -454,6 +462,14 @@ export class PeriodClosingService {
     actorUserId: string,
   ): Promise<AccountingPeriod> {
     return this.dataSource.transaction(async (manager) => {
+      // Exclusive: postings into this period hold it FOR SHARE (resolvePostingPeriod), so this waits
+      // for any posting in flight to commit, and any posting that starts now waits for this and
+      // then reads the new status. A close can no longer slip between a posting's check and its
+      // write (audit 2026-10-31, GL-04).
+      await manager.query(
+        `SELECT "id" FROM "accounting_periods" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`,
+        [periodId, organizationId],
+      );
       const period = await manager.findOneBy(AccountingPeriod, {
         id: periodId,
         organizationId,

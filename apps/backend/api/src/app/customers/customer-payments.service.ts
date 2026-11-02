@@ -32,6 +32,7 @@ import {
 } from '../journal-entries/dto/create-journal-entry.dto';
 import {
   BadRequestError,
+  ConflictError,
   ForbiddenError,
   NotFoundError,
 } from '../i18n/localized.exception';
@@ -250,6 +251,11 @@ export class CustomerPaymentsService {
       );
 
       const lines = dto.lines ?? [];
+      // The invoices being settled, locked in id order before their balances are read. Without the
+      // lock, four concurrent receipts of 118 against one invoice of 118 all read "118 due" and all
+      // applied — the ledger's receivable ended at −354 while the invoice showed paid (audit
+      // 2026-10-31, FLOW-02). Accounts payable already locked its bills; receivables now matches.
+      await this.lockInvoices(manager, lines.map((line) => line.invoiceId), organizationId);
       const invoices = lines.length
         ? await manager.find(Invoice, {
             where: {
@@ -572,6 +578,12 @@ export class CustomerPaymentsService {
     actorUserId: string,
   ): Promise<CustomerPayment> {
     return this.dataSource.transaction(async (manager) => {
+      // The receipt itself, locked: two voids of the same receipt used to both give its amount
+      // back to the invoices.
+      await manager.query(
+        `SELECT "id" FROM "customer_payments" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`,
+        [id, organizationId],
+      );
       const payment = await manager.findOne(CustomerPayment, {
         where: { id, organizationId },
         relations: ['lines'],
@@ -580,6 +592,7 @@ export class CustomerPaymentsService {
       if (payment.status === CustomerPaymentStatus.VOID) {
         throw new BadRequestError('customers.receipt_has_already_voided');
       }
+      await this.lockInvoices(manager, payment.lines.map((line) => line.invoiceId), organizationId);
 
       // An advance this receipt created may already have been spent on a later invoice. Reversing
       // it anyway would leave the customer holding a negative balance on account and the liability
@@ -608,7 +621,17 @@ export class CustomerPaymentsService {
           organizationId,
         });
         if (!invoice) continue;
-        invoice.balance = roundAmount(invoice.balance + line.amount);
+        const restored = roundAmount(invoice.balance + line.amount);
+        // Giving an amount back can never leave an invoice owing more than it was issued for. If it
+        // would, the applications are already inconsistent and writing the sum would compound it
+        // (FLOW-05 reproduced 10 197,55 owing 17 481,51): refuse and let it be investigated.
+        const ceiling = invoice.netReceivable ?? invoice.total;
+        if (ceiling !== null && ceiling !== undefined && toCents(restored) > toCents(Number(ceiling))) {
+          throw new ConflictError('customers.receipt_void_exceeds_invoice_total', {
+            invoice: invoice.fiscalNumber ?? invoice.invoiceNumber ?? invoice.id,
+          });
+        }
+        invoice.balance = restored;
         invoice.status =
           toCents(invoice.balance) >= toCents(invoice.netReceivable ?? invoice.balance)
             ? InvoiceStatus.PENDING
@@ -931,6 +954,16 @@ export class CustomerPaymentsService {
       SEQUENCE_SCOPE.CUSTOMER_RECEIPT,
       'REC',
       Number(toIsoDate(date).slice(0, 4)),
+    );
+  }
+
+  /** Lock invoices by id, always in id order so two receipts naming the same ones cannot deadlock. */
+  private async lockInvoices(manager: EntityManager, ids: string[], organizationId: string): Promise<void> {
+    const unique = [...new Set(ids.filter(Boolean))].sort();
+    if (unique.length === 0) return;
+    await manager.query(
+      `SELECT "id" FROM "invoices" WHERE "id" = ANY($1::uuid[]) AND "organization_id" = $2 ORDER BY "id" FOR UPDATE`,
+      [unique, organizationId],
     );
   }
 }

@@ -279,6 +279,14 @@ export class InvoicesService {
   /** Turn an existing draft into an issued document. */
   async issue(invoiceId: string, organizationId: string, type?: string): Promise<Invoice> {
     const issued = await this.dataSource.transaction(async (manager) => {
+      // The draft, locked before its status is read. Six concurrent issues of one draft used to
+      // all read DRAFT and all draw an NCF: the invoice kept the last and five fiscal numbers were
+      // burned — a gap the DGII sees (audit 2026-10-31, INV-01). The second issuer now waits, then
+      // reads ISSUED and is refused before reaching the numbering.
+      await manager.query(
+        `SELECT "id" FROM "invoices" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`,
+        [invoiceId, organizationId],
+      );
       const invoice = await manager.getRepository(Invoice).findOne({
         where: { id: invoiceId, organizationId },
         relations: ['lineItems', 'customer'],
