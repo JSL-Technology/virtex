@@ -19,11 +19,6 @@
     "es": "La política de admisión rechazó el código enviado directamente.",
     "pt": "A política de admissão rejeitou o código enviado diretamente."
   },
-  "extensions.enabled": {
-    "es": "Habilitada",
-    "en": "Enabled",
-    "pt": "Ativada"
-  },
   "extensions.execute": {
     "es": "Ejecutar",
     "en": "Execute",
@@ -235,5 +230,70 @@
     "es": "Prueba una extensión instalada sin que toque tus datos: se ejecuta aislada, con solo los permisos que le diste, y verás su resultado y su registro.",
     "en": "Try an installed extension without it touching your data: it runs isolated, with only the permissions you granted, and you see its result and log.",
     "pt": "Teste uma extensão instalada sem que ela toque seus dados: roda isolada, só com as permissões que você deu, e você vê o resultado e o log."
+  },
+  "extensions.open_manager": {
+    "es": "Abrir el gestor",
+    "en": "Open the manager",
+    "pt": "Abrir o gerenciador"
+  },
+  "extensions.none_installed_title": {
+    "es": "Todavía no hay extensiones instaladas",
+    "en": "No extensions installed yet",
+    "pt": "Ainda não há extensões instaladas"
+  },
+  "extensions.none_installed_publisher": {
+    "es": "Regístralas y pruébalas en el gestor de extensiones; aparecerán aquí para activarlas.",
+    "en": "Register and try them in the extensions manager; they'll appear here to be switched on.",
+    "pt": "Registre-as e teste-as no gerenciador de extensões; elas aparecerão aqui para serem ativadas."
+  },
+  "extensions.in_company": {
+    "es": "En la empresa",
+    "en": "In the company",
+    "pt": "Na empresa"
+  },
+  "extensions.state_on": {
+    "es": "Activada",
+    "en": "On",
+    "pt": "Ativada"
+  },
+  "extensions.state_off": {
+    "es": "Desactivada",
+    "en": "Off",
+    "pt": "Desativada"
+  },
+  "extensions.enable_named": {
+    "es": "Activar {{name}}",
+    "en": "Switch on {{name}}",
+    "pt": "Ativar {{name}}"
+  },
+  "extensions.disable_named": {
+    "es": "Desactivar {{name}}",
+    "en": "Switch off {{name}}",
+    "pt": "Desativar {{name}}"
+  },
+  "extensions.enable_title": {
+    "es": "¿Activar la extensión?",
+    "en": "Switch the extension on?",
+    "pt": "Ativar a extensão?"
+  },
+  "extensions.enable_message": {
+    "es": "{{name}} se ejecutará en toda la empresa con estas capacidades: {{capabilities}}.",
+    "en": "{{name}} will run across the company with these capabilities: {{capabilities}}.",
+    "pt": "{{name}} será executada em toda a empresa com estas capacidades: {{capabilities}}."
+  },
+  "extensions.enable_message_none": {
+    "es": "{{name}} se ejecutará en toda la empresa, sin capacidades concedidas.",
+    "en": "{{name}} will run across the company, with no capabilities granted.",
+    "pt": "{{name}} será executada em toda a empresa, sem capacidades concedidas."
+  },
+  "extensions.revoke_title": {
+    "es": "¿Revocar la extensión?",
+    "en": "Revoke the extension?",
+    "pt": "Revogar a extensão?"
+  },
+  "extensions.revoke_message": {
+    "es": "{{name}} dejará de ejecutarse en todas las empresas. No se puede deshacer.",
+    "en": "{{name}} will stop running in every company. This cannot be undone.",
+    "pt": "{{name}} deixará de ser executada em todas as empresas. Não é possível desfazer."
   }
 }

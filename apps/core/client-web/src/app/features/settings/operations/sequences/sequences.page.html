@@ -1,19 +1,14 @@
 <div class="s-page">
 
   @if (loading()) {
-    <p class="seq__state" role="status">{{ 'settings.sections.loading' | translate }}</p>
+    <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />
   } @else if (loadError(); as message) {
-    <div class="seq__state seq__state--error" role="alert">
-      <p>{{ message }}</p>
-      <!-- A refusal is not a hiccup: retrying cannot change a permission. -->
-      @if (!forbidden()) {
-        <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
-      }
-    </div>
+    <!-- Una negativa no es un tropiezo: reintentar no cambia un permiso. -->
+    <vx-error-state [detail]="message" [retryable]="!forbidden()" (retry)="load()" />
   } @else if (rows().length === 0) {
-    <p class="seq__state">{{ 'settings.sequences.empty' | translate }}</p>
+    <vx-empty-state [icon]="SequenceIcon" titleKey="settings.sequences.empty_title" descriptionKey="settings.sequences.empty_description" />
   } @else {
-    <div class="table-container card">
+    <div class="seq__wrap">
       <table class="seq__table">
         <thead>
           <tr>
@@ -28,13 +23,13 @@
             @let name = 'settings.sequences.type.' + row.type | translate;
             <tr [class.seq__row--changed]="changed(row)">
               <th scope="row">{{ name }}</th>
-              <td>
+              <td [attr.data-label]="'settings.sequences.prefix' | translate">
                 <input class="seq__input" type="text" maxlength="20" [disabled]="!canEdit() || saving()"
                   [attr.aria-label]="('settings.sequences.prefix' | translate) + ' · ' + name"
                   [value]="draftOf(row).prefix"
                   (input)="edit(row, { prefix: $any($event.target).value })" />
               </td>
-              <td>
+              <td [attr.data-label]="'settings.sequences.next_number' | translate">
                 <input class="seq__input seq__input--number" type="number" [min]="row.nextNumber" step="1" [disabled]="!canEdit() || saving()"
                   [attr.aria-label]="('settings.sequences.next_number' | translate) + ' · ' + name"
                   [attr.aria-invalid]="goesBack(row)"
@@ -47,7 +42,7 @@
                   </small>
                 }
               </td>
-              <td>
+              <td [attr.data-label]="'settings.sequences.next_document' | translate">
                 <code>{{ preview(row) }}</code>
                 @if (changed(row)) {
                   <small class="seq__was">{{ 'settings.sequences.was' | translate: { value: row.nextFormatted } }}</small>
@@ -60,9 +55,10 @@
     </div>
   }
 
+  <!-- Dicho una vez (la descripción ya no lo repite) y con el nombre real de la página, enlazada. -->
   <p class="seq__note">
-    {{ 'settings.sequences.fiscal_note' | translate }}
-    <a [routerLink]="[]" fragment="settings/fiscal">{{ 'settings.sequences.go_fiscal' | translate }}</a>
+    {{ 'settings.sequences.fiscal_where' | translate }}
+    <a [routerLink]="[]" fragment="settings/fiscal">{{ 'settings.sections_meta.fiscal.label' | translate }}</a>
   </p>
 
   @if (canEdit()) {

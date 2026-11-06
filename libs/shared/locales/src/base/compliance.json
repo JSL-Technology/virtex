@@ -80,9 +80,9 @@
     "pt": "A sequência NCF do tipo {{type}} tem limites não numéricos."
   },
   "compliance.no_active_ncf_sequence_type_type": {
-    "es": "No hay una secuencia de NCF activa para el tipo {{type}}. Registra el rango autorizado por la DGII en Ajustes › Comprobantes fiscales antes de emitir este comprobante.",
+    "es": "No hay una secuencia de NCF activa para el tipo {{type}}. Registra el rango autorizado por la DGII en Configuración › Comprobantes fiscales antes de emitir este comprobante.",
     "en": "There is no active NCF sequence for type {{type}}. Register the range authorised by the DGII under Settings › Fiscal documents before issuing this document.",
-    "pt": "Não há uma sequência de NCF ativa para o tipo {{type}}. Registe o intervalo autorizado pela DGII em Definições → Faturação Eletrónica antes de emitir este documento."
+    "pt": "Não há uma sequência de NCF ativa para o tipo {{type}}. Registre a faixa autorizada pela DGII em Configurações › Comprovantes fiscais antes de emitir este documento."
   },
   "compliance.organization_has_no_default_ledger": {
     "es": "La organización no tiene libro contable por defecto.",

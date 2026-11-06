@@ -38,17 +38,26 @@ export class SettingsShellService {
   /** True for a section that saves on its own, so the header says so before anything is saved. */
   readonly autosaves = signal(false);
 
-  private readonly changes = signal<SettingsChanges | null>(null);
+  /**
+   * Every form of the section that holds editable state. Usually one; a section built from several
+   * panels (Artificial intelligence: the policy and the agents) registers each, and the shell asks
+   * about, saves or drops them together, so one save bar and one question cover the whole page.
+   */
+  private readonly changes = signal<readonly SettingsChanges[]>([]);
+  private readonly pending = computed(() => this.changes().filter((changes) => changes.dirty()));
 
-  readonly dirty = computed(() => this.changes()?.dirty() ?? false);
-  readonly canSave = computed(() => Boolean(this.changes()?.save));
+  readonly dirty = computed(() => this.pending().length > 0);
+  readonly canSave = computed(() => {
+    const pending = this.pending();
+    return pending.length > 0 && pending.every((changes) => Boolean(changes.save));
+  });
 
   register(changes: SettingsChanges): void {
-    this.changes.set(changes);
+    this.changes.update((all) => (all.includes(changes) ? all : [...all, changes]));
   }
 
   unregister(changes: SettingsChanges): void {
-    if (this.changes() === changes) this.changes.set(null);
+    this.changes.update((all) => all.filter((item) => item !== changes));
   }
 
   /** A section that saves on its own reports each save here. */
@@ -57,18 +66,24 @@ export class SettingsShellService {
     this.autosavedAt.set(Date.now());
   }
 
-  save(): Promise<boolean> {
-    return this.changes()?.save?.() ?? Promise.resolve(false);
+  /** Saves every form with edits, one after another; true only when all of them reached the server. */
+  async save(): Promise<boolean> {
+    const pending = this.pending();
+    if (!pending.length) return false;
+    for (const changes of pending) {
+      if (!changes.save || !(await changes.save())) return false;
+    }
+    return true;
   }
 
   discard(): void {
-    this.changes()?.discard?.();
+    for (const changes of this.pending()) changes.discard?.();
   }
 
   /** Forget everything about the section that is leaving. */
   reset(): void {
     this.actions.set(null);
-    this.changes.set(null);
+    this.changes.set([]);
     this.autosavedAt.set(null);
     this.autosaves.set(false);
     this.canEdit.set(true);

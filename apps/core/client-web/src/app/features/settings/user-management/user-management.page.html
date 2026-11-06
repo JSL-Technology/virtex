@@ -1,159 +1,140 @@
-<div class="settings-page-container">
-  <div class="page-container">
-    <ng-template appSettingsActions>
-      <button type="button" class="primary-button" *appHasPermission="'users:create'" (click)="openInviteModal()">
-        <lucide-icon [name]="UserPlusIcon" size="16" aria-hidden="true"></lucide-icon>
-        <span>{{ 'settings.user_management.invite_user' | translate }}</span>
-      </button>
-    </ng-template>
+<div class="um-page">
+  <ng-template appSettingsActions>
+    <button type="button" class="primary-button" *appHasPermission="'users:create'" (click)="openInviteModal()">
+      <lucide-icon [name]="UserPlusIcon" size="16" aria-hidden="true"></lucide-icon>
+      <span>{{ 'settings.user_management.invite_user' | translate }}</span>
+    </button>
+  </ng-template>
 
-    <div class="card">
-      <div class="toolbar">
-        <div class="view-toggles" style="display: flex; gap: 0.5rem">
-          <button class="btn view-toggle" [class.active]="statusFilter() === 'all'" (click)="applyStatusFilter('all')">
-            {{ "users.views.all" | translate }}
-          </button>
-          <button class="btn view-toggle" [class.active]="statusFilter() === 'ACTIVE'" (click)="applyStatusFilter('ACTIVE')">
-            {{ "user.status.active" | translate }}
-          </button>
-           <button class="btn view-toggle" [class.active]="statusFilter() === 'ARCHIVED'" (click)="applyStatusFilter('ARCHIVED')">
-            {{ "user.status.archived" | translate }}
-          </button>
-          <button class="btn view-toggle" [class.active]="statusFilter() === 'PENDING'" (click)="applyStatusFilter('PENDING')">
-            {{ "user.status.pending" | translate }}
-          </button>
-          <button class="btn view-toggle" [class.active]="statusFilter() === 'BLOCKED'" (click)="applyStatusFilter('BLOCKED')">
-            {{ "user.status.blocked" | translate }}
-          </button>
-        </div>
-
-        <div class="search-bar">
-          <lucide-icon [name]="SearchIcon" class="search-icon" size="18"></lucide-icon>
-          <input type="text" placeholder="{{ 'users.search_users' | translate }}" #searchInput (input)="onSearch($event)" [value]="searchTerm()" />
-        </div>
-
-        <button class="btn" id="btnRefresh" (click)="loadUsers()">
-          <lucide-icon [name]="RefreshCwIcon" size="16"></lucide-icon>
-        </button>
-      </div>
-
-      <div class="card-body">
-        <div class="loading-overlay" *ngIf="loading()">
-          <vx-spinner size="lg" />
-        </div>
-
-        <div class="table-container">
-          <table [appSort]="sort" class="data-table">
-            <thead>
-              <tr>
-                <th style="width: 30px"><input type="checkbox" /></th>
-                <th appSortHeader="firstName">{{ "users.table.name" | translate }}</th>
-                <th appSortHeader="email">{{ "users.table.email" | translate }}</th>
-                <th>{{ "users.table.role" | translate }}</th>
-                <th appSortHeader="status">{{ "users.table.status" | translate }}</th>
-                <th>{{ "users.table.actions" | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let user of users()">
-                <td><input type="checkbox" /></td>
-                <td>
-                  <div class="user-avatar-container">
-                    <div class="user-avatar-small">
-                      {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
-                      <div class="user-status" [ngClass]="user.isOnline ? 'status-online' : 'status-offline'"></div>
-                    </div>
-                    {{ user.firstName }} {{ user.lastName }}
-                  </div>
-                </td>
-                <td>{{ user.email }}</td>
-                <td>{{ getRoleNames(user) }}</td>
-                <td>
-                  <vx-badge [tone]="statusTone(user.status)">
-                    {{ "user.status." + user.status | translate }}
-                  </vx-badge>
-                </td>
-                <td>
-                  <div class="actions-container">
-                    <button class="btn-icon" (click)="openUserActions($event, user)">
-                      <lucide-icon [name]="MoreHorizontalIcon" size="20"></lucide-icon>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr *ngIf="!loading() && users().length === 0">
-                <td colspan="6" style="text-align: center;">{{ 'settings.user_management.no_users_found' | translate }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!--
-        Era la ÚNICA de las cinco paginaciones del producto con números de página, y tenía su
-        propio `getPageNumbers()` con elipsis a mano. Ahora es la misma que las demás.
-      -->
-      <vx-pager
-        class="card-footer"
-        [page]="currentPage()"
-        [pageSize]="pageSize()"
-        [total]="totalUsers()"
-        [disabled]="loading()"
-        (pageChange)="changePage($event)"
-        (pageSizeChange)="changePageSize($event)"
-      />
+  <!-- Barra de la lista: filtro por estado (control segmentado que se pliega en pantallas estrechas,
+       nunca recortado), búsqueda y actualizar. -->
+  <div class="um-toolbar">
+    <div class="um-segmented" role="radiogroup" [attr.aria-label]="'users.table.status' | translate">
+      @for (option of statusOptions; track option.value) {
+        <button type="button" role="radio" [class.active]="statusFilter() === option.value" [attr.aria-checked]="statusFilter() === option.value"
+          (click)="applyStatusFilter(option.value)">{{ option.labelKey | translate }}</button>
+      }
     </div>
 
-    @if (sentInvitations().length) {
-      <!--
-        Personas que ya tienen cuenta y a las que esta empresa ha INVITADO. No son miembros: se
-        les ha pedido, y solo ellas deciden. Por eso no están en la tabla de arriba.
-      -->
-      <div class="card sent-invitations">
-        <div class="card-header">
-          <h3>{{ 'settings.user_management.sent_invitations' | translate }}</h3>
-          <p class="sent-invitations-hint">{{ 'settings.user_management.sent_invitations_hint' | translate }}</p>
-        </div>
-        <div class="card-body">
-          <table [appSort]="invitationsTable.sort" class="data-table">
-            <thead>
-              <tr>
-                <th appSortHeader="name">{{ 'users.table.name' | translate }}</th>
-                <th appSortHeader="email">{{ 'users.table.email' | translate }}</th>
-                <th appSortHeader="role">{{ 'users.table.role' | translate }}</th>
-                <th appSortHeader="expiresAt">{{ 'settings.user_management.invitation_expires' | translate }}</th>
-                <th>{{ 'users.table.actions' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (invitation of invitationsTable.rows(); track invitation.id) {
-                <tr>
-                  <td>{{ invitation.firstName }} {{ invitation.lastName }}</td>
-                  <td>{{ invitation.email }}</td>
-                  <td>{{ invitation.roleName | vxRoleName }}</td>
-                  <td>{{ invitation.expiresAt | vxDate }}</td>
-                  <td>
-                    <button
-                      type="button"
-                      class="btn"
-                      *appHasPermission="'users:create'"
-                      (click)="revokeInvitation(invitation)"
-                    >{{ 'settings.user_management.revoke_invitation' | translate }}</button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
-    }
+    <div class="um-search">
+      <lucide-icon [name]="SearchIcon" class="um-search__icon" size="16" aria-hidden="true"></lucide-icon>
+      <input type="search" [attr.aria-label]="'users.search_users' | translate" [placeholder]="'users.search_users' | translate" #searchInput (input)="onSearch($event)" [value]="searchTerm()" />
+    </div>
+
+    <button type="button" class="um-icon-button" id="btnRefresh" (click)="loadUsers()"
+            [attr.aria-label]="'actions.refresh' | translate" [title]="'actions.refresh' | translate">
+      <lucide-icon [name]="RefreshCwIcon" size="16" aria-hidden="true"></lucide-icon>
+    </button>
   </div>
+
+  @if (loadError(); as message) {
+    <vx-error-state [detail]="message" (retry)="loadUsers()" />
+  } @else if (!loading() && users().length === 0) {
+    <vx-empty-state titleKey="settings.user_management.no_users_found" descriptionKey="settings.user_management.no_users_found_help" />
+  } @else {
+    <div class="um-table" [class.um-table--busy]="loading()" [attr.aria-busy]="loading()">
+      @if (loading()) {
+        <div class="um-loading"><vx-spinner size="lg" /></div>
+      }
+      <table [appSort]="sort" class="data-table" [appTableMenu]="usersMenu">
+        <thead>
+          <tr>
+            <th appSortHeader="firstName">{{ "users.table.name" | translate }}</th>
+            <th appSortHeader="email">{{ "users.table.email" | translate }}</th>
+            <th>{{ "users.table.role" | translate }}</th>
+            <th appSortHeader="status">{{ "users.table.status" | translate }}</th>
+            <th><span class="sr-only">{{ "users.table.actions" | translate }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.id) {
+            <tr [appRowMenu]="user" #rowMenu="appRowMenu">
+              <td [attr.data-label]="'users.table.name' | translate">
+                <div class="user-avatar-container">
+                  <div class="user-avatar-small" aria-hidden="true">
+                    {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+                  </div>
+                  {{ user.firstName }} {{ user.lastName }}
+                </div>
+              </td>
+              <td [attr.data-label]="'users.table.email' | translate">{{ user.email }}</td>
+              <td [attr.data-label]="'users.table.role' | translate">{{ getRoleNames(user) }}</td>
+              <td [attr.data-label]="'users.table.status' | translate">
+                <vx-badge [tone]="statusTone(user.status)">
+                  {{ "user.status." + user.status | translate }}
+                </vx-badge>
+              </td>
+              <td class="row-actions">
+                <button type="button" class="link-button" (click)="handleAction('edit', user)">{{ 'common.edit' | translate }}</button>
+                <button type="button" class="um-icon-button" aria-haspopup="menu"
+                        [attr.aria-label]="'common.more_actions_for' | translate: { name: user.firstName + ' ' + user.lastName }"
+                        [title]="'common.more_actions' | translate"
+                        (click)="rowMenu.open($event)">
+                  <lucide-icon [name]="MoreHorizontalIcon" size="18" aria-hidden="true"></lucide-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!--
+      Era la ÚNICA de las cinco paginaciones del producto con números de página, y tenía su
+      propio `getPageNumbers()` con elipsis a mano. Ahora es la misma que las demás.
+    -->
+    <vx-pager
+      [page]="currentPage()"
+      [pageSize]="pageSize()"
+      [total]="totalUsers()"
+      [disabled]="loading()"
+      (pageChange)="changePage($event)"
+      (pageSizeChange)="changePageSize($event)"
+    />
+  }
+
+  @if (sentInvitations().length) {
+    <!--
+      Personas que ya tienen cuenta y a las que esta empresa ha INVITADO. No son miembros: se
+      les ha pedido, y solo ellas deciden. Por eso no están en la tabla de arriba.
+    -->
+    <vx-settings-group class="um-invitations" titleKey="settings.user_management.sent_invitations" descriptionKey="settings.user_management.sent_invitations_hint">
+      <div class="um-table">
+        <table [appSort]="invitationsTable.sort" class="data-table">
+          <thead>
+            <tr>
+              <th appSortHeader="name">{{ 'users.table.name' | translate }}</th>
+              <th appSortHeader="email">{{ 'users.table.email' | translate }}</th>
+              <th appSortHeader="role">{{ 'users.table.role' | translate }}</th>
+              <th appSortHeader="expiresAt">{{ 'settings.user_management.invitation_expires' | translate }}</th>
+              <th><span class="sr-only">{{ 'users.table.actions' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (invitation of invitationsTable.rows(); track invitation.id) {
+              <tr>
+                <td [attr.data-label]="'users.table.name' | translate">{{ invitation.firstName }} {{ invitation.lastName }}</td>
+                <td [attr.data-label]="'users.table.email' | translate">{{ invitation.email }}</td>
+                <td [attr.data-label]="'users.table.role' | translate">{{ invitation.roleName | vxRoleName }}</td>
+                <td [attr.data-label]="'settings.user_management.invitation_expires' | translate">{{ invitation.expiresAt | vxDate }}</td>
+                <td class="row-actions">
+                  <button type="button" class="link-button" *appHasPermission="'users:create'" (click)="revokeInvitation(invitation)">
+                    {{ 'settings.user_management.revoke_invitation' | translate }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </vx-settings-group>
+  }
 </div>
 
 <!-- User Invite/Edit Modal -->
 <!-- A dialog, said so (QA R3-B06): it was a bare div, and Escape inside it closed Settings. -->
-<div class="modal" [style.display]="userModalOpen() ? 'flex' : 'none'" (keydown.escape)="$event.preventDefault(); closeUserModal()">
-  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="user-modal-title" tabindex="-1">
+<div class="modal" [style.display]="userModalOpen() ? 'flex' : 'none'">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="user-modal-title" tabindex="-1" (keydown.escape)="$event.preventDefault(); closeUserModal()">
     <div class="modal-header">
       <h3 class="modal-title" id="user-modal-title">{{ (isEditMode() ? 'settings.user_management.edit_user' : 'settings.user_management.invite_new_user') | translate }}</h3>
       <button class="modal-close" type="button" (click)="closeUserModal()" [attr.aria-label]="'common.close' | translate">{{ 'settings.user_management.value' | translate }}</button>
@@ -162,14 +143,14 @@
       <form [formGroup]="userForm">
         <div class="form-row">
           <div class="form-col">
-            <label class="form-label" for="firstname">{{ 'settings.user_management.name' | translate }} *</label>
+            <label class="form-label" for="firstname">{{ 'settings.user_management.name' | translate }} <span class="required" aria-hidden="true">*</span></label>
             <input id="firstname" type="text" class="form-control" [placeholder]="'settings.user_management.name' | translate" formControlName="firstName" required [attr.aria-invalid]="invalid('firstName')" />
             @if (invalid('firstName')) {
               <small class="field-error" role="alert">{{ fieldError('firstName') | translate }}</small>
             }
           </div>
           <div class="form-col">
-            <label class="form-label" for="lastname">{{ 'settings.user_management.last_name' | translate }} *</label>
+            <label class="form-label" for="lastname">{{ 'settings.user_management.last_name' | translate }} <span class="required" aria-hidden="true">*</span></label>
             <input id="lastname" type="text" class="form-control" [placeholder]="'settings.user_management.last_name' | translate" formControlName="lastName" required [attr.aria-invalid]="invalid('lastName')" />
             @if (invalid('lastName')) {
               <small class="field-error" role="alert">{{ fieldError('lastName') | translate }}</small>
@@ -177,14 +158,14 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label" for="email">{{ 'settings.user_management.email' | translate }} *</label>
+          <label class="form-label" for="email">{{ 'settings.user_management.email' | translate }} <span class="required" aria-hidden="true">*</span></label>
           <input id="email" type="email" class="form-control" [placeholder]="'settings.user_management.user_company_com' | translate" formControlName="email" required [attr.aria-invalid]="invalid('email')" />
             @if (invalid('email')) {
               <small class="field-error" role="alert">{{ fieldError('email') | translate }}</small>
             }
         </div>
         <div class="form-group">
-          <label class="form-label" for="roleid">{{ 'settings.user_management.role' | translate }} *</label>
+          <label class="form-label" for="roleid">{{ 'settings.user_management.role' | translate }} <span class="required" aria-hidden="true">*</span></label>
           <!-- Lista corta y cerrada: los roles de la organización. Filtrado en el cliente. -->
           <vx-select
             inputId="roleid"
@@ -215,8 +196,8 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div class="modal" [style.display]="deleteModalOpen() ? 'flex' : 'none'" (keydown.escape)="$event.preventDefault(); closeDeleteModal()">
-  <div class="modal-content" role="alertdialog" aria-modal="true" aria-labelledby="delete-modal-title" tabindex="-1">
+<div class="modal" [style.display]="deleteModalOpen() ? 'flex' : 'none'">
+  <div class="modal-content" role="alertdialog" aria-modal="true" aria-labelledby="delete-modal-title" tabindex="-1" (keydown.escape)="$event.preventDefault(); closeDeleteModal()">
     <div class="modal-header">
       <h3 class="modal-title" id="delete-modal-title">{{ 'settings.user_management.delete_user' | translate }}</h3>
       <button class="modal-close" type="button" (click)="closeDeleteModal()" [attr.aria-label]="'common.close' | translate">{{ 'settings.user_management.value' | translate }}</button>
@@ -230,22 +211,6 @@
       <button class="btn btn-danger" (click)="confirmDelete()">{{ 'settings.user_management.delete_permanently' | translate }}</button>
     </div>
   </div>
-</div>
-
-<!-- Context Menu -->
-<div class="windows-menu" *ngIf="showContextMenu" [style.left.px]="contextMenuPosition.x" [style.top.px]="contextMenuPosition.y">
-  <div class="menu-item" (click)="handleAction('edit', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('edit', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('edit', contextMenuUser!)"><lucide-icon [name]="EditIcon" size="16"></lucide-icon> {{ 'settings.user_management.edit_user' | translate }}</div>
-  @if (contextMenuUser?.status === 'PENDING') {
-    <div class="menu-item" (click)="handleAction('resend-invitation', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('resend-invitation', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('resend-invitation', contextMenuUser!)"><lucide-icon [name]="MailIcon" size="16"></lucide-icon> {{ 'settings.user_management.resend_invitation' | translate }}</div>
-  }
-  <div class="menu-item" *appHasPermission="'branches:manage'" (click)="handleAction('branches', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('branches', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('branches', contextMenuUser!)"><lucide-icon [name]="BranchIcon" size="16"></lucide-icon> {{ 'branches.access.menu' | translate }}</div>
-  <div class="menu-item" (click)="handleAction('resetPassword', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('resetPassword', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('resetPassword', contextMenuUser!)"><lucide-icon [name]="KeyIcon" size="16"></lucide-icon> {{ 'settings.user_management.reset_password' | translate }}</div>
-  <div class="menu-divider"></div>
-  <div class="menu-item" (click)="handleAction('impersonate', contextMenuUser!)" *appHasPermission="'users:impersonate'" tabindex="0" role="button" (keydown.enter)="handleAction('impersonate', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('impersonate', contextMenuUser!)"><lucide-icon [name]="UserCogIcon" size="16"></lucide-icon> {{ 'settings.user_management.impersonate_user' | translate }}</div>
-  <div class="menu-item" (click)="handleAction('force-logout', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('force-logout', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('force-logout', contextMenuUser!)"><lucide-icon [name]="PowerOff" size="16"></lucide-icon> {{ 'settings.user_management.force_sign_out' | translate }}</div>
-  <div class="menu-item" (click)="handleAction('block-and-logout', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('block-and-logout', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('block-and-logout', contextMenuUser!)"><lucide-icon [name]="BanIcon" size="16"></lucide-icon> {{ 'settings.user_management.block_sign_out' | translate }}</div>
-  <div class="menu-divider"></div>
-  <div class="menu-item menu-item-danger" (click)="handleAction('delete', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('delete', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('delete', contextMenuUser!)"><lucide-icon [name]="TrashIcon" size="16"></lucide-icon> {{ 'settings.user_management.delete_account' | translate }}</div>
 </div>
 
 @if (branchAccessUser(); as person) {

@@ -404,6 +404,16 @@
     "en": "Loading",
     "pt": "Carregando"
   },
+  "common.more_actions": {
+    "es": "Más acciones",
+    "en": "More actions",
+    "pt": "Mais ações"
+  },
+  "common.more_actions_for": {
+    "es": "Más acciones para {{name}}",
+    "en": "More actions for {{name}}",
+    "pt": "Mais ações para {{name}}"
+  },
   "common.named_file_too_large": {
     "en": "The file “{{filename}}” is too large.",
     "es": "El archivo «{{filename}}» es demasiado grande.",

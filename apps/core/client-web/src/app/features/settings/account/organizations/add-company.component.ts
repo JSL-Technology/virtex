@@ -1,3 +1,4 @@
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
@@ -33,7 +34,7 @@ const STEPS: readonly Step[] = ['configuration', 'business', 'plan'];
 @Component({
   selector: 'app-add-company',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, StepConfiguration, StepBusiness, StepPlan],
+  imports: [...VX_FORM_A11Y, ReactiveFormsModule, TranslateModule, StepConfiguration, StepBusiness, StepPlan],
   templateUrl: './add-company.component.html',
   styleUrls: ['./add-company.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

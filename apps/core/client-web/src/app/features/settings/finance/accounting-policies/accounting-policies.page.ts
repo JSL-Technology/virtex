@@ -26,11 +26,12 @@ import { CombinedSettingsPage } from '../combined-sections';
             [anchor]="block.anchor === focus() ? block.anchor : null" />
         }
       }
+      <!-- Los sitios relacionados, con el nombre de su página (CONT-03). -->
       <p class="combined__links">
         {{ 'settings.sections.policies_links' | translate }}
-        <a routerLink="/masters/currencies">{{ 'settings.sections.go_currencies' | translate }}</a> ·
-        <a routerLink="/masters/taxes">{{ 'settings.sections.go_tax_rates' | translate }}</a> ·
-        <a routerLink="/accounting/periods">{{ 'settings.sections.go_periods' | translate }}</a>
+        <a routerLink="/masters/currencies">{{ 'page_titles.currencies' | translate }}</a> ·
+        <a routerLink="/masters/taxes">{{ 'page_titles.taxes' | translate }}</a> ·
+        <a routerLink="/accounting/periods">{{ 'page_titles.accounting_periods' | translate }}</a>
       </p>
       @if (canEdit()) {
         <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" (save)="save()" (discard)="discard()" />
@@ -39,9 +40,11 @@ import { CombinedSettingsPage } from '../combined-sections';
   `,
   styles: [
     `
-      .combined { display: flex; flex-direction: column; gap: var(--space-8); }
-      .combined app-settings-section + app-settings-section { padding-top: var(--space-6); border-top: 1px solid var(--border-color); }
-      .combined__links { margin: 0; font-size: var(--text-sm); color: var(--content-secondary); }
+      /* Un bloque se separa del siguiente como cualquier grupo de la modal: por espacio (ESP-01). */
+      .combined { display: block; }
+      .combined app-settings-section + app-settings-section { margin-block-start: var(--space-8); }
+      .combined__links { margin: var(--space-8) 0 0; font-size: var(--text-sm); color: var(--content-secondary); }
+      .combined__links a { color: var(--accent-text); }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

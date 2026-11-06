@@ -1,201 +1,111 @@
-@use '../../../../assets/styles/variables' as *;
-@use '../_settings-shared' as s;
+@use 'assets/styles/design-system' as ds;
 
-// ── Page Shell ───────────────────────────────────────────────────
+//  Mi perfil y Seguridad de la cuenta. Los grupos los dibuja `vx-settings-group`; aquí solo queda
+//  lo propio de la página: la identidad y la rejilla de campos. Sin tarjetas, sin sombras: el
+//  contenido se separa por títulos y espacio (estándar v0.1, CON-01 y SOM-01).
+
 .profile-page {
-  @include s.page-shell;
+  display: block;
 }
 
-// A password is a few short fields: they read better at a measure than across the whole width.
-.profile-card__body--narrow { max-width: 34rem; }
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-// ── Card Shell ───────────────────────────────────────────────────
-.profile-card {
-  @include s.settings-card;
-
-  &__head {
-    @include s.card-head;
-    flex-wrap: nowrap;
-    align-items: center;
-    // Icon and title together, at the start: the shared head spreads its children apart.
-    justify-content: flex-start;
-    gap: var(--space-2);
-
-    lucide-icon { color: var(--primary); flex-shrink: 0; }
-    h2 { font-size: var(--text-base); font-weight: var(--font-bold); color: var(--text-primary); margin: 0; }
-  }
-
-  &__body {
-    @include s.card-body;
-  }
-}
-
-// ── Profile Banner ────────────────────────────────────────────────
-.profile-banner {
-  .profile-card__head { display: none; }
-}
-
-.profile-banner > .profile-card__body,
-.profile-banner {
-  padding: 0;
-}
-
-// Override profile-card structure for the banner
-.profile-banner {
+// ── Identidad ────────────────────────────────────────────────────────
+.p-identity {
   display: flex;
-  align-items: center;
-  gap: var(--space-7);
-  padding: 1.5rem 2rem;
   flex-wrap: wrap;
-}
-
-.p-avatar-wrap {
-  position: relative;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-}
-
-.p-avatar-halo {
-  position: absolute;
-  inset: -6px;
-  border-radius: var(--radius-full);
-  background: radial-gradient(circle, rgba(var(--primary-rgb), 0.35) 0%, transparent 70%);
-  z-index: 0;
-  pointer-events: none;
+  align-items: center;
+  gap: var(--space-4);
+  margin-block-end: var(--space-8);
 }
 
 .p-avatar {
-  position: relative;
-  z-index: 1;
-  width: 5rem;
-  height: 5rem;
+  flex-shrink: 0;
+  width: 4rem;
+  height: 4rem;
   border-radius: var(--radius-full);
   overflow: hidden;
-  border: 3px solid var(--bg-card);
-  box-shadow: 0 0 0 1px var(--border-color), var(--shadow-md);
+  border: 1px solid var(--border-default);
+  background-color: var(--surface-sunken);
 
   img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
   }
 }
 
-.p-avatar-upload {
-  position: absolute;
-  z-index: 2;
-  bottom: -2px;
-  right: -2px;
-  width: 1.875rem;
-  height: 1.875rem;
-  border-radius: var(--radius-full);
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
+.p-identity__info {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: var(--transition);
-  box-shadow: var(--shadow-sm);
-
-  &:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-    transform: scale(1.05);
-  }
-}
-
-.p-banner-info {
   flex: 1;
-  min-width: 0;
-}
-
-.p-banner-name {
-  font-size: var(--text-xl);
-  font-weight: var(--font-bold);
-  color: var(--text-primary);
-  margin-bottom: var(--space-1);
-  line-height: 1.2;
-}
-
-.p-banner-email {
-  font-size: var(--text-md);
-  color: var(--text-secondary);
-  margin-bottom: 0.625rem;
-}
-
-.p-banner-role {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.1875rem 0.75rem;
-  border-radius: var(--radius-full);
-  background-color: var(--primary-light);
-  color: var(--primary);
-  font-size: var(--text-xs);
-  font-weight: var(--font-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-// ── Two-column Grid ───────────────────────────────────────────────
-.profile-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-6);
-
-  @media (min-width: 1024px) {
-    grid-template-columns: 3fr 2fr;
-  }
-}
-
-.profile-right-col {
-  display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  align-items: flex-start;
+  gap: var(--space-1);
+  min-width: 12rem;
 }
 
-// ── Form elements ─────────────────────────────────────────────────
+.p-identity__name {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
+}
+
+.p-identity__email {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+// ── Formularios ──────────────────────────────────────────────────────
+.pf-form--narrow {
+  max-width: 28rem;
+}
+
+//  El ancho del campo sigue al dato: los cortos no ocupan todo el ancho (FORM-02).
 .pf-grid-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
+  grid-template-columns: 1fr;
+  gap: 0 var(--space-4);
 
-  @media (max-width: 500px) { grid-template-columns: 1fr; }
+  @include ds.bp-up('sm') {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .pf-field {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
-  margin-bottom: var(--space-4);
+  gap: var(--space-2);
+  margin-block-end: var(--space-4);
 
-  &:last-child { margin-bottom: 0; }
+  &:last-child {
+    margin-block-end: 0;
+  }
+}
+
+.pf-field--medium {
+  max-width: 36rem;
+}
+
+.pf-field--short {
+  max-width: 18rem;
 }
 
 .pf-label {
-  @include s.form-label;
+  @include ds.field-label;
+}
+
+.required {
+  color: var(--error-text);
 }
 
 .pf-error {
-  @include s.field-error;
-  display: block;
-  margin-top: var(--space-1);
+  @include ds.field-error;
+}
+
+.pf-hint {
+  @include ds.field-hint;
+  margin: var(--space-1) 0 0;
 }
 
 .pf-icon-wrap {
@@ -203,15 +113,17 @@
   display: flex;
   align-items: center;
 
-  &--grow { flex: 1; }
+  &--grow {
+    flex: 1;
+    min-width: 0;
+  }
 
   .pf-icon {
     position: absolute;
-    left: 0.75rem;
-    color: var(--text-tertiary);
-    pointer-events: none;
+    left: var(--space-3);
     z-index: 1;
-    flex-shrink: 0;
+    color: var(--content-tertiary);
+    pointer-events: none;
   }
 
   input.has-icon,
@@ -220,45 +132,26 @@
   }
 }
 
-.pf-phone-row {
+.pf-inline-row {
   display: flex;
-  gap: 0.625rem;
   align-items: flex-start;
-}
-
-.pf-verify-btn {
-  height: 2.375rem;
-  padding: 0 0.875rem;
-  border-radius: var(--radius-md);
-  background-color: var(--primary-light);
-  color: var(--primary);
-  border: 1px solid rgba(var(--primary-rgb), 0.2);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: var(--transition);
-  flex-shrink: 0;
-
-  &:hover { background-color: rgba(var(--primary-rgb), 0.2); }
+  gap: var(--space-2);
 }
 
 .pf-actions {
   display: flex;
-  justify-content: flex-end;
-  padding-top: var(--space-5);
-  margin-top: var(--space-1);
-  border-top: 1px solid var(--border-color);
-}
-
-.pf-btn-primary {
-  @include s.btn-primary;
+  justify-content: flex-start;
+  margin-block-start: var(--space-2);
 }
 
 .pf-btn-secondary {
-  @include s.btn-secondary;
+  @include ds.button-secondary;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-.pf-spinner {
-  @include s.spinner(1rem, white);
+.pf-btn-ghost {
+  @include ds.button-ghost;
+  flex-shrink: 0;
+  white-space: nowrap;
 }

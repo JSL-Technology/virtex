@@ -138,7 +138,8 @@
     "ai.admin.state": [
       "available",
       "not_in_plan",
-      "provider_missing"
+      "provider_missing",
+      "engine_offline"
     ],
     "ai.policy.feature": [
       "anomaly_narrative",

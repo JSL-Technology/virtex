@@ -1,43 +1,25 @@
-@use '../../../../assets/styles/design-system' as ds;
+@use 'assets/styles/design-system' as ds;
+
+//  Una sección de configuración contable. Grupos y subgrupos los dibuja `vx-settings-group`; aquí
+//  queda la rejilla de campos.
 
 :host { display: block; }
 
-.ss { display: flex; flex-direction: column; gap: var(--space-6); }
+.ss { display: block; scroll-margin-top: var(--space-4); }
 
-.ss__group {
+.ss__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
   gap: var(--space-4);
 }
 
-.ss__title {
-  grid-column: 1 / -1;
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.ss__field { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
-.ss__label { font-size: var(--text-sm); font-weight: 500; color: var(--text-primary); }
+.ss__field { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.ss__field--short { max-width: 20rem; }
+.ss__label { @include ds.field-label; }
 .ss__help { @include ds.field-hint; }
 .ss__input { @include ds.input-base; }
 .ss__input--short { max-width: 10rem; }
 .ss__unit { display: inline-flex; align-items: center; gap: var(--space-2); }
-
-
-.ss__state { color: var(--text-secondary); }
-.ss__state--error { color: var(--error-text); display: flex; flex-direction: column; gap: var(--space-3); align-items: flex-start; }
-
-.ss__block-title {
-  margin: 0;
-  font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
-  color: var(--content-primary);
-  scroll-margin-top: var(--space-4);
-}
-
-.ss { scroll-margin-top: var(--space-4); }
 
 .ss__default {
   display: flex;

@@ -1,3 +1,7 @@
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { NgTemplateOutlet } from '@angular/common';
+import { SettingsGroupComponent } from './settings-group.component';
+import { VxErrorStateComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -50,7 +54,18 @@ export interface PolicyField {
 @Component({
   selector: 'app-settings-section',
   standalone: true,
-  imports: [VxNumberInputDirective, FormsModule, TranslateModule, PercentInputDirective, SettingsSaveBarComponent, ...VX_SELECT],
+  imports: [...VX_FORM_A11Y, 
+    NgTemplateOutlet,
+    VxNumberInputDirective,
+    FormsModule,
+    TranslateModule,
+    PercentInputDirective,
+    SettingsSaveBarComponent,
+    SettingsGroupComponent,
+    VxSpinnerComponent,
+    VxErrorStateComponent,
+    ...VX_SELECT,
+  ],
   templateUrl: './settings-section.component.html',
   styleUrls: ['./settings-section.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -78,6 +93,8 @@ export class SettingsSectionComponent implements OnInit {
   readonly policies = input<readonly PolicyField[]>([]);
   /** Currencies only: show the books' currency, editable until there are books. */
   readonly showBaseCurrency = input(false);
+  /** «Políticas» gets its own subtitle only beside other parts; alone, the block's title says it. */
+  readonly policiesTitled = computed(() => !this.titleKey() || this.groups().length > 0 || (this.showBaseCurrency() && !!this.view()?.baseCurrency));
 
   protected readonly view = signal<SettingsSectionView | null>(null);
   protected readonly loading = signal(true);

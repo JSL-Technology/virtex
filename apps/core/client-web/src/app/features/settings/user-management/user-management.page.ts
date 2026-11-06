@@ -73,7 +73,9 @@ import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs'
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { VxSpinnerComponent } from '../../../shared/components/feedback';
+import { VxEmptyStateComponent, VxErrorStateComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
+import { SettingsGroupComponent } from '../shared';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -89,6 +91,7 @@ import { TableSort, VX_SORT, sortable } from '../../../shared/components/sort';
     TranslateModule,
     HasPermissionDirective,
     ...VX_FORM_A11Y, ...VX_SELECT, VxSpinnerComponent, VxPagerComponent, VxBadgeComponent,
+    VxEmptyStateComponent, VxErrorStateComponent, SettingsGroupComponent, ...VX_CONTEXT_MENU,
     UserBranchAccessDialogComponent],
   templateUrl: './user-management.page.html',
   styleUrls: ['./user-management.page.scss'],
@@ -161,9 +164,49 @@ export class UserManagementPage implements OnInit, OnDestroy {
   userModalOpen = signal(false);
   deleteModalOpen = signal(false);
   selectedUser: ApiUser | null = null;
-  contextMenuUser: ApiUser | null = null;
-  showContextMenu = false;
-  contextMenuPosition = { x: 0, y: 0 };
+  /** Los estados por los que se filtra la lista, en el orden del control segmentado. */
+  protected readonly statusOptions = [
+    { value: 'all', labelKey: 'users.views.all' },
+    { value: 'ACTIVE', labelKey: 'user.status.active' },
+    { value: 'ARCHIVED', labelKey: 'user.status.archived' },
+    { value: 'PENDING', labelKey: 'user.status.pending' },
+    { value: 'BLOCKED', labelKey: 'user.status.blocked' },
+  ] as const;
+
+  /** El error de la última carga de la lista, ya traducido; null si cargó. */
+  readonly loadError = signal<string | null>(null);
+
+  /**
+   * Las acciones de cada persona, en el menú compartido de las tablas (el mismo del clic derecho en
+   * todo el producto): «Editar» queda a la vista en la fila; el resto, en «Más acciones».
+   */
+  readonly usersMenu: ListMenuConfig<ApiUser> = {
+    resource: 'users',
+    row: (ctx) => {
+      const user = ctx.entity as ApiUser;
+      const run = (action: string) => () => this.handleAction(action, user);
+      return [
+        {
+          id: 'account',
+          items: [
+            { id: 'edit', label: 'settings.user_management.edit_user', icon: FilePenLine, run: run('edit') },
+            { id: 'resend', label: 'settings.user_management.resend_invitation', icon: Mail, visible: () => user.status === 'PENDING', run: run('resend-invitation') },
+            { id: 'branches', label: 'branches.access.menu', icon: MapPin, permission: 'branches:manage', run: run('branches') },
+            { id: 'reset', label: 'settings.user_management.reset_password', icon: Key, run: run('resetPassword') },
+          ],
+        },
+        {
+          id: 'session',
+          items: [
+            { id: 'impersonate', label: 'settings.user_management.impersonate_user', icon: UserCog, permission: 'users:impersonate', run: run('impersonate') },
+            { id: 'force-logout', label: 'settings.user_management.force_sign_out', icon: PowerOff, run: run('force-logout') },
+            { id: 'block', label: 'settings.user_management.block_sign_out', icon: Ban, run: run('block-and-logout') },
+          ],
+        },
+        { id: 'danger', items: [{ id: 'delete', label: 'settings.user_management.delete_account', icon: Trash2, danger: true, run: run('delete') }] },
+      ];
+    },
+  };
   activeTab: 'general' | 'permissions' | 'advanced' = 'general';
 
   // Paginación y Filtros
@@ -279,14 +322,15 @@ export class UserManagementPage implements OnInit, OnDestroy {
       sortDirection: this.sortDirection(),
     };
 
+    this.loadError.set(null);
     this.usersService.getUsers(options).subscribe({
       next: (response) => {
         this.users.set(response.data);
         this.totalUsers.set(response.total);
         this.loading.set(false);
       },
-      error: () => {
-        this.notificationService.showError('settings.user_management.users_could_not_loaded');
+      error: (error: unknown) => {
+        this.loadError.set(this.notificationService.httpErrorMessage(error, 'settings.user_management.users_could_not_loaded'));
         this.loading.set(false);
       },
     });
@@ -453,7 +497,6 @@ export class UserManagementPage implements OnInit, OnDestroy {
   }
 
   handleAction(action: string, user: ApiUser): void {
-    this.closeContextMenu();
     this.selectedUser = user;
     switch (action) {
       case 'edit':
@@ -605,15 +648,4 @@ export class UserManagementPage implements OnInit, OnDestroy {
     return this.statusToneMap[status] ?? 'neutral';
   }
 
-  openUserActions(event: MouseEvent, user: ApiUser): void {
-    event.stopPropagation();
-    this.contextMenuUser = user;
-    this.showContextMenu = true;
-    this.contextMenuPosition = { x: event.clientX, y: event.clientY };
-  }
-
-  closeContextMenu(): void {
-    this.showContextMenu = false;
-    this.contextMenuUser = null;
-  }
 }

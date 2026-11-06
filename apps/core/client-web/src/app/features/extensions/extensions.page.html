@@ -5,9 +5,38 @@
   states a list has, written once more by hand. The shell owns those now; what is left here is the
   only part that is specific to extensions.
 -->
+@if (embedded()) {
+  <!--
+    Dentro de Configuración: el catálogo de la empresa y qué extensiones tiene activadas. Registrar
+    una extensión y probarla en el aislamiento son operación y viven en el gestor (ARQ-01); sus
+    acciones van en la cabecera de la página, como en el resto de la modal (ACC-03).
+  -->
+  <ng-template appSettingsActions>
+    <a class="secondary-button" [routerLink]="managerLink">{{ 'extensions.open_manager' | translate }}</a>
+    <button type="button" class="secondary-button" (click)="refresh()" [disabled]="loading()">
+      <lucide-icon [img]="RefreshIcon" [size]="16" aria-hidden="true"></lucide-icon>
+      <span>{{ 'common.refresh' | translate }}</span>
+    </button>
+  </ng-template>
+
+  @if (error(); as message) {
+    <vx-error-state [detail]="message" (retry)="refresh()" />
+  } @else if (loading() && !loaded()) {
+    <vx-spinner size="lg" withLabel labelKey="common.loading" />
+  } @else if (extensions().length === 0) {
+    <vx-empty-state [icon]="PuzzleIcon" titleKey="extensions.none_installed_title"
+      [descriptionKey]="canPublish() ? 'extensions.none_installed_publisher' : 'extensions.none_registered_platform'">
+      @if (canPublish()) {
+        <a action class="secondary-button" [routerLink]="managerLink">{{ 'extensions.open_manager' | translate }}</a>
+      }
+    </vx-empty-state>
+  } @else {
+    <ng-container *ngTemplateOutlet="catalogue" />
+  }
+} @else {
 <vx-list-shell
   titleKey="page_titles.extensions"
-  [embedded]="embedded()"
+  [embedded]="false"
   [count]="extensions().length"
   [loading]="loading()"
   [error]="error()"
@@ -32,53 +61,7 @@
     <p class="ls__state-text">{{ (canPublish() ? 'extensions.none_registered_below' : 'extensions.none_registered_platform') | translate }}</p>
   </ng-container>
 
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
-      <thead>
-        <tr>
-          <th appSortHeader="name">{{ 'extensions.fields.name' | translate }}</th>
-          <th appSortHeader="description">{{ 'extensions.fields.description' | translate }}</th>
-          <th>{{ 'extensions.granted_capabilities' | translate }}</th>
-          <th class="text-right">{{ 'common.actions' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (ext of table.rows(); track ext.id) {
-          <tr>
-            <td>
-              <span class="ext__name">{{ ext.name }}</span>
-              <span class="ext__badge" [class.ext__badge--revoked]="ext.status === 'REVOKED'">
-                {{ 'extensions.status.' + ext.status | translate }}
-              </span>
-              <span class="ext__versions">
-                {{ 'extensions.version_count' | translate: { count: ext.versionCount } }}
-              </span>
-            </td>
-            <td>{{ ext.description || '—' }}</td>
-            <td>
-              {{ consentByPlugin().get(ext.name)?.grantedCapabilities?.join(', ') || '—' }}
-            </td>
-            <td class="text-right row-actions">
-              <label class="ext__toggle">
-                <input
-                  type="checkbox"
-                  [checked]="consentByPlugin().get(ext.name)?.enabled ?? false"
-                  (change)="toggleEnabled(ext)"
-                />
-                <span>{{ 'extensions.enabled' | translate }}</span>
-              </label>
-              @if (canRevoke()) {
-                <button type="button" class="danger-button" (click)="revoke(ext)">
-                  <lucide-icon [img]="TrashIcon" [size]="14" aria-hidden="true"></lucide-icon>
-                  <span>{{ 'extensions.revoke' | translate }}</span>
-                </button>
-              }
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+  <ng-container *ngTemplateOutlet="catalogue" />
 
   <!--
     Below the list, not beside it: registering an extension and trying one are things you do to the
@@ -152,7 +135,9 @@
       <h2>{{ 'extensions.run_in_sandbox' | translate }}</h2>
       <p class="ext__hint">{{ 'extensions.run_in_sandbox_help' | translate }}</p>
       <form [formGroup]="executeForm" (ngSubmit)="execute()" class="ext__run">
+        <label class="ext__run-label" for="ext-run-name">{{ 'extensions.fields.name' | translate }}</label>
         <input
+          id="ext-run-name"
           type="text"
           formControlName="pluginName"
           [placeholder]="'extensions.placeholders.extension_name' | translate"
@@ -198,3 +183,52 @@
     </section>
   </div>
 </vx-list-shell>
+}
+
+<!-- El catálogo: la tabla común, con «Activar» o «Desactivar» a la vista y lo demás en el menú de la fila. -->
+<ng-template #catalogue>
+  <table [appSort]="table.sort" class="ext-table" [appTableMenu]="extensionsMenu">
+    <thead>
+      <tr>
+        <th appSortHeader="name">{{ 'extensions.fields.name' | translate }}</th>
+        <th appSortHeader="description">{{ 'extensions.fields.description' | translate }}</th>
+        <th>{{ 'extensions.granted_capabilities' | translate }}</th>
+        <th>{{ 'extensions.in_company' | translate }}</th>
+        <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (ext of table.rows(); track ext.id) {
+        <tr [appRowMenu]="ext" #rowMenu="appRowMenu">
+          <td [attr.data-label]="'extensions.fields.name' | translate">
+            <span class="ext__name">{{ ext.name }}</span>
+            @if (ext.status.toLowerCase() !== 'active') {
+              <vx-badge [tone]="ext.status.toLowerCase() === 'revoked' ? 'danger' : 'neutral'" size="sm">{{ k('extensions.status', ext.status.toLowerCase()) | translate }}</vx-badge>
+            }
+            <span class="ext__versions">{{ 'extensions.version_count' | translate: { count: ext.versionCount } }}</span>
+          </td>
+          <td [attr.data-label]="'extensions.fields.description' | translate">{{ ext.description || '—' }}</td>
+          <td [attr.data-label]="'extensions.granted_capabilities' | translate">{{ consentByPlugin().get(ext.name)?.grantedCapabilities?.join(', ') || '—' }}</td>
+          <td [attr.data-label]="'extensions.in_company' | translate">
+            <vx-badge [tone]="isEnabled(ext) ? 'ok' : 'neutral'">{{ (isEnabled(ext) ? 'extensions.state_on' : 'extensions.state_off') | translate }}</vx-badge>
+          </td>
+          <td class="row-actions">
+            @if (canManage()) {
+              <button type="button" class="link-button" (click)="toggleEnabled(ext)"
+                [attr.aria-label]="(isEnabled(ext) ? 'extensions.disable_named' : 'extensions.enable_named') | translate: { name: ext.name }">
+                {{ (isEnabled(ext) ? 'common.deactivate' : 'common.activate') | translate }}
+              </button>
+            }
+            @if (canRevoke()) {
+              <button type="button" class="icon-button" aria-haspopup="menu"
+                [attr.aria-label]="'common.more_actions_for' | translate: { name: ext.name }"
+                [title]="'common.more_actions' | translate" (click)="rowMenu.open($event)">
+                <lucide-icon [img]="MoreIcon" [size]="18" aria-hidden="true"></lucide-icon>
+              </button>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</ng-template>

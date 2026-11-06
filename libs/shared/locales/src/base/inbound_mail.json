@@ -104,6 +104,11 @@
     "en": "Invalid mail receiver signature.",
     "pt": "Assinatura do recetor de correio inválida."
   },
+  "inbound_mail.load_failed": {
+    "es": "No se pudieron leer las direcciones de correo entrante.",
+    "en": "The inbound mail addresses could not be read.",
+    "pt": "Não foi possível ler os endereços de e-mail de entrada."
+  },
   "inbound_mail.mailbox_not_found": {
     "es": "No se encontró ese buzón.",
     "en": "That mailbox was not found.",
@@ -239,15 +244,10 @@
     "en": "Could not save.",
     "pt": "Não foi possível guardar."
   },
-  "inbound_mail.save_senders": {
-    "es": "Guardar remitentes",
-    "en": "Save senders",
-    "pt": "Guardar remetentes"
-  },
-  "inbound_mail.senders_saved": {
-    "es": "Remitentes guardados.",
-    "en": "Senders saved.",
-    "pt": "Remetentes guardados."
+  "inbound_mail.saved": {
+    "es": "Correo entrante guardado.",
+    "en": "Inbound mail saved.",
+    "pt": "E-mail de entrada salvo."
   },
   "inbound_mail.status.dismissed": {
     "es": "Archivado",

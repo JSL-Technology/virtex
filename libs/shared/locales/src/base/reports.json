@@ -657,9 +657,9 @@
     "pt": "Não foi possível determinar o livro contábil do relatório: nenhum foi informado e não há um padrão."
   },
   "reports.no_default_ledger_configured_set_one": {
-    "es": "No hay un libro contable por defecto configurado. Defínelo en Ajustes → Contabilidad antes de generar el reporte.",
-    "en": "No default ledger is configured. Set one in Settings → Accounting before generating the report.",
-    "pt": "Não há um livro contábil padrão configurado. Defina-o em Configurações → Contabilidade antes de gerar o relatório."
+    "es": "No hay un libro contable por defecto configurado. Defínelo en Contabilidad › Libros contables antes de generar el reporte.",
+    "en": "No default ledger is configured. Set one in Accounting › Ledgers before generating the report.",
+    "pt": "Não há um livro contábil padrão configurado. Defina-o em Contabilidade › Livros contábeis antes de gerar o relatório."
   },
   "reports.no_outstanding_invoices_build_report_from": {
     "es": "No hay facturas pendientes de pago para generar el reporte.",

@@ -1,5 +1,8 @@
 import { RoleNamePipe } from '../../../shared/pipes/role-name.pipe';
 import { SettingsSaveBarComponent } from '../shell';
+import { SettingsGroupComponent } from '../shared';
+import { VxFileButtonComponent } from '../../../shared/components/file-button';
+import { VxBadgeComponent } from '../../../shared/components/badge';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MyProfilePage } from './my-profile.page';
 import { AuthService } from '../../../core/services/auth';
@@ -95,6 +98,10 @@ describe('MyProfilePage', () => {
           RoleNamePipe,
           // The section's single save bar (CG-10).
           SettingsSaveBarComponent,
+          // The window's common parts: the group, the upload button and the badge.
+          SettingsGroupComponent,
+          VxFileButtonComponent,
+          VxBadgeComponent,
         ]
       }
     })

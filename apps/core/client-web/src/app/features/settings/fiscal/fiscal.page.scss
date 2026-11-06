@@ -6,57 +6,24 @@
 @use 'shared/fiscal-ui';
 
 .fiscal-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  // Width and padding are the settings window's (`.sm-page`).
-}
+  display: block;
+  // Width and padding are the settings window's (`.sm-page`); groups space themselves.
 
-.page-header {
-  padding-bottom: var(--space-5);
-  border-bottom: 1px solid var(--border-default);
-
-  &__title {
-    margin: 0 0 var(--space-1);
-    font-size: var(--text-xl);
-    font-weight: var(--font-bold);
-    color: var(--content-primary);
-  }
-
-  &__subtitle {
-    margin: 0;
-    max-width: 70ch;
-    color: var(--content-secondary);
-    font-size: var(--text-md);
-  }
+  > vx-notice { margin-block-end: var(--space-6); }
 }
 
 // ── Coverage: reference material, folded away ────────────────────────────────────
+// ── Coverage: reference material, folded away in the common disclosure ──────────
+.fiscal-coverage {
+  display: block;
+  margin-block-end: var(--space-8);
+}
+
 .coverage {
-  &__summary {
-    cursor: pointer;
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-
-    &::-webkit-details-marker {
-      display: none;
-    }
-
-    &::before {
-      content: '▸';
-      color: var(--content-tertiary);
-    }
-  }
-
-  &[open] &__summary::before {
-    content: '▾';
-  }
-
   &__list {
     list-style: none;
     margin: 0;
+    padding: 0;
   }
 
   &__row {
@@ -88,4 +55,6 @@
   margin: 0;
   font-size: var(--text-sm);
   color: var(--content-secondary);
+
+  a { color: var(--accent-text); }
 }

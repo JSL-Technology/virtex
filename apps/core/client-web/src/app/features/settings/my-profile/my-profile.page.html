@@ -1,169 +1,150 @@
 <div class="profile-page">
 @if (view() === 'profile') {
-  <!-- ── Profile Banner ──────────────────────────────────────────── -->
-  <div class="profile-card profile-banner">
-    <div class="p-avatar-wrap">
-      <div class="p-avatar-halo" aria-hidden="true"></div>
-      <div class="p-avatar">
-        <img [src]="avatarPreview() || 'assets/images/default-avatar.svg'" [alt]="'settings.my_profile.avatar' | translate">
-      </div>
-      <label class="p-avatar-upload" [title]="'settings.profile.change_avatar' | translate" for="field">
-        <lucide-icon [img]="ImageIcon" size="16"></lucide-icon>
-        <input id="field" type="file" class="visually-hidden" (change)="onFileSelected($event)" accept="image/*">
-      </label>
+  <!-- Quién eres: la foto, el nombre y el rol. No es un encabezado: el título de la página ya es «Mi perfil». -->
+  <div class="p-identity">
+    <div class="p-avatar">
+      <img [src]="avatarPreview() || 'assets/images/default-avatar.svg'" [alt]="'settings.my_profile.avatar' | translate">
     </div>
-
-    <div class="p-banner-info">
-      <h1 class="p-banner-name">{{ currentUser()?.firstName }} {{ currentUser()?.lastName }}</h1>
-      <p class="p-banner-email">{{ currentUser()?.email }}</p>
-      <span class="p-banner-role">{{ currentUser()?.roles?.[0] | vxRoleName }}</span>
+    <div class="p-identity__info">
+      <p class="p-identity__name">{{ currentUser()?.firstName }} {{ currentUser()?.lastName }}</p>
+      <p class="p-identity__email">{{ currentUser()?.email }}</p>
+      <vx-badge tone="neutral">{{ currentUser()?.roles?.[0] | vxRoleName }}</vx-badge>
     </div>
+    <vx-file-button class="p-identity__photo" labelKey="settings.profile.change_avatar" accept="image/*" inputId="avatar-file" (fileSelected)="onAvatarFile($event)" />
   </div>
 
+  <vx-settings-group titleKey="settings.profile.personal_information">
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="pf-form">
+      <div class="pf-grid-2">
+        <div class="pf-field">
+          <label class="pf-label" for="firstname">{{ 'settings.profile.first_name' | translate }} <span class="required" aria-hidden="true">*</span></label>
+          <input id="firstname" type="text" formControlName="firstName" [placeholder]="'settings.my_profile.jane' | translate">
+        </div>
+        <div class="pf-field">
+          <label class="pf-label" for="lastname">{{ 'settings.profile.last_name' | translate }} <span class="required" aria-hidden="true">*</span></label>
+          <input id="lastname" type="text" formControlName="lastName" [placeholder]="'settings.my_profile.doe' | translate">
+        </div>
+      </div>
 
-  <div class="profile-card">
-    <div class="profile-card__head">
-      <lucide-icon [img]="UserIcon" size="18" aria-hidden="true"></lucide-icon>
-      <h2>{{ 'settings.profile.personal_information' | translate }}</h2>
-    </div>
-    <div class="profile-card__body">
-        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
-          <div class="pf-grid-2">
-            <div class="pf-field">
-              <label class="pf-label" for="firstname">{{ 'settings.profile.first_name' | translate }} <span class="required" aria-hidden="true">*</span></label>
-              <input id="firstname" type="text" formControlName="firstName" [placeholder]="'settings.my_profile.jane' | translate">
+      <div class="pf-field pf-field--medium">
+        <label class="pf-label" for="email">{{ 'settings.profile.email' | translate }}</label>
+
+        <!-- Read-only, with the two-step change flow behind the button. The address cannot be
+             edited in place: a silent change would redirect account recovery, so it is
+             confirmed from the new address and announced to the old one. -->
+        <ng-container *ngIf="!changingEmail(); else emailChangeForm">
+          <div class="pf-inline-row">
+            <div class="pf-icon-wrap pf-icon-wrap--grow">
+              <lucide-icon [img]="MailIcon" size="16" class="pf-icon" aria-hidden="true"></lucide-icon>
+              <input id="email" type="email" formControlName="email" class="has-icon" readonly>
             </div>
-            <div class="pf-field">
-              <label class="pf-label" for="lastname">{{ 'settings.profile.last_name' | translate }} <span class="required" aria-hidden="true">*</span></label>
-              <input id="lastname" type="text" formControlName="lastName" [placeholder]="'settings.my_profile.doe' | translate">
+            <button type="button" class="pf-btn-secondary" (click)="startEmailChange()">
+              {{ 'settings.profile.change_email' | translate }}
+            </button>
+          </div>
+        </ng-container>
+
+        <ng-template #emailChangeForm>
+          <div class="pf-inline-row">
+            <div class="pf-icon-wrap pf-icon-wrap--grow">
+              <lucide-icon [img]="MailIcon" size="16" class="pf-icon" aria-hidden="true"></lucide-icon>
+              <input id="new-email" type="email" class="has-icon"
+                     [value]="newEmail()"
+                     (input)="newEmail.set($any($event.target).value)"
+                     [attr.aria-label]="'settings.profile.new_email' | translate"
+                     [placeholder]="'settings.my_profile.new_email_com' | translate" autocomplete="email">
             </div>
+            <button type="button" class="pf-btn-secondary" (click)="requestEmailChange()">
+              {{ 'settings.profile.send_confirmation' | translate }}
+            </button>
+            <button type="button" class="pf-btn-ghost" (click)="cancelEmailChange()">
+              {{ 'common.cancel' | translate }}
+            </button>
           </div>
+          <p class="pf-hint">
+            {{ 'settings.profile.we_will_send_confirmation_link_new' | translate }}
+          </p>
+        </ng-template>
+      </div>
 
-          <div class="pf-field">
-            <label class="pf-label" for="email">{{ 'settings.profile.email' | translate }}</label>
-
-            <!-- Read-only, with the two-step change flow behind the button. The address cannot be
-                 edited in place: a silent change would redirect account recovery, so it is
-                 confirmed from the new address and announced to the old one. -->
-            <ng-container *ngIf="!changingEmail(); else emailChangeForm">
-              <div class="pf-phone-row">
-                <div class="pf-icon-wrap pf-icon-wrap--grow">
-                  <lucide-icon [img]="MailIcon" size="16" class="pf-icon"></lucide-icon>
-                  <input id="email" type="email" formControlName="email" class="has-icon" readonly>
-                </div>
-                <button type="button" class="pf-verify-btn" (click)="startEmailChange()">
-                  {{ 'settings.profile.change_email' | translate }}
-                </button>
-              </div>
-            </ng-container>
-
-            <ng-template #emailChangeForm>
-              <div class="pf-phone-row">
-                <div class="pf-icon-wrap pf-icon-wrap--grow">
-                  <lucide-icon [img]="MailIcon" size="16" class="pf-icon"></lucide-icon>
-                  <input id="new-email" type="email" class="has-icon"
-                         [value]="newEmail()"
-                         (input)="newEmail.set($any($event.target).value)"
-                         [placeholder]="'settings.my_profile.new_email_com' | translate" autocomplete="email">
-                </div>
-                <button type="button" class="pf-verify-btn" (click)="requestEmailChange()">
-                  {{ 'settings.profile.send_confirmation' | translate }}
-                </button>
-                <button type="button" class="pf-verify-btn" (click)="cancelEmailChange()">
-                  {{ 'common.cancel' | translate }}
-                </button>
-              </div>
-              <p class="pf-hint">
-                {{ 'settings.profile.we_will_send_confirmation_link_new' | translate }}
-              </p>
-            </ng-template>
-          </div>
-
-          <div class="pf-field">
-            <label class="pf-label" for="phone">{{ 'settings.profile.phone' | translate }}</label>
-            <div class="pf-phone-row">
-              <div class="pf-icon-wrap pf-icon-wrap--grow">
-                <lucide-icon [img]="PhoneIcon" size="16" class="pf-icon"></lucide-icon>
-                <input id="phone" type="tel" formControlName="phone" class="has-icon" placeholder="+1 (809) 000-0000" autocomplete="tel">
-              </div>
-              <button type="button" class="pf-verify-btn" (click)="openPhoneVerification()">
-                {{ 'settings.profile.verify' | translate }}
-              </button>
+      <div class="pf-grid-2">
+        <div class="pf-field">
+          <label class="pf-label" for="phone">{{ 'settings.profile.phone' | translate }}</label>
+          <div class="pf-inline-row">
+            <div class="pf-icon-wrap pf-icon-wrap--grow">
+              <lucide-icon [img]="PhoneIcon" size="16" class="pf-icon" aria-hidden="true"></lucide-icon>
+              <input id="phone" type="tel" formControlName="phone" class="has-icon" placeholder="+1 (809) 000-0000" autocomplete="tel">
             </div>
-            @if (profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched) {
-              <small class="pf-error" role="alert">{{ 'settings.profile.errors.invalid_phone' | translate }}</small>
-            }
+            <button type="button" class="pf-btn-secondary" (click)="openPhoneVerification()">
+              {{ 'settings.profile.verify' | translate }}
+            </button>
           </div>
+          @if (profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched) {
+            <small class="pf-error" role="alert">{{ 'settings.profile.errors.invalid_phone' | translate }}</small>
+          }
+        </div>
 
-          <div class="pf-field">
-            <label class="pf-label" for="jobtitle">{{ 'settings.profile.job_title' | translate }}</label>
-            <div class="pf-icon-wrap">
-              <lucide-icon [img]="CompanyIcon" size="16" class="pf-icon"></lucide-icon>
-              <select id="jobtitle" formControlName="jobTitle" class="has-icon">
-                <option value="" disabled>{{ 'settings.profile.select_job_title' | translate }}</option>
-                <option *ngFor="let title of jobTitles()" [value]="title">{{ 'settings.profile.job_titles.' + title.toLowerCase() | translate }}</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="pf-field">
-            <label class="pf-label" for="preferredlanguage">{{ 'settings.my_profile.preferred_language' | translate }}</label>
-            <select id="preferredlanguage" formControlName="preferredLanguage">
-              @for (language of languages; track language.code) {
-                <option [value]="language.code" [attr.lang]="language.code">{{ language.label }}</option>
-              }
+        <div class="pf-field">
+          <label class="pf-label" for="jobtitle">{{ 'settings.profile.job_title' | translate }}</label>
+          <div class="pf-icon-wrap">
+            <lucide-icon [img]="CompanyIcon" size="16" class="pf-icon" aria-hidden="true"></lucide-icon>
+            <select id="jobtitle" formControlName="jobTitle" class="has-icon">
+              <option value="" disabled>{{ 'settings.profile.select_job_title' | translate }}</option>
+              <option *ngFor="let title of jobTitles()" [value]="title">{{ 'settings.profile.job_titles.' + title.toLowerCase() | translate }}</option>
             </select>
           </div>
+        </div>
+      </div>
 
-
-        </form>
-    </div>
-  </div>
+      <div class="pf-field pf-field--short">
+        <label class="pf-label" for="preferredlanguage">{{ 'settings.my_profile.preferred_language' | translate }}</label>
+        <select id="preferredlanguage" formControlName="preferredLanguage">
+          @for (language of languages; track language.code) {
+            <option [value]="language.code" [attr.lang]="language.code">{{ language.label }}</option>
+          }
+        </select>
+      </div>
+    </form>
+  </vx-settings-group>
   <vx-settings-save-bar [dirty]="profileDirty()" [saving]="saving()" (save)="saveProfile()" (discard)="discardProfile()" />
 } @else {
-  <div class="profile-card">
-    <div class="profile-card__head">
-      <lucide-icon [img]="ShieldIcon" size="18" aria-hidden="true"></lucide-icon>
-      <h2>{{ 'settings.profile.password_title' | translate }}</h2>
-    </div>
-    <div class="profile-card__body profile-card__body--narrow">
-          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
-            <!-- Hidden username field for password managers -->
-            <input type="text" autocomplete="username"
-                   style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"
-                   [value]="currentUser()?.email">
+  <vx-settings-group titleKey="settings.profile.password_title" descriptionKey="settings.profile.password_description">
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="pf-form pf-form--narrow">
+      <!-- Para los gestores de contraseñas: fuera del orden de tabulación y del árbol de accesibilidad,
+           de modo que el teclado no cae en un campo que no se ve. -->
+      <input type="text" autocomplete="username" class="visually-hidden" tabindex="-1" aria-hidden="true"
+             [value]="currentUser()?.email">
 
-            <div class="pf-field">
-              <label class="pf-label" for="currentpassword">{{ 'settings.profile.current_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
-              <input id="currentpassword" type="password" formControlName="currentPassword" autocomplete="current-password" required>
-              @if (passwordForm.get('currentPassword')?.hasError('incorrect')) {
-                <small class="pf-error" role="alert">{{ 'settings.profile.errors.current_password_incorrect' | translate }}</small>
-              }
-            </div>
-            <div class="pf-field">
-              <label class="pf-label" for="newpassword">{{ 'settings.profile.new_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
-              <input id="newpassword" type="password" formControlName="newPassword" autocomplete="new-password" required>
-              <!-- Los requisitos, en vivo: antes una contraseña débil dejaba el botón gris sin decir por qué (QA M-03). -->
-              <app-password-strength [password]="passwordForm.get('newPassword')?.value"></app-password-strength>
-            </div>
-            <div class="pf-field">
-              <label class="pf-label" for="confirmpassword">{{ 'settings.profile.confirm_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
-              <input id="confirmpassword" type="password" formControlName="confirmPassword" autocomplete="new-password" required>
-              @if (passwordForm.hasError('passwordsMismatch') && passwordForm.get('confirmPassword')?.touched) {
-                <small class="pf-error" role="alert">{{ 'settings.profile.errors.passwords_do_not_match' | translate }}</small>
-              }
-            </div>
+      <div class="pf-field">
+        <label class="pf-label" for="currentpassword">{{ 'settings.profile.current_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
+        <input id="currentpassword" type="password" formControlName="currentPassword" autocomplete="current-password" required>
+        @if (passwordForm.get('currentPassword')?.hasError('incorrect')) {
+          <small class="pf-error" role="alert">{{ 'settings.profile.errors.current_password_incorrect' | translate }}</small>
+        }
+      </div>
+      <div class="pf-field">
+        <label class="pf-label" for="newpassword">{{ 'settings.profile.new_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
+        <input id="newpassword" type="password" formControlName="newPassword" autocomplete="new-password" required>
+        <!-- Los requisitos, en vivo: antes una contraseña débil dejaba el botón gris sin decir por qué (QA M-03). -->
+        <app-password-strength [password]="passwordForm.get('newPassword')?.value"></app-password-strength>
+      </div>
+      <div class="pf-field">
+        <label class="pf-label" for="confirmpassword">{{ 'settings.profile.confirm_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
+        <input id="confirmpassword" type="password" formControlName="confirmPassword" autocomplete="new-password" required>
+        @if (passwordForm.hasError('passwordsMismatch') && passwordForm.get('confirmPassword')?.touched) {
+          <small class="pf-error" role="alert">{{ 'settings.profile.errors.passwords_do_not_match' | translate }}</small>
+        }
+      </div>
 
-            <div class="pf-actions">
-              <button type="submit" class="pf-btn-secondary">
-                {{ 'settings.profile.update_password' | translate }}
-              </button>
-            </div>
-          </form>
-    </div>
-  </div>
+      <div class="pf-actions">
+        <button type="submit" class="pf-btn-secondary">
+          {{ 'settings.profile.update_password' | translate }}
+        </button>
+      </div>
+    </form>
+  </vx-settings-group>
 
-  <!-- Second factor, passkeys and sessions: each card at full width, not squeezed into a column. -->
+  <!-- Segundo factor, llaves de acceso y sesiones: grupos de la misma página, con la misma anatomía. -->
   <app-security-settings></app-security-settings>
 }
 </div>

@@ -1,0 +1,72 @@
+@use 'assets/styles/design-system' as ds;
+
+//  Un grupo se separa del siguiente por espacio y por su título; nunca por una tarjeta. Es la
+//  única regla de ritmo vertical de la modal: 32 px entre grupos, 24 px entre subgrupos.
+:host {
+  display: block;
+  margin-block-end: var(--space-8);
+}
+
+:host(.vx-settings-group--sub) {
+  margin-block-end: var(--space-6);
+}
+
+:host(:last-child) {
+  margin-block-end: 0;
+}
+
+//  Móvil primero: título y acciones apilados; desde `sm`, las acciones a la derecha del título.
+.sg__head {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  margin-block-end: var(--space-4);
+
+  @include ds.bp-up('sm') {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+}
+
+:host(.vx-settings-group--sub) .sg__head {
+  margin-block-end: var(--space-3);
+}
+
+.sg__lead {
+  min-width: 0;
+}
+
+//  Dos estilos de título en toda la modal: grupo (h2) y subgrupo (h3).
+.sg__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-tight);
+  color: var(--content-primary);
+}
+
+.sg__title--sub {
+  font-size: var(--text-md);
+}
+
+.sg__desc {
+  margin: var(--space-1) 0 0;
+  max-width: 72ch;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--content-secondary);
+}
+
+.sg__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-2);
+
+  &:empty {
+    display: none;
+  }
+}

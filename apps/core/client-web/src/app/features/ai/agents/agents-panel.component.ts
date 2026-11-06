@@ -1,25 +1,29 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { AuthService } from '../../../core/services/auth';
 import { NotificationService } from '../../../core/services/notification';
-import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
-import { AgentRun, AgentsApiService, CopilotFeedbackReport, CopilotProposalEntry, ReplenishmentSettings } from './agents.service';
+import { VxErrorStateComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
+import { SettingsGroupComponent } from '../../settings/shared';
+import { SettingsChanges, SettingsShellService } from '../../settings/shell';
+import { AgentsApiService, ReplenishmentSettings } from './agents.service';
+
+type Draft = Pick<ReplenishmentSettings, 'enabled' | 'submitForApproval' | 'maxOrderAmount'>;
 
 /**
- * Admin › AI › Agents: the replenishment agent's settings, a run on request, and the log of
- * what every agent did and proposed — with the copilot's drafts and what became of each.
+ * Admin › AI › Agents: how each agent is allowed to work — today, the replenishment agent: whether
+ * it runs, whether its orders go to approval, and up to what amount.
+ *
+ * Configuration only. What the agents did, what the assistant proposed and how people rated it is
+ * operation, and lives in «Actividad de la IA» (Analysis), with the button to run an agent now: the
+ * settings window used to carry three screens of that log under the policy (ARQ-01).
  *
  * An agent never commits the company: it writes drafts, or sends them into the approval flow the
- * company already has. This is where an administrator turns it on, bounds it, and checks its work.
+ * company already has. Its settings are saved with the window's save bar, like every other form.
  */
 @Component({
   selector: 'app-ai-agents-panel',
   standalone: true,
-  imports: [VxNumberInputDirective, FormsModule, RouterLink, TranslatePipe, HasPermissionDirective, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [TranslatePipe, SettingsGroupComponent, VxErrorStateComponent, VxSpinnerComponent],
   templateUrl: './agents-panel.component.html',
   styleUrl: './agents-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,49 +31,89 @@ import { AgentRun, AgentsApiService, CopilotFeedbackReport, CopilotProposalEntry
 export class AiAgentsPanelComponent implements OnInit {
   private readonly api = inject(AgentsApiService);
   private readonly notifications = inject(NotificationService);
-  protected readonly k = composeKey;
+  private readonly auth = inject(AuthService);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly settings = signal<ReplenishmentSettings | null>(null);
-  readonly runs = signal<AgentRun[]>([]);
-  readonly proposals = signal<CopilotProposalEntry[]>([]);
-  readonly feedback = signal<CopilotFeedbackReport | null>(null);
-  readonly running = signal(false);
+  readonly draft = signal<Draft | null>(null);
+  readonly state = signal<'loading' | 'error' | 'ready'>('loading');
+  readonly saving = signal(false);
+  readonly canManage = computed(() => (this.shell ? this.shell.canEdit() : this.auth.hasPermissions(['ai_settings:manage'])));
+
+  readonly dirty = computed(() => {
+    const settings = this.settings();
+    const draft = this.draft();
+    return (
+      !!settings &&
+      !!draft &&
+      (draft.enabled !== settings.enabled || draft.submitForApproval !== settings.submitForApproval || draft.maxOrderAmount !== settings.maxOrderAmount)
+    );
+  });
+
+  private readonly changes: SettingsChanges = {
+    dirty: this.dirty,
+    save: () => this.save(),
+    discard: () => this.discard(),
+  };
 
   ngOnInit(): void {
-    this.api.replenishmentSettings().subscribe({ next: (settings) => this.settings.set(settings), error: () => this.settings.set(null) });
-    this.loadLog();
+    if (this.shell) {
+      this.shell.register(this.changes);
+      this.destroyRef.onDestroy(() => this.shell?.unregister(this.changes));
+    }
+    this.load();
   }
 
-  loadLog(): void {
-    this.api.runs().subscribe({ next: (runs) => this.runs.set(runs), error: () => this.runs.set([]) });
-    this.api.copilotProposals().subscribe({ next: (rows) => this.proposals.set(rows), error: () => this.proposals.set([]) });
-    this.api.copilotFeedback().subscribe({ next: (report) => this.feedback.set(report), error: () => this.feedback.set(null) });
-  }
-
-  update(changes: Partial<ReplenishmentSettings>): void {
-    this.api.updateReplenishment(changes).subscribe({
-      next: (settings) => this.settings.set(settings),
-      error: (error) => this.notifications.showHttpError(error, 'ai.agents.save_failed'),
+  load(): void {
+    this.state.set('loading');
+    this.api.replenishmentSettings().subscribe({
+      next: (settings) => {
+        this.apply(settings);
+        this.state.set('ready');
+      },
+      error: () => this.state.set('error'),
     });
   }
 
+  patch(change: Partial<Draft>): void {
+    if (this.canManage()) this.draft.update((draft) => (draft ? { ...draft, ...change } : draft));
+  }
+
+  /** An empty box, or zero, means no limit. */
   setLimit(value: string | number | null): void {
     const amount = Number(value);
-    this.update({ maxOrderAmount: value === '' || value === null || !(amount > 0) ? null : amount });
+    this.patch({ maxOrderAmount: value === '' || value === null || !(amount > 0) ? null : amount });
   }
 
-  runNow(): void {
-    this.running.set(true);
-    this.api.runReplenishment().subscribe({
-      next: (result) => {
-        this.running.set(false);
-        this.notifications.showSuccess('ai.agents.replenishment.ran', { count: result.orders.length });
-        this.loadLog();
-      },
-      error: (error) => {
-        this.running.set(false);
-        this.notifications.showHttpError(error, 'ai.agents.replenishment.run_failed');
-      },
+  discard(): void {
+    const settings = this.settings();
+    if (settings) this.apply(settings);
+  }
+
+  save(): Promise<boolean> {
+    const draft = this.draft();
+    if (!this.canManage() || !this.dirty() || !draft) return Promise.resolve(false);
+    this.saving.set(true);
+    return new Promise((resolve) => {
+      this.api.updateReplenishment(draft).subscribe({
+        next: (settings) => {
+          this.saving.set(false);
+          this.apply(settings);
+          this.notifications.showSuccess('ai.agents.saved');
+          resolve(true);
+        },
+        error: (error) => {
+          this.saving.set(false);
+          this.notifications.showHttpError(error, 'ai.agents.save_failed');
+          resolve(false);
+        },
+      });
     });
+  }
+
+  private apply(settings: ReplenishmentSettings): void {
+    this.settings.set(settings);
+    this.draft.set({ enabled: settings.enabled, submitForApproval: settings.submitForApproval, maxOrderAmount: settings.maxOrderAmount });
   }
 }

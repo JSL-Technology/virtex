@@ -1,3 +1,6 @@
+@use 'assets/styles/design-system' as ds;
+@use 'app/features/settings/shared/settings-ui' as ui;
+
 // The fiscal settings' building blocks, shared by the Dominican page, the regime page of every
 // other market and the cards both use (emission mode, signing certificate): one look for one task
 // whatever the country (QA U30, U31, U34).
@@ -48,7 +51,8 @@
   gap: var(--space-3);
   padding: var(--space-4);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
+  // El mismo radio que toda tarjeta seleccionable de la modal (los planes): RAD-01.
+  border-radius: var(--radius-lg);
   background: var(--surface-base);
   cursor: pointer;
 
@@ -89,18 +93,33 @@
 }
 
 .issue-state {
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  background: var(--surface-sunken);
+  margin-top: var(--space-4);
 
   &__lead {
     margin: 0 0 var(--space-2);
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
     color: var(--content-secondary);
+  }
 
-    &--blocked {
-      color: var(--warning-text);
+  vx-notice &__lead { color: inherit; }
+
+  &__action {
+    margin-inline-start: var(--space-2);
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--accent-text);
+    font: inherit;
+    font-weight: var(--font-medium);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: var(--focus-ring-width) solid var(--focus-ring-color);
+      outline-offset: var(--focus-ring-offset);
+      border-radius: var(--radius-sm);
     }
   }
 
@@ -114,6 +133,8 @@
   }
 
   &__missing {
+    display: grid;
+    gap: var(--space-1);
     margin: 0;
     padding-inline-start: var(--space-5);
     font-size: var(--text-sm);
@@ -142,6 +163,20 @@
     @media (max-width: 640px) {
       grid-column: auto;
     }
+  }
+
+  &__file {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  &__file-name {
+    min-width: 0;
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+    overflow-wrap: anywhere;
   }
 
   label,
@@ -244,3 +279,21 @@
 
 // The read-only wrapper draws nothing of its own.
 .fx-readonly { display: contents; border: 0; margin: 0; padding: 0; min-width: 0; }
+
+// ── La tabla común de la modal (rangos y certificados) ─────────────────────────
+.fx-table {
+  @include ui.table;
+
+  td { vertical-align: top; }
+  .num { text-align: right; @include ds.numeric; }
+  .nowrap { white-space: nowrap; }
+}
+
+.row-actions { @include ui.row-actions; }
+.link-button { @include ui.link-button; }
+
+.fx-note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}

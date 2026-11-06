@@ -6,7 +6,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 // ✅ CORREGIDO: Se importa el ícono 'X' que se usará como CloseIcon.
-import { LucideAngularModule, Plus, Edit, Trash, Copy, X } from 'lucide-angular';
+import { LucideAngularModule, Plus, Edit, Trash, Copy, X, MoreHorizontal } from 'lucide-angular';
 
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
@@ -22,6 +22,8 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../shared/components/dialog';
 import { VxBadgeComponent } from '../../../shared/components/badge';
+import { VxErrorStateComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 
 
 
@@ -34,7 +36,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
     LucideAngularModule,
     HasPermissionDirective,
     TranslateModule,
-    ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent],
+    ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent, VxSpinnerComponent, VxErrorStateComponent, ...VX_CONTEXT_MENU],
   templateUrl: './roles.page.html',
   styleUrls: ['./roles.page.scss'],
 })
@@ -50,6 +52,7 @@ export class RolesManagementPage implements OnInit {
   protected readonly EditIcon = Edit;
   protected readonly TrashIcon = Trash;
   protected readonly CloneIcon = Copy;
+  protected readonly MoreIcon = MoreHorizontal;
   protected readonly CloseIcon = X; // ✅ CORREGIDO: Se define la propiedad para el ícono de cerrar.
 
   /** Estado */
@@ -57,6 +60,36 @@ export class RolesManagementPage implements OnInit {
   readonly permissionGroups = signal<PermissionGroupContract[]>([]);
   readonly isModalOpen = signal(false);
   readonly editingRole = signal<Role | null>(null);
+  readonly loading = signal(true);
+  readonly loadError = signal<string | null>(null);
+
+  /**
+   * Duplicar y eliminar, en el menú compartido de las tablas («Editar» queda a la vista en la fila).
+   * Un rol del sistema no se elimina: la opción sigue en el menú, deshabilitada y diciendo por qué.
+   */
+  readonly rolesMenu: ListMenuConfig<Role> = {
+    resource: 'roles',
+    row: (ctx) => {
+      const role = ctx.entity as Role;
+      return [
+        {
+          id: 'role',
+          items: [
+            { id: 'clone', label: 'settings.roles.clone_role', icon: Copy, permission: 'roles:create', run: () => this.cloneRole(role) },
+            {
+              id: 'delete',
+              label: role.isSystemRole ? 'settings.roles.delete_role_locked' : 'settings.roles.delete_role',
+              icon: Trash,
+              danger: true,
+              permission: 'roles:delete',
+              disabled: () => role.isSystemRole,
+              run: () => this.deleteRole(role),
+            },
+          ],
+        },
+      ];
+    },
+  };
 
   /** Formulario */
   readonly roleForm: FormGroup = this.fb.group({
@@ -71,11 +104,18 @@ export class RolesManagementPage implements OnInit {
   }
 
   /** Cargar lista de roles */
-  private loadRoles(): void {
+  loadRoles(): void {
+    this.loading.set(true);
+    this.loadError.set(null);
     this.rolesService.getRoles().subscribe({
-      next: (roles: Role[]) => this.roles.set(roles),
-      error: () =>
-        this.notificationService.showError('settings.roles.errors.load_roles'),
+      next: (roles: Role[]) => {
+        this.roles.set(roles);
+        this.loading.set(false);
+      },
+      error: (error: unknown) => {
+        this.loadError.set(this.notificationService.httpErrorMessage(error, 'settings.roles.errors.load_roles'));
+        this.loading.set(false);
+      },
     });
   }
 

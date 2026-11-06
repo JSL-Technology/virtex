@@ -1,3 +1,4 @@
+import { VxNoticeComponent } from '../../../shared/components/feedback';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -64,7 +65,7 @@ const normalise = (text: string): string =>
 @Component({
   selector: 'app-settings-modal',
   standalone: true,
-  imports: [NgComponentOutlet, NgTemplateOutlet, A11yModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [NgComponentOutlet, NgTemplateOutlet, A11yModule, LucideAngularModule, TranslateModule, VxNoticeComponent, ...FORMAT_PIPES],
   templateUrl: './settings-modal.component.html',
   styleUrls: ['./settings-modal.component.scss'],
   providers: [SettingsShellService],

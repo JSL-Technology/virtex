@@ -1,25 +1,13 @@
-<div class="s-page">
-
-  <ul class="int__grid">
-    @for (card of cards(); track card.id) {
-      <li class="int__card">
-        <div class="int__head">
-          <h2 class="int__title">{{ copy[card.id].title | translate }}</h2>
-          <span class="int__badge" [class.int__badge--on]="card.state === 'active'" [attr.data-state]="card.state">
-            {{ stateLabels[card.state] | translate }}
-          </span>
-        </div>
-        <p class="int__text">{{ copy[card.id].description | translate }}</p>
-        <p class="int__status" role="status">{{ statusKey(card) | translate: card.params }}</p>
-        @if (card.link) {
-          <a class="int__link" [routerLink]="card.link">{{ copy[card.id].action | translate }}</a>
-        } @else {
-          <a class="int__link" [routerLink]="[]" [fragment]="card.fragment">{{ copy[card.id].action | translate }}</a>
-        }
-      </li>
-    }
-  </ul>
-
+<!--
+  Lo que se configura aquí y en ningún otro sitio: el correo entrante y los agentes de IA. Extensiones,
+  SSO y Comprobantes fiscales tienen su propia página en la barra lateral; repetirlas aquí como
+  tarjetas eran dos caminos para lo mismo (ARQ-01) en una rejilla de tres más una (ANT-01).
+-->
+<div class="int-page">
   <app-inbound-mailboxes-panel id="inbound-mail" />
   <app-mcp-agents-panel id="mcp-agents" />
+
+  <vx-settings-group titleKey="settings.integrations.data.title" descriptionKey="settings.integrations.data.description">
+    <a class="link-button" [routerLink]="dataLink">{{ 'settings.integrations.data.action' | translate }}</a>
+  </vx-settings-group>
 </div>

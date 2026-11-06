@@ -1,21 +1,19 @@
+<!-- La acción de crear va en la cabecera solo cuando hay lista; vacía, la lleva el estado vacío
+     (una sola primaria a la vista, ACC-01). -->
 <ng-template appSettingsActions>
-  <button type="button" class="primary-button" (click)="openCreateModal()">
-    <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'settings.subsidiaries.new_subsidiary' | translate }}</span>
-  </button>
+  @if (!loading() && !loadError() && subsidiaries().length > 0) {
+    <button type="button" class="primary-button" (click)="openCreateModal()">
+      <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
+      <span>{{ 'settings.subsidiaries.new_subsidiary' | translate }}</span>
+    </button>
+  }
 </ng-template>
 
-<div class="content-card">
+<div class="sub-page">
   @if (loading()) {
-    <!-- El aro giratorio de aquí era uno de los dieciséis «gira 360 grados» escritos a mano. -->
-    <div class="state-slot">
-      <vx-spinner size="lg" withLabel labelKey="settings.subsidiaries.loading_subsidiaries" />
-    </div>
+    <vx-spinner size="lg" withLabel labelKey="settings.subsidiaries.loading_subsidiaries" />
   } @else if (loadError(); as message) {
-    <div class="state-slot" role="alert">
-      <p>{{ message }}</p>
-      <button type="button" class="secondary-button" (click)="loadSubsidiaries()">{{ 'common.retry' | translate }}</button>
-    </div>
+    <vx-error-state [detail]="message" (retry)="loadSubsidiaries()" />
   } @else if (subsidiaries().length === 0) {
     <vx-empty-state
       [icon]="BuildingIcon"
@@ -29,14 +27,14 @@
   }
 
   @if (!loading() && !loadError() && subsidiaries().length > 0) {
-  <div class="subsidiaries-list">
+  <ul class="subsidiaries-list" role="list">
     @for (sub of subsidiaries(); track sub.subsidiary.id) {
-    <div class="subsidiary-item">
-      <div class="item-icon">
-        <lucide-icon [img]="BuildingIcon" size="24"></lucide-icon>
+    <li class="subsidiary-item">
+      <div class="item-icon" aria-hidden="true">
+        <lucide-icon [img]="BuildingIcon" size="20"></lucide-icon>
       </div>
       <div class="item-details">
-        <h4>{{ sub.subsidiary.legalName }}</h4>
+        <p class="item-name">{{ sub.subsidiary.legalName }}</p>
         <div class="meta-info">
           <span class="meta-item">
             <span class="label">{{ 'settings.subsidiaries.id_fiscal' | translate }}</span> {{ sub.subsidiary.taxId }}
@@ -59,9 +57,9 @@
           <span>{{ 'settings.subsidiaries.edit' | translate }}</span>
         </button>
       </div>
-    </div>
+    </li>
     }
-  </div>
+  </ul>
   }
 </div>
 
@@ -80,7 +78,7 @@
     <form id="subsidiary-form" [formGroup]="createForm" (ngSubmit)="onSubmit()">
       <div class="modal-body">
         <div class="form-field">
-           <label for="legalname">{{ 'settings.subsidiaries.legal_name' | translate }} *</label>
+           <label for="legalname">{{ 'settings.subsidiaries.legal_name' | translate }} <span class="required" aria-hidden="true">*</span></label>
           <input id="legalname" type="text" formControlName="legalName" maxlength="255" [placeholder]="'settings.subsidiaries.ej_virteex_latam' | translate">
         </div>
 
@@ -89,12 +87,12 @@
             <!-- Each subsidiary has its OWN country, so both the label and the example follow the
                  country picked below (A-01): the fiscal identifier is named RNC/RUC/CNPJ by that
                  jurisdiction, not renamed per the reader's locale. Neutral base key as fallback. -->
-            <label for="taxid">{{ taxIdLabel() || ('settings.company_profile.tax_id' | translate) }} *</label>
+            <label for="taxid">{{ taxIdLabel() || ('settings.company_profile.tax_id' | translate) }} <span class="required" aria-hidden="true">*</span></label>
             <input id="taxid" type="text" formControlName="taxId" [placeholder]="taxIdExample()">
           </div>
 
           <div class="form-field">
-            <label for="country">{{ 'settings.subsidiaries.country_column' | translate }} *</label>
+            <label for="country">{{ 'settings.subsidiaries.country_column' | translate }} <span class="required" aria-hidden="true">*</span></label>
             <!-- A list, not free text: the jurisdiction is looked up by ISO code, and a typed
                  «República Dominicana» matched nothing (QA A-16). -->
             <select id="country" formControlName="country">
@@ -146,7 +144,7 @@
         <p class="edit-lead">{{ link.subsidiary.legalName }}</p>
 
         <div class="form-field">
-          <label for="edit-ownership">{{ 'settings.subsidiaries.ownership_percentage' | translate }} *</label>
+          <label for="edit-ownership">{{ 'settings.subsidiaries.ownership_percentage' | translate }} <span class="required" aria-hidden="true">*</span></label>
           <input id="edit-ownership" type="number" formControlName="ownership" min="0" max="100" step="0.01">
         </div>
 

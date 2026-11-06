@@ -91,7 +91,7 @@ export class PurchaseOrderFormPage implements OnInit {
 
   @Input() id?: string;
   /** A new order for this supplier — from the supplier's row menu (QA R3-B08). */
-  @Input('supplierId') presetSupplierId?: string;
+  @Input() supplierId?: string;
 
   protected readonly AddIcon = Plus;
   protected readonly RemoveIcon = Trash2;
@@ -107,7 +107,7 @@ export class PurchaseOrderFormPage implements OnInit {
     this.suppliersApi.getSupplierById(id);
 
   protected readonly supplierName = (supplier: Supplier): string => supplier.name;
-  protected readonly supplierId = (supplier: Supplier): string => supplier.id;
+  protected readonly supplierValue = (supplier: Supplier): string => supplier.id;
   protected readonly supplierTaxId = (supplier: Supplier): string | null => supplier.taxId ?? null;
 
   /** Busca productos en el servidor: el catálogo ya no se descarga entero por cada línea. */
@@ -242,7 +242,7 @@ export class PurchaseOrderFormPage implements OnInit {
     this.currencyCode.set(this.locale.currency());
     this.form.get('currencyCode')?.valueChanges.subscribe((code: string) => this.currencyCode.set(code || null));
 
-    if (!this.id && this.presetSupplierId) this.form.patchValue({ supplierId: this.presetSupplierId });
+    if (!this.id && this.supplierId) this.form.patchValue({ supplierId: this.supplierId });
     if (this.id) {
       this.purchasing.getOrder(this.id).subscribe({
         next: (order) => {

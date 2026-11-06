@@ -1,3 +1,6 @@
+@use 'assets/styles/design-system' as ds;
+@use 'app/features/settings/shared/settings-ui' as ui;
+
 .ext {
   display: flex;
   flex-direction: column;
@@ -291,3 +294,27 @@
   gap: var(--space-5);
   align-items: start;
 }
+
+// ── El catálogo (en el gestor y en Configuración): la tabla común de la modal ──
+.ext-table {
+  @include ui.table;
+
+  td { vertical-align: top; }
+
+  vx-badge { margin-inline-start: var(--space-2); }
+}
+
+.ext__name { font-weight: var(--font-semibold); color: var(--content-primary); }
+
+.ext__versions {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
+}
+
+.row-actions { @include ui.row-actions; }
+.link-button { @include ui.link-button; }
+.icon-button { @include ui.icon-button; }
+
+.ext__run-label { @include ds.field-label; flex-basis: 100%; }

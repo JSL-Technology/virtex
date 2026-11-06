@@ -1,4 +1,5 @@
 @use '../../../../assets/styles/variables' as *;
+@use 'app/features/settings/shared/settings-ui' as ui;
 @use 'assets/styles/design-system' as ds;
 
 .page-container {
@@ -39,98 +40,34 @@
     &:hover { background: var(--bg-hover); }
 }
 
-.table-container {
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
+//  Tabla de roles: el patrón común de las tablas de Configuración (sin tarjeta, apilable en móvil),
+//  con «Editar» a la vista y «Más acciones» abriendo el menú compartido.
+.roles-table {
+  overflow-x: auto;
+
+  .data-table {
+    @include ui.table;
+  }
+
+  .row-actions {
+    @include ui.row-actions;
+  }
 }
 
-.card {
-    background-color: var(--bg-card);
-}
+.link-button {
+  @include ui.link-button;
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-
-    th, td {
-        padding: 0.75rem 1.25rem;
-        text-align: left;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    th {
-        font-size: var(--text-xs);
-        font-weight: var(--font-semibold);
-        color: var(--text-tertiary);
-        letter-spacing: 0.05em;
-        background-color: var(--bg-primary);
-    }
-
-    td {
-        font-size: var(--text-md);
-        color: var(--text-secondary);
-    }
-
-    tbody tr {
-        background-color: var(--bg-card);
-        transition: background-color 0.1s;
-
-        &:last-child td { border-bottom: none; }
-        &:hover { background-color: var(--bg-hover); }
-    }
-}
-
-.actions-column {
-    width: 1%;
-    white-space: nowrap;
-}
-
-.row-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-1);
+  &[aria-disabled='true'] {
+    color: var(--content-disabled);
+    cursor: not-allowed;
+    text-decoration: none;
+  }
 }
 
 .icon-button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: var(--text-tertiary);
-    padding: 0.375rem;
-    border-radius: var(--radius-md);
-    width: 2rem;
-    height: 2rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-
-    &:hover {
-        background-color: var(--bg-hover);
-        color: var(--text-primary);
-    }
-
-    &.danger:hover {
-        background-color: var(--error-bg);
-        color: var(--error);
-    }
-
-    &:disabled,
-    &[aria-disabled='true'] {
-        opacity: 0.35;
-        cursor: not-allowed;
-    }
+  @include ui.icon-button;
 }
 
-// ──────────────────────────────────────────────
-// Modal
-// ──────────────────────────────────────────────
-//  El velo, el panel, la cabecera y el pie los pone `vx-dialog`. De paso se van
-//  el `z-index: 1000` escrito a mano —que en la escala de `_scales.scss` es
-//  `--z-debug`, por encima de los avisos— y los tokens de compatibilidad
-//  (`--bg-card`, `--text-primary`, `--primary-light`).
 .modal-body {
     .form-field {
         margin-bottom: var(--space-4);

@@ -13,6 +13,8 @@ import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { SettingsActionsDirective, SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../shell';
 import { RegionalFormatPage } from '../regional-format/regional-format.page';
+import { SettingsGroupComponent } from '../shared';
+import { VxFileButtonComponent } from '../../../shared/components/file-button';
 
 /**
  * Two sections in one component, because they draw the same tokens: the person's own
@@ -31,6 +33,8 @@ import { RegionalFormatPage } from '../regional-format/regional-format.page';
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
+    SettingsGroupComponent,
+    VxFileButtonComponent,
     LivePreview,
     LanguageSelector,
     TranslateModule,
@@ -144,7 +148,11 @@ export class BrandingPage implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     input.value = '';
-    if (!file) return;
+    if (file) this.onLogoFile(file);
+  }
+
+  /** El logo elegido con el botón común de subir archivo. */
+  onLogoFile(file: File): void {
     this.uploading.set(true);
     this.brandingService.uploadLogo(file).subscribe({
       next: () => {

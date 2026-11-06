@@ -1,93 +1,33 @@
-<section class="ag" aria-labelledby="ai-agents">
-  <h2 id="ai-agents" class="ag__heading">{{ 'ai.agents.title' | translate }}</h2>
-  <p class="ag__muted">{{ 'ai.agents.intro' | translate }}</p>
-
-  @if (settings(); as s) {
-    <article class="card ag__card">
-      <h3 class="ag__h3">{{ 'ai.agents.replenishment.title' | translate }}</h3>
-      <p class="ag__muted">{{ 'ai.agents.replenishment.help' | translate }}</p>
-      <label class="ag__check">
-        <input type="checkbox" [checked]="s.enabled" (change)="update({ enabled: $any($event.target).checked })" />
-        <span>{{ 'ai.agents.replenishment.enabled' | translate }}</span>
-      </label>
-      <label class="ag__check">
-        <input type="checkbox" [checked]="s.submitForApproval" (change)="update({ submitForApproval: $any($event.target).checked })" />
-        <span>{{ 'ai.agents.replenishment.submit' | translate }}</span>
-      </label>
-      <label class="ag__field">
-        <span>{{ 'ai.agents.replenishment.limit' | translate }}</span>
-        <input type="number" min="0" step="0.01" [ngModel]="s.maxOrderAmount" (change)="setLimit($any($event.target).value)" [placeholder]="'ai.agents.replenishment.no_limit' | translate" />
-      </label>
-      <div class="ag__actions" *appHasPermission="'procurement:manage'">
-        <button type="button" class="btn-secondary" [disabled]="running()" (click)="runNow()">
-          {{ (running() ? 'ai.agents.replenishment.running' : 'ai.agents.replenishment.run_now') | translate }}
-        </button>
-      </div>
-    </article>
-  }
-
-  <h3 class="ag__h3">{{ 'ai.agents.log' | translate }}</h3>
-  @if (!runs().length) {
-    <p class="ag__muted">{{ 'ai.agents.log_empty' | translate }}</p>
-  } @else {
-    <ul class="ag__runs">
-      @for (run of runs(); track run.id) {
-        <li class="ag__run">
-          <span class="ag__strong">{{ k('ai.agents.agent', run.agent) | translate }}</span>
-          <span class="ag__muted">{{ run.startedAt | vxDate: 'medium' }} · {{ k('ai.agents.trigger', run.trigger) | translate }} · {{ k('ai.agents.status', run.status) | translate }}</span>
-          @if (run.proposals.length) {
-            <span class="ag__proposals">
-              @for (proposal of run.proposals; track proposal.id) {
-                @if (proposal.link) {
-                  <a [routerLink]="proposal.link">{{ proposal.label }}</a>
-                } @else {
-                  <span>{{ proposal.label }}</span>
-                }
-                <span class="ag__muted">({{ k('ai.agents.state', proposal.state) | translate }})</span>
-              }
-            </span>
-          }
-          @for (note of run.notes; track $index) {
-            <span class="ag__note">{{ k('ai.agents.note', note.key) | translate: (note.params | vxParams) }}</span>
-          }
-        </li>
+<vx-settings-group titleKey="ai.agents.title" descriptionKey="ai.agents.intro">
+  @switch (state()) {
+    @case ('loading') {
+      <vx-spinner withLabel labelKey="settings.sections.loading" />
+    }
+    @case ('error') {
+      <vx-error-state [detail]="'ai.agents.load_failed' | translate" (retry)="load()" />
+    }
+    @default {
+      @if (draft(); as d) {
+        <vx-settings-group [level]="3" titleKey="ai.agents.replenishment.title" descriptionKey="ai.agents.replenishment.help">
+          <div class="ag__options">
+            <label class="ag__check">
+              <input type="checkbox" [checked]="d.enabled" [disabled]="!canManage() || saving()" (change)="patch({ enabled: $any($event.target).checked })" />
+              <span>{{ 'ai.agents.replenishment.enabled' | translate }}</span>
+            </label>
+            <label class="ag__check">
+              <input type="checkbox" [checked]="d.submitForApproval" [disabled]="!canManage() || saving()" (change)="patch({ submitForApproval: $any($event.target).checked })" />
+              <span>{{ 'ai.agents.replenishment.submit' | translate }}</span>
+            </label>
+            <div class="ag__field">
+              <label class="ag__label" for="ag-limit">{{ 'ai.agents.replenishment.limit' | translate }}</label>
+              <input id="ag-limit" class="ag__input" type="number" min="0" step="0.01" inputmode="decimal"
+                     [value]="d.maxOrderAmount ?? ''" [disabled]="!canManage() || saving()" aria-describedby="ag-limit-hint"
+                     (input)="setLimit($any($event.target).value)" />
+              <small class="ag__hint" id="ag-limit-hint">{{ 'ai.agents.replenishment.limit_hint' | translate }}</small>
+            </div>
+          </div>
+        </vx-settings-group>
       }
-    </ul>
-  }
-
-  <h3 class="ag__h3">{{ 'ai.agents.copilot' | translate }}</h3>
-  @if (!proposals().length) {
-    <p class="ag__muted">{{ 'ai.agents.copilot_empty' | translate }}</p>
-  } @else {
-    <ul class="ag__runs">
-      @for (item of proposals(); track item.id) {
-        <li class="ag__run">
-          <span>{{ item.summary }}</span>
-          <span class="ag__muted">{{ item.createdAt | vxDate: 'medium' }} · {{ k('ai.copilot.proposal_status', item.status) | translate }}</span>
-          @if (item.link) {
-            <a [routerLink]="item.link">{{ 'ai.agents.open' | translate }}</a>
-          }
-        </li>
-      }
-    </ul>
-  }
-
-  <h3 class="ag__h3">{{ 'ai.agents.feedback' | translate }}</h3>
-  @if (feedback(); as report) {
-    <p class="ag__muted">
-      {{ 'ai.agents.feedback_totals' | translate: { up: report.last30Days.up, down: report.last30Days.down, reported: report.last30Days.reported } }}
-    </p>
-    @if (report.items.length) {
-      <ul class="ag__runs">
-        @for (item of report.items; track item.id) {
-          <li class="ag__run">
-            <span>{{ k('ai.agents.verdict', item.verdict) | translate }}@if (item.comment) { · {{ item.comment }} }</span>
-            <span class="ag__muted">{{ item.createdAt | vxDate: 'medium' }}@for (tool of item.toolsUsed; track tool) { · {{ k('ai.copilot.tool', tool) | translate }} }</span>
-          </li>
-        }
-      </ul>
-    } @else {
-      <p class="ag__muted">{{ 'ai.agents.feedback_empty' | translate }}</p>
     }
   }
-</section>
+</vx-settings-group>

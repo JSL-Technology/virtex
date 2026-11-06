@@ -1,46 +1,102 @@
-.pol { display: flex; flex-direction: column; gap: var(--space-3); }
-.pol__heading { margin: 0; font-size: var(--text-lg); font-weight: var(--font-semibold); }
-.pol__h3 { margin: 0; font-size: var(--text-md); font-weight: var(--font-semibold); }
-.pol__muted { margin: 0; font-size: var(--text-sm); color: var(--content-secondary); }
-.pol__hint { margin: 0 0 var(--space-2) var(--space-6); font-size: var(--text-xs); color: var(--content-secondary); }
-.pol__card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); }
-.pol__check { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
-.pol__legend { margin-bottom: var(--space-1); font-size: var(--text-sm); font-weight: var(--font-semibold); }
+@use 'assets/styles/design-system' as ds;
+
+//  Lo que permite la empresa a la IA. Los grupos los dibuja `vx-settings-group`; aquí quedan las
+//  opciones con su ayuda alineada debajo (ALI-01) y los campos del presupuesto.
+
+:host { display: block; }
+
+.pol__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 48rem;
+}
+
+.pol__option {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.pol__check {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--content-primary);
+
+  input {
+    flex-shrink: 0;
+    margin: 0.2rem 0 0;
+    accent-color: var(--accent-solid);
+  }
+
+  input:focus-visible { @include ds.focus-ring; }
+}
+
+//  La ayuda de una casilla empieza donde empieza su texto, no donde empieza la casilla.
+.pol__option > .pol__hint { padding-inline-start: calc(1rem + var(--space-2)); }
+
+.pol__hint { @include ds.field-hint; margin: 0; }
 
 .pol__features {
+  min-width: 0;
+  margin: var(--space-3) 0 0;
+  padding: 0 0 0 calc(1rem + var(--space-2));
+  border: none;
+
+  &:disabled .pol__check { color: var(--content-tertiary); }
+}
+
+.pol__legend {
+  margin-block-end: var(--space-2);
+  padding: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
+}
+
+.pol__feature-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-  gap: var(--space-1) var(--space-3);
-  margin: 0 0 var(--space-2) var(--space-6);
-  padding: 0;
-  border: none;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.pol__spent {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--content-primary);
+  @include ds.numeric;
+}
+
+.pol__meter {
+  height: var(--space-2);
+  max-width: 24rem;
+  margin-block-end: var(--space-4);
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+}
+
+.pol__meter-fill { height: 100%; background: var(--accent-solid); }
+.pol__meter-fill--high { background: var(--warning-solid); }
+
+.pol__fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-6);
 }
 
 .pol__field {
   display: flex;
+  flex: 0 1 18rem;
   flex-direction: column;
-  gap: var(--space-1);
-  max-width: 20rem;
-  font-size: var(--text-sm);
-  color: var(--content-secondary);
-
-  input {
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-md);
-    background: var(--surface-raised);
-    color: var(--content-primary);
-    font: inherit;
-  }
+  gap: var(--space-2);
+  min-width: 0;
 }
 
-.pol__meter {
-  height: 0.5rem;
-  max-width: 24rem;
-  overflow: hidden;
-  border-radius: var(--radius-sm);
-  background: var(--border-color);
-}
-
-.pol__meter-fill { height: 100%; background: var(--accent-solid); }
-.pol__meter-fill--high { background: var(--warning-text); }
+.pol__label { @include ds.field-label; }
+.pol__input { @include ds.input-base; @include ds.numeric; }
+.pol__input--short { max-width: 8rem; }

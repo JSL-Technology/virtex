@@ -62,6 +62,9 @@ const passwordsMatchValidator: ValidatorFn = (group: AbstractControl): Validatio
 };
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../shell';
+import { SettingsGroupComponent } from '../shared';
+import { VxFileButtonComponent } from '../../../shared/components/file-button';
+import { VxBadgeComponent } from '../../../shared/components/badge';
 
 // Typed Form Interface
 interface ProfileForm {
@@ -86,6 +89,9 @@ interface ProfileForm {
     PasswordStrengthComponent,
     RoleNamePipe,
     SettingsSaveBarComponent,
+    SettingsGroupComponent,
+    VxFileButtonComponent,
+    VxBadgeComponent,
     ...VX_FORM_A11Y,
   ],
   templateUrl: './my-profile.page.html',
@@ -249,7 +255,12 @@ export class MyProfilePage implements OnInit {
 
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
+    if (file) this.onAvatarFile(file);
+  }
+
+  /** La foto elegida con el botón común de subir archivo. */
+  onAvatarFile(file: File): void {
+    {
       // 10/10: Use shared utility for validation and reading
       const error = FileUtil.validateImage(file, 2); // 2MB limit
       if (error) {

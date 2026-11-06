@@ -20,10 +20,12 @@ import { VxBadgeComponent } from '../../../../shared/components/badge';
 
 type SetupStep = 'INTRO' | 'EMAIL_VERIFY' | 'QR_SETUP' | 'BACKUP_CODES';
 
+import { SettingsDisclosureComponent, SettingsGroupComponent } from '../../shared';
+
 @Component({
   selector: 'app-security-settings',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent, SettingsGroupComponent, SettingsDisclosureComponent],
   templateUrl: './security-settings.component.html',
   styleUrls: ['./security-settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -145,26 +147,6 @@ export class SecuritySettingsComponent implements OnInit {
   });
 
   readonly otherSessionCount = computed(() => this.sessions().filter((s) => !s.isCurrent).length);
-  private readonly openGroups = signal<ReadonlySet<string>>(new Set());
-
-  isGroupOpen(key: string): boolean {
-    return this.openGroups().has(key);
-  }
-
-  toggleGroup(key: string): void {
-    this.openGroups.update((open) => {
-      const next = new Set(open);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
-  }
-
-  /** A closed group shows its first (current or latest) session; open, all of them. */
-  visibleSessions(group: { key: string; sessions: Session[] }): Session[] {
-    return this.isGroupOpen(group.key) ? group.sessions : group.sessions.slice(0, 1);
-  }
-
   /** Signs out every device but this one, behind the same step-up as revoking one. */
   revokeOtherSessions(): void {
     this.stepUpService.requireStepUp(StepUpScope.REVOKE_SESSION, this.viewContainerRef, () => {

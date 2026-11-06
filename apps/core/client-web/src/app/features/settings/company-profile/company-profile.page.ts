@@ -42,10 +42,13 @@ const OPTIONAL_FIELDS = ['industry', 'address', 'city', 'state', 'postalCode', '
  * country. Nothing on this form assumes one market — it used to suggest «Santo Domingo» and «+1
  * (809)» to a company in Texas.
  */
+import { SettingsGroupComponent } from '../shared';
+import { VxErrorStateComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
+
 @Component({
   selector: 'app-company-profile-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, CountryFlagComponent, SettingsSaveBarComponent, ...VX_FORM_A11Y],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, CountryFlagComponent, SettingsSaveBarComponent, SettingsGroupComponent, VxSpinnerComponent, VxErrorStateComponent, ...VX_FORM_A11Y],
   templateUrl: './company-profile.page.html',
   styleUrls: ['./company-profile.page.scss']
 })
@@ -174,8 +177,14 @@ export class CompanyProfilePage implements OnInit {
     }
   }
 
+  /** Cargando, con error (y reintento) o lista: el formulario no se muestra hasta tener los datos,
+   *  para que nadie edite —y guarde encima— un formulario vacío tras un fallo de lectura. */
+  protected readonly loadState = signal<'loading' | 'error' | 'ready'>('loading');
+  protected readonly loadError = signal<string | null>(null);
+
   loadCompanyData(): void {
     this.isLoading = true;
+    this.loadState.set('loading');
     this.organizationService.getProfile().subscribe({
       next: (data) => {
         this.countryLocked.set(!!data.countryLocked);
@@ -196,9 +205,11 @@ export class CompanyProfilePage implements OnInit {
         this.profileForm.markAsPristine();
         this.refreshState();
         this.isLoading = false;
+        this.loadState.set('ready');
       },
       error: (error) => {
-        this.notificationService.showHttpError(error, 'settings.company_profile.error_loading_company_profile');
+        this.loadError.set(this.notificationService.httpErrorMessage(error, 'settings.company_profile.error_loading_company_profile'));
+        this.loadState.set('error');
         this.isLoading = false;
       }
     });

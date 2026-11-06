@@ -25,9 +25,10 @@ import { CombinedSettingsPage } from '../combined-sections';
             [titleKey]="block.titleKey" [anchor]="block.anchor === focus() ? block.anchor : null" />
         }
       }
+      <!-- Los sitios relacionados, con el nombre de su página (CONT-03). -->
       <p class="combined__links">
         {{ 'settings.sections.default_accounts_links' | translate }}
-        <a routerLink="/accounting/chart-of-accounts">{{ 'settings.sections.go_chart_of_accounts' | translate }}</a>
+        <a routerLink="/accounting/chart-of-accounts">{{ 'page_titles.chart_of_accounts' | translate }}</a>
       </p>
       @if (canEdit()) {
         <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" (save)="save()" (discard)="discard()" />
@@ -36,9 +37,11 @@ import { CombinedSettingsPage } from '../combined-sections';
   `,
   styles: [
     `
-      .combined { display: flex; flex-direction: column; gap: var(--space-8); }
-      .combined app-settings-section + app-settings-section { padding-top: var(--space-6); border-top: 1px solid var(--border-color); }
-      .combined__links { margin: 0; font-size: var(--text-sm); color: var(--content-secondary); }
+      /* Un bloque se separa del siguiente como cualquier grupo de la modal: por espacio (ESP-01). */
+      .combined { display: block; }
+      .combined app-settings-section + app-settings-section { margin-block-start: var(--space-8); }
+      .combined__links { margin: var(--space-8) 0 0; font-size: var(--text-sm); color: var(--content-secondary); }
+      .combined__links a { color: var(--accent-text); }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
