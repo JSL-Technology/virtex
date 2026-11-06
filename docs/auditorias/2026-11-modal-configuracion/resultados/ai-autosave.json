@@ -1,0 +1,9 @@
+{
+  "msWaited": 10450,
+  "writesWhileTyping4s": [
+    "1793941119876 PUT /api/v1/me/workspace"
+  ],
+  "writesAfterBlur": [
+    "1793941123560 PUT /api/v1/ai/settings"
+  ]
+}

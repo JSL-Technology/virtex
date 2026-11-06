@@ -1,0 +1,167 @@
+{
+  "my-profile": {
+    "id": "my-profile",
+    "field": {
+      "id": "firstname",
+      "name": "firstName",
+      "label": "Nombre *",
+      "value": "Dev"
+    },
+    "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+    "autosave": null,
+    "inlineSave": [
+      {
+        "text": "Guardar cambios",
+        "disabled": false
+      }
+    ],
+    "afterEscape": {
+      "modalOpen": true,
+      "confirm": [
+        "Cambios sin guardar Hay cambios sin guardar en «Mi perfil». Cancelar Descartar Guardar"
+      ]
+    },
+    "valueKept": "Devx",
+    "afterNav": [
+      "Cambios sin guardar Hay cambios sin guardar en «Mi perfil». Cancelar Descartar Guardar"
+    ]
+  },
+  "profile": {
+    "id": "profile",
+    "field": {
+      "id": "legalName",
+      "name": "legalName",
+      "label": "Nombre legal *",
+      "value": "Virtex Dev"
+    },
+    "saveBar": "Revisa «RNC» para poder guardar. Descartar Guardar cambios",
+    "autosave": null,
+    "inlineSave": [
+      {
+        "text": "Guardar cambios",
+        "disabled": true
+      }
+    ],
+    "afterEscape": {
+      "modalOpen": true,
+      "confirm": [
+        "Cambios sin guardar Hay cambios sin guardar en «Perfil de la empresa». Cancelar Descartar Guardar"
+      ]
+    },
+    "valueKept": "Virtex Devx",
+    "afterNav": [
+      "Cambios sin guardar Hay cambios sin guardar en «Perfil de la empresa». Cancelar Descartar Guardar"
+    ]
+  },
+  "smtp": {
+    "id": "smtp",
+    "field": {
+      "id": "mail-sender",
+      "name": "senderName",
+      "label": "Nombre del remitente\nVacío: el nombre comercial de la empresa, o su razón social.",
+      "value": ""
+    },
+    "saveBar": null,
+    "autosave": null,
+    "inlineSave": [
+      {
+        "text": "Guardar",
+        "disabled": false
+      }
+    ],
+    "afterEscape": {
+      "modalOpen": false,
+      "confirm": []
+    },
+    "lostWithoutWarning": true
+  },
+  "regional-format": {
+    "id": "regional-format",
+    "note": "sin campo editable de texto"
+  },
+  "security": {
+    "id": "security",
+    "note": "sin campo editable de texto"
+  },
+  "sequences": {
+    "id": "sequences",
+    "field": {
+      "id": "",
+      "name": "",
+      "label": "Prefijo · Factura de venta",
+      "value": "FAC-"
+    },
+    "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+    "autosave": null,
+    "inlineSave": [
+      {
+        "text": "Guardar cambios",
+        "disabled": false
+      }
+    ],
+    "afterEscape": {
+      "modalOpen": true,
+      "confirm": [
+        "Cambios sin guardar Hay cambios sin guardar en «Numeración de documentos». Cancelar Descartar Guardar"
+      ]
+    },
+    "valueKept": null,
+    "afterNav": [
+      "Cambios sin guardar Hay cambios sin guardar en «Numeración de documentos». Cancelar Descartar Guardar"
+    ]
+  },
+  "branding": {
+    "id": "branding",
+    "field": {
+      "id": "campo-de-ejemplo",
+      "name": "",
+      "label": "Campo de ejemplo",
+      "value": ""
+    },
+    "saveBar": null,
+    "autosave": null,
+    "inlineSave": [],
+    "afterEscape": {
+      "modalOpen": false,
+      "confirm": []
+    },
+    "lostWithoutWarning": true
+  },
+  "ai": {
+    "id": "ai",
+    "field": {
+      "id": "",
+      "name": "",
+      "label": "Presupuesto mensual en US$ (máximo 10,000; vacío = el predeterminado)",
+      "value": "200"
+    },
+    "saveBar": null,
+    "autosave": "Los cambios se guardan solos",
+    "inlineSave": [],
+    "afterEscape": {
+      "modalOpen": false,
+      "confirm": []
+    },
+    "lostWithoutWarning": true
+  },
+  "default-accounts": {
+    "id": "default-accounts",
+    "field": {
+      "id": "ss-defaultAccountsReceivableId",
+      "name": "",
+      "label": "Cuentas por cobrar\n\nDonde se registra lo que te deben los clientes al emitir una factura. Cuenta de tipo Activo.",
+      "value": "1130 — Cuentas por Cobrar Comerciales"
+    },
+    "saveBar": null,
+    "autosave": null,
+    "inlineSave": [],
+    "afterEscape": {
+      "modalOpen": true,
+      "confirm": []
+    }
+  },
+  "preferences": {
+    "id": "preferences",
+    "note": "sin campo editable de texto"
+  }
+}
