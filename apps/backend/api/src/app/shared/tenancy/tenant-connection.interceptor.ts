@@ -1,4 +1,5 @@
 import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
+import { REQUEST_LOG_CONTEXT, RequestLogContext } from '../observability/request-id';
 import { Reflector } from '@nestjs/core';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, QueryRunner } from 'typeorm';
@@ -57,6 +58,12 @@ export class TenantConnectionInterceptor implements NestInterceptor {
 
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const organizationId = request.user?.organizationId;
+
+    // For the access log line (OBS-02), which is written from the raw request after this returns.
+    const raw = (request as unknown as { raw?: Record<symbol, RequestLogContext> }).raw;
+    if (raw && request.user) {
+      raw[REQUEST_LOG_CONTEXT] = { organizationId: organizationId ?? null, userId: request.user.id ?? null };
+    }
 
     if (!organizationId) return next.handle();
 

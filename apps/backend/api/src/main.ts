@@ -1,4 +1,5 @@
 import { createServer } from 'node:net';
+import { REQUEST_ID_HEADER, requestIdFrom } from './app/shared/observability/request-id';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
@@ -119,6 +120,9 @@ async function bootstrap() {
       logger: false, // controlled by pino
       bodyLimit: 10 * 1024 * 1024, // 10MB
       trustProxy: parseTrustProxy(process.env['TRUST_PROXY']),
+      // One id per request across replicas, taken from the caller only when it is an id (OBS-01).
+      requestIdHeader: false,
+      genReqId: (req: { headers: Record<string, string | string[] | undefined> }) => requestIdFrom(req.headers),
     }),
     {
       rawBody: true,
@@ -127,6 +131,14 @@ async function bootstrap() {
   );
 
   app.useLogger(app.get(Logger));
+  // And returned, so the person reporting a failure can quote it and support can find it.
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .addHook('onRequest', (request, reply, done) => {
+      reply.header(REQUEST_ID_HEADER, request.id);
+      done();
+    });
   const configService = app.get(ConfigService);
 
   // Installed as soon as there is a logger to report through, and before anything below can

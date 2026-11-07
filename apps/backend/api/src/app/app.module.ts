@@ -1,4 +1,5 @@
 
+import { REQUEST_LOG_CONTEXT, RequestLogContext, requestIdFrom } from './shared/observability/request-id';
 
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -21,7 +22,6 @@ import { MfaEnrolmentGuard } from './auth/guards/mfa-enrolment.guard';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
-import * as crypto from 'crypto';
 import * as fs from 'fs';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -145,7 +145,15 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
             transport: config.get<string>('NODE_ENV') !== 'production'
               ? { target: 'pino-pretty' }
               : undefined,
-            genReqId: (req) => req.headers['x-correlation-id'] || crypto.randomUUID(),
+            // Fastify already gave the request its id (main.ts, `requestIdFrom`); the access log
+            // uses that one, so a log line and the `x-request-id` the client got are the same.
+            genReqId: (req) => (req as { id?: string }).id ?? requestIdFrom(req.headers),
+            // Which tenant and user a request was for (OBS-02): the tenant interceptor records it
+            // on the raw request, because the access line is written after the handler returns.
+            customProps: (req) => {
+              const context = (req as unknown as Record<symbol, RequestLogContext | undefined>)[REQUEST_LOG_CONTEXT];
+              return context ? { organizationId: context.organizationId ?? null, userId: context.userId ?? null } : {};
+            },
             // Redact PII and secrets from HTTP access logs (OWASP Logging Cheat Sheet; CWE-532).
             //
             // `pino-http`'s default request serializer writes the ENTIRE header object, so this
