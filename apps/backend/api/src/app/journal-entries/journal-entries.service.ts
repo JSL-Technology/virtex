@@ -534,6 +534,10 @@ export class JournalEntriesService {
         credit: lineDto.credit,
         valuations: [],
       });
+      if (context.reconciledAccountIds?.includes(lineDto.accountId)) {
+        line.isReconciled = true;
+        line.reconciledAt = new Date();
+      }
 
       if (isForeignCurrency) {
         // The document amount is kept as entered; the ledger amount is the conversion, rounded to

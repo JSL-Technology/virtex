@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../../shared/scheduling/exclusive-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DataSource } from 'typeorm';
@@ -30,6 +31,7 @@ export class EcfReconcilerService {
   ) {}
 
   @Cron(CronExpression.EVERY_5_MINUTES)
+  @ExclusiveJob()
   async pollPendingVerdicts(): Promise<void> {
     await this.schedulerLock.pruneFinished('ecf-poll-verdicts', ONE_DAY_MS);
     await this.schedulerLock.runOnce('ecf-poll-verdicts', slot(5), () =>
@@ -47,6 +49,7 @@ export class EcfReconcilerService {
   }
 
   @Cron(CronExpression.EVERY_10_MINUTES)
+  @ExclusiveJob()
   async retryContingency(): Promise<void> {
     await this.schedulerLock.pruneFinished('ecf-retry-contingency', ONE_DAY_MS);
     await this.schedulerLock.runOnce('ecf-retry-contingency', slot(10), () =>

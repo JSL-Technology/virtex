@@ -10,6 +10,7 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 import { NotificationService } from '../../../core/services/notification';
 import { StockOnHandRow, StockService } from '../data/stock.service';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Stock on hand: what each warehouse holds of each product, valued at average cost.
@@ -21,7 +22,7 @@ import { Warehouse, WarehousesService } from '../../masters/data/warehouses.serv
 @Component({
   selector: 'app-stock-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, HasPermissionDirective],
+  imports: [FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, HasPermissionDirective],
   templateUrl: './stock.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -257,13 +257,13 @@ export class InvoicePostingService {
     const cost = roundToCurrency(invoice.costOfSale, settings.baseCurrency);
     if (cost <= 0) return null;
     if (!settings.defaultCostOfGoodsSoldId || !settings.defaultInventoryId) {
-      // Nothing here is worth aborting a sale over: the revenue side is already correct, and a
-      // tenant whose chart has no inventory accounts is not tracking stock in the ledger anyway.
-      this.logger.warn(
-        `La organización ${invoice.organizationId} no tiene cuentas de inventario/costo configuradas; ` +
-          `no se contabilizó el costo de la venta ${invoice.invoiceNumber}.`,
-      );
-      return null;
+      // The goods have already left the stock ledger in this transaction. Posting the sale without
+      // its cost would leave the inventory account overstated by exactly that amount, silently —
+      // it used to be a log warning (audit 2026-10-31, INV-03). Refusing rolls the stock movement
+      // back with it, and the message says which configuration is missing.
+      throw new BadRequestError('invoices.cost_accounts_not_configured', {
+        invoice: invoice.invoiceNumber,
+      });
     }
 
     const journal = await this.requireJournal(invoice.organizationId, 'GENERAL', manager);

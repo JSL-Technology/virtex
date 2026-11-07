@@ -169,8 +169,16 @@ export class PayrollRunService {
     // that only surfaces when somebody reconciles a Chilean payslip against Chilean law. The
     // tenant's own country is the only defensible default, and a tenant that has none is refused
     // rather than assigned one.
-    const country = (input.countryCode ?? (await this.tenantCountry.resolve(organizationId)))
-      .toUpperCase();
+    //
+    // And the tenant's country is the only one allowed (NOM-02): a Mexican tenant could start a
+    // run with `countryCode: "DO"` and have it computed under TSS rates, the DGII scale and pesos
+    // dominicanos. A company pays under the law of the country it is constituted in; employing in
+    // another country is another legal entity, which here is another tenant.
+    const tenantCountry = (await this.tenantCountry.resolve(organizationId)).toUpperCase();
+    const country = (input.countryCode ?? tenantCountry).toUpperCase();
+    if (country !== tenantCountry) {
+      throw new BadRequestError('payroll.run_country_not_tenant_country', { p1: country, p2: tenantCountry });
+    }
     if (!this.registry.supports(country)) {
       throw new BadRequestError('payroll.payroll_jurisdiction_p1_not_supported', { p1: country });
     }

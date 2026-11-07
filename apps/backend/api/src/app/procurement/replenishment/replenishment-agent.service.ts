@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../../shared/scheduling/exclusive-job';
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -69,6 +70,7 @@ export class ReplenishmentAgentService {
 
   // 07:13: after the night's forecast, before the buyers start their day.
   @Cron('13 7 * * *')
+  @ExclusiveJob()
   async daily(): Promise<void> {
     const runKey = new Date().toISOString().slice(0, 10);
     await this.lock.runOnce('replenishment-agent', runKey, async () => {

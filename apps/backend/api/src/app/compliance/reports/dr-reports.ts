@@ -13,7 +13,7 @@ import { isValidDominicanTaxId } from '../../localization/contracts/tax-id.contr
  * ## What these replace
  *
  * The previous implementation emitted six pipe-delimited fields for the 607 and five for the 606.
- * The published formats carry twenty-four and twenty-three respectively, and neither file had a
+ * The published formats carry twenty-three boxes each (see `FORMAT_607_BOXES`), and neither had a
  * header line, so what the product produced could not be uploaded to the DGII at all. Worse, the
  * 606 derived the tax borne on a purchase as `total − total / 1.18`, which assumes every purchase
  * is taxable at the standard rate; the code's own comment called it a stopgap. The 608 and 609 did
@@ -49,6 +49,51 @@ export interface TillFiscalSale {
   voidReason: string | null;
 }
 
+/**
+ * What a customer actually withheld from us on an invoice, from its collections (607 boxes 7, 10
+ * and 12). The withholding happens when the customer pays — not when we issue — so the amounts and
+ * the date come from the receipts that carried it. Before any such receipt nothing has been
+ * withheld yet; the return regenerated after it (the DGII's rectification) reports it.
+ */
+export interface CollectedWithholding {
+  tax: number;
+  incomeTax: number;
+  /** The date of the latest receipt that withheld, `YYYY-MM-DD`. */
+  date: string;
+}
+
+/**
+ * The 607 detail record, box by box, as the DGII publishes it (Norma General 07-2018, "Formato de
+ * Envío de Datos 607"). Twenty-three boxes. The previous record had twenty-four: it carried the 606's
+ * services/goods split, which the 607 does not have, and lacked box 7, so from box 7 on every amount
+ * sat one box to the right of where the DGII reads it.
+ */
+export const FORMAT_607_BOXES = [
+  'RNC/Cédula o Pasaporte',
+  'Tipo Identificación',
+  'Número Comprobante Fiscal',
+  'Número Comprobante Fiscal Modificado',
+  'Tipo de Ingreso',
+  'Fecha Comprobante',
+  'Fecha de Retención',
+  'Monto Facturado',
+  'ITBIS Facturado',
+  'ITBIS Retenido por Terceros',
+  'ITBIS Percibido',
+  'Retención Renta por Terceros',
+  'ISR Percibido',
+  'Impuesto Selectivo al Consumo',
+  'Otros Impuestos/Tasas',
+  'Monto Propina Legal',
+  'Efectivo',
+  'Cheque/Transferencia/Depósito',
+  'Tarjeta Débito/Crédito',
+  'Venta a Crédito',
+  'Bonos o Certificados de Regalo',
+  'Permuta',
+  'Otras Formas de Ventas',
+] as const;
+
 export class DominicanRepublicReports {
   // ── 607: Ventas de bienes y servicios ──────────────────────────────────────
 
@@ -66,6 +111,7 @@ export class DominicanRepublicReports {
     invoiceRepository: Repository<Invoice>,
     organization: Organization,
     tillSales: readonly TillFiscalSale[] = [],
+    withholdings: ReadonlyMap<string, CollectedWithholding> = new Map(),
   ): Promise<string> {
     const { from, to } = monthBounds(year, month);
 
@@ -86,23 +132,24 @@ export class DominicanRepublicReports {
     const rows = sales.map((sale) => {
       const taxId = digitsOnly(sale.customerTaxId ?? sale.customer?.taxId);
       const paymentSplit = splitByPaymentMethod(sale);
+      const withheld = withholdings.get(sale.id);
 
-      return [
+      return record607([
         taxId,
         identificationType(taxId),
         sale.fiscalNumber ?? '',
         sale.originalInvoiceId ? modifiedNcfById.get(sale.originalInvoiceId) ?? '' : '',
         incomeType,
         compactDate(sale.issueDate),
-        money(sale.servicesTotal),
-        money(sale.goodsTotal),
+        // 7 — only when something was withheld; the DGII requires it then and refuses it otherwise.
+        withheld && (withheld.tax > 0 || withheld.incomeTax > 0) ? compactDate(withheld.date) : '',
         money(sale.subtotal - sale.discountTotal),
         money(sale.tax),
-        money(sale.taxWithheld),
-        // ITBIS percibido: a perception regime the product does not operate. Reported as zero
-        // rather than omitted, because the column is positional.
+        money(withheld?.tax ?? 0),
+        // ITBIS percibido: a perception regime the product does not operate. Zero, not omitted:
+        // the record is positional.
         money(0),
-        money(sale.incomeTaxWithheld),
+        money(withheld?.incomeTax ?? 0),
         money(0),
         money(lineExcise(sale)),
         money(0),
@@ -114,7 +161,7 @@ export class DominicanRepublicReports {
         money(paymentSplit.giftCard),
         money(paymentSplit.swap),
         money(paymentSplit.other),
-      ].join('|');
+      ]);
     });
 
     // Till tickets with a B02 are consumer comprobantes like any other (QA R3-C02): they were
@@ -122,15 +169,14 @@ export class DominicanRepublicReports {
     const tillRows = tillSales
       .filter((sale) => !sale.voided)
       .map((sale) =>
-        [
+        record607([
           '',
           '',
           sale.fiscalNumber,
           '',
           incomeType,
           compactDate(sale.date),
-          money(sale.services),
-          money(sale.goods),
+          '',
           money(sale.goods + sale.services),
           money(sale.tax),
           money(0),
@@ -147,20 +193,13 @@ export class DominicanRepublicReports {
           money(0),
           money(0),
           money(sale.other),
-        ].join('|'),
+        ]),
       );
     rows.push(...tillRows);
 
-    const totalInvoiced =
-      sales.reduce((sum, s) => sum + (s.subtotal - s.discountTotal), 0) +
-      tillSales.filter((sale) => !sale.voided).reduce((sum, sale) => sum + sale.goods + sale.services, 0);
-    const header = [
-      '607',
-      digitsOnly(organization.taxId),
-      period(year, month),
-      String(rows.length),
-      money(totalInvoiced),
-    ].join('|');
+    // RNC, period and record count. The previous header carried a fifth field (a total) the
+    // published header does not have.
+    const header = ['607', digitsOnly(organization.taxId), period(year, month), String(rows.length)].join('|');
 
     return [header, ...rows].join('\n');
   }
@@ -479,4 +518,12 @@ function monthBoundsAsDates(year: number, month: number): { fromDate: Date; toDa
     fromDate: new Date(Date.UTC(year, month - 1, 1)),
     toDate: new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)),
   };
+}
+
+/** One 607 record: refuses to write a line that is not exactly the published twenty-three boxes. */
+function record607(boxes: readonly string[]): string {
+  if (boxes.length !== FORMAT_607_BOXES.length) {
+    throw new Error(`607 record has ${boxes.length} boxes; the format has ${FORMAT_607_BOXES.length}`);
+  }
+  return boxes.join('|');
 }

@@ -152,7 +152,7 @@ export class QuoteFormPage implements OnInit {
     this.customersApi.searchCustomers(query, limit);
   protected readonly resolveCustomer = (id: string): Observable<Customer> => this.customersApi.getCustomerById(id);
   protected readonly customerName = (customer: Customer): string => customer.companyName;
-  protected readonly customerValue = (customer: Customer): string => customer.id;
+  protected readonly customerIdOf = (customer: Customer): string => customer.id;
 
   protected readonly searchProducts = (query: string, limit: number): Observable<Product[]> =>
     this.inventory.searchProducts(query, limit);

@@ -23,6 +23,7 @@ import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { AuthService } from '../../../core/auth.service';
 import { lineTotal } from '../../../domain/cart';
 import { TillStore } from '../../../state/till.store';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * The open ticket: who it is for, what is on it, what it comes to — and, while the till has no
@@ -33,7 +34,7 @@ import { TillStore } from '../../../state/till.store';
 @Component({
   selector: 'pos-ticket-panel',
   standalone: true,
-  imports: [FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [FormsModule, ...VX_FORM_A11Y, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="head">

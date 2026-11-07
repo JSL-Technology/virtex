@@ -1,3 +1,4 @@
+import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
 /**
  * Executable proof of the authentication surface, over real HTTP, against a real Postgres.
  *
@@ -289,18 +290,12 @@ async function main() {
     city: 'Santo Domingo',
     state: '32',
     postalCode: '10101',
-    //  Signup demands express acceptance of the documents in force (QA C-07): without it the
-    //  service refuses before reaching the checks below, and this contract would test nothing.
+    // The terms are accepted in the payload itself now (QA: the checkbox was read by nobody), at
+    // the edition in force. Without them the call stops at "terms not accepted" and never reaches
+    // the duplicate-identity gate this probe is for.
     acceptTerms: true,
-  };
-  //  What the controller records from the request alongside the acceptance; the service compares
-  //  the versions with the documents in force.
-  const consent = {
     termsVersion: LEGAL_DOCUMENTS.terms.version,
     privacyVersion: LEGAL_DOCUMENTS.privacy.version,
-    acceptedAt: new Date(),
-    ipAddress: null,
-    userAgent: 'auth-http-contract',
   };
 
   let emailGateEnforced = false;
@@ -309,7 +304,13 @@ async function main() {
     await registration.createPendingRegistration(
       { ...baseSignup, email: `unverified-${Date.now()}@example.test` } as never,
       plan.slug,
-      consent,
+      {
+        termsVersion: LEGAL_DOCUMENTS.terms.version,
+        privacyVersion: LEGAL_DOCUMENTS.privacy.version,
+        acceptedAt: new Date(),
+        ipAddress: null,
+        userAgent: 'verify:auth-contract',
+      },
     );
   } catch (e) {
     // The message KEY, not the Spanish sentence it used to carry. Server errors are raised as
@@ -341,7 +342,13 @@ async function main() {
     await registration.createPendingRegistration(
       { ...baseSignup, email: duplicateEmail, emailVerificationCode: preVerified } as never,
       plan.slug,
-      consent,
+      {
+        termsVersion: LEGAL_DOCUMENTS.terms.version,
+        privacyVersion: LEGAL_DOCUMENTS.privacy.version,
+        acceptedAt: new Date(),
+        ipAddress: null,
+        userAgent: 'verify:auth-contract',
+      },
     );
   } catch (e) {
     duplicateRejected = (e as { status?: number }).status === 409;

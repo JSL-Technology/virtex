@@ -13,6 +13,7 @@ import { UpdateTimesheetDto } from './dto/update-timesheet.dto';
 import { NotFoundError } from '../i18n/localized.exception';
 import { assertNotInUse } from '../common/database/dependents';
 import { Page, resolvePaging, toPage } from '../common/pagination';
+import { assertTenantMember, assertTenantOwns } from '../shared/tenancy/tenant-ownership';
 
 /**
  * Projects, their tasks and timesheets.
@@ -58,7 +59,8 @@ export class ProjectsService {
     return project;
   }
 
-  createProject(dto: CreateProjectDto, organizationId: string): Promise<Project> {
+  async createProject(dto: CreateProjectDto, organizationId: string): Promise<Project> {
+    await this.assertCustomer(dto.customerId, organizationId);
     const project = this.projectRepository.create({ ...dto, organizationId });
     return this.projectRepository.save(project);
   }
@@ -69,6 +71,7 @@ export class ProjectsService {
     organizationId: string,
   ): Promise<Project> {
     const project = await this.findOneProject(id, organizationId);
+    if (dto.customerId !== undefined) await this.assertCustomer(dto.customerId, organizationId);
     return this.projectRepository.save(this.projectRepository.merge(project, dto));
   }
 
@@ -105,6 +108,7 @@ export class ProjectsService {
     // The task's project must belong to the same tenant, or a task could be attached across the
     // boundary. `findOneProject` throws if it does not.
     await this.findOneProject(dto.projectId, organizationId);
+    await this.assertAssignee(dto.assignedToUserId, organizationId);
     const task = this.taskRepository.create({ ...dto, organizationId });
     return this.taskRepository.save(task);
   }
@@ -116,6 +120,7 @@ export class ProjectsService {
   ): Promise<ProjectTask> {
     const task = await this.findOneTask(id, organizationId);
     if (dto.projectId) await this.findOneProject(dto.projectId, organizationId);
+    if (dto.assignedToUserId !== undefined) await this.assertAssignee(dto.assignedToUserId, organizationId);
     return this.taskRepository.save(this.taskRepository.merge(task, dto));
   }
 
@@ -152,6 +157,7 @@ export class ProjectsService {
     userId: string,
   ): Promise<Timesheet> {
     await this.findOneProject(dto.projectId, organizationId);
+    await this.assertTaskOfProject(dto.taskId, dto.projectId, organizationId);
     const timesheet = this.timesheetRepository.create({ ...dto, organizationId, userId });
     return this.timesheetRepository.save(timesheet);
   }
@@ -163,6 +169,9 @@ export class ProjectsService {
   ): Promise<Timesheet> {
     const timesheet = await this.findOneTimesheet(id, organizationId);
     if (dto.projectId) await this.findOneProject(dto.projectId, organizationId);
+    if (dto.taskId !== undefined) {
+      await this.assertTaskOfProject(dto.taskId, dto.projectId ?? timesheet.projectId, organizationId);
+    }
     return this.timesheetRepository.save(
       this.timesheetRepository.merge(timesheet, dto),
     );
@@ -171,5 +180,38 @@ export class ProjectsService {
   async removeTimesheet(id: string, organizationId: string): Promise<void> {
     await this.findOneTimesheet(id, organizationId);
     await this.timesheetRepository.delete({ id, organizationId });
+  }
+
+  // ── References (audit 2026-10-31, PRJ-01) ──────────────────────────────────
+
+  /** The customer is asked of the table by id, not through the customers module's entity. */
+  private async assertCustomer(customerId: string | null | undefined, organizationId: string): Promise<void> {
+    if (!customerId) return;
+    const [row] = await this.projectRepository.manager.query(
+      'SELECT EXISTS (SELECT 1 FROM customers WHERE id = $1 AND organization_id = $2) AS found',
+      [customerId, organizationId],
+    );
+    if (!row?.found) throw new NotFoundError('projects.customer_not_found', { id: customerId });
+  }
+
+  private assertAssignee(userId: string | null | undefined, organizationId: string): Promise<void> {
+    return assertTenantMember(this.taskRepository.manager, userId, organizationId, {
+      errorKey: 'projects.assignee_not_member',
+      field: 'assignedToUserId',
+    });
+  }
+
+  /** A timesheet's task must be one of the same project's tasks, in this tenant. */
+  private async assertTaskOfProject(
+    taskId: string | null | undefined,
+    projectId: string,
+    organizationId: string,
+  ): Promise<void> {
+    if (!taskId) return;
+    await assertTenantOwns(this.taskRepository.manager, ProjectTask, taskId, organizationId, { field: 'taskId' });
+    const task = await this.taskRepository.findOne({ where: { id: taskId, organizationId } });
+    if (task && task.projectId !== projectId) {
+      throw new NotFoundError('projects.task_not_found', { id: taskId });
+    }
   }
 }

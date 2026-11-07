@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Between, DataSource, EntityManager, In, LessThan } from 'typeorm';
-import { JournalEntry, JournalEntryStatus } from '../entities/journal-entry.entity';
+import { JournalEntry, JournalEntryStatus, LEDGER_STATUSES } from '../entities/journal-entry.entity';
 import { JournalEntryLine } from '../entities/journal-entry-line.entity';
 import { JournalEntryLineValuation } from '../entities/journal-entry-line-valuation.entity';
 import { type IsoDate, toIsoDate } from '../../common/dates';
@@ -121,7 +121,7 @@ export class JournalQueryService {
       .andWhere('entry.date BETWEEN :from AND :to', { from, to });
 
     if (!includeUnposted) {
-      base.andWhere('entry.status = :posted', { posted: JournalEntryStatus.POSTED });
+      base.andWhere('entry.status IN (:...ledgerStatuses)', { ledgerStatuses: LEDGER_STATUSES });
     }
 
     const totalLines = await base.clone().getCount();
@@ -200,7 +200,7 @@ export class JournalQueryService {
       .andWhere('entry.date BETWEEN :from AND :to', { from, to });
 
     if (!includeUnposted) {
-      base.andWhere('entry.status = :posted', { posted: JournalEntryStatus.POSTED });
+      base.andWhere('entry.status IN (:...ledgerStatuses)', { ledgerStatuses: LEDGER_STATUSES });
     }
 
     const inner = base
@@ -249,7 +249,7 @@ export class JournalQueryService {
       .andWhere('entry.date BETWEEN :from AND :to', { from, to });
 
     if (!includeUnposted) {
-      entryQuery.andWhere('entry.status = :posted', { posted: JournalEntryStatus.POSTED });
+      entryQuery.andWhere('entry.status IN (:...ledgerStatuses)', { ledgerStatuses: LEDGER_STATUSES });
     }
     if (journalIds && journalIds.length > 0) {
       entryQuery.andWhere('entry.journalId IN (:...journalIds)', { journalIds });
@@ -367,7 +367,7 @@ export class JournalQueryService {
       .innerJoin('line.journalEntry', 'entry')
       .select('COUNT(line.id)', 'lines')
       .addSelect(
-        `COALESCE(SUM(CASE WHEN entry.status = :posted THEN line.debit - line.credit ELSE 0 END), 0)`,
+        `COALESCE(SUM(CASE WHEN entry.status IN (:...ledgerStatuses) THEN line.debit - line.credit ELSE 0 END), 0)`,
         'balance',
       )
       .addSelect(
@@ -380,7 +380,7 @@ export class JournalQueryService {
       )
       .where('line.accountId = :accountId', { accountId })
       .andWhere('entry.organizationId = :organizationId', { organizationId })
-      .setParameter('posted', JournalEntryStatus.POSTED)
+      .setParameter('ledgerStatuses', LEDGER_STATUSES)
       .getRawOne<{ lines: string; balance: string; closedLines: string }>();
 
     return {
@@ -453,7 +453,7 @@ export class JournalQueryService {
       .innerJoin(JournalEntry, 'entry', 'entry.id = line.journal_entry_id')
       .where('line.id IN (:...ids)', { ids: lineIds })
       .andWhere('entry.organizationId = :organizationId', { organizationId })
-      .andWhere('entry.status = :status', { status: JournalEntryStatus.POSTED })
+      .andWhere('entry.status IN (:...ledgerStatuses)', { ledgerStatuses: LEDGER_STATUSES })
       .andWhere('line.accountId = :accountId', { accountId: glAccountId })
       .select([
         'line.id AS id',
@@ -596,7 +596,7 @@ export class JournalQueryService {
         'line.foreign_currency_credit AS "foreignCredit"',
       ])
       .where('entry.organization_id = :organizationId', { organizationId })
-      .andWhere('entry.status = :status', { status: JournalEntryStatus.POSTED })
+      .andWhere('entry.status IN (:...ledgerStatuses)', { ledgerStatuses: LEDGER_STATUSES })
       .andWhere('line.account_id = :glAccountId', { glAccountId })
       .andWhere('line.is_reconciled = false')
       .andWhere('entry.date <= :to', { to })

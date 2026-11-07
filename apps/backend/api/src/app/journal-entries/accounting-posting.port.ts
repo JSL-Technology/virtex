@@ -29,6 +29,12 @@ export interface PostingContext {
   idempotencyKey?: string;
   module?: ModuleSlug;
   allowClosedPeriod?: boolean;
+  /**
+   * Lines posted to these accounts are written already reconciled. For an entry whose bank side
+   * the bank itself has confirmed at the moment of posting — the opening balance of a bank
+   * account, which is the bank's own figure on that date (its initial reconciliation, REC-01).
+   */
+  reconciledAccountIds?: readonly string[];
 }
 
 /**

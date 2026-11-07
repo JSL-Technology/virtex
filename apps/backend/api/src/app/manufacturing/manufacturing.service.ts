@@ -14,6 +14,8 @@ import { UpdateBillOfMaterialDto } from './dto/update-bill-of-material.dto';
 import { ConflictError, NotFoundError } from '../i18n/localized.exception';
 import { assertNotInUse } from '../common/database/dependents';
 import { Page, resolvePaging, toPage } from '../common/pagination';
+import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
+import { BadRequestError } from '../i18n/localized.exception';
 
 /**
  * Manufacturing master data and production orders.
@@ -69,12 +71,38 @@ export class ManufacturingService {
     return order;
   }
 
-  createOrder(
+  async createOrder(
     dto: CreateProductionOrderDto,
     organizationId: string,
   ): Promise<ProductionOrder> {
+    await this.assertOrderReferences(dto, organizationId);
     const order = this.productionOrderRepository.create({ ...dto, organizationId });
     return this.productionOrderRepository.save(order);
+  }
+
+  /**
+   * Every id an order or a bill of materials names must be this organization's (audit 2026-10-31,
+   * MFG-02: a BOM component and an order product of another tenant were accepted).
+   */
+  private async assertOrderReferences(
+    dto: { productId?: string; billOfMaterialId?: string },
+    organizationId: string,
+  ): Promise<void> {
+    const manager = this.productionOrderRepository.manager;
+    await assertTenantOwns(manager, 'products', dto.productId, organizationId, { field: 'productId' });
+    await assertTenantOwns(manager, BillOfMaterial, dto.billOfMaterialId, organizationId, { field: 'billOfMaterialId' });
+  }
+
+  private async assertBomReferences(
+    dto: { productId?: string; items?: Array<{ componentProductId: string }> },
+    organizationId: string,
+  ): Promise<void> {
+    const manager = this.bomRepository.manager;
+    const components = (dto.items ?? []).map((item) => item.componentProductId);
+    if (dto.productId && components.includes(dto.productId)) {
+      throw new BadRequestError('manufacturing.bom_component_is_finished_product');
+    }
+    await assertTenantOwns(manager, 'products', [dto.productId, ...components], organizationId, { field: 'items' });
   }
 
   async updateOrder(
@@ -83,6 +111,7 @@ export class ManufacturingService {
     organizationId: string,
   ): Promise<ProductionOrder> {
     const order = await this.findOneOrder(id, organizationId);
+    await this.assertOrderReferences(dto, organizationId);
     return this.productionOrderRepository.save(
       this.productionOrderRepository.merge(order, dto),
     );
@@ -134,7 +163,8 @@ export class ManufacturingService {
     return bom;
   }
 
-  createBom(dto: CreateBillOfMaterialDto, organizationId: string): Promise<BillOfMaterial> {
+  async createBom(dto: CreateBillOfMaterialDto, organizationId: string): Promise<BillOfMaterial> {
+    await this.assertBomReferences(dto, organizationId);
     const { items, ...rest } = dto;
     const bom = this.bomRepository.create({
       ...rest,
@@ -153,6 +183,7 @@ export class ManufacturingService {
     organizationId: string,
   ): Promise<BillOfMaterial> {
     const bom = await this.findOneBom(id, organizationId);
+    await this.assertBomReferences({ productId: dto.productId ?? bom.productId, items: dto.items }, organizationId);
     const { items, ...rest } = dto;
     this.bomRepository.merge(bom, rest);
     if (items) {

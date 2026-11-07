@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../shared/scheduling/exclusive-job';
 
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -11,6 +12,7 @@ export class AnalyticalReportingCron {
 
 
   @Cron(CronExpression.EVERY_HOUR)
+  @ExclusiveJob()
   async handleCron() {
     this.logger.log('Iniciando job programado para refrescar la vista materializada.');
     try {

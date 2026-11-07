@@ -5474,5 +5474,15 @@
     "es": "No se pudieron leer ni el correo entrante ni los agentes conectados.",
     "en": "Neither the inbound mail nor the connected agents could be read.",
     "pt": "Não foi possível ler o e-mail de entrada nem os agentes conectados."
+  },
+  "settings.fiscal.level.needs_configuration": {
+    "es": "Necesita tu configuración",
+    "en": "Needs your configuration",
+    "pt": "Precisa da sua configuração"
+  },
+  "settings.pages.withholding.coverage.needs_configuration": {
+    "es": "Requiere configuración",
+    "en": "Requires configuration",
+    "pt": "Requer configuração"
   }
 }

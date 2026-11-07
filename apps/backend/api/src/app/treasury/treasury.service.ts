@@ -312,7 +312,16 @@ export class TreasuryService {
         ],
       } as CreateJournalEntryDto,
       organizationId,
-      { actorUserId, systemReason: 'bank-account-opening-balance' },
+      {
+        actorUserId,
+        systemReason: 'bank-account-opening-balance',
+        // The opening balance IS the bank's balance on that date — it is typed from the bank's own
+        // figure — so its bank-side line is reconciled as it is posted: the account's initial
+        // reconciliation. Left open, it sat in every reconciliation as an item "in the books but not
+        // on the statement" for the whole opening amount, and no statement could ever close
+        // (audit 2026-10-31, REC-01).
+        reconciledAccountIds: [account.glAccountId],
+      },
     );
   }
 

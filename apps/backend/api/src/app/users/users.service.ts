@@ -244,6 +244,7 @@ export class UsersService extends UserProfilePort {
     actor: AuthenticatedUser,
   ): Promise<User> {
     const user = await this.findMemberWithSecurity(id, organizationId);
+    this.assertActorOutranks(actor, user);
 
     const { roleId, firstName, lastName } = updateUserDto;
 
@@ -365,12 +366,34 @@ export class UsersService extends UserProfilePort {
    * There was also no way to do this at all: `MembershipService.revoke` existed and was called
    * from nowhere, so a tenant could add people and never remove them.
    */
-  async remove(id: string, organizationId: string, actorId?: string): Promise<void> {
+  /**
+   * The actor must outrank the person they act on.
+   *
+   * Assigning a role was already limited to roles the actor could hold themselves
+   * (`RolesService.assertCanAssignRole`). Every OTHER administrative action on a person — changing
+   * their e-mail, resetting their password, closing their sessions, blocking, deleting, renaming —
+   * skipped that rule, so a user holding only `users:edit` could rewrite an ADMINISTRATOR's e-mail
+   * and, with a reset sent to the new address, take the account over (audit 2026-10-31, USR-01).
+   *
+   * The rule is the same one assignment uses, applied to each role the target holds: if the actor
+   * could not have granted the target's roles, the actor cannot manage the target. Acting on
+   * oneself is governed by the self-service flows, not by this check.
+   */
+  private assertActorOutranks(actor: AuthenticatedUser, target: User): void {
+    if (actor.id === target.id) return;
+    for (const role of target.roles ?? []) {
+      this.rolesService.assertCanAssignRole(actor, role);
+    }
+  }
+
+  async remove(id: string, organizationId: string, actor: AuthenticatedUser): Promise<void> {
+    const actorId = actor.id;
     const user = await this.findMemberWithSecurity(id, organizationId);
 
     if (actorId && actorId === id) {
       throw new ForbiddenError('users.you_cannot_delete_your_own_account');
     }
+    this.assertActorOutranks(actor, user);
 
     const isSystemUser = (user.roles ?? []).some((role) => role.isSystemRole);
     if (isSystemUser) {
@@ -551,9 +574,11 @@ export class UsersService extends UserProfilePort {
     id: string,
     status: UserStatus,
     organizationId: string,
-    actorId?: string,
+    actor: AuthenticatedUser,
   ): Promise<User> {
+    const actorId = actor.id;
     const user = await this.findMemberWithSecurity(id, organizationId);
+    this.assertActorOutranks(actor, user);
 
     if (actorId && actorId === id && status !== UserStatus.ACTIVE) {
       throw new ForbiddenError('users.you_cannot_deactivate_block_your_own');
@@ -591,8 +616,9 @@ export class UsersService extends UserProfilePort {
     return user;
   }
 
-  async resetPassword(id: string, organizationId: string): Promise<void> {
+  async resetPassword(id: string, organizationId: string, actor: AuthenticatedUser): Promise<void> {
     const user = await this.findMemberWithSecurity(id, organizationId);
+    this.assertActorOutranks(actor, user);
     // Credentials belong to the identity; only the organization that owns it may reset them.
     this.assertHomeOrganization(user, organizationId);
 
@@ -982,7 +1008,12 @@ export class UsersService extends UserProfilePort {
    * Restricted to the home organization. From any other tenant this was an account takeover in
    * two steps: point the address at a mailbox you control, then ask for a password reset.
    */
-  async adminChangeEmail(userId: string, newEmail: string, organizationId: string): Promise<void> {
+  async adminChangeEmail(
+    userId: string,
+    newEmail: string,
+    organizationId: string,
+    actor: AuthenticatedUser,
+  ): Promise<void> {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!newEmail || !emailRegex.test(newEmail)) {
       throw new BadRequestError('users.invalid_email_format');
@@ -990,6 +1021,7 @@ export class UsersService extends UserProfilePort {
 
     const user = await this.findMemberWithSecurity(userId, organizationId);
     this.assertHomeOrganization(user, organizationId);
+    this.assertActorOutranks(actor, user);
 
     const normalized = newEmail.trim().toLowerCase();
     const existing = await this.userRepository.findOne({ where: { email: normalized }, select: ['id'] });
@@ -1026,9 +1058,10 @@ export class UsersService extends UserProfilePort {
    * which takes effect on their very next request without touching their work elsewhere.
    */
   // H-11: org is required so force-logout is always tenant-scoped (no IDOR).
-  async forceLogout(userId: string, organizationId: string): Promise<LocalizedMessage> {
+  async forceLogout(userId: string, organizationId: string, actor: AuthenticatedUser): Promise<LocalizedMessage> {
     const user = await this.findMemberWithSecurity(userId, organizationId);
     this.assertHomeOrganization(user, organizationId);
+    this.assertActorOutranks(actor, user);
 
     await this.sessionService.terminateAllSessions(userId);
 
@@ -1047,8 +1080,9 @@ export class UsersService extends UserProfilePort {
    * its own membership: the person loses access to this tenant immediately and keeps it
    * everywhere else.
    */
-  async blockAndLogout(userId: string, organizationId: string): Promise<LocalizedMessage> {
+  async blockAndLogout(userId: string, organizationId: string, actor: AuthenticatedUser): Promise<LocalizedMessage> {
     const user = await this.findMemberWithSecurity(userId, organizationId);
+    this.assertActorOutranks(actor, user);
 
     if (UsersService.isAdministrator(user)) {
       await this.assertOrganizationRetainsAdministrator(organizationId, userId);

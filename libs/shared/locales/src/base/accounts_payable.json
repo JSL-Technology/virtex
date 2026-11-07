@@ -39,6 +39,16 @@
     "en": "Bank account “{{name}}” is inactive and cannot take movements.",
     "pt": "A conta bancária «{{name}}» está inativa e não admite movimentos."
   },
+  "accounts_payable.base_split_does_not_add_up": {
+    "es": "Bienes ({{goods}}) más servicios ({{services}}) deben sumar el subtotal de la factura ({{subtotal}}).",
+    "en": "Goods ({{goods}}) plus services ({{services}}) must add up to the bill's subtotal ({{subtotal}}).",
+    "pt": "Bens ({{goods}}) mais serviços ({{services}}) devem somar o subtotal da fatura ({{subtotal}})."
+  },
+  "accounts_payable.base_split_follows_lines": {
+    "es": "La separación entre bienes y servicios sale de las líneas de la factura y no se edita por separado.",
+    "en": "The split between goods and services comes from the bill's lines and is not edited on its own.",
+    "pt": "A separação entre bens e serviços vem das linhas da fatura e não é editada separadamente."
+  },
   "accounts_payable.bill_bill_cannot_paid_from_account": {
     "es": "No se puede pagar una factura en {{bill}} desde una cuenta en {{account}}; usa una cuenta en {{bill}} o en la moneda funcional.",
     "en": "A bill in {{bill}} cannot be paid from an account in {{account}}; use an account in {{bill}} or in the books’ currency.",
@@ -59,10 +69,20 @@
     "en": "Bill {{id}} is {{status}} and cannot take a payment.",
     "pt": "A fatura {{id}} está em {{status}} e não admite pagamentos."
   },
+  "accounts_payable.bill_price_difference_already_consumed": {
+    "es": "No se puede anular: la mercancía «{{product}}» que esta factura revalorizó ya se vendió. Corrígela con una nota de débito.",
+    "en": "Cannot void: the goods “{{product}}” this bill revalued have already been sold. Correct it with a debit note.",
+    "pt": "Não é possível anular: a mercadoria «{{product}}» que esta fatura reavaliou já foi vendida. Corrija com uma nota de débito."
+  },
   "accounts_payable.bill_spans_several_purchase_orders": {
     "es": "Una factura de proveedor solo puede referirse a una orden de compra.",
     "en": "A vendor bill can refer to only one purchase order.",
     "pt": "Uma fatura de fornecedor só pode se referir a um pedido de compra."
+  },
+  "accounts_payable.bill_with_debit_notes_cannot_voided": {
+    "es": "La factura tiene {{count}} nota(s) de débito vigente(s). Anúlalas primero; después podrás anular la factura.",
+    "en": "The bill has {{count}} standing debit note(s). Void them first; then the bill can be voided.",
+    "pt": "A fatura tem {{count}} nota(s) de débito vigente(s). Anule-as primeiro; depois poderá anular a fatura."
   },
   "accounts_payable.bill_with_payments_applied_cannot_voided": {
     "es": "No puede anular una factura con pagos aplicados. Anule primero los pagos.",
@@ -218,6 +238,11 @@
     "es": "Subiendo…",
     "en": "Uploading…",
     "pt": "A enviar…"
+  },
+  "accounts_payable.cost_of_sales_account_not_configured": {
+    "es": "Falta la cuenta de costo de ventas: la diferencia de precio de mercancía ya vendida se registra allí.",
+    "en": "The cost of sales account is missing: the price difference on goods already sold is booked there.",
+    "pt": "Falta a conta de custo das vendas: a diferença de preço de mercadoria já vendida é registrada nela."
   },
   "accounts_payable.debit_note_already_voided": {
     "es": "Esta nota de débito ya fue anulada.",
@@ -757,6 +782,11 @@
     "en": "Cancel",
     "pt": "Cancelar"
   },
+  "accounts_payable.form.confirm_possible_duplicate": {
+    "es": "Registrar de todas formas",
+    "en": "Record anyway",
+    "pt": "Registrar mesmo assim"
+  },
   "accounts_payable.form.currency": {
     "es": "Moneda",
     "en": "Currency",
@@ -842,10 +872,25 @@
     "en": "Legal service charge",
     "pt": "Gorjeta legal"
   },
+  "accounts_payable.form.line_nature": {
+    "es": "Bien o servicio",
+    "en": "Goods or services",
+    "pt": "Bem ou serviço"
+  },
   "accounts_payable.form.lines_recorded_bill_cannot_changed_raise": {
     "es": "Las líneas de una factura registrada no se modifican. Emita una nota de débito o de crédito.",
     "en": "The lines of a recorded bill cannot be changed. Raise a debit or credit note instead.",
     "pt": "As linhas de uma fatura registada não se alteram. Emita uma nota de débito ou de crédito."
+  },
+  "accounts_payable.form.nature_goods": {
+    "es": "Bien",
+    "en": "Goods",
+    "pt": "Bem"
+  },
+  "accounts_payable.form.nature_services": {
+    "es": "Servicio",
+    "en": "Service",
+    "pt": "Serviço"
   },
   "accounts_payable.form.ncf": {
     "en": "Fiscal document no.",
@@ -866,6 +911,11 @@
     "es": "Forma de pago",
     "en": "Payment form",
     "pt": "Forma de pagamento"
+  },
+  "accounts_payable.form.possible_duplicate_title": {
+    "es": "¿Factura duplicada?",
+    "en": "Duplicate bill?",
+    "pt": "Fatura duplicada?"
   },
   "accounts_payable.form.price": {
     "es": "Precio",
@@ -914,6 +964,11 @@
     "es": "Proveedor",
     "en": "Supplier",
     "pt": "Fornecedor"
+  },
+  "accounts_payable.form.supplier_invoice_number": {
+    "es": "N.º de factura del proveedor",
+    "en": "Supplier invoice no.",
+    "pt": "N.º da fatura do fornecedor"
   },
   "accounts_payable.form.supplier_placeholder": {
     "es": "Seleccionar proveedor",
@@ -1511,6 +1566,11 @@
     "en": "The Payments journal (PAGOS) was not found.",
     "pt": "O diário de Pagamentos (PAGOS) não foi encontrado."
   },
+  "accounts_payable.possible_duplicate_bill": {
+    "es": "Ya hay una factura de {{supplier}} del {{date}} por {{total}} sin número que la distinga. Indica el número de la factura del proveedor, o confirma que es un documento distinto.",
+    "en": "There is already a bill from {{supplier}} dated {{date}} for {{total}} with no number to tell them apart. Enter the supplier's invoice number, or confirm it is a different document.",
+    "pt": "Já existe uma fatura de {{supplier}} de {{date}} por {{total}} sem número que a distinga. Informe o número da fatura do fornecedor ou confirme que é um documento diferente."
+  },
   "accounts_payable.purchase_category.asset_acquisitions": {
     "es": "Adquisiciones de activos",
     "en": "Asset acquisitions",
@@ -1581,6 +1641,11 @@
     "en": "The order line “{{description}}” is for another product.",
     "pt": "A linha “{{description}}” do pedido é de outro produto."
   },
+  "accounts_payable.purchase_order_not_billable": {
+    "es": "La orden de compra {{order}} no se puede facturar en su estado actual: debe estar aprobada, enviada o en recepción.",
+    "en": "Purchase order {{order}} cannot be billed in its current state: it must be approved, sent or being received.",
+    "pt": "O pedido de compra {{order}} não pode ser faturado no estado atual: deve estar aprovado, enviado ou em recebimento."
+  },
   "accounts_payable.purchase_order_not_found": {
     "es": "La orden de compra indicada no existe.",
     "en": "The purchase order does not exist.",
@@ -1646,10 +1711,20 @@
     "en": "The submitted total ({{received}}) does not match the one computed from the lines and taxes ({{expected}}).",
     "pt": "O total enviado ({{received}}) não corresponde ao calculado a partir das linhas e impostos ({{expected}})."
   },
+  "accounts_payable.supplier_document_already_recorded": {
+    "es": "El documento {{ncf}} de {{supplier}} ya está registrado.",
+    "en": "Document {{ncf}} from {{supplier}} is already recorded.",
+    "pt": "O documento {{ncf}} de {{supplier}} já está registrado."
+  },
   "accounts_payable.supplier_id_not_found": {
     "es": "Proveedor con ID \"{{id}}\" no encontrado.",
     "en": "Supplier \"{{id}}\" was not found.",
     "pt": "Fornecedor \"{{id}}\" não encontrado."
+  },
+  "accounts_payable.supplier_invoice_already_recorded": {
+    "es": "La factura {{number}} de {{supplier}} ya está registrada.",
+    "en": "Invoice {{number}} from {{supplier}} is already recorded.",
+    "pt": "A fatura {{number}} de {{supplier}} já está registrada."
   },
   "accounts_payable.vendor_bill_id_not_found": {
     "es": "La factura de proveedor con ID \"{{id}}\" no fue encontrada.",

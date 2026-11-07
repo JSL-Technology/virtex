@@ -33,7 +33,7 @@
         <label class="field" for="customerId">
           <span>{{ 'sales.quotes.customer' | translate }} *</span>
           <vx-select inputId="customerId" formControlName="customerId" [search]="searchCustomers" [resolveWith]="resolveCustomer"
-            [displayWith]="customerName" [valueWith]="customerValue" [required]="true" />
+            [displayWith]="customerName" [valueWith]="customerIdOf" [required]="true" />
         </label>
         <label class="field" for="currencyCode">
           <span>{{ 'sales.quotes.currency' | translate }}</span>

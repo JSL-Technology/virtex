@@ -10,13 +10,13 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * brings the existing system roles in line. Roles that may edit already read through
  * `IMPLIED_PERMISSIONS`, and custom roles are left as their owners made them.
  */
-export class AccountantReadsCompanySettings1789300000000 implements MigrationInterface {
-  name = 'AccountantReadsCompanySettings1789300000000';
+export class AccountantReadsCompanySettings1789410000000 implements MigrationInterface {
+  name = 'AccountantReadsCompanySettings1789410000000';
 
   private static readonly GRANTED = ['settings:view_company', 'workflows:view'] as const;
 
   public async up(q: QueryRunner): Promise<void> {
-    for (const permission of AccountantReadsCompanySettings1789300000000.GRANTED) {
+    for (const permission of AccountantReadsCompanySettings1789410000000.GRANTED) {
       await q.query(
         `
         UPDATE "roles"
@@ -31,7 +31,7 @@ export class AccountantReadsCompanySettings1789300000000 implements MigrationInt
   }
 
   public async down(q: QueryRunner): Promise<void> {
-    for (const permission of AccountantReadsCompanySettings1789300000000.GRANTED) {
+    for (const permission of AccountantReadsCompanySettings1789410000000.GRANTED) {
       await q.query(
         `
         UPDATE "roles"

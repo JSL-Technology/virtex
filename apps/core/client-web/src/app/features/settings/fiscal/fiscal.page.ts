@@ -186,6 +186,7 @@ export class FiscalSettingsPage implements OnInit {
       case 'implemented':
         return 'ok';
       case 'needs-credentials':
+      case 'needs-configuration':
         return 'warning';
       case 'not-implemented':
         return 'danger';

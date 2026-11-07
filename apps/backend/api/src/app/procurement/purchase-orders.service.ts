@@ -399,6 +399,17 @@ export class PurchaseOrdersService {
     actorUserId: string | null = null,
   ): Promise<{ order: PurchaseOrder; receipt: PurchaseOrderReceipt }> {
     return this.dataSource.transaction(async (manager) => {
+      // The order's lines, locked before they are read, in id order — the same order voiding a
+      // receipt locks them in, so the two wait for each other instead of deadlocking. Without it,
+      // two concurrent receipts both read "nothing received yet" and both passed the
+      // received ≤ ordered check: an order for 10 received 14 (audit 2026-10-31, FLOW-01).
+      await manager.query(
+        `SELECT l."id" FROM "purchase_order_lines" l
+           JOIN "purchase_orders" o ON o."id" = l."order_id"
+          WHERE l."order_id" = $1 AND o."organization_id" = $2
+          ORDER BY l."id" FOR UPDATE OF l`,
+        [id, organizationId],
+      );
       const order = await this.findOneWith(manager, id, organizationId);
       if (![PurchaseOrderStatus.SENT, PurchaseOrderStatus.PARTIALLY_RECEIVED].includes(order.status)) {
         throw new BadRequestError('procurement.order_not_receivable', { status: order.status });

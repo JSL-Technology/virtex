@@ -5,6 +5,7 @@ import { User } from '../../users/entities/user.entity/user.entity';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
 
 @Entity({ name: 'leads' })
+@Index('UQ_leads_org_email', ['organizationId', 'email'], { unique: true })
 export class Lead {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -25,7 +26,7 @@ export class Lead {
   @Column({ nullable: true })
   companyName?: string;
 
-  @Column({ unique: true })
+  @Column()
   email: string;
 
   @Column({ nullable: true })

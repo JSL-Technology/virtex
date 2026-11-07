@@ -365,7 +365,20 @@ describe('NewInvoicePage', () => {
 
     expect(invoicesService.createInvoice).toHaveBeenCalledWith(
       expect.objectContaining({ issue: false }),
+      expect.any(String),
     );
+  });
+
+  it('retries the same invoice under the same idempotency draft key (FLOW-03)', () => {
+    component.invoiceForm.patchValue({ customerId: 'c-1' });
+    component.lineItems.at(0).patchValue({ quantity: 1, unitPrice: 100 });
+
+    component.saveDraft();
+    component.saveDraft();
+
+    const [first, second] = invoicesService.createInvoice.mock.calls.map((call) => call[1]);
+    expect(first).toBeTruthy();
+    expect(second).toBe(first);
   });
 
   it('sends quantities and intent, never amounts', () => {

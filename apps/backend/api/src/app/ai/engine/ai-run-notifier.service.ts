@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../../shared/scheduling/exclusive-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
@@ -66,6 +67,7 @@ export class AiRunNotifierService {
 
   /** The safety net: finished runs nobody announced, across tenants. */
   @Cron('41 */3 * * *')
+  @ExclusiveJob()
   async sweep(): Promise<void> {
     const key = new Date().toISOString().slice(0, 13);
     await this.lock.runOnce('ai-run-notices', key, async () => {

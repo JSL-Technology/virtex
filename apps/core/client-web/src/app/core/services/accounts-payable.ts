@@ -1,7 +1,8 @@
 import { BranchesService } from '../tenancy/branches.service';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
+import { IdempotencyKeyService } from '../http/idempotency-key.service';
 import { environment } from '../../../environments/environment';
 
 // Interfaces based on backend entities (simplified for now)
@@ -48,6 +49,8 @@ export interface VendorBillLine {
 }
 
 export interface VendorBill {
+  /** The number on the supplier's own invoice, where the market asks for it apart from the fiscal one. */
+  supplierInvoiceNumber?: string | null;
   id: string;
   vendorId: string;
   /** The branch that received it; null for a company without branches. */
@@ -99,6 +102,11 @@ export interface CreateVendorBillLineDto {
   expenseAccountId?: string;
   /** The purchase-order line this bills (three-way match). */
   purchaseOrderLineId?: string;
+  /**
+   * Goods or services. Left out for a catalogue product (the server takes the product's kind);
+   * a free expense line states it. The 606 and the ISR withholding follow from it.
+   */
+  nature?: 'GOODS' | 'SERVICES';
 }
 
 export interface CreateVendorBillDto {
@@ -126,6 +134,10 @@ export interface CreateVendorBillDto {
   serviceCharge?: number;
   goodsAmount?: number;
   servicesAmount?: number;
+  /** The number on the supplier's own invoice; one live bill per supplier and number. */
+  supplierInvoiceNumber?: string;
+  /** Record a bill the server took for a probable duplicate, once the person confirmed it is not. */
+  allowPossibleDuplicate?: boolean;
 
   purchaseCategory?: string;
   isrRetentionType?: string;
@@ -401,6 +413,7 @@ function queryParams(query: object): HttpParams {
 @Injectable({ providedIn: 'root' })
 export class AccountsPayableService {
   private http = inject(HttpClient);
+  private readonly idempotency = inject(IdempotencyKeyService);
   private apiUrl = `${environment.apiUrl}/accounts-payable`;
   private paymentsUrl = `${environment.apiUrl}/vendor-payments`;
   private debitNotesUrl = `${environment.apiUrl}/vendor-debit-notes`;
@@ -413,8 +426,16 @@ export class AccountsPayableService {
     return this.http.get<VendorBill>(`${this.apiUrl}/${id}`);
   }
 
-  createVendorBill(dto: CreateVendorBillDto): Observable<VendorBill> {
-    return this.http.post<VendorBill>(this.apiUrl, dto);
+  /**
+   * Record a supplier bill. `draftKey` identifies the FORM, not the request: a double click or a
+   * retry carries one idempotency key and the server replays its first answer instead of
+   * recording the same supplier document twice (AP-03). Released once the bill exists.
+   */
+  createVendorBill(dto: CreateVendorBillDto, draftKey: string = crypto.randomUUID()): Observable<VendorBill> {
+    const operation = `vendor-bill:create:${draftKey}`;
+    return this.http
+      .post<VendorBill>(this.apiUrl, dto, { headers: { 'Idempotency-Key': this.idempotency.keyFor(operation) } })
+      .pipe(tap(() => this.idempotency.settle(operation)));
   }
 
   updateVendorBill(id: string, dto: UpdateVendorBillDto): Observable<VendorBill> {

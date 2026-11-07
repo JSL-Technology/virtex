@@ -10,7 +10,11 @@ export class CasesService {
     private readonly caseRepository: Repository<Case>,
   ) {}
 
-  findAll(organizationId: string): Promise<Case[]> {
-    return this.caseRepository.find({ where: { organizationId } });
+  /** The tenant's cases, or one customer's when `customerId` is given (the portal's view). */
+  findAll(organizationId: string, options: { customerId?: string } = {}): Promise<Case[]> {
+    return this.caseRepository.find({
+      where: { organizationId, ...(options.customerId ? { customer: { id: options.customerId } } : {}) },
+      order: { createdAt: 'DESC' },
+    });
   }
 }

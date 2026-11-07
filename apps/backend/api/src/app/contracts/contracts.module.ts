@@ -6,6 +6,7 @@ import { PurchaseFiscalRecordsRegistry } from './fiscal-records/purchase-fiscal-
 import { CopilotToolRegistry } from './copilot/copilot-tools.contract';
 import { InboundMailHandlerRegistry } from './inbound-mail/inbound-mail.contract';
 import { CloseReadinessRegistry } from './closing/close-readiness.contract';
+import { PeriodGateRegistry } from './closing/period-gate.contract';
 import { CashPositionRegistry } from './treasury/cash-position.contract';
 import { PaymentLikelihoodRegistry } from './ai/payment-likelihood.contract';
 import { DuplicateSourceRegistry } from './data-quality/duplicate-sources.contract';
@@ -28,7 +29,7 @@ import { LedgerPostingRegistry } from './ledger-posting/ledger-posting.contract'
  */
 @Global()
 @Module({
-  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry],
-  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry],
+  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry],
+  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry],
 })
 export class ContractsModule {}

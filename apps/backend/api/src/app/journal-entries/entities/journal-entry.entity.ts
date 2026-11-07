@@ -1,3 +1,4 @@
+import { LEDGER_STATUSES_SQL, LedgerStatus } from '../../contracts/accounting/ledger-statuses.contract';
 
 import {
   Entity,
@@ -27,6 +28,17 @@ export enum JournalEntryStatus {
   VOID = 'Void',
   REJECTED = 'Rejected',
 }
+
+/**
+ * The statuses whose lines count towards balances (see `ledger-statuses.contract.ts`).
+ * Candidate selection for REVERSING something (auto-reversal, undoing a close) keeps using POSTED
+ * alone: a MODIFIED entry has already been reversed.
+ */
+export const LEDGER_STATUSES: readonly JournalEntryStatus[] = [JournalEntryStatus.POSTED, JournalEntryStatus.MODIFIED];
+// Compile-time proof that the platform contract and the enum name the same values.
+const ledgerStatusesMatch: readonly LedgerStatus[] = LEDGER_STATUSES as readonly `${JournalEntryStatus}`[] as never;
+void ledgerStatusesMatch;
+export { LEDGER_STATUSES_SQL };
 
 export enum JournalEntryType {
   MANUAL = 'MANUAL',

@@ -1,4 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import * as forge from 'node-forge';
+import { loadTrustAnchors, verifyCertificateChain } from './certificate-trust';
+import { isDevLikeEnvironment } from '../../config/environment';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EcfCertificate } from '../entities/ecf-certificate.entity';
@@ -51,6 +54,15 @@ export class EcfCertificateService {
     private readonly vault: CertificateVaultService,
   ) {}
 
+  private readonly anchors = new Map<string, forge.pki.Certificate[]>();
+
+  /** The configured trust anchors of a market, read once. */
+  private anchorsFor(country: string): forge.pki.Certificate[] {
+    const key = country.toUpperCase();
+    if (!this.anchors.has(key)) this.anchors.set(key, loadTrustAnchors(key, (name) => process.env[name]));
+    return this.anchors.get(key) ?? [];
+  }
+
   async upload(
     organizationId: string,
     input: { pfx: Buffer; password: string; alias: string },
@@ -78,6 +90,26 @@ export class EcfCertificateService {
       policy,
       { allowTestCertificates: this.vault.testCertificatesAllowed() },
     );
+
+    // And that an authority the tax administration accepts issued it (EINV-03). Only self-signed
+    // files used to be refused; one from any home-made CA, with the company's identifier in it,
+    // unlocked issuance. A self-signed test certificate in a development process that opted in is
+    // the one exception, already decided above.
+    if (!assessment.test) {
+      const verdict = verifyCertificateChain(parsed.leaf, parsed.intermediates, this.anchorsFor(policy.country));
+      if (!verdict.trusted) {
+        // A development process without a trust store accepts, so local work needs no PKI.
+        // Anywhere else the absence is refused and named: accepting every chain is what failed.
+        if (!(verdict.reason === 'no_trust_store' && isDevLikeEnvironment())) {
+          throw new BadRequestError(
+            verdict.reason === 'no_trust_store'
+              ? 'einvoicing.certificate.trust_store_not_configured'
+              : 'einvoicing.certificate.untrusted_issuer',
+            { authority: policy.authority, issuer: parsed.facts.issuerCommonName ?? '—' },
+          );
+        }
+      }
+    }
 
     return this.repo.manager.transaction(async (manager) => {
       // Only this regime's certificate is replaced. Deactivating every active certificate of the

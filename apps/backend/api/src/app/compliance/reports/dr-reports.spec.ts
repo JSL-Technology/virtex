@@ -1,5 +1,5 @@
 import { ObjectLiteral, Repository } from 'typeorm';
-import { DominicanRepublicReports } from './dr-reports';
+import { DominicanRepublicReports, FORMAT_607_BOXES } from './dr-reports';
 import {
   Invoice,
   InvoiceStatus,
@@ -13,7 +13,7 @@ import { Organization } from '../../organizations/entities/organization.entity';
  * The DGII's periodic returns.
  *
  * The previous implementation emitted six pipe-delimited fields for the 607 and five for the 606,
- * with no header line, against published formats of twenty-four and twenty-three. What it produced
+ * with no header line, against published formats of twenty-three boxes each. What it produced
  * could not be uploaded at all — and it reported annulled comprobantes as sales, and derived the
  * tax on a purchase by dividing an inclusive total by 1.18.
  */
@@ -73,32 +73,64 @@ describe('DGII periodic reports', () => {
       })),
     }) as unknown as Repository<T>;
 
+  /**
+   * RFC-01 (audit 2026-10-31): the 607 had twenty-four boxes — the 606's services/goods split, which
+   * the 607 does not carry, and no box 7 (Fecha de Retención) — so every amount from box 7 on sat
+   * one box to the right of where the DGII reads it, and these tests agreed, because they were
+   * written from the code. The expected records below are written from the published layout
+   * (Norma General 07-2018), box by box, independently of the generator.
+   */
   describe('607 — ventas', () => {
-    it('emits a header and the full column set', async () => {
+    it('has the twenty-three boxes of the published format, in order', () => {
+      expect(FORMAT_607_BOXES).toHaveLength(23);
+      expect(FORMAT_607_BOXES[6]).toBe('Fecha de Retención');
+      expect(FORMAT_607_BOXES[7]).toBe('Monto Facturado');
+      expect(FORMAT_607_BOXES.slice(16)).toEqual([
+        'Efectivo',
+        'Cheque/Transferencia/Depósito',
+        'Tarjeta Débito/Crédito',
+        'Venta a Crédito',
+        'Bonos o Certificados de Regalo',
+        'Permuta',
+        'Otras Formas de Ventas',
+      ]);
+    });
+
+    it('writes the header and a cash sale exactly as the format lays them out', async () => {
       const body = await DominicanRepublicReports.generate607Report(
         'org-1', 2026, 8, repositoryOf([invoice()]), organization,
       );
       const [header, row] = body.split('\n');
 
-      expect(header).toBe('607|131190317|202608|1|1000.00');
-      // Twenty-four positional columns, whatever their value.
-      expect(row.split('|')).toHaveLength(24);
+      // 607 | RNC | período | cantidad de registros
+      expect(header).toBe('607|131190317|202608|1');
+      //           1         2 3             4 5  6        7 8       9      10   11   12   13   14   15   16   17      18   19   20   21   22   23
+      expect(row).toBe('101234563|1|E310000000001||01|20260815||1000.00|180.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|1180.00|0.00|0.00|0.00|0.00|0.00|0.00');
     });
 
-    it('reports the buyer, the comprobante and the amounts in their columns', async () => {
+    it('reports what the customer withheld, and when, from the receipts that carried it', async () => {
       const body = await DominicanRepublicReports.generate607Report(
-        'org-1', 2026, 8, repositoryOf([invoice()]), organization,
+        'org-1', 2026, 8,
+        repositoryOf([invoice({ paymentMethod: PaymentMethod.CREDIT })]),
+        organization,
+        [],
+        new Map([['inv-1', { tax: 54, incomeTax: 100, date: '2026-09-10' }]]),
       );
-      const columns = body.split('\n')[1].split('|');
+      const boxes = body.split('\n')[1].split('|');
+      expect(boxes[6]).toBe('20260910'); // 7 — Fecha de Retención
+      expect(boxes[9]).toBe('54.00'); // 10 — ITBIS retenido por terceros
+      expect(boxes[11]).toBe('100.00'); // 12 — Retención renta por terceros
+      expect(boxes[19]).toBe('1180.00'); // 20 — Venta a crédito
+    });
 
-      expect(columns[0]).toBe('101234563');
-      expect(columns[1]).toBe('1'); // RNC
-      expect(columns[2]).toBe('E310000000001');
-      expect(columns[4]).toBe('01'); // tipo de ingreso
-      expect(columns[5]).toBe('20260815');
-      expect(columns[6]).toBe('300.00'); // servicios
-      expect(columns[7]).toBe('700.00'); // bienes
-      expect(columns[9]).toBe('180.00'); // ITBIS
+    it('leaves the withholding date empty when nothing was withheld', async () => {
+      const body = await DominicanRepublicReports.generate607Report(
+        'org-1', 2026, 8, repositoryOf([invoice({ taxWithheld: 54 })]), organization,
+      );
+      const boxes = body.split('\n')[1].split('|');
+      // Expected at issuance is not withheld: until a receipt carries it, boxes 7, 10 and 12 are empty.
+      expect(boxes[6]).toBe('');
+      expect(boxes[9]).toBe('0.00');
     });
 
     it('classifies an eleven-digit identifier as a cédula', async () => {
@@ -108,29 +140,26 @@ describe('DGII periodic reports', () => {
       expect(body.split('\n')[1].split('|')[1]).toBe('2');
     });
 
-    it('places the amount in the column of the payment method used', async () => {
-      const body = await DominicanRepublicReports.generate607Report(
-        'org-1', 2026, 8,
-        repositoryOf([invoice({ paymentMethod: PaymentMethod.CREDIT })]),
-        organization,
-      );
-      const columns = body.split('\n')[1].split('|');
-      expect(columns[17]).toBe('0.00'); // efectivo
-      expect(columns[20]).toBe('1180.00'); // venta a crédito
-    });
-
-    it('reports the legal service charge in its own column', async () => {
+    it('reports the legal service charge in box 16', async () => {
       const body = await DominicanRepublicReports.generate607Report(
         'org-1', 2026, 8, repositoryOf([invoice({ serviceCharge: 100 })]), organization,
       );
-      expect(body.split('\n')[1].split('|')[16]).toBe('100.00');
+      expect(body.split('\n')[1].split('|')[15]).toBe('100.00');
+    });
+
+    it('writes a till ticket with the same twenty-three boxes', async () => {
+      const body = await DominicanRepublicReports.generate607Report(
+        'org-1', 2026, 8, repositoryOf<Invoice>([]), organization,
+        [{ fiscalNumber: 'B0200000001', date: '2026-08-02', goods: 100, services: 0, tax: 18, cash: 118, card: 0, transfer: 0, other: 0, voided: false, voidReason: null }],
+      );
+      expect(body.split('\n')[1]).toBe('||B0200000001||01|20260802||100.00|18.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|118.00|0.00|0.00|0.00|0.00|0.00|0.00');
     });
 
     it('counts no records when the period is empty', async () => {
       const body = await DominicanRepublicReports.generate607Report(
         'org-1', 2026, 8, repositoryOf<Invoice>([]), organization,
       );
-      expect(body).toBe('607|131190317|202608|0|0.00');
+      expect(body).toBe('607|131190317|202608|0');
     });
   });
 

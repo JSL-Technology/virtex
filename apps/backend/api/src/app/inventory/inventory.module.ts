@@ -24,7 +24,6 @@ import { AuthModule } from '../auth/auth.module';
 import { InventoryPostingService } from './inventory-posting.service';
 import { StockLedgerService } from './stock-ledger.service';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
-import { VendorBillInventoryHandler } from './handlers/vendor-bill-inventory.handler';
 import { GoodsReceiptPort } from './contracts/goods-receipt.contract';
 import { ProductImage } from './entities/product-image.entity';
 import { ProductPriceHistory } from './entities/product-price-history.entity';
@@ -61,7 +60,6 @@ import { ProductCatalogPort } from './contracts/product-catalog.contract';
     InventoryAdjustmentsService,
     StockTransfersService,
     ProductCategoriesService,
-    VendorBillInventoryHandler,
     // Purchasing brings goods into stock through the port, not through the service.
     { provide: GoodsReceiptPort, useExisting: InventoryService },
     ProductImagesService,

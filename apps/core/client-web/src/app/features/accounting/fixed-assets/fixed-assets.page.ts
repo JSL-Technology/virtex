@@ -17,6 +17,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 import { NotificationService } from '../../../core/services/notification';
 import { BranchesService } from '../../../core/tenancy/branches.service';
 import { FixedAsset, FixedAssetStatus, FixedAssetsService, hasBeenDepreciated } from '../data/fixed-assets.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 export const FIXED_ASSET_TONE: Record<FixedAssetStatus, VxTone> = { IN_USE: 'ok', SOLD: 'neutral', DISPOSED: 'neutral' };
 
@@ -29,7 +30,7 @@ export const FIXED_ASSET_TONE: Record<FixedAssetStatus, VxTone> = { IN_USE: 'ok'
   selector: 'app-fixed-assets-page',
   standalone: true,
   imports: [...VX_CONTEXT_MENU, 
-    FormsModule,
+    FormsModule, ...VX_FORM_A11Y,
     RouterLink,
     TranslateModule,
     LucideAngularModule,

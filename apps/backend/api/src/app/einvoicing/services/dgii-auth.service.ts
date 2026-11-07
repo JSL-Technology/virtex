@@ -32,20 +32,21 @@ export class DgiiAuthService {
     private readonly signer: EcfSignerService,
   ) {}
 
-  private cacheKey(organizationId: string): string {
-    return `${organizationId}:${this.config.environment}`;
+  /** One token per tenant and environment: a token of CerteCF is no token for Produccion. */
+  private async cacheKey(organizationId: string): Promise<string> {
+    return `${organizationId}:${await this.config.environmentFor(organizationId)}`;
   }
 
   async getToken(organizationId: string, cert: LoadedCertificate, force = false): Promise<string> {
-    const key = this.cacheKey(organizationId);
+    const key = await this.cacheKey(organizationId);
     const cached = this.cache.get(key);
     if (!force && cached && cached.expiresAt - DgiiAuthService.EXPIRY_SKEW_MS > this.now()) {
       return cached.token;
     }
 
-    const seedXml = await this.fetchSeed();
+    const seedXml = await this.fetchSeed(organizationId);
     const signedSeed = this.signer.sign(seedXml, cert, 'SemillaModel');
-    const { token, expiresAt } = await this.validateSeed(signedSeed);
+    const { token, expiresAt } = await this.validateSeed(organizationId, signedSeed);
 
     this.cache.set(key, { token, expiresAt });
     return token;
@@ -53,16 +54,18 @@ export class DgiiAuthService {
 
   /** Drops any cached token, forcing a fresh handshake on the next call. */
   invalidate(organizationId: string): void {
-    this.cache.delete(this.cacheKey(organizationId));
+    for (const key of [...this.cache.keys()]) {
+      if (key.startsWith(`${organizationId}:`)) this.cache.delete(key);
+    }
   }
 
   private now(): number {
     return Date.now();
   }
 
-  private async fetchSeed(): Promise<string> {
+  private async fetchSeed(organizationId: string): Promise<string> {
     try {
-      const { data } = await axios.get(this.config.endpoints.seed, {
+      const { data } = await axios.get((await this.config.endpointsFor(organizationId)).seed, {
         timeout: this.config.httpTimeoutMs,
         responseType: 'text',
         headers: { Accept: 'application/xml' },
@@ -79,7 +82,7 @@ export class DgiiAuthService {
     }
   }
 
-  private async validateSeed(signedSeedXml: string): Promise<{ token: string; expiresAt: number }> {
+  private async validateSeed(organizationId: string, signedSeedXml: string): Promise<{ token: string; expiresAt: number }> {
     const form = new FormData();
     form.append('xml', Buffer.from(signedSeedXml, 'utf8'), {
       filename: 'semilla.xml',
@@ -87,7 +90,7 @@ export class DgiiAuthService {
     });
 
     try {
-      const { data } = await axios.post(this.config.endpoints.validateSeed, form, {
+      const { data } = await axios.post((await this.config.endpointsFor(organizationId)).validateSeed, form, {
         timeout: this.config.httpTimeoutMs,
         headers: form.getHeaders(),
       });

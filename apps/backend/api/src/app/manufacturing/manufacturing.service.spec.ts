@@ -14,15 +14,23 @@ describe('ManufacturingService — tenant isolation', () => {
   const ORG = '11111111-1111-1111-1111-111111111111';
   const OTHER_ORG = '22222222-2222-2222-2222-222222222222';
 
-  function build() {
+  function build(ownedCount = 1) {
+    // References are checked through the repository's manager (assertTenantOwns): `ownedCount` is
+    // how many of the referenced ids the tenant owns.
+    const ownership = { count: jest.fn().mockResolvedValue(ownedCount) };
+    const manager = {
+      getRepository: jest.fn().mockReturnValue(ownership),
+      query: jest.fn().mockResolvedValue([{ n: ownedCount }]),
+    };
     const productionOrderRepository = {
+      manager,
       findAndCount: jest.fn().mockResolvedValue([[], 0]),
       findOne: jest.fn().mockResolvedValue(null),
       create: jest.fn((value) => value),
       save: jest.fn((value) => Promise.resolve({ id: 'new', ...value })),
       delete: jest.fn().mockResolvedValue({ affected: 1 }),
     };
-    const bomRepository = { findAndCount: jest.fn().mockResolvedValue([[], 0]) } as any;
+    const bomRepository = { findAndCount: jest.fn().mockResolvedValue([[], 0]), manager } as any;
     const bomItemRepository = { create: jest.fn((v) => v) } as any;
     const workCenterRepository = { findAndCount: jest.fn().mockResolvedValue([[], 0]) } as any;
 
@@ -56,6 +64,15 @@ describe('ManufacturingService — tenant isolation', () => {
 
     const created = productionOrderRepository.create.mock.calls[0][0];
     expect(created.organizationId).toBe(ORG);
+  });
+
+  it('refuses an order whose product belongs to another tenant (MFG-02)', async () => {
+    const { service, productionOrderRepository } = build(0);
+
+    await expect(
+      service.createOrder({ orderNumber: 'PO-2', productId: 'foreign', quantityPlanned: 1 } as any, ORG),
+    ).rejects.toMatchObject({ status: 404 });
+    expect(productionOrderRepository.save).not.toHaveBeenCalled();
   });
 
   it('scopes a single-order lookup and 404s across tenants', async () => {

@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../shared/scheduling/exclusive-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DataSource } from 'typeorm';
@@ -25,6 +26,7 @@ export class WorkflowTimerService {
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE, { name: 'workflow-engine-timers' })
+  @ExclusiveJob()
   async sweep(): Promise<void> {
     if (this.sweeping) return;
     this.sweeping = true;
@@ -41,6 +43,7 @@ export class WorkflowTimerService {
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES, { name: 'workflow-engine-escalation' })
+  @ExclusiveJob()
   async escalate(): Promise<void> {
     if (this.escalating) return;
     this.escalating = true;

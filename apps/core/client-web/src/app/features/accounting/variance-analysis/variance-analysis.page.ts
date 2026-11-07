@@ -8,6 +8,7 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { NotificationService } from '../../../core/services/notification';
 import { BudgetsService, VarianceLine, VarianceReport, isFavourable } from '../data/budgets.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -26,7 +27,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 @Component({
   selector: 'app-variance-analysis-page',
   standalone: true,
-  imports: [...VX_SORT, FormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [...VX_SORT, FormsModule, ...VX_FORM_A11Y, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './variance-analysis.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './variance-analysis.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

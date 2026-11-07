@@ -431,6 +431,38 @@ describeWithDb('the accounting core', () => {
       expect(asOf.get(account['revenue'])).toBe(-1000);
     });
 
+    it('counts a modified entry once — the replacement, not the original subtracted twice (GL-01)', async () => {
+      const original = await post('2026-01-10', 'Aporte de capital', [
+        { accountId: account['cash'], debit: 100000 },
+        { accountId: account['capital'], credit: 100000 },
+      ]);
+
+      // The capital was in fact 1 155: the entry is corrected, which reverses the original and
+      // posts a replacement. The books must then say 1 155 — before the fix they said −98 845 + …
+      await entries.update(
+        original.id,
+        organizationId,
+        {
+          date: '2026-01-10',
+          description: 'Aporte de capital (corregido)',
+          journalId: generalJournalId,
+          modificationReason: 'Importe mal digitado',
+          lines: [
+            { accountId: account['cash'], debit: 1155, credit: 0 },
+            { accountId: account['capital'], debit: 0, credit: 1155 },
+          ],
+        } as never,
+        ctx,
+      );
+
+      const asOf = await balances.balancesAsOf({ organizationId, ledgerId, asOf: '2026-01-31' });
+      expect(asOf.get(account['cash'])).toBe(1155);
+      expect(asOf.get(account['capital'])).toBe(-1155);
+
+      const stored = await dataSource.getRepository(JournalEntry).findOneByOrFail({ id: original.id });
+      expect(stored.status).toBe(JournalEntryStatus.MODIFIED);
+    });
+
     it('is visible inside the transaction that posted it', async () => {
       // The close depends on this: it posts depreciation and revaluation, then reads balances that
       // must already include them. Under the old queue-based balances they could not.

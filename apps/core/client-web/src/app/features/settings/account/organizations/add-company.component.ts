@@ -34,7 +34,7 @@ const STEPS: readonly Step[] = ['configuration', 'business', 'plan'];
 @Component({
   selector: 'app-add-company',
   standalone: true,
-  imports: [...VX_FORM_A11Y, ReactiveFormsModule, TranslateModule, StepConfiguration, StepBusiness, StepPlan],
+  imports: [ReactiveFormsModule, ...VX_FORM_A11Y, TranslateModule, StepConfiguration, StepBusiness, StepPlan],
   templateUrl: './add-company.component.html',
   styleUrls: ['./add-company.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

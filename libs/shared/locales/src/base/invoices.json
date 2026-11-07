@@ -9,6 +9,11 @@
     "en": "The amount to credit ({{amount}}) exceeds the creditable balance of invoice {{invoiceNumber}} ({{remaining}}).",
     "pt": "O valor a creditar ({{amount}}) excede o saldo creditável da fatura {{invoiceNumber}} ({{remaining}})."
   },
+  "invoices.cost_accounts_not_configured": {
+    "es": "No se puede emitir {{invoice}}: la empresa no tiene configuradas las cuentas de inventario y de costo de ventas. Configúralas en Ajustes › Cuentas predeterminadas; sin ellas, la salida de mercancía no tendría su asiento.",
+    "en": "{{invoice}} cannot be issued: the company has no inventory and cost-of-sales accounts configured. Set them in Settings › Default accounts; without them the goods leaving stock would have no entry.",
+    "pt": "Não é possível emitir {{invoice}}: a empresa não tem configuradas as contas de estoque e de custo das vendas. Configure-as em Ajustes › Contas padrão; sem elas, a saída de mercadoria não teria o seu lançamento."
+  },
   "invoices.credit_exceeds_remaining": {
     "es": "No se puede acreditar {{quantity}} de «{{description}}»: quedan {{available}} por acreditar de {{invoiced}} facturadas.",
     "en": "Cannot credit {{quantity}} of “{{description}}”: {{available}} of {{invoiced}} invoiced remain to be credited.",
@@ -751,6 +756,11 @@
     "en": "the organization's accounting settings",
     "pt": "a configuração contábil da organização"
   },
+  "invoices.gaps.cost_of_sales_account": {
+    "es": "la cuenta de costo de ventas",
+    "en": "the cost of sales account",
+    "pt": "a conta de custo das vendas"
+  },
   "invoices.gaps.default_ledger": {
     "es": "el libro contable por defecto",
     "en": "the default ledger",
@@ -775,6 +785,11 @@
     "es": "un año fiscal con sus períodos contables",
     "en": "a fiscal year with its accounting periods",
     "pt": "um ano fiscal com os seus períodos contábeis"
+  },
+  "invoices.gaps.inventory_account": {
+    "es": "la cuenta de inventario",
+    "en": "the inventory account",
+    "pt": "a conta de estoque"
   },
   "invoices.gaps.invoice_sequence": {
     "es": "la secuencia de numeración de facturas",

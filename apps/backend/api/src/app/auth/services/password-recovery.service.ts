@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import * as crypto from 'crypto';
-import * as ms from 'ms';
+import ms from 'ms';
 import { saveIdentity } from '../../users/persistence/identity-writes';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { MailService } from '../../mail/mail.service';
@@ -49,12 +49,28 @@ export class PasswordRecoveryService {
     const { email } = forgotPasswordDto;
     const genericMessage = 'Si existe una cuenta con ese correo, se ha enviado un enlace para restablecer la contraseña.';
 
-    const user = await this.userRepository.findOne({ where: { email }, relations: ['security'] });
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await this.userRepository.findOne({ where: { email: normalizedEmail }, relations: ['security'] });
     if (!user) {
       await this.simulateDelay();
       return { message: genericMessage };
     }
 
+    // Whatever happens from here on, the caller gets the same answer an unknown address gets.
+    // A failure that surfaced as a 500 only for existing accounts was an account-enumeration
+    // oracle (and made recovery unusable); it is logged for operators instead.
+    try {
+      await this.issueResetToken(user);
+    } catch (error) {
+      this.logger.error(
+        { event: 'password_reset_issue_failed', userId: user.id, err: error instanceof Error ? error.message : String(error) },
+        'Could not issue a password reset token.',
+      );
+    }
+    return { message: genericMessage };
+  }
+
+  private async issueResetToken(user: User): Promise<void> {
     const rawToken = crypto.randomBytes(32).toString('base64url');
     const tokenHash = hashOpaqueToken(rawToken);
     const expirationTime = AuthConfig.JWT_RESET_PASSWORD_EXPIRATION;
@@ -64,8 +80,6 @@ export class PasswordRecoveryService {
     await saveIdentity(this.userRepository.manager, user);
 
     await this.mailService.sendPasswordResetEmail(user, rawToken, expirationTime);
-
-    return { message: genericMessage };
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<User> {
@@ -229,6 +243,10 @@ export class PasswordRecoveryService {
   }
 
   private convertToMs(time: string): number {
-    return (ms as unknown as (value: string) => number)(time);
+    const value = ms(time as ms.StringValue);
+    if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+      throw new Error(`Invalid duration: ${time}`);
+    }
+    return value;
   }
 }

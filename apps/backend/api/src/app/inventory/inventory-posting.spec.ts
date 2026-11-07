@@ -1,3 +1,5 @@
+import { PeriodGateRegistry } from '../contracts/closing/period-gate.contract';
+import { PeriodGateSourceService } from '../accounting/period-gate.source';
 import { DataSource } from 'typeorm';
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { JournalLookupService } from '../journal-entries/services/journal-lookup.service';
@@ -45,6 +47,23 @@ import { I18nService } from '../i18n/i18n.service';
  */
 const DB_AVAILABLE = Boolean(process.env['DB_HOST'] && process.env['DB_NAME']);
 const describeWithDb = DB_AVAILABLE ? describe : describe.skip;
+
+/** The real accounting answer, registered as accounting registers it at startup. */
+function periodGate(): PeriodGateRegistry {
+  const registry = new PeriodGateRegistry();
+  new PeriodGateSourceService(registry).onModuleInit();
+  return registry;
+}
+
+/**
+ * Today as the test company's books read it (America/Santo_Domingo), which is what the server
+ * compares against. The UTC date made these tests fail every evening from 20:00 in Santo Domingo,
+ * when UTC has already moved to tomorrow and the adjustment reads as dated in the future.
+ */
+const companyToday = (): string =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santo_Domingo' }).format(new Date());
+/** The company's year, from its own calendar: on 31 December after 20:00 the UTC year is already the next. */
+const companyYear = (): number => Number(companyToday().slice(0, 4));
 
 describeWithDb('inventory posting', () => {
   jest.setTimeout(120_000);
@@ -120,6 +139,7 @@ describeWithDb('inventory posting', () => {
         new OrgSettingsService(dataSource.getRepository(OrganizationSettings)),
         new JournalLookupService(dataSource.getRepository(Journal)),
       ),
+      periodGate(),
     );
   });
 
@@ -245,17 +265,7 @@ describeWithDb('inventory posting', () => {
    * The language is the ORGANISATION's, not the reader's: a narrative is part of the record, and
    * an auditor reading the books in six years expects what was written then.
    */
-  /**
- * Today in the tenant's calendar (Santo Domingo), which is what every posting is checked against.
- *
- * The UTC date runs a day ahead between 00:00 and 04:00 UTC. Built from it, «today» was a date in
- * the future for four hours a day, and the adjustments below were refused as
- * `inventory.adjustment_date_in_future` on any run in that window.
- */
-const companyToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santo_Domingo' }).format(new Date());
-const companyYear = () => Number(companyToday().slice(0, 4));
-
-describe('the narrative on a system-generated entry', () => {
+  describe('the narrative on a system-generated entry', () => {
     /**
      * A posting service whose narrative cache is empty.
      *
@@ -385,7 +395,8 @@ describe('the narrative on a system-generated entry', () => {
   });
 
   describe('an adjustment the books can trust', () => {
-    const today = companyToday;
+    /** Today in the tenant's calendar (Santo Domingo), which is what the posting checks against. */
+    const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santo_Domingo' }).format(new Date());
     const draftOf = async (lines: Array<Record<string, unknown>>, over: Record<string, unknown> = {}) =>
       adjustments.create(
         { date: today(), warehouseId: (await defaultWarehouse()).id, reason: 'Conteo', lines, ...over } as never,
@@ -581,7 +592,7 @@ describe('the narrative on a system-generated entry', () => {
         .update({ organizationId }, { defaultGoodsReceivedNotInvoicedAccountId: grni.id });
     });
 
-    const today = companyToday;
+    const today = () => companyToday();
     const receive = (productId: string, quantity: number, unitCost: number, sourceId: string) =>
       dataSource.transaction((manager) =>
         inventory.receiveGoods(

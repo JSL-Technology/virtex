@@ -1,4 +1,14 @@
 {
+  "projects.assignee_not_member": {
+    "es": "La persona asignada no pertenece a esta empresa.",
+    "en": "The assignee is not a member of this company.",
+    "pt": "A pessoa atribuída não pertence a esta empresa."
+  },
+  "projects.customer_not_found": {
+    "es": "El cliente indicado no existe en esta empresa.",
+    "en": "The customer does not exist in this company.",
+    "pt": "O cliente indicado não existe nesta empresa."
+  },
   "projects.project_in_use_close_instead": {
     "es": "No se puede eliminar el proyecto porque tiene trabajo registrado ({{summary}}): esas horas son costo y facturación que deben seguir apuntando a él. Ciérralo en su lugar.",
     "en": "The project cannot be deleted because it has work recorded against it ({{summary}}): those hours are cost and billing that must keep pointing at it. Close it instead.",

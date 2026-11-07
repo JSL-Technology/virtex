@@ -10,6 +10,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { DepreciationRunResult, FixedAssetsService } from '../data/fixed-assets.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /** The month that just ended: what a run is usually for. */
 export function previousMonth(today = new Date()): string {
@@ -26,7 +27,7 @@ export function previousMonth(today = new Date()): string {
 @Component({
   selector: 'app-depreciation-run-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxAmountComponent, HasPermissionDirective],
+  imports: [FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxAmountComponent, HasPermissionDirective],
   templateUrl: './depreciation-run.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

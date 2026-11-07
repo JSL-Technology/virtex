@@ -107,7 +107,7 @@ export class PurchaseOrderFormPage implements OnInit {
     this.suppliersApi.getSupplierById(id);
 
   protected readonly supplierName = (supplier: Supplier): string => supplier.name;
-  protected readonly supplierValue = (supplier: Supplier): string => supplier.id;
+  protected readonly supplierIdOf = (supplier: Supplier): string => supplier.id;
   protected readonly supplierTaxId = (supplier: Supplier): string | null => supplier.taxId ?? null;
 
   /** Busca productos en el servidor: el catálogo ya no se descarga entero por cada línea. */

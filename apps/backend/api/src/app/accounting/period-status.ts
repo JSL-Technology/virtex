@@ -78,6 +78,12 @@ export async function resolvePostingPeriod(
     );
   }
 
+  // Shared lock for the rest of the posting transaction, then the status read AFTER it: a close
+  // (which takes the row exclusively) either finishes first — and this sees CLOSED — or waits for
+  // this posting to commit. Postings do not block each other. (Audit 2026-10-31, GL-04.)
+  await manager.query(`SELECT "id" FROM "accounting_periods" WHERE "id" = $1 FOR SHARE`, [period.id]);
+  period = (await manager.findOneBy(AccountingPeriod, { id: period.id })) ?? period;
+
   if (period.status === PeriodStatus.CLOSED && !options.allowClosedPeriod) {
     throw new ForbiddenError(
       'accounting.transaction_date_falls_accounting_period_name',

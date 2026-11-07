@@ -469,6 +469,11 @@
     "en": "“{{name}}” was deactivated.",
     "pt": "“{{name}}” foi desativado."
   },
+  "common.referenced_record_not_found": {
+    "es": "Uno de los registros indicados no existe o no está disponible en esta empresa.",
+    "en": "One of the referenced records does not exist or is not available in this company.",
+    "pt": "Um dos registros indicados não existe ou não está disponível nesta empresa."
+  },
   "common.refresh": {
     "es": "Actualizar",
     "en": "Refresh",

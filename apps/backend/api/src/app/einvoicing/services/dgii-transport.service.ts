@@ -51,14 +51,15 @@ export class DgiiTransportService {
    * @param ecfType DGII document type (`31`, `32`, …). Decides which reception service is used.
    */
   async sendEcf(
+    organizationId: string,
     token: string,
     signedXml: string,
     eNcf: string,
     ecfType: string,
   ): Promise<DgiiReceptionResult> {
     const endpoint = DgiiTransportService.CONSUMO_TYPES.has(ecfType)
-      ? this.config.endpoints.receptionConsumo
-      : this.config.endpoints.reception;
+      ? (await this.config.endpointsFor(organizationId)).receptionConsumo
+      : (await this.config.endpointsFor(organizationId)).reception;
 
     const form = new FormData();
     form.append('xml', Buffer.from(signedXml, 'utf8'), {
@@ -95,9 +96,9 @@ export class DgiiTransportService {
   }
 
   /** Poll the final verdict for a trackId. */
-  async queryStatus(token: string, trackId: string): Promise<DgiiStatusResult> {
+  async queryStatus(organizationId: string, token: string, trackId: string): Promise<DgiiStatusResult> {
     try {
-      const { data } = await axios.get(this.config.endpoints.status, {
+      const { data } = await axios.get((await this.config.endpointsFor(organizationId)).status, {
         timeout: this.config.httpTimeoutMs,
         params: { trackId },
         headers: { Authorization: `Bearer ${token}` },
@@ -119,9 +120,9 @@ export class DgiiTransportService {
    * the DGII already has it. Without it a retry can submit the same comprobante twice, and the
    * endpoint was resolved in configuration but never called.
    */
-  async queryTrackIds(token: string, rncEmisor: string, eNcf: string): Promise<DgiiTrackIdEntry[]> {
+  async queryTrackIds(organizationId: string, token: string, rncEmisor: string, eNcf: string): Promise<DgiiTrackIdEntry[]> {
     try {
-      const { data } = await axios.get(this.config.endpoints.trackIds, {
+      const { data } = await axios.get((await this.config.endpointsFor(organizationId)).trackIds, {
         timeout: this.config.httpTimeoutMs,
         params: { RNC: rncEmisor, ENCF: eNcf },
         headers: { Authorization: `Bearer ${token}` },
@@ -146,7 +147,7 @@ export class DgiiTransportService {
    * Part of the e-CF cycle a receiver is required to complete: the endpoint was configured and
    * never invoked, so a tenant could neither accept nor dispute what its suppliers issued to it.
    */
-  async sendCommercialApproval(token: string, signedXml: string, eNcf: string): Promise<DgiiReceptionResult> {
+  async sendCommercialApproval(organizationId: string, token: string, signedXml: string, eNcf: string): Promise<DgiiReceptionResult> {
     const form = new FormData();
     form.append('xml', Buffer.from(signedXml, 'utf8'), {
       filename: `AC_${eNcf}.xml`,
@@ -154,7 +155,7 @@ export class DgiiTransportService {
     });
 
     try {
-      const { data } = await axios.post(this.config.endpoints.commercialApproval, form, {
+      const { data } = await axios.post((await this.config.endpointsFor(organizationId)).commercialApproval, form, {
         timeout: this.config.httpTimeoutMs,
         headers: { ...form.getHeaders(), Authorization: `Bearer ${token}` },
       });
@@ -175,7 +176,7 @@ export class DgiiTransportService {
    * A fiscal number that was assigned and will never be used has to be declared, or the DGII sees a
    * gap in the taxpayer's sequence. There was no way to do this at all.
    */
-  async voidSequenceRange(token: string, signedXml: string): Promise<DgiiReceptionResult> {
+  async voidSequenceRange(organizationId: string, token: string, signedXml: string): Promise<DgiiReceptionResult> {
     const form = new FormData();
     form.append('xml', Buffer.from(signedXml, 'utf8'), {
       filename: 'anulacion.xml',
@@ -183,7 +184,7 @@ export class DgiiTransportService {
     });
 
     try {
-      const { data } = await axios.post(this.config.endpoints.voidRange, form, {
+      const { data } = await axios.post((await this.config.endpointsFor(organizationId)).voidRange, form, {
         timeout: this.config.httpTimeoutMs,
         headers: { ...form.getHeaders(), Authorization: `Bearer ${token}` },
       });

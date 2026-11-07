@@ -1,4 +1,5 @@
 import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
+import { REQUEST_LOG_CONTEXT, RequestLogContext } from '../observability/request-id';
 import { Reflector } from '@nestjs/core';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, QueryRunner } from 'typeorm';
@@ -58,6 +59,12 @@ export class TenantConnectionInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const organizationId = request.user?.organizationId;
 
+    // For the access log line (OBS-02), which is written from the raw request after this returns.
+    const raw = (request as unknown as { raw?: Record<symbol, RequestLogContext> }).raw;
+    if (raw && request.user) {
+      raw[REQUEST_LOG_CONTEXT] = { organizationId: organizationId ?? null, userId: request.user.id ?? null };
+    }
+
     if (!organizationId) return next.handle();
 
     // A route that waits minutes on something other than the database opens a connection per unit
@@ -84,6 +91,13 @@ export class TenantConnectionInterceptor implements NestInterceptor {
           const store = {
             organizationId,
             manager: this.dataSource.createEntityManager(runner),
+            // Read by the financial audit subscriber: the trail of every document written during
+            // this request names its author and address (audit 2026-10-31, AUD-01 — 71 of 71
+            // invoice audit rows had no author).
+            actor: {
+              userId: request.user?.id ?? null,
+              ipAddress: (request as { ip?: string }).ip ?? null,
+            },
           };
 
           // El contexto se abre alrededor de la SUSCRIPCIÓN, no de la construcción.

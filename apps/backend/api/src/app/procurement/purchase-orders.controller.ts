@@ -136,7 +136,9 @@ export class PurchaseOrdersController {
     return this.orders.send(id, user.organizationId);
   }
 
+  // Idempotent like `POST /procurement/receipts`: a retried delivery is answered once.
   @Post(':id/receive')
+  @Idempotent()
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
   @ApiOperation({ summary: 'Registra lo recibido contra la orden, línea por línea.' })

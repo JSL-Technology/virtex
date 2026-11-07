@@ -21,7 +21,9 @@ export class PriceListItem {
   @Column({ name: 'price_list_id' })
   priceListId: string;
 
-  @ManyToOne(() => Product, { eager: true, onDelete: 'CASCADE' })
+  // Not eager: a line used to carry the whole product (cost, stock, tenant) in every response, which is
+  // how a foreign product leaked (audit 2026-10-31, PL-01). The screen needs only the id.
+  @ManyToOne(() => Product, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 

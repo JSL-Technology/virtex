@@ -1,4 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { supplierInvoiceKey } from './supplier-invoice-key';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import {
@@ -42,6 +43,7 @@ export class VendorBillsDataTransferProvider implements DataTransferDataset<Vend
   readonly viewPermission = PERMISSIONS.ACCOUNTS_PAYABLE_VIEW;
   readonly columns = [
     { key: 'ncf', property: 'ncf', example: 'B0100000123' },
+    { key: 'numero_proveedor', property: 'supplierInvoiceNumber', example: 'FAC-000123' },
     { key: 'proveedor', property: 'vendorName' },
     { key: 'tax_id_proveedor', property: 'vendorTaxId', required: true, example: '131-12345-7' },
     { key: 'fecha', property: 'date', required: true, example: '2026-01-15' },
@@ -146,6 +148,7 @@ export class VendorBillsDataTransferProvider implements DataTransferDataset<Vend
     return Object.assign(new CreateVendorBillDto(), {
       vendorId: supplier.id,
       ncf: row.ncf,
+      supplierInvoiceNumber: row.supplierInvoiceNumber?.trim() || undefined,
       date: row.date,
       dueDate: row.dueDate,
       currencyCode: row.currencyCode?.toUpperCase(),
@@ -167,12 +170,18 @@ export class VendorBillsDataTransferProvider implements DataTransferDataset<Vend
     const seen = new Map<string, number>();
     const problems: DataTransferFileProblem[] = [];
     rows.forEach((row, index) => {
-      const ncf = normalize(row.ncf);
-      if (!ncf) return;
-      const key = `${normalize(row.vendorTaxId)}:${ncf}`;
-      const first = seen.get(key);
-      if (first === undefined) seen.set(key, index);
-      else problems.push({ index, column: 'ncf', key: 'data_transfer.duplicate_in_file', params: { value: row.ncf, first: first + 2 } });
+      // The fiscal identifier and the supplier's own number each identify one document.
+      const ids: Array<{ column: 'ncf' | 'numero_proveedor'; key: string | null; value?: string }> = [
+        { column: 'ncf', key: normalize(row.ncf) || null, value: row.ncf },
+        { column: 'numero_proveedor', key: supplierInvoiceKey(row.supplierInvoiceNumber), value: row.supplierInvoiceNumber },
+      ];
+      for (const id of ids) {
+        if (!id.key) continue;
+        const key = `${id.column}:${normalize(row.vendorTaxId)}:${id.key}`;
+        const first = seen.get(key);
+        if (first === undefined) seen.set(key, index);
+        else problems.push({ index, column: id.column, key: 'data_transfer.duplicate_in_file', params: { value: id.value, first: first + 2 } });
+      }
     });
     return problems;
   }

@@ -8,5 +8,25 @@
     "es": "Artículo no encontrado o no está publicado.",
     "en": "The article was not found, or is not published.",
     "pt": "O artigo não foi encontrado ou não está publicado."
+  },
+  "customer_service.portal_account_not_found": {
+    "es": "El acceso al portal no existe o ya se revocó.",
+    "en": "The portal access does not exist or was already revoked.",
+    "pt": "O acesso ao portal não existe ou já foi revogado."
+  },
+  "customer_service.portal_customer_not_found": {
+    "es": "El cliente no existe en esta empresa.",
+    "en": "The customer does not exist in this company.",
+    "pt": "O cliente não existe nesta empresa."
+  },
+  "customer_service.portal_no_customer_identity": {
+    "es": "Tu usuario no está vinculado a ningún cliente: pide a la empresa que te dé acceso al portal.",
+    "en": "Your user is not linked to any customer: ask the company to give you portal access.",
+    "pt": "Seu usuário não está vinculado a nenhum cliente: peça à empresa acesso ao portal."
+  },
+  "customer_service.portal_user_bound_to_other_customer": {
+    "es": "Ese usuario ya está vinculado a otro cliente; revoca ese acceso primero.",
+    "en": "That user is already linked to another customer; revoke that access first.",
+    "pt": "Esse usuário já está vinculado a outro cliente; revogue esse acesso primeiro."
   }
 }

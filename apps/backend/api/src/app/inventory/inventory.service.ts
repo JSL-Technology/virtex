@@ -4,7 +4,7 @@ import { Repository, EntityManager, DataSource } from 'typeorm';
 import { CostingMethod, Product, ProductKind } from './entities/product.entity';
 import { StockMovementType } from '../supply-chain/entities/stock-movement.entity';
 import { standardSalesTaxRate } from './contracts/sellable-product.contract';
-import { GoodsReceiptPort, GoodsReceiptRequest, GoodsReceiptResult, GoodsReturnRequest } from './contracts/goods-receipt.contract';
+import { GoodsReceiptPort, GoodsReceiptRequest, GoodsReceiptResult, GoodsReturnRequest, ReceivedCostAdjustment } from './contracts/goods-receipt.contract';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
@@ -432,7 +432,7 @@ export class InventoryService implements GoodsReceiptPort {
       if (product.kind === ProductKind.SERVICE) continue;
       returned.push({ description: product.name, amount: Math.round(line.quantity * line.unitCost * 100) / 100 });
       const warehouseId =
-        request.warehouseId ?? (await this.ledger.resolveWarehouse(manager, organizationId, {}));
+        request.warehouseId ?? (await this.ledger.resolveWarehouse(manager, organizationId, request.place ?? {}));
 
       const onHand = Number(product.stock);
       const remaining = onHand - line.quantity;
@@ -470,6 +470,32 @@ export class InventoryService implements GoodsReceiptPort {
       },
       actorUserId,
     );
+  }
+
+  /** See `GoodsReceiptPort.absorbReceivedCostDifference`. */
+  async absorbReceivedCostDifference(
+    manager: EntityManager,
+    organizationId: string,
+    adjustment: ReceivedCostAdjustment,
+  ): Promise<{ absorbed: number; units: number }> {
+    const none = { absorbed: 0, units: 0 };
+    if (!adjustment.amount || adjustment.quantity <= 0) return none;
+    const product = await this.lockProduct(adjustment.productId, organizationId, manager);
+    if (product.kind === ProductKind.SERVICE) return none;
+    if (product.costingMethod && product.costingMethod !== CostingMethod.WEIGHTED_AVERAGE) return none;
+
+    const onHand = Math.max(Number(product.stock), 0);
+    if (onHand <= 0) return none;
+    // Of the units this difference is about, at most what is still on the shelf can carry it.
+    const units = Math.min(onHand, adjustment.quantity);
+    const absorbed = Math.round(((adjustment.amount * units) / adjustment.quantity) * 100) / 100;
+    if (absorbed === 0) return none;
+    const value = onHand * Number(product.cost) + absorbed;
+    // Never below zero: a give-back larger than the stock is worth is not absorbed at all.
+    if (value < 0) return none;
+    product.cost = Math.round((value / onHand) * 1e6) / 1e6;
+    await manager.save(Product, product);
+    return { absorbed, units: Math.round(units * 1e6) / 1e6 };
   }
 
   private async lockProduct(

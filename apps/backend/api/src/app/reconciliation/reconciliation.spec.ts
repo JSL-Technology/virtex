@@ -418,6 +418,41 @@ describeWithDb('bank reconciliation', () => {
       expect(transactions[0].status).toBe(TransactionStatus.MATCHED);
     });
 
+    it('reverses the entry a rule posted when its match is undone (REC-05)', async () => {
+      await reconciliation.createRule(
+        {
+          name: 'Comisiones bancarias',
+          conditionField: RuleConditionField.DESCRIPTION,
+          conditionOperator: RuleConditionOperator.CONTAINS,
+          conditionValue: 'comision',
+          direction: RuleDirection.MONEY_OUT,
+          action: RuleAction.CREATE_ENTRY,
+          targetAccountId: account['fees'],
+        } as never,
+        organizationId,
+      );
+      const statement = await importCsv(
+        ['Fecha,Concepto,Entrada,Salida', '31/03/2026,Comision por mantenimiento,,350.00'].join('\n'),
+        { endingBalance: -350 },
+      );
+      const [match] = await dataSource
+        .getRepository(ReconciliationMatch)
+        .find({ where: { statementId: statement.id } });
+
+      await reconciliation.unmatch(match.id, organizationId);
+
+      // The fee the rule booked is reversed with the match: nothing is left expensed for a bank
+      // line that is no longer explained by anything.
+      const balances = new AccountBalancesService(dataSource);
+      const all = await balances.balancesAsOf({ organizationId, ledgerId, asOf: '2099-12-31' });
+      expect(all.get(account['fees']) ?? 0).toBe(0);
+      expect(all.get(account['bank']) ?? 0).toBe(0);
+      const transactions = await dataSource
+        .getRepository(BankTransaction)
+        .find({ where: { statementId: statement.id } });
+      expect(transactions[0].status).toBe(TransactionStatus.UNMATCHED);
+    });
+
     it('will not create an entry when a candidate already exists, whatever the rule says', async () => {
       await postToBank('2026-03-31', -350, 'Comisión bancaria ya registrada');
 

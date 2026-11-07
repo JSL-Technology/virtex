@@ -271,7 +271,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Remove user' })
   async remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser, @Ip() ip: string) {
     try {
-      const result = await this.usersService.remove(id, user.organizationId, user.id);
+      const result = await this.usersService.remove(id, user.organizationId, user);
       await this.auditTrailService.record(user.id, 'User', id, ActionType.DELETE, { action: 'delete-user' }, undefined, ip, user.organizationId);
       return result;
     } catch (e) {
@@ -293,7 +293,7 @@ export class UsersController {
       if (dto.status === UserStatus.BLOCKED && id === user.id) {
           throw new BadRequestError('users.you_cannot_block_your_own_account');
       }
-      const updatedUser = await this.usersService.updateUserStatus(id, dto.status, user.organizationId, user.id);
+      const updatedUser = await this.usersService.updateUserStatus(id, dto.status, user.organizationId, user);
       return plainToInstance(UserResponseDto, updatedUser, { excludeExtraneousValues: true });
   }
 
@@ -305,7 +305,7 @@ export class UsersController {
       @Param('id', UuidParamPipe) id: string,
       @CurrentUser() user: AuthenticatedUser
   ) {
-      await this.usersService.resetPassword(id, user.organizationId);
+      await this.usersService.resetPassword(id, user.organizationId, user);
       return { messageKey: 'users.password_reset_email_sent' };
   }
 
@@ -329,7 +329,7 @@ export class UsersController {
   @StepUp(StepUpScope.MANAGE_USER_CREDENTIALS)
   @HasPermission(PERMISSIONS.USERS_FORCE_LOGOUT)
   async forceLogout(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-      return this.usersService.forceLogout(id, user.organizationId);
+      return this.usersService.forceLogout(id, user.organizationId, user);
   }
 
   @Post(':id/email-change')
@@ -346,7 +346,7 @@ export class UsersController {
     @CurrentUser() user: AuthenticatedUser,
     @Ip() ip: string,
   ) {
-    await this.usersService.adminChangeEmail(id, dto.email, user.organizationId);
+    await this.usersService.adminChangeEmail(id, dto.email, user.organizationId, user);
     await this.auditTrailService.record(
       user.id, 'User', id, ActionType.UPDATE,
       { action: 'admin-change-email' }, undefined, ip, user.organizationId,
@@ -359,6 +359,6 @@ export class UsersController {
   @StepUp(StepUpScope.MANAGE_USER_STATUS)
   @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
   async blockAndLogout(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-      return this.usersService.blockAndLogout(id, user.organizationId);
+      return this.usersService.blockAndLogout(id, user.organizationId, user);
   }
 }

@@ -137,13 +137,13 @@ async function main() {
   //
   //    Las comprobaciones 1-5 no lo detectaban porque `asTenant` es una copia del interceptor, no
   //    el interceptor. Esta corre el real.
-  //  El interceptor pregunta al manejador y a su controlador si la ruta usa conexiones cortas
-  //  (`ShortLivedConnections`); estos no llevan la marca, así que fija la conexión como cualquier ruta.
+  // A handler and a class with no metadata: the route is an ordinary one, not ShortLivedConnections.
+  class RutaDePrueba { manejar(): void {} }
   const contextoHttp = {
     getType: () => 'http',
     switchToHttp: () => ({ getRequest: () => ({ user: { organizationId: ORG_A } }) }),
-    getHandler: () => function manejador() { /* sin metadatos */ },
-    getClass: () => class Controlador {},
+    getHandler: () => RutaDePrueba.prototype.manejar,
+    getClass: () => RutaDePrueba,
   } as unknown as ExecutionContext;
 
   const manejadorAplazado: CallHandler = {
