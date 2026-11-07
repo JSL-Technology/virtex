@@ -111,6 +111,10 @@ export class VendorBill {
    * supplier invoice could be recorded — and paid — twice in every other market, and in the
    * Dominican Republic whenever the document carried no NCF.
    */
+  /** The warehouse the bill's own goods entered, so a void takes them back out of it (AP-05). */
+  @Column({ name: 'receipt_warehouse_id', type: 'uuid', nullable: true })
+  receiptWarehouseId?: string | null;
+
   @Column({ name: 'supplier_invoice_number', type: 'varchar', length: 60, nullable: true })
   supplierInvoiceNumber?: string | null;
 

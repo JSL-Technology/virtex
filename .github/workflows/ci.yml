@@ -398,6 +398,13 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:invoicing
 
+      # Buying keeps the inventory account and the kardex describing the same value: a bill against
+      # an unapproved order is refused, its goods move in its own transaction, and a price that
+      # differs from the order revalues the stock on hand instead of only the account (AP-05).
+      - name: npm run verify:purchasing
+        if: ${{ !cancelled() }}
+        run: npm run verify:purchasing
+
       # Nx Cloud's self-healing. It needs an Nx Cloud workspace, and without one it can only fail —
       # which turned every run red after every other step had passed. The token is scoped to this
       # step alone rather than the job: `npm ci` runs third-party install scripts, and a secret in

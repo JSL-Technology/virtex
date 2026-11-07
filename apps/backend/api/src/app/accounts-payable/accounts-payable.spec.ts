@@ -1,5 +1,4 @@
 import { DataSource } from 'typeorm';
-import { VendorBillInventoryHandler } from '../inventory/handlers/vendor-bill-inventory.handler';
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { AfterCommitService } from '../shared/after-commit/after-commit.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -82,13 +81,8 @@ describeWithDb('accounts payable', () => {
   let vendorId: string;
   /** A persona física supplier, used by the tests that are about withholding. */
   let individualVendorId: string;
-  let inventory: { receiveGoods: jest.Mock; decreaseStock: jest.Mock; recordMovement: jest.Mock };
+  let inventory: { receiveGoods: jest.Mock; returnGoods: jest.Mock; absorbReceivedCostDifference: jest.Mock };
   let eventBus: EventEmitter2;
-  const efectosDeInventario: Array<Promise<unknown>> = [];
-  /** Espera a que los efectos de inventario en vuelo terminen. */
-  const inventarioAlDia = async (): Promise<void> => {
-    await Promise.all(efectosDeInventario.splice(0));
-  };
   const account: Record<string, string> = {};
   let bankAccountId: string;
 
@@ -117,44 +111,16 @@ describeWithDb('accounts payable', () => {
     inventory = {
       // Receiving goes through the same port a purchase-order receipt uses (QA C-07): stock in,
       // cost re-averaged, a stock-ledger line — and no second entry, since the bill booked it.
-      receiveGoods: jest.fn().mockResolvedValue({ journalEntryId: null, stocked: [true] }),
-      decreaseStock: jest.fn().mockResolvedValue(undefined),
-      recordMovement: jest.fn().mockResolvedValue(undefined),
+      receiveGoods: jest.fn().mockResolvedValue({ journalEntryId: null, stocked: [true], warehouseId: null }),
+      returnGoods: jest.fn().mockResolvedValue(null),
+      absorbReceivedCostDifference: jest.fn().mockResolvedValue({ absorbed: 0, units: 0 }),
     };
 
-    //  El emisor es COMPARTIDO, y el manejador de inventario es el de verdad.
-    //
-    //  Cuentas por pagar dejó de llamar al inventario directamente: publica `vendor.bill.posted` y
-    //  `vendor.bill.voided` después del commit, y `VendorBillInventoryHandler` mueve el stock
-    //  (B-14, para romper la dependencia entre los dos módulos). El spec seguía comprobando la
-    //  llamada directa, así que afirmaba un diseño que ya no existe.
-    //
-    //  Registrar el manejador real, y no cambiar la afirmación por «se emitió el evento», mantiene
-    //  lo que esta prueba protege: aprobar una compra RECIBE la mercancía y anularla la devuelve.
-    //  Comprobar que se emitió un evento no habría cazado el defecto que este bloque documenta
-    //  —una anulación que AUMENTABA el stock— porque el evento se emitía igual.
+    //  Stock moves in the bill's own transaction through `GoodsReceiptPort` (AP-05); the events
+    //  that follow the commit are business facts for the workflow engine, not the stock path.
     eventBus = new EventEmitter2();
-
-    //  `onModuleInit()` a mano. `AfterCommitService` se registra ahí como suscriptor de TypeORM
-    //  —a propósito, para poder ser un inyectable normal— y construido con `new` nunca lo hace:
-    //  los efectos post-commit se encolan y no se ejecutan jamás. Con el servicio sin registrar,
-    //  `vendor.bill.posted` no llegaba a emitirse y la mercancía no se recibía, sin que nada
-    //  fallara: el silencio es exactamente la forma del defecto que esta prueba vigila.
     const afterCommit = new AfterCommitService(dataSource);
     afterCommit.onModuleInit();
-    const inventoryHandler = new VendorBillInventoryHandler(
-      inventory as never,
-      dataSource,
-    );
-    //  Se guarda la promesa de cada efecto para poder esperarla. El manejador es síncrono desde
-    //  fuera —el emisor no lo espera, y no debe: a estas alturas ya se hizo commit— así que sin
-    //  esto la afirmación corría antes de que la mercancía se hubiera movido.
-    eventBus.on('vendor.bill.posted', (payload) => {
-      efectosDeInventario.push(inventoryHandler.onBillPosted(payload as never));
-    });
-    eventBus.on('vendor.bill.voided', (payload) => {
-      efectosDeInventario.push(inventoryHandler.onBillVoided(payload as never));
-    });
     balances = new AccountBalancesService(dataSource);
     const entries = new JournalEntriesService(
       dataSource.getRepository(JournalEntry),
@@ -193,6 +159,7 @@ describeWithDb('accounts payable', () => {
       // The real narrative service, so the assertions read the sentences the ledger will actually
       // carry rather than a stub's.
       new LedgerNarrativeService(new I18nService()),
+      inventory as never,
     );
 
     debitNotes = new VendorDebitNotesService(
@@ -1099,10 +1066,9 @@ describeWithDb('accounts payable', () => {
 
     it('receives goods on approval and returns them on annulment', async () => {
       inventory.receiveGoods.mockClear();
-      inventory.decreaseStock.mockClear();
+      inventory.returnGoods.mockClear();
 
       const bill = await openBill({ withProduct: true });
-      await inventarioAlDia();
       // Approving a purchase receives the goods. Nothing did this: the ledger debited inventory
       // and the subledger never moved.
       expect(inventory.receiveGoods).toHaveBeenCalledWith(
@@ -1114,22 +1080,42 @@ describeWithDb('accounts payable', () => {
           post: false,
           lines: [expect.objectContaining({ productId: PRODUCT_ID, quantity: 4 })],
         }),
-        null,
+        // Who approved it: the stock ledger says who received the goods.
+        ACTOR,
       );
 
       await payables.voidBill(bill.id, organizationId, { reason: 'Devuelta al proveedor' }, ACTOR);
-      await inventarioAlDia();
 
-      // And annulling returns them. It used to *increase* stock here, so every annulment added
-      // goods that had never arrived.
-      expect(inventory.decreaseStock).toHaveBeenCalledWith(
-        PRODUCT_ID,
-        4,
+      // And annulling returns them, at the cost they came in at and without a second entry (the
+      // reversal of the bill gives the value back). It used to *increase* stock here, so every
+      // annulment added goods that had never arrived.
+      expect(inventory.returnGoods).toHaveBeenCalledWith(
         expect.anything(),
         organizationId,
-        // Out of the warehouse they arrived in, recorded as a purchase return against the bill.
-        expect.objectContaining({ type: 'PURCHASE_RETURN', sourceType: 'vendor_bill_void' }),
+        expect.objectContaining({
+          sourceType: 'vendor_bill_void',
+          sourceId: bill.id,
+          posted: false,
+          lines: [expect.objectContaining({ productId: PRODUCT_ID, quantity: 4, unitCost: 2_500 })],
+        }),
+        ACTOR,
       );
+    });
+
+    /**
+     * AP-05: the goods used to arrive after the commit, from an event handler whose failure was a
+     * log line — leaving a posted entry with no stock behind it. Now they arrive in the bill's
+     * own transaction, so a receipt that fails takes the posting with it.
+     */
+    it('posts nothing when the goods cannot be received', async () => {
+      inventory.receiveGoods.mockRejectedValueOnce(new Error('almacén no disponible'));
+      await expect(openBill({ withProduct: true })).rejects.toThrow('almacén no disponible');
+      const [row] = await dataSource.query(
+        `SELECT count(*)::int AS posted FROM vendor_bills WHERE organization_id = $1 AND journal_entry_id IS NOT NULL`,
+        [organizationId],
+      );
+      expect(row.posted).toBe(0);
+      expect(await signedBalance('payable')).toBe(0);
     });
 
     it('refuses to annul a bill that has been paid against', async () => {

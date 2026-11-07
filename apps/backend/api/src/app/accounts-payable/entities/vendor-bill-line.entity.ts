@@ -60,6 +60,30 @@ export class VendorBillLine {
   @Column({ name: 'nature', type: 'varchar', length: 8, nullable: true })
   nature?: VendorBillLineNature | null;
 
+  /**
+   * The part of the difference between this bill's price and the order's, on goods already
+   * received, that went into the value of the stock still on hand (AP-05) — in the books'
+   * currency. A void takes it back out of the average cost.
+   */
+  @Column('decimal', {
+    name: 'received_cost_absorbed',
+    precision: 18,
+    scale: 2,
+    default: 0,
+    transformer: numericTransformerNotNull,
+  })
+  receivedCostAbsorbed: number;
+
+  /** How many units carried `receivedCostAbsorbed`: the ones a void must still find on hand. */
+  @Column('decimal', {
+    name: 'received_cost_units',
+    precision: 18,
+    scale: 6,
+    default: 0,
+    transformer: numericTransformerNotNull,
+  })
+  receivedCostUnits: number;
+
   @ManyToOne(() => PurchaseOrderLine, { nullable: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({
     name: 'purchase_order_line_id',

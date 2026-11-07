@@ -69,6 +69,11 @@
     "en": "Bill {{id}} is {{status}} and cannot take a payment.",
     "pt": "A fatura {{id}} está em {{status}} e não admite pagamentos."
   },
+  "accounts_payable.bill_price_difference_already_consumed": {
+    "es": "No se puede anular: la mercancía «{{product}}» que esta factura revalorizó ya se vendió. Corrígela con una nota de débito.",
+    "en": "Cannot void: the goods “{{product}}” this bill revalued have already been sold. Correct it with a debit note.",
+    "pt": "Não é possível anular: a mercadoria «{{product}}» que esta fatura reavaliou já foi vendida. Corrija com uma nota de débito."
+  },
   "accounts_payable.bill_spans_several_purchase_orders": {
     "es": "Una factura de proveedor solo puede referirse a una orden de compra.",
     "en": "A vendor bill can refer to only one purchase order.",
@@ -233,6 +238,11 @@
     "es": "Subiendo…",
     "en": "Uploading…",
     "pt": "A enviar…"
+  },
+  "accounts_payable.cost_of_sales_account_not_configured": {
+    "es": "Falta la cuenta de costo de ventas: la diferencia de precio de mercancía ya vendida se registra allí.",
+    "en": "The cost of sales account is missing: the price difference on goods already sold is booked there.",
+    "pt": "Falta a conta de custo das vendas: a diferença de preço de mercadoria já vendida é registrada nela."
   },
   "accounts_payable.debit_note_already_voided": {
     "es": "Esta nota de débito ya fue anulada.",
@@ -1630,6 +1640,11 @@
     "es": "La línea «{{description}}» de la orden es de otro producto.",
     "en": "The order line “{{description}}” is for another product.",
     "pt": "A linha “{{description}}” do pedido é de outro produto."
+  },
+  "accounts_payable.purchase_order_not_billable": {
+    "es": "La orden de compra {{order}} no se puede facturar en su estado actual: debe estar aprobada, enviada o en recepción.",
+    "en": "Purchase order {{order}} cannot be billed in its current state: it must be approved, sent or being received.",
+    "pt": "O pedido de compra {{order}} não pode ser faturado no estado atual: deve estar aprovado, enviado ou em recebimento."
   },
   "accounts_payable.purchase_order_not_found": {
     "es": "La orden de compra indicada no existe.",

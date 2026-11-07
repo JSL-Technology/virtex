@@ -36,6 +36,7 @@ describeWithDb('purchasing', () => {
       warehouseId: null,
     })),
     returnGoods: jest.fn(async () => null),
+    absorbReceivedCostDifference: jest.fn(async () => ({ absorbed: 0, units: 0 })),
   };
 
   let organizationId: string;

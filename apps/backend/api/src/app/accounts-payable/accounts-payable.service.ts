@@ -19,7 +19,10 @@ import { OrgSettingsService } from '../organizations/services/org-settings.servi
 import { VendorPayment } from './entities/vendor-payment.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AfterCommitService } from '../shared/after-commit/after-commit.service';
-import type { VendorBillPostedEvent, VendorBillVoidedEvent } from '../inventory/handlers/vendor-bill-inventory.handler';
+import type { VendorBillPostedEvent, VendorBillVoidedEvent } from './events/vendor-bill.events';
+import { BUSINESS_EVENTS } from '../contracts/business-events/business-events.contract';
+import { GoodsReceiptPort } from '../inventory/contracts/goods-receipt.contract';
+import { PurchaseOrderStatus } from '../procurement/entities/purchase-order.entity';
 import {
   CreateJournalEntryDto,
   CreateJournalEntryLineDto,
@@ -165,6 +168,11 @@ export class AccountsPayableService {
     private readonly withholding: WithholdingResolverService,
     /** The ledger's narrative, in the language the books are kept in. */
     private readonly narrative: LedgerNarrativeService,
+    /**
+     * Goods in and out in the bill's own transaction (AP-05): the same port a purchase-order
+     * receipt uses, so stock, average cost and kardex move with the entry or not at all.
+     */
+    private readonly goodsReceipt: GoodsReceiptPort,
   ) {}
 
   /**
@@ -717,6 +725,10 @@ export class AccountsPayableService {
         valuations: [{ ledgerId: ledger.id, debit: 0, credit: amount }],
       });
     };
+    /** A difference that can go either way: a debit when positive, a credit when negative. */
+    const signed = (accountId: string, amount: number, description: string) =>
+      amount >= 0 ? debit(accountId, amount, description) : credit(accountId, -amount, description);
+    const rate = Number(bill.exchangeRate) > 0 ? Number(bill.exchangeRate) : 1;
 
     //  El relato del asiento en el idioma de los libros del inquilino. Eran literales castellanos,
     //  de modo que un inquilino que compra y factura en inglés leía su propio mayor en castellano.
@@ -757,13 +769,44 @@ export class AccountsPayableService {
         // itself brings in, and any difference between the billed and the agreed price) debits
         // inventory. Without this, receiving and then billing the same goods counted them twice.
         const matched = await this.matchAgainstReceipts(manager, bill.organizationId, line, bill.exchangeRate);
+        // The part matched against a receipt clears GRNI at the value it was RECEIVED at — all of
+        // it, whatever the invoice says. It used to be capped at the line total, so an invoice
+        // cheaper than the order left a residue in GRNI that nothing would ever clear.
+        const billedMatched = roundAmount(Number(line.unitPrice) * matched.grniQuantity);
         if (matched.grniAmount > 0) {
           if (!settings.defaultGoodsReceivedNotInvoicedAccountId) {
             throw new BadRequestError('accounts_payable.grni_account_not_configured');
           }
           debit(settings.defaultGoodsReceivedNotInvoicedAccountId, matched.grniAmount, goodsLine);
         }
-        debit(settings.defaultInventoryId, roundAmount(line.total - matched.grniAmount), goodsLine);
+        // What the bill itself brings in, at the bill's price; stock moves for it below.
+        debit(settings.defaultInventoryId, roundAmount(line.total - billedMatched), goodsLine);
+
+        // The invoice priced the received goods differently from the order (AP-05). The share of
+        // those goods still on the shelf takes the difference into its average cost, and so into
+        // inventory; the share already sold went out at the old cost, so its part is cost of
+        // sales. Booking all of it to inventory, as before, left the account describing a value
+        // the kardex never held.
+        const priceDifference = roundAmount(billedMatched - matched.grniAmount);
+        if (toCents(priceDifference) !== 0) {
+          const { absorbed, units } = await this.goodsReceipt.absorbReceivedCostDifference(manager, organizationId, {
+            productId: line.productId,
+            quantity: matched.grniQuantity,
+            amount: roundAmount(priceDifference * rate),
+          });
+          const toInventory = roundAmount(absorbed / rate);
+          const toCostOfSales = roundAmount(priceDifference - toInventory);
+          line.receivedCostAbsorbed = absorbed;
+          line.receivedCostUnits = units;
+          await manager.update(VendorBillLine, { id: line.id }, { receivedCostAbsorbed: absorbed, receivedCostUnits: units });
+          signed(settings.defaultInventoryId, toInventory, goodsLine);
+          if (toCents(toCostOfSales) !== 0) {
+            if (!settings.defaultCostOfGoodsSoldId) {
+              throw new BadRequestError('accounts_payable.cost_of_sales_account_not_configured');
+            }
+            signed(settings.defaultCostOfGoodsSoldId, toCostOfSales, goodsLine);
+          }
+        }
       } else {
         if (!line.expenseAccountId) {
           throw new BadRequestError(
@@ -851,26 +894,43 @@ export class AccountsPayableService {
       { actorUserId, module: ModuleSlug.AP, systemReason: 'vendor-bill-approved' },
     );
 
-    // Goods received. The ledger debited the inventory account above; the subledger has to move
-    // with it or the two describe different warehouses. Nothing did this before — approval only
-    // touched the ledger — while `voidBill` *increased* stock on annulment, so annulling a purchase
-    // created inventory that had never arrived and the two sides drifted in opposite directions.
-    //
-    // The right long-term home for this is a goods receipt in Procurement, matched three ways
-    // against the purchase order and the invoice. Until that exists, the `vendor.bill.posted` event
-    // (emitted after commit via AfterCommitService) carries the lines and `VendorBillInventoryHandler`
-    // in InventoryModule applies the stock movement. The movement is no longer atomic with the
-    // accounting entry — an accepted trade-off while the modules remain decoupled.
-    // Only what the bill itself brings in moves stock: the part matched against a receipt is
-    // already on the shelf.
+    // Goods received, in THIS transaction (AP-05). The ledger debited the inventory account above;
+    // the stock has to move with it or the two describe different warehouses. It used to move
+    // after commit, from an event handler whose failure was a log line — leaving an entry with no
+    // stock behind it. Only what the bill itself brings in moves: the part matched against a
+    // receipt is already on the shelf.
+    const reference = bill.supplierInvoiceNumber ?? bill.ncf ?? bill.id.slice(0, 8);
     const billLinesForInventory = bill.lines
       .map((line) => ({
         productId: line.productId,
-        quantity: roundAmount(line.quantity - (line.grniQuantity ?? 0)),
-        unitCost: roundAmount(Number(line.unitPrice) * (Number(bill.exchangeRate) || 1)),
-        reference: bill.ncf ?? bill.id.slice(0, 8),
+        quantity: roundQuantity(line.quantity - (line.grniQuantity ?? 0)),
+        unitCost: roundAmount(Number(line.unitPrice) * rate),
+        reference,
       }))
-      .filter((line) => line.quantity > 0);
+      .filter((line) => line.productId && line.quantity > 0);
+    if (billLinesForInventory.length) {
+      const receipt = await this.goodsReceipt.receiveGoods(
+        manager,
+        organizationId,
+        {
+          reference,
+          sourceType: 'vendor_bill',
+          sourceId: bill.id,
+          date: toIsoDate(bill.date),
+          // The bill's own entry values the goods; the receipt must not book them a second time.
+          post: false,
+          place: { branchId: bill.branchId ?? null },
+          lines: billLinesForInventory.map((line) => ({
+            productId: line.productId as string,
+            quantity: line.quantity,
+            unitCost: line.unitCost,
+            description: reference,
+          })),
+        },
+        actorUserId,
+      );
+      bill.receiptWarehouseId = receipt.warehouseId;
+    }
 
     bill.status = VendorBillStatus.OPEN;
     bill.balance = payable;
@@ -887,10 +947,11 @@ export class AccountsPayableService {
       branchId: bill.branchId,
       lines: billLinesForInventory,
     };
+    // The business fact, for whoever reacts to it (the workflow engine). Stock does not hang on it.
     await this.afterCommit.runAfterCommit(
       manager,
-      `inventory-stock-receipt:${bill.id}`,
-      () => Promise.resolve(this.eventEmitter.emit('vendor.bill.posted', postedPayload)),
+      `vendor-bill-posted:${bill.id}`,
+      () => Promise.resolve(this.eventEmitter.emit(BUSINESS_EVENTS.VENDOR_BILL_POSTED, postedPayload)),
     );
     return saved;
   }
@@ -1051,6 +1112,7 @@ export class AccountsPayableService {
     const orderId = [...orderIds][0];
     const order = await manager.findOne(PurchaseOrder, { where: { id: orderId, organizationId } });
     if (!order) throw new BadRequestError('accounts_payable.purchase_order_not_found');
+    assertOrderBillable(order);
     if (order.supplierId !== dto.vendorId) {
       throw new BadRequestError('accounts_payable.purchase_order_supplier_mismatch', { order: order.number });
     }
@@ -1083,8 +1145,8 @@ export class AccountsPayableService {
     organizationId: string,
     line: VendorBillLine,
     billRate: number,
-  ): Promise<{ grniAmount: number }> {
-    if (!line.purchaseOrderLineId) return { grniAmount: 0 };
+  ): Promise<{ grniAmount: number; grniQuantity: number }> {
+    if (!line.purchaseOrderLineId) return { grniAmount: 0, grniQuantity: 0 };
     const orderLine = await manager
       .createQueryBuilder(PurchaseOrderLine, 'line')
       .innerJoinAndSelect('line.order', 'order')
@@ -1092,7 +1154,9 @@ export class AccountsPayableService {
       .andWhere('order.organizationId = :organizationId', { organizationId })
       .setLock('pessimistic_write', undefined, ['line'])
       .getOne();
-    if (!orderLine) return { grniAmount: 0 };
+    if (!orderLine) return { grniAmount: 0, grniQuantity: 0 };
+    // Checked again at posting: the order may have been cancelled since the bill was drafted.
+    assertOrderBillable(orderLine.order);
 
     const billedAfter = roundQuantity(orderLine.billedQuantity + Number(line.quantity));
     if (billedAfter - orderLine.quantity > 0.000001) {
@@ -1110,12 +1174,11 @@ export class AccountsPayableService {
     line.grniQuantity = grniQuantity;
     await manager.update(VendorBillLine, { id: line.id }, { grniQuantity });
 
-    if (grniQuantity <= 0) return { grniAmount: 0 };
+    if (grniQuantity <= 0) return { grniAmount: 0, grniQuantity: 0 };
     const orderRate = Number(orderLine.order?.exchangeRate) > 0 ? Number(orderLine.order.exchangeRate) : 1;
     const receivedValueInBase = grniQuantity * Number(orderLine.unitPrice) * orderRate;
     const rate = Number(billRate) > 0 ? Number(billRate) : 1;
-    const grniAmount = Math.min(roundAmount(receivedValueInBase / rate), Number(line.total));
-    return { grniAmount };
+    return { grniAmount: roundAmount(receivedValueInBase / rate), grniQuantity };
   }
 
   /** Undo what a posted bill advanced on its order lines, when the bill is voided. */
@@ -1703,20 +1766,64 @@ export class AccountsPayableService {
         bill.status === VendorBillStatus.OPEN ||
         bill.status === VendorBillStatus.PARTIALLY_PAID;
 
-      // Stock to be returned is collected here; the actual decrease fires post-commit via event.
-      // What the bill itself received. The part matched against a purchase-order receipt stays in
-      // stock: the goods did arrive, and the reversal below puts them back into "received not
-      // invoiced", which is exactly their state once the bill is gone.
+      // What the bill itself received goes back out, in this transaction and at the cost it came
+      // in at, from the warehouse it entered (AP-05). The part matched against a purchase-order
+      // receipt stays in stock: the goods did arrive, and the reversal below puts them back into
+      // "received not invoiced", which is exactly their state once the bill is gone. Goods the
+      // warehouse no longer holds — sold since — cannot be un-received: the stock ledger refuses,
+      // and the void with it, instead of reversing an entry the kardex cannot follow.
+      const rate = Number(bill.exchangeRate) > 0 ? Number(bill.exchangeRate) : 1;
       const voidLines = wasPosted
         ? bill.lines
             .map((line) => ({
               productId: line.productId,
-              quantity: roundAmount(line.quantity - (line.grniQuantity ?? 0)),
+              quantity: roundQuantity(line.quantity - (line.grniQuantity ?? 0)),
+              unitCost: roundAmount(Number(line.unitPrice) * rate),
             }))
-            .filter((line) => line.quantity > 0)
+            .filter((line) => line.productId && line.quantity > 0)
         : [];
       if (wasPosted) {
         await this.releaseBilledQuantities(manager, bill);
+        if (voidLines.length) {
+          await this.goodsReceipt.returnGoods(
+            manager,
+            organizationId,
+            {
+              reference: bill.supplierInvoiceNumber ?? bill.ncf ?? bill.id.slice(0, 8),
+              sourceType: 'vendor_bill_void',
+              sourceId: bill.id,
+              date: toIsoDate(dto.reversalDate ?? new Date()),
+              reason,
+              warehouseId: bill.receiptWarehouseId ?? null,
+              place: { branchId: bill.branchId ?? null },
+              // The reversal of the bill's entry gives the value back; nothing to post here.
+              posted: false,
+              lines: voidLines.map((line) => ({
+                productId: line.productId as string,
+                quantity: line.quantity,
+                unitCost: line.unitCost,
+              })),
+            },
+            actorUserId,
+          );
+        }
+        // A price difference the stock absorbed comes back out of it. If those goods have been
+        // sold since, there is no stock left to carry it back and the reversal would leave the
+        // inventory account and the kardex apart: the bill is corrected with a debit note instead.
+        for (const line of bill.lines) {
+          const absorbed = Number(line.receivedCostAbsorbed ?? 0);
+          if (!line.productId || toCents(absorbed) === 0) continue;
+          const back = await this.goodsReceipt.absorbReceivedCostDifference(manager, organizationId, {
+            productId: line.productId,
+            quantity: Number(line.receivedCostUnits ?? 0),
+            amount: -absorbed,
+          });
+          if (toCents(back.absorbed) !== toCents(-absorbed)) {
+            throw new BadRequestError('accounts_payable.bill_price_difference_already_consumed', {
+              product: line.product,
+            });
+          }
+        }
       }
 
       if (bill.journalEntryId) {
@@ -1752,8 +1859,8 @@ export class AccountsPayableService {
       };
       await this.afterCommit.runAfterCommit(
         manager,
-        `inventory-stock-return:${bill.id}`,
-        () => Promise.resolve(this.eventEmitter.emit('vendor.bill.voided', voidedPayload)),
+        `vendor-bill-voided:${bill.id}`,
+        () => Promise.resolve(this.eventEmitter.emit(BUSINESS_EVENTS.VENDOR_BILL_VOIDED, voidedPayload)),
       );
       this.logger.log(
         `Factura ${id} anulada por ${actorUserId}. Razón: ${reason}. Reversión: ${bill.reversalJournalEntryId ?? 'sin asiento previo'}.`,
@@ -1766,3 +1873,25 @@ export class AccountsPayableService {
     throw new ForbiddenError('accounts_payable.deleting_invoices_not_allowed_use_void');
   }
 }
+
+/**
+ * A bill can be raised only against an order the company actually committed to (AP-05): approved,
+ * sent, or being received. A draft or an order still awaiting approval is not a purchase yet, and
+ * a cancelled one is no longer one — billing against either put goods into stock nobody ordered.
+ */
+const BILLABLE_ORDER_STATUSES: ReadonlySet<string> = new Set([
+  PurchaseOrderStatus.APPROVED,
+  PurchaseOrderStatus.SENT,
+  PurchaseOrderStatus.PARTIALLY_RECEIVED,
+  PurchaseOrderStatus.RECEIVED,
+]);
+
+function assertOrderBillable(order: { number?: string | null; status?: string | null } | null | undefined): void {
+  if (order && !BILLABLE_ORDER_STATUSES.has(String(order.status))) {
+    throw new BadRequestError('accounts_payable.purchase_order_not_billable', {
+      order: order.number ?? '',
+      status: String(order.status ?? ''),
+    });
+  }
+}
+

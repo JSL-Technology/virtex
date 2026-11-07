@@ -47,10 +47,23 @@ export interface GoodsReturnRequest {
   reason: string;
   /** The warehouse the receipt put the goods into. */
   warehouseId: string | null;
+  /** Where to take them from when the warehouse was not recorded: the document's branch. */
+  place?: { warehouseId?: string | null; branchId?: string | null };
   /** Whether the receipt posted an entry: a receipt that booked nothing returns without one. */
   posted: boolean;
   /** Only the lines that moved stock, at the cost they came in at. */
   lines: ReadonlyArray<{ productId: string; quantity: number; unitCost: number }>;
+}
+
+/**
+ * A supplier's invoice priced goods already received differently from the order they were
+ * received at (AP-05). `amount` is the difference in the books' currency for `quantity` units —
+ * positive when the bill costs more.
+ */
+export interface ReceivedCostAdjustment {
+  productId: string;
+  quantity: number;
+  amount: number;
 }
 
 /**
@@ -82,4 +95,23 @@ export abstract class GoodsReceiptPort {
     request: GoodsReturnRequest,
     actorUserId: string | null,
   ): Promise<string | null>;
+
+  /**
+   * Carry a price difference on received goods into the value of the stock that is still on hand.
+   *
+   * The receipt valued the goods at the order's price; the invoice says what they cost. For a
+   * weighted-average item, the share of those goods still in the warehouse takes its share of the
+   * difference into the average cost — so the kardex keeps describing what the inventory account
+   * holds. The share already sold cannot be revalued: it is returned, for the caller to book to
+   * the cost of sales. Returns the part absorbed into stock and how many units carried it.
+   *
+   * Giving a difference back (a negative `amount` with `quantity` the units that absorbed it)
+   * comes out in full only while those units are still on hand; otherwise less comes back, and
+   * the caller decides what that means.
+   */
+  abstract absorbReceivedCostDifference(
+    manager: EntityManager,
+    organizationId: string,
+    adjustment: ReceivedCostAdjustment,
+  ): Promise<{ absorbed: number; units: number }>;
 }
