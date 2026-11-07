@@ -17,7 +17,12 @@ export interface LoadedCertificate {
 }
 
 /** A parsed certificate with who it was issued to and by whom (see `certificate-inspector`). */
-export type InspectedCertificate = LoadedCertificate & { facts: CertificateFacts };
+export type InspectedCertificate = LoadedCertificate & {
+  facts: CertificateFacts;
+  /** The holder's certificate, and the other certificates the file carries (its chain). */
+  leaf: forge.pki.Certificate;
+  intermediates: forge.pki.Certificate[];
+};
 
 /**
  * Encrypts DGII signing certificates at rest and materializes their private key / X.509 in memory
@@ -79,14 +84,21 @@ export class CertificateVaultService {
 
     const keyBags = p12.getBags({ bagType: forge.pki.oids.pkcs8ShroudedKeyBag });
     const keyBag = keyBags[forge.pki.oids.pkcs8ShroudedKeyBag]?.[0];
-    const certBags = p12.getBags({ bagType: forge.pki.oids.certBag });
-    const certBag = certBags[forge.pki.oids.certBag]?.[0];
-
-    if (!keyBag?.key || !certBag?.cert) {
+    const certs = (p12.getBags({ bagType: forge.pki.oids.certBag })[forge.pki.oids.certBag] ?? [])
+      .map((bag) => bag.cert)
+      .filter((cert): cert is forge.pki.Certificate => Boolean(cert));
+    if (!keyBag?.key || certs.length === 0) {
       throw new BadRequestError('einvoicing.certificate_does_not_contain_valid_private');
     }
 
-    const cert = certBag.cert;
+    // The holder's certificate is the one whose public key matches the private key — not the first
+    // in the file: a file that lists its CA first was read as the CA's certificate.
+    const privateKey = keyBag.key as forge.pki.rsa.PrivateKey;
+    const cert =
+      certs.find((candidate) => {
+        const publicKey = candidate.publicKey as forge.pki.rsa.PublicKey;
+        return Boolean(publicKey?.n && privateKey?.n && publicKey.n.equals(privateKey.n));
+      }) ?? certs[0];
     const cnField = cert.subject.getField('CN');
     return {
       privateKeyPem: forge.pki.privateKeyToPem(keyBag.key),
@@ -96,6 +108,8 @@ export class CertificateVaultService {
       notBefore: cert.validity?.notBefore,
       notAfter: cert.validity?.notAfter,
       facts: inspectCertificate(cert),
+      leaf: cert,
+      intermediates: certs.filter((candidate) => candidate !== cert),
     };
   }
 

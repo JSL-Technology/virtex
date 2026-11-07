@@ -3237,6 +3237,8 @@
   "einvoicing.certificate.password_required": "A senha do certificado é obrigatória.",
   "einvoicing.certificate.person_not_allowed": "Este certificado está em nome de uma pessoa («{{holder}}»). A autoridade fiscal ({{authority}}) exige o certificado da própria empresa, emitido para o seu {{label}} ({{company}}).",
   "einvoicing.certificate.self_signed": "O certificado é autoassinado: não foi emitido por uma autoridade certificadora reconhecida pela autoridade fiscal ({{authority}}), portanto os documentos assinados com ele seriam rejeitados.",
+  "einvoicing.certificate.trust_store_not_configured": "Este servidor ainda não tem configuradas as autoridades certificadoras aceitas por {{authority}} e não pode verificar o certificado. Avise o suporte.",
+  "einvoicing.certificate.untrusted_issuer": "O certificado foi emitido por «{{issuer}}», que não é uma autoridade certificadora aceita por {{authority}}. Use o certificado entregue por um provedor autorizado.",
   "einvoicing.certificate_could_not_opened_invalid_file": "Não foi possível abrir o certificado: arquivo inválido ou senha incorreta.",
   "einvoicing.certificate_does_not_contain_valid_private": "O certificado não contém uma chave privada e um certificado X.509 válidos.",
   "einvoicing.certificate_encrypted_data_format_invalid": "Formato inválido dos dados criptografados do certificado.",
