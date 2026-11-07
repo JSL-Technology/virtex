@@ -2889,6 +2889,11 @@
     "en": "Measured from the last year's receipts, from order to receipt. Reorder points are sized with these lead times.",
     "pt": "Medidos com os recebimentos do último ano, do pedido ao recebimento. Os pontos de reposição são calculados com esses prazos."
   },
+  "ai.predictions.lead_times_table": {
+    "es": "Plazos de entrega por proveedor",
+    "en": "Lead times by supplier",
+    "pt": "Prazos de entrega por fornecedor"
+  },
   "ai.predictions.load_failed": {
     "es": "No se pudieron cargar las predicciones.",
     "en": "Predictions could not be loaded.",

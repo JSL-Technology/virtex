@@ -44,26 +44,6 @@
 .ai-admin__meter-fill { height: 100%; background: var(--accent-solid); }
 .ai-admin__meter-fill--high { background: var(--warning-solid); }
 
-.ai-admin__table {
-  @include ui.table;
-
-  .num { text-align: right; @include ds.numeric; }
-
-  tfoot th,
-  tfoot td {
-    padding: var(--space-3) var(--space-4);
-    font-weight: var(--font-semibold);
-    color: var(--content-primary);
-    border-top: 1px solid var(--border-default);
-  }
-
-  tfoot th { text-align: left; }
-
-  @include ds.bp-down('sm') {
-    tfoot tr { display: flex; justify-content: space-between; }
-    tfoot th, tfoot td { border: none; padding: var(--space-2) 0; }
-    tfoot td::before { content: none; }
-  }
-}
+//  La tabla de consumo, su total y su versión apilada son de `vx-table`.
 
 .link-button { @include ui.link-button; }

@@ -46,8 +46,8 @@
     <p class="ls__state-help">{{ 'accounts_payable.debit_notes.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table [appTableMenu]="notesMenu" class="data-table">
+  <vx-table labelKey="accounts_payable.debit_notes.title">
+    <table [appTableMenu]="notesMenu">
       <thead>
         <tr>
           <th>{{ 'accounts_payable.debit_notes.number' | translate }}</th>
@@ -83,7 +83,7 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 
   <vx-pager
     listFooter

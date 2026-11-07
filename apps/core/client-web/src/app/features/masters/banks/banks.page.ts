@@ -13,6 +13,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * The tenant's bank catalogue: the institutions it deals with.
  *
@@ -34,7 +35,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-banks-page',
   standalone: true,
-  imports: [...VX_SORT, RouterLink, HasPermissionDirective, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent, ...FORMAT_PIPES],
+  imports: [...VX_TABLE, ...VX_SORT, RouterLink, HasPermissionDirective, CanOpenDirective, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent, ...FORMAT_PIPES],
   templateUrl: './banks.page.html',
   styleUrls: ['./banks.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

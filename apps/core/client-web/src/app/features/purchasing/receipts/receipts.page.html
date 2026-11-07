@@ -55,8 +55,8 @@
     <p class="ls__state-help">{{ 'purchasing.receipts.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table [appTableMenu]="receiptsMenu" class="data-table">
+  <vx-table labelKey="purchasing.receipts.title">
+    <table [appTableMenu]="receiptsMenu">
       <thead>
         <tr>
           <th>{{ 'purchasing.receipts.number' | translate }}</th>
@@ -92,7 +92,7 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 
   <vx-pager
     listFooter

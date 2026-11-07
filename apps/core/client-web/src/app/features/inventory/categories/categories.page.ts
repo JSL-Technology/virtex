@@ -12,6 +12,7 @@ import {
 } from '../../../core/api/product-categories.service';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** One row as the table draws it: the category plus how deep it sits in the tree. */
 interface CategoryRow {
   category: ProductCategory;
@@ -39,7 +40,7 @@ interface CategoryRow {
 @Component({
   selector: 'app-categories-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_TABLE, CommonModule, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
   templateUrl: './categories.page.html',
   styleUrls: ['./categories.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

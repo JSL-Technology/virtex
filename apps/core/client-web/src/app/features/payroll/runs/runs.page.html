@@ -36,16 +36,16 @@
   @if (failed()) {
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
-  <div class="table-container card">
-    <table [appTableMenu]="runsMenu" [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="payroll.runs.title">
+    <table [appTableMenu]="runsMenu" [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="period">{{ 'payroll.runs.period' | translate }}</th>
           <th appSortHeader="name">{{ 'payroll.runs.name' | translate }}</th>
           <th appSortHeader="runType">{{ 'payroll.runs.type' | translate }}</th>
-          <th appSortHeader="totalGross" class="text-right">{{ 'payroll.runs.gross' | translate }}</th>
-          <th appSortHeader="totalNet" class="text-right">{{ 'payroll.runs.net' | translate }}</th>
-          <th appSortHeader="totalEmployerContributions" class="text-right">{{ 'payroll.runs.employer_cost' | translate }}</th>
+          <th appSortHeader="totalGross" class="numeric">{{ 'payroll.runs.gross' | translate }}</th>
+          <th appSortHeader="totalNet" class="numeric">{{ 'payroll.runs.net' | translate }}</th>
+          <th appSortHeader="totalEmployerContributions" class="numeric">{{ 'payroll.runs.employer_cost' | translate }}</th>
           <th appSortHeader="status" class="text-center">{{ 'payroll.runs.status' | translate }}</th>
         </tr>
       </thead>
@@ -57,10 +57,10 @@
             </td>
             <td>{{ run.name }}</td>
             <td>{{ 'payroll.runs.type_label.' + run.runType | translate }}</td>
-            <td class="text-right">{{ run.totalGross | vxMoney: run.currencyCode }}</td>
-            <td class="text-right">{{ run.totalNet | vxMoney: run.currencyCode }}</td>
+            <td class="numeric">{{ run.totalGross | vxMoney: run.currencyCode }}</td>
+            <td class="numeric">{{ run.totalNet | vxMoney: run.currencyCode }}</td>
             <!-- What the payroll actually costs the company: net plus the employer's own share. -->
-            <td class="text-right">{{ run.totalEmployerContributions | vxMoney: run.currencyCode }}</td>
+            <td class="numeric">{{ run.totalEmployerContributions | vxMoney: run.currencyCode }}</td>
             <td class="text-center">
               <vx-badge [tone]="statusTone(run.status)">
                 {{ 'payroll.runs.status_label.' + run.status | translate }}
@@ -70,6 +70,6 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
   }
 </vx-list-shell>

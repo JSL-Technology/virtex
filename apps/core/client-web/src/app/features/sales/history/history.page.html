@@ -31,14 +31,14 @@
     <p class="ls__state-help">{{ 'sales.history.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table [appTableMenu]="salesMenu" [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="page_titles.pos_tickets">
+    <table [appTableMenu]="salesMenu" [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="fiscalNumber">{{ 'sales.history.ticket' | translate }}</th>
           <th appSortHeader="createdAt">{{ 'sales.history.date' | translate }}</th>
           <th appSortHeader="customerName">{{ 'sales.history.customer' | translate }}</th>
-          <th appSortHeader="total" class="text-right">{{ 'sales.history.total' | translate }}</th>
+          <th appSortHeader="total" class="numeric">{{ 'sales.history.total' | translate }}</th>
           <th appSortHeader="paymentMethod">{{ 'sales.history.payment_method' | translate }}</th>
           <th appSortHeader="status">{{ 'sales.history.status' | translate }}</th>
           @if (branches.hasBranches()) {
@@ -58,7 +58,7 @@
             </td>
             <td>{{ sale.createdAt | vxDate: 'dateTime' }}</td>
             <td>{{ sale.customerName || ('sales.history.walk_in' | translate) }}</td>
-            <td class="text-right"><vx-amount [value]="sale.total" /></td>
+            <td class="numeric"><vx-amount [value]="sale.total" /></td>
             <td>{{ sale.paymentMethod ? ('pos.pay.method.' + sale.paymentMethod | translate) : '—' }}</td>
             <td>
               <vx-badge [tone]="statusTone(sale.status)" [struck]="isCancelled(sale.status)">
@@ -72,5 +72,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

@@ -111,15 +111,15 @@ type TriggerFilter = 'all' | 'manual' | 'event';
         }
       </div>
 
-      <div class="table-container card">
-        <table class="data-table wfl__table">
+      <vx-table labelKey="workflow_engine.title">
+        <table class="wfl__table">
           <thead>
             <tr>
               <th scope="col">{{ 'workflow_engine.list.name' | translate }}</th>
               <th scope="col">{{ 'workflow_engine.list.trigger' | translate }}</th>
               <th scope="col">{{ 'workflow_engine.list.live_version' | translate }}</th>
               <th scope="col">{{ 'workflow_engine.list.draft' | translate }}</th>
-              <th scope="col" class="text-right">{{ 'workflow_engine.list.running' | translate }}</th>
+              <th scope="col" class="numeric">{{ 'workflow_engine.list.running' | translate }}</th>
               <th scope="col">{{ 'workflow_engine.list.updated' | translate }}</th>
               <th scope="col" class="wfl__actions-col"><span class="sr-only">{{ 'workflow_engine.list.actions' | translate }}</span></th>
             </tr>
@@ -165,7 +165,7 @@ type TriggerFilter = 'all' | 'manual' | 'event';
                     <span class="wfl__muted">—</span>
                   }
                 </td>
-                <td class="text-right">
+                <td class="numeric">
                   @if (row.runningCount) {
                     <a class="table-link" [routerLink]="link('workflow-instances')" [queryParams]="{ key: row.key, status: 'RUNNING' }">{{ row.runningCount }}</a>
                   } @else {
@@ -240,7 +240,7 @@ type TriggerFilter = 'all' | 'manual' | 'event';
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
     </vx-list-shell>
 
     @if (creating()) {

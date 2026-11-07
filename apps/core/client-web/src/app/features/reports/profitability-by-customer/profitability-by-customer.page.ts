@@ -15,6 +15,7 @@ import { VxDateRangeComponent } from '../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * Gross margin by customer.
  *
@@ -25,7 +26,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-profitability-by-customer-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent],
+  imports: [...VX_TABLE, ...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent],
   templateUrl: './profitability-by-customer.page.html',
   styleUrls: ['./profitability-by-customer.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

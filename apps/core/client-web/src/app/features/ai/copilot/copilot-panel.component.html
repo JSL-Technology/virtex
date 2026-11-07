@@ -96,17 +96,19 @@
                     <span class="cp__proposal-party">{{ previewValue(draft, 'customerName') ?? previewValue(draft, 'supplierName') }}</span>
                   </header>
                   @if (previewLines(draft).length) {
-                    <table class="cp__lines">
-                      <tbody>
-                        @for (line of previewLines(draft); track $index) {
-                          <tr>
-                            <td>{{ line.description }}</td>
-                            <td class="cp__num">{{ line.quantity | vxNumber }}</td>
-                            <td class="cp__num">{{ line.amount | vxMoney }}</td>
-                          </tr>
-                        }
-                      </tbody>
-                    </table>
+                    <vx-table labelKey="ai.copilot.title" layout="grid" frame="none">
+                      <table class="cp__lines">
+                        <tbody>
+                          @for (line of previewLines(draft); track $index) {
+                            <tr>
+                              <td>{{ line.description }}</td>
+                              <td class="cp__num">{{ line.quantity | vxNumber }}</td>
+                              <td class="cp__num">{{ line.amount | vxMoney }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </vx-table>
                   }
                   <dl class="cp__totals">
                     @if (previewValue(draft, 'total') !== null) {

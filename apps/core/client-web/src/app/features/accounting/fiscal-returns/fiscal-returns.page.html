@@ -45,8 +45,8 @@
       <p class="fr-alert" role="status">{{ 'fiscal_returns.changed_alert' | translate: { count: changedCount() } }}</p>
     }
 
-    <div class="table-container card">
-      <table class="data-table fr-calendar">
+    <vx-table labelKey="fiscal_returns.title">
+      <table class="fr-calendar">
         <thead>
           <tr>
             <th scope="col">{{ 'fiscal_returns.period' | translate }}</th>
@@ -92,7 +92,7 @@
           }
         </tbody>
       </table>
-    </div>
+    </vx-table>
 
     @if (selected(); as cell) {
       <section class="card fr-detail" [attr.aria-label]="'fiscal_returns.detail' | translate">

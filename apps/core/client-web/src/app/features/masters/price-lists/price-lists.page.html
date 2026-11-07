@@ -10,8 +10,8 @@
     <span>{{ 'masters.price_lists.new_list' | translate }}</span>
   </a>
 
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="masters.price_lists.price_lists">
+    <table [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="name">{{ 'masters.price_lists.name' | translate }}</th>
@@ -61,5 +61,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

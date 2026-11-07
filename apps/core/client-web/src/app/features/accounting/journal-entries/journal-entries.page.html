@@ -11,15 +11,15 @@
     <span>{{ 'accounting.journal_entries.new_entry' | translate }}</span>
   </a>
 
-  <div class="table-container card">
-    <table [appTableMenu]="entriesMenu" [appSort]="sort" class="data-table">
+  <vx-table labelKey="accounting.journal_entries.journal_entries">
+    <table [appTableMenu]="entriesMenu" [appSort]="sort">
       <thead>
         <tr>
           <th appSortHeader="date">{{ 'accounting.journal_entries.date' | translate }}</th>
-          <th appSortHeader="entryNumber">{{ 'accounting.journal_entries.entry' | translate }}</th>
+          <th appSortHeader="entryNumber" class="nowrap title-column">{{ 'accounting.journal_entries.entry' | translate }}</th>
           <th appSortHeader="description">{{ 'accounting.journal_entries.description' | translate }}</th>
-          <th class="text-right">{{ 'accounting.journal_entries.debit' | translate }}</th>
-          <th class="text-right">{{ 'accounting.journal_entries.credit' | translate }}</th>
+          <th class="numeric">{{ 'accounting.journal_entries.debit' | translate }}</th>
+          <th class="numeric">{{ 'accounting.journal_entries.credit' | translate }}</th>
           <th appSortHeader="status" class="text-center">{{ 'accounting.journal_entries.status' | translate }}</th>
           <th class="actions-column"></th>
         </tr>
@@ -28,7 +28,7 @@
         @for (entry of entries(); track entry.id) {
           <tr appRowLink [appRowMenu]="entry">
             <td>{{ entry.date | vxDate: 'date' : true }}</td>
-            <td>
+            <td class="nowrap title-column">
               <!--
                 The number the tenant's sequence gave it, not its UUID. A draft has no number yet
                 and says so, rather than borrowing a primary key to look like one.
@@ -38,8 +38,8 @@
               </a>
             </td>
             <td>{{ entry.description }}</td>
-            <td class="text-right">{{ debitTotal(entry) | vxMoney: entry.currencyCode }}</td>
-            <td class="text-right">{{ creditTotal(entry) | vxMoney: entry.currencyCode }}</td>
+            <td class="numeric">{{ debitTotal(entry) | vxMoney: entry.currencyCode }}</td>
+            <td class="numeric">{{ creditTotal(entry) | vxMoney: entry.currencyCode }}</td>
             <td class="text-center">
               <vx-badge [tone]="statusTone(entry.status)" [struck]="isVoid(entry.status)">
                 {{ statusKey(entry.status) | translate }}
@@ -58,7 +58,7 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 
   <!--
     The list is bounded now. Without controls the page would silently show the first fifty entries

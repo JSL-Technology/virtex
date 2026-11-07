@@ -12,20 +12,13 @@
   color: var(--content-secondary);
 }
 
-//  La tabla, la celda de acciones y sus botones son los de toda la modal (settings-ui).
-.b-table {
-  @include ui.table;
-
-  .numeric { text-align: right; @include ds.numeric; }
-
-  vx-badge { margin-inline-start: var(--space-2); }
-}
+//  La tabla y su celda de acciones son `vx-table`; los botones, los de toda la modal (settings-ui).
+.b-table vx-badge { margin-inline-start: var(--space-2); }
 
 .b-code { @include ds.numeric; white-space: nowrap; }
 
 .b-row--inactive td { color: var(--content-tertiary); }
 
-.row-actions { @include ui.row-actions; }
 .link-button { @include ui.link-button; }
 .icon-button { @include ui.icon-button; }
 

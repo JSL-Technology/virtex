@@ -24,6 +24,7 @@ import { VxDialogComponent } from './dialog';
 import { VX_FEEDBACK } from './feedback';
 import { VxPagerComponent } from './pager';
 import { VX_SELECT } from './select';
+import { VX_TABLE } from './table';
 import { VxTabsComponent } from './tabs';
 
 export * from './amount';
@@ -35,6 +36,7 @@ export * from './dialog';
 export * from './feedback';
 export * from './pager';
 export * from './select';
+export * from './table';
 export * from './tabs';
 
 export const VX_UI = [
@@ -47,5 +49,6 @@ export const VX_UI = [
   ...VX_FEEDBACK,
   VxPagerComponent,
   ...VX_SELECT,
+  ...VX_TABLE,
   VxTabsComponent,
 ] as const;

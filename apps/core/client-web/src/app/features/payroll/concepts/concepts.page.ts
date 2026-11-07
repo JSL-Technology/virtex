@@ -16,6 +16,7 @@ import {
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * The concept catalogue: every line that can appear on a payslip.
  *
@@ -31,7 +32,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-payroll-concepts-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [...VX_TABLE, ...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './concepts.page.html',
   styleUrls: ['./concepts.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

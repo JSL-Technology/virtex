@@ -38,7 +38,7 @@
         <span>{{ 'branches.settings.show_inactive' | translate: { count: inactiveCount() } }}</span>
       </label>
     }
-    <div class="b-table-wrap">
+    <vx-table labelKey="settings.sections_meta.branches.label" frame="none">
       <table class="b-table" [appTableMenu]="branchesMenu">
         <thead>
           <tr>
@@ -74,7 +74,7 @@
               </td>
               <td [attr.data-label]="'branches.settings.warehouse' | translate">{{ warehouseName(branch.defaultWarehouseId) || '—' }}</td>
               <td class="numeric" [attr.data-label]="'branches.settings.restricted_users' | translate">{{ branch.restrictedUserCount ?? 0 }}</td>
-              <td class="row-actions" *appHasPermission="'branches:manage'">
+              <td class="actions-column" *appHasPermission="'branches:manage'">
                 <button type="button" class="link-button" (click)="openEdit(branch)">{{ 'branches.settings.edit' | translate }}</button>
                 @if (!branch.isHeadquarters) {
                   <button type="button" class="icon-button" aria-haspopup="menu"
@@ -89,7 +89,7 @@
           }
         </tbody>
       </table>
-    </div>
+    </vx-table>
   }
 </div>
 

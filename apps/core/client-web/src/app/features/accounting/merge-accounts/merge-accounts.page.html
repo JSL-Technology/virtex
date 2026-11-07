@@ -73,32 +73,34 @@
       <section class="merge-card" aria-live="polite">
         <h2 class="merge-card__title">{{ 'accounting.merge_tool.analysis_title' | translate }}</h2>
 
-        <table class="data-table merge-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>{{ 'accounting.merge_tool.account' | translate }}</th>
-              <th class="text-right">{{ 'accounting.merge_tool.posted_balance' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">{{ 'accounting.merge_tool.source' | translate }}</th>
-              <td>{{ p.source.code }} — {{ nameOf(p.source.name) }}</td>
-              <td class="text-right"><vx-amount [value]="p.source.postedBalance" /></td>
-            </tr>
-            <tr>
-              <th scope="row">{{ 'accounting.merge_tool.destination' | translate }}</th>
-              <td>{{ p.destination.code }} — {{ nameOf(p.destination.name) }}</td>
-              <td class="text-right"><vx-amount [value]="p.destination.postedBalance" /></td>
-            </tr>
-            <tr class="merge-table__total">
-              <th scope="row">{{ 'accounting.merge_tool.after_merge' | translate }}</th>
-              <td>{{ p.destination.code }}</td>
-              <td class="text-right"><vx-amount [value]="p.source.postedBalance + p.destination.postedBalance" /></td>
-            </tr>
-          </tbody>
-        </table>
+        <vx-table labelKey="accounting.merge_tool.analysis_title">
+          <table class="merge-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>{{ 'accounting.merge_tool.account' | translate }}</th>
+                <th class="numeric">{{ 'accounting.merge_tool.posted_balance' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">{{ 'accounting.merge_tool.source' | translate }}</th>
+                <td>{{ p.source.code }} — {{ nameOf(p.source.name) }}</td>
+                <td class="numeric"><vx-amount [value]="p.source.postedBalance" /></td>
+              </tr>
+              <tr>
+                <th scope="row">{{ 'accounting.merge_tool.destination' | translate }}</th>
+                <td>{{ p.destination.code }} — {{ nameOf(p.destination.name) }}</td>
+                <td class="numeric"><vx-amount [value]="p.destination.postedBalance" /></td>
+              </tr>
+              <tr class="merge-table__total">
+                <th scope="row">{{ 'accounting.merge_tool.after_merge' | translate }}</th>
+                <td>{{ p.destination.code }}</td>
+                <td class="numeric"><vx-amount [value]="p.source.postedBalance + p.destination.postedBalance" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </vx-table>
 
         <ul class="merge-facts">
           <li>{{ 'accounting.merge_tool.lines_to_move' | translate: { count: p.linesToMove } }}</li>

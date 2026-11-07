@@ -65,8 +65,8 @@
       }
 
       @if (lines.length > 0) {
-        <div class="table-wrapper">
-          <table class="lines-table" formArrayName="lines">
+        <vx-table labelKey="accounts_payable.payment.invoices_pay" frame="none">
+          <table formArrayName="lines">
             <thead>
               <tr>
                 <th>{{ 'accounts_payable.payment.invoice' | translate }}</th>
@@ -101,7 +101,7 @@
               }
             </tbody>
           </table>
-        </div>
+        </vx-table>
 
         <div class="totals">
           <div class="totals__line">

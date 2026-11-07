@@ -46,9 +46,8 @@ export class VxSortDirective {
       letter-spacing: inherit;
       cursor: pointer;
     }
-    :host(.text-right) .vx-sort,
-    :host(.num) .vx-sort,
-    :host(.amount) .vx-sort { flex-direction: row-reverse; }
+    /* A figure's column is aligned to the end: its arrow goes before the words, not after. */
+    :host(.numeric) .vx-sort { flex-direction: row-reverse; }
     .vx-sort:hover,
     .vx-sort--active { color: var(--content-primary); }
     .vx-sort:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); border-radius: var(--radius-sm); }

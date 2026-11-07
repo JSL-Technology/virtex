@@ -18,8 +18,8 @@
   </div>
 
   <div class="dm-layout">
-    <div class="table-container card dm-list">
-      <table class="data-table">
+    <vx-table labelKey="dimensions.page.title">
+      <table>
         <thead>
           <tr>
             <th>{{ 'dimensions.page.name' | translate }}</th>
@@ -29,7 +29,7 @@
         </thead>
         <tbody>
           @for (dimension of list(); track dimension.id) {
-            <tr [class.dm-selected]="draft()?.id === dimension.id">
+            <tr [class.is-selected]="draft()?.id === dimension.id">
               <td><button type="button" class="table-link dm-link" (click)="select(dimension)">{{ dimension.name }}</button></td>
               <td class="numeric">{{ activeCount(dimension) }} / {{ dimension.values.length }}</td>
               <td>
@@ -41,7 +41,7 @@
           }
         </tbody>
       </table>
-    </div>
+    </vx-table>
 
     @if (draft(); as edit) {
       <section class="card dm-editor" [attr.aria-label]="'dimensions.page.editor' | translate">
@@ -67,8 +67,8 @@
 
         <h2 class="form-section-title">{{ 'dimensions.page.values' | translate }}</h2>
         <p class="form-hint">{{ 'dimensions.page.values_hint' | translate }}</p>
-        <div class="table-wrapper">
-          <table class="data-table dm-values">
+        <vx-table labelKey="dimensions.page.values" frame="none">
+          <table class="dm-values">
             <thead>
               <tr>
                 <th>{{ 'dimensions.page.code' | translate }} *</th>
@@ -115,7 +115,7 @@
               }
             </tbody>
           </table>
-        </div>
+        </vx-table>
         @if (canManage()) {
           <button type="button" class="secondary-button add-line" (click)="addValue()">
             <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
@@ -168,30 +168,32 @@
       </div>
     }
     @if (rules().length) {
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>{{ 'dimensions.rules.account' | translate }}</th>
-            <th>{{ 'dimensions.rules.dimension' | translate }}</th>
-            <th><span class="sr-only">{{ 'dimensions.page.remove' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (rule of rules(); track rule.accountId + rule.dimensionId) {
+      <vx-table labelKey="dimensions.rules.title">
+        <table>
+          <thead>
             <tr>
-              <td>{{ rule.accountCode }} — {{ accountName(rule.accountName) }}</td>
-              <td>{{ rule.dimensionName }}</td>
-              <td>
-                @if (canManage()) {
-                  <button type="button" class="icon-button" (click)="removeRule(rule)" [attr.aria-label]="'dimensions.page.remove' | translate">
-                    <lucide-icon [img]="RemoveIcon" size="16" aria-hidden="true"></lucide-icon>
-                  </button>
-                }
-              </td>
+              <th>{{ 'dimensions.rules.account' | translate }}</th>
+              <th>{{ 'dimensions.rules.dimension' | translate }}</th>
+              <th><span class="sr-only">{{ 'dimensions.page.remove' | translate }}</span></th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (rule of rules(); track rule.accountId + rule.dimensionId) {
+              <tr>
+                <td>{{ rule.accountCode }} — {{ accountName(rule.accountName) }}</td>
+                <td>{{ rule.dimensionName }}</td>
+                <td>
+                  @if (canManage()) {
+                    <button type="button" class="icon-button" (click)="removeRule(rule)" [attr.aria-label]="'dimensions.page.remove' | translate">
+                      <lucide-icon [img]="RemoveIcon" size="16" aria-hidden="true"></lucide-icon>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </vx-table>
     } @else {
       <p class="muted">{{ 'dimensions.rules.none' | translate }}</p>
     }

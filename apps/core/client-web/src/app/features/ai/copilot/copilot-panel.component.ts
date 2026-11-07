@@ -33,6 +33,7 @@ import { renderCopilotMarkdown } from './copilot-markdown';
 import { CopilotChartComponent } from './copilot-chart.component';
 import { DialogService } from '../../../core/services/dialog.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** One bubble of the conversation as the panel draws it. */
 interface PanelMessage {
   key: string;
@@ -77,7 +78,7 @@ const MAX_MESSAGE_CHARS = 4000;
 @Component({
   selector: 'app-copilot-panel',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslatePipe, LucideAngularModule, CopilotChartComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [...VX_TABLE, FormsModule, RouterLink, TranslatePipe, LucideAngularModule, CopilotChartComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './copilot-panel.component.html',
   styleUrl: './copilot-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

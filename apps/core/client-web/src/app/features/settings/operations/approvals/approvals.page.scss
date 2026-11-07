@@ -28,12 +28,6 @@
 .ap__input { @include ds.input-base; }
 .ap__input--amount { max-width: 10rem; @include ds.numeric; }
 
-.ap__table {
-  @include ui.table;
-
-  td { vertical-align: middle; }
-}
-
 .ap__order { @include ds.numeric; color: var(--content-secondary); }
 .ap__add-step { margin-top: var(--space-3); }
 .ap__problem { margin: var(--space-4) 0 0; font-size: var(--text-sm); color: var(--content-secondary); }

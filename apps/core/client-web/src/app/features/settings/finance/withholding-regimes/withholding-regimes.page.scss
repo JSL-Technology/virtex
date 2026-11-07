@@ -60,19 +60,14 @@
   margin-top: var(--space-5);
 }
 
-// ── Lista ────────────────────────────────────────────────────────────
-.w-table {
-  @include ui.table;
-
-  td { vertical-align: top; }
-  .numeric { text-align: right; @include ds.numeric; }
-}
+// ── Lista (la tabla es `vx-table`) ─────────────────────────────────────
+//  La base legal ocupa varias líneas: cada fila se lee desde arriba.
+.w-table td { vertical-align: top; }
 
 .w-code { @include ds.numeric; white-space: nowrap; }
 .w-basis { color: var(--content-secondary); max-width: 22rem; }
 .w-row--inactive td { color: var(--content-tertiary); }
 
-.row-actions { @include ui.row-actions; }
 .icon-button { @include ui.icon-button; }
 
 // ── Cobertura ────────────────────────────────────────────────────────

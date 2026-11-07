@@ -68,8 +68,8 @@
 
       <section class="doc-card" aria-labelledby="aa-detail-lines">
         <h2 class="form-section-title" id="aa-detail-lines">{{ 'audit_adjustments.lines' | translate }}</h2>
-        <div class="table-wrapper">
-          <table class="lines-table">
+        <vx-table labelKey="audit_adjustments.lines">
+          <table>
             <thead>
               <tr>
                 <th scope="col">{{ 'audit_adjustments.account' | translate }}</th>
@@ -96,7 +96,7 @@
               </tr>
             </tfoot>
           </table>
-        </div>
+        </vx-table>
       </section>
 
       <section class="doc-card" aria-labelledby="aa-detail-evidence">

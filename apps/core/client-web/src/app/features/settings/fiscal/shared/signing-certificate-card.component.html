@@ -34,52 +34,54 @@
     @if (loadFailed()) {
       <vx-error-state [detail]="'settings.fiscal.certificates_could_not_loaded' | translate" (retry)="load()" />
     } @else if (certificates().length) {
-      <table [appSort]="table.sort" class="fx-table">
-        <thead>
-          <tr>
-            <th appSortHeader="alias">{{ 'settings.fiscal.alias' | translate }}</th>
-            <th appSortHeader="subjectCommonName">{{ 'settings.fiscal.holder' | translate }}</th>
-            <th appSortHeader="authority">{{ 'settings.fiscal.signs_for' | translate }}</th>
-            <th appSortHeader="notAfter" class="nowrap">{{ 'settings.fiscal.expires' | translate }}</th>
-            <th appSortHeader="status">{{ 'settings.fiscal.status' | translate }}</th>
-            <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (c of table.rows(); track c.id) {
+      <vx-table labelKey="settings.fiscal.digital_certificate" frame="none">
+        <table [appSort]="table.sort" class="fx-table">
+          <thead>
             <tr>
-              <td [attr.data-label]="'settings.fiscal.alias' | translate">{{ c.alias }}</td>
-              <td [attr.data-label]="'settings.fiscal.holder' | translate">
-                <span class="holder">{{ c.subjectCommonName || '—' }}</span>
-                @if (c.holderTaxId) {
-                  <span class="holder__id">{{ c.holderIdLabel ?? taxIdLabel() }} {{ c.holderTaxId }}</span>
-                }
-                @if (c.holderKind === 'person') {
-                  <span class="holder__note">{{ 'settings.fiscal.holder_person_note' | translate: { authority: c.authority ?? authority() } }}</span>
-                }
-              </td>
-              <td [attr.data-label]="'settings.fiscal.signs_for' | translate">{{ c.authority ?? '—' }}</td>
-              <td class="nowrap" [attr.data-label]="'settings.fiscal.expires' | translate">{{ c.notAfter ? (c.notAfter | vxDate: 'date') : '—' }}</td>
-              <td [attr.data-label]="'settings.fiscal.status' | translate">
-                <span class="badges">
-                  <vx-badge [tone]="c.expired ? 'danger' : c.isActive ? 'ok' : 'neutral'">
-                    {{ (c.expired ? 'common.status_expired' : c.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
-                  </vx-badge>
-                  @if (c.isTest) {
-                    <vx-badge tone="warning" [title]="'settings.fiscal.test_certificate_hint' | translate">{{ 'settings.fiscal.test_certificate' | translate }}</vx-badge>
-                  }
-                </span>
-              </td>
-              <td class="row-actions">
-                @if (c.isActive && !readonly()) {
-                  <button type="button" class="link-button" (click)="deactivate(c)"
-                    [attr.aria-label]="'settings.fiscal.turn_off_named' | translate: { alias: c.alias }">{{ 'settings.fiscal.turn_off' | translate }}</button>
-                }
-              </td>
+              <th appSortHeader="alias">{{ 'settings.fiscal.alias' | translate }}</th>
+              <th appSortHeader="subjectCommonName">{{ 'settings.fiscal.holder' | translate }}</th>
+              <th appSortHeader="authority">{{ 'settings.fiscal.signs_for' | translate }}</th>
+              <th appSortHeader="notAfter" class="nowrap">{{ 'settings.fiscal.expires' | translate }}</th>
+              <th appSortHeader="status">{{ 'settings.fiscal.status' | translate }}</th>
+              <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (c of table.rows(); track c.id) {
+              <tr>
+                <td [attr.data-label]="'settings.fiscal.alias' | translate">{{ c.alias }}</td>
+                <td [attr.data-label]="'settings.fiscal.holder' | translate">
+                  <span class="holder">{{ c.subjectCommonName || '—' }}</span>
+                  @if (c.holderTaxId) {
+                    <span class="holder__id">{{ c.holderIdLabel ?? taxIdLabel() }} {{ c.holderTaxId }}</span>
+                  }
+                  @if (c.holderKind === 'person') {
+                    <span class="holder__note">{{ 'settings.fiscal.holder_person_note' | translate: { authority: c.authority ?? authority() } }}</span>
+                  }
+                </td>
+                <td [attr.data-label]="'settings.fiscal.signs_for' | translate">{{ c.authority ?? '—' }}</td>
+                <td class="nowrap" [attr.data-label]="'settings.fiscal.expires' | translate">{{ c.notAfter ? (c.notAfter | vxDate: 'date') : '—' }}</td>
+                <td [attr.data-label]="'settings.fiscal.status' | translate">
+                  <span class="badges">
+                    <vx-badge [tone]="c.expired ? 'danger' : c.isActive ? 'ok' : 'neutral'">
+                      {{ (c.expired ? 'common.status_expired' : c.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
+                    </vx-badge>
+                    @if (c.isTest) {
+                      <vx-badge tone="warning" [title]="'settings.fiscal.test_certificate_hint' | translate">{{ 'settings.fiscal.test_certificate' | translate }}</vx-badge>
+                    }
+                  </span>
+                </td>
+                <td class="actions-column">
+                  @if (c.isActive && !readonly()) {
+                    <button type="button" class="link-button" (click)="deactivate(c)"
+                      [attr.aria-label]="'settings.fiscal.turn_off_named' | translate: { alias: c.alias }">{{ 'settings.fiscal.turn_off' | translate }}</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </vx-table>
     } @else if (relevant()) {
       <vx-empty-state [icon]="CertificateIcon" titleKey="settings.fiscal.no_certificate_title" descriptionKey="settings.fiscal.no_certificate_description" />
     }

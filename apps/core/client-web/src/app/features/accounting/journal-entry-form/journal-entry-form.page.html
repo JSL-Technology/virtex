@@ -89,116 +89,118 @@
     </section>
 
     <section class="form-section lines-container" formArrayName="lines">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>{{ 'accounting.journal_entry_form.account_column' | translate }}</th>
-            <th>{{ 'accounting.journal_entry_form.description_column' | translate }}</th>
-            <th class="text-right">{{ 'accounting.journal_entry_form.debit_column' | translate }}</th>
-            <th class="text-right">{{ 'accounting.journal_entry_form.credit_column' | translate }}</th>
-            @if (!readOnly()) {
-              <th><span class="sr-only">{{ 'common.delete' | translate }}</span></th>
-            }
-          </tr>
-        </thead>
-        <tbody>
-          @for (line of lines.controls; track $index) {
-            <tr [formGroupName]="$index">
-              <td>
-                <!--
-                  Era un `<select>` con el plan contable ENTERO dentro. En una empresa real ronda
-                  las mil cuentas —cada una con su padre y sus segmentos cargados—, renderizadas
-                  como mil `<option>` por cada línea del asiento, sin forma de buscarlas.
-                -->
-                <vx-select
-                  formControlName="accountId"
-                  [search]="searchAccounts"
-                  [resolveWith]="resolveAccount"
-                  [displayWith]="accountLabel"
-                  [valueWith]="accountId"
-                  [ariaLabel]="'accounting.journal_entry_form.select_account' | translate"
-                  placeholderKey="accounting.journal_entry_form.select_account"
-                />
-              </td>
-              <td>
-                <input type="text" formControlName="description">
-              </td>
-              <td>
-                <input type="number" formControlName="debit" class="text-right">
-              </td>
-              <td>
-                <input type="number" formControlName="credit" class="text-right">
-              </td>
+      <vx-table labelKey="accounting.journal_entry_form.lines_table" frame="none">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ 'accounting.journal_entry_form.account_column' | translate }}</th>
+              <th>{{ 'accounting.journal_entry_form.description_column' | translate }}</th>
+              <th class="numeric">{{ 'accounting.journal_entry_form.debit_column' | translate }}</th>
+              <th class="numeric">{{ 'accounting.journal_entry_form.credit_column' | translate }}</th>
               @if (!readOnly()) {
-              <td>
-                <button
-                  type="button"
-                  class="icon-button"
-                  [disabled]="lines.length <= 2"
-                  [attr.aria-label]="'common.delete' | translate"
-                  (click)="removeLine($index)"
-                >
-                  <lucide-icon [img]="TrashIcon" size="16" aria-hidden="true"></lucide-icon>
-                </button>
-              </td>
+                <th><span class="sr-only">{{ 'common.delete' | translate }}</span></th>
               }
             </tr>
-            <!--
-              Las dimensiones analíticas de la línea (auditoría H-21): centro de costo, proyecto…
-              No existía forma de ponerlas desde la pantalla, así que ningún asiento manual llegaba
-              al análisis por dimensión ni al control presupuestario por centro de costo.
-            -->
-            @if (showDimensions() && hasDimensions()) {
-              @let lineIndex = $index;
-              @let required = requiredFor(lineIndex);
-              <tr class="line-tags">
-                <td [attr.colspan]="readOnly() ? 4 : 5">
-                  <div class="line-tags__grid" role="group"
-                       [attr.aria-label]="'accounting.journal_entry_form.line_dimensions' | translate: { line: lineIndex + 1 }">
-                    @for (dimension of tagDimensions(); track dimension.id) {
-                      <label class="line-tags__field">
-                        <span>{{ dimension.name }}@if (required.includes(dimension.name)) { * }</span>
-                        <select [value]="lineTag(lineIndex, dimension.name)" [disabled]="readOnly()"
-                                [class.line-tags__missing]="required.includes(dimension.name) && !lineTag(lineIndex, dimension.name) && entryForm.touched"
-                                (change)="setLineTag(lineIndex, dimension.name, $any($event.target).value)">
-                          <option value="">—</option>
-                          @for (option of tagOptions(lineIndex, dimension); track option.value.value) {
-                            <option [value]="option.value.value" [selected]="option.value.value === lineTag(lineIndex, dimension.name)">
-                              {{ indent(option.depth) }}{{ valueLabel(option.value) }}
-                            </option>
-                          }
-                        </select>
-                      </label>
-                    }
-                  </div>
+          </thead>
+          <tbody>
+            @for (line of lines.controls; track $index) {
+              <tr [formGroupName]="$index">
+                <td>
+                  <!--
+                    Era un `<select>` con el plan contable ENTERO dentro. En una empresa real ronda
+                    las mil cuentas —cada una con su padre y sus segmentos cargados—, renderizadas
+                    como mil `<option>` por cada línea del asiento, sin forma de buscarlas.
+                  -->
+                  <vx-select
+                    formControlName="accountId"
+                    [search]="searchAccounts"
+                    [resolveWith]="resolveAccount"
+                    [displayWith]="accountLabel"
+                    [valueWith]="accountId"
+                    [ariaLabel]="'accounting.journal_entry_form.select_account' | translate"
+                    placeholderKey="accounting.journal_entry_form.select_account"
+                  />
                 </td>
+                <td>
+                  <input type="text" formControlName="description">
+                </td>
+                <td>
+                  <input type="number" formControlName="debit" class="text-right">
+                </td>
+                <td>
+                  <input type="number" formControlName="credit" class="text-right">
+                </td>
+                @if (!readOnly()) {
+                <td>
+                  <button
+                    type="button"
+                    class="icon-button"
+                    [disabled]="lines.length <= 2"
+                    [attr.aria-label]="'common.delete' | translate"
+                    (click)="removeLine($index)"
+                  >
+                    <lucide-icon [img]="TrashIcon" size="16" aria-hidden="true"></lucide-icon>
+                  </button>
+                </td>
+                }
               </tr>
-            }
-          }
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="2">
-              @if (!readOnly()) {
-              <button type="button" (click)="addLine()" class="secondary-button">
-                <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
-                {{ 'accounting.journal_entry_form.add_line' | translate }}
-              </button>
+              <!--
+                Las dimensiones analíticas de la línea (auditoría H-21): centro de costo, proyecto…
+                No existía forma de ponerlas desde la pantalla, así que ningún asiento manual llegaba
+                al análisis por dimensión ni al control presupuestario por centro de costo.
+              -->
+              @if (showDimensions() && hasDimensions()) {
+                @let lineIndex = $index;
+                @let required = requiredFor(lineIndex);
+                <tr class="line-tags">
+                  <td [attr.colspan]="readOnly() ? 4 : 5">
+                    <div class="line-tags__grid" role="group"
+                         [attr.aria-label]="'accounting.journal_entry_form.line_dimensions' | translate: { line: lineIndex + 1 }">
+                      @for (dimension of tagDimensions(); track dimension.id) {
+                        <label class="line-tags__field">
+                          <span>{{ dimension.name }}@if (required.includes(dimension.name)) { * }</span>
+                          <select [value]="lineTag(lineIndex, dimension.name)" [disabled]="readOnly()"
+                                  [class.line-tags__missing]="required.includes(dimension.name) && !lineTag(lineIndex, dimension.name) && entryForm.touched"
+                                  (change)="setLineTag(lineIndex, dimension.name, $any($event.target).value)">
+                            <option value="">—</option>
+                            @for (option of tagOptions(lineIndex, dimension); track option.value.value) {
+                              <option [value]="option.value.value" [selected]="option.value.value === lineTag(lineIndex, dimension.name)">
+                                {{ indent(option.depth) }}{{ valueLabel(option.value) }}
+                              </option>
+                            }
+                          </select>
+                        </label>
+                      }
+                    </div>
+                  </td>
+                </tr>
               }
-              @if (hasDimensions()) {
-                <button type="button" class="secondary-button" (click)="showDimensions.set(!showDimensions())" [attr.aria-pressed]="showDimensions()">
-                  {{ (showDimensions() ? 'accounting.journal_entry_form.hide_dimensions' : 'accounting.journal_entry_form.show_dimensions') | translate }}
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">
+                @if (!readOnly()) {
+                <button type="button" (click)="addLine()" class="secondary-button">
+                  <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
+                  {{ 'accounting.journal_entry_form.add_line' | translate }}
                 </button>
+                }
+                @if (hasDimensions()) {
+                  <button type="button" class="secondary-button" (click)="showDimensions.set(!showDimensions())" [attr.aria-pressed]="showDimensions()">
+                    {{ (showDimensions() ? 'accounting.journal_entry_form.hide_dimensions' : 'accounting.journal_entry_form.show_dimensions') | translate }}
+                  </button>
+                }
+              </td>
+              <td class="numeric"><strong>{{ 'accounting.journal_entry_form.totals' | translate }}: {{ totalDebit() | vxNumber:'1.2-2' }}</strong></td>
+              <td class="numeric"><strong>{{ totalCredit() | vxNumber:'1.2-2' }}</strong></td>
+              @if (!readOnly()) {
+                <td></td>
               }
-            </td>
-            <td class="text-right"><strong>{{ 'accounting.journal_entry_form.totals' | translate }}: {{ totalDebit() | vxNumber:'1.2-2' }}</strong></td>
-            <td class="text-right"><strong>{{ totalCredit() | vxNumber:'1.2-2' }}</strong></td>
-            @if (!readOnly()) {
-              <td></td>
-            }
-          </tr>
-        </tfoot>
-      </table>
+            </tr>
+          </tfoot>
+        </table>
+      </vx-table>
 
       <!--
         Un asiento descuadrado no es «un campo mal»: es la regla que define un asiento. Se dice

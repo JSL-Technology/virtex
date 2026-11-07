@@ -187,48 +187,50 @@
 
 <!-- El catálogo: la tabla común, con «Activar» o «Desactivar» a la vista y lo demás en el menú de la fila. -->
 <ng-template #catalogue>
-  <table [appSort]="table.sort" class="ext-table" [appTableMenu]="extensionsMenu">
-    <thead>
-      <tr>
-        <th appSortHeader="name">{{ 'extensions.fields.name' | translate }}</th>
-        <th appSortHeader="description">{{ 'extensions.fields.description' | translate }}</th>
-        <th>{{ 'extensions.granted_capabilities' | translate }}</th>
-        <th>{{ 'extensions.in_company' | translate }}</th>
-        <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (ext of table.rows(); track ext.id) {
-        <tr [appRowMenu]="ext" #rowMenu="appRowMenu">
-          <td [attr.data-label]="'extensions.fields.name' | translate">
-            <span class="ext__name">{{ ext.name }}</span>
-            @if (ext.status.toLowerCase() !== 'active') {
-              <vx-badge [tone]="ext.status.toLowerCase() === 'revoked' ? 'danger' : 'neutral'" size="sm">{{ k('extensions.status', ext.status.toLowerCase()) | translate }}</vx-badge>
-            }
-            <span class="ext__versions">{{ 'extensions.version_count' | translate: { count: ext.versionCount } }}</span>
-          </td>
-          <td [attr.data-label]="'extensions.fields.description' | translate">{{ ext.description || '—' }}</td>
-          <td [attr.data-label]="'extensions.granted_capabilities' | translate">{{ consentByPlugin().get(ext.name)?.grantedCapabilities?.join(', ') || '—' }}</td>
-          <td [attr.data-label]="'extensions.in_company' | translate">
-            <vx-badge [tone]="isEnabled(ext) ? 'ok' : 'neutral'">{{ (isEnabled(ext) ? 'extensions.state_on' : 'extensions.state_off') | translate }}</vx-badge>
-          </td>
-          <td class="row-actions">
-            @if (canManage()) {
-              <button type="button" class="link-button" (click)="toggleEnabled(ext)"
-                [attr.aria-label]="(isEnabled(ext) ? 'extensions.disable_named' : 'extensions.enable_named') | translate: { name: ext.name }">
-                {{ (isEnabled(ext) ? 'common.deactivate' : 'common.activate') | translate }}
-              </button>
-            }
-            @if (canRevoke()) {
-              <button type="button" class="icon-button" aria-haspopup="menu"
-                [attr.aria-label]="'common.more_actions_for' | translate: { name: ext.name }"
-                [title]="'common.more_actions' | translate" (click)="rowMenu.open($event)">
-                <lucide-icon [img]="MoreIcon" [size]="18" aria-hidden="true"></lucide-icon>
-              </button>
-            }
-          </td>
+  <vx-table labelKey="page_titles.extensions">
+    <table [appSort]="table.sort" class="ext-table" [appTableMenu]="extensionsMenu">
+      <thead>
+        <tr>
+          <th appSortHeader="name">{{ 'extensions.fields.name' | translate }}</th>
+          <th appSortHeader="description">{{ 'extensions.fields.description' | translate }}</th>
+          <th>{{ 'extensions.granted_capabilities' | translate }}</th>
+          <th>{{ 'extensions.in_company' | translate }}</th>
+          <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
         </tr>
-      }
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        @for (ext of table.rows(); track ext.id) {
+          <tr [appRowMenu]="ext" #rowMenu="appRowMenu">
+            <td [attr.data-label]="'extensions.fields.name' | translate">
+              <span class="ext__name">{{ ext.name }}</span>
+              @if (ext.status.toLowerCase() !== 'active') {
+                <vx-badge [tone]="ext.status.toLowerCase() === 'revoked' ? 'danger' : 'neutral'" size="sm">{{ k('extensions.status', ext.status.toLowerCase()) | translate }}</vx-badge>
+              }
+              <span class="ext__versions">{{ 'extensions.version_count' | translate: { count: ext.versionCount } }}</span>
+            </td>
+            <td [attr.data-label]="'extensions.fields.description' | translate">{{ ext.description || '—' }}</td>
+            <td [attr.data-label]="'extensions.granted_capabilities' | translate">{{ consentByPlugin().get(ext.name)?.grantedCapabilities?.join(', ') || '—' }}</td>
+            <td [attr.data-label]="'extensions.in_company' | translate">
+              <vx-badge [tone]="isEnabled(ext) ? 'ok' : 'neutral'">{{ (isEnabled(ext) ? 'extensions.state_on' : 'extensions.state_off') | translate }}</vx-badge>
+            </td>
+            <td class="actions-column">
+              @if (canManage()) {
+                <button type="button" class="link-button" (click)="toggleEnabled(ext)"
+                  [attr.aria-label]="(isEnabled(ext) ? 'extensions.disable_named' : 'extensions.enable_named') | translate: { name: ext.name }">
+                  {{ (isEnabled(ext) ? 'common.deactivate' : 'common.activate') | translate }}
+                </button>
+              }
+              @if (canRevoke()) {
+                <button type="button" class="icon-button" aria-haspopup="menu"
+                  [attr.aria-label]="'common.more_actions_for' | translate: { name: ext.name }"
+                  [title]="'common.more_actions' | translate" (click)="rowMenu.open($event)">
+                  <lucide-icon [img]="MoreIcon" [size]="18" aria-hidden="true"></lucide-icon>
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </vx-table>
 </ng-template>

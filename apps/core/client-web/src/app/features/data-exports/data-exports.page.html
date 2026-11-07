@@ -57,15 +57,15 @@
 
   <h2 class="section-title">{{ 'data_exports.recent_exports' | translate }}</h2>
 
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="data_exports.recent_exports">
+    <table [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="dataset">{{ 'data_exports.data_type' | translate }}</th>
           <th appSortHeader="format">{{ 'data_exports.format_label' | translate }}</th>
           <th appSortHeader="createdAt">{{ 'data_exports.date' | translate }}</th>
           <th appSortHeader="userName">{{ 'data_exports.user' | translate }}</th>
-          <th appSortHeader="totalRows" class="text-right">{{ 'data_exports.rows' | translate }}</th>
+          <th appSortHeader="totalRows" class="numeric">{{ 'data_exports.rows' | translate }}</th>
           <th appSortHeader="status" class="text-center">{{ 'data_exports.status' | translate }}</th>
         </tr>
       </thead>
@@ -76,7 +76,7 @@
             <td>{{ run.format.toUpperCase() }}</td>
             <td>{{ run.createdAt | vxDate: 'dateTime' }}</td>
             <td>{{ run.userName ?? '—' }}</td>
-            <td class="text-right">{{ run.totalRows | vxNumber }}</td>
+            <td class="numeric">{{ run.totalRows | vxNumber }}</td>
             <td class="text-center">
               <vx-badge [tone]="statusTone(run.status)">
                 {{ statusKey(run.status) | translate }}
@@ -86,5 +86,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

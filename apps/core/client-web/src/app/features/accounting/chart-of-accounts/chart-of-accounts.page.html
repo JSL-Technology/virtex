@@ -62,8 +62,8 @@
     <p>{{ 'accounting.chart_of_accounts.add_account_start_managing_your_chart' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table class="data-table">
+  <vx-table labelKey="accounting.chart_of_accounts.chart_accounts">
+    <table>
       <thead>
         <tr>
           <th class="col-name" [attr.aria-sort]="ariaSort('name')">
@@ -78,7 +78,7 @@
               <lucide-icon [img]="getSortIcon('type')" size="14" aria-hidden="true"></lucide-icon>
             </button>
           </th>
-          <th class="col-balance text-right" [attr.aria-sort]="ariaSort('balance')">
+          <th class="col-balance numeric" [attr.aria-sort]="ariaSort('balance')">
             <button type="button" class="sortable" (click)="onSort('balance')">
               <span>{{ 'accounting.chart_of_accounts.balance' | translate }}</span>
               <lucide-icon [img]="getSortIcon('balance')" size="14" aria-hidden="true"></lucide-icon>
@@ -129,7 +129,7 @@
             <!-- El tipo es un enum del backend en inglés; `titlecase` solo lo capitalizaba, así
                  que la columna decía Asset / Liability / Equity en una pantalla en español. -->
             <td>{{ 'accounting.account_type.' + account.type | translate }}</td>
-            <td class="text-right balance-cell">
+            <td class="numeric balance-cell">
               <vx-amount [value]="account.balance" />
             </td>
             <td class="text-center">
@@ -172,7 +172,7 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 
   <!--
     Decía «Mostrando 10 de N cuentas» con el diez escrito a mano, en una tabla que no pagina.

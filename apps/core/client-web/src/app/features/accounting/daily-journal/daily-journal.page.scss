@@ -12,7 +12,8 @@
       padding-top: var(--space-5);
     }
 
-    .journal-row:hover {
+    //  Un asiento se lee entero: resaltar una sola de sus líneas al pasar por encima lo partía.
+    .journal-row:hover > td {
       background-color: transparent;
     }
 

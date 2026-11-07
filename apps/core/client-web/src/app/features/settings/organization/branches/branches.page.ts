@@ -18,6 +18,7 @@ import { VxSpinnerComponent, VxEmptyStateComponent, VxErrorStateComponent, VxNot
 import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../../shared/components/context-menu';
 import { Warehouse, WarehousesService } from '../../../masters/data/warehouses.service';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /** Letters, digits and dashes, starting with a letter or digit — the same rule the server applies. */
 const CODE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9-]*$/;
 const FISCAL_CODE_PATTERN = /^[0-9A-Za-z]*$/;
@@ -43,7 +44,7 @@ const FISCAL_CODE_PATTERN = /^[0-9A-Za-z]*$/;
 @Component({
   selector: 'app-branches-settings',
   standalone: true,
-  imports: [SettingsActionsDirective, 
+  imports: [...VX_TABLE, SettingsActionsDirective, 
     CommonModule,
     RouterLink,
     ReactiveFormsModule,

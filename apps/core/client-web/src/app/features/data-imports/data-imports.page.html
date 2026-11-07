@@ -61,35 +61,37 @@
             <p class="mapping-note">
               {{ (p.source === 'ai' ? 'data_imports.mapping.from_ai' : 'data_imports.mapping.from_headers') | translate }}
             </p>
-            <table class="mapping-table">
-              <thead>
-                <tr>
-                  <th scope="col">{{ 'data_imports.mapping.file_column' | translate }}</th>
-                  <th scope="col">{{ 'data_imports.mapping.sample' | translate }}</th>
-                  <th scope="col">{{ 'data_imports.mapping.field' | translate }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (header of p.headers; track header) {
+            <vx-table labelKey="data_imports.upload_file" frame="none">
+              <table class="mapping-table">
+                <thead>
                   <tr>
-                    <td>{{ header }}</td>
-                    <td class="mapping-sample">{{ p.sample[0]?.[header] ?? '' }}</td>
-                    <td>
-                      <select
-                        [attr.aria-label]="'data_imports.mapping.field_for' | translate: { column: header }"
-                        [value]="mapping()[header] ?? ''"
-                        (change)="setMapping(header, $any($event.target).value)"
-                      >
-                        <option value="">{{ 'data_imports.mapping.ignore' | translate }}</option>
-                        @for (column of p.columns; track column.key) {
-                          <option [value]="column.key" [selected]="mapping()[header] === column.key">{{ column.key }}{{ column.required ? ' *' : '' }}</option>
-                        }
-                      </select>
-                    </td>
+                    <th scope="col">{{ 'data_imports.mapping.file_column' | translate }}</th>
+                    <th scope="col">{{ 'data_imports.mapping.sample' | translate }}</th>
+                    <th scope="col">{{ 'data_imports.mapping.field' | translate }}</th>
                   </tr>
-                }
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  @for (header of p.headers; track header) {
+                    <tr>
+                      <td>{{ header }}</td>
+                      <td class="mapping-sample">{{ p.sample[0]?.[header] ?? '' }}</td>
+                      <td>
+                        <select
+                          [attr.aria-label]="'data_imports.mapping.field_for' | translate: { column: header }"
+                          [value]="mapping()[header] ?? ''"
+                          (change)="setMapping(header, $any($event.target).value)"
+                        >
+                          <option value="">{{ 'data_imports.mapping.ignore' | translate }}</option>
+                          @for (column of p.columns; track column.key) {
+                            <option [value]="column.key" [selected]="mapping()[header] === column.key">{{ column.key }}{{ column.required ? ' *' : '' }}</option>
+                          }
+                        </select>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </vx-table>
             @if (missingRequired().length) {
               <p class="mapping-missing" role="alert">{{ 'data_imports.mapping.missing' | translate: { columns: missingRequired().join(', ') } }}</p>
             }
@@ -136,32 +138,34 @@
       </header>
       @if (result.problems.length) {
         <p class="report__hint">{{ 'data_imports.nothing_written_fix_and_retry' | translate }}</p>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th class="text-right">{{ 'data_imports.line' | translate }}</th>
-              <th>{{ 'data_imports.column' | translate }}</th>
-              <th>{{ 'data_imports.problem' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (problem of result.problems; track $index) {
+        <vx-table labelKey="data_imports.start_import">
+          <table>
+            <thead>
               <tr>
-                <td class="text-right">{{ problem.row || '—' }}</td>
-                <td><code>{{ problem.column ?? '—' }}</code></td>
-                <td>{{ problem.key | translate: problemParams(problem.params) }}</td>
+                <th class="numeric">{{ 'data_imports.line' | translate }}</th>
+                <th>{{ 'data_imports.column' | translate }}</th>
+                <th>{{ 'data_imports.problem' | translate }}</th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (problem of result.problems; track $index) {
+                <tr>
+                  <td class="numeric">{{ problem.row || '—' }}</td>
+                  <td><code>{{ problem.column ?? '—' }}</code></td>
+                  <td>{{ problem.key | translate: problemParams(problem.params) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </vx-table>
       }
     </section>
   }
 
   <div class="history-section">
     <h2 class="section-title">{{ 'data_imports.recent_imports' | translate }}</h2>
-    <div class="table-container card">
-      <table class="data-table">
+    <vx-table labelKey="data_imports.recent_imports" [empty]="history().length === 0" emptyKey="data_imports.no_imports_yet">
+      <table>
         <thead>
           <tr>
             <th>{{ 'data_imports.data_type' | translate }}</th>
@@ -169,8 +173,8 @@
             <th>{{ 'data_imports.date' | translate }}</th>
             <th>{{ 'data_imports.user' | translate }}</th>
             <th class="text-center">{{ 'data_imports.status' | translate }}</th>
-            <th class="text-right">{{ 'data_imports.processed' | translate }}</th>
-            <th class="text-right">{{ 'data_imports.failed' | translate }}</th>
+            <th class="numeric">{{ 'data_imports.processed' | translate }}</th>
+            <th class="numeric">{{ 'data_imports.failed' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -183,16 +187,12 @@
               <td class="text-center">
                 <vx-badge [tone]="statusTone(run.status)">{{ statusKey(run.status) | translate }}</vx-badge>
               </td>
-              <td class="text-right">{{ run.importedRows | vxNumber }} / {{ run.totalRows | vxNumber }}</td>
-              <td class="text-right" [class.has-errors]="run.failedRows > 0">{{ run.failedRows | vxNumber }}</td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="7" class="text-center empty">{{ 'data_imports.no_imports_yet' | translate }}</td>
+              <td class="numeric">{{ run.importedRows | vxNumber }} / {{ run.totalRows | vxNumber }}</td>
+              <td class="numeric" [class.has-errors]="run.failedRows > 0">{{ run.failedRows | vxNumber }}</td>
             </tr>
           }
         </tbody>
       </table>
-    </div>
+    </vx-table>
   </div>
 </div>

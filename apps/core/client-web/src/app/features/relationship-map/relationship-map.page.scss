@@ -644,24 +644,18 @@
 }
 
 // ── List view ──────────────────────────────────────────────────────────────────
-.rm-table-wrap {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  padding: var(--space-4);
+//  La lista es un `vx-table` (marco, cabecera, fila marcada, desplazamiento); aquí, su margen en el
+//  panel y lo que es suyo: el color del módulo de cada registro y la raíz en negrita.
+.rm-list {
+  margin: var(--space-4);
 }
 
 .rm-table {
-  @include ds.data-table;
-  width: 100%;
-  background: var(--surface-raised);
-
   tbody tr {
     cursor: pointer;
-    box-shadow: inset 4px 0 0 var(--rm-module, transparent);
 
-    &:hover { background: var(--surface-hover); }
-    &.is-selected { background: var(--surface-selected); }
+    //  En la primera celda y no en la fila: así el resaltado de la fila no lo tapa.
+    > td:first-child { box-shadow: inset 4px 0 0 var(--rm-module, transparent); }
     &.is-root td { font-weight: var(--font-semibold); }
   }
 }

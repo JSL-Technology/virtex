@@ -12,6 +12,7 @@ import { VxEmptyStateComponent, VxErrorStateComponent, VxSpinnerComponent } from
 import { SettingsGroupComponent } from '../../shared';
 import { SettingsSaveBarComponent, SettingsShellService } from '../../shell';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 type Availability = 'available' | 'not_in_plan' | 'provider_missing' | 'engine_offline';
 
 interface FeatureUsage {
@@ -37,7 +38,7 @@ interface FeatureUsage {
 @Component({
   selector: 'app-ai-settings-page',
   standalone: true,
-  imports: [
+  imports: [...VX_TABLE, 
     TranslateModule,
     RouterLink,
     AiAgentsPanelComponent,

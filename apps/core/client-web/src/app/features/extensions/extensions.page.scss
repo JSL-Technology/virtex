@@ -295,14 +295,10 @@
   align-items: start;
 }
 
-// ── El catálogo (en el gestor y en Configuración): la tabla común de la modal ──
-.ext-table {
-  @include ui.table;
-
-  td { vertical-align: top; }
-
-  vx-badge { margin-inline-start: var(--space-2); }
-}
+// ── El catálogo (en el gestor y en Configuración): un `vx-table` ──
+//  La descripción ocupa varias líneas: cada fila se lee desde arriba.
+.ext-table td { vertical-align: top; }
+.ext-table vx-badge { margin-inline-start: var(--space-2); }
 
 .ext__name { font-weight: var(--font-semibold); color: var(--content-primary); }
 
@@ -313,7 +309,6 @@
   color: var(--content-tertiary);
 }
 
-.row-actions { @include ui.row-actions; }
 .link-button { @include ui.link-button; }
 .icon-button { @include ui.icon-button; }
 

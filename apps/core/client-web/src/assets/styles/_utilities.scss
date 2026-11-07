@@ -222,12 +222,10 @@ th.text-right  { text-align: right; }
   .no-print { display: none !important; }
 }
 
-// Una fila que abre su registro (`tr[vxRowLink]`, QA B-02): toda la fila responde, no solo el
-// texto del enlace de la primera celda.
+// Una fila que abre su registro (`tr[appRowLink]`, QA B-02): toda la fila responde, no solo el
+// texto del enlace de la primera celda. El resaltado al pasar por encima es de `vx-table`.
 .vx-row-link {
   cursor: pointer;
-
-  &:hover > td { background: var(--surface-hover); }
 }
 
 // ── Marcador de obligatorio ────────────────────────────────────────────────

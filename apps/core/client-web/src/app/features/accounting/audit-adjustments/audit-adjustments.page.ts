@@ -16,6 +16,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * How each state reads and what colour it wears. One table, so the label and the badge cannot
  * disagree — the same reason `invoice-status.ts` exists.
@@ -48,7 +49,7 @@ const STATUS: Record<AdjustmentStatus, { key: string; badge: string }> = {
 @Component({
   selector: 'app-audit-adjustments-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, RowLinkDirective, CommonModule, RouterModule, LucideAngularModule, TranslateModule, ListShellComponent, VxDatePipe, VxMoneyPipe, ...FORMAT_PIPES],
+  imports: [...VX_TABLE, ...VX_SORT, CanOpenDirective, RowLinkDirective, CommonModule, RouterModule, LucideAngularModule, TranslateModule, ListShellComponent, VxDatePipe, VxMoneyPipe, ...FORMAT_PIPES],
   templateUrl: './audit-adjustments.page.html',
   styleUrls: ['./audit-adjustments.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

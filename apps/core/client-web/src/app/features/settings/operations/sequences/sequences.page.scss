@@ -6,17 +6,9 @@
 
 .s-page { display: flex; flex-direction: column; gap: var(--space-5); }
 
-.seq__table {
-  @include ui.table;
-
-  td, th { vertical-align: top; }
-  //  El nombre del documento es la cabecera de su fila, no de la tabla: sin el fondo de la cabecera.
-  tbody th { font-weight: var(--font-medium); color: var(--content-primary); text-align: left; background: transparent; }
-
-  @include ds.bp-down('sm') {
-    tbody th { display: block; padding: var(--space-1) 0; }
-  }
-}
+//  La tabla es `vx-table` (el nombre del documento es la cabecera de su fila). Los campos llevan
+//  un aviso debajo cuando cambian: cada fila se lee desde arriba.
+.seq__table :is(td, th) { vertical-align: top; }
 
 .seq__row--changed > * { background: var(--accent-surface); }
 .seq__was { display: block; margin-top: var(--space-1); font-size: var(--text-xs); color: var(--content-secondary); }

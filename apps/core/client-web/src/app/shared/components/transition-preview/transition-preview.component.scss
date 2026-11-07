@@ -34,18 +34,6 @@
 .tp__block { display: flex; flex-direction: column; gap: 0.4rem; }
 .tp__block-title { font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); }
 
-.tp__table-wrap { overflow-x: auto; border: 1px solid var(--border-color); border-radius: var(--radius-md); }
-.tp__table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
-.tp__table th {
-  text-align: left;
-  font-size: var(--text-xs);
-  letter-spacing: 0.06em;
-  color: var(--text-tertiary);
-  padding: 0.5rem 0.75rem;
-  background: var(--bg-tertiary);
-}
-.tp__table td { padding: 0.45rem 0.75rem; border-top: 1px solid var(--border-color); color: var(--text-secondary); }
-.tp__table tfoot td { font-weight: 700; color: var(--text-primary); border-top: 2px solid var(--border-color); }
 .tp__num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tp__code { color: var(--text-tertiary); margin-right: 0.4rem; font-variant-numeric: tabular-nums; }
 

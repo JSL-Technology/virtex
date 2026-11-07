@@ -46,51 +46,53 @@
         </div>
 
         <vx-settings-group [level]="3" titleKey="settings.approvals.steps" descriptionKey="settings.approvals.steps_hint">
-        <table class="ap__table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>{{ 'settings.approvals.min_amount' | translate }}</th>
-              <th>{{ 'settings.approvals.role' | translate }}</th>
-              <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (step of d.steps; track $index; let i = $index) {
+        <vx-table labelKey="settings.approvals.steps" frame="none">
+          <table class="ap__table">
+            <thead>
               <tr>
-                <td class="ap__order" data-label="#">{{ i + 1 }}</td>
-                <td [attr.data-label]="'settings.approvals.min_amount' | translate">
-                  <input class="ap__input ap__input--amount" type="number" min="0" step="0.01"
-                    [name]="'min-' + i"
-                    [attr.aria-label]="'settings.approvals.min_amount' | translate"
-                    [ngModel]="step.minAmount" (ngModelChange)="patchStep(i, { minAmount: +$event })" />
-                </td>
-                <td [attr.data-label]="'settings.approvals.role' | translate">
-                  <vx-select
-                    [inputId]="'ap-role-' + i"
-                    [ariaLabel]="'settings.approvals.role' | translate"
-                    [ngModel]="step.roleId || null"
-                    [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="patchStep(i, { roleId: $event ?? '' })"
-                    [options]="roleList()"
-                    [displayWith]="roleLabel"
-                    [valueWith]="roleValue"
-                  />
-                </td>
-                <td class="row-actions">
-                  <!-- Con un solo paso no hay nada que quitar: el botón no se muestra (ACC-02). -->
-                  @if (d.steps.length > 1) {
-                    <button type="button" class="link-button"
-                      [attr.aria-label]="'settings.approvals.remove_step_n' | translate: { n: i + 1 }"
-                      (click)="removeStep(i)">
-                      {{ 'settings.approvals.remove_step' | translate }}
-                    </button>
-                  }
-                </td>
+                <th>#</th>
+                <th>{{ 'settings.approvals.min_amount' | translate }}</th>
+                <th>{{ 'settings.approvals.role' | translate }}</th>
+                <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (step of d.steps; track $index; let i = $index) {
+                <tr>
+                  <td class="ap__order" data-label="#">{{ i + 1 }}</td>
+                  <td [attr.data-label]="'settings.approvals.min_amount' | translate">
+                    <input class="ap__input ap__input--amount" type="number" min="0" step="0.01"
+                      [name]="'min-' + i"
+                      [attr.aria-label]="'settings.approvals.min_amount' | translate"
+                      [ngModel]="step.minAmount" (ngModelChange)="patchStep(i, { minAmount: +$event })" />
+                  </td>
+                  <td [attr.data-label]="'settings.approvals.role' | translate">
+                    <vx-select
+                      [inputId]="'ap-role-' + i"
+                      [ariaLabel]="'settings.approvals.role' | translate"
+                      [ngModel]="step.roleId || null"
+                      [ngModelOptions]="{ standalone: true }"
+                      (ngModelChange)="patchStep(i, { roleId: $event ?? '' })"
+                      [options]="roleList()"
+                      [displayWith]="roleLabel"
+                      [valueWith]="roleValue"
+                    />
+                  </td>
+                  <td class="actions-column">
+                    <!-- Con un solo paso no hay nada que quitar: el botón no se muestra (ACC-02). -->
+                    @if (d.steps.length > 1) {
+                      <button type="button" class="link-button"
+                        [attr.aria-label]="'settings.approvals.remove_step_n' | translate: { n: i + 1 }"
+                        (click)="removeStep(i)">
+                        {{ 'settings.approvals.remove_step' | translate }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </vx-table>
         <button type="button" class="secondary-button ap__add-step" (click)="addStep()">
           {{ 'settings.approvals.add_step' | translate }}
         </button>

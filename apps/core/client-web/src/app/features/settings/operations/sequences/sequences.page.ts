@@ -11,6 +11,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import { SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../../shell';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 interface DocumentSequenceRow {
   id: string;
   type: string;
@@ -33,7 +34,7 @@ interface DocumentSequenceRow {
 @Component({
   selector: 'app-sequence-settings-page',
   standalone: true,
-  imports: [TranslateModule, RouterLink, SettingsSaveBarComponent, VxSpinnerComponent, VxErrorStateComponent, VxEmptyStateComponent],
+  imports: [...VX_TABLE, TranslateModule, RouterLink, SettingsSaveBarComponent, VxSpinnerComponent, VxErrorStateComponent, VxEmptyStateComponent],
   templateUrl: './sequences.page.html',
   styleUrls: ['./sequences.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

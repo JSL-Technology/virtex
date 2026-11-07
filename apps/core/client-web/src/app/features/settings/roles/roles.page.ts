@@ -30,10 +30,11 @@ import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/cont
 
 
 
+import { VX_TABLE } from '../../../shared/components/table';
 @Component({
   selector: 'app-roles-management-page',
   standalone: true,
-  imports: [SettingsActionsDirective, RoleNamePipe, 
+  imports: [...VX_TABLE, SettingsActionsDirective, RoleNamePipe, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,

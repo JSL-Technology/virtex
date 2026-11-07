@@ -43,30 +43,12 @@
   input, select, textarea { @include ds.input-base; }
 }
 
-.table-wrapper { overflow-x: auto; }
-
-.lines-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  th, td {
-    padding: 0.4rem 0.5rem;
-    border-bottom: 1px solid var(--border-default);
-    text-align: left;
-    vertical-align: middle;
-  }
-
-  th {
-    font-size: var(--text-xs);
-    letter-spacing: 0.02em;
-    color: var(--content-secondary);
-  }
-
+//  Las líneas de un documento son un `vx-table` (marco, cabecera, cifras, densidad y teléfono); aquí,
+//  sus campos: cada uno con la altura de un control y un ancho que no se aplasta.
+vx-table {
   td input { @include ds.input-base; min-width: 6rem; }
   td vx-select { min-width: 16rem; display: block; }
 
-  .numeric { text-align: right; font-variant-numeric: tabular-nums; }
-  .numeric input { text-align: right; }
   .positive { color: var(--success-text); }
   .negative { color: var(--error-text); }
   .muted { color: var(--content-tertiary); }

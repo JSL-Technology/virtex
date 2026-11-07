@@ -16,6 +16,7 @@ import { NotificationService } from '../../core/services/notification';
 import { VxBadgeComponent } from '../../shared/components/badge';
 import { transferStatusKey, transferStatusTone } from '../data-exports/transfer-status';
 
+import { VX_TABLE } from '../../shared/components/table';
 /** Above this the file is refused by the API anyway; said before uploading it. */
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -37,7 +38,7 @@ const MAX_BYTES = 5 * 1024 * 1024;
 @Component({
   selector: 'app-data-imports-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxBadgeComponent],
+  imports: [...VX_TABLE, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxBadgeComponent],
   templateUrl: './data-imports.page.html',
   styleUrls: ['./data-imports.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

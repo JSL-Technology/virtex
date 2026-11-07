@@ -1,0 +1,452 @@
+@use 'assets/styles/design-system' as ds;
+
+// =============================================================================
+//  vx-table — la única tabla del producto
+// =============================================================================
+//  Antes había cinco formas de pintar una tabla (`ds.data-table` en listas con una tarjeta con
+//  sombra, `ui.table` en Configuración sin caja, `views.table-wrapper`, `.card` + `.data-table` en
+//  las páginas clásicas y `.lines-table` en los documentos) y en ninguna de sus diferencias había
+//  una decisión: el enlace de la primera columna era morado en unas y negro en otras, la columna
+//  de acciones iba centrada en unas y a la derecha en otras, y los importes solo se alineaban si la
+//  celda llevaba una de cuatro clases sinónimas. Aquí está la tabla, una vez.
+//
+//  Cómo están escritos los selectores:
+//  - Anclados en `.vx-table__scroll > table` con combinadores de hijo: las reglas son de ESTA
+//    tabla y nunca de una tabla anidada en una de sus celdas, que lleva su propio `vx-table`.
+//  - Con `:where()` en las partes estructurales, para que la especificidad sea baja y estable: una
+//    página que ajusta una celda concreta (el ancho de un código, la fuente de una referencia) gana
+//    sin pelear, y no hace falta `!important` en ningún sitio.
+//
+//  Densidad: `--table-cell-py` y `--table-cell-px` viven en `_scales.scss`, junto a las alturas de
+//  control, y la preferencia «compacta» del usuario los recalcula para toda la aplicación.
+// =============================================================================
+
+// La tabla de este componente y sus partes, nunca las de una tabla anidada: la región desplazable
+// es solo de este componente, y los combinadores de hijo no bajan a una tabla dentro de una celda.
+// Especificidad: (0,1,1) la tabla y (0,1,2) una celda, así que una regla de página (que Angular
+// encapsula con un atributo) gana sin pelear. Los modificadores del componente suman su clase.
+$table: '.vx-table__scroll > table';
+$cells: '> :where(thead, tbody, tfoot) > tr > :where(th, td)';
+$head: '> thead > tr > th';
+$body: '> :where(tbody) > tr > :where(th, td)';
+$foot: '> tfoot > tr > :where(th, td)';
+
+.vx-table {
+  //  Fondo de las celdas fijas (cabecera y primera columna): tienen que tapar lo que pasa por
+  //  debajo. Una página que pone la tabla sobre otra superficie lo ajusta aquí.
+  --vx-table-bg: var(--surface-base);
+
+  //  Un flujo propio de apilamiento: la cabecera y la columna fijas se ordenan dentro de la tabla
+  //  y no compiten con el resto de la página.
+  isolation: isolate;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  //  En una columna que le da altura (una lista en `vx-list-shell`) ocupa lo que queda y desplaza
+  //  sus filas por dentro, con la cabecera a la vista. En cualquier otro sitio esto no hace nada y
+  //  la tabla mide lo que sus filas.
+  flex: 0 1 auto;
+  min-height: 0;
+  min-width: 0;
+}
+
+//  Sobre el lienzo de la página, una región con borde: delimita lo que se desplaza y da un borde a
+//  la cabecera fija. Sin sombra: nada aquí flota (constitución, §7).
+.vx-table--framed {
+  --vx-table-bg: var(--surface-raised);
+  background-color: var(--vx-table-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.vx-table__scroll {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior-inline: contain;
+  @include ds.scrollbar;
+  //  Hacia dentro: el marco recorta lo que sale de él.
+  @include ds.focus-ring-inset;
+}
+
+// -----------------------------------------------------------------------------
+//  La tabla
+// -----------------------------------------------------------------------------
+#{$table} {
+  width: 100%;
+  //  `collapse` rompe los bordes de una cabecera fija; la línea entre filas es el borde inferior
+  //  de cada celda.
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--content-primary);
+}
+
+#{$table} > caption {
+  padding: 0 0 var(--space-2);
+  caption-side: top;
+  text-align: start;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--content-secondary);
+}
+
+#{$table} #{$cells} {
+  padding: var(--table-cell-py) var(--table-cell-px);
+  text-align: start;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+//  Una celda que lleva un control (las líneas de un documento): el control ya trae su altura.
+#{$table} #{$body}:has(> :is(input:not([type='checkbox']):not([type='radio']), select, textarea, vx-select, vx-date-field, vx-search-select, app-product-picker)) {
+  padding-block: var(--space-1);
+}
+
+// -- Cabecera -----------------------------------------------------------------
+#{$table} #{$head} {
+  //  Fija arriba mientras las filas se desplazan por dentro de la región.
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background-color: var(--surface-sunken);
+  color: var(--content-secondary);
+  font-weight: var(--font-semibold);
+  //  Escrita como la escribe el catálogo: nada de mayúsculas forzadas (constitución, §6).
+  white-space: nowrap;
+  vertical-align: bottom;
+  border-bottom-color: var(--border-default);
+}
+
+//  El encabezado de una fila (`<th scope="row">`): un valor más, con algo más de peso.
+#{$table} > tbody > tr > th {
+  font-weight: var(--font-medium);
+}
+
+// -- Pie: los totales ---------------------------------------------------------
+#{$table} #{$foot} {
+  font-weight: var(--font-semibold);
+  background-color: var(--vx-table-bg);
+}
+
+#{$table} > tfoot > tr:first-child > :where(th, td) {
+  border-top: 1px solid var(--border-default);
+}
+
+#{$table} > tfoot > tr:last-child > :where(th, td),
+#{$table} > tbody:last-of-type:not(:has(~ tfoot)) > tr:last-child > :where(th, td) {
+  border-bottom: none;
+}
+
+// -- El vocabulario de las columnas -------------------------------------------
+//  Importes y cantidades: a la derecha y con cifras tabulares. En contabilidad esto no es
+//  estética: es cómo se comparan cifras de un vistazo.
+#{$table} #{$cells}.numeric {
+  text-align: end;
+  white-space: nowrap;
+  @include ds.numeric;
+}
+
+//  Una cifra que se escribe se alinea como la que se lee.
+#{$table} #{$cells}.numeric :is(input, .vx-number-input) {
+  text-align: end;
+}
+
+#{$table} #{$cells}.text-center {
+  text-align: center;
+}
+
+#{$table} #{$cells}.nowrap {
+  white-space: nowrap;
+}
+
+//  Lo que se hace con la fila: estrecha, sin partir, donde termina la lectura de la fila. Varias
+//  acciones sueltas (un «Editar» y un «Más acciones») guardan su distancia.
+#{$table} #{$cells}.actions-column {
+  width: 1%;
+  white-space: nowrap;
+  text-align: end;
+
+  > * + * {
+    margin-inline-start: var(--space-2);
+  }
+}
+
+#{$table} #{$cells}.select-column {
+  width: 1%;
+  padding-inline-end: 0;
+  white-space: nowrap;
+}
+
+//  El enlace que abre el registro. Del color del texto y con peso: en una lista entera de enlaces,
+//  el acento en cada fila era ruido (constitución, §5). La fila entera responde (`appRowLink`).
+#{$table} .table-link {
+  display: inline-flex;
+  align-items: center;
+  //  Un objetivo por sí mismo, no una palabra dentro de una frase: 24px de alto (WCAG 2.5.8).
+  min-height: 24px;
+  color: var(--content-primary);
+  font-weight: var(--font-medium);
+  text-decoration: none;
+  border-radius: var(--radius-xs);
+
+  &:hover {
+    color: var(--accent-text);
+    text-decoration: underline;
+  }
+
+  @include ds.focus-ring(2px);
+}
+
+.vx-table__check {
+  margin: 0;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+// -- Estados de fila ----------------------------------------------------------
+//  En las celdas y no en la fila: así cubre también una celda fija, que tiene fondo propio.
+#{$table} > tbody > tr {
+  @include ds.transition(background-color);
+}
+
+#{$table} > tbody > tr:hover > :where(th, td),
+#{$table} > tbody > tr.vx-row-link:focus-within > :where(th, td) {
+  background-color: var(--surface-hover);
+}
+
+#{$table} > tbody > tr:is([aria-selected='true'], .is-selected, :has(> .select-column input:checked)) > :where(th, td) {
+  background-color: var(--surface-selected);
+}
+
+// -- Primera columna fija (`stickyColumn`) ------------------------------------
+.vx-table--sticky-column > #{$table} > :where(thead, tbody, tfoot) > tr > :first-child {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: var(--z-raised);
+  background-color: var(--vx-table-bg);
+  //  Su borde marca dónde empieza lo que se desplaza.
+  border-inline-end: 1px solid var(--border-subtle);
+}
+
+.vx-table--sticky-column > #{$table} > thead > tr > :first-child {
+  z-index: calc(var(--z-sticky) + 1);
+  background-color: var(--surface-sunken);
+}
+
+.vx-table--sticky-column > #{$table} > tbody > tr:hover > :first-child {
+  background-color: var(--surface-hover);
+}
+
+// -- Refrescando lo que ya se ve (`busy`) -------------------------------------
+//  Las filas se quedan, atenuadas, y una franja recorre el borde superior: se ve que algo pasa sin
+//  tapar lo que hay ni hacer saltar la tabla.
+.vx-table--busy > #{$table} > tbody {
+  opacity: 0.55;
+  cursor: progress;
+  @include ds.transition(opacity);
+}
+
+.vx-table--busy::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 0;
+  z-index: calc(var(--z-sticky) + 2);
+  height: 2px;
+  //  Un segmento sólido que recorre el borde (un indicador indeterminado, no un degradado de adorno).
+  background-image: linear-gradient(90deg, transparent 0 40%, var(--accent-solid) 40% 60%, transparent 60% 100%);
+  background-size: 250% 100%;
+  animation: vx-table-busy calc(var(--duration-deliberate) * 2.5) linear infinite;
+
+  @include ds.bp-reduced-motion {
+    animation: none;
+    background: var(--accent-solid);
+    opacity: 0.5;
+  }
+}
+
+@keyframes vx-table-busy {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+
+// -- Sin filas (`empty`) ------------------------------------------------------
+.vx-table__empty {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+// -- Densidad fijada por la tabla ---------------------------------------------
+.vx-table--compact {
+  --table-cell-py: var(--space-2);
+  --table-cell-px: var(--space-3);
+}
+
+.vx-table--comfortable {
+  --table-cell-py: var(--space-3);
+  --table-cell-px: var(--space-4);
+}
+
+// -- La barra de la selección (`vx-bulk-bar`) ---------------------------------
+.vx-bulk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--table-cell-px);
+  background-color: var(--surface-selected);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: var(--text-sm);
+}
+
+.vx-bulk-bar__count {
+  margin-inline-end: auto;
+  font-weight: var(--font-medium);
+  @include ds.numeric;
+}
+
+.vx-bulk-bar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+// =============================================================================
+//  Una lista en un contenedor estrecho: cada fila, una ficha de «etiqueta: valor»
+// =============================================================================
+//  Solo cuando la tabla no cabe como tabla (lo decide el componente midiendo, `--stacked`): una
+//  lista de tres columnas cortas se sigue leyendo mejor como tabla en un teléfono. La etiqueta sale
+//  de `data-label`, que el componente escribe desde la cabecera; la cabecera queda oculta a la
+//  vista pero presente para el lector de pantalla, y los roles ARIA mantienen la relación.
+.vx-table--stacked > #{$table} {
+  display: block;
+  //  Un ancho mínimo que la página le pone a su rejilla de campos (para que no se aplasten en un
+  //  escritorio estrecho) no tiene sentido cuando cada fila es una ficha.
+  min-width: 0;
+}
+
+.vx-table--stacked > #{$table} > thead {
+  @include ds.visually-hidden;
+}
+
+.vx-table--stacked > #{$table} > :where(tbody, tfoot) {
+  display: block;
+}
+
+.vx-table--stacked > #{$table} > :where(tbody, tfoot) > tr {
+  position: relative;
+  //  Una columna: así la celda que titula la ficha (`title-column`) puede ir primero.
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3) var(--table-cell-px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.vx-table--stacked > #{$table} > tbody:last-of-type:not(:has(~ tfoot)) > tr:last-child,
+.vx-table--stacked > #{$table} > tfoot > tr:last-child {
+  border-bottom: none;
+}
+
+.vx-table--stacked > #{$table} > tfoot > tr:first-child {
+  border-top: 1px solid var(--border-default);
+}
+
+//  `flow-root` y la etiqueta flotando al inicio: el contenido de la celda (un enlace y su código,
+//  una cantidad y su unidad) sigue fluyendo junto, y la celda crece con una etiqueta larga.
+.vx-table--stacked > #{$table} > :where(tbody, tfoot) > tr > :where(th, td) {
+  display: flow-root;
+  padding: var(--space-1) 0;
+  text-align: end;
+  border: 0;
+  background-color: transparent;
+}
+
+.vx-table--stacked > #{$table} > :where(tbody, tfoot) > tr > :where(th, td)[data-label]::before {
+  content: attr(data-label);
+  float: inline-start;
+  max-width: 50%;
+  padding-inline-end: var(--space-3);
+  text-align: start;
+  font-weight: var(--font-medium);
+  color: var(--content-secondary);
+  overflow-wrap: anywhere;
+}
+
+//  El título de la ficha, sin etiqueta: la celda marcada `title-column` (el número de un asiento cuando
+//  la primera columna es la fecha) y, si ninguna lo está, la primera tras la casilla de selección.
+//  `:is()` y no `:where()`: tiene que pesar más que la regla de la etiqueta, que lleva `[data-label]`.
+.vx-table--stacked > #{$table} > tbody > tr > .title-column {
+  order: -1;
+}
+
+.vx-table--stacked > #{$table} > tbody > tr:not(:has(> .title-column)) > :is(:first-child:not(.select-column), .select-column + *),
+.vx-table--stacked > #{$table} > tbody > tr > .title-column {
+  padding-block-end: var(--space-2);
+  text-align: start;
+  font-size: var(--text-md);
+  font-weight: var(--font-medium);
+
+  &::before {
+    content: none;
+  }
+}
+
+//  La casilla de selección, en la esquina de la ficha; el título le deja sitio.
+.vx-table--stacked > #{$table} > tbody > tr > .select-column {
+  position: absolute;
+  inset-block-start: var(--space-3);
+  inset-inline-end: var(--table-cell-px);
+  width: auto;
+  padding: 0;
+}
+
+.vx-table--stacked > #{$table} > tbody > tr:has(> .select-column) > :is(.title-column, .select-column + *) {
+  padding-inline-end: var(--space-8);
+}
+
+.vx-table--stacked > #{$table} > :where(tbody, tfoot) > tr > .actions-column {
+  width: auto;
+  padding-block-start: var(--space-2);
+}
+
+.vx-table--stacked > #{$table} > :where(tbody, tfoot) > tr > .numeric {
+  white-space: normal;
+}
+
+.vx-table--stacked > #{$table} > tbody > tr:hover > :where(th, td) {
+  background-color: transparent;
+}
+
+.vx-table--stacked > #{$table} > tbody > tr:hover,
+.vx-table--stacked > #{$table} > tbody > tr.vx-row-link:focus-within {
+  background-color: var(--surface-hover);
+}
+
+.vx-table--stacked > #{$table} > tbody > tr:is([aria-selected='true'], .is-selected, :has(> .select-column input:checked)) {
+  background-color: var(--surface-selected);
+}
+
+// =============================================================================
+//  Impresión: todo a la vista, sin región que desplazar
+// =============================================================================
+@media print {
+  .vx-table {
+    display: block;
+    border: 0;
+  }
+
+  .vx-table__scroll {
+    overflow: visible;
+    max-height: none !important; // la altura máxima viene como estilo en línea
+  }
+
+  #{$table} #{$head} {
+    position: static;
+  }
+}

@@ -120,8 +120,8 @@
           </label>
         </div>
         @if (documents().length) {
-          <div class="cf__table-wrap">
-            <table class="data-table">
+          <vx-table labelKey="ai.cashflow.documents.title">
+            <table>
               <thead>
                 <tr>
                   <th>{{ (docKind() === 'RECEIVABLE' ? 'ai.cashflow.documents.customer' : 'ai.cashflow.documents.supplier') | translate }}</th>
@@ -147,7 +147,7 @@
                 }
               </tbody>
             </table>
-          </div>
+          </vx-table>
           @if (documentsTotal() > documents().length) {
             <p class="cf__muted">{{ 'ai.cashflow.documents.showing' | translate: { shown: documents().length, total: documentsTotal() } }}</p>
           }

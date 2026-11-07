@@ -19,6 +19,7 @@ import {
 } from './cashflow.service';
 import { AiService } from '../data/ai.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 const POLL_MS = 5000;
 const pending = (status: string | undefined | null) => status === 'QUEUED' || status === 'RUNNING';
 
@@ -34,7 +35,7 @@ const pending = (status: string | undefined | null) => status === 'QUEUED' || st
 @Component({
   selector: 'app-cashflow-page',
   standalone: true,
-  imports: [VxNumberInputDirective, FormsModule, KeyValuePipe, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, CashflowChartComponent],
+  imports: [...VX_TABLE, VxNumberInputDirective, FormsModule, KeyValuePipe, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, CashflowChartComponent],
   templateUrl: './cashflow.page.html',
   styleUrl: './cashflow.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

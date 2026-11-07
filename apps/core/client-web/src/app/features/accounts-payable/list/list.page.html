@@ -33,16 +33,16 @@
     </a>
   </div>
 
-  <div class="table-container card">
-    <table [appTableMenu]="billsMenu" [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="accounts_payable.list.vendor_bills">
+    <table [appTableMenu]="billsMenu" [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="vendor">{{ 'accounts_payable.list.supplier' | translate }}</th>
           <th appSortHeader="ncf">{{ 'accounts_payable.list.number' | translate }}</th>
           <th appSortHeader="date">{{ 'accounts_payable.list.date' | translate }}</th>
           <th appSortHeader="dueDate">{{ 'accounts_payable.list.due' | translate }}</th>
-          <th appSortHeader="total" class="text-right">{{ 'accounts_payable.list.total' | translate }}</th>
-          <th appSortHeader="balance" class="text-right">{{ 'accounts_payable.list.balance' | translate }}</th>
+          <th appSortHeader="total" class="numeric">{{ 'accounts_payable.list.total' | translate }}</th>
+          <th appSortHeader="balance" class="numeric">{{ 'accounts_payable.list.balance' | translate }}</th>
           <th appSortHeader="status" class="text-center">{{ 'accounts_payable.list.status' | translate }}</th>
           @if (branches.hasBranches()) {
             <th>{{ 'branches.picker.label' | translate }}</th>
@@ -64,8 +64,8 @@
             </td>
             <td>{{ bill.date | vxDate: 'date' }}</td>
             <td>{{ bill.dueDate | vxDate: 'date' }}</td>
-            <td class="text-right"><vx-amount [value]="bill.total" /></td>
-            <td class="text-right"><vx-amount [value]="bill.balance" /></td>
+            <td class="numeric"><vx-amount [value]="bill.total" /></td>
+            <td class="numeric"><vx-amount [value]="bill.balance" /></td>
             <td class="text-center">
               <vx-badge [tone]="statusTone(bill.status)" [struck]="isVoid(bill.status)">
                 {{ statusKey(bill.status) | translate }}
@@ -78,5 +78,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

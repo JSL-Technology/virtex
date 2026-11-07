@@ -1,61 +1,19 @@
 // =============================================================================
 //  Configuración: patrones de interfaz comunes a todas sus páginas.
 // =============================================================================
-//  Una tabla, una acción de fila, un control segmentado y un buscador: una sola forma de cada uno
-//  en las 25 páginas. Antes cada página traía la suya (tablas dentro de tarjetas o sin ellas,
+//  Una acción de fila, un control segmentado y un buscador: una sola forma de cada uno en las 25
+//  páginas (la tabla es `vx-table`). Antes cada página traía la suya (tablas dentro de tarjetas o sin ellas,
 //  acciones de fila como iconos, enlaces o un menú hecho a mano) y ninguna diferencia era una
 //  decisión (estándar v0.1, COMP-01). Se usan así:
 //
 //      @use 'app/features/settings/shared/settings-ui' as ui;
-//      .mi-tabla { @include ui.table; }
+//      .mi-accion { @include ui.link-button; }
 // =============================================================================
 @use 'assets/styles/design-system' as ds;
 
-//  Tabla de la modal: sin caja alrededor —la cabecera hundida y las líneas entre filas bastan para
-//  leerla—, con cifras tabulares a la derecha. En pantallas estrechas cada fila se apila como una
-//  ficha de pares «etiqueta: valor» (la etiqueta sale de `data-label`), de modo que ninguna
-//  columna queda fuera de la vista (RESP-01).
-@mixin table {
-  @include ds.data-table;
-
-  th {
-    position: static;
-  }
-
-  @include ds.bp-down('sm') {
-    thead {
-      @include ds.visually-hidden;
-    }
-
-    tbody tr {
-      display: block;
-      padding: var(--space-3) 0;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    tbody td {
-      display: flex;
-      gap: var(--space-3);
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--space-1) 0;
-      border-bottom: none;
-      text-align: right;
-
-      &[data-label]::before {
-        content: attr(data-label);
-        flex-shrink: 0;
-        color: var(--content-secondary);
-        font-weight: var(--font-medium);
-        text-align: left;
-      }
-    }
-
-    td.row-actions {
-      justify-content: flex-end;
-    }
-  }
-}
+//  Las tablas de la modal son `vx-table` con `frame="none"` (shared/components/table): sin caja
+//  alrededor —la cabecera hundida y las líneas entre filas bastan para leerlas—, y en un contenedor
+//  estrecho cada fila se apila como ficha «etiqueta: valor».
 
 //  La celda de acciones: la acción más frecuente como botón de texto y, si hay más, «Más acciones»
 //  (…), que abre el menú compartido de las tablas.

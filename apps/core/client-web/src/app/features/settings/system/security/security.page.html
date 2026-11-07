@@ -111,70 +111,74 @@
         }
       } @else {
         <div [attr.aria-busy]="trailLoading()">
-          <table class="sec__table">
-            <thead>
-              <tr>
-                <th scope="col">{{ 'settings.security.when' | translate }}</th>
-                <th scope="col">{{ 'settings.security.who' | translate }}</th>
-                <th scope="col">{{ 'settings.security.what' | translate }}</th>
-                <th scope="col">{{ 'settings.security.record' | translate }}</th>
-                @if (showIp()) {
-                  <th scope="col">{{ 'settings.security.ip' | translate }}</th>
-                }
-                <th scope="col"><span class="sr-only">{{ 'settings.security.detail' | translate }}</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of result.rows; track row.id) {
-                <tr [class.sec__row--system]="!row.userId">
-                  <td class="sec__when" [attr.data-label]="'settings.security.when' | translate">{{ row.timestamp | vxDate: 'dateTime' }}</td>
-                  <td [attr.data-label]="'settings.security.who' | translate">{{ row.actorName ?? ('settings.security.system_actor' | translate) }}</td>
-                  <td [attr.data-label]="'settings.security.what' | translate">{{ actionLabel(row.actionType) }}</td>
-                  <td [attr.data-label]="'settings.security.record' | translate">
-                    <!-- Tipo y registro van juntos: en el teléfono la celda reparte sus hijos a lo ancho. -->
-                    <span class="sec__record-cell">
-                      <span class="sec__entity">{{ entityName(row.entity) }}</span>
-                      <span class="sec__record" [title]="row.entityId">{{ recordName(row) }}</span>
-                    </span>
-                  </td>
+          <vx-table labelKey="settings.sections_meta.audit_trail.label" frame="none">
+            <table class="sec__table">
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'settings.security.when' | translate }}</th>
+                  <th scope="col">{{ 'settings.security.who' | translate }}</th>
+                  <th scope="col">{{ 'settings.security.what' | translate }}</th>
+                  <th scope="col">{{ 'settings.security.record' | translate }}</th>
                   @if (showIp()) {
-                    <td [attr.data-label]="'settings.security.ip' | translate">{{ row.ipAddress || '—' }}</td>
+                    <th scope="col">{{ 'settings.security.ip' | translate }}</th>
                   }
-                  <td class="row-actions">
-                    @if (changes(row).length > 0) {
-                      <button type="button" class="sec__link" [attr.aria-expanded]="expanded() === row.id" (click)="toggle(row)">
-                        {{ (expanded() === row.id ? 'settings.security.hide_detail' : 'settings.security.show_detail') | translate }}
-                      </button>
-                    }
-                  </td>
+                  <th scope="col"><span class="sr-only">{{ 'settings.security.detail' | translate }}</span></th>
                 </tr>
-                @if (expanded() === row.id) {
-                  <tr class="sec__detail">
-                    <td [attr.colspan]="showIp() ? 6 : 5">
-                      <table class="sec__changes">
-                        <thead>
-                          <tr>
-                            <th scope="col">{{ 'settings.security.field' | translate }}</th>
-                            <th scope="col">{{ 'settings.security.before' | translate }}</th>
-                            <th scope="col">{{ 'settings.security.after' | translate }}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (change of changes(row); track change.field) {
-                            <tr>
-                              <td><code>{{ change.field }}</code></td>
-                              <td>{{ change.before || '—' }}</td>
-                              <td>{{ change.after || '—' }}</td>
-                            </tr>
-                          }
-                        </tbody>
-                      </table>
+              </thead>
+              <tbody>
+                @for (row of result.rows; track row.id) {
+                  <tr [class.sec__row--system]="!row.userId">
+                    <td class="sec__when" [attr.data-label]="'settings.security.when' | translate">{{ row.timestamp | vxDate: 'dateTime' }}</td>
+                    <td [attr.data-label]="'settings.security.who' | translate">{{ row.actorName ?? ('settings.security.system_actor' | translate) }}</td>
+                    <td [attr.data-label]="'settings.security.what' | translate">{{ actionLabel(row.actionType) }}</td>
+                    <td [attr.data-label]="'settings.security.record' | translate">
+                      <!-- Tipo y registro van juntos: en el teléfono la celda reparte sus hijos a lo ancho. -->
+                      <span class="sec__record-cell">
+                        <span class="sec__entity">{{ entityName(row.entity) }}</span>
+                        <span class="sec__record" [title]="row.entityId">{{ recordName(row) }}</span>
+                      </span>
+                    </td>
+                    @if (showIp()) {
+                      <td [attr.data-label]="'settings.security.ip' | translate">{{ row.ipAddress || '—' }}</td>
+                    }
+                    <td class="actions-column">
+                      @if (changes(row).length > 0) {
+                        <button type="button" class="sec__link" [attr.aria-expanded]="expanded() === row.id" (click)="toggle(row)">
+                          {{ (expanded() === row.id ? 'settings.security.hide_detail' : 'settings.security.show_detail') | translate }}
+                        </button>
+                      }
                     </td>
                   </tr>
+                  @if (expanded() === row.id) {
+                    <tr class="sec__detail">
+                      <td [attr.colspan]="showIp() ? 6 : 5">
+                        <vx-table frame="none">
+                          <table class="sec__changes">
+                            <thead>
+                              <tr>
+                                <th scope="col">{{ 'settings.security.field' | translate }}</th>
+                                <th scope="col">{{ 'settings.security.before' | translate }}</th>
+                                <th scope="col">{{ 'settings.security.after' | translate }}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (change of changes(row); track change.field) {
+                                <tr>
+                                  <td><code>{{ change.field }}</code></td>
+                                  <td>{{ change.before || '—' }}</td>
+                                  <td>{{ change.after || '—' }}</td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </vx-table>
+                      </td>
+                    </tr>
+                  }
                 }
-              }
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </vx-table>
         </div>
         <!-- La misma paginación que Usuarios y el resto del producto (COMP-01). -->
         <vx-pager

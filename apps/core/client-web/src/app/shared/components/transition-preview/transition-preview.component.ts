@@ -6,6 +6,7 @@ import { LucideAngularModule, Check, X, AlertTriangle } from 'lucide-angular';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TransitionPreview, LedgerEffect, StockEffect, SequenceEffect } from './transition-preview.model';
 
+import { VX_TABLE } from '../table';
 /**
  * What a business transition would do, shown before it does it.
  *
@@ -24,7 +25,7 @@ import { TransitionPreview, LedgerEffect, StockEffect, SequenceEffect } from './
 @Component({
   selector: 'app-transition-preview',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES],
+  imports: [...VX_TABLE, CommonModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './transition-preview.component.html',
   styleUrls: ['./transition-preview.component.scss'],

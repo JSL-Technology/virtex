@@ -1137,6 +1137,10 @@
       "VENDOR_BILL",
       "JOURNAL_ENTRY"
     ],
+    "shell.table.selected": [
+      "one",
+      "other"
+    ],
     "transition.line_count": [
       "one",
       "other"

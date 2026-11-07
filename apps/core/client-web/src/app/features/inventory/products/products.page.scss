@@ -23,29 +23,6 @@
     gap: var(--space-1);
   }
 
-  //  Columna de selección múltiple: estrecha y centrada; la fila marcada se tiñe
-  //  con la superficie de acento para que el lote sea visible de un vistazo.
-  .select-column {
-    width: 2.5rem;
-    text-align: center;
-
-    input[type='checkbox'] {
-      cursor: pointer;
-    }
-  }
-
-  tr.is-selected > td {
-    background: var(--accent-surface);
-  }
 }
 
-// The selection, and what it can do (QA R3-B08).
-.selection-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  margin-bottom: var(--space-3);
-}
-.selection-bar__count { font-weight: var(--font-medium); margin-right: auto; }
+// La selección (casillas, fila marcada) y su barra de acciones son de `vx-table`.

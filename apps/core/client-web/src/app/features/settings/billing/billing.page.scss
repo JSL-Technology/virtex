@@ -222,12 +222,5 @@
 }
 
 // ── Historial ────────────────────────────────────────────────────────
-.history-table {
-  @include ui.table;
-
-  .numeric { text-align: right; @include ds.numeric; }
-  .nowrap { white-space: nowrap; }
-}
-
-.row-actions { @include ui.row-actions; }
+//  La tabla, sus cifras y su columna de acciones son de `vx-table`.
 .icon-button { @include ui.icon-button; }

@@ -22,6 +22,7 @@ import { SettingsGroupComponent } from '../../shared';
 import { SettingsChanges, SettingsShellService } from '../../shell';
 import { Role, RolesService } from '../../data/roles.service';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * Per-organization enterprise SSO settings: manage verified email domains and OIDC identity
  * providers (Okta, Microsoft Entra, Google Workspace, Ping, Auth0, ...). A provider can only
@@ -30,7 +31,7 @@ import { Role, RolesService } from '../../data/roles.service';
 @Component({
   selector: 'app-sso-settings',
   standalone: true,
-  imports: [
+  imports: [...VX_TABLE, 
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,

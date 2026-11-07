@@ -16,6 +16,7 @@ import { FileKey } from 'lucide-angular';
 import { SettingsGroupComponent } from '../../shared/settings-group.component';
 import { SettingsChanges, SettingsShellService } from '../../shell';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * The certificate that signs the company's electronic documents — in any market whose regime signs
  * with one (`InvoicingContext.certificateRequired`): a DGII certificate, a Mexican CSD, a DIAN,
@@ -29,7 +30,7 @@ import { SettingsChanges, SettingsShellService } from '../../shell';
 @Component({
   selector: 'vx-signing-certificate-card',
   standalone: true,
-  imports: [
+  imports: [...VX_TABLE, 
     ...VX_SORT,
     ReactiveFormsModule,
     TranslateModule,

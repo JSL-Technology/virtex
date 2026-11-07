@@ -26,8 +26,8 @@
     <section class="form-section">
       <h2 class="form-section-title">{{ 'entry_templates.form.lines' | translate }}</h2>
       <p class="form-hint">{{ 'entry_templates.form.lines_hint' | translate }}</p>
-      <div class="table-wrapper">
-        <table class="lines-table">
+      <vx-table labelKey="entry_templates.form.lines" frame="none">
+        <table>
           <thead>
             <tr>
               <th>{{ 'entry_templates.form.account' | translate }} *</th>
@@ -79,7 +79,7 @@
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
       <div class="re-actions">
         <button type="button" class="secondary-button add-line" (click)="addLine('DEBIT')">
           <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
@@ -121,24 +121,26 @@
         </div>
 
         @if (preview().length) {
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>{{ 'entry_templates.form.line_description' | translate }}</th>
-                <th class="numeric">{{ 'entry_templates.form.debit' | translate }}</th>
-                <th class="numeric">{{ 'entry_templates.form.credit' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of preview(); track $index) {
+          <vx-table labelKey="entry_templates.use.title">
+            <table>
+              <thead>
                 <tr>
-                  <td>{{ row.line.description || template.description }}</td>
-                  <td class="numeric">@if (row.line.type === 'DEBIT') { <vx-amount [value]="row.amount" /> }</td>
-                  <td class="numeric">@if (row.line.type === 'CREDIT') { <vx-amount [value]="row.amount" /> }</td>
+                  <th>{{ 'entry_templates.form.line_description' | translate }}</th>
+                  <th class="numeric">{{ 'entry_templates.form.debit' | translate }}</th>
+                  <th class="numeric">{{ 'entry_templates.form.credit' | translate }}</th>
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @for (row of preview(); track $index) {
+                  <tr>
+                    <td>{{ row.line.description || template.description }}</td>
+                    <td class="numeric">@if (row.line.type === 'DEBIT') { <vx-amount [value]="row.amount" /> }</td>
+                    <td class="numeric">@if (row.line.type === 'CREDIT') { <vx-amount [value]="row.amount" /> }</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </vx-table>
         }
 
         <div class="re-actions">

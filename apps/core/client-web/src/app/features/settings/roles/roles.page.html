@@ -11,8 +11,8 @@
   } @else if (loadError(); as message) {
     <vx-error-state [detail]="message" (retry)="load()" />
   } @else {
-    <div class="roles-table">
-      <table class="data-table" [appTableMenu]="rolesMenu">
+    <vx-table labelKey="settings.sections_meta.roles.label" frame="none">
+      <table [appTableMenu]="rolesMenu">
         <thead>
           <tr>
             <th>{{ 'settings.roles.role_name' | translate }}</th>
@@ -31,7 +31,7 @@
                 {{ (role.isSystemRole ? 'settings.roles.kind_system' : 'settings.roles.kind_custom') | translate }}
               </vx-badge>
             </td>
-            <td class="row-actions">
+            <td class="actions-column">
               <!--
                 Un rol del sistema no se edita, y quien no tiene permiso de edición tampoco edita
                 ninguno: en esos casos la fila ofrece «Ver», que abre los permisos en solo lectura.
@@ -57,7 +57,7 @@
           }
         </tbody>
       </table>
-    </div>
+    </vx-table>
   }
 </div>
 

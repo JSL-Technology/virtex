@@ -28,6 +28,7 @@ import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * The withholding regimes the tenant maintains, and what the product covers in their market.
  *
@@ -46,7 +47,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-withholding-regimes-page',
   standalone: true,
-  imports: [
+  imports: [...VX_TABLE, 
     VxNumberInputDirective,
     VxEmptyStateComponent,
     VxErrorStateComponent,

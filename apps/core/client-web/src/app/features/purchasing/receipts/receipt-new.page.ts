@@ -13,6 +13,7 @@ import { ActiveOrganizationService } from '../../../core/tenancy/active-organiza
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
 import { PurchaseOrder, PurchasingService } from '../data/purchasing.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 const QUANTITY_EPSILON = 0.000001;
 const round6 = (value: number): number => Math.round(value * 1e6) / 1e6;
 // The company's today, not the browser's or UTC (QA R3-M02).
@@ -37,7 +38,7 @@ interface ReceiptLineValue {
 @Component({
   selector: 'app-goods-receipt-new-page',
   standalone: true,
-  imports: [VxNumberInputDirective, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, VxDateFieldComponent],
+  imports: [...VX_TABLE, VxNumberInputDirective, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, VxDateFieldComponent],
   templateUrl: './receipt-new.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

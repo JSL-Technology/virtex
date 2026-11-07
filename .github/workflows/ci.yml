@@ -196,6 +196,14 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run lint:design-system
 
+      # Every table of the web client is a `vx-table` (shared/components/table). A bare
+      # `<table class="data-table">` compiles, renders and passes its tests, and brings back what the
+      # component replaced: five rival table looks, a phone layout that cut columns off and a scroll
+      # region the keyboard could not reach. This keeps the one table the only one.
+      - name: npm run verify:tables
+        if: ${{ !cancelled() }}
+        run: npm run verify:tables
+
       # Forms: every invalid field is announced (aria-invalid) and every required marker matches its
       # validator. Both scripts existed and both were failing, because nothing ran them.
       - name: form accessibility

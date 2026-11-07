@@ -1,42 +1,15 @@
 @use "../../../../../assets/styles/view-styles" as views;
 @use "../balance-sheet/balance-sheet.page.scss";
 
-.table-wrapper {
-  overflow-x: auto;
-}
-
+//  La balanza es un `vx-table` (cabecera de dos filas fija, cifras, pie y la cuenta fija al desplazar).
 .trial-balance {
-  width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-
-  th,
-  td {
-    padding: var(--space-2) var(--space-3);
-    border-bottom: 1px solid var(--border-color);
-    white-space: nowrap;
-  }
-
-  thead th {
+  //  Saldo inicial, Movimientos y Saldo final: cada grupo, centrado sobre sus dos columnas.
+  thead th[colspan] {
     text-align: center;
-    font-weight: 600;
-    color: var(--text-secondary);
-    background: var(--surface-sunken);
   }
 
   .account-column {
-    text-align: left;
-    white-space: normal;
     min-width: 16rem;
-  }
-
-  .numeric {
-    text-align: right;
-  }
-
-  tfoot td {
-    font-weight: 700;
-    border-top: 2px solid var(--text-primary);
   }
 }
 

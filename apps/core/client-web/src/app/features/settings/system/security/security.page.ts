@@ -19,6 +19,7 @@ import { VxEmptyStateComponent, VxErrorStateComponent, VxSpinnerComponent } from
 import { VxPagerComponent } from '../../../../shared/components/pager';
 import { History, SearchX } from 'lucide-angular';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /** The action types the trail records (`ActionType` on the server). */
 export const AUDIT_ACTIONS = ['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'LOGIN_FAILED', 'REFRESH', 'IMPERSONATE', 'READ', 'EXPORT'] as const;
 type AuditAction = (typeof AUDIT_ACTIONS)[number];
@@ -92,7 +93,7 @@ const DEFAULT_PAGE_SIZE = 50;
 @Component({
   selector: 'app-security-settings-page',
   standalone: true,
-  imports: [...VX_FORM_A11Y, 
+  imports: [...VX_TABLE, ...VX_FORM_A11Y, 
     FormsModule,
     RouterLink,
     TranslateModule,

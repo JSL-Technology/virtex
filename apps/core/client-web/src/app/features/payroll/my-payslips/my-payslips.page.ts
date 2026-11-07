@@ -8,6 +8,7 @@ import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { Payslip, PayrollService } from '../../../core/api/payroll.service';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * A person's own payslips.
  *
@@ -19,7 +20,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-my-payslips-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [...VX_TABLE, ...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './my-payslips.page.html',
   styleUrls: ['./my-payslips.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -76,31 +76,33 @@
       }
 
       @if (registeredStates().length > 0) {
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>{{ 'masters.taxes.state' | translate }}</th>
-              <th class="text-right">{{ 'masters.taxes.state_rate' | translate }}</th>
-              <th class="text-right">{{ 'masters.taxes.combined_rate' | translate }}</th>
-              <th>{{ 'masters.taxes.in_force_since' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of registeredStates(); track row.id) {
+        <vx-table>
+          <table aria-labelledby="jurisdictional-title">
+            <thead>
               <tr>
-                <td>{{ row.stateName }} <code>{{ row.stateCode }}</code></td>
-                <td class="text-right">{{ row.rate | vxPercent: '1.0-3' }}</td>
-                <td class="text-right">
-                  {{ row.combined | vxPercent: '1.0-3' }}
-                  @if (row.localCount > 0) {
-                    <small class="jurisdictional__local">{{ 'masters.taxes.local_rates' | translate: { count: row.localCount } }}</small>
-                  }
-                </td>
-                <td>{{ row.effectiveFrom | vxDate }}</td>
+                <th>{{ 'masters.taxes.state' | translate }}</th>
+                <th class="numeric">{{ 'masters.taxes.state_rate' | translate }}</th>
+                <th class="numeric">{{ 'masters.taxes.combined_rate' | translate }}</th>
+                <th>{{ 'masters.taxes.in_force_since' | translate }}</th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (row of registeredStates(); track row.id) {
+                <tr>
+                  <td>{{ row.stateName }} <code>{{ row.stateCode }}</code></td>
+                  <td class="numeric">{{ row.rate | vxPercent: '1.0-3' }}</td>
+                  <td class="numeric">
+                    {{ row.combined | vxPercent: '1.0-3' }}
+                    @if (row.localCount > 0) {
+                      <small class="jurisdictional__local">{{ 'masters.taxes.local_rates' | translate: { count: row.localCount } }}</small>
+                    }
+                  </td>
+                  <td>{{ row.effectiveFrom | vxDate }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </vx-table>
       }
 
       <p class="jurisdictional__more">
@@ -120,13 +122,13 @@
     }
   </div>
 
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="masters.taxes.tax_rates">
+    <table [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="name">{{ 'masters.taxes.name' | translate }}</th>
           <th appSortHeader="type">{{ 'masters.taxes.type' | translate }}</th>
-          <th appSortHeader="rate" class="text-right">{{ 'masters.taxes.rate' | translate }}</th>
+          <th appSortHeader="rate" class="numeric">{{ 'masters.taxes.rate' | translate }}</th>
           <th appSortHeader="countryCode" class="text-center">{{ 'masters.taxes.country' | translate }}</th>
           <th class="actions-column"></th>
         </tr>
@@ -136,7 +138,7 @@
           <tr>
             <td>{{ tax.name }}</td>
             <td>{{ taxTypeLabel(tax.type) | translate }}</td>
-            <td class="text-right"><vx-amount [value]="tax.rate" />%</td>
+            <td class="numeric"><vx-amount [value]="tax.rate" />%</td>
             <td class="text-center">{{ tax.countryCode }}</td>
             <td class="actions-column">
               <!--
@@ -159,5 +161,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

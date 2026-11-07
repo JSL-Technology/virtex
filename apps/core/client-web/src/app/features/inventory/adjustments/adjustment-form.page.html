@@ -101,30 +101,32 @@
         <div class="adj-conflicts__body">
           <h2 id="adj-conflicts-title" class="adj-conflicts__title">{{ 'inventory.adjustments.conflicts_title' | translate: { count: moved.length } }}</h2>
           <p>{{ 'inventory.adjustments.conflicts_help' | translate }}</p>
-          <table class="lines-table adj-conflicts__table">
-            <thead>
-              <tr>
-                <th scope="col">{{ 'inventory.common.product' | translate }}</th>
-                <th scope="col" class="numeric">{{ 'inventory.adjustments.conflict_expected' | translate }}</th>
-                <th scope="col" class="numeric">{{ 'inventory.adjustments.conflict_current' | translate }}</th>
-                <th scope="col" class="numeric">{{ 'inventory.adjustments.counted' | translate }}</th>
-                <th scope="col" class="numeric">{{ 'inventory.adjustments.conflict_apply_count' | translate }}</th>
-                <th scope="col" class="numeric">{{ 'inventory.adjustments.conflict_keep_difference' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of moved; track row.productId) {
+          <vx-table>
+            <table class="adj-conflicts__table" aria-labelledby="adj-conflicts-title">
+              <thead>
                 <tr>
-                  <th scope="row">{{ row.sku ? row.sku + ' · ' : '' }}{{ row.productName }}</th>
-                  <td class="numeric">{{ row.expected | vxNumber: '1.0-6' }}</td>
-                  <td class="numeric">{{ row.current | vxNumber: '1.0-6' }}</td>
-                  <td class="numeric">{{ row.counted | vxNumber: '1.0-6' }}</td>
-                  <td class="numeric">{{ row.counted - row.current | vxNumber: '1.0-6' }}</td>
-                  <td class="numeric">{{ row.counted - row.expected | vxNumber: '1.0-6' }}</td>
+                  <th scope="col">{{ 'inventory.common.product' | translate }}</th>
+                  <th scope="col" class="numeric">{{ 'inventory.adjustments.conflict_expected' | translate }}</th>
+                  <th scope="col" class="numeric">{{ 'inventory.adjustments.conflict_current' | translate }}</th>
+                  <th scope="col" class="numeric">{{ 'inventory.adjustments.counted' | translate }}</th>
+                  <th scope="col" class="numeric">{{ 'inventory.adjustments.conflict_apply_count' | translate }}</th>
+                  <th scope="col" class="numeric">{{ 'inventory.adjustments.conflict_keep_difference' | translate }}</th>
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @for (row of moved; track row.productId) {
+                  <tr>
+                    <th scope="row">{{ row.sku ? row.sku + ' · ' : '' }}{{ row.productName }}</th>
+                    <td class="numeric">{{ row.expected | vxNumber: '1.0-6' }}</td>
+                    <td class="numeric">{{ row.current | vxNumber: '1.0-6' }}</td>
+                    <td class="numeric">{{ row.counted | vxNumber: '1.0-6' }}</td>
+                    <td class="numeric">{{ row.counted - row.current | vxNumber: '1.0-6' }}</td>
+                    <td class="numeric">{{ row.counted - row.expected | vxNumber: '1.0-6' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </vx-table>
           <div class="adj-banner__actions">
             <button type="button" class="primary-button" [disabled]="saving()" (click)="post('apply_count')">{{ 'inventory.adjustments.conflict_apply_count_action' | translate }}</button>
             <button type="button" class="secondary-button" [disabled]="saving()" (click)="post('keep_difference')">{{ 'inventory.adjustments.conflict_keep_difference_action' | translate }}</button>
@@ -186,8 +188,8 @@
       @if (editable()) {
         <p class="form-hint">{{ 'inventory.adjustments.lines_hint' | translate }}</p>
       }
-      <div class="table-wrapper adj-table-wrapper">
-        <table class="lines-table adj-lines" formArrayName="lines">
+      <vx-table labelKey="inventory.common.lines" frame="none">
+        <table class="adj-lines" formArrayName="lines">
           <thead>
             <tr>
               <th scope="col" class="adj-col-product">{{ 'inventory.common.product' | translate }}</th>
@@ -323,7 +325,7 @@
             </tfoot>
           }
         </table>
-      </div>
+      </vx-table>
       @if (editable()) {
         <button class="secondary-button add-line" type="button" (click)="addLine()">
           <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>

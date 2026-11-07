@@ -94,8 +94,8 @@ describe('RolesManagementPage', () => {
   it('offers «Ver», not a greyed-out «Editar», on a system role', () => {
     const fixture = create();
     const rows = [...(fixture.nativeElement as HTMLElement).querySelectorAll('tbody tr')];
-    const firstAction = rows[0].querySelector('.row-actions .link-button') as HTMLButtonElement;
-    const secondAction = rows[1].querySelector('.row-actions .link-button') as HTMLButtonElement;
+    const firstAction = rows[0].querySelector('.actions-column .link-button') as HTMLButtonElement;
+    const secondAction = rows[1].querySelector('.actions-column .link-button') as HTMLButtonElement;
 
     expect(firstAction.getAttribute('aria-disabled')).toBeNull();
     expect(firstAction.textContent).toContain('settings.roles.view');

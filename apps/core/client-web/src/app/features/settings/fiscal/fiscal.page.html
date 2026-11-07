@@ -62,38 +62,40 @@
     }
 
     @if (sequences().length) {
-      <table [appSort]="sequencesTable.sort" class="fx-table">
-        <thead>
-          <tr>
-            <th appSortHeader="type">{{ 'settings.fiscal.type' | translate }}</th>
-            <th appSortHeader="startsAt" class="num">{{ 'settings.fiscal.from' | translate }}</th>
-            <th appSortHeader="endsAt" class="num">{{ 'settings.fiscal.to' | translate }}</th>
-            <th appSortHeader="currentSequence" class="num">{{ 'settings.fiscal.current' | translate }}</th>
-            <th appSortHeader="remaining" class="num">{{ 'settings.fiscal.remaining' | translate }}</th>
-            <th appSortHeader="expiresAt" class="nowrap">{{ 'settings.fiscal.expires_on' | translate }}</th>
-            <th appSortHeader="isActive">{{ 'settings.fiscal.status' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (s of sequencesTable.rows(); track s.id) {
+      <vx-table labelKey="settings.fiscal.do.authorized_ncf_ranges" frame="none">
+        <table [appSort]="sequencesTable.sort" class="fx-table">
+          <thead>
             <tr>
-              <td [attr.data-label]="'settings.fiscal.type' | translate">{{ ncfTypeLabel(s.type) | translate }}</td>
-              <td class="num" [attr.data-label]="'settings.fiscal.from' | translate">{{ s.startsAt | vxNumber: '1.0-0' }}</td>
-              <td class="num" [attr.data-label]="'settings.fiscal.to' | translate">{{ s.endsAt | vxNumber: '1.0-0' }}</td>
-              <td class="num" [attr.data-label]="'settings.fiscal.current' | translate">{{ s.currentSequence | vxNumber: '1.0-0' }}</td>
-              <td class="num" [attr.data-label]="'settings.fiscal.remaining' | translate">{{ remaining(s) | vxNumber: '1.0-0' }}</td>
-              <td class="nowrap" [attr.data-label]="'settings.fiscal.expires_on' | translate">{{ s.expiresAt ? (s.expiresAt | vxDate: 'date') : '—' }}</td>
-              <td [attr.data-label]="'settings.fiscal.status' | translate">
-                @if (rangeWarningKey(s); as warning) {
-                  <vx-badge tone="warning">{{ warning | translate }}</vx-badge>
-                } @else {
-                  <vx-badge [tone]="s.isActive ? 'ok' : 'neutral'">{{ (s.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}</vx-badge>
-                }
-              </td>
+              <th appSortHeader="type">{{ 'settings.fiscal.type' | translate }}</th>
+              <th appSortHeader="startsAt" class="numeric">{{ 'settings.fiscal.from' | translate }}</th>
+              <th appSortHeader="endsAt" class="numeric">{{ 'settings.fiscal.to' | translate }}</th>
+              <th appSortHeader="currentSequence" class="numeric">{{ 'settings.fiscal.current' | translate }}</th>
+              <th appSortHeader="remaining" class="numeric">{{ 'settings.fiscal.remaining' | translate }}</th>
+              <th appSortHeader="expiresAt" class="nowrap">{{ 'settings.fiscal.expires_on' | translate }}</th>
+              <th appSortHeader="isActive">{{ 'settings.fiscal.status' | translate }}</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (s of sequencesTable.rows(); track s.id) {
+              <tr>
+                <td [attr.data-label]="'settings.fiscal.type' | translate">{{ ncfTypeLabel(s.type) | translate }}</td>
+                <td class="numeric" [attr.data-label]="'settings.fiscal.from' | translate">{{ s.startsAt | vxNumber: '1.0-0' }}</td>
+                <td class="numeric" [attr.data-label]="'settings.fiscal.to' | translate">{{ s.endsAt | vxNumber: '1.0-0' }}</td>
+                <td class="numeric" [attr.data-label]="'settings.fiscal.current' | translate">{{ s.currentSequence | vxNumber: '1.0-0' }}</td>
+                <td class="numeric" [attr.data-label]="'settings.fiscal.remaining' | translate">{{ remaining(s) | vxNumber: '1.0-0' }}</td>
+                <td class="nowrap" [attr.data-label]="'settings.fiscal.expires_on' | translate">{{ s.expiresAt ? (s.expiresAt | vxDate: 'date') : '—' }}</td>
+                <td [attr.data-label]="'settings.fiscal.status' | translate">
+                  @if (rangeWarningKey(s); as warning) {
+                    <vx-badge tone="warning">{{ warning | translate }}</vx-badge>
+                  } @else {
+                    <vx-badge [tone]="s.isActive ? 'ok' : 'neutral'">{{ (s.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}</vx-badge>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </vx-table>
     } @else {
       <vx-empty-state [icon]="RangeIcon" titleKey="settings.fiscal.do.no_ranges_title"
         [descriptionKey]="canEdit() ? 'settings.fiscal.do.no_ranges_description' : 'settings.fiscal.do.no_ranges_readonly'" />

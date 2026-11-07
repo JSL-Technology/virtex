@@ -16,6 +16,7 @@ import { BranchesService } from '../../../core/tenancy/branches.service';
 import { AccountsPayableService, PaymentBatch } from '../../../core/services/accounts-payable';
 import { PAYMENT_TONE } from './payments.page';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * One payment to suppliers, read: the account it left, every bill it settled — cash, withholding,
  * discount, exchange difference — and the entry. Voiding it (a cheque returned, a transfer
@@ -25,7 +26,7 @@ import { PAYMENT_TONE } from './payments.page';
 @Component({
   selector: 'app-vendor-payment-detail-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, VxAmountComponent, VxBranchLabelComponent, HasPermissionDirective],
+  imports: [...VX_TABLE, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, VxAmountComponent, VxBranchLabelComponent, HasPermissionDirective],
   templateUrl: './payment-detail.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

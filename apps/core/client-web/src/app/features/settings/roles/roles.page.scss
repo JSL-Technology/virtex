@@ -40,19 +40,8 @@
     &:hover { background: var(--bg-hover); }
 }
 
-//  Tabla de roles: el patrón común de las tablas de Configuración (sin tarjeta, apilable en móvil),
-//  con «Editar» a la vista y «Más acciones» abriendo el menú compartido.
-.roles-table {
-  overflow-x: auto;
-
-  .data-table {
-    @include ui.table;
-  }
-
-  .row-actions {
-    @include ui.row-actions;
-  }
-}
+//  Tabla de roles: `vx-table` sin marco, como todas las de Configuración, con «Ver» o «Editar» a
+//  la vista y «Más acciones» abriendo el menú compartido.
 
 .link-button {
   @include ui.link-button;

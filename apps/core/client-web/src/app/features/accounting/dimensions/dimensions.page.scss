@@ -6,7 +6,6 @@
   @media (max-width: 900px) { grid-template-columns: minmax(0, 1fr); }
 }
 .dm-link { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; text-align: start; }
-.dm-selected td { background: var(--surface-selected); }
 .dm-editor, .dm-rules { padding: var(--space-4); }
 .dm-rules { margin-top: var(--space-4); }
 .dm-values input[type='text'], .dm-values select { width: 100%; min-width: 6rem; }

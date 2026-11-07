@@ -22,10 +22,6 @@
     @include views.card;
 }
 
-.data-table {
-    @include views.data-table;
-}
-
 .import-process-grid {
     display: grid;
     // The page lives in a docked panel, not the window: a viewport media query kept three columns
@@ -129,10 +125,6 @@
         margin-bottom: var(--space-6);
     }
 
-    .table-container {
-        padding: 0;
-    }
-
     .has-errors {
         color: var(--error-text);
         font-weight: var(--font-bold);
@@ -195,20 +187,8 @@
 .mapping-note { margin: var(--space-2) 0 0; font-size: var(--text-sm); color: var(--content-secondary); }
 .mapping-missing { margin: 0; font-size: var(--text-sm); color: var(--error-text); }
 
+//  La tabla de correspondencias es un `vx-table`; aquí, su selector de columna.
 .mapping-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--text-sm);
-
-  th,
-  td {
-    padding: var(--space-1) var(--space-2);
-    border-bottom: 1px solid var(--border-default);
-    text-align: left;
-  }
-
-  th { color: var(--content-secondary); font-weight: var(--font-semibold); }
-
   select {
     padding: var(--space-1) var(--space-2);
     border: 1px solid var(--border-default);

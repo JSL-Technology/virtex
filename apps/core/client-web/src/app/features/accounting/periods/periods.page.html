@@ -11,8 +11,8 @@
     <span>{{ 'common.refresh' | translate }}</span>
   </button>
 
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="accounting.periods.accounting_periods">
+    <table [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="startDate">{{ 'accounting.periods.period' | translate }}</th>
@@ -77,5 +77,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

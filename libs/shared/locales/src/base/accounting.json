@@ -1445,6 +1445,11 @@
     "en": "Dimensions of line {{line}}",
     "pt": "Dimensões da linha {{line}}"
   },
+  "accounting.journal_entry_form.lines_table": {
+    "es": "Líneas del asiento",
+    "en": "Entry lines",
+    "pt": "Linhas do lançamento"
+  },
   "accounting.journal_entry_form.modification_reason_label": {
     "es": "Razón de la modificación",
     "en": "Reason for the change",

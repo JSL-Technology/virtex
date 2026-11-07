@@ -80,38 +80,40 @@
       </vx-empty-state>
     }
   } @else {
-    <table class="w-table" [appTableMenu]="regimesMenu">
-      <thead>
-        <tr>
-          <th>{{ 'settings.pages.withholding.code' | translate }}</th>
-          <th>{{ 'settings.pages.withholding.label' | translate }}</th>
-          <th>{{ 'settings.pages.withholding.kind' | translate }}</th>
-          <th class="numeric">{{ 'settings.pages.withholding.rate_column' | translate }}</th>
-          <th>{{ 'settings.pages.withholding.legal_basis' | translate }}</th>
-          <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of regimes(); track row.id) {
-          <tr [class.w-row--inactive]="!row.isActive" [appRowMenu]="row" #rowMenu="appRowMenu">
-            <td class="w-code" [attr.data-label]="'settings.pages.withholding.code' | translate">{{ row.code }}</td>
-            <td [attr.data-label]="'settings.pages.withholding.label' | translate">{{ row.label }}</td>
-            <td [attr.data-label]="'settings.pages.withholding.kind' | translate">{{ kindLabel(row.kind) | translate }}</td>
-            <td class="numeric" [attr.data-label]="'settings.pages.withholding.rate_column' | translate">{{ row.rate | vxPercent: '1.0-4' }}</td>
-            <td class="w-basis" [attr.data-label]="'settings.pages.withholding.legal_basis' | translate">{{ row.legalBasis }}</td>
-            <td class="row-actions">
-              @if (canEdit()) {
-                <button type="button" class="icon-button" aria-haspopup="menu"
-                  [attr.aria-label]="'common.more_actions_for' | translate: { name: row.label }"
-                  [title]="'common.more_actions' | translate" (click)="rowMenu.open($event)">
-                  <lucide-icon [img]="MoreIcon" size="18" aria-hidden="true"></lucide-icon>
-                </button>
-              }
-            </td>
+    <vx-table labelKey="settings.sections_meta.withholding_regimes.label" frame="none">
+      <table class="w-table" [appTableMenu]="regimesMenu">
+        <thead>
+          <tr>
+            <th>{{ 'settings.pages.withholding.code' | translate }}</th>
+            <th>{{ 'settings.pages.withholding.label' | translate }}</th>
+            <th>{{ 'settings.pages.withholding.kind' | translate }}</th>
+            <th class="numeric">{{ 'settings.pages.withholding.rate_column' | translate }}</th>
+            <th>{{ 'settings.pages.withholding.legal_basis' | translate }}</th>
+            <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (row of regimes(); track row.id) {
+            <tr [class.w-row--inactive]="!row.isActive" [appRowMenu]="row" #rowMenu="appRowMenu">
+              <td class="w-code" [attr.data-label]="'settings.pages.withholding.code' | translate">{{ row.code }}</td>
+              <td [attr.data-label]="'settings.pages.withholding.label' | translate">{{ row.label }}</td>
+              <td [attr.data-label]="'settings.pages.withholding.kind' | translate">{{ kindLabel(row.kind) | translate }}</td>
+              <td class="numeric" [attr.data-label]="'settings.pages.withholding.rate_column' | translate">{{ row.rate | vxPercent: '1.0-4' }}</td>
+              <td class="w-basis" [attr.data-label]="'settings.pages.withholding.legal_basis' | translate">{{ row.legalBasis }}</td>
+              <td class="actions-column">
+                @if (canEdit()) {
+                  <button type="button" class="icon-button" aria-haspopup="menu"
+                    [attr.aria-label]="'common.more_actions_for' | translate: { name: row.label }"
+                    [title]="'common.more_actions' | translate" (click)="rowMenu.open($event)">
+                    <lucide-icon [img]="MoreIcon" size="18" aria-hidden="true"></lucide-icon>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </vx-table>
   }
 
   <!--

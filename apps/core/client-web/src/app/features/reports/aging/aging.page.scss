@@ -31,36 +31,11 @@
   }
 }
 
-.table-wrapper {
-  overflow-x: auto;
-}
-
+//  La escalera es un `vx-table` (cabecera, cifras, pie y la columna del tercero fija al desplazar);
+//  aquí, lo que dicen sus celdas.
 .aging-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-
-  th,
-  td {
-    padding: var(--space-2) var(--space-3);
-    border-bottom: 1px solid var(--border-color);
-    white-space: nowrap;
-  }
-
-  thead th {
-    text-align: right;
-    color: var(--text-secondary);
-    font-weight: 600;
-  }
-
   .party-column {
-    text-align: left;
-    white-space: normal;
     min-width: 16rem;
-  }
-
-  .numeric {
-    text-align: right;
   }
 
   /* Anything past due reads differently from what is merely outstanding. */
@@ -72,10 +47,6 @@
     font-weight: 600;
   }
 
-  tfoot td {
-    font-weight: 700;
-    border-top: 2px solid var(--text-primary);
-  }
 }
 
 /*

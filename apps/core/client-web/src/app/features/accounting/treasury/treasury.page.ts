@@ -15,6 +15,7 @@ import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * How many transfers the panel shows.
  *
@@ -38,7 +39,7 @@ const TRANSFERS_SHOWN = 25;
 @Component({
   selector: 'app-treasury-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
+  imports: [...VX_TABLE, ...VX_SORT, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent],
   templateUrl: './treasury.page.html',
   styleUrls: ['./treasury.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

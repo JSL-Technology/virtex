@@ -43,8 +43,8 @@
     (ngModelChange)="branchFilter.set($event); applyFilters()"
   />
 
-  <div class="table-container card">
-    <table [appSort]="sort" [appTableMenu]="invoicesMenu" class="data-table">
+  <vx-table labelKey="invoices.list.invoices">
+    <table [appSort]="sort" [appTableMenu]="invoicesMenu">
       <thead>
         <tr>
           <th appSortHeader="number">{{ 'invoices.list.invoice_number' | translate }}</th>
@@ -54,7 +54,7 @@
           <th appSortHeader="customer">{{ 'invoices.list.customer' | translate }}</th>
           <th appSortHeader="issueDate">{{ 'invoices.list.issue_date' | translate }}</th>
           <th appSortHeader="dueDate">{{ 'invoices.list.due' | translate }}</th>
-          <th appSortHeader="total" class="text-right">{{ 'invoices.list.total' | translate }}</th>
+          <th appSortHeader="total" class="numeric">{{ 'invoices.list.total' | translate }}</th>
           <th appSortHeader="status">{{ 'invoices.list.status_filter' | translate }}</th>
           @if (branches.hasBranches()) {
             <th>{{ 'branches.picker.label' | translate }}</th>
@@ -82,7 +82,7 @@
                 {{ invoice.dueDate | vxDate: 'date' }}
               </span>
             </td>
-            <td class="text-right font-semibold">
+            <td class="numeric font-semibold">
               {{ invoice.total | vxMoney: invoice.currencyCode }}
             </td>
             <td>
@@ -115,7 +115,7 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 
   <!--
     Server-side pagination. The list used to download every invoice of the tenant on each visit;

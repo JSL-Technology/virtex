@@ -19,6 +19,7 @@ import { VxDateFieldComponent } from '../../../shared/components/date';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * The company's taxes.
  *
@@ -36,7 +37,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-taxes-page',
   standalone: true,
-  imports: [VxNumberInputDirective, ...VX_SORT, ReactiveFormsModule, ...VX_FORM_A11Y, VxDateFieldComponent, CanOpenDirective, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, VxAmountComponent],
+  imports: [...VX_TABLE, VxNumberInputDirective, ...VX_SORT, ReactiveFormsModule, ...VX_FORM_A11Y, VxDateFieldComponent, CanOpenDirective, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, VxAmountComponent],
   templateUrl: './taxes.page.html',
   styleUrls: ['./taxes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

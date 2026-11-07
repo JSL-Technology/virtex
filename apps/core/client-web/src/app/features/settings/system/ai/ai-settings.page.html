@@ -35,34 +35,36 @@
       }
 
       @if (usage().length) {
-        <table class="ai-admin__table">
-          <thead>
-            <tr>
-              <th scope="col">{{ 'ai.admin.col_feature' | translate }}</th>
-              <th scope="col" class="num">{{ 'ai.admin.col_calls' | translate }}</th>
-              <th scope="col" class="num">{{ 'ai.admin.col_failed' | translate }}</th>
-              <th scope="col" class="num">{{ 'ai.admin.col_credits' | translate }}</th>
-              <th scope="col" class="num">{{ 'ai.admin.col_cost_estimated' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of usage(); track row.feature) {
+        <vx-table labelKey="ai.admin.consumption" frame="none">
+          <table class="ai-admin__table">
+            <thead>
               <tr>
-                <td [attr.data-label]="'ai.admin.col_feature' | translate">{{ k('ai.admin.usage_feature', row.feature) | translate }}</td>
-                <td class="num" [attr.data-label]="'ai.admin.col_calls' | translate">{{ row.calls | vxNumber: '1.0-0' }}</td>
-                <td class="num" [attr.data-label]="'ai.admin.col_failed' | translate">{{ row.failed | vxNumber: '1.0-0' }}</td>
-                <td class="num" [attr.data-label]="'ai.admin.col_credits' | translate">{{ row.credits | vxNumber: '1.0-0' }}</td>
-                <td class="num" [attr.data-label]="'ai.admin.col_cost_estimated' | translate">{{ cost(row.costUsd) }}</td>
+                <th scope="col">{{ 'ai.admin.col_feature' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'ai.admin.col_calls' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'ai.admin.col_failed' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'ai.admin.col_credits' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'ai.admin.col_cost_estimated' | translate }}</th>
               </tr>
-            }
-          </tbody>
-          <tfoot>
-            <tr>
-              <th scope="row" colspan="4">{{ 'ai.admin.total_cost' | translate }}</th>
-              <td class="num" [attr.data-label]="'ai.admin.total_cost' | translate">{{ cost(totalCostUsd()) }}</td>
-            </tr>
-          </tfoot>
-        </table>
+            </thead>
+            <tbody>
+              @for (row of usage(); track row.feature) {
+                <tr>
+                  <td [attr.data-label]="'ai.admin.col_feature' | translate">{{ k('ai.admin.usage_feature', row.feature) | translate }}</td>
+                  <td class="numeric" [attr.data-label]="'ai.admin.col_calls' | translate">{{ row.calls | vxNumber: '1.0-0' }}</td>
+                  <td class="numeric" [attr.data-label]="'ai.admin.col_failed' | translate">{{ row.failed | vxNumber: '1.0-0' }}</td>
+                  <td class="numeric" [attr.data-label]="'ai.admin.col_credits' | translate">{{ row.credits | vxNumber: '1.0-0' }}</td>
+                  <td class="numeric" [attr.data-label]="'ai.admin.col_cost_estimated' | translate">{{ cost(row.costUsd) }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th scope="row" colspan="4">{{ 'ai.admin.total_cost' | translate }}</th>
+                <td class="numeric" [attr.data-label]="'ai.admin.total_cost' | translate">{{ cost(totalCostUsd()) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </vx-table>
       } @else {
         <vx-empty-state [icon]="ChartIcon" titleKey="ai.admin.no_usage_title" descriptionKey="ai.admin.no_usage" />
       }

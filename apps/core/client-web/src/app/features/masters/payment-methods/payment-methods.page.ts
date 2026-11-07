@@ -18,6 +18,7 @@ import {
 import type { PaymentMethod as SettlementKind } from '../../../core/services/invoices';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * The company's payment methods.
  *
@@ -37,7 +38,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-payment-methods-page',
   standalone: true,
-  imports: [
+  imports: [...VX_TABLE, 
     ...VX_SORT,
     ReactiveFormsModule, ...VX_FORM_A11Y,
     LucideAngularModule,

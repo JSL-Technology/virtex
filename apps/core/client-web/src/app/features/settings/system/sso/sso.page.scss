@@ -29,14 +29,10 @@
   button { flex: 0 0 auto; }
 }
 
-// ── Tablas ───────────────────────────────────────────────────────────
-.sso-table {
-  @include ui.table;
+// ── Tablas (`vx-table`) ───────────────────────────────────────────────
+//  El registro DNS ocupa varias líneas: cada fila se lee desde arriba.
+.sso-table td { vertical-align: top; }
 
-  td { vertical-align: top; }
-}
-
-.row-actions { @include ui.row-actions; }
 .link-button { @include ui.link-button; }
 .icon-button { @include ui.icon-button; }
 

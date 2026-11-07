@@ -26,6 +26,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VxDateFieldComponent } from '../../../shared/components/date/date-field.component';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** A range type the form offers. */
 interface RangeTypeChoice {
   value: string;
@@ -46,7 +47,7 @@ interface RangeTypeChoice {
 @Component({
   selector: 'app-fiscal-settings-page',
   standalone: true,
-  imports: [VxNumberInputDirective, 
+  imports: [...VX_TABLE, VxNumberInputDirective, 
     ...VX_SORT,
     VxDateFieldComponent,
     CommonModule,

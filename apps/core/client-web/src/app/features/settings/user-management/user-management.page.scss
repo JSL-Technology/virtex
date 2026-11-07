@@ -29,31 +29,6 @@
   @include ui.link-button;
 }
 
-.um-table {
-  position: relative;
-  overflow-x: auto;
-
-  .data-table {
-    @include ui.table;
-  }
-
-  .row-actions {
-    @include ui.row-actions;
-  }
-}
-
-.um-table--busy .data-table {
-  opacity: 0.55;
-}
-
-.um-loading {
-  position: absolute;
-  inset: 0;
-  z-index: var(--z-raised);
-  display: grid;
-  place-items: center;
-}
-
 .um-invitations {
   margin-block-start: var(--space-8);
 }

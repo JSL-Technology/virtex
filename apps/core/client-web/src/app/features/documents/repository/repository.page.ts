@@ -28,6 +28,7 @@ export type RepositoryView = 'files' | 'templates';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * The tenant's document repository.
  *
@@ -51,7 +52,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-repository-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [...VX_TABLE, ...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './repository.page.html',
   styleUrls: ['./repository.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

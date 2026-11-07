@@ -113,18 +113,9 @@
     }
 }
 
-.line-items-table {
-    width: 100%;
+//  Las líneas son un `vx-table`; el resumen va debajo, con aire.
+.inv-detail__lines {
     margin-bottom: var(--space-12);
-
-    thead th {
-        border-bottom: 2px solid var(--text-primary);
-        color: var(--text-secondary);
-    }
-
-    tbody td {
-        color: var(--text-primary);
-    }
 }
 
 .invoice-summary {

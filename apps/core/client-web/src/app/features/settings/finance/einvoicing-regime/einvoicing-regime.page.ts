@@ -27,6 +27,7 @@ import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
 import { RouterLink } from '@angular/router';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * Which configuration fields a market's regime actually needs.
  *
@@ -73,7 +74,7 @@ const SECRET_BY_COUNTRY: Record<string, 'CAF_XML' | 'DIAN_TECHNICAL_KEY'> = {
 @Component({
   selector: 'app-einvoicing-regime-page',
   standalone: true,
-  imports: [
+  imports: [...VX_TABLE, 
     VxNumberInputDirective,
     RouterLink,
     ...VX_SORT,

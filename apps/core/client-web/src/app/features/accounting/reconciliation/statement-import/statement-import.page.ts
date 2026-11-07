@@ -18,6 +18,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { VX_SELECT } from '../../../../shared/components/select';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * Importing a bank statement.
  *
@@ -45,7 +46,7 @@ import { VX_SELECT } from '../../../../shared/components/select';
 @Component({
   selector: 'app-statement-import-page',
   standalone: true,
-  imports: [VxNumberInputDirective, VxFileInputComponent, CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent],
+  imports: [...VX_TABLE, VxNumberInputDirective, VxFileInputComponent, CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent],
   templateUrl: './statement-import.page.html',
   styleUrls: ['./statement-import.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

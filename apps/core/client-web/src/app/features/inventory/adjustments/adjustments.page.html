@@ -27,8 +27,8 @@
     <p class="ls__state-help">{{ 'inventory.adjustments.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table [appTableMenu]="adjustmentsMenu" class="data-table">
+  <vx-table labelKey="inventory.adjustments.title">
+    <table [appTableMenu]="adjustmentsMenu">
       <thead>
         <tr>
           <th>{{ 'inventory.common.number' | translate }}</th>
@@ -61,5 +61,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

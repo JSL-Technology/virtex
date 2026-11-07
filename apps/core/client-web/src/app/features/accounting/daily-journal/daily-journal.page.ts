@@ -13,6 +13,7 @@ import { VxPagerComponent } from '../../../shared/components/pager';
 import { DatasetExportService } from '../../../core/export/dataset-export';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * The journal, entry by entry, with every line shown.
  *
@@ -35,7 +36,7 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-daily-journal-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ...VX_FORM_A11Y, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
+  imports: [...VX_TABLE, CommonModule, FormsModule, ...VX_FORM_A11Y, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
   templateUrl: './daily-journal.page.html',
   styleUrls: ['./daily-journal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

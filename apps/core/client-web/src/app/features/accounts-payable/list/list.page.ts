@@ -20,10 +20,11 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 import { InboundMailInboxComponent } from '../../inbound-mail/inbound-mail-inbox.component';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 @Component({
   selector: 'app-vendor-bills-list-page',
   standalone: true,
-  imports: [...VX_CONTEXT_MENU, InboundMailInboxComponent, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_TABLE, ...VX_CONTEXT_MENU, InboundMailInboxComponent, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

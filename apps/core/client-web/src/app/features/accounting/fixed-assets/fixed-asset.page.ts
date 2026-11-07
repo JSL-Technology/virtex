@@ -16,6 +16,7 @@ import { BranchesService } from '../../../core/tenancy/branches.service';
 import { FixedAsset, FixedAssetSchedule, FixedAssetsService, hasBeenDepreciated } from '../data/fixed-assets.service';
 import { FIXED_ASSET_TONE } from './fixed-assets.page';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * One fixed asset, read: what it cost and is worth, its depreciation board — the months charged,
  * each with its entry, and the projection of the rest — and, once retired, how and with which
@@ -24,7 +25,7 @@ import { FIXED_ASSET_TONE } from './fixed-assets.page';
 @Component({
   selector: 'app-fixed-asset-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, VxAmountComponent, VxBranchLabelComponent, HasPermissionDirective],
+  imports: [...VX_TABLE, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, VxAmountComponent, VxBranchLabelComponent, HasPermissionDirective],
   templateUrl: './fixed-asset.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss', '../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

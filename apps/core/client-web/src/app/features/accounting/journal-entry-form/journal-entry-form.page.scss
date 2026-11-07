@@ -12,9 +12,8 @@
 
   .description-field { grid-column: 1 / -1; }
 
+  //  La tabla de líneas es un `vx-table` (se desplaza ella sola y pinta su pie de totales).
   .lines-container {
-    overflow-x: auto;
-
     select,
     input { width: 100%; }
 
@@ -22,7 +21,6 @@
     //  dos columnas de cifras, y con dígitos de ancho variable no se comparan.
     input.text-right { font-variant-numeric: tabular-nums; }
 
-    tfoot td { border-top: 2px solid var(--border-default); padding-top: var(--space-3); }
     tfoot strong { font-variant-numeric: tabular-nums; }
   }
 

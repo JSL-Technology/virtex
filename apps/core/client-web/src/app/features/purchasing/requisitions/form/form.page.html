@@ -51,8 +51,8 @@
     <section class="form-section">
       <h2 class="form-section-title">{{ 'purchasing.requisitions.form.items' | translate }}</h2>
 
-      <div class="table-wrapper">
-        <table class="lines-table" formArrayName="lines">
+      <vx-table labelKey="purchasing.requisitions.form.items" frame="none">
+        <table formArrayName="lines">
           <thead>
             <tr>
               <th>{{ 'purchasing.requisitions.form.product' | translate }}</th>
@@ -95,7 +95,7 @@
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
 
       @if (editable()) {
         <button class="secondary-button" type="button" (click)="addLine()">

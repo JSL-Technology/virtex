@@ -16,10 +16,11 @@ import { VxBadgeComponent, type VxTone } from '../../../shared/components/badge'
 import { SettingsGroupComponent } from '../shared';
 import { SettingsShellService } from '../shell';
 
+import { VX_TABLE } from '../../../shared/components/table';
 @Component({
   selector: 'app-billing-page',
   standalone: true,
-  imports: [
+  imports: [...VX_TABLE, 
     CommonModule,
     LucideAngularModule,
     TranslateModule,

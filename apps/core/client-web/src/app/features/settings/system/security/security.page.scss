@@ -88,27 +88,17 @@
 .sec__range { font-size: var(--text-sm); color: var(--content-secondary); @include ds.numeric; }
 .sec__clear { margin-inline-start: auto; }
 
-.sec__table {
-  @include ui.table;
+//  La tabla es `vx-table`. Quién y qué ocupan dos líneas: cada fila se lee desde arriba.
+.sec__table td { vertical-align: top; }
 
-  td { vertical-align: top; }
-}
-
+//  El detalle de cambios es un `vx-table` anidado; los valores largos (un JSON) parten donde haga falta.
 .sec__changes {
-  width: 100%;
-  border-collapse: collapse;
   table-layout: fixed;
-  font-size: var(--text-sm);
 
-  th, td {
-    padding: var(--space-2) var(--space-3);
-    border-bottom: 1px solid var(--border-subtle);
-    text-align: left;
+  :is(th, td) {
     vertical-align: top;
     overflow-wrap: anywhere;
   }
-
-  th { color: var(--content-secondary); font-weight: var(--font-semibold); }
 }
 
 .sec__when { white-space: nowrap; @include ds.numeric; }
@@ -118,7 +108,6 @@
 .sec__row--system td { color: var(--content-secondary); }
 .sec__detail > td { background: var(--surface-sunken); }
 
-.row-actions { @include ui.row-actions; }
 .sec__link { @include ui.link-button; }
 
 .sr-only { @include ds.visually-hidden; }

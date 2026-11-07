@@ -141,13 +141,13 @@
             }}
           </p>
 
-          <div class="table-container">
-            <table class="data-table">
+          <vx-table labelKey="accounting.import.step_preview_confirm">
+            <table>
               <thead>
                 <tr>
                   <th>{{ 'accounting.import.entry' | translate }}</th>
-                  <th class="text-right">{{ 'accounting.import.debit' | translate }}</th>
-                  <th class="text-right">{{ 'accounting.import.credit' | translate }}</th>
+                  <th class="numeric">{{ 'accounting.import.debit' | translate }}</th>
+                  <th class="numeric">{{ 'accounting.import.credit' | translate }}</th>
                   <th>{{ 'accounting.import.status' | translate }}</th>
                 </tr>
               </thead>
@@ -155,8 +155,8 @@
                 @for (entry of data.previews; track entry.entryId) {
                   <tr [class.row--invalid]="entry.errors.length > 0">
                     <td>{{ entry.entryId }}</td>
-                    <td class="text-right"><vx-amount [value]="entry.totalDebit" /></td>
-                    <td class="text-right"><vx-amount [value]="entry.totalCredit" /></td>
+                    <td class="numeric"><vx-amount [value]="entry.totalDebit" /></td>
+                    <td class="numeric"><vx-amount [value]="entry.totalCredit" /></td>
                     <td>
                       @if (entry.errors.length === 0 && entry.isBalanced) {
                         <span class="status status--ok">
@@ -194,7 +194,7 @@
                 }
               </tbody>
             </table>
-          </div>
+          </vx-table>
 
           <div class="form-actions">
             <button

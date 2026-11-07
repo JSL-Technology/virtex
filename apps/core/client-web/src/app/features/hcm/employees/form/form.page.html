@@ -185,8 +185,8 @@
         -->
         <p class="section-note">{{ 'hcm.employees.form.pay_history_help' | translate }}</p>
 
-        <div class="table-wrapper">
-          <table class="lines-table">
+        <vx-table labelKey="hcm.employees.form.pay_history" [empty]="compensation().length === 0" emptyKey="hcm.employees.form.no_pay">
+          <table>
             <thead>
               <tr>
                 <th>{{ 'hcm.employees.form.effective_from' | translate }}</th>
@@ -201,12 +201,10 @@
                   <td class="numeric">{{ pay.baseSalary | vxMoney: pay.currencyCode }}</td>
                   <td>{{ 'hcm.employees.form.frequency_label.' + pay.payFrequency | translate }}</td>
                 </tr>
-              } @empty {
-                <tr><td colspan="3" class="muted">{{ 'hcm.employees.form.no_pay' | translate }}</td></tr>
               }
             </tbody>
           </table>
-        </div>
+        </vx-table>
 
         @if (addingPay()) {
           <div class="action-box">
@@ -258,8 +256,8 @@
         }
 
         @if (severance(); as result) {
-          <div class="table-wrapper">
-            <table class="lines-table">
+          <vx-table labelKey="hcm.employees.form.severance_calculation">
+            <table>
               <tbody>
                 <tr>
                   <td>{{ 'hcm.employees.form.notice' | translate }} ({{ result.preavisoDays }} d)</td>
@@ -283,7 +281,7 @@
                 </tr>
               </tbody>
             </table>
-          </div>
+          </vx-table>
         }
       </section>
     }

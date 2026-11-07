@@ -59,15 +59,5 @@
   h2 { font-size: .9375rem; font-weight: 600; margin-bottom: .75rem; color: var(--text-primary); }
 }
 
-.j-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-
-  th, td { padding: .5rem .625rem; border-bottom: 1px solid var(--border-color); text-align: left; }
-  th { color: var(--text-secondary); font-weight: 600; font-size: .8125rem; }
-  .numeric { text-align: right; }
-}
-
 /* A rate the tenant is not registered for is never charged, so it reads as inactive. */
 .j-row--unregistered { opacity: .55; }

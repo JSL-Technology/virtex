@@ -19,6 +19,7 @@ import { DialogService } from '../../../../core/services/dialog.service';
 import { VX_SELECT } from '../../../../shared/components/select';
 import { RolesService, Role } from '../../data/roles.service';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 export const APPROVAL_DOCUMENT_TYPES = ['VENDOR_BILL', 'PAYMENT_BATCH', 'JOURNAL_ENTRY', 'PERIOD_REOPENING', 'AUDIT_ADJUSTMENT'] as const;
 type ApprovalDocumentType = (typeof APPROVAL_DOCUMENT_TYPES)[number];
 
@@ -55,7 +56,7 @@ interface PolicyDraft {
 @Component({
   selector: 'app-approval-policies-page',
   standalone: true,
-  imports: [...VX_FORM_A11Y, 
+  imports: [...VX_TABLE, ...VX_FORM_A11Y, 
     VxNumberInputDirective,
     VxEmptyStateComponent,
     VxErrorStateComponent,

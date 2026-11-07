@@ -13,9 +13,10 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 
+import { VX_TABLE } from '../../../shared/components/table';
 @Component({
   selector: 'app-price-lists-page',
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_TABLE, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './price-lists.page.html',
   styleUrls: ['./price-lists.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -192,38 +192,40 @@
 
     @if (invoices().length > 0) {
       <vx-settings-group titleKey="settings.billing.billing_history">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>{{ 'settings.billing.date' | translate }}</th>
-              <th>{{ 'settings.billing.description' | translate }}</th>
-              <th class="numeric">{{ 'settings.billing.amount' | translate }}</th>
-              <th>{{ 'settings.billing.status' | translate }}</th>
-              <th><span class="visually-hidden">{{ 'settings.billing.download_invoice' | translate }}</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (inv of invoices(); track inv.id) {
+        <vx-table labelKey="settings.billing.billing_history" frame="none">
+          <table class="history-table">
+            <thead>
               <tr>
-                <td class="nowrap" [attr.data-label]="'settings.billing.date' | translate">{{ formatDate(inv.date) }}</td>
-                <td [attr.data-label]="'settings.billing.description' | translate">{{ inv.description }}</td>
-                <td class="numeric" [attr.data-label]="'settings.billing.amount' | translate">{{ formatInvoiceAmount(inv) }}</td>
-                <td [attr.data-label]="'settings.billing.status' | translate">
-                  <vx-badge [tone]="invoiceTone(inv.status)">{{ invoiceStatusLabel(inv.status) }}</vx-badge>
-                </td>
-                <td class="row-actions">
-                  @if (inv.pdfUrl) {
-                    <a class="icon-button" [href]="inv.pdfUrl" target="_blank" rel="noopener"
-                       [attr.aria-label]="'settings.billing.download_invoice_for' | translate: { date: formatDate(inv.date) }"
-                       [title]="'settings.billing.download_invoice' | translate">
-                      <lucide-icon [img]="DownloadIcon" size="16" aria-hidden="true"></lucide-icon>
-                    </a>
-                  }
-                </td>
+                <th>{{ 'settings.billing.date' | translate }}</th>
+                <th>{{ 'settings.billing.description' | translate }}</th>
+                <th class="numeric">{{ 'settings.billing.amount' | translate }}</th>
+                <th>{{ 'settings.billing.status' | translate }}</th>
+                <th><span class="visually-hidden">{{ 'settings.billing.download_invoice' | translate }}</span></th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (inv of invoices(); track inv.id) {
+                <tr>
+                  <td class="nowrap" [attr.data-label]="'settings.billing.date' | translate">{{ formatDate(inv.date) }}</td>
+                  <td [attr.data-label]="'settings.billing.description' | translate">{{ inv.description }}</td>
+                  <td class="numeric" [attr.data-label]="'settings.billing.amount' | translate">{{ formatInvoiceAmount(inv) }}</td>
+                  <td [attr.data-label]="'settings.billing.status' | translate">
+                    <vx-badge [tone]="invoiceTone(inv.status)">{{ invoiceStatusLabel(inv.status) }}</vx-badge>
+                  </td>
+                  <td class="actions-column">
+                    @if (inv.pdfUrl) {
+                      <a class="icon-button" [href]="inv.pdfUrl" target="_blank" rel="noopener"
+                         [attr.aria-label]="'settings.billing.download_invoice_for' | translate: { date: formatDate(inv.date) }"
+                         [title]="'settings.billing.download_invoice' | translate">
+                        <lucide-icon [img]="DownloadIcon" size="16" aria-hidden="true"></lucide-icon>
+                      </a>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </vx-table>
       </vx-settings-group>
     }
   }

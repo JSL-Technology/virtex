@@ -12,6 +12,7 @@ import { ActiveOrganizationService } from '../../../../core/tenancy/active-organ
 import { AdjustmentStatus, AuditAdjustmentsService, ProposedAdjustment } from '../../../../core/api/audit-adjustments.service';
 import { ChartOfAccountsApiService } from '../../data/chart-of-accounts.service';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 export const AUDIT_ADJUSTMENT_STATUS: Record<AdjustmentStatus, { key: string; tone: DocumentTone }> = {
   PENDING_APPROVAL: { key: 'audit_adjustments.status.pending_approval', tone: 'warning' },
   APPROVED: { key: 'audit_adjustments.status.approved', tone: 'info' },
@@ -32,7 +33,7 @@ const EVIDENCE_TYPES = '.pdf,.png,.jpg,.jpeg,.xlsx,.xls,.csv,.docx,.doc';
 @Component({
   selector: 'app-audit-adjustment-detail-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, HasPermissionDirective],
+  imports: [...VX_TABLE, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, HasPermissionDirective],
   templateUrl: './audit-adjustment-detail.page.html',
   styleUrls: ['../../../../shared/styles/document-form.scss', './audit-adjustment-detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

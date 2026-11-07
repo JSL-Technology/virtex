@@ -57,7 +57,7 @@
 }
 
 // QA M-08: los identificadores no se parten («FAC-» / «00000001» en dos líneas).
-.data-table td:first-child .table-link,
-.data-table td.mono {
+vx-table td:first-child .table-link,
+vx-table td.mono {
   white-space: nowrap;
 }

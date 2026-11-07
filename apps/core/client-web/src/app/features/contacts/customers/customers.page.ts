@@ -18,9 +18,10 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 
+import { VX_TABLE } from '../../../shared/components/table';
 @Component({
   selector: 'app-customers-page',
-  imports: [...VX_CONTEXT_MENU, PhonePipe, HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_TABLE, ...VX_CONTEXT_MENU, PhonePipe, HasPermissionDirective, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ListShellComponent, VxBadgeComponent],
   templateUrl: './customers.page.html',
   styleUrls: ['./customers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

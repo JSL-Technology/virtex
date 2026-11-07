@@ -214,14 +214,14 @@
 
     <!-- The statement's own movements, and what the ledger offers for each. -->
     @if (statement(); as current) {
-      <div class="table-container card">
-        <table class="data-table">
+      <vx-table labelKey="accounting.reconciliation.proof" layout="grid" frame="none">
+        <table>
           <thead>
             <tr>
               <th>{{ 'accounting.reconciliation.date' | translate }}</th>
               <th>{{ 'accounting.reconciliation.description' | translate }}</th>
               <th>{{ 'accounting.reconciliation.reference' | translate }}</th>
-              <th class="text-right">{{ 'accounting.reconciliation.amount' | translate }}</th>
+              <th class="numeric">{{ 'accounting.reconciliation.amount' | translate }}</th>
               <th class="text-center">{{ 'accounting.reconciliation.status' | translate }}</th>
               <th class="actions-column"></th>
             </tr>
@@ -232,7 +232,7 @@
                 <td>{{ movement.date | vxDate: 'date' : true }}</td>
                 <td>{{ movement.description }}</td>
                 <td>{{ movement.reference ?? '—' }}</td>
-                <td class="text-right"><vx-amount [value]="signedAmount(movement)" /></td>
+                <td class="numeric"><vx-amount [value]="signedAmount(movement)" /></td>
                 <td class="text-center">
                   <vx-badge size="sm" [tone]="movementTone(movement.status)">
                     {{ 'accounting.reconciliation.status.' + (movement.status === 'MATCHED' ? 'RECONCILED' : 'IMPORTED') | translate }}
@@ -374,7 +374,7 @@
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
     }
   }
 </div>

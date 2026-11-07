@@ -18,8 +18,8 @@
     <p class="ls__state-help">{{ 'budgets.page.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table class="data-table">
+  <vx-table labelKey="budgets.page.title" layout="grid">
+    <table>
       <thead>
         <tr>
           <th>{{ 'budgets.page.period' | translate }}</th>
@@ -45,5 +45,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

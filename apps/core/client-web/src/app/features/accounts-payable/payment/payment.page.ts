@@ -18,6 +18,7 @@ import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SELECT } from '../../../shared/components/select';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * Paying supplier invoices.
  *
@@ -35,7 +36,7 @@ import { VX_SELECT } from '../../../shared/components/select';
 @Component({
   selector: 'app-vendor-payment-page',
   standalone: true,
-  imports: [VxNumberInputDirective, 
+  imports: [...VX_TABLE, VxNumberInputDirective, 
     VxBranchPickerComponent,
     CommonModule,
     ReactiveFormsModule,

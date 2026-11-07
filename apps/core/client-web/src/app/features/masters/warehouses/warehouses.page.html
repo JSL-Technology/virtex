@@ -46,8 +46,8 @@
     <p class="ls__state-help">{{ 'masters.warehouses.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="masters.warehouses.warehouses">
+    <table [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="name">{{ 'masters.warehouses.name' | translate }}</th>
@@ -79,7 +79,7 @@
                 {{ (warehouse.isActive ? 'masters.warehouses.active' : 'masters.warehouses.inactive') | translate }}
               </vx-badge>
             </td>
-            <td class="row-actions" *appHasPermission="'wms:manage'">
+            <td class="actions-column" *appHasPermission="'wms:manage'">
               @if (warehouse.isActive && !warehouse.isDefault) {
                 <button type="button" class="link-button" (click)="makeDefault(warehouse)">{{ 'masters.warehouses.make_default' | translate }}</button>
                 <button type="button" class="link-button" (click)="setActive(warehouse, false)">{{ 'masters.warehouses.close' | translate }}</button>
@@ -91,5 +91,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

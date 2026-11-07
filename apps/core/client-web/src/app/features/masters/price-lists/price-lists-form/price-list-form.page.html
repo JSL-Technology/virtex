@@ -55,12 +55,12 @@
       <h2 class="form-section-title">
         {{ 'masters.price_lists_form.price_list_items' | translate }}
       </h2>
-            <div class="table-container">
-                <table class="data-table" formArrayName="items">
+            <vx-table labelKey="masters.price_lists_form.price_list_items" frame="none">
+                <table formArrayName="items">
                     <thead>
                         <tr>
                             <th style="width: 50%;">{{ 'masters.price_lists_form.product' | translate }}</th>
-                            <th class="text-right" style="width: 40%;">{{ 'masters.price_lists_form.price' | translate }}</th>
+                            <th class="numeric" style="width: 40%;">{{ 'masters.price_lists_form.price' | translate }}</th>
                             <th class="actions-column">{{ 'masters.price_lists_form.actions' | translate }}</th>
                         </tr>
                     </thead>
@@ -91,7 +91,7 @@
                         }
                     </tbody>
                 </table>
-            </div>
+            </vx-table>
       <button type="button" class="secondary-button add-line-btn" (click)="addLine()">
         <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
         <span>{{ 'masters.price_lists_form.add_line' | translate }}</span>

@@ -32,11 +32,10 @@
   } @else if (!loading() && users().length === 0) {
     <vx-empty-state titleKey="settings.user_management.no_users_found" descriptionKey="settings.user_management.no_users_found_help" />
   } @else {
-    <div class="um-table" [class.um-table--busy]="loading()" [attr.aria-busy]="loading()">
-      @if (loading()) {
-        <div class="um-loading"><vx-spinner size="lg" /></div>
-      }
-      <table [appSort]="sort" class="data-table" [appTableMenu]="usersMenu">
+    <!-- Mientras se refresca (filtro, búsqueda, página), las filas se quedan atenuadas bajo la franja de
+         actividad de la tabla: no se tapan con un velo ni salta la lista. -->
+    <vx-table labelKey="settings.sections_meta.users.label" frame="none" [busy]="loading()">
+      <table [appSort]="sort" [appTableMenu]="usersMenu">
         <thead>
           <tr>
             <th appSortHeader="firstName">{{ "users.table.name" | translate }}</th>
@@ -65,7 +64,7 @@
                 </vx-badge>
               </td>
               <!-- Sin permiso de edición no hay acciones de fila: la página se lee (PERM-01). -->
-              <td class="row-actions">
+              <td class="actions-column">
                 @if (canEdit()) {
                 <button type="button" class="link-button" (click)="handleAction('edit', user)">{{ 'common.edit' | translate }}</button>
                 <button type="button" class="um-icon-button" aria-haspopup="menu"
@@ -80,7 +79,7 @@
           }
         </tbody>
       </table>
-    </div>
+    </vx-table>
 
     <!--
       Era la ÚNICA de las cinco paginaciones del producto con números de página, y tenía su
@@ -102,8 +101,8 @@
       les ha pedido, y solo ellas deciden. Por eso no están en la tabla de arriba.
     -->
     <vx-settings-group class="um-invitations" titleKey="settings.user_management.sent_invitations" descriptionKey="settings.user_management.sent_invitations_hint">
-      <div class="um-table">
-        <table [appSort]="invitationsTable.sort" class="data-table">
+      <vx-table labelKey="settings.user_management.sent_invitations" frame="none">
+        <table [appSort]="invitationsTable.sort">
           <thead>
             <tr>
               <th appSortHeader="name">{{ 'users.table.name' | translate }}</th>
@@ -120,7 +119,7 @@
                 <td [attr.data-label]="'users.table.email' | translate">{{ invitation.email }}</td>
                 <td [attr.data-label]="'users.table.role' | translate">{{ invitation.roleName | vxRoleName }}</td>
                 <td [attr.data-label]="'settings.user_management.invitation_expires' | translate">{{ invitation.expiresAt | vxDate }}</td>
-                <td class="row-actions">
+                <td class="actions-column">
                   <button type="button" class="link-button" *appHasPermission="'users:create'" (click)="revokeInvitation(invitation)">
                     {{ 'settings.user_management.revoke_invitation' | translate }}
                   </button>
@@ -129,7 +128,7 @@
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
     </vx-settings-group>
   }
 </div>

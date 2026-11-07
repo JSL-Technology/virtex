@@ -8,6 +8,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 import { CopilotApiService, CopilotProposal } from '../copilot/copilot-api.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * A draft proposed for the person — by an external agent over MCP, or in the assistant — to review
  * and confirm. Confirming creates it as a draft (never posted, never sent); the record says it was
@@ -16,7 +17,7 @@ import { CopilotApiService, CopilotProposal } from '../copilot/copilot-api.servi
 @Component({
   selector: 'app-proposal-page',
   standalone: true,
-  imports: [TranslatePipe, LucideAngularModule, RouterLink, DocumentShellComponent, ...FORMAT_PIPES],
+  imports: [...VX_TABLE, TranslatePipe, LucideAngularModule, RouterLink, DocumentShellComponent, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- A document window like every other: its header, its state, its loading and its error. -->
@@ -38,13 +39,15 @@ import { CopilotApiService, CopilotProposal } from '../copilot/copilot-api.servi
           </p>
         }
         @if (lines(p).length) {
-          <table class="data-table">
-            <tbody>
-              @for (line of lines(p); track $index) {
-                <tr><td>{{ line.description }}</td><td class="text-right">{{ line.quantity | vxNumber }}</td><td class="text-right">{{ line.amount | vxMoney }}</td></tr>
-              }
-            </tbody>
-          </table>
+          <vx-table [labelKey]="k('ai.copilot.proposal', p.tool)" layout="grid" frame="none">
+            <table>
+              <tbody>
+                @for (line of lines(p); track $index) {
+                  <tr><td>{{ line.description }}</td><td class="numeric">{{ line.quantity | vxNumber }}</td><td class="numeric">{{ line.amount | vxMoney }}</td></tr>
+                }
+              </tbody>
+            </table>
+          </vx-table>
         }
         @if (p.preview['total'] !== undefined) {
           <p><strong>{{ 'ai.copilot.total' | translate }}:</strong> {{ $any(p.preview['total']) | vxMoney }}</p>

@@ -137,8 +137,8 @@
     }
 
     @if (lines.length > 0) {
-      <div class="table-wrapper">
-        <table class="lines-table" formArrayName="lines">
+      <vx-table labelKey="customer_receipts.form.invoices_apply" frame="none">
+        <table formArrayName="lines">
           <thead>
             <tr>
               <th>{{ 'customer_receipts.form.invoice' | translate }}</th>
@@ -175,7 +175,7 @@
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
     }
 
     <div class="totals">

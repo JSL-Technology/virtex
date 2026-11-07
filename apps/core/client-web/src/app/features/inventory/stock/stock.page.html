@@ -39,8 +39,8 @@
     <p class="ls__state-help">{{ 'inventory.stock.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table class="data-table">
+  <vx-table labelKey="inventory.stock.title">
+    <table>
       <thead>
         <tr>
           <th>{{ 'inventory.common.product' | translate }}</th>
@@ -76,7 +76,7 @@
         </tr>
       </tfoot>
     </table>
-  </div>
+  </vx-table>
 
   <vx-pager
     listFooter

@@ -13,10 +13,11 @@ import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/components/feedback';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 @Component({
   selector: 'app-invoice-selection-dialog',
   standalone: true,
-  imports: [...VX_SORT, 
+  imports: [...VX_TABLE, ...VX_SORT, 
     CommonModule,
     FormsModule,
     LucideAngularModule,

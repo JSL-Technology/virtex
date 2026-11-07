@@ -73,8 +73,8 @@
     </form>
   }
 
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="masters.payment_methods.payment_methods">
+    <table [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="code">{{ 'masters.payment_methods.code' | translate }}</th>
@@ -83,7 +83,7 @@
           <th appSortHeader="fiscalCode">{{ 'masters.payment_methods.fiscal_code' | translate }}</th>
           <th appSortHeader="isActive">{{ 'masters.payment_methods.status' | translate }}</th>
           @if (editable()) {
-            <th class="text-right">{{ 'common.actions' | translate }}</th>
+            <th class="numeric">{{ 'common.actions' | translate }}</th>
           }
         </tr>
       </thead>
@@ -100,7 +100,7 @@
               </vx-badge>
             </td>
             @if (editable()) {
-              <td class="text-right">
+              <td class="numeric">
                 @if (!method.isSystem) {
                   <span class="row-actions" *appHasPermission="'treasury:manage_accounts'">
                     <button type="button" class="secondary-button" [disabled]="busy()" (click)="startEdit(method)">
@@ -117,5 +117,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

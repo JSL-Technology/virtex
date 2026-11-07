@@ -73,7 +73,7 @@ import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs'
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { VxEmptyStateComponent, VxErrorStateComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
+import { VxEmptyStateComponent, VxErrorStateComponent } from '../../../shared/components/feedback';
 import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 import { SettingsGroupComponent } from '../shared';
 import { VxPagerComponent } from '../../../shared/components/pager';
@@ -83,16 +83,17 @@ import { VxDialogComponent } from '../../../shared/components/dialog';
 import { VxFieldErrorComponent } from '../../../shared/components/field-error';
 import { TableSort, VX_SORT, sortable } from '../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../shared/components/table';
 @Component({
   selector: 'app-user-management-page',
   standalone: true,
-  imports: [SettingsActionsDirective, ...VX_SORT, ...FORMAT_PIPES, RoleNamePipe, 
+  imports: [...VX_TABLE, SettingsActionsDirective, ...VX_SORT, ...FORMAT_PIPES, RoleNamePipe, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
     TranslateModule,
     HasPermissionDirective,
-    ...VX_FORM_A11Y, ...VX_SELECT, VxSpinnerComponent, VxPagerComponent, VxBadgeComponent,
+    ...VX_FORM_A11Y, ...VX_SELECT, VxPagerComponent, VxBadgeComponent,
     VxEmptyStateComponent, VxErrorStateComponent, SettingsGroupComponent, ...VX_CONTEXT_MENU,
     UserBranchAccessDialogComponent, VxDialogComponent, VxFieldErrorComponent],
   templateUrl: './user-management.page.html',

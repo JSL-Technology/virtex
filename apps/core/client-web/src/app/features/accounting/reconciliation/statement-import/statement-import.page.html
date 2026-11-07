@@ -135,7 +135,7 @@
 
       @if (sampleRows().length) {
         <h4 class="section-heading">{{ 'accounting.reconciliation.import.sample' | translate }}</h4>
-        <div class="sample-wrap">
+        <vx-table labelKey="accounting.reconciliation.import.sample">
           <table class="sample">
             <thead>
               <tr>
@@ -154,7 +154,7 @@
               }
             </tbody>
           </table>
-        </div>
+        </vx-table>
       }
       }
 

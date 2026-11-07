@@ -32,6 +32,7 @@ import {
 } from '../data/stock.service';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 export const STOCK_DOCUMENT_TONE: Record<StockDocumentStatus, VxTone> = {
   DRAFT: 'draft',
   POSTED: 'ok',
@@ -92,7 +93,7 @@ const round2 = (value: number): number => Math.round((value + Number.EPSILON) * 
 @Component({
   selector: 'app-inventory-adjustment-form',
   standalone: true,
-  imports: [VxNumberInputDirective, 
+  imports: [...VX_TABLE, VxNumberInputDirective, 
     ReactiveFormsModule,
     RouterLink,
     LucideAngularModule,

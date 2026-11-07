@@ -61,8 +61,6 @@
 }
 
 // ── Líneas ─────────────────────────────────────────────────────────────────────────────────────
-.adj-table-wrapper { border: 1px solid var(--border-default); border-radius: var(--radius-md); }
-
 .adj-lines {
   min-width: 62rem;
 
@@ -74,8 +72,8 @@
   input[type='number']::-webkit-outer-spin-button,
   input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-  tfoot th, tfoot td { border-bottom: none; border-top: 2px solid var(--border-default); font-weight: var(--font-semibold); }
-  tfoot th { text-align: right; color: var(--content-secondary); }
+  //  El pie de totales es de `vx-table`; aquí, el rótulo junto a sus cifras.
+  tfoot th { text-align: end; }
 }
 
 .adj-col-product { width: 32%; min-width: 18rem; }

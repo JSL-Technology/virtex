@@ -314,6 +314,26 @@
     "en": "Show or hide the side panel",
     "pt": "Mostrar ou ocultar o painel lateral"
   },
+  "shell.table.empty": {
+    "es": "No hay registros que mostrar.",
+    "en": "There are no records to show.",
+    "pt": "Não há registros para mostrar."
+  },
+  "shell.table.selected.one": {
+    "es": "1 seleccionado",
+    "en": "1 selected",
+    "pt": "1 selecionado"
+  },
+  "shell.table.selected.other": {
+    "es": "{{count}} seleccionados",
+    "en": "{{count}} selected",
+    "pt": "{{count}} selecionados"
+  },
+  "shell.table.unnamed": {
+    "es": "Tabla",
+    "en": "Table",
+    "pt": "Tabela"
+  },
   "shell.unsaved": {
     "es": "Sin guardar",
     "en": "Unsaved",

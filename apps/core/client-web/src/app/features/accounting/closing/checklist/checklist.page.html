@@ -56,8 +56,8 @@
     @if (isEmpty()) {
       <p class="checklist-state">{{ 'accounting.checklist.no_checklists_have_been_created_yet' | translate }}</p>
     } @else {
-      <div class="table-container card">
-        <table class="data-table">
+      <vx-table labelKey="accounting.checklist.period_close">
+        <table>
           <thead>
             <tr>
               <th>{{ 'accounting.checklist.checklist_name' | translate }}</th>
@@ -87,7 +87,7 @@
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
     }
   }
 </div>

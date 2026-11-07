@@ -16,6 +16,7 @@ import {
 import { CloseAssistantComponent } from '../../../ai/close/close-assistant.component';
 import { ActivatedRoute } from '@angular/router';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * The closing checklist, for whichever period the reader chooses.
  *
@@ -36,7 +37,7 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-checklist-page',
   standalone: true,
-  imports: [AppLinkPipe, CloseAssistantComponent, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [...VX_TABLE, AppLinkPipe, CloseAssistantComponent, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './checklist.page.html',
   styleUrls: ['./checklist.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

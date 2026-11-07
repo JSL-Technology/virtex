@@ -57,8 +57,8 @@
 
     <section class="form-section">
       <h2 class="form-section-title">{{ 'sales.quotes.lines' | translate }}</h2>
-      <div class="table-wrapper">
-        <table class="lines-table" formArrayName="lines">
+      <vx-table labelKey="sales.quotes.lines" frame="none">
+        <table formArrayName="lines">
           <thead>
             <tr>
               <th>{{ 'sales.quotes.product' | translate }}</th>
@@ -100,7 +100,7 @@
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
       @if (editable()) {
         <button class="secondary-button add-line" type="button" (click)="addLine()">
           <lucide-icon [img]="AddIcon" size="14"></lucide-icon>

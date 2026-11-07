@@ -32,6 +32,7 @@ import { VxBadgeComponent } from '../../shared/components/badge';
 import { VxEmptyStateComponent, VxErrorStateComponent, VxSpinnerComponent } from '../../shared/components/feedback';
 import { SettingsActionsDirective, SettingsShellService } from '../settings/shell';
 
+import { VX_TABLE } from '../../shared/components/table';
 /**
  * The extensions manager: install signed extensions into the tenant, grant them capabilities, run
  * them in the sandbox, and see the result.
@@ -43,7 +44,7 @@ import { SettingsActionsDirective, SettingsShellService } from '../settings/shel
 @Component({
   selector: 'app-extensions-page',
   standalone: true,
-  imports: [...VX_SORT, 
+  imports: [...VX_TABLE, ...VX_SORT, 
     CommonModule,
     RouterLink,
     ReactiveFormsModule,

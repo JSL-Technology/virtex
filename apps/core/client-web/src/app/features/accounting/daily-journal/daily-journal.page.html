@@ -54,16 +54,16 @@
     }
   </div>
 
-  <div class="table-container card">
-    <table class="data-table journal-table">
+  <vx-table labelKey="accounting.daily_journal.daily_journal" layout="grid">
+    <table class="journal-table">
       <thead>
         <tr>
           <th>{{ 'accounting.daily_journal.date' | translate }}</th>
           <th>{{ 'accounting.daily_journal.entry' | translate }}</th>
           <th>{{ 'accounting.daily_journal.account' | translate }}</th>
           <th>{{ 'accounting.daily_journal.description' | translate }}</th>
-          <th class="text-right">{{ 'accounting.daily_journal.debit' | translate }}</th>
-          <th class="text-right">{{ 'accounting.daily_journal.credit' | translate }}</th>
+          <th class="numeric">{{ 'accounting.daily_journal.debit' | translate }}</th>
+          <th class="numeric">{{ 'accounting.daily_journal.credit' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -88,8 +88,8 @@
               @if (isFirst) {
                 <td [attr.rowspan]="entry.lines.length">{{ entry.description }}</td>
               }
-              <td class="text-right amount-cell">{{ line.debit | vxMoney: entry.currencyCode }}</td>
-              <td class="text-right amount-cell">{{ line.credit | vxMoney: entry.currencyCode }}</td>
+              <td class="numeric amount-cell">{{ line.debit | vxMoney: entry.currencyCode }}</td>
+              <td class="numeric amount-cell">{{ line.credit | vxMoney: entry.currencyCode }}</td>
             </tr>
           }
           <tr class="separator-row">
@@ -98,7 +98,7 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 
   <!--
     The list is bounded now. Without controls the page would silently show the first fifty entries

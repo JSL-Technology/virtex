@@ -282,6 +282,11 @@
     "en": "Issuing…",
     "pt": "Emitindo…"
   },
+  "invoices.detail.lines_table": {
+    "es": "Líneas de la factura",
+    "en": "Invoice lines",
+    "pt": "Linhas da fatura"
+  },
   "invoices.detail.logistics": {
     "es": "Logística",
     "en": "Logistics",

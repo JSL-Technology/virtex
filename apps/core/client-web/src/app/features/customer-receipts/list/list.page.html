@@ -23,15 +23,15 @@
     <p>{{ 'customer_receipts.list.create_your_first_receipt_record_payment' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table [appTableMenu]="receiptsMenu" [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="customer_receipts.list.customer_receipts">
+    <table [appTableMenu]="receiptsMenu" [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="receiptNumber">{{ 'customer_receipts.list.number' | translate }}</th>
           <th appSortHeader="customer">{{ 'customer_receipts.list.customer' | translate }}</th>
           <th appSortHeader="paymentDate">{{ 'customer_receipts.list.date' | translate }}</th>
-          <th appSortHeader="totalAmount" class="text-right">{{ 'customer_receipts.list.amount' | translate }}</th>
-          <th appSortHeader="unappliedAmount" class="text-right">{{ 'customer_receipts.list.unapplied' | translate }}</th>
+          <th appSortHeader="totalAmount" class="numeric">{{ 'customer_receipts.list.amount' | translate }}</th>
+          <th appSortHeader="unappliedAmount" class="numeric">{{ 'customer_receipts.list.unapplied' | translate }}</th>
           <th appSortHeader="status" class="text-center">{{ 'customer_receipts.list.status' | translate }}</th>
           @if (branches.hasBranches()) {
             <th>{{ 'branches.picker.label' | translate }}</th>
@@ -44,9 +44,9 @@
             <td>{{ receipt.receiptNumber ?? '—' }}</td>
             <td>{{ customerName(receipt.customerId) }}</td>
             <td>{{ receipt.paymentDate | vxDate: 'date' : true }}</td>
-            <td class="text-right">{{ receipt.totalAmount | vxMoney: receipt.currencyCode }}</td>
+            <td class="numeric">{{ receipt.totalAmount | vxMoney: receipt.currencyCode }}</td>
             <!-- An advance or an overpayment. Previously unrecordable, so never shown. -->
-            <td class="text-right"><vx-amount [value]="receipt.unappliedAmount" /></td>
+            <td class="numeric"><vx-amount [value]="receipt.unappliedAmount" /></td>
             <td class="text-center">
               <vx-badge
                 [tone]="receipt.status === 'VOID' ? 'danger' : 'ok'"
@@ -62,5 +62,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

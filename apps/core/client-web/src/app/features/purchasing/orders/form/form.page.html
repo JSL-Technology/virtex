@@ -94,8 +94,8 @@
     <section class="form-section">
       <h2 class="form-section-title">{{ 'purchasing.orders.form.lines' | translate }}</h2>
 
-      <div class="table-wrapper">
-        <table class="lines-table" formArrayName="lines">
+      <vx-table labelKey="purchasing.orders.form.lines" frame="none">
+        <table formArrayName="lines">
           <thead>
             <tr>
               <th>{{ 'purchasing.orders.form.product' | translate }}</th>
@@ -148,7 +148,7 @@
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
 
       @if (editable()) {
         <button class="secondary-button" type="button" (click)="addLine()">
@@ -212,37 +212,39 @@
         @if (receipts().length) {
           <div class="action-box">
             <h3 class="action-box__title">{{ 'purchasing.orders.form.receipts_title' | translate }}</h3>
-            <table class="lines-table">
-              <thead>
-                <tr>
-                  <th>{{ 'purchasing.receipts.number' | translate }}</th>
-                  <th>{{ 'purchasing.orders.form.receipt_date' | translate }}</th>
-                  <th>{{ 'purchasing.orders.form.description' | translate }}</th>
-                  <th class="numeric">{{ 'purchasing.orders.form.quantity' | translate }}</th>
-                  <th class="numeric">{{ 'purchasing.orders.form.receipt_unit_cost' | translate }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (receipt of receipts(); track receipt.id) {
-                  @for (line of receipt.lines; track line.lineId; let first = $first) {
-                    <tr [class.voided]="receipt.status === 'VOID'">
-                      <td>
-                        @if (first) {
-                          <a [routerLink]="['/purchasing/receipts', receipt.id]">{{ receipt.number }}</a>
-                          @if (receipt.status === 'VOID') {
-                            <span class="muted"> · {{ 'purchasing.receipts.status.void' | translate }}</span>
+            <vx-table labelKey="purchasing.orders.form.receipts_title">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{{ 'purchasing.receipts.number' | translate }}</th>
+                    <th>{{ 'purchasing.orders.form.receipt_date' | translate }}</th>
+                    <th>{{ 'purchasing.orders.form.description' | translate }}</th>
+                    <th class="numeric">{{ 'purchasing.orders.form.quantity' | translate }}</th>
+                    <th class="numeric">{{ 'purchasing.orders.form.receipt_unit_cost' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (receipt of receipts(); track receipt.id) {
+                    @for (line of receipt.lines; track line.lineId; let first = $first) {
+                      <tr [class.voided]="receipt.status === 'VOID'">
+                        <td>
+                          @if (first) {
+                            <a [routerLink]="['/purchasing/receipts', receipt.id]">{{ receipt.number }}</a>
+                            @if (receipt.status === 'VOID') {
+                              <span class="muted"> · {{ 'purchasing.receipts.status.void' | translate }}</span>
+                            }
                           }
-                        }
-                      </td>
-                      <td>{{ first ? (receipt.receivedAt | vxDate: 'date') : '' }}</td>
-                      <td>{{ line.description }}</td>
-                      <td class="numeric">{{ line.quantity | vxNumber: '1.0-6' }}</td>
-                      <td class="numeric">{{ line.unitCost | vxNumber: '1.2-6' }}</td>
-                    </tr>
+                        </td>
+                        <td>{{ first ? (receipt.receivedAt | vxDate: 'date') : '' }}</td>
+                        <td>{{ line.description }}</td>
+                        <td class="numeric">{{ line.quantity | vxNumber: '1.0-6' }}</td>
+                        <td class="numeric">{{ line.unitCost | vxNumber: '1.2-6' }}</td>
+                      </tr>
+                    }
                   }
-                }
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </vx-table>
           </div>
         }
 

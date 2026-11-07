@@ -94,32 +94,10 @@
   }
 }
 
-.table-wrapper { overflow-x: auto; }
-
-.data-table, .lines-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  th, td {
-    padding: 0.4rem 0.5rem;
-    border-bottom: 1px solid var(--border-light);
-    text-align: left;
-  }
-
-  th {
-    font-size: var(--text-xs);
-    letter-spacing: 0.02em;
-    color: var(--content-secondary);
-  }
-
-  .numeric { text-align: right; }
-  .numeric input { text-align: right; }
-
-  input, select { width: 100%; min-width: 5rem; }
-}
+//  Las tablas son `vx-table` (cabecera, cifras, fila al pasar por encima); aquí, sus campos.
+vx-table :is(input, select) { width: 100%; min-width: 5rem; }
 
 .is-clickable { cursor: pointer; }
-.is-clickable:hover { background: var(--surface-hover); }
 
 .detail-row > td { background: var(--bg-tertiary); }
 

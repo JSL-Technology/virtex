@@ -17,6 +17,7 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * Where stock is held.
  *
@@ -33,7 +34,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-warehouses-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_TABLE, ...VX_SORT, CanOpenDirective, RouterLink, HasPermissionDirective, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './warehouses.page.html',
   styleUrls: ['./warehouses.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

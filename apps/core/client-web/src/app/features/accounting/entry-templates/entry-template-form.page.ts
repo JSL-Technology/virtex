@@ -29,6 +29,7 @@ import {
   allocateTemplate,
 } from '../data/recurring-entries.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 // The company's today, not the browser's or UTC (QA R3-M02).
 const todayIso = (): string => tenantToday();
 
@@ -64,7 +65,7 @@ const blankLine = (type: TemplateSide): TemplateLine => ({ accountId: '', descri
 @Component({
   selector: 'app-entry-template-form-page',
   standalone: true,
-  imports: [VxNumberInputDirective, 
+  imports: [...VX_TABLE, VxNumberInputDirective, 
     ReactiveFormsModule,
     FormsModule,
     RouterLink,
