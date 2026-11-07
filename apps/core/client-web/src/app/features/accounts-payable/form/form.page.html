@@ -121,6 +121,13 @@
           <input type="text" id="ncf" formControlName="ncf" autocomplete="off">
         </div>
 
+        @if (asksSupplierInvoiceNumber()) {
+          <div class="form-field">
+            <label for="supplierInvoiceNumber">{{ 'accounts_payable.form.supplier_invoice_number' | translate }}</label>
+            <input type="text" id="supplierInvoiceNumber" formControlName="supplierInvoiceNumber" maxlength="60" autocomplete="off">
+          </div>
+        }
+
         <div class="form-field">
           <label for="date">{{ 'accounts_payable.form.issue_date' | translate }}@if (confidenceOf('date'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
           <vx-date-field inputId="date" formControlName="date" />

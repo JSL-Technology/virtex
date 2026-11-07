@@ -8,6 +8,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VendorBillFormPage } from './form.page';
+import { DialogService } from '../../../core/services/dialog.service';
 import { environment } from '../../../../environments/environment';
 
 /**
@@ -372,6 +373,46 @@ describe('VendorBillFormPage', () => {
     const request = httpMock.expectOne(`${API}/accounts-payable`);
     expect(request.request.body.attachmentIds).toEqual(['att-1']);
     expect(request.request.body.lines[0]).toMatchObject({ product: 'Café', quantity: 4, unitPrice: 250, expenseAccountId: 'a1' });
+    request.flush({ id: 'bill-1' });
+  });
+
+  /**
+   * AP-03: a bill the server takes for a probable duplicate (same supplier, date and total, nothing
+   * to tell them apart) is asked about, not refused — and the confirmed retry is the same form,
+   * under the same idempotency key, so a double click on «Registrar» still records one bill.
+   */
+  it('asks before recording a probable duplicate, and resends from the same form', async () => {
+    const confirm = jest.spyOn(TestBed.inject(DialogService), 'confirm').mockResolvedValue(true);
+    flushPickers();
+    component.form.patchValue({ vendorId: 's1', date: '2026-03-15', dueDate: '2026-04-15', supplierInvoiceNumber: '' });
+    component.lines.at(0).patchValue({ product: 'Hosting', quantity: 1, unitPrice: 100, expenseAccountId: 'a1' });
+
+    component.save();
+    const first = httpMock.expectOne(`${API}/accounts-payable`);
+    const key = first.request.headers.get('Idempotency-Key');
+    expect(key).toBeTruthy();
+    expect(first.request.body.allowPossibleDuplicate).toBeUndefined();
+    first.flush(
+      { messageKey: 'accounts_payable.possible_duplicate_bill', params: { supplier: 'S', date: '2026-03-15', total: 100 } },
+      { status: 409, statusText: 'Conflict' },
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(confirm).toHaveBeenCalledWith(expect.objectContaining({ message: 'accounts_payable.possible_duplicate_bill' }));
+    const second = httpMock.expectOne(`${API}/accounts-payable`);
+    expect(second.request.body.allowPossibleDuplicate).toBe(true);
+    expect(second.request.headers.get('Idempotency-Key')).toBe(key);
+    second.flush({ id: 'bill-1' });
+  });
+
+  it('sends the supplier invoice number where the market asks for it apart', () => {
+    flushPickers();
+    component.form.patchValue({ vendorId: 's1', date: '2026-03-15', dueDate: '2026-04-15', supplierInvoiceNumber: ' FAC-0123 ' });
+    component.lines.at(0).patchValue({ product: 'Hosting', quantity: 1, unitPrice: 100, expenseAccountId: 'a1' });
+    component.save();
+    const request = httpMock.expectOne(`${API}/accounts-payable`);
+    expect(request.request.body.supplierInvoiceNumber).toBe('FAC-0123');
     request.flush({ id: 'bill-1' });
   });
 });

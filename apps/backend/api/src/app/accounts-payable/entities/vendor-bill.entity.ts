@@ -59,6 +59,12 @@ export enum VendorBillStatus {
 }
 
 @Index('IDX_vendor_bills_org_branch', ['organizationId', 'branchId'])
+// One live bill per supplier document number, in every country (AP-03). Voided and rejected bills
+// leave the index, so a document entered by mistake can be entered again correctly.
+@Index('UQ_vendor_bills_supplier_invoice', ['organizationId', 'vendorId', 'supplierInvoiceKey'], {
+  unique: true,
+  where: `"supplier_invoice_key" IS NOT NULL AND "status" NOT IN ('VOID', 'REJECTED')`,
+})
 @Entity({ name: 'vendor_bills' })
 export class VendorBill {
   @PrimaryGeneratedColumn('uuid')
@@ -97,6 +103,20 @@ export class VendorBill {
 
   @Column({ nullable: true })
   ncf?: string;
+
+  /**
+   * The number the supplier printed on their invoice (AP-03).
+   *
+   * The NCF identifies a Dominican document; nothing identified one anywhere else, so the same
+   * supplier invoice could be recorded — and paid — twice in every other market, and in the
+   * Dominican Republic whenever the document carried no NCF.
+   */
+  @Column({ name: 'supplier_invoice_number', type: 'varchar', length: 60, nullable: true })
+  supplierInvoiceNumber?: string | null;
+
+  /** `supplierInvoiceNumber` normalised for comparison (see `supplierInvoiceKey()`); never sent. */
+  @Column({ name: 'supplier_invoice_key', type: 'varchar', length: 60, nullable: true, select: false })
+  supplierInvoiceKey?: string | null;
 
   /**
    * The date on the supplier's document, and the date it falls due — calendar dates, not instants.

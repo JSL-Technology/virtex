@@ -527,6 +527,80 @@ describeWithDb('accounts payable', () => {
     });
   });
 
+  /**
+   * AP-03 (audit 2026-10-31): only the Dominican NCF identified a supplier document, so two
+   * identical POSTs without one both succeeded — the same invoice recorded, and payable, twice.
+   */
+  describe('the same supplier document twice', () => {
+    const bill = (extra: Partial<CreateVendorBillDto> = {}) =>
+      payables.create(
+        {
+          vendorId,
+          date: '2026-03-12',
+          dueDate: '2026-04-11',
+          lines: [{ product: 'Servicio', quantity: 1, unitPrice: 4_000, expenseAccountId: account['expense'] }],
+          ...extra,
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+
+    it('refuses a supplier number already recorded for that supplier, however it is typed', async () => {
+      const first = await bill({ supplierInvoiceNumber: 'FAC-000123' });
+      expect(first.supplierInvoiceNumber).toBe('FAC-000123');
+      await expect(bill({ supplierInvoiceNumber: 'fac 123', date: '2026-03-20' })).rejects.toMatchObject({
+        messageKey: 'accounts_payable.supplier_invoice_already_recorded',
+      });
+      // Another supplier may use the same number.
+      await expect(
+        bill({ supplierInvoiceNumber: 'FAC-000123', vendorId: individualVendorId }),
+      ).resolves.toBeDefined();
+    });
+
+    it('lets the number be used again once the bill carrying it is voided', async () => {
+      const first = await bill({ supplierInvoiceNumber: 'FAC-77' });
+      await payables.voidBill(first.id, organizationId, { reason: 'Registrada por error' }, ACTOR);
+      await expect(bill({ supplierInvoiceNumber: 'FAC-77' })).resolves.toBeDefined();
+    });
+
+    it('enforces it in the database, not only in the service', async () => {
+      await bill({ supplierInvoiceNumber: 'FAC-9' });
+      await expect(
+        dataSource.query(
+          `INSERT INTO "vendor_bills"
+             ("organization_id", "vendor_id", "date", "dueDate", "total", "balance", "status",
+              "currency_code", "exchange_rate", "total_in_base_currency", "version", "supplier_invoice_key")
+           VALUES ($1, $2, '2026-03-12', '2026-04-11', 1, 1, 'DRAFT', 'DOP', 1, 1, 1, 'FAC9')`,
+          [organizationId, vendorId],
+        ),
+      ).rejects.toMatchObject({ code: '23505' });
+    });
+
+    it('takes an unnumbered bill identical to a live one for the same document, unless confirmed', async () => {
+      await bill();
+      await expect(bill()).rejects.toMatchObject({ messageKey: 'accounts_payable.possible_duplicate_bill' });
+      // A different total, or a confirmation that it is another document, is recorded.
+      await expect(bill({ lines: [{ product: 'Servicio', quantity: 1, unitPrice: 4_001, expenseAccountId: account['expense'] }] } as never)).resolves.toBeDefined();
+      await expect(bill({ allowPossibleDuplicate: true })).resolves.toBeDefined();
+    });
+
+    it("refuses the same fiscal document twice outside the Dominican Republic too", async () => {
+      // A CFDI UUID, a CUFE, a US invoice number: whatever the market calls it, one document.
+      await dataSource.query(`UPDATE organizations SET country = 'US' WHERE id = $1`, [organizationId]);
+      await bill({ ncf: 'inv-2026-0042' });
+      await expect(bill({ ncf: 'INV 2026 0042', date: '2026-03-25' })).rejects.toMatchObject({
+        messageKey: 'accounts_payable.supplier_document_already_recorded',
+      });
+    });
+
+    it('refuses an edit that gives a bill a number another live bill already has', async () => {
+      await bill({ supplierInvoiceNumber: 'FAC-1' });
+      const second = await bill({ supplierInvoiceNumber: 'FAC-2' });
+      await expect(
+        payables.update(second.id, { supplierInvoiceNumber: 'FAC-0001' }, organizationId),
+      ).rejects.toMatchObject({ messageKey: 'accounts_payable.supplier_invoice_already_recorded' });
+    });
+  });
+
   describe('posting an approved bill', () => {
     const billWithTax = async () =>
       payables.create(

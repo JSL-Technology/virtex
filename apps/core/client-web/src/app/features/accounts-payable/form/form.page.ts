@@ -32,6 +32,7 @@ import {
   UpdateVendorBillDto,
 } from '../../../core/services/accounts-payable';
 import { NotificationService } from '../../../core/services/notification';
+import { DialogService } from '../../../core/services/dialog.service';
 import { PurchasingService } from '../../purchasing/data/purchasing.service';
 import { SuppliersService } from '../../../core/api/suppliers.service';
 import { CurrenciesService, Currency } from '../../../core/api/currencies.service';
@@ -149,6 +150,17 @@ export class VendorBillFormPage implements OnInit {
   private readonly treasury = inject(TreasuryService);
   private readonly accounts = inject(ChartOfAccountsApiService);
   private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(DialogService);
+  /** Identifies this form to the server: one bill per form however many times «Guardar» is pressed. */
+  private readonly draftKey = crypto.randomUUID();
+  /**
+   * Whether the market's own supplier-document field already IS the supplier's invoice number
+   * (the United States, say). Elsewhere it is the fiscal identifier — NCF, CFDI UUID, CUFE — and
+   * the supplier's commercial number is asked for on its own.
+   */
+  readonly asksSupplierInvoiceNumber = computed(
+    () => !this.supplierNumberKey().endsWith('.invoice_number'),
+  );
   private readonly purchasing = inject(PurchasingService);
   private readonly ai = inject(AiService);
   private readonly inboundMail = inject(InboundMailService);
@@ -420,6 +432,7 @@ export class VendorBillFormPage implements OnInit {
     this.form = this.fb.group({
       vendorId: ['', [Validators.required]],
       ncf: [''],
+      supplierInvoiceNumber: ['', [Validators.maxLength(60)]],
       date: [today, [Validators.required]],
       dueDate: [today, [Validators.required]],
       //  Filled in once the books' base currency is known — see `loadBaseCurrency`. Not from
@@ -665,6 +678,7 @@ export class VendorBillFormPage implements OnInit {
           this.form.patchValue({
             vendorId: bill.vendorId,
             ncf: bill.ncf ?? '',
+            supplierInvoiceNumber: bill.supplierInvoiceNumber ?? '',
             date: isoOf(bill.date),
             dueDate: isoOf(bill.dueDate),
             currencyCode: bill.currencyCode,
@@ -775,6 +789,7 @@ export class VendorBillFormPage implements OnInit {
       ),
       total: this.totals().total,
       ncf: value.ncf || undefined,
+      supplierInvoiceNumber: (this.asksSupplierInvoiceNumber() && value.supplierInvoiceNumber?.trim()) || undefined,
       currencyCode: value.currencyCode || undefined,
       branchId: value.branchId || undefined,
       // Only where the market classifies purchases for a report (the DGII 606).
@@ -793,13 +808,31 @@ export class VendorBillFormPage implements OnInit {
       serviceCharge: Number(value.serviceCharge ?? 0),
       attachmentIds: this.isEditMode() ? undefined : this.attachments().map((attachment) => attachment.id),
     };
+    this.submit(dto);
+  }
 
+  /** The server found a live bill of this supplier, date and total, and nothing to tell them apart. */
+  private async confirmPossibleDuplicate(dto: CreateVendorBillDto, error: unknown): Promise<void> {
+    const params = (error as { error?: { params?: Record<string, unknown> } })?.error?.params ?? {};
+    const confirmed = await this.dialog.confirm({
+      title: 'accounts_payable.form.possible_duplicate_title',
+      message: 'accounts_payable.possible_duplicate_bill',
+      messageParams: params,
+      confirmText: 'accounts_payable.form.confirm_possible_duplicate',
+      variant: 'warning',
+    });
+    if (!confirmed) return;
+    this.isLoading.set(true);
+    this.submit({ ...dto, allowPossibleDuplicate: true });
+  }
+
+  private submit(dto: CreateVendorBillDto): void {
     const operation = this.isEditMode()
       ? this.accountsPayable.updateVendorBill(
           this.billId() as string,
           stripLines(dto) as UpdateVendorBillDto,
         )
-      : this.accountsPayable.createVendorBill(dto);
+      : this.accountsPayable.createVendorBill(dto, this.draftKey);
 
     operation.subscribe({
       next: (bill) => {
@@ -818,6 +851,12 @@ export class VendorBillFormPage implements OnInit {
         void this.router.navigate(['/accounts-payable', bill.id]).then(() => this.tab?.close());
       },
       error: (error: unknown) => {
+        // Nothing on the document tells it from one already recorded: ask, rather than refuse.
+        if (!this.isEditMode() && !dto.allowPossibleDuplicate && serverKey(error) === 'accounts_payable.possible_duplicate_bill') {
+          this.isLoading.set(false);
+          void this.confirmPossibleDuplicate(dto, error);
+          return;
+        }
         // The server's own message, not a generic one. Every rejection this screen produced was
         // reported as "could not save the bill", which is why a DTO that could never validate went
         // unnoticed for as long as it did.
@@ -826,6 +865,10 @@ export class VendorBillFormPage implements OnInit {
       },
     });
   }
+}
+
+function serverKey(error: unknown): string {
+  return String((error as { error?: { messageKey?: unknown } })?.error?.messageKey ?? '');
 }
 
 /** What a bill line is built from: typed in, loaded from a saved bill, or carried from an order. */

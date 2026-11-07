@@ -772,6 +772,11 @@
     "en": "Cancel",
     "pt": "Cancelar"
   },
+  "accounts_payable.form.confirm_possible_duplicate": {
+    "es": "Registrar de todas formas",
+    "en": "Record anyway",
+    "pt": "Registrar mesmo assim"
+  },
   "accounts_payable.form.currency": {
     "es": "Moneda",
     "en": "Currency",
@@ -897,6 +902,11 @@
     "en": "Payment form",
     "pt": "Forma de pagamento"
   },
+  "accounts_payable.form.possible_duplicate_title": {
+    "es": "¿Factura duplicada?",
+    "en": "Duplicate bill?",
+    "pt": "Fatura duplicada?"
+  },
   "accounts_payable.form.price": {
     "es": "Precio",
     "en": "Price",
@@ -944,6 +954,11 @@
     "es": "Proveedor",
     "en": "Supplier",
     "pt": "Fornecedor"
+  },
+  "accounts_payable.form.supplier_invoice_number": {
+    "es": "N.º de factura del proveedor",
+    "en": "Supplier invoice no.",
+    "pt": "N.º da fatura do fornecedor"
   },
   "accounts_payable.form.supplier_placeholder": {
     "es": "Seleccionar proveedor",
@@ -1541,6 +1556,11 @@
     "en": "The Payments journal (PAGOS) was not found.",
     "pt": "O diário de Pagamentos (PAGOS) não foi encontrado."
   },
+  "accounts_payable.possible_duplicate_bill": {
+    "es": "Ya hay una factura de {{supplier}} del {{date}} por {{total}} sin número que la distinga. Indica el número de la factura del proveedor, o confirma que es un documento distinto.",
+    "en": "There is already a bill from {{supplier}} dated {{date}} for {{total}} with no number to tell them apart. Enter the supplier's invoice number, or confirm it is a different document.",
+    "pt": "Já existe uma fatura de {{supplier}} de {{date}} por {{total}} sem número que a distinga. Informe o número da fatura do fornecedor ou confirme que é um documento diferente."
+  },
   "accounts_payable.purchase_category.asset_acquisitions": {
     "es": "Adquisiciones de activos",
     "en": "Asset acquisitions",
@@ -1676,10 +1696,20 @@
     "en": "The submitted total ({{received}}) does not match the one computed from the lines and taxes ({{expected}}).",
     "pt": "O total enviado ({{received}}) não corresponde ao calculado a partir das linhas e impostos ({{expected}})."
   },
+  "accounts_payable.supplier_document_already_recorded": {
+    "es": "El documento {{ncf}} de {{supplier}} ya está registrado.",
+    "en": "Document {{ncf}} from {{supplier}} is already recorded.",
+    "pt": "O documento {{ncf}} de {{supplier}} já está registrado."
+  },
   "accounts_payable.supplier_id_not_found": {
     "es": "Proveedor con ID \"{{id}}\" no encontrado.",
     "en": "Supplier \"{{id}}\" was not found.",
     "pt": "Fornecedor \"{{id}}\" não encontrado."
+  },
+  "accounts_payable.supplier_invoice_already_recorded": {
+    "es": "La factura {{number}} de {{supplier}} ya está registrada.",
+    "en": "Invoice {{number}} from {{supplier}} is already recorded.",
+    "pt": "A fatura {{number}} de {{supplier}} já está registrada."
   },
   "accounts_payable.vendor_bill_id_not_found": {
     "es": "La factura de proveedor con ID \"{{id}}\" no fue encontrada.",

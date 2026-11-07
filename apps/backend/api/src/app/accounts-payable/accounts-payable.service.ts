@@ -46,6 +46,7 @@ import { toIsoDate } from '../common/dates';
 import { isValidDominicanTaxId } from '../localization/contracts/tax-id.contract';
 import { checkReceivedNcf } from '../localization/contracts/ncf.contract';
 import { VendorBillAttachment } from './entities/vendor-bill-attachment.entity';
+import { supplierInvoiceKey } from './supplier-invoice-key';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 export interface AgingBucket {
@@ -226,7 +227,7 @@ export class AccountsPayableService {
     organizationId: string,
     actorUserId: string | null = null,
   ): Promise<VendorBill> {
-    const { attachmentIds, ...billFields } = dto;
+    const { attachmentIds, allowPossibleDuplicate, ...billFields } = dto;
     return this.dataSource.transaction(async (manager) => {
       const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
       const baseCurrency = settings?.baseCurrency ?? 'USD';
@@ -321,6 +322,15 @@ export class AccountsPayableService {
         });
       }
 
+      const invoiceKey = await this.assertSupplierDocumentUnique(manager, organizationId, supplier, {
+        supplierInvoiceNumber: dto.supplierInvoiceNumber,
+        ncf: ncf ?? dto.ncf,
+        date: dto.date,
+        currencyCode,
+        total: expectedTotal,
+        allowPossibleDuplicate: allowPossibleDuplicate === true,
+      });
+
       // From the document's currency into the books', which is the direction the conversion is
       // actually needed in. The previous code fetched a base→foreign rate and multiplied by it.
       const { amount: totalInBaseCurrency, rate } = await this.exchangeRates.convertAmount(
@@ -335,6 +345,8 @@ export class AccountsPayableService {
         branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
         ...billFields,
         ncf: ncf ?? dto.ncf,
+        supplierInvoiceNumber: dto.supplierInvoiceNumber?.trim() || null,
+        supplierInvoiceKey: invoiceKey,
         organizationId,
         lines,
         total: expectedTotal,
@@ -467,26 +479,37 @@ export class AccountsPayableService {
   ): Promise<string | null> {
     if (!ncf?.trim()) return null;
     const [organization] = await manager.query('SELECT country FROM organizations WHERE id = $1', [organizationId]);
-    if ((organization?.country ?? '').toUpperCase() !== 'DO') return null;
+    const dominican = (organization?.country ?? '').toUpperCase() === 'DO';
 
-    const checked = checkReceivedNcf(ncf);
-    if (!checked.ok) {
-      throw new BadRequestError(
-        checked.error === 'format' ? 'accounts_payable.ncf_invalid_format' : 'accounts_payable.ncf_unknown_type',
-        { ncf: ncf.trim() },
-      );
+    // The field holds the market's identifier of the supplier's document — the NCF here, the CFDI
+    // UUID, the CUFE, the NF-e key or the plain invoice number elsewhere. Only the Dominican one
+    // has a format this product checks, but every one of them identifies ONE document, and the
+    // duplicate check used to run in the Dominican Republic only (AP-03).
+    let normalized: string;
+    if (dominican) {
+      const checked = checkReceivedNcf(ncf);
+      if (!checked.ok) {
+        throw new BadRequestError(
+          checked.error === 'format' ? 'accounts_payable.ncf_invalid_format' : 'accounts_payable.ncf_unknown_type',
+          { ncf: ncf.trim() },
+        );
+      }
+      if (checked.ncf.requiresSupplierTaxId && (!supplier?.taxId || !isValidDominicanTaxId(supplier.taxId))) {
+        throw new BadRequestError('accounts_payable.ncf_requires_supplier_tax_id', {
+          supplier: supplier?.name ?? '',
+          ncf: checked.ncf.normalized,
+        });
+      }
+      normalized = checked.ncf.normalized;
+    } else {
+      normalized = ncf.trim().toUpperCase().replace(/[\s-]/g, '');
     }
-    if (checked.ncf.requiresSupplierTaxId && (!supplier?.taxId || !isValidDominicanTaxId(supplier.taxId))) {
-      throw new BadRequestError('accounts_payable.ncf_requires_supplier_tax_id', {
-        supplier: supplier?.name ?? '',
-        ncf: checked.ncf.normalized,
-      });
-    }
+
     if (supplier?.id) {
       // Two people saving the same bill at once must not both pass the check: the second waits for
       // the first's transaction, then sees its row.
       await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
-        `vendor-bill-ncf:${organizationId}:${supplier.id}:${checked.ncf.normalized}`,
+        `vendor-bill-ncf:${organizationId}:${supplier.id}:${normalized}`,
       ]);
       const [duplicate] = await manager.query(
         `SELECT "id" FROM "vendor_bills"
@@ -495,16 +518,17 @@ export class AccountsPayableService {
             AND "status" NOT IN ('VOID', 'REJECTED')
             AND ($4::uuid IS NULL OR "id" <> $4::uuid)
           LIMIT 1`,
-        [organizationId, supplier.id, checked.ncf.normalized, billId],
+        [organizationId, supplier.id, normalized, billId],
       );
       if (duplicate) {
-        throw new ConflictError('accounts_payable.ncf_already_recorded', {
-          ncf: checked.ncf.normalized,
-          supplier: supplier.name ?? '',
-        });
+        throw new ConflictError(
+          dominican ? 'accounts_payable.ncf_already_recorded' : 'accounts_payable.supplier_document_already_recorded',
+          { ncf: normalized, supplier: supplier.name ?? '' },
+        );
       }
     }
-    return checked.ncf.normalized;
+    // Stored as typed outside the Dominican Republic: there is no canonical form to store.
+    return dominican ? normalized : null;
   }
 
   async update(
@@ -528,8 +552,17 @@ export class AccountsPayableService {
       throw new BadRequestError('accounts_payable.base_split_follows_lines');
     }
     // The branch is not merged as sent: a new one must be a branch the editor may use.
-    const { branchId, ...changes } = dto;
+    const { branchId, allowPossibleDuplicate: _allow, ...changes } = dto;
     const merged = this.vendorBillRepository.merge(bill, changes);
+    if (changes.supplierInvoiceNumber !== undefined || changes.vendorId !== undefined) {
+      merged.supplierInvoiceNumber = merged.supplierInvoiceNumber?.trim() || null;
+      merged.supplierInvoiceKey = await this.assertSupplierDocumentUnique(
+        this.dataSource.manager,
+        organizationId,
+        { id: merged.vendorId, name: null },
+        { supplierInvoiceNumber: merged.supplierInvoiceNumber, ncf: merged.ncf, billId: bill.id },
+      );
+    }
     // A corrected NCF (or a different supplier) is checked now, not first at submission.
     if (changes.ncf !== undefined || changes.vendorId !== undefined) {
       const supplier = await this.dataSource.manager.findOne(Supplier, {
@@ -867,6 +900,80 @@ export class AccountsPayableService {
    * product of each line the product that was ordered. Lines naming an order line pick up the order
    * when the header did not name it.
    */
+  /**
+   * One live bill per supplier document (AP-03), in every country.
+   *
+   * With the supplier's number: no other live bill of the same supplier may carry it (compared
+   * through `supplierInvoiceKey`, so "FAC-0123" and "fac 123" are the same document). The unique
+   * index `UQ_vendor_bills_supplier_invoice` is the backstop; this answers first with a message.
+   *
+   * With neither that number nor an NCF there is nothing that identifies the document, so a live
+   * bill of the same supplier, date, currency and total is taken for the same one — the double
+   * click, the second person entering the same paper — unless the person confirms it is not.
+   *
+   * Returns the key to store.
+   */
+  private async assertSupplierDocumentUnique(
+    manager: EntityManager,
+    organizationId: string,
+    supplier: { id: string; name?: string | null },
+    document: {
+      supplierInvoiceNumber?: string | null;
+      ncf?: string | null;
+      date?: string;
+      currencyCode?: string;
+      total?: number;
+      allowPossibleDuplicate?: boolean;
+      billId?: string | null;
+    },
+  ): Promise<string | null> {
+    const key = supplierInvoiceKey(document.supplierInvoiceNumber);
+    const billId = document.billId ?? null;
+    if (key) {
+      await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
+        `vendor-bill-number:${organizationId}:${supplier.id}:${key}`,
+      ]);
+      const [duplicate] = await manager.query(
+        `SELECT "id" FROM "vendor_bills"
+          WHERE "organization_id" = $1 AND "vendor_id" = $2 AND "supplier_invoice_key" = $3
+            AND "status" NOT IN ('VOID', 'REJECTED')
+            AND ($4::uuid IS NULL OR "id" <> $4::uuid)
+          LIMIT 1`,
+        [organizationId, supplier.id, key, billId],
+      );
+      if (duplicate) {
+        throw new ConflictError('accounts_payable.supplier_invoice_already_recorded', {
+          number: document.supplierInvoiceNumber?.trim() ?? '',
+          supplier: supplier.name ?? '',
+          id: duplicate.id,
+        });
+      }
+      return key;
+    }
+
+    if (document.ncf?.trim() || document.allowPossibleDuplicate || document.total === undefined) return null;
+    await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
+      `vendor-bill-unnumbered:${organizationId}:${supplier.id}:${document.date}:${document.currencyCode}:${toCents(document.total)}`,
+    ]);
+    const [probable] = await manager.query(
+      `SELECT "id" FROM "vendor_bills"
+        WHERE "organization_id" = $1 AND "vendor_id" = $2 AND "date" = $3::date
+          AND "currency_code" = $4 AND "total" = $5::numeric
+          AND "status" NOT IN ('VOID', 'REJECTED')
+        LIMIT 1`,
+      [organizationId, supplier.id, document.date, document.currencyCode, document.total],
+    );
+    if (probable) {
+      throw new ConflictError('accounts_payable.possible_duplicate_bill', {
+        supplier: supplier.name ?? '',
+        date: document.date ?? '',
+        total: document.total,
+        id: probable.id,
+      });
+    }
+    return null;
+  }
+
   /**
    * The goods and services bases of a bill, which the 606 reports apart and the withholding
    * regimes treat apart (AP-02).

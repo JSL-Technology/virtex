@@ -4,6 +4,7 @@ import { VendorBillLineNature } from '../entities/vendor-bill-line.entity';
 import {
   ArrayMaxSize,
   IsArray,
+  IsBoolean,
   IsDateString,
   IsIn,
   IsNotEmpty,
@@ -118,6 +119,21 @@ export class CreateVendorBillDto {
   @IsString()
   @IsOptional()
   ncfModified?: string;
+
+  /** The number on the supplier's own document; one live bill per supplier and number. */
+  @IsString()
+  @IsOptional()
+  @MaxLength(60, { message: 'validation.constraints.max_length|{"max":60}' })
+  supplierInvoiceNumber?: string;
+
+  /**
+   * A bill with neither an NCF nor a supplier number that matches a live one of the same supplier,
+   * date, currency and total is refused as a probable duplicate; this records it anyway, once the
+   * person has confirmed it is a different document.
+   */
+  @IsBoolean()
+  @IsOptional()
+  allowPossibleDuplicate?: boolean;
 
   // ── Fiscal breakdown ──────────────────────────────────────────────────────
   //

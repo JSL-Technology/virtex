@@ -30,6 +30,12 @@ export class VendorBillImportRowDto {
   @MaxLength(30, { message: 'validation.constraints.max_length|{"max":30}' })
   ncf?: string;
 
+  /** The number on the supplier's own invoice. */
+  @IsString()
+  @IsOptional()
+  @MaxLength(60, { message: 'validation.constraints.max_length|{"max":60}' })
+  supplierInvoiceNumber?: string;
+
   @IsDateString()
   date!: string;
 
