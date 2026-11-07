@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { CustomerPortalAccount } from './entities/customer-portal-account.entity';
+import { CustomerPortalAccountsService } from './customer-portal-accounts.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Case } from './entities/case.entity';
 import { KnowledgeBaseArticle } from './entities/knowledge-base-article.entity';
@@ -11,11 +13,11 @@ import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Case, KnowledgeBaseArticle]),
+    TypeOrmModule.forFeature([Case, KnowledgeBaseArticle, CustomerPortalAccount]),
     InvoicesModule,
     AuthModule,
   ],
-  providers: [CasesService, KnowledgeBaseService],
+  providers: [CasesService, KnowledgeBaseService, CustomerPortalAccountsService],
   controllers: [CasesController, CustomerPortalController],
 })
 export class CustomerServiceModule {}

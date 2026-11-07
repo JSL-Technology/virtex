@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { likeTerm } from '../common/database/search-term';
 import { BUSINESS_EVENTS } from '../contracts/business-events/business-events.contract';
 import { standardSalesTaxRate } from '../inventory/contracts/sellable-product.contract';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -100,6 +101,8 @@ export interface InvoiceListQuery {
   limit?: number;
   status?: InvoiceStatus;
   customerId?: string;
+  /** Leave drafts out: what a customer sees of their own documents (CS-01). */
+  excludeDrafts?: boolean;
   /** One branch. Refused if it is outside the caller's branches. */
   branchId?: string;
   /** Who is asking; when given, the list never shows documents outside their branches. */
@@ -1533,16 +1536,19 @@ export class InvoicesService {
 
     if (query.status) qb.andWhere('invoice.status = :status', { status: query.status });
     if (query.customerId) qb.andWhere('invoice.customerId = :customerId', { customerId: query.customerId });
+    if (query.excludeDrafts) qb.andWhere('invoice.status <> :draft', { draft: InvoiceStatus.DRAFT });
     if (query.actorUserId || query.branchId) {
       const scope = await loadBranchScope(this.dataSource.manager, organizationId, query.actorUserId ?? null);
       applyBranchScope(qb, 'invoice', scope, query.branchId);
     }
     if (query.from) qb.andWhere('invoice.issueDate >= :from', { from: query.from });
     if (query.to) qb.andWhere('invoice.issueDate <= :to', { to: query.to });
-    if (query.search) {
+    // `likeTerm` escapes `%` and `_`: a search for "50%" is a search for those characters.
+    const search = likeTerm(query.search);
+    if (search) {
       qb.andWhere(
         '(invoice.invoiceNumber ILIKE :search OR invoice.fiscalNumber ILIKE :search OR invoice.customerName ILIKE :search)',
-        { search: `%${query.search}%` },
+        { search },
       );
     }
 
