@@ -83,14 +83,21 @@
 //  en lugar de recortar opciones.
 @mixin segmented {
   display: inline-flex;
+  //  Dentro de una columna flexible no se estira: mide lo que sus opciones (COMP-01).
+  align-self: flex-start;
   flex-wrap: wrap;
+  //  Las divisiones son el fondo que asoma por un hueco de 1px. Si las opciones no caben en una
+  //  línea (Usuarios en un teléfono), cada fila se estira a todo el ancho y el bloque sigue siendo
+  //  un rectángulo dividido, en lugar de una fila rota con un hueco al final.
+  gap: 1px;
   max-width: 100%;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
+  background: var(--border-default);
   overflow: hidden;
 
   button {
-    flex: 0 0 auto;
+    flex: 1 0 auto;
     min-height: var(--control-height-md);
     padding: 0 var(--space-3);
     border: none;
@@ -101,10 +108,6 @@
     font-weight: var(--font-medium);
     cursor: pointer;
     @include ds.transition(background-color, color);
-
-    &:not(:last-child) {
-      border-inline-end: 1px solid var(--border-default);
-    }
 
     &:hover:not(.active) {
       background: var(--surface-hover);

@@ -11,7 +11,10 @@
   margin-block-end: var(--space-6);
 }
 
-:host(:last-child) {
+//  Solo el último subgrupo se queda sin margen: un grupo lo conserva siempre, aunque sea el último
+//  hijo de un panel incrustado (IA, Integraciones, Comprobantes), y así el siguiente grupo de la
+//  página queda a la misma distancia que en cualquier otra (ESP-01).
+:host(.vx-settings-group--sub:last-child) {
   margin-block-end: 0;
 }
 

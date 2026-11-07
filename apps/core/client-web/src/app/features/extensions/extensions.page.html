@@ -15,7 +15,7 @@
     <a class="secondary-button" [routerLink]="managerLink">{{ 'extensions.open_manager' | translate }}</a>
     <button type="button" class="secondary-button" (click)="refresh()" [disabled]="loading()">
       <lucide-icon [img]="RefreshIcon" [size]="16" aria-hidden="true"></lucide-icon>
-      <span>{{ 'common.refresh' | translate }}</span>
+      <span>{{ 'actions.refresh' | translate }}</span>
     </button>
   </ng-template>
 
@@ -50,7 +50,7 @@
     </a>
     <button type="button" class="secondary-button" (click)="refresh()" [disabled]="loading()">
       <lucide-icon [img]="RefreshIcon" [size]="16" aria-hidden="true"></lucide-icon>
-      <span>{{ 'common.refresh' | translate }}</span>
+      <span>{{ 'actions.refresh' | translate }}</span>
     </button>
   </ng-container>
 

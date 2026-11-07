@@ -27,6 +27,7 @@ import { LocalizationService } from '../../apps/backend/api/src/app/localization
 import { RegistrationService } from '../../apps/backend/api/src/app/auth/services/registration.service';
 import { SaasService } from '../../apps/backend/api/src/app/saas/saas.service';
 import { JwtService } from '@nestjs/jwt';
+import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
 import { AuthConfig } from '../../apps/backend/api/src/app/auth/auth.config';
 import { I18nService } from '../../apps/backend/api/src/app/i18n/i18n.service';
 import { localizedValidationExceptionFactory } from '../../apps/backend/api/src/app/i18n/validation-messages';
@@ -288,6 +289,18 @@ async function main() {
     city: 'Santo Domingo',
     state: '32',
     postalCode: '10101',
+    //  Signup demands express acceptance of the documents in force (QA C-07): without it the
+    //  service refuses before reaching the checks below, and this contract would test nothing.
+    acceptTerms: true,
+  };
+  //  What the controller records from the request alongside the acceptance; the service compares
+  //  the versions with the documents in force.
+  const consent = {
+    termsVersion: LEGAL_DOCUMENTS.terms.version,
+    privacyVersion: LEGAL_DOCUMENTS.privacy.version,
+    acceptedAt: new Date(),
+    ipAddress: null,
+    userAgent: 'auth-http-contract',
   };
 
   let emailGateEnforced = false;
@@ -296,6 +309,7 @@ async function main() {
     await registration.createPendingRegistration(
       { ...baseSignup, email: `unverified-${Date.now()}@example.test` } as never,
       plan.slug,
+      consent,
     );
   } catch (e) {
     // The message KEY, not the Spanish sentence it used to carry. Server errors are raised as
@@ -327,6 +341,7 @@ async function main() {
     await registration.createPendingRegistration(
       { ...baseSignup, email: duplicateEmail, emailVerificationCode: preVerified } as never,
       plan.slug,
+      consent,
     );
   } catch (e) {
     duplicateRejected = (e as { status?: number }).status === 409;

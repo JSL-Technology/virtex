@@ -68,89 +68,111 @@
   @include ui.icon-button;
 }
 
+//  El diálogo de un rol: los mismos tokens, títulos y campos que la modal. Los grupos de permisos
+//  son título y espacio, no tarjetas con banda gris, y sus nombres van en estilo oración.
 .modal-body {
-    .form-field {
-        margin-bottom: var(--space-4);
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-block-end: var(--space-4);
 
-        label {
-            @include ds.field-label;
-        }
-
-        input,
-        textarea {
-            @include ds.input-base;
-        }
-
-        textarea {
-            height: auto;
-            min-height: 4rem;
-            padding-block: var(--space-2);
-            resize: vertical;
-        }
+    label {
+      @include ds.field-label;
     }
+
+    input,
+    textarea {
+      @include ds.input-base;
+    }
+
+    textarea {
+      height: auto;
+      min-height: 4rem;
+      padding-block: var(--space-2);
+      resize: vertical;
+    }
+  }
 }
 
-// ──────────────────────────────────────────────
-// Permissions Grid
-// ──────────────────────────────────────────────
-.permissions-grid {
-    margin-top: var(--space-6);
-    border-top: 1px solid var(--border-color);
-    padding-top: var(--space-6);
-
-    h3 {
-        font-size: var(--text-base);
-        font-weight: var(--font-semibold);
-        color: var(--text-primary);
-        margin-bottom: var(--space-5);
-    }
-
-    .permission-group {
-        margin-bottom: var(--space-6);
-        background-color: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-md);
-        overflow: hidden;
-
-        h4 {
-            font-size: var(--text-sm);
-            font-weight: var(--font-bold);
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 0.625rem 1rem;
-            background-color: var(--bg-tertiary);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .permission-item {
-            display: flex;
-            align-items: center;
-            gap: 0.625rem;
-            padding: 0.625rem 1rem;
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: background-color 0.1s;
-
-            &:last-child { border-bottom: none; }
-
-            &:hover { background-color: var(--bg-hover); }
-
-            input[type="checkbox"] {
-                width: 1rem;
-                height: 1rem;
-                flex-shrink: 0;
-                accent-color: var(--primary);
-                cursor: pointer;
-            }
-
-            label {
-                font-size: var(--text-md);
-                color: var(--text-secondary);
-                cursor: pointer;
-                user-select: none;
-            }
-        }
-    }
+.role-dialog__description {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--content-secondary);
 }
 
+.role-dialog__permissions {
+  margin: var(--space-6) 0 0;
+  padding: var(--space-6) 0 0;
+  border: none;
+  border-block-start: 1px solid var(--border-subtle);
+  min-width: 0;
+}
+
+.role-dialog__title {
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-tight);
+  color: var(--content-primary);
+}
+
+.role-dialog__error {
+  margin: calc(-1 * var(--space-2)) 0 var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--error-text);
+}
+
+.permission-group {
+  margin-block-end: var(--space-5);
+
+  &:last-child {
+    margin-block-end: 0;
+  }
+}
+
+.permission-group__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
+}
+
+.permission-group__items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.permission-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-height-sm);
+  font-size: var(--text-sm);
+  color: var(--content-primary);
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    flex-shrink: 0;
+  }
+}
+
+.permission-group__items--granted li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-height-sm);
+  font-size: var(--text-sm);
+  color: var(--content-primary);
+
+  lucide-icon {
+    flex-shrink: 0;
+    color: var(--success-text);
+  }
+}

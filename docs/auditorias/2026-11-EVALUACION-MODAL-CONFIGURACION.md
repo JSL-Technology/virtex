@@ -2,6 +2,8 @@
 
 **Fecha:** 2026-11-06 · **Rama:** `ccr-dfd589ce-gjq30q` · **Estándar:** v0.1 (borrador; sus reglas se aplican como vigentes por instrucción expresa)
 
+> **Reevaluación (2026-11-07).** Los 26 hallazgos están corregidos, y también los 8 defectos nuevos que encontró la reevaluación. Con el mismo estándar y la misma fórmula, la nota es **10 / 10**, con las 43 reglas verificadas (EST-02 y PERM-01 incluidas). Ver [la reevaluación](2026-11-REEVALUACION-MODAL-CONFIGURACION.md), con capturas de antes y después de cada hallazgo.
+
 **Objeto.** La modal que se abre con `#settings/<página>`: su armazón (cabecera, barra lateral, buscador, guardado, foco) y las **25 páginas** que ve una empresa de República Dominicana. Las dos páginas que solo aparecen en otros países (Régimen de facturación electrónica; Jurisdicciones fiscales, solo EE. UU. y Brasil) quedan fuera.
 
 **Método.** Aplicación servida en local con los datos del sembrado de desarrollo (empresa «Virtex Dev», DO, usuario administrador), recorrida con Chromium y Playwright. Mediciones del DOM, axe-core con las etiquetas WCAG 2.0/2.1/2.2 A y AA, y lectura del código solo donde un hallazgo necesitaba su causa.

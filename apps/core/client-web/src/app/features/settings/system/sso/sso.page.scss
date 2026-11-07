@@ -4,11 +4,7 @@
 //  Inicio de sesión único. Grupos, avisos, estados y tablas son los comunes de la modal; aquí queda
 //  el formulario de dominio, el del proveedor y el registro DNS.
 
-.sso-settings {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
+.sso-settings { display: block; }
 
 .sso-label { @include ds.field-label; }
 .sso-hint { @include ds.field-hint; margin: 0; }

@@ -13,6 +13,12 @@
   line-height: var(--leading-normal);
 }
 
+//  Separado siempre igual de lo que venga después (un campo, un subgrupo, una tabla), sin que cada
+//  página tenga que ponérselo.
+:host(:not(:last-child)) {
+  margin-block-end: var(--space-4);
+}
+
 :host(.vx-notice--warning) {
   border-color: var(--warning-border);
   background-color: var(--warning-surface);

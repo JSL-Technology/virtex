@@ -93,6 +93,12 @@
               <option *ngFor="let title of jobTitles()" [value]="title">{{ 'settings.profile.job_titles.' + title.toLowerCase() | translate }}</option>
             </select>
           </div>
+          @if (jobTitlesFailed()) {
+            <p class="pf-load-error" role="alert">
+              {{ 'settings.profile.job_titles_failed' | translate }}
+              <button type="button" class="pf-retry" (click)="loadJobTitles()">{{ 'common.retry' | translate }}</button>
+            </p>
+          }
         </div>
       </div>
 
@@ -137,7 +143,8 @@
       </div>
 
       <div class="pf-actions">
-        <button type="submit" class="pf-btn-secondary">
+        <!-- El envío del formulario principal: la única primaria de la vista (ACC-01, H06). -->
+        <button type="submit" class="primary-button">
           {{ 'settings.profile.update_password' | translate }}
         </button>
       </div>

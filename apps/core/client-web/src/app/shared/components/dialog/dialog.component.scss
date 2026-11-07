@@ -77,6 +77,10 @@
   min-height: 0;
   overflow-y: auto;
   padding: 0 var(--space-5) var(--space-5);
+
+  //  Enfocable solo cuando se desplaza sin nada enfocable dentro (ver `keepBodyReachable`); el
+  //  anillo va por dentro para no salirse del panel.
+  @include ds.focus-ring-inset;
 }
 
 ::ng-deep .vx-dialog__footer {

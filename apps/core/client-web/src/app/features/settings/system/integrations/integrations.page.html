@@ -4,8 +4,20 @@
   tarjetas eran dos caminos para lo mismo (ARQ-01) en una rejilla de tres más una (ANT-01).
 -->
 <div class="int-page">
-  <app-inbound-mailboxes-panel id="inbound-mail" />
-  <app-mcp-agents-panel id="mcp-agents" />
+  <!--
+    Cada panel lee sus datos. Si fallan los dos (sin conexión), un solo error y un solo reintento
+    para la página; mientras cargan los dos, una sola espera. Los paneles siguen montados, ocultos,
+    para conservar lo que tienen.
+  -->
+  @if (allLoading()) {
+    <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />
+  } @else if (allFailed()) {
+    <vx-error-state [detail]="'settings.integrations.load_failed' | translate" (retry)="retryAll()" />
+  }
+  <div class="int-page__panels" [style.display]="allLoading() || allFailed() ? 'none' : null">
+    <app-inbound-mailboxes-panel id="inbound-mail" />
+    <app-mcp-agents-panel id="mcp-agents" />
+  </div>
 
   <vx-settings-group titleKey="settings.integrations.data.title" descriptionKey="settings.integrations.data.description">
     <a class="link-button" [routerLink]="dataLink">{{ 'settings.integrations.data.action' | translate }}</a>

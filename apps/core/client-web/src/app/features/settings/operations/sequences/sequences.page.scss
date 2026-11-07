@@ -10,7 +10,8 @@
   @include ui.table;
 
   td, th { vertical-align: top; }
-  tbody th { font-weight: var(--font-medium); color: var(--content-primary); text-align: left; }
+  //  El nombre del documento es la cabecera de su fila, no de la tabla: sin el fondo de la cabecera.
+  tbody th { font-weight: var(--font-medium); color: var(--content-primary); text-align: left; background: transparent; }
 
   @include ds.bp-down('sm') {
     tbody th { display: block; padding: var(--space-1) 0; }

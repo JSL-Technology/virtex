@@ -5,4 +5,7 @@
 
 .int-page { display: block; }
 
+//  Sin caja propia: los paneles siguen siendo grupos de la página, con su separación de siempre.
+.int-page__panels { display: contents; }
+
 .link-button { @include ui.link-button; }

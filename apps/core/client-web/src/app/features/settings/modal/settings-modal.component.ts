@@ -127,6 +127,15 @@ export class SettingsModalComponent implements AfterViewInit {
     const section = this.current();
     return Boolean(section && !this.visible().includes(section));
   });
+  /**
+   * Why: the company's country, or the permission the person lacks — named, as the read-only
+   * notice names it (PERM-01). «Not available for your role or your country» left both open.
+   */
+  readonly deniedPermission = computed(() => {
+    const section = this.current();
+    if (!section || !this.denied() || !this.applies(section)) return null;
+    return section.viewPermission ?? null;
+  });
   readonly canEdit = computed(() => {
     const section = this.current();
     return Boolean(section && this.allowed(section.editPermission ?? section.viewPermission));

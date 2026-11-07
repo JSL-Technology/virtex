@@ -1,0 +1,178 @@
+{
+  "my-profile": {
+    "label": "Mi perfil · nombre",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Seguridad de la cuenta",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "account-security": {
+    "label": "Seguridad de la cuenta · contraseña",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "profile": {
+    "label": "Perfil de la empresa · sitio web",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "regional-format": {
+    "label": "Formato regional · hora",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "branding": {
+    "label": "Marca · color de acento",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "smtp": {
+    "label": "Correo saliente · remitente",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "security": {
+    "label": "Política de seguridad · segundo factor",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "sso": {
+    "label": "SSO · dominio",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "ai": {
+    "label": "IA · presupuesto mensual",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "ai-agents": {
+    "label": "IA · límite del agente",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "accounting-policies": {
+    "label": "Políticas contables · plazo de pago",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "fiscal": {
+    "label": "Comprobantes fiscales · modalidad",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "fiscal-range": {
+    "label": "Comprobantes fiscales · rango sin registrar",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "withholding-regimes": {
+    "label": "Retenciones · régimen nuevo",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "sequences": {
+    "label": "Numeración · prefijo",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  },
+  "approvals": {
+    "label": "Aprobaciones · política nueva",
+    "backdropAsked": true,
+    "backdropStillOpen": true,
+    "backdropKept": true,
+    "navTarget": "Mi perfil",
+    "navAsked": true,
+    "navStayed": true,
+    "navKept": true,
+    "verdict": "CUMPLE"
+  }
+}

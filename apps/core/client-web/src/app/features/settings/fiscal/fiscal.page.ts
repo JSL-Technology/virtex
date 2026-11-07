@@ -1,6 +1,6 @@
 import { SettingsChanges, SettingsShellService } from '../shell';
 import { SettingsDisclosureComponent, SettingsGroupComponent } from '../shared';
-import { VxEmptyStateComponent, VxErrorStateComponent, VxNoticeComponent } from '../../../shared/components/feedback';
+import { VxEmptyStateComponent, VxErrorStateComponent, VxNoticeComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { Component, DestroyRef, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
@@ -58,6 +58,7 @@ interface RangeTypeChoice {
     VxEmptyStateComponent,
     VxErrorStateComponent,
     VxNoticeComponent,
+    VxSpinnerComponent,
     RouterLink,
     SettingsGroupComponent,
     SettingsDisclosureComponent,
@@ -78,9 +79,27 @@ export class FiscalSettingsPage implements OnInit {
   /** Where the DGII returns are generated: Accounting › Reports › Fiscal returns. */
   protected readonly fiscalReturnsLink = inject(ActiveOrganizationService).urlFor('/reports/fiscal-returns');
 
-  /** The lists the page reads, each said in place when it cannot be read, with a retry (EST-02). */
-  readonly sequencesFailed = signal(false);
-  readonly typesFailed = signal(false);
+  /**
+   * What the page reads before it can show anything true: the ranges, the country's document types
+   * and what the invoice form can issue. Until the three are in, one spinner; if any fails, one
+   * error with one retry for all of them (EST-02). The page used to show «no ranges yet» while the
+   * ranges were still on their way, and hid the emission card without a word when its read failed.
+   */
+  readonly sequencesState = signal<'loading' | 'error' | 'ready'>('loading');
+  readonly typesState = signal<'loading' | 'error' | 'ready'>('loading');
+  readonly contextState = signal<'loading' | 'error' | 'ready'>('loading');
+  readonly pageState = computed<'loading' | 'error' | 'ready'>(() => {
+    const states = [this.sequencesState(), this.typesState(), this.contextState()];
+    if (states.includes('error')) return 'error';
+    return states.includes('loading') ? 'loading' : 'ready';
+  });
+
+  /** Reads again whatever could not be read. */
+  retryAll(): void {
+    if (this.sequencesState() === 'error') this.loadSequences();
+    if (this.typesState() === 'error') this.loadDocumentTypes();
+    if (this.contextState() === 'error') this.loadInvoicingState();
+  }
 
   /** A range typed and not registered: closing the window asks before dropping it (GUA-01). */
   readonly rangeDirty = signal(false);
@@ -243,13 +262,14 @@ export class FiscalSettingsPage implements OnInit {
   }
 
   loadDocumentTypes(): void {
-    this.typesFailed.set(false);
+    this.typesState.set('loading');
     this.fiscalSettings.documentTypes().subscribe({
       next: (types) => {
         this.documentTypes.set(types);
         this.keepRangeTypeInMode();
+        this.typesState.set('ready');
       },
-      error: () => this.typesFailed.set(true),
+      error: () => this.typesState.set('error'),
     });
   }
 
@@ -287,18 +307,24 @@ export class FiscalSettingsPage implements OnInit {
   }
 
   private loadInvoicingState(): void {
+    if (!this.invoicing()) this.contextState.set('loading');
     this.invoices.context().subscribe({
-      next: (context) => this.invoicing.set(context),
-      // A summary, not the point of the page.
-      error: () => this.invoicing.set(null),
+      next: (context) => {
+        this.invoicing.set(context);
+        this.contextState.set('ready');
+      },
+      error: () => this.contextState.set('error'),
     });
   }
 
   loadSequences(): void {
-    this.sequencesFailed.set(false);
+    if (this.sequencesState() !== 'ready') this.sequencesState.set('loading');
     this.einvoicing.listSequences().subscribe({
-      next: (s) => this.sequences.set(s),
-      error: () => this.sequencesFailed.set(true),
+      next: (s) => {
+        this.sequences.set(s);
+        this.sequencesState.set('ready');
+      },
+      error: () => this.sequencesState.set('error'),
     });
   }
 

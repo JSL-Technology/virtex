@@ -79,209 +79,46 @@
   font-weight: var(--font-semibold);
 }
 
-// ──────────────────────────────────────────────
-// Buttons
-// ──────────────────────────────────────────────
-.btn {
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    font-weight: var(--font-medium);
-    cursor: pointer;
-    transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: var(--text-md);
-    background-color: var(--bg-card);
-    color: var(--text-primary);
-
-    &:hover { background-color: var(--bg-hover); }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
+//  El formulario del diálogo de invitar o editar: los campos, etiquetas y separaciones de la modal.
+.um-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
-.btn-primary {
-    background-color: var(--primary);
-    color: white;
-    border-color: transparent;
+.um-form__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
 
-    &:hover:not(:disabled) {
-        background-color: var(--primary-hover);
-        transform: translateY(-1px);
-    }
-
-    &:active:not(:disabled) { transform: none; }
+  @include ds.bp-up('sm') {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-.btn-danger {
-    background-color: var(--error);
-    color: white;
-    border-color: transparent;
+.um-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
 
-    &:hover:not(:disabled) { filter: brightness(0.9); }
+  label {
+    @include ds.field-label;
+  }
+
+  input,
+  textarea {
+    @include ds.input-base;
+  }
+
+  textarea {
+    height: auto;
+    min-height: 4.5rem;
+    padding-block: var(--space-2);
+    resize: vertical;
+  }
 }
 
-.btn-icon {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: var(--text-tertiary);
-    padding: 0.375rem;
-    border-radius: var(--radius-md);
-    width: 2rem;
-    height: 2rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-
-    &:hover { background-color: var(--bg-hover); color: var(--text-primary); }
-}
-
-// ──────────────────────────────────────────────
-// Modal
-// ──────────────────────────────────────────────
-.modal {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(var(--shadow-color-rgb), 0.5);
-    backdrop-filter: blur(4px);
-    // La escala del sistema de diseño, no un número inventado: con `1000` este modal se pintaba
-    // por encima del diálogo de step-up (`--z-modal`) que él mismo provoca al invitar a un usuario.
-    z-index: var(--z-modal);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-4);
-    animation: modal-fade 0.2s ease;
-}
-
-.modal-content {
-    background-color: var(--bg-card);
-    border-radius: var(--radius-lg);
-    width: 100%;
-    max-width: 560px;
-    max-height: 90vh;
-    overflow-y: auto;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-lg);
-    animation: modal-slide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modal-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .modal-title {
-        font-size: var(--text-base);
-        font-weight: var(--font-semibold);
-        color: var(--text-primary);
-    }
-
-    .modal-close {
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: var(--text-tertiary);
-        width: 2rem;
-        height: 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: var(--radius-md);
-        font-size: var(--text-xl);
-        line-height: 1;
-        transition: var(--transition);
-
-        &:hover { background-color: var(--bg-hover); color: var(--text-primary); }
-    }
-}
-
-.modal-body {
-    padding: var(--space-6);
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: var(--space-4);
-        margin-bottom: var(--space-4);
-    }
-
-    .form-group { margin-bottom: var(--space-4); }
-
-    .form-col { display: flex; flex-direction: column; }
-
-    .form-label {
-        display: block;
-        font-size: var(--text-sm);
-        font-weight: var(--font-semibold);
-        color: var(--text-secondary);
-        margin-bottom: 0.375rem;
-    }
-
-    .form-control {
-        width: 100%;
-        height: 2.375rem;
-        padding: 0 0.75rem;
-        font-size: var(--text-md);
-        border-radius: var(--radius-md);
-        border: 1px solid var(--border-color);
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
-        transition: var(--transition);
-
-        &:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
-    }
-
-    textarea.form-control {
-        height: auto;
-        padding: 0.625rem 0.75rem;
-        resize: vertical;
-    }
-
-    p {
-        font-size: var(--text-md);
-        color: var(--text-secondary);
-        line-height: 1.6;
-        margin-bottom: var(--space-3);
-    }
-
-    .danger-zone-content {
-        font-size: var(--text-sm);
-        color: var(--text-tertiary);
-        padding: var(--space-3);
-        background-color: var(--error-bg);
-        border-radius: var(--radius-md);
-        border: 1px solid rgba(var(--error-rgb, 207, 34, 46), 0.2);
-        color: var(--error);
-        margin: 0;
-    }
-}
-
-.modal-footer {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.625rem;
-    background-color: var(--bg-primary);
-}
-
-@keyframes modal-fade {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes modal-slide {
-    from { opacity: 0; transform: scale(0.95) translateY(8px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-}
 
 /* Invitaciones a cuentas existentes: pedidas, no concedidas. Van aparte de la tabla de miembros. */
 .sent-invitations {

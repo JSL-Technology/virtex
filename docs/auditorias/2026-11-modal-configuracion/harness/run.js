@@ -72,6 +72,7 @@ async function openSection(page, id) {
   await page.waitForFunction(() => !document.querySelector('.sm-loading'), null, { timeout: 15000 }).catch(() => {});
   await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
   await page.waitForFunction(() => !document.querySelector('.sm-section .ss__state[role="status"]'), null, { timeout: 8000 }).catch(() => {});
+  await page.waitForFunction(() => !document.querySelector('.sm-section vx-spinner, .sm-section .ls__skeleton'), null, { timeout: 10000 }).catch(() => {});
   await page.waitForTimeout(900);
   await page.evaluate(() => { const c = document.querySelector('.sm-content'); if (c) c.scrollTop = 0; });
 }

@@ -1,4 +1,5 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
@@ -18,7 +19,7 @@ import { VX_SORT, sortable } from '../../../../shared/components/sort';
 import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../../shared/components/context-menu';
 import { VxEmptyStateComponent, VxErrorStateComponent, VxNoticeComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
 import { SettingsGroupComponent } from '../../shared';
-import { SettingsShellService } from '../../shell';
+import { SettingsChanges, SettingsShellService } from '../../shell';
 import { Role, RolesService } from '../../data/roles.service';
 
 /**
@@ -60,6 +61,7 @@ export class SsoSettingsPage implements OnInit {
   private readonly dialog = inject(DialogService);
   private readonly rolesApi = inject(RolesService);
   private readonly shell = inject(SettingsShellService, { optional: true });
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly MoreIcon = MoreHorizontal;
   protected readonly GlobeIcon = Globe;
@@ -140,7 +142,29 @@ export class SsoSettingsPage implements OnInit {
     },
   };
 
+  /**
+   * A domain typed and not added, or a provider form open with edits: closing the window asks
+   * before dropping them (GUA-01). They are additions, not settings, so the question offers to
+   * discard or to keep editing — there is nothing for the window to save on their behalf.
+   */
+  private readonly domainDirty = signal(false);
+  private readonly providerDirty = signal(false);
+  private readonly changes: SettingsChanges = {
+    dirty: computed(() => this.domainDirty() || this.providerDirty()),
+    discard: () => {
+      this.domainForm.reset();
+      this.domainError.set(null);
+      this.cancelEdit();
+    },
+  };
+
   ngOnInit(): void {
+    this.domainForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.domainDirty.set(!!String(this.domainForm.value.domain ?? '').trim()));
+    this.providerForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.providerDirty.set(!!this.editingProviderId() && this.providerForm.dirty));
+    if (this.shell) {
+      this.shell.register(this.changes);
+      this.destroyRef.onDestroy(() => this.shell?.unregister(this.changes));
+    }
     this.refresh();
     this.rolesApi
       .getRoles()
@@ -176,6 +200,7 @@ export class SsoSettingsPage implements OnInit {
     this.api.addDomain(String(this.domainForm.value.domain).trim()).subscribe({
       next: () => {
         this.domainForm.reset();
+        this.domainDirty.set(false);
         this.notice.set(this.translate.instant('settings.sso.domain_added'));
         this.refresh();
       },
@@ -241,6 +266,7 @@ export class SsoSettingsPage implements OnInit {
 
   cancelEdit(): void {
     this.editingProviderId.set(null);
+    this.providerDirty.set(false);
   }
 
   saveProvider(): void {
@@ -274,7 +300,7 @@ export class SsoSettingsPage implements OnInit {
       }
       this.api.createProvider(base).subscribe({
         next: () => {
-          this.editingProviderId.set(null);
+          this.cancelEdit();
           this.notice.set(this.translate.instant('settings.sso.provider_created'));
           this.refresh();
         },
@@ -283,7 +309,7 @@ export class SsoSettingsPage implements OnInit {
     } else {
       this.api.updateProvider(editing, base).subscribe({
         next: () => {
-          this.editingProviderId.set(null);
+          this.cancelEdit();
           this.notice.set(this.translate.instant('settings.sso.provider_updated'));
           this.refresh();
         },

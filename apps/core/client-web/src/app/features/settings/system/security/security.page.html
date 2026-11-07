@@ -131,8 +131,11 @@
                   <td [attr.data-label]="'settings.security.who' | translate">{{ row.actorName ?? ('settings.security.system_actor' | translate) }}</td>
                   <td [attr.data-label]="'settings.security.what' | translate">{{ actionLabel(row.actionType) }}</td>
                   <td [attr.data-label]="'settings.security.record' | translate">
-                    <span class="sec__entity">{{ entityName(row.entity) }}</span>
-                    <span class="sec__record" [title]="row.entityId">{{ recordName(row) }}</span>
+                    <!-- Tipo y registro van juntos: en el teléfono la celda reparte sus hijos a lo ancho. -->
+                    <span class="sec__record-cell">
+                      <span class="sec__entity">{{ entityName(row.entity) }}</span>
+                      <span class="sec__record" [title]="row.entityId">{{ recordName(row) }}</span>
+                    </span>
                   </td>
                   @if (showIp()) {
                     <td [attr.data-label]="'settings.security.ip' | translate">{{ row.ipAddress || '—' }}</td>
@@ -173,15 +176,15 @@
             </tbody>
           </table>
         </div>
-        <div class="sec__pager">
-          <span>{{ 'settings.security.page_of' | translate: { page: result.page, total: result.total } }}</span>
-          <button type="button" class="secondary-button" [disabled]="result.page <= 1 || trailLoading()" (click)="goToPage(result.page - 1)">
-            {{ 'common.previous_page' | translate }}
-          </button>
-          <button type="button" class="secondary-button" [disabled]="!result.hasMore || trailLoading()" (click)="goToPage(result.page + 1)">
-            {{ 'common.next_page' | translate }}
-          </button>
-        </div>
+        <!-- La misma paginación que Usuarios y el resto del producto (COMP-01). -->
+        <vx-pager
+          [page]="result.page"
+          [pageSize]="pageSize()"
+          [total]="result.total"
+          [disabled]="trailLoading()"
+          (pageChange)="goToPage($event)"
+          (pageSizeChange)="setPageSize($event)"
+        />
       }
     } @else {
       <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />

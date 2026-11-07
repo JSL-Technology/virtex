@@ -1,3 +1,4 @@
+import { VxErrorStateComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
@@ -16,12 +17,17 @@ import { CombinedSettingsPage } from '../combined-sections';
 @Component({
   selector: 'app-default-accounts-page',
   standalone: true,
-  imports: [TranslateModule, RouterLink, SettingsSectionComponent, SettingsSaveBarComponent],
+  imports: [TranslateModule, RouterLink, SettingsSectionComponent, SettingsSaveBarComponent, VxErrorStateComponent, VxSpinnerComponent],
   template: `
-    <div class="combined">
+    @if (failed(); as message) {
+      <vx-error-state [detail]="message" (retry)="retryAll()" />
+    } @else if (loading()) {
+      <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />
+    }
+    <div class="combined" [style.display]="failed() || loading() ? 'none' : null">
       @for (block of declarations; track block.section) {
         @if (block.groups.length) {
-          <app-settings-section [section]="block.section" [groups]="block.groups" [policies]="[]" [embedded]="true"
+          <app-settings-section [section]="block.section" [groups]="block.groups" [policies]="[]" [embedded]="true" [quiet]="true"
             [titleKey]="block.titleKey" [anchor]="block.anchor === focus() ? block.anchor : null" />
         }
       }
@@ -39,8 +45,7 @@ import { CombinedSettingsPage } from '../combined-sections';
     `
       /* Un bloque se separa del siguiente como cualquier grupo de la modal: por espacio (ESP-01). */
       .combined { display: block; }
-      .combined app-settings-section + app-settings-section { margin-block-start: var(--space-8); }
-      .combined__links { margin: var(--space-8) 0 0; font-size: var(--text-sm); color: var(--content-secondary); }
+      .combined__links { margin: 0; font-size: var(--text-sm); color: var(--content-secondary); }
       .combined__links a { color: var(--accent-text); }
     `,
   ],

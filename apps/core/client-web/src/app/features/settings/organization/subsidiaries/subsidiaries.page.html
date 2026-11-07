@@ -10,6 +10,12 @@
 </ng-template>
 
 <div class="sub-page">
+  <!-- La diferencia con las sucursales, dicha donde empieza la confusión, como en Sucursales. -->
+  <vx-notice tone="info">
+    {{ 'settings.subsidiaries.not_branch' | translate }}
+    <a [routerLink]="[]" fragment="settings/branches">{{ 'settings.sections_meta.branches.label' | translate }}</a>
+  </vx-notice>
+
   @if (loading()) {
     <vx-spinner size="lg" withLabel labelKey="settings.subsidiaries.loading_subsidiaries" />
   } @else if (loadError(); as message) {

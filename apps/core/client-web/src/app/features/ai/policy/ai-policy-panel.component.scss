@@ -50,11 +50,9 @@
 }
 
 .pol__legend {
-  margin-block-end: var(--space-2);
+  //  La etiqueta de un conjunto de casillas: el estilo de toda etiqueta de campo (TIP-01).
+  @include ds.field-label;
   padding: 0;
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--content-primary);
 }
 
 .pol__feature-grid {

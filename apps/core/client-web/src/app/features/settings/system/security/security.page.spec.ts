@@ -84,6 +84,25 @@ describe('SecuritySettingsPage', () => {
     req.flush({ rows: [], page: 1, pageSize: 50, total: 0, hasMore: false });
   });
 
+  it('pages with the shared pager: a new page size reads again from page one', () => {
+    const page = create().componentInstance;
+    http.expectOne((r) => r.url.endsWith('/audit/entities')).flush([]);
+    const first = http.expectOne((r) => r.url.endsWith('/audit'));
+    expect(first.request.params.get('pageSize')).toBe('50');
+    first.flush({ rows: [row], page: 1, pageSize: 50, total: 120, hasMore: true });
+
+    page.goToPage(3);
+    const third = http.expectOne((r) => r.url.endsWith('/audit'));
+    expect(third.request.params.get('page')).toBe('3');
+    third.flush({ rows: [row], page: 3, pageSize: 50, total: 120, hasMore: false });
+
+    page.setPageSize(100);
+    const resized = http.expectOne((r) => r.url.endsWith('/audit'));
+    expect(resized.request.params.get('page')).toBe('1');
+    expect(resized.request.params.get('pageSize')).toBe('100');
+    resized.flush({ rows: [row], page: 1, pageSize: 100, total: 120, hasMore: true });
+  });
+
   it('refuses a range that ends before it starts, without asking the server', () => {
     const page = create().componentInstance;
     http.expectOne((r) => r.url.endsWith('/audit/entities')).flush([]);

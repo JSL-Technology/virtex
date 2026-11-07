@@ -1,0 +1,217 @@
+{
+  "my-profile": {
+    "stops": 40,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [
+      "input#avatar-file «»"
+    ],
+    "covered": []
+  },
+  "account-security": {
+    "stops": 39,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "preferences": {
+    "stops": 43,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "organizations": {
+    "stops": 28,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "profile": {
+    "stops": 45,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "regional-format": {
+    "stops": 32,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "branding": {
+    "stops": 41,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [
+      "input#logoFile «»"
+    ],
+    "covered": []
+  },
+  "subsidiaries": {
+    "stops": 29,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "branches": {
+    "stops": 29,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "smtp": {
+    "stops": 34,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "billing": {
+    "stops": 28,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [
+      "input# «starter»"
+    ],
+    "covered": []
+  },
+  "users": {
+    "stops": 41,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "roles": {
+    "stops": 36,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "security": {
+    "stops": 31,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "audit-trail": {
+    "stops": 35,
+    "leftPanel": 0,
+    "noRing": [
+      "input#sec-user.vx-select__input «Cualquier persona»",
+      "input#sec-action.vx-select__input «Cualquier acción»",
+      "input#sec-entity.vx-select__input «Cualquier tipo»"
+    ],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "sso": {
+    "stops": 31,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "integrations": {
+    "stops": 30,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "ai": {
+    "stops": 33,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "extensions": {
+    "stops": 29,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "default-accounts": {
+    "stops": 56,
+    "leftPanel": 0,
+    "noRing": [
+      "input#ss-defaultAccountsReceivableId.vx-select__input «1130 — Cuentas por Cobrar Comerciales»",
+      "input#ss-defaultSalesRevenueId.vx-select__input «4100 — Ingresos por Ventas»",
+      "input#ss-defaultServiceRevenueId.vx-select__input «4200 — Ingresos por Servicios»",
+      "input#ss-defaultSalesDiscountsId.vx-select__input «4300 — Descuentos y Devoluciones sobre Ventas»",
+      "input#ss-defaultCustomerAdvancesAccountId.vx-select__input «2170 — Anticipos de Clientes»",
+      "input#ss-defaultAccountsPayableId.vx-select__input «2110 — Cuentas por Pagar Comerciales»",
+      "input#ss-defaultCashId.vx-select__input «1110 — Efectivo y Equivalentes de Efectivo»",
+      "input#ss-defaultBankId.vx-select__input «1120 — Bancos»",
+      "input#ss-defaultBankFeesAccountId.vx-select__input «Busca una cuenta»",
+      "input#ss-defaultDepreciationExpenseAccountId.vx-select__input «5500 — Gasto por Depreciación»",
+      "input#ss-defaultAccumulatedDepreciationAccountId.vx-select__input «1220 — Depreciación Acumulada»",
+      "input#ss-defaultOpeningBalanceEquityAccountId.vx-select__input «3150 — Patrimonio por Saldos Iniciales»",
+      "input#ss-defaultInflationAdjustmentAccountId.vx-select__input «5760 — Resultado por Exposición a la Inflación»",
+      "input#ss-defaultForexGainLossAccountId.vx-select__input «5750 — Diferencia Cambiaria»",
+      "input#ss-defaultSalesTaxId.vx-select__input «2130 — ITBIS por Pagar (Débito Fiscal)»",
+      "input#ss-defaultPurchaseTaxId.vx-select__input «1150 — ITBIS por Cobrar (Crédito Fiscal)»",
+      "input#ss-defaultTaxWithheldReceivableId.vx-select__input «1155 — Retenciones a Favor»",
+      "input#ss-defaultTaxWithheldPayableId.vx-select__input «2135 — Retenciones por Pagar»",
+      "input#ss-defaultExciseTaxPayableId.vx-select__input «2165 — Impuesto Selectivo al Consumo por Pagar»",
+      "input#ss-defaultServiceChargePayableId.vx-select__input «2160 — Propina Legal por Pagar»",
+      "input#ss-defaultRetainedEarningsAccountId.vx-select__input «3300 — Resultados Acumulados»",
+      "input#ss-defaultIntercompanyReceivableAccountId.vx-select__input «Busca una cuenta»",
+      "input#ss-defaultIntercompanyPayableAccountId.vx-select__input «Busca una cuenta»",
+      "input#ss-defaultInventoryId.vx-select__input «1140 — Inventarios»",
+      "input#ss-defaultCostOfGoodsSoldId.vx-select__input «5100 — Costo de Ventas»",
+      "input#ss-defaultInventoryAdjustmentAccountId.vx-select__input «5150 — Ajustes de Inventario»",
+      "input#ss-defaultGoodsReceivedNotInvoicedAccountId.vx-select__input «2115 — Mercancía Recibida No Facturada»"
+    ],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "accounting-policies": {
+    "stops": 44,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "fiscal": {
+    "stops": 50,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [
+      "input#cert-file «»"
+    ],
+    "covered": []
+  },
+  "withholding-regimes": {
+    "stops": 29,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "sequences": {
+    "stops": 38,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "approvals": {
+    "stops": 29,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  }
+}

@@ -7,6 +7,11 @@
     </vx-notice>
   }
 
+  @if (pageState() === 'loading') {
+    <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />
+  } @else if (pageState() === 'error') {
+    <vx-error-state [detail]="'settings.fiscal.load_failed' | translate" (retry)="retryAll()" />
+  } @else {
   <!-- ── 1. Cómo emite la empresa y qué puede emitir hoy ── -->
   <vx-emission-mode-card [context]="invoicing()" [readonly]="!canEdit()" (modeChange)="onModeChange($event)" (changed)="refreshInvoicingState()" />
 
@@ -14,9 +19,6 @@
   <vx-settings-group titleKey="settings.fiscal.do.authorized_ncf_ranges" descriptionKey="settings.fiscal.do.ncf_ranges_description">
     <!-- Registrar un rango es `taxes:edit`; sin él los rangos se leen, no se añaden (CG-17). -->
     @if (canEdit()) {
-      @if (typesFailed()) {
-        <vx-error-state [detail]="'settings.fiscal.document_types_load_failed' | translate" (retry)="loadDocumentTypes()" />
-      } @else {
         <form [formGroup]="sequenceForm" (ngSubmit)="provisionSequence()" class="range-form" novalidate>
           <div class="field field--wide">
             <label for="range-type">{{ 'settings.fiscal.type' | translate }} <span class="required" aria-hidden="true">*</span></label>
@@ -57,12 +59,9 @@
             </button>
           </div>
         </form>
-      }
     }
 
-    @if (sequencesFailed()) {
-      <vx-error-state [detail]="'settings.fiscal.do.ncf_sequences_load_failed' | translate" (retry)="loadSequences()" />
-    } @else if (sequences().length) {
+    @if (sequences().length) {
       <table [appSort]="sequencesTable.sort" class="fx-table">
         <thead>
           <tr>
@@ -122,6 +121,8 @@
         }
       </ul>
     </vx-settings-disclosure>
+  }
+
   }
 
   <!-- Las declaraciones de la DGII se generan en Contabilidad: nombradas como se llaman y enlazadas (CONT-03). -->

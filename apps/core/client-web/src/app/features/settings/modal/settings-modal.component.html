@@ -119,7 +119,11 @@
           @if (denied()) {
             <div class="sm-state" role="alert">
               <lucide-icon [img]="LockIcon" size="22" aria-hidden="true"></lucide-icon>
-              <p>{{ 'settings.shell.denied' | translate }}</p>
+              @if (deniedPermission(); as permission) {
+                <p>{{ 'settings.shell.denied_permission' | translate: { permission: ('settings.permission_names.' + permission.replace(':', '_') | translate) } }}</p>
+              } @else {
+                <p>{{ 'settings.shell.denied_country' | translate }}</p>
+              }
             </div>
           } @else {
             @if (!canEdit()) {

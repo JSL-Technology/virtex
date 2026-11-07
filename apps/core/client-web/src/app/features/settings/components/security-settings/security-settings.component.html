@@ -40,20 +40,30 @@
     «Chrome en Windows» nobody could tell apart; a group shows its latest session, and the rest of
     the device's sessions behind the common disclosure.
   -->
-  <ul class="sessions" role="list">
-    @for (group of sessionGroups(); track group.key) {
-      <li class="sessions__group">
-        <ng-container *ngTemplateOutlet="sessionRow; context: { $implicit: group.sessions[0] }"></ng-container>
-        @if (group.sessions.length > 1) {
-          <vx-settings-disclosure class="sessions__more" [summary]="'settings.security.sessions_more' | translate: { count: group.sessions.length - 1 }">
-            @for (session of group.sessions.slice(1); track session.id) {
-              <ng-container *ngTemplateOutlet="sessionRow; context: { $implicit: session }"></ng-container>
-            }
-          </vx-settings-disclosure>
-        }
-      </li>
+  @switch (sessionsState()) {
+    @case ('loading') {
+      <vx-spinner withLabel labelKey="settings.sections.loading" />
     }
-  </ul>
+    @case ('error') {
+      <vx-error-state [detail]="'settings.security.sessions_failed' | translate" (retry)="loadSessions()" />
+    }
+    @default {
+      <ul class="sessions" role="list">
+        @for (group of sessionGroups(); track group.key) {
+          <li class="sessions__group">
+            <ng-container *ngTemplateOutlet="sessionRow; context: { $implicit: group.sessions[0] }"></ng-container>
+            @if (group.sessions.length > 1) {
+              <vx-settings-disclosure class="sessions__more" [summary]="'settings.security.sessions_more' | translate: { count: group.sessions.length - 1 }">
+                @for (session of group.sessions.slice(1); track session.id) {
+                  <ng-container *ngTemplateOutlet="sessionRow; context: { $implicit: session }"></ng-container>
+                }
+              </vx-settings-disclosure>
+            }
+          </li>
+        }
+      </ul>
+    }
+  }
 </vx-settings-group>
 
 <ng-template #sessionRow let-session>

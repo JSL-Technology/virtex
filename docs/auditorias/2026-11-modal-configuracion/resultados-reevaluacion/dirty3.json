@@ -1,0 +1,334 @@
+{
+  "my-profile": {
+    "label": "Mi perfil · nombre",
+    "saves": true,
+    "value": "Devx",
+    "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Mi perfil». Cancelar Descartar Guardar",
+        "buttons": [
+          "Cancelar",
+          "Descartar",
+          "Guardar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "account-security": {
+    "label": "Seguridad de la cuenta · contraseña",
+    "saves": false,
+    "value": "algo-escrito",
+    "saveBar": null,
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Seguridad de la cuenta». Cancelar Descartar",
+        "buttons": [
+          "Cancelar",
+          "Descartar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "profile": {
+    "label": "Perfil de la empresa · sitio web",
+    "saves": true,
+    "value": "https://ejemplo.do",
+    "saveBar": "Revisa «RNC» para poder guardar. Descartar Guardar cambios",
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Perfil de la empresa». Cancelar Descartar Guardar",
+        "buttons": [
+          "Cancelar",
+          "Descartar",
+          "Guardar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "regional-format": {
+    "label": "Formato regional · hora",
+    "saves": true,
+    "value": "6",
+    "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Formato regional». Cancelar Descartar Guardar",
+        "buttons": [
+          "Cancelar",
+          "Descartar",
+          "Guardar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "branding": {
+    "label": "Marca · color de acento",
+    "saves": true,
+    "value": "#b4530a",
+    "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Marca de la empresa». Cancelar Descartar Guardar",
+        "buttons": [
+          "Cancelar",
+          "Descartar",
+          "Guardar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "smtp": {
+    "label": "Correo saliente · remitente",
+    "saves": true,
+    "value": "Virtex Prueba",
+    "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Correo saliente». Cancelar Descartar Guardar",
+        "buttons": [
+          "Cancelar",
+          "Descartar",
+          "Guardar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "security": {
+    "label": "Política de seguridad · segundo factor",
+    "saves": true,
+    "value": true,
+    "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Política de seguridad». Cancelar Descartar Guardar",
+        "buttons": [
+          "Cancelar",
+          "Descartar",
+          "Guardar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "sso": {
+    "label": "SSO · dominio",
+    "saves": false,
+    "value": "acme.com",
+    "saveBar": null,
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Inicio de sesión único (SSO)». Cancelar Descartar",
+        "buttons": [
+          "Cancelar",
+          "Descartar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "ai": {
+    "label": "IA · presupuesto mensual",
+    "saves": true,
+    "value": "1234",
+    "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Inteligencia artificial». Cancelar Descartar Guardar",
+        "buttons": [
+          "Cancelar",
+          "Descartar",
+          "Guardar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "ai-agents": {
+    "label": "IA · límite del agente",
+    "saves": true,
+    "value": "5000",
+    "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Inteligencia artificial». Cancelar Descartar Guardar",
+        "buttons": [
+          "Cancelar",
+          "Descartar",
+          "Guardar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "accounting-policies": {
+    "label": "Políticas contables · plazo de pago",
+    "saves": true,
+    "value": "15",
+    "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Políticas contables». Cancelar Descartar Guardar",
+        "buttons": [
+          "Cancelar",
+          "Descartar",
+          "Guardar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "fiscal": {
+    "label": "Comprobantes fiscales · modalidad",
+    "saves": true,
+    "value": "Solo tradicionales\nNumerados con tus rangos autorizados e impresos. No necesitas certificado digital.",
+    "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Comprobantes fiscales». Cancelar Descartar Guardar",
+        "buttons": [
+          "Cancelar",
+          "Descartar",
+          "Guardar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "fiscal-range": {
+    "label": "Comprobantes fiscales · rango sin registrar",
+    "saves": false,
+    "value": "AUT-123",
+    "saveBar": null,
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Comprobantes fiscales». Cancelar Descartar",
+        "buttons": [
+          "Cancelar",
+          "Descartar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "withholding-regimes": {
+    "label": "Retenciones · régimen nuevo",
+    "saves": false,
+    "value": "RET-1",
+    "saveBar": null,
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Retenciones». Cancelar Descartar",
+        "buttons": [
+          "Cancelar",
+          "Descartar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "sequences": {
+    "label": "Numeración · prefijo",
+    "saves": true,
+    "value": "FAC-X",
+    "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Numeración de documentos». Cancelar Descartar Guardar",
+        "buttons": [
+          "Cancelar",
+          "Descartar",
+          "Guardar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  },
+  "approvals": {
+    "label": "Aprobaciones · política nueva",
+    "saves": false,
+    "value": "Compras grandes",
+    "saveBar": null,
+    "question": [
+      {
+        "text": "Cambios sin guardar Hay cambios sin guardar en «Aprobaciones». Cancelar Descartar Guardar",
+        "buttons": [
+          "Cancelar",
+          "Descartar",
+          "Guardar"
+        ]
+      }
+    ],
+    "modalOpenAfterEscape": true,
+    "valueKept": true,
+    "closeAsks": true,
+    "closedAfterDiscard": true,
+    "verdict": "CUMPLE"
+  }
+}

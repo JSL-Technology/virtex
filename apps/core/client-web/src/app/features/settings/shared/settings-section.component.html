@@ -1,7 +1,11 @@
 @if (loading()) {
-  <vx-spinner withLabel labelKey="settings.sections.loading" />
+  @if (!quiet()) {
+    <vx-spinner withLabel labelKey="settings.sections.loading" />
+  }
 } @else if (loadError(); as message) {
-  <vx-error-state [detail]="message" (retry)="load()" />
+  @if (!quiet()) {
+    <vx-error-state [detail]="message" (retry)="load()" />
+  }
 } @else if (view()) {
   <form class="ss" [id]="anchor() ? 'settings-block-' + anchor() : null" (ngSubmit)="save()">
     <!--

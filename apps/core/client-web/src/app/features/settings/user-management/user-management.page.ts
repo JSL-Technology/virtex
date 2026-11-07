@@ -1,4 +1,4 @@
-import { SettingsActionsDirective } from '../shell';
+import { SettingsActionsDirective, SettingsShellService } from '../shell';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { RoleNamePipe, roleLabel } from '../../../shared/pipes/role-name.pipe';
 import {
@@ -79,6 +79,8 @@ import { SettingsGroupComponent } from '../shared';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VX_SELECT } from '../../../shared/components/select';
+import { VxDialogComponent } from '../../../shared/components/dialog';
+import { VxFieldErrorComponent } from '../../../shared/components/field-error';
 import { TableSort, VX_SORT, sortable } from '../../../shared/components/sort';
 
 @Component({
@@ -92,7 +94,7 @@ import { TableSort, VX_SORT, sortable } from '../../../shared/components/sort';
     HasPermissionDirective,
     ...VX_FORM_A11Y, ...VX_SELECT, VxSpinnerComponent, VxPagerComponent, VxBadgeComponent,
     VxEmptyStateComponent, VxErrorStateComponent, SettingsGroupComponent, ...VX_CONTEXT_MENU,
-    UserBranchAccessDialogComponent],
+    UserBranchAccessDialogComponent, VxDialogComponent, VxFieldErrorComponent],
   templateUrl: './user-management.page.html',
   styleUrls: ['./user-management.page.scss'],
 })
@@ -101,6 +103,9 @@ export class UserManagementPage implements OnInit, OnDestroy {
   readonly invitationsTable = sortable(() => this.sentInvitations(), { name: (invitation) => `${invitation.firstName} ${invitation.lastName}`, role: (invitation) => roleLabel(this.translate, invitation.roleName) });
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(DialogService);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  /** Whether the person may change users (`users:edit`); the window decides from the section. */
+  protected readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
   // Servicios
   private fb = inject(FormBuilder);
   private usersService = inject(UsersService);
@@ -363,15 +368,8 @@ export class UserManagementPage implements OnInit, OnDestroy {
   openInviteModal(): void {
     this.isEditMode.set(false);
     this.userForm.reset({ roleId: null });
+    // The shared dialog moves the focus to the first field (`cdkFocusInitial`) and traps it there.
     this.userModalOpen.set(true);
-    this.focusUserModal();
-  }
-
-  /** Focus moves into the dialog, so the keyboard — and Escape — act on it, not on what is behind. */
-  private focusUserModal(): void {
-    setTimeout(() =>
-      document.querySelector<HTMLElement>('[aria-labelledby="user-modal-title"] input, [aria-labelledby="user-modal-title"]')?.focus(),
-    );
   }
 
   openEditModal(user: ApiUser): void {
@@ -385,7 +383,6 @@ export class UserManagementPage implements OnInit, OnDestroy {
       roleId: user.roles?.[0]?.id || null,
     });
     this.userModalOpen.set(true);
-    this.focusUserModal();
   }
 
   closeUserModal(): void {
@@ -393,25 +390,29 @@ export class UserManagementPage implements OnInit, OnDestroy {
     this.selectedUser = null;
   }
 
-  openDeleteModal(user: ApiUser): void {
+  /**
+   * Asks with the shared confirmation, as every other deletion in Settings does (roles, SSO
+   * domains, agent keys), and deletes on yes. It was a dialog of its own, in another voice
+   * («¿Está seguro que desea…»), with no focus trap.
+   */
+  async openDeleteModal(user: ApiUser): Promise<void> {
     this.selectedUser = user;
     this.deleteModalOpen.set(true);
+    const confirmed = await this.dialog.confirm({
+      title: 'dialog.delete_user.title',
+      message: 'dialog.delete_user.message',
+      messageParams: { name: `${user.firstName} ${user.lastName}`.trim() || user.email },
+      confirmText: 'common.delete',
+      variant: 'danger',
+    });
+    this.deleteModalOpen.set(false);
+    if (confirmed) this.confirmDelete();
+    else if (this.selectedUser === user) this.selectedUser = null;
   }
 
   closeDeleteModal(): void {
     this.deleteModalOpen.set(false);
     this.selectedUser = null;
-  }
-
-  /** Whether a field should show its error: only after the user touched it or tried to save. */
-  invalid(name: string): boolean {
-    const control = this.userForm.get(name);
-    return !!control && control.invalid && (control.touched || control.dirty);
-  }
-
-  fieldError(name: string): string {
-    const control = this.userForm.get(name);
-    return control?.hasError('email') ? 'settings.user_management.errors.email_invalid' : 'settings.user_management.errors.required';
   }
 
   save(): void {

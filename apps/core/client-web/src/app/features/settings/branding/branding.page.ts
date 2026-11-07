@@ -14,6 +14,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { SettingsActionsDirective, SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../shell';
 import { RegionalFormatPage } from '../regional-format/regional-format.page';
 import { SettingsGroupComponent } from '../shared';
+import { VxErrorStateComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
 import { VxFileButtonComponent } from '../../../shared/components/file-button';
 
 /**
@@ -41,6 +42,8 @@ import { VxFileButtonComponent } from '../../../shared/components/file-button';
     SettingsActionsDirective,
     SettingsSaveBarComponent,
     RegionalFormatPage,
+    VxSpinnerComponent,
+    VxErrorStateComponent,
     ...VX_FORM_A11Y,
   ],
   templateUrl: './branding.page.html',
@@ -116,7 +119,7 @@ export class BrandingPage implements OnInit {
 
     if (this.view() === 'company') {
       // What the server holds, not what this browser last cached.
-      this.brandingService.loadFromServer().subscribe(() => this.syncForm());
+      this.loadCompany();
       if (this.shell) {
         this.shell.register(this.changes);
         this.destroyRef.onDestroy(() => {
@@ -126,6 +129,25 @@ export class BrandingPage implements OnInit {
         });
       }
     }
+  }
+
+  /**
+   * The company's brand, read before it is edited: a failed read showed this browser's cached brand
+   * as if it were the company's, and saving it would have overwritten the real one. It is said in
+   * place now, with a retry, and the form waits (EST-02).
+   */
+  readonly companyState = signal<'loading' | 'error' | 'ready'>('loading');
+
+  loadCompany(): void {
+    this.companyState.set('loading');
+    this.brandingService.loadFromServer().subscribe((company) => {
+      if (!company) {
+        this.companyState.set('error');
+        return;
+      }
+      this.syncForm();
+      this.companyState.set('ready');
+    });
   }
 
   // ── Personal ────────────────────────────────────────────────────────────

@@ -97,8 +97,14 @@ export class SettingsSectionComponent implements OnInit {
   readonly policiesTitled = computed(() => !this.titleKey() || this.groups().length > 0 || (this.showBaseCurrency() && !!this.view()?.baseCurrency));
 
   protected readonly view = signal<SettingsSectionView | null>(null);
-  protected readonly loading = signal(true);
-  protected readonly loadError = signal<string | null>(null);
+  readonly loading = signal(true);
+  readonly loadError = signal<string | null>(null);
+  /**
+   * Inside a page of several blocks, the page says «loading» and «could not load» once for all of
+   * them, with one retry; the block itself stays quiet. Six identical error boxes was the
+   * alternative (EST-02).
+   */
+  readonly quiet = input(false);
   protected readonly saving = signal(false);
 
   /** What the user changed, by field; only this is sent. */

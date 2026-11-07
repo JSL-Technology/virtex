@@ -1,0 +1,51 @@
+{
+  "contraseña": [
+    "Seguridad de la cuenta",
+    "Política de seguridad"
+  ],
+  "logo": [
+    "Marca de la empresa"
+  ],
+  "NCF": [
+    "Comprobantes fiscales"
+  ],
+  "moneda": [
+    "Cuentas predeterminadas",
+    "Políticas contables"
+  ],
+  "impuestos": [
+    "Cuentas predeterminadas",
+    "Comprobantes fiscales",
+    "Retenciones"
+  ],
+  "ITBIS": [
+    "Cuentas predeterminadas",
+    "Comprobantes fiscales",
+    "Retenciones"
+  ],
+  "correo": [
+    "Mi perfil",
+    "Correo saliente",
+    "Integraciones"
+  ],
+  "permisos": [
+    "Roles y permisos",
+    "Extensiones"
+  ],
+  "idioma": [
+    "Preferencias"
+  ],
+  "tema oscuro": [
+    "Preferencias"
+  ],
+  "zona horaria": [
+    "[vacío] Nada coincide con «zona horaria»."
+  ],
+  "firma": [
+    "Comprobantes fiscales",
+    "Extensiones"
+  ],
+  "xyz123": [
+    "[vacío] Nada coincide con «xyz123»."
+  ]
+}

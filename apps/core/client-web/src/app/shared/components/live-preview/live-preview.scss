@@ -36,9 +36,12 @@
 }
 
 .preview-content {
-    h4 {
+    // Una muestra, no un encabezado del documento: se ve como título sin serlo.
+    p.preview-title {
         font-size: var(--text-xl);
+        font-weight: var(--font-semibold);
         margin-bottom: var(--space-2);
+        color: inherit;
     }
 
     p {

@@ -1,4 +1,5 @@
 @use '../../../../assets/styles/design-system' as ds;
+@use 'app/features/settings/shared/settings-ui' as ui;
 
 // Two sections, one set of controls: the person's preferences and the company's brand. The page
 // draws no header, width or padding of its own: the settings window does (`.sm-page`).
@@ -31,7 +32,19 @@
   select { @include ds.input-base; }
 }
 
-.field-hint { @include ds.field-hint; }
+.field-hint { @include ds.field-hint; margin: 0; }
+
+//  Un campo se separa del siguiente siempre lo mismo: el ritmo de todo formulario de la modal.
+.form-field + .form-field,
+.form-field + .form-row,
+.form-row + .form-field {
+  margin-top: var(--space-5);
+}
+
+//  Dentro de una fila los campos van lado a lado: alineados arriba, sin la separación vertical.
+.form-row > .form-field + .form-field {
+  margin-top: 0;
+}
 
 .form-row {
   display: grid;
@@ -155,36 +168,7 @@ input[type='range'] {
 //  Un control segmentado mide lo que sus opciones, en todas partes (antes uno ocupaba todo el ancho
 //  y otros media columna).
 .button-group {
-  display: inline-flex;
-  max-width: 100%;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-
-  button {
-    flex: 0 0 auto;
-    min-height: var(--control-height-md);
-    padding: 0 0.75rem;
-    border: none;
-    background: var(--bg-card);
-    color: var(--content-secondary);
-    font: inherit;
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    cursor: pointer;
-    transition: background-color 0.15s, color 0.15s;
-
-    &:not(:last-child) { border-right: 1px solid var(--border-color); }
-    &:hover:not(.active) { background: var(--bg-hover); color: var(--content-primary); }
-    &:focus-visible { @include ds.focus-ring-inset; }
-
-    // Solid accent with its own text colour: legible whatever accent the company picked.
-    &.active {
-      background: var(--accent-solid);
-      color: var(--accent-on-solid);
-      font-weight: var(--font-semibold);
-    }
-  }
+  @include ui.segmented;
 }
 
 // ── Preview ─────────────────────────────────────────────────────────────────────────────────────

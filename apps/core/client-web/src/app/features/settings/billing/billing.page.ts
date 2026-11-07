@@ -69,6 +69,10 @@ export class BillingPage implements OnInit {
 
   availablePlans = this.billingService.plans;
   plansState = this.billingService.plansState;
+  /** Both reads still on their way: one spinner for the page, not one per group. */
+  readonly pageLoading = computed(() => this.overviewState() === 'loading' && this.plansState() === 'loading');
+  /** Both reads failed — a dropped connection: one error and one retry for the whole page. */
+  readonly allFailed = computed(() => this.overviewState() === 'error' && this.plansState() === 'error');
 
   // True once the org has an active/trialing subscription managed by Stripe.
   hasActiveSubscription = computed(() => {
@@ -138,6 +142,12 @@ export class BillingPage implements OnInit {
 
   retryLoadPlans(): void {
     this.billingService.loadPlans();
+  }
+
+  /** Retry both reads at once, from the page's single error. */
+  retryAll(): void {
+    this.refreshBillingData();
+    this.retryLoadPlans();
   }
 
   selectPlan(planSlug: string): void {

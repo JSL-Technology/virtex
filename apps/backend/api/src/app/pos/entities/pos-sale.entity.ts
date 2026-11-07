@@ -52,6 +52,9 @@ export interface PosPayment {
 @Entity({ name: 'pos_sales' })
 @Index('IDX_pos_sales_org_created', ['organizationId', 'createdAt'])
 @Index('IDX_pos_sales_org_shift', ['organizationId', 'shiftId'])
+// A comprobante is issued once per company (PosSaleAccounting1789270000000 creates it). Declared
+// here as well, so the entities and the migrations describe the same schema (check:schema-drift).
+@Index('UQ_pos_sales_org_fiscal_number', ['organizationId', 'fiscalNumber'], { unique: true, where: '"fiscal_number" IS NOT NULL' })
 export class PosSale {
   @PrimaryGeneratedColumn('uuid')
   id: string;

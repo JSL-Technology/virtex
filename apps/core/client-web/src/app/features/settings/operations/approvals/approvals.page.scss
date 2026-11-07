@@ -5,7 +5,6 @@
 
 .s-page { display: block; }
 
-.s-page > vx-notice { margin-block-end: var(--space-6); }
 
 // ── Editor ───────────────────────────────────────────────────────────
 .ap__editor { display: block; }
@@ -80,7 +79,7 @@
 }
 
 .ap__hint { margin: var(--space-4) 0 0; font-size: var(--text-sm); color: var(--content-secondary); }
-.ap__note { margin: var(--space-8) 0 0; font-size: var(--text-sm); color: var(--content-secondary); }
+.ap__note { margin: var(--space-6) 0 0; font-size: var(--text-sm); color: var(--content-secondary); }
 
 .row-actions { @include ui.row-actions; }
 .link-button { @include ui.link-button; }

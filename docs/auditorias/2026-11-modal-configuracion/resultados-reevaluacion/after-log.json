@@ -1,0 +1,103 @@
+{
+  "H01": {
+    "question": [
+      "Cambios sin guardar Hay cambios sin guardar en «Correo saliente». Cancelar Descartar Guardar"
+    ],
+    "kept": "Virtex Prueba"
+  },
+  "H03": [
+    "Refrescar",
+    "Más acciones para Dev User",
+    "Página anterior",
+    "Página siguiente"
+  ],
+  "H04a": {
+    "id": "currentpassword",
+    "tag": "INPUT"
+  },
+  "H04b": true,
+  "H04c": true,
+  "H04d": true,
+  "H04e": true,
+  "H04f": true,
+  "H05": {
+    "question": [
+      "Cambios sin guardar Hay cambios sin guardar en «Inteligencia artificial». Cancelar Descartar Guardar"
+    ]
+  },
+  "H06a": [
+    "Actualizar contraseña"
+  ],
+  "H06b": [],
+  "H07a": [
+    "H2 17px Contraseña",
+    "H2 17px Autenticación de dos factores (2FA)",
+    "H2 17px Llaves de acceso",
+    "H2 17px Sesiones activas"
+  ],
+  "H07b": [
+    "H2 17px Ventas, compras, caja y bancos",
+    "H3 14px Ventas y cobros",
+    "H3 14px Compras",
+    "H3 14px Caja y bancos",
+    "H3 14px Activos fijos y patrimonio",
+    "H2 17px Moneda y tipos de cambio"
+  ],
+  "H07c": [
+    "Mi perfil"
+  ],
+  "H10b": "Nada coincide con estos filtros Cambia o quita los filtros para ver más registros. Quitar filtros",
+  "H12": [],
+  "H14": "Todavía no puedes emitir comprobantes. Falta: Un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E).Registrar un rango El RNC de tu empresa.Perfil de la empresa",
+  "H15": {
+    "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.sm-section td.row-actions .icon-button').first()\u001b[22m\n"
+  },
+  "H19": {
+    "inert": true,
+    "focusable": [
+      0,
+      0,
+      0
+    ]
+  },
+  "H22": "tabular-nums",
+  "H23": [
+    "rgb(181, 36, 36)"
+  ],
+  "H24": "Escribe el dominio, por ejemplo acme.com.",
+  "R01": [
+    "24x24"
+  ],
+  "R01b": [
+    "24x24"
+  ],
+  "R02": [
+    76,
+    77,
+    101,
+    100,
+    356
+  ],
+  "R03": {
+    "nombreApellidos": 16,
+    "apellidosCorreo": 16,
+    "cargoIdioma": 16,
+    "anchoIdioma": 358,
+    "anchoCargo": 358
+  },
+  "R04": [
+    "Ver · Ver los permisos del rol · Administrador · aria-disabled=null",
+    "Ver · Ver los permisos del rol · Miembro · aria-disabled=null",
+    "Ver · Ver los permisos del rol · Vendedor · aria-disabled=null",
+    "Ver · Ver los permisos del rol · Contador · aria-disabled=null"
+  ],
+  "R04b": [
+    "Administrador Los roles del sistema no se editan ni se eliminan: duplícalo para adaptarlo Acceso completo a todos los módulos y a la configuración de la organización. Permisos Usuarios Ver Crear Edita"
+  ],
+  "R05": "1–21 de 21 Filas por página 25 50 100",
+  "R06": {
+    "nameError": "«Nombre del rol» es obligatorio",
+    "permissionsError": "Marca al menos un permiso",
+    "focused": "role-name"
+  }
+}

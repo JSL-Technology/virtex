@@ -16,6 +16,7 @@ import { UsersService } from '../../data/users.service';
 import { SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../../shell';
 import { SettingsGroupComponent } from '../../shared';
 import { VxEmptyStateComponent, VxErrorStateComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
+import { VxPagerComponent } from '../../../../shared/components/pager';
 import { History, SearchX } from 'lucide-angular';
 
 /** The action types the trail records (`ActionType` on the server). */
@@ -69,7 +70,8 @@ export interface FieldChange {
   after: string;
 }
 
-const PAGE_SIZE = 50;
+/** Rows per page until the reader picks another size in the shared pager. */
+const DEFAULT_PAGE_SIZE = 50;
 
 /**
  * Organisation security and the audit trail, as two sections of one component (`view`).
@@ -98,6 +100,7 @@ const PAGE_SIZE = 50;
     SettingsSaveBarComponent,
     VxEmptyStateComponent,
     VxErrorStateComponent,
+    VxPagerComponent,
     VxSpinnerComponent,
     ...VX_SELECT,
     ...VX_DATE,
@@ -173,6 +176,7 @@ export class SecuritySettingsPage implements OnInit {
     return [userId, actionType, entity, from, to].some(Boolean);
   });
   readonly page = signal(1);
+  readonly pageSize = signal(DEFAULT_PAGE_SIZE);
 
   readonly personLabel = (person: Person): string => person.name;
   readonly personValue = (person: Person): string => person.id;
@@ -281,13 +285,20 @@ export class SecuritySettingsPage implements OnInit {
     this.loadTrail();
   }
 
+  /** A new page size starts again from the first page, as everywhere the shared pager is used. */
+  setPageSize(size: number): void {
+    this.pageSize.set(size);
+    this.page.set(1);
+    this.loadTrail();
+  }
+
   loadTrail(): void {
     const filters = this.filters();
     if (filters.from && filters.to && filters.from > filters.to) {
       this.trailError.set(this.translate.instant('settings.security.range_invalid'));
       return;
     }
-    let params = new HttpParams().set('page', String(this.page())).set('pageSize', String(PAGE_SIZE));
+    let params = new HttpParams().set('page', String(this.page())).set('pageSize', String(this.pageSize()));
     for (const [key, value] of Object.entries(filters)) {
       if (value) params = params.set(key, String(value));
     }

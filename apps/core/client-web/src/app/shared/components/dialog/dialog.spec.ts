@@ -37,6 +37,21 @@ class Host {
   }
 }
 
+@Component({
+  standalone: true,
+  imports: [TranslateModule, VxDialogComponent],
+  template: `
+    @if (open()) {
+      <vx-dialog titleKey="common.confirmation" (dismissed)="open.set(false)">
+        <p>Una lista larga, solo de texto.</p>
+      </vx-dialog>
+    }
+  `,
+})
+class ReadOnlyHost {
+  readonly open = signal(true);
+}
+
 describe('VxDialogComponent', () => {
   let fixture: ComponentFixture<Host>;
 
@@ -165,4 +180,44 @@ describe('VxDialogComponent', () => {
     expect(panel()).toBeNull();
     flush();
   }));
+
+  /**
+   * Un cuerpo que se desplaza debe poder alcanzarse con el teclado (WCAG 2.1.1). jsdom no mide, así
+   * que se finge que el cuerpo del diálogo desborda.
+   */
+  describe('cuerpo que se desplaza', () => {
+    const body = () => document.querySelector('.vx-dialog__body') as HTMLElement;
+    let restore: () => void;
+
+    beforeEach(() => {
+      const scroll = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollHeight');
+      const client = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight');
+      const overflowing = (el: HTMLElement) => el.classList?.contains('vx-dialog__body');
+      Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, get() { return overflowing(this) ? 900 : 0; } });
+      Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, get() { return overflowing(this) ? 300 : 0; } });
+      restore = () => {
+        if (scroll) Object.defineProperty(HTMLElement.prototype, 'scrollHeight', scroll);
+        if (client) Object.defineProperty(HTMLElement.prototype, 'clientHeight', client);
+      };
+    });
+
+    afterEach(() => restore());
+
+    it('con solo texto, el cuerpo toma una parada de tabulación con nombre', fakeAsync(() => {
+      const readOnly = TestBed.createComponent(ReadOnlyHost);
+      readOnly.detectChanges();
+      tick();
+      expect(body().getAttribute('tabindex')).toBe('0');
+      expect(body().getAttribute('role')).toBe('region');
+      expect(document.getElementById(body().getAttribute('aria-labelledby') as string)).not.toBeNull();
+      readOnly.destroy();
+      flush();
+    }));
+
+    it('con campos dentro, el cuerpo no añade una parada más', fakeAsync(() => {
+      open();
+      expect(body().hasAttribute('tabindex')).toBe(false);
+      flush();
+    }));
+  });
 });

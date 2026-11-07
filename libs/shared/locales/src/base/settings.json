@@ -657,11 +657,6 @@
     "en": "Register each range the DGII authorised, traditional (B series) or electronic (E series). Without a current range of a type, that document cannot be issued.",
     "pt": "Registre cada faixa autorizada pela DGII, tradicional (série B) ou eletrônica (série E). Sem uma faixa vigente de um tipo, esse comprovante não pode ser emitido."
   },
-  "settings.fiscal.do.ncf_sequences_load_failed": {
-    "es": "No se pudieron cargar las secuencias NCF.",
-    "en": "The NCF sequences could not be loaded.",
-    "pt": "Não foi possível carregar as sequências NCF."
-  },
   "settings.fiscal.document_types_load_failed": {
     "es": "No se pudieron cargar los tipos de comprobante de tu país.",
     "en": "Your country's document types could not be loaded.",
@@ -2021,14 +2016,14 @@
     "pt": "Cancelar"
   },
   "settings.roles.clone_role": {
-    "es": "Clonar rol",
-    "en": "Clone role",
-    "pt": "Clonar perfil"
+    "es": "Duplicar rol",
+    "en": "Duplicate role",
+    "pt": "Duplicar perfil"
   },
   "settings.roles.create_role": {
     "es": "Crear nuevo rol",
     "en": "Create new role",
-    "pt": "Criar novo papel"
+    "pt": "Criar novo perfil"
   },
   "settings.roles.delete_role": {
     "es": "Eliminar rol",
@@ -2043,12 +2038,7 @@
   "settings.roles.edit_role": {
     "es": "Editar rol",
     "en": "Edit role",
-    "pt": "Editar papel"
-  },
-  "settings.roles.errors.load_permissions": {
-    "es": "No pudimos cargar los permisos.",
-    "en": "We could not load the permissions.",
-    "pt": "Não foi possível carregar as permissões."
+    "pt": "Editar perfil"
   },
   "settings.roles.errors.load_roles": {
     "es": "No pudimos cargar los roles.",
@@ -2076,9 +2066,9 @@
     "pt": "Nome do perfil"
   },
   "settings.roles.role_name_cloned_successfully": {
-    "es": "Rol \"{{name}}\" clonado exitosamente.",
-    "en": "Role \"{{name}}\" cloned successfully.",
-    "pt": "Perfil \"{{name}}\" clonado com sucesso."
+    "es": "Rol \"{{name}}\" duplicado exitosamente.",
+    "en": "Role \"{{name}}\" duplicated successfully.",
+    "pt": "Perfil \"{{name}}\" duplicado com sucesso."
   },
   "settings.roles.role_updated_successfully": {
     "es": "Rol actualizado exitosamente.",
@@ -3005,11 +2995,6 @@
     "en": "Mandatory second factor",
     "pt": "Segundo fator obrigatório"
   },
-  "settings.security.page_of": {
-    "es": "Página {{page}} · {{total}} registros",
-    "en": "Page {{page}} · {{total}} records",
-    "pt": "Página {{page}} · {{total}} registros"
-  },
   "settings.security.passkey_add": {
     "es": "Agregar llave de acceso",
     "en": "Add passkey",
@@ -3556,9 +3541,9 @@
     "pt": "Ex.: Virtex latam ltda."
   },
   "settings.subsidiaries.empty_description": {
-    "es": "Agrega una empresa que controles para registrar operaciones entre compañías y consolidar. Para tiendas u oficinas de esta misma empresa, usa Sucursales.",
-    "en": "Add a company you control to record intercompany transactions and consolidate. For stores or offices of this same company, use Branches.",
-    "pt": "Adicione uma empresa que você controla para registrar operações entre companhias e consolidar. Para lojas ou escritórios desta mesma empresa, use Filiais."
+    "es": "Agrega una empresa que controles para registrar operaciones entre compañías y consolidar.",
+    "en": "Add a company you control to record intercompany transactions and consolidate.",
+    "pt": "Adicione uma empresa que você controla para registrar operações entre companhias e consolidar."
   },
   "settings.subsidiaries.id_fiscal": {
     "es": "ID fiscal:",
@@ -3630,11 +3615,6 @@
     "en": "Subsidiary updated.",
     "pt": "Subsidiária atualizada."
   },
-  "settings.user_management.action_cannot_undone": {
-    "es": "Esta acción no se puede deshacer.",
-    "en": "This action cannot be undone.",
-    "pt": "Esta ação não pode ser desfeita."
-  },
   "settings.user_management.block_sign_out": {
     "es": "Bloquear y cerrar sesión",
     "en": "Block and sign out",
@@ -3655,16 +3635,6 @@
     "en": "Delete account",
     "pt": "Excluir conta"
   },
-  "settings.user_management.delete_permanently": {
-    "es": "Eliminar permanentemente",
-    "en": "Delete permanently",
-    "pt": "Excluir permanentemente"
-  },
-  "settings.user_management.delete_user": {
-    "es": "Eliminar usuario",
-    "en": "Delete user",
-    "pt": "Excluir usuário"
-  },
   "settings.user_management.edit_user": {
     "es": "Editar usuario",
     "en": "Edit user",
@@ -3674,16 +3644,6 @@
     "es": "Correo electrónico",
     "en": "Email",
     "pt": "E-mail"
-  },
-  "settings.user_management.errors.email_invalid": {
-    "es": "Escribe un correo electrónico válido.",
-    "en": "Enter a valid email address.",
-    "pt": "Digite um e-mail válido."
-  },
-  "settings.user_management.errors.required": {
-    "es": "Este campo es obligatorio.",
-    "en": "This field is required.",
-    "pt": "Este campo é obrigatório."
   },
   "settings.user_management.force_sign_out": {
     "es": "Forzar cierre de sesión",
@@ -3820,14 +3780,6 @@
     "en": "The users could not be loaded.",
     "pt": "Não foi possível carregar os usuários."
   },
-  "settings.user_management.value": {
-    "literal": "×"
-  },
-  "settings.user_management.you_sure_you_want_permanently_delete": {
-    "es": "¿Está seguro que desea eliminar permanentemente al usuario",
-    "en": "Are you sure you want to permanently delete the user",
-    "pt": "Tem certeza de que deseja excluir permanentemente o usuário"
-  },
   "settings.groups.account": {
     "es": "Tu cuenta",
     "en": "Your account",
@@ -3912,11 +3864,6 @@
     "es": "Los cambios se guardan solos",
     "en": "Changes save automatically",
     "pt": "As alterações são salvas automaticamente"
-  },
-  "settings.shell.denied": {
-    "es": "Esta sección no está disponible para tu rol o para el país de la empresa.",
-    "en": "This section is not available for your role or for the company’s country.",
-    "pt": "Esta seção não está disponível parsua função ou para o país da empresa."
   },
   "settings.shell.read_only": {
     "es": "Solo lectura: cambiar esta sección requiere el permiso «{{permission}}».",
@@ -4696,7 +4643,7 @@
   "settings.roles.system_role_locked": {
     "es": "Los roles del sistema no se editan ni se eliminan: duplícalo para adaptarlo",
     "en": "System roles cannot be edited or deleted: duplicate it to adapt it",
-    "pt": "Funções do sistema não podem ser editadas nem excluídas: duplique-a para adaptá-la"
+    "pt": "Perfis do sistema não podem ser editados nem excluídos: duplique-o para adaptá-lo"
   },
   "settings.roles.kind_system": {
     "es": "Sistema",
@@ -5437,5 +5384,70 @@
     "es": "Quitar el paso {{n}}",
     "en": "Remove step {{n}}",
     "pt": "Remover a etapa {{n}}"
+  },
+  "settings.subsidiaries.not_branch": {
+    "es": "Una subsidiaria es otra empresa que controlas, con su propio RNC/RUC y sus propios libros. Las tiendas u oficinas de esta misma empresa son",
+    "en": "A subsidiary is another company you control, with its own tax ID and its own books. Stores or offices of this same company are",
+    "pt": "Uma subsidiária é outra empresa que você controla, com seu próprio CNPJ e seus próprios livros. As lojas ou escritórios desta mesma empresa são"
+  },
+  "settings.branding.load_failed": {
+    "es": "No se pudo leer la marca de la empresa.",
+    "en": "The company's brand could not be read.",
+    "pt": "Não foi possível ler a marca da empresa."
+  },
+  "settings.security.sessions_failed": {
+    "es": "No se pudo leer la lista de sesiones.",
+    "en": "The list of sessions could not be read.",
+    "pt": "Não foi possível ler a lista de sessões."
+  },
+  "settings.profile.job_titles_failed": {
+    "es": "No se pudo cargar la lista de cargos.",
+    "en": "The list of job titles could not be loaded.",
+    "pt": "Não foi possível carregar a lista de cargos."
+  },
+  "settings.fiscal.load_failed": {
+    "es": "No se pudo leer la configuración fiscal.",
+    "en": "The fiscal settings could not be read.",
+    "pt": "Não foi possível ler a configuração fiscal."
+  },
+  "settings.shell.denied_permission": {
+    "es": "Para abrir esta sección hace falta el permiso «{{permission}}».",
+    "en": "Opening this section requires the “{{permission}}” permission.",
+    "pt": "Para abrir esta seção é necessária a permissão “{{permission}}”."
+  },
+  "settings.shell.denied_country": {
+    "es": "Esta sección no se aplica al país de la empresa.",
+    "en": "This section does not apply to the company's country.",
+    "pt": "Esta seção não se aplica ao país da empresa."
+  },
+  "settings.roles.view": {
+    "es": "Ver",
+    "en": "View",
+    "pt": "Ver"
+  },
+  "settings.roles.view_role": {
+    "es": "Ver los permisos del rol",
+    "en": "View the role permissions",
+    "pt": "Ver as permissões do perfil"
+  },
+  "settings.roles.no_permissions": {
+    "es": "Este rol todavía no tiene permisos.",
+    "en": "This role has no permissions yet.",
+    "pt": "Este perfil ainda não tem permissões."
+  },
+  "settings.roles.permissions_required": {
+    "es": "Marca al menos un permiso",
+    "en": "Select at least one permission",
+    "pt": "Marque pelo menos uma permissão"
+  },
+  "settings.billing.load_failed": {
+    "es": "No se pudieron leer ni la suscripción ni los planes.",
+    "en": "Neither the subscription nor the plans could be read.",
+    "pt": "Não foi possível ler a assinatura nem os planos."
+  },
+  "settings.integrations.load_failed": {
+    "es": "No se pudieron leer ni el correo entrante ni los agentes conectados.",
+    "en": "Neither the inbound mail nor the connected agents could be read.",
+    "pt": "Não foi possível ler o e-mail de entrada nem os agentes conectados."
   }
 }

@@ -4,212 +4,227 @@
     <vx-notice tone="success" [live]="true">{{ successMessage() }}</vx-notice>
   }
 
-  <!-- Suscripción: plan y método de pago. Pares «dato: valor», sin tarjetas ni cabeceras en mayúsculas. -->
-  @if (overviewState() === 'loading') {
+  <!--
+    La página reúne dos lecturas, la suscripción y los planes. Si fallan las dos (sin conexión), un
+    solo error y un solo reintento; si falla una, su error va en su grupo. Lo mismo al cargar.
+  -->
+  @if (pageLoading()) {
     <vx-spinner size="lg" withLabel labelKey="settings.billing.loading" />
-  } @else if (overviewState() === 'error') {
-    <vx-error-state [detail]="'settings.billing.overview_failed' | translate" (retry)="refreshBillingData()" />
+  } @else if (allFailed()) {
+    <vx-error-state [detail]="'settings.billing.load_failed' | translate" (retry)="retryAll()" />
   } @else {
-    <vx-settings-group titleKey="settings.billing.subscription_title">
-      <dl class="summary">
-        <div class="summary__item">
-          <dt class="summary__label">{{ 'settings.billing.current_plan_heading' | translate }}</dt>
-          <dd class="summary__value">
-            @if (overview()?.plan; as plan) {
-              <p class="summary__main">
-                <span class="plan-name">{{ plan.name }}</span>
-                @if (plan.monthlyPrice) {
-                  <span class="plan-price">{{ 'settings.billing.per_month' | translate: { price: formatPrice(plan.monthlyPrice, plan.currency, plan.minorUnits) } }}</span>
-                }
-              </p>
-              @if (overview()?.subscription; as sub) {
-                <p class="summary__meta">
-                  <vx-badge [tone]="statusTone(sub.status)">{{ statusLabel(sub.status) }}</vx-badge>
-                  @if (sub.currentPeriodEnd) {
-                    <span>{{ (sub.cancelAtPeriodEnd ? 'settings.billing.ends_on_date' : 'settings.billing.renews_on_date') | translate: { date: formatDate(sub.currentPeriodEnd) } }}</span>
+    <!-- Suscripción: plan y método de pago. Pares «dato: valor», sin tarjetas ni cabeceras en mayúsculas. -->
+    @if (overviewState() === 'loading') {
+      <vx-spinner size="lg" withLabel labelKey="settings.billing.loading" />
+    } @else if (overviewState() === 'error') {
+      <vx-error-state [detail]="'settings.billing.overview_failed' | translate" (retry)="refreshBillingData()" />
+    } @else {
+      <vx-settings-group titleKey="settings.billing.subscription_title">
+        <dl class="summary">
+          <div class="summary__item">
+            <dt class="summary__label">{{ 'settings.billing.current_plan_heading' | translate }}</dt>
+            <dd class="summary__value">
+              @if (overview()?.plan; as plan) {
+                <p class="summary__main">
+                  <span class="plan-name">{{ plan.name }}</span>
+                  @if (plan.monthlyPrice) {
+                    <span class="plan-price">{{ 'settings.billing.per_month' | translate: { price: formatPrice(plan.monthlyPrice, plan.currency, plan.minorUnits) } }}</span>
                   }
                 </p>
-                @if (sub.managedBy === 'platform') {
-                  <p class="summary__hint">{{ 'settings.billing.managed_by_platform' | translate }}</p>
+                @if (overview()?.subscription; as sub) {
+                  <p class="summary__meta">
+                    <vx-badge [tone]="statusTone(sub.status)">{{ statusLabel(sub.status) }}</vx-badge>
+                    @if (sub.currentPeriodEnd) {
+                      <span>{{ (sub.cancelAtPeriodEnd ? 'settings.billing.ends_on_date' : 'settings.billing.renews_on_date') | translate: { date: formatDate(sub.currentPeriodEnd) } }}</span>
+                    }
+                  </p>
+                  @if (sub.managedBy === 'platform') {
+                    <p class="summary__hint">{{ 'settings.billing.managed_by_platform' | translate }}</p>
+                  }
+                } @else {
+                  <p class="summary__meta"><vx-badge tone="neutral">{{ 'settings.billing.no_active_subscription' | translate }}</vx-badge></p>
                 }
               } @else {
-                <p class="summary__meta"><vx-badge tone="neutral">{{ 'settings.billing.no_active_subscription' | translate }}</vx-badge></p>
+                <p class="summary__main"><span class="plan-name">{{ 'settings.billing.no_plan' | translate }}</span></p>
+                <p class="summary__hint">{{ 'settings.billing.you_do_not_have_plan_yet' | translate }}</p>
               }
-            } @else {
-              <p class="summary__main"><span class="plan-name">{{ 'settings.billing.no_plan' | translate }}</span></p>
-              <p class="summary__hint">{{ 'settings.billing.you_do_not_have_plan_yet' | translate }}</p>
-            }
-          </dd>
-        </div>
-
-        <div class="summary__item">
-          <dt class="summary__label">{{ 'settings.billing.payment_method' | translate }}</dt>
-          <dd class="summary__value">
-            @if (overview()?.paymentMethod; as pm) {
-              <vx-payment-card class="payment-card-visual" [brand]="pm.brand" [last4]="pm.last4" [expMonth]="pm.expMonth" [expYear]="pm.expYear" />
-            } @else {
-              <p class="summary__hint">{{ 'settings.billing.no_payment_method_file' | translate }}</p>
-            }
-            @if (canEdit() && (overview()?.paymentMethod || hasActiveSubscription())) {
-              <button type="button" class="secondary-button" (click)="manageBilling()" [disabled]="isOpeningPortal()">
-                @if (isOpeningPortal()) {
-                  <vx-spinner size="sm" />
-                  <span>{{ 'billing.opening_portal' | translate }}</span>
-                } @else {
-                  <span>{{ (overview()?.paymentMethod ? 'billing.change_payment_method' : 'billing.add_payment_method') | translate }}</span>
-                }
-              </button>
-            }
-          </dd>
-        </div>
-      </dl>
-    </vx-settings-group>
-  }
-
-  <!-- Consumo del periodo: nombre en estilo oración, cifras tabulares alineadas a la derecha. -->
-  @if (usageMetrics() && usageMetrics().length > 0) {
-    <vx-settings-group titleKey="settings.billing.resource_usage">
-      <ul class="usage-list" role="list">
-        @for (metric of usageMetrics(); track metric.resource) {
-          <li class="usage-item">
-            <div class="usage-item__row">
-              <span class="usage-item__name">{{ resourceName(metric.resource) }}</span>
-              <span class="usage-item__value">
-                @if (metric.type === 'numeric') {
-                  {{ (metric.isUnlimited ? 'settings.billing.usage_unlimited' : 'settings.billing.usage_of_limit')
-                     | translate: { used: (metric.used | vxNumber), limit: (metric.limit | vxNumber) } }}
-                  <small class="usage-item__period">{{ (metric.period === 'monthly' ? 'settings.billing.period_monthly' : 'settings.billing.period_lifetime') | translate }}</small>
-                } @else {
-                  {{ (metric.isEnabled ? 'settings.billing.feature_included' : 'settings.billing.feature_not_included') | translate }}
-                }
-              </span>
-            </div>
-            @if (metric.type === 'numeric' && !metric.isUnlimited && metric.limit > 0) {
-              <!-- La cifra ya está escrita al lado: la barra solo la dibuja. -->
-              <div class="usage-bar" aria-hidden="true">
-                <div class="usage-bar__fill"
-                     [style.width.%]="usageRatio(metric) * 100"
-                     [class.usage-bar__fill--warning]="usageRatio(metric) >= 0.8 && usageRatio(metric) < 1"
-                     [class.usage-bar__fill--critical]="usageRatio(metric) >= 1"></div>
-              </div>
-            }
-          </li>
-        }
-      </ul>
-    </vx-settings-group>
-  }
-
-  <!-- Planes: cada plan es una opción independiente, la única tarjeta que queda en la página. -->
-  <vx-settings-group [titleKey]="hasActiveSubscription() ? 'settings.billing.change_plan' : 'settings.billing.choose_plan'" descriptionKey="settings.billing.choose_plan_prompt">
-    @switch (plansState()) {
-      @case ('loading') {
-        <vx-spinner withLabel labelKey="settings.billing.loading_plans" />
-      }
-      @case ('error') {
-        <vx-error-state [detail]="'settings.billing.plans_could_not_loaded_check_your' | translate" (retry)="retryLoadPlans()" />
-      }
-      @default {
-        @if (availablePlans().length === 0) {
-          <vx-empty-state [icon]="ZapIcon" titleKey="settings.billing.no_plans_title" descriptionKey="settings.billing.no_plans_description">
-            <button action type="button" class="secondary-button" (click)="retryLoadPlans()">{{ 'settings.billing.try_again' | translate }}</button>
-          </vx-empty-state>
-        } @else {
-          <div class="plans-grid" role="radiogroup" [attr.aria-label]="(hasActiveSubscription() ? 'settings.billing.change_plan' : 'settings.billing.choose_plan') | translate">
-            @for (plan of availablePlans(); track plan.id) {
-              <label class="plan-card" [class.plan-card--selected]="selectedPlan() === plan.slug" [class.plan-card--current]="currentPlanSlug() === plan.slug">
-                <input type="radio" name="billing-plan" class="plan-card__input" [value]="plan.slug"
-                  [checked]="selectedPlan() === plan.slug" [disabled]="currentPlanSlug() === plan.slug || !canEdit()"
-                  (change)="selectPlan(plan.slug)" />
-                <span class="plan-card__header">
-                  <span class="plan-card__name">{{ plan.name }}</span>
-                  @if (currentPlanSlug() === plan.slug) {
-                    <vx-badge tone="accent" size="sm">{{ 'settings.billing.current_plan_label' | translate }}</vx-badge>
-                  } @else if (selectedPlan() === plan.slug) {
-                    <lucide-icon [img]="CheckCircleIcon" size="18" class="plan-card__check" aria-hidden="true"></lucide-icon>
-                  }
-                </span>
-                @if (plan.monthlyPrice) {
-                  <span class="plan-card__price">{{ 'settings.billing.per_month' | translate: { price: formatPrice(plan.monthlyPrice, plan.currency, plan.minorUnits) } }}</span>
-                }
-                <span class="plan-card__desc">{{ planDescription(plan.description) }}</span>
-                @if (plan.limits && plan.limits.length > 0) {
-                  <ul class="plan-card__limits" role="list">
-                    @for (limit of plan.limits; track limit.resource + '-' + limit.period) {
-                      <li>
-                        <lucide-icon [img]="CheckIcon" size="14" aria-hidden="true"></lucide-icon>
-                        @if (limit.limit === -1) {
-                          <span>{{ 'billing.unlimited_resource' | translate: { resource: resourceLabel(limit.resource) } }}</span>
-                        } @else {
-                          <span>{{ (limit.period === 'monthly' ? 'settings.billing.limit_monthly' : 'settings.billing.limit_lifetime')
-                              | translate: { count: (limit.limit | vxNumber), resource: resourceLabel(limit.resource) } }}</span>
-                        }
-                      </li>
-                    }
-                  </ul>
-                }
-              </label>
-            }
+            </dd>
           </div>
 
-          @if (selectedPlan() && selectedPlan() !== currentPlanSlug()) {
-            <div class="plan-change">
-              <vx-notice tone="info">
-                {{ (hasActiveSubscription() ? 'settings.billing.switch_plan_notice' : 'settings.billing.selected_plan_notice') | translate: { plan: selectedPlanName() } }}
-              </vx-notice>
-              <button type="button" class="primary-button" (click)="startCheckout()" [disabled]="isRedirecting()">
-                @if (isRedirecting()) {
-                  <vx-spinner size="sm" />
-                  <span>{{ 'settings.billing.redirecting' | translate }}</span>
-                } @else {
-                  <lucide-icon [img]="ExternalLinkIcon" size="16" aria-hidden="true"></lucide-icon>
-                  <span>{{ (hasActiveSubscription() ? 'settings.billing.continue_to_portal' : 'settings.billing.continue_to_payment') | translate }}</span>
-                }
-              </button>
+          <div class="summary__item">
+            <dt class="summary__label">{{ 'settings.billing.payment_method' | translate }}</dt>
+            <dd class="summary__value">
+              @if (overview()?.paymentMethod; as pm) {
+                <vx-payment-card class="payment-card-visual" [brand]="pm.brand" [last4]="pm.last4" [expMonth]="pm.expMonth" [expYear]="pm.expYear" />
+              } @else {
+                <p class="summary__hint">{{ 'settings.billing.no_payment_method_file' | translate }}</p>
+              }
+              @if (canEdit() && (overview()?.paymentMethod || hasActiveSubscription())) {
+                <button type="button" class="secondary-button" (click)="manageBilling()" [disabled]="isOpeningPortal()">
+                  @if (isOpeningPortal()) {
+                    <vx-spinner size="sm" />
+                    <span>{{ 'billing.opening_portal' | translate }}</span>
+                  } @else {
+                    <span>{{ (overview()?.paymentMethod ? 'billing.change_payment_method' : 'billing.add_payment_method') | translate }}</span>
+                  }
+                </button>
+              }
+            </dd>
+          </div>
+        </dl>
+      </vx-settings-group>
+    }
+
+    <!-- Consumo del periodo: nombre en estilo oración, cifras tabulares alineadas a la derecha. -->
+    @if (usageMetrics() && usageMetrics().length > 0) {
+      <vx-settings-group titleKey="settings.billing.resource_usage">
+        <ul class="usage-list" role="list">
+          @for (metric of usageMetrics(); track metric.resource) {
+            <li class="usage-item">
+              <!-- El periodo va con el nombre, no detrás de la cifra: así las cifras quedan en columna (TIP-03). -->
+              <div class="usage-item__row">
+                <span class="usage-item__name">
+                  {{ resourceName(metric.resource) }}
+                  @if (metric.type === 'numeric') {
+                    <small class="usage-item__period">{{ (metric.period === 'monthly' ? 'settings.billing.period_monthly' : 'settings.billing.period_lifetime') | translate }}</small>
+                  }
+                </span>
+                <span class="usage-item__value">
+                  @if (metric.type === 'numeric') {
+                    {{ (metric.isUnlimited ? 'settings.billing.usage_unlimited' : 'settings.billing.usage_of_limit')
+                       | translate: { used: (metric.used | vxNumber), limit: (metric.limit | vxNumber) } }}
+                  } @else {
+                    {{ (metric.isEnabled ? 'settings.billing.feature_included' : 'settings.billing.feature_not_included') | translate }}
+                  }
+                </span>
+              </div>
+              @if (metric.type === 'numeric' && !metric.isUnlimited && metric.limit > 0) {
+                <!-- La cifra ya está escrita al lado: la barra solo la dibuja. -->
+                <div class="usage-bar" aria-hidden="true">
+                  <div class="usage-bar__fill"
+                       [style.width.%]="usageRatio(metric) * 100"
+                       [class.usage-bar__fill--warning]="usageRatio(metric) >= 0.8 && usageRatio(metric) < 1"
+                       [class.usage-bar__fill--critical]="usageRatio(metric) >= 1"></div>
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      </vx-settings-group>
+    }
+
+    <!-- Planes: cada plan es una opción independiente, la única tarjeta que queda en la página. -->
+    <vx-settings-group [titleKey]="hasActiveSubscription() ? 'settings.billing.change_plan' : 'settings.billing.choose_plan'" descriptionKey="settings.billing.choose_plan_prompt">
+      @switch (plansState()) {
+        @case ('loading') {
+          <vx-spinner withLabel labelKey="settings.billing.loading_plans" />
+        }
+        @case ('error') {
+          <vx-error-state [detail]="'settings.billing.plans_could_not_loaded_check_your' | translate" (retry)="retryLoadPlans()" />
+        }
+        @default {
+          @if (availablePlans().length === 0) {
+            <vx-empty-state [icon]="ZapIcon" titleKey="settings.billing.no_plans_title" descriptionKey="settings.billing.no_plans_description">
+              <button action type="button" class="secondary-button" (click)="retryLoadPlans()">{{ 'settings.billing.try_again' | translate }}</button>
+            </vx-empty-state>
+          } @else {
+            <div class="plans-grid" role="radiogroup" [attr.aria-label]="(hasActiveSubscription() ? 'settings.billing.change_plan' : 'settings.billing.choose_plan') | translate">
+              @for (plan of availablePlans(); track plan.id) {
+                <label class="plan-card" [class.plan-card--selected]="selectedPlan() === plan.slug" [class.plan-card--current]="currentPlanSlug() === plan.slug">
+                  <input type="radio" name="billing-plan" class="plan-card__input" [value]="plan.slug"
+                    [checked]="selectedPlan() === plan.slug" [disabled]="currentPlanSlug() === plan.slug || !canEdit()"
+                    (change)="selectPlan(plan.slug)" />
+                  <span class="plan-card__header">
+                    <span class="plan-card__name">{{ plan.name }}</span>
+                    @if (currentPlanSlug() === plan.slug) {
+                      <vx-badge tone="accent" size="sm">{{ 'settings.billing.current_plan_label' | translate }}</vx-badge>
+                    } @else if (selectedPlan() === plan.slug) {
+                      <lucide-icon [img]="CheckCircleIcon" size="18" class="plan-card__check" aria-hidden="true"></lucide-icon>
+                    }
+                  </span>
+                  @if (plan.monthlyPrice) {
+                    <span class="plan-card__price">{{ 'settings.billing.per_month' | translate: { price: formatPrice(plan.monthlyPrice, plan.currency, plan.minorUnits) } }}</span>
+                  }
+                  <span class="plan-card__desc">{{ planDescription(plan.description) }}</span>
+                  @if (plan.limits && plan.limits.length > 0) {
+                    <ul class="plan-card__limits" role="list">
+                      @for (limit of plan.limits; track limit.resource + '-' + limit.period) {
+                        <li>
+                          <lucide-icon [img]="CheckIcon" size="14" aria-hidden="true"></lucide-icon>
+                          @if (limit.limit === -1) {
+                            <span>{{ 'billing.unlimited_resource' | translate: { resource: resourceName(limit.resource) } }}</span>
+                          } @else {
+                            <span>{{ (limit.period === 'monthly' ? 'settings.billing.limit_monthly' : 'settings.billing.limit_lifetime')
+                                | translate: { count: (limit.limit | vxNumber), resource: resourceLabel(limit.resource) } }}</span>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  }
+                </label>
+              }
             </div>
+
+            @if (selectedPlan() && selectedPlan() !== currentPlanSlug()) {
+              <div class="plan-change">
+                <vx-notice tone="info">
+                  {{ (hasActiveSubscription() ? 'settings.billing.switch_plan_notice' : 'settings.billing.selected_plan_notice') | translate: { plan: selectedPlanName() } }}
+                </vx-notice>
+                <button type="button" class="primary-button" (click)="startCheckout()" [disabled]="isRedirecting()">
+                  @if (isRedirecting()) {
+                    <vx-spinner size="sm" />
+                    <span>{{ 'settings.billing.redirecting' | translate }}</span>
+                  } @else {
+                    <lucide-icon [img]="ExternalLinkIcon" size="16" aria-hidden="true"></lucide-icon>
+                    <span>{{ (hasActiveSubscription() ? 'settings.billing.continue_to_portal' : 'settings.billing.continue_to_payment') | translate }}</span>
+                  }
+                </button>
+              </div>
+            }
           }
         }
       }
-    }
 
-    @if (checkoutError()) {
-      <vx-notice tone="danger" [live]="true">{{ checkoutError() }}</vx-notice>
-    }
-  </vx-settings-group>
-
-  @if (invoices().length > 0) {
-    <vx-settings-group titleKey="settings.billing.billing_history">
-      <table class="history-table">
-        <thead>
-          <tr>
-            <th>{{ 'settings.billing.date' | translate }}</th>
-            <th>{{ 'settings.billing.description' | translate }}</th>
-            <th class="numeric">{{ 'settings.billing.amount' | translate }}</th>
-            <th>{{ 'settings.billing.status' | translate }}</th>
-            <th><span class="visually-hidden">{{ 'settings.billing.download_invoice' | translate }}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (inv of invoices(); track inv.id) {
-            <tr>
-              <td class="nowrap" [attr.data-label]="'settings.billing.date' | translate">{{ formatDate(inv.date) }}</td>
-              <td [attr.data-label]="'settings.billing.description' | translate">{{ inv.description }}</td>
-              <td class="numeric" [attr.data-label]="'settings.billing.amount' | translate">{{ formatInvoiceAmount(inv) }}</td>
-              <td [attr.data-label]="'settings.billing.status' | translate">
-                <vx-badge [tone]="invoiceTone(inv.status)">{{ invoiceStatusLabel(inv.status) }}</vx-badge>
-              </td>
-              <td class="row-actions">
-                @if (inv.pdfUrl) {
-                  <a class="icon-button" [href]="inv.pdfUrl" target="_blank" rel="noopener"
-                     [attr.aria-label]="'settings.billing.download_invoice_for' | translate: { date: formatDate(inv.date) }"
-                     [title]="'settings.billing.download_invoice' | translate">
-                    <lucide-icon [img]="DownloadIcon" size="16" aria-hidden="true"></lucide-icon>
-                  </a>
-                }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      @if (checkoutError()) {
+        <vx-notice tone="danger" [live]="true">{{ checkoutError() }}</vx-notice>
+      }
     </vx-settings-group>
+
+    @if (invoices().length > 0) {
+      <vx-settings-group titleKey="settings.billing.billing_history">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>{{ 'settings.billing.date' | translate }}</th>
+              <th>{{ 'settings.billing.description' | translate }}</th>
+              <th class="numeric">{{ 'settings.billing.amount' | translate }}</th>
+              <th>{{ 'settings.billing.status' | translate }}</th>
+              <th><span class="visually-hidden">{{ 'settings.billing.download_invoice' | translate }}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (inv of invoices(); track inv.id) {
+              <tr>
+                <td class="nowrap" [attr.data-label]="'settings.billing.date' | translate">{{ formatDate(inv.date) }}</td>
+                <td [attr.data-label]="'settings.billing.description' | translate">{{ inv.description }}</td>
+                <td class="numeric" [attr.data-label]="'settings.billing.amount' | translate">{{ formatInvoiceAmount(inv) }}</td>
+                <td [attr.data-label]="'settings.billing.status' | translate">
+                  <vx-badge [tone]="invoiceTone(inv.status)">{{ invoiceStatusLabel(inv.status) }}</vx-badge>
+                </td>
+                <td class="row-actions">
+                  @if (inv.pdfUrl) {
+                    <a class="icon-button" [href]="inv.pdfUrl" target="_blank" rel="noopener"
+                       [attr.aria-label]="'settings.billing.download_invoice_for' | translate: { date: formatDate(inv.date) }"
+                       [title]="'settings.billing.download_invoice' | translate">
+                      <lucide-icon [img]="DownloadIcon" size="16" aria-hidden="true"></lucide-icon>
+                    </a>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </vx-settings-group>
+    }
   }
 </div>

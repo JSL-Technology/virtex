@@ -112,6 +112,7 @@
 }
 
 .sec__when { white-space: nowrap; @include ds.numeric; }
+.sec__record-cell { display: block; min-width: 0; }
 .sec__entity { display: block; color: var(--content-secondary); font-size: var(--text-xs); }
 .sec__record { display: block; color: var(--content-primary); overflow-wrap: anywhere; }
 .sec__row--system td { color: var(--content-secondary); }
@@ -119,17 +120,5 @@
 
 .row-actions { @include ui.row-actions; }
 .sec__link { @include ui.link-button; }
-
-.sec__pager {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-2);
-  margin-top: var(--space-3);
-  font-size: var(--text-sm);
-  color: var(--content-secondary);
-  @include ds.numeric;
-}
 
 .sr-only { @include ds.visually-hidden; }

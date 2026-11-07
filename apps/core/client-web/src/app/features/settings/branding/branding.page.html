@@ -56,11 +56,16 @@
   <app-regional-format-page view="personal" />
 } @else {
   <!-- La marca de la empresa: la de todos, en vista previa hasta guardar. -->
-  @if (canEdit()) {
+  @if (canEdit() && companyState() === 'ready') {
     <ng-template appSettingsActions>
       <button type="button" class="secondary-button" (click)="resetBranding()">{{ 'settings.branding.reset' | translate }}</button>
     </ng-template>
   }
+  @if (companyState() === 'loading') {
+    <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />
+  } @else if (companyState() === 'error') {
+    <vx-error-state [detail]="'settings.branding.load_failed' | translate" (retry)="loadCompany()" />
+  } @else {
   <form [formGroup]="brandingForm" (ngSubmit)="saveBranding()">
     <div class="branding-grid">
       <div class="controls-column">
@@ -126,8 +131,9 @@
       </div>
     </div>
   </form>
+  }
 
-  @if (canEdit()) {
+  @if (canEdit() && companyState() === 'ready') {
     <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" (save)="saveBranding()" (discard)="discard()" />
   }
 }
