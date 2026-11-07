@@ -19,7 +19,10 @@
     <app-mcp-agents-panel id="mcp-agents" />
   </div>
 
-  <vx-settings-group titleKey="settings.integrations.data.title" descriptionKey="settings.integrations.data.description">
-    <a class="link-button" [routerLink]="dataLink">{{ 'settings.integrations.data.action' | translate }}</a>
-  </vx-settings-group>
+  <!-- Solo para quien puede abrir las ventanas de importación y exportación. -->
+  @if (canMoveData) {
+    <vx-settings-group titleKey="settings.integrations.data.title" descriptionKey="settings.integrations.data.description">
+      <a class="link-button" [routerLink]="dataLink">{{ 'settings.integrations.data.action' | translate }}</a>
+    </vx-settings-group>
+  }
 </div>

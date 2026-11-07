@@ -52,7 +52,7 @@ export class MailSettingsController {
   ) {}
 
   @Get()
-  @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
+  @HasPermission(PERMISSIONS.SETTINGS_VIEW_COMPANY)
   async get(@CurrentUser() user: AuthenticatedUser) {
     const identity = await this.settings.mailIdentity(user.organizationId);
     return { ...identity, platformAddress: this.mail.platformAddress };

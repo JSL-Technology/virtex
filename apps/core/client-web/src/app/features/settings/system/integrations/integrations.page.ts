@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { AuthService } from '../../../../core/services/auth';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { InboundMailboxesPanelComponent } from '../../../inbound-mail/inbound-mailboxes-panel.component';
 import { McpAgentsPanelComponent } from '../../../ai/mcp/mcp-agents-panel.component';
@@ -31,6 +32,13 @@ export class IntegrationSettingsPage {
 
   /** Bulk import and export live in the application, not in settings: a link, not a copy. */
   readonly dataLink = this.organization.urlFor('/data-imports');
+
+  /**
+   * The import and export windows take `settings:edit_company` (the workspace manifest). Reading
+   * this page takes less since `settings:view_company`, and a reader was offered a link to a window
+   * that would turn them away.
+   */
+  readonly canMoveData = inject(AuthService).hasPermissions(['settings:edit_company']);
 
   private readonly inbound = viewChild(InboundMailboxesPanelComponent);
   private readonly agents = viewChild(McpAgentsPanelComponent);

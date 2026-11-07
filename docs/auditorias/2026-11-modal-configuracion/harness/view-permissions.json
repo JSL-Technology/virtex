@@ -137,6 +137,7 @@
  "roles:view",
  "settings:edit_branding",
  "settings:edit_company",
+ "settings:view_company",
  "suppliers:create",
  "suppliers:delete",
  "suppliers:edit",
@@ -169,5 +170,6 @@
  "workflow_engine:run",
  "workflow_engine:view",
  "workflows:decide",
- "workflows:manage"
+ "workflows:manage",
+ "workflows:view"
 ]

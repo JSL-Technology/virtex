@@ -83,7 +83,9 @@
           </tbody>
         </table>
       } @else {
-        <vx-empty-state [icon]="GlobeIcon" titleKey="settings.sso.no_domains_title" descriptionKey="settings.sso.no_domains_description" />
+        <!-- «Escríbelo arriba» solo tiene sentido si arriba hay dónde escribirlo. -->
+        <vx-empty-state [icon]="GlobeIcon" titleKey="settings.sso.no_domains_title"
+          [descriptionKey]="canEdit() ? 'settings.sso.no_domains_description' : 'settings.sso.no_domains_readonly'" />
       }
     </vx-settings-group>
 
@@ -94,8 +96,8 @@
         <button groupActions type="button" class="secondary-button" (click)="startNewProvider()">{{ 'settings.sso.add_provider' | translate }}</button>
       }
 
-      @if (!hasVerifiedDomain()) {
-        <!-- Un requisito: informativo, y dice qué hacer después. -->
+      @if (!hasVerifiedDomain() && canEdit()) {
+        <!-- Un requisito para quien puede activar un proveedor: informativo, y dice qué hacer después. -->
         <vx-notice tone="info">{{ 'settings.sso.you_must_verify_least_one_domain' | translate }}</vx-notice>
       }
 
@@ -191,7 +193,8 @@
           </tbody>
         </table>
       } @else if (!editingProviderId()) {
-        <vx-empty-state [icon]="KeyIcon" titleKey="settings.sso.no_providers_title" descriptionKey="settings.sso.no_providers_description">
+        <vx-empty-state [icon]="KeyIcon" titleKey="settings.sso.no_providers_title"
+          [descriptionKey]="canEdit() ? 'settings.sso.no_providers_description' : 'settings.sso.no_providers_readonly'">
           @if (canEdit()) {
             <button action type="button" class="secondary-button" (click)="startNewProvider()">{{ 'settings.sso.add_provider' | translate }}</button>
           }

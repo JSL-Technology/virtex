@@ -83,6 +83,7 @@
       "reports:view_financial",
       "reports:view_sales",
       "roles:view",
+      "settings:view_company",
       "suppliers:view",
       "taxes:view",
       "treasury:transfer",
@@ -99,7 +100,8 @@
       "workflow_engine:act",
       "workflow_engine:design",
       "workflow_engine:view",
-      "workflows:decide"
+      "workflows:decide",
+      "workflows:view"
     ]
   },
   "profile": {
@@ -137,14 +139,14 @@
   },
   "subsidiaries": {
     "visibleTitle": "Estructura empresarial",
-    "denied": true,
-    "deniedText": "Para abrir esta sección hace falta el permiso «Editar la configuración de la empresa».",
-    "notice": null,
+    "denied": false,
+    "deniedText": null,
+    "notice": "Solo lectura: cambiar esta sección requiere el permiso «Editar la configuración de la empresa».",
     "saveBar": false,
     "headerActions": [],
     "editable": [],
     "shot": "04-subsidiaries-solo-lectura.png",
-    "verdict": "N/A (leerla exige ese permiso; lo nombra)"
+    "verdict": "CUMPLE"
   },
   "branches": {
     "visibleTitle": "Sucursales",
@@ -228,25 +230,25 @@
   },
   "default-accounts": {
     "visibleTitle": "Cuentas predeterminadas",
-    "denied": true,
-    "deniedText": "Para abrir esta sección hace falta el permiso «Editar la configuración de la empresa».",
-    "notice": null,
+    "denied": false,
+    "deniedText": null,
+    "notice": "Solo lectura: cambiar esta sección requiere el permiso «Editar la configuración de la empresa».",
     "saveBar": false,
     "headerActions": [],
     "editable": [],
     "shot": "12-default-accounts-solo-lectura.png",
-    "verdict": "N/A (leerla exige ese permiso; lo nombra)"
+    "verdict": "CUMPLE"
   },
   "accounting-policies": {
     "visibleTitle": "Políticas contables",
-    "denied": true,
-    "deniedText": "Para abrir esta sección hace falta el permiso «Editar la configuración de la empresa».",
-    "notice": null,
+    "denied": false,
+    "deniedText": null,
+    "notice": "Solo lectura: cambiar esta sección requiere el permiso «Editar la configuración de la empresa».",
     "saveBar": false,
     "headerActions": [],
     "editable": [],
     "shot": "13-accounting-policies-solo-lectura.png",
-    "verdict": "N/A (leerla exige ese permiso; lo nombra)"
+    "verdict": "CUMPLE"
   },
   "fiscal": {
     "visibleTitle": "Comprobantes fiscales",
@@ -272,57 +274,57 @@
   },
   "sequences": {
     "visibleTitle": "Numeración de documentos",
-    "denied": true,
-    "deniedText": "Para abrir esta sección hace falta el permiso «Editar la configuración de la empresa».",
-    "notice": null,
+    "denied": false,
+    "deniedText": null,
+    "notice": "Solo lectura: cambiar esta sección requiere el permiso «Editar la configuración de la empresa».",
     "saveBar": false,
     "headerActions": [],
     "editable": [],
     "shot": "16-sequences-solo-lectura.png",
-    "verdict": "N/A (leerla exige ese permiso; lo nombra)"
+    "verdict": "CUMPLE"
   },
   "approvals": {
     "visibleTitle": "Aprobaciones",
-    "denied": true,
-    "deniedText": "Para abrir esta sección hace falta el permiso «Gestionar flujos de aprobación».",
-    "notice": null,
+    "denied": false,
+    "deniedText": null,
+    "notice": "Solo lectura: cambiar esta sección requiere el permiso «Gestionar flujos de aprobación».",
     "saveBar": false,
     "headerActions": [],
     "editable": [],
     "shot": "17-approvals-solo-lectura.png",
-    "verdict": "N/A (leerla exige ese permiso; lo nombra)"
+    "verdict": "CUMPLE"
   },
   "smtp": {
     "visibleTitle": "Correo saliente",
-    "denied": true,
-    "deniedText": "Para abrir esta sección hace falta el permiso «Editar la configuración de la empresa».",
-    "notice": null,
+    "denied": false,
+    "deniedText": null,
+    "notice": "Solo lectura: cambiar esta sección requiere el permiso «Editar la configuración de la empresa».",
     "saveBar": false,
     "headerActions": [],
     "editable": [],
     "shot": "18-smtp-solo-lectura.png",
-    "verdict": "N/A (leerla exige ese permiso; lo nombra)"
+    "verdict": "CUMPLE"
   },
   "sso": {
     "visibleTitle": "Inicio de sesión único (SSO)",
-    "denied": true,
-    "deniedText": "Para abrir esta sección hace falta el permiso «Editar la configuración de la empresa».",
-    "notice": null,
+    "denied": false,
+    "deniedText": null,
+    "notice": "Solo lectura: cambiar esta sección requiere el permiso «Editar la configuración de la empresa».",
     "saveBar": false,
     "headerActions": [],
     "editable": [],
     "shot": "19-sso-solo-lectura.png",
-    "verdict": "N/A (leerla exige ese permiso; lo nombra)"
+    "verdict": "CUMPLE"
   },
   "integrations": {
     "visibleTitle": "Integraciones",
-    "denied": true,
-    "deniedText": "Para abrir esta sección hace falta el permiso «Editar la configuración de la empresa».",
-    "notice": null,
+    "denied": false,
+    "deniedText": null,
+    "notice": "Solo lectura: cambiar esta sección requiere el permiso «Editar la configuración de la empresa».",
     "saveBar": false,
     "headerActions": [],
     "editable": [],
     "shot": "20-integrations-solo-lectura.png",
-    "verdict": "N/A (leerla exige ese permiso; lo nombra)"
+    "verdict": "CUMPLE"
   }
 }

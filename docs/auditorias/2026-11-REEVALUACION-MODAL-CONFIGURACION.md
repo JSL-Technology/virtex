@@ -56,7 +56,7 @@ Sobre esas piezas desaparecieron los dos caminos por los que se perdían cambios
 - **Foco:** 0 fugas en las 25 páginas y en los diálogos.
 - **Cambios sin guardar (GUA-01):** 16 de 16 casos, con las cuatro salidas.
 - **Carga y error (EST-02):** 23 de 23 páginas aplicables.
-- **Solo lectura (PERM-01):** 12 de 12 páginas aplicables.
+- **Solo lectura (PERM-01):** 20 de 20 páginas, con el permiso de lectura de la configuración de empresa (D6, resuelta).
 - **Red:** 0 errores HTTP.
 
 ---
@@ -609,7 +609,7 @@ La sesión del cliente se sustituye por una con todos los permisos de lectura y 
 | Perfil de la empresa | sí | no | 0 | Cumple |
 | Formato regional | sí | no | 0 | Cumple |
 | Marca de la empresa | sí | no | 0 | Cumple |
-| Estructura empresarial | — | — | — | No aplica: leerla exige un permiso de gestión, y la modal lo nombra |
+| Estructura empresarial | sí | no | 0 | Cumple |
 | Sucursales | sí | no | 0 | Cumple |
 | Plan y facturación | sí | no | 0 | Cumple |
 | Usuarios | sí | no | 0 | Cumple |
@@ -617,25 +617,34 @@ La sesión del cliente se sustituye por una con todos los permisos de lectura y 
 | Política de seguridad | sí | no | 0 | Cumple |
 | Inteligencia artificial | sí | no | 0 | Cumple |
 | Extensiones | sí | no | 0 | Cumple |
-| Cuentas predeterminadas | — | — | — | No aplica: leerla exige un permiso de gestión, y la modal lo nombra |
-| Políticas contables | — | — | — | No aplica: leerla exige un permiso de gestión, y la modal lo nombra |
+| Cuentas predeterminadas | sí | no | 0 | Cumple |
+| Políticas contables | sí | no | 0 | Cumple |
 | Comprobantes fiscales | sí | no | 0 | Cumple |
 | Retenciones | sí | no | 0 | Cumple |
-| Numeración de documentos | — | — | — | No aplica: leerla exige un permiso de gestión, y la modal lo nombra |
-| Aprobaciones | — | — | — | No aplica: leerla exige un permiso de gestión, y la modal lo nombra |
-| Correo saliente | — | — | — | No aplica: leerla exige un permiso de gestión, y la modal lo nombra |
-| Inicio de sesión único (SSO) | — | — | — | No aplica: leerla exige un permiso de gestión, y la modal lo nombra |
-| Integraciones | — | — | — | No aplica: leerla exige un permiso de gestión, y la modal lo nombra |
+| Numeración de documentos | sí | no | 0 | Cumple |
+| Aprobaciones | sí | no | 0 | Cumple |
+| Correo saliente | sí | no | 0 | Cumple |
+| Inicio de sesión único (SSO) | sí | no | 0 | Cumple |
+| Integraciones | sí | no | 0 | Cumple |
 
-- **Lo que cumple.** En las 12 páginas que se pueden leer:
+- **Lo que cumple.** En las 20 páginas:
   - un aviso dice qué permiso falta para cambiarlas («Solo lectura: cambiar esta sección requiere el permiso “Editar usuarios”»);
   - no aparece la barra de guardado;
   - no queda ningún control que cambie algo.
-- **Las 8 que no aplican.** Estructura empresarial, Correo saliente, SSO, Integraciones, Cuentas predeterminadas, Políticas contables y Numeración exigen `settings:edit_company` solo para verse; Aprobaciones exige `workflows:manage`. La API exige lo mismo para leerlas (`GET /organizations/settings/:section`), así que no existe un modo de solo lectura que mostrar. La modal dice qué permiso falta: «Para abrir esta sección hace falta el permiso “Editar la configuración de la empresa”». Crear un permiso de lectura para esa configuración es una decisión de producto, no de interfaz (D6, abajo).
+- **Las 8 que antes no se podían leer (D6, resuelta).** Estructura empresarial, Correo saliente, SSO, Integraciones, Cuentas predeterminadas, Políticas contables y Numeración exigían `settings:edit_company` solo para verse, y Aprobaciones, `workflows:manage`; la API exigía lo mismo para leerlas. Ahora hay dos permisos de lectura, `settings:view_company` y `workflows:view`:
+  - la API los pide en las lecturas (`GET`) y sigue pidiendo los de gestión para cambiar;
+  - quien puede editar también puede leer: `IMPLIED_PERMISSIONS`, en el comparador que comparten la API y el navegador, así ningún rol que ya editaba se queda sin ver su página;
+  - el rol Contador del sistema los recibe (migración `AccountantReadsCompanySettings`); los roles personalizados quedan como sus dueños los dejaron;
+  - con solo el permiso de lectura, las 8 páginas se ven en solo lectura, como las otras doce. Estructura empresarial y SSO ya no ofrecen crear ni editar a quien no puede, y sus estados vacíos dicen quién puede hacerlo en lugar de dar instrucciones que no se pueden seguir. Integraciones solo ofrece «Abrir importaciones» a quien puede abrir esa ventana (`settings:edit_company`). Los campos de solo lectura se distinguen de los editables: fondo hundido y borde tenue, en el sistema de diseño (`input-base`).
+- **Copiar la dirección** de Integraciones no cuenta como control que cambia algo: copia al portapapeles la dirección para conectar un agente propio, que no cambia la empresa.
 
-| Solo lectura (Usuarios) | Sin permiso para verla (Correo saliente) |
+| Solo lectura (Usuarios) | Solo lectura con el permiso nuevo (Correo saliente) |
 |---|---|
 | ![](2026-11-modal-configuracion/perm01/07-users-solo-lectura.png) | ![](2026-11-modal-configuracion/perm01/18-smtp-solo-lectura.png) |
+
+| Solo lectura (Estructura empresarial, vacía) | Solo lectura (SSO, vacío) |
+|---|---|
+| ![](2026-11-modal-configuracion/perm01/04-subsidiaries-solo-lectura.png) | ![](2026-11-modal-configuracion/perm01/19-sso-solo-lectura.png) |
 
 ### GUA-01 · Ningún cambio se pierde sin aviso (16 casos)
 
@@ -732,7 +741,7 @@ Mismo ámbito que en la evaluación: una regla **global** vale 1 o 0 para toda l
 | ARQ-01 | DEBERÍA | global | 1,00 | Cumple | Integraciones sin duplicados; la actividad de la IA, en Análisis |
 | RESP-01 | DEBE | local | 1,00 | Cumple en 25 de 25 | A 390 px: sin desbordes ni textos cortados; tablas como lista |
 | ANT-01 | DEBE | local | 1,00 | Cumple en 25 de 25 | Sin rejillas repetitivas ni otros antipatrones de la §10 |
-| PERM-01 | DEBE | global | 1,00 | Cumple | 12 de 12 páginas aplicables en solo lectura; las demás nombran el permiso |
+| PERM-01 | DEBE | global | 1,00 | Cumple | 20 de 20 páginas en solo lectura, con el aviso que nombra el permiso que falta |
 
 ## Cálculo de la nota
 
@@ -747,7 +756,7 @@ Con la misma fórmula del protocolo (código: [`harness/nota-reevaluacion.py`](2
 **Nota final: 10 / 10.**
 
 - **Agregación por página.** La agregación estricta, en la que basta una página que falle para dar la regla por incumplida, también da **10,0**, porque ninguna regla falla en ninguna página. En la evaluación esa cifra era 2,2.
-- **Qué cambiaría la nota.** Que el producto decida otra cosa en D1 (sombras) o en D6 (permiso de lectura) cambiaría el estándar, no esta medición. Con el estándar v0.1 vigente, no queda nada que corregir.
+- **Qué cambiaría la nota.** Que el producto decida otra cosa en D1 (sombras) cambiaría el estándar, no esta medición. Con el estándar v0.1 vigente, no queda nada que corregir.
 
 ## Comprobaciones técnicas
 
@@ -789,7 +798,7 @@ Con la misma fórmula del protocolo (código: [`harness/nota-reevaluacion.py`](2
 
 - **D1, sombras.** Se mantiene lo decidido en la evaluación: se aplicó la constitución, sin sombra en el contenido. Hoy ningún contenedor de la modal la lleva.
 - **D5, mayúsculas.** Solo la etiqueta de grupo de la barra lateral va en mayúsculas.
-- **D6, permiso de lectura de la configuración de empresa (nueva).** Siete páginas exigen `settings:edit_company` para verse, igual que la API. Si el producto quiere que alguien pueda consultar esa configuración sin cambiarla, hace falta un permiso de lectura en el catálogo, en los roles y en la API. Con él, esas páginas se verían en solo lectura como las otras doce.
+- **D6, permiso de lectura de la configuración de empresa (resuelta).** Se decidió crearlo: `settings:view_company` y `workflows:view`, en el catálogo, en la API, en los roles (Contador) y en la modal. Editar implica leer, en un solo sitio (`IMPLIED_PERMISSIONS`). Detalle en PERM-01.
 
 ## Propuestas al estándar surgidas de la reevaluación
 

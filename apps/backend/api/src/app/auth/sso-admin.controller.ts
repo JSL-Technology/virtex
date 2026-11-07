@@ -54,6 +54,8 @@ export class SsoAdminController {
   // --- Identity providers ---
 
   @Get('providers')
+  // Reading needs only the read permission: the listing never carries the client secret.
+  @HasPermission(PERMISSIONS.SETTINGS_VIEW_COMPANY)
   @ApiOperation({ summary: 'List the organization SSO identity providers' })
   listProviders(@CurrentUser() user: AuthenticatedUser) {
     return this.ssoAdminService.listProviders(this.orgId(user));
@@ -93,6 +95,7 @@ export class SsoAdminController {
   // --- Domains ---
 
   @Get('domains')
+  @HasPermission(PERMISSIONS.SETTINGS_VIEW_COMPANY)
   @ApiOperation({ summary: 'List the organization email domains and verification status' })
   listDomains(@CurrentUser() user: AuthenticatedUser) {
     return this.ssoAdminService.listDomains(this.orgId(user));

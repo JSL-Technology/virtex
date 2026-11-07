@@ -1,7 +1,7 @@
 <!-- La acción de crear va en la cabecera solo cuando hay lista; vacía, la lleva el estado vacío
      (una sola primaria a la vista, ACC-01). -->
 <ng-template appSettingsActions>
-  @if (!loading() && !loadError() && subsidiaries().length > 0) {
+  @if (canEdit() && !loading() && !loadError() && subsidiaries().length > 0) {
     <button type="button" class="primary-button" (click)="openCreateModal()">
       <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
       <span>{{ 'settings.subsidiaries.new_subsidiary' | translate }}</span>
@@ -21,14 +21,17 @@
   } @else if (loadError(); as message) {
     <vx-error-state [detail]="message" (retry)="loadSubsidiaries()" />
   } @else if (subsidiaries().length === 0) {
+    <!-- Sin permiso para cambiarla, ni el botón ni la invitación a agregar: dice quién puede. -->
     <vx-empty-state
       [icon]="BuildingIcon"
       titleKey="settings.subsidiaries.no_subsidiaries_record"
-      descriptionKey="settings.subsidiaries.empty_description"
+      [descriptionKey]="canEdit() ? 'settings.subsidiaries.empty_description' : 'settings.subsidiaries.empty_readonly'"
     >
-      <button action type="button" class="primary-button" (click)="openCreateModal()">
-        {{ 'settings.subsidiaries.create_first_subsidiary' | translate }}
-      </button>
+      @if (canEdit()) {
+        <button action type="button" class="primary-button" (click)="openCreateModal()">
+          {{ 'settings.subsidiaries.create_first_subsidiary' | translate }}
+        </button>
+      }
     </vx-empty-state>
   }
 
@@ -58,10 +61,12 @@
           <!-- Consolidation cannot separate pre-acquisition equity without it: say so where it is fixed. -->
           <vx-badge tone="warning" size="sm">{{ 'settings.subsidiaries.acquisition_missing' | translate }}</vx-badge>
         }
-        <button type="button" class="secondary-button" (click)="openEdit(sub)">
-          <lucide-icon [img]="EditIcon" size="14" aria-hidden="true"></lucide-icon>
-          <span>{{ 'settings.subsidiaries.edit' | translate }}</span>
-        </button>
+        @if (canEdit()) {
+          <button type="button" class="secondary-button" (click)="openEdit(sub)">
+            <lucide-icon [img]="EditIcon" size="14" aria-hidden="true"></lucide-icon>
+            <span>{{ 'settings.subsidiaries.edit' | translate }}</span>
+          </button>
+        }
       </div>
     </li>
     }

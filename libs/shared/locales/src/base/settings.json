@@ -3545,6 +3545,11 @@
     "en": "Add a company you control to record intercompany transactions and consolidate.",
     "pt": "Adicione uma empresa que você controla para registrar operações entre companhias e consolidar."
   },
+  "settings.subsidiaries.empty_readonly": {
+    "es": "Quien tenga permiso para editar la configuración de la empresa puede registrarlas.",
+    "en": "Someone allowed to edit the company settings can register them.",
+    "pt": "Quem tiver permissão para editar as configurações da empresa pode registrá-las."
+  },
   "settings.subsidiaries.id_fiscal": {
     "es": "ID fiscal:",
     "en": "Tax ID:",
@@ -3975,6 +3980,11 @@
     "en": "Edit company settings",
     "pt": "Editar as configurações da empresa"
   },
+  "settings.permission_names.settings_view_company": {
+    "es": "Ver la configuración de la empresa",
+    "en": "View company settings",
+    "pt": "Ver as configurações da empresa"
+  },
   "settings.permission_names.taxes_edit": {
     "es": "Editar impuestos",
     "en": "Edit taxes",
@@ -3999,6 +4009,11 @@
     "es": "Gestionar flujos de aprobación",
     "en": "Manage approval workflows",
     "pt": "Gerenciar fluxos de aprovação"
+  },
+  "settings.permission_names.workflows_view": {
+    "es": "Ver los flujos de aprobación",
+    "en": "View approval workflows",
+    "pt": "Ver os fluxos de aprovação"
   },
   "settings.declarations.accounting": {
     "es": "Ventas, compras, caja y bancos",
@@ -5200,6 +5215,11 @@
     "en": "Enter it above; you'll then publish a DNS record to verify it.",
     "pt": "Digite-o acima; depois você publicará um registro DNS para verificá-lo."
   },
+  "settings.sso.no_domains_readonly": {
+    "es": "Quien tenga permiso para editar la configuración de la empresa puede registrarlos y verificarlos.",
+    "en": "Someone allowed to edit the company settings can register and verify them.",
+    "pt": "Quem tiver permissão para editar as configurações da empresa pode registrá-los e verificá-los."
+  },
   "settings.sso.providers_description": {
     "es": "El servicio con el que entra tu equipo: Okta, Microsoft Entra, Google Workspace u otro compatible con OIDC.",
     "en": "The service your team signs in with: Okta, Microsoft Entra, Google Workspace or any other OIDC-compatible one.",
@@ -5214,6 +5234,11 @@
     "es": "Agrégalo con los datos que te da tu proveedor: la URL del emisor, el client ID y el client secret.",
     "en": "Add it with the details your provider gives you: the issuer URL, the client ID and the client secret.",
     "pt": "Adicione-o com os dados que seu provedor fornece: a URL do emissor, o client ID e o client secret."
+  },
+  "settings.sso.no_providers_readonly": {
+    "es": "Quien tenga permiso para editar la configuración de la empresa puede agregarlos.",
+    "en": "Someone allowed to edit the company settings can add them.",
+    "pt": "Quem tiver permissão para editar as configurações da empresa pode adicioná-los."
   },
   "settings.sso.secret_keep_hint": {
     "es": "Déjalo en blanco para conservar el actual.",

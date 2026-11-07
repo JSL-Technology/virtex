@@ -40,7 +40,7 @@ export class OrganizationSettingsController {
    */
   @Get(':section')
   @Throttle({ default: { limit: 120, ttl: 60_000 } })
-  @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
+  @HasPermission(PERMISSIONS.SETTINGS_VIEW_COMPANY)
   get(@Param('section') section: string, @CurrentUser() user: AuthenticatedUser) {
     return this.sections.get(section, user.organizationId);
   }

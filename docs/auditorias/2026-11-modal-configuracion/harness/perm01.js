@@ -47,8 +47,9 @@ const shot = (name) => { const p = path.join(ROOT, 'shots', 'perm01', name); fs.
       // Una muestra inerte (la vista previa de Marca) no es un control.
       const isInert = (el) => !!el.closest('[inert]');
       const isFilter = (el) => !!el.closest('.sec__filters, .sec__toolbar, .um-toolbar, .ls__toolbar, .um-page__toolbar, .sec__pager, vx-settings-disclosure, .sd, th, vx-pager, .um-pager, [class*="pager"]') || el.type === 'search' || /search|refresh|retry|reintentar|actualizar|detalles|details|siguiente|anterior|filas por página|25 50 100/i.test((el.getAttribute('aria-label') || el.innerText || '') + ' ' + el.className);
-      // Abrir en solo lectura no es editar: «Ver» abre el rol sin poder cambiar nada.
-      const isView = (el) => /^ver\b|^view\b/i.test((el.getAttribute('aria-label') || el.innerText || '').trim());
+      // Abrir en solo lectura no es editar: «Ver» abre el rol sin poder cambiar nada. Copiar al
+      // portapapeles tampoco: la dirección para conectar un agente propio no cambia la empresa.
+      const isView = (el) => /^ver\b|^view\b|^copiar\b|^copy\b/i.test((el.getAttribute('aria-label') || el.innerText || '').trim());
       const editable = controls.filter((el) => !isInert(el) && !isFilter(el) && !isView(el) && !(el.disabled || el.readOnly || el.getAttribute('aria-disabled') === 'true'));
       return {
         visibleTitle: document.querySelector('.sm-page__title')?.innerText.trim() || null,

@@ -99,7 +99,7 @@ export class WorkflowsController {
   }
 
   @Get('policies')
-  @HasPermission(PERMISSIONS.WORKFLOWS_MANAGE)
+  @HasPermission(PERMISSIONS.WORKFLOWS_VIEW)
   getPolicies(@CurrentUser() user: AuthenticatedUser) {
     return this.workflowsService.getPolicies(user.organizationId);
   }

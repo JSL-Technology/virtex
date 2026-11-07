@@ -25,7 +25,7 @@ export class DocumentSequencesController {
   constructor(private readonly sequences: DocumentSequencesService) {}
 
   @Get()
-  @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
+  @HasPermission(PERMISSIONS.SETTINGS_VIEW_COMPANY)
   list(@CurrentUser() user: AuthenticatedUser) {
     return this.sequences.list(user.organizationId);
   }

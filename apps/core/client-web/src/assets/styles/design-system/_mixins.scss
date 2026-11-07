@@ -220,6 +220,17 @@
 
   &:hover:not(:disabled):not(:read-only) { border-color: var(--content-tertiary); }
 
+  //  Solo lectura: el dato se lee con contraste pleno (se selecciona y se copia, y el lector de
+  //  pantalla lo anuncia), pero el campo no se ofrece para escribir. Sin esto un campo de solo
+  //  lectura era idéntico a uno editable. Se usa el atributo y no `:read-only`, que también casa
+  //  con <select> y lo apagaría. Sigue enfocable, y con foco manda el borde de foco.
+  &[readonly]:not(:disabled) {
+    background-color: var(--surface-sunken);
+    cursor: default;
+
+    &:not(:focus) { border-color: var(--border-subtle); }
+  }
+
   &:focus-visible,
   &:focus {
     outline: none;

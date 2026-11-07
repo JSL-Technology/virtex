@@ -73,6 +73,10 @@ export const DEFAULT_ROLES: DefaultRole[] = [
         // The journal-entry form and the financial statements read the analytical dimensions; an
         // accountant without them met a 403 on opening either (QA R3-M04).
         PERMISSIONS.DIMENSIONS_VIEW,
+        // The configuration the books depend on — default accounts, accounting policies, numbering —
+        // and who approves what. Read-only: changing either stays with the administrator.
+        PERMISSIONS.SETTINGS_VIEW_COMPANY,
+        PERMISSIONS.WORKFLOWS_VIEW,
       ],
       isSystemRole: true,
     },

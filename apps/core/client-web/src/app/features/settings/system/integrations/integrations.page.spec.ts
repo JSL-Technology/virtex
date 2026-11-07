@@ -13,7 +13,8 @@ import { IntegrationSettingsPage } from './integrations.page';
 describe('IntegrationSettingsPage', () => {
   let http: HttpTestingController;
 
-  function create(canUsePanels = false) {
+  /** `panels`: the permissions of the mail and agents panels; `data`: that of import and export. */
+  function create(canUsePanels = false, canMoveData = true) {
     TestBed.configureTestingModule({
       imports: [IntegrationSettingsPage],
       providers: [
@@ -21,7 +22,12 @@ describe('IntegrationSettingsPage', () => {
         provideHttpClientTesting(),
         provideRouter([]),
         // Without the panels' permissions they draw nothing and ask for nothing.
-        { provide: AuthService, useValue: { hasPermissions: () => canUsePanels } },
+        {
+          provide: AuthService,
+          useValue: {
+            hasPermissions: (required: string[]) => (required.includes('settings:edit_company') ? canMoveData : canUsePanels),
+          },
+        },
         { provide: ActiveOrganizationService, useValue: { urlFor: (path: string) => `/acme${path}` } },
       ],
     });
@@ -37,6 +43,12 @@ describe('IntegrationSettingsPage', () => {
     const fixture = create();
     const link = (fixture.nativeElement as HTMLElement).querySelector('a.link-button');
     expect(link?.getAttribute('href')).toBe('/acme/data-imports');
+  });
+
+  it('does not offer import and export to a reader who could not open them', () => {
+    const fixture = create(false, false);
+    expect((fixture.nativeElement as HTMLElement).querySelector('a.link-button')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('settings.integrations.data.title');
   });
 
   /** Fail every pending request as a dropped connection would. */
