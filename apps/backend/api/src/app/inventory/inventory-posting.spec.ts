@@ -189,7 +189,7 @@ describeWithDb('inventory posting', () => {
       }),
     );
 
-    const year = new Date().getFullYear();
+    const year = companyYear();
     await dataSource.getRepository(AccountingPeriod).save([
       {
         organizationId,
@@ -205,7 +205,7 @@ describeWithDb('inventory posting', () => {
     (await balances.balancesAsOf({
       organizationId,
       ledgerId,
-      asOf: `${new Date().getFullYear()}-12-31`,
+      asOf: `${companyYear()}-12-31`,
     })).get(account[key]) ?? 0;
 
   const newProduct = (over: Partial<Product> = {}) => ({
@@ -245,7 +245,17 @@ describeWithDb('inventory posting', () => {
    * The language is the ORGANISATION's, not the reader's: a narrative is part of the record, and
    * an auditor reading the books in six years expects what was written then.
    */
-  describe('the narrative on a system-generated entry', () => {
+  /**
+ * Today in the tenant's calendar (Santo Domingo), which is what every posting is checked against.
+ *
+ * The UTC date runs a day ahead between 00:00 and 04:00 UTC. Built from it, «today» was a date in
+ * the future for four hours a day, and the adjustments below were refused as
+ * `inventory.adjustment_date_in_future` on any run in that window.
+ */
+const companyToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santo_Domingo' }).format(new Date());
+const companyYear = () => Number(companyToday().slice(0, 4));
+
+describe('the narrative on a system-generated entry', () => {
     /**
      * A posting service whose narrative cache is empty.
      *
@@ -321,7 +331,7 @@ describeWithDb('inventory posting', () => {
     const warehouse = await defaultWarehouse();
     const draft = await adjustments.create(
       {
-        date: new Date().toISOString().slice(0, 10),
+        date: companyToday(),
         warehouseId: warehouse.id,
         reason: 'Conteo físico de fin de mes',
         lines: [{ productId: product.id, countedQuantity: 48 }],
@@ -360,7 +370,7 @@ describeWithDb('inventory posting', () => {
     const warehouse = await defaultWarehouse();
     const draft = await adjustments.create(
       {
-        date: new Date().toISOString().slice(0, 10),
+        date: companyToday(),
         warehouseId: warehouse.id,
         reason: 'Nuevo costo del proveedor',
         lines: [{ productId: product.id, newUnitCost: 420 }],
@@ -375,8 +385,7 @@ describeWithDb('inventory posting', () => {
   });
 
   describe('an adjustment the books can trust', () => {
-    /** Today in the tenant's calendar (Santo Domingo), which is what the posting checks against. */
-    const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santo_Domingo' }).format(new Date());
+    const today = companyToday;
     const draftOf = async (lines: Array<Record<string, unknown>>, over: Record<string, unknown> = {}) =>
       adjustments.create(
         { date: today(), warehouseId: (await defaultWarehouse()).id, reason: 'Conteo', lines, ...over } as never,
@@ -572,7 +581,7 @@ describeWithDb('inventory posting', () => {
         .update({ organizationId }, { defaultGoodsReceivedNotInvoicedAccountId: grni.id });
     });
 
-    const today = () => new Date().toISOString().slice(0, 10);
+    const today = companyToday;
     const receive = (productId: string, quantity: number, unitCost: number, sourceId: string) =>
       dataSource.transaction((manager) =>
         inventory.receiveGoods(
