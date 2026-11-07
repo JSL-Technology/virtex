@@ -1,7 +1,7 @@
 import { recordCapturedRecord } from '../contracts/ai/provenance.contract';
 import { PurchaseOrderLine } from '../procurement/entities/purchase-order-line.entity';
 import { PurchaseOrder } from '../procurement/entities/purchase-order.entity';
-import { VendorBillLine } from './entities/vendor-bill-line.entity';
+import { VendorBillLine, VendorBillLineNature } from './entities/vendor-bill-line.entity';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, IsNull, DataSource, EntityManager, FindOperator } from 'typeorm';
@@ -268,8 +268,13 @@ export class AccountsPayableService {
 
       await this.assertPurchaseOrderLinks(manager, organizationId, dto, lines);
 
-      const servicesAmount = dto.servicesAmount ?? subtotal;
-      const goodsAmount = dto.goodsAmount ?? 0;
+      const { goodsAmount, servicesAmount } = await this.resolveBaseSplit(
+        manager,
+        organizationId,
+        dto,
+        lines,
+        subtotal,
+      );
       // Services when the document contains any: every regime that distinguishes the two withholds
       // on services and not on goods, so treating a mixed bill as goods under-withholds.
       const scope: 'SERVICES' | 'GOODS' = servicesAmount > 0 ? 'SERVICES' : 'GOODS';
@@ -516,6 +521,11 @@ export class AccountsPayableService {
       throw new BadRequestError(
         'accounts_payable.lines_existing_invoice_must_changed_through',
       );
+    }
+    // The goods/services split follows the lines, and the withholding was resolved from it when
+    // the bill was recorded; changing one without the other would report a base nothing withheld on.
+    if (dto.goodsAmount !== undefined || dto.servicesAmount !== undefined) {
+      throw new BadRequestError('accounts_payable.base_split_follows_lines');
     }
     // The branch is not merged as sent: a new one must be a branch the editor may use.
     const { branchId, ...changes } = dto;
@@ -857,6 +867,60 @@ export class AccountsPayableService {
    * product of each line the product that was ordered. Lines naming an order line pick up the order
    * when the header did not name it.
    */
+  /**
+   * The goods and services bases of a bill, which the 606 reports apart and the withholding
+   * regimes treat apart (AP-02).
+   *
+   * Each line is classified — stated on the line, else its catalogue product's kind, else a
+   * service (a free expense line is rent, fees, utilities far more often than merchandise, and
+   * under-withholding is the error a withholding agent answers for) — and the nature is stored on
+   * it. A split stated for the whole document is still accepted, from an integration that knows
+   * better, but it has to add up to the subtotal.
+   */
+  private async resolveBaseSplit(
+    manager: EntityManager,
+    organizationId: string,
+    dto: CreateVendorBillDto,
+    lines: Array<{ productId?: string; nature?: VendorBillLineNature; total: number }>,
+    subtotal: number,
+  ): Promise<{ goodsAmount: number; servicesAmount: number }> {
+    const productIds = [...new Set(lines.map((line) => line.productId).filter((id): id is string => !!id))];
+    const kinds = new Map<string, string>();
+    if (productIds.length) {
+      const rows: Array<{ id: string; kind: string }> = await manager.query(
+        `SELECT id, kind FROM products WHERE organization_id = $1 AND id = ANY($2::uuid[])`,
+        [organizationId, productIds],
+      );
+      for (const row of rows) kinds.set(row.id, row.kind);
+      if (kinds.size !== productIds.length) {
+        throw new BadRequestError('common.referenced_record_not_found');
+      }
+    }
+    for (const line of lines) {
+      line.nature ??= line.productId
+        ? kinds.get(line.productId) === 'SERVICE'
+          ? VendorBillLineNature.SERVICES
+          : VendorBillLineNature.GOODS
+        : VendorBillLineNature.SERVICES;
+    }
+    const fromLines = {
+      goodsAmount: sumAmounts(lines.filter((l) => l.nature === VendorBillLineNature.GOODS).map((l) => l.total)),
+      servicesAmount: sumAmounts(lines.filter((l) => l.nature === VendorBillLineNature.SERVICES).map((l) => l.total)),
+    };
+    if (dto.goodsAmount === undefined && dto.servicesAmount === undefined) return fromLines;
+
+    const goodsAmount = dto.goodsAmount ?? roundAmount(subtotal - (dto.servicesAmount as number));
+    const servicesAmount = dto.servicesAmount ?? roundAmount(subtotal - (dto.goodsAmount as number));
+    if (goodsAmount < 0 || servicesAmount < 0 || toCents(goodsAmount) + toCents(servicesAmount) !== toCents(subtotal)) {
+      throw new BadRequestError('accounts_payable.base_split_does_not_add_up', {
+        goods: goodsAmount,
+        services: servicesAmount,
+        subtotal,
+      });
+    }
+    return { goodsAmount, servicesAmount };
+  }
+
   private async assertPurchaseOrderLinks(
     manager: EntityManager,
     organizationId: string,

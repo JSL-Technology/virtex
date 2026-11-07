@@ -1,9 +1,11 @@
 
 import { Type } from 'class-transformer';
+import { VendorBillLineNature } from '../entities/vendor-bill-line.entity';
 import {
   ArrayMaxSize,
   IsArray,
   IsDateString,
+  IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -47,6 +49,15 @@ class CreateVendorBillLineDto {
   @IsUUID()
   @IsOptional()
   purchaseOrderLineId?: string;
+
+  /**
+   * Goods or services. Optional: a line for a catalogue product takes the product's kind, and a
+   * free expense line with nothing stated is a service. Stated, it wins over both — a product kept
+   * as a good can be billed as its installation.
+   */
+  @IsIn(Object.values(VendorBillLineNature))
+  @IsOptional()
+  nature?: VendorBillLineNature;
 }
 
 export class CreateVendorBillDto {
@@ -172,7 +183,13 @@ export class CreateVendorBillDto {
   @IsOptional()
   serviceCharge?: number;
 
-  /** Split of the taxable base, which the 606 reports separately. */
+  /**
+   * Split of the taxable base, which the 606 reports separately.
+   *
+   * Derived from the lines when neither is sent. Sent, the two must add up to the subtotal (one
+   * alone takes the rest of it as the other): the bill used to default the WHOLE subtotal to
+   * services, so a purchase of goods was withheld ISR it did not owe and reported as services.
+   */
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0, { message: 'validation.constraints.min|{"min":0}' })
   @IsOptional()

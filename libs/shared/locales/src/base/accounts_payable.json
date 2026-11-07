@@ -39,6 +39,16 @@
     "en": "Bank account “{{name}}” is inactive and cannot take movements.",
     "pt": "A conta bancária «{{name}}» está inativa e não admite movimentos."
   },
+  "accounts_payable.base_split_does_not_add_up": {
+    "es": "Bienes ({{goods}}) más servicios ({{services}}) deben sumar el subtotal de la factura ({{subtotal}}).",
+    "en": "Goods ({{goods}}) plus services ({{services}}) must add up to the bill's subtotal ({{subtotal}}).",
+    "pt": "Bens ({{goods}}) mais serviços ({{services}}) devem somar o subtotal da fatura ({{subtotal}})."
+  },
+  "accounts_payable.base_split_follows_lines": {
+    "es": "La separación entre bienes y servicios sale de las líneas de la factura y no se edita por separado.",
+    "en": "The split between goods and services comes from the bill's lines and is not edited on its own.",
+    "pt": "A separação entre bens e serviços vem das linhas da fatura e não é editada separadamente."
+  },
   "accounts_payable.bill_bill_cannot_paid_from_account": {
     "es": "No se puede pagar una factura en {{bill}} desde una cuenta en {{account}}; usa una cuenta en {{bill}} o en la moneda funcional.",
     "en": "A bill in {{bill}} cannot be paid from an account in {{account}}; use an account in {{bill}} or in the books’ currency.",
@@ -847,10 +857,25 @@
     "en": "Legal service charge",
     "pt": "Gorjeta legal"
   },
+  "accounts_payable.form.line_nature": {
+    "es": "Bien o servicio",
+    "en": "Goods or services",
+    "pt": "Bem ou serviço"
+  },
   "accounts_payable.form.lines_recorded_bill_cannot_changed_raise": {
     "es": "Las líneas de una factura registrada no se modifican. Emita una nota de débito o de crédito.",
     "en": "The lines of a recorded bill cannot be changed. Raise a debit or credit note instead.",
     "pt": "As linhas de uma fatura registada não se alteram. Emita uma nota de débito ou de crédito."
+  },
+  "accounts_payable.form.nature_goods": {
+    "es": "Bien",
+    "en": "Goods",
+    "pt": "Bem"
+  },
+  "accounts_payable.form.nature_services": {
+    "es": "Servicio",
+    "en": "Service",
+    "pt": "Serviço"
   },
   "accounts_payable.form.ncf": {
     "en": "Fiscal document no.",

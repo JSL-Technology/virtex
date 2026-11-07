@@ -99,6 +99,11 @@ export interface CreateVendorBillLineDto {
   expenseAccountId?: string;
   /** The purchase-order line this bills (three-way match). */
   purchaseOrderLineId?: string;
+  /**
+   * Goods or services. Left out for a catalogue product (the server takes the product's kind);
+   * a free expense line states it. The 606 and the ISR withholding follow from it.
+   */
+  nature?: 'GOODS' | 'SERVICES';
 }
 
 export interface CreateVendorBillDto {

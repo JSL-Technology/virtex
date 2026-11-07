@@ -93,7 +93,8 @@ describeWithDb('accounts payable', () => {
   let bankAccountId: string;
 
   const ACTOR = '22222222-2222-4222-8222-222222222222';
-  const PRODUCT_ID = '33333333-3333-4333-8333-333333333333';
+  // A real catalogue product of the test tenant, seeded per test: the bill reads its kind.
+  let PRODUCT_ID: string;
 
   beforeAll(async () => {
     dataSource = new DataSource({
@@ -319,6 +320,11 @@ describeWithDb('accounts payable', () => {
     );
     vendorId = vendor.id;
 
+    [{ id: PRODUCT_ID }] = await dataSource.query(
+      `INSERT INTO "products" ("organization_id", "name", "kind") VALUES ($1, 'Mercancía de prueba', 'GOOD') RETURNING id`,
+      [organizationId],
+    );
+
     // The second is a persona física. Buying a service from one is the case the DGII's two
     // regimes cover — 100 % of the ITBIS (Norma General 02-05) and 10 % of the fee (art. 309) —
     // and it is what the withholding tests use.
@@ -417,6 +423,107 @@ describeWithDb('accounts payable', () => {
       expect(bill.total).toBe(100);
       expect(bill.totalInBaseCurrency).toBe(5875);
       expect(bill.exchangeRate).toBeCloseTo(58.75, 6);
+    });
+  });
+
+  /**
+   * AP-02 (audit 2026-10-31): a bill that did not split its base sent the WHOLE subtotal to
+   * services — and the bill form never split it — so every purchase of goods was reported in the
+   * 606 as services and withheld ISR it did not owe.
+   */
+  describe('goods and services', () => {
+    const goodsFromIndividual = (extra: Partial<CreateVendorBillDto> = {}) =>
+      payables.create(
+        {
+          vendorId: individualVendorId,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
+          lines: [
+            { product: 'Mercancía', quantity: 2, unitPrice: 3_000, productId: PRODUCT_ID },
+            { product: 'Instalación', quantity: 1, unitPrice: 1_000, expenseAccountId: account['expense'] },
+          ],
+          taxAmount: 1_260,
+          ...extra,
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+
+    it('takes the split from the lines: a catalogue good is goods, a free expense line a service', async () => {
+      const bill = await goodsFromIndividual();
+      expect(bill.goodsAmount).toBe(6_000);
+      expect(bill.servicesAmount).toBe(1_000);
+      // ISR is withheld on the service only: 10 % of 1,000, not of 7,000.
+      expect(bill.incomeTaxWithheld).toBe(100);
+      const natures = await dataSource.query(
+        `SELECT product, nature FROM vendor_bill_line WHERE "vendorBillId" = $1 ORDER BY product`,
+        [bill.id],
+      );
+      expect(natures).toEqual([
+        { product: 'Instalación', nature: 'SERVICES' },
+        { product: 'Mercancía', nature: 'GOODS' },
+      ]);
+    });
+
+    it('withholds no ISR on a bill that buys only goods', async () => {
+      const bill = await payables.create(
+        {
+          vendorId: individualVendorId,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
+          lines: [{ product: 'Mercancía', quantity: 1, unitPrice: 5_000, productId: PRODUCT_ID }],
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+      expect(bill.goodsAmount).toBe(5_000);
+      expect(bill.servicesAmount).toBe(0);
+      expect(bill.incomeTaxWithheld).toBe(0);
+    });
+
+    it('lets a line state its nature over the product kind', async () => {
+      const bill = await payables.create(
+        {
+          vendorId,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
+          lines: [
+            { product: 'Mantenimiento del equipo', quantity: 1, unitPrice: 2_000, productId: PRODUCT_ID, nature: 'SERVICES' },
+            { product: 'Repuestos', quantity: 1, unitPrice: 500, expenseAccountId: account['expense'], nature: 'GOODS' },
+          ],
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+      expect(bill.servicesAmount).toBe(2_000);
+      expect(bill.goodsAmount).toBe(500);
+    });
+
+    it('refuses a stated split that does not add up to the subtotal', async () => {
+      await expect(goodsFromIndividual({ goodsAmount: 1_000, servicesAmount: 1_000 })).rejects.toMatchObject({
+        messageKey: 'accounts_payable.base_split_does_not_add_up',
+      });
+      // One side alone takes the rest of the subtotal as the other.
+      const bill = await goodsFromIndividual({ servicesAmount: 7_000 });
+      expect(bill.goodsAmount).toBe(0);
+    });
+
+    it('refuses a product the tenant does not have', async () => {
+      await expect(
+        payables.create(
+          {
+            vendorId,
+            date: '2026-03-10',
+            dueDate: '2026-04-09',
+            lines: [{ product: 'Ajeno', quantity: 1, unitPrice: 1, productId: '33333333-3333-4333-8333-333333333333' }],
+          } as CreateVendorBillDto,
+          organizationId,
+        ),
+      ).rejects.toMatchObject({ messageKey: 'common.referenced_record_not_found' });
+    });
+
+    it('does not let an edit change the split apart from the lines', async () => {
+      const bill = await goodsFromIndividual();
+      await expect(
+        payables.update(bill.id, { servicesAmount: 7_000 }, organizationId),
+      ).rejects.toMatchObject({ messageKey: 'accounts_payable.base_split_follows_lines' });
     });
   });
 

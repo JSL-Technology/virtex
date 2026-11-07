@@ -1,9 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Check, Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { PurchaseOrderLine } from '../../procurement/entities/purchase-order-line.entity';
 import type { VendorBill } from './vendor-bill.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
+/**
+ * Whether a bill line buys goods or services. The 606 reports the two bases separately and every
+ * withholding regime that tells them apart levies on services only, so the split is a fact about
+ * each line, not a figure typed for the whole document (audit 2026-10-31, AP-02).
+ */
+export enum VendorBillLineNature {
+  GOODS = 'GOODS',
+  SERVICES = 'SERVICES',
+}
+
 @Entity()
+@Check('CHK_vendor_bill_line_nature', `"nature" IS NULL OR "nature" IN ('GOODS', 'SERVICES')`)
 export class VendorBillLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -40,6 +51,14 @@ export class VendorBillLine {
    */
   @Column({ name: 'purchase_order_line_id', type: 'uuid', nullable: true })
   purchaseOrderLineId?: string | null;
+
+  /**
+   * Goods or services, as resolved when the bill was recorded: stated on the line, else the
+   * catalogue product's kind, else services for a free expense line. NULL only on bills recorded
+   * before the split was taken from the lines (migration VendorBillLineNature).
+   */
+  @Column({ name: 'nature', type: 'varchar', length: 8, nullable: true })
+  nature?: VendorBillLineNature | null;
 
   @ManyToOne(() => PurchaseOrderLine, { nullable: true, onDelete: 'NO ACTION', deferrable: 'INITIALLY DEFERRED' })
   @JoinColumn({

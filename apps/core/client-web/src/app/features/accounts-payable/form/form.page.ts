@@ -464,6 +464,9 @@ export class VendorBillFormPage implements OnInit {
       expenseAccountId: [seed.expenseAccountId ?? '', stocked ? [] : [Validators.required]],
       productId: [seed.productId ?? ''],
       purchaseOrderLineId: [seed.purchaseOrderLineId ?? ''],
+      //  Bien o servicio: el 606 separa las dos bases y la retención de ISR solo grava servicios.
+      //  Una línea de catálogo toma el tipo del producto en el servidor.
+      nature: [seed.nature ?? 'SERVICES'],
     });
   }
 
@@ -689,6 +692,7 @@ export class VendorBillFormPage implements OnInit {
                 expenseAccountId: line.expenseAccountId ?? '',
                 productId: (line as { productId?: string }).productId ?? '',
                 purchaseOrderLineId: (line as { purchaseOrderLineId?: string }).purchaseOrderLineId ?? '',
+                nature: (line as { nature?: 'GOODS' | 'SERVICES' | null }).nature ?? undefined,
               }),
             );
           }
@@ -757,6 +761,7 @@ export class VendorBillFormPage implements OnInit {
           expenseAccountId: string;
           productId: string;
           purchaseOrderLineId: string;
+          nature: 'GOODS' | 'SERVICES';
         }) => ({
           product: line.product,
           quantity: Number(line.quantity),
@@ -765,6 +770,7 @@ export class VendorBillFormPage implements OnInit {
           expenseAccountId: line.expenseAccountId || undefined,
           productId: line.productId || undefined,
           purchaseOrderLineId: line.purchaseOrderLineId || undefined,
+          nature: line.productId ? undefined : line.nature,
         }),
       ),
       total: this.totals().total,
@@ -785,7 +791,6 @@ export class VendorBillFormPage implements OnInit {
       exciseAmount: Number(value.exciseAmount ?? 0),
       otherTaxes: Number(value.otherTaxes ?? 0),
       serviceCharge: Number(value.serviceCharge ?? 0),
-      servicesAmount: this.totals().subtotal,
       attachmentIds: this.isEditMode() ? undefined : this.attachments().map((attachment) => attachment.id),
     };
 
@@ -832,6 +837,7 @@ interface BillLineSeed {
   productId?: string;
   purchaseOrderLineId?: string;
   taxRate?: number;
+  nature?: 'GOODS' | 'SERVICES';
 }
 
 function round2(value: number): number {

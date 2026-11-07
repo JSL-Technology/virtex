@@ -230,8 +230,14 @@ describe('VendorBillFormPage', () => {
         unitPrice: 5000,
         total: 10_000,
         expenseAccountId: 'a1',
+        // A free expense line says whether it buys goods or services; services unless chosen.
+        nature: 'SERVICES',
       },
     ]);
+    // The goods/services split follows from the lines on the server. The form used to send the
+    // whole subtotal as services, which reported every purchase of goods as services (AP-02).
+    expect(body.servicesAmount).toBeUndefined();
+    expect(body.goodsAmount).toBeUndefined();
 
     // And none of the names the server would reject as unknown properties.
     expect(body.supplierId).toBeUndefined();

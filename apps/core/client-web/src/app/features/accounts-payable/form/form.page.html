@@ -203,6 +203,7 @@
               <!-- Artículo de inventario: va a inventario (o liquida la mercancía recibida). -->
               <span class="hint">{{ 'accounts_payable.form.inventory_item' | translate }}</span>
             } @else {
+            <div class="expense-cell">
             <vx-select
               formControlName="expenseAccountId"
               [search]="searchExpenseAccounts"
@@ -212,6 +213,11 @@
               [ariaLabel]="'accounts_payable.form.expense_account' | translate"
               placeholderKey="accounts_payable.form.select_account"
             />
+            <select formControlName="nature" [attr.aria-label]="'accounts_payable.form.line_nature' | translate">
+              <option value="SERVICES">{{ 'accounts_payable.form.nature_services' | translate }}</option>
+              <option value="GOODS">{{ 'accounts_payable.form.nature_goods' | translate }}</option>
+            </select>
+            </div>
             }
             <span class="text-right line-total">{{ lineTotal(i) | vxNumber:'1.2-2' }}</span>
             <button
