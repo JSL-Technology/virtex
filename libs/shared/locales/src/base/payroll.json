@@ -913,6 +913,11 @@
     "en": "The run to correct \"{{id}}\" was not found.",
     "pt": "A folha a corrigir \"{{id}}\" não foi encontrada."
   },
+  "payroll.run_country_not_tenant_country": {
+    "es": "La nómina de esta empresa se calcula con la ley de {{p2}}; no se puede calcular con la de {{p1}}.",
+    "en": "This company's payroll is calculated under the law of {{p2}}; it cannot be calculated under that of {{p1}}.",
+    "pt": "A folha desta empresa é calculada pela lei de {{p2}}; não pode ser calculada pela de {{p1}}."
+  },
   "payroll.run_has_no_amounts_post": {
     "es": "La corrida no tiene montos que contabilizar.",
     "en": "The run has no amounts to post.",

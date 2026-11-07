@@ -326,7 +326,9 @@ export class PayrollCalculationService {
     if (bonus.infotepEmployee > 0) {
       lines.push({
         conceptCode: 'INFOTEP_EMP',
-        conceptName: 'INFOTEP empleado (0.5% sobre regalía)',
+        // The rate actually applied, not a literal: the label said 0.5 % while the seed withheld 1 %
+        // (audit 2026-10-31, NOM-03), so the payslip contradicted itself.
+        conceptName: `INFOTEP empleado (${formatPercent(params.bonusEmployeeLevyRate)} sobre regalía)`,
         kind: PayslipLineKind.EMPLOYEE_DEDUCTION,
         amount: bonus.infotepEmployee,
         employerPortion: null,
@@ -486,3 +488,9 @@ export class PayrollCalculationService {
     }
   }
 }
+
+/** 0.005 → "0.5%". */
+function formatPercent(rate: number | null | undefined): string {
+  return `${Math.round(Number(rate ?? 0) * 100 * 1000) / 1000}%`;
+}
+

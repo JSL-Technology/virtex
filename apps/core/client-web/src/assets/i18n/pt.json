@@ -5889,6 +5889,7 @@
   "payroll.run_approved_immutable_use_adjustment_run": "A folha está aprovada e é imutável; use uma folha de ajuste.",
   "payroll.run_cancelled_cannot_edited": "A folha está cancelada e não pode ser editada.",
   "payroll.run_correct_id_not_found": "A folha a corrigir \"{{id}}\" não foi encontrada.",
+  "payroll.run_country_not_tenant_country": "A folha desta empresa é calculada pela lei de {{p2}}; não pode ser calculada pela de {{p1}}.",
   "payroll.run_has_no_amounts_post": "A folha não tem valores a lançar.",
   "payroll.run_has_no_payslips_cannot_approved": "A folha não tem holerites e não pode ser aprovada.",
   "payroll.run_not_found": "A folha de pagamento não foi encontrada.",

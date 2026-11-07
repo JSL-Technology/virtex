@@ -5889,6 +5889,7 @@
   "payroll.run_approved_immutable_use_adjustment_run": "La corrida está aprobada y es inmutable; usa una corrida de ajuste.",
   "payroll.run_cancelled_cannot_edited": "La corrida está cancelada y no puede editarse.",
   "payroll.run_correct_id_not_found": "No se encontró la corrida a corregir \"{{id}}\".",
+  "payroll.run_country_not_tenant_country": "La nómina de esta empresa se calcula con la ley de {{p2}}; no se puede calcular con la de {{p1}}.",
   "payroll.run_has_no_amounts_post": "La corrida no tiene montos que contabilizar.",
   "payroll.run_has_no_payslips_cannot_approved": "La corrida no tiene volantes y no puede aprobarse.",
   "payroll.run_not_found": "No se encontró la nómina.",

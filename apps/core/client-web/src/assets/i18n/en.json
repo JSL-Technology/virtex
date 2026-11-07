@@ -5889,6 +5889,7 @@
   "payroll.run_approved_immutable_use_adjustment_run": "The run is approved and immutable; use an adjustment run.",
   "payroll.run_cancelled_cannot_edited": "The run is cancelled and cannot be edited.",
   "payroll.run_correct_id_not_found": "The run to correct \"{{id}}\" was not found.",
+  "payroll.run_country_not_tenant_country": "This company's payroll is calculated under the law of {{p2}}; it cannot be calculated under that of {{p1}}.",
   "payroll.run_has_no_amounts_post": "The run has no amounts to post.",
   "payroll.run_has_no_payslips_cannot_approved": "The run has no payslips and cannot be approved.",
   "payroll.run_not_found": "The payroll run was not found.",
