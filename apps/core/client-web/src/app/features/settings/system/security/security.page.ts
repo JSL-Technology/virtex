@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -12,7 +13,11 @@ import { VX_DATE } from '../../../../shared/components/date';
 import { VX_SELECT } from '../../../../shared/components/select';
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '../../../../shared/validators/password.validator';
 import { UsersService } from '../../data/users.service';
-import { SettingsShellService } from '../../shell';
+import { SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../../shell';
+import { SettingsGroupComponent } from '../../shared';
+import { VxEmptyStateComponent, VxErrorStateComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
+import { VxPagerComponent } from '../../../../shared/components/pager';
+import { History, SearchX } from 'lucide-angular';
 
 /** The action types the trail records (`ActionType` on the server). */
 export const AUDIT_ACTIONS = ['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'LOGIN_FAILED', 'REFRESH', 'IMPERSONATE', 'READ', 'EXPORT'] as const;
@@ -65,7 +70,8 @@ export interface FieldChange {
   after: string;
 }
 
-const PAGE_SIZE = 50;
+/** Rows per page until the reader picks another size in the shared pager. */
+const DEFAULT_PAGE_SIZE = 50;
 
 /**
  * Organisation security and the audit trail, as two sections of one component (`view`).
@@ -86,7 +92,20 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-security-settings-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, ...VX_SELECT, ...VX_DATE, ...FORMAT_PIPES],
+  imports: [...VX_FORM_A11Y, 
+    FormsModule,
+    RouterLink,
+    TranslateModule,
+    SettingsGroupComponent,
+    SettingsSaveBarComponent,
+    VxEmptyStateComponent,
+    VxErrorStateComponent,
+    VxPagerComponent,
+    VxSpinnerComponent,
+    ...VX_SELECT,
+    ...VX_DATE,
+    ...FORMAT_PIPES,
+  ],
   templateUrl: './security.page.html',
   styleUrls: ['./security.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -99,6 +118,10 @@ export class SecuritySettingsPage implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
   private readonly shell = inject(SettingsShellService, { optional: true });
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly HistoryIcon = History;
+  protected readonly SearchXIcon = SearchX;
 
   /** `policy`: second factor and password policy. `trail`: the audit trail. */
   readonly view = input<'policy' | 'trail'>('policy');
@@ -112,8 +135,23 @@ export class SecuritySettingsPage implements OnInit {
   /** Changing the policy is the owner's; anyone who may open the section may read it. */
   readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
 
+  /** What the server has. */
   readonly requireMfa = signal<boolean | null>(null);
+  /** What the form shows: changed with the checkbox, sent with the save bar like every other form. */
+  readonly draftMfa = signal<boolean | null>(null);
   readonly savingMfa = signal(false);
+  readonly policyError = signal<string | null>(null);
+  readonly dirty = computed(() => this.requireMfa() !== null && this.draftMfa() !== this.requireMfa());
+
+  /**
+   * The policy saved itself the moment the box was ticked, the only form of the window that did
+   * (GUA-02). It now holds the change until «Guardar», and the window asks before throwing it away.
+   */
+  private readonly policyChanges: SettingsChanges = {
+    dirty: this.dirty,
+    save: () => this.save(),
+    discard: () => this.discard(),
+  };
 
   readonly trail = signal<AuditPage | null>(null);
   readonly trailLoading = signal(false);
@@ -132,7 +170,13 @@ export class SecuritySettingsPage implements OnInit {
    * its own work carry none, and a column of dashes was what the trail showed.
    */
   readonly showIp = computed(() => (this.trail()?.rows ?? []).some((row) => !!row.ipAddress));
+  /** A filter that narrows the rows, beyond showing or hiding the system's own work. */
+  readonly narrowed = computed(() => {
+    const { userId, actionType, entity, from, to } = this.filters();
+    return [userId, actionType, entity, from, to].some(Boolean);
+  });
   readonly page = signal(1);
+  readonly pageSize = signal(DEFAULT_PAGE_SIZE);
 
   readonly personLabel = (person: Person): string => person.name;
   readonly personValue = (person: Person): string => person.id;
@@ -144,10 +188,31 @@ export class SecuritySettingsPage implements OnInit {
       this.initTrail();
       return;
     }
+    if (this.shell) {
+      this.shell.register(this.policyChanges);
+      this.destroyRef.onDestroy(() => this.shell?.unregister(this.policyChanges));
+    }
+    this.loadPolicy();
+  }
+
+  /** Reads the policy; a failure is said on the page, with a retry, not left as «Cargando…». */
+  loadPolicy(): void {
+    this.policyError.set(null);
     this.http.get<{ requireMfa: boolean }>(`${environment.apiUrl}/organizations/security-settings`).subscribe({
-      next: ({ requireMfa }) => this.requireMfa.set(requireMfa),
-      error: (error: unknown) => this.notifications.showHttpError(error, 'settings.security.mfa_load_failed'),
+      next: ({ requireMfa }) => {
+        this.requireMfa.set(requireMfa);
+        this.draftMfa.set(requireMfa);
+      },
+      error: (error: unknown) => this.policyError.set(this.notifications.httpErrorMessage(error, 'settings.security.mfa_load_failed')),
     });
+  }
+
+  setDraftMfa(value: boolean): void {
+    if (this.canEdit()) this.draftMfa.set(value);
+  }
+
+  discard(): void {
+    this.draftMfa.set(this.requireMfa());
   }
 
   private initTrail(): void {
@@ -168,29 +233,38 @@ export class SecuritySettingsPage implements OnInit {
     this.loadTrail();
   }
 
-  async toggleMfa(next: boolean): Promise<void> {
-    if (!this.canEdit()) return;
+  /**
+   * Sends the policy. Requiring a second factor interrupts the next sign-in of every member who
+   * has none, so switching it on still asks first (ACC-04); declining keeps the edit unsaved.
+   */
+  async save(): Promise<boolean> {
+    const next = this.draftMfa();
+    if (!this.canEdit() || next === null || !this.dirty()) return false;
     if (next) {
-      // Switching it on interrupts the next sign-in of every member without a second factor.
       const confirmed = await this.dialog.confirm({
         title: 'settings.security.mfa_enable_title',
         message: 'settings.security.mfa_enable_message',
         confirmText: 'settings.security.mfa_enable_confirm',
         variant: 'warning',
       });
-      if (!confirmed) return;
+      if (!confirmed) return false;
     }
     this.savingMfa.set(true);
-    this.http.patch<{ requireMfa: boolean }>(`${environment.apiUrl}/organizations/security-settings`, { requireMfa: next }).subscribe({
-      next: ({ requireMfa }) => {
-        this.savingMfa.set(false);
-        this.requireMfa.set(requireMfa);
-        this.notifications.showSuccess(requireMfa ? 'settings.security.mfa_enabled' : 'settings.security.mfa_disabled');
-      },
-      error: (error: unknown) => {
-        this.savingMfa.set(false);
-        this.notifications.showHttpError(error, 'settings.security.mfa_save_failed');
-      },
+    return new Promise((resolve) => {
+      this.http.patch<{ requireMfa: boolean }>(`${environment.apiUrl}/organizations/security-settings`, { requireMfa: next }).subscribe({
+        next: ({ requireMfa }) => {
+          this.savingMfa.set(false);
+          this.requireMfa.set(requireMfa);
+          this.draftMfa.set(requireMfa);
+          this.notifications.showSuccess(requireMfa ? 'settings.security.mfa_enabled' : 'settings.security.mfa_disabled');
+          resolve(true);
+        },
+        error: (error: unknown) => {
+          this.savingMfa.set(false);
+          this.notifications.showHttpError(error, 'settings.security.mfa_save_failed');
+          resolve(false);
+        },
+      });
     });
   }
 
@@ -211,13 +285,20 @@ export class SecuritySettingsPage implements OnInit {
     this.loadTrail();
   }
 
+  /** A new page size starts again from the first page, as everywhere the shared pager is used. */
+  setPageSize(size: number): void {
+    this.pageSize.set(size);
+    this.page.set(1);
+    this.loadTrail();
+  }
+
   loadTrail(): void {
     const filters = this.filters();
     if (filters.from && filters.to && filters.from > filters.to) {
       this.trailError.set(this.translate.instant('settings.security.range_invalid'));
       return;
     }
-    let params = new HttpParams().set('page', String(this.page())).set('pageSize', String(PAGE_SIZE));
+    let params = new HttpParams().set('page', String(this.page())).set('pageSize', String(this.pageSize()));
     for (const [key, value] of Object.entries(filters)) {
       if (value) params = params.set(key, String(value));
     }

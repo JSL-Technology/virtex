@@ -1,0 +1,41 @@
+Páginas medidas: 25
+JER-01 cabecera completa (miga, título, descripción, alcance): 25/25 
+TIP-01 estilos de encabezado de contenido: h2 17px/600 (15 págs.) · h3 14px/600 (6 págs.) · legend 13px/500 (1 págs.)
+JER-02 subnivel mayor que su nivel: ninguno
+JER-02 estilo del título (h1) de página: {"font-size":"24px","font-weight":"700"}
+TIP-02 páginas con mayúsculas sostenidas: ninguna
+ACC-01 [base] páginas con más de una primaria habilitada: ninguna
+ACC-01 [phone] páginas con más de una primaria habilitada: ninguna
+SOM-01 [base] contenedores con sombra: ninguno
+CON-01/RAD-01 [base] contenedores detectados por tipo (radio): rf__preview (6px) · logo-frame (6px) · preview-container (9.6px) · vx-notice (6px)
+SOM-01 [phone] contenedores con sombra: ninguno
+CON-01/RAD-01 [phone] contenedores detectados por tipo (radio): rf__preview (6px) · logo-frame (6px) · preview-container (9.6px) · vx-notice (6px) · um-segmented (6px)
+FMT-01 importes vistos: RD$1,234,567.89 · US$199.00 · US$9.00 · US$49.00 · US$0.00 · US$200.00 · US$10,000.00.
+FMT-01 fechas vistas: 6 de noviembre de 2026 · 14/09/2026 · 09/14/2026 · 14-09-2026 · 14.09.2026 · 14 de septiembre de 2026 · 6 de noviembre de 2027 · 06/11/2026
+EST-01 estados vacíos: subsidiaries:vx-empty-state+icono+acción · branches:vx-empty-state+icono+acción · sso:vx-empty-state+icono · sso:vx-empty-state+icono+acción · integrations:vx-empty-state+icono · ai:vx-empty-state+icono · extensions:vx-empty-state+icono · fiscal:vx-empty-state+icono · fiscal:vx-empty-state+icono · withholding-regimes:vx-empty-state+icono+acción · approvals:vx-empty-state+icono+acción
+EST-01 vacíos fuera del componente común: ninguno
+CONT-01 [base] claves crudas: ninguna · traducciones que faltan en consola: ninguna
+CONT-01 [dark] claves crudas: ninguna · traducciones que faltan en consola: ninguna
+CONT-01 [laptop] claves crudas: ninguna · traducciones que faltan en consola: ninguna
+CONT-01 [phone] claves crudas: ninguna · traducciones que faltan en consola: ninguna
+CONT-01 [density] claves crudas: ninguna · traducciones que faltan en consola: ninguna
+A11Y axe [base] violaciones WCAG 2.2 AA: 0
+A11Y axe [dark] violaciones WCAG 2.2 AA: 0
+A11Y axe [laptop] violaciones WCAG 2.2 AA: 0
+A11Y axe [phone] violaciones WCAG 2.2 AA: 0
+A11Y axe [density] violaciones WCAG 2.2 AA: 0
+RESP-01 [phone] desbordamiento horizontal: ninguno · textos cortados: users:[{"text":"Acciones","title":""}],roles:[{"text":"Acciones","title":""}],audit-trail:[{"text":"Detalle","title":""}]
+Red/consola [base] errores HTTP: ninguno · mensajes de consola: ninguno
+Red/consola [dark] errores HTTP: ninguno · mensajes de consola: ninguno
+Red/consola [laptop] errores HTTP: ninguno · mensajes de consola: ninguno
+Red/consola [phone] errores HTTP: ninguno · mensajes de consola: ninguno
+Red/consola [density] errores HTTP: ninguno · mensajes de consola: ninguno
+FORM/COMP controles nativos sin estilo: ninguno
+A11Y-04 fugas de foco: 0 en 25 páginas
+A11Y-03 paradas sin anillo propio: audit-trail: 3 (input#….vx-select__input) · default-accounts: 27 (input#….vx-select__input)
+A11Y-03 paradas sobre una caja invisible: my-profile: input#avatar-file «» · branding: input#logoFile «» · billing: input# «starter» · fiscal: input#cert-file «»
+A11Y-03 paradas tapadas: ninguna
+NAV-01 buscador: «contraseña» → ["Seguridad de la cuenta","Política de seguridad"] · «logo» → ["Marca de la empresa"] · «NCF» → ["Comprobantes fiscales"] · «moneda» → ["Cuentas predeterminadas","Políticas contables"] · «impuestos» → ["Cuentas predeterminadas","Comprobantes fiscales","Retenciones"] · «ITBIS» → ["Cuentas predeterminadas","Comprobantes fiscales","Retenciones"] · «correo» → ["Mi perfil","Correo saliente","Integraciones"] · «permisos» → ["Roles y permisos","Extensiones"] · «idioma» → ["Preferencias"] · «tema oscuro» → ["Preferencias"] · «zona horaria» → ["[vacío] Nada coincide con «zona horaria»."] · «firma» → ["Comprobantes fiscales","Extensiones"] · «xyz123» → ["[vacío] Nada coincide con «xyz123»."]
+dirty3.json: CUMPLE 16 · N/A 0 · NO CUMPLE 0 
+est02.json: CUMPLE 23 · N/A 2 · NO CUMPLE 0 
+perm01.json: CUMPLE 12 · N/A 8 · NO CUMPLE 0 

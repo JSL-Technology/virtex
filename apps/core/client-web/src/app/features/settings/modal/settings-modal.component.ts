@@ -1,3 +1,4 @@
+import { VxNoticeComponent } from '../../../shared/components/feedback';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -64,7 +65,7 @@ const normalise = (text: string): string =>
 @Component({
   selector: 'app-settings-modal',
   standalone: true,
-  imports: [NgComponentOutlet, NgTemplateOutlet, A11yModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [NgComponentOutlet, NgTemplateOutlet, A11yModule, LucideAngularModule, TranslateModule, VxNoticeComponent, ...FORMAT_PIPES],
   templateUrl: './settings-modal.component.html',
   styleUrls: ['./settings-modal.component.scss'],
   providers: [SettingsShellService],
@@ -125,6 +126,15 @@ export class SettingsModalComponent implements AfterViewInit {
   readonly denied = computed(() => {
     const section = this.current();
     return Boolean(section && !this.visible().includes(section));
+  });
+  /**
+   * Why: the company's country, or the permission the person lacks — named, as the read-only
+   * notice names it (PERM-01). «Not available for your role or your country» left both open.
+   */
+  readonly deniedPermission = computed(() => {
+    const section = this.current();
+    if (!section || !this.denied() || !this.applies(section)) return null;
+    return section.viewPermission ?? null;
   });
   readonly canEdit = computed(() => {
     const section = this.current();

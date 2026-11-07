@@ -90,9 +90,9 @@
     "pt": "O país \"{{country}}\" ainda não está disponível."
   },
   "organizations.country_not_set": {
-    "es": "Esta empresa no tiene país configurado, y sin él no se puede validar un documento ni calcular una nómina. Fíjalo en Ajustes › Perfil de la empresa.",
+    "es": "Esta empresa no tiene país configurado, y sin él no se puede validar un documento ni calcular una nómina. Fíjalo en Configuración › Perfil de la empresa.",
     "en": "This company has no country set, and without one a document cannot be validated nor a payroll computed. Set it under Settings › Company profile.",
-    "pt": "Esta empresa não tem país configurado e, sem ele, não é possível validar um documento nem calcular uma folha de pagamento. Define-o em Definições › Perfil da empresa."
+    "pt": "Esta empresa não tem país configurado e, sem ele, não é possível validar um documento nem calcular uma folha de pagamento. Defina-o em Configurações › Perfil da empresa."
   },
   "organizations.label_not_valid_name": {
     "es": "El {{label}} no es válido para {{name}}.",

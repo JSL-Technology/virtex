@@ -1,0 +1,5603 @@
+{
+  "my-profile": {
+    "header": {
+      "crumb": "Configuración › Tu cuenta",
+      "title": "Mi perfil",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Tu nombre, foto, teléfono y datos de contacto.",
+      "scope": "Solo para ti",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "576px",
+      "288px"
+    ],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Información personal",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [],
+    "buttons": [
+      {
+        "text": "Cambiar correo",
+        "cls": "pf-btn-secondary",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 444,
+        "w": 122,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Verificar",
+        "cls": "pf-btn-secondary",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 526,
+        "w": 75,
+        "h": 30,
+        "title": ""
+      }
+    ],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "file",
+        "w": 1,
+        "h": 1,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 480,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 480,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "email",
+        "w": 446,
+        "h": 30,
+        "disabled": true,
+        "readonly": true
+      },
+      {
+        "tag": "input",
+        "type": "tel",
+        "w": 397,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 480,
+        "h": 30,
+        "disabled": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 288,
+        "h": 30,
+        "disabled": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/01-my-profile.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "account-security": {
+    "header": {
+      "crumb": "Configuración › Tu cuenta",
+      "title": "Seguridad de la cuenta",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Contraseña, segundo factor, llaves de acceso y sesiones abiertas.",
+      "scope": "Solo para ti",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 977,
+    "sectionWidth": 976,
+    "contentOffset": -1,
+    "maxWidths": [
+      "590.484px",
+      "448px"
+    ],
+    "screens": 1.2,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Contraseña",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Autenticación de dos factores (2FA)",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Llaves de acceso",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Sesiones activas",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [],
+    "buttons": [
+      {
+        "text": "Actualizar contraseña",
+        "cls": "primary-button",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 498,
+        "w": 164,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Activar",
+        "cls": "sec-btn",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 560,
+        "w": 66,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Agregar llave de acceso",
+        "cls": "sec-btn",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 690,
+        "w": 179,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Cerrar las demás sesiones (50)",
+        "cls": "sec-btn",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 767,
+        "w": 227,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 854,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 947,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 944,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1004,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1001,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1062,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1059,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1120,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1117,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1178,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1175,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1236,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1233,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1294,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1291,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1351,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1348,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1409,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1406,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1467,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1464,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1525,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1522,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1583,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1580,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1640,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1637,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1698,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1695,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1756,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1753,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1814,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1811,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1872,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1869,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1930,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1927,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1987,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1984,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2045,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2042,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2103,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2100,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2161,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2158,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2219,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2216,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2277,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2274,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2334,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2331,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2392,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2389,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2450,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2447,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2508,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2505,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2566,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2563,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2624,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2621,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2681,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2678,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2739,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2736,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2797,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2794,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2855,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2852,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2913,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2910,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2971,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2968,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3028,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3025,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3086,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3083,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3144,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3141,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3202,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3199,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3260,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3257,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3317,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3314,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3375,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3372,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3433,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3430,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3491,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3488,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3549,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3546,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3607,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3604,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3664,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3661,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3722,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3719,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      },
+      {
+        "text": "Detalles",
+        "cls": "session__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3780,
+        "w": 72,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "session__revoke",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 3777,
+        "w": 30,
+        "h": 30,
+        "title": "Revoke session"
+      }
+    ],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 1,
+        "h": 1,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "password",
+        "w": 448,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "password",
+        "w": 448,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "password",
+        "w": 448,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [
+      "6 de noviembre de 2026"
+    ],
+    "money": [],
+    "empties": [],
+    "tables": [],
+    "primaryVisibleAtRest": 1,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/01-account-security.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "preferences": {
+    "header": {
+      "crumb": "Configuración › Tu cuenta",
+      "title": "Preferencias",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Idioma, tema, densidad y cómo ves fechas y números. Solo para ti.",
+      "scope": "Solo para ti",
+      "autosave": true,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "590.484px"
+    ],
+    "screens": 1.4,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Preferencias de idioma",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Apariencia",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Fechas, números y hora",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Así se verá",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [
+      {
+        "depth": 0,
+        "radius": "6px",
+        "shadow": false,
+        "bg": "rgb(239, 242, 247)",
+        "cls": "rf__preview",
+        "h": 134
+      }
+    ],
+    "buttons": [
+      {
+        "text": "Español",
+        "cls": "active",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 273,
+        "w": 74,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "English",
+        "cls": "",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 273,
+        "w": 69,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Português",
+        "cls": "",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 273,
+        "w": 88,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Claro",
+        "cls": "",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 461,
+        "w": 57,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Oscuro",
+        "cls": "",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 461,
+        "w": 69,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Sistema",
+        "cls": "active",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 461,
+        "w": 74,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Compacta",
+        "cls": "",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 626,
+        "w": 88,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Cómoda",
+        "cls": "active",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 626,
+        "w": 77,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Normal",
+        "cls": "active",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 626,
+        "w": 70,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Ancho",
+        "cls": "",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 626,
+        "w": 64,
+        "h": 30,
+        "title": ""
+      }
+    ],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 232,
+        "h": 38,
+        "disabled": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 232,
+        "h": 38,
+        "disabled": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 232,
+        "h": 38,
+        "disabled": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 232,
+        "h": 38,
+        "disabled": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 232,
+        "h": 38,
+        "disabled": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [
+      "14/09/2026",
+      "09/14/2026",
+      "14-09-2026",
+      "14.09.2026",
+      "14 de septiembre de 2026"
+    ],
+    "money": [
+      "RD$1,234,567.89"
+    ],
+    "empties": [],
+    "tables": [],
+    "primaryVisibleAtRest": 4,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/03-preferences.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "organizations": {
+    "header": {
+      "crumb": "Configuración › Tu cuenta",
+      "title": "Mis empresas",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Las empresas a las que perteneces y cuál está activa.",
+      "scope": "Solo para ti",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": [
+        "Nueva empresa"
+      ]
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [],
+    "upper": [],
+    "cards": [],
+    "buttons": [
+      {
+        "text": "Nueva empresa",
+        "cls": "primary-button",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "header",
+        "y": 24,
+        "w": 143,
+        "h": 30,
+        "title": ""
+      }
+    ],
+    "fields": [],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [],
+    "tables": [],
+    "primaryVisibleAtRest": 1,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/04-organizations.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "profile": {
+    "header": {
+      "crumb": "Configuración › Empresa",
+      "title": "Perfil de la empresa",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Razón social, identificación fiscal, dirección y contacto que aparecen en los documentos.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "590.484px"
+    ],
+    "screens": 1.1,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Información general",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Dirección y contacto",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [],
+    "buttons": [],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 478,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 478,
+        "h": 30,
+        "disabled": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 478,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "url",
+        "w": 478,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 976,
+        "h": 30,
+        "disabled": true
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 976,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 478,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 478,
+        "h": 30,
+        "disabled": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 478,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "tel",
+        "w": 478,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/05-profile.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "regional-format": {
+    "header": {
+      "crumb": "Configuración › Empresa",
+      "title": "Formato regional",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Cómo se escriben las fechas, los números y la hora para toda la empresa. Cada persona puede elegir el suyo en Preferencias.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "590.484px"
+    ],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Fechas, números y hora",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Así se verá",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [
+      {
+        "depth": 0,
+        "radius": "6px",
+        "shadow": false,
+        "bg": "rgb(239, 242, 247)",
+        "cls": "rf__preview",
+        "h": 134
+      }
+    ],
+    "buttons": [],
+    "fields": [
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 232,
+        "h": 38,
+        "disabled": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 232,
+        "h": 38,
+        "disabled": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 232,
+        "h": 38,
+        "disabled": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 232,
+        "h": 38,
+        "disabled": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 232,
+        "h": 38,
+        "disabled": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [
+      "14/09/2026",
+      "09/14/2026",
+      "14-09-2026",
+      "14.09.2026",
+      "14 de septiembre de 2026"
+    ],
+    "money": [
+      "RD$1,234,567.89"
+    ],
+    "empties": [],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/06-regional-format.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "branding": {
+    "header": {
+      "crumb": "Configuración › Empresa",
+      "title": "Marca de la empresa",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Logo, color, tipografía y bordes que ve toda la empresa.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": [
+        "Restablecer marca"
+      ]
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "590.484px"
+    ],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Logo de la empresa",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Color de acento",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Tipografía y forma",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Vista previa en vivo",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [
+      {
+        "depth": 0,
+        "radius": "6px",
+        "shadow": false,
+        "bg": "rgb(239, 242, 247)",
+        "cls": "logo-frame",
+        "h": 80
+      },
+      {
+        "depth": 0,
+        "radius": "9.6px",
+        "shadow": false,
+        "bg": "rgb(255, 255, 255)",
+        "cls": "preview-container",
+        "h": 314
+      }
+    ],
+    "buttons": [
+      {
+        "text": "Restablecer marca",
+        "cls": "secondary-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "header",
+        "y": 24,
+        "w": 151,
+        "h": 36,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "preset active",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 463,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "preset",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 463,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "preset",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 463,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "preset",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 463,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "preset",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 463,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "preset",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 463,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "Cancelar",
+        "cls": "secondary-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 415,
+        "w": 95,
+        "h": 36,
+        "title": ""
+      },
+      {
+        "text": "Aceptar",
+        "cls": "primary-button",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 415,
+        "w": 88,
+        "h": 36,
+        "title": ""
+      }
+    ],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "file",
+        "w": 1,
+        "h": 1,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "color",
+        "w": 48,
+        "h": 38,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 416,
+        "h": 36,
+        "disabled": false
+      },
+      {
+        "tag": "input",
+        "type": "range",
+        "w": 416,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 502,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [],
+    "tables": [],
+    "primaryVisibleAtRest": 2,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/07-branding.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "subsidiaries": {
+    "header": {
+      "crumb": "Configuración › Empresa",
+      "title": "Estructura empresarial",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Subsidiarias y su relación con la empresa principal.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "370.945px"
+    ],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [],
+    "upper": [],
+    "cards": [
+      {
+        "depth": 0,
+        "radius": "6px",
+        "shadow": false,
+        "bg": "rgb(236, 249, 255)",
+        "cls": "vx-notice vx-notice--info",
+        "h": 66
+      }
+    ],
+    "buttons": [
+      {
+        "text": "Crear primera subsidiaria",
+        "cls": "primary-button",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 459,
+        "w": 195,
+        "h": 36,
+        "title": ""
+      }
+    ],
+    "fields": [],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [
+      {
+        "cls": "vx-empty-state",
+        "text": "No hay subsidiarias registradas Agrega una empresa que controles para registrar operaciones entre co",
+        "icon": true,
+        "action": true
+      }
+    ],
+    "tables": [],
+    "primaryVisibleAtRest": 1,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/08-subsidiaries.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "branches": {
+    "header": {
+      "crumb": "Configuración › Empresa",
+      "title": "Sucursales",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Locales y puntos de venta de la empresa.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "370.945px"
+    ],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [],
+    "upper": [],
+    "cards": [
+      {
+        "depth": 0,
+        "radius": "6px",
+        "shadow": false,
+        "bg": "rgb(236, 249, 255)",
+        "cls": "vx-notice vx-notice--info",
+        "h": 66
+      }
+    ],
+    "buttons": [
+      {
+        "text": "Crear la casa matriz",
+        "cls": "primary-button",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 522,
+        "w": 160,
+        "h": 36,
+        "title": ""
+      }
+    ],
+    "fields": [],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [
+      {
+        "cls": "vx-empty-state",
+        "text": "Esta empresa no usa sucursales Mientras no haya ninguna, los documentos no piden sucursal. Crea la c",
+        "icon": true,
+        "action": true
+      }
+    ],
+    "tables": [],
+    "primaryVisibleAtRest": 1,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/09-branches.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "smtp": {
+    "header": {
+      "crumb": "Configuración › Empresa",
+      "title": "Correo saliente",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Con qué nombre salen las facturas y los avisos, y adónde llegan las respuestas.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": [
+        "Enviarme una prueba"
+      ]
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "448px",
+      "590.484px"
+    ],
+    "screens": 1.1,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Remitente y respuestas",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Así lo verá tu cliente",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [
+      {
+        "depth": 0,
+        "radius": "6px",
+        "shadow": false,
+        "bg": "rgb(255, 250, 235)",
+        "cls": "vx-notice vx-notice--warning",
+        "h": 66
+      }
+    ],
+    "buttons": [
+      {
+        "text": "Enviarme una prueba",
+        "cls": "secondary-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "header",
+        "y": 24,
+        "w": 168,
+        "h": 36,
+        "title": ""
+      }
+    ],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 448,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "email",
+        "w": 448,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "email",
+        "w": 448,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/10-smtp.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "billing": {
+    "header": {
+      "crumb": "Configuración › Empresa",
+      "title": "Plan y facturación",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Tu plan, su consumo y las facturas de Virtex.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "454.219px",
+      "640px",
+      "590.484px"
+    ],
+    "screens": 1.4,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Suscripción",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Uso de recursos",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Elige tu plan",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [],
+    "buttons": [],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "radio",
+        "w": 1,
+        "h": 1,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "w": 1,
+        "h": 1,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "w": 1,
+        "h": 1,
+        "disabled": true,
+        "readonly": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [
+      "6 de noviembre de 2027"
+    ],
+    "money": [
+      "US$199.00",
+      "US$9.00",
+      "US$49.00"
+    ],
+    "empties": [],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/01-billing.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "users": {
+    "header": {
+      "crumb": "Configuración › Usuarios y acceso",
+      "title": "Usuarios",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Quién entra a la empresa, con qué rol, e invitaciones pendientes.",
+      "scope": "Administración",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": [
+        "Invitar usuario"
+      ]
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [],
+    "upper": [],
+    "cards": [],
+    "buttons": [
+      {
+        "text": "Invitar usuario",
+        "cls": "primary-button",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "header",
+        "y": 24,
+        "w": 133,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Todos",
+        "cls": "active",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 184,
+        "w": 63,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Activo",
+        "cls": "",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 184,
+        "w": 63,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Archivado",
+        "cls": "",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 184,
+        "w": 87,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Pendiente",
+        "cls": "",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 184,
+        "w": 86,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Bloqueado",
+        "cls": "",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 184,
+        "w": 91,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "um-icon-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 187,
+        "w": 24,
+        "h": 24,
+        "title": "Refrescar"
+      },
+      {
+        "text": "Nombre",
+        "cls": "vx-sort",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 243,
+        "w": 67,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "Correo electrónico",
+        "cls": "vx-sort",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 243,
+        "w": 134,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "Estado",
+        "cls": "vx-sort",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 243,
+        "w": 60,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "Editar",
+        "cls": "link-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 293,
+        "w": 36,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "um-icon-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 297,
+        "w": 24,
+        "h": 24,
+        "title": "Más acciones"
+      },
+      {
+        "text": "",
+        "cls": "vx-pager__button",
+        "primary": false,
+        "danger": false,
+        "disabled": true,
+        "area": "content",
+        "y": 344,
+        "w": 24,
+        "h": 24,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-pager__button",
+        "primary": false,
+        "danger": false,
+        "disabled": true,
+        "area": "content",
+        "y": 344,
+        "w": 24,
+        "h": 24,
+        "title": ""
+      }
+    ],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "search",
+        "w": 532,
+        "h": 30,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 62,
+        "h": 24,
+        "disabled": false
+      }
+    ],
+    "truncated": [
+      {
+        "text": "Acciones",
+        "title": ""
+      }
+    ],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [],
+    "tables": [
+      {
+        "cols": 5,
+        "rows": 1,
+        "numericRight": []
+      }
+    ],
+    "primaryVisibleAtRest": 2,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/02-users.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "roles": {
+    "header": {
+      "crumb": "Configuración › Usuarios y acceso",
+      "title": "Roles y permisos",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Qué puede ver y hacer cada rol.",
+      "scope": "Administración",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": [
+        "Crear nuevo rol"
+      ]
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [],
+    "upper": [],
+    "cards": [],
+    "buttons": [
+      {
+        "text": "Crear nuevo rol",
+        "cls": "primary-button",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "header",
+        "y": 24,
+        "w": 141,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Ver",
+        "cls": "link-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 240,
+        "w": 21,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "icon-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 244,
+        "w": 24,
+        "h": 24,
+        "title": "Más acciones"
+      },
+      {
+        "text": "Ver",
+        "cls": "link-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 295,
+        "w": 21,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "icon-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 299,
+        "w": 24,
+        "h": 24,
+        "title": "Más acciones"
+      },
+      {
+        "text": "Ver",
+        "cls": "link-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 350,
+        "w": 21,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "icon-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 354,
+        "w": 24,
+        "h": 24,
+        "title": "Más acciones"
+      },
+      {
+        "text": "Ver",
+        "cls": "link-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 405,
+        "w": 21,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "icon-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 409,
+        "w": 24,
+        "h": 24,
+        "title": "Más acciones"
+      }
+    ],
+    "fields": [],
+    "truncated": [
+      {
+        "text": "Acciones",
+        "title": ""
+      }
+    ],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [],
+    "tables": [
+      {
+        "cols": 4,
+        "rows": 4,
+        "numericRight": []
+      }
+    ],
+    "primaryVisibleAtRest": 1,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/02-roles.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "security": {
+    "header": {
+      "crumb": "Configuración › Usuarios y acceso",
+      "title": "Política de seguridad",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Segundo factor obligatorio y la política de contraseñas de la empresa.",
+      "scope": "Administración",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "590.484px",
+      "545.062px"
+    ],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Segundo factor obligatorio",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Política de contraseñas",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [],
+    "buttons": [],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/14-security.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "audit-trail": {
+    "header": {
+      "crumb": "Configuración › Usuarios y acceso",
+      "title": "Pista de auditoría",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Quién hizo qué, sobre qué registro y cuándo.",
+      "scope": "Administración",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 977,
+    "sectionWidth": 976,
+    "contentOffset": -1,
+    "maxWidths": [],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [],
+    "upper": [],
+    "cards": [],
+    "buttons": [
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 223,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 223,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 223,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-date-field__picker",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 307,
+        "w": 28,
+        "h": 28,
+        "title": "Abrir calendario"
+      },
+      {
+        "text": "",
+        "cls": "vx-date-field__picker",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 307,
+        "w": 28,
+        "h": 28,
+        "title": "Abrir calendario"
+      },
+      {
+        "text": "Ver cambios",
+        "cls": "sec__link",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 450,
+        "w": 77,
+        "h": 20,
+        "title": ""
+      },
+      {
+        "text": "Ver cambios",
+        "cls": "sec__link",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 514,
+        "w": 77,
+        "h": 20,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-pager__button",
+        "primary": false,
+        "danger": false,
+        "disabled": true,
+        "area": "content",
+        "y": 573,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-pager__button",
+        "primary": false,
+        "danger": false,
+        "disabled": true,
+        "area": "content",
+        "y": 573,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      }
+    ],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 247,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 247,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 247,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 482,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 482,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 70,
+        "h": 28,
+        "disabled": false
+      }
+    ],
+    "truncated": [
+      {
+        "text": "Detalle",
+        "title": ""
+      }
+    ],
+    "rawKeys": [],
+    "dates": [
+      "06/11/2026"
+    ],
+    "money": [],
+    "empties": [],
+    "tables": [
+      {
+        "cols": 5,
+        "rows": 2,
+        "numericRight": []
+      }
+    ],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/15-audit-trail.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "sso": {
+    "header": {
+      "crumb": "Configuración › Usuarios y acceso",
+      "title": "Inicio de sesión único (SSO)",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Que tu equipo entre con el proveedor de identidad de la empresa, por OIDC.",
+      "scope": "Administración",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "590.484px",
+      "512px",
+      "370.945px"
+    ],
+    "screens": 1.4,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Dominios verificados",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Proveedores de identidad (OIDC)",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [],
+    "buttons": [
+      {
+        "text": "Agregar dominio",
+        "cls": "secondary-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 280,
+        "w": 137,
+        "h": 36,
+        "title": ""
+      },
+      {
+        "text": "Agregar proveedor",
+        "cls": "secondary-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 966,
+        "w": 152,
+        "h": 36,
+        "title": ""
+      }
+    ],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 367,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [
+      {
+        "cls": "vx-empty-state",
+        "text": "Aún no hay dominios Escríbelo arriba; después publicarás un registro DNS para verificarlo.",
+        "icon": true,
+        "action": false
+      },
+      {
+        "cls": "vx-empty-state",
+        "text": "Aún no hay proveedores Agrégalo con los datos que te da tu proveedor: la URL del emisor, el client I",
+        "icon": true,
+        "action": true
+      }
+    ],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/16-sso.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "integrations": {
+    "header": {
+      "crumb": "Configuración › Usuarios y acceso",
+      "title": "Integraciones",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Las conexiones de la empresa con otros sistemas: correo entrante, agentes de IA e importación de datos.",
+      "scope": "Administración",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "590.484px",
+      "370.945px"
+    ],
+    "screens": 1.4,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Correo entrante",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Facturas de proveedor",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Pedidos de clientes",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Agentes de IA conectados",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Importación y exportación",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [],
+    "buttons": [
+      {
+        "text": "Crear dirección",
+        "cls": "secondary-button is-disabled",
+        "primary": false,
+        "danger": false,
+        "disabled": true,
+        "area": "content",
+        "y": 400,
+        "w": 121,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Crear dirección",
+        "cls": "secondary-button is-disabled",
+        "primary": false,
+        "danger": false,
+        "disabled": true,
+        "area": "content",
+        "y": 528,
+        "w": 121,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Copiar",
+        "cls": "link-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 671,
+        "w": 41,
+        "h": 30,
+        "title": ""
+      }
+    ],
+    "fields": [],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [
+      {
+        "cls": "vx-empty-state",
+        "text": "Ningún agente conectado Conecta uno desde tu asistente con la dirección de arriba; te pedirá permiso",
+        "icon": true,
+        "action": false
+      }
+    ],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/03-integrations.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "ai": {
+    "header": {
+      "crumb": "Configuración › Usuarios y acceso",
+      "title": "Inteligencia artificial",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Qué permite la empresa a la IA, cuánto puede gastar y qué está disponible.",
+      "scope": "Administración",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "590.484px",
+      "768px",
+      "384px",
+      "128px",
+      "640px",
+      "288px",
+      "370.945px"
+    ],
+    "screens": 3.1,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Envío de datos al proveedor de IA",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "legend",
+        "text": "Funciones permitidas",
+        "font-size": "13px",
+        "font-weight": "500",
+        "text-transform": "none",
+        "color": "rgb(74, 82, 102)"
+      },
+      {
+        "tag": "h2",
+        "text": "Presupuesto",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Conservación de conversaciones",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Agentes",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Agente de reposición",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Disponibilidad",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Consumo del mes",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Actividad",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [],
+    "buttons": [],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "number",
+        "w": 288,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "number",
+        "w": 288,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "number",
+        "w": 128,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "w": 16,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "number",
+        "w": 288,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [
+      "US$0.00",
+      "US$200.00",
+      "US$10,000.00."
+    ],
+    "empties": [
+      {
+        "cls": "vx-empty-state",
+        "text": "Sin uso este mes Cuando alguien use una función de IA, aquí verás cuántas veces y cuánto costó.",
+        "icon": true,
+        "action": false
+      }
+    ],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/18-ai.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "extensions": {
+    "header": {
+      "crumb": "Configuración › Usuarios y acceso",
+      "title": "Extensiones",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Extensiones firmadas instaladas en la empresa y los permisos que les das.",
+      "scope": "Administración",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": [
+        "Abrir el gestor",
+        "Refrescar"
+      ]
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "370.945px"
+    ],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [],
+    "upper": [],
+    "cards": [],
+    "buttons": [
+      {
+        "text": "Abrir el gestor",
+        "cls": "secondary-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "header",
+        "y": 24,
+        "w": 113,
+        "h": 30,
+        "title": ""
+      },
+      {
+        "text": "Refrescar",
+        "cls": "secondary-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "header",
+        "y": 24,
+        "w": 103,
+        "h": 30,
+        "title": ""
+      }
+    ],
+    "fields": [],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [
+      {
+        "cls": "vx-empty-state",
+        "text": "Todavía no hay extensiones instaladas El equipo de la plataforma publica las extensiones; cuando hay",
+        "icon": true,
+        "action": false
+      }
+    ],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/04-extensions.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "default-accounts": {
+    "header": {
+      "crumb": "Configuración › Contabilidad e impuestos",
+      "title": "Cuentas predeterminadas",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Las cuentas en que se contabiliza cada operación: ventas, compras, bancos, impuestos, inventario, moneda, cierre e intercompañía.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 977,
+    "sectionWidth": 976,
+    "contentOffset": -1,
+    "maxWidths": [],
+    "screens": 3.6,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Ventas, compras, caja y bancos",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Ventas y cobros",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Compras",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Caja y bancos",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Activos fijos y patrimonio",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Moneda y tipos de cambio",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Diferencias de cambio",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Impuestos",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Cuentas de impuestos",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Cierre del ejercicio",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Cierre del ejercicio",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Intercompañía",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Cuentas intercompañía",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Inventario",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Cuentas de inventario",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [],
+    "buttons": [
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 311,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 311,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 311,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 311,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 449,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 449,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 449,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 449,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 567,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 567,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 742,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 742,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 898,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 898,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 898,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 898,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1017,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1173,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1173,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1173,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1173,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1292,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1292,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1292,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1292,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1512,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1512,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1714,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1714,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1714,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1714,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1832,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1832,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1832,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1832,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1970,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1970,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1970,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1970,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2171,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2171,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2373,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2373,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2593,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2593,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2593,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2593,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2711,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2711,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2711,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-select__button vx-select__toggle",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 2711,
+        "w": 28,
+        "h": 28,
+        "title": ""
+      }
+    ],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 410,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 410,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 410,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 378,
+        "h": 34,
+        "disabled": false,
+        "readonly": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/20-default-accounts.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "accounting-policies": {
+    "header": {
+      "crumb": "Configuración › Contabilidad e impuestos",
+      "title": "Políticas contables",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Moneda de los libros, tipos de cambio, cierre y conservación de documentos.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "160px",
+      "320px"
+    ],
+    "screens": 1.6,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Ventas, compras, caja y bancos",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Moneda y tipos de cambio",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Moneda base",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h3",
+        "text": "Políticas",
+        "font-size": "14px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Impuestos",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Cierre del ejercicio",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [],
+    "buttons": [
+      {
+        "text": "Restablecer",
+        "cls": "ss__restore",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 826,
+        "w": 67,
+        "h": 19,
+        "title": ""
+      }
+    ],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 160,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 160,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 480,
+        "h": 36,
+        "disabled": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 160,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 160,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 480,
+        "h": 36,
+        "disabled": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 160,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/21-accounting-policies.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "fiscal": {
+    "header": {
+      "crumb": "Configuración › Contabilidad e impuestos",
+      "title": "Comprobantes fiscales",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Cómo emite la empresa ante la DGII: modalidad, rangos de NCF y certificado.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "590.484px",
+      "370.945px"
+    ],
+    "screens": 1.9,
+    "hOverflow": false,
+    "headings": [
+      {
+        "tag": "h2",
+        "text": "Cómo emites tus comprobantes",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Rangos de comprobantes autorizados",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      },
+      {
+        "tag": "h2",
+        "text": "Certificado digital",
+        "font-size": "17px",
+        "font-weight": "600",
+        "text-transform": "none",
+        "color": "rgb(17, 21, 29)"
+      }
+    ],
+    "upper": [],
+    "cards": [
+      {
+        "depth": 0,
+        "radius": "6px",
+        "shadow": false,
+        "bg": "rgb(255, 250, 235)",
+        "cls": "vx-notice vx-notice--warning",
+        "h": 94
+      }
+    ],
+    "buttons": [
+      {
+        "text": "Registrar un rango",
+        "cls": "issue-state__action",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 458,
+        "w": 115,
+        "h": 20,
+        "title": ""
+      },
+      {
+        "text": "",
+        "cls": "vx-date-field__picker",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 733,
+        "w": 28,
+        "h": 28,
+        "title": "Abrir calendario"
+      },
+      {
+        "text": "Registrar rango",
+        "cls": "secondary-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 729,
+        "w": 129,
+        "h": 36,
+        "title": ""
+      },
+      {
+        "text": "Subir certificado",
+        "cls": "secondary-button",
+        "primary": false,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 1151,
+        "w": 137,
+        "h": 36,
+        "title": ""
+      }
+    ],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "radio",
+        "w": 13,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "w": 13,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "w": 13,
+        "h": 16,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "select",
+        "type": "select-one",
+        "w": 381,
+        "h": 36,
+        "disabled": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 182,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 182,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 182,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 182,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 182,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 182,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "password",
+        "w": 182,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "file",
+        "w": 1,
+        "h": 1,
+        "disabled": false,
+        "readonly": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [
+      {
+        "cls": "vx-empty-state",
+        "text": "Aún no hay rangos registrados Registra arriba cada rango que te autorizó la DGII.",
+        "icon": true,
+        "action": false
+      },
+      {
+        "cls": "vx-empty-state",
+        "text": "Aún no hay certificado Cárgalo con el formulario de arriba; se guarda cifrado y solo se usa para fir",
+        "icon": true,
+        "action": false
+      }
+    ],
+    "tables": [],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/22-fiscal.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "withholding-regimes": {
+    "header": {
+      "crumb": "Configuración › Contabilidad e impuestos",
+      "title": "Retenciones",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Regímenes de retención que la empresa aplica o soporta.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "370.945px"
+    ],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [],
+    "upper": [],
+    "cards": [],
+    "buttons": [
+      {
+        "text": "Agregar régimen",
+        "cls": "primary-button",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 376,
+        "w": 138,
+        "h": 36,
+        "title": ""
+      }
+    ],
+    "fields": [],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [
+      {
+        "cls": "vx-empty-state",
+        "text": "Todavía no hay regímenes Agrega los regímenes que la empresa aplica a sus proveedores o que le aplic",
+        "icon": true,
+        "action": true
+      }
+    ],
+    "tables": [],
+    "primaryVisibleAtRest": 1,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/23-withholding-regimes.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "sequences": {
+    "header": {
+      "crumb": "Configuración › Contabilidad e impuestos",
+      "title": "Numeración de documentos",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Prefijo y próximo número de cada tipo de documento interno.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "192px",
+      "144px"
+    ],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [],
+    "upper": [],
+    "cards": [],
+    "buttons": [],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 192,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "number",
+        "w": 144,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 192,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "number",
+        "w": 144,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 192,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "number",
+        "w": 144,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 192,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "number",
+        "w": 144,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "w": 192,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      },
+      {
+        "tag": "input",
+        "type": "number",
+        "w": 144,
+        "h": 36,
+        "disabled": false,
+        "readonly": false
+      }
+    ],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [],
+    "tables": [
+      {
+        "cols": 4,
+        "rows": 5,
+        "numericRight": []
+      }
+    ],
+    "primaryVisibleAtRest": 0,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/24-sequences.png"
+    ],
+    "console": [],
+    "http": []
+  },
+  "approvals": {
+    "header": {
+      "crumb": "Configuración › Operaciones",
+      "title": "Aprobaciones",
+      "titleStyle": {
+        "font-size": "24px",
+        "font-weight": "700"
+      },
+      "description": "Qué documentos necesitan aprobación, desde qué importe y de quién.",
+      "scope": "Afecta a toda la empresa",
+      "autosave": false,
+      "readonly": false,
+      "headerActions": []
+    },
+    "contentWidth": 976,
+    "sectionWidth": 976,
+    "contentOffset": 0,
+    "maxWidths": [
+      "370.945px"
+    ],
+    "screens": 1,
+    "hOverflow": false,
+    "headings": [],
+    "upper": [],
+    "cards": [
+      {
+        "depth": 0,
+        "radius": "6px",
+        "shadow": false,
+        "bg": "rgb(236, 249, 255)",
+        "cls": "vx-notice vx-notice--info",
+        "h": 66
+      }
+    ],
+    "buttons": [
+      {
+        "text": "Nueva política",
+        "cls": "primary-button",
+        "primary": true,
+        "danger": false,
+        "disabled": false,
+        "area": "content",
+        "y": 459,
+        "w": 121,
+        "h": 36,
+        "title": ""
+      }
+    ],
+    "fields": [],
+    "truncated": [],
+    "rawKeys": [],
+    "dates": [],
+    "money": [],
+    "empties": [
+      {
+        "cls": "vx-empty-state",
+        "text": "Todavía no hay políticas Sin políticas, los documentos se contabilizan sin pedir aprobación. Nueva p",
+        "icon": true,
+        "action": true
+      }
+    ],
+    "tables": [],
+    "primaryVisibleAtRest": 1,
+    "native": [],
+    "axe": [],
+    "shots": [
+      "shots/density/25-approvals.png"
+    ],
+    "console": [],
+    "http": []
+  }
+}

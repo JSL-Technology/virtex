@@ -1,3 +1,5 @@
+import { RouterLink } from '@angular/router';
+import { VxNoticeComponent } from '../../../../shared/components/feedback';
 import { Router } from '@angular/router';
 import { SettingsActionsDirective } from '../../shell';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
@@ -18,12 +20,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
-import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/components/feedback';
+import { VxSpinnerComponent, VxEmptyStateComponent, VxErrorStateComponent } from '../../../../shared/components/feedback';
 
 @Component({
   selector: 'app-subsidiaries',
   standalone: true,
-  imports: [VxNumberInputDirective, SettingsActionsDirective, CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, ...VX_SELECT, ...FORMAT_PIPES, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent, VxDateFieldComponent, VxBadgeComponent],
+  imports: [VxNumberInputDirective, SettingsActionsDirective, CommonModule, RouterLink, VxNoticeComponent, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, ...VX_SELECT, ...FORMAT_PIPES, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent, VxErrorStateComponent, VxDateFieldComponent, VxBadgeComponent],
   templateUrl: './subsidiaries.page.html',
   styleUrls: ['./subsidiaries.page.scss'],
   // Signals and OnPush (QA A-16): the state lived in plain fields under a modal host that does not

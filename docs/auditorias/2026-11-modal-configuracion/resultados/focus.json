@@ -1,0 +1,191 @@
+{
+  "my-profile": {
+    "stops": 40,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [
+      "input#field «»"
+    ],
+    "covered": []
+  },
+  "account-security": {
+    "stops": 40,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": [
+      "input# «dev@virtex.local»"
+    ]
+  },
+  "preferences": {
+    "stops": 43,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "organizations": {
+    "stops": 28,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "profile": {
+    "stops": 45,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "regional-format": {
+    "stops": 32,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "branding": {
+    "stops": 44,
+    "leftPanel": 0,
+    "noRing": [
+      "input#campo-de-ejemplo. «Escribe aquí...»"
+    ],
+    "invisibleBox": [
+      "input#logoFile «»"
+    ],
+    "covered": []
+  },
+  "subsidiaries": {
+    "stops": 29,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "branches": {
+    "stops": 30,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "smtp": {
+    "stops": 34,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "billing": {
+    "stops": 30,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "users": {
+    "stops": 41,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "roles": {
+    "stops": 34,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "security": {
+    "stops": 31,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "audit-trail": {
+    "stops": 33,
+    "leftPanel": 0,
+    "noRing": [
+      "input#sec-user.vx-select__input «Cualquier persona»",
+      "input#sec-action.vx-select__input «Cualquier acción»",
+      "input#sec-entity.vx-select__input «Cualquier tipo»"
+    ],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "sso": {
+    "stops": 30,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "integrations": {
+    "stops": 31,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "ai": {
+    "stops": 38,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "extensions": {
+    "stops": 31,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "default-accounts": {
+    "stops": 29,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "accounting-policies": {
+    "stops": 31,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "fiscal": {
+    "stops": 47,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [
+      "input# «»"
+    ],
+    "covered": []
+  },
+  "withholding-regimes": {
+    "stops": 29,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "sequences": {
+    "stops": 38,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  },
+  "approvals": {
+    "stops": 29,
+    "leftPanel": 0,
+    "noRing": [],
+    "invisibleBox": [],
+    "covered": []
+  }
+}

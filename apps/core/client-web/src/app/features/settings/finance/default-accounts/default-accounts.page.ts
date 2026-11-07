@@ -1,3 +1,4 @@
+import { VxErrorStateComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
@@ -16,18 +17,24 @@ import { CombinedSettingsPage } from '../combined-sections';
 @Component({
   selector: 'app-default-accounts-page',
   standalone: true,
-  imports: [TranslateModule, RouterLink, SettingsSectionComponent, SettingsSaveBarComponent],
+  imports: [TranslateModule, RouterLink, SettingsSectionComponent, SettingsSaveBarComponent, VxErrorStateComponent, VxSpinnerComponent],
   template: `
-    <div class="combined">
+    @if (failed(); as message) {
+      <vx-error-state [detail]="message" (retry)="retryAll()" />
+    } @else if (loading()) {
+      <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />
+    }
+    <div class="combined" [style.display]="failed() || loading() ? 'none' : null">
       @for (block of declarations; track block.section) {
         @if (block.groups.length) {
-          <app-settings-section [section]="block.section" [groups]="block.groups" [policies]="[]" [embedded]="true"
+          <app-settings-section [section]="block.section" [groups]="block.groups" [policies]="[]" [embedded]="true" [quiet]="true"
             [titleKey]="block.titleKey" [anchor]="block.anchor === focus() ? block.anchor : null" />
         }
       }
+      <!-- Los sitios relacionados, con el nombre de su página (CONT-03). -->
       <p class="combined__links">
         {{ 'settings.sections.default_accounts_links' | translate }}
-        <a routerLink="/accounting/chart-of-accounts">{{ 'settings.sections.go_chart_of_accounts' | translate }}</a>
+        <a routerLink="/accounting/chart-of-accounts">{{ 'page_titles.chart_of_accounts' | translate }}</a>
       </p>
       @if (canEdit()) {
         <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" (save)="save()" (discard)="discard()" />
@@ -36,9 +43,10 @@ import { CombinedSettingsPage } from '../combined-sections';
   `,
   styles: [
     `
-      .combined { display: flex; flex-direction: column; gap: var(--space-8); }
-      .combined app-settings-section + app-settings-section { padding-top: var(--space-6); border-top: 1px solid var(--border-color); }
+      /* Un bloque se separa del siguiente como cualquier grupo de la modal: por espacio (ESP-01). */
+      .combined { display: block; }
       .combined__links { margin: 0; font-size: var(--text-sm); color: var(--content-secondary); }
+      .combined__links a { color: var(--accent-text); }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

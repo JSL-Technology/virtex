@@ -1,15 +1,11 @@
-// Width and padding are the settings window's (`.sm-page`).
-.s-page { display: flex; flex-direction: column; gap: var(--space-5); }
-.s-header { padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.75rem; }
-.s-header__title { font-size: 1.375rem; font-weight: 700; color: var(--text-primary); margin-bottom: .25rem; }
-.s-header__subtitle { font-size: .875rem; color: var(--text-secondary); }
+@use 'app/features/settings/shared/settings-ui' as ui;
 
-.int__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: var(--space-4); }
-.int__card { display: flex; flex-direction: column; gap: var(--space-2); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-4); background: var(--bg-card); }
-.int__head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-2); }
-.int__title { font-size: var(--text-base); font-weight: 600; }
-.int__badge { font-size: var(--text-xs); padding: 2px var(--space-2); border-radius: var(--radius-full); border: 1px solid var(--border-color); color: var(--text-secondary); white-space: nowrap; }
-.int__badge--on { color: var(--text-primary); font-weight: 600; }
-.int__text { font-size: var(--text-sm); color: var(--text-secondary); flex: 1; }
-.int__status { font-size: var(--text-sm); color: var(--text-primary); }
-.int__link { font-size: var(--text-sm); font-weight: 500; }
+//  Integraciones: tres grupos con la anatomía común, uno debajo de otro. El ancho y el margen los
+//  pone la ventana (`.sm-page`).
+
+.int-page { display: block; }
+
+//  Sin caja propia: los paneles siguen siendo grupos de la página, con su separación de siempre.
+.int-page__panels { display: contents; }
+
+.link-button { @include ui.link-button; }

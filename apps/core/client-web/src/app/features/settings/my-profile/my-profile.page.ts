@@ -42,13 +42,11 @@ import { UsersService } from '../../../core/api/users.service';
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { SecuritySettingsComponent } from '../components/security-settings/security-settings.component';
 import { PhoneVerificationModalComponent } from '../components/phone-verification-modal/phone-verification-modal.component';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 import { FileUtil } from '../../../shared/utils/file.util';
 // H4 FIX: enforce the same password policy as register/reset/set (and the backend) on the
 // change-password form, which previously only required minLength(8).
 import { strongPasswordValidator } from '../../../shared/validators/password.validator';
-import { catchError, of } from 'rxjs';
 import { phoneLikeValidator } from '../../../shared/validators/phone-like.validator';
 import { toE164 } from '../../../shared/utils/phone.util';
 import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
@@ -62,6 +60,9 @@ const passwordsMatchValidator: ValidatorFn = (group: AbstractControl): Validatio
 };
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../shell';
+import { SettingsGroupComponent } from '../shared';
+import { VxFileButtonComponent } from '../../../shared/components/file-button';
+import { VxBadgeComponent } from '../../../shared/components/badge';
 
 // Typed Form Interface
 interface ProfileForm {
@@ -86,6 +87,9 @@ interface ProfileForm {
     PasswordStrengthComponent,
     RoleNamePipe,
     SettingsSaveBarComponent,
+    SettingsGroupComponent,
+    VxFileButtonComponent,
+    VxBadgeComponent,
     ...VX_FORM_A11Y,
   ],
   templateUrl: './my-profile.page.html',
@@ -110,6 +114,19 @@ export class MyProfilePage implements OnInit {
     dirty: this.profileDirty,
     save: () => this.saveProfileAsync(),
     discard: () => this.discardProfile(),
+  };
+  /**
+   * A password typed and not sent: closing the window asks before dropping it (GUA-01). Changing the
+   * password is an action with its own button, not a setting, so the question offers to discard or
+   * to keep editing — the window never sends a password on its own.
+   */
+  protected readonly passwordDirty = signal(false);
+  private readonly passwordChanges: SettingsChanges = {
+    dirty: this.passwordDirty,
+    discard: () => {
+      this.passwordForm.reset();
+      this.passwordDirty.set(false);
+    },
   };
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
@@ -148,16 +165,23 @@ export class MyProfilePage implements OnInit {
   // Phone Verification State
   showPhoneModal = signal(false);
 
-  // Job Titles List (Loaded from backend) with Error Handling
-  jobTitles = toSignal(
-    this.usersService.getJobTitles().pipe(
-      catchError((err) => {
-        console.error('Failed to load job titles', err);
-        return of([] as string[]);
-      })
-    ),
-    { initialValue: [] }
-  );
+  /**
+   * The job titles, read only where the select is (the profile view) and said in place when they
+   * cannot be read, with a retry: an empty select said nothing (EST-02).
+   */
+  readonly jobTitles = signal<string[]>([]);
+  readonly jobTitlesFailed = signal(false);
+
+  loadJobTitles(): void {
+    this.jobTitlesFailed.set(false);
+    this.usersService
+      .getJobTitles()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (titles) => this.jobTitles.set(titles),
+        error: () => this.jobTitlesFailed.set(true),
+      });
+  }
 
   ngOnInit(): void {
     const user = this.currentUser();
@@ -195,9 +219,18 @@ export class MyProfilePage implements OnInit {
     this.consumeEmailChangeToken();
 
     this.profileForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.profileDirty.set(this.profileForm.dirty));
+    if (this.view() === 'profile') this.loadJobTitles();
     if (this.view() === 'profile' && this.shell) {
       this.shell.register(this.changes);
       this.destroyRef.onDestroy(() => this.shell?.unregister(this.changes));
+    }
+    this.passwordForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      const { currentPassword, newPassword, confirmPassword } = this.passwordForm.getRawValue();
+      this.passwordDirty.set(Boolean(currentPassword || newPassword || confirmPassword));
+    });
+    if (this.view() === 'security' && this.shell) {
+      this.shell.register(this.passwordChanges);
+      this.destroyRef.onDestroy(() => this.shell?.unregister(this.passwordChanges));
     }
     const focus = this.focus();
     if (focus) queueMicrotask(() => this.document.getElementById(`settings-block-${focus}`)?.scrollIntoView({ block: 'start' }));
@@ -249,7 +282,12 @@ export class MyProfilePage implements OnInit {
 
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
+    if (file) this.onAvatarFile(file);
+  }
+
+  /** La foto elegida con el botón común de subir archivo. */
+  onAvatarFile(file: File): void {
+    {
       // 10/10: Use shared utility for validation and reading
       const error = FileUtil.validateImage(file, 2); // 2MB limit
       if (error) {
@@ -374,6 +412,7 @@ export class MyProfilePage implements OnInit {
       next: () => {
         this.notificationService.showSuccess('settings.profile.password_changed');
         this.passwordForm.reset();
+        this.passwordDirty.set(false);
       },
       error: (err) => {
         //  Contraseña actual incorrecta: se dice exactamente eso, sin cerrar la sesión.

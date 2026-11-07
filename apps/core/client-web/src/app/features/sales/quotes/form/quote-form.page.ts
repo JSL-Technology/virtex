@@ -96,7 +96,7 @@ export class QuoteFormPage implements OnInit {
 
   @Input() id?: string;
   /** A new quote for this customer — from the customer's row menu (QA R3-B08). */
-  @Input('customerId') presetCustomerId?: string;
+  @Input() customerId?: string;
   /** A customer's order that arrived by mail and waits for a person: it fills the new quote. */
   @Input() fromMail?: string;
   private readonly inboundMail = inject(InboundMailService);
@@ -152,7 +152,7 @@ export class QuoteFormPage implements OnInit {
     this.customersApi.searchCustomers(query, limit);
   protected readonly resolveCustomer = (id: string): Observable<Customer> => this.customersApi.getCustomerById(id);
   protected readonly customerName = (customer: Customer): string => customer.companyName;
-  protected readonly customerId = (customer: Customer): string => customer.id;
+  protected readonly customerValue = (customer: Customer): string => customer.id;
 
   protected readonly searchProducts = (query: string, limit: number): Observable<Product[]> =>
     this.inventory.searchProducts(query, limit);
@@ -176,7 +176,7 @@ export class QuoteFormPage implements OnInit {
       },
       { validators: dateOrder('issueDate', 'expiryDate') },
     );
-    if (!this.id && this.presetCustomerId) this.form.patchValue({ customerId: this.presetCustomerId });
+    if (!this.id && this.customerId) this.form.patchValue({ customerId: this.customerId });
     this.currencyCode.set(this.locale.currency());
     this.form.get('currencyCode')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((code: string) => this.currencyCode.set(code));
 

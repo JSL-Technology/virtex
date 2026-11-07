@@ -1,26 +1,10 @@
 @use '../../../../assets/styles/design-system' as ds;
+@use 'app/features/settings/shared/settings-ui' as ui;
 
 // Two sections, one set of controls: the person's preferences and the company's brand. The page
 // draws no header, width or padding of its own: the settings window does (`.sm-page`).
 
 :host { display: block; }
-
-.settings-page-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  padding-bottom: var(--space-4);
-}
-
-.branding-note {
-  margin: 0;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--info-border);
-  border-radius: var(--radius-md);
-  background: var(--info-surface);
-  color: var(--info-text);
-  font-size: var(--text-sm);
-}
 
 // ── Layout ──────────────────────────────────────────────────────────────────────────────────────
 .branding-grid {
@@ -33,27 +17,7 @@
 }
 
 .controls-column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
   min-width: 0;
-}
-
-// ── Cards ───────────────────────────────────────────────────────────────────────────────────────
-.form-section {
-  @include ds.surface-card;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-5);
-  min-width: 0;
-}
-
-.section-title {
-  margin: 0;
-  font-size: var(--text-base);
-  font-weight: var(--font-semibold);
-  color: var(--content-primary);
 }
 
 .form-field {
@@ -68,7 +32,19 @@
   select { @include ds.input-base; }
 }
 
-.field-hint { @include ds.field-hint; }
+.field-hint { @include ds.field-hint; margin: 0; }
+
+//  Un campo se separa del siguiente siempre lo mismo: el ritmo de todo formulario de la modal.
+.form-field + .form-field,
+.form-field + .form-row,
+.form-row + .form-field {
+  margin-top: var(--space-5);
+}
+
+//  Dentro de una fila los campos van lado a lado: alineados arriba, sin la separación vertical.
+.form-row > .form-field + .form-field {
+  margin-top: 0;
+}
 
 .form-row {
   display: grid;
@@ -189,45 +165,16 @@ input[type='range'] {
 }
 
 // ── Segmented control ───────────────────────────────────────────────────────────────────────────
+//  Un control segmentado mide lo que sus opciones, en todas partes (antes uno ocupaba todo el ancho
+//  y otros media columna).
 .button-group {
-  display: flex;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-
-  button {
-    flex: 1;
-    min-height: 2.25rem;
-    padding: 0 0.75rem;
-    border: none;
-    background: var(--bg-card);
-    color: var(--content-secondary);
-    font: inherit;
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    cursor: pointer;
-    transition: background-color 0.15s, color 0.15s;
-
-    &:not(:last-child) { border-right: 1px solid var(--border-color); }
-    &:hover:not(.active) { background: var(--bg-hover); color: var(--content-primary); }
-    &:focus-visible { @include ds.focus-ring-inset; }
-
-    // Solid accent with its own text colour: legible whatever accent the company picked.
-    &.active {
-      background: var(--accent-solid);
-      color: var(--accent-on-solid);
-      font-weight: var(--font-semibold);
-    }
-  }
+  @include ui.segmented;
 }
 
 // ── Preview ─────────────────────────────────────────────────────────────────────────────────────
 .preview-column {
   position: sticky;
   top: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
   min-width: 0;
 
   @include ds.bp-down('lg') { position: static; }

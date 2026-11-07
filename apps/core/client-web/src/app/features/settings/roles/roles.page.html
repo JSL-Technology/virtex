@@ -6,58 +6,59 @@
     </button>
   </ng-template>
 
-  <div class="table-container card">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>{{ 'settings.roles.role_name' | translate }}</th>
-          <th>{{ 'settings.roles.description' | translate }}</th>
-          <th>{{ 'settings.roles.type' | translate }}</th>
-          <th scope="col" class="actions-column">{{ 'settings.roles.actions' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for(role of roles(); track role.id) {
-        <tr>
-          <td>{{ role | vxRoleName }}</td>
-          <td>{{ role.descriptionKey ? (role.descriptionKey | translate) : role.description }}</td>
-          <td>
-            <vx-badge [tone]="role.isSystemRole ? 'accent' : 'neutral'">
-              {{ (role.isSystemRole ? 'settings.roles.kind_system' : 'settings.roles.kind_custom') | translate }}
-            </vx-badge>
-          </td>
-          <td class="actions-column">
-            <!-- A cell, not a flex box: as a flex box it dropped out of the row and broke its rule (CG-26). -->
-            <div class="row-actions">
-              <button type="button" class="icon-button" (click)="cloneRole(role)" *appHasPermission="'roles:create'"
-                [title]="'settings.roles.clone_role' | translate" [attr.aria-label]="('settings.roles.clone_role' | translate) + ' · ' + (role | vxRoleName)">
-                <lucide-icon [img]="CloneIcon" size="18" aria-hidden="true"></lucide-icon>
-              </button>
+  @if (loading()) {
+    <vx-spinner size="lg" />
+  } @else if (loadError(); as message) {
+    <vx-error-state [detail]="message" (retry)="load()" />
+  } @else {
+    <div class="roles-table">
+      <table class="data-table" [appTableMenu]="rolesMenu">
+        <thead>
+          <tr>
+            <th>{{ 'settings.roles.role_name' | translate }}</th>
+            <th>{{ 'settings.roles.description' | translate }}</th>
+            <th>{{ 'settings.roles.type' | translate }}</th>
+            <th scope="col"><span class="sr-only">{{ 'settings.roles.actions' | translate }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(role of roles(); track role.id) {
+          <tr [appRowMenu]="role" #rowMenu="appRowMenu">
+            <td [attr.data-label]="'settings.roles.role_name' | translate">{{ role | vxRoleName }}</td>
+            <td [attr.data-label]="'settings.roles.description' | translate">{{ role.descriptionKey ? (role.descriptionKey | translate) : role.description }}</td>
+            <td [attr.data-label]="'settings.roles.type' | translate">
+              <vx-badge [tone]="role.isSystemRole ? 'accent' : 'neutral'">
+                {{ (role.isSystemRole ? 'settings.roles.kind_system' : 'settings.roles.kind_custom') | translate }}
+              </vx-badge>
+            </td>
+            <td class="row-actions">
               <!--
-                A system role cannot be edited or deleted. The buttons stay focusable (aria-disabled,
-                not disabled) so the reason can be read: a disabled button shows no tooltip and a
-                screen reader skips it (CG-31).
+                Un rol del sistema no se edita, y quien no tiene permiso de edición tampoco edita
+                ninguno: en esos casos la fila ofrece «Ver», que abre los permisos en solo lectura.
+                Antes era un «Editar» deshabilitado en cada fila cuyo motivo solo estaba en el
+                título emergente, que en un teléfono no existe: se tocaba y no pasaba nada.
               -->
-              @let systemReason = 'settings.roles.system_role_locked' | translate;
-              <button type="button" class="icon-button" (click)="openRoleModal(role)" *appHasPermission="'roles:edit'"
-                [attr.aria-disabled]="role.isSystemRole ? 'true' : null"
-                [title]="role.isSystemRole ? systemReason : ('settings.roles.edit_role' | translate)"
-                [attr.aria-label]="(role.isSystemRole ? systemReason : ('settings.roles.edit_role' | translate)) + ' · ' + (role | vxRoleName)">
-                <lucide-icon [img]="EditIcon" size="18" aria-hidden="true"></lucide-icon>
+              @let viewOnly = role.isSystemRole || !canEdit();
+              <button type="button" class="link-button" (click)="openRoleModal(role)"
+                [attr.aria-label]="((viewOnly ? 'settings.roles.view_role' : 'settings.roles.edit_role') | translate) + ' · ' + (role | vxRoleName)">
+                {{ (viewOnly ? 'settings.roles.view' : 'common.edit') | translate }}
               </button>
-              <button type="button" class="icon-button danger" (click)="deleteRole(role)" *appHasPermission="'roles:delete'"
-                [attr.aria-disabled]="role.isSystemRole ? 'true' : null"
-                [title]="role.isSystemRole ? systemReason : ('settings.roles.delete_role' | translate)"
-                [attr.aria-label]="(role.isSystemRole ? systemReason : ('settings.roles.delete_role' | translate)) + ' · ' + (role | vxRoleName)">
-                <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>
-              </button>
-            </div>
-          </td>
-        </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+              <!-- Clonar y eliminar son cambios: sin permiso de edición no hay menú (PERM-01). -->
+              @if (canEdit()) {
+                <button type="button" class="icon-button" aria-haspopup="menu"
+                  [attr.aria-label]="'common.more_actions_for' | translate: { name: (role | vxRoleName) }"
+                  [title]="'common.more_actions' | translate"
+                  (click)="rowMenu.open($event)">
+                  <lucide-icon [img]="MoreIcon" size="18" aria-hidden="true"></lucide-icon>
+                </button>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 </div>
 
 @if (isModalOpen()) {
@@ -70,36 +71,90 @@
 -->
 <vx-dialog
   size="lg"
-  [title]="editingRole() ? ('settings.roles.edit_role' | translate) : ('settings.roles.create_role' | translate)"
+  [title]="viewing() ? (viewing() | vxRoleName) : editingRole() ? ('settings.roles.edit_role' | translate) : ('settings.roles.create_role' | translate)"
   (dismissed)="closeModal()"
 >
     <div class="modal-body">
-      <form [formGroup]="roleForm">
-        <div class="form-field"><label for="name">{{ 'settings.roles.role_name' | translate }} *</label><input id="name" type="text" formControlName="name"></div>
-        <div class="form-field"><label for="description">{{ 'settings.roles.description' | translate }}</label><textarea id="description" formControlName="description"></textarea></div>
-        <div class="permissions-grid">
-          <h3>{{ 'settings.roles.permissions' | translate }}</h3>
-          @for(group of permissionGroups(); track group.key) {
-          <div class="permission-group">
-            <h4>{{ group.labelKey | translate }}</h4>
-            @for(permission of group.permissions; track permission.value) {
-            <div class="permission-item">
-              <input type="checkbox" [id]="permission.value" [checked]="isPermissionSelected(permission.value)" (change)="onPermissionChange($event, permission.value)">
-              <label [for]="permission.value" [title]="permission.value">{{ permission.actionKey | translate }}</label>
+      @if (viewing(); as role) {
+        <!-- Solo lectura: lo que el rol permite, en una lista; sin casillas que no se pueden marcar. -->
+        @if (role.isSystemRole) {
+          <vx-notice tone="info">{{ 'settings.roles.system_role_locked' | translate }}</vx-notice>
+        }
+        @if (role.descriptionKey || role.description) {
+          <p class="role-dialog__description">{{ role.descriptionKey ? (role.descriptionKey | translate) : role.description }}</p>
+        }
+        <section class="role-dialog__permissions" aria-labelledby="role-view-permissions">
+          <h3 class="role-dialog__title" id="role-view-permissions">{{ 'settings.roles.permissions' | translate }}</h3>
+          @for (group of grantedGroups(); track group.key) {
+            <div class="permission-group">
+              <h4 class="permission-group__title">{{ group.labelKey | translate }}</h4>
+              <ul class="permission-group__items permission-group__items--granted">
+                @for (permission of group.permissions; track permission.value) {
+                  <li>
+                    <lucide-icon [img]="CheckIcon" size="14" aria-hidden="true"></lucide-icon>
+                    <span>{{ permission.actionKey | translate }}</span>
+                  </li>
+                }
+              </ul>
             </div>
+          } @empty {
+            <p class="role-dialog__description">{{ 'settings.roles.no_permissions' | translate }}</p>
+          }
+        </section>
+      } @else {
+        <form [formGroup]="roleForm" (ngSubmit)="saveRole()" novalidate>
+          <div class="form-field">
+            <label for="role-name">{{ 'settings.roles.role_name' | translate }} <span class="required" aria-hidden="true">*</span></label>
+            <input id="role-name" type="text" formControlName="name" required cdkFocusInitial>
+            <vx-field-error [control]="roleForm.get('name')" fieldId="role-name" labelKey="settings.roles.role_name" />
+          </div>
+          <div class="form-field">
+            <label for="role-description">{{ 'settings.roles.description' | translate }}</label>
+            <textarea id="role-description" formControlName="description"></textarea>
+          </div>
+          <!-- Un grupo con nombre y no un fieldset: la leyenda se dibujaría encima de la línea divisoria. -->
+          <div class="role-dialog__permissions" role="group" aria-labelledby="role-permissions-title"
+            [attr.aria-describedby]="permissionsMissing() ? 'role-permissions-error' : null">
+            <h3 class="role-dialog__title" id="role-permissions-title">{{ 'settings.roles.permissions' | translate }} <span class="required" aria-hidden="true">*</span></h3>
+            @if (permissionsMissing()) {
+              <p class="role-dialog__error" id="role-permissions-error">{{ 'settings.roles.permissions_required' | translate }}</p>
+            }
+            @for (group of permissionGroups(); track group.key) {
+              <div class="permission-group" role="group" [attr.aria-labelledby]="'perm-group-' + group.key">
+                <h4 class="permission-group__title" [id]="'perm-group-' + group.key">{{ group.labelKey | translate }}</h4>
+                <div class="permission-group__items">
+                  @for (permission of group.permissions; track permission.value) {
+                    <label class="permission-item">
+                      <input type="checkbox" [checked]="isPermissionSelected(permission.value)" (change)="onPermissionChange($event, permission.value)">
+                      <span>{{ permission.actionKey | translate }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
             }
           </div>
-          }
-        </div>
-      </form>
+        </form>
+      }
     </div>
     <ng-container dialogActions>
-      <button type="button" class="secondary-button" (click)="closeModal()">
-        {{ 'settings.roles.cancel' | translate }}
-      </button>
-      <button type="button" class="primary-button" (click)="saveRole()" [disabled]="roleForm.invalid">
-        {{ 'settings.roles.save' | translate }}
-      </button>
+      @if (viewing(); as role) {
+        @if (role.isSystemRole) {
+          <button type="button" class="secondary-button" *appHasPermission="'roles:create'" (click)="cloneFromView(role)">
+            {{ 'settings.roles.clone_role' | translate }}
+          </button>
+        }
+        <button type="button" class="primary-button" (click)="closeModal()">
+          {{ 'common.close' | translate }}
+        </button>
+      } @else {
+        <button type="button" class="secondary-button" (click)="closeModal()">
+          {{ 'settings.roles.cancel' | translate }}
+        </button>
+        <!-- Siempre pulsable: si falta algo, lo dice debajo del campo en vez de quedarse gris (COMP-02). -->
+        <button type="button" class="primary-button" (click)="saveRole()">
+          {{ 'settings.roles.save' | translate }}
+        </button>
+      }
     </ng-container>
 </vx-dialog>
 }

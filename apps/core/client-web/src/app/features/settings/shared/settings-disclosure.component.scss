@@ -1,0 +1,36 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+}
+
+.sd__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-height-sm);
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--content-link);
+  border-radius: var(--radius-sm);
+  @include ds.focus-ring;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+.sd__chevron {
+  flex-shrink: 0;
+  @include ds.transition(transform);
+}
+
+details[open] .sd__chevron {
+  transform: rotate(90deg);
+}
+
+.sd__body {
+  margin-block-start: var(--space-3);
+}

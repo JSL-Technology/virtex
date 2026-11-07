@@ -1,0 +1,9 @@
+@use 'assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+}
+
+.ghost-button {
+  @include ds.button-ghost('sm');
+}

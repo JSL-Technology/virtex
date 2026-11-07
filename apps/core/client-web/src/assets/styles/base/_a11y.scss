@@ -37,7 +37,8 @@
 //  Oculta visualmente conservando el elemento en el árbol de accesibilidad.
 //  `display: none` y `visibility: hidden` lo eliminarían también para el lector.
 // -----------------------------------------------------------------------------
-.sr-only {
+.sr-only,
+.visually-hidden {
   @include ds.visually-hidden;
 }
 
@@ -125,8 +126,16 @@
 //  eleva a 44px, el umbral cómodo real para el pulgar.
 // -----------------------------------------------------------------------------
 @media (hover: none) and (pointer: coarse) {
-  :where(button, [role='button'], a[href], input[type='checkbox'], input[type='radio']) {
+  :where(button, [role='button'], a[href]) {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  //  Las casillas y los radios nativos no se estiran a 44px: el navegador dibuja el control del
+  //  tamaño de su caja, y en el teléfono salía un cuadro vacío de 44px junto a su texto. Crecen a
+  //  24px (el mínimo de WCAG 2.5.8) y la etiqueta que los nombra amplía la zona que se puede tocar.
+  :where(input[type='checkbox'], input[type='radio']) {
+    min-height: 24px;
+    min-width: 24px;
   }
 }

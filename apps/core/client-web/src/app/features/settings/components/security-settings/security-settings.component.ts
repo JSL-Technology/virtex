@@ -1,4 +1,5 @@
 
+import { VxErrorStateComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
 import { Component, OnInit, ChangeDetectionStrategy, inject, signal, DestroyRef, ViewChildren, ViewChild, QueryList, ElementRef, Inject, PLATFORM_ID, ViewContainerRef, computed } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LucideAngularModule, Shield, Smartphone, QrCode, Monitor, Laptop, Globe, AlertTriangle, CheckCircle, MapPin, Copy, Download, RefreshCw, X, ArrowRight, ImageIcon, User, Mail, Phone, Building, KeyRound } from 'lucide-angular';
@@ -20,10 +21,12 @@ import { VxBadgeComponent } from '../../../../shared/components/badge';
 
 type SetupStep = 'INTRO' | 'EMAIL_VERIFY' | 'QR_SETUP' | 'BACKUP_CODES';
 
+import { SettingsDisclosureComponent, SettingsGroupComponent } from '../../shared';
+
 @Component({
   selector: 'app-security-settings',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent, SettingsGroupComponent, SettingsDisclosureComponent, VxSpinnerComponent, VxErrorStateComponent],
   templateUrl: './security-settings.component.html',
   styleUrls: ['./security-settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -145,26 +148,6 @@ export class SecuritySettingsComponent implements OnInit {
   });
 
   readonly otherSessionCount = computed(() => this.sessions().filter((s) => !s.isCurrent).length);
-  private readonly openGroups = signal<ReadonlySet<string>>(new Set());
-
-  isGroupOpen(key: string): boolean {
-    return this.openGroups().has(key);
-  }
-
-  toggleGroup(key: string): void {
-    this.openGroups.update((open) => {
-      const next = new Set(open);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
-  }
-
-  /** A closed group shows its first (current or latest) session; open, all of them. */
-  visibleSessions(group: { key: string; sessions: Session[] }): Session[] {
-    return this.isGroupOpen(group.key) ? group.sessions : group.sessions.slice(0, 1);
-  }
-
   /** Signs out every device but this one, behind the same step-up as revoking one. */
   revokeOtherSessions(): void {
     this.stepUpService.requireStepUp(StepUpScope.REVOKE_SESSION, this.viewContainerRef, () => {
@@ -190,10 +173,20 @@ export class SecuritySettingsComponent implements OnInit {
     this.loadSessions();
   }
 
+  /** The list is read before it is shown; a failed read is said in the group, with a retry (EST-02). */
+  readonly sessionsState = signal<'loading' | 'error' | 'ready'>('loading');
+
   loadSessions() {
+    if (!this.sessions().length) this.sessionsState.set('loading');
     this.securityService.getActiveSessions()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(sessions => this.sessions.set(sessions));
+      .subscribe({
+        next: (sessions) => {
+          this.sessions.set(sessions);
+          this.sessionsState.set('ready');
+        },
+        error: () => this.sessionsState.set('error'),
+      });
   }
 
   // --- 2FA Setup Flow ---

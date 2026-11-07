@@ -1,160 +1,66 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
-import { Observable, catchError, map, of } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
-import { AuthService } from '../../../../core/services/auth';
-import { SsoAdminService } from '../../../../core/services/sso-admin.service';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
-import { ExtensionsService } from '../../../extensions/extensions.service';
 import { InboundMailboxesPanelComponent } from '../../../inbound-mail/inbound-mailboxes-panel.component';
 import { McpAgentsPanelComponent } from '../../../ai/mcp/mcp-agents-panel.component';
-
-/** The copy of each card. Literal keys, so the catalogue check sees every one of them. */
-export const INTEGRATION_COPY = {
-  extensions: {
-    title: 'settings.integrations.extensions.title',
-    description: 'settings.integrations.extensions.description',
-    action: 'settings.integrations.extensions.action',
-    status: {
-      loading: 'settings.integrations.status_loading',
-      active: 'settings.integrations.extensions.active',
-      inactive: 'settings.integrations.extensions.inactive',
-      unknown: 'settings.integrations.status_unknown',
-    },
-  },
-  sso: {
-    title: 'settings.integrations.sso.title',
-    description: 'settings.integrations.sso.description',
-    action: 'settings.integrations.sso.action',
-    status: {
-      loading: 'settings.integrations.status_loading',
-      active: 'settings.integrations.sso.active',
-      inactive: 'settings.integrations.sso.inactive',
-      unknown: 'settings.integrations.status_unknown',
-    },
-  },
-  einvoicing: {
-    title: 'settings.integrations.einvoicing.title',
-    description: 'settings.integrations.einvoicing.description',
-    action: 'settings.integrations.einvoicing.action',
-    status: {
-      loading: 'settings.integrations.status_loading',
-      active: 'settings.integrations.einvoicing.active',
-      inactive: 'settings.integrations.einvoicing.inactive',
-      unknown: 'settings.integrations.status_unknown',
-    },
-  },
-  data: {
-    title: 'settings.integrations.data.title',
-    description: 'settings.integrations.data.description',
-    action: 'settings.integrations.data.action',
-    status: {
-      loading: 'settings.integrations.status_loading',
-      active: 'settings.integrations.data.active',
-      inactive: 'settings.integrations.data.active',
-      unknown: 'settings.integrations.status_unknown',
-    },
-  },
-} as const;
-
-export const STATE_LABELS = {
-  loading: 'settings.integrations.state.loading',
-  active: 'settings.integrations.state.active',
-  inactive: 'settings.integrations.state.inactive',
-  unknown: 'settings.integrations.state.unknown',
-} as const;
-
-/** What a card says about its integration: on, off, not readable by this user, or still loading. */
-export type IntegrationState = 'loading' | 'active' | 'inactive' | 'unknown';
-
-export interface IntegrationCard {
-  id: 'extensions' | 'sso' | 'einvoicing' | 'data';
-  state: IntegrationState;
-  /** Parameters for the status line, e.g. how many extensions are enabled. */
-  params: Record<string, unknown>;
-  /** An application route (`link`) or a settings section (`fragment`). */
-  link?: string;
-  fragment?: string;
-}
+import { SettingsGroupComponent } from '../../shared';
+import { VxErrorStateComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
 
 /**
- * The integrations the product actually has, with their live state (QA M-09: «Integraciones y
- * API» said «En desarrollo» and listed API keys and webhooks that do not exist).
+ * The company's connections with other systems that are configured here and nowhere else: the
+ * mail addresses suppliers and customers write to, the external AI agents connected over MCP, and
+ * the way to bulk import and export data (QA M-09: «Integraciones y API» said «En desarrollo» and
+ * listed API keys and webhooks that do not exist).
  *
- * Each card reads its own source and links to where the integration is managed: signed
- * extensions and their per-tenant grants, single sign-on, the tax authority's electronic
- * invoicing, and bulk import/export. A card the user may not read says so instead of guessing.
+ * It also showed cards for extensions, single sign-on and electronic invoicing, with their state
+ * and a link. Each of those has its own page in the settings sidebar, so the cards were a second
+ * way to the same place (ARQ-01), laid out as a grid of three and one left over (ANT-01). Their
+ * state is on their own pages.
  */
 @Component({
   selector: 'app-integration-settings-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, InboundMailboxesPanelComponent, McpAgentsPanelComponent],
+  imports: [RouterLink, TranslateModule, SettingsGroupComponent, InboundMailboxesPanelComponent, McpAgentsPanelComponent, VxErrorStateComponent, VxSpinnerComponent],
   templateUrl: './integrations.page.html',
   styleUrls: ['./integrations.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class IntegrationSettingsPage implements OnInit {
-  private readonly http = inject(HttpClient);
-  private readonly auth = inject(AuthService);
-  private readonly extensions = inject(ExtensionsService);
-  private readonly sso = inject(SsoAdminService);
+export class IntegrationSettingsPage {
   private readonly organization = inject(ActiveOrganizationService);
 
-  readonly cards = signal<IntegrationCard[]>([
-    { id: 'extensions', state: 'loading', params: {}, link: this.organization.urlFor('/extensions') },
-    { id: 'sso', state: 'loading', params: {}, fragment: 'settings/sso' },
-    { id: 'einvoicing', state: 'loading', params: {}, fragment: 'settings/fiscal' },
-    { id: 'data', state: 'active', params: {}, link: this.organization.urlFor('/data-imports') },
-  ]);
+  /** Bulk import and export live in the application, not in settings: a link, not a copy. */
+  readonly dataLink = this.organization.urlFor('/data-imports');
 
-  ngOnInit(): void {
-    this.read('extensions', 'extensions:view', () =>
-      this.extensions.consents().pipe(
-        map((consents) => {
-          const enabled = consents.filter((consent) => consent.enabled).length;
-          return { state: enabled > 0 ? 'active' : 'inactive', params: { enabled } } as const;
-        }),
-      ),
-    );
-    this.read('sso', 'settings:edit_company', () =>
-      this.sso.listProviders().pipe(
-        map((providers) => {
-          const enabled = providers.filter((provider) => provider.enabled).length;
-          return { state: enabled > 0 ? 'active' : 'inactive', params: { enabled } } as const;
-        }),
-      ),
-    );
-    this.read('einvoicing', 'taxes:view', () =>
-      this.http
-        .get<object | null>(`${environment.apiUrl}/einvoicing/regime/settings`)
-        .pipe(map((settings) => ({ state: settings ? 'active' : 'inactive', params: {} }) as const)),
-    );
-  }
+  private readonly inbound = viewChild(InboundMailboxesPanelComponent);
+  private readonly agents = viewChild(McpAgentsPanelComponent);
 
-  protected readonly copy = INTEGRATION_COPY;
-  protected readonly stateLabels = STATE_LABELS;
+  /** The panels this person sees; each reads its own data. */
+  private readonly shown = computed(() => {
+    const panels: (InboundMailboxesPanelComponent | McpAgentsPanelComponent)[] = [];
+    const inbound = this.inbound();
+    const agents = this.agents();
+    if (inbound?.canManage()) panels.push(inbound);
+    if (agents?.allowed) panels.push(agents);
+    return panels;
+  });
 
-  statusKey(card: IntegrationCard): string {
-    return INTEGRATION_COPY[card.id].status[card.state];
-  }
+  /**
+   * Every panel shown failed — a dropped connection. The page says so once, with one retry; two
+   * identical errors, one per panel, said the same thing twice (CONT-02).
+   */
+  readonly allFailed = computed(() => {
+    const panels = this.shown();
+    return panels.length > 1 && panels.every((panel) => panel.state() === 'error');
+  });
 
-  private read(
-    id: IntegrationCard['id'],
-    permission: string,
-    source: () => Observable<{ state: IntegrationState; params: Record<string, unknown> }>,
-  ): void {
-    if (!this.auth.hasPermissions([permission])) {
-      this.patch(id, { state: 'unknown' });
-      return;
-    }
-    source()
-      .pipe(catchError(() => of({ state: 'unknown' as const, params: {} })))
-      .subscribe((result) => this.patch(id, result));
-  }
+  /** Every panel shown still loading: one spinner for the page, not one per panel. */
+  readonly allLoading = computed(() => {
+    const panels = this.shown();
+    return panels.length > 1 && panels.every((panel) => panel.state() === 'loading');
+  });
 
-  private patch(id: IntegrationCard['id'], patch: Partial<IntegrationCard>): void {
-    this.cards.update((cards) => cards.map((card) => (card.id === id ? { ...card, ...patch } : card)));
+  retryAll(): void {
+    for (const panel of this.shown()) panel.load();
   }
 }

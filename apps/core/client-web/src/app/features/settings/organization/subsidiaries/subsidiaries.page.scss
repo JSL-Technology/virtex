@@ -25,38 +25,30 @@
   }
 }
 
-.content-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  min-height: 400px;
-  position: relative;
+.sub-page {
+  display: block;
 }
 
+//  Lista de la modal: filas separadas por una línea, sin caja alrededor.
 .subsidiaries-list {
   display: flex;
   flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .subsidiary-item {
   display: flex;
   align-items: center;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  transition: var(--transition);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-subtle);
   gap: var(--space-4);
 
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &:hover {
-    background: var(--bg-hover);
-  }
-
   .item-icon {
-    width: 48px;
-    height: 48px;
+    width: 2.5rem;
+    height: 2.5rem;
     background: var(--bg-tertiary);
     border-radius: var(--radius-md);
     display: flex;
@@ -69,8 +61,8 @@
   .item-details {
     flex: 1;
 
-    h4 {
-      font-size: var(--text-base);
+    .item-name {
+      font-size: var(--text-md);
       font-weight: var(--font-semibold);
       color: var(--text-primary);
       margin: 0 0 0.25rem;

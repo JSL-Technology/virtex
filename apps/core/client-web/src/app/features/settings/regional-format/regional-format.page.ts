@@ -21,10 +21,13 @@ const same = (a: RegionalFormat, b: RegionalFormat): boolean =>
  *
  * Before this, neither existed: formats came from the language and the company's country only.
  */
+import { SettingsGroupComponent } from '../shared';
+import { VxErrorStateComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
+
 @Component({
   selector: 'app-regional-format-page',
   standalone: true,
-  imports: [TranslateModule, RegionalFormatEditorComponent, SettingsSaveBarComponent, SettingsActionsDirective],
+  imports: [TranslateModule, RegionalFormatEditorComponent, SettingsSaveBarComponent, SettingsActionsDirective, SettingsGroupComponent, VxSpinnerComponent, VxErrorStateComponent],
   template: `
     @if (view() === 'company') {
       @if (canEdit() && saved() && !isEmpty(saved()!)) {
@@ -32,49 +35,28 @@ const same = (a: RegionalFormat, b: RegionalFormat): boolean =>
           <button type="button" class="secondary-button" (click)="resetCompany()">{{ 'settings.regional_format.reset_company' | translate }}</button>
         </ng-template>
       }
-      <div class="rfp">
-        <p class="rfp__note" role="note">{{ 'settings.regional_format.company_note' | translate }}</p>
-        @if (loadFailed()) {
-          <div class="rfp__error" role="alert">
-            <p>{{ 'settings.regional_format.load_failed' | translate }}</p>
-            <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
-          </div>
-        } @else if (saved()) {
+      @if (loadFailed()) {
+        <vx-error-state [detail]="'settings.regional_format.load_failed' | translate" (retry)="load()" />
+      } @else if (saved()) {
+        <vx-settings-group titleKey="settings.regional_format.formats_title" descriptionKey="settings.regional_format.company_note">
           <app-regional-format-editor [value]="draft()" [inherited]="{}" [disabled]="!canEdit() || saving()" (valueChange)="draft.set($event)" />
-        } @else {
-          <p class="rfp__note" role="status">{{ 'settings.sections.loading' | translate }}</p>
-        }
-        @if (canEdit()) {
-          <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" (save)="save()" (discard)="discard()" />
-        }
-      </div>
+        </vx-settings-group>
+      } @else {
+        <vx-spinner />
+      }
+      @if (canEdit()) {
+        <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" (save)="save()" (discard)="discard()" />
+      }
     } @else {
-      <section class="rfp rfp--card" aria-labelledby="rfp-personal-title">
-        <div class="rfp__head">
-          <h2 id="rfp-personal-title" class="rfp__title">{{ 'settings.regional_format.personal_title' | translate }}</h2>
-          @if (!isEmpty(personal())) {
-            <button type="button" class="rfp__link" (click)="followCompany()">{{ 'settings.regional_format.follow_company' | translate }}</button>
-          }
-        </div>
-        <p class="rfp__note">{{ 'settings.regional_format.personal_note' | translate }}</p>
+      <vx-settings-group titleKey="settings.regional_format.personal_title" descriptionKey="settings.regional_format.personal_note">
+        @if (!isEmpty(personal())) {
+          <button groupActions type="button" class="ghost-button" (click)="followCompany()">{{ 'settings.regional_format.follow_company' | translate }}</button>
+        }
         <app-regional-format-editor [value]="personal()" [inherited]="company()" [disabled]="saving()" (valueChange)="savePersonal($event)" />
-      </section>
+      </vx-settings-group>
     }
   `,
-  styles: [
-    `
-      :host { display: block; }
-      .rfp { display: flex; flex-direction: column; gap: var(--space-4); }
-      .rfp--card { padding: var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-lg); background: var(--bg-card); }
-      .rfp__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
-      .rfp__title { margin: 0; font-size: var(--text-base); font-weight: var(--font-semibold); color: var(--content-primary); }
-      .rfp__note { margin: 0; font-size: var(--text-sm); color: var(--content-secondary); }
-      .rfp__link { border: none; background: none; padding: 0; color: var(--accent-text); font: inherit; font-size: var(--text-sm); cursor: pointer; text-decoration: underline; }
-      .rfp__error { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4);
-        border: 1px solid var(--error-border); border-radius: var(--radius-md); background: var(--error-surface); color: var(--error-text); }
-      .rfp__error p { margin: 0; }
-    `,
-  ],
+  styleUrl: './regional-format.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegionalFormatPage implements OnInit {

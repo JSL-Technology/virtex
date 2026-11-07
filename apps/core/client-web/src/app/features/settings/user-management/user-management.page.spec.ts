@@ -201,6 +201,20 @@ describe('UserManagementPage', () => {
     expect(mockUsersService.getUsers).toHaveBeenCalledTimes(2);
   }));
 
+  it('asks with the shared confirmation before deleting, and deletes only on yes', async () => {
+    mockDialogService.confirm.mockResolvedValueOnce(false);
+    await component.openDeleteModal(mockUsers[0]);
+    expect(mockDialogService.confirm).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'dialog.delete_user.title', message: 'dialog.delete_user.message', variant: 'danger', messageParams: { name: 'John Doe' } }),
+    );
+    expect(mockUsersService.deleteUser).not.toHaveBeenCalled();
+    expect(component.deleteModalOpen()).toBe(false);
+
+    mockDialogService.confirm.mockResolvedValueOnce(true);
+    await component.openDeleteModal(mockUsers[0]);
+    expect(mockUsersService.deleteUser).toHaveBeenCalledWith(mockUsers[0].id);
+  });
+
   it('should delete a user', fakeAsync(() => {
     const userToDelete = mockUsers[0];
     component.openDeleteModal(userToDelete);

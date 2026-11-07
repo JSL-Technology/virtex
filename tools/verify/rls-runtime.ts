@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { DataSource, Repository } from 'typeorm';
 import { AppModule } from '../../apps/backend/api/src/app/app.module';
 import { Customer } from '../../apps/backend/api/src/app/customers/entities/customer.entity';
@@ -137,9 +137,13 @@ async function main() {
   //
   //    Las comprobaciones 1-5 no lo detectaban porque `asTenant` es una copia del interceptor, no
   //    el interceptor. Esta corre el real.
+  //  El interceptor pregunta al manejador y a su controlador si la ruta usa conexiones cortas
+  //  (`ShortLivedConnections`); estos no llevan la marca, así que fija la conexión como cualquier ruta.
   const contextoHttp = {
     getType: () => 'http',
     switchToHttp: () => ({ getRequest: () => ({ user: { organizationId: ORG_A } }) }),
+    getHandler: () => function manejador() { /* sin metadatos */ },
+    getClass: () => class Controlador {},
   } as unknown as ExecutionContext;
 
   const manejadorAplazado: CallHandler = {
@@ -157,7 +161,7 @@ async function main() {
   };
 
   const trasAplazar = await firstValueFrom(
-    new TenantConnectionInterceptor(dataSource).intercept(contextoHttp, manejadorAplazado),
+    new TenantConnectionInterceptor(dataSource, new Reflector()).intercept(contextoHttp, manejadorAplazado),
   );
   check('el interceptor real sostiene el inquilino tras un `await` de otro interceptor', trasAplazar, [
     'Cliente de A',

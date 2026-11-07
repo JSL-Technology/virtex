@@ -1,563 +1,233 @@
-@use '../../../../assets/styles/variables' as *;
+@use 'assets/styles/design-system' as ds;
+@use 'app/features/settings/shared/settings-ui' as ui;
 
-// ──────────────────────────────────────────────
-// Page Shell
-// ──────────────────────────────────────────────
-.billing-page {
-    animation: page-enter 0.25s ease-out;
+//  Plan y facturación. Los grupos los dibuja `vx-settings-group`, los avisos `vx-notice` y los
+//  estados `vx-badge`: aquí queda lo propio de la página. Sin cabeceras en mayúsculas, sin sombras;
+//  la única tarjeta es cada plan, porque cada uno es una opción independiente (CON-01).
 
-    > * + * { margin-top: var(--space-8); }
+.billing-page { display: block; }
+
+// ── Suscripción ──────────────────────────────────────────────────────
+.summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  margin: 0;
+
+  @include ds.bp-up('sm') {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-@keyframes page-enter {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+.summary__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
-.billing-header {
-    padding-bottom: var(--space-6);
-    border-bottom: 1px solid var(--border-color);
+.summary__label { @include ds.field-label; }
 
-    &__title {
-        font-size: var(--text-2xl);
-        font-weight: var(--font-bold);
-        color: var(--text-primary);
-        margin-bottom: var(--space-1);
-    }
+.summary__value {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
 
-    &__subtitle {
-        font-size: var(--text-md);
-        color: var(--text-secondary);
-    }
+  p { margin: 0; }
 }
 
-// ──────────────────────────────────────────────
-// Top info grid
-// ──────────────────────────────────────────────
-.billing-top-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: var(--space-5);
-    align-items: start;
+.summary__main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
 }
 
-.info-card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-
-    &__header {
-        display: flex;
-        align-items: center;
-        gap: 0.625rem;
-        padding: 1rem 1.25rem 0.75rem;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    &__icon {
-        width: 2rem;
-        height: 2rem;
-        border-radius: var(--radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        &--plan {
-            background-color: var(--success-bg);
-            color: var(--success);
-        }
-
-        &--payment {
-            background-color: var(--primary-light);
-            color: var(--primary);
-        }
-
-        &--usage {
-            background-color: rgba(var(--warning-rgb), 0.12);
-            color: var(--warning-text);
-        }
-    }
-
-    &__label {
-        font-size: var(--text-xs);
-        font-weight: var(--font-bold);
-        color: var(--text-tertiary);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    &__body {
-        padding: var(--space-5);
-    }
-
-    &--usage {
-        .usage-list { padding: var(--space-5); }
-    }
-}
-
-// Plan card body
 .plan-name {
-    font-size: var(--text-lg);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-1);
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
 }
 
 .plan-price {
-    font-size: var(--text-3xl);
-    font-weight: 800;
-    color: var(--text-primary);
-    line-height: 1.1;
-    margin-bottom: var(--space-4);
-
-    &__period {
-        font-size: var(--text-md);
-        font-weight: var(--font-regular);
-        color: var(--text-secondary);
-    }
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+  @include ds.numeric;
 }
 
-.plan-status {
-    font-size: var(--text-sm);
-    padding: 0.5rem 0.75rem;
-    border-radius: var(--radius-md);
-    border-left: 3px solid transparent;
-
-    &--activo {
-        background-color: var(--success-bg);
-        border-left-color: var(--success);
-        color: var(--success);
-    }
-
-    &--prueba {
-        background-color: rgba(var(--warning-rgb), 0.1);
-        border-left-color: var(--warning-border);
-        color: var(--warning-text);
-    }
+.summary__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
 }
 
-// Payment method body — the stored card, drawn as a card (vx-payment-card).
-.payment-card-visual {
-    margin-bottom: var(--space-4);
-}
+.summary__hint { @include ds.field-hint; max-width: 60ch; }
 
-// Usage list
+.payment-card-visual { max-width: 20rem; }
+
+// ── Consumo ──────────────────────────────────────────────────────────
 .usage-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 40rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.usage-item {
-    &__row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.375rem;
-    }
+.usage-item__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+}
 
-    &__name {
-        font-size: var(--text-sm);
-        font-weight: var(--font-medium);
-        color: var(--text-secondary);
-        // The catalogue writes the name as a sentence («Créditos de IA»); forcing title case printed
-        // «Créditos De IA» beside lower-case names everywhere else (CG-30).
-    }
+.usage-item__name { color: var(--content-primary); font-weight: var(--font-medium); }
 
-    &__value {
-        font-size: var(--text-sm);
-        font-weight: var(--font-bold);
-        color: var(--text-primary);
-    }
+//  Cifras en columna: numerales tabulares para que las unidades queden una bajo otra (TIP-03).
+.usage-item__value {
+  color: var(--content-primary);
+  text-align: right;
+  white-space: nowrap;
+  @include ds.numeric;
+}
+
+.usage-item__period {
+  margin-inline-start: var(--space-2);
+  color: var(--content-tertiary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-regular);
 }
 
 .usage-bar {
-    height: 6px;
-    background-color: var(--bg-tertiary);
-    border-radius: var(--radius-full);
-    overflow: hidden;
-
-    &__fill {
-        height: 100%;
-        border-radius: var(--radius-full);
-        background-color: var(--primary);
-        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-        &--warning { background-color: var(--warning-solid); }
-        &--critical { background-color: var(--error); }
-    }
+  height: var(--space-1);
+  margin-top: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  overflow: hidden;
 }
 
-// ──────────────────────────────────────────────
-// Section
-// ──────────────────────────────────────────────
-.billing-section {
-    &__header {
-        margin-bottom: var(--space-5);
-    }
+.usage-bar__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent-solid);
+  @include ds.transition(width);
 
-    &__title {
-        font-size: var(--text-lg);
-        font-weight: var(--font-bold);
-        color: var(--text-primary);
-        margin-bottom: var(--space-1);
-    }
-
-    &__subtitle {
-        font-size: var(--text-md);
-        color: var(--text-secondary);
-    }
+  &--warning { background: var(--warning-solid); }
+  &--critical { background: var(--error-solid); }
 }
 
-// ──────────────────────────────────────────────
-// Plan Cards Grid
-// ──────────────────────────────────────────────
+// ── Planes ───────────────────────────────────────────────────────────
 .plans-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: var(--space-4);
-    margin-bottom: var(--space-5);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--space-4);
 }
 
 .plan-card {
-    position: relative;
-    background-color: var(--bg-card);
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: var(--space-5);
-    cursor: pointer;
-    transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: var(--surface-base);
+  cursor: pointer;
+  @include ds.transition(border-color, background-color);
 
-    &:hover:not(.plan-card--current) {
-        border-color: var(--primary);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
+  &:hover:not(.plan-card--current) { border-color: var(--border-strong); }
 
-    &--selected {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px var(--primary-light);
-    }
+  //  El foco está en la opción (un radio oculto); se dibuja en la tarjeta entera.
+  &:has(.plan-card__input:focus-visible) {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
 
-    &--current {
-        border-color: var(--success);
-        cursor: default;
-    }
+  &--selected {
+    border-color: var(--accent-solid);
+    background: var(--accent-surface);
+  }
 
-    &__badge {
-        position: absolute;
-        top: -1px;
-        right: 1rem;
-        background-color: var(--success);
-        color: white;
-        font-size: var(--text-2xs);
-        font-weight: var(--font-bold);
-        padding: 0.125rem 0.625rem;
-        border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    }
-
-    &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: var(--space-3);
-    }
-
-    &__name {
-        font-size: var(--text-base);
-        font-weight: var(--font-bold);
-        color: var(--text-primary);
-    }
-
-    &__price {
-        margin-bottom: var(--space-3);
-    }
-
-    &__price-amount {
-        font-size: var(--text-3xl);
-        font-weight: 800;
-        color: var(--text-primary);
-        line-height: 1.1;
-    }
-
-    &__price-period {
-        font-size: var(--text-sm);
-        font-weight: var(--font-regular);
-        color: var(--text-secondary);
-        margin-left: 0.125rem;
-    }
-
-    &__desc {
-        font-size: var(--text-sm);
-        color: var(--text-secondary);
-        line-height: 1.5;
-        margin-bottom: 0.875rem;
-    }
-
-    &__check {
-        color: var(--primary);
-        flex-shrink: 0;
-    }
-
-    &__limits {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.375rem;
-        border-top: 1px solid var(--border-color);
-        padding-top: 0.875rem;
-
-        li {
-            display: flex;
-            align-items: center;
-            gap: 0.375rem;
-            font-size: var(--text-sm);
-            color: var(--text-secondary);
-
-            lucide-icon { color: var(--success); flex-shrink: 0; }
-        }
-    }
+  &--current { cursor: default; }
 }
 
-.plans-loading {
+.plan-card__input { @include ds.visually-hidden; }
+
+.plan-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.plan-card__name {
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
+}
+
+.plan-card__check { color: var(--accent-text); }
+
+.plan-card__price {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
+  @include ds.numeric;
+}
+
+.plan-card__desc {
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+.plan-card__limits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+
+  li {
     display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    color: var(--text-secondary);
-    font-size: var(--text-md);
-    padding: 2rem 0;
-}
-
-.plans-error {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    padding: var(--space-5);
-    background-color: var(--error-bg, rgba(var(--error-rgb), 0.06));
-    border: 1px solid rgba(var(--error-rgb), 0.2);
-    border-radius: var(--radius-md);
-    font-size: var(--text-md);
-    color: var(--text-secondary);
-
-    lucide-icon { color: var(--error, var(--error-text)); flex-shrink: 0; }
-    .btn-outline { margin-left: auto; display: inline-flex; align-items: center; gap: 0.375rem; }
-}
-
-// Banners (success / info)
-.billing-banner {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    padding: 0.875rem 1.25rem;
-    border-radius: var(--radius-md);
-    font-size: var(--text-md);
-
-    &--success {
-        background-color: var(--success-bg);
-        border: 1px solid rgba(var(--info-rgb), 0.25);
-        color: var(--success);
-        lucide-icon { flex-shrink: 0; }
-    }
-}
-
-.info-card__muted {
-    font-size: var(--text-md);
-    color: var(--text-secondary);
-    line-height: 1.5;
-    margin-bottom: 0.875rem;
-}
-
-// Dark variant of the spinner for use on light/outline backgrounds
-.status-paid--pending {
-    background-color: rgba(var(--warning-rgb), 0.12);
-    color: var(--warning-text);
-    text-transform: capitalize;
-}
-
-.checkout-error {
-    display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--space-2);
-    padding: 0.75rem 1rem;
-    background-color: var(--error-bg, rgba(var(--error-rgb), 0.08));
-    border: 1px solid rgba(var(--error-rgb), 0.25);
-    border-radius: var(--radius-md);
-    font-size: var(--text-md);
-    color: var(--error, var(--error-text));
-    margin-top: var(--space-3);
+  }
 
-    lucide-icon { flex-shrink: 0; }
-}
-
-.btn-checkout {
-    white-space: nowrap;
+  lucide-icon {
     flex-shrink: 0;
+    margin-top: 0.125rem;
+    color: var(--success-text);
+  }
 }
 
-.plan-change-banner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    padding: 0.875rem 1.25rem;
-    background-color: var(--primary-light);
-    border: 1px solid rgba(var(--primary-rgb), 0.25);
-    border-radius: var(--radius-md);
-    flex-wrap: wrap;
+.plan-change {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
 
-    &__info {
-        display: flex;
-        align-items: center;
-        gap: var(--space-2);
-        font-size: var(--text-md);
-        color: var(--text-secondary);
-
-        lucide-icon { color: var(--primary); flex-shrink: 0; }
-        strong { color: var(--text-primary); }
-    }
+  vx-notice { flex: 1 1 20rem; }
 }
 
-// ──────────────────────────────────────────────
-// Billing History Table
-// ──────────────────────────────────────────────
-.history-card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-}
-
+// ── Historial ────────────────────────────────────────────────────────
 .history-table {
-    width: 100%;
-    border-collapse: collapse;
+  @include ui.table;
 
-    th {
-        padding: 0.625rem 1.25rem;
-        text-align: left;
-        font-size: var(--text-xs);
-        font-weight: var(--font-semibold);
-        color: var(--text-tertiary);
-        letter-spacing: 0.05em;
-        background-color: var(--bg-primary);
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    td {
-        padding: 0.875rem 1.25rem;
-        border-bottom: 1px solid var(--border-color);
-        font-size: var(--text-md);
-        color: var(--text-secondary);
-        vertical-align: middle;
-    }
-
-    tbody tr {
-        transition: background-color 0.1s;
-
-        &:last-child td { border-bottom: none; }
-        &:hover { background-color: var(--bg-hover); }
-    }
+  .numeric { text-align: right; @include ds.numeric; }
+  .nowrap { white-space: nowrap; }
 }
 
-.history-date {
-    color: var(--text-tertiary);
-    font-size: var(--text-sm);
-    white-space: nowrap;
-}
-
-.history-amount {
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    white-space: nowrap;
-}
-
-.history-action { width: 1%; }
-
-.history-empty {
-    text-align: center;
-    color: var(--text-tertiary);
-    padding: 3rem !important;
-    font-size: var(--text-md);
-}
-
-.status-paid {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.1875rem 0.625rem;
-    border-radius: var(--radius-full);
-    font-size: var(--text-xs);
-    font-weight: var(--font-semibold);
-    background-color: var(--success-bg);
-    color: var(--success);
-}
-
-// ──────────────────────────────────────────────
-// Shared Buttons
-// ──────────────────────────────────────────────
-.btn-primary {
-    height: 2.5rem;
-    padding: 0 1.25rem;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: var(--text-md);
-    font-weight: var(--font-semibold);
-    cursor: pointer;
-    transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-
-    &:hover:not(:disabled) {
-        background: var(--primary-hover);
-        transform: translateY(-1px);
-    }
-
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
-}
-
-.btn-outline {
-    height: 2rem;
-    padding: 0 0.875rem;
-    background: transparent;
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    cursor: pointer;
-    transition: var(--transition);
-
-    &:hover { background-color: var(--bg-hover); }
-}
-
-.btn-sm { height: 1.875rem; padding: 0 0.75rem; font-size: var(--text-sm); }
-
-.icon-btn {
-    width: 2rem;
-    height: 2rem;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
-    color: var(--text-tertiary);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-
-    &:hover {
-        background-color: var(--bg-hover);
-        border-color: var(--border-color);
-        color: var(--text-primary);
-    }
-}
-
+.row-actions { @include ui.row-actions; }
+.icon-button { @include ui.icon-button; }

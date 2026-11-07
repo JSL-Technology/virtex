@@ -1,4 +1,4 @@
-import { SettingsActionsDirective } from '../shell';
+import { SettingsActionsDirective, SettingsShellService } from '../shell';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { RoleNamePipe, roleLabel } from '../../../shared/pipes/role-name.pipe';
 import {
@@ -73,10 +73,14 @@ import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs'
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { composeKey } from '@virteex/shared/types';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { VxSpinnerComponent } from '../../../shared/components/feedback';
+import { VxEmptyStateComponent, VxErrorStateComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
+import { SettingsGroupComponent } from '../shared';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VX_SELECT } from '../../../shared/components/select';
+import { VxDialogComponent } from '../../../shared/components/dialog';
+import { VxFieldErrorComponent } from '../../../shared/components/field-error';
 import { TableSort, VX_SORT, sortable } from '../../../shared/components/sort';
 
 @Component({
@@ -89,7 +93,8 @@ import { TableSort, VX_SORT, sortable } from '../../../shared/components/sort';
     TranslateModule,
     HasPermissionDirective,
     ...VX_FORM_A11Y, ...VX_SELECT, VxSpinnerComponent, VxPagerComponent, VxBadgeComponent,
-    UserBranchAccessDialogComponent],
+    VxEmptyStateComponent, VxErrorStateComponent, SettingsGroupComponent, ...VX_CONTEXT_MENU,
+    UserBranchAccessDialogComponent, VxDialogComponent, VxFieldErrorComponent],
   templateUrl: './user-management.page.html',
   styleUrls: ['./user-management.page.scss'],
 })
@@ -98,6 +103,9 @@ export class UserManagementPage implements OnInit, OnDestroy {
   readonly invitationsTable = sortable(() => this.sentInvitations(), { name: (invitation) => `${invitation.firstName} ${invitation.lastName}`, role: (invitation) => roleLabel(this.translate, invitation.roleName) });
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(DialogService);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  /** Whether the person may change users (`users:edit`); the window decides from the section. */
+  protected readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
   // Servicios
   private fb = inject(FormBuilder);
   private usersService = inject(UsersService);
@@ -161,9 +169,49 @@ export class UserManagementPage implements OnInit, OnDestroy {
   userModalOpen = signal(false);
   deleteModalOpen = signal(false);
   selectedUser: ApiUser | null = null;
-  contextMenuUser: ApiUser | null = null;
-  showContextMenu = false;
-  contextMenuPosition = { x: 0, y: 0 };
+  /** Los estados por los que se filtra la lista, en el orden del control segmentado. */
+  protected readonly statusOptions = [
+    { value: 'all', labelKey: 'users.views.all' },
+    { value: 'ACTIVE', labelKey: 'user.status.active' },
+    { value: 'ARCHIVED', labelKey: 'user.status.archived' },
+    { value: 'PENDING', labelKey: 'user.status.pending' },
+    { value: 'BLOCKED', labelKey: 'user.status.blocked' },
+  ] as const;
+
+  /** El error de la última carga de la lista, ya traducido; null si cargó. */
+  readonly loadError = signal<string | null>(null);
+
+  /**
+   * Las acciones de cada persona, en el menú compartido de las tablas (el mismo del clic derecho en
+   * todo el producto): «Editar» queda a la vista en la fila; el resto, en «Más acciones».
+   */
+  readonly usersMenu: ListMenuConfig<ApiUser> = {
+    resource: 'users',
+    row: (ctx) => {
+      const user = ctx.entity as ApiUser;
+      const run = (action: string) => () => this.handleAction(action, user);
+      return [
+        {
+          id: 'account',
+          items: [
+            { id: 'edit', label: 'settings.user_management.edit_user', icon: FilePenLine, run: run('edit') },
+            { id: 'resend', label: 'settings.user_management.resend_invitation', icon: Mail, visible: () => user.status === 'PENDING', run: run('resend-invitation') },
+            { id: 'branches', label: 'branches.access.menu', icon: MapPin, permission: 'branches:manage', run: run('branches') },
+            { id: 'reset', label: 'settings.user_management.reset_password', icon: Key, run: run('resetPassword') },
+          ],
+        },
+        {
+          id: 'session',
+          items: [
+            { id: 'impersonate', label: 'settings.user_management.impersonate_user', icon: UserCog, permission: 'users:impersonate', run: run('impersonate') },
+            { id: 'force-logout', label: 'settings.user_management.force_sign_out', icon: PowerOff, run: run('force-logout') },
+            { id: 'block', label: 'settings.user_management.block_sign_out', icon: Ban, run: run('block-and-logout') },
+          ],
+        },
+        { id: 'danger', items: [{ id: 'delete', label: 'settings.user_management.delete_account', icon: Trash2, danger: true, run: run('delete') }] },
+      ];
+    },
+  };
   activeTab: 'general' | 'permissions' | 'advanced' = 'general';
 
   // Paginación y Filtros
@@ -279,14 +327,15 @@ export class UserManagementPage implements OnInit, OnDestroy {
       sortDirection: this.sortDirection(),
     };
 
+    this.loadError.set(null);
     this.usersService.getUsers(options).subscribe({
       next: (response) => {
         this.users.set(response.data);
         this.totalUsers.set(response.total);
         this.loading.set(false);
       },
-      error: () => {
-        this.notificationService.showError('settings.user_management.users_could_not_loaded');
+      error: (error: unknown) => {
+        this.loadError.set(this.notificationService.httpErrorMessage(error, 'settings.user_management.users_could_not_loaded'));
         this.loading.set(false);
       },
     });
@@ -319,15 +368,8 @@ export class UserManagementPage implements OnInit, OnDestroy {
   openInviteModal(): void {
     this.isEditMode.set(false);
     this.userForm.reset({ roleId: null });
+    // The shared dialog moves the focus to the first field (`cdkFocusInitial`) and traps it there.
     this.userModalOpen.set(true);
-    this.focusUserModal();
-  }
-
-  /** Focus moves into the dialog, so the keyboard — and Escape — act on it, not on what is behind. */
-  private focusUserModal(): void {
-    setTimeout(() =>
-      document.querySelector<HTMLElement>('[aria-labelledby="user-modal-title"] input, [aria-labelledby="user-modal-title"]')?.focus(),
-    );
   }
 
   openEditModal(user: ApiUser): void {
@@ -341,7 +383,6 @@ export class UserManagementPage implements OnInit, OnDestroy {
       roleId: user.roles?.[0]?.id || null,
     });
     this.userModalOpen.set(true);
-    this.focusUserModal();
   }
 
   closeUserModal(): void {
@@ -349,25 +390,29 @@ export class UserManagementPage implements OnInit, OnDestroy {
     this.selectedUser = null;
   }
 
-  openDeleteModal(user: ApiUser): void {
+  /**
+   * Asks with the shared confirmation, as every other deletion in Settings does (roles, SSO
+   * domains, agent keys), and deletes on yes. It was a dialog of its own, in another voice
+   * («¿Está seguro que desea…»), with no focus trap.
+   */
+  async openDeleteModal(user: ApiUser): Promise<void> {
     this.selectedUser = user;
     this.deleteModalOpen.set(true);
+    const confirmed = await this.dialog.confirm({
+      title: 'dialog.delete_user.title',
+      message: 'dialog.delete_user.message',
+      messageParams: { name: `${user.firstName} ${user.lastName}`.trim() || user.email },
+      confirmText: 'common.delete',
+      variant: 'danger',
+    });
+    this.deleteModalOpen.set(false);
+    if (confirmed) this.confirmDelete();
+    else if (this.selectedUser === user) this.selectedUser = null;
   }
 
   closeDeleteModal(): void {
     this.deleteModalOpen.set(false);
     this.selectedUser = null;
-  }
-
-  /** Whether a field should show its error: only after the user touched it or tried to save. */
-  invalid(name: string): boolean {
-    const control = this.userForm.get(name);
-    return !!control && control.invalid && (control.touched || control.dirty);
-  }
-
-  fieldError(name: string): string {
-    const control = this.userForm.get(name);
-    return control?.hasError('email') ? 'settings.user_management.errors.email_invalid' : 'settings.user_management.errors.required';
   }
 
   save(): void {
@@ -453,7 +498,6 @@ export class UserManagementPage implements OnInit, OnDestroy {
   }
 
   handleAction(action: string, user: ApiUser): void {
-    this.closeContextMenu();
     this.selectedUser = user;
     switch (action) {
       case 'edit':
@@ -605,15 +649,4 @@ export class UserManagementPage implements OnInit, OnDestroy {
     return this.statusToneMap[status] ?? 'neutral';
   }
 
-  openUserActions(event: MouseEvent, user: ApiUser): void {
-    event.stopPropagation();
-    this.contextMenuUser = user;
-    this.showContextMenu = true;
-    this.contextMenuPosition = { x: event.clientX, y: event.clientY };
-  }
-
-  closeContextMenu(): void {
-    this.showContextMenu = false;
-    this.contextMenuUser = null;
-  }
 }

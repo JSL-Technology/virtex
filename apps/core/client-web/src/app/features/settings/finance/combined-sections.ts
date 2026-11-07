@@ -25,6 +25,14 @@ export abstract class CombinedSettingsPage implements OnInit {
   protected readonly saving = signal(false);
 
   readonly dirty = computed(() => this.blocks().some((block) => block.dirty()));
+  /** One state for the page: loading while any block is, failed when any block failed. */
+  readonly loading = computed(() => this.blocks().some((block) => block.loading()));
+  readonly failed = computed(() => this.blocks().find((block) => !!block.loadError())?.loadError() ?? null);
+
+  /** Reads again every block that could not be read. */
+  retryAll(): void {
+    for (const block of this.blocks()) if (block.loadError()) block.load();
+  }
   readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
 
   private readonly changes: SettingsChanges = {

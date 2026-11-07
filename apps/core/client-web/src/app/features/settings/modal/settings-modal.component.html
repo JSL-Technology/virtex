@@ -119,14 +119,18 @@
           @if (denied()) {
             <div class="sm-state" role="alert">
               <lucide-icon [img]="LockIcon" size="22" aria-hidden="true"></lucide-icon>
-              <p>{{ 'settings.shell.denied' | translate }}</p>
+              @if (deniedPermission(); as permission) {
+                <p>{{ 'settings.shell.denied_permission' | translate: { permission: ('settings.permission_names.' + permission.replace(':', '_') | translate) } }}</p>
+              } @else {
+                <p>{{ 'settings.shell.denied_country' | translate }}</p>
+              }
             </div>
           } @else {
             @if (!canEdit()) {
-              <div class="sm-readonly" role="note">
-                <lucide-icon [img]="LockIcon" size="16" aria-hidden="true"></lucide-icon>
-                <p>{{ 'settings.shell.read_only' | translate: { permission: ('settings.permission_names.' + (section.editPermission ?? section.viewPermission ?? '').replace(':', '_') | translate) } }}</p>
-              </div>
+              <!-- Solo lectura, y qué permiso falta, con el aviso común de la modal (PERM-01, COL-01). -->
+              <vx-notice class="sm-readonly" tone="info">
+                {{ 'settings.shell.read_only' | translate: { permission: ('settings.permission_names.' + (section.editPermission ?? section.viewPermission ?? '').replace(':', '_') | translate) } }}
+              </vx-notice>
             }
             @if (component(); as type) {
               <div class="sm-section" [class.sm-section--readonly]="!canEdit()">

@@ -1,5 +1,11 @@
-import { VxEmptyStateComponent } from '../../../../shared/components/feedback/empty-state.component';
-import { SettingsActionsDirective, SettingsShellService } from '../../shell';
+import { VxEmptyStateComponent, VxErrorStateComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
+import { SettingsActionsDirective, SettingsChanges, SettingsShellService } from '../../shell';
+import { SettingsDisclosureComponent, SettingsGroupComponent } from '../../shared';
+import { VxBadgeComponent, type VxTone } from '../../../../shared/components/badge';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../../shared/components/context-menu';
+import { DialogService } from '../../../../core/services/dialog.service';
+import { CountryNamesService } from '../../../../core/i18n/countries';
+import { LucideAngularModule, MoreHorizontal, Percent, Trash2 } from 'lucide-angular';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -40,14 +46,58 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-withholding-regimes-page',
   standalone: true,
-  imports: [VxNumberInputDirective, VxEmptyStateComponent, SettingsActionsDirective, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
+  imports: [
+    VxNumberInputDirective,
+    VxEmptyStateComponent,
+    VxErrorStateComponent,
+    VxSpinnerComponent,
+    VxBadgeComponent,
+    SettingsActionsDirective,
+    SettingsGroupComponent,
+    SettingsDisclosureComponent,
+    CommonModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    LucideAngularModule,
+    ...VX_CONTEXT_MENU,
+    ...FORMAT_PIPES,
+    ...VX_FORM_A11Y,
+  ],
   templateUrl: './withholding-regimes.page.html',
   styleUrls: ['./withholding-regimes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WithholdingRegimesPage implements OnInit {
   /** Whether this person may change the section; read-only otherwise (from the settings shell). */
-  protected readonly canEdit = inject(SettingsShellService, { optional: true })?.canEdit ?? signal(true);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  protected readonly canEdit = this.shell?.canEdit ?? signal(true);
+  private readonly dialog = inject(DialogService);
+  private readonly countryNames = inject(CountryNamesService);
+  protected readonly MoreIcon = MoreHorizontal;
+  protected readonly RegimeIcon = Percent;
+
+  /** The list could not be read: said in place, with a retry, not as an empty list (EST-02). */
+  readonly loadFailed = signal(false);
+  /** A regime typed and not saved: closing the window asks before dropping it (GUA-01). */
+  readonly formDirty = signal(false);
+  private readonly changes: SettingsChanges = {
+    dirty: this.formDirty,
+    discard: () => this.closeForm(),
+  };
+
+  /** Deleting, the one row action: in the shared row menu, asked first (ACC-04). */
+  readonly regimesMenu: ListMenuConfig<WithholdingRegime> = {
+    resource: 'withholding_regimes',
+    row: (ctx) => {
+      const row = ctx.entity as WithholdingRegime;
+      return [
+        {
+          id: 'danger',
+          items: [{ id: 'delete', label: 'settings.pages.withholding.delete', icon: Trash2, danger: true, visible: () => this.canEdit(), run: () => this.remove(row) }],
+        },
+      ];
+    },
+  };
 
   private readonly api = inject(FiscalSettingsService);
   private readonly fb = inject(FormBuilder);
@@ -90,6 +140,11 @@ export class WithholdingRegimesPage implements OnInit {
 
   ngOnInit(): void {
     this.load();
+    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.formDirty.set(this.showForm() && this.form.dirty));
+    if (this.shell) {
+      this.shell.register(this.changes);
+      this.destroyRef.onDestroy(() => this.shell?.unregister(this.changes));
+    }
     this.api
       .coverage()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -101,8 +156,9 @@ export class WithholdingRegimesPage implements OnInit {
       });
   }
 
-  private load(): void {
+  load(): void {
     this.loading.set(true);
+    this.loadFailed.set(false);
     this.api
       .withholdingRegimes()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -113,13 +169,47 @@ export class WithholdingRegimesPage implements OnInit {
         },
         error: () => {
           this.loading.set(false);
-          this.notifications.showError('settings.pages.withholding.load_failed');
+          this.loadFailed.set(true);
         },
       });
   }
 
   toggleForm(): void {
-    this.showForm.update((open) => !open);
+    if (this.showForm()) this.closeForm();
+    else this.openForm();
+  }
+
+  openForm(): void {
+    this.showForm.set(true);
+    queueMicrotask(() => document.getElementById('w-code')?.focus());
+  }
+
+  closeForm(): void {
+    this.showForm.set(false);
+    this.form.reset({ kind: 'VAT', scope: 'ANY', ratePercent: 0, payers: [] });
+    this.formDirty.set(false);
+  }
+
+  /** `VAT` → «Sobre el impuesto»: the table showed the enum. */
+  kindLabel(kind: string): string {
+    return this.kinds.find((item) => item.value === kind)?.labelKey ?? kind;
+  }
+
+  countryName(code: string | null | undefined): string {
+    return (code && this.countryNames.nameOf(code)) || code || '';
+  }
+
+  levelTone(level: string): VxTone {
+    switch (level) {
+      case 'implemented':
+        return 'ok';
+      case 'needs-credentials':
+        return 'warning';
+      case 'not-implemented':
+        return 'danger';
+      default:
+        return 'neutral';
+    }
   }
 
   togglePayer(value: string): void {
@@ -159,8 +249,7 @@ export class WithholdingRegimesPage implements OnInit {
       .subscribe({
         next: () => {
           this.saving.set(false);
-          this.showForm.set(false);
-          this.form.reset({ kind: 'VAT', scope: 'ANY', ratePercent: 0, payers: [] });
+          this.closeForm();
           this.load();
         },
         error: (error) => {
@@ -170,7 +259,15 @@ export class WithholdingRegimesPage implements OnInit {
       });
   }
 
-  remove(row: WithholdingRegime): void {
+  async remove(row: WithholdingRegime): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'settings.pages.withholding.delete_title',
+      message: 'settings.pages.withholding.delete_message',
+      messageParams: { name: row.label },
+      confirmText: 'settings.pages.withholding.delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
     this.api
       .deleteWithholdingRegime(row.id)
       .pipe(takeUntilDestroyed(this.destroyRef))

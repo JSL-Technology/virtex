@@ -2,21 +2,36 @@ import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { translateOrLiteral, FormatService } from '@virteex/shared/ui-i18n';
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, CreditCard, Download, CheckCircle, Info, Zap, ExternalLink, AlertTriangle, RefreshCw, Settings } from 'lucide-angular';
+import { LucideAngularModule, Check, CheckCircle, Download, ExternalLink, Zap } from 'lucide-angular';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BillingService, BillingOverview, BillingInvoice } from '../../../core/services/billing';
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
-import { formatPlanPrice, minorUnitFactorFor } from '../../../core/models/plan.model';
+import { minorUnitFactorFor } from '../../../core/models/plan.model';
 import { LanguageService } from '../../../core/services/language';
 import { TranslateService } from '@ngx-translate/core';
 import { composeKey } from '@virteex/shared/types';
-import { VxSpinnerComponent } from '../../../shared/components/feedback';
+import { VxEmptyStateComponent, VxErrorStateComponent, VxNoticeComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
 import { VxPaymentCardComponent } from '../../../shared/components/payment-card';
+import { VxBadgeComponent, type VxTone } from '../../../shared/components/badge';
+import { SettingsGroupComponent } from '../shared';
+import { SettingsShellService } from '../shell';
 
 @Component({
   selector: 'app-billing-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, VxSpinnerComponent, VxPaymentCardComponent, ...FORMAT_PIPES],
+  imports: [
+    CommonModule,
+    LucideAngularModule,
+    TranslateModule,
+    VxSpinnerComponent,
+    VxErrorStateComponent,
+    VxEmptyStateComponent,
+    VxNoticeComponent,
+    VxBadgeComponent,
+    VxPaymentCardComponent,
+    SettingsGroupComponent,
+    ...FORMAT_PIPES,
+  ],
   templateUrl: './billing.page.html',
   styleUrls: ['./billing.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,21 +43,22 @@ export class BillingPage implements OnInit {
   private readonly format = inject(FormatService);
   private readonly translate = inject(TranslateService);
   private viewContainerRef = inject(ViewContainerRef);
+  private readonly shell = inject(SettingsShellService, { optional: true });
 
-  protected readonly CreditCardIcon = CreditCard;
   protected readonly DownloadIcon = Download;
+  protected readonly CheckIcon = Check;
   protected readonly CheckCircleIcon = CheckCircle;
-  protected readonly InfoIcon = Info;
   protected readonly ZapIcon = Zap;
   protected readonly ExternalLinkIcon = ExternalLink;
-  protected readonly AlertTriangleIcon = AlertTriangle;
-  protected readonly RefreshCwIcon = RefreshCw;
-  protected readonly SettingsIcon = Settings;
+
+  /** Whether the person may change the plan or the card (it takes `billing:manage`). */
+  protected readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
 
   usageMetrics = toSignal(this.billingService.getUsage(), { initialValue: [] as any[] });
 
   overview = signal<BillingOverview | null>(null);
-  overviewLoading = signal(true);
+  /** The subscription is read before anything is said about it: «Sin plan» on a failed request was a lie. */
+  overviewState = signal<'loading' | 'error' | 'ready'>('loading');
   invoices = signal<BillingInvoice[]>([]);
 
   selectedPlan = signal<string | null>(null);
@@ -53,6 +69,10 @@ export class BillingPage implements OnInit {
 
   availablePlans = this.billingService.plans;
   plansState = this.billingService.plansState;
+  /** Both reads still on their way: one spinner for the page, not one per group. */
+  readonly pageLoading = computed(() => this.overviewState() === 'loading' && this.plansState() === 'loading');
+  /** Both reads failed — a dropped connection: one error and one retry for the whole page. */
+  readonly allFailed = computed(() => this.overviewState() === 'error' && this.plansState() === 'error');
 
   // True once the org has an active/trialing subscription managed by Stripe.
   hasActiveSubscription = computed(() => {
@@ -63,6 +83,12 @@ export class BillingPage implements OnInit {
   });
 
   currentPlanSlug = computed(() => this.overview()?.plan?.slug ?? null);
+
+  /** The chosen plan by its name, as the cards show it; the slug is an identifier, not a name. */
+  selectedPlanName = computed(() => {
+    const slug = this.selectedPlan();
+    return this.availablePlans().find((plan) => plan.slug === slug)?.name ?? slug ?? '';
+  });
 
   ngOnInit(): void {
     // Returning from a successful Stripe Checkout adds ?session_id=...
@@ -90,11 +116,11 @@ export class BillingPage implements OnInit {
    */
   private confirmCheckout(sessionId: string): void {
     this.successMessage.set(this.translate.instant('billing.checkout.activating'));
-    this.overviewLoading.set(true);
+    this.overviewState.set('loading');
     this.billingService.confirmCheckout(sessionId).subscribe(overview => {
       if (overview) {
         this.overview.set(overview);
-        this.overviewLoading.set(false);
+        this.overviewState.set('ready');
         this.successMessage.set(this.translate.instant('billing.checkout.active'));
         this.billingService.getInvoices().subscribe(list => this.invoices.set(list));
       } else {
@@ -105,10 +131,11 @@ export class BillingPage implements OnInit {
   }
 
   refreshBillingData(): void {
-    this.overviewLoading.set(true);
+    this.overviewState.set('loading');
     this.billingService.getOverview().subscribe(data => {
+      // The service turns a failed request into null; an organization always has an overview.
       this.overview.set(data);
-      this.overviewLoading.set(false);
+      this.overviewState.set(data ? 'ready' : 'error');
     });
     this.billingService.getInvoices().subscribe(list => this.invoices.set(list));
   }
@@ -117,8 +144,14 @@ export class BillingPage implements OnInit {
     this.billingService.loadPlans();
   }
 
+  /** Retry both reads at once, from the page's single error. */
+  retryAll(): void {
+    this.refreshBillingData();
+    this.retryLoadPlans();
+  }
+
   selectPlan(planSlug: string): void {
-    if (planSlug === this.currentPlanSlug()) return;
+    if (planSlug === this.currentPlanSlug() || !this.canEdit()) return;
     this.selectedPlan.set(planSlug);
     this.checkoutError.set(null);
   }
@@ -179,17 +212,10 @@ export class BillingPage implements OnInit {
    * PYG, which have no minor unit at all.
    */
   formatPrice(amount: number | null | undefined, currency?: string, minorUnits?: number): string {
-    return formatPlanPrice(
-      {
-        monthlyPrice: amount ?? 0,
-        annualPrice: null,
-        currency: currency ?? 'USD',
-        minorUnits: minorUnits ?? 100,
-      },
-      // The REGIONAL locale, not the language. `'es'` alone formats as es-419, which is not what
-      // a Mexican or an Argentine tenant reads: the group and decimal separators differ.
-      this.languageService.currentLocale(),
-    );
+    // The same formatter as every amount in the settings window (FMT-01): «US$199/mes» here and
+    // «US$ 0.00» in AI were two formats for one kind of datum. The currency decides the decimals.
+    const factor = minorUnits || 100;
+    return this.format.money((amount ?? 0) / factor, currency ?? 'USD');
   }
 
   /**
@@ -250,6 +276,51 @@ export class BillingPage implements OnInit {
     const key = `saas.resources.${resource}`;
     const label = this.translate.instant(key);
     return label === key ? resource.replace(/_/g, ' ') : label;
+  }
+
+  /** A resource as the name of a row: the label with its first letter in capitals (CONT-04). */
+  resourceName(resource: string): string {
+    const label = this.resourceLabel(resource);
+    return label.charAt(0).toLocaleUpperCase(this.languageService.currentLocale()) + label.slice(1);
+  }
+
+  usageRatio(metric: { used: number; limit: number }): number {
+    return metric.limit > 0 ? Math.min(metric.used / metric.limit, 1) : 0;
+  }
+
+  /** A subscription status by what it means: in force, needs attention, or over. */
+  statusTone(status: string | undefined): VxTone {
+    switch (status) {
+      case 'active':
+      case 'trialing':
+        return 'ok';
+      case 'past_due':
+      case 'incomplete':
+      case 'paused':
+        return 'warning';
+      case 'unpaid':
+      case 'canceled':
+      case 'incomplete_expired':
+        return 'danger';
+      default:
+        return 'neutral';
+    }
+  }
+
+  /** An invoice status by what it means; the same tones as every invoice in the product. */
+  invoiceTone(status: string | undefined): VxTone {
+    switch (status) {
+      case 'paid':
+        return 'ok';
+      case 'open':
+        return 'warning';
+      case 'uncollectible':
+        return 'danger';
+      case 'draft':
+        return 'draft';
+      default:
+        return 'neutral';
+    }
   }
 
   planDescription(description: string | null | undefined): string {

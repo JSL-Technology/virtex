@@ -11,59 +11,33 @@
 //  estilan.
 // =============================================================================
 @use '../../../../assets/styles/design-system' as ds;
+@use 'app/features/settings/shared/settings-ui' as ui;
 
 .language-selector {
   position: relative;
 }
 
 // ── Fila de ajustes ──────────────────────────────────────────────────────────
+//  La misma etiqueta, el mismo control segmentado y la misma ayuda que todo campo de la
+//  ventana de Configuración (TIP-01, COMP-01): antes la etiqueta tenía tamaño de subtítulo y
+//  el segmentado, otra altura y otro peso que el de Tema o Densidad.
 .language-selector--settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
   .selector-label {
-    display: block;
-    font-size: var(--text-md);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-3);
+    @include ds.field-label;
+    margin-bottom: 0;
   }
 
   .description {
-    font-size: var(--text-md);
-    color: var(--text-secondary);
-    margin-top: var(--space-3);
+    @include ds.field-hint;
+    margin: 0;
   }
 
   .button-group {
-    display: flex;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    overflow: hidden;
-    // Ancho segun contenido: los endonimos no miden lo mismo en cada idioma y un
-    // tercero ya no tiene que caber en una caja medida para dos.
-    width: fit-content;
-
-    button {
-      flex: 1 1 auto;
-      padding: var(--space-input-y) var(--space-padding);
-      background-color: var(--bg-layer-1);
-      color: var(--text-secondary);
-      border: none;
-      cursor: pointer;
-      font-weight: var(--font-semibold);
-      white-space: nowrap;
-      @include ds.transition(background-color, color);
-      @include ds.focus-ring(-2px);
-
-      &:not(:last-child) {
-        border-inline-end: 1px solid var(--border-color);
-      }
-
-      &.active {
-        // A filled control carries the colour MADE for text on the accent fill. `--accent-text` is the
-        // accent as text on the page's surface; in the light theme it is the fill's own colour, so the label vanished.
-        background-color: var(--accent-solid);
-        color: var(--accent-on-solid);
-      }
-    }
+    @include ui.segmented;
   }
 }
 

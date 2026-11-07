@@ -1,0 +1,71 @@
+//  Un aviso por tono, con los tokens de estado del tema: superficie y borde de la familia, texto
+//  principal para el cuerpo (legible en claro y en oscuro) y el color de la familia solo en el icono.
+:host {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius-md);
+  background-color: var(--info-surface);
+  color: var(--content-primary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+//  Separado siempre igual de lo que venga después (un campo, un subgrupo, una tabla), sin que cada
+//  página tenga que ponérselo.
+:host(:not(:last-child)) {
+  margin-block-end: var(--space-4);
+}
+
+:host(.vx-notice--warning) {
+  border-color: var(--warning-border);
+  background-color: var(--warning-surface);
+}
+
+:host(.vx-notice--danger) {
+  border-color: var(--error-border);
+  background-color: var(--error-surface);
+}
+
+:host(.vx-notice--success) {
+  border-color: var(--success-border);
+  background-color: var(--success-surface);
+}
+
+.vx-notice__icon {
+  flex-shrink: 0;
+  margin-block-start: 1px;
+  color: var(--info-text);
+}
+
+:host(.vx-notice--warning) .vx-notice__icon {
+  color: var(--warning-text);
+}
+
+:host(.vx-notice--danger) .vx-notice__icon {
+  color: var(--error-text);
+}
+
+:host(.vx-notice--success) .vx-notice__icon {
+  color: var(--success-text);
+}
+
+.vx-notice__body {
+  min-width: 0;
+
+  ::ng-deep p {
+    margin: 0;
+  }
+
+  ::ng-deep p + p,
+  ::ng-deep p + ul,
+  ::ng-deep ul {
+    margin-block: var(--space-1) 0;
+  }
+
+  ::ng-deep a {
+    color: var(--content-link);
+  }
+}

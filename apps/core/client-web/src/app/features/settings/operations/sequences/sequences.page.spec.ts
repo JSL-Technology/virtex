@@ -91,7 +91,7 @@ describe('SequenceSettingsPage', () => {
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
     expect(fixture.componentInstance.forbidden()).toBe(true);
-    expect(element.querySelector('.seq__state--error button')).toBeNull();
+    expect(element.querySelector('vx-error-state button')).toBeNull();
   });
 
   it('is read only without the permission', () => {

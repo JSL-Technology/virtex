@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -7,8 +8,13 @@ import { EinvoicingService, EcfCertificateView } from '../../../../core/services
 import { InvoicingContext } from '../../../../core/services/invoices';
 import { NotificationService } from '../../../../core/services/notification';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
-import { VxFileInputComponent } from '../../../../shared/components/file-input/file-input.component';
+import { VxFileButtonComponent } from '../../../../shared/components/file-button';
+import { VxEmptyStateComponent, VxErrorStateComponent } from '../../../../shared/components/feedback';
+import { DialogService } from '../../../../core/services/dialog.service';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
+import { FileKey } from 'lucide-angular';
+import { SettingsGroupComponent } from '../../shared/settings-group.component';
+import { SettingsChanges, SettingsShellService } from '../../shell';
 
 /**
  * The certificate that signs the company's electronic documents — in any market whose regime signs
@@ -30,7 +36,10 @@ import { VX_SORT, sortable } from '../../../../shared/components/sort';
     ...FORMAT_PIPES,
     ...VX_FORM_A11Y,
     VxBadgeComponent,
-    VxFileInputComponent,
+    VxFileButtonComponent,
+    VxEmptyStateComponent,
+    VxErrorStateComponent,
+    SettingsGroupComponent,
   ],
   templateUrl: './signing-certificate-card.component.html',
   styleUrls: ['./signing-certificate-card.component.scss'],
@@ -40,6 +49,9 @@ export class SigningCertificateCardComponent {
   private readonly fb = inject(FormBuilder);
   private readonly einvoicing = inject(EinvoicingService);
   private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(DialogService);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  protected readonly CertificateIcon = FileKey;
 
   readonly context = input<InvoicingContext | null>(null);
   /** Shown, not changeable: the reader may see the fiscal set-up without `taxes:edit`. */
@@ -48,8 +60,16 @@ export class SigningCertificateCardComponent {
   readonly changed = output<void>();
 
   readonly certificates = signal<EcfCertificateView[]>([]);
+  /** The list could not be read: said in place, with a retry (EST-02). */
+  readonly loadFailed = signal(false);
   readonly uploading = signal(false);
   readonly selectedFile = signal<File | null>(null);
+  /** Something typed or chosen and not uploaded: closing the window asks before dropping it (GUA-01). */
+  readonly formDirty = signal(false);
+  private readonly changes: SettingsChanges = {
+    dirty: this.formDirty,
+    discard: () => this.resetForm(),
+  };
 
   /** A certificate's state sorts expired last, then inactive, then active. */
   readonly table = sortable(() => this.certificates(), {
@@ -81,18 +101,35 @@ export class SigningCertificateCardComponent {
       this.loaded = true;
       untracked(() => this.load());
     });
+    this.form.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.refreshDirty());
+    if (this.shell) {
+      this.shell.register(this.changes);
+      inject(DestroyRef).onDestroy(() => this.shell?.unregister(this.changes));
+    }
   }
 
-  private load(): void {
+  load(): void {
+    this.loadFailed.set(false);
     this.einvoicing.listCertificates().subscribe({
       next: (rows) => this.certificates.set(rows),
-      error: () => this.notifications.showError('settings.fiscal.certificates_could_not_loaded'),
+      error: () => this.loadFailed.set(true),
     });
   }
 
-  onFileSelected(event: Event): void {
-    const element = event.target as HTMLInputElement;
-    this.selectedFile.set(element.files?.[0] ?? null);
+  onFile(file: File): void {
+    this.selectedFile.set(file);
+    this.refreshDirty();
+  }
+
+  private refreshDirty(): void {
+    const { alias, password } = this.form.getRawValue();
+    this.formDirty.set(Boolean(alias || password || this.selectedFile()));
+  }
+
+  private resetForm(): void {
+    this.form.reset();
+    this.selectedFile.set(null);
+    this.formDirty.set(false);
   }
 
   upload(): void {
@@ -110,8 +147,7 @@ export class SigningCertificateCardComponent {
     this.einvoicing.uploadCertificate(file, password ?? '', alias ?? '').subscribe({
       next: () => {
         this.notifications.showSuccess('settings.fiscal.certificate_uploaded_validated_successfully');
-        this.form.reset();
-        this.selectedFile.set(null);
+        this.resetForm();
         this.uploading.set(false);
         this.load();
         this.changed.emit();
@@ -123,8 +159,17 @@ export class SigningCertificateCardComponent {
     });
   }
 
-  deactivate(id: string): void {
-    this.einvoicing.deactivateCertificate(id).subscribe({
+  /** Switching the certificate off stops electronic issuance until another is loaded: asked first (ACC-04). */
+  async deactivate(certificate: EcfCertificateView): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'settings.fiscal.deactivate_certificate_title',
+      message: 'settings.fiscal.deactivate_certificate_message',
+      messageParams: { alias: certificate.alias },
+      confirmText: 'settings.fiscal.turn_off',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+    this.einvoicing.deactivateCertificate(certificate.id).subscribe({
       next: () => {
         this.notifications.showInfo('settings.fiscal.certificate_deactivated');
         this.load();

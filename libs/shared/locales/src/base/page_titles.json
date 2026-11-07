@@ -698,5 +698,10 @@
     "es": "Ajuste de auditoría",
     "en": "Audit adjustment",
     "pt": "Ajuste de auditoria"
+  },
+  "page_titles.ai_activity": {
+    "es": "Actividad de la IA",
+    "en": "AI activity",
+    "pt": "Atividade da IA"
   }
 }

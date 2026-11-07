@@ -298,5 +298,15 @@
     "es": "Explica el motivo con al menos 10 caracteres.",
     "en": "Give a reason of at least 10 characters.",
     "pt": "Informe um motivo com pelo menos 10 caracteres."
+  },
+  "dialog.delete_user.title": {
+    "es": "Eliminar usuario",
+    "en": "Delete user",
+    "pt": "Excluir usuário"
+  },
+  "dialog.delete_user.message": {
+    "es": "¿Seguro que quieres eliminar a {{name}}? No se puede deshacer.",
+    "en": "Delete {{name}}? This cannot be undone.",
+    "pt": "Excluir {{name}}? Não é possível desfazer."
   }
 }

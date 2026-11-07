@@ -1,52 +1,60 @@
 @if (canManage()) {
-  <section class="mail-inbox card" aria-labelledby="mailboxes-title">
-    <h2 id="mailboxes-title" class="mail-inbox__title">{{ 'inbound_mail.mailboxes_title' | translate }}</h2>
-    <p class="mail-inbox__reason">{{ 'inbound_mail.mailboxes_help' | translate }}</p>
-    @if (!configured()) {
-      <p class="mail-inbox__reason" role="status">{{ 'inbound_mail.not_configured' | translate }}</p>
-    }
-    <ul class="mail-inbox__list">
-      @for (purpose of purposes; track purpose) {
-        <li class="mail-inbox__item">
-          <h3 class="mail-inbox__title">{{ k('inbound_mail.purpose', purpose) | translate }}</h3>
-          <p class="mail-inbox__reason">{{ k('inbound_mail.purpose_help', purpose) | translate }}</p>
-          @if (mailboxes()[purpose]; as mailbox) {
-            <div class="mail-inbox__head">
-              @if (mailbox.address) {
-                <code>{{ mailbox.address }}</code>
-                <button type="button" class="icon-button" (click)="copy(mailbox.address)"
-                        [title]="'inbound_mail.copy' | translate" [attr.aria-label]="'inbound_mail.copy' | translate">
-                  <lucide-icon [img]="CopyIcon" size="14" aria-hidden="true"></lucide-icon>
-                </button>
-              }
-              <label class="field field--checkbox">
-                <input type="checkbox" [checked]="mailbox.active" [disabled]="busy() === purpose"
-                       (change)="setActive(purpose, $any($event.target).checked)" />
-                <span>{{ 'inbound_mail.active' | translate }}</span>
-              </label>
-              <button type="button" class="secondary-button" [disabled]="busy() === purpose" (click)="rotate(purpose)">
-                <lucide-icon [img]="RotateIcon" size="14" aria-hidden="true"></lucide-icon>
-                <span>{{ 'inbound_mail.rotate' | translate }}</span>
-              </button>
-            </div>
-            <label class="field">
-              <span>{{ 'inbound_mail.allowed_senders' | translate }}</span>
-              <textarea #senders rows="2" [value]="mailbox.allowedSenders.join('\n')"
-                        [placeholder]="'inbound_mail.allowed_senders_placeholder' | translate"></textarea>
-              <small class="field__note">{{ 'inbound_mail.allowed_senders_help' | translate }}</small>
-            </label>
-            <div>
-              <button type="button" class="secondary-button" [disabled]="busy() === purpose" (click)="saveSenders(purpose, senders.value)">
-                {{ 'inbound_mail.save_senders' | translate }}
-              </button>
-            </div>
-          } @else {
-            <button type="button" class="primary-button" [disabled]="busy() === purpose || !configured()" (click)="rotate(purpose)">
-              {{ 'inbound_mail.create' | translate }}
-            </button>
-          }
-        </li>
+  <vx-settings-group titleKey="inbound_mail.mailboxes_title" descriptionKey="inbound_mail.mailboxes_help">
+    @switch (state()) {
+      @case ('loading') {
+        <vx-spinner withLabel labelKey="settings.sections.loading" />
       }
-    </ul>
-  </section>
+      @case ('error') {
+        <vx-error-state [detail]="loadError()" (retry)="load()" />
+      }
+      @default {
+        @if (!configured()) {
+          <vx-notice tone="info" id="inbound-not-configured">{{ 'inbound_mail.not_configured' | translate }}</vx-notice>
+        }
+        @for (purpose of purposes; track purpose) {
+          <vx-settings-group [level]="3" [titleKey]="k('inbound_mail.purpose', purpose)" [descriptionKey]="k('inbound_mail.purpose_help', purpose)">
+            @if (mailboxes()[purpose]; as mailbox) {
+              @if (drafts()[purpose]; as draft) {
+                <div class="ib">
+                  @if (mailbox.address) {
+                    <div class="ib__address">
+                      <code>{{ mailbox.address }}</code>
+                      <button type="button" class="link-button" (click)="copy(mailbox.address)">{{ 'inbound_mail.copy' | translate }}</button>
+                      <button type="button" class="secondary-button" [disabled]="busy() === purpose" (click)="rotate(purpose)">
+                        <lucide-icon [img]="RotateIcon" size="14" aria-hidden="true"></lucide-icon>
+                        <span>{{ 'inbound_mail.rotate' | translate }}</span>
+                      </button>
+                    </div>
+                  }
+                  <label class="ib__check">
+                    <input type="checkbox" [checked]="draft.active" [disabled]="saving()"
+                           (change)="patch(purpose, { active: $any($event.target).checked })" />
+                    <span>{{ 'inbound_mail.active' | translate }}</span>
+                  </label>
+                  <div class="ib__field">
+                    <label class="ib__label" [attr.for]="'ib-senders-' + purpose">{{ 'inbound_mail.allowed_senders' | translate }}</label>
+                    <textarea class="ib__input" rows="2" [id]="'ib-senders-' + purpose" [value]="draft.senders" [disabled]="saving()"
+                              [attr.aria-describedby]="'ib-senders-help-' + purpose"
+                              [placeholder]="'inbound_mail.allowed_senders_placeholder' | translate"
+                              (input)="patch(purpose, { senders: $any($event.target).value })"></textarea>
+                    <small class="ib__hint" [id]="'ib-senders-help-' + purpose">{{ 'inbound_mail.allowed_senders_help' | translate }}</small>
+                  </div>
+                </div>
+              }
+            } @else {
+              <!-- Sin dominio configurado no se puede crear: se dice por qué, junto al botón (COMP-02). -->
+              <button type="button" class="secondary-button" [class.is-disabled]="!configured()"
+                      [attr.aria-disabled]="!configured() || busy() === purpose ? 'true' : null"
+                      [attr.aria-describedby]="configured() ? null : 'inbound-not-configured'"
+                      (click)="rotate(purpose)">
+                {{ 'inbound_mail.create' | translate }}
+              </button>
+            }
+          </vx-settings-group>
+        }
+      }
+    }
+  </vx-settings-group>
+
+  <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" [blockedKey]="blockedKey()" (save)="save()" (discard)="discard()" />
 }

@@ -1,6 +1,13 @@
-import { SettingsShellService } from '../shell';
-import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { SettingsChanges, SettingsShellService } from '../shell';
+import { SettingsDisclosureComponent, SettingsGroupComponent } from '../shared';
+import { VxEmptyStateComponent, VxErrorStateComponent, VxNoticeComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
+import { CountryNamesService } from '../../../core/i18n/countries';
+import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
+import { Component, DestroyRef, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ListOrdered } from 'lucide-angular';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EinvoicingService, NcfSequenceView, NcfType } from '../../../core/services/einvoicing';
 import { FiscalEmissionMode, InvoicesService, InvoicingContext } from '../../../core/services/invoices';
@@ -48,6 +55,13 @@ interface RangeTypeChoice {
     ...FORMAT_PIPES,
     ...VX_FORM_A11Y,
     VxBadgeComponent,
+    VxEmptyStateComponent,
+    VxErrorStateComponent,
+    VxNoticeComponent,
+    VxSpinnerComponent,
+    RouterLink,
+    SettingsGroupComponent,
+    SettingsDisclosureComponent,
     EmissionModeCardComponent,
     SigningCertificateCardComponent,
   ],
@@ -57,7 +71,42 @@ interface RangeTypeChoice {
 })
 export class FiscalSettingsPage implements OnInit {
   /** Whether this person may change the fiscal set-up (`taxes:edit`); read only otherwise. */
-  protected readonly canEdit = inject(SettingsShellService, { optional: true })?.canEdit ?? signal(true);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  protected readonly canEdit = this.shell?.canEdit ?? signal(true);
+  private readonly countryNames = inject(CountryNamesService);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly RangeIcon = ListOrdered;
+  /** Where the DGII returns are generated: Accounting › Reports › Fiscal returns. */
+  protected readonly fiscalReturnsLink = inject(ActiveOrganizationService).urlFor('/reports/fiscal-returns');
+
+  /**
+   * What the page reads before it can show anything true: the ranges, the country's document types
+   * and what the invoice form can issue. Until the three are in, one spinner; if any fails, one
+   * error with one retry for all of them (EST-02). The page used to show «no ranges yet» while the
+   * ranges were still on their way, and hid the emission card without a word when its read failed.
+   */
+  readonly sequencesState = signal<'loading' | 'error' | 'ready'>('loading');
+  readonly typesState = signal<'loading' | 'error' | 'ready'>('loading');
+  readonly contextState = signal<'loading' | 'error' | 'ready'>('loading');
+  readonly pageState = computed<'loading' | 'error' | 'ready'>(() => {
+    const states = [this.sequencesState(), this.typesState(), this.contextState()];
+    if (states.includes('error')) return 'error';
+    return states.includes('loading') ? 'loading' : 'ready';
+  });
+
+  /** Reads again whatever could not be read. */
+  retryAll(): void {
+    if (this.sequencesState() === 'error') this.loadSequences();
+    if (this.typesState() === 'error') this.loadDocumentTypes();
+    if (this.contextState() === 'error') this.loadInvoicingState();
+  }
+
+  /** A range typed and not registered: closing the window asks before dropping it (GUA-01). */
+  readonly rangeDirty = signal(false);
+  private readonly rangeChanges: SettingsChanges = {
+    dirty: this.rangeDirty,
+    discard: () => this.resetRangeForm(),
+  };
 
   private fb = inject(FormBuilder);
   private einvoicing = inject(EinvoicingService);
@@ -190,14 +239,12 @@ export class FiscalSettingsPage implements OnInit {
   ngOnInit(): void {
     this.loadSequences();
     this.loadInvoicingState();
-
-    this.fiscalSettings.documentTypes().subscribe({
-      next: (types) => {
-        this.documentTypes.set(types);
-        this.keepRangeTypeInMode();
-      },
-      error: () => this.notifications.showError('settings.fiscal.document_types_load_failed'),
-    });
+    this.loadDocumentTypes();
+    this.sequenceForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.rangeDirty.set(this.sequenceForm.dirty));
+    if (this.shell) {
+      this.shell.register(this.rangeChanges);
+      this.destroyRef.onDestroy(() => this.shell?.unregister(this.rangeChanges));
+    }
 
     this.fiscalSettings.coverage().subscribe({
       next: (market) => {
@@ -212,6 +259,29 @@ export class FiscalSettingsPage implements OnInit {
     this.sequenceForm.get('type')?.valueChanges.subscribe((t) => {
       if (t) this.sequenceForm.patchValue({ prefix: t }, { emitEvent: false });
     });
+  }
+
+  loadDocumentTypes(): void {
+    this.typesState.set('loading');
+    this.fiscalSettings.documentTypes().subscribe({
+      next: (types) => {
+        this.documentTypes.set(types);
+        this.keepRangeTypeInMode();
+        this.typesState.set('ready');
+      },
+      error: () => this.typesState.set('error'),
+    });
+  }
+
+  /** The market's name in the reader's language, not its code: «Qué cubre … en República Dominicana». */
+  countryName(code: string | null | undefined): string {
+    return (code && this.countryNames.nameOf(code)) || code || '';
+  }
+
+  /** The range form back to its proposal for the next range. */
+  private resetRangeForm(type = this.sequenceForm.get('type')?.value ?? ''): void {
+    this.sequenceForm.reset({ type, prefix: type, startsAt: 1, endsAt: 1000, expiresAt: this.defaultExpiry(), authorizationCode: '' });
+    this.rangeDirty.set(false);
   }
 
   /** The emission-mode card read or changed the mode: the range form follows it. */
@@ -237,17 +307,24 @@ export class FiscalSettingsPage implements OnInit {
   }
 
   private loadInvoicingState(): void {
+    if (!this.invoicing()) this.contextState.set('loading');
     this.invoices.context().subscribe({
-      next: (context) => this.invoicing.set(context),
-      // A summary, not the point of the page.
-      error: () => this.invoicing.set(null),
+      next: (context) => {
+        this.invoicing.set(context);
+        this.contextState.set('ready');
+      },
+      error: () => this.contextState.set('error'),
     });
   }
 
-  private loadSequences(): void {
+  loadSequences(): void {
+    if (this.sequencesState() !== 'ready') this.sequencesState.set('loading');
     this.einvoicing.listSequences().subscribe({
-      next: (s) => this.sequences.set(s),
-      error: () => this.notifications.showError('settings.fiscal.do.ncf_sequences_load_failed'),
+      next: (s) => {
+        this.sequences.set(s);
+        this.sequencesState.set('ready');
+      },
+      error: () => this.sequencesState.set('error'),
     });
   }
 
@@ -294,14 +371,7 @@ export class FiscalSettingsPage implements OnInit {
           this.provisioning.set(false);
           // The range is registered: the form is emptied for the next one. It used to keep the
           // values, so a second click tried to register the same range again (QA U35).
-          this.sequenceForm.reset({
-            type: value.type,
-            prefix: value.type,
-            startsAt: 1,
-            endsAt: 1000,
-            expiresAt: this.defaultExpiry(),
-            authorizationCode: '',
-          });
+          this.resetRangeForm(value.type ?? '');
           this.loadSequences();
           this.loadInvoicingState();
         },

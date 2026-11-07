@@ -1,101 +1,87 @@
 @if (required()) {
-  <!-- Read only without the edit permission: every control in the card at once. -->
-  <fieldset class="fx-readonly" [disabled]="readonly()">
-  <section class="card" aria-labelledby="certificate-title">
-    <div class="card__head">
-      <h2 id="certificate-title" class="card__title">{{ 'settings.fiscal.digital_certificate' | translate }}</h2>
-      <p class="card__subtitle">
-        {{ 'settings.fiscal.certificate_description' | translate: { authority: authority(), label: taxIdLabel() } }}
-      </p>
-    </div>
-    <div class="card__body">
-      @if (!relevant()) {
-        <p class="empty">{{ 'settings.fiscal.mode.certificate_not_needed' | translate }}</p>
-      } @else {
-        <form [formGroup]="form" (ngSubmit)="upload()" class="certificate-form">
-          <div class="field">
-            <label for="cert-alias">{{ 'settings.fiscal.alias' | translate }} *</label>
-            <input
-              id="cert-alias"
-              type="text"
-              formControlName="alias"
-              [placeholder]="'settings.fiscal.certificate_example_name' | translate: exampleName()"
-            />
-          </div>
-          <div class="field">
-            <label for="cert-password">{{ 'settings.fiscal.certificate_password' | translate }} *</label>
-            <input id="cert-password" type="password" formControlName="password" autocomplete="off" />
-          </div>
-          <div class="field field--wide" role="group" [attr.aria-label]="'settings.fiscal.file_p12_pfx' | translate">
-            <span class="field__label">{{ 'settings.fiscal.file_p12_pfx' | translate }} *</span>
-            <vx-file-input accept=".p12,.pfx" (changed)="onFileSelected($event)" />
-          </div>
-          <div class="certificate-form__actions">
-            <button type="submit" class="primary-button" [disabled]="uploading()">
-              {{ uploading() ? ('settings.fiscal.uploading' | translate) : ('settings.fiscal.upload_certificate' | translate) }}
-            </button>
-          </div>
-        </form>
-      }
-
-      @if (certificates().length) {
-        <div class="table-scroll">
-          <table [appSort]="table.sort" class="data-table">
-            <thead>
-              <tr>
-                <th appSortHeader="alias">{{ 'settings.fiscal.alias' | translate }}</th>
-                <th appSortHeader="subjectCommonName">{{ 'settings.fiscal.holder' | translate }}</th>
-                <th appSortHeader="authority">{{ 'settings.fiscal.signs_for' | translate }}</th>
-                <th appSortHeader="notAfter" class="nowrap">{{ 'settings.fiscal.expires' | translate }}</th>
-                <th appSortHeader="status">{{ 'settings.fiscal.status' | translate }}</th>
-                <th><span class="sr-only">{{ 'common.actions' | translate }}</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (c of table.rows(); track c.id) {
-                <tr>
-                  <td>{{ c.alias }}</td>
-                  <td>
-                    <span class="holder">{{ c.subjectCommonName || '—' }}</span>
-                    @if (c.holderTaxId) {
-                      <span class="holder__id">{{ c.holderIdLabel ?? taxIdLabel() }} {{ c.holderTaxId }}</span>
-                    }
-                    @if (c.holderKind === 'person') {
-                      <span class="holder__note">
-                        {{ 'settings.fiscal.holder_person_note' | translate: { authority: c.authority ?? authority() } }}
-                      </span>
-                    }
-                  </td>
-                  <td>{{ c.authority ?? '—' }}</td>
-                  <td class="nowrap" [class.expired]="c.expired">{{ c.notAfter ? (c.notAfter | vxDate: 'date') : '—' }}</td>
-                  <td>
-                    <span class="badges">
-                      <vx-badge [tone]="c.isActive && !c.expired ? 'ok' : 'danger'">
-                        {{ (c.expired ? 'common.status_expired' : c.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
-                      </vx-badge>
-                      @if (c.isTest) {
-                        <vx-badge tone="warning" [title]="'settings.fiscal.test_certificate_hint' | translate">
-                          {{ 'settings.fiscal.test_certificate' | translate }}
-                        </vx-badge>
-                      }
-                    </span>
-                  </td>
-                  <td class="actions">
-                    @if (c.isActive) {
-                      <button type="button" class="link-danger" (click)="deactivate(c.id)">
-                        {{ 'settings.fiscal.turn_off' | translate }}
-                      </button>
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
+  <vx-settings-group titleKey="settings.fiscal.digital_certificate" descriptionKey="settings.fiscal.certificate_description"
+    [params]="{ authority: authority(), label: taxIdLabel() }">
+    @if (!relevant()) {
+      <p class="fx-note">{{ 'settings.fiscal.mode.certificate_not_needed' | translate }}</p>
+    } @else if (!readonly()) {
+      <!-- Cargar un certificado es una acción (crea un registro): botón secundario; la primaria es «Guardar». -->
+      <form [formGroup]="form" (ngSubmit)="upload()" class="certificate-form">
+        <div class="field">
+          <label for="cert-alias">{{ 'settings.fiscal.alias' | translate }} <span class="required" aria-hidden="true">*</span></label>
+          <input id="cert-alias" type="text" formControlName="alias" required
+            [placeholder]="'settings.fiscal.certificate_example_name' | translate: exampleName()" />
         </div>
-      } @else if (relevant()) {
-        <p class="empty">{{ 'settings.fiscal.you_have_not_uploaded_certificate_yet' | translate }}</p>
-      }
-    </div>
-  </section>
-  </fieldset>
+        <div class="field">
+          <label for="cert-password">{{ 'settings.fiscal.certificate_password' | translate }} <span class="required" aria-hidden="true">*</span></label>
+          <input id="cert-password" type="password" formControlName="password" autocomplete="off" required />
+        </div>
+        <div class="field field--wide">
+          <span class="field__label" id="cert-file-label">{{ 'settings.fiscal.file_p12_pfx' | translate }} <span class="required" aria-hidden="true">*</span></span>
+          <div class="field__file">
+            <vx-file-button inputId="cert-file" accept=".p12,.pfx" labelKey="settings.fiscal.choose_certificate" describedBy="cert-file-label"
+              (fileSelected)="onFile($event)" />
+            <span class="field__file-name" aria-live="polite">{{ selectedFile()?.name ?? ('settings.fiscal.no_file_chosen' | translate) }}</span>
+          </div>
+        </div>
+        <div class="certificate-form__actions">
+          <button type="submit" class="secondary-button" [disabled]="uploading()">
+            {{ uploading() ? ('settings.fiscal.uploading' | translate) : ('settings.fiscal.upload_certificate' | translate) }}
+          </button>
+        </div>
+      </form>
+    }
+
+    @if (loadFailed()) {
+      <vx-error-state [detail]="'settings.fiscal.certificates_could_not_loaded' | translate" (retry)="load()" />
+    } @else if (certificates().length) {
+      <table [appSort]="table.sort" class="fx-table">
+        <thead>
+          <tr>
+            <th appSortHeader="alias">{{ 'settings.fiscal.alias' | translate }}</th>
+            <th appSortHeader="subjectCommonName">{{ 'settings.fiscal.holder' | translate }}</th>
+            <th appSortHeader="authority">{{ 'settings.fiscal.signs_for' | translate }}</th>
+            <th appSortHeader="notAfter" class="nowrap">{{ 'settings.fiscal.expires' | translate }}</th>
+            <th appSortHeader="status">{{ 'settings.fiscal.status' | translate }}</th>
+            <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of table.rows(); track c.id) {
+            <tr>
+              <td [attr.data-label]="'settings.fiscal.alias' | translate">{{ c.alias }}</td>
+              <td [attr.data-label]="'settings.fiscal.holder' | translate">
+                <span class="holder">{{ c.subjectCommonName || '—' }}</span>
+                @if (c.holderTaxId) {
+                  <span class="holder__id">{{ c.holderIdLabel ?? taxIdLabel() }} {{ c.holderTaxId }}</span>
+                }
+                @if (c.holderKind === 'person') {
+                  <span class="holder__note">{{ 'settings.fiscal.holder_person_note' | translate: { authority: c.authority ?? authority() } }}</span>
+                }
+              </td>
+              <td [attr.data-label]="'settings.fiscal.signs_for' | translate">{{ c.authority ?? '—' }}</td>
+              <td class="nowrap" [attr.data-label]="'settings.fiscal.expires' | translate">{{ c.notAfter ? (c.notAfter | vxDate: 'date') : '—' }}</td>
+              <td [attr.data-label]="'settings.fiscal.status' | translate">
+                <span class="badges">
+                  <vx-badge [tone]="c.expired ? 'danger' : c.isActive ? 'ok' : 'neutral'">
+                    {{ (c.expired ? 'common.status_expired' : c.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
+                  </vx-badge>
+                  @if (c.isTest) {
+                    <vx-badge tone="warning" [title]="'settings.fiscal.test_certificate_hint' | translate">{{ 'settings.fiscal.test_certificate' | translate }}</vx-badge>
+                  }
+                </span>
+              </td>
+              <td class="row-actions">
+                @if (c.isActive && !readonly()) {
+                  <button type="button" class="link-button" (click)="deactivate(c)"
+                    [attr.aria-label]="'settings.fiscal.turn_off_named' | translate: { alias: c.alias }">{{ 'settings.fiscal.turn_off' | translate }}</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else if (relevant()) {
+      <vx-empty-state [icon]="CertificateIcon" titleKey="settings.fiscal.no_certificate_title" descriptionKey="settings.fiscal.no_certificate_description" />
+    }
+  </vx-settings-group>
 }

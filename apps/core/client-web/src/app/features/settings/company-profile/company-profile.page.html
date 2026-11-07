@@ -1,20 +1,17 @@
 <div class="page-shell">
-
-
+  @if (loadState() === 'loading') {
+    <vx-spinner />
+  } @else if (loadState() === 'error') {
+    <vx-error-state [detail]="loadError()" (retry)="loadCompanyData()" />
+  } @else {
     <form [formGroup]="profileForm">
 
-        <!-- Section: Información General -->
-        <div class="form-card">
-            <div class="form-card__header">
-                <h2 class="form-card__title">{{ 'settings.company_profile.general_information' | translate }}</h2>
-                <p class="form-card__subtitle">{{ 'settings.company_profile.company_legal_identification_details' | translate }}</p>
-            </div>
-            <div class="form-card__body">
+        <vx-settings-group titleKey="settings.company_profile.general_information" descriptionKey="settings.company_profile.company_legal_identification_details">
                 <div class="form-grid">
 
                     <div class="form-field">
                         <label for="legalName" class="form-label">
-                            {{ 'settings.company_profile.legal_name' | translate }} <span class="required">*</span></label>
+                            {{ 'settings.company_profile.legal_name' | translate }} <span class="required" aria-hidden="true">*</span></label>
                         <input id="legalName"
                                type="text"
                                formControlName="legalName"
@@ -45,7 +42,7 @@
                                  RFC, RUC), following the tenant's jurisdiction — not renamed per
                                  locale in regional.json, which made it follow the reader (A-01). The
                                  neutral base key is a fallback for before the country config loads. -->
-                            {{ taxIdLabel() || ('settings.company_profile.tax_id' | translate) }} <span class="required">*</span></label>
+                            {{ taxIdLabel() || ('settings.company_profile.tax_id' | translate) }} <span class="required" aria-hidden="true">*</span></label>
                         <!--
                           The placeholder was the literal `Ej. 132-45678-9` — the shape of a
                           Dominican RNC, in Spanish, outside the catalogue — shown to a tenant in
@@ -71,22 +68,15 @@
                     </div>
 
                 </div>
-            </div>
-        </div>
+        </vx-settings-group>
 
-        <!-- Section: Dirección y Contacto -->
-        <div class="form-card">
-            <div class="form-card__header">
-                <h2 class="form-card__title">{{ 'settings.company_profile.address_contact' | translate }}</h2>
-                <p class="form-card__subtitle">{{ 'settings.company_profile.primary_location_contact_details' | translate }}</p>
-            </div>
-            <div class="form-card__body">
+        <vx-settings-group titleKey="settings.company_profile.address_contact" descriptionKey="settings.company_profile.primary_location_contact_details">
                 <div class="form-grid">
 
                     <!-- Country first: it decides the labels and examples of the rest of the card. -->
                     <div class="form-field form-field--full">
                         <label for="country" class="form-label">
-                            {{ 'settings.company_profile.country' | translate }} <span class="required">*</span></label>
+                            {{ 'settings.company_profile.country' | translate }} <span class="required" aria-hidden="true">*</span></label>
                         <div class="country-select">
                             <app-country-flag [country]="selectedCountry()"></app-country-flag>
                             <select id="country" formControlName="country" aria-describedby="country-hint">
@@ -157,10 +147,9 @@
                     </div>
 
                 </div>
-            </div>
-        </div>
-
+        </vx-settings-group>
     </form>
+  }
 
     @if (canEdit()) {
         <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()"

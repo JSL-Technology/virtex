@@ -8,14 +8,7 @@
 // Page Shell
 // ──────────────────────────────────────────────
 .page-shell {
-    animation: page-enter 0.25s ease-out;
-
-    > * + * { margin-top: var(--space-6); }
-}
-
-@keyframes page-enter {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+    display: block;
 }
 
 // ──────────────────────────────────────────────
@@ -72,36 +65,6 @@
 // ──────────────────────────────────────────────
 // Form Card
 // ──────────────────────────────────────────────
-.form-card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-
-    &__header {
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-        background-color: var(--bg-primary);
-    }
-
-    &__title {
-        font-size: var(--text-base);
-        font-weight: var(--font-bold);
-        color: var(--text-primary);
-        margin-bottom: 0.125rem;
-    }
-
-    &__subtitle {
-        font-size: var(--text-sm);
-        color: var(--text-tertiary);
-    }
-
-    &__body {
-        padding: var(--space-6);
-    }
-}
-
 // ──────────────────────────────────────────────
 // Form Grid
 // ──────────────────────────────────────────────
@@ -131,7 +94,7 @@
     color: var(--text-secondary);
 
     .required {
-        color: var(--error);
+        color: var(--error-text);
         margin-left: 0.125rem;
     }
 }

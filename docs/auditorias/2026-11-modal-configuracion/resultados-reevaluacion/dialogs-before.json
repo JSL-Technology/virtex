@@ -1,0 +1,35 @@
+{
+  "roles": {
+    "createInitialFocus": "vx-dialog__panel",
+    "createAxe": [],
+    "saveDisabledWhenEmpty": true,
+    "createTrap": {
+      "presses": 25,
+      "escapes": 0,
+      "sample": []
+    },
+    "createEscapeClosesOnlyDialog": true
+  },
+  "users": {
+    "inviteInitialFocus": "modal-content",
+    "inviteAxe": [],
+    "inviteErrors": [
+      "Este campo es obligatorio.",
+      "Este campo es obligatorio.",
+      "Este campo es obligatorio.",
+      "Este campo es obligatorio."
+    ],
+    "inviteTrap": {
+      "presses": 25,
+      "escapes": 25,
+      "sample": [
+        "button «Cerrar configuración»",
+        "input#settings-search «»",
+        "button «Mi perfil»"
+      ]
+    },
+    "inviteEscapeClosesOnlyDialog": false,
+    "editOpen": false,
+    "editAxe": null
+  }
+}
