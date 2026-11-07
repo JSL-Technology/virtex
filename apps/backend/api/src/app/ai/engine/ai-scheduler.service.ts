@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../../shared/scheduling/exclusive-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { DataSource } from 'typeorm';
@@ -40,6 +41,7 @@ export class AiSchedulerService {
 
   // Sundays at 03:23: duplicates are looked for weekly; no model is called, so every plan has it.
   @Cron('23 3 * * 0')
+  @ExclusiveJob()
   async weekly(): Promise<void> {
     const runKey = new Date().toISOString().slice(0, 10);
     await this.lock.runOnce('ai-weekly-data-quality', runKey, async () => {
@@ -57,6 +59,7 @@ export class AiSchedulerService {
 
   // 06:41 on the 1st: after the night's runs, so the report reads a projection made that morning.
   @Cron('41 6 1 * *')
+  @ExclusiveJob()
   async monthly(): Promise<void> {
     const period = previousMonth();
     await this.lock.runOnce('ai-monthly-reports', period, async () => {
@@ -95,6 +98,7 @@ export class AiSchedulerService {
   // 02:17 server time: after midnight closes the day's sales, away from the round hours other
   // jobs cluster on.
   @Cron('17 2 * * *')
+  @ExclusiveJob()
   async nightly(): Promise<void> {
     const runKey = new Date().toISOString().slice(0, 10);
     await this.lock.runOnce('ai-nightly-runs', runKey, async () => {

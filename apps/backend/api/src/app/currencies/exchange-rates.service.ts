@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../shared/scheduling/exclusive-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -149,6 +150,7 @@ export class ExchangeRatesService {
    * configuration — such a tenant enters its rates by hand.
    */
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  @ExclusiveJob()
   async handleCron(): Promise<void> {
     const day = todayIso();
     try {

@@ -206,6 +206,12 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:required-markers
 
+      # Every @Cron/@Interval runs on one replica at a time (@ExclusiveJob, an advisory lock):
+      # with two replicas each job ran twice — depreciation, recurring entries, reminders.
+      - name: scheduled jobs run on one replica at a time
+        if: ${{ !cancelled() }}
+        run: npm run verify:cron-exclusive
+
       # Proves no account name reaches a template as a raw translation map. `accounts.name` is
       # stored as `{ es, en }`, and printing it unguarded renders `[object Object]` — which is not
       # a type error, not a compile error and not a failed render. It is how the manual journal

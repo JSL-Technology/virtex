@@ -1,4 +1,5 @@
 
+import { ExclusiveJobsRegistrar } from './shared/scheduling/exclusive-job';
 import { REQUEST_LOG_CONTEXT, RequestLogContext, requestIdFrom } from './shared/observability/request-id';
 
 import { Module } from '@nestjs/common';
@@ -403,6 +404,8 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
     AiModule,
   ],
   providers: [
+    // The connection scheduled jobs take their one-replica-at-a-time lock on (`@ExclusiveJob`).
+    ExclusiveJobsRegistrar,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

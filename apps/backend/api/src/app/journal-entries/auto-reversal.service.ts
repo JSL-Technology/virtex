@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../shared/scheduling/exclusive-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { DataSource, LessThan } from 'typeorm';
@@ -36,6 +37,7 @@ export class AutoReversalService {
   ) {}
 
   @Cron('0 4 1 * *', { name: 'auto-reversals' })
+  @ExclusiveJob()
   async handleCron(): Promise<void> {
     const today = new Date();
     const firstOfThisMonth = new Date(

@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../shared/scheduling/exclusive-job';
 import { forEachTenant } from '../shared/tenancy/tenant-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
@@ -96,6 +97,7 @@ export class DepreciationService extends DepreciationPort {
    * replicas from walking every tenant at once; the run itself would be safe regardless.
    */
   @Cron('0 2 1 * *', { name: 'monthly-depreciation' })
+  @ExclusiveJob()
   async handleCron(): Promise<void> {
     const today = new Date();
     const target = endOfMonthIso(

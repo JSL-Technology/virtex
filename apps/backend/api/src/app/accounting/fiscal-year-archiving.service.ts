@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../shared/scheduling/exclusive-job';
 
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
@@ -24,6 +25,7 @@ export class FiscalYearArchivingService {
 
 
   @Cron('0 4 1 * *')
+  @ExclusiveJob()
   async handleCron() {
     this.logger.log('Iniciando job de archivado de años fiscales...');
     const month = toIsoMonth(new Date());

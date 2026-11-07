@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../../shared/scheduling/exclusive-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -53,6 +54,7 @@ export class PendingRegistrationCleanupService {
    * after it stopped serving any purpose.
    */
   @Cron(CronExpression.EVERY_HOUR)
+  @ExclusiveJob()
   async purgeExpired(): Promise<void> {
     const now = new Date();
 

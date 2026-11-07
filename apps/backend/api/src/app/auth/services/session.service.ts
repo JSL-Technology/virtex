@@ -821,6 +821,7 @@ export class SessionService extends SessionInvalidatorPort {
     }
   }
 
+  // cron-exclusive-allow: takes its own session advisory lock (LOCK_KEY) inside the handler.
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleTokenCleanup() {
     // Every instance runs its own scheduler, so without coordination each replica would execute
