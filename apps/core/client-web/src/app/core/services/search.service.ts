@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 /**
@@ -37,6 +37,9 @@ export interface SearchResultGroup {
   results: SearchResult[];
 }
 
+/** The shortest query the server searches for. */
+export const SEARCH_MIN_LENGTH = 2;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -44,7 +47,13 @@ export class SearchService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/search`;
 
+  /**
+   * The server needs two characters at least (one matches half the catalogue and says nothing),
+   * so a shorter query is answered here with nothing rather than sent to be refused.
+   */
   search(query: string): Observable<SearchResultGroup[]> {
-    return this.http.get<SearchResultGroup[]>(this.apiUrl, { params: { q: query } });
+    const q = (query ?? '').trim();
+    if (q.length < SEARCH_MIN_LENGTH) return of([]);
+    return this.http.get<SearchResultGroup[]>(this.apiUrl, { params: { q } });
   }
 }

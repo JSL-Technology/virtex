@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { hasPermission } from '@virteex/shared/util-auth';
 import { InvoicesService } from '../invoices/invoices.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { CustomersService } from '../customers/customers.service';
+import { PERMISSIONS } from '../shared/permissions';
+import type { AuthenticatedUser } from '../security/principal';
+
+const DEFAULT_LIMIT = 10;
 
 @Injectable()
 export class SearchService {
@@ -11,30 +16,33 @@ export class SearchService {
     private readonly customersService: CustomersService,
   ) {}
 
-  async search(query: string, organizationId: string) {
-    const lowerCaseQuery = query.toLowerCase();
+  /**
+   * One query per module the caller may read, filtered and limited in the database.
+   *
+   * BUS-01: every group used to come back to every authenticated user — a role with nothing but
+   * inventory read invoice numbers, amounts and customers' tax ids here, because the module
+   * permissions live on the modules' controllers and this called their services directly. A group
+   * is now searched only for a principal holding that module's view permission, and invoices are
+   * narrowed to the caller's branches as the invoice list narrows them.
+   *
+   * BUS-02: products and customers were loaded whole and filtered in memory, on every keystroke.
+   */
+  async search(query: string, user: Pick<AuthenticatedUser, 'id' | 'organizationId' | 'permissions'>, limit = DEFAULT_LIMIT) {
+    const organizationId = user.organizationId;
+    const may = (permission: string) => hasPermission(user.permissions, [permission]);
 
-    const [allInvoices, allProducts, allCustomers] = await Promise.all([
-      // Search delegates the filter to the database instead of downloading every invoice of the
-      // tenant and filtering in memory — which is what `findAll` used to return.
-      this.invoicesService.findAll(organizationId, { search: query, limit: 20 }),
-      this.inventoryService.findAll(organizationId),
-      this.customersService.findAll(organizationId),
+    const [invoicePage, products, customers] = await Promise.all([
+      may(PERMISSIONS.INVOICES_VIEW)
+        ? this.invoicesService.findAll(organizationId, { search: query, limit, actorUserId: user.id })
+        : Promise.resolve({ items: [] as never[] }),
+      may(PERMISSIONS.PRODUCTS_VIEW)
+        ? this.inventoryService.findAll(organizationId, { search: query, limit })
+        : Promise.resolve([]),
+      may(PERMISSIONS.CUSTOMERS_VIEW)
+        ? this.customersService.findAll(organizationId, { search: query, limit })
+        : Promise.resolve([]),
     ]);
-
-    const invoices = allInvoices.items;
-
-    const products = allProducts.filter(
-      (p) =>
-        p.name.toLowerCase().includes(lowerCaseQuery) ||
-        p.sku?.toLowerCase().includes(lowerCaseQuery),
-    );
-
-    const customers = allCustomers.filter(
-      (c) =>
-        c.companyName.toLowerCase().includes(lowerCaseQuery) ||
-        c.taxId?.toLowerCase().includes(lowerCaseQuery),
-    );
+    const invoices = invoicePage.items;
 
     // Titles and descriptions travel as KEYS and PARAMS, never as assembled sentences.
     //
