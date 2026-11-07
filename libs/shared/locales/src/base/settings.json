@@ -5287,5 +5287,15 @@
     "es": "Factura de proveedor",
     "en": "Supplier bill",
     "pt": "Fatura de fornecedor"
+  },
+  "settings.fiscal.level.needs_configuration": {
+    "es": "Necesita tu configuración",
+    "en": "Needs your configuration",
+    "pt": "Precisa da sua configuração"
+  },
+  "settings.pages.withholding.coverage.needs_configuration": {
+    "es": "Requiere configuración",
+    "en": "Requires configuration",
+    "pt": "Requer configuração"
   }
 }
