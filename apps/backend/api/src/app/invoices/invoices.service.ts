@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { likeTerm } from '../common/database/search-term';
 import { BUSINESS_EVENTS } from '../contracts/business-events/business-events.contract';
 import { standardSalesTaxRate } from '../inventory/contracts/sellable-product.contract';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -100,6 +101,8 @@ export interface InvoiceListQuery {
   limit?: number;
   status?: InvoiceStatus;
   customerId?: string;
+  /** Leave drafts out: what a customer sees of their own documents (CS-01). */
+  excludeDrafts?: boolean;
   /** One branch. Refused if it is outside the caller's branches. */
   branchId?: string;
   /** Who is asking; when given, the list never shows documents outside their branches. */
@@ -279,6 +282,14 @@ export class InvoicesService {
   /** Turn an existing draft into an issued document. */
   async issue(invoiceId: string, organizationId: string, type?: string): Promise<Invoice> {
     const issued = await this.dataSource.transaction(async (manager) => {
+      // The draft, locked before its status is read. Six concurrent issues of one draft used to
+      // all read DRAFT and all draw an NCF: the invoice kept the last and five fiscal numbers were
+      // burned — a gap the DGII sees (audit 2026-10-31, INV-01). The second issuer now waits, then
+      // reads ISSUED and is refused before reaching the numbering.
+      await manager.query(
+        `SELECT "id" FROM "invoices" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`,
+        [invoiceId, organizationId],
+      );
       const invoice = await manager.getRepository(Invoice).findOne({
         where: { id: invoiceId, organizationId },
         relations: ['lineItems', 'customer'],
@@ -1074,9 +1085,17 @@ export class InvoicesService {
   // ── Stock ──────────────────────────────────────────────────────────────────
 
   private async moveStockForIssue(invoice: Invoice, manager: EntityManager): Promise<void> {
+    let costOfSale = 0;
+    let movedAny = false;
     for (const line of invoice.lineItems ?? []) {
       if (!line.productId || line.isService) continue;
-      await this.inventoryService.decreaseStock(
+      movedAny = true;
+      // The cost of sale is what the stock ledger relieved, AT ISSUANCE — not the product cost
+      // copied when the draft was saved. A receipt or a revaluation between the two used to leave
+      // the inventory account at 160,00 while stock × cost said 150,00 (audit 2026-10-31,
+      // inventory INV-01). The line keeps the cost it actually left at, for the credit note that
+      // will one day bring it back.
+      const relieved = await this.inventoryService.decreaseStock(
         line.productId,
         line.quantity,
         manager,
@@ -1089,6 +1108,11 @@ export class InvoicesService {
           sourceId: invoice.id,
         },
       );
+      line.unitCost = relieved.unitCost;
+      costOfSale += line.quantity * relieved.unitCost;
+    }
+    if (movedAny) {
+      invoice.costOfSale = roundToCurrency(costOfSale, invoice.currencyCode);
     }
   }
 
@@ -1512,16 +1536,19 @@ export class InvoicesService {
 
     if (query.status) qb.andWhere('invoice.status = :status', { status: query.status });
     if (query.customerId) qb.andWhere('invoice.customerId = :customerId', { customerId: query.customerId });
+    if (query.excludeDrafts) qb.andWhere('invoice.status <> :draft', { draft: InvoiceStatus.DRAFT });
     if (query.actorUserId || query.branchId) {
       const scope = await loadBranchScope(this.dataSource.manager, organizationId, query.actorUserId ?? null);
       applyBranchScope(qb, 'invoice', scope, query.branchId);
     }
     if (query.from) qb.andWhere('invoice.issueDate >= :from', { from: query.from });
     if (query.to) qb.andWhere('invoice.issueDate <= :to', { to: query.to });
-    if (query.search) {
+    // `likeTerm` escapes `%` and `_`: a search for "50%" is a search for those characters.
+    const search = likeTerm(query.search);
+    if (search) {
       qb.andWhere(
         '(invoice.invoiceNumber ILIKE :search OR invoice.fiscalNumber ILIKE :search OR invoice.customerName ILIKE :search)',
-        { search: `%${query.search}%` },
+        { search },
       );
     }
 

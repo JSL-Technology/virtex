@@ -6,7 +6,7 @@ import {
   UpdateEvent,
 } from 'typeorm';
 import { Logger } from '@nestjs/common';
-import { RequestContext } from 'nestjs-request-context';
+import { currentActor, currentOrganizationId } from '../shared/tenancy/tenant-context';
 import { ActionType, AuditLog } from './entities/audit-log.entity';
 
 /**
@@ -92,9 +92,13 @@ export class FinancialAuditSubscriber implements EntitySubscriberInterface {
     // their own rows through `AuditTrailService.recordWithManager`.
     if (typeof entityId !== 'string') return;
 
-    const request = RequestContext.currentContext?.req as
-      | { user?: { id?: string; organizationId?: string }; ip?: string }
-      | undefined;
+    // The request's actor, from the context the tenant interceptor opens around every request.
+    // `RequestContext` (nestjs-request-context) was read here but its module was never
+    // registered, so it was always empty and every automatic audit row had no author and no IP.
+    const actor = currentActor();
+    const request = actor
+      ? { user: { id: actor.userId ?? undefined, organizationId: currentOrganizationId() }, ip: actor.ipAddress ?? undefined }
+      : undefined;
 
     const organizationId =
       (typeof record?.['organizationId'] === 'string'
@@ -134,13 +138,24 @@ export class FinancialAuditSubscriber implements EntitySubscriberInterface {
    * row, and a lazily-loaded one would be a promise — and so is anything that is not a scalar.
    * What remains is the columns, which is what a diff is about.
    */
+  /**
+   * The row as the trail records it: scalar columns, and JSON columns (a role's permissions, a
+   * period's module statuses) — a change to WHICH permissions a role grants used to leave a row
+   * that did not say. Related entities are skipped (they are audited as themselves), and any
+   * field whose name says it holds a secret is redacted, never copied into the trail.
+   */
   private payload(entity: Record<string, unknown>): Record<string, unknown> {
     const out: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(entity)) {
       if (value === null || value === undefined) continue;
+      if (SECRET_FIELD.test(key)) {
+        out[key] = '[redactado]';
+        continue;
+      }
       const type = typeof value;
       if (type === 'string' || type === 'number' || type === 'boolean') out[key] = value;
       else if (value instanceof Date) out[key] = value.toISOString();
+      else if (isPlainJson(value)) out[key] = value;
     }
     return out;
   }
@@ -153,6 +168,17 @@ export class FinancialAuditSubscriber implements EntitySubscriberInterface {
  * `journal_entries`, which writes its own rows naming what it posted and on whose authority —
  * a column diff would say less, twice.
  */
+/** Field names that hold credentials or secrets: recorded as changed, never copied. */
+const SECRET_FIELD = /(password|secret|token|hash|totp|private_?key|api_?key|certificate|pin)/i;
+
+/** An array or a plain object (a jsonb column), as opposed to a related entity instance. */
+function isPlainJson(value: unknown): boolean {
+  if (Array.isArray(value)) return value.every((item) => item === null || ['string', 'number', 'boolean'].includes(typeof item) || isPlainJson(item));
+  if (typeof value !== 'object' || value === null) return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+}
+
 const AUDITED_TABLES: ReadonlySet<string> = new Set([
   // Payables
   'vendor_bills',
@@ -206,4 +232,29 @@ const AUDITED_TABLES: ReadonlySet<string> = new Set([
   'accounting_periods',
   'ledgers',
   'document_sequences',
+  // Access control (audit 2026-10-31, AUD-03): who may do what. A role's permissions changing is
+  // the most sensitive configuration change in the product; branch access decides which documents
+  // a person sees.
+  'roles',
+  'user_branch_access',
+  'branches',
+  'organization_domains',
+  // What a document is taxed and posted with.
+  'taxes',
+  'tax_jurisdictions',
+  'accounts',
+  'journals',
+  'payment_methods',
+  'banks',
+  'price_lists',
+  // Purchasing documents: a requisition approved, an order sent, a delivery received or voided.
+  'purchase_requisitions',
+  'purchase_orders',
+  'purchase_order_receipts',
+  'warehouses',
+  // The point of sale: a shift opened, closed with its count, a sale voided by a supervisor.
+  'pos_shifts',
+  'pos_sales',
+  // Stored documents: uploaded, moved, deleted.
+  'document_nodes',
 ]);

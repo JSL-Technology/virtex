@@ -42,7 +42,7 @@ export type WithholdingRegimeInput = Omit<WithholdingRegime, 'id'>;
 /** What the product does and does not do in the tenant's market. */
 export interface CapabilityCoverage {
   capability: string;
-  level: 'implemented' | 'needs-credentials' | 'not-implemented';
+  level: 'implemented' | 'needs-credentials' | 'needs-configuration' | 'not-implemented';
   detail?: string;
   requires?: string;
 }

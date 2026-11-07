@@ -1,3 +1,4 @@
+import { LEDGER_STATUSES_SQL } from '../contracts/accounting/ledger-statuses.contract';
 
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
@@ -106,7 +107,7 @@ export class AnalyticalReportingService {
           INNER JOIN journal_entries je ON jel.journal_entry_id = je.id
           INNER JOIN accounts acc ON jel.account_id = acc.id
           INNER JOIN journal_entry_line_valuations jlv ON jlv.journal_entry_line_id = jel.id
-          WHERE je.status = 'Posted';
+          WHERE je.status IN ${LEDGER_STATUSES_SQL};
       `;
 
       await queryRunner.query(viewQuery);

@@ -13,6 +13,7 @@ import { StatementExportService } from '../../../core/export/statement-export.se
 import { defaultPeriod } from '../financial-statements/report-period';
 import { VxDateRangeComponent } from '../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Gross margin by product.
@@ -31,7 +32,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-profitability-by-product-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent, FormsModule, VxBranchPickerComponent],
+  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxDateRangeComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent],
   templateUrl: './profitability-by-product.page.html',
   styleUrls: ['./profitability-by-product.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

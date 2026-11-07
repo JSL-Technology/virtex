@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../shared/scheduling/exclusive-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { DataSource } from 'typeorm';
@@ -34,6 +35,7 @@ export class OverdueInvoicesNotifier {
 
   // 12:15 UTC: the morning in the Americas, where the receivables teams that read it work.
   @Cron('15 12 * * *', { name: 'overdue-invoices-digest' })
+  @ExclusiveJob()
   async handleCron(): Promise<void> {
     await forEachTenant(this.dataSource, async (organizationId) => {
       const today = await organizationToday(this.dataSource.manager, organizationId);

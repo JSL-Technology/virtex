@@ -22,6 +22,7 @@ import {
   DimensionsService,
   valueTree,
 } from '../data/dimensions.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /** The dimension being edited: a copy, so the list does not change until it is saved. */
 interface Draft {
@@ -48,7 +49,7 @@ const emptyDraft = (): Draft => ({ id: null, name: '', description: '', isActive
 @Component({
   selector: 'app-dimensions-page',
   standalone: true,
-  imports: [FormsModule, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxBadgeComponent, HasPermissionDirective],
+  imports: [FormsModule, ...VX_FORM_A11Y, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxBadgeComponent, HasPermissionDirective],
   templateUrl: './dimensions.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', '../../../shared/styles/document-form.scss', './dimensions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

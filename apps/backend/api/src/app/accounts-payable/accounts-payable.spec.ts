@@ -1,5 +1,4 @@
 import { DataSource } from 'typeorm';
-import { VendorBillInventoryHandler } from '../inventory/handlers/vendor-bill-inventory.handler';
 import { OrgSettingsService } from '../organizations/services/org-settings.service';
 import { AfterCommitService } from '../shared/after-commit/after-commit.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -82,18 +81,14 @@ describeWithDb('accounts payable', () => {
   let vendorId: string;
   /** A persona física supplier, used by the tests that are about withholding. */
   let individualVendorId: string;
-  let inventory: { receiveGoods: jest.Mock; decreaseStock: jest.Mock; recordMovement: jest.Mock };
+  let inventory: { receiveGoods: jest.Mock; returnGoods: jest.Mock; absorbReceivedCostDifference: jest.Mock };
   let eventBus: EventEmitter2;
-  const efectosDeInventario: Array<Promise<unknown>> = [];
-  /** Espera a que los efectos de inventario en vuelo terminen. */
-  const inventarioAlDia = async (): Promise<void> => {
-    await Promise.all(efectosDeInventario.splice(0));
-  };
   const account: Record<string, string> = {};
   let bankAccountId: string;
 
   const ACTOR = '22222222-2222-4222-8222-222222222222';
-  const PRODUCT_ID = '33333333-3333-4333-8333-333333333333';
+  // A real catalogue product of the test tenant, seeded per test: the bill reads its kind.
+  let PRODUCT_ID: string;
 
   beforeAll(async () => {
     dataSource = new DataSource({
@@ -116,44 +111,16 @@ describeWithDb('accounts payable', () => {
     inventory = {
       // Receiving goes through the same port a purchase-order receipt uses (QA C-07): stock in,
       // cost re-averaged, a stock-ledger line — and no second entry, since the bill booked it.
-      receiveGoods: jest.fn().mockResolvedValue({ journalEntryId: null, stocked: [true] }),
-      decreaseStock: jest.fn().mockResolvedValue(undefined),
-      recordMovement: jest.fn().mockResolvedValue(undefined),
+      receiveGoods: jest.fn().mockResolvedValue({ journalEntryId: null, stocked: [true], warehouseId: null }),
+      returnGoods: jest.fn().mockResolvedValue(null),
+      absorbReceivedCostDifference: jest.fn().mockResolvedValue({ absorbed: 0, units: 0 }),
     };
 
-    //  El emisor es COMPARTIDO, y el manejador de inventario es el de verdad.
-    //
-    //  Cuentas por pagar dejó de llamar al inventario directamente: publica `vendor.bill.posted` y
-    //  `vendor.bill.voided` después del commit, y `VendorBillInventoryHandler` mueve el stock
-    //  (B-14, para romper la dependencia entre los dos módulos). El spec seguía comprobando la
-    //  llamada directa, así que afirmaba un diseño que ya no existe.
-    //
-    //  Registrar el manejador real, y no cambiar la afirmación por «se emitió el evento», mantiene
-    //  lo que esta prueba protege: aprobar una compra RECIBE la mercancía y anularla la devuelve.
-    //  Comprobar que se emitió un evento no habría cazado el defecto que este bloque documenta
-    //  —una anulación que AUMENTABA el stock— porque el evento se emitía igual.
+    //  Stock moves in the bill's own transaction through `GoodsReceiptPort` (AP-05); the events
+    //  that follow the commit are business facts for the workflow engine, not the stock path.
     eventBus = new EventEmitter2();
-
-    //  `onModuleInit()` a mano. `AfterCommitService` se registra ahí como suscriptor de TypeORM
-    //  —a propósito, para poder ser un inyectable normal— y construido con `new` nunca lo hace:
-    //  los efectos post-commit se encolan y no se ejecutan jamás. Con el servicio sin registrar,
-    //  `vendor.bill.posted` no llegaba a emitirse y la mercancía no se recibía, sin que nada
-    //  fallara: el silencio es exactamente la forma del defecto que esta prueba vigila.
     const afterCommit = new AfterCommitService(dataSource);
     afterCommit.onModuleInit();
-    const inventoryHandler = new VendorBillInventoryHandler(
-      inventory as never,
-      dataSource,
-    );
-    //  Se guarda la promesa de cada efecto para poder esperarla. El manejador es síncrono desde
-    //  fuera —el emisor no lo espera, y no debe: a estas alturas ya se hizo commit— así que sin
-    //  esto la afirmación corría antes de que la mercancía se hubiera movido.
-    eventBus.on('vendor.bill.posted', (payload) => {
-      efectosDeInventario.push(inventoryHandler.onBillPosted(payload as never));
-    });
-    eventBus.on('vendor.bill.voided', (payload) => {
-      efectosDeInventario.push(inventoryHandler.onBillVoided(payload as never));
-    });
     balances = new AccountBalancesService(dataSource);
     const entries = new JournalEntriesService(
       dataSource.getRepository(JournalEntry),
@@ -192,6 +159,7 @@ describeWithDb('accounts payable', () => {
       // The real narrative service, so the assertions read the sentences the ledger will actually
       // carry rather than a stub's.
       new LedgerNarrativeService(new I18nService()),
+      inventory as never,
     );
 
     debitNotes = new VendorDebitNotesService(
@@ -319,6 +287,11 @@ describeWithDb('accounts payable', () => {
     );
     vendorId = vendor.id;
 
+    [{ id: PRODUCT_ID }] = await dataSource.query(
+      `INSERT INTO "products" ("organization_id", "name", "kind") VALUES ($1, 'Mercancía de prueba', 'GOOD') RETURNING id`,
+      [organizationId],
+    );
+
     // The second is a persona física. Buying a service from one is the case the DGII's two
     // regimes cover — 100 % of the ITBIS (Norma General 02-05) and 10 % of the fee (art. 309) —
     // and it is what the withholding tests use.
@@ -417,6 +390,181 @@ describeWithDb('accounts payable', () => {
       expect(bill.total).toBe(100);
       expect(bill.totalInBaseCurrency).toBe(5875);
       expect(bill.exchangeRate).toBeCloseTo(58.75, 6);
+    });
+  });
+
+  /**
+   * AP-02 (audit 2026-10-31): a bill that did not split its base sent the WHOLE subtotal to
+   * services — and the bill form never split it — so every purchase of goods was reported in the
+   * 606 as services and withheld ISR it did not owe.
+   */
+  describe('goods and services', () => {
+    const goodsFromIndividual = (extra: Partial<CreateVendorBillDto> = {}) =>
+      payables.create(
+        {
+          vendorId: individualVendorId,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
+          lines: [
+            { product: 'Mercancía', quantity: 2, unitPrice: 3_000, productId: PRODUCT_ID },
+            { product: 'Instalación', quantity: 1, unitPrice: 1_000, expenseAccountId: account['expense'] },
+          ],
+          taxAmount: 1_260,
+          ...extra,
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+
+    it('takes the split from the lines: a catalogue good is goods, a free expense line a service', async () => {
+      const bill = await goodsFromIndividual();
+      expect(bill.goodsAmount).toBe(6_000);
+      expect(bill.servicesAmount).toBe(1_000);
+      // ISR is withheld on the service only: 10 % of 1,000, not of 7,000.
+      expect(bill.incomeTaxWithheld).toBe(100);
+      const natures = await dataSource.query(
+        `SELECT product, nature FROM vendor_bill_line WHERE "vendorBillId" = $1 ORDER BY product`,
+        [bill.id],
+      );
+      expect(natures).toEqual([
+        { product: 'Instalación', nature: 'SERVICES' },
+        { product: 'Mercancía', nature: 'GOODS' },
+      ]);
+    });
+
+    it('withholds no ISR on a bill that buys only goods', async () => {
+      const bill = await payables.create(
+        {
+          vendorId: individualVendorId,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
+          lines: [{ product: 'Mercancía', quantity: 1, unitPrice: 5_000, productId: PRODUCT_ID }],
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+      expect(bill.goodsAmount).toBe(5_000);
+      expect(bill.servicesAmount).toBe(0);
+      expect(bill.incomeTaxWithheld).toBe(0);
+    });
+
+    it('lets a line state its nature over the product kind', async () => {
+      const bill = await payables.create(
+        {
+          vendorId,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
+          lines: [
+            { product: 'Mantenimiento del equipo', quantity: 1, unitPrice: 2_000, productId: PRODUCT_ID, nature: 'SERVICES' },
+            { product: 'Repuestos', quantity: 1, unitPrice: 500, expenseAccountId: account['expense'], nature: 'GOODS' },
+          ],
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+      expect(bill.servicesAmount).toBe(2_000);
+      expect(bill.goodsAmount).toBe(500);
+    });
+
+    it('refuses a stated split that does not add up to the subtotal', async () => {
+      await expect(goodsFromIndividual({ goodsAmount: 1_000, servicesAmount: 1_000 })).rejects.toMatchObject({
+        messageKey: 'accounts_payable.base_split_does_not_add_up',
+      });
+      // One side alone takes the rest of the subtotal as the other.
+      const bill = await goodsFromIndividual({ servicesAmount: 7_000 });
+      expect(bill.goodsAmount).toBe(0);
+    });
+
+    it('refuses a product the tenant does not have', async () => {
+      await expect(
+        payables.create(
+          {
+            vendorId,
+            date: '2026-03-10',
+            dueDate: '2026-04-09',
+            lines: [{ product: 'Ajeno', quantity: 1, unitPrice: 1, productId: '33333333-3333-4333-8333-333333333333' }],
+          } as CreateVendorBillDto,
+          organizationId,
+        ),
+      ).rejects.toMatchObject({ messageKey: 'common.referenced_record_not_found' });
+    });
+
+    it('does not let an edit change the split apart from the lines', async () => {
+      const bill = await goodsFromIndividual();
+      await expect(
+        payables.update(bill.id, { servicesAmount: 7_000 }, organizationId),
+      ).rejects.toMatchObject({ messageKey: 'accounts_payable.base_split_follows_lines' });
+    });
+  });
+
+  /**
+   * AP-03 (audit 2026-10-31): only the Dominican NCF identified a supplier document, so two
+   * identical POSTs without one both succeeded — the same invoice recorded, and payable, twice.
+   */
+  describe('the same supplier document twice', () => {
+    const bill = (extra: Partial<CreateVendorBillDto> = {}) =>
+      payables.create(
+        {
+          vendorId,
+          date: '2026-03-12',
+          dueDate: '2026-04-11',
+          lines: [{ product: 'Servicio', quantity: 1, unitPrice: 4_000, expenseAccountId: account['expense'] }],
+          ...extra,
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+
+    it('refuses a supplier number already recorded for that supplier, however it is typed', async () => {
+      const first = await bill({ supplierInvoiceNumber: 'FAC-000123' });
+      expect(first.supplierInvoiceNumber).toBe('FAC-000123');
+      await expect(bill({ supplierInvoiceNumber: 'fac 123', date: '2026-03-20' })).rejects.toMatchObject({
+        messageKey: 'accounts_payable.supplier_invoice_already_recorded',
+      });
+      // Another supplier may use the same number.
+      await expect(
+        bill({ supplierInvoiceNumber: 'FAC-000123', vendorId: individualVendorId }),
+      ).resolves.toBeDefined();
+    });
+
+    it('lets the number be used again once the bill carrying it is voided', async () => {
+      const first = await bill({ supplierInvoiceNumber: 'FAC-77' });
+      await payables.voidBill(first.id, organizationId, { reason: 'Registrada por error' }, ACTOR);
+      await expect(bill({ supplierInvoiceNumber: 'FAC-77' })).resolves.toBeDefined();
+    });
+
+    it('enforces it in the database, not only in the service', async () => {
+      await bill({ supplierInvoiceNumber: 'FAC-9' });
+      await expect(
+        dataSource.query(
+          `INSERT INTO "vendor_bills"
+             ("organization_id", "vendor_id", "date", "dueDate", "total", "balance", "status",
+              "currency_code", "exchange_rate", "total_in_base_currency", "version", "supplier_invoice_key")
+           VALUES ($1, $2, '2026-03-12', '2026-04-11', 1, 1, 'DRAFT', 'DOP', 1, 1, 1, 'FAC9')`,
+          [organizationId, vendorId],
+        ),
+      ).rejects.toMatchObject({ code: '23505' });
+    });
+
+    it('takes an unnumbered bill identical to a live one for the same document, unless confirmed', async () => {
+      await bill();
+      await expect(bill()).rejects.toMatchObject({ messageKey: 'accounts_payable.possible_duplicate_bill' });
+      // A different total, or a confirmation that it is another document, is recorded.
+      await expect(bill({ lines: [{ product: 'Servicio', quantity: 1, unitPrice: 4_001, expenseAccountId: account['expense'] }] } as never)).resolves.toBeDefined();
+      await expect(bill({ allowPossibleDuplicate: true })).resolves.toBeDefined();
+    });
+
+    it("refuses the same fiscal document twice outside the Dominican Republic too", async () => {
+      // A CFDI UUID, a CUFE, a US invoice number: whatever the market calls it, one document.
+      await dataSource.query(`UPDATE organizations SET country = 'US' WHERE id = $1`, [organizationId]);
+      await bill({ ncf: 'inv-2026-0042' });
+      await expect(bill({ ncf: 'INV 2026 0042', date: '2026-03-25' })).rejects.toMatchObject({
+        messageKey: 'accounts_payable.supplier_document_already_recorded',
+      });
+    });
+
+    it('refuses an edit that gives a bill a number another live bill already has', async () => {
+      await bill({ supplierInvoiceNumber: 'FAC-1' });
+      const second = await bill({ supplierInvoiceNumber: 'FAC-2' });
+      await expect(
+        payables.update(second.id, { supplierInvoiceNumber: 'FAC-0001' }, organizationId),
+      ).rejects.toMatchObject({ messageKey: 'accounts_payable.supplier_invoice_already_recorded' });
     });
   });
 
@@ -918,10 +1066,9 @@ describeWithDb('accounts payable', () => {
 
     it('receives goods on approval and returns them on annulment', async () => {
       inventory.receiveGoods.mockClear();
-      inventory.decreaseStock.mockClear();
+      inventory.returnGoods.mockClear();
 
       const bill = await openBill({ withProduct: true });
-      await inventarioAlDia();
       // Approving a purchase receives the goods. Nothing did this: the ledger debited inventory
       // and the subledger never moved.
       expect(inventory.receiveGoods).toHaveBeenCalledWith(
@@ -933,22 +1080,42 @@ describeWithDb('accounts payable', () => {
           post: false,
           lines: [expect.objectContaining({ productId: PRODUCT_ID, quantity: 4 })],
         }),
-        null,
+        // Who approved it: the stock ledger says who received the goods.
+        ACTOR,
       );
 
       await payables.voidBill(bill.id, organizationId, { reason: 'Devuelta al proveedor' }, ACTOR);
-      await inventarioAlDia();
 
-      // And annulling returns them. It used to *increase* stock here, so every annulment added
-      // goods that had never arrived.
-      expect(inventory.decreaseStock).toHaveBeenCalledWith(
-        PRODUCT_ID,
-        4,
+      // And annulling returns them, at the cost they came in at and without a second entry (the
+      // reversal of the bill gives the value back). It used to *increase* stock here, so every
+      // annulment added goods that had never arrived.
+      expect(inventory.returnGoods).toHaveBeenCalledWith(
         expect.anything(),
         organizationId,
-        // Out of the warehouse they arrived in, recorded as a purchase return against the bill.
-        expect.objectContaining({ type: 'PURCHASE_RETURN', sourceType: 'vendor_bill_void' }),
+        expect.objectContaining({
+          sourceType: 'vendor_bill_void',
+          sourceId: bill.id,
+          posted: false,
+          lines: [expect.objectContaining({ productId: PRODUCT_ID, quantity: 4, unitCost: 2_500 })],
+        }),
+        ACTOR,
       );
+    });
+
+    /**
+     * AP-05: the goods used to arrive after the commit, from an event handler whose failure was a
+     * log line — leaving a posted entry with no stock behind it. Now they arrive in the bill's
+     * own transaction, so a receipt that fails takes the posting with it.
+     */
+    it('posts nothing when the goods cannot be received', async () => {
+      inventory.receiveGoods.mockRejectedValueOnce(new Error('almacén no disponible'));
+      await expect(openBill({ withProduct: true })).rejects.toThrow('almacén no disponible');
+      const [row] = await dataSource.query(
+        `SELECT count(*)::int AS posted FROM vendor_bills WHERE organization_id = $1 AND journal_entry_id IS NOT NULL`,
+        [organizationId],
+      );
+      expect(row.posted).toBe(0);
+      expect(await signedBalance('payable')).toBe(0);
     });
 
     it('refuses to annul a bill that has been paid against', async () => {

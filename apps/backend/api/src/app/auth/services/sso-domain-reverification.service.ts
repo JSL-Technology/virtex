@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../../shared/scheduling/exclusive-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
@@ -51,6 +52,7 @@ export class SsoDomainReverificationService {
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_3AM, { name: 'sso-domain-reverification' })
+  @ExclusiveJob()
   async runDaily(): Promise<void> {
     const day = new Date().toISOString().slice(0, 10);
     await this.schedulerLock.runOnce('sso-domain-reverification', day, () => this.recheckAll());

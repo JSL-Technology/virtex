@@ -17,6 +17,7 @@ import { Quote, QuoteStatus, QuotesService } from '../data/quotes.service';
 import { RowLinkDirective } from '../../../../shared/directives/row-link.directive';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
 import { InboundMailInboxComponent } from '../../../inbound-mail/inbound-mail-inbox.component';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /** The colour each state carries. Expired overrides the stored state: it is what matters. */
 export const QUOTE_TONE: Record<QuoteStatus, VxTone> = {
@@ -38,7 +39,7 @@ export const QUOTE_STATUSES: QuoteStatus[] = ['DRAFT', 'SENT', 'ACCEPTED', 'REJE
 @Component({
   selector: 'app-quotes-page',
   standalone: true,
-  imports: [...VX_CONTEXT_MENU, InboundMailInboxComponent, ...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_CONTEXT_MENU, InboundMailInboxComponent, ...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './quotes.page.html',
   styleUrls: ['./quotes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -161,3 +161,11 @@
   font-size: var(--text-xs);
   font-weight: var(--font-medium);
 }
+
+// Cuenta de gasto y naturaleza (bien o servicio) de una línea sin artículo de catálogo.
+.expense-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}

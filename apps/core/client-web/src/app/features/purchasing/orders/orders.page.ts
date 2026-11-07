@@ -21,6 +21,7 @@ import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /** Which badge colour each status carries. Green means the goods are in. */
 /** Lo que significa cada estado de un pedido. El color lo pone `vx-badge`, una vez. */
@@ -47,7 +48,7 @@ const STATUS_TONE: Record<PurchaseOrderStatus, VxTone> = {
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [...VX_CONTEXT_MENU, ...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, FormsModule, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_CONTEXT_MENU, ...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './orders.page.html',
   styleUrls: ['./orders.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

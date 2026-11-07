@@ -1,4 +1,5 @@
 import { BillMailHandler } from './inbox/bill-mail.handler';
+import { InventoryModule } from '../inventory/inventory.module';
 import { AccountsPayableCopilotTools } from './accounts-payable.copilot-tools';
 import { BillCaptureController } from './bill-capture.controller';
 import { BillCaptureService } from './bill-capture.service';
@@ -56,8 +57,10 @@ import { AuthModule } from '../auth/auth.module';
       Supplier,
     ]),
     JournalEntriesModule,
-    // InventoryModule removed — stock adjustments are now driven by 'vendor.bill.posted' and
-    // 'vendor.bill.voided' events. VendorBillInventoryHandler in InventoryModule listens.
+    // For `GoodsReceiptPort` only: a bill's goods enter and leave stock in the bill's own
+    // transaction (AP-05). They used to move after commit from an event handler, so a failed
+    // handler left a posted entry with no stock behind it.
+    InventoryModule,
     WorkflowsModule,
     CurrenciesModule,
     BudgetsModule,

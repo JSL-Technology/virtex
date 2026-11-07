@@ -306,8 +306,21 @@ export class InvoicesService {
     return this.http.get<Invoice>(`${this.apiUrl}/${id}`);
   }
 
-  createInvoice(invoice: CreateInvoiceDto): Observable<Invoice> {
-    return this.http.post<Invoice>(this.apiUrl, invoice);
+  /**
+   * Create (and, by default, issue) an invoice.
+   *
+   * `draftKey` identifies the FORM the invoice is being composed in, not the request: two clicks
+   * on «Emitir», or a retry after a dropped connection, carry one idempotency key, and the server
+   * replays its first answer instead of creating a second invoice with a second fiscal number
+   * (audit 2026-10-31, FLOW-03). The key is released once the creation succeeds.
+   */
+  createInvoice(invoice: CreateInvoiceDto, draftKey: string): Observable<Invoice> {
+    const operation = `invoice:create:${draftKey}`;
+    return this.http
+      .post<Invoice>(this.apiUrl, invoice, {
+        headers: { 'Idempotency-Key': this.idempotency.keyFor(operation) },
+      })
+      .pipe(tap(() => this.idempotency.settle(operation)));
   }
 
   /**

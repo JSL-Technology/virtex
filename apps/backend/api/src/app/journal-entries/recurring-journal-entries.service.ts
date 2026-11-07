@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../shared/scheduling/exclusive-job';
 import { forEachTenant } from '../shared/tenancy/tenant-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -158,6 +159,7 @@ export class RecurringJournalEntriesService {
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM, { name: 'queue-recurring-journal-entries' })
+  @ExclusiveJob()
   async handleCron(): Promise<void> {
     this.logger.log('Iniciando job para encolar asientos recurrentes...');
 

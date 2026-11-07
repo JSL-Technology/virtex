@@ -41,12 +41,12 @@
         </div>
 
         <label class="field" for="startDate">
-          <span>{{ 'reports.common.from' | translate }}@if (!structured()) { *}</span>
+          <span>{{ 'reports.common.from' | translate }} @if (!structured()) {<span class="required" aria-hidden="true">*</span>}</span>
           <vx-date-field inputId="startDate" formControlName="startDate" />
         </label>
 
         <label class="field" for="endDate">
-          <span>{{ 'reports.common.to' | translate }}@if (!structured()) { *}</span>
+          <span>{{ 'reports.common.to' | translate }} @if (!structured()) {<span class="required" aria-hidden="true">*</span>}</span>
           <vx-date-field inputId="endDate" formControlName="endDate" />
         </label>
 

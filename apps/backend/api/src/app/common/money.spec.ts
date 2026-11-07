@@ -1,6 +1,8 @@
 import {
   MoneyError,
   convert,
+  multiplyAmount,
+  percentageOf,
   fromCents,
   requireFiniteAmount,
   roundAmount,
@@ -115,5 +117,55 @@ describe('money', () => {
       expect(Math.abs(NaN - NaN) > 0.01).toBe(false);
       expect(() => requireFiniteAmount(NaN, 'debit')).toThrow(MoneyError);
     });
+  });
+});
+
+/**
+ * IMP-01 (audit 2026-10-31): rounding a float PRODUCT half away from zero lost every tie the binary
+ * representation pushed one ulp below the half — 1.25 × 18 % came out 0.22, not 0.23.
+ */
+describe('ties survive floating-point products', () => {
+  it.each([
+    [1.25 * 0.18, 23],
+    [42.5 * 0.19, 808],
+    [1.005, 101],
+    [0.285, 29],
+    [0.1 + 0.2, 30],
+    [2.675, 268],
+    [1.45 * 0.18 * 100, 2610],
+  ])('toCents(%p) = %p', (value, cents) => {
+    expect(toCents(value)).toBe(cents);
+  });
+
+  it('rounds a negative tie to the same magnitude as its positive mirror', () => {
+    expect(toCents(-(1.25 * 0.18))).toBe(-23);
+    expect(toCents(-0.005)).toBe(-1);
+    expect(toCents(0.005)).toBe(1);
+  });
+
+  it('respects currencies without decimals and with three', () => {
+    expect(toCents(1003 * 0.19, 0)).toBe(191);
+    expect(toCents(1.0005, 3)).toBe(1001);
+  });
+
+  it('refuses a value that is not a number instead of booking NaN', () => {
+    expect(() => toCents(Number.NaN)).toThrow();
+    expect(() => toCents(Number.POSITIVE_INFINITY)).toThrow();
+  });
+});
+
+describe('exact multiplication', () => {
+  it('converts at a six-decimal rate without a tie landing on the wrong side', () => {
+    // 123456.78 × 61.234565 = 7 559 822.2196007 exactly: integer arithmetic, one rounding.
+    expect(multiplyAmount(123456.78, 61.234565)).toBe(7559822.22);
+    // A true tie at 16 significant digits, where reading the double product could misround.
+    expect(multiplyAmount(1234567.25, 0.5, 1)).toBe(617283.6);
+    expect(convert(100, 61.2345)).toBe(6123.45);
+  });
+
+  it('computes a percentage exactly', () => {
+    expect(percentageOf(1.25, 18)).toBe(0.23);
+    expect(percentageOf(42.5, 19)).toBe(8.08);
+    expect(percentageOf(1003, 19, 0)).toBe(191);
   });
 });

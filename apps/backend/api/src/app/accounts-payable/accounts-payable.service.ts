@@ -1,7 +1,7 @@
 import { recordCapturedRecord } from '../contracts/ai/provenance.contract';
 import { PurchaseOrderLine } from '../procurement/entities/purchase-order-line.entity';
 import { PurchaseOrder } from '../procurement/entities/purchase-order.entity';
-import { VendorBillLine } from './entities/vendor-bill-line.entity';
+import { VendorBillLine, VendorBillLineNature } from './entities/vendor-bill-line.entity';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, IsNull, DataSource, EntityManager, FindOperator } from 'typeorm';
@@ -19,7 +19,10 @@ import { OrgSettingsService } from '../organizations/services/org-settings.servi
 import { VendorPayment } from './entities/vendor-payment.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AfterCommitService } from '../shared/after-commit/after-commit.service';
-import type { VendorBillPostedEvent, VendorBillVoidedEvent } from '../inventory/handlers/vendor-bill-inventory.handler';
+import type { VendorBillPostedEvent, VendorBillVoidedEvent } from './events/vendor-bill.events';
+import { BUSINESS_EVENTS } from '../contracts/business-events/business-events.contract';
+import { GoodsReceiptPort } from '../inventory/contracts/goods-receipt.contract';
+import { PurchaseOrderStatus } from '../procurement/entities/purchase-order.entity';
 import {
   CreateJournalEntryDto,
   CreateJournalEntryLineDto,
@@ -46,6 +49,7 @@ import { toIsoDate } from '../common/dates';
 import { isValidDominicanTaxId } from '../localization/contracts/tax-id.contract';
 import { checkReceivedNcf } from '../localization/contracts/ncf.contract';
 import { VendorBillAttachment } from './entities/vendor-bill-attachment.entity';
+import { supplierInvoiceKey } from './supplier-invoice-key';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 
 export interface AgingBucket {
@@ -164,6 +168,11 @@ export class AccountsPayableService {
     private readonly withholding: WithholdingResolverService,
     /** The ledger's narrative, in the language the books are kept in. */
     private readonly narrative: LedgerNarrativeService,
+    /**
+     * Goods in and out in the bill's own transaction (AP-05): the same port a purchase-order
+     * receipt uses, so stock, average cost and kardex move with the entry or not at all.
+     */
+    private readonly goodsReceipt: GoodsReceiptPort,
   ) {}
 
   /**
@@ -226,7 +235,7 @@ export class AccountsPayableService {
     organizationId: string,
     actorUserId: string | null = null,
   ): Promise<VendorBill> {
-    const { attachmentIds, ...billFields } = dto;
+    const { attachmentIds, allowPossibleDuplicate, ...billFields } = dto;
     return this.dataSource.transaction(async (manager) => {
       const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
       const baseCurrency = settings?.baseCurrency ?? 'USD';
@@ -268,8 +277,13 @@ export class AccountsPayableService {
 
       await this.assertPurchaseOrderLinks(manager, organizationId, dto, lines);
 
-      const servicesAmount = dto.servicesAmount ?? subtotal;
-      const goodsAmount = dto.goodsAmount ?? 0;
+      const { goodsAmount, servicesAmount } = await this.resolveBaseSplit(
+        manager,
+        organizationId,
+        dto,
+        lines,
+        subtotal,
+      );
       // Services when the document contains any: every regime that distinguishes the two withholds
       // on services and not on goods, so treating a mixed bill as goods under-withholds.
       const scope: 'SERVICES' | 'GOODS' = servicesAmount > 0 ? 'SERVICES' : 'GOODS';
@@ -316,6 +330,15 @@ export class AccountsPayableService {
         });
       }
 
+      const invoiceKey = await this.assertSupplierDocumentUnique(manager, organizationId, supplier, {
+        supplierInvoiceNumber: dto.supplierInvoiceNumber,
+        ncf: ncf ?? dto.ncf,
+        date: dto.date,
+        currencyCode,
+        total: expectedTotal,
+        allowPossibleDuplicate: allowPossibleDuplicate === true,
+      });
+
       // From the document's currency into the books', which is the direction the conversion is
       // actually needed in. The previous code fetched a base→foreign rate and multiplied by it.
       const { amount: totalInBaseCurrency, rate } = await this.exchangeRates.convertAmount(
@@ -330,6 +353,8 @@ export class AccountsPayableService {
         branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
         ...billFields,
         ncf: ncf ?? dto.ncf,
+        supplierInvoiceNumber: dto.supplierInvoiceNumber?.trim() || null,
+        supplierInvoiceKey: invoiceKey,
         organizationId,
         lines,
         total: expectedTotal,
@@ -462,26 +487,37 @@ export class AccountsPayableService {
   ): Promise<string | null> {
     if (!ncf?.trim()) return null;
     const [organization] = await manager.query('SELECT country FROM organizations WHERE id = $1', [organizationId]);
-    if ((organization?.country ?? '').toUpperCase() !== 'DO') return null;
+    const dominican = (organization?.country ?? '').toUpperCase() === 'DO';
 
-    const checked = checkReceivedNcf(ncf);
-    if (!checked.ok) {
-      throw new BadRequestError(
-        checked.error === 'format' ? 'accounts_payable.ncf_invalid_format' : 'accounts_payable.ncf_unknown_type',
-        { ncf: ncf.trim() },
-      );
+    // The field holds the market's identifier of the supplier's document — the NCF here, the CFDI
+    // UUID, the CUFE, the NF-e key or the plain invoice number elsewhere. Only the Dominican one
+    // has a format this product checks, but every one of them identifies ONE document, and the
+    // duplicate check used to run in the Dominican Republic only (AP-03).
+    let normalized: string;
+    if (dominican) {
+      const checked = checkReceivedNcf(ncf);
+      if (!checked.ok) {
+        throw new BadRequestError(
+          checked.error === 'format' ? 'accounts_payable.ncf_invalid_format' : 'accounts_payable.ncf_unknown_type',
+          { ncf: ncf.trim() },
+        );
+      }
+      if (checked.ncf.requiresSupplierTaxId && (!supplier?.taxId || !isValidDominicanTaxId(supplier.taxId))) {
+        throw new BadRequestError('accounts_payable.ncf_requires_supplier_tax_id', {
+          supplier: supplier?.name ?? '',
+          ncf: checked.ncf.normalized,
+        });
+      }
+      normalized = checked.ncf.normalized;
+    } else {
+      normalized = ncf.trim().toUpperCase().replace(/[\s-]/g, '');
     }
-    if (checked.ncf.requiresSupplierTaxId && (!supplier?.taxId || !isValidDominicanTaxId(supplier.taxId))) {
-      throw new BadRequestError('accounts_payable.ncf_requires_supplier_tax_id', {
-        supplier: supplier?.name ?? '',
-        ncf: checked.ncf.normalized,
-      });
-    }
+
     if (supplier?.id) {
       // Two people saving the same bill at once must not both pass the check: the second waits for
       // the first's transaction, then sees its row.
       await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
-        `vendor-bill-ncf:${organizationId}:${supplier.id}:${checked.ncf.normalized}`,
+        `vendor-bill-ncf:${organizationId}:${supplier.id}:${normalized}`,
       ]);
       const [duplicate] = await manager.query(
         `SELECT "id" FROM "vendor_bills"
@@ -490,16 +526,17 @@ export class AccountsPayableService {
             AND "status" NOT IN ('VOID', 'REJECTED')
             AND ($4::uuid IS NULL OR "id" <> $4::uuid)
           LIMIT 1`,
-        [organizationId, supplier.id, checked.ncf.normalized, billId],
+        [organizationId, supplier.id, normalized, billId],
       );
       if (duplicate) {
-        throw new ConflictError('accounts_payable.ncf_already_recorded', {
-          ncf: checked.ncf.normalized,
-          supplier: supplier.name ?? '',
-        });
+        throw new ConflictError(
+          dominican ? 'accounts_payable.ncf_already_recorded' : 'accounts_payable.supplier_document_already_recorded',
+          { ncf: normalized, supplier: supplier.name ?? '' },
+        );
       }
     }
-    return checked.ncf.normalized;
+    // Stored as typed outside the Dominican Republic: there is no canonical form to store.
+    return dominican ? normalized : null;
   }
 
   async update(
@@ -517,9 +554,23 @@ export class AccountsPayableService {
         'accounts_payable.lines_existing_invoice_must_changed_through',
       );
     }
+    // The goods/services split follows the lines, and the withholding was resolved from it when
+    // the bill was recorded; changing one without the other would report a base nothing withheld on.
+    if (dto.goodsAmount !== undefined || dto.servicesAmount !== undefined) {
+      throw new BadRequestError('accounts_payable.base_split_follows_lines');
+    }
     // The branch is not merged as sent: a new one must be a branch the editor may use.
-    const { branchId, ...changes } = dto;
+    const { branchId, allowPossibleDuplicate: _allow, ...changes } = dto;
     const merged = this.vendorBillRepository.merge(bill, changes);
+    if (changes.supplierInvoiceNumber !== undefined || changes.vendorId !== undefined) {
+      merged.supplierInvoiceNumber = merged.supplierInvoiceNumber?.trim() || null;
+      merged.supplierInvoiceKey = await this.assertSupplierDocumentUnique(
+        this.dataSource.manager,
+        organizationId,
+        { id: merged.vendorId, name: null },
+        { supplierInvoiceNumber: merged.supplierInvoiceNumber, ncf: merged.ncf, billId: bill.id },
+      );
+    }
     // A corrected NCF (or a different supplier) is checked now, not first at submission.
     if (changes.ncf !== undefined || changes.vendorId !== undefined) {
       const supplier = await this.dataSource.manager.findOne(Supplier, {
@@ -674,6 +725,10 @@ export class AccountsPayableService {
         valuations: [{ ledgerId: ledger.id, debit: 0, credit: amount }],
       });
     };
+    /** A difference that can go either way: a debit when positive, a credit when negative. */
+    const signed = (accountId: string, amount: number, description: string) =>
+      amount >= 0 ? debit(accountId, amount, description) : credit(accountId, -amount, description);
+    const rate = Number(bill.exchangeRate) > 0 ? Number(bill.exchangeRate) : 1;
 
     //  El relato del asiento en el idioma de los libros del inquilino. Eran literales castellanos,
     //  de modo que un inquilino que compra y factura en inglés leía su propio mayor en castellano.
@@ -714,13 +769,44 @@ export class AccountsPayableService {
         // itself brings in, and any difference between the billed and the agreed price) debits
         // inventory. Without this, receiving and then billing the same goods counted them twice.
         const matched = await this.matchAgainstReceipts(manager, bill.organizationId, line, bill.exchangeRate);
+        // The part matched against a receipt clears GRNI at the value it was RECEIVED at — all of
+        // it, whatever the invoice says. It used to be capped at the line total, so an invoice
+        // cheaper than the order left a residue in GRNI that nothing would ever clear.
+        const billedMatched = roundAmount(Number(line.unitPrice) * matched.grniQuantity);
         if (matched.grniAmount > 0) {
           if (!settings.defaultGoodsReceivedNotInvoicedAccountId) {
             throw new BadRequestError('accounts_payable.grni_account_not_configured');
           }
           debit(settings.defaultGoodsReceivedNotInvoicedAccountId, matched.grniAmount, goodsLine);
         }
-        debit(settings.defaultInventoryId, roundAmount(line.total - matched.grniAmount), goodsLine);
+        // What the bill itself brings in, at the bill's price; stock moves for it below.
+        debit(settings.defaultInventoryId, roundAmount(line.total - billedMatched), goodsLine);
+
+        // The invoice priced the received goods differently from the order (AP-05). The share of
+        // those goods still on the shelf takes the difference into its average cost, and so into
+        // inventory; the share already sold went out at the old cost, so its part is cost of
+        // sales. Booking all of it to inventory, as before, left the account describing a value
+        // the kardex never held.
+        const priceDifference = roundAmount(billedMatched - matched.grniAmount);
+        if (toCents(priceDifference) !== 0) {
+          const { absorbed, units } = await this.goodsReceipt.absorbReceivedCostDifference(manager, organizationId, {
+            productId: line.productId,
+            quantity: matched.grniQuantity,
+            amount: roundAmount(priceDifference * rate),
+          });
+          const toInventory = roundAmount(absorbed / rate);
+          const toCostOfSales = roundAmount(priceDifference - toInventory);
+          line.receivedCostAbsorbed = absorbed;
+          line.receivedCostUnits = units;
+          await manager.update(VendorBillLine, { id: line.id }, { receivedCostAbsorbed: absorbed, receivedCostUnits: units });
+          signed(settings.defaultInventoryId, toInventory, goodsLine);
+          if (toCents(toCostOfSales) !== 0) {
+            if (!settings.defaultCostOfGoodsSoldId) {
+              throw new BadRequestError('accounts_payable.cost_of_sales_account_not_configured');
+            }
+            signed(settings.defaultCostOfGoodsSoldId, toCostOfSales, goodsLine);
+          }
+        }
       } else {
         if (!line.expenseAccountId) {
           throw new BadRequestError(
@@ -808,26 +894,43 @@ export class AccountsPayableService {
       { actorUserId, module: ModuleSlug.AP, systemReason: 'vendor-bill-approved' },
     );
 
-    // Goods received. The ledger debited the inventory account above; the subledger has to move
-    // with it or the two describe different warehouses. Nothing did this before — approval only
-    // touched the ledger — while `voidBill` *increased* stock on annulment, so annulling a purchase
-    // created inventory that had never arrived and the two sides drifted in opposite directions.
-    //
-    // The right long-term home for this is a goods receipt in Procurement, matched three ways
-    // against the purchase order and the invoice. Until that exists, the `vendor.bill.posted` event
-    // (emitted after commit via AfterCommitService) carries the lines and `VendorBillInventoryHandler`
-    // in InventoryModule applies the stock movement. The movement is no longer atomic with the
-    // accounting entry — an accepted trade-off while the modules remain decoupled.
-    // Only what the bill itself brings in moves stock: the part matched against a receipt is
-    // already on the shelf.
+    // Goods received, in THIS transaction (AP-05). The ledger debited the inventory account above;
+    // the stock has to move with it or the two describe different warehouses. It used to move
+    // after commit, from an event handler whose failure was a log line — leaving an entry with no
+    // stock behind it. Only what the bill itself brings in moves: the part matched against a
+    // receipt is already on the shelf.
+    const reference = bill.supplierInvoiceNumber ?? bill.ncf ?? bill.id.slice(0, 8);
     const billLinesForInventory = bill.lines
       .map((line) => ({
         productId: line.productId,
-        quantity: roundAmount(line.quantity - (line.grniQuantity ?? 0)),
-        unitCost: roundAmount(Number(line.unitPrice) * (Number(bill.exchangeRate) || 1)),
-        reference: bill.ncf ?? bill.id.slice(0, 8),
+        quantity: roundQuantity(line.quantity - (line.grniQuantity ?? 0)),
+        unitCost: roundAmount(Number(line.unitPrice) * rate),
+        reference,
       }))
-      .filter((line) => line.quantity > 0);
+      .filter((line) => line.productId && line.quantity > 0);
+    if (billLinesForInventory.length) {
+      const receipt = await this.goodsReceipt.receiveGoods(
+        manager,
+        organizationId,
+        {
+          reference,
+          sourceType: 'vendor_bill',
+          sourceId: bill.id,
+          date: toIsoDate(bill.date),
+          // The bill's own entry values the goods; the receipt must not book them a second time.
+          post: false,
+          place: { branchId: bill.branchId ?? null },
+          lines: billLinesForInventory.map((line) => ({
+            productId: line.productId as string,
+            quantity: line.quantity,
+            unitCost: line.unitCost,
+            description: reference,
+          })),
+        },
+        actorUserId,
+      );
+      bill.receiptWarehouseId = receipt.warehouseId;
+    }
 
     bill.status = VendorBillStatus.OPEN;
     bill.balance = payable;
@@ -844,10 +947,11 @@ export class AccountsPayableService {
       branchId: bill.branchId,
       lines: billLinesForInventory,
     };
+    // The business fact, for whoever reacts to it (the workflow engine). Stock does not hang on it.
     await this.afterCommit.runAfterCommit(
       manager,
-      `inventory-stock-receipt:${bill.id}`,
-      () => Promise.resolve(this.eventEmitter.emit('vendor.bill.posted', postedPayload)),
+      `vendor-bill-posted:${bill.id}`,
+      () => Promise.resolve(this.eventEmitter.emit(BUSINESS_EVENTS.VENDOR_BILL_POSTED, postedPayload)),
     );
     return saved;
   }
@@ -857,6 +961,134 @@ export class AccountsPayableService {
    * product of each line the product that was ordered. Lines naming an order line pick up the order
    * when the header did not name it.
    */
+  /**
+   * One live bill per supplier document (AP-03), in every country.
+   *
+   * With the supplier's number: no other live bill of the same supplier may carry it (compared
+   * through `supplierInvoiceKey`, so "FAC-0123" and "fac 123" are the same document). The unique
+   * index `UQ_vendor_bills_supplier_invoice` is the backstop; this answers first with a message.
+   *
+   * With neither that number nor an NCF there is nothing that identifies the document, so a live
+   * bill of the same supplier, date, currency and total is taken for the same one — the double
+   * click, the second person entering the same paper — unless the person confirms it is not.
+   *
+   * Returns the key to store.
+   */
+  private async assertSupplierDocumentUnique(
+    manager: EntityManager,
+    organizationId: string,
+    supplier: { id: string; name?: string | null },
+    document: {
+      supplierInvoiceNumber?: string | null;
+      ncf?: string | null;
+      date?: string;
+      currencyCode?: string;
+      total?: number;
+      allowPossibleDuplicate?: boolean;
+      billId?: string | null;
+    },
+  ): Promise<string | null> {
+    const key = supplierInvoiceKey(document.supplierInvoiceNumber);
+    const billId = document.billId ?? null;
+    if (key) {
+      await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
+        `vendor-bill-number:${organizationId}:${supplier.id}:${key}`,
+      ]);
+      const [duplicate] = await manager.query(
+        `SELECT "id" FROM "vendor_bills"
+          WHERE "organization_id" = $1 AND "vendor_id" = $2 AND "supplier_invoice_key" = $3
+            AND "status" NOT IN ('VOID', 'REJECTED')
+            AND ($4::uuid IS NULL OR "id" <> $4::uuid)
+          LIMIT 1`,
+        [organizationId, supplier.id, key, billId],
+      );
+      if (duplicate) {
+        throw new ConflictError('accounts_payable.supplier_invoice_already_recorded', {
+          number: document.supplierInvoiceNumber?.trim() ?? '',
+          supplier: supplier.name ?? '',
+          id: duplicate.id,
+        });
+      }
+      return key;
+    }
+
+    if (document.ncf?.trim() || document.allowPossibleDuplicate || document.total === undefined) return null;
+    await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
+      `vendor-bill-unnumbered:${organizationId}:${supplier.id}:${document.date}:${document.currencyCode}:${toCents(document.total)}`,
+    ]);
+    const [probable] = await manager.query(
+      `SELECT "id" FROM "vendor_bills"
+        WHERE "organization_id" = $1 AND "vendor_id" = $2 AND "date" = $3::date
+          AND "currency_code" = $4 AND "total" = $5::numeric
+          AND "status" NOT IN ('VOID', 'REJECTED')
+        LIMIT 1`,
+      [organizationId, supplier.id, document.date, document.currencyCode, document.total],
+    );
+    if (probable) {
+      throw new ConflictError('accounts_payable.possible_duplicate_bill', {
+        supplier: supplier.name ?? '',
+        date: document.date ?? '',
+        total: document.total,
+        id: probable.id,
+      });
+    }
+    return null;
+  }
+
+  /**
+   * The goods and services bases of a bill, which the 606 reports apart and the withholding
+   * regimes treat apart (AP-02).
+   *
+   * Each line is classified — stated on the line, else its catalogue product's kind, else a
+   * service (a free expense line is rent, fees, utilities far more often than merchandise, and
+   * under-withholding is the error a withholding agent answers for) — and the nature is stored on
+   * it. A split stated for the whole document is still accepted, from an integration that knows
+   * better, but it has to add up to the subtotal.
+   */
+  private async resolveBaseSplit(
+    manager: EntityManager,
+    organizationId: string,
+    dto: CreateVendorBillDto,
+    lines: Array<{ productId?: string; nature?: VendorBillLineNature; total: number }>,
+    subtotal: number,
+  ): Promise<{ goodsAmount: number; servicesAmount: number }> {
+    const productIds = [...new Set(lines.map((line) => line.productId).filter((id): id is string => !!id))];
+    const kinds = new Map<string, string>();
+    if (productIds.length) {
+      const rows: Array<{ id: string; kind: string }> = await manager.query(
+        `SELECT id, kind FROM products WHERE organization_id = $1 AND id = ANY($2::uuid[])`,
+        [organizationId, productIds],
+      );
+      for (const row of rows) kinds.set(row.id, row.kind);
+      if (kinds.size !== productIds.length) {
+        throw new BadRequestError('common.referenced_record_not_found');
+      }
+    }
+    for (const line of lines) {
+      line.nature ??= line.productId
+        ? kinds.get(line.productId) === 'SERVICE'
+          ? VendorBillLineNature.SERVICES
+          : VendorBillLineNature.GOODS
+        : VendorBillLineNature.SERVICES;
+    }
+    const fromLines = {
+      goodsAmount: sumAmounts(lines.filter((l) => l.nature === VendorBillLineNature.GOODS).map((l) => l.total)),
+      servicesAmount: sumAmounts(lines.filter((l) => l.nature === VendorBillLineNature.SERVICES).map((l) => l.total)),
+    };
+    if (dto.goodsAmount === undefined && dto.servicesAmount === undefined) return fromLines;
+
+    const goodsAmount = dto.goodsAmount ?? roundAmount(subtotal - (dto.servicesAmount as number));
+    const servicesAmount = dto.servicesAmount ?? roundAmount(subtotal - (dto.goodsAmount as number));
+    if (goodsAmount < 0 || servicesAmount < 0 || toCents(goodsAmount) + toCents(servicesAmount) !== toCents(subtotal)) {
+      throw new BadRequestError('accounts_payable.base_split_does_not_add_up', {
+        goods: goodsAmount,
+        services: servicesAmount,
+        subtotal,
+      });
+    }
+    return { goodsAmount, servicesAmount };
+  }
+
   private async assertPurchaseOrderLinks(
     manager: EntityManager,
     organizationId: string,
@@ -880,6 +1112,7 @@ export class AccountsPayableService {
     const orderId = [...orderIds][0];
     const order = await manager.findOne(PurchaseOrder, { where: { id: orderId, organizationId } });
     if (!order) throw new BadRequestError('accounts_payable.purchase_order_not_found');
+    assertOrderBillable(order);
     if (order.supplierId !== dto.vendorId) {
       throw new BadRequestError('accounts_payable.purchase_order_supplier_mismatch', { order: order.number });
     }
@@ -912,8 +1145,8 @@ export class AccountsPayableService {
     organizationId: string,
     line: VendorBillLine,
     billRate: number,
-  ): Promise<{ grniAmount: number }> {
-    if (!line.purchaseOrderLineId) return { grniAmount: 0 };
+  ): Promise<{ grniAmount: number; grniQuantity: number }> {
+    if (!line.purchaseOrderLineId) return { grniAmount: 0, grniQuantity: 0 };
     const orderLine = await manager
       .createQueryBuilder(PurchaseOrderLine, 'line')
       .innerJoinAndSelect('line.order', 'order')
@@ -921,7 +1154,9 @@ export class AccountsPayableService {
       .andWhere('order.organizationId = :organizationId', { organizationId })
       .setLock('pessimistic_write', undefined, ['line'])
       .getOne();
-    if (!orderLine) return { grniAmount: 0 };
+    if (!orderLine) return { grniAmount: 0, grniQuantity: 0 };
+    // Checked again at posting: the order may have been cancelled since the bill was drafted.
+    assertOrderBillable(orderLine.order);
 
     const billedAfter = roundQuantity(orderLine.billedQuantity + Number(line.quantity));
     if (billedAfter - orderLine.quantity > 0.000001) {
@@ -939,12 +1174,11 @@ export class AccountsPayableService {
     line.grniQuantity = grniQuantity;
     await manager.update(VendorBillLine, { id: line.id }, { grniQuantity });
 
-    if (grniQuantity <= 0) return { grniAmount: 0 };
+    if (grniQuantity <= 0) return { grniAmount: 0, grniQuantity: 0 };
     const orderRate = Number(orderLine.order?.exchangeRate) > 0 ? Number(orderLine.order.exchangeRate) : 1;
     const receivedValueInBase = grniQuantity * Number(orderLine.unitPrice) * orderRate;
     const rate = Number(billRate) > 0 ? Number(billRate) : 1;
-    const grniAmount = Math.min(roundAmount(receivedValueInBase / rate), Number(line.total));
-    return { grniAmount };
+    return { grniAmount: roundAmount(receivedValueInBase / rate), grniQuantity };
   }
 
   /** Undo what a posted bill advanced on its order lines, when the bill is voided. */
@@ -1028,6 +1262,14 @@ export class AccountsPayableService {
       }
 
       const billIds = dto.lines.map((line) => line.vendorBillId);
+      // Locked in id order before their balances are read: two payers settling the same bill at
+      // once must not both see it open (audit 2026-10-31, AP-04 — the step-up token only stopped a
+      // single session from racing itself). By id, not `find({ lock })`: the bill's eager
+      // relations load through outer joins, which PostgreSQL refuses to lock.
+      await manager.query(
+        `SELECT "id" FROM "vendor_bills" WHERE "id" = ANY($1::uuid[]) AND "organization_id" = $2 ORDER BY "id" FOR UPDATE`,
+        [[...new Set(billIds)].sort(), organizationId],
+      );
       const bills = await manager.find(VendorBill, {
         where: { id: In(billIds), organizationId },
       });
@@ -1473,6 +1715,12 @@ export class AccountsPayableService {
   ): Promise<VendorBill> {
     const { reason } = dto;
     return this.dataSource.transaction(async (manager) => {
+      // Locked first: a payment or a debit note being recorded against this bill right now must
+      // either finish before the void reads the bill, or see it voided.
+      await manager.query(
+        `SELECT "id" FROM "vendor_bills" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`,
+        [id, organizationId],
+      );
       const bill = await manager.findOne(VendorBill, {
         where: { id, organizationId },
         relations: ['lines', 'vendor'],
@@ -1482,6 +1730,19 @@ export class AccountsPayableService {
       }
       if (bill.status === VendorBillStatus.VOID) {
         throw new BadRequestError('accounts_payable.invoice_has_already_voided');
+      }
+
+      // Same rule as payments: a standing debit note reduces THIS bill, and voiding the bill under
+      // it left the note alive and un-voidable (its bill was gone) while the payables control
+      // account drifted from the aging by the note's amount (audit 2026-10-31, AP-01). The notes
+      // are voided first, each with its own reversal; then the bill.
+      const [{ notes }] = await manager.query(
+        `SELECT COUNT(*)::int AS notes FROM "vendor_debit_note"
+          WHERE "vendor_bill_id" = $1 AND "organization_id" = $2 AND "status" <> 'VOIDED'`,
+        [id, organizationId],
+      );
+      if (notes > 0) {
+        throw new BadRequestError('accounts_payable.bill_with_debit_notes_cannot_voided', { count: notes });
       }
 
       // A bill with payments against it cannot be annulled: the payments would be left pointing at
@@ -1505,20 +1766,64 @@ export class AccountsPayableService {
         bill.status === VendorBillStatus.OPEN ||
         bill.status === VendorBillStatus.PARTIALLY_PAID;
 
-      // Stock to be returned is collected here; the actual decrease fires post-commit via event.
-      // What the bill itself received. The part matched against a purchase-order receipt stays in
-      // stock: the goods did arrive, and the reversal below puts them back into "received not
-      // invoiced", which is exactly their state once the bill is gone.
+      // What the bill itself received goes back out, in this transaction and at the cost it came
+      // in at, from the warehouse it entered (AP-05). The part matched against a purchase-order
+      // receipt stays in stock: the goods did arrive, and the reversal below puts them back into
+      // "received not invoiced", which is exactly their state once the bill is gone. Goods the
+      // warehouse no longer holds — sold since — cannot be un-received: the stock ledger refuses,
+      // and the void with it, instead of reversing an entry the kardex cannot follow.
+      const rate = Number(bill.exchangeRate) > 0 ? Number(bill.exchangeRate) : 1;
       const voidLines = wasPosted
         ? bill.lines
             .map((line) => ({
               productId: line.productId,
-              quantity: roundAmount(line.quantity - (line.grniQuantity ?? 0)),
+              quantity: roundQuantity(line.quantity - (line.grniQuantity ?? 0)),
+              unitCost: roundAmount(Number(line.unitPrice) * rate),
             }))
-            .filter((line) => line.quantity > 0)
+            .filter((line) => line.productId && line.quantity > 0)
         : [];
       if (wasPosted) {
         await this.releaseBilledQuantities(manager, bill);
+        if (voidLines.length) {
+          await this.goodsReceipt.returnGoods(
+            manager,
+            organizationId,
+            {
+              reference: bill.supplierInvoiceNumber ?? bill.ncf ?? bill.id.slice(0, 8),
+              sourceType: 'vendor_bill_void',
+              sourceId: bill.id,
+              date: toIsoDate(dto.reversalDate ?? new Date()),
+              reason,
+              warehouseId: bill.receiptWarehouseId ?? null,
+              place: { branchId: bill.branchId ?? null },
+              // The reversal of the bill's entry gives the value back; nothing to post here.
+              posted: false,
+              lines: voidLines.map((line) => ({
+                productId: line.productId as string,
+                quantity: line.quantity,
+                unitCost: line.unitCost,
+              })),
+            },
+            actorUserId,
+          );
+        }
+        // A price difference the stock absorbed comes back out of it. If those goods have been
+        // sold since, there is no stock left to carry it back and the reversal would leave the
+        // inventory account and the kardex apart: the bill is corrected with a debit note instead.
+        for (const line of bill.lines) {
+          const absorbed = Number(line.receivedCostAbsorbed ?? 0);
+          if (!line.productId || toCents(absorbed) === 0) continue;
+          const back = await this.goodsReceipt.absorbReceivedCostDifference(manager, organizationId, {
+            productId: line.productId,
+            quantity: Number(line.receivedCostUnits ?? 0),
+            amount: -absorbed,
+          });
+          if (toCents(back.absorbed) !== toCents(-absorbed)) {
+            throw new BadRequestError('accounts_payable.bill_price_difference_already_consumed', {
+              product: line.product,
+            });
+          }
+        }
       }
 
       if (bill.journalEntryId) {
@@ -1554,8 +1859,8 @@ export class AccountsPayableService {
       };
       await this.afterCommit.runAfterCommit(
         manager,
-        `inventory-stock-return:${bill.id}`,
-        () => Promise.resolve(this.eventEmitter.emit('vendor.bill.voided', voidedPayload)),
+        `vendor-bill-voided:${bill.id}`,
+        () => Promise.resolve(this.eventEmitter.emit(BUSINESS_EVENTS.VENDOR_BILL_VOIDED, voidedPayload)),
       );
       this.logger.log(
         `Factura ${id} anulada por ${actorUserId}. Razón: ${reason}. Reversión: ${bill.reversalJournalEntryId ?? 'sin asiento previo'}.`,
@@ -1568,3 +1873,25 @@ export class AccountsPayableService {
     throw new ForbiddenError('accounts_payable.deleting_invoices_not_allowed_use_void');
   }
 }
+
+/**
+ * A bill can be raised only against an order the company actually committed to (AP-05): approved,
+ * sent, or being received. A draft or an order still awaiting approval is not a purchase yet, and
+ * a cancelled one is no longer one — billing against either put goods into stock nobody ordered.
+ */
+const BILLABLE_ORDER_STATUSES: ReadonlySet<string> = new Set([
+  PurchaseOrderStatus.APPROVED,
+  PurchaseOrderStatus.SENT,
+  PurchaseOrderStatus.PARTIALLY_RECEIVED,
+  PurchaseOrderStatus.RECEIVED,
+]);
+
+function assertOrderBillable(order: { number?: string | null; status?: string | null } | null | undefined): void {
+  if (order && !BILLABLE_ORDER_STATUSES.has(String(order.status))) {
+    throw new BadRequestError('accounts_payable.purchase_order_not_billable', {
+      order: order.number ?? '',
+      status: String(order.status ?? ''),
+    });
+  }
+}
+

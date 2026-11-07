@@ -1,3 +1,4 @@
+import { LEDGER_STATUSES_SQL } from '../contracts/accounting/ledger-statuses.contract';
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { AccountType } from '../chart-of-accounts/enums/account-enums';
@@ -115,7 +116,7 @@ export class DashboardChartsService {
          JOIN "journal_entries" e ON e."id" = l."journal_entry_id"
          JOIN "accounts" a ON a."id" = l."account_id"
         WHERE e."organization_id" = $1
-          AND e."status" IN ('Posted', 'Modified')
+          AND e."status" IN ${LEDGER_STATUSES_SQL}
           AND a."type" = $3
           AND e."date" >= date_trunc('month', CURRENT_DATE) - ($2 || ' months')::interval
         GROUP BY a."id", a."name"
@@ -263,7 +264,7 @@ export class DashboardChartsService {
          FROM "journal_entry_lines" l
          JOIN "journal_entries" e ON e."id" = l."journal_entry_id"
         WHERE e."organization_id" = $1
-          AND e."status" IN ('Posted', 'Modified')
+          AND e."status" IN ${LEDGER_STATUSES_SQL}
           AND e."date" >= date_trunc('month', CURRENT_DATE) - ($2 || ' months')::interval
           AND l."account_id" IN (
             SELECT DISTINCT bl."account_id"

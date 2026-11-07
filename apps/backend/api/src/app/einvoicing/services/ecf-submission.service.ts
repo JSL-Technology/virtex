@@ -245,7 +245,7 @@ export class EcfSubmissionService {
     submission.signedXml = signedXml;
     submission.securityCode = securityCode;
     // The QR quotes the total the builder computed — one number, one source.
-    submission.qrUrl = this.buildQrUrl(ctx, securityCode, fechaHoraFirma, montoTotal);
+    submission.qrUrl = await this.buildQrUrl(organizationId, ctx, securityCode, fechaHoraFirma, montoTotal);
     submission.status = EcfStatus.SIGNED;
     submission.attempts += 1;
     submission.messages = [];
@@ -260,7 +260,7 @@ export class EcfSubmissionService {
     const adopted = await this.adoptExistingTrackId(token, org.taxId, ctx.eNCF, submission);
     if (adopted) return adopted;
 
-    const result = await this.transport.sendEcf(token, signedXml, invoice.fiscalNumber!, ctx.tipoECF);
+    const result = await this.transport.sendEcf(organizationId, token, signedXml, invoice.fiscalNumber!, ctx.tipoECF);
     submission.trackId = result.trackId;
     submission.dgiiResponse = result.raw;
     submission.messages = result.mensajes;
@@ -330,7 +330,7 @@ export class EcfSubmissionService {
   ): Promise<EcfSubmission | null> {
     if (submission.attempts <= 1) return null;
     try {
-      const entries = await this.transport.queryTrackIds(token, rncEmisor.replace(/\D/g, ''), eNcf);
+      const entries = await this.transport.queryTrackIds(submission.organizationId, token, rncEmisor.replace(/\D/g, ''), eNcf);
       const existing = entries[0];
       if (!existing) return null;
 
@@ -357,7 +357,7 @@ export class EcfSubmissionService {
 
     const loaded = this.vault.load(cert);
     const token = await this.auth.getToken(submission.organizationId, loaded);
-    const result = await this.transport.queryStatus(token, submission.trackId);
+    const result = await this.transport.queryStatus(submission.organizationId, token, submission.trackId);
 
     submission.status = mapDgiiEstado(result.estado);
     submission.dgiiResponse = result.raw;
@@ -533,13 +533,14 @@ export class EcfSubmissionService {
     return [{ forma: paymentFormCode(invoice.paymentMethod), monto: Number(invoice.total) || 0 }];
   }
 
-  private buildQrUrl(
+  private async buildQrUrl(
+    organizationId: string,
     ctx: EcfBuildContext,
     securityCode: string,
     fechaHoraFirma: string,
     montoTotal: number,
-  ): string {
-    const endpoints = this.dgiiConfig.endpoints;
+  ): Promise<string> {
+    const endpoints = await this.dgiiConfig.endpointsFor(organizationId);
     const base = ctx.tipoECF === '32' ? endpoints.timbreConsumo : endpoints.timbre;
 
     // Built by hand rather than with URLSearchParams: that encodes a space as `+`, and the DGII's

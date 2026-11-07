@@ -15,6 +15,7 @@ import {
   companyPayload,
   onTaxpayerKindChanged,
 } from '../../../auth/register/company-form';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 type Step = 'configuration' | 'business' | 'plan';
 const STEPS: readonly Step[] = ['configuration', 'business', 'plan'];
@@ -33,7 +34,7 @@ const STEPS: readonly Step[] = ['configuration', 'business', 'plan'];
 @Component({
   selector: 'app-add-company',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, StepConfiguration, StepBusiness, StepPlan],
+  imports: [ReactiveFormsModule, ...VX_FORM_A11Y, TranslateModule, StepConfiguration, StepBusiness, StepPlan],
   templateUrl: './add-company.component.html',
   styleUrls: ['./add-company.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

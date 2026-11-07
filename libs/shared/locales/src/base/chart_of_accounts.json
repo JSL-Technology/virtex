@@ -169,6 +169,16 @@
     "en": "One or more of the specified accounts were not found.",
     "pt": "Uma ou mais das contas informadas não foram encontradas."
   },
+  "chart_of_accounts.parent_account_not_found": {
+    "es": "La cuenta padre indicada no existe en esta empresa.",
+    "en": "The parent account does not exist in this company.",
+    "pt": "A conta pai indicada não existe nesta empresa."
+  },
+  "chart_of_accounts.parent_cannot_be_descendant": {
+    "es": "Una cuenta no puede depender de sí misma ni de una de sus subcuentas.",
+    "en": "An account cannot sit under itself or one of its sub-accounts.",
+    "pt": "Uma conta não pode depender de si mesma nem de uma das suas subcontas."
+  },
   "chart_of_accounts.reassigning_child_accounts": {
     "es": "Reasignando cuentas hijas...",
     "en": "Reassigning child accounts...",

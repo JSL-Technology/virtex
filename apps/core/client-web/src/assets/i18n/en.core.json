@@ -119,6 +119,7 @@
   "common.previous_page": "Previous page",
   "common.rate_limited": "Too many requests in a row. Try again in {{seconds}} seconds.",
   "common.record_deactivated": "“{{name}}” was deactivated.",
+  "common.referenced_record_not_found": "One of the referenced records does not exist or is not available in this company.",
   "common.refresh": "Refresh",
   "common.retry": "Try again",
   "common.rows_per_page": "Rows per page",

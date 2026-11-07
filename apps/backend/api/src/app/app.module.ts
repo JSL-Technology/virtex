@@ -1,11 +1,14 @@
 
+import { ExclusiveJobsRegistrar } from './shared/scheduling/exclusive-job';
+import { REQUEST_LOG_CONTEXT, RequestLogContext, requestIdFrom } from './shared/observability/request-id';
 
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { FinancialAuditSubscriber } from './audit/financial-audit.subscriber';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
+import { PrincipalThrottlerGuard } from './shared/rate-limit/principal-throttler.guard';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { APP_GUARD } from '@nestjs/core';
 import { PermissionsGuard } from './security/guards/permissions.guard';
@@ -20,7 +23,6 @@ import { MfaEnrolmentGuard } from './auth/guards/mfa-enrolment.guard';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
-import * as crypto from 'crypto';
 import * as fs from 'fs';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -144,7 +146,15 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
             transport: config.get<string>('NODE_ENV') !== 'production'
               ? { target: 'pino-pretty' }
               : undefined,
-            genReqId: (req) => req.headers['x-correlation-id'] || crypto.randomUUID(),
+            // Fastify already gave the request its id (main.ts, `requestIdFrom`); the access log
+            // uses that one, so a log line and the `x-request-id` the client got are the same.
+            genReqId: (req) => (req as { id?: string }).id ?? requestIdFrom(req.headers),
+            // Which tenant and user a request was for (OBS-02): the tenant interceptor records it
+            // on the raw request, because the access line is written after the handler returns.
+            customProps: (req) => {
+              const context = (req as unknown as Record<symbol, RequestLogContext | undefined>)[REQUEST_LOG_CONTEXT];
+              return context ? { organizationId: context.organizationId ?? null, userId: context.userId ?? null } : {};
+            },
             // Redact PII and secrets from HTTP access logs (OWASP Logging Cheat Sheet; CWE-532).
             //
             // `pino-http`'s default request serializer writes the ENTIRE header object, so this
@@ -265,8 +275,15 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
           ? new ThrottlerStorageRedisService(redisConnectionOptions(config))
           : undefined; // Development only: an in-memory bucket, correct for a single process.
 
+        // The one rate-limit configuration of the application (AuthModule used to declare a
+        // second, contradictory one). Validated by the environment schema: TTL in milliseconds.
         return {
-          throttlers: [{ ttl: 60000, limit: 20 }],
+          throttlers: [
+            {
+              ttl: Number(config.get('THROTTLE_TTL', 60_000)),
+              limit: Number(config.get('THROTTLE_LIMIT', 600)),
+            },
+          ],
           storage,
         };
       },
@@ -387,10 +404,8 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
     AiModule,
   ],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    // The connection scheduled jobs take their one-replica-at-a-time lock on (`@ExclusiveJob`).
+    ExclusiveJobsRegistrar,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
@@ -423,6 +438,13 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
       // permisos que tiene en la A.
       provide: APP_GUARD,
       useClass: ActiveTenantGuard,
+    },
+    {
+      // Rate limiting, keyed by the principal in the company it acts in (anonymous requests by
+      // client address). After authentication and the active tenant, so the key can name them;
+      // before authorisation, so a flood of forbidden requests is still counted.
+      provide: APP_GUARD,
+      useClass: PrincipalThrottlerGuard,
     },
     {
       // Authorisation, enforced by default. Declared per-endpoint it reached 47 of 76 controllers

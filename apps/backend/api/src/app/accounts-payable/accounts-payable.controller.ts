@@ -41,6 +41,9 @@ export class AccountsPayableController {
   @Post()
   @UseGuards(PeriodLockGuard)
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_CREATE)
+  // A retry of the same form (a double click, a dropped connection) replays the first answer
+  // instead of recording the supplier's document a second time (AP-03).
+  @Idempotent()
   @ApiOperation({ summary: 'Registra una factura de proveedor en borrador.' })
   create(
     @Body() createVendorBillDto: CreateVendorBillDto,

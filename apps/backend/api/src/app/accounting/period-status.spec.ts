@@ -1,6 +1,6 @@
 import { EntityManager } from 'typeorm';
 import { resolvePostingPeriod } from './period-status';
-import { PeriodStatus } from './entities/accounting-period.entity';
+import { AccountingPeriod, PeriodStatus } from './entities/accounting-period.entity';
 import { FiscalYearStatus } from './entities/fiscal-year.entity';
 import * as fiscalCalendar from './provisioning/fiscal-calendar';
 
@@ -34,10 +34,29 @@ describe('resolvePostingPeriod', () => {
 
   it('returns the covering period and creates nothing when one exists', async () => {
     const period = openPeriod();
-    const manager = { findOne: jest.fn().mockResolvedValue(period) } as unknown as EntityManager;
+    const manager = {
+      findOne: jest.fn().mockResolvedValue(period),
+      findOneBy: jest.fn().mockResolvedValue(period),
+      query: jest.fn().mockResolvedValue([]),
+    } as unknown as EntityManager;
 
     await expect(resolvePostingPeriod(manager, ORG, '2026-09-09')).resolves.toBe(period);
     expect(ensureMock).not.toHaveBeenCalled();
+  });
+
+  it('holds the period FOR SHARE and decides on the status read after the lock (GL-04)', async () => {
+    const before = openPeriod();
+    // A close committed while this posting waited for the lock: the re-read sees it.
+    const after = { ...before, status: PeriodStatus.CLOSED } as AccountingPeriod;
+    const query = jest.fn().mockResolvedValue([]);
+    const manager = {
+      findOne: jest.fn().mockResolvedValue(before),
+      findOneBy: jest.fn().mockResolvedValue(after),
+      query,
+    } as unknown as EntityManager;
+
+    await expect(resolvePostingPeriod(manager, ORG, '2026-09-09')).rejects.toBeDefined();
+    expect(query).toHaveBeenCalledWith(expect.stringContaining('FOR SHARE'), [before.id]);
   });
 
   it('refuses when no period covers the date and creation was not requested', async () => {
@@ -54,7 +73,11 @@ describe('resolvePostingPeriod', () => {
       .mockResolvedValueOnce(null) // first lookup: nothing covers the date
       .mockResolvedValueOnce(null) // no fiscal year covers it either
       .mockResolvedValueOnce(period); // after opening the year, the period is there
-    const manager = { findOne } as unknown as EntityManager;
+    const manager = {
+      findOne,
+      findOneBy: jest.fn().mockResolvedValue(period),
+      query: jest.fn().mockResolvedValue([]),
+    } as unknown as EntityManager;
     const year = thisYear + 1; // next year — inside the window
 
     await expect(

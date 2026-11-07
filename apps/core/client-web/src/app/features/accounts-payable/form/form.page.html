@@ -121,6 +121,13 @@
           <input type="text" id="ncf" formControlName="ncf" autocomplete="off">
         </div>
 
+        @if (asksSupplierInvoiceNumber()) {
+          <div class="form-field">
+            <label for="supplierInvoiceNumber">{{ 'accounts_payable.form.supplier_invoice_number' | translate }}</label>
+            <input type="text" id="supplierInvoiceNumber" formControlName="supplierInvoiceNumber" maxlength="60" autocomplete="off">
+          </div>
+        }
+
         <div class="form-field">
           <label for="date">{{ 'accounts_payable.form.issue_date' | translate }}@if (confidenceOf('date'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
           <vx-date-field inputId="date" formControlName="date" />
@@ -203,6 +210,7 @@
               <!-- Artículo de inventario: va a inventario (o liquida la mercancía recibida). -->
               <span class="hint">{{ 'accounts_payable.form.inventory_item' | translate }}</span>
             } @else {
+            <div class="expense-cell">
             <vx-select
               formControlName="expenseAccountId"
               [search]="searchExpenseAccounts"
@@ -212,6 +220,11 @@
               [ariaLabel]="'accounts_payable.form.expense_account' | translate"
               placeholderKey="accounts_payable.form.select_account"
             />
+            <select formControlName="nature" [attr.aria-label]="'accounts_payable.form.line_nature' | translate">
+              <option value="SERVICES">{{ 'accounts_payable.form.nature_services' | translate }}</option>
+              <option value="GOODS">{{ 'accounts_payable.form.nature_goods' | translate }}</option>
+            </select>
+            </div>
             }
             <span class="text-right line-total">{{ lineTotal(i) | vxNumber:'1.2-2' }}</span>
             <button

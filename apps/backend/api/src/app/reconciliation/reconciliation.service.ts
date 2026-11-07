@@ -37,7 +37,7 @@ import { BankAccount } from '../treasury/entities/bank-account.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { Journal } from '../journal-entries/entities/journal.entity';
-import { AccountingPostingPort } from '../journal-entries/accounting-posting.port';
+import { AccountingPostingPort, ModuleSlug } from '../journal-entries/accounting-posting.port';
 import { JournalQueryService } from '../journal-entries/services/journal-query.service';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
@@ -525,6 +525,7 @@ export class ReconciliationService {
     let applied = 0;
     for (const suggestion of safe) {
       await this.dataSource.transaction(async (manager) => {
+        await this.lockStatement(manager, statementId, organizationId);
         const statement = await manager.findOne(BankStatement, { where: { id: statementId, organizationId } });
         if (!statement || statement.status === StatementStatus.RECONCILED) return;
         const match = await this.writeMatch(manager, {
@@ -740,6 +741,7 @@ export class ReconciliationService {
     suggested: { probability: number; suggestedAccountId: string } | null,
   ) {
     return this.dataSource.transaction(async (manager) => {
+      await this.lockStatement(manager, statementId, organizationId);
       const statement = await manager.findOne(BankStatement, { where: { id: statementId, organizationId } });
       if (!statement) throw new NotFoundError('reconciliation.statement_not_found');
       if (statement.status === StatementStatus.RECONCILED) {
@@ -754,7 +756,7 @@ export class ReconciliationService {
       const line = await this.postMissingEntry(manager, statement, bankAccount, transaction, {
         targetAccountId: account.id,
         lineNarrative: { key: 'ledger.reconciliation.category_line', params: { account: account.name } },
-        idempotencyKey: `bank-category:${transaction.id}`,
+        idempotencyKey: await this.generationKey(manager, `bank-category:${transaction.id}`, organizationId),
       }, organizationId, actorUserId);
       const match = await this.writeMatch(manager, {
         statement,
@@ -956,6 +958,7 @@ export class ReconciliationService {
     actorUserId: string,
   ): Promise<ReconciliationMatch> {
     return this.dataSource.transaction(async (manager) => {
+      await this.lockStatement(manager, dto.statementId, organizationId);
       const statement = await manager.findOne(BankStatement, {
         where: { id: dto.statementId, organizationId },
       });
@@ -980,6 +983,11 @@ export class ReconciliationService {
   /** Undo a match. Both sides go back to being outstanding items. */
   async unmatch(matchId: string, organizationId: string, actorUserId: string | null = null): Promise<void> {
     await this.dataSource.transaction(async (manager) => {
+      const [owner] = await manager.query(
+        `SELECT "statement_id" FROM "reconciliation_matches" WHERE "id" = $1 AND "organization_id" = $2`,
+        [matchId, organizationId],
+      );
+      if (owner?.statement_id) await this.lockStatement(manager, owner.statement_id, organizationId);
       const match = await manager.findOne(ReconciliationMatch, {
         where: { id: matchId, organizationId },
         relations: ['lines', 'statement'],
@@ -991,6 +999,36 @@ export class ReconciliationService {
 
       const lineIds = match.lines.map((line) => line.journalEntryLineId);
       await this.journalQuery.unmarkLinesReconciled(lineIds, manager);
+
+      // A match created by categorising a bank line (or by a rule) POSTED its own entry — the bank
+      // fee, the interest. Undoing the match without undoing that entry left the expense booked
+      // with nothing behind it; categorising again booked it twice (audit 2026-10-31, REC-05).
+      // The entries this reconciliation generated are reversed with the match.
+      const generated: Array<{ id: string }> = lineIds.length
+        ? await manager.query(
+            `SELECT DISTINCT e."id"
+               FROM "journal_entry_lines" l
+               JOIN "journal_entries" e ON e."id" = l."journal_entry_id"
+              WHERE l."id" = ANY($1::uuid[])
+                AND e."organization_id" = $2
+                AND e."system_reason" LIKE 'bank-reconciliation:%'
+                AND e."status" = 'Posted'
+                AND NOT e."is_reversed"`,
+            [lineIds, organizationId],
+          )
+        : [];
+      for (const entry of generated) {
+        await this.posting.createSystemReversal(
+          entry.id,
+          organizationId,
+          {
+            reversalDate: toIsoDate(new Date()),
+            reason: 'Conciliación deshecha: se revierte el asiento que generó',
+          },
+          manager,
+          { actorUserId, module: ModuleSlug.GL, systemReason: 'bank-reconciliation-undo' },
+        );
+      }
       await manager.update(
         BankTransaction,
         { matchId: match.id },
@@ -1036,6 +1074,13 @@ export class ReconciliationService {
     organizationId: string,
   ): Promise<BankTransaction> {
     return this.dataSource.transaction(async (manager) => {
+      const [owner] = await manager.query(
+        `SELECT t."statement_id" FROM "bank_transactions" t
+           JOIN "bank_statements" s ON s."id" = t."statement_id"
+          WHERE t."id" = $1 AND s."organization_id" = $2`,
+        [transactionId, organizationId],
+      );
+      if (owner?.statement_id) await this.lockStatement(manager, owner.statement_id, organizationId);
       const transaction = await manager.findOne(BankTransaction, {
         where: { id: transactionId, statement: { organizationId } },
         relations: ['statement'],
@@ -1067,6 +1112,21 @@ export class ReconciliationService {
     organizationId: string,
     actorUserId: string,
   ): Promise<BankStatement> {
+    // Closing is a decision about a state: the statement is locked for the whole decision, and
+    // every change to its matches takes the same lock (lockStatement), so an unmatch or a new
+    // match cannot land between the proof and the seal (audit 2026-10-31, REC-04).
+    return this.dataSource.transaction(async (manager) => {
+      await this.lockStatement(manager, statementId, organizationId);
+      return this.closeLocked(manager, statementId, organizationId, actorUserId);
+    });
+  }
+
+  private async closeLocked(
+    manager: EntityManager,
+    statementId: string,
+    organizationId: string,
+    actorUserId: string,
+  ): Promise<BankStatement> {
     const summary = await this.summary(statementId, organizationId);
     if (summary.status === StatementStatus.RECONCILED) {
       throw new BadRequestError('reconciliation.statement_already_reconciled_reopen_before_changing');
@@ -1090,14 +1150,25 @@ export class ReconciliationService {
       });
     }
 
-    const statement = await this.statements.findOneByOrFail({
+    const statement = await manager.findOneByOrFail(BankStatement, {
       id: statementId,
       organizationId,
     });
     statement.status = StatementStatus.RECONCILED;
     statement.reconciledAt = new Date();
     statement.reconciledByUserId = actorUserId;
-    return this.statements.save(statement);
+    return manager.save(statement);
+  }
+
+  /**
+   * Serialises every change to one statement's reconciliation: matching, unmatching, categorising,
+   * excluding, applying rules, closing and reopening all take this row lock first.
+   */
+  private async lockStatement(manager: EntityManager, statementId: string, organizationId: string): Promise<void> {
+    await manager.query(
+      `SELECT "id" FROM "bank_statements" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`,
+      [statementId, organizationId],
+    );
   }
 
   /**
@@ -1218,6 +1289,7 @@ export class ReconciliationService {
     actorUserId: string,
   ): Promise<{ matched: number; created: number }> {
     return this.dataSource.transaction(async (manager) => {
+      await this.lockStatement(manager, statementId, organizationId);
       const statement = await manager.findOne(BankStatement, {
         where: { id: statementId, organizationId },
         relations: ['transactions'],
@@ -1303,7 +1375,7 @@ export class ReconciliationService {
             targetAccountId: rule.targetAccountId,
             lineNarrative: { key: 'ledger.reconciliation.rule_line', params: { rule: rule.name } },
             // One rule-created entry per statement line, however many times the rules are re-run.
-            idempotencyKey: `bank-rule:${transaction.id}`,
+            idempotencyKey: await this.generationKey(manager, `bank-rule:${transaction.id}`, organizationId),
           },
           organizationId,
           actorUserId,
@@ -1729,6 +1801,23 @@ export class ReconciliationService {
     }
     return { id: line.id };
   }
+  /**
+   * An idempotency key for an entry generated from a bank line, aware of earlier generations.
+   *
+   * The key makes a retried categorisation reuse its entry. After an undo reversed that entry, the
+   * same key would hand the reversed entry back; the generation suffix (how many reversed
+   * generations exist) makes the next categorisation a new intention.
+   */
+  private async generationKey(manager: EntityManager, base: string, organizationId: string): Promise<string> {
+    const [{ reversed }] = await manager.query(
+      `SELECT COUNT(*)::int AS reversed FROM "journal_entries"
+        WHERE "organization_id" = $1 AND ("idempotency_key" = $2 OR "idempotency_key" LIKE $2 || ':%')
+          AND "is_reversed"`,
+      [organizationId, base],
+    );
+    return reversed > 0 ? `${base}:${reversed}` : base;
+  }
+
 }
 
 /**

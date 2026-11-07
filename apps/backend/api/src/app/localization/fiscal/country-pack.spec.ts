@@ -44,10 +44,13 @@ describe('country packs', () => {
 
   it.each(markets)('%s: generates fiscal returns exactly where the coverage says it does', (code) => {
     const coverage = coverageFor(code).capabilities;
-    const implemented = (capability: string) =>
-      coverage.some((entry) => entry.capability === capability && entry.level === 'implemented');
+    // Built: implemented, or built and waiting on the tenant's own data (`needs-configuration`).
+    const built = (capability: string) =>
+      coverage.some(
+        (entry) => entry.capability === capability && (entry.level === 'implemented' || entry.level === 'needs-configuration'),
+      );
     const generator = COUNTRY_PACKS[code].fiscalReturns.generator;
-    expect(generator !== null).toBe(implemented('periodicReturns') || implemented('electronicAccounting'));
+    expect(generator !== null).toBe(built('periodicReturns') || built('electronicAccounting'));
     // Where it generates nothing, it says what to prepare the returns with instead.
     if (generator === null) expect(COUNTRY_PACKS[code].fiscalReturns.prepareWith.length).toBeGreaterThan(0);
   });

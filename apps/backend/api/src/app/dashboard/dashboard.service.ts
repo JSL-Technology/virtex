@@ -1,3 +1,4 @@
+import { LEDGER_STATUSES_SQL } from '../contracts/accounting/ledger-statuses.contract';
 
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -246,7 +247,7 @@ export class DashboardService {
            JOIN journal_entry_line_valuations v ON v.journal_entry_line_id = l.id AND v.ledger_id = $2
            JOIN accounts a ON a.id = l.account_id
           WHERE je.organization_id = $1
-            AND je.status = 'Posted'
+            AND je.status IN ${LEDGER_STATUSES_SQL}
             AND je.date BETWEEN $3 AND $4
           GROUP BY je.id
        )

@@ -13,6 +13,7 @@ import { UpdateLandedCostDto } from './dto/update-landed-cost.dto';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { assertNotInUse } from '../common/database/dependents';
 import { assertBranchUsable } from '../organizations/contracts/branch.contract';
+import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
 
 /**
  * Warehouse management master data: warehouses, bin locations and landed-cost schemes.
@@ -201,9 +202,17 @@ export class SupplyChainService {
     return landedCost;
   }
 
-  createLandedCost(dto: CreateLandedCostDto, organizationId: string): Promise<LandedCost> {
+  async createLandedCost(dto: CreateLandedCostDto, organizationId: string): Promise<LandedCost> {
+    await this.assertGlAccount(dto.glAccountId, organizationId);
     const landedCost = this.landedCostRepository.create({ ...dto, organizationId });
     return this.landedCostRepository.save(landedCost);
+  }
+
+  /** The GL account a scheme posts to must be this organization's (audit 2026-10-31, SCM-02). */
+  private assertGlAccount(glAccountId: string | null | undefined, organizationId: string): Promise<void> {
+    return assertTenantOwns(this.landedCostRepository.manager, 'accounts', glAccountId, organizationId, {
+      field: 'glAccountId',
+    });
   }
 
   async updateLandedCost(
@@ -212,6 +221,7 @@ export class SupplyChainService {
     organizationId: string,
   ): Promise<LandedCost> {
     const landedCost = await this.findOneLandedCost(id, organizationId);
+    if (dto.glAccountId !== undefined) await this.assertGlAccount(dto.glAccountId, organizationId);
     return this.landedCostRepository.save(
       this.landedCostRepository.merge(landedCost, dto),
     );

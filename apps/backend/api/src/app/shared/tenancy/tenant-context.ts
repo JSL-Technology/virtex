@@ -19,6 +19,16 @@ export interface TenantStore {
   organizationId: string;
   /** Entity manager pinned to the connection where `app.current_organization` was set. */
   manager: EntityManager;
+  /**
+   * Who the request acts for, and from where — what an audit row records as its author. Absent for
+   * background jobs, which have no person behind them (their rows name the job instead).
+   */
+  actor?: { userId: string | null; ipAddress: string | null };
+}
+
+/** The person and address the current request acts for, when there is a request. */
+export function currentActor(): { userId: string | null; ipAddress: string | null } | undefined {
+  return storage.getStore()?.actor;
 }
 
 const storage = new AsyncLocalStorage<TenantStore>();

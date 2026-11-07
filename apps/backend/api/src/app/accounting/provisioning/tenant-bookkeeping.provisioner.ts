@@ -419,6 +419,10 @@ export class TenantBookkeepingProvisioner {
       if (!settings.defaultSalesDiscountsId) {
         gaps.push('invoices.gaps.sales_discounts_account');
       }
+      // Selling goods relieves stock and posts its cost in the same transaction; without these the
+      // issue is refused (INV-03), so say so before the fiscal number is about to be consumed.
+      if (!settings.defaultCostOfGoodsSoldId) gaps.push('invoices.gaps.cost_of_sales_account');
+      if (!settings.defaultInventoryId) gaps.push('invoices.gaps.inventory_account');
     }
 
     const ledgers = await manager

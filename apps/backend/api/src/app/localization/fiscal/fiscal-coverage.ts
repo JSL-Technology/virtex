@@ -20,9 +20,12 @@
  *   can supply: their certificate, their PAC contract, their homologation with the authority.
  *   This is not a euphemism for unfinished: it is the true state of every e-invoicing regime in
  *   every product, including the Dominican one that has been in production the longest.
+ * - `needs-configuration` — built, and it cannot run until the tenant's own data says something only
+ *   they can decide: the SAT grouping code of each account, say. Declaring it `implemented` told a
+ *   Mexican tenant the Anexo 24 worked when a fresh tenant got a 400 (audit 2026-10-31, LOC-01).
  * - `not-implemented` — not built. Said plainly rather than dressed as a preview.
  */
-export type CoverageLevel = 'implemented' | 'needs-credentials' | 'not-implemented';
+export type CoverageLevel = 'implemented' | 'needs-credentials' | 'needs-configuration' | 'not-implemented';
 
 export interface CapabilityCoverage {
   /** Stable key, for the UI to translate. */
@@ -79,6 +82,8 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
       { capability: 'taxDetermination', level: 'implemented', detail: 'ITBIS 18 % / 16 % / exento' },
       einvoicing('DGII e-CF', 'tu certificado digital de la DGII'),
       { capability: 'periodicReturns', level: 'implemented', detail: 'Formatos 606, 607, 608 y 609' },
+      // Declared as obligations of a Dominican company, and not generated: said, not implied.
+      notImplemented('periodicReturns', 'IT-1, IR-17 e IR-3'),
       { capability: 'withholding', level: 'implemented', detail: 'ITBIS e ISR retenidos, Norma 02-05 y Ley 11-92' },
     ],
   },
@@ -89,7 +94,12 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
       accounting,
       { capability: 'taxDetermination', level: 'implemented', detail: 'IVA 16 % / 8 % frontera / 0 %' },
       einvoicing('CFDI 4.0', 'tu Certificado de Sello Digital y un contrato con un PAC'),
-      { capability: 'electronicAccounting', level: 'implemented', detail: 'Catálogo, Balanza y Pólizas (Anexo 24 v1.3)' },
+      {
+        capability: 'electronicAccounting',
+        level: 'needs-configuration',
+        detail: 'Catálogo, Balanza y Pólizas (Anexo 24 v1.3)',
+        requires: 'el código agrupador del SAT en cada cuenta de tu catálogo',
+      },
       noWithholding,
     ],
   },
@@ -109,7 +119,7 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
     countryCode: 'PE',
     capabilities: [
       accounting,
-      { capability: 'taxDetermination', level: 'implemented', detail: 'IGV 18 % / exonerado' },
+      { capability: 'taxDetermination', level: 'implemented', detail: 'IGV 18 % / exonerado; sin detracciones, percepciones ni retenciones especiales' },
       einvoicing('SUNAT UBL 2.1', 'tu certificado digital y tus credenciales SOL'),
       notImplemented('periodicReturns'),
       noWithholding,
@@ -120,7 +130,7 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
     countryCode: 'EC',
     capabilities: [
       accounting,
-      { capability: 'taxDetermination', level: 'implemented', detail: 'IVA 15 % / 0 %' },
+      { capability: 'taxDetermination', level: 'implemented', detail: 'IVA 15 % / 0 %; sin detracciones, percepciones ni retenciones especiales' },
       einvoicing('SRI 2.1.0 con clave de acceso', 'tu certificado de firma electrónica y tu punto de emisión'),
       notImplemented('periodicReturns'),
       noWithholding,
@@ -131,7 +141,7 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
     countryCode: 'CL',
     capabilities: [
       accounting,
-      { capability: 'taxDetermination', level: 'implemented', detail: 'IVA 19 % / exento' },
+      { capability: 'taxDetermination', level: 'implemented', detail: 'IVA 19 % / exento; sin detracciones, percepciones ni retenciones especiales' },
       einvoicing('SII — DTE 33/34/61', 'tu certificado digital y tus folios CAF del SII'),
       notImplemented('periodicReturns'),
       noWithholding,
@@ -158,7 +168,7 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
     countryCode: 'AR',
     capabilities: [
       accounting,
-      { capability: 'taxDetermination', level: 'implemented', detail: 'IVA 21 % / 10,5 % / 27 %' },
+      { capability: 'taxDetermination', level: 'implemented', detail: 'IVA 21 % / 10,5 % / 27 %; sin detracciones, percepciones ni retenciones especiales' },
       einvoicing('AFIP WSFEv1 con CAE', 'tu certificado de AFIP y el punto de venta habilitado'),
       notImplemented('periodicReturns'),
       noWithholding,

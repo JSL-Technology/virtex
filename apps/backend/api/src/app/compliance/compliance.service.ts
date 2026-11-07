@@ -8,7 +8,7 @@ import { PurchaseFiscalRecordsRegistry } from '../contracts/fiscal-records/purch
 import { monthBounds } from '../common/dates';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
-import { DominicanRepublicReports, TillFiscalSale } from './reports/dr-reports';
+import { CollectedWithholding, DominicanRepublicReports, TillFiscalSale } from './reports/dr-reports';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 import { DataSource } from 'typeorm';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
@@ -372,6 +372,40 @@ export class ComplianceService {
       this.invoiceRepository,
       organization,
       await this.tillFiscalSales(organization, year, month),
+      await this.collectedWithholdings(organizationId, year, month),
+    );
+  }
+
+  /**
+   * What customers withheld from us on the period's invoices, from the receipts that carried it
+   * (607 boxes 7, 10 and 12). A voided receipt withheld nothing.
+   */
+  private async collectedWithholdings(
+    organizationId: string,
+    year: number,
+    month: number,
+  ): Promise<Map<string, CollectedWithholding>> {
+    const { from, to } = monthBounds(year, month);
+    const rows: Array<{ invoice_id: string; tax: string; income_tax: string; withheld_on: string }> = await this.dataSource.query(
+      `SELECT l.invoice_id,
+              SUM(l.tax_withheld)::text AS tax,
+              SUM(l.income_tax_withheld)::text AS income_tax,
+              to_char(MAX(p.payment_date), 'YYYY-MM-DD') AS withheld_on
+         FROM customer_payment_lines l
+         JOIN customer_payments p ON p.id = l.payment_id
+         JOIN invoices i ON i.id = l.invoice_id
+        WHERE p.organization_id = $1 AND i.organization_id = $1
+          AND p.status <> 'VOID'
+          AND i."issueDate" BETWEEN $2 AND $3
+          AND (l.tax_withheld <> 0 OR l.income_tax_withheld <> 0)
+        GROUP BY l.invoice_id`,
+      [organizationId, from, to],
+    );
+    return new Map(
+      rows.map((row) => [
+        row.invoice_id,
+        { tax: Number(row.tax), incomeTax: Number(row.income_tax), date: row.withheld_on },
+      ]),
     );
   }
 

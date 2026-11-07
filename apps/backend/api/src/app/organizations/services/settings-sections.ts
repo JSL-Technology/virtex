@@ -1,5 +1,5 @@
 import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
-import { AccountRole } from '../../chart-of-accounts/enums/account-enums';
+import { AccountRole } from '../../contracts/accounting/account-role.contract';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { FISCAL_EMISSION_MODES } from '../contracts/fiscal-emission-mode.contract';
 

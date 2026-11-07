@@ -109,6 +109,16 @@
     "en": "The certificate is self-signed: it was not issued by a certification authority the tax authority ({{authority}}) recognises, so documents signed with it would be rejected.",
     "pt": "O certificado é autoassinado: não foi emitido por uma autoridade certificadora reconhecida pela autoridade fiscal ({{authority}}), portanto os documentos assinados com ele seriam rejeitados."
   },
+  "einvoicing.certificate.trust_store_not_configured": {
+    "es": "Este servidor aún no tiene configuradas las entidades de certificación que acepta {{authority}}, así que no puede comprobar el certificado. Avisa al soporte.",
+    "en": "This server does not yet have the certification authorities {{authority}} accepts configured, so it cannot check the certificate. Tell support.",
+    "pt": "Este servidor ainda não tem configuradas as autoridades certificadoras aceitas por {{authority}} e não pode verificar o certificado. Avise o suporte."
+  },
+  "einvoicing.certificate.untrusted_issuer": {
+    "es": "El certificado lo emitió «{{issuer}}», que no es una entidad de certificación aceptada por {{authority}}. Usa el certificado que te entregó un proveedor autorizado.",
+    "en": "The certificate was issued by “{{issuer}}”, which is not a certification authority {{authority}} accepts. Use the certificate an authorised provider gave you.",
+    "pt": "O certificado foi emitido por «{{issuer}}», que não é uma autoridade certificadora aceita por {{authority}}. Use o certificado entregue por um provedor autorizado."
+  },
   "einvoicing.certificate_could_not_opened_invalid_file": {
     "es": "No se pudo abrir el certificado: archivo inválido o contraseña incorrecta.",
     "en": "The certificate could not be opened: invalid file, or wrong password.",

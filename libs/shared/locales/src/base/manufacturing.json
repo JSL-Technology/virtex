@@ -4,6 +4,11 @@
     "en": "Bill of materials \"{{id}}\" was not found.",
     "pt": "A lista de materiais \"{{id}}\" não foi encontrada."
   },
+  "manufacturing.bom_component_is_finished_product": {
+    "es": "Un producto no puede ser componente de su propia lista de materiales.",
+    "en": "A product cannot be a component of its own bill of materials.",
+    "pt": "Um produto não pode ser componente da sua própria lista de materiais."
+  },
   "manufacturing.bom_in_use": {
     "es": "No se puede eliminar esta lista de materiales porque hay órdenes de producción basadas en ella ({{summary}}). Crea una versión nueva en lugar de borrarla.",
     "en": "This bill of materials cannot be deleted because production orders are based on it ({{summary}}). Create a new version instead of deleting it.",

@@ -14,12 +14,13 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 import { NotificationService } from '../../../core/services/notification';
 import { InventoryAdjustment, StockDocumentStatus, StockService } from '../data/stock.service';
 import { STOCK_DOCUMENT_TONE } from './adjustment-form.page';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /** Inventory adjustments: drafts waiting to be posted, and what was posted, newest first. */
 @Component({
   selector: 'app-inventory-adjustments-page',
   standalone: true,
-  imports: [...VX_CONTEXT_MENU, FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, HasPermissionDirective, RowLinkDirective],
+  imports: [...VX_CONTEXT_MENU, FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, HasPermissionDirective, RowLinkDirective],
   templateUrl: './adjustments.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

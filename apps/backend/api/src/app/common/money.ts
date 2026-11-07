@@ -73,14 +73,77 @@ export function requireFiniteAmount(value: unknown, field: string): number {
   return parsed;
 }
 
+/**
+ * A finite double as an exact decimal: `digits × 10^exponent`, sign carried by `digits`.
+ *
+ * ## Why 15 significant digits
+ *
+ * A double guarantees 15 significant decimal digits; everything past that is binary noise. The
+ * product `1.25 * 0.18` is stored as 0.22499999999999998 — the true 0.225 minus one ulp — and
+ * rounding THAT half away from zero gives 0.22 where every tax authority expects 0.23 (audit
+ * 2026-10-31, IMP-01: 42 call sites rounded such products). Reading the value back at 15
+ * significant digits recovers the decimal the arithmetic meant, and the rounding then happens on
+ * integers, where it is exact. Amounts are bounded well below 15 significant digits of minor units
+ * by `requireFiniteAmount`, so nothing an amount legitimately carries is lost.
+ */
+function exactDecimal(value: number): { digits: bigint; exponent: number } {
+  if (!Number.isFinite(value)) throw new MoneyError(`Not a finite amount: ${value}`);
+  if (value === 0) return { digits: 0n, exponent: 0 };
+  // toExponential(14) = one digit, a point and fourteen more: fifteen significant digits.
+  const [mantissa, exp] = value.toExponential(14).split('e');
+  const negative = mantissa.startsWith('-');
+  const digitString = mantissa.replace('-', '').replace('.', '');
+  const digits = BigInt(digitString) * (negative ? -1n : 1n);
+  return { digits, exponent: Number(exp) - 14 };
+}
+
+/** Round `digits × 10^exponent` to an integer count of `10^-scale`, half away from zero. */
+function roundToScale(decimal: { digits: bigint; exponent: number }, scale: number): bigint {
+  const shift = decimal.exponent + scale;
+  if (shift >= 0) return decimal.digits * 10n ** BigInt(shift);
+  const divisor = 10n ** BigInt(-shift);
+  const negative = decimal.digits < 0n;
+  const magnitude = negative ? -decimal.digits : decimal.digits;
+  let quotient = magnitude / divisor;
+  const remainder = magnitude % divisor;
+  if (remainder * 2n >= divisor) quotient += 1n;
+  return negative ? -quotient : quotient;
+}
+
+function toSafeNumber(minor: bigint): number {
+  if (minor > BigInt(MAX_SAFE_MINOR) || minor < -BigInt(MAX_SAFE_MINOR)) {
+    throw new MoneyError('Amount exceeds the representable range');
+  }
+  const result = Number(minor);
+  return result === 0 ? 0 : result;
+}
+
 /** Integer minor units, rounded half away from zero — the rule every tax authority states. */
 export function toCents(amount: number, scale = 2): number {
-  const factor = 10 ** scale;
-  const scaled = amount * factor;
-  // `Math.round` breaks ties toward +Infinity, which rounds -0.005 to -0.00 and 0.005 to 0.01:
-  // the same magnitude rounds two different ways depending on sign. Rounding the magnitude and
-  // reapplying the sign keeps a credit and its mirroring debit the same size.
-  return Math.sign(scaled) * Math.round(Math.abs(scaled));
+  return toSafeNumber(roundToScale(exactDecimal(amount), scale));
+}
+
+/**
+ * `a × b` rounded to `scale` decimals, computed exactly.
+ *
+ * For products whose exact value has more than fifteen significant digits — an amount in the
+ * hundreds of thousands times a six-decimal exchange rate — where even the 15-digit reading of the
+ * double product could land a tie on the wrong side. Each operand is read exactly (as above) and
+ * multiplied as integers, so the only rounding is the final one.
+ */
+export function multiplyAmount(a: number, b: number, scale = 2): number {
+  const x = exactDecimal(a);
+  const y = exactDecimal(b);
+  const product = { digits: x.digits * y.digits, exponent: x.exponent + y.exponent };
+  return fromCents(toSafeNumber(roundToScale(product, scale)), scale);
+}
+
+/** `base × percent / 100`, exactly: the tax on a base at a rate written as a percentage (18 → 18 %). */
+export function percentageOf(base: number, percent: number, scale = 2): number {
+  const x = exactDecimal(base);
+  const y = exactDecimal(percent);
+  const product = { digits: x.digits * y.digits, exponent: x.exponent + y.exponent - 2 };
+  return fromCents(toSafeNumber(roundToScale(product, scale)), scale);
 }
 
 /**
@@ -117,7 +180,7 @@ export function sumAmounts(amounts: readonly number[], scale = 2): number {
  * signature exists to make visible.
  */
 export function convert(amount: number, rate: number, scale = 2): number {
-  return roundAmount(amount * rate, scale);
+  return multiplyAmount(amount, rate, scale);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

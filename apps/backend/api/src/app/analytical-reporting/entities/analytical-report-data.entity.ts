@@ -1,3 +1,4 @@
+import { LEDGER_STATUSES_SQL } from '../../contracts/accounting/ledger-statuses.contract';
 
 import { ViewEntity, ViewColumn, DataSource } from 'typeorm';
 
@@ -42,7 +43,7 @@ import { ViewEntity, ViewColumn, DataSource } from 'typeorm';
       .innerJoin('journal_entries', 'je', 'jel.journal_entry_id = je.id')
       .innerJoin('accounts', 'acc', 'jel.account_id = acc.id')
       .innerJoin('journal_entry_line_valuations', 'jlv', 'jlv.journal_entry_line_id = jel.id')
-      .where("je.status = 'Posted'"),
+      .where(`je.status IN ${LEDGER_STATUSES_SQL}`),
 })
 export class AnalyticalReportData {
   @ViewColumn() journal_entry_id: string;

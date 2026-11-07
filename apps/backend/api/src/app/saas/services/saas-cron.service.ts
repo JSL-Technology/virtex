@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../../shared/scheduling/exclusive-job';
 import { LIFETIME_USAGE_SOURCES } from '../usage-sources';
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -37,6 +38,7 @@ export class SaasCronService {
    * Run every night at 2 AM.
    */
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
+  @ExclusiveJob()
   async reconcileUsageCounters() {
     // One run per day across every instance, through the platform's scheduler lock. The previous
     // hand-rolled Redis lock read `cacheManager.store.client`, which the current cache-manager does

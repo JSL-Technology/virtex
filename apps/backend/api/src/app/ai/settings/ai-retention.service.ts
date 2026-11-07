@@ -1,3 +1,4 @@
+import { ExclusiveJob } from '../../shared/scheduling/exclusive-job';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { DataSource } from 'typeorm';
@@ -31,6 +32,7 @@ export class AiRetentionService {
   ) {}
 
   @Cron('37 4 * * *')
+  @ExclusiveJob()
   async nightly(): Promise<void> {
     const day = new Date().toISOString().slice(0, 10);
     await this.lock.runOnce('ai-retention', day, async () => {
