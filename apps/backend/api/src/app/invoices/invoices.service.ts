@@ -1082,9 +1082,17 @@ export class InvoicesService {
   // ── Stock ──────────────────────────────────────────────────────────────────
 
   private async moveStockForIssue(invoice: Invoice, manager: EntityManager): Promise<void> {
+    let costOfSale = 0;
+    let movedAny = false;
     for (const line of invoice.lineItems ?? []) {
       if (!line.productId || line.isService) continue;
-      await this.inventoryService.decreaseStock(
+      movedAny = true;
+      // The cost of sale is what the stock ledger relieved, AT ISSUANCE — not the product cost
+      // copied when the draft was saved. A receipt or a revaluation between the two used to leave
+      // the inventory account at 160,00 while stock × cost said 150,00 (audit 2026-10-31,
+      // inventory INV-01). The line keeps the cost it actually left at, for the credit note that
+      // will one day bring it back.
+      const relieved = await this.inventoryService.decreaseStock(
         line.productId,
         line.quantity,
         manager,
@@ -1097,6 +1105,11 @@ export class InvoicesService {
           sourceId: invoice.id,
         },
       );
+      line.unitCost = relieved.unitCost;
+      costOfSale += line.quantity * relieved.unitCost;
+    }
+    if (movedAny) {
+      invoice.costOfSale = roundToCurrency(costOfSale, invoice.currencyCode);
     }
   }
 

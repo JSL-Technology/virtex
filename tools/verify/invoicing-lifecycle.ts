@@ -34,6 +34,7 @@ import { CustomersService } from '../../apps/backend/api/src/app/customers/custo
 import { LocalizationService } from '../../apps/backend/api/src/app/localization/services/localization.service';
 import { OrganizationsService } from '../../apps/backend/api/src/app/organizations/organizations.service';
 import { StockLedgerService } from '../../apps/backend/api/src/app/inventory/stock-ledger.service';
+import { InventoryService } from '../../apps/backend/api/src/app/inventory/inventory.service';
 import { Product, ProductKind } from '../../apps/backend/api/src/app/inventory/entities/product.entity';
 import { NcfType } from '../../apps/backend/api/src/app/compliance/entities/ncf-sequence.entity';
 import { InvoiceStatus } from '../../apps/backend/api/src/app/invoices/entities/invoice.entity';
@@ -80,6 +81,7 @@ async function main(): Promise<void> {
   const organizations = app.get(OrganizationsService, { strict: false });
   const ledger = app.get(StockLedgerService, { strict: false });
   const certificates = app.get(EcfCertificateService, { strict: false });
+  const inventory = app.get(InventoryService, { strict: false });
 
   const stamp = Date.now();
   const region = await localization.findRegionByCountryCode('DO');
@@ -325,8 +327,39 @@ async function main(): Promise<void> {
     `SELECT count(*)::int AS n FROM journal_entries WHERE organization_id = $1`, [orgId],
   );
 
+  // ── The cost of a sale is the stock's cost when it leaves, not when it was drafted (INV-01) ──
+  //
+  // The draft was written while the goods stood at 600. A receipt at 900 before it is issued
+  // re-averages the 100 units on hand to 750, and issuing must relieve the 2 units at 750: the
+  // cost of sale used to be frozen at the draft's 600 while the stock register let them go at
+  // 750, so the inventory account and the stock it describes drifted apart with every such sale.
+  await ds.transaction((manager) =>
+    inventory.receiveGoods(manager, orgId, {
+      reference: 'Recepción de sonda',
+      sourceType: 'verify_seed',
+      sourceId: null,
+      date: today,
+      lines: [{ productId: good.id, quantity: 100, unitCost: 900 }],
+      post: false,
+    } as never, null),
+  );
+
   // ── Issuing ─────────────────────────────────────────────────────────────────
   const issued = await invoices.issue(draft.id, orgId);
+  check(
+    'el costo de la venta es el del inventario al salir, no el del borrador',
+    Math.abs(Number(issued.costOfSale) - 1500) < 0.005,
+    `costo ${issued.costOfSale}, esperado 1500`,
+  );
+  const [costPosted] = await ds.query(
+    `SELECT COALESCE(SUM(debit), 0)::float AS debit FROM journal_entry_lines WHERE journal_entry_id = $1`,
+    [issued.costJournalEntryId],
+  );
+  check(
+    'el asiento de costo contabiliza lo que salió del kárdex',
+    Math.abs(Number(costPosted?.debit) - 1500) < 0.005,
+    `contabilizado ${costPosted?.debit}`,
+  );
   check('al emitir se asigna un e-NCF', Boolean(issued.fiscalNumber?.startsWith('E31')), issued.fiscalNumber ?? 'sin e-NCF');
   check('el e-NCF lleva su fecha de vencimiento', Boolean(issued.fiscalNumberExpiresAt), issued.fiscalNumberExpiresAt ?? 'sin vencimiento');
   check('la emisión genera un asiento contable', Boolean(issued.journalEntryId));
