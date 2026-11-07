@@ -156,7 +156,7 @@ export class EcfLifecycleService {
       await this.messageRepo.save(message);
 
       const token = await this.auth.getToken(organizationId, loaded);
-      const result = await this.transport.sendCommercialApproval(token, signedXml, request.ncf);
+      const result = await this.transport.sendCommercialApproval(organizationId, token, signedXml, request.ncf);
 
       return this.recordResult(message, result);
     } catch (error) {
@@ -241,7 +241,7 @@ export class EcfLifecycleService {
       await this.messageRepo.save(message);
 
       const token = await this.auth.getToken(organizationId, loaded);
-      const result = await this.transport.voidSequenceRange(token, signedXml);
+      const result = await this.transport.voidSequenceRange(organizationId, token, signedXml);
       const recorded = await this.recordResult(message, result);
 
       // Only close the numbers once the DGII has taken the message. Advancing first would strand
