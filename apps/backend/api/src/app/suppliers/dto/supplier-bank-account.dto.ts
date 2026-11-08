@@ -19,7 +19,7 @@ export class CreateSupplierBankAccountDto {
   accountType?: SupplierBankAccountType;
 
   /** Digits, letters, spaces or dashes; stored encrypted, shown by its last four. */
-  @Matches(/^[0-9A-Za-z][0-9A-Za-z \-]{3,39}$/, { message: 'masters.supplier_bank.account_number_invalid' })
+  @Matches(/^[0-9A-Za-z][0-9A-Za-z -]{3,39}$/, { message: 'masters.supplier_bank.account_number_invalid' })
   accountNumber: string;
 
   @Matches(/^[A-Z]{3}$/, { message: 'validation.currency_code' })
