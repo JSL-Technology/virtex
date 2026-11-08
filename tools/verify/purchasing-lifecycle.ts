@@ -32,6 +32,8 @@ import { Supplier } from '../../apps/backend/api/src/app/suppliers/entities/supp
 import { TaxTreatment } from '../../apps/backend/api/src/app/invoices/entities/invoice-line-item.entity';
 import { VendorBillStatus } from '../../apps/backend/api/src/app/accounts-payable/entities/vendor-bill.entity';
 import { LandedCostsService } from '../../apps/backend/api/src/app/procurement/landed-costs.service';
+import { GoodsReceiptsService } from '../../apps/backend/api/src/app/procurement/goods-receipts.service';
+import { PurchaseOrderStatus } from '../../apps/backend/api/src/app/procurement/entities/purchase-order.entity';
 
 const failures: string[] = [];
 function check(label: string, ok: boolean, detail = ''): void {
@@ -50,6 +52,7 @@ async function main(): Promise<void> {
   const orders = app.get(PurchaseOrdersService, { strict: false });
   const payables = app.get(AccountsPayableService, { strict: false });
   const landedCosts = app.get(LandedCostsService, { strict: false });
+  const goodsReceipts = app.get(GoodsReceiptsService, { strict: false });
   const inventory = app.get(InventoryService, { strict: false });
   const posting = app.get(AccountingPostingPort, { strict: false });
 
@@ -249,6 +252,59 @@ async function main(): Promise<void> {
   await landedCosts.void(applied.id, 'Anulación de sonda', orgId, actor);
   check('anular el flete devuelve el costo promedio', near((await kardex()).cost, 90), String((await kardex()).cost));
   await tiesOut('tras anular el flete');
+
+  // ── Part of a delivery goes back; the rest of the order is closed short (CMP-15) ──
+  const second = await orders.create(
+    { supplierId: supplier.id, lines: [{ productId: product.id, description: 'Mercancía', quantity: 10, unitPrice: 90 }] } as never,
+    orgId,
+    null,
+  );
+  await orders.submit(second.id, orgId, null);
+  await orders.approve(second.id, orgId, actor);
+  await orders.send(second.id, orgId);
+  const stockBefore = (await kardex()).stock;
+  const { receipt: partial } = await orders.receiveDocument(second.id, { lines: [{ lineId: second.lines[0].id, quantity: 6 }] } as never, orgId, actor);
+  const returned = await goodsReceipts.returnToSupplier(partial.id, { lines: [{ lineId: second.lines[0].id, quantity: 2 }], reason: 'Llegaron dañadas (sonda)' }, orgId, actor);
+  check('la devolución saca del almacén solo lo devuelto', near((await kardex()).stock - stockBefore, 4), String((await kardex()).stock - stockBefore));
+  check('y queda como documento numerado', /^DEV-/.test(returned.number), returned.number);
+  await tiesOut('tras devolver parte de la recepción');
+  const closed = await orders.close(second.id, orgId, 'El proveedor no entregará el resto (sonda)');
+  check('la orden se cierra con saldo pendiente', closed.status === PurchaseOrderStatus.CLOSED, closed.status);
+  let refused = '';
+  try {
+    await orders.receiveDocument(second.id, { lines: [{ lineId: second.lines[0].id, quantity: 1 }] } as never, orgId, actor);
+  } catch (error) {
+    refused = (error as { messageKey?: string }).messageKey ?? '';
+  }
+  check('una orden cerrada ya no recibe', refused === 'procurement.order_not_receivable', refused || 'se recibió');
+
+  // ── Over-delivery: refused at 0 %, accepted within the company's tolerance, enforced by the table ──
+  const third = await orders.create(
+    { supplierId: supplier.id, lines: [{ productId: product.id, description: 'Mercancía', quantity: 10, unitPrice: 90 }] } as never,
+    orgId,
+    null,
+  );
+  await orders.submit(third.id, orgId, null);
+  await orders.approve(third.id, orgId, actor);
+  await orders.send(third.id, orgId);
+  let over = '';
+  try {
+    await orders.receiveDocument(third.id, { lines: [{ lineId: third.lines[0].id, quantity: 10.5 }] } as never, orgId, actor);
+  } catch (error) {
+    over = (error as { messageKey?: string }).messageKey ?? 'rechazada';
+  }
+  check('sin tolerancia, recibir de más se rechaza', over !== '', over || 'se recibió');
+  await ds.query(`UPDATE organization_settings SET po_receipt_over_tolerance_bps = 500 WHERE organization_id = $1`, [orgId]);
+  const { order: overReceived } = await orders.receiveDocument(third.id, { lines: [{ lineId: third.lines[0].id, quantity: 10.5 }] } as never, orgId, actor);
+  check('con 5 % de tolerancia, 10,5 de 10 se acepta', overReceived.status === PurchaseOrderStatus.RECEIVED, overReceived.status);
+  let tableRefused = '';
+  try {
+    await ds.query(`UPDATE purchase_order_lines SET received_quantity = 11 WHERE id = $1`, [third.lines[0].id]);
+  } catch (error) {
+    tableRefused = (error as { constraint?: string }).constraint ?? 'rechazada';
+  }
+  check('la tabla impide pasar la tolerancia aunque se salte el servicio', tableRefused === 'CHK_purchase_order_lines_received_within_ordered', tableRefused || 'se escribió');
+  await tiesOut('tras recibir dentro de la tolerancia');
 
   await app.close();
   if (failures.length) {

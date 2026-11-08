@@ -5,7 +5,9 @@ import { DataSource } from 'typeorm';
 import { GoodsReceiptStatus, PurchaseOrderReceipt } from './entities/purchase-order-receipt.entity';
 import { PurchaseOrder, PurchaseOrderStatus } from './entities/purchase-order.entity';
 import { PurchaseOrderLine } from './entities/purchase-order-line.entity';
-import { CreateGoodsReceiptDto, GoodsReceiptQueryDto, VoidGoodsReceiptDto } from './dto/goods-receipt.dto';
+import { CreateGoodsReceiptDto, GoodsReceiptQueryDto, ReturnGoodsDto, VoidGoodsReceiptDto } from './dto/goods-receipt.dto';
+import { PurchaseReturn, PurchaseReturnLine } from './entities/purchase-return.entity';
+import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbering/document-numbers';
 import { PurchaseOrdersService } from './purchase-orders.service';
 import { GoodsReceiptPort } from '../inventory/contracts/goods-receipt.contract';
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
@@ -51,6 +53,8 @@ export interface GoodsReceiptLineView {
   unitCost: number;
   value: number;
   stocked: boolean;
+  /** Units of this line already sent back to the supplier (CMP-15). */
+  returnedQuantity?: number;
   ordered: number | null;
   receivedOnOrder: number | null;
   billedOnOrder: number | null;
@@ -260,10 +264,12 @@ export class GoodsReceiptsService {
       if (!order) throw new NotFoundError('procurement.order_not_found');
       const byId = new Map(order.lines.map((line) => [line.id, line]));
 
+      // What is still in from this receipt: a return already sent part of it back (CMP-15).
+      const stillIn = (line: (typeof receipt.lines)[number]) => roundQuantity(line.quantity - (line.returnedQuantity ?? 0));
       for (const line of receipt.lines) {
         const orderLine = byId.get(line.lineId);
         if (!orderLine) continue;
-        const remaining = roundQuantity(Number(orderLine.receivedQuantity) - line.quantity);
+        const remaining = roundQuantity(Number(orderLine.receivedQuantity) - stillIn(line));
         if (Number(orderLine.billedQuantity) - remaining > QUANTITY_EPSILON) {
           throw new BadRequestError('procurement.receipt_already_billed', {
             number: receipt.number,
@@ -285,8 +291,8 @@ export class GoodsReceiptsService {
           warehouseId: receipt.warehouseId,
           posted: receipt.journalEntryId !== null,
           lines: receipt.lines
-            .filter((line) => line.stocked && line.productId)
-            .map((line) => ({ productId: line.productId as string, quantity: line.quantity, unitCost: line.unitCost })),
+            .filter((line) => line.stocked && line.productId && stillIn(line) > QUANTITY_EPSILON)
+            .map((line) => ({ productId: line.productId as string, quantity: stillIn(line), unitCost: line.unitCost })),
         },
         actorUserId,
       );
@@ -294,7 +300,7 @@ export class GoodsReceiptsService {
       for (const line of receipt.lines) {
         const orderLine = byId.get(line.lineId);
         if (!orderLine) continue;
-        orderLine.receivedQuantity = Math.max(0, roundQuantity(Number(orderLine.receivedQuantity) - line.quantity));
+        orderLine.receivedQuantity = Math.max(0, roundQuantity(Number(orderLine.receivedQuantity) - stillIn(line)));
         await manager.save(PurchaseOrderLine, orderLine);
       }
       // The order is owed those goods again — unless it was cancelled meanwhile, which stays.
@@ -316,5 +322,102 @@ export class GoodsReceiptsService {
       this.logger.log(`Recepción ${receipt.number} anulada: ${reason}.`);
     });
     return this.findOne(id, organizationId);
+  }
+
+  /**
+   * Send part of a receipt back to the supplier (audit 2026-11-07, CMP-15).
+   *
+   * Voiding the whole receipt was the only way back. Each returned line leaves stock at the cost it
+   * came in at, through the same inventory port a void uses (Dr GRNI / Cr Inventory); the order line
+   * is owed those units again. A quantity the supplier has already billed cannot be returned here:
+   * that is a debit note against the bill, which also gives the tax back.
+   */
+  async returnToSupplier(
+    id: string,
+    dto: ReturnGoodsDto,
+    organizationId: string,
+    actorUserId: string,
+  ): Promise<PurchaseReturn> {
+    const reason = dto.reason.trim();
+    return this.dataSource.transaction(async (manager) => {
+      await manager.query(`SELECT "id" FROM "purchase_order_receipts" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`, [id, organizationId]);
+      const receipt = await manager.findOne(PurchaseOrderReceipt, { where: { id, organizationId } });
+      if (!receipt) throw new NotFoundError('procurement.receipt_not_found');
+      if (receipt.status === GoodsReceiptStatus.VOID) {
+        throw new ConflictError('procurement.receipt_already_voided', { number: receipt.number });
+      }
+      await manager.query(`SELECT "id" FROM "purchase_order_lines" WHERE "order_id" = $1 ORDER BY "id" FOR UPDATE`, [receipt.orderId]);
+      const order = await manager.findOne(PurchaseOrder, { where: { id: receipt.orderId, organizationId }, relations: ['lines'] });
+      if (!order) throw new NotFoundError('procurement.order_not_found');
+      const orderLines = new Map(order.lines.map((line) => [line.id, line]));
+
+      const returned: PurchaseReturnLine[] = [];
+      for (const requested of dto.lines) {
+        const line = receipt.lines.find((l) => l.lineId === requested.lineId);
+        if (!line) throw new BadRequestError('procurement.order_line_not_found', { id: requested.lineId });
+        const available = roundQuantity(line.quantity - (line.returnedQuantity ?? 0));
+        if (requested.quantity - available > QUANTITY_EPSILON) {
+          throw new BadRequestError('procurement.return_exceeds_received', { description: line.description, received: available, returned: requested.quantity });
+        }
+        const orderLine = orderLines.get(line.lineId);
+        if (orderLine && Number(orderLine.billedQuantity) - roundQuantity(Number(orderLine.receivedQuantity) - requested.quantity) > QUANTITY_EPSILON) {
+          throw new BadRequestError('procurement.return_of_billed_goods_needs_debit_note', { description: line.description });
+        }
+        returned.push({ lineId: line.lineId, productId: line.productId, description: line.description, quantity: requested.quantity, unitCost: line.unitCost });
+      }
+
+      const date = dto.date ? dto.date.slice(0, 10) : await organizationToday(manager, organizationId);
+      const number = await allocateDocumentNumber(manager, organizationId, DOCUMENT_SEQUENCE_SCOPE.PURCHASE_RETURN, 'DEV', Number(date.slice(0, 4)));
+      const journalEntryId = await this.inventory.returnGoods(
+        manager,
+        organizationId,
+        {
+          reference: number,
+          sourceType: 'purchase_return',
+          sourceId: receipt.id,
+          date,
+          reason: `Devolución ${number} de la recepción ${receipt.number}: ${reason}`,
+          warehouseId: receipt.warehouseId,
+          posted: receipt.journalEntryId !== null,
+          lines: returned
+            .filter((line) => line.productId && receipt.lines.find((l) => l.lineId === line.lineId)?.stocked)
+            .map((line) => ({ productId: line.productId as string, quantity: line.quantity, unitCost: line.unitCost })),
+        },
+        actorUserId,
+      );
+
+      for (const line of returned) {
+        const orderLine = orderLines.get(line.lineId);
+        if (orderLine) {
+          orderLine.receivedQuantity = Math.max(0, roundQuantity(Number(orderLine.receivedQuantity) - line.quantity));
+          await manager.save(PurchaseOrderLine, orderLine);
+        }
+        const receiptLine = receipt.lines.find((l) => l.lineId === line.lineId)!;
+        receiptLine.returnedQuantity = roundQuantity((receiptLine.returnedQuantity ?? 0) + line.quantity);
+      }
+      await manager.save(PurchaseOrderReceipt, receipt);
+      // A closed order stays closed: what goes back is not owed again. An open one is owed it again.
+      if (order.status === PurchaseOrderStatus.RECEIVED || order.status === PurchaseOrderStatus.PARTIALLY_RECEIVED) {
+        const nothingLeft = order.lines.every((l) => Number(l.receivedQuantity) <= QUANTITY_EPSILON);
+        await manager.update(PurchaseOrder, { id: order.id, organizationId }, {
+          status: nothingLeft ? PurchaseOrderStatus.SENT : PurchaseOrderStatus.PARTIALLY_RECEIVED,
+        });
+      }
+      const saved = await manager.save(
+        manager.create(PurchaseReturn, {
+          organizationId,
+          number,
+          receiptId: receipt.id,
+          orderId: order.id,
+          date,
+          reason,
+          lines: returned,
+          journalEntryId,
+          createdByUserId: actorUserId,
+        }),
+      );
+      this.logger.log(`Devolución ${number} de la recepción ${receipt.number}.`);
+      return saved;
+    });
   }
 }

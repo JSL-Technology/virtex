@@ -84,6 +84,15 @@
                   }
                 </select>
               }
+              @case ('basis-points') {
+                <span class="ss__unit">
+                  <input type="number" class="ss__input ss__input--short" [id]="'ss-' + policy.field" [disabled]="!canEdit()"
+                    step="0.01" [min]="(policy.min ?? 0) / 100" [max]="(policy.max ?? 10000) / 100"
+                    [ngModel]="percentFromBasisPoints(policy.field)" [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="setBasisPoints(policy.field, $event)" />
+                  <span aria-hidden="true">%</span>
+                </span>
+              }
               @case ('percent') {
                 <span class="ss__unit">
                   <input type="number" appPercent class="ss__input ss__input--short" [id]="'ss-' + policy.field" [disabled]="!canEdit()"

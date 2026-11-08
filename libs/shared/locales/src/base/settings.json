@@ -2895,6 +2895,16 @@
     "en": "Accumulated depreciation",
     "pt": "Depreciação acumulada"
   },
+  "settings.sections.fields.ap_match_price_tolerance": {
+    "es": "Tolerancia de precio en el cotejo de tres vías",
+    "en": "Price tolerance in three-way matching",
+    "pt": "Tolerância de preço na conferência de três vias"
+  },
+  "settings.sections.fields.ap_match_price_tolerance_help": {
+    "es": "Cuánto puede apartarse el precio de la factura del proveedor del precio de la orden antes de retenerla para revisión.",
+    "en": "How far a supplier bill price may depart from the order price before the bill is held for review.",
+    "pt": "Quanto o preço da fatura do fornecedor pode afastar-se do preço da ordem antes de ser retida para revisão."
+  },
   "settings.sections.fields.bank": {
     "es": "Banco",
     "en": "Bank",
@@ -3059,6 +3069,16 @@
     "es": "Se propone en clientes y facturas nuevos; cada uno puede cambiarlo.",
     "en": "Proposed on new customers and invoices; each can change it.",
     "pt": "Proposto em novos clientes e faturas; cada um pode alterá-lo."
+  },
+  "settings.sections.fields.po_receipt_over_tolerance": {
+    "es": "Tolerancia de sobre-entrega en recepciones",
+    "en": "Over-delivery tolerance on receipts",
+    "pt": "Tolerância de excesso nas receções"
+  },
+  "settings.sections.fields.po_receipt_over_tolerance_help": {
+    "es": "Cuánto más de lo pedido puede llegar en una línea de la orden de compra. 0 % no admite ni una unidad de más.",
+    "en": "How much more than ordered a purchase-order line may receive. 0% admits not a single extra unit.",
+    "pt": "Quanto mais do que o encomendado pode chegar numa linha da ordem de compra. 0% não admite nem uma unidade a mais."
   },
   "settings.sections.fields.purchase_tax": {
     "es": "Impuesto en compras (crédito fiscal)",

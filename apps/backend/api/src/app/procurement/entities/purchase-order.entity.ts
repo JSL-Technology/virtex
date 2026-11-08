@@ -14,6 +14,11 @@ export enum PurchaseOrderStatus {
   SENT = 'SENT',
   PARTIALLY_RECEIVED = 'PARTIALLY_RECEIVED',
   RECEIVED = 'RECEIVED',
+  /**
+   * Closed short (audit 2026-11-07, CMP-15): the outstanding balance will not be delivered. What
+   * was received stays received and can still be billed; nothing more can be received.
+   */
+  CLOSED = 'CLOSED',
   CANCELLED = 'CANCELLED',
 }
 
@@ -128,6 +133,13 @@ export class PurchaseOrder extends BaseEntity {
 
   @Column({ name: 'cancelled_at', type: 'timestamptz', nullable: true })
   cancelledAt: Date | null;
+
+  /** When and why the outstanding balance was closed (CMP-15). */
+  @Column({ name: 'closed_at', type: 'timestamptz', nullable: true })
+  closedAt: Date | null;
+
+  @Column({ name: 'close_reason', type: 'text', nullable: true })
+  closeReason: string | null;
 
   @Column({ name: 'cancellation_reason', type: 'text', nullable: true })
   cancellationReason: string | null;

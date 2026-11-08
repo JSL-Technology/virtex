@@ -22,6 +22,7 @@ const DEFAULT_BASE_CURRENCY = 'USD' as const;
 @Index('ux_organization_settings_organization_id', ['organizationId'], { unique: true })
 // Declared here as well as in the migration, so the schema-drift check sees it.
 @Check('CK_organization_settings_fiscal_emission_mode', `"fiscal_emission_mode" IN ('BOTH', 'ELECTRONIC', 'TRADITIONAL')`)
+@Check('CHK_organization_settings_po_receipt_over_tolerance', '"po_receipt_over_tolerance_bps" BETWEEN 0 AND 5000')
 @Entity({ name: 'organization_settings' })
 export class OrganizationSettings {
   constructor(partial?: Partial<OrganizationSettings>) {
@@ -365,6 +366,10 @@ export class OrganizationSettings {
    */
   @Column({ name: 'ap_match_price_tolerance_bps', type: 'int', default: 200 })
   apMatchPriceToleranceBps!: number;
+
+  /** How far a delivery may exceed the ordered quantity, in basis points (CMP-15). 0: never. */
+  @Column({ name: 'po_receipt_over_tolerance_bps', type: 'int', default: 0 })
+  poReceiptOverToleranceBps!: number;
 
   /**
    * How stale a quote may be, in days, before a posting that would use it is refused.

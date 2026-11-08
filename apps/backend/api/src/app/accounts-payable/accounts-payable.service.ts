@@ -2092,6 +2092,8 @@ const BILLABLE_ORDER_STATUSES: ReadonlySet<string> = new Set([
   PurchaseOrderStatus.SENT,
   PurchaseOrderStatus.PARTIALLY_RECEIVED,
   PurchaseOrderStatus.RECEIVED,
+  // Closed short: what was received is still owed to the supplier and billed (CMP-15).
+  PurchaseOrderStatus.CLOSED,
 ]);
 
 function assertOrderBillable(order: { number?: string | null; status?: string | null } | null | undefined): void {

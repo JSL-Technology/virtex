@@ -189,6 +189,31 @@
     "en": "Why it is being cancelled",
     "pt": "Motivo do cancelamento"
   },
+  "purchasing.orders.form.close_message": {
+    "es": "Lo que falta por recibir no llegará. Lo recibido se queda y se puede facturar; la orden ya no recibirá más.",
+    "en": "What is still outstanding will not arrive. What was received stays and can be billed; the order will receive nothing more.",
+    "pt": "O que falta receber não chegará. O recebido fica e pode ser faturado; a ordem não receberá mais."
+  },
+  "purchasing.orders.form.close_order": {
+    "es": "Cerrar saldo pendiente",
+    "en": "Close outstanding balance",
+    "pt": "Fechar saldo pendente"
+  },
+  "purchasing.orders.form.close_reason": {
+    "es": "Motivo del cierre",
+    "en": "Reason for closing",
+    "pt": "Motivo do fecho"
+  },
+  "purchasing.orders.form.close_reason_too_short": {
+    "es": "Escribe un motivo de al menos 3 caracteres.",
+    "en": "Write a reason of at least 3 characters.",
+    "pt": "Escreva um motivo com pelo menos 3 caracteres."
+  },
+  "purchasing.orders.form.close_title": {
+    "es": "Cerrar el saldo de la orden",
+    "en": "Close the order balance",
+    "pt": "Fechar o saldo da ordem"
+  },
   "purchasing.orders.form.confirm_cancel": {
     "es": "Confirmar cancelación",
     "en": "Confirm cancellation",
@@ -223,6 +248,11 @@
     "en": "Order {{number}} cancelled.",
     "es": "Orden {{number}} cancelada.",
     "pt": "Pedido {{number}} cancelado."
+  },
+  "purchasing.orders.form.done.closed": {
+    "es": "Saldo de la orden cerrado.",
+    "en": "Order balance closed.",
+    "pt": "Saldo da ordem fechado."
   },
   "purchasing.orders.form.done.rejected": {
     "en": "Order {{number}} returned to draft.",
@@ -386,6 +416,11 @@
     "es": "Cancelada",
     "en": "Cancelled",
     "pt": "Cancelada"
+  },
+  "purchasing.orders.status_label.closed": {
+    "es": "Cerrada (saldo cancelado)",
+    "en": "Closed short",
+    "pt": "Fechada (saldo cancelado)"
   },
   "purchasing.orders.status_label.draft": {
     "es": "Borrador",
@@ -599,6 +634,51 @@
     "es": "Recepción {{number}} registrada.",
     "en": "Receipt {{number}} recorded.",
     "pt": "Recebimento {{number}} registrado."
+  },
+  "purchasing.receipts.return": {
+    "es": "Devolver",
+    "en": "Return",
+    "pt": "Devolver"
+  },
+  "purchasing.receipts.return_done": {
+    "es": "Devolución registrada: el inventario y el costo se ajustaron.",
+    "en": "Return recorded: stock and cost were adjusted.",
+    "pt": "Devolução registada: o stock e o custo foram ajustados."
+  },
+  "purchasing.receipts.return_failed": {
+    "es": "No se pudo registrar la devolución.",
+    "en": "The return could not be recorded.",
+    "pt": "Não foi possível registar a devolução."
+  },
+  "purchasing.receipts.return_quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "purchasing.receipts.return_quantity_invalid": {
+    "es": "La cantidad debe ser mayor que cero y no superar lo que queda de la recepción.",
+    "en": "The quantity must be above zero and not exceed what remains of the receipt.",
+    "pt": "A quantidade deve ser maior que zero e não exceder o que resta da receção."
+  },
+  "purchasing.receipts.return_quantity_message": {
+    "es": "{{description}}: ¿cuántas unidades vuelven al proveedor? Quedan {{available}} de esta recepción.",
+    "en": "{{description}}: how many units go back to the supplier? {{available}} remain from this receipt.",
+    "pt": "{{description}}: quantas unidades voltam ao fornecedor? Restam {{available}} desta receção."
+  },
+  "purchasing.receipts.return_reason_message": {
+    "es": "¿Por qué se devuelve? El motivo queda en el documento de devolución.",
+    "en": "Why is it returned? The reason stays on the return document.",
+    "pt": "Porque é devolvido? O motivo fica no documento de devolução."
+  },
+  "purchasing.receipts.return_title": {
+    "es": "Devolver al proveedor",
+    "en": "Return to supplier",
+    "pt": "Devolver ao fornecedor"
+  },
+  "purchasing.receipts.returned": {
+    "es": "Devuelto",
+    "en": "Returned",
+    "pt": "Devolvido"
   },
   "purchasing.receipts.save_failed": {
     "es": "No se pudo registrar la recepción.",

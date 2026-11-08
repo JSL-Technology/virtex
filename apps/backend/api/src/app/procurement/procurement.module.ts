@@ -1,3 +1,4 @@
+import { PurchaseReturn } from './entities/purchase-return.entity';
 import { LandedCostAllocation } from './entities/landed-cost-allocation.entity';
 import { LandedCostsService } from './landed-costs.service';
 import { LandedCostsController } from './landed-costs.controller';
@@ -40,6 +41,7 @@ import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module'
       SupplierPortalUser,
       PurchaseOrderReceipt,
       LandedCostAllocation,
+      PurchaseReturn,
       ReplenishmentAgentSettings,
     ]),
     // The replenishment agent registers a workflow step.

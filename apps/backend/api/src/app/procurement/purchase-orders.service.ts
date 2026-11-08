@@ -355,6 +355,18 @@ export class PurchaseOrdersService {
     });
   }
 
+  /**
+   * Close the outstanding balance of an order that will not be delivered in full (audit
+   * 2026-11-07, CMP-15). Only an order something was or could be received against; one with
+   * nothing received is cancelled instead. What arrived stays received and billable.
+   */
+  close(id: string, organizationId: string, reason: string): Promise<PurchaseOrder> {
+    return this.transition(id, organizationId, PurchaseOrderStatus.CLOSED, (order) => {
+      order.closedAt = new Date();
+      order.closeReason = reason;
+    });
+  }
+
   cancel(id: string, organizationId: string, reason: string): Promise<PurchaseOrder> {
     return this.transition(id, organizationId, PurchaseOrderStatus.CANCELLED, (order) => {
       order.cancelledAt = new Date();
@@ -415,6 +427,12 @@ export class PurchaseOrdersService {
         throw new BadRequestError('procurement.order_not_receivable', { status: order.status });
       }
 
+      const [tolerance] = await manager.query(
+        `SELECT "po_receipt_over_tolerance_bps" AS bps FROM "organization_settings" WHERE "organization_id" = $1`,
+        [organizationId],
+      );
+      const overTolerance = Math.max(0, Number(tolerance?.bps ?? 0)) / 10_000;
+
       const byId = new Map(order.lines.map((line) => [line.id, line]));
       const requested = dto.lines?.length
         ? dto.lines
@@ -433,7 +451,8 @@ export class PurchaseOrdersService {
         if (received.quantity <= 0) continue;
 
         const total = roundQuantity(line.receivedQuantity + received.quantity);
-        if (total - line.quantity > QUANTITY_EPSILON) {
+        // Over-delivery is accepted only within the company's tolerance (CMP-15; 0 by default).
+        if (total - line.quantity * (1 + overTolerance) > QUANTITY_EPSILON) {
           throw new BadRequestError('procurement.receipt_exceeds_ordered', {
             description: line.description,
             ordered: line.quantity,

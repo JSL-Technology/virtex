@@ -14,10 +14,8 @@ import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-own
  */
 @Entity('purchase_order_lines')
 @Index('IDX_purchase_order_lines_order', ['orderId'])
-@Check(
-  'CHK_purchase_order_lines_received_within_ordered',
-  '"received_quantity" >= 0 AND "received_quantity" <= "quantity"',
-)
+/** The upper bound — ordered plus the company's over-delivery tolerance — is a trigger (CMP-15). */
+@Check('CHK_purchase_order_lines_received_not_negative', '"received_quantity" >= 0')
 export class PurchaseOrderLine extends BaseEntity {
   @Column({ name: 'order_id', type: 'uuid' })
   orderId: string;

@@ -159,6 +159,16 @@
     "en": "A requisition in {{status}} cannot be deleted: it is part of the record of what was decided.",
     "pt": "Uma requisição em {{status}} não pode ser eliminada: já faz parte do registo do que foi decidido."
   },
+  "procurement.return_exceeds_received": {
+    "es": "{{description}}: se devuelven {{returned}} y de esta recepción quedan {{received}}.",
+    "en": "{{description}}: {{returned}} returned, {{received}} left from this receipt.",
+    "pt": "{{description}}: devolvem-se {{returned}} e desta receção restam {{received}}."
+  },
+  "procurement.return_of_billed_goods_needs_debit_note": {
+    "es": "{{description}}: el proveedor ya facturó esas unidades. Devuélvelas con una nota de débito contra su factura, que también devuelve el impuesto.",
+    "en": "{{description}}: the supplier has already billed those units. Return them with a debit note against their bill, which also gives the tax back.",
+    "pt": "{{description}}: o fornecedor já faturou essas unidades. Devolva-as com uma nota de débito contra a sua fatura, que também devolve o imposto."
+  },
   "procurement.supplier_not_found": {
     "es": "El proveedor indicado no existe en esta organización.",
     "en": "That supplier does not exist in this organization.",

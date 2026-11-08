@@ -18,6 +18,7 @@ export type PurchaseOrderStatus =
   | 'SENT'
   | 'PARTIALLY_RECEIVED'
   | 'RECEIVED'
+  | 'CLOSED'
   | 'CANCELLED';
 
 export interface PurchaseRequisitionLine {
@@ -127,6 +128,7 @@ export interface GoodsReceipt {
     unitCost: number;
     value: number;
     stocked: boolean;
+    returnedQuantity?: number;
     ordered: number | null;
     receivedOnOrder: number | null;
     billedOnOrder: number | null;
@@ -413,6 +415,16 @@ export class PurchasingService {
   /** Undo a receipt not yet billed: the stock goes back out and the order is owed it again. */
   voidReceipt(id: string, reason: string, reversalDate?: string): Observable<GoodsReceipt> {
     return this.http.post<GoodsReceipt>(`${this.receiptsUrl}/${id}/void`, { reason, reversalDate });
+  }
+
+  /** Close the outstanding balance of a partly delivered order (CMP-15). */
+  closeOrder(id: string, reason: string): Observable<PurchaseOrder> {
+    return this.http.post<PurchaseOrder>(`${this.ordersUrl}/${id}/close`, { reason });
+  }
+
+  /** Send part of a receipt back to the supplier (CMP-15). */
+  returnGoods(id: string, lines: Array<{ lineId: string; quantity: number }>, reason: string): Observable<unknown> {
+    return this.http.post(`${this.receiptsUrl}/${id}/return`, { lines, reason });
   }
 
   cancelOrder(id: string, reason: string): Observable<PurchaseOrder> {
