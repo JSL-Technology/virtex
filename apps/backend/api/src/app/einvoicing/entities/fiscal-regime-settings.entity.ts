@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Check, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
 
 /**
@@ -38,6 +38,9 @@ export enum FiscalEnvironment {
  * resolution does.
  */
 @Entity({ name: 'fiscal_regime_settings' })
+@Check('CHK_fiscal_regime_settings_credential_scheme', `"credential_scheme" IS NULL OR "credential_scheme" IN ('BEARER', 'BASIC')`)
+@Check('CHK_fiscal_regime_settings_endpoint_https', `"transmission_endpoint" IS NULL OR "transmission_endpoint" LIKE 'https://%'`)
+@Check('CHK_fiscal_regime_settings_status_endpoint_https', `"status_endpoint" IS NULL OR "status_endpoint" LIKE 'https://%'`)
 @Index('UQ_fiscal_regime_settings_org_country', ['organizationId', 'countryCode'], { unique: true })
 export class FiscalRegimeSettings {
   @PrimaryGeneratedColumn('uuid')
@@ -110,4 +113,33 @@ export class FiscalRegimeSettings {
   /** Chile: the city of the issuing address. */
   @Column({ name: 'origin_city', type: 'varchar', length: 64, nullable: true })
   originCity?: string | null;
+
+  // ── Transmission (FAC-EINV-04) ─────────────────────────────────────────────────────────────
+  //
+  // The tenant's own exchange with its authority or authorised agent (PAC, PSE, OSE). These were
+  // process-wide environment variables, so in a SaaS every Mexican tenant stamped through one
+  // account. Each tenant now configures its own; the credential is encrypted at rest with the
+  // application's single cipher (`CryptoUtil`) and the API never returns it.
+
+  /** Where documents are sent. HTTPS only; a private or loopback address is refused at save and at send. */
+  @Column({ name: 'transmission_endpoint', type: 'varchar', length: 512, nullable: true })
+  transmissionEndpoint?: string | null;
+
+  /** Where a verdict is asked for, when the authority uses a different service. Defaults to the above. */
+  @Column({ name: 'status_endpoint', type: 'varchar', length: 512, nullable: true })
+  statusEndpoint?: string | null;
+
+  @Column({ name: 'soap_action', type: 'varchar', length: 256, nullable: true })
+  soapAction?: string | null;
+
+  /** `BEARER` (a token) or `BASIC` (user and password). */
+  @Column({ name: 'credential_scheme', type: 'varchar', length: 16, nullable: true })
+  credentialScheme?: 'BEARER' | 'BASIC' | null;
+
+  /** Encrypted; `select: false` so no query that does not ask for it can return it. */
+  @Column({ name: 'credential_ciphertext', type: 'text', nullable: true, select: false })
+  credentialCiphertext?: string | null;
+
+  @Column({ name: 'credential_updated_at', type: 'timestamptz', nullable: true })
+  credentialUpdatedAt?: Date | null;
 }

@@ -20,7 +20,11 @@ import { FiscalRegimeSettingsService } from './services/fiscal-regime-settings.s
 import {
   RegisterFiscalRangeDto,
   UpsertFiscalRegimeSettingsDto,
+  UpsertTransmissionSettingsDto,
 } from './dto/fiscal-regime-settings.dto';
+import { TransmissionConfigService } from './services/transmission-config.service';
+import { FiscalSubmissionService } from './services/fiscal-submission.service';
+import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 
 /**
  * The tenant's e-invoicing configuration and the number ranges their authority granted them.
@@ -42,7 +46,56 @@ import {
 @ApiBearerAuth()
 @Controller('einvoicing/regime')
 export class FiscalRegimeSettingsController {
-  constructor(private readonly settings: FiscalRegimeSettingsService) {}
+  constructor(
+    private readonly settings: FiscalRegimeSettingsService,
+    private readonly transmission: TransmissionConfigService,
+    private readonly submissions: FiscalSubmissionService,
+  ) {}
+
+  /** The tenant's transmission channel, without the credential (FAC-EINV-04). */
+  @Get('transmission')
+  @HasPermission(PERMISSIONS.TAXES_VIEW)
+  @ApiOperation({ summary: 'El canal de transmisión del contribuyente, sin la credencial.' })
+  async transmissionSettings(@CurrentUser() user: AuthenticatedUser) {
+    return this.transmission.view(user.organizationId, await this.settings.countryOf(user.organizationId));
+  }
+
+  /**
+   * Save it. Re-authentication is required: whoever sets this credential files documents with
+   * legal effect in the company's name. What waited for the configuration is retried at once.
+   */
+  @Put('transmission')
+  @HasPermission(PERMISSIONS.TAXES_EDIT)
+  @RequireStepUp(StepUpScope.MANAGE_FISCAL_CREDENTIALS)
+  @ApiOperation({ summary: 'Guardar el canal de transmisión (la credencial se cifra y nunca se devuelve).' })
+  async saveTransmission(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpsertTransmissionSettingsDto) {
+    const country = await this.settings.countryOf(user.organizationId);
+    const view = await this.transmission.save(user.organizationId, country, dto);
+    if (view.configured) await this.submissions.requeueNotConfigured(user.organizationId, country);
+    return view;
+  }
+
+  /** Where an invoice's electronic document stands with the authority. */
+  @Get('submissions/invoice/:invoiceId')
+  @HasPermission(PERMISSIONS.INVOICES_VIEW)
+  @ApiOperation({ summary: 'El estado del documento electrónico de una factura ante la autoridad.' })
+  async submissionForInvoice(@CurrentUser() user: AuthenticatedUser, @Param('invoiceId', UuidParamPipe) invoiceId: string) {
+    const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
+    if (!submission) return null;
+    // The sealed payload and the raw response stay on the server: large, and not for the screen.
+    const { payload: _payload, response: _response, ...visible } = submission;
+    return visible;
+  }
+
+  /** Try again now: transmit a pending or failed document, or ask again about one already sent. */
+  @Post('submissions/:id/retry')
+  @HasPermission(PERMISSIONS.INVOICES_EDIT)
+  @ApiOperation({ summary: 'Reintentar ahora la transmisión o la consulta del veredicto.' })
+  async retrySubmission(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
+    const submission = await this.submissions.retryNow(id, user.organizationId);
+    const { payload: _payload, response: _response, ...visible } = submission;
+    return visible;
+  }
 
   @Get('settings')
   @HasPermission(PERMISSIONS.TAXES_VIEW)

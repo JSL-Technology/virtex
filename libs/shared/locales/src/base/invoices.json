@@ -357,6 +357,91 @@
     "en": "Qty",
     "pt": "Qtd."
   },
+  "invoices.detail.regime.document_key": {
+    "es": "Clave del documento",
+    "en": "Document key",
+    "pt": "Chave do documento"
+  },
+  "invoices.detail.regime.hint.accepted": {
+    "es": "El documento tiene validez fiscal.",
+    "en": "The document has fiscal validity.",
+    "pt": "O documento tem validade fiscal."
+  },
+  "invoices.detail.regime.hint.error": {
+    "es": "Se reintenta automáticamente; el detalle está en el registro del envío.",
+    "en": "It is retried automatically; the detail is in the submission record.",
+    "pt": "É reenviado automaticamente; o detalhe está no registo do envio."
+  },
+  "invoices.detail.regime.hint.not_configured": {
+    "es": "Revisa el certificado y la transmisión en Ajustes › Facturación electrónica; al guardarlos se reintenta solo.",
+    "en": "Check the certificate and transmission in Settings › E-invoicing; it is retried as soon as they are saved.",
+    "pt": "Verifique o certificado e a transmissão em Ajustes › Faturação eletrónica; é reenviado assim que forem guardados."
+  },
+  "invoices.detail.regime.hint.pending": {
+    "es": "Se enviará en unos instantes.",
+    "en": "It will be sent in a moment.",
+    "pt": "Será enviado dentro de instantes."
+  },
+  "invoices.detail.regime.hint.rejected": {
+    "es": "Corrige la causa indicada por la autoridad y emite una nota de crédito o un documento nuevo, según tu normativa (verificar con tu contador).",
+    "en": "Fix the cause the authority gave and issue a credit note or a new document, as your rules require (check with your accountant).",
+    "pt": "Corrija a causa indicada pela autoridade e emita uma nota de crédito ou um documento novo, conforme as suas regras (verifique com o seu contabilista)."
+  },
+  "invoices.detail.regime.hint.sent": {
+    "es": "La autoridad lo recibió; se consulta su veredicto periódicamente. No se reenvía para no duplicarlo.",
+    "en": "The authority received it; its verdict is checked periodically. It is not resent, so it cannot be duplicated.",
+    "pt": "A autoridade recebeu-o; o veredicto é consultado periodicamente. Não é reenviado, para não o duplicar."
+  },
+  "invoices.detail.regime.retry": {
+    "es": "Reintentar ahora",
+    "en": "Retry now",
+    "pt": "Tentar novamente agora"
+  },
+  "invoices.detail.regime.retry_failed": {
+    "es": "No se pudo reintentar el envío.",
+    "en": "The submission could not be retried.",
+    "pt": "Não foi possível tentar novamente o envio."
+  },
+  "invoices.detail.regime.status.accepted": {
+    "es": "Aceptado",
+    "en": "Accepted",
+    "pt": "Aceite"
+  },
+  "invoices.detail.regime.status.error": {
+    "es": "Error al preparar el envío",
+    "en": "Could not prepare the submission",
+    "pt": "Erro ao preparar o envio"
+  },
+  "invoices.detail.regime.status.not_configured": {
+    "es": "Sin enviar: falta configuración",
+    "en": "Not sent: setup missing",
+    "pt": "Não enviado: falta configuração"
+  },
+  "invoices.detail.regime.status.pending": {
+    "es": "Pendiente de envío",
+    "en": "Waiting to be sent",
+    "pt": "Pendente de envio"
+  },
+  "invoices.detail.regime.status.rejected": {
+    "es": "Rechazado",
+    "en": "Rejected",
+    "pt": "Rejeitado"
+  },
+  "invoices.detail.regime.status.sent": {
+    "es": "Enviado, esperando respuesta",
+    "en": "Sent, awaiting a verdict",
+    "pt": "Enviado, a aguardar resposta"
+  },
+  "invoices.detail.regime.title": {
+    "es": "Documento electrónico ({{regime}})",
+    "en": "Electronic document ({{regime}})",
+    "pt": "Documento eletrónico ({{regime}})"
+  },
+  "invoices.detail.regime.tracking": {
+    "es": "Identificador de la autoridad",
+    "en": "Authority identifier",
+    "pt": "Identificador da autoridade"
+  },
   "invoices.detail.resend_to_authority": {
     "es": "Reenviar a {{authority}}",
     "en": "Resend to {{authority}}",
@@ -1739,6 +1824,11 @@
     "en": "The tax rate {{rate}} is not valid for {{countryCode}}. Permitted rates: {{allowed}}.",
     "pt": "A alíquota {{rate}} não é válida para {{countryCode}}. Alíquotas permitidas: {{allowed}}."
   },
+  "invoices.transmission_not_configured": {
+    "es": "Configura la transmisión a la autoridad fiscal ({{country}}) en Ajustes › Facturación electrónica antes de emitir un documento electrónico: sin ella el número se gastaría en un documento que la autoridad nunca recibiría.",
+    "en": "Set up transmission to the tax authority ({{country}}) in Settings › E-invoicing before issuing an electronic document: without it the number would be spent on a document the authority never receives.",
+    "pt": "Configure a transmissão à autoridade fiscal ({{country}}) em Ajustes › Faturação eletrónica antes de emitir um documento eletrónico: sem ela o número seria gasto num documento que a autoridade nunca receberia."
+  },
   "invoices.type_blocked.no_certificate": {
     "es": "falta el certificado digital",
     "en": "digital certificate missing",
@@ -1748,6 +1838,11 @@
     "es": "sin rango vigente",
     "en": "no current range",
     "pt": "sem faixa vigente"
+  },
+  "invoices.type_blocked.no_transmission": {
+    "es": "Falta configurar la transmisión a la autoridad fiscal",
+    "en": "Transmission to the tax authority is not set up",
+    "pt": "Falta configurar a transmissão à autoridade fiscal"
   },
   "invoices.type_type_not_valid_credit_note": {
     "es": "El tipo {{type}} no es un comprobante de nota de crédito válido.",

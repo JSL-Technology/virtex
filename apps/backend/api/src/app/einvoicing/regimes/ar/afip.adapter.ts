@@ -117,10 +117,10 @@ export class AfipRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const result = await this.transport.send('AR', document.payload, {
-      contentType: 'application/json',
+      organizationId: context.organizationId, purpose: 'submit', contentType: 'application/json',
       trackingKeys: ['CAE', 'cae'],
     });
 
@@ -140,12 +140,12 @@ export class AfipRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
    */
   async checkStatus(
     trackingId: string,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     return this.transport.send(
       'AR',
       JSON.stringify({ operation: 'FECompConsultar', CbteNro: trackingId }),
-      { contentType: 'application/json', trackingKeys: ['CAE', 'cae'] },
+      { organizationId: context.organizationId, purpose: 'status', contentType: 'application/json', trackingKeys: ['CAE', 'cae'] },
     );
   }
 
@@ -171,11 +171,11 @@ export class AfipRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
     const result = await this.transport.send(
       'AR',
       JSON.stringify({ operation: 'FECompUltimoAutorizado', PtoVta: salesPoint, CbteTipo: documentType }),
-      { contentType: 'application/json', trackingKeys: ['CbteNro'] },
+      { organizationId: invoice.organizationId, purpose: 'status', contentType: 'application/json', trackingKeys: ['CbteNro'] },
     );
 
     if (result.status === 'NOT_CONFIGURED') {
-      throw new RegimeNotConfigured(this.regime, 'el endpoint de AFIP (EINVOICE_AR_ENDPOINT)');
+      throw new RegimeNotConfigured(this.regime, 'la transmisión de AFIP en Ajustes › Facturación electrónica');
     }
 
     const last = Number(result.trackingId ?? NaN);

@@ -750,6 +750,7 @@
   "validation.general_ledger_report.too_many_accounts_requested_single_report": "Too many accounts were requested for a single report.",
   "validation.generate_report.output_format_not_supported": "The output format is not supported.",
   "validation.generate_report.report_type_not_supported": "The report type is not supported.",
+  "validation.https_url_required": "Must be an https:// address.",
   "validation.journal_entry_actions.reason_change_required": "A reason for the change is required.",
   "validation.journal_entry_actions.reason_reversal_required": "A reason for the reversal is required.",
   "validation.journal_entry_actions.reversal_date_must_valid_date": "The reversal date must be a valid date.",

@@ -1601,6 +1601,11 @@
     "en": "The report type is not supported.",
     "pt": "O tipo de relatório não é suportado."
   },
+  "validation.https_url_required": {
+    "es": "Debe ser una dirección https://.",
+    "en": "Must be an https:// address.",
+    "pt": "Deve ser um endereço https://."
+  },
   "validation.journal_entry_actions.reason_change_required": {
     "es": "Se requiere una razón para la modificación.",
     "en": "A reason for the change is required.",

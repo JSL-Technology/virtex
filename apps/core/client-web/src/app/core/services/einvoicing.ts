@@ -80,6 +80,24 @@ export interface ProvisionNcfSequenceInput {
  * Client for the Dominican Republic electronic-invoicing (e-CF) API: certificate management, e-NCF
  * range provisioning and per-invoice e-CF status. The DGII returns are `FiscalReturnsService`'s.
  */
+/** One document's transmission to its authority, for every regime but the Dominican one. */
+export interface RegimeSubmissionView {
+  id: string;
+  invoiceId: string;
+  countryCode: string;
+  regime: string;
+  fiscalNumber: string | null;
+  status: 'PENDING' | 'NOT_CONFIGURED' | 'SENT' | 'ACCEPTED' | 'REJECTED' | 'ERROR';
+  documentKey: string | null;
+  trackingId: string | null;
+  messages: string[];
+  attempts: number;
+  nextAttemptAt: string | null;
+  lastError: string | null;
+  sentAt: string | null;
+  respondedAt: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class EinvoicingService {
   private http = inject(HttpClient);
@@ -112,6 +130,15 @@ export class EinvoicingService {
    * so the browser logged a failed request each time and the caller had to catch an error to
    * learn something normal.
    */
+  /** Where an invoice's electronic document stands outside DO (CFDI, DIAN, SUNAT, SRI, SII, NF-e, AFIP). */
+  getRegimeSubmission(invoiceId: string): Observable<RegimeSubmissionView | null> {
+    return this.http.get<RegimeSubmissionView | null>(`${this.ecfUrl}/regime/submissions/invoice/${invoiceId}`);
+  }
+
+  retryRegimeSubmission(submissionId: string): Observable<RegimeSubmissionView> {
+    return this.http.post<RegimeSubmissionView>(`${this.ecfUrl}/regime/submissions/${submissionId}/retry`, {});
+  }
+
   getInvoiceStatus(invoiceId: string): Observable<EcfSubmissionView | null> {
     return this.http.get<EcfSubmissionView | null>(`${this.ecfUrl}/invoices/${invoiceId}/status`);
   }

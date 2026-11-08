@@ -53,7 +53,8 @@ export class FiscalRegimeSettingsService {
   ) {}
 
   /** The tenant's market, or a refusal: nothing here is meaningful without one. */
-  private async countryOf(organizationId: string): Promise<string> {
+  /** The tenant's market, uppercased: the key of its regime and of its settings row. */
+  async countryOf(organizationId: string): Promise<string> {
     const organization = await this.organizations.findOne({
       where: { id: organizationId },
       select: ['id', 'country'],

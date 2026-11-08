@@ -750,6 +750,7 @@
   "validation.general_ledger_report.too_many_accounts_requested_single_report": "Foram solicitadas demasiadas contas para um único relatório.",
   "validation.generate_report.output_format_not_supported": "O formato de saída não é suportado.",
   "validation.generate_report.report_type_not_supported": "O tipo de relatório não é suportado.",
+  "validation.https_url_required": "Deve ser um endereço https://.",
   "validation.journal_entry_actions.reason_change_required": "É necessário informar o motivo da alteração.",
   "validation.journal_entry_actions.reason_reversal_required": "É necessário informar o motivo do estorno.",
   "validation.journal_entry_actions.reversal_date_must_valid_date": "A data do estorno deve ser uma data válida.",

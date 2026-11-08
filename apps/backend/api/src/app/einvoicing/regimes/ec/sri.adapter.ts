@@ -1,3 +1,4 @@
+import { escapeXmlText } from '../xml-text';
 import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
@@ -89,10 +90,10 @@ export class SriRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const received = await this.transport.send('EC', document.payload, {
-      contentType: 'application/xml',
+      organizationId: context.organizationId, purpose: 'submit', contentType: 'application/xml',
       trackingKeys: ['claveAcceso', 'estado'],
     });
 
@@ -114,13 +115,13 @@ export class SriRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
   /** The second call: authorised, or refused with the SRI's own reasons. */
   async checkStatus(
     trackingId: string,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const result = await this.transport.send(
       'EC',
-      `<autorizacionComprobante><claveAccesoComprobante>${trackingId}` +
+      `<autorizacionComprobante><claveAccesoComprobante>${escapeXmlText(trackingId)}` +
         `</claveAccesoComprobante></autorizacionComprobante>`,
-      { contentType: 'application/xml', trackingKeys: ['numeroAutorizacion'] },
+      { organizationId: context.organizationId, purpose: 'status', contentType: 'application/xml', trackingKeys: ['numeroAutorizacion'] },
     );
 
     return { ...result, authorization: result.trackingId ?? null, trackingId };

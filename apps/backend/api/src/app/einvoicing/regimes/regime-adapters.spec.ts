@@ -76,7 +76,8 @@ describeWithDb('the six regime adapters', () => {
     signatures = new XmlSignatureService();
     // No endpoint configured, deliberately: every regime must answer NOT_CONFIGURED rather than
     // inventing an authority's response.
-    transport = new RegimeTransportService(config);
+    // Nor a tenant configuration: the transmission target resolves to nothing.
+    transport = new RegimeTransportService(config, { resolve: async () => null } as never);
     ranges = new FiscalRangeService(vault);
 
     const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
@@ -585,7 +586,7 @@ describeWithDb('the six regime adapters', () => {
       for (const adapter of adapters) {
         const result = await adapter.transmit(document, contextFor());
         expect(result.status).toBe('NOT_CONFIGURED');
-        expect(result.messages.join(' ')).toContain('EINVOICE_');
+        expect(result.messages.join(' ')).toContain('no está configurada para la empresa');
       }
     });
 

@@ -1,3 +1,4 @@
+import { escapeXmlText } from '../xml-text';
 import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
@@ -104,10 +105,10 @@ export class DianRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const result = await this.transport.send('CO', document.payload, {
-      contentType: 'application/xml',
+      organizationId: context.organizationId, purpose: 'submit', contentType: 'application/xml',
       trackingKeys: ['ZipKey', 'TrackId', 'trackId'],
     });
     // The CUFE is ours, computed at build time, and stays the document's identity whatever the
@@ -117,12 +118,12 @@ export class DianRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
 
   async checkStatus(
     trackingId: string,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     return this.transport.send(
       'CO',
-      `<GetStatusZip><trackId>${trackingId}</trackId></GetStatusZip>`,
-      { contentType: 'application/xml', trackingKeys: ['TrackId', 'trackId'] },
+      `<GetStatusZip><trackId>${escapeXmlText(trackingId)}</trackId></GetStatusZip>`,
+      { organizationId: context.organizationId, purpose: 'status', contentType: 'application/xml', trackingKeys: ['TrackId', 'trackId'] },
     );
   }
 

@@ -1,3 +1,4 @@
+import { escapeXmlText } from '../xml-text';
 import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
@@ -165,10 +166,10 @@ export class SiiRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const result = await this.transport.send('CL', document.payload, {
-      contentType: 'application/xml',
+      organizationId: context.organizationId, purpose: 'submit', contentType: 'application/xml',
       trackingKeys: ['TRACKID', 'trackid', 'TrackId'],
     });
 
@@ -179,10 +180,10 @@ export class SiiRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
 
   async checkStatus(
     trackingId: string,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
-    return this.transport.send('CL', `<getEstUp><TRACKID>${trackingId}</TRACKID></getEstUp>`, {
-      contentType: 'application/xml',
+    return this.transport.send('CL', `<getEstUp><TRACKID>${escapeXmlText(trackingId)}</TRACKID></getEstUp>`, {
+      organizationId: context.organizationId, purpose: 'status', contentType: 'application/xml',
       trackingKeys: ['ESTADO', 'estado'],
     });
   }

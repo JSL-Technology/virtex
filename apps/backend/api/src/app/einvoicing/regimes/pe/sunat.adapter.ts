@@ -1,3 +1,4 @@
+import { escapeXmlText } from '../xml-text';
 import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
@@ -94,10 +95,10 @@ export class SunatRegimeAdapter extends RegimeAdapterBase implements FiscalRegim
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const result = await this.transport.send('PE', document.payload, {
-      contentType: 'application/xml',
+      organizationId: context.organizationId, purpose: 'submit', contentType: 'application/xml',
       // `applicationResponse` is the CDR itself; the ticket is what an asynchronous submission
       // returns and is looked up later with `getStatus`.
       trackingKeys: ['applicationResponse', 'ticket'],
@@ -114,10 +115,10 @@ export class SunatRegimeAdapter extends RegimeAdapterBase implements FiscalRegim
 
   async checkStatus(
     trackingId: string,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
-    return this.transport.send('PE', `<getStatus><ticket>${trackingId}</ticket></getStatus>`, {
-      contentType: 'application/xml',
+    return this.transport.send('PE', `<getStatus><ticket>${escapeXmlText(trackingId)}</ticket></getStatus>`, {
+      organizationId: context.organizationId, purpose: 'status', contentType: 'application/xml',
       trackingKeys: ['applicationResponse', 'statusCode'],
     });
   }

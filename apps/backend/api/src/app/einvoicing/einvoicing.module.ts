@@ -24,7 +24,6 @@ import { EcfLifecycleService } from './services/ecf-lifecycle.service';
 import { EinvoicingController } from './einvoicing.controller';
 import { FiscalRangeService } from './services/fiscal-range.service';
 import { FiscalRegimeSettingsService } from './services/fiscal-regime-settings.service';
-import { FiscalRegimeSettingsController } from './fiscal-regime-settings.controller';
 import { XmlSignatureService } from './regimes/xml-signature.service';
 import { RegimeTransportService } from './regimes/regime-transport.service';
 import { FiscalRegimeRegistry } from './regimes/fiscal-regime.registry';
@@ -36,6 +35,10 @@ import { SriRegimeAdapter } from './regimes/ec/sri.adapter';
 import { SiiRegimeAdapter } from './regimes/cl/sii.adapter';
 import { NfeRegimeAdapter } from './regimes/br/nfe.adapter';
 import { AfipRegimeAdapter } from './regimes/ar/afip.adapter';
+import { FiscalSubmission } from './entities/fiscal-submission.entity';
+import { TransmissionConfigService } from './services/transmission-config.service';
+import { FiscalSubmissionService } from './services/fiscal-submission.service';
+import { FiscalSubmissionReconciler } from './services/fiscal-submission.reconciler';
 
 /**
  * Electronic invoicing (e-CF) for the Dominican Republic: certificate vault, DGII authentication,
@@ -57,9 +60,12 @@ import { AfipRegimeAdapter } from './regimes/ar/afip.adapter';
       NcfSequence,
       FiscalDocumentRange,
       FiscalRegimeSettings,
+      FiscalSubmission,
     ]),
   ],
-  controllers: [EinvoicingController, FiscalRegimeSettingsController],
+  // FiscalRegimeSettingsController lives in EinvoicingAdminModule: it needs AuthModule (step-up),
+  // and AuthModule reaches this module, so importing it here would close a cycle.
+  controllers: [EinvoicingController],
   providers: [
     CertificateVaultService,
     EcfSignerService,
@@ -92,6 +98,9 @@ import { AfipRegimeAdapter } from './regimes/ar/afip.adapter';
     NfeRegimeAdapter,
     AfipRegimeAdapter,
     FiscalRegimeRegistry,
+    TransmissionConfigService,
+    FiscalSubmissionService,
+    FiscalSubmissionReconciler,
   ],
   exports: [
     EcfSubmissionService,
@@ -103,6 +112,9 @@ import { AfipRegimeAdapter } from './regimes/ar/afip.adapter';
     XmlSignatureService,
     RegimeTransportService,
     FiscalRegimeRegistry,
+    TransmissionConfigService,
+    FiscalSubmissionService,
+    FiscalRegimeSettingsService,
   ],
 })
 export class EinvoicingModule {}

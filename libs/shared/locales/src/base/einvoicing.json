@@ -439,6 +439,11 @@
     "en": "The electronic document could not be signed: {{detail}}",
     "pt": "Não foi possível assinar o documento eletrônico: {{detail}}"
   },
+  "einvoicing.invoice_not_found": {
+    "es": "No se encontró la factura del documento electrónico.",
+    "en": "The electronic document's invoice was not found.",
+    "pt": "A fatura do documento eletrónico não foi encontrada."
+  },
   "einvoicing.issuing_organization_not_found": {
     "es": "No se encontró la organización emisora del documento.",
     "en": "The issuing organization was not found.",
@@ -558,6 +563,31 @@
     "es": "El código IBGE del estado debe tener dos dígitos.",
     "en": "The state IBGE code must be two digits.",
     "pt": "O código IBGE do estado deve ter dois dígitos."
+  },
+  "einvoicing.submission_already_decided": {
+    "es": "La autoridad ya dio su veredicto ({{status}}); no se puede reenviar.",
+    "en": "The authority has already given its verdict ({{status}}); it cannot be resent.",
+    "pt": "A autoridade já deu o seu veredicto ({{status}}); não pode ser reenviado."
+  },
+  "einvoicing.submission_not_found": {
+    "es": "No se encontró el envío del documento electrónico.",
+    "en": "The electronic document's submission was not found.",
+    "pt": "O envio do documento eletrónico não foi encontrado."
+  },
+  "einvoicing.transmission.basic_credential_format": {
+    "es": "Escribe la credencial como usuario:contraseña.",
+    "en": "Write the credential as user:password.",
+    "pt": "Escreva a credencial como utilizador:palavra-passe."
+  },
+  "einvoicing.transmission.credential_scheme_required": {
+    "es": "Indica si la credencial es un token o usuario y contraseña.",
+    "en": "Say whether the credential is a token or a user and password.",
+    "pt": "Indique se a credencial é um token ou utilizador e palavra-passe."
+  },
+  "einvoicing.transmission.endpoint_not_allowed": {
+    "es": "La dirección no está permitida ({{reason}}): debe ser HTTPS, en el puerto 443 u 8443, sin usuario en la URL y en una dirección pública.",
+    "en": "That address is not allowed ({{reason}}): it must be HTTPS, on port 443 or 8443, with no user in the URL, on a public address.",
+    "pt": "O endereço não é permitido ({{reason}}): deve ser HTTPS, na porta 443 ou 8443, sem utilizador no URL e num endereço público."
   },
   "einvoicing.unknown_message_type_kind_use_commercial": {
     "es": "Tipo de mensaje desconocido: {{kind}}. Usa COMMERCIAL_APPROVAL o SEQUENCE_VOID.",

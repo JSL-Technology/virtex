@@ -29,6 +29,8 @@ import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { EcfSubmissionService } from '../einvoicing/services/ecf-submission.service';
 import { InvoicePostingService } from './services/invoice-posting.service';
 import { PriceResolver, type ResolvedPrice } from '../price-lists/price-resolver.service';
+import { FiscalSubmissionService } from '../einvoicing/services/fiscal-submission.service';
+import { TransmissionConfigService } from '../einvoicing/services/transmission-config.service';
 import { ComputedDocument, computeDocument, TaxableLineInput } from './sales-tax.engine';
 import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
@@ -247,7 +249,13 @@ export class InvoicesService {
     private readonly taxDetermination: TaxDeterminationService,
     /** The customer's price list, the default list for the currency, then the catalogue. */
     private readonly prices: PriceResolver,
+    /** The electronic regimes of every market but DO: outbox, transmission and verdict (FAC-EINV-01). */
+    private readonly fiscalSubmissions: FiscalSubmissionService,
+    private readonly transmission: TransmissionConfigService,
   ) {}
+
+  /** Invoices whose regime submission was registered in this process, to transmit after commit. */
+  private readonly regimeSubmissionsToSend = new Set<string>();
 
   // ── Creation ───────────────────────────────────────────────────────────────
 
@@ -539,8 +547,16 @@ export class InvoicesService {
     // consumed and the authority would never receive it. Checked before anything is written, so
     // the issue preview shows it as the blocking condition, with the way to fix it. In every market
     // whose regime signs with the company's certificate, not only the Dominican one.
+    const owesTransmission =
+      this.needsSignature(countryCode, assignment.documentType) && this.fiscalSubmissions.handles(countryCode);
     if (this.needsSignature(countryCode, assignment.documentType)) {
       await this.ecfSubmissionService.assertReadyToSign(organizationId, manager);
+    }
+    // An electronic document nobody can transmit must not be issued either: its number would be
+    // spent on a document the authority never receives (FAC-EINV-01). The channel is the
+    // tenant's own (FAC-EINV-04), configured in settings.
+    if (owesTransmission && !(await this.transmission.isConfigured(organizationId, countryCode as string, manager))) {
+      throw new BadRequestError('invoices.transmission_not_configured', { country: countryCode });
     }
 
     invoice.issuedAt = new Date();
@@ -557,6 +573,10 @@ export class InvoicesService {
     // The transmission it owes commits with it (see `EcfSubmissionService.registerPending`).
     if (saved.isElectronicFiscalDocument) {
       await this.ecfSubmissionService.registerPending(saved, manager);
+    } else if (owesTransmission) {
+      // The outbox row commits with the invoice: the obligation to transmit cannot be lost.
+      await this.fiscalSubmissions.registerPending(saved, countryCode as string, manager);
+      this.regimeSubmissionsToSend.add(saved.id);
     }
 
     this.logger.log(
@@ -1746,19 +1766,28 @@ export class InvoicesService {
     const certificateReady = offered.some(needsCertificate)
       ? await this.ecfSubmissionService.isReadyToSign(organizationId, manager)
       : true;
+    // Outside DO an electronic type also needs the tenant's transmission channel (FAC-EINV-01/04).
+    const needsTransmission = (option: { electronic: boolean }) =>
+      needsCertificate(option) && this.fiscalSubmissions.handles(countryCode);
+    const transmissionReady = offered.some(needsTransmission)
+      ? await this.transmission.isConfigured(organizationId, countryCode as string, manager)
+      : true;
 
     const options: IssuableTypeOption[] = offered.map((option) => {
       const available = live.has(option.code);
       const signable = !needsCertificate(option) || certificateReady;
+      const transmittable = !needsTransmission(option) || transmissionReady;
       return {
         ...option,
         available,
-        issuable: available && signable,
+        issuable: available && signable && transmittable,
         blockedBy: !available
           ? 'invoices.type_blocked.no_range'
           : !signable
             ? 'invoices.type_blocked.no_certificate'
-            : null,
+            : !transmittable
+              ? 'invoices.type_blocked.no_transmission'
+              : null,
       };
     });
 
@@ -1953,6 +1982,16 @@ export class InvoicesService {
    * anything left in contingency or error. A DGII outage must not fail a sale that is already made.
    */
   private triggerEcfSubmission(invoice: Invoice): void {
+    if (this.regimeSubmissionsToSend.delete(invoice.id)) {
+      // Same posture as the e-CF: after the commit, on its own tenant context; the reconciler
+      // picks up anything this attempt does not finish.
+      runAsTenantJob(this.dataSource, invoice.organizationId, () =>
+        this.fiscalSubmissions.process(invoice.id, invoice.organizationId),
+      ).catch((error) =>
+        this.logger.error(`Fiscal transmission for ${invoice.invoiceNumber} failed: ${(error as Error).message}`),
+      );
+      return;
+    }
     if (!invoice.isElectronicFiscalDocument) return;
     // On its own connection and tenant context. The request's connection is released as soon as
     // the response is sent, and running on it failed every transmission with "Query runner already

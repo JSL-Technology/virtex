@@ -17,7 +17,9 @@ import {
   FiscalRegimeSettings,
   FiscalSettingsService,
   MarketCoverage,
-} from '../../../../core/api/fiscal-settings.service';
+  TransmissionSettings,
+  TransmissionSettingsInput,
+} from '../../data/fiscal-settings.service';
 import { FiscalEmissionMode, InvoicesService, InvoicingContext } from '../../../../core/services/invoices';
 import { EmissionModeCardComponent, SigningCertificateCardComponent } from '../../fiscal/shared';
 import { NotificationService } from '../../../../core/services/notification';
@@ -158,6 +160,21 @@ export class EinvoicingRegimePage implements OnInit {
     originCity: [''],
   });
 
+  /**
+   * The tenant's own channel to its authority or PAC (FAC-EINV-04). The credential field is
+   * write-only: it starts empty, a blank leaves the stored one in place, and the server never
+   * sends it back — only whether one is stored.
+   */
+  readonly transmission = signal<TransmissionSettings | null>(null);
+  readonly savingTransmission = signal(false);
+  readonly transmissionForm = this.fb.group({
+    transmissionEndpoint: ['', [Validators.pattern(/^https:\/\/\S+$/), Validators.maxLength(512)]],
+    statusEndpoint: ['', [Validators.pattern(/^https:\/\/\S+$/), Validators.maxLength(512)]],
+    soapAction: ['', Validators.maxLength(256)],
+    credentialScheme: ['BEARER' as 'BEARER' | 'BASIC'],
+    credential: ['', Validators.maxLength(4096)],
+  });
+
   readonly rangeForm = this.fb.group({
     documentType: ['', Validators.required],
     series: [''],
@@ -186,6 +203,7 @@ export class EinvoicingRegimePage implements OnInit {
       });
 
     this.loadSettings();
+    this.loadTransmission();
     this.loadRanges();
     this.loadInvoicingState();
   }
@@ -209,6 +227,58 @@ export class EinvoicingRegimePage implements OnInit {
 
   needs(field: string): boolean {
     return this.fields().includes(field);
+  }
+
+  private loadTransmission(): void {
+    this.api
+      .transmissionSettings()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (settings) => {
+          this.transmission.set(settings);
+          this.transmissionForm.patchValue({
+            transmissionEndpoint: settings.transmissionEndpoint ?? '',
+            statusEndpoint: settings.statusEndpoint ?? '',
+            soapAction: settings.soapAction ?? '',
+            credentialScheme: settings.credentialScheme ?? 'BEARER',
+            credential: '',
+          });
+        },
+        error: () => this.transmission.set(null),
+      });
+  }
+
+  saveTransmission(removeCredential = false): void {
+    if (this.transmissionForm.invalid) {
+      this.transmissionForm.markAllAsTouched();
+      return;
+    }
+    const raw = this.transmissionForm.getRawValue();
+    const input: TransmissionSettingsInput = {
+      transmissionEndpoint: raw.transmissionEndpoint?.trim() || null,
+      statusEndpoint: raw.statusEndpoint?.trim() || null,
+      soapAction: raw.soapAction?.trim() || null,
+      credentialScheme: raw.credentialScheme,
+      // A blank leaves the stored credential as it is.
+      ...(removeCredential ? { credential: null } : raw.credential ? { credential: raw.credential } : {}),
+    };
+    this.savingTransmission.set(true);
+    this.api
+      .saveTransmissionSettings(input)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (settings) => {
+          this.savingTransmission.set(false);
+          this.transmission.set(settings);
+          this.transmissionForm.patchValue({ credential: '' });
+          this.notifications.showSuccess('settings.pages.einvoicing.transmission.saved');
+          this.loadInvoicingState();
+        },
+        error: (error) => {
+          this.savingTransmission.set(false);
+          this.notifications.showHttpError(error, 'settings.pages.einvoicing.save_failed');
+        },
+      });
   }
 
   private loadSettings(): void {

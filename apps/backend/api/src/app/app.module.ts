@@ -52,6 +52,7 @@ import { InvoicesModule } from './invoices/invoices.module';
 import { SalesModule } from './sales/sales.module';
 import { ReportsModule } from './reports/reports.module';
 import { EinvoicingModule } from './einvoicing/einvoicing.module';
+import { EinvoicingAdminModule } from './einvoicing/einvoicing-admin.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { CustomersModule } from './customers/customers.module';
 import { CollectionsModule } from './collections/collections.module';
@@ -326,6 +327,7 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
     RolesModule,
     InvoicesModule,
     EinvoicingModule,
+    EinvoicingAdminModule,
     // `SalesModule` and `ReportsModule` were never imported by AppModule or by any other module, so
     // their controllers were never registered: quote-to-invoice conversion and the accounts-
     // receivable aging report did not exist in the deployed application at all.

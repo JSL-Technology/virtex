@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { CreditNoteRequest, Invoice, InvoiceLineItem, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
-import { EinvoicingService, EcfSubmissionView } from '../../../core/services/einvoicing';
+import { EinvoicingService, EcfSubmissionView, RegimeSubmissionView } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
 import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
@@ -239,6 +239,9 @@ export class InvoiceDetailPage implements OnInit {
 
   invoice = signal<Invoice | undefined>(undefined);
   ecf = signal<EcfSubmissionView | null>(null);
+  /** The same, for every regime but the Dominican one (FAC-EINV-01). */
+  regimeSubmission = signal<RegimeSubmissionView | null>(null);
+  regimeBusy = signal(false);
   ecfBusy = signal(false);
   navigationIds = signal<{ first: string; prev: string | null; next: string | null; last: string } | null>(null);
   activeTab = signal<'content' | 'logistics' | 'finance'>('content');
@@ -330,6 +333,8 @@ export class InvoiceDetailPage implements OnInit {
             // Electronic e-NCF (E-series) documents carry a DGII e-CF lifecycle.
             if (data.fiscalNumber?.startsWith('E')) {
                 this.loadEcfStatus();
+            } else {
+                this.loadRegimeSubmission();
             }
         },
         error: (err) => {
@@ -337,6 +342,46 @@ export class InvoiceDetailPage implements OnInit {
             console.error(err);
         }
     });
+  }
+
+  loadRegimeSubmission(): void {
+    this.regimeSubmission.set(null);
+    this.einvoicingService.getRegimeSubmission(this.id()).subscribe({
+        next: (submission) => this.regimeSubmission.set(submission),
+        error: () => this.regimeSubmission.set(null),
+    });
+  }
+
+  retryRegimeSubmission(): void {
+    const submission = this.regimeSubmission();
+    if (!submission) return;
+    this.regimeBusy.set(true);
+    this.einvoicingService.retryRegimeSubmission(submission.id).subscribe({
+        next: (updated) => {
+            this.regimeSubmission.set(updated);
+            this.regimeBusy.set(false);
+        },
+        error: (err) => {
+            this.regimeBusy.set(false);
+            this.notificationService.showHttpError(err, 'invoices.detail.regime.retry_failed');
+        },
+    });
+  }
+
+  regimeStatusTone(status: RegimeSubmissionView['status']): VxTone {
+    switch (status) {
+      case 'ACCEPTED':
+        return 'ok';
+      case 'REJECTED':
+      case 'ERROR':
+        return 'danger';
+      case 'NOT_CONFIGURED':
+        return 'warning';
+      case 'SENT':
+        return 'info';
+      default:
+        return 'draft';
+    }
   }
 
   loadEcfStatus(): void {

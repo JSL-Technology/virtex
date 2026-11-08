@@ -102,6 +102,55 @@
       </form>
     </section>
 
+    <section class="card e-transmission" aria-labelledby="e-transmission-title">
+      <h2 id="e-transmission-title">{{ 'settings.pages.einvoicing.transmission.title' | translate }}</h2>
+      <p class="field-hint">{{ 'settings.pages.einvoicing.transmission.intro' | translate }}</p>
+      @if (transmission(); as current) {
+        <p class="e-transmission-state" [class.is-ready]="current.configured" role="status">
+          {{ (current.configured ? 'settings.pages.einvoicing.transmission.configured' : 'settings.pages.einvoicing.transmission.not_configured') | translate }}
+        </p>
+      }
+      <form [formGroup]="transmissionForm" (ngSubmit)="saveTransmission()">
+        <div class="e-grid">
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.transmission.endpoint' | translate }}</span>
+            <input formControlName="transmissionEndpoint" type="url" inputmode="url" maxlength="512" placeholder="https://" />
+            <small class="field-hint">{{ 'settings.pages.einvoicing.transmission.endpoint_hint' | translate }}</small>
+          </label>
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.transmission.status_endpoint' | translate }}</span>
+            <input formControlName="statusEndpoint" type="url" inputmode="url" maxlength="512" placeholder="https://" />
+          </label>
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.transmission.soap_action' | translate }}</span>
+            <input formControlName="soapAction" maxlength="256" />
+          </label>
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.transmission.scheme' | translate }}</span>
+            <select formControlName="credentialScheme">
+              <option value="BEARER">{{ 'settings.pages.einvoicing.transmission.scheme_bearer' | translate }}</option>
+              <option value="BASIC">{{ 'settings.pages.einvoicing.transmission.scheme_basic' | translate }}</option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span>{{ 'settings.pages.einvoicing.transmission.credential' | translate }}</span>
+            <input formControlName="credential" type="password" autocomplete="new-password" maxlength="4096" />
+            <small class="field-hint">
+              {{ (transmission()?.hasCredential ? 'settings.pages.einvoicing.transmission.credential_stored' : 'settings.pages.einvoicing.transmission.credential_hint') | translate }}
+            </small>
+          </label>
+        </div>
+        <button class="primary-button" type="submit" [disabled]="savingTransmission()">
+          {{ 'settings.pages.einvoicing.transmission.save' | translate }}
+        </button>
+        @if (transmission()?.hasCredential) {
+          <button class="secondary-button" type="button" [disabled]="savingTransmission()" (click)="saveTransmission(true)">
+            {{ 'settings.pages.einvoicing.transmission.remove_credential' | translate }}
+          </button>
+        }
+      </form>
+    </section>
+
     <section class="card e-ranges">
       <h2>{{ 'settings.pages.einvoicing.ranges_title' | translate }}</h2>
       <p class="e-note">{{ 'settings.pages.einvoicing.ranges_note' | translate }}</p>

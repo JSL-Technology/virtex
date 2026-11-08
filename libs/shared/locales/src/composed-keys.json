@@ -667,6 +667,22 @@
       "TRANSFER_OUT",
       "TRANSFER_IN"
     ],
+    "invoices.detail.regime.hint": [
+      "PENDING",
+      "NOT_CONFIGURED",
+      "SENT",
+      "ACCEPTED",
+      "REJECTED",
+      "ERROR"
+    ],
+    "invoices.detail.regime.status": [
+      "PENDING",
+      "NOT_CONFIGURED",
+      "SENT",
+      "ACCEPTED",
+      "REJECTED",
+      "ERROR"
+    ],
     "invoices.email.tone": [
       "cordial",
       "formal",

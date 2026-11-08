@@ -28,6 +28,10 @@ describe('EinvoicingRegimePage', () => {
 
   const localization = `${environment.apiUrl}/localization`;
   const regime = `${environment.apiUrl}/einvoicing/regime`;
+  let transmission: Record<string, unknown> = {
+    countryCode: 'CL', transmissionEndpoint: null, statusEndpoint: null, soapAction: null,
+    credentialScheme: null, hasCredential: false, credentialUpdatedAt: null, configured: false,
+  };
 
   const coverageFor = (countryCode: string): MarketCoverage => ({
     countryCode,
@@ -71,6 +75,7 @@ describe('EinvoicingRegimePage', () => {
   ) => {
     httpMock.expectOne((r) => r.url === `${localization}/fiscal-coverage`).flush(coverageFor(countryCode));
     httpMock.expectOne((r) => r.url === `${regime}/settings` && r.method === 'GET').flush(settings);
+    httpMock.expectOne((r) => r.url === `${regime}/transmission` && r.method === 'GET').flush(transmission);
     httpMock.expectOne((r) => r.url === `${regime}/ranges` && r.method === 'GET').flush(ranges);
     httpMock.expectOne((r) => r.url === `${localization}/fiscal-document-types`).flush(documentTypes);
     // A market with one kind of document and no certificate on this screen's tests: the shared
@@ -215,5 +220,40 @@ describe('EinvoicingRegimePage', () => {
     } as FiscalRegimeSettings);
 
     expect(component.settingsForm.controls.originComuna.value).toBe('');
+  });
+
+  describe('transmission (FAC-EINV-04)', () => {
+    it('never shows the stored credential, only that one is stored', () => {
+      transmission = { ...transmission, transmissionEndpoint: 'https://pac.example.com/stamp', credentialScheme: 'BEARER', hasCredential: true, configured: true };
+      try {
+        flush('MX');
+        expect(component.transmissionForm.getRawValue().credential).toBe('');
+        expect(fixture.nativeElement.textContent).toContain('settings.pages.einvoicing.transmission.credential_stored');
+      } finally {
+        transmission = { ...transmission, hasCredential: false, configured: false, transmissionEndpoint: null };
+      }
+    });
+
+    it('a blank credential keeps the stored one; a typed one replaces it', () => {
+      flush('MX');
+      component.transmissionForm.patchValue({ transmissionEndpoint: 'https://pac.example.com/stamp', credential: '' });
+      component.saveTransmission();
+      const kept = httpMock.expectOne((r) => r.url === `${regime}/transmission` && r.method === 'PUT');
+      expect('credential' in kept.request.body).toBe(false);
+      kept.flush({ ...transmission, configured: true });
+      httpMock.match(() => true);
+
+      component.transmissionForm.patchValue({ credential: 'nuevo-token' });
+      component.saveTransmission();
+      const replaced = httpMock.expectOne((r) => r.url === `${regime}/transmission` && r.method === 'PUT');
+      expect(replaced.request.body.credential).toBe('nuevo-token');
+    });
+
+    it('refuses an endpoint that is not HTTPS before asking the server', () => {
+      flush('MX');
+      component.transmissionForm.patchValue({ transmissionEndpoint: 'http://pac.example.com/stamp' });
+      component.saveTransmission();
+      httpMock.expectNone((r) => r.url === `${regime}/transmission` && r.method === 'PUT');
+    });
   });
 });

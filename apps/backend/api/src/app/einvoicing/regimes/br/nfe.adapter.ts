@@ -1,3 +1,4 @@
+import { escapeXmlText } from '../xml-text';
 import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
@@ -122,10 +123,10 @@ export class NfeRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const result = await this.transport.send('BR', document.payload, {
-      contentType: 'application/soap+xml',
+      organizationId: context.organizationId, purpose: 'submit', contentType: 'application/soap+xml',
       // `nProt` is the protocol number, which is the authorisation; `nRec` is the receipt of an
       // asynchronous batch, which still has to be looked up.
       trackingKeys: ['nProt', 'nRec'],
@@ -140,10 +141,10 @@ export class NfeRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
 
   async checkStatus(
     trackingId: string,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
-    return this.transport.send('BR', `<consSitNFe><chNFe>${trackingId}</chNFe></consSitNFe>`, {
-      contentType: 'application/soap+xml',
+    return this.transport.send('BR', `<consSitNFe><chNFe>${escapeXmlText(trackingId)}</chNFe></consSitNFe>`, {
+      organizationId: context.organizationId, purpose: 'status', contentType: 'application/soap+xml',
       trackingKeys: ['nProt'],
     });
   }

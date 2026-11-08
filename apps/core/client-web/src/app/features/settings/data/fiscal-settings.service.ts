@@ -23,6 +23,27 @@ export interface TaxJurisdiction {
 
 export type TaxJurisdictionInput = Omit<TaxJurisdiction, 'id'>;
 
+/** What the server shows of the transmission channel: never the credential. */
+export interface TransmissionSettings {
+  countryCode: string;
+  transmissionEndpoint: string | null;
+  statusEndpoint: string | null;
+  soapAction: string | null;
+  credentialScheme: 'BEARER' | 'BASIC' | null;
+  hasCredential: boolean;
+  credentialUpdatedAt: string | null;
+  configured: boolean;
+}
+
+export interface TransmissionSettingsInput {
+  transmissionEndpoint?: string | null;
+  statusEndpoint?: string | null;
+  soapAction?: string | null;
+  credentialScheme?: 'BEARER' | 'BASIC' | null;
+  /** Write-only: sent when replaced, `null` to remove. */
+  credential?: string | null;
+}
+
 /** A withholding regime the tenant maintains for itself. */
 export interface WithholdingRegime {
   id: string;
@@ -183,6 +204,16 @@ export class FiscalSettingsService {
   // Chilean tenant cannot issue without a CAF, an Ecuadorean one without an emission point, a
   // Brazilian one without their IBGE codes. Until this existed the only way to supply any of it
   // was an INSERT, and the product refused to issue — correctly, with no way out.
+
+  /** The tenant's channel to its authority or PAC, without the credential (FAC-EINV-04). */
+  transmissionSettings(): Observable<TransmissionSettings> {
+    return this.http.get<TransmissionSettings>(`${this.einvoicing}/transmission`);
+  }
+
+  /** Requires re-authentication (`manage_fiscal_credentials`); the interceptor asks for it. */
+  saveTransmissionSettings(input: TransmissionSettingsInput): Observable<TransmissionSettings> {
+    return this.http.put<TransmissionSettings>(`${this.einvoicing}/transmission`, input);
+  }
 
   regimeSettings(): Observable<FiscalRegimeSettings | null> {
     return this.http.get<FiscalRegimeSettings | null>(`${this.einvoicing}/settings`);

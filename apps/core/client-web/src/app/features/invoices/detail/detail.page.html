@@ -307,6 +307,51 @@
     </div>
   }
 
+  <!-- Electronic invoicing outside DO: where the document stands with the authority (FAC-EINV-01) -->
+  @if (regimeSubmission(); as r) {
+    <div class="invoice-document card">
+      <div class="card-body">
+        <h3>{{ 'invoices.detail.regime.title' | translate: { regime: r.regime } }}</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">{{ 'invoices.detail.authority_status' | translate: { authority: fiscalAuthority() } }}</span>
+            <vx-badge [tone]="regimeStatusTone(r.status)">{{ 'invoices.detail.regime.status.' + r.status | translate }}</vx-badge>
+            <p class="detail-hint">{{ 'invoices.detail.regime.hint.' + r.status | translate }}</p>
+          </div>
+          @if (r.trackingId) {
+            <div class="detail-item">
+              <span class="detail-label">{{ 'invoices.detail.regime.tracking' | translate }}</span>
+              <p>{{ r.trackingId }}</p>
+            </div>
+          }
+          @if (r.documentKey) {
+            <div class="detail-item">
+              <span class="detail-label">{{ 'invoices.detail.regime.document_key' | translate }}</span>
+              <p>{{ r.documentKey }}</p>
+            </div>
+          }
+        </div>
+        @if (r.messages.length) {
+          <div class="ecf-messages">
+            <span class="detail-label">{{ 'invoices.detail.messages_from_authority' | translate: { authority: fiscalAuthority() } }}</span>
+            <ul>
+              @for (m of r.messages; track $index) {
+                <li>{{ m }}</li>
+              }
+            </ul>
+          </div>
+        }
+        @if (r.status !== 'ACCEPTED' && r.status !== 'REJECTED') {
+          <div class="ecf-actions">
+            <button type="button" [disabled]="regimeBusy()" (click)="retryRegimeSubmission()">
+              {{ (regimeBusy() ? 'invoices.detail.resending' : 'invoices.detail.regime.retry') | translate: { authority: fiscalAuthority() } }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
   <!-- Electronic invoicing: the authority's verdict on this document -->
   <div class="invoice-document card" *ngIf="ecf() as e">
     <div class="card-body">

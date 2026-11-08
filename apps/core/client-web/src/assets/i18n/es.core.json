@@ -1029,6 +1029,7 @@
   "validation.general_ledger_report.too_many_accounts_requested_single_report": "Se solicitaron demasiadas cuentas para un solo informe.",
   "validation.generate_report.output_format_not_supported": "El formato de salida no está soportado.",
   "validation.generate_report.report_type_not_supported": "El tipo de informe no está soportado.",
+  "validation.https_url_required": "Debe ser una dirección https://.",
   "validation.journal_entry_actions.reason_change_required": "Se requiere una razón para la modificación.",
   "validation.journal_entry_actions.reason_reversal_required": "Se requiere una razón para la reversión.",
   "validation.journal_entry_actions.reversal_date_must_valid_date": "La fecha de reversión debe ser una fecha válida.",

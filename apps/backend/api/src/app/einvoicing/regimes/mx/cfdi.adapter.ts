@@ -100,9 +100,9 @@ export class CfdiRegimeAdapter implements FiscalRegimeAdapter {
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
-    return this.pac.stamp(document.payload);
+    return this.pac.stamp(document.payload, context.organizationId);
   }
 
   /**

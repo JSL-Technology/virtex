@@ -156,3 +156,37 @@ export class RegisterFiscalRangeDto {
   @IsOptional()
   secretKind?: FiscalRangeSecretKind;
 }
+
+/**
+ * The tenant's channel to its authority or authorised agent (FAC-EINV-04). The credential is
+ * write-only: it is encrypted on arrival and no response ever contains it.
+ */
+export class UpsertTransmissionSettingsDto {
+  /** HTTPS, public address, ≤ 512 characters; checked again on every connection. `null` clears it. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(512)
+  @Matches(/^https:\/\//, { message: 'validation.https_url_required' })
+  transmissionEndpoint?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(512)
+  @Matches(/^https:\/\//, { message: 'validation.https_url_required' })
+  statusEndpoint?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(256)
+  soapAction?: string | null;
+
+  @IsOptional()
+  @IsEnum(['BEARER', 'BASIC'] as const)
+  credentialScheme?: 'BEARER' | 'BASIC' | null;
+
+  /** A token (BEARER) or `user:password` (BASIC). `null` removes it. */
+  @IsOptional()
+  @IsString()
+  @Length(1, 4096)
+  credential?: string | null;
+}
