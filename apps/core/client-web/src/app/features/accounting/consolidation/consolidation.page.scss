@@ -5,7 +5,7 @@
   margin-block: var(--space-4, 1rem);
 }
 .cons-tile {
-  border: 1px solid var(--color-border, #e2e8f0);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md, 0.5rem);
   padding: var(--space-3, 0.75rem);
   display: grid;
@@ -16,7 +16,7 @@
   font-size: 1.1rem;
 }
 .cons-state--bad {
-  color: var(--color-danger-text, #b42318);
+  color: var(--danger);
 }
 .cons-section {
   margin-block: var(--space-5, 1.25rem);

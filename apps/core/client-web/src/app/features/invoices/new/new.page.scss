@@ -858,10 +858,10 @@ select.form-control {
 .not-fiscal-banner {
   margin: 0;
   padding: 0.75rem 1rem;
-  border-radius: var(--radius-md, 8px);
-  border: 1px solid var(--color-warning-border, #f0b429);
-  background: var(--color-warning-bg, #fff8e6);
-  color: var(--color-warning-text, #6b4500);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--warning-border);
+  background: var(--warning-surface);
+  color: var(--warning-text);
   line-height: 1.45;
 
   strong {
