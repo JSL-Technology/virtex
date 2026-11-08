@@ -297,6 +297,12 @@ export class Customer {
    * date, or in another currency, the organization's default list for the currency applies, and
    * then the catalogue price (see `PriceResolver`).
    */
+  @Index('IDX_customers_price_list', { where: '"price_list_id" IS NOT NULL' })
   @Column({ name: 'price_list_id', type: 'uuid', nullable: true })
   priceListId?: string | null;
+
+  /** Declared so the schema and the entity agree on the constraint (SET NULL when a list is deleted). */
+  @ManyToOne('PriceList', { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'price_list_id', foreignKeyConstraintName: 'FK_customers_price_list' })
+  priceList?: unknown;
 }

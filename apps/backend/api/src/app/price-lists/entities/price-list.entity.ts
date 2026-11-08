@@ -9,6 +9,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { PriceListItem } from './price-list-item.entity';
 
@@ -19,6 +20,9 @@ export enum PriceListStatus {
 }
 
 @Entity({ name: 'price_lists' })
+@Index('IDX_price_lists_org_status', ['organizationId', 'status'])
+// At most one default list per currency (FAC-PL-01).
+@Index('UQ_price_lists_default_currency', ['organizationId', 'currency'], { unique: true, where: '"is_default"' })
 export class PriceList {
   @PrimaryGeneratedColumn('uuid')
   id: string;

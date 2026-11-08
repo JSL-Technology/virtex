@@ -6,11 +6,16 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Index,
+  Check,
 } from 'typeorm';
 import type { PriceList } from './price-list.entity';
 import { numericTransformerNotNull, numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 
 @Entity({ name: 'price_list_items' })
+@Index('UQ_price_list_items_product_break', ['priceListId', 'productId', 'minQuantity'], { unique: true })
+@Check('CHK_price_list_items_min_quantity', '"min_quantity" > 0')
+@Check('CHK_price_list_items_price', '"price" >= 0')
 export class PriceListItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
