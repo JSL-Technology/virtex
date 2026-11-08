@@ -1,7 +1,7 @@
 import { Check, Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { PurchaseOrderLine } from '../../procurement/entities/purchase-order-line.entity';
 import type { VendorBill } from './vendor-bill.entity';
-import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 /**
  * Whether a bill line buys goods or services. The 606 reports the two bases separately and every
@@ -59,6 +59,10 @@ export class VendorBillLine {
    */
   @Column({ name: 'nature', type: 'varchar', length: 8, nullable: true })
   nature?: VendorBillLineNature | null;
+
+  /** The line's consumption-tax rate as a fraction, when stated (CMP-02). */
+  @Column({ name: 'tax_rate', type: 'numeric', precision: 9, scale: 6, nullable: true, transformer: numericTransformer })
+  taxRate?: number | null;
 
   /**
    * The part of the difference between this bill's price and the order's, on goods already

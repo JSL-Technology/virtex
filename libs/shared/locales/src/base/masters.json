@@ -724,6 +724,11 @@
     "en": "Document number",
     "pt": "Número do documento"
   },
+  "masters.supplier_form.tax_id_already_registered": {
+    "es": "Ya tienes un proveedor con la identificación fiscal {{taxId}}: {{supplier}}. Usa ese proveedor en lugar de crear otro.",
+    "en": "You already have a supplier with tax ID {{taxId}}: {{supplier}}. Use that supplier instead of creating another.",
+    "pt": "Já tem um fornecedor com a identificação fiscal {{taxId}}: {{supplier}}. Use esse fornecedor em vez de criar outro."
+  },
   "masters.supplier_form.title_edit": {
     "es": "Editar proveedor",
     "en": "Edit supplier",

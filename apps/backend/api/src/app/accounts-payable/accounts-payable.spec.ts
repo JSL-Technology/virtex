@@ -593,6 +593,44 @@ describeWithDb('accounts payable', () => {
         organizationId,
       );
 
+    describe('the consumption tax is computed, not taken from the request (CMP-02)', () => {
+      const taxed = (extra: Partial<CreateVendorBillDto>, rate?: number) =>
+        payables.create(
+          {
+            vendorId: individualVendorId,
+            date: '2026-02-01',
+            dueDate: '2026-03-03',
+            lines: [{ product: 'QA-servicio', quantity: 1, unitPrice: 1_000, expenseAccountId: account['expense'], ...(rate === undefined ? {} : { taxRate: rate }) }],
+            servicesAmount: 1_000,
+            ...extra,
+          } as CreateVendorBillDto,
+          organizationId,
+        );
+
+      it('computes the tax from the line rate when none is stated', async () => {
+        const bill = await taxed({}, 0.18);
+        expect(bill.taxAmount).toBe(180);
+        const [line] = await dataSource.query(`SELECT tax_rate FROM vendor_bill_line WHERE "vendorBillId" = $1`, [bill.id]);
+        expect(Number(line.tax_rate)).toBe(0.18);
+      });
+
+      it('refuses 900 of ITBIS on 1,000 — the audit case — without a reason', async () => {
+        await expect(taxed({ taxAmount: 900 })).rejects.toMatchObject({ messageKey: 'accounts_payable.tax_amount_exceeds_highest_rate' });
+        await expect(taxed({ taxAmount: 900 }, 0.18)).rejects.toMatchObject({ messageKey: 'accounts_payable.tax_amount_differs_from_lines' });
+      });
+
+      it('refuses a line rate that is not in force on the bill date', async () => {
+        await expect(taxed({}, 0.17)).rejects.toMatchObject({ messageKey: 'accounts_payable.line_tax_rate_not_in_force' });
+      });
+
+      it("keeps the supplier's figure within a cent of rounding, and a larger one only with a recorded reason", async () => {
+        expect((await taxed({ taxAmount: 180.01 }, 0.18)).taxAmount).toBe(180.01);
+        const justified = await taxed({ taxAmount: 200, taxOverrideReason: 'QA: el proveedor facturó ITBIS sobre un cargo no desglosado' }, 0.18);
+        expect(justified.taxAmount).toBe(200);
+        expect(justified.taxOverrideReason).toContain('QA:');
+      });
+    });
+
     it('books the tax and the withholdings, not just the expense', async () => {
       const bill = await billWithTax();
       await payables.submitForApproval(bill.id, organizationId, ACTOR);

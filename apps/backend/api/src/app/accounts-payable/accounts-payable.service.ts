@@ -46,6 +46,7 @@ import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.servi
 import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { toIsoDate } from '../common/dates';
+import { statutoryTaxRatesOn } from '../localization/contracts/statutory-tax-rates.contract';
 import { isValidDominicanTaxId } from '../localization/contracts/tax-id.contract';
 import { checkReceivedNcf } from '../localization/contracts/ncf.contract';
 import { VendorBillAttachment } from './entities/vendor-bill-attachment.entity';
@@ -250,7 +251,8 @@ export class AccountsPayableService {
       }));
       const subtotal = sumAmounts(lines.map((line) => line.total));
 
-      const taxAmount = dto.taxAmount ?? 0;
+      // The tax is computed on the server from the lines' rates (audit 2026-11-07, CMP-02).
+      const taxAmount = await this.resolvePurchaseTax(manager, organizationId, dto, lines, subtotal);
       const exciseAmount = dto.exciseAmount ?? 0;
       const otherTaxes = dto.otherTaxes ?? 0;
       const serviceCharge = dto.serviceCharge ?? 0;
@@ -367,6 +369,7 @@ export class AccountsPayableService {
         goodsAmount,
         servicesAmount,
         taxAmount,
+        taxOverrideReason: dto.taxOverrideReason?.trim() || null,
         taxWithheld,
         incomeTaxWithheld,
         withholdingRegimeCodes: resolved.regimeCodes,
@@ -479,6 +482,74 @@ export class AccountsPayableService {
     });
   }
 
+  /**
+   * The consumption tax on a purchase, computed — not taken from the request (audit 2026-11-07,
+   * CMP-02; pattern SP-04).
+   *
+   * A bill of 1,000 with `taxAmount: 900` was accepted and 900 of ITBIS went to the deductible
+   * credit and the 606. Now each line may state its rate, which must be a rate in force on the
+   * bill's date (the national table or the tenant's own catalogue); the tax is the sum of the lines.
+   * The figure the supplier printed may differ by rounding — a cent per line — and is kept, since
+   * it is the legal document. A larger difference needs a reason, recorded on the bill.
+   *
+   * With no rate on any line (a bill captured as totals), the stated tax cannot exceed the subtotal
+   * at the highest rate in force without a reason: that is the ceiling of any honest mix of rates.
+   */
+  private async resolvePurchaseTax(
+    manager: EntityManager,
+    organizationId: string,
+    dto: Pick<CreateVendorBillDto, 'taxAmount' | 'taxOverrideReason' | 'date'> & { lines: CreateVendorBillDto['lines'] },
+    lines: Array<{ total: number; taxRate?: number }>,
+    subtotal: number,
+  ): Promise<number> {
+    const date = toIsoDate(dto.date);
+    const [organization] = await manager.query('SELECT country FROM organizations WHERE id = $1', [organizationId]);
+    const statutory = await statutoryTaxRatesOn(manager, organization?.country ?? null, date);
+    const own: Array<{ rate: string }> = await manager.query(
+      `SELECT "rate" FROM "taxes"
+        WHERE "organization_id" = $1 AND "type" = 'Porcentaje'
+          AND ("effective_from" IS NULL OR "effective_from" <= $2::date)
+          AND ("effective_to" IS NULL OR "effective_to" >= $2::date)`,
+      [organizationId, date],
+    );
+    const allowed = [...new Set([...(statutory ?? []), ...own.map((row) => Number(row.rate) / 100)])];
+    const isAllowed = (rate: number) => allowed.length === 0 || allowed.some((a) => Math.abs(a - rate) < 1e-9);
+    const reason = dto.taxOverrideReason?.trim();
+    const tolerance = roundAmount(Math.max(1, lines.length) * 0.01);
+
+    const rated = lines.filter((line) => line.taxRate !== undefined && line.taxRate !== null);
+    if (rated.length > 0) {
+      for (const line of rated) {
+        if (!isAllowed(line.taxRate as number)) {
+          throw new BadRequestError('accounts_payable.line_tax_rate_not_in_force', {
+            rate: `${roundAmount((line.taxRate as number) * 100)}%`,
+            date,
+            allowed: allowed.map((a) => `${roundAmount(a * 100)}%`).join(', '),
+          });
+        }
+      }
+      const computed = sumAmounts(rated.map((line) => roundAmount(line.total * (line.taxRate as number))));
+      if (dto.taxAmount === undefined) return computed;
+      if (Math.abs(dto.taxAmount - computed) <= tolerance || reason) return dto.taxAmount;
+      throw new BadRequestError('accounts_payable.tax_amount_differs_from_lines', {
+        stated: dto.taxAmount,
+        computed,
+      });
+    }
+
+    const stated = dto.taxAmount ?? 0;
+    if (stated === 0 || allowed.length === 0 || reason) return stated;
+    const ceiling = roundAmount(subtotal * Math.max(...allowed));
+    if (stated > ceiling + tolerance) {
+      throw new BadRequestError('accounts_payable.tax_amount_exceeds_highest_rate', {
+        stated,
+        ceiling,
+        rate: `${roundAmount(Math.max(...allowed) * 100)}%`,
+      });
+    }
+    return stated;
+  }
+
   private async assertFiscalIdentity(
     manager: EntityManager,
     organizationId: string,
@@ -514,25 +585,32 @@ export class AccountsPayableService {
       normalized = ncf.trim().toUpperCase().replace(/[\s-]/g, '');
     }
 
-    if (supplier?.id) {
+    // One live bill per (issuer TAX ID, document number) — not per supplier record (audit
+    // 2026-11-07, CMP-03): two supplier records with the same RNC used to let the same NCF in twice,
+    // and the 606 reported one purchase twice. `UQ_vendor_bills_issuer_ncf` enforces the same rule
+    // in the database; this check is what turns it into a readable 409 before the insert.
+    const issuerKey = (supplier?.taxId ?? '').replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+    const ncfKey = normalized.replace(/[^0-9A-Za-z]/g, '');
+    if (supplier?.id || issuerKey) {
       // Two people saving the same bill at once must not both pass the check: the second waits for
       // the first's transaction, then sees its row.
       await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
-        `vendor-bill-ncf:${organizationId}:${supplier.id}:${normalized}`,
+        `vendor-bill-ncf:${organizationId}:${issuerKey || supplier?.id}:${ncfKey}`,
       ]);
       const [duplicate] = await manager.query(
-        `SELECT "id" FROM "vendor_bills"
-          WHERE "organization_id" = $1 AND "vendor_id" = $2
-            AND upper(regexp_replace(coalesce("ncf", ''), '[\\s-]', '', 'g')) = $3
-            AND "status" NOT IN ('VOID', 'REJECTED')
-            AND ($4::uuid IS NULL OR "id" <> $4::uuid)
+        `SELECT b."id" FROM "vendor_bills" b
+          WHERE b."organization_id" = $1
+            AND (CASE WHEN $2::text <> '' THEN b."issuer_tax_key" = $2 ELSE b."vendor_id" = $3::uuid END)
+            AND b."ncf_key" = $4
+            AND b."status" NOT IN ('VOID', 'REJECTED')
+            AND ($5::uuid IS NULL OR b."id" <> $5::uuid)
           LIMIT 1`,
-        [organizationId, supplier.id, normalized, billId],
+        [organizationId, issuerKey, supplier?.id ?? null, ncfKey, billId],
       );
       if (duplicate) {
         throw new ConflictError(
           dominican ? 'accounts_payable.ncf_already_recorded' : 'accounts_payable.supplier_document_already_recorded',
-          { ncf: normalized, supplier: supplier.name ?? '' },
+          { ncf: normalized, supplier: supplier?.name ?? '' },
         );
       }
     }

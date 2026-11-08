@@ -65,6 +65,13 @@ export enum VendorBillStatus {
   unique: true,
   where: `"supplier_invoice_key" IS NOT NULL AND "status" NOT IN ('VOID', 'REJECTED')`,
 })
+// One live bill per (issuer tax id, fiscal document number) — not per supplier record, which could
+// be duplicated (audit 2026-11-07, CMP-03/CMP-04). Both keys are kept by a database trigger, so an
+// import or direct SQL cannot skip the rule the service checks.
+@Index('UQ_vendor_bills_issuer_ncf', ['organizationId', 'issuerTaxKey', 'ncfKey'], {
+  unique: true,
+  where: `"issuer_tax_key" IS NOT NULL AND "ncf_key" IS NOT NULL AND "status" NOT IN ('VOID', 'REJECTED')`,
+})
 @Entity({ name: 'vendor_bills' })
 export class VendorBill {
   @PrimaryGeneratedColumn('uuid')
@@ -103,6 +110,13 @@ export class VendorBill {
 
   @Column({ nullable: true })
   ncf?: string;
+
+  /** `ncf` normalized, and the issuer's tax id when recorded; written by the database trigger. */
+  @Column({ name: 'ncf_key', type: 'varchar', length: 40, nullable: true, insert: false, update: false, select: false })
+  ncfKey?: string | null;
+
+  @Column({ name: 'issuer_tax_key', type: 'varchar', length: 40, nullable: true, insert: false, update: false, select: false })
+  issuerTaxKey?: string | null;
 
   /**
    * The number the supplier printed on their invoice (AP-03).
@@ -230,6 +244,10 @@ export class VendorBill {
    */
   @Column({ name: 'withholding_override_reason', type: 'text', nullable: true })
   withholdingOverrideReason: string | null;
+
+  /** Why the tax differs from what the lines' rates produce, when it does (CMP-02). */
+  @Column({ name: 'tax_override_reason', type: 'text', nullable: true })
+  taxOverrideReason: string | null;
 
   /** Consumption tax that cannot be deducted and is carried to cost. */
   @Column('decimal', {

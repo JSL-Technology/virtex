@@ -5,12 +5,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
+// One supplier per tax id in an organization (audit 2026-11-07, CMP-03). `tax_id_key` is kept by a
+// trigger from `taxId` (letters and digits, upper case), so a dash or a space cannot make two.
+@Index('UQ_suppliers_org_tax_id_key', ['organizationId', 'taxIdKey'], { unique: true, where: '"tax_id_key" IS NOT NULL' })
 @Entity({ name: 'suppliers' })
 // Both halves of the document reference travel together: a code with no country cannot be
 // resolved — a "cédula" is eleven Luhn-checked digits in Santo Domingo and six to ten
@@ -122,4 +126,8 @@ export class Supplier {
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organization_id' })
   organization: Organization;
+
+  /** `taxId` normalized; written by the database trigger, never by the application. */
+  @Column({ name: 'tax_id_key', type: 'varchar', length: 40, nullable: true, insert: false, update: false, select: false })
+  taxIdKey?: string | null;
 }

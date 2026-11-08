@@ -1043,6 +1043,11 @@
     "en": "Line \"{{product}}\" is not an inventory item and requires an expense account.",
     "pt": "A linha \"{{product}}\" não é de estoque e exige uma conta de despesa."
   },
+  "accounts_payable.line_tax_rate_not_in_force": {
+    "es": "La tasa {{rate}} no está vigente el {{date}}. Tasas vigentes: {{allowed}}.",
+    "en": "The rate {{rate}} is not in force on {{date}}. Rates in force: {{allowed}}.",
+    "pt": "A taxa {{rate}} não está em vigor em {{date}}. Taxas em vigor: {{allowed}}."
+  },
   "accounts_payable.lines_existing_invoice_must_changed_through": {
     "es": "La modificación de las líneas de una factura existente debe hacerse a través de notas de crédito/débito.",
     "en": "The lines of an existing invoice must be changed through credit or debit notes.",
@@ -1725,6 +1730,16 @@
     "es": "La factura {{number}} de {{supplier}} ya está registrada.",
     "en": "Invoice {{number}} from {{supplier}} is already recorded.",
     "pt": "A fatura {{number}} de {{supplier}} já está registrada."
+  },
+  "accounts_payable.tax_amount_differs_from_lines": {
+    "es": "El impuesto indicado ({{stated}}) no coincide con el que dan las tasas de las líneas ({{computed}}). Corrige las tasas o indica el motivo de la diferencia.",
+    "en": "The stated tax ({{stated}}) does not match what the line rates produce ({{computed}}). Correct the rates or state why they differ.",
+    "pt": "O imposto indicado ({{stated}}) não coincide com o das taxas das linhas ({{computed}}). Corrija as taxas ou indique o motivo da diferença."
+  },
+  "accounts_payable.tax_amount_exceeds_highest_rate": {
+    "es": "El impuesto indicado ({{stated}}) supera el máximo posible a la tasa más alta vigente ({{rate}}: {{ceiling}}). Indica la tasa de cada línea o el motivo.",
+    "en": "The stated tax ({{stated}}) exceeds the most it could be at the highest rate in force ({{rate}}: {{ceiling}}). State each line’s rate or the reason.",
+    "pt": "O imposto indicado ({{stated}}) excede o máximo possível à taxa mais alta em vigor ({{rate}}: {{ceiling}}). Indique a taxa de cada linha ou o motivo."
   },
   "accounts_payable.vendor_bill_id_not_found": {
     "es": "La factura de proveedor con ID \"{{id}}\" no fue encontrada.",

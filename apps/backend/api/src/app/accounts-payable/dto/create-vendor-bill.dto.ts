@@ -14,6 +14,7 @@ import {
   IsUUID,
   Length,
   MaxLength,
+  Max,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -59,6 +60,16 @@ class CreateVendorBillLineDto {
   @IsIn(Object.values(VendorBillLineNature))
   @IsOptional()
   nature?: VendorBillLineNature;
+
+  /**
+   * The consumption-tax rate of the line, as a fraction (0.18). It must be a rate in force on the
+   * bill's date; the bill's tax is computed from it (audit 2026-11-07, CMP-02).
+   */
+  @IsNumber({ maxDecimalPlaces: 6 })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @Max(1, { message: 'validation.constraints.max|{"max":1}' })
+  @IsOptional()
+  taxRate?: number;
 }
 
 export class CreateVendorBillDto {
@@ -171,6 +182,15 @@ export class CreateVendorBillDto {
   @IsOptional()
   @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
   withholdingOverrideReason?: string;
+
+  /**
+   * Why the bill's tax differs from what its lines' rates produce (beyond rounding) — a supplier
+   * error being claimed, an exempt item the line does not show. Recorded on the bill (CMP-02).
+   */
+  @IsString()
+  @IsOptional()
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
+  taxOverrideReason?: string;
 
   /** Consumption tax that cannot be deducted and is carried to cost. */
   @IsNumber({ maxDecimalPlaces: 2 })
