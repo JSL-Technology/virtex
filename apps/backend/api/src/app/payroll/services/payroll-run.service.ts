@@ -16,7 +16,7 @@ import {
   EmployeeCompensation,
   PayFrequency,
 } from '../../hcm/entities/employee-compensation.entity';
-import { PayrollRun, PayrollRunStatus, PayrollRunType } from '../entities/payroll-run.entity';
+import { PayrollRun, PayrollRunStatus, PayrollRunType, PayrollRunWarning } from '../entities/payroll-run.entity';
 import { Payslip } from '../entities/payslip.entity';
 import { PayslipLine } from '../entities/payslip-line.entity';
 import { PayrollConcept } from '../entities/payroll-concept.entity';
@@ -80,6 +80,9 @@ export type OwnPayslip = Omit<Payslip, 'run'> & {
     currencyCode: string;
   };
 };
+
+/** A variable input above this multiple of the monthly salary is flagged for the approver. */
+const UNUSUAL_INPUT_MULTIPLE = 1;
 
 @Injectable()
 export class PayrollRunService {
@@ -300,6 +303,15 @@ export class PayrollRunService {
         : new Map<string, ComputedPayslip>();
 
     const calculated = await this.dataSource.transaction(async (em) => {
+      // The run is locked and its state read again inside the transaction (audit 2026-11-07,
+      // NOM-04): a calculation racing an approval rewrote the payslips of a run already approved,
+      // and the ledger was posted from the previous ones. Whichever arrives second now waits, then
+      // sees the other's outcome.
+      await this.lockRun(em, runId, organizationId);
+      const current = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
+      if (!current) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
+      this.assertEditable(current);
+
       // Clear a previous calculation so a recompute is a replacement, not an accumulation.
       const priorSlips = await em.find(Payslip, { where: { organizationId, runId }, select: ['id'] });
       if (priorSlips.length > 0) {
@@ -316,6 +328,7 @@ export class PayrollRunService {
       });
 
       const computed: ComputedPayslip[] = [];
+      const warnings: PayrollRunWarning[] = [];
       for (const employee of employees) {
         // Terminated inside the period is still handled (prorated); terminated before it is skipped.
         if (employee.terminationDate && employee.terminationDate < run.periodStart) continue;
@@ -359,9 +372,11 @@ export class PayrollRunService {
 
         computed.push(slip);
         await this.persistPayslip(em, run, slip);
+        warnings.push(...this.unusualInputs(slip, calcInput.monthlyBaseSalary, inputsByEmployee.get(employee.id) ?? []));
       }
 
       run.parameterSnapshot = params;
+      run.calculationWarnings = warnings;
       run.totalGross = sumAmounts(computed.map((c) => c.grossEarnings));
       run.totalEmployeeDeductions = sumAmounts(computed.map((c) => c.totalEmployeeDeductions));
       run.totalEmployerContributions = sumAmounts(computed.map((c) => c.totalEmployerContributions));
@@ -384,8 +399,14 @@ export class PayrollRunService {
    * The approver may not be the calculator. Posting is idempotent, so a retry after a partial
    * failure does not double the ledger.
    */
-  async approve(runId: string, organizationId: string, actorUserId: string): Promise<PayrollRun> {
+  async approve(
+    runId: string,
+    organizationId: string,
+    actorUserId: string,
+    options: { acknowledgeWarnings?: boolean } = {},
+  ): Promise<PayrollRun> {
     const approved = await this.dataSource.transaction(async (em) => {
+      await this.lockRun(em, runId, organizationId);
       const run = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
       if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
       if (run.status !== PayrollRunStatus.CALCULATED) {
@@ -393,6 +414,10 @@ export class PayrollRunService {
       }
       if (run.calculatedBy && run.calculatedBy === actorUserId) {
         throw new ForbiddenError('payroll.whoever_approves_payroll_cannot_whoever_calculated');
+      }
+      // An unusual variable input stops the approval until the approver says they saw it (NOM-05).
+      if ((run.calculationWarnings ?? []).length > 0 && !options.acknowledgeWarnings) {
+        throw new ConflictError('payroll.run_has_unusual_inputs', { count: run.calculationWarnings.length });
       }
 
       const payslips = await em.find(Payslip, { where: { organizationId, runId } });
@@ -434,6 +459,7 @@ export class PayrollRunService {
       throw new BadRequestError('payroll.paying_payroll_requires_selecting_bank_account');
     }
     const paid = await this.dataSource.transaction(async (em) => {
+      await this.lockRun(em, runId, organizationId);
       const run = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
       if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
       if (run.status !== PayrollRunStatus.APPROVED) {
@@ -508,12 +534,18 @@ export class PayrollRunService {
   }
 
   async cancel(runId: string, organizationId: string): Promise<PayrollRun> {
-    const run = await this.findRun(runId, organizationId);
-    if (run.status === PayrollRunStatus.APPROVED || run.status === PayrollRunStatus.PAID) {
-      throw new ConflictError('payroll.approved_run_cannot_cancelled_use_adjustment');
-    }
-    run.status = PayrollRunStatus.CANCELLED;
-    return this.runs.save(run);
+    // Under the run's lock, like every transition (NOM-04): a cancellation racing an approval
+    // could otherwise cancel a run whose entry had just been posted.
+    return this.dataSource.transaction(async (em) => {
+      await this.lockRun(em, runId, organizationId);
+      const run = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
+      if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
+      if (run.status === PayrollRunStatus.APPROVED || run.status === PayrollRunStatus.PAID) {
+        throw new ConflictError('payroll.approved_run_cannot_cancelled_use_adjustment');
+      }
+      run.status = PayrollRunStatus.CANCELLED;
+      return em.save(run);
+    });
   }
 
   // ── Reads ────────────────────────────────────────────────────────────────────
@@ -591,6 +623,30 @@ export class PayrollRunService {
   }
 
   // ── Internals ────────────────────────────────────────────────────────────────
+
+  /** `SELECT … FOR UPDATE` on the run: every state change of a run is serialised on it (NOM-04). */
+  private async lockRun(em: EntityManager, runId: string, organizationId: string): Promise<void> {
+    await em.query(`SELECT "id" FROM "payroll_runs" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`, [runId, organizationId]);
+  }
+
+  /**
+   * Variable inputs that pay more than the employee's whole monthly salary (NOM-05): legal, and
+   * unusual enough that the approver must see them. A commission of 3,000,000 on a salary of 60,000
+   * went through to the ledger with nobody told.
+   */
+  private unusualInputs(slip: ComputedPayslip, monthlyBaseSalary: number, inputs: PayrollInput[]): PayrollRunWarning[] {
+    const fromInputs = new Set(inputs.map((input) => input.conceptCode));
+    return slip.lines
+      .filter((line) => fromInputs.has(line.conceptCode) && monthlyBaseSalary > 0 && line.amount > monthlyBaseSalary * UNUSUAL_INPUT_MULTIPLE)
+      .map((line) => ({
+        kind: 'INPUT_ABOVE_MONTHLY_SALARY' as const,
+        employeeId: slip.employeeId,
+        employeeName: slip.employeeName,
+        conceptCode: line.conceptCode,
+        amount: line.amount,
+        monthlyBaseSalary,
+      }));
+  }
 
   private assertEditable(run: PayrollRun): void {
     if (run.status === PayrollRunStatus.APPROVED || run.status === PayrollRunStatus.PAID) {

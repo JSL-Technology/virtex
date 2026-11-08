@@ -104,6 +104,11 @@
     "en": "A percentage rate is written as a fraction: 0.03 is 3 %, so it cannot exceed 1.",
     "pt": "Uma taxa percentual é escrita como fração: 0,03 é 3 %, então não pode passar de 1."
   },
+  "payroll.concept_value_out_of_range": {
+    "es": "El concepto «{{concept}}» tiene un monto, unas horas o una tasa fuera de rango (negativo, o una tasa por encima de su límite). Corrige la novedad o el concepto y vuelve a calcular.",
+    "en": "The concept «{{concept}}» has an amount, hours or a rate out of range (negative, or a rate above its limit). Fix the input or the concept and calculate again.",
+    "pt": "O conceito «{{concept}}» tem um valor, horas ou uma taxa fora do intervalo (negativo, ou uma taxa acima do limite). Corrija a ocorrência ou o conceito e calcule de novo."
+  },
   "payroll.concept_with_code_p1_already_exists": {
     "es": "Ya existe un concepto con el código \"{{p1}}\".",
     "en": "A concept with code \"{{p1}}\" already exists.",
@@ -348,6 +353,11 @@
     "es": "El empleado no tiene fecha de ingreso; no puede liquidarse.",
     "en": "The employee has no hire date and cannot be settled.",
     "pt": "O funcionário não tem data de admissão e não pode ser liquidado."
+  },
+  "payroll.input_does_not_fit_concept": {
+    "es": "La novedad de «{{concept}}» trae un dato ({{field}}) que ese concepto no usa, o un valor negativo. Un pago al empleado va en un concepto de devengo, que tributa y cotiza.",
+    "en": "The input for «{{concept}}» carries a value ({{field}}) that concept does not use, or a negative value. A payment to the employee goes in an earning concept, which is taxed and contributed on.",
+    "pt": "A ocorrência de «{{concept}}» traz um dado ({{field}}) que esse conceito não usa, ou um valor negativo. Um pagamento ao empregado vai num conceito de provento, que é tributado e contribui."
   },
   "payroll.inputs_can_only_changed_while_run": {
     "es": "Las novedades solo pueden modificarse mientras la corrida es editable.",
@@ -938,6 +948,11 @@
     "en": "The run has no payslips and cannot be approved.",
     "pt": "A folha não tem holerites e não pode ser aprovada."
   },
+  "payroll.run_has_unusual_inputs": {
+    "es": "La corrida tiene {{count}} novedad(es) que pagan más que el salario mensual del empleado. Revísalas y confirma que las viste para aprobar.",
+    "en": "The run has {{count}} input(s) paying more than the employee monthly salary. Review them and confirm you saw them to approve.",
+    "pt": "A folha tem {{count}} ocorrência(s) que pagam mais do que o salário mensal do empregado. Reveja-as e confirme que as viu para aprovar."
+  },
   "payroll.run_not_found": {
     "es": "No se encontró la nómina.",
     "en": "The payroll run was not found.",
@@ -1128,6 +1143,11 @@
     "en": "Period",
     "pt": "Período"
   },
+  "payroll.runs.rate_percent": {
+    "es": "Porcentaje",
+    "en": "Percentage",
+    "pt": "Percentagem"
+  },
   "payroll.runs.save_inputs": {
     "es": "Guardar novedades",
     "en": "Save inputs",
@@ -1188,6 +1208,26 @@
     "es": "Ordinaria",
     "en": "Regular",
     "pt": "Regular"
+  },
+  "payroll.runs.warning_input_above_salary": {
+    "es": "{{employee}}: {{concept}} paga {{amount}}, más que su salario mensual de {{salary}}.",
+    "en": "{{employee}}: {{concept}} pays {{amount}}, more than the monthly salary of {{salary}}.",
+    "pt": "{{employee}}: {{concept}} paga {{amount}}, mais do que o salário mensal de {{salary}}."
+  },
+  "payroll.runs.warnings_acknowledge": {
+    "es": "Hay {{count}} novedad(es) que pagan más que el salario mensual del empleado. Confirma que las revisaste y que son correctas.",
+    "en": "There are {{count}} input(s) paying more than the employee monthly salary. Confirm you reviewed them and they are right.",
+    "pt": "Há {{count}} ocorrência(s) que pagam mais do que o salário mensal do empregado. Confirme que as reviu e que estão corretas."
+  },
+  "payroll.runs.warnings_acknowledge_confirm": {
+    "es": "Las revisé, aprobar",
+    "en": "I reviewed them, approve",
+    "pt": "Revi-as, aprovar"
+  },
+  "payroll.runs.warnings_title": {
+    "es": "Novedades inusuales en esta corrida",
+    "en": "Unusual inputs in this run",
+    "pt": "Ocorrências invulgares nesta folha"
   },
   "payroll.self_assessment_requires_approved_run": {
     "es": "La Autodeterminación requiere una corrida aprobada.",

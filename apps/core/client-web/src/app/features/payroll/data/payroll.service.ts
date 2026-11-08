@@ -34,6 +34,15 @@ export interface PayrollRun {
   approvedAt: string | null;
   paidAt: string | null;
   createdAt: string;
+  /** What the calculation found unusual; approving with any takes an explicit yes (NOM-05). */
+  calculationWarnings?: Array<{
+    kind: 'INPUT_ABOVE_MONTHLY_SALARY';
+    employeeId: string;
+    employeeName: string;
+    conceptCode: string;
+    amount: number;
+    monthlyBaseSalary: number;
+  }>;
 }
 
 export interface PayslipLine {
@@ -292,8 +301,8 @@ export class PayrollService {
   }
 
   /** Posts the accounting entry. From here the run is immutable: a mistake takes an adjustment run. */
-  approve(id: string): Observable<PayrollRun> {
-    return this.http.post<PayrollRun>(`${this.apiUrl}/runs/${id}/approve`, {});
+  approve(id: string, acknowledgeWarnings = false): Observable<PayrollRun> {
+    return this.http.post<PayrollRun>(`${this.apiUrl}/runs/${id}/approve`, acknowledgeWarnings ? { acknowledgeWarnings: true } : {});
   }
 
   /** Pay an approved run from a treasury bank account (preferred) or its ledger account. */

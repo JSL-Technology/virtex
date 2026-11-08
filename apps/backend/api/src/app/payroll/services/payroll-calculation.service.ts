@@ -430,6 +430,18 @@ export class PayrollCalculationService {
     concept: ConceptInput,
     ctx: { proratedBase: number; monthlyBaseSalary: number },
   ): number {
+    // The engine's own invariant, whatever the caller validated (NOM-03, NOM-05): no concept is
+    // negative — money to the employee is an EARNING, which is taxed and contributed on — and no
+    // rate exceeds its calculation's ceiling.
+    const ceiling = concept.calculation === ConceptCalculation.PERCENTAGE ? 1 : concept.calculation === ConceptCalculation.HOURLY ? 10 : Infinity;
+    if (
+      (concept.amount ?? 0) < 0 ||
+      (concept.quantity ?? 0) < 0 ||
+      (concept.rate ?? 0) < 0 ||
+      (concept.rate ?? 0) > ceiling
+    ) {
+      throw new BadRequestError('payroll.concept_value_out_of_range', { concept: concept.code });
+    }
     switch (concept.calculation) {
       case ConceptCalculation.PERCENTAGE:
         return roundAmount(ctx.proratedBase * (concept.rate ?? 0));

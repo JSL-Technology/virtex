@@ -189,7 +189,19 @@ export class PayrollRunDetailPage implements OnInit {
       variant: 'warning',
     });
     if (!confirmed) return;
-    this.act(this.payroll.approve(this.id!));
+    // Unusual inputs take a second, explicit yes (NOM-05): the server refuses the approval without it.
+    const warnings = this.run()?.calculationWarnings ?? [];
+    if (warnings.length > 0) {
+      const acknowledged = await this.dialog.confirm({
+        title: 'payroll.runs.warnings_title',
+        message: 'payroll.runs.warnings_acknowledge',
+        messageParams: { count: warnings.length },
+        confirmText: 'payroll.runs.warnings_acknowledge_confirm',
+        variant: 'warning',
+      });
+      if (!acknowledged) return;
+    }
+    this.act(this.payroll.approve(this.id!, warnings.length > 0));
   }
 
   /**
@@ -305,7 +317,16 @@ export class PayrollRunDetailPage implements OnInit {
 
   saveInputs(): void {
     this.busy.set(true);
-    this.payroll.replaceInputs(this.id!, this.inputs()).subscribe({
+    // Each input carries only what its concept reads (NOM-03, NOM-05): the server refuses an amount
+    // on an hourly concept, hours on a fixed one, and so on.
+    const items = this.inputs().map((row) => {
+      const calculation = this.calculationOf(row.conceptCode);
+      const base = { employeeId: row.employeeId, conceptCode: row.conceptCode, ...(row.note ? { note: row.note } : {}) };
+      if (calculation === 'HOURLY') return { ...base, quantity: row.quantity ?? 0, ...(row.rate !== null && row.rate !== undefined ? { rate: row.rate } : {}) };
+      if (calculation === 'PERCENTAGE') return { ...base, ...(row.rate !== null && row.rate !== undefined ? { rate: row.rate } : {}) };
+      return { ...base, amount: row.amount ?? 0 };
+    });
+    this.payroll.replaceInputs(this.id!, items as PayrollInput[]).subscribe({
       next: (rows) => {
         this.busy.set(false);
         this.inputs.set(rows);

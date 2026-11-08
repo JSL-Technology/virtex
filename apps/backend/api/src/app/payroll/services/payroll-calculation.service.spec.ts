@@ -167,6 +167,51 @@ describe('PayrollCalculationService', () => {
     ).toThrow();
   });
 
+  // NOM-03: a negative deduction raised the net by an amount nobody taxed or contributed on.
+  it('refuses a negative deduction instead of paying it out untaxed', () => {
+    expect(() =>
+      service.calculate(
+        employee({
+          concepts: [
+            { code: 'QAPRE', name: 'Préstamo', type: ConceptType.DEDUCTION, calculation: ConceptCalculation.FIXED, taxable: false, contributesToSocialSecurity: false, amount: -20000 },
+          ],
+        }),
+        period,
+        params,
+        strategy,
+      ),
+    ).toThrow(expect.objectContaining({ messageKey: 'payroll.concept_value_out_of_range' }));
+  });
+
+  // NOM-05: a rate of 50 on a commission paid 50 × the salary.
+  it('refuses a percentage above 100 % and a multiplier above 10, whoever set them', () => {
+    const commission = (rate: number) =>
+      service.calculate(
+        employee({
+          concepts: [
+            { code: 'QACOM', name: 'Comisión', type: ConceptType.EARNING, calculation: ConceptCalculation.PERCENTAGE, taxable: true, contributesToSocialSecurity: true, rate },
+          ],
+        }),
+        period,
+        params,
+        strategy,
+      );
+    expect(() => commission(50)).toThrow(expect.objectContaining({ messageKey: 'payroll.concept_value_out_of_range' }));
+    expect(commission(0.05).grossEarnings).toBeGreaterThan(50000);
+    expect(() =>
+      service.calculate(
+        employee({
+          concepts: [
+            { code: 'HE35', name: 'Horas extra', type: ConceptType.EARNING, calculation: ConceptCalculation.HOURLY, taxable: true, contributesToSocialSecurity: true, quantity: 10, rate: 35 },
+          ],
+        }),
+        period,
+        params,
+        strategy,
+      ),
+    ).toThrow(expect.objectContaining({ messageKey: 'payroll.concept_value_out_of_range' }));
+  });
+
   it('computes a 13th-month (regalía) payslip: exempt from ISR, only the 0.5% INFOTEP levy', () => {
     const slip = service.calculateChristmasBonus(employee(), 30000, params, strategy);
     expect(slip.grossEarnings).toBe(30000);

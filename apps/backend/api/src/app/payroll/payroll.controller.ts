@@ -1,4 +1,5 @@
 import { PayPayrollRunDto } from './dto/pay-run.dto';
+import { ApprovePayrollRunDto } from './dto/approve-run.dto';
 import {
   Body,
   Controller,
@@ -110,8 +111,12 @@ export class PayrollController {
   @Post('runs/:id/approve')
   @RequireStepUp(StepUpScope.APPROVE_PAYROLL)
   @HasPermission(PERMISSIONS.PAYROLL_APPROVE)
-  approve(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.runs.approve(id, user.organizationId, user.id);
+  approve(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() body: ApprovePayrollRunDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.runs.approve(id, user.organizationId, user.id, { acknowledgeWarnings: body?.acknowledgeWarnings === true });
   }
 
   /** Paying is where the money actually leaves. Same treatment as approving. */

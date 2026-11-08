@@ -80,6 +80,24 @@
         earned, what reaches the bank, and what the company actually pays out including its own
         share.
       -->
+      @if (payrollRun.status === 'CALCULATED' && (payrollRun.calculationWarnings ?? []).length > 0) {
+        <!-- Lo inusual que encontró el cálculo: el aprobador lo ve antes de que salga el dinero (NOM-05). -->
+        <div class="banner-warning" role="alert">
+          <strong>{{ 'payroll.runs.warnings_title' | translate }}</strong>
+          <ul>
+            @for (warning of payrollRun.calculationWarnings ?? []; track $index) {
+              <li>
+                {{ 'payroll.runs.warning_input_above_salary' | translate: {
+                  employee: warning.employeeName,
+                  concept: warning.conceptCode,
+                  amount: (warning.amount | vxNumber: '1.2-2'),
+                  salary: (warning.monthlyBaseSalary | vxNumber: '1.2-2')
+                } }}
+              </li>
+            }
+          </ul>
+        </div>
+      }
       <section class="totals-row">
         <div class="total-card">
           <span class="total-card__label">{{ 'payroll.runs.gross' | translate }}</span>
@@ -165,6 +183,17 @@
                           [value]="input.quantity ?? 0"
                           [attr.aria-label]="'payroll.runs.amount_or_hours' | translate"
                           (input)="setInput(i, { quantity: +$any($event.target).value })"
+                        />
+                      } @else if (calculationOf(input.conceptCode) === 'PERCENTAGE') {
+                        <!-- Un porcentaje del salario, como mucho el 100 %: la tasa del concepto, sustituida (NOM-05). -->
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          [value]="input.rate === null || input.rate === undefined ? '' : input.rate * 100"
+                          [attr.aria-label]="'payroll.runs.rate_percent' | translate"
+                          (input)="setInput(i, { rate: +$any($event.target).value / 100 })"
                         />
                       } @else {
                         <input
