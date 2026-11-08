@@ -2,17 +2,17 @@
 
 Todos los hallazgos de los MD de la auditoría, con su estado en [`10-verificacion-de-cierre.md`](10-verificacion-de-cierre.md). ✅ = resuelto y verificado · ❌ = parcial o pendiente (en los parciales se indica lo que falta).
 
-**43 de 362 resueltos; 319 por corregir** (8 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
+**47 de 376 resueltos; 329 por corregir** (8 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
 
 Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de la ficha citada.
 
 | Severidad | ✅ | ❌ |
 |---|---|---|
 | Crítica | 12 | 1 |
-| Alta | 18 | 89 |
-| Media | 13 | 150 |
-| Baja | 0 | 64 |
-| — | 0 | 15 |
+| Alta | 19 | 91 |
+| Media | 15 | 153 |
+| Baja | 1 | 68 |
+| — | 0 | 16 |
 
 ## Severidad crítica (13)
 
@@ -32,7 +32,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ✅ | SP-02 | La República Dominicana como regla implícita | `04-plataforma-transversal.md:15` |
 | ✅ | TES-01 | Pasos: cuenta USD (97c041de…), factura FAC-00000006 DOP 200, POST /customer-payments {currencyCode:"USD", bankAccountId:USD, amountReceived:200, lines:[{invoiceId, amount:200}]} → 201; fact… | `modulos/customers.md:62` |
 
-## Severidad alta (107)
+## Severidad alta (110)
 
 | | ID | Hallazgo | Ficha |
 |---|---|---|---|
@@ -90,6 +90,8 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | INV-20 | una orden puede marcarse COMPLETED con cantidad producida sin consumir componentes ni dar entrada al terminado; el inventario y el mayor no se enteran. Ejecutado (orden 619639c8…). | `modulos/manufacturing.md:75` |
 | ❌ | INV-23 | los endpoints de bin-locations y landed-costs persisten registros que ningún proceso usa. Ni las existencias ni el costo cambian. Un integrador de la API creería que hay gestión por ubicaci… | `modulos/wms.md:57` |
 | ❌ | INV-OP-1 | Ejecutado: BOM del terminado QA-INV-FG con 2×P1 + 0,5×P4 → 201; centro de trabajo → 201; orden QA-INV-OP-1 por 3 → 201; PATCH {status: COMPLETED, quantityProduced: 3} → 200. Stock de FG: 0;… | `modulos/manufacturing.md:43` |
+| ❌ | INVT-01 | INVT-01 — Backend sin pantalla ni menú: manufacturing (15 endpoints, 4 tablas), projects (13 endpoints, 3 tablas), supply-chain (13 endpoints, 6 tablas), customer-service (8 endpoints, 3 ta… | `01-inventario-de-modulos.md:140` |
+| ❌ | INVT-04 | INVT-04 — analytical-reporting, intercompany, price-lists, datasheets, legal, push-notifications, storage, geo, metrics, queues sin un solo *.spec.ts; features/payroll, features/workflow (8… | `01-inventario-de-modulos.md:143` |
 | ❌ | LOC-05 | validateTaxId('MX','XAXX010101000') devuelve false con y sin tipo de contribuyente. Es el RFC genérico «público en general» que exige el CFDI 4.0 para ventas a consumidor final. En cambio X… | `modulos/localization.md:92` |
 | ❌ | LOC-06 | las tasas del IVA, ITBIS, IGV, etc. están en constantes TS (country-tax-schemes.ts:61-145) y la tabla taxes no tiene effective_from/to (comprobado en information_schema). Un cambio de tasa… | `modulos/localization.md:98` |
 | ❌ | NOM-01 | empleado «QA-NOM Bajo», salario 15.000: AFP empleado 666,50 (=23.223×2,87 %) en vez de 430,50; SFS 705,98 en vez de 456,00; descuentos 1.372,48 (9,15 % del salario). El volante y el archivo… | `modulos/payroll.md:91` |
@@ -137,6 +139,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ✅ | FINB-32 | consolidation.service.ts:935-940 (void revenueLines; void expenseLines): ingresos/gastos intragrupo nunca se eliminan (NIIF 10.B86(c)). M. | `modulos/consolidation.md:46` |
 | ✅ | FINB-33 | sin pantalla/menú (grep en client-web). M. | `modulos/consolidation.md:48` |
 | ✅ | IA-B03 | salesToday/sales_yesterday filtran solo status <> Draft: cuentan facturas Void y suman CreditNote en positivo (la tendencia sí resta NC, :90-96). Correcto: excluir Void, restar NC; prueba.… | `modulos/bi-dashboard-overview-reports.md:67` |
+| ✅ | JUR-01 | jurisdictions-geo: jurisdictions/payroll · arquitectura/multi-país | `modulos/jurisdictions-geo.md:59` |
 | ✅ | LOC-02 | todo tenant hispano (MX, CO, CL, PE, AR, UY, GT…) recibe «AFP por Pagar (TSS)», «SFS por Pagar (TSS)», «SRL e INFOTEP por Pagar» y «Aportes Patronales (TSS/INFOTEP)», que son instituciones… | `modulos/localization.md:69` |
 | ✅ | LOC-03 | el formulario de factura de BR (pt-BR) exige «uma faixa de comprovantes vigente, tradicional (série B) ou eletrônica (série E)», que es el modelo NCF de la DGII. BR también muestra el aviso… | `modulos/localization.md:76` |
 | ✅ | PLTB-DT-01 | npm audit reporta Electron high en rango 44.0.0-alpha.1 - 44.9.0 — mitigación de certificados intermedios eMudhra comprometidos (high) y atribución de permiso pointer-lock a marco equivocad… | `modulos/desktop.md:58` |
@@ -144,7 +147,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ✅ | TES-02 | Tras cobrar USD 200 en cuenta USD, GET /treasury/cash-position → balanceInAccountCurrency: 1000 (debería 1.200) con base 72.400. Las transferencias sí guardan divisa. Rompe conciliación y r… | `modulos/customers.md:63` |
 | ✅ | XF-09 | la factura resuelve la tasa del día (60,1234), la pasa al servicio de asientos como tasa «declarada», este la redondea a 2 decimales (60,12) y la compara con la resuelta usando la toleranci… | `06-flujos-cruzados.md:189` |
 
-## Severidad media (163)
+## Severidad media (168)
 
 | | ID | Hallazgo | Ficha |
 |---|---|---|---|
@@ -208,6 +211,8 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | FINB-24 | budgets.service.ts:121-133, 139 (update/delete por criterio). Cambios y borrados de presupuesto sin rastro. S. | `modulos/budgets.md:49` |
 | ❌ | FINB-42 | cuentas IC por defecto no aprovisionadas (organization_settings.default_intercompany_* NULL) → 400 intercompany.default_intercompany_accounts_not_configured_one en todo tenant nuevo (por có… | `modulos/intercompany.md:40` |
 | ❌ | FINB-43 | intercompany.controller.ts:35-37 PeriodLockGuard solo para el origen; el destino con período cerrado agota 5 reintentos y queda FAILED con asiento de origen ya contabilizado (espejo roto, v… | `modulos/intercompany.md:42` |
+| ❌ | GEO-01 | geo · eje 8 · seguridad · Media. x-forwarded-for es controlable por el cliente (geo.controller.ts:14-19). Sirve para falsear la ubicación de la sesión y evadir el viaje imposible. Forma cor… | `modulos/jurisdictions-geo.md:61` |
+| ❌ | I18N-01 | i18n · UX/multi-país: I18N-02 · i18n · eje 3 · multi-país · Media (también LOC-04). Términos DO en la base es; detalle en la ficha localization. Esfuerzo S. | `modulos/i18n.md:56` |
 | ❌ | IA-01 | Con plan sin ai_assistant cada página dispara un 403 y error de consola (Playwright, qa-do-fac: overview, reports, data-quality…). Correcto: consultar /ai/status/plan antes; no montar el pa… | `modulos/ai.md:67` |
 | ❌ | IA-02 | El menú y el hub ofrecen funciones fuera del plan; Informe del gerente muestra estado vacío ante 403; anomalías/predicciones muestran la clave ai_anomalies. Correcto: gating por feature en… | `modulos/ai.md:68` |
 | ❌ | IA-04 | Nombre idéntico tras normalizar da similarity*0.75 = 0.75 < MIN_SCORE 0.8: dos clientes con el mismo nombre y sin otro dato común nunca se sugieren (probado: scan found:0). Correcto: nombre… | `modulos/ai.md:70` |
@@ -238,6 +243,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | INV-17 | pos_sales."shiftId" no tiene FK (\d pos_sales), no hay correlativo de ticket por caja y la Z no tiene número correlativo. | `modulos/pos.md:112` |
 | ❌ | INV-18 | el catálogo POS muestra el stock total de la empresa (/pos/catalog), mientras la venta descuenta del almacén de la sucursal o del almacén por defecto (stock-ledger.service.ts en resolveWare… | `modulos/pos.md:115` |
 | ❌ | INV-21 | no hay máquina de estados (COMPLETED→PLANNED aceptado), product_id no tiene FK y los decimales se devuelven como string. | `modulos/manufacturing.md:81` |
+| ❌ | INVT-02 | INVT-02 — Pantallas "roadmap" sin funcionalidad: features/manufacturing, features/wms, features/projects contienen solo pages/dashboard.component.ts con un panel de hoja de ruta (clases .ro… | `01-inventario-de-modulos.md:141` |
 | ❌ | LOC-07 | las reglas de un país están repartidas en al menos 8 archivos de código: | `modulos/localization.md:104` |
 | ❌ | LOC-09 | La cobertura de UY, PY y los demás «genéricos» dice taxDetermination: not-implemented, pero se aprovisionan IVA 22/10/0 y se validan. | `modulos/localization.md:118` |
 | ❌ | LOC-10 | completePendingRegistration no vuelve a validar el identificador fiscal y marca tax_id_verified_at = now() (registration.service.ts:286-290). Los tenants QA de GT y UY se crearon con el RNC… | `modulos/localization.md:125` |
@@ -304,7 +310,9 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ✅ | FINB-02 | organization_settings.fx_rate_tolerance = 0.000000 en tenant nuevo (consulta SQL): cualquier tasa bancaria declarada distinta a la oficial se rechaza (exchange-rate-resolver.service.ts:278-… | `modulos/currencies.md:45` |
 | ✅ | FINB-34 | consolidation.service.ts:365-372, 592-595: todo el patrimonio a tasa histórica de adquisición (incluye resultados posteriores), promedio = media simple de cierres mensuales; CTA no persisti… | `modulos/consolidation.md:50` |
 | ✅ | FINB-35 | organizations.service.ts:200-288: solo se pueden crear subsidiarias nuevas; no se puede vincular una organización existente (adquisición). M. | `modulos/consolidation.md:52` |
+| ✅ | I18N-02 | i18n · multi-país: I18N-03 · ui-i18n · eje 11 · UX · Baja/Media. El idioma ignora el prefijo /es\|en\|pt/ una vez dentro de la aplicación y no hay preferencia de usuario por defecto. Un usuar… | `modulos/i18n.md:57` |
 | ✅ | IAM-T2 | database/same-tenant-references.spec.ts:56. La FK FK_customer_portal_accounts_customer (customer_portal_accounts.customer_id) no tiene guarda de mismo-tenant a nivel BD → referencia cruzada… | `modulos/multi-tenencia.md:43` |
+| ✅ | JUR-02 | jurisdictions-geo: payroll/fiscal-coverage · documentación/producto | `modulos/jurisdictions-geo.md:60` |
 | ✅ | LOC-04 | el catálogo base en español dice «ITBIS» en claves genéricas. | `modulos/localization.md:83` |
 | ✅ | NOM-41 | Evidencia: pg_trigger sin tg_same_tenant para la tabla; same-tenant-references.spec.ts:56 falla. Explotabilidad: no explotable por API (guarda en grant vía assertTenantOwns('customers', …);… | `modulos/customer-service.md:56` |
 | ✅ | PLT-NOT-05 | sin unique (userId, endpoint) → duplicados y envíos repetidos. | `modulos/notificaciones-push-websockets.md:41` |
@@ -312,7 +320,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ✅ | PLTB-DS-02 | no hay validación de entrada. Un mode fuera del enum ("GRID") llega al INSERT → 500. Ejecutado: POST /datasheets {mode:"GRID"} → 500; con mode:"live" → 201. Además expone la entidad como co… | `modulos/datasheets.md:63` |
 | ✅ | PLTB-DT-03 | el shell no fuerza una CSP; depende de que el portal remoto envíe sus cabeceras. Un shell de escritorio debería imponer una CSP de defensa en profundidad. | `modulos/desktop.md:72` |
 
-## Severidad baja (64)
+## Severidad baja (69)
 
 | | ID | Hallazgo | Ficha |
 |---|---|---|---|
@@ -344,6 +352,9 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | FINB-06 | exchange-rate-resolver.service.ts:195-203: sin tasa OFFICIAL cae a MARKET con solo logger.warn (queda rateType en el asiento, lo cual mitiga). Exponer advertencia al usuario. S. | `modulos/currencies.md:53` |
 | ❌ | FINB-17 | asientos de baja con system_reason NULL; depreciación previa a la baja genera un asiento por activo (DEPREC-2026-000005/6 el mismo día). S. | `modulos/fixed-assets.md:69` |
 | ❌ | FINB-25 | budgets.service.ts:86: total del listado suma ingresos + gastos (13.125) | `modulos/budgets.md:51` |
+| ❌ | GEO-02 | localization · eje 3 · datos · Baja. Las divisiones administrativas de los 19 países son constantes de código sin versión ni fuente citada. Verifiqué que están en country-profiles.ts (MX en… | `modulos/jurisdictions-geo.md:62` |
+| ❌ | I18N-03 | ui-i18n: I18N-04 · i18n · eje 2 · calidad · Baja. 21 claves con es==en en frases en inglés (mensajes de auth y OAuth). Esfuerzo S. | `modulos/i18n.md:58` |
+| ❌ | I18N-04 | i18n: I18N-05 · i18n · eje 3 · Baja. Las cuentas se guardan como {"es": "…"} aunque el texto esté en portugués o en inglés. Se vio en BD: qa-br-a 1150 = {"es":"Impuesto a Recuperar"}, que a… | `modulos/i18n.md:59` |
 | ❌ | IA-06 | Guarda la imagen (storeImage) antes de que el gateway compruebe disponibilidad/presupuesto; sin clave queda una imagen huérfana por intento. Correcto: assertCallAllowed/isAvailable primero.… | `modulos/ai.md:72` |
 | ❌ | IA-09 | Registro dinámico público (10/h por IP) sin caducidad de clientes no usados ni límite global: crecimiento indefinido de mcp_oauth_clients. Correcto: purga de clientes sin grants tras N días… | `modulos/ai.md:75` |
 | ❌ | IA-B07 | bi-dashboard-overview-reports: dashboard.service.ts cacheManager.set(...,3600) × 9, dashboard.module.ts:17 | `modulos/bi-dashboard-overview-reports.md:71` |
@@ -358,6 +369,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | INV-16 | el producto referencia la unidad por símbolo y sin FK. | `modulos/units-of-measure.md:83` |
 | ❌ | INV-19 | el registro de idempotencia queda in_progress sin TTL si el proceso cae después del commit (idempotency.interceptor.ts:86-97). | `modulos/pos.md:118` |
 | ❌ | INV-22 | son componentes de hoja de ruta no enrutados (código muerto) cuyo comentario afirma que «es alcanzable desde el menú». El comentario contradice el código. | `modulos/manufacturing.md:84` |
+| ❌ | INVT-03 | INVT-03 — El README afirma "los ~55 módulos ERP"; el backend tiene 76 carpetas de las cuales ~20 son infraestructura, y varias "funcionales" no llegan al usuario (INVT-01). La cifra no es v… | `01-inventario-de-modulos.md:142` |
 | ❌ | LOC-08 | las entidades TaxScheme, CoaTemplate, TaxTemplate, LocalizationTemplate y ReportDefinition tienen tablas vacías y nadie las lee. EinvoiceProviderConfig no tiene referencias. | `modulos/localization.md:114` |
 | ❌ | LOC-11 | *multi-país (datos)*: PA usa moneda PAB. En la práctica la contabilidad y la banca operan en USD (verificar con contador). | `modulos/localization.md:130` |
 | ❌ | NOM-14 | payroll-run.service.ts:229 currencyCode:'DOP'; nombres de líneas en español en el motor (un volante en inglés sale en español). Esfuerzo: S. | `modulos/payroll.md:143` |
@@ -380,12 +392,14 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | XF-04 | invoices (NC): Qué está mal: la NC debita 4100 Ingresos por ventas en lugar de 4300 Descuentos y devoluciones (la cuenta existe con system_role SALES_DISCOUNTS). Las ventas netas cuadran, p… | `06-flujos-cruzados.md:231` |
 | ❌ | XF-06 | el tenant US numera sus facturas FAC-00000002 (abreviatura española) y guarda los nombres ingleses del plan de cuentas bajo la clave es ({"es":"Accounts Receivable"}). | `06-flujos-cruzados.md:243` |
 | ❌ | XF-10 | GET /customers devuelve defaultSalesAccountId, pero PATCH {defaultSalesAccountId} → 400 whitelist_validation. No se puede configurar por API, así que no se pudo probar la cuenta por defecto… | `06-flujos-cruzados.md:225` |
+| ✅ | I18N-05 | i18n: i18n: ## 7. Camino mínimo | `modulos/i18n.md:60` |
 
-## Severidad no indicada (patrones y transversales) (15)
+## Severidad no indicada (patrones y transversales) (16)
 
 | | ID | Hallazgo | Ficha |
 |---|---|---|---|
 | ❌ | IAM-T1 | shared/tenancy/tenant-isolation.check.ts. En producción (no dev) el arranque ABORTA si: (1) el rol es superusuario/BYPASSRLS, (2) posee tablas con política sin FORCE, (3) no hay políticas (… | `modulos/multi-tenencia.md:42` |
+| ❌ | INVT-05 | INVT-05 — Diez mercados (UY…NI) se aprovisionan con un IVA de tasa única fija en código y configurationRequired: false, mientras la tabla de cobertura no los nombra (solo "contabilidad"). D… | `01-inventario-de-modulos.md:144` |
 | ❌ | MFG-02 | Aislamiento por referencias — 6 endpoints con ids de otro tenant — FIN-A, CMP, INV, NOM y FAC: ids ajenos en URL y cuerpo → 404/400 | `09-cobertura-y-verificacion.md:184` |
 | ❌ | OBS-01 | Salud pública y correlación de logs — Ausentes — Logs con request-id, tenant y usuario: verificado | `09-cobertura-y-verificacion.md:197` |
 | ❌ | PRJ-01 | Aislamiento por referencias — 6 endpoints con ids de otro tenant — FIN-A, CMP, INV, NOM y FAC: ids ajenos en URL y cuerpo → 404/400 | `09-cobertura-y-verificacion.md:184` |
