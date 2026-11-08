@@ -134,6 +134,11 @@
     "en": "The tax configuration for \"{{countryCode}}\" is not available.",
     "pt": "A configuração fiscal de \"{{countryCode}}\" não está disponível."
   },
+  "localization.tax_configuration_required_before_invoicing": {
+    "es": "Configura los impuestos de tu empresa en {{countryCode}} (Ajustes → Impuestos) antes de facturar: sin ellos la factura saldría sin el impuesto que corresponde.",
+    "en": "Set up your company's taxes in {{countryCode}} (Settings → Taxes) before invoicing: without them the invoice would carry none of the tax it owes.",
+    "pt": "Configure os tributos da sua empresa em {{countryCode}} (Configurações → Impostos) antes de faturar: sem eles a nota sairia sem o imposto devido."
+  },
   "localization.tax_region_fiscal_region_id_not": {
     "es": "Región fiscal con ID \"{{fiscalRegionId}}\" no encontrada.",
     "en": "Tax region \"{{fiscalRegionId}}\" was not found.",

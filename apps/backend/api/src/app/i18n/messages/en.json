@@ -4984,6 +4984,7 @@
   "localization.regime_with_no_payers_applies_nobody": "A regime with no payers applies to nobody: name at least one taxpayer type.",
   "localization.tax_cannot_determined_destination_country_missing": "The tax cannot be determined: the destination country is missing.",
   "localization.tax_configuration_country_code_not_available": "The tax configuration for \"{{countryCode}}\" is not available.",
+  "localization.tax_configuration_required_before_invoicing": "Set up your company's taxes in {{countryCode}} (Settings → Taxes) before invoicing: without them the invoice would carry none of the tax it owes.",
   "localization.tax_region_fiscal_region_id_not": "Tax region \"{{fiscalRegionId}}\" was not found.",
   "localization.tax_sale_could_not_determined": "The tax on this sale could not be determined.",
   "localization.withholding_regime_does_not_exist": "That withholding regime does not exist.",

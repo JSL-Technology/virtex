@@ -50,6 +50,14 @@ export interface CountryTaxScheme {
   configurationRequired: boolean;
   /** Shown to the tenant when `configurationRequired`; explains precisely what is missing. */
   configurationNote?: string;
+  /**
+   * Whether a sale into a jurisdiction where the seller is not registered carries no tax.
+   *
+   * True only where that is the law: United States sales tax, where a seller without nexus in the
+   * destination state collects nothing. Everywhere else an unconfigured jurisdiction blocks issuing
+   * (see TaxDeterminationService.determine) instead of producing a zero.
+   */
+  noRegistrationMeansNoTax?: boolean;
 }
 
 const vat = (name: string, rate: number): CountryTax => ({
@@ -75,6 +83,7 @@ export const COUNTRY_TAX_SCHEMES: Readonly<Record<string, CountryTaxScheme>> = {
 
   US: {
     configurationRequired: true,
+    noRegistrationMeansNoTax: true,
     configurationNote:
       'El impuesto sobre las ventas en Estados Unidos lo fijan el estado, el condado y la ciudad de destino; no existe una tasa federal. Configura las jurisdicciones donde tienes nexo antes de facturar. Puerto Rico no es una jurisdicción estatal más: su IVU es un régimen propio que se declara ante Hacienda de Puerto Rico (SURI), con su propia tasa estatal y municipal.',
     taxes: [],

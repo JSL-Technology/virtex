@@ -63,7 +63,20 @@ export class TaxDeterminationService {
       };
     }
 
-    const determination = await provider.determine(request);
+    let determination = await provider.determine(request);
+    // "No registration, no tax" is a rule of United States sales tax (nexus), not of tax in general.
+    // Brazil goes through the same tenant-jurisdiction provider, and with nothing configured it
+    // answered NO_NEXUS — so a Brazilian tenant invoiced at 0 % with no warning (audit 2026-11-07,
+    // LOC-01), where ICMS, ISS and PIS/COFINS are always due. Anywhere the scheme does not say
+    // otherwise, an unconfigured jurisdiction is something to fix before issuing, not a zero.
+    if (determination.outcome === 'NO_NEXUS' && COUNTRY_TAX_SCHEMES[country]?.noRegistrationMeansNoTax !== true) {
+      determination = {
+        ...determination,
+        outcome: 'NOT_DETERMINABLE',
+        reasonKey: 'localization.tax_configuration_required_before_invoicing',
+        reasonParams: { countryCode: country },
+      };
+    }
     if (determination.outcome !== 'DETERMINED') {
       this.logger.warn(
         `Determinación de impuesto ${determination.outcome} para ${country}/` +

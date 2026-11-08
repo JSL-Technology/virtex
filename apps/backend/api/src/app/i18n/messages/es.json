@@ -4984,6 +4984,7 @@
   "localization.regime_with_no_payers_applies_nobody": "Un régimen sin pagadores no aplica a nadie: indica al menos un tipo de contribuyente.",
   "localization.tax_cannot_determined_destination_country_missing": "No se puede determinar el impuesto: falta el país de destino.",
   "localization.tax_configuration_country_code_not_available": "La configuración fiscal de \"{{countryCode}}\" no está disponible.",
+  "localization.tax_configuration_required_before_invoicing": "Configura los impuestos de tu empresa en {{countryCode}} (Ajustes → Impuestos) antes de facturar: sin ellos la factura saldría sin el impuesto que corresponde.",
   "localization.tax_region_fiscal_region_id_not": "Región fiscal con ID \"{{fiscalRegionId}}\" no encontrada.",
   "localization.tax_sale_could_not_determined": "No se pudo determinar el impuesto de esta venta.",
   "localization.withholding_regime_does_not_exist": "El régimen de retención indicado no existe.",

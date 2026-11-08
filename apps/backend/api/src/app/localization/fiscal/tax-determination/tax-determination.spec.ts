@@ -242,4 +242,13 @@ describeWithDb('sales tax determination', () => {
     expect(result.outcome).toBe('NO_NEXUS');
     expect(result.reasonKey).toBe('localization.no_jurisdictions_registered_country_code_so');
   });
+
+  it('refuses to issue at 0 % in Brazil with nothing configured: ICMS and ISS are always due (LOC-01)', async () => {
+    // Same provider as the United States, opposite law: no nexus there means no sales tax; here it
+    // means the tenant has not configured taxes that are owed regardless.
+    const result = await determine({ countryCode: 'BR', stateCode: 'SP' });
+    expect(result.outcome).toBe('NOT_DETERMINABLE');
+    expect(result.reasonKey).toBe('localization.tax_configuration_required_before_invoicing');
+    expect(result.rate).toBe(0);
+  });
 });
