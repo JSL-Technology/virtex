@@ -2711,6 +2711,7 @@
   "customers.no_withholding_receivable_account_configured_customer": "No withholding receivable account is configured and the customer withheld tax.",
   "customers.one_more_invoices_invalid_do_not": "One or more invoices are invalid, or do not belong to the given customer.",
   "customers.payment_invoice_invoice_number_amount_exceeds": "The payment for invoice {{invoiceNumber}} ({{amount}}) exceeds its outstanding balance ({{balance}}).",
+  "customers.receipt_currency_differs_from_invoice": "Invoice {{invoiceNumber}} is in {{invoice}} and the receipt in {{receipt}}. Collect it into an account in {{invoice}}.",
   "customers.receipt_has_already_voided": "This receipt has already been voided.",
   "customers.receipt_has_no_funds_enter_amount": "The receipt has no funds: enter an amount received or an advance to apply.",
   "customers.receipt_not_found": "The receipt was not found.",

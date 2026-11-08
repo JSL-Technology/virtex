@@ -2711,6 +2711,7 @@
   "customers.no_withholding_receivable_account_configured_customer": "No hay cuenta de retenciones recibidas configurada y el cliente practicó retención.",
   "customers.one_more_invoices_invalid_do_not": "Una o más facturas no son válidas o no pertenecen al cliente especificado.",
   "customers.payment_invoice_invoice_number_amount_exceeds": "El monto del pago para la factura {{invoiceNumber}} ({{amount}}) excede su saldo pendiente ({{balance}}).",
+  "customers.receipt_currency_differs_from_invoice": "La factura {{invoiceNumber}} está en {{invoice}} y el cobro en {{receipt}}. Cóbrala con una cuenta en {{invoice}}.",
   "customers.receipt_has_already_voided": "Este cobro ya fue anulado.",
   "customers.receipt_has_no_funds_enter_amount": "El cobro no tiene fondos: indique un monto recibido o un anticipo a aplicar.",
   "customers.receipt_not_found": "El cobro no fue encontrado.",
