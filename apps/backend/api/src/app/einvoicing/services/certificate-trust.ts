@@ -67,9 +67,18 @@ export function verifyCertificateChain(
   return { trusted: true, anchor: anchor?.subject.getField('CN')?.value ?? null };
 }
 
+/**
+ * Whether `issuer` issued `subject`: its subject names `subject`'s issuer AND its key verifies
+ * `subject`'s signature.
+ *
+ * `issuer.issued(subject)`, not `issuer.isIssuer(subject)`: in node-forge `a.isIssuer(b)` asks the
+ * opposite question ("was `a` issued by `b`?"). Up to node-forge 1.4.0 `isIssuer` compared only the
+ * NUMBER of name attributes, so the reversed call passed for any two single-CN names and the
+ * signature check alone held the line; 1.4.3 compares the names properly and exposed the reversal.
+ */
 function safeIssued(issuer: forge.pki.Certificate, subject: forge.pki.Certificate): boolean {
   try {
-    return issuer.isIssuer(subject) && issuer.verify(subject);
+    return issuer.issued(subject) && issuer.verify(subject);
   } catch {
     return false;
   }

@@ -1,5 +1,6 @@
 import * as Joi from 'joi';
 import * as crypto from 'crypto';
+import { parseExternalEffects } from './external-effects';
 
 /**
  * Startup validation for the process environment.
@@ -332,6 +333,20 @@ export const envValidation = Joi.object({
     is: DEV_LIKE,
     then: Joi.boolean().truthy('true').falsy('false').default(false),
     otherwise: Joi.boolean().truthy('true').falsy('false').valid(false).default(false),
+  }),
+  // Which outbound effects this process may cause (config/external-effects.ts): `all`, `none`, or a
+  // comma-separated list of kinds. Unset: `all` in a real deployment, `none` when development-like.
+  // A real deployment may NOT be configured with `none`: one that silently stops transmitting fiscal
+  // documents is worse than one that refuses to start.
+  EXTERNAL_EFFECTS: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.string().lowercase().pattern(/^[a-z_]+(,[a-z_]+)*$/).optional(),
+    otherwise: Joi.string().lowercase().pattern(/^[a-z_]+(,[a-z_]+)*$/).invalid('none').optional().messages({
+      'any.invalid': 'EXTERNAL_EFFECTS cannot be "none" outside development and test',
+    }),
+  }).custom((value: string | undefined) => {
+    if (value !== undefined) parseExternalEffects(value, false); // throws on an unknown kind
+    return value;
   }),
   // Which DGII environment to transmit to, and optional per-service endpoint overrides (the DGII
   // versions its paths; overrides let an operator pin the exact ones its environment publishes).

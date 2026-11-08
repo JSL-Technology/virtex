@@ -5,6 +5,7 @@ import { DataSource } from 'typeorm';
 import { EcfSubmissionService } from './ecf-submission.service';
 import { forEachTenant } from '../../shared/tenancy/tenant-job';
 import { SchedulerLockService } from '../../shared/scheduler/scheduler-lock.service';
+import { externalEffectAllowed, ExternalEffect } from '../../config/external-effects';
 
 /**
  * Background reconciliation for e-CF:
@@ -33,6 +34,8 @@ export class EcfReconcilerService {
   @Cron(CronExpression.EVERY_5_MINUTES)
   @ExclusiveJob()
   async pollPendingVerdicts(): Promise<void> {
+    // With fiscal-authority calls disabled every attempt would fail and burn a retry; do not start.
+    if (!externalEffectAllowed(ExternalEffect.FiscalAuthority)) return;
     await this.schedulerLock.pruneFinished('ecf-poll-verdicts', ONE_DAY_MS);
     await this.schedulerLock.runOnce('ecf-poll-verdicts', slot(5), () =>
       this.forEachTenant(async (organizationId) => {
@@ -51,6 +54,8 @@ export class EcfReconcilerService {
   @Cron(CronExpression.EVERY_10_MINUTES)
   @ExclusiveJob()
   async retryContingency(): Promise<void> {
+    // With fiscal-authority calls disabled every attempt would fail and burn a retry; do not start.
+    if (!externalEffectAllowed(ExternalEffect.FiscalAuthority)) return;
     await this.schedulerLock.pruneFinished('ecf-retry-contingency', ONE_DAY_MS);
     await this.schedulerLock.runOnce('ecf-retry-contingency', slot(10), () =>
       this.forEachTenant(async (organizationId) => {

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosError } from 'axios';
 import { FiscalTransmissionResult } from './fiscal-regime.types';
+import { externalEffectAllowed, ExternalEffect } from '../../config/external-effects';
 
 /**
  * Sending a signed document to the authority the tenant is registered with.
@@ -72,6 +73,13 @@ export class RegimeTransportService {
           `EINVOICE_${regimeCode.toUpperCase()}_ENDPOINT no está configurado; el documento queda ` +
             'construido y firmado, sin transmitir.',
         ],
+      };
+    }
+    if (!externalEffectAllowed(ExternalEffect.FiscalAuthority)) {
+      // Not transmitted, and said so: never an invented verdict (config/external-effects.ts).
+      return {
+        status: 'NOT_CONFIGURED',
+        messages: ['La comunicación con la autoridad fiscal está desactivada en este entorno (EXTERNAL_EFFECTS); el documento queda construido y firmado, sin transmitir.'],
       };
     }
 

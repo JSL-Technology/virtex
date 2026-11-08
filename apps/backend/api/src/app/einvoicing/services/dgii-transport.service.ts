@@ -2,6 +2,7 @@ import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common'
 import axios, { AxiosError } from 'axios';
 import FormData from 'form-data';
 import { DgiiConfigService } from './dgii-config.service';
+import { ExternalEffectDisabledError } from '../../config/external-effects';
 
 export interface DgiiReceptionResult {
   trackId?: string;
@@ -57,9 +58,13 @@ export class DgiiTransportService {
     eNcf: string,
     ecfType: string,
   ): Promise<DgiiReceptionResult> {
-    const endpoint = DgiiTransportService.CONSUMO_TYPES.has(ecfType)
-      ? (await this.config.endpointsFor(organizationId)).receptionConsumo
-      : (await this.config.endpointsFor(organizationId)).reception;
+    let endpoint: string;
+    try {
+      const endpoints = await this.config.transmissionEndpointsFor(organizationId);
+      endpoint = DgiiTransportService.CONSUMO_TYPES.has(ecfType) ? endpoints.receptionConsumo : endpoints.reception;
+    } catch (err) {
+      throw this.transportError('transmitir el e-CF', err);
+    }
 
     const form = new FormData();
     form.append('xml', Buffer.from(signedXml, 'utf8'), {
@@ -98,7 +103,7 @@ export class DgiiTransportService {
   /** Poll the final verdict for a trackId. */
   async queryStatus(organizationId: string, token: string, trackId: string): Promise<DgiiStatusResult> {
     try {
-      const { data } = await axios.get((await this.config.endpointsFor(organizationId)).status, {
+      const { data } = await axios.get((await this.config.transmissionEndpointsFor(organizationId)).status, {
         timeout: this.config.httpTimeoutMs,
         params: { trackId },
         headers: { Authorization: `Bearer ${token}` },
@@ -122,7 +127,7 @@ export class DgiiTransportService {
    */
   async queryTrackIds(organizationId: string, token: string, rncEmisor: string, eNcf: string): Promise<DgiiTrackIdEntry[]> {
     try {
-      const { data } = await axios.get((await this.config.endpointsFor(organizationId)).trackIds, {
+      const { data } = await axios.get((await this.config.transmissionEndpointsFor(organizationId)).trackIds, {
         timeout: this.config.httpTimeoutMs,
         params: { RNC: rncEmisor, ENCF: eNcf },
         headers: { Authorization: `Bearer ${token}` },
@@ -155,7 +160,7 @@ export class DgiiTransportService {
     });
 
     try {
-      const { data } = await axios.post((await this.config.endpointsFor(organizationId)).commercialApproval, form, {
+      const { data } = await axios.post((await this.config.transmissionEndpointsFor(organizationId)).commercialApproval, form, {
         timeout: this.config.httpTimeoutMs,
         headers: { ...form.getHeaders(), Authorization: `Bearer ${token}` },
       });
@@ -184,7 +189,7 @@ export class DgiiTransportService {
     });
 
     try {
-      const { data } = await axios.post((await this.config.endpointsFor(organizationId)).voidRange, form, {
+      const { data } = await axios.post((await this.config.transmissionEndpointsFor(organizationId)).voidRange, form, {
         timeout: this.config.httpTimeoutMs,
         headers: { ...form.getHeaders(), Authorization: `Bearer ${token}` },
       });
@@ -216,6 +221,12 @@ export class DgiiTransportService {
   }
 
   private transportError(action: string, err: unknown): ServiceUnavailableException {
+    // Refused by the external-effects switch: nothing left this process. It surfaces as "not
+    // transmitted, retry later" — the same state as an outage — never as a DGII verdict.
+    if (err instanceof ExternalEffectDisabledError) {
+      this.logger.warn(`No se intentó ${action}: la comunicación con autoridades fiscales está desactivada en este proceso (EXTERNAL_EFFECTS).`);
+      return new ServiceUnavailableException(`No se intentó ${action}: comunicación con la DGII desactivada en este entorno.`);
+    }
     const ax = err as AxiosError;
     const detail = ax?.response
       ? `HTTP ${ax.response.status}`

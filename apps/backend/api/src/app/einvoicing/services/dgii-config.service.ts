@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { DgiiEndpoints, DgiiEnvironment, resolveDgiiEndpoints } from '../config/dgii-endpoints';
 import { FiscalEnvironment, FiscalRegimeSettings } from '../entities/fiscal-regime-settings.entity';
 import { isDevLikeEnvironment } from '../../config/environment';
+import { assertExternalEffectAllowed, ExternalEffect } from '../../config/external-effects';
 
 const DGII_ENVIRONMENTS: readonly DgiiEnvironment[] = ['TesteCF', 'CerteCF', 'Produccion'];
 
@@ -56,6 +57,16 @@ export class DgiiConfigService {
       trackIds: this.config.get<string>('DGII_ECF_TRACKIDS_URL') || undefined,
       commercialApproval: this.config.get<string>('DGII_ECF_APPROVAL_URL') || undefined,
     });
+  }
+
+  /**
+   * The endpoints for a call that REACHES the DGII. Refused when this process may not talk to a
+   * fiscal authority (config/external-effects.ts). `endpointsFor` stays unguarded because it also
+   * builds the timbre URL printed on the document, which sends nothing.
+   */
+  async transmissionEndpointsFor(organizationId: string): Promise<DgiiEndpoints> {
+    assertExternalEffectAllowed(ExternalEffect.FiscalAuthority);
+    return this.endpointsFor(organizationId);
   }
 
   get httpTimeoutMs(): number {

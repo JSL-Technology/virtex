@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosError } from 'axios';
 import { FiscalTransmissionResult } from '../fiscal-regime.types';
+import { externalEffectAllowed, ExternalEffect } from '../../../config/external-effects';
 
 /**
  * Stamping a CFDI — the step only an authorised PAC may perform.
@@ -59,6 +60,13 @@ export class PacProvider {
       return {
         status: 'NOT_CONFIGURED',
         messages: ['PAC_STAMP_URL y las credenciales del PAC no están configuradas.'],
+      };
+    }
+    if (!externalEffectAllowed(ExternalEffect.FiscalAuthority)) {
+      // Not transmitted, and said so: never an invented verdict (config/external-effects.ts).
+      return {
+        status: 'NOT_CONFIGURED',
+        messages: ['La comunicación con el PAC está desactivada en este entorno (EXTERNAL_EFFECTS); el documento queda construido y firmado, sin transmitir.'],
       };
     }
 

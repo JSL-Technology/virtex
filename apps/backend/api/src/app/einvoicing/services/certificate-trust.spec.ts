@@ -9,8 +9,8 @@ describe('certificate chain trust', () => {
   const keys = () => forge.pki.rsa.generateKeyPair({ bits: 1024, e: 0x10001 });
   function issue(
     subjectCn: string,
-    subjectKeys: forge.pki.KeyPair,
-    issuer: { cert: forge.pki.Certificate | null; keys: forge.pki.KeyPair },
+    subjectKeys: forge.pki.rsa.KeyPair,
+    issuer: { cert: forge.pki.Certificate | null; keys: forge.pki.rsa.KeyPair },
     ca: boolean,
     days = 365,
   ): forge.pki.Certificate {

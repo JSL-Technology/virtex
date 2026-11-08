@@ -4,6 +4,7 @@ import FormData from 'form-data';
 import { DgiiConfigService } from './dgii-config.service';
 import { EcfSignerService } from './ecf-signer.service';
 import type { LoadedCertificate } from './certificate-vault.service';
+import { ExternalEffectDisabledError } from '../../config/external-effects';
 
 interface CachedToken {
   token: string;
@@ -65,7 +66,7 @@ export class DgiiAuthService {
 
   private async fetchSeed(organizationId: string): Promise<string> {
     try {
-      const { data } = await axios.get((await this.config.endpointsFor(organizationId)).seed, {
+      const { data } = await axios.get((await this.config.transmissionEndpointsFor(organizationId)).seed, {
         timeout: this.config.httpTimeoutMs,
         responseType: 'text',
         headers: { Accept: 'application/xml' },
@@ -90,7 +91,7 @@ export class DgiiAuthService {
     });
 
     try {
-      const { data } = await axios.post((await this.config.endpointsFor(organizationId)).validateSeed, form, {
+      const { data } = await axios.post((await this.config.transmissionEndpointsFor(organizationId)).validateSeed, form, {
         timeout: this.config.httpTimeoutMs,
         headers: form.getHeaders(),
       });
@@ -109,6 +110,12 @@ export class DgiiAuthService {
   }
 
   private transportError(action: string, err: unknown): ServiceUnavailableException {
+    // Refused by the external-effects switch: nothing left this process. It surfaces as "not
+    // transmitted, retry later" — the same state as an outage — never as a DGII verdict.
+    if (err instanceof ExternalEffectDisabledError) {
+      this.logger.warn(`No se intentó ${action}: la comunicación con autoridades fiscales está desactivada en este proceso (EXTERNAL_EFFECTS).`);
+      return new ServiceUnavailableException(`No se intentó ${action}: comunicación con la DGII desactivada en este entorno.`);
+    }
     const ax = err as AxiosError;
     const detail = ax?.response
       ? `HTTP ${ax.response.status}`
