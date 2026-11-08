@@ -470,7 +470,12 @@ export class InvoicesService {
     manager: EntityManager,
   ): Promise<Invoice> {
     // Counted at issuance, not at draft: a plan quota is about documents that exist fiscally.
-    await this.saasService.enforceLimit(manager, organizationId, SaasResource.INVOICES);
+    // A credit note is not metered. It corrects a sale already counted, and a voided invoice is
+    // undone with one: refusing it when the quota is spent left a taxpayer unable to correct a
+    // document — a fiscal obligation — until the next billing month (audit 2026-11-07, FAC-INV-01).
+    if (invoice.type !== InvoiceType.CREDIT_NOTE) {
+      await this.saasService.enforceLimit(manager, organizationId, SaasResource.INVOICES);
+    }
 
     const adapter = await this.fiscalAdapterFactory.getAdapter(organizationId, manager);
 

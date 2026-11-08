@@ -30,83 +30,44 @@ export class UsageMetricRepository {
     limit: number,
     allowOverage: boolean
   ): Promise<{ count: number; limitReached: boolean }> {
-    // 1. Construct Query
-    // We use COALESCE to handle cases but here we are updating existing or inserting.
-    let updateQuery = `
-         UPDATE saas_usage_metrics
-         SET count = count + $1, updated_at = NOW()
-         WHERE organization_id = $2 AND resource = $3 AND period = $4
-    `;
+    // Runs inside the CALLER's transaction (issuing an invoice, creating a customer…), so it must
+    // never raise a database error: PostgreSQL aborts the whole transaction on any error, even one
+    // that is caught, and every statement after it fails with "current transaction is aborted".
+    // The previous version inserted the counter row and caught the 23505 of a concurrent insert —
+    // which left the invoice's transaction dead, so issuing a credit note or voiding with the quota
+    // exhausted answered 500 (audit 2026-11-07, FAC-INV-01).
+    //
+    // 1. Make sure the row exists, without ever raising: ON CONFLICT DO NOTHING.
+    await manager.query(
+      `INSERT INTO saas_usage_metrics (organization_id, resource, period, count, updated_at)
+       VALUES ($1, $2, $3, 0, NOW())
+       ON CONFLICT (organization_id, resource, period) DO NOTHING`,
+      [organizationId, resource, periodKey],
+    );
 
-    const params = [increment, organizationId, resource, periodKey];
+    // 2. One atomic check-and-increment. The row lock it takes serialises concurrent callers, and
+    //    the limit is part of the WHERE clause, so two requests can never both take the last unit.
+    const enforce = !allowOverage && limit !== -1;
+    const [updated] = returnedRows<{ count: string | number }>(
+      await manager.query(
+        `UPDATE saas_usage_metrics
+            SET count = count + $1, updated_at = NOW()
+          WHERE organization_id = $2 AND resource = $3 AND period = $4
+            ${enforce ? 'AND count + $1 <= $5' : ''}
+          RETURNING count`,
+        enforce ? [increment, organizationId, resource, periodKey, limit] : [increment, organizationId, resource, periodKey],
+      ),
+    );
+    if (updated) return { count: Number(updated.count), limitReached: false };
 
-    if (!allowOverage && limit !== -1) {
-        // Atomic Check-and-Set: Only update if new value is within limit
-        updateQuery += ` AND count + $1 <= $5`;
-        params.push(limit);
-    }
-
-    updateQuery += ` RETURNING count`;
-
-    // 2. Try Update (Optimistic Locking / Row Locking)
-    const [updated] = returnedRows<{ count: string | number }>(await manager.query(updateQuery, params));
-
-    if (updated) {
-        return { count: Number(updated.count), limitReached: false };
-    }
-
-    // 3. If Update failed...
-    // Scenario A: Row doesn't exist -> Try Insert
-    // Scenario B: Row exists but Limit Reached -> Check existing count
-
-    // Let's check if row exists to distinguish A vs B
-    // Actually, checking existence is an extra RTT. We can try insert and catch error.
-
-    try {
-        const insertQuery = `
-            INSERT INTO saas_usage_metrics (organization_id, resource, period, count, updated_at)
-            VALUES ($1, $2, $3, $4, NOW())
-            RETURNING count
-        `;
-        const insertParams = [organizationId, resource, periodKey, increment];
-
-        const [inserted] = returnedRows<{ count: string | number }>(await manager.query(insertQuery, insertParams));
-        const insertedCount = Number(inserted?.count ?? increment);
-
-        // Check immediate limit violation on insert (e.g. if increment > limit)
-        if (!allowOverage && limit !== -1 && insertedCount > limit) {
-             // This effectively rolls back because we throw in Service,
-             // but here we just return state. The caller will likely throw.
-             return { count: insertedCount, limitReached: true };
-        }
-
-        return { count: insertedCount, limitReached: false };
-
-    } catch (err: any) {
-        // 4. Handle Race Condition (Unique Violation 23505)
-        // If two threads reach here, one inserted, the other failed.
-        // The failure means the row NOW exists. So we retry the Update.
-        if (err.code === '23505') {
-            const [retried] = returnedRows<{ count: string | number }>(await manager.query(updateQuery, params));
-
-            if (retried) {
-                return { count: Number(retried.count), limitReached: false };
-            }
-
-            // If retry fails and we don't allow overage, it strongly suggests limit is reached.
-            // Or the row disappeared (unlikely in transaction).
-            if (!allowOverage && limit !== -1) {
-                // To be precise, we should fetch current count to confirm.
-                const current = await manager.query(
-                    `SELECT count FROM saas_usage_metrics WHERE organization_id = $1 AND resource = $2 AND period = $3`,
-                    [organizationId, resource, periodKey]
-                );
-                const currentCount = Number(current[0]?.count ?? 0);
-                return { count: currentCount, limitReached: true };
-            }
-        }
-        throw err;
-    }
+    // 3. Only the limit can stop the update now: report the count as it stands.
+    const [current] = returnedRows<{ count: string | number }>(
+      await manager.query(
+        `SELECT count FROM saas_usage_metrics WHERE organization_id = $1 AND resource = $2 AND period = $3`,
+        [organizationId, resource, periodKey],
+      ),
+    );
+    return { count: Number(current?.count ?? 0), limitReached: true };
   }
 
   /**

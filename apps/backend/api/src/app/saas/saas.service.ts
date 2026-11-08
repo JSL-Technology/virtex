@@ -1,4 +1,5 @@
 import { LIFETIME_USAGE_SOURCES, PERIOD_USAGE_SOURCES } from './usage-sources';
+import { monthlyQuotaWindow } from './quota-window';
 import { Injectable, OnModuleInit, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager, DataSource } from 'typeorm';
@@ -19,7 +20,6 @@ import {
   SaasFeatureNotEnabledException,
   SaasNoPlanException,
 } from './exceptions/saas-exception';
-import { DateTime } from 'luxon';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UsageMetricRepository } from './repositories/usage-metric.repository';
 import { OrganizationSubscriptionHistory } from '../organizations/entities/organization-subscription-history.entity';
@@ -374,15 +374,7 @@ export class SaasService implements OnModuleInit {
       }
 
       if (periodType === QuotaPeriod.MONTHLY) {
-          const effectiveEndDate = (org.gracePeriodEnd && org.gracePeriodEnd > (org.subscriptionPeriodEnd || new Date(0)))
-              ? org.gracePeriodEnd
-              : org.subscriptionPeriodEnd;
-
-          if (effectiveEndDate && effectiveEndDate > new Date()) {
-               return DateTime.fromJSDate(org.subscriptionPeriodEnd || effectiveEndDate).toUTC().toFormat('yyyy-MM-dd');
-          } else {
-               return DateTime.fromJSDate(targetDate).toUTC().toFormat('yyyy-MM');
-          }
+          return monthlyQuotaWindow(org.subscriptionPeriodEnd, this.effectiveEnd(org), targetDate).key;
       }
 
       return 'unknown_period';
@@ -627,13 +619,16 @@ export class SaasService implements OnModuleInit {
    * when there is a live one, the calendar month otherwise.
    */
   private quotaWindow(org: Organization, now = new Date()): { from: Date; to: Date } {
-    const key = this.getPeriodKey(QuotaPeriod.MONTHLY, org, now);
-    if (/^\d{4}-\d{2}-\d{2}$/.test(key) && org.subscriptionPeriodStart && org.subscriptionPeriodEnd) {
-      return { from: new Date(org.subscriptionPeriodStart), to: new Date(org.subscriptionPeriodEnd) };
-    }
-    const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-    const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+    const { from, to } = monthlyQuotaWindow(org.subscriptionPeriodEnd, this.effectiveEnd(org), now);
     return { from, to };
+  }
+
+  /** The later of the subscription period end and the grace period end: until then it is live. */
+  private effectiveEnd(org: Organization): Date | null {
+    const periodEnd = org.subscriptionPeriodEnd ?? null;
+    const grace = org.gracePeriodEnd ?? null;
+    if (grace && (!periodEnd || grace > periodEnd)) return grace;
+    return periodEnd;
   }
 
   async getUsage(organizationId: string) {

@@ -429,12 +429,16 @@ export class ComplianceService {
       status: string;
       void_reason: string | null;
     }> = await this.invoiceRepository.manager.query(
-      `SELECT fiscal_number, to_char(created_at AT TIME ZONE $2, 'YYYY-MM-DD') AS sale_date, items, tax, total,
-              change_due, payments, payment_method, status, void_reason
+      // pos_sales mixes naming conventions: "createdAt" and "paymentMethod" are camelCase columns.
+      // Written as snake_case they made this query fail, so the 607 and 608 answered 500 for every
+      // Dominican tenant (audit 2026-11-07, FAC-CMP-01). compliance-till-sales.spec.ts runs it
+      // against the real schema so a rename cannot slip past again.
+      `SELECT fiscal_number, to_char("createdAt" AT TIME ZONE $2, 'YYYY-MM-DD') AS sale_date, items, tax, total,
+              change_due, payments, "paymentMethod" AS payment_method, status, void_reason
          FROM pos_sales
         WHERE organization_id = $1 AND fiscal_number IS NOT NULL
-          AND (created_at AT TIME ZONE $2)::date BETWEEN $3::date AND $4::date
-        ORDER BY created_at`,
+          AND ("createdAt" AT TIME ZONE $2)::date BETWEEN $3::date AND $4::date
+        ORDER BY "createdAt"`,
       [organization.id, timeZone, from, to],
     );
     return rows.map((row) => {
