@@ -2,21 +2,21 @@
 
 Cada identificador que aparece en los MD de la auditoría (`docs/auditorias/2026-11-07-auditoria-madurez-construccion-produccion/`), con la línea que lo define (cita del MD) y su estado verificado contra el código y los commits de la rama `ccr-f710ff5b-8ijix4`.
 
-**Respuesta: no está todo resuelto.** De 388 identificadores: 37 resuelto, 318 pendiente, 7 parcial, 10 informativo, 16 no es hallazgo.
+**Respuesta: no está todo resuelto.** De 388 identificadores: 40 resuelto, 1 en curso, 313 pendiente, 8 parcial, 10 informativo, 16 no es hallazgo.
 
 ## Resumen por severidad
 
 | Severidad | Resuelto | Parcial | En curso | Pendiente | Informativo / no es hallazgo |
 |---|---|---|---|---|---|
-| Crítica | 11 | 0 | 0 | 2 | 0 |
-| Alta | 15 | 4 | 0 | 88 | 2 |
-| Media | 11 | 1 | 0 | 151 | 0 |
+| Crítica | 11 | 0 | 1 | 1 | 0 |
+| Alta | 17 | 4 | 0 | 86 | 2 |
+| Media | 12 | 2 | 0 | 149 | 0 |
 | Baja | 0 | 0 | 0 | 64 | 0 |
 | — | 0 | 2 | 0 | 13 | 24 |
 
 Método: los identificadores se extrajeron con una expresión regular sobre todos los MD; la severidad, de la línea que define cada uno (en las filas de tablas de ejes puede ser la severidad del eje y no la del hallazgo: revisar la cita). «Resuelto» exige un commit y una comprobación en el código (archivo/prueba citados); «Parcial» lista lo que falta.
 
-## RESUELTO (37)
+## RESUELTO (40)
 
 | ID | Sev. | Cita del MD | Commit | Evidencia de la solución |
 |---|---|---|---|---|
@@ -38,14 +38,17 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | FAC-INV-02 | Alta | `modulos/invoices.md:70` — - **FAC-INV-02** — eje 2/7 — robustez — **Alta** — mismo origen — en ráfaga concurrente cerca del límite, las solicitudes que debían recibir 403 reciben **500** (10/19 en la prueba… | 8b1ee726 | `usage-metric.repository.spec.ts`: 20 llamadas concurrentes con límite 10 → exactamente 10 aceptadas, sin 500. |
 | FAC-PL-04 | Alta | `modulos/price-lists.md:58` — - **FAC-PL-04** — eje 9 — pruebas — **alta** — sin specs. M.… | 7e3640e0 | `price-lists/price-resolver.spec.ts` (8 pruebas, unitarias y contra PostgreSQL). |
 | FE-CI-03 | Alta | `modulos/ci-cd-infra.md:53` — - **FE-CI-03** — eje 7 · robustez/efecto externo · **Alta** · `ci.yml:403-405` (`npm run verify:invoicing`). Según el aviso del coordinador, ese verificador contacta `ecf.dgii.gov.… | 4b930dfc | `config/external-effects.ts` (`EXTERNAL_EFFECTS`, `none` por defecto fuera de producción); `dgii-transport`, `dgii-auth`, `regime-transport`, `pac.provider` y el reconciliador respetan el interruptor. |
+| FIN-COA-03 | Alta | `modulos/chart-of-accounts.md:71` — **FIN-COA-03** · chart-of-accounts/localization · Eje 3 · Multi-país · **Alta**… | aeabe621 | `localization/fiscal/coa-builder.ts`: plan base neutro + paquetes por país (`COA_COUNTRY_PACKS`: DO, MX con código agrupador SAT de primer nivel, CO, EC, CR); `COUNTRY_SPECIFIC_COA_TERMS`; `coa-country-packs.spec.ts` (19 mercados sin vocabulario ajeno). Migración `1789470000000-NeutralChartOfAccounts.ts` (roles, columnas, nombres sin editar fuera de DO, código agrupador MX) probada contra PostgreSQL en `database/neutral-chart-of-accounts.migration.spec.ts`. `verify:markets` con aserciones de contenido: 19/19 en verde. Verificar con contador local. |
 | FINB-31 | Alta | `modulos/consolidation.md:44` — **FINB-31** · eje 2 · Bug · **Alta** · `consolidation.service.ts:852-913` + `intercompany.service.ts:180-195, 314-329`. La eliminación intragrupo reduce `fromAccountId` en activos … | 958cf094 | `eliminateIntercompanyFunding`: CxC/CxP intercompañía (no la caja), saldos acumulados a la fecha desde los asientos de cada lado; residuo a la diferencia de conversión con aviso. Prueba de integración. |
 | FINB-32 | Alta | `modulos/consolidation.md:46` — **FINB-32** · eje 2 · Capacidad ausente · Alta · `consolidation.service.ts:935-940` (`void revenueLines; void expenseLines`): ingresos/gastos intragrupo nunca se eliminan (NIIF 10.… | 958cf094 | `eliminateIntragroupTrade`: ventas entre miembros (por identificador fiscal) eliminadas de ingresos y costo, más CxC/CxP abiertas; aviso de discrepancia y de margen no realizado en inventario (verificar con contador). Prueba de integración. |
 | FINB-33 | Alta | `modulos/consolidation.md:48` — **FINB-33** · eje 11 · UX · Alta · sin pantalla/menú (grep en client-web). M.… | 958cf094 | `features/accounting/consolidation/` (página con estados, eliminaciones como asientos, avisos, empresas y corridas guardadas) y entrada de menú en `contabilidad.manifest.ts`; `consolidation.page.spec.ts`. |
 | IA-B03 | Alta | `modulos/bi-dashboard-overview-reports.md:67` — - **IA-B03** · dashboard (eje 2) · bug · **Alta** · `dashboard-charts.service.ts:190-197` · `salesToday`/`sales_yesterday` filtran solo `status <> Draft`: cuentan facturas `Void` y… | b012b456 | `dashboard-charts.service.ts`: excluye borradores y anuladas, resta las notas de crédito, «hoy» en la zona horaria del inquilino. |
+| LOC-02 | Alta | `modulos/localization.md:69` — **LOC-02** · localization/chart-of-accounts · eje 3 · *multi-país (filtrado DO)* · **Alta**… | aeabe621 | Mismo arreglo que FIN-COA-03: roles neutros `PENSION_/HEALTH_/OTHER_PAYROLL_CONTRIBUTIONS_PAYABLE`, columnas `default_*_contributions_payable_account_id`, propina solo donde `serviceChargeRate > 0`, ISC/IEPS/ICE/INC por paquete. |
 | PLTB-DT-01 | Alta | `modulos/desktop.md:58` — **PLTB-DT-01** · desktop · eje 8 · Categoría: seguridad/dependencias · Severidad: **alta**… | 017fa1d5 | `package.json`: `"electron": "45.2.3"` (versión exacta, sin `^`); `package-lock.json` resuelve electron-45.2.3. |
 | PLTB-DT-02 | Alta | `modulos/desktop.md:65` — **PLTB-DT-02** · desktop · eje 10 · Categoría: operabilidad/seguridad · Severidad: **alta**… | 017fa1d5 | `apps/desktop/electron-builder.config.cjs` (`forceCodeSigning` en modo release, firma Azure/notarización), `apps/desktop/src/updater.js` (verifica la declaración Ed25519 antes de descargar), `.github/workflows/desktop-release.yml`. La firma real requiere los certificados del cliente en los secretos del repositorio. |
 | TES-02 | Alta | `modulos/customers.md:63` — **TES-02** · customers/treasury (eje 2) · Integridad · **Alta** · `customer-payments.service.ts` `push()` (sin `currencyCode/foreignCurrencyDebit/exchangeRate` en línea de banco) ·… | e6bcf4d4 | `push()` en `customer-payments.service.ts` registra `currencyCode`, `foreignCurrencyDebit/Credit` y `exchangeRate` en las líneas de banco, CxC y anticipo. |
 | XF-09 | Alta | `06-flujos-cruzados.md:189` — **XF-09** · journal-entries / currencies / invoices · ejes 1 y 2 · **Categoría**: bug · **Severidad: alta**… | a3f55f52 | `journal-entries.service.ts` `rate()` con 6 decimales; `numericTransformerWithDefault`; migración `1789430000000-RestoreFxRateTolerance.ts` (22/22 organizaciones de desarrollo restauradas a 0,02); `stated-rate-tolerance.spec.ts`, `journal-entry-rate.spec.ts`. |
+| CMP-16 | Media | `modulos/suppliers.md:71` — - **CMP-16** · Media · UX/validación… | aeabe621 | `IdentityDocumentService.inferType`: sin tipo, el documento se reconoce por patrón y dígito verificador entre los tipos del país; `identity-document-inference.spec.ts` contra PostgreSQL (RNC 131246796 → RNC; cédula válida → CEDULA; inválido sigue rechazado; el tipo explícito manda). |
 | FAC-PL-02 | Media | `modulos/price-lists.md:56` — - **FAC-PL-02** — eje 2 — bug/integridad — **media** — `price-lists.service.ts:96-99` — `roundAmount(item.price)` trunca a 2 decimales; probado `900.123456→900.12`. Forma correcta:… | 7e3640e0 | `price-lists.service.ts`: `roundAmount(item.price, 6)`; columna `numeric(18,6)`. |
 | FAC-PL-03 | Media | `modulos/price-lists.md:57` — - **FAC-PL-03** — eje 2/4 — validación — **media** — `dto/create-price-list.dto.ts` (`currency: @IsString @IsNotEmpty`) — `"no-currency!!"` aceptado (201). Validar contra catálogo … | 7e3640e0 | `dto/create-price-list.dto.ts`: `@Matches(/^[A-Za-z]{3}$/)` (`validation.currency_code`). |
 | FINB-02 | Media | `modulos/currencies.md:45` — **FINB-02** · eje 2 · Configuración · Media · `organization_settings.fx_rate_tolerance = 0.000000` en tenant nuevo (consulta SQL): cualquier tasa bancaria declarada distinta a la o… | a3f55f52 | Mismo arreglo que XF-09: `fx_rate_tolerance` vuelve a tomar el DEFAULT 0,02; el verificador `numeric-transformers` detecta la regresión. |
@@ -58,7 +61,7 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | PLTB-DS-02 | Media | `modulos/datasheets.md:63` — **PLTB-DS-02** · datasheets · eje 4/5 · Categoría: validación/arquitectura (DTO vs entidad) · Severidad: **media**… | 471e0e3e | `datasheets/dto/datasheet-book.dto.ts` (DTO con lista blanca); el servicio copia columna por columna; `datasheet-book-isolation.spec.ts` (además cerró el robo de libros entre inquilinos hallado al verificar). Verificador `tools/verify/body-dto.mjs`. |
 | PLTB-DT-03 | Media | `modulos/desktop.md:72` — **PLTB-DT-03** · desktop · eje 8 · Categoría: seguridad · Severidad: **media**… | 017fa1d5 | `apps/desktop/src/security-policy.js` + `main.js`: CSP base inyectada con `onHeadersReceived`. |
 
-## PARCIAL (7)
+## PARCIAL (8)
 
 | ID | Sev. | Cita del MD | Commit | Evidencia de la solución | Falta |
 |---|---|---|---|---|---|
@@ -67,15 +70,21 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | IA-B04 | Alta | `modulos/bi-dashboard-overview-reports.md:68` — - **IA-B04** · dashboard (eje 2) · cálculo · **Alta** · `dashboard.service.ts:47-116,163-316` · Margen neto, ROE, ROA, EBITDA usan saldos acumulados "a hoy" sin período (dependen d… | b012b456 | Margen, ROA y EBITDA se calculan sobre el ejercicio en curso sin asientos de cierre (`excludeClosingEntries`). | El ROE sigue usando activos − pasivos (`dashboard.service.ts`, `getROE`) en lugar del patrimonio contable, y la UI conserva rótulos comparativos sin dato (`kpi-fcf.ts`: `vs_budget`). |
 | PLT-DT-01 | Alta | `modulos/data-transfer.md:33` — - **PLT-DT-01** · data-transfer/customers/saas · eje 2 · integridad de datos · **Alta** · `data-transfer/data-transfer.service.ts:425-441` + `customers.service.ts` (create → `SaasS… | 8b1ee726 | La causa raíz (el límite del plan abortaba la transacción → 500) está corregida en `usage-metric.repository.ts`. | No se valida el cupo antes del commit ni se persiste una ejecución PARTIAL; la importación sigue siendo fila a fila. |
 | FE-CI-07 | Media | `modulos/ci-cd-infra.md:57` — - **FE-CI-07** — eje 8 · seguridad · **Media** · CI. `npm audit` (128 vulns, 15 high: node-forge ≤1.4.0, @angular/router, electron…) no es gate; CodeQL falla sin bloquear. Esfuerzo… | 017fa1d5, 4b930dfc | Corregidas las vulnerabilidades altas citadas de node-forge y electron; puerta de auditoría solo para el escritorio (`tools/desktop/audit-gate.mjs`). | `npm audit` no es una puerta para el monorepo completo; @angular/router y el resto siguen sin revisar. |
+| LOC-04 | Media | `modulos/localization.md:83` — **LOC-04** · i18n/localization · eje 3 · *multi-país (terminología DO por defecto)* · **Media**… | aeabe621 | 31 claves genéricas neutras en es/en/pt; el término dominicano en `regional/es-DO.json` (CNPJ/CPF en `pt-BR.json`). Las claves de flujos solo DO se mantienen (el backend ya las limita al país). | Las claves `ledger.payroll.afp_payable/sfs_payable/infotep_payable` siguen nombrando la TSS; se retiran con JUR-01. |
 | SP-01 | — | `00-resumen-ejecutivo.md:22` — 7. **Patrón dominante: "construido pero no conectado"** (SP-01): estados comparativos, listas de precios, revaluación, consolidación, landed cost, manufactura y `/metrics`. Seis ba… | varios | Conectados: listas de precios, revaluación. | Siguen «construidos pero no conectados»: estados comparativos, consolidación, landed cost, manufactura, regímenes de e-factura (en curso). |
 | SP-11 | — | `04-plataforma-transversal.md:12` — \| Suscripción SaaS y pagos \| `saas-payment.md` \| 55 (48–62) \| 50 \| **No listo** \| Causa raíz de FAC-INV-01: el control de cupo aborta la transacción del documento. Los límites de p… | 8b1ee726 | La causa raíz citada (FAC-INV-01) está corregida. | El resto del módulo saas-payment (IAM-P2/P3/P4) sigue pendiente. |
 
-## PENDIENTE (318)
+## EN CURSO (1)
+
+| ID | Sev. | Cita del MD | Commit | Evidencia de la solución |
+|---|---|---|---|---|
+| SP-02 | Crítica | `04-plataforma-transversal.md:15` — \| Motor de reglas por país \| `localization.md` \| 42 (35–50) \| 38 \| **No listo** \| Las reglas son **código, no datos versionados** (SP-03). DO se filtra a otros países (SP-02). Bras… | — | Hecho en aeabe621: FIN-COA-03, LOC-02, CMP-16, I18N-05 y verificador de contenido en `verify:markets`; LOC-04/I18N-02 parciales. Falta: LOC-03 (requisitos de emisión por país y aviso «no es comprobante fiscal»), JUR-01 (contribuciones como lista con código libre) y JUR-02. |
+
+## PENDIENTE (313)
 
 | ID | Sev. | Cita del MD |
 |---|---|---|
-| SP-02 | Crítica | `04-plataforma-transversal.md:15` — \| Motor de reglas por país \| `localization.md` \| 42 (35–50) \| 38 \| **No listo** \| Las reglas son **código, no datos versionados** (SP-03). DO se filtra a otros países (SP-02). Brasil factura al 0 % (L… |
-| SP-03 | Crítica | `04-plataforma-transversal.md:15` — \| Motor de reglas por país \| `localization.md` \| 42 (35–50) \| 38 \| **No listo** \| Las reglas son **código, no datos versionados** (SP-03). DO se filtra a otros países (SP-02). Brasil factura al 0 % (L… |
+| SP-03 | Crítica | `11-traspaso-para-continuar.md:120` — 1. **SP-03** (crítico): reglas fiscales y laborales con vigencia (tasa, base, tope, desde/hasta, fuente… |
 | CMP-01 | Alta | `modulos/accounts-payable.md:57` — **CMP-01** · AP/procurement · eje 2 · Integridad · **Alta** · `accounts-payable.service.ts:766-800` (`matchAgainstReceipts`), POST `/accounts-payable/:id/submit-for-approval`.… |
 | CMP-02 | Alta | `modulos/accounts-payable.md:61` — **CMP-02** · AP · ejes 2 y 3 · Cálculo fiscal · **Alta** · `accounts-payable.service.ts:253` (`taxAmount = dto.taxAmount ?? 0`).… |
 | CMP-03 | Alta | `modulos/accounts-payable.md:65` — **CMP-03** · AP + suppliers · eje 2 · Integridad fiscal · **Alta** · `accounts-payable.service.ts:516-530` (la unicidad del NCF va por `vendor_id`); `suppliers` sin unicidad de RNC.… |
@@ -100,7 +109,6 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | FIN-AC-04 | Alta | `modulos/accounting.md:70` — **FIN-AC-04** · accounting · Eje 1/3 · Funcionalidad no operable · **Alta (AR/VE)**… |
 | FIN-COA-01 | Alta | `modulos/chart-of-accounts.md:64` — **FIN-COA-01** · chart-of-accounts · Eje 2 · Bug · **Alta**… |
 | FIN-COA-02 | Alta | `modulos/chart-of-accounts.md:67` — **FIN-COA-02** · chart-of-accounts · Eje 1/2 · Funcionalidad rota · **Alta**… |
-| FIN-COA-03 | Alta | `modulos/chart-of-accounts.md:71` — **FIN-COA-03** · chart-of-accounts/localization · Eje 3 · Multi-país · **Alta**… |
 | FIN-FR-01 | Alta | `modulos/financial-reporting.md:66` — **FIN-FR-01** · financial-reporting · Eje 1/12 · Competitividad · **Alta** — Sin estados comparativos (período anterior/presupuesto): `comparative-reporting.service.ts` existe pero no está en `provide… |
 | FIN-JE-01 | Alta | `modulos/journal-entries.md:57` — **FIN-JE-01** · journal-entries · Eje 2 · Integridad de datos · **Alta**… |
 | FINB-03 | Alta | `modulos/currencies.md:47` — **FINB-03** · eje 3/12 · Multi-país · Alta · `exchange-rates.service.ts:88-95, 420-468`. Única fuente automática: XE (mercado, cuenta de plataforma); tasas oficiales DGII/BCRD, DOF, TRM, BNA, SBS solo… |
@@ -128,7 +136,6 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | INV-20 | Alta | `modulos/manufacturing.md:75` — - **INV-20** — manufacturing · ejes 1 y 2 · **Categoría**: funcionalidad falsa · **Severidad: alta** (crítica si se expone en la UI)… |
 | INV-23 | Alta | `modulos/wms.md:57` — - **INV-23** — wms/supply-chain · eje 1 · **Categoría**: funcionalidad falsa · **Severidad: alta**… |
 | INV-OP-1 | Alta | `modulos/manufacturing.md:43` — \| 1 \| 10 (5–18, alta) \| Ejecutado: BOM del terminado `QA-INV-FG` con 2×P1 + 0,5×P4 → 201; centro de trabajo → 201; orden `QA-INV-OP-1` por 3 → 201; `PATCH {status: COMPLETED, quantityProduced: 3}` → 2… |
-| LOC-02 | Alta | `modulos/localization.md:69` — **LOC-02** · localization/chart-of-accounts · eje 3 · *multi-país (filtrado DO)* · **Alta**… |
 | LOC-03 | Alta | `modulos/localization.md:76` — **LOC-03** · localization/invoices · eje 3/11 · *multi-país* · **Alta**… |
 | LOC-05 | Alta | `modulos/localization.md:92` — **LOC-05** · localization · eje 2 · *bug* · **Alta (MX)**… |
 | LOC-06 | Alta | `modulos/localization.md:98` — **LOC-06** · localization · eje 3 · *multi-país (vigencia)* · **Alta**… |
@@ -173,7 +180,6 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | CMP-12 | Media | `modulos/accounts-payable.md:86` — **CMP-12** · AP · eje 9 · Pruebas · Media · Probado en vivo: dos sesiones con step-up pagaron a la vez los 4.673 pendientes de la factura 37fb0300. Resultado: una 201 (PAY-2026-000002) y una 400 `bill… |
 | CMP-13 | Media | `modulos/procurement.md:80` — **CMP-13** · eje 8 · Seguridad · Media · `purchase-orders.service.ts:328`.… |
 | CMP-14 | Media | `modulos/procurement.md:87` — **CMP-14** · eje 4 · Arquitectura · Media · `purchase_order_receipts.lines` es JSONB.… |
-| CMP-16 | Media | `modulos/suppliers.md:71` — - **CMP-16** · Media · UX/validación… |
 | CMP-18 | Media | `modulos/suppliers.md:80` — - **CMP-18** · Media · Auditoría… |
 | CMP-19 | Media | `modulos/suppliers.md:83` — - **CMP-19** · Media · Rendimiento… |
 | CMP-22 | Media | `modulos/supply-chain.md:59` — **CMP-22** · ejes 4 y 5 · Mezcla de contexto · Media… |
@@ -254,7 +260,6 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | INV-17 | Media | `modulos/pos.md:112` — - **INV-17** — pos · eje 2 · **Severidad: media**… |
 | INV-18 | Media | `modulos/pos.md:115` — - **INV-18** — pos · eje 11 · **Severidad: media**… |
 | INV-21 | Media | `modulos/manufacturing.md:81` — - **INV-21** — manufacturing · eje 2 · **Severidad: media**… |
-| LOC-04 | Media | `modulos/localization.md:83` — **LOC-04** · i18n/localization · eje 3 · *multi-país (terminología DO por defecto)* · **Media**… |
 | LOC-07 | Media | `modulos/localization.md:104` — **LOC-07** · localization · eje 4/5 · *arquitectura* · **Media**… |
 | LOC-09 | Media | `modulos/localization.md:118` — **LOC-09** · localization · eje 2 · *bug menor* · **Media**… |
 | LOC-10 | Media | `modulos/localization.md:125` — **LOC-10** · localization · eje 2 · *integridad* · **Media**… |
