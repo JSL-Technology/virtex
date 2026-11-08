@@ -30,6 +30,14 @@ export interface CreateSubsidiaryDto {
   ownership: number;
 }
 
+export interface LinkSubsidiaryDto {
+  organizationId: string;
+  ownership: number;
+  acquisitionDate?: string | null;
+  acquisitionCost?: number | null;
+  investmentAccountId?: string | null;
+}
+
 /** What can be recorded about a subsidiary after creation. `null` clears a value. */
 export interface UpdateSubsidiaryDto {
   ownership?: number;
@@ -56,6 +64,14 @@ export class SubsidiariesService {
   }
 
   /** Ownership, acquisition and end of control — what consolidation needs. Asks for step-up. */
+  /**
+   * Put an organization that already exists under this one: an acquisition (FINB-35). The caller
+   * must administer both; the server refuses cycles and a company another parent controls.
+   */
+  linkSubsidiary(data: LinkSubsidiaryDto): Observable<Subsidiary> {
+    return this.http.post<Subsidiary>(`${this.apiUrl}/link`, data);
+  }
+
   updateSubsidiary(subsidiaryId: string, data: UpdateSubsidiaryDto): Observable<Subsidiary> {
     return this.http.patch<Subsidiary>(`${this.apiUrl}/${subsidiaryId}`, data);
   }

@@ -1,4 +1,7 @@
 <ng-template appSettingsActions>
+  <button type="button" class="secondary-button" (click)="openLink()">
+    <span>{{ 'settings.subsidiaries.link_existing' | translate }}</span>
+  </button>
   <button type="button" class="primary-button" (click)="openCreateModal()">
     <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'settings.subsidiaries.new_subsidiary' | translate }}</span>
@@ -192,6 +195,61 @@
       </button>
       <button type="submit" form="subsidiary-edit-form" class="primary-button" [disabled]="savingEdit()">
         {{ (savingEdit() ? 'common.saving' : 'common.save') | translate }}
+      </button>
+    </ng-container>
+  </vx-dialog>
+}
+
+@if (linking()) {
+  <vx-dialog size="md" titleKey="settings.subsidiaries.link_title" [busy]="savingLink()" (dismissed)="closeLink()">
+    <form id="subsidiary-link-form" [formGroup]="linkForm" (ngSubmit)="saveLink()">
+      <div class="modal-body">
+        <p class="field-hint">{{ 'settings.subsidiaries.link_hint' | translate }}</p>
+        <div class="form-field">
+          <label for="link-org">{{ 'settings.subsidiaries.link_company' | translate }} *</label>
+          <select id="link-org" formControlName="organizationId">
+            <option value="">{{ 'settings.subsidiaries.link_choose' | translate }}</option>
+            @for (org of linkCandidates(); track org.id) {
+              <option [value]="org.id">{{ org.legalName }}</option>
+            }
+          </select>
+          @if (linkCandidates().length === 0) {
+            <small class="field-hint">{{ 'settings.subsidiaries.link_no_candidates' | translate }}</small>
+          }
+        </div>
+        <div class="form-field">
+          <label for="link-ownership">{{ 'settings.subsidiaries.ownership_percentage' | translate }} *</label>
+          <input id="link-ownership" type="number" formControlName="ownership" min="0" max="100" step="0.01">
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="link-acquired">{{ 'settings.subsidiaries.acquisition_date' | translate }}</label>
+            <vx-date-field inputId="link-acquired" formControlName="acquisitionDate" />
+          </div>
+          <div class="form-field">
+            <label for="link-cost">{{ 'settings.subsidiaries.acquisition_cost' | translate }}</label>
+            <input id="link-cost" type="number" formControlName="acquisitionCost" min="0" step="0.01">
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="link-investment">{{ 'settings.subsidiaries.investment_account' | translate }}</label>
+          <vx-select
+            inputId="link-investment"
+            formControlName="investmentAccountId"
+            [search]="searchInvestmentAccounts"
+            [resolveWith]="resolveAccount"
+            [displayWith]="accountLabel"
+            [valueWith]="accountId"
+          />
+        </div>
+      </div>
+    </form>
+    <ng-container dialogActions>
+      <button type="button" class="secondary-button" [disabled]="savingLink()" (click)="closeLink()">
+        {{ 'settings.subsidiaries.cancel' | translate }}
+      </button>
+      <button type="submit" form="subsidiary-link-form" class="primary-button" [disabled]="savingLink()">
+        {{ (savingLink() ? 'common.saving' : 'settings.subsidiaries.link_save') | translate }}
       </button>
     </ng-container>
   </vx-dialog>

@@ -5135,6 +5135,51 @@
     "en": "Legal name",
     "pt": "Razão social"
   },
+  "settings.subsidiaries.link_choose": {
+    "es": "Elige una de tus empresas",
+    "en": "Choose one of your companies",
+    "pt": "Escolha uma das suas empresas"
+  },
+  "settings.subsidiaries.link_company": {
+    "es": "Empresa",
+    "en": "Company",
+    "pt": "Empresa"
+  },
+  "settings.subsidiaries.link_existing": {
+    "es": "Vincular una empresa existente",
+    "en": "Link an existing company",
+    "pt": "Vincular uma empresa existente"
+  },
+  "settings.subsidiaries.link_failed": {
+    "es": "No se pudo vincular la empresa.",
+    "en": "The company could not be linked.",
+    "pt": "Não foi possível vincular a empresa."
+  },
+  "settings.subsidiaries.link_hint": {
+    "es": "Para una adquisición: la empresa conserva su contabilidad y entra en la consolidación desde la fecha de adquisición. Debes administrar ambas empresas.",
+    "en": "For an acquisition: the company keeps its books and enters the consolidation from the acquisition date. You must administer both companies.",
+    "pt": "Para uma aquisição: a empresa mantém a sua contabilidade e entra na consolidação a partir da data de aquisição. Deve administrar ambas as empresas."
+  },
+  "settings.subsidiaries.link_no_candidates": {
+    "es": "No perteneces a otra empresa que se pueda vincular.",
+    "en": "You belong to no other company that can be linked.",
+    "pt": "Não pertence a outra empresa que possa ser vinculada."
+  },
+  "settings.subsidiaries.link_save": {
+    "es": "Vincular",
+    "en": "Link",
+    "pt": "Vincular"
+  },
+  "settings.subsidiaries.link_title": {
+    "es": "Vincular una empresa existente",
+    "en": "Link an existing company",
+    "pt": "Vincular uma empresa existente"
+  },
+  "settings.subsidiaries.linked": {
+    "es": "Empresa vinculada como subsidiaria.",
+    "en": "Company linked as a subsidiary.",
+    "pt": "Empresa vinculada como subsidiária."
+  },
   "settings.subsidiaries.load_failed": {
     "es": "No se pudieron cargar las subsidiarias.",
     "en": "The subsidiaries could not be loaded.",
