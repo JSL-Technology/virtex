@@ -6,10 +6,12 @@ import { PriceListsController } from './price-lists.controller';
 import { PriceList } from './entities/price-list.entity';
 import { PriceListItem } from './entities/price-list-item.entity';
 import { AuthModule } from '../auth/auth.module';
+import { PriceResolver } from './price-resolver.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([PriceList, PriceListItem]), AuthModule],
   controllers: [PriceListsController],
-  providers: [PriceListsService],
+  providers: [PriceListsService, PriceResolver],
+  exports: [PriceResolver],
 })
 export class PriceListsModule {}

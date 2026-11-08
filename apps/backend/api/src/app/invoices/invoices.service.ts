@@ -28,6 +28,7 @@ import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { EcfSubmissionService } from '../einvoicing/services/ecf-submission.service';
 import { InvoicePostingService } from './services/invoice-posting.service';
+import { PriceResolver, type ResolvedPrice } from '../price-lists/price-resolver.service';
 import { ComputedDocument, computeDocument, TaxableLineInput } from './sales-tax.engine';
 import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
@@ -45,6 +46,16 @@ import { fiscalIdentifierLabel } from '../localization/contracts/tax-id.contract
 import type { FiscalEmissionMode } from '../organizations/contracts/fiscal-emission-mode.contract';
 
 /** One type the invoice form may offer, with what stands in its way (see `issuableTypes`). */
+/** How each line of a previewed document was priced, in the order of its lines. */
+export interface LinePricing {
+  unitPrice: number;
+  priceListId: string | null;
+  listPrice: number | null;
+}
+
+/** A preview: the computed figures, and the price each line will carry. */
+export type PreviewedDocument = ComputedDocument & { pricing: LinePricing[] };
+
 export interface IssuableTypeOption extends FiscalDocumentTypeOption {
   /** Always stated here: from the adapter, or from the market's catalogue. */
   electronic: boolean;
@@ -234,6 +245,8 @@ export class InvoicesService {
     private readonly withholdingResolver: WithholdingResolverService,
     /** Decides the rate where the market has no national one: the United States, Brazil. */
     private readonly taxDetermination: TaxDeterminationService,
+    /** The customer's price list, the default list for the currency, then the catalogue. */
+    private readonly prices: PriceResolver,
   ) {}
 
   // ── Creation ───────────────────────────────────────────────────────────────
@@ -637,7 +650,7 @@ export class InvoicesService {
    *
    * Reads only. No numbering, no stock, no posting, nothing written.
    */
-  async preview(dto: CreateInvoiceDto, organizationId: string): Promise<ComputedDocument> {
+  async preview(dto: CreateInvoiceDto, organizationId: string): Promise<PreviewedDocument> {
     const manager = this.dataSource.manager;
 
     const organization = await manager.getRepository(Organization).findOne({
@@ -645,13 +658,14 @@ export class InvoicesService {
       select: ['id', 'country', 'state', 'city', 'postalCode'],
     });
     const customer = await this.customersService.findOne(dto.customerId, organizationId);
-    const { currencyCode } = await this.resolveCurrency(
+    const { currencyCode, baseCurrency } = await this.resolveCurrency(
       organizationId,
       dto.currencyCode,
       dto.issueDate,
     );
 
     const products = await this.loadProducts(dto.lineItems, organizationId, manager);
+    const listPrices = await this.listPrices(dto, organizationId, customer.id, currencyCode, manager);
     const standardRate = await standardSalesTaxRate(manager, organizationId);
     const determined = await this.determinedTaxRate(
       organizationId,
@@ -663,7 +677,10 @@ export class InvoicesService {
     const taxInputs: TaxableLineInput[] = [];
     const resolved: ResolvedLine[] = [];
     for (const [index, lineDto] of dto.lineItems.entries()) {
-      const line = this.resolveLine(lineDto, products, index, determined?.rate, standardRate);
+      const line = this.resolveLine(lineDto, products, index, determined?.rate, standardRate, {
+        listPrice: listPrices[index],
+        catalogueApplies: currencyCode === baseCurrency,
+      });
       resolved.push(line);
       taxInputs.push({
         quantity: line.quantity,
@@ -688,7 +705,7 @@ export class InvoicesService {
       },
     );
 
-    return computeDocument({
+    const computed = computeDocument({
       countryCode: organization?.country ?? null,
       currencyCode,
       tenantTaxRates: await this.tenantTaxRates(organizationId, manager),
@@ -698,6 +715,14 @@ export class InvoicesService {
       taxWithholdingRate: withholding.taxWithholdingRate,
       incomeTaxWithholdingRate: withholding.incomeTaxWithholdingRate,
     });
+    return {
+      ...computed,
+      pricing: resolved.map((line) => ({
+        unitPrice: line.unitPrice,
+        priceListId: line.priceListId,
+        listPrice: line.listPrice,
+      })),
+    };
   }
 
   /**
@@ -734,6 +759,7 @@ export class InvoicesService {
     );
 
     const products = await this.loadProducts(dto.lineItems, organizationId, manager);
+    const listPrices = await this.listPrices(dto, organizationId, customer.id, currencyCode, manager);
     const standardRate = await standardSalesTaxRate(manager, organizationId);
     const determined = await this.determinedTaxRate(
       organizationId,
@@ -747,7 +773,10 @@ export class InvoicesService {
     const resolved: ResolvedLine[] = [];
 
     for (const [index, lineDto] of dto.lineItems.entries()) {
-      const line = this.resolveLine(lineDto, products, index, determined?.rate, standardRate);
+      const line = this.resolveLine(lineDto, products, index, determined?.rate, standardRate, {
+        listPrice: listPrices[index],
+        catalogueApplies: currencyCode === baseCurrency,
+      });
       resolved.push(line);
       taxInputs.push({
         quantity: line.quantity,
@@ -802,6 +831,8 @@ export class InvoicesService {
         quantity: line.quantity,
         unitOfMeasure: line.unitOfMeasure,
         price: line.unitPrice,
+        priceListId: line.priceListId,
+        listPrice: line.listPrice,
         discountRate: line.discountRate,
         discountAmount: c.discountAmount,
         lineSubtotal: c.subtotal,
@@ -923,6 +954,34 @@ export class InvoicesService {
 
   // ── Line resolution ────────────────────────────────────────────────────────
 
+  /**
+   * What the applicable price list says for each line, by index (FAC-PL-01). A free-text line,
+   * or one the list does not carry, gets `undefined` and the catalogue applies.
+   */
+  private async listPrices(
+    dto: CreateInvoiceDto,
+    organizationId: string,
+    customerId: string,
+    currencyCode: string,
+    manager: EntityManager,
+  ): Promise<Array<ResolvedPrice | undefined>> {
+    const queries = dto.lineItems
+      .map((line, index) => ({ index, productId: line.productId, quantity: Number(line.quantity) }))
+      .filter((q): q is { index: number; productId: string; quantity: number } => Boolean(q.productId));
+    const out: Array<ResolvedPrice | undefined> = new Array(dto.lineItems.length).fill(undefined);
+    if (queries.length === 0) return out;
+    const resolved = await this.prices.resolve(
+      organizationId,
+      { customerId, currencyCode, date: toIsoDate(dto.issueDate) },
+      queries,
+      manager,
+    );
+    resolved.forEach((price, i) => {
+      if (price.unitPrice !== null) out[queries[i].index] = price;
+    });
+    return out;
+  }
+
   private async loadProducts(
     lines: InvoiceLineDto[],
     organizationId: string,
@@ -964,6 +1023,16 @@ export class InvoicesService {
     determinedRate?: number,
     /** The tenant's standard rate, for a taxed product that carries none. */
     standardRate?: number,
+    pricing: {
+      /** What the applicable price list says for this line, if anything. */
+      listPrice?: ResolvedPrice;
+      /**
+       * Whether the catalogue price may stand in for a missing one. The catalogue is kept in the
+       * base currency; billing its figure as dollars on a dollar invoice charged 58 times too
+       * little (or too much). In another currency a line needs its own price or a list's.
+       */
+      catalogueApplies: boolean;
+    } = { catalogueApplies: true },
   ): ResolvedLine {
     const product = dto.productId ? products.get(dto.productId) : undefined;
 
@@ -972,7 +1041,9 @@ export class InvoicesService {
       throw new BadRequestError('invoices.line_p1_needs_description_product_from', { p1: index + 1 });
     }
 
-    const unitPrice = dto.unitPrice ?? Number(product?.price ?? NaN);
+    const listed = pricing.listPrice?.unitPrice ?? null;
+    const unitPrice =
+      dto.unitPrice ?? listed ?? (pricing.catalogueApplies ? Number(product?.price ?? NaN) : NaN);
     if (!Number.isFinite(unitPrice)) {
       throw new BadRequestError('invoices.line_p1_has_no_price_enter', { p1: index + 1 });
     }
@@ -994,6 +1065,8 @@ export class InvoicesService {
       description,
       quantity: dto.quantity,
       unitPrice,
+      priceListId: listed !== null ? (pricing.listPrice?.priceListId ?? null) : null,
+      listPrice: listed,
       discountRate: dto.discountRate ?? 0,
       taxTreatment: treatment,
       taxRate,
@@ -1900,6 +1973,9 @@ interface ResolvedLine {
   description: string;
   quantity: number;
   unitPrice: number;
+  /** The list that had a price for the line, and that price (see `InvoiceLineItem.listPrice`). */
+  priceListId: string | null;
+  listPrice: number | null;
   discountRate: number;
   taxTreatment: TaxTreatment;
   taxRate: number;

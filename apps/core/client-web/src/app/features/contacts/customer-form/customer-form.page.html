@@ -175,6 +175,21 @@
               {{ 'contacts.customer_form.days_added_issue_date_work_out' | translate }}
             </small>
           </div>
+
+          @if (canViewPriceLists) {
+            <div class="form-field">
+              <label for="priceListId">{{ 'contacts.customer_form.price_list' | translate }}</label>
+              <select id="priceListId" formControlName="priceListId" aria-describedby="priceListId-hint">
+                <option value="">{{ 'contacts.customer_form.price_list_default' | translate }}</option>
+                @for (list of priceLists(); track list.id) {
+                  <option [value]="list.id">{{ list.name }} · {{ list.currency }}</option>
+                }
+              </select>
+              <small id="priceListId-hint" class="field-hint">
+                {{ 'contacts.customer_form.price_list_hint' | translate }}
+              </small>
+            </div>
+          }
         </section>
       </div>
     </div>

@@ -436,6 +436,11 @@
     "en": "The valuations must be an array.",
     "pt": "As valorações devem ser um array."
   },
+  "validation.currency_code": {
+    "es": "Debe ser un código de moneda ISO 4217 de tres letras (p. ej. DOP, USD).",
+    "en": "Must be a three-letter ISO 4217 currency code (e.g. DOP, USD).",
+    "pt": "Deve ser um código de moeda ISO 4217 de três letras (p. ex. DOP, USD)."
+  },
   "validation.email_change.email_address_cannot_empty": {
     "es": "El correo electrónico no puede estar vacío.",
     "en": "The email address cannot be empty.",

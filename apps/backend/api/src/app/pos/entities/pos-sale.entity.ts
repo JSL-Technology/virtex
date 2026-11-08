@@ -24,6 +24,8 @@ export interface PosSaleItem {
   productId: string;
   productName: string;
   price: number;
+  /** The default price list that priced the line, when one did (FAC-PL-01). */
+  priceListId?: string | null;
   quantity: number;
   taxRate: number;
   lineSubtotal: number;

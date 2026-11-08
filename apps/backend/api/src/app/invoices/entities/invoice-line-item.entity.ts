@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import type { Invoice } from './invoice.entity';
 import { Product } from '../../inventory/entities/product.entity';
-import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 /**
  * How a line is treated for consumption tax. The distinction is not cosmetic: the DGII's
@@ -88,6 +88,16 @@ export class InvoiceLineItem {
     transformer: numericTransformerNotNull,
   })
   price: number;
+
+  /**
+   * The list that priced the line, and the price it gave. A unit price that differs from
+   * `listPrice` was typed over the list; `null` when no list applied (catalogue or free text).
+   */
+  @Column({ name: 'price_list_id', type: 'uuid', nullable: true })
+  priceListId?: string | null;
+
+  @Column('decimal', { name: 'list_price', precision: 18, scale: 6, nullable: true, transformer: numericTransformer })
+  listPrice?: number | null;
 
   /** Discount granted on this line, as a fraction (0.10 = 10 %). */
   @Column('decimal', {

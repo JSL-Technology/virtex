@@ -517,6 +517,7 @@
   "validation.create_journal_entry.ledger_id_ledger_id_required_every": "El ID del libro contable (ledgerId) es obligatorio en cada valoración.",
   "validation.create_journal_entry.line_description_must_text": "La descripción de la línea debe ser un texto.",
   "validation.create_journal_entry.valuations_must_array": "Las valoraciones deben ser un arreglo.",
+  "validation.currency_code": "Debe ser un código de moneda ISO 4217 de tres letras (p. ej. DOP, USD).",
   "validation.email_change.email_address_cannot_empty": "El correo electrónico no puede estar vacío.",
   "validation.email_change.email_address_not_valid": "El formato del correo electrónico no es válido.",
   "validation.email_change.email_cannot_longer_than_254_characters": "El correo no puede tener más de 254 caracteres.",

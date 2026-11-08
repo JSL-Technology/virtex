@@ -7,6 +7,7 @@ import {
   isOutOfStock,
   repriceCart,
   setQuantity,
+  unitPriceAt,
 } from './cart';
 
 const item = (over: Partial<CatalogueItem> = {}): CatalogueItem => ({
@@ -100,5 +101,35 @@ describe('cart', () => {
       'p2',
     ]);
     expect(filterCatalogue(catalogue, 'caf', 'c2')).toEqual([]);
+  });
+
+  describe('price list breaks (FAC-PL-01)', () => {
+    const listed = item({
+      price: 100,
+      cataloguePrice: 120,
+      stock: 500,
+      priceBreaks: [
+        { minQuantity: 1, price: 100 },
+        { minQuantity: 12, price: 90 },
+      ],
+    });
+
+    it('a line takes the break its quantity reaches, as the server charges it', () => {
+      let lines = addToCart([], listed, 1).lines;
+      expect(lines[0].price).toBe(100);
+      lines = setQuantity(lines, 'p1', 12).lines;
+      expect(lines[0].price).toBe(90);
+      lines = setQuantity(lines, 'p1', 11).lines;
+      expect(lines[0].price).toBe(100);
+      expect(cartTotals(setQuantity(lines, 'p1', 24).lines).subtotal).toBe(2160);
+    });
+
+    it('below the smallest break, the catalogue price', () => {
+      expect(unitPriceAt({ price: 90, cataloguePrice: 120, priceBreaks: [{ minQuantity: 12, price: 90 }] }, 3)).toBe(120);
+    });
+
+    it('an item an older server sent without breaks keeps its single price', () => {
+      expect(addToCart([], item({ price: 385 }), 2).lines[0].price).toBe(385);
+    });
   });
 });

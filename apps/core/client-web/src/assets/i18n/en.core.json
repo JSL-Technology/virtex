@@ -796,6 +796,7 @@
   "validation.create_journal_entry.ledger_id_ledger_id_required_every": "The ledger ID (ledgerId) is required on every valuation.",
   "validation.create_journal_entry.line_description_must_text": "The line description must be text.",
   "validation.create_journal_entry.valuations_must_array": "The valuations must be an array.",
+  "validation.currency_code": "Must be a three-letter ISO 4217 currency code (e.g. DOP, USD).",
   "validation.email_change.email_address_cannot_empty": "The email address cannot be empty.",
   "validation.email_change.email_address_not_valid": "That email address is not valid.",
   "validation.email_change.email_cannot_longer_than_254_characters": "The email cannot be longer than 254 characters (RFC 5321).",

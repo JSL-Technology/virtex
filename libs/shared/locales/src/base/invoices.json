@@ -1437,6 +1437,11 @@
     "en": "Price",
     "pt": "Preço"
   },
+  "invoices.new.price_from_list": {
+    "es": "Precio de la lista «{{list}}»",
+    "en": "Price from the «{{list}}» list",
+    "pt": "Preço da lista «{{list}}»"
+  },
   "invoices.new.quantity": {
     "es": "Cantidad",
     "en": "Quantity",

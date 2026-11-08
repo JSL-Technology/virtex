@@ -48,6 +48,13 @@
                 <vx-date-field inputId="validTo" formControlName="validTo" />
             </div>
         </div>
+        <div class="form-field form-field--check">
+            <label for="isDefault">
+                <input id="isDefault" type="checkbox" formControlName="isDefault" aria-describedby="isDefault-hint">
+                {{ 'masters.price_lists_form.is_default' | translate }}
+            </label>
+            <p id="isDefault-hint" class="field-hint">{{ 'masters.price_lists_form.is_default_hint' | translate }}</p>
+        </div>
 
     </section>
 
@@ -60,7 +67,8 @@
                     <thead>
                         <tr>
                             <th style="width: 50%;">{{ 'masters.price_lists_form.product' | translate }}</th>
-                            <th class="text-right" style="width: 40%;">{{ 'masters.price_lists_form.price' | translate }}</th>
+                            <th class="text-right" style="width: 18%;">{{ 'masters.price_lists_form.min_quantity' | translate }}</th>
+                            <th class="text-right" style="width: 22%;">{{ 'masters.price_lists_form.price' | translate }}</th>
                             <th class="actions-column">{{ 'masters.price_lists_form.actions' | translate }}</th>
                         </tr>
                     </thead>
@@ -80,7 +88,12 @@
                                     />
                                 </td>
                                 <td>
-                                    <input type="number" formControlName="price" class="text-right" min="0" step="0.01">
+                                    <input type="number" formControlName="minQuantity" class="text-right" min="0" step="any"
+                                        [attr.aria-label]="'masters.price_lists_form.min_quantity' | translate">
+                                </td>
+                                <td>
+                                    <input type="number" formControlName="price" class="text-right" min="0" step="any"
+                                        [attr.aria-label]="'masters.price_lists_form.price' | translate">
                                 </td>
                                 <td class="actions-column text-center">
                                     <button type="button" class="icon-button delete" (click)="removeLine(i)" [disabled]="lines.length <= 1">

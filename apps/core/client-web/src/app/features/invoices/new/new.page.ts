@@ -10,7 +10,8 @@ import {
   ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, Subject, debounceTime, merge, switchMap, tap } from 'rxjs';
+import { Observable, Subject, catchError, debounceTime, merge, of, switchMap, tap } from 'rxjs';
+import { PriceListsService } from '../../masters/data/price-lists.service';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { translateOrLiteral, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
@@ -98,6 +99,9 @@ export class NewInvoicePage implements OnInit {
   private notificationService = inject(NotificationService);
   private readonly countryPack = inject(CountryPackService);
   private readonly paymentMethodsService = inject(PaymentMethodsService);
+  private readonly priceListsApi = inject(PriceListsService);
+  /** Lines whose price follows the price list; see `repriceLines`. */
+  private readonly repriceRequests = new Subject<void>();
 
   invoiceForm: FormGroup;
 
@@ -283,6 +287,52 @@ export class NewInvoicePage implements OnInit {
     )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.applyPaymentTerms());
+
+    //  El precio de cada línea sigue la lista de precios del cliente (FAC-PL-01): se recalcula al
+    //  cambiar de cliente, de moneda, de fecha o de cantidad, salvo en las líneas cuyo precio
+    //  alguien escribió a mano. `switchMap`: la respuesta a una pregunta ya superada no pisa la
+    //  de la vigente.
+    merge(
+      this.invoiceForm.get('customerId')!.valueChanges,
+      this.invoiceForm.get('currencyCode')!.valueChanges,
+      this.invoiceForm.get('issueDate')!.valueChanges,
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.repriceRequests.next());
+    this.repriceRequests
+      .pipe(
+        debounceTime(250),
+        switchMap(() => {
+          const { customerId, currencyCode, issueDate } = this.invoiceForm.getRawValue();
+          const targets = this.lineItems.controls.filter(
+            (line) => line.get('productId')?.value && line.get('autoPrice')?.value,
+          );
+          if (targets.length === 0) return of(null);
+          const lines = targets.map((line) => ({
+            productId: line.get('productId')!.value as string,
+            quantity: Number(line.get('quantity')!.value) || 1,
+          }));
+          return this.priceListsApi
+            .resolvePrices({ customerId, currencyCode, date: issueDate, lines })
+            .pipe(
+              catchError(() => of(null)),
+              switchMap((priced) => of(priced && { targets, priced })),
+            );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((answer) => {
+        if (!answer) return;
+        answer.priced.forEach((priced, k) => {
+          const line = answer.targets[k];
+          //  La línea pudo cambiar de producto, o alguien pudo escribir su precio, mientras tanto.
+          if (!line.get('autoPrice')?.value || line.get('productId')?.value !== priced.productId) return;
+          line.patchValue({
+            ...(priced.price !== null ? { unitPrice: priced.price } : {}),
+            priceListName: priced.source === 'PRICE_LIST' ? priced.priceListName : '',
+          });
+        });
+      });
 
     this.invoiceForm
       .get('dueDate')!
@@ -581,7 +631,7 @@ export class NewInvoicePage implements OnInit {
   }
 
   createLineItem(): FormGroup {
-    return this.fb.group({
+    const group: FormGroup = this.fb.group({
       productId: [''],
       description: [''],
       // Fractional quantities: hours, kilos, litres, partial packs.
@@ -590,7 +640,23 @@ export class NewInvoicePage implements OnInit {
       discountRate: [0, [Validators.min(0), Validators.max(0.99)]],
       taxTreatment: ['TAXED' as TaxTreatment],
       taxRate: [this.context()?.taxRates[0] ?? 0, [Validators.min(0), Validators.max(1)]],
+      //  De la página, no del documento (no se envían): si el precio sigue a la lista de precios y
+      //  qué lista lo puso. Escribir un precio a mano apaga lo primero (ver `onUnitPriceTyped`).
+      autoPrice: [false],
+      priceListName: [''],
     });
+    group
+      .get('quantity')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (group.get('autoPrice')?.value) this.repriceRequests.next();
+      });
+    return group;
+  }
+
+  /** A price typed by hand is the price: the list stops moving it. The server records both. */
+  onUnitPriceTyped(index: number): void {
+    this.lineItems.at(index).patchValue({ autoPrice: false, priceListName: '' }, { emitEvent: false });
   }
 
   addLineItem(): void {
@@ -616,10 +682,14 @@ export class NewInvoicePage implements OnInit {
 
     control.patchValue({
       description: product.name,
+      //  The catalogue price at once, then the list's when the server answers.
       unitPrice: product.price,
+      autoPrice: true,
+      priceListName: '',
       taxTreatment: treatment,
       taxRate: this.rateForProduct(product as { taxRate?: number }, treatment),
     });
+    this.repriceRequests.next();
   }
 
   /**

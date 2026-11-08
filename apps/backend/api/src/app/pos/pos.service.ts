@@ -8,6 +8,7 @@ import { PosPayment, PosSale, PosSaleItem, PosSaleStatus } from './entities/pos-
 import { InventoryService } from '../inventory/inventory.service';
 import { PosPostingService } from './pos-posting.service';
 import { ComplianceService } from '../compliance/compliance.service';
+import { PriceResolver, pickBreak } from '../price-lists/price-resolver.service';
 import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 import {
   SellableCatalogueItem,
@@ -42,6 +43,17 @@ const TENDER_METHODS = ['cash', 'card', 'transfer', 'other'] as const;
 type TenderMethod = (typeof TENDER_METHODS)[number];
 
 /** What a till needs to know about the company it sells for, before the first sale. */
+/**
+ * A till's catalogue item, with the default price list folded in: the unit price of a line is
+ * the price of the largest `priceBreaks` minimum its quantity reaches, else `cataloguePrice` —
+ * exactly what `processSale` charges.
+ */
+export interface PosCatalogueItem extends SellableCatalogueItem {
+  cataloguePrice: number;
+  priceBreaks: Array<{ minQuantity: number; price: number }>;
+  priceListId: string | null;
+}
+
 export interface PosContext {
   /** Printed on the ticket's header. */
   organization: { legalName: string | null; taxId: string | null; country: string | null };
@@ -112,6 +124,8 @@ export class PosService {
     private readonly dataSource: DataSource,
     private readonly postingService: PosPostingService,
     private readonly compliance: ComplianceService,
+    /** The organization's default price list for its currency (FAC-PL-01). */
+    private readonly prices: PriceResolver,
   ) {}
 
   getActiveShift(organizationId: string, terminalId: string): Promise<PosShift | null> {
@@ -237,13 +251,25 @@ export class PosService {
       let goodsRevenue = 0;
       let servicesRevenue = 0;
       let costOfSale = 0;
-      for (const item of dto.items) {
+      // A till sale has no customer account, so it is priced at the default list for the base
+      // currency, on the organization's date — the same lookup the catalogue made (FAC-PL-01).
+      const listPrices = await this.prices.resolve(
+        organizationId,
+        {
+          currencyCode: await organizationBaseCurrency(manager, organizationId),
+          date: await organizationToday(manager, organizationId),
+        },
+        dto.items.map((item) => ({ productId: item.productId, quantity: item.quantity })),
+        manager,
+      );
+      for (const [itemIndex, item] of dto.items.entries()) {
         const product = await findSellableProduct(manager, organizationId, item.productId);
         if (!product) {
           throw new BadRequestError('pos.product_not_available', { productId: item.productId });
         }
 
-        const price = roundAmount(product.price);
+        const listed = listPrices[itemIndex];
+        const price = roundAmount(listed?.unitPrice ?? product.price);
         if (Math.abs(price - item.price) > AMOUNT_TOLERANCE) {
           throw new ConflictError('pos.prices_changed', { productId: product.id });
         }
@@ -271,6 +297,7 @@ export class PosService {
           productId: product.id,
           productName: product.name,
           price,
+          priceListId: listed?.priceListId ?? null,
           quantity: item.quantity,
           taxRate,
           lineSubtotal,
@@ -383,8 +410,26 @@ export class PosService {
   }
 
   /** The till's catalogue, priced and taxed as the server will charge it. */
-  catalogue(organizationId: string): Promise<SellableCatalogueItem[]> {
-    return listSellableCatalogue(this.dataSource.manager, organizationId);
+  async catalogue(organizationId: string): Promise<PosCatalogueItem[]> {
+    const manager = this.dataSource.manager;
+    const [items, currencyCode, date] = await Promise.all([
+      listSellableCatalogue(manager, organizationId),
+      organizationBaseCurrency(manager, organizationId),
+      organizationToday(manager, organizationId),
+    ]);
+    const list = await this.prices.applicableList(organizationId, { currencyCode, date }, manager);
+    const breaks = list ? await this.prices.breaks(list.id, items.map((item) => item.id), manager) : new Map();
+    return items.map((item) => {
+      const own = breaks.get(item.id) ?? [];
+      return {
+        ...item,
+        // What one unit costs, as the grid shows it; the ticket recomputes per quantity.
+        price: roundAmount(pickBreak(own, 1)?.price ?? item.price),
+        cataloguePrice: item.price,
+        priceBreaks: own,
+        priceListId: own.length ? list!.id : null,
+      };
+    });
   }
 
   /** Currency, standard rate and the company's fiscal identity, for the till and its tickets. */

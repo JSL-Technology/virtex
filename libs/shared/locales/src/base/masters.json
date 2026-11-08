@@ -419,6 +419,11 @@
     "en": "Currency",
     "pt": "Moeda"
   },
+  "masters.price_lists.default_badge": {
+    "es": "Predeterminada",
+    "en": "Default",
+    "pt": "Padrão"
+  },
   "masters.price_lists.delete": {
     "es": "Eliminar",
     "en": "Delete",
@@ -529,10 +534,25 @@
     "en": "Error updating the price list.",
     "pt": "Erro ao atualizar a tabela de preços."
   },
+  "masters.price_lists_form.is_default": {
+    "es": "Lista predeterminada para esta moneda",
+    "en": "Default list for this currency",
+    "pt": "Lista padrão para esta moeda"
+  },
+  "masters.price_lists_form.is_default_hint": {
+    "es": "Se aplica a todo cliente sin lista propia que compre en esta moneda. Solo puede haber una por moneda: marcarla aquí la desmarca en la anterior.",
+    "en": "Applies to every customer without a list of their own who buys in this currency. There can be only one per currency: ticking it here unticks it on the previous one.",
+    "pt": "Aplica-se a todo cliente sem lista própria que compre nesta moeda. Só pode haver uma por moeda: marcá-la aqui desmarca a anterior."
+  },
   "masters.price_lists_form.list_name": {
     "es": "Nombre de la lista",
     "en": "List name",
     "pt": "Nome da tabela"
+  },
+  "masters.price_lists_form.min_quantity": {
+    "es": "Desde cantidad",
+    "en": "From quantity",
+    "pt": "A partir da quantidade"
   },
   "masters.price_lists_form.price": {
     "es": "Precio",

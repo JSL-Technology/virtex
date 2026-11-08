@@ -37,6 +37,9 @@
             <td class="text-center">{{ list.items.length }}</td>
             <td>
               <vx-badge [tone]="statusTone(list.status)">{{ 'masters.price_lists.status_label.' + list.status | translate }}</vx-badge>
+              @if (list.isDefault) {
+                <vx-badge tone="info">{{ 'masters.price_lists.default_badge' | translate }}</vx-badge>
+              }
             </td>
             <td class="actions-column">
               <div class="action-buttons">

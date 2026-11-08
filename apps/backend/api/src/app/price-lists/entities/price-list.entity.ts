@@ -42,6 +42,13 @@ export class PriceList {
   })
   status: PriceListStatus;
 
+  /**
+   * The list for every customer that has none of its own, in this currency. At most one per
+   * currency (partial unique index); setting it on one list clears it on the others.
+   */
+  @Column({ name: 'is_default', type: 'boolean', default: false })
+  isDefault: boolean;
+
   @OneToMany(() => PriceListItem, (item) => item.priceList, {
     cascade: true,
     eager: true,

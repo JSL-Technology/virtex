@@ -8,6 +8,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   Length,
   Max,
   MaxLength,
@@ -154,4 +155,12 @@ export class CreateCustomerDto {
   @IsOptional()
   @IsEnum(CustomerStatus)
   status?: CustomerStatus;
+
+  /**
+   * The price list this customer buys at; `null` clears it and the default list for the
+   * document's currency applies (FAC-PL-01).
+   */
+  @IsOptional()
+  @IsUUID()
+  priceListId?: string | null;
 }

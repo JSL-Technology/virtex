@@ -1,3 +1,4 @@
+import { PriceListsModule } from '../price-lists/price-lists.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PosShift } from './entities/pos-shift.entity';
@@ -17,7 +18,7 @@ import { ComplianceModule } from '../compliance/compliance.module';
 @Module({
   // The fiscal ranges: a till sale draws its comprobante (QA R3-C02). It posts through the global
   // ledger-posting contract, so accounting is not imported here.
-  imports: [TypeOrmModule.forFeature([PosShift, PosSale]), InventoryModule, AuthModule, ComplianceModule],
+  imports: [TypeOrmModule.forFeature([PosShift, PosSale]), InventoryModule, AuthModule, ComplianceModule, PriceListsModule],
   controllers: [PosController],
   // The sales history's export (QA A-13).
   providers: [PosService, PosSalesDataTransferProvider, PosPostingService],

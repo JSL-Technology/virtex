@@ -1,5 +1,6 @@
 import { InvoicesCopilotTools } from './invoices.copilot-tools';
 import { InvoicesDataTransferProvider, SalesLinesDataTransferProvider } from './invoices-data-transfer.provider';
+import { PriceListsModule } from '../price-lists/price-lists.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InvoicesService } from './invoices.service';
@@ -60,6 +61,8 @@ import { MailModule } from '../mail/mail.module';
     AccountingModule,
     PeriodLockModule,
     CurrenciesModule,
+    // FAC-PL-01: lines are priced from the customer's list, then the default list, then the catalogue.
+    PriceListsModule,
     // Neither JournalEntriesModule nor SharedModule import InvoicesModule — forwardRef was defensive.
     JournalEntriesModule,
     EinvoicingModule,

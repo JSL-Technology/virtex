@@ -291,4 +291,12 @@ export class Customer {
 
   @Column({ name: 'default_sales_account_id', type: 'uuid', nullable: true })
   defaultSalesAccountId?: string;
+
+  /**
+   * The price list this customer buys at. When it is not active, not in force on the document's
+   * date, or in another currency, the organization's default list for the currency applies, and
+   * then the catalogue price (see `PriceResolver`).
+   */
+  @Column({ name: 'price_list_id', type: 'uuid', nullable: true })
+  priceListId?: string | null;
 }

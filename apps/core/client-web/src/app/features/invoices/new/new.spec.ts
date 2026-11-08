@@ -11,6 +11,7 @@ import {
 import { of, throwError } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { PriceListsService } from '../../masters/data/price-lists.service';
 import { NewInvoicePage } from './new.page';
 import { InvoicesService, InvoicingContext } from '../../../core/services/invoices';
 import { CustomersService } from '../../../core/api/customers.service';
@@ -33,6 +34,7 @@ const catalogue = [
 
 describe('NewInvoicePage', () => {
   let component: NewInvoicePage;
+  let priceLists: { resolvePrices: jest.Mock };
   let fixture: ComponentFixture<NewInvoicePage>;
   let invoicesService: {
     context: jest.Mock;
@@ -127,6 +129,13 @@ describe('NewInvoicePage', () => {
       createCustomer: jest.fn(),
     };
 
+    priceLists = {
+      //  A wholesale list that prices every product at 80, whatever the quantity.
+      resolvePrices: jest.fn((request: { lines: Array<{ productId: string; quantity: number }> }) =>
+        of(request.lines.map((line) => ({ ...line, source: 'PRICE_LIST', price: 80, priceListId: 'pl-1', priceListName: 'Mayorista', minQuantity: 1 }))),
+      ),
+    };
+
     await TestBed.resetTestingModule()
       .configureTestingModule({
         imports: [NewInvoicePage, NoopAnimationsModule],
@@ -148,6 +157,7 @@ describe('NewInvoicePage', () => {
             },
           },
           { provide: CurrenciesService, useValue: { getCurrencies: () => of([{ code: 'DOP', name: 'Peso', symbol: 'RD$' }]) } },
+          { provide: PriceListsService, useValue: priceLists },
           { provide: NotificationService, useValue: notifications },
           provideRouter([]),
         ],
@@ -283,6 +293,32 @@ describe('NewInvoicePage', () => {
     expect(component.lineItems.at(0).get('taxTreatment')?.value).toBe('TAXED');
     expect(component.lineItems.at(0).get('taxRate')?.value).toBe(0.18);
   });
+
+  it("takes the customer's price list over the catalogue price (FAC-PL-01)", fakeAsync(() => {
+    component.invoiceForm.patchValue({ customerId: 'c-1' });
+    //  The product field writes the id, then announces the record.
+    component.lineItems.at(0).patchValue({ productId: catalogue[1].id });
+    component.onProductSelect(0, catalogue[1] as never);
+    tick(300);
+    expect(priceLists.resolvePrices).toHaveBeenCalledWith(
+      expect.objectContaining({ customerId: 'c-1', lines: [{ productId: catalogue[1].id, quantity: 1 }] }),
+    );
+    expect(component.lineItems.at(0).get('unitPrice')?.value).toBe(80);
+    expect(component.lineItems.at(0).get('priceListName')?.value).toBe('Mayorista');
+  }));
+
+  it('a price typed by hand is not moved by the list afterwards', fakeAsync(() => {
+    component.lineItems.at(0).patchValue({ productId: catalogue[1].id });
+    component.onProductSelect(0, catalogue[1] as never);
+    tick(300);
+    component.onUnitPriceTyped(0);
+    component.lineItems.at(0).patchValue({ unitPrice: 95 });
+    priceLists.resolvePrices.mockClear();
+    component.lineItems.at(0).patchValue({ quantity: 5 });
+    tick(300);
+    expect(priceLists.resolvePrices).not.toHaveBeenCalled();
+    expect(component.lineItems.at(0).get('unitPrice')?.value).toBe(95);
+  }));
 
   it('accepts a fractional quantity', () => {
     component.lineItems.at(0).patchValue({ quantity: 1.5, unitPrice: 100, taxRate: 0.18 });

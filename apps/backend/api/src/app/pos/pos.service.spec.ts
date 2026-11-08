@@ -13,6 +13,14 @@ import { PosSaleStatus } from './entities/pos-sale.entity';
  *  - A shift is its cashier's; somebody else needs `pos:manage_shifts`.
  *  - Closing a shift cashes it up against the expected drawer.
  */
+/** No price list in force: every line at the catalogue price, as before lists applied. */
+const noPriceLists = {
+  resolve: async (_org: string, _ctx: unknown, queries: Array<{ productId: string; quantity: number }>) =>
+    queries.map((q) => ({ ...q, unitPrice: null, priceListId: null, priceListName: null, minQuantity: null })),
+  applicableList: async () => null,
+  breaks: async () => new Map(),
+} as never;
+
 describe('PosService', () => {
   const WIDGET = '11111111-1111-4111-8111-111111111111';
   const SERVICE = '22222222-2222-4222-8222-222222222222';
@@ -34,7 +42,7 @@ describe('PosService', () => {
     },
   };
 
-  const makeService = (overrides: { activeShift?: any; inventory?: any } = {}) => {
+  const makeService = (overrides: { activeShift?: any; inventory?: any; prices?: any } = {}) => {
     const shift = overrides.activeShift ?? null;
     const shiftsRepo: any = {
       findOne: jest.fn().mockResolvedValue(shift),
@@ -60,7 +68,7 @@ describe('PosService', () => {
     const dataSource: any = { transaction: jest.fn(async (cb) => cb(manager)) };
     const posting: any = { post: jest.fn().mockResolvedValue(undefined), reverse: jest.fn().mockResolvedValue(undefined) };
     const compliance: any = { findActiveSequence: jest.fn().mockResolvedValue(null), getNextNcf: jest.fn() };
-    const service = new PosService(shiftsRepo, salesRepo, inventory, dataSource, posting, compliance);
+    const service = new PosService(shiftsRepo, salesRepo, inventory, dataSource, posting, compliance, overrides.prices ?? noPriceLists);
     return { service, shiftsRepo, salesRepo, inventory, manager, lockedQuery, posting };
   };
 
@@ -139,6 +147,47 @@ describe('PosService', () => {
       }),
     ).rejects.toBeInstanceOf(ConflictException);
     expect(inventory.decreaseStock).not.toHaveBeenCalled();
+  });
+
+  describe('the default price list (FAC-PL-01)', () => {
+    // A wholesale default list: the widget at 8 from two units, nothing for the service.
+    const wholesale = {
+      resolve: async (_org: string, _ctx: unknown, queries: Array<{ productId: string; quantity: number }>) =>
+        queries.map((q) =>
+          q.productId === WIDGET && q.quantity >= 2
+            ? { ...q, unitPrice: 8, priceListId: 'pl-1', priceListName: 'General', minQuantity: 2 }
+            : { ...q, unitPrice: null, priceListId: null, priceListName: null, minQuantity: null },
+        ),
+    };
+
+    it('charges the list price the till showed, and records the list on the line', async () => {
+      const { service } = makeService({ activeShift: openShift(), prices: wholesale });
+      const sale = await service.processSale('org-1', cashier, {
+        terminalId: 'main',
+        items: [
+          { productId: WIDGET, price: 8, quantity: 2 },
+          { productId: SERVICE, price: 50, quantity: 1 },
+        ],
+        subtotal: 66,
+        tax: 2.88,
+        total: 68.88,
+      });
+      expect(sale.items[0]).toMatchObject({ price: 8, lineSubtotal: 16, priceListId: 'pl-1' });
+      expect(sale.items[1]).toMatchObject({ price: 50, priceListId: null });
+    });
+
+    it('refuses the catalogue price once the list applies: the till is out of date', async () => {
+      const { service } = makeService({ activeShift: openShift(), prices: wholesale });
+      await expect(
+        service.processSale('org-1', cashier, {
+          terminalId: 'main',
+          items: [{ productId: WIDGET, price: 10, quantity: 2 }],
+          subtotal: 20,
+          tax: 3.6,
+          total: 23.6,
+        }),
+      ).rejects.toBeInstanceOf(ConflictException);
+    });
   });
 
   it('refuses totals that disagree with the lines', async () => {
@@ -384,7 +433,7 @@ describe('PosService — reports and voids', () => {
     const inventory: any = { increaseStock: jest.fn().mockResolvedValue(undefined) };
     const dataSource: any = { transaction: jest.fn(async (cb) => cb(manager)) };
     const posting: any = { post: jest.fn(), reverse: jest.fn().mockResolvedValue(undefined) };
-    const service = new PosService({} as never, {} as never, inventory, dataSource, posting, {} as never);
+    const service = new PosService({} as never, {} as never, inventory, dataSource, posting, {} as never, noPriceLists);
     return { service, inventory, manager, posting };
   };
 
