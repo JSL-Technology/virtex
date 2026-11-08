@@ -1,5 +1,4 @@
 import { DashboardService } from './dashboard.service';
-import { AccountCategory, AccountType } from '../chart-of-accounts/enums/account-enums';
 import { AccountRole } from '../contracts/accounting/account-role.contract';
 
 /**
@@ -8,21 +7,22 @@ import { AccountRole } from '../contracts/accounting/account-role.contract';
  * result plus depreciation, over the fiscal year to date.
  */
 describe('dashboard KPIs', () => {
-  const account = (id: string, type: AccountType, category: AccountCategory, systemRole: AccountRole | null = null) => ({
+  // The chart's enums are the accounting module's; their values are spelled out here instead.
+  const account = (id: string, type: string, category: string, systemRole: AccountRole | null = null) => ({
     id,
     type,
     category,
     systemRole,
   });
   const accounts = [
-    account('sales', AccountType.REVENUE, AccountCategory.OPERATING_REVENUE),
-    account('interest-income', AccountType.REVENUE, AccountCategory.NON_OPERATING_REVENUE),
-    account('cogs', AccountType.EXPENSE, AccountCategory.COST_OF_GOODS_SOLD),
-    account('salaries', AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE),
-    account('depreciation', AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, AccountRole.DEPRECIATION_EXPENSE),
-    account('interest', AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE),
-    account('income-tax', AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE),
-    account('bank', AccountType.ASSET, AccountCategory.CURRENT_ASSET),
+    account('sales', 'REVENUE', 'OPERATING_REVENUE'),
+    account('interest-income', 'REVENUE', 'NON_OPERATING_REVENUE'),
+    account('cogs', 'EXPENSE', 'COST_OF_GOODS_SOLD'),
+    account('salaries', 'EXPENSE', 'OPERATING_EXPENSE'),
+    account('depreciation', 'EXPENSE', 'OPERATING_EXPENSE', AccountRole.DEPRECIATION_EXPENSE),
+    account('interest', 'EXPENSE', 'NON_OPERATING_EXPENSE'),
+    account('income-tax', 'EXPENSE', 'NON_OPERATING_EXPENSE'),
+    account('bank', 'ASSET', 'CURRENT_ASSET'),
   ];
   // Fiscal-year-to-date movements (debit − credit): revenue negative, expenses positive.
   const ytd = new Map<string, number>([

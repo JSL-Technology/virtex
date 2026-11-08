@@ -181,7 +181,8 @@ export class CurrencyRevaluationService {
       return { ledgerId: ledger.id, positions: positions.length, adjusted: 0 };
     }
 
-    const settings = await this.orgSettings.getForOrg(organizationId, manager);
+    // Configuration, only read: through the owner's own connection, not this transaction.
+    const settings = await this.orgSettings.getForOrg(organizationId);
     if (!settings?.defaultForexGainLossAccountId) {
       throw new UnprocessableEntityError('accounting.revaluation.forex_account_missing', { ledger: ledger.name });
     }
@@ -219,7 +220,7 @@ export class CurrencyRevaluationService {
 
   /** Monetary accounts: by role in the organization settings, the bank accounts' ledgers, and flagged ones. */
   private async monetaryAccountIds(organizationId: string, manager: EntityManager): Promise<string[]> {
-    const settings = await this.orgSettings.getForOrg(organizationId, manager);
+    const settings = await this.orgSettings.getForOrg(organizationId);
     const byRole = [
       settings?.defaultAccountsReceivableId,
       settings?.defaultAccountsPayableId,

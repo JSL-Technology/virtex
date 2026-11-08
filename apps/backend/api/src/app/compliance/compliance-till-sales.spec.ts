@@ -2,8 +2,6 @@ import { DataSource } from 'typeorm';
 import { ComplianceService } from './compliance.service';
 import { NcfSequence } from './entities/ncf-sequence.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
-import { Organization } from '../organizations/entities/organization.entity';
-import { FiscalDocumentTypeDefinition } from '../localization/entities/fiscal-document-type-definition.entity';
 import { createTestOrganization, describeWithDb, dropTestOrganization, openTestDataSource } from '../common/database/testing/integration-db';
 
 /**
@@ -42,8 +40,9 @@ describeWithDb('607 / 608 include the tills, against the real schema', () => {
     service = new ComplianceService(
       ds.getRepository(NcfSequence),
       ds.getRepository(Invoice),
-      ds.getRepository(Organization),
-      ds.getRepository(FiscalDocumentTypeDefinition),
+      // By entity name: the classes belong to other modules (verify:boundaries).
+      ds.getRepository('Organization'),
+      ds.getRepository('FiscalDocumentTypeDefinition'),
       ds,
       {} as never, // AccountBalancesService: not used by the 607/608
       {} as never, // PurchaseFiscalRecordsRegistry: not used by the 607/608
