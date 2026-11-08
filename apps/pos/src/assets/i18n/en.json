@@ -798,6 +798,7 @@
   "validation.proposed_adjustment.journal_id_required": "The journal ID is required.",
   "validation.proposed_adjustment.line_description_cannot_empty": "The line description cannot be empty.",
   "validation.provision_ncf_sequence.prefix_must_follow_dgii_series_format": "The prefix must follow the DGII series format, e.g. B01 or E31.",
+  "validation.push.endpoint_not_a_push_service": "The subscription does not point to a browser push service.",
   "validation.reclassification_entry.ledger_id_ledger_id_required": "The ledger ID (ledgerId) is required.",
   "validation.regional_format.date_order": "The date order is not valid.",
   "validation.regional_format.date_separator": "The date separator is not valid.",
