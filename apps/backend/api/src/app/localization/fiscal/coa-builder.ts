@@ -5,7 +5,7 @@ import {
   AccountType,
 } from '../../chart-of-accounts/enums/account-enums';
 import { AccountTemplateDto } from '../entities/coa-template.entity';
-import { findCountryProfile } from './country-profiles';
+import { findCountryProfile, serviceChargeRateFor } from './country-profiles';
 import { principalTaxName } from './country-tax-schemes';
 
 /**
@@ -129,6 +129,175 @@ interface Leaf {
   role?: AccountRole;
 }
 
+/**
+ * What a market adds to, or renames in, the neutral starting plan (audit 2026-11-07, FIN-COA-03,
+ * LOC-02, SP-02).
+ *
+ * The plan used to give every Spanish-speaking market the Dominican payroll institutions — «AFP por
+ * Pagar (TSS)», «SFS por Pagar (TSS)», «SRL e INFOTEP por Pagar», «Aportes Patronales
+ * (TSS/INFOTEP)» —, the Dominican legal tip of Ley 16-92 and the ISC, because the pilot market's
+ * vocabulary was the default. A Mexican ledger opened with Dominican social-security funds and no
+ * IEPS. The base below is now neutral; a market's own vocabulary lives here, as data, and a market
+ * with no entry receives the neutral names rather than another country's.
+ *
+ * Every name here is a starting point that a local accountant must confirm (verificar con
+ * contador/abogado local): it names the institution an account is remitted to, which is a legal
+ * fact of each country.
+ */
+interface CoaCountryPack {
+  /** Payroll liability and expense names, in the country's own institutions. */
+  payroll?: Partial<PayrollAccountNames>;
+  /** The excise tax the market levies under its own name (ISC, IEPS, ICE, INC). */
+  exciseTax?: string;
+  /** The legal service charge account, for markets whose profile declares one. */
+  serviceCharge?: string;
+  /**
+   * The authority's grouping code per template account code — Mexico's «código agrupador» of the
+   * SAT (Anexo 24 de la RMF), which the electronic-accounting catalogue requires on every account.
+   */
+  fiscalGroupingCodes?: Readonly<Record<string, string>>;
+}
+
+interface PayrollAccountNames {
+  pension: string;
+  health: string;
+  otherContributions: string;
+  incomeTaxWithheld: string;
+  employerContributions: string;
+}
+
+const NEUTRAL_PAYROLL: Readonly<Record<'es' | 'pt' | 'en', PayrollAccountNames>> = {
+  es: {
+    pension: 'Aportes de Pensión por Pagar',
+    health: 'Aportes de Salud por Pagar',
+    otherContributions: 'Otros Aportes Laborales por Pagar',
+    incomeTaxWithheld: 'Impuesto sobre la Renta Retenido a Empleados por Pagar',
+    employerContributions: 'Aportes Patronales a la Seguridad Social',
+  },
+  pt: {
+    pension: 'Previdência a Recolher',
+    health: 'Plano de Saúde a Recolher',
+    otherContributions: 'Outros Encargos Trabalhistas a Recolher',
+    incomeTaxWithheld: 'IRRF a Recolher',
+    employerContributions: 'Encargos Sociais (Empregador)',
+  },
+  en: {
+    pension: 'Pension Contributions Payable',
+    health: 'Health Contributions Payable',
+    otherContributions: 'Other Payroll Contributions Payable',
+    incomeTaxWithheld: 'Payroll Income Tax Withheld',
+    employerContributions: 'Employer Payroll Contributions',
+  },
+};
+
+/**
+ * SAT «código agrupador» (Anexo 24), at the first level of the catalogue, for the accounts of the
+ * neutral plan. The first level is the one this product can assign without knowing the company's
+ * operations (national or foreign customers, rate of the sale); the accountant refines a subaccount
+ * where the company needs the second level. Verificar con contador local.
+ */
+const MX_SAT_GROUPING_CODES: Readonly<Record<string, string>> = {
+  '1000': '100',
+  '1110': '101',
+  '1120': '102',
+  '1130': '105',
+  '1140': '115',
+  '1150': '118',
+  '1155': '113',
+  '1160': '109',
+  '2000': '200',
+  '2110': '201',
+  '2120': '205',
+  '2130': '208',
+  '2135': '216',
+  '2140': '210',
+  '2141': '211',
+  '2142': '211',
+  '2143': '211',
+  '2144': '216',
+  '2150': '213',
+  '2165': '213',
+  '2170': '206',
+  '3000': '300',
+  '3100': '301',
+  '3300': '304',
+  '3400': '305',
+  '4000': '400',
+  '4100': '401',
+  '4200': '401',
+  '4300': '402',
+  '4900': '403',
+  '5000': '500',
+  '5100': '501',
+  '5200': '601',
+  '5250': '601',
+  '5300': '601',
+  '5400': '601',
+  '5600': '601',
+  '5700': '701',
+  '5750': '701',
+};
+
+const COA_COUNTRY_PACKS: Readonly<Record<string, CoaCountryPack>> = {
+  DO: {
+    payroll: {
+      pension: 'AFP por Pagar (TSS)',
+      health: 'SFS por Pagar (TSS)',
+      otherContributions: 'SRL e INFOTEP por Pagar',
+      incomeTaxWithheld: 'ISR de Empleados Retenido por Pagar',
+      employerContributions: 'Aportes Patronales (TSS/INFOTEP)',
+    },
+    exciseTax: 'Impuesto Selectivo al Consumo por Pagar',
+    // Ley 16-92, art. 228: the 10 % legal tip on hospitality services.
+    serviceCharge: 'Propina Legal por Pagar',
+  },
+  MX: {
+    payroll: {
+      pension: 'Aportaciones SAR (Retiro, Cesantía y Vejez) por Pagar',
+      health: 'Cuotas IMSS por Pagar',
+      otherContributions: 'Aportaciones INFONAVIT por Pagar',
+      incomeTaxWithheld: 'ISR Retenido por Sueldos y Salarios por Pagar',
+      employerContributions: 'Cuotas Patronales IMSS, SAR e INFONAVIT',
+    },
+    exciseTax: 'IEPS por Pagar',
+    fiscalGroupingCodes: MX_SAT_GROUPING_CODES,
+  },
+  CO: {
+    payroll: {
+      pension: 'Aportes a Fondos de Pensiones por Pagar',
+      health: 'Aportes a EPS por Pagar',
+      otherContributions: 'Aportes ARL y Parafiscales por Pagar',
+      incomeTaxWithheld: 'Retención en la Fuente por Salarios por Pagar',
+      employerContributions: 'Aportes Patronales (Seguridad Social y Parafiscales)',
+    },
+    exciseTax: 'Impuesto Nacional al Consumo por Pagar',
+  },
+  EC: {
+    exciseTax: 'ICE por Pagar',
+  },
+  CR: {
+    // The 10 % service charge on restaurant bills belongs to the staff, not to Hacienda.
+    serviceCharge: 'Cargo por Servicio (10 %) por Pagar',
+  },
+};
+
+/** The pack for a market, or an empty one: a market with no entry gets the neutral plan. */
+function coaPackFor(countryCode: string): CoaCountryPack {
+  return COA_COUNTRY_PACKS[countryCode] ?? {};
+}
+
+/**
+ * Names in the opening plan that belong to ONE market's institutions. A plan provisioned for any
+ * other market must contain none of them — `coa-builder.spec.ts` and `verify:markets` assert it,
+ * which is what keeps a pilot market's vocabulary from becoming everyone's default again.
+ */
+export const COUNTRY_SPECIFIC_COA_TERMS: Readonly<Record<string, readonly RegExp[]>> = {
+  DO: [/\bTSS\b/, /\bAFP\b/, /\bSFS\b/, /\bSRL\b/, /INFOTEP/, /Propina Legal/, /ITBIS/, /Selectivo/],
+  MX: [/IMSS/, /INFONAVIT/, /\bSAR\b/, /IEPS/],
+  CO: [/\bEPS\b/, /\bARL\b/, /Parafiscales/, /Impuesto Nacional al Consumo/],
+  EC: [/\bICE\b/],
+};
+
 /** Spanish labels. Portuguese is handled separately for Brazil; English for the United States. */
 const ES = {
   assets: 'Activo',
@@ -149,8 +318,8 @@ const ES = {
   goodsReceivedNotInvoiced: 'Mercancía Recibida No Facturada',
   accrued: 'Gastos Acumulados por Pagar',
   payroll: 'Remuneraciones y Prestaciones por Pagar',
-  serviceCharge: 'Propina Legal por Pagar',
-  exciseTax: 'Impuesto Selectivo al Consumo por Pagar',
+  serviceCharge: 'Cargos por Servicio por Pagar',
+  exciseTax: 'Impuestos Específicos al Consumo por Pagar',
   incomeTax: 'Impuesto sobre la Renta por Pagar',
   customerAdvances: 'Anticipos de Clientes',
   nonCurrentLiabilities: 'Pasivo No Corriente',
@@ -286,6 +455,11 @@ function labelsFor(countryCode: string): typeof ES {
   return ES;
 }
 
+function groupingCode(countryCode: string, code: string): { fiscalGroupingCode?: string } {
+  const value = coaPackFor(countryCode).fiscalGroupingCodes?.[code];
+  return value ? { fiscalGroupingCode: value } : {};
+}
+
 function group(
   countryCode: string,
   code: string,
@@ -297,6 +471,7 @@ function group(
 ): AccountTemplateDto {
   return {
     segments: splitCoaCode(countryCode, code),
+    ...groupingCode(countryCode, code),
     name,
     type,
     category,
@@ -317,6 +492,7 @@ function leaf(
   const resolvedNature = nature ?? defaultNature;
   return {
     segments: splitCoaCode(countryCode, code),
+    ...groupingCode(countryCode, code),
     name,
     type,
     category,
@@ -364,33 +540,15 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
       ? 'Tributos Retidos de Terceiros'
       : 'Retenciones por Pagar';
 
-  // Payroll account names. Kept inline (like the tax names above) rather than added to the label
-  // table, so the four languages stay in one place and a new payroll account is one edit.
-  const afpPayableName = isEnglish
-    ? 'Pension Contributions Payable'
-    : isPortuguese
-      ? 'Previdência a Recolher'
-      : 'AFP por Pagar (TSS)';
-  const sfsPayableName = isEnglish
-    ? 'Health Contributions Payable'
-    : isPortuguese
-      ? 'Plano de Saúde a Recolher'
-      : 'SFS por Pagar (TSS)';
-  const riskTrainingPayableName = isEnglish
-    ? 'Labour Risk & Training Payable'
-    : isPortuguese
-      ? 'Riscos e Treinamento a Recolher'
-      : 'SRL e INFOTEP por Pagar';
-  const payrollTaxWithholdingName = isEnglish
-    ? 'Payroll Income Tax Withheld'
-    : isPortuguese
-      ? 'IRRF a Recolher'
-      : 'ISR de Empleados Retenido por Pagar';
-  const employerContributionsExpenseName = isEnglish
-    ? 'Employer Payroll Contributions'
-    : isPortuguese
-      ? 'Encargos Sociais (Empregador)'
-      : 'Aportes Patronales (TSS/INFOTEP)';
+  const pack = coaPackFor(code);
+  const payroll: PayrollAccountNames = {
+    ...NEUTRAL_PAYROLL[isEnglish ? 'en' : isPortuguese ? 'pt' : 'es'],
+    ...pack.payroll,
+  };
+  const exciseTaxName = pack.exciseTax ?? t.exciseTax;
+  // Only a market whose profile levies a legal service charge gets the account; the rate and the
+  // account come from the same profile, so they cannot disagree.
+  const serviceChargeName = serviceChargeRateFor(code) > 0 ? (pack.serviceCharge ?? t.serviceCharge) : null;
 
   const D = AccountNature.DEBIT;
   const C = AccountNature.CREDIT;
@@ -425,15 +583,17 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
         leaf(code, { code: '2130', name: taxPayable, role: AccountRole.TAX_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         leaf(code, { code: '2135', name: withholdingPayable, role: AccountRole.WITHHOLDING_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         leaf(code, { code: '2140', name: t.payroll, role: AccountRole.PAYROLL_NET_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-        leaf(code, { code: '2141', name: afpPayableName, role: AccountRole.AFP_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-        leaf(code, { code: '2142', name: sfsPayableName, role: AccountRole.SFS_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-        leaf(code, { code: '2143', name: riskTrainingPayableName, role: AccountRole.INFOTEP_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-        leaf(code, { code: '2144', name: payrollTaxWithholdingName, role: AccountRole.PAYROLL_TAX_WITHHOLDING_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2141', name: payroll.pension, role: AccountRole.PENSION_CONTRIBUTIONS_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2142', name: payroll.health, role: AccountRole.HEALTH_CONTRIBUTIONS_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2143', name: payroll.otherContributions, role: AccountRole.OTHER_PAYROLL_CONTRIBUTIONS_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2144', name: payroll.incomeTaxWithheld, role: AccountRole.PAYROLL_TAX_WITHHOLDING_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         leaf(code, { code: '2150', name: t.incomeTax }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-        leaf(code, { code: '2160', name: t.serviceCharge, role: AccountRole.SERVICE_CHARGE_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-        // Excise (ISC / IEPS / ICE) is a liability of its own, declared separately from the
+        ...(serviceChargeName
+          ? [leaf(code, { code: '2160', name: serviceChargeName, role: AccountRole.SERVICE_CHARGE_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C)]
+          : []),
+        // Excise (ISC / IEPS / ICE / INC, named by the pack) is a liability of its own, declared separately from the
         // consumption tax. Netting it into 2130 makes the tax return unfileable.
-        leaf(code, { code: '2165', name: t.exciseTax, role: AccountRole.EXCISE_TAX_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2165', name: exciseTaxName, role: AccountRole.EXCISE_TAX_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         // Money held for a customer before any document consumes it. A liability, never a
         // negative receivable — see `AccountRole.CUSTOMER_ADVANCES`.
         leaf(code, { code: '2170', name: t.customerAdvances, role: AccountRole.CUSTOMER_ADVANCES }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
@@ -466,7 +626,7 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
       // what was sold, and an inventory figure that moves with no counterpart is not a figure.
       leaf(code, { code: '5150', name: t.inventoryAdjustment, role: AccountRole.INVENTORY_ADJUSTMENT }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
       leaf(code, { code: '5200', name: t.salaries, role: AccountRole.SALARY_EXPENSE }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
-      leaf(code, { code: '5250', name: employerContributionsExpenseName, role: AccountRole.EMPLOYER_CONTRIBUTIONS_EXPENSE }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
+      leaf(code, { code: '5250', name: payroll.employerContributions, role: AccountRole.EMPLOYER_CONTRIBUTIONS_EXPENSE }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
       leaf(code, { code: '5300', name: t.rent }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
       leaf(code, { code: '5400', name: t.utilities }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
       leaf(code, { code: '5500', name: t.depreciationExpense, role: AccountRole.DEPRECIATION_EXPENSE }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),

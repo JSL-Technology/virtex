@@ -248,9 +248,9 @@ export class PayrollAccountingService {
         'Gasto de aportes patronales',
       ),
       netPayable: need(settings?.defaultPayrollNetPayableAccountId, 'Sueldos por pagar'),
-      afpPayable: need(settings?.defaultAfpPayableAccountId, 'AFP por pagar'),
-      sfsPayable: need(settings?.defaultSfsPayableAccountId, 'SFS por pagar'),
-      infotepPayable: need(settings?.defaultInfotepPayableAccountId, 'SRL/INFOTEP por pagar'),
+      afpPayable: need(settings?.defaultPensionContributionsPayableAccountId, 'AFP por pagar'),
+      sfsPayable: need(settings?.defaultHealthContributionsPayableAccountId, 'SFS por pagar'),
+      infotepPayable: need(settings?.defaultOtherPayrollContributionsPayableAccountId, 'SRL/INFOTEP por pagar'),
       isrWithholdingPayable: need(
         settings?.defaultPayrollTaxWithholdingPayableAccountId,
         'ISR retenido por pagar',

@@ -126,7 +126,7 @@
   },
   "masters.banks.reference_empty_help": {
     "en": "Or add at once the {{count}} institutions the banking regulator lists in {{country}}, with their legal name, tax ID and the SWIFT code an official source confirms.",
-    "es": "O agrega de una vez las {{count}} entidades que el regulador bancario lista en {{country}}, con su razón social, RNC y el SWIFT confirmado por fuente oficial.",
+    "es": "O agrega de una vez las {{count}} entidades que el regulador bancario lista en {{country}}, con su razón social, identificación fiscal y el SWIFT confirmado por fuente oficial.",
     "pt": "Ou adicione de uma vez as {{count}} instituições que o regulador bancário lista em {{country}}, com razão social, identificação fiscal e o SWIFT confirmado por fonte oficial."
   },
   "masters.banks.reference_import": {
@@ -171,7 +171,7 @@
   },
   "masters.banks.tax_id": {
     "en": "Tax ID",
-    "es": "RNC / identificación fiscal",
+    "es": "Identificación fiscal",
     "pt": "Identificação fiscal"
   },
   "masters.banks.updated": {

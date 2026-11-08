@@ -1,5 +1,6 @@
 
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { languageOfCountry } from '../localization/contracts/country-profile.contract';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Repository,
@@ -100,6 +101,22 @@ export class ChartOfAccountsService {
     );
   }
 
+  /**
+   * The language a tenant keeps its books in, which is the key an account's name is stored under
+   * (audit 2026-11-07, I18N-05). Every name used to be stored as `{ es: … }`, so a Brazilian ledger
+   * claimed its Portuguese names were Spanish and a reader in Spanish saw them as translations.
+   */
+  private static async booksLanguage(manager: EntityManager, organizationId: string): Promise<string> {
+    const rows: Array<{ language: string | null; country: string | null }> = await manager.query(
+      `SELECT "books_language" AS language, "country" FROM "organizations" WHERE "id" = $1`,
+      [organizationId],
+    );
+    // The opening chart is written before provisioning fixes `books_language`, so the country's
+    // statutory language is the answer until then — the same rule the provisioner applies.
+    const language = (rows[0]?.language || languageOfCountry(rows[0]?.country) || '').slice(0, 2).toLowerCase();
+    return /^[a-z]{2}$/.test(language) ? language : 'es';
+  }
+
   async createInTransaction(
     createAccountDto: CreateAccountDto,
     organizationId: string,
@@ -169,15 +186,16 @@ export class ChartOfAccountsService {
 
 
     const { name, description, effectiveFrom, effectiveTo, ...restOfDto } = accountData;
+    const language = await ChartOfAccountsService.booksLanguage(manager, organizationId);
     const entityData: Partial<Account> = {
       ...restOfDto,
       organizationId,
       parentId: parentId || null,
       code: fullCode,
-      name: typeof name === 'string' ? { es: name } : name,
+      name: typeof name === 'string' ? { [language]: name } : name,
     };
     if (description) {
-      entityData.description = typeof description === 'string' ? { es: description } : description;
+      entityData.description = typeof description === 'string' ? { [language]: description } : description;
     }
     if (effectiveFrom) {
       entityData.effectiveFrom = new Date(effectiveFrom);
@@ -332,11 +350,15 @@ export class ChartOfAccountsService {
       const { name, description, effectiveFrom, effectiveTo, ...restOfDto } = accountDataDto;
       const updatePayload: Partial<Account> = { ...restOfDto };
 
+      // A plain string replaces the name in the books language and keeps the other translations
+      // (audit 2026-11-07, I18N-05): it used to overwrite the whole object with `{ es: … }`.
+      const language = await ChartOfAccountsService.booksLanguage(manager, organizationId);
       if (name) {
-        updatePayload.name = typeof name === 'string' ? { es: name } : name;
+        updatePayload.name = typeof name === 'string' ? { ...(account.name ?? {}), [language]: name } : name;
       }
       if (description) {
-        updatePayload.description = typeof description === 'string' ? { es: description } : description;
+        updatePayload.description =
+          typeof description === 'string' ? { ...(account.description ?? {}), [language]: description } : description;
       }
       if (effectiveFrom) {
         updatePayload.effectiveFrom = new Date(effectiveFrom);

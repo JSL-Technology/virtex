@@ -260,9 +260,10 @@ export class OrganizationSettings {
   //
   // Derived from the chart's account roles at provisioning, like every default above. A payroll run
   // debits salary expense and the employer's own social cost, and credits a distinct liability for
-  // each thing it owes to a different body — the net wage (to the employee), AFP and SFS (to the
-  // TSS), INFOTEP/SRL, and the ISR withheld (to the DGII) — so each has its own account and none is
-  // netted into another.
+  // each thing it owes to a different body — the net wage (to the employee), the pension and health
+  // funds, the other statutory levies, and the income tax withheld — so each has its own account and
+  // none is netted into another. The columns are named after the kind of fund (audit 2026-11-07,
+  // LOC-02/JUR-01); each country's strategy maps its own institutions onto them.
 
   @Column({ name: 'default_salary_expense_account_id', type: 'uuid', nullable: true })
   defaultSalaryExpenseAccountId: string | null = null;
@@ -273,14 +274,14 @@ export class OrganizationSettings {
   @Column({ name: 'default_payroll_net_payable_account_id', type: 'uuid', nullable: true })
   defaultPayrollNetPayableAccountId: string | null = null;
 
-  @Column({ name: 'default_afp_payable_account_id', type: 'uuid', nullable: true })
-  defaultAfpPayableAccountId: string | null = null;
+  @Column({ name: 'default_pension_contributions_payable_account_id', type: 'uuid', nullable: true })
+  defaultPensionContributionsPayableAccountId: string | null = null;
 
-  @Column({ name: 'default_sfs_payable_account_id', type: 'uuid', nullable: true })
-  defaultSfsPayableAccountId: string | null = null;
+  @Column({ name: 'default_health_contributions_payable_account_id', type: 'uuid', nullable: true })
+  defaultHealthContributionsPayableAccountId: string | null = null;
 
-  @Column({ name: 'default_infotep_payable_account_id', type: 'uuid', nullable: true })
-  defaultInfotepPayableAccountId: string | null = null;
+  @Column({ name: 'default_other_payroll_contributions_payable_account_id', type: 'uuid', nullable: true })
+  defaultOtherPayrollContributionsPayableAccountId: string | null = null;
 
   @Column({ name: 'default_payroll_tax_withholding_payable_account_id', type: 'uuid', nullable: true })
   defaultPayrollTaxWithholdingPayableAccountId: string | null = null;

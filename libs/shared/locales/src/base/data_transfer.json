@@ -80,7 +80,7 @@
     "pt": "Um arquivo é um único lançamento de abertura: uma linha por conta, todas com a mesma data, e os débitos devem igualar os créditos ao centavo. Contas a receber, a pagar, estoque e bancos não são carregados aqui: seus saldos vêm das faturas em aberto, das faturas de fornecedor em aberto, do estoque e do saldo inicial de cada conta bancária."
   },
   "data_transfer.hints.vendor_bills": {
-    "es": "Cada fila es una factura de proveedor de una línea y entra como borrador, para revisarla y aprobarla. El proveedor se busca por su RNC o identificación fiscal y debe existir. Para facturas anteriores al inicio en el sistema, usa como cuenta de gasto la cuenta de patrimonio de saldos iniciales: el gasto ya está en los libros anteriores.",
+    "es": "Cada fila es una factura de proveedor de una línea y entra como borrador, para revisarla y aprobarla. El proveedor se busca por su identificación fiscal y debe existir. Para facturas anteriores al inicio en el sistema, usa como cuenta de gasto la cuenta de patrimonio de saldos iniciales: el gasto ya está en los libros anteriores.",
     "en": "Each row is a one-line supplier bill and is imported as a draft, to be reviewed and approved. The supplier is found by tax id and must already exist. For bills from before you started using the system, give the opening-balance equity account as the expense account: the expense is already in the previous books.",
     "pt": "Cada linha é uma fatura de fornecedor de uma linha e entra como rascunho, para revisão e aprovação. O fornecedor é encontrado pelo número fiscal e deve existir. Para faturas anteriores ao início no sistema, use como conta de despesa a conta de patrimônio de saldos iniciais: a despesa já está nos livros anteriores."
   },

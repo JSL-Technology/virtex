@@ -95,9 +95,9 @@
     "pt": "Faturas a aplicar"
   },
   "customer_receipts.form.itbis_withheld": {
-    "es": "ITBIS retenido",
-    "en": "ITBIS withheld",
-    "pt": "ITBIS retido"
+    "es": "Impuesto retenido",
+    "en": "Tax withheld",
+    "pt": "Imposto retido"
   },
   "customer_receipts.form.payment_method": {
     "es": "Forma de pago",

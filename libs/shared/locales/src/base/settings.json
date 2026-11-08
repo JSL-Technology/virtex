@@ -3051,9 +3051,9 @@
     "pt": "Proposto em novos clientes e faturas; cada um pode alterá-lo."
   },
   "settings.sections.fields.purchase_tax": {
-    "es": "ITBIS / IVA en compras",
+    "es": "Impuesto en compras (crédito fiscal)",
     "en": "Purchase tax (input)",
-    "pt": "Imposto sobre compras"
+    "pt": "Imposto nas compras (crédito fiscal)"
   },
   "settings.sections.fields.purchase_tax_help": {
     "es": "El impuesto pagado en compras que puedes descontar.",
@@ -3081,9 +3081,9 @@
     "pt": "Receita de vendas"
   },
   "settings.sections.fields.sales_tax": {
-    "es": "ITBIS / IVA por pagar",
+    "es": "Impuesto por pagar (débito fiscal)",
     "en": "Sales tax payable",
-    "pt": "Imposto sobre vendas a pagar"
+    "pt": "Imposto a recolher (débito fiscal)"
   },
   "settings.sections.fields.service_charge_payable": {
     "es": "Propina legal por pagar",
@@ -3441,9 +3441,9 @@
     "pt": "Extensões"
   },
   "settings.sections_meta.fiscal.description": {
-    "es": "Cómo emite la empresa ante la DGII: modalidad, rangos de NCF y certificado.",
-    "en": "How the company issues with the DGII: mode, NCF ranges and certificate.",
-    "pt": "Como a empresa emite perante a DGII: modalidade, faixas de NCF e certificado."
+    "es": "Cómo emite la empresa sus comprobantes ante la autoridad tributaria: modalidad, numeración autorizada y certificado.",
+    "en": "How the company issues its fiscal documents with the tax authority: mode, authorised numbering and certificate.",
+    "pt": "Como a empresa emite os seus documentos fiscais perante a autoridade tributária: modalidade, numeração autorizada e certificado."
   },
   "settings.sections_meta.fiscal.keywords": {
     "es": "ncf e-cf dgii comprobantes facturación electrónica certificado rangos",
@@ -3576,7 +3576,7 @@
     "pt": "Política de segurança"
   },
   "settings.sections_meta.sequences.description": {
-    "es": "Prefijo y próximo número de cada tipo de documento interno. Los NCF se configuran en Comprobantes fiscales.",
+    "es": "Prefijo y próximo número de cada tipo de documento interno. La numeración fiscal se configura en Comprobantes fiscales.",
     "en": "Prefix and next number for each internal document type. Fiscal numbering is set in Fiscal documents.",
     "pt": "Prefixo e próximo número de cada tipo de documento interno. A numeração fiscal configura-se em Comprovantes fiscais."
   },
@@ -4596,7 +4596,7 @@
     "pt": "Esta organização ainda não tem sequências de documentos."
   },
   "settings.sequences.fiscal_note": {
-    "es": "La numeración fiscal (NCF, e-CF) no se configura aquí: son los rangos que autoriza la DGII.",
+    "es": "La numeración fiscal no se configura aquí: es la que autoriza la autoridad tributaria.",
     "en": "Fiscal numbering (NCF, e-CF) is not set here: those are the ranges the authority grants.",
     "pt": "A numeração fiscal não é configurada aqui: são as faixas que a autoridade concede."
   },

@@ -156,7 +156,12 @@ export function findTaxScheme(countryCode: string): CountryTaxScheme | undefined
 /** The name of the country's principal consumption tax, for naming ledger accounts. */
 export function principalTaxName(countryCode: string): string {
   const first = findTaxScheme(countryCode)?.taxes[0]?.name;
-  if (!first) return countryCode?.toUpperCase() === 'US' ? 'Sales Tax' : 'Impuesto';
+  if (!first) {
+    // The fallback follows the market's language (audit 2026-11-07, I18N-05): Brazil, which has no
+    // seeded taxes, used to open «Impuesto a Recuperar» — a Spanish word in a Portuguese ledger.
+    const code = countryCode?.toUpperCase();
+    return code === 'US' ? 'Sales Tax' : code === 'BR' ? 'Tributos' : 'Impuesto';
+  }
   // 'ITBIS 18%' -> 'ITBIS'; 'IVA Básico 22%' -> 'IVA Básico'
   return first.replace(/\s*\d+([.,]\d+)?%\s*$/, '').trim();
 }

@@ -80,9 +80,9 @@
     "pt": "Data de emissão:"
   },
   "invoice.pdf.itbis_withheld": {
-    "es": "ITBIS retenido",
-    "en": "ITBIS withheld",
-    "pt": "ITBIS retido"
+    "es": "Impuesto retenido",
+    "en": "Tax withheld",
+    "pt": "Imposto retido"
   },
   "invoice.pdf.legal_draft": {
     "es": "Este documento es un borrador interno: no tiene validez fiscal y todavía no se ha emitido.",

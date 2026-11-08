@@ -74,6 +74,13 @@ export class CreateAccountDto {
   @IsOptional() @Matches(/^[A-Z]{3}$/) currency?: string;
 
 
+  /**
+   * The authority's grouping code (Mexico's SAT «código agrupador»), required by electronic
+   * accounting catalogues. The opening plan fills it where the country pack declares one.
+   */
+  @IsOptional() @IsString() @MaxLength(20, { message: 'validation.constraints.max_length|{"max":20}' })
+  fiscalGroupingCode?: string;
+
   @IsDateString() @IsOptional() effectiveFrom?: string;
   @IsDateString() @IsOptional() effectiveTo?: string;
 

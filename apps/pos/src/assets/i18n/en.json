@@ -407,7 +407,7 @@
   "pos.terminal_default_name": "main",
   "pos.terminal_label": "Till {{id}}",
   "pos.there_already_active_shift_for_this_terminal": "There is already an open shift on this terminal.",
-  "pos.ticket.fiscal_number": "NCF: {{number}}",
+  "pos.ticket.fiscal_number": "Fiscal no.: {{number}}",
   "pos.ticket.not_fiscal": "Not a fiscal receipt: the company has no authorised range in force.",
   "pos.ticket.number": "Receipt no. {{number}}",
   "pos.ticket.number_label": "Receipt",

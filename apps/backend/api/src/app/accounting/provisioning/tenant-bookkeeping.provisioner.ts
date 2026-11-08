@@ -243,8 +243,8 @@ export class TenantBookkeepingProvisioner {
     settings.defaultEmployerContributionsExpenseAccountId ??=
       byRole.get(AccountRole.EMPLOYER_CONTRIBUTIONS_EXPENSE) ?? null;
     settings.defaultPayrollNetPayableAccountId ??= byRole.get(AccountRole.PAYROLL_NET_PAYABLE) ?? null;
-    settings.defaultAfpPayableAccountId ??= byRole.get(AccountRole.AFP_PAYABLE) ?? null;
-    settings.defaultSfsPayableAccountId ??= byRole.get(AccountRole.SFS_PAYABLE) ?? null;
+    settings.defaultPensionContributionsPayableAccountId ??= byRole.get(AccountRole.PENSION_CONTRIBUTIONS_PAYABLE) ?? null;
+    settings.defaultHealthContributionsPayableAccountId ??= byRole.get(AccountRole.HEALTH_CONTRIBUTIONS_PAYABLE) ?? null;
     settings.defaultCustomerAdvancesAccountId ??= byRole.get(AccountRole.CUSTOMER_ADVANCES) ?? null;
     settings.defaultGoodsReceivedNotInvoicedAccountId ??=
       byRole.get(AccountRole.GOODS_RECEIVED_NOT_INVOICED) ?? null;
@@ -252,7 +252,7 @@ export class TenantBookkeepingProvisioner {
       byRole.get(AccountRole.OPENING_BALANCE_EQUITY) ?? null;
     settings.defaultInventoryAdjustmentAccountId ??=
       byRole.get(AccountRole.INVENTORY_ADJUSTMENT) ?? null;
-    settings.defaultInfotepPayableAccountId ??= byRole.get(AccountRole.INFOTEP_PAYABLE) ?? null;
+    settings.defaultOtherPayrollContributionsPayableAccountId ??= byRole.get(AccountRole.OTHER_PAYROLL_CONTRIBUTIONS_PAYABLE) ?? null;
     settings.defaultPayrollTaxWithholdingPayableAccountId ??=
       byRole.get(AccountRole.PAYROLL_TAX_WITHHOLDING_PAYABLE) ?? null;
 
