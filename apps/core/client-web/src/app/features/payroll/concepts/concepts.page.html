@@ -58,8 +58,8 @@
         <span>{{ 'payroll.concepts.taxable' | translate }}</span>
       </label>
       <label class="inline-field">
-        <input type="checkbox" [checked]="draft().contributesToTss ?? true"
-          (change)="patch({ contributesToTss: $any($event.target).checked })" />
+        <input type="checkbox" [checked]="draft().contributesToSocialSecurity ?? true"
+          (change)="patch({ contributesToSocialSecurity: $any($event.target).checked })" />
         <span>{{ 'payroll.concepts.tss_base' | translate }}</span>
       </label>
       <label class="inline-field">

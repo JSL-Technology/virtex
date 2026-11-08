@@ -853,3 +853,19 @@ select.form-control {
   opacity: 0.55;
   transition: opacity 120ms ease-out;
 }
+
+// LOC-03: the market issues no fiscal document; said where the document type would be chosen.
+.not-fiscal-banner {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--color-warning-border, #f0b429);
+  background: var(--color-warning-bg, #fff8e6);
+  color: var(--color-warning-text, #6b4500);
+  line-height: 1.45;
+
+  strong {
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+}

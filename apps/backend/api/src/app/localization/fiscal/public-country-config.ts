@@ -87,6 +87,9 @@ export interface PublicCountryConfig {
    */
   marketStatus: 'available' | 'preview';
 
+  /** Whether payroll is computed for this market — disclosed before payment (JUR-02). */
+  payrollAvailable: boolean;
+
   /** Whether the form must ask company-versus-natural-person; see `TaxpayerKind`. */
   taxpayerKindRequired: boolean;
 

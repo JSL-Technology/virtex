@@ -12,6 +12,7 @@ import {
   CompanyPayrollParameterInput,
   IncomeTaxBracket,
   PayrollService,
+  ContributionConcept,
   StatutoryContribution,
   StatutoryReference,
 } from '../../../core/api/payroll.service';
@@ -109,6 +110,8 @@ export class PayrollParametersPage {
   private readonly locale = inject(LocaleStore);
   readonly country = signal((this.locale.tenantContext()?.countryCode ?? '').toUpperCase());
   readonly contributions = signal<StatutoryContribution[]>([]);
+  /** The contributions this country's law levies, from its payroll strategy (JUR-01). */
+  readonly contributionConcepts = signal<ContributionConcept[]>([]);
   readonly references = signal<StatutoryReference[]>([]);
   readonly brackets = signal<IncomeTaxBracket[]>([]);
   readonly companyParameters = signal<CompanyPayrollParameter[]>([]);
@@ -153,7 +156,7 @@ export class PayrollParametersPage {
   startContribution(existing?: StatutoryContribution): void {
     this.contributionDraft.set({
       countryCode: this.country(),
-      regime: existing?.regime ?? 'AFP',
+      code: existing?.code ?? this.contributionConcepts()[0]?.code ?? '',
       effectiveFrom: todayIso(),
       effectiveTo: null,
       employeeRate: existing?.employeeRate ?? 0,
@@ -367,6 +370,11 @@ export class PayrollParametersPage {
    * The whole history is loaded, because that is what makes a past payroll explainable; the screen
    * leads with what applies now and keeps the rest below it.
    */
+  /** The catalogue label of a contribution code; the code itself when the catalogue lacks it. */
+  conceptLabel(code: string): string | null {
+    return this.contributionConcepts().find((concept) => concept.code === code)?.labelKey ?? null;
+  }
+
   private currentOnly<T extends { effectiveFrom: string; effectiveTo: string | null }>(rows: T[]): T[] {
     const today = todayIso();
     return rows.filter((row) => row.effectiveFrom <= today && (!row.effectiveTo || row.effectiveTo >= today));
@@ -376,11 +384,13 @@ export class PayrollParametersPage {
     this.loading.set(true);
     forkJoin({
       contributions: this.payroll.listContributions(this.country()).pipe(catchError(() => of([] as StatutoryContribution[]))),
+      concepts: this.payroll.listContributionConcepts(this.country()).pipe(catchError(() => of([] as ContributionConcept[]))),
       references: this.payroll.listReferences(this.country()).pipe(catchError(() => of([] as StatutoryReference[]))),
       brackets: this.payroll.listBrackets(this.country()).pipe(catchError(() => of([] as IncomeTaxBracket[]))),
       company: this.payroll.listCompanyParameters().pipe(catchError(() => of([] as CompanyPayrollParameter[]))),
-    }).subscribe(({ contributions, references, brackets, company }) => {
+    }).subscribe(({ contributions, concepts, references, brackets, company }) => {
       this.contributions.set(contributions);
+      this.contributionConcepts.set(concepts);
       this.references.set(references);
       this.brackets.set(brackets);
       this.companyParameters.set(company);

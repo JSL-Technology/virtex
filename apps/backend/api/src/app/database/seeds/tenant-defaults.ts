@@ -178,7 +178,7 @@ export async function seedTenantWorkingDefaults(
     await runner.query(
       `INSERT INTO "payroll_concepts"
          ("organization_id", "code", "name", "type", "calculation", "rate", "taxable",
-          "contributes_to_tss", "sort_order", "active", "is_system")
+          "contributes_to_social_security", "sort_order", "active", "is_system")
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true, $10)
        ON CONFLICT DO NOTHING`,
       [
@@ -189,7 +189,7 @@ export async function seedTenantWorkingDefaults(
         concept.calculation,
         concept.rate,
         concept.taxable,
-        concept.contributesToTss,
+        concept.contributesToSocialSecurity,
         concept.sortOrder,
         concept.isSystem,
       ],

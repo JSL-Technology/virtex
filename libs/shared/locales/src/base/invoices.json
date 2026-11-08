@@ -852,19 +852,19 @@
     "pt": "o livro contábil padrão"
   },
   "invoices.gaps.fiscal_sequence": {
-    "es": "un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E) (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
-    "en": "a current fiscal document range, traditional (B series) or electronic (E series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
-    "pt": "uma faixa de comprovantes vigente, tradicional (série B) ou eletrônica (série E) (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
+    "es": "un rango de numeración fiscal vigente autorizado por la autoridad tributaria (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a current fiscal numbering range authorised by the tax authority (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "uma faixa de numeração fiscal vigente autorizada pela autoridade tributária (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_sequence_electronic": {
-    "es": "un rango de comprobantes electrónicos (serie E) vigente (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
-    "en": "a current electronic document range (E series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
-    "pt": "uma faixa de comprovantes eletrônicos (série E) vigente (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
+    "es": "un rango de numeración electrónica vigente autorizado por la autoridad tributaria (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a current electronic numbering range authorised by the tax authority (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "uma faixa de numeração eletrônica vigente autorizada pela autoridade tributária (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_sequence_traditional": {
-    "es": "un rango de comprobantes tradicionales (serie B) vigente (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
-    "en": "a current traditional document range (B series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
-    "pt": "uma faixa de comprovantes tradicionais (série B) vigente (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
+    "es": "un rango de numeración tradicional (impresa) vigente autorizado por la autoridad tributaria (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "en": "a current traditional (printed) numbering range authorised by the tax authority (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
+    "pt": "uma faixa de numeração tradicional (impressa) vigente autorizada pela autoridade tributária (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_year": {
     "es": "un año fiscal con sus períodos contables",
@@ -1292,6 +1292,11 @@
     "es": "Cheque",
     "pt": "Cheque"
   },
+  "invoices.new.configure_taxes": {
+    "es": "Configurar impuestos",
+    "en": "Configure taxes",
+    "pt": "Configurar impostos"
+  },
   "invoices.new.content": {
     "es": "Contenido",
     "en": "Content",
@@ -1483,14 +1488,19 @@
     "pt": "Valor"
   },
   "invoices.new.market_has_no_electronic_invoicing_regime": {
-    "es": "Este mercado todavía no tiene régimen de comprobantes electrónicos implementado. El\n                documento se numera internamente y se contabiliza, pero no se sella ante ninguna\n                autoridad.",
-    "en": "This market has no electronic invoicing regime implemented yet. The document is numbered internally and posted, but it is not stamped by any authority.",
-    "pt": "Este mercado ainda não tem regime de documentos fiscais eletrônicos implementado. O documento é numerado internamente e contabilizado, mas não é autorizado por nenhuma autoridade."
+    "es": "En este mercado todavía no emitimos comprobantes ante la autoridad tributaria: el documento se numera internamente y se contabiliza, pero no se sella. Si la ley de tu país lo exige, emite el comprobante con tu proveedor autorizado (verificar con contador local).",
+    "en": "In this market we do not issue fiscal documents with the tax authority yet: the document is numbered internally and posted, but not stamped. If your country’s law requires one, issue it through your authorised provider (check with a local accountant).",
+    "pt": "Neste mercado ainda não emitimos documentos fiscais perante a autoridade tributária: o documento é numerado internamente e contabilizado, mas não é autorizado. Se a lei do seu país o exigir, emita-o pelo seu fornecedor autorizado (confirmar com um contabilista local)."
   },
   "invoices.new.net_receivable": {
     "es": "Neto a cobrar",
     "en": "Net receivable",
     "pt": "Líquido a receber"
+  },
+  "invoices.new.not_a_fiscal_document": {
+    "es": "Este documento no es un comprobante fiscal.",
+    "en": "This document is not a fiscal document.",
+    "pt": "Este documento não é um documento fiscal."
   },
   "invoices.new.notes": {
     "es": "Notas",
@@ -1600,6 +1610,11 @@
     "en": "Tax",
     "pt": "Imposto",
     "note": "The column header for the line's tax. It was the literal 'ITBIS', which is the Dominican sales tax; regional/ names it ITBIS in es-DO, IVA in Mexico and Colombia, and IGV in Peru."
+  },
+  "invoices.new.tax_not_configured_blocks_issue": {
+    "es": "Todavía no has configurado {{tax}}: no podrás emitir la factura hasta que lo configures.",
+    "en": "You have not configured {{tax}} yet: the invoice cannot be issued until you do.",
+    "pt": "Ainda não configurou {{tax}}: a fatura não poderá ser emitida até configurá-lo."
   },
   "invoices.new.tax_withheld_fraction_tax": {
     "es": "Impuesto retenido (% del impuesto)",

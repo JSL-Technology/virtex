@@ -7,12 +7,12 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
-// The regime/base vocabulary now lives with the jurisdiction strategies that define a country's
-// statutory rules, so the jurisdictions module needs no import of payroll. Re-exported here so the
-// payroll files that read these enums off the versioned rate table keep their existing import path.
-import { ContributionRegime, ContributionBase } from '../../jurisdictions/contribution-regime';
+// The base vocabulary lives with the jurisdiction strategies that define a country's statutory
+// rules, so the jurisdictions module needs no import of payroll. Re-exported here so the payroll
+// files that read it off the versioned rate table keep their import path.
+import { ContributionBase } from '../../jurisdictions/contribution-regime';
 
-export { ContributionRegime, ContributionBase };
+export { ContributionBase };
 
 /**
  * One social-security rate, in force for a country over a date range.
@@ -24,7 +24,7 @@ export { ContributionRegime, ContributionBase };
  * already processed under the old rate must keep it, and a run for a new period must pick up the new
  * one — automatically, from its date, with no code change. Hardcoding `0.0287` anywhere makes that
  * impossible and scatters the number across the module. So every rate lives here, keyed by
- * `(countryCode, regime, effectiveFrom)`, and the calculation reads the row in force on the run's
+ * `(countryCode, code, effectiveFrom)`, and the calculation reads the row in force on the run's
  * period. Adding a country is inserting rows; correcting a rate is inserting a row.
  *
  * This is **global reference data** — the DR's rates are the same for every tenant — so the table
@@ -36,7 +36,7 @@ export { ContributionRegime, ContributionBase };
  * the law states them and it keeps the cap correct when the minimum wage is updated.
  */
 @Entity('payroll_statutory_contributions')
-@Index('IDX_statutory_contrib_lookup', ['countryCode', 'regime', 'effectiveFrom'], { unique: true })
+@Index('IDX_statutory_contrib_lookup', ['countryCode', 'code', 'effectiveFrom'], { unique: true })
 export class StatutoryContribution {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -44,8 +44,13 @@ export class StatutoryContribution {
   @Column({ name: 'country_code', length: 2 })
   countryCode: string;
 
-  @Column({ name: 'regime', type: 'enum', enum: ContributionRegime })
-  regime: ContributionRegime;
+  /**
+   * The contribution's code in the country's catalogue (`PayrollJurisdictionStrategy
+   * .contributionConcepts`). Text, not an enum: the enum listed the four Dominican regimes as if
+   * they were every country's (audit 2026-11-07, JUR-01).
+   */
+  @Column({ name: 'contribution_code', type: 'varchar', length: 32 })
+  code: string;
 
   @Column({ name: 'effective_from', type: 'date' })
   effectiveFrom: string;

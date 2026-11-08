@@ -777,6 +777,11 @@
     "en": "Electronic invoicing",
     "pt": "Faturação eletrónica"
   },
+  "settings.fiscal.capability.payroll": {
+    "es": "Nómina",
+    "en": "Payroll",
+    "pt": "Folha de pagamento"
+  },
   "settings.fiscal.capability.periodic_returns": {
     "es": "Declaraciones periódicas",
     "en": "Periodic returns",
@@ -2039,6 +2044,11 @@
     "es": "Facturación electrónica",
     "en": "Electronic invoicing",
     "pt": "Faturação eletrónica"
+  },
+  "settings.pages.withholding.capability.payroll": {
+    "es": "Nómina",
+    "en": "Payroll",
+    "pt": "Folha de pagamento"
   },
   "settings.pages.withholding.capability.periodic_returns": {
     "es": "Declaraciones periódicas",

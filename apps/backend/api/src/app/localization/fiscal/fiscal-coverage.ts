@@ -35,7 +35,8 @@ export interface CapabilityCoverage {
     | 'electronicInvoicing'
     | 'periodicReturns'
     | 'electronicAccounting'
-    | 'withholding';
+    | 'withholding'
+    | 'payroll';
   level: CoverageLevel;
   /** The regime or filing this refers to, in the authority's own words. */
   detail?: string;
@@ -85,6 +86,7 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
       // Declared as obligations of a Dominican company, and not generated: said, not implied.
       notImplemented('periodicReturns', 'IT-1, IR-17 e IR-3'),
       { capability: 'withholding', level: 'implemented', detail: 'ITBIS e ISR retenidos, Norma 02-05 y Ley 11-92' },
+      { capability: 'payroll', level: 'implemented', detail: 'SDSS (AFP, SFS, SRL), INFOTEP e ISR asalariados' },
     ],
   },
 
@@ -206,8 +208,8 @@ export const FISCAL_COVERAGE: Readonly<Record<string, MarketCoverage>> = {
  */
 export function coverageFor(countryCode: string | null | undefined): MarketCoverage {
   const known = FISCAL_COVERAGE[(countryCode ?? '').toUpperCase()];
-  if (known) return known;
-  return {
+  if (known) return withPayroll(known);
+  return withPayroll({
     countryCode: (countryCode ?? '').toUpperCase(),
     capabilities: [
       accounting,
@@ -216,5 +218,20 @@ export function coverageFor(countryCode: string | null | undefined): MarketCover
       notImplemented('periodicReturns'),
       notImplemented('withholding'),
     ],
-  };
+  });
+}
+
+/**
+ * Payroll is stated for every market (audit 2026-11-07, JUR-02): only a market whose row says
+ * otherwise has a payroll strategy; the others learn it before paying, not from the error of their
+ * first run. `fiscal-coverage.spec.ts` checks the rows against the strategies that exist.
+ */
+function withPayroll(coverage: MarketCoverage): MarketCoverage {
+  if (coverage.capabilities.some((c) => c.capability === 'payroll')) return coverage;
+  return { ...coverage, capabilities: [...coverage.capabilities, notImplemented('payroll')] };
+}
+
+/** True when the product computes this market's statutory payroll. */
+export function payrollImplemented(countryCode: string | null | undefined): boolean {
+  return coverageFor(countryCode).capabilities.some((c) => c.capability === 'payroll' && c.level === 'implemented');
 }

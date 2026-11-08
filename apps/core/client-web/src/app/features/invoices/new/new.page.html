@@ -280,9 +280,12 @@
                   @for (state of registeredJurisdictions(); track state.stateCode; let last = $last) {
                     <strong>{{ state.stateCode }} {{ state.rate | vxPercent: '1.0-3' }}</strong>@if (!last) {, }
                   }
-                } @else {
+                } @else if (untaxedWithoutRegistration()) {
                   {{ 'invoices.new.sales_tax_no_states' | translate }}
                   <a routerLink="/masters/taxes">{{ 'invoices.new.sales_tax_register_states' | translate }}</a>
+                } @else {
+                  {{ 'invoices.new.tax_not_configured_blocks_issue' | translate: { tax: (taxNameKey() | translate) } }}
+                  <a routerLink="/masters/taxes">{{ 'invoices.new.configure_taxes' | translate }}</a>
                 }
               </p>
             }
@@ -369,7 +372,10 @@
                 </select>
               </div>
             } @else {
-              <p class="hint">
+              <!-- LOC-03 / FAC-INV-03: said as a warning, not a footnote — what is issued here is not
+                   a fiscal document, in a market whose law may require one. -->
+              <p class="not-fiscal-banner" role="alert">
+                <strong>{{ 'invoices.new.not_a_fiscal_document' | translate }}</strong>
                 {{ 'invoices.new.market_has_no_electronic_invoicing_regime' | translate }}
               </p>
             }

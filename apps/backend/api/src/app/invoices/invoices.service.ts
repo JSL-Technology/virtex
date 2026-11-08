@@ -162,6 +162,14 @@ export interface InvoicingContext {
    * to register the first one.
    */
   registeredJurisdictions: Array<{ stateCode: string; rate: number }>;
+  /**
+   * In a `BY_JURISDICTION` market, what happens with no jurisdiction registered: the United States
+   * invoices without tax (no nexus, no tax), every other market refuses to issue until its tax is
+   * configured (LOC-01). The form used to tell a Brazilian company, in the United States' words,
+   * that its invoice «will be issued without tax» — which the server then refused (audit
+   * 2026-11-07, LOC-03).
+   */
+  untaxedWithoutRegistration: boolean;
   /** The types the company may offer on an invoice, each with what stands in its way. */
   fiscalDocumentTypes: IssuableTypeOption[];
   /** Traditional, electronic, or both (`OrganizationSettings.fiscalEmissionMode`). */
@@ -1915,6 +1923,7 @@ export class InvoicesService {
       taxRequiresConfiguration: scheme?.configurationRequired ?? true,
       taxModel: pack.taxes.model,
       registeredJurisdictions: jurisdictions,
+      untaxedWithoutRegistration: scheme?.noRegistrationMeansNoTax === true,
       fiscalDocumentTypes: issuable.options,
       emissionMode: issuable.mode,
       automaticKind: issuable.automaticKind,

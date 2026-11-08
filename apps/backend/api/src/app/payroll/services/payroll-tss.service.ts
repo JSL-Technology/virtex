@@ -8,6 +8,7 @@ import { Employee } from '../../hcm/entities/employee.entity';
 import { EmployeeCompensation } from '../../hcm/entities/employee-compensation.entity';
 import { PayrollRun, PayrollRunStatus } from '../entities/payroll-run.entity';
 import { Payslip } from '../entities/payslip.entity';
+import { DO_CONTRIBUTION } from '../../jurisdictions/dominican-republic.strategy';
 
 export interface TssNovedad {
   type: 'ALTA' | 'BAJA' | 'CAMBIO_SALARIO';
@@ -141,15 +142,16 @@ export class PayrollTssService {
 
     const slips = await this.payslips.find({ where: { organizationId, runId } });
     const rows: AutodeterminacionRow[] = slips.map((s) => ({
-      tssNss: s.employeeTssNss,
+      tssNss: s.employeeSocialSecurityNumber,
       employeeName: s.employeeName,
-      salarioCotizable: s.tssBase,
-      afpEmployee: s.afpEmployee,
-      afpEmployer: s.afpEmployer,
-      sfsEmployee: s.sfsEmployee,
-      sfsEmployer: s.sfsEmployer,
-      srlEmployer: s.srlEmployer,
-      infotepEmployer: s.infotepEmployer,
+      salarioCotizable: s.contributoryBase,
+      // The TSS columns are the Dominican funds, read from the payslip's contributions by code.
+      afpEmployee: share(s, DO_CONTRIBUTION.AFP, 'employeeAmount'),
+      afpEmployer: share(s, DO_CONTRIBUTION.AFP, 'employerAmount'),
+      sfsEmployee: share(s, DO_CONTRIBUTION.SFS, 'employeeAmount'),
+      sfsEmployer: share(s, DO_CONTRIBUTION.SFS, 'employerAmount'),
+      srlEmployer: share(s, DO_CONTRIBUTION.SRL, 'employerAmount'),
+      infotepEmployer: share(s, DO_CONTRIBUTION.INFOTEP, 'employerAmount'),
     }));
 
     return {
@@ -203,4 +205,9 @@ export class PayrollTssService {
       n(r.infotepEmployer),
     ].join('|');
   }
+}
+
+/** One fund's share on a payslip, summed in case an adjustment carries the code twice. */
+function share(slip: Payslip, code: string, side: 'employeeAmount' | 'employerAmount'): number {
+  return sumAmounts((slip.statutoryContributions ?? []).filter((c) => c.code === code).map((c) => c[side]));
 }

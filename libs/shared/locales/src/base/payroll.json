@@ -324,6 +324,16 @@
     "en": "Employer contribution",
     "pt": "Encargo patronal"
   },
+  "payroll.contribution_code_invalid": {
+    "es": "El código de la contribución debe ir en mayúsculas, con letras, dígitos o guion bajo (2 a 32 caracteres).",
+    "en": "The contribution code must be upper case letters, digits or underscores (2 to 32 characters).",
+    "pt": "O código da contribuição deve ter letras maiúsculas, dígitos ou sublinhado (2 a 32 caracteres)."
+  },
+  "payroll.contribution_code_not_in_catalogue": {
+    "es": "{{code}} no es una contribución que la ley de {{country}} imponga en este sistema. Contribuciones disponibles: {{codes}}.",
+    "en": "{{code}} is not a contribution {{country}} law levies in this system. Available contributions: {{codes}}.",
+    "pt": "{{code}} não é uma contribuição que a lei de {{country}} imponha neste sistema. Contribuições disponíveis: {{codes}}."
+  },
   "payroll.deductions_p1_exceed_salary_net_pay": {
     "es": "Las deducciones de {{p1}} exceden su salario; el neto no puede ser negativo.",
     "en": "Deductions for {{p1}} exceed the salary; net pay cannot be negative.",
@@ -683,9 +693,9 @@
     "pt": "Valores de referência"
   },
   "payroll.parameters.regime": {
-    "es": "Régimen",
-    "en": "Regime",
-    "pt": "Regime"
+    "es": "Contribución",
+    "en": "Contribution",
+    "pt": "Contribuição"
   },
   "payroll.parameters.regime_label.afp": {
     "es": "Fondo de pensiones",
@@ -853,11 +863,6 @@
     "en": "Payroll run \"{{id}}\" was not found.",
     "pt": "Folha de pagamento \"{{id}}\" não encontrada."
   },
-  "payroll.payslip.afp": {
-    "es": "AFP",
-    "en": "Pension",
-    "pt": "Pensões"
-  },
   "payroll.payslip.base_salary": {
     "es": "Salario base",
     "en": "Base salary",
@@ -868,25 +873,25 @@
     "en": "Deductions",
     "pt": "Descontos"
   },
+  "payroll.payslip.employee_contributions": {
+    "es": "Aportes del empleado",
+    "en": "Employee contributions",
+    "pt": "Contribuições do trabalhador"
+  },
   "payroll.payslip.gross": {
     "es": "Devengado",
     "en": "Gross",
     "pt": "Bruto"
   },
   "payroll.payslip.isr": {
-    "es": "ISR",
+    "es": "Impuesto sobre la renta",
     "en": "Income tax",
-    "pt": "IRS"
+    "pt": "Imposto sobre o rendimento"
   },
   "payroll.payslip.net": {
     "es": "Neto",
     "en": "Net",
     "pt": "Líquido"
-  },
-  "payroll.payslip.sfs": {
-    "es": "SFS",
-    "en": "Health",
-    "pt": "Saúde"
   },
   "payroll.period_month_invalid_p1": {
     "es": "El mes del período es inválido: {{p1}}.",

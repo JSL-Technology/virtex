@@ -1,4 +1,4 @@
-import { ContributionBase, ContributionRegime } from './contribution-regime';
+import { ContributionBase } from './contribution-regime';
 
 /**
  * The statutory parameters in force for a country on a date, resolved once and then frozen.
@@ -9,7 +9,8 @@ import { ContributionBase, ContributionRegime } from './contribution-regime';
  * snapshot.
  */
 export interface ResolvedContribution {
-  regime: ContributionRegime;
+  /** The contribution's code in the country's catalogue (`AFP`, `IMSS_EYM`…); see {@link ContributionConcept}. */
+  code: string;
   employeeRate: number;
   employerRate: number;
   base: ContributionBase;
@@ -69,18 +70,45 @@ export interface BonusInput {
   bonusAmount: number;
 }
 
-/** The statutory outcome of a year-end bonus: ISR-exempt, outside AFP/SFS, INFOTEP-levied. */
+/** The statutory outcome of a year-end bonus. */
 export interface BonusResult {
-  /** Employee INFOTEP levy withheld from the bonus. */
-  infotepEmployee: number;
+  /** The statutory levies withheld from the bonus, in the same shape as an ordinary run's. */
+  contributions: ContributionResult[];
   /** Net bonus paid to the employee. */
   net: number;
 }
 
-/** One regime's computed result, keeping the employer/employee split explicit. */
+/**
+ * Which liability a contribution is owed under, in the ledger.
+ *
+ * A country has as many funds as its law creates (four in DO, five in MX, six in CO); the ledger
+ * has three payroll liabilities beside the net wage and the income tax, one per KIND of fund. The
+ * strategy says which kind each of its contributions is, so the posting never names an
+ * institution (audit 2026-11-07, JUR-01).
+ */
+export type ContributionBucket = 'PENSION' | 'HEALTH' | 'OTHER';
+
+/**
+ * One entry of a country's contribution catalogue — the RULE about a contribution. Its RATES are
+ * versioned data in `payroll_statutory_contributions`, keyed by the same `code`.
+ */
+export interface ContributionConcept {
+  /** Stable code, upper snake case, unique within the country. */
+  code: string;
+  /** Catalogue key of its name, so screens and payslips name it in the reader's language. */
+  labelKey: string;
+  /** The name written on a payslip line, in the country's own terms. */
+  name: string;
+  bucket: ContributionBucket;
+  /** True when the employee's share is deducted before income tax (AFP and SFS in DO). */
+  reducesTaxableIncome: boolean;
+}
+
+/** One contribution's computed result, keeping the employer/employee split explicit. */
 export interface ContributionResult {
-  regime: ContributionRegime;
-  /** The base actually used after applying the regime's cap. */
+  code: string;
+  bucket: ContributionBucket;
+  /** The base actually used after applying the contribution's floor and cap. */
   appliedBase: number;
   employeeRate: number;
   employerRate: number;
@@ -91,15 +119,12 @@ export interface ContributionResult {
 /** The full statutory outcome for one employee for one period. */
 export interface StatutoryResult {
   contributions: ContributionResult[];
-  /** Employee-withheld shares, summed by regime for the payslip's summary columns. */
-  afpEmployee: number;
-  afpEmployer: number;
-  sfsEmployee: number;
-  sfsEmployer: number;
-  srlEmployer: number;
-  infotepEmployer: number;
+  /** Sum of the employee shares withheld. */
+  employeeContributions: number;
+  /** Sum of the employer shares, an added cost. */
+  employerContributions: number;
   incomeTax: number;
-  /** Taxable earnings net of the employee's AFP+SFS — the base income tax was applied to. */
+  /** Taxable earnings net of the employee shares that reduce taxable income. */
   taxableBase: number;
 }
 
@@ -148,6 +173,13 @@ export interface StatutoryIdentifierSpec {
 export interface PayrollJurisdictionStrategy {
   readonly countryCode: string;
   /**
+   * Every statutory contribution this country's law levies on a payroll. A rate row whose code is
+   * not here is a data defect and is refused, never guessed at.
+   */
+  readonly contributionConcepts: readonly ContributionConcept[];
+  /** How the income-tax withholding is named on a payslip line. */
+  readonly incomeTaxConcept: { code: string; name: string; labelKey: string };
+  /**
    * The statutory identifiers this country's filings need from an employee record.
    *
    * Empty by default: a strategy that has not modelled them asserts nothing rather than borrowing
@@ -157,8 +189,8 @@ export interface PayrollJurisdictionStrategy {
   /** Compute all statutory contributions and income tax from the prorated bases. Pure. */
   computeStatutory(input: StatutoryInput, params: ResolvedParameters): StatutoryResult;
   /**
-   * The statutory treatment of a year-end bonus (regalía pascual): exempt from income tax, outside
-   * the AFP/SFS contributory base, but subject to the employee INFOTEP levy. Pure.
+   * The statutory treatment of a year-end bonus (DO: the regalía pascual, exempt from income tax and
+   * outside the AFP/SFS base, but subject to the employee INFOTEP levy). Pure.
    */
   computeBonus(input: BonusInput, params: ResolvedParameters): BonusResult;
 }

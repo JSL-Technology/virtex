@@ -6,19 +6,21 @@ import {
   IsEnum,
   IsNumber,
   IsOptional,
+  Matches,
   Length,
   Min,
   ValidateNested,
 } from 'class-validator';
-import { ContributionBase, ContributionRegime } from '../entities/statutory-contribution.entity';
+import { ContributionBase } from '../entities/statutory-contribution.entity';
 import { StatutoryReferenceKey } from '../entities/statutory-reference.entity';
 
 export class UpsertContributionDto {
   @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   countryCode: string;
 
-  @IsEnum(ContributionRegime)
-  regime: ContributionRegime;
+  /** A code of the country's contribution catalogue; the service checks it against the strategy. */
+  @Matches(/^[A-Z][A-Z0-9_]{1,31}$/, { message: 'payroll.contribution_code_invalid' })
+  code: string;
 
   @IsDateString()
   effectiveFrom: string;

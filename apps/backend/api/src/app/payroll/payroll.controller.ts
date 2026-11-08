@@ -258,6 +258,17 @@ export class PayrollController {
     );
   }
 
+  @Get('parameters/contribution-concepts')
+  @HasPermission(PERMISSIONS.PAYROLL_VIEW)
+  async listContributionConcepts(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('country') country?: string,
+  ) {
+    return this.parametersAdmin.listConcepts(
+      country ?? (await this.tenantCountry.resolve(user.organizationId)),
+    );
+  }
+
   @Get('parameters/references')
   @HasPermission(PERMISSIONS.PAYROLL_VIEW)
   async listReferences(

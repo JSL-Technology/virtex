@@ -18,3 +18,9 @@ export { languageOfCountry } from '../fiscal/country-language';
  * has no national rate (United States, Brazil) and the tenant has to set one up.
  */
 export { findTaxScheme, type CountryTaxScheme } from '../fiscal/country-tax-schemes';
+
+/**
+ * What the product does in each market, per capability — including payroll, which the jurisdiction
+ * strategies must agree with (JUR-02).
+ */
+export { coverageFor, payrollImplemented } from '../fiscal/fiscal-coverage';

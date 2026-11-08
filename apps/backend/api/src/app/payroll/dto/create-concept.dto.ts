@@ -72,7 +72,7 @@ export class CreateConceptDto {
 
   @IsBoolean()
   @IsOptional()
-  contributesToTss?: boolean;
+  contributesToSocialSecurity?: boolean;
 
   @IsUUID()
   @IsOptional()

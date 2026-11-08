@@ -136,7 +136,7 @@ export interface PayrollConceptSeed {
   rate: number | null;
   taxable: boolean;
   /** Part of the social-security base (TSS in DR, FICA wages in the US). */
-  contributesToTss: boolean;
+  contributesToSocialSecurity: boolean;
   sortOrder: number;
   isSystem: boolean;
 }
@@ -284,16 +284,16 @@ function latamPack(
  * the night premium, a bonus, a commission, a loan repayment and an advance.
  */
 const DO_PAYROLL_CONCEPTS: readonly PayrollConceptSeed[] = [
-  { code: 'HE35', nameKey: 'payroll.concepts.seed.overtime_35', type: 'EARNING', calculation: 'HOURLY', rate: 1.35, taxable: true, contributesToTss: true, sortOrder: 20, isSystem: false },
-  { code: 'HE100', nameKey: 'payroll.concepts.seed.overtime_100', type: 'EARNING', calculation: 'HOURLY', rate: 2, taxable: true, contributesToTss: true, sortOrder: 21, isSystem: false },
-  { code: 'NOCT', nameKey: 'payroll.concepts.seed.night_premium', type: 'EARNING', calculation: 'HOURLY', rate: 0.15, taxable: true, contributesToTss: true, sortOrder: 22, isSystem: false },
-  { code: 'BONO', nameKey: 'payroll.concepts.seed.bonus', type: 'EARNING', calculation: 'FIXED', rate: null, taxable: true, contributesToTss: false, sortOrder: 30, isSystem: false },
-  { code: 'COMISION', nameKey: 'payroll.concepts.seed.commission', type: 'EARNING', calculation: 'FIXED', rate: null, taxable: true, contributesToTss: true, sortOrder: 31, isSystem: false },
-  { code: 'AFP', nameKey: 'payroll.concepts.seed.afp', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 200, isSystem: true },
-  { code: 'SFS', nameKey: 'payroll.concepts.seed.sfs', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 201, isSystem: true },
-  { code: 'ISR', nameKey: 'payroll.concepts.seed.isr', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 210, isSystem: true },
-  { code: 'PRESTAMO', nameKey: 'payroll.concepts.seed.loan_repayment', type: 'DEDUCTION', calculation: 'FIXED', rate: null, taxable: false, contributesToTss: false, sortOrder: 300, isSystem: false },
-  { code: 'ANTICIPO', nameKey: 'payroll.concepts.seed.salary_advance', type: 'DEDUCTION', calculation: 'FIXED', rate: null, taxable: false, contributesToTss: false, sortOrder: 301, isSystem: false },
+  { code: 'HE35', nameKey: 'payroll.concepts.seed.overtime_35', type: 'EARNING', calculation: 'HOURLY', rate: 1.35, taxable: true, contributesToSocialSecurity: true, sortOrder: 20, isSystem: false },
+  { code: 'HE100', nameKey: 'payroll.concepts.seed.overtime_100', type: 'EARNING', calculation: 'HOURLY', rate: 2, taxable: true, contributesToSocialSecurity: true, sortOrder: 21, isSystem: false },
+  { code: 'NOCT', nameKey: 'payroll.concepts.seed.night_premium', type: 'EARNING', calculation: 'HOURLY', rate: 0.15, taxable: true, contributesToSocialSecurity: true, sortOrder: 22, isSystem: false },
+  { code: 'BONO', nameKey: 'payroll.concepts.seed.bonus', type: 'EARNING', calculation: 'FIXED', rate: null, taxable: true, contributesToSocialSecurity: false, sortOrder: 30, isSystem: false },
+  { code: 'COMISION', nameKey: 'payroll.concepts.seed.commission', type: 'EARNING', calculation: 'FIXED', rate: null, taxable: true, contributesToSocialSecurity: true, sortOrder: 31, isSystem: false },
+  { code: 'AFP', nameKey: 'payroll.concepts.seed.afp', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 200, isSystem: true },
+  { code: 'SFS', nameKey: 'payroll.concepts.seed.sfs', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 201, isSystem: true },
+  { code: 'ISR', nameKey: 'payroll.concepts.seed.isr', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 210, isSystem: true },
+  { code: 'PRESTAMO', nameKey: 'payroll.concepts.seed.loan_repayment', type: 'DEDUCTION', calculation: 'FIXED', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 300, isSystem: false },
+  { code: 'ANTICIPO', nameKey: 'payroll.concepts.seed.salary_advance', type: 'DEDUCTION', calculation: 'FIXED', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 301, isSystem: false },
 ];
 
 /**
@@ -383,21 +383,21 @@ const US_PAYROLL_PARAMETERS: readonly PayrollParameterSeed[] = [
  * line and take an account; the figures come from the parameters above.
  */
 const US_PAYROLL_CONCEPTS: readonly PayrollConceptSeed[] = [
-  { code: 'OT', nameKey: 'payroll.concepts.seed.us_overtime', type: 'EARNING', calculation: 'HOURLY', rate: 1.5, taxable: true, contributesToTss: true, sortOrder: 20, isSystem: false },
-  { code: 'BONUS', nameKey: 'payroll.concepts.seed.bonus', type: 'EARNING', calculation: 'FIXED', rate: null, taxable: true, contributesToTss: true, sortOrder: 30, isSystem: false },
-  { code: 'COMMISSION', nameKey: 'payroll.concepts.seed.commission', type: 'EARNING', calculation: 'FIXED', rate: null, taxable: true, contributesToTss: true, sortOrder: 31, isSystem: false },
-  { code: 'TIPS', nameKey: 'payroll.concepts.seed.us_tips', type: 'EARNING', calculation: 'FIXED', rate: null, taxable: true, contributesToTss: true, sortOrder: 32, isSystem: false },
-  { code: 'SS', nameKey: 'payroll.concepts.seed.us_social_security', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 200, isSystem: true },
-  { code: 'MEDICARE', nameKey: 'payroll.concepts.seed.us_medicare', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 201, isSystem: true },
-  { code: 'FIT', nameKey: 'payroll.concepts.seed.us_federal_income_tax', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 210, isSystem: true },
-  { code: 'SIT', nameKey: 'payroll.concepts.seed.us_state_income_tax', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 211, isSystem: true },
-  { code: '401K', nameKey: 'payroll.concepts.seed.us_401k', type: 'DEDUCTION', calculation: 'PERCENTAGE', rate: null, taxable: false, contributesToTss: false, sortOrder: 250, isSystem: false },
-  { code: 'ER_SS', nameKey: 'payroll.concepts.seed.us_employer_social_security', type: 'EMPLOYER_CONTRIBUTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 400, isSystem: true },
-  { code: 'ER_MEDICARE', nameKey: 'payroll.concepts.seed.us_employer_medicare', type: 'EMPLOYER_CONTRIBUTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 401, isSystem: true },
-  { code: 'FUTA', nameKey: 'payroll.concepts.seed.us_futa', type: 'EMPLOYER_CONTRIBUTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 402, isSystem: true },
-  { code: 'SUTA', nameKey: 'payroll.concepts.seed.us_suta', type: 'EMPLOYER_CONTRIBUTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToTss: false, sortOrder: 403, isSystem: true },
-  { code: 'LOAN', nameKey: 'payroll.concepts.seed.loan_repayment', type: 'DEDUCTION', calculation: 'FIXED', rate: null, taxable: false, contributesToTss: false, sortOrder: 300, isSystem: false },
-  { code: 'ADVANCE', nameKey: 'payroll.concepts.seed.salary_advance', type: 'DEDUCTION', calculation: 'FIXED', rate: null, taxable: false, contributesToTss: false, sortOrder: 301, isSystem: false },
+  { code: 'OT', nameKey: 'payroll.concepts.seed.us_overtime', type: 'EARNING', calculation: 'HOURLY', rate: 1.5, taxable: true, contributesToSocialSecurity: true, sortOrder: 20, isSystem: false },
+  { code: 'BONUS', nameKey: 'payroll.concepts.seed.bonus', type: 'EARNING', calculation: 'FIXED', rate: null, taxable: true, contributesToSocialSecurity: true, sortOrder: 30, isSystem: false },
+  { code: 'COMMISSION', nameKey: 'payroll.concepts.seed.commission', type: 'EARNING', calculation: 'FIXED', rate: null, taxable: true, contributesToSocialSecurity: true, sortOrder: 31, isSystem: false },
+  { code: 'TIPS', nameKey: 'payroll.concepts.seed.us_tips', type: 'EARNING', calculation: 'FIXED', rate: null, taxable: true, contributesToSocialSecurity: true, sortOrder: 32, isSystem: false },
+  { code: 'SS', nameKey: 'payroll.concepts.seed.us_social_security', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 200, isSystem: true },
+  { code: 'MEDICARE', nameKey: 'payroll.concepts.seed.us_medicare', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 201, isSystem: true },
+  { code: 'FIT', nameKey: 'payroll.concepts.seed.us_federal_income_tax', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 210, isSystem: true },
+  { code: 'SIT', nameKey: 'payroll.concepts.seed.us_state_income_tax', type: 'DEDUCTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 211, isSystem: true },
+  { code: '401K', nameKey: 'payroll.concepts.seed.us_401k', type: 'DEDUCTION', calculation: 'PERCENTAGE', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 250, isSystem: false },
+  { code: 'ER_SS', nameKey: 'payroll.concepts.seed.us_employer_social_security', type: 'EMPLOYER_CONTRIBUTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 400, isSystem: true },
+  { code: 'ER_MEDICARE', nameKey: 'payroll.concepts.seed.us_employer_medicare', type: 'EMPLOYER_CONTRIBUTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 401, isSystem: true },
+  { code: 'FUTA', nameKey: 'payroll.concepts.seed.us_futa', type: 'EMPLOYER_CONTRIBUTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 402, isSystem: true },
+  { code: 'SUTA', nameKey: 'payroll.concepts.seed.us_suta', type: 'EMPLOYER_CONTRIBUTION', calculation: 'STATUTORY', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 403, isSystem: true },
+  { code: 'LOAN', nameKey: 'payroll.concepts.seed.loan_repayment', type: 'DEDUCTION', calculation: 'FIXED', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 300, isSystem: false },
+  { code: 'ADVANCE', nameKey: 'payroll.concepts.seed.salary_advance', type: 'DEDUCTION', calculation: 'FIXED', rate: null, taxable: false, contributesToSocialSecurity: false, sortOrder: 301, isSystem: false },
 ];
 
 // ── The packs ────────────────────────────────────────────────────────────────────────────────

@@ -125,6 +125,8 @@ export class NewInvoicePage implements OnInit {
   /** The rate is determined from the buyer's state, not chosen per line (US sales tax). */
   readonly taxByDestination = computed(() => this.context()?.taxModel === 'BY_JURISDICTION');
   readonly registeredJurisdictions = computed(() => this.context()?.registeredJurisdictions ?? []);
+  /** LOC-03: only a market where no registration means no tax may say the invoice goes out untaxed. */
+  readonly untaxedWithoutRegistration = computed(() => this.context()?.untaxedWithoutRegistration === true);
   readonly taxNameKey = computed(() => this.countryPack.pack()?.taxes.nameKey ?? 'invoices.new.tax_column_header');
 
   /** Debounces the preview requests; see `requestPreview`. */

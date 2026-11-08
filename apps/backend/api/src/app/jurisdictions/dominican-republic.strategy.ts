@@ -1,8 +1,9 @@
 import { roundAmount } from '../common/money';
-import { ContributionBase, ContributionRegime } from './contribution-regime';
+import { ContributionBase } from './contribution-regime';
 import {
   BonusInput,
   BonusResult,
+  ContributionConcept,
   ContributionResult,
   PayrollJurisdictionStrategy,
   ResolvedParameters,
@@ -30,8 +31,30 @@ import {
  *
  * The employee/employer split is preserved for every regime, never combined.
  */
+/** The Dominican contribution codes, as the versioned rate table stores them. */
+export const DO_CONTRIBUTION = Object.freeze({
+  AFP: 'AFP',
+  SFS: 'SFS',
+  SRL: 'SRL',
+  INFOTEP: 'INFOTEP',
+} as const);
+
 export class DominicanRepublicStrategy implements PayrollJurisdictionStrategy {
   readonly countryCode = 'DO';
+
+  /**
+   * The SDSS funds (Ley 87-01) and the INFOTEP levy (Ley 116-80). AFP and SFS employee shares are
+   * deducted before ISR (Código Tributario, art. 296 as applied by the DGII); SRL and INFOTEP are
+   * employer-borne. Verificar con contador local.
+   */
+  readonly contributionConcepts: readonly ContributionConcept[] = [
+    { code: DO_CONTRIBUTION.AFP, labelKey: 'payroll.parameters.regime_label.afp', name: 'AFP (Fondo de Pensiones)', bucket: 'PENSION', reducesTaxableIncome: true },
+    { code: DO_CONTRIBUTION.SFS, labelKey: 'payroll.parameters.regime_label.sfs', name: 'SFS (Seguro Familiar de Salud)', bucket: 'HEALTH', reducesTaxableIncome: true },
+    { code: DO_CONTRIBUTION.SRL, labelKey: 'payroll.parameters.regime_label.srl', name: 'SRL (Seguro de Riesgos Laborales)', bucket: 'OTHER', reducesTaxableIncome: false },
+    { code: DO_CONTRIBUTION.INFOTEP, labelKey: 'payroll.parameters.regime_label.infotep', name: 'INFOTEP', bucket: 'OTHER', reducesTaxableIncome: false },
+  ];
+
+  readonly incomeTaxConcept = { code: 'ISR', name: 'Impuesto sobre la renta (ISR)', labelKey: 'payroll.payslip.isr' };
 
   /**
    * What the TSS needs on an employee record, and the shape it needs it in.
@@ -73,68 +96,49 @@ export class DominicanRepublicStrategy implements PayrollJurisdictionStrategy {
     const contributions: ContributionResult[] = [];
     const prorationFactor = input.prorationFactor ?? 1;
 
-    let afpEmployee = 0;
-    let afpEmployer = 0;
-    let sfsEmployee = 0;
-    let sfsEmployer = 0;
-    let srlEmployer = 0;
-    let infotepEmployer = 0;
-
     for (const contribution of params.contributions) {
+      const concept = this.concept(contribution.code);
       const appliedBase = this.boundedBase(
         input.contributoryBase,
         contribution,
         params.minWageCotizable,
         prorationFactor,
       );
-      const employeeAmount = roundAmount(appliedBase * contribution.employeeRate);
-      const employerAmount = roundAmount(appliedBase * contribution.employerRate);
-
       contributions.push({
-        regime: contribution.regime,
+        code: concept.code,
+        bucket: concept.bucket,
         appliedBase,
         employeeRate: contribution.employeeRate,
         employerRate: contribution.employerRate,
-        employeeAmount,
-        employerAmount,
+        employeeAmount: roundAmount(appliedBase * contribution.employeeRate),
+        employerAmount: roundAmount(appliedBase * contribution.employerRate),
       });
-
-      switch (contribution.regime) {
-        case ContributionRegime.AFP:
-          afpEmployee += employeeAmount;
-          afpEmployer += employerAmount;
-          break;
-        case ContributionRegime.SFS:
-          sfsEmployee += employeeAmount;
-          sfsEmployer += employerAmount;
-          break;
-        case ContributionRegime.SRL:
-          srlEmployer += employerAmount;
-          break;
-        case ContributionRegime.INFOTEP:
-          infotepEmployer += employerAmount;
-          break;
-      }
     }
 
+    const pretax = contributions
+      .filter((c) => this.concept(c.code).reducesTaxableIncome)
+      .reduce((sum, c) => sum + c.employeeAmount, 0);
     // ISR is charged on taxable earnings net of the employee's AFP + SFS. Rounded to cents so the
     // base tax is computed on cannot carry sub-cent drift.
-    const taxableBase = roundAmount(
-      Math.max(0, input.taxableEarnings - afpEmployee - sfsEmployee),
-    );
+    const taxableBase = roundAmount(Math.max(0, input.taxableEarnings - pretax));
     const incomeTax = this.incomeTax(taxableBase, prorationFactor, params);
 
     return {
       contributions,
-      afpEmployee,
-      afpEmployer,
-      sfsEmployee,
-      sfsEmployer,
-      srlEmployer,
-      infotepEmployer,
+      employeeContributions: roundAmount(contributions.reduce((sum, c) => sum + c.employeeAmount, 0)),
+      employerContributions: roundAmount(contributions.reduce((sum, c) => sum + c.employerAmount, 0)),
       incomeTax,
       taxableBase,
     };
+  }
+
+  /** A rate row for a code the Dominican law does not levy is a data defect, refused loudly. */
+  private concept(code: string): ContributionConcept {
+    const concept = this.contributionConcepts.find((c) => c.code === code);
+    if (!concept) {
+      throw new Error(`Contribución desconocida para DO: "${code}". Revisa los parámetros de nómina.`);
+    }
+    return concept;
   }
 
   /**
@@ -206,7 +210,12 @@ export class DominicanRepublicStrategy implements PayrollJurisdictionStrategy {
    */
   computeBonus(input: BonusInput, params: ResolvedParameters): BonusResult {
     const bonus = roundAmount(Math.max(0, input.bonusAmount));
-    const infotepEmployee = roundAmount(bonus * (params.bonusEmployeeLevyRate ?? 0));
-    return { infotepEmployee, net: roundAmount(bonus - infotepEmployee) };
+    const rate = params.bonusEmployeeLevyRate ?? 0;
+    const levy = roundAmount(bonus * rate);
+    const contributions: ContributionResult[] =
+      levy > 0
+        ? [{ code: DO_CONTRIBUTION.INFOTEP, bucket: 'OTHER', appliedBase: bonus, employeeRate: rate, employerRate: 0, employeeAmount: levy, employerAmount: 0 }]
+        : [];
+    return { contributions, net: roundAmount(bonus - levy) };
   }
 }

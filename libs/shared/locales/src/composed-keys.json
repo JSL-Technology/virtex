@@ -1022,7 +1022,8 @@
       "electronicInvoicing",
       "periodicReturns",
       "electronicAccounting",
-      "withholding"
+      "withholding",
+      "payroll"
     ],
     "settings.fiscal.level": [
       "implemented",
@@ -1035,7 +1036,8 @@
       "electronicInvoicing",
       "periodicReturns",
       "electronicAccounting",
-      "withholding"
+      "withholding",
+      "payroll"
     ],
     "settings.pages.withholding.coverage": [
       "implemented",

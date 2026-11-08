@@ -39,6 +39,7 @@ import {
 } from '../fiscal/coa-builder';
 import { InternalServerError, NotFoundError } from '../../i18n/localized.exception';
 import { fiscalLabelKey } from '../fiscal/fiscal-label-keys';
+import { payrollImplemented } from '../fiscal/fiscal-coverage';
 import { STRUCTURAL_CHECKS } from '../fiscal/document-checksums';
 import { I18nService } from '../../i18n/i18n.service';
 import { currentLanguage } from '../../i18n/request-locale';
@@ -334,6 +335,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
       },
       electronicInvoicing: profile.electronicInvoicing,
       marketStatus: profile.marketStatus,
+      payrollAvailable: payrollImplemented(profile.countryCode),
       taxpayerKindRequired: taxpayerKindAffectsValidation(profile.countryCode),
       fiscalFields: (profile.fiscalFields ?? []).map((field) => ({
         ...field,

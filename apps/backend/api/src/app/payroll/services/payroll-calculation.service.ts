@@ -5,10 +5,11 @@ import { BadRequestError } from '../../i18n/localized.exception';
 import { ConceptCalculation, ConceptType } from '../entities/payroll-concept.entity';
 import { PayslipLineKind } from '../entities/payslip-line.entity';
 import {
+  ContributionResult,
   PayrollJurisdictionStrategy,
   ResolvedParameters,
 } from '../../jurisdictions/jurisdiction-strategy.interface';
-import { ContributionRegime } from '../entities/statutory-contribution.entity';
+import type { PayslipContribution } from '../entities/payslip.entity';
 
 /**
  * Legal ordinary work hours in a month, for deriving the hourly wage overtime is a premium on.
@@ -26,7 +27,7 @@ export interface ConceptInput {
   type: ConceptType;
   calculation: ConceptCalculation;
   taxable: boolean;
-  contributesToTss: boolean;
+  contributesToSocialSecurity: boolean;
   /** For FIXED concepts. */
   amount?: number;
   /** For PERCENTAGE concepts — a fraction of the prorated base salary; for HOURLY — the premium multiplier. */
@@ -40,7 +41,7 @@ export interface EmployeeCalculationInput {
   employeeId: string;
   employeeName: string;
   employeeIdentityMasked?: string | null;
-  employeeTssNss?: string | null;
+  employeeSocialSecurityNumber?: string | null;
   hireDate?: string | null;
   terminationDate?: string | null;
   /** Contractual monthly salary in force for the period. */
@@ -70,22 +71,18 @@ export interface ComputedPayslip {
   employeeId: string;
   employeeName: string;
   employeeIdentityMasked: string | null;
-  employeeTssNss: string | null;
+  employeeSocialSecurityNumber: string | null;
   baseDays: number;
   workedDays: number;
   baseSalary: number;
   grossEarnings: number;
-  tssBase: number;
+  contributoryBase: number;
   taxableBase: number;
-  afpEmployee: number;
-  sfsEmployee: number;
+  /** Every statutory contribution, by the country's catalogue code (audit 2026-11-07, JUR-01). */
+  statutoryContributions: PayslipContribution[];
+  statutoryEmployeeContributions: number;
+  statutoryEmployerContributions: number;
   incomeTax: number;
-  /** Employee INFOTEP levy — only on a year-end bonus run; zero on an ordinary run. */
-  infotepEmployee: number;
-  afpEmployer: number;
-  sfsEmployer: number;
-  srlEmployer: number;
-  infotepEmployer: number;
   otherDeductions: number;
   /** Non-statutory employer costs (EMPLOYER_CONTRIBUTION concepts), booked as an expense. */
   otherEmployerContributions: number;
@@ -109,7 +106,7 @@ export interface ComputedPayslip {
  * ## The order matters
  *
  * Proration first (an employee who worked half the month earns and contributes on half), then
- * earnings (to know the contributory and taxable bases), then the statutory engine (AFP/SFS before
+ * earnings (to know the contributory and taxable bases), then the statutory engine (pre-tax contributions before
  * ISR, because ISR is charged net of them), then the ordinary deductions and employer costs. Every
  * amount is rounded to cents through the shared money helpers, and the totals are summed in cents so
  * a long payslip cannot accumulate binary drift.
@@ -149,7 +146,7 @@ export class PayrollCalculationService {
       if (amount === 0) continue;
       earningAmounts.push(amount);
       if (concept.taxable) taxableAmounts.push(amount);
-      if (concept.contributesToTss) contributoryAmounts.push(amount);
+      if (concept.contributesToSocialSecurity) contributoryAmounts.push(amount);
       lines.push({
         conceptCode: concept.code,
         conceptName: concept.name,
@@ -166,7 +163,7 @@ export class PayrollCalculationService {
     const contributoryBase = sumAmounts(contributoryAmounts);
     const taxableEarnings = sumAmounts(taxableAmounts);
 
-    // ── Statutory (AFP/SFS/SRL/INFOTEP + ISR), from the jurisdiction strategy ───
+    // ── Statutory contributions and income tax, from the jurisdiction strategy ───
     const statutory = strategy.computeStatutory(
       { contributoryBase, taxableEarnings, prorationFactor: factor },
       params,
@@ -176,8 +173,8 @@ export class PayrollCalculationService {
       const isEmployee = contribution.employeeAmount > 0;
       const isEmployerOnly = contribution.employeeAmount === 0 && contribution.employerAmount > 0;
       lines.push({
-        conceptCode: contribution.regime,
-        conceptName: this.regimeName(contribution.regime),
+        conceptCode: contribution.code,
+        conceptName: this.conceptName(strategy, contribution.code),
         kind: isEmployerOnly
           ? PayslipLineKind.EMPLOYER_CONTRIBUTION
           : PayslipLineKind.EMPLOYEE_DEDUCTION,
@@ -191,8 +188,8 @@ export class PayrollCalculationService {
 
     if (statutory.incomeTax > 0) {
       lines.push({
-        conceptCode: 'ISR',
-        conceptName: 'Impuesto sobre la renta (ISR)',
+        conceptCode: strategy.incomeTaxConcept.code,
+        conceptName: strategy.incomeTaxConcept.name,
         kind: PayslipLineKind.EMPLOYEE_DEDUCTION,
         amount: statutory.incomeTax,
         employerPortion: null,
@@ -240,16 +237,12 @@ export class PayrollCalculationService {
     const otherDeductions = sumAmounts(otherDeductionAmounts);
     const otherEmployerContributions = sumAmounts(employerConceptAmounts);
     const totalEmployeeDeductions = sumAmounts([
-      statutory.afpEmployee,
-      statutory.sfsEmployee,
+      statutory.employeeContributions,
       statutory.incomeTax,
       otherDeductions,
     ]);
     const totalEmployerContributions = sumAmounts([
-      statutory.afpEmployer,
-      statutory.sfsEmployer,
-      statutory.srlEmployer,
-      statutory.infotepEmployer,
+      statutory.employerContributions,
       otherEmployerContributions,
     ]);
     const netPay = roundAmount(grossEarnings - totalEmployeeDeductions);
@@ -269,21 +262,17 @@ export class PayrollCalculationService {
       employeeId: employee.employeeId,
       employeeName: employee.employeeName,
       employeeIdentityMasked: employee.employeeIdentityMasked ?? null,
-      employeeTssNss: employee.employeeTssNss ?? null,
+      employeeSocialSecurityNumber: employee.employeeSocialSecurityNumber ?? null,
       baseDays,
       workedDays,
       baseSalary: proratedBase,
       grossEarnings,
-      tssBase: contributoryBase,
+      contributoryBase: contributoryBase,
       taxableBase: statutory.taxableBase,
-      afpEmployee: statutory.afpEmployee,
-      sfsEmployee: statutory.sfsEmployee,
+      statutoryContributions: statutory.contributions.map(toPayslipContribution),
+      statutoryEmployeeContributions: statutory.employeeContributions,
+      statutoryEmployerContributions: statutory.employerContributions,
       incomeTax: statutory.incomeTax,
-      infotepEmployee: 0,
-      afpEmployer: statutory.afpEmployer,
-      sfsEmployer: statutory.sfsEmployer,
-      srlEmployer: statutory.srlEmployer,
-      infotepEmployer: statutory.infotepEmployer,
       otherDeductions,
       otherEmployerContributions,
       totalEmployeeDeductions,
@@ -323,43 +312,41 @@ export class PayrollCalculationService {
         sortOrder: 10,
       },
     ];
-    if (bonus.infotepEmployee > 0) {
+    for (const levy of bonus.contributions) {
+      if (levy.employeeAmount <= 0) continue;
       lines.push({
-        conceptCode: 'INFOTEP_EMP',
+        conceptCode: `${levy.code}_EMP`,
         // The rate actually applied, not a literal: the label said 0.5 % while the seed withheld 1 %
         // (audit 2026-10-31, NOM-03), so the payslip contradicted itself.
-        conceptName: `INFOTEP empleado (${formatPercent(params.bonusEmployeeLevyRate)} sobre regalía)`,
+        conceptName: `${this.conceptName(strategy, levy.code)} (${formatPercent(levy.employeeRate)})`,
         kind: PayslipLineKind.EMPLOYEE_DEDUCTION,
-        amount: bonus.infotepEmployee,
+        amount: levy.employeeAmount,
         employerPortion: null,
-        base: gross,
-        rate: params.bonusEmployeeLevyRate,
+        base: levy.appliedBase,
+        rate: levy.employeeRate,
         sortOrder: 200,
       });
     }
+    const levies = sumAmounts(bonus.contributions.map((c) => c.employeeAmount));
 
     return {
       employeeId: employee.employeeId,
       employeeName: employee.employeeName,
       employeeIdentityMasked: employee.employeeIdentityMasked ?? null,
-      employeeTssNss: employee.employeeTssNss ?? null,
+      employeeSocialSecurityNumber: employee.employeeSocialSecurityNumber ?? null,
       baseDays: 0,
       workedDays: 0,
       baseSalary: 0,
       grossEarnings: gross,
-      tssBase: 0,
+      contributoryBase: 0,
       taxableBase: 0,
-      afpEmployee: 0,
-      sfsEmployee: 0,
+      statutoryContributions: bonus.contributions.map(toPayslipContribution),
+      statutoryEmployeeContributions: levies,
+      statutoryEmployerContributions: 0,
       incomeTax: 0,
-      infotepEmployee: bonus.infotepEmployee,
-      afpEmployer: 0,
-      sfsEmployer: 0,
-      srlEmployer: 0,
-      infotepEmployer: 0,
       otherDeductions: 0,
       otherEmployerContributions: 0,
-      totalEmployeeDeductions: bonus.infotepEmployee,
+      totalEmployeeDeductions: levies,
       totalEmployerContributions: 0,
       netPay: bonus.net,
       currencyCode: employee.currencyCode,
@@ -381,16 +368,12 @@ export class PayrollCalculationService {
     return {
       ...current,
       grossEarnings: d(current.grossEarnings, previous.grossEarnings),
-      tssBase: d(current.tssBase, previous.tssBase),
+      contributoryBase: d(current.contributoryBase, previous.contributoryBase),
       taxableBase: d(current.taxableBase, previous.taxableBase),
-      afpEmployee: d(current.afpEmployee, previous.afpEmployee),
-      sfsEmployee: d(current.sfsEmployee, previous.sfsEmployee),
+      statutoryContributions: diffContributions(current.statutoryContributions, previous.statutoryContributions),
+      statutoryEmployeeContributions: d(current.statutoryEmployeeContributions, previous.statutoryEmployeeContributions),
+      statutoryEmployerContributions: d(current.statutoryEmployerContributions, previous.statutoryEmployerContributions),
       incomeTax: d(current.incomeTax, previous.incomeTax),
-      infotepEmployee: d(current.infotepEmployee, previous.infotepEmployee),
-      afpEmployer: d(current.afpEmployer, previous.afpEmployer),
-      sfsEmployer: d(current.sfsEmployer, previous.sfsEmployer),
-      srlEmployer: d(current.srlEmployer, previous.srlEmployer),
-      infotepEmployer: d(current.infotepEmployer, previous.infotepEmployer),
       otherDeductions: d(current.otherDeductions, previous.otherDeductions),
       otherEmployerContributions: d(
         current.otherEmployerContributions,
@@ -473,19 +456,9 @@ export class PayrollCalculationService {
     return null;
   }
 
-  private regimeName(regime: ContributionRegime): string {
-    switch (regime) {
-      case ContributionRegime.AFP:
-        return 'AFP (Fondo de Pensiones)';
-      case ContributionRegime.SFS:
-        return 'SFS (Seguro Familiar de Salud)';
-      case ContributionRegime.SRL:
-        return 'SRL (Seguro de Riesgos Laborales)';
-      case ContributionRegime.INFOTEP:
-        return 'INFOTEP';
-      default:
-        return regime;
-    }
+  /** The payslip-line name of a contribution, from the country's own catalogue. */
+  private conceptName(strategy: PayrollJurisdictionStrategy, code: string): string {
+    return strategy.contributionConcepts.find((concept) => concept.code === code)?.name ?? code;
   }
 }
 
@@ -494,3 +467,36 @@ function formatPercent(rate: number | null | undefined): string {
   return `${Math.round(Number(rate ?? 0) * 100 * 1000) / 1000}%`;
 }
 
+
+function toPayslipContribution(c: ContributionResult): PayslipContribution {
+  return {
+    code: c.code,
+    bucket: c.bucket,
+    appliedBase: c.appliedBase,
+    employeeRate: c.employeeRate,
+    employerRate: c.employerRate,
+    employeeAmount: c.employeeAmount,
+    employerAmount: c.employerAmount,
+  };
+}
+
+/**
+ * Per-contribution difference between a recomputed payslip and the booked one, by code. A code
+ * present on one side only is diffed against zero, so an adjustment can add or remove a fund.
+ */
+function diffContributions(current: PayslipContribution[], previous: PayslipContribution[]): PayslipContribution[] {
+  const codes = [...new Set([...current.map((c) => c.code), ...previous.map((c) => c.code)])];
+  return codes
+    .map((code) => {
+      const now = current.find((c) => c.code === code);
+      const before = previous.find((c) => c.code === code);
+      const shape = now ?? before!;
+      return {
+        ...shape,
+        appliedBase: roundAmount((now?.appliedBase ?? 0) - (before?.appliedBase ?? 0)),
+        employeeAmount: roundAmount((now?.employeeAmount ?? 0) - (before?.employeeAmount ?? 0)),
+        employerAmount: roundAmount((now?.employerAmount ?? 0) - (before?.employerAmount ?? 0)),
+      };
+    })
+    .filter((c) => c.employeeAmount !== 0 || c.employerAmount !== 0);
+}

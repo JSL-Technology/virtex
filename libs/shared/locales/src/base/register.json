@@ -25,14 +25,19 @@
     "pt": "Porte da empresa"
   },
   "register.configuration.einvoicing_preview_detail": {
-    "es": "Todo el ERP —contabilidad, inventario, compras, nómina e informes— funciona con normalidad, y guardamos estos datos fiscales para poder emitir comprobantes ({{regime}}) en cuanto habilitemos el país. Si necesitas timbrar hoy, escríbenos antes de contratar.",
-    "en": "The whole ERP — accounting, inventory, purchasing, payroll and reporting — works normally, and we store these tax details so we can issue documents ({{regime}}) as soon as we enable the country. If you need to stamp documents today, write to us before subscribing.",
-    "pt": "Todo o ERP — contabilidade, estoque, compras, folha e relatórios — funciona normalmente, e guardamos estes dados fiscais para poder emitir documentos ({{regime}}) assim que habilitarmos o país. Se você precisa emitir hoje, fale conosco antes de contratar."
+    "es": "La contabilidad, el inventario, las compras y los informes funcionan con normalidad, y guardamos estos datos fiscales para poder emitir comprobantes ({{regime}}) en cuanto habilitemos el país. Si necesitas timbrar hoy, escríbenos antes de contratar.",
+    "en": "Accounting, inventory, purchasing and reporting work normally, and we store these tax details so we can issue documents ({{regime}}) as soon as we enable the country. If you need to stamp documents today, write to us before subscribing.",
+    "pt": "A contabilidade, o estoque, as compras e os relatórios funcionam normalmente, e guardamos estes dados fiscais para poder emitir documentos ({{regime}}) assim que habilitarmos o país. Se você precisa emitir hoje, fale conosco antes de contratar."
   },
   "register.configuration.einvoicing_unavailable": {
     "es": "La facturación electrónica todavía no está disponible en {{country}}.",
     "en": "Electronic invoicing is not available in {{country}} yet.",
     "pt": "A emissão eletrônica ainda não está disponível em {{country}}."
+  },
+  "register.configuration.payroll_unavailable": {
+    "es": "La nómina con los aportes y retenciones de ley todavía no está disponible en {{country}}: podrás registrar empleados, pero no calcular nóminas.",
+    "en": "Payroll with statutory contributions and withholdings is not available in {{country}} yet: you can record employees, but not calculate payroll.",
+    "pt": "A folha com as contribuições e retenções legais ainda não está disponível em {{country}}: poderá registar funcionários, mas não calcular folhas."
   },
   "register.confirm_password": {
     "es": "Confirmar contraseña",

@@ -222,8 +222,7 @@
                 <tr>
                   <th appSortHeader="employeeName">{{ 'payroll.runs.employee' | translate }}</th>
                   <th appSortHeader="grossEarnings" class="numeric">{{ 'payroll.payslip.gross' | translate }}</th>
-                  <th appSortHeader="afpEmployee" class="numeric">{{ 'payroll.payslip.afp' | translate }}</th>
-                  <th appSortHeader="sfsEmployee" class="numeric">{{ 'payroll.payslip.sfs' | translate }}</th>
+                  <th appSortHeader="statutoryEmployeeContributions" class="numeric">{{ 'payroll.payslip.employee_contributions' | translate }}</th>
                   <th appSortHeader="incomeTax" class="numeric">{{ 'payroll.payslip.isr' | translate }}</th>
                   <th appSortHeader="netPay" class="numeric">{{ 'payroll.payslip.net' | translate }}</th>
                 </tr>
@@ -233,14 +232,13 @@
                   <tr class="is-clickable" (click)="togglePayslip(payslip.id)">
                     <td>{{ payslip.employeeName }}</td>
                     <td class="numeric"><vx-amount [value]="payslip.grossEarnings" /></td>
-                    <td class="numeric"><vx-amount [value]="payslip.afpEmployee" /></td>
-                    <td class="numeric"><vx-amount [value]="payslip.sfsEmployee" /></td>
+                    <td class="numeric"><vx-amount [value]="payslip.statutoryEmployeeContributions" /></td>
                     <td class="numeric"><vx-amount [value]="payslip.incomeTax" /></td>
                     <td class="numeric strong"><vx-amount [value]="payslip.netPay" /></td>
                   </tr>
                   @if (openPayslip() === payslip.id && payslip.lines?.length) {
                     <tr class="detail-row">
-                      <td colspan="6">
+                      <td colspan="5">
                         <table class="lines-table">
                           <tbody>
                             @for (line of payslip.lines!; track line.id) {

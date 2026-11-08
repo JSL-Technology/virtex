@@ -9,22 +9,15 @@
  * payroll and re-create the very cycle this module exists to prevent.
  */
 
-/** The social-security regimes a contribution row can describe. */
-export enum ContributionRegime {
-  /** Pension fund — AFP (Administradora de Fondos de Pensiones). */
-  AFP = 'AFP',
-  /** Health — SFS/SDSS (Seguro Familiar de Salud). */
-  SFS = 'SFS',
-  /** Labour-risk insurance — SRL (Seguro de Riesgos Laborales), employer-borne. */
-  SRL = 'SRL',
-  /** Vocational-training levy — INFOTEP. */
-  INFOTEP = 'INFOTEP',
-}
+// There is no shared enum of contribution codes any more (audit 2026-11-07, JUR-01): it listed the
+// four Dominican regimes (AFP, SFS, SRL, INFOTEP) as if they were everyone's. Each country's
+// strategy declares its own catalogue (`PayrollJurisdictionStrategy.contributionConcepts`) and the
+// versioned rate table stores the code as text.
 
 /** What a rate is applied to. */
 export enum ContributionBase {
-  /** The salary, capped at a multiple of the minimum contributory wage. AFP/SFS/SRL work this way. */
+  /** The salary, bounded by multiples of the minimum contributory wage (DO: AFP, SFS, SRL). */
   SALARY_CAPPED = 'SALARY_CAPPED',
-  /** The whole payroll, uncapped. INFOTEP's employer levy works this way. */
+  /** The whole payroll, uncapped (DO: INFOTEP's employer levy). */
   PAYROLL_UNCAPPED = 'PAYROLL_UNCAPPED',
 }

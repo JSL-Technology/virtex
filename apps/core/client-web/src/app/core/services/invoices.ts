@@ -251,6 +251,8 @@ export interface InvoicingContext {
   taxModel?: 'NATIONAL_RATES' | 'BY_JURISDICTION';
   /** The states the company collects in, with their combined rate today, in a `BY_JURISDICTION` market. */
   registeredJurisdictions?: Array<{ stateCode: string; rate: number }>;
+  /** With no jurisdiction registered: issued untaxed (US) or refused until the tax is configured. */
+  untaxedWithoutRegistration?: boolean;
   fiscalDocumentTypes: FiscalDocumentTypeOption[];
   /** Which documents the company issues: traditional, electronic, or both. */
   emissionMode?: FiscalEmissionMode;

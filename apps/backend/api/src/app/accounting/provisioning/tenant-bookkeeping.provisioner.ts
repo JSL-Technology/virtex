@@ -18,7 +18,7 @@ import { InternalServerError } from '../../i18n/localized.exception';
 import { I18nService } from '../../i18n/i18n.service';
 import { DEFAULT_LANGUAGE, LanguageCode } from '@virteex/shared/types';
 import { seedTenantDefaults } from '../../database/seeds/tenant-defaults';
-import { languageOfCountry } from '../../localization/contracts/country-profile.contract';
+import { findCountryProfile, languageOfCountry } from '../../localization/contracts/country-profile.contract';
 
 /**
  * Everything a tenant needs in order to record a transaction, created at the moment the tenant is.
@@ -389,6 +389,11 @@ export class TenantBookkeepingProvisioner {
    * What stops this tenant from invoicing, as catalogue keys (`invoices.gaps.*`). Empty means ready.
    * Keys and not Spanish phrases: the list reaches readers in every language (QA A-17).
    */
+  private async leviesServiceCharge(organizationId: string, manager: EntityManager): Promise<boolean> {
+    const [organization] = await manager.query(`SELECT "country" FROM "organizations" WHERE "id" = $1`, [organizationId]);
+    return (findCountryProfile((organization?.country ?? '').toUpperCase())?.serviceChargeRate ?? 0) > 0;
+  }
+
   async invoicingGaps(organizationId: string, manager: EntityManager): Promise<string[]> {
     const gaps: string[] = [];
 
@@ -413,7 +418,10 @@ export class TenantBookkeepingProvisioner {
       if (!settings.defaultTaxWithheldReceivableId) {
         gaps.push('invoices.gaps.tax_withheld_account');
       }
-      if (!settings.defaultServiceChargePayableId) {
+      // Only where the market levies a legal service charge (DO, CR): the opening chart no longer
+      // gives everyone a «Propina Legal» account (audit 2026-11-07, LOC-02), and a market with no
+      // charge must not be told it is missing one.
+      if (!settings.defaultServiceChargePayableId && (await this.leviesServiceCharge(organizationId, manager))) {
         gaps.push('invoices.gaps.service_charge_account');
       }
       if (!settings.defaultSalesDiscountsId) {

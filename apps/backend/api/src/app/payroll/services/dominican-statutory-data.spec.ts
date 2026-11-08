@@ -3,7 +3,11 @@ import { PayrollParametersService } from './payroll-parameters.service';
 import { StatutoryContribution } from '../entities/statutory-contribution.entity';
 import { IncomeTaxBracket } from '../entities/income-tax-bracket.entity';
 import { StatutoryReference } from '../entities/statutory-reference.entity';
-import { DominicanRepublicStrategy } from '../../jurisdictions/dominican-republic.strategy';
+import { DO_CONTRIBUTION as C, DominicanRepublicStrategy } from '../../jurisdictions/dominican-republic.strategy';
+import { StatutoryResult } from '../../jurisdictions/jurisdiction-strategy.interface';
+
+const ee = (r: StatutoryResult, code: string) => r.contributions.find((c) => c.code === code)?.employeeAmount ?? 0;
+const er = (r: StatutoryResult, code: string) => r.contributions.find((c) => c.code === code)?.employerAmount ?? 0;
 import { describeWithDb, openTestDataSource } from '../../common/database/testing/integration-db';
 
 /**
@@ -39,16 +43,16 @@ describeWithDb('Dominican statutory data as seeded', () => {
       params,
     );
     // Below the 232,230 and 464,460 caps, so the whole salary contributes.
-    expect(r.sfsEmployee).toBe(4560); // 150,000 × 3.04 % — was 3,040 on a 100,000 base
-    expect(r.afpEmployee).toBe(4305); // 150,000 × 2.87 %
+    expect(ee(r, C.SFS)).toBe(4560); // 150,000 × 3.04 % — was 3,040 on a 100,000 base
+    expect(ee(r, C.AFP)).toBe(4305); // 150,000 × 2.87 %
     // SRL is capped at 92,892 × 1.10 %.
-    expect(r.srlEmployer).toBeCloseTo(1021.81, 2); // was 440 on a 40,000 base
+    expect(er(r, C.SRL)).toBeCloseTo(1021.81, 2); // was 440 on a 40,000 base
   });
 
   it('withholds nothing from the salario de Navidad (NOM-03)', async () => {
     const params = await parameters.resolve('DO', '2026-12-15');
     const bonus = new DominicanRepublicStrategy().computeBonus({ bonusAmount: 30000 } as never, params);
-    expect(bonus.infotepEmployee).toBe(0);
+    expect(bonus.contributions).toEqual([]);
     expect(bonus.net).toBe(30000);
   });
 });
