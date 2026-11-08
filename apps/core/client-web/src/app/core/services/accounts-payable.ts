@@ -17,6 +17,7 @@ import { environment } from '../../../environments/environment';
 export type VendorBillStatus =
   | 'DRAFT'
   | 'PENDING_APPROVAL'
+  | 'ON_HOLD'
   | 'OPEN'
   | 'PARTIALLY_PAID'
   | 'PAID'
@@ -48,6 +49,15 @@ export interface VendorBillLine {
   expenseAccountId?: string | null;
 }
 
+/** A discrepancy the three-way match found between a bill line and its order line (CMP-01). */
+export interface MatchException {
+  kind: 'QUANTITY' | 'PRICE';
+  purchaseOrderLineId: string;
+  description: string;
+  billed: number;
+  expected: number;
+}
+
 export interface VendorBill {
   /** The number on the supplier's own invoice, where the market asks for it apart from the fiscal one. */
   supplierInvoiceNumber?: string | null;
@@ -68,6 +78,9 @@ export interface VendorBill {
   totalInBaseCurrency: number;
   balance: number;
   status: VendorBillStatus;
+  matchExceptions?: MatchException[] | null;
+  matchReleaseReason?: string | null;
+  matchReleasedAt?: string | null;
   lines?: VendorBillLine[];
 
   // Fiscal breakdown. The server models all of it for the DGII 606 and the ledger entry posts from
@@ -517,6 +530,11 @@ export class AccountsPayableService {
 
   voidBill(id: string, reason: string, reversalDate?: string): Observable<VendorBill> {
     return this.http.post<VendorBill>(`${this.apiUrl}/${id}/void`, { reason, reversalDate });
+  }
+
+  /** Release a bill the three-way match held, with the reason, and submit it (CMP-01). */
+  releaseMatchHold(id: string, reason: string): Observable<VendorBill> {
+    return this.http.post<VendorBill>(`${this.apiUrl}/${id}/release-match-hold`, { reason });
   }
 
   submitForApproval(id: string): Observable<VendorBill> {

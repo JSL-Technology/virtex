@@ -649,6 +649,31 @@
     "en": "General information",
     "pt": "Informações gerais"
   },
+  "accounts_payable.detail.hold_not_released": {
+    "es": "No se pudo liberar la retención.",
+    "en": "The hold could not be released.",
+    "pt": "Não foi possível liberar a retenção."
+  },
+  "accounts_payable.detail.hold_price": {
+    "es": "{{description}}: precio facturado {{billed}} frente a {{expected}} de la orden.",
+    "en": "{{description}}: billed price {{billed}} against {{expected}} on the order.",
+    "pt": "{{description}}: preço faturado {{billed}} face a {{expected}} da ordem."
+  },
+  "accounts_payable.detail.hold_quantity": {
+    "es": "{{description}}: se facturan {{billed}} y hay {{expected}} recibidas sin facturar.",
+    "en": "{{description}}: {{billed}} billed, {{expected}} received and not yet billed.",
+    "pt": "{{description}}: faturadas {{billed}} e há {{expected}} recebidas por faturar."
+  },
+  "accounts_payable.detail.hold_released": {
+    "es": "Retención liberada; la factura siguió a aprobación.",
+    "en": "Hold released; the bill went on to approval.",
+    "pt": "Retenção liberada; a fatura seguiu para aprovação."
+  },
+  "accounts_payable.detail.hold_released_reason": {
+    "es": "Retención liberada:",
+    "en": "Hold released:",
+    "pt": "Retenção liberada:"
+  },
   "accounts_payable.detail.invoice_lines": {
     "es": "Líneas de la factura",
     "en": "Invoice lines",
@@ -688,6 +713,11 @@
     "es": "Todavía no se ha pagado nada contra esta factura.",
     "en": "Nothing has been paid against this bill yet.",
     "pt": "Ainda não foi pago nada contra esta fatura."
+  },
+  "accounts_payable.detail.on_hold_title": {
+    "es": "Retenida por el cotejo con la orden de compra: no se contabiliza ni se paga hasta que otra persona la libere.",
+    "en": "Held by the purchase-order match: it is not posted or paid until another person releases it.",
+    "pt": "Retida pela conferência com a ordem de compra: não é contabilizada nem paga até outra pessoa a liberar."
   },
   "accounts_payable.detail.outstanding_balance": {
     "es": "Saldo pendiente",
@@ -733,6 +763,31 @@
     "en": "An NCF has at least 11 characters (B01 + 8 digits).",
     "es": "Un NCF tiene al menos 11 caracteres (B01 + 8 dígitos).",
     "pt": "Um NCF tem pelo menos 11 caracteres (B01 + 8 dígitos)."
+  },
+  "accounts_payable.detail.release_hold": {
+    "es": "Liberar retención",
+    "en": "Release hold",
+    "pt": "Liberar retenção"
+  },
+  "accounts_payable.detail.release_hold_message": {
+    "es": "La factura no coincide con lo recibido o con el precio de la orden. Indica por qué se acepta: el motivo queda en la factura y luego sigue la aprobación.",
+    "en": "The bill does not match what was received or the order price. State why it is accepted: the reason stays on the bill, and approval follows.",
+    "pt": "A fatura não coincide com o recebido ou com o preço da ordem. Indique porque é aceite: o motivo fica na fatura e segue-se a aprovação."
+  },
+  "accounts_payable.detail.release_hold_placeholder": {
+    "es": "Motivo de la liberación",
+    "en": "Reason for the release",
+    "pt": "Motivo da liberação"
+  },
+  "accounts_payable.detail.release_hold_title": {
+    "es": "Liberar la factura retenida",
+    "en": "Release the held bill",
+    "pt": "Liberar a fatura retida"
+  },
+  "accounts_payable.detail.release_hold_too_short": {
+    "es": "Escribe un motivo de al menos 5 caracteres.",
+    "en": "Write a reason of at least 5 characters.",
+    "pt": "Escreva um motivo com pelo menos 5 caracteres."
   },
   "accounts_payable.detail.reversing_entry_posted_general_ledger": {
     "es": "Se registró el asiento de reversión en el libro mayor.",

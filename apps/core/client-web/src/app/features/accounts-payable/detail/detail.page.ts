@@ -97,6 +97,8 @@ export class VendorBillDetailPage implements OnInit {
   /** Only a draft can be edited or submitted; only an unpaid bill can be annulled. */
   readonly canEdit = computed(() => this.bill()?.status === 'DRAFT');
   readonly canSubmit = computed(() => this.bill()?.status === 'DRAFT');
+  /** Held by the three-way match (CMP-01): released by someone other than the submitter. */
+  readonly isOnHold = computed(() => this.bill()?.status === 'ON_HOLD');
   /** A posted bill without its comprobante can still receive it — what the 606 asks for (QA R3-A04). */
   readonly canRecordNcf = computed(() => {
     const bill = this.bill();
@@ -193,6 +195,30 @@ export class VendorBillDetailPage implements OnInit {
         this.notifications.showError(
           serverMessage(error) ?? 'accounts_payable.detail.bill_could_not_submitted_approval',
         );
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  async releaseMatchHold(): Promise<void> {
+    const id = this.bill()?.id;
+    if (!id) return;
+    const reason = await this.dialog.prompt({
+      title: 'accounts_payable.detail.release_hold_title',
+      message: 'accounts_payable.detail.release_hold_message',
+      placeholder: 'accounts_payable.detail.release_hold_placeholder',
+      minLength: 5,
+      tooShort: 'accounts_payable.detail.release_hold_too_short',
+    });
+    if (!reason) return;
+    this.isLoading.set(true);
+    this.accountsPayable.releaseMatchHold(id, reason.trim()).subscribe({
+      next: () => {
+        this.notifications.showSuccess('accounts_payable.detail.hold_released');
+        this.load();
+      },
+      error: (error: unknown) => {
+        this.notifications.showError(serverMessage(error) ?? 'accounts_payable.detail.hold_not_released');
         this.isLoading.set(false);
       },
     });
