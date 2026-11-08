@@ -68,3 +68,6 @@ __pycache__/
 *.pyc
 .pytest_cache/
 *.egg-info/
+
+# Desktop shell: written at build time by tools/desktop/write-app-config.mjs (never committed)
+apps/desktop/config/

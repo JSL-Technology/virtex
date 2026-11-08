@@ -49,6 +49,32 @@ updates:
       nestjs-security:
         applies-to: security-updates
         patterns: ['@nestjs/*']
+      # The desktop runtime. Electron receives security fixes only on its newest three majors and
+      # ships one most weeks; a lagging Electron is a lagging Chromium. It is pinned exactly, so every
+      # release arrives as a pull request that the desktop tests and the supply-chain gate judge.
+      electron:
+        patterns: ['electron']
+      # The packager and the updater read and write the same update-manifest format
+      # (builder-util-runtime); apps/desktop/build-config.test.js fails when they drift apart.
+      electron-builder:
+        patterns: ['electron-builder', 'app-builder-lib', 'dmg-builder', 'builder-util', 'builder-util-runtime', '@electron/*']
+
+  # What the desktop installer ships: its own manifest and lockfile, so nothing from the monorepo can
+  # end up inside it. One runtime dependency today (electron-updater).
+  - package-ecosystem: npm
+    directory: /apps/desktop
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 3
+      semver-major-days: 7
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: deps(desktop)
+    groups:
+      desktop-runtime:
+        patterns: ['*']
 
   # Workflows pin every action by commit SHA; this keeps the pins current.
   - package-ecosystem: github-actions

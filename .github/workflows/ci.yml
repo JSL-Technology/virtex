@@ -140,6 +140,9 @@ jobs:
       - run: npm run verify:package-families
 
       - run: npm ci
+      # The desktop shell's installer runtime has its own manifest and lockfile (apps/desktop), so
+      # nothing from the monorepo can be packaged into it. Its tests need that tree installed.
+      - run: npm ci --prefix apps/desktop --ignore-scripts
 
       # The schema every step below reads has to exist.
       #
@@ -264,6 +267,13 @@ jobs:
       #                       Eran «los únicos dos» según un comentario, y había un tercero.
       #   session-revocation  todo validador de token de sesión consulta la lista de revocación.
       #                       El WebSocket tenía copia propia y era la copia la que divergía.
+      # The desktop shell's supply chain: Electron at or above the security baseline and inside the
+      # supported majors, no advisory in what the installer ships, and only time-boxed, documented
+      # acceptances in its build tooling (apps/desktop/security-baseline.json).
+      - name: npm run verify:desktop-supply-chain
+        if: ${{ !cancelled() }}
+        run: npm run verify:desktop-supply-chain
+
       - name: npm run verify:security
         if: ${{ !cancelled() }}
         run: npm run verify:security

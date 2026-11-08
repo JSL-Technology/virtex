@@ -1,0 +1,15 @@
+{
+  "$comment": "Read by tools/desktop/audit-gate.mjs and apps/desktop/build-config.test.js. Raising minimumElectron is how a security release becomes mandatory for the build; an accepted advisory must name why and until when.",
+  "minimumElectron": "45.2.3",
+  "supportedElectronMajors": 3,
+  "acceptedAdvisories": [
+    {
+      "advisory": "GHSA-g3hv-75wg-m249",
+      "package": "minimatch",
+      "severity": "moderate",
+      "scope": "build-time only (electron-builder, app-builder-lib, dmg-builder, @electron/universal); never shipped in the installer",
+      "reason": "ReDoS through glob patterns. The only patterns these tools evaluate are the ones in apps/desktop/electron-builder.config.cjs, which we write. The fix is minimatch 11, a major version electron-builder 26 does not support; forcing it by override risks a packager that silently includes or omits files.",
+      "reviewBy": "2027-02-01"
+    }
+  ]
+}

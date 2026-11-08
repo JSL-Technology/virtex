@@ -1,5 +1,22 @@
 {
+  "desktop.about.detail": "Versão {{version}} · Electron {{electron}} · compilação {{commit}}",
+  "desktop.menu.about": "Sobre o Virtex Desktop",
+  "desktop.menu.check_for_updates": "Procurar atualizações…",
   "desktop.menu.go": "Ir",
+  "desktop.menu.help": "Ajuda",
+  "desktop.menu.open_logs": "Abrir a pasta de registos",
   "desktop.menu.point_of_sale": "Ponto de venda",
-  "desktop.menu.portal": "Portal"
+  "desktop.menu.portal": "Portal",
+  "desktop.update.check_failed": "Não foi possível procurar atualizações. Verifique a ligação e tente novamente.",
+  "desktop.update.later": "Ao fechar a aplicação",
+  "desktop.update.managed_by_organization": "As atualizações desta aplicação são geridas pela sua organização.",
+  "desktop.update.mandatory_message": "A versão {{version}} corrige um problema importante e é obrigatória. Guarde o seu trabalho e reinicie para a instalar.",
+  "desktop.update.ready_message": "A versão {{version}} foi transferida e verificada.",
+  "desktop.update.ready_title": "Atualização pronta",
+  "desktop.update.remind_me": "Lembrar-me daqui a alguns minutos",
+  "desktop.update.restart_detail": "Reiniciar fecha a aplicação. Se estiver a meio de uma venda ou de um documento, termine-o primeiro.",
+  "desktop.update.restart_now": "Reiniciar agora",
+  "desktop.update.unavailable_in_this_build": "As atualizações automáticas não estão disponíveis nesta compilação.",
+  "desktop.update.up_to_date": "Tem a versão mais recente ({{version}}).",
+  "desktop.update.verification_failed": "Foi encontrada uma atualização, mas não passou na verificação de assinatura e não será instalada. O incidente ficou registado."
 }
