@@ -39,8 +39,14 @@ const M={
 'FAC-PL-04':R('7e3640e0','`price-lists/price-resolver.spec.ts` (8 pruebas, unitarias y contra PostgreSQL).'),
 'FE-CI-07':P('017fa1d5, 4b930dfc','Corregidas las vulnerabilidades altas citadas de node-forge y electron; puerta de auditoría solo para el escritorio (`tools/desktop/audit-gate.mjs`).','`npm audit` no es una puerta para el monorepo completo; @angular/router y el resto siguen sin revisar.'),
 'SP-01':P('varios','Conectados: listas de precios, revaluación.','Siguen «construidos pero no conectados»: estados comparativos, consolidación, landed cost, manufactura, regímenes de e-factura (en curso).'),
-'FAC-EINV-01':W('Diseñado e iniciado (outbox por documento + reconciliador + bloqueo de emisión sin transmisión configurada); aún no hay código confirmado.'),
-'FAC-EINV-04':W('Diseño de credenciales por inquilino cifradas en `fiscal_regime_settings`, con step-up y protección SSRF; aún no hay código confirmado.'),
+'FAC-EINV-01':R('f43ade93','`einvoicing/services/fiscal-submission.service.ts` (outbox `fiscal_submissions` registrado en la transacción de emisión, toma atómica con concesión, estados explícitos, backoff), `fiscal-submission.reconciler.ts` (cron con bloqueo), `invoices.service.ts` (registro + envío tras commit; bloqueo `invoices.transmission_not_configured`), detalle de factura con estado y reintento; `fiscal-submission.spec.ts` contra PostgreSQL (carrera de 3 workers → 1 envío). La transmisión real exige el certificado y el contrato de cada contribuyente (verificar con contador/abogado local).'),
+'FAC-EINV-04':R('f43ade93','`einvoicing/services/transmission-config.service.ts`: endpoint y credencial por empresa en `fiscal_regime_settings`, credencial cifrada (`CryptoUtil`, `select:false`), step-up `manage_fiscal_credentials`, HTTPS público comprobado al guardar y en cada conexión (`common/net/outbound-address.ts`); variables de proceso solo con `EINVOICE_PROCESS_CREDENTIALS=allow`; `transmission-config.spec.ts`. Verificado en vivo.'),
+'FINB-30':R('958cf094','`consolidation/group-eliminations.ts` (`splitSubsidiaryEquity`: inversión contra patrimonio preadquisición, plusvalía a tipo de cierre NIC 21.47, NCI proporcional, compra ventajosa NIIF 3.34) y `consolidation.service.ts` (el patrimonio de la subsidiaria se sustituye; patrimonio = suma de líneas; cuadre real). Pruebas con ejemplo resuelto y contra PostgreSQL.'),
+'FINB-31':R('958cf094','`eliminateIntercompanyFunding`: CxC/CxP intercompañía (no la caja), saldos acumulados a la fecha desde los asientos de cada lado; residuo a la diferencia de conversión con aviso. Prueba de integración.'),
+'FINB-32':R('958cf094','`eliminateIntragroupTrade`: ventas entre miembros (por identificador fiscal) eliminadas de ingresos y costo, más CxC/CxP abiertas; aviso de discrepancia y de margen no realizado en inventario (verificar con contador). Prueba de integración.'),
+'FINB-33':R('958cf094','`features/accounting/consolidation/` (página con estados, eliminaciones como asientos, avisos, empresas y corridas guardadas) y entrada de menú en `contabilidad.manifest.ts`; `consolidation.page.spec.ts`.'),
+'FINB-34':R('958cf094','Lo posterior a la adquisición se convierte al promedio desde la adquisición (no al histórico); la diferencia de conversión se acumula por corrida en `consolidation_runs` (migración 1789460000000, solo inserción). El promedio sigue siendo la media de cierres mensuales, aproximación que NIC 21.22 permite.'),
+'FINB-35':R('958cf094','`OrganizationsService.linkSubsidiary` + `POST /organizations/subsidiaries/link` (step-up, propietario, administrador de ambas empresas, sin ciclos ni doble control, cupo del plan) y diálogo en Ajustes › Subsidiarias; `subsidiary-link.spec.ts`.'),
 };
 const isRef=x=>!x.sev && /^(XF-(\d+|W\d|US-W\d)|FAC-[123])$/.test(x.id) && x.id!=='XF-09';
 const isInfo=x=>/positivo|informativo/i.test(x.text) && !M[x.id];
@@ -64,5 +70,6 @@ for(const st of ['RESUELTO','PARCIAL','EN CURSO','PENDIENTE','INFORMATIVO','NO E
  else {md+=`| ID | Sev. | Cita del MD |\n|---|---|---|\n`;for(const x of g)md+=`| ${x.id} | ${x.sevN} | \`${x.file}:${x.line}\` — ${esc(x.text.slice(0,200))}… |\n`;}
  md+='\n';
 }
+md+=`---\nRegenerar (desde la raíz del repo): \`node docs/auditorias/2026-11-07-auditoria-madurez-construccion-produccion/herramientas/extraer-hallazgos.mjs\` y luego \`node …/herramientas/informe-cierre.mjs <salida.md>\`. El estado de cada hallazgo resuelto está en el mapa \`M\` de \`informe-cierre.mjs\`, con su commit y evidencia.\n`;
 fs.writeFileSync(process.argv[2],md);
 console.log(count, JSON.stringify(bySev));
