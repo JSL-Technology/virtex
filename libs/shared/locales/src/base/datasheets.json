@@ -159,6 +159,11 @@
     "en": "Name",
     "pt": "Nome"
   },
+  "datasheets.new_book_sheets_cannot_carry_ids": {
+    "es": "Las hojas de un libro nuevo no pueden traer identificador.",
+    "en": "The sheets of a new book cannot carry an id.",
+    "pt": "As folhas de um livro novo não podem trazer identificador."
+  },
   "datasheets.new_document": {
     "es": "Nuevo libro",
     "en": "New book",
@@ -233,6 +238,11 @@
     "en": "The workbook could not be saved.",
     "es": "No se pudo guardar el libro.",
     "pt": "Não foi possível salvar a pasta."
+  },
+  "datasheets.sheet_not_found": {
+    "es": "La hoja {{id}} no pertenece a este libro.",
+    "en": "Sheet {{id}} does not belong to this book.",
+    "pt": "A folha {{id}} não pertence a este livro."
   },
   "datasheets.sheet_numbered": {
     "es": "Hoja {{number}}",

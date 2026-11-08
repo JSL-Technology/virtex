@@ -1,3 +1,4 @@
+import { UploadCertificateFieldsDto } from './dto/upload-certificate.dto';
 import { Controller, Get, Post, Delete, Query, Param, Body, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
@@ -47,19 +48,15 @@ export class EinvoicingController {
   )
   async uploadCertificate(
     @UploadedFile() file: FastifyFile,
-    @Body() body: Record<string, unknown>,
+    @Body() body: UploadCertificateFieldsDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     if (!file?.buffer?.length) {
       throw new BadRequestError('einvoicing.you_must_attach_certificate_file_p12');
     }
 
-    // With attachFieldsToBody, text fields arrive either raw or wrapped as `{ value }`.
-    const password = this.field(body, 'password');
-    const alias = this.field(body, 'alias');
-    if (!password) throw new BadRequestError('einvoicing.certificate.password_required');
-
-    return this.certificates.upload(user.organizationId, { pfx: file.buffer, password, alias });
+    // FastifyFileInterceptor unwraps the multipart fields before the DTO is validated.
+    return this.certificates.upload(user.organizationId, { pfx: file.buffer, password: body.password, alias: body.alias ?? '' });
   }
 
   @Get('certificates')
@@ -242,11 +239,4 @@ export class EinvoicingController {
     };
   }
 
-  private field(body: Record<string, unknown>, key: string): string {
-    const raw = body?.[key];
-    if (raw == null) return '';
-    if (typeof raw === 'string') return raw;
-    const wrapped = raw as { value?: unknown };
-    return typeof wrapped.value === 'string' ? wrapped.value : String(wrapped.value ?? '');
-  }
 }

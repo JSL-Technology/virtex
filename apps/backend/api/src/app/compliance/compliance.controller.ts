@@ -1,3 +1,4 @@
+import { SetNcfSequenceActiveDto } from './dto/ncf-sequence-active.dto';
 import {
   Controller,
   Get,
@@ -67,10 +68,10 @@ export class ComplianceController {
   @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
   setSequenceActive(
     @Param('id', UuidParamPipe) id: string,
-    @Body('isActive') isActive: boolean,
+    @Body() dto: SetNcfSequenceActiveDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.complianceService.setSequenceActive(user.organizationId, id, Boolean(isActive));
+    return this.complianceService.setSequenceActive(user.organizationId, id, dto.isActive);
   }
 
   /**

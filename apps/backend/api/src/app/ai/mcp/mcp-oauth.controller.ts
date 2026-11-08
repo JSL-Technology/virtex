@@ -55,6 +55,7 @@ export class McpOAuthController {
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 10, ttl: 3_600_000 } })
   @ApiExcludeEndpoint()
+  // body-dto-allow: RFC 6749/7591 bodies are form/JSON with open metadata and must fail with OAuth error codes, not a Nest 400; McpOAuthService reads only the parameters it knows, each type-checked.
   async register(@Body() body: Record<string, unknown>, @Res() reply: FastifyReply) {
     try {
       return reply.status(201).send(await this.oauth.register(body ?? {}));
@@ -117,6 +118,7 @@ export class McpOAuthController {
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
   @ApiExcludeEndpoint()
+  // body-dto-allow: RFC 6749/7591 bodies are form/JSON with open metadata and must fail with OAuth error codes, not a Nest 400; McpOAuthService reads only the parameters it knows, each type-checked.
   async token(@Body() body: Record<string, unknown>, @Res() reply: FastifyReply) {
     try {
       return reply.header('cache-control', 'no-store').send(await this.oauth.token(body ?? {}));
@@ -132,6 +134,7 @@ export class McpOAuthController {
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
   @ApiExcludeEndpoint()
+  // body-dto-allow: RFC 6749/7591 bodies are form/JSON with open metadata and must fail with OAuth error codes, not a Nest 400; McpOAuthService reads only the parameters it knows, each type-checked.
   async revoke(@Body() body: Record<string, unknown>) {
     await this.oauth.revoke(String(body?.['token'] ?? ''));
     return {};

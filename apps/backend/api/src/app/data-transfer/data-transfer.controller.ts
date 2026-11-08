@@ -1,3 +1,4 @@
+import { ImportFormDto } from './dto/data-transfer.dto';
 import {
   Body,
   Controller,
@@ -85,7 +86,7 @@ export class DataTransferController {
     @UploadedFile(new ParseFilePipe({ validators: [new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 })] }))
     file: FastifyFile,
     @CurrentUser() user: AuthenticatedUser,
-    @Body('mapping') mapping?: string,
+    @Body() form?: ImportFormDto,
   ) {
     if (!/\.(csv|xlsx)$/i.test(file.originalname ?? '')) {
       throw new BadRequestError('data_transfer.unsupported_file_type');
@@ -98,7 +99,7 @@ export class DataTransferController {
       query.dataset,
       { originalname: file.originalname, mimetype: file.mimetype ?? '', buffer },
       query.mode ?? 'commit',
-      parseMapping(mapping),
+      parseMapping(form?.mapping),
     );
   }
 
@@ -138,13 +139,15 @@ export class DataTransferController {
 }
 
 /** The confirmed mapping, sent as JSON beside the file: `{"Nombre": "name", "Notas": null}`. */
-function parseMapping(raw: string | undefined): Record<string, string | null> | null {
+function parseMapping(raw: string | Record<string, unknown> | undefined): Record<string, string | null> | null {
   if (!raw) return null;
-  let value: unknown;
-  try {
-    value = JSON.parse(raw);
-  } catch {
-    throw new BadRequestError('data_transfer.mapping_invalid');
+  let value: unknown = raw;
+  if (typeof raw === 'string') {
+    try {
+      value = JSON.parse(raw);
+    } catch {
+      throw new BadRequestError('data_transfer.mapping_invalid');
+    }
   }
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new BadRequestError('data_transfer.mapping_invalid');
   const entries = Object.entries(value as Record<string, unknown>);
