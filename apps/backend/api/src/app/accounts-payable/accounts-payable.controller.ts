@@ -22,6 +22,7 @@ import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
 import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
 import { PayVendorBillsDto } from './dto/pay-vendor-bills.dto';
 import { VoidVendorBillDto } from './dto/void-vendor-bill.dto';
+import { ReleaseMatchHoldDto } from './dto/release-match-hold.dto';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
@@ -146,6 +147,23 @@ export class AccountsPayableController {
       user.organizationId,
       user.id,
     );
+  }
+
+  /**
+   * Release a bill held by the three-way match, with the reason, and submit it (CMP-01). Not the
+   * person who submitted it.
+   */
+  @Post(':id/release-match-hold')
+  @Idempotent()
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_APPROVE)
+  @ApiOperation({ summary: 'Libera una factura retenida por el cotejo de tres vías y la envía a aprobación.' })
+  releaseMatchHold(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: ReleaseMatchHoldDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.accountsPayableService.releaseMatchHold(id, user.organizationId, user.id, dto.reason);
   }
 
   /**

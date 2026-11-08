@@ -53,6 +53,8 @@ async function main(): Promise<void> {
 
   const stamp = Date.now();
   const actor = '00000000-0000-4000-8000-000000000001';
+  // A second person: whoever submits a bill the three-way match holds may not release it (CMP-01).
+  const approver = '00000000-0000-4000-8000-000000000002';
   const region = await localization.findRegionByCountryCode('DO');
   const [plan] = await ds.query(`SELECT id FROM "saas_plans" ORDER BY "monthly_price" DESC NULLS LAST LIMIT 1`);
   const org = await organizations.create({
@@ -141,6 +143,18 @@ async function main(): Promise<void> {
   await orders.submit(order.id, orgId, null);
   await orders.approve(order.id, orgId, actor);
   await orders.send(order.id, orgId);
+
+  // ── Billing before anything arrives is held, not booked (CMP-01) ────────────
+  const early = await billFor(100, { supplierInvoiceNumber: `SONDA-${stamp}-antes` });
+  const held = await payables.submitForApproval(early.id, orgId, actor);
+  check(
+    'facturar lo no recibido queda retenido',
+    held.status === VendorBillStatus.ON_HOLD && held.matchExceptions?.[0]?.kind === 'QUANTITY',
+    `${held.status} ${JSON.stringify(held.matchExceptions)}`,
+  );
+  check('la retenida no toca el mayor', near(await balance(settings.grni), 0), String(await balance(settings.grni)));
+  await payables.voidBill(early.id, orgId, { reason: 'Prueba de retención' } as never, actor);
+
   await orders.receive(order.id, {} as never, orgId, actor);
   check('recibir valora la mercancía en GRNI', near(await balance(settings.grni), -1000), String(await balance(settings.grni)));
   await tiesOut('tras recibir');
@@ -172,9 +186,23 @@ async function main(): Promise<void> {
   const cogsBefore = await balance(settings.cogs);
 
   // ── The supplier invoices the 10 at 110 ─────────────────────────────────────
+  // 10 % over the order is outside the 2 % tolerance: held (CMP-01), and only someone else releases it.
   const bill = await billFor(110);
-  const posted = await payables.submitForApproval(bill.id, orgId, actor);
-  check('la factura se contabiliza', posted.status === VendorBillStatus.OPEN, posted.status);
+  const heldPrice = await payables.submitForApproval(bill.id, orgId, actor);
+  check(
+    'un precio fuera de tolerancia queda retenido',
+    heldPrice.status === VendorBillStatus.ON_HOLD && heldPrice.matchExceptions?.[0]?.kind === 'PRICE',
+    `${heldPrice.status} ${JSON.stringify(heldPrice.matchExceptions)}`,
+  );
+  let selfRelease = '';
+  try {
+    await payables.releaseMatchHold(bill.id, orgId, actor, 'Me lo apruebo yo mismo');
+  } catch (error) {
+    selfRelease = (error as { messageKey?: string }).messageKey ?? '';
+  }
+  check('quien la envió no puede liberarla', selfRelease === 'accounts_payable.match_hold_release_requires_another_person', selfRelease || 'se liberó');
+  const posted = await payables.releaseMatchHold(bill.id, orgId, approver, 'Compras aceptó el nuevo precio del proveedor (sonda)');
+  check('liberada con motivo, la factura se contabiliza', posted.status === VendorBillStatus.OPEN && Boolean(posted.matchReleaseReason), posted.status);
   check('la factura salda GRNI por completo', near(await balance(settings.grni), 0), String(await balance(settings.grni)));
   const afterBill = await kardex();
   // 100 of difference over 10 units; 6 remain, so 60 revalue them (to 110) and 40 is cost of sales.
@@ -192,7 +220,9 @@ async function main(): Promise<void> {
 
   // ── A cheaper invoice clears GRNI too ───────────────────────────────────────
   const cheaper = await billFor(90, { supplierInvoiceNumber: `SONDA-${stamp}-90b` });
-  await payables.submitForApproval(cheaper.id, orgId, actor);
+  const cheaperHeld = await payables.submitForApproval(cheaper.id, orgId, actor);
+  check('un precio 10 % menor también se retiene', cheaperHeld.status === VendorBillStatus.ON_HOLD, cheaperHeld.status);
+  await payables.releaseMatchHold(cheaper.id, orgId, approver, 'Descuento del proveedor aceptado (sonda)');
   check('una factura más barata también salda GRNI', near(await balance(settings.grni), 0), String(await balance(settings.grni)));
   check('y rebaja el costo de lo que queda', near((await kardex()).cost, 90), String((await kardex()).cost));
   await tiesOut('tras facturar más barato');

@@ -359,6 +359,14 @@ export class OrganizationSettings {
   fxRateTolerance!: number;
 
   /**
+   * How far a supplier's unit price may depart from the purchase order before the bill is held,
+   * in basis points (200 = 2 %) (audit 2026-11-07, CMP-01). Integer on purpose: a fractional
+   * numeric default reads as schema drift.
+   */
+  @Column({ name: 'ap_match_price_tolerance_bps', type: 'int', default: 200 })
+  apMatchPriceToleranceBps!: number;
+
+  /**
    * How stale a quote may be, in days, before a posting that would use it is refused.
    *
    * The lookup takes the newest quote at or before the posting date, which is right, and said

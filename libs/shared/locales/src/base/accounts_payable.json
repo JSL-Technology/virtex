@@ -69,6 +69,11 @@
     "en": "Bill {{id}} is {{status}} and cannot take a payment.",
     "pt": "A fatura {{id}} está em {{status}} e não admite pagamentos."
   },
+  "accounts_payable.bill_not_on_match_hold": {
+    "es": "Esta factura no está retenida por el cotejo con la orden de compra.",
+    "en": "This bill is not held by the purchase-order match.",
+    "pt": "Esta fatura não está retida pela conferência com a ordem de compra."
+  },
   "accounts_payable.bill_price_difference_already_consumed": {
     "es": "No se puede anular: la mercancía «{{product}}» que esta factura revalorizó ya se vendió. Corrígela con una nota de débito.",
     "en": "Cannot void: the goods “{{product}}” this bill revalued have already been sold. Correct it with a debit note.",
@@ -1126,6 +1131,11 @@
     "en": "The bill could not be saved as a draft; review it in the form.",
     "pt": "A fatura não pôde ser guardada como rascunho; reveja-a no formulário."
   },
+  "accounts_payable.match_hold_release_requires_another_person": {
+    "es": "Quien envió la factura no puede liberar su retención: debe hacerlo otra persona con permiso de aprobación.",
+    "en": "Whoever submitted the bill cannot release its hold: another person with approval permission must.",
+    "pt": "Quem enviou a fatura não pode liberar a retenção: deve fazê-lo outra pessoa com permissão de aprovação."
+  },
   "accounts_payable.ncf_already_recorded": {
     "es": "El NCF {{ncf}} de {{supplier}} ya está registrado en otra factura.",
     "en": "NCF {{ncf}} from {{supplier}} is already recorded on another bill.",
@@ -1680,6 +1690,11 @@
     "es": "Borrador",
     "en": "Draft",
     "pt": "Rascunho"
+  },
+  "accounts_payable.status.on_hold": {
+    "es": "Retenida por cotejo",
+    "en": "Held by match",
+    "pt": "Retida pela conferência"
   },
   "accounts_payable.status.open": {
     "es": "Abierta",

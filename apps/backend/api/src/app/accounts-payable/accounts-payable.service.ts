@@ -5,7 +5,7 @@ import { VendorBillLine, VendorBillLineNature } from './entities/vendor-bill-lin
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, IsNull, DataSource, EntityManager, FindOperator } from 'typeorm';
-import { VendorBill, VendorBillStatus } from './entities/vendor-bill.entity';
+import { MatchException, VendorBill, VendorBillStatus } from './entities/vendor-bill.entity';
 import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
 import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
 import { PayVendorBillsDto } from './dto/pay-vendor-bills.dto';
@@ -701,6 +701,20 @@ export class AccountsPayableService {
       await this.assertFiscalIdentity(manager, organizationId, bill.ncf, bill.vendor, bill.id);
       await this.assertNcfPresent(manager, organizationId, bill);
 
+      // Three-way match (audit 2026-11-07, CMP-01): a bill that charges for goods not received, or
+      // at a price outside the order's tolerance, is HELD — not posted, not payable — instead of
+      // booked with no exception. Stock it would bring in has not arrived; a price nobody agreed
+      // is not owed. Release is someone else's decision, recorded with its reason.
+      if (!bill.matchReleasedAt) {
+        const exceptions = await this.threeWayMatchExceptions(manager, organizationId, bill);
+        if (exceptions.length > 0) {
+          bill.status = VendorBillStatus.ON_HOLD;
+          bill.matchExceptions = exceptions;
+          bill.matchHeldBy = actorUserId;
+          return manager.save(bill);
+        }
+      }
+
       for (const line of bill.lines) {
         if (!line.expenseAccountId) continue;
         const budgetCheck = await this.budgetControlService.checkBudget(
@@ -1209,6 +1223,95 @@ export class AccountsPayableService {
       }
       line.productId ??= ordered.productId ?? undefined;
     }
+  }
+
+  /**
+   * The discrepancies between a bill's purchase-order lines and what was received and agreed.
+   *
+   * QUANTITY: the line bills more than was received and not yet billed. PRICE: its unit price, in
+   * the bill's currency, departs from the order's by more than `apMatchPriceToleranceBps`. Read
+   * only — nothing is advanced here; posting does that, under its own locks.
+   */
+  private async threeWayMatchExceptions(
+    manager: EntityManager,
+    organizationId: string,
+    bill: VendorBill,
+  ): Promise<MatchException[]> {
+    const linked = (bill.lines ?? []).filter((line) => line.purchaseOrderLineId);
+    if (linked.length === 0) return [];
+    const settings = await manager.findOne(OrganizationSettings, {
+      where: { organizationId },
+      select: ['organizationId', 'apMatchPriceToleranceBps'],
+    });
+    const tolerance = Math.max(0, settings?.apMatchPriceToleranceBps ?? 200) / 10_000;
+    const billRate = Number(bill.exchangeRate) > 0 ? Number(bill.exchangeRate) : 1;
+    const exceptions: MatchException[] = [];
+    for (const line of linked) {
+      const orderLine = await manager
+        .createQueryBuilder(PurchaseOrderLine, 'line')
+        .innerJoinAndSelect('line.order', 'order')
+        .where('line.id = :id', { id: line.purchaseOrderLineId })
+        .andWhere('order.organizationId = :organizationId', { organizationId })
+        .setLock('pessimistic_read', undefined, ['line'])
+        .getOne();
+      if (!orderLine) continue;
+      const receivedNotBilled = Math.max(roundQuantity(orderLine.receivedQuantity - orderLine.billedQuantity), 0);
+      if (Number(line.quantity) - receivedNotBilled > 0.000001) {
+        exceptions.push({
+          kind: 'QUANTITY',
+          purchaseOrderLineId: orderLine.id,
+          description: orderLine.description,
+          billed: Number(line.quantity),
+          expected: receivedNotBilled,
+        });
+      }
+      const orderRate = Number(orderLine.order?.exchangeRate) > 0 ? Number(orderLine.order.exchangeRate) : 1;
+      const agreed = roundAmount((Number(orderLine.unitPrice) * orderRate) / billRate);
+      if (agreed > 0 && Math.abs(Number(line.unitPrice) - agreed) / agreed > tolerance + 1e-9) {
+        exceptions.push({
+          kind: 'PRICE',
+          purchaseOrderLineId: orderLine.id,
+          description: orderLine.description,
+          billed: Number(line.unitPrice),
+          expected: agreed,
+        });
+      }
+    }
+    return exceptions;
+  }
+
+  /**
+   * Release a bill the three-way match held, and submit it (CMP-01).
+   *
+   * Someone other than the person who submitted it decides, and says why — a partial shipment
+   * invoiced in advance by agreement, a price change accepted by purchasing. The decision and its
+   * reason stay on the bill; the bill then goes through approval as if it had matched.
+   */
+  async releaseMatchHold(
+    billId: string,
+    organizationId: string,
+    actorUserId: string,
+    reason: string,
+  ): Promise<VendorBill> {
+    const submitter = await this.dataSource.transaction(async (manager) => {
+      // The row alone: `FOR UPDATE` cannot be applied to the outer joins its relations produce.
+      await manager.query(`SELECT 1 FROM "vendor_bills" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`, [billId, organizationId]);
+      const bill = await manager.findOne(VendorBill, { where: { id: billId, organizationId } });
+      if (!bill) throw new NotFoundError('accounts_payable.vendor_bill_id_not_found', { id: billId });
+      if (bill.status !== VendorBillStatus.ON_HOLD) {
+        throw new ConflictError('accounts_payable.bill_not_on_match_hold');
+      }
+      if (bill.matchHeldBy && bill.matchHeldBy === actorUserId) {
+        throw new ForbiddenError('accounts_payable.match_hold_release_requires_another_person');
+      }
+      bill.matchReleasedBy = actorUserId;
+      bill.matchReleasedAt = new Date();
+      bill.matchReleaseReason = reason.trim();
+      bill.status = VendorBillStatus.DRAFT;
+      await manager.save(bill);
+      return bill.matchHeldBy ?? actorUserId;
+    });
+    return this.submitForApproval(billId, organizationId, submitter);
   }
 
   /**

@@ -51,11 +51,27 @@ export enum IsrRetentionType {
 export enum VendorBillStatus {
   DRAFT = 'DRAFT',
   PENDING_APPROVAL = 'PENDING_APPROVAL',
+  /**
+   * Held by the three-way match (audit 2026-11-07, CMP-01): it bills more than was received, or a
+   * price outside the tolerance of the order. Not posted and not payable until someone other than
+   * the submitter releases it with a reason.
+   */
+  ON_HOLD = 'ON_HOLD',
   OPEN = 'OPEN',
   PARTIALLY_PAID = 'PARTIALLY_PAID',
   PAID = 'PAID',
   VOID = 'VOID',
   REJECTED = 'REJECTED',
+}
+
+/** One discrepancy between a bill line and its purchase-order line (CMP-01). */
+export interface MatchException {
+  kind: 'QUANTITY' | 'PRICE';
+  purchaseOrderLineId: string;
+  description: string;
+  /** QUANTITY: billed vs received-and-not-yet-billed. PRICE: billed unit price vs the order's. */
+  billed: number;
+  expected: number;
 }
 
 @Index('IDX_vendor_bills_org_branch', ['organizationId', 'branchId'])
@@ -326,6 +342,23 @@ export class VendorBill {
 
   @Column({ type: 'uuid', name: 'approval_request_id', nullable: true })
   approvalRequestId?: string;
+
+  /** What the three-way match found when the bill was submitted (CMP-01); null when nothing. */
+  @Column({ name: 'match_exceptions', type: 'jsonb', nullable: true })
+  matchExceptions: MatchException[] | null;
+
+  /** Who submitted the held bill: the one person who may not release it. */
+  @Column({ name: 'match_held_by', type: 'uuid', nullable: true })
+  matchHeldBy: string | null;
+
+  @Column({ name: 'match_released_by', type: 'uuid', nullable: true })
+  matchReleasedBy: string | null;
+
+  @Column({ name: 'match_released_at', type: 'timestamptz', nullable: true })
+  matchReleasedAt: Date | null;
+
+  @Column({ name: 'match_release_reason', type: 'text', nullable: true })
+  matchReleaseReason: string | null;
 
   /**
    * The entry that put this bill in the ledger, and the one that took it out.
