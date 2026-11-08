@@ -2,15 +2,15 @@
 
 Todos los hallazgos de los MD de la auditoría, con su estado en [`10-verificacion-de-cierre.md`](10-verificacion-de-cierre.md). ✅ = resuelto y verificado · ❌ = parcial o pendiente (en los parciales se indica lo que falta).
 
-**58 de 376 resueltos; 318 por corregir** (11 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
+**63 de 376 resueltos; 313 por corregir** (10 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
 
 Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de la ficha citada.
 
 | Severidad | ✅ | ❌ |
 |---|---|---|
 | Crítica | 13 | 0 |
-| Alta | 28 | 82 |
-| Media | 16 | 152 |
+| Alta | 32 | 78 |
+| Media | 17 | 151 |
 | Baja | 1 | 68 |
 | — | 0 | 16 |
 
@@ -42,7 +42,6 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | FAC-INV-03 | UY (y US, PY, BO, VE, PA, CR, GT, SV, HN, NI) emiten facturas Pending sin documento fiscal ni aviso; probado UY 201 fiscalNumber:null. En UY, CR, GT, PY, etc. la factura electrónica es obli… **Parcial — falta:** La factura emitida no queda marcada como documento no fiscal en su detalle ni en el PDF, y no hay bloqueo configurable donde la ley exige e-factura. | `modulos/invoices.md:71` |
 | ❌ | FAC-INV-05 | no existe nota de débito de venta ni anulación sin NC desde facturas (grep -rn "debit" invoices/invoices.controller.ts → nada). DGII e-CF 33 y B03 existen en el catálogo pero no son emitibl… | `modulos/invoices.md:73` |
 | ❌ | FAC-SAL-01 | no existe pedido de venta ni entrega/facturación parcial (grep arriba). Bloquea distribución y manufactura bajo pedido. L. | `modulos/sales.md:58` |
-| ❌ | FAC-TX-01 | Un impuesto type:"Fijo" (monto) entra como tasa porcentual en la lista de tasas permitidas; probado: ITBIS 50 % aceptado en una factura DO. Forma correcta: filtrar type='Porcentaje' y, para… **Parcial — falta:** Un impuesto fijo todavía no se puede aplicar como monto en una línea. | `modulos/taxes.md:68` |
 | ❌ | FE-CI-01 | .github/workflows/ci.yml / rama main. main está en rojo: 15/24 últimos runs de CI en main fallan; el último verde es del 2026-10-13 (run 315). El run 42324878666 (commit 36f10d7, 2026-11-07… **Parcial — falta:** `main` sigue en rojo hasta que se fusione la rama; falta confirmar el CI verde del último commit y la protección de rama, que se configura en GitHub y no desde el repositorio. | `modulos/ci-cd-infra.md:51` |
 | ❌ | FE-CI-02 | GitHub. Se fusiona con CI roja: PR #174 (merged 2026-11-07T01:35:23Z, head 8c74910: main=failure), PR #162 (merged 2026-10-30, head 8afbca7: main=failure, CodeQL=failure). gh api …/branches… | `modulos/ci-cd-infra.md:52` |
 | ❌ | FE-CI-04 | docs/DEPLOYMENT.md, tools/. Sin respaldo ni recuperación: no hay política, script, PITR ni ensayo de restore (grep vacío). Para un ERP con libros contables es un bloqueo de venta. Esfuerzo… | `modulos/ci-cd-infra.md:54` |
@@ -56,7 +55,6 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | FIN-COA-01 | chart-of-accounts · Eje 2 · Bug · Alta | `modulos/chart-of-accounts.md:64` |
 | ❌ | FIN-COA-02 | Funcionalidad rota: account-jobs.processor.ts:85-95 reescribe journal_entry_lines.account_id; los triggers de inmutabilidad lo impiden. Ejecutado: cuenta 6200 con asiento GENERAL-2027-00000… | `modulos/chart-of-accounts.md:67` |
 | ❌ | FIN-FR-01 | Sin estados comparativos (período anterior/presupuesto): comparative-reporting.service.ts existe pero no está en providers ni tiene ruta. Capacidad básica en QuickBooks/Xero/Alegra. Esfuerz… | `modulos/financial-reporting.md:66` |
-| ❌ | FIN-JE-01 | en modo "moneda por línea" el servidor guarda foreignCurrencyDebit/Credit y exchangeRate tal como llegan, sin resolver la tasa ni comprobar debit ≈ foreign×rate. Ejecutado: POST con línea {… | `modulos/journal-entries.md:57` |
 | ❌ | FINB-03 | exchange-rates.service.ts:88-95, 420-468. Única fuente automática: XE (mercado, cuenta de plataforma); tasas oficiales DGII/BCRD, DOF, TRM, BNA, SBS solo manuales. Alta de documentos en ME… | `modulos/currencies.md:47` |
 | ❌ | FINB-10 | fixed-assets.service.ts:334. La baja exige el diario ACT-FIJOS, que ningún aprovisionamiento crea (grep -rn "ACT-FIJOS" apps/backend/api/src → solo este consumidor; diarios del tenant: VENT… | `modulos/fixed-assets.md:55` |
 | ❌ | FINB-13 | fixed-assets.controller.ts:44-49, depreciation.service.ts:138-153. No hay guarda de período ≤ hoy: el 07-11-2026 POST /depreciation-runs {"period":"2026-11"} contabilizó 21.000 con fecha 30… | `modulos/fixed-assets.md:57` |
@@ -87,8 +85,6 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | INVT-04 | INVT-04 — analytical-reporting, intercompany, price-lists, datasheets, legal, push-notifications, storage, geo, metrics, queues sin un solo *.spec.ts; features/payroll, features/workflow (8… | `01-inventario-de-modulos.md:143` |
 | ❌ | LOC-05 | validateTaxId('MX','XAXX010101000') devuelve false con y sin tipo de contribuyente. Es el RFC genérico «público en general» que exige el CFDI 4.0 para ventas a consumidor final. En cambio X… | `modulos/localization.md:92` |
 | ❌ | NOM-01 | empleado «QA-NOM Bajo», salario 15.000: AFP empleado 666,50 (=23.223×2,87 %) en vez de 430,50; SFS 705,98 en vez de 456,00; descuentos 1.372,48 (9,15 % del salario). El volante y el archivo… | `modulos/payroll.md:91` |
-| ❌ | NOM-03 | Deducciones (y novedades) con monto negativo aumentan el neto sin pasar por ISR ni TSS | `modulos/payroll.md:104` |
-| ❌ | NOM-04 | Carrera calcular↔aprobar: se reescriben los volantes de una corrida ya aprobada | `modulos/payroll.md:110` |
 | ❌ | NOM-06 | salida real (GET /payroll/runs/{id}/tss/suir): cabecera # y filas NSS\|Nombre\|SalarioCotizable\|… separadas por \|; sin RNC del empleador, cédula, tipo de documento, salario ISR, otros ingreso… | `modulos/payroll.md:121` |
 | ❌ | NOM-12 | Sin pruebas de integración del ciclo aprobar/pagar/asiento ni de concurrencia; prueba que consagra el dato erróneo | `modulos/payroll.md:139` |
 | ❌ | NOM-20 | La cédula y el NSS se guardan EN CLARO en audit_logs aunque la tabla los cifra | `modulos/hcm.md:67` |
@@ -129,10 +125,12 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ✅ | FAC-EINV-04 | endpoint y credencial por proceso, no por tenant (un SaaS con varios emisores en MX/CO no puede tener credenciales distintas). M. | `modulos/einvoicing.md:65` |
 | ✅ | FAC-INV-02 | en ráfaga concurrente cerca del límite, las solicitudes que debían recibir 403 reciben 500 (10/19 en la prueba). Numeración intacta (rollback correcto). S. | `modulos/invoices.md:70` |
 | ✅ | FAC-PL-04 | sin specs. M.: ## 7. Camino mínimo a producción | `modulos/price-lists.md:58` |
+| ✅ | FAC-TX-01 | Un impuesto type:"Fijo" (monto) entra como tasa porcentual en la lista de tasas permitidas; probado: ITBIS 50 % aceptado en una factura DO. Forma correcta: filtrar type='Porcentaje' y, para… | `modulos/taxes.md:68` |
 | ✅ | FAC-TX-02 | la tasa estándar es MAX(rate) del catálogo: cualquier tasa mayor registrada (selectivo, lujo) se convierte en tasa por defecto de productos gravados. Forma correcta: bandera isStandard o to… | `modulos/taxes.md:69` |
 | ✅ | FAC-TX-03 | tasas fijas en código sin vigencia; un cambio legal (EC subió 12→15 % en 2024) exige release y no permite emitir/recalcular documentos de fechas anteriores. Forma correcta: tasas como datos… | `modulos/taxes.md:70` |
 | ✅ | FE-CI-03 | ci.yml:403-405 (npm run verify:invoicing). Según el aviso del coordinador, ese verificador contacta ecf.dgii.gov.do aunque NODE_ENV=test; CI lo ejecuta en cada push y PR → tráfico real haci… | `modulos/ci-cd-infra.md:53` |
 | ✅ | FIN-COA-03 | chart-of-accounts/localization · Multi-país: localization/fiscal/coa-builder.ts:370-393: para todo país no US/BR se usan "AFP por Pagar (TSS)", "SFS por Pagar (TSS)", "SRL e INFOTEP por Pag… | `modulos/chart-of-accounts.md:71` |
+| ✅ | FIN-JE-01 | en modo "moneda por línea" el servidor guarda foreignCurrencyDebit/Credit y exchangeRate tal como llegan, sin resolver la tasa ni comprobar debit ≈ foreign×rate. Ejecutado: POST con línea {… | `modulos/journal-entries.md:57` |
 | ✅ | FINB-31 | consolidation.service.ts:852-913 + intercompany.service.ts:180-195, 314-329. La eliminación intragrupo reduce fromAccountId en activos y toAccountId en pasivos, pero en intercompañía esas s… | `modulos/consolidation.md:44` |
 | ✅ | FINB-32 | consolidation.service.ts:935-940 (void revenueLines; void expenseLines): ingresos/gastos intragrupo nunca se eliminan (NIIF 10.B86(c)). M. | `modulos/consolidation.md:46` |
 | ✅ | FINB-33 | sin pantalla/menú (grep en client-web). M. | `modulos/consolidation.md:48` |
@@ -142,6 +140,8 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ✅ | LOC-03 | el formulario de factura de BR (pt-BR) exige «uma faixa de comprovantes vigente, tradicional (série B) ou eletrônica (série E)», que es el modelo NCF de la DGII. BR también muestra el aviso… | `modulos/localization.md:76` |
 | ✅ | LOC-06 | las tasas del IVA, ITBIS, IGV, etc. están en constantes TS (country-tax-schemes.ts:61-145) y la tabla taxes no tiene effective_from/to (comprobado en information_schema). Un cambio de tasa… | `modulos/localization.md:98` |
 | ✅ | NOM-02 | valores reales 19.351,50 (02/2024), 21.674,80 (04/2025). Corrida «QA-NOM retro enero» 01/2026 (luego anulada): AFP empleado de «Tope» = 5.740 (tope 200.000) cuando correspondía ~12.441 (top… | `modulos/payroll.md:98` |
+| ✅ | NOM-03 | Deducciones (y novedades) con monto negativo aumentan el neto sin pasar por ISR ni TSS | `modulos/payroll.md:104` |
+| ✅ | NOM-04 | Carrera calcular↔aprobar: se reescriben los volantes de una corrida ya aprobada | `modulos/payroll.md:110` |
 | ✅ | PLTB-DT-01 | npm audit reporta Electron high en rango 44.0.0-alpha.1 - 44.9.0 — mitigación de certificados intermedios eMudhra comprometidos (high) y atribución de permiso pointer-lock a marco equivocad… | `modulos/desktop.md:58` |
 | ✅ | PLTB-DT-02 | los binarios se empaquetan sin firma de código (ni identidad/notarización mac ni certificado win) y no hay mecanismo de actualización. Distribuir así provoca advertencias de Gatekeeper/Smar… | `modulos/desktop.md:65` |
 | ✅ | TES-02 | Tras cobrar USD 200 en cuenta USD, GET /treasury/cash-position → balanceInAccountCurrency: 1000 (debería 1.200) con base 72.400. Las transferencias sí guardan divisa. Rompe conciliación y r… | `modulos/customers.md:63` |
@@ -246,7 +246,6 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | LOC-07 | las reglas de un país están repartidas en al menos 8 archivos de código: | `modulos/localization.md:104` |
 | ❌ | LOC-09 | La cobertura de UY, PY y los demás «genéricos» dice taxDetermination: not-implemented, pero se aprovisionan IVA 22/10/0 y se validan. | `modulos/localization.md:118` |
 | ❌ | LOC-10 | completePendingRegistration no vuelve a validar el identificador fiscal y marca tax_id_verified_at = now() (registration.service.ts:286-290). Los tenants QA de GT y UY se crearon con el RNC… | `modulos/localization.md:125` |
-| ❌ | NOM-05 | La tasa de la novedad sobrescribe la del concepto sin el límite que el DTO de concepto sí impone | `modulos/payroll.md:116` |
 | ❌ | NOM-07 | INFOTEP del trabajador modelado sobre la regalía pascual | `modulos/payroll.md:126` |
 | ❌ | NOM-08 | Regalía pascual por «meses tocados», no por salario devengado | `modulos/payroll.md:129` |
 | ❌ | NOM-09 | «Parámetros de empresa» (US/otros) que ningún cálculo usa | `modulos/payroll.md:132` |
@@ -314,6 +313,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ✅ | IAM-T2 | database/same-tenant-references.spec.ts:56. La FK FK_customer_portal_accounts_customer (customer_portal_accounts.customer_id) no tiene guarda de mismo-tenant a nivel BD → referencia cruzada… | `modulos/multi-tenencia.md:43` |
 | ✅ | JUR-02 | jurisdictions-geo: payroll/fiscal-coverage · documentación/producto | `modulos/jurisdictions-geo.md:60` |
 | ✅ | LOC-04 | el catálogo base en español dice «ITBIS» en claves genéricas. | `modulos/localization.md:83` |
+| ✅ | NOM-05 | La tasa de la novedad sobrescribe la del concepto sin el límite que el DTO de concepto sí impone | `modulos/payroll.md:116` |
 | ✅ | NOM-41 | Evidencia: pg_trigger sin tg_same_tenant para la tabla; same-tenant-references.spec.ts:56 falla. Explotabilidad: no explotable por API (guarda en grant vía assertTenantOwns('customers', …);… | `modulos/customer-service.md:56` |
 | ✅ | PLT-NOT-05 | sin unique (userId, endpoint) → duplicados y envíos repetidos. | `modulos/notificaciones-push-websockets.md:41` |
 | ✅ | PLTB-DS-01 | un id no-UUID llega a findOne({where:{id}}) y Postgres lanza invalid input syntax for type uuid → 500 INTERNAL_ERROR. Ejecutado 2026-11-07: GET /datasheets/not-a-uuid → 500 (QueryFailedErro… | `modulos/datasheets.md:57` |
