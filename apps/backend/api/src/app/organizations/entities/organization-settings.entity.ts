@@ -14,7 +14,7 @@ import {
 import { Organization } from './organization.entity';
 import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
 import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
-import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import type { FiscalEmissionMode } from '../contracts/fiscal-emission-mode.contract';
 
 const DEFAULT_BASE_CURRENCY = 'USD' as const;
@@ -353,7 +353,7 @@ export class OrganizationSettings {
     // Quoted: PostgreSQL stores a numeric default as the literal `0.02`, and an unquoted numeric
     // here makes TypeORM compare against `0.02` the number and see a difference that is not one.
     default: 0.02,
-    transformer: numericTransformerNotNull,
+    transformer: numericTransformerWithDefault,
   })
   fxRateTolerance!: number;
 

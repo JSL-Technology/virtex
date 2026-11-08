@@ -1,6 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
-import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { numericTransformerNotNull, numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { PurchaseOrderLine } from './purchase-order-line.entity';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
@@ -84,7 +84,7 @@ export class PurchaseOrder extends BaseEntity {
     precision: 18,
     scale: 6,
     default: 1,
-    transformer: numericTransformerNotNull,
+    transformer: numericTransformerWithDefault,
   })
   exchangeRate: number;
 

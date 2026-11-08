@@ -14,10 +14,7 @@ import { InvoiceLineItem } from './invoice-line-item.entity';
 import { Customer } from '../../customers/entities/customer.entity';
 import { Currency } from '../../currencies/entities/currency.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
-import {
-  numericTransformer,
-  numericTransformerNotNull,
-} from '../../common/database/numeric.transformer';
+import { numericTransformer, numericTransformerNotNull, numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import { roundToCurrency } from '../../common/money';
 import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
@@ -466,7 +463,7 @@ export class Invoice {
     scale: 6,
     default: 1.0,
     name: 'exchange_rate',
-    transformer: numericTransformerNotNull,
+    transformer: numericTransformerWithDefault,
     comment: 'Rate to convert from transaction currency to base currency',
   })
   exchangeRate: number;

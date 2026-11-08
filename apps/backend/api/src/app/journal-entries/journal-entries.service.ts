@@ -479,7 +479,7 @@ export class JournalEntriesService {
         currencyCode as string,
         baseCurrency,
         toIsoDate(entryDate),
-        exchangeRate === undefined ? null : this.amount(exchangeRate, 'exchangeRate'),
+        exchangeRate === undefined || exchangeRate === null ? null : this.rate(exchangeRate),
       );
       rate = resolvedRate.rate;
     }
@@ -753,6 +753,23 @@ export class JournalEntriesService {
         systemReason: context.systemReason ?? null,
       },
     });
+  }
+
+  /**
+   * A stated exchange rate, at the six decimals the `exchange_rate` columns keep. It used to go
+   * through `amount()`, which rounds to cents: 58.4567 became 58.46, the tolerance check then
+   * compared the wrong number, and a rate below 0.005 (JPY→USD, COP→USD) rounded to 0 and was
+   * refused as non-positive (audit 2026-11-07, XF-09).
+   */
+  private rate(value: unknown): number {
+    try {
+      return roundAmount(requireFiniteAmount(value, 'exchangeRate'), 6);
+    } catch (error) {
+      if (error instanceof MoneyError) {
+        throw new BadRequestError('journal_entries.amount_field_not_valid_number', { field: 'exchangeRate', detail: error.message });
+      }
+      throw error;
+    }
   }
 
   private amount(value: unknown, field: string): number {

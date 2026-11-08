@@ -14,7 +14,7 @@ import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { Currency } from '../../currencies/entities/currency.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { JournalEntry } from '../../journal-entries/entities/journal-entry.entity';
-import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { numericTransformerNotNull, numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import { PurchaseOrder } from '../../procurement/entities/purchase-order.entity';
 import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
@@ -359,7 +359,7 @@ export class VendorBill {
   @JoinColumn({ name: 'currency_code', referencedColumnName: 'code' })
   currency: Currency;
 
-  @Column('decimal', { precision: 18, scale: 6, default: 1.0, name: 'exchange_rate', transformer: numericTransformerNotNull })
+  @Column('decimal', { precision: 18, scale: 6, default: 1.0, name: 'exchange_rate', transformer: numericTransformerWithDefault })
   exchangeRate: number;
 
   @Column('decimal', { precision: 18, scale: 2, name: 'total_in_base_currency', transformer: numericTransformerNotNull })
