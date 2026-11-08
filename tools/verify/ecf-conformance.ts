@@ -88,6 +88,8 @@ function baseContext(): EcfBuildContext {
 function main(): void {
   const builder = new EcfXmlBuilderService();
   const validator = new EcfValidatorService();
+  // ITBIS rates in force (Ley 253-12), as statutory_tax_rates returns them for a 2026 date.
+  const DO_ITBIS = [0.18, 0.16, 0];
   const signer = new EcfSignerService();
 
   const ctx = baseContext();
@@ -138,29 +140,29 @@ function main(): void {
 
   // ── Validation ──────────────────────────────────────────────────────────────
   check('un comprobante completo pasa la validación previa',
-    validator.validate(ctx, montoTotal).length === 0,
-    validator.validate(ctx, montoTotal).map((i) => i.field).join(','));
+    validator.validate(ctx, montoTotal, DO_ITBIS).length === 0,
+    validator.validate(ctx, montoTotal, DO_ITBIS).map((i) => i.field).join(','));
 
   const noExpiry = { ...baseContext(), fechaVencimientoSecuencia: undefined };
   check('se rechaza un comprobante sin vencimiento de secuencia',
-    validator.validate(noExpiry, montoTotal).some((i) => i.field === 'FechaVencimientoSecuencia'));
+    validator.validate(noExpiry, montoTotal, DO_ITBIS).some((i) => i.field === 'FechaVencimientoSecuencia'));
 
   const noBuyer = { ...baseContext(), comprador: undefined };
   check('se rechaza un crédito fiscal sin comprador identificado',
-    validator.validate(noBuyer, montoTotal).some((i) => i.field === 'RNCComprador'));
+    validator.validate(noBuyer, montoTotal, DO_ITBIS).some((i) => i.field === 'RNCComprador'));
 
   const bigConsumo = { ...baseContext(), tipoECF: '32', eNCF: 'E320000000001', comprador: undefined };
   check('se exige identificar al comprador en consumo sobre el umbral',
-    validator.validate(bigConsumo, 300_000).some((i) => i.field === 'RNCComprador'));
+    validator.validate(bigConsumo, 300_000, DO_ITBIS).some((i) => i.field === 'RNCComprador'));
 
   const mismatchedPayment = baseContext();
   mismatchedPayment.formasPago = [{ forma: '01', monto: 1 }];
   check('se rechaza un desglose de pago que no suma el total',
-    validator.validate(mismatchedPayment, montoTotal).some((i) => i.field === 'TablaFormasPago'));
+    validator.validate(mismatchedPayment, montoTotal, DO_ITBIS).some((i) => i.field === 'TablaFormasPago'));
 
   const creditNote = { ...baseContext(), tipoECF: '34', eNCF: 'E340000000001' };
   check('se exige la referencia al comprobante modificado en una nota',
-    validator.validate(creditNote, montoTotal).some((i) => i.field === 'InformacionReferencia'));
+    validator.validate(creditNote, montoTotal, DO_ITBIS).some((i) => i.field === 'InformacionReferencia'));
 
   // ── Foreign currency ────────────────────────────────────────────────────────
   const foreign = baseContext();

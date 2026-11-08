@@ -20,6 +20,7 @@ import {
   EcfFormaPago,
 } from './ecf-xml-builder.service';
 import { EcfValidatorService, EcfValidationError } from './ecf-validator.service';
+import { statutoryTaxRatesOn } from '../../localization/contracts/statutory-tax-rates.contract';
 import { DgiiAuthService } from './dgii-auth.service';
 import { DgiiTransportService } from './dgii-transport.service';
 import { DgiiConfigService } from './dgii-config.service';
@@ -236,7 +237,10 @@ export class EcfSubmissionService {
     const fechaHoraFirma = this.stampNow(org);
     const ctx = await this.buildContext(invoice, org, fechaHoraFirma);
     const montoTotal = this.builder.montoTotal(ctx);
-    this.validator.assertValid(ctx, montoTotal);
+    // The ITBIS rates are the ones in force on the document's own date (SP-03).
+    const [day, month, year] = ctx.fechaEmision.split('-');
+    const itbisRates = (await statutoryTaxRatesOn(this.orgRepo.manager, 'DO', `${year}-${month}-${day}`)) ?? [];
+    this.validator.assertValid(ctx, montoTotal, itbisRates);
 
     const xml = this.builder.build(ctx);
     const signedXml = this.signer.sign(xml, loaded, 'ECF');

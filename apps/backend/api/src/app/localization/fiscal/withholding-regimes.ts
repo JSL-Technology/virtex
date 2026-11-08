@@ -87,6 +87,13 @@ export interface WithholdingRegime {
   label: string;
   /** The instrument that establishes it, so the tenant's advisor can confirm it in one lookup. */
   legalBasis: string;
+  /**
+   * The period the regime applies in (audit 2026-11-07, CMP-05; SP-03). A document is resolved
+   * against the regimes in force on ITS date, so a rate change by decree is a new entry that ends
+   * the previous one, and a document issued before it keeps the old rate. Open bounds are null.
+   */
+  effectiveFrom: string | null;
+  effectiveTo: string | null;
 }
 
 export interface CountryWithholdingScheme {
@@ -121,6 +128,8 @@ const DOMINICAN_REPUBLIC: CountryWithholdingScheme = {
       scope: 'SERVICES',
       label: 'ITBIS retenido 100 % — servicios prestados por persona física',
       legalBasis: 'Norma General 02-05, art. 2 (DGII)',
+      effectiveFrom: '2005-01-01',
+      effectiveTo: null,
     },
     {
       code: 'DO-ITBIS-30-ESTADO',
@@ -130,6 +139,8 @@ const DOMINICAN_REPUBLIC: CountryWithholdingScheme = {
       scope: 'ANY',
       label: 'ITBIS retenido 30 % — pagos del Estado a proveedores',
       legalBasis: 'Ley 253-12, art. 25; Norma General 07-09 (DGII)',
+      effectiveFrom: '2013-01-01',
+      effectiveTo: null,
     },
     {
       code: 'DO-ISR-10-SERV-PF',
@@ -140,6 +151,8 @@ const DOMINICAN_REPUBLIC: CountryWithholdingScheme = {
       scope: 'SERVICES',
       label: 'ISR retenido 10 % — honorarios y servicios de persona física',
       legalBasis: 'Ley 11-92 (Código Tributario), art. 309',
+      effectiveFrom: '1992-05-16',
+      effectiveTo: null,
     },
     {
       code: 'DO-ISR-5-ESTADO',
@@ -150,6 +163,8 @@ const DOMINICAN_REPUBLIC: CountryWithholdingScheme = {
       scope: 'ANY',
       label: 'ISR retenido 5 % — pagos del Estado a personas jurídicas',
       legalBasis: 'Ley 11-92, art. 309, párrafo; Ley 253-12',
+      effectiveFrom: '2013-01-01',
+      effectiveTo: null,
     },
   ],
 };
@@ -237,12 +252,19 @@ export function findWithholdingScheme(
  */
 export function applicableRegimes(
   scheme: CountryWithholdingScheme | undefined,
-  context: { payer: TaxpayerType; payee: TaxpayerType; scope: Exclude<WithholdingScope, 'ANY'> },
+  context: {
+    payer: TaxpayerType;
+    payee: TaxpayerType;
+    scope: Exclude<WithholdingScope, 'ANY'>;
+    /** The document's date, `YYYY-MM-DD`: only the regimes in force on it apply. */
+    on: string;
+  },
 ): WithholdingRegime[] {
   if (!scheme || scheme.configurationRequired) return [];
 
   const matches = scheme.regimes.filter(
     (regime) =>
+      inForceOn(regime, context.on) &&
       regime.payers.includes(context.payer) &&
       (regime.payees === undefined || regime.payees.includes(context.payee)) &&
       (regime.scope === 'ANY' || regime.scope === context.scope),
@@ -258,4 +280,9 @@ export function applicableRegimes(
   return [bestOf('VAT'), bestOf('INCOME')].filter(
     (regime): regime is WithholdingRegime => regime !== undefined,
   );
+}
+
+/** True when the regime's period contains the date. */
+export function inForceOn(regime: Pick<WithholdingRegime, 'effectiveFrom' | 'effectiveTo'>, date: string): boolean {
+  return (!regime.effectiveFrom || regime.effectiveFrom <= date) && (!regime.effectiveTo || regime.effectiveTo >= date);
 }

@@ -38,6 +38,7 @@ import { TaxpayerType, WithholdingKind, WithholdingScope } from '../withholding-
 )
 @Entity({ name: 'tenant_withholding_regimes' })
 @Index('IDX_tenant_withholding_regimes_org', ['organizationId', 'isActive'])
+@Check('CHK_tenant_withholding_regimes_period', `"effective_to" IS NULL OR "effective_from" IS NULL OR "effective_to" >= "effective_from"`)
 @Index('UQ_tenant_withholding_regimes_code', ['organizationId', 'code'], { unique: true })
 export class TenantWithholdingRegime {
   @PrimaryGeneratedColumn('uuid')
@@ -91,6 +92,13 @@ export class TenantWithholdingRegime {
    */
   @Column({ name: 'legal_basis', type: 'text' })
   legalBasis: string;
+
+  /** The period the regime applies in (CMP-05): a decree that changes it ends this row and adds one. */
+  @Column({ name: 'effective_from', type: 'date', nullable: true })
+  effectiveFrom: string | null;
+
+  @Column({ name: 'effective_to', type: 'date', nullable: true })
+  effectiveTo: string | null;
 
   @Column({ name: 'is_active', default: true })
   isActive: boolean;

@@ -94,7 +94,7 @@ describeWithDb('withholding resolution', () => {
     scope: 'SERVICES' | 'GOODS',
     request: Record<string, unknown> = {},
   ) =>
-    resolver.resolve(dataSource.manager, organizationId, customer, scope, request);
+    resolver.resolve(dataSource.manager, organizationId, customer, scope, { documentDate: '2026-08-01', ...request });
 
   describe('the built-in catalogue', () => {
     beforeEach(() => tenantIn('DO'));

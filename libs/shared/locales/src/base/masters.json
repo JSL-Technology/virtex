@@ -754,6 +754,16 @@
     "en": "Country Code (optional)",
     "pt": "Código do País (opcional)"
   },
+  "masters.tax_form.effective_from": {
+    "es": "Vigente desde (opcional)",
+    "en": "In force from (optional)",
+    "pt": "Em vigor desde (opcional)"
+  },
+  "masters.tax_form.effective_to": {
+    "es": "Vigente hasta (opcional)",
+    "en": "In force until (optional)",
+    "pt": "Em vigor até (opcional)"
+  },
   "masters.tax_form.error_creating_tax": {
     "es": "Error al crear el impuesto.",
     "en": "Error creating the tax.",
@@ -818,6 +828,11 @@
     "es": "Tipo",
     "en": "Type",
     "pt": "Tipo"
+  },
+  "masters.tax_form.validity_help": {
+    "es": "Una factura solo puede usar esta tasa si su fecha cae dentro de este período. Si la ley cambia la tasa, cierra esta con la fecha de fin y crea la nueva desde la fecha en que entra en vigor.",
+    "en": "An invoice can use this rate only if its date falls within this period. When the law changes the rate, end this one and create the new rate from the date it takes effect.",
+    "pt": "Uma fatura só pode usar esta taxa se a sua data estiver dentro deste período. Se a lei mudar a taxa, encerre esta com a data de fim e crie a nova a partir da data em que entra em vigor."
   },
   "masters.taxes.add_first_state": {
     "es": "Añadir el primer estado",

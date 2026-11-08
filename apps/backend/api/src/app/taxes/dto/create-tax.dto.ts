@@ -1,4 +1,5 @@
 import {
+  IsDateString,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -30,6 +31,18 @@ export class PercentageRateConstraint implements ValidatorConstraintInterface {
   }
 }
 
+@ValidatorConstraint({ name: 'period_end', async: false })
+export class PeriodEndConstraint implements ValidatorConstraintInterface {
+  validate(end: unknown, args: ValidationArguments): boolean {
+    const start = (args.object as { effectiveFrom?: string }).effectiveFrom;
+    return typeof end !== 'string' || !start || end >= start;
+  }
+
+  defaultMessage(): string {
+    return 'taxes.effective_to_before_effective_from';
+  }
+}
+
 export class CreateTaxDto {
   @IsString()
   @IsNotEmpty()
@@ -49,4 +62,15 @@ export class CreateTaxDto {
   @IsOptional()
   @Matches(/^[A-Za-z]{2}$/, { message: 'validation.constraints.country_code' })
   countryCode?: string;
+
+  /** First day the rate may be applied (LOC-06). Omitted: no lower bound. */
+  @IsOptional()
+  @IsDateString({ strict: true })
+  effectiveFrom?: string;
+
+  /** Last day the rate may be applied; a rate that ends is closed here, never edited. */
+  @IsOptional()
+  @IsDateString({ strict: true })
+  @Validate(PeriodEndConstraint)
+  effectiveTo?: string;
 }

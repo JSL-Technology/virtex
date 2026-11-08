@@ -38,6 +38,11 @@ export interface WithholdingRequest {
   incomeTaxWithholdingRate?: number;
   /** Why the stated rates differ from the ones the regimes produce. */
   withholdingOverrideReason?: string;
+  /**
+   * The document's date (`YYYY-MM-DD`). Only the regimes in force on it apply (audit 2026-11-07,
+   * CMP-05). Required: withholding on a backdated document is the one in force on its date.
+   */
+  documentDate: string;
 }
 
 /**
@@ -95,7 +100,7 @@ export class WithholdingResolverService {
     const none = this.outsideWithholdingMarket(countryCode, request);
     if (none) return none;
 
-    const regimes = await this.regimesFor(manager, organizationId, countryCode, customer, scope);
+    const regimes = await this.regimesFor(manager, organizationId, countryCode, customer, scope, request.documentDate);
     return this.reconcile(regimes, request, organizationId, `cliente ${customer.id}`);
   }
 
@@ -134,6 +139,7 @@ export class WithholdingResolverService {
       countryCode,
       supplier,
       scope,
+      request.documentDate,
     );
     return this.reconcile(regimes, request, organizationId, `proveedor ${supplier.id}`);
   }
@@ -156,6 +162,7 @@ export class WithholdingResolverService {
     countryCode: string | null,
     supplier: { taxpayerType?: TaxpayerType | null; country?: string | null },
     scope: 'SERVICES' | 'GOODS',
+    on: string,
   ): Promise<WithholdingRegime[]> {
     const payee = supplier.taxpayerType ?? null;
     if (!payee || payee === TaxpayerType.FOREIGN) return [];
@@ -178,7 +185,7 @@ export class WithholdingResolverService {
         }
       : findWithholdingScheme(countryCode);
 
-    return applicableRegimes(scheme, { payer, payee, scope });
+    return applicableRegimes(scheme, { payer, payee, scope, on });
   }
 
   /**
@@ -278,6 +285,7 @@ export class WithholdingResolverService {
     countryCode: string | null,
     customer: Pick<Customer, 'taxpayerType' | 'country'>,
     scope: 'SERVICES' | 'GOODS',
+    on: string,
   ): Promise<WithholdingRegime[]> {
     const payer = customer.taxpayerType ?? null;
     if (!payer) return [];
@@ -307,7 +315,7 @@ export class WithholdingResolverService {
         }
       : findWithholdingScheme(countryCode);
 
-    return applicableRegimes(scheme, { payer, payee, scope });
+    return applicableRegimes(scheme, { payer, payee, scope, on });
   }
 
   /**
@@ -330,6 +338,8 @@ export class WithholdingResolverService {
       scope: row.scope,
       label: row.label,
       legalBasis: row.legalBasis,
+      effectiveFrom: row.effectiveFrom ?? null,
+      effectiveTo: row.effectiveTo ?? null,
     }));
 
     const builtIn = findWithholdingScheme(countryCode);

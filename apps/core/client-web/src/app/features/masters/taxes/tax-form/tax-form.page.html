@@ -37,6 +37,17 @@
         <label for="countryCode">{{ 'masters.tax_form.country_code_optional' | translate }}</label>
         <input id="countryCode" formControlName="countryCode" placeholder="DO, US, MX" />
       </div>
+
+      <div class="form-field">
+        <label for="effectiveFrom">{{ 'masters.tax_form.effective_from' | translate }}</label>
+        <vx-date-field inputId="effectiveFrom" formControlName="effectiveFrom" />
+      </div>
+
+      <div class="form-field">
+        <label for="effectiveTo">{{ 'masters.tax_form.effective_to' | translate }}</label>
+        <vx-date-field inputId="effectiveTo" formControlName="effectiveTo" />
+        <p class="field-hint">{{ 'masters.tax_form.validity_help' | translate }}</p>
+      </div>
     </div>
   </div>
 </vx-draft-shell>

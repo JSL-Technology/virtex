@@ -32,6 +32,7 @@ import { PriceResolver, type ResolvedPrice } from '../price-lists/price-resolver
 import { FiscalSubmissionService } from '../einvoicing/services/fiscal-submission.service';
 import { TransmissionConfigService } from '../einvoicing/services/transmission-config.service';
 import { ComputedDocument, computeDocument, TaxableLineInput } from './sales-tax.engine';
+import { statutoryTaxRatesOn } from '../localization/contracts/statutory-tax-rates.contract';
 import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
 import { TenantBookkeepingProvisioner } from '../accounting/provisioning/tenant-bookkeeping.provisioner';
@@ -85,7 +86,7 @@ export interface IssuableTypes {
 }
 import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
-import { Tax } from '../taxes/entities/tax.entity';
+import { Tax, TaxType } from '../taxes/entities/tax.entity';
 import { TaxDeterminationService } from '../localization/fiscal/tax-determination/tax-determination.service';
 import {
   TaxDetermination,
@@ -649,14 +650,38 @@ export class InvoicesService {
   private async tenantTaxRates(
     organizationId: string,
     manager: EntityManager,
+    onDate?: string,
   ): Promise<number[]> {
     const taxes = await manager.getRepository(Tax).find({
       where: { organizationId },
-      select: { id: true, rate: true },
+      select: { id: true, rate: true, type: true, effectiveFrom: true, effectiveTo: true },
     });
     return taxes
+      // A fixed-amount tax is not a rate (audit 2026-11-07, FAC-TX-01): «Fijo 50» used to admit a
+      // 50 % ITBIS on any line.
+      .filter((tax) => (tax.type ?? TaxType.PERCENTAGE) === TaxType.PERCENTAGE)
+      // Only what is in force on the document's date (LOC-06).
+      .filter((tax) => !onDate || ((!tax.effectiveFrom || tax.effectiveFrom <= onDate) && (!tax.effectiveTo || tax.effectiveTo >= onDate)))
       .map((tax) => Number(tax.rate) / 100)
       .filter((rate) => Number.isFinite(rate) && rate >= 0 && rate <= 1);
+  }
+
+  /**
+   * Everything a document's tax validation needs for its date (audit 2026-11-07, SP-03): the
+   * national rates in force on it, from `statutory_tax_rates`, and the tenant's own rates in force
+   * on it. Never today's rates for yesterday's document.
+   */
+  private async taxRatesOn(
+    organizationId: string,
+    countryCode: string | null,
+    date: string,
+    manager: EntityManager,
+  ): Promise<{ tenantTaxRates: number[]; statutoryTaxRates: number[] | null; taxDate: string }> {
+    return {
+      tenantTaxRates: await this.tenantTaxRates(organizationId, manager, date),
+      statutoryTaxRates: await statutoryTaxRatesOn(manager, countryCode, date),
+      taxDate: date,
+    };
   }
 
   /**
@@ -730,13 +755,14 @@ export class InvoicesService {
         taxWithholdingRate: dto.taxWithholdingRate,
         incomeTaxWithholdingRate: dto.incomeTaxWithholdingRate,
         withholdingOverrideReason: dto.withholdingOverrideReason,
+        documentDate: toIsoDate(dto.issueDate),
       },
     );
 
     const computed = computeDocument({
       countryCode: organization?.country ?? null,
       currencyCode,
-      tenantTaxRates: await this.tenantTaxRates(organizationId, manager),
+      ...(await this.taxRatesOn(organizationId, organization?.country ?? null, toIsoDate(dto.issueDate), manager)),
       lines: taxInputs,
       documentDiscountRate: dto.documentDiscountRate,
       serviceChargeRate: dto.serviceChargeRate,
@@ -836,13 +862,14 @@ export class InvoicesService {
         taxWithholdingRate: dto.taxWithholdingRate,
         incomeTaxWithholdingRate: dto.incomeTaxWithholdingRate,
         withholdingOverrideReason: dto.withholdingOverrideReason,
+        documentDate: toIsoDate(dto.issueDate),
       },
     );
 
     const computed = computeDocument({
       countryCode: organization?.country ?? null,
       currencyCode,
-      tenantTaxRates: await this.tenantTaxRates(organizationId, manager),
+      ...(await this.taxRatesOn(organizationId, organization?.country ?? null, toIsoDate(dto.issueDate), manager)),
       lines: taxInputs,
       documentDiscountRate: dto.documentDiscountRate,
       serviceChargeRate: dto.serviceChargeRate,
@@ -1347,16 +1374,18 @@ export class InvoicesService {
       const baseCurrency =
         (await this.orgSettings.getForOrg(organizationId, manager))?.baseCurrency ?? 'USD';
 
+      const creditCountry = (
+        await manager
+          .getRepository(Organization)
+          .findOne({ where: { id: organizationId }, select: ['id', 'country'] })
+      )?.country;
       const computed = computeDocument({
-        countryCode: (
-          await manager
-            .getRepository(Organization)
-            .findOne({ where: { id: organizationId }, select: ['id', 'country'] })
-        )?.country,
+        countryCode: creditCountry,
         currencyCode: original.currencyCode,
         // A credit note re-prices lines of a document that was already accepted, so the rates it
-        // carries must be the ones the tenant can levy, not only the ones the table lists.
-        tenantTaxRates: await this.tenantTaxRates(organizationId, manager),
+        // carries are the ones in force on THE ORIGINAL's date (SP-03): crediting a March 2024
+        // Ecuadorian invoice after the April change still credits 12 %, not 15 %.
+        ...(await this.taxRatesOn(organizationId, creditCountry ?? null, toIsoDate(original.issueDate), manager)),
         lines: selections.map((s) => ({
           quantity: s.quantity,
           unitPrice: s.line.price,
@@ -1860,7 +1889,9 @@ export class InvoicesService {
     const countryCode = organization?.country ?? null;
     const scheme = countryCode ? COUNTRY_TAX_SCHEMES[countryCode.toUpperCase()] : undefined;
     const pack = countryPackFor(countryCode);
-    const tenantRates = [...new Set(await this.tenantTaxRates(organizationId, this.dataSource.manager))].sort(
+    // The rates a new document may carry are the ones in force today in the tenant's time zone.
+    const ratesToday = await this.taxRatesOn(organizationId, countryCode, await this.fiscalToday(organizationId), this.dataSource.manager);
+    const tenantRates = [...new Set(ratesToday.tenantTaxRates)].sort(
       (a, b) => b - a,
     );
     const jurisdictions =
@@ -1919,7 +1950,7 @@ export class InvoicesService {
        * reduced rate it added — and the market's scheme only for a tenant whose catalogue is empty.
        * It used to be the scheme alone, so a rate the tenant configured never reached the form.
        */
-      taxRates: tenantRates.length > 0 ? tenantRates : (scheme?.taxes ?? []).map((t) => t.rate / 100).sort((a, b) => b - a),
+      taxRates: tenantRates.length > 0 ? tenantRates : [...(ratesToday.statutoryTaxRates ?? [])],
       taxRequiresConfiguration: scheme?.configurationRequired ?? true,
       taxModel: pack.taxes.model,
       registeredJurisdictions: jurisdictions,

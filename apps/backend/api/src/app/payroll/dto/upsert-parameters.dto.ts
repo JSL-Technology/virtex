@@ -1,5 +1,8 @@
 import { Type } from 'class-transformer';
 import {
+  MaxLength,
+  IsString,
+  IsNotEmpty,
   ArrayNotEmpty,
   IsArray,
   IsDateString,
@@ -15,6 +18,21 @@ import { ContributionBase } from '../entities/statutory-contribution.entity';
 import { StatutoryReferenceKey } from '../entities/statutory-reference.entity';
 
 export class UpsertContributionDto {
+  /**
+   * The instrument that sets this value — law, decree, TSS/DGII resolution — and, where useful, its
+   * number and date (audit 2026-11-07, SP-03). Required: a statutory value nobody can trace to its
+   * source is the defect this table exists to prevent.
+   */
+  @IsString()
+  @IsNotEmpty({ message: 'payroll.legal_basis_required' })
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
+  legalBasis: string;
+
+  /** Date the instrument was published in the official gazette, where known. */
+  @IsDateString()
+  @IsOptional()
+  publishedOn?: string | null;
+
   @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   countryCode: string;
 
@@ -51,6 +69,21 @@ export class UpsertContributionDto {
 }
 
 export class UpsertReferenceDto {
+  /**
+   * The instrument that sets this value — law, decree, TSS/DGII resolution — and, where useful, its
+   * number and date (audit 2026-11-07, SP-03). Required: a statutory value nobody can trace to its
+   * source is the defect this table exists to prevent.
+   */
+  @IsString()
+  @IsNotEmpty({ message: 'payroll.legal_basis_required' })
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
+  legalBasis: string;
+
+  /** Date the instrument was published in the official gazette, where known. */
+  @IsDateString()
+  @IsOptional()
+  publishedOn?: string | null;
+
   @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   countryCode: string;
 
@@ -93,6 +126,21 @@ export class TaxBracketDto {
 
 /** Replace a whole income-tax scale for a country as of a date — the brackets are a set, not rows. */
 export class ReplaceTaxScaleDto {
+  /**
+   * The instrument that sets this value — law, decree, TSS/DGII resolution — and, where useful, its
+   * number and date (audit 2026-11-07, SP-03). Required: a statutory value nobody can trace to its
+   * source is the defect this table exists to prevent.
+   */
+  @IsString()
+  @IsNotEmpty({ message: 'payroll.legal_basis_required' })
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
+  legalBasis: string;
+
+  /** Date the instrument was published in the official gazette, where known. */
+  @IsDateString()
+  @IsOptional()
+  publishedOn?: string | null;
+
   @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
   countryCode: string;
 

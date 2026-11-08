@@ -63,6 +63,15 @@ export interface DocumentTaxInput {
    * levy.
    */
   tenantTaxRates?: readonly number[];
+  /**
+   * The national rates in force on the document's date, from `statutory_tax_rates` (audit
+   * 2026-11-07, LOC-06): `null` where the market has no national table, `[]` where nothing is in
+   * force on that date. When omitted (pure calculations with no date, the unit tests) the rates
+   * of `COUNTRY_TAX_SCHEMES` — today's — apply; every document the service issues passes them.
+   */
+  statutoryTaxRates?: readonly number[] | null;
+  /** The document's date, named in the refusal when no rate is in force on it. */
+  taxDate?: string;
   lines: readonly TaxableLineInput[];
   /**
    * Commercial discount on the whole document, as a fraction of the post-line-discount subtotal.
@@ -150,12 +159,17 @@ const EPSILON = 1e-6;
 export function allowedTaxFractions(
   countryCode: string | null | undefined,
   tenantRates: readonly number[] = [],
+  statutoryRates?: readonly number[] | null,
 ): number[] | null {
   const scheme = countryCode ? COUNTRY_TAX_SCHEMES[countryCode.toUpperCase()] : undefined;
   const fromScheme =
-    scheme && !scheme.configurationRequired && scheme.taxes.length > 0
-      ? scheme.taxes.map((t) => t.rate / 100)
-      : null;
+    statutoryRates !== undefined
+      ? statutoryRates === null || scheme?.configurationRequired
+        ? null
+        : [...statutoryRates]
+      : scheme && !scheme.configurationRequired && scheme.taxes.length > 0
+        ? scheme.taxes.map((t) => t.rate / 100)
+        : null;
 
   // A market whose base is sub-national constrains nothing on its own; if the tenant has stated
   // its own rates, those are the constraint.
@@ -179,10 +193,20 @@ export function assertAllowedTaxRate(
   countryCode: string | null | undefined,
   requestedFraction: number,
   tenantRates: readonly number[] = [],
+  statutoryRates?: readonly number[] | null,
+  taxDate?: string,
 ): void {
-  const allowed = allowedTaxFractions(countryCode, tenantRates);
+  const allowed = allowedTaxFractions(countryCode, tenantRates, statutoryRates);
   if (!allowed) return;
   if (allowed.some((rate) => Math.abs(rate - requestedFraction) < EPSILON)) return;
+  if (allowed.length === 0) {
+    // A date before every period recorded: there is no rate to validate against, so none is
+    // assumed (SP-03). The platform records the rate of that period, or the tenant states its own.
+    throw new BadRequestError('invoices.no_tax_rate_in_force_on_date', {
+      countryCode: countryCode ?? '—',
+      date: taxDate ?? '—',
+    });
+  }
 
   const list = allowed.map((rate) => `${(rate * 100).toFixed(2).replace(/\.00$/, '')}%`).join(', ');
   // A key, like every other refusal in this module. This one was a Spanish sentence built in the
@@ -228,7 +252,7 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
     if (effectiveRate < 0 || effectiveRate > 1) {
       throw new BadRequestError('invoices.tax_rate_must_expressed_fraction_between');
     }
-    assertAllowedTaxRate(input.countryCode, effectiveRate, input.tenantTaxRates);
+    assertAllowedTaxRate(input.countryCode, effectiveRate, input.tenantTaxRates, input.statutoryTaxRates, input.taxDate);
 
     const exciseRate = line.exciseRate ?? 0;
     if (exciseRate < 0 || exciseRate > 1) {

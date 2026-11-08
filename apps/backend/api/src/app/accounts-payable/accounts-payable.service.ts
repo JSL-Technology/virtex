@@ -309,6 +309,7 @@ export class AccountsPayableService {
                 ? dto.incomeTaxWithheld / subtotal
                 : 0,
           withholdingOverrideReason: dto.withholdingOverrideReason,
+          documentDate: toIsoDate(dto.date),
         },
       );
 

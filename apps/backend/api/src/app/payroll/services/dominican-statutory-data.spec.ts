@@ -30,10 +30,37 @@ describeWithDb('Dominican statutory data as seeded', () => {
   });
   afterAll(() => dataSource.destroy());
 
-  it('uses RD$23,223 from February 2026, and keeps the old figure for earlier periods', async () => {
+  // NOM-02 (audit 2026-11-07): the seed said RD$10,000 from 2020 to January 2026, and this test
+  // asserted it. The series is now the one with a source — TSS figures verified in the audit:
+  // 19,351.50 (02/2024), 21,674.80 (04/2025), 23,223.00 (02/2026) — and a period before the first
+  // of them is refused rather than computed with caps at less than half their value.
+  it('follows the TSS series with its source, and refuses a period with no recorded figure', async () => {
     expect((await parameters.resolve('DO', '2026-08-31')).minWageCotizable).toBe(23223);
     expect((await parameters.resolve('DO', '2026-02-01')).minWageCotizable).toBe(23223);
-    expect((await parameters.resolve('DO', '2026-01-31')).minWageCotizable).toBe(10000);
+    expect((await parameters.resolve('DO', '2026-01-31')).minWageCotizable).toBe(21674.8);
+    expect((await parameters.resolve('DO', '2025-04-01')).minWageCotizable).toBe(21674.8);
+    expect((await parameters.resolve('DO', '2025-03-31')).minWageCotizable).toBe(19351.5);
+    expect((await parameters.resolve('DO', '2024-02-01')).minWageCotizable).toBe(19351.5);
+    await expect(parameters.resolve('DO', '2024-01-31')).rejects.toMatchObject({
+      messageKey: 'payroll.no_minimum_contributory_wage_p1_p2',
+    });
+  });
+
+  it('caps AFP at 20 × the January 2026 figure, as the audit worked it (433,496)', async () => {
+    const params = await parameters.resolve('DO', '2026-01-31');
+    const r = new DominicanRepublicStrategy().computeStatutory(
+      { contributoryBase: 600000, taxableEarnings: 600000 },
+      params,
+    );
+    expect(r.contributions.find((c) => c.code === C.AFP)?.appliedBase).toBe(433496);
+    expect(ee(r, C.AFP)).toBeCloseTo(12441.34, 2); // 433,496 × 2.87 %
+  });
+
+  it('names the legal basis of every Dominican statutory row', async () => {
+    for (const table of ['payroll_statutory_contributions', 'payroll_statutory_references', 'payroll_income_tax_brackets']) {
+      const rows = await dataSource.query(`SELECT count(*)::int AS n FROM ${table} WHERE country_code = 'DO' AND (legal_basis IS NULL OR btrim(legal_basis) = '')`);
+      expect({ table, missing: rows[0].n }).toEqual({ table, missing: 0 });
+    }
   });
 
   it('caps SFS, AFP and SRL at 10, 20 and 4 times it', async () => {

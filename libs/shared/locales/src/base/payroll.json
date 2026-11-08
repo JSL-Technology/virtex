@@ -354,6 +354,11 @@
     "en": "Inputs can only be changed while the run is editable.",
     "pt": "Os lançamentos só podem ser alterados enquanto a folha for editável."
   },
+  "payroll.legal_basis_required": {
+    "es": "Indica la norma que fija este valor (ley, decreto o resolución, con su número y fecha).",
+    "en": "State the instrument that sets this value (law, decree or resolution, with its number and date).",
+    "pt": "Indique a norma que fixa este valor (lei, decreto ou resolução, com o seu número e data)."
+  },
   "payroll.my_payslips.period": {
     "es": "Período",
     "en": "Period",

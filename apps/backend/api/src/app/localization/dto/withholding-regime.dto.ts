@@ -3,6 +3,7 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsBoolean,
+  IsDateString,
   IsEnum,
   IsIn,
   IsNumber,
@@ -60,6 +61,16 @@ export class CreateWithholdingRegimeDto {
   @IsString()
   @Length(3, 500, { message: 'validation.constraints.length|{"min":3,"max":500}' })
   legalBasis: string;
+
+  /** First day the regime applies (CMP-05). Omitted: no lower bound. */
+  @IsDateString({ strict: true })
+  @IsOptional()
+  effectiveFrom?: string | null;
+
+  /** Last day it applies: a regime a decree changes is ended here and a new one added. */
+  @IsDateString({ strict: true })
+  @IsOptional()
+  effectiveTo?: string | null;
 
   @IsBoolean()
   @IsOptional()

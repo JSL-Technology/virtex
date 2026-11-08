@@ -100,6 +100,8 @@ export class PayrollParametersAdminService {
       base: dto.base,
       capMinWageMultiplier: dto.capMinWageMultiplier ?? null,
       floorMinWageMultiplier: dto.floorMinWageMultiplier ?? null,
+      legalBasis: dto.legalBasis,
+      publishedOn: dto.publishedOn ?? null,
     });
     return this.contributions.save(row);
   }
@@ -117,6 +119,8 @@ export class PayrollParametersAdminService {
       effectiveTo: dto.effectiveTo ? toIsoDate(dto.effectiveTo) : null,
       value: dto.value,
       currencyCode: dto.currencyCode ?? 'DOP',
+      legalBasis: dto.legalBasis,
+      publishedOn: dto.publishedOn ?? null,
     });
     return this.references.save(row);
   }
@@ -136,6 +140,8 @@ export class PayrollParametersAdminService {
           upperAnnual: b.upperAnnual ?? null,
           rate: b.rate,
           accumulatedTax: b.accumulatedTax,
+          legalBasis: dto.legalBasis,
+          publishedOn: dto.publishedOn ?? null,
         }),
       );
       return em.save(rows);

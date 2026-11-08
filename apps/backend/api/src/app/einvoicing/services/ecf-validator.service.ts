@@ -57,12 +57,17 @@ export class EcfValidatorService {
   private static readonly CONSUMO_BUYER_THRESHOLD = 250_000;
 
   /** Throws {@link EcfValidationError} when the document cannot be accepted. */
-  assertValid(ctx: EcfBuildContext, montoTotal: number): void {
-    const issues = this.validate(ctx, montoTotal);
+  assertValid(ctx: EcfBuildContext, montoTotal: number, itbisRatesInForce: readonly number[]): void {
+    const issues = this.validate(ctx, montoTotal, itbisRatesInForce);
     if (issues.length > 0) throw new EcfValidationError(issues);
   }
 
-  validate(ctx: EcfBuildContext, montoTotal: number): EcfValidationIssue[] {
+  /**
+   * @param itbisRatesInForce The ITBIS rates in force on the document's date, as fractions, from
+   *   `statutory_tax_rates` (audit 2026-11-07, SP-03). They were the literal `[0, 0.16, 0.18]`, so a
+   *   rate change by law would have needed a release and would have rewritten the past.
+   */
+  validate(ctx: EcfBuildContext, montoTotal: number, itbisRatesInForce: readonly number[]): EcfValidationIssue[] {
     const issues: EcfValidationIssue[] = [];
 
     // ── Identification ───────────────────────────────────────────────────────
@@ -248,7 +253,7 @@ export class EcfValidatorService {
           params: { line },
         });
       }
-      if (![0, 0.16, 0.18].some((rate) => Math.abs(rate - item.itbisTasa) < 1e-6)) {
+      if (!itbisRatesInForce.some((rate) => Math.abs(rate - item.itbisTasa) < 1e-6)) {
         issues.push({
           field: 'IndicadorFacturacion',
           messageKey: 'einvoicing.do.item_tax_rate_not_in_force',

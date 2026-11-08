@@ -13,6 +13,11 @@ export class TaxesService {
     private readonly taxRepository: Repository<Tax>,
   ) {}
 
+  /** The manager provisioning queries the statutory table with when it runs outside a transaction. */
+  get manager(): EntityManager {
+    return this.taxRepository.manager;
+  }
+
   create(createTaxDto: CreateTaxDto, organizationId: string, manager?: EntityManager): Promise<Tax> {
     if (manager) {
         const tax = manager.create(Tax, { ...createTaxDto, organizationId });

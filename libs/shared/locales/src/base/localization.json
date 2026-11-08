@@ -154,6 +154,11 @@
     "en": "That withholding regime does not exist.",
     "pt": "O regime de retenção indicado não existe."
   },
+  "localization.withholding_regime_period_invalid": {
+    "es": "La vigencia del régimen termina antes de empezar. Revisa las fechas.",
+    "en": "The regime’s period ends before it starts. Check the dates.",
+    "pt": "A vigência do regime termina antes de começar. Reveja as datas."
+  },
   "localization.you_not_registered_collect_state_code": {
     "es": "No estás registrado para recaudar en {{stateCode}} ({{countryCode}}), así que no se cobra impuesto en esta venta.",
     "en": "You are not registered to collect in {{stateCode}} ({{countryCode}}), so no tax is charged on this sale.",

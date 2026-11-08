@@ -1684,6 +1684,11 @@
     "en": "There is no journal \"{{code}}\" for this organization. Create it under Settings → Accounting.",
     "pt": "Não existe o diário \"{{code}}\" para esta organização. Crie-o em Configurações → Contabilidade."
   },
+  "invoices.no_tax_rate_in_force_on_date": {
+    "es": "No hay ninguna tasa de impuesto registrada para {{countryCode}} en la fecha {{date}}. Registra la tasa vigente en esa fecha en Ajustes › Impuestos, indicando desde cuándo aplica.",
+    "en": "No tax rate is recorded for {{countryCode}} on {{date}}. Record the rate in force on that date in Settings › Taxes, stating when it applies from.",
+    "pt": "Não há nenhuma taxa de imposto registada para {{countryCode}} na data {{date}}. Registe a taxa vigente nessa data em Configurações › Impostos, indicando desde quando se aplica."
+  },
   "invoices.only_draft_can_edited_issued_document": {
     "es": "Solo se puede modificar un borrador. Un comprobante emitido se corrige con una nota de crédito.",
     "en": "Only a draft can be edited. An issued document is corrected with a credit note.",

@@ -21,7 +21,7 @@ describe('withholding outside a withholding market', () => {
   const customer = { id: 'c1', taxpayerType: TaxpayerType.WITHHOLDING_AGENT, country: 'US' };
 
   it('withholds nothing in the United States', async () => {
-    const resolved = await new WithholdingResolverService().resolve(managerIn('US'), 'org', customer as never, 'SERVICES', {});
+    const resolved = await new WithholdingResolverService().resolve(managerIn('US'), 'org', customer as never, 'SERVICES', { documentDate: '2026-08-01' });
     expect(resolved).toEqual({ taxWithholdingRate: 0, incomeTaxWithholdingRate: 0, regimeCodes: [] });
   });
 
@@ -29,6 +29,7 @@ describe('withholding outside a withholding market', () => {
     const resolved = await new WithholdingResolverService().resolve(managerIn('US'), 'org', customer as never, 'GOODS', {
       taxWithholdingRate: 0,
       incomeTaxWithholdingRate: 0,
+      documentDate: '2026-08-01',
     });
     expect(resolved.regimeCodes).toEqual([]);
   });
@@ -38,6 +39,7 @@ describe('withholding outside a withholding market', () => {
       new WithholdingResolverService().resolve(managerIn('US'), 'org', customer as never, 'SERVICES', {
         taxWithholdingRate: 0.3,
         withholdingOverrideReason: 'Because I say so',
+        documentDate: '2026-08-01',
       }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
@@ -49,7 +51,7 @@ describe('withholding outside a withholding market', () => {
         'org',
         { id: 's1', taxpayerType: TaxpayerType.INDIVIDUAL, country: 'US' },
         'SERVICES',
-        { incomeTaxWithholdingRate: 0.1 },
+        { incomeTaxWithholdingRate: 0.1, documentDate: '2026-08-01' },
       ),
     ).rejects.toBeInstanceOf(BadRequestError);
   });

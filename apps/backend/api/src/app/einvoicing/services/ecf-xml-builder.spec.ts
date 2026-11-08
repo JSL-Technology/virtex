@@ -11,6 +11,8 @@ import { EcfValidatorService } from './ecf-validator.service';
 describe('e-CF XML builder', () => {
   const builder = new EcfXmlBuilderService();
   const validator = new EcfValidatorService();
+  /** The ITBIS rates in force in 2026 (Ley 253-12), as `statutory_tax_rates` returns them. */
+  const DO_ITBIS_2026 = [0.18, 0.16, 0];
 
   const context = (overrides: Partial<EcfBuildContext> = {}): EcfBuildContext => ({
     tipoECF: '31',
@@ -183,7 +185,7 @@ describe('e-CF XML builder', () => {
 
   describe('validation before signing', () => {
     it('passes a complete comprobante', () => {
-      expect(validator.validate(context(), 1180)).toEqual([]);
+      expect(validator.validate(context(), 1180, DO_ITBIS_2026)).toEqual([]);
     });
 
     it.each([
@@ -192,7 +194,7 @@ describe('e-CF XML builder', () => {
       ['sin comprador en crédito fiscal', { comprador: undefined }, 'RNCComprador'],
       ['sin forma de pago al contado', { formasPago: [] }, 'TablaFormasPago'],
     ])('rejects a comprobante %s', (_label, overrides, field) => {
-      const issues = validator.validate(context(overrides as Partial<EcfBuildContext>), 1180);
+      const issues = validator.validate(context(overrides as Partial<EcfBuildContext>), 1180, DO_ITBIS_2026);
       expect(issues.map((i) => i.field)).toContain(field);
     });
 
@@ -205,23 +207,24 @@ describe('e-CF XML builder', () => {
           },
         }),
         1180,
+        DO_ITBIS_2026,
       );
       expect(issues.map((i) => i.field)).toContain('Municipio');
     });
 
     it('requires the buyer on a consumo above the DGII threshold', () => {
       const consumo = context({ tipoECF: '32', eNCF: 'E320000000001', comprador: undefined });
-      expect(validator.validate(consumo, 100_000).map((i) => i.field)).not.toContain('RNCComprador');
-      expect(validator.validate(consumo, 300_000).map((i) => i.field)).toContain('RNCComprador');
+      expect(validator.validate(consumo, 100_000, DO_ITBIS_2026).map((i) => i.field)).not.toContain('RNCComprador');
+      expect(validator.validate(consumo, 300_000, DO_ITBIS_2026).map((i) => i.field)).toContain('RNCComprador');
     });
 
     it('rejects a payment breakdown that does not add up to the total', () => {
-      const issues = validator.validate(context({ formasPago: [{ forma: '01', monto: 1 }] }), 1180);
+      const issues = validator.validate(context({ formasPago: [{ forma: '01', monto: 1 }] }), 1180, DO_ITBIS_2026);
       expect(issues.map((i) => i.field)).toContain('TablaFormasPago');
     });
 
     it('rejects a type that does not match the e-NCF it was drawn from', () => {
-      const issues = validator.validate(context({ tipoECF: '32' }), 1180);
+      const issues = validator.validate(context({ tipoECF: '32' }), 1180, DO_ITBIS_2026);
       expect(issues.map((i) => i.field)).toContain('eNCF');
     });
   });

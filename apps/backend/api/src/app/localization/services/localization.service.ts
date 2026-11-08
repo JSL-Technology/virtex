@@ -529,13 +529,29 @@ export class LocalizationService extends LocalizationProvisioningPort implements
       return;
     }
 
+    // Each seeded rate is dated from the statutory period it mirrors (audit 2026-11-07, LOC-06), so
+    // the tenant's catalogue never validates a document dated before the rate existed. The table
+    // and the scheme agree on the current rates — `statutory-tax-rates.spec.ts` asserts it.
+    const today = new Date().toISOString().slice(0, 10);
+    const statutory: Array<{ rate: string; effective_from: string; effective_to: string | null }> = await (
+      manager ?? this.taxesService.manager
+    ).query(
+      `SELECT "rate", to_char("effective_from", 'YYYY-MM-DD') AS effective_from,
+              to_char("effective_to", 'YYYY-MM-DD') AS effective_to
+         FROM "statutory_tax_rates"
+        WHERE "country_code" = $1 AND "effective_from" <= $2::date AND ("effective_to" IS NULL OR "effective_to" >= $2::date)`,
+      [countryCode.toUpperCase(), today],
+    );
     for (const tax of scheme.taxes) {
+      const period = statutory.find((row) => Number(row.rate) === tax.rate);
       await this.taxesService.create(
         {
           name: tax.name,
           rate: tax.rate,
           type: tax.computation,
           countryCode,
+          effectiveFrom: period?.effective_from,
+          effectiveTo: period?.effective_to ?? undefined,
         },
         organizationId,
         manager,

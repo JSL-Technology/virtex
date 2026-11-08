@@ -36,6 +36,7 @@ export class WithholdingRegimesService {
     organizationId: string,
   ): Promise<TenantWithholdingRegime> {
     this.assertPayers(dto.payers);
+    this.assertPeriod(dto.effectiveFrom ?? null, dto.effectiveTo ?? null);
     return this.regimes.save(
       this.regimes.create({ ...dto, organizationId, payees: dto.payees ?? [] }),
     );
@@ -49,7 +50,18 @@ export class WithholdingRegimesService {
     const row = await this.regimes.findOne({ where: { id, organizationId } });
     if (!row) throw new NotFoundError('localization.withholding_regime_does_not_exist');
     if (dto.payers) this.assertPayers(dto.payers);
+    this.assertPeriod(
+      dto.effectiveFrom !== undefined ? dto.effectiveFrom : row.effectiveFrom,
+      dto.effectiveTo !== undefined ? dto.effectiveTo : row.effectiveTo,
+    );
     return this.regimes.save(this.regimes.merge(row, dto));
+  }
+
+  /** A period that ends before it starts would apply to no document and hide a typing error. */
+  private assertPeriod(from: string | null, to: string | null): void {
+    if (from && to && to < from) {
+      throw new BadRequestError('localization.withholding_regime_period_invalid');
+    }
   }
 
   async remove(id: string, organizationId: string): Promise<void> {
