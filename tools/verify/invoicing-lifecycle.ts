@@ -270,6 +270,65 @@ async function main(): Promise<void> {
   check('un NCF tradicional no se transmite a la DGII', traditionalSubmission.n === 0);
   check('un NCF tradicional se contabiliza igual', Boolean(traditional.journalEntryId));
 
+  // ── A fixed tax is an amount per unit, not a rate (FAC-TX-01) ───────────────
+  const [fixedTax] = await ds.query(
+    `INSERT INTO taxes (name, rate, type, organization_id) VALUES ('Selectivo específico (sonda)', 50, 'Fijo', $1) RETURNING id`,
+    [orgId],
+  );
+  const [percentTax] = await ds.query(
+    `SELECT id FROM taxes WHERE organization_id = $1 AND type = 'Porcentaje' LIMIT 1`, [orgId],
+  );
+  // A product of its own, so the sales below do not move the stock and cost the later checks read.
+  const bottle = await productRepo.save(
+    productRepo.create({
+      name: `Licor ${stamp}`, price: 1000, cost: 400, stock: 0, organizationId: orgId,
+      kind: ProductKind.GOOD, taxTreatment: TaxTreatment.TAXED, taxRate: 0.18, unitOfMeasure: 'UND',
+    } as Partial<Product>),
+  );
+  await ds.transaction(async (manager) =>
+    ledger.move(manager, orgId, {
+      productId: bottle.id,
+      warehouseId: await ledger.resolveWarehouse(manager, orgId, {}),
+      quantity: 20,
+      unitCost: 400,
+      type: 'OPENING',
+      reference: 'Saldo inicial',
+      sourceType: 'verify_seed',
+      sourceId: null,
+    }),
+  );
+  let percentRefused = '';
+  try {
+    await inventory.update(bottle.id, { exciseTaxId: percentTax.id } as never, orgId);
+  } catch (error) {
+    percentRefused = (error as { messageKey?: string }).messageKey ?? 'rechazado';
+  }
+  check('un producto no puede llevar un impuesto porcentual como fijo', percentRefused === 'inventory.excise_tax_must_be_fixed', percentRefused || 'aceptado');
+  await inventory.update(bottle.id, { exciseTaxId: fixedTax.id } as never, orgId);
+  const withFixed = await invoices.create(
+    {
+      customerId: customer.id, issueDate: today, dueDate: today, currencyCode: 'DOP',
+      lineItems: [{ productId: bottle.id, quantity: 6 }],
+    } as never,
+    orgId,
+  );
+  const fixedLine = withFixed.lineItems[0];
+  check('el impuesto fijo se cobra por unidad: 6 × 50', Number(withFixed.excise) === 300 && Number(fixedLine.exciseUnitAmount) === 50, `selectivo ${withFixed.excise}, por unidad ${fixedLine.exciseUnitAmount}`);
+  check('y entra en la base del ITBIS: (6.000 + 300) × 18 %', Number(withFixed.tax) === 1134, String(withFixed.tax));
+  check('el total suma el selectivo', Number(withFixed.total) === 7434, String(withFixed.total));
+  await ds.query(`UPDATE taxes SET effective_to = '2000-12-31' WHERE id = $1`, [fixedTax.id]);
+  let staleRefused = '';
+  try {
+    await invoices.create(
+      { customerId: customer.id, issueDate: today, dueDate: today, currencyCode: 'DOP', issue: false, lineItems: [{ productId: bottle.id, quantity: 1 }] } as never,
+      orgId,
+    );
+  } catch (error) {
+    staleRefused = (error as { messageKey?: string }).messageKey ?? 'rechazado';
+  }
+  check('un impuesto fijo no vigente no se cobra ni se omite: se rechaza', staleRefused === 'invoices.fixed_tax_not_in_force', staleRefused || 'emitida');
+  await inventory.update(bottle.id, { exciseTaxId: null } as never, orgId);
+
   // A company that issues only electronic comprobantes cannot be handed a B by mistake.
   await ds.query(
     `UPDATE organization_settings SET fiscal_emission_mode = 'ELECTRONIC' WHERE organization_id = $1`, [orgId],

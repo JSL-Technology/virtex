@@ -79,6 +79,17 @@ export class InventoryService implements GoodsReceiptPort {
   ) {}
 
   /**
+   * The tax a product charges per unit is a FIXED tax of the same company (FAC-TX-01). Read by SQL:
+   * the catalogue belongs to configuration, and inventory only checks the row it points at.
+   */
+  private async assertFixedTax(manager: EntityManager, organizationId: string, taxId: string | null | undefined): Promise<void> {
+    if (!taxId) return;
+    const [tax] = await manager.query(`SELECT "name", "type" FROM "taxes" WHERE "id" = $1 AND "organization_id" = $2`, [taxId, organizationId]);
+    if (!tax) throw new BadRequestError('inventory.excise_tax_not_found');
+    if (tax.type !== 'Fijo') throw new BadRequestError('inventory.excise_tax_must_be_fixed', { tax: tax.name });
+  }
+
+  /**
    * Create a product, and recognise the stock it is created holding.
    *
    * One transaction: a product saved without its opening entry is exactly the state that put the
@@ -100,6 +111,7 @@ export class InventoryService implements GoodsReceiptPort {
             ? createProductDto.taxRate
             : await standardSalesTaxRate(manager, organizationId)
           : 0;
+      await this.assertFixedTax(manager, organizationId, createProductDto.exciseTaxId);
       const { stock: openingStock = 0, warehouseId, imageIds = [], ...fields } = createProductDto;
       let product = await manager.save(
         manager.create(Product, {
@@ -221,6 +233,7 @@ export class InventoryService implements GoodsReceiptPort {
         throw new BadRequestError('inventory.service_holds_no_stock', { name: product.name });
       }
       if (changes.taxTreatment && changes.taxTreatment !== 'TAXED') changes.taxRate = 0;
+      if (changes.exciseTaxId !== undefined) await this.assertFixedTax(manager, organizationId, changes.exciseTaxId);
       if (changes.attributes !== undefined) changes.attributes = normaliseAttributes(changes.attributes);
 
       // A price or cost that changes leaves a row behind: who, when, from what, to what.

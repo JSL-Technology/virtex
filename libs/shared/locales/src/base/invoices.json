@@ -836,6 +836,26 @@
   "invoices.export.total": {
     "literal": "Total"
   },
+  "invoices.fixed_tax_amount_invalid": {
+    "es": "El impuesto fijo por unidad debe ser un monto positivo.",
+    "en": "The fixed tax per unit must be a positive amount.",
+    "pt": "O imposto fixo por unidade deve ser um valor positivo."
+  },
+  "invoices.fixed_tax_not_fixed": {
+    "es": "El impuesto «{{tax}}» del producto no es de monto fijo.",
+    "en": "The product tax «{{tax}}» is not a fixed amount.",
+    "pt": "O imposto «{{tax}}» do produto não é de valor fixo."
+  },
+  "invoices.fixed_tax_not_found": {
+    "es": "Un producto apunta a un impuesto fijo que ya no existe en el catálogo.",
+    "en": "A product points at a fixed tax that no longer exists in the catalogue.",
+    "pt": "Um produto aponta para um imposto fixo que já não existe no catálogo."
+  },
+  "invoices.fixed_tax_not_in_force": {
+    "es": "El impuesto fijo «{{tax}}» no está vigente el {{date}}. Revisa su vigencia en el catálogo de impuestos.",
+    "en": "The fixed tax «{{tax}}» is not in force on {{date}}. Check its validity in the tax catalogue.",
+    "pt": "O imposto fixo «{{tax}}» não está em vigor em {{date}}. Verifique a vigência no catálogo de impostos."
+  },
   "invoices.gaps.accounting_settings": {
     "es": "la configuración contable de la organización",
     "en": "the organization's accounting settings",

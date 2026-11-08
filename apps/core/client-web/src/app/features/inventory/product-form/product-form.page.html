@@ -270,6 +270,18 @@
               </select>
             </div>
           }
+          @if (fixedTaxes().length > 0 || productForm.get('exciseTaxId')?.value) {
+            <div class="form-field">
+              <label for="exciseTaxId">{{ 'inventory.product_form.fixed_tax' | translate }}</label>
+              <select id="exciseTaxId" formControlName="exciseTaxId" aria-describedby="exciseTaxId-help">
+                <option [ngValue]="null">{{ 'inventory.product_form.fixed_tax_none' | translate }}</option>
+                @for (tax of fixedTaxes(); track tax.id) {
+                  <option [ngValue]="tax.id">{{ tax.name }} · {{ tax.amount | vxNumber: '1.2-4' }}</option>
+                }
+              </select>
+              <small id="exciseTaxId-help" class="field-hint">{{ 'inventory.product_form.fixed_tax_help' | translate }}</small>
+            </div>
+          }
         </section>
 
         <section class="form-section">

@@ -241,6 +241,8 @@ export interface InvoicingContext {
   baseCurrency: string;
   /** Rates the market levies, as fractions, standard rate first. */
   taxRates: number[];
+  /** Fixed taxes in force, with their amount per unit in the books' currency (FAC-TX-01). */
+  fixedTaxes?: Array<{ id: string; name: string; amount: number }>;
   /** True where the tax base is sub-national and the tenant must configure it (US, Brazil). */
   taxRequiresConfiguration: boolean;
   /**

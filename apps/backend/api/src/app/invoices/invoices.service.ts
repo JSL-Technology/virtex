@@ -150,6 +150,11 @@ export interface InvoicingContext {
   countryCode: string | null;
   baseCurrency: string;
   taxRates: number[];
+  /**
+   * The fixed taxes of the tenant's catalogue in force today (FAC-TX-01), with their amount per
+   * unit in the books' currency: what a product can carry beside its rate.
+   */
+  fixedTaxes: Array<{ id: string; name: string; amount: number }>;
   taxRequiresConfiguration: boolean;
   /**
    * How the market's tax is set, from its country pack. `BY_JURISDICTION` (the United States) means
@@ -711,13 +716,14 @@ export class InvoicesService {
       select: ['id', 'country', 'state', 'city', 'postalCode'],
     });
     const customer = await this.customersService.findOne(dto.customerId, organizationId);
-    const { currencyCode, baseCurrency } = await this.resolveCurrency(
+    const { currencyCode, exchangeRate, baseCurrency } = await this.resolveCurrency(
       organizationId,
       dto.currencyCode,
       dto.issueDate,
     );
 
     const products = await this.loadProducts(dto.lineItems, organizationId, manager);
+    const fixedTaxPerUnit = await this.fixedTaxesPerUnit(products, organizationId, toIsoDate(dto.issueDate), exchangeRate, manager);
     const listPrices = await this.listPrices(dto, organizationId, customer.id, currencyCode, manager);
     const standardRate = await standardSalesTaxRate(manager, organizationId);
     const determined = await this.determinedTaxRate(
@@ -733,6 +739,7 @@ export class InvoicesService {
       const line = this.resolveLine(lineDto, products, index, determined?.rate, standardRate, {
         listPrice: listPrices[index],
         catalogueApplies: currencyCode === baseCurrency,
+        exciseUnitAmount: fixedTaxPerUnit(lineDto.productId),
       });
       resolved.push(line);
       taxInputs.push({
@@ -742,6 +749,7 @@ export class InvoicesService {
         taxTreatment: line.taxTreatment,
         taxRate: line.taxRate,
         exciseRate: line.exciseRate,
+        exciseUnitAmount: line.exciseUnitAmount,
         isService: line.isService,
       });
     }
@@ -813,6 +821,7 @@ export class InvoicesService {
     );
 
     const products = await this.loadProducts(dto.lineItems, organizationId, manager);
+    const fixedTaxPerUnit = await this.fixedTaxesPerUnit(products, organizationId, toIsoDate(dto.issueDate), exchangeRate, manager);
     const listPrices = await this.listPrices(dto, organizationId, customer.id, currencyCode, manager);
     const standardRate = await standardSalesTaxRate(manager, organizationId);
     const determined = await this.determinedTaxRate(
@@ -830,6 +839,7 @@ export class InvoicesService {
       const line = this.resolveLine(lineDto, products, index, determined?.rate, standardRate, {
         listPrice: listPrices[index],
         catalogueApplies: currencyCode === baseCurrency,
+        exciseUnitAmount: fixedTaxPerUnit(lineDto.productId),
       });
       resolved.push(line);
       taxInputs.push({
@@ -839,6 +849,7 @@ export class InvoicesService {
         taxTreatment: line.taxTreatment,
         taxRate: line.taxRate,
         exciseRate: line.exciseRate,
+        exciseUnitAmount: line.exciseUnitAmount,
         isService: line.isService,
       });
     }
@@ -898,6 +909,7 @@ export class InvoicesService {
         taxTreatment: c.taxTreatment,
         isService: c.isService,
         exciseAmount: c.exciseAmount,
+        exciseUnitAmount: line.exciseUnitAmount,
         // Snapshotted from the product, like the rate beside it: a document is a record of what
         // was declared, not a view over the catalogue as it stands today.
         fiscalCodes: line.fiscalCodes,
@@ -1037,6 +1049,42 @@ export class InvoicesService {
     return out;
   }
 
+  /**
+   * The fixed tax each product carries per unit, in the document's currency (FAC-TX-01).
+   *
+   * A product names a row of the tenant's catalogue; the amount there is in the books' currency, so
+   * a dollar invoice charges it at the document's rate. Only a FIXED tax in force on the document's
+   * date may be charged: one that is not is refused, never charged at a stale amount or skipped.
+   */
+  private async fixedTaxesPerUnit(
+    products: Map<string, Product>,
+    organizationId: string,
+    date: string,
+    exchangeRate: number,
+    manager: EntityManager,
+  ): Promise<(productId: string | null | undefined) => number> {
+    const ids = [...new Set([...products.values()].map((p) => p.exciseTaxId).filter((id): id is string => Boolean(id)))];
+    const amounts = new Map<string, number>();
+    if (ids.length > 0) {
+      const taxes = await manager.getRepository(Tax).find({ where: { id: In(ids), organizationId } });
+      for (const tax of taxes) {
+        if ((tax.type ?? TaxType.PERCENTAGE) !== TaxType.FIXED) {
+          throw new BadRequestError('invoices.fixed_tax_not_fixed', { tax: tax.name });
+        }
+        if ((tax.effectiveFrom && tax.effectiveFrom > date) || (tax.effectiveTo && tax.effectiveTo < date)) {
+          throw new BadRequestError('invoices.fixed_tax_not_in_force', { tax: tax.name, date });
+        }
+        amounts.set(tax.id, Number(tax.rate) / (exchangeRate > 0 ? exchangeRate : 1));
+      }
+      const missing = ids.filter((id) => !amounts.has(id));
+      if (missing.length > 0) throw new BadRequestError('invoices.fixed_tax_not_found');
+    }
+    return (productId) => {
+      const taxId = productId ? products.get(productId)?.exciseTaxId : null;
+      return taxId ? (amounts.get(taxId) ?? 0) : 0;
+    };
+  }
+
   private async loadProducts(
     lines: InvoiceLineDto[],
     organizationId: string,
@@ -1087,6 +1135,8 @@ export class InvoicesService {
        * little (or too much). In another currency a line needs its own price or a list's.
        */
       catalogueApplies: boolean;
+      /** The product's fixed tax per unit, already in the document's currency (FAC-TX-01). */
+      exciseUnitAmount?: number;
     } = { catalogueApplies: true },
   ): ResolvedLine {
     const product = dto.productId ? products.get(dto.productId) : undefined;
@@ -1126,6 +1176,7 @@ export class InvoicesService {
       taxTreatment: treatment,
       taxRate,
       exciseRate: Number(product?.exciseRate ?? 0),
+      exciseUnitAmount: pricing.exciseUnitAmount ?? 0,
       fiscalCodes: this.fiscalCodesOf(product),
       isService,
       unitOfMeasure: dto.unitOfMeasure ?? product?.unitOfMeasure ?? 'UND',
@@ -1951,6 +2002,14 @@ export class InvoicesService {
        * It used to be the scheme alone, so a rate the tenant configured never reached the form.
        */
       taxRates: tenantRates.length > 0 ? tenantRates : [...(ratesToday.statutoryTaxRates ?? [])],
+      fixedTaxes: (
+        await this.dataSource.manager.getRepository(Tax).find({
+          where: { organizationId, type: TaxType.FIXED },
+          order: { name: 'ASC' },
+        })
+      )
+        .filter((tax) => (!tax.effectiveFrom || tax.effectiveFrom <= today) && (!tax.effectiveTo || tax.effectiveTo >= today))
+        .map((tax) => ({ id: tax.id, name: tax.name, amount: Number(tax.rate) })),
       taxRequiresConfiguration: scheme?.configurationRequired ?? true,
       taxModel: pack.taxes.model,
       registeredJurisdictions: jurisdictions,
@@ -2059,6 +2118,8 @@ interface ResolvedLine {
   taxTreatment: TaxTreatment;
   taxRate: number;
   exciseRate: number;
+  /** The product's fixed tax per unit, in the document's currency (FAC-TX-01). */
+  exciseUnitAmount: number;
   /** The catalogue values the market's regime needs on this line, from the product. */
   fiscalCodes: Record<string, string> | null;
   isService: boolean;

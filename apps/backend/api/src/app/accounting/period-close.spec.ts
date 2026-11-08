@@ -598,7 +598,9 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
         ],
       } as CreateJournalEntryDto,
       organizationId,
-      ctx,
+      // Posted the way collections posts it: a system posting whose rate the module resolved. A
+      // person typing this line by hand is held to the day's published quote (FIN-JE-01).
+      { ...ctx, systemReason: 'Cobro en divisa' },
     );
     await dataSource.query(`INSERT INTO exchange_rate ("fromCurrency", "toCurrency", rate, date) VALUES ('USD', 'DOP', 60, '2026-01-31')`).catch(() => undefined);
 
@@ -625,7 +627,9 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
         ],
       } as CreateJournalEntryDto,
       organizationId,
-      ctx,
+      // Posted the way collections posts it: a system posting whose rate the module resolved. A
+      // person typing this line by hand is held to the day's published quote (FIN-JE-01).
+      { ...ctx, systemReason: 'Cobro en divisa' },
     );
     await expect(revaluation.run('2026-02-28', organizationId)).rejects.toMatchObject({
       messageKey: 'accounting.revaluation.closing_rate_missing',

@@ -45,6 +45,12 @@ export interface TaxableLineInput {
   taxRate: number;
   /** Excise (ISC) rate as a fraction. */
   exciseRate?: number;
+  /**
+   * A fixed tax per unit, in the document's currency (FAC-TX-01): a specific excise per bottle or
+   * litre. Charged as `quantity × amount` beside the ad-valorem excise, and like it inside the
+   * consumption-tax base. Charged whatever the treatment: an exempt good can carry a specific tax.
+   */
+  exciseUnitAmount?: number;
   isService: boolean;
 }
 
@@ -258,12 +264,16 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
     if (exciseRate < 0 || exciseRate > 1) {
       throw new BadRequestError('invoices.tax_rate_must_expressed_fraction_between');
     }
+    const exciseUnitAmount = line.exciseUnitAmount ?? 0;
+    if (!Number.isFinite(exciseUnitAmount) || exciseUnitAmount < 0) {
+      throw new BadRequestError('invoices.fixed_tax_amount_invalid');
+    }
 
     const gross = round(line.quantity * line.unitPrice);
     const discountAmount = round(gross * discountRate);
     const lineSubtotal = round(gross - discountAmount);
 
-    return { line, gross, discountAmount, lineSubtotal, effectiveRate, exciseRate };
+    return { line, gross, discountAmount, lineSubtotal, effectiveRate, exciseRate, exciseUnitAmount };
   });
 
   const subtotal = sum(bases.map((base) => base.lineSubtotal));
@@ -288,7 +298,9 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
   const lines: ComputedLine[] = bases.map((base, index) => {
     const documentDiscountAmount = documentDiscountShares[index];
     const taxableBase = round(base.lineSubtotal - documentDiscountAmount);
-    const exciseAmount = round(taxableBase * base.exciseRate);
+    // The ad-valorem part on the discounted base; the specific part on the quantity, which no
+    // discount on the price reduces.
+    const exciseAmount = round(taxableBase * base.exciseRate + base.line.quantity * base.exciseUnitAmount);
     // Excise is part of the base the consumption tax is charged on, which is how the DGII computes
     // ITBIS on an item subject to ISC.
     const taxAmount = round((taxableBase + exciseAmount) * base.effectiveRate);

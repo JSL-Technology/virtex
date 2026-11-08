@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Index, Check } from 'typeorm';
 import type { Invoice } from './invoice.entity';
 import { Product } from '../../inventory/entities/product.entity';
 import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
@@ -20,6 +20,7 @@ export enum TaxTreatment {
 }
 
 @Entity({ name: 'invoice_line_item' })
+@Check('CHK_invoice_line_item_excise_unit_amount', '"excise_unit_amount" >= 0')
 @Index('IDX_invoice_line_item_invoice', ['invoiceId'])
 export class InvoiceLineItem {
   @PrimaryGeneratedColumn('uuid')
@@ -198,6 +199,19 @@ export class InvoiceLineItem {
     transformer: numericTransformerNotNull,
   })
   exciseAmount: number;
+
+  /**
+   * The fixed tax charged per unit, in the document's currency (FAC-TX-01): part of `exciseAmount`.
+   * Recorded so the document says what it charged, whatever the catalogue says later.
+   */
+  @Column('decimal', {
+    name: 'excise_unit_amount',
+    precision: 18,
+    scale: 6,
+    default: 0,
+    transformer: numericTransformerNotNull,
+  })
+  exciseUnitAmount: number;
 
   /**
    * The catalogue values the line was issued with, copied from the product at that moment.
