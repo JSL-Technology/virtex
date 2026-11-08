@@ -2,14 +2,14 @@
 
 Cada identificador que aparece en los MD de la auditoría (`docs/auditorias/2026-11-07-auditoria-madurez-construccion-produccion/`), con la línea que lo define (cita del MD) y su estado verificado contra el código y los commits de la rama `ccr-f710ff5b-8ijix4`.
 
-**Respuesta: no está todo resuelto.** De 402 identificadores: 58 resuelto, 308 pendiente, 10 parcial, 10 informativo, 16 no es hallazgo.
+**Respuesta: no está todo resuelto.** De 402 identificadores: 58 resuelto, 11 parcial, 307 pendiente, 10 informativo, 16 no es hallazgo.
 
 ## Resumen por severidad
 
 | Severidad | Resuelto | Parcial | En curso | Pendiente | Informativo / no es hallazgo |
 |---|---|---|---|---|---|
 | Crítica | 13 | 0 | 0 | 0 | 0 |
-| Alta | 28 | 6 | 0 | 76 | 2 |
+| Alta | 28 | 7 | 0 | 75 | 2 |
 | Media | 16 | 2 | 0 | 150 | 0 |
 | Baja | 1 | 0 | 0 | 68 | 0 |
 | — | 0 | 2 | 0 | 14 | 24 |
@@ -79,10 +79,11 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | PLTB-DT-03 | Media | `modulos/desktop.md:72` — **PLTB-DT-03** · desktop · eje 8 · Categoría: seguridad · Severidad: **media**… | 017fa1d5 | `apps/desktop/src/security-policy.js` + `main.js`: CSP base inyectada con `onHeadersReceived`. |
 | I18N-05 | Baja | `modulos/i18n.md:60` — - **I18N-05** · i18n · eje 3 · **Baja**. Las cuentas se guardan como `{"es": "…"}` aunque el texto esté en portugués o en inglés. Se vio en BD: qa-br-a 1150 = `{"es":"Impuesto a Re… | aeabe621 | `chart-of-accounts.service.ts` (`booksLanguage`: nombre guardado bajo el idioma de los libros o del país; la edición conserva las otras traducciones), `principalTaxName` en portugués para BR, migración 1789470000000 (re-clave de BR/US), `verify:markets` comprueba la clave de idioma. |
 
-## PARCIAL (10)
+## PARCIAL (11)
 
 | ID | Sev. | Cita del MD | Commit | Evidencia de la solución | Falta |
 |---|---|---|---|---|---|
+| CMP-15 | Alta | `modulos/procurement.md:94` — **CMP-15** · eje 1 · Competitividad · Alta · Faltan capacidades básicas del mercado medio:… | f8821dcb | OC `CLOSED` (cierre forzado del saldo, con motivo; lo recibido sigue facturable, ya no recibe). Tolerancia de sobre-entrega por empresa `po_receipt_over_tolerance_bps` que la tabla hace cumplir con trigger; tolerancia de precio del cotejo (CMP-01) editable en Ajustes › Inventario. Devolución parcial desde la recepción (`purchase_returns`, DEV-, RLS) que saca existencias y deja la OC debiendo lo devuelto; rechaza lo ya facturado. `procurement.spec.ts` (5 casos) y verify:purchasing: devolver 2 de 6 saca 4→ mayor = kárdex; 10,5 de 10 rechazado al 0 %, aceptado al 5 %, la tabla impide 11. | RFQ/cotizaciones y OC abierta o contrato no están implementados. |
 | FAC-INV-03 | Alta | `modulos/invoices.md:71` — - **FAC-INV-03** — eje 3 — multi-país — **Alta** — `adapters/fiscal-adapter.factory.ts:63-80`, `generic-fiscal.adapter.ts` — UY (y US, PY, BO, VE, PA, CR, GT, SV, HN, NI) emiten fa… | 96754204 | El formulario de factura muestra «Este documento no es un comprobante fiscal» (alerta) en los mercados sin régimen. | La factura emitida no queda marcada como documento no fiscal en su detalle ni en el PDF, y no hay bloqueo configurable donde la ley exige e-factura. |
 | FAC-TX-01 | Alta | `modulos/taxes.md:68` — - **FAC-TX-01** — taxes+invoices / eje 2 — bug fiscal — **alta** — `invoices/invoices.service.ts:603-614` — Un impuesto `type:"Fijo"` (monto) entra como tasa porcentual en la lista… | a50fb35e | Los impuestos `Fijo` ya no entran en las tasas permitidas (`tenantTaxRates` filtra por tipo y vigencia). En vivo: con «QA-Fijo 50» registrado, una línea al 50 % es rechazada. | Un impuesto fijo todavía no se puede aplicar como monto en una línea. |
 | FE-CI-01 | Alta | `modulos/ci-cd-infra.md:51` — - **FE-CI-01** — ci-cd-infra, eje 9 · pruebas · **Alta** · `.github/workflows/ci.yml` / rama main. main está en rojo: 15/24 últimos runs de CI en main fallan; el último verde es de… | 4b930dfc, 4f411a27, 94a20869 | En la rama, todos los pasos de CI pasan salvo los que yo rompí y ya corregí (`verify:boundaries` en 4f411a27, `check:schema-drift` en 94a20869). | `main` sigue en rojo hasta que se fusione la rama; falta confirmar el CI verde del último commit y la protección de rama, que se configura en GitHub y no desde el repositorio. |
@@ -94,11 +95,10 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | SP-01 | — | `00-resumen-ejecutivo.md:22` — 7. **Patrón dominante: "construido pero no conectado"** (SP-01): estados comparativos, listas de precios, revaluación, consolidación, landed cost, manufactura y `/metrics`. Seis ba… | varios | Conectados: listas de precios, revaluación. | Siguen «construidos pero no conectados»: estados comparativos, consolidación, landed cost, manufactura, regímenes de e-factura (en curso). |
 | SP-11 | — | `04-plataforma-transversal.md:12` — \| Suscripción SaaS y pagos \| `saas-payment.md` \| 55 (48–62) \| 50 \| **No listo** \| Causa raíz de FAC-INV-01: el control de cupo aborta la transacción del documento. Los límites de p… | 8b1ee726 | La causa raíz citada (FAC-INV-01) está corregida. | El resto del módulo saas-payment (IAM-P2/P3/P4) sigue pendiente. |
 
-## PENDIENTE (308)
+## PENDIENTE (307)
 
 | ID | Sev. | Cita del MD |
 |---|---|---|
-| CMP-15 | Alta | `modulos/procurement.md:94` — **CMP-15** · eje 1 · Competitividad · Alta · Faltan capacidades básicas del mercado medio:… |
 | FAC-CMP-02 | Alta | `modulos/compliance.md:61` — - **FAC-CMP-02** — eje 9 — pruebas — **Alta** — `reports/dr-reports.spec.ts` prueba el formato con dobles; ninguna prueba ejecuta el SQL. M.… |
 | FAC-CMP-03 | Alta | `modulos/compliance.md:62` — - **FAC-CMP-03** — eje 3 — multi-país — **Alta** — sin formatos fiscales de CO, PE, CL, AR, EC, etc.; correcto que respondan 400, pero la UI de "declaraciones" debe declararlo. M por país.… |
 | FAC-INV-05 | Alta | `modulos/invoices.md:73` — - **FAC-INV-05** — eje 1 — funcionalidad — **Alta** — no existe nota de débito de venta ni anulación sin NC desde facturas (`grep -rn "debit" invoices/invoices.controller.ts` → nada). DGII e-CF 33 y B… |

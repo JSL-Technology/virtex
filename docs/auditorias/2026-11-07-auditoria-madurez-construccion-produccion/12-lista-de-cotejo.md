@@ -2,7 +2,7 @@
 
 Todos los hallazgos de los MD de la auditoría, con su estado en [`10-verificacion-de-cierre.md`](10-verificacion-de-cierre.md). ✅ = resuelto y verificado · ❌ = parcial o pendiente (en los parciales se indica lo que falta).
 
-**58 de 376 resueltos; 318 por corregir** (10 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
+**58 de 376 resueltos; 318 por corregir** (11 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
 
 Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de la ficha citada.
 
@@ -36,7 +36,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 
 | | ID | Hallazgo | Ficha |
 |---|---|---|---|
-| ❌ | CMP-15 | Faltan capacidades básicas del mercado medio: | `modulos/procurement.md:94` |
+| ❌ | CMP-15 | Faltan capacidades básicas del mercado medio: **Parcial — falta:** RFQ/cotizaciones y OC abierta o contrato no están implementados. | `modulos/procurement.md:94` |
 | ❌ | FAC-CMP-02 | reports/dr-reports.spec.ts prueba el formato con dobles; ninguna prueba ejecuta el SQL. M. | `modulos/compliance.md:61` |
 | ❌ | FAC-CMP-03 | sin formatos fiscales de CO, PE, CL, AR, EC, etc.; correcto que respondan 400, pero la UI de "declaraciones" debe declararlo. M por país. | `modulos/compliance.md:62` |
 | ❌ | FAC-INV-03 | UY (y US, PY, BO, VE, PA, CR, GT, SV, HN, NI) emiten facturas Pending sin documento fiscal ni aviso; probado UY 201 fiscalNumber:null. En UY, CR, GT, PY, etc. la factura electrónica es obli… **Parcial — falta:** La factura emitida no queda marcada como documento no fiscal en su detalle ni en el PDF, y no hay bloqueo configurable donde la ley exige e-factura. | `modulos/invoices.md:71` |
