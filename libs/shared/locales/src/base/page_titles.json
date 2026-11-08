@@ -69,6 +69,11 @@
     "en": "Approvals",
     "pt": "Aprovações"
   },
+  "page_titles.audit_adjustment": {
+    "es": "Ajuste de auditoría",
+    "en": "Audit adjustment",
+    "pt": "Ajuste de auditoria"
+  },
   "page_titles.audit_adjustment_new": {
     "es": "Nuevo ajuste de auditoría",
     "en": "New audit adjustment",
@@ -378,6 +383,11 @@
     "es": "Diarios",
     "en": "Journals",
     "pt": "Diários"
+  },
+  "page_titles.landed_costs": {
+    "es": "Costos de importación",
+    "en": "Landed costs",
+    "pt": "Custos de importação"
   },
   "page_titles.ledger_edit": {
     "es": "Editar libro contable",
@@ -693,10 +703,5 @@
     "es": "Almacenes",
     "en": "Warehouses",
     "pt": "Depósitos"
-  },
-  "page_titles.audit_adjustment": {
-    "es": "Ajuste de auditoría",
-    "en": "Audit adjustment",
-    "pt": "Ajuste de auditoria"
   }
 }

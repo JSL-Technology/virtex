@@ -183,6 +183,17 @@ export const COMPRAS_MODULE: ModuleManifest = {
       menu: { group: 'documents', labelKey: 'page_titles.goods_receipts' },
       load: () => import('../../../features/purchasing/receipts/receipts.page').then((m) => m.GoodsReceiptsPage),
     },
+    // Landed costs applied to receipts (audit 2026-11-07, CMP-21).
+    {
+      path: 'purchasing/landed-costs',
+      kind: WindowKind.LIST,
+      permission: 'procurement:view',
+      titleKey: 'page_titles.landed_costs',
+      icon: 'Ship',
+      entityKeyFn: () => 'compras:landed-costs',
+      menu: { group: 'documents', labelKey: 'page_titles.landed_costs' },
+      load: () => import('../../../features/purchasing/landed-costs/landed-costs.page').then((m) => m.LandedCostsPage),
+    },
     {
       path: 'purchasing/receipts/new',
       kind: WindowKind.DRAFT,

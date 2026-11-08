@@ -133,6 +133,30 @@ export interface GoodsReceipt {
   }>;
 }
 
+export type LandedCostMethod = 'VALUE' | 'QUANTITY' | 'WEIGHT' | 'VOLUME';
+
+/** A kind of landed cost — freight, customs — with how it is prorated and the account it credits. */
+export interface LandedCostType {
+  id: string;
+  name: string;
+  allocationMethod: LandedCostMethod;
+  glAccountId: string | null;
+  isActive: boolean;
+}
+
+/** A landed cost applied to receipts (CMP-21). */
+export interface LandedCostApplication {
+  id: string;
+  landedCostId: string;
+  date: string;
+  amount: string;
+  allocationMethod: LandedCostMethod;
+  receiptIds: string[];
+  reference: string | null;
+  status: 'POSTED' | 'VOID';
+  lines: Array<{ description: string; quantity: number; share: number; absorbed: number; toCostOfSales: number }>;
+}
+
 export interface GoodsReceiptQuery {
   supplierId?: string | null;
   orderId?: string | null;
@@ -353,6 +377,28 @@ export class PurchasingService {
       if (value !== undefined && value !== null && value !== '') params = params.set(key, String(value));
     }
     return this.http.get<ReceiptsPage<GoodsReceiptRow>>(this.receiptsUrl, { params });
+  }
+
+  // ── Landed costs (audit 2026-11-07, CMP-21) ───────────────────────────────
+
+  landedCostTypes(): Observable<LandedCostType[]> {
+    return this.http.get<LandedCostType[]>(`${environment.apiUrl}/wms/landed-costs`);
+  }
+
+  createLandedCostType(body: { name: string; allocationMethod: LandedCostMethod; glAccountId: string }): Observable<LandedCostType> {
+    return this.http.post<LandedCostType>(`${environment.apiUrl}/wms/landed-costs`, body);
+  }
+
+  landedCosts(): Observable<LandedCostApplication[]> {
+    return this.http.get<LandedCostApplication[]>(`${environment.apiUrl}/procurement/landed-costs`);
+  }
+
+  applyLandedCost(body: { landedCostId: string; receiptIds: string[]; amount: number; reference?: string; date?: string }): Observable<LandedCostApplication> {
+    return this.http.post<LandedCostApplication>(`${environment.apiUrl}/procurement/landed-costs`, body);
+  }
+
+  voidLandedCost(id: string, reason: string): Observable<LandedCostApplication> {
+    return this.http.post<LandedCostApplication>(`${environment.apiUrl}/procurement/landed-costs/${id}/void`, { reason });
   }
 
   receipt(id: string): Observable<GoodsReceipt> {

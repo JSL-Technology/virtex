@@ -31,6 +31,7 @@ import { Product, ProductKind } from '../../apps/backend/api/src/app/inventory/e
 import { Supplier } from '../../apps/backend/api/src/app/suppliers/entities/supplier.entity';
 import { TaxTreatment } from '../../apps/backend/api/src/app/invoices/entities/invoice-line-item.entity';
 import { VendorBillStatus } from '../../apps/backend/api/src/app/accounts-payable/entities/vendor-bill.entity';
+import { LandedCostsService } from '../../apps/backend/api/src/app/procurement/landed-costs.service';
 
 const failures: string[] = [];
 function check(label: string, ok: boolean, detail = ''): void {
@@ -48,6 +49,7 @@ async function main(): Promise<void> {
   const localization = app.get(LocalizationService, { strict: false });
   const orders = app.get(PurchaseOrdersService, { strict: false });
   const payables = app.get(AccountsPayableService, { strict: false });
+  const landedCosts = app.get(LandedCostsService, { strict: false });
   const inventory = app.get(InventoryService, { strict: false });
   const posting = app.get(AccountingPostingPort, { strict: false });
 
@@ -226,6 +228,27 @@ async function main(): Promise<void> {
   check('una factura más barata también salda GRNI', near(await balance(settings.grni), 0), String(await balance(settings.grni)));
   check('y rebaja el costo de lo que queda', near((await kardex()).cost, 90), String((await kardex()).cost));
   await tiesOut('tras facturar más barato');
+
+  // ── A freight bill revalues what is left, and only that (CMP-21) ────────────
+  // 100 of freight over the receipt of 10 units: 6 are still on the shelf, so 60 raise their
+  // average cost (90 → 100) and the 40 that belong to the 4 already sold are cost of sales.
+  const [freightAccount] = await ds.query(
+    `SELECT id FROM accounts WHERE organization_id = $1 AND system_role = 'ACCOUNTS_PAYABLE' LIMIT 1`,
+    [orgId],
+  );
+  const [freight] = await ds.query(
+    `INSERT INTO landed_costs (organization_id, name, "allocationMethod", gl_account_id) VALUES ($1, 'Flete de sonda', 'VALUE', $2) RETURNING id`,
+    [orgId, freightAccount.id],
+  );
+  const [receipt] = await ds.query(`SELECT id FROM purchase_order_receipts WHERE order_id = $1 LIMIT 1`, [order.id]);
+  const cogsBeforeFreight = await balance(settings.cogs);
+  const applied = await landedCosts.apply({ landedCostId: freight.id, receiptIds: [receipt.id], amount: 100, reference: `SONDA-${stamp}-flete` }, orgId, actor);
+  check('el flete revaloriza lo que queda en almacén', near((await kardex()).cost, 100), String((await kardex()).cost));
+  check('la parte de lo vendido va al costo de ventas', near((await balance(settings.cogs)) - cogsBeforeFreight, 40), String((await balance(settings.cogs)) - cogsBeforeFreight));
+  await tiesOut('tras aplicar el flete');
+  await landedCosts.void(applied.id, 'Anulación de sonda', orgId, actor);
+  check('anular el flete devuelve el costo promedio', near((await kardex()).cost, 90), String((await kardex()).cost));
+  await tiesOut('tras anular el flete');
 
   await app.close();
   if (failures.length) {

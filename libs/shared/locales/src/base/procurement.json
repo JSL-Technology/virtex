@@ -14,6 +14,61 @@
     "en": "There is no {{from}} to {{to}} exchange rate for {{date}}: record it under Currencies before receiving.",
     "pt": "Não há taxa de câmbio de {{from}} para {{to}} em {{date}}: registre-a em Moedas antes de receber."
   },
+  "procurement.landed_cost.already_void": {
+    "es": "Este costo de importación ya está anulado.",
+    "en": "This landed cost is already void.",
+    "pt": "Este custo de importação já está anulado."
+  },
+  "procurement.landed_cost.cost_of_sales_account_not_configured": {
+    "es": "Configura la cuenta de costo de ventas en Ajustes › Contabilidad: parte del costo cae sobre mercancía ya vendida.",
+    "en": "Set the cost of sales account in Settings › Accounting: part of the cost falls on goods already sold.",
+    "pt": "Configure a conta de custo das vendas em Configurações › Contabilidade: parte do custo recai sobre mercadoria já vendida."
+  },
+  "procurement.landed_cost.inventory_account_not_configured": {
+    "es": "Configura la cuenta de inventario en Ajustes › Contabilidad.",
+    "en": "Set the inventory account in Settings › Accounting.",
+    "pt": "Configure a conta de inventário em Configurações › Contabilidade."
+  },
+  "procurement.landed_cost.no_stocked_lines": {
+    "es": "Las recepciones no tienen líneas de inventario sobre las que prorratear.",
+    "en": "The receipts have no stocked lines to allocate over.",
+    "pt": "As receções não têm linhas de inventário para ratear."
+  },
+  "procurement.landed_cost.not_found": {
+    "es": "El costo de importación no existe.",
+    "en": "The landed cost does not exist.",
+    "pt": "O custo de importação não existe."
+  },
+  "procurement.landed_cost.nothing_to_allocate_over": {
+    "es": "No hay base para prorratear el costo (todas las líneas valen cero).",
+    "en": "There is no base to allocate the cost over (every line is zero).",
+    "pt": "Não há base para ratear o custo (todas as linhas valem zero)."
+  },
+  "procurement.landed_cost.product_lacks_attribute": {
+    "es": "El producto «{{product}}» no tiene el atributo «{{attribute}}» por unidad, necesario para este método de prorrateo.",
+    "en": "Product «{{product}}» has no per-unit «{{attribute}}» attribute, which this allocation method needs.",
+    "pt": "O produto «{{product}}» não tem o atributo «{{attribute}}» por unidade, necessário para este método de rateio."
+  },
+  "procurement.landed_cost.receipt_not_found": {
+    "es": "Una de las recepciones no existe.",
+    "en": "One of the receipts does not exist.",
+    "pt": "Uma das receções não existe."
+  },
+  "procurement.landed_cost.type_has_no_account": {
+    "es": "El tipo de costo «{{name}}» no tiene la cuenta a la que se acredita (fletes o aduana por pagar). Configúrala antes de aplicarlo.",
+    "en": "The cost type «{{name}}» has no account to credit (freight or customs payable). Set it before applying it.",
+    "pt": "O tipo de custo «{{name}}» não tem a conta a creditar (fretes ou alfândega a pagar). Configure-a antes de o aplicar."
+  },
+  "procurement.landed_cost.type_inactive": {
+    "es": "El tipo de costo «{{name}}» está inactivo.",
+    "en": "The cost type «{{name}}» is inactive.",
+    "pt": "O tipo de custo «{{name}}» está inativo."
+  },
+  "procurement.landed_cost.type_not_found": {
+    "es": "El tipo de costo de importación no existe.",
+    "en": "The landed cost type does not exist.",
+    "pt": "O tipo de custo de importação não existe."
+  },
   "procurement.only_draft_order_can_deleted_one": {
     "es": "Solo una orden en borrador se puede eliminar; esta está en {{status}}.",
     "en": "Only a draft order can be deleted; this one is {{status}}.",

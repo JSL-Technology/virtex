@@ -110,6 +110,12 @@
       "PAID",
       "VOID"
     ],
+    "purchasing.landed_costs.method": [
+      "VALUE",
+      "QUANTITY",
+      "WEIGHT",
+      "VOLUME"
+    ],
     "accounts_payable.status": [
       "DRAFT",
       "PENDING_APPROVAL",

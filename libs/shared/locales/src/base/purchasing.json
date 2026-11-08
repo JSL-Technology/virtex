@@ -1,4 +1,169 @@
 {
+  "purchasing.landed_costs.add_type": {
+    "es": "Añadir tipo",
+    "en": "Add type",
+    "pt": "Adicionar tipo"
+  },
+  "purchasing.landed_costs.amount": {
+    "es": "Importe (moneda de los libros)",
+    "en": "Amount (books currency)",
+    "pt": "Montante (moeda dos livros)"
+  },
+  "purchasing.landed_costs.applied": {
+    "es": "Costo aplicado y contabilizado.",
+    "en": "Cost applied and posted.",
+    "pt": "Custo aplicado e contabilizado."
+  },
+  "purchasing.landed_costs.apply": {
+    "es": "Aplicar",
+    "en": "Apply",
+    "pt": "Aplicar"
+  },
+  "purchasing.landed_costs.apply_title": {
+    "es": "Aplicar un costo",
+    "en": "Apply a cost",
+    "pt": "Aplicar um custo"
+  },
+  "purchasing.landed_costs.choose_type": {
+    "es": "Elige un tipo",
+    "en": "Choose a type",
+    "pt": "Escolha um tipo"
+  },
+  "purchasing.landed_costs.credit_account": {
+    "es": "Cuenta que se acredita",
+    "en": "Account credited",
+    "pt": "Conta creditada"
+  },
+  "purchasing.landed_costs.date": {
+    "es": "Fecha",
+    "en": "Date",
+    "pt": "Data"
+  },
+  "purchasing.landed_costs.how_it_works": {
+    "es": "Se prorratea sobre las líneas de inventario según el método del tipo: lo que sigue en almacén sube de costo promedio y lo ya vendido va al costo de ventas.",
+    "en": "It is prorated over the stocked lines by the type’s method: what is still in the warehouse rises in average cost, and what was already sold goes to the cost of sales.",
+    "pt": "É rateado pelas linhas de inventário segundo o método do tipo: o que está em armazém sobe de custo médio e o já vendido vai para o custo das vendas."
+  },
+  "purchasing.landed_costs.method.quantity": {
+    "es": "por cantidad",
+    "en": "by quantity",
+    "pt": "por quantidade"
+  },
+  "purchasing.landed_costs.method.value": {
+    "es": "por valor",
+    "en": "by value",
+    "pt": "por valor"
+  },
+  "purchasing.landed_costs.method.volume": {
+    "es": "por volumen",
+    "en": "by volume",
+    "pt": "por volume"
+  },
+  "purchasing.landed_costs.method.weight": {
+    "es": "por peso",
+    "en": "by weight",
+    "pt": "por peso"
+  },
+  "purchasing.landed_costs.method_label": {
+    "es": "Método de prorrateo",
+    "en": "Allocation method",
+    "pt": "Método de rateio"
+  },
+  "purchasing.landed_costs.no_receipts": {
+    "es": "No hay recepciones contabilizadas.",
+    "en": "There are no posted receipts.",
+    "pt": "Não há receções contabilizadas."
+  },
+  "purchasing.landed_costs.not_saved": {
+    "es": "No se pudo guardar.",
+    "en": "Could not be saved.",
+    "pt": "Não foi possível guardar."
+  },
+  "purchasing.landed_costs.receipts": {
+    "es": "Recepciones a las que corresponde",
+    "en": "Receipts it belongs to",
+    "pt": "Receções a que corresponde"
+  },
+  "purchasing.landed_costs.reference": {
+    "es": "Documento de referencia",
+    "en": "Reference document",
+    "pt": "Documento de referência"
+  },
+  "purchasing.landed_costs.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Estado"
+  },
+  "purchasing.landed_costs.status_posted": {
+    "es": "Contabilizado",
+    "en": "Posted",
+    "pt": "Contabilizado"
+  },
+  "purchasing.landed_costs.status_void": {
+    "es": "Anulado",
+    "en": "Void",
+    "pt": "Anulado"
+  },
+  "purchasing.landed_costs.subtitle": {
+    "es": "Fletes, aduana y seguros aplicados a la mercancía recibida.",
+    "en": "Freight, customs and insurance applied to received goods.",
+    "pt": "Fretes, alfândega e seguros aplicados à mercadoria recebida."
+  },
+  "purchasing.landed_costs.title": {
+    "es": "Costos de importación",
+    "en": "Landed costs",
+    "pt": "Custos de importação"
+  },
+  "purchasing.landed_costs.to_inventory": {
+    "es": "A inventario",
+    "en": "To inventory",
+    "pt": "Para inventário"
+  },
+  "purchasing.landed_costs.type": {
+    "es": "Tipo de costo",
+    "en": "Cost type",
+    "pt": "Tipo de custo"
+  },
+  "purchasing.landed_costs.type_incomplete": {
+    "es": "Indica el nombre y la cuenta que se acredita.",
+    "en": "Enter the name and the account credited.",
+    "pt": "Indique o nome e a conta creditada."
+  },
+  "purchasing.landed_costs.type_name": {
+    "es": "Nombre del tipo",
+    "en": "Type name",
+    "pt": "Nome do tipo"
+  },
+  "purchasing.landed_costs.types_title": {
+    "es": "Tipos de costo",
+    "en": "Cost types",
+    "pt": "Tipos de custo"
+  },
+  "purchasing.landed_costs.void": {
+    "es": "Anular",
+    "en": "Void",
+    "pt": "Anular"
+  },
+  "purchasing.landed_costs.void_message": {
+    "es": "El costo sale del costo promedio de lo que siga en almacén y el asiento se revierte.",
+    "en": "The cost leaves the average cost of what is still in stock, and the entry is reversed.",
+    "pt": "O custo sai do custo médio do que estiver em armazém e o lançamento é revertido."
+  },
+  "purchasing.landed_costs.void_placeholder": {
+    "es": "Motivo de la anulación",
+    "en": "Reason for voiding",
+    "pt": "Motivo da anulação"
+  },
+  "purchasing.landed_costs.void_title": {
+    "es": "Anular el costo de importación",
+    "en": "Void the landed cost",
+    "pt": "Anular o custo de importação"
+  },
+  "purchasing.landed_costs.void_too_short": {
+    "es": "Escribe un motivo de al menos 5 caracteres.",
+    "en": "Write a reason of at least 5 characters.",
+    "pt": "Escreva um motivo com pelo menos 5 caracteres."
+  },
   "purchasing.orders.document_name": {
     "es": "Orden de compra",
     "en": "Purchase order",
