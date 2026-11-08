@@ -619,15 +619,120 @@
     "en": "Valid until",
     "pt": "Válido até"
   },
+  "masters.supplier_bank.account_not_found": {
+    "es": "La cuenta bancaria no existe.",
+    "en": "The bank account does not exist.",
+    "pt": "A conta bancária não existe."
+  },
+  "masters.supplier_bank.account_number_invalid": {
+    "es": "El número de cuenta debe tener entre 4 y 40 letras o dígitos.",
+    "en": "The account number must have 4 to 40 letters or digits.",
+    "pt": "O número de conta deve ter entre 4 e 40 letras ou dígitos."
+  },
+  "masters.supplier_bank.add": {
+    "es": "Añadir cuenta",
+    "en": "Add account",
+    "pt": "Adicionar conta"
+  },
+  "masters.supplier_bank.added": {
+    "es": "Cuenta bancaria añadida.",
+    "en": "Bank account added.",
+    "pt": "Conta bancária adicionada."
+  },
+  "masters.supplier_bank.bank": {
+    "es": "Banco",
+    "en": "Bank",
+    "pt": "Banco"
+  },
+  "masters.supplier_bank.checking": {
+    "es": "Corriente",
+    "en": "Checking",
+    "pt": "Corrente"
+  },
+  "masters.supplier_bank.default": {
+    "es": "Predeterminada",
+    "en": "Default",
+    "pt": "Predefinida"
+  },
+  "masters.supplier_bank.fill_bank_and_number": {
+    "es": "Indica el banco y un número de cuenta de al menos 4 caracteres.",
+    "en": "Enter the bank and an account number of at least 4 characters.",
+    "pt": "Indique o banco e um número de conta com pelo menos 4 caracteres."
+  },
+  "masters.supplier_bank.hint": {
+    "es": "Donde se le paga. El número se guarda cifrado y solo se muestran sus cuatro últimos dígitos; cambiarlas pide confirmar tu identidad.",
+    "en": "Where the supplier is paid. The number is stored encrypted and only its last four digits are shown; changing them asks you to confirm your identity.",
+    "pt": "Onde se paga ao fornecedor. O número é guardado cifrado e só se mostram os quatro últimos dígitos; alterá-las pede para confirmar a sua identidade."
+  },
+  "masters.supplier_bank.make_default": {
+    "es": "Hacer predeterminada",
+    "en": "Make default",
+    "pt": "Tornar predefinida"
+  },
+  "masters.supplier_bank.not_saved": {
+    "es": "No se pudo guardar la cuenta bancaria.",
+    "en": "The bank account could not be saved.",
+    "pt": "Não foi possível guardar a conta bancária."
+  },
+  "masters.supplier_bank.number": {
+    "es": "Número de cuenta",
+    "en": "Account number",
+    "pt": "Número de conta"
+  },
+  "masters.supplier_bank.remove": {
+    "es": "Quitar",
+    "en": "Remove",
+    "pt": "Remover"
+  },
+  "masters.supplier_bank.savings": {
+    "es": "Ahorros",
+    "en": "Savings",
+    "pt": "Poupança"
+  },
+  "masters.supplier_bank.supplier_not_found": {
+    "es": "El proveedor no existe.",
+    "en": "The supplier does not exist.",
+    "pt": "O fornecedor não existe."
+  },
+  "masters.supplier_bank.title": {
+    "es": "Cuentas bancarias",
+    "en": "Bank accounts",
+    "pt": "Contas bancárias"
+  },
+  "masters.supplier_bank.type": {
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
+  },
   "masters.supplier_form.address": {
     "es": "Dirección",
     "en": "Address",
     "pt": "Endereço"
   },
+  "masters.supplier_form.blocked_hint": {
+    "es": "Mientras esté bloqueado no se le registran facturas ni se le paga.",
+    "en": "While blocked, no bills are recorded or paid for this supplier.",
+    "pt": "Enquanto bloqueado, não se registam faturas nem se paga a este fornecedor."
+  },
+  "masters.supplier_form.blocked_reason": {
+    "es": "Motivo del bloqueo",
+    "en": "Reason for the block",
+    "pt": "Motivo do bloqueio"
+  },
+  "masters.supplier_form.blocked_reason_required": {
+    "es": "Indica por qué se bloquea al proveedor.",
+    "en": "State why the supplier is blocked.",
+    "pt": "Indique porque o fornecedor é bloqueado."
+  },
   "masters.supplier_form.cancel": {
     "es": "Cancelar",
     "en": "Cancel",
     "pt": "Cancelar"
+  },
+  "masters.supplier_form.commercial_terms": {
+    "es": "Condiciones comerciales",
+    "en": "Commercial terms",
+    "pt": "Condições comerciais"
   },
   "masters.supplier_form.contact_person": {
     "es": "Persona de contacto",
@@ -639,10 +744,20 @@
     "en": "Country",
     "pt": "País"
   },
+  "masters.supplier_form.currency_code": {
+    "es": "Moneda de facturación",
+    "en": "Billing currency",
+    "pt": "Moeda de faturação"
+  },
   "masters.supplier_form.decides_what_withheld_when_you_pay": {
     "es": "Determina qué se le retiene al pagarle. Si no lo sabes, déjalo sin clasificar: no se retendrá nada automáticamente.",
     "en": "Decides what is withheld when you pay them. If you do not know it, leave it unclassified: nothing is withheld automatically.",
     "pt": "Determina o que lhe é retido ao pagar. Se não souber, deixe sem classificar: nada será retido automaticamente."
+  },
+  "masters.supplier_form.default_expense_account": {
+    "es": "Cuenta de gasto por defecto",
+    "en": "Default expense account",
+    "pt": "Conta de despesa por omissão"
   },
   "masters.supplier_form.document_invalid": {
     "es": "El {{document}} no es válido. Revisa que esté completo y bien tecleado.",
@@ -679,10 +794,25 @@
     "en": "Error updating the supplier.",
     "pt": "Erro ao atualizar o fornecedor."
   },
+  "masters.supplier_form.expense_account_not_found": {
+    "es": "La cuenta de gasto no existe o no admite movimientos.",
+    "en": "The expense account does not exist or does not accept postings.",
+    "pt": "A conta de despesa não existe ou não aceita lançamentos."
+  },
   "masters.supplier_form.fill_your_supplier_details": {
     "es": "Completa la información detallada de tu proveedor.",
     "en": "Fill in your supplier's details.",
     "pt": "Preencha os dados do seu fornecedor."
+  },
+  "masters.supplier_form.payment_term_days": {
+    "es": "Días de crédito",
+    "en": "Payment terms (days)",
+    "pt": "Dias de crédito"
+  },
+  "masters.supplier_form.payment_term_days_hint": {
+    "es": "El vencimiento de una factura sin fecha de vencimiento se calcula con estos días.",
+    "en": "A bill with no due date is due this many days after its date.",
+    "pt": "O vencimento de uma fatura sem data de vencimento calcula-se com estes dias."
   },
   "masters.supplier_form.phone": {
     "es": "Teléfono",
@@ -693,6 +823,21 @@
     "es": "Guardar proveedor",
     "en": "Save supplier",
     "pt": "Salvar fornecedor"
+  },
+  "masters.supplier_form.status": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Estado"
+  },
+  "masters.supplier_form.status_active": {
+    "es": "Activo",
+    "en": "Active",
+    "pt": "Ativo"
+  },
+  "masters.supplier_form.status_blocked": {
+    "es": "Bloqueado",
+    "en": "Blocked",
+    "pt": "Bloqueado"
   },
   "masters.supplier_form.supplier_could_not_loaded": {
     "es": "No se pudo cargar el proveedor.",

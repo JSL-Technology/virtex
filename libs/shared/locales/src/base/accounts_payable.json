@@ -1786,6 +1786,11 @@
     "en": "The submitted total ({{received}}) does not match the one computed from the lines and taxes ({{expected}}).",
     "pt": "O total enviado ({{received}}) não corresponde ao calculado a partir das linhas e impostos ({{expected}})."
   },
+  "accounts_payable.supplier_blocked": {
+    "es": "El proveedor {{supplier}} está bloqueado: no se le registran facturas ni se le paga. Motivo: {{reason}}",
+    "en": "Supplier {{supplier}} is blocked: no bills are recorded or paid for it. Reason: {{reason}}",
+    "pt": "O fornecedor {{supplier}} está bloqueado: não se registam faturas nem se paga. Motivo: {{reason}}"
+  },
   "accounts_payable.supplier_document_already_recorded": {
     "es": "El documento {{ncf}} de {{supplier}} ya está registrado.",
     "en": "Document {{ncf}} from {{supplier}} is already recorded.",

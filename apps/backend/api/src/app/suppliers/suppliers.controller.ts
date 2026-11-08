@@ -1,3 +1,6 @@
+import { SupplierBankAccountsService } from './supplier-bank-accounts.service';
+import { CreateSupplierBankAccountDto, UpdateSupplierBankAccountDto } from './dto/supplier-bank-account.dto';
+import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 import {
   Controller,
   Get,
@@ -22,7 +25,10 @@ import { clampLimit } from '../common/database/search-term';
 
 @Controller('suppliers')
 export class SuppliersController {
-  constructor(private readonly suppliersService: SuppliersService) {}
+  constructor(
+    private readonly suppliersService: SuppliersService,
+    private readonly bankAccounts: SupplierBankAccountsService,
+  ) {}
 
   @Post()
   @HasPermission(PERMISSIONS.SUPPLIERS_CREATE)
@@ -70,5 +76,49 @@ export class SuppliersController {
   @HasPermission(PERMISSIONS.SUPPLIERS_DELETE)
   remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.suppliersService.remove(id, user.organizationId);
+  }
+
+  // ── Bank accounts (audit 2026-11-07, CMP-17) ────────────────────────────────
+  // Changing where a supplier is paid re-authenticates: redirecting a supplier's payments is the
+  // classic payment fraud, and the same scope guards moving funds.
+
+  @Get(':id/bank-accounts')
+  @HasPermission(PERMISSIONS.SUPPLIERS_VIEW)
+  listBankAccounts(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.bankAccounts.list(id, user.organizationId);
+  }
+
+  @Post(':id/bank-accounts')
+  @HasPermission(PERMISSIONS.SUPPLIERS_EDIT)
+  @RequireStepUp(StepUpScope.MOVE_FUNDS)
+  createBankAccount(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: CreateSupplierBankAccountDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.bankAccounts.create(id, dto, user.organizationId);
+  }
+
+  @Patch(':id/bank-accounts/:accountId')
+  @HasPermission(PERMISSIONS.SUPPLIERS_EDIT)
+  @RequireStepUp(StepUpScope.MOVE_FUNDS)
+  updateBankAccount(
+    @Param('id', UuidParamPipe) id: string,
+    @Param('accountId', UuidParamPipe) accountId: string,
+    @Body() dto: UpdateSupplierBankAccountDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.bankAccounts.update(id, accountId, dto, user.organizationId);
+  }
+
+  @Delete(':id/bank-accounts/:accountId')
+  @HasPermission(PERMISSIONS.SUPPLIERS_EDIT)
+  @RequireStepUp(StepUpScope.MOVE_FUNDS)
+  removeBankAccount(
+    @Param('id', UuidParamPipe) id: string,
+    @Param('accountId', UuidParamPipe) accountId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.bankAccounts.remove(id, accountId, user.organizationId);
   }
 }

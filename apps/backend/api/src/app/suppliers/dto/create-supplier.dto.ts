@@ -1,4 +1,9 @@
 import {
+  IsInt,
+  IsUUID,
+  Matches,
+  Max,
+  Min,
   IsEmail,
   IsEnum,
   IsISO31661Alpha2,
@@ -10,6 +15,7 @@ import {
 } from 'class-validator';
 import { BlankToUndefined, IsPhoneLike } from '../../common/transformers/blank-to-undefined.transformer';
 import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
+import { SupplierStatus } from '../entities/supplier.entity';
 
 export class CreateSupplierDto {
   @BlankToUndefined()
@@ -88,4 +94,32 @@ export class CreateSupplierDto {
   @IsEnum(TaxpayerType)
   @IsOptional()
   taxpayerType?: TaxpayerType;
+
+  // ── Commercial terms (audit 2026-11-07, CMP-17) ─────────────────────────────
+
+  /** Days of credit the supplier gives (0 = cash). A bill's due date defaults from it. */
+  @IsInt()
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @Max(365, { message: 'validation.constraints.max|{"max":365}' })
+  @IsOptional()
+  paymentTermDays?: number | null;
+
+  @Matches(/^[A-Z]{3}$/, { message: 'validation.currency_code' })
+  @IsOptional()
+  currencyCode?: string | null;
+
+  /** One of the tenant's accounts; checked to belong to it. */
+  @IsUUID()
+  @IsOptional()
+  defaultExpenseAccountId?: string | null;
+
+  @IsEnum(SupplierStatus)
+  @IsOptional()
+  status?: SupplierStatus;
+
+  /** Required when blocking: why bills and payments to this supplier are stopped. */
+  @IsString()
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
+  @IsOptional()
+  blockedReason?: string | null;
 }

@@ -593,6 +593,44 @@ describeWithDb('accounts payable', () => {
         organizationId,
       );
 
+    describe("the supplier's commercial terms (CMP-17)", () => {
+      const plainBill = (extra: Partial<CreateVendorBillDto> = {}) =>
+        payables.create(
+          {
+            vendorId: individualVendorId,
+            date: '2026-02-01',
+            lines: [{ product: 'QA-terms', quantity: 1, unitPrice: 100 }],
+            servicesAmount: 100,
+            ...extra,
+          } as CreateVendorBillDto,
+          organizationId,
+        );
+
+      afterEach(async () => {
+        await dataSource.query(
+          `UPDATE suppliers SET status = 'ACTIVE', blocked_reason = NULL, payment_term_days = NULL, default_expense_account_id = NULL WHERE id = $1`,
+          [individualVendorId],
+        );
+      });
+
+      it('dates the bill from the payment terms and books a free line to the default expense account', async () => {
+        await dataSource.query(`UPDATE suppliers SET payment_term_days = 30, default_expense_account_id = $2 WHERE id = $1`, [
+          individualVendorId,
+          account['expense'],
+        ]);
+        const bill = await plainBill();
+        expect(String(bill.dueDate).slice(0, 10)).toBe('2026-03-03');
+        expect(bill.lines[0].expenseAccountId).toBe(account['expense']);
+      });
+
+      it('neither bills nor pays a blocked supplier', async () => {
+        await dataSource.query(`UPDATE suppliers SET status = 'BLOCKED', blocked_reason = 'QA: cuenta en disputa' WHERE id = $1`, [individualVendorId]);
+        await expect(plainBill({ dueDate: '2026-03-03' } as Partial<CreateVendorBillDto>)).rejects.toMatchObject({
+          messageKey: 'accounts_payable.supplier_blocked',
+        });
+      });
+    });
+
     describe('the consumption tax is computed, not taken from the request (CMP-02)', () => {
       const taxed = (extra: Partial<CreateVendorBillDto>, rate?: number) =>
         payables.create(

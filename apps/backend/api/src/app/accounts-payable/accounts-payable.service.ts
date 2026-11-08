@@ -11,7 +11,7 @@ import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
 import { PayVendorBillsDto } from './dto/pay-vendor-bills.dto';
 import { PaymentBatch, PaymentBatchStatus } from './entities/payment-batch.entity';
 import { AccountingPostingPort, ModuleSlug } from '../journal-entries/accounting-posting.port';
-import { Supplier } from '../suppliers/entities/supplier.entity';
+import { Supplier, SupplierStatus } from '../suppliers/entities/supplier.entity';
 import { WithholdingResolverService } from '../invoices/services/withholding-resolver.service';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
@@ -240,13 +240,30 @@ export class AccountsPayableService {
     return this.dataSource.transaction(async (manager) => {
       const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
       const baseCurrency = settings?.baseCurrency ?? 'USD';
-      const currencyCode = (dto.currencyCode ?? baseCurrency).toUpperCase();
+
+      // The supplier's commercial terms (audit 2026-11-07, CMP-17): a blocked supplier is not
+      // billed; its currency, credit days and default expense account fill what the bill omits.
+      const terms = await manager.findOne(Supplier, {
+        where: { id: dto.vendorId, organizationId },
+        select: ['id', 'name', 'status', 'blockedReason', 'currencyCode', 'paymentTermDays', 'defaultExpenseAccountId'],
+      });
+      if (!terms) throw new NotFoundError('accounts_payable.supplier_id_not_found', { id: dto.vendorId });
+      if (terms.status === SupplierStatus.BLOCKED) {
+        throw new ConflictError('accounts_payable.supplier_blocked', { supplier: terms.name, reason: terms.blockedReason ?? '' });
+      }
+      const currencyCode = (dto.currencyCode ?? terms.currencyCode ?? baseCurrency).toUpperCase();
+      if (!dto.dueDate) {
+        const due = new Date(`${toIsoDate(dto.date)}T00:00:00.000Z`);
+        due.setUTCDate(due.getUTCDate() + (terms.paymentTermDays ?? 0));
+        billFields.dueDate = due.toISOString().slice(0, 10);
+      }
 
       // Line totals are recomputed, never trusted. The client used to supply `total` per line and
       // for the document, and both were stored verbatim — so the books recorded whatever the
       // caller said the arithmetic was.
       const lines = dto.lines.map((line) => ({
         ...line,
+        expenseAccountId: line.expenseAccountId ?? (line.productId ? undefined : terms.defaultExpenseAccountId ?? undefined),
         total: roundAmount(line.quantity * line.unitPrice),
       }));
       const subtotal = sumAmounts(lines.map((line) => line.total));
@@ -1456,6 +1473,15 @@ export class AccountsPayableService {
         where: { id: In(billIds), organizationId },
       });
       const billsById = new Map(bills.map((bill) => [bill.id, bill]));
+      // A blocked supplier is not paid (audit 2026-11-07, CMP-17), whatever was billed before.
+      const blocked: Array<{ name: string; blocked_reason: string | null }> = await manager.query(
+        `SELECT DISTINCT s."name", s."blocked_reason" FROM "suppliers" s JOIN "vendor_bills" b ON b."vendor_id" = s."id"
+          WHERE b."id" = ANY($1::uuid[]) AND b."organization_id" = $2 AND s."status" = 'BLOCKED'`,
+        [billIds, organizationId],
+      );
+      if (blocked.length) {
+        throw new ConflictError('accounts_payable.supplier_blocked', { supplier: blocked[0].name, reason: blocked[0].blocked_reason ?? '' });
+      }
       // One branch may pay for another (a head office paying every store's suppliers), but only
       // bills the payer could open: a restricted person cannot settle a branch they cannot see.
       const payerScope = await loadBranchScope(manager, organizationId, actorUserId ?? null);

@@ -9,7 +9,13 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../share
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore, accountNameOf } from '@virteex/shared/ui-i18n';
+import { VX_SELECT } from '../../../shared/components/select';
+import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
+import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
+import { Account } from '../../../core/models/account.model';
+import { SupplierBankAccount } from '../../../core/models/supplier.model';
+import { Observable, map } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
 import {
@@ -22,7 +28,7 @@ import { phoneLikeValidator } from '../../../shared/validators/phone-like.valida
 @Component({
   selector: 'app-supplier-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
+  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT],
   templateUrl: './supplier-form.html',
   styleUrls: ['./supplier-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -86,6 +92,7 @@ export class SupplierForm implements OnInit {
 
   supplierForm!: FormGroup;
   isEditMode = signal(false);
+  private readonly accounts = inject(ChartOfAccountsApiService);
   isLoading = signal(true);
   private supplierId: string | null = null;
 
@@ -148,6 +155,18 @@ export class SupplierForm implements OnInit {
       // wrong filing rather than a cosmetic default.
       country: [this.locale.tenantContext()?.countryCode ?? ''],
       taxpayerType: [''],
+      // Commercial terms (audit 2026-11-07, CMP-17).
+      paymentTermDays: [null as number | null, [Validators.min(0), Validators.max(365)]],
+      currencyCode: ['', [Validators.pattern(/^[A-Za-z]{3}$/)]],
+      defaultExpenseAccountId: [null as string | null],
+      status: ['ACTIVE'],
+      blockedReason: [''],
+    });
+    // A block has to say why: required only while the supplier is blocked.
+    this.supplierForm.get('status')?.valueChanges.subscribe((status: string) => {
+      const reason = this.supplierForm.get('blockedReason');
+      reason?.setValidators(status === 'BLOCKED' ? [Validators.required] : []);
+      reason?.updateValueAndValidity();
     });
 
     this.identityDocuments
@@ -180,11 +199,73 @@ export class SupplierForm implements OnInit {
       next: (supplier) => {
         this.supplierForm.patchValue(supplier);
         this.isLoading.set(false);
+        this.loadBankAccounts(id);
       },
       error: () => {
         this.notificationService.showError('masters.supplier_form.supplier_could_not_loaded');
         this.router.navigate(['/contacts/suppliers']);
       },
+    });
+  }
+
+  // ── Default expense account (CMP-17) ─────────────────────────────────────────
+  protected readonly searchExpenseAccounts = (query: string, limit: number): Observable<Account[]> =>
+    this.accounts.searchAccounts(query, limit).pipe(map((list) => chargeableExpenseAccounts(list ?? [])));
+  protected readonly resolveAccount = (id: string): Observable<Account> => this.accounts.getAccountById(id);
+  protected readonly accountLabel = (account: Account): string => `${account.code} — ${accountNameOf(account.name)}`;
+  protected readonly accountId = (account: Account): string => account.id;
+
+  // ── Bank accounts (CMP-17) ──────────────────────────────────────────────────
+  readonly bankAccounts = signal<SupplierBankAccount[]>([]);
+  readonly bankDraft = signal<{ bankName: string; accountNumber: string; accountType: 'CHECKING' | 'SAVINGS' }>({
+    bankName: '',
+    accountNumber: '',
+    accountType: 'CHECKING',
+  });
+
+  private loadBankAccounts(id: string): void {
+    this.suppliersService.listBankAccounts(id).subscribe({
+      next: (accounts) => this.bankAccounts.set(accounts),
+      error: () => this.bankAccounts.set([]),
+    });
+  }
+
+  patchBankDraft(patch: Partial<{ bankName: string; accountNumber: string; accountType: 'CHECKING' | 'SAVINGS' }>): void {
+    this.bankDraft.update((draft) => ({ ...draft, ...patch }));
+  }
+
+  addBankAccount(): void {
+    const id = this.supplierId;
+    const draft = this.bankDraft();
+    if (!id || !draft.bankName.trim() || draft.accountNumber.replace(/[\s-]/g, '').length < 4) {
+      this.notificationService.showError('masters.supplier_bank.fill_bank_and_number');
+      return;
+    }
+    this.suppliersService.addBankAccount(id, { ...draft, bankName: draft.bankName.trim() }).subscribe({
+      next: () => {
+        this.bankDraft.set({ bankName: '', accountNumber: '', accountType: 'CHECKING' });
+        this.notificationService.showSuccess('masters.supplier_bank.added');
+        this.loadBankAccounts(id);
+      },
+      error: (error: unknown) => this.notificationService.showHttpError(error, 'masters.supplier_bank.not_saved'),
+    });
+  }
+
+  makeDefault(accountId: string): void {
+    const id = this.supplierId;
+    if (!id) return;
+    this.suppliersService.makeDefaultBankAccount(id, accountId).subscribe({
+      next: () => this.loadBankAccounts(id),
+      error: (error: unknown) => this.notificationService.showHttpError(error, 'masters.supplier_bank.not_saved'),
+    });
+  }
+
+  removeBankAccount(accountId: string): void {
+    const id = this.supplierId;
+    if (!id) return;
+    this.suppliersService.removeBankAccount(id, accountId).subscribe({
+      next: () => this.loadBankAccounts(id),
+      error: (error: unknown) => this.notificationService.showHttpError(error, 'masters.supplier_bank.not_saved'),
     });
   }
 
@@ -207,6 +288,9 @@ export class SupplierForm implements OnInit {
           phone: 'masters.supplier_form.phone',
           country: 'masters.supplier_form.country',
           taxpayerType: 'contacts.customer_form.taxpayer_type',
+          paymentTermDays: 'masters.supplier_form.payment_term_days',
+          currencyCode: 'masters.supplier_form.currency_code',
+          blockedReason: 'masters.supplier_form.blocked_reason',
         }),
       );
       return;
@@ -215,7 +299,7 @@ export class SupplierForm implements OnInit {
     this.problems.set([]);
 
     this.isLoading.set(true);
-    const { taxpayerType, ...rest } = this.supplierForm.getRawValue();
+    const { taxpayerType, currencyCode, ...rest } = this.supplierForm.getRawValue();
 
     //  «Sin clasificar» es la opción vacía del select, y `@IsEnum` rechaza la cadena vacía —
     //  `@IsOptional()` solo perdona null e undefined—. Null es lo que significa «sin clasificar»
@@ -225,7 +309,7 @@ export class SupplierForm implements OnInit {
     //  `"email": ""` y `"identityDocumentTypeCode": ""` hacía imposible dar de alta un proveedor
     //  desde la UI (QA C-04).
     const formValue = formPayload(
-      { ...rest, taxpayerType: taxpayerType || null },
+      { ...rest, taxpayerType: taxpayerType || null, currencyCode: currencyCode ? String(currencyCode).toUpperCase() : null },
       this.isEditMode() ? 'update' : 'create',
     );
 

@@ -100,8 +100,10 @@ export class CreateVendorBillDto {
   @IsDateString()
   date: string;
 
+  /** Omitted: the bill date plus the supplier's payment terms (CMP-17). */
   @IsDateString()
-  dueDate: string;
+  @IsOptional()
+  dueDate?: string;
 
   @IsArray()
   @ValidateNested({ each: true })

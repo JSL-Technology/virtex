@@ -138,6 +138,7 @@ export const GLOBAL_TABLES: readonly UnscopedTable[] = [
   { table: 'payroll_income_tax_brackets', why: 'Escalas de retención publicadas por la autoridad.' },
   { table: 'payroll_statutory_contributions', why: 'Contribuciones legales publicadas por la autoridad.' },
   { table: 'payroll_statutory_references', why: 'Referencias legales de nómina.' },
+  { table: 'statutory_tax_rates', why: 'Tasas de impuesto legales por país, con vigencia y norma (SP-03).' },
   { table: 'report_definitions', why: 'Definiciones de informe por región fiscal, no por inquilino.' },
   { table: 'saas_plan_features', why: 'Catálogo de planes del producto.' },
   { table: 'saas_plan_limits', why: 'Catálogo de planes del producto.' },

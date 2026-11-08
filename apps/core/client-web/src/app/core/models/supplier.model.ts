@@ -37,7 +37,26 @@ export interface Supplier {
    * Null means unclassified, and nothing is withheld automatically.
    */
   taxpayerType?: SupplierTaxpayerType | null;
+  /** Commercial terms (CMP-17). */
+  paymentTermDays?: number | null;
+  currencyCode?: string | null;
+  defaultExpenseAccountId?: string | null;
+  status?: 'ACTIVE' | 'BLOCKED';
+  blockedReason?: string | null;
   organizationId: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/** Where a supplier is paid (CMP-17). The number never comes back: only its last four digits. */
+export interface SupplierBankAccount {
+  id: string;
+  bankName: string;
+  accountHolder: string | null;
+  accountType: 'CHECKING' | 'SAVINGS';
+  accountLast4: string;
+  currencyCode: string | null;
+  swift: string | null;
+  iban: string | null;
+  isDefault: boolean;
 }
