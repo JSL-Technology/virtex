@@ -188,15 +188,23 @@ export class DashboardChartsService {
       customers: string;
       customers_prev: string;
     }[] = await this.dataSource.query(
-      `SELECT
-         (SELECT COALESCE(SUM(i."total_in_base_currency"), 0)
-            FROM "invoices" i
-           WHERE i."organization_id" = $1 AND i."status" <> $2
-             AND i."issueDate" = CURRENT_DATE) AS sales_today,
-         (SELECT COALESCE(SUM(i."total_in_base_currency"), 0)
-            FROM "invoices" i
-           WHERE i."organization_id" = $1 AND i."status" <> $2
-             AND i."issueDate" = CURRENT_DATE - 1) AS sales_yesterday,
+      // A day's sales: issued invoices and debit notes, minus credit notes, never drafts or voided
+      // documents — and "today" in the company's own time zone, not the server's. The previous query
+      // counted voided invoices and ADDED credit notes as sales (audit 2026-11-07, IA-B03), and in
+      // Santo Domingo "today" started at 8 p.m. the day before.
+      `WITH tz AS (
+         SELECT (now() AT TIME ZONE COALESCE(NULLIF(o."timezone", ''), 'UTC'))::date AS today
+           FROM "organizations" o WHERE o."id" = $1
+       )
+       SELECT
+         (SELECT COALESCE(SUM(CASE WHEN i."type" = 'CREDIT_NOTE' THEN -i."total_in_base_currency" ELSE i."total_in_base_currency" END), 0)
+            FROM "invoices" i, tz
+           WHERE i."organization_id" = $1 AND i."status" NOT IN ($2, $5)
+             AND i."issueDate" = tz.today) AS sales_today,
+         (SELECT COALESCE(SUM(CASE WHEN i."type" = 'CREDIT_NOTE' THEN -i."total_in_base_currency" ELSE i."total_in_base_currency" END), 0)
+            FROM "invoices" i, tz
+           WHERE i."organization_id" = $1 AND i."status" NOT IN ($2, $5)
+             AND i."issueDate" = tz.today - 1) AS sales_yesterday,
          (SELECT COUNT(*)
             FROM "invoices" i
            WHERE i."organization_id" = $1 AND i."status" IN ($3, $4)) AS pending_count,
@@ -213,6 +221,7 @@ export class DashboardChartsService {
         InvoiceStatus.DRAFT,
         InvoiceStatus.PENDING,
         InvoiceStatus.PARTIALLY_PAID,
+        InvoiceStatus.VOID,
       ],
     );
 
