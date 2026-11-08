@@ -2,15 +2,15 @@
 
 Todos los hallazgos de los MD de la auditoría, con su estado en [`10-verificacion-de-cierre.md`](10-verificacion-de-cierre.md). ✅ = resuelto y verificado · ❌ = parcial o pendiente (en los parciales se indica lo que falta).
 
-**52 de 376 resueltos; 324 por corregir** (10 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
+**58 de 376 resueltos; 318 por corregir** (10 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
 
 Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de la ficha citada.
 
 | Severidad | ✅ | ❌ |
 |---|---|---|
 | Crítica | 13 | 0 |
-| Alta | 23 | 87 |
-| Media | 15 | 153 |
+| Alta | 28 | 82 |
+| Media | 16 | 152 |
 | Baja | 1 | 68 |
 | — | 0 | 16 |
 
@@ -36,12 +36,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 
 | | ID | Hallazgo | Ficha |
 |---|---|---|---|
-| ❌ | CMP-01 | AP/procurement · accounts-payable.service.ts:766-800 (matchAgainstReceipts), POST /accounts-payable/:id/submit-for-approval. | `modulos/accounts-payable.md:57` |
-| ❌ | CMP-02 | accounts-payable.service.ts:253 (taxAmount = dto.taxAmount ?? 0). | `modulos/accounts-payable.md:61` |
-| ❌ | CMP-03 | accounts-payable.service.ts:516-530 (la unicidad del NCF va por vendor_id); suppliers sin unicidad de RNC. | `modulos/accounts-payable.md:65` |
 | ❌ | CMP-15 | Faltan capacidades básicas del mercado medio: | `modulos/procurement.md:94` |
-| ❌ | CMP-17 | Faltan básicas: No hay términos de pago, moneda, cuentas bancarias, cuenta de gasto por defecto ni estado activo/bloqueado. | `modulos/suppliers.md:76` |
-| ❌ | CMP-21 | el "costo de importación" se reduce a un catálogo con método de prorrateo que nunca se aplica. Ninguna recepción ni factura de flete o aduana revaloriza el inventario. Un importador no pued… | `modulos/supply-chain.md:53` |
 | ❌ | FAC-CMP-02 | reports/dr-reports.spec.ts prueba el formato con dobles; ninguna prueba ejecuta el SQL. M. | `modulos/compliance.md:61` |
 | ❌ | FAC-CMP-03 | sin formatos fiscales de CO, PE, CL, AR, EC, etc.; correcto que respondan 400, pero la UI de "declaraciones" debe declararlo. M por país. | `modulos/compliance.md:62` |
 | ❌ | FAC-INV-03 | UY (y US, PY, BO, VE, PA, CR, GT, SV, HN, NI) emiten facturas Pending sin documento fiscal ni aviso; probado UY 201 fiscalNumber:null. En UY, CR, GT, PY, etc. la factura electrónica es obli… **Parcial — falta:** La factura emitida no queda marcada como documento no fiscal en su detalle ni en el PDF, y no hay bloqueo configurable donde la ley exige e-factura. | `modulos/invoices.md:71` |
@@ -123,6 +118,11 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | TES-05 | N+1 de availableLedgerLines por transacción + 1 fila de auditoría por línea. | `modulos/reconciliation.md:45` |
 | ❌ | TES-08 | No se puede anular/revertir una transferencia errónea (p.ej. la de 99.999.999). | `modulos/treasury.md:45` |
 | ❌ | TES-13 | La cobranza básica no existe para el plan starter; no hay recordatorios automáticos en ningún plan. | `modulos/collections.md:44` |
+| ✅ | CMP-01 | AP/procurement · accounts-payable.service.ts:766-800 (matchAgainstReceipts), POST /accounts-payable/:id/submit-for-approval. | `modulos/accounts-payable.md:57` |
+| ✅ | CMP-02 | accounts-payable.service.ts:253 (taxAmount = dto.taxAmount ?? 0). | `modulos/accounts-payable.md:61` |
+| ✅ | CMP-03 | accounts-payable.service.ts:516-530 (la unicidad del NCF va por vendor_id); suppliers sin unicidad de RNC. | `modulos/accounts-payable.md:65` |
+| ✅ | CMP-17 | Faltan básicas: No hay términos de pago, moneda, cuentas bancarias, cuenta de gasto por defecto ni estado activo/bloqueado. | `modulos/suppliers.md:76` |
+| ✅ | CMP-21 | el "costo de importación" se reduce a un catálogo con método de prorrateo que nunca se aplica. Ninguna recepción ni factura de flete o aduana revaloriza el inventario. Un importador no pued… | `modulos/supply-chain.md:53` |
 | ✅ | CS-01 | Portal de cliente solo por su cliente — No explotable por API, pero la FK sin guarda hace fallar same-tenant-references.spec.ts | `09-cobertura-y-verificacion.md:194` |
 | ✅ | FAC-EINV-02 | No hay modo "sin transmisión": en NODE_ENV=test/development el destino por defecto es CerteCF (processValue ?? 'CerteCF') y la prueba de CI llama a ecf.dgii.gov.do (log: 3× "Fallo al valida… | `modulos/einvoicing.md:63` |
 | ✅ | FAC-EINV-03 | dependencia node-forge ≤1.4.0 (npm audit high: verificación RSA PKCS#1 v1.5 acepta DigestAlgorithm anidado) usada por certificate-inspector/trust; además certificate-trust.spec.ts:25 no com… | `modulos/einvoicing.md:64` |
@@ -151,7 +151,6 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 
 | | ID | Hallazgo | Ficha |
 |---|---|---|---|
-| ❌ | CMP-04 | El NCF no tiene restricción en BD (solo UQ_vendor_bills_supplier_invoice para el número interno); la unicidad depende de pg_advisory_xact_lock. Cualquier escritura fuera del servicio (impor… | `modulos/accounts-payable.md:69` |
 | ❌ | CMP-05 | accounts-payable: AP/localización · Multi-país · localization/fiscal/withholding-regimes.ts:112-170. **Parcial — falta:** Faltan regímenes frecuentes que la ficha cita (ITBIS 30 % entre personas jurídicas para ciertos servicios, pagos al exterior); hoy el inquilino los configura. Verificar con contador local. | `modulos/accounts-payable.md:71` |
 | ❌ | CMP-06 | POST /procurement/orders/:id/receive con quantity: 0.0000001 → 500 (TypeError ... isNumber ... reading 'length', class-validator IsNumber maxDecimalPlaces con notación científica; logs/api.… | `modulos/accounts-payable.md:74` |
 | ❌ | CMP-07 | GET /accounts-payable (findAll, línea 1507) sin paginación ni límite: devuelve todas las facturas con sus relaciones. Las OC sí paginan. Esfuerzo: S. | `modulos/accounts-payable.md:76` |
@@ -304,6 +303,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | XF-05 | el 2026-11-08 se cerró «Noviembre 2026» (fin 2026-11-30) con la lista de verificación incompleta (unreconciled-bank-transactions = 4, isCompleted:false). El servicio solo exige el cierre se… | `06-flujos-cruzados.md:195` |
 | ❌ | XF-07 | taxId:"XAXX010101000" (RFC genérico de público en general del SAT) → 422 contacts.customer_form.document_invalid. El SAT exige usar el RFC genérico en ventas a público en general y XEXX0101… | `06-flujos-cruzados.md:219` |
 | ❌ | XF-08 | PATCH /taxes/:ITBIS18 {rate:19} → 200, pero el preview de un documento nuevo sigue a 18 %, porque la tasa está copiada en cada producto y el producto no referencia el impuesto. Un cambio le… | `06-flujos-cruzados.md:201` |
+| ✅ | CMP-04 | El NCF no tiene restricción en BD (solo UQ_vendor_bills_supplier_invoice para el número interno); la unicidad depende de pg_advisory_xact_lock. Cualquier escritura fuera del servicio (impor… | `modulos/accounts-payable.md:69` |
 | ✅ | CMP-16 | UX/validación: taxId de 9 dígitos sin tipo se interpreta como Cédula y da 422 document_invalid {document: "Cédula"}, con un RNC válido (dígito verificador comprobado a mano). | `modulos/suppliers.md:71` |
 | ✅ | FAC-PL-02 | roundAmount(item.price) trunca a 2 decimales; probado 900.123456→900.12. Forma correcta: precisión de precio unitario igual a la del documento (6). Riesgo operativo. S. | `modulos/price-lists.md:56` |
 | ✅ | FAC-PL-03 | "no-currency!!" aceptado (201). Validar contra catálogo de monedas del tenant. S. | `modulos/price-lists.md:57` |
