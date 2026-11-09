@@ -2,21 +2,21 @@
 
 Cada identificador que aparece en los MD de la auditoría (`docs/auditorias/2026-11-07-auditoria-madurez-construccion-produccion/`), con la línea que lo define (cita del MD) y su estado verificado contra el código y los commits de la rama `ccr-f710ff5b-8ijix4`.
 
-**Respuesta: no está todo resuelto.** De 402 identificadores: 63 resuelto, 10 parcial, 303 pendiente, 10 informativo, 16 no es hallazgo.
+**Respuesta: no está todo resuelto.** De 402 identificadores: 64 resuelto, 303 pendiente, 9 parcial, 10 informativo, 16 no es hallazgo.
 
 ## Resumen por severidad
 
 | Severidad | Resuelto | Parcial | En curso | Pendiente | Informativo / no es hallazgo |
 |---|---|---|---|---|---|
 | Crítica | 13 | 0 | 0 | 0 | 0 |
-| Alta | 32 | 6 | 0 | 72 | 2 |
+| Alta | 33 | 5 | 0 | 72 | 2 |
 | Media | 17 | 2 | 0 | 149 | 0 |
 | Baja | 1 | 0 | 0 | 68 | 0 |
 | — | 0 | 2 | 0 | 14 | 24 |
 
 Método: los identificadores se extrajeron con una expresión regular sobre todos los MD; la severidad, de la línea que define cada uno (en las filas de tablas de ejes puede ser la severidad del eje y no la del hallazgo: revisar la cita). «Resuelto» exige un commit y una comprobación en el código (archivo/prueba citados); «Parcial» lista lo que falta.
 
-## RESUELTO (63)
+## RESUELTO (64)
 
 | ID | Sev. | Cita del MD | Commit | Evidencia de la solución |
 |---|---|---|---|---|
@@ -36,6 +36,7 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | CMP-01 | Alta | `modulos/accounts-payable.md:57` — **CMP-01** · AP/procurement · eje 2 · Integridad · **Alta** · `accounts-payable.service.ts:766-800` (`matchAgainstReceipts`), POST `/accounts-payable/:id/submit-for-approval`.… | 17d0db1e, e5fa78c2 | Cotejo de tres vías al enviar a aprobación: QUANTITY (factura más de lo recibido sin facturar) y PRICE (fuera de `ap_match_price_tolerance_bps`, 2 % por defecto) → estado ON_HOLD con `match_exceptions`, sin asiento ni pago; liberación solo por otra persona con motivo (`POST /accounts-payable/:id/release-match-hold`). Migración 1789530000000. verify:purchasing con servicios reales: retención por cantidad y por precio, autoliberación rechazada, mayor = kárdex tras liberar. Pantalla de detalle con las excepciones y la liberación. |
 | CMP-02 | Alta | `modulos/accounts-payable.md:61` — **CMP-02** · AP · ejes 2 y 3 · Cálculo fiscal · **Alta** · `accounts-payable.service.ts:253` (`taxAmount = dto.taxAmount ?? 0`).… | 666fcb3a | `resolvePurchaseTax`: tasa por línea validada contra las vigentes en la fecha (tabla legal o catálogo), ITBIS = suma de líneas; diferencia > 1 centavo por línea exige `taxOverrideReason` (registrado); sin tasas, tope = base × tasa máxima vigente. 4 casos en `accounts-payable.spec.ts` (el caso de la auditoría, 900 sobre 1.000, se rechaza). |
 | CMP-03 | Alta | `modulos/accounts-payable.md:65` — **CMP-03** · AP + suppliers · eje 2 · Integridad fiscal · **Alta** · `accounts-payable.service.ts:516-530` (la unicidad del NCF va por `vendor_id`); `suppliers` sin unicidad de RNC… | 666fcb3a | Claves normalizadas por disparador (`suppliers.tax_id_key`, `vendor_bills.issuer_tax_key`/`ncf_key`) e índices únicos parciales `UQ_suppliers_org_tax_id_key` y `UQ_vendor_bills_issuer_ncf`; el servicio comprueba por RNC del emisor y responde 409 legible; alta/edición de proveedor rechaza RNC repetido. `fiscal-document-uniqueness.spec.ts` contra PostgreSQL. |
+| CMP-15 | Alta | `modulos/procurement.md:94` — **CMP-15** · eje 1 · Competitividad · Alta · Faltan capacidades básicas del mercado medio:… | f8821dcb, 2f46a3b4 | Las cinco capacidades: (1) solicitudes de cotización (`purchase_rfqs`, invitados, cotizaciones por línea con totales del servidor, comparación por neto con elegibilidad, adjudicación bajo bloqueo que crea la OC a precios cotizados y exige motivo si no es la más baja); (2) acuerdos de compra (`purchase_agreements`, vigencia, topes por línea y total, activación por otra persona, entregas a precio pactado; lo usado se lee de las órdenes en pie); (3) tolerancias de recepción (trigger por inquilino) y de precio (CMP-01), editables en Ajustes; (4) cierre forzado del saldo (OC `CLOSED`); (5) devolución parcial desde la recepción. `rfqs-agreements.spec.ts` (8 casos, dos entregas simultáneas), `procurement.spec.ts`. verify:purchasing: adjudicación a 88 y la más cara sin motivo rechazada; dos entregas de 7 sobre tope 10 → una; anular devuelve las unidades. |
 | CMP-17 | Alta | `modulos/suppliers.md:76` — - **CMP-17** · Alta · Faltan básicas… | 85a0ff46 | `suppliers`: días de crédito, moneda, cuenta de gasto por defecto (validada), estado ACTIVE/BLOCKED con motivo; la factura toma vencimiento, moneda y cuenta por defecto; proveedor bloqueado no se factura ni se paga. `supplier_bank_accounts` (RLS, número cifrado, últimos 4, predeterminada única, step-up MOVE_FUNDS). Formulario con condiciones comerciales y cuentas. `supplier-bank-accounts.spec.ts` y 2 casos en `accounts-payable.spec.ts`. |
 | CMP-21 | Alta | `modulos/supply-chain.md:53` — **CMP-21** · eje 1 · Funcionalidad falsa · **Alta**… | 08c85dfe | `landed_cost_allocations` + `LandedCostsService`: prorrateo por valor/cantidad/peso/volumen (mayor resto), revalorización del costo promedio de lo que queda en almacén, resto a costo de ventas, asiento por `LedgerPostingRegistry`, anulación. Pantalla Compras › Costos de importación. verify:purchasing: 100 de flete → costo 90→100, 40 a costo de ventas, mayor = kárdex; anulado vuelve a 90. |
 | CS-01 | Alta | `09-cobertura-y-verificacion.md:194` — \| Portal de cliente solo por su cliente (CS-01) \| Alto \| No explotable por API, pero la FK sin guarda hace fallar `same-tenant-references.spec.ts` \| **Parcial** \|… | 4b930dfc | Mismo arreglo que IAM-T2 (guarda de mismo inquilino en `FK_customer_portal_accounts_customer`). |
@@ -84,11 +85,10 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | PLTB-DT-03 | Media | `modulos/desktop.md:72` — **PLTB-DT-03** · desktop · eje 8 · Categoría: seguridad · Severidad: **media**… | 017fa1d5 | `apps/desktop/src/security-policy.js` + `main.js`: CSP base inyectada con `onHeadersReceived`. |
 | I18N-05 | Baja | `modulos/i18n.md:60` — - **I18N-05** · i18n · eje 3 · **Baja**. Las cuentas se guardan como `{"es": "…"}` aunque el texto esté en portugués o en inglés. Se vio en BD: qa-br-a 1150 = `{"es":"Impuesto a Re… | aeabe621 | `chart-of-accounts.service.ts` (`booksLanguage`: nombre guardado bajo el idioma de los libros o del país; la edición conserva las otras traducciones), `principalTaxName` en portugués para BR, migración 1789470000000 (re-clave de BR/US), `verify:markets` comprueba la clave de idioma. |
 
-## PARCIAL (10)
+## PARCIAL (9)
 
 | ID | Sev. | Cita del MD | Commit | Evidencia de la solución | Falta |
 |---|---|---|---|---|---|
-| CMP-15 | Alta | `modulos/procurement.md:94` — **CMP-15** · eje 1 · Competitividad · Alta · Faltan capacidades básicas del mercado medio:… | f8821dcb | OC `CLOSED` (cierre forzado del saldo, con motivo; lo recibido sigue facturable, ya no recibe). Tolerancia de sobre-entrega por empresa `po_receipt_over_tolerance_bps` que la tabla hace cumplir con trigger; tolerancia de precio del cotejo (CMP-01) editable en Ajustes › Inventario. Devolución parcial desde la recepción (`purchase_returns`, DEV-, RLS) que saca existencias y deja la OC debiendo lo devuelto; rechaza lo ya facturado. `procurement.spec.ts` (5 casos) y verify:purchasing: devolver 2 de 6 saca 4→ mayor = kárdex; 10,5 de 10 rechazado al 0 %, aceptado al 5 %, la tabla impide 11. | RFQ/cotizaciones y OC abierta o contrato no están implementados. |
 | FAC-INV-03 | Alta | `modulos/invoices.md:71` — - **FAC-INV-03** — eje 3 — multi-país — **Alta** — `adapters/fiscal-adapter.factory.ts:63-80`, `generic-fiscal.adapter.ts` — UY (y US, PY, BO, VE, PA, CR, GT, SV, HN, NI) emiten fa… | 96754204 | El formulario de factura muestra «Este documento no es un comprobante fiscal» (alerta) en los mercados sin régimen. | La factura emitida no queda marcada como documento no fiscal en su detalle ni en el PDF, y no hay bloqueo configurable donde la ley exige e-factura. |
 | FE-CI-01 | Alta | `modulos/ci-cd-infra.md:51` — - **FE-CI-01** — ci-cd-infra, eje 9 · pruebas · **Alta** · `.github/workflows/ci.yml` / rama main. main está en rojo: 15/24 últimos runs de CI en main fallan; el último verde es de… | 4b930dfc, 4f411a27, 94a20869 | En la rama, todos los pasos de CI pasan salvo los que yo rompí y ya corregí (`verify:boundaries` en 4f411a27, `check:schema-drift` en 94a20869). | `main` sigue en rojo hasta que se fusione la rama; falta confirmar el CI verde del último commit y la protección de rama, que se configura en GitHub y no desde el repositorio. |
 | FIN-AC-03 | Alta | `modulos/accounting.md:65` — **FIN-AC-03** · accounting/journal-entries/chart-of-accounts · Eje 2 · Integridad · **Alta**… | e87dd8a0 | La revaluación ya no depende de `isMultiCurrency`: incluye cuentas monetarias por rol y los mayores de los bancos. | No se rechaza aún un asiento en divisa sobre una cuenta no multimoneda, ni hay alerta en el checklist de saldos sin revaluar. |

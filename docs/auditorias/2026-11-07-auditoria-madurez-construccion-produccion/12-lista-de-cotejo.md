@@ -1,15 +1,15 @@
-# Lista de cotejo de hallazgos (2026-11-08)
+# Lista de cotejo de hallazgos (2026-11-09)
 
 Todos los hallazgos de los MD de la auditoría, con su estado en [`10-verificacion-de-cierre.md`](10-verificacion-de-cierre.md). ✅ = resuelto y verificado · ❌ = parcial o pendiente (en los parciales se indica lo que falta).
 
-**63 de 376 resueltos; 313 por corregir** (10 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
+**64 de 376 resueltos; 312 por corregir** (9 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
 
 Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de la ficha citada.
 
 | Severidad | ✅ | ❌ |
 |---|---|---|
 | Crítica | 13 | 0 |
-| Alta | 32 | 78 |
+| Alta | 33 | 77 |
 | Media | 17 | 151 |
 | Baja | 1 | 68 |
 | — | 0 | 16 |
@@ -36,7 +36,6 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 
 | | ID | Hallazgo | Ficha |
 |---|---|---|---|
-| ❌ | CMP-15 | Faltan capacidades básicas del mercado medio: **Parcial — falta:** RFQ/cotizaciones y OC abierta o contrato no están implementados. | `modulos/procurement.md:94` |
 | ❌ | FAC-CMP-02 | reports/dr-reports.spec.ts prueba el formato con dobles; ninguna prueba ejecuta el SQL. M. | `modulos/compliance.md:61` |
 | ❌ | FAC-CMP-03 | sin formatos fiscales de CO, PE, CL, AR, EC, etc.; correcto que respondan 400, pero la UI de "declaraciones" debe declararlo. M por país. | `modulos/compliance.md:62` |
 | ❌ | FAC-INV-03 | UY (y US, PY, BO, VE, PA, CR, GT, SV, HN, NI) emiten facturas Pending sin documento fiscal ni aviso; probado UY 201 fiscalNumber:null. En UY, CR, GT, PY, etc. la factura electrónica es obli… **Parcial — falta:** La factura emitida no queda marcada como documento no fiscal en su detalle ni en el PDF, y no hay bloqueo configurable donde la ley exige e-factura. | `modulos/invoices.md:71` |
@@ -117,6 +116,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ✅ | CMP-01 | AP/procurement · accounts-payable.service.ts:766-800 (matchAgainstReceipts), POST /accounts-payable/:id/submit-for-approval. | `modulos/accounts-payable.md:57` |
 | ✅ | CMP-02 | accounts-payable.service.ts:253 (taxAmount = dto.taxAmount ?? 0). | `modulos/accounts-payable.md:61` |
 | ✅ | CMP-03 | accounts-payable.service.ts:516-530 (la unicidad del NCF va por vendor_id); suppliers sin unicidad de RNC. | `modulos/accounts-payable.md:65` |
+| ✅ | CMP-15 | Faltan capacidades básicas del mercado medio: | `modulos/procurement.md:94` |
 | ✅ | CMP-17 | Faltan básicas: No hay términos de pago, moneda, cuentas bancarias, cuenta de gasto por defecto ni estado activo/bloqueado. | `modulos/suppliers.md:76` |
 | ✅ | CMP-21 | el "costo de importación" se reduce a un catálogo con método de prorrateo que nunca se aplica. Ninguna recepción ni factura de flete o aduana revaloriza el inventario. Un importador no pued… | `modulos/supply-chain.md:53` |
 | ✅ | CS-01 | Portal de cliente solo por su cliente — No explotable por API, pero la FK sin guarda hace fallar same-tenant-references.spec.ts | `09-cobertura-y-verificacion.md:194` |
