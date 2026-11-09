@@ -716,7 +716,9 @@ async function main(): Promise<void> {
       subscriptionStatus: 'active',
       subscriptionPeriodEnd: new Date(Date.now() + 30 * 24 * 3600_000),
       legalName: `Probe Invoicing US ${stamp}`,
-      taxId: '12-3456789',
+      // An EIN carries no check digit: an IRS-assigned prefix (12) and seven digits unique to the run,
+      // so the probe can run again without colliding with the last one.
+      taxId: `12-${String(stamp % 10_000_000).padStart(7, '0')}`,
       country: 'US',
       fiscalRegionId: usRegion.id,
       address: '100 Main St',

@@ -5,106 +5,37 @@ import {
   AccountType,
 } from '../../chart-of-accounts/enums/account-enums';
 import { AccountTemplateDto } from '../entities/coa-template.entity';
-import { findCountryProfile, serviceChargeRateFor } from './country-profiles';
-import { principalTaxName } from './country-tax-schemes';
+import { BooksLanguage, PayrollAccountNames, marketFor, splitCoaCode } from '../../markets';
 
 /**
- * The chart of accounts a new tenant starts with, per country.
+ * The chart of accounts a new tenant starts with — the same engine for every market.
  *
  * Every market except the United States and Panama used to be provisioned with
  * `usGaapCoaTemplate` — a fifteen-account plan, in English, whose only tax account is
  * "Sales Tax Payable". A Dominican tenant opened its books to `1110 Cash and Cash Equivalents`
  * and had nowhere to post ITBIS. That is not a localisation gap, it is an unusable ledger.
  *
- * What this builds is an IFRS-structured plan in the market's own language, with the tax accounts
- * named after the country's actual consumption tax (ITBIS, IVA, IGV, ITBMS, ISV) and split into
- * the receivable and payable sides that a VAT return requires. IFRS is the reporting framework
- * adopted, in full or for listed entities, across every market in this list, which is why a single
- * structure is defensible where a single account-number scheme would not be.
+ * What this builds is an IFRS-structured plan in the market's books language, with the tax accounts
+ * named after the market's actual consumption tax and split into the receivable and payable sides
+ * that a VAT return requires. IFRS is the reporting framework adopted, in full or for listed
+ * entities, across every market the product is sold in, which is why a single structure is
+ * defensible where a single account-number scheme would not be.
  *
- * What this deliberately does NOT do is reproduce a country's statutory chart of accounts where
- * one is legally prescribed — Colombia's PUC (Decreto 2650), Peru's PCGE, Ecuador's and Bolivia's
- * plans. Those are published catalogues with thousands of coded accounts; approximating one from
- * memory would produce a plan that looks official and files incorrectly. `STATUTORY_PLAN_REQUIRED`
- * names them so the gap is visible in code and to the tenant, rather than hidden behind a chart
- * that appears complete.
+ * What a market adds to the plan is the market's own declaration (`markets/<cc>/accounting.ts`):
+ * the institutions its payroll is remitted to, its excise tax, its legal service charge, the
+ * authority's grouping codes, and the official plan its law prescribes where this template does
+ * not reproduce it. This file names no market.
  */
-export const STATUTORY_PLAN_REQUIRED: Readonly<Record<string, string>> = {
-  CO: 'Colombia exige el Plan Único de Cuentas (Decreto 2650). Importa el PUC oficial antes de reportar a la DIAN.',
-  PE: 'Perú exige el Plan Contable General Empresarial (PCGE). Impórtalo antes de presentar información a SUNAT.',
-  EC: 'Ecuador exige el catálogo de cuentas de la Superintendencia de Compañías para las sociedades sujetas a su control.',
-  BO: 'Bolivia exige el plan de cuentas del SIN para la presentación de estados financieros.',
-};
-
-/**
- * The shape of an account CODE, per country — declared here, beside the codes themselves.
- *
- * `accounts` are addressed by an ordered list of segments (`AccountSegmentDefinition`), and
- * `ChartOfAccountsService.create` refuses any account whose segment count differs from the
- * organization's definition. Those two facts lived in two modules that never agreed: this file
- * emitted one segment per account while `AccountSegmentsService.initializeDefault` wrote a fixed
- * four-level structure into every organization, so the FIRST account of the FIRST tenant was
- * rejected — provisioning could not survive its own opening balance sheet.
- *
- * Declaring the structure next to the template makes the two impossible to separate: `group()`
- * and `leaf()` split their code through {@link splitCoaCode}, `OrganizationsService` initialises
- * the organization from {@link coaSegmentsFor}, and `coa-segments.spec.ts` asserts for every
- * supported country that every code the template emits fits the structure the same country
- * declares. A statutory plan added later — Colombia's PUC writes `1105.05`, Peru's PCGE `10.1` —
- * declares its own lengths here and the template follows automatically.
- */
-export interface CoaSegmentSpec {
-  name: string;
-  length: number;
-  isRequired: boolean;
-}
-
-/**
- * The IFRS starting plan below writes four-digit codes (`1000` → `1100` → `1110`), which is one
- * segment, not four. A code is a single addressable value here; the hierarchy is carried by
- * `parentId`, not by the code's punctuation.
- */
-const DEFAULT_COA_SEGMENTS: readonly CoaSegmentSpec[] = Object.freeze([
-  Object.freeze({ name: 'Cuenta', length: 4, isRequired: true }),
-]);
-
-/** Countries whose statutory plan uses a different code shape declare it here. */
-const COA_SEGMENTS_BY_COUNTRY: Readonly<Record<string, readonly CoaSegmentSpec[]>> = {};
-
-/** The account-code structure a country's chart of accounts is written in. */
-export function coaSegmentsFor(countryCode: string): readonly CoaSegmentSpec[] {
-  return COA_SEGMENTS_BY_COUNTRY[countryCode?.toUpperCase() ?? ''] ?? DEFAULT_COA_SEGMENTS;
-}
-
-/** Total number of characters a country's account code carries. */
-export function coaCodeLength(countryCode: string): number {
-  return coaSegmentsFor(countryCode).reduce((total, segment) => total + segment.length, 0);
-}
-
-/**
- * Split a template code into the segments the country's structure declares.
- *
- * Throws rather than truncating: a code that does not fit the structure is a defect in the
- * template, and the only thing worse than failing to provision is provisioning a chart whose
- * codes have been silently reshaped.
- */
-export function splitCoaCode(countryCode: string, code: string): string[] {
-  const specs = coaSegmentsFor(countryCode);
-  const expected = coaCodeLength(countryCode);
-  if (code.length !== expected) {
-    throw new Error(
-      `El código contable "${code}" no encaja en la estructura de ${countryCode} ` +
-        `(${specs.map((s) => s.length).join('-')}, ${expected} caracteres).`,
-    );
-  }
-  const segments: string[] = [];
-  let offset = 0;
-  for (const spec of specs) {
-    segments.push(code.slice(offset, offset + spec.length));
-    offset += spec.length;
-  }
-  return segments;
-}
+export {
+  COUNTRY_SPECIFIC_COA_TERMS,
+  STATUTORY_PLAN_REQUIRED,
+  coaCodeLength,
+  coaSegmentsFor,
+  hasCoaTemplate,
+  requiresStatutoryPlanImport,
+  splitCoaCode,
+  type CoaSegmentSpec,
+} from '../../markets';
 
 /**
  * The balance a type normally carries. An account whose nature differs from this is a CONTRA
@@ -129,44 +60,8 @@ interface Leaf {
   role?: AccountRole;
 }
 
-/**
- * What a market adds to, or renames in, the neutral starting plan (audit 2026-11-07, FIN-COA-03,
- * LOC-02, SP-02).
- *
- * The plan used to give every Spanish-speaking market the Dominican payroll institutions — «AFP por
- * Pagar (TSS)», «SFS por Pagar (TSS)», «SRL e INFOTEP por Pagar», «Aportes Patronales
- * (TSS/INFOTEP)» —, the Dominican legal tip of Ley 16-92 and the ISC, because the pilot market's
- * vocabulary was the default. A Mexican ledger opened with Dominican social-security funds and no
- * IEPS. The base below is now neutral; a market's own vocabulary lives here, as data, and a market
- * with no entry receives the neutral names rather than another country's.
- *
- * Every name here is a starting point that a local accountant must confirm (verificar con
- * contador/abogado local): it names the institution an account is remitted to, which is a legal
- * fact of each country.
- */
-interface CoaCountryPack {
-  /** Payroll liability and expense names, in the country's own institutions. */
-  payroll?: Partial<PayrollAccountNames>;
-  /** The excise tax the market levies under its own name (ISC, IEPS, ICE, INC). */
-  exciseTax?: string;
-  /** The legal service charge account, for markets whose profile declares one. */
-  serviceCharge?: string;
-  /**
-   * The authority's grouping code per template account code — Mexico's «código agrupador» of the
-   * SAT (Anexo 24 de la RMF), which the electronic-accounting catalogue requires on every account.
-   */
-  fiscalGroupingCodes?: Readonly<Record<string, string>>;
-}
-
-interface PayrollAccountNames {
-  pension: string;
-  health: string;
-  otherContributions: string;
-  incomeTaxWithheld: string;
-  employerContributions: string;
-}
-
-const NEUTRAL_PAYROLL: Readonly<Record<'es' | 'pt' | 'en', PayrollAccountNames>> = {
+/** Payroll account names where the market names no institution of its own. */
+const NEUTRAL_PAYROLL: Readonly<Record<BooksLanguage, PayrollAccountNames>> = {
   es: {
     pension: 'Aportes de Pensión por Pagar',
     health: 'Aportes de Salud por Pagar',
@@ -190,115 +85,7 @@ const NEUTRAL_PAYROLL: Readonly<Record<'es' | 'pt' | 'en', PayrollAccountNames>>
   },
 };
 
-/**
- * SAT «código agrupador» (Anexo 24), at the first level of the catalogue, for the accounts of the
- * neutral plan. The first level is the one this product can assign without knowing the company's
- * operations (national or foreign customers, rate of the sale); the accountant refines a subaccount
- * where the company needs the second level. Verificar con contador local.
- */
-const MX_SAT_GROUPING_CODES: Readonly<Record<string, string>> = {
-  '1000': '100',
-  '1110': '101',
-  '1120': '102',
-  '1130': '105',
-  '1140': '115',
-  '1150': '118',
-  '1155': '113',
-  '1160': '109',
-  '2000': '200',
-  '2110': '201',
-  '2120': '205',
-  '2130': '208',
-  '2135': '216',
-  '2140': '210',
-  '2141': '211',
-  '2142': '211',
-  '2143': '211',
-  '2144': '216',
-  '2150': '213',
-  '2165': '213',
-  '2170': '206',
-  '3000': '300',
-  '3100': '301',
-  '3300': '304',
-  '3400': '305',
-  '4000': '400',
-  '4100': '401',
-  '4200': '401',
-  '4300': '402',
-  '4900': '403',
-  '5000': '500',
-  '5100': '501',
-  '5200': '601',
-  '5250': '601',
-  '5300': '601',
-  '5400': '601',
-  '5600': '601',
-  '5700': '701',
-  '5750': '701',
-};
-
-const COA_COUNTRY_PACKS: Readonly<Record<string, CoaCountryPack>> = {
-  DO: {
-    payroll: {
-      pension: 'AFP por Pagar (TSS)',
-      health: 'SFS por Pagar (TSS)',
-      otherContributions: 'SRL e INFOTEP por Pagar',
-      incomeTaxWithheld: 'ISR de Empleados Retenido por Pagar',
-      employerContributions: 'Aportes Patronales (TSS/INFOTEP)',
-    },
-    exciseTax: 'Impuesto Selectivo al Consumo por Pagar',
-    // Ley 16-92, art. 228: the 10 % legal tip on hospitality services.
-    serviceCharge: 'Propina Legal por Pagar',
-  },
-  MX: {
-    payroll: {
-      pension: 'Aportaciones SAR (Retiro, Cesantía y Vejez) por Pagar',
-      health: 'Cuotas IMSS por Pagar',
-      otherContributions: 'Aportaciones INFONAVIT por Pagar',
-      incomeTaxWithheld: 'ISR Retenido por Sueldos y Salarios por Pagar',
-      employerContributions: 'Cuotas Patronales IMSS, SAR e INFONAVIT',
-    },
-    exciseTax: 'IEPS por Pagar',
-    fiscalGroupingCodes: MX_SAT_GROUPING_CODES,
-  },
-  CO: {
-    payroll: {
-      pension: 'Aportes a Fondos de Pensiones por Pagar',
-      health: 'Aportes a EPS por Pagar',
-      otherContributions: 'Aportes ARL y Parafiscales por Pagar',
-      incomeTaxWithheld: 'Retención en la Fuente por Salarios por Pagar',
-      employerContributions: 'Aportes Patronales (Seguridad Social y Parafiscales)',
-    },
-    exciseTax: 'Impuesto Nacional al Consumo por Pagar',
-  },
-  EC: {
-    exciseTax: 'ICE por Pagar',
-  },
-  CR: {
-    // The 10 % service charge on restaurant bills belongs to the staff, not to Hacienda.
-    serviceCharge: 'Cargo por Servicio (10 %) por Pagar',
-  },
-};
-
-/** The pack for a market, or an empty one: a market with no entry gets the neutral plan. */
-function coaPackFor(countryCode: string): CoaCountryPack {
-  return COA_COUNTRY_PACKS[countryCode] ?? {};
-}
-
-/**
- * Names in the opening plan that belong to ONE market's institutions. A plan provisioned for any
- * other market must contain none of them — `coa-builder.spec.ts` and `verify:markets` assert it,
- * which is what keeps a pilot market's vocabulary from becoming everyone's default again.
- */
-export const COUNTRY_SPECIFIC_COA_TERMS: Readonly<Record<string, readonly RegExp[]>> = {
-  DO: [/\bTSS\b/, /\bAFP\b/, /\bSFS\b/, /\bSRL\b/, /INFOTEP/, /Propina Legal/, /ITBIS/, /Selectivo/],
-  MX: [/IMSS/, /INFONAVIT/, /\bSAR\b/, /IEPS/],
-  CO: [/\bEPS\b/, /\bARL\b/, /Parafiscales/, /Impuesto Nacional al Consumo/],
-  EC: [/\bICE\b/],
-};
-
-/** Spanish labels. Portuguese is handled separately for Brazil; English for the United States. */
+/** The plan's names in each books language. A market's own institutions are its declaration's. */
 const ES = {
   assets: 'Activo',
   currentAssets: 'Activo Corriente',
@@ -449,14 +236,19 @@ const EN: typeof ES = {
   otherExpenses: 'Other Expenses',
 };
 
-function labelsFor(countryCode: string): typeof ES {
-  if (countryCode === 'BR') return PT;
-  if (countryCode === 'US') return EN;
-  return ES;
+
+const LABELS: Readonly<Record<BooksLanguage, typeof ES>> = { es: ES, pt: PT, en: EN };
+
+/**
+ * The language the market's books are kept in. A market the product is not sold in has no books
+ * language; the plan is then written in the product's default language, Spanish.
+ */
+function booksLanguageOf(countryCode: string): BooksLanguage {
+  return marketFor(countryCode).profile?.booksLanguage ?? 'es';
 }
 
 function groupingCode(countryCode: string, code: string): { fiscalGroupingCode?: string } {
-  const value = coaPackFor(countryCode).fiscalGroupingCodes?.[code];
+  const value = marketFor(countryCode).accounting.fiscalGroupingCodes?.[code];
   return value ? { fiscalGroupingCode: value } : {};
 }
 
@@ -503,52 +295,58 @@ function leaf(
   };
 }
 
+
 /**
  * Build the starting chart of accounts for a country.
  *
  * The tax accounts are the reason this is a function and not a constant: a VAT return is prepared
  * from the difference between tax charged on sales and tax paid on purchases, so both sides have
- * to exist as separate postable accounts, and both have to be named after the tax the country
- * actually levies. `principalTaxName` supplies that name from the same table the default taxes are
- * seeded from, so the ledger and the tax list cannot disagree.
+ * to exist as separate postable accounts, and both have to be named after the tax the market
+ * actually levies. The market's `principalTaxName` supplies that name from the same declaration
+ * its default taxes are seeded from, so the ledger and the tax list cannot disagree.
  */
 export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto[] {
   const code = countryCode?.toUpperCase() ?? '';
-  const t = labelsFor(code);
-  const tax = principalTaxName(code);
-  const isEnglish = code === 'US';
-  const isPortuguese = code === 'BR';
+  const market = marketFor(code);
+  const language = booksLanguageOf(code);
+  const t = LABELS[language];
+  const tax = market.taxes.principalTaxName;
 
-  const taxReceivable = isEnglish
-    ? `${tax} Receivable`
-    : isPortuguese
-      ? `${tax} a Recuperar`
-      : `${tax} por Cobrar (Crédito Fiscal)`;
-  const taxPayable = isEnglish
-    ? `${tax} Payable`
-    : isPortuguese
-      ? `${tax} a Recolher`
-      : `${tax} por Pagar (Débito Fiscal)`;
-  const withholdingReceivable = isEnglish
-    ? 'Tax Withheld by Customers'
-    : isPortuguese
-      ? 'Tributos Retidos por Clientes'
-      : 'Retenciones a Favor';
-  const withholdingPayable = isEnglish
-    ? 'Taxes Withheld from Vendors'
-    : isPortuguese
-      ? 'Tributos Retidos de Terceiros'
-      : 'Retenciones por Pagar';
-
-  const pack = coaPackFor(code);
-  const payroll: PayrollAccountNames = {
-    ...NEUTRAL_PAYROLL[isEnglish ? 'en' : isPortuguese ? 'pt' : 'es'],
-    ...pack.payroll,
+  const TAX_ACCOUNTS: Readonly<Record<BooksLanguage, { receivable: string; payable: string; withheldByCustomers: string; withheldFromVendors: string }>> = {
+    en: {
+      receivable: `${tax} Receivable`,
+      payable: `${tax} Payable`,
+      withheldByCustomers: 'Tax Withheld by Customers',
+      withheldFromVendors: 'Taxes Withheld from Vendors',
+    },
+    pt: {
+      receivable: `${tax} a Recuperar`,
+      payable: `${tax} a Recolher`,
+      withheldByCustomers: 'Tributos Retidos por Clientes',
+      withheldFromVendors: 'Tributos Retidos de Terceiros',
+    },
+    es: {
+      receivable: `${tax} por Cobrar (Crédito Fiscal)`,
+      payable: `${tax} por Pagar (Débito Fiscal)`,
+      withheldByCustomers: 'Retenciones a Favor',
+      withheldFromVendors: 'Retenciones por Pagar',
+    },
   };
-  const exciseTaxName = pack.exciseTax ?? t.exciseTax;
-  // Only a market whose profile levies a legal service charge gets the account; the rate and the
-  // account come from the same profile, so they cannot disagree.
-  const serviceChargeName = serviceChargeRateFor(code) > 0 ? (pack.serviceCharge ?? t.serviceCharge) : null;
+  const taxAccounts = TAX_ACCOUNTS[language];
+  const taxReceivable = taxAccounts.receivable;
+  const taxPayable = taxAccounts.payable;
+  const withholdingReceivable = taxAccounts.withheldByCustomers;
+  const withholdingPayable = taxAccounts.withheldFromVendors;
+
+  const accounting = market.accounting;
+  const payroll: PayrollAccountNames = {
+    ...NEUTRAL_PAYROLL[language],
+    ...(accounting.payrollAccounts ?? {}),
+  };
+  const exciseTaxName = accounting.exciseTaxAccount ?? t.exciseTax;
+  // Only a market whose taxes declare a legal service charge gets the account; the rate and the
+  // account come from the same market, so they cannot disagree.
+  const serviceChargeName = market.taxes.serviceChargeRate > 0 ? (accounting.serviceChargeAccount ?? t.serviceCharge) : null;
 
   const D = AccountNature.DEBIT;
   const C = AccountNature.CREDIT;
@@ -640,11 +438,3 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
 }
 
 /** True when the country is one whose statutory plan this template does not reproduce. */
-export function requiresStatutoryPlanImport(countryCode: string): boolean {
-  return Boolean(STATUTORY_PLAN_REQUIRED[countryCode?.toUpperCase() ?? '']);
-}
-
-/** Guard used by the seeder: a country with no profile has no chart of accounts. */
-export function hasCoaTemplate(countryCode: string): boolean {
-  return Boolean(findCountryProfile(countryCode));
-}

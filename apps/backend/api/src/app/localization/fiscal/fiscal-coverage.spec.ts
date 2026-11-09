@@ -13,7 +13,7 @@ import { COUNTRY_TAX_SCHEMES, findTaxScheme, principalTaxName } from './country-
 import { STATUTORY_PLAN_REQUIRED, buildCountryCoaTemplate } from './coa-builder';
 import { AccountTemplateDto } from '../entities/coa-template.entity';
 import { AccountNature, AccountType } from '../../chart-of-accounts/enums/account-enums';
-import { FISCAL_COVERAGE, coverageFor } from './fiscal-coverage';
+import { coverageFor } from './fiscal-coverage';
 
 /**
  * A market is either fully supported or it is not offered.
@@ -289,7 +289,6 @@ describe('Fiscal coverage', () => {
     it.each([...REGIMES_IMPLEMENTED, ...NO_STAMPING_REGIME])(
       '%s states its coverage per capability rather than only a status flag',
       (code) => {
-        expect(FISCAL_COVERAGE[code]).toBeDefined();
         const invoicing = coverageFor(code).capabilities.find(
           (c) => c.capability === 'electronicInvoicing',
         );

@@ -1,28 +1,20 @@
-import {
-  isValidArgentineCuit,
-  isValidBrazilianCnpj,
-  isValidChileanRut,
-  isValidColombianNit,
-  isValidDominicanTaxId,
-  isValidEcuadorianRuc,
-  isValidGuatemalanNit,
-  isValidMexicanRfc,
-  isValidPeruvianRuc,
-  isValidUruguayanRut,
-  isValidUsEin,
-  isValidVenezuelanRif,
-  TaxpayerKind,
-} from './tax-id-validators';
-// `validateTaxId`, `canonicalizeTaxId`, `isSupportedFiscalCountry` and `TAX_ID_VALIDATORS` moved to
-// the catalogue when `TAX_ID_RULES` was retired: they are derived from `IDENTITY_DOCUMENT_TYPES`
-// now, not a per-country map. The check-digit functions above stay here — they are the code the
-// catalogue rows cite by name.
-import {
-  TAX_ID_VALIDATORS,
-  canonicalizeTaxId,
-  isSupportedFiscalCountry,
-  validateTaxId,
-} from './identity-document-catalogue';
+// Each market's check-digit functions live in its own package (`markets/<cc>/identity.ts`); the
+// catalogue-level answers (`validateTaxId`, `canonicalizeTaxId`, …) are derived from what the
+// packages declare, never from a per-country map.
+import { isValidArgentineCuit } from './ar/identity';
+import { isValidBrazilianCnpj } from './br/identity';
+import { isValidChileanRut } from './cl/identity';
+import { isValidColombianNit } from './co/identity';
+import { isValidDominicanTaxId } from './do/identity';
+import { isValidEcuadorianRuc } from './ec/identity';
+import { isValidGuatemalanNit } from './gt/identity';
+import { isValidMexicanRfc } from './mx/identity';
+import { isValidPeruvianRuc } from './pe/identity';
+import { isValidUruguayanRut } from './uy/identity';
+import { isValidUsEin } from './us/identity';
+import { isValidVenezuelanRif } from './ve/identity';
+import { TaxpayerKind } from './contracts';
+import { TAX_ID_VALIDATORS, canonicalizeTaxId, isSupportedFiscalCountry, validateTaxId } from './queries/identity';
 
 /**
  * These are the checks the product exists to get right.

@@ -4,12 +4,14 @@
  * The product is sold across Latin America and the United States. Each market must look and
  * behave as if the product were made there — its language, its tax and document vocabulary, its
  * authority's rules — and the way to get there is a core that knows no country, with everything
- * that belongs to one market in that market's regime adapter or in data. A Dominican word in a
- * generic screen, or `if (country === 'DO')` in a generic service, is how the next market gets the
- * Dominican product again.
+ * that belongs to one market in that market's package, `markets/<cc>/`, reached through the
+ * registry (docs/ARQUITECTURA_MERCADOS.md). A Dominican word in a generic screen,
+ * `if (country === 'DO')` in a generic service, or an import of `markets/do/` from a business
+ * module is how the next market gets the Dominican product again.
  *
- * `country-neutrality.mjs` counts those occurrences outside the places they belong and fails CI
- * when a count rises. The baseline is today's debt; it can only go down.
+ * `country-neutrality.mjs` counts those occurrences outside the market packages and fails CI when a
+ * count rises. The baseline is today's debt; it can only go down, and the plan's last phase takes it
+ * to zero.
  */
 
 /**
@@ -44,30 +46,25 @@ export function termPattern(stem) {
 export const COUNTRY_CODES = ['DO', 'US', 'MX', 'CO', 'CL', 'PE', 'AR', 'BR', 'EC', 'UY', 'PY', 'BO', 'VE', 'PA', 'CR', 'GT', 'SV', 'HN', 'NI'];
 
 /**
- * Where a market's vocabulary belongs. A path that matches is that market's own code or data:
- * its regime adapter, its payroll strategy, its reports, the country catalogues.
+ * Where a market's vocabulary belongs: its own package, `markets/<cc>/` (docs/ARQUITECTURA_MERCADOS.md).
+ * Nothing else is exempt — not the contract, the kit or the queries of `markets/`, which serve every
+ * market alike, and not a folder named after a regime or an authority somewhere in a business
+ * module. Code of one market that still lives outside its package is counted, so the debt is visible
+ * and only goes down as each phase of the plan moves it.
  */
-export const COUNTRY_SCOPED_PATHS = [
-  /\/regimes\//,
-  /\/strategies\//,
-  /\/adapters\//,
-  /\/localization\/fiscal\//,
-  /\/contracts\/country-pack\//,
-  /\/reports\/(dr|mx)-/,
-  /dominican/i,
-  /(^|[/._-])(do|mx|co|pe|cl|ar|br|ec|us)([/._-])/,
-  /\/ecf[-.]/,
-  /\/einvoicing\/(services|entities|dto)\/ecf/,
-  /payroll-tss/,
-  // A file named after its authority is that market's, wherever it sits (`dgii-transport.service`).
-  /(^|\/)(dgii|ncf|sat|pac|dian|sunat|sii|sri|afip|arca|sefaz|nfe|cfdi)[-.]/i,
-];
+export const MARKET_PACKAGE = new RegExp(`^/markets/(${COUNTRY_CODES.map((c) => c.toLowerCase()).join('|')})/`);
 
 /**
- * Never scanned: history, tests, generated catalogues — and Nest modules, the composition roots
- * that must name every regime adapter they wire.
+ * The one file that imports every market package: the catalogue that lists them. Every other file
+ * reaches a market through the registry (`markets/index.ts`).
  */
-export const IGNORED_PATHS = [/\/migrations\//, /\.spec\.ts$/, /\.testing\.ts$/, /\.module\.ts$/, /\.d\.ts$/, /\/assets\/i18n\//, /\/i18n\/messages\//, /\/testing\//];
+export const MARKET_CATALOGUE = '/markets/catalogue.ts';
+
+/**
+ * Never scanned: history (a migration records what the schema was, in the words of its time), tests
+ * and their fixtures, and generated catalogues.
+ */
+export const IGNORED_PATHS = [/\/migrations\//, /\.spec\.ts$/, /\.testing\.ts$/, /\.d\.ts$/, /\/assets\/i18n\//, /\/i18n\/messages\//, /\/testing\//];
 
 /**
  * An i18n key that belongs to one market: a segment that is a country code (`settings.fiscal.do.x`)

@@ -9,7 +9,7 @@ import { s } from '../contracts/copilot/copilot-tools.contract';
 import { StorageService } from '../storage/storage.service';
 import { BadRequestError, NotFoundError, ServiceUnavailableError } from '../i18n/localized.exception';
 import { TaxIdRegistryPort } from '../localization/contracts/tax-id.contract';
-import { ReceivedNcfError, ReceivedNcfWarning } from '../localization/contracts/ncf.contract';
+import type { ReceivedDocumentCheck } from '../markets';
 import {
   PurchaseCaptureProfile,
   ReceivedDocumentKind,
@@ -113,10 +113,11 @@ export interface BillCaptureSuggestion {
   checks: {
     /** The document number checked by the market's rule; `unverified` where the market has none. */
     ncf: {
-      status: 'ok' | 'missing' | 'invalid' | 'unverified';
-      error: ReceivedNcfError | 'format' | 'check_digit' | null;
+      status: ReceivedDocumentCheck['status'];
+      /** Why the number was refused, in the market rule's own terms (`format`, `check_digit`, `unknown_type`…). */
+      error: ReceivedDocumentCheck['error'];
       type: string | null;
-      warnings: ReceivedNcfWarning[];
+      warnings: ReceivedDocumentCheck['warnings'];
     };
     arithmetic: ArithmeticIssue[];
     /** A live bill from this supplier with the same document number: probably this one, already entered. */

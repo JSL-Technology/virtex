@@ -145,6 +145,12 @@ export const MODULE_OF_FOLDER = {
   config: 'plataforma',
   database: 'plataforma',
   currencies: 'plataforma',
+  // Los paquetes de mercado (docs/ARQUITECTURA_MERCADOS.md): lo que distingue a cada país, con la
+  // misma estructura en todos. Son datos de referencia que lee todo el mundo —incluidas las
+  // migraciones y el seed de aprovisionamiento—, así que son plataforma y no dependen de ningún
+  // módulo de negocio. Que nadie fuera de `markets/` importe un paquete concreto lo comprueba
+  // `verify:country-neutrality`.
+  markets: 'plataforma',
 };
 
 /**

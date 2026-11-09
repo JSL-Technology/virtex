@@ -1,5 +1,5 @@
 import { COUNTRY_PACKS, countryPackFor } from '../../contracts/country-pack/country-pack';
-import { FISCAL_COVERAGE, coverageFor } from './fiscal-coverage';
+import { coverageFor } from './fiscal-coverage';
 import { supportedCountryCodes } from './country-profiles';
 
 /**
@@ -8,12 +8,12 @@ import { supportedCountryCodes } from './country-profiles';
  *
  * The returns screen reads the country pack's `fiscalReturns.generator`: DGII files, SAT
  * electronic accounting, or none — and then it says, in the company's own country's name, that the
- * authority's files are not generated and lists the reports to prepare them with. Coverage is a
- * separate table. If they disagreed, one screen would promise a filing the other says does not
- * exist; this keeps them in step for every market either one knows.
+ * authority's files are not generated and lists the reports to prepare them with. Coverage is what
+ * the market's `returns.ts` declares beside the generator. If they disagreed, one screen would
+ * promise a filing the other says does not exist; this keeps them in step for every market.
  */
 describe('fiscal returns: the screen and the coverage declare the same thing', () => {
-  const markets = [...new Set([...Object.keys(COUNTRY_PACKS), ...Object.keys(FISCAL_COVERAGE), ...supportedCountryCodes()])].sort();
+  const markets = [...new Set([...Object.keys(COUNTRY_PACKS), ...supportedCountryCodes()])].sort();
   const level = (country: string, capability: string) =>
     coverageFor(country).capabilities.find((c) => c.capability === capability)?.level ?? 'not-implemented';
 

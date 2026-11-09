@@ -7,9 +7,9 @@
  *   npm run verify:country-neutrality -- --update  # lock in a decrease (refuses an increase without --force)
  */
 import { readdirSync, readFileSync, statSync, writeFileSync, existsSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { COUNTRY_TERMS, COUNTRY_CODES, COUNTRY_SCOPED_PATHS, IGNORED_PATHS, COUNTRY_SCOPED_KEY, termPattern } from './country-neutrality.config.mjs';
+import { COUNTRY_TERMS, COUNTRY_CODES, MARKET_CATALOGUE, MARKET_PACKAGE, IGNORED_PATHS, COUNTRY_SCOPED_KEY, termPattern } from './country-neutrality.config.mjs';
 
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = join(HERE, '..', '..');
@@ -26,7 +26,7 @@ const termRegex = Object.fromEntries(
   Object.entries(COUNTRY_TERMS).map(([country, stems]) => [country, new RegExp(stems.map(termPattern).join('|'))]),
 );
 const codes = COUNTRY_CODES.join('|');
-const COUNTRY_ROW = new RegExp(`^\\s*['"]?(${codes})['"]?\\s*:`);
+const MARKET_IMPORT = /(?:from\s+|import\(\s*)['"](\.[^'"]+)['"]/;
 const BRANCH = new RegExp(`(?:[!=]==?\\s*['"](${codes})['"])|(?:['"](${codes})['"]\\s*[!=]==?)|(?:case\\s+['"](${codes})['"]\\s*:)`);
 
 function walk(dir, ext, out = []) {
@@ -92,14 +92,24 @@ for (const { area, dir, ext } of SOURCES) {
     const rel = relative(dir, file).replace(/\\/g, '/');
     const path = `/${rel}`;
     if (IGNORED_PATHS.some((rx) => rx.test(path))) continue;
-    if (COUNTRY_SCOPED_PATHS.some((rx) => rx.test(path))) continue;
+    const ownMarket = area === 'api' ? MARKET_PACKAGE.exec(path)?.[1] ?? null : null;
     const lines = stripComments(readFileSync(file, 'utf8'), file.endsWith('.html')).split('\n');
     lines.forEach((code, index) => {
       if (!code.trim()) return;
-      // A row of a table keyed by country (`CO: { regime: 'DIAN' }`) is per-country DATA, which is
-      // the sanctioned shape; and a line naming several markets' terms is an enumeration of all of
-      // them (`'Tax ID (RNC, RFC, EIN…)'`), which ties the code to none.
-      if (COUNTRY_ROW.test(code)) return;
+      // A market package is reached through the registry, never by its path: an import of
+      // `markets/<cc>/` from anywhere but that same package is a dependency on one country.
+      const imported = area === 'api' && path !== MARKET_CATALOGUE ? MARKET_IMPORT.exec(code) : null;
+      if (imported) {
+        const target = `/${relative(dir, resolve(dirname(file), imported[1])).replace(/\\/g, '/')}/`;
+        const targetMarket = MARKET_PACKAGE.exec(target)?.[1];
+        if (targetMarket && targetMarket !== ownMarket) {
+          bump(`${moduleOf(area, rel)}|${targetMarket.toUpperCase()}|market-import`, `${area}/${rel}:${index + 1}`);
+        }
+      }
+      // Inside its own package a market speaks its own vocabulary: that is where it belongs.
+      if (ownMarket) return;
+      // A line naming several markets' terms is an enumeration of all of them
+      // (`'Tax ID (RNC, RFC, EIN…)'`), which ties the code to none.
       const named = Object.entries(termRegex).filter(([, rx]) => rx.test(code)).map(([country]) => country);
       if (named.length === 1) bump(`${moduleOf(area, rel)}|${named[0]}|term`, `${area}/${rel}:${index + 1}`);
       const branch = BRANCH.exec(code);
@@ -141,7 +151,11 @@ if (args.has('--update')) {
     console.error(`\n✗ ${worse.length} cuenta(s) subieron; el baseline no se reescribe sin --force.`);
     process.exit(1);
   }
-  writeFileSync(BASELINE_PATH, `${JSON.stringify({ $note: 'Country-specific vocabulary and branches outside the places they belong. Only goes down. See country-neutrality.config.mjs.', counts: Object.fromEntries(Object.entries(counts).sort()) }, null, 2)}\n`);
+  // The note records why the baseline is what it is; an update keeps it.
+  const note = existsSync(BASELINE_PATH)
+    ? JSON.parse(readFileSync(BASELINE_PATH, 'utf8')).$note
+    : 'Country-specific vocabulary, branches and market-package imports outside the market packages (markets/<cc>/). Only goes down. See country-neutrality.config.mjs.';
+  writeFileSync(BASELINE_PATH, `${JSON.stringify({ $note: note, counts: Object.fromEntries(Object.entries(counts).sort()) }, null, 2)}\n`);
   console.log(`\n✓ Baseline actualizado: ${baseTotal} → ${total}`);
   process.exit(0);
 }
@@ -152,7 +166,7 @@ if (worse.length) {
     console.error(`   ${key}   ${baseline[key] ?? 0} → ${n}`);
     for (const line of details.filter((d) => d.startsWith(`${key}  `)).slice(0, 8)) console.error(`       ${line.split('  ')[1]}`);
   }
-  console.error('\n  Lo de un país vive en su adaptador de régimen o en datos; el núcleo no nombra países.');
+  console.error('\n  Lo de un país vive en su paquete, markets/<cc>/, y se alcanza por el registro (docs/ARQUITECTURA_MERCADOS.md).');
   process.exit(1);
 }
 if (better.length) console.log(`\n✓ ${better.length} cuenta(s) bajaron. Fija el avance con: npm run verify:country-neutrality -- --update`);
