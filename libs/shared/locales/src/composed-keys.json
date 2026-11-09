@@ -110,12 +110,6 @@
       "PAID",
       "VOID"
     ],
-    "purchasing.landed_costs.method": [
-      "VALUE",
-      "QUANTITY",
-      "WEIGHT",
-      "VOLUME"
-    ],
     "accounts_payable.status": [
       "DRAFT",
       "PENDING_APPROVAL",
@@ -146,17 +140,6 @@
       "available",
       "not_in_plan",
       "provider_missing"
-    ],
-    "ai.policy.feature": [
-      "anomaly_narrative",
-      "bill_capture",
-      "column_mapping",
-      "compose",
-      "copilot",
-      "deep_analysis",
-      "order_intake",
-      "product_vision",
-      "reconcile_ambiguous"
     ],
     "ai.admin.usage_feature": [
       "anomaly_narrative",
@@ -192,6 +175,11 @@
       "SCHEDULED",
       "MANUAL",
       "WORKFLOW"
+    ],
+    "ai.agents.verdict": [
+      "UP",
+      "DOWN",
+      "REPORT"
     ],
     "ai.anomalies.category_label": [
       "sales",
@@ -411,12 +399,31 @@
       "name",
       "image"
     ],
+    "ai.policy.feature": [
+      "anomaly_narrative",
+      "bill_capture",
+      "column_mapping",
+      "compose",
+      "copilot",
+      "deep_analysis",
+      "order_intake",
+      "product_vision",
+      "reconcile_ambiguous"
+    ],
     "ai.predictions.status_label": [
       "STOCKOUT_RISK",
       "REORDER",
       "OVERSTOCK",
       "DEAD_STOCK",
       "OK"
+    ],
+    "ai.provenance.source": [
+      "AI_COPILOT",
+      "AI_CAPTURE",
+      "AI_AGENT",
+      "AI_RECONCILIATION",
+      "AI_MAIL",
+      "AI_MCP"
     ],
     "approvals.document_type": [
       "VENDOR_BILL",
@@ -659,6 +666,47 @@
       "TERMINATED"
     ],
     "identity_document": [],
+    "inbound_mail.bill_reason": [
+      "unknown_supplier",
+      "not_a_bill",
+      "possible_duplicate",
+      "document_number",
+      "arithmetic",
+      "unmatched_lines",
+      "no_total",
+      "rejected_by_rules"
+    ],
+    "inbound_mail.inbox_title": [
+      "BILLS",
+      "ORDERS"
+    ],
+    "inbound_mail.order_reason": [
+      "unknown_customer",
+      "unmatched_items",
+      "no_items",
+      "rejected_by_rules"
+    ],
+    "inbound_mail.purpose": [
+      "BILLS",
+      "ORDERS"
+    ],
+    "inbound_mail.purpose_help": [
+      "BILLS",
+      "ORDERS"
+    ],
+    "inbound_mail.record": [
+      "vendor_bill",
+      "quote"
+    ],
+    "inbound_mail.status": [
+      "RECEIVED",
+      "PROCESSING",
+      "PROCESSED",
+      "NEEDS_REVIEW",
+      "REJECTED",
+      "FAILED",
+      "DISMISSED"
+    ],
     "inventory.common.status": [
       "DRAFT",
       "POSTED",
@@ -882,11 +930,26 @@
       "VOID",
       "CANCELLED"
     ],
+    "purchasing.agreements.status": [
+      "DRAFT",
+      "ACTIVE",
+      "CLOSED",
+      "CANCELLED"
+    ],
+    "purchasing.landed_costs.method": [
+      "VALUE",
+      "QUANTITY",
+      "WEIGHT",
+      "VOLUME"
+    ],
     "purchasing.orders.status_label": [
       "DRAFT",
       "PENDING_APPROVAL",
       "APPROVED",
+      "SENT",
+      "PARTIALLY_RECEIVED",
       "RECEIVED",
+      "CLOSED",
       "CANCELLED"
     ],
     "purchasing.receipts.status": [
@@ -899,6 +962,17 @@
       "APPROVED",
       "REJECTED",
       "CONVERTED_TO_PO"
+    ],
+    "purchasing.rfqs.quote_status": [
+      "RECEIVED",
+      "AWARDED",
+      "DECLINED"
+    ],
+    "purchasing.rfqs.status": [
+      "DRAFT",
+      "SENT",
+      "AWARDED",
+      "CANCELLED"
     ],
     "recurring_entries.frequency": [
       "DAILY",
@@ -1051,6 +1125,26 @@
       "needs-credentials",
       "not-implemented"
     ],
+    "settings.permission_names": [
+      "ai_settings_manage",
+      "ai_usage_view",
+      "audit_view_trail",
+      "billing_manage",
+      "billing_view",
+      "branches_manage",
+      "branches_view",
+      "extensions_manage",
+      "extensions_view",
+      "roles_edit",
+      "roles_view",
+      "settings_edit_branding",
+      "settings_edit_company",
+      "taxes_edit",
+      "taxes_view",
+      "users_edit",
+      "users_view",
+      "workflows_manage"
+    ],
     "settings.profile.job_titles": [
       "ceo",
       "manager",
@@ -1058,6 +1152,11 @@
       "admin",
       "employee",
       "other"
+    ],
+    "settings.scope": [
+      "personal",
+      "company",
+      "admin"
     ],
     "settings.sections.rate_type": [
       "OFFICIAL",
@@ -1622,85 +1721,6 @@
       "host_unresolvable",
       "private_address",
       "method_not_allowed"
-    ],
-    "ai.provenance.source": [
-      "AI_COPILOT",
-      "AI_CAPTURE",
-      "AI_AGENT",
-      "AI_RECONCILIATION",
-      "AI_MAIL",
-      "AI_MCP"
-    ],
-    "ai.agents.verdict": [
-      "UP",
-      "DOWN",
-      "REPORT"
-    ],
-    "inbound_mail.inbox_title": [
-      "BILLS",
-      "ORDERS"
-    ],
-    "inbound_mail.purpose": [
-      "BILLS",
-      "ORDERS"
-    ],
-    "inbound_mail.purpose_help": [
-      "BILLS",
-      "ORDERS"
-    ],
-    "inbound_mail.status": [
-      "RECEIVED",
-      "PROCESSING",
-      "PROCESSED",
-      "NEEDS_REVIEW",
-      "REJECTED",
-      "FAILED",
-      "DISMISSED"
-    ],
-    "inbound_mail.record": [
-      "vendor_bill",
-      "quote"
-    ],
-    "inbound_mail.bill_reason": [
-      "unknown_supplier",
-      "not_a_bill",
-      "possible_duplicate",
-      "document_number",
-      "arithmetic",
-      "unmatched_lines",
-      "no_total",
-      "rejected_by_rules"
-    ],
-    "inbound_mail.order_reason": [
-      "unknown_customer",
-      "unmatched_items",
-      "no_items",
-      "rejected_by_rules"
-    ],
-    "settings.scope": [
-      "personal",
-      "company",
-      "admin"
-    ],
-    "settings.permission_names": [
-      "ai_settings_manage",
-      "ai_usage_view",
-      "audit_view_trail",
-      "billing_manage",
-      "billing_view",
-      "branches_manage",
-      "branches_view",
-      "extensions_manage",
-      "extensions_view",
-      "roles_edit",
-      "roles_view",
-      "settings_edit_branding",
-      "settings_edit_company",
-      "taxes_edit",
-      "taxes_view",
-      "users_edit",
-      "users_view",
-      "workflows_manage"
     ]
   },
   "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",

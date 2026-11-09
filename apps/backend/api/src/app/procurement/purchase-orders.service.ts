@@ -159,29 +159,9 @@ export class PurchaseOrdersService {
   ): Promise<PurchaseOrder> {
     let supplierName: string | null = null;
     const created = await this.dataSource.transaction(async (manager) => {
-      const supplier = await manager.findOneBy(Supplier, { id: dto.supplierId, organizationId });
-      supplierName = (supplier as { name?: string } | null)?.name ?? null;
-      if (!supplier) throw new BadRequestError('procurement.supplier_not_found');
-
-      const orderDate = toIsoDate(dto.orderDate ?? new Date());
-      const order = await manager.save(
-        manager.create(PurchaseOrder, {
-          organizationId,
-          branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
-          number: await this.nextNumber(manager, organizationId, orderDate),
-          supplierId: dto.supplierId,
-          orderDate,
-          expectedDate: dto.expectedDate ?? null,
-          status: PurchaseOrderStatus.DRAFT,
-          currencyCode: (dto.currencyCode ?? (await this.baseCurrency(manager, organizationId))).toUpperCase(),
-          exchangeRate: 1,
-          notes: dto.notes ?? null,
-          createdByUserId: actorUserId,
-        } as Partial<PurchaseOrder>),
-      );
-
-      await this.replaceLines(manager, order, dto.lines, organizationId);
-      return this.findOneWith(manager, order.id, organizationId);
+      const order = await this.createIn(manager, dto, organizationId, actorUserId);
+      supplierName = (order.supplier as { name?: string } | null)?.name ?? null;
+      return order;
     });
     this.events?.emit(BUSINESS_EVENTS.PURCHASE_ORDER_CREATED, {
       organizationId,
@@ -196,6 +176,46 @@ export class PurchaseOrdersService {
     return created;
   }
 
+  /**
+   * Create an order inside the caller's transaction: what an awarded quotation and a release
+   * against an agreement do (CMP-15), so the order and the document it came from commit together.
+   * `source` links it back; `lineLinks[i]` is the agreement line line `i` draws on.
+   */
+  async createIn(
+    manager: EntityManager,
+    dto: CreatePurchaseOrderDto,
+    organizationId: string,
+    actorUserId: string | null,
+    source: { requisitionId?: string | null; rfqId?: string | null; supplierQuoteId?: string | null; agreementId?: string | null; lineLinks?: ReadonlyArray<string | null> } = {},
+  ): Promise<PurchaseOrder> {
+    const supplier = await manager.findOneBy(Supplier, { id: dto.supplierId, organizationId });
+    if (!supplier) throw new BadRequestError('procurement.supplier_not_found');
+
+    const orderDate = toIsoDate(dto.orderDate ?? new Date());
+    const order = await manager.save(
+      manager.create(PurchaseOrder, {
+        organizationId,
+        branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
+        number: await this.nextNumber(manager, organizationId, orderDate),
+        supplierId: dto.supplierId,
+        orderDate,
+        expectedDate: dto.expectedDate ?? null,
+        status: PurchaseOrderStatus.DRAFT,
+        currencyCode: (dto.currencyCode ?? (await this.baseCurrency(manager, organizationId))).toUpperCase(),
+        exchangeRate: 1,
+        notes: dto.notes ?? null,
+        createdByUserId: actorUserId,
+        requisitionId: source.requisitionId ?? null,
+        rfqId: source.rfqId ?? null,
+        supplierQuoteId: source.supplierQuoteId ?? null,
+        agreementId: source.agreementId ?? null,
+      } as Partial<PurchaseOrder>),
+    );
+
+    await this.replaceLines(manager, order, dto.lines, organizationId, source.lineLinks);
+    return this.findOneWith(manager, order.id, organizationId);
+  }
+
   async update(
     id: string,
     dto: UpdatePurchaseOrderDto,
@@ -206,6 +226,12 @@ export class PurchaseOrdersService {
       const order = await this.findOneWith(manager, id, organizationId);
       if (!EDITABLE.includes(order.status)) {
         throw new BadRequestError('procurement.order_not_editable', { status: order.status });
+      }
+      // An order released against an agreement, or awarded from a quotation, carries the terms of
+      // that document (CMP-15): its supplier, currency and lines are not edited away from them.
+      // The dates, branch and notes still are.
+      if ((order.agreementId || order.supplierQuoteId) && (dto.lines !== undefined || dto.supplierId !== undefined || dto.currencyCode !== undefined)) {
+        throw new BadRequestError('procurement.order_terms_from_source_document', { number: order.number });
       }
 
       if (dto.supplierId !== undefined) {
@@ -607,6 +633,7 @@ export class PurchaseOrdersService {
     order: PurchaseOrder,
     lines: PurchaseOrderLineDto[],
     organizationId: string,
+    lineLinks?: ReadonlyArray<string | null>,
   ): Promise<void> {
     await manager.delete(PurchaseOrderLine, { orderId: order.id });
 
@@ -628,6 +655,7 @@ export class PurchaseOrdersService {
         taxRate: line.taxRate ?? 0,
         unitOfMeasure: line.unitOfMeasure ?? 'UND',
         sortOrder: index,
+        agreementLineId: lineLinks?.[index] ?? null,
       });
     });
     await manager.save(rows);

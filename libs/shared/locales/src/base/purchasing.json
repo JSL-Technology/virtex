@@ -1,4 +1,169 @@
 {
+  "purchasing.agreements.activate": {
+    "es": "Poner en vigor",
+    "en": "Put in force",
+    "pt": "Pôr em vigor"
+  },
+  "purchasing.agreements.activated": {
+    "es": "Acuerdo en vigor.",
+    "en": "Agreement in force.",
+    "pt": "Acordo em vigor."
+  },
+  "purchasing.agreements.amount_used": {
+    "es": "usado {{used}} de {{max}}",
+    "en": "{{used}} used of {{max}}",
+    "pt": "usado {{used}} de {{max}}"
+  },
+  "purchasing.agreements.close": {
+    "es": "Cerrar",
+    "en": "Close",
+    "pt": "Fechar"
+  },
+  "purchasing.agreements.close_message": {
+    "es": "Lo ya emitido se mantiene; no se emitirán más órdenes. ¿Por qué se cierra?",
+    "en": "What was released stays; no more orders will be released. Why is it closed?",
+    "pt": "O já emitido mantém-se; não se emitirão mais ordens. Porque é fechado?"
+  },
+  "purchasing.agreements.close_reason": {
+    "es": "Motivo del cierre",
+    "en": "Reason for closing",
+    "pt": "Motivo do fecho"
+  },
+  "purchasing.agreements.close_title": {
+    "es": "Cerrar el acuerdo",
+    "en": "Close the agreement",
+    "pt": "Fechar o acordo"
+  },
+  "purchasing.agreements.closed": {
+    "es": "Acuerdo cerrado.",
+    "en": "Agreement closed.",
+    "pt": "Acordo fechado."
+  },
+  "purchasing.agreements.create": {
+    "es": "Crear acuerdo",
+    "en": "Create agreement",
+    "pt": "Criar acordo"
+  },
+  "purchasing.agreements.created": {
+    "es": "Acuerdo creado en borrador.",
+    "en": "Agreement created as a draft.",
+    "pt": "Acordo criado em rascunho."
+  },
+  "purchasing.agreements.empty": {
+    "es": "Todavía no hay acuerdos de compra.",
+    "en": "There are no purchase agreements yet.",
+    "pt": "Ainda não há acordos de compra."
+  },
+  "purchasing.agreements.how_it_works": {
+    "es": "Otra persona lo pone en vigor. Lo usado se calcula de las órdenes emitidas que siguen en pie: anular una devuelve sus unidades.",
+    "en": "Someone else puts it in force. What is used is computed from the releases still standing: cancelling one gives its units back.",
+    "pt": "Outra pessoa o põe em vigor. O usado calcula-se das ordens emitidas que continuam de pé: anular uma devolve as suas unidades."
+  },
+  "purchasing.agreements.max_amount": {
+    "es": "Tope total (sin impuesto)",
+    "en": "Overall ceiling (before tax)",
+    "pt": "Teto total (sem imposto)"
+  },
+  "purchasing.agreements.max_quantity": {
+    "es": "Tope de cantidad",
+    "en": "Quantity ceiling",
+    "pt": "Teto de quantidade"
+  },
+  "purchasing.agreements.new_title": {
+    "es": "Nuevo acuerdo",
+    "en": "New agreement",
+    "pt": "Novo acordo"
+  },
+  "purchasing.agreements.no_releases": {
+    "es": "Ninguna todavía.",
+    "en": "None yet.",
+    "pt": "Nenhuma ainda."
+  },
+  "purchasing.agreements.not_saved": {
+    "es": "No se pudo completar la operación.",
+    "en": "The operation could not be completed.",
+    "pt": "Não foi possível concluir a operação."
+  },
+  "purchasing.agreements.release": {
+    "es": "Emitir orden de compra",
+    "en": "Release purchase order",
+    "pt": "Emitir ordem de compra"
+  },
+  "purchasing.agreements.release_empty": {
+    "es": "Indica la cantidad de al menos una línea.",
+    "en": "State the quantity of at least one line.",
+    "pt": "Indique a quantidade de pelo menos uma linha."
+  },
+  "purchasing.agreements.release_quantity": {
+    "es": "A pedir",
+    "en": "To order",
+    "pt": "A pedir"
+  },
+  "purchasing.agreements.released": {
+    "es": "Orden emitida contra el acuerdo: revísala y envíala.",
+    "en": "Order released against the agreement: review and send it.",
+    "pt": "Ordem emitida contra o acordo: reveja-a e envie-a."
+  },
+  "purchasing.agreements.releases": {
+    "es": "Órdenes emitidas",
+    "en": "Releases",
+    "pt": "Ordens emitidas"
+  },
+  "purchasing.agreements.remaining": {
+    "es": "Disponible",
+    "en": "Remaining",
+    "pt": "Disponível"
+  },
+  "purchasing.agreements.status.active": {
+    "es": "En vigor",
+    "en": "In force",
+    "pt": "Em vigor"
+  },
+  "purchasing.agreements.status.cancelled": {
+    "es": "Anulado",
+    "en": "Cancelled",
+    "pt": "Anulado"
+  },
+  "purchasing.agreements.status.closed": {
+    "es": "Cerrado",
+    "en": "Closed",
+    "pt": "Fechado"
+  },
+  "purchasing.agreements.status.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "purchasing.agreements.subtitle": {
+    "es": "Precios pactados con un proveedor por un periodo, con topes por línea y en total. Cada entrega es una orden de compra a esos precios.",
+    "en": "Prices agreed with a supplier for a period, with ceilings per line and overall. Each release is a purchase order at those prices.",
+    "pt": "Preços acordados com um fornecedor por um período, com tetos por linha e no total. Cada entrega é uma ordem de compra a esses preços."
+  },
+  "purchasing.agreements.title": {
+    "es": "Acuerdos de compra",
+    "en": "Purchase agreements",
+    "pt": "Acordos de compra"
+  },
+  "purchasing.agreements.used": {
+    "es": "Usado",
+    "en": "Used",
+    "pt": "Usado"
+  },
+  "purchasing.agreements.valid_from": {
+    "es": "Vigente desde",
+    "en": "Valid from",
+    "pt": "Vigente desde"
+  },
+  "purchasing.agreements.valid_to": {
+    "es": "Vigente hasta",
+    "en": "Valid to",
+    "pt": "Vigente até"
+  },
+  "purchasing.agreements.validity": {
+    "es": "Vigencia",
+    "en": "Validity",
+    "pt": "Vigência"
+  },
   "purchasing.landed_costs.add_type": {
     "es": "Añadir tipo",
     "en": "Add type",
@@ -972,5 +1137,335 @@
   },
   "purchasing.requisitions.total": {
     "literal": "Total"
+  },
+  "purchasing.rfqs.add_line": {
+    "es": "Agregar línea",
+    "en": "Add line",
+    "pt": "Adicionar linha"
+  },
+  "purchasing.rfqs.award": {
+    "es": "Adjudicar",
+    "en": "Award",
+    "pt": "Adjudicar"
+  },
+  "purchasing.rfqs.award_message": {
+    "es": "Se creará una orden de compra en borrador a los precios de esta cotización, y las demás quedarán descartadas.",
+    "en": "A draft purchase order will be created at this quotation prices, and the others will be declined.",
+    "pt": "Será criada uma ordem de compra em rascunho aos preços desta cotação, e as outras ficarão descartadas."
+  },
+  "purchasing.rfqs.award_not_cheapest": {
+    "es": "Esta no es la cotización más baja. Explica por qué la eliges: el motivo queda en la solicitud.",
+    "en": "This is not the lowest quotation. Explain why you choose it: the reason stays on the request.",
+    "pt": "Esta não é a cotação mais baixa. Explique porque a escolhe: o motivo fica no pedido."
+  },
+  "purchasing.rfqs.award_reason": {
+    "es": "Motivo de la adjudicación",
+    "en": "Reason for the award",
+    "pt": "Motivo da adjudicação"
+  },
+  "purchasing.rfqs.award_title": {
+    "es": "Adjudicar la cotización",
+    "en": "Award the quotation",
+    "pt": "Adjudicar a cotação"
+  },
+  "purchasing.rfqs.awarded": {
+    "es": "Cotización adjudicada: revisa y envía la orden de compra.",
+    "en": "Quotation awarded: review and send the purchase order.",
+    "pt": "Cotação adjudicada: reveja e envie a ordem de compra."
+  },
+  "purchasing.rfqs.blocked": {
+    "es": "Proveedor bloqueado",
+    "en": "Supplier blocked",
+    "pt": "Fornecedor bloqueado"
+  },
+  "purchasing.rfqs.cancel": {
+    "es": "Anular",
+    "en": "Cancel",
+    "pt": "Anular"
+  },
+  "purchasing.rfqs.cancel_message": {
+    "es": "Anularla impide adjudicarla. ¿Por qué se anula?",
+    "en": "It will not be possible to award it. Why is it cancelled?",
+    "pt": "Não poderá ser adjudicado. Porque é anulado?"
+  },
+  "purchasing.rfqs.cancel_title": {
+    "es": "Anular la solicitud de cotización",
+    "en": "Cancel the request for quotation",
+    "pt": "Anular o pedido de cotação"
+  },
+  "purchasing.rfqs.cancelled": {
+    "es": "Solicitud anulada.",
+    "en": "Request cancelled.",
+    "pt": "Pedido anulado."
+  },
+  "purchasing.rfqs.cheapest": {
+    "es": "La más baja",
+    "en": "Lowest",
+    "pt": "A mais baixa"
+  },
+  "purchasing.rfqs.choose_supplier": {
+    "es": "Elige un proveedor invitado",
+    "en": "Choose an invited supplier",
+    "pt": "Escolha um fornecedor convidado"
+  },
+  "purchasing.rfqs.comparison": {
+    "es": "Comparación",
+    "en": "Comparison",
+    "pt": "Comparação"
+  },
+  "purchasing.rfqs.comparison_hint": {
+    "es": "Se compara el importe neto, sin impuesto: el impuesto de compras se recupera. Solo cuentan las cotizaciones que cubren todas las líneas, siguen vigentes y son de un proveedor activo.",
+    "en": "The net amount is compared, before tax: purchase tax is recovered. Only quotations covering every line, still valid and from an active supplier count.",
+    "pt": "Compara-se o valor líquido, sem imposto: o imposto das compras é recuperado. Só contam as cotações que cobrem todas as linhas, continuam válidas e são de um fornecedor ativo."
+  },
+  "purchasing.rfqs.create": {
+    "es": "Crear solicitud",
+    "en": "Create request",
+    "pt": "Criar pedido"
+  },
+  "purchasing.rfqs.created": {
+    "es": "Solicitud de cotización creada.",
+    "en": "Request for quotation created.",
+    "pt": "Pedido de cotação criado."
+  },
+  "purchasing.rfqs.description": {
+    "es": "Descripción",
+    "en": "Description",
+    "pt": "Descrição"
+  },
+  "purchasing.rfqs.eligible": {
+    "es": "Válida",
+    "en": "Valid",
+    "pt": "Válida"
+  },
+  "purchasing.rfqs.empty": {
+    "es": "Todavía no hay solicitudes de cotización.",
+    "en": "There are no requests for quotation yet.",
+    "pt": "Ainda não há pedidos de cotação."
+  },
+  "purchasing.rfqs.expired": {
+    "es": "Vencida",
+    "en": "Expired",
+    "pt": "Vencida"
+  },
+  "purchasing.rfqs.incomplete": {
+    "es": "Incompleta",
+    "en": "Incomplete",
+    "pt": "Incompleta"
+  },
+  "purchasing.rfqs.invite": {
+    "es": "Proveedores invitados",
+    "en": "Invited suppliers",
+    "pt": "Fornecedores convidados"
+  },
+  "purchasing.rfqs.invited": {
+    "es": "Invitados",
+    "en": "Invited",
+    "pt": "Convidados"
+  },
+  "purchasing.rfqs.lead_time": {
+    "es": "Entrega (días)",
+    "en": "Lead time (days)",
+    "pt": "Prazo (dias)"
+  },
+  "purchasing.rfqs.lines": {
+    "es": "Líneas",
+    "en": "Lines",
+    "pt": "Linhas"
+  },
+  "purchasing.rfqs.lines_from_requisition": {
+    "es": "Las líneas se toman de la solicitud de compra.",
+    "en": "The lines are taken from the requisition.",
+    "pt": "As linhas são tiradas da requisição."
+  },
+  "purchasing.rfqs.net": {
+    "es": "Neto",
+    "en": "Net",
+    "pt": "Líquido"
+  },
+  "purchasing.rfqs.new_title": {
+    "es": "Nueva solicitud de cotización",
+    "en": "New request for quotation",
+    "pt": "Novo pedido de cotação"
+  },
+  "purchasing.rfqs.no_quotes": {
+    "es": "Todavía no hay cotizaciones.",
+    "en": "There are no quotations yet.",
+    "pt": "Ainda não há cotações."
+  },
+  "purchasing.rfqs.no_requisition": {
+    "es": "Ninguna: escribo las líneas",
+    "en": "None: I write the lines",
+    "pt": "Nenhuma: escrevo as linhas"
+  },
+  "purchasing.rfqs.not_saved": {
+    "es": "No se pudo completar la operación.",
+    "en": "The operation could not be completed.",
+    "pt": "Não foi possível concluir a operação."
+  },
+  "purchasing.rfqs.number": {
+    "es": "Número",
+    "en": "Number",
+    "pt": "Número"
+  },
+  "purchasing.rfqs.open": {
+    "es": "Abrir",
+    "en": "Open",
+    "pt": "Abrir"
+  },
+  "purchasing.rfqs.quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "purchasing.rfqs.quote_incomplete": {
+    "es": "Elige el proveedor, la validez y al menos un precio.",
+    "en": "Choose the supplier, the validity and at least one price.",
+    "pt": "Escolha o fornecedor, a validade e pelo menos um preço."
+  },
+  "purchasing.rfqs.quote_recorded": {
+    "es": "Cotización registrada.",
+    "en": "Quotation recorded.",
+    "pt": "Cotação registada."
+  },
+  "purchasing.rfqs.quote_status.awarded": {
+    "es": "Adjudicada",
+    "en": "Awarded",
+    "pt": "Adjudicada"
+  },
+  "purchasing.rfqs.quote_status.declined": {
+    "es": "Descartada",
+    "en": "Declined",
+    "pt": "Descartada"
+  },
+  "purchasing.rfqs.quote_status.received": {
+    "es": "Recibida",
+    "en": "Received",
+    "pt": "Recebida"
+  },
+  "purchasing.rfqs.reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "purchasing.rfqs.reason_too_short": {
+    "es": "Escribe un motivo de al menos 3 caracteres.",
+    "en": "Write a reason of at least 3 characters.",
+    "pt": "Escreva um motivo com pelo menos 3 caracteres."
+  },
+  "purchasing.rfqs.record_quote": {
+    "es": "Registrar una cotización",
+    "en": "Record a quotation",
+    "pt": "Registar uma cotação"
+  },
+  "purchasing.rfqs.reference": {
+    "es": "Referencia del proveedor",
+    "en": "Supplier reference",
+    "pt": "Referência do fornecedor"
+  },
+  "purchasing.rfqs.remove": {
+    "es": "Quitar",
+    "en": "Remove",
+    "pt": "Remover"
+  },
+  "purchasing.rfqs.requisition": {
+    "es": "Solicitud de compra aprobada",
+    "en": "Approved requisition",
+    "pt": "Requisição aprovada"
+  },
+  "purchasing.rfqs.response_due": {
+    "es": "Respuesta hasta",
+    "en": "Reply by",
+    "pt": "Resposta até"
+  },
+  "purchasing.rfqs.save_quote": {
+    "es": "Guardar cotización",
+    "en": "Save quotation",
+    "pt": "Guardar cotação"
+  },
+  "purchasing.rfqs.see_order": {
+    "es": "Ver la orden de compra",
+    "en": "See the purchase order",
+    "pt": "Ver a ordem de compra"
+  },
+  "purchasing.rfqs.send": {
+    "es": "Enviar a los proveedores",
+    "en": "Send to the suppliers",
+    "pt": "Enviar aos fornecedores"
+  },
+  "purchasing.rfqs.sent": {
+    "es": "Solicitud enviada: ya puedes registrar cotizaciones.",
+    "en": "Request sent: you can now record quotations.",
+    "pt": "Pedido enviado: já pode registar cotações."
+  },
+  "purchasing.rfqs.standing": {
+    "es": "Situación",
+    "en": "Standing",
+    "pt": "Situação"
+  },
+  "purchasing.rfqs.status.awarded": {
+    "es": "Adjudicada",
+    "en": "Awarded",
+    "pt": "Adjudicado"
+  },
+  "purchasing.rfqs.status.cancelled": {
+    "es": "Anulada",
+    "en": "Cancelled",
+    "pt": "Anulado"
+  },
+  "purchasing.rfqs.status.draft": {
+    "es": "Borrador",
+    "en": "Draft",
+    "pt": "Rascunho"
+  },
+  "purchasing.rfqs.status.sent": {
+    "es": "Enviada",
+    "en": "Sent",
+    "pt": "Enviado"
+  },
+  "purchasing.rfqs.status_label": {
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Estado"
+  },
+  "purchasing.rfqs.subtitle": {
+    "es": "Pide precio a varios proveedores, compara sus cotizaciones y adjudica una: se convierte en una orden de compra a sus precios.",
+    "en": "Ask several suppliers for a price, compare their quotations and award one: it becomes a purchase order at its prices.",
+    "pt": "Peça preço a vários fornecedores, compare as cotações e adjudique uma: torna-se uma ordem de compra aos seus preços."
+  },
+  "purchasing.rfqs.supplier": {
+    "es": "Proveedor",
+    "en": "Supplier",
+    "pt": "Fornecedor"
+  },
+  "purchasing.rfqs.tax_percent": {
+    "es": "Impuesto (%)",
+    "en": "Tax (%)",
+    "pt": "Imposto (%)"
+  },
+  "purchasing.rfqs.title": {
+    "es": "Solicitudes de cotización",
+    "en": "Requests for quotation",
+    "pt": "Pedidos de cotação"
+  },
+  "purchasing.rfqs.title_label": {
+    "es": "Título",
+    "en": "Title",
+    "pt": "Título"
+  },
+  "purchasing.rfqs.total": {
+    "es": "Total",
+    "en": "Total",
+    "pt": "Total"
+  },
+  "purchasing.rfqs.unit_price": {
+    "es": "Precio unitario",
+    "en": "Unit price",
+    "pt": "Preço unitário"
+  },
+  "purchasing.rfqs.valid_until": {
+    "es": "Válida hasta",
+    "en": "Valid until",
+    "pt": "Válida até"
   }
 }

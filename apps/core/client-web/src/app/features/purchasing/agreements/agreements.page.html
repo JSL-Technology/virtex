@@ -1,0 +1,177 @@
+<vx-list-shell
+  titleKey="purchasing.agreements.title"
+  subtitleKey="purchasing.agreements.subtitle"
+  [count]="agreements().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="false"
+  (reload)="load()"
+>
+  <section class="form-section" *appHasPermission="'procurement:manage'">
+    <h2 class="form-section__title">{{ 'purchasing.agreements.new_title' | translate }}</h2>
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="ag-title">{{ 'purchasing.rfqs.title_label' | translate }}</label>
+        <input id="ag-title" maxlength="200" [ngModel]="draft().title" (ngModelChange)="patchDraft({ title: $event })" />
+      </div>
+      <div class="form-field">
+        <label for="ag-supplier">{{ 'purchasing.rfqs.supplier' | translate }}</label>
+        <vx-select
+          inputId="ag-supplier"
+          [ngModel]="draft().supplierId"
+          (ngModelChange)="patchDraft({ supplierId: $event })"
+          [search]="searchSuppliers"
+          [resolveWith]="resolveSupplier"
+          [displayWith]="supplierLabel"
+          [valueWith]="supplierIdOf"
+        />
+      </div>
+      <div class="form-field">
+        <label for="ag-from">{{ 'purchasing.agreements.valid_from' | translate }}</label>
+        <input id="ag-from" type="date" [ngModel]="draft().validFrom" (ngModelChange)="patchDraft({ validFrom: $event })" />
+      </div>
+      <div class="form-field">
+        <label for="ag-to">{{ 'purchasing.agreements.valid_to' | translate }}</label>
+        <input id="ag-to" type="date" [ngModel]="draft().validTo" (ngModelChange)="patchDraft({ validTo: $event })" />
+      </div>
+      <div class="form-field">
+        <label for="ag-max">{{ 'purchasing.agreements.max_amount' | translate }}</label>
+        <input id="ag-max" type="number" min="0" step="0.01" [ngModel]="draft().maxAmount" (ngModelChange)="patchDraft({ maxAmount: $event })" />
+      </div>
+    </div>
+    <fieldset class="form-field">
+      <legend>{{ 'purchasing.rfqs.lines' | translate }}</legend>
+      @for (line of draft().lines; track $index; let i = $index) {
+        <div class="form-grid">
+          <div class="form-field">
+            <label [for]="'ag-line-' + i">{{ 'purchasing.rfqs.description' | translate }}</label>
+            <input [id]="'ag-line-' + i" maxlength="500" [ngModel]="line.description" (ngModelChange)="patchLine(i, { description: $event })" />
+          </div>
+          <div class="form-field">
+            <label [for]="'ag-price-' + i">{{ 'purchasing.rfqs.unit_price' | translate }}</label>
+            <input [id]="'ag-price-' + i" type="number" min="0" step="any" [ngModel]="line.unitPrice" (ngModelChange)="patchLine(i, { unitPrice: $event })" />
+          </div>
+          <div class="form-field">
+            <label [for]="'ag-tax-' + i">{{ 'purchasing.rfqs.tax_percent' | translate }}</label>
+            <input [id]="'ag-tax-' + i" type="number" min="0" max="100" step="any" [ngModel]="line.taxPercent" (ngModelChange)="patchLine(i, { taxPercent: $event })" />
+          </div>
+          <div class="form-field">
+            <label [for]="'ag-maxq-' + i">{{ 'purchasing.agreements.max_quantity' | translate }}</label>
+            <input [id]="'ag-maxq-' + i" type="number" min="0" step="any" [ngModel]="line.maxQuantity" (ngModelChange)="patchLine(i, { maxQuantity: $event })" />
+          </div>
+          <div class="form-field">
+            <button type="button" class="link-button" (click)="removeLine(i)">{{ 'purchasing.rfqs.remove' | translate }}</button>
+          </div>
+        </div>
+      }
+      <button type="button" class="secondary-button" (click)="addLine()">{{ 'purchasing.rfqs.add_line' | translate }}</button>
+    </fieldset>
+    <p class="field-hint">{{ 'purchasing.agreements.how_it_works' | translate }}</p>
+    <button type="button" class="primary-button" [disabled]="!canCreate() || busy()" (click)="create()">{{ 'purchasing.agreements.create' | translate }}</button>
+  </section>
+
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'purchasing.rfqs.number' | translate }}</th>
+          <th>{{ 'purchasing.rfqs.title_label' | translate }}</th>
+          <th>{{ 'purchasing.agreements.validity' | translate }}</th>
+          <th class="numeric">{{ 'purchasing.agreements.max_amount' | translate }}</th>
+          <th>{{ 'purchasing.rfqs.status_label' | translate }}</th>
+          <th>{{ 'common.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of agreements(); track row.id) {
+          <tr>
+            <td>{{ row.number }}</td>
+            <td>{{ row.title }}</td>
+            <td>{{ row.validFrom | vxDate }} – {{ row.validTo | vxDate }}</td>
+            <td class="numeric">{{ row.maxAmount === null ? '—' : (row.maxAmount | vxMoney: row.currencyCode) }}</td>
+            <td><vx-badge [tone]="tone(row.status)">{{ 'purchasing.agreements.status.' + row.status | translate }}</vx-badge></td>
+            <td><button type="button" class="link-button" (click)="open(row)">{{ 'purchasing.rfqs.open' | translate }}</button></td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6">{{ 'purchasing.agreements.empty' | translate }}</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (selected(); as agreement) {
+    <section class="form-section" [attr.aria-label]="agreement.number">
+      <h2 class="form-section__title">{{ agreement.number }} · {{ agreement.title }}</h2>
+      <p>
+        <vx-badge [tone]="tone(agreement.status)">{{ 'purchasing.agreements.status.' + agreement.status | translate }}</vx-badge>
+        {{ agreement.validFrom | vxDate }} – {{ agreement.validTo | vxDate }}
+        @if (agreement.maxAmount !== null) {
+          · {{ 'purchasing.agreements.amount_used' | translate: { used: (agreement.usedAmount ?? 0 | vxMoney: agreement.currencyCode), max: (agreement.maxAmount | vxMoney: agreement.currencyCode) } }}
+        }
+      </p>
+      @if (agreement.closeReason) {
+        <div class="banner-info"><strong>{{ 'purchasing.agreements.close_reason' | translate }}</strong> <span>{{ agreement.closeReason }}</span></div>
+      }
+      <div *appHasPermission="'procurement:approve'">
+        @if (agreement.status === 'DRAFT') {
+          <button type="button" class="primary-button" [disabled]="busy()" (click)="activate()">{{ 'purchasing.agreements.activate' | translate }}</button>
+        }
+        @if (agreement.status === 'DRAFT' || agreement.status === 'ACTIVE') {
+          <button type="button" class="danger-button" [disabled]="busy()" (click)="close()">{{ 'purchasing.agreements.close' | translate }}</button>
+        }
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'purchasing.rfqs.description' | translate }}</th>
+              <th class="numeric">{{ 'purchasing.rfqs.unit_price' | translate }}</th>
+              <th class="numeric">{{ 'purchasing.agreements.max_quantity' | translate }}</th>
+              <th class="numeric">{{ 'purchasing.agreements.used' | translate }}</th>
+              <th class="numeric">{{ 'purchasing.agreements.remaining' | translate }}</th>
+              @if (agreement.status === 'ACTIVE') {
+                <th class="numeric">{{ 'purchasing.agreements.release_quantity' | translate }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of agreement.usage ?? []; track line.agreementLineId) {
+              <tr>
+                <td>{{ line.description }}</td>
+                <td class="numeric">{{ line.unitPrice | vxMoney: agreement.currencyCode }}</td>
+                <td class="numeric">{{ line.maxQuantity === null ? '—' : (line.maxQuantity | vxNumber: '1.0-6') }}</td>
+                <td class="numeric">{{ line.usedQuantity | vxNumber: '1.0-6' }}</td>
+                <td class="numeric">{{ line.remainingQuantity === null ? '—' : (line.remainingQuantity | vxNumber: '1.0-6') }}</td>
+                @if (agreement.status === 'ACTIVE') {
+                  <td class="numeric">
+                    <input type="number" min="0" step="any" [attr.aria-label]="'purchasing.agreements.release_quantity' | translate"
+                      [ngModel]="release()[line.agreementLineId] ?? null" (ngModelChange)="patchRelease(line.agreementLineId, $event)" />
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (agreement.status === 'ACTIVE') {
+        <button type="button" class="primary-button" *appHasPermission="'procurement:manage'" [disabled]="busy()" (click)="releaseOrder()">
+          {{ 'purchasing.agreements.release' | translate }}
+        </button>
+      }
+
+      <h3>{{ 'purchasing.agreements.releases' | translate }}</h3>
+      <ul>
+        @for (order of agreement.releases ?? []; track order.id) {
+          <li>
+            <a class="table-link" [routerLink]="['/purchasing/orders', order.id, 'edit']">{{ order.number }}</a>
+            · {{ order.orderDate | vxDate }} · {{ order.total | vxMoney: agreement.currencyCode }}
+            · {{ 'purchasing.orders.status_label.' + order.status | translate }}
+          </li>
+        } @empty {
+          <li>{{ 'purchasing.agreements.no_releases' | translate }}</li>
+        }
+      </ul>
+    </section>
+  }
+</vx-list-shell>

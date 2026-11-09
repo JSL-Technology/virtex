@@ -48,6 +48,7 @@ export enum PurchaseOrderStatus {
 @Entity('purchase_orders')
 @Index('IDX_purchase_orders_org_number', ['organizationId', 'number'], { unique: true })
 @Index('IDX_purchase_orders_org_status', ['organizationId', 'status'])
+@Index('IDX_purchase_orders_agreement', ['agreementId'], { where: '"agreement_id" IS NOT NULL' })
 export class PurchaseOrder extends BaseEntity {
   /** `PO-2026-000042`. Consecutive per tenant and year. */
   @Column()
@@ -121,6 +122,31 @@ export class PurchaseOrder extends BaseEntity {
   /** The requisition this order fulfils, where it came from one. */
   @Column({ name: 'requisition_id', type: 'uuid', nullable: true })
   requisitionId: string | null;
+
+  /**
+   * The request for quotation and the quotation this order was awarded from, or the agreement it
+   * was released against (CMP-15). Such an order carries that document's terms.
+   */
+  @Column({ name: 'rfq_id', type: 'uuid', nullable: true })
+  rfqId: string | null;
+
+  @ManyToOne('PurchaseRfq', { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'rfq_id', foreignKeyConstraintName: 'FK_purchase_orders_rfq' })
+  rfq?: unknown;
+
+  @Column({ name: 'supplier_quote_id', type: 'uuid', nullable: true })
+  supplierQuoteId: string | null;
+
+  @ManyToOne('SupplierQuote', { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'supplier_quote_id', foreignKeyConstraintName: 'FK_purchase_orders_supplier_quote' })
+  supplierQuote?: unknown;
+
+  @Column({ name: 'agreement_id', type: 'uuid', nullable: true })
+  agreementId: string | null;
+
+  @ManyToOne('PurchaseAgreement', { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'agreement_id', foreignKeyConstraintName: 'FK_purchase_orders_agreement' })
+  agreement?: unknown;
 
   @Column({ name: 'approved_by_user_id', type: 'uuid', nullable: true })
   approvedByUserId: string | null;

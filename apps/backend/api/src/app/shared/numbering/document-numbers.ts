@@ -60,4 +60,8 @@ export const DOCUMENT_SEQUENCE_SCOPE = {
   FIXED_ASSET: '00000000-0000-4000-8000-000000000009',
   /** Goods sent back to the supplier from a receipt (CMP-15): `DEV-2026-000042`. */
   PURCHASE_RETURN: '00000000-0000-4000-8000-00000000000a',
+  /** Requests for quotation (CMP-15): `RFQ-2026-000042`. */
+  PURCHASE_RFQ: '00000000-0000-4000-8000-00000000000b',
+  /** Purchase agreements, blanket orders (CMP-15): `CTR-2026-000042`. */
+  PURCHASE_AGREEMENT: '00000000-0000-4000-8000-00000000000c',
 } as const;

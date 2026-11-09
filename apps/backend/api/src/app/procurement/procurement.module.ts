@@ -2,6 +2,13 @@ import { PurchaseReturn } from './entities/purchase-return.entity';
 import { LandedCostAllocation } from './entities/landed-cost-allocation.entity';
 import { LandedCostsService } from './landed-costs.service';
 import { LandedCostsController } from './landed-costs.controller';
+import { PurchaseRfq, PurchaseRfqLine, PurchaseRfqSupplier } from './entities/purchase-rfq.entity';
+import { SupplierQuote, SupplierQuoteLine } from './entities/supplier-quote.entity';
+import { PurchaseAgreement, PurchaseAgreementLine } from './entities/purchase-agreement.entity';
+import { RfqsService } from './rfqs.service';
+import { RfqsController } from './rfqs.controller';
+import { PurchaseAgreementsService } from './purchase-agreements.service';
+import { PurchaseAgreementsController } from './purchase-agreements.controller';
 import { ProcurementCopilotTools } from './procurement.copilot-tools';
 import { PurchaseOrderApprovalSource, RequisitionApprovalSource } from './procurement-approval.sources';
 import { Module, OnModuleInit } from '@nestjs/common';
@@ -42,6 +49,13 @@ import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module'
       PurchaseOrderReceipt,
       LandedCostAllocation,
       PurchaseReturn,
+      PurchaseRfq,
+      PurchaseRfqLine,
+      PurchaseRfqSupplier,
+      SupplierQuote,
+      SupplierQuoteLine,
+      PurchaseAgreement,
+      PurchaseAgreementLine,
       ReplenishmentAgentSettings,
     ]),
     // The replenishment agent registers a workflow step.
@@ -54,8 +68,8 @@ import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module'
     // A foreign-currency order is costed at the spot rate of the day its goods arrive (QA A-12).
     CurrenciesModule,
   ],
-  controllers: [LandedCostsController, ProcurementController, PurchaseOrdersController, GoodsReceiptsController, ReplenishmentAgentController],
-  providers: [LandedCostsService, ProcurementCopilotTools, ProcurementService, PurchaseOrdersService, GoodsReceiptsService, PurchaseOrderApprovalSource, RequisitionApprovalSource, ReplenishmentAgentService, ReplenishmentWorkflowActions],
+  controllers: [RfqsController, PurchaseAgreementsController, LandedCostsController, ProcurementController, PurchaseOrdersController, GoodsReceiptsController, ReplenishmentAgentController],
+  providers: [RfqsService, PurchaseAgreementsService, LandedCostsService, ProcurementCopilotTools, ProcurementService, PurchaseOrdersService, GoodsReceiptsService, PurchaseOrderApprovalSource, RequisitionApprovalSource, ReplenishmentAgentService, ReplenishmentWorkflowActions],
   exports: [ProcurementService, PurchaseOrdersService],
 })
 export class ProcurementModule implements OnModuleInit {

@@ -504,6 +504,11 @@
     "en": "Profitability by product",
     "pt": "Rentabilidade por produto"
   },
+  "page_titles.purchase_agreements": {
+    "es": "Acuerdos de compra",
+    "en": "Purchase agreements",
+    "pt": "Acordos de compra"
+  },
   "page_titles.purchase_order_edit": {
     "es": "Orden de compra",
     "en": "Purchase order",
@@ -533,6 +538,11 @@
     "es": "Requisiciones de compra",
     "en": "Purchase requisitions",
     "pt": "Requisições de compra"
+  },
+  "page_titles.purchase_rfqs": {
+    "es": "Solicitudes de cotización",
+    "en": "Requests for quotation",
+    "pt": "Pedidos de cotação"
   },
   "page_titles.quote": {
     "es": "Cotización",

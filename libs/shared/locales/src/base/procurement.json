@@ -1,4 +1,64 @@
 {
+  "procurement.agreement_amount_exhausted": {
+    "es": "Quedan {{remaining}} del monto del acuerdo y esta entrega suma {{requested}}.",
+    "en": "{{remaining}} of the agreement amount remain and this release adds up to {{requested}}.",
+    "pt": "Restam {{remaining}} do valor do acordo e esta entrega soma {{requested}}."
+  },
+  "procurement.agreement_line_exhausted": {
+    "es": "{{description}}: quedan {{remaining}} en el acuerdo y pides {{requested}}.",
+    "en": "{{description}}: {{remaining}} remain on the agreement and you ask for {{requested}}.",
+    "pt": "{{description}}: restam {{remaining}} no acordo e pede {{requested}}."
+  },
+  "procurement.agreement_line_not_found": {
+    "es": "Esa línea no pertenece al acuerdo.",
+    "en": "That line does not belong to the agreement.",
+    "pt": "Essa linha não pertence ao acordo."
+  },
+  "procurement.agreement_not_active": {
+    "es": "El acuerdo {{number}} no está vigente ({{status}}).",
+    "en": "Agreement {{number}} is not in force ({{status}}).",
+    "pt": "O acordo {{number}} não está em vigor ({{status}})."
+  },
+  "procurement.agreement_not_draft": {
+    "es": "El acuerdo {{number}} ya no está en borrador ({{status}}).",
+    "en": "Agreement {{number}} is no longer a draft ({{status}}).",
+    "pt": "O acordo {{number}} já não está em rascunho ({{status}})."
+  },
+  "procurement.agreement_not_found": {
+    "es": "No se encontró el acuerdo de compra.",
+    "en": "The purchase agreement was not found.",
+    "pt": "O acordo de compra não foi encontrado."
+  },
+  "procurement.agreement_not_open": {
+    "es": "El acuerdo {{number}} ya está cerrado ({{status}}).",
+    "en": "Agreement {{number}} is already closed ({{status}}).",
+    "pt": "O acordo {{number}} já está fechado ({{status}})."
+  },
+  "procurement.agreement_outside_validity": {
+    "es": "El acuerdo rige del {{from}} al {{to}}; hoy es {{date}}.",
+    "en": "The agreement runs from {{from}} to {{to}}; today is {{date}}.",
+    "pt": "O acordo vigora de {{from}} a {{to}}; hoje é {{date}}."
+  },
+  "procurement.agreement_supplier_blocked": {
+    "es": "El proveedor del acuerdo está bloqueado: no se emiten entregas.",
+    "en": "The agreement supplier is blocked: no releases are issued.",
+    "pt": "O fornecedor do acordo está bloqueado: não se emitem entregas."
+  },
+  "procurement.agreement_validity_inverted": {
+    "es": "La vigencia termina antes de empezar.",
+    "en": "The validity ends before it starts.",
+    "pt": "A vigência termina antes de começar."
+  },
+  "procurement.award_not_cheapest_needs_reason": {
+    "es": "Esta cotización ({{awarded}}) no es la más baja vigente ({{cheapest}}). Explica por qué se elige.",
+    "en": "This quotation ({{awarded}}) is not the lowest valid one ({{cheapest}}). Explain why it is chosen.",
+    "pt": "Esta cotação ({{awarded}}) não é a mais baixa vigente ({{cheapest}}). Explique porque é escolhida."
+  },
+  "procurement.cannot_activate_own_agreement": {
+    "es": "No puedes poner en vigor un acuerdo que redactaste: otra persona lo aprueba.",
+    "en": "You cannot put in force an agreement you drafted: someone else approves it.",
+    "pt": "Não pode pôr em vigor um acordo que redigiu: outra pessoa o aprova."
+  },
   "procurement.cannot_approve_own_order": {
     "es": "No puedes aprobar una orden de compra que creaste tú. Pide su aprobación a otra persona con ese permiso.",
     "en": "You cannot approve a purchase order you created. Ask another person with approval rights to review it.",
@@ -104,6 +164,51 @@
     "en": "Nothing can be received against an order in {{status}}; send it to the supplier first.",
     "pt": "Não é possível receber contra uma ordem em {{status}}; envie-a ao fornecedor primeiro."
   },
+  "procurement.order_terms_from_source_document": {
+    "es": "La orden {{number}} lleva los términos de su cotización o acuerdo: su proveedor, moneda y líneas no se editan.",
+    "en": "Order {{number}} carries the terms of its quotation or agreement: its supplier, currency and lines are not edited.",
+    "pt": "A ordem {{number}} leva os termos da sua cotação ou acordo: o fornecedor, a moeda e as linhas não se editam."
+  },
+  "procurement.quote_expired": {
+    "es": "La cotización venció el {{validUntil}}; pide al proveedor que la renueve.",
+    "en": "The quotation expired on {{validUntil}}; ask the supplier to renew it.",
+    "pt": "A cotação venceu em {{validUntil}}; peça ao fornecedor que a renove."
+  },
+  "procurement.quote_incomplete": {
+    "es": "La cotización no cubre todas las líneas de la solicitud; no se puede adjudicar.",
+    "en": "The quotation does not cover every line of the request; it cannot be awarded.",
+    "pt": "A cotação não cobre todas as linhas do pedido; não pode ser adjudicada."
+  },
+  "procurement.quote_line_not_in_rfq": {
+    "es": "La cotización trae una línea que no pertenece a la solicitud.",
+    "en": "The quotation has a line that does not belong to the request.",
+    "pt": "A cotação traz uma linha que não pertence ao pedido."
+  },
+  "procurement.quote_line_repeated": {
+    "es": "La cotización repite una línea de la solicitud.",
+    "en": "The quotation repeats a line of the request.",
+    "pt": "A cotação repete uma linha do pedido."
+  },
+  "procurement.quote_not_found": {
+    "es": "No existe esa cotización en esta solicitud.",
+    "en": "That quotation does not exist on this request.",
+    "pt": "Essa cotação não existe neste pedido."
+  },
+  "procurement.quote_supplier_blocked": {
+    "es": "El proveedor está bloqueado: no se le puede pedir ni adjudicar.",
+    "en": "The supplier is blocked: it can be neither asked nor awarded.",
+    "pt": "O fornecedor está bloqueado: não se lhe pode pedir nem adjudicar."
+  },
+  "procurement.quote_supplier_not_invited": {
+    "es": "Ese proveedor no fue invitado a cotizar en esta solicitud.",
+    "en": "That supplier was not invited to quote on this request.",
+    "pt": "Esse fornecedor não foi convidado a cotar neste pedido."
+  },
+  "procurement.quote_validity_before_receipt": {
+    "es": "La cotización no puede vencer antes de recibirse.",
+    "en": "The quotation cannot expire before it was received.",
+    "pt": "A cotação não pode vencer antes de ser recebida."
+  },
   "procurement.receipt_already_billed": {
     "es": "La recepción {{number}} no se puede anular: «{{description}}» ya fue facturado. Registra una nota de débito al proveedor por la devolución.",
     "en": "Receipt {{number}} cannot be voided: “{{description}}” has already been billed. Record a debit note to the supplier for the return.",
@@ -168,6 +273,41 @@
     "es": "{{description}}: el proveedor ya facturó esas unidades. Devuélvelas con una nota de débito contra su factura, que también devuelve el impuesto.",
     "en": "{{description}}: the supplier has already billed those units. Return them with a debit note against their bill, which also gives the tax back.",
     "pt": "{{description}}: o fornecedor já faturou essas unidades. Devolva-as com uma nota de débito contra a sua fatura, que também devolve o imposto."
+  },
+  "procurement.rfq_closed": {
+    "es": "La solicitud de cotización {{number}} ya está cerrada ({{status}}).",
+    "en": "Request for quotation {{number}} is already closed ({{status}}).",
+    "pt": "O pedido de cotação {{number}} já está fechado ({{status}})."
+  },
+  "procurement.rfq_needs_lines": {
+    "es": "La solicitud de cotización necesita al menos una línea.",
+    "en": "The request for quotation needs at least one line.",
+    "pt": "O pedido de cotação precisa de pelo menos uma linha."
+  },
+  "procurement.rfq_needs_suppliers": {
+    "es": "Invita al menos a un proveedor antes de enviar la solicitud de cotización.",
+    "en": "Invite at least one supplier before sending the request for quotation.",
+    "pt": "Convide pelo menos um fornecedor antes de enviar o pedido de cotação."
+  },
+  "procurement.rfq_not_draft": {
+    "es": "La solicitud de cotización {{number}} ya no está en borrador.",
+    "en": "Request for quotation {{number}} is no longer a draft.",
+    "pt": "O pedido de cotação {{number}} já não está em rascunho."
+  },
+  "procurement.rfq_not_found": {
+    "es": "No se encontró la solicitud de cotización.",
+    "en": "The request for quotation was not found.",
+    "pt": "O pedido de cotação não foi encontrado."
+  },
+  "procurement.rfq_not_open_for_quotes": {
+    "es": "La solicitud de cotización {{number}} no está abierta a cotizaciones ({{status}}).",
+    "en": "Request for quotation {{number}} is not open for quotations ({{status}}).",
+    "pt": "O pedido de cotação {{number}} não está aberto a cotações ({{status}})."
+  },
+  "procurement.rfq_requisition_not_approved": {
+    "es": "Solo se cotiza una solicitud de compra aprobada (está en {{status}}).",
+    "en": "Only an approved requisition can be sent for quotation (it is {{status}}).",
+    "pt": "Só se cota uma requisição aprovada (está em {{status}})."
   },
   "procurement.supplier_not_found": {
     "es": "El proveedor indicado no existe en esta organización.",

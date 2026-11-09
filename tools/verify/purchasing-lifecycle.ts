@@ -34,6 +34,8 @@ import { VendorBillStatus } from '../../apps/backend/api/src/app/accounts-payabl
 import { LandedCostsService } from '../../apps/backend/api/src/app/procurement/landed-costs.service';
 import { GoodsReceiptsService } from '../../apps/backend/api/src/app/procurement/goods-receipts.service';
 import { PurchaseOrderStatus } from '../../apps/backend/api/src/app/procurement/entities/purchase-order.entity';
+import { RfqsService } from '../../apps/backend/api/src/app/procurement/rfqs.service';
+import { PurchaseAgreementsService } from '../../apps/backend/api/src/app/procurement/purchase-agreements.service';
 
 const failures: string[] = [];
 function check(label: string, ok: boolean, detail = ''): void {
@@ -305,6 +307,61 @@ async function main(): Promise<void> {
   }
   check('la tabla impide pasar la tolerancia aunque se salte el servicio', tableRefused === 'CHK_purchase_order_lines_received_within_ordered', tableRefused || 'se escribió');
   await tiesOut('tras recibir dentro de la tolerancia');
+
+  // ── Requests for quotation: compared, awarded once, at the quoted price (CMP-15) ──
+  const rfqs = app.get(RfqsService, { strict: false });
+  const agreementsService = app.get(PurchaseAgreementsService, { strict: false });
+  const rival = await ds.getRepository(Supplier).save(
+    ds.getRepository(Supplier).create({ organizationId: orgId, name: `Suplidor rival ${stamp}`, country: 'DO' } as Partial<Supplier>),
+  );
+  const rfq = await rfqs.create(
+    { title: 'Cotización de sonda', supplierIds: [supplier.id, rival.id], lines: [{ productId: product.id, description: 'Mercancía', quantity: 10 }] } as never,
+    orgId,
+    actor,
+  );
+  await rfqs.send(rfq.id, orgId);
+  const in30 = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
+  const cheap = await rfqs.recordQuote(rfq.id, { supplierId: supplier.id, validUntil: in30, lines: [{ rfqLineId: rfq.lines[0].id, unitPrice: 88 }] } as never, orgId);
+  const dear = await rfqs.recordQuote(rfq.id, { supplierId: rival.id, validUntil: in30, leadTimeDays: 1, lines: [{ rfqLineId: rfq.lines[0].id, unitPrice: 95 }] } as never, orgId);
+  const comparison = await rfqs.comparison(rfq.id, orgId);
+  check('la comparación marca la más baja', comparison.quotes.find((q) => q.cheapest)?.quoteId === cheap.id);
+  let dearRefused = '';
+  try {
+    await rfqs.award(rfq.id, { quoteId: dear.id } as never, orgId, actor);
+  } catch (error) {
+    dearRefused = (error as { messageKey?: string }).messageKey ?? '';
+  }
+  check('adjudicar la más cara sin motivo se rechaza', dearRefused === 'procurement.award_not_cheapest_needs_reason', dearRefused || 'adjudicada');
+  const awardedOrder = await rfqs.award(rfq.id, { quoteId: cheap.id } as never, orgId, actor);
+  check('la adjudicación crea la orden al precio cotizado', Number(awardedOrder.lines[0].unitPrice) === 88 && awardedOrder.supplierQuoteId === cheap.id, `${awardedOrder.number} a ${awardedOrder.lines[0].unitPrice}`);
+  let twice = '';
+  try {
+    await rfqs.award(rfq.id, { quoteId: dear.id, reason: 'otra vez' } as never, orgId, actor);
+  } catch (error) {
+    twice = (error as { messageKey?: string }).messageKey ?? '';
+  }
+  check('una solicitud se adjudica una sola vez', twice === 'procurement.rfq_not_open_for_quotes', twice || 'dos veces');
+
+  // ── An agreement: releases at its price, within its ceiling, read from the orders ──
+  const twoDaysAgo = new Date(Date.now() - 2 * 86_400_000).toISOString().slice(0, 10);
+  const agreement = await agreementsService.create(
+    { title: 'Acuerdo de sonda', supplierId: supplier.id, validFrom: twoDaysAgo, validTo: in30, lines: [{ productId: product.id, description: 'Mercancía', unitPrice: 85, maxQuantity: 10 }] } as never,
+    orgId,
+    actor,
+  );
+  await agreementsService.activate(agreement.id, orgId, actor);
+  const [releasedA, releasedB] = await Promise.allSettled([
+    agreementsService.release(agreement.id, { lines: [{ agreementLineId: agreement.lines[0].id, quantity: 7 }] } as never, orgId, actor),
+    agreementsService.release(agreement.id, { lines: [{ agreementLineId: agreement.lines[0].id, quantity: 7 }] } as never, orgId, actor),
+  ]);
+  const won = [releasedA, releasedB].filter((r) => r.status === 'fulfilled');
+  const refusedRelease = [releasedA, releasedB].find((r) => r.status === 'rejected') as PromiseRejectedResult | undefined;
+  check('dos entregas a la vez no pasan el tope', won.length === 1 && refusedRelease?.reason?.messageKey === 'procurement.agreement_line_exhausted', `${won.length} aceptada(s) · ${refusedRelease?.reason?.messageKey ?? '—'}`);
+  const release = (won[0] as PromiseFulfilledResult<{ id: string; lines: Array<{ unitPrice: number }> }>).value;
+  check('la entrega va al precio pactado', Number(release.lines[0].unitPrice) === 85, String(release.lines[0].unitPrice));
+  await orders.cancel(release.id, orgId, 'Sonda: anular la entrega');
+  const afterCancel = await agreementsService.findOne(agreement.id, orgId);
+  check('anular la entrega devuelve sus unidades al acuerdo', afterCancel.usage[0].usedQuantity === 0 && afterCancel.usage[0].remainingQuantity === 10, JSON.stringify(afterCancel.usage[0]));
 
   await app.close();
   if (failures.length) {
