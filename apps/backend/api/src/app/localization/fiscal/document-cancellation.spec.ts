@@ -19,6 +19,14 @@ describe('document cancellation routes', () => {
     expect(cancellationRouteFor('DO', fiscal('E31'))).toEqual({ kind: 'CREDIT_NOTE_ONLY' });
   });
 
+  it('recognises a document whose type was not recorded by the mask of its number, never by guesswork', () => {
+    // An e-CF stored before its type was: its number matches the catalogue's E31 mask.
+    expect(cancellationRouteFor('DO', { fiscalNumber: 'E310000000123', fiscalDocumentType: null })).toEqual({ kind: 'CREDIT_NOTE_ONLY' });
+    expect(cancellationRouteFor('DO', { fiscalNumber: 'B0100000123', fiscalDocumentType: null })).toEqual({ kind: 'REPORT', reasonCatalogue: 'INVOICE_CANCELLATION' });
+    // Neither type nor a known mask: read as electronic, which is only ever reversed.
+    expect(cancellationRouteFor('DO', { fiscalNumber: 'X-77', fiscalDocumentType: null })).toEqual({ kind: 'CREDIT_NOTE_ONLY' });
+  });
+
   it.each(['CO', 'CL', 'AR'])('%s: an issued fiscal document is reversed with a credit note', (country) => {
     expect(cancellationRouteFor(country, fiscal('01'))).toEqual({ kind: 'CREDIT_NOTE_ONLY' });
   });

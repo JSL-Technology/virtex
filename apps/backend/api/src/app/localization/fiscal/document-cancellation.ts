@@ -51,17 +51,38 @@ const FISCAL_RULES: Readonly<Record<string, (electronic: boolean) => Cancellatio
   EC: () => AUTHORITY_EVENT,
 };
 
-/** Whether the market's catalogue marks the document's type as signed and transmitted. */
-export function isElectronicDocumentType(countryCode: string | null | undefined, documentType: string | null | undefined): boolean {
-  if (!countryCode || !documentType) return false;
-  return fiscalDocumentTypesFor(countryCode).find((spec) => spec.code === documentType.toUpperCase())?.isElectronic ?? false;
+/**
+ * Whether the market's catalogue marks the document's type as signed and transmitted. A document
+ * whose type was not recorded (rows older than the type) is recognised by its number, against the
+ * mask the catalogue gives each type (`E31##########`): the market's data, not a pattern written
+ * for one country. A document neither identifies is treated as electronic — the safer reading,
+ * since an electronic document is only ever reversed, never annulled.
+ */
+export function isElectronicDocumentType(
+  countryCode: string | null | undefined,
+  documentType: string | null | undefined,
+  fiscalNumber?: string | null,
+): boolean {
+  if (!countryCode) return false;
+  const types = fiscalDocumentTypesFor(countryCode);
+  const byCode = documentType ? types.find((spec) => spec.code === documentType.toUpperCase()) : undefined;
+  if (byCode) return byCode.isElectronic;
+  const number = (fiscalNumber ?? '').toUpperCase();
+  const byMask = number
+    ? types.find((spec) => {
+        const prefix = spec.sequenceFormat?.replace(/#+$/, '') ?? '';
+        return prefix.length > 0 && number.startsWith(prefix) && number.length === (spec.sequenceFormat?.length ?? 0);
+      })
+    : undefined;
+  if (byMask) return byMask.isElectronic;
+  return Boolean(documentType || number);
 }
 
 export function cancellationRouteFor(countryCode: string | null | undefined, document: CancellableDocument): CancellationRoute {
   if (!document.fiscalNumber) return VOID;
   const rule = FISCAL_RULES[(countryCode ?? '').toUpperCase()];
   if (!rule) return CREDIT_NOTE_ONLY;
-  return rule(isElectronicDocumentType(countryCode, document.fiscalDocumentType));
+  return rule(isElectronicDocumentType(countryCode, document.fiscalDocumentType, document.fiscalNumber));
 }
 
 /**
