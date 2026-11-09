@@ -14,9 +14,26 @@ for (const line of report) {
   const h = /^## ([A-ZÁÉÍÓÚ ]+) \(\d+\)/.exec(line);
   if (h) { section = h[1].trim(); continue; }
   const row = /^\| ([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+) \| ([^|]+) \|/.exec(line);
-  if (row && section) state[row[1]] = { st: section, sev: row[2].trim(), falta: section === 'PARCIAL' ? line.split('|').slice(-2, -1)[0].trim() : '' };
+  if (row && section) {
+    // Columns: ID | Sev. | Cita | Commit | Evidencia [| Falta]. The citation may contain escaped pipes.
+    const cells = line.replace(/\\\|/g, '\u0000').split('|').map((c) => c.replace(/\u0000/g, '|').trim()).slice(1, -1);
+    const solved = section === 'RESUELTO' || section === 'PARCIAL';
+    state[row[1]] = {
+      st: section,
+      sev: row[2].trim(),
+      commit: solved ? cells[3] ?? '' : '',
+      evidence: solved ? cells[4] ?? '' : '',
+      falta: section === 'PARCIAL' ? cells[5] ?? '' : '',
+    };
+  }
 }
 
+import { execFileSync } from 'node:child_process';
+/** Every commit an evidence cites must exist in this repository: evidence that cannot be checked is not evidence. */
+const commitExists = (sha) => {
+  try { execFileSync('git', ['cat-file', '-e', `${sha}^{commit}`], { stdio: 'ignore' }); return true; } catch { return false; }
+};
+const commitsOf = (text) => (text.match(/\b[0-9a-f]{7,40}\b/g) ?? []);
 const clean = (s) => s.replace(/\*\*|__|`/g, '').replace(/\s+/g, ' ').trim();
 const META = /^(eje|ejes)\b|^severidad|^(cr[ií]tica|alta|media|baja|alto|bajo)\b|^categor[ií]a|^[a-z-]+( \/ [a-z-]+)?$/i;
 // Los patrones sistémicos se describen por su título en 07-patrones-sistemicos.md.
@@ -87,6 +104,7 @@ function withModule(r) {
 const cut = (s, n = 190) => (s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s);
 const esc = (s) => s.replace(/\|/g, '\\|');
 
+const unverified = [];
 const SEV_ORDER = ['Crítica', 'Alta', 'Media', 'Baja', '—'];
 const rows = findings
   .map((f) => ({ ...f, ...(state[f.id] ?? { st: 'PENDIENTE', sev: '—' }) }))
@@ -99,7 +117,9 @@ md += `Todos los hallazgos de los MD de la auditoría, con su estado en [\`10-ve
 md += `✅ = resuelto y verificado · ❌ = parcial o pendiente (en los parciales se indica lo que falta).\n\n`;
 md += `**${ok} de ${real.length} resueltos; ${real.length - ok} por corregir** (${real.filter((r) => r.st === 'PARCIAL').length} parciales). `;
 md += `Aparte, ${rows.length - real.length} identificadores no son hallazgos (informativos o referencias) y se listan al final.\n\n`;
-md += `Generado con \`herramientas/lista-cotejo.mjs\`; la descripción es un extracto de la ficha citada.\n\n`;
+md += `Generado con \`herramientas/lista-cotejo.mjs\`; la descripción es un extracto de la ficha citada. `;
+md += `La evidencia es la registrada en el informe de cierre (\`herramientas/informe-cierre.mjs\`, mapa \`M\`): commit y qué se comprobó. `;
+md += `Cada commit citado se comprueba contra el repositorio al generar esta lista.\n\n`;
 md += `| Severidad | ✅ | ❌ |\n|---|---|---|\n`;
 for (const s of SEV_ORDER) {
   const g = real.filter((r) => r.sev === s);
@@ -108,14 +128,23 @@ for (const s of SEV_ORDER) {
 for (const s of SEV_ORDER) {
   const g = real.filter((r) => r.sev === s).sort((a, b) => (a.mark === b.mark ? a.id.localeCompare(b.id, 'es', { numeric: true }) : a.mark === '❌' ? -1 : 1));
   if (!g.length) continue;
-  md += `\n## Severidad ${s === '—' ? 'no indicada (patrones y transversales)' : s.toLowerCase()} (${g.length})\n\n| | ID | Hallazgo | Ficha |\n|---|---|---|---|\n`;
+  md += `\n## Severidad ${s === '—' ? 'no indicada (patrones y transversales)' : s.toLowerCase()} (${g.length})\n\n| | ID | Hallazgo | Evidencia | Ficha |\n|---|---|---|---|---|\n`;
   for (const r of g) {
     const extra = r.st === 'PARCIAL' ? ` **Parcial — falta:** ${r.falta}` : '';
-    md += `| ${r.mark} | ${r.id} | ${esc(cut(r.desc))}${esc(extra)} | \`${r.file}:${r.line}\` |\n`;
+    let evidence = r.st === 'PENDIENTE' ? 'Sin corrección registrada.' : '';
+    if (r.commit) {
+      const shas = commitsOf(r.commit);
+      const missing = shas.filter((sha) => !commitExists(sha));
+      if (missing.length) unverified.push(`${r.id}: ${missing.join(', ')}`);
+      evidence = `Commit ${shas.map((sha) => `\`${sha}\``).join(', ')}${missing.length ? ' (⚠️ no encontrado)' : ''}. ${cut(r.evidence, 260)}`;
+    }
+    md += `| ${r.mark} | ${r.id} | ${esc(cut(r.desc))}${esc(extra)} | ${esc(evidence)} | \`${r.file}:${r.line}\` |\n`;
   }
 }
 const na = rows.filter((r) => r.mark === '—');
 md += `\n## No son hallazgos (${na.length})\n\nIdentificadores informativos o de referencia (flujos, insumos): no llevan corrección.\n\n| ID | Tipo | Ficha |\n|---|---|---|\n`;
 for (const r of na) md += `| ${r.id} | ${r.st.toLowerCase()} | \`${r.file}:${r.line}\` |\n`;
+if (unverified.length) md = md.replace('\n| Severidad |', `\n> ⚠️ Commits citados que no existen en el repositorio: ${unverified.join('; ')}.\n\n| Severidad |`);
 fs.writeFileSync(process.argv[2], md);
+if (unverified.length) console.log(`COMMITS NO ENCONTRADOS: ${unverified.join('; ')}`);
 console.log(`${real.length} hallazgos: ${ok} ✅, ${real.length - ok} ❌; ${na.length} no aplican`);
