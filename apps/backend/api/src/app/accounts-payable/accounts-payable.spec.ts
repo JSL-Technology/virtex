@@ -36,7 +36,7 @@ import {
   BankAccountType,
 } from '../treasury/entities/bank-account.entity';
 import { WithholdingResolverService } from '../invoices/services/withholding-resolver.service';
-import { TaxpayerType } from '../localization/fiscal/withholding-regimes';
+import { TaxpayerType } from '../markets';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 import { VendorDebitNotesService } from './vendor-debit-notes.service';

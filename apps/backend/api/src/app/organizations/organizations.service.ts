@@ -13,19 +13,12 @@ import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { LocalizationProvisioningPort } from '../localization/localization-provisioning.port';
 import { MembershipService } from './services/membership.service';
-import { coaSegmentsFor } from '../localization/fiscal/coa-builder';
-import { findCountryProfile } from '../localization/fiscal/country-profiles';
-import { TaxpayerKind } from '../localization/fiscal/tax-id-validators';
+import { TaxpayerKind, canonicalizeTaxId, coaSegmentsFor, fiscalIdentifierLabel, knownMarket, validateTaxId } from '../markets';
 import {
   nextFreeSlug,
   slugifyOrganizationName,
 } from '../shared/tenancy/organization-slug';
 import { stampTenantOnTransaction } from '../shared/tenancy/tenant-job';
-import {
-  canonicalizeTaxId,
-  fiscalIdentifierLabel,
-  validateTaxId,
-} from '../localization/fiscal/identity-document-catalogue';
 import { organizationTimeZone } from '../shared/fiscal-clock';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
@@ -94,8 +87,8 @@ export class OrganizationsService {
 
     if (identityTouched) {
       const country = (organization.country ?? '').trim().toUpperCase();
-      const profile = findCountryProfile(country);
-      if (!profile) {
+      const market = knownMarket(country);
+      if (!market) {
         throw new BadRequestError('organizations.country_country_not_available_yet', {
           country: organization.country ?? '',
         });
@@ -103,7 +96,7 @@ export class OrganizationsService {
       if (!organization.taxId?.trim()) {
         throw new BadRequestError('organizations.label_required_name', {
           label: fiscalIdentifierLabel(country),
-          name: profile.name,
+          name: market.profile.name,
         });
       }
       // The taxpayer kind selects the scheme, exactly as at registration: a US nine-digit value is
@@ -117,7 +110,7 @@ export class OrganizationsService {
       if (!validateTaxId(country, organization.taxId, kind)) {
         throw new BadRequestError('organizations.label_not_valid_name', {
           label: fiscalIdentifierLabel(country),
-          name: profile.name,
+          name: market.profile.name,
         });
       }
       // Store the canonical form and mark it verified, exactly as the other two doors do. The unique
@@ -288,12 +281,12 @@ export class OrganizationsService {
     createdByUserId: string,
   ): Promise<OrganizationSubsidiary> {
     const country = createSubsidiaryDto.country?.toUpperCase() ?? '';
-    const profile = findCountryProfile(country);
-    if (!profile) {
+    const market = knownMarket(country);
+    if (!market) {
       throw new BadRequestError('organizations.country_country_not_available_yet', { country: createSubsidiaryDto.country });
     }
     if (!validateTaxId(country, createSubsidiaryDto.taxId)) {
-      throw new BadRequestError('organizations.label_not_valid_name', { label: fiscalIdentifierLabel(country), name: profile.name });
+      throw new BadRequestError('organizations.label_not_valid_name', { label: fiscalIdentifierLabel(country), name: market.profile.name });
     }
 
     const taxId = canonicalizeTaxId(country, createSubsidiaryDto.taxId);

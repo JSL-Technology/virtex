@@ -3,14 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IdentityDocumentType } from '../entities/identity-document-type.entity';
 import {
-  DocumentAppliesTo,
-  DocumentContext,
   IDENTITY_DOCUMENT_TYPES,
-  IdentityDocumentTypeSpec,
   SUPRANATIONAL_COUNTRY,
   canonicalize,
-} from '../fiscal/identity-document-catalogue';
-import { resolveChecksum } from '../fiscal/document-checksums';
+  resolveChecksum,
+  type DocumentAppliesTo,
+  type DocumentContext,
+  type IdentityDocumentTypeSpec,
+} from '../../markets';
 
 /**
  * The one place that answers "what identifies a person or a company in this country, and is this

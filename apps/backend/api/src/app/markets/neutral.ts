@@ -31,7 +31,8 @@ export function neutralMarket(code: string): NeutralMarket {
       nameKey: 'localization.country_pack.tax_name.vat',
       // The product's default language (`DEFAULT_LANGUAGE`), not any market's: there is none to ask.
       principalTaxName: 'Impuesto',
-      scheme: { configurationRequired: false, taxes: [] },
+      // Nothing is seeded where nothing is known: the company enters its own taxes.
+      scheme: { configurationRequired: true, taxes: [] },
       withholding: { applies: false, regimes: [], configurationRequired: false },
       serviceChargeRate: 0,
       coverage: { taxDetermination: notImplemented(), withholding: notImplemented() },

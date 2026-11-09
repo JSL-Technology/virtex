@@ -9,7 +9,7 @@ import { CertificateVaultService } from './certificate-vault.service';
 import { BadRequestError } from '../../i18n/localized.exception';
 import { assessCertificate } from './certificate-inspector';
 import { certificatePolicyFor, certificatePolicyForRegime } from '../contracts/certificate-policy';
-import { TaxpayerKind, identityDocumentLabel } from '../../localization/contracts/tax-id.contract';
+import { TaxpayerKind, identityDocumentLabel } from '../../markets';
 import { organizationFiscalIdentity } from '../../organizations/contracts/fiscal-identity.contract';
 
 /** Certificate view without any encrypted material — safe to return over the API. */

@@ -13,7 +13,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { TaxpayerType } from '../fiscal/withholding-regimes';
+import { TaxpayerType } from '../../markets';
 
 /**
  * A withholding regime the tenant configures.

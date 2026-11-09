@@ -1,4 +1,5 @@
-import { checkReceivedDocument, nfeCheckDigitOk, receivedDocumentKind } from './received-document';
+import { nfeCheckDigitOk } from './br/purchases';
+import { checkReceivedDocument, receivedDocumentKind } from './queries/purchases';
 
 describe('the number on a supplier document, by market', () => {
   it('knows which number each market prints', () => {

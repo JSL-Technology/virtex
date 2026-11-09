@@ -2,7 +2,7 @@ import { Check, Column, Entity, Index } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformer } from '../../common/database/numeric.transformer';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
-import type { PayrollParameterKind } from '../../contracts/country-pack/country-pack';
+import type { PayrollParameterKind } from '../../markets';
 
 /** One bracket of a withholding table, annual amounts. */
 export interface WithholdingBracket {

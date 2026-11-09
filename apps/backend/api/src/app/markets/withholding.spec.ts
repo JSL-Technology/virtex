@@ -1,8 +1,10 @@
-import { TaxpayerType, applicableRegimes, findWithholdingScheme } from './withholding-regimes';
+import { TaxpayerType } from './contracts';
+import { applicableWithholdingRegimes as applicableRegimes } from './queries/taxes';
+import { knownMarket } from './registry';
 
 /** Withholding regimes apply on the document's date only (audit 2026-11-07, CMP-05). */
 describe('withholding regimes in force', () => {
-  const scheme = findWithholdingScheme('DO');
+  const scheme = knownMarket('DO')?.taxes.withholding;
   const context = { payer: TaxpayerType.GOVERNMENT, payee: TaxpayerType.COMPANY, scope: 'SERVICES' as const };
 
   it('gives every built-in Dominican regime a start date and its legal basis', () => {

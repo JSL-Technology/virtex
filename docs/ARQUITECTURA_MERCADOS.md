@@ -188,9 +188,12 @@ mercado desconocido herede las respuestas del primero.
 
 ## 3. Cómo se agrega o se completa un mercado
 
-1. Copiar `markets/_template/` a `markets/<cc>/` y responder cada archivo. «No aplica» y «no
-   implementado» son respuestas válidas; dejar un archivo sin responder no lo es.
-2. Registrar `markets/<cc>/index.ts` en `markets/catalogue.ts`.
+1. Copiar el paquete de un mercado con la misma cobertura y responder cada archivo. Por ejemplo,
+   `markets/uy/` para un mercado solo contable, o `markets/mx/` para uno con facturación
+   electrónica. «No aplica» y «no implementado» son respuestas válidas; dejar un archivo sin
+   responder no lo es, y `market-structure.spec.ts` lo rechaza.
+2. Registrar `markets/<cc>/index.ts` en `markets/catalogue.ts`, el único archivo que importa
+   paquetes.
 3. Agregar el parche regional `libs/shared/locales/src/regional/<locale>.json`.
 4. Para una capacidad nueva, por ejemplo la facturación electrónica de Guatemala (FEL):
    - implementar en `markets/gt/einvoicing/` los puertos de `markets/contracts/einvoicing.ts`;
@@ -246,7 +249,7 @@ eso se resuelve en el contrato, no con una rama.
 | Fase | Contenido | Estado |
 |---|---|---|
 | 0 | Este documento; tareas del programa | ✅ |
-| 1 | `markets/`: contrato, registro, mercado neutral, 19 paquetes con la estructura canónica, datos consolidados desde `localization/fiscal/*` y `contracts/country-pack`; fachadas para los consumidores actuales; pruebas de estructura y de catálogo; regla de import en la puerta | ⏳ |
+| 1 | `markets/`: contrato, registro, mercado neutral, 19 paquetes con la estructura canónica, consultas genéricas (`markets/queries`), datos consolidados desde `localization/fiscal/*` y `contracts/country-pack` (retirados); los consumidores leen el registro; pruebas de estructura y de catálogo; puerta estricta con regla de import | ✅ |
 | 2 | Documentos y numeración: un adaptador genérico guiado por la política de numeración del mercado; fuera el `switch` de `FiscalAdapterFactory`; `ncf_sequences` → `fiscal_document_ranges`; motivos de ajuste canónicos en lugar de `ModificationCode`; tipos de nota de crédito y débito de todos los regímenes | ⏳ |
 | 3 | Facturación electrónica: DO entra al outbox genérico (`fiscal_submissions`, `fiscal_document_events`); los constructores se mudan a `markets/<cc>/einvoicing/` y reciben vistas neutrales; las variables `DGII_*` pasan a la configuración de transmisión del tenant | ⏳ |
 | 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ⏳ |

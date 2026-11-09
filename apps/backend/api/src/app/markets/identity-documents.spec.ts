@@ -1,14 +1,12 @@
 import {
   CHECKSUM_ALGORITHMS,
-  resolveChecksum,
-} from './document-checksums';
-import {
   IDENTITY_DOCUMENT_TYPES,
   MARKETS_REQUIRING_DOCUMENTS,
-  SUPRANATIONAL_COUNTRY,
+  canonicalize,
   catalogueForCountry,
-} from './identity-document-catalogue';
-import { canonicalize } from '../services/identity-document.service';
+  resolveChecksum,
+} from './queries/identity';
+import { SUPRANATIONAL_COUNTRY } from './kit/identity';
 
 /**
  * The invariants that keep the catalogue from decaying back into an enum.

@@ -1,7 +1,7 @@
 import { AccountRole } from '../../contracts/accounting/account-role.contract';
 import { AccountTemplateDto } from '../entities/coa-template.entity';
 import { COUNTRY_SPECIFIC_COA_TERMS, buildCountryCoaTemplate } from './coa-builder';
-import { serviceChargeRateFor, supportedCountryCodes } from './country-profiles';
+import { marketCodes, marketFor } from '../../markets';
 
 /**
  * The opening chart is neutral, and a country's institutions reach only that country's tenants
@@ -19,7 +19,7 @@ const byRole = (country: string, role: AccountRole) =>
   flatten(buildCountryCoaTemplate(country)).find((account) => account.systemRole === role);
 
 describe('chart-of-accounts country packs', () => {
-  const countries = supportedCountryCodes();
+  const countries = [...marketCodes()];
 
   describe.each(countries)('%s', (country) => {
     const names = flatten(buildCountryCoaTemplate(country)).map((account) => account.name);
@@ -47,7 +47,7 @@ describe('chart-of-accounts country packs', () => {
     });
 
     it('opens a service-charge account only where the profile levies one', () => {
-      expect(Boolean(byRole(country, AccountRole.SERVICE_CHARGE_PAYABLE))).toBe(serviceChargeRateFor(country) > 0);
+      expect(Boolean(byRole(country, AccountRole.SERVICE_CHARGE_PAYABLE))).toBe(marketFor(country).taxes.serviceChargeRate > 0);
     });
   });
 

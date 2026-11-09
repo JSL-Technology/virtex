@@ -1,4 +1,4 @@
-import { AdministrativeDivision, CountryFiscalProfile, FiscalFieldSpec } from './country-profiles';
+import type { AdministrativeDivision, FiscalFieldSpec } from '../../markets';
 
 /**
  * What the signup form is told about a country, before anyone has an account.
@@ -122,7 +122,9 @@ export interface TaxIdLookupResult {
 }
 
 /** Narrowing helper kept beside the type it narrows. */
-export type SupportedCountrySummary = Pick<
-  CountryFiscalProfile,
-  'countryCode' | 'name' | 'currency' | 'callingCode'
->;
+export interface SupportedCountrySummary {
+  countryCode: string;
+  name: string;
+  currency: string;
+  callingCode: string;
+}

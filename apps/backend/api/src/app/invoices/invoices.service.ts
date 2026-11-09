@@ -21,10 +21,13 @@ import { CancelInvoiceBodyDto, DebitNoteBodyDto } from './dto/debit-note.dto';
 import {
   cancellationRouteFor,
   fiscalAuthorityOf,
-  fiscalReasonsOn,
+  fiscalDocumentTypesFor,
+  fiscalIdentifierLabel,
+  knownMarket,
+  marketFor,
   type CancellationRoute,
-  type FiscalReason,
-} from '../localization/contracts/document-cancellation.contract';
+} from '../markets';
+import { fiscalReasonsOn, type FiscalReason } from '../localization/contracts/fiscal-reasons.contract';
 import { CustomersService } from '../customers/customers.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { Product, ProductKind } from '../inventory/entities/product.entity';
@@ -46,16 +49,10 @@ import { statutoryTaxRatesOn } from '../localization/contracts/statutory-tax-rat
 import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
 import { TenantBookkeepingProvisioner } from '../accounting/provisioning/tenant-bookkeeping.provisioner';
-import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
-import { countryPackFor } from '../contracts/country-pack/country-pack';
-import { serviceChargeRateFor } from '../localization/fiscal/country-profiles';
 import { EcfSubmission } from '../einvoicing/entities/ecf-submission.entity';
 import { InvoiceRenderContext } from './services/invoice-renderer.service';
 import { EmissionKind, FiscalDocumentTypeOption } from './interfaces/fiscal-adapter.interface';
 import { certificatePolicyFor } from '../einvoicing/contracts/certificate-policy';
-import { findCountryProfile } from '../localization/contracts/country-profile.contract';
-import { fiscalDocumentTypesFor } from '../localization/contracts/fiscal-document-types.contract';
-import { fiscalIdentifierLabel } from '../localization/contracts/tax-id.contract';
 import type { FiscalEmissionMode } from '../organizations/contracts/fiscal-emission-mode.contract';
 
 /** One type the invoice form may offer, with what stands in its way (see `issuableTypes`). */
@@ -172,7 +169,7 @@ export interface InvoicingContext {
   debitNotes: boolean;
   taxRequiresConfiguration: boolean;
   /**
-   * How the market's tax is set, from its country pack. `BY_JURISDICTION` (the United States) means
+   * How the market's tax is set (`markets/<cc>/taxes.ts`). `BY_JURISDICTION` (the United States) means
    * the rate is determined from the buyer's address and the jurisdictions the company registered —
    * the form shows the rate the server determined instead of asking for one.
    */
@@ -677,7 +674,7 @@ export class InvoicesService {
   /**
    * The rates in the tenant's own tax catalogue, as fractions.
    *
-   * The catalogue is seeded from `COUNTRY_TAX_SCHEMES` at provisioning and editable afterwards,
+   * The catalogue is seeded from the market's taxes at provisioning and editable afterwards,
    * and until now nothing in the calculation path read it: a tenant that added a reduced rate for
    * a specific good, or absorbed a rate decreed between releases, had it refused as a rate its
    * country does not levy. Two sources of truth for one fact, and the maintained one was dead.
@@ -2238,15 +2235,14 @@ export class InvoicesService {
     ]);
 
     const countryCode = organization?.country ?? null;
-    const scheme = countryCode ? COUNTRY_TAX_SCHEMES[countryCode.toUpperCase()] : undefined;
-    const pack = countryPackFor(countryCode);
+    const market = marketFor(countryCode);
     // The rates a new document may carry are the ones in force today in the tenant's time zone.
     const ratesToday = await this.taxRatesOn(organizationId, countryCode, await this.fiscalToday(organizationId), this.dataSource.manager);
     const tenantRates = [...new Set(ratesToday.tenantTaxRates)].sort(
       (a, b) => b - a,
     );
     const jurisdictions =
-      pack.taxes.model === 'BY_JURISDICTION'
+      market.taxes.model === 'BY_JURISDICTION'
         ? await this.registeredJurisdictions(organizationId)
         : [];
 
@@ -2311,19 +2307,19 @@ export class InvoicesService {
         .filter((tax) => (!tax.effectiveFrom || tax.effectiveFrom <= today) && (!tax.effectiveTo || tax.effectiveTo >= today))
         .map((tax) => ({ id: tax.id, name: tax.name, amount: Number(tax.rate) })),
       debitNotes: typeof this.fiscalAdapterFactory.forCountry(countryCode).assignDebitNoteNumber === 'function',
-      taxRequiresConfiguration: scheme?.configurationRequired ?? true,
-      taxModel: pack.taxes.model,
+      taxRequiresConfiguration: market.taxes.scheme.configurationRequired,
+      taxModel: market.taxes.model,
       registeredJurisdictions: jurisdictions,
-      untaxedWithoutRegistration: scheme?.noRegistrationMeansNoTax === true,
+      untaxedWithoutRegistration: market.taxes.scheme.noRegistrationMeansNoTax === true,
       fiscalDocumentTypes: issuable.options,
       emissionMode: issuable.mode,
       automaticKind: issuable.automaticKind,
       emissionModeApplies: issuable.bothKinds,
       certificateRequired: issuable.certificateRequired,
-      fiscalAuthority: countryCode ? findCountryProfile(countryCode)?.fiscalAuthority ?? null : null,
+      fiscalAuthority: knownMarket(countryCode)?.profile.fiscalAuthority ?? null,
       taxIdLabel: fiscalIdentifierLabel(countryCode ?? ''),
       /** The legal service charge the market applies, as a fraction. Zero where none applies. */
-      serviceChargeRate: serviceChargeRateFor(countryCode),
+      serviceChargeRate: market.taxes.serviceChargeRate,
       /**
        * The tenant's default credit period, so a new invoice opens with a due date that means
        * something. It used to open due on the day it was issued, whatever the tenant sells on.

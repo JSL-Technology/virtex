@@ -3,5 +3,6 @@ export * from './accounting';
 export * from './coverage';
 export * from './documents';
 export * from './identity';
+export * from './profile';
 export * from './purchases';
 export * from './taxes';

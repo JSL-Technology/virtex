@@ -16,7 +16,7 @@ import { CustomerContact } from './customer-contact.entity';
 import type { CustomerGroup } from './customer-group.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
 import type { LanguageCode } from '@virteex/shared/types';
-import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
+import { TaxpayerType } from '../../markets';
 import {
   numericTransformer,
   numericTransformerNotNull,

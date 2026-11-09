@@ -15,7 +15,7 @@
  * hardcoded −4 is wrong for half the year.
  */
 
-import { findCountryProfile } from '../localization/fiscal/country-profiles';
+import { knownMarket } from '../markets';
 
 /** Fallback when a tenant has no zone recorded. UTC is the honest default: it is never silently wrong by an hour. */
 export const DEFAULT_FISCAL_TIME_ZONE = 'UTC';
@@ -93,6 +93,5 @@ export interface TimeZoneBearingOrganization {
  */
 export function organizationTimeZone(org: TimeZoneBearingOrganization | null | undefined): string {
   if (org?.timezone && org.timezone !== 'UTC') return org.timezone;
-  const profile = org?.country ? findCountryProfile(org.country) : undefined;
-  return profile?.timeZone ?? DEFAULT_FISCAL_TIME_ZONE;
+  return knownMarket(org?.country)?.profile.timeZone ?? DEFAULT_FISCAL_TIME_ZONE;
 }

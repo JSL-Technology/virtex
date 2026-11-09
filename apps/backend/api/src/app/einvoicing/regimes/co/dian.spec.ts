@@ -3,7 +3,7 @@ import { DianBuilder, DianBuildInput } from './dian.builder';
 import { Invoice, InvoiceType } from '../../../invoices/entities/invoice.entity';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { Customer } from '../../../customers/entities/customer.entity';
-import { TaxpayerType } from '../../../localization/fiscal/withholding-regimes';
+import { TaxpayerType } from '../../../markets';
 
 /**
  * Colombia — factura electrónica DIAN, UBL 2.1.

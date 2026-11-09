@@ -23,13 +23,13 @@ import {
 } from '@virteex/shared/types';
 import { I18nService } from '../../i18n/i18n.service';
 import {
-  fiscalIdentifierLabel,
+  divisionName,
   findIdentityDocumentSpec,
-} from '../../localization/fiscal/identity-document-catalogue';
-import { languageOfCountry } from '../../localization/fiscal/country-language';
-import { fiscalDocumentTypesFor } from '../../localization/contracts/fiscal-document-types.contract';
-import { findCountryProfile } from '../../localization/contracts/country-profile.contract';
-import { divisionName } from '../../localization/contracts/administrative-divisions.contract';
+  fiscalDocumentTypesFor,
+  fiscalIdentifierLabel,
+  knownMarket,
+  languageOfCountry,
+} from '../../markets';
 
 /** Everything the template needs, resolved before rendering. */
 export interface InvoiceRenderContext {
@@ -220,7 +220,7 @@ export class InvoiceRendererService implements OnModuleDestroy {
     const documentKind = this.documentKind(issuerCountry, invoice);
     const electronic = documentKind?.isElectronic === true;
     const issued = invoice.status !== InvoiceStatus.DRAFT && Boolean(invoice.issuedAt ?? invoice.fiscalNumber);
-    const authority = findCountryProfile(issuerCountry)?.fiscalAuthority ?? null;
+    const authority = knownMarket(issuerCountry)?.profile.fiscalAuthority ?? null;
 
     // The buyer's document is named by ITS OWN row, resolved from what the customer record carries,
     // not from the issuer's profile — a Dominican tenant invoicing a Colombian customer must print

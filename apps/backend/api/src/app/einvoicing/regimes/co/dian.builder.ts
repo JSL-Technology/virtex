@@ -7,9 +7,7 @@ import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
 import { fiscalNumber } from '../fiscal-number';
 import { buyerRegimeDocumentCode } from '../buyer-document';
-import { regimeDocumentCode } from '../../../localization/fiscal/identity-document-catalogue';
-import { TaxpayerKind } from '../../../localization/fiscal/tax-id-validators';
-import { TaxpayerType } from '../../../localization/fiscal/withholding-regimes';
+import { TaxpayerKind, TaxpayerType, regimeDocumentCode } from '../../../markets';
 
 /**
  * Colombia — factura electrónica DIAN, UBL 2.1.

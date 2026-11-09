@@ -2,10 +2,7 @@ import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { LocalizationService } from '../services/localization.service';
 import { IdentityDocumentService } from '../services/identity-document.service';
-import {
-  DocumentAppliesTo,
-  DocumentContext,
-} from '../fiscal/identity-document-catalogue';
+import type { DocumentAppliesTo, DocumentContext } from '../../markets';
 import { FiscalRegion } from '../entities/fiscal-region.entity';
 import { Public } from '../../security/decorators/public.decorator';
 import { CurrentUser } from '../../security/decorators/current-user.decorator';

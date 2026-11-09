@@ -1,5 +1,5 @@
-import { cancellationRouteFor, cancellationCoverageFor } from './document-cancellation';
-import { supportedCountryCodes } from './country-profiles';
+import { cancellationRouteFor, cancellationCoverageFor } from './queries/documents';
+import { marketCodes } from './registry';
 
 /**
  * How an issued sales document is cancelled, per market (audit 2026-11-07, FAC-INV-05). The rule
@@ -9,7 +9,7 @@ describe('document cancellation routes', () => {
   const fiscal = (type: string) => ({ fiscalNumber: 'X0001', fiscalDocumentType: type });
 
   it('voids a document with no fiscal number, in every market: the authority never saw it', () => {
-    for (const country of supportedCountryCodes()) {
+    for (const country of marketCodes()) {
       expect(cancellationRouteFor(country, { fiscalNumber: null })).toEqual({ kind: 'VOID' });
     }
   });

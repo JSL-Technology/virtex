@@ -1,5 +1,5 @@
 import { BadRequestError } from '../i18n/localized.exception';
-import { TaxpayerType } from '../localization/fiscal/withholding-regimes';
+import { TaxpayerType } from '../markets';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
 
 /**

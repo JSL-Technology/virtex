@@ -34,16 +34,14 @@ import { Organization } from '../../apps/backend/api/src/app/organizations/entit
 import { Tax } from '../../apps/backend/api/src/app/taxes/entities/tax.entity';
 import { Account } from '../../apps/backend/api/src/app/chart-of-accounts/entities/account.entity';
 import { AccountSegmentDefinition } from '../../apps/backend/api/src/app/chart-of-accounts/entities/account-segment-definition.entity';
-import { supportedCountryCodes } from '../../apps/backend/api/src/app/localization/fiscal/country-profiles';
 import {
   COUNTRY_SPECIFIC_COA_TERMS,
   coaSegmentsFor,
-} from '../../apps/backend/api/src/app/localization/fiscal/coa-builder';
-import { languageOfCountry } from '../../apps/backend/api/src/app/localization/fiscal/country-language';
-import {
-  findTaxScheme,
+  languageOfCountry,
+  marketCodes,
   principalTaxName,
-} from '../../apps/backend/api/src/app/localization/fiscal/country-tax-schemes';
+  taxSchemeFor,
+} from '../../apps/backend/api/src/app/markets';
 
 async function main() {
   const app = await NestFactory.create(AppModule, new FastifyAdapter(), {
@@ -60,7 +58,7 @@ async function main() {
 
   const failures: string[] = [];
 
-  for (const code of supportedCountryCodes()) {
+  for (const code of marketCodes()) {
     const region = regions.find((r) => r.countryCode === code);
     if (!region) {
       failures.push(`${code}: no fiscal region`);
@@ -96,7 +94,7 @@ async function main() {
       .getRepository(AccountSegmentDefinition)
       .find({ where: { organizationId: org.id } });
 
-    const scheme = findTaxScheme(code)!;
+    const scheme = taxSchemeFor(code)!;
     const taxName = principalTaxName(code);
     // `Account.name` is a localised JSONB map (`{ es: '…' }`), not a string — the real service
     // converts it on write. The previous stub stored the raw string, which is one more way that

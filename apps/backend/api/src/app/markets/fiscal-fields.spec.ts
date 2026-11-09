@@ -1,13 +1,11 @@
 import {
-  COUNTRY_FISCAL_PROFILES,
   fiscalFieldsFor,
-  normalizeFiscalFields,
-  validateFiscalFields,
-} from './country-profiles';
-import {
   isSupportedFiscalCountry,
+  normalizeFiscalFields,
   taxpayerKindAffectsValidation,
-} from './identity-document-catalogue';
+  validateFiscalFields,
+} from './queries/identity';
+import { allMarkets } from './registry';
 
 /**
  * The fiscal data each country actually needs to issue a document.
@@ -136,22 +134,22 @@ describe('country fiscal fields', () => {
 
   describe('profile completeness', () => {
     it('every profile declares whether the market can issue documents', () => {
-      for (const profile of COUNTRY_FISCAL_PROFILES) {
-        expect(['available', 'preview']).toContain(profile.marketStatus);
+      for (const market of allMarkets()) {
+        expect(['available', 'preview']).toContain(market.profile.marketStatus);
       }
     });
 
     it('every profile has tax-id rules, so no country is registrable without validation', () => {
-      for (const profile of COUNTRY_FISCAL_PROFILES) {
+      for (const market of allMarkets()) {
         // The per-country map was retired; a country is validatable when it has a registration
         // document in the catalogue, which is what `isSupportedFiscalCountry` now reads.
-        expect(isSupportedFiscalCountry(profile.countryCode)).toBe(true);
+        expect(isSupportedFiscalCountry(market.code)).toBe(true);
       }
     });
 
     it('every select option carries a non-empty code and label', () => {
-      for (const profile of COUNTRY_FISCAL_PROFILES) {
-        for (const field of profile.fiscalFields ?? []) {
+      for (const market of allMarkets()) {
+        for (const field of market.identity.fiscalFields) {
           if (field.type !== 'select') continue;
           expect(field.options?.length).toBeGreaterThan(0);
           for (const option of field.options ?? []) {
@@ -163,8 +161,8 @@ describe('country fiscal fields', () => {
     });
 
     it('every text field carries an anchored pattern', () => {
-      for (const profile of COUNTRY_FISCAL_PROFILES) {
-        for (const field of profile.fiscalFields ?? []) {
+      for (const market of allMarkets()) {
+        for (const field of market.identity.fiscalFields) {
           if (field.type !== 'text') continue;
           expect(field.pattern).toBeDefined();
           expect(() => new RegExp(field.pattern as string)).not.toThrow();

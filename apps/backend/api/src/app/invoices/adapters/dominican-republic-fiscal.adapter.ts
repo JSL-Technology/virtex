@@ -16,8 +16,7 @@ import {
   NcfType,
   SALES_NCF_TYPES,
 } from '../../compliance/entities/ncf-sequence.entity';
-import { validateTaxId } from '../../localization/contracts/tax-id.contract';
-import { fiscalDocumentTypesFor } from '../../localization/contracts/fiscal-document-types.contract';
+import { fiscalDocumentTypesFor, validateTaxId } from '../../markets';
 
 /** The Dominican catalogue by code: what each type requires of the buyer. */
 const DOMINICAN_TYPES = new Map(fiscalDocumentTypesFor('DO').map((spec) => [spec.code, spec]));

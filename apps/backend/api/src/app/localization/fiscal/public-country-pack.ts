@@ -1,35 +1,33 @@
-import type { TenantCountryPackResponse } from '@virteex/shared/types';
-import { countryPackFor } from '../../contracts/country-pack/country-pack';
-import { findCountryProfile } from './country-profiles';
+import type { FiscalReturnGenerator, TenantCountryPackResponse } from '@virteex/shared/types';
+import { marketFor } from '../../markets';
 
 /**
- * The half of a country pack the browser reads, with the profile facts the pack does not carry.
- *
- * The pack lives in `contracts/` so provisioning can read it, and therefore cannot import the
- * country profiles; the authority's name and the address divisions are added here, where both are
- * in reach. The seeds — payment methods, payroll parameters and concepts — are left out: they are
- * what provisioning writes, and the browser reads the rows, not the recipe.
+ * What the browser reads about the tenant's market (`GET /localization/country-pack`): the
+ * capabilities and presentation its screens branch on, never the seeds provisioning writes — the
+ * browser reads the rows, not the recipe.
  */
 export function publicCountryPack(countryCode: string | null | undefined): TenantCountryPackResponse {
-  const pack = countryPackFor(countryCode);
-  const profile = pack.countryCode ? findCountryProfile(pack.countryCode) : undefined;
+  const market = marketFor(countryCode);
+  const profile = market.profile;
   return {
-    countryCode: pack.countryCode,
+    countryCode: market.code,
     fiscalAuthority: profile?.fiscalAuthority ?? null,
-    documents: { ...pack.documents },
-    withholding: { ...pack.withholding },
-    taxes: { ...pack.taxes },
-    paymentMethods: {
-      catalogue: pack.paymentMethods.catalogue,
-      authority: pack.paymentMethods.authority,
+    documents: {
+      fiscalNumbering: market.documents.fiscalNumbering,
+      supplierFiscalNumber: market.purchases.supplierFiscalNumber,
+      supplierDocumentNumberKey: market.purchases.receivedDocument.labelKey,
+      purchaseClassification: market.purchases.purchaseClassification,
     },
-    payroll: { statutoryParameters: pack.payroll.statutoryParameters },
+    withholding: { applies: market.taxes.withholding.applies },
+    taxes: { model: market.taxes.model, nameKey: market.taxes.nameKey },
+    paymentMethods: { catalogue: market.payments.catalogue, authority: market.payments.authority },
+    payroll: { statutoryParameters: market.payroll.statutoryParameters },
     fiscalReturns: {
-      generator: pack.fiscalReturns.generator,
-      dueDay: pack.fiscalReturns.dueDay,
-      prepareWith: [...pack.fiscalReturns.prepareWith],
+      generator: market.returns.generator as FiscalReturnGenerator | null,
+      dueDay: market.returns.dueDay,
+      prepareWith: [...market.returns.prepareWith],
     },
-    examples: { ...pack.examples },
+    examples: profile ? { ...profile.examples } : { city: '', postalCode: null, phone: '' },
     divisionLabel: profile?.address.divisionLabel ?? null,
     divisions: (profile?.address.divisions ?? []).map(({ code, name }) => ({ code, name })),
   };

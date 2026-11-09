@@ -1,5 +1,5 @@
 import { Organization } from '../../organizations/entities/organization.entity';
-import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
+import { TaxpayerType } from '../../markets';
 import {
   Check,
   Column,

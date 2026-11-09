@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import { describeWithDb, openTestDataSource } from '../../common/database/testing/integration-db';
 import { statutoryTaxRatesOn } from '../contracts/statutory-tax-rates.contract';
-import { COUNTRY_TAX_SCHEMES } from './country-tax-schemes';
+import { allMarkets } from '../../markets';
 
 /**
  * National tax rates are dated data with their legal source (audit 2026-11-07, LOC-06, FAC-TX-03,
@@ -19,7 +19,7 @@ describeWithDb('statutory_tax_rates', () => {
 
   it("agrees with the country schemes on today's rates, so provisioning and validation cannot drift", async () => {
     const today = new Date().toISOString().slice(0, 10);
-    for (const [country, scheme] of Object.entries(COUNTRY_TAX_SCHEMES)) {
+    for (const { code: country, taxes: { scheme } } of allMarkets()) {
       const rows: Array<{ name: string; rate: string }> = await ds.query(
         `SELECT name, rate FROM statutory_tax_rates
           WHERE country_code = $1 AND effective_from <= $2 AND (effective_to IS NULL OR effective_to >= $2)`,

@@ -4,7 +4,8 @@ import { PurchaseFiscalDocument } from '../../contracts/fiscal-records/purchase-
 import { Organization } from '../../organizations/entities/organization.entity';
 import { roundAmount } from '../../common/money';
 import { UnprocessableEntityError } from '../../i18n/localized.exception';
-import { isValidDominicanTaxId } from '../../localization/contracts/tax-id.contract';
+// The Dominican returns move into the Dominican package with phase 5 of docs/ARQUITECTURA_MERCADOS.md.
+import { isValidDominicanTaxId } from '../../markets/do/identity';
 
 /**
  * The Dominican Republic's "formatos de envío": 606 (purchases), 607 (sales), 608 (voided

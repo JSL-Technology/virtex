@@ -1,6 +1,5 @@
-import { COUNTRY_PACKS, countryPackFor } from '../../contracts/country-pack/country-pack';
-import { coverageFor } from './fiscal-coverage';
-import { supportedCountryCodes } from './country-profiles';
+import { coverageFor } from './queries/coverage';
+import { marketCodes, marketFor } from './registry';
 
 /**
  * What the declarations screen tells a company and what Settings › coverage declares must be the
@@ -13,12 +12,12 @@ import { supportedCountryCodes } from './country-profiles';
  * promise a filing the other says does not exist; this keeps them in step for every market.
  */
 describe('fiscal returns: the screen and the coverage declare the same thing', () => {
-  const markets = [...new Set([...Object.keys(COUNTRY_PACKS), ...supportedCountryCodes()])].sort();
+  const markets = [...marketCodes()].sort();
   const level = (country: string, capability: string) =>
     coverageFor(country).capabilities.find((c) => c.capability === capability)?.level ?? 'not-implemented';
 
   it.each(markets)('%s', (country) => {
-    const returns = countryPackFor(country).fiscalReturns;
+    const returns = marketFor(country).returns;
     // A generator the market has may still wait on the company (Mexico's grouping codes): it is
     // offered, so coverage may not call it missing.
     if (returns.generator === 'DGII') {

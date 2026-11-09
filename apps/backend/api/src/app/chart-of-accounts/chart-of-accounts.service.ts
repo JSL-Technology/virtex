@@ -1,6 +1,6 @@
 
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
-import { languageOfCountry } from '../localization/contracts/country-profile.contract';
+import { languageOfCountry } from '../markets';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Repository,

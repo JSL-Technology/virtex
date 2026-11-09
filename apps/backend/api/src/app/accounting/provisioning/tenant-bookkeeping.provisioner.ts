@@ -18,7 +18,7 @@ import { InternalServerError } from '../../i18n/localized.exception';
 import { I18nService } from '../../i18n/i18n.service';
 import { DEFAULT_LANGUAGE, LanguageCode } from '@virteex/shared/types';
 import { seedTenantDefaults } from '../../database/seeds/tenant-defaults';
-import { findCountryProfile, languageOfCountry } from '../../localization/contracts/country-profile.contract';
+import { languageOfCountry, marketFor } from '../../markets';
 
 /**
  * Everything a tenant needs in order to record a transaction, created at the moment the tenant is.
@@ -419,7 +419,7 @@ export class TenantBookkeepingProvisioner {
    */
   private async leviesServiceCharge(organizationId: string, manager: EntityManager): Promise<boolean> {
     const [organization] = await manager.query(`SELECT "country" FROM "organizations" WHERE "id" = $1`, [organizationId]);
-    return (findCountryProfile((organization?.country ?? '').toUpperCase())?.serviceChargeRate ?? 0) > 0;
+    return marketFor(organization?.country).taxes.serviceChargeRate > 0;
   }
 
   async invoicingGaps(organizationId: string, manager: EntityManager): Promise<string[]> {

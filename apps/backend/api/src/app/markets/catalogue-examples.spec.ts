@@ -1,5 +1,4 @@
-import { IDENTITY_DOCUMENT_TYPES } from './identity-document-catalogue';
-import { resolveChecksum } from './document-checksums';
+import { IDENTITY_DOCUMENT_TYPES, resolveChecksum } from './queries/identity';
 
 /**
  * Every example the catalogue shows a user is one the catalogue accepts.

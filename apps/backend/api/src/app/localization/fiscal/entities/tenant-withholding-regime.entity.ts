@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { numericTransformerNotNull } from '../../../common/database/numeric.transformer';
-import { TaxpayerType, WithholdingKind, WithholdingScope } from '../withholding-regimes';
+import { TaxpayerType, type WithholdingKind, type WithholdingScope } from '../../../markets';
 
 /**
  * A withholding regime the tenant configured for itself.

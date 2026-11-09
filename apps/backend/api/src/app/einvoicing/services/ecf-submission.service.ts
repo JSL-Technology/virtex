@@ -11,7 +11,7 @@ import { CertificateVaultService } from './certificate-vault.service';
 import { assertStoredCertificateUsable } from './certificate-inspector';
 import { certificatePolicyFor } from '../contracts/certificate-policy';
 import { organizationFiscalIdentity } from '../../organizations/contracts/fiscal-identity.contract';
-import { fiscalIdentifierLabel } from '../../localization/contracts/tax-id.contract';
+import { fiscalIdentifierLabel } from '../../markets';
 import { EcfSignerService } from './ecf-signer.service';
 import {
   EcfXmlBuilderService,

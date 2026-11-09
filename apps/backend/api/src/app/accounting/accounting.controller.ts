@@ -29,7 +29,7 @@ import { DataSource } from 'typeorm';
 import { TenantBookkeepingProvisioner } from './provisioning/tenant-bookkeeping.provisioner';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { findCountryProfile } from '../localization/fiscal/country-profiles';
+import { knownMarket } from '../markets';
 
 @ApiTags('Accounting')
 @ApiBearerAuth()
@@ -68,7 +68,7 @@ export class AccountingController {
         where: { organizationId: org.id },
       });
       const baseCurrency =
-        settings?.baseCurrency ?? findCountryProfile(org.country ?? '')?.currency ?? 'USD';
+        settings?.baseCurrency ?? knownMarket(org.country)?.profile.currency ?? 'USD';
       await this.provisioner.provision(org, baseCurrency, manager);
       const gaps = await this.provisioner.invoicingGaps(org.id, manager);
       return { gaps };

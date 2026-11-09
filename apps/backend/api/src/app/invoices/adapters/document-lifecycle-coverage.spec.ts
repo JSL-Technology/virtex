@@ -10,7 +10,7 @@ import {
   MexicoNumberingAdapter,
   PeruNumberingAdapter,
 } from './regime-numbering.adapter';
-import { coverageFor, supportedCountryCodes } from '../../localization/contracts/country-profile.contract';
+import { coverageFor, marketCodes } from '../../markets';
 
 /**
  * What Settings › coverage says about debit notes in each market is what the market's invoice
@@ -33,7 +33,7 @@ describe('debit notes: the adapters and the coverage declare the same thing', ()
     {} as never,
   );
 
-  it.each(supportedCountryCodes())('%s', (country) => {
+  it.each([...marketCodes()])('%s', (country) => {
     const adapterIssues = typeof factory.forCountry(country).assignDebitNoteNumber === 'function';
     const declared = coverageFor(country).capabilities.find((c) => c.capability === 'debitNotes')?.level;
     expect(declared).toBe(adapterIssues ? 'implemented' : 'not-implemented');

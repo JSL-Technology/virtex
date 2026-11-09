@@ -19,7 +19,7 @@ import {
 } from '../inventory/contracts/sellable-product.contract';
 import { organizationBaseCurrency } from '../organizations/contracts/base-currency.contract';
 import { organizationFiscalIdentity } from '../organizations/contracts/fiscal-identity.contract';
-import { findTaxScheme } from '../localization/contracts/country-profile.contract';
+import { marketFor } from '../markets';
 import { OpenShiftDto } from './dto/open-shift.dto';
 import { CloseShiftDto } from './dto/close-shift.dto';
 import { ProcessSaleDto } from './dto/process-sale.dto';
@@ -449,7 +449,7 @@ export class PosService {
       },
       currency,
       standardTaxRate,
-      taxRequiresConfiguration: country ? findTaxScheme(country)?.configurationRequired ?? true : true,
+      taxRequiresConfiguration: marketFor(country).taxes.scheme.configurationRequired,
     };
   }
 

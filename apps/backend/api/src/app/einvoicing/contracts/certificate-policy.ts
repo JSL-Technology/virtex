@@ -1,4 +1,4 @@
-import { findCountryProfile } from '../../localization/contracts/country-profile.contract';
+import { fiscalAuthorityOf } from '../../markets';
 
 /**
  * How a market's electronic documents are signed: which stored certificate signs them, and whose
@@ -45,7 +45,7 @@ export function certificatePolicyFor(countryCode: string | null | undefined): Ce
   const country = (countryCode ?? '').trim().toUpperCase();
   const policy = POLICIES[country];
   if (!policy) return null;
-  return { country, ...policy, authority: findCountryProfile(country)?.fiscalAuthority ?? country };
+  return { country, ...policy, authority: fiscalAuthorityOf(country) };
 }
 
 /** The `ecf_certificates.regime` a market's adapter looks its certificate up by. */

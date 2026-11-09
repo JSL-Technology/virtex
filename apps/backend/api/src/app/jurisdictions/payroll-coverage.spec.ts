@@ -1,4 +1,4 @@
-import { coverageFor, payrollImplemented } from '../localization/contracts/country-profile.contract';
+import { coverageFor, payrollImplemented } from '../markets';
 import { JurisdictionRegistry } from './jurisdiction-registry';
 
 /**

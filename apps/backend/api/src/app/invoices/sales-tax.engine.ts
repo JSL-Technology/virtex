@@ -1,4 +1,4 @@
-import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
+import { taxSchemeFor } from '../markets';
 import { TaxTreatment } from './entities/invoice-line-item.entity';
 import { allocate, roundToCurrency, sumInCurrency } from '../common/money';
 import { BadRequestError } from '../i18n/localized.exception';
@@ -21,7 +21,7 @@ export { roundToCurrency };
  * 1. **The rate still came from the client.** Checking a rate against a list cannot tell an exempt
  *    book from an evasive zero on a taxable good. The rate is now derived from the catalogue and
  *    the request may only select among treatments the item allows.
- * 2. **It knew nothing about the Dominican reduced rate.** `COUNTRY_TAX_SCHEMES.DO` lists 18 % and
+ * 2. **It knew nothing about the Dominican reduced rate.** The market's tax scheme lists 18 % and
  *    0 %, so a 16 % line — the rate the DGII's own `ITBIS2` bucket exists for, and which the e-CF
  *    builder already knew how to emit — was rejected. The scheme now carries every rate the regime
  *    levies, and the two components agree because they read the same table.
@@ -73,7 +73,7 @@ export interface DocumentTaxInput {
    * The national rates in force on the document's date, from `statutory_tax_rates` (audit
    * 2026-11-07, LOC-06): `null` where the market has no national table, `[]` where nothing is in
    * force on that date. When omitted (pure calculations with no date, the unit tests) the rates
-   * of `COUNTRY_TAX_SCHEMES` — today's — apply; every document the service issues passes them.
+   * of the market's tax scheme — today's — apply; every document the service issues passes them.
    */
   statutoryTaxRates?: readonly number[] | null;
   /** The document's date, named in the refusal when no rate is in force on it. */
@@ -167,7 +167,7 @@ export function allowedTaxFractions(
   tenantRates: readonly number[] = [],
   statutoryRates?: readonly number[] | null,
 ): number[] | null {
-  const scheme = countryCode ? COUNTRY_TAX_SCHEMES[countryCode.toUpperCase()] : undefined;
+  const scheme = taxSchemeFor(countryCode);
   const fromScheme =
     statutoryRates !== undefined
       ? statutoryRates === null || scheme?.configurationRequired

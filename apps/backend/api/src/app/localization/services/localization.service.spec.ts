@@ -1,7 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { LocalizationService } from './localization.service';
-import { supportedCountryCodes } from '../fiscal/country-profiles';
-import { catalogueForCountry } from '../fiscal/identity-document-catalogue';
+import { catalogueForCountry, marketCodes } from '../../markets';
 import { I18nService } from '../../i18n/i18n.service';
 
 /**
@@ -113,7 +112,7 @@ describe('LocalizationService — public country configuration', () => {
       const listed = makeService()
         .getSupportedCountries()
         .map((c) => c.countryCode);
-      expect(listed).toEqual(supportedCountryCodes());
+      expect(listed).toEqual([...marketCodes()]);
     });
   });
 

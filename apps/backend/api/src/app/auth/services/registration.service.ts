@@ -31,8 +31,7 @@ import type { RegisterCheckoutDto } from '../dto/register-checkout.dto';
 import { Plan } from '../../saas/entities/plan.entity';
 import { MembershipService } from '../../organizations/services/membership.service';
 import { UserCacheService } from '../modules/user-cache.service';
-import { canonicalizeTaxId } from '../../localization/fiscal/identity-document-catalogue';
-import { normalizeFiscalFields } from '../../localization/fiscal/country-profiles';
+import { canonicalizeTaxId, normalizeFiscalFields } from '../../markets';
 import { RegistrationPaymentPort } from '../ports/registration-payment.port';
 import { BadRequestError, ConflictError, ForbiddenError, InternalServerError } from '../../i18n/localized.exception';
 

@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
 import { FiscalRegion } from '../entities/fiscal-region.entity';
 import { FiscalDocumentTypeDefinition } from '../entities/fiscal-document-type-definition.entity';
-import { FISCAL_DOCUMENT_TYPES } from '../fiscal/fiscal-document-type-catalogue';
 import { LocalizationProvisioningPort } from '../localization-provisioning.port';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { ChartOfAccountsService } from '../../chart-of-accounts/chart-of-accounts.service';
@@ -15,32 +14,30 @@ import { DominicanRepublicStrategy } from '../drivers/dominican-republic/dominic
 import { GenericFiscalStrategy } from '../drivers/generic-fiscal.strategy';
 import { USStrategy } from '../drivers/usa/usa.strategy';
 import {
-  COUNTRY_FISCAL_PROFILES,
-  CountryFiscalProfile,
-  findCountryProfile,
-} from '../fiscal/country-profiles';
-import {
+  FISCAL_DOCUMENT_TYPES,
+  STATUTORY_PLAN_REQUIRED,
+  STRUCTURAL_CHECKS,
+  allMarkets,
   fiscalIdentifierFor,
+  isKnownMarket,
+  knownMarket,
+  payrollImplemented,
+  requiresStatutoryPlanImport,
+  taxSchemeFor,
   taxpayerKindAffectsValidation,
   validateTaxId,
-} from '../fiscal/identity-document-catalogue';
+  type MarketDefinition,
+} from '../../markets';
+import { TaxType } from '../../taxes/entities/tax.entity';
 import {
   PublicCountryConfig,
   PublicIdentityDocumentType,
   TaxIdLookupResult,
 } from '../fiscal/public-country-config';
 import { IdentityDocumentService } from './identity-document.service';
-import { findTaxScheme } from '../fiscal/country-tax-schemes';
 import { TenantBookkeepingProvisioner } from '../../accounting/provisioning/tenant-bookkeeping.provisioner';
-import {
-  STATUTORY_PLAN_REQUIRED,
-  buildCountryCoaTemplate,
-  requiresStatutoryPlanImport,
-} from '../fiscal/coa-builder';
+import { buildCountryCoaTemplate } from '../fiscal/coa-builder';
 import { InternalServerError, NotFoundError } from '../../i18n/localized.exception';
-import { fiscalLabelKey } from '../fiscal/fiscal-label-keys';
-import { payrollImplemented } from '../fiscal/fiscal-coverage';
-import { STRUCTURAL_CHECKS } from '../fiscal/document-checksums';
 import { I18nService } from '../../i18n/i18n.service';
 import { currentLanguage } from '../../i18n/request-locale';
 
@@ -187,21 +184,21 @@ export class LocalizationService extends LocalizationProvisioningPort implements
    * form but absent here produced no fiscal region id, so the tenant was created with no chart of
    * accounts, no taxes and no fiscal identity — and the signup still returned success.
    *
-   * `COUNTRY_FISCAL_PROFILES` is now the single authority; this method projects it onto the table.
+   * The market packages (`markets/<cc>/`) are now the single authority; this method projects them onto the table.
    * It runs on every boot and is idempotent, so opening a market is a code change that deploys
    * itself rather than a manual insert somebody has to remember in every environment.
    */
   private async seedFiscalRegions() {
-    for (const profile of COUNTRY_FISCAL_PROFILES) {
-      const row = this.regionRowFor(profile);
+    for (const market of allMarkets()) {
+      const row = this.regionRowFor(market);
       const existing = await this.fiscalRegionRepository.findOne({
-        where: { countryCode: profile.countryCode },
+        where: { countryCode: market.code },
       });
 
       if (existing) {
         await this.fiscalRegionRepository.save({ ...existing, ...row });
       } else {
-        this.logger.log(`Sembrando región fiscal ${profile.name} (${profile.countryCode})`);
+        this.logger.log(`Sembrando región fiscal ${market.profile.name} (${market.code})`);
         await this.fiscalRegionRepository.save(
           this.fiscalRegionRepository.create(row),
         );
@@ -211,7 +208,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
   }
 
   /**
-   * Project a profile onto the columns of `fiscal_regions`.
+   * Project a market onto the columns of `fiscal_regions`.
    *
    * It used to also build an `identity_document_config` here, deriving each entry's code from its
    * human label with `label.replace(/[^A-Za-z]/g, '').toUpperCase()`. That produced `RNCCDULA` for
@@ -219,20 +216,21 @@ export class LocalizationService extends LocalizationProvisioningPort implements
    * authority publishes, and that changed whenever somebody edited a label. Document types now
    * live in `identity_document_types` with codes DECLARED in `IDENTITY_DOCUMENT_TYPES`.
    */
-  private regionRowFor(profile: CountryFiscalProfile): Partial<FiscalRegion> {
+  private regionRowFor(market: MarketDefinition): Partial<FiscalRegion> {
+    const { profile } = market;
     return {
-      countryCode: profile.countryCode,
+      countryCode: market.code,
       name: profile.name,
       baseCurrency: profile.currency,
       fiscalAuthorityName: profile.fiscalAuthority,
       provinceLabel: profile.address.divisionLabel,
       postalCodeRegex: profile.address.postalCodePattern ?? null,
-      requiresElectronicInvoicing: profile.electronicInvoicing.required,
-      electronicInvoicingDriver: profile.electronicInvoicing.regime,
-      requiredFiscalReports: profile.requiredFiscalReports ?? [],
-      dateFormat: profile.dateFormat,
-      thousandSeparator: profile.thousandSeparator,
-      decimalSeparator: profile.decimalSeparator,
+      requiresElectronicInvoicing: market.einvoicing.required,
+      electronicInvoicingDriver: market.einvoicing.regime,
+      requiredFiscalReports: [...market.returns.obligations],
+      dateFormat: profile.formats.date,
+      thousandSeparator: profile.formats.thousandSeparator,
+      decimalSeparator: profile.formats.decimalSeparator,
     } as Partial<FiscalRegion>;
   }
 
@@ -244,34 +242,34 @@ export class LocalizationService extends LocalizationProvisioningPort implements
    * is not modelled, the honest answer is that it cannot be registered yet.
    */
   async getPublicCountryConfig(countryCode: string): Promise<PublicCountryConfig> {
-    const profile = findCountryProfile(countryCode);
-    if (!profile) {
+    const market = knownMarket(countryCode);
+    if (!market) {
       throw new NotFoundError('localization.country_country_code_not_available_registration', { countryCode });
     }
+    const { profile } = market;
 
-    const region = await this.findRegionByCountryCode(profile.countryCode);
+    const region = await this.findRegionByCountryCode(market.code);
     if (!region) {
       // Seeding runs at boot from the same list, so this means the boot seed failed. Surfacing it
       // is better than handing the form a config whose fiscalRegionId is missing — that is exactly
       // how tenants used to end up with no chart of accounts.
       this.logger.error(
-        `No existe fiscal_region para ${profile.countryCode} pese a estar en COUNTRY_FISCAL_PROFILES`,
+        `No existe fiscal_region para ${market.code} pese a estar en el catálogo de mercados`,
       );
-      throw new NotFoundError('localization.tax_configuration_country_code_not_available', { countryCode: profile.countryCode });
+      throw new NotFoundError('localization.tax_configuration_country_code_not_available', { countryCode: market.code });
     }
 
     // Every human-readable label goes out in the language of the request. The signup form used to
     // render these raw, so a Spanish-speaking founder registering in the United States met
     // 'State' and 'ZIP code', and an English-speaking one registering in the Dominican Republic
-    // met 'Tipo de ingreso' and a paragraph about the DGII. See `fiscal-label-keys.ts` for which
-    // labels are translated and which stay in the country's own words.
-    const t = (label: string): string => {
-      const key = fiscalLabelKey(label);
-      return key ? this.i18n.translate(key, currentLanguage()) : label;
-    };
+    // met 'Tipo de ingreso' and a paragraph about the authority. A label the market declares a key
+    // for is generic vocabulary and goes out translated; one it does not is the authority's own
+    // term (RNC, CUIT, Ubigeo) and goes out verbatim.
+    const t = (label: string, key: string | undefined): string =>
+      key ? this.i18n.translate(key, currentLanguage()) : label;
 
     const identityDocumentTypes: PublicIdentityDocumentType[] = (
-      await this.identityDocuments.listForCountry(profile.countryCode)
+      await this.identityDocuments.listForCountry(market.code)
     ).map((row) => ({
       code: row.code,
       countryCode: row.countryCode,
@@ -291,7 +289,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
     const individualEntry =
       identityDocumentTypes.find((entry) => entry.appliesTo === 'individual' && entry.isDefault) ??
       identityDocumentTypes.find(
-        (entry) => entry.appliesTo === 'individual' && entry.countryCode === profile.countryCode,
+        (entry) => entry.appliesTo === 'individual' && entry.countryCode === market.code,
       ) ??
       null;
 
@@ -299,10 +297,10 @@ export class LocalizationService extends LocalizationProvisioningPort implements
     // the profile (C-01). Its label, example, shape and whether it carries a check digit are read
     // from that row, so there is one place that says a Dominican RNC is nine digits, and the signup
     // form and the customer form read the same catalogue.
-    const fiscalId = fiscalIdentifierFor(profile.countryCode);
+    const fiscalId = fiscalIdentifierFor(market.code);
 
     return {
-      countryCode: profile.countryCode,
+      countryCode: market.code,
       name: profile.name,
       currency: profile.currency,
       locale: profile.locale,
@@ -329,34 +327,36 @@ export class LocalizationService extends LocalizationProvisioningPort implements
           }
         : null,
       address: {
-        ...profile.address,
-        divisionLabel: t(profile.address.divisionLabel),
-        postalCodeLabel: t(profile.address.postalCodeLabel),
+        divisions: profile.address.divisions ? [...profile.address.divisions] : undefined,
+        postalCodePattern: profile.address.postalCodePattern,
+        postalCodeRequired: profile.address.postalCodeRequired,
+        divisionLabel: t(profile.address.divisionLabel, profile.address.divisionLabelKey),
+        postalCodeLabel: t(profile.address.postalCodeLabel, profile.address.postalCodeLabelKey),
       },
-      electronicInvoicing: profile.electronicInvoicing,
+      electronicInvoicing: { required: market.einvoicing.required, regime: market.einvoicing.regime },
       marketStatus: profile.marketStatus,
-      payrollAvailable: payrollImplemented(profile.countryCode),
-      taxpayerKindRequired: taxpayerKindAffectsValidation(profile.countryCode),
-      fiscalFields: (profile.fiscalFields ?? []).map((field) => ({
+      payrollAvailable: payrollImplemented(market.code),
+      taxpayerKindRequired: taxpayerKindAffectsValidation(market.code),
+      fiscalFields: market.identity.fiscalFields.map((field) => ({
         ...field,
-        label: t(field.label),
-        help: field.help ? t(field.help) : field.help,
-        options: field.options?.map((option) => ({ ...option, label: t(option.label) })),
+        label: t(field.label, field.labelKey),
+        help: field.help ? t(field.help, field.helpKey) : field.help,
+        options: field.options?.map((option) => ({ ...option, label: t(option.label, option.labelKey) })),
       })),
-      dateFormat: profile.dateFormat,
-      thousandSeparator: profile.thousandSeparator,
-      decimalSeparator: profile.decimalSeparator,
+      dateFormat: profile.formats.date,
+      thousandSeparator: profile.formats.thousandSeparator,
+      decimalSeparator: profile.formats.decimalSeparator,
       fiscalRegionId: region.id,
     };
   }
 
   /** Every country the product can actually onboard, for the signup country selector. */
-  getSupportedCountries(): Array<Pick<CountryFiscalProfile, 'countryCode' | 'name' | 'currency' | 'callingCode'>> {
-    return COUNTRY_FISCAL_PROFILES.map(({ countryCode, name, currency, callingCode }) => ({
-      countryCode,
-      name,
-      currency,
-      callingCode,
+  getSupportedCountries(): Array<{ countryCode: string; name: string; currency: string; callingCode: string }> {
+    return allMarkets().map((market) => ({
+      countryCode: market.code,
+      name: market.profile.name,
+      currency: market.profile.currency,
+      callingCode: market.profile.callingCode,
     }));
   }
 
@@ -372,7 +372,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
   }
 
   isSupportedCountry(countryCode: string): boolean {
-    return Boolean(findCountryProfile(countryCode));
+    return isKnownMarket(countryCode);
   }
 
   /**
@@ -387,14 +387,14 @@ export class LocalizationService extends LocalizationProvisioningPort implements
    * digit is authoritative for accepting the identifier; the lookup only saves typing.
    */
   async lookupTaxId(countryCode: string, taxId: string): Promise<TaxIdLookupResult> {
-    const profile = findCountryProfile(countryCode);
-    if (!profile) {
+    const market = knownMarket(countryCode);
+    if (!market) {
       throw new NotFoundError('localization.country_country_code_not_available_registration', { countryCode });
     }
 
-    if (!validateTaxId(profile.countryCode, taxId)) {
+    if (!validateTaxId(market.code, taxId)) {
       return {
-        countryCode: profile.countryCode,
+        countryCode: market.code,
         taxId,
         valid: false,
         found: false,
@@ -403,10 +403,10 @@ export class LocalizationService extends LocalizationProvisioningPort implements
       };
     }
 
-    const strategy = this.strategies.get(profile.countryCode);
+    const strategy = this.strategies.get(market.code);
     if (!strategy) {
       return {
-        countryCode: profile.countryCode,
+        countryCode: market.code,
         taxId,
         valid: true,
         found: false,
@@ -419,7 +419,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
       const details = await strategy.getTaxIdDetails(taxId);
       if (!details?.legalName) {
         return {
-          countryCode: profile.countryCode,
+          countryCode: market.code,
           taxId,
           valid: true,
           found: false,
@@ -429,7 +429,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
       }
 
       return {
-        countryCode: profile.countryCode,
+        countryCode: market.code,
         taxId,
         valid: true,
         found: true,
@@ -438,10 +438,10 @@ export class LocalizationService extends LocalizationProvisioningPort implements
       };
     } catch (error) {
       this.logger.warn(
-        `Consulta al registro fiscal de ${profile.countryCode} falló: ${(error as Error).message}`,
+        `Consulta al registro fiscal de ${market.code} falló: ${(error as Error).message}`,
       );
       return {
-        countryCode: profile.countryCode,
+        countryCode: market.code,
         taxId,
         valid: true,
         found: false,
@@ -494,7 +494,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
     // provisioner runs in this same transaction, so a tenant is either able to keep books or is
     // not created at all.
     const baseCurrency =
-      findCountryProfile(region.countryCode)?.currency ?? DEFAULT_BASE_CURRENCY;
+      knownMarket(region.countryCode)?.profile.currency ?? DEFAULT_BASE_CURRENCY;
     await this.bookkeeping.provision(
       organization,
       baseCurrency,
@@ -514,7 +514,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
     organizationId: string,
     manager?: EntityManager,
   ) {
-    const scheme = findTaxScheme(countryCode);
+    const scheme = taxSchemeFor(countryCode);
 
     if (!scheme) {
       throw new InternalServerError('localization.no_tax_scheme_defined_country_code', { countryCode });
@@ -548,7 +548,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
         {
           name: tax.name,
           rate: tax.rate,
-          type: tax.computation,
+          type: tax.computation === 'FIXED' ? TaxType.FIXED : TaxType.PERCENTAGE,
           countryCode,
           effectiveFrom: period?.effective_from,
           effectiveTo: period?.effective_to ?? undefined,

@@ -25,7 +25,7 @@ import { UsageMetricRepository } from './repositories/usage-metric.repository';
 import { OrganizationSubscriptionHistory } from '../organizations/entities/organization-subscription-history.entity';
 import { MetricsService } from '../metrics/metrics.service';
 import { SaasCacheKeyFactory } from './utils/saas-cache-key.factory';
-import { findCountryProfile } from '../localization/fiscal/country-profiles';
+import { knownMarket } from '../markets';
 import { UserCacheService } from '../auth/modules/user-cache.service';
 import type { ResourceQuota } from './contracts/entitlements.contract';
 
@@ -281,10 +281,10 @@ export class SaasService implements OnModuleInit {
   static currencyForCountry(countryCode?: string): string {
     const base = SaasService.baseCurrency();
     if (!countryCode) return base;
-    const profile = findCountryProfile(countryCode);
-    if (!profile) return base;
+    const market = knownMarket(countryCode);
+    if (!market) return base;
 
-    const local = profile.currency.toUpperCase();
+    const local = market.profile.currency.toUpperCase();
     if (local === base) return base;
 
     const pricedEverywhere = SAAS_PLANS.every(

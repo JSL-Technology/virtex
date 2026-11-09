@@ -1,4 +1,4 @@
-import { checkReceivedNcf } from './ncf';
+import { checkReceivedNcf } from './purchases';
 
 describe('checkReceivedNcf', () => {
   it('accepts the two shapes the DGII issues, however they were typed', () => {

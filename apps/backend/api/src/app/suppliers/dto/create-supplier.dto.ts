@@ -14,7 +14,7 @@ import {
   Length,
 } from 'class-validator';
 import { BlankToUndefined, IsPhoneLike } from '../../common/transformers/blank-to-undefined.transformer';
-import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
+import { TaxpayerType } from '../../markets';
 import { SupplierStatus } from '../entities/supplier.entity';
 
 export class CreateSupplierDto {

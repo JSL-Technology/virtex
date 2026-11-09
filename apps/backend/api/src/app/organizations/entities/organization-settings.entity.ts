@@ -13,7 +13,7 @@ import {
 } from 'typeorm';
 import { Organization } from './organization.entity';
 import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
-import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
+import { TaxpayerType } from '../../markets';
 import { numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import type { FiscalEmissionMode } from '../contracts/fiscal-emission-mode.contract';
 

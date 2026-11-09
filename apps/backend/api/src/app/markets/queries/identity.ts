@@ -369,32 +369,3 @@ function parseMultiValue(raw: unknown): string[] {
   const parts = Array.isArray(raw) ? raw : typeof raw === 'string' ? raw.split(',') : [];
   return parts.map((part) => (typeof part === 'string' ? part.trim() : '')).filter((part) => part.length > 0);
 }
-
-/**
- * The catalogue key of a label a market's profile or fiscal fields carry, or null when the label is
- * the market's own terminology (RNC, CUIT, Ubigeo), which stays untranslated.
- */
-export function fiscalLabelKey(label: string | null | undefined): string | null {
-  if (typeof label !== 'string') return null;
-  return FISCAL_LABEL_KEYS[label.trim()] ?? null;
-}
-
-/** Every label → key pair the markets declare, for `fiscalLabelKey`. */
-export const FISCAL_LABEL_KEYS: Readonly<Record<string, string>> = Object.freeze(
-  (() => {
-    const table: Record<string, string> = {};
-    for (const market of allMarkets()) {
-      const address = market.profile.address;
-      if (address.divisionLabelKey) table[address.divisionLabel] = address.divisionLabelKey;
-      if (address.postalCodeLabelKey) table[address.postalCodeLabel] = address.postalCodeLabelKey;
-      for (const field of market.identity.fiscalFields) {
-        if (field.labelKey) table[field.label] = field.labelKey;
-        if (field.help && field.helpKey) table[field.help] = field.helpKey;
-        for (const option of field.options ?? []) {
-          if (option.labelKey) table[option.label] = option.labelKey;
-        }
-      }
-    }
-    return table;
-  })(),
-);

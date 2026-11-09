@@ -9,14 +9,13 @@ import { s } from '../contracts/copilot/copilot-tools.contract';
 import { StorageService } from '../storage/storage.service';
 import { BadRequestError, NotFoundError, ServiceUnavailableError } from '../i18n/localized.exception';
 import { TaxIdRegistryPort } from '../localization/contracts/tax-id.contract';
-import type { ReceivedDocumentCheck } from '../markets';
 import {
-  PurchaseCaptureProfile,
-  ReceivedDocumentKind,
   checkReceivedDocument,
   checkSupplierTaxId,
   purchaseCaptureProfile,
-} from '../localization/contracts/purchase-capture.contract';
+  type PurchaseCaptureProfile,
+  type ReceivedDocumentCheck,
+} from '../markets';
 import { organizationFiscalIdentity } from '../organizations/contracts/fiscal-identity.contract';
 import { VendorBillAttachment } from './entities/vendor-bill-attachment.entity';
 import { PurchaseCategory } from './entities/vendor-bill.entity';
@@ -85,7 +84,7 @@ export interface BillCaptureSuggestion {
   attachment: { id: string; fileName: string; mimeType: string };
   documentKind: DocumentKind;
   /** The market whose rules the document was read and checked by; `generic` when none is modelled. */
-  market: { countryCode: string | null; generic: boolean; documentKind: ReceivedDocumentKind };
+  market: { countryCode: string | null; generic: boolean; documentKind: string };
   supplier: {
     /** The company's own supplier with this identifier, when there is one. */
     match: { id: string; name: string; taxId: string | null } | null;

@@ -47,8 +47,10 @@ import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { toIsoDate } from '../common/dates';
 import { statutoryTaxRatesOn } from '../localization/contracts/statutory-tax-rates.contract';
-import { isValidDominicanTaxId } from '../localization/contracts/tax-id.contract';
-import { checkReceivedNcf } from '../localization/contracts/ncf.contract';
+// The Dominican supplier and comprobante checks, until the purchase record is neutral and each
+// market validates its own documents (docs/ARQUITECTURA_MERCADOS.md, phase 4).
+import { isValidDominicanTaxId } from '../markets/do/identity';
+import { checkReceivedNcf } from '../markets/do/purchases';
 import { VendorBillAttachment } from './entities/vendor-bill-attachment.entity';
 import { supplierInvoiceKey } from './supplier-invoice-key';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';

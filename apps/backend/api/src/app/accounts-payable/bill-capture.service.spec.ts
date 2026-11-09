@@ -1,5 +1,5 @@
 import { BillCaptureService, arithmeticIssues, captureSchema, marketBrief, parseExtractedBill } from './bill-capture.service';
-import { purchaseCaptureProfile } from '../localization/contracts/purchase-capture.contract';
+import { purchaseCaptureProfile } from '../markets';
 
 const DO = purchaseCaptureProfile('DO');
 const US = purchaseCaptureProfile('US');

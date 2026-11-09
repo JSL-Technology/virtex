@@ -1,6 +1,6 @@
 import { Check, Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import type { FiscalRegion } from './fiscal-region.entity';
-import type { FiscalDocumentSide } from '../fiscal/fiscal-document-type-catalogue';
+import type { FiscalDocumentSide } from '../../markets';
 
 /**
  * One fiscal document type an authority publishes — a comprobante, a DTE, a CFDI class.

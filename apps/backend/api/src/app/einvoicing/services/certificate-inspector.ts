@@ -1,6 +1,6 @@
 import * as forge from 'node-forge';
 import { BadRequestError } from '../../i18n/localized.exception';
-import { TaxpayerKind, fiscalIdentifierLabel, validateTaxId } from '../../localization/contracts/tax-id.contract';
+import { TaxpayerKind, fiscalIdentifierLabel, validateTaxId } from '../../markets';
 import { CertificatePolicy } from '../contracts/certificate-policy';
 
 /**
