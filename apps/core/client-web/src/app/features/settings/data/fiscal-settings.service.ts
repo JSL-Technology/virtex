@@ -63,7 +63,8 @@ export type WithholdingRegimeInput = Omit<WithholdingRegime, 'id'>;
 /** What the product does and does not do in the tenant's market. */
 export interface CapabilityCoverage {
   capability: string;
-  level: 'implemented' | 'needs-credentials' | 'needs-configuration' | 'not-implemented';
+  /** `not-applicable`: the market has no such obligation (a US invoice carries no fiscal stamp). */
+  level: 'implemented' | 'needs-credentials' | 'needs-configuration' | 'not-implemented' | 'not-applicable';
   detail?: string;
   requires?: string;
 }

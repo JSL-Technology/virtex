@@ -11,8 +11,16 @@
  * - `needs-configuration` — built; it cannot run until the tenant's own data says something only
  *   they can decide.
  * - `not-implemented` — not built. Said plainly rather than dressed as a preview.
+ * - `not-applicable` — the market has no such obligation: a US sales invoice carries no fiscal
+ *   stamp and no withholding. Saying «implemented» would claim work that does not exist; saying «not
+ *   implemented» would suggest something is missing that the law does not ask for.
  */
-export type CoverageLevel = 'implemented' | 'needs-credentials' | 'needs-configuration' | 'not-implemented';
+export type CoverageLevel =
+  | 'implemented'
+  | 'needs-credentials'
+  | 'needs-configuration'
+  | 'not-implemented'
+  | 'not-applicable';
 
 /** Stable keys, for the client to translate. */
 export type CoverageCapability =

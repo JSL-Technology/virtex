@@ -937,6 +937,11 @@
     "en": "Needs your credentials",
     "pt": "Precisa das suas credenciais"
   },
+  "settings.fiscal.level.not_applicable": {
+    "es": "No aplica",
+    "en": "Not applicable",
+    "pt": "Não se aplica"
+  },
   "settings.fiscal.level.not_implemented": {
     "es": "No implementado",
     "en": "Not implemented",
@@ -2099,6 +2104,11 @@
     "es": "Requiere credenciales",
     "en": "Needs credentials",
     "pt": "Requer credenciais"
+  },
+  "settings.pages.withholding.coverage.not_applicable": {
+    "es": "No aplica",
+    "en": "Not applicable",
+    "pt": "Não se aplica"
   },
   "settings.pages.withholding.coverage.not_implemented": {
     "es": "No implementado",

@@ -9,8 +9,15 @@ export const needsCredentials = (detail: string, requires: string): CoverageLine
 
 export const needsConfiguration = (detail: string, requires: string): CoverageLine => ({ level: 'needs-configuration', detail, requires });
 
-/** Withholding the tenant configures: the regimes and rates that apply to it, entered in settings. */
-export const TENANT_CONFIGURED_WITHHOLDING: CoverageLine = needsCredentials(
+/** The market has no such obligation. */
+export const notApplicable = (detail?: string): CoverageLine =>
+  detail === undefined ? { level: 'not-applicable' } : { level: 'not-applicable', detail };
+
+/**
+ * Withholding the tenant configures: the regimes and rates that apply to it, entered in settings. A
+ * configuration — data only the company can state — not a credential.
+ */
+export const TENANT_CONFIGURED_WITHHOLDING: CoverageLine = needsConfiguration(
   'Regímenes configurables por el contribuyente',
   'los regímenes y tarifas que te apliquen, en Ajustes → Impuestos',
 );

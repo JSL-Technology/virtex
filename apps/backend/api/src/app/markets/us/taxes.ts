@@ -1,6 +1,6 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
 import type { MarketTaxes } from '../contracts';
-import { TENANT_CONFIGURED_WITHHOLDING, needsCredentials } from '../kit/coverage';
+import { needsConfiguration, notApplicable } from '../kit/coverage';
 
 /** United States: how a sale is taxed. Rates are starting points the tenant's accountant confirms. */
 export const taxes: MarketTaxes = {
@@ -23,10 +23,12 @@ export const taxes: MarketTaxes = {
   },
   serviceChargeRate: 0,
   coverage: {
-    taxDetermination: needsCredentials(
+    taxDetermination: needsConfiguration(
       'Sales tax por jurisdicción, con sourcing origen/destino y nexo',
       'las jurisdicciones donde está registrado, en Ajustes → Impuestos',
     ),
-    withholding: TENANT_CONFIGURED_WITHHOLDING,
+    // Backup and non-resident withholding are payment-level obligations (Forms 1099, 1042-S), never
+    // a line of the sales invoice.
+    withholding: notApplicable(),
   },
 };

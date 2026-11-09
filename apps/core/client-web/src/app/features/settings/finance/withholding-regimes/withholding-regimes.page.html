@@ -119,7 +119,7 @@
       <details>
         <summary><h2>{{ 'settings.pages.withholding.what_product_covers_country' | translate: { country: market.countryCode } }}</h2></summary>
         <ul>
-          @for (capability of market.capabilities; track capability.capability) {
+          @for (capability of market.capabilities; track capability.capability + capability.level + $index) {
             <li [class]="'w-level w-level--' + capability.level">
               <span class="w-capability">{{ capabilityKey(capability.capability) | translate }}</span>
               <span class="w-status">{{ levelKey(capability.level) | translate }}</span>

@@ -1,7 +1,7 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
 import type { MarketTaxes } from '../contracts';
 import { valueAddedTax, withholdingConfiguredByTenant } from '../kit/taxes';
-import { notImplemented } from '../kit/coverage';
+import { TENANT_CONFIGURED_WITHHOLDING, implemented } from '../kit/coverage';
 
 /** Bolivia: how a sale is taxed. Rates are starting points the tenant's accountant confirms. */
 export const taxes: MarketTaxes = {
@@ -20,7 +20,8 @@ export const taxes: MarketTaxes = {
   ),
   serviceChargeRate: 0,
   coverage: {
-    taxDetermination: notImplemented(),
-    withholding: notImplemented(),
+    // The national rates the company starts with, validated against the statutory table in force.
+    taxDetermination: implemented('IVA 13 % / exento'),
+    withholding: TENANT_CONFIGURED_WITHHOLDING,
   },
 };

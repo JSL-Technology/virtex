@@ -116,7 +116,7 @@
           </h2>
         </summary>
         <ul class="coverage__list card__body">
-          @for (capability of market.capabilities; track capability.capability) {
+          @for (capability of market.capabilities; track capability.capability + capability.level + $index) {
             <li class="coverage__row">
               <span class="coverage__capability">{{ capabilityKey(capability.capability) | translate }}</span>
               <vx-badge [tone]="levelTone(capability.level)" size="sm">{{ levelKey(capability.level) | translate }}</vx-badge>

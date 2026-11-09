@@ -31,8 +31,10 @@
   color: var(--text-secondary);
 
   &--implemented { border-left-color: var(--success-text, var(--text-primary)); }
-  &--needs-credentials { border-left-color: var(--warning-text, var(--text-secondary)); }
+  &--needs-credentials,
+  &--needs-configuration { border-left-color: var(--warning-text, var(--text-secondary)); }
   &--not-implemented { border-left-color: var(--error-text); }
+  &--not-applicable { border-left-color: var(--border-color); }
 }
 
 .w-capability { font-weight: 600; color: var(--text-primary); }

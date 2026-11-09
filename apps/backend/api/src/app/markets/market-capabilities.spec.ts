@@ -21,7 +21,11 @@ const pt: Record<string, string> = ptCatalogue;
 describe('market capabilities', () => {
   const markets = [...marketCodes()];
   const catalogues: Record<string, Record<string, string>> = { es, en, pt };
-  const market = (code: string) => knownMarket(code)!;
+  const market = (code: string) => {
+    const found = knownMarket(code);
+    if (!found) throw new Error(`${code} is not in the catalogue`);
+    return found;
+  };
 
   it.each(markets)('%s: states its tax model as its tax scheme does', (code) => {
     const { taxes } = market(code);

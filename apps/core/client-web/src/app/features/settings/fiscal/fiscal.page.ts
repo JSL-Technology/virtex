@@ -141,6 +141,8 @@ export class FiscalSettingsPage implements OnInit {
         return 'warning';
       case 'not-implemented':
         return 'danger';
+      // The law asks for nothing here: neither an achievement nor a gap.
+      case 'not-applicable':
       default:
         return 'neutral';
     }

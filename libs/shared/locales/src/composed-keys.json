@@ -1131,7 +1131,8 @@
       "implemented",
       "needs-credentials",
       "needs-configuration",
-      "not-implemented"
+      "not-implemented",
+      "not-applicable"
     ],
     "settings.pages.withholding.capability": [
       "accounting",
@@ -1145,7 +1146,9 @@
     "settings.pages.withholding.coverage": [
       "implemented",
       "needs-credentials",
-      "not-implemented"
+      "needs-configuration",
+      "not-implemented",
+      "not-applicable"
     ],
     "settings.permission_names": [
       "ai_settings_manage",

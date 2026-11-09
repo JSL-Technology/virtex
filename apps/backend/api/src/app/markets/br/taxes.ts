@@ -1,7 +1,7 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
 import type { MarketTaxes } from '../contracts';
 import { withholdingConfiguredByTenant } from '../kit/taxes';
-import { TENANT_CONFIGURED_WITHHOLDING, needsCredentials } from '../kit/coverage';
+import { TENANT_CONFIGURED_WITHHOLDING, needsConfiguration } from '../kit/coverage';
 
 /** Brazil: how a sale is taxed. Rates are starting points the tenant's accountant confirms. */
 export const taxes: MarketTaxes = {
@@ -19,7 +19,7 @@ export const taxes: MarketTaxes = {
   ),
   serviceChargeRate: 0,
   coverage: {
-    taxDetermination: needsCredentials(
+    taxDetermination: needsConfiguration(
       'ICMS estadual, ISS municipal, PIS/COFINS por regime',
       'as alíquotas das jurisdições onde tem obrigação, em Configurações → Impostos',
     ),

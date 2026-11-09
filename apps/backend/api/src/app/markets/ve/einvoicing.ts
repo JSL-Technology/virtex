@@ -1,10 +1,11 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
 import type { MarketEInvoicing } from '../contracts';
-import { notImplemented } from '../kit/coverage';
+import { notApplicable } from '../kit/coverage';
 
 /** Venezuela: whether the law requires electronic invoicing, and what the product does about it. */
 export const einvoicing: MarketEInvoicing = {
   required: false,
   regime: null,
-  coverage: notImplemented(),
+  // The law does not mandate electronic invoicing here (`required: false`).
+  coverage: notApplicable(),
 };

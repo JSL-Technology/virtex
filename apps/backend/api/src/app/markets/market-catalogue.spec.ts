@@ -86,6 +86,16 @@ describe('market catalogue', () => {
       }
     });
 
+    it('calls an obligation the law does not impose «not applicable», and nothing else', () => {
+      const level = (capability: string) => coverageFor(code).capabilities.find((line) => line.capability === capability)?.level;
+      expect(level('electronicInvoicing') === 'not-applicable').toBe(!market.einvoicing.required);
+      expect(level('withholding') === 'not-applicable').toBe(!market.taxes.withholding.applies);
+      // Every market taxes sales, files returns and pays wages.
+      for (const capability of ['accounting', 'taxDetermination', 'periodicReturns', 'payroll']) {
+        expect([capability, level(capability)]).not.toEqual([capability, 'not-applicable']);
+      }
+    });
+
     it('says what the taxpayer must supply wherever coverage waits on them', () => {
       for (const line of coverageFor(code).capabilities) {
         if (line.level === 'needs-credentials' || line.level === 'needs-configuration') {
