@@ -10,11 +10,21 @@ import {
   InvoiceStatus,
   InvoiceType,
   ModificationCode,
+  DebitNoteReason,
+  CancellationMode,
   PaymentMethod,
 } from './entities/invoice.entity';
 import { InvoiceLineItem, TaxTreatment } from './entities/invoice-line-item.entity';
 import { CreateInvoiceDto, InvoiceLineDto } from './dto/create-invoice.dto';
 import { CreateCreditNoteDto } from './dto/create-credit-note.dto';
+import { CancelInvoiceBodyDto, DebitNoteBodyDto } from './dto/debit-note.dto';
+import {
+  cancellationRouteFor,
+  fiscalAuthorityOf,
+  fiscalReasonsOn,
+  type CancellationRoute,
+  type FiscalReason,
+} from '../localization/contracts/document-cancellation.contract';
 import { CustomersService } from '../customers/customers.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { Product, ProductKind } from '../inventory/entities/product.entity';
@@ -155,6 +165,11 @@ export interface InvoicingContext {
    * unit in the books' currency: what a product can carry beside its rate.
    */
   fixedTaxes: Array<{ id: string; name: string; amount: number }>;
+  /**
+   * Whether the market's regime issues sales debit notes through the product (FAC-INV-05): the
+   * screen offers one only where the server would issue it.
+   */
+  debitNotes: boolean;
   taxRequiresConfiguration: boolean;
   /**
    * How the market's tax is set, from its country pack. `BY_JURISDICTION` (the United States) means
@@ -309,7 +324,7 @@ export class InvoicesService {
     });
     if (created.status !== InvoiceStatus.DRAFT) {
       this.eventEmitter.emit('invoice.issued', created);
-      this.triggerEcfSubmission(created);
+      this.triggerFiscalTransmission(created);
     }
     return created;
   }
@@ -337,7 +352,7 @@ export class InvoicesService {
     });
 
     this.eventEmitter.emit('invoice.issued', issued);
-    this.triggerEcfSubmission(issued);
+    this.triggerFiscalTransmission(issued);
     return issued;
   }
 
@@ -521,7 +536,7 @@ export class InvoicesService {
       .findOne({ where: { id: organizationId }, select: ['id', 'country', 'taxId'] });
     const countryCode = organization?.country ?? null;
     let emissionKind: EmissionKind | null = null;
-    if (invoice.type !== InvoiceType.CREDIT_NOTE) {
+    if (invoice.type === InvoiceType.INVOICE) {
       const issuable = await this.issuableTypes(
         organizationId,
         countryCode,
@@ -542,16 +557,31 @@ export class InvoicesService {
       throw new BadRequestError('invoices.issuer_tax_id_required');
     }
 
-    const assignment =
-      invoice.type === InvoiceType.CREDIT_NOTE
-        ? await adapter.assignCreditNoteNumber({
-            invoice,
-            organizationId,
-            manager,
-            requestedType,
-            originalInvoice: await this.requireOriginal(invoice, organizationId, manager),
-          })
-        : await adapter.assignSalesNumber({ invoice, organizationId, manager, requestedType, emissionKind });
+    let assignment;
+    if (invoice.type === InvoiceType.CREDIT_NOTE) {
+      assignment = await adapter.assignCreditNoteNumber({
+        invoice,
+        organizationId,
+        manager,
+        requestedType,
+        originalInvoice: await this.requireOriginal(invoice, organizationId, manager),
+      });
+    } else if (invoice.type === InvoiceType.DEBIT_NOTE) {
+      // A market whose regime cannot issue one through the product refuses it before a number is
+      // drawn, rather than numbering a document its authority would reject (FAC-INV-05).
+      if (!adapter.assignDebitNoteNumber) {
+        throw new BadRequestError('invoices.debit_note_not_supported_in_market', { country: countryCode ?? '—' });
+      }
+      assignment = await adapter.assignDebitNoteNumber({
+        invoice,
+        organizationId,
+        manager,
+        requestedType,
+        originalInvoice: await this.requireOriginal(invoice, organizationId, manager),
+      });
+    } else {
+      assignment = await adapter.assignSalesNumber({ invoice, organizationId, manager, requestedType, emissionKind });
+    }
 
     invoice.fiscalNumber = assignment.ncf;
     invoice.fiscalDocumentType = assignment.documentType;
@@ -1609,6 +1639,8 @@ export class InvoicesService {
         original.status = InvoiceStatus.VOID;
         original.voidedAt = new Date();
         original.voidReason = dto.reason ?? 'Anulada por nota de crédito total';
+        // Reversed by the note, not annulled: a fiscal return still counts it as the sale it was.
+        original.cancellationMode = CancellationMode.CREDIT_NOTE;
         original.balance = 0;
       } else if (original.balance <= 0.005) {
         original.status = InvoiceStatus.PAID;
@@ -1623,8 +1655,276 @@ export class InvoicesService {
       return issuedNote;
     });
 
-    this.triggerEcfSubmission(created);
+    this.triggerFiscalTransmission(created);
     return created;
+  }
+
+  // ── Debit notes and cancellation (audit 2026-11-07, FAC-INV-05) ───────────────
+
+  /**
+   * Add a charge to an issued invoice: interest for paying late, freight billed afterwards, a price
+   * agreed higher. A document of its own — numbered, posted Dr receivable / Cr revenue and tax,
+   * collected like an invoice — that names the invoice it modifies.
+   *
+   * Country-neutral by construction. The reason is the product's own (`DebitNoteReason`) and each
+   * regime writes its authority's code for it; the market's adapter numbers it, or refuses it where
+   * the product's builder for that authority does not issue debit notes yet — before any number is
+   * drawn. Lines state their tax treatment: whether late-payment interest bears VAT is a question
+   * each market answers differently, and the server does not answer it for the user.
+   *
+   * Tax is the rate in force on the date of the operation it taxes: the original's, for a price
+   * increase — it changes the value of that operation — and the note's own for a new charge. The
+   * buyer's withholding is resolved for the note itself, by its regimes, as for any document.
+   * Both rules are the general ones; confirm each market's with a local accountant.
+   */
+  async createDebitNote(invoiceId: string, dto: DebitNoteBodyDto, organizationId: string, actorUserId: string | null = null): Promise<Invoice> {
+    const created = await this.dataSource.transaction(async (manager) => {
+      const repo = manager.getRepository(Invoice);
+      await repo
+        .createQueryBuilder('invoice')
+        .where('invoice.id = :id', { id: invoiceId })
+        .andWhere('invoice.organizationId = :organizationId', { organizationId })
+        .setLock('pessimistic_write')
+        .getOne();
+      const original = await repo.findOne({ where: { id: invoiceId, organizationId }, relations: ['customer'] });
+      if (!original) throw new NotFoundError('invoices.original_invoice_invoice_id_not_found', { invoiceId });
+      if (original.type !== InvoiceType.INVOICE) throw new BadRequestError('invoices.only_invoice_can_be_debited');
+      if (original.status === InvoiceStatus.DRAFT) throw new BadRequestError('invoices.draft_cannot_be_debited');
+      if (original.status === InvoiceStatus.VOID) throw new ConflictError('invoices.invoice_has_already_voided_full');
+
+      const country = (await manager.getRepository(Organization).findOne({ where: { id: organizationId }, select: ['id', 'country'] }))?.country ?? null;
+      const adapter = await this.fiscalAdapterFactory.getAdapter(organizationId, manager);
+      if (!adapter.assignDebitNoteNumber) {
+        throw new BadRequestError('invoices.debit_note_not_supported_in_market', { authority: fiscalAuthorityOf(country) });
+      }
+
+      const today = await this.fiscalToday(organizationId, manager);
+      const taxDate = dto.reason === DebitNoteReason.PRICE_INCREASE ? toIsoDate(original.issueDate) : today;
+      const standardRate = await standardSalesTaxRate(manager, organizationId);
+      const lines = dto.lines.map((line) => ({
+        description: line.description.trim(),
+        quantity: line.quantity,
+        unitPrice: line.unitPrice,
+        taxTreatment: line.taxTreatment,
+        taxRate: line.taxTreatment === TaxTreatment.TAXED ? (line.taxRate ?? standardRate ?? 0) : 0,
+        isService: line.isService,
+      }));
+      const customer = original.customer ?? (await this.customersService.findOne(original.customerId, organizationId));
+      const withholding = await this.withholdingResolver.resolve(
+        manager,
+        organizationId,
+        customer,
+        lines.some((line) => line.isService) ? 'SERVICES' : 'GOODS',
+        { documentDate: today },
+      );
+      const computed = computeDocument({
+        countryCode: country,
+        currencyCode: original.currencyCode,
+        ...(await this.taxRatesOn(organizationId, country, taxDate, manager)),
+        lines: lines.map((line) => ({
+          quantity: line.quantity,
+          unitPrice: line.unitPrice,
+          taxTreatment: line.taxTreatment,
+          taxRate: line.taxRate,
+          isService: line.isService,
+        })),
+        taxWithholdingRate: withholding.taxWithholdingRate,
+        incomeTaxWithholdingRate: withholding.incomeTaxWithholdingRate,
+      });
+
+      const baseCurrency = (await this.orgSettings.getForOrg(organizationId, manager))?.baseCurrency ?? original.currencyCode;
+      const note = manager.create(Invoice, {
+        organizationId,
+        invoiceNumber: await this.documentSequencesService.getNextNumber(organizationId, DocumentType.DEBIT_NOTE, manager),
+        originalInvoiceId: original.id,
+        adjustmentReason: dto.reason,
+        status: InvoiceStatus.DRAFT,
+        type: InvoiceType.DEBIT_NOTE,
+        branchId: original.branchId,
+        customerId: original.customerId,
+        customerName: original.customerName,
+        customerAddress: original.customerAddress,
+        customerTaxId: original.customerTaxId,
+        issueDate: today,
+        dueDate: today,
+        currencyCode: original.currencyCode,
+        exchangeRate: original.exchangeRate,
+        paymentMethod: original.paymentMethod,
+        paymentMethodCode: original.paymentMethodCode ?? null,
+        lineItems: lines.map((line, index) => {
+          const c = computed.lines[index];
+          return manager.create(InvoiceLineItem, {
+            productId: null,
+            description: line.description,
+            sortOrder: index,
+            quantity: line.quantity,
+            unitOfMeasure: line.isService ? 'SRV' : 'UND',
+            price: line.unitPrice,
+            discountRate: 0,
+            discountAmount: c.discountAmount,
+            lineSubtotal: c.subtotal,
+            documentDiscountAmount: c.documentDiscountAmount,
+            taxableBase: c.taxableBase,
+            taxRate: c.taxRate,
+            taxAmount: c.taxAmount,
+            taxTreatment: c.taxTreatment,
+            isService: c.isService,
+            exciseAmount: c.exciseAmount,
+            unitCost: 0,
+            creditedQuantity: 0,
+          });
+        }),
+        subtotal: computed.subtotal,
+        discountTotal: computed.discountTotal,
+        taxedTotal: computed.taxedTotal,
+        exemptTotal: computed.exemptTotal,
+        goodsTotal: computed.goodsTotal,
+        servicesTotal: computed.servicesTotal,
+        tax: computed.tax,
+        excise: computed.excise,
+        serviceCharge: computed.serviceCharge,
+        taxWithheld: computed.taxWithheld,
+        incomeTaxWithheld: computed.incomeTaxWithheld,
+        withholdingRegimeCodes: withholding.regimeCodes,
+        total: computed.total,
+        netReceivable: computed.netReceivable,
+        // Collected like an invoice: its own balance, owed by the customer.
+        balance: computed.netReceivable,
+        creditedTotal: 0,
+        totalInBaseCurrency: roundToCurrency(computed.total * original.exchangeRate, baseCurrency),
+        costOfSale: 0,
+        notes: dto.description.trim(),
+      });
+      const saved = await manager.save(note);
+      const issued = await this.issueWithin(saved, null, organizationId, manager);
+      this.eventEmitter.emit('invoice.debit-note-created', { originalInvoice: original, debitNote: issued, actorUserId });
+      return issued;
+    });
+    this.triggerFiscalTransmission(created);
+    return created;
+  }
+
+  /**
+   * How this invoice can be cancelled in its market (FAC-INV-05), for the screen to offer exactly
+   * that: the route, the authority's reasons where it keeps a catalogue, and whether the invoice is
+   * still untouched enough to be cancelled at all.
+   */
+  async cancellationOptions(invoiceId: string, organizationId: string): Promise<{
+    route: CancellationRoute['kind'];
+    authority: string;
+    reasons: FiscalReason[];
+    cancellable: boolean;
+    blockedBy: string | null;
+  }> {
+    const manager = this.dataSource.manager;
+    const invoice = await manager.getRepository(Invoice).findOne({ where: { id: invoiceId, organizationId } });
+    if (!invoice) throw new NotFoundError('invoices.invoice_id_not_found', { id: invoiceId });
+    const country = (await manager.getRepository(Organization).findOne({ where: { id: organizationId }, select: ['id', 'country'] }))?.country ?? null;
+    const route = cancellationRouteFor(country, invoice);
+    const today = await this.fiscalToday(organizationId, manager);
+    const blockedBy = await this.cancellationBlocker(invoice, route, organizationId, manager);
+    return {
+      route: route.kind,
+      authority: fiscalAuthorityOf(country),
+      reasons: route.kind === 'REPORT' ? await fiscalReasonsOn(manager, country, route.reasonCatalogue, today) : [],
+      cancellable: blockedBy === null,
+      blockedBy,
+    };
+  }
+
+  /**
+   * Cancel an issued invoice without a credit note, the way its market allows (FAC-INV-05).
+   *
+   * A commercial document the authority never saw is voided; a Dominican pre-printed comprobante is
+   * annulled with one of the DGII's reasons and declared in the 608; where the authority only
+   * accepts a credit note — or registers cancellations itself, which no regime of the product does
+   * yet — the request is refused, saying which way the document can go back. Only an invoice
+   * nothing has touched: not collected in any part, not credited, not modified by a note. Its entries
+   * are mirrored on the day it is cancelled and its goods return to stock, in one transaction.
+   */
+  async cancel(invoiceId: string, dto: CancelInvoiceBodyDto, organizationId: string, actorUserId: string | null = null): Promise<Invoice> {
+    return this.dataSource.transaction(async (manager) => {
+      const repo = manager.getRepository(Invoice);
+      await repo
+        .createQueryBuilder('invoice')
+        .where('invoice.id = :id', { id: invoiceId })
+        .andWhere('invoice.organizationId = :organizationId', { organizationId })
+        .setLock('pessimistic_write')
+        .getOne();
+      const invoice = await repo.findOne({ where: { id: invoiceId, organizationId }, relations: ['lineItems'] });
+      if (!invoice) throw new NotFoundError('invoices.invoice_id_not_found', { id: invoiceId });
+      const country = (await manager.getRepository(Organization).findOne({ where: { id: organizationId }, select: ['id', 'country'] }))?.country ?? null;
+      const route = cancellationRouteFor(country, invoice);
+      const blockedBy = await this.cancellationBlocker(invoice, route, organizationId, manager);
+      if (blockedBy) {
+        throw new ConflictError(blockedBy, { authority: fiscalAuthorityOf(country), status: invoice.status });
+      }
+
+      const today = await this.fiscalToday(organizationId, manager);
+      const code = dto.reasonCode?.trim().toUpperCase() || null;
+      if (route.kind === 'REPORT') {
+        // The return that declares the annulment codes its reason from the authority's catalogue.
+        const reasons = await fiscalReasonsOn(manager, country, route.reasonCatalogue, today);
+        if (!code) throw new BadRequestError('invoices.cancellation_reason_code_required');
+        if (!reasons.some((reason) => reason.code === code)) {
+          throw new BadRequestError('invoices.cancellation_reason_code_not_in_catalogue', { code, authority: fiscalAuthorityOf(country) });
+        }
+      } else if (code) {
+        throw new BadRequestError('invoices.cancellation_reason_code_not_applicable');
+      }
+
+      const entries = await this.posting.postCancellation(invoice, today, manager);
+      for (const line of invoice.lineItems ?? []) {
+        if (!line.productId || line.isService) continue;
+        await this.inventoryService.increaseStock(line.productId, Number(line.quantity), manager, organizationId, {
+          place: { branchId: invoice.branchId },
+          type: 'SALE_RETURN',
+          reference: invoice.fiscalNumber ?? invoice.invoiceNumber,
+          sourceType: 'invoice_cancellation',
+          sourceId: invoice.id,
+        });
+      }
+
+      invoice.status = InvoiceStatus.VOID;
+      invoice.voidedAt = new Date();
+      invoice.voidReason = dto.reason.trim();
+      invoice.cancellationMode = route.kind === 'REPORT' ? CancellationMode.REPORTED : CancellationMode.VOID;
+      invoice.cancellationReasonCode = code;
+      invoice.cancellationJournalEntryId = entries.revenueEntryId;
+      invoice.cancellationCostJournalEntryId = entries.costEntryId;
+      invoice.balance = 0;
+      const saved = await manager.save(invoice);
+      this.eventEmitter.emit('invoice.cancelled', { invoice: saved, actorUserId });
+      this.logger.log(`Factura ${saved.invoiceNumber}${saved.fiscalNumber ? ` / ${saved.fiscalNumber}` : ''} anulada (${route.kind}).`);
+      return saved;
+    });
+  }
+
+  /**
+   * Why this invoice cannot be cancelled without a credit note, as a message key; null when it can.
+   * The market's rule first, then the document's own state.
+   */
+  private async cancellationBlocker(invoice: Invoice, route: CancellationRoute, organizationId: string, manager: EntityManager): Promise<string | null> {
+    if (invoice.type !== InvoiceType.INVOICE) return 'invoices.only_invoice_can_be_cancelled';
+    if (invoice.status === InvoiceStatus.VOID) return 'invoices.invoice_has_already_voided_full';
+    if (route.kind === 'CREDIT_NOTE_ONLY') return 'invoices.cancellation_credit_note_only';
+    if (route.kind === 'AUTHORITY_EVENT') return 'invoices.cancellation_authority_event_not_available';
+    if (invoice.status !== InvoiceStatus.PENDING) return 'invoices.cancellation_only_untouched';
+    // A document already handed to an authority's regime is that authority's to cancel, whatever
+    // the route says (an electronic type is already CREDIT_NOTE_ONLY or AUTHORITY_EVENT above,
+    // from the market's catalogue; this guards a document whose type was not recorded).
+    const [submitted] = await manager.query(`SELECT 1 FROM "fiscal_submissions" WHERE "invoice_id" = $1 LIMIT 1`, [invoice.id]);
+    if (submitted) return 'invoices.cancellation_credit_note_only';
+    const [touched] = await manager.query(
+      `SELECT
+         (SELECT count(*)::int FROM "customer_payment_lines" l JOIN "customer_payments" p ON p."id" = l."payment_id"
+           WHERE l."invoice_id" = $1 AND p."status" <> 'VOID') AS collections,
+         (SELECT count(*)::int FROM "invoices" n
+           WHERE n."original_invoice_id" = $1 AND n."organization_id" = $2 AND n."status" <> 'Void') AS notes`,
+      [invoice.id, organizationId],
+    );
+    if (touched.collections > 0 || Number(invoice.creditedTotal) > 0 || touched.notes > 0) return 'invoices.cancellation_only_untouched';
+    return null;
   }
 
   /** Which lines and quantities the note credits, validated against what is still creditable. */
@@ -2010,6 +2310,7 @@ export class InvoicesService {
       )
         .filter((tax) => (!tax.effectiveFrom || tax.effectiveFrom <= today) && (!tax.effectiveTo || tax.effectiveTo >= today))
         .map((tax) => ({ id: tax.id, name: tax.name, amount: Number(tax.rate) })),
+      debitNotes: typeof this.fiscalAdapterFactory.forCountry(countryCode).assignDebitNoteNumber === 'function',
       taxRequiresConfiguration: scheme?.configurationRequired ?? true,
       taxModel: pack.taxes.model,
       registeredJurisdictions: jurisdictions,
@@ -2080,7 +2381,7 @@ export class InvoicesService {
    * Fire-and-forget by design: the submission row records the outcome and the reconciler retries
    * anything left in contingency or error. A DGII outage must not fail a sale that is already made.
    */
-  private triggerEcfSubmission(invoice: Invoice): void {
+  private triggerFiscalTransmission(invoice: Invoice): void {
     if (this.regimeSubmissionsToSend.delete(invoice.id)) {
       // Same posture as the e-CF: after the commit, on its own tenant context; the reconciler
       // picks up anything this attempt does not finish.

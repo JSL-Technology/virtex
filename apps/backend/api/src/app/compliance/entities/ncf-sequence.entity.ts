@@ -70,6 +70,9 @@ export const SALES_NCF_TYPES: readonly NcfType[] = Object.freeze([
 /** Types that credit a previously issued sales document. */
 export const CREDIT_NOTE_NCF_TYPES: readonly NcfType[] = Object.freeze([NcfType.E34, NcfType.B04]);
 
+/** Types that add a charge to a previously issued sales document (FAC-INV-05). */
+export const DEBIT_NOTE_NCF_TYPES: readonly NcfType[] = Object.freeze([NcfType.E33, NcfType.B03]);
+
 @Entity({ name: 'ncf_sequences' })
 // One active range per type per tenant, enforced by the database. Without this, two active ranges
 // of the same type could coexist and `getNextNcf` picked one non-deterministically — the same

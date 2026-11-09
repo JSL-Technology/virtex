@@ -1,0 +1,35 @@
+import { cancellationRouteFor, cancellationCoverageFor } from './document-cancellation';
+import { supportedCountryCodes } from './country-profiles';
+
+/**
+ * How an issued sales document is cancelled, per market (audit 2026-11-07, FAC-INV-05). The rule
+ * belongs to each authority, so the test is a table of markets, not a Dominican example.
+ */
+describe('document cancellation routes', () => {
+  const fiscal = (type: string) => ({ fiscalNumber: 'X0001', fiscalDocumentType: type });
+
+  it('voids a document with no fiscal number, in every market: the authority never saw it', () => {
+    for (const country of supportedCountryCodes()) {
+      expect(cancellationRouteFor(country, { fiscalNumber: null })).toEqual({ kind: 'VOID' });
+    }
+  });
+
+  it('Dominican Republic: a pre-printed comprobante is annulled and reported; an e-CF only by credit note', () => {
+    expect(cancellationRouteFor('DO', fiscal('B01'))).toEqual({ kind: 'REPORT', reasonCatalogue: 'INVOICE_CANCELLATION' });
+    expect(cancellationRouteFor('DO', fiscal('E31'))).toEqual({ kind: 'CREDIT_NOTE_ONLY' });
+  });
+
+  it.each(['CO', 'CL', 'AR'])('%s: an issued fiscal document is reversed with a credit note', (country) => {
+    expect(cancellationRouteFor(country, fiscal('01'))).toEqual({ kind: 'CREDIT_NOTE_ONLY' });
+  });
+
+  it.each(['MX', 'BR', 'PE', 'EC'])('%s: cancellation is the authority’s event, not yet sent by the product', (country) => {
+    expect(cancellationRouteFor(country, fiscal('01'))).toEqual({ kind: 'AUTHORITY_EVENT', implemented: false });
+    expect(cancellationCoverageFor(country).implemented).toBe(false);
+  });
+
+  it('a fiscal document in a market whose rule is not stated is never voided: the credit note is always lawful', () => {
+    expect(cancellationRouteFor('CR', fiscal('01'))).toEqual({ kind: 'CREDIT_NOTE_ONLY' });
+    expect(cancellationRouteFor(null, fiscal('01'))).toEqual({ kind: 'CREDIT_NOTE_ONLY' });
+  });
+});

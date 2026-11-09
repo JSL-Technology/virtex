@@ -89,15 +89,42 @@ export class TenantBookkeepingProvisioner {
     { code: 'CONCIL', nameKey: 'ledger.provisioning.journals.reconciliation', type: 'BANK' },
   ]);
 
-  /** Prefixes for the internal document numbering. Fiscal numbering (NCF) is separate. */
-  private static readonly SEQUENCES: ReadonlyArray<{ type: DocumentType; prefix: string }> =
-    Object.freeze([
-      { type: DocumentType.CUSTOMER_INVOICE, prefix: 'FAC-' },
-      { type: DocumentType.QUOTE, prefix: 'COT-' },
-      { type: DocumentType.CREDIT_NOTE, prefix: 'NC-' },
-      { type: DocumentType.VENDOR_BILL, prefix: 'FP-' },
-      { type: DocumentType.JOURNAL_ENTRY, prefix: 'AS-' },
-    ]);
+  /**
+   * Prefixes for the internal document numbering, in the language the books are kept in. They were
+   * Spanish for every market, so a company in Texas numbered its invoices «FAC-000001» and its
+   * journal entries «AS-». The fiscal numbering each authority assigns is separate, and every
+   * prefix stays editable per company.
+   */
+  private static sequencesFor(language: LanguageCode): ReadonlyArray<{ type: DocumentType; prefix: string }> {
+    const prefixes: Record<string, Record<DocumentType, string>> = {
+      es: {
+        [DocumentType.CUSTOMER_INVOICE]: 'FAC-',
+        [DocumentType.QUOTE]: 'COT-',
+        [DocumentType.CREDIT_NOTE]: 'NC-',
+        [DocumentType.DEBIT_NOTE]: 'ND-',
+        [DocumentType.VENDOR_BILL]: 'FP-',
+        [DocumentType.JOURNAL_ENTRY]: 'AS-',
+      },
+      en: {
+        [DocumentType.CUSTOMER_INVOICE]: 'INV-',
+        [DocumentType.QUOTE]: 'QT-',
+        [DocumentType.CREDIT_NOTE]: 'CN-',
+        [DocumentType.DEBIT_NOTE]: 'DN-',
+        [DocumentType.VENDOR_BILL]: 'BILL-',
+        [DocumentType.JOURNAL_ENTRY]: 'JE-',
+      },
+      pt: {
+        [DocumentType.CUSTOMER_INVOICE]: 'FAT-',
+        [DocumentType.QUOTE]: 'ORC-',
+        [DocumentType.CREDIT_NOTE]: 'NC-',
+        [DocumentType.DEBIT_NOTE]: 'ND-',
+        [DocumentType.VENDOR_BILL]: 'FC-',
+        [DocumentType.JOURNAL_ENTRY]: 'LC-',
+      },
+    };
+    const table = prefixes[language] ?? prefixes['es'];
+    return (Object.keys(table) as DocumentType[]).map((type) => ({ type, prefix: table[type] }));
+  }
 
   /**
    * Provision the operational bookkeeping of a tenant. Call AFTER the chart of accounts exists —
@@ -115,7 +142,7 @@ export class TenantBookkeepingProvisioner {
     const settings = await this.provisionSettings(organizationId, baseCurrency, manager);
     await this.provisionLedger(organizationId, baseCurrency, language, manager);
     await this.provisionJournals(organizationId, language, manager);
-    await this.provisionDocumentSequences(organizationId, manager);
+    await this.provisionDocumentSequences(organizationId, language, manager);
     await this.provisionAccountingPeriods(organizationId, new Date(), manager);
     await this.provisionDefaultWarehouse(organizationId, language, manager);
     // The customer, category, till and payroll lines a company works with from day one.
@@ -336,13 +363,14 @@ export class TenantBookkeepingProvisioner {
 
   private async provisionDocumentSequences(
     organizationId: string,
+    language: LanguageCode,
     manager: EntityManager,
   ): Promise<void> {
     const repo = manager.getRepository(DocumentSequence);
     const existing = await repo.find({ where: { organizationId }, select: ['type'] });
     const known = new Set(existing.map((s) => s.type));
 
-    const missing = TenantBookkeepingProvisioner.SEQUENCES.filter((s) => !known.has(s.type));
+    const missing = TenantBookkeepingProvisioner.sequencesFor(language).filter((s) => !known.has(s.type));
     if (missing.length === 0) return;
 
     await repo.save(

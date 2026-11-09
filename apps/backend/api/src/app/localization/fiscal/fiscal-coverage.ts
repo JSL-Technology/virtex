@@ -1,3 +1,4 @@
+import { cancellationCoverageFor, fiscalAuthorityOf } from './document-cancellation';
 /**
  * What this product actually does in each market, stated in the product.
  *
@@ -36,7 +37,9 @@ export interface CapabilityCoverage {
     | 'periodicReturns'
     | 'electronicAccounting'
     | 'withholding'
-    | 'payroll';
+    | 'payroll'
+    | 'debitNotes'
+    | 'documentCancellation';
   level: CoverageLevel;
   /** The regime or filing this refers to, in the authority's own words. */
   detail?: string;
@@ -227,8 +230,34 @@ export function coverageFor(countryCode: string | null | undefined): MarketCover
  * first run. `fiscal-coverage.spec.ts` checks the rows against the strategies that exist.
  */
 function withPayroll(coverage: MarketCoverage): MarketCoverage {
-  if (coverage.capabilities.some((c) => c.capability === 'payroll')) return coverage;
-  return { ...coverage, capabilities: [...coverage.capabilities, notImplemented('payroll')] };
+  const withPayrollLine = coverage.capabilities.some((c) => c.capability === 'payroll')
+    ? coverage
+    : { ...coverage, capabilities: [...coverage.capabilities, notImplemented('payroll')] };
+  return withDocumentLifecycle(withPayrollLine);
+}
+
+/**
+ * Markets whose e-invoicing regime the product speaks, but whose builder does not yet issue a debit
+ * note (FAC-INV-05). Everywhere else a debit note is issued: under the Dominican regime, or as the
+ * commercial document a market without the authority's documents uses. Kept in step with the
+ * invoice adapters by `document-lifecycle-coverage.spec.ts`.
+ */
+export const DEBIT_NOTES_PENDING_IN_REGIME: readonly string[] = ['MX', 'CO', 'PE', 'CL', 'EC', 'AR', 'BR'];
+
+/** Debit notes and cancellation, declared for every market like any other capability. */
+function withDocumentLifecycle(coverage: MarketCoverage): MarketCoverage {
+  const country = coverage.countryCode.toUpperCase();
+  const cancellation = cancellationCoverageFor(country);
+  const lines: CapabilityCoverage[] = [
+    DEBIT_NOTES_PENDING_IN_REGIME.includes(country)
+      ? notImplemented('debitNotes', fiscalAuthorityOf(country))
+      : { capability: 'debitNotes', level: 'implemented' },
+    cancellation.implemented
+      ? { capability: 'documentCancellation', level: 'implemented', detail: cancellation.detail }
+      : notImplemented('documentCancellation', cancellation.detail),
+  ];
+  const present = new Set(coverage.capabilities.map((c) => c.capability));
+  return { ...coverage, capabilities: [...coverage.capabilities, ...lines.filter((line) => !present.has(line.capability))] };
 }
 
 /** True when the product computes this market's statutory payroll. */

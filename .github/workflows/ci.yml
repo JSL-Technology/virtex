@@ -344,6 +344,15 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:boundaries
 
+      # The product is sold across Latin America and the United States and must be native in each
+      # market. Country-specific vocabulary and `country === 'XX'` branches outside the regime
+      # adapters and the country data are how the next market gets another country's product:
+      # this ratchet freezes today's count and fails if it rises. Lowering it is free:
+      # `npm run verify:country-neutrality -- --update`.
+      - name: npm run verify:country-neutrality
+        if: ${{ !cancelled() }}
+        run: npm run verify:country-neutrality
+
       # Proves that a tenant's fiscal identity survives storage, and that two distinct taxpayers
       # no longer collide on the unique index over (tax_id, fiscal_region_id). The failure this
       # guards is a database constraint firing on the second insert, which no unit test can show.

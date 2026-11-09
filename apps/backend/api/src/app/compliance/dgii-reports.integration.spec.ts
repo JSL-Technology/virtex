@@ -46,6 +46,13 @@ describeWithDb('DGII 607 / 608 against the real schema', () => {
     await invoice('FAC-3', null, 'Draft', 'INVOICE', '2026-10-07', null);
     await invoice('FAC-4', 'B0100000099', 'Pending', 'INVOICE', '2026-09-30', null); // another month
     await invoice('NC-1', 'B0400000005', 'Credit Note', 'CREDIT_NOTE', '2026-10-20', issued);
+    // Reversed in full by a credit note: still a sale of its month, with its note beside it.
+    const reversed = await invoice('FAC-5', 'B0100000013', 'Void', 'INVOICE', '2026-10-08', null, { voidReason: 'Devolución total' });
+    await ds.query(`UPDATE invoices SET cancellation_mode = 'CREDIT_NOTE' WHERE id = $1`, [reversed]);
+    await invoice('NC-2', 'B0400000006', 'Credit Note', 'CREDIT_NOTE', '2026-10-21', reversed);
+    // Annulled and reported, with the DGII reason chosen when it was annulled.
+    const annulled = await invoice('FAC-6', 'B0100000014', 'Void', 'INVOICE', '2026-10-09', null, { voidReason: 'Error en el RNC del cliente' });
+    await ds.query(`UPDATE invoices SET cancellation_mode = 'REPORTED', cancellation_reason_code = '04' WHERE id = $1`, [annulled]);
 
     // The customer withheld 30 % of the ITBIS and 10 % of income tax on FAC-1.
     const account = await one(
@@ -83,10 +90,12 @@ describeWithDb('DGII 607 / 608 against the real schema', () => {
 
   it('607: issued invoices and notes of the month, the note paired with its invoice, the withholding on its line', async () => {
     const [header, ...rows] = await report('607');
-    expect(header).toBe('607|130000001|202610|2');
+    expect(header).toBe('607|130000001|202610|4');
     const byNcf = new Map(rows.map((row) => [row.split('|')[2], row.split('|')]));
-    expect([...byNcf.keys()].sort()).toEqual(['B0100000011', 'B0400000005']);
-    // Not the voided one (it belongs to the 608), not the draft, not September's.
+    // The invoice a credit note reversed is still declared, beside its note (FAC-INV-05): leaving
+    // it out subtracted the sale twice. Not the annulled ones (608), not the draft, not September's.
+    expect([...byNcf.keys()].sort()).toEqual(['B0100000011', 'B0100000013', 'B0400000005', 'B0400000006']);
+    expect(byNcf.get('B0400000006')![3]).toBe('B0100000013');
     const invoiceRow = byNcf.get('B0100000011')!;
     expect(invoiceRow.slice(0, 2)).toEqual([CUSTOMER_RNC, '1']);
     expect(invoiceRow[5]).toBe('20261005');
@@ -97,11 +106,37 @@ describeWithDb('DGII 607 / 608 against the real schema', () => {
     expect(byNcf.get('B0400000005')![3]).toBe('B0100000011'); // «NCF modificado»
   });
 
-  it('608: only the voided comprobante of the month, with its annulment code', async () => {
+  it('608: only the annulled comprobantes of the month — never one a credit note reversed', async () => {
     const [header, ...rows] = await report('608');
     expect(header.startsWith('608|130000001|202610')).toBe(true);
-    expect(rows.map((row) => row.split('|')[0])).toEqual(['B0100000012']);
-    expect(rows[0].split('|')[1]).toBe('20261006');
+    const byNcf = new Map(rows.map((row) => [row.split('|')[0], row.split('|')]));
+    expect([...byNcf.keys()].sort()).toEqual(['B0100000012', 'B0100000014']);
+    expect(byNcf.get('B0100000012')![1]).toBe('20261006');
+    // The code chosen at annulment, not one guessed from the reason's words.
+    expect(byNcf.get('B0100000014')![2]).toBe('04');
+  });
+
+  it('the database refuses a reason code outside the catalogue of the tenant\'s country', async () => {
+    const [target] = await ds.query(`SELECT id FROM invoices WHERE organization_id = $1 AND "invoiceNumber" = 'FAC-6'`, [organizationId]);
+    await expect(ds.query(`UPDATE invoices SET cancellation_reason_code = '99' WHERE id = $1`, [target.id])).rejects.toMatchObject({
+      constraint: 'CHK_invoices_cancellation_reason_code',
+    });
+    const elsewhere = await createTestOrganization(ds, 'reason-us');
+    try {
+      await ds.query(`UPDATE organizations SET country = 'US' WHERE id = $1`, [elsewhere]);
+      const [customer] = await ds.query(`INSERT INTO customers (organization_id, "companyName") VALUES ($1, 'QA US') RETURNING id`, [elsewhere]);
+      // A Dominican code means nothing to a company in the United States.
+      await expect(
+        ds.query(
+          `INSERT INTO invoices (organization_id, "invoiceNumber", "customerName", "issueDate", "dueDate", subtotal, tax, total,
+                                 total_in_base_currency, version, customer_id, status, cancellation_reason_code)
+           VALUES ($1, 'INV-1', 'QA US', '2026-10-01', '2026-10-01', 1, 0, 1, 1, 1, $2, 'Void', '04')`,
+          [elsewhere, customer.id],
+        ),
+      ).rejects.toMatchObject({ constraint: 'CHK_invoices_cancellation_reason_code' });
+    } finally {
+      await ds.query(`DELETE FROM organizations WHERE id = $1`, [elsewhere]);
+    }
   });
 
   // FAC-CMP-03: a market without these formats is told so, with a 400 that names its country — never

@@ -9,6 +9,36 @@
     "en": "The amount to credit ({{amount}}) exceeds the creditable balance of invoice {{invoiceNumber}} ({{remaining}}).",
     "pt": "O valor a creditar ({{amount}}) excede o saldo creditável da fatura {{invoiceNumber}} ({{remaining}})."
   },
+  "invoices.cancellation_authority_event_not_available": {
+    "es": "La anulación ante {{authority}} todavía no está disponible en el producto. Para revertir la factura, emite una nota de crédito.",
+    "en": "Cancelling with {{authority}} is not yet available in the product. To reverse the invoice, issue a credit note.",
+    "pt": "A anulação perante {{authority}} ainda não está disponível no produto. Para reverter a fatura, emita uma nota de crédito."
+  },
+  "invoices.cancellation_credit_note_only": {
+    "es": "Ante {{authority}}, un documento fiscal emitido no se anula: se revierte con una nota de crédito.",
+    "en": "With {{authority}}, an issued fiscal document is not cancelled: it is reversed with a credit note.",
+    "pt": "Perante {{authority}}, um documento fiscal emitido não se anula: reverte-se com uma nota de crédito."
+  },
+  "invoices.cancellation_only_untouched": {
+    "es": "Solo se anula una factura emitida que no se ha cobrado, acreditado ni modificado con una nota. Para esta, emite una nota de crédito.",
+    "en": "Only an issued invoice that has not been collected, credited or modified by a note is cancelled. For this one, issue a credit note.",
+    "pt": "Só se anula uma fatura emitida que não foi cobrada, creditada nem modificada por uma nota. Para esta, emita uma nota de crédito."
+  },
+  "invoices.cancellation_reason_code_not_applicable": {
+    "es": "Esta anulación no lleva código de motivo: basta con explicar el motivo.",
+    "en": "This cancellation takes no reason code: explaining the reason is enough.",
+    "pt": "Esta anulação não leva código de motivo: basta explicar o motivo."
+  },
+  "invoices.cancellation_reason_code_not_in_catalogue": {
+    "es": "El motivo {{code}} no está en el catálogo vigente de {{authority}}.",
+    "en": "Reason {{code}} is not in the current {{authority}} catalogue.",
+    "pt": "O motivo {{code}} não está no catálogo vigente de {{authority}}."
+  },
+  "invoices.cancellation_reason_code_required": {
+    "es": "Elige el motivo de la anulación de la lista de la autoridad.",
+    "en": "Choose the cancellation reason from the authority list.",
+    "pt": "Escolha o motivo da anulação da lista da autoridade."
+  },
   "invoices.cost_accounts_not_configured": {
     "es": "No se puede emitir {{invoice}}: la empresa no tiene configuradas las cuentas de inventario y de costo de ventas. Configúralas en Ajustes › Cuentas predeterminadas; sin ellas, la salida de mercancía no tendría su asiento.",
     "en": "{{invoice}} cannot be issued: the company has no inventory and cost-of-sales accounts configured. Set them in Settings › Default accounts; without them the goods leaving stock would have no entry.",
@@ -34,6 +64,41 @@
     "en": "The customer has no e-mail on file. Enter the address to send it to.",
     "pt": "O cliente não tem e-mail cadastrado. Informe o endereço para envio."
   },
+  "invoices.debit_note_not_supported_in_market": {
+    "es": "El producto todavía no emite notas de débito ante {{authority}}.",
+    "en": "The product does not yet issue debit notes with {{authority}}.",
+    "pt": "O produto ainda não emite notas de débito perante {{authority}}."
+  },
+  "invoices.debit_note_reason.additional_charges": {
+    "es": "Cargos adicionales (flete, gastos)",
+    "en": "Additional charges (freight, expenses)",
+    "pt": "Encargos adicionais (frete, despesas)"
+  },
+  "invoices.debit_note_reason.late_payment_interest": {
+    "es": "Intereses por mora",
+    "en": "Late-payment interest",
+    "pt": "Juros de mora"
+  },
+  "invoices.debit_note_reason.other": {
+    "es": "Otro motivo",
+    "en": "Other reason",
+    "pt": "Outro motivo"
+  },
+  "invoices.debit_note_reason.penalty": {
+    "es": "Penalidad",
+    "en": "Penalty",
+    "pt": "Penalidade"
+  },
+  "invoices.debit_note_reason.price_increase": {
+    "es": "Aumento del valor de la operación",
+    "en": "Increase in the transaction value",
+    "pt": "Aumento do valor da operação"
+  },
+  "invoices.debit_note_type_not_valid": {
+    "es": "El tipo {{type}} no es un tipo de nota de débito de este mercado.",
+    "en": "Type {{type}} is not a debit note type in this market.",
+    "pt": "O tipo {{type}} não é um tipo de nota de débito deste mercado."
+  },
   "invoices.detail.authority_status": {
     "es": "Estado ante {{authority}}",
     "en": "{{authority}} status",
@@ -48,6 +113,41 @@
     "es": "FACTURADO A",
     "en": "BILL TO",
     "pt": "FATURADO PARA"
+  },
+  "invoices.detail.cancel_choose_reason": {
+    "es": "Elige el motivo",
+    "en": "Choose the reason",
+    "pt": "Escolha o motivo"
+  },
+  "invoices.detail.cancel_failed": {
+    "es": "No se pudo anular la factura.",
+    "en": "The invoice could not be cancelled.",
+    "pt": "Não foi possível anular a fatura."
+  },
+  "invoices.detail.cancel_message_report": {
+    "es": "La factura queda anulada y se declara ante {{authority}} con el motivo que elijas. Se revierten sus asientos y su mercancía vuelve al almacén.",
+    "en": "The invoice is cancelled and declared to {{authority}} with the reason you choose. Its entries are reversed and its goods return to stock.",
+    "pt": "A fatura fica anulada e é declarada perante {{authority}} com o motivo que escolher. Os lançamentos são revertidos e a mercadoria volta ao armazém."
+  },
+  "invoices.detail.cancel_message_void": {
+    "es": "La factura queda anulada: se revierten sus asientos y su mercancía vuelve al almacén. Explica el motivo.",
+    "en": "The invoice is cancelled: its entries are reversed and its goods return to stock. Explain the reason.",
+    "pt": "A fatura fica anulada: os seus lançamentos são revertidos e a mercadoria volta ao armazém. Explique o motivo."
+  },
+  "invoices.detail.cancel_reason_code": {
+    "es": "Motivo según la autoridad",
+    "en": "Reason, as the authority codes it",
+    "pt": "Motivo segundo a autoridade"
+  },
+  "invoices.detail.cancel_title": {
+    "es": "Anular la factura",
+    "en": "Cancel the invoice",
+    "pt": "Anular a fatura"
+  },
+  "invoices.detail.cancelled": {
+    "es": "Factura {{number}} anulada.",
+    "en": "Invoice {{number}} cancelled.",
+    "pt": "Fatura {{number}} anulada."
   },
   "invoices.detail.cf_resubmitted_dgii": {
     "es": "e-CF reenviado a la DGII.",
@@ -148,6 +248,96 @@
     "es": "Fecha",
     "en": "Date",
     "pt": "Data"
+  },
+  "invoices.detail.debit_note": {
+    "es": "Nota de débito",
+    "en": "Debit note",
+    "pt": "Nota de débito"
+  },
+  "invoices.detail.debit_note_add_line": {
+    "es": "Agregar cargo",
+    "en": "Add charge",
+    "pt": "Adicionar encargo"
+  },
+  "invoices.detail.debit_note_description": {
+    "es": "Descripción para el cliente",
+    "en": "Description for the customer",
+    "pt": "Descrição para o cliente"
+  },
+  "invoices.detail.debit_note_exempt": {
+    "es": "Exento",
+    "en": "Exempt",
+    "pt": "Isento"
+  },
+  "invoices.detail.debit_note_failed": {
+    "es": "No se pudo emitir la nota de débito.",
+    "en": "The debit note could not be issued.",
+    "pt": "Não foi possível emitir a nota de débito."
+  },
+  "invoices.detail.debit_note_incomplete": {
+    "es": "Escribe la descripción y al menos un cargo con cantidad y precio.",
+    "en": "Write the description and at least one charge with quantity and price.",
+    "pt": "Escreva a descrição e pelo menos um encargo com quantidade e preço."
+  },
+  "invoices.detail.debit_note_is_service": {
+    "es": "Servicio",
+    "en": "Service",
+    "pt": "Serviço"
+  },
+  "invoices.detail.debit_note_issue": {
+    "es": "Emitir nota de débito",
+    "en": "Issue debit note",
+    "pt": "Emitir nota de débito"
+  },
+  "invoices.detail.debit_note_issued": {
+    "es": "Nota de débito {{number}} emitida.",
+    "en": "Debit note {{number}} issued.",
+    "pt": "Nota de débito {{number}} emitida."
+  },
+  "invoices.detail.debit_note_message": {
+    "es": "Agrega un cargo a esta factura: intereses, gastos o un valor mayor. Se emite con su propio número y se cobra como una factura.",
+    "en": "Add a charge to this invoice: interest, expenses or a higher value. It is issued with its own number and collected like an invoice.",
+    "pt": "Acrescente um encargo a esta fatura: juros, despesas ou um valor maior. É emitida com o seu próprio número e cobrada como uma fatura."
+  },
+  "invoices.detail.debit_note_quantity": {
+    "es": "Cantidad",
+    "en": "Quantity",
+    "pt": "Quantidade"
+  },
+  "invoices.detail.debit_note_reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "invoices.detail.debit_note_remove_line": {
+    "es": "Quitar",
+    "en": "Remove",
+    "pt": "Remover"
+  },
+  "invoices.detail.debit_note_tax_treatment": {
+    "es": "Tratamiento fiscal",
+    "en": "Tax treatment",
+    "pt": "Tratamento fiscal"
+  },
+  "invoices.detail.debit_note_taxed": {
+    "es": "Gravado",
+    "en": "Taxed",
+    "pt": "Tributado"
+  },
+  "invoices.detail.debit_note_title": {
+    "es": "Nota de débito",
+    "en": "Debit note",
+    "pt": "Nota de débito"
+  },
+  "invoices.detail.debit_note_unit_price": {
+    "es": "Precio unitario",
+    "en": "Unit price",
+    "pt": "Preço unitário"
+  },
+  "invoices.detail.debit_note_zero_rated": {
+    "es": "Tasa cero",
+    "en": "Zero-rated",
+    "pt": "Taxa zero"
   },
   "invoices.detail.delete_draft": {
     "es": "Eliminar borrador",
@@ -538,15 +728,15 @@
     "en": "Void",
     "pt": "Anular"
   },
-  "invoices.detail.void_message": {
-    "es": "Se emitirá una nota de crédito por el total pendiente de {{number}} con el código de anulación. ¿Por qué se anula?",
-    "en": "A credit note for the whole outstanding amount of {{number}} will be issued with the annulment code. Why is it being voided?",
-    "pt": "Será emitida uma nota de crédito pelo total pendente de {{number}} com o código de anulação. Por que está sendo anulado?"
-  },
   "invoices.detail.void_title": {
     "es": "Anular el comprobante",
     "en": "Void the document",
     "pt": "Anular o documento"
+  },
+  "invoices.detail.void_with_credit_note": {
+    "es": "Emitir nota de crédito total",
+    "en": "Issue a full credit note",
+    "pt": "Emitir nota de crédito total"
   },
   "invoices.document_discount_must_between_100_exclusive": {
     "es": "El descuento del documento debe estar entre 0 % y 100 % (exclusivo).",
@@ -577,6 +767,11 @@
     "es": "El tipo de comprobante {{type}} no corresponde a un documento de venta.",
     "en": "Document type {{type}} is not a sales document.",
     "pt": "O tipo de documento {{type}} não corresponde a um documento de venda."
+  },
+  "invoices.draft_cannot_be_debited": {
+    "es": "Un borrador no admite nota de débito: edítalo directamente.",
+    "en": "A draft takes no debit note: edit it directly.",
+    "pt": "Um rascunho não admite nota de débito: edite-o diretamente."
   },
   "invoices.draft_cannot_be_sent": {
     "es": "Un borrador no tiene número fiscal: emítelo antes de enviarlo al cliente.",
@@ -1713,6 +1908,16 @@
     "es": "Solo se puede modificar un borrador. Un comprobante emitido se corrige con una nota de crédito.",
     "en": "Only a draft can be edited. An issued document is corrected with a credit note.",
     "pt": "Somente um rascunho pode ser editado. Um documento emitido é corrigido com uma nota de crédito."
+  },
+  "invoices.only_invoice_can_be_cancelled": {
+    "es": "Solo se anula una factura; una nota se corrige con otra nota.",
+    "en": "Only an invoice is cancelled; a note is corrected with another note.",
+    "pt": "Só se anula uma fatura; uma nota corrige-se com outra nota."
+  },
+  "invoices.only_invoice_can_be_debited": {
+    "es": "Solo se emite una nota de débito sobre una factura.",
+    "en": "A debit note is only issued against an invoice.",
+    "pt": "Só se emite uma nota de débito sobre uma fatura."
   },
   "invoices.only_invoice_can_credited": {
     "es": "Solo una factura puede ser acreditada.",

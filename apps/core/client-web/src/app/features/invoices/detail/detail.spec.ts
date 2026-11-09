@@ -26,6 +26,8 @@ describe('InvoiceDetailPage', () => {
         status: 'Pending',
         lineItems: []
       })),
+      // Whether the market issues debit notes through the product (FAC-INV-05).
+      context: jest.fn().mockReturnValue(of({ debitNotes: false })),
     };
     mockNotificationService = {
       showError: jest.fn(),
@@ -47,5 +49,19 @@ describe('InvoiceDetailPage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  // FAC-INV-05: the screen offers a debit note only where the server would issue one.
+  it('offers a debit note only in a market whose regime issues them', () => {
+    const issued = { type: 'INVOICE', status: 'Pending' } as never;
+    expect(component.debitNotesSupported()).toBe(false);
+    expect(component.canDebit(issued)).toBe(false);
+  });
+
+  it('proposes a service for a charge and goods for a price increase, without deciding the tax', () => {
+    component.startDebitNote();
+    expect(component.debitLines()[0]).toMatchObject({ taxTreatment: 'TAXED', isService: true });
+    component.setDebitReason('PRICE_INCREASE');
+    expect(component.debitLines()[0].isService).toBe(false);
   });
 });

@@ -131,6 +131,7 @@ export const GLOBAL_TABLES: readonly UnscopedTable[] = [
   { table: 'dim_time', why: 'Dimensión de calendario del cubo analítico.' },
   { table: 'exchange_rate', why: 'Tipos de cambio publicados.' },
   { table: 'fiscal_document_type_definitions', why: 'Tipos de comprobante por régimen fiscal.' },
+  { table: 'fiscal_reason_codes', why: 'Catálogos de motivos de las autoridades fiscales (anulación), con vigencia y base legal.' },
   { table: 'fiscal_region_tax_templates', why: 'Plantillas de impuesto por región fiscal.' },
   { table: 'fiscal_regions', why: 'Regiones fiscales soportadas.' },
   { table: 'identity_document_types', why: 'Catálogo de tipos de documento de identidad.' },

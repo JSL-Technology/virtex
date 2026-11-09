@@ -5,7 +5,7 @@
  * Electronic invoicing names the authority in its messages and on the printed document; reading it
  * from here keeps every market's wording in the one catalogue that defines the market.
  */
-export { findCountryProfile, type CountryFiscalProfile } from '../fiscal/country-profiles';
+export { findCountryProfile, supportedCountryCodes, type CountryFiscalProfile } from '../fiscal/country-profiles';
 
 /**
  * The statutory language of a market's books, from its profile. Provisioning opens a tenant's ledger

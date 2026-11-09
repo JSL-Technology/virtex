@@ -11,6 +11,7 @@ import { Invoice } from '../entities/invoice.entity';
 import { ComplianceService } from '../../compliance/compliance.service';
 import {
   CREDIT_NOTE_NCF_TYPES,
+  DEBIT_NOTE_NCF_TYPES,
   NcfSequence,
   NcfType,
   SALES_NCF_TYPES,
@@ -118,6 +119,23 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
       throw new BadRequestError('invoices.type_type_not_valid_credit_note', { type });
     }
 
+    const assigned = await this.complianceService.getNextNcf(organizationId, type, manager);
+    return { ncf: assigned.ncf, documentType: assigned.type, expiresAt: assigned.expiresAt };
+  }
+
+  /**
+   * A debit note is drawn from the series of the document it modifies, like a credit note: B03 for
+   * a pre-printed invoice, E33 for an electronic one (FAC-INV-05).
+   */
+  async assignDebitNoteNumber(
+    context: FiscalAssignmentContext & { originalInvoice: Invoice },
+  ): Promise<FiscalNumberAssignment> {
+    const { organizationId, manager, originalInvoice } = context;
+    const inferred = originalInvoice.fiscalNumber?.toUpperCase().startsWith('B') ? NcfType.B03 : NcfType.E33;
+    const type = this.asNcfType(context.requestedType) ?? inferred;
+    if (!DEBIT_NOTE_NCF_TYPES.includes(type)) {
+      throw new BadRequestError('invoices.debit_note_type_not_valid', { type });
+    }
     const assigned = await this.complianceService.getNextNcf(organizationId, type, manager);
     return { ncf: assigned.ncf, documentType: assigned.type, expiresAt: assigned.expiresAt };
   }

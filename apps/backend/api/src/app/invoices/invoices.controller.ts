@@ -20,6 +20,7 @@ import { InvoicesService, InvoiceListQuery } from './invoices.service';
 import { InvoiceRendererService } from './services/invoice-renderer.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { CreditNoteBodyDto } from './dto/create-credit-note.dto';
+import { CancelInvoiceBodyDto, DebitNoteBodyDto } from './dto/debit-note.dto';
 import { IssueInvoiceDto } from './dto/issue-invoice.dto';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import type { HttpResponse as Response } from '../common/http/http.types';
@@ -204,6 +205,44 @@ export class InvoicesController {
       { ...dto, invoiceId: id },
       user.organizationId,
     );
+  }
+
+  /** A charge added to an issued invoice: B03 / E33 in the Dominican Republic (FAC-INV-05). */
+  @Post(':id/debit-note')
+  @Idempotent()
+  @UseGuards(PeriodLockGuard)
+  @HasPermission(PERMISSIONS.INVOICES_CREATE)
+  @HttpCode(HttpStatus.CREATED)
+  createDebitNote(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: DebitNoteBodyDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.invoicesService.createDebitNote(id, dto, user.organizationId, user.id);
+  }
+
+  /**
+   * How this invoice can be cancelled in its market, and with which of the authority's reasons
+   * (FAC-INV-05): void, annul and report, a credit note only, or not yet through the product.
+   */
+  @Get(':id/cancellation')
+  @HasPermission(PERMISSIONS.INVOICES_VIEW)
+  cancellationOptions(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.invoicesService.cancellationOptions(id, user.organizationId);
+  }
+
+  /** Cancel an issued invoice nothing has touched, as its market allows (FAC-INV-05). */
+  @Post(':id/cancel')
+  @Idempotent()
+  @UseGuards(PeriodLockGuard)
+  @HasPermission(PERMISSIONS.INVOICES_VOID)
+  @HttpCode(HttpStatus.OK)
+  cancel(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: CancelInvoiceBodyDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.invoicesService.cancel(id, dto, user.organizationId, user.id);
   }
 
   @Get(':id/pdf')

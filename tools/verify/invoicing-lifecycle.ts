@@ -460,6 +460,64 @@ async function main(): Promise<void> {
     `antes ${entriesBefore[0].n}, después ${entriesAfter[0].n}`,
   );
 
+  // ── Debit notes and cancellation, as the market allows (FAC-INV-05) ─────────
+  await compliance.provisionNcfSequence(orgId, { type: NcfType.B03, prefix: 'B03', startsAt: 1, endsAt: 100, expiresAt: `${new Date().getFullYear() + 1}-12-31` } as never);
+  await compliance.provisionNcfSequence(orgId, { type: NcfType.E33, prefix: 'E33', startsAt: 1, endsAt: 100, expiresAt: `${new Date().getFullYear() + 1}-12-31` } as never);
+  const interest = { description: 'Intereses por mora', quantity: 1, unitPrice: 500, taxTreatment: TaxTreatment.TAXED, isService: true };
+  const traditionalDebit = await invoices.createDebitNote(
+    traditional.id,
+    { reason: 'LATE_PAYMENT_INTEREST', description: 'Intereses por pago tardío', lines: [interest] } as never,
+    orgId,
+  );
+  check('la nota de débito de un B01 sale como B03, con su motivo canónico', Boolean(traditionalDebit.fiscalNumber?.startsWith('B03')) && traditionalDebit.type === 'DEBIT_NOTE' && traditionalDebit.adjustmentReason === 'LATE_PAYMENT_INTEREST', `${traditionalDebit.fiscalNumber} · ${traditionalDebit.adjustmentReason}`);
+  check('y cobra lo que suma: 500 + 18 % = 590, pendiente de cobro', Number(traditionalDebit.total) === 590 && Number(traditionalDebit.balance) === 590 && traditionalDebit.status === 'Pending', `${traditionalDebit.total} / ${traditionalDebit.balance} / ${traditionalDebit.status}`);
+  const [debitPosted] = await ds.query(
+    `SELECT COALESCE(SUM(debit), 0)::float AS debit FROM journal_entry_lines WHERE journal_entry_id = $1`, [traditionalDebit.journalEntryId],
+  );
+  check('la nota de débito se contabiliza como una venta', Math.abs(Number(debitPosted?.debit) - 590) < 0.005, `debe ${debitPosted?.debit}`);
+  const exemptCharge = await invoices.createDebitNote(
+    traditional.id,
+    { reason: 'ADDITIONAL_CHARGES', description: 'Gastos de cobranza', lines: [{ ...interest, description: 'Gastos', unitPrice: 100, taxTreatment: TaxTreatment.EXEMPT }] } as never,
+    orgId,
+  );
+  check('el tratamiento fiscal de cada cargo es el que se indica, no uno supuesto', Number(exemptCharge.tax) === 0 && Number(exemptCharge.total) === 100, `ITBIS ${exemptCharge.tax}`);
+  const electronicDebit = await invoices.createDebitNote(
+    issued.id,
+    { reason: 'ADDITIONAL_CHARGES', description: 'Flete facturado después', lines: [{ ...interest, description: 'Flete', unitPrice: 200 }] } as never,
+    orgId,
+  );
+  const [electronicDebitSubmission] = await ds.query(`SELECT status FROM ecf_submissions WHERE invoice_id = $1`, [electronicDebit.id]);
+  check('la de un E31 sale como E33 y queda por transmitir', Boolean(electronicDebit.fiscalNumber?.startsWith('E33')) && Boolean(electronicDebitSubmission), `${electronicDebit.fiscalNumber} · ${electronicDebitSubmission?.status ?? 'sin envío'}`);
+
+  const refusalOf = async (run: () => Promise<unknown>) => run().then(() => 'aceptado', (error) => (error as { messageKey?: string }).messageKey ?? String(error));
+  const electronicOptions = await invoices.cancellationOptions(issued.id, orgId);
+  check('un e-CF no se anula: la ruta es la nota de crédito', electronicOptions.route === 'CREDIT_NOTE_ONLY' && !electronicOptions.cancellable, `${electronicOptions.route} · ${electronicOptions.blockedBy}`);
+  check('y si se intenta, se rechaza diciendo por qué', (await refusalOf(() => invoices.cancel(issued.id, { reason: 'Error' } as never, orgId))) === 'invoices.cancellation_credit_note_only');
+  check('una factura con nota de débito no se anula', (await refusalOf(() => invoices.cancel(traditional.id, { reason: 'Error', reasonCode: '04' } as never, orgId))) === 'invoices.cancellation_only_untouched');
+
+  const stockBeforeSale = Number((await ds.query(`SELECT stock FROM products WHERE id = $1`, [bottle.id]))[0].stock);
+  const toCancel = await invoices.create(
+    { customerId: customer.id, issueDate: today, dueDate: today, currencyCode: 'DOP', fiscalDocumentType: 'B01', lineItems: [{ productId: bottle.id, quantity: 2 }] } as never,
+    orgId,
+  );
+  const traditionalOptions = await invoices.cancellationOptions(toCancel.id, orgId);
+  check('un B01 se anula y se reporta, con los motivos de la DGII', traditionalOptions.route === 'REPORT' && traditionalOptions.cancellable && traditionalOptions.reasons.length === 10, `${traditionalOptions.route} · ${traditionalOptions.reasons.length} motivos`);
+  check('sin motivo del catálogo, la anulación se rechaza', (await refusalOf(() => invoices.cancel(toCancel.id, { reason: 'Error en la información' } as never, orgId))) === 'invoices.cancellation_reason_code_required');
+  check('un motivo fuera del catálogo, también', (await refusalOf(() => invoices.cancel(toCancel.id, { reason: 'Error', reasonCode: '99' } as never, orgId))) === 'invoices.cancellation_reason_code_not_in_catalogue');
+  const cancelled = await invoices.cancel(toCancel.id, { reason: 'Error en la información del cliente', reasonCode: '04' } as never, orgId);
+  const stockAfterCancel = Number((await ds.query(`SELECT stock FROM products WHERE id = $1`, [bottle.id]))[0].stock);
+  check('la anulación deja la factura anulada y reportada, con su código', cancelled.status === 'Void' && cancelled.cancellationMode === 'REPORTED' && cancelled.cancellationReasonCode === '04', `${cancelled.status} · ${cancelled.cancellationMode} · ${cancelled.cancellationReasonCode}`);
+  check('y devuelve la mercancía al almacén', stockAfterCancel === stockBeforeSale, `antes ${stockBeforeSale}, después ${stockAfterCancel}`);
+  const [reversal] = await ds.query(
+    `SELECT
+       (SELECT COALESCE(SUM(debit - credit), 0)::float FROM journal_entry_lines WHERE journal_entry_id = ANY($1::uuid[]) AND account_id = (SELECT default_accounts_receivable_id FROM organization_settings WHERE organization_id = $3)) AS receivable,
+       (SELECT count(*)::int FROM journal_entries WHERE id = ANY($2::uuid[])) AS entries`,
+    [[toCancel.journalEntryId, cancelled.cancellationJournalEntryId], [cancelled.cancellationJournalEntryId, cancelled.cancellationCostJournalEntryId], orgId],
+  );
+  check('los asientos de anulación revierten la cuenta por cobrar y el costo', Math.abs(Number(reversal.receivable)) < 0.005 && reversal.entries === 2, `CxC neta ${reversal.receivable} · ${reversal.entries} asientos`);
+  const report608 = await compliance.generate608Report(orgId, Number(today.slice(0, 4)), Number(today.slice(5, 7)));
+  check('el 608 la declara con el código elegido', report608.split('\n').some((row) => row.startsWith(`${cancelled.fiscalNumber}|`) && row.endsWith('|04')), report608.split('\n').find((row) => row.startsWith(cancelled.fiscalNumber ?? '-')) ?? 'no está');
+
   // ── A withholding rate the buyer's regime does not justify is refused ───────
   //
   // `WithholdingResolverService` derives the rate from the buyer's fiscal classification and
@@ -648,6 +706,49 @@ async function main(): Promise<void> {
     check('y queda ligado al NIT de la empresa', stored.holderKind === 'company', `${stored.holderTaxId}`);
   } else {
     check('la región fiscal de Colombia existe', false);
+  }
+
+  // ── A market whose authority never sees the document: a commercial void (FAC-INV-05) ──
+  const usRegion = await localization.findRegionByCountryCode('US');
+  if (usRegion) {
+    const usOrg = await organizations.create({
+      planId: plan?.id,
+      subscriptionStatus: 'active',
+      subscriptionPeriodEnd: new Date(Date.now() + 30 * 24 * 3600_000),
+      legalName: `Probe Invoicing US ${stamp}`,
+      taxId: '12-3456789',
+      country: 'US',
+      fiscalRegionId: usRegion.id,
+      address: '100 Main St',
+      city: 'Austin',
+      phone: '5125550100',
+      email: `probe-us${stamp}@example.com`,
+    });
+    await localization.applyFiscalPackage(usOrg, ds.manager);
+    const usCustomer: { id: string } = await customers.create(
+      { companyName: 'Probe Customer LLC', email: `customer-us${stamp}@example.com`, phone: '5125550101', address: '1 Elm St', country: 'US' } as never,
+      usOrg.id,
+    );
+    const usToday = new Date().toISOString().slice(0, 10);
+    const usInvoice = await invoices.create(
+      { customerId: usCustomer.id, issueDate: usToday, dueDate: usToday, currencyCode: 'USD', lineItems: [{ description: 'Consulting', quantity: 2, unitPrice: 150, isService: true }] } as never,
+      usOrg.id,
+    );
+    check('en EE. UU. la factura se numera en el idioma de sus libros', usInvoice.invoiceNumber.startsWith('INV-') && !usInvoice.fiscalNumber, `${usInvoice.invoiceNumber} · ${usInvoice.fiscalNumber ?? 'sin número fiscal'}`);
+    const usOptions = await invoices.cancellationOptions(usInvoice.id, usOrg.id);
+    check('y se anula como documento comercial, sin catálogo de motivos', usOptions.route === 'VOID' && usOptions.cancellable && usOptions.reasons.length === 0, `${usOptions.route} · ${usOptions.reasons.length}`);
+    const usRefusal = await invoices.cancel(usInvoice.id, { reason: 'Billed twice', reasonCode: '04' } as never, usOrg.id).then(() => 'aceptado', (error) => (error as { messageKey?: string }).messageKey ?? String(error));
+    check('un código de motivo de otro país no cabe ahí', usRefusal === 'invoices.cancellation_reason_code_not_applicable', usRefusal);
+    const usVoided = await invoices.cancel(usInvoice.id, { reason: 'Billed twice' } as never, usOrg.id);
+    check('la anulación comercial revierte la factura', usVoided.status === 'Void' && usVoided.cancellationMode === 'VOID' && Boolean(usVoided.cancellationJournalEntryId), `${usVoided.status} · ${usVoided.cancellationMode}`);
+    const usDebit = await invoices.createDebitNote(
+      (await invoices.create({ customerId: usCustomer.id, issueDate: usToday, dueDate: usToday, currencyCode: 'USD', lineItems: [{ description: 'Consulting', quantity: 1, unitPrice: 150, isService: true }] } as never, usOrg.id)).id,
+      { reason: 'LATE_PAYMENT_INTEREST', description: 'Late fee', lines: [{ description: 'Late fee', quantity: 1, unitPrice: 25, taxTreatment: TaxTreatment.EXEMPT, isService: true }] } as never,
+      usOrg.id,
+    );
+    check('y una nota de débito es un documento comercial con su serie', usDebit.invoiceNumber.startsWith('DN-') && !usDebit.fiscalNumber && Number(usDebit.total) === 25, `${usDebit.invoiceNumber} · ${usDebit.total}`);
+  } else {
+    check('la región fiscal de EE. UU. existe', false);
   }
 
   console.log(

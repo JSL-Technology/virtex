@@ -35,4 +35,11 @@ export class GenericFiscalAdapter implements FiscalAdapter {
   ): Promise<FiscalNumberAssignment> {
     return { ncf: null, documentType: null, expiresAt: null };
   }
+
+  /** No fiscal numbering in this market: the note carries its internal number only. */
+  async assignDebitNoteNumber(
+    _context: FiscalAssignmentContext & { originalInvoice: Invoice },
+  ): Promise<FiscalNumberAssignment> {
+    return { ncf: null, documentType: null, expiresAt: null };
+  }
 }

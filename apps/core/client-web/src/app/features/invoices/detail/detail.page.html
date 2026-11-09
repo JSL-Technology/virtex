@@ -221,26 +221,34 @@
     </div>
   </div>
 
-  @if (canCredit(inv)) {
+  @if ((canCredit(inv) && mayCredit()) || (canDebit(inv) && mayDebit())) {
     <!--
-      Un documento fiscal emitido no se borra ni se edita: se anula o se corrige con una nota de
-      crédito, que es lo que la DGII espera ver. La pantalla no ofrecía ninguna de las dos (A-09).
+      Un documento fiscal emitido no se borra ni se edita: se corrige con una nota (crédito o débito)
+      o se anula como lo permite su mercado. Cada botón bajo el permiso que el servidor exige (QA R3-M04).
     -->
-    <!-- Only for those who may issue the correction: the seller saw both buttons and met a 403 (QA R3-M04). -->
-    <div *appHasPermission="'invoices:void'" class="alert alert-neutral credit-actions" role="group" [attr.aria-label]="'invoices.detail.corrections' | translate">
+    <div class="alert alert-neutral credit-actions" role="group" [attr.aria-label]="'invoices.detail.corrections' | translate">
       <span>{{ 'invoices.detail.corrections_hint' | translate }}</span>
       <!--
         QA A-18: «Anular» (rojo) iba pegado a «Nota de crédito». La acción destructiva se aparta de
         la correctiva y se presenta como enlace de peligro; además pide motivo antes de ejecutarse.
       -->
       <div class="draft-actions credit-actions__buttons">
-        <button type="button" class="secondary-button" [disabled]="ecfBusy()" (click)="createCreditNote(inv.id)">
-          {{ 'invoices.detail.credit_note' | translate }}
-        </button>
-        <span class="credit-actions__divider" aria-hidden="true"></span>
-        <button type="button" class="danger-link" [disabled]="ecfBusy()" (click)="voidInvoice(inv)">
-          {{ 'invoices.detail.void_invoice' | translate }}
-        </button>
+        @if (canCredit(inv) && mayCredit()) {
+          <button type="button" class="secondary-button" [disabled]="documentBusy()" (click)="createCreditNote(inv.id)">
+            {{ 'invoices.detail.credit_note' | translate }}
+          </button>
+        }
+        @if (canDebit(inv) && mayDebit()) {
+          <button type="button" class="secondary-button" [disabled]="documentBusy()" (click)="startDebitNote()">
+            {{ 'invoices.detail.debit_note' | translate }}
+          </button>
+        }
+        @if (canCredit(inv) && mayCredit()) {
+          <span class="credit-actions__divider" aria-hidden="true"></span>
+          <button type="button" class="danger-link" [disabled]="documentBusy()" (click)="voidInvoice(inv)">
+            {{ 'invoices.detail.void_invoice' | translate }}
+          </button>
+        }
       </div>
     </div>
   }
@@ -278,10 +286,113 @@
           <textarea rows="2" maxlength="500" [value]="creditReason()" (input)="creditReason.set($any($event.target).value)"></textarea>
         </label>
         <div class="draft-actions">
-          <button type="button" class="primary-button" [disabled]="ecfBusy()" (click)="confirmCredit()">
+          <button type="button" class="primary-button" [disabled]="documentBusy()" (click)="confirmCredit()">
             {{ 'invoices.detail.credit_note_issue' | translate }}
           </button>
           <button type="button" class="secondary-button" (click)="cancelCredit()">{{ 'common.cancel' | translate }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (debiting()) {
+    <!-- Una nota de débito: cada cargo declara su tratamiento fiscal; el servidor no lo supone (FAC-INV-05). -->
+    <div class="card credit-panel" role="region" [attr.aria-label]="'invoices.detail.debit_note_title' | translate">
+      <div class="card-body">
+        <h3>{{ 'invoices.detail.debit_note_title' | translate }}</h3>
+        <p class="hint">{{ 'invoices.detail.debit_note_message' | translate }}</p>
+        <label class="field">
+          <span>{{ 'invoices.detail.debit_note_reason' | translate }}</span>
+          <select [value]="debitReason()" (change)="setDebitReason($any($event.target).value)">
+            @for (reason of debitReasons; track reason) {
+              <option [value]="reason">{{ 'invoices.debit_note_reason.' + reason | translate }}</option>
+            }
+          </select>
+        </label>
+        <label class="field">
+          <span>{{ 'invoices.detail.debit_note_description' | translate }}</span>
+          <textarea rows="2" maxlength="500" [value]="debitDescription()" (input)="debitDescription.set($any($event.target).value)"></textarea>
+        </label>
+        <table class="line-items-table">
+          <thead>
+            <tr>
+              <th class="text-left">{{ 'invoices.detail.description' | translate }}</th>
+              <th class="text-right">{{ 'invoices.detail.debit_note_quantity' | translate }}</th>
+              <th class="text-right">{{ 'invoices.detail.debit_note_unit_price' | translate }}</th>
+              <th>{{ 'invoices.detail.debit_note_tax_treatment' | translate }}</th>
+              <th>{{ 'invoices.detail.debit_note_is_service' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of debitLines(); track $index; let i = $index) {
+              <tr>
+                <td>
+                  <input type="text" maxlength="500" [attr.aria-label]="'invoices.detail.description' | translate"
+                         [value]="line.description" (input)="patchDebitLine(i, { description: $any($event.target).value })" />
+                </td>
+                <td class="text-right">
+                  <input type="number" min="0" step="any" [attr.aria-label]="'invoices.detail.debit_note_quantity' | translate"
+                         [value]="line.quantity" (input)="patchDebitLine(i, { quantity: +$any($event.target).value })" />
+                </td>
+                <td class="text-right">
+                  <input type="number" min="0" step="any" [attr.aria-label]="'invoices.detail.debit_note_unit_price' | translate"
+                         [value]="line.unitPrice" (input)="patchDebitLine(i, { unitPrice: +$any($event.target).value })" />
+                </td>
+                <td>
+                  <select [attr.aria-label]="'invoices.detail.debit_note_tax_treatment' | translate" [value]="line.taxTreatment"
+                          (change)="patchDebitLine(i, { taxTreatment: $any($event.target).value })">
+                    <option value="TAXED">{{ 'invoices.detail.debit_note_taxed' | translate }}</option>
+                    <option value="ZERO_RATED">{{ 'invoices.detail.debit_note_zero_rated' | translate }}</option>
+                    <option value="EXEMPT">{{ 'invoices.detail.debit_note_exempt' | translate }}</option>
+                  </select>
+                </td>
+                <td>
+                  <input type="checkbox" [attr.aria-label]="'invoices.detail.debit_note_is_service' | translate"
+                         [checked]="line.isService" (change)="patchDebitLine(i, { isService: $any($event.target).checked })" />
+                </td>
+                <td>
+                  <button type="button" class="danger-link" (click)="removeDebitLine(i)">{{ 'invoices.detail.debit_note_remove_line' | translate }}</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <div class="draft-actions">
+          <button type="button" class="secondary-button" (click)="addDebitLine()">{{ 'invoices.detail.debit_note_add_line' | translate }}</button>
+          <button type="button" class="primary-button" [disabled]="documentBusy()" (click)="confirmDebit()">{{ 'invoices.detail.debit_note_issue' | translate }}</button>
+          <button type="button" class="secondary-button" (click)="cancelDebit()">{{ 'common.cancel' | translate }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (cancelling(); as options) {
+    <!-- Anular como lo permite el mercado de la factura: anulación comercial, o anulación declarada con el motivo de la autoridad. -->
+    <div class="card credit-panel" role="region" [attr.aria-label]="'invoices.detail.cancel_title' | translate">
+      <div class="card-body">
+        <h3>{{ 'invoices.detail.cancel_title' | translate }}</h3>
+        <p class="hint">
+          {{ (options.route === 'REPORT' ? 'invoices.detail.cancel_message_report' : 'invoices.detail.cancel_message_void') | translate: { authority: options.authority } }}
+        </p>
+        @if (options.route === 'REPORT') {
+          <label class="field">
+            <span>{{ 'invoices.detail.cancel_reason_code' | translate }}</span>
+            <select [value]="cancelReasonCode()" (change)="cancelReasonCode.set($any($event.target).value)">
+              <option value="">{{ 'invoices.detail.cancel_choose_reason' | translate }}</option>
+              @for (reason of options.reasons; track reason.code) {
+                <option [value]="reason.code">{{ reason.code }} — {{ reason.labelKey | translate }}</option>
+              }
+            </select>
+          </label>
+        }
+        <label class="field">
+          <span>{{ 'invoices.detail.credit_note_reason' | translate }}</span>
+          <textarea rows="2" maxlength="500" [value]="cancelReason()" (input)="cancelReason.set($any($event.target).value)"></textarea>
+        </label>
+        <div class="draft-actions">
+          <button type="button" class="danger-button" [disabled]="documentBusy()" (click)="confirmCancel()">{{ 'invoices.detail.void_invoice' | translate }}</button>
+          <button type="button" class="secondary-button" (click)="closeCancel()">{{ 'common.cancel' | translate }}</button>
         </div>
       </div>
     </div>
@@ -294,9 +405,9 @@
         {{ 'invoices.detail.has_no_fiscal_document_number_carries' | translate }}
       </div>
       <div class="draft-actions">
-        <button type="button" class="primary-button" [disabled]="ecfBusy() || previewBusy()" (click)="previewIssue()">
+        <button type="button" class="primary-button" [disabled]="documentBusy() || previewBusy()" (click)="previewIssue()">
           {{
-            (ecfBusy() ? 'invoices.detail.issuing' : 'invoices.detail.issue_document')
+            (documentBusy() ? 'invoices.detail.issuing' : 'invoices.detail.issue_document')
               | translate
           }}
         </button>
@@ -394,9 +505,9 @@
 
       <div class="ecf-actions">
         <button type="button" (click)="downloadEcfXml()">{{ 'invoices.detail.download_signed_xml' | translate }}</button>
-        <button type="button" [disabled]="ecfBusy()" (click)="resubmitEcf()">
+        <button type="button" [disabled]="documentBusy()" (click)="resubmitEcf()">
           {{
-            (ecfBusy() ? 'invoices.detail.resending' : 'invoices.detail.resend_to_authority') | translate: { authority: fiscalAuthority() }
+            (documentBusy() ? 'invoices.detail.resending' : 'invoices.detail.resend_to_authority') | translate: { authority: fiscalAuthority() }
           }}
         </button>
       </div>
@@ -439,7 +550,7 @@
       </h2>
       <app-transition-preview
         [preview]="preview"
-        [busy]="ecfBusy()"
+        [busy]="documentBusy()"
         confirmLabelKey="invoices.issue"
         (confirmed)="issue()"
         (cancelled)="dismissPreview()"

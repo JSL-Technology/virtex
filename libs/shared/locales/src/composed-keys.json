@@ -630,6 +630,18 @@
     "fiscal.ec": [],
     "fiscal.mx": [],
     "fiscal.pe": [],
+    "fiscal_reasons.do.invoice_cancellation": [
+      "deteriorated_preprinted",
+      "printing_errors_preprinted",
+      "defective_printing",
+      "information_correction",
+      "product_change",
+      "product_return",
+      "product_omission",
+      "ncf_sequence_errors",
+      "business_closure",
+      "books_lost_or_stolen"
+    ],
     "fiscal_returns.kinds": [
       "606",
       "607",
@@ -721,6 +733,13 @@
       "ADJUSTMENT",
       "TRANSFER_OUT",
       "TRANSFER_IN"
+    ],
+    "invoices.debit_note_reason": [
+      "LATE_PAYMENT_INTEREST",
+      "ADDITIONAL_CHARGES",
+      "PRICE_INCREASE",
+      "PENALTY",
+      "OTHER"
     ],
     "invoices.detail.regime.hint": [
       "PENDING",
@@ -1104,11 +1123,14 @@
       "periodicReturns",
       "electronicAccounting",
       "withholding",
-      "payroll"
+      "payroll",
+      "debitNotes",
+      "documentCancellation"
     ],
     "settings.fiscal.level": [
       "implemented",
       "needs-credentials",
+      "needs-configuration",
       "not-implemented"
     ],
     "settings.pages.withholding.capability": [

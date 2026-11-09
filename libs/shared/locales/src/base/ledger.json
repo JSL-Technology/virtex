@@ -674,6 +674,11 @@
     "en": "Rounding difference on currency conversion",
     "pt": "Diferença de arredondamento na conversão de moeda"
   },
+  "ledger.sales.cancellation": {
+    "es": "Anulación de la factura {{number}}{{fiscal}} — {{customer}}",
+    "en": "Cancellation of invoice {{number}}{{fiscal}} — {{customer}}",
+    "pt": "Anulação da fatura {{number}}{{fiscal}} — {{customer}}"
+  },
   "ledger.sales.cost_of": {
     "es": "Costo de {{document}}",
     "en": "Cost of {{document}}",

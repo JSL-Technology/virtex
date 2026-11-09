@@ -1,5 +1,5 @@
 import { Repository, Between, Not, IsNull, In } from 'typeorm';
-import { Invoice, InvoiceStatus, InvoiceType, PaymentMethod } from '../../invoices/entities/invoice.entity';
+import { CancellationMode, Invoice, InvoiceStatus, InvoiceType, PaymentMethod } from '../../invoices/entities/invoice.entity';
 import { PurchaseFiscalDocument } from '../../contracts/fiscal-records/purchase-fiscal-records.contract';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { roundAmount } from '../../common/money';
@@ -115,14 +115,27 @@ export class DominicanRepublicReports {
   ): Promise<string> {
     const { from, to } = monthBounds(year, month);
 
+    // Every comprobante issued in the month — including an invoice a credit note later reversed in
+    // full: it was a sale of its month and its note reports the reversal, so leaving it out (as
+    // this did) subtracted the sale twice. Only a comprobante ANNULLED is not a sale; it is the 608's.
+    // To confirm with a local accountant.
     const sales = await invoiceRepository.find({
       relations: ['customer'],
-      where: {
-        organizationId,
-        issueDate: Between(from, to),
-        fiscalNumber: Not(IsNull()),
-        status: Not(In([InvoiceStatus.DRAFT, InvoiceStatus.VOID])),
-      },
+      where: [
+        {
+          organizationId,
+          issueDate: Between(from, to),
+          fiscalNumber: Not(IsNull()),
+          status: Not(In([InvoiceStatus.DRAFT, InvoiceStatus.VOID])),
+        },
+        {
+          organizationId,
+          issueDate: Between(from, to),
+          fiscalNumber: Not(IsNull()),
+          status: InvoiceStatus.VOID,
+          cancellationMode: CancellationMode.CREDIT_NOTE,
+        },
+      ],
       order: { issueDate: 'ASC', invoiceNumber: 'ASC' },
     });
 
@@ -308,21 +321,28 @@ export class DominicanRepublicReports {
   ): Promise<string> {
     const { from, to } = monthBounds(year, month);
 
-    const voided = await invoiceRepository.find({
-      where: {
-        organizationId,
-        issueDate: Between(from, to),
-        fiscalNumber: Not(IsNull()),
-        status: InvoiceStatus.VOID,
-      },
-      order: { issueDate: 'ASC' },
-    });
+    // Annulled comprobantes only: one a credit note reversed is still a sale (607), and its note is
+    // the record of the reversal. `cancellation_mode` null is a document voided before the mode
+    // was recorded and not reversed by a note — an annulment, as the 608 always read it.
+    const voided = (
+      await invoiceRepository.find({
+        where: {
+          organizationId,
+          issueDate: Between(from, to),
+          fiscalNumber: Not(IsNull()),
+          status: InvoiceStatus.VOID,
+        },
+        order: { issueDate: 'ASC' },
+      })
+    ).filter((invoice) => invoice.cancellationMode !== CancellationMode.CREDIT_NOTE);
 
     const rows = voided.map((invoice) =>
       [
         invoice.fiscalNumber ?? '',
         compactDate(invoice.issueDate),
-        annulmentCode(invoice.voidReason),
+        // The DGII code chosen when it was annulled (FAC-INV-05); guessed from the reason's words
+        // only for a document voided before the code was recorded.
+        invoice.cancellationReasonCode ?? annulmentCode(invoice.voidReason),
       ].join('|'),
     );
     // A voided till ticket whose B02 was printed is an annulled comprobante too.

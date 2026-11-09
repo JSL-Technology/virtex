@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
   VersionColumn,
   Index,
+  Check,
 } from 'typeorm';
 import { InvoiceLineItem } from './invoice-line-item.entity';
 import { Customer } from '../../customers/entities/customer.entity';
@@ -29,6 +30,32 @@ export enum InvoiceStatus {
   VOID = 'Void',
   /** The document itself is a credit note. */
   CREDIT_NOTE = 'Credit Note',
+}
+
+/**
+ * Why a debit note adds to an invoice — the product's own taxonomy (FAC-INV-05), which every regime
+ * maps to its authority's catalogue: DGII CodigoModificacion, DIAN concepto de corrección, SUNAT
+ * catálogo 10, SII código de referencia.
+ */
+export enum DebitNoteReason {
+  /** Interest for paying late. */
+  LATE_PAYMENT_INTEREST = 'LATE_PAYMENT_INTEREST',
+  /** Charges billed afterwards: freight, insurance, expenses incurred for the customer. */
+  ADDITIONAL_CHARGES = 'ADDITIONAL_CHARGES',
+  /** The agreed value of the original operation goes up. */
+  PRICE_INCREASE = 'PRICE_INCREASE',
+  PENALTY = 'PENALTY',
+  OTHER = 'OTHER',
+}
+
+/** How a VOID document came to be void. */
+export enum CancellationMode {
+  /** A commercial document the authority never saw, voided because nothing had touched it. */
+  VOID = 'VOID',
+  /** Annulled by the issuer and declared to the authority (the Dominican 608). */
+  REPORTED = 'REPORTED',
+  /** Reversed in full by a credit note: still the sale it was, corrected by the note. */
+  CREDIT_NOTE = 'CREDIT_NOTE',
 }
 
 export enum InvoiceType {
@@ -74,6 +101,8 @@ export enum PaymentMethod {
 
 @Index('IDX_invoices_org_branch', ['organizationId', 'branchId'])
 @Entity({ name: 'invoices' })
+@Check('CHK_invoices_adjustment_reason', `"adjustment_reason" IS NULL OR "adjustment_reason" IN ('LATE_PAYMENT_INTEREST', 'ADDITIONAL_CHARGES', 'PRICE_INCREASE', 'PENALTY', 'OTHER')`)
+@Check('CHK_invoices_cancellation_mode', `"cancellation_mode" IS NULL OR "cancellation_mode" IN ('VOID', 'REPORTED', 'CREDIT_NOTE')`)
 @Index('IDX_invoices_org_issue_date', ['organizationId', 'issueDate'])
 @Index('IDX_invoices_org_status', ['organizationId', 'status'])
 @Index('IDX_invoices_org_customer', ['organizationId', 'customerId'])
@@ -450,6 +479,35 @@ export class Invoice {
 
   @Column({ name: 'void_reason', type: 'text', nullable: true })
   voidReason?: string | null;
+
+  /**
+   * Why a debit note adds to the invoice it modifies, in the product's own terms (FAC-INV-05). Each
+   * regime translates it into its authority's code; the core never stores one market's code.
+   */
+  @Column({ name: 'adjustment_reason', type: 'varchar', length: 32, nullable: true })
+  adjustmentReason?: DebitNoteReason | null;
+
+  /**
+   * How a VOID document came to be void (FAC-INV-05): voided as a commercial document, annulled and
+   * declared to the authority, or reversed in full by a credit note. A fiscal return reads it — an
+   * invoice reversed by a credit note is still a sale of its month; an annulled one is not.
+   */
+  @Column({ name: 'cancellation_mode', type: 'varchar', length: 16, nullable: true })
+  cancellationMode?: CancellationMode | null;
+
+  /**
+   * The authority's reason code, where its catalogue has one (`fiscal_reason_codes`): the
+   * Dominican 608 codes. Checked by the database against the tenant's country.
+   */
+  @Column({ name: 'cancellation_reason_code', type: 'varchar', length: 16, nullable: true })
+  cancellationReasonCode?: string | null;
+
+  /** The entries that reversed it when it was cancelled without a credit note. */
+  @Column({ name: 'cancellation_journal_entry_id', type: 'uuid', nullable: true })
+  cancellationJournalEntryId?: string | null;
+
+  @Column({ name: 'cancellation_cost_journal_entry_id', type: 'uuid', nullable: true })
+  cancellationCostJournalEntryId?: string | null;
 
   @Column({ length: 3, default: 'USD', name: 'currency_code' })
   currencyCode: string;

@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReportDefinition } from './entities/report-definition.entity';
 import { TaxJurisdiction } from './fiscal/entities/tax-jurisdiction.entity';
 import { StatutoryTaxRate } from './fiscal/entities/statutory-tax-rate.entity';
+import { FiscalReasonCode } from './fiscal/entities/fiscal-reason-code.entity';
 import { TenantWithholdingRegime } from './fiscal/entities/tenant-withholding-regime.entity';
 import { LocalizationController } from './controllers/localization.controller';
 import { TaxJurisdictionsController } from './controllers/tax-jurisdictions.controller';
@@ -28,6 +29,7 @@ import { LocalizationProvisioningModule } from './localization-provisioning.modu
       ReportDefinition,
       TaxJurisdiction,
       StatutoryTaxRate,
+      FiscalReasonCode,
       TenantWithholdingRegime,
     ]),
     // The leaf provides all strategies, LocalizationService, TaxDeterminationService.

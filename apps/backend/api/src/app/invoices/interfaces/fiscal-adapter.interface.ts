@@ -85,6 +85,15 @@ export interface FiscalAdapter {
     context: FiscalAssignmentContext & { originalInvoice: Invoice },
   ): Promise<FiscalNumberAssignment>;
 
+  /**
+   * Fiscal identity for a debit note: a charge added to an issued invoice (FAC-INV-05). Absent: the
+   * market's regime does not issue debit notes through this product yet, and one is refused rather
+   * than numbered as something its authority would reject.
+   */
+  assignDebitNoteNumber?(
+    context: FiscalAssignmentContext & { originalInvoice: Invoice },
+  ): Promise<FiscalNumberAssignment>;
+
   /** The types this market lets a tenant issue on a sales document, for the UI to offer. */
   availableSalesTypes(): readonly FiscalDocumentTypeOption[];
 

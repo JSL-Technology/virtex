@@ -15,7 +15,7 @@ import { FormsModule } from '@angular/forms';
 // Se importa ActivatedRoute para acceder a los parámetros de la URL.
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { CreditNoteRequest, Invoice, InvoiceLineItem, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
+import { CancellationOptions, CreditNoteRequest, DebitNoteReason, DebitNoteRequest, Invoice, InvoiceLineItem, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
 import { EinvoicingService, EcfSubmissionView, RegimeSubmissionView } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
 import { translateOrLiteral } from '@virteex/shared/ui-i18n';
@@ -34,11 +34,10 @@ import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
 import { refreshWhenStale } from '../../../core/data/data-version.service';
-import { finalize } from 'rxjs';
+import { finalize, map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { IdentityDocumentsService } from '../../../core/api/identity-documents.service';
 import { AiProvenanceBadgeComponent } from '../../ai/provenance/ai-provenance-badge.component';
-import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 
 /** Each e-CF state's name and what it means for the person reading it. */
 const ECF_STATUS: Record<string, { label: string; hint: string }> = {
@@ -58,7 +57,7 @@ const ECF_STATUS: Record<string, { label: string; hint: string }> = {
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
-  imports: [HasPermissionDirective, AiProvenanceBadgeComponent, TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
+  imports: [AiProvenanceBadgeComponent, TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
     // a text link instead, while `angularx-qrcode` was already a dependency of the project.
     QRCodeComponent, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent,
     ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxTabsComponent, InvoiceEmailDialogComponent],
@@ -242,7 +241,8 @@ export class InvoiceDetailPage implements OnInit {
   /** The same, for every regime but the Dominican one (FAC-EINV-01). */
   regimeSubmission = signal<RegimeSubmissionView | null>(null);
   regimeBusy = signal(false);
-  ecfBusy = signal(false);
+  /** An action on the document is in flight (issue, transmit, credit, debit, cancel): its buttons wait. */
+  documentBusy = signal(false);
   navigationIds = signal<{ first: string; prev: string | null; next: string | null; last: string } | null>(null);
   activeTab = signal<'content' | 'logistics' | 'finance'>('content');
 
@@ -394,15 +394,15 @@ export class InvoiceDetailPage implements OnInit {
   }
 
   resubmitEcf(): void {
-    this.ecfBusy.set(true);
+    this.documentBusy.set(true);
     this.einvoicingService.submitInvoice(this.id()).subscribe({
         next: (status) => {
             this.ecf.set(status);
-            this.ecfBusy.set(false);
+            this.documentBusy.set(false);
             this.notificationService.showSuccess('invoices.detail.cf_resubmitted_dgii');
         },
         error: (err) => {
-            this.ecfBusy.set(false);
+            this.documentBusy.set(false);
             this.notificationService.showHttpError(err, 'errors.resend_ecf');
         }
     });
@@ -722,17 +722,17 @@ export class InvoiceDetailPage implements OnInit {
     const invoice = this.invoice();
     if (!invoice) return;
     this.issuePreview.set(null);
-    this.ecfBusy.set(true);
+    this.documentBusy.set(true);
     this.invoicesService.issue(invoice.id).subscribe({
       next: (issued) => {
-        this.ecfBusy.set(false);
+        this.documentBusy.set(false);
         this.notificationService.showSuccess('invoices.detail.document_issued', {
           number: issued.fiscalNumber ?? issued.invoiceNumber,
         });
         this.loadInvoice();
       },
       error: (err) => {
-        this.ecfBusy.set(false);
+        this.documentBusy.set(false);
         this.notificationService.showHttpError(err, 'errors.issue_document');
       },
     });
@@ -843,37 +843,176 @@ export class InvoiceDetailPage implements OnInit {
       }
     }
     this.crediting.set(false);
-    this.issueCredit(invoice.id, { reason, items, modificationCode: '3' });
+    this.issueCredit(invoice.id, { reason, items });
   }
 
-  /** Annul the whole document: a full credit note with the DGII "annulment" modification code. */
-  async voidInvoice(invoice: Invoice): Promise<void> {
-    const reason = await this.dialog.prompt({
-      title: 'invoices.detail.void_title',
-      message: 'invoices.detail.void_message',
-      messageParams: { number: invoice.fiscalNumber ?? invoice.invoiceNumber },
-      placeholder: 'invoices.detail.credit_note_reason',
-      minLength: 5,
-      tooShort: 'invoices.detail.credit_note_reason_too_short',
-      confirmText: 'invoices.detail.void_invoice',
-      variant: 'danger',
+  // ── Cancellation, the way the invoice's market allows (FAC-INV-05) ─────────────
+
+  /** The cancellation being composed: the market's route and, where it keeps one, its reasons. */
+  readonly cancelling = signal<CancellationOptions | null>(null);
+  readonly cancelReason = signal('');
+  readonly cancelReasonCode = signal('');
+
+  /**
+   * «Anular» asks the server how this market cancels this document and does exactly that: a void
+   * for a commercial document, an annulment with the authority's reason where it keeps a catalogue,
+   * and — where the authority only accepts a credit note, or registers cancellations itself — it
+   * says so and offers the full credit note. It used to issue a full credit note everywhere.
+   */
+  voidInvoice(invoice: Invoice): void {
+    this.invoicesService.cancellationOptions(invoice.id).subscribe({
+      next: async (options) => {
+        if (options.cancellable) {
+          this.cancelReason.set('');
+          this.cancelReasonCode.set('');
+          this.cancelling.set(options);
+          return;
+        }
+        const reversible = options.route === 'CREDIT_NOTE_ONLY' || options.route === 'AUTHORITY_EVENT' || options.blockedBy === 'invoices.cancellation_only_untouched';
+        if (!reversible || !options.blockedBy) {
+          this.notificationService.showError(options.blockedBy ?? 'errors.issue_credit_note', { authority: options.authority });
+          return;
+        }
+        const reason = await this.dialog.prompt({
+          title: 'invoices.detail.void_title',
+          message: options.blockedBy,
+          messageParams: { authority: options.authority, number: invoice.fiscalNumber ?? invoice.invoiceNumber },
+          placeholder: 'invoices.detail.credit_note_reason',
+          minLength: 5,
+          tooShort: 'invoices.detail.credit_note_reason_too_short',
+          confirmText: 'invoices.detail.void_with_credit_note',
+          variant: 'danger',
+        });
+        if (reason) this.issueCredit(invoice.id, { reason });
+      },
+      error: (err) => this.notificationService.showHttpError(err, 'invoices.detail.cancel_failed'),
     });
-    if (!reason) return;
-    this.issueCredit(invoice.id, { reason, modificationCode: '1' });
+  }
+
+  closeCancel(): void {
+    this.cancelling.set(null);
+  }
+
+  confirmCancel(): void {
+    const invoice = this.invoice();
+    const options = this.cancelling();
+    if (!invoice || !options) return;
+    const reason = this.cancelReason().trim();
+    if (reason.length < 5) {
+      this.notificationService.showError('invoices.detail.credit_note_reason_too_short');
+      return;
+    }
+    if (options.route === 'REPORT' && !this.cancelReasonCode()) {
+      this.notificationService.showError('invoices.cancellation_reason_code_required');
+      return;
+    }
+    this.documentBusy.set(true);
+    this.invoicesService
+      .cancelInvoice(invoice.id, { reason, ...(options.route === 'REPORT' ? { reasonCode: this.cancelReasonCode() } : {}) })
+      .subscribe({
+        next: () => {
+          this.documentBusy.set(false);
+          this.cancelling.set(null);
+          this.notificationService.showSuccess('invoices.detail.cancelled', { number: invoice.fiscalNumber ?? invoice.invoiceNumber });
+          this.loadInvoice();
+        },
+        error: (err) => {
+          this.documentBusy.set(false);
+          this.notificationService.showHttpError(err, 'invoices.detail.cancel_failed');
+        },
+      });
+  }
+
+  // ── Debit notes (FAC-INV-05) ─────────────────────────────────────────────────
+
+  readonly debitReasons: DebitNoteReason[] = ['LATE_PAYMENT_INTEREST', 'ADDITIONAL_CHARGES', 'PRICE_INCREASE', 'PENALTY', 'OTHER'];
+  readonly debitNotesSupported = toSignal(this.invoicesService.context().pipe(map((context) => context.debitNotes === true)), { initialValue: false });
+  readonly debiting = signal(false);
+  readonly debitReason = signal<DebitNoteReason>('LATE_PAYMENT_INTEREST');
+  readonly debitDescription = signal('');
+  readonly debitLines = signal<DebitNoteRequest['lines']>([]);
+
+  canDebit(invoice: Invoice): boolean {
+    return this.debitNotesSupported() && invoice.type === 'INVOICE' && !['Draft', 'Void', 'Credit Note'].includes(invoice.status);
+  }
+
+  /** Each correction under the permission the server checks for it: void for credits, create for debits. */
+  readonly mayCredit = computed(() => this.auth.hasPermissions(['invoices:void']));
+  readonly mayDebit = computed(() => this.auth.hasPermissions(['invoices:create']));
+
+  /**
+   * A charge added to the invoice. Each charge states its tax treatment and whether it is a
+   * service: interest bears VAT in some markets and not in others, and the screen proposes rather
+   * than decides — a price increase repeats the invoice's goods, a charge defaults to a service.
+   */
+  startDebitNote(): void {
+    this.debitReason.set('LATE_PAYMENT_INTEREST');
+    this.debitDescription.set('');
+    this.debitLines.set([this.blankDebitLine('LATE_PAYMENT_INTEREST')]);
+    this.debiting.set(true);
+  }
+
+  setDebitReason(reason: DebitNoteReason): void {
+    this.debitReason.set(reason);
+    this.debitLines.update((lines) => lines.map((line) => ({ ...line, isService: reason !== 'PRICE_INCREASE' })));
+  }
+
+  addDebitLine(): void {
+    this.debitLines.update((lines) => [...lines, this.blankDebitLine(this.debitReason())]);
+  }
+
+  removeDebitLine(index: number): void {
+    this.debitLines.update((lines) => lines.filter((_, i) => i !== index));
+  }
+
+  patchDebitLine(index: number, patch: Partial<DebitNoteRequest['lines'][number]>): void {
+    this.debitLines.update((lines) => lines.map((line, i) => (i === index ? { ...line, ...patch } : line)));
+  }
+
+  cancelDebit(): void {
+    this.debiting.set(false);
+  }
+
+  confirmDebit(): void {
+    const invoice = this.invoice();
+    if (!invoice) return;
+    const description = this.debitDescription().trim();
+    const lines = this.debitLines().filter((line) => line.description.trim() && line.quantity > 0 && line.unitPrice > 0);
+    if (description.length < 3 || lines.length === 0) {
+      this.notificationService.showError('invoices.detail.debit_note_incomplete');
+      return;
+    }
+    this.documentBusy.set(true);
+    this.invoicesService.createDebitNote(invoice.id, { reason: this.debitReason(), description, lines }).subscribe({
+      next: (note) => {
+        this.documentBusy.set(false);
+        this.debiting.set(false);
+        this.notificationService.showSuccess('invoices.detail.debit_note_issued', { number: note.fiscalNumber ?? note.invoiceNumber });
+        this.loadInvoice();
+      },
+      error: (err) => {
+        this.documentBusy.set(false);
+        this.notificationService.showHttpError(err, 'invoices.detail.debit_note_failed');
+      },
+    });
+  }
+
+  private blankDebitLine(reason: DebitNoteReason): DebitNoteRequest['lines'][number] {
+    return { description: '', quantity: 1, unitPrice: 0, taxTreatment: 'TAXED', isService: reason !== 'PRICE_INCREASE' };
   }
 
   private issueCredit(invoiceId: string, request: CreditNoteRequest): void {
-    this.ecfBusy.set(true);
+    this.documentBusy.set(true);
     this.invoicesService.createCreditNote(invoiceId, request).subscribe({
       next: (note) => {
-        this.ecfBusy.set(false);
+        this.documentBusy.set(false);
         this.notificationService.showSuccess('invoices.detail.credit_note_issued', {
           number: note.fiscalNumber ?? note.invoiceNumber,
         });
         this.loadInvoice();
       },
       error: (err) => {
-        this.ecfBusy.set(false);
+        this.documentBusy.set(false);
         this.notificationService.showHttpError(err, 'errors.issue_credit_note');
       },
     });

@@ -767,6 +767,16 @@
     "en": "Bookkeeping",
     "pt": "Contabilidade"
   },
+  "settings.fiscal.capability.debit_notes": {
+    "es": "Notas de débito",
+    "en": "Debit notes",
+    "pt": "Notas de débito"
+  },
+  "settings.fiscal.capability.document_cancellation": {
+    "es": "Anulación de documentos",
+    "en": "Document cancellation",
+    "pt": "Anulação de documentos"
+  },
   "settings.fiscal.capability.electronic_accounting": {
     "es": "Contabilidad electrónica",
     "en": "Electronic accounting",
