@@ -23,20 +23,39 @@ import { BadRequestError } from '../../i18n/localized.exception';
  */
 
 /**
- * The consecutive alone: the last hyphen-separated segment, digits only.
+ * The consecutive the document's number was drawn as, recorded when it was drawn
+ * (`invoices.fiscal_sequence`).
  *
- * `F001-00000123` → `123`, `001-002-000000045` → `45`, `SETP990000001` → `990000001`, `7` → `7`.
- * The inverse of what the numbering adapters compose, and deliberately the same rule, so the two
- * cannot disagree about which digits are the number.
+ * It used to be parsed back out of the formatted number — the digits of its last hyphen-separated
+ * segment — which is wrong the moment a series carries a digit: a DIAN prefix `FE2` and the number
+ * `1001` read back as `21001`, a number outside every range the tenant holds.
  */
 export function fiscalConsecutive(invoice: Invoice): string {
-  const digits = (invoice.fiscalNumber ?? '').split('-').pop()?.replace(/\D/g, '') ?? '';
-  if (!digits) {
+  const sequence = Number(invoice.fiscalSequence ?? NaN);
+  if (!Number.isSafeInteger(sequence) || sequence < 1) {
     throw new BadRequestError('einvoicing.document_document_has_no_fiscal_number', {
       document: invoice.invoiceNumber ?? '',
     });
   }
-  return digits;
+  return String(sequence);
+}
+
+/**
+ * The authority's type the document was numbered as, by the market's own rule
+ * (`MarketNumbering.typeOf`), recorded at issuance — and one this regime's builder writes.
+ *
+ * Each builder used to decide the type again from the invoice, a second copy of the rule beside the
+ * numbering's: the way a document ends up numbered from the exenta range and built as an afecta.
+ * A type the builder does not write (a note its regime cannot transmit yet) is refused by name.
+ */
+export function issuedDocumentType<T extends string>(invoice: Invoice, built: readonly T[]): T {
+  const type = (invoice.fiscalDocumentType ?? '').trim().toUpperCase();
+  if (!type) {
+    throw new BadRequestError('einvoicing.document_has_no_fiscal_document_type', { document: invoice.invoiceNumber ?? '' });
+  }
+  const match = built.find((candidate) => candidate.toUpperCase() === type);
+  if (!match) throw new BadRequestError('einvoicing.document_type_not_built_by_regime', { type });
+  return match;
 }
 
 /** The fiscal number exactly as the authority granted it, prefix and all. */

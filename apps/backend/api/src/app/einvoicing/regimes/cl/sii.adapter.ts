@@ -74,6 +74,7 @@ export class SiiRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
       countryCode: 'CL',
       documentType,
       number: folio,
+      series: context.invoice.fiscalSeries ?? undefined,
     });
 
     if (range.secretKind !== FiscalRangeSecretKind.CAF_XML || !range.encryptedSecret) {

@@ -1,9 +1,10 @@
-import { Invoice, InvoiceType } from '../../../invoices/entities/invoice.entity';
+import { Invoice } from '../../../invoices/entities/invoice.entity';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
 import { buyerRegimeDocumentCode } from '../buyer-document';
+import { issuedDocumentType } from '../fiscal-number';
 
 /**
  * Argentina — AFIP, WSFEv1.
@@ -33,8 +34,6 @@ export interface AfipBuildInput {
   customer: Customer;
   /** Punto de venta, four digits, assigned by AFIP per establishment. */
   salesPoint: number;
-  /** The seller's VAT condition, which decides whether an A, B or C invoice is issued. */
-  issuerVatCondition: 'RESPONSABLE_INSCRIPTO' | 'MONOTRIBUTO' | 'EXENTO';
   /** The number AFIP expects next in this point of sale and document type. */
   nextNumber: number;
 }
@@ -83,7 +82,7 @@ export class AfipBuilder {
       FeCabReq: {
         CantReg: 1,
         PtoVta: input.salesPoint,
-        CbteTipo: this.documentType(input),
+        CbteTipo: this.documentType(invoice),
       },
       FeDetReq: [
         {
@@ -173,25 +172,15 @@ export class AfipBuilder {
    * for both parties.
    */
   /**
-   * The authority's document-type code for this invoice.
-   *
-   * Public because the numbering adapter has to draw the number from the range authorised for
-   * THIS type, and it must reach that answer the same way the builder does. Two copies of the
-   * rule is how a document ends up numbered from the exenta range and built as an afecta.
+   * AFIP's `CbteTipo`, as the document was numbered by the market's own rule — the class (A, B, C)
+   * follows from the issuer's and the buyer's VAT condition, decided once at issuance
+   * (`markets/ar/documents.ts`) and never again here. The debit notes (2, 7, 12) are not written
+   * by this builder yet, and are refused before they are numbered.
    */
-  documentType(input: Pick<AfipBuildInput, 'invoice' | 'customer' | 'issuerVatCondition'>): number {
-    const isCredit = input.invoice.type === InvoiceType.CREDIT_NOTE;
-    if (input.issuerVatCondition === 'MONOTRIBUTO') return isCredit ? 13 : 11;
-
-    const buyerIsRegistered =
-      buyerRegimeDocumentCode('afip', input.customer, 'AR') === '80' &&
-      (input.customer as unknown as { fiscalProfile?: Record<string, string> }).fiscalProfile?.[
-        'condicionIva'
-      ] === 'RESPONSABLE_INSCRIPTO';
-
-    if (buyerIsRegistered) return isCredit ? 3 : 1;
-    return isCredit ? 8 : 6;
+  documentType(invoice: Invoice): number {
+    return Number(issuedDocumentType(invoice, ['1', '3', '6', '8', '11', '13']));
   }
+
 
   /** `80` CUIT, `96` DNI, `99` consumidor final sin identificar — from the catalogue, not the length (A-02). */
   private buyerDocumentType(customer: Customer): number {

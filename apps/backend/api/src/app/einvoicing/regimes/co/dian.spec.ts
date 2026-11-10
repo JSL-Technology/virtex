@@ -45,6 +45,10 @@ describe('DIAN — factura electrónica', () => {
     excise: 0,
     total: 1_190_000,
     type: InvoiceType.INVOICE,
+    // What the market's numbering recorded at issuance (markets/<cc>/documents.ts).
+    fiscalDocumentType: '01',
+    fiscalSequence: 990000001,
+    fiscalSeries: 'SETP',
     lineItems: [
       {
         description: 'Servicio de mantenimiento',
@@ -220,7 +224,7 @@ describe('DIAN — factura electrónica', () => {
 
     it('issues a credit note as document type 91', () => {
       const { xml } = builder.build(
-        input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE } as Invoice }),
+        input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '91' } as Invoice }),
       );
 
       expect(xml).toContain('<cbc:InvoiceTypeCode>91</cbc:InvoiceTypeCode>');

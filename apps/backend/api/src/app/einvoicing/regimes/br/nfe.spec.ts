@@ -56,6 +56,10 @@ describe('NFe 4.00', () => {
     total: 1_180,
     discountTotal: 0,
     type: InvoiceType.INVOICE,
+    // What the market's numbering recorded at issuance (markets/<cc>/documents.ts).
+    fiscalDocumentType: '55',
+    fiscalSequence: 123,
+    fiscalSeries: '1',
     lineItems: [
       {
         description: 'Peça industrial',

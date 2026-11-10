@@ -49,11 +49,6 @@
     "en": "Cannot credit {{quantity}} of “{{description}}”: {{available}} of {{invoiced}} invoiced remain to be credited.",
     "pt": "Não é possível creditar {{quantity}} de «{{description}}»: restam {{available}} de {{invoiced}} faturadas."
   },
-  "invoices.credit_invoice_requires_buyer_tax_id": {
-    "es": "Una factura con crédito fiscal necesita la identificación fiscal válida del comprador. Revísala, o emite una factura de consumo.",
-    "en": "A tax-credit invoice needs the buyer's valid tax identifier. Check it, or issue a consumer invoice instead.",
-    "pt": "Uma fatura com crédito fiscal precisa da identificação fiscal válida do comprador. Verifica-a, ou emite uma fatura de consumo."
-  },
   "invoices.credit_note_must_reference_invoice_modifies": {
     "es": "Una nota de crédito debe referenciar la factura que modifica.",
     "en": "A credit note must reference the invoice it modifies.",
@@ -758,6 +753,11 @@
     "en": "Your company does not issue {{type}} documents: check the emission mode in Settings › Fiscal documents or Electronic invoicing, depending on your country.",
     "pt": "Sua empresa não emite comprovantes {{type}}: verifique a modalidade de emissão em Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país."
   },
+  "invoices.document_type_requires_buyer_tax_id": {
+    "es": "El tipo de comprobante {{type}} exige el identificador fiscal válido del comprador. Regístralo en el cliente o emite el tipo que corresponde a un consumidor final.",
+    "en": "Document type {{type}} requires the buyer's valid tax identifier. Record it on the customer, or issue the type that applies to a final consumer.",
+    "pt": "O tipo de documento {{type}} exige o identificador fiscal válido do comprador. Registre-o no cliente ou emita o tipo que corresponde a um consumidor final."
+  },
   "invoices.document_type_type_does_not_exist": {
     "es": "El tipo de comprobante {{type}} no existe en el régimen de {{country}}.",
     "en": "Document type {{type}} does not exist in the {{country}} regime.",
@@ -767,6 +767,11 @@
     "es": "El tipo de comprobante {{type}} no corresponde a un documento de venta.",
     "en": "Document type {{type}} is not a sales document.",
     "pt": "O tipo de documento {{type}} não corresponde a um documento de venda."
+  },
+  "invoices.document_type_undetermined": {
+    "es": "No se puede determinar el tipo de comprobante: falta un dato fiscal de la empresa que {{authority}} exige (por ejemplo, su condición frente al impuesto). Complétalo en Ajustes › Empresa.",
+    "en": "The document type cannot be determined: the company is missing a fiscal detail {{authority}} requires (for instance, its tax condition). Complete it in Settings › Company.",
+    "pt": "Não é possível determinar o tipo de documento: falta um dado fiscal da empresa que {{authority}} exige (por exemplo, sua condição perante o imposto). Complete-o em Configurações › Empresa."
   },
   "invoices.draft_cannot_be_debited": {
     "es": "Un borrador no admite nota de débito: edítalo directamente.",
@@ -1313,6 +1318,11 @@
     "en": "A fiscal document cannot be issued without your company’s tax id: the document and the tax returns require it. Record it in Settings › Company profile.",
     "es": "No se puede emitir un comprobante fiscal sin la identificación fiscal de tu empresa: el documento y las declaraciones la exigen. Regístrala en Ajustes › Perfil de la empresa.",
     "pt": "Não é possível emitir um comprovante fiscal sem a identificação fiscal da sua empresa. Registre-a em Configurações › Perfil da empresa."
+  },
+  "invoices.issuing_point_missing": {
+    "es": "{{authority}} numera por establecimiento y punto de emisión, y no están indicados. Configúralos en la sucursal o en Ajustes › Facturación electrónica.",
+    "en": "{{authority}} numbers by establishment and emission point, and they are not set. Configure them on the branch or in Settings › E-invoicing.",
+    "pt": "{{authority}} numera por estabelecimento e ponto de emissão, e eles não estão informados. Configure-os na filial ou em Configurações › Faturamento eletrônico."
   },
   "invoices.label_must_expressed_fraction_between": {
     "es": "{{label}} debe expresarse como fracción entre 0 y 1.",

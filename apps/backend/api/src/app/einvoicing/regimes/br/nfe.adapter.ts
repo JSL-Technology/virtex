@@ -94,8 +94,9 @@ export class NfeRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
     const range = await this.ranges.rangeContaining(context.manager, {
       organizationId: context.organizationId,
       countryCode: 'BR',
-      documentType: this.builder.documentType(),
+      documentType: this.builder.documentType(context.invoice),
       number: this.assignedNumber(context, this.regime),
+      series: context.invoice.fiscalSeries ?? undefined,
     });
     return range.series;
   }

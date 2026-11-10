@@ -1,0 +1,63 @@
+@use 'fiscal-ui';
+
+:host {
+  display: block;
+}
+
+.ranges {
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--space-4);
+  }
+
+  // The CAF or a technical key: full width, because a CAF is an XML document, not a short code.
+  &__secret textarea {
+    width: 100%;
+    font-family: var(--font-mono, monospace);
+    font-size: var(--text-xs);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__empty {
+    margin: 0;
+    color: var(--content-secondary);
+    font-size: var(--text-sm);
+  }
+
+  // Dimmed, never hidden: the authorisation past documents were issued under.
+  &__inactive {
+    opacity: 0.6;
+  }
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.nowrap {
+  white-space: nowrap;
+}

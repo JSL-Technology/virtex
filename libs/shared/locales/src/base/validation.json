@@ -1846,11 +1846,6 @@
     "en": "The line description cannot be empty.",
     "pt": "A descrição da linha não pode ficar vazia."
   },
-  "validation.provision_ncf_sequence.prefix_must_follow_dgii_series_format": {
-    "es": "El prefijo debe tener el formato de serie DGII, p. ej. B01 o E31.",
-    "en": "The prefix must follow the DGII series format, e.g. B01 or E31.",
-    "pt": "O prefixo deve seguir o formato de série da DGII, por exemplo B01 ou E31."
-  },
   "validation.push.endpoint_not_a_push_service": {
     "es": "La suscripción no apunta a un servicio de notificaciones de un navegador.",
     "en": "The subscription does not point to a browser push service.",

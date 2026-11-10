@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEnum,
   IsInt,
   IsISO8601,
@@ -100,15 +101,19 @@ export class UpsertFiscalRegimeSettingsDto {
  * assign, and the product refuses to issue — correctly, but with no way out except SQL.
  */
 export class RegisterFiscalRangeDto {
-  /** The authority's own document-type code: `01`, `33`, `55`. */
+  /**
+   * The authority's own document-type code (`B01`, `01`, `33`, `55`). Its meaning — whether the
+   * market publishes it, whether its ranges expire, which series it takes — is checked against the
+   * market's catalogue when the range is registered; the border checks only its shape.
+   */
   @IsString()
   @MaxLength(8, { message: 'validation.constraints.max_length|{"max":8}' })
   @Matches(/^[A-Za-z0-9]+$/, { message: 'invoices.document_type_may_contain_only_letters' })
   documentType!: string;
 
   /**
-   * The series the numbers belong to: `F001` in Peru, the resolution prefix in Colombia, the série
-   * in Brazil. Empty where the market has none.
+   * The series the numbers belong to, as the authority's act states it: `F001`, a resolution
+   * prefix, `001-001`, a série. Empty where the market numbers without one.
    */
   @IsString()
   @MaxLength(16, { message: 'validation.constraints.max_length|{"max":16}' })
@@ -124,12 +129,12 @@ export class RegisterFiscalRangeDto {
   endsAt!: number;
 
   /**
-   * When the authorisation expires, where the market time-boxes it.
-   *
-   * A DIAN resolution and an SII CAF both expire; a Brazilian série does not. Omitting it on a
-   * market that does expire means the product cannot warn before the authority refuses.
+   * When the authorisation expires, `YYYY-MM-DD`, where the market time-boxes it. Required for a
+   * type whose ranges the authority dates (the catalogue's `expirationRequired`): a range without
+   * its end date would never stop being used, and the documents numbered after it lapses are
+   * rejected.
    */
-  @IsISO8601()
+  @IsISO8601({ strict: true })
   @IsOptional()
   validUntil?: string;
 
@@ -155,6 +160,12 @@ export class RegisterFiscalRangeDto {
   @IsEnum(FiscalRangeSecretKind)
   @IsOptional()
   secretKind?: FiscalRangeSecretKind;
+}
+
+/** Put a range back in force, or retire it. A boolean, not a truthy field: `"false"` is not false. */
+export class SetFiscalRangeActiveDto {
+  @IsBoolean()
+  isActive!: boolean;
 }
 
 /**

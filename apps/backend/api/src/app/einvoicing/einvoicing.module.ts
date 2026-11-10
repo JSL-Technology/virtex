@@ -8,7 +8,6 @@ import { FiscalRegimeSettings } from './entities/fiscal-regime-settings.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { NcfSequence } from '../compliance/entities/ncf-sequence.entity';
 import { CertificateVaultService } from './services/certificate-vault.service';
 import { EcfSignerService } from './services/ecf-signer.service';
 import { EcfXmlBuilderService } from './services/ecf-xml-builder.service';
@@ -57,7 +56,6 @@ import { FiscalSubmissionReconciler } from './services/fiscal-submission.reconci
       Invoice,
       Organization,
       OrganizationSettings,
-      NcfSequence,
       FiscalDocumentRange,
       FiscalRegimeSettings,
       FiscalSubmission,

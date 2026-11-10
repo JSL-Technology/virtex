@@ -50,35 +50,10 @@ export interface EcfCertificateView {
   createdAt: string;
 }
 
-export type NcfType =
-  | 'B01' | 'B02' | 'B03' | 'B04' | 'B11' | 'B13' | 'B14' | 'B15' | 'B16' | 'B17'
-  | 'E31' | 'E32' | 'E33' | 'E34' | 'E41' | 'E43' | 'E44' | 'E45' | 'E46' | 'E47';
-
-export interface NcfSequenceView {
-  id: string;
-  type: NcfType;
-  prefix: string;
-  startsAt: number;
-  endsAt: number;
-  currentSequence: number;
-  isActive: boolean;
-  expiresAt?: string | null;
-}
-
-export interface ProvisionNcfSequenceInput {
-  type: NcfType;
-  prefix: string;
-  startsAt: number;
-  endsAt: number;
-  /** Last day the DGII authorizes the range, `YYYY-MM-DD`. */
-  expiresAt?: string;
-  /** The authorization reference the DGII issued, for audit and support. */
-  authorizationCode?: string;
-}
-
 /**
- * Client for the Dominican Republic electronic-invoicing (e-CF) API: certificate management, e-NCF
- * range provisioning and per-invoice e-CF status. The DGII returns are `FiscalReturnsService`'s.
+ * Client for the electronic-invoicing API: certificate management and per-invoice transmission
+ * status. The authorised ranges are every market's (`FiscalSettingsService.ranges`); the periodic
+ * returns are `FiscalReturnsService`'s.
  */
 /** One document's transmission to its authority, for every regime but the Dominican one. */
 export interface RegimeSubmissionView {
@@ -102,7 +77,6 @@ export interface RegimeSubmissionView {
 export class EinvoicingService {
   private http = inject(HttpClient);
   private ecfUrl = `${environment.apiUrl}/einvoicing`;
-  private complianceUrl = `${environment.apiUrl}/compliance`;
 
   // ── Certificates ──────────────────────────────────────────────────────────
   listCertificates(): Observable<EcfCertificateView[]> {
@@ -149,14 +123,5 @@ export class EinvoicingService {
 
   downloadXml(invoiceId: string): Observable<Blob> {
     return this.http.get(`${this.ecfUrl}/invoices/${invoiceId}/xml`, { responseType: 'blob' });
-  }
-
-  // ── e-NCF sequences ───────────────────────────────────────────────────────
-  listSequences(): Observable<NcfSequenceView[]> {
-    return this.http.get<NcfSequenceView[]>(`${this.complianceUrl}/ncf-sequences`);
-  }
-
-  provisionSequence(input: ProvisionNcfSequenceInput): Observable<NcfSequenceView> {
-    return this.http.post<NcfSequenceView>(`${this.complianceUrl}/ncf-sequences`, input);
   }
 }

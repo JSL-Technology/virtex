@@ -62,7 +62,7 @@ export function checkReceivedNcf(raw: string): ReceivedNcfCheck {
 
   const warnings: ReceivedNcfWarning[] = [];
   if (NO_CREDIT.has(type)) warnings.push('no_tax_credit');
-  if (spec.isCreditNote) warnings.push('credit_note_on_bill');
+  if (spec.purpose === 'CREDIT_NOTE') warnings.push('credit_note_on_bill');
   if (NOT_RECEIVED.has(type)) warnings.push('sales_only_type');
 
   const selfIssued = spec.side === 'purchase';

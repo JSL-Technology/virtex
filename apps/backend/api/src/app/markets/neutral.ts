@@ -1,6 +1,7 @@
 import type { MarketDefinition } from './contracts';
 import { NEUTRAL_ACCOUNTING } from './kit/accounting';
 import { implemented, notImplemented } from './kit/coverage';
+import { NO_FISCAL_NUMBERING } from './kit/documents';
 import { GENERIC_PAYMENT_METHODS } from './kit/payments';
 import { PAYROLL_NOT_IMPLEMENTED } from './kit/payroll';
 import { SUPPLIER_INVOICE_NUMBER } from './kit/purchases';
@@ -43,6 +44,7 @@ export function neutralMarket(code: string): NeutralMarket {
       cancellation: null,
       debitNotes: true,
       defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
+      numbering: NO_FISCAL_NUMBERING,
     },
     purchases: { supplierFiscalNumber: false, purchaseClassification: false, receivedDocument: SUPPLIER_INVOICE_NUMBER },
     payments: { catalogue: 'EDITABLE', authority: null, defaults: GENERIC_PAYMENT_METHODS },

@@ -42,6 +42,10 @@ describe('SII — Documento Tributario Electrónico', () => {
     tax: 190_000,
     total: 1_190_000,
     type: InvoiceType.INVOICE,
+    // What the market's numbering recorded at issuance (markets/<cc>/documents.ts).
+    fiscalDocumentType: '33',
+    fiscalSequence: 150,
+    fiscalSeries: '',
     lineItems: [
       {
         description: 'Notebook empresarial',
@@ -100,14 +104,16 @@ describe('SII — Documento Tributario Electrónico', () => {
     expect(xml).toContain('<Documento ID="DTE-33-150">');
   });
 
-  it('chooses the document type from whether the sale bears tax', () => {
-    // `33` factura afecta, `34` exenta, `61` nota de crédito.
+  it('writes the type the document was numbered as: afecta, exenta, nota de crédito', () => {
+    // `33` factura afecta, `34` exenta, `61` nota de crédito — decided by the market's numbering from
+    // whether the sale bears tax (`markets/cl/documents.ts`), and written here as recorded.
     expect(builder.build(input()).xml).toContain('<TipoDTE>33</TipoDTE>');
 
     const exempt = builder.build(
       input({
         invoice: {
           ...invoice,
+          fiscalDocumentType: '34',
           tax: 0,
           lineItems: [{ ...invoice.lineItems[0], taxAmount: 0, taxRate: 0 }],
         } as unknown as Invoice,
@@ -116,7 +122,7 @@ describe('SII — Documento Tributario Electrónico', () => {
     expect(exempt.xml).toContain('<TipoDTE>34</TipoDTE>');
 
     const creditNote = builder.build(
-      input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE } as Invoice }),
+      input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '61' } as Invoice }),
     );
     expect(creditNote.xml).toContain('<TipoDTE>61</TipoDTE>');
   });

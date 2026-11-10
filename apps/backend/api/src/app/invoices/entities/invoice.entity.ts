@@ -106,15 +106,20 @@ export enum PaymentMethod {
 @Index('IDX_invoices_org_issue_date', ['organizationId', 'issueDate'])
 @Index('IDX_invoices_org_status', ['organizationId', 'status'])
 @Index('IDX_invoices_org_customer', ['organizationId', 'customerId'])
-// One fiscal number per tenant, enforced by the database rather than by hope. Re-provisioning an
-// e-NCF range used to reset the counter and silently reissue numbers already on customers'
-// invoices; the range-overlap check in ComplianceService now prevents it, and this index is what
-// makes the guarantee hold even if a future path forgets to ask.
+// One fiscal number per tenant, enforced by the database rather than by hope. Re-provisioning a
+// range used to reset the counter and silently reissue numbers already on customers' invoices; the
+// overlap check in FiscalRangeService.register prevents it, and this index is what makes the
+// guarantee hold even if a future path forgets to ask.
 @Index('UQ_invoices_org_fiscal_number', ['organizationId', 'fiscalNumber'], {
   unique: true,
   where: '"fiscal_number" IS NOT NULL',
 })
 @Index('UQ_invoices_org_number', ['organizationId', 'invoiceNumber'], { unique: true })
+// The numbers already drawn from a range, for registering a new range that must not overlap them
+// and for matching a document to the range it came from.
+@Index('IDX_invoices_fiscal_sequence', ['organizationId', 'fiscalDocumentType', 'fiscalSeries', 'fiscalSequence'], {
+  where: '"fiscal_sequence" IS NOT NULL',
+})
 export class Invoice {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -157,6 +162,22 @@ export class Invoice {
   /** Expiry of the authorization that covers `fiscalNumber`, stamped at issuance. */
   @Column({ name: 'fiscal_number_expires_at', type: 'date', nullable: true })
   fiscalNumberExpiresAt?: string | null;
+
+  /**
+   * The consecutive the number was drawn as, from the tenant's authorised range, and that range's
+   * series (`''` where the market numbers without one).
+   *
+   * Recorded at issuance so nothing reads them back out of the formatted number: the authority's
+   * mask decides how `fiscalNumber` is written, and a prefix that carries a digit (`FE2` + `1001`)
+   * cannot be parsed back into its parts. A range is checked against the numbers already issued
+   * from it, and an e-invoicing builder writes the consecutive, from these two columns. Null where
+   * the number was not drawn from a range — a stamp, the authority's own counter, no fiscal number.
+   */
+  @Column({ name: 'fiscal_sequence', type: 'bigint', nullable: true, transformer: numericTransformer })
+  fiscalSequence?: number | null;
+
+  @Column({ name: 'fiscal_series', type: 'varchar', length: 16, nullable: true })
+  fiscalSeries?: string | null;
 
   /**
    * One customer column, with a foreign key.

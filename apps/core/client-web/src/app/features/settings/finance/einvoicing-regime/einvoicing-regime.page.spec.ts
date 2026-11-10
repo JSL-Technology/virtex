@@ -1,13 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { EinvoicingRegimePage } from './einvoicing-regime.page';
 import {
   FiscalRange,
   FiscalRegimeSettings,
   MarketCoverage,
 } from '../../../../core/api/fiscal-settings.service';
+import { FiscalRangesCardComponent } from '../../fiscal/shared';
+import { By } from '@angular/platform-browser';
 import { environment } from '../../../../../environments/environment';
 
 /**
@@ -19,7 +20,8 @@ import { environment } from '../../../../../environments/environment';
  * nowhere for the tenant to go.
  *
  * What the tests below pin is the part that would fail quietly: which fields a market is asked
- * for, and that the CAF never comes back out of the API.
+ * for, and which kind of material its ranges carry. The ranges themselves are the shared card's
+ * (`fiscal-ranges-card.component.spec.ts`), the same in every market.
  */
 describe('EinvoicingRegimePage', () => {
   let fixture: ComponentFixture<EinvoicingRegimePage>;
@@ -51,6 +53,8 @@ describe('EinvoicingRegimePage', () => {
     authorizationCode: 'CAF-2026-33',
     hasSecret: true,
     secretKind: 'CAF_XML',
+    runningLow: false,
+    expired: false,
     ...overrides,
   });
 
@@ -76,7 +80,6 @@ describe('EinvoicingRegimePage', () => {
     httpMock.expectOne((r) => r.url === `${localization}/fiscal-coverage`).flush(coverageFor(countryCode));
     httpMock.expectOne((r) => r.url === `${regime}/settings` && r.method === 'GET').flush(settings);
     httpMock.expectOne((r) => r.url === `${regime}/transmission` && r.method === 'GET').flush(transmission);
-    httpMock.expectOne((r) => r.url === `${regime}/ranges` && r.method === 'GET').flush(ranges);
     httpMock.expectOne((r) => r.url === `${localization}/fiscal-document-types`).flush(documentTypes);
     // A market with one kind of document and no certificate on this screen's tests: the shared
     // cards (emission mode, certificate) have nothing further to ask for.
@@ -95,7 +98,15 @@ describe('EinvoicingRegimePage', () => {
       today: '2026-10-11',
     });
     fixture.detectChanges();
+    // A market with a regime shows the ranges card, which reads the ranges itself.
+    if (component.hasRegime()) {
+      httpMock.expectOne((r) => r.url === `${regime}/ranges` && r.method === 'GET').flush(ranges);
+      fixture.detectChanges();
+    }
   };
+
+  const card = (): FiscalRangesCardComponent =>
+    fixture.debugElement.query(By.directive(FiscalRangesCardComponent)).componentInstance as FiscalRangesCardComponent;
 
   const documentTypes = [
     { code: '33', labelKey: 'fiscal.cl.33', name: 'Factura Electrónica', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false },
@@ -152,63 +163,18 @@ describe('EinvoicingRegimePage', () => {
     saved.flush({ environment: 'PRODUCTION' });
   });
 
-  it('derives the secret kind from the market, so nobody has to know it is called CAF_XML', () => {
-    flush('CL');
-
-    component.rangeForm.patchValue({
-      documentType: '33',
-      startsAt: 1,
-      endsAt: 100,
-      secret: '<AUTORIZACION><CAF/></AUTORIZACION>',
-    });
-    component.registerRange();
-
-    const created = httpMock.expectOne((r) => r.url === `${regime}/ranges` && r.method === 'POST');
-    expect(created.request.body.secretKind).toBe('CAF_XML');
-    created.flush(range());
-
-    httpMock.expectOne((r) => r.url === `${regime}/ranges` && r.method === 'GET').flush([range()]);
-    // A new range can make a type issuable: what the company can issue is read again.
-    httpMock.expectOne((r) => r.url === `${environment.apiUrl}/invoices/context`);
-  });
-
-  it('refuses a range whose upper bound is below its lower one', () => {
-    flush('CL');
-
-    component.rangeForm.patchValue({ documentType: '33', startsAt: 100, endsAt: 1 });
-    component.registerRange();
-
-    httpMock.expectNone((r) => r.method === 'POST');
-  });
-
-  it('shows only whether the range carries authority material, never the material', () => {
+  it("hands the ranges card the material its market's ranges carry, and the market's types", () => {
     flush('CL', null, [range()]);
 
-    const text = fixture.nativeElement.textContent as string;
-    // A CAF read back through an API lets whoever reads it stamp documents in the taxpayer's name.
-    expect(text).toContain('settings.pages.einvoicing.has_secret');
-    expect(text).not.toContain('AUT-0001');
-    expect(component.ranges()[0].hasSecret).toBe(true);
+    // A tenant should not have to know that their CAF is called `CAF_XML` in this product.
+    expect(card().secretKind()).toBe('CAF_XML');
+    expect(card().documentTypes().map((type) => type.code)).toEqual(['33', '61']);
+    expect(card().ranges()).toHaveLength(1);
   });
 
-  it('warns before a range runs out, because a new one takes days to obtain', () => {
-    flush('CL', null, [range({ remaining: 12 })]);
-    expect(component.runningOut(component.ranges()[0])).toBe(true);
-    expect(fixture.nativeElement.textContent).toContain('settings.pages.einvoicing.running_out');
-  });
-
-  it('flags an expired authorisation however many numbers remain', () => {
-    flush('CL', null, [range({ validUntil: '2020-01-31', remaining: 900 })]);
-
-    // Numbers left is not the same as usable: the SII refuses a folio drawn from an expired CAF.
-    expect(component.expired(component.ranges()[0])).toBe(true);
-    expect(component.runningOut(component.ranges()[0])).toBe(false);
-  });
-
-  it('keeps a retired range in the list, because past documents were issued under it', () => {
-    flush('CL', null, [range({ isActive: false })]);
-    expect(component.ranges()).toHaveLength(1);
-    expect(fixture.nativeElement.textContent).toContain('settings.pages.einvoicing.retired');
+  it('asks for no authority material where the market issues none with its ranges', () => {
+    flush('EC');
+    expect(card().secretKind()).toBeNull();
   });
 
   it('renders stored nulls as empty fields rather than the string "null"', () => {

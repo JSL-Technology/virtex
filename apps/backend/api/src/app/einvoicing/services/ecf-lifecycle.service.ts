@@ -1,6 +1,6 @@
 import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import {
   EcfLifecycleMessage,
   EcfMessageKind,
@@ -9,11 +9,9 @@ import {
 import { EcfStatus } from '../entities/ecf-submission.entity';
 import { DGII_CERTIFICATE_REGIME, EcfCertificate } from '../entities/ecf-certificate.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
-import {
-  NcfSequence,
-  isElectronicNcfType,
-  dgiiDocumentCode,
-} from '../../compliance/entities/ncf-sequence.entity';
+import { isElectronicDocumentType, knownMarket } from '../../markets';
+import { certificatePolicyFor } from '../contracts/certificate-policy';
+import { FiscalRangeService } from './fiscal-range.service';
 import { CertificateVaultService } from './certificate-vault.service';
 import { EcfSignerService } from './ecf-signer.service';
 import {
@@ -73,13 +71,14 @@ export class EcfLifecycleService {
     private readonly certRepo: Repository<EcfCertificate>,
     @InjectRepository(Organization)
     private readonly orgRepo: Repository<Organization>,
-    @InjectRepository(NcfSequence)
-    private readonly sequenceRepo: Repository<NcfSequence>,
     private readonly vault: CertificateVaultService,
     private readonly signer: EcfSignerService,
     private readonly builder: EcfLifecycleXmlBuilder,
     private readonly auth: DgiiAuthService,
     private readonly transport: DgiiTransportService,
+    /** The tenant's authorised ranges, the DGII's among every market's. */
+    private readonly ranges: FiscalRangeService,
+    private readonly dataSource: DataSource,
   ) {}
 
   // ── Aprobación comercial ───────────────────────────────────────────────────
@@ -170,95 +169,117 @@ export class EcfLifecycleService {
    * Declare a stretch of an authorized range as annulled, and close it locally so the numbers
    * cannot be issued afterwards.
    *
-   * Voiding at the DGII while the local sequence keeps handing the numbers out would produce
-   * comprobantes the DGII has already been told do not exist — worse than not voiding at all. The
-   * local range is therefore advanced in the same call, and only for a stretch that starts at the
-   * sequence's current position: a hole in the middle of an authorized range cannot be expressed by
-   * a single cursor, and pretending otherwise would silently skip numbers.
+   * Voiding at the authority while the range keeps handing the numbers out would produce documents
+   * the authority has already been told do not exist — worse than not voiding at all. So the range
+   * is locked for the whole exchange, the stretch must start at its next unissued number (a hole in
+   * the middle cannot be expressed by a single cursor), and the numbers are closed in the same
+   * transaction once the authority has taken the message. Nothing can be drawn from the range while
+   * it is asked, which a rare, deliberate act can afford and a duplicated or undeclared number cannot.
+   *
+   * The stretch used to be checked against the number LAST issued as if it were the next one: the
+   * authority was told an issued number did not exist, and the cursor then skipped one number nobody
+   * declared. Both are what `FiscalRangeService.assertClosableStretch` and `closeThrough` now rule out.
    */
   async voidRange(
     organizationId: string,
     request: SequenceVoidRequest,
   ): Promise<EcfLifecycleMessage> {
-    if (!isElectronicNcfType(request.type)) {
-      throw new BadRequestError('einvoicing.do.type_not_electronic_type_voiding_ranges', { type: request.type });
-    }
-    if (request.to < request.from) {
-      throw new BadRequestError('einvoicing.do.end_range_cannot_lower_than_start');
-    }
-
-    const sequence = await this.sequenceRepo.findOne({
-      where: { organizationId, type: request.type, isActive: true },
-    });
-    if (!sequence) {
-      throw new NotFoundError('einvoicing.do.no_active_type_sequence_organization', { type: request.type });
-    }
-
-    const current = Number(sequence.currentSequence);
-    const endsAt = Number(sequence.endsAt);
-    if (request.from < current) {
-      throw new BadRequestError('einvoicing.do.void_range_already_issued', { current });
-    }
-    if (request.from > current) {
-      throw new BadRequestError('einvoicing.do.void_range_must_start_at_next', { current });
-    }
-    if (request.to > endsAt) {
-      throw new BadRequestError('einvoicing.do.authorized_range_ends_ends_you_cannot', { endsAt });
-    }
-
+    const type = request.type.trim().toUpperCase();
     const org = await this.requireIssuer(organizationId);
-    const code = dgiiDocumentCode(request.type);
-    const range: VoidedSequenceRange = {
-      tipoECF: code,
-      desde: eNcfOf(request.type, request.from),
-      hasta: eNcfOf(request.type, request.to),
-    };
+    const countryCode = (org.country ?? '').toUpperCase();
+    // Only an electronic type is declared void to the authority; a traditional range is simply retired.
+    if (!isElectronicDocumentType(countryCode, type)) {
+      throw new BadRequestError('einvoicing.do.type_not_electronic_type_voiding_ranges', { type });
+    }
 
-    const message = await this.messageRepo.save(
-      this.messageRepo.create({
-        organizationId,
-        kind: EcfMessageKind.SEQUENCE_VOID,
-        ecfType: request.type,
-        sequenceFrom: String(request.from),
-        sequenceTo: String(request.to),
-        status: EcfStatus.PENDING,
-        attempts: 0,
-      }),
-    );
+    return this.dataSource.transaction(async (manager) => {
+      const range = await this.ranges.lockActive(manager, { organizationId, countryCode, documentType: type, series: '' });
+      if (!range) {
+        throw new NotFoundError('einvoicing.do.no_active_type_sequence_organization', { type });
+      }
+      this.ranges.assertClosableStretch(range, request.from, request.to);
 
-    try {
-      const { loaded, taxId } = await this.credentials(organizationId, org);
-      const xml = this.builder.buildSequenceVoid({
-        rnc: taxId,
-        fechaHoraAnulacion: dgiiTimestamp(organizationTimeZone(org)),
-        ranges: [range],
+      // The authority already took this very stretch and its closure here did not commit (the
+      // connection dropped between the two): close it now, and do not declare it a second time.
+      const taken = await this.messageRepo.findOne({
+        where: {
+          organizationId,
+          kind: EcfMessageKind.SEQUENCE_VOID,
+          ecfType: type,
+          sequenceFrom: String(request.from),
+          sequenceTo: String(request.to),
+          status: In(TAKEN_BY_THE_AUTHORITY),
+        },
+        order: { createdAt: 'DESC' },
       });
+      if (taken) {
+        await this.ranges.closeThrough(manager, range, request.to);
+        return taken;
+      }
 
-      const signedXml = this.signer.sign(xml, loaded, 'ANECF');
-      message.signedXml = signedXml;
-      message.status = EcfStatus.SIGNED;
-      message.attempts += 1;
-      await this.messageRepo.save(message);
+      const stretch: VoidedSequenceRange = {
+        tipoECF: type.substring(1),
+        desde: this.fiscalNumberOf(countryCode, type, request.from),
+        hasta: this.fiscalNumberOf(countryCode, type, request.to),
+      };
 
-      const token = await this.auth.getToken(organizationId, loaded);
-      const result = await this.transport.voidSequenceRange(organizationId, token, signedXml);
-      const recorded = await this.recordResult(message, result);
+      // Saved outside the transaction, so the attempt is on record whatever happens to it.
+      const message = await this.messageRepo.save(
+        this.messageRepo.create({
+          organizationId,
+          kind: EcfMessageKind.SEQUENCE_VOID,
+          ecfType: type,
+          sequenceFrom: String(request.from),
+          sequenceTo: String(request.to),
+          status: EcfStatus.PENDING,
+          attempts: 0,
+        }),
+      );
 
-      // Only close the numbers once the DGII has taken the message. Advancing first would strand
-      // the range if the transmission failed — the numbers unusable locally and still live at DGII.
+      let recorded: EcfLifecycleMessage;
+      try {
+        const { loaded, taxId } = await this.credentials(organizationId, org);
+        const xml = this.builder.buildSequenceVoid({
+          rnc: taxId,
+          fechaHoraAnulacion: dgiiTimestamp(organizationTimeZone(org)),
+          ranges: [stretch],
+        });
+
+        const signedXml = this.signer.sign(xml, loaded, 'ANECF');
+        message.signedXml = signedXml;
+        message.status = EcfStatus.SIGNED;
+        message.attempts += 1;
+        await this.messageRepo.save(message);
+
+        const token = await this.auth.getToken(organizationId, loaded);
+        const result = await this.transport.voidSequenceRange(organizationId, token, signedXml);
+        recorded = await this.recordResult(message, result);
+      } catch (error) {
+        // Nothing reached the authority, or it could not be reached: the numbers stay as they were.
+        return this.recordFailure(message, error);
+      }
+
+      // Only close the numbers once the authority has taken the message. Closing first would strand
+      // them if the transmission failed — unusable here and still live there. And outside the `try`:
+      // a failure to close after the message was taken is not a failed annulment, so it must not be
+      // recorded as one. It surfaces as an error, the message keeps the answer it received, and
+      // asking again for the same stretch closes it without declaring it twice.
       if (!this.isRejected(recorded)) {
-        sequence.currentSequence = request.to + 1;
-        if (sequence.currentSequence > endsAt) sequence.isActive = false;
-        await this.sequenceRepo.save(sequence);
+        await this.ranges.closeThrough(manager, range, request.to);
         this.logger.log(
-          `Anulados ${request.to - request.from + 1} e-NCF de ${request.type} (${range.desde}–${range.hasta}).`,
+          `Anulados ${request.to - request.from + 1} e-NCF de ${type} (${stretch.desde}–${stretch.hasta}).`,
         );
       }
 
       return recorded;
-    } catch (error) {
-      return this.recordFailure(message, error);
-    }
+    });
+  }
+
+  /** The number as the market writes it (`E31` + ten digits), by the market's own mask. */
+  private fiscalNumberOf(countryCode: string, documentType: string, sequence: number): string {
+    const format = knownMarket(countryCode)?.documents.numbering.format;
+    const point = { establishment: null, emissionPoint: null };
+    return format ? format({ sequence, series: '', documentType }, point) : String(sequence);
   }
 
   // ── Consulta ───────────────────────────────────────────────────────────────
@@ -273,9 +294,17 @@ export class EcfLifecycleService {
 
   // ── Internals ──────────────────────────────────────────────────────────────
 
+  /**
+   * The company, as a taxpayer of the regime these messages belong to. A commercial approval and an
+   * annulment of sequences are messages of one regime: a company of another market has no such
+   * message to send, and is told so before anything is built in its name.
+   */
   private async requireIssuer(organizationId: string): Promise<Organization> {
     const org = await this.orgRepo.findOne({ where: { id: organizationId } });
     if (!org) throw new NotFoundError('einvoicing.do.organization_not_found');
+    if (certificatePolicyFor(org.country)?.regime !== DGII_CERTIFICATE_REGIME) {
+      throw new BadRequestError('einvoicing.do.message_belongs_to_dgii_regime');
+    }
     if (!org.taxId) {
       throw new BadRequestError('einvoicing.certificate.organization_has_no_tax_id', { label: 'RNC' });
     }
@@ -334,12 +363,10 @@ export class EcfLifecycleService {
   }
 }
 
+/** The states of a message the authority has taken: transmitted and not refused. */
+const TAKEN_BY_THE_AUTHORITY = [EcfStatus.SENT, EcfStatus.ACCEPTED, EcfStatus.ACCEPTED_WITH_OBSERVATIONS];
+
 /** The digits of a tax id, which is what the DGII expects in every RNC element. */
 function digitsOf(value: string): string {
   return (value ?? '').replace(/\D/g, '');
-}
-
-/** `E31` + 10 padded digits — the e-NCF shape the DGII expects in an annulment range. */
-function eNcfOf(type: string, sequence: number): string {
-  return `${type}${String(sequence).padStart(10, '0')}`;
 }

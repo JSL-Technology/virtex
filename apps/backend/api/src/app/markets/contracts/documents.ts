@@ -1,10 +1,23 @@
+import type { TaxpayerKindValue } from './identity';
+
 /**
- * The documents a market's authority defines for a sale, and what may be done with one once it is
- * issued.
+ * The documents a market's authority defines for a sale, how each is numbered, and what may be done
+ * with one once it is issued.
  */
 
 /** Which side of the ledger a document type belongs to. */
 export type FiscalDocumentSide = 'sales' | 'purchase' | 'either';
+
+/**
+ * What a document type is for.
+ *
+ * - `INVOICE` — a sale.
+ * - `CREDIT_NOTE` — reduces or reverses an issued document.
+ * - `DEBIT_NOTE` — adds a charge to an issued document.
+ * - `PURCHASE_RECORD` — issued by the company as the buyer: to an informal supplier, for minor
+ *   expenses, for a payment abroad. Accounts Payable's, never offered on a sale.
+ */
+export type DocumentPurpose = 'INVOICE' | 'CREDIT_NOTE' | 'DEBIT_NOTE' | 'PURCHASE_RECORD';
 
 /** One document type the market's authority publishes. */
 export interface FiscalDocumentTypeSpec {
@@ -23,15 +36,141 @@ export interface FiscalDocumentTypeSpec {
   /** True when the type is signed and transmitted to the authority. */
   isElectronic: boolean;
   side: FiscalDocumentSide;
-  /** True when the type credits a previously issued document. */
+  /**
+   * What the authority publishes the type for. An authority that uses one type for several
+   * purposes — the NF-e model 55 for a sale, a return and a charge; the CFDI de ingreso for a sale
+   * and a charge — declares its primary one, and the market's numbering resolves the type for the
+   * others (`MarketNumbering.typeOf`), in a market where the type follows from the document.
+   */
+  purpose: DocumentPurpose;
+  /** True when the type credits a previously issued document (`purpose === 'CREDIT_NOTE'`). */
   isCreditNote: boolean;
   /** True when the buyer's tax identifier is mandatory for the type. */
   requiresBuyerTaxId: boolean;
   sortOrder: number;
 }
 
-/** A document type as its market declares it: the market's code is implied. */
-export type MarketFiscalDocumentType = Omit<FiscalDocumentTypeSpec, 'countryCode'>;
+/**
+ * A document type as its market declares it: the market's code is implied, and whether it credits
+ * an issued document follows from its purpose.
+ */
+export type MarketFiscalDocumentType = Omit<FiscalDocumentTypeSpec, 'countryCode' | 'isCreditNote'>;
+
+/** Signed and transmitted to the authority, or numbered from an authorised range and printed. */
+export type EmissionKind = 'ELECTRONIC' | 'TRADITIONAL';
+
+/**
+ * Where the fiscal number of a document comes from.
+ *
+ * - `AUTHORITY_RANGE` — drawn from a range the authority granted the taxpayer: the DGII's NCF, the
+ *   DIAN's resolution, SUNAT's series, the SRI's emission point, the SII's CAF, the SEFAZ série.
+ * - `AUTHORITY_ON_TRANSMISSION` — the authority assigns it when the document is transmitted (AFIP's
+ *   next number for the point of sale). A stored counter would be a second source of truth.
+ * - `STAMP` — the document's fiscal identity is the stamp the authority writes (the CFDI's UUID);
+ *   there is no number to assign, only the type to record.
+ * - `NONE` — the product issues no fiscal number in the market: the commercial number is the
+ *   document's only one (a US invoice; a market whose authority documents are not implemented).
+ */
+export type FiscalNumberSource = 'AUTHORITY_RANGE' | 'AUTHORITY_ON_TRANSMISSION' | 'STAMP' | 'NONE';
+
+/**
+ * What a market's numbering is told about a document: a neutral view, no ORM entity, so the rule is
+ * a function of facts and is tested without a database.
+ */
+export interface DocumentToNumber {
+  purpose: Exclude<DocumentPurpose, 'PURCHASE_RECORD'>;
+  /** The kind the issuer chose, in a market that has both. */
+  emissionKind: EmissionKind | null;
+  buyer: {
+    /** As the document identifies the buyer. */
+    taxId: string | null;
+    /** The identity document recorded for the buyer (`RNC`, `RUC`, `CUIT`), when recorded. */
+    documentCode: string | null;
+    countryCode: string | null;
+    taxpayerKind: TaxpayerKindValue | null;
+    /** The buyer's market-specific fiscal data (a VAT condition), where it is recorded. */
+    fiscalAttributes: Readonly<Record<string, string>> | null;
+  };
+  /** The issuer's fiscal data the authority required at registration (`organizations.fiscal_profile`). */
+  issuerFiscalProfile: Readonly<Record<string, string>>;
+  /** Whether any line of the document charges the consumption tax. */
+  chargesTax: boolean;
+  /** The document a note modifies. */
+  original: { documentType: string | null; fiscalNumber: string | null } | null;
+}
+
+/**
+ * Where a document is issued from, for a market that numbers per establishment and emission point:
+ * the branch's own codes when it has them, the company's configured ones otherwise.
+ */
+export interface IssuingPoint {
+  establishment: string | null;
+  emissionPoint: string | null;
+}
+
+/**
+ * Which of the company's ranges of a type a document is drawn from, where it holds several at once:
+ * the one of the issuing point (`EXACT`), or one whose series begins as the market requires
+ * (`PREFIX`: a Peruvian note follows the letter of the document it modifies).
+ */
+export type SeriesSelector = { kind: 'EXACT'; series: string } | { kind: 'PREFIX'; prefix: string };
+
+/** A number drawn from an authorised range, before the market writes it. */
+export interface DrawnSequence {
+  sequence: number;
+  series: string;
+  documentType: string;
+}
+
+/**
+ * How a market numbers its fiscal documents — the one rule the numbering engine follows for every
+ * market, so no market is numbered by code written for another.
+ */
+export interface MarketNumbering {
+  source: FiscalNumberSource;
+  /** The emission kinds the market has, the default first. Empty where it has no fiscal documents. */
+  emissionKinds: readonly EmissionKind[];
+  /**
+   * What a requested type may do.
+   *
+   * - `CHOOSE` — the issuer may pick any type of the purpose the document qualifies for: a Dominican
+   *   export (E46) or government sale (E45), a Peruvian boleta to a buyer with a RUC.
+   * - `CONFIRM` — the type follows from the document, and a request must equal it: a Chilean 33 on
+   *   an exempt sale is a document the authority rejects, so the contradiction is named, not
+   *   resolved silently.
+   */
+  requestedType: 'CHOOSE' | 'CONFIRM';
+  /** The type a document is when none is requested; null where the market issues none for it. */
+  typeOf(document: DocumentToNumber): string | null;
+  /** The types picked automatically for a sale of each kind (DO: crédito fiscal or consumo). */
+  automaticTypes?: Readonly<Partial<Record<EmissionKind, readonly string[]>>>;
+  /**
+   * The market numbers per establishment and emission point, so a document cannot be numbered until
+   * the company has stated them (on the branch, or in its e-invoicing settings).
+   */
+  issuingPointRequired?: boolean;
+  /**
+   * The range a document is drawn from, where the series is not the company's free choice: the
+   * issuing point's own (the SRI's `EEE-PPP`), or the letter the document it modifies fixes.
+   * Absent, or undefined for a document: the company's active range of the type.
+   */
+  seriesOf?(point: IssuingPoint, document: DocumentToNumber): SeriesSelector | undefined;
+  /**
+   * Whether a range of this type may be registered under this series, where the authority ties one
+   * to the other: a Dominican NCF has none (the type is its prefix), SUNAT's F series is a
+   * factura's and its B series a boleta's, the SRI's is an establishment and an emission point.
+   * Checked when the range is registered, because a range registered wrong produces documents the
+   * authority refuses for every number drawn from it. Absent: any series the authority's act states.
+   */
+  acceptsSeries?(documentType: string, series: string): boolean;
+  /** How a number drawn from a range is written on the document. */
+  format?(drawn: DrawnSequence, point: IssuingPoint): string;
+  /**
+   * The type a till receipt is drawn as, in a market whose consumers receive the authority's receipt
+   * from the till (the Dominican consumo, B02). Absent: a till sale carries its commercial number.
+   */
+  tillReceiptType?: string;
+}
 
 /**
  * How an issued sales document is cancelled.
@@ -83,4 +222,5 @@ export interface MarketDocuments {
   debitNotes: boolean;
   /** The customer a sale names when it names nobody: «Consumidor final», «Público en general». */
   defaultCustomer: { nameKey: string };
+  numbering: MarketNumbering;
 }

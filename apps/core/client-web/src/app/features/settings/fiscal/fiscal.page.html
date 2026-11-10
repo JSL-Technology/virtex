@@ -1,107 +1,16 @@
 <div class="fiscal-page">
 
-  @if (!isDominican()) {
-    <!-- A tenant in another market has landed on the Dominican page: say so before the forms. -->
-    <div class="banner-info" role="status">
-      {{ 'settings.fiscal.screen_configures_dominican_regime_your_market' | translate }}
-    </div>
-  }
-
   <!-- ── 1. How the company issues, and what it can issue today ────────────────── -->
   <vx-emission-mode-card [context]="invoicing()" [readonly]="!canEdit()" (modeChange)="onModeChange($event)" (changed)="refreshInvoicingState()" />
 
-  <!-- ── 2. Authorised ranges (both series) ──────────────────────────────────────── -->
-  <section class="card" aria-labelledby="ranges-title">
-    <div class="card__head">
-      <h2 id="ranges-title" class="card__title">{{ 'settings.fiscal.do.authorized_ncf_ranges' | translate }}</h2>
-      <p class="card__subtitle">{{ 'settings.fiscal.do.ncf_ranges_description' | translate }}</p>
-    </div>
-    <div class="card__body">
-      <!-- Registering a range is `taxes:edit`; without it the ranges are read, not added to (CG-17). -->
-      @if (canEdit()) {
-      <form [formGroup]="sequenceForm" (ngSubmit)="provisionSequence()" class="range-form">
-        <div class="field field--wide">
-          <label for="range-type">{{ 'settings.fiscal.type' | translate }} *</label>
-          <select id="range-type" formControlName="type">
-            @for (group of visibleRangeTypeGroups(); track group.labelKey) {
-              <optgroup [label]="group.labelKey | translate">
-                @for (t of group.types; track t.value) {
-                  <option [value]="t.value">{{ t.labelKey | translate }}</option>
-                }
-              </optgroup>
-            }
-          </select>
-        </div>
-        <div class="field">
-          <label for="range-prefix">{{ 'settings.fiscal.prefix' | translate }} *</label>
-          <input id="range-prefix" type="text" formControlName="prefix" maxlength="3" />
-        </div>
-        <div class="field">
-          <label for="range-from">{{ 'settings.fiscal.from' | translate }} *</label>
-          <input id="range-from" type="number" formControlName="startsAt" min="1" inputmode="numeric" />
-        </div>
-        <div class="field">
-          <label for="range-to">{{ 'settings.fiscal.to' | translate }} *</label>
-          <input id="range-to" type="number" formControlName="endsAt" min="1" inputmode="numeric" />
-        </div>
-        <div class="field">
-          <label for="range-expires-at">{{ 'settings.fiscal.expires_on' | translate }} *</label>
-          <vx-date-field inputId="range-expires-at" formControlName="expiresAt" />
-        </div>
-        <div class="field">
-          <label for="range-authorization">{{ 'settings.fiscal.authorization_code' | translate }}</label>
-          <input id="range-authorization" type="text" formControlName="authorizationCode" maxlength="64" />
-        </div>
-        <div class="range-form__actions">
-          <button type="submit" class="primary-button" [disabled]="provisioning()">
-            {{ provisioning() ? ('settings.fiscal.registering' | translate) : ('settings.fiscal.register_range' | translate) }}
-          </button>
-        </div>
-      </form>
-      }
-
-      @if (sequences().length) {
-        <div class="table-scroll">
-          <table [appSort]="sequencesTable.sort" class="data-table">
-            <thead>
-              <tr>
-                <th appSortHeader="type">{{ 'settings.fiscal.type' | translate }}</th>
-                <th appSortHeader="startsAt" class="num">{{ 'settings.fiscal.from' | translate }}</th>
-                <th appSortHeader="endsAt" class="num">{{ 'settings.fiscal.to' | translate }}</th>
-                <th appSortHeader="currentSequence" class="num">{{ 'settings.fiscal.current' | translate }}</th>
-                <th appSortHeader="remaining" class="num">{{ 'settings.fiscal.remaining' | translate }}</th>
-                <th appSortHeader="expiresAt" class="nowrap">{{ 'settings.fiscal.expires_on' | translate }}</th>
-                <th appSortHeader="isActive">{{ 'settings.fiscal.status' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (s of sequencesTable.rows(); track s.id) {
-                <tr>
-                  <td>{{ ncfTypeLabel(s.type) | translate }}</td>
-                  <td class="num">{{ s.startsAt | vxNumber: '1.0-0' }}</td>
-                  <td class="num">{{ s.endsAt | vxNumber: '1.0-0' }}</td>
-                  <td class="num">{{ s.currentSequence | vxNumber: '1.0-0' }}</td>
-                  <td class="num">{{ remaining(s) | vxNumber: '1.0-0' }}</td>
-                  <td class="nowrap">{{ s.expiresAt ? (s.expiresAt | vxDate: 'date') : '—' }}</td>
-                  <td>
-                    @if (rangeWarningKey(s); as warning) {
-                      <vx-badge tone="warning">{{ warning | translate }}</vx-badge>
-                    } @else {
-                      <vx-badge [tone]="s.isActive ? 'ok' : 'neutral'">
-                        {{ (s.isActive ? 'common.status_active' : 'common.status_inactive') | translate }}
-                      </vx-badge>
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      } @else {
-        <p class="empty">{{ 'settings.fiscal.do.no_ncf_ranges_yet' | translate }}</p>
-      }
-    </div>
-  </section>
+  <!-- ── 2. Authorised ranges: the same card, and the same rules, in every market ─────── -->
+  <vx-fiscal-ranges-card
+    [documentTypes]="documentTypes()"
+    [emissionMode]="emissionMode()"
+    [emissionModeApplies]="invoicing()?.emissionModeApplies === true"
+    [readonly]="!canEdit()"
+    (changed)="refreshInvoicingState()"
+  />
 
   <!-- ── 3. Signing certificate (electronic only) ───────────────────────────────── -->
   <vx-signing-certificate-card [context]="invoicing()" [readonly]="!canEdit()" (changed)="refreshInvoicingState()" />

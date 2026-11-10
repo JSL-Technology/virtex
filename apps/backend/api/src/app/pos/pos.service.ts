@@ -7,7 +7,8 @@ import { PosShift, PosShiftStatus } from './entities/pos-shift.entity';
 import { PosPayment, PosSale, PosSaleItem, PosSaleStatus } from './entities/pos-sale.entity';
 import { InventoryService } from '../inventory/inventory.service';
 import { PosPostingService } from './pos-posting.service';
-import { ComplianceService } from '../compliance/compliance.service';
+import { FiscalAdapterFactory } from '../invoices/adapters/fiscal-adapter.factory';
+import type { FiscalNumberAssignment } from '../invoices/interfaces/fiscal-adapter.interface';
 import { PriceResolver, pickBreak } from '../price-lists/price-resolver.service';
 import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 import {
@@ -123,7 +124,8 @@ export class PosService {
     private readonly inventory: InventoryService,
     private readonly dataSource: DataSource,
     private readonly postingService: PosPostingService,
-    private readonly compliance: ComplianceService,
+    /** The market's numbering: the receipt a till hands consumers, where the market has one. */
+    private readonly numbering: FiscalAdapterFactory,
     /** The organization's default price list for its currency (FAC-PL-01). */
     private readonly prices: PriceResolver,
   ) {}
@@ -343,12 +345,14 @@ export class PosService {
         costOfSale: roundAmount(costOfSale),
       });
 
-      // The comprobante fiscal of a consumer sale. In the Dominican Republic a till ticket is a
-      // factura de consumo (B02) drawn from the company's authorised range; without one in force
-      // the ticket is not a fiscal document, as before, and says so.
-      const fiscal = await this.drawConsumerReceipt(manager, organizationId);
-      sale.fiscalNumber = fiscal?.ncf ?? null;
-      sale.fiscalDocumentType = fiscal?.type ?? null;
+      // The authority's receipt for a consumer sale, in a market whose consumers receive one from
+      // the till, drawn from the company's authorised range; without one in force the ticket is not
+      // a fiscal document, and says so.
+      const fiscal = await this.drawTillReceipt(manager, organizationId);
+      sale.fiscalNumber = fiscal?.fiscalNumber ?? null;
+      sale.fiscalDocumentType = fiscal?.documentType ?? null;
+      sale.fiscalSequence = fiscal?.sequence ?? null;
+      sale.fiscalSeries = fiscal?.series ?? null;
 
       // Posted in this transaction, so a sale exists in the books exactly when it exists on the
       // shelf and in the drawer.
@@ -393,20 +397,15 @@ export class PosService {
   }
 
   /**
-   * A consumer receipt number (B02) for a Dominican company that has a traditional range in force;
-   * null for any other market or when no range is registered.
+   * The receipt the market's authority requires a till to hand a consumer (`MarketNumbering.
+   * tillReceiptType`), drawn from the company's range for it; null in a market without one, when no
+   * range is in force, or when the company has no tax identifier for the receipt to name (QA R3-A11).
    */
-  private async drawConsumerReceipt(
-    manager: EntityManager,
-    organizationId: string,
-  ): Promise<{ ncf: string; type: string } | null> {
+  private async drawTillReceipt(manager: EntityManager, organizationId: string): Promise<FiscalNumberAssignment | null> {
     const organization = await organizationFiscalIdentity(manager, organizationId);
-    if (organization?.country !== 'DO') return null;
-    // A comprobante names its issuer; without the company's RNC it would be invalid (QA R3-A11).
-    if (!organization.taxId?.trim()) return null;
-    if (!(await this.compliance.findActiveSequence(organizationId, 'B02'))) return null;
-    const assigned = await this.compliance.getNextNcf(organizationId, 'B02', manager);
-    return { ncf: assigned.ncf, type: assigned.type };
+    const adapter = this.numbering.forCountry(organization?.country ?? null);
+    if (!adapter.assignTillReceiptNumber || !organization?.taxId?.trim()) return null;
+    return adapter.assignTillReceiptNumber({ organizationId, today: await organizationToday(manager, organizationId), manager });
   }
 
   /** The till's catalogue, priced and taxed as the server will charge it. */

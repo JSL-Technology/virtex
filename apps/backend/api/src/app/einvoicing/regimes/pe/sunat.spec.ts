@@ -47,6 +47,10 @@ describe('SUNAT — comprobante de pago electrónico', () => {
     total: 1_180,
     discountTotal: 0,
     type: InvoiceType.INVOICE,
+    // What the market's numbering recorded at issuance (markets/<cc>/documents.ts).
+    fiscalDocumentType: '01',
+    fiscalSequence: 123,
+    fiscalSeries: 'F001',
     lineItems: [
       {
         description: 'Consultoría',
@@ -77,13 +81,16 @@ describe('SUNAT — comprobante de pago electrónico', () => {
     expect(documentName).toBe('20123456789-01-F001-00000123');
   });
 
-  it('derives the document type from the series rather than beside it', () => {
+  it('writes the type the document was numbered as, and refuses a series that contradicts it', () => {
     // An `F` series is a factura and a `B` series a boleta. SUNAT rejects the submission before
-    // reading the document when the two disagree.
+    // reading the document when the two disagree, so a contradiction is refused by name.
     expect(builder.build(input({ series: 'F001' })).documentName).toContain('-01-');
-    expect(builder.build(input({ series: 'B001' })).documentName).toContain('-03-');
+    expect(builder.build(input({ series: 'B001', invoice: { ...invoice, fiscalDocumentType: '03' } as Invoice })).documentName).toContain('-03-');
+    expect(() => builder.build(input({ series: 'B001' }))).toThrow(
+      expect.objectContaining({ messageKey: 'einvoicing.pe.series_contradicts_document_type' }),
+    );
     expect(
-      builder.build(input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE } as Invoice }))
+      builder.build(input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '07' } as Invoice }))
         .documentName,
     ).toContain('-07-');
   });
@@ -135,7 +142,7 @@ describe('SUNAT — comprobante de pago electrónico', () => {
 
   it('issues a credit note with the credit-note element names', () => {
     const { xml } = builder.build(
-      input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE } as Invoice }),
+      input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '07' } as Invoice }),
     );
 
     expect(xml).toContain('<CreditNote');

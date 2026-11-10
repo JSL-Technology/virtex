@@ -9,7 +9,9 @@ import { allMarkets, knownMarket, marketFor, normalizeMarketCode } from '../regi
 /** Every document type every market declares, as `fiscal_document_type_definitions` is seeded. */
 export const FISCAL_DOCUMENT_TYPES: readonly FiscalDocumentTypeSpec[] = Object.freeze(
   allMarkets().flatMap((market) =>
-    market.documents.types.map((type): FiscalDocumentTypeSpec => ({ countryCode: market.code, ...type })),
+    market.documents.types.map(
+      (type): FiscalDocumentTypeSpec => ({ countryCode: market.code, ...type, isCreditNote: type.purpose === 'CREDIT_NOTE' }),
+    ),
   ),
 );
 

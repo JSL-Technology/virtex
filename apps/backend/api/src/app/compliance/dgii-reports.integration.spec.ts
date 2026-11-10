@@ -1,6 +1,5 @@
 import { DataSource } from 'typeorm';
 import { ComplianceService } from './compliance.service';
-import { NcfSequence } from './entities/ncf-sequence.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { createTestOrganization, describeWithDb, dropTestOrganization, openTestDataSource } from '../common/database/testing/integration-db';
 
@@ -71,10 +70,8 @@ describeWithDb('DGII 607 / 608 against the real schema', () => {
     );
 
     service = new ComplianceService(
-      ds.getRepository(NcfSequence),
       ds.getRepository(Invoice),
       ds.getRepository('Organization'),
-      ds.getRepository('FiscalDocumentTypeDefinition'),
       ds,
       {} as never,
       {} as never, // PurchaseFiscalRecordsRegistry: the 606/609 are not run here

@@ -14,8 +14,9 @@ import type { FiscalDocumentSide } from '../../markets';
  * adding Peru's `01`/`03` or Chile's `33`/`34` meant `ALTER TYPE … ADD VALUE`, a migration and a
  * deploy, in a type that can never lose a value again.
  *
- * The shape was right. It is now populated, referenced by `ncf_sequences.type` and
- * `ecf_lifecycle_messages.ecf_type`, and the enum is gone from the schema.
+ * The shape was right. It is now populated — projected at boot from every market's catalogue
+ * (`markets/<cc>/documents.ts`) — and the codes it holds are the ones `fiscal_document_ranges` and
+ * `ecf_lifecycle_messages` record; the enum is gone from the schema.
  *
  * ## Why the added columns
  *

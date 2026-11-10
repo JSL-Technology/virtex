@@ -1,15 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
-import { NcfSequence } from './entities/ncf-sequence.entity';
-import { FiscalDocumentTypeDefinition } from '../localization/entities/fiscal-document-type-definition.entity';
-import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
+import { Repository } from 'typeorm';
+import { organizationTimeZone } from '../shared/fiscal-clock';
 import { PurchaseFiscalRecordsRegistry } from '../contracts/fiscal-records/purchase-fiscal-records.registry';
 import { monthBounds } from '../common/dates';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { CollectedWithholding, DominicanRepublicReports, TillFiscalSale } from './reports/dr-reports';
-import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { DataSource } from 'typeorm';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import {
@@ -17,50 +15,14 @@ import {
   MexicanElectronicAccounting,
   PolizasRequestType,
 } from './reports/mx-electronic-accounting';
-import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
-
-/** A fiscal number, together with the authorization window it was drawn from. */
-export interface AssignedFiscalNumber {
-  ncf: string;
-  type: string;
-  /** `YYYY-MM-DD` expiry of the DGII authorization, or null for a range that carries none. */
-  expiresAt: string | null;
-}
-
-/** How close a range is to running out, for the alerting the tenant needs before it does. */
-export interface NcfSequenceStatus {
-  id: string;
-  type: string;
-  prefix: string;
-  startsAt: number;
-  endsAt: number;
-  currentSequence: number;
-  remaining: number;
-  isActive: boolean;
-  expiresAt: string | null;
-  authorizationCode: string | null;
-  /** True when fewer than 10 % of the range, or fewer than 50 numbers, remain. */
-  runningLow: boolean;
-  expired: boolean;
-}
 
 @Injectable()
 export class ComplianceService {
-  private readonly logger = new Logger(ComplianceService.name);
-
-  /** Below this many remaining numbers a range is flagged, whatever its size. */
-  private static readonly LOW_WATERMARK_ABSOLUTE = 50;
-  private static readonly LOW_WATERMARK_FRACTION = 0.1;
-
   constructor(
-    @InjectRepository(NcfSequence)
-    private readonly ncfSequenceRepository: Repository<NcfSequence>,
     @InjectRepository(Invoice)
     private readonly invoiceRepository: Repository<Invoice>,
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
-    @InjectRepository(FiscalDocumentTypeDefinition)
-    private readonly fiscalDocumentTypeRepository: Repository<FiscalDocumentTypeDefinition>,
     private readonly dataSource: DataSource,
     /** The ledger's own figures, so the Mexican filings and the statements cannot disagree. */
     private readonly balances: AccountBalancesService,
@@ -101,263 +63,6 @@ export class ComplianceService {
     options: { tipoSolicitud?: PolizasRequestType; numOrden?: string; numTramite?: string } = {},
   ): Promise<string> {
     return this.mexicanAccounting().polizas(period, options);
-  }
-
-  /**
-   * Draw the next fiscal number of a type, under a row lock, and report the authorization window
-   * it belongs to.
-   *
-   * The lock matters: two concurrent sales of the same type must not receive the same number, and
-   * `SELECT … FOR UPDATE` on the sequence row is what serialises them. The returned expiry is
-   * stamped on the document because `FechaVencimientoSecuencia` is a mandatory element of the e-CF
-   * and must reflect the authorization in force when the number was issued, not whatever the range
-   * says later.
-   */
-  async getNextNcf(
-    organizationId: string,
-    type: string,
-    manager: EntityManager,
-  ): Promise<AssignedFiscalNumber> {
-    const sequence = await manager
-      .getRepository(NcfSequence)
-      .createQueryBuilder('seq')
-      .where(
-        'seq.organizationId = :organizationId AND seq.type = :type AND seq.isActive = true',
-        { organizationId, type },
-      )
-      .orderBy('seq.startsAt', 'ASC')
-      .setLock('pessimistic_write')
-      .getOne();
-
-    if (!sequence) {
-      // Localized, like every other refusal in this file: these three were written as Spanish
-      // template literals on `BadRequestException`, so an English or Portuguese tenant met a
-      // Spanish sentence at the one moment the product is telling them what to go and fix. The
-      // wording is unchanged — it moved into the catalogue, where the other two languages have it.
-      throw new BadRequestError('compliance.no_active_ncf_sequence_type_type', { type });
-    }
-
-    // `starts_at`, `ends_at` and `current_sequence` are `bigint`, which the driver returns as
-    // strings. Comparing them as strings was silently wrong — `"9" >= "10"` is true
-    // lexicographically — so a live range could be declared exhausted long before it was.
-    const current = Number(sequence.currentSequence);
-    const end = Number(sequence.endsAt);
-    if (!Number.isFinite(current) || !Number.isFinite(end)) {
-      throw new InternalServerError('compliance.ncf_sequence_type_type_has_non', { type });
-    }
-
-    if (current >= end) {
-      throw new BadRequestError('compliance.ncf_sequence_type_type_exhausted_range', {
-        type,
-        startsAt: sequence.startsAt,
-        endsAt: sequence.endsAt,
-      });
-    }
-
-    if (sequence.expiresAt) {
-      const today = await organizationToday(manager, organizationId);
-      if (sequence.expiresAt < today) {
-        throw new BadRequestError('compliance.authorisation_ncf_sequence_type_type_expired', {
-          type,
-          expiresAt: sequence.expiresAt,
-        });
-      }
-    }
-
-    const next = current + 1;
-    sequence.currentSequence = next;
-    await manager.save(sequence);
-
-    // Legacy NCF (B-series) use an 8-digit sequence (`B01` + 8 = 11 chars); electronic NCF
-    // (e-CF, E-series) use a 10-digit sequence (`E31` + 10 = 13 chars). The width follows the prefix.
-    const width = sequence.prefix.toUpperCase().startsWith('E') ? 10 : 8;
-    const sequenceNumber = next.toString().padStart(width, '0');
-
-    return {
-      ncf: `${sequence.prefix}${sequenceNumber}`,
-      type,
-      expiresAt: sequence.expiresAt ?? null,
-    };
-  }
-
-  /**
-   * Register a DGII-authorized NCF/e-NCF range.
-   *
-   * ## The defect this closes
-   *
-   * Provisioning used to deactivate the previous range of the same type and start the new counter at
-   * `startsAt - 1`, with no check that the new range overlapped numbers already issued. Re-entering
-   * the same range — a user re-submitting the form, or re-registering after a failed attempt —
-   * therefore reset the counter and handed out fiscal numbers that were already printed on
-   * customers' invoices. Reproduced, it returned `E310000000001` immediately after having issued
-   * `E310000000002`. Duplicating a comprobante fiscal is a tax offence, so this now:
-   *
-   *   - rejects a range that overlaps ANY previously registered range of the same type, active or
-   *     not, because a deactivated range's numbers were still issued;
-   *   - rejects a range whose numbers already appear on an issued document;
-   *   - keeps the unique index `UQ_invoices_org_ncf` as the last line of defence.
-   */
-  async provisionNcfSequence(
-    organizationId: string,
-    input: {
-      type: string;
-      prefix: string;
-      startsAt: number;
-      endsAt: number;
-      expiresAt?: string | null;
-      authorizationCode?: string | null;
-    },
-  ): Promise<NcfSequence> {
-    const { type, prefix, startsAt, endsAt } = input;
-
-    if (!Number.isInteger(startsAt) || !Number.isInteger(endsAt) || startsAt < 1 || endsAt < startsAt) {
-      throw new BadRequestError('compliance.ncf_sequence_range_invalid_ending_number');
-    }
-    if (prefix.toUpperCase() !== type) {
-      throw new BadRequestError('compliance.prefix_prefix_does_not_match_document', { prefix, type });
-    }
-
-    // The requested code must be one the tenant's OWN authority publishes. This is the check that
-    // replaced `@IsEnum(NcfType)` at the HTTP boundary (C-03): the border no longer refuses a
-    // Chilean `33` or a Peruvian `01` for not being a Dominican comprobante, and the meaning is
-    // verified here against `fiscal_document_type_definitions` for the tenant's region — where every
-    // market's codes live once seeded, rather than in an enum only the Dominican Republic fits.
-    const organization = await this.requireOrganization(organizationId);
-    if (organization.fiscalRegionId) {
-      const known = await this.fiscalDocumentTypeRepository.findOne({
-        where: { fiscalRegionId: organization.fiscalRegionId, code: type },
-      });
-      if (!known) {
-        throw new BadRequestError('compliance.document_type_type_not_authorised_region', { type });
-      }
-      // The authority dates every range of this type; a range registered without its end date
-      // would never stop being used, and documents numbered after it lapses are rejected.
-      if (known.expirationRequired && !input.expiresAt) {
-        throw new BadRequestError('compliance.range_expiry_date_required', { type });
-      }
-    }
-    if (input.expiresAt) {
-      // Compared with the tenant's own today: at 21:00 in Santo Domingo the UTC date is already
-      // tomorrow, which refused a range that expires today.
-      if (input.expiresAt < fiscalDate(organizationTimeZone(organization))) {
-        throw new BadRequestError('compliance.authorization_expiry_date_has_passed_range');
-      }
-    }
-
-    return this.ncfSequenceRepository.manager.transaction(async (manager) => {
-      const repo = manager.getRepository(NcfSequence);
-
-      // Overlap against every range ever registered for this type, active or not.
-      const overlapping = await repo
-        .createQueryBuilder('seq')
-        .where('seq.organizationId = :organizationId', { organizationId })
-        .andWhere('seq.type = :type', { type })
-        .andWhere('seq.startsAt <= :endsAt', { endsAt })
-        .andWhere('seq.endsAt >= :startsAt', { startsAt })
-        .setLock('pessimistic_write')
-        .getMany();
-
-      if (overlapping.length > 0) {
-        const ranges = overlapping.map((s) => `${s.startsAt}–${s.endsAt}`).join(', ');
-        throw new ConflictError('compliance.ncf_range_overlaps', { startsAt, endsAt, type, ranges });
-      }
-
-      // Belt and braces: a number inside the new range that is already on a document means the
-      // range was issued under some earlier state this table no longer reflects.
-      const width = prefix.toUpperCase().startsWith('E') ? 10 : 8;
-      const first = `${prefix}${String(startsAt).padStart(width, '0')}`;
-      const last = `${prefix}${String(endsAt).padStart(width, '0')}`;
-      const alreadyIssued = await manager
-        .getRepository(Invoice)
-        .createQueryBuilder('invoice')
-        .where('invoice.organizationId = :organizationId', { organizationId })
-        .andWhere('invoice.fiscalNumber BETWEEN :first AND :last', { first, last })
-        .getCount();
-      if (alreadyIssued > 0) {
-        throw new ConflictError('compliance.already_issued_document_have_already_issued', { alreadyIssued, first, last });
-      }
-
-      // Only one range of a type may be active; the unique index enforces it, this makes the
-      // transition explicit and ordered.
-      await repo.update({ organizationId, type, isActive: true }, { isActive: false });
-
-      const sequence = repo.create({
-        organizationId,
-        type,
-        prefix: prefix.toUpperCase(),
-        startsAt,
-        endsAt,
-        // The first getNextNcf returns `startsAt`.
-        currentSequence: startsAt - 1,
-        isActive: true,
-        expiresAt: input.expiresAt ?? null,
-        authorizationCode: input.authorizationCode ?? null,
-      });
-      const saved = await repo.save(sequence);
-      this.logger.log(
-        `Rango ${type} ${startsAt}–${endsAt} registrado para la organización ${organizationId}.`,
-      );
-      return saved;
-    });
-  }
-
-  /** Re-activate a range that was superseded, e.g. after registering the wrong one. */
-  async setSequenceActive(
-    organizationId: string,
-    sequenceId: string,
-    isActive: boolean,
-  ): Promise<NcfSequence> {
-    return this.ncfSequenceRepository.manager.transaction(async (manager) => {
-      const repo = manager.getRepository(NcfSequence);
-      const sequence = await repo.findOne({ where: { id: sequenceId, organizationId } });
-      if (!sequence) throw new NotFoundError('compliance.ncf_sequence_not_found');
-
-      if (isActive) {
-        await repo.update({ organizationId, type: sequence.type, isActive: true }, { isActive: false });
-      }
-      sequence.isActive = isActive;
-      return repo.save(sequence);
-    });
-  }
-
-  async listNcfSequences(organizationId: string): Promise<NcfSequenceStatus[]> {
-    const rows = await this.ncfSequenceRepository.find({
-      where: { organizationId },
-      order: { type: 'ASC', startsAt: 'ASC' },
-    });
-    const today = await organizationToday(this.ncfSequenceRepository.manager, organizationId);
-
-    return rows.map((row) => {
-      const startsAt = Number(row.startsAt);
-      const endsAt = Number(row.endsAt);
-      const currentSequence = Number(row.currentSequence);
-      const size = Math.max(1, endsAt - startsAt + 1);
-      const remaining = Math.max(0, endsAt - currentSequence);
-      return {
-        id: row.id,
-        type: row.type,
-        prefix: row.prefix,
-        startsAt,
-        endsAt,
-        currentSequence,
-        remaining,
-        isActive: row.isActive,
-        expiresAt: row.expiresAt ?? null,
-        authorizationCode: row.authorizationCode ?? null,
-        runningLow:
-          row.isActive &&
-          (remaining <= ComplianceService.LOW_WATERMARK_ABSOLUTE ||
-            remaining / size <= ComplianceService.LOW_WATERMARK_FRACTION),
-        expired: Boolean(row.expiresAt && row.expiresAt < today),
-      };
-    });
-  }
-
-  /** The active range for a type, or null. Used to pre-flight an issuance without consuming one. */
-  async findActiveSequence(organizationId: string, type: string): Promise<NcfSequence | null> {
-    return this.ncfSequenceRepository.findOne({
-      where: { organizationId, type, isActive: true },
-    });
   }
 
   // ── DGII periodic reports ──────────────────────────────────────────────────

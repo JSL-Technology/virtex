@@ -29,7 +29,17 @@ export const REMEDIES: Record<string, Precondition['remedy']> = {
     labelKey: 'remedy.open_period',
     route: '/accounting/periods',
   },
-  'compliance.ncf_sequence_not_found': {
+  // A market that numbers from authorised ranges has none in force for the type: no range, the
+  // range ran out, or its authorisation lapsed (`FiscalRangeService.drawNext`), in every market.
+  'einvoicing.no_active_authorized_range_document_type': {
+    labelKey: 'remedy.configure_sequences',
+    route: '/overview#settings/fiscal',
+  },
+  'einvoicing.authorized_range_type_type_exhausted_range': {
+    labelKey: 'remedy.configure_sequences',
+    route: '/overview#settings/fiscal',
+  },
+  'einvoicing.authorization_type_type_range_expired_date': {
     labelKey: 'remedy.configure_sequences',
     route: '/overview#settings/fiscal',
   },

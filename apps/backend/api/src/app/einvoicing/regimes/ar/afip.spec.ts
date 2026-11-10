@@ -33,7 +33,6 @@ describe('AFIP — WSFEv1', () => {
     // The recorded catalogue code — the builder states DocTipo `80` from this, not from the length.
     identityDocumentTypeCode: 'CUIT',
     identityDocumentCountry: 'AR',
-    fiscalProfile: { condicionIva: 'RESPONSABLE_INSCRIPTO' },
   } as unknown as Customer;
 
   const invoice = {
@@ -50,6 +49,8 @@ describe('AFIP — WSFEv1', () => {
     excise: 0,
     total: 121_000,
     type: InvoiceType.INVOICE,
+    // The class the market's numbering decided at issuance: factura A, between two responsables inscriptos.
+    fiscalDocumentType: '1',
     lineItems: [
       { description: 'Mercadería', quantity: 1, price: 100_000, lineSubtotal: 100_000, taxRate: 0.21, taxAmount: 21_000, isService: false },
     ],
@@ -60,7 +61,6 @@ describe('AFIP — WSFEv1', () => {
     organization,
     customer: registeredBuyer,
     salesPoint: 4,
-    issuerVatCondition: 'RESPONSABLE_INSCRIPTO',
     nextNumber: 123,
     ...overrides,
   });
@@ -80,28 +80,26 @@ describe('AFIP — WSFEv1', () => {
       ).toBe(detail.ImpTotal);
     });
 
-    it('chooses the document type from both parties’ VAT condition', () => {
-      // An A invoice lets the buyer take the VAT credit; issuing one to somebody not entitled to
-      // it is a fiscal problem for both parties, not a formatting slip.
-      expect(builder.build(input()).FeCabReq.CbteTipo).toBe(1);
-
-      const toConsumer = builder.build(
-        input({
-          customer: { ...registeredBuyer, fiscalProfile: {} } as unknown as Customer,
-        }),
-      );
-      expect(toConsumer.FeCabReq.CbteTipo).toBe(6);
-
-      const fromMonotributista = builder.build(input({ issuerVatCondition: 'MONOTRIBUTO' }));
-      expect(fromMonotributista.FeCabReq.CbteTipo).toBe(11);
+    it('writes the class the document was numbered as, decided once from both parties at issuance', () => {
+      // The rule (A between two responsables inscriptos, B to anybody else, C from an exempt or
+      // monotributo issuer) is the market's numbering, `markets/ar/documents.ts`; the builder writes
+      // what was decided rather than deciding again.
+      const as = (fiscalDocumentType: string, type = InvoiceType.INVOICE) =>
+        builder.build(input({ invoice: { ...invoice, type, fiscalDocumentType } as Invoice })).FeCabReq.CbteTipo;
+      expect(as('1')).toBe(1);
+      expect(as('6')).toBe(6);
+      expect(as('11')).toBe(11);
+      expect(as('3', InvoiceType.CREDIT_NOTE)).toBe(3);
     });
 
-    it('numbers a credit note in its own series', () => {
-      const creditNote = builder.build(
-        input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE } as Invoice }),
+    it('refuses a type it does not write, and a document that was never typed', () => {
+      // A debit note (2, 7, 12) is not built yet: refused by name, never sent as something else.
+      expect(() => builder.build(input({ invoice: { ...invoice, fiscalDocumentType: '2' } as Invoice }))).toThrow(
+        expect.objectContaining({ messageKey: 'einvoicing.document_type_not_built_by_regime' }),
       );
-
-      expect(creditNote.FeCabReq.CbteTipo).toBe(3);
+      expect(() => builder.build(input({ invoice: { ...invoice, fiscalDocumentType: null } as Invoice }))).toThrow(
+        expect.objectContaining({ messageKey: 'einvoicing.document_has_no_fiscal_document_type' }),
+      );
     });
 
     it('identifies the buyer by their recorded document type, not the shape', () => {

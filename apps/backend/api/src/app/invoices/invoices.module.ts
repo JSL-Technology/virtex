@@ -11,18 +11,8 @@ import { TenantWithholdingRegime } from '../localization/fiscal/entities/tenant-
 // product, and it used to come off the request unchecked.
 import { LocalizationModule } from '../localization/localization.module';
 import { InvoiceRendererService } from './services/invoice-renderer.service';
-import { GenericFiscalAdapter } from './adapters/generic-fiscal.adapter';
-import { DominicanRepublicFiscalAdapter } from './adapters/dominican-republic-fiscal.adapter';
-import { FiscalAdapterFactory } from './adapters/fiscal-adapter.factory';
-import {
-  ArgentinaNumberingAdapter,
-  BrazilNumberingAdapter,
-  ChileNumberingAdapter,
-  ColombiaNumberingAdapter,
-  EcuadorNumberingAdapter,
-  MexicoNumberingAdapter,
-  PeruNumberingAdapter,
-} from './adapters/regime-numbering.adapter';
+import { FiscalNumberingModule } from './adapters/fiscal-numbering.module';
+import { InvoiceIssuedFiscalNumbers } from './issued-fiscal-numbers.source';
 import { Invoice } from './entities/invoice.entity';
 import { InvoiceLineItem } from './entities/invoice-line-item.entity';
 import { Organization } from '../organizations/entities/organization.entity';
@@ -66,6 +56,8 @@ import { MailModule } from '../mail/mail.module';
     // Neither JournalEntriesModule nor SharedModule import InvoicesModule — forwardRef was defensive.
     JournalEntriesModule,
     EinvoicingModule,
+    // One numbering engine for every market, guided by the market's own rule (markets/<cc>/documents.ts).
+    FiscalNumberingModule,
     SharedModule,
   ],
   controllers: [InvoicesController],
@@ -77,19 +69,8 @@ import { MailModule } from '../mail/mail.module';
     InvoicePostingService,
     // Withholding is resolved from the parties and the sale, never taken from the request.
     InvoiceRendererService,
-    GenericFiscalAdapter,
-    DominicanRepublicFiscalAdapter,
-    // The six markets whose regimes are implemented. Registered here rather than resolved to the
-    // generic adapter, which is what H18 was: the numbering existed nowhere and the document was
-    // built by code the container had never been told about.
-    MexicoNumberingAdapter,
-    ColombiaNumberingAdapter,
-    PeruNumberingAdapter,
-    EcuadorNumberingAdapter,
-    ChileNumberingAdapter,
-    BrazilNumberingAdapter,
-    ArgentinaNumberingAdapter,
-    FiscalAdapterFactory,
+    // The numbers already on invoices, for the ranges registered after them.
+    InvoiceIssuedFiscalNumbers,
   ],
   // The renderer is exported for collections, which attaches the invoice PDF to a reminder.
   exports: [InvoicesService, InvoicePostingService, InvoiceRendererService],

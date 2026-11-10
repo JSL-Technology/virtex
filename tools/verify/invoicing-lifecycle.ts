@@ -36,7 +36,7 @@ import { OrganizationsService } from '../../apps/backend/api/src/app/organizatio
 import { StockLedgerService } from '../../apps/backend/api/src/app/inventory/stock-ledger.service';
 import { InventoryService } from '../../apps/backend/api/src/app/inventory/inventory.service';
 import { Product, ProductKind } from '../../apps/backend/api/src/app/inventory/entities/product.entity';
-import { NcfType } from '../../apps/backend/api/src/app/compliance/entities/ncf-sequence.entity';
+import { FiscalRegimeSettingsService } from '../../apps/backend/api/src/app/einvoicing/services/fiscal-regime-settings.service';
 import { InvoiceStatus } from '../../apps/backend/api/src/app/invoices/entities/invoice.entity';
 import { TaxTreatment } from '../../apps/backend/api/src/app/invoices/entities/invoice-line-item.entity';
 import { EcfCertificateService } from '../../apps/backend/api/src/app/einvoicing/services/ecf-certificate.service';
@@ -76,6 +76,9 @@ async function main(): Promise<void> {
   const ds = app.get(DataSource);
   const invoices = app.get(InvoicesService);
   const compliance = app.get(ComplianceService, { strict: false });
+  // The ranges of every market, the Dominican NCF among them, through the settings endpoint's service.
+  const fiscalRanges = app.get(FiscalRegimeSettingsService, { strict: false });
+  const rangeExpiry = `${new Date().getFullYear() + 1}-12-31`;
   const customers = app.get(CustomersService, { strict: false });
   const localization = app.get(LocalizationService, { strict: false });
   const organizations = app.get(OrganizationsService, { strict: false });
@@ -122,29 +125,17 @@ async function main(): Promise<void> {
   check('un inquilino nuevo emite ambas series', readiness.emissionMode === 'BOTH');
 
   // ── Fiscal numbering, with its authorization window ─────────────────────────
-  await compliance.provisionNcfSequence(orgId, {
-    type: NcfType.E31, prefix: 'E31', startsAt: 1, endsAt: 100,
-    expiresAt: `${new Date().getFullYear() + 1}-12-31`,
-  });
-  await compliance.provisionNcfSequence(orgId, {
-    type: NcfType.E32, prefix: 'E32', startsAt: 1, endsAt: 100,
-    expiresAt: `${new Date().getFullYear() + 1}-12-31`,
-  });
-  await compliance.provisionNcfSequence(orgId, {
-    type: NcfType.E34, prefix: 'E34', startsAt: 1, endsAt: 100,
-    expiresAt: `${new Date().getFullYear() + 1}-12-31`,
-  });
+  await fiscalRanges.registerRange(orgId, { documentType: 'E31', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
+  await fiscalRanges.registerRange(orgId, { documentType: 'E32', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
+  await fiscalRanges.registerRange(orgId, { documentType: 'E34', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
 
   let overlapRejected = false;
   try {
-    await compliance.provisionNcfSequence(orgId, {
-      type: NcfType.E31, prefix: 'E31', startsAt: 50, endsAt: 150,
-      expiresAt: `${new Date().getFullYear() + 1}-12-31`,
-    });
+    await fiscalRanges.registerRange(orgId, { documentType: 'E31', startsAt: 50, endsAt: 150, validUntil: rangeExpiry });
   } catch {
     overlapRejected = true;
   }
-  check('un rango de e-NCF solapado es rechazado', overlapRejected);
+  check('un rango solapado es rechazado, como en cualquier mercado', overlapRejected);
 
   // An electronic document must also be signed. With ranges but no certificate the tenant is not
   // ready, and says exactly that: issuing would consume an e-NCF the DGII never receives.
@@ -237,14 +228,8 @@ async function main(): Promise<void> {
   // A company that issues serie B was told it could not invoice until it loaded a signing
   // certificate it does not need. With a live B range it is ready, and an invoice with no type
   // chosen is drawn from it.
-  await compliance.provisionNcfSequence(orgId, {
-    type: NcfType.B01, prefix: 'B01', startsAt: 1, endsAt: 100,
-    expiresAt: `${new Date().getFullYear() + 1}-12-31`,
-  });
-  await compliance.provisionNcfSequence(orgId, {
-    type: NcfType.B02, prefix: 'B02', startsAt: 1, endsAt: 100,
-    expiresAt: `${new Date().getFullYear() + 1}-12-31`,
-  });
+  await fiscalRanges.registerRange(orgId, { documentType: 'B01', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
+  await fiscalRanges.registerRange(orgId, { documentType: 'B02', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
   const traditionalReady = await invoices.invoicingContext(orgId);
   check(
     'con un rango B y sin certificado, el inquilino puede facturar',
@@ -461,8 +446,8 @@ async function main(): Promise<void> {
   );
 
   // ── Debit notes and cancellation, as the market allows (FAC-INV-05) ─────────
-  await compliance.provisionNcfSequence(orgId, { type: NcfType.B03, prefix: 'B03', startsAt: 1, endsAt: 100, expiresAt: `${new Date().getFullYear() + 1}-12-31` } as never);
-  await compliance.provisionNcfSequence(orgId, { type: NcfType.E33, prefix: 'E33', startsAt: 1, endsAt: 100, expiresAt: `${new Date().getFullYear() + 1}-12-31` } as never);
+  await fiscalRanges.registerRange(orgId, { documentType: 'B03', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
+  await fiscalRanges.registerRange(orgId, { documentType: 'E33', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
   const interest = { description: 'Intereses por mora', quantity: 1, unitPrice: 500, taxTreatment: TaxTreatment.TAXED, isService: true };
   const traditionalDebit = await invoices.createDebitNote(
     traditional.id,
@@ -639,7 +624,7 @@ async function main(): Promise<void> {
   const consumo = await invoices.create(
     {
       customerId: customer.id, issueDate: today, dueDate: today, currencyCode: 'DOP',
-      fiscalDocumentType: NcfType.E32,
+      fiscalDocumentType: 'E32',
       lineItems: [{ productId: good.id, quantity: 1 }],
     } as never,
     orgId,

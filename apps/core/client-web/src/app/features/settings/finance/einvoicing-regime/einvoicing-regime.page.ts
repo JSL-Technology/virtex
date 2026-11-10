@@ -13,7 +13,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FiscalDocumentTypeView,
-  FiscalRange,
   FiscalRegimeSettings,
   FiscalSettingsService,
   MarketCoverage,
@@ -21,12 +20,15 @@ import {
   TransmissionSettingsInput,
 } from '../../data/fiscal-settings.service';
 import { FiscalEmissionMode, InvoicesService, InvoicingContext } from '../../../../core/services/invoices';
-import { EmissionModeCardComponent, SigningCertificateCardComponent } from '../../fiscal/shared';
+import {
+  EmissionModeCardComponent,
+  FiscalRangeSecretKind,
+  FiscalRangesCardComponent,
+  SigningCertificateCardComponent,
+} from '../../fiscal/shared';
 import { NotificationService } from '../../../../core/services/notification';
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { VxDateFieldComponent } from '../../../../shared/components/date';
-import { VX_SORT, sortable } from '../../../../shared/components/sort';
 import { RouterLink } from '@angular/router';
 
 /**
@@ -50,7 +52,7 @@ const FIELDS_BY_COUNTRY: Record<string, readonly string[]> = {
 };
 
 /** Markets whose ranges carry material the authority issued with them. */
-const SECRET_BY_COUNTRY: Record<string, 'CAF_XML' | 'DIAN_TECHNICAL_KEY'> = {
+const SECRET_BY_COUNTRY: Record<string, FiscalRangeSecretKind> = {
   CL: 'CAF_XML',
   CO: 'DIAN_TECHNICAL_KEY',
 };
@@ -76,16 +78,13 @@ const SECRET_BY_COUNTRY: Record<string, 'CAF_XML' | 'DIAN_TECHNICAL_KEY'> = {
   selector: 'app-einvoicing-regime-page',
   standalone: true,
   imports: [
-    VxNumberInputDirective,
     RouterLink,
-    ...VX_SORT,
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
-    ...FORMAT_PIPES,
     ...VX_FORM_A11Y,
-    VxDateFieldComponent,
     EmissionModeCardComponent,
+    FiscalRangesCardComponent,
     SigningCertificateCardComponent,
   ],
   templateUrl: './einvoicing-regime.page.html',
@@ -93,8 +92,6 @@ const SECRET_BY_COUNTRY: Record<string, 'CAF_XML' | 'DIAN_TECHNICAL_KEY'> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EinvoicingRegimePage implements OnInit {
-  /** Sortable by its headers (QA B-01). */
-  readonly table = sortable(() => this.ranges());
   private readonly api = inject(FiscalSettingsService);
   private readonly invoices = inject(InvoicesService);
   private readonly fb = inject(FormBuilder);
@@ -102,11 +99,7 @@ export class EinvoicingRegimePage implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly coverage = signal<MarketCoverage | null>(null);
-  readonly ranges = signal<FiscalRange[]>([]);
-  readonly loading = signal(true);
   readonly savingSettings = signal(false);
-  readonly savingRange = signal(false);
-  readonly showRangeForm = signal(false);
 
   /**
    * What the invoice form will offer and what stands in the way, as the server computes it — the
@@ -121,15 +114,6 @@ export class EinvoicingRegimePage implements OnInit {
    * a free-text box, so a tenant had to know that a Chilean factura afecta is `33`.
    */
   readonly documentTypes = signal<FiscalDocumentTypeView[]>([]);
-  /** The types the current mode allows a range for, where the market has both kinds. */
-  readonly rangeDocumentTypes = computed(() => {
-    const both = this.invoicing()?.emissionModeApplies === true;
-    const mode = this.emissionMode();
-    return this.documentTypes().filter(
-      (type) => !both || mode === 'BOTH' || (mode === 'ELECTRONIC') === type.isElectronic,
-    );
-  });
-
   protected readonly environments = [
     { value: 'CERTIFICATION', labelKey: 'settings.pages.einvoicing.env_certification' },
     { value: 'PRODUCTION', labelKey: 'settings.pages.einvoicing.env_production' },
@@ -175,16 +159,6 @@ export class EinvoicingRegimePage implements OnInit {
     credential: ['', Validators.maxLength(4096)],
   });
 
-  readonly rangeForm = this.fb.group({
-    documentType: ['', Validators.required],
-    series: [''],
-    startsAt: [1, [Validators.required, Validators.min(1)]],
-    endsAt: [1, [Validators.required, Validators.min(1)]],
-    validUntil: [''],
-    authorizationCode: [''],
-    secret: [''],
-  });
-
   ngOnInit(): void {
     this.api
       .coverage()
@@ -204,7 +178,6 @@ export class EinvoicingRegimePage implements OnInit {
 
     this.loadSettings();
     this.loadTransmission();
-    this.loadRanges();
     this.loadInvoicingState();
   }
 
@@ -217,12 +190,6 @@ export class EinvoicingRegimePage implements OnInit {
         next: (context) => this.invoicing.set(context),
         error: () => this.invoicing.set(null),
       });
-  }
-
-  /** The label of a document type: its catalogue key, or the authority's own name. */
-  documentTypeLabel(code: string): string {
-    const type = this.documentTypes().find((t) => t.code === code);
-    return type?.labelKey ?? type?.name ?? code;
   }
 
   needs(field: string): boolean {
@@ -309,23 +276,6 @@ export class EinvoicingRegimePage implements OnInit {
     };
   }
 
-  private loadRanges(): void {
-    this.loading.set(true);
-    this.api
-      .ranges()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (rows) => {
-          this.ranges.set(rows);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loading.set(false);
-          this.notifications.showError('settings.pages.einvoicing.load_failed');
-        },
-      });
-  }
-
   saveSettings(): void {
     if (this.settingsForm.invalid) {
       this.settingsForm.markAllAsTouched();
@@ -354,81 +304,5 @@ export class EinvoicingRegimePage implements OnInit {
           this.notifications.showHttpError(error, 'settings.pages.einvoicing.save_failed');
         },
       });
-  }
-
-  toggleRangeForm(): void {
-    this.showRangeForm.update((open) => !open);
-  }
-
-  registerRange(): void {
-    if (this.rangeForm.invalid) {
-      this.rangeForm.markAllAsTouched();
-      return;
-    }
-
-    const value = this.rangeForm.getRawValue();
-    if (Number(value.endsAt) < Number(value.startsAt)) {
-      this.notifications.showError('settings.pages.einvoicing.range_bounds');
-      return;
-    }
-
-    const kind = this.secretKind();
-    this.savingRange.set(true);
-
-    this.api
-      .registerRange({
-        documentType: value.documentType ?? '',
-        series: value.series?.trim() || undefined,
-        startsAt: Number(value.startsAt),
-        endsAt: Number(value.endsAt),
-        validUntil: value.validUntil?.trim() || undefined,
-        authorizationCode: value.authorizationCode?.trim() || undefined,
-        secret: value.secret?.trim() || undefined,
-        // The kind is derived from the market, not asked for: a tenant should not have to know
-        // that their CAF is called `CAF_XML` in this product.
-        secretKind: value.secret?.trim() && kind ? kind : undefined,
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.savingRange.set(false);
-          this.showRangeForm.set(false);
-          this.rangeForm.reset({ startsAt: 1, endsAt: 1 });
-          this.loadRanges();
-          this.loadInvoicingState();
-        },
-        error: (error) => {
-          this.savingRange.set(false);
-          this.notifications.showHttpError(error, 'settings.pages.einvoicing.save_failed');
-        },
-      });
-  }
-
-  retire(range: FiscalRange): void {
-    this.api
-      .deactivateRange(range.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.loadRanges();
-          this.loadInvoicingState();
-        },
-        error: () => this.notifications.showError('settings.pages.einvoicing.delete_failed'),
-      });
-  }
-
-  /**
-   * Whether a range is close enough to exhaustion to warn about.
-   *
-   * Running out mid-morning stops the tenant invoicing until an authority grants another, and in
-   * several of these markets that takes days. Fifty is the same threshold the server logs at.
-   */
-  runningOut(range: FiscalRange): boolean {
-    return range.isActive && range.remaining <= 50;
-  }
-
-  /** Whether the authorisation has expired, which makes the range unusable however many remain. */
-  expired(range: FiscalRange): boolean {
-    return Boolean(range.validUntil && range.validUntil < tenantToday());
   }
 }

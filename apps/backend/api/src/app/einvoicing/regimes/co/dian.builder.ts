@@ -1,11 +1,11 @@
 import * as crypto from 'crypto';
 import * as xmlbuilder from 'xmlbuilder';
-import { Invoice, InvoiceType } from '../../../invoices/entities/invoice.entity';
+import { Invoice } from '../../../invoices/entities/invoice.entity';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
-import { fiscalNumber } from '../fiscal-number';
+import { fiscalNumber, issuedDocumentType } from '../fiscal-number';
 import { buyerRegimeDocumentCode } from '../buyer-document';
 import { TaxpayerKind, TaxpayerType, regimeDocumentCode } from '../../../markets';
 
@@ -57,16 +57,14 @@ export class DianBuilder {
     return { xml: this.ubl(input, cufe), cufe };
   }
 
+  /** `01` factura de venta nacional, `91` nota crédito: the documents this builder writes. */
   /**
-   * The DIAN's document-type code.
-   *
-   * `01` factura de venta nacional, `91` nota crédito. Public because the numbering adapter draws
-   * the number from the range authorised for this type and has to reach the same answer the
-   * builder does — a note numbered from the invoice range is rejected on the resolution, not on
-   * the document.
+   * The authority's type the document was numbered as — recorded at issuance by the market's own
+   * rule (`markets/<cc>/documents.ts`), never decided again here: two copies of the rule is how a
+   * document ends up numbered from one range and built as another type.
    */
   documentType(invoice: Invoice): string {
-    return invoice.type === InvoiceType.CREDIT_NOTE ? '91' : '01';
+    return issuedDocumentType(invoice, ['01', '91']);
   }
 
   /**

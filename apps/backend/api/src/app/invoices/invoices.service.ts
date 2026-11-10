@@ -580,9 +580,11 @@ export class InvoicesService {
       assignment = await adapter.assignSalesNumber({ invoice, organizationId, manager, requestedType, emissionKind });
     }
 
-    invoice.fiscalNumber = assignment.ncf;
+    invoice.fiscalNumber = assignment.fiscalNumber;
     invoice.fiscalDocumentType = assignment.documentType;
     invoice.fiscalNumberExpiresAt = assignment.expiresAt;
+    invoice.fiscalSequence = assignment.sequence;
+    invoice.fiscalSeries = assignment.series;
 
     // An electronic document that cannot be signed must not be issued: its number would be
     // consumed and the authority would never receive it. Checked before anything is written, so

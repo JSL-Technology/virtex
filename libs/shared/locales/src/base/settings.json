@@ -757,11 +757,6 @@
     "en": "Alias",
     "pt": "Apelido"
   },
-  "settings.fiscal.authorization_code": {
-    "es": "Código de autorización",
-    "en": "Authorization code",
-    "pt": "Código de autorização"
-  },
   "settings.fiscal.capability.accounting": {
     "es": "Contabilidad",
     "en": "Bookkeeping",
@@ -852,65 +847,25 @@
     "en": "Digital certificate",
     "pt": "Certificado digital"
   },
-  "settings.fiscal.do.authorized_ncf_ranges": {
-    "es": "Rangos de comprobantes autorizados",
-    "en": "Authorised document ranges",
-    "pt": "Faixas de comprovantes autorizadas"
-  },
   "settings.fiscal.do.dgii_reports_moved": {
     "es": "Los formatos 606, 607, 608 y 609 se generan en Contabilidad › Reportes › Declaraciones fiscales, donde cada mes muestra si se generó y si se presentó. Aquí se configura lo que necesitan: el certificado y los rangos de NCF.",
     "en": "Formats 606, 607, 608 and 609 are generated in Accounting › Reports › Fiscal returns, where each month shows whether it was generated and filed. This page configures what they need: the certificate and the NCF ranges.",
     "pt": "Os formatos 606, 607, 608 e 609 são gerados em Contabilidade › Relatórios › Declarações fiscais, onde cada mês mostra se foi gerado e entregue. Aqui se configura o que eles precisam: o certificado e as faixas de NCF."
-  },
-  "settings.fiscal.do.ncf_range_registered": {
-    "es": "Rango de e-NCF registrado.",
-    "en": "e-NCF range registered.",
-    "pt": "Faixa de e-NCF registrada."
-  },
-  "settings.fiscal.do.ncf_ranges_description": {
-    "es": "Registra cada rango que te autorizó la DGII, tradicional (serie B) o electrónico (serie E). Sin un rango vigente de un tipo, ese comprobante no se puede emitir.",
-    "en": "Register each range the DGII authorised, traditional (B series) or electronic (E series). Without a current range of a type, that document cannot be issued.",
-    "pt": "Registre cada faixa autorizada pela DGII, tradicional (série B) ou eletrônica (série E). Sem uma faixa vigente de um tipo, esse comprovante não pode ser emitido."
-  },
-  "settings.fiscal.do.ncf_sequences_load_failed": {
-    "es": "No se pudieron cargar las secuencias NCF.",
-    "en": "The NCF sequences could not be loaded.",
-    "pt": "Não foi possível carregar as sequências NCF."
-  },
-  "settings.fiscal.do.no_ncf_ranges_yet": {
-    "es": "Aún no has registrado rangos de e-NCF.",
-    "en": "You have not registered any e-NCF ranges yet.",
-    "pt": "Você ainda não registrou faixas de e-NCF."
   },
   "settings.fiscal.document_types_load_failed": {
     "es": "No se pudieron cargar los tipos de comprobante de tu país.",
     "en": "Your country's document types could not be loaded.",
     "pt": "Não foi possível carregar os tipos de comprovante do seu país."
   },
-  "settings.fiscal.ending_number_cannot_lower_than_starting": {
-    "es": "El número final no puede ser menor que el inicial.",
-    "en": "The ending number cannot be lower than the starting one.",
-    "pt": "O número final não pode ser menor que o inicial."
-  },
   "settings.fiscal.expires": {
     "es": "Vence",
     "en": "Expires",
     "pt": "Vence"
   },
-  "settings.fiscal.expires_on": {
-    "es": "Vence el",
-    "en": "Expires on",
-    "pt": "Vence em"
-  },
   "settings.fiscal.file_p12_pfx": {
     "es": "Archivo (.p12 / .pfx)",
     "en": "File (.p12 / .pfx)",
     "pt": "Arquivo (.p12 / .pfx)"
-  },
-  "settings.fiscal.from": {
-    "es": "Desde",
-    "en": "From",
-    "pt": "De"
   },
   "settings.fiscal.holder": {
     "es": "Titular",
@@ -1017,65 +972,65 @@
     "en": "Traditional only",
     "pt": "Somente tradicionais"
   },
-  "settings.fiscal.prefix": {
-    "es": "Prefijo",
-    "en": "Prefix",
-    "pt": "Prefixo"
+  "settings.fiscal.range_expiry_hint": {
+    "es": "Obligatoria para los tipos cuyos rangos vencen: un documento numerado después de esa fecha es rechazado.",
+    "en": "Required for the types whose ranges expire: a document numbered after that date is rejected.",
+    "pt": "Obrigatória para os tipos cujas faixas vencem: um documento numerado depois dessa data é rejeitado."
   },
-  "settings.fiscal.range_expired": {
+  "settings.fiscal.range_form_required_fields": {
+    "es": "Completa los campos obligatorios del rango (marcados con *).",
+    "en": "Fill in the range's required fields (marked with *).",
+    "pt": "Preencha os campos obrigatórios da faixa (marcados com *)."
+  },
+  "settings.fiscal.range_registered": {
+    "es": "Rango registrado.",
+    "en": "Range registered.",
+    "pt": "Faixa registrada."
+  },
+  "settings.fiscal.range_series_hint": {
+    "es": "Tal como la indica el acto que autorizó el rango. Vacía donde el mercado no numera por serie.",
+    "en": "As the act that authorised the range states it. Empty where the market does not number by series.",
+    "pt": "Como o ato que autorizou a faixa a indica. Vazia onde o mercado não numera por série."
+  },
+  "settings.fiscal.range_status_active": {
+    "es": "En vigor",
+    "en": "In force",
+    "pt": "Em vigor"
+  },
+  "settings.fiscal.range_status_exhausted": {
+    "es": "Agotado",
+    "en": "Exhausted",
+    "pt": "Esgotada"
+  },
+  "settings.fiscal.range_status_expired": {
     "es": "Vencido",
     "en": "Expired",
-    "pt": "Vencido"
+    "pt": "Vencida"
   },
-  "settings.fiscal.range_expiring": {
-    "es": "Vence pronto",
-    "en": "Expiring soon",
-    "pt": "Vence em breve"
+  "settings.fiscal.range_status_retired": {
+    "es": "Retirado",
+    "en": "Retired",
+    "pt": "Retirada"
   },
-  "settings.fiscal.range_form_incomplete": {
-    "en": "Fill in before registering the range: {{fields}}.",
-    "es": "Completa antes de registrar el rango: {{fields}}.",
-    "pt": "Preencha antes de registrar a faixa: {{fields}}."
-  },
-  "settings.fiscal.range_group_electronic": {
-    "es": "Electrónicos (e-CF, serie E)",
-    "en": "Electronic (e-CF, E series)",
-    "pt": "Eletrônicos (e-CF, série E)"
-  },
-  "settings.fiscal.range_group_traditional": {
-    "es": "Tradicionales (NCF, serie B)",
-    "en": "Traditional (NCF, B series)",
-    "pt": "Tradicionais (NCF, série B)"
-  },
-  "settings.fiscal.range_running_low": {
-    "es": "Quedan pocos",
+  "settings.fiscal.range_status_running_low": {
+    "es": "Por agotarse",
     "en": "Running low",
-    "pt": "Restam poucos"
+    "pt": "Acabando"
   },
-  "settings.fiscal.register_range": {
-    "es": "Registrar rango",
-    "en": "Register range",
-    "pt": "Registar intervalo"
+  "settings.fiscal.reactivate_range": {
+    "es": "Reactivar",
+    "en": "Reactivate",
+    "pt": "Reativar"
   },
   "settings.fiscal.registering": {
     "es": "Registrando…",
     "en": "Registering…",
     "pt": "A registar…"
   },
-  "settings.fiscal.remaining": {
-    "es": "Disponibles",
-    "en": "Remaining",
-    "pt": "Disponíveis"
-  },
   "settings.fiscal.requires": {
     "es": "Necesita",
     "en": "Requires",
     "pt": "Precisa de"
-  },
-  "settings.fiscal.screen_configures_dominican_regime_your_market": {
-    "es": "Esta pantalla configura el régimen de la República Dominicana. Para tu mercado, la configuración está en Configuración › Facturación electrónica.",
-    "en": "This screen configures the Dominican regime. For your market, the configuration is under Settings › Electronic invoicing.",
-    "pt": "Esta tela configura o regime da República Dominicana. Para o seu mercado, a configuração está em Configurações › Faturação eletrônica."
   },
   "settings.fiscal.select_certificate_file_p12_pfx": {
     "es": "Selecciona el archivo del certificado (.p12 / .pfx).",
@@ -1117,20 +1072,10 @@
     "en": "Self-signed test certificate: works only in development and no tax authority accepts it.",
     "pt": "Certificado autoassinado de teste: funciona apenas em desenvolvimento e nenhuma autoridade fiscal o aceita."
   },
-  "settings.fiscal.to": {
-    "es": "Hasta",
-    "en": "To",
-    "pt": "Até"
-  },
   "settings.fiscal.turn_off": {
     "es": "Desactivar",
     "en": "Turn off",
     "pt": "Desativar"
-  },
-  "settings.fiscal.type": {
-    "es": "Tipo",
-    "en": "Type",
-    "pt": "Tipo"
   },
   "settings.fiscal.upload_certificate": {
     "es": "Subir certificado",
@@ -1565,16 +1510,6 @@
     "en": "Choose the type",
     "pt": "Escolha o tipo"
   },
-  "settings.pages.einvoicing.delete_failed": {
-    "es": "No se pudo retirar el rango.",
-    "en": "The range could not be retired.",
-    "pt": "Não foi possível retirar a faixa."
-  },
-  "settings.pages.einvoicing.dian_resolution_sii_caf_both_expire": {
-    "es": "Una resolución de la DIAN y un CAF del SII vencen; una série brasileña no.",
-    "en": "A DIAN resolution and an SII CAF both expire; a Brazilian série does not.",
-    "pt": "Uma resolução da DIAN e um CAF do SII vencem; uma série brasileira não."
-  },
   "settings.pages.einvoicing.document_sent_test_environment_has_no": {
     "es": "Un documento enviado al ambiente de pruebas no tiene efecto fiscal alguno. Cambia a producción sólo cuando hayas superado la homologación.",
     "en": "A document sent to the test environment has no fiscal effect at all. Switch to production only once you have passed homologation.",
@@ -1624,16 +1559,6 @@
     "es": "Establecimiento (SRI)",
     "en": "Establishment (SRI)",
     "pt": "Estabelecimento (SRI)"
-  },
-  "settings.pages.einvoicing.expired": {
-    "es": "vencido",
-    "en": "expired",
-    "pt": "vencida"
-  },
-  "settings.pages.einvoicing.f001_peru_resolution_prefix_colombia_serie": {
-    "es": "F001 en Perú, el prefijo de la resolución en Colombia, la série en Brasil. Vacío donde el mercado no usa serie.",
-    "en": "F001 in Peru, the resolution prefix in Colombia, the série in Brazil. Empty where the market uses no series.",
-    "pt": "F001 no Peru, o prefixo da resolução na Colômbia, a série no Brasil. Vazio onde o mercado não usa série."
   },
   "settings.pages.einvoicing.from": {
     "es": "Desde",
@@ -1719,16 +1644,6 @@
     "es": "Retirar",
     "en": "Retire",
     "pt": "Retirar"
-  },
-  "settings.pages.einvoicing.retired": {
-    "es": "Retirado",
-    "en": "Retired",
-    "pt": "Retirada"
-  },
-  "settings.pages.einvoicing.running_out": {
-    "es": "por agotarse",
-    "en": "running out",
-    "pt": "acabando"
   },
   "settings.pages.einvoicing.save": {
     "es": "Guardar",

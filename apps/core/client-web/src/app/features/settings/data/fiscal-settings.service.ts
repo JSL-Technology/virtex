@@ -132,6 +132,10 @@ export interface FiscalRange {
   authorizationCode: string | null;
   hasSecret: boolean;
   secretKind: string | null;
+  /** In force with fewer than 50 numbers, or a tenth of the range, left — the server's reading. */
+  runningLow: boolean;
+  /** The authorisation lapsed, in the tenant's own calendar. */
+  expired: boolean;
 }
 
 export interface RegisterFiscalRangeInput {
@@ -232,8 +236,11 @@ export class FiscalSettingsService {
     return this.http.post<FiscalRange>(`${this.einvoicing}/ranges`, input);
   }
 
-  /** Retires the range; the row stays on file, because past documents were issued under it. */
-  deactivateRange(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.einvoicing}/ranges/${id}`);
+  /**
+   * Retires a range, or puts a superseded one back in force (retiring the one in force for its type
+   * and series). The row stays on file either way, because past documents were issued under it.
+   */
+  setRangeActive(id: string, isActive: boolean): Observable<FiscalRange> {
+    return this.http.patch<FiscalRange>(`${this.einvoicing}/ranges/${id}`, { isActive });
   }
 }

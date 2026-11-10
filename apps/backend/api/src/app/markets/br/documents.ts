@@ -1,5 +1,5 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
-import type { MarketDocuments, MarketFiscalDocumentType } from '../contracts';
+import type { MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
 import { AUTHORITY_EVENT } from '../kit/documents';
 
 /**
@@ -9,8 +9,22 @@ import { AUTHORITY_EVENT } from '../kit/documents';
  * them open.
  */
 export const DOCUMENT_TYPES: readonly MarketFiscalDocumentType[] = [
-  { code: '55', labelKey: 'fiscal.br.55', name: 'Nota Fiscal Eletrônica (NF-e)', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false, sortOrder: 10 },
+  { code: '55', labelKey: 'fiscal.br.55', name: 'Nota Fiscal Eletrônica (NF-e)', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', purpose: 'INVOICE', requiresBuyerTaxId: true, sortOrder: 10 },
 ];
+
+/**
+ * SEFAZ: the `nNF`, bare, within a série the establishment runs. Every NF-e is model 55: a return or
+ * a complement is the same model, told apart by its purpose (`finNFe`) in the document itself.
+ */
+const NUMBERING: MarketNumbering = {
+  source: 'AUTHORITY_RANGE',
+  emissionKinds: ['ELECTRONIC'],
+  requestedType: 'CONFIRM',
+  typeOf: () => '55',
+  // The NF-e série: a number from 0 to 999.
+  acceptsSeries: (_type, series) => /^\d{1,3}$/.test(series),
+  format: (drawn) => String(drawn.sequence),
+};
 
 /** Brazil: the sales documents the authority defines, and how an issued one is undone. */
 export const documents: MarketDocuments = {
@@ -23,4 +37,5 @@ export const documents: MarketDocuments = {
   cancellation: { electronic: AUTHORITY_EVENT, traditional: AUTHORITY_EVENT },
   debitNotes: false,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
+  numbering: NUMBERING,
 };

@@ -32,27 +32,28 @@ export enum FiscalRangeSecretKind {
 }
 
 /**
- * A range of document numbers an authority authorised a tenant to issue.
+ * A range of document numbers an authority authorised a tenant to issue — in every market that
+ * numbers from one: the DGII's NCF, a DIAN resolution, a SUNAT series, an SRI emission point, an
+ * SII CAF, a SEFAZ série.
  *
- * ## Why this is not `ncf_sequences`
+ * ## One table for every market
  *
- * `ncf_sequences` is the Dominican version of exactly this idea, and it is correct — for the DGII.
- * It types its range with `NcfType`, an enum of DGII comprobante codes, and it has no room for a
- * series prefix (`F001`), an establishment and emission point (`001-001`), a resolution number, or
- * a secret. Widening it would have meant six markets' concepts crowding into a table named after
- * one, so the Dominican table keeps its shape and this one carries the rest.
+ * The Dominican Republic used to keep its own (`ncf_sequences`), typed by the DGII's comprobante
+ * enum and with no room for a series, a resolution or a secret, beside this one for everybody else:
+ * the same idea in two tables, read by two services with two sets of rules. Its rows moved here
+ * (migration `UnifiedFiscalRanges`): country `DO`, no series, the type being the NCF's own prefix.
  *
  * ## The invariant that matters
  *
  * A fiscal number is handed out exactly once. `current_sequence` is advanced under a row lock in
- * the same transaction that issues the document — the pattern `ComplianceService.getNextNcf`
- * already uses — because two concurrent issuances that both read the counter before either writes
- * it produce two documents with the same number, and an authority that receives the second one
- * rejects it and asks the taxpayer to explain the first.
+ * the same transaction that issues the document (`FiscalRangeService.drawNext`), because two
+ * concurrent issuances that both read the counter before either writes it produce two documents
+ * with the same number, and an authority that receives the second one rejects it and asks the
+ * taxpayer to explain the first. A range is registered only if it overlaps no range registered
+ * before for its type and series and none of its numbers is already on a document.
  *
  * *Verificar con contabilidad/legal*: every one of these ranges is issued by a specific
- * administrative act — a DIAN resolution, a SUNAT series authorisation, an SRI establishment, a
- * SEFAZ série, an SII CAF — and the act's own reference is recorded in `authorizationCode` so the
+ * administrative act, and the act's own reference is recorded in `authorizationCode` so the
  * document can be traced back to the permission that allowed it.
  */
 @Entity({ name: 'fiscal_document_ranges' })
@@ -93,22 +94,19 @@ export class FiscalDocumentRange {
   countryCode: string;
 
   /**
-   * The authority's own document-type code: `01` factura (CO/PE/EC/AR), `33` DTE afecta (CL),
-   * `55` NF-e (BR), `I` ingreso (MX).
+   * The authority's own document-type code, as the market's catalogue declares it (`B01`, `01`,
+   * `33`, `55`).
    *
    * Deliberately a code and not an enum. These come from catalogues each authority revises by
-   * resolution, and an enum in the schema means a migration every time one of seven authorities
-   * adds a document type.
+   * resolution, and an enum in the schema means a migration every time an authority adds a type.
    */
   @Column({ name: 'document_type', type: 'varchar', length: 8 })
   documentType: string;
 
   /**
-   * The series the numbers belong to, in whatever form the market uses.
-   *
-   * `F001` in Peru, the resolution prefix in Colombia, `001-001` (establecimiento-punto de emisión)
-   * in Ecuador, the série in Brazil, the punto de venta in Argentina. Empty where the market has no
-   * series — the numbers alone identify the document.
+   * The series the numbers belong to, in the form the market's authority uses (`F001`, a
+   * resolution prefix, `001-001`, a série), as `MarketNumbering.acceptsSeries` allows it. Empty
+   * where the market has none — the type and the numbers alone identify the document.
    */
   @Column({ name: 'series', type: 'varchar', length: 16, default: '' })
   series: string;

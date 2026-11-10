@@ -48,6 +48,10 @@ describe('SRI — comprobante electrónico', () => {
     discountTotal: 0,
     serviceCharge: 0,
     type: InvoiceType.INVOICE,
+    // What the market's numbering recorded at issuance (markets/<cc>/documents.ts).
+    fiscalDocumentType: '01',
+    fiscalSequence: 123,
+    fiscalSeries: '001-001',
     lineItems: [
       {
         description: 'Servicio profesional',
@@ -210,7 +214,7 @@ describe('SRI — comprobante electrónico', () => {
 
     it('issues a credit note as document type 04', () => {
       const { accessKey } = builder.build(
-        input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE } as Invoice }),
+        input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '04' } as Invoice }),
       );
 
       expect(accessKey.slice(8, 10)).toBe('04');

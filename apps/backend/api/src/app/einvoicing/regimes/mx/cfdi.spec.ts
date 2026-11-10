@@ -47,6 +47,8 @@ describe('CFDI 4.0', () => {
     tax: 160,
     total: 1_160,
     type: InvoiceType.INVOICE,
+    // What the market's numbering recorded at issuance (markets/<cc>/documents.ts).
+    fiscalDocumentType: 'I',
     lineItems: [
       {
         description: 'Servicio de consultoría',
@@ -113,7 +115,7 @@ describe('CFDI 4.0', () => {
 
     it('issues a credit note as an egreso', () => {
       const xml = builder.build(
-        input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE } as Invoice }),
+        input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: 'E' } as Invoice }),
       );
 
       expect(xml).toContain('TipoDeComprobante="E"');

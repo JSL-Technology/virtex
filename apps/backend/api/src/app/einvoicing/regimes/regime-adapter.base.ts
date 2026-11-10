@@ -99,29 +99,16 @@ export abstract class RegimeAdapterBase {
   }
 
   /**
-   * The consecutive out of the fiscal number the document already carries.
-   *
-   * The number the authority granted and the string written on the document are not the same
-   * thing. The numbering adapters compose them per market, and this is the inverse:
-   *
-   * - `F001-00000123` (Peru) → 123. The series is not part of the consecutive.
-   * - `001-002-000000045` (Ecuador) → 45. Establishment and emission point are not either.
-   * - `SETP990000001` (Colombia) → 990000001. The prefix carries no digits.
-   * - `7` (Chile, Brazil) → 7.
-   *
-   * So: the last hyphen-separated segment, digits only. Taking *all* the digits instead reads
-   * Peru's `F001-00000123` as 100 000 123 — a number outside every range the tenant holds, which
-   * surfaces as "this range does not contain that number" and sends whoever debugs it looking at
-   * the range rather than at the parse.
+   * The consecutive the document's number was drawn as, recorded when it was drawn
+   * (`invoices.fiscal_sequence`) — never parsed back out of the formatted number, whose shape is
+   * the market's mask and whose series may carry digits of its own.
    */
   protected assignedNumber(context: FiscalRegimeContext, regimeName: string): number {
-    const raw = context.invoice.fiscalNumber ?? '';
-    const consecutive = raw.split('-').pop() ?? '';
-    const digits = consecutive.replace(/\D/g, '');
-    const parsed = Number(digits);
-    if (!digits || !Number.isFinite(parsed) || parsed <= 0) {
+    const sequence = Number(context.invoice.fiscalSequence ?? NaN);
+    if (!Number.isSafeInteger(sequence) || sequence < 1) {
       throw new RegimeNotConfigured(regimeName, 'el número fiscal del documento');
     }
-    return parsed;
+    return sequence;
   }
+
 }

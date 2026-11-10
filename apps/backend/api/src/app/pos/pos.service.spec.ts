@@ -42,7 +42,13 @@ describe('PosService', () => {
     },
   };
 
-  const makeService = (overrides: { activeShift?: any; inventory?: any; prices?: any } = {}) => {
+  /** The market's numbering as the till sees it: by market code, an engine that may hand out a receipt. */
+  type TillNumbering = { forCountry: (code: string | null) => { assignTillReceiptNumber?: (...args: never[]) => Promise<unknown> } };
+  type TillOrganization = { id: string; country: string | null; taxId: string | null; taxpayerKind?: string; legalName?: string };
+
+  const makeService = (
+    overrides: { activeShift?: any; inventory?: any; prices?: any; numbering?: TillNumbering; organization?: TillOrganization } = {},
+  ) => {
     const shift = overrides.activeShift ?? null;
     const shiftsRepo: any = {
       findOne: jest.fn().mockResolvedValue(shift),
@@ -60,15 +66,17 @@ describe('PosService', () => {
     const manager: any = {
       create: jest.fn((_e, v) => ({ id: 'sale-1', ...v })),
       save: jest.fn(async (_e, v) => v),
-      findOne: jest.fn(async (_e, options: { where: { id: string } }) => catalogue[options.where.id] ?? null),
+      findOne: jest.fn(async (_e, options: { where: { id: string } }) =>
+        options.where.id === 'org-1' ? (overrides.organization ?? null) : (catalogue[options.where.id] ?? null)),
       createQueryBuilder: jest.fn(() => lockedQuery),
       // The tenant's standard rate, for a product marked taxed with no rate of its own (QA C-08).
       query: jest.fn(async () => [{ rate: 18 }]),
     };
     const dataSource: any = { transaction: jest.fn(async (cb) => cb(manager)) };
     const posting: any = { post: jest.fn().mockResolvedValue(undefined), reverse: jest.fn().mockResolvedValue(undefined) };
-    const compliance: any = { findActiveSequence: jest.fn().mockResolvedValue(null), getNextNcf: jest.fn() };
-    const service = new PosService(shiftsRepo, salesRepo, inventory, dataSource, posting, compliance, overrides.prices ?? noPriceLists);
+    // The market's numbering. By default a market whose till hands out no authority receipt.
+    const numbering: TillNumbering = overrides.numbering ?? { forCountry: jest.fn(() => ({})) };
+    const service = new PosService(shiftsRepo, salesRepo, inventory, dataSource, posting, numbering as never, overrides.prices ?? noPriceLists);
     return { service, shiftsRepo, salesRepo, inventory, manager, lockedQuery, posting };
   };
 
@@ -133,6 +141,50 @@ describe('PosService', () => {
     expect(shift.salesCount).toBe(1);
     expect(shift.salesTotal).toBe(73.6);
     expect(shift.cashSalesTotal).toBe(73.6);
+  });
+
+  describe('the receipt the market hands a consumer at the till (QA R3-C02)', () => {
+    const sell = (service: PosService) =>
+      service.processSale('org-1', cashier, {
+        terminalId: 'main',
+        items: [{ productId: WIDGET, price: 10, quantity: 1 }],
+        subtotal: 10,
+        tax: 1.8,
+        total: 11.8,
+      });
+
+    it('draws it from the market numbering, and records the consecutive it was drawn as', async () => {
+      const assignTillReceiptNumber = jest.fn().mockResolvedValue({
+        fiscalNumber: 'B0200000001', documentType: 'B02', expiresAt: '2027-12-31', sequence: 1, series: '',
+      });
+      const numbering = { forCountry: jest.fn(() => ({ assignTillReceiptNumber })) };
+      const { service } = makeService({
+        activeShift: openShift(),
+        numbering,
+        organization: { id: 'org-1', country: 'DO', taxId: '130456781', taxpayerKind: 'company', legalName: 'QA-Tienda' },
+      });
+
+      const sale = await sell(service);
+
+      // The market is asked, by its code — the till does not know which country hands out receipts.
+      expect(numbering.forCountry).toHaveBeenCalledWith('DO');
+      expect(assignTillReceiptNumber).toHaveBeenCalledWith(expect.objectContaining({ organizationId: 'org-1' }));
+      expect(sale).toMatchObject({ fiscalNumber: 'B0200000001', fiscalDocumentType: 'B02', fiscalSequence: 1, fiscalSeries: '' });
+    });
+
+    it('issues none where the market has none, or when the company has no identifier to name', async () => {
+      const assignTillReceiptNumber = jest.fn();
+      const withoutTaxId = makeService({
+        activeShift: openShift(),
+        numbering: { forCountry: () => ({ assignTillReceiptNumber }) },
+        organization: { id: 'org-1', country: 'DO', taxId: null },
+      });
+      expect(await sell(withoutTaxId.service)).toMatchObject({ fiscalNumber: null, fiscalSequence: null });
+      expect(assignTillReceiptNumber).not.toHaveBeenCalled();
+
+      const noReceiptMarket = makeService({ activeShift: openShift(), organization: { id: 'org-1', country: 'CO', taxId: '900123456' } });
+      expect(await sell(noReceiptMarket.service)).toMatchObject({ fiscalNumber: null, fiscalDocumentType: null });
+    });
   });
 
   it('refuses a price the catalogue does not hold — the till cannot choose what things cost', async () => {

@@ -4,7 +4,7 @@ import { Organization } from '../../../organizations/entities/organization.entit
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
-import { fiscalConsecutive } from '../fiscal-number';
+import { fiscalConsecutive, issuedDocumentType } from '../fiscal-number';
 import { buyerRegimeDocumentCode } from '../buyer-document';
 
 /**
@@ -71,8 +71,8 @@ export class NfeBuilder {
    * A Brazilian credit note is not a document type at all: it is an NF-e of `finNFe` 4 (devolução)
    * or a separate nota de débito, both still model `55`.
    */
-  documentType(): string {
-    return '55';
+  documentType(invoice: Invoice): string {
+    return issuedDocumentType(invoice, ['55']);
   }
 
   accessKey(input: NfeBuildInput): string {

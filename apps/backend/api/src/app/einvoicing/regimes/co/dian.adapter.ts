@@ -58,6 +58,7 @@ export class DianRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
       countryCode: 'CO',
       documentType,
       number: this.assignedNumber(context, this.regime),
+      series: context.invoice.fiscalSeries ?? undefined,
     });
 
     if (range.secretKind !== FiscalRangeSecretKind.DIAN_TECHNICAL_KEY || !range.encryptedSecret) {

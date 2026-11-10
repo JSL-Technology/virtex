@@ -799,7 +799,6 @@
   "validation.proposed_adjustment.journal_id_must_valid_uuid": "El ID del diario debe ser un UUID válido.",
   "validation.proposed_adjustment.journal_id_required": "El ID del diario es obligatorio.",
   "validation.proposed_adjustment.line_description_cannot_empty": "La descripción de la línea no puede estar vacía.",
-  "validation.provision_ncf_sequence.prefix_must_follow_dgii_series_format": "El prefijo debe tener el formato de serie DGII, p. ej. B01 o E31.",
   "validation.push.endpoint_not_a_push_service": "La suscripción no apunta a un servicio de notificaciones de un navegador.",
   "validation.reclassification_entry.ledger_id_ledger_id_required": "El ID del libro contable (ledgerId) es obligatorio.",
   "validation.regional_format.date_order": "El orden de la fecha no es válido.",

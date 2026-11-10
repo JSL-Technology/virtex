@@ -4,7 +4,7 @@ import { Organization } from '../../../organizations/entities/organization.entit
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
-import { fiscalConsecutive } from '../fiscal-number';
+import { fiscalConsecutive, issuedDocumentType } from '../fiscal-number';
 import { buyerRegimeDocumentCode } from '../buyer-document';
 
 /**
@@ -170,23 +170,23 @@ export class SunatBuilder {
   }
 
   /**
-   * Catálogo 01: `01` factura, `03` boleta, `07` nota de crédito.
+   * Catálogo 01: `01` factura, `03` boleta, `07` nota de crédito — the comprobantes this builder
+   * writes — as the document was numbered by the market's own rule, recorded at issuance and never
+   * decided again here.
    *
-   * Derived from the series, not chosen independently: SUNAT rejects an `F` series declared as a
-   * boleta before it reads the document, and the series is what the taxpayer's own numbering
-   * carries.
-   */
-  /**
-   * The authority's document-type code for this invoice.
-   *
-   * Public because the numbering adapter has to draw the number from the range authorised for
-   * THIS type, and it must reach that answer the same way the builder does. Two copies of the
-   * rule is how a document ends up numbered from the exenta range and built as an afecta.
+   * Its series must agree: SUNAT rejects an `F` series declared as a boleta before it reads the
+   * document. The range's series was checked against its type when the range was registered
+   * (`MarketNumbering.acceptsSeries`); this is the same rule, refused by name if the two ever drift.
    */
   documentType(input: Pick<SunatBuildInput, 'invoice' | 'series'>): string {
-    if (input.invoice.type === InvoiceType.CREDIT_NOTE) return '07';
-    return input.series.toUpperCase().startsWith('B') ? '03' : '01';
+    const type = issuedDocumentType(input.invoice, ['01', '03', '07']);
+    const letter = input.series.toUpperCase().charAt(0);
+    if ((type === '01' && letter !== 'F') || (type === '03' && letter !== 'B')) {
+      throw new BadRequestError('einvoicing.pe.series_contradicts_document_type', { series: input.series, type });
+    }
+    return type;
   }
+
 
   /** SUNAT numbers correlatives without the series and without leading zeros stripped. */
   private correlative(invoiceNumber: string): string {

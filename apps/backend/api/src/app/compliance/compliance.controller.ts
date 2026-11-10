@@ -1,9 +1,7 @@
-import { SetNcfSequenceActiveDto } from './dto/ncf-sequence-active.dto';
 import {
   Controller,
   Get,
   Post,
-  Patch,
   Delete,
   Body,
   Param,
@@ -12,9 +10,7 @@ import {
   ParseIntPipe,
   Res,
 } from '@nestjs/common';
-import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ComplianceService } from './compliance.service';
-import { ProvisionNcfSequenceDto } from './dto/provision-ncf-sequence.dto';
 import { MexicanAccountingQueryDto } from './dto/mexican-accounting-query.dto';
 import { FiscalReportFilingsQueryDto, MarkFiscalReportSubmittedDto } from './dto/fiscal-report-filing.dto';
 import {
@@ -35,7 +31,8 @@ import { ActionType } from '../audit/entities/audit-log.entity';
 type ReportKind = '606' | '607' | '608' | '609';
 
 /**
- * Dominican Republic fiscal compliance: NCF/e-NCF range provisioning and the DGII periodic returns.
+ * The periodic fiscal returns a market's authority receives. The ranges a document is numbered from
+ * are every market's, in `einvoicing/regime/ranges`.
  */
 @Controller('compliance')
 @UseInterceptors(AuditAccessInterceptor)
@@ -44,35 +41,6 @@ export class ComplianceController {
     private readonly complianceService: ComplianceService,
     private readonly filings: FiscalReportFilingsService,
   ) {}
-
-  @Post('ncf-sequences')
-  @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
-  provisionSequence(
-    @Body() dto: ProvisionNcfSequenceDto,
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
-    if (dto.endsAt < dto.startsAt) {
-      throw new BadRequestError('compliance.ending_number_cannot_lower_than_starting');
-    }
-    return this.complianceService.provisionNcfSequence(user.organizationId, dto);
-  }
-
-  @Get('ncf-sequences')
-  @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
-  listSequences(@CurrentUser() user: AuthenticatedUser) {
-    return this.complianceService.listNcfSequences(user.organizationId);
-  }
-
-  /** Activate or retire a registered range without deleting its history. */
-  @Patch('ncf-sequences/:id')
-  @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
-  setSequenceActive(
-    @Param('id', UuidParamPipe) id: string,
-    @Body() dto: SetNcfSequenceActiveDto,
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
-    return this.complianceService.setSequenceActive(user.organizationId, id, dto.isActive);
-  }
 
   /**
    * The four DGII "formatos de envío", on one route.

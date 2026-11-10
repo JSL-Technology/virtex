@@ -154,7 +154,7 @@ mercado desconocido herede las respuestas del primero.
   - Ejemplo DO: categoría de compra del 606 y tipo de retención de ISR.
   - Ejemplo MX: tipo de tercero y operación para la DIOT.
 - **Una sola tabla por concepto, para todos los mercados:**
-  - `fiscal_document_ranges` absorbe `ncf_sequences`;
+  - `fiscal_document_ranges` absorbe `ncf_sequences` (hecho en la fase 2; véase §2.8);
   - `fiscal_submissions` absorbe `ecf_submissions`;
   - `fiscal_document_events` absorbe `ecf_lifecycle_messages`, porque aprobación comercial, acuse
     y anulación existen en DO, CO, CL, BR y MX.
@@ -185,6 +185,44 @@ mercado desconocido herede las respuestas del primero.
 | `markets/market-catalogue.spec.ts` | Integridad de los datos: códigos únicos, monedas ISO 4217, zonas IANA, validadores que aceptan los ejemplos, motivos canónicos con su traducción en cada mercado que emite notas, etc. |
 | Completitud de parches regionales | Cada mercado nombra en su idioma su impuesto, su documento fiscal y su autoridad. |
 | `verify:boundaries` | `markets/` no depende de ningún módulo de negocio. |
+
+### 2.8 Numeración fiscal
+
+Un solo motor numera los documentos de todos los mercados: `MarketFiscalAdapter`, que
+`FiscalAdapterFactory` entrega por código de mercado, sin `switch`. Lo que cambia entre mercados es
+la **política de numeración** que cada uno declara en `markets/<cc>/documents.ts` (`numbering`):
+
+| Dato de la política | Qué decide | Ejemplos |
+|---|---|---|
+| `source` | De dónde sale el número | `AUTHORITY_RANGE`: rango que concedió la autoridad (DO, CO, PE, EC, CL, BR) · `AUTHORITY_ON_TRANSMISSION`: lo asigna la autoridad al transmitir (AR) · `STAMP`: la identidad es el timbre (MX) · `NONE`: no hay número fiscal (US y los mercados solo contables) |
+| `emissionKinds` | Si el mercado tiene documentos electrónicos, tradicionales o ambos | DO: ambos |
+| `typeOf(documento)` | Qué tipo es un documento, a partir de hechos (comprador, impuesto, documento que modifica), no de la entidad del ORM | CL: 33 si la venta lleva IVA, 34 si no |
+| `requestedType` | `CHOOSE`: el emisor puede elegir otro tipo del mismo propósito · `CONFIRM`: el tipo lo determina el documento, y una solicitud que lo contradiga se rechaza | DO y PE eligen; el resto confirma |
+| `seriesOf` y `acceptsSeries` | De qué rango se toma el número cuando la serie no es libre, y qué series admite cada tipo al registrar un rango | EC: `EEE-PPP` del punto de emisión · PE: serie F para factura y B para boleta |
+| `format` | Cómo se escribe el número que se tomó | `B01` + 8 dígitos · `F001-00000123` |
+| `tillReceiptType` | El comprobante que el punto de venta entrega al consumidor, si el mercado tiene uno | DO: B02 |
+
+Reglas que valen para todos los mercados por igual:
+
+- **Una sola tabla de rangos**, `fiscal_document_ranges`, y un solo servicio, `FiscalRangeService`.
+  El número se toma con la fila bloqueada dentro de la transacción que emite el documento.
+- **Un rango solo se registra si** el mercado numera por rangos, el tipo está en su catálogo, la
+  serie es una que la autoridad admite para ese tipo, lleva vencimiento cuando el tipo lo exige, no
+  se solapa con ningún rango anterior del mismo tipo y serie (vigente o retirado) y ninguno de sus
+  números está ya en un documento. Dos registros simultáneos del mismo rango se serializan.
+- **El documento guarda lo que se tomó**: el consecutivo y la serie (`fiscal_sequence`,
+  `fiscal_series`, en facturas y en tiquetes de caja), además del tipo. Nada vuelve a leerlos del
+  número ya formateado, y los constructores de factura electrónica escriben el tipo registrado en
+  lugar de decidirlo otra vez.
+- **Quién ya usó un número lo responde su dueño.** Facturas y punto de venta se inscriben en
+  `IssuedFiscalNumbersRegistry` (contrato de plataforma); el servicio de rangos no importa sus
+  tablas.
+- **Un rango nunca se borra.** Se retira o se reactiva, porque es la autorización bajo la que se
+  emitieron documentos anteriores. Cerrar un tramo sin usar (la anulación de secuencias) solo se
+  admite desde el siguiente número sin emitir, y con el rango bloqueado mientras se declara.
+
+Una sola pantalla de ajustes (`vx-fiscal-ranges-card`) y una sola API (`einvoicing/regime/ranges`)
+sirven a todos los mercados.
 
 ## 3. Cómo se agrega o se completa un mercado
 
@@ -250,7 +288,7 @@ eso se resuelve en el contrato, no con una rama.
 |---|---|---|
 | 0 | Este documento; tareas del programa | ✅ |
 | 1 | `markets/`: contrato, registro, mercado neutral, 19 paquetes con la estructura canónica, consultas genéricas (`markets/queries`), datos consolidados desde `localization/fiscal/*` y `contracts/country-pack` (retirados); los consumidores leen el registro; pruebas de estructura y de catálogo; puerta estricta con regla de import | ✅ |
-| 2 | Documentos y numeración: un adaptador genérico guiado por la política de numeración del mercado; fuera el `switch` de `FiscalAdapterFactory`; `ncf_sequences` → `fiscal_document_ranges`; motivos de ajuste canónicos en lugar de `ModificationCode`; tipos de nota de crédito y débito de todos los regímenes | ⏳ |
+| 2 | Documentos y numeración: un adaptador genérico guiado por la política de numeración del mercado; fuera el `switch` de `FiscalAdapterFactory`; `ncf_sequences` → `fiscal_document_ranges`; motivos de ajuste canónicos en lugar de `ModificationCode`; tipos de nota de crédito y débito de todos los regímenes | ⏳ Hecho: motor único, política por mercado, rangos unificados con reglas comunes, consecutivo y serie en el documento, pantalla y API únicas (§2.8). Falta: motivos de ajuste canónicos |
 | 3 | Facturación electrónica: DO entra al outbox genérico (`fiscal_submissions`, `fiscal_document_events`); los constructores se mudan a `markets/<cc>/einvoicing/` y reciben vistas neutrales; las variables `DGII_*` pasan a la configuración de transmisión del tenant | ⏳ |
 | 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ⏳ |
 | 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ⏳ |

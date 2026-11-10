@@ -55,6 +55,10 @@ export interface PosPayment {
 @Index('IDX_pos_sales_org_created', ['organizationId', 'createdAt'])
 @Index('IDX_pos_sales_org_shift', ['organizationId', 'shiftId'])
 // A comprobante is issued once per company, whichever document carries it (PosSaleAccounting).
+// The receipts already drawn from a range, for registering a new range that must not overlap them.
+@Index('IDX_pos_sales_fiscal_sequence', ['organizationId', 'fiscalDocumentType', 'fiscalSeries', 'fiscalSequence'], {
+  where: '"fiscal_sequence" IS NOT NULL',
+})
 @Index('UQ_pos_sales_org_fiscal_number', ['organizationId', 'fiscalNumber'], {
   unique: true,
   where: '"fiscal_number" IS NOT NULL',
@@ -152,12 +156,22 @@ export class PosSale {
   @Column({ name: 'cost_of_sale', type: 'numeric', precision: 14, scale: 2, transformer: numericTransformerNotNull, default: 0 })
   costOfSale: number;
 
-  /** The comprobante fiscal printed on the ticket (B02 in the Dominican Republic), when drawn. */
+  /**
+   * The authority's receipt printed on the ticket, when the market hands consumers one from the
+   * till (`MarketNumbering.tillReceiptType`) and the company holds a range in force for it.
+   */
   @Column({ name: 'fiscal_number', type: 'varchar', length: 19, nullable: true })
   fiscalNumber: string | null;
 
   @Column({ name: 'fiscal_document_type', type: 'varchar', length: 8, nullable: true })
   fiscalDocumentType: string | null;
+
+  /** The consecutive and series the receipt was drawn as — see `Invoice.fiscalSequence`. */
+  @Column({ name: 'fiscal_sequence', type: 'bigint', nullable: true, transformer: numericTransformer })
+  fiscalSequence: number | null;
+
+  @Column({ name: 'fiscal_series', type: 'varchar', length: 16, nullable: true })
+  fiscalSeries: string | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

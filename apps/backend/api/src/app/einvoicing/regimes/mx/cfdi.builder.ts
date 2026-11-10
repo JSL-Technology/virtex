@@ -1,9 +1,10 @@
 import * as xmlbuilder from 'xmlbuilder';
-import { Invoice, InvoiceType } from '../../../invoices/entities/invoice.entity';
+import { Invoice } from '../../../invoices/entities/invoice.entity';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
+import { issuedDocumentType } from '../fiscal-number';
 
 /**
  * CFDI 4.0 — the Mexican comprobante fiscal digital por internet.
@@ -217,14 +218,12 @@ export class CfdiBuilder {
 
   /** `I` ingreso, `E` egreso (a credit note is one), `T` traslado, `P` pago. */
   /**
-   * The authority's document-type code for this invoice.
-   *
-   * Public because the numbering adapter has to draw the number from the range authorised for
-   * THIS type, and it must reach that answer the same way the builder does. Two copies of the
-   * rule is how a document ends up numbered from the exenta range and built as an afecta.
+   * The authority's type the document was numbered as — recorded at issuance by the market's own
+   * rule (`markets/<cc>/documents.ts`), never decided again here: two copies of the rule is how a
+   * document ends up numbered from one range and built as another type.
    */
   documentType(invoice: Invoice): 'I' | 'E' {
-    return invoice.type === InvoiceType.CREDIT_NOTE ? 'E' : 'I';
+    return issuedDocumentType(invoice, ['I', 'E'] as const);
   }
 
   /**

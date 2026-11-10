@@ -53,7 +53,7 @@ export class SunatRegimeAdapter extends RegimeAdapterBase implements FiscalRegim
     const customer = await this.customerOf(context);
 
     // The series is the range's, not the tenant's: a taxpayer runs F001 and B001 at once, and the
-    // series a document belongs to is the one its number was drawn from.
+    // series a document belongs to is the one its number was drawn from, recorded when it was drawn.
     const documentType = context.invoice.fiscalDocumentType;
     if (!documentType) {
       throw new RegimeNotConfigured(this.regime, 'el tipo de comprobante del documento');
@@ -63,6 +63,7 @@ export class SunatRegimeAdapter extends RegimeAdapterBase implements FiscalRegim
       countryCode: 'PE',
       documentType,
       number: this.assignedNumber(context, this.regime),
+      series: context.invoice.fiscalSeries ?? undefined,
     });
 
     const { xml, documentName } = this.builder.build({

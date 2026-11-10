@@ -1,6 +1,5 @@
 import { DataSource } from 'typeorm';
 import { ComplianceService } from './compliance.service';
-import { NcfSequence } from './entities/ncf-sequence.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { createTestOrganization, describeWithDb, dropTestOrganization, openTestDataSource } from '../common/database/testing/integration-db';
 
@@ -38,11 +37,9 @@ describeWithDb('607 / 608 include the tills, against the real schema', () => {
     await sale('B0200000102', 'CANCELLED', 'QA error de digitación');
 
     service = new ComplianceService(
-      ds.getRepository(NcfSequence),
       ds.getRepository(Invoice),
       // By entity name: the classes belong to other modules (verify:boundaries).
       ds.getRepository('Organization'),
-      ds.getRepository('FiscalDocumentTypeDefinition'),
       ds,
       {} as never, // AccountBalancesService: not used by the 607/608
       {} as never, // PurchaseFiscalRecordsRegistry: not used by the 607/608
