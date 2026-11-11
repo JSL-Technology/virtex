@@ -144,8 +144,9 @@ mercado desconocido herede las respuestas del primero.
 ### 2.5 Persistencia
 
 - Las tablas genéricas tienen **columnas neutrales**:
-  - `vendor_bills`: `supplier_fiscal_number`, `supplier_document_type`,
-    `modified_supplier_fiscal_number` y `supplier_document_key`.
+  - `vendor_bills`: `supplier_fiscal_number`, `supplier_fiscal_key`,
+    `modified_supplier_fiscal_number`, `fiscal_attributes` y `payment_method_code` (hecho en la
+    fase 4; véase §2.10).
   - `invoices`: `adjustment_reason`, canónico. La traducción al código de la autoridad la hace el
     mercado.
 - **Lo propio de un mercado va en `fiscal_attributes jsonb`**, validado contra el esquema que
@@ -248,6 +249,47 @@ del importe. La misma taxonomía sirve ahora a las dos notas y una sola familia 
 (`invoices.adjustment_reason.*`), así que el motivo se lee igual en la pantalla, en el documento y en
 la declaración.
 
+### 2.10 Compras
+
+El número del documento del proveedor es **de su mercado**: un NCF dominicano, el folio fiscal de un
+CFDI, la clave de acceso de una NF-e, el CUFE de la DIAN, o el número de factura del propio
+proveedor donde ninguna autoridad numera nada. La columna se llama por lo que es
+(`supplier_fiscal_number`), el mercado declara su regla (`purchases.receivedDocument.check`) y el
+servicio la aplica sin saber de qué país se trata:
+
+| Estado de la comprobación | Qué significa | Qué hace el producto |
+|---|---|---|
+| `ok` | El número pasa la regla del mercado | Se guarda en la forma canónica del mercado |
+| `invalid` | La regla lo rechaza, con un motivo del propio mercado (`format`, `check_digit`, `unknown_type`…) | Se rechaza nombrando a la autoridad, nunca se guarda |
+| `unverified` | El mercado no publica una forma que el producto verifique | Se guarda tal como está impreso y la pantalla dice que no se verificó |
+| `missing` | No hay número | La compra se registra sin él |
+
+Lo que la autoridad pregunta **además** de las cifras y del documento vive en `fiscal_attributes`,
+bajo las claves que el mercado declara (`purchases.fiscalAttributes`, el mismo `FiscalFieldSpec` que
+los datos de registro de §2.2). El servidor valida contra esa declaración y **rechaza una clave que
+el mercado no pregunta**, así que un cliente no puede colar datos en la columna, y el formulario se
+dibuja a partir de la misma declaración: un mercado que pregunta otra cosa la pregunta en pantalla
+sin tocar una línea del cliente.
+
+Reglas que esto fija:
+
+- **Nada se supone.** Registrar la compra valida las claves, no exige las respuestas; la declaración
+  que necesita una clasificación **se niega a presentar la compra sin ella y la nombra**
+  (`compliance.report_606_purchase_not_classified`), y la respuesta se da después, en la ficha de la
+  compra (`PATCH /accounts-payable/:id/fiscal-attributes`), que es cuando la tiene quien concilia la
+  declaración. Antes la columna traía `DEFAULT '06'`: cada compra de cada mercado quedaba clasificada
+  como «compra de mercancías» dominicana y el 606 presentaba esa suposición.
+- **Cómo se pagó es un método de pago de la empresa**, como en ventas: `payment_method_code`. El
+  código que la autoridad le da al método vive en el método (`payment_methods.fiscal_code`), no en
+  cada compra.
+- **El documento del proveedor identifica una sola compra viva** por (identificador del emisor,
+  número), en todos los mercados: la regla la aplica el servicio y la impone la base
+  (`UQ_vendor_bills_issuer_fiscal_number`). La clave admite el número más largo que emite cualquier
+  mercado —96 caracteres de un CUFE, 44 dígitos de una NF-e—, no los 19 de un NCF.
+- **Un mercado publica un ejemplo de su número** (`receivedDocument.example`) y el catálogo exige que
+  su propia regla lo acepte. De ahí salen el marcador del formulario y la fila de ejemplo de la
+  plantilla de importación, que mostraba un RNC y un comprobante dominicanos a cualquier empresa.
+
 ## 3. Cómo se agrega o se completa un mercado
 
 1. Copiar el paquete de un mercado con la misma cobertura y responder cada archivo. Por ejemplo,
@@ -314,7 +356,7 @@ eso se resuelve en el contrato, no con una rama.
 | 1 | `markets/`: contrato, registro, mercado neutral, 19 paquetes con la estructura canónica, consultas genéricas (`markets/queries`), datos consolidados desde `localization/fiscal/*` y `contracts/country-pack` (retirados); los consumidores leen el registro; pruebas de estructura y de catálogo; puerta estricta con regla de import | ✅ |
 | 2 | Documentos y numeración: un adaptador genérico guiado por la política de numeración del mercado; fuera el `switch` de `FiscalAdapterFactory`; `ncf_sequences` → `fiscal_document_ranges`; motivos de ajuste canónicos en lugar de `ModificationCode`; tipos de nota de crédito y débito de todos los regímenes | ✅ Motor único con la política de cada mercado, rangos unificados con reglas comunes, consecutivo y serie en el documento, pantalla y API únicas (§2.8); motivos de ajuste canónicos traducidos por el mercado (§2.9). Los constructores de los seis regímenes que todavía no referencian el documento modificado son parte de la fase 3 |
 | 3 | Facturación electrónica: DO entra al outbox genérico (`fiscal_submissions`, `fiscal_document_events`); los constructores se mudan a `markets/<cc>/einvoicing/` y reciben vistas neutrales; las variables `DGII_*` pasan a la configuración de transmisión del tenant | ⏳ |
-| 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ⏳ |
+| 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ✅ Columnas neutrales con migración exacta en los dos sentidos, `fiscal_attributes` validado contra la declaración del mercado, documento del proveedor comprobado por la regla de cada mercado, método de pago de la empresa en lugar de la «forma de pago» de una autoridad, formulario y ficha dibujados desde el paquete público del mercado (§2.10) |
 | 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ⏳ |
 | 6 | Nómina: motor dominicano a `markets/do/payroll/`, registro de motores y sin `'DOP'` por omisión | ⏳ |
 | 7 | Cliente: sin ramas por país; pantallas guiadas por la definición pública del mercado | ⏳ |

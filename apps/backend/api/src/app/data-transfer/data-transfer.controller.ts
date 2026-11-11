@@ -59,8 +59,8 @@ export class DataTransferController {
   @AuthenticatedOnly(
     'La plantilla solo se entrega a quien puede crear esos registros a mano: DataTransferService exige el permiso de creación que el dominio registró para ese conjunto.',
   )
-  template(@Param() params: TemplateParamsDto, @CurrentUser() user: AuthenticatedUser, @Res() res: Response) {
-    this.send(res, this.transfer.template(user, params.dataset));
+  async template(@Param() params: TemplateParamsDto, @CurrentUser() user: AuthenticatedUser, @Res() res: Response) {
+    this.send(res, await this.transfer.template(user, params.dataset));
   }
 
   /** Generating a file reads every row of a dataset: limited so it cannot be used as a scraper. */

@@ -49,7 +49,12 @@ export interface NodeSpec {
   permission: string;
   /** Tenant column properties. Defaults to `['organizationId']`; several = the row belongs to either. */
   orgProps?: string[];
-  numberProp?: string;
+  /**
+   * What names the document. Several = the first of them that is filled, in order: a purchase is
+   * named by the number on the supplier's document where their market's authority issues one, and
+   * by the supplier's own invoice number where none does.
+   */
+  numberProp?: string | readonly string[];
   dateProp?: string;
   statusProp?: string;
   totalProp?: string;
@@ -335,7 +340,7 @@ export const NODE_SPECS: Record<FlowDocumentType, NodeSpec> = {
     module: 'purchasing',
     typeKey: 'relationship_map.doc.vendor_bill',
     permission: P.AP,
-    numberProp: 'ncf',
+    numberProp: ['supplierFiscalNumber', 'supplierInvoiceNumber'],
     dateProp: 'date',
     statusProp: 'status',
     totalProp: 'total',

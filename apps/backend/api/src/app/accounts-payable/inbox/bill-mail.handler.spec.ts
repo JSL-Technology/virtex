@@ -9,10 +9,23 @@ const suggestion = (overrides: Partial<BillCaptureSuggestion> = {}): BillCapture
     documentKind: 'invoice',
     market: { countryCode: 'DO', generic: false, documentKind: 'NCF' },
     supplier: { match: { id: 'sup-1', name: 'Distribuidora', taxId: '131246753' }, name: 'Distribuidora', taxId: '131246753', taxIdValid: true, registry: null },
-    bill: { ncf: 'B0100000123', ncfModified: null, date: '2026-10-05', dueDate: null, currencyCode: 'DOP', paymentForm: null, purchaseCategory: '09', taxAmount: 1033.2, serviceCharge: null, subtotal: 5740, total: 6773.2 },
+    bill: {
+      supplierFiscalNumber: 'B0100000123',
+      modifiedSupplierFiscalNumber: null,
+      date: '2026-10-05',
+      dueDate: null,
+      currencyCode: 'DOP',
+      paymentMethodCode: null,
+      // What this market's authority asks about a purchase, by the keys the market declares.
+      fiscalAttributes: { purchaseCategory: '09' },
+      taxAmount: 1033.2,
+      serviceCharge: null,
+      subtotal: 5740,
+      total: 6773.2,
+    },
     lines: [{ description: 'Cemento', quantity: 10, unitPrice: 574, total: 5740, productId: 'cement', expenseAccountId: null, matchedBy: 'history' }],
-    checks: { ncf: { status: 'ok', error: null, type: 'B01', warnings: [] }, arithmetic: [], duplicateBillId: null, sameFileBillId: null },
-    confidence: { supplier: 1, ncf: 1, dates: 1, amounts: 1, lines: 1 },
+    checks: { supplierDocument: { status: 'ok', error: null, type: 'B01', warnings: [] }, arithmetic: [], duplicateBillId: null, sameFileBillId: null },
+    confidence: { supplier: 1, document: 1, dates: 1, amounts: 1, lines: 1 },
     ...overrides,
   }) as BillCaptureSuggestion;
 
@@ -33,7 +46,7 @@ function build(read: BillCaptureSuggestion, poRows: unknown[] = []) {
   const dataSource = fakeTenantDataSource();
   (dataSource as unknown as { query: unknown }).query = jest.fn(async () => poRows);
   const capture = { capture: jest.fn(async () => read) };
-  const bills = { create: jest.fn(async () => ({ id: 'bill-1', ncf: 'B0100000123' })) };
+  const bills = { create: jest.fn(async () => ({ id: 'bill-1', supplierFiscalNumber: 'B0100000123' })) };
   const handler = new BillMailHandler(
     new InboundMailHandlerRegistry(),
     capture as never,
@@ -75,7 +88,7 @@ describe('BillMailHandler', () => {
   it('names every reason a read bill needs a person', () => {
     const doubtful = suggestion({
       documentKind: 'receipt',
-      checks: { ncf: { status: 'invalid', error: 'format', type: null, warnings: [] }, arithmetic: [{ kind: 'subtotal_tax_vs_total', computed: 1, total: 2 }], duplicateBillId: 'b', sameFileBillId: null },
+      checks: { supplierDocument: { status: 'invalid', error: 'format', type: null, warnings: [] }, arithmetic: [{ kind: 'subtotal_tax_vs_total', computed: 1, total: 2 }], duplicateBillId: 'b', sameFileBillId: null },
       lines: [{ description: 'x', quantity: 1, unitPrice: 1, total: 1, productId: null, expenseAccountId: null, matchedBy: null }],
     });
     expect(reviewReasons(doubtful)).toEqual(['not_a_bill', 'possible_duplicate', 'document_number', 'arithmetic', 'unmatched_lines']);

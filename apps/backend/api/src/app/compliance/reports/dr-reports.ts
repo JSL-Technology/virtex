@@ -51,6 +51,12 @@ export interface TillFiscalSale {
 }
 
 /**
+ * «Forma de pago» 06: the DGII reports a supplier's credit note on that column, whatever method
+ * paid the bill it corrects. It is the 606's rule, so it lives with the 606 and not on the purchase.
+ */
+const CREDIT_NOTE_PAYMENT_FORM = '06';
+
+/**
  * What a customer actually withheld from us on an invoice, from its collections (607 boxes 7, 10
  * and 12). The withholding happens when the customer pays — not when we issue — so the amounts and
  * the date come from the receipts that carried it. Before any such receipt nothing has been
@@ -265,12 +271,30 @@ export class DominicanRepublicReports {
       });
     }
 
+    // Every line of the 606 states what was bought, and the DGII rejects the file over one that
+    // does not. A purchase used to be filed as `06` (compras de mercancías) when nobody had said
+    // what it was, because the column defaulted to it: the file was produced and said something
+    // the taxpayer had never stated. The documents to classify are named instead
+    // (`PATCH /accounts-payable/:id/fiscal-attributes`).
+    const unclassified = documents.filter((document) => !document.fiscalAttributes['purchaseCategory']);
+    if (unclassified.length > 0) {
+      throw new UnprocessableEntityError('compliance.report_606_purchase_not_classified', {
+        count: unclassified.length,
+        bills: unclassified
+          .slice(0, 10)
+          .map((document) => `${document.fiscalNumber ?? document.reference} (${document.supplierName ?? '—'})`)
+          .join(', '),
+      });
+    }
+
     const rows = documents.map((document) => {
       const taxId = digitsOnly(document.supplierTaxId);
       return [
         taxId,
         identificationType(taxId),
-        document.purchaseCategory || '06',
+        // The 606's own columns, from what the market asked the purchase to state, by the keys
+        // `markets/do/purchases.ts` declares. Checked above: nothing is filed unclassified.
+        document.fiscalAttributes['purchaseCategory'],
         document.fiscalNumber ?? '',
         document.modifiedFiscalNumber ?? '',
         compactDate(document.date),
@@ -286,13 +310,15 @@ export class DominicanRepublicReports {
         // On a credit note, the ITBIS it gives back: the credit the buyer no longer carries.
         money(Math.max(0, document.taxAmount - document.taxProportional - document.taxToCost)),
         money(0),
-        document.isrRetentionType ?? '',
+        document.fiscalAttributes['isrRetentionType'] ?? '',
         money(document.incomeTaxWithheld),
         money(0),
         money(document.exciseAmount),
         money(document.otherTaxes),
         money(document.serviceCharge),
-        document.paymentForm || '01',
+        // «Forma de pago»: the DGII's code for the method that settled it, and `06` for a credit
+        // note, which is how the 606 reports one whatever method the bill was paid by.
+        (document.kind === 'credit_note' ? CREDIT_NOTE_PAYMENT_FORM : document.paymentFiscalCode) || '01',
       ].join('|');
     });
 
@@ -378,7 +404,7 @@ export class DominicanRepublicReports {
         (document.supplierName ?? '').trim(),
         // Tipo de renta: fees for services is the ordinary case for a cross-border payment; where
         // the bill declares an ISR retention type, that classification wins.
-        document.isrRetentionType || '02',
+        document.fiscalAttributes['isrRetentionType'] || '02',
         compactDate(document.date),
         money(document.servicesAmount + document.goodsAmount || document.total),
         money(document.incomeTaxWithheld),
@@ -532,13 +558,6 @@ function monthBounds(year: number, month: number): { from: string; to: string } 
   const from = new Date(Date.UTC(year, month - 1, 1));
   const to = new Date(Date.UTC(year, month, 0));
   return { from: from.toISOString().split('T')[0], to: to.toISOString().split('T')[0] };
-}
-
-function monthBoundsAsDates(year: number, month: number): { fromDate: Date; toDate: Date } {
-  return {
-    fromDate: new Date(Date.UTC(year, month - 1, 1)),
-    toDate: new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)),
-  };
 }
 
 /** One 607 record: refuses to write a line that is not exactly the published twenty-three boxes. */

@@ -12,9 +12,6 @@ import { toIsoDate } from '../common/dates';
 import { VendorBill, VendorBillStatus } from './entities/vendor-bill.entity';
 import { VendorDebitNote, VendorDebitNoteStatus } from './entities/vendor-debit-note.entity';
 
-/** DGII «forma de pago» 06: the purchase was settled by a credit note. */
-const CREDIT_NOTE_PAYMENT_FORM = '06';
-
 const NOT_ISSUED = [VendorBillStatus.DRAFT, VendorBillStatus.VOID, VendorBillStatus.REJECTED];
 
 /**
@@ -38,16 +35,16 @@ export class PurchaseFiscalRecordsProvider implements PurchaseFiscalRecordsSourc
   }
 
   async fiscalDocuments(query: PurchaseFiscalQuery): Promise<PurchaseFiscalDocument[]> {
-    const [bills, notes] = await Promise.all([
+    const [bills, notes, paymentCodes] = await Promise.all([
       this.bills.find({
         relations: ['vendor'],
         where: {
           organizationId: query.organizationId,
           date: Between(query.from, query.to),
-          ncf: Not(IsNull()),
+          supplierFiscalNumber: Not(IsNull()),
           status: Not(In(NOT_ISSUED)),
         },
-        order: { date: 'ASC', ncf: 'ASC' },
+        order: { date: 'ASC', supplierFiscalNumber: 'ASC' },
       }),
       // A voided note is left out the way a voided bill is: the reversal took its effect back.
       this.debitNotes.find({
@@ -55,15 +52,16 @@ export class PurchaseFiscalRecordsProvider implements PurchaseFiscalRecordsSourc
         where: {
           organizationId: query.organizationId,
           date: Between(query.from, query.to),
-          ncf: Not(IsNull()),
+          supplierFiscalNumber: Not(IsNull()),
           status: VendorDebitNoteStatus.POSTED,
         },
         order: { date: 'ASC', number: 'ASC' },
       }),
+      this.paymentFiscalCodes(query.organizationId),
     ]);
 
     // One chronology: a note sits after the bills of its own day, as it was received after them.
-    return [...bills.map(fromBill), ...notes.map(fromCreditNote)]
+    return [...bills.map((bill) => fromBill(bill, paymentCodes)), ...notes.map(fromCreditNote)]
       .map((document, index) => ({ document, index }))
       .sort((a, b) => a.document.date.localeCompare(b.document.date) || a.index - b.index)
       .map(({ document }) => document);
@@ -80,24 +78,41 @@ export class PurchaseFiscalRecordsProvider implements PurchaseFiscalRecordsSourc
       .orderBy('bill.date', 'ASC')
       .addOrderBy('bill.id', 'ASC')
       .getMany();
-    return bills.map(fromBill);
+    const paymentCodes = await this.paymentFiscalCodes(query.organizationId);
+    return bills.map((bill) => fromBill(bill, paymentCodes));
+  }
+
+  /**
+   * The authority's code for each of the company's payment methods, where its market publishes a
+   * catalogue (`payment_methods.fiscal_code`).
+   *
+   * Read by SQL, scoped to the tenant: the catalogue is Treasury's table and a purchases return is
+   * not a reason for Purchasing to depend on Treasury. The purchase records which method settled it,
+   * as the invoice does on the sales side; what an authority calls that method is the method's own.
+   */
+  private async paymentFiscalCodes(organizationId: string): Promise<ReadonlyMap<string, string>> {
+    const rows: Array<{ code: string; fiscal_code: string | null }> = await this.bills.manager.query(
+      `SELECT "code", "fiscal_code" FROM "payment_methods" WHERE "organization_id" = $1`,
+      [organizationId],
+    );
+    return new Map(rows.filter((row) => row.fiscal_code).map((row) => [row.code, row.fiscal_code as string]));
   }
 }
 
-function fromBill(bill: VendorBill): PurchaseFiscalDocument {
+function fromBill(bill: VendorBill, paymentCodes: ReadonlyMap<string, string>): PurchaseFiscalDocument {
   return {
     kind: 'bill',
-    // A bill carries no number of the product's own: its NCF names it, or its id when it has none.
-    reference: bill.ncf ?? bill.id,
+    // A bill carries no number of the product's own: the supplier's document names it, or its id.
+    reference: bill.supplierFiscalNumber ?? bill.id,
     supplierName: bill.vendor?.name ?? null,
     supplierTaxId: bill.vendor?.taxId ?? null,
     supplierCountry: bill.vendor?.country ?? null,
-    fiscalNumber: bill.ncf ?? null,
-    modifiedFiscalNumber: bill.ncfModified ?? null,
+    fiscalNumber: bill.supplierFiscalNumber ?? null,
+    modifiedFiscalNumber: bill.modifiedSupplierFiscalNumber ?? null,
     date: toIsoDate(bill.date),
     paidOn: bill.paidAt ? toIsoDate(bill.paidAt) : null,
-    purchaseCategory: bill.purchaseCategory || null,
-    paymentForm: bill.paymentForm || null,
+    fiscalAttributes: bill.fiscalAttributes ?? {},
+    paymentFiscalCode: (bill.paymentMethodCode && paymentCodes.get(bill.paymentMethodCode)) || null,
     servicesAmount: num(bill.servicesAmount),
     goodsAmount: num(bill.goodsAmount),
     taxAmount: num(bill.taxAmount),
@@ -105,7 +120,6 @@ function fromBill(bill: VendorBill): PurchaseFiscalDocument {
     taxProportional: num(bill.taxProportional),
     taxToCost: num(bill.taxToCost),
     incomeTaxWithheld: num(bill.incomeTaxWithheld),
-    isrRetentionType: bill.isrRetentionType ?? null,
     exciseAmount: num(bill.exciseAmount),
     otherTaxes: num(bill.otherTaxes),
     serviceCharge: num(bill.serviceCharge),
@@ -127,12 +141,14 @@ function fromCreditNote(note: VendorDebitNote): PurchaseFiscalDocument {
     supplierName: bill?.vendor?.name ?? null,
     supplierTaxId: bill?.vendor?.taxId ?? null,
     supplierCountry: bill?.vendor?.country ?? null,
-    fiscalNumber: note.ncf,
-    modifiedFiscalNumber: bill?.ncf ?? null,
+    fiscalNumber: note.supplierFiscalNumber,
+    modifiedFiscalNumber: bill?.supplierFiscalNumber ?? null,
     date: toIsoDate(note.date),
     paidOn: null,
-    purchaseCategory: bill?.purchaseCategory || null,
-    paymentForm: CREDIT_NOTE_PAYMENT_FORM,
+    // The note is classified as the purchase it corrects, and how that purchase was paid is not
+    // what a note says: a return that codes a note on that column codes it itself.
+    fiscalAttributes: bill?.fiscalAttributes ?? {},
+    paymentFiscalCode: null,
     servicesAmount: services,
     goodsAmount: goods,
     taxAmount: num(note.taxAmount),
@@ -140,7 +156,6 @@ function fromCreditNote(note: VendorDebitNote): PurchaseFiscalDocument {
     taxProportional: 0,
     taxToCost: 0,
     incomeTaxWithheld: 0,
-    isrRetentionType: null,
     exciseAmount: 0,
     otherTaxes: 0,
     serviceCharge: 0,

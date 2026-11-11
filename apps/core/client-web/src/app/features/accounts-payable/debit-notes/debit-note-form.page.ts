@@ -26,8 +26,8 @@ const todayIso = (): string => tenantToday();
 /**
  * A debit note against one supplier bill (audit H-19): what it is reduced by, why, on which day,
  * which account takes the other side — the one the bill charged — and how much of it is input tax
- * given back. In the Dominican Republic the supplier answers with a credit note of its own (NCF
- * type 04); its number is recorded here so the 606 can pair the two.
+ * given back. Where the market's authority numbers the supplier's answering credit note, its number
+ * is recorded here so a purchases return can pair the two.
  *
  * Posted on save: a note is corrected by voiding it, never by editing.
  */
@@ -49,12 +49,18 @@ export class VendorDebitNoteFormPage implements OnInit {
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
   private readonly countryPack = inject(CountryPackService);
   /**
-   * The note's authority number (the DGII NCF, shape-checked on the server), asked only where the
-   * market has one for purchases (QA C-06): a US supplier's debit memo has no such number.
+   * The number the market's authority gave the supplier's own document, checked by that market's
+   * rule on the server. Asked only where the market has one for purchases (QA C-06): a US
+   * supplier's credit memo carries no such number.
    */
-  protected readonly supplierFiscalNumber = computed(
+  protected readonly asksSupplierDocument = computed(
     () => this.countryPack.pack()?.documents.supplierFiscalNumber ?? false,
   );
+  /** What that number is called here, and a number of its shape, both from the market's pack. */
+  protected readonly supplierDocumentKey = computed(
+    () => this.countryPack.pack()?.documents.supplierDocumentNumberKey ?? 'accounts_payable.form.supplier_document_number',
+  );
+  protected readonly supplierDocumentExample = computed(() => this.countryPack.pack()?.documents.supplierDocumentExample ?? '');
 
   /** `?billId=` — from the bill's own page. */
   readonly billId = input<string>();
@@ -65,7 +71,9 @@ export class VendorDebitNoteFormPage implements OnInit {
     amount: [null as number | null, [Validators.required, Validators.min(0.01)]],
     taxAmount: [0 as number | null, [Validators.min(0)]],
     expenseAccountId: ['', [Validators.required]],
-    ncf: ['', [Validators.pattern(/^[A-Za-z0-9]{11,19}$/)]],
+    // No shape is imposed here: the market's own rule is the server's, and it answers in the
+    // authority's name when it refuses a number. The pattern was one market's (11–19 characters).
+    supplierFiscalNumber: [''],
     reason: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(500)]],
   });
 
@@ -85,9 +93,10 @@ export class VendorDebitNoteFormPage implements OnInit {
   });
 
   protected readonly billLabel = (bill: VendorBill): string =>
-    `${bill.ncf || bill.date} · ${bill.vendor?.name ?? ''}`.trim();
+    `${bill.supplierFiscalNumber || bill.date} · ${bill.vendor?.name ?? ''}`.trim();
   protected readonly billValue = (bill: VendorBill): string => bill.id;
-  protected readonly billSearchText = (bill: VendorBill): string => `${bill.ncf ?? ''} ${bill.vendor?.name ?? ''} ${bill.date}`;
+  protected readonly billSearchText = (bill: VendorBill): string =>
+    `${bill.supplierFiscalNumber ?? ''} ${bill.vendor?.name ?? ''} ${bill.date}`;
 
   protected readonly searchAccounts = (query: string, limit: number): Observable<Account[]> =>
     this.accounts.searchAccounts(query, limit).pipe(map((list) => chargeableExpenseAccounts(list ?? [])));
@@ -130,7 +139,8 @@ export class VendorDebitNoteFormPage implements OnInit {
         amount: round2(Number(raw.amount)),
         taxAmount: round2(Number(raw.taxAmount) || 0),
         expenseAccountId: raw.expenseAccountId as string,
-        ncf: (this.supplierFiscalNumber() && (raw.ncf ?? '').trim().toUpperCase()) || undefined,
+        supplierFiscalNumber:
+          (this.asksSupplierDocument() && (raw.supplierFiscalNumber ?? '').trim().toUpperCase()) || undefined,
         reason: (raw.reason ?? '').trim(),
       })
       .subscribe({
@@ -177,7 +187,7 @@ export class VendorDebitNoteFormPage implements OnInit {
           amount: 'accounts_payable.debit_notes.amount',
           taxAmount: 'accounts_payable.debit_notes.tax_amount',
           expenseAccountId: 'accounts_payable.debit_notes.counterpart',
-          ncf: 'accounts_payable.debit_notes.ncf',
+          supplierFiscalNumber: 'accounts_payable.debit_notes.supplier_document',
           reason: 'accounts_payable.debit_notes.reason',
         }),
         ...extra,

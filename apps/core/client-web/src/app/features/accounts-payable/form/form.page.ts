@@ -3,6 +3,7 @@ import {
   Component,
   ChangeDetectionStrategy,
   computed,
+  effect,
   inject,
   OnInit,
   signal,
@@ -27,8 +28,6 @@ import {
   BillCaptureSuggestion,
   CreateVendorBillDto,
   VendorBillAttachment,
-  PAYMENT_FORMS,
-  PURCHASE_CATEGORIES,
   UpdateVendorBillDto,
 } from '../../../core/services/accounts-payable';
 import { NotificationService } from '../../../core/services/notification';
@@ -116,7 +115,6 @@ export class VendorBillFormPage implements OnInit {
   protected readonly DocumentIcon = FileText;
   protected readonly ReadIcon = Sparkles;
   protected readonly AttachIcon = Paperclip;
-  protected readonly purchaseCategories = PURCHASE_CATEGORIES;
   // ── The company's market (its country pack, QA C-06) ───────────────────────
   //
   // The bill used to ask every company for an «NCF», a DGII 606 purchase type and withholding —
@@ -126,20 +124,26 @@ export class VendorBillFormPage implements OnInit {
   private readonly paymentMethodsApi = inject(PaymentMethodsService);
   /** What the supplier's document number is called here: NCF, CFDI UUID, or the supplier's invoice number. */
   protected readonly supplierNumberKey = computed(
-    () => this.countryPack.pack()?.documents.supplierDocumentNumberKey ?? 'accounts_payable.form.ncf',
+    () => this.countryPack.pack()?.documents.supplierDocumentNumberKey ?? 'accounts_payable.form.supplier_document_number',
   );
-  /** The DGII 606 «Tipo de bienes y servicios», where the market classifies purchases for a report. */
-  protected readonly purchaseClassification = computed(
-    () => this.countryPack.pack()?.documents.purchaseClassification ?? false,
-  );
+  /** A number of that shape, as the field's placeholder; empty where the market publishes none. */
+  protected readonly supplierNumberExample = computed(() => this.countryPack.pack()?.documents.supplierDocumentExample ?? '');
+  /**
+   * What this market's authority asks about the purchase, beyond its figures and its document: the
+   * fields, their labels and the only codes each accepts, declared by the market and drawn here.
+   *
+   * The screen used to hold the DGII's own classification table in its source and offer it to every
+   * company, and there was nowhere for another authority's question to go.
+   */
+  protected readonly fiscalFields = this.countryPack.purchaseFiscalFields;
   protected readonly withholdingApplies = this.countryPack.withholding;
   /**
-   * The company's payment methods; for a Dominican company they ARE the DGII's 606 codes. The
-   * constant stays as the list while they load, so the field is never empty.
+   * The company's own payment methods, as it keeps them. What an authority calls one is the method's
+   * own business (`payment_methods.fiscal_code`), not a code on every purchase: a Dominican
+   * company's methods carry the DGII's 606 codes because its methods do, not because this screen
+   * holds that catalogue.
    */
-  protected readonly paymentForms = signal<ReadonlyArray<{ code: string; label: string | null; labelKey: string | null }>>(
-    PAYMENT_FORMS.map((form) => ({ code: form.code, label: null, labelKey: form.labelKey })),
-  );
+  protected readonly paymentMethods = signal<ReadonlyArray<{ code: string; name: string }>>([]);
 
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
@@ -194,17 +198,22 @@ export class VendorBillFormPage implements OnInit {
     if (result.supplier.taxId && result.supplier.taxIdValid === false) {
       notes.push({ key: 'accounts_payable.capture.tax_id_invalid', params: { taxId: result.supplier.taxId }, tone: 'warning' });
     }
-    if (result.checks.ncf.status === 'invalid') {
-      notes.push({ key: composeKey('accounts_payable.capture.ncf_error', result.checks.ncf.error ?? 'format'), params: { ncf: result.bill.ncf }, tone: 'warning' });
+    const document = result.bill.supplierFiscalNumber;
+    if (result.checks.supplierDocument.status === 'invalid') {
+      notes.push({
+        key: composeKey('accounts_payable.capture.document_error', result.checks.supplierDocument.error ?? 'format'),
+        params: { document },
+        tone: 'warning',
+      });
     }
-    if (result.checks.ncf.status === 'unverified' && result.bill.ncf) {
-      notes.push({ key: 'accounts_payable.capture.document_unverified', params: { ncf: result.bill.ncf }, tone: 'info' });
+    if (result.checks.supplierDocument.status === 'unverified' && document) {
+      notes.push({ key: 'accounts_payable.capture.document_unverified', params: { document }, tone: 'info' });
     }
     if (result.market.generic) {
       notes.push({ key: 'accounts_payable.capture.generic_market', tone: 'info' });
     }
-    for (const warning of result.checks.ncf.warnings) {
-      notes.push({ key: composeKey('accounts_payable.capture.ncf_warning', warning), params: { ncf: result.bill.ncf }, tone: 'info' });
+    for (const warning of result.checks.supplierDocument.warnings) {
+      notes.push({ key: composeKey('accounts_payable.capture.document_warning', warning), params: { document }, tone: 'info' });
     }
     for (const issue of result.checks.arithmetic) {
       notes.push({ key: composeKey('accounts_payable.capture.arithmetic', issue.kind), params: { ...issue }, tone: 'warning' });
@@ -298,17 +307,24 @@ export class VendorBillFormPage implements OnInit {
     if (result.supplier.match) set('vendorId', result.supplier.match.id, confidence.supplier);
     // A number the market's rule rejected is shown as a warning, never written in; one the market has
     // no rule for is written in and flagged as not verified.
-    if (bill.ncf && (result.checks.ncf.status === 'ok' || result.checks.ncf.status === 'unverified')) set('ncf', bill.ncf, confidence.ncf);
+    if (bill.supplierFiscalNumber && (result.checks.supplierDocument.status === 'ok' || result.checks.supplierDocument.status === 'unverified')) {
+      set('supplierFiscalNumber', bill.supplierFiscalNumber, confidence.document);
+    }
     set('date', bill.date, confidence.dates);
     set('dueDate', bill.dueDate ?? bill.date, confidence.dates);
     if (bill.currencyCode && this.currencies().some((currency) => currency.code === bill.currencyCode)) {
       set('currencyCode', bill.currencyCode, confidence.amounts);
     }
-    set('paymentForm', bill.paymentForm, confidence.amounts);
-    set('purchaseCategory', bill.purchaseCategory, confidence.lines);
+    set('paymentMethodCode', bill.paymentMethodCode, confidence.amounts);
+    // Whatever this market's authority asks about the purchase, by its own keys.
+    let readAnAttribute = false;
+    for (const [key, value] of Object.entries(bill.fiscalAttributes ?? {})) {
+      set(`fiscalAttributes.${key}`, value, confidence.lines);
+      readAnAttribute = readAnAttribute || filled[`fiscalAttributes.${key}`] !== undefined;
+    }
     set('taxAmount', bill.taxAmount, confidence.amounts);
     set('serviceCharge', bill.serviceCharge, confidence.amounts);
-    if (filled['taxAmount'] !== undefined || filled['serviceCharge'] !== undefined || filled['purchaseCategory'] !== undefined) {
+    if (filled['taxAmount'] !== undefined || filled['serviceCharge'] !== undefined || readAnAttribute) {
       this.showFiscalDetail.set(true);
     }
 
@@ -402,6 +418,15 @@ export class VendorBillFormPage implements OnInit {
   /** The document has to have at least one line with an amount before it can be saved. */
   readonly canSave = computed(() => !this.isLoading() && this.totals().total > 0);
 
+  constructor() {
+    // The pack arrives after the form is built, and a company's market can change under the same
+    // session (switching company): the controls follow whatever the market declares, each time.
+    effect(() => {
+      this.fiscalFields();
+      this.syncFiscalFields();
+    });
+  }
+
   ngOnInit(): void {
     if (this.auth.hasPermissions(['ai_bill_capture:use'])) {
       this.ai.status().pipe(catchError(() => of(null))).subscribe((status) => this.visionAvailable.set(!!status?.vision.available));
@@ -412,13 +437,60 @@ export class VendorBillFormPage implements OnInit {
     this.checkMode();
   }
 
+  /** What the bill being edited already answered, kept so the controls can be filled once they exist. */
+  private readonly recordedAttributes = signal<Record<string, string>>({});
+
+  /** The group holding one control per field the market's authority asks about. */
+  protected get fiscalAttributesGroup(): FormGroup {
+    return this.form.get('fiscalAttributes') as FormGroup;
+  }
+
+  /**
+   * One control per field the market declares — added when the pack arrives, removed when a market
+   * stops asking. A control a person has typed in is left alone; the rest take what the bill
+   * recorded, so loading a bill before the pack arrives still fills them.
+   */
+  private syncFiscalFields(): void {
+    if (!this.form) return;
+    const group = this.fiscalAttributesGroup;
+    const fields = this.fiscalFields();
+    const recorded = this.recordedAttributes();
+    for (const name of Object.keys(group.controls)) {
+      if (!fields.some((field) => field.key === name)) group.removeControl(name, { emitEvent: false });
+    }
+    for (const field of fields) {
+      const existing = group.get(field.key);
+      if (!existing) {
+        group.addControl(field.key, this.fb.control(recorded[field.key] ?? ''), { emitEvent: false });
+      } else if (!existing.dirty && recorded[field.key] !== undefined) {
+        existing.setValue(recorded[field.key], { emitEvent: false });
+      }
+    }
+  }
+
+  /**
+   * What the purchase states, by the market's own keys — only the fields answered.
+   *
+   * Nothing is defaulted and nothing is guessed: an unanswered field is simply absent, the server
+   * accepts the purchase without it, and the purchases return names the purchases it cannot file
+   * rather than filing a guess (`PATCH /accounts-payable/:id/fiscal-attributes` is the repair).
+   */
+  private answeredAttributes(): Record<string, string> | undefined {
+    const answered: Record<string, string> = {};
+    for (const field of this.fiscalFields()) {
+      const value = this.fiscalAttributesGroup.get(field.key)?.value;
+      if (typeof value === 'string' && value.trim()) answered[field.key] = value.trim();
+    }
+    return Object.keys(answered).length ? answered : undefined;
+  }
+
   /** The company's active payment methods; a bill that has none of them yet takes the first. */
   private loadPaymentMethods(): void {
     this.paymentMethodsApi.active().subscribe({
       next: (methods) => {
         if (methods.length === 0) return;
-        this.paymentForms.set(methods.map((method) => ({ code: method.code, label: method.name, labelKey: null })));
-        const control = this.form.get('paymentForm');
+        this.paymentMethods.set(methods.map((method) => ({ code: method.code, name: method.name })));
+        const control = this.form.get('paymentMethodCode');
         if (control && !control.dirty && !methods.some((method) => method.code === control.value)) {
           control.setValue(methods[0].code, { emitEvent: false });
         }
@@ -431,7 +503,7 @@ export class VendorBillFormPage implements OnInit {
     const today = toIsoDate(new Date());
     this.form = this.fb.group({
       vendorId: ['', [Validators.required]],
-      ncf: [''],
+      supplierFiscalNumber: [''],
       supplierInvoiceNumber: ['', [Validators.maxLength(60)]],
       date: [today, [Validators.required]],
       dueDate: [today, [Validators.required]],
@@ -441,9 +513,12 @@ export class VendorBillFormPage implements OnInit {
       //  so that source preselected the wrong currency on every purchase invoice.
       currencyCode: [''],
       branchId: [null as string | null],
-      purchaseCategory: ['06'],
-      paymentForm: ['01'],
-      isrRetentionType: [''],
+      // What the market's authority asks: one control per field it declares, created when the pack
+      // arrives (`syncFiscalFields`). Nothing is defaulted — the previous version defaulted the
+      // Dominican classification to «Compras de mercancías» on every purchase of every market, and
+      // the purchases return filed that guess.
+      fiscalAttributes: this.fb.group({}),
+      paymentMethodCode: [''],
       taxAmount: [0, [Validators.min(0)]],
       taxWithheld: [0, [Validators.min(0)]],
       incomeTaxWithheld: [0, [Validators.min(0)]],
@@ -675,17 +750,18 @@ export class VendorBillFormPage implements OnInit {
       .subscribe({
         next: (bill) => {
           if (!bill) return;
+          this.recordedAttributes.set({ ...(bill.fiscalAttributes ?? {}) });
+          this.syncFiscalFields();
           this.form.patchValue({
             vendorId: bill.vendorId,
-            ncf: bill.ncf ?? '',
+            supplierFiscalNumber: bill.supplierFiscalNumber ?? '',
             supplierInvoiceNumber: bill.supplierInvoiceNumber ?? '',
             date: isoOf(bill.date),
             dueDate: isoOf(bill.dueDate),
             currencyCode: bill.currencyCode,
             branchId: bill.branchId ?? null,
-            purchaseCategory: bill.purchaseCategory ?? '06',
-            paymentForm: bill.paymentForm ?? '01',
-            isrRetentionType: bill.isrRetentionType ?? '',
+            fiscalAttributes: { ...(bill.fiscalAttributes ?? {}) },
+            paymentMethodCode: bill.paymentMethodCode ?? '',
             taxAmount: bill.taxAmount,
             taxWithheld: bill.taxWithheld,
             incomeTaxWithheld: bill.incomeTaxWithheld,
@@ -788,14 +864,13 @@ export class VendorBillFormPage implements OnInit {
         }),
       ),
       total: this.totals().total,
-      ncf: value.ncf || undefined,
+      supplierFiscalNumber: value.supplierFiscalNumber || undefined,
       supplierInvoiceNumber: (this.asksSupplierInvoiceNumber() && value.supplierInvoiceNumber?.trim()) || undefined,
       currencyCode: value.currencyCode || undefined,
       branchId: value.branchId || undefined,
-      // Only where the market classifies purchases for a report (the DGII 606).
-      purchaseCategory: (this.purchaseClassification() && value.purchaseCategory) || undefined,
-      paymentForm: value.paymentForm || undefined,
-      isrRetentionType: value.isrRetentionType || undefined,
+      // Only the fields this market's authority asks about, and only the ones answered.
+      fiscalAttributes: this.answeredAttributes(),
+      paymentMethodCode: value.paymentMethodCode || undefined,
       taxAmount: Number(value.taxAmount ?? 0),
       // Zero where the market has no withholding at source: the fields are not offered there.
       taxWithheld: this.countryPack.pack()?.withholding.applies === false ? 0 : Number(value.taxWithheld ?? 0),

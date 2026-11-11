@@ -152,13 +152,24 @@ export class DataTransferService {
     return { fileName, contentType: CONTENT_TYPES[format], body };
   }
 
-  /** A file with the header the import expects and one example row. */
-  template(user: AuthenticatedUser, datasetId: string): DataTransferFile {
+  /**
+   * A file with the header the import expects and one example row.
+   *
+   * A dataset whose samples depend on the company's market builds its own
+   * (`DataTransferImport.templateExample`): a Mexican company's template showed a Dominican RNC and
+   * a Dominican comprobante, because the sample was a constant in the code.
+   */
+  async template(user: AuthenticatedUser, datasetId: string): Promise<DataTransferFile> {
     const dataset = this.require(datasetId);
     if (!dataset.import || !this.holds(user, dataset.import.createPermission)) {
       throw new ForbiddenError('data_transfer.not_allowed_to_import');
     }
-    const example = Object.fromEntries(dataset.columns.map((column) => [column.property, column.example ?? '']));
+    const ofMarket = dataset.import.templateExample
+      ? await dataset.import.templateExample({ organizationId: user.organizationId, userId: user.id })
+      : {};
+    const example = Object.fromEntries(
+      dataset.columns.map((column) => [column.property, ofMarket[column.property] ?? column.example ?? '']),
+    );
     return {
       fileName: `${dataset.id}_plantilla.csv`,
       contentType: CONTENT_TYPES.csv,

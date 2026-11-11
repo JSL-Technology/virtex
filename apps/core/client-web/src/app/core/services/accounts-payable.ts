@@ -30,7 +30,8 @@ export type VendorBillStatus =
  * ## What this replaced
  *
  * `billNumber`, `issueDate` and `vendorName` — three fields the API has never sent. The entity
- * carries `ncf`, `date` and a `vendor` relation. The list template printed all three, so the
+ * carries the supplier's document number, `date` and a `vendor` relation. The list template printed
+ * all three, so the
  * supplier column and the date columns were blank and the link into the detail page had no text to
  * click on. The create DTO was worse: `supplierId`, `billNumber`, `issueDate` and
  * `lineItems[{description, quantity, price}]` against a server expecting `vendorId`, `date`,
@@ -66,9 +67,13 @@ export interface VendorBill {
   /** The branch that received it; null for a company without branches. */
   branchId?: string | null;
   vendor?: { id: string; name: string; taxId?: string | null };
-  /** Comprobante fiscal number. Optional: not every jurisdiction has one. */
-  ncf?: string | null;
-  ncfModified?: string | null;
+  /**
+   * The number on the supplier's own document, as their market's authority issues it: an NCF, a
+   * CFDI folio fiscal, an NF-e access key. Optional: not every market numbers them.
+   */
+  supplierFiscalNumber?: string | null;
+  /** For a correcting document, the number of the one it modifies. */
+  modifiedSupplierFiscalNumber?: string | null;
   date: string;
   dueDate: string;
   paidAt?: string | null;
@@ -95,9 +100,13 @@ export interface VendorBill {
   exciseAmount: number;
   otherTaxes: number;
   serviceCharge: number;
-  purchaseCategory?: string;
-  isrRetentionType?: string | null;
-  paymentForm?: string;
+  /**
+   * What the market's authority asks about the purchase, by the keys that market declares
+   * (`purchases.fiscalAttributes` of the country pack). Three columns of DGII codes before.
+   */
+  fiscalAttributes?: Record<string, string>;
+  /** The company's own payment method that settled it; its authority code lives on the method. */
+  paymentMethodCode?: string | null;
 
   journalEntryId?: string | null;
   reversalJournalEntryId?: string | null;
@@ -134,8 +143,8 @@ export interface CreateVendorBillDto {
   /** Checked against the lines and the tax breakdown, not stored as given. */
   total?: number;
   currencyCode?: string;
-  ncf?: string;
-  ncfModified?: string;
+  supplierFiscalNumber?: string;
+  modifiedSupplierFiscalNumber?: string;
 
   taxAmount?: number;
   taxWithheld?: number;
@@ -152,9 +161,9 @@ export interface CreateVendorBillDto {
   /** Record a bill the server took for a probable duplicate, once the person confirmed it is not. */
   allowPossibleDuplicate?: boolean;
 
-  purchaseCategory?: string;
-  isrRetentionType?: string;
-  paymentForm?: string;
+  /** Answers to what the market's authority asks; checked against the market's own declaration. */
+  fiscalAttributes?: Record<string, string>;
+  paymentMethodCode?: string;
   /** The supplier's documents uploaded while entering the bill; they become its evidence. */
   attachmentIds?: string[];
 }
@@ -191,13 +200,13 @@ export interface BillCaptureSuggestion {
     registry: { legalName: string | null; status: string | null } | null;
   };
   bill: {
-    ncf: string | null;
-    ncfModified: string | null;
+    supplierFiscalNumber: string | null;
+    modifiedSupplierFiscalNumber: string | null;
     date: string | null;
     dueDate: string | null;
     currencyCode: string | null;
-    paymentForm: string | null;
-    purchaseCategory: string | null;
+    paymentMethodCode: string | null;
+    fiscalAttributes: Record<string, string>;
     taxAmount: number | null;
     serviceCharge: number | null;
     subtotal: number | null;
@@ -214,7 +223,7 @@ export interface BillCaptureSuggestion {
   }>;
   checks: {
     /** The supplier's document number, checked by the company's market (`unverified` where it has no rule). */
-    ncf: {
+    supplierDocument: {
       status: 'ok' | 'missing' | 'invalid' | 'unverified';
       error: 'format' | 'unknown_type' | 'check_digit' | null;
       type: string | null;
@@ -224,38 +233,11 @@ export interface BillCaptureSuggestion {
     duplicateBillId: string | null;
     sameFileBillId: string | null;
   };
-  confidence: { supplier: number; ncf: number; dates: number; amounts: number; lines: number };
+  confidence: { supplier: number; document: number; dates: number; amounts: number; lines: number };
 }
 
 /** `lines` cannot be patched: the server refuses it and says to raise a note instead. */
 export type UpdateVendorBillDto = Partial<Omit<CreateVendorBillDto, 'lines'>>;
-
-/** DGII 606 "Tipo de Bienes y Servicios Comprados". */
-export const PURCHASE_CATEGORIES = [
-  { code: '01', labelKey: 'accounts_payable.purchase_category.personnel_expenses' },
-  { code: '02', labelKey: 'accounts_payable.purchase_category.work_goods_services' },
-  { code: '03', labelKey: 'accounts_payable.purchase_category.leasing' },
-  { code: '04', labelKey: 'accounts_payable.purchase_category.fixed_asset_leasing' },
-  { code: '05', labelKey: 'accounts_payable.purchase_category.improvement_expenses' },
-  { code: '06', labelKey: 'accounts_payable.purchase_category.merchandise_purchases' },
-  { code: '07', labelKey: 'accounts_payable.purchase_category.related_services' },
-  { code: '08', labelKey: 'accounts_payable.purchase_category.financial_expenses' },
-  { code: '09', labelKey: 'accounts_payable.purchase_category.extraordinary_expenses' },
-  { code: '10', labelKey: 'accounts_payable.purchase_category.cost_of_sales' },
-  { code: '11', labelKey: 'accounts_payable.purchase_category.asset_acquisitions' },
-  { code: '12', labelKey: 'accounts_payable.purchase_category.insurance_expenses' },
-] as const;
-
-/** DGII "Forma de Pago". */
-export const PAYMENT_FORMS = [
-  { code: '01', labelKey: 'accounts_payable.payment_form.cash' },
-  { code: '02', labelKey: 'accounts_payable.payment_form.check_transfer' },
-  { code: '03', labelKey: 'accounts_payable.payment_form.card' },
-  { code: '04', labelKey: 'accounts_payable.payment_form.credit' },
-  { code: '05', labelKey: 'accounts_payable.payment_form.barter' },
-  { code: '06', labelKey: 'accounts_payable.payment_form.credit_note' },
-  { code: '07', labelKey: 'accounts_payable.payment_form.mixed' },
-] as const;
 
 export interface VendorBillPaymentLine {
   vendorBillId: string;
@@ -355,7 +337,8 @@ export interface VendorDebitNote {
   vendorBillId: string;
   branchId: string | null;
   reason: string;
-  ncf: string | null;
+  /** The number on the supplier's own credit note, where their market's authority numbers one. */
+  supplierFiscalNumber: string | null;
   amount: number;
   taxAmount: number;
   expenseAccountId: string | null;
@@ -373,14 +356,14 @@ export interface VendorDebitNoteRow {
   number: string;
   date: string;
   reason: string;
-  ncf: string | null;
+  supplierFiscalNumber: string | null;
   amount: number;
   taxAmount: number;
   status: VendorDebitNoteStatus;
   branchId: string | null;
   journalEntryId: string | null;
   vendorBillId: string;
-  billNcf: string | null;
+  billSupplierFiscalNumber: string | null;
   currencyCode: string;
   supplierId: string | null;
   supplierName: string | null;
@@ -404,7 +387,7 @@ export interface CreateVendorDebitNoteDto {
   taxAmount?: number;
   expenseAccountId: string;
   date?: string;
-  ncf?: string;
+  supplierFiscalNumber?: string;
 }
 
 export interface Paged<T> {
@@ -523,9 +506,20 @@ export class AccountsPayableService {
     return this.http.post<VendorDebitNote>(`${this.debitNotesUrl}/${id}/void`, { reason, reversalDate });
   }
 
-  /** Record the supplier's NCF on a posted bill that has none (QA R3-A04). */
-  recordNcf(id: string, ncf: string): Observable<VendorBill> {
-    return this.http.post<VendorBill>(`${this.apiUrl}/${id}/ncf`, { ncf });
+  /**
+   * Record the number on the supplier's document on a posted bill that has none (QA R3-A04) — the
+   * repair a purchases return asks for, in whatever market the company is in.
+   */
+  recordSupplierFiscalNumber(id: string, supplierFiscalNumber: string): Observable<VendorBill> {
+    return this.http.post<VendorBill>(`${this.apiUrl}/${id}/supplier-fiscal-number`, { supplierFiscalNumber });
+  }
+
+  /**
+   * Answer what the market's authority asks about a purchase already posted: the classification is
+   * often the accountant's at month end, not the entry clerk's.
+   */
+  recordFiscalAttributes(id: string, fiscalAttributes: Record<string, string>): Observable<VendorBill> {
+    return this.http.patch<VendorBill>(`${this.apiUrl}/${id}/fiscal-attributes`, { fiscalAttributes });
   }
 
   voidBill(id: string, reason: string, reversalDate?: string): Observable<VendorBill> {

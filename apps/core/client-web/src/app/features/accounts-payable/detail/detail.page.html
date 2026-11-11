@@ -39,10 +39,10 @@
         <span>{{ 'accounts_payable.detail.debit_note' | translate }}</span>
       </a>
     }
-    @if (canRecordNcf()) {
-      <button *appHasPermission="'accounts_payable:edit'" type="button" (click)="recordNcf()" class="secondary-button">
+    @if (canRecordSupplierDocument()) {
+      <button *appHasPermission="'accounts_payable:edit'" type="button" (click)="recordSupplierDocument()" class="secondary-button">
         <lucide-icon [img]="EditIcon" size="16" aria-hidden="true"></lucide-icon>
-        <span>{{ 'accounts_payable.detail.record_ncf' | translate }}</span>
+        <span>{{ 'accounts_payable.detail.record_document' | translate }}</span>
       </button>
     }
     @if (canVoid()) {
@@ -146,6 +146,49 @@
           }
         </div>
       </div>
+
+      <!--
+        What this market's authority asks about the purchase, and what the purchase answers. Drawn
+        from the market's own declaration, so a market that asks for something else shows that, and
+        one that asks for nothing shows no card at all. An answer that is missing and required is
+        asked for here: a purchases return refuses to file a guess, and this is where it is fixed —
+        usually at month end, by whoever reconciles the return, not by whoever keyed the bill.
+      -->
+      @if (fiscalAnswers().length) {
+        <div class="card">
+          <div class="card-header">
+            <h2>{{ 'accounts_payable.detail.fiscal_attributes' | translate }}</h2>
+          </div>
+          <div class="card-body grid-details">
+            @for (answer of fiscalAnswers(); track answer.key) {
+              <div>
+                <span class="detail-label">{{ answer.labelKey ? (answer.labelKey | translate) : answer.label }}</span>
+                @if (answer.code) {
+                  <span>{{ answer.code }} — {{ answer.optionLabelKey ? (answer.optionLabelKey | translate) : answer.optionLabel }}</span>
+                } @else {
+                  <span class="text-muted">{{ 'accounts_payable.form.fiscal_attribute_unanswered' | translate }}</span>
+                }
+              </div>
+            }
+          </div>
+          @if (needsFiscalAnswer()) {
+            <div class="card-body" *appHasPermission="'accounts_payable:edit'">
+              <p class="banner-warning" role="alert">{{ 'accounts_payable.detail.fiscal_attributes_missing' | translate }}</p>
+              @for (field of unansweredFields(); track field.key) {
+                <div class="form-field">
+                  <label [attr.for]="'answer-' + field.key">{{ field.labelKey ? (field.labelKey | translate) : field.label }}</label>
+                  <select [id]="'answer-' + field.key" (change)="answerFiscalField(field.key, $any($event.target).value)">
+                    <option value="">{{ 'accounts_payable.form.fiscal_attribute_unanswered' | translate }}</option>
+                    @for (option of field.options; track option.code) {
+                      <option [value]="option.code">{{ option.code }} — {{ option.labelKey ? (option.labelKey | translate) : option.label }}</option>
+                    }
+                  </select>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
 
       @if (hasFiscalDetail()) {
         <div class="card">

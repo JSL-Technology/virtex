@@ -174,8 +174,8 @@ describe('DGII periodic reports', () => {
       modifiedFiscalNumber: null,
       date: '2026-08-10',
       paidOn: null,
-      purchaseCategory: '06',
-      paymentForm: '01',
+      fiscalAttributes: { purchaseCategory: '06' },
+      paymentFiscalCode: '01',
       servicesAmount: 0,
       goodsAmount: 1000,
       taxAmount: 180,
@@ -183,7 +183,6 @@ describe('DGII periodic reports', () => {
       taxProportional: 0,
       taxToCost: 0,
       incomeTaxWithheld: 0,
-      isrRetentionType: null,
       exciseAmount: 0,
       otherTaxes: 0,
       serviceCharge: 0,
@@ -198,7 +197,8 @@ describe('DGII periodic reports', () => {
         fiscalNumber: 'B0400000007',
         modifiedFiscalNumber: 'B0100000001',
         date: '2026-08-12',
-        paymentForm: '06',
+        // The 606 codes a credit note's «forma de pago» itself; the note carries none.
+        paymentFiscalCode: null,
         servicesAmount: 50,
         goodsAmount: 150,
         taxAmount: 36,
@@ -224,7 +224,7 @@ describe('DGII periodic reports', () => {
     it('carries the withholding and the deductible remainder', () => {
       const body = DominicanRepublicReports.generate606Report(
         2026, 8,
-        [document({ taxWithheld: 54, taxToCost: 20, incomeTaxWithheld: 100, isrRetentionType: '02' })],
+        [document({ taxWithheld: 54, taxToCost: 20, incomeTaxWithheld: 100, fiscalAttributes: { purchaseCategory: '06', isrRetentionType: '02' } })],
         organization,
       );
       const columns = body.split('\n')[1].split('|');
@@ -304,8 +304,8 @@ describe('DGII periodic reports', () => {
       const foreign: PurchaseFiscalDocument = {
         kind: 'bill', reference: 'bill-2', supplierName: 'Global Services LLC', supplierTaxId: '12-3456789',
         supplierCountry: 'US', fiscalNumber: null, modifiedFiscalNumber: null, date: '2026-08-20', paidOn: null,
-        purchaseCategory: null, paymentForm: null, servicesAmount: 5000, goodsAmount: 0, taxAmount: 0,
-        taxWithheld: 0, taxProportional: 0, taxToCost: 0, incomeTaxWithheld: 1350, isrRetentionType: null,
+        fiscalAttributes: {}, paymentFiscalCode: null, servicesAmount: 5000, goodsAmount: 0, taxAmount: 0,
+        taxWithheld: 0, taxProportional: 0, taxToCost: 0, incomeTaxWithheld: 1350,
         exciseAmount: 0, otherTaxes: 0, serviceCharge: 0, total: 5000,
       };
 

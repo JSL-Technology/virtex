@@ -18,6 +18,7 @@ const RECEIVED_DOCUMENT: MarketReceivedDocument = {
   kind: 'CFDI_UUID',
   labelKey: 'localization.country_pack.supplier_document.cfdi_uuid',
   description: 'the CFDI "folio fiscal" (UUID, 8-4-4-4-12 hexadecimal characters) stamped by the SAT',
+  example: '6F8B1C2A-1234-4ABC-9DEF-0123456789AB',
   check: checkFolioFiscal,
 };
 
@@ -26,4 +27,6 @@ export const purchases: MarketPurchases = {
   supplierFiscalNumber: false,
   purchaseClassification: false,
   receivedDocument: RECEIVED_DOCUMENT,
+  // Beyond the document and the amounts, the authority asks nothing of a purchase here.
+  fiscalAttributes: [],
 };

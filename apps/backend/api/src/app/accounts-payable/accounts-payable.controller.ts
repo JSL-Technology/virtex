@@ -29,7 +29,8 @@ import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
-import { RecordVendorBillNcfDto } from './dto/record-vendor-bill-ncf.dto';
+import { RecordSupplierFiscalNumberDto } from './dto/record-supplier-fiscal-number.dto';
+import { RecordPurchaseAttributesDto } from './dto/record-purchase-attributes.dto';
 
 @ApiTags('Accounts Payable')
 @ApiBearerAuth()
@@ -119,16 +120,34 @@ export class AccountsPayableController {
     );
   }
 
-  /** Record the NCF on a posted bill that has none — what the 606 asks for (QA R3-A04). */
-  @Post(':id/ncf')
+  /**
+   * Record the supplier's fiscal document number on a posted bill that has none — the repair a
+   * purchases return asks for (QA R3-A04), in whatever market the company is in.
+   */
+  @Post(':id/supplier-fiscal-number')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_EDIT)
-  recordNcf(
+  recordSupplierFiscalNumber(
     @Param('id', UuidParamPipe) id: string,
-    @Body() dto: RecordVendorBillNcfDto,
+    @Body() dto: RecordSupplierFiscalNumberDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.accountsPayableService.recordNcf(id, user.organizationId, dto.ncf);
+    return this.accountsPayableService.recordSupplierFiscalNumber(id, user.organizationId, dto.supplierFiscalNumber);
+  }
+
+  /**
+   * Answer what the market's authority asks about a purchase, on a bill already posted: the
+   * classification is often the accountant's at month end, not the entry clerk's.
+   */
+  @Patch(':id/fiscal-attributes')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_EDIT)
+  recordFiscalAttributes(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: RecordPurchaseAttributesDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.accountsPayableService.recordFiscalAttributes(id, user.organizationId, dto.fiscalAttributes);
   }
 
   @Post(':id/submit-for-approval')

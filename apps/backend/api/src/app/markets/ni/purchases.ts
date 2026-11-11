@@ -7,4 +7,6 @@ export const purchases: MarketPurchases = {
   supplierFiscalNumber: false,
   purchaseClassification: false,
   receivedDocument: AUTHORITY_FISCAL_NUMBER,
+  // Beyond the document and the amounts, the authority asks nothing of a purchase here.
+  fiscalAttributes: [],
 };

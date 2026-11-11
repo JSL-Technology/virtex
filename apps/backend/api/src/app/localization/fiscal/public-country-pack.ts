@@ -1,5 +1,30 @@
-import type { FiscalReturnGenerator, TenantCountryPackResponse } from '@virteex/shared/types';
-import { marketFor } from '../../markets';
+import type { CountryPackFiscalField, FiscalReturnGenerator, TenantCountryPackResponse } from '@virteex/shared/types';
+import { type FiscalFieldSpec, marketFor } from '../../markets';
+
+/**
+ * A field an authority asks about, as the browser reads it: what to label it, whether it is
+ * required, and the only answers the server will accept. The form draws itself from this, so a
+ * market that asks for something new asks for it on the screen too, with no screen changed.
+ */
+function publicFiscalField(field: FiscalFieldSpec): CountryPackFiscalField {
+  return {
+    key: field.key,
+    label: field.label,
+    labelKey: field.labelKey ?? null,
+    help: field.help ?? null,
+    helpKey: field.helpKey ?? null,
+    required: field.required,
+    type: field.type,
+    multiple: field.multiple ?? false,
+    options: (field.options ?? []).map((option) => ({
+      code: option.code,
+      label: option.label,
+      labelKey: option.labelKey ?? null,
+    })),
+    pattern: field.pattern ?? null,
+    example: field.example ?? null,
+  };
+}
 
 /**
  * What the browser reads about the tenant's market (`GET /localization/country-pack`): the
@@ -16,8 +41,10 @@ export function publicCountryPack(countryCode: string | null | undefined): Tenan
       fiscalNumbering: market.documents.fiscalNumbering,
       supplierFiscalNumber: market.purchases.supplierFiscalNumber,
       supplierDocumentNumberKey: market.purchases.receivedDocument.labelKey,
+      supplierDocumentExample: market.purchases.receivedDocument.example ?? null,
       purchaseClassification: market.purchases.purchaseClassification,
     },
+    purchases: { fiscalAttributes: market.purchases.fiscalAttributes.map(publicFiscalField) },
     withholding: { applies: market.taxes.withholding.applies },
     taxes: { model: market.taxes.model, nameKey: market.taxes.nameKey },
     paymentMethods: { catalogue: market.payments.catalogue, authority: market.payments.authority },

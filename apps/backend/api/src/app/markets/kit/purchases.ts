@@ -2,7 +2,7 @@ import type { ReceivedDocumentCheck } from '../contracts';
 
 /** A check result, completed with what an ordinary outcome leaves out. */
 export function receivedDocumentResult(kind: string, partial: Partial<ReceivedDocumentCheck>): ReceivedDocumentCheck {
-  return { status: 'ok', kind, normalized: null, type: null, error: null, warnings: [], ...partial };
+  return { status: 'ok', kind, normalized: null, type: null, error: null, warnings: [], requiresSupplierTaxId: false, ...partial };
 }
 
 /**
@@ -22,6 +22,7 @@ export const SUPPLIER_INVOICE_NUMBER = {
   kind: 'INVOICE_NUMBER',
   labelKey: 'localization.country_pack.supplier_document.invoice_number',
   description: "the supplier's own invoice number",
+  example: 'INV-000123',
   check: unverifiedNumber('INVOICE_NUMBER'),
 } as const;
 

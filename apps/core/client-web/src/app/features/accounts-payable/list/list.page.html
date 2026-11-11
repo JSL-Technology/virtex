@@ -38,7 +38,7 @@
       <thead>
         <tr>
           <th appSortHeader="vendor">{{ 'accounts_payable.list.supplier' | translate }}</th>
-          <th appSortHeader="ncf">{{ 'accounts_payable.list.number' | translate }}</th>
+          <th appSortHeader="supplierFiscalNumber">{{ 'accounts_payable.list.number' | translate }}</th>
           <th appSortHeader="date">{{ 'accounts_payable.list.date' | translate }}</th>
           <th appSortHeader="dueDate">{{ 'accounts_payable.list.due' | translate }}</th>
           <th appSortHeader="total" class="text-right">{{ 'accounts_payable.list.total' | translate }}</th>
@@ -55,11 +55,11 @@
             <td>{{ bill.vendor?.name ?? '—' }}</td>
             <td>
               <!--
-                `ncf` is the document's fiscal number; not every jurisdiction issues one, so the id
+                The number on the supplier's document; not every market issues one, so the id
                 is the fallback rather than an empty cell with nothing to click.
               -->
               <a [routerLink]="['/accounts-payable', bill.id]" class="table-link">
-                {{ bill.ncf || ('accounts_payable.list.no_fiscal_number' | translate) }}
+                {{ bill.supplierFiscalNumber || ('accounts_payable.list.no_fiscal_number' | translate) }}
               </a>
             </td>
             <td>{{ bill.date | vxDate: 'date' }}</td>

@@ -4,6 +4,26 @@
     "en": "The country \"{{countryCode}}\" is not available for registration yet.",
     "pt": "O país \"{{countryCode}}\" ainda não está disponível para cadastro."
   },
+  "localization.country_pack.purchase_attribute.isr_retention_type": {
+    "es": "Tipo de retención en ISR",
+    "en": "Kind of income-tax withholding",
+    "pt": "Tipo de retenção de imposto de renda"
+  },
+  "localization.country_pack.purchase_attribute.isr_retention_type_help": {
+    "es": "Solo cuando se le retuvo impuesto sobre la renta al proveedor.",
+    "en": "Only when income tax was withheld from the supplier.",
+    "pt": "Apenas quando foi retido imposto de renda do fornecedor."
+  },
+  "localization.country_pack.purchase_attribute.purchase_category": {
+    "es": "Tipo de bienes y servicios comprados",
+    "en": "Kind of goods and services bought",
+    "pt": "Tipo de bens e serviços comprados"
+  },
+  "localization.country_pack.purchase_attribute.purchase_category_help": {
+    "es": "Clasifica la compra para la declaración de compras. Sin este dato la declaración no se puede generar.",
+    "en": "Classifies the purchase for the purchases return. Without it the return cannot be produced.",
+    "pt": "Classifica a compra para a declaração de compras. Sem este dado a declaração não pode ser gerada."
+  },
   "localization.country_pack.reports.general_ledger": {
     "es": "Libro mayor",
     "en": "General ledger",

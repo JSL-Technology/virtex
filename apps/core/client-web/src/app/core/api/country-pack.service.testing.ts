@@ -9,8 +9,31 @@ export const DOMINICAN_TEST_PACK: TenantCountryPackResponse = {
   documents: {
     fiscalNumbering: true,
     supplierFiscalNumber: true,
-    supplierDocumentNumberKey: 'accounts_payable.form.ncf',
+    supplierDocumentNumberKey: 'localization.country_pack.supplier_document.ncf',
+    supplierDocumentExample: 'B0100000001',
     purchaseClassification: true,
+  },
+  purchases: {
+    fiscalAttributes: [
+      {
+        key: 'purchaseCategory',
+        // The market's own wording travels in `labelKey`; this fallback is only read when a
+        // market declares no key, and the catalogue is where interface text belongs.
+        label: 'Kind of goods and services bought',
+        labelKey: 'localization.country_pack.purchase_attribute.purchase_category',
+        help: null,
+        helpKey: 'localization.country_pack.purchase_attribute.purchase_category_help',
+        required: true,
+        type: 'select',
+        multiple: false,
+        options: [
+          { code: '06', label: 'Merchandise purchases', labelKey: 'accounts_payable.purchase_category.merchandise_purchases' },
+          { code: '09', label: 'Extraordinary expenses', labelKey: 'accounts_payable.purchase_category.extraordinary_expenses' },
+        ],
+        pattern: null,
+        example: null,
+      },
+    ],
   },
   withholding: { applies: true },
   taxes: { model: 'NATIONAL_RATES', nameKey: 'invoices.new.tax_column_header' },
@@ -31,10 +54,11 @@ export const DOMINICAN_TEST_PACK: TenantCountryPackResponse = {
  */
 export function provideTestCountryPack(pack: TenantCountryPackResponse | null = DOMINICAN_TEST_PACK): Provider {
   const state = signal<TenantCountryPackResponse | null>(pack);
-  const stub: Pick<CountryPackService, 'pack' | 'withholding' | 'fiscalNumbering'> = {
+  const stub: Pick<CountryPackService, 'pack' | 'withholding' | 'fiscalNumbering' | 'purchaseFiscalFields'> = {
     pack: state.asReadonly(),
     withholding: computed(() => state()?.withholding.applies ?? false),
     fiscalNumbering: computed(() => state()?.documents.fiscalNumbering ?? false),
+    purchaseFiscalFields: computed(() => state()?.purchases.fiscalAttributes ?? []),
   };
   return { provide: CountryPackService, useValue: stub };
 }

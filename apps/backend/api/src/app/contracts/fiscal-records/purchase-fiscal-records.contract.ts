@@ -33,10 +33,18 @@ export interface PurchaseFiscalDocument {
   readonly modifiedFiscalNumber: string | null;
   readonly date: string;
   readonly paidOn: string | null;
-  /** DGII «tipo de bienes y servicios comprados». */
-  readonly purchaseCategory: string | null;
-  /** DGII «forma de pago». A credit note's is `06`. */
-  readonly paymentForm: string | null;
+  /**
+   * What the market's authority asked about the purchase, by the keys that market declares
+   * (`MarketPurchases.fiscalAttributes`) — the Dominican 606's kind of goods or services and kind
+   * of income-tax withholding among them. Three fields of this contract were those DGII codes.
+   */
+  readonly fiscalAttributes: Readonly<Record<string, string>>;
+  /**
+   * The authority's own code for how the purchase was paid, from the payment method that settled it
+   * (`payment_methods.fiscal_code`); null where the market publishes no such catalogue, or where
+   * nothing records how it was paid.
+   */
+  readonly paymentFiscalCode: string | null;
   readonly servicesAmount: number;
   readonly goodsAmount: number;
   readonly taxAmount: number;
@@ -44,7 +52,6 @@ export interface PurchaseFiscalDocument {
   readonly taxProportional: number;
   readonly taxToCost: number;
   readonly incomeTaxWithheld: number;
-  readonly isrRetentionType: string | null;
   readonly exciseAmount: number;
   readonly otherTaxes: number;
   readonly serviceCharge: number;

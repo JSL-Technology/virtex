@@ -48,7 +48,7 @@ export function neutralMarket(code: string): NeutralMarket {
       defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
       numbering: NO_FISCAL_NUMBERING,
     },
-    purchases: { supplierFiscalNumber: false, purchaseClassification: false, receivedDocument: SUPPLIER_INVOICE_NUMBER },
+    purchases: { supplierFiscalNumber: false, purchaseClassification: false, receivedDocument: SUPPLIER_INVOICE_NUMBER, fiscalAttributes: [] },
     payments: { catalogue: 'EDITABLE', authority: null, defaults: GENERIC_PAYMENT_METHODS },
     accounting: NEUTRAL_ACCOUNTING,
     payroll: PAYROLL_NOT_IMPLEMENTED,

@@ -42,7 +42,7 @@
           </div>
           <div>
             <dt>{{ 'accounts_payable.debit_notes.bill' | translate }}</dt>
-            <dd><a [routerLink]="['/accounts-payable', doc.vendorBillId]">{{ doc.vendorBill?.ncf || ('accounts_payable.debit_notes.open_bill' | translate) }}</a></dd>
+            <dd><a [routerLink]="['/accounts-payable', doc.vendorBillId]">{{ doc.vendorBill?.supplierFiscalNumber || ('accounts_payable.debit_notes.open_bill' | translate) }}</a></dd>
           </div>
           <div>
             <dt>{{ 'accounts_payable.debit_notes.amount' | translate }}</dt>
@@ -53,8 +53,8 @@
             <dd><vx-amount [value]="doc.taxAmount" [currency]="doc.vendorBill?.currencyCode ?? null" /></dd>
           </div>
           <div>
-            <dt>{{ 'accounts_payable.debit_notes.ncf' | translate }}</dt>
-            <dd>{{ doc.ncf ?? '—' }}</dd>
+            <dt>{{ 'accounts_payable.debit_notes.supplier_document' | translate }}</dt>
+            <dd>{{ doc.supplierFiscalNumber ?? '—' }}</dd>
           </div>
           @if (branches.hasBranches()) {
             <div>

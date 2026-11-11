@@ -16,7 +16,7 @@ import { ActiveOrganizationService } from '../../../core/tenancy/active-organiza
  */
 describe('VendorDebitNoteFormPage', () => {
   const bill = {
-    id: 'bill-1', vendorId: 's-1', vendor: { id: 's-1', name: 'Suplidora' }, ncf: 'B0100000001', date: '2026-03-05',
+    id: 'bill-1', vendorId: 's-1', vendor: { id: 's-1', name: 'Suplidora' }, supplierFiscalNumber: 'B0100000001', date: '2026-03-05',
     dueDate: '2026-04-04', currencyCode: 'DOP', exchangeRate: 1, total: 11800, totalInBaseCurrency: 11800, balance: 11800,
     status: 'OPEN', taxAmount: 1800, taxToCost: 0, taxProportional: 0, taxWithheld: 0, incomeTaxWithheld: 0,
     lines: [{ product: 'Mercancía', quantity: 4, unitPrice: 2500, total: 10000, expenseAccountId: 'acc-5101' }],
@@ -65,9 +65,15 @@ describe('VendorDebitNoteFormPage', () => {
     expect(payables['createDebitNote']).not.toHaveBeenCalled();
   });
 
-  it('posts the note with its tax part and the supplier NCF in capitals', () => {
+  it('posts the note with its tax part and the supplier’s document number in capitals', () => {
     const page = create();
-    page.form.patchValue({ amount: 1180, taxAmount: 180, reason: ' Dos unidades dañadas ', ncf: 'b0400000001', date: '2026-04-02' });
+    page.form.patchValue({
+      amount: 1180,
+      taxAmount: 180,
+      reason: ' Dos unidades dañadas ',
+      supplierFiscalNumber: 'b0400000001',
+      date: '2026-04-02',
+    });
     page.save();
     expect(payables['createDebitNote']).toHaveBeenCalledWith({
       vendorBillId: 'bill-1',
@@ -75,7 +81,7 @@ describe('VendorDebitNoteFormPage', () => {
       amount: 1180,
       taxAmount: 180,
       expenseAccountId: 'acc-5101',
-      ncf: 'B0400000001',
+      supplierFiscalNumber: 'B0400000001',
       reason: 'Dos unidades dañadas',
     });
   });

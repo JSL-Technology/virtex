@@ -553,8 +553,8 @@ describeWithDb('accounts payable', () => {
     it("refuses the same fiscal document twice outside the Dominican Republic too", async () => {
       // A CFDI UUID, a CUFE, a US invoice number: whatever the market calls it, one document.
       await dataSource.query(`UPDATE organizations SET country = 'US' WHERE id = $1`, [organizationId]);
-      await bill({ ncf: 'inv-2026-0042' });
-      await expect(bill({ ncf: 'INV 2026 0042', date: '2026-03-25' })).rejects.toMatchObject({
+      await bill({ supplierFiscalNumber: 'inv-2026-0042' });
+      await expect(bill({ supplierFiscalNumber: 'INV 2026 0042', date: '2026-03-25' })).rejects.toMatchObject({
         messageKey: 'accounts_payable.supplier_document_already_recorded',
       });
     });
@@ -1358,7 +1358,7 @@ describeWithDb('accounts payable', () => {
           taxAmount: 900,
           expenseAccountId: account['expense'],
           date: '2026-04-02',
-          ncf: 'b0400000001',
+          supplierFiscalNumber: 'b0400000001',
         },
         organizationId,
         ACTOR,
@@ -1366,7 +1366,7 @@ describeWithDb('accounts payable', () => {
 
       expect(note.number).toBe('ND-2026-000001');
       expect(note.date).toBe('2026-04-02');
-      expect(note.ncf).toBe('B0400000001');
+      expect(note.supplierFiscalNumber).toBe('B0400000001');
       expect(note.createdByUserId).toBe(ACTOR);
       expect(await signedBalance('taxReceivable', LATER)).toBe(900);
       expect(await signedBalance('expense', LATER)).toBe(5_000);

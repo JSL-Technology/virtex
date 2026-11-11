@@ -1,5 +1,5 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
-import type { MarketPurchases, MarketReceivedDocument, ReceivedDocumentCheck } from '../contracts';
+import type { FiscalFieldSpec, MarketPurchases, MarketReceivedDocument, ReceivedDocumentCheck } from '../contracts';
 import { receivedDocumentResult } from '../kit/purchases';
 import { DOCUMENT_TYPES } from './documents';
 
@@ -85,7 +85,12 @@ function checkComprobante(raw: string): ReceivedDocumentCheck {
   if (!text) return receivedDocumentResult('NCF', { status: 'missing' });
   const checked = checkReceivedNcf(text);
   return checked.ok
-    ? receivedDocumentResult('NCF', { normalized: checked.ncf.normalized, type: checked.ncf.type, warnings: checked.ncf.warnings })
+    ? receivedDocumentResult('NCF', {
+        normalized: checked.ncf.normalized,
+        type: checked.ncf.type,
+        warnings: checked.ncf.warnings,
+        requiresSupplierTaxId: checked.ncf.requiresSupplierTaxId,
+      })
     : receivedDocumentResult('NCF', { status: 'invalid', normalized: checked.normalized ?? normalizeNcf(text), error: checked.error });
 }
 
@@ -93,12 +98,70 @@ const RECEIVED_DOCUMENT: MarketReceivedDocument = {
   kind: 'NCF',
   labelKey: 'localization.country_pack.supplier_document.ncf',
   description: 'the NCF / e-NCF: B + 2 digits + 8 digits (11 characters) or E + 2 digits + 10 digits (13 characters), often labelled "NCF", "e-NCF" or "Comprobante"',
+  example: 'B0100000001',
   check: checkComprobante,
 };
+
+/**
+ * What the 606 asks of every purchase besides its figures: what was bought, and what income tax was
+ * withheld from the supplier. Without the first the return cannot be produced at all.
+ *
+ * The codes and their meanings are the ones this product has been filing with — moved here verbatim
+ * from the `PurchaseCategory` and `IsrRetentionType` enums of `vendor_bills`, because they are on
+ * every purchase already recorded and renumbering them would restate what was declared.
+ *
+ * *Verificar con contabilidad/legal*: la DGII publica estos catálogos en la Norma General 07-2018
+ * («Formato de Envío 606»), y la lista de tipos de bienes y servicios de esa norma puede no coincidir
+ * con estas doce entradas. Confirmar código por código antes de la próxima declaración; corregirlos
+ * exige además decidir qué hacer con las compras ya clasificadas.
+ */
+const FISCAL_ATTRIBUTES: readonly FiscalFieldSpec[] = [
+  {
+    key: 'purchaseCategory',
+    label: 'Tipo de bienes y servicios comprados',
+    labelKey: 'localization.country_pack.purchase_attribute.purchase_category',
+    required: true,
+    type: 'select',
+    help: 'Clasifica la compra para el 606. Sin este dato la declaración no se puede generar.',
+    helpKey: 'localization.country_pack.purchase_attribute.purchase_category_help',
+    options: [
+      { code: '01', label: 'Gastos de personal', labelKey: 'accounts_payable.purchase_category.personnel_expenses' },
+      { code: '02', label: 'Gastos por trabajos, suministros y servicios', labelKey: 'accounts_payable.purchase_category.work_goods_services' },
+      { code: '03', label: 'Arrendamientos', labelKey: 'accounts_payable.purchase_category.leasing' },
+      { code: '04', label: 'Arrendamiento de activos fijos', labelKey: 'accounts_payable.purchase_category.fixed_asset_leasing' },
+      { code: '05', label: 'Gastos de mejoras', labelKey: 'accounts_payable.purchase_category.improvement_expenses' },
+      { code: '06', label: 'Compras de mercancías', labelKey: 'accounts_payable.purchase_category.merchandise_purchases' },
+      { code: '07', label: 'Servicios conexos', labelKey: 'accounts_payable.purchase_category.related_services' },
+      { code: '08', label: 'Gastos financieros', labelKey: 'accounts_payable.purchase_category.financial_expenses' },
+      { code: '09', label: 'Gastos extraordinarios', labelKey: 'accounts_payable.purchase_category.extraordinary_expenses' },
+      { code: '10', label: 'Costo de ventas', labelKey: 'accounts_payable.purchase_category.cost_of_sales' },
+      { code: '11', label: 'Adquisición de activos', labelKey: 'accounts_payable.purchase_category.asset_acquisitions' },
+      { code: '12', label: 'Gastos de seguros', labelKey: 'accounts_payable.purchase_category.insurance_expenses' },
+    ],
+  },
+  {
+    key: 'isrRetentionType',
+    label: 'Tipo de retención en ISR',
+    labelKey: 'localization.country_pack.purchase_attribute.isr_retention_type',
+    required: false,
+    type: 'select',
+    help: 'Solo cuando se le retuvo impuesto sobre la renta al proveedor.',
+    helpKey: 'localization.country_pack.purchase_attribute.isr_retention_type_help',
+    options: [
+      { code: '01', label: 'Alquileres', labelKey: 'accounts_payable.isr_retention_type.rentals' },
+      { code: '02', label: 'Honorarios por servicios', labelKey: 'accounts_payable.isr_retention_type.service_fees' },
+      { code: '03', label: 'Otras rentas', labelKey: 'accounts_payable.isr_retention_type.other_income' },
+      { code: '04', label: 'Rentas presuntas', labelKey: 'accounts_payable.isr_retention_type.presumed_income' },
+      { code: '05', label: 'Bienes muebles no declarados', labelKey: 'accounts_payable.isr_retention_type.undeclared_movable_property' },
+      { code: '06', label: 'Otros', labelKey: 'accounts_payable.isr_retention_type.other' },
+    ],
+  },
+];
 
 /** Dominican Republic: what a supplier's document carries, and how a purchase is recorded. */
 export const purchases: MarketPurchases = {
   supplierFiscalNumber: true,
   purchaseClassification: true,
   receivedDocument: RECEIVED_DOCUMENT,
+  fiscalAttributes: FISCAL_ATTRIBUTES,
 };

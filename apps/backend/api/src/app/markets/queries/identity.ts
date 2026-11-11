@@ -291,7 +291,19 @@ export function validateFiscalFields(
   kind: TaxpayerKindValue | undefined,
   values: Readonly<Record<string, unknown>> = {},
 ): FiscalFieldError[] {
-  const expected = fiscalFieldsFor(countryCode, kind);
+  return validateFiscalValues(fiscalFieldsFor(countryCode, kind), kind, values);
+}
+
+/**
+ * The same check over any set of fiscal fields a market declares — the registration data an
+ * authority requires, and what it asks of a purchase (`MarketPurchases.fiscalAttributes`). One
+ * validator, so a market that adds a field gets it checked wherever the field is answered.
+ */
+export function validateFiscalValues(
+  expected: readonly FiscalFieldSpec[],
+  kind: TaxpayerKindValue | undefined,
+  values: Readonly<Record<string, unknown>> = {},
+): FiscalFieldError[] {
   const errors: FiscalFieldError[] = [];
   const known = new Set(expected.map((field) => field.key));
 

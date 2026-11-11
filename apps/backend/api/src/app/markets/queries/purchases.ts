@@ -1,5 +1,12 @@
-import type { ReceivedDocumentCheck } from '../contracts';
-import { canonicalize, fiscalIdentifierFor, registrationDocumentsFor, validateTaxId } from './identity';
+import type { FiscalFieldSpec, ReceivedDocumentCheck } from '../contracts';
+import {
+  canonicalize,
+  fiscalIdentifierFor,
+  registrationDocumentsFor,
+  validateFiscalValues,
+  validateTaxId,
+  type FiscalFieldError,
+} from './identity';
 import { knownMarket, marketFor, normalizeMarketCode } from '../registry';
 
 /**
@@ -12,9 +19,54 @@ export function receivedDocumentKind(countryCode: string | null | undefined): st
   return marketFor(countryCode).purchases.receivedDocument.kind;
 }
 
+/**
+ * A number of the shape the market's documents carry, to show as a placeholder or as the sample
+ * row of an import template; null where the market publishes no shape the product checks.
+ */
+export function exampleDocumentNumber(countryCode: string | null | undefined): string | null {
+  return marketFor(countryCode).purchases.receivedDocument.example ?? null;
+}
+
 /** The number on a supplier's document, checked by its market's own rule. */
 export function checkReceivedDocument(countryCode: string | null | undefined, raw: string | null | undefined): ReceivedDocumentCheck {
   return marketFor(countryCode).purchases.receivedDocument.check(raw ?? '');
+}
+
+/**
+ * What the market's authority asks a purchase to state beyond its figures and its document, so the
+ * form draws itself and the server checks the same list.
+ */
+export function purchaseAttributesFor(countryCode: string | null | undefined): readonly FiscalFieldSpec[] {
+  return marketFor(countryCode).purchases.fiscalAttributes;
+}
+
+/**
+ * Check what a purchase states for its market. Unknown keys are rejected rather than kept: a client
+ * cannot smuggle data into `vendor_bills.fiscal_attributes`, and a market that stops asking for a
+ * field stops accepting it.
+ */
+export function validatePurchaseAttributes(
+  countryCode: string | null | undefined,
+  values: Readonly<Record<string, unknown>> = {},
+): FiscalFieldError[] {
+  return validateFiscalValues(purchaseAttributesFor(countryCode), undefined, values);
+}
+
+/**
+ * What a purchase will be stored as: every attribute the market asks for, trimmed, with the ones it
+ * does not ask for dropped. Call it after {@link validatePurchaseAttributes} has passed.
+ */
+export function purchaseAttributesOf(
+  countryCode: string | null | undefined,
+  values: Readonly<Record<string, unknown>> = {},
+): Record<string, string> {
+  const kept: Record<string, string> = {};
+  for (const field of purchaseAttributesFor(countryCode)) {
+    const raw = values[field.key];
+    const value = typeof raw === 'string' ? raw.trim() : Array.isArray(raw) ? raw.join(',') : '';
+    if (value) kept[field.key] = value;
+  }
+  return kept;
 }
 
 /**
@@ -32,6 +84,8 @@ export interface PurchaseCaptureProfile {
   documentKind: string;
   /** What the supplier's document number is, in English, for a reader of the document. */
   documentNumberDescription: string;
+  /** A number of that shape, for a form's placeholder; null where the market publishes none. */
+  documentNumberExample: string | null;
   taxName: string;
   /** How dates are written on the market's documents. */
   dateOrder: 'DMY' | 'MDY';
@@ -39,6 +93,16 @@ export interface PurchaseCaptureProfile {
   paymentForms: Array<{ code: string; description: string }>;
   /** Whether purchases are classified for a return. */
   purchaseClassification: boolean;
+  /**
+   * What the authority asks about a purchase, in its own words and with its own codes, so a reader
+   * of the document — a person or a model — is told exactly what to look for and nothing else.
+   */
+  fiscalAttributes: Array<{
+    key: string;
+    label: string;
+    required: boolean;
+    options: Array<{ code: string; label: string }>;
+  }>;
   /** Whether a legal service charge appears on bills. */
   serviceCharge: boolean;
 }
@@ -71,11 +135,18 @@ export function purchaseCaptureProfile(countryCode: string | null | undefined): 
     issuerIdentifiers: code ? registrationDocumentsFor(code) : [],
     documentKind: received.kind,
     documentNumberDescription: received.description,
+    documentNumberExample: received.example ?? null,
     taxName: code ? market.taxes.principalTaxName : 'tax',
     dateOrder: dateOrderOf(known?.profile.formats.date),
     // Only codes a two-character payment-form field can hold.
     paymentForms: authorityForms.filter((form) => form.code.length <= 2),
     purchaseClassification: market.purchases.purchaseClassification,
+    fiscalAttributes: market.purchases.fiscalAttributes.map((field) => ({
+      key: field.key,
+      label: field.label,
+      required: field.required,
+      options: (field.options ?? []).map((option) => ({ code: option.code, label: option.label })),
+    })),
     serviceCharge: market.taxes.serviceChargeRate > 0,
   };
 }

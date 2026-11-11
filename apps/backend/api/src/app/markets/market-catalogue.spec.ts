@@ -49,6 +49,15 @@ describe('market catalogue', () => {
       }
     });
 
+    it('shows a document number its own rule accepts, or shows none', () => {
+      // The sample of an import template and a form's placeholder. A market that publishes no shape
+      // the product checks shows nothing: another market's number is not a sample of this one.
+      const { example, check } = market.purchases.receivedDocument;
+      if (example === undefined) return;
+      expect(['ok', 'unverified']).toContain(check(example).status);
+      expect(check(example).error).toBeNull();
+    });
+
     it('declares taxes, rates and withholding that can be applied', () => {
       for (const tax of market.taxes.scheme.taxes) {
         expect(tax.rate).toBeGreaterThanOrEqual(0);

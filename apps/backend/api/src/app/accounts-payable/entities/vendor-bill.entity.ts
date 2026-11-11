@@ -18,36 +18,6 @@ import { numericTransformerNotNull, numericTransformerWithDefault } from '../../
 import { PurchaseOrder } from '../../procurement/entities/purchase-order.entity';
 import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
 
-/**
- * DGII 606 "Tipo de Bienes y Servicios Comprados". A purchase must be classified for the return;
- * without it the 606 cannot be produced at all.
- */
-export enum PurchaseCategory {
-  PERSONNEL_EXPENSES = '01',
-  WORK_GOODS_SERVICES = '02',
-  LEASING = '03',
-  FIXED_ASSET_LEASING = '04',
-  IMPROVEMENT_EXPENSES = '05',
-  MERCHANDISE_PURCHASES = '06',
-  RELATED_SERVICES = '07',
-  FINANCIAL_EXPENSES = '08',
-  EXTRAORDINARY_EXPENSES = '09',
-  COST_OF_SALES = '10',
-  ASSET_ACQUISITIONS = '11',
-  INSURANCE_EXPENSES = '12',
-}
-
-/** DGII 606 "Tipo de Retención en ISR". */
-export enum IsrRetentionType {
-  NONE = '',
-  RENT = '01',
-  FEES_FOR_SERVICES = '02',
-  OTHER_INCOME = '03',
-  PRESUMED_INCOME = '04',
-  UNDECLARED_MOVABLE_PROPERTY = '05',
-  OTHER = '06',
-}
-
 export enum VendorBillStatus {
   DRAFT = 'DRAFT',
   PENDING_APPROVAL = 'PENDING_APPROVAL',
@@ -84,9 +54,9 @@ export interface MatchException {
 // One live bill per (issuer tax id, fiscal document number) — not per supplier record, which could
 // be duplicated (audit 2026-11-07, CMP-03/CMP-04). Both keys are kept by a database trigger, so an
 // import or direct SQL cannot skip the rule the service checks.
-@Index('UQ_vendor_bills_issuer_ncf', ['organizationId', 'issuerTaxKey', 'ncfKey'], {
+@Index('UQ_vendor_bills_issuer_fiscal_number', ['organizationId', 'issuerTaxKey', 'supplierFiscalKey'], {
   unique: true,
-  where: `"issuer_tax_key" IS NOT NULL AND "ncf_key" IS NOT NULL AND "status" NOT IN ('VOID', 'REJECTED')`,
+  where: `"issuer_tax_key" IS NOT NULL AND "supplier_fiscal_key" IS NOT NULL AND "status" NOT IN ('VOID', 'REJECTED')`,
 })
 @Entity({ name: 'vendor_bills' })
 export class VendorBill {
@@ -124,12 +94,22 @@ export class VendorBill {
   @JoinColumn({ name: 'purchase_order_id', foreignKeyConstraintName: 'FK_vendor_bills_purchase_order' })
   purchaseOrder?: PurchaseOrder | null;
 
-  @Column({ nullable: true })
-  ncf?: string;
+  /**
+   * The number the authority assigned to the supplier's document: a Dominican NCF, a Mexican folio
+   * fiscal, a Brazilian chave de acesso, a Colombian CUFE. What it is in each market, and how it is
+   * checked, is the market's own (`MarketPurchases.receivedDocument`).
+   *
+   * It was `ncf`, the DGII's name for it, on every purchase of every market.
+   */
+  @Column({ name: 'supplier_fiscal_number', type: 'varchar', nullable: true })
+  supplierFiscalNumber?: string | null;
 
-  /** `ncf` normalized, and the issuer's tax id when recorded; written by the database trigger. */
-  @Column({ name: 'ncf_key', type: 'varchar', length: 40, nullable: true, insert: false, update: false, select: false })
-  ncfKey?: string | null;
+  /** `supplierFiscalNumber` normalized, and the issuer's tax id; written by the database trigger. */
+  // Wide enough for the longest number any market issues: a 96-character CUFE, a 44-digit NF-e
+  // access key. It was 40 — the length of an NCF and a little — so the first Colombian or Brazilian
+  // purchase would have failed on insert.
+  @Column({ name: 'supplier_fiscal_key', type: 'varchar', length: 128, nullable: true, insert: false, update: false, select: false })
+  supplierFiscalKey?: string | null;
 
   @Column({ name: 'issuer_tax_key', type: 'varchar', length: 40, nullable: true, insert: false, update: false, select: false })
   issuerTaxKey?: string | null;
@@ -172,11 +152,11 @@ export class VendorBill {
   lines: VendorBillLine[];
 
   /**
-   * NCF of the comprobante this one modifies, on a supplier credit/debit note.
-   * The 606 has a dedicated column for it and it was never captured.
+   * The number of the supplier's document this one modifies, on a credit or debit note they issued.
+   * A purchases return has a column for it, and it was never captured.
    */
-  @Column({ name: 'ncf_modified', type: 'varchar', nullable: true })
-  ncfModified?: string | null;
+  @Column({ name: 'modified_supplier_fiscal_number', type: 'varchar', nullable: true })
+  modifiedSupplierFiscalNumber?: string | null;
 
   /** When the bill was actually paid; the 606 reports it separately from the document date. */
   @Column({ name: 'paid_at', type: 'date', nullable: true })
@@ -312,20 +292,26 @@ export class VendorBill {
   })
   serviceCharge: number;
 
-  @Column({
-    name: 'purchase_category',
-    type: 'varchar',
-    length: 2,
-    default: PurchaseCategory.MERCHANDISE_PURCHASES,
-  })
-  purchaseCategory: string;
+  /**
+   * What this market's authority asks of the purchase beyond its figures and its document, by the
+   * keys the market declares (`MarketPurchases.fiscalAttributes`): the Dominican 606's kind of goods
+   * or services and kind of income-tax withholding, the Mexican DIOT's kind of third party.
+   *
+   * Three columns held the DGII's codes — `purchase_category`, `isr_retention_type`, `payment_form` —
+   * on every purchase of every market, and a market that asked for anything else had nowhere to put
+   * it. What is asked for is validated against the market's schema before this is written, so the
+   * column never holds a key its market does not ask for.
+   */
+  @Column({ name: 'fiscal_attributes', type: 'jsonb', default: {} })
+  fiscalAttributes: Record<string, string>;
 
-  @Column({ name: 'isr_retention_type', type: 'varchar', length: 2, nullable: true })
-  isrRetentionType?: string | null;
-
-  /** DGII "Forma de Pago" code (01 efectivo, 02 cheque/transferencia…). */
-  @Column({ name: 'payment_form', type: 'varchar', length: 2, default: '01' })
-  paymentForm: string;
+  /**
+   * Which of the company's payment methods settled it (`payment_methods.code`), as the invoice
+   * records on the sales side. The authority's own code for it, where a return asks for one, is the
+   * method's `fiscal_code`: this was the DGII's «forma de pago» written straight onto the purchase.
+   */
+  @Column({ name: 'payment_method_code', type: 'varchar', length: 20, nullable: true })
+  paymentMethodCode?: string | null;
 
   @Column('decimal', { precision: 12, scale: 2, transformer: numericTransformerNotNull })
   total: number;

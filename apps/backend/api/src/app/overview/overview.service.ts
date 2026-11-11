@@ -240,7 +240,7 @@ export class OverviewService {
           id: `bill:${bill.id}`,
           kind: isoDate(bill.dueDate) < isoDate(today) ? 'PAYABLE_OVERDUE' : 'PAYABLE_DUE',
           date: isoDate(bill.dueDate),
-          reference: bill.ncf ?? null,
+          reference: bill.supplierFiscalNumber ?? null,
           counterparty: null,
           amount: Number(bill.balance),
           currencyCode: null,

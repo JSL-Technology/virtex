@@ -31,6 +31,7 @@ const RECEIVED_DOCUMENT: MarketReceivedDocument = {
   kind: 'NFE_KEY',
   labelKey: 'localization.country_pack.supplier_document.nfe_key',
   description: 'the NF-e "chave de acesso": 44 digits, often printed in groups of four',
+  example: '35260111222333000181550010000000123456789017',
   check: checkAccessKey,
 };
 
@@ -39,4 +40,6 @@ export const purchases: MarketPurchases = {
   supplierFiscalNumber: false,
   purchaseClassification: false,
   receivedDocument: RECEIVED_DOCUMENT,
+  // Beyond the document and the amounts, the authority asks nothing of a purchase here.
+  fiscalAttributes: [],
 };

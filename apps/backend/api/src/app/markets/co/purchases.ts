@@ -18,6 +18,7 @@ const RECEIVED_DOCUMENT: MarketReceivedDocument = {
   kind: 'CUFE',
   labelKey: 'localization.country_pack.supplier_document.cufe',
   description: 'the CUFE: 96 hexadecimal characters printed on the electronic invoice',
+  example: 'a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4',
   check: checkCufe,
 };
 
@@ -26,4 +27,6 @@ export const purchases: MarketPurchases = {
   supplierFiscalNumber: false,
   purchaseClassification: false,
   receivedDocument: RECEIVED_DOCUMENT,
+  // Beyond the document and the amounts, the authority asks nothing of a purchase here.
+  fiscalAttributes: [],
 };

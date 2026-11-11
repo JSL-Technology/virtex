@@ -59,6 +59,11 @@
     "es": "El 606 no se generó: {{count}} nota(s) de débito a proveedor (el NCF de nota de crédito que te emitió el proveedor) modifican una factura de proveedor sin NCF ({{notes}}). Abre esa factura y usa «Registrar NCF»; luego genera el 606 de nuevo.",
     "pt": "O 606 não foi gerado: {{count}} nota(s) de débito a fornecedor (o NCF de nota de crédito emitido pelo fornecedor) modificam uma fatura sem NCF ({{notes}}). Abra essa fatura e use «Registrar NCF»; depois gere o 606 novamente."
   },
+  "compliance.report_606_purchase_not_classified": {
+    "es": "{{count}} compra(s) no dicen qué se compró, y el 606 lo declara en cada línea: {{bills}}. Clasifícalas en la factura y vuelve a generar el formato.",
+    "en": "{{count}} purchase(s) do not state what was bought, and the 606 declares it on every line: {{bills}}. Classify them on the bill and generate the file again.",
+    "pt": "{{count}} compra(s) não dizem o que foi comprado, e o 606 declara isso em cada linha: {{bills}}. Classifique-as na fatura e gere o arquivo novamente."
+  },
   "compliance.report_606_supplier_tax_id_missing": {
     "es": "El 606 no se generó: {{count}} factura(s) de proveedor con NCF no tienen un RNC o cédula válido del proveedor ({{bills}}). Corrige el RNC en la ficha del proveedor y vuelve a generarlo.",
     "en": "The 606 was not generated: {{count}} vendor bill(s) with an NCF have no valid supplier RNC or cédula ({{bills}}). Correct the RNC on the supplier record and generate it again.",

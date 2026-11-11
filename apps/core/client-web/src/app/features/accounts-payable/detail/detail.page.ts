@@ -19,6 +19,7 @@ import {
   VendorDebitNoteRow,
   VendorPayment,
 } from '../../../core/services/accounts-payable';
+import { CountryPackService } from '../../../core/api/country-pack.service';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -60,7 +61,7 @@ export class VendorBillDetailPage implements OnInit {
     ready: () => !!this.bill(),
     actions: {
       'submit': () => this.canSubmit() && this.submitForApproval(),
-      'record-ncf': () => this.canRecordNcf() && this.recordNcf(),
+      'record-supplier-document': () => this.canRecordSupplierDocument() && this.recordSupplierDocument(),
       'void': () => this.canVoid() && this.voidBill(),
     },
   });
@@ -73,6 +74,8 @@ export class VendorBillDetailPage implements OnInit {
   protected readonly DebitNoteIcon = FileMinus;
 
   private readonly dialog = inject(DialogService);
+  /** What this company's market asks about a purchase (QA C-06): declared by the market, not here. */
+  private readonly countryPack = inject(CountryPackService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
@@ -99,10 +102,49 @@ export class VendorBillDetailPage implements OnInit {
   readonly canSubmit = computed(() => this.bill()?.status === 'DRAFT');
   /** Held by the three-way match (CMP-01): released by someone other than the submitter. */
   readonly isOnHold = computed(() => this.bill()?.status === 'ON_HOLD');
-  /** A posted bill without its comprobante can still receive it — what the 606 asks for (QA R3-A04). */
-  readonly canRecordNcf = computed(() => {
+  /**
+   * A posted bill without the supplier's document number can still receive it — what a purchases
+   * return asks for (QA R3-A04) — in whatever market the company is in.
+   */
+  readonly canRecordSupplierDocument = computed(() => {
     const bill = this.bill();
-    return !!bill && !bill.ncf && !['DRAFT', 'VOID', 'REJECTED'].includes(bill.status);
+    return !!bill && !bill.supplierFiscalNumber && !['DRAFT', 'VOID', 'REJECTED'].includes(bill.status);
+  });
+
+  /**
+   * What the market's authority asks about this purchase, answer by answer: the label it declares
+   * and what the bill states, or nothing where it states nothing.
+   *
+   * A purchase the authority wants classified and that nobody classified cannot be filed, and the
+   * return says so by name rather than filing a guess — so the answer is given here, at month end,
+   * by whoever reconciles the return.
+   */
+  readonly fiscalAnswers = computed(() => {
+    const recorded = this.bill()?.fiscalAttributes ?? {};
+    return this.countryPack.purchaseFiscalFields().map((field) => {
+      const code = recorded[field.key] ?? null;
+      const option = field.options.find((entry) => entry.code === code);
+      return {
+        key: field.key,
+        labelKey: field.labelKey,
+        label: field.label,
+        required: field.required,
+        code,
+        optionLabelKey: option?.labelKey ?? null,
+        optionLabel: option?.label ?? code,
+      };
+    });
+  });
+
+  /** A purchase this market's authority wants classified, and nobody has. */
+  readonly needsFiscalAnswer = computed(
+    () => !!this.bill() && this.fiscalAnswers().some((answer) => answer.required && !answer.code),
+  );
+
+  /** The questions still unanswered, to put in front of whoever is reconciling the return. */
+  readonly unansweredFields = computed(() => {
+    const recorded = this.bill()?.fiscalAttributes ?? {};
+    return this.countryPack.purchaseFiscalFields().filter((field) => field.type === 'select' && !recorded[field.key]);
   });
   readonly canVoid = computed(() => {
     const status = this.bill()?.status;
@@ -224,24 +266,49 @@ export class VendorBillDetailPage implements OnInit {
     });
   }
 
-  async recordNcf(): Promise<void> {
+  async recordSupplierDocument(): Promise<void> {
     const id = this.bill()?.id;
     if (!id) return;
-    const ncf = await this.dialog.prompt({
-      title: 'accounts_payable.detail.record_ncf_title',
-      message: 'accounts_payable.detail.record_ncf_message',
-      placeholder: 'accounts_payable.detail.record_ncf_placeholder',
-      minLength: 11,
-      tooShort: 'accounts_payable.detail.record_ncf_too_short',
+    // No length is asked for here: how long the number is, and what shape it takes, is the
+    // market's rule, and the server answers in that authority's name when it refuses one.
+    const document = await this.dialog.prompt({
+      title: 'accounts_payable.detail.record_document_title',
+      message: 'accounts_payable.detail.record_document_message',
+      // The shape to type is the market's own, so the example comes from the market's pack.
+      messageParams: { example: this.countryPack.pack()?.documents.supplierDocumentExample ?? '' },
+      placeholder: 'accounts_payable.detail.record_document_placeholder',
+      minLength: 1,
+      tooShort: 'accounts_payable.detail.record_document_too_short',
     });
-    if (!ncf) return;
-    this.accountsPayable.recordNcf(id, ncf.trim()).subscribe({
+    if (!document) return;
+    this.accountsPayable.recordSupplierFiscalNumber(id, document.trim()).subscribe({
       next: () => {
-        this.notifications.showSuccess('accounts_payable.detail.ncf_recorded');
+        this.notifications.showSuccess('accounts_payable.detail.document_recorded');
         this.load();
       },
       error: (error: unknown) => {
-        this.notifications.showError(serverMessage(error) ?? 'accounts_payable.detail.ncf_not_recorded');
+        this.notifications.showError(serverMessage(error) ?? 'accounts_payable.detail.document_not_recorded');
+      },
+    });
+  }
+
+  /**
+   * Answer one of the market's questions about this purchase, on a bill already posted.
+   *
+   * The answers travel as a whole — the server checks them against the market's own declaration and
+   * refuses a key it does not ask for — so what is already recorded is sent with the new answer.
+   */
+  answerFiscalField(key: string, value: string): void {
+    const bill = this.bill();
+    if (!bill || !value) return;
+    const answers = { ...(bill.fiscalAttributes ?? {}), [key]: value };
+    this.accountsPayable.recordFiscalAttributes(bill.id, answers).subscribe({
+      next: () => {
+        this.notifications.showSuccess('accounts_payable.detail.fiscal_attributes_recorded');
+        this.load();
+      },
+      error: (error: unknown) => {
+        this.notifications.showError(serverMessage(error) ?? 'accounts_payable.detail.fiscal_attributes_not_recorded');
       },
     });
   }
@@ -307,8 +374,8 @@ export class VendorBillDetailPage implements OnInit {
 
   /** Nombre del documento, ya compuesto: el armazón lo pone junto al estado. */
   documentTitle(bill: VendorBill): string {
-    const ncf = bill.ncf || this.translate.instant('accounts_payable.list.no_fiscal_number');
-    return `${this.translate.instant('accounts_payable.detail.supplier_bill')} ${ncf}`;
+    const document = bill.supplierFiscalNumber || this.translate.instant('accounts_payable.list.no_fiscal_number');
+    return `${this.translate.instant('accounts_payable.detail.supplier_bill')} ${document}`;
   }
 
   goToList(): void {

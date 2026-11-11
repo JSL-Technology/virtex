@@ -1,3 +1,5 @@
+import type { FiscalFieldSpec } from './identity';
+
 /**
  * What a supplier's document is in a market, and how a purchase is recorded for its authority.
  */
@@ -18,6 +20,15 @@ export interface ReceivedDocumentCheck {
   error: string | null;
   /** What is unusual but can be right, in the market rule's own terms. */
   warnings: string[];
+  /**
+   * The authority needs the supplier's own identifier on a document of this kind, so a purchase
+   * backed by it cannot be filed for a supplier the company has not identified.
+   *
+   * False where the document is self-issued (a Dominican B13 for a minor expense, a B17 for a
+   * payment abroad: the counterparty has no local identifier by definition), and in a market whose
+   * number no authority publishes.
+   */
+  requiresSupplierTaxId: boolean;
 }
 
 /**
@@ -35,6 +46,13 @@ export interface MarketReceivedDocument {
   labelKey: string;
   /** What the number is, in English, for a reader of the document (a person, or a model). */
   description: string;
+  /**
+   * A number of this shape, to show as the sample of an import template or a form's placeholder.
+   * It must pass {@link check} — `market-catalogue.spec.ts` holds every market to that. Absent
+   * where the market publishes no shape the product checks: there is nothing to show, and another
+   * market's number is not a sample of this one.
+   */
+  example?: string;
   /** The market's own rule. Total: any input, including nonsense, gets an answer. */
   check(raw: string): ReceivedDocumentCheck;
 }
@@ -48,4 +66,15 @@ export interface MarketPurchases {
   /** Purchases are classified for an authority report. */
   purchaseClassification: boolean;
   receivedDocument: MarketReceivedDocument;
+  /**
+   * What the market's authority asks a purchase to state beyond its figures and its document: the
+   * Dominican 606's kind of goods or services and kind of income-tax withholding, the Mexican
+   * DIOT's kind of third party and operation. Stored in `vendor_bills.fiscal_attributes`, validated
+   * against this schema, and the form is drawn from it — the same mechanism as the registration data
+   * an authority requires (`MarketIdentity.fiscalFields`), so a market adds one by declaring it.
+   *
+   * Empty where the authority asks for nothing beyond the document and the amounts. These used to
+   * be columns of `vendor_bills` holding DGII codes, on every purchase of every market.
+   */
+  fiscalAttributes: readonly FiscalFieldSpec[];
 }

@@ -13,6 +13,7 @@ import {
   IsString,
   IsUUID,
   Length,
+  IsObject,
   MaxLength,
   Max,
   Min,
@@ -125,13 +126,18 @@ export class CreateVendorBillDto {
   @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   currencyCode?: string;
 
+  /**
+   * The number the authority assigned to the supplier's document, checked by the market's own rule
+   * (`MarketPurchases.receivedDocument`). It was `ncf`, the DGII's name for it, everywhere.
+   */
   @IsString()
   @IsOptional()
-  ncf?: string;
+  supplierFiscalNumber?: string;
 
+  /** The number of the supplier's document this one modifies, on a note they issued. */
   @IsString()
   @IsOptional()
-  ncfModified?: string;
+  modifiedSupplierFiscalNumber?: string;
 
   /** The number on the supplier's own document; one live bill per supplier and number. */
   @IsString()
@@ -238,17 +244,17 @@ export class CreateVendorBillDto {
   @IsOptional()
   servicesAmount?: number;
 
-  /** DGII 606 "Tipo de Bienes y Servicios Comprados". */
-  @IsString()
+  /**
+   * What this market's authority asks about the purchase, by the keys the market declares
+   * (`MarketPurchases.fiscalAttributes`). Checked against that schema in the service: a key the
+   * market does not ask for is refused, so nothing arbitrary reaches the column.
+   *
+   * Three fields here took DGII codes — the 606's kind of goods and services, its kind of
+   * income-tax withholding and its «forma de pago» — from a tenant of any market.
+   */
+  @IsObject()
   @IsOptional()
-  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
-  purchaseCategory?: string;
-
-  /** DGII 606 "Tipo de Retención en ISR". */
-  @IsString()
-  @IsOptional()
-  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
-  isrRetentionType?: string;
+  fiscalAttributes?: Record<string, unknown>;
 
   /**
    * The supplier's documents uploaded while the bill was entered (`POST /accounts-payable/capture`
@@ -260,9 +266,9 @@ export class CreateVendorBillDto {
   @IsOptional()
   attachmentIds?: string[];
 
-  /** DGII "Forma de Pago". */
+  /** Which of the company's payment methods settled it (`payment_methods.code`). */
   @IsString()
   @IsOptional()
-  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
-  paymentForm?: string;
+  @MaxLength(20, { message: 'validation.constraints.max_length|{"max":20}' })
+  paymentMethodCode?: string;
 }
