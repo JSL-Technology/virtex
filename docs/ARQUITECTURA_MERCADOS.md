@@ -328,6 +328,22 @@ Y tres reglas que el adaptador declara en lugar de que el núcleo las suponga:
   acceso del SRI, el QR de la NFC-e: `verification_url`, derivado del documento ya **sellado**, para
   que lo que el portal resuelva sea lo que se transmitió.
 
+**Lo que no es un documento.** Una autoridad también recibe declaraciones *sobre* documentos: el
+veredicto de quien recibió uno (la aprobación comercial dominicana, la manifestação do destinatário
+brasileña, el acuse de recibo y aceptación colombiano) y los números autorizados que nunca se usarán
+(la anulación de e-NCF, la comunicación de baja peruana, la inutilização brasileña). Eso vive en
+`fiscal_document_events`, con las mismas columnas neutrales y el mismo vocabulario de estados que un
+envío, y con el país y el régimen en cada fila. El veredicto se guarda como el hecho —`ACCEPTED`,
+`REJECTED`— y cada mercado escribe el código de su autoridad
+(`MarketDocuments.counterpartyVerdictCodes`); la columna guardaba el `1` y el `2` de la DGII para
+todos los mercados.
+
+El servicio que construye y transmite esos eventos sigue siendo **uno**, el de la DGII
+(`regimes/do/dgii-document-events.service.ts`), porque es el único régimen que los escribe hoy. No
+se le inventó un contrato: un contrato con una sola implementación no se puede validar, y el de los
+adaptadores de régimen se ganó su lugar cuando hubo siete. Cuando un segundo mercado escriba eventos,
+el contrato saldrá de las dos implementaciones, como salió el de los envíos.
+
 Los adaptadores viven en `einvoicing/regimes/<cc>/` y no en `markets/<cc>/`: necesitan las entidades
 del documento (factura, líneas, cliente, organización) y `markets/` no depende de ningún módulo de
 negocio (§2.4). El paquete del mercado declara la **política** —si la ley lo exige, cómo se llama el
@@ -398,7 +414,7 @@ eso se resuelve en el contrato, no con una rama.
 | 0 | Este documento; tareas del programa | ✅ |
 | 1 | `markets/`: contrato, registro, mercado neutral, 19 paquetes con la estructura canónica, consultas genéricas (`markets/queries`), datos consolidados desde `localization/fiscal/*` y `contracts/country-pack` (retirados); los consumidores leen el registro; pruebas de estructura y de catálogo; puerta estricta con regla de import | ✅ |
 | 2 | Documentos y numeración: un adaptador genérico guiado por la política de numeración del mercado; fuera el `switch` de `FiscalAdapterFactory`; `ncf_sequences` → `fiscal_document_ranges`; motivos de ajuste canónicos en lugar de `ModificationCode`; tipos de nota de crédito y débito de todos los regímenes | ✅ Motor único con la política de cada mercado, rangos unificados con reglas comunes, consecutivo y serie en el documento, pantalla y API únicas (§2.8); motivos de ajuste canónicos traducidos por el mercado (§2.9). Los constructores de los seis regímenes que todavía no referencian el documento modificado son parte de la fase 3 |
-| 3 | Facturación electrónica: DO entra al buzón único (`fiscal_submissions`); los constructores quedan como adaptadores de régimen con un solo contrato; las variables `DGII_*` pasan a la configuración de transmisión del tenant | 🚧 Hecho: la DGII es un adaptador (`regimes/do/`), una sola tabla, un solo reconciliador, un solo estado y una sola pantalla; fuera la expresión regular del e-NCF de la entidad genérica; el canal lo declara cada régimen (§2.11). Falta: `ecf_lifecycle_messages` → `fiscal_document_events`, los seis constructores que no referencian el documento modificado (MP-10) y las variables `DGII_*` |
+| 3 | Facturación electrónica: DO entra al buzón único (`fiscal_submissions`); los constructores quedan como adaptadores de régimen con un solo contrato; `ecf_lifecycle_messages` → `fiscal_document_events`; las variables `DGII_*` pasan a la configuración de transmisión del tenant | 🚧 Hecho: la DGII es un adaptador (`regimes/do/`), una sola tabla de envíos, un solo reconciliador, un solo estado y una sola pantalla; fuera la expresión regular del e-NCF de la entidad genérica; el canal lo declara cada régimen; `fiscal_document_events` con el veredicto como hecho y el código escrito por el mercado (§2.11). Falta: los seis constructores que no referencian el documento modificado (MP-10) y las variables `DGII_*` |
 | 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ✅ Columnas neutrales con migración exacta en los dos sentidos, `fiscal_attributes` validado contra la declaración del mercado, documento del proveedor comprobado por la regla de cada mercado, método de pago de la empresa en lugar de la «forma de pago» de una autoridad, formulario y ficha dibujados desde el paquete público del mercado (§2.10) |
 | 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ⏳ |
 | 6 | Nómina: motor dominicano a `markets/do/payroll/`, registro de motores y sin `'DOP'` por omisión | ⏳ |

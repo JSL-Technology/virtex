@@ -10,10 +10,10 @@ import { AuthenticatedUser } from '../security/principal';
 import type { HttpResponse as Response } from '../common/http/http.types';
 import { EcfCertificateService } from './services/ecf-certificate.service';
 import { FiscalSubmissionService, visibleSubmission } from './services/fiscal-submission.service';
-import { EcfLifecycleService } from './services/ecf-lifecycle.service';
-import { CommercialApprovalDto } from './dto/commercial-approval.dto';
+import { DgiiDocumentEventsService } from './regimes/do/dgii-document-events.service';
+import { CounterpartyVerdictDto } from './dto/counterparty-verdict.dto';
 import { VoidSequenceRangeDto } from './dto/void-sequence-range.dto';
-import { EcfMessageKind } from './entities/ecf-lifecycle-message.entity';
+import { FiscalDocumentEvent, FiscalDocumentEventKind } from './entities/fiscal-document-event.entity';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 /**
@@ -29,7 +29,7 @@ export class EinvoicingController {
   constructor(
     private readonly certificates: EcfCertificateService,
     private readonly submissions: FiscalSubmissionService,
-    private readonly lifecycle: EcfLifecycleService,
+    private readonly events: DgiiDocumentEventsService,
   ) {}
 
   @Post('certificates')
@@ -132,29 +132,26 @@ export class EinvoicingController {
       .send(submission.payload);
   }
 
-  // ── Aprobación comercial ───────────────────────────────────────────────────
+  // ── What a taxpayer tells the authority ABOUT documents ────────────────────
 
   /**
-   * Answer a comprobante a supplier issued to this tenant.
+   * Answer a document a counterparty issued to this tenant.
    *
-   * `INVOICES_VIEW` would be wrong: accepting a supplier's comprobante commits the tenant to the
-   * purchase and to the ITBIS credit it carries, and rejecting it is a formal dispute. It is an
-   * act on payables, so it takes the create permission.
+   * `INVOICES_VIEW` would be wrong: accepting a supplier's document commits the tenant to the
+   * purchase and to the tax credit it carries, and rejecting it is a formal dispute. It is an act
+   * on payables, so it takes the create permission.
    */
   @Post('received/approval')
   @HasPermission(PERMISSIONS.INVOICES_CREATE)
   async answerReceived(
-    @Body() dto: CommercialApprovalDto,
+    @Body() dto: CounterpartyVerdictDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    const message = await this.lifecycle.answerReceived(user.organizationId, dto);
-    return this.toMessageView(message);
+    return this.toEventView(await this.events.answerReceived(user.organizationId, dto));
   }
 
-  // ── Anulación de e-NCF ─────────────────────────────────────────────────────
-
   /**
-   * Declare a stretch of an authorized e-NCF range as annulled.
+   * Declare a stretch of an authorised range as annulled.
    *
    * Guarded by `INVOICES_VOID`: it permanently removes fiscal numbers from circulation, which is
    * closer to voiding a document than to issuing one.
@@ -165,68 +162,51 @@ export class EinvoicingController {
     @Body() dto: VoidSequenceRangeDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    const message = await this.lifecycle.voidRange(user.organizationId, dto);
-    return this.toMessageView(message);
+    return this.toEventView(await this.events.voidRange(user.organizationId, dto));
   }
 
-  /** Everything this tenant has sent outside the comprobante flow, newest first. */
+  /** Everything this tenant has declared about documents, newest first. */
   @Get('messages')
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
   async listMessages(
     @CurrentUser() user: AuthenticatedUser,
     @Query('kind') kind?: string,
   ) {
-    if (kind && !(kind in EcfMessageKind)) {
+    if (kind && !(kind in FiscalDocumentEventKind)) {
       throw new BadRequestError('einvoicing.unknown_message_type_kind_use_commercial', { kind });
     }
-    const messages = await this.lifecycle.list(
+    const events = await this.events.list(
       user.organizationId,
-      kind ? (kind as EcfMessageKind) : undefined,
+      kind ? (kind as FiscalDocumentEventKind) : undefined,
     );
-    return messages.map((message) => this.toMessageView(message));
+    return events.map((event) => this.toEventView(event));
   }
 
   /**
    * The shape a client may see.
    *
-   * The signed XML is deliberately absent: it carries the tenant's signature over its own RNC and
-   * is served only by the explicit download route, which is permissioned separately.
+   * The sealed declaration is deliberately absent: it carries the tenant's signature over its own
+   * identifier and is served only by the explicit download route, which is permissioned separately.
    */
-  private toMessageView(m: {
-    id: string;
-    kind: EcfMessageKind;
-    issuerRnc?: string | null;
-    ncf?: string | null;
-    ecfType?: string | null;
-    sequenceFrom?: string | null;
-    sequenceTo?: string | null;
-    verdict?: string | null;
-    rejectionReason?: string | null;
-    status: string;
-    trackId?: string | null;
-    messages?: string[] | null;
-    sentAt?: Date | null;
-    respondedAt?: Date | null;
-    createdAt: Date;
-  }) {
+  private toEventView(event: FiscalDocumentEvent) {
     return {
-      id: m.id,
-      kind: m.kind,
-      issuerRnc: m.issuerRnc ?? null,
-      ncf: m.ncf ?? null,
-      ecfType: m.ecfType ?? null,
-      sequenceFrom: m.sequenceFrom ?? null,
-      sequenceTo: m.sequenceTo ?? null,
-      verdict: m.verdict ?? null,
-      rejectionReason: m.rejectionReason ?? null,
-      status: m.status,
-      trackId: m.trackId ?? null,
-      messages: m.messages ?? [],
-      sentAt: m.sentAt ?? null,
-      respondedAt: m.respondedAt ?? null,
-      createdAt: m.createdAt,
+      id: event.id,
+      countryCode: event.countryCode,
+      regime: event.regime,
+      kind: event.kind,
+      counterpartyTaxId: event.counterpartyTaxId ?? null,
+      documentNumber: event.documentNumber ?? null,
+      documentType: event.documentType ?? null,
+      sequenceFrom: event.sequenceFrom ?? null,
+      sequenceTo: event.sequenceTo ?? null,
+      verdict: event.verdict ?? null,
+      rejectionReason: event.rejectionReason ?? null,
+      status: event.status,
+      trackingId: event.trackingId ?? null,
+      messages: event.messages ?? [],
+      sentAt: event.sentAt ?? null,
+      respondedAt: event.respondedAt ?? null,
+      createdAt: event.createdAt,
     };
   }
-
-
 }

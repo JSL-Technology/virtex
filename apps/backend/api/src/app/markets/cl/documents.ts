@@ -44,6 +44,8 @@ export const documents: MarketDocuments = {
   cancellation: { electronic: CREDIT_NOTE_ONLY, traditional: CREDIT_NOTE_ONLY },
   // The SII's código de referencia is not written yet: the builder does not reference the modified DTE.
   adjustmentCodes: null,
+  // The authority asks the receiver of a document for no verdict of its own here.
+  counterpartyVerdictCodes: null,
   debitNotes: false,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,

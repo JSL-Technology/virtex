@@ -60,6 +60,8 @@ export const documents: MarketDocuments = {
   cancellation: { electronic: AUTHORITY_EVENT, traditional: AUTHORITY_EVENT },
   // SUNAT's catálogos 09 and 10 are not written yet: the builder does not reference the modified document.
   adjustmentCodes: null,
+  // The authority asks the receiver of a document for no verdict of its own here.
+  counterpartyVerdictCodes: null,
   debitNotes: false,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,

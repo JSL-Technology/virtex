@@ -37,6 +37,8 @@ export const documents: MarketDocuments = {
   cancellation: { electronic: AUTHORITY_EVENT, traditional: AUTHORITY_EVENT },
   // The CFDI relates documents by UUID; its `TipoRelacion` is not written yet.
   adjustmentCodes: null,
+  // The authority asks the receiver of a document for no verdict of its own here.
+  counterpartyVerdictCodes: null,
   debitNotes: false,
   defaultCustomer: { nameKey: 'ledger.provisioning.general_public' },
   numbering: NUMBERING,

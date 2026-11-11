@@ -1,18 +1,18 @@
 import { ServiceUnavailableException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { createTestOrganization, describeWithDb, openTestDataSource } from '../../common/database/testing/integration-db';
-import { IssuedFiscalNumbersRegistry } from '../../contracts/fiscal-records/issued-fiscal-numbers.registry';
-import { InvoiceIssuedFiscalNumbers } from '../../invoices/issued-fiscal-numbers.source';
-import { EcfLifecycleMessage, EcfMessageKind } from '../entities/ecf-lifecycle-message.entity';
-import { FiscalSubmissionStatus } from '../entities/fiscal-submission.entity';
-import { FiscalDocumentRange } from '../entities/fiscal-document-range.entity';
-import { CertificateVaultService } from './certificate-vault.service';
-import { DgiiAuthService } from './dgii-auth.service';
-import { DgiiReceptionResult, DgiiTransportService } from './dgii-transport.service';
-import { EcfLifecycleXmlBuilder } from './ecf-lifecycle-xml.builder';
-import { EcfLifecycleService } from './ecf-lifecycle.service';
-import { EcfSignerService } from './ecf-signer.service';
-import { FiscalRangeService } from './fiscal-range.service';
+import { createTestOrganization, describeWithDb, openTestDataSource } from '../../../common/database/testing/integration-db';
+import { IssuedFiscalNumbersRegistry } from '../../../contracts/fiscal-records/issued-fiscal-numbers.registry';
+import { InvoiceIssuedFiscalNumbers } from '../../../invoices/issued-fiscal-numbers.source';
+import { FiscalDocumentEvent, FiscalDocumentEventKind } from '../../entities/fiscal-document-event.entity';
+import { FiscalSubmissionStatus } from '../../entities/fiscal-submission.entity';
+import { FiscalDocumentRange } from '../../entities/fiscal-document-range.entity';
+import { CertificateVaultService } from '../../services/certificate-vault.service';
+import { DgiiAuthService } from '../../services/dgii-auth.service';
+import { DgiiReceptionResult, DgiiTransportService } from '../../services/dgii-transport.service';
+import { DgiiEventXmlBuilder } from './dgii-event-xml.builder';
+import { DgiiDocumentEventsService } from './dgii-document-events.service';
+import { EcfSignerService } from '../../services/ecf-signer.service';
+import { FiscalRangeService } from '../../services/fiscal-range.service';
 
 /**
  * Declaring to the DGII the numbers of a range that will never be used, against a real PostgreSQL.
@@ -36,7 +36,7 @@ describeWithDb('declaring unused numbers void (ANECF)', () => {
 
   let dataSource: DataSource;
   let ranges: FiscalRangeService;
-  let service: EcfLifecycleService;
+  let service: DgiiDocumentEventsService;
   let organizationId: string;
   const voidAtDgii = jest.fn<Promise<DgiiReceptionResult>, [string, string, string]>();
 
@@ -46,8 +46,8 @@ describeWithDb('declaring unused numbers void (ANECF)', () => {
     new InvoiceIssuedFiscalNumbers(issued).onModuleInit();
     // No range here carries a secret, so the vault is never asked for anything.
     ranges = new FiscalRangeService({} as CertificateVaultService, issued);
-    service = new EcfLifecycleService(
-      dataSource.getRepository(EcfLifecycleMessage),
+    service = new DgiiDocumentEventsService(
+      dataSource.getRepository(FiscalDocumentEvent),
       // An active certificate of the DGII's regime: what it holds is the signer's business.
       { findOne: async () => ({ notAfter: new Date(Date.now() + 86_400_000) }) } as never,
       // By entity name: the class belongs to another module (verify:boundaries).
@@ -55,7 +55,7 @@ describeWithDb('declaring unused numbers void (ANECF)', () => {
       { load: () => ({ privateKeyPem: '', certificatePem: '' }) } as unknown as CertificateVaultService,
       // Signing is exercised where it belongs; here the message travels as built.
       { sign: (xml: string) => xml } as unknown as EcfSignerService,
-      new EcfLifecycleXmlBuilder(),
+      new DgiiEventXmlBuilder(),
       { getToken: async () => 'token' } as unknown as DgiiAuthService,
       { voidSequenceRange: voidAtDgii } as unknown as DgiiTransportService,
       ranges,
@@ -91,14 +91,14 @@ describeWithDb('declaring unused numbers void (ANECF)', () => {
   const cursor = async () =>
     Number((await dataSource.getRepository(FiscalDocumentRange).findOneByOrFail({ organizationId, countryCode: 'DO', documentType: 'E31' })).currentSequence);
   const messages = () =>
-    dataSource.getRepository(EcfLifecycleMessage).find({ where: { organizationId, kind: EcfMessageKind.SEQUENCE_VOID }, order: { createdAt: 'ASC' } });
+    dataSource.getRepository(FiscalDocumentEvent).find({ where: { organizationId, kind: FiscalDocumentEventKind.NUMBER_RANGE_VOID }, order: { createdAt: 'ASC' } });
 
   it('declares exactly the stretch asked for, as the DGII writes it, and closes it once the DGII takes it', async () => {
     voidAtDgii.mockResolvedValue(ACCEPTED);
 
     const message = await service.voidRange(organizationId, { type: 'e31', from: 2, to: 10 });
 
-    expect(message).toMatchObject({ status: FiscalSubmissionStatus.ACCEPTED, ecfType: 'E31', sequenceFrom: '2', sequenceTo: '10', trackId: 'trk-1' });
+    expect(message).toMatchObject({ status: FiscalSubmissionStatus.ACCEPTED, documentType: 'E31', sequenceFrom: '2', sequenceTo: '10', trackingId: 'trk-1' });
     const xml = voidAtDgii.mock.calls[0][2];
     // The issued number (1) is not in the declaration, and nine numbers are: 2 through 10.
     expect(xml).toContain('<SecuenciaeNCFDesde>E310000000002</SecuenciaeNCFDesde>');

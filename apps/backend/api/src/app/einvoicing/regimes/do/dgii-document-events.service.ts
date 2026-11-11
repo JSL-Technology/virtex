@@ -2,38 +2,35 @@ import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 import {
-  EcfLifecycleMessage,
-  EcfMessageKind,
-  CommercialApprovalVerdict,
-} from '../entities/ecf-lifecycle-message.entity';
-import { FiscalSubmissionStatus } from '../entities/fiscal-submission.entity';
-import { DGII_CERTIFICATE_REGIME, EcfCertificate } from '../entities/ecf-certificate.entity';
-import { Organization } from '../../organizations/entities/organization.entity';
-import { isElectronicDocumentType, knownMarket } from '../../markets';
-import { certificatePolicyFor } from '../contracts/certificate-policy';
-import { FiscalRangeService } from './fiscal-range.service';
-import { CertificateVaultService } from './certificate-vault.service';
-import { EcfSignerService } from './ecf-signer.service';
-import {
-  EcfLifecycleXmlBuilder,
-  VoidedSequenceRange,
-} from './ecf-lifecycle-xml.builder';
-import { DgiiAuthService } from './dgii-auth.service';
-import { DgiiTransportService } from './dgii-transport.service';
-import { dgiiStatus, isTerminalStatus } from '../regimes/do/dgii-estado';
-import { dgiiTimestamp, isoToDgiiDate, organizationTimeZone } from '../../shared/fiscal-clock';
-import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
+  CounterpartyVerdict,
+  FiscalDocumentEvent,
+  FiscalDocumentEventKind,
+} from '../../entities/fiscal-document-event.entity';
+import { FiscalSubmissionStatus } from '../../entities/fiscal-submission.entity';
+import { DGII_CERTIFICATE_REGIME, EcfCertificate } from '../../entities/ecf-certificate.entity';
+import { Organization } from '../../../organizations/entities/organization.entity';
+import { counterpartyVerdictCodeFor, isElectronicDocumentType, knownMarket } from '../../../markets';
+import { certificatePolicyFor } from '../../contracts/certificate-policy';
+import { FiscalRangeService } from '../../services/fiscal-range.service';
+import { CertificateVaultService } from '../../services/certificate-vault.service';
+import { EcfSignerService } from '../../services/ecf-signer.service';
+import { DgiiEventXmlBuilder, VoidedSequenceRange } from './dgii-event-xml.builder';
+import { DgiiAuthService } from '../../services/dgii-auth.service';
+import { DgiiTransportService } from '../../services/dgii-transport.service';
+import { dgiiStatus, isTerminalStatus } from './dgii-estado';
+import { dgiiTimestamp, isoToDgiiDate, organizationTimeZone } from '../../../shared/fiscal-clock';
+import { BadRequestError, ConflictError, NotFoundError } from '../../../i18n/localized.exception';
 
-export interface CommercialApprovalRequest {
-  /** RNC of the supplier that issued the comprobante. */
-  issuerRnc: string;
-  /** The supplier's e-NCF. */
-  ncf: string;
-  /** Issue date the supplier stated, `YYYY-MM-DD`. */
+export interface CounterpartyVerdictRequest {
+  /** The identifier of the party that issued the document being answered. */
+  counterpartyTaxId: string;
+  /** The number their authority assigned to it. */
+  documentNumber: string;
+  /** Issue date they stated, `YYYY-MM-DD`. */
   documentDate: string;
-  /** Total the supplier stated. It must match theirs to the cent or the DGII rejects the answer. */
+  /** Total they stated. It must match theirs to the cent or the authority rejects the answer. */
   documentTotal: number;
-  verdict: CommercialApprovalVerdict;
+  verdict: CounterpartyVerdict;
   /** Mandatory when the verdict is a rejection. */
   rejectionReason?: string;
 }
@@ -61,19 +58,23 @@ export interface SequenceVoidRequest {
  * never invisible.
  */
 @Injectable()
-export class EcfLifecycleService {
-  private readonly logger = new Logger(EcfLifecycleService.name);
+export class DgiiDocumentEventsService {
+  /** Whose authority these events are for: recorded on every row, as a submission records it. */
+  private readonly countryCode = 'DO';
+  private readonly regime = 'DGII e-CF';
+
+  private readonly logger = new Logger(DgiiDocumentEventsService.name);
 
   constructor(
-    @InjectRepository(EcfLifecycleMessage)
-    private readonly messageRepo: Repository<EcfLifecycleMessage>,
+    @InjectRepository(FiscalDocumentEvent)
+    private readonly messageRepo: Repository<FiscalDocumentEvent>,
     @InjectRepository(EcfCertificate)
     private readonly certRepo: Repository<EcfCertificate>,
     @InjectRepository(Organization)
     private readonly orgRepo: Repository<Organization>,
     private readonly vault: CertificateVaultService,
     private readonly signer: EcfSignerService,
-    private readonly builder: EcfLifecycleXmlBuilder,
+    private readonly builder: DgiiEventXmlBuilder,
     private readonly auth: DgiiAuthService,
     private readonly transport: DgiiTransportService,
     /** The tenant's authorised ranges, the DGII's among every market's. */
@@ -88,17 +89,17 @@ export class EcfLifecycleService {
    */
   async answerReceived(
     organizationId: string,
-    request: CommercialApprovalRequest,
-  ): Promise<EcfLifecycleMessage> {
+    request: CounterpartyVerdictRequest,
+  ): Promise<FiscalDocumentEvent> {
     if (
-      request.verdict === CommercialApprovalVerdict.REJECTED &&
+      request.verdict === CounterpartyVerdict.REJECTED &&
       !request.rejectionReason?.trim()
     ) {
       throw new BadRequestError('einvoicing.do.commercial_rejection_must_state_reason_dgii');
     }
 
-    const issuerRnc = digitsOf(request.issuerRnc);
-    if (!issuerRnc) {
+    const counterpartyTaxId = digitsOf(request.counterpartyTaxId);
+    if (!counterpartyTaxId) {
       throw new BadRequestError('einvoicing.do.issuer_rnc_required_document');
     }
 
@@ -109,13 +110,16 @@ export class EcfLifecycleService {
     const existing = await this.messageRepo.findOne({
       where: {
         organizationId,
-        kind: EcfMessageKind.COMMERCIAL_APPROVAL,
-        issuerRnc,
-        ncf: request.ncf,
+        kind: FiscalDocumentEventKind.COUNTERPARTY_VERDICT,
+        counterpartyTaxId,
+        documentNumber: request.documentNumber,
       },
     });
     if (existing && isTerminalStatus(existing.status)) {
-      throw new ConflictError('einvoicing.do.document_ncf_from_issuer_rnc_has', { ncf: request.ncf, issuerRnc });
+      throw new ConflictError('einvoicing.do.document_ncf_from_issuer_rnc_has', {
+        ncf: request.documentNumber,
+        issuerRnc: counterpartyTaxId,
+      });
     }
 
     const message =
@@ -123,9 +127,11 @@ export class EcfLifecycleService {
       (await this.messageRepo.save(
         this.messageRepo.create({
           organizationId,
-          kind: EcfMessageKind.COMMERCIAL_APPROVAL,
-          issuerRnc,
-          ncf: request.ncf,
+          countryCode: this.countryCode,
+          regime: this.regime,
+          kind: FiscalDocumentEventKind.COUNTERPARTY_VERDICT,
+          counterpartyTaxId,
+          documentNumber: request.documentNumber,
           documentDate: request.documentDate,
           documentTotal: request.documentTotal.toFixed(2),
           verdict: request.verdict,
@@ -137,25 +143,29 @@ export class EcfLifecycleService {
 
     try {
       const { loaded, taxId } = await this.credentials(organizationId, org);
+      // The DGII's own code for the verdict, written by the market that owns it: the column holds
+      // the fact (`ACCEPTED`/`REJECTED`), not `1` and `2`.
+      const estado = counterpartyVerdictCodeFor(this.countryCode, request.verdict);
+      if (!estado) throw new BadRequestError('einvoicing.do.commercial_rejection_must_state_reason_dgii');
       const xml = this.builder.buildCommercialApproval({
-        rncEmisor: issuerRnc,
+        rncEmisor: counterpartyTaxId,
         rncComprador: taxId,
-        eNCF: request.ncf,
+        eNCF: request.documentNumber,
         fechaEmision: isoToDgiiDate(request.documentDate),
         montoTotal: request.documentTotal,
-        estado: request.verdict,
+        estado,
         detalleMotivoRechazo: request.rejectionReason,
         fechaHoraAprobacion: dgiiTimestamp(organizationTimeZone(org)),
       });
 
       const signedXml = this.signer.sign(xml, loaded, 'ACECF');
-      message.signedXml = signedXml;
+      message.payload = signedXml;
       message.status = FiscalSubmissionStatus.PENDING;
       message.attempts += 1;
       await this.messageRepo.save(message);
 
       const token = await this.auth.getToken(organizationId, loaded);
-      const result = await this.transport.sendCommercialApproval(organizationId, token, signedXml, request.ncf);
+      const result = await this.transport.sendCommercialApproval(organizationId, token, signedXml, request.documentNumber);
 
       return this.recordResult(message, result);
     } catch (error) {
@@ -183,7 +193,7 @@ export class EcfLifecycleService {
   async voidRange(
     organizationId: string,
     request: SequenceVoidRequest,
-  ): Promise<EcfLifecycleMessage> {
+  ): Promise<FiscalDocumentEvent> {
     const type = request.type.trim().toUpperCase();
     const org = await this.requireIssuer(organizationId);
     const countryCode = (org.country ?? '').toUpperCase();
@@ -204,8 +214,8 @@ export class EcfLifecycleService {
       const taken = await this.messageRepo.findOne({
         where: {
           organizationId,
-          kind: EcfMessageKind.SEQUENCE_VOID,
-          ecfType: type,
+          kind: FiscalDocumentEventKind.NUMBER_RANGE_VOID,
+          documentType: type,
           sequenceFrom: String(request.from),
           sequenceTo: String(request.to),
           status: In(TAKEN_BY_THE_AUTHORITY),
@@ -227,8 +237,10 @@ export class EcfLifecycleService {
       const message = await this.messageRepo.save(
         this.messageRepo.create({
           organizationId,
-          kind: EcfMessageKind.SEQUENCE_VOID,
-          ecfType: type,
+          countryCode: this.countryCode,
+          regime: this.regime,
+          kind: FiscalDocumentEventKind.NUMBER_RANGE_VOID,
+          documentType: type,
           sequenceFrom: String(request.from),
           sequenceTo: String(request.to),
           status: FiscalSubmissionStatus.PENDING,
@@ -236,7 +248,7 @@ export class EcfLifecycleService {
         }),
       );
 
-      let recorded: EcfLifecycleMessage;
+      let recorded: FiscalDocumentEvent;
       try {
         const { loaded, taxId } = await this.credentials(organizationId, org);
         const xml = this.builder.buildSequenceVoid({
@@ -246,7 +258,7 @@ export class EcfLifecycleService {
         });
 
         const signedXml = this.signer.sign(xml, loaded, 'ANECF');
-        message.signedXml = signedXml;
+        message.payload = signedXml;
         message.status = FiscalSubmissionStatus.PENDING;
         message.attempts += 1;
         await this.messageRepo.save(message);
@@ -284,7 +296,7 @@ export class EcfLifecycleService {
 
   // ── Consulta ───────────────────────────────────────────────────────────────
 
-  async list(organizationId: string, kind?: EcfMessageKind): Promise<EcfLifecycleMessage[]> {
+  async list(organizationId: string, kind?: FiscalDocumentEventKind): Promise<FiscalDocumentEvent[]> {
     return this.messageRepo.find({
       where: { organizationId, ...(kind ? { kind } : {}) },
       order: { createdAt: 'DESC' },
@@ -330,11 +342,11 @@ export class EcfLifecycleService {
   }
 
   private async recordResult(
-    message: EcfLifecycleMessage,
+    message: FiscalDocumentEvent,
     result: { trackId?: string; estado?: string; mensajes: string[]; raw: unknown },
-  ): Promise<EcfLifecycleMessage> {
-    message.trackId = result.trackId ?? null;
-    message.dgiiResponse = result.raw;
+  ): Promise<FiscalDocumentEvent> {
+    message.trackingId = result.trackId ?? null;
+    message.response = result.raw;
     message.messages = result.mensajes;
     message.sentAt = new Date();
     message.status = result.estado ? dgiiStatus(result.estado) : FiscalSubmissionStatus.SENT;
@@ -342,14 +354,14 @@ export class EcfLifecycleService {
     return this.messageRepo.save(message);
   }
 
-  private isRejected(message: EcfLifecycleMessage): boolean {
+  private isRejected(message: FiscalDocumentEvent): boolean {
     return message.status === FiscalSubmissionStatus.REJECTED || message.status === FiscalSubmissionStatus.ERROR;
   }
 
   private async recordFailure(
-    message: EcfLifecycleMessage,
+    message: FiscalDocumentEvent,
     error: unknown,
-  ): Promise<EcfLifecycleMessage> {
+  ): Promise<FiscalDocumentEvent> {
     // An outage is retriable; a refusal is not. Conflating them either retries forever or gives up
     // on a message that would have gone through on the next attempt.
     message.status =
@@ -357,7 +369,7 @@ export class EcfLifecycleService {
     message.messages = [(error as Error).message];
     message.attempts += 1;
     this.logger.error(
-      `Mensaje ${message.kind} (${message.ncf ?? message.ecfType}) falló: ${(error as Error).message}`,
+      `Evento ${message.kind} (${message.documentNumber ?? message.documentType}) falló: ${(error as Error).message}`,
     );
     return this.messageRepo.save(message);
   }

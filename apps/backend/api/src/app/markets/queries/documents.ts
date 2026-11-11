@@ -1,4 +1,9 @@
-import type { AdjustmentReason, CancellationRoute, FiscalDocumentTypeSpec } from '../contracts';
+import type {
+  AdjustmentReason,
+  CancellationRoute,
+  CounterpartyVerdictValue,
+  FiscalDocumentTypeSpec,
+} from '../contracts';
 import { CREDIT_NOTE_ONLY, VOID } from '../kit/documents';
 import { allMarkets, knownMarket, marketFor, normalizeMarketCode } from '../registry';
 
@@ -91,6 +96,18 @@ export function adjustmentCodeFor(
 ): string | null {
   if (!reason) return null;
   return marketFor(countryCode).documents.adjustmentCodes?.[reason] ?? null;
+}
+
+/**
+ * The authority's code for what the receiver of a document answered about it, or null where this
+ * market's authority asks the receiver nothing.
+ */
+export function counterpartyVerdictCodeFor(
+  countryCode: string | null | undefined,
+  verdict: CounterpartyVerdictValue | null | undefined,
+): string | null {
+  if (!verdict) return null;
+  return marketFor(countryCode).documents.counterpartyVerdictCodes?.[verdict] ?? null;
 }
 
 /** The authority's name, for messages: the market's own (`fiscalAuthority`), or the code itself. */

@@ -1,11 +1,11 @@
-import { EcfLifecycleXmlBuilder } from './ecf-lifecycle-xml.builder';
+import { DgiiEventXmlBuilder } from './dgii-event-xml.builder';
 
 /**
  * The two DGII messages that had transport code, endpoints and no builder at all: a tenant could
  * neither answer a supplier's comprobante nor declare numbers it would never use.
  */
-describe('EcfLifecycleXmlBuilder', () => {
-  const builder = new EcfLifecycleXmlBuilder();
+describe('DgiiEventXmlBuilder', () => {
+  const builder = new DgiiEventXmlBuilder();
 
   describe('aprobación comercial (ACECF)', () => {
     const base = {

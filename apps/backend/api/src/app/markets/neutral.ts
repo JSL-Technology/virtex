@@ -43,7 +43,7 @@ export function neutralMarket(code: string): NeutralMarket {
       types: [],
       cancellation: null,
       // No authority stands behind these documents, so no code explains a note.
-      adjustmentCodes: null,
+      adjustmentCodes: null, counterpartyVerdictCodes: null,
       debitNotes: true,
       defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
       numbering: NO_FISCAL_NUMBERING,

@@ -1,5 +1,5 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
-import type { DocumentToNumber, MarketAdjustmentCodes, MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
+import type { DocumentToNumber, MarketAdjustmentCodes, MarketCounterpartyVerdictCodes, MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
 import { CREDIT_NOTE_ONLY, REPORT_IN_RETURN, formatByMask } from '../kit/documents';
 import { isValidDominicanTaxId } from './identity';
 
@@ -108,6 +108,17 @@ const ADJUSTMENT_CODES: MarketAdjustmentCodes = {
   OTHER: '3',
 };
 
+/**
+ * The DGII's codes for the aprobación comercial (ACECF): what the BUYER answers about a comprobante
+ * their supplier issued to them.
+ *
+ * *Verificar con contabilidad/legal*: Norma General 01-2020 and the ACECF technical annex.
+ */
+const COUNTERPARTY_VERDICT_CODES: MarketCounterpartyVerdictCodes = {
+  ACCEPTED: '1',
+  REJECTED: '2',
+};
+
 /** Dominican Republic: the sales documents the authority defines, and how an issued one is undone. */
 export const documents: MarketDocuments = {
   fiscalNumbering: true,
@@ -118,6 +129,7 @@ export const documents: MarketDocuments = {
    */
   cancellation: { electronic: CREDIT_NOTE_ONLY, traditional: REPORT_IN_RETURN },
   adjustmentCodes: ADJUSTMENT_CODES,
+  counterpartyVerdictCodes: COUNTERPARTY_VERDICT_CODES,
   debitNotes: true,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,

@@ -74,6 +74,8 @@ export const documents: MarketDocuments = {
   cancellation: { electronic: CREDIT_NOTE_ONLY, traditional: CREDIT_NOTE_ONLY },
   // AFIP states the class of the note (A, B, C) and no reason code; the concept lives in the lines.
   adjustmentCodes: null,
+  // The authority asks the receiver of a document for no verdict of its own here.
+  counterpartyVerdictCodes: null,
   debitNotes: false,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,

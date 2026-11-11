@@ -32,7 +32,7 @@ import {
   unitOfMeasureCode,
 } from '../../apps/backend/api/src/app/einvoicing/config/dgii-catalogues';
 import { PaymentMethod } from '../../apps/backend/api/src/app/invoices/entities/invoice.entity';
-import { EcfLifecycleXmlBuilder } from '../../apps/backend/api/src/app/einvoicing/services/ecf-lifecycle-xml.builder';
+import { DgiiEventXmlBuilder } from '../../apps/backend/api/src/app/einvoicing/regimes/do/dgii-event-xml.builder';
 import { dgiiTimestamp, fiscalDate, organizationTimeZone } from '../../apps/backend/api/src/app/shared/fiscal-clock';
 import { makeTestCertificate } from './support/test-certificate';
 
@@ -197,7 +197,7 @@ function main(): void {
     // Both had transport code and endpoints and nothing else — no builder, no signature, no route —
     // so a taxpayer could neither answer a supplier's comprobante nor declare numbers it would
     // never use. Both are obligations under Norma 01-2020, not conveniences.
-    const lifecycle = new EcfLifecycleXmlBuilder();
+    const lifecycle = new DgiiEventXmlBuilder();
 
     const approval = lifecycle.buildCommercialApproval({
       rncEmisor: '130862346',

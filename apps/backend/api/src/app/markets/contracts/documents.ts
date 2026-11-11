@@ -211,6 +211,20 @@ export function reasonsOfPurpose(purpose: 'CREDIT_NOTE' | 'DEBIT_NOTE'): readonl
 export type MarketAdjustmentCodes = Readonly<Record<AdjustmentReason, string>>;
 
 /**
+ * What the receiver of a document answers about it, in the product's own terms.
+ *
+ * Several regimes ask the receiver to answer the documents issued to them — the Dominican
+ * aprobación comercial, Brazil's manifestação do destinatário, Colombia's acuse de recibo y
+ * aceptación — and each codes the answer its own way. The fact is the same, so it is stored as the
+ * fact and the market writes its authority's code (`MarketDocuments.counterpartyVerdictCodes`).
+ */
+export const COUNTERPARTY_VERDICTS = ['ACCEPTED', 'REJECTED'] as const;
+export type CounterpartyVerdictValue = (typeof COUNTERPARTY_VERDICTS)[number];
+
+/** The authority's own code for each verdict. Complete by construction, like the note reasons. */
+export type MarketCounterpartyVerdictCodes = Readonly<Record<CounterpartyVerdictValue, string>>;
+
+/**
  * How an issued sales document is cancelled.
  *
  *  - `VOID`             — the document carries no fiscal number: a commercial document the
@@ -257,6 +271,12 @@ export interface MarketDocuments {
    * one yet — each market's file says which, and the coverage reports it.
    */
   adjustmentCodes: MarketAdjustmentCodes | null;
+  /**
+   * The authority's code for what the receiver of a document answers about it. Null where the
+   * market's authority asks the receiver nothing, or where the product does not answer for them
+   * yet — each market's file says which.
+   */
+  counterpartyVerdictCodes: MarketCounterpartyVerdictCodes | null;
   /**
    * Whether the product issues a debit note in the market: under its regime, or as the commercial
    * document a market without the authority's documents uses. False where the regime is spoken but

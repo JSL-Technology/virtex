@@ -9,6 +9,8 @@ export const documents: MarketDocuments = {
   cancellation: null,
   // The documents carry no authority reason code: there is no authority behind them.
   adjustmentCodes: null,
+  // The authority asks the receiver of a document for no verdict of its own here.
+  counterpartyVerdictCodes: null,
   debitNotes: true,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   // The product issues no fiscal number here: the commercial number is the document's only one.

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as xmlbuilder from 'xmlbuilder';
-import { roundAmount } from '../../common/money';
+import { roundAmount } from '../../../common/money';
 
 export interface CommercialApprovalContext {
   /** RNC of the supplier that issued the comprobante being answered. */
@@ -14,7 +14,7 @@ export interface CommercialApprovalContext {
   /** Total of the answered comprobante. Must equal the supplier's to the cent. */
   montoTotal: number;
   /** '1' aprobado, '2' rechazado. */
-  estado: '1' | '2';
+  estado: string;
   /** Mandatory when `estado` is '2'. */
   detalleMotivoRechazo?: string;
   /** DD-MM-YYYY HH:mm:ss. */
@@ -61,14 +61,14 @@ export interface SequenceVoidContext {
  * or `ANECF` — so the enveloped reference resolves the same way it does for a comprobante.
  */
 @Injectable()
-export class EcfLifecycleXmlBuilder {
+export class DgiiEventXmlBuilder {
   private static readonly XSI = 'http://www.w3.org/2001/XMLSchema-instance';
 
   /** Aprobación Comercial: the buyer's verdict on a comprobante received from a supplier. */
   buildCommercialApproval(ctx: CommercialApprovalContext): string {
     const root = xmlbuilder
       .create('ACECF', { encoding: 'UTF-8' })
-      .att('xmlns:xsi', EcfLifecycleXmlBuilder.XSI);
+      .att('xmlns:xsi', DgiiEventXmlBuilder.XSI);
 
     const detalle = root.ele('DetalleAprobacionComercial');
     detalle.ele('Version', '1.0');
@@ -94,7 +94,7 @@ export class EcfLifecycleXmlBuilder {
   buildSequenceVoid(ctx: SequenceVoidContext): string {
     const root = xmlbuilder
       .create('ANECF', { encoding: 'UTF-8' })
-      .att('xmlns:xsi', EcfLifecycleXmlBuilder.XSI);
+      .att('xmlns:xsi', DgiiEventXmlBuilder.XSI);
 
     const anulacion = root.ele('Anulacion');
     anulacion.ele('Version', '1.0');

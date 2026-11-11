@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EcfLifecycleMessage } from './entities/ecf-lifecycle-message.entity';
+import { FiscalDocumentEvent } from './entities/fiscal-document-event.entity';
 import { EcfCertificate } from './entities/ecf-certificate.entity';
 import { FiscalDocumentRange } from './entities/fiscal-document-range.entity';
 import { FiscalRegimeSettings } from './entities/fiscal-regime-settings.entity';
@@ -16,8 +16,8 @@ import { DgiiAuthService } from './services/dgii-auth.service';
 import { DgiiTransportService } from './services/dgii-transport.service';
 import { SigningReadinessService } from './services/signing-readiness.service';
 import { EcfCertificateService } from './services/ecf-certificate.service';
-import { EcfLifecycleXmlBuilder } from './services/ecf-lifecycle-xml.builder';
-import { EcfLifecycleService } from './services/ecf-lifecycle.service';
+import { DgiiEventXmlBuilder } from './regimes/do/dgii-event-xml.builder';
+import { DgiiDocumentEventsService } from './regimes/do/dgii-document-events.service';
 import { EinvoicingController } from './einvoicing.controller';
 import { FiscalRangeService } from './services/fiscal-range.service';
 import { FiscalRegimeSettingsService } from './services/fiscal-regime-settings.service';
@@ -55,7 +55,7 @@ import { FiscalSubmissionReconciler } from './services/fiscal-submission.reconci
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      EcfLifecycleMessage,
+      FiscalDocumentEvent,
       EcfCertificate,
       Invoice,
       Organization,
@@ -78,8 +78,8 @@ import { FiscalSubmissionReconciler } from './services/fiscal-submission.reconci
     DgiiTransportService,
     SigningReadinessService,
     EcfCertificateService,
-    EcfLifecycleXmlBuilder,
-    EcfLifecycleService,
+    DgiiEventXmlBuilder,
+    DgiiDocumentEventsService,
     // The regime backbone. `XmlSignatureService` and `RegimeTransportService` were written,
     // tested and left unregistered, which is why every market but the Dominican Republic still
     // resolved to the generic adapter: the code existed and the container had never heard of it.
@@ -109,7 +109,7 @@ import { FiscalSubmissionReconciler } from './services/fiscal-submission.reconci
     EcfCertificateService,
     EcfXmlBuilderService,
     EcfValidatorService,
-    EcfLifecycleService,
+    DgiiDocumentEventsService,
     FiscalRangeService,
     XmlSignatureService,
     RegimeTransportService,
