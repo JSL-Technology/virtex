@@ -9,8 +9,6 @@ import {
   Invoice,
   InvoiceStatus,
   InvoiceType,
-  ModificationCode,
-  DebitNoteReason,
   CancellationMode,
   PaymentMethod,
 } from './entities/invoice.entity';
@@ -1553,9 +1551,10 @@ export class InvoicesService {
         organizationId,
         invoiceNumber: creditNoteNumber,
         originalInvoiceId: original.id,
-        modificationCode:
-          dto.modificationCode ??
-          (isFullCredit ? ModificationCode.ANNULMENT : ModificationCode.AMOUNT_CORRECTION),
+        // Why the note is issued, in the product's own terms. Derived from what is credited when
+        // the caller states nothing: crediting the whole document annuls it; crediting part of it
+        // says only that the amounts change, and the words the issuer wrote carry the rest.
+        adjustmentReason: dto.adjustmentReason ?? (isFullCredit ? 'ANNULMENT' : 'OTHER'),
         status: InvoiceStatus.DRAFT,
         type: InvoiceType.CREDIT_NOTE,
         // Issued where the invoice it corrects was issued.
@@ -1698,7 +1697,7 @@ export class InvoicesService {
       }
 
       const today = await this.fiscalToday(organizationId, manager);
-      const taxDate = dto.reason === DebitNoteReason.PRICE_INCREASE ? toIsoDate(original.issueDate) : today;
+      const taxDate = dto.reason === 'PRICE_INCREASE' ? toIsoDate(original.issueDate) : today;
       const standardRate = await standardSalesTaxRate(manager, organizationId);
       const lines = dto.lines.map((line) => ({
         description: line.description.trim(),

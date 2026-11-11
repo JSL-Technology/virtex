@@ -15,7 +15,7 @@ import { FormsModule } from '@angular/forms';
 // Se importa ActivatedRoute para acceder a los parámetros de la URL.
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { CancellationOptions, CreditNoteRequest, DebitNoteReason, DebitNoteRequest, Invoice, InvoiceLineItem, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
+import { AdjustmentReason, CancellationOptions, CREDIT_NOTE_REASONS, CreditNoteReason, CreditNoteRequest, DEBIT_NOTE_REASONS, DebitNoteReason, DebitNoteRequest, Invoice, InvoiceLineItem, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
 import { EinvoicingService, EcfSubmissionView, RegimeSubmissionView } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
 import { translateOrLiteral } from '@virteex/shared/ui-i18n';
@@ -809,7 +809,26 @@ export class InvoiceDetailPage implements OnInit {
   createCreditNote(_invoiceId: string): void {
     this.creditQuantities.set({});
     this.creditReason.set('');
+    this.creditAdjustmentReason.set('GOODS_RETURN');
     this.crediting.set(true);
+  }
+
+  /**
+   * Why the credit note is issued, in the product's own terms — the same taxonomy a debit note
+   * carries, and each market writes its authority's code for it. It used to be the Dominican
+   * `CodigoModificacion`, which no screen could offer and no other market could read, so the server
+   * derived it from the amount credited.
+   */
+  readonly creditReasons: readonly CreditNoteReason[] = CREDIT_NOTE_REASONS;
+  readonly creditAdjustmentReason = signal<CreditNoteReason>('GOODS_RETURN');
+
+  setCreditAdjustmentReason(reason: CreditNoteReason): void {
+    this.creditAdjustmentReason.set(reason);
+  }
+
+  /** `ANNULMENT` → `invoices.adjustment_reason.annulment`: one key family for either note. */
+  reasonKey(reason: AdjustmentReason): string {
+    return `invoices.adjustment_reason.${reason.toLowerCase()}`;
   }
 
   setCreditQuantity(lineId: string, value: string): void {
@@ -843,7 +862,7 @@ export class InvoiceDetailPage implements OnInit {
       }
     }
     this.crediting.set(false);
-    this.issueCredit(invoice.id, { reason, items });
+    this.issueCredit(invoice.id, { adjustmentReason: this.creditAdjustmentReason(), reason, items });
   }
 
   // ── Cancellation, the way the invoice's market allows (FAC-INV-05) ─────────────
@@ -925,7 +944,7 @@ export class InvoiceDetailPage implements OnInit {
 
   // ── Debit notes (FAC-INV-05) ─────────────────────────────────────────────────
 
-  readonly debitReasons: DebitNoteReason[] = ['LATE_PAYMENT_INTEREST', 'ADDITIONAL_CHARGES', 'PRICE_INCREASE', 'PENALTY', 'OTHER'];
+  readonly debitReasons: readonly DebitNoteReason[] = DEBIT_NOTE_REASONS;
   readonly debitNotesSupported = toSignal(this.invoicesService.context().pipe(map((context) => context.debitNotes === true)), { initialValue: false });
   readonly debiting = signal(false);
   readonly debitReason = signal<DebitNoteReason>('LATE_PAYMENT_INTEREST');

@@ -224,6 +224,30 @@ Reglas que valen para todos los mercados por igual:
 Una sola pantalla de ajustes (`vx-fiscal-ranges-card`) y una sola API (`einvoicing/regime/ranges`)
 sirven a todos los mercados.
 
+### 2.9 Motivos de una nota
+
+Una nota explica por qué modifica el documento que nombra, y cada autoridad lo codifica a su manera:
+el `CodigoModificacion` de la DGII, el código de referencia del SII, los catálogos 09 y 10 de SUNAT,
+el concepto de corrección de la DIAN. Ninguno coincide con otro, ni en los códigos ni en el detalle
+con que cortan.
+
+El documento guarda el **hecho comercial**, que es el mismo en todas partes, en `adjustment_reason`:
+
+| Nota de crédito | Nota de débito |
+|---|---|
+| `ANNULMENT` · `GOODS_RETURN` · `PRICE_REDUCTION` · `DETAIL_CORRECTION` · `OTHER` | `LATE_PAYMENT_INTEREST` · `ADDITIONAL_CHARGES` · `PRICE_INCREASE` · `PENALTY` · `OTHER` |
+
+Cada mercado declara el código de su autoridad para cada motivo (`documents.ts`,
+`adjustmentCodes`), o declara que no escribe ninguno y dice por qué en su propio archivo. La
+traducción ocurre en un solo lugar (`adjustmentCodeFor`), al construir el documento que se transmite.
+
+La factura guardaba el `CodigoModificacion` dominicano —un `enum` de los cinco códigos de la DGII—
+en todos los mercados: la nota de un contribuyente chileno o peruano llevaba un número dominicano, el
+borde HTTP lo aceptaba de cualquier inquilino y, cuando nadie decía por qué, el servidor lo deducía
+del importe. La misma taxonomía sirve ahora a las dos notas y una sola familia de claves las nombra
+(`invoices.adjustment_reason.*`), así que el motivo se lee igual en la pantalla, en el documento y en
+la declaración.
+
 ## 3. Cómo se agrega o se completa un mercado
 
 1. Copiar el paquete de un mercado con la misma cobertura y responder cada archivo. Por ejemplo,
@@ -288,7 +312,7 @@ eso se resuelve en el contrato, no con una rama.
 |---|---|---|
 | 0 | Este documento; tareas del programa | ✅ |
 | 1 | `markets/`: contrato, registro, mercado neutral, 19 paquetes con la estructura canónica, consultas genéricas (`markets/queries`), datos consolidados desde `localization/fiscal/*` y `contracts/country-pack` (retirados); los consumidores leen el registro; pruebas de estructura y de catálogo; puerta estricta con regla de import | ✅ |
-| 2 | Documentos y numeración: un adaptador genérico guiado por la política de numeración del mercado; fuera el `switch` de `FiscalAdapterFactory`; `ncf_sequences` → `fiscal_document_ranges`; motivos de ajuste canónicos en lugar de `ModificationCode`; tipos de nota de crédito y débito de todos los regímenes | ⏳ Hecho: motor único, política por mercado, rangos unificados con reglas comunes, consecutivo y serie en el documento, pantalla y API únicas (§2.8). Falta: motivos de ajuste canónicos |
+| 2 | Documentos y numeración: un adaptador genérico guiado por la política de numeración del mercado; fuera el `switch` de `FiscalAdapterFactory`; `ncf_sequences` → `fiscal_document_ranges`; motivos de ajuste canónicos en lugar de `ModificationCode`; tipos de nota de crédito y débito de todos los regímenes | ✅ Motor único con la política de cada mercado, rangos unificados con reglas comunes, consecutivo y serie en el documento, pantalla y API únicas (§2.8); motivos de ajuste canónicos traducidos por el mercado (§2.9). Los constructores de los seis regímenes que todavía no referencian el documento modificado son parte de la fase 3 |
 | 3 | Facturación electrónica: DO entra al outbox genérico (`fiscal_submissions`, `fiscal_document_events`); los constructores se mudan a `markets/<cc>/einvoicing/` y reciben vistas neutrales; las variables `DGII_*` pasan a la configuración de transmisión del tenant | ⏳ |
 | 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ⏳ |
 | 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ⏳ |

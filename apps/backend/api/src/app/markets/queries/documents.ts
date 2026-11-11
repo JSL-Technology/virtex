@@ -1,4 +1,4 @@
-import type { CancellationRoute, FiscalDocumentTypeSpec } from '../contracts';
+import type { AdjustmentReason, CancellationRoute, FiscalDocumentTypeSpec } from '../contracts';
 import { CREDIT_NOTE_ONLY, VOID } from '../kit/documents';
 import { allMarkets, knownMarket, marketFor, normalizeMarketCode } from '../registry';
 
@@ -78,6 +78,19 @@ export function cancellationCoverageFor(countryCode: string | null | undefined):
   const routes = [policy.traditional, policy.electronic];
   if (routes.some((route) => route.kind === 'AUTHORITY_EVENT')) return { implemented: false, detail: fiscalAuthorityOf(countryCode) };
   return { implemented: true, detail: routes.map((route) => route.kind).join(' / ') };
+}
+
+/**
+ * The authority's code for the reason a note carries — the DGII's `CodigoModificacion`, and each
+ * other authority's own — or null where the market writes none on a note. The document stores the
+ * canonical reason; this is the only place it becomes one market's code.
+ */
+export function adjustmentCodeFor(
+  countryCode: string | null | undefined,
+  reason: AdjustmentReason | null | undefined,
+): string | null {
+  if (!reason) return null;
+  return marketFor(countryCode).documents.adjustmentCodes?.[reason] ?? null;
 }
 
 /** The authority's name, for messages: the market's own (`fiscalAuthority`), or the code itself. */

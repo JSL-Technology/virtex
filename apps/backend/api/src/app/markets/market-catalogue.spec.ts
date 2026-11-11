@@ -1,7 +1,7 @@
 import { allMarkets, marketFor, knownMarket } from './registry';
 import { CHECKSUM_ALGORITHMS, IDENTITY_DOCUMENT_TYPES, validateTaxId } from './queries/identity';
 import { coverageFor } from './queries/coverage';
-import { PAYMENT_SETTLEMENT_KINDS } from './contracts';
+import { ADJUSTMENT_REASONS, PAYMENT_SETTLEMENT_KINDS } from './contracts';
 
 /**
  * The integrity of what the markets declare (docs/ARQUITECTURA_MERCADOS.md §2.7).
@@ -72,6 +72,18 @@ describe('market catalogue', () => {
       const types = market.documents.types.map((t) => t.code);
       expect(new Set(types).size).toBe(types.length);
       if (!market.documents.fiscalNumbering) expect(market.documents.types).toHaveLength(0);
+    });
+
+    it('writes the authority\'s code for every reason a note can carry, or none at all', () => {
+      const codes = market.documents.adjustmentCodes;
+      // Nothing in between: a reason with no code is a note the regime cannot write, and a market
+      // that writes none says so once rather than per reason.
+      if (codes === null) return;
+      for (const reason of ADJUSTMENT_REASONS) {
+        expect([reason, codes[reason]?.trim()]).toEqual([reason, expect.stringMatching(/.+/)]);
+      }
+      // A code only means something to the authority that publishes it.
+      expect(market.documents.fiscalNumbering || market.einvoicing.regime !== null).toBe(true);
     });
 
     it('starts companies with payment methods it can settle', () => {

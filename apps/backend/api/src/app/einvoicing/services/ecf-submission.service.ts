@@ -11,7 +11,7 @@ import { CertificateVaultService } from './certificate-vault.service';
 import { assertStoredCertificateUsable } from './certificate-inspector';
 import { certificatePolicyFor } from '../contracts/certificate-policy';
 import { organizationFiscalIdentity } from '../../organizations/contracts/fiscal-identity.contract';
-import { fiscalIdentifierLabel } from '../../markets';
+import { adjustmentCodeFor, fiscalIdentifierLabel } from '../../markets';
 import { EcfSignerService } from './ecf-signer.service';
 import {
   EcfXmlBuilderService,
@@ -520,11 +520,17 @@ export class EcfSubmissionService {
         select: ['id', 'fiscalNumber', 'issueDate'],
       });
       if (original?.fiscalNumber) {
+        // The reason the note was issued, recorded on the document in the product's own terms, as
+        // this market's authority codes it — not a fixed '3', and not a code the core stores.
+        const reason = invoice.adjustmentReason ?? 'OTHER';
+        const codigoModificacion = adjustmentCodeFor(org.country, reason);
+        if (!codigoModificacion) {
+          throw new BadRequestError('einvoicing.adjustment_reason_has_no_authority_code', { reason });
+        }
         ctx.modifica = {
           eNCFModificado: original.fiscalNumber,
           fechaEmisionModificado: this.toDgiiDate(original.issueDate),
-          // The reason the note was issued, recorded on the document — not a fixed '3'.
-          codigoModificacion: invoice.modificationCode ?? '3',
+          codigoModificacion,
         };
       }
     }

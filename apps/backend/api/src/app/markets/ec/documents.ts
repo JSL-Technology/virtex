@@ -47,6 +47,8 @@ export const documents: MarketDocuments = {
    * is told so and offered the credit note.
    */
   cancellation: { electronic: AUTHORITY_EVENT, traditional: AUTHORITY_EVENT },
+  // The SRI's motivo is not written yet: the builder does not reference the modified comprobante.
+  adjustmentCodes: null,
   debitNotes: false,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,

@@ -18,6 +18,7 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { numericTransformer, numericTransformerNotNull, numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import { roundToCurrency } from '../../common/money';
 import { BranchRef, IssuedAtBranch } from '../../organizations/contracts/branch.contract';
+import { ADJUSTMENT_REASONS, type AdjustmentReason } from '../../markets';
 
 export enum InvoiceStatus {
   /** Prepared but not issued. Carries NO fiscal number and is not posted to the ledger. */
@@ -30,22 +31,6 @@ export enum InvoiceStatus {
   VOID = 'Void',
   /** The document itself is a credit note. */
   CREDIT_NOTE = 'Credit Note',
-}
-
-/**
- * Why a debit note adds to an invoice — the product's own taxonomy (FAC-INV-05), which every regime
- * maps to its authority's catalogue: DGII CodigoModificacion, DIAN concepto de corrección, SUNAT
- * catálogo 10, SII código de referencia.
- */
-export enum DebitNoteReason {
-  /** Interest for paying late. */
-  LATE_PAYMENT_INTEREST = 'LATE_PAYMENT_INTEREST',
-  /** Charges billed afterwards: freight, insurance, expenses incurred for the customer. */
-  ADDITIONAL_CHARGES = 'ADDITIONAL_CHARGES',
-  /** The agreed value of the original operation goes up. */
-  PRICE_INCREASE = 'PRICE_INCREASE',
-  PENALTY = 'PENALTY',
-  OTHER = 'OTHER',
 }
 
 /** How a VOID document came to be void. */
@@ -62,24 +47,6 @@ export enum InvoiceType {
   INVOICE = 'INVOICE',
   CREDIT_NOTE = 'CREDIT_NOTE',
   DEBIT_NOTE = 'DEBIT_NOTE',
-}
-
-/**
- * Why a credit or debit note was issued. Mirrors the DGII `CodigoModificacion` catalogue, which is
- * mandatory on every e-CF that modifies another one; the previous code hardcoded '3' (corrects
- * amounts) even when the note annulled the document outright.
- */
-export enum ModificationCode {
-  /** 1 — annuls the referenced comprobante entirely. */
-  ANNULMENT = '1',
-  /** 2 — corrects descriptive text, amounts unchanged. */
-  TEXT_CORRECTION = '2',
-  /** 3 — corrects amounts. */
-  AMOUNT_CORRECTION = '3',
-  /** 4 — replaces a comprobante issued under contingency. */
-  CONTINGENCY_REPLACEMENT = '4',
-  /** 5 — reference for consumption (informative). */
-  CONSUMPTION_REFERENCE = '5',
 }
 
 /**
@@ -101,7 +68,10 @@ export enum PaymentMethod {
 
 @Index('IDX_invoices_org_branch', ['organizationId', 'branchId'])
 @Entity({ name: 'invoices' })
-@Check('CHK_invoices_adjustment_reason', `"adjustment_reason" IS NULL OR "adjustment_reason" IN ('LATE_PAYMENT_INTEREST', 'ADDITIONAL_CHARGES', 'PRICE_INCREASE', 'PENALTY', 'OTHER')`)
+@Check(
+  'CHK_invoices_adjustment_reason',
+  `"adjustment_reason" IS NULL OR "adjustment_reason" IN (${ADJUSTMENT_REASONS.map((reason) => `'${reason}'`).join(', ')})`,
+)
 @Check('CHK_invoices_cancellation_mode', `"cancellation_mode" IS NULL OR "cancellation_mode" IN ('VOID', 'REPORTED', 'CREDIT_NOTE')`)
 @Index('IDX_invoices_org_issue_date', ['organizationId', 'issueDate'])
 @Index('IDX_invoices_org_status', ['organizationId', 'status'])
@@ -475,15 +445,6 @@ export class Invoice {
   @JoinColumn({ name: 'original_invoice_id' })
   originalInvoice?: Invoice | null;
 
-  /** DGII `CodigoModificacion`, mandatory on a note that modifies another comprobante. */
-  @Column({
-    name: 'modification_code',
-    type: 'enum',
-    enum: ModificationCode,
-    nullable: true,
-  })
-  modificationCode?: ModificationCode | null;
-
   /** The journal entry this document posted. Null only while the document is a draft. */
   @Column({ name: 'journal_entry_id', type: 'uuid', nullable: true })
   journalEntryId?: string | null;
@@ -502,11 +463,13 @@ export class Invoice {
   voidReason?: string | null;
 
   /**
-   * Why a debit note adds to the invoice it modifies, in the product's own terms (FAC-INV-05). Each
-   * regime translates it into its authority's code; the core never stores one market's code.
+   * Why this note modifies the document it names, in the product's own terms — a credit note's
+   * reason and a debit note's alike (FAC-INV-05). Each market writes its authority's code for it
+   * (`adjustmentCodeFor`); the core never stores one market's code, as it did while this was the
+   * DGII's `CodigoModificacion` on every invoice of every market.
    */
   @Column({ name: 'adjustment_reason', type: 'varchar', length: 32, nullable: true })
-  adjustmentReason?: DebitNoteReason | null;
+  adjustmentReason?: AdjustmentReason | null;
 
   /**
    * How a VOID document came to be void (FAC-INV-05): voided as a commercial document, annulled and

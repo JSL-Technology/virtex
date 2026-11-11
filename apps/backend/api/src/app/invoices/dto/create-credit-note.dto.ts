@@ -6,12 +6,12 @@ import {
   ValidateNested,
   Min,
   IsNumber,
-  IsEnum,
+  IsIn,
   MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { OmitType } from '@nestjs/mapped-types';
-import { ModificationCode } from '../entities/invoice.entity';
+import { CREDIT_NOTE_REASONS, type CreditNoteReason } from '../../markets';
 
 export class CreditNoteLineItemDto {
   /** The invoice LINE being credited. Identifying by product could not distinguish two lines of
@@ -44,12 +44,16 @@ export class CreateCreditNoteDto {
   items?: CreditNoteLineItemDto[];
 
   /**
-   * DGII `CodigoModificacion`. Absent, it is derived: a full credit annuls (1), a partial credit
-   * corrects amounts (3). The previous code always transmitted 3, including when annulling.
+   * Why the note is issued, in the product's own terms; each market writes its authority's code for
+   * it. Absent, it is derived from what is credited: the whole document annuls it, a part of it is
+   * recorded as `OTHER` with the words the issuer wrote in `reason`.
+   *
+   * This was the DGII's `CodigoModificacion` — one market's catalogue, accepted from every market's
+   * tenant and stored on every invoice.
    */
-  @IsEnum(ModificationCode)
+  @IsIn(CREDIT_NOTE_REASONS)
   @IsOptional()
-  modificationCode?: ModificationCode;
+  adjustmentReason?: CreditNoteReason;
 
   /**
    * Whether the returned goods re-enter inventory. False for a price adjustment, a discount granted

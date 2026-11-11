@@ -72,6 +72,8 @@ export const documents: MarketDocuments = {
    * A document AFIP authorised is never annulled: it is reversed with a credit note.
    */
   cancellation: { electronic: CREDIT_NOTE_ONLY, traditional: CREDIT_NOTE_ONLY },
+  // AFIP states the class of the note (A, B, C) and no reason code; the concept lives in the lines.
+  adjustmentCodes: null,
   debitNotes: false,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,

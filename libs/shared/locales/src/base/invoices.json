@@ -4,6 +4,51 @@
     "en": "The account for “{{description}}” is not configured.",
     "pt": "Falta a conta contábil para “{{description}}”."
   },
+  "invoices.adjustment_reason.additional_charges": {
+    "es": "Cargos adicionales (flete, gastos)",
+    "en": "Additional charges (freight, expenses)",
+    "pt": "Encargos adicionais (frete, despesas)"
+  },
+  "invoices.adjustment_reason.annulment": {
+    "es": "Anulación de la operación",
+    "en": "The operation is annulled",
+    "pt": "Anulação da operação"
+  },
+  "invoices.adjustment_reason.detail_correction": {
+    "es": "Corrección de datos, sin cambio de importes",
+    "en": "Details corrected, amounts unchanged",
+    "pt": "Correção de dados, sem alterar os valores"
+  },
+  "invoices.adjustment_reason.goods_return": {
+    "es": "Devolución de mercancía",
+    "en": "Goods returned",
+    "pt": "Devolução de mercadoria"
+  },
+  "invoices.adjustment_reason.late_payment_interest": {
+    "es": "Intereses por mora",
+    "en": "Interest for paying late",
+    "pt": "Juros por atraso"
+  },
+  "invoices.adjustment_reason.other": {
+    "es": "Otro motivo",
+    "en": "Another reason",
+    "pt": "Outro motivo"
+  },
+  "invoices.adjustment_reason.penalty": {
+    "es": "Penalidad",
+    "en": "Penalty",
+    "pt": "Penalidade"
+  },
+  "invoices.adjustment_reason.price_increase": {
+    "es": "Aumento del valor de la operación",
+    "en": "The agreed value goes up",
+    "pt": "Aumento do valor da operação"
+  },
+  "invoices.adjustment_reason.price_reduction": {
+    "es": "Rebaja o descuento posterior",
+    "en": "Price reduction or discount granted afterwards",
+    "pt": "Redução ou desconto posterior"
+  },
   "invoices.amount_credit_amount_exceeds_creditable_balance": {
     "es": "El importe a acreditar ({{amount}}) excede el saldo acreditable de la factura {{invoiceNumber}} ({{remaining}}).",
     "en": "The amount to credit ({{amount}}) exceeds the creditable balance of invoice {{invoiceNumber}} ({{remaining}}).",
@@ -63,31 +108,6 @@
     "es": "El producto todavía no emite notas de débito ante {{authority}}.",
     "en": "The product does not yet issue debit notes with {{authority}}.",
     "pt": "O produto ainda não emite notas de débito perante {{authority}}."
-  },
-  "invoices.debit_note_reason.additional_charges": {
-    "es": "Cargos adicionales (flete, gastos)",
-    "en": "Additional charges (freight, expenses)",
-    "pt": "Encargos adicionais (frete, despesas)"
-  },
-  "invoices.debit_note_reason.late_payment_interest": {
-    "es": "Intereses por mora",
-    "en": "Late-payment interest",
-    "pt": "Juros de mora"
-  },
-  "invoices.debit_note_reason.other": {
-    "es": "Otro motivo",
-    "en": "Other reason",
-    "pt": "Outro motivo"
-  },
-  "invoices.debit_note_reason.penalty": {
-    "es": "Penalidad",
-    "en": "Penalty",
-    "pt": "Penalidade"
-  },
-  "invoices.debit_note_reason.price_increase": {
-    "es": "Aumento del valor de la operación",
-    "en": "Increase in the transaction value",
-    "pt": "Aumento do valor da operação"
   },
   "invoices.debit_note_type_not_valid": {
     "es": "El tipo {{type}} no es un tipo de nota de débito de este mercado.",
@@ -210,6 +230,11 @@
     "pt": "Informe pelo menos uma linha com quantidade a creditar."
   },
   "invoices.detail.credit_note_reason": {
+    "es": "Motivo",
+    "en": "Reason",
+    "pt": "Motivo"
+  },
+  "invoices.detail.credit_note_reason_kind": {
     "es": "Motivo",
     "en": "Reason",
     "pt": "Motivo"

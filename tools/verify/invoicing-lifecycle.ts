@@ -38,6 +38,7 @@ import { InventoryService } from '../../apps/backend/api/src/app/inventory/inven
 import { Product, ProductKind } from '../../apps/backend/api/src/app/inventory/entities/product.entity';
 import { FiscalRegimeSettingsService } from '../../apps/backend/api/src/app/einvoicing/services/fiscal-regime-settings.service';
 import { InvoiceStatus } from '../../apps/backend/api/src/app/invoices/entities/invoice.entity';
+import { adjustmentCodeFor } from '../../apps/backend/api/src/app/markets';
 import { TaxTreatment } from '../../apps/backend/api/src/app/invoices/entities/invoice-line-item.entity';
 import { EcfCertificateService } from '../../apps/backend/api/src/app/einvoicing/services/ecf-certificate.service';
 import { runAsTenantJob } from '../../apps/backend/api/src/app/shared/tenancy/tenant-job';
@@ -599,11 +600,20 @@ async function main(): Promise<void> {
   // ── Credit notes accumulate ─────────────────────────────────────────────────
   const firstLine = issued.lineItems[0];
   const partial = await invoices.createCreditNote(
-    { invoiceId: issued.id, items: [{ lineId: firstLine.id, quantity: 1 }], reason: 'Devolución parcial' } as never,
+    {
+      invoiceId: issued.id,
+      items: [{ lineId: firstLine.id, quantity: 1 }],
+      reason: 'Devolución parcial',
+      adjustmentReason: 'GOODS_RETURN',
+    } as never,
     orgId,
   );
   check('la nota de crédito parcial se emite con su propio e-NCF', Boolean(partial.fiscalNumber?.startsWith('E34')),
     partial.fiscalNumber ?? 'sin e-NCF');
+  // El motivo se guarda en los términos del producto; el código de la autoridad lo escribe el mercado.
+  check('la nota de crédito guarda el motivo canónico que se le indicó',
+    partial.adjustmentReason === 'GOODS_RETURN' && adjustmentCodeFor('DO', partial.adjustmentReason) === '3',
+    `${partial.adjustmentReason} → ${adjustmentCodeFor('DO', partial.adjustmentReason)}`);
 
   const afterPartial = await invoices.findOne(issued.id, orgId);
   check('la nota parcial reduce el saldo de la factura', afterPartial.balance < issued.netReceivable,
@@ -619,6 +629,17 @@ async function main(): Promise<void> {
     overCreditRejected = true;
   }
   check('no se puede acreditar más de lo facturado', overCreditRejected);
+
+  // Sin indicar motivo, acreditar el resto anula la operación, y eso es lo que se guarda: la DGII
+  // lo lee como su código 1. Antes el producto guardaba ese 1 en la factura de cualquier mercado.
+  const annulling = await invoices.createCreditNote({ invoiceId: issued.id, reason: 'Operación anulada' } as never, orgId);
+  check('acreditar el total anula la operación y lo dice en términos del producto',
+    annulling.adjustmentReason === 'ANNULMENT' && adjustmentCodeFor('DO', annulling.adjustmentReason) === '1',
+    `${annulling.adjustmentReason} → ${adjustmentCodeFor('DO', annulling.adjustmentReason)}`);
+  const annulled = await invoices.findOne(issued.id, orgId);
+  check('y la factura queda anulada por la nota de crédito',
+    annulled.status === 'Void' && annulled.cancellationMode === 'CREDIT_NOTE',
+    `${annulled.status} · ${annulled.cancellationMode}`);
 
   // ── Fiscal type is selectable ───────────────────────────────────────────────
   const consumo = await invoices.create(

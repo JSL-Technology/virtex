@@ -192,17 +192,22 @@ export interface CreateInvoiceDto {
 }
 
 /**
- * A credit note. No authority code travels from here: the server derives each regime's own (a full
- * credit annuls, a partial one corrects amounts) — the screen is the same in every market.
+ * Why a note modifies the document it names, in the product's own terms. No authority code travels
+ * from here — each market writes its own for the reason — so the screen is the same everywhere.
  */
+export const CREDIT_NOTE_REASONS = ['ANNULMENT', 'GOODS_RETURN', 'PRICE_REDUCTION', 'DETAIL_CORRECTION', 'OTHER'] as const;
+export const DEBIT_NOTE_REASONS = ['LATE_PAYMENT_INTEREST', 'ADDITIONAL_CHARGES', 'PRICE_INCREASE', 'PENALTY', 'OTHER'] as const;
+export type CreditNoteReason = (typeof CREDIT_NOTE_REASONS)[number];
+export type DebitNoteReason = (typeof DEBIT_NOTE_REASONS)[number];
+export type AdjustmentReason = CreditNoteReason | DebitNoteReason;
+
 export interface CreditNoteRequest {
+  /** Absent: the server derives it from what is credited — the whole document annuls it. */
+  adjustmentReason?: CreditNoteReason;
   reason?: string;
   items?: Array<{ lineId: string; quantity: number }>;
   restockGoods?: boolean;
 }
-
-/** Why a debit note adds to an invoice, in the product's own terms (FAC-INV-05). */
-export type DebitNoteReason = 'LATE_PAYMENT_INTEREST' | 'ADDITIONAL_CHARGES' | 'PRICE_INCREASE' | 'PENALTY' | 'OTHER';
 
 export interface DebitNoteRequest {
   reason: DebitNoteReason;

@@ -58,6 +58,8 @@ export const documents: MarketDocuments = {
    * yet, so the market is told so and offered the credit note.
    */
   cancellation: { electronic: AUTHORITY_EVENT, traditional: AUTHORITY_EVENT },
+  // SUNAT's catálogos 09 and 10 are not written yet: the builder does not reference the modified document.
+  adjustmentCodes: null,
   debitNotes: false,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,

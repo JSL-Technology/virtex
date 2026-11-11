@@ -173,6 +173,44 @@ export interface MarketNumbering {
 }
 
 /**
+ * Why a note modifies a document already issued, in the product's own terms.
+ *
+ * Every authority keeps its own catalogue for this — the DGII's `CodigoModificacion`, the SII's
+ * código de referencia, SUNAT's catálogos 09 and 10, the DIAN's concepto de corrección — and no two
+ * agree on the codes or on how finely they cut. The core stores the commercial fact, which is the
+ * same everywhere; each market writes its authority's code for it (`MarketDocuments.adjustmentCodes`).
+ * The invoice used to store the Dominican code itself, so a Chilean note carried a DGII number.
+ *
+ * A reason belongs to the kind of note it explains: a credit note reduces or reverses what was
+ * invoiced, a debit note adds to it. `OTHER` carries both, with the words the issuer wrote.
+ */
+export const CREDIT_NOTE_REASONS = ['ANNULMENT', 'GOODS_RETURN', 'PRICE_REDUCTION', 'DETAIL_CORRECTION', 'OTHER'] as const;
+
+/** Why a debit note adds to the document it modifies. */
+export const DEBIT_NOTE_REASONS = ['LATE_PAYMENT_INTEREST', 'ADDITIONAL_CHARGES', 'PRICE_INCREASE', 'PENALTY', 'OTHER'] as const;
+
+export type CreditNoteReason = (typeof CREDIT_NOTE_REASONS)[number];
+export type DebitNoteReason = (typeof DEBIT_NOTE_REASONS)[number];
+export type AdjustmentReason = CreditNoteReason | DebitNoteReason;
+
+/** Every canonical reason, each appearing once. */
+export const ADJUSTMENT_REASONS: readonly AdjustmentReason[] = Object.freeze([
+  ...CREDIT_NOTE_REASONS,
+  ...DEBIT_NOTE_REASONS.filter((reason): reason is Exclude<DebitNoteReason, CreditNoteReason> => !(CREDIT_NOTE_REASONS as readonly string[]).includes(reason)),
+]);
+
+/** The reasons a note of this purpose may carry. */
+export function reasonsOfPurpose(purpose: 'CREDIT_NOTE' | 'DEBIT_NOTE'): readonly AdjustmentReason[] {
+  return purpose === 'CREDIT_NOTE' ? CREDIT_NOTE_REASONS : DEBIT_NOTE_REASONS;
+}
+
+/**
+ * The authority's own code for every canonical reason. Complete by construction: a reason with no
+ * code would be a note its regime could not write, found at transmission rather than here.
+ */
+export type MarketAdjustmentCodes = Readonly<Record<AdjustmentReason, string>>;
+
+/**
  * How an issued sales document is cancelled.
  *
  *  - `VOID`             — the document carries no fiscal number: a commercial document the
@@ -213,6 +251,12 @@ export interface MarketDocuments {
    * fiscal document is only ever reversed with a credit note there.
    */
   cancellation: MarketCancellationPolicy | null;
+  /**
+   * The authority's code for the reason a note carries. Null where the product writes none on a
+   * note in this market: because the authority asks for none, or because its regime does not write
+   * one yet — each market's file says which, and the coverage reports it.
+   */
+  adjustmentCodes: MarketAdjustmentCodes | null;
   /**
    * Whether the product issues a debit note in the market: under its regime, or as the commercial
    * document a market without the authority's documents uses. False where the regime is spoken but

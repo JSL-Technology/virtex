@@ -35,6 +35,8 @@ export const documents: MarketDocuments = {
    * that event yet, so the market is told so and offered the credit note.
    */
   cancellation: { electronic: AUTHORITY_EVENT, traditional: AUTHORITY_EVENT },
+  // An NF-e of devolução carries its purpose in `finNFe`, not a reason code.
+  adjustmentCodes: null,
   debitNotes: false,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,

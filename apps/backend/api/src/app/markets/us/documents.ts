@@ -7,6 +7,8 @@ export const documents: MarketDocuments = {
   fiscalNumbering: false,
   types: [],
   cancellation: null,
+  // The documents carry no authority reason code: there is no authority behind them.
+  adjustmentCodes: null,
   debitNotes: true,
   defaultCustomer: { nameKey: 'ledger.provisioning.walk_in_customer' },
   // The product issues no fiscal number here: the commercial number is the document's only one.

@@ -1,5 +1,5 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
-import type { DocumentToNumber, MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
+import type { DocumentToNumber, MarketAdjustmentCodes, MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
 import { CREDIT_NOTE_ONLY, REPORT_IN_RETURN, formatByMask } from '../kit/documents';
 import { isValidDominicanTaxId } from './identity';
 
@@ -86,6 +86,28 @@ const NUMBERING: MarketNumbering = {
   tillReceiptType: 'B02',
 };
 
+/**
+ * The DGII's `CodigoModificacion`, mandatory on an e-CF that modifies another: `1` annuls the
+ * referenced document, `2` corrects its text with the amounts unchanged, `3` corrects amounts.
+ *
+ * Codes `4` (replaces a document issued under contingency) and `5` (consumption reference, purely
+ * informative) answer no commercial reason an issuer states on a note, and the product issues
+ * neither, so nothing maps to them.
+ *
+ * *Verificar con contabilidad/legal*: Norma General 01-2020 and the e-CF technical annexes.
+ */
+const ADJUSTMENT_CODES: MarketAdjustmentCodes = {
+  ANNULMENT: '1',
+  DETAIL_CORRECTION: '2',
+  GOODS_RETURN: '3',
+  PRICE_REDUCTION: '3',
+  PRICE_INCREASE: '3',
+  LATE_PAYMENT_INTEREST: '3',
+  ADDITIONAL_CHARGES: '3',
+  PENALTY: '3',
+  OTHER: '3',
+};
+
 /** Dominican Republic: the sales documents the authority defines, and how an issued one is undone. */
 export const documents: MarketDocuments = {
   fiscalNumbering: true,
@@ -95,6 +117,7 @@ export const documents: MarketDocuments = {
    * DGII received is reversed with a credit note (E34).
    */
   cancellation: { electronic: CREDIT_NOTE_ONLY, traditional: REPORT_IN_RETURN },
+  adjustmentCodes: ADJUSTMENT_CODES,
   debitNotes: true,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,

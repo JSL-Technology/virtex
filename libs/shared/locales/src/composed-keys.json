@@ -717,7 +717,11 @@
       "TRANSFER_OUT",
       "TRANSFER_IN"
     ],
-    "invoices.debit_note_reason": [
+    "invoices.adjustment_reason": [
+      "ANNULMENT",
+      "GOODS_RETURN",
+      "PRICE_REDUCTION",
+      "DETAIL_CORRECTION",
       "LATE_PAYMENT_INTEREST",
       "ADDITIONAL_CHARGES",
       "PRICE_INCREASE",

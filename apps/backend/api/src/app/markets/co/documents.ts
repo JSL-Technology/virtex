@@ -35,6 +35,8 @@ export const documents: MarketDocuments = {
    * An issued electronic invoice is never annulled: it is reversed with a credit note (91).
    */
   cancellation: { electronic: CREDIT_NOTE_ONLY, traditional: CREDIT_NOTE_ONLY },
+  // The DIAN's concepto de corrección is not written yet: the builder does not reference the modified document.
+  adjustmentCodes: null,
   debitNotes: false,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,

@@ -42,6 +42,8 @@ export const documents: MarketDocuments = {
    * An issued DTE is never annulled: it is reversed with a credit note (61).
    */
   cancellation: { electronic: CREDIT_NOTE_ONLY, traditional: CREDIT_NOTE_ONLY },
+  // The SII's código de referencia is not written yet: the builder does not reference the modified DTE.
+  adjustmentCodes: null,
   debitNotes: false,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,

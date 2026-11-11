@@ -35,6 +35,8 @@ export const documents: MarketDocuments = {
    * send that event yet, so the market is told so and offered the credit note.
    */
   cancellation: { electronic: AUTHORITY_EVENT, traditional: AUTHORITY_EVENT },
+  // The CFDI relates documents by UUID; its `TipoRelacion` is not written yet.
+  adjustmentCodes: null,
   debitNotes: false,
   defaultCustomer: { nameKey: 'ledger.provisioning.general_public' },
   numbering: NUMBERING,

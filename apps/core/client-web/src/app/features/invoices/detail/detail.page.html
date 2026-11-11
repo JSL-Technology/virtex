@@ -282,6 +282,14 @@
           </tbody>
         </table>
         <label class="field">
+          <span>{{ 'invoices.detail.credit_note_reason_kind' | translate }}</span>
+          <select [value]="creditAdjustmentReason()" (change)="setCreditAdjustmentReason($any($event.target).value)">
+            @for (reason of creditReasons; track reason) {
+              <option [value]="reason">{{ reasonKey(reason) | translate }}</option>
+            }
+          </select>
+        </label>
+        <label class="field">
           <span>{{ 'invoices.detail.credit_note_reason' | translate }}</span>
           <textarea rows="2" maxlength="500" [value]="creditReason()" (input)="creditReason.set($any($event.target).value)"></textarea>
         </label>
@@ -305,7 +313,7 @@
           <span>{{ 'invoices.detail.debit_note_reason' | translate }}</span>
           <select [value]="debitReason()" (change)="setDebitReason($any($event.target).value)">
             @for (reason of debitReasons; track reason) {
-              <option [value]="reason">{{ 'invoices.debit_note_reason.' + reason | translate }}</option>
+              <option [value]="reason">{{ reasonKey(reason) | translate }}</option>
             }
           </select>
         </label>

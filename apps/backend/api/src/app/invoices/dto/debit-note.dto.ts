@@ -4,7 +4,6 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
-  IsEnum,
   IsIn,
   IsNotEmpty,
   IsNumber,
@@ -16,7 +15,7 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { DebitNoteReason } from '../entities/invoice.entity';
+import { DEBIT_NOTE_REASONS, type DebitNoteReason } from '../../markets';
 import { TaxTreatment } from '../entities/invoice-line-item.entity';
 
 /**
@@ -54,8 +53,8 @@ export class DebitNoteLineDto {
 
 /** `POST /invoices/:id/debit-note` (audit 2026-11-07, FAC-INV-05). */
 export class DebitNoteBodyDto {
-  /** Why, in the product's own terms; each regime writes its authority's code for it. */
-  @IsEnum(DebitNoteReason)
+  /** Why, in the product's own terms; each market writes its authority's code for it. */
+  @IsIn(DEBIT_NOTE_REASONS)
   reason: DebitNoteReason;
 
   /** What the customer reads on the document. */

@@ -1,4 +1,9 @@
 {
+  "einvoicing.adjustment_reason_has_no_authority_code": {
+    "es": "El régimen de este mercado no tiene un código para el motivo «{{reason}}», así que la nota no puede transmitirse. Emítela con otro motivo o contacta a soporte.",
+    "en": "This market's regime has no code for the reason «{{reason}}», so the note cannot be transmitted. Issue it with another reason or contact support.",
+    "pt": "O regime deste mercado não tem um código para o motivo «{{reason}}», então a nota não pode ser transmitida. Emita-a com outro motivo ou contate o suporte."
+  },
   "einvoicing.ar.document_number_afip_expects_next_missing": {
     "es": "Falta el número de comprobante que AFIP espera a continuación.",
     "en": "The document number AFIP expects next is missing.",
