@@ -6,7 +6,7 @@ import {
   EcfMessageKind,
   CommercialApprovalVerdict,
 } from '../entities/ecf-lifecycle-message.entity';
-import { EcfStatus } from '../entities/ecf-submission.entity';
+import { FiscalSubmissionStatus } from '../entities/fiscal-submission.entity';
 import { DGII_CERTIFICATE_REGIME, EcfCertificate } from '../entities/ecf-certificate.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { isElectronicDocumentType, knownMarket } from '../../markets';
@@ -20,7 +20,7 @@ import {
 } from './ecf-lifecycle-xml.builder';
 import { DgiiAuthService } from './dgii-auth.service';
 import { DgiiTransportService } from './dgii-transport.service';
-import { mapDgiiEstado, isTerminalStatus } from '../ecf-status.util';
+import { dgiiStatus, isTerminalStatus } from '../regimes/do/dgii-estado';
 import { dgiiTimestamp, isoToDgiiDate, organizationTimeZone } from '../../shared/fiscal-clock';
 import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
 
@@ -130,7 +130,7 @@ export class EcfLifecycleService {
           documentTotal: request.documentTotal.toFixed(2),
           verdict: request.verdict,
           rejectionReason: request.rejectionReason ?? null,
-          status: EcfStatus.PENDING,
+          status: FiscalSubmissionStatus.PENDING,
           attempts: 0,
         }),
       ));
@@ -150,7 +150,7 @@ export class EcfLifecycleService {
 
       const signedXml = this.signer.sign(xml, loaded, 'ACECF');
       message.signedXml = signedXml;
-      message.status = EcfStatus.SIGNED;
+      message.status = FiscalSubmissionStatus.PENDING;
       message.attempts += 1;
       await this.messageRepo.save(message);
 
@@ -231,7 +231,7 @@ export class EcfLifecycleService {
           ecfType: type,
           sequenceFrom: String(request.from),
           sequenceTo: String(request.to),
-          status: EcfStatus.PENDING,
+          status: FiscalSubmissionStatus.PENDING,
           attempts: 0,
         }),
       );
@@ -247,7 +247,7 @@ export class EcfLifecycleService {
 
         const signedXml = this.signer.sign(xml, loaded, 'ANECF');
         message.signedXml = signedXml;
-        message.status = EcfStatus.SIGNED;
+        message.status = FiscalSubmissionStatus.PENDING;
         message.attempts += 1;
         await this.messageRepo.save(message);
 
@@ -337,13 +337,13 @@ export class EcfLifecycleService {
     message.dgiiResponse = result.raw;
     message.messages = result.mensajes;
     message.sentAt = new Date();
-    message.status = result.estado ? mapDgiiEstado(result.estado) : EcfStatus.SENT;
+    message.status = result.estado ? dgiiStatus(result.estado) : FiscalSubmissionStatus.SENT;
     if (isTerminalStatus(message.status)) message.respondedAt = new Date();
     return this.messageRepo.save(message);
   }
 
   private isRejected(message: EcfLifecycleMessage): boolean {
-    return message.status === EcfStatus.REJECTED || message.status === EcfStatus.ERROR;
+    return message.status === FiscalSubmissionStatus.REJECTED || message.status === FiscalSubmissionStatus.ERROR;
   }
 
   private async recordFailure(
@@ -353,7 +353,7 @@ export class EcfLifecycleService {
     // An outage is retriable; a refusal is not. Conflating them either retries forever or gives up
     // on a message that would have gone through on the next attempt.
     message.status =
-      error instanceof ServiceUnavailableException ? EcfStatus.CONTINGENCY : EcfStatus.ERROR;
+      error instanceof ServiceUnavailableException ? FiscalSubmissionStatus.CONTINGENCY : FiscalSubmissionStatus.ERROR;
     message.messages = [(error as Error).message];
     message.attempts += 1;
     this.logger.error(
@@ -364,7 +364,11 @@ export class EcfLifecycleService {
 }
 
 /** The states of a message the authority has taken: transmitted and not refused. */
-const TAKEN_BY_THE_AUTHORITY = [EcfStatus.SENT, EcfStatus.ACCEPTED, EcfStatus.ACCEPTED_WITH_OBSERVATIONS];
+const TAKEN_BY_THE_AUTHORITY = [
+  FiscalSubmissionStatus.SENT,
+  FiscalSubmissionStatus.ACCEPTED,
+  FiscalSubmissionStatus.ACCEPTED_WITH_OBSERVATIONS,
+];
 
 /** The digits of a tax id, which is what the DGII expects in every RNC element. */
 function digitsOf(value: string): string {

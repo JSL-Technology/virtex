@@ -21,7 +21,7 @@ import {
   UpsertTransmissionSettingsDto,
 } from './dto/fiscal-regime-settings.dto';
 import { TransmissionConfigService } from './services/transmission-config.service';
-import { FiscalSubmissionService } from './services/fiscal-submission.service';
+import { FiscalSubmissionService, visibleSubmission } from './services/fiscal-submission.service';
 import { RequireStepUp, StepUpScope } from '../auth/contracts/step-up.contract';
 
 /**
@@ -80,10 +80,8 @@ export class FiscalRegimeSettingsController {
   @ApiOperation({ summary: 'El estado del documento electrónico de una factura ante la autoridad.' })
   async submissionForInvoice(@CurrentUser() user: AuthenticatedUser, @Param('invoiceId', UuidParamPipe) invoiceId: string) {
     const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
-    if (!submission) return null;
     // The sealed payload and the raw response stay on the server: large, and not for the screen.
-    const { payload: _payload, response: _response, ...visible } = submission;
-    return visible;
+    return submission ? visibleSubmission(submission) : null;
   }
 
   /** Try again now: transmit a pending or failed document, or ask again about one already sent. */
@@ -91,9 +89,7 @@ export class FiscalRegimeSettingsController {
   @HasPermission(PERMISSIONS.INVOICES_EDIT)
   @ApiOperation({ summary: 'Reintentar ahora la transmisión o la consulta del veredicto.' })
   async retrySubmission(@CurrentUser() user: AuthenticatedUser, @Param('id', UuidParamPipe) id: string) {
-    const submission = await this.submissions.retryNow(id, user.organizationId);
-    const { payload: _payload, response: _response, ...visible } = submission;
-    return visible;
+    return visibleSubmission(await this.submissions.retryNow(id, user.organizationId));
   }
 
   @Get('settings')

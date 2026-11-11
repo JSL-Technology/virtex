@@ -592,8 +592,8 @@ describeWithDb('group consolidation', () => {
     await dataSource.query(
       `INSERT INTO vendor_bills (organization_id, vendor_id, date, "dueDate", total, balance, status, currency_code, exchange_rate, total_in_base_currency,
                                  version, services_amount, goods_amount, tax_amount, tax_withheld, income_tax_withheld, tax_to_cost, tax_proportional,
-                                 excise_amount, other_taxes, service_charge, purchase_category, payment_form, withholding_regime_codes)
-       VALUES ($1, $2, '2026-12-31', '2027-01-30', 30000, 30000, 'OPEN', 'CLP', 1, 30000, 1, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, '02', '04', '{}')`,
+                                 excise_amount, other_taxes, service_charge, fiscal_attributes, payment_method_code, withholding_regime_codes)
+       VALUES ($1, $2, '2026-12-31', '2027-01-30', 30000, 30000, 'OPEN', 'CLP', 1, 30000, 1, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, '{}'::jsonb, 'TRANSFER', '{}')`,
       [subsidiaryId, supplierId],
     );
 

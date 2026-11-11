@@ -5,7 +5,7 @@
   "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
   "hcm.employees.form.social_security_number": "NSS (IMSS)",
   "invoice.pdf.tax_column_header": "IVA",
-  "invoices.detail.ncf": "Folio fiscal (UUID):",
+  "invoices.detail.fiscal_number": "Folio fiscal (UUID):",
   "invoices.new.tax_column_header": "IVA",
   "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
   "permissions.groups.tss": "IMSS (Seguridad Social)",

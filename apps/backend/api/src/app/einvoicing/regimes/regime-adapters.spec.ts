@@ -159,6 +159,9 @@ describeWithDb('the six regime adapters', () => {
     invoice: invoiceFor(overrides),
     organizationId,
     manager: dataSource.manager,
+    // The first attempt: a regime that asks the authority whether it already holds the document
+    // only does so from the second one.
+    attempt: 1,
   });
 
   /**

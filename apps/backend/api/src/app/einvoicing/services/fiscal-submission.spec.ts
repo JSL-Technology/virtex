@@ -73,7 +73,14 @@ describeWithDb('FiscalSubmissionService, against PostgreSQL', () => {
     organizationId = await createTestOrganization(ds, 'einv-outbox');
     await ds.query(`UPDATE organizations SET country = 'MX' WHERE id = $1`, [organizationId]);
     [{ id: customerId }] = await ds.query(`INSERT INTO customers ("companyName", organization_id) VALUES ('QA Cliente', $1) RETURNING id`, [organizationId]);
-    service = new FiscalSubmissionService(ds, registry as never);
+    service = new FiscalSubmissionService(
+      ds,
+      registry as never,
+      { t: (key: string) => key } as never,
+      // The channel: this market's regime has no say of its own, so the tenant's saved endpoint is
+      // what there is, and this suite's tenant has one.
+      { isConfigured: async () => true } as never,
+    );
   });
 
   beforeEach(() => {

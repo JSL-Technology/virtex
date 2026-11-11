@@ -4,7 +4,7 @@ import { createTestOrganization, describeWithDb, openTestDataSource } from '../.
 import { IssuedFiscalNumbersRegistry } from '../../contracts/fiscal-records/issued-fiscal-numbers.registry';
 import { InvoiceIssuedFiscalNumbers } from '../../invoices/issued-fiscal-numbers.source';
 import { EcfLifecycleMessage, EcfMessageKind } from '../entities/ecf-lifecycle-message.entity';
-import { EcfStatus } from '../entities/ecf-submission.entity';
+import { FiscalSubmissionStatus } from '../entities/fiscal-submission.entity';
 import { FiscalDocumentRange } from '../entities/fiscal-document-range.entity';
 import { CertificateVaultService } from './certificate-vault.service';
 import { DgiiAuthService } from './dgii-auth.service';
@@ -98,7 +98,7 @@ describeWithDb('declaring unused numbers void (ANECF)', () => {
 
     const message = await service.voidRange(organizationId, { type: 'e31', from: 2, to: 10 });
 
-    expect(message).toMatchObject({ status: EcfStatus.ACCEPTED, ecfType: 'E31', sequenceFrom: '2', sequenceTo: '10', trackId: 'trk-1' });
+    expect(message).toMatchObject({ status: FiscalSubmissionStatus.ACCEPTED, ecfType: 'E31', sequenceFrom: '2', sequenceTo: '10', trackId: 'trk-1' });
     const xml = voidAtDgii.mock.calls[0][2];
     // The issued number (1) is not in the declaration, and nine numbers are: 2 through 10.
     expect(xml).toContain('<SecuenciaeNCFDesde>E310000000002</SecuenciaeNCFDesde>');
@@ -130,7 +130,7 @@ describeWithDb('declaring unused numbers void (ANECF)', () => {
 
     const message = await service.voidRange(organizationId, { type: 'E31', from: 2, to: 10 });
 
-    expect(message.status).toBe(EcfStatus.REJECTED);
+    expect(message.status).toBe(FiscalSubmissionStatus.REJECTED);
     expect(await cursor()).toBe(1);
     expect((await draw()).number).toBe(2);
   });
@@ -141,7 +141,7 @@ describeWithDb('declaring unused numbers void (ANECF)', () => {
     const message = await service.voidRange(organizationId, { type: 'E31', from: 2, to: 10 });
 
     // An outage is retriable; a refusal is not.
-    expect(message.status).toBe(EcfStatus.CONTINGENCY);
+    expect(message.status).toBe(FiscalSubmissionStatus.CONTINGENCY);
     expect(await cursor()).toBe(1);
   });
 
@@ -151,12 +151,12 @@ describeWithDb('declaring unused numbers void (ANECF)', () => {
 
     await expect(service.voidRange(organizationId, { type: 'E31', from: 2, to: 10 })).rejects.toThrow('connection lost');
     // The DGII took it: that is what the record says, whatever happened here afterwards.
-    expect((await messages()).map((message) => message.status)).toEqual([EcfStatus.ACCEPTED]);
+    expect((await messages()).map((message) => message.status)).toEqual([FiscalSubmissionStatus.ACCEPTED]);
     expect(await cursor()).toBe(1);
 
     const resumed = await service.voidRange(organizationId, { type: 'E31', from: 2, to: 10 });
 
-    expect(resumed.status).toBe(EcfStatus.ACCEPTED);
+    expect(resumed.status).toBe(FiscalSubmissionStatus.ACCEPTED);
     // Closed now, with no second declaration and no second record.
     expect(voidAtDgii).toHaveBeenCalledTimes(1);
     expect(await messages()).toHaveLength(1);

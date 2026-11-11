@@ -10,7 +10,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
-import { EcfStatus } from './ecf-submission.entity';
+import { FiscalSubmissionStatus } from './fiscal-submission.entity';
 
 /**
  * The two DGII messages that are part of the e-CF cycle but are not comprobantes themselves.
@@ -114,8 +114,13 @@ export class EcfLifecycleMessage {
   @Column({ name: 'track_id', type: 'varchar', nullable: true })
   trackId?: string | null;
 
-  @Column({ type: 'enum', enum: EcfStatus, default: EcfStatus.PENDING })
-  status: EcfStatus;
+  /**
+   * The same lifecycle as a document's own submission, and the same values, under this table's own
+   * PostgreSQL type: TypeORM models one enum type per column, and two entities sharing one type
+   * read as schema drift on every build.
+   */
+  @Column({ type: 'enum', enum: FiscalSubmissionStatus, default: FiscalSubmissionStatus.PENDING })
+  status: FiscalSubmissionStatus;
 
   @Column({ name: 'dgii_response', type: 'jsonb', nullable: true })
   dgiiResponse?: unknown;

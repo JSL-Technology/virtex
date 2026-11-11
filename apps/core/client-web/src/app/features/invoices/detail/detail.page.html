@@ -75,7 +75,7 @@
             <strong>{{ inv.dueDate | vxDate: 'date' }}</strong>
           </div>
           <div class="meta-item">
-            <span>{{ 'invoices.detail.ncf' | translate }}</span>
+            <span>{{ 'invoices.detail.fiscal_number' | translate }}</span>
             <strong>{{ inv.fiscalNumber || ('invoices.detail.not_assigned' | translate) }}</strong>
           </div>
           <div class="meta-item">
@@ -426,101 +426,74 @@
     </div>
   }
 
-  <!-- Electronic invoicing outside DO: where the document stands with the authority (FAC-EINV-01) -->
-  @if (regimeSubmission(); as r) {
+  <!--
+    Where this document stands with its authority (FAC-EINV-01), in whatever market the company is
+    in. There were two cards here — one for the Dominican e-CF, one for «the other regimes» — and
+    which one appeared was decided by whether the fiscal number started with an `E`.
+  -->
+  @if (submission(); as s) {
     <div class="invoice-document card">
       <div class="card-body">
-        <h3>{{ 'invoices.detail.regime.title' | translate: { regime: r.regime } }}</h3>
+        <h3>{{ 'invoices.detail.regime.title' | translate: { regime: s.regime } }}</h3>
         <div class="detail-grid">
-          <div class="detail-item">
-            <span class="detail-label">{{ 'invoices.detail.authority_status' | translate: { authority: fiscalAuthority() } }}</span>
-            <vx-badge [tone]="regimeStatusTone(r.status)">{{ 'invoices.detail.regime.status.' + r.status | translate }}</vx-badge>
-            <p class="detail-hint">{{ 'invoices.detail.regime.hint.' + r.status | translate }}</p>
-          </div>
-          @if (r.trackingId) {
+          @if (s.fiscalNumber) {
             <div class="detail-item">
-              <span class="detail-label">{{ 'invoices.detail.regime.tracking' | translate }}</span>
-              <p>{{ r.trackingId }}</p>
+              <span class="detail-label">{{ 'invoices.detail.fiscal_number' | translate }}</span>
+              <p><strong>{{ s.fiscalNumber }}</strong></p>
             </div>
           }
-          @if (r.documentKey) {
+          <div class="detail-item">
+            <span class="detail-label">{{ 'invoices.detail.authority_status' | translate: { authority: fiscalAuthority() } }}</span>
+            <vx-badge [tone]="submissionTone(s.status)">{{ 'invoices.detail.regime.status.' + s.status | translate }}</vx-badge>
+            <p class="detail-hint">{{ 'invoices.detail.regime.hint.' + s.status | translate }}</p>
+          </div>
+          @if (s.trackingId) {
+            <div class="detail-item">
+              <span class="detail-label">{{ 'invoices.detail.regime.tracking' | translate }}</span>
+              <p>{{ s.trackingId }}</p>
+            </div>
+          }
+          @if (s.documentKey) {
             <div class="detail-item">
               <span class="detail-label">{{ 'invoices.detail.regime.document_key' | translate }}</span>
-              <p>{{ r.documentKey }}</p>
+              <p>{{ s.documentKey }}</p>
             </div>
           }
         </div>
-        @if (r.messages.length) {
+
+        @if (s.messages.length) {
           <div class="ecf-messages">
             <span class="detail-label">{{ 'invoices.detail.messages_from_authority' | translate: { authority: fiscalAuthority() } }}</span>
             <ul>
-              @for (m of r.messages; track $index) {
-                <li>{{ m }}</li>
+              @for (message of s.messages; track $index) {
+                <li>{{ authorityMessage(message) }}</li>
               }
             </ul>
           </div>
         }
-        @if (r.status !== 'ACCEPTED' && r.status !== 'REJECTED') {
-          <div class="ecf-actions">
-            <button type="button" [disabled]="regimeBusy()" (click)="retryRegimeSubmission()">
-              {{ (regimeBusy() ? 'invoices.detail.resending' : 'invoices.detail.regime.retry') | translate: { authority: fiscalAuthority() } }}
-            </button>
+
+        @if (s.verificationUrl) {
+          <div class="ecf-qr">
+            <span class="detail-label">{{ 'invoices.detail.authority_verification' | translate: { authority: fiscalAuthority() } }}</span>
+            <!-- The actual QR, not a link to it: it is what a customer scans off the printed document. -->
+            <qrcode [qrdata]="s.verificationUrl" [width]="180" [errorCorrectionLevel]="'M'" [margin]="0"></qrcode>
+            <a [href]="s.verificationUrl" target="_blank" rel="noopener">{{ 'invoices.detail.open_stamp_lookup' | translate }}</a>
           </div>
         }
+
+        <div class="ecf-actions">
+          <button type="button" (click)="downloadSubmissionXml()">{{ 'invoices.detail.download_signed_xml' | translate }}</button>
+          @if (s.status !== 'ACCEPTED' && s.status !== 'ACCEPTED_WITH_OBSERVATIONS' && s.status !== 'REJECTED') {
+            <button type="button" [disabled]="documentBusy()" (click)="retrySubmission()">
+              {{
+                (documentBusy() ? 'invoices.detail.resending' : 'invoices.detail.resend_to_authority') | translate: { authority: fiscalAuthority() }
+              }}
+            </button>
+          }
+        </div>
       </div>
     </div>
   }
-
-  <!-- Electronic invoicing: the authority's verdict on this document -->
-  <div class="invoice-document card" *ngIf="ecf() as e">
-    <div class="card-body">
-      <h3>{{ 'invoices.detail.electronic_fiscal_document_cf' | translate }}</h3>
-      <div class="detail-grid">
-        <div class="detail-item">
-          <span class="detail-label">{{ 'invoices.detail.ncf' | translate }}</span>
-          <p><strong>{{ e.ncf }}</strong></p>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">{{ 'invoices.detail.authority_status' | translate: { authority: fiscalAuthority() } }}</span>
-          <vx-badge [tone]="ecfStatusTone(e.status)">{{ ecfStatusLabel(e.status) | translate }}</vx-badge>
-          @if (ecfStatusHint(e.status); as hint) {
-            <p class="detail-hint">{{ hint | translate }}</p>
-          }
-        </div>
-        <div class="detail-item" *ngIf="e.trackId">
-          <span class="detail-label">{{ 'invoices.detail.trackid' | translate }}</span>
-          <p>{{ e.trackId }}</p>
-        </div>
-        <div class="detail-item" *ngIf="e.securityCode">
-          <span class="detail-label">{{ 'invoices.detail.security_code' | translate }}</span>
-          <p>{{ e.securityCode }}</p>
-        </div>
-      </div>
-
-      <div class="ecf-messages" *ngIf="e.messages?.length">
-        <span class="detail-label">{{ 'invoices.detail.messages_from_authority' | translate: { authority: fiscalAuthority() } }}</span>
-        <ul>
-          <li *ngFor="let m of e.messages">{{ dgiiMessage(m) }}</li>
-        </ul>
-      </div>
-
-      <div class="ecf-qr" *ngIf="e.qrUrl">
-        <span class="detail-label">{{ 'invoices.detail.authority_verification' | translate: { authority: fiscalAuthority() } }}</span>
-        <!-- The actual QR, not a link to it: it is what a customer scans off the printed document. -->
-        <qrcode [qrdata]="e.qrUrl" [width]="180" [errorCorrectionLevel]="'M'" [margin]="0"></qrcode>
-        <a [href]="e.qrUrl" target="_blank" rel="noopener">{{ 'invoices.detail.open_stamp_lookup' | translate }}</a>
-      </div>
-
-      <div class="ecf-actions">
-        <button type="button" (click)="downloadEcfXml()">{{ 'invoices.detail.download_signed_xml' | translate }}</button>
-        <button type="button" [disabled]="documentBusy()" (click)="resubmitEcf()">
-          {{
-            (documentBusy() ? 'invoices.detail.resending' : 'invoices.detail.resend_to_authority') | translate: { authority: fiscalAuthority() }
-          }}
-        </button>
-      </div>
-    </div>
-  </div>
 </vx-document-shell>
 } @else {
 <vx-document-shell [title]="'page_titles.invoices' | translate" [loading]="true"></vx-document-shell>

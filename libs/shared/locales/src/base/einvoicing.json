@@ -269,16 +269,6 @@
     "en": "an export document requires the foreign buyer to be identified",
     "pt": "um documento de exportação exige a identificação do comprador estrangeiro"
   },
-  "einvoicing.do.invoice_has_no_electronic_ncf_assigned": {
-    "es": "La factura no tiene un e-NCF electrónico asignado.",
-    "en": "The invoice has no electronic e-NCF assigned.",
-    "pt": "A fatura não tem um e-NCF eletrônico atribuído."
-  },
-  "einvoicing.do.invoice_invoice_id_not_found": {
-    "es": "Factura {{invoiceId}} no encontrada.",
-    "en": "Invoice {{invoiceId}} was not found.",
-    "pt": "Fatura {{invoiceId}} não encontrada."
-  },
   "einvoicing.do.issuer_legal_name_required": {
     "es": "la razón social del emisor es obligatoria",
     "en": "the issuer's legal name is required",
@@ -348,11 +338,6 @@
     "es": "No hay una secuencia activa de {{type}} para esta organización.",
     "en": "There is no active {{type}} sequence for this organization.",
     "pt": "Não há sequência ativa de {{type}} para esta organização."
-  },
-  "einvoicing.do.organization_has_no_rnc_configured_fill": {
-    "es": "La organización no tiene RNC configurado. Complétalo en Ajustes → Empresa.",
-    "en": "The organization has no RNC configured. Fill it in under Settings → Company.",
-    "pt": "A organização não tem RNC configurado. Preencha-o em Configurações → Empresa."
   },
   "einvoicing.do.organization_not_found": {
     "es": "Organización no encontrada.",

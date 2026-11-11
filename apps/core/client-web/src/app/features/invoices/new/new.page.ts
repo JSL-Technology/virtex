@@ -947,7 +947,7 @@ const INVOICE_FIELD_LABELS: Record<string, string> = {
   issueDate: 'invoices.new.issue_date',
   dueDate: 'invoices.list.due',
   currencyCode: 'treasury.currency',
-  fiscalDocumentTypeId: 'invoices.detail.ncf',
+  fiscalDocumentTypeId: 'invoices.detail.fiscal_number',
   description: 'invoices.detail.description',
   quantity: 'invoices.detail.qty',
   price: 'invoices.detail.price',

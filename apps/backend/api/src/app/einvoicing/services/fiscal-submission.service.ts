@@ -5,6 +5,8 @@ import { Invoice } from '../../invoices/entities/invoice.entity';
 import { FiscalRegimeRegistry } from '../regimes/fiscal-regime.registry';
 import { FiscalRegimeAdapter, FiscalRegimeContext, FiscalTransmissionResult, RegimeNotConfigured } from '../regimes/fiscal-regime.types';
 import { NotFoundError, ConflictError } from '../../i18n/localized.exception';
+import { I18nService } from '../../i18n/i18n.service';
+import { TransmissionConfigService } from './transmission-config.service';
 
 /** How long a claimed submission is reserved for the worker that claimed it. */
 const LEASE_MINUTES = 5;
@@ -14,16 +16,34 @@ const NOT_CONFIGURED_RETRY_MINUTES = 60;
 const POLL_MINUTES = 10;
 /** Backoff for failures on our side: 2, 4, 8 … minutes, capped at six hours. */
 const MAX_BACKOFF_MINUTES = 6 * 60;
+/**
+ * Attempts a contingency is retried for before it is surfaced as an error.
+ *
+ * At one pass every ten minutes that is a day. A fault that outlives a day of retries is not an
+ * outage, and retrying it forever in silence is how a document nobody transmitted stays invisible.
+ */
+const MAX_CONTINGENCY_ATTEMPTS = 144;
 
-const RETRIABLE = [FiscalSubmissionStatus.PENDING, FiscalSubmissionStatus.ERROR, FiscalSubmissionStatus.NOT_CONFIGURED];
-const FINAL = [FiscalSubmissionStatus.ACCEPTED, FiscalSubmissionStatus.REJECTED];
+const RETRIABLE = [
+  FiscalSubmissionStatus.PENDING,
+  FiscalSubmissionStatus.ERROR,
+  FiscalSubmissionStatus.NOT_CONFIGURED,
+  FiscalSubmissionStatus.CONTINGENCY,
+];
+const FINAL = [
+  FiscalSubmissionStatus.ACCEPTED,
+  FiscalSubmissionStatus.ACCEPTED_WITH_OBSERVATIONS,
+  FiscalSubmissionStatus.REJECTED,
+];
 
 /**
- * The electronic documents of every regime but the Dominican one, from the issued invoice to the
- * authority's verdict (audit 2026-11-07, FAC-EINV-01).
+ * The electronic documents of every regime, from the issued invoice to the authority's verdict
+ * (audit 2026-11-07, FAC-EINV-01; docs/ARQUITECTURA_MERCADOS.md fase 3).
  *
- * The seven adapters (CFDI, DIAN, SUNAT, SRI, SII, NF-e, AFIP) could build, seal and transmit, and
- * nothing called them: an invoice in Mexico got a number and was never stamped. Now:
+ * Six adapters (CFDI, DIAN, SUNAT, SRI, SII, NF-e, AFIP) could build, seal and transmit, and
+ * nothing called them: an invoice in Mexico got a number and was never stamped. The Dominican
+ * regime, meanwhile, had a second pipeline of its own around `ecf_submissions`. There is one now,
+ * and the DGII is an adapter in it. Now:
  *
  *  1. `registerPending` writes the submission IN the issuing transaction (an outbox): the invoice
  *     and its obligation to be transmitted commit together, or neither does.
@@ -43,11 +63,31 @@ export class FiscalSubmissionService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly registry: FiscalRegimeRegistry,
+    private readonly i18n: I18nService,
+    private readonly transmission: TransmissionConfigService,
   ) {}
 
-  /** Whether a market's documents go through this pipeline (every implemented regime but DO). */
+  /** Whether a market's documents go through this pipeline: every market with a regime. */
   handles(countryCode: string | null | undefined): boolean {
     return this.registry.forCountry(countryCode) !== null;
+  }
+
+  /**
+   * Whether this tenant can transmit what its market's regime requires — asked before a document
+   * is issued, because a number spent on a document the authority never receives cannot be unspent
+   * (FAC-EINV-01, FAC-EINV-04).
+   *
+   * The regime answers where its channel is not the tenant-configured endpoint (the DGII's is the
+   * taxpayer's own certificate); otherwise the endpoint and credential the tenant saved in settings
+   * are what there is to check.
+   */
+  async canTransmit(organizationId: string, countryCode: string, manager: EntityManager): Promise<boolean> {
+    const adapter = this.registry.forCountry(countryCode);
+    if (!adapter) return false;
+    if (adapter.isTransmissionConfigured) {
+      return adapter.isTransmissionConfigured({ organizationId, manager });
+    }
+    return this.transmission.isConfigured(organizationId, countryCode, manager);
   }
 
   /** Record, inside the issuing transaction, that this invoice is owed to the authority. */
@@ -55,10 +95,17 @@ export class FiscalSubmissionService {
     const adapter = this.registry.forCountry(countryCode);
     if (!adapter) return;
     await manager.query(
-      `INSERT INTO fiscal_submissions (organization_id, invoice_id, country_code, regime, fiscal_number, status)
-       VALUES ($1, $2, $3, $4, $5, 'PENDING')
+      `INSERT INTO fiscal_submissions (organization_id, invoice_id, country_code, regime, fiscal_number, document_type, status)
+       VALUES ($1, $2, $3, $4, $5, $6, 'PENDING')
        ON CONFLICT (invoice_id) DO NOTHING`,
-      [invoice.organizationId, invoice.id, adapter.countryCode, adapter.regime, invoice.fiscalNumber ?? null],
+      [
+        invoice.organizationId,
+        invoice.id,
+        adapter.countryCode,
+        adapter.regime,
+        invoice.fiscalNumber ?? null,
+        invoice.fiscalDocumentType ?? null,
+      ],
     );
   }
 
@@ -77,10 +124,14 @@ export class FiscalSubmissionService {
     try {
       const built = await adapter.build(context);
       const certificate = await adapter.loadCertificate(context);
-      const sealed = adapter.seal(built, certificate);
+      const sealed = await adapter.seal(built, certificate, context);
       // The sealed document is stored before it is sent: it is the evidence of what was declared,
       // whatever the exchange that follows does.
-      await this.patch(claimed.id, organizationId, { payload: sealed.payload, documentKey: sealed.documentKey });
+      await this.patch(claimed.id, organizationId, {
+        payload: sealed.payload,
+        documentKey: sealed.documentKey,
+        verificationUrl: sealed.verificationUrl ?? null,
+      });
       const result = await adapter.transmit(sealed, context);
       return this.record(claimed, result, sealed.documentKey);
     } catch (error) {
@@ -110,7 +161,7 @@ export class FiscalSubmissionService {
     return this.dataSource.query(
       `SELECT id, invoice_id AS "invoiceId", status FROM fiscal_submissions
         WHERE organization_id = $1
-          AND status IN ('PENDING', 'ERROR', 'NOT_CONFIGURED', 'SENT')
+          AND status IN ('PENDING', 'ERROR', 'NOT_CONFIGURED', 'CONTINGENCY', 'SENT')
           AND (next_attempt_at IS NULL OR next_attempt_at <= now())
         ORDER BY next_attempt_at NULLS FIRST, created_at
         LIMIT $2`,
@@ -179,7 +230,8 @@ export class FiscalSubmissionService {
       relations: ['lineItems'],
     });
     if (!invoice) throw new NotFoundError('einvoicing.invoice_not_found');
-    return { invoice, organizationId: submission.organizationId, manager };
+    // `claim` has already counted this run, so `attempts` IS the number of this attempt.
+    return { invoice, organizationId: submission.organizationId, manager, attempt: submission.attempts };
   }
 
   private record(submission: FiscalSubmission, result: FiscalTransmissionResult, documentKey: string | null): Promise<FiscalSubmission> {
@@ -190,14 +242,29 @@ export class FiscalSubmissionService {
     };
     switch (result.status) {
       case 'ACCEPTED':
+      case 'ACCEPTED_WITH_OBSERVATIONS':
         return this.finish(submission, {
           ...base,
-          status: FiscalSubmissionStatus.ACCEPTED,
+          status:
+            result.status === 'ACCEPTED'
+              ? FiscalSubmissionStatus.ACCEPTED
+              : FiscalSubmissionStatus.ACCEPTED_WITH_OBSERVATIONS,
           trackingId: result.trackingId ?? submission.trackingId ?? null,
           authorization: result.authorization ?? null,
           sentAt: submission.sentAt ?? new Date(),
           respondedAt: new Date(),
           nextAttemptAt: null,
+        });
+      case 'CONTINGENCY':
+        // The document is issued and owed: retried, and surfaced as an error only once the fault
+        // has outlived a day of retries.
+        return this.finish(submission, {
+          ...base,
+          status:
+            submission.attempts >= MAX_CONTINGENCY_ATTEMPTS
+              ? FiscalSubmissionStatus.ERROR
+              : FiscalSubmissionStatus.CONTINGENCY,
+          nextAttemptAt: minutesFromNow(POLL_MINUTES),
         });
       case 'REJECTED':
         return this.finish(submission, { ...base, status: FiscalSubmissionStatus.REJECTED, sentAt: submission.sentAt ?? new Date(), respondedAt: new Date(), nextAttemptAt: null });
@@ -235,9 +302,16 @@ export class FiscalSubmissionService {
     }
     const message = (error as { messageKey?: string; message?: string })?.messageKey ?? (error as Error)?.message ?? String(error);
     this.logger.warn(`${adapter.regime}: submission ${submission.id} failed — ${message}`);
+    // A document refused by a pre-flight check is refused for named reasons, and the tenant has to
+    // read every one of them to correct it: a list is kept as a list, not flattened into one line.
+    const detail = (error as { issues?: Array<{ field: string; messageKey: string; params?: Record<string, unknown> }> }).issues;
+    const messages = detail?.length
+      ? [...(submission.messages ?? []), ...detail.map((issue) => `${issue.field}: ${this.i18n.t(issue.messageKey, issue.params ?? {})}`)]
+      : submission.messages;
     return this.finish(submission, {
       status: keep ?? FiscalSubmissionStatus.ERROR,
       lastError: message,
+      messages,
       nextAttemptAt: minutesFromNow(backoffMinutes(submission.attempts)),
     });
   }
@@ -250,6 +324,20 @@ export class FiscalSubmissionService {
   private async patch(id: string, organizationId: string, changes: Partial<FiscalSubmission>): Promise<void> {
     await this.dataSource.getRepository(FiscalSubmission).update({ id, organizationId }, changes as never);
   }
+}
+
+/**
+ * A submission as a screen may see it.
+ *
+ * The sealed payload and the authority's raw response stay on the server: both are large, neither
+ * is for a screen, and the payload is the evidence of what was declared — it is downloaded from its
+ * own route, as a file, by whoever may read the document.
+ */
+export function visibleSubmission(submission: FiscalSubmission): Omit<FiscalSubmission, 'payload' | 'response'> {
+  const visible: Partial<FiscalSubmission> = { ...submission };
+  delete visible.payload;
+  delete visible.response;
+  return visible as Omit<FiscalSubmission, 'payload' | 'response'>;
 }
 
 /** The rows of an `UPDATE … RETURNING`: the postgres driver answers `[rows, affectedCount]`. */

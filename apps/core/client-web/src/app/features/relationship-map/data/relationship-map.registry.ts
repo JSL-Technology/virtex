@@ -39,7 +39,7 @@ export const FLOW_TYPE_REGISTRY: Record<FlowDocumentType, FlowTypePresentation> 
   SALES_INVOICE: { icon: Receipt, route: (id) => `invoices/${id}` },
   CUSTOMER_PAYMENT: { icon: HandCoins, route: null },
   POS_SALE: { icon: ShoppingCart, route: null },
-  ECF_SUBMISSION: { icon: FileCheck, route: null },
+  FISCAL_SUBMISSION: { icon: FileCheck, route: null },
   PURCHASE_REQUISITION: { icon: ClipboardList, route: (id) => `purchasing/requisitions/${id}/edit` },
   PURCHASE_ORDER: { icon: ShoppingBag, route: (id) => `purchasing/orders/${id}/edit` },
   GOODS_RECEIPT: { icon: PackageCheck, route: (id) => `purchasing/receipts/${id}` },

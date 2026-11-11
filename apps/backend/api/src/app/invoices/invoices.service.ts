@@ -37,17 +37,16 @@ import { DocumentSequencesService } from '../shared/document-sequences/document-
 import { DocumentType } from '../shared/document-sequences/entities/document-sequence.entity';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
-import { EcfSubmissionService } from '../einvoicing/services/ecf-submission.service';
+import { SigningReadinessService } from '../einvoicing/services/signing-readiness.service';
 import { InvoicePostingService } from './services/invoice-posting.service';
 import { PriceResolver, type ResolvedPrice } from '../price-lists/price-resolver.service';
 import { FiscalSubmissionService } from '../einvoicing/services/fiscal-submission.service';
-import { TransmissionConfigService } from '../einvoicing/services/transmission-config.service';
 import { ComputedDocument, computeDocument, TaxableLineInput } from './sales-tax.engine';
 import { statutoryTaxRatesOn } from '../localization/contracts/statutory-tax-rates.contract';
 import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
 import { TenantBookkeepingProvisioner } from '../accounting/provisioning/tenant-bookkeeping.provisioner';
-import { EcfSubmission } from '../einvoicing/entities/ecf-submission.entity';
+import { FiscalSubmission } from '../einvoicing/entities/fiscal-submission.entity';
 import { InvoiceRenderContext } from './services/invoice-renderer.service';
 import { EmissionKind, FiscalDocumentTypeOption } from './interfaces/fiscal-adapter.interface';
 import { certificatePolicyFor } from '../einvoicing/contracts/certificate-policy';
@@ -263,7 +262,7 @@ export class InvoicesService {
     private readonly documentSequencesService: DocumentSequencesService,
     private readonly fiscalAdapterFactory: FiscalAdapterFactory,
     private readonly saasService: SaasService,
-    private readonly ecfSubmissionService: EcfSubmissionService,
+    private readonly signing: SigningReadinessService,
     private readonly posting: InvoicePostingService,
     private readonly i18n: I18nService,
     private readonly bookkeeping: TenantBookkeepingProvisioner,
@@ -275,7 +274,6 @@ export class InvoicesService {
     private readonly prices: PriceResolver,
     /** The electronic regimes of every market but DO: outbox, transmission and verdict (FAC-EINV-01). */
     private readonly fiscalSubmissions: FiscalSubmissionService,
-    private readonly transmission: TransmissionConfigService,
   ) {}
 
   /** Invoices whose regime submission was registered in this process, to transmit after commit. */
@@ -591,12 +589,12 @@ export class InvoicesService {
     const owesTransmission =
       this.needsSignature(countryCode, assignment.documentType) && this.fiscalSubmissions.handles(countryCode);
     if (this.needsSignature(countryCode, assignment.documentType)) {
-      await this.ecfSubmissionService.assertReadyToSign(organizationId, manager);
+      await this.signing.assertReadyToSign(organizationId, manager);
     }
     // An electronic document nobody can transmit must not be issued either: its number would be
     // spent on a document the authority never receives (FAC-EINV-01). The channel is the
     // tenant's own (FAC-EINV-04), configured in settings.
-    if (owesTransmission && !(await this.transmission.isConfigured(organizationId, countryCode as string, manager))) {
+    if (owesTransmission && !(await this.fiscalSubmissions.canTransmit(organizationId, countryCode as string, manager))) {
       throw new BadRequestError('invoices.transmission_not_configured', { country: countryCode });
     }
 
@@ -611,11 +609,10 @@ export class InvoicesService {
     await this.posting.post(invoice, manager);
     const saved = await manager.save(invoice);
 
-    // The transmission it owes commits with it (see `EcfSubmissionService.registerPending`).
-    if (saved.isElectronicFiscalDocument) {
-      await this.ecfSubmissionService.registerPending(saved, manager);
-    } else if (owesTransmission) {
-      // The outbox row commits with the invoice: the obligation to transmit cannot be lost.
+    // The outbox row commits with the invoice, in every market with a regime: the obligation to
+    // transmit cannot be lost (see `FiscalSubmissionService.registerPending`). The Dominican e-CF
+    // had a second outbox of its own until its regime became an adapter like the others.
+    if (owesTransmission) {
       await this.fiscalSubmissions.registerPending(saved, countryCode as string, manager);
       this.regimeSubmissionsToSend.add(saved.id);
     }
@@ -2089,7 +2086,7 @@ export class InvoicesService {
     });
     if (!organization) throw new NotFoundError('invoices.organization_not_found');
 
-    const submission = await this.dataSource.getRepository(EcfSubmission).findOne({
+    const submission = await this.dataSource.getRepository(FiscalSubmission).findOne({
       where: { invoiceId: invoice.id, organizationId },
     });
 
@@ -2150,13 +2147,15 @@ export class InvoicesService {
 
     const needsCertificate = (option: { electronic: boolean }) => certificateRequired && option.electronic;
     const certificateReady = offered.some(needsCertificate)
-      ? await this.ecfSubmissionService.isReadyToSign(organizationId, manager)
+      ? await this.signing.isReadyToSign(organizationId, manager)
       : true;
-    // Outside DO an electronic type also needs the tenant's transmission channel (FAC-EINV-01/04).
+    // An electronic type also needs a channel to its authority (FAC-EINV-01/04). What that channel
+    // is belongs to the regime: an endpoint and a credential the tenant saves for most of them, the
+    // taxpayer's own certificate for the DGII, which publishes its endpoints itself.
     const needsTransmission = (option: { electronic: boolean }) =>
       needsCertificate(option) && this.fiscalSubmissions.handles(countryCode);
     const transmissionReady = offered.some(needsTransmission)
-      ? await this.transmission.isConfigured(organizationId, countryCode as string, manager)
+      ? await this.fiscalSubmissions.canTransmit(organizationId, countryCode as string, manager)
       : true;
 
     const options: IssuableTypeOption[] = offered.map((option) => {
@@ -2373,33 +2372,20 @@ export class InvoicesService {
   // ── e-CF ───────────────────────────────────────────────────────────────────
 
   /**
-   * Hand an electronic document to the e-CF pipeline, after the sale is committed.
+   * Hand an electronic document to its authority's pipeline, after the sale is committed.
    *
-   * Fire-and-forget by design: the submission row records the outcome and the reconciler retries
-   * anything left in contingency or error. A DGII outage must not fail a sale that is already made.
+   * Fire-and-forget by design, and on its own connection and tenant context: the request's
+   * connection is released as soon as the response is sent, and running on it failed every
+   * transmission with «Query runner already released». The outbox row was committed with the
+   * invoice, so whatever this attempt does not finish the reconciler does — an authority's outage
+   * must not fail a sale that is already made.
    */
   private triggerFiscalTransmission(invoice: Invoice): void {
-    if (this.regimeSubmissionsToSend.delete(invoice.id)) {
-      // Same posture as the e-CF: after the commit, on its own tenant context; the reconciler
-      // picks up anything this attempt does not finish.
-      runAsTenantJob(this.dataSource, invoice.organizationId, () =>
-        this.fiscalSubmissions.process(invoice.id, invoice.organizationId),
-      ).catch((error) =>
-        this.logger.error(`Fiscal transmission for ${invoice.invoiceNumber} failed: ${(error as Error).message}`),
-      );
-      return;
-    }
-    if (!invoice.isElectronicFiscalDocument) return;
-    // On its own connection and tenant context. The request's connection is released as soon as
-    // the response is sent, and running on it failed every transmission with "Query runner already
-    // released". The PENDING row was committed with the invoice, so if this attempt never runs the
-    // reconciler sends it.
+    if (!this.regimeSubmissionsToSend.delete(invoice.id)) return;
     runAsTenantJob(this.dataSource, invoice.organizationId, () =>
-      this.ecfSubmissionService.submitInvoice(invoice.id, invoice.organizationId),
+      this.fiscalSubmissions.process(invoice.id, invoice.organizationId),
     ).catch((error) =>
-      this.logger.error(
-        `e-CF transmission for ${invoice.invoiceNumber} failed: ${(error as Error).message}`,
-      ),
+      this.logger.error(`Fiscal transmission for ${invoice.invoiceNumber} failed: ${(error as Error).message}`),
     );
   }
 }

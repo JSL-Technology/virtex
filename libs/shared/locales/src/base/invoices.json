@@ -164,11 +164,6 @@
     "en": "Invoice {{number}} cancelled.",
     "pt": "Fatura {{number}} anulada."
   },
-  "invoices.detail.cf_resubmitted_dgii": {
-    "es": "e-CF reenviado a la DGII.",
-    "en": "e-CF resubmitted to the DGII.",
-    "pt": "e-CF reenviado à DGII."
-  },
   "invoices.detail.contact_person": {
     "es": "Persona de contacto",
     "en": "Contact person",
@@ -384,6 +379,11 @@
     "en": "Document issued with number {{number}}.",
     "pt": "Documento emitido com o número {{number}}."
   },
+  "invoices.detail.document_resent_to_authority": {
+    "es": "Documento reenviado a la autoridad.",
+    "en": "Document resent to the authority.",
+    "pt": "Documento reenviado à autoridade."
+  },
   "invoices.detail.download_signed_xml": {
     "es": "Descargar XML firmado",
     "en": "Download the signed XML",
@@ -398,11 +398,6 @@
     "es": "Vencimiento",
     "en": "Due",
     "pt": "Vencimento"
-  },
-  "invoices.detail.electronic_fiscal_document_cf": {
-    "es": "Comprobante fiscal electrónico",
-    "en": "Electronic fiscal document",
-    "pt": "Comprovante fiscal eletrônico"
   },
   "invoices.detail.email_failed": {
     "es": "No se pudo enviar la factura.",
@@ -453,6 +448,11 @@
     "es": "Información financiera",
     "en": "Financial information",
     "pt": "Informações financeiras"
+  },
+  "invoices.detail.fiscal_number": {
+    "en": "Fiscal document no.",
+    "es": "N.º de comprobante fiscal",
+    "pt": "N.º do documento fiscal"
   },
   "invoices.detail.grand_total_label": {
     "literal": "TOTAL:"
@@ -506,11 +506,6 @@
     "es": "Mensajes de {{authority}}",
     "en": "Messages from {{authority}}",
     "pt": "Mensagens de {{authority}}"
-  },
-  "invoices.detail.ncf": {
-    "en": "Fiscal document no.",
-    "es": "N.º de comprobante fiscal",
-    "pt": "N.º do documento fiscal"
   },
   "invoices.detail.no_signed_xml_available": {
     "es": "No hay XML firmado disponible.",
@@ -577,6 +572,16 @@
     "en": "The document has fiscal validity.",
     "pt": "O documento tem validade fiscal."
   },
+  "invoices.detail.regime.hint.accepted_with_observations": {
+    "es": "Es válido, pero la autoridad dejó observaciones: revísalas abajo para corregirlas en los próximos documentos.",
+    "en": "It is valid, but the authority left observations: read them below and correct them on the next documents.",
+    "pt": "É válido, mas a autoridade deixou observações: leia-as abaixo para corrigi-las nos próximos documentos."
+  },
+  "invoices.detail.regime.hint.contingency": {
+    "es": "La autoridad no respondía; el documento es válido y se enviará en cuanto esté disponible.",
+    "en": "The authority could not be reached; the document is valid and will be sent as soon as it is.",
+    "pt": "A autoridade não respondia; o documento é válido e será enviado assim que estiver disponível."
+  },
   "invoices.detail.regime.hint.error": {
     "es": "Se reintenta automáticamente; el detalle está en el registro del envío.",
     "en": "It is retried automatically; the detail is in the submission record.",
@@ -602,11 +607,6 @@
     "en": "The authority received it; its verdict is checked periodically. It is not resent, so it cannot be duplicated.",
     "pt": "A autoridade recebeu-o; o veredicto é consultado periodicamente. Não é reenviado, para não o duplicar."
   },
-  "invoices.detail.regime.retry": {
-    "es": "Reintentar ahora",
-    "en": "Retry now",
-    "pt": "Tentar novamente agora"
-  },
   "invoices.detail.regime.retry_failed": {
     "es": "No se pudo reintentar el envío.",
     "en": "The submission could not be retried.",
@@ -616,6 +616,16 @@
     "es": "Aceptado",
     "en": "Accepted",
     "pt": "Aceite"
+  },
+  "invoices.detail.regime.status.accepted_with_observations": {
+    "es": "Aceptado con observaciones",
+    "en": "Accepted with observations",
+    "pt": "Aceito com observações"
+  },
+  "invoices.detail.regime.status.contingency": {
+    "es": "En contingencia",
+    "en": "Issued under contingency",
+    "pt": "Emitido em contingência"
   },
   "invoices.detail.regime.status.error": {
     "es": "Error al preparar el envío",
@@ -671,11 +681,6 @@
     "es": "Buscar en líneas...",
     "en": "Search within the lines...",
     "pt": "Buscar nas linhas..."
-  },
-  "invoices.detail.security_code": {
-    "es": "Código de seguridad",
-    "en": "Security code",
-    "pt": "Código de segurança"
   },
   "invoices.detail.shipping_address": {
     "es": "Dirección de envío",
@@ -737,11 +742,6 @@
   },
   "invoices.detail.total_label": {
     "literal": "Total"
-  },
-  "invoices.detail.trackid": {
-    "en": "Tracking ID",
-    "es": "Id. de seguimiento",
-    "pt": "ID de rastreio"
   },
   "invoices.detail.void_invoice": {
     "es": "Anular",
@@ -817,86 +817,6 @@
     "es": "La fecha de vencimiento no puede ser anterior a la fecha de emisión.",
     "en": "The due date cannot be earlier than the issue date.",
     "pt": "A data de vencimento não pode ser anterior à data de emissão."
-  },
-  "invoices.ecf_status.accepted": {
-    "es": "Aceptado por la DGII",
-    "en": "Accepted by the DGII",
-    "pt": "Aceito pela DGII"
-  },
-  "invoices.ecf_status.accepted_hint": {
-    "es": "Comprobante válido. No hace falta hacer nada más.",
-    "en": "Valid document. Nothing else to do.",
-    "pt": "Comprovante válido. Nada mais a fazer."
-  },
-  "invoices.ecf_status.accepted_with_observations": {
-    "es": "Aceptado con observaciones",
-    "en": "Accepted with observations",
-    "pt": "Aceito com observações"
-  },
-  "invoices.ecf_status.accepted_with_observations_hint": {
-    "es": "Es válido, pero la DGII dejó observaciones: revísalas abajo para corregirlas en los próximos.",
-    "en": "It is valid, but the DGII left observations: review them below to correct future documents.",
-    "pt": "É válido, mas a DGII deixou observações: revise-as abaixo para corrigir os próximos."
-  },
-  "invoices.ecf_status.contingency": {
-    "es": "En contingencia",
-    "en": "In contingency",
-    "pt": "Em contingência"
-  },
-  "invoices.ecf_status.contingency_hint": {
-    "es": "La DGII no respondía; el comprobante es válido y se enviará en cuanto esté disponible.",
-    "en": "The DGII was not responding; the document is valid and will be sent as soon as it is available.",
-    "pt": "A DGII não respondia; o comprovante é válido e será enviado assim que estiver disponível."
-  },
-  "invoices.ecf_status.error": {
-    "es": "Error al enviar",
-    "en": "Sending failed",
-    "pt": "Erro no envio"
-  },
-  "invoices.ecf_status.error_hint": {
-    "es": "No se pudo enviar. Revisa el mensaje abajo y pulsa «Reenviar a la DGII».",
-    "en": "It could not be sent. Check the message below and press «Resend to DGII».",
-    "pt": "Não foi possível enviar. Verifique a mensagem abaixo e clique em «Reenviar à DGII»."
-  },
-  "invoices.ecf_status.pending": {
-    "es": "Pendiente de firma",
-    "en": "Awaiting signature",
-    "pt": "Aguardando assinatura"
-  },
-  "invoices.ecf_status.pending_hint": {
-    "es": "El comprobante se firmará y enviará a la DGII en unos instantes.",
-    "en": "The document will be signed and sent to the DGII in a moment.",
-    "pt": "O comprovante será assinado e enviado à DGII em instantes."
-  },
-  "invoices.ecf_status.rejected": {
-    "es": "Rechazado por la DGII",
-    "en": "Rejected by the DGII",
-    "pt": "Rejeitado pela DGII"
-  },
-  "invoices.ecf_status.rejected_hint": {
-    "es": "No es válido. Lee el motivo abajo, corrige y emite una nota de crédito o un comprobante nuevo.",
-    "en": "It is not valid. Read the reason below, correct it and issue a credit note or a new document.",
-    "pt": "Não é válido. Leia o motivo abaixo, corrija e emita uma nota de crédito ou um novo comprovante."
-  },
-  "invoices.ecf_status.sent": {
-    "es": "Enviado, en revisión",
-    "en": "Sent, under review",
-    "pt": "Enviado, em revisão"
-  },
-  "invoices.ecf_status.sent_hint": {
-    "es": "La DGII lo recibió y está validándolo. El resultado aparece aquí solo.",
-    "en": "The DGII received it and is validating it. The result appears here on its own.",
-    "pt": "A DGII o recebeu e está validando. O resultado aparece aqui automaticamente."
-  },
-  "invoices.ecf_status.signed": {
-    "es": "Firmado, sin enviar",
-    "en": "Signed, not sent",
-    "pt": "Assinado, não enviado"
-  },
-  "invoices.ecf_status.signed_hint": {
-    "es": "Está firmado pero aún no llegó a la DGII. Se reintenta solo; si no cambia, revisa la conexión con la DGII o pulsa «Reenviar a la DGII».",
-    "en": "It is signed but has not reached the DGII yet. It is retried automatically; if it does not change, check the DGII connection or press «Resend to DGII».",
-    "pt": "Está assinado, mas ainda não chegou à DGII. É reenviado automaticamente; se não mudar, verifique a conexão com a DGII ou clique em «Reenviar à DGII»."
   },
   "invoices.effect.cost_entry": {
     "es": "Asiento de costo de venta",

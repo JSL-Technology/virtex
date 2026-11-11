@@ -538,19 +538,6 @@ export class Invoice {
   @VersionColumn()
   version: number;
 
-  /**
-   * True once the document carries a Dominican e-NCF that must reach the DGII.
-   *
-   * By the DGII's own shapes — an `E` and two digits of type, then ten of sequence — and by the
-   * recorded type when there is one. It used to be "starts with E", which also matched a Colombian
-   * number under a DIAN prefix such as `ELEC123` and would have queued it for the DGII.
-   */
-  get isElectronicFiscalDocument(): boolean {
-    const number = (this.fiscalNumber ?? '').toUpperCase();
-    if (!/^E\d{12}$/.test(number)) return false;
-    return this.fiscalDocumentType ? /^E\d{2}$/.test(this.fiscalDocumentType.toUpperCase()) : true;
-  }
-
   /** Amount still creditable by a credit note, in transaction currency. */
   get creditableRemaining(): number {
     return roundToCurrency(this.total - this.creditedTotal, this.currencyCode);

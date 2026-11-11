@@ -290,6 +290,49 @@ Reglas que esto fija:
   su propia regla lo acepte. De ahí salen el marcador del formulario y la fila de ejemplo de la
   plantilla de importación, que mostraba un RNC y un comprobante dominicanos a cualquier empresa.
 
+### 2.11 Facturación electrónica
+
+Un documento electrónico recorre cuatro pasos en todos los mercados que tienen régimen: **construir**
+el documento en el esquema de la autoridad, **sellarlo** con el certificado del contribuyente,
+**transmitirlo** y **conciliar** el veredicto que llega horas después. Cada régimen es un adaptador
+(`FiscalRegimeAdapter`, en `einvoicing/regimes/<cc>/`) que responde esos cuatro pasos y nada más; el
+resto —cuándo se intenta, cuántas veces, con qué espera, qué se guarda— es de un solo buzón
+(`fiscal_submissions`, `FiscalSubmissionService`).
+
+El régimen dominicano era la excepción: tenía su propia tabla (`ecf_submissions`), su propio
+orquestador, su propio reconciliador y sus propios estados, mientras seis regímenes compartían el
+otro camino. Dos tuberías para lo mismo y dos respuestas a «¿dónde está este documento ante su
+autoridad?», según el país. Ahora la DGII es un adaptador como los demás (`regimes/do/`), y lo que
+era dominicano —el XML del esquema de la DGII, el perfil XMLDSig, los servicios de recepción y
+consulta, el código de seguridad, el QR de la representación impresa— sigue estando, dentro de ese
+adaptador.
+
+Lo que el contrato aprendió de la DGII, porque no son hechos dominicanos:
+
+| Estado | Qué significa | Quién más lo tiene |
+|---|---|---|
+| `ACCEPTED_WITH_OBSERVATIONS` | La autoridad lo aceptó con observaciones; el documento vale y las observaciones son del contribuyente | «Aceptado Condicional» en la DGII, un CDR aceptado con observaciones en SUNAT |
+| `CONTINGENCY` | Se emitió sin poder alcanzar a la autoridad: la venta ocurrió, el número se gastó, el documento se debe | Contingência en Brasil, contingencia en Ecuador |
+
+Y tres reglas que el adaptador declara en lugar de que el núcleo las suponga:
+
+- **Preguntar antes de reenviar.** Tras una conexión cortada la autoridad puede tener ya el
+  documento. Desde el segundo intento (`FiscalRegimeContext.attempt`) el régimen que puede
+  preguntarlo lo pregunta y adopta lo que encuentra, porque transmitir dos veces es como una venta
+  termina con dos documentos fiscales.
+- **El canal es del régimen.** Casi todos necesitan un endpoint y una credencial que el inquilino
+  configura; la DGII publica sus endpoints y autentica con el certificado del contribuyente, así que
+  su canal ES ese certificado (`isTransmissionConfigured`). Exigirle un endpoint configurado
+  bloquearía cada e-CF dominicano.
+- **Dónde se verifica el documento.** El QR de la representación impresa, la consulta por clave de
+  acceso del SRI, el QR de la NFC-e: `verification_url`, derivado del documento ya **sellado**, para
+  que lo que el portal resuelva sea lo que se transmitió.
+
+Los adaptadores viven en `einvoicing/regimes/<cc>/` y no en `markets/<cc>/`: necesitan las entidades
+del documento (factura, líneas, cliente, organización) y `markets/` no depende de ningún módulo de
+negocio (§2.4). El paquete del mercado declara la **política** —si la ley lo exige, cómo se llama el
+régimen, qué cobertura tiene (`markets/<cc>/einvoicing.ts`)— y el adaptador la implementa.
+
 ## 3. Cómo se agrega o se completa un mercado
 
 1. Copiar el paquete de un mercado con la misma cobertura y responder cada archivo. Por ejemplo,
@@ -355,7 +398,7 @@ eso se resuelve en el contrato, no con una rama.
 | 0 | Este documento; tareas del programa | ✅ |
 | 1 | `markets/`: contrato, registro, mercado neutral, 19 paquetes con la estructura canónica, consultas genéricas (`markets/queries`), datos consolidados desde `localization/fiscal/*` y `contracts/country-pack` (retirados); los consumidores leen el registro; pruebas de estructura y de catálogo; puerta estricta con regla de import | ✅ |
 | 2 | Documentos y numeración: un adaptador genérico guiado por la política de numeración del mercado; fuera el `switch` de `FiscalAdapterFactory`; `ncf_sequences` → `fiscal_document_ranges`; motivos de ajuste canónicos en lugar de `ModificationCode`; tipos de nota de crédito y débito de todos los regímenes | ✅ Motor único con la política de cada mercado, rangos unificados con reglas comunes, consecutivo y serie en el documento, pantalla y API únicas (§2.8); motivos de ajuste canónicos traducidos por el mercado (§2.9). Los constructores de los seis regímenes que todavía no referencian el documento modificado son parte de la fase 3 |
-| 3 | Facturación electrónica: DO entra al outbox genérico (`fiscal_submissions`, `fiscal_document_events`); los constructores se mudan a `markets/<cc>/einvoicing/` y reciben vistas neutrales; las variables `DGII_*` pasan a la configuración de transmisión del tenant | ⏳ |
+| 3 | Facturación electrónica: DO entra al buzón único (`fiscal_submissions`); los constructores quedan como adaptadores de régimen con un solo contrato; las variables `DGII_*` pasan a la configuración de transmisión del tenant | 🚧 Hecho: la DGII es un adaptador (`regimes/do/`), una sola tabla, un solo reconciliador, un solo estado y una sola pantalla; fuera la expresión regular del e-NCF de la entidad genérica; el canal lo declara cada régimen (§2.11). Falta: `ecf_lifecycle_messages` → `fiscal_document_events`, los seis constructores que no referencian el documento modificado (MP-10) y las variables `DGII_*` |
 | 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ✅ Columnas neutrales con migración exacta en los dos sentidos, `fiscal_attributes` validado contra la declaración del mercado, documento del proveedor comprobado por la regla de cada mercado, método de pago de la empresa en lugar de la «forma de pago» de una autoridad, formulario y ficha dibujados desde el paquete público del mercado (§2.10) |
 | 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ⏳ |
 | 6 | Nómina: motor dominicano a `markets/do/payroll/`, registro de motores y sin `'DOP'` por omisión | ⏳ |

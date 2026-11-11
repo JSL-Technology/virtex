@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AdjustmentReason, CancellationOptions, CREDIT_NOTE_REASONS, CreditNoteReason, CreditNoteRequest, DEBIT_NOTE_REASONS, DebitNoteReason, DebitNoteRequest, Invoice, InvoiceLineItem, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
-import { EinvoicingService, EcfSubmissionView, RegimeSubmissionView } from '../../../core/services/einvoicing';
+import { EinvoicingService, FiscalSubmissionView } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
 import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
@@ -39,21 +39,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { IdentityDocumentsService } from '../../../core/api/identity-documents.service';
 import { AiProvenanceBadgeComponent } from '../../ai/provenance/ai-provenance-badge.component';
 
-/** Each e-CF state's name and what it means for the person reading it. */
-const ECF_STATUS: Record<string, { label: string; hint: string }> = {
-  PENDING: { label: 'invoices.ecf_status.pending', hint: 'invoices.ecf_status.pending_hint' },
-  SIGNED: { label: 'invoices.ecf_status.signed', hint: 'invoices.ecf_status.signed_hint' },
-  SENT: { label: 'invoices.ecf_status.sent', hint: 'invoices.ecf_status.sent_hint' },
-  ACCEPTED: { label: 'invoices.ecf_status.accepted', hint: 'invoices.ecf_status.accepted_hint' },
-  ACCEPTED_WITH_OBSERVATIONS: {
-    label: 'invoices.ecf_status.accepted_with_observations',
-    hint: 'invoices.ecf_status.accepted_with_observations_hint',
-  },
-  REJECTED: { label: 'invoices.ecf_status.rejected', hint: 'invoices.ecf_status.rejected_hint' },
-  CONTINGENCY: { label: 'invoices.ecf_status.contingency', hint: 'invoices.ecf_status.contingency_hint' },
-  ERROR: { label: 'invoices.ecf_status.error', hint: 'invoices.ecf_status.error_hint' },
-};
-
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
@@ -69,19 +54,18 @@ export class InvoiceDetailPage implements OnInit {
   private readonly translate = inject(TranslateService);
 
   /**
-   * What the DGII said, in the reader's language.
+   * What the authority said, in the reader's language.
    *
    * The status endpoint answers with catalogue KEYS, like the rest of the API — it names failures
-   * and does not word them. This list printed them raw, so a tenant whose e-CF was rejected read
-   * `einvoicing.do.organization_has_no_rnc_configured_fill` on the document, while the catalogue
-   * held the sentence it stands for: "The organization has no RNC configured. Fill it in under
-   * Settings → Company." The one thing that message had to do — say what to fix — was the one
-   * thing it did not do.
+   * and does not word them. This list printed them raw, so a tenant whose document was rejected
+   * read `einvoicing.certificate.none_active` on the screen, while the catalogue held the sentence
+   * it stands for. The one thing that message had to do — say what to fix — was the one thing it
+   * did not do.
    *
    * `translateOrLiteral` rather than the pipe because a message may also arrive as the tax
    * authority's own prose, and prose must be printed, not looked up.
    */
-  protected dgiiMessage(message: string): string {
+  protected authorityMessage(message: string): string {
     return translateOrLiteral(this.translate, message);
   }
   private readonly dialog = inject(DialogService);
@@ -237,10 +221,14 @@ export class InvoiceDetailPage implements OnInit {
   @Input() set idParam(val: string) { this.id.set(val); }
 
   invoice = signal<Invoice | undefined>(undefined);
-  ecf = signal<EcfSubmissionView | null>(null);
-  /** The same, for every regime but the Dominican one (FAC-EINV-01). */
-  regimeSubmission = signal<RegimeSubmissionView | null>(null);
-  regimeBusy = signal(false);
+  /**
+   * Where this document stands with its authority, whichever authority that is.
+   *
+   * There were two signals here, loaded by two endpoints, chosen by whether the fiscal number
+   * started with an `E` — the shape of a Dominican e-NCF, in the browser. One document, one
+   * question, one answer.
+   */
+  submission = signal<FiscalSubmissionView | null>(null);
   /** An action on the document is in flight (issue, transmit, credit, debit, cancel): its buttons wait. */
   documentBusy = signal(false);
   navigationIds = signal<{ first: string; prev: string | null; next: string | null; last: string } | null>(null);
@@ -329,13 +317,9 @@ export class InvoiceDetailPage implements OnInit {
             //  La pestaña se abrió con el UUID en la URL y el título estático del manifiesto;
             //  ahora que se sabe el número del documento, se llama por su nombre.
             this.tab?.setTitle(this.documentTitle(data));
-            this.ecf.set(null);
-            // Electronic e-NCF (E-series) documents carry a DGII e-CF lifecycle.
-            if (data.fiscalNumber?.startsWith('E')) {
-                this.loadEcfStatus();
-            } else {
-                this.loadRegimeSubmission();
-            }
+            // Asked for every document: the endpoint answers `null` when it owes no authority
+            // anything, which is an ordinary answer and not an error.
+            this.loadSubmission();
         },
         error: (err) => {
             this.notificationService.showError('invoices.detail.invoice_could_not_loaded');
@@ -344,77 +328,39 @@ export class InvoiceDetailPage implements OnInit {
     });
   }
 
-  loadRegimeSubmission(): void {
-    this.regimeSubmission.set(null);
-    this.einvoicingService.getRegimeSubmission(this.id()).subscribe({
-        next: (submission) => this.regimeSubmission.set(submission),
-        error: () => this.regimeSubmission.set(null),
+  loadSubmission(): void {
+    this.submission.set(null);
+    this.einvoicingService.getInvoiceStatus(this.id()).subscribe({
+        // `null` means this document owes no authority anything — a market with no regime, or a
+        // document that is not electronic — which the endpoint says plainly instead of with a 404.
+        next: (submission) => this.submission.set(submission),
+        error: () => this.submission.set(null),
     });
   }
 
-  retryRegimeSubmission(): void {
-    const submission = this.regimeSubmission();
-    if (!submission) return;
-    this.regimeBusy.set(true);
-    this.einvoicingService.retryRegimeSubmission(submission.id).subscribe({
-        next: (updated) => {
-            this.regimeSubmission.set(updated);
-            this.regimeBusy.set(false);
+  /** Transmit it now, or ask the authority again about one it already holds. */
+  retrySubmission(): void {
+    this.documentBusy.set(true);
+    this.einvoicingService.submitInvoice(this.id()).subscribe({
+        next: (submission) => {
+            this.submission.set(submission);
+            this.documentBusy.set(false);
+            this.notificationService.showSuccess('invoices.detail.document_resent_to_authority');
         },
         error: (err) => {
-            this.regimeBusy.set(false);
+            this.documentBusy.set(false);
             this.notificationService.showHttpError(err, 'invoices.detail.regime.retry_failed');
         },
     });
   }
 
-  regimeStatusTone(status: RegimeSubmissionView['status']): VxTone {
-    switch (status) {
-      case 'ACCEPTED':
-        return 'ok';
-      case 'REJECTED':
-      case 'ERROR':
-        return 'danger';
-      case 'NOT_CONFIGURED':
-        return 'warning';
-      case 'SENT':
-        return 'info';
-      default:
-        return 'draft';
-    }
-  }
-
-  loadEcfStatus(): void {
-    this.einvoicingService.getInvoiceStatus(this.id()).subscribe({
-        // `null` means no e-CF has been generated for this document yet, which the endpoint now
-        // says plainly instead of by answering 404.
-        next: (status) => this.ecf.set(status),
-        error: () => this.ecf.set(null),
-    });
-  }
-
-  resubmitEcf(): void {
-    this.documentBusy.set(true);
-    this.einvoicingService.submitInvoice(this.id()).subscribe({
-        next: (status) => {
-            this.ecf.set(status);
-            this.documentBusy.set(false);
-            this.notificationService.showSuccess('invoices.detail.cf_resubmitted_dgii');
-        },
-        error: (err) => {
-            this.documentBusy.set(false);
-            this.notificationService.showHttpError(err, 'errors.resend_ecf');
-        }
-    });
-  }
-
-  downloadEcfXml(): void {
+  downloadSubmissionXml(): void {
     this.einvoicingService.downloadXml(this.id()).subscribe({
         next: (blob) => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${this.ecf()?.ncf || 'ecf'}.xml`;
+            a.download = `${this.submission()?.fiscalNumber || this.invoice()?.invoiceNumber || 'documento'}.xml`;
             a.click();
             URL.revokeObjectURL(url);
         },
@@ -423,42 +369,29 @@ export class InvoiceDetailPage implements OnInit {
   }
 
   /**
-   * What the authority's verdict on an e-CF MEANS.
+   * What the authority's verdict MEANS, as a tone.
    *
-   * The badge used to take `e.status.toLowerCase()` as its CSS class — `accepted`, `rejected`,
-   * `contingency` — none of which this page's stylesheet defined. So every e-CF state rendered
-   * in the same default grey, including REJECTED: the one state on this screen that needs
-   * somebody to do something showed the same as the one that needs nobody.
+   * The badge used to take `status.toLowerCase()` as its CSS class — `accepted`, `rejected`,
+   * `contingency` — none of which this page's stylesheet defined. So every state rendered in the
+   * same default grey, including REJECTED: the one state on this screen that needs somebody to do
+   * something showed the same as the one that needs nobody.
    */
-  ecfStatusTone(status: string): VxTone {
+  submissionTone(status: FiscalSubmissionView['status']): VxTone {
     switch (status) {
       case 'ACCEPTED':
         return 'ok';
       case 'ACCEPTED_WITH_OBSERVATIONS':
       case 'CONTINGENCY':
+      case 'NOT_CONFIGURED':
         return 'warning';
       case 'REJECTED':
       case 'ERROR':
         return 'danger';
-      case 'SIGNED':
       case 'SENT':
         return 'info';
       default:
         return 'draft';
     }
-  }
-
-  /**
-   * The e-CF state, worded by the catalogue — it was a record of Spanish literals in this file.
-   * Each state also says what happens next (QA U72: «Firmado» next to «PENDIENTE» said neither
-   * what was pending nor whether anyone had to act).
-   */
-  ecfStatusLabel(status: string): string {
-    return ECF_STATUS[status]?.label ?? status;
-  }
-
-  ecfStatusHint(status: string): string | null {
-    return ECF_STATUS[status]?.hint ?? null;
   }
 
   /**
@@ -602,7 +535,7 @@ export class InvoiceDetailPage implements OnInit {
     // Who, what and when first: a sheet of bare lines could not be filed, matched to a payment or
     // handed to an accountant without the document it came from.
     const header: Array<[string, string | number]> = [
-      [t('invoices.detail.ncf'), invoice.fiscalNumber ?? '—'],
+      [t('invoices.detail.fiscal_number'), invoice.fiscalNumber ?? '—'],
       [t('invoices.list.invoice_number'), invoice.invoiceNumber],
       [t('invoices.detail.bill'), invoice.customerName],
       [t('invoices.detail.customer_tax_id'), invoice.customerTaxId ?? '—'],

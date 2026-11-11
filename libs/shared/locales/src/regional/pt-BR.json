@@ -6,7 +6,7 @@
   "hcm.employees.form.proportional_bonus": "Décimo terceiro proporcional",
   "hcm.employees.form.social_security_number": "NIT / PIS",
   "invoice.pdf.tax_column_header": "ICMS",
-  "invoices.detail.ncf": "Chave de acesso (NF-e):",
+  "invoices.detail.fiscal_number": "Chave de acesso (NF-e):",
   "invoices.new.tax_column_header": "ICMS",
   "payroll.runs.type_label.christmas_bonus": "Décimo terceiro salário",
   "permissions.groups.tss": "INSS (Previdência)"

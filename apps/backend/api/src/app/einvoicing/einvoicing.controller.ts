@@ -9,7 +9,7 @@ import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../security/principal';
 import type { HttpResponse as Response } from '../common/http/http.types';
 import { EcfCertificateService } from './services/ecf-certificate.service';
-import { EcfSubmissionService } from './services/ecf-submission.service';
+import { FiscalSubmissionService, visibleSubmission } from './services/fiscal-submission.service';
 import { EcfLifecycleService } from './services/ecf-lifecycle.service';
 import { CommercialApprovalDto } from './dto/commercial-approval.dto';
 import { VoidSequenceRangeDto } from './dto/void-sequence-range.dto';
@@ -17,15 +17,18 @@ import { EcfMessageKind } from './entities/ecf-lifecycle-message.entity';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 /**
- * Tenant-facing e-CF operations: manage the DGII signing certificate, inspect a document's e-CF
- * status, and trigger a (re)submission. Certificate mutations require company-settings permission;
- * document operations require the invoice permissions.
+ * Tenant-facing electronic-invoicing operations: manage the signing certificate, inspect where a
+ * document stands with its authority, and trigger a (re)submission. Certificate mutations require
+ * company-settings permission; document operations require the invoice permissions.
+ *
+ * One set of routes for every market: the Dominican e-CF had its own pipeline and its own table
+ * until its regime became an adapter like the others, and these routes answered for it alone.
  */
 @Controller('einvoicing')
 export class EinvoicingController {
   constructor(
     private readonly certificates: EcfCertificateService,
-    private readonly submissions: EcfSubmissionService,
+    private readonly submissions: FiscalSubmissionService,
     private readonly lifecycle: EcfLifecycleService,
   ) {}
 
@@ -91,17 +94,27 @@ export class EinvoicingController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
-    return submission ? this.toStatusView(submission) : null;
+    return submission ? visibleSubmission(submission) : null;
   }
 
+  /**
+   * Transmit it now, or ask again about one already transmitted.
+   *
+   * A verdict the authority has already given is not reopened: `retryNow` answers 409 for it,
+   * because a second transmission of an accepted document is a second fiscal document.
+   */
   @Post('invoices/:invoiceId/submit')
   @HasPermission(PERMISSIONS.INVOICES_CREATE)
   async submit(
     @Param('invoiceId', UuidParamPipe) invoiceId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    const submission = await this.submissions.submitInvoice(invoiceId, user.organizationId);
-    return this.toStatusView(submission);
+    const existing = await this.submissions.findByInvoice(invoiceId, user.organizationId);
+    const submission = existing
+      ? await this.submissions.retryNow(existing.id, user.organizationId)
+      : await this.submissions.process(invoiceId, user.organizationId);
+    if (!submission) throw new NotFoundError('einvoicing.submission_not_found');
+    return visibleSubmission(submission);
   }
 
   @Get('invoices/:invoiceId/xml')
@@ -112,11 +125,11 @@ export class EinvoicingController {
     @Res() res: Response,
   ) {
     const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
-    if (!submission?.signedXml) throw new NotFoundError('einvoicing.no_signed_cf_invoice');
+    if (!submission?.payload) throw new NotFoundError('einvoicing.no_signed_cf_invoice');
     res
       .header('Content-Type', 'application/xml; charset=utf-8')
-      .header('Content-Disposition', `attachment; filename="${submission.ncf}.xml"`)
-      .send(submission.signedXml);
+      .header('Content-Disposition', `attachment; filename="${submission.fiscalNumber ?? submission.invoiceId}.xml"`)
+      .send(submission.payload);
   }
 
   // ── Aprobación comercial ───────────────────────────────────────────────────
@@ -215,28 +228,5 @@ export class EinvoicingController {
     };
   }
 
-  private toStatusView(s: {
-    ncf: string;
-    ecfType: string;
-    status: string;
-    trackId?: string;
-    securityCode?: string;
-    qrUrl?: string;
-    messages?: string[];
-    sentAt?: Date;
-    respondedAt?: Date;
-  }) {
-    return {
-      ncf: s.ncf,
-      ecfType: s.ecfType,
-      status: s.status,
-      trackId: s.trackId ?? null,
-      securityCode: s.securityCode ?? null,
-      qrUrl: s.qrUrl ?? null,
-      messages: s.messages ?? [],
-      sentAt: s.sentAt ?? null,
-      respondedAt: s.respondedAt ?? null,
-    };
-  }
 
 }

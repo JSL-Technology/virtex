@@ -251,7 +251,7 @@ async function main(): Promise<void> {
   );
   check('sin elegir tipo, sale un B01 al contribuyente', Boolean(traditional.fiscalNumber?.startsWith('B01')), traditional.fiscalNumber ?? 'sin NCF');
   const [traditionalSubmission] = await ds.query(
-    `SELECT count(*)::int AS n FROM ecf_submissions WHERE invoice_id = $1`, [traditional.id],
+    `SELECT count(*)::int AS n FROM fiscal_submissions WHERE invoice_id = $1`, [traditional.id],
   );
   check('un NCF tradicional no se transmite a la DGII', traditionalSubmission.n === 0);
   check('un NCF tradicional se contabiliza igual', Boolean(traditional.journalEntryId));
@@ -413,10 +413,16 @@ async function main(): Promise<void> {
   // The transmission the document owes commits with it: an e-NCF never exists without a record of
   // whether the DGII has it. Whatever the immediate attempt did, the row is there.
   const [submission] = await ds.query(
-    `SELECT status FROM ecf_submissions WHERE invoice_id = $1 AND organization_id = $2`,
+    `SELECT status, country_code, regime, document_type FROM fiscal_submissions WHERE invoice_id = $1 AND organization_id = $2`,
     [issued.id, orgId],
   );
   check('el e-CF emitido tiene su registro de envío', Boolean(submission?.status), submission?.status ?? 'sin registro');
+  // One outbox for every market: the Dominican e-CF is a submission of the DGII regime in it.
+  check(
+    'el envío queda en el buzón único, como régimen de su mercado',
+    submission?.country_code === 'DO' && submission?.regime === 'DGII e-CF' && submission?.document_type === 'E31',
+    `${submission?.country_code ?? '—'} / ${submission?.regime ?? '—'} / ${submission?.document_type ?? '—'}`,
+  );
 
   // The claim the preview made, checked against what actually happened.
   if (previewSequence && previewSequence.kind === 'sequence') {
@@ -472,7 +478,7 @@ async function main(): Promise<void> {
     { reason: 'ADDITIONAL_CHARGES', description: 'Flete facturado después', lines: [{ ...interest, description: 'Flete', unitPrice: 200 }] } as never,
     orgId,
   );
-  const [electronicDebitSubmission] = await ds.query(`SELECT status FROM ecf_submissions WHERE invoice_id = $1`, [electronicDebit.id]);
+  const [electronicDebitSubmission] = await ds.query(`SELECT status FROM fiscal_submissions WHERE invoice_id = $1`, [electronicDebit.id]);
   check('la de un E31 sale como E33 y queda por transmitir', Boolean(electronicDebit.fiscalNumber?.startsWith('E33')) && Boolean(electronicDebitSubmission), `${electronicDebit.fiscalNumber} · ${electronicDebitSubmission?.status ?? 'sin envío'}`);
 
   const refusalOf = async (run: () => Promise<unknown>) => run().then(() => 'aceptado', (error) => (error as { messageKey?: string }).messageKey ?? String(error));

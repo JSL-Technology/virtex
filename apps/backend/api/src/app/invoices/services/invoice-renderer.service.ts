@@ -6,7 +6,7 @@ import * as puppeteer from 'puppeteer';
 import * as QRCode from 'qrcode';
 import { Invoice, InvoiceStatus, InvoiceType } from '../entities/invoice.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
-import { EcfSubmission } from '../../einvoicing/entities/ecf-submission.entity';
+import { FiscalSubmission } from '../../einvoicing/entities/fiscal-submission.entity';
 import { minorUnitsFor } from '../../currencies/currency-catalogue';
 import { InternalServerError } from '../../i18n/localized.exception';
 import {
@@ -35,7 +35,7 @@ import {
 export interface InvoiceRenderContext {
   invoice: Invoice;
   organization: Organization;
-  submission?: EcfSubmission | null;
+  submission?: FiscalSubmission | null;
   /**
    * Overrides the language and locale the document is written in.
    *
@@ -201,7 +201,7 @@ export class InvoiceRendererService implements OnModuleDestroy {
     const { invoice, organization, submission } = context;
     const house = normaliseRegionalFormat(context.regionalFormat);
 
-    const qrDataUri = submission?.qrUrl ? await this.qrDataUri(submission.qrUrl) : null;
+    const qrDataUri = submission?.verificationUrl ? await this.qrDataUri(submission.verificationUrl) : null;
     const decimals = minorUnitsFor(invoice.currencyCode);
 
     /*
@@ -294,11 +294,11 @@ export class InvoiceRendererService implements OnModuleDestroy {
         ncf: invoice.fiscalNumber,
         documentType: invoice.fiscalDocumentType,
         validUntil: invoice.fiscalNumberExpiresAt ? formatDate(invoice.fiscalNumberExpiresAt, locale, house) : null,
-        securityCode: submission?.securityCode ?? null,
+        securityCode: submission?.documentKey ?? null,
         signedAt: submission?.sentAt ? formatDateTime(submission.sentAt, locale, house) : null,
         status: submission?.status ?? null,
         qrDataUri,
-        qrUrl: submission?.qrUrl ?? null,
+        qrUrl: submission?.verificationUrl ?? null,
         // A draft is a document not yet issued. It used to be "has no fiscal number", which printed
         // the draft legend on every issued invoice of a market that assigns none (the United States,
         // or Mexico, where the PAC's UUID is the fiscal identity).

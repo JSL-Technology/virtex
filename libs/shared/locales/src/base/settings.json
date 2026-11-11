@@ -3935,11 +3935,6 @@
     "en": "Document sequence",
     "pt": "Sequência de documentos"
   },
-  "settings.security.entity.ecf_submission": {
-    "es": "Envío de e-CF",
-    "en": "e-CF submission",
-    "pt": "Envio de e-CF"
-  },
   "settings.security.entity.employee_compensation": {
     "es": "Compensación de empleado",
     "en": "Employee compensation",
@@ -3949,6 +3944,11 @@
     "es": "Datos personales de empleado",
     "en": "Employee personal data",
     "pt": "Dados pessoais de funcionário"
+  },
+  "settings.security.entity.fiscal_submission": {
+    "es": "Envío a la autoridad fiscal",
+    "en": "Filing with the tax authority",
+    "pt": "Envio à autoridade fiscal"
   },
   "settings.security.entity.fiscal_years": {
     "es": "Ejercicio fiscal",
