@@ -130,7 +130,14 @@ nota de crédito total.
   declarada, solo nota de crédito, evento de la autoridad); catálogos de motivos como datos
   (`fiscal_reason_codes`, con base legal y vigencia; validados por la base de datos para el país del
   inquilino); capacidad declarada en la cobertura y coherente con los adaptadores por prueba.
-  Pendiente: notas de débito en los 7 constructores de régimen y el evento de anulación en MX, BR, PE, EC.
+  Los siete regímenes construyen ya la nota con la referencia al documento que corrige y el código del
+  catálogo de su clase (`modifiedDocumentOf`; CO `DiscrepancyResponse`+`BillingReference`, PE catálogo
+  09/10, CL `Referencia`/`CodRef`, EC `notaCredito`/`notaDebito` con `codDocModificado`, MX
+  `CfdiRelacionados`/`TipoRelacion`, BR `NFref/refNFe` con `finNFe` 4 o 2, AR `CbtesAsoc`), y la nota de
+  débito se emite además en MX, BR, AR y EC. Los códigos del motivo pasaron a ser por clase de nota,
+  porque «otros conceptos» es `10` en el catálogo 09 de SUNAT y `03` en el 10, y el concepto `5` de la
+  DIAN es de una nota crédito: un solo registro escribía en una nota de débito un código inexistente.
+  Pendiente: el evento de anulación en MX, BR, PE, EC.
 
 **MP-11** · eje 9 · Calidad · **Media** — No había forma de impedir que el acoplamiento por país creciera.
 - Corrección (hecha): `npm run verify:country-neutrality` en CI, con línea base que solo baja
@@ -151,7 +158,7 @@ nota de crédito total.
 
 | Orden | Trabajo | Hallazgos |
 |---|---|---|
-| 1 | Notas de débito en los constructores DIAN, SUNAT, SII, SRI, AFIP, CFDI (relación 02), NF-e (complementar) | MP-10, FAC-INV-05 |
+| ~~1~~ | ~~Notas de débito en los constructores DIAN, SUNAT, SII, SRI, AFIP, CFDI (relación 02), NF-e (complementar)~~ — hecho: cada régimen referencia el documento corregido y escribe el código de su catálogo | MP-10, FAC-INV-05 |
 | 2 | Evento de anulación ante SAT (motivos 01–04), SEFAZ (110111), SUNAT (baja), SRI | MP-10 |
 | 3 | Factura de proveedor y nota de crédito con atributos fiscales por país | MP-04 |
 | 4 | Retirar las ramas `=== 'XX'` de módulos genéricos (cliente y servidor) | MP-05 |
