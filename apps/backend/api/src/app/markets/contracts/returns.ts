@@ -182,6 +182,29 @@ export interface ReturnJournalLine {
   credit: number;
 }
 
+/** One employee's payslip of the period, as a social-security filing reports it. */
+export interface ReturnPayslipRecord {
+  employeeName: string;
+  /** The identifier the country's social security assigned the worker, where it is recorded. */
+  socialSecurityNumber: string | null;
+  /** The base the statutory contributions were computed on. */
+  contributoryBase: number;
+  /** What each fund took, by the code this market's own engine gives the fund. */
+  contributions: readonly { code: string; employeeAmount: number; employerAmount: number }[];
+}
+
+/** Something the social-security authority must be told about an employee in the period. */
+export interface ReturnEmployeeEventRecord {
+  kind: 'HIRE' | 'TERMINATION' | 'SALARY_CHANGE';
+  employeeName: string;
+  socialSecurityNumber: string | null;
+  /** `YYYY-MM-DD`. */
+  effectiveDate: string;
+  /** The salary the change sets, with its currency; null on a hire or a termination. */
+  salary: number | null;
+  currencyCode: string | null;
+}
+
 /**
  * What happened in the period, as plain data, for a market's generator to read.
  *
@@ -202,6 +225,13 @@ export interface ReturnDataset {
   accounts(): Promise<readonly ReturnAccountRecord[]>;
   /** The period's posted entries with their lines, in date and number order. */
   journals(): Promise<readonly ReturnJournalRecord[]>;
+  /**
+   * The payslips of the period's approved payroll runs: what was actually paid, which is the only
+   * thing a social-security filing may declare. Empty when nothing of the period was approved.
+   */
+  payslips(): Promise<readonly ReturnPayslipRecord[]>;
+  /** Hires, terminations and salary changes of the period, in date order. */
+  employeeEvents(): Promise<readonly ReturnEmployeeEventRecord[]>;
 }
 
 /** Something an authority asks for beyond the period. */
@@ -255,6 +285,15 @@ export interface MarketReturnFiling {
   tracked: boolean;
   /** What the authority asks for beyond the period, checked by the engine before the build. */
   options?: readonly MarketReturnOption[];
+  /**
+   * A permission this filing needs beyond the right to read the returns, where what it carries is
+   * not what everyone who reads returns may see.
+   *
+   * The Dominican social-security files name every employee, their social-security number and their
+   * salary: a sales return does not, and whoever may read one should not thereby read the other.
+   * Named by the product's own permission key, as `prepareWith` names its routes.
+   */
+  permission?: string;
   /** The file itself, from the period's facts. */
   build(
     dataset: ReturnDataset,

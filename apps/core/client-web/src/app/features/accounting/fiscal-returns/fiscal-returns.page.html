@@ -143,11 +143,12 @@
         @if (optionsFor(cell.kind).length > 0) {
           <div class="fr-options">
             @for (option of optionsFor(cell.kind); track option.name) {
-              <label class="doc-filter">
-                <span>{{ option.labelKey | translate }}</span>
+              <div class="doc-filter">
+                <label [attr.for]="'fr-opt-' + cell.kind + '-' + option.name">{{ option.labelKey | translate }}</label>
                 @switch (option.kind) {
                   @case ('CHOICE') {
                     <select
+                      [id]="'fr-opt-' + cell.kind + '-' + option.name"
                       [ngModel]="optionValue(cell.kind, option)"
                       (ngModelChange)="setOption(cell.kind, option, $event)"
                     >
@@ -159,6 +160,7 @@
                   }
                   @case ('DATE') {
                     <vx-date-field
+                      [inputId]="'fr-opt-' + cell.kind + '-' + option.name"
                       [ngModel]="optionValue(cell.kind, option)"
                       (ngModelChange)="setOption(cell.kind, option, $event)"
                     />
@@ -167,12 +169,13 @@
                     <input
                       type="text"
                       maxlength="40"
+                      [id]="'fr-opt-' + cell.kind + '-' + option.name"
                       [ngModel]="optionValue(cell.kind, option)"
                       (ngModelChange)="setOption(cell.kind, option, $event)"
                     />
                   }
                 }
-              </label>
+              </div>
             }
           </div>
         }
@@ -214,11 +217,12 @@
             </select>
           </label>
           @for (option of filing.options; track option.name) {
-            <label class="doc-filter">
-              <span>{{ option.labelKey | translate }}</span>
+            <div class="doc-filter">
+              <label [attr.for]="'fr-opt-' + filing.code + '-' + option.name">{{ option.labelKey | translate }}</label>
               @switch (option.kind) {
                 @case ('CHOICE') {
                   <select
+                    [id]="'fr-opt-' + filing.code + '-' + option.name"
                     [ngModel]="optionValue(filing.code, option)"
                     (ngModelChange)="setOption(filing.code, option, $event)"
                   >
@@ -230,6 +234,7 @@
                 }
                 @case ('DATE') {
                   <vx-date-field
+                    [inputId]="'fr-opt-' + filing.code + '-' + option.name"
                     [ngModel]="optionValue(filing.code, option)"
                     (ngModelChange)="setOption(filing.code, option, $event)"
                   />
@@ -238,12 +243,13 @@
                   <input
                     type="text"
                     maxlength="40"
+                    [id]="'fr-opt-' + filing.code + '-' + option.name"
                     [ngModel]="optionValue(filing.code, option)"
                     (ngModelChange)="setOption(filing.code, option, $event)"
                   />
                 }
               }
-            </label>
+            </div>
           }
         </div>
         <div class="fr-actions">

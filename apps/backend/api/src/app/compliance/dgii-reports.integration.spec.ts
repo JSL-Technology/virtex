@@ -75,6 +75,7 @@ describeWithDb('DGII 607 / 608 against the real schema', () => {
         ds,
         {} as never, // AccountBalancesService: a sales return reads no ledger
         {} as never, // PurchaseFiscalRecordsRegistry: the 606/609 are not run here
+        {} as never, // PayrollFiscalRecordsRegistry: nor any payslip
       ),
     );
     report = async (kind) => (await returns.generate(org, kind, { year: 2026, month: 10 })).body.split('\n');

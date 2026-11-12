@@ -20,6 +20,7 @@ import { Ledger } from '../../accounting/entities/ledger.entity';
 import { AccountBalancesService, toIsoDate } from '../../chart-of-accounts/account-balances.service';
 import { LEDGER_STATUS_VALUES } from '../../contracts/accounting/ledger-statuses.contract';
 import { PurchaseFiscalRecordsRegistry } from '../../contracts/fiscal-records/purchase-fiscal-records.registry';
+import { PayrollFiscalRecordsRegistry } from '../../contracts/fiscal-records/payroll-fiscal-records.registry';
 import type { PurchaseFiscalDocument } from '../../contracts/fiscal-records/purchase-fiscal-records.contract';
 import { organizationTimeZone } from '../../shared/fiscal-clock';
 import { roundAmount } from '../../common/money';
@@ -51,6 +52,8 @@ export class ReturnDatasetFactory {
     private readonly balances: AccountBalancesService,
     /** Purchasing's answer for the purchases returns, without importing its tables. */
     private readonly purchaseRecords: PurchaseFiscalRecordsRegistry,
+    /** Payroll's answer for the social-security filings, for the same reason. */
+    private readonly payrollRecords: PayrollFiscalRecordsRegistry,
   ) {}
 
   of(scope: ReturnDatasetScope): ReturnDataset {
@@ -76,6 +79,8 @@ export class ReturnDatasetFactory {
       foreignPurchases: once(() => this.foreignPurchases(scope, period, filer.country)),
       accounts: once(() => this.accounts(scope, period)),
       journals: once(() => this.journals(scope, period)),
+      payslips: once(() => this.payslips(scope, period)),
+      employeeEvents: once(() => this.employeeEvents(scope, period)),
     };
   }
 
@@ -364,6 +369,26 @@ export class ReturnDatasetFactory {
             credit: Number(valuation?.credit ?? 0),
           })),
       }));
+  }
+
+  // ── What the company paid its people ──────────────────────────────────────
+
+  private async payslips(scope: ReturnDatasetScope, period: ReturnPeriod) {
+    return this.payrollRecords.source().payslips(this.payrollQuery(scope, period));
+  }
+
+  private async employeeEvents(scope: ReturnDatasetScope, period: ReturnPeriod) {
+    return this.payrollRecords.source().events(this.payrollQuery(scope, period));
+  }
+
+  private payrollQuery(scope: ReturnDatasetScope, period: ReturnPeriod) {
+    return {
+      organizationId: scope.organization.id,
+      from: period.from,
+      to: period.to,
+      year: period.year,
+      month: period.month,
+    };
   }
 
   private async ledgerOf(scope: ReturnDatasetScope): Promise<string> {

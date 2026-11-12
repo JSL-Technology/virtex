@@ -1018,11 +1018,6 @@
     "en": "Employer contributions",
     "pt": "Encargos patronais"
   },
-  "payroll.runs.export_suir": {
-    "es": "Descargar SUIR",
-    "en": "Download SUIR",
-    "pt": "Descarregar SUIR"
-  },
   "payroll.runs.gross": {
     "es": "Devengado",
     "en": "Gross",
@@ -1228,11 +1223,6 @@
     "es": "Novedades inusuales en esta corrida",
     "en": "Unusual inputs in this run",
     "pt": "Ocorrências invulgares nesta folha"
-  },
-  "payroll.self_assessment_requires_approved_run": {
-    "es": "La Autodeterminación requiere una corrida aprobada.",
-    "en": "The Autodeterminación requires an approved run.",
-    "pt": "A Autodeterminación requer uma folha aprovada."
   },
   "payroll.system_concept_cannot_deleted_deactivate_instead": {
     "es": "Un concepto del sistema no se elimina; desactívelo.",

@@ -25,13 +25,22 @@ describe('ReturnsService — one door for every market', () => {
       foreignPurchases: async () => [],
       accounts: async () => [],
       journals: async () => [],
+      payslips: async () => [],
+      employeeEvents: async () => [],
     })),
   } as never;
 
   const service = (country: string) => new ReturnsService(organizationOf(country), datasets);
 
   it('offers what the company’s own market files, and nothing else', async () => {
-    expect((await service('DO').available('org-1')).map((filing) => filing.code)).toEqual(['606', '607', '608', '609']);
+    expect((await service('DO').available('org-1')).map((filing) => filing.code)).toEqual([
+      '606',
+      '607',
+      '608',
+      '609',
+      'novedades',
+      'suir',
+    ]);
     expect((await service('MX').available('org-1')).map((filing) => filing.code)).toEqual(['catalogo', 'balanza', 'polizas']);
     // A market the product files nothing for says so with an empty list, not with an empty file.
     expect(await service('CO').available('org-1')).toEqual([]);
@@ -45,6 +54,25 @@ describe('ReturnsService — one door for every market', () => {
     expect(generated.body).toBe('607|131190317|202608|0');
     expect(generated.records).toBe(0);
     expect(generated.tracked).toBe(true);
+  });
+
+  it('refuses a filing whose permission the reader does not hold, and offers it to one who does', async () => {
+    // The Dominican social-security files name every employee, their NSS and their salary: the
+    // right to read a sales return is not the right to read that.
+    await expect(service('DO').generate('org-1', 'suir', { year: 2026, month: 8 })).rejects.toMatchObject({
+      messageKey: 'compliance.return_needs_permission',
+      status: 403,
+    });
+
+    await expect(
+      service('DO').generate('org-1', 'suir', { year: 2026, month: 8 }, {}, ['payroll:view']),
+    ).rejects.toMatchObject({ messageKey: 'returns.do.tss_requires_approved_run' });
+  });
+
+  it('says what each filing needs, so a screen offers only what its reader may take', async () => {
+    const filings = await service('DO').available('org-1');
+    expect(filings.find((filing) => filing.code === 'suir')?.permission).toBe('payroll:view');
+    expect(filings.find((filing) => filing.code === '607')?.permission).toBeNull();
   });
 
   it('answers 404 for a filing this market does not have', async () => {

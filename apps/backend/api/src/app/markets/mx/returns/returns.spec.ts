@@ -48,6 +48,8 @@ describe('SAT electronic accounting', () => {
     foreignPurchases: async () => [],
     accounts: async () => parts.accounts ?? [],
     journals: async () => parts.journals ?? [],
+    payslips: async () => [],
+    employeeEvents: async () => [],
   });
 
   const xmlOf = async (filing: MarketReturnFiling, data: ReturnDataset, options = {}): Promise<string> => {

@@ -73,6 +73,7 @@ export class ComplianceController {
       code,
       { year: query.year, month: query.month, ledgerId: query.ledgerId },
       returnOptionsOf(query),
+      user.permissions ?? [],
     );
     if (generated.tracked) {
       await this.filings.recordGeneration(
@@ -120,7 +121,7 @@ export class ComplianceController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     const period = await this.filingPeriod(kind, year, month, user);
-    const generated = await this.returns.generate(user.organizationId, kind, { year, month });
+    const generated = await this.returns.generate(user.organizationId, kind, { year, month }, {}, user.permissions ?? []);
     return this.filings.recordGeneration(period, generated.body, generated.records, user.id);
   }
 

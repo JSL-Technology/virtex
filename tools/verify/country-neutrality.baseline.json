@@ -19,7 +19,7 @@
     "api/invoices|DO|term": 4,
     "api/localization|DO|term": 3,
     "api/overview|DO|term": 1,
-    "api/payroll|DO|term": 39,
+    "api/payroll|DO|term": 1,
     "api/shared|DO|term": 3,
     "api/suppliers|DO|term": 1,
     "api/treasury|DO|term": 1,
@@ -39,7 +39,7 @@
     "web/features/accounts-payable|DO|term": 2,
     "web/features/customer-receipts|DO|term": 1,
     "web/features/invoices|DO|term": 3,
-    "web/features/payroll|DO|term": 12,
+    "web/features/payroll|DO|term": 1,
     "web/features/settings|DO|term": 1
   }
 }

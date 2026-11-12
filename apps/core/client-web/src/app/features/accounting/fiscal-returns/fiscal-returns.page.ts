@@ -172,7 +172,9 @@ export class FiscalReturnsPage implements OnInit {
         return;
       }
       this.activeSince.set(since);
-      this.available.set(available);
+      // Only what this user may take: a filing that names a permission they do not hold is not
+      // offered, rather than offered and refused by the server.
+      this.available.set(available.filter((filing) => !filing.permission || this.auth.hasPermissions([filing.permission])));
       this.requestMonths.set(
         Object.fromEntries(
           available.filter((filing) => filing.periodicity === 'ON_REQUEST').map((filing) => [filing.code, this.today.getMonth() + 1]),

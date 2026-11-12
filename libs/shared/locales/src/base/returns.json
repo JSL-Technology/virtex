@@ -19,6 +19,21 @@
     "en": "609 · Payments abroad",
     "pt": "609 · Pagamentos ao exterior"
   },
+  "returns.do.novedades": {
+    "es": "Novedades TSS",
+    "en": "Social-security events (TSS)",
+    "pt": "Novidades TSS"
+  },
+  "returns.do.suir": {
+    "es": "SUIR · Autodeterminación TSS",
+    "en": "SUIR · Social-security self-assessment (TSS)",
+    "pt": "SUIR · Autodeterminação TSS"
+  },
+  "returns.do.tss_requires_approved_run": {
+    "es": "No hay una nómina aprobada del período: la autodeterminación declara lo que se pagó, no un cálculo en curso.",
+    "en": "No payroll run of the period has been approved: the self-assessment declares what was paid, not a calculation in progress.",
+    "pt": "Não há uma folha aprovada do período: a autodeterminação declara o que foi pago, não um cálculo em andamento."
+  },
   "returns.mx.balanza": {
     "es": "Balanza de comprobación",
     "en": "Trial balance",

@@ -416,23 +416,6 @@ export class PayrollService {
     return this.http.put<IncomeTaxBracket[]>(`${this.apiUrl}/parameters/tax-brackets`, body);
   }
 
-  // ── TSS filings ────────────────────────────────────────────────────────────
-
-  novedades(year: number, month: number): Observable<unknown> {
-    return this.http.get(`${this.apiUrl}/tss/novedades`, {
-      params: new HttpParams().set('year', year).set('month', month),
-    });
-  }
-
-  autodeterminacion(runId: string): Observable<unknown> {
-    return this.http.get(`${this.apiUrl}/runs/${runId}/tss/autodeterminacion`);
-  }
-
-  /** The SUIR flat file, as text: what gets uploaded to the TSS portal. */
-  suir(runId: string): Observable<string> {
-    return this.http.get(`${this.apiUrl}/runs/${runId}/tss/suir`, { responseType: 'text' });
-  }
-
   /** What a termination would cost, before anybody commits to it. */
   previewSeverance(
     employeeId: string,

@@ -6,6 +6,7 @@ import { returnFilingFor, returnFilingsOf } from '../../markets';
 import { Organization } from '../../organizations/entities/organization.entity';
 import {
   BadRequestError,
+  ForbiddenError,
   NotFoundError,
   UnprocessableEntityError,
 } from '../../i18n/localized.exception';
@@ -19,6 +20,8 @@ export interface ReturnFilingView {
   mediaType: string;
   extension: string;
   tracked: boolean;
+  /** A permission the reader needs beyond the right to read returns, where the filing names one. */
+  permission: string | null;
   options: readonly { name: string; labelKey: string; kind: string; values?: readonly string[]; required: boolean }[];
 }
 
@@ -59,6 +62,7 @@ export class ReturnsService {
       mediaType: filing.mediaType,
       extension: filing.extension,
       tracked: filing.tracked,
+      permission: filing.permission ?? null,
       options: (filing.options ?? []).map((option) => ({
         name: option.name,
         labelKey: option.labelKey,
@@ -81,6 +85,7 @@ export class ReturnsService {
     code: string,
     period: { year: number; month: number; ledgerId?: string },
     options: Readonly<Record<string, string | undefined>> = {},
+    held: readonly string[] = [],
   ): Promise<GeneratedReturn> {
     const organization = await this.require(organizationId);
     const filing = returnFilingFor(organization.country, code);
@@ -88,6 +93,14 @@ export class ReturnsService {
       throw new NotFoundError('compliance.return_not_filed_in_this_market', {
         code,
         country: organization.country ?? '—',
+      });
+    }
+    // A filing may carry material the right to read returns does not cover: the Dominican
+    // social-security files name every employee and their salary.
+    if (filing.permission && !held.includes(filing.permission)) {
+      throw new ForbiddenError('compliance.return_needs_permission', {
+        code: filing.code,
+        permission: filing.permission,
       });
     }
 

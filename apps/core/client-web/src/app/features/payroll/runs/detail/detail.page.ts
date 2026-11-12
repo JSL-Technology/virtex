@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, si
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { LucideAngularModule, Calculator, CheckCircle, Banknote, XCircle, Download, Plus, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, Calculator, CheckCircle, Banknote, XCircle, Plus, Trash2 } from 'lucide-angular';
 import { Observable, catchError, finalize, forkJoin, of } from 'rxjs';
 import { TreasuryService, CashPositionRow } from '../../../accounting/data/treasury.service';
 import { DocumentShellComponent, DocumentTone } from '../../../../shared/components/gestures';
@@ -62,7 +62,6 @@ export class PayrollRunDetailPage implements OnInit {
       'calculate': () => this.canCalculate() && this.calculate(),
       'approve': () => this.canApprove() && this.approve(),
       'pay': () => this.canPay() && this.pay(),
-      'export-suir': () => this.canExport() && this.downloadSuir(),
       'cancel': () => this.canCancel() && this.cancel(),
     },
   });
@@ -84,7 +83,6 @@ export class PayrollRunDetailPage implements OnInit {
   protected readonly ApproveIcon = CheckCircle;
   protected readonly PayIcon = Banknote;
   protected readonly CancelIcon = XCircle;
-  protected readonly ExportIcon = Download;
   protected readonly AddIcon = Plus;
   protected readonly RemoveIcon = Trash2;
 
@@ -116,10 +114,6 @@ export class PayrollRunDetailPage implements OnInit {
   readonly canApprove = computed(() => this.status() === 'CALCULATED');
   readonly canPay = computed(() => this.status() === 'APPROVED');
   readonly canCancel = computed(() => this.status() === 'DRAFT' || this.status() === 'CALCULATED');
-  readonly canExport = computed(
-    () => this.status() === 'APPROVED' || this.status() === 'PAID',
-  );
-
   /** `Nómina de septiembre 2026`, already composed — the shell takes a name, not a key. */
   readonly documentTitle = computed(() => this.run()?.name ?? '');
 
@@ -348,26 +342,6 @@ export class PayrollRunDetailPage implements OnInit {
 
   // ── TSS ────────────────────────────────────────────────────────────────────
 
-  /**
-   * The SUIR flat file, downloaded as a file.
-   *
-   * It is what gets uploaded to the TSS portal, so it has to arrive as a file on disk rather than
-   * as text on a screen somebody copies out of a browser.
-   */
-  downloadSuir(): void {
-    this.payroll.suir(this.id!).subscribe({
-      next: (text) => {
-        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = `SUIR-${this.run()?.periodYear}-${String(this.run()?.periodMonth).padStart(2, '0')}.txt`;
-        anchor.click();
-        URL.revokeObjectURL(url);
-      },
-      error: (error: unknown) => this.fail(error),
-    });
-  }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 

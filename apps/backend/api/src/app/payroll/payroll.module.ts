@@ -22,7 +22,7 @@ import { PayrollCalculationService } from './services/payroll-calculation.servic
 import { SeveranceService } from './services/severance.service';
 import { PayrollAccountingService } from './services/payroll-accounting.service';
 import { PayrollRunService } from './services/payroll-run.service';
-import { PayrollTssService } from './services/payroll-tss.service';
+import { PayrollFiscalRecordsProvider } from './payroll-fiscal-records.provider';
 import { PayrollConceptService } from './services/payroll-concept.service';
 import { PayrollInputService } from './services/payroll-input.service';
 import { PayrollController } from './payroll.controller';
@@ -66,7 +66,8 @@ import { PayrollController } from './payroll.controller';
     SeveranceService,
     PayrollAccountingService,
     PayrollRunService,
-    PayrollTssService,
+    // What a social-security filing asks payroll for; the filing itself is its market's.
+    PayrollFiscalRecordsProvider,
     PayrollConceptService,
     PayrollInputService,
   ],

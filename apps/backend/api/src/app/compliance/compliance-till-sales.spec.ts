@@ -43,6 +43,7 @@ describeWithDb('607 / 608 include the tills, against the real schema', () => {
         ds,
         {} as never, // AccountBalancesService: a sales return reads no ledger
         {} as never, // PurchaseFiscalRecordsRegistry: nor any purchase
+        {} as never, // PayrollFiscalRecordsRegistry: nor any payslip
       ),
     );
   });

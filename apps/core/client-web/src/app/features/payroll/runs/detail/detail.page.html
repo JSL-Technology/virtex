@@ -30,12 +30,6 @@
         <span>{{ 'payroll.runs.pay' | translate }}</span>
       </button>
     }
-    @if (canExport()) {
-      <button type="button" class="secondary-button" (click)="downloadSuir()">
-        <lucide-icon [img]="ExportIcon" size="15" aria-hidden="true"></lucide-icon>
-        <span>{{ 'payroll.runs.export_suir' | translate }}</span>
-      </button>
-    }
     @if (canCancel()) {
       <button type="button" class="danger-button" [disabled]="busy()" (click)="cancel()">
         <lucide-icon [img]="CancelIcon" size="15" aria-hidden="true"></lucide-icon>

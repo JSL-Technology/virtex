@@ -5,7 +5,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { Ban, Banknote, Calculator, CheckCircle, FileDown, LucideAngularModule, Plus, RotateCw } from 'lucide-angular';
+import { Ban, Banknote, Calculator, CheckCircle, LucideAngularModule, Plus, RotateCw } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
@@ -72,7 +72,6 @@ export class PayrollRunsPage {
             { id: 'calculate', label: 'payroll.runs.calculate', icon: Calculator, permission: 'payroll:process', visible: () => ['DRAFT', 'CALCULATED'].includes(run.status), run: () => ask('calculate') },
             { id: 'approve', label: 'payroll.runs.approve', icon: CheckCircle, permission: 'payroll:approve', visible: () => run.status === 'CALCULATED', run: () => ask('approve') },
             { id: 'pay', label: 'payroll.runs.pay', icon: Banknote, permission: 'payroll:pay', visible: () => run.status === 'APPROVED', run: () => ask('pay') },
-            { id: 'export-suir', label: 'payroll.runs.export_suir', icon: FileDown, visible: () => ['APPROVED', 'PAID'].includes(run.status), run: () => ask('export-suir') },
           ],
         },
         {

@@ -45,6 +45,11 @@ export interface ReturnFiling {
   extension: string;
   /** Whether the filing calendar tracks it month by month. */
   tracked: boolean;
+  /**
+   * A permission needed beyond the right to read the returns, where the filing carries material not
+   * everyone who reads returns may see — the social-security files name every employee's salary.
+   */
+  permission: string | null;
   options: readonly ReturnFilingOption[];
 }
 

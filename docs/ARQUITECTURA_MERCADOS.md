@@ -456,6 +456,17 @@ cuando audita o devuelve, y un campo por cada dato declarado —`CHOICE` con sus
 `DATE`, texto—. Llevaba la lista dentro (los cuatro formatos dominicanos, los tres documentos
 mexicanos y un `switch` entre ellos), así que un mercado nuevo no declaraba nada hasta editarla.
 
+**Lo que la nómina declara.** La seguridad social recibe cada mes dos cosas: quién entró, salió o
+cambió de sueldo, y cuánto se pagó y qué tomó cada fondo. Eran tres rutas del módulo de nómina y un
+servicio que conocía los cuatro fondos dominicanos por su nombre; ahora son declaraciones del
+mercado (`markets/do/returns/social-security.ts`) sobre los hechos del período, y la nómina las
+responde a través de un contrato (`PayrollFiscalRecordsSource`) como compras responde a las suyas.
+Se declara lo **aprobado**: lo que se pagó, nunca un cálculo en curso.
+
+Una declaración puede pedir **más permiso** que el de leer declaraciones: el archivo de la TSS
+nombra a cada empleado, su NSS y su sueldo, así que lo declara (`permission`), el motor lo exige y
+la pantalla ni siquiera lo ofrece a quien no lo tiene.
+
 ### 2.13 Nómina
 
 La nómina de un país es su ley: cuántos fondos hay, sobre qué base se calcula cada uno, qué tope y
@@ -550,6 +561,6 @@ eso se resuelve en el contrato, no con una rama.
 | 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ✅ Columnas neutrales con migración exacta en los dos sentidos, `fiscal_attributes` validado contra la declaración del mercado, documento del proveedor comprobado por la regla de cada mercado, método de pago de la empresa en lugar de la «forma de pago» de una autoridad, formulario y ficha dibujados desde el paquete público del mercado (§2.10) |
 | 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ✅ `ReturnDataset` con los hechos del período y `MarketReturnFiling` por mercado; los cuatro formatos de la DGII en `markets/do/returns/` y los tres documentos del SAT en `markets/mx/returns/`; una ruta (`/compliance/returns`), un calendario y un formulario de datos declarados; el motivo del rechazo lo devuelve el generador y el conteo de registros también (§2.12) |
 | 6 | Nómina: motor dominicano a `markets/do/payroll/`, registro de motores y sin `'DOP'` por omisión | ✅ `PayrollEngine` en el contrato del mercado, motor dominicano en `markets/do/payroll/`, el núcleo lo alcanza por el registro y rechaza la nómina de un mercado sin motor; la moneda del período es la del mercado; fuera el módulo `jurisdictions/` (§2.13) |
-| 7 | Cliente: sin ramas por país; pantallas guiadas por la definición pública del mercado | ⏳ |
+| 7 | Cliente: sin ramas por país; pantallas guiadas por la definición pública del mercado | 🚧 Hecho: la pantalla de régimen lee del paquete público qué pide cada mercado (canal, campos, material del rango) y la de declaraciones, qué declara; las declaraciones de la TSS salen del módulo de nómina y de su pantalla (§2.12). Falta: el vocabulario dominicano que queda en pantallas genéricas (fase 8) |
 | 8 | Textos: base neutral y parches regionales para los 19 mercados, con prueba de completitud | ⏳ |
 | 9 | Puerta de neutralidad en cero, con la lista permitida reducida a `markets/`, parches regionales y migraciones | ⏳ |

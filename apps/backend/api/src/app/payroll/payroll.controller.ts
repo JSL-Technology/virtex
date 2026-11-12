@@ -27,7 +27,6 @@ import { AuditAccess } from '../audit/audit-access.decorator';
 import { AuditAccessInterceptor } from '../audit/audit-access.interceptor';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { PayrollRunService } from './services/payroll-run.service';
-import { PayrollTssService } from './services/payroll-tss.service';
 import { PayrollConceptService } from './services/payroll-concept.service';
 import { PayrollInputService } from './services/payroll-input.service';
 import { PayrollParametersService } from './services/payroll-parameters.service';
@@ -60,7 +59,6 @@ import {
 export class PayrollController {
   constructor(
     private readonly runs: PayrollRunService,
-    private readonly tss: PayrollTssService,
     private readonly concepts: PayrollConceptService,
     private readonly inputs: PayrollInputService,
     private readonly parameters: PayrollParametersService,
@@ -358,34 +356,4 @@ export class PayrollController {
     return this.companyParameters.setActive(id, dto.active, user.organizationId);
   }
 
-  // ── TSS ──────────────────────────────────────────────────────────────────────
-
-  @Get('tss/novedades')
-  @HasPermission(PERMISSIONS.TSS_EXPORT)
-  @AuditAccess({ entity: 'tss_novedades', action: ActionType.READ, identifiers: ['year', 'month'] })
-  novedades(
-    @CurrentUser() user: AuthenticatedUser,
-    @Query('year') year: number,
-    @Query('month') month: number,
-  ) {
-    return this.tss.novedades(user.organizationId, Number(year), Number(month));
-  }
-
-  @Get('runs/:id/tss/autodeterminacion')
-  @HasPermission(PERMISSIONS.TSS_EXPORT)
-  @AuditAccess({ entity: 'tss_autodeterminacion', action: ActionType.READ, identifiers: ['id'] })
-  autodeterminacion(
-    @Param('id', UuidParamPipe) id: string,
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
-    return this.tss.autodeterminacion(id, user.organizationId);
-  }
-
-  @Get('runs/:id/tss/suir')
-  @HasPermission(PERMISSIONS.TSS_EXPORT)
-  @Header('Content-Type', 'text/plain; charset=utf-8')
-  @AuditAccess({ entity: 'tss_suir', action: ActionType.EXPORT, identifiers: ['id'] })
-  suir(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.tss.exportSuir(id, user.organizationId);
-  }
 }

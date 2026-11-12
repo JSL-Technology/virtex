@@ -26,6 +26,7 @@ import { AuditLog } from '../../audit/entities/audit-log.entity';
 import { AccountBalancesService } from '../../chart-of-accounts/account-balances.service';
 import { CreateJournalEntryDto } from '../../journal-entries/dto/create-journal-entry.dto';
 import { PurchaseFiscalRecordsRegistry } from '../../contracts/fiscal-records/purchase-fiscal-records.registry';
+import { PayrollFiscalRecordsRegistry } from '../../contracts/fiscal-records/payroll-fiscal-records.registry';
 import { ReturnDatasetFactory } from './return-dataset';
 import { ReturnsService } from './returns.service';
 
@@ -79,10 +80,13 @@ describeWithDb('Mexican electronic accounting', () => {
         foreignPurchases: async () => [],
       }),
     } as unknown as PurchaseFiscalRecordsRegistry;
+    const payrollRecords = {
+      source: () => ({ sourceName: 'none', payslips: async () => [], events: async () => [] }),
+    } as unknown as PayrollFiscalRecordsRegistry;
     returns = new ReturnsService(
       // By entity name: the class belongs to another module (verify:boundaries).
       dataSource.getRepository('Organization'),
-      new ReturnDatasetFactory(dataSource, balances, purchases),
+      new ReturnDatasetFactory(dataSource, balances, purchases, payrollRecords),
     );
     entries = new JournalEntriesService(
       dataSource.getRepository(JournalEntry),

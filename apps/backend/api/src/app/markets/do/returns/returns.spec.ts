@@ -2,10 +2,12 @@ import type {
   MarketReturnFiling,
   MarketReturnResult,
   ReturnDataset,
+  ReturnEmployeeEventRecord,
+  ReturnPayslipRecord,
   ReturnPurchaseRecord,
   ReturnSalesRecord,
 } from '../../contracts';
-import { FORMAT_607_BOXES, annulled608, foreign609, purchases606, sales607 } from './index';
+import { FORMAT_607_BOXES, annulled608, foreign609, novedades, purchases606, sales607, suir } from './index';
 
 /**
  * The DGII's periodic returns, built from the period's facts.
@@ -24,6 +26,8 @@ describe('DGII periodic returns', () => {
       sales?: readonly ReturnSalesRecord[];
       purchases?: readonly ReturnPurchaseRecord[];
       foreign?: readonly ReturnPurchaseRecord[];
+      payslips?: readonly ReturnPayslipRecord[];
+      events?: readonly ReturnEmployeeEventRecord[];
       fiscalProfile?: Record<string, string>;
     } = {},
   ): ReturnDataset => ({
@@ -39,6 +43,8 @@ describe('DGII periodic returns', () => {
     foreignPurchases: async () => parts.foreign ?? [],
     accounts: async () => [],
     journals: async () => [],
+    payslips: async () => parts.payslips ?? [],
+    employeeEvents: async () => parts.events ?? [],
   });
 
   const sale = (overrides: Partial<ReturnSalesRecord> = {}): ReturnSalesRecord => ({
@@ -355,6 +361,86 @@ describe('DGII periodic returns', () => {
       const [header, row] = body.split('\n');
       expect(header).toBe('609|131190317|202608|1');
       expect(row).toBe('Global Services LLC|02|20260820|5000.00|1350.00');
+    });
+  });
+
+  /**
+   * What the Tesorería de la Seguridad Social is told about the month's payroll.
+   *
+   * These were a service of the payroll module with their own HTTP routes, so a Dominican filing
+   * lived in payroll and the module knew the names of four funds.
+   */
+  describe('TSS — seguridad social', () => {
+    const payslip = (overrides: Partial<ReturnPayslipRecord> = {}): ReturnPayslipRecord => ({
+      employeeName: 'Ana Pérez',
+      socialSecurityNumber: '12345678901',
+      contributoryBase: 50_000,
+      contributions: [
+        { code: 'AFP', employeeAmount: 1437.5, employerAmount: 3914 },
+        { code: 'SFS', employeeAmount: 1526.5, employerAmount: 3573.5 },
+        { code: 'SRL', employeeAmount: 0, employerAmount: 605 },
+        { code: 'INFOTEP', employeeAmount: 0, employerAmount: 500 },
+      ],
+      ...overrides,
+    });
+
+    it('declares what was paid, fund by fund, from the period’s approved payslips', async () => {
+      const body = await fileOf(suir, dataset({ payslips: [payslip()] }));
+      const [, period, count, columns, row] = body.split('\n');
+
+      expect(period).toBe('# Periodo: 202608');
+      expect(count).toBe('# Empleados: 1');
+      expect(columns).toContain('NSS|Nombre|SalarioCotizable');
+      // NSS, name, contributory base, then each fund's employee and employer share.
+      expect(row).toBe('12345678901|Ana Pérez|50000.00|1437.50|3914.00|1526.50|3573.50|605.00|500.00');
+    });
+
+    it('sums a fund that appears twice, as an adjustment run leaves it', async () => {
+      const body = await fileOf(
+        suir,
+        dataset({
+          payslips: [
+            payslip({
+              contributions: [
+                { code: 'AFP', employeeAmount: 1000, employerAmount: 2000 },
+                { code: 'AFP', employeeAmount: 437.5, employerAmount: 1914 },
+              ],
+            }),
+          ],
+        }),
+      );
+      expect(body.split('\n')[4]).toContain('|1437.50|3914.00|');
+    });
+
+    it('refuses to declare a period nothing was approved for', async () => {
+      // Declaring a calculation nobody was paid is the one thing this filing must never do.
+      const result = await suir.build(dataset(), {});
+      expect(result.refusal).toMatchObject({ messageKey: 'returns.do.tss_requires_approved_run' });
+    });
+
+    it('reports who joined, who left and whose salary changed, in the TSS’s own words', async () => {
+      const body = await fileOf(
+        novedades,
+        dataset({
+          events: [
+            { kind: 'HIRE', employeeName: 'Ana Pérez', socialSecurityNumber: '1', effectiveDate: '2026-08-03', salary: null, currencyCode: null },
+            { kind: 'SALARY_CHANGE', employeeName: 'Luis Gómez', socialSecurityNumber: '2', effectiveDate: '2026-08-15', salary: 60_000, currencyCode: 'DOP' },
+            { kind: 'TERMINATION', employeeName: 'Sara Díaz', socialSecurityNumber: null, effectiveDate: '2026-08-28', salary: null, currencyCode: null },
+          ],
+        }),
+      );
+      const [, , count, , ...rows] = body.split('\n');
+
+      expect(count).toBe('# Registros: 3');
+      expect(rows[0]).toBe('ALTA|1|Ana Pérez|20260803|');
+      expect(rows[1]).toBe('CAMBIO_SALARIO|2|Luis Gómez|20260815|60000.00');
+      expect(rows[2]).toBe('BAJA||Sara Díaz|20260828|');
+    });
+
+    it('needs the right to read payroll, which reading a sales return is not', () => {
+      expect(suir.permission).toBe('payroll:view');
+      expect(novedades.permission).toBe('payroll:view');
+      expect(sales607.permission).toBeUndefined();
     });
   });
 
