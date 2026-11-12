@@ -5,6 +5,7 @@ import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
 import { buyerRegimeDocumentCode } from '../buyer-document';
 import { issuedDocumentType } from '../fiscal-number';
+import { ModifiedDocumentReference } from '../modified-document';
 
 /**
  * Argentina — AFIP, WSFEv1.
@@ -32,6 +33,8 @@ export interface AfipBuildInput {
   invoice: Invoice;
   organization: Organization;
   customer: Customer;
+  /** Set on a nota de crédito or de débito: the comprobante it is associated with. */
+  modifies?: ModifiedDocumentReference | null;
   /** Punto de venta, four digits, assigned by AFIP per establishment. */
   salesPoint: number;
   /** The number AFIP expects next in this point of sale and document type. */
@@ -57,7 +60,25 @@ export interface AfipRequest {
     MonId: string;
     MonCotiz: number;
     Iva?: { Id: number; BaseImp: number; Importe: number }[];
+    CbtesAsoc?: AfipAssociatedDocument[];
   }[];
+}
+
+/**
+ * `CbtesAsoc`: the comprobante a note is associated with, as AFIP names it.
+ *
+ * AFIP publishes no catalogue of reasons — a note states its concept in its own lines — but it does
+ * require the document being corrected: its type, its punto de venta and its number. A note that
+ * carries no association is rejected, and one AFIP accepted would be a credit against nothing.
+ */
+export interface AfipAssociatedDocument {
+  Tipo: number;
+  PtoVta: number;
+  Nro: number;
+  /** The issuer's CUIT, which AFIP accepts and matches when it is stated. */
+  Cuit?: string;
+  /** `AAAAMMDD`, the associated document's own issue date. */
+  CbteFch?: string;
 }
 
 export class AfipBuilder {
@@ -74,6 +95,7 @@ export class AfipBuilder {
     const currency = invoice.currencyCode ?? 'ARS';
     const round = (value: number) => roundToCurrency(value, currency);
 
+    const associated = this.associated(input);
     const net = round(invoice.taxedTotal ?? invoice.subtotal);
     const exempt = round(invoice.exemptTotal ?? 0);
     const vat = round(invoice.tax ?? 0);
@@ -105,6 +127,7 @@ export class AfipBuilder {
           ImpTrib: round(invoice.excise ?? 0),
           MonId: currency === 'ARS' ? 'PES' : this.currencyCode(currency),
           MonCotiz: currency === 'ARS' ? 1 : Number(invoice.exchangeRate ?? 1),
+          ...(associated ? { CbtesAsoc: associated } : {}),
           ...(vat > 0
             ? {
                 Iva: [
@@ -174,13 +197,50 @@ export class AfipBuilder {
   /**
    * AFIP's `CbteTipo`, as the document was numbered by the market's own rule — the class (A, B, C)
    * follows from the issuer's and the buyer's VAT condition, decided once at issuance
-   * (`markets/ar/documents.ts`) and never again here. The debit notes (2, 7, 12) are not written
-   * by this builder yet, and are refused before they are numbered.
+   * (`markets/ar/documents.ts`) and never again here.
+   *
+   * Facturas `1`/`6`/`11`, notas de débito `2`/`7`/`12`, notas de crédito `3`/`8`/`13`: nine types
+   * and one request shape, because to AFIP a note differs from an invoice only in its type and in
+   * the comprobante it is associated with.
    */
   documentType(invoice: Invoice): number {
-    return Number(issuedDocumentType(invoice, ['1', '3', '6', '8', '11', '13']));
+    return Number(issuedDocumentType(invoice, ['1', '2', '3', '6', '7', '8', '11', '12', '13']));
   }
 
+
+  /**
+   * The comprobante a note is associated with, or nothing on an invoice.
+   *
+   * Refuses rather than omits: AFIP rejects a note with no `CbtesAsoc`, and a note that names no
+   * document is the failure the association exists to prevent (FAC-INV-05 / MP-10).
+   */
+  private associated(input: AfipBuildInput): AfipAssociatedDocument[] | undefined {
+    if (!NOTE_TYPES.has(this.documentType(input.invoice))) return undefined;
+    if (!input.modifies) {
+      throw new BadRequestError('einvoicing.note_must_name_the_document_it_modifies', {
+        document: input.invoice.invoiceNumber ?? '',
+      });
+    }
+
+    const reference = input.modifies;
+    // AFIP counts a number within a punto de venta, so both are stated as the authority granted
+    // them — read from what was recorded at issuance, never parsed back out of a formatted number.
+    const salesPoint = Number((reference.series ?? '').replace(/\D/g, ''));
+    const number = reference.sequence ?? 0;
+    if (!salesPoint || !number) {
+      throw new BadRequestError('einvoicing.modified_document_has_no_authority_number');
+    }
+
+    return [
+      {
+        Tipo: Number(reference.documentType ?? 0),
+        PtoVta: salesPoint,
+        Nro: number,
+        Cuit: (input.organization.taxId ?? '').replace(/\D/g, '') || undefined,
+        CbteFch: this.yyyymmdd(reference.issueDate),
+      },
+    ];
+  }
 
   /** `80` CUIT, `96` DNI, `99` consumidor final sin identificar — from the catalogue, not the length (A-02). */
   private buyerDocumentType(customer: Customer): number {
@@ -289,3 +349,11 @@ export function signLoginTicket(
   p7.sign();
   return forge.util.encode64(forge.asn1.toDer(p7.toAsn1()).getBytes());
 }
+
+/**
+ * The `CbteTipo` values that are notes: A, B and C, débito and crédito.
+ *
+ * A note is told from an invoice by its type alone, and every one of these must name the
+ * comprobante it corrects.
+ */
+const NOTE_TYPES: ReadonlySet<number> = new Set([2, 3, 7, 8, 12, 13]);

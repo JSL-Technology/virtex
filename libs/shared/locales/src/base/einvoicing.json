@@ -444,6 +444,16 @@
     "en": "In this market the fiscal number is not drawn from an authorised range: {{authority}} assigns it, or the document carries none. There are no ranges to register.",
     "pt": "Neste mercado o número fiscal não é tirado de uma faixa autorizada: {{authority}} o atribui, ou o documento não leva um. Não há faixas a registrar."
   },
+  "einvoicing.modified_document_has_no_authority_key": {
+    "es": "El documento que esta nota modifica no tiene identificador de su autoridad, y este régimen lo referencia por él: transmite primero el documento original y vuelve a emitir la nota.",
+    "en": "The document this note modifies has no identifier from its authority, and this regime references it by that identifier: transmit the original document first, then issue the note again.",
+    "pt": "O documento que esta nota modifica não tem identificador de sua autoridade, e este regime o referencia por ele: transmita primeiro o documento original e emita a nota novamente."
+  },
+  "einvoicing.modified_document_has_no_authority_number": {
+    "es": "El documento que esta nota modifica no tiene número de la autoridad, y este régimen lo referencia por número: transmite primero el documento original.",
+    "en": "The document this note modifies has no number from the authority, and this regime references it by number: transmit the original document first.",
+    "pt": "O documento que esta nota modifica não tem número da autoridade, e este regime o referencia por número: transmita primeiro o documento original."
+  },
   "einvoicing.municipality_ibge_code_must_seven_digits": {
     "es": "El código IBGE del municipio debe tener siete dígitos.",
     "en": "The municipality IBGE code must be seven digits.",
@@ -493,6 +503,11 @@
     "es": "No hay un e-CF firmado para esta factura.",
     "en": "There is no signed e-CF for this invoice.",
     "pt": "Não há um e-CF assinado para esta fatura."
+  },
+  "einvoicing.note_must_name_the_document_it_modifies": {
+    "es": "La nota {{document}} no nombra el documento que modifica: la autoridad no puede recibirla así.",
+    "en": "Note {{document}} does not name the document it modifies: it cannot be filed this way.",
+    "pt": "A nota {{document}} não nomeia o documento que modifica: não pode ser enviada assim."
   },
   "einvoicing.numeric_code_must_exactly_eight_digits": {
     "es": "El código numérico debe tener exactamente ocho dígitos: forma parte de la clave del documento y uno de siete rellenado a ocho produce una clave distinta de la que crees haber emitido.",

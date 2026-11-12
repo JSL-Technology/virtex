@@ -5,6 +5,7 @@ import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
 import { issuedDocumentType } from '../fiscal-number';
+import { ModifiedDocumentReference, requiredNumber, requiredReasonCode } from '../modified-document';
 
 /**
  * Chile — Documento Tributario Electrónico, SII.
@@ -35,6 +36,8 @@ export interface SiiBuildInput {
   invoice: Invoice;
   organization: Organization;
   customer: Customer;
+  /** Set on a nota de crédito/débito: the DTE it refers to, and the SII's `CodRef` for why. */
+  modifies?: ModifiedDocumentReference | null;
   /** The authorised range this folio was drawn from, and the key that seals its timbre. */
   caf: { folio: number; rangeFrom: number; rangeTo: number; authorizedOn: string; privateKeyPem: string; rawCafXml: string };
   /** The tenant's economic activity code, which the SII requires on the document. */
@@ -141,6 +144,31 @@ export class SiiBuilder {
       detalle.ele('MontoItem', {}, this.integer(line.lineSubtotal ?? 0));
     }
 
+    // ── A note refers to the DTE it corrects ────────────────────────────────────────────
+    //
+    // The SII's `Referencia`: which document (`TpoDocRef`, `FolioRef`, `FchRef`) and what the note
+    // does to it (`CodRef`: 1 annuls it, 2 corrects its text, 3 corrects its amounts). A nota de
+    // crédito without it is rejected, and the builder wrote none (FAC-INV-05 / MP-10). The schema
+    // puts `Referencia` after `Detalle` and before the timbre, which is where it is written.
+    if (input.modifies) {
+      const modifiedNumber = requiredNumber(input.modifies);
+      const referencia = documento.ele('Referencia');
+      referencia.ele('NroLinRef', {}, '1');
+      referencia.ele('TpoDocRef', {}, input.modifies.documentType ?? '');
+      // The SII refers to a DTE by its folio — the consecutive the authority granted — not by a
+      // formatted number.
+      // The folio the SII granted, as it was recorded at issuance; the formatted number is the
+      // fallback for a document numbered before the sequence was kept beside it.
+      referencia.ele(
+        'FolioRef',
+        {},
+        String(input.modifies.sequence ?? (modifiedNumber.replace(/\D/g, '') || modifiedNumber)),
+      );
+      referencia.ele('FchRef', {}, input.modifies.issueDate);
+      referencia.ele('CodRef', {}, requiredReasonCode(input.modifies, invoice.adjustmentReason ?? 'OTHER'));
+      if (input.modifies.reasonText) referencia.ele('RazonRef', {}, input.modifies.reasonText.slice(0, 90));
+    }
+
     // The timbre, whose `FRMT` is sealed with the CAF's own key rather than the taxpayer's
     // certificate. Written unsealed here; `SiiRegimeAdapter.seal` fills it.
     const tedNode = documento.ele('TED').att('version', '1.0');
@@ -152,14 +180,14 @@ export class SiiBuilder {
     return root.end({ pretty: false });
   }
 
-  /** `33` factura afecta, `34` exenta, `61` nota de crédito: the DTEs this builder writes. */
+  /** `33` factura afecta, `34` exenta, `56` nota de débito, `61` nota de crédito. */
   /**
    * The authority's type the document was numbered as — recorded at issuance by the market's own
    * rule (`markets/<cc>/documents.ts`), never decided again here: two copies of the rule is how a
    * document ends up numbered from one range and built as another type.
    */
   documentType(invoice: Invoice): string {
-    return issuedDocumentType(invoice, ['33', '34', '61']);
+    return issuedDocumentType(invoice, ['33', '34', '56', '61']);
   }
 
   /** `12345678-9` — the SII writes the RUT with its check character and no thousands dots. */

@@ -205,10 +205,30 @@ export function reasonsOfPurpose(purpose: 'CREDIT_NOTE' | 'DEBIT_NOTE'): readonl
 }
 
 /**
- * The authority's own code for every canonical reason. Complete by construction: a reason with no
- * code would be a note its regime could not write, found at transmission rather than here.
+ * The authority's own codes for why a note was issued — one catalogue per kind of note.
+ *
+ * Per kind, because that is how authorities publish them and the two do not agree: SUNAT keeps
+ * catálogo 09 for notas de crédito and catálogo 10 for notas de débito, where `otros conceptos` is
+ * `10` in the first and `03` in the second; the DIAN keeps a concepto list for each; the SAT's
+ * `TipoRelacion` is `01` for a credit note and `02` for a debit note over the very same reason.
+ * One flat record for both wrote a credit-note code on a debit note — a code that in two of those
+ * catalogues does not exist at all.
+ *
+ * Each record is complete by construction: a reason with no code would be a note its regime could
+ * not write, found at transmission rather than here.
  */
-export type MarketAdjustmentCodes = Readonly<Record<AdjustmentReason, string>>;
+export interface MarketAdjustmentCodes {
+  /** For a note that reduces or reverses what was invoiced. */
+  readonly creditNote: Readonly<Record<CreditNoteReason, string>>;
+  /**
+   * For a note that adds to it, or null where the market issues none (`documents.debitNotes`).
+   *
+   * Where the authority publishes a single catalogue for both kinds — the DGII's
+   * `CodigoModificacion`, the SII's `CodRef` — the same codes appear in both records, stated rather
+   * than implied.
+   */
+  readonly debitNote: Readonly<Record<DebitNoteReason, string>> | null;
+}
 
 /**
  * What the receiver of a document answers about it, in the product's own terms.

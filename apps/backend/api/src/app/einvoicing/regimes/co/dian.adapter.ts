@@ -6,6 +6,7 @@ import { XmlSignatureService } from '../xml-signature.service';
 import { RegimeTransportService } from '../regime-transport.service';
 import { FiscalRangeService } from '../../services/fiscal-range.service';
 import { FiscalRangeSecretKind } from '../../entities/fiscal-document-range.entity';
+import { modifiedDocumentOf } from '../modified-document';
 import {
   FiscalRegimeAdapter,
   FiscalRegimeContext,
@@ -69,6 +70,8 @@ export class DianRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
       invoice: context.invoice,
       organization,
       customer,
+      // On a nota crédito/débito: the document it corrects, with the DIAN's concepto for why.
+      modifies: await modifiedDocumentOf(context.manager, context.invoice, 'CO'),
       technicalKey: this.ranges.secretOfRange(range),
       // The DIAN's own coding: `1` producción, `2` pruebas. The CUFE differs between the two
       // deliberately, so a document built for one environment cannot be filed into the other.

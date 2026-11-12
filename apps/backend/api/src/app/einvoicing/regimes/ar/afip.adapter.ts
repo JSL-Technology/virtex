@@ -11,6 +11,7 @@ import {
 } from '../fiscal-regime.types';
 import { RegimeAdapterBase } from '../regime-adapter.base';
 import { AfipBuilder, loginTicketRequest, signLoginTicket } from './afip.builder';
+import { modifiedDocumentOf } from '../modified-document';
 import { Invoice } from '../../../invoices/entities/invoice.entity';
 
 /**
@@ -65,16 +66,20 @@ export class AfipRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
       throw new RegimeNotConfigured(this.regime, 'el punto de venta habilitado por AFIP');
     }
 
+    const nextNumber = await this.nextNumber(context.invoice, salesPoint);
     const request = this.builder.build({
       invoice: context.invoice,
       organization,
       customer,
       salesPoint,
+      // A note is associated with the comprobante it corrects: its type, its punto de venta and
+      // its number, as AFIP authorised them.
+      modifies: await modifiedDocumentOf(context.manager, context.invoice, 'AR'),
       // AFIP's own counter decides. Asked for here rather than stored, and asked for inside the
       // same exchange that authorises the document so nothing can slip between the two. The
       // letter (A, B, C) was decided when the document was issued, from both parties' VAT
       // condition, and is read from the document.
-      nextNumber: await this.nextNumber(context.invoice, salesPoint),
+      nextNumber,
     });
 
     return {
@@ -82,6 +87,14 @@ export class AfipRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
       contentType: 'application/json',
       // AFIP assigns the CAE on authorisation. Nothing computed here would be it.
       documentKey: null,
+      // The number asked for in this very request. AFIP authorises it together with the CAE, so
+      // the outbox records it on acceptance: it is the document's number, printed on it and named
+      // by every note that later corrects it.
+      assignedNumber: {
+        fiscalNumber: afipNumber(salesPoint, nextNumber),
+        sequence: nextNumber,
+        series: String(salesPoint).padStart(4, '0'),
+      },
     };
   }
 
@@ -176,4 +189,14 @@ export class AfipRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
 
     return last + 1;
   }
+}
+
+/**
+ * `0004-00000123`: how AFIP's punto de venta and number are read, printed and quoted.
+ *
+ * The parts are what AFIP counts — they are recorded separately beside this — and this is the one
+ * string a person compares against the document in their hand.
+ */
+function afipNumber(salesPoint: number, number: number): string {
+  return `${String(salesPoint).padStart(4, '0')}-${String(number).padStart(8, '0')}`;
 }

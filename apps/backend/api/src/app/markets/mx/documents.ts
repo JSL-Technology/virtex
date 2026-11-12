@@ -1,5 +1,5 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
-import type { MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
+import type { MarketAdjustmentCodes, MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
 import { AUTHORITY_EVENT } from '../kit/documents';
 
 /**
@@ -26,6 +26,23 @@ const NUMBERING: MarketNumbering = {
   typeOf: (document) => (document.purpose === 'CREDIT_NOTE' ? 'E' : 'I'),
 };
 
+/**
+ * `c_TipoRelacion`: what the relation between this comprobante and the one it names IS.
+ *
+ * The SAT does not ask why in words and publishes no catalogue of correction concepts: it asks what
+ * kind of document this is with respect to the other. `01` is a credit note of the related
+ * documents, `02` a debit note of them, `03` a return of goods over a previous invoice — which is
+ * why the same canonical reason is coded differently depending on the kind of note that carries it.
+ *
+ * *Verificar con contabilidad/legal*: the SAT republishes the catálogo with Anexo 20, and `04`
+ * sustitución de los CFDI previos belongs to a replacement comprobante rather than to a note, so it
+ * is not written here.
+ */
+const ADJUSTMENT_CODES: MarketAdjustmentCodes = {
+  creditNote: { GOODS_RETURN: '03', ANNULMENT: '01', PRICE_REDUCTION: '01', DETAIL_CORRECTION: '01', OTHER: '01' },
+  debitNote: { LATE_PAYMENT_INTEREST: '02', ADDITIONAL_CHARGES: '02', PRICE_INCREASE: '02', PENALTY: '02', OTHER: '02' },
+};
+
 /** Mexico: the sales documents the authority defines, and how an issued one is undone. */
 export const documents: MarketDocuments = {
   fiscalNumbering: true,
@@ -35,11 +52,12 @@ export const documents: MarketDocuments = {
    * send that event yet, so the market is told so and offered the credit note.
    */
   cancellation: { electronic: AUTHORITY_EVENT, traditional: AUTHORITY_EVENT },
-  // The CFDI relates documents by UUID; its `TipoRelacion` is not written yet.
-  adjustmentCodes: null,
+  adjustmentCodes: ADJUSTMENT_CODES,
   // The authority asks the receiver of a document for no verdict of its own here.
   counterpartyVerdictCodes: null,
-  debitNotes: false,
+  // A Mexican debit note is an ingreso that relates to the document it adds to, with
+  // `TipoRelacion` `02` saying so. The regime writes that relation now.
+  debitNotes: true,
   defaultCustomer: { nameKey: 'ledger.provisioning.general_public' },
   numbering: NUMBERING,
 };

@@ -56,6 +56,25 @@ describe('AFIP — WSFEv1', () => {
     ],
   } as unknown as Invoice;
 
+  /**
+   * The comprobante a note is associated with, as `modifiedDocumentOf` resolves it.
+   *
+   * AFIP counts a number within a punto de venta, so both are carried as they were recorded when
+   * AFIP authorised that document — not parsed back out of `0004-00000077`.
+   */
+  const ASSOCIATED = {
+    fiscalNumber: '0004-00000077',
+    documentType: '1',
+    issueDate: '2026-06-01',
+    documentKey: null,
+    authorityHandle: null,
+    sequence: 77,
+    series: '0004',
+    // AFIP publishes no catalogue of reasons: a note states its concept in its own lines.
+    reasonCode: null,
+    reasonText: null,
+  };
+
   const input = (overrides: Partial<AfipBuildInput> = {}): AfipBuildInput => ({
     invoice,
     organization,
@@ -85,16 +104,78 @@ describe('AFIP — WSFEv1', () => {
       // monotributo issuer) is the market's numbering, `markets/ar/documents.ts`; the builder writes
       // what was decided rather than deciding again.
       const as = (fiscalDocumentType: string, type = InvoiceType.INVOICE) =>
-        builder.build(input({ invoice: { ...invoice, type, fiscalDocumentType } as Invoice })).FeCabReq.CbteTipo;
+        builder.build(
+          input({
+            invoice: { ...invoice, type, fiscalDocumentType } as Invoice,
+            modifies: type === InvoiceType.INVOICE ? null : ASSOCIATED,
+          }),
+        ).FeCabReq.CbteTipo;
       expect(as('1')).toBe(1);
       expect(as('6')).toBe(6);
       expect(as('11')).toBe(11);
       expect(as('3', InvoiceType.CREDIT_NOTE)).toBe(3);
+      // The débito notes, which the regime writes now: A, B and C.
+      expect(as('2', InvoiceType.DEBIT_NOTE)).toBe(2);
+      expect(as('7', InvoiceType.DEBIT_NOTE)).toBe(7);
+      expect(as('12', InvoiceType.DEBIT_NOTE)).toBe(12);
+    });
+
+    /**
+     * A note is associated with the comprobante it corrects.
+     *
+     * The builder wrote no `CbtesAsoc` at all (audit FAC-INV-05 / MP-10). AFIP rejects a note
+     * without it, and a note it accepted would be a credit against nothing — which is also how a
+     * taxpayer loses the ability to show what the credit was for.
+     */
+    it('associates a note with the comprobante it corrects, by type, point of sale and number', () => {
+      const [detail] = builder.build(
+        input({
+          invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '3' } as Invoice,
+          modifies: ASSOCIATED,
+        }),
+      ).FeDetReq;
+
+      expect(detail.CbtesAsoc).toEqual([
+        { Tipo: 1, PtoVta: 4, Nro: 77, Cuit: '30712345678', CbteFch: '20260601' },
+      ]);
+    });
+
+    it('associates a debit note the same way, and an invoice with nothing', () => {
+      const debit = builder.build(
+        input({
+          invoice: { ...invoice, type: InvoiceType.DEBIT_NOTE, fiscalDocumentType: '2' } as Invoice,
+          modifies: ASSOCIATED,
+        }),
+      ).FeDetReq[0];
+      expect(debit.CbtesAsoc?.[0]).toMatchObject({ Tipo: 1, PtoVta: 4, Nro: 77 });
+
+      // An ordinary invoice is associated with nothing, and says nothing about associations.
+      expect(builder.build(input()).FeDetReq[0].CbtesAsoc).toBeUndefined();
+    });
+
+    it('refuses a note that is associated with nothing, or with a document AFIP never numbered', () => {
+      expect(() =>
+        builder.build(
+          input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '3' } as Invoice }),
+        ),
+      ).toThrow(/note_must_name_the_document_it_modifies/);
+
+      // AFIP settles the number when it authorises the document. Until then there is no number to
+      // associate, and a note against it cannot be built — which is the correctable case.
+      expect(() =>
+        builder.build(
+          input({
+            invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '3' } as Invoice,
+            modifies: { ...ASSOCIATED, sequence: null, series: null },
+          }),
+        ),
+      ).toThrow(/modified_document_has_no_authority_number/);
     });
 
     it('refuses a type it does not write, and a document that was never typed', () => {
-      // A debit note (2, 7, 12) is not built yet: refused by name, never sent as something else.
-      expect(() => builder.build(input({ invoice: { ...invoice, fiscalDocumentType: '2' } as Invoice }))).toThrow(
+      // Factura M (51) is a real AFIP type this regime does not build: refused by name, never sent
+      // as something else.
+      expect(() => builder.build(input({ invoice: { ...invoice, fiscalDocumentType: '51' } as Invoice }))).toThrow(
         expect.objectContaining({ messageKey: 'einvoicing.document_type_not_built_by_regime' }),
       );
       expect(() => builder.build(input({ invoice: { ...invoice, fiscalDocumentType: null } as Invoice }))).toThrow(

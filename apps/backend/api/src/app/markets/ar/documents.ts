@@ -72,11 +72,16 @@ export const documents: MarketDocuments = {
    * A document AFIP authorised is never annulled: it is reversed with a credit note.
    */
   cancellation: { electronic: CREDIT_NOTE_ONLY, traditional: CREDIT_NOTE_ONLY },
-  // AFIP states the class of the note (A, B, C) and no reason code; the concept lives in the lines.
+  /**
+   * Null on purpose: AFIP publishes no catalogue of correction concepts. It states the class of the
+   * note (A, B, C) and asks for the comprobante it is associated with — `CbtesAsoc`, by type, punto
+   * de venta and number, which the regime writes — while the concept itself lives in the lines.
+   */
   adjustmentCodes: null,
   // The authority asks the receiver of a document for no verdict of its own here.
   counterpartyVerdictCodes: null,
-  debitNotes: false,
+  // Notas de débito 2, 7 and 12, which the regime writes now, each naming what it adds to.
+  debitNotes: true,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,
 };

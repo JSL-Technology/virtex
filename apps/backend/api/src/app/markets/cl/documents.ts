@@ -1,5 +1,5 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
-import type { MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
+import type { MarketAdjustmentCodes, MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
 import { CREDIT_NOTE_ONLY } from '../kit/documents';
 
 /**
@@ -35,6 +35,26 @@ const NUMBERING: MarketNumbering = {
 };
 
 /** Chile: the sales documents the authority defines, and how an issued one is undone. */
+/**
+ * The SII's `CodRef`: what the note DOES to the document it refers to.
+ *
+ * | 1 | Anula el documento de referencia |
+ * | 2 | Corrige el texto del documento de referencia |
+ * | 3 | Corrige montos |
+ *
+ * A short list, and deliberately so: the SII asks what the note does, not why the parties agreed
+ * to it. So every reason that changes an amount is a 3, which is what it is.
+ *
+ * *Verificar con contabilidad/legal*: the codes are in the SII's technical instructions for the
+ * DTE; confirm them before filing.
+ */
+const ADJUSTMENT_CODES: MarketAdjustmentCodes = {
+  // `CodRef`: 1 anula el documento de referencia, 2 corrige el texto, 3 corrige los montos. The
+  // SII publishes one catalogue for both kinds of note, so both records carry the same codes.
+  creditNote: { ANNULMENT: '1', DETAIL_CORRECTION: '2', GOODS_RETURN: '3', PRICE_REDUCTION: '3', OTHER: '3' },
+  debitNote: { LATE_PAYMENT_INTEREST: '3', ADDITIONAL_CHARGES: '3', PRICE_INCREASE: '3', PENALTY: '3', OTHER: '3' },
+};
+
 export const documents: MarketDocuments = {
   fiscalNumbering: true,
   types: DOCUMENT_TYPES,
@@ -43,10 +63,11 @@ export const documents: MarketDocuments = {
    */
   cancellation: { electronic: CREDIT_NOTE_ONLY, traditional: CREDIT_NOTE_ONLY },
   // The SII's código de referencia is not written yet: the builder does not reference the modified DTE.
-  adjustmentCodes: null,
+  adjustmentCodes: ADJUSTMENT_CODES,
   // The authority asks the receiver of a document for no verdict of its own here.
   counterpartyVerdictCodes: null,
-  debitNotes: false,
+  // The regime writes the nota de débito (56) now, referring to the DTE it corrects.
+  debitNotes: true,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,
 };

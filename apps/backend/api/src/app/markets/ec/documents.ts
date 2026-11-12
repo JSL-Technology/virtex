@@ -47,11 +47,17 @@ export const documents: MarketDocuments = {
    * is told so and offered the credit note.
    */
   cancellation: { electronic: AUTHORITY_EVENT, traditional: AUTHORITY_EVENT },
-  // The SRI's motivo is not written yet: the builder does not reference the modified comprobante.
+  /**
+   * Null on purpose, not for want of transcribing: the SRI publishes no catalogue of correction
+   * concepts. Its `infoNotaCredito/motivo` is a sentence the issuer writes, so the note carries the
+   * words rather than a code nobody chose. The reference itself — `codDocModificado`,
+   * `numDocModificado`, `fechaEmisionDocSustento` — is mandatory and is written.
+   */
   adjustmentCodes: null,
   // The authority asks the receiver of a document for no verdict of its own here.
   counterpartyVerdictCodes: null,
-  debitNotes: false,
+  // The regime writes the nota de débito (05) now, as its own comprobante naming what it modifies.
+  debitNotes: true,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,
 };

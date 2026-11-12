@@ -35,11 +35,17 @@ export const documents: MarketDocuments = {
    * that event yet, so the market is told so and offered the credit note.
    */
   cancellation: { electronic: AUTHORITY_EVENT, traditional: AUTHORITY_EVENT },
-  // An NF-e of devolução carries its purpose in `finNFe`, not a reason code.
+  /**
+   * Null on purpose: an NF-e carries its purpose in `finNFe` — 4 devolução, 2 complementar — and
+   * the SEFAZ publishes no catalogue of reasons beside it. What it does require is the NF-e being
+   * corrected, by its chave de acesso, which the regime writes in `NFref/refNFe`.
+   */
   adjustmentCodes: null,
   // The authority asks the receiver of a document for no verdict of its own here.
   counterpartyVerdictCodes: null,
-  debitNotes: false,
+  // A Brazilian debit note is an NF-e complementar (`finNFe` 2) referring to the NF-e whose value
+  // it completes. The regime writes both it and the devolução now.
+  debitNotes: true,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,
 };

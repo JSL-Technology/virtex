@@ -97,15 +97,10 @@ const NUMBERING: MarketNumbering = {
  * *Verificar con contabilidad/legal*: Norma General 01-2020 and the e-CF technical annexes.
  */
 const ADJUSTMENT_CODES: MarketAdjustmentCodes = {
-  ANNULMENT: '1',
-  DETAIL_CORRECTION: '2',
-  GOODS_RETURN: '3',
-  PRICE_REDUCTION: '3',
-  PRICE_INCREASE: '3',
-  LATE_PAYMENT_INTEREST: '3',
-  ADDITIONAL_CHARGES: '3',
-  PENALTY: '3',
-  OTHER: '3',
+  // `CodigoModificacion`: 1 anulación total, 2 corrección de texto, 3 corrección de montos. The
+  // DGII publishes one catalogue for both kinds of note, so both records carry the same codes.
+  creditNote: { ANNULMENT: '1', DETAIL_CORRECTION: '2', GOODS_RETURN: '3', PRICE_REDUCTION: '3', OTHER: '3' },
+  debitNote: { LATE_PAYMENT_INTEREST: '3', ADDITIONAL_CHARGES: '3', PRICE_INCREASE: '3', PENALTY: '3', OTHER: '3' },
 };
 
 /**

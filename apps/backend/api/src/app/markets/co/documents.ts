@@ -1,5 +1,5 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
-import type { MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
+import type { MarketAdjustmentCodes, MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
 import { CREDIT_NOTE_ONLY } from '../kit/documents';
 
 /**
@@ -13,6 +13,31 @@ export const DOCUMENT_TYPES: readonly MarketFiscalDocumentType[] = [
   { code: '91', labelKey: 'fiscal.co.91', name: 'Nota Crédito', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', purpose: 'CREDIT_NOTE', requiresBuyerTaxId: false, sortOrder: 20 },
   { code: '92', labelKey: 'fiscal.co.92', name: 'Nota Débito', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', purpose: 'DEBIT_NOTE', requiresBuyerTaxId: false, sortOrder: 30 },
 ];
+
+/**
+ * The DIAN's «concepto de corrección», written in the note's `DiscrepancyResponse/ResponseCode`.
+ *
+ * The catalogue of a nota crédito and that of a nota débito are different lists that happen to
+ * start at 1, so a reason is mapped to the list of the note it belongs to:
+ *
+ * | Nota crédito | | Nota débito | |
+ * |---|---|---|---|
+ * | 1 | Devolución parcial o no aceptación parcial | 1 | Intereses |
+ * | 2 | Anulación de factura electrónica | 2 | Gastos por cobrar |
+ * | 3 | Rebaja o descuento parcial o total | 3 | Cambio del valor |
+ * | 4 | Ajuste de precio | 4 | Otros |
+ * | 5 | Otros | | |
+ *
+ * *Verificar con contabilidad/legal*: both lists are in the DIAN's anexo técnico (this follows
+ * 1.8) and the DIAN revises it; confirm code by code before filing.
+ */
+const ADJUSTMENT_CODES: MarketAdjustmentCodes = {
+  // Conceptos de nota crédito: 1 devolución, 2 anulación, 3 rebaja, 4 ajuste de precio, 5 otros.
+  creditNote: { GOODS_RETURN: '1', ANNULMENT: '2', PRICE_REDUCTION: '3', DETAIL_CORRECTION: '4', OTHER: '5' },
+  // Conceptos de nota débito, a list of four: 1 intereses, 2 gastos por cobrar, 3 cambio del
+  // valor, 4 otros. `5` is not in it, which is what one flat record wrote here for `OTHER`.
+  debitNote: { LATE_PAYMENT_INTEREST: '1', ADDITIONAL_CHARGES: '2', PRICE_INCREASE: '3', PENALTY: '4', OTHER: '4' },
+};
 
 /**
  * DIAN: the number is the resolution's prefix and a consecutive within the authorised range, written
@@ -35,11 +60,12 @@ export const documents: MarketDocuments = {
    * An issued electronic invoice is never annulled: it is reversed with a credit note (91).
    */
   cancellation: { electronic: CREDIT_NOTE_ONLY, traditional: CREDIT_NOTE_ONLY },
-  // The DIAN's concepto de corrección is not written yet: the builder does not reference the modified document.
-  adjustmentCodes: null,
+  adjustmentCodes: ADJUSTMENT_CODES,
   // The authority asks the receiver of a document for no verdict of its own here.
   counterpartyVerdictCodes: null,
-  debitNotes: false,
+  // The regime writes both notes now: each as its own UBL document, referencing the one it
+  // corrects and carrying the DIAN's concepto for why.
+  debitNotes: true,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,
 };

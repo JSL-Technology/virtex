@@ -1,5 +1,6 @@
 import * as xmlbuilder from 'xmlbuilder';
-import { Invoice, InvoiceType } from '../../../invoices/entities/invoice.entity';
+import { Invoice } from '../../../invoices/entities/invoice.entity';
+import { ModifiedDocumentReference, requiredNumber, requiredReasonCode } from '../modified-document';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
@@ -33,6 +34,8 @@ export interface SunatBuildInput {
   invoice: Invoice;
   organization: Organization;
   customer: Customer;
+  /** Set on a nota de crédito/débito: the document it corrects, and SUNAT's code for why. */
+  modifies?: ModifiedDocumentReference | null;
   /** `F001` for a factura, `B001` for a boleta. Its first letter must match the document type. */
   series: string;
 }
@@ -47,14 +50,14 @@ export class SunatBuilder {
     const documentType = this.documentType(input);
     const correlative = this.correlative(fiscalConsecutive(invoice));
 
+    // A nota de crédito (07) and a nota de débito (08) are UBL documents of their own, each with
+    // its own namespace, its own line element and its own quantity. The note's kind came from
+    // `invoice.type`, so a Peruvian debit note was written as an `Invoice` — which SUNAT refuses.
+    const document = DOCUMENTS[documentType] ?? DOCUMENTS['01'];
+
     const root = xmlbuilder
-      .create(invoice.type === InvoiceType.CREDIT_NOTE ? 'CreditNote' : 'Invoice', {
-        encoding: 'UTF-8',
-      })
-      .att(
-        'xmlns',
-        invoice.type === InvoiceType.CREDIT_NOTE ? UBL_CREDIT_NOTE_NS : UBL_INVOICE_NS,
-      )
+      .create(document.root, { encoding: 'UTF-8' })
+      .att('xmlns', document.ns)
       .att('xmlns:cac', CAC_NS)
       .att('xmlns:cbc', CBC_NS)
       .att('xmlns:ext', EXT_NS);
@@ -68,7 +71,9 @@ export class SunatBuilder {
     root.ele('cbc:ID', {}, `${input.series}-${correlative}`);
     root.ele('cbc:IssueDate', {}, this.date(invoice.issueDate));
     if (invoice.dueDate) root.ele('cbc:DueDate', {}, this.date(invoice.dueDate));
-    if (invoice.type !== InvoiceType.CREDIT_NOTE) {
+    // Only a factura or boleta carries `InvoiceTypeCode`: on a note the type is the document's own
+    // root, and the list the code belongs to is the note's reason catalogue instead.
+    if (!document.isNote) {
       root.ele('cbc:InvoiceTypeCode', { listID: '0101' }, documentType);
     }
     root.ele('cbc:DocumentCurrencyCode', {}, currency);
@@ -94,14 +99,42 @@ export class SunatBuilder {
       scheme.ele('cbc:TaxTypeCode', {}, 'VAT');
     }
 
+    // ── A note names the document it corrects, and why ──────────────────────────────────
+    //
+    // SUNAT asks for both: `DiscrepancyResponse` carries the reason from catálogo 09 (notas de
+    // crédito) or catálogo 10 (notas de débito), and `BillingReference` the referenced document by
+    // its series-correlative and its own type. Without them the note is rejected — the builder
+    // wrote neither (audit FAC-INV-05 / MP-10).
+    if (input.modifies) {
+      const modifiedNumber = requiredNumber(input.modifies);
+      const discrepancy = root.ele('cac:DiscrepancyResponse');
+      discrepancy.ele('cbc:ReferenceID', {}, modifiedNumber);
+      discrepancy.ele(
+        'cbc:ResponseCode',
+        { listAgencyName: 'PE:SUNAT', listName: document.reasonList ?? '' },
+        requiredReasonCode(input.modifies, invoice.adjustmentReason ?? 'OTHER'),
+      );
+      discrepancy.ele('cbc:Description', {}, input.modifies.reasonText ?? '');
+
+      const reference = root.ele('cac:BillingReference').ele('cac:InvoiceDocumentReference');
+      reference.ele('cbc:ID', {}, modifiedNumber);
+      // Catálogo 01: the type of the document being corrected, as it was issued.
+      if (input.modifies.documentType) {
+        reference.ele(
+          'cbc:DocumentTypeCode',
+          { listAgencyName: 'PE:SUNAT', listName: 'Tipo de Documento', listURI: 'urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo01' },
+          input.modifies.documentType,
+        );
+      }
+    }
+
     const monetary = root.ele('cac:LegalMonetaryTotal');
     monetary.ele('cbc:LineExtensionAmount', { currencyID: currency }, amount(invoice.subtotal));
     monetary.ele('cbc:TaxInclusiveAmount', { currencyID: currency }, amount(invoice.total));
     monetary.ele('cbc:PayableAmount', { currencyID: currency }, amount(invoice.total));
 
-    const lineTag = invoice.type === InvoiceType.CREDIT_NOTE ? 'cac:CreditNoteLine' : 'cac:InvoiceLine';
-    const quantityTag =
-      invoice.type === InvoiceType.CREDIT_NOTE ? 'cbc:CreditedQuantity' : 'cbc:InvoicedQuantity';
+    const lineTag = document.line;
+    const quantityTag = document.quantity;
 
     for (const [index, line] of (invoice.lineItems ?? []).entries()) {
       const node = root.ele(lineTag);
@@ -179,7 +212,7 @@ export class SunatBuilder {
    * (`MarketNumbering.acceptsSeries`); this is the same rule, refused by name if the two ever drift.
    */
   documentType(input: Pick<SunatBuildInput, 'invoice' | 'series'>): string {
-    const type = issuedDocumentType(input.invoice, ['01', '03', '07']);
+    const type = issuedDocumentType(input.invoice, ['01', '03', '07', '08']);
     const letter = input.series.toUpperCase().charAt(0);
     if ((type === '01' && letter !== 'F') || (type === '03' && letter !== 'B')) {
       throw new BadRequestError('einvoicing.pe.series_contradicts_document_type', { series: input.series, type });
@@ -219,8 +252,26 @@ export class SunatBuilder {
   }
 }
 
+
 const UBL_INVOICE_NS = 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2';
 const UBL_CREDIT_NOTE_NS = 'urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2';
+const UBL_DEBIT_NOTE_NS = 'urn:oasis:names:specification:ubl:schema:xsd:DebitNote-2';
 const CAC_NS = 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2';
 const CBC_NS = 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2';
 const EXT_NS = 'urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2';
+
+/**
+ * Each SUNAT document as UBL names it, and which reason catalogue its notes use.
+ *
+ * *Verificar con contabilidad/legal*: catálogo 09 (notas de crédito) and catálogo 10 (notas de
+ * débito) are SUNAT's, revised by resolution; `markets/pe/documents.ts` declares the code for each
+ * reason and that mapping is what to confirm before filing.
+ */
+const DOCUMENTS: Readonly<
+  Record<string, { root: string; ns: string; line: string; quantity: string; isNote: boolean; reasonList?: string }>
+> = {
+  '01': { root: 'Invoice', ns: UBL_INVOICE_NS, line: 'cac:InvoiceLine', quantity: 'cbc:InvoicedQuantity', isNote: false },
+  '03': { root: 'Invoice', ns: UBL_INVOICE_NS, line: 'cac:InvoiceLine', quantity: 'cbc:InvoicedQuantity', isNote: false },
+  '07': { root: 'CreditNote', ns: UBL_CREDIT_NOTE_NS, line: 'cac:CreditNoteLine', quantity: 'cbc:CreditedQuantity', isNote: true, reasonList: 'Tipo de nota de credito' },
+  '08': { root: 'DebitNote', ns: UBL_DEBIT_NOTE_NS, line: 'cac:DebitNoteLine', quantity: 'cbc:DebitedQuantity', isNote: true, reasonList: 'Tipo de nota de debito' },
+};

@@ -618,8 +618,8 @@ async function main(): Promise<void> {
     partial.fiscalNumber ?? 'sin e-NCF');
   // El motivo se guarda en los términos del producto; el código de la autoridad lo escribe el mercado.
   check('la nota de crédito guarda el motivo canónico que se le indicó',
-    partial.adjustmentReason === 'GOODS_RETURN' && adjustmentCodeFor('DO', partial.adjustmentReason) === '3',
-    `${partial.adjustmentReason} → ${adjustmentCodeFor('DO', partial.adjustmentReason)}`);
+    partial.adjustmentReason === 'GOODS_RETURN' && adjustmentCodeFor('DO', partial.adjustmentReason, 'CREDIT_NOTE') === '3',
+    `${partial.adjustmentReason} → ${adjustmentCodeFor('DO', partial.adjustmentReason, 'CREDIT_NOTE')}`);
 
   const afterPartial = await invoices.findOne(issued.id, orgId);
   check('la nota parcial reduce el saldo de la factura', afterPartial.balance < issued.netReceivable,
@@ -640,8 +640,8 @@ async function main(): Promise<void> {
   // lo lee como su código 1. Antes el producto guardaba ese 1 en la factura de cualquier mercado.
   const annulling = await invoices.createCreditNote({ invoiceId: issued.id, reason: 'Operación anulada' } as never, orgId);
   check('acreditar el total anula la operación y lo dice en términos del producto',
-    annulling.adjustmentReason === 'ANNULMENT' && adjustmentCodeFor('DO', annulling.adjustmentReason) === '1',
-    `${annulling.adjustmentReason} → ${adjustmentCodeFor('DO', annulling.adjustmentReason)}`);
+    annulling.adjustmentReason === 'ANNULMENT' && adjustmentCodeFor('DO', annulling.adjustmentReason, 'CREDIT_NOTE') === '1',
+    `${annulling.adjustmentReason} → ${adjustmentCodeFor('DO', annulling.adjustmentReason, 'CREDIT_NOTE')}`);
   const annulled = await invoices.findOne(issued.id, orgId);
   check('y la factura queda anulada por la nota de crédito',
     annulled.status === 'Void' && annulled.cancellationMode === 'CREDIT_NOTE',

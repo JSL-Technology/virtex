@@ -59,6 +59,20 @@ describe('SII — Documento Tributario Electrónico', () => {
     ],
   } as unknown as Invoice;
 
+  /** The DTE a note refers to: a factura afecta, folio 77, as the SII granted it. */
+  const REFERENCE = {
+    fiscalNumber: '77',
+    documentType: '33',
+    issueDate: '2026-06-10',
+    documentKey: null,
+    authorityHandle: null,
+    // The folio the SII granted and the série it belongs to, as the document recorded them.
+    sequence: 77,
+    series: '0',
+    reasonCode: '3',
+    reasonText: null,
+  };
+
   const input = (overrides: Partial<SiiBuildInput> = {}): SiiBuildInput => ({
     invoice,
     organization,
@@ -122,9 +136,62 @@ describe('SII — Documento Tributario Electrónico', () => {
     expect(exempt.xml).toContain('<TipoDTE>34</TipoDTE>');
 
     const creditNote = builder.build(
-      input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '61' } as Invoice }),
+      input({
+        invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '61' } as Invoice,
+        modifies: REFERENCE,
+      }),
     );
     expect(creditNote.xml).toContain('<TipoDTE>61</TipoDTE>');
+
+    const debitNote = builder.build(
+      input({
+        invoice: { ...invoice, type: InvoiceType.DEBIT_NOTE, fiscalDocumentType: '56' } as Invoice,
+        modifies: { ...REFERENCE, reasonCode: '3' },
+      }),
+    );
+    expect(debitNote.xml).toContain('<TipoDTE>56</TipoDTE>');
+  });
+
+  /**
+   * A note refers to the DTE it corrects, and says what it does to it.
+   *
+   * The builder wrote no `Referencia` at all (audit FAC-INV-05 / MP-10): the SII rejects a nota de
+   * crédito that refers to nothing, and one it accepted would credit a document nobody named.
+   */
+  it('refers to the document it corrects, by folio, with what it does to it', () => {
+    const { xml } = builder.build(
+      input({
+        invoice: {
+          ...invoice,
+          type: InvoiceType.CREDIT_NOTE,
+          fiscalDocumentType: '61',
+          adjustmentReason: 'ANNULMENT',
+          notes: 'Operación anulada por acuerdo',
+        } as Invoice,
+        modifies: { ...REFERENCE, reasonCode: '1', reasonText: 'Operación anulada por acuerdo' },
+      }),
+    );
+
+    expect(xml).toContain('<Referencia>');
+    expect(xml).toContain('<TpoDocRef>33</TpoDocRef>');
+    // By folio: the consecutive the SII granted, not a formatted number.
+    expect(xml).toContain('<FolioRef>77</FolioRef>');
+    expect(xml).toContain('<FchRef>2026-06-10</FchRef>');
+    expect(xml).toContain('<CodRef>1</CodRef>');
+    expect(xml).toContain('<RazonRef>Operación anulada por acuerdo</RazonRef>');
+    // And before the timbre, where the schema puts it.
+    expect(xml.indexOf('<Referencia>')).toBeLessThan(xml.indexOf('<TED'));
+  });
+
+  it('refuses a note whose reason its market publishes no CodRef for', () => {
+    expect(() =>
+      builder.build(
+        input({
+          invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '61' } as Invoice,
+          modifies: { ...REFERENCE, reasonCode: null },
+        }),
+      ),
+    ).toThrow(/adjustment_reason_has_no_authority_code/);
   });
 
   it('writes both RUTs with their check character and no thousands dots', () => {

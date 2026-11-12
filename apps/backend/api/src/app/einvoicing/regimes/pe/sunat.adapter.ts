@@ -5,6 +5,7 @@ import { CertificateVaultService, LoadedCertificate } from '../../services/certi
 import { XmlSignatureService } from '../xml-signature.service';
 import { RegimeTransportService } from '../regime-transport.service';
 import { FiscalRangeService } from '../../services/fiscal-range.service';
+import { modifiedDocumentOf } from '../modified-document';
 import {
   FiscalRegimeAdapter,
   FiscalRegimeContext,
@@ -71,6 +72,8 @@ export class SunatRegimeAdapter extends RegimeAdapterBase implements FiscalRegim
       organization,
       customer,
       series: range.series,
+      // On a nota de crédito/débito: the document it corrects, with SUNAT's code for why.
+      modifies: await modifiedDocumentOf(context.manager, context.invoice, 'PE'),
     });
 
     return { payload: xml, contentType: 'application/xml', documentKey: documentName };

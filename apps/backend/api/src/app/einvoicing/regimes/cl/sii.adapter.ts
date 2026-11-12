@@ -5,6 +5,7 @@ import { CertificateVaultService, LoadedCertificate } from '../../services/certi
 import { XmlSignatureService } from '../xml-signature.service';
 import { RegimeTransportService } from '../regime-transport.service';
 import { FiscalRangeService } from '../../services/fiscal-range.service';
+import { modifiedDocumentOf } from '../modified-document';
 import { FiscalRangeSecretKind } from '../../entities/fiscal-document-range.entity';
 import {
   FiscalRegimeAdapter,
@@ -86,6 +87,8 @@ export class SiiRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
       invoice: context.invoice,
       organization,
       customer,
+      // On a nota de crédito/débito: the DTE it refers to, with the SII's CodRef for why.
+      modifies: await modifiedDocumentOf(context.manager, context.invoice, 'CL'),
       caf: {
         folio,
         rangeFrom: Number(range.startsAt),

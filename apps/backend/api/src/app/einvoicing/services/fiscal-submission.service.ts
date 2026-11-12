@@ -3,7 +3,7 @@ import { DataSource, EntityManager } from 'typeorm';
 import { FiscalSubmission, FiscalSubmissionStatus } from '../entities/fiscal-submission.entity';
 import { Invoice } from '../../invoices/entities/invoice.entity';
 import { FiscalRegimeRegistry } from '../regimes/fiscal-regime.registry';
-import { FiscalRegimeAdapter, FiscalRegimeContext, FiscalTransmissionResult, RegimeNotConfigured } from '../regimes/fiscal-regime.types';
+import { AuthorityAssignedNumber, FiscalRegimeAdapter, FiscalRegimeContext, FiscalTransmissionResult, RegimeNotConfigured } from '../regimes/fiscal-regime.types';
 import { NotFoundError, ConflictError } from '../../i18n/localized.exception';
 import { I18nService } from '../../i18n/i18n.service';
 import { TransmissionConfigService } from './transmission-config.service';
@@ -133,7 +133,7 @@ export class FiscalSubmissionService {
         verificationUrl: sealed.verificationUrl ?? null,
       });
       const result = await adapter.transmit(sealed, context);
-      return this.record(claimed, result, sealed.documentKey);
+      return this.record(claimed, result, sealed.documentKey, sealed.assignedNumber ?? null);
     } catch (error) {
       return this.failure(claimed, error, adapter);
     }
@@ -234,7 +234,49 @@ export class FiscalSubmissionService {
     return { invoice, organizationId: submission.organizationId, manager, attempt: submission.attempts };
   }
 
-  private record(submission: FiscalSubmission, result: FiscalTransmissionResult, documentKey: string | null): Promise<FiscalSubmission> {
+  private async record(
+    submission: FiscalSubmission,
+    result: FiscalTransmissionResult,
+    documentKey: string | null,
+    assigned: AuthorityAssignedNumber | null = null,
+  ): Promise<FiscalSubmission> {
+    // The number the authority settled, recorded only once it accepted: a number it refused is a
+    // number it considers unused, and writing it on the document would claim an authorisation that
+    // does not exist.
+    if (assigned && (result.status === 'ACCEPTED' || result.status === 'ACCEPTED_WITH_OBSERVATIONS')) {
+      await this.settleNumber(submission, assigned);
+    }
+    return this.recorded(submission, result, documentKey, assigned);
+  }
+
+  /**
+   * Write the authority's number onto the document it belongs to.
+   *
+   * Only where the document has none: an issued number is never overwritten, so a retry that finds
+   * the document already authorised leaves the number the authority first granted.
+   */
+  private async settleNumber(submission: FiscalSubmission, assigned: AuthorityAssignedNumber): Promise<void> {
+    await this.dataSource
+      .createQueryBuilder()
+      .update(Invoice)
+      .set({
+        fiscalNumber: assigned.fiscalNumber,
+        fiscalSequence: assigned.sequence,
+        fiscalSeries: assigned.series,
+      })
+      .where('id = :id AND organization_id = :organizationId AND fiscal_number IS NULL', {
+        id: submission.invoiceId,
+        organizationId: submission.organizationId,
+      })
+      .execute();
+  }
+
+  private recorded(
+    submission: FiscalSubmission,
+    result: FiscalTransmissionResult,
+    documentKey: string | null,
+    assigned: AuthorityAssignedNumber | null,
+  ): Promise<FiscalSubmission> {
     const base = {
       messages: [...(submission.messages ?? []), ...result.messages],
       response: result.raw ?? null,
@@ -245,6 +287,9 @@ export class FiscalSubmissionService {
       case 'ACCEPTED_WITH_OBSERVATIONS':
         return this.finish(submission, {
           ...base,
+          // The submission carries the document's number as well, so the outbox is readable on its
+          // own: it is the record of what was filed.
+          ...(assigned ? { fiscalNumber: assigned.fiscalNumber } : {}),
           status:
             result.status === 'ACCEPTED'
               ? FiscalSubmissionStatus.ACCEPTED

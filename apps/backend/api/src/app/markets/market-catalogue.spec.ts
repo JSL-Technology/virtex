@@ -1,7 +1,7 @@
 import { allMarkets, marketFor, knownMarket } from './registry';
 import { CHECKSUM_ALGORITHMS, IDENTITY_DOCUMENT_TYPES, validateTaxId } from './queries/identity';
 import { coverageFor } from './queries/coverage';
-import { ADJUSTMENT_REASONS, PAYMENT_SETTLEMENT_KINDS } from './contracts';
+import { CREDIT_NOTE_REASONS, DEBIT_NOTE_REASONS, PAYMENT_SETTLEMENT_KINDS } from './contracts';
 
 /**
  * The integrity of what the markets declare (docs/ARQUITECTURA_MERCADOS.md §2.7).
@@ -83,13 +83,22 @@ describe('market catalogue', () => {
       if (!market.documents.fiscalNumbering) expect(market.documents.types).toHaveLength(0);
     });
 
-    it('writes the authority\'s code for every reason a note can carry, or none at all', () => {
+    it('writes the authority\'s code for every reason a note of that kind can carry, or none at all', () => {
       const codes = market.documents.adjustmentCodes;
       // Nothing in between: a reason with no code is a note the regime cannot write, and a market
       // that writes none says so once rather than per reason.
       if (codes === null) return;
-      for (const reason of ADJUSTMENT_REASONS) {
-        expect([reason, codes[reason]?.trim()]).toEqual([reason, expect.stringMatching(/.+/)]);
+      for (const reason of CREDIT_NOTE_REASONS) {
+        expect([reason, codes.creditNote[reason]?.trim()]).toEqual([reason, expect.stringMatching(/.+/)]);
+      }
+      // One catalogue per kind of note, because that is how authorities publish them: a market that
+      // issues debit notes and codes its notes at all publishes codes for both.
+      if (market.documents.debitNotes) {
+        expect([market.code, codes.debitNote === null]).toEqual([market.code, false]);
+      }
+      for (const reason of DEBIT_NOTE_REASONS) {
+        if (!codes.debitNote) break;
+        expect([reason, codes.debitNote[reason]?.trim()]).toEqual([reason, expect.stringMatching(/.+/)]);
       }
       // A code only means something to the authority that publishes it.
       expect(market.documents.fiscalNumbering || market.einvoicing.regime !== null).toBe(true);

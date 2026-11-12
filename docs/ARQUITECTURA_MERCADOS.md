@@ -344,6 +344,59 @@ se le inventó un contrato: un contrato con una sola implementación no se puede
 adaptadores de régimen se ganó su lugar cuando hubo siete. Cuando un segundo mercado escriba eventos,
 el contrato saldrá de las dos implementaciones, como salió el de los envíos.
 
+**Una nota nombra el documento que corrige.** Una nota de crédito o de débito sólo se entiende al
+lado del documento que corrige, y cada autoridad lo pide con sus propias palabras. Siete regímenes la
+construían sin ninguna: la nota viajaba como un documento que se sostiene solo, que la autoridad
+rechaza o archiva contra nada —y un crédito que la autoridad no puede ligar a su factura es un
+crédito que el contribuyente no puede probar (FAC-INV-05 / MP-10). Ahora la referencia se resuelve
+una vez (`modifiedDocumentOf` → `ModifiedDocumentReference`: qué documento, de qué fecha, con qué
+número, con qué identificador de su régimen y por qué motivo) y cada régimen escribe sus propios
+elementos:
+
+| Mercado | Lo que escribe la nota |
+|---|---|
+| DO | `eNCFModificado`, `fechaEmisionModificado`, `codigoModificacion` |
+| CO | `cac:DiscrepancyResponse` (`ReferenceID`, `ResponseCode`, `Description`) y `cac:BillingReference` con el CUFE |
+| PE | `cac:DiscrepancyResponse` con el catálogo 09 o 10 según la nota, y `cac:BillingReference` con su tipo |
+| CL | `Referencia` (`TpoDocRef`, `FolioRef`, `FchRef`, `CodRef`, `RazonRef`), antes del timbre |
+| EC | `notaCredito`/`notaDebito` con `codDocModificado`, `numDocModificado`, `fechaEmisionDocSustento` y el `motivo` en palabras |
+| MX | `cfdi:CfdiRelacionados` con el `TipoRelacion` del catálogo y el UUID que timbró el PAC |
+| BR | `NFref/refNFe` con la chave de acesso, `finNFe` 4 (devolução) o 2 (complementar) |
+| AR | `CbtesAsoc` con el tipo, el punto de venta, el número y la fecha del comprobante asociado |
+
+Nada se adivina: la nota se rechaza —antes de sellar nada— cuando no nombra documento alguno, cuando
+el régimen la referencia por número y ese documento no lo tiene, cuando la referencia es por
+identificador y el original nunca se transmitió, y cuando el mercado no publica un código para el
+motivo que se le indicó.
+
+**Los códigos del motivo son por clase de nota.** SUNAT publica el catálogo 09 para las notas de
+crédito y el 10 para las de débito, y «otros conceptos» es `10` en el primero y `03` en el segundo;
+los conceptos de nota débito de la DIAN llegan hasta `4` y el `5` es de una nota crédito; el
+`TipoRelacion` del SAT es `01` para un crédito y `02` para un débito del mismo documento. Un solo
+registro por mercado escribía el código de crédito en una nota de débito —en dos de esos catálogos,
+un código que no existe—, así que `MarketDocuments.adjustmentCodes` tiene un catálogo por clase
+(`creditNote`, `debitNote`) y `adjustmentCodeFor` lee el de la clase que se emite. Donde la autoridad
+publica uno solo para las dos (la DGII, el SII) los dos registros lo dicen, en lugar de suponerlo. Y
+donde no publica ninguno —el SRI pide el motivo en palabras, AFIP sólo el comprobante asociado— el
+mercado declara `null` y la nota lleva lo que escribió quien la emitió.
+
+**El número que asigna la autoridad al transmitir.** AFIP no autoriza un número que el contribuyente
+sacó de un rango: el contribuyente pide el siguiente de su punto de venta y AFIP lo autoriza junto
+con el CAE, así que el documento no TIENE número hasta que el intercambio sale bien. El régimen lo
+informa (`SealedFiscalDocument.assignedNumber`) y el buzón lo escribe en el documento sólo cuando la
+autoridad lo aceptó, y sólo si no tenía número: sin eso el producto nunca se enteraba de qué número
+autorizó la autoridad para su propio documento, que es además el que una nota posterior debe nombrar.
+
+Con la referencia escrita, cuatro mercados más emiten nota de débito por su régimen: México (un
+ingreso relacionado con `TipoRelacion` `02`), Brasil (una NF-e complementar), Argentina (2, 7, 12) y
+Ecuador (`notaDebito`).
+
+La puerta de neutralidad cuenta el vocabulario de una autoridad dondequiera que esté, incluidos estos
+adaptadores, para que la deuda sea visible mientras no vivan donde el plan los quiere. Esos campos
+subieron el baseline de 723 a 738 el 2026-11-12: la razón está escrita en
+`tools/verify/country-neutrality.baseline.json` y es la de arriba —los campos son el arreglo, no la
+deuda.
+
 Los adaptadores viven en `einvoicing/regimes/<cc>/` y no en `markets/<cc>/`: necesitan las entidades
 del documento (factura, líneas, cliente, organización) y `markets/` no depende de ningún módulo de
 negocio (§2.4). El paquete del mercado declara la **política** —si la ley lo exige, cómo se llama el
@@ -414,7 +467,7 @@ eso se resuelve en el contrato, no con una rama.
 | 0 | Este documento; tareas del programa | ✅ |
 | 1 | `markets/`: contrato, registro, mercado neutral, 19 paquetes con la estructura canónica, consultas genéricas (`markets/queries`), datos consolidados desde `localization/fiscal/*` y `contracts/country-pack` (retirados); los consumidores leen el registro; pruebas de estructura y de catálogo; puerta estricta con regla de import | ✅ |
 | 2 | Documentos y numeración: un adaptador genérico guiado por la política de numeración del mercado; fuera el `switch` de `FiscalAdapterFactory`; `ncf_sequences` → `fiscal_document_ranges`; motivos de ajuste canónicos en lugar de `ModificationCode`; tipos de nota de crédito y débito de todos los regímenes | ✅ Motor único con la política de cada mercado, rangos unificados con reglas comunes, consecutivo y serie en el documento, pantalla y API únicas (§2.8); motivos de ajuste canónicos traducidos por el mercado (§2.9). Los constructores de los seis regímenes que todavía no referencian el documento modificado son parte de la fase 3 |
-| 3 | Facturación electrónica: DO entra al buzón único (`fiscal_submissions`); los constructores quedan como adaptadores de régimen con un solo contrato; `ecf_lifecycle_messages` → `fiscal_document_events`; las variables `DGII_*` pasan a la configuración de transmisión del tenant | 🚧 Hecho: la DGII es un adaptador (`regimes/do/`), una sola tabla de envíos, un solo reconciliador, un solo estado y una sola pantalla; fuera la expresión regular del e-NCF de la entidad genérica; el canal lo declara cada régimen; `fiscal_document_events` con el veredicto como hecho y el código escrito por el mercado (§2.11). Falta: los seis constructores que no referencian el documento modificado (MP-10) y las variables `DGII_*` |
+| 3 | Facturación electrónica: DO entra al buzón único (`fiscal_submissions`); los constructores quedan como adaptadores de régimen con un solo contrato; `ecf_lifecycle_messages` → `fiscal_document_events`; las variables `DGII_*` pasan a la configuración de transmisión del tenant | 🚧 Hecho: la DGII es un adaptador (`regimes/do/`), una sola tabla de envíos, un solo reconciliador, un solo estado y una sola pantalla; fuera la expresión regular del e-NCF de la entidad genérica; el canal lo declara cada régimen; `fiscal_document_events` con el veredicto como hecho y el código escrito por el mercado; los siete regímenes referencian el documento que la nota corrige, con el código del catálogo de su clase, y AFIP escribe el número que autoriza (§2.11). Falta: las variables `DGII_*` |
 | 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ✅ Columnas neutrales con migración exacta en los dos sentidos, `fiscal_attributes` validado contra la declaración del mercado, documento del proveedor comprobado por la regla de cada mercado, método de pago de la empresa en lugar de la «forma de pago» de una autoridad, formulario y ficha dibujados desde el paquete público del mercado (§2.10) |
 | 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ⏳ |
 | 6 | Nómina: motor dominicano a `markets/do/payroll/`, registro de motores y sin `'DOP'` por omisión | ⏳ |

@@ -67,6 +67,21 @@ describe('SRI — comprobante electrónico', () => {
     ],
   } as unknown as Invoice;
 
+  /** The factura a note corrects, as `modifiedDocumentOf` resolves it. */
+  const REFERENCE = {
+    fiscalNumber: '001-001-000000077',
+    documentType: '01',
+    issueDate: '2026-06-01',
+    documentKey: null,
+    authorityHandle: null,
+    sequence: 77,
+    series: '001-001',
+    // Null, and not for want of transcribing: the SRI publishes no catalogue of correction
+    // concepts, so the note says why in words.
+    reasonCode: null,
+    reasonText: 'Devolución parcial de mercadería',
+  };
+
   const input = (overrides: Partial<SriBuildInput> = {}): SriBuildInput => ({
     invoice,
     organization,
@@ -214,12 +229,141 @@ describe('SRI — comprobante electrónico', () => {
 
     it('issues a credit note as document type 04', () => {
       const { accessKey } = builder.build(
-        input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '04' } as Invoice }),
+        input({
+          invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '04' } as Invoice,
+          modifies: REFERENCE,
+        }),
       );
 
       expect(accessKey.slice(8, 10)).toBe('04');
     });
+  });
 
+  /**
+   * A nota de crédito and a nota de débito are comprobantes of their own.
+   *
+   * Both were built as a `factura` (audit FAC-INV-05 / MP-10): the root, the info block, the
+   * version and the fields all belonged to an invoice, so the SRI had no `codDocModificado` to tie
+   * the correction to — and a credit the authority cannot tie to its invoice is a credit the
+   * taxpayer cannot prove.
+   */
+  describe('a note', () => {
+    const creditNote = (overrides: Partial<Invoice> = {}) =>
+      builder.build(
+        input({
+          invoice: {
+            ...invoice,
+            type: InvoiceType.CREDIT_NOTE,
+            fiscalDocumentType: '04',
+            ...overrides,
+          } as Invoice,
+          modifies: REFERENCE,
+        }),
+      ).xml;
+
+    const debitNote = (modifies = REFERENCE) =>
+      builder.build(
+        input({
+          invoice: {
+            ...invoice,
+            type: InvoiceType.DEBIT_NOTE,
+            fiscalDocumentType: '05',
+          } as Invoice,
+          modifies,
+        }),
+      ).xml;
+
+    it('is its own comprobante, under its own root and its own version', () => {
+      const credit = creditNote();
+      expect(credit).toContain('<notaCredito');
+      expect(credit).toContain('<infoNotaCredito>');
+      expect(credit).not.toContain('<infoFactura>');
+      expect(credit).toContain('version="1.1.0"');
+
+      const debit = debitNote();
+      expect(debit).toContain('<notaDebito');
+      expect(debit).toContain('<infoNotaDebito>');
+      expect(debit).toContain('version="1.0.0"');
+
+      // And the factura is untouched by any of it.
+      expect(builder.build(input()).xml).toContain('<factura');
+      expect(builder.build(input()).xml).toContain('version="2.1.0"');
+    });
+
+    it('names the comprobante it modifies, with its type, number and date', () => {
+      const xml = creditNote();
+
+      expect(xml).toContain('<codDocModificado>01</codDocModificado>');
+      expect(xml).toContain('<numDocModificado>001-001-000000077</numDocModificado>');
+      // The date of the document being corrected, not of the note.
+      expect(xml).toContain('<fechaEmisionDocSustento>01/06/2026</fechaEmisionDocSustento>');
+      expect(xml).toContain('<valorModificacion>1150.00</valorModificacion>');
+    });
+
+    it('says why in words, because the SRI publishes no code for it', () => {
+      expect(creditNote()).toContain('<motivo>Devolución parcial de mercadería</motivo>');
+
+      const debit = debitNote();
+      expect(debit).toContain('<motivos>');
+      expect(debit).toContain('<razon>Devolución parcial de mercadería</razon>');
+      expect(debit).toContain('<valor>1150.00</valor>');
+    });
+
+    it('invents no motivo when the issuer wrote none', () => {
+      // The field is optional in the ficha técnica. A sentence nobody wrote is worse than none:
+      // the note would state a reason the taxpayer never gave.
+      const xml = builder.build(
+        input({
+          invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '04' } as Invoice,
+          modifies: { ...REFERENCE, reasonText: null },
+        }),
+      ).xml;
+
+      expect(xml).not.toContain('<motivo>');
+      // The reference, which IS mandatory, is there all the same.
+      expect(xml).toContain('<numDocModificado>001-001-000000077</numDocModificado>');
+    });
+
+    it('refuses to build a note that names no document', () => {
+      expect(() =>
+        builder.build(
+          input({
+            invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '04' } as Invoice,
+            modifies: null,
+          }),
+        ),
+      ).toThrow(/note_must_name_the_document_it_modifies/);
+    });
+
+    it('states the fields each note has and not the invoice’s', () => {
+      // A nota de crédito keeps its detalles and totals its tax; a nota de débito has neither,
+      // and states its own `impuestos` with the rate and a `valorTotal`.
+      const credit = creditNote();
+      expect(credit).toContain('<detalles>');
+      expect(credit).toContain('<totalConImpuestos>');
+      expect(credit).not.toContain('<importeTotal>');
+      expect(credit).not.toContain('<propina>');
+      // The item code the nota de crédito's own version names.
+      expect(credit).toContain('<codigoInterno>SRV-01</codigoInterno>');
+
+      const debit = debitNote();
+      expect(debit).not.toContain('<detalles>');
+      expect(debit).toContain('<valorTotal>1150.00</valorTotal>');
+      expect(debit).toContain('<tarifa>15.00</tarifa>');
+    });
+
+    it('is signed inside its own root, which is not factura', () => {
+      // The signature is appended by element name. Appending it to `factura` on a note leaves the
+      // comprobante unsigned, and the SRI refuses an unsigned comprobante.
+      expect(
+        builder.rootElement({ ...invoice, fiscalDocumentType: '04' } as Invoice),
+      ).toBe('notaCredito');
+      expect(builder.rootElement({ ...invoice, fiscalDocumentType: '05' } as Invoice)).toBe('notaDebito');
+      expect(builder.rootElement(invoice)).toBe('factura');
+    });
+  });
+
+  describe('refusals', () => {
     it.each([
       ['el emisor sin RUC', { organization: { ...organization, taxId: null } as unknown as Organization }, 'einvoicing.ec.organization_has_no_ruc_sri_does'],
       ['sin establecimiento', { establishment: '' }, 'einvoicing.ec.sri_establishment_point_issue_missing'],

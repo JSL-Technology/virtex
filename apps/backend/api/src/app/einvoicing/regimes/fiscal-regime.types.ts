@@ -49,6 +49,27 @@ export interface SealedFiscalDocument {
    * regime that prints no such link.
    */
   verificationUrl?: string | null;
+  /**
+   * The number the AUTHORITY settles when the document is transmitted, where its regime assigns it
+   * then rather than from a range the taxpayer draws (`AUTHORITY_ON_TRANSMISSION`).
+   *
+   * AFIP is the case: the taxpayer asks for the next number of a punto de venta and AFIP authorises
+   * that number together with the CAE, so the document HAS no number until the exchange succeeds.
+   * The regime reports it here and the outbox records it on acceptance, which is what makes the
+   * number available to the printed document and to the notes that later refer to it — without it,
+   * the product never learns which number the authority authorised for its own document.
+   */
+  assignedNumber?: AuthorityAssignedNumber | null;
+}
+
+/** A number the authority itself assigned, in the three forms everything downstream needs. */
+export interface AuthorityAssignedNumber {
+  /** As a person reads it on the document: AFIP's `0004-00000123`. */
+  fiscalNumber: string;
+  /** The consecutive the authority counts, bare. */
+  sequence: number;
+  /** The series it belongs to: AFIP's punto de venta, an establishment's point. */
+  series: string;
 }
 
 /** What the authority answered, or what stopped us asking. */

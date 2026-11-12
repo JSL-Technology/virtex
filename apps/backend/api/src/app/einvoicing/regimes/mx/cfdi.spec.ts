@@ -64,6 +64,25 @@ describe('CFDI 4.0', () => {
     ],
   } as unknown as Invoice;
 
+  /**
+   * The CFDI a note relates to, as `modifiedDocumentOf` resolves it.
+   *
+   * No `fiscalNumber`: a CFDI has none. Its identity is the UUID the PAC wrote when it stamped the
+   * document, which the submission recorded as the authority's handle.
+   */
+  const RELATED = {
+    fiscalNumber: null,
+    documentType: 'I',
+    issueDate: '2026-06-01',
+    documentKey: null,
+    authorityHandle: '5FB2822E-396D-4725-8521-CDC4BDD20CCF',
+    // A CFDI is counted by nobody: no series, no consecutive, only the UUID.
+    sequence: null,
+    series: null,
+    reasonCode: '01',
+    reasonText: 'Devolución parcial',
+  };
+
   const input = (overrides: Partial<CfdiBuildInput> = {}): CfdiBuildInput => ({
     invoice,
     organization,
@@ -115,7 +134,10 @@ describe('CFDI 4.0', () => {
 
     it('issues a credit note as an egreso', () => {
       const xml = builder.build(
-        input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: 'E' } as Invoice }),
+        input({
+          invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: 'E' } as Invoice,
+          modifies: RELATED,
+        }),
       );
 
       expect(xml).toContain('TipoDeComprobante="E"');
@@ -156,6 +178,95 @@ describe('CFDI 4.0', () => {
       expect(() => builder.build(input(overrides as Partial<CfdiBuildInput>))).toThrow(
         expect.objectContaining({ messageKey }),
       );
+    });
+  });
+
+  /**
+   * What a note relates to, which is the whole of what makes it a note.
+   *
+   * The builder wrote no `CfdiRelacionados` at all (audit FAC-INV-05 / MP-10). A CFDI de egreso
+   * with no relation is a stamped expense document that credits nothing, and the SAT has no way to
+   * know which sale it was meant to correct — so the credit is one the taxpayer cannot prove.
+   */
+  describe('the relation to the document it modifies', () => {
+    const note = (type: InvoiceType, fiscalDocumentType: string, modifies = RELATED) =>
+      builder.build(
+        input({
+          invoice: {
+            ...invoice,
+            type,
+            fiscalDocumentType,
+            adjustmentReason: type === InvoiceType.DEBIT_NOTE ? 'ADDITIONAL_CHARGES' : 'GOODS_RETURN',
+          } as Invoice,
+          modifies: { ...modifies, reasonCode: type === InvoiceType.DEBIT_NOTE ? '02' : '03' },
+        }),
+      );
+
+    it('names the related comprobante by the UUID its PAC assigned', () => {
+      const xml = note(InvoiceType.CREDIT_NOTE, 'E');
+
+      expect(xml).toContain('<cfdi:CfdiRelacionados');
+      expect(xml).toContain('UUID="5FB2822E-396D-4725-8521-CDC4BDD20CCF"');
+    });
+
+    it('states the relation the SAT’s catálogo gives for that kind of note', () => {
+      // `03` devolución de mercancía on a credit note for returned goods…
+      expect(note(InvoiceType.CREDIT_NOTE, 'E')).toContain('TipoRelacion="03"');
+      // …and `02` nota de débito de los documentos relacionados on one that charges more, which is
+      // an ingreso like any sale and is told apart from one only by this relation.
+      const debit = note(InvoiceType.DEBIT_NOTE, 'I');
+      expect(debit).toContain('TipoRelacion="02"');
+      expect(debit).toContain('TipoDeComprobante="I"');
+    });
+
+    it('writes the relation before the issuer, where the schema and the cadena both put it', () => {
+      const xml = note(InvoiceType.CREDIT_NOTE, 'E');
+
+      expect(xml.indexOf('<cfdi:CfdiRelacionados')).toBeLessThan(xml.indexOf('<cfdi:Emisor'));
+      // The cadena is projected in document order, so the relation is sealed in that order too: a
+      // relation written after the issuer would be a schema error AND a seal the PAC recomputes
+      // differently.
+      const cadena = builder.cadenaOriginal(xml);
+      expect(cadena.indexOf('5FB2822E-396D-4725-8521-CDC4BDD20CCF')).toBeLessThan(
+        cadena.indexOf('AAA010101AAA'),
+      );
+    });
+
+    it('refuses a note that relates to nothing, and an invoice needs no relation', () => {
+      expect(() =>
+        builder.build(
+          input({
+            invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: 'E' } as Invoice,
+          }),
+        ),
+      ).toThrow(/note_must_name_the_document_it_modifies/);
+
+      // An ordinary sale relates to nothing, and says nothing about relations.
+      expect(builder.build(input())).not.toContain('CfdiRelacionados');
+    });
+
+    it('refuses a note whose related comprobante was never stamped', () => {
+      // Without a UUID there is nothing the SAT could match: the original was never filed, and a
+      // relation to a UUID that does not exist is rejected on stamping.
+      expect(() =>
+        builder.build(
+          input({
+            invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: 'E' } as Invoice,
+            modifies: { ...RELATED, documentKey: null, authorityHandle: null },
+          }),
+        ),
+      ).toThrow(/modified_document_has_no_authority_key/);
+    });
+
+    it('refuses a note whose reason its market publishes no relation for', () => {
+      expect(() =>
+        builder.build(
+          input({
+            invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: 'E' } as Invoice,
+            modifies: { ...RELATED, reasonCode: null },
+          }),
+        ),
+      ).toThrow(/adjustment_reason_has_no_authority_code/);
     });
   });
 

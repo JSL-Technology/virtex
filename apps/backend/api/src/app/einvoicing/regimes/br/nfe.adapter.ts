@@ -14,6 +14,7 @@ import {
 } from '../fiscal-regime.types';
 import { RegimeAdapterBase } from '../regime-adapter.base';
 import { NfeBuilder } from './nfe.builder';
+import { modifiedDocumentOf } from '../modified-document';
 
 /**
  * Brazil — NF-e 4.00, SEFAZ.
@@ -75,6 +76,9 @@ export class NfeRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
       invoice: context.invoice,
       organization,
       customer,
+      // A devolução or a complementar refers to the NF-e it corrects, by the chave de acesso that
+      // NF-e was built with and authorised under.
+      modifies: await modifiedDocumentOf(context.manager, context.invoice, 'BR'),
       stateCode: settings.stateCode,
       municipalityCode: settings.municipalityCode,
       // `1` produção, `2` homologação — and it is part of the chave de acesso, so building for the

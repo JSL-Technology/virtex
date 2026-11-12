@@ -417,7 +417,11 @@ export class DgiiRegimeAdapter implements FiscalRegimeAdapter {
     // The reason the note was issued, recorded on the document in the product's own terms, as this
     // market's authority codes it — not a fixed '3', and not a code the core stores.
     const reason = invoice.adjustmentReason ?? 'OTHER';
-    const codigoModificacion = adjustmentCodeFor(country, reason);
+    const codigoModificacion = adjustmentCodeFor(
+      country,
+      reason,
+      invoice.type === InvoiceType.DEBIT_NOTE ? 'DEBIT_NOTE' : 'CREDIT_NOTE',
+    );
     if (!codigoModificacion) {
       throw new BadRequestError('einvoicing.adjustment_reason_has_no_authority_code', { reason });
     }

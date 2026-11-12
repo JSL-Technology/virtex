@@ -1,5 +1,5 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
-import type { MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
+import type { MarketAdjustmentCodes, MarketDocuments, MarketFiscalDocumentType, MarketNumbering } from '../contracts';
 import { isValidPeruvianRuc } from './identity';
 import { AUTHORITY_EVENT } from '../kit/documents';
 
@@ -50,6 +50,31 @@ const NUMBERING: MarketNumbering = {
 };
 
 /** Peru: the sales documents the authority defines, and how an issued one is undone. */
+/**
+ * SUNAT's reason for a note, from the catalogue of the note it is.
+ *
+ * | Catálogo 09 — nota de crédito | | Catálogo 10 — nota de débito | |
+ * |---|---|---|---|
+ * | 01 | Anulación de la operación | 01 | Intereses por mora |
+ * | 02 | Anulación por error en el RUC | 02 | Aumento en el valor |
+ * | 03 | Corrección por error en la descripción | 03 | Penalidades / otros conceptos |
+ * | 04 | Descuento global | | |
+ * | 06 | Devolución total | | |
+ * | 09 | Disminución en el valor | | |
+ * | 10 | Otros conceptos | | |
+ *
+ * *Verificar con contabilidad/legal*: both catalogues are SUNAT's and revised by resolution;
+ * confirm code by code before filing.
+ */
+const ADJUSTMENT_CODES: MarketAdjustmentCodes = {
+  // Catálogo 09, notas de crédito: 01 anulación de la operación, 03 corrección por error en la
+  // descripción, 06 devolución total, 09 disminución en el valor, 10 otros conceptos.
+  creditNote: { ANNULMENT: '01', DETAIL_CORRECTION: '03', GOODS_RETURN: '06', PRICE_REDUCTION: '09', OTHER: '10' },
+  // Catálogo 10, notas de débito, which has three entries and no `10`: 01 intereses por mora,
+  // 02 aumento en el valor, 03 penalidades y otros conceptos.
+  debitNote: { LATE_PAYMENT_INTEREST: '01', PRICE_INCREASE: '02', ADDITIONAL_CHARGES: '03', PENALTY: '03', OTHER: '03' },
+};
+
 export const documents: MarketDocuments = {
   fiscalNumbering: true,
   types: DOCUMENT_TYPES,
@@ -59,10 +84,12 @@ export const documents: MarketDocuments = {
    */
   cancellation: { electronic: AUTHORITY_EVENT, traditional: AUTHORITY_EVENT },
   // SUNAT's catálogos 09 and 10 are not written yet: the builder does not reference the modified document.
-  adjustmentCodes: null,
+  adjustmentCodes: ADJUSTMENT_CODES,
   // The authority asks the receiver of a document for no verdict of its own here.
   counterpartyVerdictCodes: null,
-  debitNotes: false,
+  // Both notes are written now: each as its own UBL document, referencing the one it corrects
+  // with the code of its own catalogue.
+  debitNotes: true,
   defaultCustomer: { nameKey: 'ledger.provisioning.final_consumer' },
   numbering: NUMBERING,
 };

@@ -93,9 +93,15 @@ export function cancellationCoverageFor(countryCode: string | null | undefined):
 export function adjustmentCodeFor(
   countryCode: string | null | undefined,
   reason: AdjustmentReason | null | undefined,
+  purpose: 'CREDIT_NOTE' | 'DEBIT_NOTE',
 ): string | null {
   if (!reason) return null;
-  return marketFor(countryCode).documents.adjustmentCodes?.[reason] ?? null;
+  const codes = marketFor(countryCode).documents.adjustmentCodes;
+  const catalogue = purpose === 'CREDIT_NOTE' ? codes?.creditNote : codes?.debitNote;
+  // Indexed as a plain record because the reason is canonical and the catalogue is per kind: a
+  // reason that belongs to the other kind of note has no code here, and answering null is how the
+  // regime comes to refuse it rather than write a code from the wrong catalogue.
+  return (catalogue as Readonly<Record<string, string | undefined>> | null | undefined)?.[reason] ?? null;
 }
 
 /**

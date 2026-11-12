@@ -18,6 +18,7 @@ import {
   SealedFiscalDocument,
 } from '../fiscal-regime.types';
 import { CfdiBuilder } from './cfdi.builder';
+import { modifiedDocumentOf } from '../modified-document';
 import { PacProvider } from './pac.provider';
 import { BadRequestError } from '../../../i18n/localized.exception';
 
@@ -65,6 +66,10 @@ export class CfdiRegimeAdapter implements FiscalRegimeAdapter {
       invoice,
       organization,
       customer,
+      // A note relates to the comprobante it corrects, by the UUID that comprobante was stamped
+      // with. Resolved before anything is sealed: a relation to a document that was never stamped
+      // is a relation the SAT rejects, and finding that out here is the correctable case.
+      modifies: await modifiedDocumentOf(manager, invoice, 'MX'),
       issuerRegime: organization.fiscalProfile?.['regimenFiscal'] ?? '',
       issuingPostalCode: organization.postalCode ?? '',
       certificateNumber: certificate.serialNumber ?? '',

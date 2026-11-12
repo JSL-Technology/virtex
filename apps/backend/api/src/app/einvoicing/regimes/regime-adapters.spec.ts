@@ -333,14 +333,15 @@ describeWithDb('the six regime adapters', () => {
         numericCode: '12345678',
       });
 
-      const built = await adapter().build(
-        contextFor({ fiscalNumber: '001-002-000000045', fiscalDocumentType: '01', fiscalSequence: 45, fiscalSeries: '001-002', currencyCode: 'USD' }),
-      );
+      const context = contextFor({ fiscalNumber: '001-002-000000045', fiscalDocumentType: '01', fiscalSequence: 45, fiscalSeries: '001-002', currencyCode: 'USD' });
+      const built = await adapter().build(context);
 
       expect(built.documentKey).toHaveLength(49);
       expect(built.documentKey).toMatch(/^\d{49}$/);
 
-      const sealed = adapter().seal(built, certificate);
+      // The signature goes inside the comprobante's own root, which the context names: a factura
+      // here, a notaCredito on a note.
+      const sealed = adapter().seal(built, certificate, context);
       expect(verifies(sealed.payload)).toBe(true);
     });
 

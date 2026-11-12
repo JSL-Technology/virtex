@@ -140,14 +140,78 @@ describe('SUNAT — comprobante de pago electrónico', () => {
     expect(withDni.xml).toContain('schemeID="1"');
   });
 
-  it('issues a credit note with the credit-note element names', () => {
+  /**
+   * A note is only intelligible beside the document it corrects, and SUNAT asks for both halves.
+   *
+   * The builder wrote neither (audit FAC-INV-05 / MP-10): no `DiscrepancyResponse` saying why and
+   * no `BillingReference` saying which document, so the note was rejected or filed against nothing.
+   */
+  it('issues a credit note naming the document it corrects and the catálogo 09 reason', () => {
     const { xml } = builder.build(
-      input({ invoice: { ...invoice, type: InvoiceType.CREDIT_NOTE, fiscalDocumentType: '07' } as Invoice }),
+      input({
+        invoice: {
+          ...invoice,
+          type: InvoiceType.CREDIT_NOTE,
+          fiscalDocumentType: '07',
+          adjustmentReason: 'GOODS_RETURN',
+          notes: 'Devolución total',
+        } as Invoice,
+        series: 'F001',
+        modifies: {
+          fiscalNumber: 'F001-00000123',
+          documentType: '01',
+          issueDate: '2026-06-10',
+          documentKey: null,
+          authorityHandle: null,
+          sequence: 123,
+          series: 'F001',
+          reasonCode: '06',
+          reasonText: 'Devolución total',
+        },
+      }),
     );
 
     expect(xml).toContain('<CreditNote');
     expect(xml).toContain('cac:CreditNoteLine');
     expect(xml).toContain('cbc:CreditedQuantity');
+    // A note carries its reason's catalogue, not the document-type list.
+    expect(xml).not.toContain('cbc:InvoiceTypeCode');
+    expect(xml).toContain('<cbc:ReferenceID>F001-00000123</cbc:ReferenceID>');
+    expect(xml).toContain('listName="Tipo de nota de credito"');
+    expect(xml).toContain('>06</cbc:ResponseCode>');
+    expect(xml).toContain('<cbc:Description>Devolución total</cbc:Description>');
+    expect(xml).toContain('>01</cbc:DocumentTypeCode>');
+  });
+
+  it('issues a debit note as a DebitNote, which the regime wrote as an invoice', () => {
+    const { xml } = builder.build(
+      input({
+        invoice: {
+          ...invoice,
+          type: InvoiceType.DEBIT_NOTE,
+          fiscalDocumentType: '08',
+          adjustmentReason: 'LATE_PAYMENT_INTEREST',
+        } as Invoice,
+        series: 'F001',
+        modifies: {
+          fiscalNumber: 'F001-00000123',
+          documentType: '01',
+          issueDate: '2026-06-10',
+          documentKey: null,
+          authorityHandle: null,
+          sequence: 123,
+          series: 'F001',
+          reasonCode: '01',
+          reasonText: null,
+        },
+      }),
+    );
+
+    expect(xml).toContain('<DebitNote');
+    expect(xml).toContain('cac:DebitNoteLine');
+    expect(xml).toContain('cbc:DebitedQuantity');
+    expect(xml).toContain('listName="Tipo de nota de debito"');
+    expect(xml).toContain('>01</cbc:ResponseCode>');
   });
 
   it('leaves the extension the signature goes into', () => {
