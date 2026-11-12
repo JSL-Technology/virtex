@@ -159,6 +159,7 @@ nota de crédito total.
 | Orden | Trabajo | Hallazgos |
 |---|---|---|
 | ~~1~~ | ~~Notas de débito en los constructores DIAN, SUNAT, SII, SRI, AFIP, CFDI (relación 02), NF-e (complementar)~~ — hecho: cada régimen referencia el documento corregido y escribe el código de su catálogo | MP-10, FAC-INV-05 |
+| 1b | ~~Declaraciones periódicas atadas al módulo de ventas y a la DGII~~ — hecho: los hechos del período son neutrales (`ReturnDataset`) y cada mercado declara y construye los suyos (`markets/<cc>/returns/`), con una sola ruta y una sola pantalla | MP-05 |
 | 2 | Evento de anulación ante SAT (motivos 01–04), SEFAZ (110111), SUNAT (baja), SRI | MP-10 |
 | 3 | Factura de proveedor y nota de crédito con atributos fiscales por país | MP-04 |
 | 4 | Retirar las ramas `=== 'XX'` de módulos genéricos (cliente y servidor) | MP-05 |
