@@ -348,8 +348,11 @@ export const envValidation = Joi.object({
     if (value !== undefined) parseExternalEffects(value, false); // throws on an unknown kind
     return value;
   }),
-  // Which DGII environment to transmit to, and optional per-service endpoint overrides (the DGII
-  // versions its paths; overrides let an operator pin the exact ones its environment publishes).
+  // A Dominican tenant's channel is its own environment and certificate (`DgiiConfigService`).
+  // These are a deployment's levers: the environment for tenants that never saved settings, and
+  // per-service endpoint overrides for the day the DGII republishes a host or a path. Like every
+  // other regime's process-wide channel they are read only in a development-like process or with
+  // `EINVOICE_PROCESS_CREDENTIALS=allow`; the HTTP timeout is not a channel and always applies.
   DGII_ECF_ENVIRONMENT: Joi.string().valid('TesteCF', 'CerteCF', 'Produccion').optional(),
   DGII_ECF_BASE_URL: Joi.string().uri().optional(),
   DGII_ECF_SEED_URL: Joi.string().uri().optional(),

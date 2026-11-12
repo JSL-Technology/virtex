@@ -7,7 +7,7 @@ import { FiscalEnvironment, FiscalRegimeSettings } from '../entities/fiscal-regi
 import { isDevLikeEnvironment } from '../../config/environment';
 import { assertExternalEffectAllowed, ExternalEffect } from '../../config/external-effects';
 
-const DGII_ENVIRONMENTS: readonly DgiiEnvironment[] = ['TesteCF', 'CerteCF', 'Produccion'];
+const ENVIRONMENTS: readonly DgiiEnvironment[] = ['TesteCF', 'CerteCF', 'Produccion'];
 
 /**
  * Which DGII e-CF environment a tenant transmits to, and its endpoints (audit 2026-10-31, EINV-04).
@@ -18,16 +18,31 @@ const DGII_ENVIRONMENTS: readonly DgiiEnvironment[] = ['TesteCF', 'CerteCF', 'Pr
  * CerteCF, where they have no fiscal validity.
  *
  * It is now the tenant's own `fiscal_regime_settings.environment` for DO: PRODUCTION → Produccion,
- * CERTIFICATION → CerteCF. The process variable keeps two narrower roles:
+ * CERTIFICATION → CerteCF. A tenant that never saved its settings is certified first — never filed
+ * for real by default.
  *
- *  - in a development-like process (`isDevLikeEnvironment`: an unset or misspelled NODE_ENV is NOT
- *    one) it overrides every tenant, so development can point at TesteCF;
- *  - anywhere else it is only the default for a tenant that has never saved its settings, which is
- *    what deployments that set it relied on. Saving the settings takes precedence.
+ * ## The process variables, and why they are gated like every other regime's
+ *
+ * `DGII_ECF_ENVIRONMENT` and the `DGII_ECF_*_URL` overrides are a DEPLOYMENT's lever, not a
+ * tenant's channel: a Dominican tenant's channel is its environment (its own row) and its
+ * certificate, which is why this regime needs no endpoint or credential configured per tenant
+ * (`DgiiRegimeAdapter.isTransmissionConfigured`). The overrides exist for the day the DGII
+ * republishes a host or a path, so a deployment need not wait for a release.
+ *
+ * They therefore follow the one rule the product already applies to every other regime's
+ * process-wide channel (`TransmissionConfigService`): a development-like process may use them
+ * (`isDevLikeEnvironment`: an unset or misspelled NODE_ENV is NOT one), and any other process only
+ * when the operator says so explicitly (`EINVOICE_PROCESS_CREDENTIALS=allow`). Set where they are
+ * not allowed, they are ignored and named in a warning — an override that silently does nothing is
+ * how a deployment comes to believe it is filing somewhere it is not. The DGII was the last regime
+ * whose channel a process variable could decide (plan, fase 3).
+ *
+ * The HTTP timeout is not a channel and stays a process setting.
  */
 @Injectable()
 export class DgiiConfigService {
   private readonly logger = new Logger(DgiiConfigService.name);
+  private warned = false;
 
   constructor(
     private readonly config: ConfigService,
@@ -36,27 +51,20 @@ export class DgiiConfigService {
   ) {}
 
   async environmentFor(organizationId: string): Promise<DgiiEnvironment> {
-    const processValue = this.processEnvironment();
-    if (processValue && isDevLikeEnvironment()) return processValue;
+    const pinned = this.processEnvironment();
+    if (pinned && isDevLikeEnvironment()) return pinned;
 
     const row = await this.settings.findOne({
       where: { organizationId, countryCode: 'DO' },
       select: ['id', 'environment'],
     });
     if (row) return row.environment === FiscalEnvironment.PRODUCTION ? 'Produccion' : 'CerteCF';
-    return processValue ?? 'CerteCF';
+    // No settings of its own: certification, unless this deployment was allowed to say otherwise.
+    return (this.processConfigAllowed() ? pinned : null) ?? 'CerteCF';
   }
 
   async endpointsFor(organizationId: string): Promise<DgiiEndpoints> {
-    return resolveDgiiEndpoints(await this.environmentFor(organizationId), {
-      baseUrl: this.config.get<string>('DGII_ECF_BASE_URL') || undefined,
-      seed: this.config.get<string>('DGII_ECF_SEED_URL') || undefined,
-      validateSeed: this.config.get<string>('DGII_ECF_VALIDATE_SEED_URL') || undefined,
-      reception: this.config.get<string>('DGII_ECF_RECEPTION_URL') || undefined,
-      status: this.config.get<string>('DGII_ECF_STATUS_URL') || undefined,
-      trackIds: this.config.get<string>('DGII_ECF_TRACKIDS_URL') || undefined,
-      commercialApproval: this.config.get<string>('DGII_ECF_APPROVAL_URL') || undefined,
-    });
+    return resolveDgiiEndpoints(await this.environmentFor(organizationId), this.processOverrides());
   }
 
   /**
@@ -77,8 +85,64 @@ export class DgiiConfigService {
   private processEnvironment(): DgiiEnvironment | null {
     const raw = (this.config.get<string>('DGII_ECF_ENVIRONMENT') ?? '').trim();
     if (!raw) return null;
-    if ((DGII_ENVIRONMENTS as readonly string[]).includes(raw)) return raw as DgiiEnvironment;
-    this.logger.warn(`DGII_ECF_ENVIRONMENT="${raw}" is not one of ${DGII_ENVIRONMENTS.join(', ')}; ignored.`);
+    if ((ENVIRONMENTS as readonly string[]).includes(raw)) return raw as DgiiEnvironment;
+    this.logger.warn(`DGII_ECF_ENVIRONMENT="${raw}" is not one of ${ENVIRONMENTS.join(', ')}; ignored.`);
     return null;
   }
+
+  /** The endpoints this deployment pinned, where it is allowed to pin any. */
+  private processOverrides(): Partial<DgiiEndpoints> & { baseUrl?: string } {
+    const pinned = Object.entries(PINNED_ENDPOINTS)
+      .map(([variable, field]) => [variable, field, this.processValue(variable)] as const)
+      .filter(([, , value]) => value);
+    if (!pinned.length) return {};
+    if (!isDevLikeEnvironment() && !this.processConfigAllowed()) {
+      this.warnIgnored(pinned.map(([variable]) => variable));
+      return {};
+    }
+    return Object.fromEntries(pinned.map(([, field, value]) => [field, value]));
+  }
+
+  private processValue(variable: string): string | undefined {
+    return (this.config.get<string>(variable) ?? '').trim() || undefined;
+  }
+
+  /**
+   * Whether this deployment may configure a fiscal channel process-wide at all.
+   *
+   * The same switch as every other regime's, read here rather than redeclared: a deployment either
+   * configures fiscal channels for the whole process or it does not, and having two answers to that
+   * is how one regime keeps an exception nobody remembers.
+   */
+  private processConfigAllowed(): boolean {
+    return this.config.get<string>('EINVOICE_PROCESS_CREDENTIALS') === 'allow';
+  }
+
+  private warnIgnored(variables: readonly string[]): void {
+    if (this.warned) return;
+    this.warned = true;
+    this.logger.warn(
+      `${variables.join(', ')} ignored: in this process a tenant's fiscal channel is its own ` +
+        `environment and certificate. Set EINVOICE_PROCESS_CREDENTIALS=allow to let this ` +
+        `deployment pin these endpoints for every tenant.`,
+    );
+  }
 }
+
+/**
+ * Each variable a deployment may pin an endpoint with, and the endpoint it pins.
+ *
+ * Keyed by the variable's own name so that searching for it in the codebase finds the one place it
+ * is read. `baseUrl` pins the host of all of them at once, which is what differs between the DGII's
+ * own environments; the rest pin one service each, because the DGII versions its paths
+ * independently.
+ */
+const PINNED_ENDPOINTS: Readonly<Record<string, string>> = {
+  DGII_ECF_BASE_URL: 'baseUrl',
+  DGII_ECF_SEED_URL: 'seed',
+  DGII_ECF_VALIDATE_SEED_URL: 'validateSeed',
+  DGII_ECF_RECEPTION_URL: 'reception',
+  DGII_ECF_STATUS_URL: 'status',
+  DGII_ECF_TRACKIDS_URL: 'trackIds',
+  DGII_ECF_APPROVAL_URL: 'commercialApproval',
+};

@@ -391,6 +391,18 @@ Con la referencia escrita, cuatro mercados más emiten nota de débito por su r�
 ingreso relacionado con `TipoRelacion` `02`), Brasil (una NF-e complementar), Argentina (2, 7, 12) y
 Ecuador (`notaDebito`).
 
+**El canal de un inquilino es suyo, también en la República Dominicana.** Un régimen necesita un
+endpoint y una credencial que el inquilino configura en su propia fila (`fiscal_regime_settings`,
+cifrada en reposo); el proceso solo puede configurar un canal si el despliegue lo autoriza
+explícitamente (`EINVOICE_PROCESS_CREDENTIALS=allow`), porque en un SaaS una credencial compartida es
+el defecto y no un respaldo. La DGII era la excepción: el ambiente ya es de cada empresa, pero las
+variables `DGII_ECF_*_URL` se leían en cualquier proceso, así que una variable apuntaba a un host a
+todas las empresas. Ahora siguen la misma regla única: valen en un proceso de desarrollo, o cuando el
+despliegue lo autoriza con ese mismo interruptor; en cualquier otro caso se ignoran y se avisa
+nombrándolas, porque un override que no hace nada en silencio es como un despliegue cree estar
+declarando donde no declara. El canal dominicano es entonces lo que siempre fue: el ambiente de la
+empresa y su certificado. El timeout HTTP no es un canal y sigue siendo del proceso.
+
 La puerta de neutralidad cuenta el vocabulario de una autoridad dondequiera que esté, incluidos estos
 adaptadores, para que la deuda sea visible mientras no vivan donde el plan los quiere. Esos campos
 subieron el baseline de 723 a 738 el 2026-11-12: la razón está escrita en
@@ -467,7 +479,7 @@ eso se resuelve en el contrato, no con una rama.
 | 0 | Este documento; tareas del programa | ✅ |
 | 1 | `markets/`: contrato, registro, mercado neutral, 19 paquetes con la estructura canónica, consultas genéricas (`markets/queries`), datos consolidados desde `localization/fiscal/*` y `contracts/country-pack` (retirados); los consumidores leen el registro; pruebas de estructura y de catálogo; puerta estricta con regla de import | ✅ |
 | 2 | Documentos y numeración: un adaptador genérico guiado por la política de numeración del mercado; fuera el `switch` de `FiscalAdapterFactory`; `ncf_sequences` → `fiscal_document_ranges`; motivos de ajuste canónicos en lugar de `ModificationCode`; tipos de nota de crédito y débito de todos los regímenes | ✅ Motor único con la política de cada mercado, rangos unificados con reglas comunes, consecutivo y serie en el documento, pantalla y API únicas (§2.8); motivos de ajuste canónicos traducidos por el mercado (§2.9). Los constructores de los seis regímenes que todavía no referencian el documento modificado son parte de la fase 3 |
-| 3 | Facturación electrónica: DO entra al buzón único (`fiscal_submissions`); los constructores quedan como adaptadores de régimen con un solo contrato; `ecf_lifecycle_messages` → `fiscal_document_events`; las variables `DGII_*` pasan a la configuración de transmisión del tenant | 🚧 Hecho: la DGII es un adaptador (`regimes/do/`), una sola tabla de envíos, un solo reconciliador, un solo estado y una sola pantalla; fuera la expresión regular del e-NCF de la entidad genérica; el canal lo declara cada régimen; `fiscal_document_events` con el veredicto como hecho y el código escrito por el mercado; los siete regímenes referencian el documento que la nota corrige, con el código del catálogo de su clase, y AFIP escribe el número que autoriza (§2.11). Falta: las variables `DGII_*` |
+| 3 | Facturación electrónica: DO entra al buzón único (`fiscal_submissions`); los constructores quedan como adaptadores de régimen con un solo contrato; `ecf_lifecycle_messages` → `fiscal_document_events`; las variables `DGII_*` pasan a la configuración de transmisión del tenant | ✅ La DGII es un adaptador (`regimes/do/`), una sola tabla de envíos, un solo reconciliador, un solo estado y una sola pantalla; fuera la expresión regular del e-NCF de la entidad genérica; el canal lo declara cada régimen; `fiscal_document_events` con el veredicto como hecho y el código escrito por el mercado; los siete regímenes referencian el documento que la nota corrige, con el código del catálogo de su clase, y AFIP escribe el número que autoriza; ninguna variable del proceso decide el canal de un inquilino, en ningún régimen (§2.11) |
 | 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ✅ Columnas neutrales con migración exacta en los dos sentidos, `fiscal_attributes` validado contra la declaración del mercado, documento del proveedor comprobado por la regla de cada mercado, método de pago de la empresa en lugar de la «forma de pago» de una autoridad, formulario y ficha dibujados desde el paquete público del mercado (§2.10) |
 | 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ⏳ |
 | 6 | Nómina: motor dominicano a `markets/do/payroll/`, registro de motores y sin `'DOP'` por omisión | ⏳ |
