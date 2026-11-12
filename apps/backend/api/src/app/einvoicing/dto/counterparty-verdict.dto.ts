@@ -24,18 +24,18 @@ import { CounterpartyVerdict } from '../entities/fiscal-document-event.entity';
 export class CounterpartyVerdictDto {
   /** The identifier of the party that issued the document. Accepted as printed; stored as digits. */
   @IsString()
-  @Matches(/^[\p{L}\d .,'()/-]{5,32}$/u, { message: 'validation.commercial_approval.issuer_rnc_not_valid_format' })
+  @Matches(/^[\p{L}\d .,'()/-]{5,32}$/u, { message: 'validation.counterparty_verdict.issuer_tax_id_format' })
   counterpartyTaxId!: string;
 
   /** The number their authority assigned to the document. */
   @IsString()
   @Matches(/^[\p{L}\d .,'()/-]{3,64}$/u, {
-    message: 'validation.commercial_approval.ncf_must_followed_12_digits_example',
+    message: 'validation.counterparty_verdict.document_number_format',
   })
   documentNumber!: string;
 
   /** Issue date they stated, `YYYY-MM-DD`. */
-  @IsISO8601({ strict: true }, { message: 'validation.commercial_approval.issue_date_must_iso_date_yyyy' })
+  @IsISO8601({ strict: true }, { message: 'validation.counterparty_verdict.issue_date_format' })
   documentDate!: string;
 
   /**
@@ -48,7 +48,7 @@ export class CounterpartyVerdictDto {
   @IsPositive()
   documentTotal!: number;
 
-  @IsEnum(CounterpartyVerdict, { message: 'validation.commercial_approval.status_must_approved_rejected' })
+  @IsEnum(CounterpartyVerdict, { message: 'validation.counterparty_verdict.verdict_not_known' })
   verdict!: CounterpartyVerdict;
 
   /** Required on a rejection; the service refuses one without it. */

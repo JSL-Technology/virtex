@@ -9,10 +9,7 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { ChartOfAccountsService } from '../../chart-of-accounts/chart-of-accounts.service';
 import { TaxesService } from '../../taxes/taxes.service';
 import { AccountTemplateDto } from '../entities/coa-template.entity';
-import { TaxIdRegistryLookup } from '../drivers/tax-id-registry-lookup';
-import { DominicanRepublicStrategy } from '../drivers/dominican-republic/dominican-republic.strategy';
-import { GenericFiscalStrategy } from '../drivers/generic-fiscal.strategy';
-import { USStrategy } from '../drivers/usa/usa.strategy';
+import { TaxIdRegistryRegistry } from '../drivers/tax-id-registry-lookup';
 import {
   FISCAL_DOCUMENT_TYPES,
   STATUTORY_PLAN_REQUIRED,
@@ -47,7 +44,6 @@ const DEFAULT_BASE_CURRENCY = 'USD';
 @Injectable()
 export class LocalizationService extends LocalizationProvisioningPort implements OnModuleInit {
   private readonly logger = new Logger(LocalizationService.name);
-  private strategies: Map<string, TaxIdRegistryLookup> = new Map();
 
   constructor(
     @InjectRepository(FiscalRegion)
@@ -56,18 +52,12 @@ export class LocalizationService extends LocalizationProvisioningPort implements
     private readonly documentTypeRepository: Repository<FiscalDocumentTypeDefinition>,
     private readonly coaService: ChartOfAccountsService,
     private readonly taxesService: TaxesService,
-    private readonly doStrategy: DominicanRepublicStrategy,
-    private readonly usStrategy: USStrategy,
-    private readonly genericStrategy: GenericFiscalStrategy,
+    private readonly taxIdRegistries: TaxIdRegistryRegistry,
     private readonly bookkeeping: TenantBookkeepingProvisioner,
     private readonly i18n: I18nService,
     private readonly identityDocuments: IdentityDocumentService,
   ) {
     super();
-    // Inicialmente cargamos las estrategias hardcoded que tienen lógica especial
-    this.strategies.set('DO', this.doStrategy);
-    this.strategies.set('US', this.usStrategy);
-    this.strategies.set('GENERIC', this.genericStrategy);
   }
 
   async onModuleInit() {
@@ -142,12 +132,12 @@ export class LocalizationService extends LocalizationProvisioningPort implements
    * fallback the `GENERIC` strategy had been removed for. It also owned the only reads of that
    * column, so deleting it is what made the column removable.
    *
-   * Nothing is lost. `this.strategies` exists solely to reach a country's REGISTRY in
-   * `lookupTaxId`, and a country with no registry driver already takes the `!strategy` branch
-   * there, which returns exactly what the deleted strategy's `getTaxIdDetails()` — a hardcoded
-   * `null` — produced. Validation was never its job: that is `tax-id-validators.ts` for fiscal
-   * identifiers and `IdentityDocumentService` for identity documents, both of which refuse a
-   * country they have no rule for instead of accepting anything.
+   * Nothing is lost. The only thing left to reach per market is its REGISTRY, in `lookupTaxId`,
+   * and a market with no registry driver already takes the `!strategy` branch there, which returns
+   * exactly what the deleted strategy's `getTaxIdDetails()` — a hardcoded `null` — produced.
+   * Validation was never its job: that is `tax-id-validators.ts` for fiscal identifiers and
+   * `IdentityDocumentService` for identity documents, both of which refuse a country they have no
+   * rule for instead of accepting anything.
    */
 
   /**
@@ -157,8 +147,10 @@ export class LocalizationService extends LocalizationProvisioningPort implements
    * unsupported country validated everything and nothing. It has no callers left: validation goes
    * through `tax-id-validators.ts`, which returns false for a country it has no algorithm for.
    *
-   * `this.strategies` survives for one purpose: reaching a country's registry in `lookupTaxId`,
-   * looked up by exact country code with no fallback.
+   * What survives serves one purpose: reaching a market's registry in `lookupTaxId`, through
+   * `TaxIdRegistryRegistry`, by exact country code and with no fallback. The map this service kept
+   * by hand — and the two injected classes that answered `null` for the United States and for
+   * «generic» — are gone: a driver declares the market it serves and the module collects it.
    */
 
   async findAllFiscalRegions(): Promise<FiscalRegion[]> {
@@ -403,7 +395,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
       };
     }
 
-    const strategy = this.strategies.get(market.code);
+    const strategy = this.taxIdRegistries.forCountry(market.code);
     if (!strategy) {
       return {
         countryCode: market.code,

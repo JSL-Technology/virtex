@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as xmlbuilder from 'xmlbuilder';
-import { roundAmount } from '../../common/money';
+import { roundAmount } from '../../../common/money';
 
 /**
  * Party and line inputs for building an e-CF, decoupled from persistence entities so the builder is

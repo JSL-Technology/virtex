@@ -22,7 +22,7 @@ import 'reflect-metadata';
 
 // The probe signs with a self-signed certificate it makes on the spot; the API accepts one only in
 // a development or test process that opts in (see `CertificateVaultService.testCertificatesAllowed`).
-process.env['ECF_ALLOW_TEST_CERTIFICATES'] = 'true';
+process.env['SIGNING_ALLOW_TEST_CERTIFICATES'] = 'true';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { DataSource } from 'typeorm';
@@ -40,7 +40,7 @@ import { FiscalRegimeSettingsService } from '../../apps/backend/api/src/app/einv
 import { InvoiceStatus } from '../../apps/backend/api/src/app/invoices/entities/invoice.entity';
 import { adjustmentCodeFor } from '../../apps/backend/api/src/app/markets';
 import { TaxTreatment } from '../../apps/backend/api/src/app/invoices/entities/invoice-line-item.entity';
-import { EcfCertificateService } from '../../apps/backend/api/src/app/einvoicing/services/ecf-certificate.service';
+import { SigningCertificateService } from '../../apps/backend/api/src/app/einvoicing/services/signing-certificate.service';
 import { runAsTenantJob } from '../../apps/backend/api/src/app/shared/tenancy/tenant-job';
 import { makeTestCertificate } from './support/test-certificate';
 
@@ -84,7 +84,7 @@ async function main(): Promise<void> {
   const localization = app.get(LocalizationService, { strict: false });
   const organizations = app.get(OrganizationsService, { strict: false });
   const ledger = app.get(StockLedgerService, { strict: false });
-  const certificates = app.get(EcfCertificateService, { strict: false });
+  const certificates = app.get(SigningCertificateService, { strict: false });
   const inventory = app.get(InventoryService, { strict: false });
 
   const stamp = Date.now();

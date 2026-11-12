@@ -324,7 +324,8 @@ describe('VendorBillFormPage', () => {
   it('asks only what the market declares, and defaults none of it', () => {
     flushPickers();
 
-    expect(component.fiscalFields().map((field) => field.key)).toEqual(['purchaseCategory']);
+    // `protected`, so the template may read it and the public API does not grow for a test.
+    expect(component['fiscalFields']().map((field) => field.key)).toEqual(['purchaseCategory']);
     const group = component.form.get('fiscalAttributes') as FormGroup;
     expect(Object.keys(group.controls)).toEqual(['purchaseCategory']);
     // Nothing is preselected: a classification nobody chose is not a classification.

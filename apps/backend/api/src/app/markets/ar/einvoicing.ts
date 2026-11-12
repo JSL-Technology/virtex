@@ -9,6 +9,7 @@ export const einvoicing: MarketEInvoicing = {
   channel: 'ENDPOINT',
   settingsFields: [],
   rangeSecret: null,
+  signing: { regime: 'AFIP', representativeAllowed: false },
   coverage: needsCredentials(
       'AFIP WSFEv1 con CAE',
       'tu certificado de AFIP y el punto de venta habilitado',

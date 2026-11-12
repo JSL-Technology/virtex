@@ -9,6 +9,7 @@ export const einvoicing: MarketEInvoicing = {
   channel: 'CERTIFICATE',
   settingsFields: [],
   rangeSecret: null,
+  signing: { regime: 'DGII', representativeAllowed: true },
   coverage: needsCredentials(
       'DGII e-CF',
       'tu certificado digital de la DGII',

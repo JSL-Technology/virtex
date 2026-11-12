@@ -64,6 +64,11 @@
     "en": "Collection recorded.",
     "pt": "Cobrança registrada."
   },
+  "customer_receipts.form.consumption_tax_withheld": {
+    "es": "Impuesto retenido",
+    "en": "Tax withheld",
+    "pt": "Imposto retido"
+  },
   "customer_receipts.form.customer_has_no_invoices_with_outstanding": {
     "es": "Este cliente no tiene facturas con saldo pendiente.",
     "en": "This customer has no invoices with an outstanding balance.",
@@ -93,11 +98,6 @@
     "es": "Facturas a aplicar",
     "en": "Invoices to apply",
     "pt": "Faturas a aplicar"
-  },
-  "customer_receipts.form.itbis_withheld": {
-    "es": "Impuesto retenido",
-    "en": "Tax withheld",
-    "pt": "Imposto retido"
   },
   "customer_receipts.form.payment_method": {
     "es": "Forma de pago",

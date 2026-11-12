@@ -1,17 +1,20 @@
-import { fiscalAuthorityOf } from '../../markets';
+import { allMarkets, fiscalAuthorityOf, marketFor } from '../../markets';
 
 /**
  * How a market's electronic documents are signed: which stored certificate signs them, and whose
  * it may be.
  *
- * One table for every market with a regime, so a certificate is uploaded, assessed and found again
+ * One shape for every market with a regime, so a certificate is uploaded, assessed and found again
  * the same way in all of them. The upload used to file every certificate as a DGII one, so a
  * Mexican CSD could never be found by the CFDI adapter that looks for `CFDI`.
+ *
+ * The values are each market's own (`MarketEInvoicing.signing`): this was a table here, keyed by
+ * country code, which is the one place that knew which markets sign anything.
  */
 export interface CertificatePolicy {
   /** ISO 3166-1 alpha-2. */
   country: string;
-  /** `ecf_certificates.regime` of the certificate that signs this market's documents. */
+  /** `signing_certificates.regime` of the certificate that signs this market's documents. */
   regime: string;
   /** The tax authority, as the market calls it — for messages: «DGII», «SAT», «DIAN». */
   authority: string;
@@ -29,26 +32,15 @@ export interface CertificatePolicy {
   representativeAllowed: boolean;
 }
 
-const POLICIES: Readonly<Record<string, Omit<CertificatePolicy, 'country' | 'authority'>>> = Object.freeze({
-  DO: { regime: 'DGII', representativeAllowed: true },
-  MX: { regime: 'CFDI', representativeAllowed: false },
-  CO: { regime: 'DIAN', representativeAllowed: false },
-  PE: { regime: 'SUNAT', representativeAllowed: false },
-  EC: { regime: 'SRI', representativeAllowed: true },
-  CL: { regime: 'SII', representativeAllowed: true },
-  BR: { regime: 'NFE', representativeAllowed: false },
-  AR: { regime: 'AFIP', representativeAllowed: false },
-});
-
 /** The signing policy of a market, or null where no regime signs anything. */
 export function certificatePolicyFor(countryCode: string | null | undefined): CertificatePolicy | null {
   const country = (countryCode ?? '').trim().toUpperCase();
-  const policy = POLICIES[country];
-  if (!policy) return null;
-  return { country, ...policy, authority: fiscalAuthorityOf(country) };
+  const signing = marketFor(country).einvoicing.signing;
+  if (!signing) return null;
+  return { country, ...signing, authority: fiscalAuthorityOf(country) };
 }
 
-/** The `ecf_certificates.regime` a market's adapter looks its certificate up by. */
+/** The `signing_certificates.regime` a market's adapter looks its certificate up by. */
 export function certificateRegimeFor(countryCode: string): string {
   const policy = certificatePolicyFor(countryCode);
   if (!policy) throw new Error(`No signing certificate regime is defined for country "${countryCode}".`);
@@ -57,11 +49,13 @@ export function certificateRegimeFor(countryCode: string): string {
 
 /** Markets whose electronic documents are signed with a certificate the company uploads. */
 export function countriesWithCertificateRegime(): readonly string[] {
-  return Object.keys(POLICIES);
+  return allMarkets()
+    .filter((market) => market.einvoicing.signing !== null)
+    .map((market) => market.code);
 }
 
 /** The policy whose certificates are filed under this regime, or null for an unknown one. */
 export function certificatePolicyForRegime(regime: string | null | undefined): CertificatePolicy | null {
-  const country = Object.keys(POLICIES).find((code) => POLICIES[code].regime === regime);
-  return country ? certificatePolicyFor(country) : null;
+  const market = allMarkets().find((candidate) => candidate.einvoicing.signing?.regime === regime);
+  return market ? certificatePolicyFor(market.code) : null;
 }

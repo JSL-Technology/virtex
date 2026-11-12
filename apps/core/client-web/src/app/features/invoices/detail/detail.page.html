@@ -462,7 +462,7 @@
         </div>
 
         @if (s.messages.length) {
-          <div class="ecf-messages">
+          <div class="authority-messages">
             <span class="detail-label">{{ 'invoices.detail.messages_from_authority' | translate: { authority: fiscalAuthority() } }}</span>
             <ul>
               @for (message of s.messages; track $index) {
@@ -473,7 +473,7 @@
         }
 
         @if (s.verificationUrl) {
-          <div class="ecf-qr">
+          <div class="authority-qr">
             <span class="detail-label">{{ 'invoices.detail.authority_verification' | translate: { authority: fiscalAuthority() } }}</span>
             <!-- The actual QR, not a link to it: it is what a customer scans off the printed document. -->
             <qrcode [qrdata]="s.verificationUrl" [width]="180" [errorCorrectionLevel]="'M'" [margin]="0"></qrcode>
@@ -481,7 +481,7 @@
           </div>
         }
 
-        <div class="ecf-actions">
+        <div class="authority-actions">
           <button type="button" (click)="downloadSubmissionXml()">{{ 'invoices.detail.download_signed_xml' | translate }}</button>
           @if (s.status !== 'ACCEPTED' && s.status !== 'ACCEPTED_WITH_OBSERVATIONS' && s.status !== 'REJECTED') {
             <button type="button" [disabled]="documentBusy()" (click)="retrySubmission()">

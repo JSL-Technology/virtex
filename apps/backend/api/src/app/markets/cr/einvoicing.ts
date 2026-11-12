@@ -11,5 +11,7 @@ export const einvoicing: MarketEInvoicing = {
   channel: null,
   settingsFields: [],
   rangeSecret: null,
+  // Nothing is signed with a certificate here.
+  signing: null,
   coverage: notImplemented(),
 };

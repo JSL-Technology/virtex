@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { EcfCertificate } from '../entities/ecf-certificate.entity';
+import { SigningCertificate } from '../entities/signing-certificate.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { organizationFiscalIdentity } from '../../organizations/contracts/fiscal-identity.contract';
 import { certificatePolicyFor } from '../contracts/certificate-policy';
@@ -30,8 +30,8 @@ import { BadRequestError } from '../../i18n/localized.exception';
 @Injectable()
 export class SigningReadinessService {
   constructor(
-    @InjectRepository(EcfCertificate)
-    private readonly certificates: Repository<EcfCertificate>,
+    @InjectRepository(SigningCertificate)
+    private readonly certificates: Repository<SigningCertificate>,
     @InjectRepository(Organization)
     private readonly organizations: Repository<Organization>,
     private readonly vault: CertificateVaultService,
@@ -74,8 +74,8 @@ export class SigningReadinessService {
     organizationId: string,
     regime: string,
     manager?: EntityManager,
-  ): Promise<EcfCertificate | null> {
-    const repository = manager ? manager.getRepository(EcfCertificate) : this.certificates;
+  ): Promise<SigningCertificate | null> {
+    const repository = manager ? manager.getRepository(SigningCertificate) : this.certificates;
     return repository.findOne({
       where: { organizationId, isActive: true, regime },
       order: { createdAt: 'DESC' },

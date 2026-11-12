@@ -170,9 +170,9 @@
     "pt": "O país da empresa não tem regras fiscais configuradas: o identificador e o número do documento não foram verificados."
   },
   "accounts_payable.capture.intro_attach": {
-    "es": "Adjunta la foto o el PDF de la factura: queda guardado con ella como evidencia para la DGII.",
-    "en": "Attach the photo or PDF of the invoice: it is kept with the bill as evidence for the DGII.",
-    "pt": "Anexe a foto ou o PDF da fatura: fica guardado com ela como evidência para a DGII."
+    "es": "Adjunta la foto o el PDF de la factura: queda guardado con ella como evidencia ante la autoridad fiscal.",
+    "en": "Attach the photo or PDF of the invoice: it is kept with the bill as evidence for the tax authority.",
+    "pt": "Anexe a foto ou o PDF da fatura: fica guardado com ela como evidência para a autoridade fiscal."
   },
   "accounts_payable.capture.intro_read": {
     "es": "Sube la foto o el PDF de la factura y llenaremos el formulario por ti. Revisa cada campo antes de guardar; el archivo queda guardado con la factura.",
@@ -1291,6 +1291,11 @@
     "en": "Choose at least one invoice and complete the payment details.",
     "pt": "Escolha ao menos uma fatura e preencha os dados do pagamento."
   },
+  "accounts_payable.payment.consumption_tax_withheld": {
+    "es": "Impuesto retenido",
+    "en": "Tax withheld",
+    "pt": "Imposto retido"
+  },
   "accounts_payable.payment.discount": {
     "es": "Descuento",
     "en": "Discount",
@@ -1310,11 +1315,6 @@
     "es": "Facturas a pagar",
     "en": "Invoices to pay",
     "pt": "Faturas a pagar"
-  },
-  "accounts_payable.payment.itbis_withheld": {
-    "es": "Impuesto retenido",
-    "en": "Tax withheld",
-    "pt": "Imposto retido"
   },
   "accounts_payable.payment.line_settles_more_than_invoice_owes": {
     "es": "Alguna línea salda más de lo que la factura debe.",

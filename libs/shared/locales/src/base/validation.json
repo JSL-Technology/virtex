@@ -24,26 +24,6 @@
     "en": "The accounting period ID is required.",
     "pt": "O ID do período contábil é obrigatório."
   },
-  "validation.commercial_approval.issue_date_must_iso_date_yyyy": {
-    "es": "La fecha de emisión debe ser una fecha ISO (YYYY-MM-DD).",
-    "en": "The issue date must be an ISO date (YYYY-MM-DD).",
-    "pt": "A data de emissão deve ser uma data ISO (AAAA-MM-DD)."
-  },
-  "validation.commercial_approval.issuer_rnc_not_valid_format": {
-    "es": "El RNC del emisor no tiene un formato válido.",
-    "en": "The issuer's RNC is not in a valid format.",
-    "pt": "O RNC do emissor não está em um formato válido."
-  },
-  "validation.commercial_approval.ncf_must_followed_12_digits_example": {
-    "es": "El e-NCF debe tener el formato E + 12 dígitos (por ejemplo E310000000001).",
-    "en": "The e-NCF must be E followed by 12 digits (for example E310000000001).",
-    "pt": "O e-NCF deve ser E seguido de 12 dígitos (por exemplo E310000000001)."
-  },
-  "validation.commercial_approval.status_must_approved_rejected": {
-    "es": "El estado debe ser 1 (aprobado) o 2 (rechazado).",
-    "en": "The status must be 1 (approved) or 2 (rejected).",
-    "pt": "A situação deve ser 1 (aprovado) ou 2 (rejeitado)."
-  },
   "validation.constraints.array_max_size": {
     "es": "{{property}} no puede tener más de {{max}} elementos.",
     "en": "{{property}} cannot have more than {{max}} items.",
@@ -290,6 +270,26 @@
     "es": "{{property}} no es un campo permitido.",
     "en": "{{property}} is not an allowed field.",
     "pt": "{{property}} não é um campo permitido."
+  },
+  "validation.counterparty_verdict.document_number_format": {
+    "es": "El número del documento no tiene un formato válido.",
+    "en": "The document number is not in a valid format.",
+    "pt": "O número do documento não está em um formato válido."
+  },
+  "validation.counterparty_verdict.issue_date_format": {
+    "es": "La fecha de emisión debe ser una fecha ISO (YYYY-MM-DD).",
+    "en": "The issue date must be an ISO date (YYYY-MM-DD).",
+    "pt": "A data de emissão deve ser uma data ISO (AAAA-MM-DD)."
+  },
+  "validation.counterparty_verdict.issuer_tax_id_format": {
+    "es": "El identificador fiscal del emisor no tiene un formato válido.",
+    "en": "The issuer's tax identifier is not in a valid format.",
+    "pt": "O identificador fiscal do emissor não está em um formato válido."
+  },
+  "validation.counterparty_verdict.verdict_not_known": {
+    "es": "La respuesta debe ser aceptado o rechazado.",
+    "en": "The answer must be accepted or rejected.",
+    "pt": "A resposta deve ser aceito ou rejeitado."
   },
   "validation.create_employee.health_fund_code_format": {
     "es": "El código del seguro de salud admite hasta 32 letras, dígitos o guiones.",

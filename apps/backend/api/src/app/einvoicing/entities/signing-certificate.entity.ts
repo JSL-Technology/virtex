@@ -1,24 +1,21 @@
 import { Check, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
 
-/** The regime of a certificate issued for Dominican e-CF documents. */
-export const DGII_CERTIFICATE_REGIME = 'DGII';
-
 /**
  * The DGII digital certificate a tenant signs its e-CF with, stored encrypted at rest.
  *
  * The raw PKCS#12 (.p12/.pfx) bytes and its import password are AES-256-GCM encrypted with a
- * key derived from `ECF_CERT_ENCRYPTION_KEY` before they ever touch the database — the columns
+ * key derived from `SIGNING_CERT_ENCRYPTION_KEY` before they ever touch the database — the columns
  * hold ciphertext, never the private key in the clear. `CertificateVaultService` is the only place
  * that decrypts them, and only in memory, at signing time.
  */
 // The lookup is always "the active certificate of this regime for this tenant".
-@Index('IDX_ecf_certificates_org_regime_active', ['organizationId', 'regime', 'isActive'])
+@Index('IDX_signing_certificates_org_regime_active', ['organizationId', 'regime', 'isActive'])
 // Declared here as well as in the migration, so the schema-drift check sees it.
-@Check('CK_ecf_certificates_holder_kind', `"holder_kind" IS NULL OR "holder_kind" IN ('company', 'person')`)
-@Entity({ name: 'ecf_certificates' })
-@Index('IDX_ecf_certificates_org_active', ['organizationId', 'isActive'])
-export class EcfCertificate {
+@Check('CK_signing_certificates_holder_kind', `"holder_kind" IS NULL OR "holder_kind" IN ('company', 'person')`)
+@Entity({ name: 'signing_certificates' })
+@Index('IDX_signing_certificates_org_active', ['organizationId', 'isActive'])
+export class SigningCertificate {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -38,9 +35,10 @@ export class EcfCertificate {
    * documents. Without a discriminator the table held one certificate per tenant and the second
    * market silently signed with the first market's key.
    *
-   * `DGII` for every existing row, which is what they all are.
+   * Written from the company's market (`certificatePolicyFor`); the column carries no default,
+   * because there is no regime every market's certificate belongs to.
    */
-  @Column({ name: 'regime', type: 'varchar', length: 16, default: DGII_CERTIFICATE_REGIME })
+  @Column({ name: 'regime', type: 'varchar', length: 16 })
   regime: string;
 
   @Column({ name: 'organization_id', type: 'uuid' })

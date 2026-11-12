@@ -91,7 +91,7 @@
     {{else}}
       <div class="fiscal-box">
         <div class="doc-title">{{#if fiscal.electronic}}{{t 'invoice.pdf.electronic_title' title=title}}{{else}}{{title}}{{/if}}</div>
-        <div class="ncf">{{fiscal.ncf}}</div>
+        <div class="ncf">{{fiscal.number}}</div>
         <div class="meta">
           {{#if fiscal.validUntil}}{{t 'invoice.pdf.valid_until' date=fiscal.validUntil}}<br>{{/if}}
           {{t 'invoice.pdf.internal_number' number=invoice.invoiceNumber}}

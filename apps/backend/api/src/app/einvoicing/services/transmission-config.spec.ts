@@ -83,7 +83,7 @@ describe('TransmissionConfigService', () => {
   });
 
   it('a shared process credential is used only when the deployment opts in', async () => {
-    const env = { PAC_STAMP_URL: 'https://8.8.8.8/stamp', PAC_API_TOKEN: 'shared' };
+    const env = { EINVOICE_MX_ENDPOINT: 'https://8.8.8.8/stamp', EINVOICE_MX_TOKEN: 'shared' };
     await expect(build(null, env).service.resolve('org-1', 'MX')).resolves.toBeNull();
     await expect(build(null, { ...env, EINVOICE_PROCESS_CREDENTIALS: 'allow' }).service.resolve('org-1', 'MX')).resolves.toMatchObject({ source: 'PROCESS' });
   });

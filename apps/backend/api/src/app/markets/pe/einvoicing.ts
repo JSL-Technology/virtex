@@ -9,6 +9,7 @@ export const einvoicing: MarketEInvoicing = {
   channel: 'ENDPOINT',
   settingsFields: [],
   rangeSecret: null,
+  signing: { regime: 'SUNAT', representativeAllowed: false },
   coverage: needsCredentials(
       'SUNAT UBL 2.1',
       'tu certificado digital y tus credenciales SOL',

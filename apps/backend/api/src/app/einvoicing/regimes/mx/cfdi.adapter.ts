@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { Customer } from '../../../customers/entities/customer.entity';
-import { EcfCertificate } from '../../entities/ecf-certificate.entity';
+import { SigningCertificate } from '../../entities/signing-certificate.entity';
 import {
   CertificateVaultService,
   LoadedCertificate,
@@ -39,8 +39,8 @@ export class CfdiRegimeAdapter implements FiscalRegimeAdapter {
   private readonly builder = new CfdiBuilder();
 
   constructor(
-    @InjectRepository(EcfCertificate)
-    private readonly certificates: Repository<EcfCertificate>,
+    @InjectRepository(SigningCertificate)
+    private readonly certificates: Repository<SigningCertificate>,
     private readonly vault: CertificateVaultService,
     private readonly signatures: XmlSignatureService,
     private readonly pac: PacProvider,
@@ -141,7 +141,7 @@ export class CfdiRegimeAdapter implements FiscalRegimeAdapter {
     organizationId: string,
     manager: FiscalRegimeContext['manager'],
   ): Promise<LoadedCertificate & { serialNumber?: string }> {
-    const stored = await manager.findOne(EcfCertificate, {
+    const stored = await manager.findOne(SigningCertificate, {
       where: { organizationId, regime: certificateRegimeFor('MX'), isActive: true },
       order: { createdAt: 'DESC' },
     });

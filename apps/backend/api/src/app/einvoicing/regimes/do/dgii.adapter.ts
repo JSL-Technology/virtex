@@ -6,28 +6,29 @@ import { Invoice, InvoiceType, PaymentMethod } from '../../../invoices/entities/
 import { TaxTreatment } from '../../../invoices/entities/invoice-line-item.entity';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../../../organizations/entities/organization-settings.entity';
-import { EcfCertificate } from '../../entities/ecf-certificate.entity';
+import { SigningCertificate } from '../../entities/signing-certificate.entity';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
-import { DgiiAuthService } from '../../services/dgii-auth.service';
-import { DgiiConfigService } from '../../services/dgii-config.service';
-import { DgiiTransportService } from '../../services/dgii-transport.service';
-import { EcfSignerService } from '../../services/ecf-signer.service';
-import { EcfValidatorService } from '../../services/ecf-validator.service';
+import { DgiiAuthService } from './dgii-auth.service';
+import { DgiiConfigService } from './dgii-config.service';
+import { DgiiDocumentEventsService } from './dgii-document-events.service';
+import { DgiiTransportService } from './dgii-transport.service';
+import { EcfSignerService } from './ecf-signer.service';
+import { EcfValidatorService } from './ecf-validator.service';
 import {
   EcfBuildContext,
   EcfFormaPago,
   EcfItemInput,
   EcfXmlBuilderService,
-} from '../../services/ecf-xml-builder.service';
+} from './ecf-xml-builder.service';
 import {
   incomeTypeCode,
   municipalityCode,
   paymentFormCode,
   provinceCode,
   unitOfMeasureCode,
-} from '../../config/dgii-catalogues';
+} from './dgii-catalogues';
 import { statutoryTaxRatesOn } from '../../../localization/contracts/statutory-tax-rates.contract';
-import { dgiiTimestamp, organizationTimeZone } from '../../../shared/fiscal-clock';
+import { dayFirstTimestamp, organizationTimeZone } from '../../../shared/fiscal-clock';
 import { BadRequestError } from '../../../i18n/localized.exception';
 import {
   FiscalRegimeAdapter,
@@ -81,6 +82,12 @@ export class DgiiRegimeAdapter implements FiscalRegimeAdapter {
     private readonly auth: DgiiAuthService,
     private readonly transport: DgiiTransportService,
     private readonly dgiiConfig: DgiiConfigService,
+    /**
+     * What the DGII receives ABOUT documents: the buyer's verdict on a comprobante and the
+     * annulment of authorised numbers. The door reaches it through this adapter, so it names no
+     * Dominican service of its own.
+     */
+    readonly documentEvents: DgiiDocumentEventsService,
   ) {}
 
   /**
@@ -106,7 +113,7 @@ export class DgiiRegimeAdapter implements FiscalRegimeAdapter {
 
   /** The tenant's active DGII certificate, decrypted for the length of one signature. */
   async loadCertificate(context: FiscalRegimeContext): Promise<LoadedCertificate> {
-    const stored = await context.manager.findOne(EcfCertificate, {
+    const stored = await context.manager.findOne(SigningCertificate, {
       where: {
         organizationId: context.organizationId,
         regime: certificateRegimeFor(this.countryCode),
@@ -209,7 +216,7 @@ export class DgiiRegimeAdapter implements FiscalRegimeAdapter {
    * the regimes with a PAC or a SOAP service must — would block every Dominican e-CF.
    */
   async isTransmissionConfigured(context: Pick<FiscalRegimeContext, 'organizationId' | 'manager'>): Promise<boolean> {
-    const certificate = await context.manager.findOne(EcfCertificate, {
+    const certificate = await context.manager.findOne(SigningCertificate, {
       where: {
         organizationId: context.organizationId,
         regime: certificateRegimeFor(this.countryCode),
@@ -353,7 +360,7 @@ export class DgiiRegimeAdapter implements FiscalRegimeAdapter {
       // `FechaHoraFirma` in the ISSUER's time zone rather than the server's: Santo Domingo is four
       // hours behind UTC, so a sale made after 20:00 was signed with tomorrow's date — a signing
       // timestamp later than the comprobante's own `FechaEmision`, which the DGII rejects.
-      fechaHoraFirma: dgiiTimestamp(organizationTimeZone(org)),
+      fechaHoraFirma: dayFirstTimestamp(organizationTimeZone(org)),
       emisor: {
         rnc: (org.taxId || '').replace(/\D/g, ''),
         razonSocial: org.legalName,

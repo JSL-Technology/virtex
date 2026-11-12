@@ -11,7 +11,7 @@ import { readFileSync } from 'fs';
  * with valid signatures and dates, to one of the trust anchors configured for the market.
  *
  * The anchors are data, not code: the certification providers the DGII authorises change, and each
- * market has its own. `ECF_TRUSTED_CA_BUNDLE_<CC>` names a PEM file with the roots (and, if they are
+ * market has its own. `SIGNING_TRUSTED_CA_BUNDLE_<CC>` names a PEM file with the roots (and, if they are
  * not shipped inside the customers' files, the intermediates) for country CC.
  */
 export type TrustVerdict =
@@ -30,7 +30,7 @@ export function loadTrustAnchors(
   read: (key: string) => string | undefined,
   readFile: (path: string) => string = (path) => readFileSync(path, 'utf8'),
 ): forge.pki.Certificate[] {
-  const path = read(`ECF_TRUSTED_CA_BUNDLE_${country.toUpperCase()}`)?.trim();
+  const path = read(`SIGNING_TRUSTED_CA_BUNDLE_${country.toUpperCase()}`)?.trim();
   if (!path) return [];
   return parsePemBundle(readFile(path));
 }

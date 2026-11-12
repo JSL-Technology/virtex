@@ -314,22 +314,23 @@ export const envValidation = Joi.object({
   SMS_ALLOWED_COUNTRY_CODES: Joi.string().optional(),
   SMS_GLOBAL_DAILY_LIMIT: Joi.number().integer().positive().optional(),
 
-  // Electronic invoicing (e-CF, Dominican Republic / DGII).
-  // AES-256-GCM key that encrypts DGII signing certificates at rest. Mandatory to ISSUE e-CF — the
-  // certificate vault refuses to operate without it — but optional in a deployment so tenants that
-  // do not use electronic invoicing can boot without configuring it. In development it gets the
-  // same stable generated value as every other local secret: without one a developer could not
-  // load a certificate, and so could not issue a single electronic document.
-  ECF_CERT_ENCRYPTION_KEY: Joi.when('NODE_ENV', {
+  // Electronic invoicing — the same variables in every market.
+  // AES-256-GCM key that encrypts signing certificates at rest, whichever authority issued them.
+  // Mandatory to issue an electronic document — the certificate vault refuses to operate without
+  // it — but optional in a deployment so tenants in a market with no regime, or that do not use
+  // one, can boot without configuring it. In development it gets the same stable generated value
+  // as every other local secret: without one a developer could not load a certificate, and so
+  // could not issue a single electronic document.
+  SIGNING_CERT_ENCRYPTION_KEY: Joi.when('NODE_ENV', {
     is: DEV_LIKE,
-    then: Joi.string().min(16).default(devSecret('ECF_CERT_ENCRYPTION_KEY')),
+    then: Joi.string().min(16).default(devSecret('SIGNING_CERT_ENCRYPTION_KEY')),
     otherwise: Joi.string().min(16).optional(),
   }),
-  // Accept a SELF-SIGNED signing certificate (the fixtures in tools/fixtures/ecf-certificates) so
-  // the e-CF flow can be exercised locally. Only a development or test process may set it: in any
-  // other environment a deployment that carried it would sign documents the DGII cannot trust, so
-  // it fails validation rather than being ignored.
-  ECF_ALLOW_TEST_CERTIFICATES: Joi.when('NODE_ENV', {
+  // Accept a SELF-SIGNED signing certificate (the fixtures in tools/fixtures/signing-certificates)
+  // so the electronic-document flow can be exercised locally. Only a development or test process
+  // may set it: in any other environment a deployment that carried it would sign documents no
+  // authority can trust, so it fails validation rather than being ignored.
+  SIGNING_ALLOW_TEST_CERTIFICATES: Joi.when('NODE_ENV', {
     is: DEV_LIKE,
     then: Joi.boolean().truthy('true').falsy('false').default(false),
     otherwise: Joi.boolean().truthy('true').falsy('false').valid(false).default(false),
@@ -348,20 +349,13 @@ export const envValidation = Joi.object({
     if (value !== undefined) parseExternalEffects(value, false); // throws on an unknown kind
     return value;
   }),
-  // A Dominican tenant's channel is its own environment and certificate (`DgiiConfigService`).
-  // These are a deployment's levers: the environment for tenants that never saved settings, and
-  // per-service endpoint overrides for the day the DGII republishes a host or a path. Like every
-  // other regime's process-wide channel they are read only in a development-like process or with
-  // `EINVOICE_PROCESS_CREDENTIALS=allow`; the HTTP timeout is not a channel and always applies.
-  DGII_ECF_ENVIRONMENT: Joi.string().valid('TesteCF', 'CerteCF', 'Produccion').optional(),
-  DGII_ECF_BASE_URL: Joi.string().uri().optional(),
-  DGII_ECF_SEED_URL: Joi.string().uri().optional(),
-  DGII_ECF_VALIDATE_SEED_URL: Joi.string().uri().optional(),
-  DGII_ECF_RECEPTION_URL: Joi.string().uri().optional(),
-  DGII_ECF_STATUS_URL: Joi.string().uri().optional(),
-  DGII_ECF_TRACKIDS_URL: Joi.string().uri().optional(),
-  DGII_ECF_APPROVAL_URL: Joi.string().uri().optional(),
-  DGII_ECF_HTTP_TIMEOUT_MS: Joi.number().integer().positive().optional(),
+  // Whether this deployment may configure a fiscal channel process-wide at all. A SaaS may not:
+  // each tenant's channel is its own (`fiscal_regime_settings`). Set to `allow`, a single-tenant
+  // deployment's `EINVOICE_<CC>_*` variables are read for tenants that saved no settings.
+  EINVOICE_PROCESS_CREDENTIALS: Joi.string().valid('allow').optional(),
+  // How long a regime's transport waits for its authority, in milliseconds. Not a channel: it
+  // applies in every process.
+  EINVOICE_TIMEOUT_MS: Joi.number().integer().positive().optional(),
 
   // RS256 keys: required in production, optional in development (ephemeral key is generated).
   RS_PRIVATE_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),
@@ -526,4 +520,18 @@ export const envValidation = Joi.object({
     then: Joi.boolean().default(false),
     otherwise: Joi.boolean().default(true),
   }),
-});
+})
+  /**
+   * Every market's electronic-invoicing channel, by shape rather than by name.
+   *
+   * `EINVOICE_<CC>_…` is the one spelling a deployment configures a market with, so nineteen
+   * markets need no nineteen blocks here and this file names no country. A URL is checked as a
+   * URL; what a value MEANS is the regime's own business, and its adapter says so — the Dominican
+   * environment used to be `DGII_ECF_ENVIRONMENT` with its three authority-specific values listed
+   * here, which is how the core came to know one authority's vocabulary.
+   *
+   * `allow('')` because a variable left empty in a `.env` is how an operator turns an override
+   * off; the regimes read a blank as unset.
+   */
+  .pattern(/^EINVOICE_[A-Z]{2}_[A-Z0-9_]*(?:URL|ENDPOINT)$/, Joi.string().uri().allow(''))
+  .pattern(/^EINVOICE_[A-Z]{2}_(?:TOKEN|USERNAME|PASSWORD|SOAP_ACTION|ENVIRONMENT)$/, Joi.string().allow(''));

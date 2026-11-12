@@ -60,7 +60,7 @@ describe('certificate chain trust', () => {
   it('reads the anchors of a market from its PEM bundle', () => {
     const bundle = [root, intermediate].map((c) => forge.pki.certificateToPem(c)).join('\n');
     expect(parsePemBundle(bundle)).toHaveLength(2);
-    const anchors = loadTrustAnchors('do', (key) => (key === 'ECF_TRUSTED_CA_BUNDLE_DO' ? '/bundle.pem' : undefined), () => bundle);
+    const anchors = loadTrustAnchors('do', (key) => (key === 'SIGNING_TRUSTED_CA_BUNDLE_DO' ? '/bundle.pem' : undefined), () => bundle);
     expect(anchors).toHaveLength(2);
     expect(loadTrustAnchors('MX', () => undefined)).toEqual([]);
   });

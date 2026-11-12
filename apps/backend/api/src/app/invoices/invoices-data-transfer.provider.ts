@@ -21,7 +21,7 @@ export class InvoicesDataTransferProvider implements DataTransferDataset, OnModu
   readonly viewPermission = PERMISSIONS.INVOICES_VIEW;
   readonly columns = [
     { key: 'numero', property: 'invoiceNumber' },
-    { key: 'ncf', property: 'fiscalNumber' },
+    { key: 'numero_fiscal', property: 'fiscalNumber' },
     { key: 'fecha', property: 'issueDate' },
     { key: 'vencimiento', property: 'dueDate' },
     { key: 'cliente', property: 'customerName' },
@@ -65,7 +65,7 @@ export class SalesLinesDataTransferProvider implements DataTransferDataset, OnMo
   readonly viewPermission = PERMISSIONS.INVOICES_VIEW;
   readonly columns = [
     { key: 'numero', property: 'invoiceNumber' },
-    { key: 'ncf', property: 'fiscalNumber' },
+    { key: 'numero_fiscal', property: 'fiscalNumber' },
     { key: 'fecha', property: 'issueDate' },
     { key: 'cliente', property: 'customerName' },
     { key: 'moneda', property: 'currencyCode' },

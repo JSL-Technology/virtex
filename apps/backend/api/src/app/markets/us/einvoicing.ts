@@ -10,6 +10,9 @@ export const einvoicing: MarketEInvoicing = {
   settingsFields: [],
   rangeSecret: null,
 
+  // Nothing is signed with a certificate here.
+  signing: null,
+
   // Not a gap: a US sales invoice carries no fiscal stamp, so there is nothing to implement.
   coverage: notApplicable('La factura de venta estadounidense no lleva sello fiscal'),
 };

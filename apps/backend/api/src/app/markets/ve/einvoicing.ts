@@ -10,6 +10,9 @@ export const einvoicing: MarketEInvoicing = {
   settingsFields: [],
   rangeSecret: null,
 
+  // Nothing is signed with a certificate here.
+  signing: null,
+
   // The law does not mandate electronic invoicing here (`required: false`).
   coverage: notApplicable(),
 };

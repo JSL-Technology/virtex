@@ -7,11 +7,11 @@ import { FiscalDocumentEvent, FiscalDocumentEventKind } from '../../entities/fis
 import { FiscalSubmissionStatus } from '../../entities/fiscal-submission.entity';
 import { FiscalDocumentRange } from '../../entities/fiscal-document-range.entity';
 import { CertificateVaultService } from '../../services/certificate-vault.service';
-import { DgiiAuthService } from '../../services/dgii-auth.service';
-import { DgiiReceptionResult, DgiiTransportService } from '../../services/dgii-transport.service';
+import { DgiiAuthService } from './dgii-auth.service';
+import { DgiiReceptionResult, DgiiTransportService } from './dgii-transport.service';
 import { DgiiEventXmlBuilder } from './dgii-event-xml.builder';
 import { DgiiDocumentEventsService } from './dgii-document-events.service';
-import { EcfSignerService } from '../../services/ecf-signer.service';
+import { EcfSignerService } from './ecf-signer.service';
 import { FiscalRangeService } from '../../services/fiscal-range.service';
 
 /**

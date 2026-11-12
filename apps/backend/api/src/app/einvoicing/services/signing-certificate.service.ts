@@ -4,7 +4,7 @@ import { loadTrustAnchors, verifyCertificateChain } from './certificate-trust';
 import { isDevLikeEnvironment } from '../../config/environment';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { EcfCertificate } from '../entities/ecf-certificate.entity';
+import { SigningCertificate } from '../entities/signing-certificate.entity';
 import { CertificateVaultService } from './certificate-vault.service';
 import { BadRequestError } from '../../i18n/localized.exception';
 import { assessCertificate } from './certificate-inspector';
@@ -13,7 +13,7 @@ import { TaxpayerKind, identityDocumentLabel } from '../../markets';
 import { organizationFiscalIdentity } from '../../organizations/contracts/fiscal-identity.contract';
 
 /** Certificate view without any encrypted material — safe to return over the API. */
-export interface EcfCertificateView {
+export interface SigningCertificateView {
   id: string;
   alias: string;
   subjectCommonName?: string;
@@ -47,10 +47,10 @@ export interface EcfCertificateView {
  * filed as a DGII one, so a Mexican CSD was stored where the CFDI adapter never looks.
  */
 @Injectable()
-export class EcfCertificateService {
+export class SigningCertificateService {
   constructor(
-    @InjectRepository(EcfCertificate)
-    private readonly repo: Repository<EcfCertificate>,
+    @InjectRepository(SigningCertificate)
+    private readonly repo: Repository<SigningCertificate>,
     private readonly vault: CertificateVaultService,
   ) {}
 
@@ -66,7 +66,7 @@ export class EcfCertificateService {
   async upload(
     organizationId: string,
     input: { pfx: Buffer; password: string; alias: string },
-  ): Promise<EcfCertificateView> {
+  ): Promise<SigningCertificateView> {
     if (!input.pfx?.length) throw new BadRequestError('einvoicing.certificate.file_empty');
     if (!input.password) throw new BadRequestError('einvoicing.certificate.password_required');
 
@@ -116,10 +116,10 @@ export class EcfCertificateService {
       // tenant meant that loading a Mexican CSD switched off the DGII certificate, and the next
       // Dominican document could not be signed.
       await manager
-        .getRepository(EcfCertificate)
+        .getRepository(SigningCertificate)
         .update({ organizationId, regime: policy.regime, isActive: true }, { isActive: false });
 
-      const entity = manager.create(EcfCertificate, {
+      const entity = manager.create(SigningCertificate, {
         organizationId,
         regime: policy.regime,
         alias: input.alias || parsed.subjectCommonName || `${policy.authority} ${parsed.serialNumber ?? ''}`.trim(),
@@ -140,7 +140,7 @@ export class EcfCertificateService {
     });
   }
 
-  async list(organizationId: string): Promise<EcfCertificateView[]> {
+  async list(organizationId: string): Promise<SigningCertificateView[]> {
     const rows = await this.repo.find({ where: { organizationId }, order: { createdAt: 'DESC' } });
     return rows.map((r) => this.toView(r));
   }
@@ -149,7 +149,7 @@ export class EcfCertificateService {
     await this.repo.update({ id, organizationId }, { isActive: false });
   }
 
-  private toView(c: EcfCertificate): EcfCertificateView {
+  private toView(c: SigningCertificate): SigningCertificateView {
     const policy = certificatePolicyForRegime(c.regime);
     const holderIdLabel =
       policy && c.holderKind

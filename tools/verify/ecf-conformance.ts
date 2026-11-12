@@ -21,19 +21,19 @@ import { SignedXml } from 'xml-crypto';
 import {
   EcfXmlBuilderService,
   EcfBuildContext,
-} from '../../apps/backend/api/src/app/einvoicing/services/ecf-xml-builder.service';
-import { EcfValidatorService } from '../../apps/backend/api/src/app/einvoicing/services/ecf-validator.service';
-import { EcfSignerService } from '../../apps/backend/api/src/app/einvoicing/services/ecf-signer.service';
+} from '../../apps/backend/api/src/app/einvoicing/regimes/do/ecf-xml-builder.service';
+import { EcfValidatorService } from '../../apps/backend/api/src/app/einvoicing/regimes/do/ecf-validator.service';
+import { EcfSignerService } from '../../apps/backend/api/src/app/einvoicing/regimes/do/ecf-signer.service';
 import { CertificateVaultService } from '../../apps/backend/api/src/app/einvoicing/services/certificate-vault.service';
 import {
   municipalityCode,
   provinceCode,
   paymentFormCode,
   unitOfMeasureCode,
-} from '../../apps/backend/api/src/app/einvoicing/config/dgii-catalogues';
+} from '../../apps/backend/api/src/app/einvoicing/regimes/do/dgii-catalogues';
 import { PaymentMethod } from '../../apps/backend/api/src/app/invoices/entities/invoice.entity';
 import { DgiiEventXmlBuilder } from '../../apps/backend/api/src/app/einvoicing/regimes/do/dgii-event-xml.builder';
-import { dgiiTimestamp, fiscalDate, organizationTimeZone } from '../../apps/backend/api/src/app/shared/fiscal-clock';
+import { dayFirstTimestamp, fiscalDate, organizationTimeZone } from '../../apps/backend/api/src/app/shared/fiscal-clock';
 import { makeTestCertificate } from './support/test-certificate';
 
 const failures: string[] = [];
@@ -174,7 +174,7 @@ function main(): void {
   {
     const { pfx, password, certPem } = makeTestCertificate();
     const vault = new CertificateVaultService({
-      get: (key: string) => (key === 'ECF_CERT_ENCRYPTION_KEY' ? 'clave-de-prueba-para-certificados' : undefined),
+      get: (key: string) => (key === 'SIGNING_CERT_ENCRYPTION_KEY' ? 'clave-de-prueba-para-certificados' : undefined),
     } as never);
 
     check('el certificado sobrevive el cifrado en reposo', vault.decrypt(vault.encrypt(pfx)).equals(pfx));
@@ -207,7 +207,7 @@ function main(): void {
       montoTotal: 1180,
       estado: '2',
       detalleMotivoRechazo: 'La mercancía no fue recibida.',
-      fechaHoraAprobacion: dgiiTimestamp('America/Santo_Domingo'),
+      fechaHoraAprobacion: dayFirstTimestamp('America/Santo_Domingo'),
     });
     check('la aprobación comercial identifica a ambas partes',
       approval.includes('<RNCEmisor>130862346</RNCEmisor>') &&
@@ -223,7 +223,7 @@ function main(): void {
 
     const annulment = lifecycle.buildSequenceVoid({
       rnc: '130862346',
-      fechaHoraAnulacion: dgiiTimestamp('America/Santo_Domingo'),
+      fechaHoraAnulacion: dayFirstTimestamp('America/Santo_Domingo'),
       ranges: [{ tipoECF: '31', desde: 'E310000000042', hasta: 'E310000000050' }],
     });
     // 42 through 50 inclusive is nine numbers. An off-by-one here is a number the DGII still
@@ -245,7 +245,7 @@ function main(): void {
     const lateEvening = new Date('2026-09-01T00:30:00Z');
     const zone = organizationTimeZone({ country: 'DO', timezone: 'UTC' });
     check('la marca de tiempo fiscal usa la zona del contribuyente',
-      dgiiTimestamp(zone, lateEvening) === '31-08-2026 20:30:00', dgiiTimestamp(zone, lateEvening));
+      dayFirstTimestamp(zone, lateEvening) === '31-08-2026 20:30:00', dayFirstTimestamp(zone, lateEvening));
     check('una venta de la noche del último día del mes no salta de período',
       fiscalDate(zone, lateEvening) === '2026-08-31', fiscalDate(zone, lateEvening));
   }

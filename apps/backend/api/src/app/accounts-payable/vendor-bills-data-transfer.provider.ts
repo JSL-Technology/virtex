@@ -44,9 +44,9 @@ export class VendorBillsDataTransferProvider implements DataTransferDataset<Vend
   readonly hintKey = 'data_transfer.hints.vendor_bills';
   readonly viewPermission = PERMISSIONS.ACCOUNTS_PAYABLE_VIEW;
   readonly columns = [
-    // `numero_fiscal` was `ncf`, the DGII's name for it, in a file every market imports. A file
-    // written against the old header is still read (`aliases`), so nothing has to be remapped.
-    { key: 'numero_fiscal', property: 'supplierFiscalNumber', aliases: ['ncf'], example: 'B0100000123' },
+    // `numero_fiscal` was one authority's name for it, in a file every market imports. The example
+    // is the market's own (`templateExample`), so nothing here shows another country's shape.
+    { key: 'numero_fiscal', property: 'supplierFiscalNumber' },
     { key: 'numero_proveedor', property: 'supplierInvoiceNumber', example: 'FAC-000123' },
     { key: 'proveedor', property: 'vendorName' },
     { key: 'tax_id_proveedor', property: 'vendorTaxId', required: true, example: '131-12345-7' },

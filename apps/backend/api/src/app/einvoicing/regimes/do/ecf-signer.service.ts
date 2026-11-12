@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SignedXml } from 'xml-crypto';
-import type { LoadedCertificate } from './certificate-vault.service';
-import { InternalServerError } from '../../i18n/localized.exception';
+import type { LoadedCertificate } from '../../services/certificate-vault.service';
+import { InternalServerError } from '../../../i18n/localized.exception';
 
 /**
  * Applies the enveloped XMLDSig signature the DGII mandates for e-CF and for the authentication

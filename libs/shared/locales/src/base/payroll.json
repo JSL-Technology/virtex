@@ -154,6 +154,11 @@
     "en": "Give the concept's code and name.",
     "pt": "Informe o código e o nome do conceito."
   },
+  "payroll.concepts.contribution_base": {
+    "en": "Contributes to social security",
+    "es": "Cotiza a la seguridad social",
+    "pt": "Contribui para a segurança social"
+  },
   "payroll.concepts.include_inactive": {
     "es": "Incluir inactivos",
     "en": "Include inactive",
@@ -303,11 +308,6 @@
     "es": "Conceptos de nómina",
     "en": "Payroll concepts",
     "pt": "Conceitos da folha"
-  },
-  "payroll.concepts.tss_base": {
-    "en": "Contributes to social security",
-    "es": "Cotiza a la seguridad social",
-    "pt": "Contribui para a segurança social"
   },
   "payroll.concepts.type": {
     "es": "Tipo",
@@ -605,7 +605,7 @@
   "payroll.parameters.key_label.isr_annual_exempt": {
     "es": "Exención anual del ISR",
     "en": "Annual income-tax exemption",
-    "pt": "Isenção anual de IRS"
+    "pt": "Isenção anual do IRPF"
   },
   "payroll.parameters.key_label.min_wage_cotizable": {
     "es": "Salario mínimo cotizable",
@@ -786,7 +786,7 @@
   "payroll.parameters.tax_scale": {
     "es": "Escala del ISR",
     "en": "Income-tax scale",
-    "pt": "Escalão de IRS"
+    "pt": "Tabela do IRPF"
   },
   "payroll.parameters.tax_scale_help": {
     "es": "Cuando la autoridad publique una escala nueva, se registra completa con su fecha de vigencia.",

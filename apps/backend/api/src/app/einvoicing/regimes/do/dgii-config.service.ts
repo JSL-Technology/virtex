@@ -2,17 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { DgiiEndpoints, DgiiEnvironment, resolveDgiiEndpoints } from '../config/dgii-endpoints';
-import { FiscalEnvironment, FiscalRegimeSettings } from '../entities/fiscal-regime-settings.entity';
-import { isDevLikeEnvironment } from '../../config/environment';
-import { assertExternalEffectAllowed, ExternalEffect } from '../../config/external-effects';
+import { DgiiEndpoints, DgiiEnvironment, resolveDgiiEndpoints } from './dgii-endpoints';
+import { FiscalEnvironment, FiscalRegimeSettings } from '../../entities/fiscal-regime-settings.entity';
+import { isDevLikeEnvironment } from '../../../config/environment';
+import { assertExternalEffectAllowed, ExternalEffect } from '../../../config/external-effects';
 
 const ENVIRONMENTS: readonly DgiiEnvironment[] = ['TesteCF', 'CerteCF', 'Produccion'];
 
 /**
  * Which DGII e-CF environment a tenant transmits to, and its endpoints (audit 2026-10-31, EINV-04).
  *
- * The environment was one per process, from `DGII_ECF_ENVIRONMENT`, CerteCF when unset. A SaaS has
+ * The environment was one per process, from `EINVOICE_DO_ENVIRONMENT`, CerteCF when unset. A SaaS has
  * tenants in certification and tenants in production at the same time, so one value was wrong for
  * one of them — and a production deployment that forgot the variable sent every tenant's e-CF to
  * CerteCF, where they have no fiscal validity.
@@ -23,7 +23,7 @@ const ENVIRONMENTS: readonly DgiiEnvironment[] = ['TesteCF', 'CerteCF', 'Producc
  *
  * ## The process variables, and why they are gated like every other regime's
  *
- * `DGII_ECF_ENVIRONMENT` and the `DGII_ECF_*_URL` overrides are a DEPLOYMENT's lever, not a
+ * `EINVOICE_DO_ENVIRONMENT` and the `EINVOICE_DO_*_URL` overrides are a DEPLOYMENT's lever, not a
  * tenant's channel: a Dominican tenant's channel is its environment (its own row) and its
  * certificate, which is why this regime needs no endpoint or credential configured per tenant
  * (`DgiiRegimeAdapter.isTransmissionConfigured`). The overrides exist for the day the DGII
@@ -77,16 +77,17 @@ export class DgiiConfigService {
     return this.endpointsFor(organizationId);
   }
 
+  /** How long to wait for the authority. The shared `EINVOICE_TIMEOUT_MS`: a timeout is not a channel. */
   get httpTimeoutMs(): number {
-    const raw = Number(this.config.get<string>('DGII_ECF_HTTP_TIMEOUT_MS'));
+    const raw = Number(this.config.get<string>('EINVOICE_TIMEOUT_MS'));
     return Number.isFinite(raw) && raw > 0 ? raw : 30000;
   }
 
   private processEnvironment(): DgiiEnvironment | null {
-    const raw = (this.config.get<string>('DGII_ECF_ENVIRONMENT') ?? '').trim();
+    const raw = (this.config.get<string>('EINVOICE_DO_ENVIRONMENT') ?? '').trim();
     if (!raw) return null;
     if ((ENVIRONMENTS as readonly string[]).includes(raw)) return raw as DgiiEnvironment;
-    this.logger.warn(`DGII_ECF_ENVIRONMENT="${raw}" is not one of ${ENVIRONMENTS.join(', ')}; ignored.`);
+    this.logger.warn(`EINVOICE_DO_ENVIRONMENT="${raw}" is not one of ${ENVIRONMENTS.join(', ')}; ignored.`);
     return null;
   }
 
@@ -138,11 +139,11 @@ export class DgiiConfigService {
  * independently.
  */
 const PINNED_ENDPOINTS: Readonly<Record<string, string>> = {
-  DGII_ECF_BASE_URL: 'baseUrl',
-  DGII_ECF_SEED_URL: 'seed',
-  DGII_ECF_VALIDATE_SEED_URL: 'validateSeed',
-  DGII_ECF_RECEPTION_URL: 'reception',
-  DGII_ECF_STATUS_URL: 'status',
-  DGII_ECF_TRACKIDS_URL: 'trackIds',
-  DGII_ECF_APPROVAL_URL: 'commercialApproval',
+  EINVOICE_DO_BASE_URL: 'baseUrl',
+  EINVOICE_DO_SEED_URL: 'seed',
+  EINVOICE_DO_VALIDATE_SEED_URL: 'validateSeed',
+  EINVOICE_DO_RECEPTION_URL: 'reception',
+  EINVOICE_DO_STATUS_URL: 'status',
+  EINVOICE_DO_TRACKIDS_URL: 'trackIds',
+  EINVOICE_DO_APPROVAL_URL: 'commercialApproval',
 };

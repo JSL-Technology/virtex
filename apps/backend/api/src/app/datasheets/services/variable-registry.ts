@@ -104,7 +104,7 @@ export const VARIABLE_REGISTRY: ERPVariable[] = [
 
   // Sistema y Configuración
   { nameEn: 'COMPANY_NAME', nameEs: 'EMPRESA_NOMBRE', module: VariableModule.SYSTEM, permission: null, descriptionEn: 'Legal name of the company', descriptionEs: 'Nombre legal de la empresa' },
-  { nameEn: 'COMPANY_TAX_ID', nameEs: 'EMPRESA_RNC', module: VariableModule.SYSTEM, permission: null, descriptionEn: 'Tax identification number of the company', descriptionEs: 'Número de identificación fiscal de la empresa' },
+  { nameEn: 'COMPANY_TAX_ID', nameEs: 'EMPRESA_ID_FISCAL', module: VariableModule.SYSTEM, permission: null, descriptionEn: 'Tax identification number of the company', descriptionEs: 'Número de identificación fiscal de la empresa' },
   { nameEn: 'TODAY_DATE', nameEs: 'FECHA_HOY', module: VariableModule.SYSTEM, permission: null, descriptionEn: 'Today\'s date in the tenant\'s timezone', descriptionEs: 'Fecha de hoy en la zona horaria del inquilino' },
   { nameEn: 'CURRENT_USER_NAME', nameEs: 'USUARIO_ACTUAL', module: VariableModule.SYSTEM, permission: null, descriptionEn: 'Name of the user resolving the sheet', descriptionEs: 'Nombre del usuario que está resolviendo la hoja' },
 ];

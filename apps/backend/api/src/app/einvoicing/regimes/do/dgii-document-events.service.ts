@@ -7,42 +7,20 @@ import {
   FiscalDocumentEventKind,
 } from '../../entities/fiscal-document-event.entity';
 import { FiscalSubmissionStatus } from '../../entities/fiscal-submission.entity';
-import { DGII_CERTIFICATE_REGIME, EcfCertificate } from '../../entities/ecf-certificate.entity';
+import { SigningCertificate } from '../../entities/signing-certificate.entity';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { counterpartyVerdictCodeFor, isElectronicDocumentType, knownMarket } from '../../../markets';
 import { certificatePolicyFor } from '../../contracts/certificate-policy';
 import { FiscalRangeService } from '../../services/fiscal-range.service';
 import { CertificateVaultService } from '../../services/certificate-vault.service';
-import { EcfSignerService } from '../../services/ecf-signer.service';
+import { EcfSignerService } from './ecf-signer.service';
 import { DgiiEventXmlBuilder, VoidedSequenceRange } from './dgii-event-xml.builder';
-import { DgiiAuthService } from '../../services/dgii-auth.service';
-import { DgiiTransportService } from '../../services/dgii-transport.service';
+import { DgiiAuthService } from './dgii-auth.service';
+import { DgiiTransportService } from './dgii-transport.service';
 import { dgiiStatus, isTerminalStatus } from './dgii-estado';
-import { dgiiTimestamp, isoToDgiiDate, organizationTimeZone } from '../../../shared/fiscal-clock';
+import type { CounterpartyVerdictRequest, FiscalDocumentEventsPort, SequenceVoidRequest } from '../fiscal-document-events.port';
+import { dayFirstTimestamp, isoToDayFirstDate, organizationTimeZone } from '../../../shared/fiscal-clock';
 import { BadRequestError, ConflictError, NotFoundError } from '../../../i18n/localized.exception';
-
-export interface CounterpartyVerdictRequest {
-  /** The identifier of the party that issued the document being answered. */
-  counterpartyTaxId: string;
-  /** The number their authority assigned to it. */
-  documentNumber: string;
-  /** Issue date they stated, `YYYY-MM-DD`. */
-  documentDate: string;
-  /** Total they stated. It must match theirs to the cent or the authority rejects the answer. */
-  documentTotal: number;
-  verdict: CounterpartyVerdict;
-  /** Mandatory when the verdict is a rejection. */
-  rejectionReason?: string;
-}
-
-export interface SequenceVoidRequest {
-  /** A document-type code, not `NcfType`: the boundary carries a plain string now (C-03). */
-  type: string;
-  /** First sequence number of the stretch, inclusive. */
-  from: number;
-  /** Last sequence number of the stretch, inclusive. */
-  to: number;
-}
 
 /**
  * The half of the e-CF cycle that is not about issuing: answering what suppliers send, and
@@ -57,8 +35,11 @@ export interface SequenceVoidRequest {
  * transmit → record the verdict, with the row written BEFORE anything can fail so an attempt is
  * never invisible.
  */
+/** What this market's signing certificates are filed under (`signing_certificates.regime`). */
+const DGII_REGIME = 'DGII';
+
 @Injectable()
-export class DgiiDocumentEventsService {
+export class DgiiDocumentEventsService implements FiscalDocumentEventsPort {
   /** Whose authority these events are for: recorded on every row, as a submission records it. */
   private readonly countryCode = 'DO';
   private readonly regime = 'DGII e-CF';
@@ -68,8 +49,8 @@ export class DgiiDocumentEventsService {
   constructor(
     @InjectRepository(FiscalDocumentEvent)
     private readonly messageRepo: Repository<FiscalDocumentEvent>,
-    @InjectRepository(EcfCertificate)
-    private readonly certRepo: Repository<EcfCertificate>,
+    @InjectRepository(SigningCertificate)
+    private readonly certRepo: Repository<SigningCertificate>,
     @InjectRepository(Organization)
     private readonly orgRepo: Repository<Organization>,
     private readonly vault: CertificateVaultService,
@@ -151,11 +132,11 @@ export class DgiiDocumentEventsService {
         rncEmisor: counterpartyTaxId,
         rncComprador: taxId,
         eNCF: request.documentNumber,
-        fechaEmision: isoToDgiiDate(request.documentDate),
+        fechaEmision: isoToDayFirstDate(request.documentDate),
         montoTotal: request.documentTotal,
         estado,
         detalleMotivoRechazo: request.rejectionReason,
-        fechaHoraAprobacion: dgiiTimestamp(organizationTimeZone(org)),
+        fechaHoraAprobacion: dayFirstTimestamp(organizationTimeZone(org)),
       });
 
       const signedXml = this.signer.sign(xml, loaded, 'ACECF');
@@ -253,7 +234,7 @@ export class DgiiDocumentEventsService {
         const { loaded, taxId } = await this.credentials(organizationId, org);
         const xml = this.builder.buildSequenceVoid({
           rnc: taxId,
-          fechaHoraAnulacion: dgiiTimestamp(organizationTimeZone(org)),
+          fechaHoraAnulacion: dayFirstTimestamp(organizationTimeZone(org)),
           ranges: [stretch],
         });
 
@@ -314,7 +295,7 @@ export class DgiiDocumentEventsService {
   private async requireIssuer(organizationId: string): Promise<Organization> {
     const org = await this.orgRepo.findOne({ where: { id: organizationId } });
     if (!org) throw new NotFoundError('einvoicing.do.organization_not_found');
-    if (certificatePolicyFor(org.country)?.regime !== DGII_CERTIFICATE_REGIME) {
+    if (certificatePolicyFor(org.country)?.regime !== DGII_REGIME) {
       throw new BadRequestError('einvoicing.do.message_belongs_to_dgii_regime');
     }
     if (!org.taxId) {
@@ -327,7 +308,7 @@ export class DgiiDocumentEventsService {
     // The DGII's certificate: a tenant that also operates in another market holds that market's
     // certificate too, and signing a DGII message with it would be rejected.
     const cert = await this.certRepo.findOne({
-      where: { organizationId, isActive: true, regime: DGII_CERTIFICATE_REGIME },
+      where: { organizationId, isActive: true, regime: DGII_REGIME },
       order: { createdAt: 'DESC' },
     });
     if (!cert) {

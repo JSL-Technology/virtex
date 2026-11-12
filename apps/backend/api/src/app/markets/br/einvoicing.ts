@@ -9,6 +9,7 @@ export const einvoicing: MarketEInvoicing = {
   channel: 'ENDPOINT',
   settingsFields: ['stateCode', 'municipalityCode', 'numericCode'],
   rangeSecret: null,
+  signing: { regime: 'NFE', representativeAllowed: false },
   coverage: needsCredentials(
       'NF-e 4.00',
       'seu certificado A1 ou A3 e a homologação na SEFAZ do seu estado',

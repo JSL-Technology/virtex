@@ -58,20 +58,20 @@ export function fiscalDate(timeZone: string, at: Date = new Date()): string {
   return `${p['year']}-${p['month']}-${p['day']}`;
 }
 
-/** `DD-MM-YYYY`, the date format every DGII e-CF element uses. */
-export function dgiiDate(timeZone: string, at: Date = new Date()): string {
+/** `DD-MM-YYYY`: the day-first date several authorities' documents are written in. */
+export function dayFirstDate(timeZone: string, at: Date = new Date()): string {
   const p = parts(at, timeZone);
   return `${p['day']}-${p['month']}-${p['year']}`;
 }
 
-/** `DD-MM-YYYY HH:mm:ss`, the format of `FechaHoraFirma` and the lifecycle messages' stamps. */
-export function dgiiTimestamp(timeZone: string, at: Date = new Date()): string {
+/** `DD-MM-YYYY HH:mm:ss`: the day-first stamp those same documents carry on a signature. */
+export function dayFirstTimestamp(timeZone: string, at: Date = new Date()): string {
   const p = parts(at, timeZone);
   return `${p['day']}-${p['month']}-${p['year']} ${p['hour']}:${p['minute']}:${p['second']}`;
 }
 
 /** Re-render an ISO or `YYYY-MM-DD` date as `DD-MM-YYYY` without moving it across a zone. */
-export function isoToDgiiDate(iso: string): string {
+export function isoToDayFirstDate(iso: string): string {
   const [date] = iso.split('T');
   const [year, month, day] = date.split('-');
   return `${day}-${month}-${year}`;

@@ -63,7 +63,7 @@ export interface CopilotRecordRef {
 }
 
 const RECORD_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const RECORD_LABELS = ['number', 'invoiceNumber', 'fiscalNumber', 'quoteNumber', 'orderNumber', 'ncf', 'name', 'companyName', 'sku'];
+const RECORD_LABELS = ['number', 'invoiceNumber', 'fiscalNumber', 'supplierFiscalNumber', 'quoteNumber', 'orderNumber', 'name', 'companyName', 'sku'];
 
 /**
  * The records in a tool's result: every object (to a few levels deep) with a uuid `id`, labelled

@@ -51,7 +51,7 @@ export enum InvoiceType {
 
 /**
  * How the document is settled. The two-letter values are the product's own; the DGII code they map
- * to lives in `einvoicing/config/dgii-catalogues.ts`, because the same commercial concept carries
+ * to lives in `einvoicing/regimes/do/dgii-catalogues.ts`, because the same commercial concept carries
  * different codes in different regimes.
  */
 export enum PaymentMethod {
@@ -260,7 +260,7 @@ export class Invoice {
     precision: 18,
     scale: 2,
     transformer: numericTransformerNotNull,
-    comment: 'Consumption tax (ITBIS/IVA) in transaction currency',
+    comment: 'Consumption tax in transaction currency',
   })
   tax: number;
 

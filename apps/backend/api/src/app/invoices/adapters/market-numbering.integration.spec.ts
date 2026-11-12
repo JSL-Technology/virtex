@@ -48,7 +48,7 @@ describeWithDb('fiscal numbering, one engine for every market', () => {
     // A real key, not a placeholder: the encrypted secret on a Chilean CAF range is decrypted for
     // real in the test that reads it back, so an AES round-trip that does not work would fail here.
     vault = new CertificateVaultService({
-      get: (key: string) => (key === 'ECF_CERT_ENCRYPTION_KEY' ? 'clave-de-pruebas-suficientemente-larga' : undefined),
+      get: (key: string) => (key === 'SIGNING_CERT_ENCRYPTION_KEY' ? 'clave-de-pruebas-suficientemente-larga' : undefined),
     } as unknown as ConfigService);
     // The documents that carry drawn numbers answer for themselves, as they do in the application.
     const issued = new IssuedFiscalNumbersRegistry();

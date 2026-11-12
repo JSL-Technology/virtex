@@ -79,11 +79,6 @@
     "en": "Issue date:",
     "pt": "Data de emissão:"
   },
-  "invoice.pdf.itbis_withheld": {
-    "es": "Impuesto retenido",
-    "en": "Tax withheld",
-    "pt": "Imposto retido"
-  },
   "invoice.pdf.legal_draft": {
     "es": "Este documento es un borrador interno: no tiene validez fiscal y todavía no se ha emitido.",
     "en": "This document is an internal draft: it has no fiscal validity and has not been issued yet.",
@@ -164,6 +159,11 @@
     "es": "Impuesto",
     "en": "Tax",
     "pt": "Imposto"
+  },
+  "invoice.pdf.tax_withheld": {
+    "es": "Impuesto retenido",
+    "en": "Tax withheld",
+    "pt": "Imposto retido"
   },
   "invoice.pdf.taxed_amount": {
     "es": "Monto gravado",

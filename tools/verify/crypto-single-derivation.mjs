@@ -73,7 +73,7 @@ const SANCTIONED = new Map([
   ],
   [
     join('apps', 'backend', 'api', 'src', 'app', 'einvoicing', 'services', 'certificate-vault.service.ts'),
-    'Different key material again: ECF_CERT_ENCRYPTION_KEY seals DGII signing certificates, ' +
+    'Different key material again: SIGNING_CERT_ENCRYPTION_KEY seals signing certificates, ' +
       'which are legally significant and deliberately kept on their own key.',
   ],
 ]);

@@ -2,7 +2,7 @@ import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common'
 import axios, { AxiosError } from 'axios';
 import FormData from 'form-data';
 import { DgiiConfigService } from './dgii-config.service';
-import { ExternalEffectDisabledError } from '../../config/external-effects';
+import { ExternalEffectDisabledError } from '../../../config/external-effects';
 
 export interface DgiiReceptionResult {
   trackId?: string;

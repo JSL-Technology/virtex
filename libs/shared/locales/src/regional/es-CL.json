@@ -4,5 +4,6 @@
   "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
   "invoice.pdf.tax_column_header": "IVA",
   "invoices.new.tax_column_header": "IVA",
-  "payroll.runs.type_label.christmas_bonus": "Aguinaldo"
+  "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
+  "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica sii dte caf folios certificado"
 }

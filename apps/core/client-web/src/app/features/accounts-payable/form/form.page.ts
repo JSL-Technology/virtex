@@ -819,7 +819,7 @@ export class VendorBillFormPage implements OnInit {
       this.problems.set(
         draftProblems(this.form, {
           vendorId: 'accounts_payable.form.supplier',
-          ncf: 'accounts_payable.list.number',
+          supplierFiscalNumber: 'accounts_payable.list.number',
           date: 'accounts_payable.detail.issue_date',
           dueDate: 'accounts_payable.detail.due_date',
           currencyCode: 'accounts_payable.detail.currency',

@@ -9,6 +9,7 @@ export const einvoicing: MarketEInvoicing = {
   channel: 'ENDPOINT',
   settingsFields: [],
   rangeSecret: null,
+  signing: { regime: 'CFDI', representativeAllowed: false },
   coverage: needsCredentials(
       'CFDI 4.0',
       'tu Certificado de Sello Digital y un contrato con un PAC',

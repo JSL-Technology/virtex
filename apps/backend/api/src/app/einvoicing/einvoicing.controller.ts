@@ -8,9 +8,11 @@ import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../security/principal';
 import type { HttpResponse as Response } from '../common/http/http.types';
-import { EcfCertificateService } from './services/ecf-certificate.service';
+import { SigningCertificateService } from './services/signing-certificate.service';
 import { FiscalSubmissionService, visibleSubmission } from './services/fiscal-submission.service';
-import { DgiiDocumentEventsService } from './regimes/do/dgii-document-events.service';
+import { FiscalDocumentEventsService } from './services/fiscal-document-events.service';
+import { FiscalRegimeRegistry } from './regimes/fiscal-regime.registry';
+import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
 import { CounterpartyVerdictDto } from './dto/counterparty-verdict.dto';
 import { VoidSequenceRangeDto } from './dto/void-sequence-range.dto';
 import { FiscalDocumentEvent, FiscalDocumentEventKind } from './entities/fiscal-document-event.entity';
@@ -27,10 +29,27 @@ import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 @Controller('einvoicing')
 export class EinvoicingController {
   constructor(
-    private readonly certificates: EcfCertificateService,
+    private readonly certificates: SigningCertificateService,
     private readonly submissions: FiscalSubmissionService,
-    private readonly events: DgiiDocumentEventsService,
+    private readonly events: FiscalDocumentEventsService,
+    private readonly regimes: FiscalRegimeRegistry,
+    private readonly organizations: TenantCountryResolver,
   ) {}
+
+  /**
+   * What this tenant's regime does with declarations about documents.
+   *
+   * Resolved through the registry: the door named the Dominican service, so a market whose
+   * authority receives these would have had to be added here rather than in its own package.
+   */
+  private async documentEvents(organizationId: string) {
+    const country = await this.organizations.resolve(organizationId);
+    const port = this.regimes.forCountry(country)?.documentEvents;
+    if (!port) {
+      throw new BadRequestError('einvoicing.market_receives_no_document_events', { country });
+    }
+    return port;
+  }
 
   @Post('certificates')
   @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
@@ -147,7 +166,8 @@ export class EinvoicingController {
     @Body() dto: CounterpartyVerdictDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.toEventView(await this.events.answerReceived(user.organizationId, dto));
+    const port = await this.documentEvents(user.organizationId);
+    return this.toEventView(await port.answerReceived(user.organizationId, dto));
   }
 
   /**
@@ -162,7 +182,8 @@ export class EinvoicingController {
     @Body() dto: VoidSequenceRangeDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.toEventView(await this.events.voidRange(user.organizationId, dto));
+    const port = await this.documentEvents(user.organizationId);
+    return this.toEventView(await port.voidRange(user.organizationId, dto));
   }
 
   /** Everything this tenant has declared about documents, newest first. */
@@ -175,10 +196,7 @@ export class EinvoicingController {
     if (kind && !(kind in FiscalDocumentEventKind)) {
       throw new BadRequestError('einvoicing.unknown_message_type_kind_use_commercial', { kind });
     }
-    const events = await this.events.list(
-      user.organizationId,
-      kind ? (kind as FiscalDocumentEventKind) : undefined,
-    );
+    const events = await this.events.list(user.organizationId, kind ? (kind as FiscalDocumentEventKind) : undefined);
     return events.map((event) => this.toEventView(event));
   }
 

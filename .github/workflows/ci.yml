@@ -116,7 +116,7 @@ jobs:
 
       # The e-CF vault refuses to start without it, and the invoicing verifier exercises the
       # certificate round-trip.
-      ECF_CERT_ENCRYPTION_KEY: ci-ecf-cert-key-ci-ecf-cert-key
+      SIGNING_CERT_ENCRYPTION_KEY: ci-ecf-cert-key-ci-ecf-cert-key
 
     steps:
       # Pinned by commit: a tag can be moved to other code, a SHA cannot. Dependabot keeps these

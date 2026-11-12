@@ -9,6 +9,7 @@ export const einvoicing: MarketEInvoicing = {
   channel: 'ENDPOINT',
   settingsFields: ['establishment', 'emissionPoint', 'numericCode'],
   rangeSecret: null,
+  signing: { regime: 'SRI', representativeAllowed: true },
   coverage: needsCredentials(
       'SRI 2.1.0 con clave de acceso',
       'tu certificado de firma electrónica y tu punto de emisión',

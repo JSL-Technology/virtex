@@ -54,7 +54,7 @@ export interface FiscalSubmissionView {
 /**
  * A signing certificate as the settings screen shows it.
  *
- * Named for what it is rather than for one authority's document: the type was `EcfCertificateView`
+ * Named for what it is rather than for one authority's document: the type was `SigningCertificateView`
  * and this service `ecfUrl`, which is the Dominican e-CF in a screen eight markets use.
  */
 export interface FiscalCertificateView {

@@ -9,6 +9,7 @@ export const einvoicing: MarketEInvoicing = {
   channel: 'ENDPOINT',
   settingsFields: ['activityCode', 'originComuna', 'originCity'],
   rangeSecret: 'AUTHORISED_FOLIOS',
+  signing: { regime: 'SII', representativeAllowed: true },
   coverage: needsCredentials(
       'SII — DTE 33/34/61',
       'tu certificado digital y tus folios CAF del SII',

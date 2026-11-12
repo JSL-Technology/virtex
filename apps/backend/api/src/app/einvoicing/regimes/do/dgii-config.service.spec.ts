@@ -1,5 +1,5 @@
 import { DgiiConfigService } from './dgii-config.service';
-import { FiscalEnvironment } from '../entities/fiscal-regime-settings.entity';
+import { FiscalEnvironment } from '../../entities/fiscal-regime-settings.entity';
 
 /**
  * EINV-04 (audit 2026-10-31): the DGII environment was one per process, CerteCF when unset, so a
@@ -35,7 +35,7 @@ describe('DgiiConfigService — the environment is the tenant’s', () => {
     // A deployment that configures fiscal channels process-wide says so once, with the same switch
     // every other regime reads (`EINVOICE_PROCESS_CREDENTIALS`).
     const allowed = service(
-      { NODE_ENV: 'production', DGII_ECF_ENVIRONMENT: 'Produccion', EINVOICE_PROCESS_CREDENTIALS: 'allow' },
+      { NODE_ENV: 'production', EINVOICE_DO_ENVIRONMENT: 'Produccion', EINVOICE_PROCESS_CREDENTIALS: 'allow' },
       saved,
     );
     expect(await allowed.environmentFor('new')).toBe('Produccion');
@@ -43,7 +43,7 @@ describe('DgiiConfigService — the environment is the tenant’s', () => {
     expect(await allowed.environmentFor('cert')).toBe('CerteCF');
 
     // Without the switch the variable decides nothing: a SaaS tenant's channel is its own.
-    const notAllowed = service({ NODE_ENV: 'production', DGII_ECF_ENVIRONMENT: 'Produccion' }, saved);
+    const notAllowed = service({ NODE_ENV: 'production', EINVOICE_DO_ENVIRONMENT: 'Produccion' }, saved);
     expect(await notAllowed.environmentFor('new')).toBe('CerteCF');
     expect(await notAllowed.environmentFor('prod')).toBe('Produccion');
   });
@@ -56,8 +56,8 @@ describe('DgiiConfigService — the environment is the tenant’s', () => {
    */
   describe('the endpoint overrides', () => {
     const urls = {
-      DGII_ECF_BASE_URL: 'https://ecf.example.test/pinned',
-      DGII_ECF_RECEPTION_URL: 'https://ecf.example.test/pinned/recepcion',
+      EINVOICE_DO_BASE_URL: 'https://ecf.example.test/pinned',
+      EINVOICE_DO_RECEPTION_URL: 'https://ecf.example.test/pinned/recepcion',
     };
 
     it('are ignored in a process that was not allowed to pin them', async () => {
@@ -74,12 +74,12 @@ describe('DgiiConfigService — the environment is the tenant’s', () => {
         saved,
       );
       const pinned = await allowed.endpointsFor('prod');
-      expect(pinned.reception).toBe(urls.DGII_ECF_RECEPTION_URL);
+      expect(pinned.reception).toBe(urls.EINVOICE_DO_RECEPTION_URL);
       // `baseUrl` pins the rest at once, which is what differs between the DGII's own environments.
       expect(pinned.seed).toBe('https://ecf.example.test/pinned/autenticacion/api/Autenticacion/Semilla');
 
       const development = service({ NODE_ENV: 'development', ...urls }, saved);
-      expect((await development.endpointsFor('prod')).reception).toBe(urls.DGII_ECF_RECEPTION_URL);
+      expect((await development.endpointsFor('prod')).reception).toBe(urls.EINVOICE_DO_RECEPTION_URL);
     });
 
     it('says so when it ignores them, naming the variables', async () => {
@@ -92,14 +92,14 @@ describe('DgiiConfigService — the environment is the tenant’s', () => {
       // Once per process, naming what was ignored and how to allow it: an override that silently
       // does nothing is how a deployment believes it is filing somewhere it is not.
       expect(warn).toHaveBeenCalledTimes(1);
-      expect(warn.mock.calls[0][0]).toContain('DGII_ECF_BASE_URL');
-      expect(warn.mock.calls[0][0]).toContain('DGII_ECF_RECEPTION_URL');
+      expect(warn.mock.calls[0][0]).toContain('EINVOICE_DO_BASE_URL');
+      expect(warn.mock.calls[0][0]).toContain('EINVOICE_DO_RECEPTION_URL');
       expect(warn.mock.calls[0][0]).toContain('EINVOICE_PROCESS_CREDENTIALS=allow');
     });
   });
 
   it('lets development point every tenant at TesteCF', async () => {
-    const svc = service({ NODE_ENV: 'development', DGII_ECF_ENVIRONMENT: 'TesteCF' }, saved);
+    const svc = service({ NODE_ENV: 'development', EINVOICE_DO_ENVIRONMENT: 'TesteCF' }, saved);
     expect(await svc.environmentFor('prod')).toBe('TesteCF');
   });
 

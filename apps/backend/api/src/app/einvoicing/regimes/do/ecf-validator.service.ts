@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EcfBuildContext } from './ecf-xml-builder.service';
-import { roundAmount } from '../../common/money';
+import { roundAmount } from '../../../common/money';
 
 export interface EcfValidationIssue {
   /** The element or rule the document fails. Always the DGII's own element name, never translated. */

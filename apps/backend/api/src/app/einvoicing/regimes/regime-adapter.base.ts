@@ -1,7 +1,7 @@
 import { EntityManager } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { Customer } from '../../customers/entities/customer.entity';
-import { EcfCertificate } from '../entities/ecf-certificate.entity';
+import { SigningCertificate } from '../entities/signing-certificate.entity';
 import {
   FiscalEnvironment,
   FiscalRegimeSettings,
@@ -32,7 +32,7 @@ export abstract class RegimeAdapterBase {
     regimeName: string,
     missing: string,
   ): Promise<LoadedCertificate & { serialNumber?: string }> {
-    const stored = await context.manager.findOne(EcfCertificate, {
+    const stored = await context.manager.findOne(SigningCertificate, {
       where: {
         organizationId: context.organizationId,
         regime: this.certificates.regime,

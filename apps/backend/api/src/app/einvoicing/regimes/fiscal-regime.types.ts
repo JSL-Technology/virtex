@@ -1,6 +1,7 @@
 import { EntityManager } from 'typeorm';
 import { Invoice } from '../../invoices/entities/invoice.entity';
 import { LoadedCertificate } from '../services/certificate-vault.service';
+import type { FiscalDocumentEventsPort } from './fiscal-document-events.port';
 
 /**
  * One country's electronic invoicing regime, from the document to the authority's verdict.
@@ -142,6 +143,13 @@ export interface FiscalRegimeAdapter {
    * not a defective document.
    */
   loadCertificate(context: FiscalRegimeContext): Promise<LoadedCertificate>;
+
+  /**
+   * What this regime does with a declaration ABOUT documents — a counterparty's verdict, a void of
+   * authorised numbers — where it has one. Absent in a regime whose authority receives none, and
+   * the door then says so instead of naming a country's service.
+   */
+  readonly documentEvents?: FiscalDocumentEventsPort;
 
   /**
    * The same document, sealed with the taxpayer's certificate.

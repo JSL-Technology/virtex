@@ -31,6 +31,18 @@ export interface MarketEInvoicing {
    * the DIAN's technical key. Null where a range is numbers alone.
    */
   rangeSecret: 'AUTHORISED_FOLIOS' | 'TECHNICAL_KEY' | null;
+  /**
+   * How this market's electronic documents are signed, where a certificate signs them.
+   *
+   * `regime` is the name the certificate is filed under, so the adapter finds the right one: a
+   * Mexican CSD was filed as a Dominican e-CF certificate while one table held them all.
+   * `representativeAllowed` says whether a certificate issued to a natural person — the
+   * representative the company authorised — signs for the company: the DGII, the SII and the SRI
+   * work that way; the SAT, the DIAN, SUNAT, the SEFAZ and AFIP want the taxpayer's own.
+   *
+   * Null where nothing is signed with a certificate.
+   */
+  signing: { regime: string; representativeAllowed: boolean } | null;
   /** What the product does with the regime. */
   coverage: CoverageLine;
 }

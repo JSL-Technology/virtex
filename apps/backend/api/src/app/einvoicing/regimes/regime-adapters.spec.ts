@@ -11,7 +11,7 @@ import { IssuedFiscalNumbersRegistry } from '../../contracts/fiscal-records/issu
 import { InvoiceIssuedFiscalNumbers } from '../../invoices/issued-fiscal-numbers.source';
 import { FiscalRangeSecretKind } from '../entities/fiscal-document-range.entity';
 import { FiscalEnvironment, FiscalRegimeSettings } from '../entities/fiscal-regime-settings.entity';
-import { EcfCertificate } from '../entities/ecf-certificate.entity';
+import { SigningCertificate } from '../entities/signing-certificate.entity';
 import { XmlSignatureService } from './xml-signature.service';
 import { RegimeTransportService } from './regime-transport.service';
 import { DianRegimeAdapter } from './co/dian.adapter';
@@ -71,7 +71,7 @@ describeWithDb('the six regime adapters', () => {
 
     const config = {
       get: (key: string) =>
-        key === 'ECF_CERT_ENCRYPTION_KEY' ? 'clave-de-pruebas-suficientemente-larga' : undefined,
+        key === 'SIGNING_CERT_ENCRYPTION_KEY' ? 'clave-de-pruebas-suficientemente-larga' : undefined,
     } as unknown as ConfigService;
 
     vault = new CertificateVaultService(config);
@@ -190,15 +190,15 @@ describeWithDb('the six regime adapters', () => {
   /** Store the generated certificate for a regime, encrypted, exactly as the product stores one. */
   const storeCertificate = async (regime: string) => {
     const pfx = pkcs12Of(certificate);
-    await dataSource.getRepository(EcfCertificate).save(
-      dataSource.getRepository(EcfCertificate).create({
+    await dataSource.getRepository(SigningCertificate).save(
+      dataSource.getRepository(SigningCertificate).create({
         organizationId,
         regime,
         alias: `${regime} pruebas`,
         isActive: true,
         encryptedPfx: vault.encrypt(pfx),
         encryptedPassword: vault.encrypt('clave'),
-      } as unknown as EcfCertificate),
+      } as unknown as SigningCertificate),
     );
   };
 

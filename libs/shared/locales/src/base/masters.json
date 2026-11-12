@@ -927,7 +927,7 @@
   "masters.tax_form.name_placeholder": {
     "es": "Ej: IVA general",
     "en": "e.g. Standard VAT",
-    "pt": "Ex.: ICMS padrão"
+    "pt": "Ex.: IVA padrão"
   },
   "masters.tax_form.rate": {
     "es": "Tasa",

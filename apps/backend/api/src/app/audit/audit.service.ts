@@ -13,7 +13,7 @@ export type AuditTrailRow = AuditLog & { actorName: string | null; recordLabel: 
  * The fields that name a record, in the order a person would recognise it by. A document is known
  * by its number, a master record by its code and name, a person by their e-mail.
  */
-const NUMBER_FIELDS = ['number', 'documentNumber', 'entryNumber', 'invoiceNumber', 'reference', 'code', 'sequenceNumber', 'ncf'];
+const NUMBER_FIELDS = ['number', 'documentNumber', 'entryNumber', 'invoiceNumber', 'reference', 'code', 'sequenceNumber', 'fiscalNumber', 'supplierFiscalNumber'];
 const NAME_FIELDS = ['name', 'legalName', 'title', 'description', 'email'];
 
 /**

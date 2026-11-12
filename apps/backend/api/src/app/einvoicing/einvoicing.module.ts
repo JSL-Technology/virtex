@@ -1,23 +1,25 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FiscalDocumentEvent } from './entities/fiscal-document-event.entity';
-import { EcfCertificate } from './entities/ecf-certificate.entity';
+import { SigningCertificate } from './entities/signing-certificate.entity';
 import { FiscalDocumentRange } from './entities/fiscal-document-range.entity';
 import { FiscalRegimeSettings } from './entities/fiscal-regime-settings.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { CertificateVaultService } from './services/certificate-vault.service';
-import { EcfSignerService } from './services/ecf-signer.service';
-import { EcfXmlBuilderService } from './services/ecf-xml-builder.service';
-import { EcfValidatorService } from './services/ecf-validator.service';
-import { DgiiConfigService } from './services/dgii-config.service';
-import { DgiiAuthService } from './services/dgii-auth.service';
-import { DgiiTransportService } from './services/dgii-transport.service';
+import { EcfSignerService } from './regimes/do/ecf-signer.service';
+import { EcfXmlBuilderService } from './regimes/do/ecf-xml-builder.service';
+import { EcfValidatorService } from './regimes/do/ecf-validator.service';
+import { DgiiConfigService } from './regimes/do/dgii-config.service';
+import { DgiiAuthService } from './regimes/do/dgii-auth.service';
+import { DgiiTransportService } from './regimes/do/dgii-transport.service';
 import { SigningReadinessService } from './services/signing-readiness.service';
-import { EcfCertificateService } from './services/ecf-certificate.service';
+import { SigningCertificateService } from './services/signing-certificate.service';
 import { DgiiEventXmlBuilder } from './regimes/do/dgii-event-xml.builder';
 import { DgiiDocumentEventsService } from './regimes/do/dgii-document-events.service';
+import { FiscalDocumentEventsService } from './services/fiscal-document-events.service';
+import { SharedModule } from '../shared/shared.module';
 import { EinvoicingController } from './einvoicing.controller';
 import { FiscalRangeService } from './services/fiscal-range.service';
 import { FiscalRegimeSettingsService } from './services/fiscal-regime-settings.service';
@@ -54,9 +56,11 @@ import { FiscalSubmissionReconciler } from './services/fiscal-submission.reconci
  */
 @Module({
   imports: [
+    // `TenantCountryResolver`: which market's regime answers for this tenant.
+    SharedModule,
     TypeOrmModule.forFeature([
       FiscalDocumentEvent,
-      EcfCertificate,
+      SigningCertificate,
       Invoice,
       Organization,
       OrganizationSettings,
@@ -77,9 +81,10 @@ import { FiscalSubmissionReconciler } from './services/fiscal-submission.reconci
     DgiiAuthService,
     DgiiTransportService,
     SigningReadinessService,
-    EcfCertificateService,
+    SigningCertificateService,
     DgiiEventXmlBuilder,
     DgiiDocumentEventsService,
+    FiscalDocumentEventsService,
     // The regime backbone. `XmlSignatureService` and `RegimeTransportService` were written,
     // tested and left unregistered, which is why every market but the Dominican Republic still
     // resolved to the generic adapter: the code existed and the container had never heard of it.
@@ -106,7 +111,7 @@ import { FiscalSubmissionReconciler } from './services/fiscal-submission.reconci
   ],
   exports: [
     SigningReadinessService,
-    EcfCertificateService,
+    SigningCertificateService,
     EcfXmlBuilderService,
     EcfValidatorService,
     DgiiDocumentEventsService,

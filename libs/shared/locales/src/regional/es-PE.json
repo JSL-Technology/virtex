@@ -4,5 +4,6 @@
   "hcm.employees.form.proportional_bonus": "Gratificación proporcional",
   "invoice.pdf.tax_column_header": "IGV",
   "invoices.new.tax_column_header": "IGV",
-  "payroll.runs.type_label.christmas_bonus": "Gratificación de diciembre"
+  "payroll.runs.type_label.christmas_bonus": "Gratificación de diciembre",
+  "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica sunat ose cpe certificado"
 }

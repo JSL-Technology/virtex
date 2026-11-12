@@ -414,15 +414,20 @@
     "en": "The SRI establishment and point of issue are missing.",
     "pt": "Faltam o estabelecimento e o ponto de emissão do SRI."
   },
-  "einvoicing.ecf_cert_encryption_key_not_configured": {
-    "es": "ECF_CERT_ENCRYPTION_KEY no está configurada (mínimo 16 caracteres). Es obligatoria para cifrar los certificados e-CF.",
-    "en": "ECF_CERT_ENCRYPTION_KEY is not configured (16 characters minimum). It is required to encrypt e-CF certificates.",
-    "pt": "ECF_CERT_ENCRYPTION_KEY não está configurada (mínimo de 16 caracteres). Ela é obrigatória para criptografar os certificados e-CF."
-  },
   "einvoicing.electronic_document_could_not_signed_detail": {
     "es": "No se pudo firmar el documento electrónico: {{detail}}",
     "en": "The electronic document could not be signed: {{detail}}",
     "pt": "Não foi possível assinar o documento eletrônico: {{detail}}"
+  },
+  "einvoicing.emission_point_must_three_digits": {
+    "es": "El punto de emisión debe tener tres dígitos.",
+    "en": "The emission point must be three digits.",
+    "pt": "O ponto de emissão deve ter três dígitos."
+  },
+  "einvoicing.establishment_must_three_digits": {
+    "es": "El establecimiento debe tener tres dígitos.",
+    "en": "The establishment must be three digits.",
+    "pt": "O estabelecimento deve ter três dígitos."
   },
   "einvoicing.invoice_not_found": {
     "es": "No se encontró la factura del documento electrónico.",
@@ -443,6 +448,11 @@
     "es": "En este mercado el número fiscal no se toma de un rango autorizado: lo asigna {{authority}} o el documento no lleva uno. No hay rangos que registrar.",
     "en": "In this market the fiscal number is not drawn from an authorised range: {{authority}} assigns it, or the document carries none. There are no ranges to register.",
     "pt": "Neste mercado o número fiscal não é tirado de uma faixa autorizada: {{authority}} o atribui, ou o documento não leva um. Não há faixas a registrar."
+  },
+  "einvoicing.market_receives_no_document_events": {
+    "es": "La autoridad de {{country}} no recibe declaraciones sobre documentos de terceros, así que no hay nada que enviarle.",
+    "en": "The authority of {{country}} receives no declarations about other parties' documents, so there is nothing to send it.",
+    "pt": "A autoridade de {{country}} não recebe declarações sobre documentos de terceiros, portanto não há o que enviar."
   },
   "einvoicing.modified_document_has_no_authority_key": {
     "es": "El documento que esta nota modifica no tiene identificador de su autoridad, y este régimen lo referencia por él: transmite primero el documento original y vuelve a emitir la nota.",
@@ -609,15 +619,10 @@
     "en": "Series «{{series}}» is not one {{authority}} accepts for document type {{type}}. Check it against the act that authorised the range: the authority rejects every document numbered under a series that does not match its type.",
     "pt": "A série «{{series}}» não é uma que {{authority}} aceite para o tipo de documento {{type}}. Confira-a com o ato que autorizou a faixa: a autoridade rejeita todo documento numerado com uma série que não corresponde ao seu tipo."
   },
-  "einvoicing.sri_emission_point_must_three_digits": {
-    "es": "El punto de emisión del SRI debe tener tres dígitos.",
-    "en": "The SRI emission point must be three digits.",
-    "pt": "O ponto de emissão do SRI deve ter três dígitos."
-  },
-  "einvoicing.sri_establishment_must_three_digits": {
-    "es": "El establecimiento del SRI debe tener tres dígitos.",
-    "en": "The SRI establishment must be three digits.",
-    "pt": "O estabelecimento do SRI deve ter três dígitos."
+  "einvoicing.signing_cert_encryption_key_not_configured": {
+    "es": "SIGNING_CERT_ENCRYPTION_KEY no está configurada (mínimo 16 caracteres). Es obligatoria para cifrar los certificados de firma.",
+    "en": "SIGNING_CERT_ENCRYPTION_KEY is not configured (16 characters minimum). It is required to encrypt signing certificates.",
+    "pt": "SIGNING_CERT_ENCRYPTION_KEY não está configurada (mínimo de 16 caracteres). Ela é obrigatória para criptografar os certificados de assinatura."
   },
   "einvoicing.state_ibge_code_must_two_digits": {
     "es": "El código IBGE del estado debe tener dos dígitos.",

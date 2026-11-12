@@ -12,7 +12,7 @@ import { TaxJurisdictionsService } from './services/tax-jurisdictions.service';
 import { WithholdingRegimesService } from './services/withholding-regimes.service';
 import { WithholdingRegimesController } from './controllers/withholding-regimes.controller';
 import { EinvoicingModule } from '../einvoicing/einvoicing.module';
-// The leaf provides LocalizationService, DominicanRepublicStrategy, fiscal strategies,
+// The leaf provides LocalizationService, the tax-id registry drivers and their registry,
 // TaxDeterminationService, and the LocalizationProvisioningPort binding. Re-exporting it here
 // means all consumers of LocalizationModule continue to see those same exports.
 import { LocalizationProvisioningModule } from './localization-provisioning.module';

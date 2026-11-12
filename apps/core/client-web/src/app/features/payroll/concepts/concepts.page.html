@@ -60,7 +60,7 @@
       <label class="inline-field">
         <input type="checkbox" [checked]="draft().contributesToSocialSecurity ?? true"
           (change)="patch({ contributesToSocialSecurity: $any($event.target).checked })" />
-        <span>{{ 'payroll.concepts.tss_base' | translate }}</span>
+        <span>{{ 'payroll.concepts.contribution_base' | translate }}</span>
       </label>
       <label class="inline-field">
         <input type="checkbox" [checked]="draft().active ?? true"

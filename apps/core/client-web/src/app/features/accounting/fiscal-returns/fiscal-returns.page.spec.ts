@@ -43,6 +43,7 @@ describe('FiscalReturnsPage', () => {
     mediaType: 'text/plain; charset=utf-8',
     extension: 'txt',
     tracked: true,
+    permission: null,
     options: [],
     ...overrides,
   });

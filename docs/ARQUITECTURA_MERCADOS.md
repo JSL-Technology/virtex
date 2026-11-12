@@ -396,23 +396,59 @@ endpoint y una credencial que el inquilino configura en su propia fila (`fiscal_
 cifrada en reposo); el proceso solo puede configurar un canal si el despliegue lo autoriza
 explícitamente (`EINVOICE_PROCESS_CREDENTIALS=allow`), porque en un SaaS una credencial compartida es
 el defecto y no un respaldo. La DGII era la excepción: el ambiente ya es de cada empresa, pero las
-variables `DGII_ECF_*_URL` se leían en cualquier proceso, así que una variable apuntaba a un host a
+variables de endpoint del proceso se leían en cualquier proceso, así que una variable apuntaba a un host a
 todas las empresas. Ahora siguen la misma regla única: valen en un proceso de desarrollo, o cuando el
 despliegue lo autoriza con ese mismo interruptor; en cualquier otro caso se ignoran y se avisa
 nombrándolas, porque un override que no hace nada en silencio es como un despliegue cree estar
 declarando donde no declara. El canal dominicano es entonces lo que siempre fue: el ambiente de la
 empresa y su certificado. El timeout HTTP no es un canal y sigue siendo del proceso.
 
-La puerta de neutralidad cuenta el vocabulario de una autoridad dondequiera que esté, incluidos estos
-adaptadores, para que la deuda sea visible mientras no vivan donde el plan los quiere. Esos campos
-subieron el baseline de 723 a 738 el 2026-11-12: la razón está escrita en
-`tools/verify/country-neutrality.baseline.json` y es la de arriba —los campos son el arreglo, no la
-deuda.
+Y se escriben igual en los diecinueve mercados: `EINVOICE_<CC>_ENDPOINT`, `_TOKEN`, `_USERNAME`,
+`_PASSWORD`, `_STATUS_ENDPOINT`, `_SOAP_ACTION`, `_ENVIRONMENT` y los `_*_URL`. El esquema de
+entorno (`config/env.validation.ts`) ya no lista las variables de ningún país: las valida por forma
+(`Joi.object().pattern`), así que un mercado se configura por su código y el núcleo no aprende el
+vocabulario de ninguna autoridad.
+
+**El certificado es del mercado que firma, y la tabla lo dice.** `ecf_certificates` guardaba el
+material de firma de todos los regímenes —un CSD mexicano, un certificado chileno para el SII, uno
+colombiano para la DIAN— bajo el nombre del comprobante dominicano, con `regime` por omisión `DGII`:
+un CSD insertado sin ese campo quedaba archivado como certificado de e-CF y lo encontraba el
+adaptador equivocado. Ahora la tabla es `signing_certificates` (con su índice, su clave, su `CHECK`
+y su clave foránea renombrados, porque una restricción con el nombre de una tabla que ya no existe
+se lee como deriva en cada compilación), la columna no tiene valor por omisión y lo que se escribe
+sale del mercado de la empresa. La **política de firma** la declara el paquete
+(`MarketEInvoicing.signing`: bajo qué régimen se archiva el certificado y si vale el de la persona
+autorizada —la DGII, el SII y el SRI lo aceptan; el SAT, la DIAN, SUNAT, la SEFAZ y AFIP quieren el
+del contribuyente—), donde antes había una tabla indexada por código de país en el núcleo.
+
+Y el secreto que lo cifra dejó de llamarse por una autoridad: `SIGNING_CERT_ENCRYPTION_KEY`,
+`SIGNING_ALLOW_TEST_CERTIFICATES`, `SIGNING_TRUSTED_CA_BUNDLE_<CC>`. El sobre cifrado quedó
+versionado (`v2:salt:iv:tag:data`, el mismo modismo que el transformador de columnas de nómina) y la
+sal de `scrypt` es **aleatoria por registro**: una sal constante para toda la instalación es
+exactamente lo que la sal existe para evitar. Un certificado guardado antes sigue leyéndose con la
+sal anterior, que es un dato congelado por el texto cifrado ya escrito y la única línea que la
+puerta de neutralidad todavía cuenta —a propósito, y explicada en el baseline.
+
+**Lo demás que sabía de un país.** El registro público de identificación fiscal era un `strategy`
+que `LocalizationService` inyectaba por su nombre de clase, junto con dos clases que devolvían
+`null` (Estados Unidos y «genérica»), y un mapa que el servicio llenaba a mano en su constructor:
+el siguiente mercado con registro era un cambio en un servicio compartido. Ahora es un **puerto con
+registro** (`TaxIdRegistryRegistry`) y el driver vive en `localization/drivers/<cc>/`, declara el
+mercado que sirve y lo recoge el módulo —el mismo patrón, el mismo lugar y la misma puerta que los
+adaptadores de régimen.
+
+La puerta de neutralidad cuenta el vocabulario de una autoridad dondequiera que esté salvo en los
+tres sitios donde vive por diseño: `markets/<cc>/`, `einvoicing/regimes/<cc>/` y
+`localization/drivers/<cc>/`, más los cuatro archivos que **ensamblan** esos paquetes
+(`markets/catalogue.ts`, `einvoicing/einvoicing.module.ts`, `einvoicing/regimes/fiscal-regime.registry.ts`
+y `localization/localization-provisioning.module.ts`), que los nombran a todos por definición.
+Cerró la fase 9 en **1**: 639 → 176 → 78 → 1.
 
 Los adaptadores viven en `einvoicing/regimes/<cc>/` y no en `markets/<cc>/`: necesitan las entidades
 del documento (factura, líneas, cliente, organización) y `markets/` no depende de ningún módulo de
 negocio (§2.4). El paquete del mercado declara la **política** —si la ley lo exige, cómo se llama el
-régimen, qué cobertura tiene (`markets/<cc>/einvoicing.ts`)— y el adaptador la implementa.
+régimen, qué cobertura tiene, con qué certificado firma (`markets/<cc>/einvoicing.ts`)— y el
+adaptador la implementa.
 
 ### 2.12 Declaraciones
 
@@ -561,6 +597,6 @@ eso se resuelve en el contrato, no con una rama.
 | 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ✅ Columnas neutrales con migración exacta en los dos sentidos, `fiscal_attributes` validado contra la declaración del mercado, documento del proveedor comprobado por la regla de cada mercado, método de pago de la empresa en lugar de la «forma de pago» de una autoridad, formulario y ficha dibujados desde el paquete público del mercado (§2.10) |
 | 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ✅ `ReturnDataset` con los hechos del período y `MarketReturnFiling` por mercado; los cuatro formatos de la DGII en `markets/do/returns/` y los tres documentos del SAT en `markets/mx/returns/`; una ruta (`/compliance/returns`), un calendario y un formulario de datos declarados; el motivo del rechazo lo devuelve el generador y el conteo de registros también (§2.12) |
 | 6 | Nómina: motor dominicano a `markets/do/payroll/`, registro de motores y sin `'DOP'` por omisión | ✅ `PayrollEngine` en el contrato del mercado, motor dominicano en `markets/do/payroll/`, el núcleo lo alcanza por el registro y rechaza la nómina de un mercado sin motor; la moneda del período es la del mercado; fuera el módulo `jurisdictions/` (§2.13) |
-| 7 | Cliente: sin ramas por país; pantallas guiadas por la definición pública del mercado | 🚧 Hecho: la pantalla de régimen lee del paquete público qué pide cada mercado (canal, campos, material del rango) y la de declaraciones, qué declara; las declaraciones de la TSS salen del módulo de nómina y de su pantalla (§2.12). Falta: el vocabulario dominicano que queda en pantallas genéricas (fase 8) |
+| 7 | Cliente: sin ramas por país; pantallas guiadas por la definición pública del mercado | ✅ La pantalla de régimen lee del paquete público qué pide cada mercado (canal, campos, material del rango) y la de declaraciones, qué declara; las declaraciones de la TSS salen del módulo de nómina y de su pantalla (§2.12); ninguna pantalla nombra una autoridad ni compara contra un código de país |
 | 8 | Textos: base neutral y parches regionales para los 19 mercados, con prueba de completitud | ⏳ |
-| 9 | Puerta de neutralidad en cero, con la lista permitida reducida a `markets/`, parches regionales y migraciones | ⏳ |
+| 9 | Puerta de neutralidad en cero, con la lista permitida reducida a `markets/`, parches regionales y migraciones | ✅ 78 → **1**. `signing_certificates` en lugar de `ecf_certificates`, sin valor por omisión y con la política de firma en el paquete del mercado; sobre cifrado versionado con sal aleatoria por registro; secretos y variables de entorno neutrales (`SIGNING_CERT_ENCRYPTION_KEY`, `SIGNING_ALLOW_TEST_CERTIFICATES`, `SIGNING_TRUSTED_CA_BUNDLE_<CC>`, `EINVOICE_<CC>_*`) validadas por forma y no por nombre; servicios del e-CF dentro de `regimes/do/`; puerto y registro para los eventos de documento y para el registro de identificación fiscal (`localization/drivers/<cc>/`); claves de i18n, columnas de importación, variables de plantilla y comentarios de esquema sin vocabulario de una autoridad. Queda 1, explicado en el baseline: la sal heredada que descifra lo ya guardado (§2.11) |

@@ -9,6 +9,7 @@ export const einvoicing: MarketEInvoicing = {
   channel: 'ENDPOINT',
   settingsFields: ['resolutionNumber'],
   rangeSecret: 'TECHNICAL_KEY',
+  signing: { regime: 'DIAN', representativeAllowed: false },
   coverage: needsCredentials(
       'DIAN UBL 2.1 con CUFE',
       'tu certificado de firma digital, la resolución de facturación y tu clave técnica',

@@ -3,8 +3,8 @@ import axios, { AxiosError } from 'axios';
 import FormData from 'form-data';
 import { DgiiConfigService } from './dgii-config.service';
 import { EcfSignerService } from './ecf-signer.service';
-import type { LoadedCertificate } from './certificate-vault.service';
-import { ExternalEffectDisabledError } from '../../config/external-effects';
+import type { LoadedCertificate } from '../../services/certificate-vault.service';
+import { ExternalEffectDisabledError } from '../../../config/external-effects';
 
 interface CachedToken {
   token: string;

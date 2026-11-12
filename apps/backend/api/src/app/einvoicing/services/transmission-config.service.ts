@@ -42,10 +42,9 @@ export interface TransmissionSettingsInput {
 /**
  * Each tenant's own channel to its fiscal authority (audit 2026-11-07, FAC-EINV-04).
  *
- * The endpoint and the credential used to be environment variables (`EINVOICE_MX_ENDPOINT`,
- * `PAC_API_TOKEN`…), read once per process: every Mexican tenant of the SaaS stamped through the
- * same PAC account, which is both a legal impossibility (the CFDI is stamped for the RFC that owns
- * the account) and a confidentiality failure. Now:
+ * The endpoint and the credential used to be environment variables read once per process, so
+ * every tenant of a market transmitted through the same account — both a legal impossibility (the
+ * document is stamped for the taxpayer that owns the account) and a confidentiality failure. Now:
  *
  *  - the configuration lives on the tenant's `fiscal_regime_settings` row;
  *  - the credential is encrypted with the application's single at-rest cipher (`CryptoUtil`) and
@@ -54,7 +53,9 @@ export interface TransmissionSettingsInput {
  *    transport's agent, at every connection (a name can be re-pointed after it was checked);
  *  - the environment variables still work for a single-tenant deployment, but only when the
  *    operator says so explicitly (`EINVOICE_PROCESS_CREDENTIALS=allow`): in a SaaS a shared
- *    credential is the defect, not a fallback.
+ *    credential is the defect, not a fallback. They are spelled the same way in every market —
+ *    `EINVOICE_<CC>_ENDPOINT`, `_TOKEN`, `_USERNAME`, `_PASSWORD`, `_STATUS_ENDPOINT`,
+ *    `_SOAP_ACTION` — so a market is configured by its code and nothing else.
  */
 @Injectable()
 export class TransmissionConfigService {
@@ -149,10 +150,9 @@ export class TransmissionConfigService {
   /** The legacy, process-wide configuration — only for a deployment that opts in. */
   private processTarget(countryCode: string): TransmissionTarget | null {
     if (this.config.get<string>('EINVOICE_PROCESS_CREDENTIALS') !== 'allow') return null;
-    const code = countryCode.toUpperCase();
-    const prefix = code === 'MX' ? 'PAC' : `EINVOICE_${code}`;
-    const endpoint = this.config.get<string>(code === 'MX' ? 'PAC_STAMP_URL' : `${prefix}_ENDPOINT`);
-    const token = this.config.get<string>(code === 'MX' ? 'PAC_API_TOKEN' : `${prefix}_TOKEN`);
+    const prefix = `EINVOICE_${countryCode.toUpperCase()}`;
+    const endpoint = this.config.get<string>(`${prefix}_ENDPOINT`);
+    const token = this.config.get<string>(`${prefix}_TOKEN`);
     const user = this.config.get<string>(`${prefix}_USERNAME`);
     const password = this.config.get<string>(`${prefix}_PASSWORD`);
     if (!endpoint || !(token || (user && password))) return null;

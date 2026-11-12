@@ -35,13 +35,13 @@ export class UpsertFiscalRegimeSettingsDto {
 
   /** Ecuador: the SRI's three-digit establishment. */
   @IsString()
-  @Matches(/^\d{3}$/, { message: 'einvoicing.sri_establishment_must_three_digits' })
+  @Matches(/^\d{3}$/, { message: 'einvoicing.establishment_must_three_digits' })
   @IsOptional()
   establishment?: string;
 
   /** Ecuador: the SRI's three-digit emission point. */
   @IsString()
-  @Matches(/^\d{3}$/, { message: 'einvoicing.sri_emission_point_must_three_digits' })
+  @Matches(/^\d{3}$/, { message: 'einvoicing.emission_point_must_three_digits' })
   @IsOptional()
   emissionPoint?: string;
 

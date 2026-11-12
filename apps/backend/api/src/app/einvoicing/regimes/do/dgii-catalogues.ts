@@ -1,4 +1,4 @@
-import { PaymentMethod } from '../../invoices/entities/invoice.entity';
+import { PaymentMethod } from '../../../invoices/entities/invoice.entity';
 
 /**
  * The DGII's coded catalogues, as the e-CF schema requires them.

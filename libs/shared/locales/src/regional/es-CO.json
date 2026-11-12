@@ -5,5 +5,7 @@
   "invoice.pdf.tax_column_header": "IVA",
   "invoices.new.tax_column_header": "IVA",
   "payroll.runs.type_label.christmas_bonus": "Prima de navidad",
-  "permissions.groups.tss": "Seguridad social (PILA)"
+  "permissions.groups.tss": "Seguridad social (PILA)",
+  "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica dian cufe resolución certificado",
+  "settings.sections_meta.profile.keywords": "empresa nit razón social dirección"
 }

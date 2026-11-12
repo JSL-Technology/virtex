@@ -28,7 +28,7 @@ La API rechaza siempre un certificado autofirmado, salvo que se cumplan las dos
 condiciones siguientes:
 
 1. El proceso corre en desarrollo o en pruebas (`NODE_ENV=development` o `test`).
-2. Existe la variable `ECF_ALLOW_TEST_CERTIFICATES=true`.
+2. Existe la variable `SIGNING_ALLOW_TEST_CERTIFICATES=true`.
 
 En cualquier otro entorno se rechaza aunque la variable esté puesta, así que es
 imposible emitir en producción con uno de estos archivos.

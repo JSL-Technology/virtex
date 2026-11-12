@@ -1,7 +1,7 @@
 import { ServiceUnavailableException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { Invoice, InvoiceType, PaymentMethod } from '../../../invoices/entities/invoice.entity';
-import { EcfCertificate } from '../../entities/ecf-certificate.entity';
+import { SigningCertificate } from '../../entities/signing-certificate.entity';
 import { FiscalRegimeContext } from '../fiscal-regime.types';
 import { DgiiRegimeAdapter } from './dgii.adapter';
 
@@ -68,7 +68,7 @@ describe('the DGII regime, as an adapter', () => {
    * Dispatched by the entity's NAME rather than by its class, so this spec needs no import of
    * another module's entities — the same reason the integration specs ask for repositories by name.
    */
-  const manager = (certificate: Partial<EcfCertificate> | null = { id: 'cert-1', isActive: true }) =>
+  const manager = (certificate: Partial<SigningCertificate> | null = { id: 'cert-1', isActive: true }) =>
     ({
       findOne: jest.fn(async (entity: unknown) => {
         switch (typeof entity === 'function' ? entity.name : String(entity)) {
@@ -76,7 +76,7 @@ describe('the DGII regime, as an adapter', () => {
             return ORGANIZATION;
           case 'OrganizationSettings':
             return { baseCurrency: 'DOP' };
-          case 'EcfCertificate':
+          case 'SigningCertificate':
             return certificate;
           default:
             return null;
@@ -92,7 +92,7 @@ describe('the DGII regime, as an adapter', () => {
     status?: jest.Mock;
     token?: jest.Mock;
     validate?: jest.Mock;
-    certificate?: Partial<EcfCertificate> | null;
+    certificate?: Partial<SigningCertificate> | null;
     attempt?: number;
   } = {}) {
     const calls: string[] = [];
@@ -127,6 +127,8 @@ describe('the DGII regime, as an adapter', () => {
       { getToken: options.token ?? jest.fn(async () => 'token') } as never,
       transport as never,
       { endpointsFor: jest.fn(async () => ({ timbre: 'https://ecf.dgii.gov.do/certecf/consultatimbre', timbreConsumo: 'https://ecf.dgii.gov.do/certecf/consultatimbrefc' })) } as never,
+      // What the DGII receives ABOUT documents; none of these cases declares one.
+      {} as never,
     );
     const context: FiscalRegimeContext = {
       invoice: invoice(),
@@ -184,7 +186,7 @@ describe('the DGII regime, as an adapter', () => {
 
   it('refuses a certificate that has expired rather than sealing with it', async () => {
     const { adapter, context } = build({
-      certificate: { id: 'cert-1', isActive: true, notAfter: new Date('2020-01-01') } as Partial<EcfCertificate>,
+      certificate: { id: 'cert-1', isActive: true, notAfter: new Date('2020-01-01') } as Partial<SigningCertificate>,
     });
     await expect(adapter.loadCertificate(context)).rejects.toMatchObject({
       messageKey: 'einvoicing.certificate.expired',

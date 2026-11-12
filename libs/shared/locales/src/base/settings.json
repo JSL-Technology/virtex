@@ -847,11 +847,6 @@
     "en": "Digital certificate",
     "pt": "Certificado digital"
   },
-  "settings.fiscal.do.dgii_reports_moved": {
-    "es": "Los formatos 606, 607, 608 y 609 se generan en Contabilidad › Reportes › Declaraciones fiscales, donde cada mes muestra si se generó y si se presentó. Aquí se configura lo que necesitan: el certificado y los rangos de NCF.",
-    "en": "Formats 606, 607, 608 and 609 are generated in Accounting › Reports › Fiscal returns, where each month shows whether it was generated and filed. This page configures what they need: the certificate and the NCF ranges.",
-    "pt": "Os formatos 606, 607, 608 e 609 são gerados em Contabilidade › Relatórios › Declarações fiscais, onde cada mês mostra se foi gerado e entregue. Aqui se configura o que eles precisam: o certificado e as faixas de NCF."
-  },
   "settings.fiscal.document_types_load_failed": {
     "es": "No se pudieron cargar los tipos de comprobante de tu país.",
     "en": "Your country's document types could not be loaded.",
@@ -1031,6 +1026,11 @@
     "es": "Necesita",
     "en": "Requires",
     "pt": "Precisa de"
+  },
+  "settings.fiscal.returns_moved": {
+    "es": "Las declaraciones fiscales de tu país se generan en Contabilidad › Reportes › Declaraciones fiscales, donde cada mes muestra si se generó y si se presentó. Aquí se configura lo que necesitan: el certificado y los rangos de numeración.",
+    "en": "Your country's fiscal returns are generated in Accounting › Reports › Fiscal returns, where each month shows whether it was generated and filed. This page configures what they need: the certificate and the numbering ranges.",
+    "pt": "As declarações fiscais do seu país são geradas em Contabilidade › Relatórios › Declarações fiscais, onde cada mês mostra se foi gerada e entregue. Aqui se configura o que elas precisam: o certificado e as faixas de numeração."
   },
   "settings.fiscal.select_certificate_file_p12_pfx": {
     "es": "Selecciona el archivo del certificado (.p12 / .pfx).",
@@ -1510,6 +1510,11 @@
     "en": "Choose the type",
     "pt": "Escolha o tipo"
   },
+  "settings.pages.einvoicing.configured_elsewhere": {
+    "en": "Your market’s regime signs its documents with your own certificate, so it has no endpoint or credential to configure here. The emission mode, the authorised ranges and the certificate are configured in:",
+    "es": "El régimen de tu mercado firma los documentos con tu propio certificado, así que no tiene endpoint ni credencial que configurar aquí. La modalidad de emisión, los rangos autorizados y el certificado se configuran en:",
+    "pt": "O regime do seu mercado assina os documentos com o seu próprio certificado, portanto não há endpoint nem credencial a configurar aqui. A modalidade de emissão, as faixas autorizadas e o certificado são configurados em:"
+  },
   "settings.pages.einvoicing.document_sent_test_environment_has_no": {
     "es": "Un documento enviado al ambiente de pruebas no tiene efecto fiscal alguno. Cambia a producción sólo cuando hayas superado la homologación.",
     "en": "A document sent to the test environment has no fiscal effect at all. Switch to production only once you have passed homologation.",
@@ -1520,20 +1525,15 @@
     "en": "Document type",
     "pt": "Tipo de documento"
   },
-  "settings.pages.einvoicing.dominican_elsewhere": {
-    "en": "In the Dominican Republic, the emission mode, NCF ranges and certificate are configured in:",
-    "es": "En la República Dominicana, la modalidad de emisión, los rangos de NCF y el certificado se configuran en:",
-    "pt": "Na República Dominicana, a modalidade de emissão, as faixas de NCF e o certificado são configurados em:"
-  },
   "settings.pages.einvoicing.eight_digits_you_choose_part_document": {
     "es": "Ocho dígitos que eliges tú. Forma parte de la clave del documento.",
     "en": "Eight digits you choose. It is part of the document key.",
     "pt": "Oito dígitos que você escolhe. Faz parte da chave do documento."
   },
   "settings.pages.einvoicing.emission_point": {
-    "es": "Punto de emisión (SRI)",
-    "en": "Emission point (SRI)",
-    "pt": "Ponto de emissão (SRI)"
+    "es": "Punto de emisión",
+    "en": "Emission point",
+    "pt": "Ponto de emissão"
   },
   "settings.pages.einvoicing.ends_at": {
     "es": "Hasta",
@@ -1556,9 +1556,9 @@
     "pt": "Ambiente"
   },
   "settings.pages.einvoicing.establishment": {
-    "es": "Establecimiento (SRI)",
-    "en": "Establishment (SRI)",
-    "pt": "Estabelecimento (SRI)"
+    "es": "Establecimiento",
+    "en": "Establishment",
+    "pt": "Estabelecimento"
   },
   "settings.pages.einvoicing.from": {
     "es": "Desde",
@@ -3366,9 +3366,9 @@
     "pt": "As contas em que cada operação é lançada: vendas, compras, bancos, impostos, inventário, moeda, fechamento e intercompanhia. Uma só salvamento."
   },
   "settings.sections_meta.default_accounts.keywords": {
-    "es": "cuentas contables mapa contable ventas compras bancos impuestos itbis iva inventario diferencial cambiario cierre intercompañía",
-    "en": "accounts mapping sales purchases banks taxes vat inventory exchange difference closing intercompany",
-    "pt": "contas mapeamento vendas compras bancos impostos iva inventário diferença cambial fechamento intercompanhia"
+    "es": "cuentas contables mapa contable ventas compras bancos impuestos inventario diferencial cambiario cierre intercompañía",
+    "en": "accounts mapping sales purchases banks taxes inventory exchange difference closing intercompany",
+    "pt": "contas mapeamento vendas compras bancos impostos inventário diferença cambial fechamento intercompanhia"
   },
   "settings.sections_meta.default_accounts.label": {
     "es": "Cuentas predeterminadas",
@@ -3381,9 +3381,9 @@
     "pt": "O regime de faturamento eletrônico dseu país e sua ligação à autoridade."
   },
   "settings.sections_meta.einvoicing_regime.keywords": {
-    "es": "facturación electrónica cfdi sat dian sefaz autoridad fiscal",
-    "en": "electronic invoicing cfdi sat dian sefaz tax authority",
-    "pt": "faturamento eletrônico nfe sefaz autoridade fiscal"
+    "es": "facturación electrónica régimen autoridad fiscal certificado endpoint",
+    "en": "electronic invoicing regime tax authority certificate endpoint",
+    "pt": "faturamento eletrônico regime autoridade fiscal certificado endpoint"
   },
   "settings.sections_meta.einvoicing_regime.label": {
     "es": "Facturación electrónica",
@@ -3411,9 +3411,9 @@
     "pt": "Como a empresa emite os seus documentos fiscais perante a autoridade tributária: modalidade, numeração autorizada e certificado."
   },
   "settings.sections_meta.fiscal.keywords": {
-    "es": "ncf e-cf dgii comprobantes facturación electrónica certificado rangos",
-    "en": "ncf e-cf dgii fiscal receipts electronic invoicing certificate ranges",
-    "pt": "ncf e-cf dgii comprovantes faturamento eletrônico certificado faixas"
+    "es": "comprobantes fiscales numeración rangos certificado facturación electrónica",
+    "en": "fiscal documents numbering ranges certificate electronic invoicing",
+    "pt": "documentos fiscais numeração faixas certificado faturamento eletrônico"
   },
   "settings.sections_meta.fiscal.label": {
     "es": "Comprobantes fiscales",
@@ -3486,9 +3486,9 @@
     "pt": "Razão social, identificação fiscal, endereço e contato que aparecem nos documentos."
   },
   "settings.sections_meta.profile.keywords": {
-    "es": "empresa rnc nif rfc razón social dirección",
+    "es": "empresa identificación fiscal razón social dirección",
     "en": "company tax id legal name address",
-    "pt": "empresa nif cnpj razão social endereço"
+    "pt": "empresa identificação fiscal razão social endereço"
   },
   "settings.sections_meta.profile.label": {
     "es": "Perfil de la empresa",
@@ -3606,9 +3606,9 @@
     "pt": "Os estados ou municípios onde a empresa cobra imposto, e suas alíquotas."
   },
   "settings.sections_meta.tax_jurisdictions.keywords": {
-    "es": "jurisdicciones estados nexo sales tax icms iss",
-    "en": "jurisdictions states nexus sales tax",
-    "pt": "jurisdições estados nexo icms iss"
+    "es": "jurisdicciones estados provincias nexo impuestos locales",
+    "en": "jurisdictions states nexus local taxes",
+    "pt": "jurisdições estados nexo impostos locais"
   },
   "settings.sections_meta.tax_jurisdictions.label": {
     "es": "Jurisdicciones fiscales",
@@ -3636,9 +3636,9 @@
     "pt": "Regimes de retenção que a empresa aplica ou suporta."
   },
   "settings.sections_meta.withholding_regimes.keywords": {
-    "es": "retenciones isr itbis retención",
-    "en": "withholding tax",
-    "pt": "retenções irrf retenção"
+    "es": "retenciones impuesto sobre la renta retención agente de retención",
+    "en": "withholding tax withholding agent",
+    "pt": "retenções imposto de renda retenção"
   },
   "settings.sections_meta.withholding_regimes.label": {
     "es": "Retenciones",
@@ -4562,7 +4562,7 @@
   },
   "settings.sequences.fiscal_note": {
     "es": "La numeración fiscal no se configura aquí: es la que autoriza la autoridad tributaria.",
-    "en": "Fiscal numbering (NCF, e-CF) is not set here: those are the ranges the authority grants.",
+    "en": "Fiscal numbering is not set here: those are the ranges the authority grants.",
     "pt": "A numeração fiscal não é configurada aqui: são as faixas que a autoridade concede."
   },
   "settings.sequences.go_fiscal": {

@@ -9,7 +9,7 @@
 import { readdirSync, readFileSync, statSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { COUNTRY_TERMS, COUNTRY_CODES, MARKET_CATALOGUE, MARKET_PACKAGE, IGNORED_PATHS, COUNTRY_SCOPED_KEY, termPattern } from './country-neutrality.config.mjs';
+import { COUNTRY_TERMS, COUNTRY_CODES, MARKET_ASSEMBLY, MARKET_PACKAGE, IGNORED_PATHS, COUNTRY_SCOPED_KEY, termPattern } from './country-neutrality.config.mjs';
 
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = join(HERE, '..', '..');
@@ -98,7 +98,7 @@ for (const { area, dir, ext } of SOURCES) {
       if (!code.trim()) return;
       // A market package is reached through the registry, never by its path: an import of
       // `markets/<cc>/` from anywhere but that same package is a dependency on one country.
-      const imported = area === 'api' && path !== MARKET_CATALOGUE ? MARKET_IMPORT.exec(code) : null;
+      const imported = area === 'api' && !MARKET_ASSEMBLY.includes(path) ? MARKET_IMPORT.exec(code) : null;
       if (imported) {
         const target = `/${relative(dir, resolve(dirname(file), imported[1])).replace(/\\/g, '/')}/`;
         const targetMarket = MARKET_PACKAGE.exec(target)?.[1];
@@ -106,8 +106,9 @@ for (const { area, dir, ext } of SOURCES) {
           bump(`${moduleOf(area, rel)}|${targetMarket.toUpperCase()}|market-import`, `${area}/${rel}:${index + 1}`);
         }
       }
-      // Inside its own package a market speaks its own vocabulary: that is where it belongs.
-      if (ownMarket) return;
+      // Inside its own package a market speaks its own vocabulary: that is where it belongs, and
+      // so does the file that ASSEMBLES the packages, which names every one of them by design.
+      if (ownMarket || MARKET_ASSEMBLY.includes(path)) return;
       // A line naming several markets' terms is an enumeration of all of them
       // (`'Tax ID (RNC, RFC, EIN…)'`), which ties the code to none.
       const named = Object.entries(termRegex).filter(([, rx]) => rx.test(code)).map(([country]) => country);
@@ -122,7 +123,10 @@ for (const file of readdirSync(LOCALES).filter((f) => f.endsWith('.json'))) {
   const catalogue = JSON.parse(readFileSync(join(LOCALES, file), 'utf8'));
   for (const [key, value] of Object.entries(catalogue)) {
     if (key.startsWith('$') || typeof value !== 'object' || COUNTRY_SCOPED_KEY.test(key)) continue;
-    const text = Object.values(value).join(' ');
+    // `note` is the entry's comment — written FOR a translator ABOUT the key, never shown. The
+    // code scan strips `//` and `/* */` for the same reason: the rule is about what the product
+    // says, and a note that explains why a market's word was removed would be counted as using it.
+    const text = Object.entries(value).filter(([lang]) => lang !== 'note').map(([, t]) => t).join(' ');
     for (const [country, rx] of Object.entries(termRegex)) {
       if (rx.test(text)) bump(`locales/${file.replace('.json', '')}|${country}|wording`, key);
     }

@@ -51,7 +51,7 @@ const ACTIVITY_SOURCES: Record<
   },
   vendor_bills: {
     permission: PERMISSIONS.ACCOUNTS_PAYABLE_VIEW,
-    reference: ['ncf', 'billNumber'],
+    reference: ['supplierFiscalNumber', 'supplierInvoiceNumber', 'billNumber'],
     counterparty: ['supplierName', 'vendorName'],
     amount: ['total'],
     currency: ['currencyCode'],
