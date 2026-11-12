@@ -2,7 +2,7 @@
 
 Cada identificador que aparece en los MD de la auditoría (`docs/auditorias/2026-11-07-auditoria-madurez-construccion-produccion/`), con la línea que lo define (cita del MD) y su estado verificado contra el código y los commits de la rama `ccr-f710ff5b-8ijix4`.
 
-**Respuesta: no está todo resuelto.** De 413 identificadores: 68 resuelto, 14 parcial, 305 pendiente, 10 informativo, 16 no es hallazgo.
+**Respuesta: no está todo resuelto.** De 413 identificadores: 70 resuelto, 14 parcial, 303 pendiente, 10 informativo, 16 no es hallazgo.
 
 ## Resumen por severidad
 
@@ -10,13 +10,13 @@ Cada identificador que aparece en los MD de la auditoría (`docs/auditorias/2026
 |---|---|---|---|---|---|
 | Crítica | 13 | 0 | 0 | 0 | 0 |
 | Alta | 36 | 9 | 0 | 71 | 2 |
-| Media | 18 | 3 | 0 | 151 | 0 |
+| Media | 20 | 3 | 0 | 149 | 0 |
 | Baja | 1 | 0 | 0 | 69 | 0 |
 | — | 0 | 2 | 0 | 14 | 24 |
 
 Método: los identificadores se extrajeron con una expresión regular sobre todos los MD; la severidad, de la línea que define cada uno (en las filas de tablas de ejes puede ser la severidad del eje y no la del hallazgo: revisar la cita). «Resuelto» exige un commit y una comprobación en el código (archivo/prueba citados); «Parcial» lista lo que falta.
 
-## RESUELTO (68)
+## RESUELTO (70)
 
 | ID | Sev. | Cita del MD | Commit | Evidencia de la solución |
 |---|---|---|---|---|
@@ -80,7 +80,9 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | IAM-T2 | Media | `modulos/multi-tenencia.md:43` — - **IAM-T2** · multi-tenencia/eje 2 · integridad de datos · **media** (defensa en profundidad incompleta, no fuga real) · `database/same-tenant-references.spec.ts:56`. La FK `FK_cu… | 4b930dfc | Migración `1789410000000-SameTenantGuardCustomerPortal.ts` (`SELECT virtex_install_same_tenant_guards()`); `same-tenant-references.spec.ts` en verde. |
 | JUR-02 | Media | `modulos/jurisdictions-geo.md:60` — - **JUR-02** · payroll/fiscal-coverage · eje 3 · documentación/producto · **Media**. `fiscal-coverage.ts` no declara la capacidad «payroll», así que la falta de nómina fuera de DO … | 96754204 | `fiscal-coverage.ts`: capacidad `payroll` en todos los mercados (DO `implemented`, resto `not-implemented`), `payrollImplemented`; `payroll-coverage.spec.ts` la contrasta con `JurisdictionRegistry` en los 19 mercados; `PublicCountryConfig.payrollAvailable` y aviso en el paso de configuración del registro (antes de pagar); el texto que listaba la nómina como disponible en todos los países se corrigió. En vivo: `/localization/config/MX` → `payrollAvailable:false`, DO → `true`. |
 | LOC-04 | Media | `modulos/localization.md:83` — **LOC-04** · i18n/localization · eje 3 · *multi-país (terminología DO por defecto)* · **Media**… | aeabe621, 96754204 | 31 claves genéricas neutras en es/en/pt con el término dominicano en `regional/es-DO.json` (aeabe621); `ledger.payroll.*`, `payroll.payslip.isr`, `payroll.payslip.afp/sfs` y `invoices.gaps.fiscal_sequence*` neutros (96754204). Barrido: fuera de los flujos solo DO no queda ITBIS/RNC/TSS/AFP/SFS/INFOTEP en la base. |
-| MP-11 | Media | `13-evaluacion-multipais.md:135` — **MP-11** · eje 9 · Calidad · **Media** — No había forma de impedir que el acoplamiento por país creciera.… | df61b60e | `npm run verify:country-neutrality` en CI (`tools/verify/country-neutrality.mjs`, configuración y línea base): línea base tomada de HEAD 513 → 492 con este bloque, y 1126 → 940 con la fase 4 (el conteo subió al ampliarse la puerta a más rutas) (renombrados `ecfBusy` → `documentBusy` y `triggerEcfSubmission` → `triggerFiscalTransmission`, retirada la consulta de `ecf_submissions` del núcleo). |
+| MP-03 | Media | `13-evaluacion-multipais.md:59` — **MP-03** · eje 1 · Multi-país / idioma · **Media** — Claves genéricas con vocabulario dominicano.… | c3286ef5 | Las 22 claves genéricas con vocabulario de un mercado quedaron neutrales y el término local pasó al parche de su país (`libs/shared/locales/src/regional/`): `settings.sequences.fiscal_note`, `currencies.rates.source_placeholder`, `accounts_payable.capture.intro_attach`, `invoices.new.fiscal_group_electronic`/`_traditional`, las palabras clave de buscador de seis secciones de ajustes, `settings.pages.einvoicing.establishment`/`emission_point`/`configured_elsewhere`, `accounts_payable.payment.consumption_tax_withheld`, `customer_receipts.form.consumption_tax_withheld`, `invoice.pdf.tax_withheld`, `payroll.concepts.contribution_base`, `settings.fiscal.returns_moved`, `validation.counterparty_verdict.*` y `einvoicing.establishment_must_three_digits`/`emission_point_must_three_digits`. Las claves que un mercado DECLARA en su paquete (`localization.country_pack.tax_name.icms_iss`, `…supplier_document.cufe`) siguen hablando su idioma, que es donde debe estar, y la puerta las reconoce como de ese mercado. La puerta de neutralidad bajó de 78 a 1 (`wording`: 0). |
+| MP-06 | Media | `13-evaluacion-multipais.md:94` — **MP-06** · eje 3 · Multi-país · **Media** — Valores por defecto de un país aplicados en silencio.… | 6bd9278f, c3286ef5 | Las monedas por omisión salieron en la fase 6 (`payrollCurrency(country)`; `DOP` ya no es el valor por omisión de ninguna entidad de nómina) y en la fase 9 salió el último valor por omisión de un país en el esquema: `signing_certificates.regime` tenía `DEFAULT DGII`, así que un CSD mexicano insertado sin ese campo quedaba archivado como certificado de e-CF y lo buscaba el adaptador equivocado (migración `1789680000000-NeutralSchemaMetadata`, que además deja el comentario de `invoices.tax` sin nombrar un impuesto de un país). La plantilla de importación de clientes y proveedores ya no muestra la fila de ejemplo dominicana a todos los mercados: el identificador, su código de documento, el país y el prefijo telefónico salen del mercado de la empresa (`contracts/data-transfer/party-template-example.ts`), y la columna `ncf` de los conjuntos de datos pasó a `numero_fiscal`. |
+| MP-11 | Media | `13-evaluacion-multipais.md:142` — **MP-11** · eje 9 · Calidad · **Media** — No había forma de impedir que el acoplamiento por país creciera.… | df61b60e, c3286ef5 | `npm run verify:country-neutrality` en CI (`tools/verify/country-neutrality.mjs`, su configuración y su línea base, que solo baja). Recorrido completo: 639 → 176 (fases 1–7) → 78 (fase 8 parcial) → **1** al cerrar la fase 9. Lo permitido son tres sitios —`markets/<cc>/`, `einvoicing/regimes/<cc>/`, `localization/drivers/<cc>/`— y los cuatro archivos que los ensamblan. La única cuenta que queda es `LEGACY_SALT` en `certificate-vault.service.ts`: la sal de `scrypt` con la que se cifró lo ya guardado, que no se puede cambiar sin volver ilegible el certificado de un contribuyente; está explicada en el baseline y solo se lee, nunca se escribe con ella. |
 | NOM-05 | Media | `modulos/payroll.md:116` — **NOM-05 — La tasa de la novedad sobrescribe la del concepto sin el límite que el DTO de concepto sí impone** · eje 2/4… | 4c3eb8ca | La tasa de la novedad tiene el límite del concepto (`CONCEPT_RATE_LIMIT`) al capturar y en el motor; `payroll_runs.calculation_warnings` marca toda novedad que paga más que el salario mensual y aprobar exige `acknowledgeWarnings` (banner y segunda confirmación). En vivo qa-do-a: multiplicador 50 rechazado; comisión 3.000.000 sobre 50.000 → advertencia; sin confirmar → `run_has_unusual_inputs`. |
 | NOM-41 | Media | `modulos/customer-service.md:56` — **NOM-41 — `FK_customer_portal_accounts_customer` sin guarda de mismo tenant** · eje 8 · seguridad (defensa en profundidad) · **Media** · Evidencia: `pg_trigger` sin `tg_same_tenan… | 4b930dfc | Mismo arreglo que IAM-T2. |
 | PLT-NOT-05 | Media | `modulos/notificaciones-push-websockets.md:41` — - **PLT-NOT-05** · push · eje 4 · Media · `push_subscription` solo tiene PK (pg_indexes) — sin unique (userId, endpoint) → duplicados y envíos repetidos. · S.… | 471e0e3e | Migración `1789420000000-PushSubscriptionHardening.ts`: índice `UQ_push_subscription_endpoint`. |
@@ -108,7 +110,7 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | SP-01 | — | `00-resumen-ejecutivo.md:22` — 7. **Patrón dominante: "construido pero no conectado"** (SP-01): estados comparativos, listas de precios, revaluación, consolidación, landed cost, manufactura y `/metrics`. Seis ba… | 7e3640e0, e87dd8a0, f43ade93, 08c85dfe | Conectados, cada uno con su evidencia: listas de precios en factura, cotización y POS (FAC-PL-01); revaluación cambiaria por rol de cuenta (FINB-01); regímenes de factura electrónica por el outbox `fiscal_submissions` (FAC-EINV-01); costos de importación aplicados a recepciones (CMP-21). | Siguen construidos pero no conectados: estados comparativos (FIN-FR-01), ubicaciones/bins (INV-23), consolidación, intercompañía, manufactura, proyectos y customer-service sin pantalla (INVT-01), manufactura sin mover inventario (INV-20), `sales_cube_view` (IA-B05), `/metrics` (PLT-OBS-01). |
 | SP-11 | — | `04-plataforma-transversal.md:12` — \| Suscripción SaaS y pagos \| `saas-payment.md` \| 55 (48–62) \| 50 \| **No listo** \| Causa raíz de FAC-INV-01: el control de cupo aborta la transacción del documento. Los límites de p… | 8b1ee726 | La causa raíz citada (FAC-INV-01) está corregida. | El resto del módulo saas-payment (IAM-P2/P3/P4) sigue pendiente. |
 
-## PENDIENTE (305)
+## PENDIENTE (303)
 
 | ID | Sev. | Cita del MD |
 |---|---|---|
@@ -276,8 +278,6 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | LOC-07 | Media | `modulos/localization.md:104` — **LOC-07** · localization · eje 4/5 · *arquitectura* · **Media**… |
 | LOC-09 | Media | `modulos/localization.md:118` — **LOC-09** · localization · eje 2 · *bug menor* · **Media**… |
 | LOC-10 | Media | `modulos/localization.md:125` — **LOC-10** · localization · eje 2 · *integridad* · **Media**… |
-| MP-03 | Media | `13-evaluacion-multipais.md:59` — **MP-03** · eje 1 · Multi-país / idioma · **Media** — Claves genéricas con vocabulario dominicano.… |
-| MP-06 | Media | `13-evaluacion-multipais.md:94` — **MP-06** · eje 3 · Multi-país · **Media** — Valores por defecto de un país aplicados en silencio.… |
 | NOM-07 | Media | `modulos/payroll.md:126` — **NOM-07 — INFOTEP del trabajador modelado sobre la regalía pascual** · eje 3 · Severidad: Media… |
 | NOM-08 | Media | `modulos/payroll.md:129` — **NOM-08 — Regalía pascual por «meses tocados», no por salario devengado** · eje 2 · Severidad: Media… |
 | NOM-09 | Media | `modulos/payroll.md:132` — **NOM-09 — «Parámetros de empresa» (US/otros) que ningún cálculo usa** · eje 1/3 · Severidad: Media · Categoría: funcionalidad engañosa… |
