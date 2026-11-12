@@ -148,7 +148,7 @@ describeWithDb('fiscal numbering, one engine for every market', () => {
 
     it('keeps the CAF key encrypted at rest and hands it back only when asked for', async () => {
       const cafXml = '<AUTORIZACION><CAF><RSASK>clave-privada-del-caf</RSASK></CAF></AUTORIZACION>';
-      await register({ countryCode: 'CL', documentType: '33', startsAt: 1, endsAt: 10, secret: cafXml, secretKind: FiscalRangeSecretKind.CAF_XML });
+      await register({ countryCode: 'CL', documentType: '33', startsAt: 1, endsAt: 10, secret: cafXml, secretKind: FiscalRangeSecretKind.AUTHORISED_FOLIOS });
 
       const stored = await dataSource.getRepository(FiscalDocumentRange).findOneByOrFail({ organizationId, countryCode: 'CL', documentType: '33', isActive: true });
       // A database dump with a CAF in the clear lets whoever reads it stamp documents in the taxpayer's name.
@@ -160,7 +160,7 @@ describeWithDb('fiscal numbering, one engine for every market', () => {
         ranges.drawNext(manager, { organizationId, countryCode: 'CL', documentType: '33', today: TODAY, withSecret: true }),
       );
       expect(drawn.secret).toBe(cafXml);
-      expect(drawn.secretKind).toBe(FiscalRangeSecretKind.CAF_XML);
+      expect(drawn.secretKind).toBe(FiscalRangeSecretKind.AUTHORISED_FOLIOS);
     });
   });
 

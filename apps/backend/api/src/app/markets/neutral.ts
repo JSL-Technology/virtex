@@ -61,7 +61,10 @@ export function neutralMarket(code: string): NeutralMarket {
     filings: [],
       coverage: [{ capability: 'periodicReturns', ...notImplemented() }],
     },
-    einvoicing: { required: false, regime: null, coverage: notImplemented() },
+    einvoicing: { required: false, regime: null, channel: null,
+      settingsFields: [],
+      rangeSecret: null,
+      coverage: notImplemented() },
   };
 }
 

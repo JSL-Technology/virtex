@@ -6,6 +6,10 @@ import { notApplicable } from '../kit/coverage';
 export const einvoicing: MarketEInvoicing = {
   required: false,
   regime: null,
+  channel: null,
+  settingsFields: [],
+  rangeSecret: null,
+
   // Not a gap: a US sales invoice carries no fiscal stamp, so there is nothing to implement.
   coverage: notApplicable('La factura de venta estadounidense no lleva sello fiscal'),
 };

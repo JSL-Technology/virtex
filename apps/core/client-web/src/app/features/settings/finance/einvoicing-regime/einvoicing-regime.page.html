@@ -1,8 +1,10 @@
 <div class="s-page">
 
-  @if (countryCode() === 'DO') {
-    <!-- The Dominican regime lives in its own section. Reached by a link, this page used to say the
-         product had no regime for the country, contradicting that section (QA R3-M03). -->
+  @if (configuredWithCertificate()) {
+    <!-- A regime that authenticates with the taxpayer's own certificate has no endpoint and no
+         credential to configure: both live in the fiscal section, with the certificate and the
+         authorised ranges. Reached by a link, this page used to say the product had no regime for
+         the country, contradicting that section (QA R3-M03). -->
     <p class="e-empty">
       {{ 'settings.pages.einvoicing.dominican_elsewhere' | translate }}
       <a [routerLink]="[]" fragment="settings/fiscal">{{ 'settings.modal.electronic_invoicing' | translate }}</a>

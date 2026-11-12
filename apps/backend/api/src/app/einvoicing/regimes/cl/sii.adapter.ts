@@ -78,7 +78,7 @@ export class SiiRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
       series: context.invoice.fiscalSeries ?? undefined,
     });
 
-    if (range.secretKind !== FiscalRangeSecretKind.CAF_XML || !range.encryptedSecret) {
+    if (range.secretKind !== FiscalRangeSecretKind.AUTHORISED_FOLIOS || !range.encryptedSecret) {
       throw new RegimeNotConfigured(this.regime, 'el archivo CAF que autoriza este folio');
     }
 

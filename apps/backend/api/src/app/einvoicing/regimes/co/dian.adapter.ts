@@ -62,7 +62,7 @@ export class DianRegimeAdapter extends RegimeAdapterBase implements FiscalRegime
       series: context.invoice.fiscalSeries ?? undefined,
     });
 
-    if (range.secretKind !== FiscalRangeSecretKind.DIAN_TECHNICAL_KEY || !range.encryptedSecret) {
+    if (range.secretKind !== FiscalRangeSecretKind.TECHNICAL_KEY || !range.encryptedSecret) {
       throw new RegimeNotConfigured(this.regime, 'la ClaveTécnica de la resolución de facturación');
     }
 

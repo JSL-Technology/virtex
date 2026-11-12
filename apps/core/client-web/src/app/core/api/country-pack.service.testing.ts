@@ -1,4 +1,4 @@
-import { Provider, computed, signal } from '@angular/core';
+import { Provider, WritableSignal, computed, signal } from '@angular/core';
 import type { TenantCountryPackResponse } from '@virteex/shared/types';
 import { CountryPackService } from './country-pack.service';
 
@@ -36,6 +36,14 @@ export const DOMINICAN_TEST_PACK: TenantCountryPackResponse = {
     ],
   },
   withholding: { applies: true },
+  einvoicing: {
+    regime: 'DGII e-CF',
+    required: true,
+    // The DGII publishes its own endpoints and authenticates with the taxpayer's certificate.
+    channel: 'CERTIFICATE',
+    settingsFields: [],
+    rangeSecret: null,
+  },
   taxes: { model: 'NATIONAL_RATES', nameKey: 'invoices.new.tax_column_header' },
   paymentMethods: { catalogue: 'AUTHORITY_FIXED', authority: 'DGII' },
   payroll: { statutoryParameters: 'PLATFORM' },
@@ -45,6 +53,11 @@ export const DOMINICAN_TEST_PACK: TenantCountryPackResponse = {
   divisions: [],
 };
 
+/** Another market's pack, for a test about a market that is not the Dominican Republic. */
+export function testCountryPack(overrides: Partial<TenantCountryPackResponse>): TenantCountryPackResponse {
+  return { ...DOMINICAN_TEST_PACK, ...overrides };
+}
+
 /**
  * A `CountryPackService` for page tests: the company's market, by default the Dominican Republic.
  *
@@ -53,12 +66,31 @@ export const DOMINICAN_TEST_PACK: TenantCountryPackResponse = {
  * is passes the pack it wants.
  */
 export function provideTestCountryPack(pack: TenantCountryPackResponse | null = DOMINICAN_TEST_PACK): Provider {
-  const state = signal<TenantCountryPackResponse | null>(pack);
-  const stub: Pick<CountryPackService, 'pack' | 'withholding' | 'fiscalNumbering' | 'purchaseFiscalFields'> = {
+  return providePackState(signal<TenantCountryPackResponse | null>(pack));
+}
+
+/**
+ * The same, over a pack the test can change: for a page whose behaviour is the market's, exercised
+ * market by market without rebuilding the testing module.
+ */
+export function provideMutableTestCountryPack(): {
+  provider: Provider;
+  set: (pack: TenantCountryPackResponse | null) => void;
+} {
+  const state = signal<TenantCountryPackResponse | null>(DOMINICAN_TEST_PACK);
+  return { provider: providePackState(state), set: (pack) => state.set(pack) };
+}
+
+function providePackState(state: WritableSignal<TenantCountryPackResponse | null>): Provider {
+  const stub: Pick<
+    CountryPackService,
+    'pack' | 'withholding' | 'fiscalNumbering' | 'purchaseFiscalFields' | 'einvoicingRegime'
+  > = {
     pack: state.asReadonly(),
     withholding: computed(() => state()?.withholding.applies ?? false),
     fiscalNumbering: computed(() => state()?.documents.fiscalNumbering ?? false),
     purchaseFiscalFields: computed(() => state()?.purchases.fiscalAttributes ?? []),
+    einvoicingRegime: computed(() => state()?.einvoicing ?? null),
   };
   return { provide: CountryPackService, useValue: stub };
 }

@@ -51,7 +51,13 @@ export interface FiscalSubmissionView {
   respondedAt: string | null;
 }
 
-export interface EcfCertificateView {
+/**
+ * A signing certificate as the settings screen shows it.
+ *
+ * Named for what it is rather than for one authority's document: the type was `EcfCertificateView`
+ * and this service `ecfUrl`, which is the Dominican e-CF in a screen eight markets use.
+ */
+export interface FiscalCertificateView {
   id: string;
   alias: string;
   subjectCommonName?: string;
@@ -84,23 +90,23 @@ export interface EcfCertificateView {
 @Injectable({ providedIn: 'root' })
 export class EinvoicingService {
   private http = inject(HttpClient);
-  private ecfUrl = `${environment.apiUrl}/einvoicing`;
+  private baseUrl = `${environment.apiUrl}/einvoicing`;
 
   // ── Certificates ──────────────────────────────────────────────────────────
-  listCertificates(): Observable<EcfCertificateView[]> {
-    return this.http.get<EcfCertificateView[]>(`${this.ecfUrl}/certificates`);
+  listCertificates(): Observable<FiscalCertificateView[]> {
+    return this.http.get<FiscalCertificateView[]>(`${this.baseUrl}/certificates`);
   }
 
-  uploadCertificate(file: File, password: string, alias: string): Observable<EcfCertificateView> {
+  uploadCertificate(file: File, password: string, alias: string): Observable<FiscalCertificateView> {
     const form = new FormData();
     form.append('file', file);
     form.append('password', password);
     form.append('alias', alias);
-    return this.http.post<EcfCertificateView>(`${this.ecfUrl}/certificates`, form);
+    return this.http.post<FiscalCertificateView>(`${this.baseUrl}/certificates`, form);
   }
 
   deactivateCertificate(id: string): Observable<{ success: boolean }> {
-    return this.http.delete<{ success: boolean }>(`${this.ecfUrl}/certificates/${id}`);
+    return this.http.delete<{ success: boolean }>(`${this.baseUrl}/certificates/${id}`);
   }
 
   // ── Per-invoice e-CF ──────────────────────────────────────────────────────
@@ -113,20 +119,20 @@ export class EinvoicingService {
    * learn something normal.
    */
   getInvoiceStatus(invoiceId: string): Observable<FiscalSubmissionView | null> {
-    return this.http.get<FiscalSubmissionView | null>(`${this.ecfUrl}/invoices/${invoiceId}/status`);
+    return this.http.get<FiscalSubmissionView | null>(`${this.baseUrl}/invoices/${invoiceId}/status`);
   }
 
   /** Transmit it now, or ask the authority again about one already sent. */
   submitInvoice(invoiceId: string): Observable<FiscalSubmissionView> {
-    return this.http.post<FiscalSubmissionView>(`${this.ecfUrl}/invoices/${invoiceId}/submit`, {});
+    return this.http.post<FiscalSubmissionView>(`${this.baseUrl}/invoices/${invoiceId}/submit`, {});
   }
 
   /** The same, from the fiscal-settings screen, where a submission is known by its own id. */
   retrySubmission(submissionId: string): Observable<FiscalSubmissionView> {
-    return this.http.post<FiscalSubmissionView>(`${this.ecfUrl}/regime/submissions/${submissionId}/retry`, {});
+    return this.http.post<FiscalSubmissionView>(`${this.baseUrl}/regime/submissions/${submissionId}/retry`, {});
   }
 
   downloadXml(invoiceId: string): Observable<Blob> {
-    return this.http.get(`${this.ecfUrl}/invoices/${invoiceId}/xml`, { responseType: 'blob' });
+    return this.http.get(`${this.baseUrl}/invoices/${invoiceId}/xml`, { responseType: 'blob' });
   }
 }

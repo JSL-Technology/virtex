@@ -6,6 +6,9 @@ import { needsCredentials } from '../kit/coverage';
 export const einvoicing: MarketEInvoicing = {
   required: true,
   regime: 'DGII e-CF',
+  channel: 'CERTIFICATE',
+  settingsFields: [],
+  rangeSecret: null,
   coverage: needsCredentials(
       'DGII e-CF',
       'tu certificado digital de la DGII',

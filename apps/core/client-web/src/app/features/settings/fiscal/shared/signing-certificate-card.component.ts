@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { EinvoicingService, EcfCertificateView } from '../../../../core/services/einvoicing';
+import { EinvoicingService, FiscalCertificateView } from '../../../../core/services/einvoicing';
 import { InvoicingContext } from '../../../../core/services/invoices';
 import { NotificationService } from '../../../../core/services/notification';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
@@ -47,7 +47,7 @@ export class SigningCertificateCardComponent {
   /** A certificate was loaded or switched off: readiness should be read again. */
   readonly changed = output<void>();
 
-  readonly certificates = signal<EcfCertificateView[]>([]);
+  readonly certificates = signal<FiscalCertificateView[]>([]);
   readonly uploading = signal(false);
   readonly selectedFile = signal<File | null>(null);
 

@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { EinvoicingRegimePage } from './einvoicing-regime.page';
+import type { TenantCountryPackResponse } from '@virteex/shared/types';
+import { provideMutableTestCountryPack, testCountryPack } from '../../../../core/api/country-pack.service.testing';
 import {
   FiscalRange,
   FiscalRegimeSettings,
@@ -52,16 +54,58 @@ describe('EinvoicingRegimePage', () => {
     validUntil: '2027-12-31',
     authorizationCode: 'CAF-2026-33',
     hasSecret: true,
-    secretKind: 'CAF_XML',
+    secretKind: 'AUTHORISED_FOLIOS',
     runningLow: false,
     expired: false,
     ...overrides,
   });
 
+  /**
+   * What each market declares about its regime, as the country pack publishes it.
+   *
+   * The page used to carry this itself, keyed by country code; the test therefore proved the
+   * client's own copy of the list rather than the market's declaration.
+   */
+  const REGIMES: Record<string, TenantCountryPackResponse['einvoicing']> = {
+    DO: { regime: 'DGII e-CF', required: true, channel: 'CERTIFICATE', settingsFields: [], rangeSecret: null },
+    EC: {
+      regime: 'SRI Comprobantes Electrónicos',
+      required: true,
+      channel: 'ENDPOINT',
+      settingsFields: ['establishment', 'emissionPoint', 'numericCode'],
+      rangeSecret: null,
+    },
+    BR: {
+      regime: 'NF-e',
+      required: true,
+      channel: 'ENDPOINT',
+      settingsFields: ['stateCode', 'municipalityCode', 'numericCode'],
+      rangeSecret: null,
+    },
+    CL: {
+      regime: 'SII DTE',
+      required: true,
+      channel: 'ENDPOINT',
+      settingsFields: ['activityCode', 'originComuna', 'originCity'],
+      rangeSecret: 'AUTHORISED_FOLIOS',
+    },
+    CO: { regime: 'DIAN Factura Electrónica', required: true, channel: 'ENDPOINT', settingsFields: ['resolutionNumber'], rangeSecret: 'TECHNICAL_KEY' },
+    PE: { regime: 'SUNAT CPE', required: true, channel: 'ENDPOINT', settingsFields: [], rangeSecret: null },
+    MX: { regime: 'CFDI 4.0', required: true, channel: 'ENDPOINT', settingsFields: [], rangeSecret: null },
+    AR: { regime: 'AFIP CAE', required: true, channel: 'ENDPOINT', settingsFields: [], rangeSecret: null },
+    // A market whose law has a regime the product does not operate: no channel to configure.
+    PA: { regime: 'DGI SFEP', required: true, channel: null, settingsFields: [], rangeSecret: null },
+    US: { regime: null, required: false, channel: null, settingsFields: [], rangeSecret: null },
+  };
+
+  const packs = provideMutableTestCountryPack();
+
   beforeEach(async () => {
+    // The pack outlives one test, so each starts from the same market and says which it wants.
+    packs.set(testCountryPack({ countryCode: 'DO', einvoicing: REGIMES['DO'] }));
     await TestBed.configureTestingModule({
       imports: [EinvoicingRegimePage],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), packs.provider],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EinvoicingRegimePage);
@@ -77,6 +121,8 @@ describe('EinvoicingRegimePage', () => {
     settings: FiscalRegimeSettings | null = null,
     ranges: FiscalRange[] = [],
   ) => {
+    // The market is what its own package declares: the page reads it, it does not keep a list.
+    packs.set(testCountryPack({ countryCode, einvoicing: REGIMES[countryCode] ?? REGIMES['US'] }));
     httpMock.expectOne((r) => r.url === `${localization}/fiscal-coverage`).flush(coverageFor(countryCode));
     httpMock.expectOne((r) => r.url === `${regime}/settings` && r.method === 'GET').flush(settings);
     httpMock.expectOne((r) => r.url === `${regime}/transmission` && r.method === 'GET').flush(transmission);
@@ -166,8 +212,8 @@ describe('EinvoicingRegimePage', () => {
   it("hands the ranges card the material its market's ranges carry, and the market's types", () => {
     flush('CL', null, [range()]);
 
-    // A tenant should not have to know that their CAF is called `CAF_XML` in this product.
-    expect(card().secretKind()).toBe('CAF_XML');
+    // A tenant should not have to know that their CAF is called `AUTHORISED_FOLIOS` in this product.
+    expect(card().secretKind()).toBe('AUTHORISED_FOLIOS');
     expect(card().documentTypes().map((type) => type.code)).toEqual(['33', '61']);
     expect(card().ranges()).toHaveLength(1);
   });

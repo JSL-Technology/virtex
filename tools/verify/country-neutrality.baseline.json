@@ -10,7 +10,7 @@
     "api/einvoicing|AR|term": 34,
     "api/einvoicing|BR|term": 32,
     "api/einvoicing|CL|term": 28,
-    "api/einvoicing|CO|term": 33,
+    "api/einvoicing|CO|term": 31,
     "api/einvoicing|DO|term": 363,
     "api/einvoicing|EC|term": 25,
     "api/einvoicing|MX|branch": 3,
@@ -36,13 +36,10 @@
     "locales/settings|DO|wording": 6,
     "locales/settings|EC|wording": 2,
     "locales/settings|MX|wording": 1,
-    "web/core|DO|term": 11,
     "web/features/accounts-payable|DO|term": 2,
     "web/features/customer-receipts|DO|term": 1,
     "web/features/invoices|DO|term": 3,
     "web/features/payroll|DO|term": 12,
-    "web/features/settings|CO|term": 3,
-    "web/features/settings|DO|branch": 1,
-    "web/features/settings|DO|term": 3
+    "web/features/settings|DO|term": 1
   }
 }

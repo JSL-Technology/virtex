@@ -6,6 +6,9 @@ import { needsCredentials } from '../kit/coverage';
 export const einvoicing: MarketEInvoicing = {
   required: true,
   regime: 'SRI Comprobantes Electrónicos',
+  channel: 'ENDPOINT',
+  settingsFields: ['establishment', 'emissionPoint', 'numericCode'],
+  rangeSecret: null,
   coverage: needsCredentials(
       'SRI 2.1.0 con clave de acceso',
       'tu certificado de firma electrónica y tu punto de emisión',

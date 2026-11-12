@@ -6,5 +6,10 @@ import { notImplemented } from '../kit/coverage';
 export const einvoicing: MarketEInvoicing = {
   required: true,
   regime: 'DGI CFE',
+  // The law has a regime; the product does not operate it, so there is no channel to
+  // configure and the settings screen says so rather than showing an empty form.
+  channel: null,
+  settingsFields: [],
+  rangeSecret: null,
   coverage: notImplemented(),
 };

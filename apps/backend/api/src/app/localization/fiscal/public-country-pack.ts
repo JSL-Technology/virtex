@@ -49,6 +49,13 @@ export function publicCountryPack(countryCode: string | null | undefined): Tenan
     taxes: { model: market.taxes.model, nameKey: market.taxes.nameKey },
     paymentMethods: { catalogue: market.payments.catalogue, authority: market.payments.authority },
     payroll: { statutoryParameters: market.payroll.statutoryParameters },
+    einvoicing: {
+      regime: market.einvoicing.regime,
+      required: market.einvoicing.required,
+      channel: market.einvoicing.channel,
+      settingsFields: [...market.einvoicing.settingsFields],
+      rangeSecret: market.einvoicing.rangeSecret,
+    },
     fiscalReturns: {
       generator: market.returns.generator as FiscalReturnGenerator | null,
       dueDay: market.returns.dueDay,

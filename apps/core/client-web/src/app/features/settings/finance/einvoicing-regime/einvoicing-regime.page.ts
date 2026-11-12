@@ -26,6 +26,7 @@ import {
   FiscalRangesCardComponent,
   SigningCertificateCardComponent,
 } from '../../fiscal/shared';
+import { CountryPackService } from '../../../../core/api/country-pack.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
@@ -39,24 +40,6 @@ import { RouterLink } from '@angular/router';
  * a field that does not apply to them. The server refuses on exactly what it is missing; this is
  * the same list, from the side that asks for it.
  */
-const FIELDS_BY_COUNTRY: Record<string, readonly string[]> = {
-  EC: ['establishment', 'emissionPoint', 'numericCode'],
-  BR: ['stateCode', 'municipalityCode', 'numericCode'],
-  CO: ['resolutionNumber'],
-  CL: ['activityCode', 'originComuna', 'originCity'],
-  // Peru, Mexico and Argentina need nothing beyond the environment: their operational data comes
-  // from the series on the range, the PAC contract, and the punto de venta collected at signup.
-  PE: [],
-  MX: [],
-  AR: [],
-};
-
-/** Markets whose ranges carry material the authority issued with them. */
-const SECRET_BY_COUNTRY: Record<string, FiscalRangeSecretKind> = {
-  CL: 'CAF_XML',
-  CO: 'DIAN_TECHNICAL_KEY',
-};
-
 /**
  * The tenant's e-invoicing configuration, and the number ranges their authority granted them.
  *
@@ -97,6 +80,7 @@ export class EinvoicingRegimePage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly notifications = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly countryPack = inject(CountryPackService);
 
   readonly coverage = signal<MarketCoverage | null>(null);
   readonly savingSettings = signal(false);
@@ -122,14 +106,26 @@ export class EinvoicingRegimePage implements OnInit {
   /** The tenant's market, from the coverage statement the server sends. */
   readonly countryCode = computed(() => this.coverage()?.countryCode ?? '');
 
+  /** What this market's regime is and what it asks for, from its own package. */
+  private readonly regime = computed(() => this.countryPack.einvoicingRegime());
+
   /** Which settings fields this market needs. Empty for a market with no regime at all. */
-  readonly fields = computed(() => FIELDS_BY_COUNTRY[this.countryCode()] ?? []);
+  readonly fields = computed<readonly string[]>(() => this.regime()?.settingsFields ?? []);
 
   /** Whether this market's ranges carry authority-issued material. */
-  readonly secretKind = computed(() => SECRET_BY_COUNTRY[this.countryCode()] ?? null);
+  readonly secretKind = computed<FiscalRangeSecretKind | null>(
+    () => (this.regime()?.rangeSecret as FiscalRangeSecretKind | null) ?? null,
+  );
 
-  /** Whether the market has a regime at all — otherwise there is nothing on this page to fill. */
-  readonly hasRegime = computed(() => this.countryCode() in FIELDS_BY_COUNTRY);
+  /** Whether the market has a regime whose channel this screen configures at all. */
+  readonly hasRegime = computed(() => this.regime()?.channel === 'ENDPOINT');
+
+  /**
+   * The regime authenticates with the taxpayer's own signing certificate, so there is no endpoint
+   * and no credential to configure here: the certificate and the authorised ranges live in the
+   * fiscal section. The template asked `countryCode() === 'DO'`.
+   */
+  readonly configuredWithCertificate = computed(() => this.regime()?.channel === 'CERTIFICATE');
 
   readonly settingsForm = this.fb.group({
     environment: ['CERTIFICATION', Validators.required],

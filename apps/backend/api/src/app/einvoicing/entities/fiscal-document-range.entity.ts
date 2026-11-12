@@ -14,12 +14,12 @@ import { Organization } from '../../organizations/entities/organization.entity';
  *
  * Two of the seven regimes hand the taxpayer a secret along with the numbers:
  *
- * - **`CAF_XML`** — Chile. The SII's *Código de Autorización de Folios* is an XML that contains the
+ * - **`AUTHORISED_FOLIOS`** — Chile. The SII's *Código de Autorización de Folios* is an XML that contains the
  *   authorised range **and an RSA private key**. Every DTE drawn from that range carries a `TED`
  *   sealed with that key, and the SII verifies the seal against the public key it issued with the
  *   range. Losing it means the folios cannot be used; leaking it means someone else can stamp
  *   documents in the taxpayer's name.
- * - **`DIAN_TECHNICAL_KEY`** — Colombia. The *ClaveTécnica* is issued with the invoicing resolution
+ * - **`TECHNICAL_KEY`** — Colombia. The *ClaveTécnica* is issued with the invoicing resolution
  *   and is an input to the CUFE. It is not a signing key, but it is a shared secret, and a CUFE
  *   computed with someone else's is a forgery.
  *
@@ -27,8 +27,8 @@ import { Organization } from '../../organizations/entities/organization.entity';
  * database dump with these in the clear lets the reader issue fiscal documents as the taxpayer.
  */
 export enum FiscalRangeSecretKind {
-  CAF_XML = 'CAF_XML',
-  DIAN_TECHNICAL_KEY = 'DIAN_TECHNICAL_KEY',
+  AUTHORISED_FOLIOS = 'AUTHORISED_FOLIOS',
+  TECHNICAL_KEY = 'TECHNICAL_KEY',
 }
 
 /**

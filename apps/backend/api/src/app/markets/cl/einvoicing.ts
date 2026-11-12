@@ -6,6 +6,9 @@ import { needsCredentials } from '../kit/coverage';
 export const einvoicing: MarketEInvoicing = {
   required: true,
   regime: 'SII DTE',
+  channel: 'ENDPOINT',
+  settingsFields: ['activityCode', 'originComuna', 'originCity'],
+  rangeSecret: 'AUTHORISED_FOLIOS',
   coverage: needsCredentials(
       'SII — DTE 33/34/61',
       'tu certificado digital y tus folios CAF del SII',

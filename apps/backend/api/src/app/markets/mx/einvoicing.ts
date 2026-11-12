@@ -6,6 +6,9 @@ import { needsCredentials } from '../kit/coverage';
 export const einvoicing: MarketEInvoicing = {
   required: true,
   regime: 'CFDI 4.0',
+  channel: 'ENDPOINT',
+  settingsFields: [],
+  rangeSecret: null,
   coverage: needsCredentials(
       'CFDI 4.0',
       'tu Certificado de Sello Digital y un contrato con un PAC',

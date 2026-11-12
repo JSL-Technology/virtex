@@ -6,6 +6,9 @@ import { needsCredentials } from '../kit/coverage';
 export const einvoicing: MarketEInvoicing = {
   required: true,
   regime: 'SUNAT CPE',
+  channel: 'ENDPOINT',
+  settingsFields: [],
+  rangeSecret: null,
   coverage: needsCredentials(
       'SUNAT UBL 2.1',
       'tu certificado digital y tus credenciales SOL',

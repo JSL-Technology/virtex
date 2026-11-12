@@ -6,6 +6,9 @@ import { needsCredentials } from '../kit/coverage';
 export const einvoicing: MarketEInvoicing = {
   required: true,
   regime: 'DIAN Factura Electrónica',
+  channel: 'ENDPOINT',
+  settingsFields: ['resolutionNumber'],
+  rangeSecret: 'TECHNICAL_KEY',
   coverage: needsCredentials(
       'DIAN UBL 2.1 con CUFE',
       'tu certificado de firma digital, la resolución de facturación y tu clave técnica',

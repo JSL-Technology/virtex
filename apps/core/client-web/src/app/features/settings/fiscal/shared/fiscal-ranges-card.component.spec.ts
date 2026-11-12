@@ -79,14 +79,14 @@ describe('FiscalRangesCardComponent', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('derives the secret kind from the market, so nobody has to know it is called CAF_XML', () => {
-    create([], { secretKind: 'CAF_XML' });
+  it('derives the secret kind from the market, so nobody has to know it is called AUTHORISED_FOLIOS', () => {
+    create([], { secretKind: 'AUTHORISED_FOLIOS' });
 
     component.form.patchValue({ documentType: '33', startsAt: 1, endsAt: 100, secret: '<AUTORIZACION><CAF/></AUTORIZACION>' });
     component.register();
 
     const created = httpMock.expectOne((r) => r.url === ranges && r.method === 'POST');
-    expect(created.request.body.secretKind).toBe('CAF_XML');
+    expect(created.request.body.secretKind).toBe('AUTHORISED_FOLIOS');
     created.flush(range({ documentType: '33' }));
     httpMock.expectOne((r) => r.url === ranges && r.method === 'GET').flush([range({ documentType: '33' })]);
   });
@@ -140,7 +140,7 @@ describe('FiscalRangesCardComponent', () => {
   });
 
   it('shows only whether the range carries authority material, never the material', () => {
-    create([range({ hasSecret: true, secretKind: 'CAF_XML' })]);
+    create([range({ hasSecret: true, secretKind: 'AUTHORISED_FOLIOS' })]);
     const text = fixture.nativeElement.textContent as string;
     // A CAF read back through an API lets whoever reads it stamp documents in the taxpayer's name.
     expect(text).toContain('settings.pages.einvoicing.has_secret');

@@ -160,6 +160,23 @@ export interface PublicCountryPack {
     statutoryParameters: 'PLATFORM' | 'COMPANY';
   };
 
+  einvoicing: {
+    /** The regime's own name, as the authority calls it, or null where the market has none. */
+    regime: string | null;
+    /** The market's law mandates electronic invoicing. A fact about the country, not the product. */
+    required: boolean;
+    /**
+     * How the taxpayer authenticates: `CERTIFICATE` where the authority publishes its endpoints and
+     * authenticates with the signing certificate (nothing to configure), `ENDPOINT` where the
+     * company contracts one and configures it.
+     */
+    channel: 'CERTIFICATE' | 'ENDPOINT' | null;
+    /** What the regime asks of the company beyond the environment, by field name. */
+    settingsFields: string[];
+    /** What the authority issues with an authorised range, where it issues anything. */
+    rangeSecret: 'AUTHORISED_FOLIOS' | 'TECHNICAL_KEY' | null;
+  };
+
   fiscalReturns: {
     /** The generator the product has, or null where it produces no return files for the market. */
     generator: FiscalReturnGenerator | null;

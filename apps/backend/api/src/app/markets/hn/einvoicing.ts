@@ -6,6 +6,10 @@ import { notApplicable } from '../kit/coverage';
 export const einvoicing: MarketEInvoicing = {
   required: false,
   regime: null,
+  channel: null,
+  settingsFields: [],
+  rangeSecret: null,
+
   // The law does not mandate electronic invoicing here (`required: false`).
   coverage: notApplicable(),
 };

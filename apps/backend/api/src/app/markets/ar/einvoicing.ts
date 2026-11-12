@@ -6,6 +6,9 @@ import { needsCredentials } from '../kit/coverage';
 export const einvoicing: MarketEInvoicing = {
   required: true,
   regime: 'AFIP CAE',
+  channel: 'ENDPOINT',
+  settingsFields: [],
+  rangeSecret: null,
   coverage: needsCredentials(
       'AFIP WSFEv1 con CAE',
       'tu certificado de AFIP y el punto de venta habilitado',

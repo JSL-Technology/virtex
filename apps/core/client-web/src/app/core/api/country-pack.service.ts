@@ -62,4 +62,13 @@ export class CountryPackService {
   readonly purchaseFiscalFields = computed<readonly CountryPackFiscalField[]>(
     () => this.pack()?.purchases.fiscalAttributes ?? [],
   );
+
+  /**
+   * What this market's electronic-invoicing regime is and what it asks of the company.
+   *
+   * The settings screen used to carry the list itself, keyed by country code — `EC: [...]`,
+   * `BR: [...]` — and a `=== 'DO'` branch in its template, so a market the product gained asked for
+   * nothing until the client was edited too.
+   */
+  readonly einvoicingRegime = computed(() => this.pack()?.einvoicing ?? null);
 }

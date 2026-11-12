@@ -11,7 +11,7 @@ import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
 
 /** What the authority issues with a range, where it issues anything (the CAF, a technical key). */
-export type FiscalRangeSecretKind = 'CAF_XML' | 'DIAN_TECHNICAL_KEY';
+export type FiscalRangeSecretKind = 'AUTHORISED_FOLIOS' | 'TECHNICAL_KEY';
 
 /**
  * The number ranges the tenant's authority granted it, in any market that numbers from one: the
@@ -134,7 +134,7 @@ export class FiscalRangesCardComponent implements OnInit {
         authorizationCode: value.authorizationCode?.trim() || undefined,
         secret: value.secret?.trim() || undefined,
         // The kind is the market's, not asked for: a tenant should not have to know that their CAF
-        // is called `CAF_XML` in this product.
+        // is called `AUTHORISED_FOLIOS` in this product.
         secretKind: value.secret?.trim() && kind ? kind : undefined,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))

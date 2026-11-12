@@ -232,7 +232,7 @@ describeWithDb('the six regime adapters', () => {
         authorizationCode: '18760000001',
         validUntil: '2027-12-31',
         secret: 'clave-tecnica-de-la-resolucion',
-        secretKind: FiscalRangeSecretKind.DIAN_TECHNICAL_KEY,
+        secretKind: FiscalRangeSecretKind.TECHNICAL_KEY,
       });
 
     it('builds a UBL invoice whose CUFE is computed with the resolution’s own technical key', async () => {
@@ -401,7 +401,7 @@ describeWithDb('the six regime adapters', () => {
         startsAt: 1,
         endsAt: 100,
         secret: authorisation.xml,
-        secretKind: FiscalRangeSecretKind.CAF_XML,
+        secretKind: FiscalRangeSecretKind.AUTHORISED_FOLIOS,
       });
       await settingsFor({
         countryCode: 'CL',
@@ -467,7 +467,7 @@ describeWithDb('the six regime adapters', () => {
         startsAt: 1,
         endsAt: 100,
         secret: authorisation.xml,
-        secretKind: FiscalRangeSecretKind.CAF_XML,
+        secretKind: FiscalRangeSecretKind.AUTHORISED_FOLIOS,
       });
 
       await expect(

@@ -146,7 +146,7 @@ export interface RegisterFiscalRangeInput {
   validUntil?: string;
   authorizationCode?: string;
   secret?: string;
-  secretKind?: 'CAF_XML' | 'DIAN_TECHNICAL_KEY';
+  secretKind?: 'AUTHORISED_FOLIOS' | 'TECHNICAL_KEY';
 }
 
 /**
