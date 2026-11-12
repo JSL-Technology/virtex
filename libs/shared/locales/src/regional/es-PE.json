@@ -2,8 +2,7 @@
   "$locale": "es-PE",
   "$note": "Peru. The year-end payment is a 'gratificación' (July and December); the tax identifier is the RUC and the identity document the DNI.",
   "hcm.employees.form.proportional_bonus": "Gratificación proporcional",
-  "invoice.pdf.tax_column_header": "IGV",
-  "invoices.new.tax_column_header": "IGV",
+  "hcm.employees.form.social_security_number": "Código de asegurado (EsSalud)",
   "payroll.runs.type_label.christmas_bonus": "Gratificación de diciembre",
   "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica sunat ose cpe certificado"
 }

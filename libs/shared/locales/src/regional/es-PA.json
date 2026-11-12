@@ -1,0 +1,9 @@
+{
+  "$locale": "es-PA",
+  "$note": "Panamá. Solo las claves cuya redacción difiere del español neutro de América Latina; todo lo demás cae a base/. El nombre de un impuesto no está aquí: lo declara el paquete del mercado (markets/pa/taxes.ts, principalTaxName) y llega a la pantalla y al PDF desde ahí, así que no puede discrepar. Vocabulario a confirmar con un hablante del país.",
+  "hcm.employees.form.proportional_bonus": "Décimo tercer mes proporcional",
+  "hcm.employees.form.social_security_number": "Número de seguro social (CSS)",
+  "payroll.runs.type_label.christmas_bonus": "Décimo tercer mes",
+  "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica dgi sfep cufe pac certificado",
+  "settings.sections_meta.profile.keywords": "empresa ruc dígito verificador razón social dirección"
+}

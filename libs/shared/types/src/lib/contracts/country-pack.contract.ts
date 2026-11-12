@@ -144,6 +144,16 @@ export interface PublicCountryPack {
     model: CountryTaxModel;
     /** Catalogue key of the tax's generic name in this market («Sales tax», «IVA»…). */
     nameKey: string;
+    /**
+     * What the market CALLS its principal consumption tax, as it prints on a document: `ITBIS`,
+     * `IGV`, `ISV`, `ITBMS`, `IVA`, `Sales Tax`. Verbatim and untranslated — it is the authority's
+     * word, not a label — and declared once, by the market (`markets/<cc>/taxes.ts`).
+     *
+     * The invoice's tax column took it from a regional wording patch, which meant a market without
+     * a patch read «Impuesto» and the two sources could disagree: Honduras levies the ISV and
+     * Panama the ITBMS, and neither had a patch, so both printed the neutral word.
+     */
+    principalName: string;
   };
 
   paymentMethods: {

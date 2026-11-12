@@ -125,7 +125,7 @@
         <th style="width:8%" class="center">{{t 'invoice.pdf.unit_of_measure_short'}}</th>
         <th style="width:14%" class="num">{{t 'invoice.pdf.price'}}</th>
         <th style="width:10%" class="num">{{t 'invoice.pdf.disc'}}</th>
-        <th style="width:8%" class="center">{{t 'invoice.pdf.tax_column_header'}}</th>
+        <th style="width:8%" class="center">{{taxColumnHeader}}</th>
         <th style="width:16%" class="num">{{t 'invoice.pdf.amount'}}</th>
       </tr>
     </thead>
@@ -165,7 +165,7 @@
         {{#if totals.discount}}<tr><td class="label">{{t 'invoice.pdf.discount'}}</td><td class="num">−{{totals.discount}}</td></tr>{{/if}}
         {{#if totals.exempt}}<tr><td class="label">{{t 'invoice.pdf.exempt_amount'}}</td><td class="num">{{totals.exempt}}</td></tr>{{/if}}
         <tr><td class="label">{{t 'invoice.pdf.taxed_amount'}}</td><td class="num">{{totals.taxed}}</td></tr>
-        <tr><td class="label">{{t 'invoice.pdf.tax_column_header'}}</td><td class="num">{{totals.tax}}</td></tr>
+        <tr><td class="label">{{taxColumnHeader}}</td><td class="num">{{totals.tax}}</td></tr>
         {{#if totals.serviceCharge}}<tr><td class="label">{{t 'invoice.pdf.statutory_service_charge_10'}}</td><td class="num">{{totals.serviceCharge}}</td></tr>{{/if}}
         <tr class="grand"><td class="label">{{t 'invoice.pdf.total_currencycode' currencyCode=currencyCode}}</td><td class="num">{{totals.total}}</td></tr>
         {{#if totals.taxWithheld}}<tr><td class="label">{{t 'invoice.pdf.itbis_withheld'}}</td><td class="num">−{{totals.taxWithheld}}</td></tr>{{/if}}

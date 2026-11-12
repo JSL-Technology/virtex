@@ -4,28 +4,37 @@
   },
   "es-AR": {
     "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
-    "invoice.pdf.tax_column_header": "IVA",
-    "invoices.new.tax_column_header": "IVA",
+    "hcm.employees.form.social_security_number": "CUIL",
     "payroll.runs.type_label.christmas_bonus": "Aguinaldo (SAC)",
-    "permissions.groups.tss": "Seguridad social (ANSES)",
     "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica afip cae wsfe certificado",
     "settings.sections_meta.profile.keywords": "empresa cuit razón social dirección"
   },
+  "es-BO": {
+    "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
+    "hcm.employees.form.social_security_number": "Número de asegurado (CNS)",
+    "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
+    "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica sin siat cuf certificado",
+    "settings.sections_meta.profile.keywords": "empresa nit razón social dirección"
+  },
   "es-CL": {
     "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
-    "invoice.pdf.tax_column_header": "IVA",
-    "invoices.new.tax_column_header": "IVA",
+    "hcm.employees.form.social_security_number": "RUT (previsión social)",
     "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
     "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica sii dte caf folios certificado"
   },
   "es-CO": {
     "hcm.employees.form.proportional_bonus": "Prima proporcional",
-    "invoice.pdf.tax_column_header": "IVA",
-    "invoices.new.tax_column_header": "IVA",
+    "hcm.employees.form.social_security_number": "Número de afiliación (EPS/AFP)",
     "payroll.runs.type_label.christmas_bonus": "Prima de navidad",
-    "permissions.groups.tss": "Seguridad social (PILA)",
     "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica dian cufe resolución certificado",
     "settings.sections_meta.profile.keywords": "empresa nit razón social dirección"
+  },
+  "es-CR": {
+    "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
+    "hcm.employees.form.social_security_number": "Número de asegurado (CCSS)",
+    "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
+    "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica hacienda atv clave numérica certificado",
+    "settings.sections_meta.profile.keywords": "empresa cédula jurídica razón social dirección"
   },
   "es-DO": {
     "accounts_payable.capture.duplicate": "Ya registraste una factura de este proveedor con el NCF {{ncf}}.",
@@ -48,7 +57,6 @@
     "hcm.employees.form.proportional_bonus": "Regalía proporcional",
     "hcm.employees.form.severance_help": "Lo que costaría la desvinculación, antes de decidirla. Preaviso (Art. 76), cesantía (Art. 80), vacaciones (Art. 177) y regalía proporcional.",
     "hcm.employees.form.social_security_number": "NSS (TSS)",
-    "invoice.pdf.tax_column_header": "ITBIS",
     "invoice.pdf.tax_withheld": "ITBIS retenido",
     "invoices.detail.fiscal_number": "e-NCF:",
     "invoices.gaps.fiscal_sequence": "un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E) (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
@@ -59,7 +67,6 @@
     "invoices.list.fiscal_number": "e-NCF / NCF",
     "invoices.new.fiscal_group_electronic": "Electrónicos (e-CF, serie E)",
     "invoices.new.fiscal_group_traditional": "Tradicionales (NCF, serie B)",
-    "invoices.new.tax_column_header": "ITBIS",
     "invoices.new.tax_withheld_fraction_tax": "ITBIS retenido (% del impuesto)",
     "masters.banks.reference_empty_help": "O agrega de una vez las {{count}} entidades que el regulador bancario lista en {{country}}, con su razón social, RNC y el SWIFT confirmado por fuente oficial.",
     "masters.banks.tax_id": "RNC / identificación fiscal",
@@ -72,7 +79,6 @@
     "payroll.payslip.employee_contributions": "AFP y SFS del empleado",
     "payroll.payslip.isr": "ISR",
     "payroll.runs.type_label.christmas_bonus": "Regalía pascual",
-    "permissions.groups.tss": "TSS (Seguridad Social)",
     "pos.accounting_setup_incomplete": "La caja no puede contabilizar esta venta: configura las cuentas de caja, banco, ingresos por ventas e ITBIS en Ajustes › Contabilidad.",
     "pos.ticket.fiscal_number": "NCF: {{number}}",
     "pos.ticket.tax_id": "RNC: {{taxId}}",
@@ -88,36 +94,92 @@
     "settings.sequences.fiscal_note": "La numeración fiscal (NCF, e-CF) no se configura aquí: son los rangos que autoriza la DGII.",
     "validation.create_employee.social_security_number_format": "El NSS de la TSS debe tener entre 7 y 11 dígitos."
   },
+  "es-EC": {
+    "hcm.employees.form.proportional_bonus": "Décimo tercero proporcional",
+    "hcm.employees.form.social_security_number": "Número de afiliación (IESS)",
+    "payroll.runs.type_label.christmas_bonus": "Décimo tercer sueldo",
+    "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica sri comprobantes clave de acceso ride certificado",
+    "settings.sections_meta.profile.keywords": "empresa ruc razón social dirección"
+  },
+  "es-GT": {
+    "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
+    "hcm.employees.form.social_security_number": "Número de afiliación (IGSS)",
+    "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
+    "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica sat fel dte certificador certificado",
+    "settings.sections_meta.profile.keywords": "empresa nit razón social dirección"
+  },
+  "es-HN": {
+    "hcm.employees.form.proportional_bonus": "Decimotercer mes proporcional",
+    "hcm.employees.form.social_security_number": "Número de afiliación (IHSS)",
+    "payroll.runs.type_label.christmas_bonus": "Decimotercer mes",
+    "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica sar cai régimen de facturación certificado",
+    "settings.sections_meta.profile.keywords": "empresa rtn razón social dirección"
+  },
   "es-MX": {
     "accounts_payable.form.supplier_document_number": "Folio fiscal",
     "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
     "hcm.employees.form.social_security_number": "NSS (IMSS)",
-    "invoice.pdf.tax_column_header": "IVA",
     "invoices.detail.fiscal_number": "Folio fiscal (UUID):",
-    "invoices.new.tax_column_header": "IVA",
     "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
-    "permissions.groups.tss": "IMSS (Seguridad Social)",
     "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica cfdi sat pac timbrado certificado csd",
     "settings.sections_meta.profile.keywords": "empresa rfc razón social dirección",
     "validation.create_employee.social_security_number_format": "El NSS del IMSS debe tener entre 7 y 11 dígitos."
   },
+  "es-NI": {
+    "hcm.employees.form.proportional_bonus": "Treceavo mes proporcional",
+    "hcm.employees.form.social_security_number": "Número INSS",
+    "payroll.runs.type_label.christmas_bonus": "Treceavo mes",
+    "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica dgi certificado",
+    "settings.sections_meta.profile.keywords": "empresa ruc razón social dirección"
+  },
+  "es-PA": {
+    "hcm.employees.form.proportional_bonus": "Décimo tercer mes proporcional",
+    "hcm.employees.form.social_security_number": "Número de seguro social (CSS)",
+    "payroll.runs.type_label.christmas_bonus": "Décimo tercer mes",
+    "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica dgi sfep cufe pac certificado",
+    "settings.sections_meta.profile.keywords": "empresa ruc dígito verificador razón social dirección"
+  },
   "es-PE": {
     "hcm.employees.form.proportional_bonus": "Gratificación proporcional",
-    "invoice.pdf.tax_column_header": "IGV",
-    "invoices.new.tax_column_header": "IGV",
+    "hcm.employees.form.social_security_number": "Código de asegurado (EsSalud)",
     "payroll.runs.type_label.christmas_bonus": "Gratificación de diciembre",
     "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica sunat ose cpe certificado"
+  },
+  "es-PY": {
+    "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
+    "hcm.employees.form.social_security_number": "Número de IPS",
+    "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
+    "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica set e-kuatia kude certificado",
+    "settings.sections_meta.profile.keywords": "empresa ruc razón social dirección"
+  },
+  "es-SV": {
+    "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
+    "hcm.employees.form.social_security_number": "Número de afiliación (ISSS)",
+    "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
+    "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica hacienda dte sello de recepción certificado",
+    "settings.sections_meta.profile.keywords": "empresa nit nrc razón social dirección"
+  },
+  "es-UY": {
+    "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
+    "hcm.employees.form.social_security_number": "Número BPS",
+    "payroll.runs.type_label.christmas_bonus": "Aguinaldo (sueldo anual complementario)",
+    "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica dgi cfe certificado",
+    "settings.sections_meta.profile.keywords": "empresa rut razón social dirección"
+  },
+  "es-VE": {
+    "hcm.employees.form.proportional_bonus": "Utilidades proporcionales",
+    "hcm.employees.form.social_security_number": "Número de asegurado (IVSS)",
+    "payroll.runs.type_label.christmas_bonus": "Utilidades",
+    "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica seniat imprenta digital certificado",
+    "settings.sections_meta.profile.keywords": "empresa rif razón social dirección"
   },
   "pt-BR": {
     "ai.policy.confirm_unmask": "Os identificadores (CNPJ, CPF, contas) serão enviados sem máscara ao provedor do modelo. A alteração é auditada.",
     "hcm.employees.form.proportional_bonus": "Décimo terceiro proporcional",
     "hcm.employees.form.social_security_number": "NIT / PIS",
-    "invoice.pdf.tax_column_header": "ICMS",
     "invoices.detail.fiscal_number": "Chave de acesso (NF-e):",
-    "invoices.new.tax_column_header": "ICMS",
     "masters.tax_form.name_placeholder": "Ex.: ICMS padrão",
     "payroll.runs.type_label.christmas_bonus": "Décimo terceiro salário",
-    "permissions.groups.tss": "INSS (Previdência)",
     "settings.sections_meta.einvoicing_regime.keywords": "faturamento eletrônico nfe sefaz danfe certificado",
     "settings.sections_meta.profile.keywords": "empresa cnpj razão social endereço",
     "settings.sections_meta.tax_jurisdictions.keywords": "jurisdições estados municípios nexo icms iss"

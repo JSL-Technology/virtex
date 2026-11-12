@@ -160,7 +160,7 @@
                   <th scope="col" class="text-right">{{ 'invoices.new.price' | translate }}</th>
                   <th scope="col" class="text-right">{{ 'invoices.new.disc' | translate }}</th>
                   <th scope="col">{{ 'invoices.new.treatment' | translate }}</th>
-                  <th scope="col">{{ (taxByDestination() ? taxNameKey() : 'invoices.new.tax_column_header') | translate }}</th>
+                  <th scope="col">{{ taxColumnHeader() ?? ('invoices.new.tax_column_header' | translate) }}</th>
                   <th scope="col" class="text-right">{{ 'invoices.new.line_amount' | translate }}</th>
                   <th scope="col"><span class="sr-only">{{ 'invoices.new.remove_line' | translate }}</span></th>
                 </tr>
@@ -284,7 +284,7 @@
                   {{ 'invoices.new.sales_tax_no_states' | translate }}
                   <a routerLink="/masters/taxes">{{ 'invoices.new.sales_tax_register_states' | translate }}</a>
                 } @else {
-                  {{ 'invoices.new.tax_not_configured_blocks_issue' | translate: { tax: (taxNameKey() | translate) } }}
+                  {{ 'invoices.new.tax_not_configured_blocks_issue' | translate: { tax: taxColumnHeader() ?? ('invoices.new.tax_column_header' | translate) } }}
                   <a routerLink="/masters/taxes">{{ 'invoices.new.configure_taxes' | translate }}</a>
                 }
               </p>

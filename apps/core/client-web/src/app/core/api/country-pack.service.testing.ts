@@ -44,7 +44,7 @@ export const DOMINICAN_TEST_PACK: TenantCountryPackResponse = {
     settingsFields: [],
     rangeSecret: null,
   },
-  taxes: { model: 'NATIONAL_RATES', nameKey: 'invoices.new.tax_column_header' },
+  taxes: { model: 'NATIONAL_RATES', nameKey: 'invoices.new.tax_column_header', principalName: 'Impuesto' },
   paymentMethods: { catalogue: 'AUTHORITY_FIXED', authority: 'DGII' },
   payroll: { statutoryParameters: 'PLATFORM' },
   fiscalReturns: { generator: 'DGII', dueDay: 15, prepareWith: [] },

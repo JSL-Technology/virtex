@@ -221,6 +221,10 @@ export class InvoiceRendererService implements OnModuleDestroy {
     const electronic = documentKind?.isElectronic === true;
     const issued = invoice.status !== InvoiceStatus.DRAFT && Boolean(invoice.issuedAt ?? invoice.fiscalNumber);
     const authority = knownMarket(issuerCountry)?.profile.fiscalAuthority ?? null;
+    // The issuer's market names its own consumption tax; the column used to read whatever the
+    // reader's regional patch said, so a Honduran invoice printed «Impuesto» for its ISV.
+    const taxColumnHeader =
+      knownMarket(issuerCountry)?.taxes.principalTaxName ?? this.i18n.translate('invoice.pdf.tax_column_header', language);
 
     // The buyer's document is named by ITS OWN row, resolved from what the customer record carries,
     // not from the issuer's profile — a Dominican tenant invoicing a Colombian customer must print
@@ -273,6 +277,7 @@ export class InvoiceRendererService implements OnModuleDestroy {
           ? this.i18n.translate(customerDoc.labelKey, language)
           : this.i18n.translate('invoices.detail.tax_id_generic', language)),
       title: this.i18n.translate(this.documentTitleKey(invoice), language),
+      taxColumnHeader,
       currencyCode: invoice.currencyCode,
       issueDate: formatDate(invoice.issueDate, locale, house),
       dueDate: formatDate(invoice.dueDate, locale, house),

@@ -127,7 +127,15 @@ export class NewInvoicePage implements OnInit {
   readonly registeredJurisdictions = computed(() => this.context()?.registeredJurisdictions ?? []);
   /** LOC-03: only a market where no registration means no tax may say the invoice goes out untaxed. */
   readonly untaxedWithoutRegistration = computed(() => this.context()?.untaxedWithoutRegistration === true);
-  readonly taxNameKey = computed(() => this.countryPack.pack()?.taxes.nameKey ?? 'invoices.new.tax_column_header');
+  /**
+   * The header of the tax column: what the company's market calls its principal consumption tax.
+   *
+   * Verbatim from the market's own declaration, so Honduras reads ISV, Panama ITBMS and Peru IGV
+   * without a wording patch per market — the regional patches carried this for five of nineteen and
+   * the rest read the neutral «Impuesto». Null until the pack arrives; the template then translates
+   * the neutral key, which is the right thing to show while the market is unknown.
+   */
+  readonly taxColumnHeader = computed(() => this.countryPack.pack()?.taxes.principalName ?? null);
 
   /** Debounces the preview requests; see `requestPreview`. */
   private readonly previewRequests = new Subject<CreateInvoiceDto>();

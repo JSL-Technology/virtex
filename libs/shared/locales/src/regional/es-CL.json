@@ -2,8 +2,7 @@
   "$locale": "es-CL",
   "$note": "Chile. The identifier is the RUT, used both as the tax identifier and the identity document.",
   "hcm.employees.form.proportional_bonus": "Aguinaldo proporcional",
-  "invoice.pdf.tax_column_header": "IVA",
-  "invoices.new.tax_column_header": "IVA",
+  "hcm.employees.form.social_security_number": "RUT (previsión social)",
   "payroll.runs.type_label.christmas_bonus": "Aguinaldo",
   "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica sii dte caf folios certificado"
 }

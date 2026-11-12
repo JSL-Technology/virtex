@@ -46,7 +46,7 @@ export function publicCountryPack(countryCode: string | null | undefined): Tenan
     },
     purchases: { fiscalAttributes: market.purchases.fiscalAttributes.map(publicFiscalField) },
     withholding: { applies: market.taxes.withholding.applies },
-    taxes: { model: market.taxes.model, nameKey: market.taxes.nameKey },
+    taxes: { model: market.taxes.model, nameKey: market.taxes.nameKey, principalName: market.taxes.principalTaxName },
     paymentMethods: { catalogue: market.payments.catalogue, authority: market.payments.authority },
     payroll: { statutoryParameters: market.payroll.statutoryParameters },
     einvoicing: {

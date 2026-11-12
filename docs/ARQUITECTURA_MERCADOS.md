@@ -171,11 +171,24 @@ mercado desconocido herede las respuestas del primero.
   - los formularios (atributos fiscales de compra, ajustes del régimen);
   - las listas (tipos de documento, motivos, formas de pago);
   - las pantallas de declaraciones.
-- El vocabulario sale del catálogo de textos:
-  - un texto base neutral por idioma (`es`, `en`, `pt`);
-  - un **parche regional por mercado** (`es-DO`, `es-MX`, … `en-US`, `pt-BR`), los 19;
-  - una prueba de completitud exige que cada mercado defina las claves de vocabulario fiscal
-    (nombre del impuesto, del documento fiscal y de la autoridad).
+- El vocabulario sale de dos sitios, y cada cosa de uno solo:
+  - lo que el **mercado declara** llega por su definición pública y se imprime tal cual: el nombre de
+    su impuesto principal (`markets/<cc>/taxes.ts`, `principalTaxName` → `taxes.principalName` del
+    paquete público) es lo que encabeza la columna de impuesto en la pantalla de factura y en el PDF.
+    Así Honduras lee «ISV», Panamá «ITBMS» y Perú «IGV» sin que nadie escriba un parche, y un mercado
+    nuevo lo lee el día que se abre. Antes lo traía un parche regional, que lo tenía en cinco de
+    diecinueve mercados: los otros catorce imprimían «Impuesto» para su propio impuesto;
+  - lo que es **redacción** sale del catálogo de textos: un texto base neutral por idioma (`es`, `en`,
+    `pt`) y un **parche regional por mercado** (`es-DO`, `es-MX`, … `en-US`, `pt-BR`), los 19, con solo
+    las claves cuya redacción difiere. Un parche no puede quedarse atrás del base: lo que no menciona,
+    no lo cambia.
+- `markets/regional-wording.spec.ts` es la prueba de completitud, por mercado: su locale es un tag que
+  el producto reconoce (uno que no reconoce deja al lector en el texto neutro para siempre, sin error
+  ni clave faltante), tiene parche, ninguna de sus claves es huérfana, cubre los conceptos que cada
+  mercado llama de otra forma —el aguinaldo y el número de seguridad social: décimo tercer sueldo en
+  Ecuador, decimotercer mes en Honduras, treceavo mes en Nicaragua, utilidades en Venezuela, CUIL en
+  Argentina, NSS en México— y **no** repite lo que el paquete del mercado ya declara. Donde el texto
+  neutro es el correcto se dice explícitamente, con su razón (Estados Unidos no tiene aguinaldo legal).
 
 ### 2.7 Puertas de CI
 
@@ -184,7 +197,7 @@ mercado desconocido herede las respuestas del primero.
 | `verify:country-neutrality` | Ningún término, comparación ni texto de un país fuera de `markets/`, de los parches regionales y de las migraciones. Ningún import de `markets/<cc>/` desde fuera. El baseline solo baja, y la meta es cero. |
 | `markets/market-structure.spec.ts` | Los 19 mercados tienen la estructura canónica, y cada capacidad declara un estado. |
 | `markets/market-catalogue.spec.ts` | Integridad de los datos: códigos únicos, monedas ISO 4217, zonas IANA, validadores que aceptan los ejemplos, motivos canónicos con su traducción en cada mercado que emite notas, etc. |
-| Completitud de parches regionales | Cada mercado nombra en su idioma su impuesto, su documento fiscal y su autoridad. |
+| `markets/regional-wording.spec.ts` | Los 19 mercados tienen locale reconocido y parche regional, sin claves huérfanas, cubriendo los conceptos que cada uno llama de otra forma; el nombre del impuesto no se duplica en un parche porque lo declara el mercado. |
 | `verify:boundaries` | `markets/` no depende de ningún módulo de negocio. |
 
 ### 2.8 Numeración fiscal
@@ -598,5 +611,5 @@ eso se resuelve en el contrato, no con una rama.
 | 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ✅ `ReturnDataset` con los hechos del período y `MarketReturnFiling` por mercado; los cuatro formatos de la DGII en `markets/do/returns/` y los tres documentos del SAT en `markets/mx/returns/`; una ruta (`/compliance/returns`), un calendario y un formulario de datos declarados; el motivo del rechazo lo devuelve el generador y el conteo de registros también (§2.12) |
 | 6 | Nómina: motor dominicano a `markets/do/payroll/`, registro de motores y sin `'DOP'` por omisión | ✅ `PayrollEngine` en el contrato del mercado, motor dominicano en `markets/do/payroll/`, el núcleo lo alcanza por el registro y rechaza la nómina de un mercado sin motor; la moneda del período es la del mercado; fuera el módulo `jurisdictions/` (§2.13) |
 | 7 | Cliente: sin ramas por país; pantallas guiadas por la definición pública del mercado | ✅ La pantalla de régimen lee del paquete público qué pide cada mercado (canal, campos, material del rango) y la de declaraciones, qué declara; las declaraciones de la TSS salen del módulo de nómina y de su pantalla (§2.12); ninguna pantalla nombra una autoridad ni compara contra un código de país |
-| 8 | Textos: base neutral y parches regionales para los 19 mercados, con prueba de completitud | ⏳ |
+| 8 | Textos: base neutral y parches regionales para los 19 mercados, con prueba de completitud | ✅ De 8 parches a **19**: EC, UY, PY, BO, VE, PA, CR, GT, SV, HN y NI leen su aguinaldo, su institución de seguridad social y su vocabulario de búsqueda; AR, CL, CO y PE completan el número de seguridad social. El nombre del impuesto sale del paquete del mercado y no de un parche, así que los catorce mercados que imprimían «Impuesto» para su propio impuesto imprimen el suyo. `markets/regional-wording.spec.ts` lo comprueba mercado por mercado (§2.6) |
 | 9 | Puerta de neutralidad en cero, con la lista permitida reducida a `markets/`, parches regionales y migraciones | ✅ 78 → **1**. `signing_certificates` en lugar de `ecf_certificates`, sin valor por omisión y con la política de firma en el paquete del mercado; sobre cifrado versionado con sal aleatoria por registro; secretos y variables de entorno neutrales (`SIGNING_CERT_ENCRYPTION_KEY`, `SIGNING_ALLOW_TEST_CERTIFICATES`, `SIGNING_TRUSTED_CA_BUNDLE_<CC>`, `EINVOICE_<CC>_*`) validadas por forma y no por nombre; servicios del e-CF dentro de `regimes/do/`; puerto y registro para los eventos de documento y para el registro de identificación fiscal (`localization/drivers/<cc>/`); claves de i18n, columnas de importación, variables de plantilla y comentarios de esquema sin vocabulario de una autoridad. Queda 1, explicado en el baseline: la sal heredada que descifra lo ya guardado (§2.11) |
