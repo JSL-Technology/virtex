@@ -1,15 +1,18 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
-
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
-import { AiOverview, AiRunSummary, AiService } from '../../../ai/data/ai.service';
-import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
-import { NotificationService } from '../../../../core/services/notification';
+import { BarChart3 } from 'lucide-angular';
+import { AiOverview, AiService } from '../../../ai/data/ai.service';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { AiAgentsPanelComponent } from '../../../ai/agents/agents-panel.component';
 import { AiPolicyPanelComponent } from '../../../ai/policy/ai-policy-panel.component';
+import { VxBadgeComponent, type VxTone } from '../../../../shared/components/badge';
+import { VxEmptyStateComponent, VxErrorStateComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
+import { SettingsGroupComponent } from '../../shared';
+import { SettingsSaveBarComponent, SettingsShellService } from '../../shell';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 type Availability = 'available' | 'not_in_plan' | 'provider_missing' | 'engine_offline';
 
 interface FeatureUsage {
@@ -21,44 +24,58 @@ interface FeatureUsage {
 }
 
 /**
- * Administration › AI: what the AI is doing for this company and what it costs.
+ * Settings › Artificial intelligence: what the company allows the AI, what it may spend, and what
+ * is available.
  *
- * One screen for the questions an administrator asks: which features work and, when one does
- * not, whether it is the plan or the server; how many of the plan's credits are gone; what each
- * feature cost this month (an estimate from list prices, recorded with every call); how the last
- * forecasting and anomaly runs went, with their measured accuracy; and what is waiting for
- * someone. Read from `GET /ai/overview`. What the company allows — switching the AI or a feature
- * off, what is sent unasked, the budget, retention — is the policy panel (`GET/PUT /ai/settings`).
+ * The policy and the agents are forms, saved together with one save bar, like every form of the
+ * window (they saved each field on blur, and an edit closed with Escape was lost). Availability
+ * says in one word why a feature works or not — the plan or the server. Consumption shows the
+ * plan's credits and each feature's estimated cost, in the window's one money format.
+ *
+ * What the AI *did* — engine runs, the agents' log, the assistant's proposals, ratings — is
+ * operation, and lives in «Actividad de la IA» (Analysis); this page links there (ARQ-01).
  */
 @Component({
   selector: 'app-ai-settings-page',
   standalone: true,
-  imports: [TranslateModule, RouterLink, HasPermissionDirective, ...FORMAT_PIPES, AiAgentsPanelComponent, AiPolicyPanelComponent],
+  imports: [...VX_TABLE, 
+    TranslateModule,
+    RouterLink,
+    AiAgentsPanelComponent,
+    AiPolicyPanelComponent,
+    SettingsGroupComponent,
+    SettingsSaveBarComponent,
+    VxBadgeComponent,
+    VxEmptyStateComponent,
+    VxErrorStateComponent,
+    VxSpinnerComponent,
+    ...FORMAT_PIPES,
+  ],
   templateUrl: './ai-settings.page.html',
   styleUrls: ['./ai-settings.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AiSettingsPage implements OnInit {
   private readonly ai = inject(AiService);
-  private readonly notifications = inject(NotificationService);
   private readonly organization = inject(ActiveOrganizationService);
+  private readonly format = inject(FormatService);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+
+  private readonly policy = viewChild<AiPolicyPanelComponent>('policy');
+  private readonly agents = viewChild<AiAgentsPanelComponent>('agents');
+
+  protected readonly ChartIcon = BarChart3;
+  protected readonly k = composeKey;
+  protected readonly activityLink = computed(() => this.organization.urlFor('/reports/ai-activity'));
 
   readonly overview = signal<AiOverview | null>(null);
   readonly loadError = signal(false);
-  readonly starting = signal<'forecast' | 'anomaly' | null>(null);
-  protected readonly runKinds = ['forecast', 'anomaly'] as const;
 
-  /** Open the engine's state when something there needs a person: a run that failed or is waiting. */
-  readonly anyRunNeedsAttention = computed(() =>
-    this.runKinds.some((kind) => {
-      const status = this.runOf(kind).latest?.status;
-      return status === 'FAILED' || status === 'QUEUED';
-    }),
-  );
-
-  protected readonly k = composeKey;
-  protected readonly predictionsLink = computed(() => this.organization.urlFor('/inventory/predictions'));
-  protected readonly anomaliesLink = computed(() => this.organization.urlFor('/reports/anomalies'));
+  readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
+  /** The two forms, as one: dirty, saving or blocked when either is. */
+  readonly dirty = computed(() => Boolean(this.policy()?.dirty() || this.agents()?.dirty()));
+  readonly saving = computed(() => Boolean(this.policy()?.saving() || this.agents()?.saving()));
+  readonly blocked = computed(() => this.policy()?.blocked() ?? null);
 
   /** Each feature, and in one word why it is or is not available. */
   readonly features = computed(() => {
@@ -116,35 +133,36 @@ export class AiSettingsPage implements OnInit {
     });
   }
 
-  run(kind: 'forecast' | 'anomaly'): void {
-    this.starting.set(kind);
-    const request = kind === 'forecast' ? this.ai.runForecast() : this.ai.runAnomalies();
-    request.subscribe({
-      next: () => {
-        this.starting.set(null);
-        this.notifications.showSuccess('ai.admin.run_queued');
-        this.load();
-      },
-      error: (err) => {
-        this.starting.set(null);
-        this.notifications.showHttpError(err, 'ai.admin.run_failed');
-      },
-    });
+  /** In the window it is the shell that saves every form with edits; alone, the two panels. */
+  async save(): Promise<boolean> {
+    if (this.shell) return this.shell.save();
+    const results = await Promise.all([this.policy()?.save() ?? true, this.agents()?.save() ?? true]);
+    return results.every(Boolean);
   }
 
-  runOf(kind: 'forecast' | 'anomaly'): { latest: AiRunSummary | null; lastSucceeded: AiRunSummary | null } {
-    return this.overview()?.runs[kind] ?? { latest: null, lastSucceeded: null };
+  discard(): void {
+    if (this.shell) {
+      this.shell.discard();
+      return;
+    }
+    this.policy()?.discard();
+    this.agents()?.discard();
   }
 
-  /** Why a run failed, in words: the two ways the server gives up on a run, or what it reported. */
-  failureKey(run: AiRunSummary): string {
-    if (run.error?.startsWith('not_started')) return 'ai.admin.run_error.not_started';
-    if (run.error?.startsWith('expired')) return 'ai.admin.run_error.expired';
-    if (run.error?.startsWith('enqueue failed')) return 'ai.admin.run_error.enqueue';
-    return 'ai.admin.run_error.other';
+  /** An estimated cost, often a fraction of a cent: the window's money format, with up to four decimals. */
+  cost(value: number): string {
+    return this.format.money(value, 'USD', { digits: '1.2-4' });
   }
 
-  isActive(run: AiRunSummary | null): boolean {
-    return run?.status === 'QUEUED' || run?.status === 'RUNNING';
+  /** Availability by what it means: works, not in the plan, or something to fix on the server. */
+  availabilityTone(state: Availability): VxTone {
+    switch (state) {
+      case 'available':
+        return 'ok';
+      case 'not_in_plan':
+        return 'neutral';
+      default:
+        return 'warning';
+    }
   }
 }

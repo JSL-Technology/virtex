@@ -16,11 +16,12 @@ import { StockTransfer, StockDocumentStatus, StockService } from '../data/stock.
 import { STOCK_DOCUMENT_TONE } from '../adjustments/adjustment-form.page';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** Transfers between warehouses: drafts, and what was posted, newest first. */
 @Component({
   selector: 'app-stock-transfers-page',
   standalone: true,
-  imports: [...VX_CONTEXT_MENU, FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, HasPermissionDirective, RowLinkDirective],
+  imports: [...VX_TABLE, ...VX_CONTEXT_MENU, FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, HasPermissionDirective, RowLinkDirective],
   templateUrl: './transfers.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

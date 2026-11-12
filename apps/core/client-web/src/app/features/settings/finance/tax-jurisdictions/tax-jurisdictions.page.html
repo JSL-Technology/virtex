@@ -99,37 +99,39 @@
     @for (group of byState(); track group.state) {
       <section class="card j-group">
         <h2>{{ group.state }}</h2>
-        <table class="j-table">
-          <thead>
-            <tr>
-              <th>{{ 'settings.pages.tax_jurisdictions.level' | translate }}</th>
-              <th>{{ 'settings.pages.tax_jurisdictions.name' | translate }}</th>
-              <th class="numeric">{{ 'settings.pages.tax_jurisdictions.rate' | translate }}</th>
-              <th>{{ 'settings.pages.tax_jurisdictions.effective_from' | translate }}</th>
-              <th>{{ 'settings.pages.tax_jurisdictions.registered' | translate }}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of group.rows; track row.id) {
-              <tr [class.j-row--unregistered]="!row.isRegistered">
-                <td>{{ row.level }}</td>
-                <td>{{ row.name }}</td>
-                <td class="numeric">{{ percent(row.rate) | vxNumber: '1.2-4' }}%</td>
-                <td>{{ row.effectiveFrom }}</td>
-                <td>
-                  {{ (row.isRegistered ? 'settings.pages.tax_jurisdictions.yes'
-                                       : 'settings.pages.tax_jurisdictions.no') | translate }}
-                </td>
-                <td>
-                  <button class="secondary-button" type="button" (click)="remove(row)">
-                    {{ 'settings.pages.tax_jurisdictions.delete' | translate }}
-                  </button>
-                </td>
+        <vx-table [label]="group.state" frame="none">
+          <table class="j-table">
+            <thead>
+              <tr>
+                <th>{{ 'settings.pages.tax_jurisdictions.level' | translate }}</th>
+                <th>{{ 'settings.pages.tax_jurisdictions.name' | translate }}</th>
+                <th class="numeric">{{ 'settings.pages.tax_jurisdictions.rate' | translate }}</th>
+                <th>{{ 'settings.pages.tax_jurisdictions.effective_from' | translate }}</th>
+                <th>{{ 'settings.pages.tax_jurisdictions.registered' | translate }}</th>
+                <th></th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (row of group.rows; track row.id) {
+                <tr [class.j-row--unregistered]="!row.isRegistered">
+                  <td>{{ row.level }}</td>
+                  <td>{{ row.name }}</td>
+                  <td class="numeric">{{ percent(row.rate) | vxNumber: '1.2-4' }}%</td>
+                  <td>{{ row.effectiveFrom }}</td>
+                  <td>
+                    {{ (row.isRegistered ? 'settings.pages.tax_jurisdictions.yes'
+                                         : 'settings.pages.tax_jurisdictions.no') | translate }}
+                  </td>
+                  <td>
+                    <button class="secondary-button" type="button" (click)="remove(row)">
+                      {{ 'settings.pages.tax_jurisdictions.delete' | translate }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </vx-table>
       </section>
     }
   }

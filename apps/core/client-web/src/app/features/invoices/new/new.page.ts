@@ -46,6 +46,7 @@ import { PercentInputDirective } from '../../../shared/directives/percent-input.
 import { CountryPackService } from '../../../core/api/country-pack.service';
 import { PaymentMethodRow, PaymentMethodsService } from '../../../core/api/payment-methods.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * Issuing a sales document.
  *
@@ -64,7 +65,7 @@ import { PaymentMethodRow, PaymentMethodsService } from '../../../core/api/payme
 @Component({
   selector: 'app-new-invoice-page',
   standalone: true,
-  imports: [VxNumberInputDirective, PercentInputDirective, 
+  imports: [...VX_TABLE, VxNumberInputDirective, PercentInputDirective, 
     CommonModule,
     ReactiveFormsModule,
     RouterLink,

@@ -16,6 +16,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 
+import { VX_TABLE } from '../../../shared/components/table';
 type Category = (typeof UNIT_CATEGORIES)[number];
 
 /**
@@ -31,7 +32,7 @@ type Category = (typeof UNIT_CATEGORIES)[number];
 @Component({
   selector: 'app-units-of-measure-page',
   standalone: true,
-  imports: [...VX_SORT, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [...VX_TABLE, ...VX_SORT, LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y, VxBadgeComponent],
   templateUrl: './units-of-measure.page.html',
   styleUrls: ['./units-of-measure.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

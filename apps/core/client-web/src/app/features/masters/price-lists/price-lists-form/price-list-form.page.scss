@@ -7,7 +7,7 @@
   //  vocabulario de las dos.
   @include list.list-page;
 
-  .line-items-section .data-table {
+  .line-items-section vx-table {
     select,
     input { width: 100%; }
   }

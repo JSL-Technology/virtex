@@ -23,6 +23,7 @@ import { Warehouse, WarehousesService } from '../../masters/data/warehouses.serv
 import { GoodsReceiptRow, GoodsReceiptStatus, PurchasingService } from '../data/purchasing.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 export const GOODS_RECEIPT_TONE: Record<GoodsReceiptStatus, VxTone> = { POSTED: 'ok', VOID: 'neutral' };
 
 /**
@@ -33,7 +34,7 @@ export const GOODS_RECEIPT_TONE: Record<GoodsReceiptStatus, VxTone> = { POSTED: 
 @Component({
   selector: 'app-goods-receipts-page',
   standalone: true,
-  imports: [...VX_CONTEXT_MENU, 
+  imports: [...VX_TABLE, ...VX_CONTEXT_MENU, 
     FormsModule, ...VX_FORM_A11Y,
     RouterLink,
     TranslateModule,

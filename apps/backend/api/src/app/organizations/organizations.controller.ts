@@ -206,7 +206,7 @@ export class OrganizationsController {
   }
 
   @Get('subsidiaries')
-  @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
+  @HasPermission(PERMISSIONS.SETTINGS_VIEW_COMPANY)
   async getSubsidiaries(@CurrentUser() user: AuthenticatedUser) {
     return this.organizationsService.getSubsidiaries(user.organizationId);
   }

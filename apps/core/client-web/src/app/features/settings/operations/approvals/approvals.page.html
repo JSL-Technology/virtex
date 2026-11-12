@@ -1,39 +1,34 @@
 <div class="s-page">
+  <!-- Con lista, «Nueva política» va en la cabecera; vacía, la lleva el estado vacío (una sola primaria). -->
   <ng-template appSettingsActions>
-    @if (canEdit() && !loading() && !draft() && freeTypes().length > 0) {
+    @if (canEdit() && !loading() && !loadError() && !draft() && policies().length > 0 && freeTypes().length > 0) {
       <button type="button" class="primary-button" (click)="startNew()">{{ 'settings.approvals.new' | translate }}</button>
     }
   </ng-template>
-  <!-- Two ways to approve a document: a simple policy here, or a process with steps and branches.
-       Say so, and where the other one lives (QA A-02). -->
-  <p class="ap__workflows" role="note">
+  <!-- Dos maneras de aprobar un documento: una política simple aquí, o un proceso con pasos y
+       ramas. Se dice, y dónde vive el otro, con su nombre y enlazado (QA A-02, CONT-03). -->
+  <vx-notice tone="info">
     {{ 'settings.approvals.workflows_note' | translate }}
-    <a routerLink="/workflows">{{ 'settings.approvals.go_workflows' | translate }}</a>
-  </p>
+    <a [routerLink]="workflowsLink">{{ 'workflow_engine.nav.workflows' | translate }}</a>
+  </vx-notice>
 
   @if (loading()) {
-    <p class="ap__state" role="status">{{ 'settings.sections.loading' | translate }}</p>
+    <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />
   } @else if (loadError(); as message) {
-    <div class="ap__state ap__state--error" role="alert">
-      <p>{{ message }}</p>
-      <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
-    </div>
+    <vx-error-state [detail]="message" (retry)="load()" />
   } @else {
     @if (draft(); as d) {
+      <vx-settings-group [titleKey]="d.id ? 'settings.approvals.edit_title' : 'settings.approvals.new_title'">
       <form class="ap__editor" (ngSubmit)="save()" [attr.aria-busy]="saving()">
-        <h2 class="ap__editor-title">
-          {{ (d.id ? 'settings.approvals.edit_title' : 'settings.approvals.new_title') | translate }}
-        </h2>
-
         <div class="ap__grid">
           <label class="ap__field" for="ap-name">
-            <span>{{ 'settings.approvals.name' | translate }} *</span>
-            <input id="ap-name" name="name" class="ap__input" type="text" maxlength="120"
+            <span>{{ 'settings.approvals.name' | translate }} <span class="required" aria-hidden="true">*</span></span>
+            <input id="ap-name" name="name" class="ap__input" type="text" maxlength="120" required
               [ngModel]="d.name" (ngModelChange)="patchDraft({ name: $event })" />
           </label>
 
           <label class="ap__field" for="ap-type">
-            <span>{{ 'settings.approvals.document_type' | translate }} *</span>
+            <span>{{ 'settings.approvals.document_type' | translate }} <span class="required" aria-hidden="true">*</span></span>
             @if (d.id) {
               <!-- The type is what the policy governs; changing it would be a different policy. -->
               <input id="ap-type" class="ap__input" type="text" readonly [value]="typeKey(d.documentType) | translate" />
@@ -50,101 +45,113 @@
           </label>
         </div>
 
-        <h3 class="ap__steps-title">{{ 'settings.approvals.steps' | translate }}</h3>
-        <p class="ap__hint">{{ 'settings.approvals.steps_hint' | translate }}</p>
-
-        <table class="ap__table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>{{ 'settings.approvals.min_amount' | translate }}</th>
-              <th>{{ 'settings.approvals.role' | translate }}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (step of d.steps; track $index; let i = $index) {
+        <vx-settings-group [level]="3" titleKey="settings.approvals.steps" descriptionKey="settings.approvals.steps_hint">
+        <vx-table labelKey="settings.approvals.steps" frame="none">
+          <table class="ap__table">
+            <thead>
               <tr>
-                <td>{{ i + 1 }}</td>
-                <td>
-                  <input class="ap__input ap__input--amount" type="number" min="0" step="0.01"
-                    [name]="'min-' + i"
-                    [attr.aria-label]="'settings.approvals.min_amount' | translate"
-                    [ngModel]="step.minAmount" (ngModelChange)="patchStep(i, { minAmount: +$event })" />
-                </td>
-                <td>
-                  <vx-select
-                    [inputId]="'ap-role-' + i"
-                    [ariaLabel]="'settings.approvals.role' | translate"
-                    [ngModel]="step.roleId || null"
-                    [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="patchStep(i, { roleId: $event ?? '' })"
-                    [options]="roleList()"
-                    [displayWith]="roleLabel"
-                    [valueWith]="roleValue"
-                  />
-                </td>
-                <td>
-                  <button type="button" class="secondary-button" [disabled]="d.steps.length === 1"
-                    [attr.aria-label]="'settings.approvals.remove_step' | translate"
-                    (click)="removeStep(i)">
-                    {{ 'settings.approvals.remove_step' | translate }}
-                  </button>
-                </td>
+                <th>#</th>
+                <th>{{ 'settings.approvals.min_amount' | translate }}</th>
+                <th>{{ 'settings.approvals.role' | translate }}</th>
+                <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (step of d.steps; track $index; let i = $index) {
+                <tr>
+                  <td class="ap__order" data-label="#">{{ i + 1 }}</td>
+                  <td [attr.data-label]="'settings.approvals.min_amount' | translate">
+                    <input class="ap__input ap__input--amount" type="number" min="0" step="0.01"
+                      [name]="'min-' + i"
+                      [attr.aria-label]="'settings.approvals.min_amount' | translate"
+                      [ngModel]="step.minAmount" (ngModelChange)="patchStep(i, { minAmount: +$event })" />
+                  </td>
+                  <td [attr.data-label]="'settings.approvals.role' | translate">
+                    <vx-select
+                      [inputId]="'ap-role-' + i"
+                      [ariaLabel]="'settings.approvals.role' | translate"
+                      [ngModel]="step.roleId || null"
+                      [ngModelOptions]="{ standalone: true }"
+                      (ngModelChange)="patchStep(i, { roleId: $event ?? '' })"
+                      [options]="roleList()"
+                      [displayWith]="roleLabel"
+                      [valueWith]="roleValue"
+                    />
+                  </td>
+                  <td class="actions-column">
+                    <!-- Con un solo paso no hay nada que quitar: el botón no se muestra (ACC-02). -->
+                    @if (d.steps.length > 1) {
+                      <button type="button" class="link-button"
+                        [attr.aria-label]="'settings.approvals.remove_step_n' | translate: { n: i + 1 }"
+                        (click)="removeStep(i)">
+                        {{ 'settings.approvals.remove_step' | translate }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </vx-table>
         <button type="button" class="secondary-button ap__add-step" (click)="addStep()">
           {{ 'settings.approvals.add_step' | translate }}
         </button>
+        </vx-settings-group>
 
         @if (problem(d); as key) {
+          <!-- Por qué todavía no se puede guardar, dicho antes de intentarlo (GUA-03). -->
           <p class="ap__problem" role="status">{{ key | translate }}</p>
         }
 
         <div class="ap__actions">
-          <button type="button" class="secondary-button" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
           <button type="submit" class="primary-button" [disabled]="saving()">{{ 'common.save' | translate }}</button>
+          <button type="button" class="secondary-button" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
         </div>
       </form>
+      </vx-settings-group>
     }
 
     @if (policies().length === 0 && !draft()) {
-      <vx-empty-state class="card" titleKey="settings.approvals.empty" descriptionKey="settings.approvals.empty_hint">
+      <vx-empty-state [icon]="ApprovalIcon" titleKey="settings.approvals.empty_title" descriptionKey="settings.approvals.empty_hint">
         @if (canEdit() && freeTypes().length > 0) {
           <button action type="button" class="primary-button" (click)="startNew()">{{ 'settings.approvals.new' | translate }}</button>
         }
       </vx-empty-state>
     }
 
-    <ul class="ap__list">
-      @for (policy of policies(); track policy.id) {
-        <li class="ap__card">
-          <div class="ap__card-head">
-            <div>
-              <strong>{{ policy.name }}</strong>
-              <span class="ap__type">{{ typeKey(policy.documentType) | translate }}</span>
+    <!-- Las políticas: una lista con divisores; «Editar» a la vista y «Eliminar» en el menú de la fila. -->
+    @if (policies().length > 0) {
+      <ul class="ap__list" role="list" [appTableMenu]="policiesMenu">
+        @for (policy of policies(); track policy.id) {
+          <li class="ap__item" [appRowMenu]="policy" #rowMenu="appRowMenu">
+            <div class="ap__item-head">
+              <div class="ap__item-name">
+                <p class="ap__name">{{ policy.name }}</p>
+                <p class="ap__type">{{ typeKey(policy.documentType) | translate }}</p>
+              </div>
+              @if (canEdit() && !draft()) {
+                <div class="row-actions">
+                  <button type="button" class="link-button" (click)="edit(policy)"
+                    [attr.aria-label]="'settings.approvals.edit_named' | translate: { name: policy.name }">{{ 'common.edit' | translate }}</button>
+                  <button type="button" class="icon-button" aria-haspopup="menu"
+                    [attr.aria-label]="'common.more_actions_for' | translate: { name: policy.name }"
+                    [title]="'common.more_actions' | translate" (click)="rowMenu.open($event)">
+                    <lucide-icon [img]="MoreIcon" size="18" aria-hidden="true"></lucide-icon>
+                  </button>
+                </div>
+              }
             </div>
-            <div class="ap__card-actions">
-              <button type="button" class="secondary-button" [disabled]="!!draft()" (click)="edit(policy)">
-                {{ 'common.edit' | translate }}
-              </button>
-              <button type="button" class="secondary-button danger" [disabled]="!!draft()" (click)="remove(policy)">
-                {{ 'common.delete' | translate }}
-              </button>
-            </div>
-          </div>
-          <ol class="ap__chain">
-            @for (step of policy.steps; track step.order) {
-              <li>
-                {{ 'settings.approvals.step_summary' | translate: { amount: (step.minAmount | vxNumber: '1.2-2'), role: roleName(step.roleId) } }}
-              </li>
-            }
-          </ol>
-        </li>
-      }
-    </ul>
+            <ol class="ap__chain">
+              @for (step of policy.steps; track step.order) {
+                <li>
+                  {{ 'settings.approvals.step_summary' | translate: { amount: (step.minAmount | vxMoney), role: roleName(step.roleId) } }}
+                </li>
+              }
+            </ol>
+          </li>
+        }
+      </ul>
+    }
 
     @if (!draft() && freeTypes().length === 0) {
       <p class="ap__hint">{{ 'settings.approvals.all_types_covered' | translate }}</p>

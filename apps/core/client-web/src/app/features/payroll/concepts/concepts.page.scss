@@ -44,12 +44,6 @@
     color: var(--content-secondary);
   }
 
-  .row-actions {
-    display: flex;
-    gap: var(--space-1);
-    justify-content: flex-end;
-    align-items: center;
-  }
 
   //  Un concepto inactivo sigue en la lista porque la historia lo usa; se lee apagado.
   .is-inactive { opacity: 0.55; }

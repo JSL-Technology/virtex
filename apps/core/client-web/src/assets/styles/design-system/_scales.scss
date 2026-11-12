@@ -102,6 +102,11 @@
   --control-padding-x: 0.75rem;
   --control-gap: 0.5rem;
 
+  //  Celdas de tabla (`vx-table`). Cómoda: filas de ~45px, que se tocan con el dedo y se leen a
+  //  jornada completa. Compacta: ~37px, un 18 % más de filas a la vista para quien la elige.
+  --table-cell-py: var(--space-3);
+  --table-cell-px: var(--space-4);
+
   // ───────────────────────────────────────────────────────────────────────────
   //  FOCO
   // ───────────────────────────────────────────────────────────────────────────
@@ -181,6 +186,8 @@
   --control-padding-x: 0.5rem;
   --control-gap: 0.375rem;
   --header-height: 44px;
+  --table-cell-py: var(--space-2);
+  --table-cell-px: var(--space-3);
 }
 
 // -----------------------------------------------------------------------------

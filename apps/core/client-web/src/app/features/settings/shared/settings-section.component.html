@@ -1,19 +1,36 @@
 @if (loading()) {
-  <p class="ss__state" role="status">{{ 'settings.sections.loading' | translate }}</p>
+  @if (!quiet()) {
+    <vx-spinner withLabel labelKey="settings.sections.loading" />
+  }
 } @else if (loadError(); as message) {
-  <div class="ss__state ss__state--error" role="alert">
-    <p>{{ message }}</p>
-    <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
-  </div>
+  @if (!quiet()) {
+    <vx-error-state [detail]="message" (retry)="load()" />
+  }
 } @else if (view()) {
   <form class="ss" [id]="anchor() ? 'settings-block-' + anchor() : null" (ngSubmit)="save()">
+    <!--
+      Con título de bloque (dentro de Cuentas predeterminadas o Políticas contables), el bloque es el
+      grupo (h2) y sus partes, subgrupos (h3); sola, cada parte es un grupo. El nivel del encabezado
+      sigue siempre al visual (JER-02).
+    -->
     @if (titleKey(); as title) {
-      <h2 class="ss__block-title">{{ title | translate }}</h2>
+      <vx-settings-group [titleKey]="title">
+        <ng-container *ngTemplateOutlet="body; context: { $implicit: 3 }" />
+      </vx-settings-group>
+    } @else {
+      <ng-container *ngTemplateOutlet="body; context: { $implicit: 2 }" />
     }
+
+    @if (!embedded() && canEdit()) {
+      <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" (save)="save()" (discard)="discard()" />
+    }
+  </form>
+}
+
+<ng-template #body let-level>
     @if (showBaseCurrency() && view()!.baseCurrency; as base) {
-      <section class="ss__group">
-        <h2 class="ss__title">{{ 'settings.sections.base_currency' | translate }}</h2>
-        <label class="ss__field" for="ss-base-currency">
+      <vx-settings-group [level]="level" titleKey="settings.sections.base_currency">
+        <label class="ss__field ss__field--short" for="ss-base-currency">
           <span class="ss__label">{{ 'settings.sections.base_currency_label' | translate }}</span>
           <input id="ss-base-currency" type="text" maxlength="3" class="ss__input ss__input--short"
             [value]="baseCurrencyEdit() ?? base.code"
@@ -23,12 +40,12 @@
             {{ (base.locked ? 'settings.sections.base_currency_locked' : 'settings.sections.base_currency_open') | translate }}
           </small>
         </label>
-      </section>
+      </vx-settings-group>
     }
 
     @for (group of groups(); track group.titleKey) {
-      <section class="ss__group">
-        <h2 class="ss__title">{{ group.titleKey | translate }}</h2>
+      <vx-settings-group [level]="level" [titleKey]="group.titleKey">
+        <div class="ss__grid">
         @for (item of group.fields; track item.field) {
           @if (pickers()[item.field]; as picker) {
             <label class="ss__field" [for]="'ss-' + item.field">
@@ -64,12 +81,14 @@
             </label>
           }
         }
-      </section>
+        </div>
+      </vx-settings-group>
     }
 
     @if (policies().length > 0) {
-      <section class="ss__group">
-        <h2 class="ss__title">{{ 'settings.sections.policies' | translate }}</h2>
+      <!-- Sin subtítulo cuando las políticas son todo el bloque: «Moneda › Políticas» no añadía nada. -->
+      <vx-settings-group [level]="level" [titleKey]="policiesTitled() ? 'settings.sections.policies' : null">
+        <div class="ss__grid">
         @for (policy of policies(); track policy.field) {
           <label class="ss__field" [for]="'ss-' + policy.field">
             <span class="ss__label">{{ policy.labelKey | translate }}</span>
@@ -108,11 +127,7 @@
             }
           </label>
         }
-      </section>
+        </div>
+      </vx-settings-group>
     }
-
-    @if (!embedded() && canEdit()) {
-      <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" (save)="save()" (discard)="discard()" />
-    }
-  </form>
-}
+</ng-template>

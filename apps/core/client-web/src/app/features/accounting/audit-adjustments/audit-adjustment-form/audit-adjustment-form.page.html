@@ -75,8 +75,8 @@
     <section class="form-section" aria-labelledby="aa-lines-title">
       <h2 class="form-section-title" id="aa-lines-title">{{ 'audit_adjustments.lines' | translate }}</h2>
       <p class="form-hint">{{ 'audit_adjustments.lines_hint' | translate }}</p>
-      <div class="table-wrapper aa-table-wrapper" id="aa-lines">
-        <table class="lines-table aa-lines" formArrayName="lines">
+      <vx-table id="aa-lines" labelKey="audit_adjustments.lines" frame="none">
+        <table class="aa-lines" formArrayName="lines">
           <thead>
             <tr>
               <th scope="col" class="aa-col-account">{{ 'audit_adjustments.account' | translate }}</th>
@@ -145,7 +145,7 @@
             </tr>
           </tfoot>
         </table>
-      </div>
+      </vx-table>
       <button type="button" class="secondary-button add-line" (click)="addLine()">
         <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
         <span>{{ 'audit_adjustments.add_line' | translate }}</span>

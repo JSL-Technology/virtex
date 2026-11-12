@@ -64,10 +64,6 @@
   gap: var(--space-2);
 }
 
-.wfl__table td {
-  vertical-align: middle;
-}
-
 .wfl__name {
   // A table cell stays a table cell: `display: flex` here took it out of the row's height, so a
   // name without a description drew its border halfway up the row. The lines stack as blocks.

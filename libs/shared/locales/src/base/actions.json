@@ -84,10 +84,15 @@
     "en": "Select all",
     "pt": "Selecionar tudo"
   },
-  "actions.selected_n": {
-    "en": "{{n}} selected",
-    "es": "{{n}} seleccionado(s)",
-    "pt": "{{n}} selecionado(s)"
+  "actions.select_named": {
+    "es": "Seleccionar {{name}}",
+    "en": "Select {{name}}",
+    "pt": "Selecionar {{name}}"
+  },
+  "actions.select_row": {
+    "es": "Seleccionar la fila",
+    "en": "Select the row",
+    "pt": "Selecionar a linha"
   },
   "actions.selection": {
     "en": "Selection",

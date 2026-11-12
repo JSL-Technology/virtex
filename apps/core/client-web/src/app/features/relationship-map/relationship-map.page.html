@@ -245,7 +245,7 @@
             />
           </div>
         } @else {
-          <div class="rm-table-wrap" [class.is-busy]="loading()">
+          <vx-table class="rm-list" [busy]="loading()" labelKey="relationship_map.title">
             <table class="rm-table">
               <caption class="sr-only">{{ 'relationship_map.title' | translate }}</caption>
               <thead>
@@ -295,7 +295,7 @@
                 }
               </tbody>
             </table>
-          </div>
+          </vx-table>
         }
       </div>
 

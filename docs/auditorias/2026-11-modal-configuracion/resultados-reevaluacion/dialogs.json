@@ -1,0 +1,42 @@
+{
+  "roles": {
+    "createInitialFocus": "role-name",
+    "createAxe": [],
+    "saveDisabledWhenEmpty": false,
+    "createErrors": [
+      "«Nombre del rol» es obligatorio",
+      "Marca al menos un permiso"
+    ],
+    "createTrap": {
+      "presses": 25,
+      "escapes": 0,
+      "sample": []
+    },
+    "createEscapeClosesOnlyDialog": true,
+    "viewAxe": [],
+    "viewTrap": {
+      "presses": 25,
+      "escapes": 0,
+      "sample": []
+    },
+    "viewEscapeClosesOnlyDialog": true
+  },
+  "users": {
+    "inviteInitialFocus": "firstname",
+    "inviteAxe": [],
+    "inviteErrors": [
+      "«Nombre» es obligatorio",
+      "«Apellido» es obligatorio",
+      "«Correo electrónico» es obligatorio",
+      "«Rol» es obligatorio"
+    ],
+    "inviteTrap": {
+      "presses": 25,
+      "escapes": 0,
+      "sample": []
+    },
+    "inviteEscapeClosesOnlyDialog": true,
+    "editOpen": true,
+    "editAxe": []
+  }
+}

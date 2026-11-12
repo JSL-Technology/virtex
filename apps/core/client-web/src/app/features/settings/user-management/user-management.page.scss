@@ -1,559 +1,99 @@
-@use '../../../../assets/styles/variables' as *;
+@use 'assets/styles/design-system' as ds;
+@use 'app/features/settings/shared/settings-ui' as ui;
 
-// ──────────────────────────────────────────────
-// Page Shell
-// ──────────────────────────────────────────────
-.settings-page-container {
-    // Width and padding are the settings window's (`.sm-page`).
+//  Usuarios: barra de la lista, tabla y paginación sin tarjeta alrededor; las acciones de cada
+//  persona, «Editar» a la vista y el resto en el menú compartido de las tablas.
+
+.um-page {
+  display: block;
 }
 
-.page-container { display: block; }
-
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--space-6);
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    padding-bottom: var(--space-6);
-    border-bottom: 1px solid var(--border-color);
-
-    h1 {
-        font-size: var(--text-2xl);
-        font-weight: var(--font-bold);
-        color: var(--text-primary);
-        margin-bottom: var(--space-1);
-    }
+.um-toolbar {
+  @include ui.toolbar;
 }
 
-.page-header-actions {
-    display: flex;
-    gap: var(--space-3);
-    align-items: center;
+.um-segmented {
+  @include ui.segmented;
 }
 
-.breadcrumb {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-
-    a {
-        color: var(--text-tertiary);
-        text-decoration: none;
-        transition: color 0.15s;
-
-        &:hover { color: var(--text-secondary); }
-    }
-
-    .divider { margin: 0 0.375rem; }
+.um-search {
+  @include ui.search-field;
+  flex: 1 1 14rem;
 }
 
-// ──────────────────────────────────────────────
-// Card
-// ──────────────────────────────────────────────
-.card {
-    background-color: var(--bg-card);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-    position: relative;
+.um-icon-button {
+  @include ui.icon-button;
 }
 
-.card-body { padding: 0; }
-
-.card-footer {
-    padding: 0.875rem 1.5rem;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    background-color: var(--bg-primary);
+.link-button {
+  @include ui.link-button;
 }
 
-// ──────────────────────────────────────────────
-// Toolbar
-// ──────────────────────────────────────────────
-.toolbar {
-    padding: 0.875rem 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    flex-wrap: wrap;
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--bg-card);
+.um-invitations {
+  margin-block-start: var(--space-8);
 }
 
-.view-toggles {
-    display: flex;
-    gap: var(--space-1);
-    background-color: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: var(--space-1);
-
-    .btn.view-toggle {
-        height: 1.875rem;
-        padding: 0 0.75rem;
-        border-radius: calc(var(--radius-md) - 2px);
-        font-size: var(--text-sm);
-        font-weight: var(--font-medium);
-        color: var(--text-secondary);
-        background: transparent;
-        border: none;
-        transition: all 0.15s;
-        cursor: pointer;
-        white-space: nowrap;
-
-        &:hover { color: var(--text-primary); background-color: var(--bg-hover); }
-
-        &.active {
-            background-color: var(--bg-card);
-            color: var(--text-primary);
-            font-weight: var(--font-semibold);
-            box-shadow: var(--shadow-sm);
-        }
-    }
-}
-
-.search-bar {
-    flex: 1;
-    position: relative;
-    min-width: 220px;
-    max-width: 380px;
-
-    .search-icon {
-        position: absolute;
-        left: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-tertiary);
-        pointer-events: none;
-    }
-
-    input {
-        padding-left: var(--space-10);
-        height: 2.25rem;
-        font-size: var(--text-md);
-        border-radius: var(--radius-md);
-        background-color: var(--bg-primary);
-    }
-}
-
-// ──────────────────────────────────────────────
-// Data Table
-// ──────────────────────────────────────────────
-.table-container {
-    overflow-x: auto;
-}
-
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 800px;
-
-    th {
-        background-color: var(--bg-primary);
-        text-align: left;
-        padding: 0.625rem 1rem;
-        font-weight: var(--font-semibold);
-        color: var(--text-tertiary);
-        font-size: var(--text-xs);
-        letter-spacing: 0.05em;
-        border-bottom: 1px solid var(--border-color);
-        white-space: nowrap;
-        cursor: pointer;
-        user-select: none;
-
-        lucide-icon {
-            display: inline-flex;
-            vertical-align: middle;
-            margin-left: var(--space-1);
-            opacity: 0.5;
-        }
-
-        &:hover {
-            color: var(--text-secondary);
-
-            lucide-icon { opacity: 1; }
-        }
-    }
-
-    td {
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--border-color);
-        font-size: var(--text-md);
-        color: var(--text-secondary);
-        vertical-align: middle;
-    }
-
-    tbody tr {
-        transition: background-color 0.1s;
-
-        &:last-child td { border-bottom: none; }
-
-        &:hover { background-color: var(--bg-hover); }
-    }
-}
-
-// ──────────────────────────────────────────────
-// Buttons
-// ──────────────────────────────────────────────
-.btn {
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    font-weight: var(--font-medium);
-    cursor: pointer;
-    transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: var(--text-md);
-    background-color: var(--bg-card);
-    color: var(--text-primary);
-
-    &:hover { background-color: var(--bg-hover); }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
-}
-
-.btn-primary {
-    background-color: var(--primary);
-    color: white;
-    border-color: transparent;
-
-    &:hover:not(:disabled) {
-        background-color: var(--primary-hover);
-        transform: translateY(-1px);
-    }
-
-    &:active:not(:disabled) { transform: none; }
-}
-
-.btn-danger {
-    background-color: var(--error);
-    color: white;
-    border-color: transparent;
-
-    &:hover:not(:disabled) { filter: brightness(0.9); }
-}
-
-.btn-icon {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: var(--text-tertiary);
-    padding: 0.375rem;
-    border-radius: var(--radius-md);
-    width: 2rem;
-    height: 2rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-
-    &:hover { background-color: var(--bg-hover); color: var(--text-primary); }
-}
-
-// ──────────────────────────────────────────────
-// Status Badges
-// ──────────────────────────────────────────────
-.status-active {
-    background-color: rgba(var(--success, 26, 127, 55), 0.12);
-    color: var(--success);
-    border-color: rgba(var(--success, 26, 127, 55), 0.2);
-}
-
-.status-pending {
-    background-color: rgba(var(--warning-rgb), 0.12);
-    color: var(--warning-text);
-    border-color: rgba(var(--warning-rgb), 0.2);
-}
-
-.status-blocked {
-    background-color: rgba(var(--error, 207, 34, 46), 0.12);
-    color: var(--error);
-    border-color: rgba(var(--error, 207, 34, 46), 0.2);
-}
-
-.status-archived {
-    background-color: rgba(var(--viz-3-rgb), 0.12);
-    color: var(--viz-3);
-    border-color: rgba(var(--viz-3-rgb), 0.2);
-}
-
-.status-inactive {
-    background-color: var(--bg-tertiary);
-    color: var(--text-tertiary);
-    border-color: var(--border-color);
-}
-
-// ──────────────────────────────────────────────
-// User Avatar
-// ──────────────────────────────────────────────
+// ── Avatar ───────────────────────────────────────────────────────────
 .user-avatar-container {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .user-avatar-small {
-    position: relative;
-    width: 2rem;
-    height: 2rem;
-    border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--accent-solid), var(--viz-3));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: var(--font-semibold);
-    font-size: var(--text-xs);
-    flex-shrink: 0;
-    letter-spacing: 0.02em;
-
-    img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: var(--radius-full);
-    }
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+  background-color: var(--accent-surface);
+  color: var(--accent-text);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
 }
 
-.user-status {
-    position: absolute;
-    width: 9px;
-    height: 9px;
-    border-radius: var(--radius-full);
-    border: 2px solid var(--bg-card);
-    bottom: 0;
-    right: 0;
+//  El formulario del diálogo de invitar o editar: los campos, etiquetas y separaciones de la modal.
+.um-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
-.status-online {
-    background-color: var(--success);
-    animation: pulse-online 2s infinite;
+.um-form__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+
+  @include ds.bp-up('sm') {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-.status-offline { background-color: var(--text-tertiary); }
+.um-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
 
-@keyframes pulse-online {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--success-rgb), 0.4); }
-    50% { box-shadow: 0 0 0 4px rgba(var(--success-rgb), 0); }
+  label {
+    @include ds.field-label;
+  }
+
+  input,
+  textarea {
+    @include ds.input-base;
+  }
+
+  textarea {
+    height: auto;
+    min-height: 4.5rem;
+    padding-block: var(--space-2);
+    resize: vertical;
+  }
 }
 
-// ──────────────────────────────────────────────
-// Pagination
-// ──────────────────────────────────────────────
-// ──────────────────────────────────────────────
-// Loading Overlay
-// ──────────────────────────────────────────────
-.loading-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(var(--shadow-color-rgb), 0.35);
-    backdrop-filter: blur(2px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 20;
-    border-radius: var(--radius-lg);
-}
-
-// ──────────────────────────────────────────────
-// Context Menu (Windows-style)
-// ──────────────────────────────────────────────
-.windows-menu {
-    position: fixed;
-    z-index: 9999;
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    padding: 0.375rem;
-    min-width: 220px;
-    overflow: hidden;
-    animation: menu-pop 0.12s cubic-bezier(0.16, 1, 0.3, 1);
-
-    .menu-item {
-        padding: 0.5rem 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.625rem;
-        font-size: var(--text-md);
-        color: var(--text-primary);
-        cursor: pointer;
-        border-radius: var(--radius-md);
-        transition: background-color 0.1s;
-
-        &:hover { background-color: var(--bg-hover); }
-
-        &-danger {
-            color: var(--error);
-            &:hover { background-color: var(--error-bg); }
-        }
-
-        lucide-icon { color: var(--text-tertiary); flex-shrink: 0; }
-    }
-
-    .menu-divider {
-        height: 1px;
-        background-color: var(--border-color);
-        margin: 0.25rem 0;
-    }
-}
-
-@keyframes menu-pop {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-// ──────────────────────────────────────────────
-// Modal
-// ──────────────────────────────────────────────
-.modal {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(var(--shadow-color-rgb), 0.5);
-    backdrop-filter: blur(4px);
-    // La escala del sistema de diseño, no un número inventado: con `1000` este modal se pintaba
-    // por encima del diálogo de step-up (`--z-modal`) que él mismo provoca al invitar a un usuario.
-    z-index: var(--z-modal);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-4);
-    animation: modal-fade 0.2s ease;
-}
-
-.modal-content {
-    background-color: var(--bg-card);
-    border-radius: var(--radius-lg);
-    width: 100%;
-    max-width: 560px;
-    max-height: 90vh;
-    overflow-y: auto;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-lg);
-    animation: modal-slide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modal-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .modal-title {
-        font-size: var(--text-base);
-        font-weight: var(--font-semibold);
-        color: var(--text-primary);
-    }
-
-    .modal-close {
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: var(--text-tertiary);
-        width: 2rem;
-        height: 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: var(--radius-md);
-        font-size: var(--text-xl);
-        line-height: 1;
-        transition: var(--transition);
-
-        &:hover { background-color: var(--bg-hover); color: var(--text-primary); }
-    }
-}
-
-.modal-body {
-    padding: var(--space-6);
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: var(--space-4);
-        margin-bottom: var(--space-4);
-    }
-
-    .form-group { margin-bottom: var(--space-4); }
-
-    .form-col { display: flex; flex-direction: column; }
-
-    .form-label {
-        display: block;
-        font-size: var(--text-sm);
-        font-weight: var(--font-semibold);
-        color: var(--text-secondary);
-        margin-bottom: 0.375rem;
-    }
-
-    .form-control {
-        width: 100%;
-        height: 2.375rem;
-        padding: 0 0.75rem;
-        font-size: var(--text-md);
-        border-radius: var(--radius-md);
-        border: 1px solid var(--border-color);
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
-        transition: var(--transition);
-
-        &:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
-    }
-
-    textarea.form-control {
-        height: auto;
-        padding: 0.625rem 0.75rem;
-        resize: vertical;
-    }
-
-    p {
-        font-size: var(--text-md);
-        color: var(--text-secondary);
-        line-height: 1.6;
-        margin-bottom: var(--space-3);
-    }
-
-    .danger-zone-content {
-        font-size: var(--text-sm);
-        color: var(--text-tertiary);
-        padding: var(--space-3);
-        background-color: var(--error-bg);
-        border-radius: var(--radius-md);
-        border: 1px solid rgba(var(--error-rgb, 207, 34, 46), 0.2);
-        color: var(--error);
-        margin: 0;
-    }
-}
-
-.modal-footer {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.625rem;
-    background-color: var(--bg-primary);
-}
-
-@keyframes modal-fade {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes modal-slide {
-    from { opacity: 0; transform: scale(0.95) translateY(8px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-}
 
 /* Invitaciones a cuentas existentes: pedidas, no concedidas. Van aparte de la tabla de miembros. */
 .sent-invitations {

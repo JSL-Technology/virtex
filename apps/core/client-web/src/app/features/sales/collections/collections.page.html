@@ -53,15 +53,15 @@
   }
 
   <div class="co__layout" [class.co__layout--split]="selected()">
-    <div class="card co__table-wrap">
-        <table class="data-table">
+    <vx-table labelKey="collections.title">
+        <table>
           <thead>
             <tr>
               <th scope="col">{{ 'collections.col.customer' | translate }}</th>
               <th scope="col">{{ 'collections.col.invoice' | translate }}</th>
-              <th scope="col" class="text-right">{{ 'collections.col.overdue' | translate }}</th>
-              <th scope="col" class="text-right">{{ 'collections.col.balance' | translate }}</th>
-              <th scope="col" class="text-right">{{ 'collections.col.p30' | translate }}</th>
+              <th scope="col" class="numeric">{{ 'collections.col.overdue' | translate }}</th>
+              <th scope="col" class="numeric">{{ 'collections.col.balance' | translate }}</th>
+              <th scope="col" class="numeric">{{ 'collections.col.p30' | translate }}</th>
               <th scope="col">{{ 'collections.col.action' | translate }}</th>
             </tr>
           </thead>
@@ -90,15 +90,15 @@
                     <vx-badge size="sm" tone="draft">{{ 'collections.has_draft' | translate }}</vx-badge>
                   }
                 </td>
-                <td class="text-right co__num" [class.co__negative]="item.daysOverdue > 0">
+                <td class="numeric co__num" [class.co__negative]="item.daysOverdue > 0">
                   @if (item.daysOverdue > 0) {
                     {{ 'collections.days_overdue' | translate: { days: item.daysOverdue } }}
                   } @else {
                     {{ 'collections.due_on' | translate: { date: (item.dueDate | vxDate) } }}
                   }
                 </td>
-                <td class="text-right co__num">{{ item.balance | vxMoney: item.currencyCode }}</td>
-                <td class="text-right co__num" [attr.title]="(item.likelihoodSource === 'projection' ? 'collections.p30_projection' : 'collections.p30_age') | translate">
+                <td class="numeric co__num">{{ item.balance | vxMoney: item.currencyCode }}</td>
+                <td class="numeric co__num" [attr.title]="(item.likelihoodSource === 'projection' ? 'collections.p30_projection' : 'collections.p30_age') | translate">
                   {{ item.pBy30 | vxPercent }}
                 </td>
                 <td>
@@ -108,7 +108,7 @@
             }
           </tbody>
         </table>
-    </div>
+    </vx-table>
 
     @if (selected(); as item) {
       <aside class="card co__detail" [attr.aria-label]="'collections.detail_label' | translate: { number: item.number }">

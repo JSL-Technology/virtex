@@ -23,8 +23,8 @@
     <p class="ls__state-help">{{ 'budgets.variance.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table variance-table">
+  <vx-table labelKey="budgets.variance.title">
+    <table [appSort]="table.sort" class="variance-table">
       <thead>
         <tr>
           <th appSortHeader="account">{{ 'budgets.variance.account' | translate }}</th>
@@ -61,5 +61,5 @@
         </tfoot>
       }
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

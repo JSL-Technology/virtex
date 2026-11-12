@@ -34,8 +34,8 @@
     }
   </div>
 
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="masters.banks.banks">
+    <table [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="name">{{ 'masters.banks.bank_name' | translate }}</th>
@@ -46,7 +46,7 @@
           <th appSortHeader="localCode">{{ 'masters.banks.local_code' | translate }}</th>
           <th appSortHeader="accountCount" class="text-center">{{ 'masters.banks.accounts' | translate }}</th>
           <th appSortHeader="isActive">{{ 'masters.banks.status' | translate }}</th>
-          <th class="text-right">{{ 'common.actions' | translate }}</th>
+          <th class="numeric">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -69,7 +69,7 @@
                 {{ (bank.isActive ? 'masters.banks.active' : 'masters.banks.inactive') | translate }}
               </vx-badge>
             </td>
-            <td class="text-right row-actions">
+            <td class="numeric actions-column">
               @if (!bank.accountCount) {
                 <button type="button" class="icon-button" [disabled]="busy()" (click)="remove(bank)"
                   appCanOpen="/masters/banks/new"
@@ -82,5 +82,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

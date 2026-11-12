@@ -10,6 +10,7 @@ import { Department, HcmService } from '../../../core/api/hcm.service';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * Departments: the company's own structure, and the cost centre each part posts to.
  *
@@ -23,7 +24,7 @@ import { VX_SORT, sortable } from '../../../shared/components/sort';
 @Component({
   selector: 'app-departments-page',
   standalone: true,
-  imports: [...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [...VX_TABLE, ...VX_SORT, CanOpenDirective, CommonModule, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './departments.page.html',
   styleUrls: ['./departments.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

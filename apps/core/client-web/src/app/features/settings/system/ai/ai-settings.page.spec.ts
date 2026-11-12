@@ -6,6 +6,8 @@ import { AiSettingsPage } from './ai-settings.page';
 import { AiOverview, AiService } from '../../../ai/data/ai.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { AuthService } from '../../../../core/services/auth';
+import { AiPolicyService } from '../../../ai/policy/ai-policy.service';
+import { AgentsApiService } from '../../../ai/agents/agents.service';
 
 const overview = (overrides: Partial<AiOverview> = {}): AiOverview => ({
   status: {
@@ -51,6 +53,25 @@ describe('AiSettingsPage', () => {
         { provide: AiService, useValue: ai },
         { provide: NotificationService, useValue: notifications },
         {
+          provide: AiPolicyService,
+          useValue: {
+            get: () =>
+              of({
+                settings: {
+                  languageModels: true, disabledFeatures: [], scheduledReports: false, imageEmbeddings: false, monthlyBudgetUsd: 200,
+                  dailyBudgetUsd: null, conversationRetentionDays: 180, maskIdentifiers: true, activityMonitoring: false, maxMonthlyBudgetUsd: 10_000,
+                },
+                spend: { monthUsd: 0, dayUsd: 0 },
+                features: ['copilot'],
+              }),
+            update: jest.fn(),
+          },
+        },
+        {
+          provide: AgentsApiService,
+          useValue: { replenishmentSettings: () => of({ enabled: false, warehouseIds: [], submitForApproval: false, maxOrderAmount: null }), updateReplenishment: jest.fn() },
+        },
+        {
           provide: AuthService,
           useValue: { hasPermissions: () => true, getPermissions$: () => of(['ai_forecasts:run', 'ai_anomalies:resolve']) },
         },
@@ -84,12 +105,18 @@ describe('AiSettingsPage', () => {
     expect(page.creditShare()).toBeNull();
   });
 
-  it('does not offer to start a run that is already running, and refreshes after starting one', () => {
-    expect(page.isActive(page.runOf('forecast').latest)).toBe(true);
-    page.run('anomaly');
-    expect(ai.runAnomalies).toHaveBeenCalled();
-    expect(notifications.showSuccess).toHaveBeenCalledWith('ai.admin.run_queued');
-    expect(ai.overview).toHaveBeenCalledTimes(2);
+  it('names each availability by what it means, and links to the AI activity instead of hosting it', () => {
+    expect(page.availabilityTone('available')).toBe('ok');
+    expect(page.availabilityTone('not_in_plan')).toBe('neutral');
+    expect(page.availabilityTone('engine_offline')).toBe('warning');
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).not.toContain('ai.admin.runs');
+    expect(fixture.nativeElement.querySelector('a.link-button')).not.toBeNull();
+  });
+
+  it('holds the policy and the agents as one form: nothing to save until either changes', () => {
+    expect(page.dirty()).toBe(false);
+    expect(fixture.nativeElement.querySelector('vx-settings-save-bar')).not.toBeNull();
   });
 
   it('offers a retry when the overview cannot be loaded', () => {

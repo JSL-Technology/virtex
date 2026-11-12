@@ -1,41 +1,45 @@
 @if (view() === 'policy') {
-  <div class="sec">
-    <section class="sec__card" aria-labelledby="sec-mfa">
-      <h2 id="sec-mfa" class="sec__title">{{ 'settings.security.mfa_title' | translate }}</h2>
-      <p class="sec__text">{{ 'settings.security.mfa_description' | translate }}</p>
-      @if (requireMfa() !== null) {
-        <label class="sec__check">
-          <input type="checkbox" [checked]="requireMfa()" [disabled]="savingMfa() || !canEdit()"
-            (change)="toggleMfa($any($event.target).checked); $any($event.target).checked = requireMfa()" />
-          <span>{{ 'settings.security.mfa_require' | translate }}</span>
-        </label>
-        <p class="sec__hint">{{ 'settings.security.mfa_impact' | translate }}</p>
-      } @else {
-        <p class="sec__hint" role="status">{{ 'settings.sections.loading' | translate }}</p>
-      }
-      <p class="sec__links">
-        <a [routerLink]="[]" fragment="settings/account-security">{{ 'settings.security.own_second_factor' | translate }}</a>
-        ·
-        <a [routerLink]="[]" fragment="settings/sso">{{ 'settings.security.single_sign_on' | translate }}</a>
-        @if (canReadTrail) {
-          ·
-          <a [routerLink]="[]" fragment="settings/audit-trail">{{ 'settings.security.open_trail' | translate }}</a>
-        }
-      </p>
-    </section>
+  @if (policyError(); as message) {
+    <vx-error-state [detail]="message" (retry)="loadPolicy()" />
+  } @else if (draftMfa() === null) {
+    <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />
+  } @else {
+    <!-- Lo que decide la empresa, en grupos con la anatomía común; el cambio se guarda en la barra. -->
+    <vx-settings-group titleKey="settings.security.mfa_title" descriptionKey="settings.security.mfa_description">
+      <label class="sec__check">
+        <input type="checkbox" [checked]="draftMfa()" [disabled]="savingMfa() || !canEdit()" aria-describedby="sec-mfa-impact"
+          (change)="setDraftMfa($any($event.target).checked)" />
+        <span>{{ 'settings.security.mfa_require' | translate }}</span>
+      </label>
+      <p class="sec__hint" id="sec-mfa-impact">{{ 'settings.security.mfa_impact' | translate }}</p>
+    </vx-settings-group>
 
-    <section class="sec__card" aria-labelledby="sec-password">
-      <h2 id="sec-password" class="sec__title">{{ 'settings.security.password_title' | translate }}</h2>
-      <p class="sec__text">{{ 'settings.security.password_description' | translate }}</p>
+    <vx-settings-group titleKey="settings.security.password_title" descriptionKey="settings.security.password_description">
       <ul class="sec__rules">
         <li>{{ 'settings.security.password_length' | translate: { min: passwordMin, max: passwordMax } }}</li>
         <li>{{ 'settings.security.password_mix' | translate }}</li>
         <li>{{ 'settings.security.password_lockout' | translate }}</li>
       </ul>
-    </section>
-  </div>
+    </vx-settings-group>
+
+    <!-- Los sitios relacionados, con el nombre que tienen en la barra lateral (CONT-03). -->
+    <nav class="sec__links" [attr.aria-label]="'settings.security.see_also' | translate">
+      <span class="sec__links-label">{{ 'settings.security.see_also' | translate }}</span>
+      <ul role="list">
+        <li><a [routerLink]="[]" fragment="settings/account-security">{{ 'settings.sections_meta.account_security.label' | translate }}</a></li>
+        <li><a [routerLink]="[]" fragment="settings/sso">{{ 'settings.sections_meta.sso.label' | translate }}</a></li>
+        @if (canReadTrail) {
+          <li><a [routerLink]="[]" fragment="settings/audit-trail">{{ 'settings.sections_meta.audit_trail.label' | translate }}</a></li>
+        }
+      </ul>
+    </nav>
+
+    @if (canEdit()) {
+      <vx-settings-save-bar [dirty]="dirty()" [saving]="savingMfa()" (save)="save()" (discard)="discard()" />
+    }
+  }
 } @else if (canReadTrail) {
-  <section class="sec__card sec" id="sec-trail" [attr.aria-label]="'settings.security.trail_title' | translate">
+  <section class="sec-trail" id="sec-trail" [attr.aria-label]="'settings.security.trail_title' | translate">
     <div class="sec__filters">
       @if (people().length > 0) {
         <label class="sec__field" for="sec-user">
@@ -57,16 +61,19 @@
           (ngModelChange)="setFilter({ entity: $event ?? null })"
           [options]="entities()" [displayWith]="entityLabel" />
       </label>
-      <label class="sec__field" for="sec-from">
-        <span>{{ 'settings.security.filter_from' | translate }}</span>
-        <vx-date-field inputId="sec-from" [max]="filters().to" [ngModel]="filters().from" [ngModelOptions]="{ standalone: true }"
-          (ngModelChange)="setFilter({ from: $event || null })" />
-      </label>
-      <label class="sec__field" for="sec-to">
-        <span>{{ 'settings.security.filter_to' | translate }}</span>
-        <vx-date-field inputId="sec-to" [min]="filters().from" [ngModel]="filters().to" [ngModelOptions]="{ standalone: true }"
-          (ngModelChange)="setFilter({ to: $event || null })" />
-      </label>
+      <!-- «Desde» y «Hasta» son un solo dato, el periodo: van juntos y nunca se separan de fila (ALI-01). -->
+      <div class="sec__period" role="group" [attr.aria-label]="'settings.security.filter_period' | translate">
+        <label class="sec__field" for="sec-from">
+          <span>{{ 'settings.security.filter_from' | translate }}</span>
+          <vx-date-field inputId="sec-from" [max]="filters().to" [ngModel]="filters().from" [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="setFilter({ from: $event || null })" />
+        </label>
+        <label class="sec__field" for="sec-to">
+          <span>{{ 'settings.security.filter_to' | translate }}</span>
+          <vx-date-field inputId="sec-to" [min]="filters().from" [ngModel]="filters().to" [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="setFilter({ to: $event || null })" />
+        </label>
+      </div>
     </div>
     <div class="sec__toolbar">
       <label class="sec__check sec__check--inline">
@@ -87,91 +94,104 @@
     </div>
 
     @if (trailError(); as message) {
-      <div class="sec__error" role="alert">
-        <p>{{ message }}</p>
-        <button type="button" class="secondary-button" (click)="loadTrail()">{{ 'common.retry' | translate }}</button>
-      </div>
+      <vx-error-state [detail]="message" (retry)="loadTrail()" />
     } @else if (trail(); as result) {
       @if (result.rows.length === 0) {
-        <div class="sec__empty">
-          <p>{{ (filtered() ? 'settings.security.trail_empty_filtered' : 'settings.security.trail_empty') | translate }}</p>
-        </div>
+        <!-- El vacío dice por qué está vacío y ofrece la salida: el filtro por defecto oculta lo del sistema. -->
+        @if (!filtered()) {
+          <vx-empty-state [icon]="HistoryIcon" titleKey="settings.security.trail_empty_people_title" descriptionKey="settings.security.trail_empty_people_description">
+            <button action type="button" class="secondary-button" (click)="setFilter({ peopleOnly: false })">{{ 'settings.security.show_system_actions' | translate }}</button>
+          </vx-empty-state>
+        } @else if (narrowed()) {
+          <vx-empty-state [icon]="SearchXIcon" titleKey="settings.security.trail_empty_filtered_title" descriptionKey="settings.security.trail_empty_filtered_description">
+            <button action type="button" class="secondary-button" (click)="clearFilters()">{{ 'settings.security.clear_filters' | translate }}</button>
+          </vx-empty-state>
+        } @else {
+          <vx-empty-state [icon]="HistoryIcon" titleKey="settings.security.trail_empty_title" descriptionKey="settings.security.trail_empty_description" />
+        }
       } @else {
-        <div class="table-container" [attr.aria-busy]="trailLoading()">
-          <table class="sec__table">
-            <thead>
-              <tr>
-                <th scope="col">{{ 'settings.security.when' | translate }}</th>
-                <th scope="col">{{ 'settings.security.who' | translate }}</th>
-                <th scope="col">{{ 'settings.security.what' | translate }}</th>
-                <th scope="col">{{ 'settings.security.record' | translate }}</th>
-                @if (showIp()) {
-                  <th scope="col">{{ 'settings.security.ip' | translate }}</th>
-                }
-                <th scope="col"><span class="sr-only">{{ 'settings.security.detail' | translate }}</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of result.rows; track row.id) {
-                <tr [class.sec__row--system]="!row.userId">
-                  <td class="sec__when">{{ row.timestamp | vxDate: 'dateTime' }}</td>
-                  <td>{{ row.actorName ?? ('settings.security.system_actor' | translate) }}</td>
-                  <td>{{ actionLabel(row.actionType) }}</td>
-                  <td>
-                    <span class="sec__entity">{{ entityName(row.entity) }}</span>
-                    <span class="sec__record" [title]="row.entityId">{{ recordName(row) }}</span>
-                  </td>
+        <div [attr.aria-busy]="trailLoading()">
+          <vx-table labelKey="settings.sections_meta.audit_trail.label" frame="none">
+            <table class="sec__table">
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'settings.security.when' | translate }}</th>
+                  <th scope="col">{{ 'settings.security.who' | translate }}</th>
+                  <th scope="col">{{ 'settings.security.what' | translate }}</th>
+                  <th scope="col">{{ 'settings.security.record' | translate }}</th>
                   @if (showIp()) {
-                    <td>{{ row.ipAddress || '—' }}</td>
+                    <th scope="col">{{ 'settings.security.ip' | translate }}</th>
                   }
-                  <td>
-                    @if (changes(row).length > 0) {
-                      <button type="button" class="sec__link" [attr.aria-expanded]="expanded() === row.id" (click)="toggle(row)">
-                        {{ (expanded() === row.id ? 'settings.security.hide_detail' : 'settings.security.show_detail') | translate }}
-                      </button>
-                    }
-                  </td>
+                  <th scope="col"><span class="sr-only">{{ 'settings.security.detail' | translate }}</span></th>
                 </tr>
-                @if (expanded() === row.id) {
-                  <tr class="sec__detail">
-                    <td [attr.colspan]="showIp() ? 6 : 5">
-                      <table class="sec__changes">
-                        <thead>
-                          <tr>
-                            <th scope="col">{{ 'settings.security.field' | translate }}</th>
-                            <th scope="col">{{ 'settings.security.before' | translate }}</th>
-                            <th scope="col">{{ 'settings.security.after' | translate }}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (change of changes(row); track change.field) {
-                            <tr>
-                              <td><code>{{ change.field }}</code></td>
-                              <td>{{ change.before || '—' }}</td>
-                              <td>{{ change.after || '—' }}</td>
-                            </tr>
-                          }
-                        </tbody>
-                      </table>
+              </thead>
+              <tbody>
+                @for (row of result.rows; track row.id) {
+                  <tr [class.sec__row--system]="!row.userId">
+                    <td class="sec__when" [attr.data-label]="'settings.security.when' | translate">{{ row.timestamp | vxDate: 'dateTime' }}</td>
+                    <td [attr.data-label]="'settings.security.who' | translate">{{ row.actorName ?? ('settings.security.system_actor' | translate) }}</td>
+                    <td [attr.data-label]="'settings.security.what' | translate">{{ actionLabel(row.actionType) }}</td>
+                    <td [attr.data-label]="'settings.security.record' | translate">
+                      <!-- Tipo y registro van juntos: en el teléfono la celda reparte sus hijos a lo ancho. -->
+                      <span class="sec__record-cell">
+                        <span class="sec__entity">{{ entityName(row.entity) }}</span>
+                        <span class="sec__record" [title]="row.entityId">{{ recordName(row) }}</span>
+                      </span>
+                    </td>
+                    @if (showIp()) {
+                      <td [attr.data-label]="'settings.security.ip' | translate">{{ row.ipAddress || '—' }}</td>
+                    }
+                    <td class="actions-column">
+                      @if (changes(row).length > 0) {
+                        <button type="button" class="sec__link" [attr.aria-expanded]="expanded() === row.id" (click)="toggle(row)">
+                          {{ (expanded() === row.id ? 'settings.security.hide_detail' : 'settings.security.show_detail') | translate }}
+                        </button>
+                      }
                     </td>
                   </tr>
+                  @if (expanded() === row.id) {
+                    <tr class="sec__detail">
+                      <td [attr.colspan]="showIp() ? 6 : 5">
+                        <vx-table frame="none">
+                          <table class="sec__changes">
+                            <thead>
+                              <tr>
+                                <th scope="col">{{ 'settings.security.field' | translate }}</th>
+                                <th scope="col">{{ 'settings.security.before' | translate }}</th>
+                                <th scope="col">{{ 'settings.security.after' | translate }}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (change of changes(row); track change.field) {
+                                <tr>
+                                  <td><code>{{ change.field }}</code></td>
+                                  <td>{{ change.before || '—' }}</td>
+                                  <td>{{ change.after || '—' }}</td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </vx-table>
+                      </td>
+                    </tr>
+                  }
                 }
-              }
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </vx-table>
         </div>
-        <div class="sec__pager">
-          <span>{{ 'settings.security.page_of' | translate: { page: result.page, total: result.total } }}</span>
-          <button type="button" class="secondary-button" [disabled]="result.page <= 1 || trailLoading()" (click)="goToPage(result.page - 1)">
-            {{ 'common.previous_page' | translate }}
-          </button>
-          <button type="button" class="secondary-button" [disabled]="!result.hasMore || trailLoading()" (click)="goToPage(result.page + 1)">
-            {{ 'common.next_page' | translate }}
-          </button>
-        </div>
+        <!-- La misma paginación que Usuarios y el resto del producto (COMP-01). -->
+        <vx-pager
+          [page]="result.page"
+          [pageSize]="pageSize()"
+          [total]="result.total"
+          [disabled]="trailLoading()"
+          (pageChange)="goToPage($event)"
+          (pageSizeChange)="setPageSize($event)"
+        />
       }
     } @else {
-      <p class="sec__hint" role="status">{{ 'settings.sections.loading' | translate }}</p>
+      <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />
     }
   </section>
 }

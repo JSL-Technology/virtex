@@ -1,69 +1,79 @@
 <div class="s-page">
+  @if (settings() && canEdit()) {
+    <!-- La prueba muestra lo guardado: con cambios sin guardar se desactiva y dice por qué (COMP-02). -->
+    <ng-template appSettingsActions>
+      <button type="button" class="secondary-button" aria-describedby="mail-test-reason"
+        [attr.aria-disabled]="dirty() || testing() ? 'true' : null" [class.is-disabled]="dirty() || testing()"
+        (click)="sendTest()">
+        {{ (testing() ? 'settings.mail.sending_test' : 'settings.mail.send_test') | translate }}
+      </button>
+    </ng-template>
+  }
 
   @if (loadError(); as message) {
-    <div class="mail__error" role="alert">
-      <p>{{ message }}</p>
-      <button type="button" class="secondary-button" (click)="load()">{{ 'common.retry' | translate }}</button>
-    </div>
+    <vx-error-state [detail]="message" (retry)="load()" />
   } @else if (settings(); as s) {
     <form class="mail__form" (ngSubmit)="save()">
-      <label class="mail__field" for="mail-sender">
-        <span>{{ 'settings.mail.sender_name' | translate }}</span>
-        <input id="mail-sender" name="senderName" class="mail__input" type="text" maxlength="100"
-          [placeholder]="s.defaults.senderName"
-          [ngModel]="draft().senderName" (ngModelChange)="patch({ senderName: $event })" />
-        <small>{{ 'settings.mail.sender_name_hint' | translate }}</small>
-      </label>
+      <vx-settings-group titleKey="settings.mail.sender_title">
+        <div class="mail__field">
+          <label class="mail__label" for="mail-sender">{{ 'settings.mail.sender_name' | translate }}</label>
+          <input id="mail-sender" name="senderName" class="mail__input" type="text" maxlength="100"
+            aria-describedby="mail-sender-hint" [readonly]="!canEdit()"
+            [placeholder]="s.defaults.senderName"
+            [ngModel]="draft().senderName" (ngModelChange)="patch({ senderName: $event })" />
+          <small class="mail__hint" id="mail-sender-hint">{{ 'settings.mail.sender_name_hint' | translate }}</small>
+        </div>
 
-      <label class="mail__field" for="mail-reply">
-        <span>{{ 'settings.mail.reply_to' | translate }}</span>
-        <input id="mail-reply" name="replyTo" class="mail__input" type="email" maxlength="255" autocomplete="email"
-          [placeholder]="s.defaults.replyTo ?? ''"
-          [attr.aria-invalid]="invalid().replyTo"
-          [ngModel]="draft().replyTo" (ngModelChange)="patch({ replyTo: $event })" />
-        @if (invalid().replyTo) {
-          <small class="mail__invalid" role="alert">{{ 'settings.mail.invalid_address' | translate }}</small>
-        } @else if (!replyPreview()) {
-          <small class="mail__warn" role="note">{{ 'settings.mail.no_reply_address' | translate }}</small>
-        } @else {
-          <small>{{ 'settings.mail.reply_to_hint' | translate }}</small>
-        }
-      </label>
+        <div class="mail__field">
+          <label class="mail__label" for="mail-reply">{{ 'settings.mail.reply_to' | translate }}</label>
+          <input id="mail-reply" name="replyTo" class="mail__input" type="email" maxlength="255" autocomplete="email"
+            aria-describedby="mail-reply-hint" [readonly]="!canEdit()"
+            [placeholder]="s.defaults.replyTo ?? ''"
+            [attr.aria-invalid]="invalid().replyTo"
+            [ngModel]="draft().replyTo" (ngModelChange)="patch({ replyTo: $event })" />
+          @if (invalid().replyTo) {
+            <small class="mail__invalid" id="mail-reply-hint" role="alert">{{ 'settings.mail.invalid_address' | translate }}</small>
+          } @else if (!replyPreview()) {
+            <!-- Una consecuencia que hay que atender: las respuestas no llegarían a nadie. -->
+            <vx-notice tone="warning" id="mail-reply-hint">{{ 'settings.mail.no_reply_address' | translate }}</vx-notice>
+          } @else {
+            <small class="mail__hint" id="mail-reply-hint">{{ 'settings.mail.reply_to_hint' | translate }}</small>
+          }
+        </div>
 
-      <label class="mail__field" for="mail-copy">
-        <span>{{ 'settings.mail.copy_to' | translate }}</span>
-        <input id="mail-copy" name="copyTo" class="mail__input" type="email" maxlength="255"
-          [attr.aria-invalid]="invalid().copyTo"
-          [ngModel]="draft().copyTo" (ngModelChange)="patch({ copyTo: $event })" />
-        @if (invalid().copyTo) {
-          <small class="mail__invalid" role="alert">{{ 'settings.mail.invalid_address' | translate }}</small>
-        } @else {
-          <small>{{ 'settings.mail.copy_to_hint' | translate }}</small>
-        }
-      </label>
+        <div class="mail__field">
+          <label class="mail__label" for="mail-copy">{{ 'settings.mail.copy_to' | translate }}</label>
+          <input id="mail-copy" name="copyTo" class="mail__input" type="email" maxlength="255"
+            aria-describedby="mail-copy-hint" [readonly]="!canEdit()"
+            [attr.aria-invalid]="invalid().copyTo"
+            [ngModel]="draft().copyTo" (ngModelChange)="patch({ copyTo: $event })" />
+          @if (invalid().copyTo) {
+            <small class="mail__invalid" id="mail-copy-hint" role="alert">{{ 'settings.mail.invalid_address' | translate }}</small>
+          } @else {
+            <small class="mail__hint" id="mail-copy-hint">{{ 'settings.mail.copy_to_hint' | translate }}</small>
+          }
+        </div>
+      </vx-settings-group>
 
-      <div class="mail__preview" aria-live="polite">
-        <h2 class="mail__preview-title">{{ 'settings.mail.preview' | translate }}</h2>
-        <dl>
+      <vx-settings-group titleKey="settings.mail.preview" descriptionKey="settings.mail.platform_note">
+        <dl class="mail__preview" aria-live="polite">
           <dt>{{ 'settings.mail.preview_from' | translate }}</dt>
           <dd>{{ preview() }}</dd>
           <dt>{{ 'settings.mail.preview_reply' | translate }}</dt>
           <dd>{{ replyPreview() ?? ('settings.mail.preview_no_reply' | translate) }}</dd>
         </dl>
-        <p class="mail__hint">{{ 'settings.mail.platform_note' | translate }}</p>
-      </div>
-
-      <div class="mail__actions">
-        <button type="button" class="secondary-button" [disabled]="testing() || dirty()" (click)="sendTest()">
-          {{ 'settings.mail.send_test' | translate }}
-        </button>
-        <button type="submit" class="primary-button" [disabled]="saving() || !dirty()">{{ 'common.save' | translate }}</button>
-      </div>
-      @if (dirty()) {
-        <p class="mail__hint">{{ 'settings.mail.save_before_test' | translate }}</p>
-      }
+        @if (canEdit()) {
+          <p class="mail__hint" id="mail-test-reason">
+            {{ (dirty() ? 'settings.mail.save_before_test' : 'settings.mail.test_hint') | translate }}
+          </p>
+        }
+      </vx-settings-group>
     </form>
+
+    @if (canEdit()) {
+      <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" [blockedKey]="blockedKey()" (save)="save()" (discard)="discard()" />
+    }
   } @else {
-    <p class="mail__hint" role="status">{{ 'settings.sections.loading' | translate }}</p>
+    <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />
   }
 </div>

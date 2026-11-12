@@ -1,3 +1,4 @@
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
@@ -15,7 +16,6 @@ import {
   companyPayload,
   onTaxpayerKindChanged,
 } from '../../../auth/register/company-form';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 type Step = 'configuration' | 'business' | 'plan';
 const STEPS: readonly Step[] = ['configuration', 'business', 'plan'];

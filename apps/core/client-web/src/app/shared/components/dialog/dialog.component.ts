@@ -104,6 +104,8 @@ export class VxDialogComponent implements AfterViewInit, OnDestroy {
   private readonly panelTemplate = viewChild.required<TemplateRef<unknown>>('panel');
   private overlayRef: OverlayRef | null = null;
   private focusTrap: FocusTrap | null = null;
+  /** Watches whether the body scrolls with nothing focusable in it; see `keepBodyReachable`. */
+  private bodyWatchers: { disconnect(): void }[] = [];
   /** Where focus was when this opened, so it can go back there. */
   private opener: HTMLElement | null = null;
 
@@ -147,6 +149,46 @@ export class VxDialogComponent implements AfterViewInit, OnDestroy {
     overlayRef.attach(new TemplatePortal(this.panelTemplate(), this.viewContainerRef));
     this.overlayRef = overlayRef;
     this.trapFocus(overlayRef);
+    this.keepBodyReachable(overlayRef);
+  }
+
+  /**
+   * A body that scrolls must be reachable by keyboard (WCAG 2.1.1; axe `scrollable-region-focusable`).
+   *
+   * When the body holds fields or buttons, tabbing into them scrolls it. A read-only body — a role's
+   * list of permissions — holds only text, and the arrow keys had nothing to act on: a keyboard user
+   * could not read past the fold. While it scrolls with nothing focusable inside, the body itself
+   * takes a tab stop (and draws the focus ring); otherwise it takes none, so a form gains no extra stop.
+   */
+  private keepBodyReachable(overlayRef: OverlayRef): void {
+    const body = overlayRef.overlayElement.querySelector<HTMLElement>('.vx-dialog__body');
+    if (!body) return;
+    const focusable =
+      'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const update = () => {
+      const scrolls = body.scrollHeight > body.clientHeight + 1;
+      const reachable = !!body.querySelector(focusable);
+      if (scrolls && !reachable) {
+        body.setAttribute('tabindex', '0');
+        body.setAttribute('role', 'region');
+        if (this.titleKey() || this.title()) body.setAttribute('aria-labelledby', this.titleId);
+      } else {
+        body.removeAttribute('tabindex');
+        body.removeAttribute('role');
+        body.removeAttribute('aria-labelledby');
+      }
+    };
+    update();
+    if (typeof ResizeObserver !== 'undefined') {
+      const resize = new ResizeObserver(update);
+      resize.observe(body);
+      this.bodyWatchers.push(resize);
+    }
+    if (typeof MutationObserver !== 'undefined') {
+      const mutation = new MutationObserver(update);
+      mutation.observe(body, { childList: true, subtree: true });
+      this.bodyWatchers.push(mutation);
+    }
   }
 
   /**
@@ -176,6 +218,8 @@ export class VxDialogComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.bodyWatchers.forEach((watcher) => watcher.disconnect());
+    this.bodyWatchers = [];
     this.focusTrap?.destroy();
     this.focusTrap = null;
     this.overlayRef?.dispose();

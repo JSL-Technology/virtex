@@ -21,10 +21,11 @@ import { Account } from '../../../core/models/account.model';
 import { ChartOfAccountsApiService } from '../data/chart-of-accounts.service';
 import { StatementExportService } from '../../../core/export/statement-export.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 @Component({
   selector: 'app-general-ledger-page',
   standalone: true,
-  imports: [LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxAmountComponent, VxDateRangeComponent, ...VX_SELECT],
+  imports: [...VX_TABLE, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxAmountComponent, VxDateRangeComponent, ...VX_SELECT],
   templateUrl: './general-ledger.page.html',
   styleUrls: ['./general-ledger.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

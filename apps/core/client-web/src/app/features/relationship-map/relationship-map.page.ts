@@ -55,6 +55,7 @@ import {
 import { presentationOf } from './data/relationship-map.registry';
 import { downloadCsv, toCsv } from '../../core/export/csv-export';
 
+import { VX_TABLE } from '../../shared/components/table';
 /** One card as the canvas draws it: the document plus how it sits relative to the selection. */
 export interface MapCard {
   node: FlowNode;
@@ -104,7 +105,7 @@ interface Prefs {
 @Component({
   selector: 'app-relationship-map-page',
   standalone: true,
-  imports: [TranslateModule, LucideAngularModule, FlowCanvasComponent],
+  imports: [...VX_TABLE, TranslateModule, LucideAngularModule, FlowCanvasComponent],
   templateUrl: './relationship-map.page.html',
   styleUrls: ['./relationship-map.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

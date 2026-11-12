@@ -82,8 +82,8 @@
   @if (failed()) {
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="payroll.concepts.title">
+    <table [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="code">{{ 'payroll.concepts.code' | translate }}</th>
@@ -92,7 +92,7 @@
           <th appSortHeader="calculation">{{ 'payroll.concepts.calculation' | translate }}</th>
           <th appSortHeader="rate" class="numeric">{{ 'payroll.concepts.rate' | translate }}</th>
           <th appSortHeader="taxable" class="text-center">{{ 'payroll.concepts.taxable' | translate }}</th>
-          <th class="text-right">{{ 'common.actions' | translate }}</th>
+          <th class="numeric">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -104,7 +104,7 @@
             <td>{{ 'payroll.concepts.calc_label.' + concept.calculation | translate }}</td>
             <td class="numeric">{{ concept.rate !== null ? (concept.rate | vxNumber: '1.0-6') : '—' }}</td>
             <td class="text-center">{{ concept.taxable ? '✓' : '—' }}</td>
-            <td class="text-right row-actions">
+            <td class="numeric actions-column">
               @if (concept.isSystem) {
                 <!--
                   A legal deduction's rate comes from the versioned parameter tables, not from here.
@@ -126,6 +126,6 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
   }
 </vx-list-shell>

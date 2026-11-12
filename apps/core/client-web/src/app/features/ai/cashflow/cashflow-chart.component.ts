@@ -6,6 +6,7 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { baseChartOptions, categoricalPalette, token } from '../../../core/utils/chart-theme';
 import { CashflowDay } from './cashflow.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 function withAlpha(hex: string, alpha: number): string {
   const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex.trim());
   if (!m) return hex;
@@ -22,32 +23,34 @@ const utc = (date: string) => Date.parse(`${date}T00:00:00Z`);
 @Component({
   selector: 'app-cashflow-chart',
   standalone: true,
-  imports: [HighchartsChartComponent, TranslatePipe, ...FORMAT_PIPES],
+  imports: [...VX_TABLE, HighchartsChartComponent, TranslatePipe, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <highcharts-chart class="cf-chart" [options]="options()" />
     <details class="cf-table">
       <summary>{{ 'ai.cashflow.chart.show_table' | translate }}</summary>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>{{ 'ai.cashflow.chart.date' | translate }}</th>
-            <th class="numeric">{{ 'ai.cashflow.chart.p10' | translate }}</th>
-            <th class="numeric">{{ 'ai.cashflow.chart.p50' | translate }}</th>
-            <th class="numeric">{{ 'ai.cashflow.chart.p90' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (row of weekly(); track row.day) {
+      <vx-table labelKey="ai.cashflow.title" frame="none">
+        <table>
+          <thead>
             <tr>
-              <td>{{ row.day | vxDate }}</td>
-              <td class="numeric">{{ row.p10 | vxMoney: currency() }}</td>
-              <td class="numeric">{{ row.p50 | vxMoney: currency() }}</td>
-              <td class="numeric">{{ row.p90 | vxMoney: currency() }}</td>
+              <th>{{ 'ai.cashflow.chart.date' | translate }}</th>
+              <th class="numeric">{{ 'ai.cashflow.chart.p10' | translate }}</th>
+              <th class="numeric">{{ 'ai.cashflow.chart.p50' | translate }}</th>
+              <th class="numeric">{{ 'ai.cashflow.chart.p90' | translate }}</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (row of weekly(); track row.day) {
+              <tr>
+                <td>{{ row.day | vxDate }}</td>
+                <td class="numeric">{{ row.p10 | vxMoney: currency() }}</td>
+                <td class="numeric">{{ row.p50 | vxMoney: currency() }}</td>
+                <td class="numeric">{{ row.p90 | vxMoney: currency() }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </vx-table>
     </details>
   `,
   styles: [

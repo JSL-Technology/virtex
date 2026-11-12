@@ -136,13 +136,13 @@
             </div>
 
             <!-- Its own horizontal scroll: a wide table must not push the summary out of the window. -->
-            <div class="line-items-scroll">
+            <vx-table labelKey="invoices.detail.lines_table" frame="none">
             <!--
               The article and its description share one column, one above the other: as two columns
               each got a sliver and both cut the product's name short («Arroz Selecto 1…», QA U58).
               The line's amount is shown at the end, from the server's own preview (QA U59).
             -->
-            <table class="line-items-table">
+            <table class="inv-lines">
               <colgroup>
                 <col class="col-product" />
                 <col class="col-qty" />
@@ -156,12 +156,12 @@
               <thead>
                 <tr>
                   <th scope="col">{{ 'invoices.new.item_and_description' | translate }}</th>
-                  <th scope="col" class="text-right">{{ 'invoices.new.quantity' | translate }}</th>
-                  <th scope="col" class="text-right">{{ 'invoices.new.price' | translate }}</th>
-                  <th scope="col" class="text-right">{{ 'invoices.new.disc' | translate }}</th>
+                  <th scope="col" class="numeric">{{ 'invoices.new.quantity' | translate }}</th>
+                  <th scope="col" class="numeric">{{ 'invoices.new.price' | translate }}</th>
+                  <th scope="col" class="numeric">{{ 'invoices.new.disc' | translate }}</th>
                   <th scope="col">{{ 'invoices.new.treatment' | translate }}</th>
                   <th scope="col">{{ (taxByDestination() ? taxNameKey() : 'invoices.new.tax_column_header') | translate }}</th>
-                  <th scope="col" class="text-right">{{ 'invoices.new.line_amount' | translate }}</th>
+                  <th scope="col" class="numeric">{{ 'invoices.new.line_amount' | translate }}</th>
                   <th scope="col"><span class="sr-only">{{ 'invoices.new.remove_line' | translate }}</span></th>
                 </tr>
               </thead>
@@ -256,7 +256,7 @@
                 }
               </tbody>
             </table>
-            </div>
+            </vx-table>
 
             <div class="lines-footer">
               <button type="button" class="btn-add-line" (click)="addLineItem()">{{ 'invoices.new.add_line_button' | translate }}</button>

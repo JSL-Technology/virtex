@@ -1,6 +1,8 @@
+import { RouterLink } from '@angular/router';
+import { VxNoticeComponent } from '../../../../shared/components/feedback';
 import { Router } from '@angular/router';
-import { SettingsActionsDirective } from '../../shell';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { SettingsActionsDirective, SettingsShellService } from '../../shell';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { catchError, of } from 'rxjs';
 import { CountryService, SupportedCountry } from '../../../../core/services/country.service';
 import { NotificationService } from '../../../../core/services/notification';
@@ -18,12 +20,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
-import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/components/feedback';
+import { VxSpinnerComponent, VxEmptyStateComponent, VxErrorStateComponent } from '../../../../shared/components/feedback';
 
 @Component({
   selector: 'app-subsidiaries',
   standalone: true,
-  imports: [VxNumberInputDirective, SettingsActionsDirective, CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, ...VX_SELECT, ...FORMAT_PIPES, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent, VxDateFieldComponent, VxBadgeComponent],
+  imports: [VxNumberInputDirective, SettingsActionsDirective, CommonModule, RouterLink, VxNoticeComponent, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, ...VX_SELECT, ...FORMAT_PIPES, VxDialogComponent, VxSpinnerComponent, VxEmptyStateComponent, VxErrorStateComponent, VxDateFieldComponent, VxBadgeComponent],
   templateUrl: './subsidiaries.page.html',
   styleUrls: ['./subsidiaries.page.scss'],
   // Signals and OnPush (QA A-16): the state lived in plain fields under a modal host that does not
@@ -36,6 +38,13 @@ export class SubsidiariesPage implements OnInit {
   protected readonly PlusIcon = Plus;
   protected readonly XIcon = X;
   protected readonly EditIcon = Pencil;
+
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  /**
+   * Whether this person may add or change subsidiaries. Reading them needs
+   * `settings:view_company`; changing them, `settings:edit_company` — the shell knows which applies.
+   */
+  protected readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
 
   readonly subsidiaries = signal<Subsidiary[]>([]);
   readonly loading = signal(true);
@@ -145,7 +154,8 @@ export class SubsidiariesPage implements OnInit {
   ngOnInit() {
     this.loadSubsidiaries();
     // `#settings/subsidiaries/new` («Nueva subsidiaria», from the company switcher): open the form straight away, and leave
-    // the fragment at the section so closing the form or reloading does not reopen it.
+    // the fragment at the section so closing the form or reloading does not reopen it. Without the
+    // permission to add one, the link lands on the list, where the read-only notice says why.
     if (this.router.url.split('#')[1] === 'settings/subsidiaries/new') {
       this.openCreateModal();
       void this.router.navigate([], { fragment: 'settings/subsidiaries', replaceUrl: true });
@@ -173,6 +183,7 @@ export class SubsidiariesPage implements OnInit {
   }
 
   openCreateModal() {
+    if (!this.canEdit()) return;
     this.createForm.reset({ ownership: 100, country: this.countryService.currentCountry()?.countryCode ?? '' });
     this.showModal.set(true);
   }
@@ -182,6 +193,7 @@ export class SubsidiariesPage implements OnInit {
   }
 
   openEdit(link: Subsidiary): void {
+    if (!this.canEdit()) return;
     this.editForm.reset({
       ownership: Number(link.ownership),
       acquisitionDate: link.acquisitionDate ?? '',

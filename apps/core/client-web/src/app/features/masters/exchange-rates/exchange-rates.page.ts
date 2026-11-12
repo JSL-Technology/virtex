@@ -23,6 +23,7 @@ import {
   parseRateTable,
 } from '../data/exchange-rates.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 // The company's today, not the browser's or UTC (QA R3-M02).
 const todayIso = (): string => tenantToday();
 
@@ -39,7 +40,7 @@ const todayIso = (): string => tenantToday();
 @Component({
   selector: 'app-exchange-rates-page',
   standalone: true,
-  imports: [VxNumberInputDirective, ...VX_DATE, 
+  imports: [...VX_TABLE, VxNumberInputDirective, ...VX_DATE, 
     FormsModule,
     ReactiveFormsModule,
     TranslateModule,

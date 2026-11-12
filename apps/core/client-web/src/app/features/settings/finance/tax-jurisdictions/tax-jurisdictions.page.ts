@@ -22,6 +22,7 @@ import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday } fr
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * Where the tenant is registered to collect sales tax, and at what rate.
  *
@@ -39,7 +40,7 @@ import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/d
 @Component({
   selector: 'app-tax-jurisdictions-page',
   standalone: true,
-  imports: [VxNumberInputDirective, VxEmptyStateComponent, SettingsActionsDirective, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDateFieldComponent],
+  imports: [...VX_TABLE, VxNumberInputDirective, VxEmptyStateComponent, SettingsActionsDirective, CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, VxDateFieldComponent],
   templateUrl: './tax-jurisdictions.page.html',
   styleUrls: ['./tax-jurisdictions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

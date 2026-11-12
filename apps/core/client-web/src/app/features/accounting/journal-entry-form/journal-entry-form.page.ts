@@ -22,6 +22,7 @@ import { ChartOfAccountsApiService } from '../data/chart-of-accounts.service';
 import { Dimension, DimensionValue, DimensionsService, valueLabel, valueTree } from '../data/dimensions.service';
 import { Observable } from 'rxjs';
 
+import { VX_TABLE } from '../../../shared/components/table';
 // Validador personalizado para el asiento contable
 export const journalEntryValidator = (control: AbstractControl): ValidationErrors | null => {
   const lines = control.get('lines') as FormArray;
@@ -77,7 +78,7 @@ interface EntryOrigin {
 @Component({
   selector: 'app-journal-entry-form-page',
   standalone: true,
-  imports: [VxNumberInputDirective, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DraftShellComponent, ...VX_FORM_A11Y, VxDateFieldComponent, ...VX_SELECT],
+  imports: [...VX_TABLE, VxNumberInputDirective, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DraftShellComponent, ...VX_FORM_A11Y, VxDateFieldComponent, ...VX_SELECT],
   templateUrl: './journal-entry-form.page.html',
   styleUrls: ['./journal-entry-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

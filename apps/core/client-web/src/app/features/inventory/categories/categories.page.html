@@ -27,14 +27,14 @@
     <p class="ls__state-title">{{ 'inventory.categories.empty' | translate }}</p>
   </ng-container>
 
-  <div class="table-container card">
-    <table class="data-table">
+  <vx-table labelKey="inventory.categories.categories" frame="none">
+    <table>
       <thead>
         <tr>
           <th>{{ 'inventory.categories.name' | translate }}</th>
           <th>{{ 'inventory.categories.code' | translate }}</th>
           <th>{{ 'inventory.categories.status' | translate }}</th>
-          <th class="text-right">{{ 'common.actions' | translate }}</th>
+          <th class="numeric">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -100,7 +100,7 @@
                   }}
                 </vx-badge>
               </td>
-              <td class="text-right row-actions">
+              <td class="numeric actions-column">
                 <button
                   type="button"
                   class="icon-button"
@@ -138,7 +138,7 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 
   <!--
     The creation row goes in the footer, outside the list's four states: a tenant with no

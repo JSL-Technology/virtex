@@ -1,0 +1,163 @@
+<section class="act">
+  <header class="act__header">
+    <h1 class="act__title">{{ 'ai.activity.title' | translate }}</h1>
+    <p class="act__subtitle">{{ 'ai.activity.subtitle' | translate }}</p>
+  </header>
+
+  <!-- Ejecuciones del motor: cada trabajo programado, cómo terminó la última vez y qué midió. -->
+  <section class="act__section" aria-labelledby="act-runs">
+    <h2 class="act__heading" id="act-runs">{{ 'ai.admin.runs' | translate }}</h2>
+    @switch (overviewState()) {
+      @case ('loading') {
+        <vx-spinner withLabel labelKey="common.loading" />
+      }
+      @case ('error') {
+        <vx-error-state [detail]="'ai.admin.load_failed' | translate" (retry)="loadOverview()" />
+      }
+      @default {
+        <div class="act__runs">
+          @for (kind of runKinds; track kind) {
+            @let r = runOf(kind);
+            <article class="act__run">
+              <h3 class="act__run-title">{{ k('ai.admin.run_kind', kind) | translate }}</h3>
+              @if (r.latest; as latest) {
+                <p class="act__meta">
+                  <vx-badge [tone]="runTone(latest.status)">{{ k('ai.admin.run_status', latest.status) | translate }}</vx-badge>
+                  <span>{{ (latest.finishedAt ?? latest.startedAt ?? latest.createdAt) | vxDate: 'dateTime' }}</span>
+                </p>
+                @if (latest.status === 'QUEUED') {
+                  <p class="act__muted">{{ 'ai.admin.run_waiting' | translate }}</p>
+                } @else if (latest.status === 'RUNNING') {
+                  <p class="act__muted">{{ 'ai.admin.run_working' | translate }}</p>
+                } @else if (latest.status === 'FAILED') {
+                  <p class="act__error">{{ failureKey(latest) | translate: { detail: latest.error ?? '' } }}</p>
+                }
+              } @else {
+                <p class="act__muted">{{ 'ai.admin.never_ran' | translate }}</p>
+              }
+              @if (r.lastSucceeded; as ok) {
+                <dl class="act__facts">
+                  @if (ok.series !== null) {
+                    <dt>{{ 'ai.admin.series' | translate }}</dt><dd>{{ ok.series | vxNumber: '1.0-0' }}</dd>
+                  }
+                  @if (ok.medianWape !== null) {
+                    <dt>{{ 'ai.admin.median_wape' | translate }}</dt><dd>{{ ok.medianWape | vxPercent }}</dd>
+                  }
+                  @if (ok.findings !== null) {
+                    <dt>{{ 'ai.admin.findings' | translate }}</dt><dd>{{ ok.findings | vxNumber: '1.0-0' }}</dd>
+                  }
+                  @if (ok.engineVersion) {
+                    <dt>{{ 'ai.admin.engine_version' | translate }}</dt><dd>{{ ok.engineVersion }}</dd>
+                  }
+                </dl>
+              }
+              <div class="act__actions">
+                <button type="button" class="secondary-button"
+                        *appHasPermission="kind === 'forecast' ? 'ai_forecasts:run' : 'ai_anomalies:resolve'"
+                        [disabled]="isActive(r.latest) || starting() !== null" (click)="run(kind)">
+                  {{ (isActive(r.latest) ? 'ai.admin.running' : (r.latest?.status === 'FAILED' ? 'ai.admin.run_again' : 'ai.admin.run_now')) | translate }}
+                </button>
+                @if (isActive(r.latest)) {
+                  <button type="button" class="act__link" (click)="loadOverview()">{{ 'ai.admin.refresh' | translate }}</button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+
+        @if (overview(); as o) {
+          <h3 class="act__run-title">{{ 'ai.admin.pending' | translate }}</h3>
+          <ul class="act__pending">
+            <li><a [routerLink]="predictionsLink()">{{ 'ai.admin.pending_stockouts' | translate: { count: o.pending.stockoutRisks } }}</a></li>
+            <li>
+              <a [routerLink]="anomaliesLink()">{{ 'ai.admin.pending_anomalies' | translate: { count: o.pending.openAnomalies, serious: o.pending.seriousAnomalies } }}</a>
+            </li>
+          </ul>
+        }
+      }
+    }
+  </section>
+
+  <!-- Lo que hicieron los agentes, lo que propuso el asistente y cómo lo valoró la gente. -->
+  <section class="act__section" aria-labelledby="act-agents">
+    <div class="act__section-head">
+      <h2 class="act__heading" id="act-agents">{{ 'ai.agents.log' | translate }}</h2>
+      <button type="button" class="secondary-button" *appHasPermission="'procurement:manage'" [disabled]="runningAgent()" (click)="runAgent()">
+        {{ (runningAgent() ? 'ai.agents.replenishment.running' : 'ai.activity.run_replenishment') | translate }}
+      </button>
+    </div>
+    @switch (logState()) {
+      @case ('loading') {
+        <vx-spinner withLabel labelKey="common.loading" />
+      }
+      @case ('error') {
+        <vx-error-state [detail]="'ai.activity.log_failed' | translate" (retry)="loadLog()" />
+      }
+      @default {
+        @if (!runs().length) {
+          <vx-empty-state [icon]="BotIcon" titleKey="ai.activity.log_empty_title" descriptionKey="ai.agents.log_empty" />
+        } @else {
+          <ul class="act__list" role="list">
+            @for (run of runs(); track run.id) {
+              <li class="act__item">
+                <p class="act__strong">{{ k('ai.agents.agent', run.agent) | translate }}</p>
+                <p class="act__muted">{{ run.startedAt | vxDate: 'medium' }} · {{ k('ai.agents.trigger', run.trigger) | translate }} · {{ k('ai.agents.status', run.status) | translate }}</p>
+                @if (run.proposals.length) {
+                  <p class="act__proposals">
+                    @for (proposal of run.proposals; track proposal.id) {
+                      @if (proposal.link) {
+                        <a [routerLink]="proposal.link">{{ proposal.label }}</a>
+                      } @else {
+                        <span>{{ proposal.label }}</span>
+                      }
+                      <span class="act__muted">({{ k('ai.agents.state', proposal.state) | translate }})</span>
+                    }
+                  </p>
+                }
+                @for (note of run.notes; track $index) {
+                  <p class="act__note">{{ k('ai.agents.note', note.key) | translate: (note.params | vxParams) }}</p>
+                }
+              </li>
+            }
+          </ul>
+        }
+
+        <h2 class="act__heading act__heading--spaced" id="act-copilot">{{ 'ai.agents.copilot' | translate }}</h2>
+        @if (!proposals().length) {
+          <vx-empty-state [icon]="ChatIcon" titleKey="ai.activity.copilot_empty_title" descriptionKey="ai.agents.copilot_empty" />
+        } @else {
+          <ul class="act__list" role="list">
+            @for (item of proposals(); track item.id) {
+              <li class="act__item">
+                <p>{{ item.summary }}</p>
+                <p class="act__muted">{{ item.createdAt | vxDate: 'medium' }} · {{ k('ai.copilot.proposal_status', item.status) | translate }}</p>
+                @if (item.link) {
+                  <a [routerLink]="item.link">{{ 'ai.agents.open' | translate }}</a>
+                }
+              </li>
+            }
+          </ul>
+        }
+
+        <h2 class="act__heading act__heading--spaced" id="act-feedback">{{ 'ai.agents.feedback' | translate }}</h2>
+        @if (feedback(); as report) {
+          <p class="act__muted">
+            {{ 'ai.agents.feedback_totals' | translate: { up: report.last30Days.up, down: report.last30Days.down, reported: report.last30Days.reported } }}
+          </p>
+          @if (report.items.length) {
+            <ul class="act__list" role="list">
+              @for (item of report.items; track item.id) {
+                <li class="act__item">
+                  <p>{{ k('ai.agents.verdict', item.verdict) | translate }}@if (item.comment) { · {{ item.comment }} }</p>
+                  <p class="act__muted">{{ item.createdAt | vxDate: 'medium' }}@for (tool of item.toolsUsed; track tool) { · {{ k('ai.copilot.tool', tool) | translate }} }</p>
+                </li>
+              }
+            </ul>
+          } @else {
+            <vx-empty-state [icon]="RatingIcon" titleKey="ai.activity.feedback_empty_title" descriptionKey="ai.agents.feedback_empty" />
+          }
+        }
+      }
+    }
+  </section>
+</section>

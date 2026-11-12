@@ -104,36 +104,38 @@
                  [attr.aria-label]="'invoices.detail.search_within_lines' | translate"
                  [ngModel]="lineItemSearch()" (ngModelChange)="lineItemSearch.set($event)">
       </div>
-      <table class="line-items-table">
-        <thead>
-          <tr>
-            <th class="text-left">{{ 'invoices.detail.description' | translate }}</th>
-            <th class="text-center">{{ 'invoices.detail.qty' | translate }}</th>
-            <th class="text-right">{{ 'invoices.detail.price' | translate }}</th>
-            @if (hasLineDiscounts()) {
-              <th class="text-right">{{ 'invoices.detail.discount' | translate }}</th>
+      <vx-table class="inv-detail__lines" labelKey="invoices.detail.lines_table">
+        <table>
+          <thead>
+            <tr>
+              <th class="text-left">{{ 'invoices.detail.description' | translate }}</th>
+              <th class="text-center">{{ 'invoices.detail.qty' | translate }}</th>
+              <th class="numeric">{{ 'invoices.detail.price' | translate }}</th>
+              @if (hasLineDiscounts()) {
+                <th class="numeric">{{ 'invoices.detail.discount' | translate }}</th>
+              }
+              <th class="numeric">{{ 'invoices.detail.tax' | translate }}</th>
+              <th class="numeric">{{ 'invoices.detail.total_label' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredLineItems(); track item.id) {
+            <tr>
+              <td class="text-left">{{ item.description }}</td>
+              <td class="text-center">{{ item.quantity }}</td>
+              <td class="numeric"><vx-amount [value]="item.price" /></td>
+              @if (hasLineDiscounts()) {
+                <td class="numeric"><vx-amount [value]="item.discountAmount || 0" /></td>
+              }
+              <td class="numeric"><vx-amount [value]="item.taxAmount || 0" /></td>
+              <!-- Net of the discount, as the document total and the PDF: the line used to add
+                   quantity × price and tax, so a discounted line showed more than it charged (QA R3-M01). -->
+              <td class="numeric"><vx-amount [value]="lineTotal(item)" /></td>
+            </tr>
             }
-            <th class="text-right">{{ 'invoices.detail.tax' | translate }}</th>
-            <th class="text-right">{{ 'invoices.detail.total_label' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of filteredLineItems(); track item.id) {
-          <tr>
-            <td class="text-left">{{ item.description }}</td>
-            <td class="text-center">{{ item.quantity }}</td>
-            <td class="text-right"><vx-amount [value]="item.price" /></td>
-            @if (hasLineDiscounts()) {
-              <td class="text-right"><vx-amount [value]="item.discountAmount || 0" /></td>
-            }
-            <td class="text-right"><vx-amount [value]="item.taxAmount || 0" /></td>
-            <!-- Net of the discount, as the document total and the PDF: the line used to add
-                 quantity × price and tax, so a discounted line showed more than it charged (QA R3-M01). -->
-            <td class="text-right"><vx-amount [value]="lineTotal(item)" /></td>
-          </tr>
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </vx-table>
 
       <!-- Footer Summary -->
       <div class="invoice-summary">
@@ -250,29 +252,31 @@
       <div class="card-body">
         <h3>{{ 'invoices.detail.credit_note_title' | translate }}</h3>
         <p class="hint">{{ 'invoices.detail.credit_note_message' | translate }}</p>
-        <table class="line-items-table">
-          <thead>
-            <tr>
-              <th class="text-left">{{ 'invoices.detail.description' | translate }}</th>
-              <th class="text-right">{{ 'invoices.detail.credit_available' | translate }}</th>
-              <th class="text-right">{{ 'invoices.detail.credit_now' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (line of inv.lineItems; track line.id) {
+        <vx-table labelKey="invoices.detail.credit_note_title" frame="none">
+          <table>
+            <thead>
               <tr>
-                <td>{{ line.description }}</td>
-                <td class="text-right">{{ creditable(line) | vxNumber: '1.0-6' }}</td>
-                <td class="text-right">
-                  <input type="number" min="0" step="0.000001" [max]="creditable(line)"
-                         [attr.aria-label]="('invoices.detail.credit_now' | translate) + ' — ' + line.description"
-                         [value]="creditQuantities()[line.id!] ?? 0"
-                         (input)="setCreditQuantity(line.id!, $any($event.target).value)" />
-                </td>
+                <th class="text-left">{{ 'invoices.detail.description' | translate }}</th>
+                <th class="numeric">{{ 'invoices.detail.credit_available' | translate }}</th>
+                <th class="numeric">{{ 'invoices.detail.credit_now' | translate }}</th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (line of inv.lineItems; track line.id) {
+                <tr>
+                  <td>{{ line.description }}</td>
+                  <td class="numeric">{{ creditable(line) | vxNumber: '1.0-6' }}</td>
+                  <td class="numeric">
+                    <input type="number" min="0" step="0.000001" [max]="creditable(line)"
+                           [attr.aria-label]="('invoices.detail.credit_now' | translate) + ' — ' + line.description"
+                           [value]="creditQuantities()[line.id!] ?? 0"
+                           (input)="setCreditQuantity(line.id!, $any($event.target).value)" />
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </vx-table>
         <label class="field">
           <span>{{ 'invoices.detail.credit_note_reason' | translate }}</span>
           <textarea rows="2" maxlength="500" [value]="creditReason()" (input)="creditReason.set($any($event.target).value)"></textarea>

@@ -1,8 +1,13 @@
-import { VxEmptyStateComponent } from '../../../../shared/components/feedback/empty-state.component';
-import { SettingsActionsDirective, SettingsShellService } from '../../shell';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxEmptyStateComponent, VxErrorStateComponent, VxNoticeComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
+import { SettingsActionsDirective, SettingsChanges, SettingsShellService } from '../../shell';
+import { SettingsGroupComponent } from '../../shared';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../../shared/components/context-menu';
+import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
+import { CheckCheck, LucideAngularModule, MoreHorizontal, Trash2 } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 import { roleLabel } from '../../../../shared/pipes/role-name.pipe';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
@@ -13,8 +18,8 @@ import { NotificationService } from '../../../../core/services/notification';
 import { DialogService } from '../../../../core/services/dialog.service';
 import { VX_SELECT } from '../../../../shared/components/select';
 import { RolesService, Role } from '../../data/roles.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 export const APPROVAL_DOCUMENT_TYPES = ['VENDOR_BILL', 'PAYMENT_BATCH', 'JOURNAL_ENTRY', 'PERIOD_REOPENING', 'AUDIT_ADJUSTMENT'] as const;
 type ApprovalDocumentType = (typeof APPROVAL_DOCUMENT_TYPES)[number];
 
@@ -51,14 +56,46 @@ interface PolicyDraft {
 @Component({
   selector: 'app-approval-policies-page',
   standalone: true,
-  imports: [VxNumberInputDirective, VxEmptyStateComponent, SettingsActionsDirective, FormsModule, ...VX_FORM_A11Y, TranslateModule, RouterLink, ...VX_SELECT, ...FORMAT_PIPES],
+  imports: [...VX_TABLE, ...VX_FORM_A11Y, 
+    VxNumberInputDirective,
+    VxEmptyStateComponent,
+    VxErrorStateComponent,
+    VxNoticeComponent,
+    VxSpinnerComponent,
+    SettingsActionsDirective,
+    SettingsGroupComponent,
+    FormsModule,
+    TranslateModule,
+    RouterLink,
+    LucideAngularModule,
+    ...VX_CONTEXT_MENU,
+    ...VX_SELECT,
+    ...FORMAT_PIPES,
+  ],
   templateUrl: './approvals.page.html',
   styleUrls: ['./approvals.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApprovalPoliciesPage implements OnInit {
   /** Whether this person may change the section; read-only otherwise (from the settings shell). */
-  protected readonly canEdit = inject(SettingsShellService, { optional: true })?.canEdit ?? signal(true);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  protected readonly canEdit = this.shell?.canEdit ?? signal(true);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly MoreIcon = MoreHorizontal;
+  protected readonly ApprovalIcon = CheckCheck;
+  /** Workflows: the other way to approve, named as the sidebar names it. */
+  protected readonly workflowsLink = inject(ActiveOrganizationService).urlFor('/workflows');
+
+  /** Deleting, in the shared row menu; it asks first. */
+  readonly policiesMenu: ListMenuConfig<ApprovalPolicy> = {
+    resource: 'approval_policies',
+    row: (ctx) => {
+      const policy = ctx.entity as ApprovalPolicy;
+      return [
+        { id: 'danger', items: [{ id: 'delete', label: 'common.delete', icon: Trash2, danger: true, visible: () => this.canEdit() && !this.draft(), run: () => this.remove(policy) }] },
+      ];
+    },
+  };
 
   private readonly http = inject(HttpClient);
   private readonly roles = inject(RolesService);
@@ -74,6 +111,17 @@ export class ApprovalPoliciesPage implements OnInit {
   readonly loadError = signal<string | null>(null);
   readonly saving = signal(false);
   readonly draft = signal<PolicyDraft | null>(null);
+  /** The draft as it was opened, to tell an edit from a look (GUA-01). */
+  private readonly draftOrigin = signal<string | null>(null);
+  readonly dirty = computed(() => {
+    const draft = this.draft();
+    return !!draft && JSON.stringify(draft) !== this.draftOrigin();
+  });
+  private readonly changes: SettingsChanges = {
+    dirty: this.dirty,
+    save: () => this.saveAsync(),
+    discard: () => this.cancel(),
+  };
 
   private readonly roleNames = computed(() => new Map(this.roleList().map((role) => [role.id, role.name])));
 
@@ -85,6 +133,17 @@ export class ApprovalPoliciesPage implements OnInit {
 
   ngOnInit(): void {
     this.load();
+    if (this.shell) {
+      this.shell.register(this.changes);
+      this.destroyRef.onDestroy(() => this.shell?.unregister(this.changes));
+    }
+  }
+
+  /** Opens a draft, remembering how it started. */
+  private openDraft(draft: PolicyDraft): void {
+    this.draft.set(draft);
+    this.draftOrigin.set(JSON.stringify(draft));
+    queueMicrotask(() => document.getElementById('ap-name')?.focus());
   }
 
   load(): void {
@@ -119,15 +178,16 @@ export class ApprovalPoliciesPage implements OnInit {
   startNew(): void {
     const type = this.freeTypes()[0];
     if (!type) return;
-    this.draft.set({ id: null, name: '', documentType: type, steps: [{ order: 1, minAmount: 0, roleId: '' }] });
+    this.openDraft({ id: null, name: '', documentType: type, steps: [{ order: 1, minAmount: 0, roleId: '' }] });
   }
 
   edit(policy: ApprovalPolicy): void {
-    this.draft.set({ id: policy.id, name: policy.name, documentType: policy.documentType, steps: policy.steps.map((s) => ({ ...s })) });
+    this.openDraft({ id: policy.id, name: policy.name, documentType: policy.documentType, steps: policy.steps.map((s) => ({ ...s })) });
   }
 
   cancel(): void {
     this.draft.set(null);
+    this.draftOrigin.set(null);
   }
 
   patchDraft(patch: Partial<PolicyDraft>): void {
@@ -163,12 +223,21 @@ export class ApprovalPoliciesPage implements OnInit {
     return null;
   }
 
-  save(): void {
+  /** The window's save: resolves true once the policy reached the server. */
+  saveAsync(): Promise<boolean> {
+    return new Promise((resolve) => this.save(resolve));
+  }
+
+  save(done?: (saved: boolean) => void): void {
     const draft = this.draft();
-    if (!draft) return;
+    if (!draft) {
+      done?.(false);
+      return;
+    }
     const problem = this.problem(draft);
     if (problem) {
       this.notifications.showError(problem);
+      done?.(false);
       return;
     }
     const steps = draft.steps.map((step, i) => ({ order: i + 1, minAmount: Number(step.minAmount), roleId: step.roleId }));
@@ -179,13 +248,15 @@ export class ApprovalPoliciesPage implements OnInit {
     request.subscribe({
       next: () => {
         this.saving.set(false);
-        this.draft.set(null);
+        this.cancel();
         this.notifications.showSuccess('settings.approvals.saved');
         this.load();
+        done?.(true);
       },
       error: (error: unknown) => {
         this.saving.set(false);
         this.notifications.showHttpError(error, 'settings.approvals.save_failed');
+        done?.(false);
       },
     });
   }

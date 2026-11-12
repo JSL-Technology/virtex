@@ -1,10 +1,13 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { environment } from '../../../../../environments/environment';
 import { NotificationService } from '../../../../core/services/notification';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VxErrorStateComponent, VxNoticeComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
+import { SettingsActionsDirective, SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../../shell';
+import { SettingsGroupComponent } from '../../shared';
 
 export interface MailSettings {
   senderName: string;
@@ -36,7 +39,16 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 @Component({
   selector: 'app-smtp-settings-page',
   standalone: true,
-  imports: [FormsModule, ...VX_FORM_A11Y, TranslateModule],
+  imports: [...VX_FORM_A11Y, 
+    FormsModule,
+    TranslateModule,
+    SettingsActionsDirective,
+    SettingsSaveBarComponent,
+    SettingsGroupComponent,
+    VxErrorStateComponent,
+    VxNoticeComponent,
+    VxSpinnerComponent,
+  ],
   templateUrl: './smtp.page.html',
   styleUrls: ['./smtp.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,6 +57,8 @@ export class SmtpSettingsPage implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly notifications = inject(NotificationService);
   private readonly url = `${environment.apiUrl}/organizations/mail-settings`;
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly settings = signal<MailSettings | null>(null);
   readonly loadError = signal<string | null>(null);
@@ -70,6 +84,15 @@ export class SmtpSettingsPage implements OnInit {
     };
   });
 
+  /** Why it cannot be saved yet, said in the save bar instead of a grey button (GUA-03). */
+  readonly blockedKey = computed(() => {
+    const invalid = this.invalid();
+    return invalid.replyTo || invalid.copyTo ? 'settings.mail.invalid_address' : null;
+  });
+
+  /** Whether the person may change it; the modal decides from the section's permission. */
+  readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
+
   readonly dirty = computed(() => {
     const configured = this.settings()?.configured;
     if (!configured) return false;
@@ -81,7 +104,21 @@ export class SmtpSettingsPage implements OnInit {
     );
   });
 
+  /**
+   * The edits, declared to the settings window. Without this the window did not know the form held
+   * unsaved work, and Escape or the close button threw it away without asking (GUA-01).
+   */
+  private readonly changes: SettingsChanges = {
+    dirty: this.dirty,
+    save: () => this.saveAsync(),
+    discard: () => this.discard(),
+  };
+
   ngOnInit(): void {
+    if (this.shell) {
+      this.shell.register(this.changes);
+      this.destroyRef.onDestroy(() => this.shell?.unregister(this.changes));
+    }
     this.load();
   }
 
@@ -97,10 +134,21 @@ export class SmtpSettingsPage implements OnInit {
     this.draft.update((draft) => ({ ...draft, ...patch }));
   }
 
-  save(): void {
+  /** Back to what is saved. */
+  discard(): void {
+    const settings = this.settings();
+    if (settings) this.apply(settings);
+  }
+
+  saveAsync(): Promise<boolean> {
+    return new Promise((resolve) => this.save(resolve));
+  }
+
+  save(done?: (saved: boolean) => void): void {
     const invalid = this.invalid();
     if (invalid.replyTo || invalid.copyTo) {
       this.notifications.showError('settings.mail.invalid_address');
+      done?.(false);
       return;
     }
     const draft = this.draft();
@@ -116,15 +164,19 @@ export class SmtpSettingsPage implements OnInit {
           this.saving.set(false);
           this.apply(settings);
           this.notifications.showSuccess('settings.mail.saved');
+          done?.(true);
         },
         error: (error: unknown) => {
           this.saving.set(false);
           this.notifications.showHttpError(error, 'settings.mail.save_failed');
+          done?.(false);
         },
       });
   }
 
   sendTest(): void {
+    // Disabled with its reason while there are unsaved edits: the test shows what is saved.
+    if (this.dirty() || this.testing()) return;
     this.testing.set(true);
     this.http.post<{ to: string }>(`${this.url}/test`, {}).subscribe({
       next: ({ to }) => {

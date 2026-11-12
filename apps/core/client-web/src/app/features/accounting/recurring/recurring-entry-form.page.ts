@@ -30,6 +30,7 @@ import {
   StoredEntryLine,
 } from '../data/recurring-entries.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 // The company's today, not the browser's or UTC (QA R3-M02).
 const todayIso = (): string => tenantToday();
 const cents = (value: unknown): number => Math.round((Number(value) || 0) * 100);
@@ -50,7 +51,7 @@ export function lineTotals(lines: readonly StoredEntryLine[]): { debit: number; 
 @Component({
   selector: 'app-recurring-entry-form-page',
   standalone: true,
-  imports: [VxNumberInputDirective, 
+  imports: [...VX_TABLE, VxNumberInputDirective, 
     ReactiveFormsModule,
     FormsModule,
     RouterLink,

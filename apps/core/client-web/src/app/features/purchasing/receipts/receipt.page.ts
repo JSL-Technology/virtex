@@ -16,6 +16,7 @@ import { Warehouse, WarehousesService } from '../../masters/data/warehouses.serv
 import { GoodsReceipt, PurchasingService } from '../data/purchasing.service';
 import { GOODS_RECEIPT_TONE } from './receipts.page';
 
+import { VX_TABLE } from '../../../shared/components/table';
 const QUANTITY_EPSILON = 0.000001;
 
 /**
@@ -26,7 +27,7 @@ const QUANTITY_EPSILON = 0.000001;
 @Component({
   selector: 'app-goods-receipt-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, VxBranchLabelComponent, HasPermissionDirective],
+  imports: [...VX_TABLE, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, DocumentShellComponent, VxBranchLabelComponent, HasPermissionDirective],
   templateUrl: './receipt.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

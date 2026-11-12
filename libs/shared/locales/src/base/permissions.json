@@ -638,5 +638,10 @@
     "es": "Flujos de trabajo",
     "en": "Workflows",
     "pt": "Fluxos de trabalho"
+  },
+  "permissions.actions.view_company": {
+    "es": "Ver la configuración de la empresa",
+    "en": "View company settings",
+    "pt": "Ver as configurações da empresa"
   }
 }

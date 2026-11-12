@@ -17,25 +17,31 @@
     margin-bottom: var(--space-8);
 }
 
+//  Texto de acento: el token de texto, que se ajusta para contrastar en claro y en oscuro. El de
+//  relleno (`--accent-solid`) es para fondos con texto encima; como texto sobre el lienzo oscuro
+//  quedaba en 2,71:1.
 .logo-placeholder {
     font-weight: var(--font-bold);
     font-size: var(--text-xl);
-    color: var(--accent-primary);
+    color: var(--accent-text);
 }
 
 .nav-placeholder {
     padding: var(--space-base);
     background-color: var(--accent-surface);
-    color: var(--accent-primary);
+    color: var(--accent-text);
     border-radius: var(--border-radius-md);
     font-weight: var(--font-semibold);
     font-size: var(--text-md);
 }
 
 .preview-content {
-    h4 {
+    // Una muestra, no un encabezado del documento: se ve como título sin serlo.
+    p.preview-title {
         font-size: var(--text-xl);
+        font-weight: var(--font-semibold);
         margin-bottom: var(--space-2);
+        color: inherit;
     }
 
     p {

@@ -13,6 +13,7 @@ import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 export type AgingSide = 'payables' | 'receivables';
 
 /**
@@ -29,7 +30,7 @@ export type AgingSide = 'payables' | 'receivables';
 @Component({
   selector: 'app-aging-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent],
+  imports: [...VX_TABLE, ...VX_SORT, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateFieldComponent, FormsModule, ...VX_FORM_A11Y, VxBranchPickerComponent],
   templateUrl: './aging.page.html',
   styleUrls: ['./aging.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

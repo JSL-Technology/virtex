@@ -81,8 +81,8 @@
 
       <section class="doc-card">
         <h2 class="form-section-title">{{ 'purchasing.receipts.lines' | translate }}</h2>
-        <div class="table-wrapper">
-          <table class="lines-table">
+        <vx-table labelKey="purchasing.receipts.lines">
+          <table>
             <thead>
               <tr>
                 <th>{{ 'purchasing.receipts.description' | translate }}</th>
@@ -108,7 +108,7 @@
               }
             </tbody>
           </table>
-        </div>
+        </vx-table>
       </section>
     </div>
   }

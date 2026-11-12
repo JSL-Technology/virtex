@@ -282,6 +282,11 @@
     "en": "Issuing…",
     "pt": "Emitindo…"
   },
+  "invoices.detail.lines_table": {
+    "es": "Líneas de la factura",
+    "en": "Invoice lines",
+    "pt": "Linhas da fatura"
+  },
   "invoices.detail.logistics": {
     "es": "Logística",
     "en": "Logistics",
@@ -479,7 +484,7 @@
     "pt": "O tipo de comprovante só pode conter letras e números."
   },
   "invoices.document_type_not_allowed_by_emission_mode": {
-    "es": "Tu empresa no emite comprobantes {{type}}: revisa la modalidad de emisión en Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país.",
+    "es": "Tu empresa no emite comprobantes {{type}}: revisa la modalidad de emisión en Configuración › Comprobantes fiscales o Facturación electrónica, según tu país.",
     "en": "Your company does not issue {{type}} documents: check the emission mode in Settings › Fiscal documents or Electronic invoicing, depending on your country.",
     "pt": "Sua empresa não emite comprovantes {{type}}: verifique a modalidade de emissão em Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país."
   },
@@ -767,17 +772,17 @@
     "pt": "o livro contábil padrão"
   },
   "invoices.gaps.fiscal_sequence": {
-    "es": "un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E) (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "es": "un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E) (Configuración › Comprobantes fiscales o Facturación electrónica, según tu país)",
     "en": "a current fiscal document range, traditional (B series) or electronic (E series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
     "pt": "uma faixa de comprovantes vigente, tradicional (série B) ou eletrônica (série E) (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_sequence_electronic": {
-    "es": "un rango de comprobantes electrónicos (serie E) vigente (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "es": "un rango de comprobantes electrónicos (serie E) vigente (Configuración › Comprobantes fiscales o Facturación electrónica, según tu país)",
     "en": "a current electronic document range (E series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
     "pt": "uma faixa de comprovantes eletrônicos (série E) vigente (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.fiscal_sequence_traditional": {
-    "es": "un rango de comprobantes tradicionales (serie B) vigente (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "es": "un rango de comprobantes tradicionales (serie B) vigente (Configuración › Comprobantes fiscales o Facturación electrónica, según tu país)",
     "en": "a current traditional document range (B series) (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
     "pt": "uma faixa de comprovantes tradicionais (série B) vigente (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
@@ -797,8 +802,8 @@
     "pt": "a sequência de numeração de faturas"
   },
   "invoices.gaps.issuer_tax_id": {
+    "es": "el RNC (identificación fiscal) de tu empresa (Configuración › Perfil de la empresa)",
     "en": "your company’s tax id (Settings › Company profile)",
-    "es": "el RNC (identificación fiscal) de tu empresa (Ajustes › Perfil de la empresa)",
     "pt": "a identificação fiscal da sua empresa (Configurações › Perfil da empresa)"
   },
   "invoices.gaps.open_period": {
@@ -837,9 +842,9 @@
     "pt": "a conta de taxa de serviço a pagar"
   },
   "invoices.gaps.signing_certificate": {
-    "es": "un certificado digital vigente para firmar comprobantes electrónicos (Ajustes › Comprobantes fiscales o Facturación electrónica, según tu país)",
+    "es": "un certificado digital vigente para firmar comprobantes electrónicos (Configuración › Comprobantes fiscales o Facturación electrónica, según tu país)",
     "en": "a valid digital certificate to sign electronic documents (Settings › Fiscal documents or Electronic invoicing, depending on your country)",
-    "pt": "um certificado digital válido para assinar comprovativos eletrónicos (Definições › Faturação eletrónica)"
+    "pt": "um certificado digital válido para assinar comprovantes eletrônicos (Configurações › Comprovantes fiscais ou Faturamento eletrônico, conforme o seu país)"
   },
   "invoices.gaps.tax_withheld_account": {
     "es": "la cuenta de retenciones recibidas (impuesto retenido por el cliente)",
@@ -1010,8 +1015,8 @@
     "pt": "Um documento emitido não é excluído: cancele-o com uma nota de crédito."
   },
   "invoices.issuer_tax_id_required": {
+    "es": "No se puede emitir un comprobante fiscal sin el RNC de tu empresa: el documento y el 607 lo exigen. Regístralo en Configuración › Perfil de la empresa.",
     "en": "A fiscal document cannot be issued without your company’s tax id: the document and the tax returns require it. Record it in Settings › Company profile.",
-    "es": "No se puede emitir un comprobante fiscal sin el RNC de tu empresa: el documento y el 607 lo exigen. Regístralo en Ajustes › Perfil de la empresa.",
     "pt": "Não é possível emitir um comprovante fiscal sem a identificação fiscal da sua empresa. Registre-a em Configurações › Perfil da empresa."
   },
   "invoices.label_must_expressed_fraction_between": {
@@ -1575,9 +1580,9 @@
     "pt": "Não há conta de retenções recebidas configurada e o documento aplica retenção."
   },
   "invoices.no_journal_code_organization_create_under": {
-    "es": "No existe el diario \"{{code}}\" para esta organización. Créalo en Ajustes → Contabilidad.",
-    "en": "There is no journal \"{{code}}\" for this organization. Create it under Settings → Accounting.",
-    "pt": "Não existe o diário \"{{code}}\" para esta organização. Crie-o em Configurações → Contabilidade."
+    "es": "No existe el diario \"{{code}}\" para esta organización. Créalo en Contabilidad › Diarios.",
+    "en": "There is no journal \"{{code}}\" for this organization. Create it under Accounting › Journals.",
+    "pt": "Não existe o diário \"{{code}}\" para esta organização. Crie-o em Contabilidade › Diários."
   },
   "invoices.only_draft_can_edited_issued_document": {
     "es": "Solo se puede modificar un borrador. Un comprobante emitido se corrige con una nota de crédito.",
@@ -1590,19 +1595,19 @@
     "pt": "Somente uma fatura pode receber nota de crédito."
   },
   "invoices.organization_accounting_setup_incomplete_accounts_receivable": {
-    "es": "La configuración contable de la organización está incompleta: se requieren las cuentas de Cuentas por Cobrar, Ingresos por Ventas e Impuesto sobre Ventas por Pagar. Revísalas en Ajustes → Contabilidad.",
-    "en": "The organization's accounting setup is incomplete: the Accounts Receivable, Sales Revenue and Sales Tax Payable accounts are required. Review them in Settings → Accounting.",
-    "pt": "A configuração contábil da organização está incompleta: são necessárias as contas de Contas a Receber, Receita de Vendas e Imposto sobre Vendas a Pagar. Revise em Configurações → Contabilidade."
+    "es": "La configuración contable de la organización está incompleta: se requieren las cuentas de Cuentas por Cobrar, Ingresos por Ventas e Impuesto sobre Ventas por Pagar. Revísalas en Configuración › Cuentas predeterminadas.",
+    "en": "The organization's accounting setup is incomplete: the Accounts Receivable, Sales Revenue and Sales Tax Payable accounts are required. Review them in Settings › Default accounts.",
+    "pt": "A configuração contábil da organização está incompleta: são necessárias as contas de Contas a Receber, Receita de Vendas e Imposto sobre Vendas a Pagar. Revise-as em Configurações › Contas predefinidas."
   },
   "invoices.organization_cannot_invoice_yet": {
-    "es": "La organización todavía no puede facturar. Falta: {{missing}}. Complétalo en Ajustes → Contabilidad.",
-    "en": "The organization cannot invoice yet. Missing: {{missing}}. Complete it under Settings → Accounting.",
-    "pt": "A organização ainda não pode faturar. Falta: {{missing}}. Complete em Configurações → Contabilidade."
+    "es": "La organización todavía no puede facturar. Falta: {{missing}}. Complétalo en Configuración › Cuentas predeterminadas.",
+    "en": "The organization cannot invoice yet. Missing: {{missing}}. Complete it under Settings › Default accounts.",
+    "pt": "A organização ainda não pode faturar. Falta: {{missing}}. Complete em Configurações › Contas predefinidas."
   },
   "invoices.organization_has_no_default_ledger_create": {
-    "es": "La organización no tiene un libro contable por defecto. Créalo en Ajustes → Contabilidad.",
-    "en": "The organization has no default ledger. Create one under Settings → Accounting.",
-    "pt": "A organização não tem um livro contábil padrão. Crie um em Configurações → Contabilidade."
+    "es": "La organización no tiene un libro contable por defecto. Créalo en Contabilidad › Libros contables.",
+    "en": "The organization has no default ledger. Create one under Accounting › Ledgers.",
+    "pt": "A organização não tem um livro contábil padrão. Crie um em Contabilidade › Livros contábeis."
   },
   "invoices.organization_not_found": {
     "es": "Organización no encontrada.",

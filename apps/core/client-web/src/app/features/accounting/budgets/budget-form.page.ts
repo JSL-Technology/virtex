@@ -17,6 +17,7 @@ import { isChargeable } from '../../../core/services/account-selection';
 import { Account } from '../../../core/models/account.model';
 import { Budget, BudgetsService, VarianceReport, isFavourable } from '../data/budgets.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 const currentPeriod = (): string => {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -38,7 +39,7 @@ export function restOfYear(period: string): string[] {
 @Component({
   selector: 'app-budget-form-page',
   standalone: true,
-  imports: [VxNumberInputDirective, ReactiveFormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, HasPermissionDirective],
+  imports: [...VX_TABLE, VxNumberInputDirective, ReactiveFormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, DraftShellComponent, HasPermissionDirective],
   templateUrl: './budget-form.page.html',
   styleUrls: ['../../../shared/styles/document-form.scss', '../../../shared/styles/document-list.scss', './budget-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

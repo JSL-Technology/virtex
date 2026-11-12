@@ -69,8 +69,8 @@
 
       <section class="doc-card">
         <h2 class="form-section-title">{{ 'accounts_payable.payments.bills_settled' | translate }}</h2>
-        <div class="table-wrapper">
-          <table class="lines-table">
+        <vx-table labelKey="accounts_payable.payments.bills_settled">
+          <table>
             <thead>
               <tr>
                 <th>{{ 'accounts_payable.payments.bill' | translate }}</th>
@@ -98,7 +98,7 @@
               }
             </tbody>
           </table>
-        </div>
+        </vx-table>
       </section>
     </div>
   }

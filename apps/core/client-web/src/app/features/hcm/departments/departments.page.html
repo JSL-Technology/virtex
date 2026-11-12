@@ -33,13 +33,13 @@
   @if (failed()) {
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="hcm.departments.title" frame="none">
+    <table [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="name">{{ 'hcm.departments.name' | translate }}</th>
           <th appSortHeader="costCenter">{{ 'hcm.departments.cost_centre' | translate }}</th>
-          <th class="text-right">{{ 'common.actions' | translate }}</th>
+          <th class="numeric">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -65,7 +65,7 @@
             <tr>
               <td>{{ department.name }}</td>
               <td>{{ department.costCenter || '—' }}</td>
-              <td class="text-right row-actions">
+              <td class="numeric actions-column">
                 <button type="button" class="icon-button" (click)="editing.set(department.id)"
                   [attr.aria-label]="'common.edit' | translate">
                   <lucide-icon [img]="EditIcon" size="15"></lucide-icon>
@@ -80,6 +80,6 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
   }
 </vx-list-shell>

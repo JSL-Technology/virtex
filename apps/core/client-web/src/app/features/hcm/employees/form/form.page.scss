@@ -58,33 +58,8 @@
   }
 }
 
-.table-wrapper {
-  /* Narrow screens scroll the table rather than the page. */
-  overflow-x: auto;
-}
-
-.lines-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  th, td {
-    padding: 0.4rem 0.5rem;
-    border-bottom: 1px solid var(--border-light);
-    text-align: left;
-    vertical-align: middle;
-  }
-
-  th {
-    font-size: var(--text-xs);
-    letter-spacing: 0.02em;
-    color: var(--text-secondary);
-  }
-
-  .numeric { text-align: right; }
-  .numeric input { text-align: right; }
-
-  input, select { width: 100%; min-width: 6rem; }
-}
+//  Las tablas (historial de salario, cálculo de prestaciones) son `vx-table`; aquí, sus campos.
+vx-table :is(input, select) { width: 100%; min-width: 6rem; }
 
 .totals {
   display: flex;
@@ -153,7 +128,7 @@
 
 .section-note.error { color: var(--error-text); }
 
-.lines-table .grand {
+vx-table .grand > :is(td, th) {
   font-weight: var(--font-bold);
-  border-top: 1px solid var(--border-light);
+  border-top: 1px solid var(--border-default);
 }

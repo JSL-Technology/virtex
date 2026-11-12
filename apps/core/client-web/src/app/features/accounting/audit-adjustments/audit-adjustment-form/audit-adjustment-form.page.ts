@@ -24,6 +24,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { ChartOfAccountsApiService } from '../../data/chart-of-accounts.service';
 import { VX_SELECT } from '../../../../shared/components/select';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 const cents = (value: unknown): number => Math.round(Number(value || 0) * 100);
 
 /** A line is a debit or a credit: exactly one side, and more than zero. */
@@ -50,7 +51,7 @@ function oneSide(group: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-audit-adjustment-form-page',
   standalone: true,
-  imports: [VxNumberInputDirective, 
+  imports: [...VX_TABLE, VxNumberInputDirective, 
     ReactiveFormsModule,
     RouterLink,
     TranslateModule,

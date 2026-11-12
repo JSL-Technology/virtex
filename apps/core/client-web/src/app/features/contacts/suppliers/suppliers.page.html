@@ -11,8 +11,8 @@
     <span>{{ 'contacts.suppliers.new_supplier' | translate }}</span>
   </a>
 
-  <div class="table-container card">
-    <table [appTableMenu]="suppliersMenu" [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="contacts.suppliers.suppliers">
+    <table [appTableMenu]="suppliersMenu" [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="name">{{ 'contacts.suppliers.company_name' | translate }}</th>
@@ -69,5 +69,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

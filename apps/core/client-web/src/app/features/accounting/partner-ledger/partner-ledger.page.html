@@ -52,8 +52,8 @@
   }
 
   @if (statement(); as st) {
-    <div class="table-container card">
-      <table class="data-table">
+    <vx-table labelKey="partner_ledger.title" layout="grid">
+      <table>
         <thead>
           <tr>
             <th>{{ 'partner_ledger.date' | translate }}</th>
@@ -96,6 +96,6 @@
           </tr>
         </tfoot>
       </table>
-    </div>
+    </vx-table>
   }
 </vx-list-shell>

@@ -27,6 +27,7 @@ import { VX_SELECT } from '../../../../shared/components/select';
 import { SuppliersService } from '../../../../core/api/suppliers.service';
 import { Supplier } from '../../../../core/models/supplier.model';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * Raising and deciding a purchase requisition.
  *
@@ -42,7 +43,7 @@ import { Supplier } from '../../../../core/models/supplier.model';
 @Component({
   selector: 'app-requisition-form-page',
   standalone: true,
-  imports: [VxNumberInputDirective, 
+  imports: [...VX_TABLE, VxNumberInputDirective, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,

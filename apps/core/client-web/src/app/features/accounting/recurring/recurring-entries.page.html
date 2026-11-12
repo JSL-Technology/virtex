@@ -17,8 +17,8 @@
     <p class="ls__state-help">{{ 'recurring_entries.page.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table class="data-table">
+  <vx-table labelKey="recurring_entries.page.title">
+    <table>
       <thead>
         <tr>
           <th>{{ 'recurring_entries.page.description' | translate }}</th>
@@ -51,5 +51,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

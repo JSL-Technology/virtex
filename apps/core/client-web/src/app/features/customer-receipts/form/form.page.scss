@@ -51,17 +51,8 @@
     }
   }
 
-  .table-wrapper { overflow-x: auto; }
-
-  .lines-table {
-    @include ds.data-table;
-    font-variant-numeric: tabular-nums;
-
-    thead th { text-align: right; }
-    thead th:first-child { text-align: left; }
-
-    .numeric { text-align: right; }
-
+  //  La tabla de facturas a aplicar es un `vx-table`; aquí, su campo de importe y su aviso.
+  vx-table {
     input {
       @include ds.input-base;
       width: 8rem;

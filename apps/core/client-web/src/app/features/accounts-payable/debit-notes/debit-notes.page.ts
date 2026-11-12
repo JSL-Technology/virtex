@@ -27,6 +27,7 @@ import {
 } from '../../../core/services/accounts-payable';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 export const DEBIT_NOTE_TONE: Record<VendorDebitNoteStatus, VxTone> = { POSTED: 'ok', VOIDED: 'neutral' };
 
 /**
@@ -37,7 +38,7 @@ export const DEBIT_NOTE_TONE: Record<VendorDebitNoteStatus, VxTone> = { POSTED: 
 @Component({
   selector: 'app-vendor-debit-notes-page',
   standalone: true,
-  imports: [...VX_CONTEXT_MENU, 
+  imports: [...VX_TABLE, ...VX_CONTEXT_MENU, 
     FormsModule, ...VX_FORM_A11Y,
     RouterLink,
     TranslateModule,

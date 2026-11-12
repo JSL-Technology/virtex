@@ -44,16 +44,6 @@
     "en": "Edit approval policy",
     "pt": "Editar política de aprovação"
   },
-  "settings.approvals.empty": {
-    "es": "No hay políticas de aprobación. Los documentos se registran sin pasar por aprobación.",
-    "en": "There are no approval policies. Documents are posted without going through approval.",
-    "pt": "Não há políticas de aprovação. Os documentos são lançados sem passar por aprovação."
-  },
-  "settings.approvals.go_workflows": {
-    "es": "Ir a Flujos de trabajo",
-    "en": "Go to Workflows",
-    "pt": "Ir para Fluxos de trabalho"
-  },
   "settings.approvals.load_failed": {
     "es": "No se pudieron cargar las políticas de aprobación.",
     "en": "The approval policies could not be loaded.",
@@ -135,9 +125,9 @@
     "pt": "Adicione pelo menos uma etapa."
   },
   "settings.approvals.workflows_note": {
-    "es": "Aquí defines políticas simples: quién aprueba según el importe. Si necesitas varios pasos, condiciones, plazos o acciones automáticas, diseña un flujo de trabajo. Ambos conviven: si un flujo también decide sobre un tipo de documento con política, se aplican los dos, así que evita duplicar la aprobación.",
-    "en": "Here you set simple policies: who approves by amount. If you need several steps, conditions, deadlines or automatic actions, design a workflow. Both coexist: if a workflow also decides on a document type that has a policy, both apply, so avoid approving twice.",
-    "pt": "Aqui define políticas simples: quem aprova segundo o montante. Se precisar de vários passos, condições, prazos ou ações automáticas, desenhe um fluxo de trabalho. Ambos coexistem: se um fluxo também decide sobre um tipo de documento com política, aplicam-se os dois, por isso evite aprovar duas vezes."
+    "es": "Aquí defines políticas simples: quién aprueba según el importe. Para varios pasos, condiciones, plazos o acciones automáticas, diseña un flujo de trabajo; si un flujo también decide sobre un tipo con política, se aplican los dos. Los flujos están en",
+    "en": "Here you define simple policies: who approves by amount. For several steps, conditions, deadlines or automatic actions, design a workflow; if a workflow also decides on a type with a policy, both apply. Workflows are in",
+    "pt": "Aqui você define políticas simples: quem aprova conforme o valor. Para várias etapas, condições, prazos ou ações automáticas, desenhe um fluxo de trabalho; se um fluxo também decide sobre um tipo com política, os dois se aplicam. Os fluxos estão em"
   },
   "settings.billing.amount": {
     "es": "Monto",
@@ -199,11 +189,6 @@
     "en": "Download invoice",
     "pt": "Baixar fatura"
   },
-  "settings.billing.ends_on": {
-    "es": "Finaliza el",
-    "en": "Ends on",
-    "pt": "Termina a"
-  },
   "settings.billing.feature_included": {
     "es": "Incluido",
     "en": "Included",
@@ -234,11 +219,6 @@
     "en": "Subscription managed by the platform: there is no payment method attached to change.",
     "pt": "Assinatura gerenciada pela plataforma: não há método de pagamento associado para alterar."
   },
-  "settings.billing.mo": {
-    "es": "/mes",
-    "en": "/mo",
-    "pt": "/mês"
-  },
   "settings.billing.no_active_subscription": {
     "es": "Sin suscripción activa",
     "en": "No active subscription",
@@ -253,16 +233,6 @@
     "es": "Sin plan",
     "en": "No plan",
     "pt": "Sem plano"
-  },
-  "settings.billing.no_plans_available_moment": {
-    "es": "No hay planes disponibles en este momento.",
-    "en": "There are no plans available at the moment.",
-    "pt": "Não há planos disponíveis no momento."
-  },
-  "settings.billing.paid": {
-    "es": "Pagada",
-    "en": "Paid",
-    "pt": "Paga"
   },
   "settings.billing.payment_method": {
     "es": "Método de pago",
@@ -289,30 +259,15 @@
     "en": "Redirecting...",
     "pt": "Redirecionando..."
   },
-  "settings.billing.renews_on": {
-    "es": "Se renueva el",
-    "en": "Renews on",
-    "pt": "Renova a"
-  },
   "settings.billing.resource_usage": {
     "es": "Uso de recursos",
     "en": "Resource usage",
     "pt": "Uso de recursos"
   },
-  "settings.billing.selected_plan": {
-    "es": "Plan seleccionado:",
-    "en": "Selected plan:",
-    "pt": "Plano selecionado:"
-  },
   "settings.billing.status": {
     "es": "Estado",
     "en": "Status",
     "pt": "Situação"
-  },
-  "settings.billing.switch_plan": {
-    "es": "Para cambiar al plan",
-    "en": "To switch to the plan",
-    "pt": "Para mudar para o plano"
   },
   "settings.billing.try_again": {
     "es": "Reintentar",
@@ -333,16 +288,6 @@
     "es": "Aún no tienes un plan contratado. Elige uno más abajo para comenzar.",
     "en": "You do not have a plan yet. Choose one below to get started.",
     "pt": "Você ainda não contratou um plano. Escolha um abaixo para começar."
-  },
-  "settings.billing.you_will_redirected_stripe_complete_payment": {
-    "es": ". Serás redirigido a Stripe para completar el pago de forma segura.",
-    "en": ". You will be redirected to Stripe to complete the payment securely.",
-    "pt": ". Você será redirecionado à Stripe para concluir o pagamento com segurança."
-  },
-  "settings.billing.you_will_redirected_stripe_secure_portal": {
-    "es": "serás redirigido al portal seguro de Stripe.",
-    "en": "you will be redirected to Stripe's secure portal.",
-    "pt": "você será redirecionado ao portal seguro da Stripe."
   },
   "settings.branding.accent_colour": {
     "es": "Color de acento",
@@ -702,30 +647,15 @@
     "en": "Authorised document ranges",
     "pt": "Faixas de comprovantes autorizadas"
   },
-  "settings.fiscal.do.dgii_reports_moved": {
-    "es": "Los formatos 606, 607, 608 y 609 se generan en Contabilidad › Reportes › Declaraciones fiscales, donde cada mes muestra si se generó y si se presentó. Aquí se configura lo que necesitan: el certificado y los rangos de NCF.",
-    "en": "Formats 606, 607, 608 and 609 are generated in Accounting › Reports › Fiscal returns, where each month shows whether it was generated and filed. This page configures what they need: the certificate and the NCF ranges.",
-    "pt": "Os formatos 606, 607, 608 e 609 são gerados em Contabilidade › Relatórios › Declarações fiscais, onde cada mês mostra se foi gerado e entregue. Aqui se configura o que eles precisam: o certificado e as faixas de NCF."
-  },
   "settings.fiscal.do.ncf_range_registered": {
-    "es": "Rango de e-NCF registrado.",
-    "en": "e-NCF range registered.",
-    "pt": "Faixa de e-NCF registrada."
+    "es": "Rango registrado.",
+    "en": "Range registered.",
+    "pt": "Faixa registrada."
   },
   "settings.fiscal.do.ncf_ranges_description": {
     "es": "Registra cada rango que te autorizó la DGII, tradicional (serie B) o electrónico (serie E). Sin un rango vigente de un tipo, ese comprobante no se puede emitir.",
     "en": "Register each range the DGII authorised, traditional (B series) or electronic (E series). Without a current range of a type, that document cannot be issued.",
     "pt": "Registre cada faixa autorizada pela DGII, tradicional (série B) ou eletrônica (série E). Sem uma faixa vigente de um tipo, esse comprovante não pode ser emitido."
-  },
-  "settings.fiscal.do.ncf_sequences_load_failed": {
-    "es": "No se pudieron cargar las secuencias NCF.",
-    "en": "The NCF sequences could not be loaded.",
-    "pt": "Não foi possível carregar as sequências NCF."
-  },
-  "settings.fiscal.do.no_ncf_ranges_yet": {
-    "es": "Aún no has registrado rangos de e-NCF.",
-    "en": "You have not registered any e-NCF ranges yet.",
-    "pt": "Você ainda não registrou faixas de e-NCF."
   },
   "settings.fiscal.document_types_load_failed": {
     "es": "No se pudieron cargar los tipos de comprobante de tu país.",
@@ -907,11 +837,6 @@
     "en": "Requires",
     "pt": "Precisa de"
   },
-  "settings.fiscal.screen_configures_dominican_regime_your_market": {
-    "es": "Esta pantalla configura el régimen de la República Dominicana. Para tu mercado, la configuración está en Configuración › Facturación electrónica.",
-    "en": "This screen configures the Dominican regime. For your market, the configuration is under Settings › Electronic invoicing.",
-    "pt": "Esta tela configura o regime da República Dominicana. Para o seu mercado, a configuração está em Configurações › Faturação eletrônica."
-  },
   "settings.fiscal.select_certificate_file_p12_pfx": {
     "es": "Selecciona el archivo del certificado (.p12 / .pfx).",
     "en": "Select the certificate file (.p12 / .pfx).",
@@ -982,20 +907,10 @@
     "en": "What this product covers in {{country}}",
     "pt": "O que este produto cobre em {{country}}"
   },
-  "settings.fiscal.you_have_not_uploaded_certificate_yet": {
-    "es": "Aún no has cargado un certificado.",
-    "en": "You have not uploaded a certificate yet.",
-    "pt": "Você ainda não enviou um certificado."
-  },
   "settings.integrations.data.action": {
     "es": "Abrir importaciones",
     "en": "Open imports",
     "pt": "Abrir importações"
-  },
-  "settings.integrations.data.active": {
-    "es": "Disponible para tu empresa.",
-    "en": "Available to your company.",
-    "pt": "Disponível para sua empresa."
   },
   "settings.integrations.data.description": {
     "es": "Carga masiva de clientes, proveedores, productos y saldos desde hojas de cálculo, y exportación de tus datos.",
@@ -1006,111 +921,6 @@
     "es": "Importación y exportación",
     "en": "Import and export",
     "pt": "Importação e exportação"
-  },
-  "settings.integrations.einvoicing.action": {
-    "es": "Configuración fiscal",
-    "en": "Tax settings",
-    "pt": "Configuração fiscal"
-  },
-  "settings.integrations.einvoicing.active": {
-    "es": "Régimen configurado para tu país.",
-    "en": "Regime configured for your country.",
-    "pt": "Regime configurado para o seu país."
-  },
-  "settings.integrations.einvoicing.description": {
-    "es": "Envío de comprobantes electrónicos a la autoridad tributaria de tu país, con su certificado y sus rangos autorizados.",
-    "en": "Electronic documents sent to your country's tax authority, with its certificate and authorised ranges.",
-    "pt": "Envio de documentos eletrônicos à autoridade tributária do seu país, com seu certificado e faixas autorizadas."
-  },
-  "settings.integrations.einvoicing.inactive": {
-    "es": "Aún no está configurada para tu país.",
-    "en": "Not yet configured for your country.",
-    "pt": "Ainda não configurado para o seu país."
-  },
-  "settings.integrations.einvoicing.title": {
-    "es": "Facturación electrónica",
-    "en": "Electronic invoicing",
-    "pt": "Faturamento eletrônico"
-  },
-  "settings.integrations.extensions.action": {
-    "es": "Administrar extensiones",
-    "en": "Manage extensions",
-    "pt": "Administrar extensões"
-  },
-  "settings.integrations.extensions.active": {
-    "es": "{{enabled}} habilitada(s) en tu empresa.",
-    "en": "{{enabled}} enabled in your company.",
-    "pt": "{{enabled}} habilitada(s) na sua empresa."
-  },
-  "settings.integrations.extensions.description": {
-    "es": "Extensiones firmadas que amplían el sistema. Cada una recibe solo las capacidades que tu empresa le concede y corre aislada.",
-    "en": "Signed extensions that extend the system. Each receives only the capabilities your company grants it and runs isolated.",
-    "pt": "Extensões assinadas que ampliam o sistema. Cada uma recebe apenas as capacidades que sua empresa concede e roda isolada."
-  },
-  "settings.integrations.extensions.inactive": {
-    "es": "Ninguna extensión habilitada.",
-    "en": "No extension enabled.",
-    "pt": "Nenhuma extensão habilitada."
-  },
-  "settings.integrations.extensions.title": {
-    "es": "Extensiones",
-    "en": "Extensions",
-    "pt": "Extensões"
-  },
-  "settings.integrations.sso.action": {
-    "es": "Configurar SSO",
-    "en": "Set up SSO",
-    "pt": "Configurar SSO"
-  },
-  "settings.integrations.sso.active": {
-    "es": "{{enabled}} proveedor(es) habilitado(s).",
-    "en": "{{enabled}} provider(s) enabled.",
-    "pt": "{{enabled}} provedor(es) habilitado(s)."
-  },
-  "settings.integrations.sso.description": {
-    "es": "Tus usuarios entran con el proveedor de identidad de la empresa (Microsoft Entra, Google Workspace, Okta…) mediante OIDC.",
-    "en": "Your users sign in with the company's identity provider (Microsoft Entra, Google Workspace, Okta…) through OIDC.",
-    "pt": "Seus usuários entram com o provedor de identidade da empresa (Microsoft Entra, Google Workspace, Okta…) via OIDC."
-  },
-  "settings.integrations.sso.inactive": {
-    "es": "Ningún proveedor de identidad habilitado.",
-    "en": "No identity provider enabled.",
-    "pt": "Nenhum provedor de identidade habilitado."
-  },
-  "settings.integrations.sso.title": {
-    "es": "Inicio de sesión único (SSO)",
-    "en": "Single sign-on (SSO)",
-    "pt": "Login único (SSO)"
-  },
-  "settings.integrations.state.active": {
-    "es": "Activa",
-    "en": "Active",
-    "pt": "Ativa"
-  },
-  "settings.integrations.state.inactive": {
-    "es": "Sin configurar",
-    "en": "Not set up",
-    "pt": "Não configurada"
-  },
-  "settings.integrations.state.loading": {
-    "es": "Consultando",
-    "en": "Checking",
-    "pt": "Consultando"
-  },
-  "settings.integrations.state.unknown": {
-    "es": "Sin acceso",
-    "en": "No access",
-    "pt": "Sem acesso"
-  },
-  "settings.integrations.status_loading": {
-    "es": "Consultando el estado…",
-    "en": "Checking the state…",
-    "pt": "Consultando o estado…"
-  },
-  "settings.integrations.status_unknown": {
-    "es": "No tienes permiso para ver el estado de esta integración.",
-    "en": "You are not allowed to see the state of this integration.",
-    "pt": "Você não tem permissão para ver o estado desta integração."
   },
   "settings.language.choose": {
     "es": "Elegir idioma",
@@ -1835,11 +1645,6 @@
     "en": "Designated withholding agent",
     "pt": "Agente de retenção designado"
   },
-  "settings.pages.withholding.empty": {
-    "es": "Todavía no hay regímenes configurados.",
-    "en": "No regimes configured yet.",
-    "pt": "Ainda não há regimes configurados."
-  },
   "settings.pages.withholding.government": {
     "es": "Estado",
     "en": "Government",
@@ -2211,14 +2016,14 @@
     "pt": "Cancelar"
   },
   "settings.roles.clone_role": {
-    "es": "Clonar rol",
-    "en": "Clone role",
-    "pt": "Clonar perfil"
+    "es": "Duplicar rol",
+    "en": "Duplicate role",
+    "pt": "Duplicar perfil"
   },
   "settings.roles.create_role": {
     "es": "Crear nuevo rol",
     "en": "Create new role",
-    "pt": "Criar novo papel"
+    "pt": "Criar novo perfil"
   },
   "settings.roles.delete_role": {
     "es": "Eliminar rol",
@@ -2233,12 +2038,7 @@
   "settings.roles.edit_role": {
     "es": "Editar rol",
     "en": "Edit role",
-    "pt": "Editar papel"
-  },
-  "settings.roles.errors.load_permissions": {
-    "es": "No pudimos cargar los permisos.",
-    "en": "We could not load the permissions.",
-    "pt": "Não foi possível carregar as permissões."
+    "pt": "Editar perfil"
   },
   "settings.roles.errors.load_roles": {
     "es": "No pudimos cargar los roles.",
@@ -2266,9 +2066,9 @@
     "pt": "Nome do perfil"
   },
   "settings.roles.role_name_cloned_successfully": {
-    "es": "Rol \"{{name}}\" clonado exitosamente.",
-    "en": "Role \"{{name}}\" cloned successfully.",
-    "pt": "Perfil \"{{name}}\" clonado com sucesso."
+    "es": "Rol \"{{name}}\" duplicado exitosamente.",
+    "en": "Role \"{{name}}\" duplicated successfully.",
+    "pt": "Perfil \"{{name}}\" duplicado com sucesso."
   },
   "settings.roles.role_updated_successfully": {
     "es": "Rol actualizado exitosamente.",
@@ -2574,21 +2374,6 @@
     "es": "Decide qué retenciones te aplican tus clientes.",
     "en": "Decides which withholdings your customers apply to you.",
     "pt": "Define quais retenções seus clientes aplicam a você."
-  },
-  "settings.sections.go_currencies": {
-    "es": "Monedas",
-    "en": "Currencies",
-    "pt": "Moedas"
-  },
-  "settings.sections.go_periods": {
-    "es": "Períodos contables",
-    "en": "Accounting periods",
-    "pt": "Períodos contábeis"
-  },
-  "settings.sections.go_tax_rates": {
-    "es": "Tasas de impuesto",
-    "en": "Tax rates",
-    "pt": "Alíquotas"
   },
   "settings.sections.groups.assets_equity": {
     "es": "Activos fijos y patrimonio",
@@ -3161,9 +2946,9 @@
     "pt": "Endereço IP"
   },
   "settings.security.mfa_description": {
-    "es": "Exige a cada miembro un segundo factor (aplicación de autenticación) para entrar. Los miembros que aún no lo tienen lo configuran en su próximo inicio de sesión.",
-    "en": "Requires every member to use a second factor (authenticator app) to sign in. Anyone who does not have one yet will set it up at their next sign-in.",
-    "pt": "Exige de cada membro um segundo fator (aplicativo autenticador) para entrar. Quem ainda não o tiver deverá configurá-lo no próximo login."
+    "es": "Exige a cada miembro un segundo factor (aplicación de autenticación) para entrar.",
+    "en": "Requires every member to use a second factor (authenticator app) to sign in.",
+    "pt": "Exige de cada membro um segundo fator (aplicativo autenticador) para entrar."
   },
   "settings.security.mfa_disabled": {
     "es": "Segundo factor obligatorio desactivado.",
@@ -3209,16 +2994,6 @@
     "es": "Segundo factor obligatorio",
     "en": "Mandatory second factor",
     "pt": "Segundo fator obrigatório"
-  },
-  "settings.security.own_second_factor": {
-    "es": "Configurar mi segundo factor",
-    "en": "Set up my second factor",
-    "pt": "Configurar meu segundo fator"
-  },
-  "settings.security.page_of": {
-    "es": "Página {{page}} · {{total}} registros",
-    "en": "Page {{page}} · {{total}} records",
-    "pt": "Página {{page}} · {{total}} registros"
   },
   "settings.security.passkey_add": {
     "es": "Agregar llave de acceso",
@@ -3300,11 +3075,6 @@
     "en": "Devices where your account is signed in. If you do not recognise one, sign it out.",
     "pt": "Dispositivos onde sua conta está conectada. Se você não reconhecer algum, encerre a sessão."
   },
-  "settings.security.sessions_in_group": {
-    "es": "{{count}} sesiones en este dispositivo",
-    "en": "{{count}} sessions on this device",
-    "pt": "{{count}} sessões neste dispositivo"
-  },
   "settings.security.sessions_title": {
     "es": "Sesiones activas",
     "en": "Active sessions",
@@ -3325,20 +3095,10 @@
     "en": "Show changes",
     "pt": "Ver alterações"
   },
-  "settings.security.single_sign_on": {
-    "es": "Inicio de sesión único (SSO)",
-    "en": "Single sign-on (SSO)",
-    "pt": "Login único (SSO)"
-  },
   "settings.security.system_actor": {
     "es": "Sistema",
     "en": "System",
     "pt": "Sistema"
-  },
-  "settings.security.trail_empty": {
-    "es": "No hay registros con estos filtros.",
-    "en": "No records match these filters.",
-    "pt": "Nenhum registro com estes filtros."
   },
   "settings.security.trail_load_failed": {
     "es": "No se pudo cargar la pista de auditoría.",
@@ -3404,21 +3164,6 @@
     "es": "Documento",
     "en": "Document",
     "pt": "Documento"
-  },
-  "settings.sequences.empty": {
-    "es": "Esta organización todavía no tiene secuencias de documentos.",
-    "en": "This organization has no document sequences yet.",
-    "pt": "Esta organização ainda não tem sequências de documentos."
-  },
-  "settings.sequences.fiscal_note": {
-    "es": "La numeración fiscal (NCF, e-CF) no se configura aquí: son los rangos que autoriza la DGII.",
-    "en": "Fiscal numbering (NCF, e-CF) is not set here: those are the ranges the authority grants.",
-    "pt": "A numeração fiscal não é configurada aqui: são as faixas que a autoridade concede."
-  },
-  "settings.sequences.go_fiscal": {
-    "es": "Ir a rangos fiscales",
-    "en": "Go to fiscal ranges",
-    "pt": "Ir às faixas fiscais"
   },
   "settings.sequences.load_failed": {
     "es": "No se pudieron cargar las secuencias.",
@@ -3586,11 +3331,6 @@
     "en": "Add provider",
     "pt": "Adicionar provedor"
   },
-  "settings.sso.blank_unchanged": {
-    "es": "(en blanco = sin cambios)",
-    "en": "(blank = unchanged)",
-    "pt": "(em branco = sem alterações)"
-  },
   "settings.sso.cancel": {
     "es": "Cancelar",
     "en": "Cancel",
@@ -3602,15 +3342,10 @@
   "settings.sso.client_secret": {
     "literal": "Client Secret"
   },
-  "settings.sso.configure_your_oidc_provider_least_one": {
-    "es": "Configura tu proveedor OIDC. Requiere al menos un dominio verificado para activarlo.",
-    "en": "Configure your OIDC provider. At least one verified domain is required to enable it.",
-    "pt": "Configure seu provedor OIDC. É necessário ao menos um domínio verificado para ativá-lo."
-  },
   "settings.sso.copy": {
-    "es": "copiar",
-    "en": "copy",
-    "pt": "copiar"
+    "es": "Copiar",
+    "en": "Copy",
+    "pt": "Copiar"
   },
   "settings.sso.default_role": {
     "es": "Rol por defecto",
@@ -3671,11 +3406,6 @@
     "en": "Name",
     "pt": "Nome"
   },
-  "settings.sso.no_providers_configured": {
-    "es": "No hay proveedores configurados.",
-    "en": "No providers are configured.",
-    "pt": "Nenhum provedor configurado."
-  },
   "settings.sso.only_users_from_verified_domain_routed": {
     "es": "Solo los usuarios de un dominio verificado serán enrutados a tu SSO.",
     "en": "Only users from a verified domain are routed to your SSO.",
@@ -3705,11 +3435,6 @@
     "en": "Type:",
     "pt": "Tipo:"
   },
-  "settings.sso.uuid_optional": {
-    "es": "(UUID, opcional)",
-    "en": "(UUID, optional)",
-    "pt": "(UUID, opcional)"
-  },
   "settings.sso.value": {
     "es": "Valor:",
     "en": "Value:",
@@ -3724,11 +3449,6 @@
     "es": "Verificar",
     "en": "Verify",
     "pt": "Verificar"
-  },
-  "settings.sso.you_have_not_added_any_domains": {
-    "es": "Aún no has agregado dominios.",
-    "en": "You have not added any domains yet.",
-    "pt": "Você ainda não adicionou domínios."
   },
   "settings.sso.you_must_verify_least_one_domain": {
     "es": "Debes verificar al menos un dominio antes de poder activar un proveedor.",
@@ -3821,9 +3541,14 @@
     "pt": "Ex.: Virtex latam ltda."
   },
   "settings.subsidiaries.empty_description": {
-    "es": "Agrega una empresa que controles para registrar operaciones entre compañías y consolidar. Para tiendas u oficinas de esta misma empresa, usa Sucursales.",
-    "en": "Add a company you control to record intercompany transactions and consolidate. For stores or offices of this same company, use Branches.",
-    "pt": "Adicione uma empresa que você controla para registrar operações entre companhias e consolidar. Para lojas ou escritórios desta mesma empresa, use Filiais."
+    "es": "Agrega una empresa que controles para registrar operaciones entre compañías y consolidar.",
+    "en": "Add a company you control to record intercompany transactions and consolidate.",
+    "pt": "Adicione uma empresa que você controla para registrar operações entre companhias e consolidar."
+  },
+  "settings.subsidiaries.empty_readonly": {
+    "es": "Quien tenga permiso para editar la configuración de la empresa puede registrarlas.",
+    "en": "Someone allowed to edit the company settings can register them.",
+    "pt": "Quem tiver permissão para editar as configurações da empresa pode registrá-las."
   },
   "settings.subsidiaries.id_fiscal": {
     "es": "ID fiscal:",
@@ -3895,11 +3620,6 @@
     "en": "Subsidiary updated.",
     "pt": "Subsidiária atualizada."
   },
-  "settings.user_management.action_cannot_undone": {
-    "es": "Esta acción no se puede deshacer.",
-    "en": "This action cannot be undone.",
-    "pt": "Esta ação não pode ser desfeita."
-  },
   "settings.user_management.block_sign_out": {
     "es": "Bloquear y cerrar sesión",
     "en": "Block and sign out",
@@ -3920,16 +3640,6 @@
     "en": "Delete account",
     "pt": "Excluir conta"
   },
-  "settings.user_management.delete_permanently": {
-    "es": "Eliminar permanentemente",
-    "en": "Delete permanently",
-    "pt": "Excluir permanentemente"
-  },
-  "settings.user_management.delete_user": {
-    "es": "Eliminar usuario",
-    "en": "Delete user",
-    "pt": "Excluir usuário"
-  },
   "settings.user_management.edit_user": {
     "es": "Editar usuario",
     "en": "Edit user",
@@ -3939,16 +3649,6 @@
     "es": "Correo electrónico",
     "en": "Email",
     "pt": "E-mail"
-  },
-  "settings.user_management.errors.email_invalid": {
-    "es": "Escribe un correo electrónico válido.",
-    "en": "Enter a valid email address.",
-    "pt": "Digite um e-mail válido."
-  },
-  "settings.user_management.errors.required": {
-    "es": "Este campo es obligatorio.",
-    "en": "This field is required.",
-    "pt": "Este campo é obrigatório."
   },
   "settings.user_management.force_sign_out": {
     "es": "Forzar cierre de sesión",
@@ -4085,14 +3785,6 @@
     "en": "The users could not be loaded.",
     "pt": "Não foi possível carregar os usuários."
   },
-  "settings.user_management.value": {
-    "literal": "×"
-  },
-  "settings.user_management.you_sure_you_want_permanently_delete": {
-    "es": "¿Está seguro que desea eliminar permanentemente al usuario",
-    "en": "Are you sure you want to permanently delete the user",
-    "pt": "Tem certeza de que deseja excluir permanentemente o usuário"
-  },
   "settings.groups.account": {
     "es": "Tu cuenta",
     "en": "Your account",
@@ -4177,11 +3869,6 @@
     "es": "Los cambios se guardan solos",
     "en": "Changes save automatically",
     "pt": "As alterações são salvas automaticamente"
-  },
-  "settings.shell.denied": {
-    "es": "Esta sección no está disponible para tu rol o para el país de la empresa.",
-    "en": "This section is not available for your role or for the company’s country.",
-    "pt": "Esta seção não está disponível parsua função ou para o país da empresa."
   },
   "settings.shell.read_only": {
     "es": "Solo lectura: cambiar esta sección requiere el permiso «{{permission}}».",
@@ -4293,6 +3980,11 @@
     "en": "Edit company settings",
     "pt": "Editar as configurações da empresa"
   },
+  "settings.permission_names.settings_view_company": {
+    "es": "Ver la configuración de la empresa",
+    "en": "View company settings",
+    "pt": "Ver as configurações da empresa"
+  },
   "settings.permission_names.taxes_edit": {
     "es": "Editar impuestos",
     "en": "Edit taxes",
@@ -4317,6 +4009,11 @@
     "es": "Gestionar flujos de aprobación",
     "en": "Manage approval workflows",
     "pt": "Gerenciar fluxos de aprovação"
+  },
+  "settings.permission_names.workflows_view": {
+    "es": "Ver los flujos de aprobación",
+    "en": "View approval workflows",
+    "pt": "Ver os fluxos de aprovação"
   },
   "settings.declarations.accounting": {
     "es": "Ventas, compras, caja y bancos",
@@ -4373,15 +4070,10 @@
     "en": "Accounts are created and edited in the chart:",
     "pt": "As contas são criadas e editadas no plano:"
   },
-  "settings.sections.go_chart_of_accounts": {
-    "es": "Catálogo de cuentas",
-    "en": "Chart of accounts",
-    "pt": "Plano de contas"
-  },
   "settings.sections.policies_links": {
-    "es": "Monedas, tasas de impuesto y períodos se gestionan en Contabilidad:",
-    "en": "Currencies, tax rates and periods are managed in Accounting:",
-    "pt": "Moedas, alíquotas e períodos são gerenciados em Contabilidade:"
+    "es": "Monedas, impuestos y periodos contables se gestionan en Contabilidad:",
+    "en": "Currencies, taxes and accounting periods are managed in Accounting:",
+    "pt": "Moedas, impostos e períodos contábeis são geridos em Contabilidade:"
   },
   "settings.company_profile.blocked_by_field": {
     "es": "Revisa «{{field}}» para poder guardar.",
@@ -4408,20 +4100,10 @@
     "en": "Without policies, documents post without asking for approval.",
     "pt": "Sem políticas, os documentos são lançados sem pedir aprovação."
   },
-  "settings.sso.no_providers_hint": {
-    "es": "Verifica un dominio y luego agrega el proveedor de identidad de la empresa.",
-    "en": "Verify a domain, then add the company’s identity provider.",
-    "pt": "Verifique um domínio e depois adicione o provedor de identidade da empresa."
-  },
   "settings.security.mfa_impact": {
     "es": "Al activarlo, quien aún no use segundo factor lo configura en su próximo inicio de sesión, antes de entrar.",
     "en": "Once on, anyone without a second factor must set one up at their next sign-in.",
     "pt": "Ao ativar, quem não tiver segundo fator deverá configurá-lo no próximo login."
-  },
-  "settings.security.open_trail": {
-    "es": "Pista de auditoría",
-    "en": "Audit trail",
-    "pt": "Registro de auditoria"
   },
   "settings.security.anyone": {
     "es": "Cualquier persona",
@@ -4448,11 +4130,6 @@
     "en": "From {{from}} to {{to}}",
     "pt": "De {{from}} a {{to}}"
   },
-  "settings.security.trail_empty_filtered": {
-    "es": "Nada coincide con estos filtros.",
-    "en": "Nothing matches these filters.",
-    "pt": "Nada corresponde a estes filtros."
-  },
   "settings.security.detail": {
     "es": "Detalle",
     "en": "Detail",
@@ -4462,16 +4139,6 @@
     "es": "Registro",
     "en": "Record",
     "pt": "Registro"
-  },
-  "settings.branding.personal_note": {
-    "es": "Estas preferencias son solo tuyas y se aplican al instante en este equipo. No cambian lo que ven los demás.",
-    "en": "These preferences are yours alone and apply at once on this device. They do not change what others see.",
-    "pt": "Estas preferências são só suas e se aplicam na hora neste dispositivo. Não mudam o que os outros veem."
-  },
-  "settings.branding.language_hint": {
-    "es": "El idioma de la interfaz. Los documentos usan el idioma de la empresa.",
-    "en": "The interface language. Documents use the company’s language.",
-    "pt": "O idioma da interface. Os documentos usam o idioma da empresa."
   },
   "settings.branding.appearance": {
     "es": "Apariencia",
@@ -4689,9 +4356,9 @@
     "pt": "Email de saída"
   },
   "settings.sections_meta.smtp.description": {
-    "es": "Remitente y servidor con el que se envían facturas y avisos.",
-    "en": "Sender and server used to send invoices and notices.",
-    "pt": "Remetente e servidor com que se enviam faturas e avisos."
+    "es": "Con qué nombre salen las facturas y los avisos, y adónde llegan las respuestas.",
+    "en": "The name invoices and notices are sent under, and where replies go.",
+    "pt": "Com que nome saem as faturas e os avisos, e para onde vão as respostas."
   },
   "settings.sections_meta.smtp.keywords": {
     "es": "correo email smtp remitente",
@@ -4719,9 +4386,9 @@
     "pt": "Contas predefinidas"
   },
   "settings.sections_meta.default_accounts.description": {
-    "es": "Las cuentas en que se contabiliza cada operación: ventas, compras, bancos, impuestos, inventario, moneda, cierre e intercompañía. Un solo guardado.",
-    "en": "The accounts each transaction posts to: sales, purchases, banks, taxes, inventory, currency, closing and intercompany. One save.",
-    "pt": "As contas em que cada operação é lançada: vendas, compras, bancos, impostos, inventário, moeda, fechamento e intercompanhia. Uma só salvamento."
+    "es": "Las cuentas en que se contabiliza cada operación: ventas, compras, bancos, impuestos, inventario, moneda, cierre e intercompañía.",
+    "en": "The accounts each transaction posts to: sales, purchases, banks, taxes, inventory, currency, closing and intercompany.",
+    "pt": "As contas em que cada operação é contabilizada: vendas, compras, bancos, impostos, estoque, moeda, encerramento e intercompanhia."
   },
   "settings.sections_meta.default_accounts.keywords": {
     "es": "cuentas contables mapa contable ventas compras bancos impuestos itbis iva inventario diferencial cambiario cierre intercompañía",
@@ -4754,9 +4421,9 @@
     "pt": "Como a empresa emite perante a DGII: modalidade, faixas de NCF e certificado."
   },
   "settings.sections_meta.fiscal.keywords": {
-    "es": "ncf e-cf dgii comprobantes facturación electrónica certificado rangos",
-    "en": "ncf e-cf dgii fiscal receipts electronic invoicing certificate ranges",
-    "pt": "ncf e-cf dgii comprovantes faturamento eletrônico certificado faixas"
+    "es": "ncf e-cf dgii comprobantes facturación electrónica certificado firma digital rangos impuestos itbis",
+    "en": "ncf e-cf dgii fiscal receipts electronic invoicing certificate digital signature ranges taxes",
+    "pt": "ncf e-cf dgii comprovantes faturamento eletrônico certificado assinatura digital faixas impostos"
   },
   "settings.sections_meta.einvoicing_regime.label": {
     "es": "Facturación electrónica",
@@ -4784,9 +4451,9 @@
     "pt": "Regimes de retenção que a empresa aplica ou suporta."
   },
   "settings.sections_meta.withholding_regimes.keywords": {
-    "es": "retenciones isr itbis retención",
-    "en": "withholding tax",
-    "pt": "retenções irrf retenção"
+    "es": "retenciones isr itbis retención impuestos",
+    "en": "withholding tax taxes",
+    "pt": "retenções irrf retenção impostos"
   },
   "settings.sections_meta.tax_jurisdictions.label": {
     "es": "Jurisdicciones fiscales",
@@ -4809,9 +4476,9 @@
     "pt": "Numeração de documentos"
   },
   "settings.sections_meta.sequences.description": {
-    "es": "Prefijo y próximo número de cada tipo de documento interno. Los NCF se configuran en Comprobantes fiscales.",
-    "en": "Prefix and next number for each internal document type. Fiscal numbering is set in Fiscal documents.",
-    "pt": "Prefixo e próximo número de cada tipo de documento interno. A numeração fiscal configura-se em Comprovantes fiscais."
+    "es": "Prefijo y próximo número de cada tipo de documento interno.",
+    "en": "Prefix and next number for each internal document type.",
+    "pt": "Prefixo e próximo número de cada tipo de documento interno."
   },
   "settings.sections_meta.sequences.keywords": {
     "es": "secuencias numeración prefijo correlativo consecutivo",
@@ -4899,9 +4566,9 @@
     "pt": "Login único (SSO)"
   },
   "settings.sections_meta.sso.description": {
-    "es": "Que tu equipo entre con el proveedor de identidad de la empresa (SAML u OIDC).",
-    "en": "Let your team sign in with the company’s identity provider (SAML or OIDC).",
-    "pt": "Que sua equipe entre com o provedor de identidade da empresa (SAML ou OIDC)."
+    "es": "Que tu equipo entre con el proveedor de identidad de la empresa, por OIDC.",
+    "en": "Let your team sign in with the company's identity provider, over OIDC.",
+    "pt": "Permita que sua equipe entre com o provedor de identidade da empresa, via OIDC."
   },
   "settings.sections_meta.sso.keywords": {
     "es": "sso saml oidc azure okta google dominio inicio de sesión único",
@@ -4914,9 +4581,9 @@
     "pt": "Integrações"
   },
   "settings.sections_meta.integrations.description": {
-    "es": "Las conexiones de la empresa con otros sistemas y su estado.",
-    "en": "The company’s connections to other systems and their state.",
-    "pt": "As ligações da empresa a outros sistemas e seu estado."
+    "es": "Las conexiones de la empresa con otros sistemas: correo entrante, agentes de IA e importación de datos.",
+    "en": "The company's connections with other systems: inbound mail, AI agents and data import.",
+    "pt": "As conexões da empresa com outros sistemas: e-mail de entrada, agentes de IA e importação de dados."
   },
   "settings.sections_meta.integrations.keywords": {
     "es": "integraciones api correo entrante agentes mcp importar exportar",
@@ -4929,9 +4596,9 @@
     "pt": "Inteligência artificial"
   },
   "settings.sections_meta.ai.description": {
-    "es": "Qué permite la empresa a la IA, cuánto gasta y cómo van sus trabajos.",
-    "en": "What the company allows the AI, what it spends and how its jobs are going.",
-    "pt": "O que a empresa permite à IA, quanto gasta e como correm seus trabalhos."
+    "es": "Qué permite la empresa a la IA, cuánto puede gastar y qué está disponible.",
+    "en": "What the company allows the AI, what it may spend and what is available.",
+    "pt": "O que a empresa permite à IA, quanto pode gastar e o que está disponível."
   },
   "settings.sections_meta.ai.keywords": {
     "es": "ia inteligencia artificial créditos presupuesto agentes predicciones anomalías privacidad",
@@ -4991,7 +4658,7 @@
   "settings.roles.system_role_locked": {
     "es": "Los roles del sistema no se editan ni se eliminan: duplícalo para adaptarlo",
     "en": "System roles cannot be edited or deleted: duplicate it to adapt it",
-    "pt": "Funções do sistema não podem ser editadas nem excluídas: duplique-a para adaptá-la"
+    "pt": "Perfis do sistema não podem ser editados nem excluídos: duplique-o para adaptá-lo"
   },
   "settings.roles.kind_system": {
     "es": "Sistema",
@@ -5287,6 +4954,526 @@
     "es": "Factura de proveedor",
     "en": "Supplier bill",
     "pt": "Fatura de fornecedor"
+  },
+  "settings.branding.language_saved_account": {
+    "es": "Se guarda en tu cuenta: lo verás igual en todos tus dispositivos.",
+    "en": "Saved to your account: you'll see it the same on all your devices.",
+    "pt": "Fica salvo na sua conta: você o verá igual em todos os seus dispositivos."
+  },
+  "settings.branding.appearance_saved_device": {
+    "es": "Se guarda en este equipo y se aplica al instante.",
+    "en": "Saved on this device and applied right away.",
+    "pt": "Fica salvo neste dispositivo e é aplicado na hora."
+  },
+  "settings.mail.sender_title": {
+    "es": "Remitente y respuestas",
+    "en": "Sender and replies",
+    "pt": "Remetente e respostas"
+  },
+  "settings.mail.sending_test": {
+    "es": "Enviando…",
+    "en": "Sending…",
+    "pt": "Enviando…"
+  },
+  "settings.mail.test_hint": {
+    "es": "«Enviarme una prueba» te manda un correo con lo que está guardado.",
+    "en": "“Send me a test” emails you a message with what is saved.",
+    "pt": "“Enviar um teste para mim” envia a você uma mensagem com o que está salvo."
+  },
+  "settings.profile.new_email": {
+    "es": "Nuevo correo electrónico",
+    "en": "New email address",
+    "pt": "Novo e-mail"
+  },
+  "settings.profile.password_description": {
+    "es": "La que usas para entrar con tu correo electrónico.",
+    "en": "The one you use to sign in with your email.",
+    "pt": "A que você usa para entrar com seu e-mail."
+  },
+  "settings.regional_format.formats_title": {
+    "es": "Fechas, números y hora",
+    "en": "Dates, numbers and time",
+    "pt": "Datas, números e hora"
+  },
+  "settings.roles.delete_role_locked": {
+    "es": "Eliminar rol (los roles del sistema no se pueden eliminar)",
+    "en": "Delete role (system roles can't be deleted)",
+    "pt": "Excluir perfil (perfis do sistema não podem ser excluídos)"
+  },
+  "settings.security.sessions_more": {
+    "es": "Otras sesiones de este dispositivo ({{count}})",
+    "en": "Other sessions on this device ({{count}})",
+    "pt": "Outras sessões deste dispositivo ({{count}})"
+  },
+  "settings.security_settings.session_details": {
+    "es": "Detalles",
+    "en": "Details",
+    "pt": "Detalhes"
+  },
+  "settings.user_management.no_users_found_help": {
+    "es": "Prueba con otro nombre o correo, o cambia el filtro de estado.",
+    "en": "Try another name or email, or change the status filter.",
+    "pt": "Tente outro nome ou e-mail, ou mude o filtro de status."
+  },
+  "settings.billing.subscription_title": {
+    "es": "Suscripción",
+    "en": "Subscription",
+    "pt": "Assinatura"
+  },
+  "settings.billing.loading": {
+    "es": "Cargando la suscripción…",
+    "en": "Loading the subscription…",
+    "pt": "Carregando a assinatura…"
+  },
+  "settings.billing.overview_failed": {
+    "es": "No se pudo leer la suscripción.",
+    "en": "The subscription could not be read.",
+    "pt": "Não foi possível ler a assinatura."
+  },
+  "settings.billing.per_month": {
+    "es": "{{price}} al mes",
+    "en": "{{price}} a month",
+    "pt": "{{price}} por mês"
+  },
+  "settings.billing.renews_on_date": {
+    "es": "Se renueva el {{date}}",
+    "en": "Renews on {{date}}",
+    "pt": "Renova em {{date}}"
+  },
+  "settings.billing.ends_on_date": {
+    "es": "Finaliza el {{date}}",
+    "en": "Ends on {{date}}",
+    "pt": "Termina em {{date}}"
+  },
+  "settings.billing.switch_plan_notice": {
+    "es": "Para cambiar al plan {{plan}}, Stripe te llevará a su portal seguro.",
+    "en": "To switch to the {{plan}} plan, Stripe will take you to its secure portal.",
+    "pt": "Para mudar para o plano {{plan}}, a Stripe levará você ao portal seguro dela."
+  },
+  "settings.billing.selected_plan_notice": {
+    "es": "Plan seleccionado: {{plan}}. Stripe te llevará a completar el pago de forma segura.",
+    "en": "Selected plan: {{plan}}. Stripe will take you to complete the payment securely.",
+    "pt": "Plano selecionado: {{plan}}. A Stripe levará você para concluir o pagamento com segurança."
+  },
+  "settings.billing.download_invoice_for": {
+    "es": "Descargar la factura del {{date}}",
+    "en": "Download the invoice of {{date}}",
+    "pt": "Baixar a fatura de {{date}}"
+  },
+  "settings.billing.no_plans_title": {
+    "es": "No hay planes disponibles",
+    "en": "No plans available",
+    "pt": "Nenhum plano disponível"
+  },
+  "settings.billing.no_plans_description": {
+    "es": "El catálogo de planes está vacío ahora mismo. Vuelve a intentarlo en unos minutos.",
+    "en": "The plan catalogue is empty right now. Try again in a few minutes.",
+    "pt": "O catálogo de planos está vazio agora. Tente novamente em alguns minutos."
+  },
+  "settings.security.see_also": {
+    "es": "Ver también",
+    "en": "See also",
+    "pt": "Veja também"
+  },
+  "settings.security.filter_period": {
+    "es": "Periodo",
+    "en": "Period",
+    "pt": "Período"
+  },
+  "settings.security.trail_empty_people_title": {
+    "es": "Todavía no hay acciones de personas",
+    "en": "No actions by people yet",
+    "pt": "Ainda não há ações de pessoas"
+  },
+  "settings.security.trail_empty_people_description": {
+    "es": "Se ocultan las acciones que el sistema hace por su cuenta.",
+    "en": "Actions the system takes on its own are hidden.",
+    "pt": "As ações que o sistema faz por conta própria estão ocultas."
+  },
+  "settings.security.show_system_actions": {
+    "es": "Mostrar también las del sistema",
+    "en": "Also show the system's",
+    "pt": "Mostrar também as do sistema"
+  },
+  "settings.security.trail_empty_filtered_title": {
+    "es": "Nada coincide con estos filtros",
+    "en": "Nothing matches these filters",
+    "pt": "Nada corresponde a estes filtros"
+  },
+  "settings.security.trail_empty_filtered_description": {
+    "es": "Cambia o quita los filtros para ver más registros.",
+    "en": "Change or clear the filters to see more records.",
+    "pt": "Altere ou limpe os filtros para ver mais registros."
+  },
+  "settings.security.trail_empty_title": {
+    "es": "La pista está vacía",
+    "en": "The trail is empty",
+    "pt": "A trilha está vazia"
+  },
+  "settings.security.trail_empty_description": {
+    "es": "Todavía no se ha registrado ninguna acción.",
+    "en": "No action has been recorded yet.",
+    "pt": "Nenhuma ação foi registrada ainda."
+  },
+  "settings.sso.copy_value": {
+    "es": "Copiar el valor del registro TXT",
+    "en": "Copy the TXT record value",
+    "pt": "Copiar o valor do registro TXT"
+  },
+  "settings.sso.copy_redirect": {
+    "es": "Copiar la Redirect URI",
+    "en": "Copy the redirect URI",
+    "pt": "Copiar a Redirect URI"
+  },
+  "settings.sso.load_failed": {
+    "es": "No se pudo leer la configuración de SSO.",
+    "en": "The SSO settings could not be read.",
+    "pt": "Não foi possível ler a configuração de SSO."
+  },
+  "settings.sso.domain_added": {
+    "es": "Dominio agregado. Publica el registro DNS TXT y verifícalo.",
+    "en": "Domain added. Publish the DNS TXT record and verify it.",
+    "pt": "Domínio adicionado. Publique o registro DNS TXT e verifique-o."
+  },
+  "settings.sso.domain_verified_notice": {
+    "es": "Dominio {{domain}} verificado.",
+    "en": "Domain {{domain}} verified.",
+    "pt": "Domínio {{domain}} verificado."
+  },
+  "settings.sso.delete_domain_failed": {
+    "es": "No se pudo eliminar el dominio.",
+    "en": "The domain could not be deleted.",
+    "pt": "Não foi possível excluir o domínio."
+  },
+  "settings.sso.delete_provider_failed": {
+    "es": "No se pudo eliminar el proveedor.",
+    "en": "The provider could not be deleted.",
+    "pt": "Não foi possível excluir o provedor."
+  },
+  "settings.sso.copied": {
+    "es": "Copiado al portapapeles.",
+    "en": "Copied to the clipboard.",
+    "pt": "Copiado para a área de transferência."
+  },
+  "settings.sso.secret_required": {
+    "es": "El client secret es obligatorio al crear un proveedor.",
+    "en": "The client secret is required to create a provider.",
+    "pt": "O client secret é obrigatório ao criar um provedor."
+  },
+  "settings.sso.provider_created": {
+    "es": "Proveedor creado. Verifica un dominio y actívalo.",
+    "en": "Provider created. Verify a domain and switch it on.",
+    "pt": "Provedor criado. Verifique um domínio e ative-o."
+  },
+  "settings.sso.provider_updated": {
+    "es": "Proveedor actualizado.",
+    "en": "Provider updated.",
+    "pt": "Provedor atualizado."
+  },
+  "settings.sso.delete_domain_title": {
+    "es": "¿Eliminar el dominio?",
+    "en": "Delete the domain?",
+    "pt": "Excluir o domínio?"
+  },
+  "settings.sso.delete_domain_message": {
+    "es": "Quien entre con una dirección de {{domain}} dejará de pasar por tu SSO.",
+    "en": "Anyone signing in with a {{domain}} address will stop going through your SSO.",
+    "pt": "Quem entrar com um endereço de {{domain}} deixará de passar pelo seu SSO."
+  },
+  "settings.sso.delete_provider_title": {
+    "es": "¿Eliminar el proveedor?",
+    "en": "Delete the provider?",
+    "pt": "Excluir o provedor?"
+  },
+  "settings.sso.delete_provider_message": {
+    "es": "Ya nadie entrará con {{name}}. No se puede deshacer.",
+    "en": "Nobody will sign in with {{name}} any more. This cannot be undone.",
+    "pt": "Ninguém mais entrará com {{name}}. Não é possível desfazer."
+  },
+  "settings.sso.domain_required": {
+    "es": "Escribe el dominio, por ejemplo acme.com.",
+    "en": "Enter the domain, for example acme.com.",
+    "pt": "Digite o domínio, por exemplo acme.com."
+  },
+  "settings.sso.domain_hint": {
+    "es": "El de las direcciones de correo de tu equipo, sin «@».",
+    "en": "The one in your team's email addresses, without “@”.",
+    "pt": "O dos endereços de e-mail da sua equipe, sem “@”."
+  },
+  "settings.sso.activate_needs_domain": {
+    "es": "Activar (primero verifica un dominio)",
+    "en": "Activate (verify a domain first)",
+    "pt": "Ativar (verifique um domínio primeiro)"
+  },
+  "settings.sso.no_domains_title": {
+    "es": "Aún no hay dominios",
+    "en": "No domains yet",
+    "pt": "Ainda não há domínios"
+  },
+  "settings.sso.no_domains_description": {
+    "es": "Escríbelo arriba; después publicarás un registro DNS para verificarlo.",
+    "en": "Enter it above; you'll then publish a DNS record to verify it.",
+    "pt": "Digite-o acima; depois você publicará um registro DNS para verificá-lo."
+  },
+  "settings.sso.no_domains_readonly": {
+    "es": "Quien tenga permiso para editar la configuración de la empresa puede registrarlos y verificarlos.",
+    "en": "Someone allowed to edit the company settings can register and verify them.",
+    "pt": "Quem tiver permissão para editar as configurações da empresa pode registrá-los e verificá-los."
+  },
+  "settings.sso.providers_description": {
+    "es": "El servicio con el que entra tu equipo: Okta, Microsoft Entra, Google Workspace u otro compatible con OIDC.",
+    "en": "The service your team signs in with: Okta, Microsoft Entra, Google Workspace or any other OIDC-compatible one.",
+    "pt": "O serviço com que sua equipe entra: Okta, Microsoft Entra, Google Workspace ou outro compatível com OIDC."
+  },
+  "settings.sso.no_providers_title": {
+    "es": "Aún no hay proveedores",
+    "en": "No providers yet",
+    "pt": "Ainda não há provedores"
+  },
+  "settings.sso.no_providers_description": {
+    "es": "Agrégalo con los datos que te da tu proveedor: la URL del emisor, el client ID y el client secret.",
+    "en": "Add it with the details your provider gives you: the issuer URL, the client ID and the client secret.",
+    "pt": "Adicione-o com os dados que seu provedor fornece: a URL do emissor, o client ID e o client secret."
+  },
+  "settings.sso.no_providers_readonly": {
+    "es": "Quien tenga permiso para editar la configuración de la empresa puede agregarlos.",
+    "en": "Someone allowed to edit the company settings can add them.",
+    "pt": "Quem tiver permissão para editar as configurações da empresa pode adicioná-los."
+  },
+  "settings.sso.secret_keep_hint": {
+    "es": "Déjalo en blanco para conservar el actual.",
+    "en": "Leave it blank to keep the current one.",
+    "pt": "Deixe em branco para manter o atual."
+  },
+  "settings.sso.no_default_role": {
+    "es": "Sin rol por defecto",
+    "en": "No default role",
+    "pt": "Sem perfil padrão"
+  },
+  "settings.sso.default_role_hint": {
+    "es": "El rol que recibe quien entra por primera vez con este proveedor.",
+    "en": "The role given to whoever signs in with this provider for the first time.",
+    "pt": "O perfil que recebe quem entra pela primeira vez com este provedor."
+  },
+  "settings.fiscal.screen_configures_dominican_regime": {
+    "es": "Esta página configura el régimen de la República Dominicana. El de tu mercado está en",
+    "en": "This page configures the Dominican Republic's regime. Yours is in",
+    "pt": "Esta página configura o regime da República Dominicana. O do seu mercado está em"
+  },
+  "settings.fiscal.gap.range_any": {
+    "es": "Un rango de comprobantes vigente, tradicional (serie B) o electrónico (serie E).",
+    "en": "A current document range, traditional (B series) or electronic (E series).",
+    "pt": "Uma faixa de comprovantes vigente, tradicional (série B) ou eletrônica (série E)."
+  },
+  "settings.fiscal.gap.range_e": {
+    "es": "Un rango de comprobantes electrónicos (serie E) vigente.",
+    "en": "A current electronic document range (E series).",
+    "pt": "Uma faixa de comprovantes eletrônicos (série E) vigente."
+  },
+  "settings.fiscal.gap.range_b": {
+    "es": "Un rango de comprobantes tradicionales (serie B) vigente.",
+    "en": "A current traditional document range (B series).",
+    "pt": "Uma faixa de comprovantes tradicionais (série B) vigente."
+  },
+  "settings.fiscal.gap.tax_id": {
+    "es": "El {{label}} de tu empresa.",
+    "en": "Your company's {{label}}.",
+    "pt": "O {{label}} da sua empresa."
+  },
+  "settings.fiscal.gap.certificate": {
+    "es": "Un certificado digital vigente para firmar los comprobantes electrónicos.",
+    "en": "A valid digital certificate to sign electronic documents.",
+    "pt": "Um certificado digital válido para assinar os comprovantes eletrônicos."
+  },
+  "settings.fiscal.gap.register_range": {
+    "es": "Registrar un rango",
+    "en": "Register a range",
+    "pt": "Registrar uma faixa"
+  },
+  "settings.fiscal.gap.upload_certificate": {
+    "es": "Cargar el certificado",
+    "en": "Upload the certificate",
+    "pt": "Carregar o certificado"
+  },
+  "settings.fiscal.do.no_ranges_title": {
+    "es": "Aún no hay rangos registrados",
+    "en": "No ranges registered yet",
+    "pt": "Ainda não há faixas registradas"
+  },
+  "settings.fiscal.do.no_ranges_description": {
+    "es": "Registra arriba cada rango que te autorizó la DGII.",
+    "en": "Register above each range the DGII authorised.",
+    "pt": "Registre acima cada faixa que a DGII autorizou."
+  },
+  "settings.fiscal.do.no_ranges_readonly": {
+    "es": "Quien tenga permiso para editar los impuestos puede registrarlos.",
+    "en": "Someone allowed to edit taxes can register them.",
+    "pt": "Quem tiver permissão para editar os impostos pode registrá-las."
+  },
+  "settings.fiscal.do.dgii_reports_where": {
+    "es": "Los formatos 606, 607, 608 y 609 se generan, cada mes, en",
+    "en": "Forms 606, 607, 608 and 609 are generated each month in",
+    "pt": "Os formatos 606, 607, 608 e 609 são gerados, a cada mês, em"
+  },
+  "settings.fiscal.choose_certificate": {
+    "es": "Elegir archivo",
+    "en": "Choose file",
+    "pt": "Escolher arquivo"
+  },
+  "settings.fiscal.no_file_chosen": {
+    "es": "Ningún archivo elegido",
+    "en": "No file chosen",
+    "pt": "Nenhum arquivo escolhido"
+  },
+  "settings.fiscal.turn_off_named": {
+    "es": "Desactivar el certificado {{alias}}",
+    "en": "Switch off the certificate {{alias}}",
+    "pt": "Desativar o certificado {{alias}}"
+  },
+  "settings.fiscal.deactivate_certificate_title": {
+    "es": "¿Desactivar el certificado?",
+    "en": "Switch the certificate off?",
+    "pt": "Desativar o certificado?"
+  },
+  "settings.fiscal.deactivate_certificate_message": {
+    "es": "Sin un certificado activo, los comprobantes electrónicos no se pueden firmar. {{alias}} dejará de usarse.",
+    "en": "Without an active certificate, electronic documents cannot be signed. {{alias}} will stop being used.",
+    "pt": "Sem um certificado ativo, os comprovantes eletrônicos não podem ser assinados. {{alias}} deixará de ser usado."
+  },
+  "settings.fiscal.no_certificate_title": {
+    "es": "Aún no hay certificado",
+    "en": "No certificate yet",
+    "pt": "Ainda não há certificado"
+  },
+  "settings.fiscal.no_certificate_description": {
+    "es": "Cárgalo con el formulario de arriba; se guarda cifrado y solo se usa para firmar.",
+    "en": "Upload it with the form above; it is stored encrypted and only used to sign.",
+    "pt": "Carregue-o com o formulário acima; ele fica cifrado e só é usado para assinar."
+  },
+  "settings.pages.withholding.new_title": {
+    "es": "Nuevo régimen",
+    "en": "New regime",
+    "pt": "Novo regime"
+  },
+  "settings.pages.withholding.new_description": {
+    "es": "Una retención que la empresa aplica a sus proveedores o que le aplican sus clientes.",
+    "en": "A withholding the company applies to its suppliers or its customers apply to it.",
+    "pt": "Uma retenção que a empresa aplica aos fornecedores ou que os clientes aplicam a ela."
+  },
+  "settings.pages.withholding.empty_title": {
+    "es": "Todavía no hay regímenes",
+    "en": "No regimes yet",
+    "pt": "Ainda não há regimes"
+  },
+  "settings.pages.withholding.rate_column": {
+    "es": "Tasa",
+    "en": "Rate",
+    "pt": "Alíquota"
+  },
+  "settings.pages.withholding.delete_title": {
+    "es": "¿Eliminar el régimen?",
+    "en": "Delete the regime?",
+    "pt": "Excluir o regime?"
+  },
+  "settings.pages.withholding.delete_message": {
+    "es": "{{name}} dejará de aplicarse a los documentos nuevos. No se puede deshacer.",
+    "en": "{{name}} will no longer apply to new documents. This cannot be undone.",
+    "pt": "{{name}} deixará de ser aplicado aos novos documentos. Não é possível desfazer."
+  },
+  "settings.sequences.fiscal_where": {
+    "es": "La numeración fiscal (NCF y e-CF) sale de los rangos que autoriza la DGII, en",
+    "en": "Fiscal numbering (NCF and e-CF) comes from the ranges the DGII authorises, in",
+    "pt": "A numeração fiscal (NCF e e-CF) vem das faixas que a DGII autoriza, em"
+  },
+  "settings.sequences.empty_title": {
+    "es": "Esta empresa todavía no tiene secuencias",
+    "en": "This company has no sequences yet",
+    "pt": "Esta empresa ainda não tem sequências"
+  },
+  "settings.sequences.empty_description": {
+    "es": "Se crean al dar de alta la empresa. Si no aparece ninguna, avisa a soporte: sin ellas no se pueden emitir documentos.",
+    "en": "They are created when the company is set up. If none appears, contact support: documents cannot be issued without them.",
+    "pt": "São criadas ao cadastrar a empresa. Se nenhuma aparecer, avise o suporte: sem elas não é possível emitir documentos."
+  },
+  "settings.approvals.empty_title": {
+    "es": "Todavía no hay políticas",
+    "en": "No policies yet",
+    "pt": "Ainda não há políticas"
+  },
+  "settings.approvals.edit_named": {
+    "es": "Editar {{name}}",
+    "en": "Edit {{name}}",
+    "pt": "Editar {{name}}"
+  },
+  "settings.approvals.remove_step_n": {
+    "es": "Quitar el paso {{n}}",
+    "en": "Remove step {{n}}",
+    "pt": "Remover a etapa {{n}}"
+  },
+  "settings.subsidiaries.not_branch": {
+    "es": "Una subsidiaria es otra empresa que controlas, con su propio RNC/RUC y sus propios libros. Las tiendas u oficinas de esta misma empresa son",
+    "en": "A subsidiary is another company you control, with its own tax ID and its own books. Stores or offices of this same company are",
+    "pt": "Uma subsidiária é outra empresa que você controla, com seu próprio CNPJ e seus próprios livros. As lojas ou escritórios desta mesma empresa são"
+  },
+  "settings.branding.load_failed": {
+    "es": "No se pudo leer la marca de la empresa.",
+    "en": "The company's brand could not be read.",
+    "pt": "Não foi possível ler a marca da empresa."
+  },
+  "settings.security.sessions_failed": {
+    "es": "No se pudo leer la lista de sesiones.",
+    "en": "The list of sessions could not be read.",
+    "pt": "Não foi possível ler a lista de sessões."
+  },
+  "settings.profile.job_titles_failed": {
+    "es": "No se pudo cargar la lista de cargos.",
+    "en": "The list of job titles could not be loaded.",
+    "pt": "Não foi possível carregar a lista de cargos."
+  },
+  "settings.fiscal.load_failed": {
+    "es": "No se pudo leer la configuración fiscal.",
+    "en": "The fiscal settings could not be read.",
+    "pt": "Não foi possível ler a configuração fiscal."
+  },
+  "settings.shell.denied_permission": {
+    "es": "Para abrir esta sección hace falta el permiso «{{permission}}».",
+    "en": "Opening this section requires the “{{permission}}” permission.",
+    "pt": "Para abrir esta seção é necessária a permissão “{{permission}}”."
+  },
+  "settings.shell.denied_country": {
+    "es": "Esta sección no se aplica al país de la empresa.",
+    "en": "This section does not apply to the company's country.",
+    "pt": "Esta seção não se aplica ao país da empresa."
+  },
+  "settings.roles.view": {
+    "es": "Ver",
+    "en": "View",
+    "pt": "Ver"
+  },
+  "settings.roles.view_role": {
+    "es": "Ver los permisos del rol",
+    "en": "View the role permissions",
+    "pt": "Ver as permissões do perfil"
+  },
+  "settings.roles.no_permissions": {
+    "es": "Este rol todavía no tiene permisos.",
+    "en": "This role has no permissions yet.",
+    "pt": "Este perfil ainda não tem permissões."
+  },
+  "settings.roles.permissions_required": {
+    "es": "Marca al menos un permiso",
+    "en": "Select at least one permission",
+    "pt": "Marque pelo menos uma permissão"
+  },
+  "settings.billing.load_failed": {
+    "es": "No se pudieron leer ni la suscripción ni los planes.",
+    "en": "Neither the subscription nor the plans could be read.",
+    "pt": "Não foi possível ler a assinatura nem os planos."
+  },
+  "settings.integrations.load_failed": {
+    "es": "No se pudieron leer ni el correo entrante ni los agentes conectados.",
+    "en": "Neither the inbound mail nor the connected agents could be read.",
+    "pt": "Não foi possível ler o e-mail de entrada nem os agentes conectados."
   },
   "settings.fiscal.level.needs_configuration": {
     "es": "Necesita tu configuración",

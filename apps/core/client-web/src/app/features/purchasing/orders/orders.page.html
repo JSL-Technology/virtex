@@ -19,14 +19,14 @@
   @if (failed()) {
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
-  <div class="table-container card">
-    <table [appTableMenu]="ordersMenu" [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="purchasing.orders.title">
+    <table [appTableMenu]="ordersMenu" [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="number">{{ 'purchasing.orders.order' | translate }}</th>
           <th appSortHeader="supplier">{{ 'purchasing.orders.supplier' | translate }}</th>
           <th appSortHeader="orderDate">{{ 'purchasing.orders.order_date' | translate }}</th>
-          <th appSortHeader="total" class="text-right">{{ 'purchasing.orders.total' | translate }}</th>
+          <th appSortHeader="total" class="numeric">{{ 'purchasing.orders.total' | translate }}</th>
           <th appSortHeader="status" class="text-center">{{ 'purchasing.orders.status' | translate }}</th>
           @if (branches.hasBranches()) {
             <th>{{ 'branches.picker.label' | translate }}</th>
@@ -44,7 +44,7 @@
             <td>{{ order.supplier?.name }}</td>
             <!-- Through the locale formatter: `order.orderDate` is an ISO date, not a sentence. -->
             <td>{{ order.orderDate | vxDate }}</td>
-            <td class="text-right">{{ order.total | vxMoney: order.currencyCode }}</td>
+            <td class="numeric">{{ order.total | vxMoney: order.currencyCode }}</td>
             <td class="text-center">
               <vx-badge [tone]="statusTone(order.status)" [struck]="order.status === 'CANCELLED'">
                 {{ 'purchasing.orders.status_label.' + order.status | translate }}
@@ -57,6 +57,6 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
   }
 </vx-list-shell>

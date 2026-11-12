@@ -1,91 +1,98 @@
-// Width and padding are the settings window's (`.sm-page`).
-.s-page { display: flex; flex-direction: column; gap: var(--space-5); }
+@use 'assets/styles/design-system' as ds;
+@use 'app/features/settings/shared/settings-ui' as ui;
 
-.s-header {
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 1.25rem;
+//  Retenciones. Grupos, estados, tabla, insignias y desplegable son los comunes de la modal; aquí
+//  queda la rejilla del formulario y la lista de cobertura.
 
-  &__title { font-size: 1.375rem; font-weight: 700; color: var(--text-primary); margin-bottom: .25rem; }
-  &__subtitle { font-size: .875rem; color: var(--text-secondary); }
-}
+.s-page { display: block; }
 
-.s-state { padding: 2rem 0; color: var(--text-secondary); }
-
-/* What the product covers here, per capability. Colour carries the level, text always states it. */
-.w-coverage {
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
-
-  h2 { font-size: .9375rem; font-weight: 600; margin-bottom: .75rem; color: var(--text-primary); }
-  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
-}
-
-.w-level {
-  display: grid;
-  grid-template-columns: minmax(10rem, auto) minmax(8rem, auto) 1fr;
-  gap: .5rem 1rem;
-  padding: .5rem .75rem;
-  border-left: 3px solid var(--border-color);
-  font-size: .8125rem;
-  color: var(--text-secondary);
-
-  &--implemented { border-left-color: var(--success-text, var(--text-primary)); }
-  &--needs-credentials { border-left-color: var(--warning-text, var(--text-secondary)); }
-  &--not-implemented { border-left-color: var(--error-text); }
-}
-
-.w-capability { font-weight: 600; color: var(--text-primary); }
-.w-status { font-weight: 600; }
-.w-detail, .w-requires { grid-column: 1 / -1; }
-.w-requires { font-style: italic; }
-
-.w-form { padding: 1.25rem; margin: 1rem 0 1.5rem; }
-
+// ── Formulario ───────────────────────────────────────────────────────
 .w-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: var(--space-4);
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: .35rem;
-  font-size: .8125rem;
-  color: var(--text-secondary);
+  gap: var(--space-2);
+  min-width: 0;
 
-  input, select {
-    padding: .5rem .625rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    background: var(--surface-raised);
-    color: var(--text-primary);
-    font: inherit;
-  }
+  label,
+  legend { @include ds.field-label; padding: 0; }
+
+  input,
+  select { @include ds.input-base; }
 
   &--wide { grid-column: 1 / -1; }
+  &--short input { max-width: 8rem; }
 }
 
-.field-hint { color: var(--text-secondary); font-size: .75rem; }
-
-.w-payers { display: flex; flex-wrap: wrap; gap: 1rem; }
-.w-payer { display: inline-flex; align-items: center; gap: .35rem; }
-
-.w-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-
-  th, td { padding: .5rem .625rem; border-bottom: 1px solid var(--border-color); text-align: left; }
-  th { color: var(--text-secondary); font-weight: 600; font-size: .8125rem; }
-  .numeric { text-align: right; }
+.w-payers-field {
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
-.w-basis { font-size: .8125rem; color: var(--text-secondary); max-width: 22rem; }
-.w-row--inactive { opacity: .55; }
+.field-hint { @include ds.field-hint; margin: 0; }
 
-.w-coverage details > summary { cursor: pointer; list-style-position: inside; }
-.w-coverage details > summary h2 { display: inline; }
-.w-coverage details[open] > summary { margin-bottom: var(--space-3); }
+.w-payers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+
+.w-payer {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--content-primary);
+
+  input { accent-color: var(--accent-solid); }
+}
+
+.w-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+// ── Lista (la tabla es `vx-table`) ─────────────────────────────────────
+//  La base legal ocupa varias líneas: cada fila se lee desde arriba.
+.w-table td { vertical-align: top; }
+
+.w-code { @include ds.numeric; white-space: nowrap; }
+.w-basis { color: var(--content-secondary); max-width: 22rem; }
+.w-row--inactive td { color: var(--content-tertiary); }
+
+.icon-button { @include ui.icon-button; }
+
+// ── Cobertura ────────────────────────────────────────────────────────
+.w-coverage {
+  display: block;
+  margin-top: var(--space-8);
+}
+
+.w-levels {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.w-level {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) auto;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  padding-block: var(--space-2);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: var(--text-sm);
+
+  &:last-child { border-bottom: 0; }
+}
+
+.w-capability { font-weight: var(--font-medium); color: var(--content-primary); }
+.w-detail { grid-column: 1 / -1; color: var(--content-secondary); }

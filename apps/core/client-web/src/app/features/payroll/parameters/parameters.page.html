@@ -110,42 +110,44 @@
           @case ('TABLE') {
             <div class="brackets">
               <p class="section-note">{{ 'payroll.parameters.table_help' | translate }}</p>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th class="numeric">{{ 'payroll.parameters.over' | translate }}</th>
-                    <th class="numeric">{{ 'payroll.parameters.up_to' | translate }}</th>
-                    <th class="numeric">{{ 'payroll.parameters.rate_percent' | translate }}</th>
-                    <th class="numeric">{{ 'payroll.parameters.base_amount' | translate }}</th>
-                    <th><span class="sr-only">{{ 'payroll.parameters.remove_bracket' | translate }}</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (bracket of draft.brackets; track $index; let i = $index) {
+              <vx-table labelKey="payroll.parameters.company_title" layout="grid" frame="none">
+                <table>
+                  <thead>
                     <tr>
-                      <td class="numeric"><input type="number" step="0.01" min="0" [value]="bracket.over"
-                        [attr.aria-label]="'payroll.parameters.over' | translate"
-                        (input)="patchBracket(i, { over: +$any($event.target).value })" /></td>
-                      <td class="numeric"><input type="number" step="0.01" min="0" [value]="bracket.upTo ?? ''"
-                        [attr.aria-label]="'payroll.parameters.up_to' | translate"
-                        [placeholder]="'payroll.parameters.open_bracket' | translate"
-                        (input)="patchBracket(i, { upTo: numberOrNull($any($event.target).value) })" /></td>
-                      <td class="numeric"><input type="number" step="0.0001" min="0" max="100" [value]="bracket.ratePercent"
-                        [attr.aria-label]="'payroll.parameters.rate_percent' | translate"
-                        (input)="patchBracket(i, { ratePercent: +$any($event.target).value })" /></td>
-                      <td class="numeric"><input type="number" step="0.01" min="0" [value]="bracket.baseAmount"
-                        [attr.aria-label]="'payroll.parameters.base_amount' | translate"
-                        (input)="patchBracket(i, { baseAmount: +$any($event.target).value })" /></td>
-                      <td>
-                        <button type="button" class="icon-button" [disabled]="draft.brackets.length === 1"
-                          [attr.aria-label]="'payroll.parameters.remove_bracket' | translate" (click)="removeBracket(i)">
-                          <lucide-icon [img]="RemoveIcon" size="14" aria-hidden="true"></lucide-icon>
-                        </button>
-                      </td>
+                      <th class="numeric">{{ 'payroll.parameters.over' | translate }}</th>
+                      <th class="numeric">{{ 'payroll.parameters.up_to' | translate }}</th>
+                      <th class="numeric">{{ 'payroll.parameters.rate_percent' | translate }}</th>
+                      <th class="numeric">{{ 'payroll.parameters.base_amount' | translate }}</th>
+                      <th><span class="sr-only">{{ 'payroll.parameters.remove_bracket' | translate }}</span></th>
                     </tr>
-                  }
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    @for (bracket of draft.brackets; track $index; let i = $index) {
+                      <tr>
+                        <td class="numeric"><input type="number" step="0.01" min="0" [value]="bracket.over"
+                          [attr.aria-label]="'payroll.parameters.over' | translate"
+                          (input)="patchBracket(i, { over: +$any($event.target).value })" /></td>
+                        <td class="numeric"><input type="number" step="0.01" min="0" [value]="bracket.upTo ?? ''"
+                          [attr.aria-label]="'payroll.parameters.up_to' | translate"
+                          [placeholder]="'payroll.parameters.open_bracket' | translate"
+                          (input)="patchBracket(i, { upTo: numberOrNull($any($event.target).value) })" /></td>
+                        <td class="numeric"><input type="number" step="0.0001" min="0" max="100" [value]="bracket.ratePercent"
+                          [attr.aria-label]="'payroll.parameters.rate_percent' | translate"
+                          (input)="patchBracket(i, { ratePercent: +$any($event.target).value })" /></td>
+                        <td class="numeric"><input type="number" step="0.01" min="0" [value]="bracket.baseAmount"
+                          [attr.aria-label]="'payroll.parameters.base_amount' | translate"
+                          (input)="patchBracket(i, { baseAmount: +$any($event.target).value })" /></td>
+                        <td>
+                          <button type="button" class="icon-button" [disabled]="draft.brackets.length === 1"
+                            [attr.aria-label]="'payroll.parameters.remove_bracket' | translate" (click)="removeBracket(i)">
+                            <lucide-icon [img]="RemoveIcon" size="14" aria-hidden="true"></lucide-icon>
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </vx-table>
               <button type="button" class="secondary-button" (click)="addBracket()">
                 {{ 'payroll.parameters.add_bracket' | translate }}
               </button>
@@ -175,8 +177,8 @@
     @if (companyParameters().length === 0) {
       <p class="section-note">{{ 'payroll.parameters.company_empty' | translate }}</p>
     } @else {
-      <div class="table-wrapper">
-        <table class="data-table">
+      <vx-table labelKey="payroll.parameters.company_title">
+        <table>
           <thead>
             <tr>
               <th>{{ 'payroll.parameters.parameter' | translate }}</th>
@@ -186,7 +188,7 @@
               <th>{{ 'payroll.parameters.in_force' | translate }}</th>
               <th>{{ 'payroll.parameters.source' | translate }}</th>
               @if (canManageCompany()) {
-                <th class="text-right">{{ 'common.actions' | translate }}</th>
+                <th class="numeric">{{ 'common.actions' | translate }}</th>
               }
             </tr>
           </thead>
@@ -237,7 +239,7 @@
                   }
                 </td>
                 @if (canManageCompany()) {
-                  <td class="text-right">
+                  <td class="numeric">
                     @if (isCurrent(row) || row.requiresInput) {
                       <span class="row-actions">
                       <button type="button" class="secondary-button" [disabled]="busy()" (click)="startCompanyValue(row)">
@@ -254,7 +256,7 @@
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
     }
   </section>
 
@@ -323,8 +325,8 @@
       </div>
     }
 
-    <div class="table-wrapper">
-      <table class="data-table">
+    <vx-table labelKey="payroll.parameters.contributions">
+      <table>
         <thead>
           <tr>
             <th>{{ 'payroll.parameters.regime' | translate }}</th>
@@ -333,7 +335,7 @@
             <th>{{ 'payroll.parameters.base' | translate }}</th>
             <th>{{ 'payroll.parameters.in_force' | translate }}</th>
             @if (canManage()) {
-              <th class="text-right">{{ 'common.actions' | translate }}</th>
+              <th class="numeric">{{ 'common.actions' | translate }}</th>
             }
           </tr>
         </thead>
@@ -352,7 +354,7 @@
                 }
               </td>
               @if (canManage()) {
-                <td class="text-right">
+                <td class="numeric">
                   <button type="button" class="secondary-button" (click)="startContribution(row)">
                     {{ 'payroll.parameters.supersede' | translate }}
                   </button>
@@ -362,7 +364,7 @@
           }
         </tbody>
       </table>
-    </div>
+    </vx-table>
   </section>
 
   <!-- ── Reference values ──────────────────────────────────────────── -->
@@ -413,15 +415,15 @@
       </div>
     }
 
-    <div class="table-wrapper">
-      <table class="data-table">
+    <vx-table labelKey="payroll.parameters.references">
+      <table>
         <thead>
           <tr>
             <th>{{ 'payroll.parameters.key' | translate }}</th>
             <th class="numeric">{{ 'payroll.parameters.value' | translate }}</th>
             <th>{{ 'payroll.parameters.in_force' | translate }}</th>
             @if (canManage()) {
-              <th class="text-right">{{ 'common.actions' | translate }}</th>
+              <th class="numeric">{{ 'common.actions' | translate }}</th>
             }
           </tr>
         </thead>
@@ -438,7 +440,7 @@
                 }
               </td>
               @if (canManage()) {
-                <td class="text-right">
+                <td class="numeric">
                   <button type="button" class="secondary-button" (click)="startReference(row)">
                     {{ 'payroll.parameters.supersede' | translate }}
                   </button>
@@ -448,7 +450,7 @@
           }
         </tbody>
       </table>
-    </div>
+    </vx-table>
   </section>
 
   <!-- ── Income-tax scale ──────────────────────────────────────────── -->
@@ -459,8 +461,8 @@
     <!-- A scale is a set, replaced whole as of a date, which is why there is no per-row edit. -->
     <p class="section-note">{{ 'payroll.parameters.tax_scale_help' | translate }}</p>
 
-    <div class="table-wrapper">
-      <table class="data-table">
+    <vx-table labelKey="payroll.parameters.tax_scale">
+      <table>
         <thead>
           <tr>
             <th class="numeric">{{ 'payroll.parameters.from_annual' | translate }}</th>
@@ -495,7 +497,7 @@
           }
         </tbody>
       </table>
-    </div>
+    </vx-table>
   </section>
   }
 

@@ -201,9 +201,11 @@ componente que use los tokens ya respeta la preferencia sin comprobarla.
 
 Botones `ds.button-primary|secondary|ghost|danger|icon|link`, formularios
 `ds.input-base`, `ds.field-label|hint|error`, superficies `ds.surface-card|
-overlay`, datos `ds.data-table`, `ds.badge($variante)`, `ds.numeric`, diálogos
+overlay`, `ds.badge($variante)`, `ds.numeric`, diálogos
 `ds.modal-scrim`, `ds.modal-panel`, y utilidades `ds.focus-ring`,
 `ds.transition`, `ds.truncate`, `ds.skeleton`, `ds.empty-state`, `ds.scrollbar`.
+
+No hay mixin de tabla: una tabla es el componente `vx-table` (abajo).
 
 `ds.transition()` exige propiedades explícitas a propósito. `transition: all`
 obliga al motor a vigilarlas todas y hace que los colores «repten» al cambiar
@@ -282,6 +284,7 @@ contenido».
 npm run lint:design-system   # ambas
 npm run lint:tokens          # literales, tokens fantasma, secuestro de tokens
 npm run lint:contrast        # WCAG sobre el CSS compilado
+npm run verify:tables        # toda <table> dentro de <vx-table>, sin clases de tabla retiradas
 ```
 
 `lint:tokens` comprueba tres cosas:
@@ -477,6 +480,27 @@ Los tres existen porque los tres se escribían a mano y **el de error casi nunca
 lo normal era una pantalla en blanco indistinguible de «no hay nada». Un error
 sin reintento obliga a recargar la página entera.
 
+### `vx-table` — la tabla
+
+`apps/core/client-web/src/app/shared/components/table/` (con su README)
+
+```html
+<vx-table labelKey="invoices.list.title">
+  <table [appSort]="table.sort">
+    <thead><tr><th appSortHeader="number">…</th><th class="numeric">…</th><th class="actions-column">…</th></tr></thead>
+    <tbody>@for (row of table.rows(); track row.id) { <tr appRowLink>…</tr> }</tbody>
+  </table>
+</vx-table>
+```
+
+Envuelve una `<table>` nativa: las filas, `appSort`, `appRowMenu` y `appRowLink` siguen en la
+página. El componente pone el marco (borde, sin sombra; `frame="none"` dentro de algo que ya la
+delimita), la cabecera fija, la densidad, la región desplazable con nombre y foco, y en un
+contenedor estrecho apila cada fila de una lista como ficha «etiqueta: valor» (`layout="grid"`
+para informes y líneas de documento, que conservan sus columnas). Las celdas dicen qué contienen
+con `numeric`, `actions-column`, `title-column`, `nowrap` y `text-center`. La selección múltiple
+es `vxSelectAll`/`vxSelect` con `ListSelectionService`, y sus acciones van en `vx-bulk-bar`.
+
 ### `vx-pager` — paginación
 
 `apps/core/client-web/src/app/shared/components/pager/`
@@ -516,7 +540,7 @@ inventarse los identificadores.
 
 1. `@use 'assets/styles/design-system' as ds;`
 2. Solo tokens; ningún literal.
-3. Mixins antes que reimplementar un botón o una tabla.
+3. Mixins antes que reimplementar un botón; `vx-table` para cualquier tabla.
 4. Míralo en claro **y** en oscuro.
 5. Recórrelo con el tabulador: todo lo interactivo debe mostrar foco.
 6. `npm run lint:design-system`.

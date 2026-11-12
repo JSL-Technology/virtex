@@ -4,6 +4,16 @@ export const CONFIG_PERMISSIONS = {
   TAXES_EDIT: 'taxes:edit',
   TAXES_DELETE: 'taxes:delete',
 
+  /**
+   * Read the company's configuration without changing it: structure, outgoing mail, default
+   * accounts, accounting policies, numbering, single sign-on and integrations.
+   *
+   * Reading those pages used to require `SETTINGS_EDIT_COMPANY`, so there was no read-only view to
+   * give an accountant or an auditor: either they could change the configuration or they could not
+   * see it. `SETTINGS_EDIT_COMPANY` implies this one (`IMPLIED_PERMISSIONS`), so every role that
+   * could edit keeps reading.
+   */
+  SETTINGS_VIEW_COMPANY: 'settings:view_company',
   SETTINGS_EDIT_COMPANY: 'settings:edit_company',
   SETTINGS_EDIT_BRANDING: 'settings:edit_branding',
 
@@ -26,6 +36,8 @@ export const CONFIG_PERMISSIONS = {
   /** The finance dashboard: ten KPI endpoints over the ledger, plus the consolidated cash flow. */
   DASHBOARD_VIEW: 'dashboard:view',
 
+  /** Read the approval policies: who approves what, from which amount. Implied by `WORKFLOWS_MANAGE`. */
+  WORKFLOWS_VIEW: 'workflows:view',
   WORKFLOWS_MANAGE: 'workflows:manage',
   /**
    * Deciding an approval request.

@@ -138,7 +138,8 @@
     "ai.admin.state": [
       "available",
       "not_in_plan",
-      "provider_missing"
+      "provider_missing",
+      "engine_offline"
     ],
     "ai.policy.feature": [
       "anomaly_narrative",
@@ -1135,6 +1136,10 @@
       "CREDIT_NOTE",
       "VENDOR_BILL",
       "JOURNAL_ENTRY"
+    ],
+    "shell.table.selected": [
+      "one",
+      "other"
     ],
     "transition.line_count": [
       "one",

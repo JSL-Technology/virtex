@@ -1,12 +1,13 @@
-import { SettingsActionsDirective } from '../shell';
+import { SettingsActionsDirective, SettingsShellService } from '../shell';
 import { RoleNamePipe } from '../../../shared/pipes/role-name.pipe';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { DialogService } from '../../../core/services/dialog.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 // ✅ CORREGIDO: Se importa el ícono 'X' que se usará como CloseIcon.
-import { LucideAngularModule, Plus, Edit, Trash, Copy, X } from 'lucide-angular';
+import { LucideAngularModule, Plus, Edit, Trash, Copy, X, MoreHorizontal, Check } from 'lucide-angular';
 
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
@@ -20,26 +21,34 @@ import {
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { hasPermission } from '@virteex/shared/util-auth';
 import { VxDialogComponent } from '../../../shared/components/dialog';
 import { VxBadgeComponent } from '../../../shared/components/badge';
+import { VxErrorStateComponent, VxNoticeComponent, VxSpinnerComponent } from '../../../shared/components/feedback';
+import { VxFieldErrorComponent } from '../../../shared/components/field-error';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../shared/components/context-menu';
 
 
 
+import { VX_TABLE } from '../../../shared/components/table';
 @Component({
   selector: 'app-roles-management-page',
   standalone: true,
-  imports: [SettingsActionsDirective, RoleNamePipe, 
+  imports: [...VX_TABLE, SettingsActionsDirective, RoleNamePipe, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,
     HasPermissionDirective,
     TranslateModule,
-    ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent],
+    ...VX_FORM_A11Y, VxDialogComponent, VxBadgeComponent, VxSpinnerComponent, VxErrorStateComponent, VxNoticeComponent, VxFieldErrorComponent, ...VX_CONTEXT_MENU],
   templateUrl: './roles.page.html',
   styleUrls: ['./roles.page.scss'],
 })
 export class RolesManagementPage implements OnInit {
   private readonly dialog = inject(DialogService);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  /** Whether the person may change roles (`roles:edit`); the window decides from the section. */
+  protected readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
   private readonly fb = inject(FormBuilder);
   private readonly rolesService = inject(RolesService);
   private readonly notificationService = inject(NotificationService);
@@ -50,6 +59,8 @@ export class RolesManagementPage implements OnInit {
   protected readonly EditIcon = Edit;
   protected readonly TrashIcon = Trash;
   protected readonly CloneIcon = Copy;
+  protected readonly MoreIcon = MoreHorizontal;
+  protected readonly CheckIcon = Check;
   protected readonly CloseIcon = X; // ✅ CORREGIDO: Se define la propiedad para el ícono de cerrar.
 
   /** Estado */
@@ -57,6 +68,53 @@ export class RolesManagementPage implements OnInit {
   readonly permissionGroups = signal<PermissionGroupContract[]>([]);
   readonly isModalOpen = signal(false);
   readonly editingRole = signal<Role | null>(null);
+  /**
+   * The role open in read-only mode: a system role, or any role for someone who may not edit
+   * roles. Its permissions are listed, not shown as checkboxes that cannot be ticked.
+   */
+  readonly viewing = signal<Role | null>(null);
+  /** Save was pressed with something missing: from then on, each gap says what it needs. */
+  readonly attempted = signal(false);
+
+  /** The groups the viewed role grants something in, with only what it grants. */
+  readonly grantedGroups = computed(() => {
+    const role = this.viewing();
+    if (!role) return [];
+    // The same matcher the rest of the product uses: `*` and prefix wildcards (`sales:*`) count.
+    return this.permissionGroups()
+      .map((group) => ({ ...group, permissions: group.permissions.filter((p) => hasPermission(role.permissions, [p.value])) }))
+      .filter((group) => group.permissions.length > 0);
+  });
+  readonly loading = signal(true);
+  readonly loadError = signal<string | null>(null);
+
+  /**
+   * Duplicar y eliminar, en el menú compartido de las tablas («Editar» queda a la vista en la fila).
+   * Un rol del sistema no se elimina: la opción sigue en el menú, deshabilitada y diciendo por qué.
+   */
+  readonly rolesMenu: ListMenuConfig<Role> = {
+    resource: 'roles',
+    row: (ctx) => {
+      const role = ctx.entity as Role;
+      return [
+        {
+          id: 'role',
+          items: [
+            { id: 'clone', label: 'settings.roles.clone_role', icon: Copy, permission: 'roles:create', run: () => this.cloneRole(role) },
+            {
+              id: 'delete',
+              label: role.isSystemRole ? 'settings.roles.delete_role_locked' : 'settings.roles.delete_role',
+              icon: Trash,
+              danger: true,
+              permission: 'roles:delete',
+              disabled: () => role.isSystemRole,
+              run: () => this.deleteRole(role),
+            },
+          ],
+        },
+      ];
+    },
+  };
 
   /** Formulario */
   readonly roleForm: FormGroup = this.fb.group({
@@ -66,38 +124,63 @@ export class RolesManagementPage implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadRoles();
-    this.loadPermissions();
-  }
-
-  /** Cargar lista de roles */
-  private loadRoles(): void {
-    this.rolesService.getRoles().subscribe({
-      next: (roles: Role[]) => this.roles.set(roles),
-      error: () =>
-        this.notificationService.showError('settings.roles.errors.load_roles'),
-    });
+    this.load();
   }
 
   /**
-   * Load the permission catalogue.
+   * The roles and the permission catalogue, as one page load: one spinner, one error, one retry.
    *
-   * The grouping and the names come from the server as keys. This used to derive them by
+   * They were two requests with two ways to fail. A failed catalogue showed a toast on top of the
+   * page's own error, so a dropped connection said the same thing twice in two places.
+   *
+   * The catalogue's grouping and names come from the server as keys. This used to derive them by
    * splitting the slug on its colon and capitalising the first letter, which is how the screen
    * that governs access to the ledger came to show a group called "Journal_entries" with a
    * checkbox called "view".
    */
-  private loadPermissions(): void {
-    this.rolesService.getAvailablePermissions().subscribe({
-      next: (groups) => this.permissionGroups.set(groups),
-      error: () => this.notificationService.showError('settings.roles.errors.load_permissions'),
+  load(): void {
+    this.loading.set(true);
+    this.loadError.set(null);
+    forkJoin({ roles: this.rolesService.getRoles(), groups: this.rolesService.getAvailablePermissions() }).subscribe({
+      next: ({ roles, groups }) => {
+        this.roles.set(roles);
+        this.permissionGroups.set(groups);
+        this.loading.set(false);
+      },
+      error: (error: unknown) => {
+        this.loadError.set(this.notificationService.httpErrorMessage(error, 'settings.roles.errors.load_roles'));
+        this.loading.set(false);
+      },
+    });
+  }
+
+  /** Cargar lista de roles */
+  loadRoles(): void {
+    this.loading.set(true);
+    this.loadError.set(null);
+    this.rolesService.getRoles().subscribe({
+      next: (roles: Role[]) => {
+        this.roles.set(roles);
+        this.loading.set(false);
+      },
+      error: (error: unknown) => {
+        this.loadError.set(this.notificationService.httpErrorMessage(error, 'settings.roles.errors.load_roles'));
+        this.loading.set(false);
+      },
     });
   }
 
   /** Abre modal para crear o editar */
   openRoleModal(roleToEdit?: Role): void {
-    // A system role is fixed; the button says so and stays focusable, so the click lands here.
-    if (roleToEdit?.isSystemRole) return;
+    // A system role is fixed, and without `roles:edit` no role changes: both open read-only.
+    if (roleToEdit && (roleToEdit.isSystemRole || !this.canEdit())) {
+      this.editingRole.set(null);
+      this.viewing.set(roleToEdit);
+      this.isModalOpen.set(true);
+      return;
+    }
+    this.viewing.set(null);
+    this.attempted.set(false);
     this.editingRole.set(roleToEdit ?? null);
     this.roleForm.reset();
     this.permissionsFormArray.clear();
@@ -115,6 +198,12 @@ export class RolesManagementPage implements OnInit {
     this.isModalOpen.set(true);
   }
 
+  /** «Duplicar» from the read-only view: the copy is a custom role, editable in the list. */
+  cloneFromView(role: Role): void {
+    this.closeModal();
+    this.cloneRole(role);
+  }
+
   /** Clona un rol existente */
   cloneRole(role: Role): void {
     this.rolesService.cloneRole(role.id).subscribe({
@@ -129,6 +218,12 @@ export class RolesManagementPage implements OnInit {
 
   closeModal(): void {
     this.isModalOpen.set(false);
+    this.viewing.set(null);
+  }
+
+  /** No permission ticked after pressing Save: the list says so above the first group. */
+  permissionsMissing(): boolean {
+    return this.attempted() && this.permissionsFormArray.length === 0;
   }
 
   /** Getter para el form array de permisos */
@@ -156,7 +251,17 @@ export class RolesManagementPage implements OnInit {
 
   /** Guardar creación o edición */
   saveRole(): void {
-    if (this.roleForm.invalid) return;
+    if (this.roleForm.invalid) {
+      // Nothing greyed out without a reason: each missing piece says what it needs, and the focus
+      // goes to the first one.
+      this.attempted.set(true);
+      this.roleForm.markAllAsTouched();
+      const first = this.roleForm.get('name')?.invalid
+        ? document.getElementById('role-name')
+        : document.querySelector<HTMLElement>('.role-dialog__permissions input[type="checkbox"]');
+      first?.focus();
+      return;
+    }
 
     const roleData: CreateRoleDto | UpdateRoleDto = this.roleForm.value;
     const editing = this.editingRole();

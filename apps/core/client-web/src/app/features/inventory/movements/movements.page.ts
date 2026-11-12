@@ -16,6 +16,7 @@ import { TableSort, VX_SORT } from '../../../shared/components/sort';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** Where a movement's source document opens, when it has a screen of its own. */
 const SOURCE_ROUTES: Record<string, (id: string) => string> = {
   invoice: (id) => `/invoices/${id}`,
@@ -38,7 +39,7 @@ const SOURCE_ROUTES: Record<string, (id: string) => string> = {
 @Component({
   selector: 'app-stock-movements-page',
   standalone: true,
-  imports: [...VX_SORT, FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
+  imports: [...VX_TABLE, ...VX_SORT, FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent, VxPagerComponent, VxDateRangeComponent],
   templateUrl: './movements.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './movements.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

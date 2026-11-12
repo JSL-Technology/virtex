@@ -21,6 +21,7 @@ import { VxDateFieldComponent } from '../../../shared/components/date';
 import { VX_SELECT } from '../../../shared/components/select';
 import { Observable } from 'rxjs';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * Recording a collection from a customer.
  *
@@ -45,7 +46,7 @@ import { Observable } from 'rxjs';
 @Component({
   selector: 'app-customer-receipt-form-page',
   standalone: true,
-  imports: [VxNumberInputDirective, 
+  imports: [...VX_TABLE, VxNumberInputDirective, 
     VxBranchPickerComponent,
     CommonModule,
     ReactiveFormsModule,

@@ -28,6 +28,7 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 import { refreshWhenStale } from '../../../core/data/data-version.service';
 import { AiProvenanceBadgeComponent } from '../../ai/provenance/ai-provenance-badge.component';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * A supplier bill, in full.
  *
@@ -45,7 +46,7 @@ import { AiProvenanceBadgeComponent } from '../../ai/provenance/ai-provenance-ba
 @Component({
   selector: 'app-vendor-bill-detail-page',
   standalone: true,
-  imports: [AiProvenanceBadgeComponent, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent, HasPermissionDirective],
+  imports: [...VX_TABLE, AiProvenanceBadgeComponent, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent, HasPermissionDirective],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -62,6 +62,19 @@ export const ANALISIS_MODULE: ModuleManifest = {
       load: () => import('../../../features/ai/anomalies/anomalies.page').then((m) => m.AnomaliesPage),
     },
     {
+      //  Lo que hizo la IA: ejecuciones del motor, bitácora de agentes, propuestas del asistente y
+      //  valoraciones. Vivía dentro de Configuración › Inteligencia artificial, mezclando operación
+      //  con configuración; Configuración enlaza aquí.
+      path: 'ai-activity',
+      kind: WindowKind.OVERVIEW,
+      permission: 'ai_usage:view',
+      titleKey: 'page_titles.ai_activity',
+      icon: 'Sparkles',
+      entityKeyFn: () => 'analisis:ai-activity',
+      menu: { group: 'analysis', labelKey: 'page_titles.ai_activity' },
+      load: () => import('../../../features/ai/activity/ai-activity.page').then((m) => m.AiActivityPage),
+    },
+    {
       path: 'profitability-by-product',
       kind: WindowKind.OVERVIEW,
       permission: 'reports:view_sales',

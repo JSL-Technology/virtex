@@ -119,7 +119,8 @@ interface Choice<T> {
       .rf__field select:disabled { opacity: 0.6; cursor: not-allowed; }
       .rf__hint { margin: 0; font-size: var(--text-xs); color: var(--content-tertiary); }
       .rf__preview { padding: var(--space-4); border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--surface-sunken); }
-      .rf__preview-title { margin: 0 0 var(--space-3); font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--content-primary); }
+      /* El título de la muestra es un subtítulo: el mismo estilo que todo h3 de la modal (TIP-01). */
+      .rf__preview-title { margin: 0 0 var(--space-3); font-size: var(--text-md); font-weight: var(--font-semibold); line-height: var(--leading-tight); color: var(--content-primary); }
       .rf__preview dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: var(--space-3); margin: 0 0 var(--space-3); }
       .rf__preview dt { font-size: var(--text-xs); color: var(--content-tertiary); }
       .rf__preview dd { margin: 0; font-size: var(--text-md); font-variant-numeric: tabular-nums; color: var(--content-primary); }

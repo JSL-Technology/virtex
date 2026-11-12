@@ -10,6 +10,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
 import { BudgetSummary, BudgetsService } from '../data/budgets.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * Budgets (audit H-16): one per month — the target the budget control enforces on postings and
  * the variance report measures against. The server had them; no screen did, and the variance
@@ -18,7 +19,7 @@ import { BudgetSummary, BudgetsService } from '../data/budgets.service';
 @Component({
   selector: 'app-budgets-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, RowLinkDirective],
+  imports: [...VX_TABLE, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective, RowLinkDirective],
   templateUrl: './budgets.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', '../../../shared/styles/document-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

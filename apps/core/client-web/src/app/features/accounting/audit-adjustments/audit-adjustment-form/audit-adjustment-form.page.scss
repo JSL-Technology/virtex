@@ -32,8 +32,6 @@
   &__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 }
 
-.aa-table-wrapper { border: 1px solid var(--border-default); border-radius: var(--radius-md); }
-
 .aa-lines {
   min-width: 48rem;
   td { vertical-align: top; }
@@ -41,9 +39,9 @@
   input[type='number'] { appearance: textfield; -moz-appearance: textfield; }
   input[type='number']::-webkit-outer-spin-button,
   input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  tfoot th, tfoot td { border-bottom: none; font-variant-numeric: tabular-nums; }
-  tfoot tr:first-child th, tfoot tr:first-child td { border-top: 2px solid var(--border-default); }
-  tfoot th { text-align: right; color: var(--content-secondary); font-weight: var(--font-semibold); }
+  //  El marco, la cabecera y el pie de totales son de `vx-table`; aquí, el rótulo del total junto a
+  //  sus cifras.
+  tfoot th { text-align: end; }
 }
 
 .aa-col-account { width: 36%; min-width: 16rem; }

@@ -21,6 +21,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * Lo que significa cada estado de una nómina, no de qué color se pinta.
  *
@@ -49,7 +50,7 @@ const STATUS_TONE: Record<PayrollRunStatus, VxTone> = {
 @Component({
   selector: 'app-payroll-runs-page',
   standalone: true,
-  imports: [...VX_CONTEXT_MENU, RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_TABLE, ...VX_CONTEXT_MENU, RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './runs.page.html',
   styleUrls: ['./runs.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

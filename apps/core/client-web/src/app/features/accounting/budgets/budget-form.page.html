@@ -26,8 +26,8 @@
     <section class="form-section">
       <h2 class="form-section-title">{{ 'budgets.form.lines' | translate }}</h2>
       <p class="form-hint">{{ 'budgets.form.lines_hint' | translate }}</p>
-      <div class="table-wrapper">
-        <table class="lines-table" formArrayName="lines">
+      <vx-table labelKey="budgets.form.lines" layout="grid" frame="none">
+        <table formArrayName="lines">
           <thead>
             <tr>
               <th>{{ 'budgets.form.account' | translate }}</th>
@@ -68,7 +68,7 @@
             </tr>
           </tfoot>
         </table>
-      </div>
+      </vx-table>
       <button type="button" class="secondary-button add-line" (click)="addLine()">
         <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
         <span>{{ 'budgets.form.add_line' | translate }}</span>
@@ -82,8 +82,8 @@
           <a [routerLink]="['/accounting/variance-analysis']" [queryParams]="{ from: budget.period, to: budget.period }">{{ 'budgets.form.open_variance' | translate }}</a>
         </div>
         @if (report(); as r) {
-          <div class="table-wrapper">
-            <table class="lines-table">
+          <vx-table labelKey="budgets.form.against_actuals" layout="grid">
+            <table>
               <thead>
                 <tr>
                   <th>{{ 'budgets.form.account' | translate }}</th>
@@ -114,7 +114,7 @@
                 </tr>
               </tfoot>
             </table>
-          </div>
+          </vx-table>
         }
       </section>
 

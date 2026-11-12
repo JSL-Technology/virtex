@@ -1,25 +1,28 @@
-<div class="s-page">
+<!--
+  Lo que se configura aquí y en ningún otro sitio: el correo entrante y los agentes de IA. Extensiones,
+  SSO y Comprobantes fiscales tienen su propia página en la barra lateral; repetirlas aquí como
+  tarjetas eran dos caminos para lo mismo (ARQ-01) en una rejilla de tres más una (ANT-01).
+-->
+<div class="int-page">
+  <!--
+    Cada panel lee sus datos. Si fallan los dos (sin conexión), un solo error y un solo reintento
+    para la página; mientras cargan los dos, una sola espera. Los paneles siguen montados, ocultos,
+    para conservar lo que tienen.
+  -->
+  @if (allLoading()) {
+    <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />
+  } @else if (allFailed()) {
+    <vx-error-state [detail]="'settings.integrations.load_failed' | translate" (retry)="retryAll()" />
+  }
+  <div class="int-page__panels" [style.display]="allLoading() || allFailed() ? 'none' : null">
+    <app-inbound-mailboxes-panel id="inbound-mail" />
+    <app-mcp-agents-panel id="mcp-agents" />
+  </div>
 
-  <ul class="int__grid">
-    @for (card of cards(); track card.id) {
-      <li class="int__card">
-        <div class="int__head">
-          <h2 class="int__title">{{ copy[card.id].title | translate }}</h2>
-          <span class="int__badge" [class.int__badge--on]="card.state === 'active'" [attr.data-state]="card.state">
-            {{ stateLabels[card.state] | translate }}
-          </span>
-        </div>
-        <p class="int__text">{{ copy[card.id].description | translate }}</p>
-        <p class="int__status" role="status">{{ statusKey(card) | translate: card.params }}</p>
-        @if (card.link) {
-          <a class="int__link" [routerLink]="card.link">{{ copy[card.id].action | translate }}</a>
-        } @else {
-          <a class="int__link" [routerLink]="[]" [fragment]="card.fragment">{{ copy[card.id].action | translate }}</a>
-        }
-      </li>
-    }
-  </ul>
-
-  <app-inbound-mailboxes-panel id="inbound-mail" />
-  <app-mcp-agents-panel id="mcp-agents" />
+  <!-- Solo para quien puede abrir las ventanas de importación y exportación. -->
+  @if (canMoveData) {
+    <vx-settings-group titleKey="settings.integrations.data.title" descriptionKey="settings.integrations.data.description">
+      <a class="link-button" [routerLink]="dataLink">{{ 'settings.integrations.data.action' | translate }}</a>
+    </vx-settings-group>
+  }
 </div>

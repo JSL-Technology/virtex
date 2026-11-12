@@ -119,8 +119,8 @@
               {{ 'fixed_assets.document.remaining' | translate: { months: remaining().months, end: (remaining().endsOn | vxDate: 'monthYear' : true) } }}
             </p>
           }
-          <div class="table-container">
-            <table class="data-table">
+          <vx-table labelKey="fixed_assets.document.schedule">
+            <table>
               <thead>
                 <tr>
                   <th>{{ 'fixed_assets.document.month' | translate }}</th>
@@ -157,7 +157,7 @@
                 }
               </tbody>
             </table>
-          </div>
+          </vx-table>
           @if (board.posted.length === 0 && !showProjection()) {
             <p class="form-hint">{{ 'fixed_assets.document.nothing_charged' | translate }}</p>
           }

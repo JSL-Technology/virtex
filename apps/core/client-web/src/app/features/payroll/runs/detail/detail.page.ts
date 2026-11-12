@@ -23,6 +23,7 @@ import { refreshWhenStale } from '../../../../core/data/data-version.service';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
 import { AuthService } from '../../../../core/services/auth';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * One payroll run, from draft to paid.
  *
@@ -45,7 +46,7 @@ import { AuthService } from '../../../../core/services/auth';
 @Component({
   selector: 'app-payroll-run-detail-page',
   standalone: true,
-  imports: [...VX_SORT, CommonModule, DocumentShellComponent, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
+  imports: [...VX_TABLE, ...VX_SORT, CommonModule, DocumentShellComponent, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

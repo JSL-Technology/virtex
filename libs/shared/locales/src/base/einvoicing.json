@@ -80,9 +80,9 @@
     "pt": "A Virtex ainda não assina documentos eletrônicos no país da sua empresa ({{country}}), portanto não há certificado a carregar. Você pode emitir seus documentos sem assinatura."
   },
   "einvoicing.certificate.none_active": {
-    "es": "No hay un certificado digital activo para firmar los comprobantes electrónicos que exige la autoridad fiscal ({{authority}}). Cárgalo en Ajustes › Comprobantes fiscales.",
+    "es": "No hay un certificado digital activo para firmar los comprobantes electrónicos que exige la autoridad fiscal ({{authority}}). Cárgalo en Configuración › Comprobantes fiscales.",
     "en": "There is no active digital certificate to sign the electronic documents the tax authority ({{authority}}) requires. Upload one under Settings › Fiscal documents.",
-    "pt": "Não há certificado digital ativo para assinar os documentos eletrônicos que a autoridade fiscal ({{authority}}) exige. Carregue-o em Configurações › Documentos fiscais."
+    "pt": "Não há certificado digital ativo para assinar os documentos eletrônicos que a autoridade fiscal ({{authority}}) exige. Carregue-o em Configurações › Comprovantes fiscais."
   },
   "einvoicing.certificate.not_yet_valid": {
     "es": "El certificado digital todavía no está vigente: empieza a valer el {{date}}.",
@@ -90,9 +90,9 @@
     "pt": "O certificado digital ainda não é válido: começa a valer em {{date}}."
   },
   "einvoicing.certificate.organization_has_no_tax_id": {
-    "es": "Tu empresa no tiene {{label}} registrado. Complétalo en Ajustes › Empresa antes de cargar el certificado o emitir comprobantes electrónicos.",
-    "en": "Your company has no {{label}} on record. Fill it in under Settings › Company before uploading the certificate or issuing electronic documents.",
-    "pt": "Sua empresa não tem {{label}} registrado. Preencha-o em Configurações › Empresa antes de carregar o certificado ou emitir documentos eletrônicos."
+    "es": "Tu empresa no tiene {{label}} registrado. Complétalo en Configuración › Perfil de la empresa antes de cargar el certificado o emitir comprobantes electrónicos.",
+    "en": "Your company has no {{label}} on record. Fill it in under Settings › Company profile before uploading the certificate or issuing electronic documents.",
+    "pt": "Sua empresa não tem {{label}} registrado. Preencha-o em Configurações › Perfil da empresa antes de carregar o certificado ou emitir documentos eletrônicos."
   },
   "einvoicing.certificate.password_required": {
     "es": "La contraseña del certificado es obligatoria.",
@@ -290,9 +290,9 @@
     "pt": "a razão social do emissor é obrigatória"
   },
   "einvoicing.do.issuer_registered_address_required_fill_under": {
-    "es": "la dirección fiscal del emisor es obligatoria; complétala en Ajustes → Empresa",
-    "en": "the issuer's registered address is required; fill it in under Settings → Company",
-    "pt": "o endereço fiscal do emissor é obrigatório; preencha-o em Configurações → Empresa"
+    "es": "la dirección fiscal del emisor es obligatoria; complétala en Configuración › Perfil de la empresa",
+    "en": "the issuer's registered address is required; fill it in under Settings › Company profile",
+    "pt": "o endereço fiscal do emissor é obrigatório; preencha-o em Configurações › Perfil da empresa"
   },
   "einvoicing.do.issuer_rnc_must_have_11_digits": {
     "es": "el RNC del emisor debe tener 9 u 11 dígitos; revísalo en los datos de la empresa",
@@ -350,9 +350,9 @@
     "pt": "Não há sequência ativa de {{type}} para esta organização."
   },
   "einvoicing.do.organization_has_no_rnc_configured_fill": {
-    "es": "La organización no tiene RNC configurado. Complétalo en Ajustes → Empresa.",
-    "en": "The organization has no RNC configured. Fill it in under Settings → Company.",
-    "pt": "A organização não tem RNC configurado. Preencha-o em Configurações → Empresa."
+    "es": "La organización no tiene RNC configurado. Complétalo en Configuración › Perfil de la empresa.",
+    "en": "The organization has no RNC configured. Fill it in under Settings › Company profile.",
+    "pt": "A organização não tem RNC configurado. Preencha-o em Configurações › Perfil da empresa."
   },
   "einvoicing.do.organization_not_found": {
     "es": "Organización no encontrada.",
@@ -380,7 +380,7 @@
     "pt": "a província deve ser declarada com o código de dois dígitos da DGII"
   },
   "einvoicing.do.range_authorization_has_no_expiry_date": {
-    "es": "la autorización del rango no tiene fecha de vencimiento registrada; añádela en Ajustes › Comprobantes fiscales",
+    "es": "la autorización del rango no tiene fecha de vencimiento registrada; añádela en Configuración › Comprobantes fiscales",
     "en": "the range's authorization has no expiry date on record; add it under Settings › Fiscal documents",
     "pt": "a autorização da faixa não tem data de vencimento registrada; adicione-a em Configurações › Comprovantes fiscais"
   },
@@ -460,9 +460,9 @@
     "pt": "O cliente «{{customer}}» não tem RFC, exigido pelo CFDI."
   },
   "einvoicing.mx.issuer_tax_regime_missing_set_under": {
-    "es": "Falta el régimen fiscal del emisor. Confígúralo en Ajustes → Fiscal.",
-    "en": "The issuer's tax regime is missing. Set it under Settings → Fiscal.",
-    "pt": "Falta o regime fiscal do emissor. Configure em Configurações → Fiscal."
+    "es": "Falta el régimen fiscal del emisor. Configúralo en Configuración › Facturación electrónica.",
+    "en": "The issuer's tax regime is missing. Set it under Settings › Electronic invoicing.",
+    "pt": "Falta o regime fiscal do emissor. Configure-o em Configurações › Faturamento eletrônico."
   },
   "einvoicing.mx.line_line_has_no_key_from": {
     "es": "La línea «{{line}}» no tiene «{{key}}» del catálogo del SAT. Asígnalo en el producto: inventarlo produciría un comprobante que timbra y describe mal lo vendido.",
@@ -545,9 +545,9 @@
     "pt": "O ponto de emissão do SRI deve ter três dígitos."
   },
   "einvoicing.sri_establishment_emission_point_missing_set": {
-    "es": "Falta el establecimiento y el punto de emisión del SRI. Configúralos en Ajustes → Fiscal antes de emitir.",
-    "en": "The SRI establishment and emission point are missing. Set them in Settings → Fiscal before issuing.",
-    "pt": "Faltam o estabelecimento e o ponto de emissão do SRI. Configure-os em Configurações → Fiscal antes de emitir."
+    "es": "Falta el establecimiento y el punto de emisión del SRI. Configúralos en Configuración › Facturación electrónica antes de emitir.",
+    "en": "The SRI establishment and emission point are missing. Set them under Settings › Electronic invoicing before issuing.",
+    "pt": "Faltam o estabelecimento e o ponto de emissão do SRI. Configure-os em Configurações › Faturamento eletrônico antes de emitir."
   },
   "einvoicing.sri_establishment_must_three_digits": {
     "es": "El establecimiento del SRI debe tener tres dígitos.",

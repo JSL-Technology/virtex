@@ -18,6 +18,7 @@ import { ListShellComponent } from '../../shared/components/gestures';
 import { transferStatusKey, transferStatusTone } from './transfer-status';
 import { VX_SORT, sortable } from '../../shared/components/sort';
 
+import { VX_TABLE } from '../../shared/components/table';
 /**
  * Data export (QA A-10).
  *
@@ -29,7 +30,7 @@ import { VX_SORT, sortable } from '../../shared/components/sort';
 @Component({
   selector: 'app-data-exports-page',
   standalone: true,
-  imports: [...VX_SORT, 
+  imports: [...VX_TABLE, ...VX_SORT, 
     ReactiveFormsModule,
     LucideAngularModule,
     TranslateModule,

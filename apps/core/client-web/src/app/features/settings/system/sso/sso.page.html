@@ -1,178 +1,209 @@
 <div class="sso-settings">
-
-
-  <!-- Alerts -->
-  @if (error()) {
-    <div class="alert alert-error" role="alert">{{ error() }}</div>
-  }
+  <!-- El resultado de la última acción, una vez y con el aviso común. -->
   @if (notice()) {
-    <div class="alert alert-ok" role="status">{{ notice() }}</div>
+    <vx-notice tone="success" [live]="true">{{ notice() }}</vx-notice>
+  }
+  @if (error()) {
+    <vx-notice tone="danger" [live]="true">{{ error() }}</vx-notice>
   }
 
-  <!-- ══ SECTION: DOMAINS ══════════════════════════════════════════ -->
-  <section class="card">
-    <div class="card-head">
-      <div>
-        <h2>{{ 'settings.sso.verified_domains' | translate }}</h2>
-        <p class="muted">{{ 'settings.sso.only_users_from_verified_domain_routed' | translate }}</p>
-      </div>
-    </div>
-
-    <!-- Add domain inline form -->
-    <form [formGroup]="domainForm" (ngSubmit)="addDomain()" class="inline-form">
-      <input type="text" formControlName="domain" [placeholder]="'settings.sso.acme_com' | translate" class="input" />
-      <button type="submit" class="btn btn-primary" [disabled]="domainForm.invalid">
-        {{ 'settings.sso.add_domain' | translate }}
-      </button>
-    </form>
-
-    @if (domains().length > 0) {
-      <table [appSort]="domainsTable.sort" class="table">
-        <thead>
-          <tr>
-            <th appSortHeader="domain">{{ 'settings.sso.domain' | translate }}</th>
-            <th appSortHeader="verified">{{ 'settings.sso.status' | translate }}</th>
-            <th>{{ 'settings.sso.dns_record_txt' | translate }}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (d of domainsTable.rows(); track d.id) {
-            <tr>
-              <td class="mono">{{ d.domain }}</td>
-              <td>
-                <vx-badge [tone]="d.verified ? 'ok' : 'warning'">
-                  {{ (d.verified ? 'settings.sso.domain_verified' : 'settings.sso.domain_pending') | translate }}
-                </vx-badge>
-              </td>
-              <td>
-                @if (!d.verified) {
-                  <div class="dns">
-                    <div><span class="dns-k">{{ 'settings.sso.host' | translate }}</span> <span class="mono">{{ d.dnsRecord.host }}</span></div>
-                    <div><span class="dns-k">{{ 'settings.sso.type' | translate }}</span> <span class="mono">{{ d.dnsRecord.type }}</span></div>
-                    <div class="dns-val">
-                      <span class="dns-k">{{ 'settings.sso.value' | translate }}</span>
-                      <span class="mono">{{ d.dnsRecord.value }}</span>
-                      <button type="button" class="btn-link" (click)="copy(d.dnsRecord.value)">{{ 'settings.sso.copy' | translate }}</button>
-                    </div>
-                  </div>
-                } @else {
-                  <span class="muted">—</span>
-                }
-              </td>
-              <td class="row-actions">
-                @if (!d.verified) {
-                  <button type="button" class="btn btn-sm" (click)="verifyDomain(d)">{{ 'settings.sso.verify' | translate }}</button>
-                }
-                <button type="button" class="btn btn-sm btn-danger" (click)="deleteDomain(d)">{{ 'settings.sso.delete' | translate }}</button>
-              </td>
-            </tr>
+  @if (state() === 'loading') {
+    <vx-spinner size="lg" withLabel labelKey="settings.sections.loading" />
+  } @else if (state() === 'error') {
+    <vx-error-state [detail]="loadError()" (retry)="refresh()" />
+  } @else {
+    <!-- ══ Dominios ══ -->
+    <vx-settings-group titleKey="settings.sso.verified_domains" descriptionKey="settings.sso.only_users_from_verified_domain_routed">
+      @if (canEdit()) {
+        <form [formGroup]="domainForm" (ngSubmit)="addDomain()" class="sso-add" novalidate>
+          <label class="sso-label" for="sso-domain">{{ 'settings.sso.domain' | translate }}</label>
+          <div class="sso-add__row">
+            <input id="sso-domain" type="text" formControlName="domain" class="sso-input sso-input--domain"
+              [placeholder]="'settings.sso.acme_com' | translate" autocomplete="off" spellcheck="false"
+              aria-describedby="sso-domain-help" [attr.aria-invalid]="domainError() ? 'true' : null"
+              (input)="domainError.set(null)" />
+            <button type="submit" class="secondary-button">{{ 'settings.sso.add_domain' | translate }}</button>
+          </div>
+          @if (domainError(); as message) {
+            <small class="sso-error" id="sso-domain-help" role="alert">{{ message }}</small>
+          } @else {
+            <small class="sso-hint" id="sso-domain-help">{{ 'settings.sso.domain_hint' | translate }}</small>
           }
-        </tbody>
-      </table>
-    } @else {
-      <p class="muted" style="padding: 1.5rem; text-align: center;">{{ 'settings.sso.you_have_not_added_any_domains' | translate }}</p>
-    }
-  </section>
+        </form>
+      }
 
-  <!-- ══ SECTION: PROVIDERS ════════════════════════════════════════ -->
-  <section class="card">
-    <div class="card-head">
-      <div>
-        <h2>{{ 'settings.sso.identity_providers_oidc' | translate }}</h2>
-        <p class="muted">
-          {{ 'settings.sso.configure_your_oidc_provider_least_one' | translate }}
-        </p>
-      </div>
-      <button type="button" class="btn btn-primary btn-sm" (click)="startNewProvider()">
-        {{ 'settings.sso.add_provider' | translate }}
-      </button>
-    </div>
+      @if (domains().length > 0) {
+        <vx-table labelKey="settings.sso.verified_domains" frame="none">
+          <table [appSort]="domainsTable.sort" class="sso-table" [appTableMenu]="domainsMenu">
+            <thead>
+              <tr>
+                <th appSortHeader="domain">{{ 'settings.sso.domain' | translate }}</th>
+                <th appSortHeader="verified">{{ 'settings.sso.status' | translate }}</th>
+                <th>{{ 'settings.sso.dns_record_txt' | translate }}</th>
+                <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (d of domainsTable.rows(); track d.id) {
+                <tr [appRowMenu]="d" #domainMenu="appRowMenu">
+                  <td class="mono" [attr.data-label]="'settings.sso.domain' | translate">{{ d.domain }}</td>
+                  <td [attr.data-label]="'settings.sso.status' | translate">
+                    <vx-badge [tone]="d.verified ? 'ok' : 'warning'">
+                      {{ (d.verified ? 'settings.sso.domain_verified' : 'settings.sso.domain_pending') | translate }}
+                    </vx-badge>
+                  </td>
+                  <td [attr.data-label]="'settings.sso.dns_record_txt' | translate">
+                    @if (!d.verified) {
+                      <dl class="dns">
+                        <dt>{{ 'settings.sso.host' | translate }}</dt><dd class="mono">{{ d.dnsRecord.host }}</dd>
+                        <dt>{{ 'settings.sso.type' | translate }}</dt><dd class="mono">{{ d.dnsRecord.type }}</dd>
+                        <dt>{{ 'settings.sso.value' | translate }}</dt>
+                        <dd class="dns__value">
+                          <span class="mono">{{ d.dnsRecord.value }}</span>
+                          <button type="button" class="link-button" [attr.aria-label]="'settings.sso.copy_value' | translate" (click)="copy(d.dnsRecord.value)">{{ 'settings.sso.copy' | translate }}</button>
+                        </dd>
+                      </dl>
+                    } @else {
+                      <span class="muted">—</span>
+                    }
+                  </td>
+                  <td class="actions-column">
+                    @if (canEdit()) {
+                      @if (!d.verified) {
+                        <button type="button" class="link-button" (click)="verifyDomain(d)">{{ 'settings.sso.verify' | translate }}</button>
+                      }
+                      <button type="button" class="icon-button" aria-haspopup="menu"
+                        [attr.aria-label]="'common.more_actions_for' | translate: { name: d.domain }"
+                        [title]="'common.more_actions' | translate" (click)="domainMenu.open($event)">
+                        <lucide-icon [img]="MoreIcon" size="18" aria-hidden="true"></lucide-icon>
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </vx-table>
+      } @else {
+        <!-- «Escríbelo arriba» solo tiene sentido si arriba hay dónde escribirlo. -->
+        <vx-empty-state [icon]="GlobeIcon" titleKey="settings.sso.no_domains_title"
+          [descriptionKey]="canEdit() ? 'settings.sso.no_domains_description' : 'settings.sso.no_domains_readonly'" />
+      }
+    </vx-settings-group>
 
-    @if (!hasVerifiedDomain()) {
-      <!-- A requirement, not a success: informative, and it says what to do next. -->
-      <div class="alert alert-info sso-requirement" role="note">
-        {{ 'settings.sso.you_must_verify_least_one_domain' | translate }}
-      </div>
-    }
+    <!-- ══ Proveedores ══ -->
+    <vx-settings-group titleKey="settings.sso.identity_providers_oidc" descriptionKey="settings.sso.providers_description">
+      <!-- Con lista, «Agregar proveedor» va en la cabecera del grupo; vacía, lo lleva el estado vacío. -->
+      @if (canEdit() && providers().length > 0 && !editingProviderId()) {
+        <button groupActions type="button" class="secondary-button" (click)="startNewProvider()">{{ 'settings.sso.add_provider' | translate }}</button>
+      }
 
-    <!-- Inline Editor Form -->
-    @if (editingProviderId()) {
-      <form [formGroup]="providerForm" (ngSubmit)="saveProvider()" class="provider-form">
-        <div class="grid">
-          <label>
-            <span>{{ 'settings.sso.name' | translate }}</span>
-            <input type="text" formControlName="name" class="input" [placeholder]="'settings.sso.acme_okta' | translate" />
-          </label>
-          <label>
-            <span>{{ 'settings.sso.issuer_url_discovery' | translate }}</span>
-            <input type="text" formControlName="issuerUrl" class="input" [placeholder]="'settings.sso.https_acme_okta_com_oauth2_default' | translate" />
-          </label>
-          <label>
-            <span>{{ 'settings.sso.client_id' | translate }}</span>
-            <input type="text" formControlName="clientId" class="input" />
-          </label>
-          <label>
-            <span>{{ 'settings.sso.client_secret' | translate }} <span class="muted">{{ 'settings.sso.blank_unchanged' | translate }}</span></span>
-            <input type="password" formControlName="clientSecret" class="input" autocomplete="new-password" />
-          </label>
-          <label>
-            <span>{{ 'settings.sso.scopes' | translate }}</span>
-            <input type="text" formControlName="scopes" class="input" [placeholder]="'settings.sso.openid_email_profile' | translate" />
-          </label>
-          <label>
-            <span>{{ 'settings.sso.default_role' | translate }} <span class="muted">{{ 'settings.sso.uuid_optional' | translate }}</span></span>
-            <input type="text" formControlName="defaultRoleId" class="input" />
-          </label>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="providerForm.invalid">{{ 'settings.sso.save' | translate }}</button>
-          <button type="button" class="btn" (click)="cancelEdit()">{{ 'settings.sso.cancel' | translate }}</button>
-        </div>
-      </form>
-    }
+      @if (!hasVerifiedDomain() && canEdit()) {
+        <!-- Un requisito para quien puede activar un proveedor: informativo, y dice qué hacer después. -->
+        <vx-notice tone="info">{{ 'settings.sso.you_must_verify_least_one_domain' | translate }}</vx-notice>
+      }
 
-    @if (providers().length > 0) {
-      <table [appSort]="providersTable.sort" class="table">
-        <thead>
-          <tr>
-            <th appSortHeader="name">{{ 'settings.sso.name' | translate }}</th>
-            <th appSortHeader="issuerUrl">{{ 'settings.sso.issuer' | translate }}</th>
-            <th appSortHeader="redirectUri">{{ 'settings.sso.redirect_uri' | translate }}</th>
-            <th appSortHeader="enabled">{{ 'settings.sso.status' | translate }}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (p of providersTable.rows(); track p.id) {
-            <tr>
-              <td style="font-weight: 600; color: var(--text-primary);">{{ p.name }}</td>
-              <td class="mono small">{{ p.issuerUrl }}</td>
-              <td class="mono small">
-                {{ p.redirectUri }}
-                <button type="button" class="btn-link" (click)="copy(p.redirectUri)">{{ 'settings.sso.copy' | translate }}</button>
-              </td>
-              <td>
-                <vx-badge [tone]="p.enabled ? 'ok' : 'warning'">
-                  {{ (p.enabled ? 'common.status_active' : 'common.status_inactive') | translate }}
-                </vx-badge>
-              </td>
-              <td class="row-actions">
-                <button type="button" class="btn btn-sm" (click)="startEditProvider(p)">{{ 'settings.sso.edit' | translate }}</button>
-                <button type="button" class="btn btn-sm"
-                        [disabled]="!p.enabled && !hasVerifiedDomain()"
-                        (click)="toggleEnabled(p)">
-                  {{ (p.enabled ? 'common.deactivate' : 'common.activate') | translate }}
-                </button>
-                <button type="button" class="btn btn-sm btn-danger" (click)="deleteProvider(p)">{{ 'settings.sso.delete' | translate }}</button>
-              </td>
-            </tr>
+      @if (editingProviderId()) {
+        <form [formGroup]="providerForm" (ngSubmit)="saveProvider()" class="provider-form" novalidate>
+          <div class="provider-form__grid">
+            <div class="sso-field">
+              <label class="sso-label" for="sso-p-name">{{ 'settings.sso.name' | translate }} <span class="required" aria-hidden="true">*</span></label>
+              <input id="sso-p-name" type="text" formControlName="name" class="sso-input" required [placeholder]="'settings.sso.acme_okta' | translate" />
+            </div>
+            <div class="sso-field sso-field--wide">
+              <label class="sso-label" for="sso-p-issuer">{{ 'settings.sso.issuer_url_discovery' | translate }} <span class="required" aria-hidden="true">*</span></label>
+              <input id="sso-p-issuer" type="url" formControlName="issuerUrl" class="sso-input" required inputmode="url" spellcheck="false" [placeholder]="'settings.sso.https_acme_okta_com_oauth2_default' | translate" />
+            </div>
+            <div class="sso-field">
+              <label class="sso-label" for="sso-p-client">{{ 'settings.sso.client_id' | translate }} <span class="required" aria-hidden="true">*</span></label>
+              <input id="sso-p-client" type="text" formControlName="clientId" class="sso-input" required spellcheck="false" />
+            </div>
+            <div class="sso-field">
+              <label class="sso-label" for="sso-p-secret">
+                {{ 'settings.sso.client_secret' | translate }}
+                @if (editingProviderId() === 'new') { <span class="required" aria-hidden="true">*</span> }
+              </label>
+              <input id="sso-p-secret" type="password" formControlName="clientSecret" class="sso-input" autocomplete="new-password"
+                [required]="editingProviderId() === 'new'" [attr.aria-describedby]="editingProviderId() === 'new' ? null : 'sso-p-secret-hint'" />
+              @if (editingProviderId() !== 'new') {
+                <small class="sso-hint" id="sso-p-secret-hint">{{ 'settings.sso.secret_keep_hint' | translate }}</small>
+              }
+            </div>
+            <div class="sso-field">
+              <label class="sso-label" for="sso-p-scopes">{{ 'settings.sso.scopes' | translate }}</label>
+              <input id="sso-p-scopes" type="text" formControlName="scopes" class="sso-input" spellcheck="false" [placeholder]="'settings.sso.openid_email_profile' | translate" />
+            </div>
+            <div class="sso-field">
+              <label class="sso-label" for="sso-p-role">{{ 'settings.sso.default_role' | translate }}</label>
+              @if (roles(); as roleList) {
+                <select id="sso-p-role" formControlName="defaultRoleId" class="sso-input" aria-describedby="sso-p-role-hint">
+                  <option value="">{{ 'settings.sso.no_default_role' | translate }}</option>
+                  @for (role of roleList; track role.id) {
+                    <option [value]="role.id">{{ role.name }}</option>
+                  }
+                </select>
+              } @else {
+                <input id="sso-p-role" type="text" formControlName="defaultRoleId" class="sso-input" spellcheck="false" aria-describedby="sso-p-role-hint" />
+              }
+              <small class="sso-hint" id="sso-p-role-hint">{{ 'settings.sso.default_role_hint' | translate }}</small>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="primary-button">{{ 'settings.sso.save' | translate }}</button>
+            <button type="button" class="secondary-button" (click)="cancelEdit()">{{ 'settings.sso.cancel' | translate }}</button>
+          </div>
+        </form>
+      }
+
+      @if (providers().length > 0) {
+        <vx-table labelKey="settings.sso.identity_providers_oidc" frame="none">
+          <table [appSort]="providersTable.sort" class="sso-table" [appTableMenu]="providersMenu">
+            <thead>
+              <tr>
+                <th appSortHeader="name">{{ 'settings.sso.name' | translate }}</th>
+                <th appSortHeader="issuerUrl">{{ 'settings.sso.issuer' | translate }}</th>
+                <th appSortHeader="redirectUri">{{ 'settings.sso.redirect_uri' | translate }}</th>
+                <th appSortHeader="enabled">{{ 'settings.sso.status' | translate }}</th>
+                <th><span class="visually-hidden">{{ 'common.actions' | translate }}</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of providersTable.rows(); track p.id) {
+                <tr [appRowMenu]="p" #providerMenu="appRowMenu">
+                  <td class="provider-name" [attr.data-label]="'settings.sso.name' | translate">{{ p.name }}</td>
+                  <td class="mono small" [attr.data-label]="'settings.sso.issuer' | translate">{{ p.issuerUrl }}</td>
+                  <td class="mono small" [attr.data-label]="'settings.sso.redirect_uri' | translate">
+                    <span>{{ p.redirectUri }}</span>
+                    <button type="button" class="link-button" [attr.aria-label]="'settings.sso.copy_redirect' | translate" (click)="copy(p.redirectUri)">{{ 'settings.sso.copy' | translate }}</button>
+                  </td>
+                  <td [attr.data-label]="'settings.sso.status' | translate">
+                    <vx-badge [tone]="p.enabled ? 'ok' : 'neutral'">
+                      {{ (p.enabled ? 'common.status_active' : 'common.status_inactive') | translate }}
+                    </vx-badge>
+                  </td>
+                  <td class="actions-column">
+                    @if (canEdit()) {
+                      <button type="button" class="link-button" (click)="startEditProvider(p)">{{ 'settings.sso.edit' | translate }}</button>
+                      <button type="button" class="icon-button" aria-haspopup="menu"
+                        [attr.aria-label]="'common.more_actions_for' | translate: { name: p.name }"
+                        [title]="'common.more_actions' | translate" (click)="providerMenu.open($event)">
+                        <lucide-icon [img]="MoreIcon" size="18" aria-hidden="true"></lucide-icon>
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </vx-table>
+      } @else if (!editingProviderId()) {
+        <vx-empty-state [icon]="KeyIcon" titleKey="settings.sso.no_providers_title"
+          [descriptionKey]="canEdit() ? 'settings.sso.no_providers_description' : 'settings.sso.no_providers_readonly'">
+          @if (canEdit()) {
+            <button action type="button" class="secondary-button" (click)="startNewProvider()">{{ 'settings.sso.add_provider' | translate }}</button>
           }
-        </tbody>
-      </table>
-    } @else {
-      <vx-empty-state titleKey="settings.sso.no_providers_configured" descriptionKey="settings.sso.no_providers_hint" />
-    }
-  </section>
-
+        </vx-empty-state>
+      }
+    </vx-settings-group>
+  }
 </div>

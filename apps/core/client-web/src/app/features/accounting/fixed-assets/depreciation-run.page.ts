@@ -12,6 +12,7 @@ import { ActiveOrganizationService } from '../../../core/tenancy/active-organiza
 import { DepreciationRunResult, FixedAssetsService } from '../data/fixed-assets.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** The month that just ended: what a run is usually for. */
 export function previousMonth(today = new Date()): string {
   const date = new Date(today.getFullYear(), today.getMonth() - 1, 1);
@@ -27,7 +28,7 @@ export function previousMonth(today = new Date()): string {
 @Component({
   selector: 'app-depreciation-run-page',
   standalone: true,
-  imports: [FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxAmountComponent, HasPermissionDirective],
+  imports: [...VX_TABLE, FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxAmountComponent, HasPermissionDirective],
   templateUrl: './depreciation-run.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

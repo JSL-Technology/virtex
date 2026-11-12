@@ -4,8 +4,8 @@
 // =============================================================================
 //  EL MARCO ANTERIOR A LOS GESTOS
 // =============================================================================
-//  `.subview-container` / `.subview-header` / `.card` / `.data-table` es la
-//  forma que tenían las pantallas antes de `vx-list-shell`. Sigue en uso en las
+//  `.subview-container` / `.subview-header` / `.card` es la forma que tenían
+//  las pantallas antes de `vx-list-shell` (sus tablas ya son `vx-table`). Sigue en uso en las
 //  que todavía no se han migrado.
 //
 //  Existe este parcial porque esas reglas vivían dentro de la hoja de una
@@ -49,32 +49,10 @@
     padding: 0;
   }
 
-  .data-table {
-    @include ds.data-table;
-  }
-
   .empty-state,
   .loading-state {
     @include views.empty-state;
   }
 
-  .actions-column {
-    width: 1%;
-    white-space: nowrap;
-    text-align: right;
-  }
-
-  .table-link {
-    //  A cell's only link is a target on its own, not text inside a sentence: 24px tall (QA M-09).
-    display: inline-flex;
-    align-items: center;
-    min-height: 24px;
-    color: var(--accent-solid);
-    text-decoration: none;
-
-    &:hover { text-decoration: underline; }
-  }
-
-  .text-right { text-align: right; }
-  .text-center { text-align: center; }
+  //  La tabla y sus columnas (acciones, enlace, cifras) son de `vx-table`.
 }

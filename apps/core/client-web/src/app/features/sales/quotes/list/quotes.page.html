@@ -36,15 +36,15 @@
     />
   </div>
 
-  <div class="table-container card">
-    <table [appTableMenu]="quotesMenu" [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="sales.quotes.title">
+    <table [appTableMenu]="quotesMenu" [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="quoteNumber">{{ 'sales.quotes.number' | translate }}</th>
           <th appSortHeader="customer">{{ 'sales.quotes.customer' | translate }}</th>
           <th appSortHeader="issueDate">{{ 'sales.quotes.issue_date' | translate }}</th>
           <th appSortHeader="expiryDate">{{ 'sales.quotes.expiry_date' | translate }}</th>
-          <th appSortHeader="total" class="text-right">{{ 'sales.quotes.total' | translate }}</th>
+          <th appSortHeader="total" class="numeric">{{ 'sales.quotes.total' | translate }}</th>
           <th appSortHeader="status" class="text-center">{{ 'sales.quotes.state' | translate }}</th>
           @if (branches.hasBranches()) {
             <th>{{ 'branches.picker.label' | translate }}</th>
@@ -58,7 +58,7 @@
             <td>{{ quote.customer?.companyName ?? quote.customer?.name }}</td>
             <td>{{ quote.issueDate | vxDate: 'date' : true }}</td>
             <td>{{ quote.expiryDate | vxDate: 'date' : true }}</td>
-            <td class="text-right">{{ quote.total | vxMoney: quote.currencyCode }}</td>
+            <td class="numeric">{{ quote.total | vxMoney: quote.currencyCode }}</td>
             <td class="text-center">
               <vx-badge [tone]="tone(quote)" [struck]="quote.status === 'CANCELLED'">{{ statusKey(quote) | translate }}</vx-badge>
             </td>
@@ -69,5 +69,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

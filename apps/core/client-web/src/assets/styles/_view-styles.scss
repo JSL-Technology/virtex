@@ -12,8 +12,8 @@
 //  Se reduce a una atenuación breve, y desaparece por completo si el usuario ha
 //  pedido menos movimiento.
 //
-//  ARCHIVO EN RETIRADA. Los componentes nuevos usan `ds.page-shell`,
-//  `ds.data-table`, etc.
+//  ARCHIVO EN RETIRADA. Los componentes nuevos usan `ds.page-shell`, y toda
+//  tabla es un `vx-table`.
 // =============================================================================
 
 @use 'design-system' as ds;
@@ -86,48 +86,6 @@
 @mixin settings-card {
   @include ds.surface-card;
   padding: var(--space-6);
-}
-
-@mixin table-wrapper {
-  @include ds.surface-card;
-  overflow: auto;
-  @include ds.scrollbar;
-}
-
-@mixin data-table {
-  @include ds.data-table;
-
-  .table-link {
-    //  A cell's only link is a target on its own, not text inside a sentence: 24px tall (QA M-09).
-    display: inline-flex;
-    align-items: center;
-    min-height: 24px;
-    color: var(--content-primary);
-    font-weight: var(--font-medium);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--accent-text);
-      text-decoration: underline;
-    }
-  }
-
-  //  Se conservan estas dos clases porque las plantillas las usan; ahora
-  //  incluyen cifras tabulares para que las columnas numéricas se alineen.
-  .text-right {
-    text-align: right;
-    @include ds.numeric;
-  }
-
-  .actions-column {
-    width: 1%;
-    text-align: center;
-    white-space: nowrap;
-  }
-}
-
-@mixin table-empty {
-  @include ds.empty-state;
 }
 
 @mixin empty-state {

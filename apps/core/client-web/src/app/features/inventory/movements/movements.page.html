@@ -45,8 +45,8 @@
     <p class="ls__state-help">{{ 'inventory.movements.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table class="data-table" [appSort]="sort">
+  <vx-table labelKey="inventory.movements.title">
+    <table [appSort]="sort">
       <thead>
         <tr>
           <th appSortHeader="date">{{ 'inventory.movements.date' | translate }}</th>
@@ -100,7 +100,7 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 
   <vx-pager
     listFooter

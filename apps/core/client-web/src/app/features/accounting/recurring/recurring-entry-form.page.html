@@ -60,8 +60,8 @@
 
     <section class="form-section">
       <h2 class="form-section-title">{{ 'recurring_entries.form.lines' | translate }}</h2>
-      <div class="table-wrapper">
-        <table class="lines-table">
+      <vx-table labelKey="recurring_entries.form.lines" frame="none">
+        <table>
           <thead>
             <tr>
               <th>{{ 'recurring_entries.form.account' | translate }} *</th>
@@ -123,7 +123,7 @@
             </tr>
           </tfoot>
         </table>
-      </div>
+      </vx-table>
       @if (!totals().balanced && form.touched) {
         <p class="banner-error" role="alert">{{ 'journal_entries.journal_entry_does_not_balance' | translate }}</p>
       }
@@ -133,24 +133,26 @@
       <section class="form-section">
         <h2 class="form-section-title">{{ 'recurring_entries.form.posted' | translate }}</h2>
         @if (posted().length) {
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>{{ 'recurring_entries.form.posted_date' | translate }}</th>
-                <th>{{ 'recurring_entries.form.posted_number' | translate }}</th>
-                <th class="numeric">{{ 'recurring_entries.page.amount' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of posted(); track row.id) {
+          <vx-table labelKey="recurring_entries.form.posted">
+            <table>
+              <thead>
                 <tr>
-                  <td>{{ row.date | vxDate: 'date' : true }}</td>
-                  <td><a [routerLink]="entryLink(row.id)">{{ row.entryNumber ?? row.id.slice(0, 8) }}</a></td>
-                  <td class="numeric"><vx-amount [value]="row.amount" /></td>
+                  <th>{{ 'recurring_entries.form.posted_date' | translate }}</th>
+                  <th>{{ 'recurring_entries.form.posted_number' | translate }}</th>
+                  <th class="numeric">{{ 'recurring_entries.page.amount' | translate }}</th>
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @for (row of posted(); track row.id) {
+                  <tr>
+                    <td>{{ row.date | vxDate: 'date' : true }}</td>
+                    <td><a [routerLink]="entryLink(row.id)">{{ row.entryNumber ?? row.id.slice(0, 8) }}</a></td>
+                    <td class="numeric"><vx-amount [value]="row.amount" /></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </vx-table>
         } @else {
           <p class="muted">{{ 'recurring_entries.form.nothing_posted' | translate }}</p>
         }

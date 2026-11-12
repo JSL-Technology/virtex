@@ -15,6 +15,7 @@ import { Supplier } from '../../../core/models/supplier.model';
 import { PartnerKind, PartnerStatement, StatementsService, documentRoute } from '../data/statements.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 const pad = (n: number) => String(n).padStart(2, '0');
 // The company's today, not the browser's or UTC (QA R3-M02).
 const todayIso = (): string => tenantToday();
@@ -36,7 +37,7 @@ interface Partner {
 @Component({
   selector: 'app-partner-ledger-page',
   standalone: true,
-  imports: [...VX_DATE, FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent],
+  imports: [...VX_TABLE, ...VX_DATE, FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_SELECT, ListShellComponent],
   templateUrl: './partner-ledger.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './partner-ledger.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

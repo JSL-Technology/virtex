@@ -32,6 +32,7 @@ import { VX_SELECT } from '../../../../shared/components/select';
 import { PercentInputDirective } from '../../../../shared/directives/percent-input.directive';
 import { AiProvenanceBadgeComponent } from '../../../ai/provenance/ai-provenance-badge.component';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * Raising, approving, sending and receiving a purchase order.
  *
@@ -47,7 +48,7 @@ import { AiProvenanceBadgeComponent } from '../../../ai/provenance/ai-provenance
 @Component({
   selector: 'app-purchase-order-form-page',
   standalone: true,
-  imports: [VxNumberInputDirective, AiProvenanceBadgeComponent, PercentInputDirective, VxBranchPickerComponent,
+  imports: [...VX_TABLE, VxNumberInputDirective, AiProvenanceBadgeComponent, PercentInputDirective, VxBranchPickerComponent,
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,

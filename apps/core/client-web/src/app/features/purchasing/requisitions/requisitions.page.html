@@ -11,8 +11,8 @@
   @if (failed()) {
     <p class="section-note">{{ 'common.load_failed' | translate }}</p>
   } @else {
-  <div class="table-container card">
-    <table [appTableMenu]="requisitionsMenu" [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="purchasing.requisitions.title">
+    <table [appTableMenu]="requisitionsMenu" [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="number">{{ 'purchasing.requisitions.requisition' | translate }}</th>
@@ -24,7 +24,7 @@
           <th appSortHeader="items" class="text-center">{{ 'purchasing.requisitions.items' | translate }}</th>
           <th appSortHeader="createdAt">{{ 'purchasing.requisitions.date' | translate }}</th>
           <th appSortHeader="requiredDate">{{ 'purchasing.requisitions.required_date' | translate }}</th>
-          <th appSortHeader="totalAmount" class="text-right">{{ 'purchasing.requisitions.total' | translate }}</th>
+          <th appSortHeader="totalAmount" class="numeric">{{ 'purchasing.requisitions.total' | translate }}</th>
           <th appSortHeader="status" class="text-center">{{ 'purchasing.requisitions.status' | translate }}</th>
         </tr>
       </thead>
@@ -39,7 +39,7 @@
             <td class="text-center">{{ itemCount(req) }}</td>
             <td>{{ req.createdAt | vxDate }}</td>
             <td>{{ req.requiredDate ? (req.requiredDate | vxDate) : '—' }}</td>
-            <td class="text-right">{{ req.totalAmount | vxMoney }}</td>
+            <td class="numeric">{{ req.totalAmount | vxMoney }}</td>
             <td class="text-center">
               <vx-badge [tone]="statusTone(req.status)" [struck]="req.status === 'REJECTED'">
                 {{ 'purchasing.requisitions.status_label.' + req.status | translate }}
@@ -49,6 +49,6 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
   }
 </vx-list-shell>

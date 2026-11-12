@@ -50,8 +50,8 @@
     <p class="ls__state-help">{{ 'masters.units_of_measure.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="masters.units_of_measure.units_measure">
+    <table [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="category">{{ 'masters.units_of_measure.type' | translate }}</th>
@@ -83,5 +83,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

@@ -88,15 +88,8 @@
   justify-content: flex-end;
 }
 
+//  La tabla es `vx-table` (sus encabezados de fila incluidos); aquí, la fila del total.
 .merge-table {
-  width: 100%;
-
-  th[scope='row'] {
-    text-align: left;
-    font-weight: var(--font-medium);
-    color: var(--content-secondary);
-  }
-
   &__total td,
   &__total th {
     font-weight: var(--font-semibold);

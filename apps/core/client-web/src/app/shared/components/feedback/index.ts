@@ -12,6 +12,8 @@ import { VxErrorStateComponent } from './error-state.component';
 export { VxSpinnerComponent } from './spinner.component';
 export { VxEmptyStateComponent } from './empty-state.component';
 export { VxErrorStateComponent } from './error-state.component';
+export { VxNoticeComponent } from './notice.component';
+export type { VxNoticeTone } from './notice.component';
 
 export const VX_FEEDBACK = [
   VxSpinnerComponent,

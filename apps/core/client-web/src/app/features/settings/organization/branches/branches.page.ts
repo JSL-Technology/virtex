@@ -6,7 +6,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
-import { LucideAngularModule, MapPin, Plus } from 'lucide-angular';
+import { Ban, CircleCheck, LucideAngularModule, MapPin, MoreHorizontal, Plus, Trash2 } from 'lucide-angular';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { Branch, BranchesService, SaveBranch } from '../../../../core/tenancy/branches.service';
 import { NotificationService } from '../../../../core/services/notification';
@@ -14,9 +14,11 @@ import { DialogService } from '../../../../core/services/dialog.service';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
-import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/components/feedback';
+import { VxSpinnerComponent, VxEmptyStateComponent, VxErrorStateComponent, VxNoticeComponent } from '../../../../shared/components/feedback';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../../shared/components/context-menu';
 import { Warehouse, WarehousesService } from '../../../masters/data/warehouses.service';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /** Letters, digits and dashes, starting with a letter or digit — the same rule the server applies. */
 const CODE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9-]*$/;
 const FISCAL_CODE_PATTERN = /^[0-9A-Za-z]*$/;
@@ -42,7 +44,7 @@ const FISCAL_CODE_PATTERN = /^[0-9A-Za-z]*$/;
 @Component({
   selector: 'app-branches-settings',
   standalone: true,
-  imports: [SettingsActionsDirective, 
+  imports: [...VX_TABLE, SettingsActionsDirective, 
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
@@ -53,6 +55,9 @@ const FISCAL_CODE_PATTERN = /^[0-9A-Za-z]*$/;
     VxBadgeComponent,
     VxSpinnerComponent,
     VxEmptyStateComponent,
+    VxErrorStateComponent,
+    VxNoticeComponent,
+    ...VX_CONTEXT_MENU,
     ...VX_FORM_A11Y,
   ],
   templateUrl: './branches.page.html',
@@ -70,6 +75,26 @@ export class BranchesSettingsPage implements OnInit {
 
   protected readonly MapPinIcon = MapPin;
   protected readonly PlusIcon = Plus;
+  protected readonly MoreIcon = MoreHorizontal;
+
+  /** Activar o desactivar y eliminar, en el menú compartido de las tablas («Editar» queda a la vista). */
+  readonly branchesMenu: ListMenuConfig<Branch> = {
+    resource: 'branches',
+    row: (ctx) => {
+      const branch = ctx.entity as Branch;
+      if (branch.isHeadquarters) return [];
+      return [
+        {
+          id: 'state',
+          items: [
+            { id: 'deactivate', label: 'branches.settings.deactivate', icon: Ban, permission: 'branches:manage', visible: () => branch.isActive, run: () => this.setActive(branch, false) },
+            { id: 'activate', label: 'branches.settings.activate', icon: CircleCheck, permission: 'branches:manage', visible: () => !branch.isActive, run: () => this.setActive(branch, true) },
+          ],
+        },
+        { id: 'danger', items: [{ id: 'delete', label: 'branches.settings.delete', icon: Trash2, danger: true, permission: 'branches:manage', run: () => this.remove(branch) }] },
+      ];
+    },
+  };
 
   readonly branches = signal<Branch[]>([]);
   readonly warehouses = signal<Warehouse[]>([]);

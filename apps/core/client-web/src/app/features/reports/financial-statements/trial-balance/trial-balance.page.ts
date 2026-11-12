@@ -15,6 +15,7 @@ import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxDateRangeComponent } from '../../../../shared/components/date';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * The balanza de comprobación.
  *
@@ -29,7 +30,7 @@ import { VX_SORT, sortable } from '../../../../shared/components/sort';
 @Component({
   selector: 'app-trial-balance-page',
   standalone: true,
-  imports: [...VX_SORT, AppLinkPipe, RouterLink, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
+  imports: [...VX_TABLE, ...VX_SORT, AppLinkPipe, RouterLink, CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, VxAmountComponent, VxDateRangeComponent],
   templateUrl: './trial-balance.page.html',
   styleUrls: ['./trial-balance.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

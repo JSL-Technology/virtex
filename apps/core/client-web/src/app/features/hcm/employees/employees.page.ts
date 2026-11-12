@@ -20,6 +20,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** Qué significa la situación de un empleado. El color lo pone `vx-badge`, una vez. */
 const STATUS_TONE: Record<EmploymentStatus, VxTone> = {
   ACTIVE: 'ok',
@@ -41,7 +42,7 @@ const STATUS_TONE: Record<EmploymentStatus, VxTone> = {
 @Component({
   selector: 'app-employees-page',
   standalone: true,
-  imports: [...VX_CONTEXT_MENU, RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_TABLE, ...VX_CONTEXT_MENU, RowLinkDirective, ...VX_SORT, CanOpenDirective, CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './employees.page.html',
   styleUrls: ['./employees.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

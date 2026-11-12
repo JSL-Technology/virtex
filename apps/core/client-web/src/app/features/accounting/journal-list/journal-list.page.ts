@@ -13,6 +13,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * Los diarios contables.
  *
@@ -29,7 +30,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 @Component({
   selector: 'app-journal-list',
   standalone: true,
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, TranslateModule, LucideAngularModule, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_TABLE, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, TranslateModule, LucideAngularModule, ListShellComponent, VxBadgeComponent],
   templateUrl: './journal-list.page.html',
   styleUrls: ['./journal-list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

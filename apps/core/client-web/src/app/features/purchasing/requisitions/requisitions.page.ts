@@ -19,6 +19,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** Lo que significa cada estado de una solicitud. El color lo pone `vx-badge`, una vez. */
 const STATUS_TONE: Record<PurchaseRequisitionStatus, VxTone> = {
   DRAFT: 'draft',
@@ -40,7 +41,7 @@ const STATUS_TONE: Record<PurchaseRequisitionStatus, VxTone> = {
 @Component({
   selector: 'app-requisitions-page',
   standalone: true,
-  imports: [...VX_CONTEXT_MENU, ...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_TABLE, ...VX_CONTEXT_MENU, ...VX_SORT, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './requisitions.page.html',
   styleUrls: ['./requisitions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

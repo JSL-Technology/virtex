@@ -30,6 +30,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 import { TableSort, VX_SORT } from '../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../shared/components/table';
 type InvoiceSortKey = 'number' | 'fiscalNumber' | 'customer' | 'issueDate' | 'dueDate' | 'total' | 'status';
 
 /**
@@ -58,7 +59,7 @@ function creditable(invoice: Invoice): boolean {
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [...VX_SORT, ...VX_CONTEXT_MENU, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent, VxBranchPickerComponent, VxBranchLabelComponent],
+  imports: [...VX_TABLE, ...VX_SORT, ...VX_CONTEXT_MENU, RowLinkDirective, CanOpenDirective, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxPagerComponent, VxBranchPickerComponent, VxBranchLabelComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

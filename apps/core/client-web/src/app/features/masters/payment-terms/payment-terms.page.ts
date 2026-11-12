@@ -8,6 +8,7 @@ import { CustomersService } from '../../../core/api/customers.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 
+import { VX_TABLE } from '../../../shared/components/table';
 interface PaymentTermInUse {
   name: string;
   days: number | null;
@@ -33,7 +34,7 @@ interface PaymentTermInUse {
 @Component({
   selector: 'app-payment-terms-page',
   standalone: true,
-  imports: [...VX_SORT, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [...VX_TABLE, ...VX_SORT, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './payment-terms.page.html',
   styleUrls: ['./payment-terms.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

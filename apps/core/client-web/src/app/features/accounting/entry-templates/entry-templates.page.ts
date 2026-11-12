@@ -8,6 +8,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 import { NotificationService } from '../../../core/services/notification';
 import { EntryTemplate, RecurringEntriesService } from '../data/recurring-entries.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * Journal entry templates (audit H-21): the shape of an entry booked again and again — payroll
  * accruals, monthly allocations — so that posting one is a date and an amount. The server kept
@@ -16,7 +17,7 @@ import { EntryTemplate, RecurringEntriesService } from '../data/recurring-entrie
 @Component({
   selector: 'app-entry-templates-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ListShellComponent, HasPermissionDirective, RowLinkDirective],
+  imports: [...VX_TABLE, RouterLink, TranslateModule, LucideAngularModule, ListShellComponent, HasPermissionDirective, RowLinkDirective],
   templateUrl: './entry-templates.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

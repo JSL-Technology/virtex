@@ -84,6 +84,25 @@ describe('SecuritySettingsPage', () => {
     req.flush({ rows: [], page: 1, pageSize: 50, total: 0, hasMore: false });
   });
 
+  it('pages with the shared pager: a new page size reads again from page one', () => {
+    const page = create().componentInstance;
+    http.expectOne((r) => r.url.endsWith('/audit/entities')).flush([]);
+    const first = http.expectOne((r) => r.url.endsWith('/audit'));
+    expect(first.request.params.get('pageSize')).toBe('50');
+    first.flush({ rows: [row], page: 1, pageSize: 50, total: 120, hasMore: true });
+
+    page.goToPage(3);
+    const third = http.expectOne((r) => r.url.endsWith('/audit'));
+    expect(third.request.params.get('page')).toBe('3');
+    third.flush({ rows: [row], page: 3, pageSize: 50, total: 120, hasMore: false });
+
+    page.setPageSize(100);
+    const resized = http.expectOne((r) => r.url.endsWith('/audit'));
+    expect(resized.request.params.get('page')).toBe('1');
+    expect(resized.request.params.get('pageSize')).toBe('100');
+    resized.flush({ rows: [row], page: 1, pageSize: 100, total: 120, hasMore: true });
+  });
+
   it('refuses a range that ends before it starts, without asking the server', () => {
     const page = create().componentInstance;
     http.expectOne((r) => r.url.endsWith('/audit/entities')).flush([]);
@@ -139,27 +158,62 @@ describe('SecuritySettingsPage', () => {
     expect(page.trail()?.rows).toHaveLength(1);
   });
 
-  it('asks before requiring a second factor of everyone, and sends nothing if declined', async () => {
+  it('holds the change until it is saved, and asks before requiring a second factor of everyone', async () => {
     const page = create(false, false, 'policy').componentInstance;
-    dialog.confirm.mockResolvedValueOnce(false);
-    await page.toggleMfa(true);
+    page.setDraftMfa(true);
+    expect(page.dirty()).toBe(true);
     http.expectNone((r) => r.method === 'PATCH');
 
+    dialog.confirm.mockResolvedValueOnce(false);
+    expect(await page.save()).toBe(false);
+    http.expectNone((r) => r.method === 'PATCH');
+    expect(page.dirty()).toBe(true);
+
     dialog.confirm.mockResolvedValueOnce(true);
-    await page.toggleMfa(true);
+    const saving = page.save();
+    await new Promise((resolve) => setTimeout(resolve));
     const req = http.expectOne((r) => r.method === 'PATCH' && r.url.endsWith('/organizations/security-settings'));
     expect(req.request.body).toEqual({ requireMfa: true });
     req.flush({ requireMfa: true });
+    expect(await saving).toBe(true);
     expect(page.requireMfa()).toBe(true);
+    expect(page.dirty()).toBe(false);
   });
 
-  it('reports the server’s refusal when the caller is not the owner', async () => {
+  it('puts the saved value back when the change is discarded', () => {
     const page = create(false, false, 'policy').componentInstance;
-    await page.toggleMfa(false);
+    page.setDraftMfa(true);
+    page.discard();
+    expect(page.draftMfa()).toBe(false);
+    expect(page.dirty()).toBe(false);
+  });
+
+  it('says on the page that the policy could not be read, and reads it again on retry', () => {
+    const fixture = create(false, false, 'trail');
+    fixture.destroy();
+    const page = TestBed.createComponent(SecuritySettingsPage);
+    page.componentRef.setInput('view', 'policy');
+    page.detectChanges();
+    http.expectOne((r) => r.url.endsWith('/organizations/security-settings')).flush({}, { status: 500, statusText: 'Server Error' });
+    expect(page.componentInstance.policyError()).toBeTruthy();
+    page.componentInstance.loadPolicy();
+    http.expectOne((r) => r.url.endsWith('/organizations/security-settings')).flush({ requireMfa: true });
+    expect(page.componentInstance.policyError()).toBeNull();
+    expect(page.componentInstance.draftMfa()).toBe(true);
+  });
+
+  it('reports the server’s refusal when the caller is not the owner, and keeps the edit', async () => {
+    const page = create(false, false, 'policy').componentInstance;
+    page.setDraftMfa(true);
+    dialog.confirm.mockResolvedValueOnce(true);
+    const saving = page.save();
+    await new Promise((resolve) => setTimeout(resolve));
     http
       .expectOne((r) => r.method === 'PATCH')
       .flush({ statusCode: 403, code: 'FORBIDDEN', messageKey: 'errors.forbidden' }, { status: 403, statusText: 'Forbidden' });
+    expect(await saving).toBe(false);
     expect(notifications.showHttpError).toHaveBeenCalledWith(expect.objectContaining({ status: 403 }), 'settings.security.mfa_save_failed');
     expect(page.requireMfa()).toBe(false);
+    expect(page.dirty()).toBe(true);
   });
 });

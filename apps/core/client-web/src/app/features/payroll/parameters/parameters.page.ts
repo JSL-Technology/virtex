@@ -20,6 +20,7 @@ import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VxDateFieldComponent } from '../../../shared/components/date';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** A bracket as the editor holds it: the rate as the percentage a person types. */
 interface BracketDraft {
   over: number;
@@ -72,7 +73,7 @@ interface CompanyParameterDraft {
 @Component({
   selector: 'app-payroll-parameters-page',
   standalone: true,
-  imports: [
+  imports: [...VX_TABLE, 
     CommonModule,
     LucideAngularModule,
     TranslateModule,

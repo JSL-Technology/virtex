@@ -1,154 +1,85 @@
 <div class="ai-admin">
-
   @if (loadError()) {
-    <div class="ai-admin__error" role="alert">
-      <p>{{ 'ai.admin.load_failed' | translate }}</p>
-      <button type="button" class="btn-secondary" (click)="load()">{{ 'common.retry' | translate }}</button>
-    </div>
+    <vx-error-state [detail]="'ai.admin.load_failed' | translate" (retry)="load()" />
   } @else if (overview(); as o) {
-    <!-- The settings first: what the company allows (changed with ai_settings:manage) and its agents. -->
-    <app-ai-policy-panel class="ai-admin__section" />
-    <app-ai-agents-panel class="ai-admin__section" />
+    <!-- Lo que decide la empresa (con ai_settings:manage): la política y los agentes, guardados juntos. -->
+    <app-ai-policy-panel #policy />
+    <app-ai-agents-panel #agents />
 
-    <section class="ai-admin__section" aria-labelledby="ai-availability">
-      <h2 id="ai-availability" class="ai-admin__heading">{{ 'ai.admin.availability' | translate }}</h2>
-      <ul class="ai-admin__features">
+    <!-- Qué funciona hoy y, si algo no, por qué: el plan o el servidor. -->
+    <vx-settings-group titleKey="ai.admin.availability" descriptionKey="ai.admin.availability_description">
+      <ul class="ai-admin__features" role="list">
         @for (feature of features(); track feature.key) {
           <li class="ai-admin__feature">
             <span>{{ k('ai.admin.feature', feature.key) | translate }}</span>
-            <span class="ai-admin__state" [class]="'ai-admin__state ai-admin__state--' + feature.state">
-              {{ k('ai.admin.state', feature.state) | translate }}
-            </span>
+            <vx-badge [tone]="availabilityTone(feature.state)">{{ k('ai.admin.state', feature.state) | translate }}</vx-badge>
           </li>
         }
       </ul>
-    </section>
+    </vx-settings-group>
 
-    <section class="ai-admin__section" aria-labelledby="ai-credits">
-      <h2 id="ai-credits" class="ai-admin__heading">{{ 'ai.admin.credits' | translate }}</h2>
+    <!-- El consumo del mes: créditos del plan y costo por función, con el formato de moneda común. -->
+    <vx-settings-group titleKey="ai.admin.consumption" descriptionKey="ai.admin.cost_note">
       @if (o.credits; as credits) {
         @if (credits.unlimited) {
-          <p>{{ 'ai.admin.credits_unlimited' | translate: { used: (credits.used | vxNumber: '1.0-0') } }}</p>
+          <p class="ai-admin__credits">{{ 'ai.admin.credits_unlimited' | translate: { used: (credits.used | vxNumber: '1.0-0') } }}</p>
         } @else {
-          <p>{{ 'ai.admin.credits_used' | translate: { used: (credits.used | vxNumber: '1.0-0'), limit: (credits.limit | vxNumber: '1.0-0') } }}</p>
+          <p class="ai-admin__credits">{{ 'ai.admin.credits_used' | translate: { used: (credits.used | vxNumber: '1.0-0'), limit: (credits.limit | vxNumber: '1.0-0') } }}</p>
           <div class="ai-admin__meter" role="progressbar" aria-valuemin="0" aria-valuemax="100"
                [attr.aria-valuenow]="creditShare()" [attr.aria-label]="'ai.admin.credits' | translate">
-            <div class="ai-admin__meter-fill" [class.ai-admin__meter-fill--high]="(creditShare() ?? 0) >= 90"
-                 [style.width.%]="creditShare()"></div>
+            <div class="ai-admin__meter-fill" [class.ai-admin__meter-fill--high]="(creditShare() ?? 0) >= 90" [style.width.%]="creditShare()"></div>
           </div>
         }
       } @else {
-        <p class="ai-admin__muted">{{ 'ai.admin.credits_not_metered' | translate }}</p>
+        <p class="ai-admin__credits">{{ 'ai.admin.credits_not_metered' | translate }}</p>
       }
-    </section>
 
-    <section class="ai-admin__section" aria-labelledby="ai-usage">
-      <h2 id="ai-usage" class="ai-admin__heading">{{ 'ai.admin.usage' | translate }}</h2>
       @if (usage().length) {
-        <table class="ai-admin__table">
-          <thead>
-            <tr>
-              <th scope="col">{{ 'ai.admin.col_feature' | translate }}</th>
-              <th scope="col" class="num">{{ 'ai.admin.col_calls' | translate }}</th>
-              <th scope="col" class="num">{{ 'ai.admin.col_failed' | translate }}</th>
-              <th scope="col" class="num">{{ 'ai.admin.col_credits' | translate }}</th>
-              <th scope="col" class="num">{{ 'ai.admin.col_cost' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of usage(); track row.feature) {
+        <vx-table labelKey="ai.admin.consumption" frame="none">
+          <table class="ai-admin__table">
+            <thead>
               <tr>
-                <th scope="row">{{ k('ai.admin.usage_feature', row.feature) | translate }}</th>
-                <td class="num">{{ row.calls | vxNumber: '1.0-0' }}</td>
-                <td class="num">{{ row.failed | vxNumber: '1.0-0' }}</td>
-                <td class="num">{{ row.credits | vxNumber: '1.0-0' }}</td>
-                <td class="num">{{ row.costUsd | vxNumber: '1.2-4' }}</td>
+                <th scope="col">{{ 'ai.admin.col_feature' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'ai.admin.col_calls' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'ai.admin.col_failed' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'ai.admin.col_credits' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'ai.admin.col_cost_estimated' | translate }}</th>
               </tr>
-            }
-          </tbody>
-          <tfoot>
-            <tr>
-              <th scope="row" colspan="4">{{ 'ai.admin.total_cost' | translate }}</th>
-              <td class="num">{{ totalCostUsd() | vxNumber: '1.2-4' }}</td>
-            </tr>
-          </tfoot>
-        </table>
-        <p class="ai-admin__muted">{{ 'ai.admin.cost_note' | translate }}</p>
+            </thead>
+            <tbody>
+              @for (row of usage(); track row.feature) {
+                <tr>
+                  <td [attr.data-label]="'ai.admin.col_feature' | translate">{{ k('ai.admin.usage_feature', row.feature) | translate }}</td>
+                  <td class="numeric" [attr.data-label]="'ai.admin.col_calls' | translate">{{ row.calls | vxNumber: '1.0-0' }}</td>
+                  <td class="numeric" [attr.data-label]="'ai.admin.col_failed' | translate">{{ row.failed | vxNumber: '1.0-0' }}</td>
+                  <td class="numeric" [attr.data-label]="'ai.admin.col_credits' | translate">{{ row.credits | vxNumber: '1.0-0' }}</td>
+                  <td class="numeric" [attr.data-label]="'ai.admin.col_cost_estimated' | translate">{{ cost(row.costUsd) }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th scope="row" colspan="4">{{ 'ai.admin.total_cost' | translate }}</th>
+                <td class="numeric" [attr.data-label]="'ai.admin.total_cost' | translate">{{ cost(totalCostUsd()) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </vx-table>
       } @else {
-        <p class="ai-admin__muted">{{ 'ai.admin.no_usage' | translate }}</p>
+        <vx-empty-state [icon]="ChartIcon" titleKey="ai.admin.no_usage_title" descriptionKey="ai.admin.no_usage" />
       }
-    </section>
+    </vx-settings-group>
 
-    <!--
-      The engine's state is operations, not a setting: it sits last, folded, and says in words what a
-      run is waiting for or why it was given up on, instead of «En cola» beside a disabled «En curso…».
-    -->
-    <details class="ai-admin__section ai-admin__ops" [open]="anyRunNeedsAttention()">
-      <summary class="ai-admin__heading" id="ai-runs">{{ 'ai.admin.runs' | translate }}</summary>
-      <p class="ai-admin__muted">{{ 'ai.admin.runs_intro' | translate }}</p>
-      <div class="ai-admin__runs">
-        @for (kind of runKinds; track kind) {
-          @let r = runOf(kind);
-          <article class="ai-admin__run">
-            <h3 class="ai-admin__run-title">{{ k('ai.admin.run_kind', kind) | translate }}</h3>
-            @if (r.latest; as latest) {
-              <p>
-                <span [class]="'ai-admin__state ai-admin__state--run-' + latest.status.toLowerCase()">{{ k('ai.admin.run_status', latest.status) | translate }}</span>
-                · {{ (latest.finishedAt ?? latest.startedAt ?? latest.createdAt) | vxDate: 'dateTime' }}
-              </p>
-              @if (latest.status === 'QUEUED') {
-                <p class="ai-admin__muted">{{ 'ai.admin.run_waiting' | translate }}</p>
-              } @else if (latest.status === 'RUNNING') {
-                <p class="ai-admin__muted">{{ 'ai.admin.run_working' | translate }}</p>
-              } @else if (latest.status === 'FAILED') {
-                <p class="ai-admin__error-text">{{ failureKey(latest) | translate: { detail: latest.error ?? '' } }}</p>
-              }
-            } @else {
-              <p class="ai-admin__muted">{{ 'ai.admin.never_ran' | translate }}</p>
-            }
-            @if (r.lastSucceeded; as ok) {
-              <dl class="ai-admin__facts">
-                @if (ok.series !== null) {
-                  <dt>{{ 'ai.admin.series' | translate }}</dt><dd>{{ ok.series | vxNumber: '1.0-0' }}</dd>
-                }
-                @if (ok.medianWape !== null) {
-                  <dt>{{ 'ai.admin.median_wape' | translate }}</dt><dd>{{ ok.medianWape | vxPercent }}</dd>
-                }
-                @if (ok.findings !== null) {
-                  <dt>{{ 'ai.admin.findings' | translate }}</dt><dd>{{ ok.findings | vxNumber: '1.0-0' }}</dd>
-                }
-                @if (ok.engineVersion) {
-                  <dt>{{ 'ai.admin.engine_version' | translate }}</dt><dd>{{ ok.engineVersion }}</dd>
-                }
-              </dl>
-            }
-            <div class="ai-admin__run-actions">
-              <button type="button" class="btn-secondary"
-                      *appHasPermission="kind === 'forecast' ? 'ai_forecasts:run' : 'ai_anomalies:resolve'"
-                      [disabled]="isActive(r.latest) || starting() !== null" (click)="run(kind)">
-                {{ (isActive(r.latest) ? 'ai.admin.running' : (r.latest?.status === 'FAILED' ? 'ai.admin.run_again' : 'ai.admin.run_now')) | translate }}
-              </button>
-              @if (isActive(r.latest)) {
-                <button type="button" class="ai-admin__link" (click)="load()">{{ 'ai.admin.refresh' | translate }}</button>
-              }
-            </div>
-          </article>
-        }
-      </div>
+    <!-- La operación vive en Análisis: aquí, el camino hasta ella (ARQ-01). -->
+    <vx-settings-group titleKey="ai.admin.activity_title" descriptionKey="ai.admin.activity_description">
+      <a class="link-button" [routerLink]="activityLink()">{{ 'ai.admin.open_activity' | translate }}</a>
+    </vx-settings-group>
 
-      <h3 class="ai-admin__run-title" id="ai-pending">{{ 'ai.admin.pending' | translate }}</h3>
-      <ul class="ai-admin__pending">
-        <li>
-          <a [routerLink]="predictionsLink()">{{ 'ai.admin.pending_stockouts' | translate: { count: o.pending.stockoutRisks } }}</a>
-        </li>
-        <li>
-          <a [routerLink]="anomaliesLink()">
-            {{ 'ai.admin.pending_anomalies' | translate: { count: o.pending.openAnomalies, serious: o.pending.seriousAnomalies } }}
-          </a>
-        </li>
-      </ul>
-    </details>
+    @if (canEdit()) {
+      <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" [blockedKey]="blocked()?.key ?? null" [blockedParams]="blocked()?.params ?? {}"
+        (save)="save()" (discard)="discard()" />
+    }
   } @else {
-    <p class="ai-admin__muted" role="status">{{ 'common.loading' | translate }}</p>
+    <vx-spinner size="lg" withLabel labelKey="common.loading" />
   }
 </div>

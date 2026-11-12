@@ -1,0 +1,563 @@
+{
+  "my-profile": {
+    "aborted": [
+      "/api/v1/users/job-titles"
+    ],
+    "abortedCount": 1,
+    "down": {
+      "error": true,
+      "errorText": "No se pudo cargar la lista de cargos. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "01-my-profile-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "account-security": {
+    "aborted": [
+      "/api/v1/auth/sessions"
+    ],
+    "abortedCount": 1,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No se pudo leer la lista de sesiones. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "02-account-security-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "preferences": {
+    "aborted": [],
+    "abortedCount": 0,
+    "down": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": null,
+    "shot": "03-preferences-sin-red.png",
+    "verdict": "N/A (sin datos del servidor)"
+  },
+  "organizations": {
+    "aborted": [],
+    "abortedCount": 0,
+    "down": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": null,
+    "shot": "04-organizations-sin-red.png",
+    "verdict": "N/A (sin datos del servidor)"
+  },
+  "profile": {
+    "aborted": [
+      "/api/v1/organizations/profile"
+    ],
+    "abortedCount": 1,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "05-profile-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "regional-format": {
+    "aborted": [
+      "/api/v1/organizations/regional-format"
+    ],
+    "abortedCount": 1,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No se pudo leer el formato de la empresa. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "06-regional-format-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "branding": {
+    "aborted": [
+      "/api/v1/organizations/branding"
+    ],
+    "abortedCount": 1,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No se pudo leer la marca de la empresa. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "07-branding-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "subsidiaries": {
+    "aborted": [
+      "/api/v1/organizations/subsidiaries",
+      "/api/v1/localization/countries"
+    ],
+    "abortedCount": 2,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "08-subsidiaries-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "branches": {
+    "aborted": [
+      "/api/v1/organizations/branches",
+      "/api/v1/wms/warehouses"
+    ],
+    "abortedCount": 2,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "09-branches-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "smtp": {
+    "aborted": [
+      "/api/v1/organizations/mail-settings"
+    ],
+    "abortedCount": 1,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "10-smtp-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "billing": {
+    "aborted": [
+      "/api/v1/saas/plans",
+      "/api/v1/saas/usage",
+      "/api/v1/payment/overview",
+      "/api/v1/payment/invoices"
+    ],
+    "abortedCount": 4,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No se pudieron leer ni la suscripción ni los planes. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "11-billing-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "users": {
+    "aborted": [
+      "/api/v1/roles",
+      "/api/v1/users?page=1&pageSize=25&sortColumn=createdAt&sortDirection=DESC",
+      "/api/v1/invitations/sent"
+    ],
+    "abortedCount": 3,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "12-users-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "roles": {
+    "aborted": [
+      "/api/v1/roles",
+      "/api/v1/roles/available-permissions"
+    ],
+    "abortedCount": 2,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "13-roles-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "security": {
+    "aborted": [
+      "/api/v1/organizations/security-settings"
+    ],
+    "abortedCount": 1,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "14-security-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "audit-trail": {
+    "aborted": [
+      "/api/v1/audit/entities",
+      "/api/v1/users?page=1&pageSize=100",
+      "/api/v1/audit?page=1&pageSize=50&peopleOnly=true"
+    ],
+    "abortedCount": 3,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "15-audit-trail-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "sso": {
+    "aborted": [
+      "/api/v1/auth/sso/admin/domains",
+      "/api/v1/auth/sso/admin/providers",
+      "/api/v1/roles"
+    ],
+    "abortedCount": 3,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "16-sso-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "integrations": {
+    "aborted": [
+      "/api/v1/inbound-mail/mailboxes",
+      "/api/v1/mcp/oauth/grants"
+    ],
+    "abortedCount": 2,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No se pudieron leer ni el correo entrante ni los agentes conectados. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "17-integrations-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "ai": {
+    "aborted": [
+      "/api/v1/ai/overview"
+    ],
+    "abortedCount": 1,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No se pudo cargar el estado de la IA. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "18-ai-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "extensions": {
+    "aborted": [
+      "/api/v1/extensions",
+      "/api/v1/extensions/consents"
+    ],
+    "abortedCount": 2,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "19-extensions-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "default-accounts": {
+    "aborted": [
+      "/api/v1/organizations/settings/accounting",
+      "/api/v1/organizations/settings/currencies",
+      "/api/v1/organizations/settings/taxes",
+      "/api/v1/organizations/settings/closing",
+      "/api/v1/organizations/settings/intercompany",
+      "/api/v1/organizations/settings/inventory"
+    ],
+    "abortedCount": 6,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "20-default-accounts-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "accounting-policies": {
+    "aborted": [
+      "/api/v1/organizations/settings/accounting",
+      "/api/v1/organizations/settings/currencies",
+      "/api/v1/organizations/settings/taxes",
+      "/api/v1/organizations/settings/closing"
+    ],
+    "abortedCount": 4,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "21-accounting-policies-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "fiscal": {
+    "aborted": [
+      "/api/v1/compliance/ncf-sequences",
+      "/api/v1/invoices/context",
+      "/api/v1/localization/fiscal-document-types",
+      "/api/v1/localization/fiscal-coverage"
+    ],
+    "abortedCount": 4,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No se pudo leer la configuración fiscal. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "22-fiscal-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "withholding-regimes": {
+    "aborted": [
+      "/api/v1/localization/withholding-regimes",
+      "/api/v1/localization/fiscal-coverage"
+    ],
+    "abortedCount": 2,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No se pudieron cargar los regímenes. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "23-withholding-regimes-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "sequences": {
+    "aborted": [
+      "/api/v1/document-sequences"
+    ],
+    "abortedCount": 1,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "24-sequences-sin-red.png",
+    "verdict": "CUMPLE"
+  },
+  "approvals": {
+    "aborted": [
+      "/api/v1/workflows/policies",
+      "/api/v1/roles"
+    ],
+    "abortedCount": 2,
+    "down": {
+      "error": true,
+      "errorText": "No se pudieron cargar los datos. Inténtalo de nuevo. No hay conexión con el servidor. Revisa tu conexión a internet e inténtalo de nuevo. Reintentar",
+      "retry": true,
+      "spinner": false,
+      "shellState": null
+    },
+    "recovered": {
+      "error": false,
+      "errorText": null,
+      "retry": false,
+      "spinner": false,
+      "shellState": null
+    },
+    "shot": "25-approvals-sin-red.png",
+    "verdict": "CUMPLE"
+  }
+}

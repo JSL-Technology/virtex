@@ -21,6 +21,7 @@ import {
   ReminderTone,
 } from './collections.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** The filters offered, in the order a collector works through them. */
 const ACTIONS: CollectionAction[] = ['call', 'firm_reminder', 'reminder', 'courtesy_reminder', 'await_promise', 'wait'];
 
@@ -40,7 +41,7 @@ const ACTIONS: CollectionAction[] = ['call', 'firm_reminder', 'reminder', 'court
 @Component({
   selector: 'app-collections-page',
   standalone: true,
-  imports: [VxNumberInputDirective, ...VX_DATE, FormsModule, RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, HasPermissionDirective, VxBadgeComponent, ListShellComponent],
+  imports: [...VX_TABLE, VxNumberInputDirective, ...VX_DATE, FormsModule, RouterLink, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, HasPermissionDirective, VxBadgeComponent, ListShellComponent],
   templateUrl: './collections.page.html',
   styleUrl: './collections.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

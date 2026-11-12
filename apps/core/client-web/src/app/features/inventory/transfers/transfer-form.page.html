@@ -49,8 +49,8 @@
 
     <section class="form-section">
       <h2 class="form-section-title">{{ 'inventory.common.lines' | translate }}</h2>
-      <div class="table-wrapper">
-        <table class="lines-table" formArrayName="lines">
+      <vx-table labelKey="inventory.common.lines" frame="none">
+        <table formArrayName="lines">
           <thead>
             <tr>
               <th>{{ 'inventory.common.product' | translate }}</th>
@@ -88,7 +88,7 @@
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
       @if (editable()) {
         <button class="secondary-button add-line" type="button" (click)="addLine()">
           <lucide-icon [img]="AddIcon" size="14"></lucide-icon>

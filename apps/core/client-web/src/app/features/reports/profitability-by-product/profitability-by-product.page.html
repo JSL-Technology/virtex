@@ -60,24 +60,24 @@
       </p>
     }
 
-    <div class="table-container card">
-      <table [appSort]="table.sort" class="data-table">
+    <vx-table labelKey="reports.profitability_by_product.profitability_by_product" layout="grid" [empty]="table.rows().length === 0" emptyKey="reports.profitability_by_product.no_profitability_data_available_for_selected">
+      <table [appSort]="table.sort">
         <thead>
           <tr>
             <th appSortHeader="name">{{ 'reports.profitability_by_product.product' | translate }}</th>
             <th appSortHeader="unitsSold" class="text-center">
               {{ 'reports.profitability_by_product.units_sold' | translate }}
             </th>
-            <th appSortHeader="totalRevenue" class="text-right">
+            <th appSortHeader="totalRevenue" class="numeric">
               {{ 'reports.profitability_by_product.total_revenue' | translate }}
             </th>
-            <th appSortHeader="totalCost" class="text-right">
+            <th appSortHeader="totalCost" class="numeric">
               {{ 'reports.profitability_by_product.total_cost' | translate }}
             </th>
-            <th appSortHeader="grossProfit" class="text-right">
+            <th appSortHeader="grossProfit" class="numeric">
               {{ 'reports.profitability_by_product.gross_profit' | translate }}
             </th>
-            <th appSortHeader="grossMargin" class="text-right">
+            <th appSortHeader="grossMargin" class="numeric">
               {{ 'reports.profitability_by_product.gross_margin' | translate }}
             </th>
           </tr>
@@ -87,26 +87,17 @@
             <tr>
               <td>{{ item.code && item.code !== item.name ? item.code + ' — ' + item.name : item.name }}</td>
               <td class="text-center">{{ item.unitsSold | vxNumber: '1.0-2' }}</td>
-              <td class="text-right">{{ item.totalRevenue | vxMoney: data.currency }}</td>
-              <td class="text-right">{{ item.totalCost | vxMoney: data.currency }}</td>
-              <td class="text-right font-semibold">
+              <td class="numeric">{{ item.totalRevenue | vxMoney: data.currency }}</td>
+              <td class="numeric">{{ item.totalCost | vxMoney: data.currency }}</td>
+              <td class="numeric font-semibold">
                 {{ item.grossProfit | vxMoney: data.currency }}
               </td>
-              <td class="text-right font-semibold">
+              <td class="numeric font-semibold">
                 @if (item.grossMargin === null) {
                   —
                 } @else {
                   {{ item.grossMargin | vxNumber: '1.1-1' }}%
                 }
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="6" class="empty-state">
-                {{
-                  'reports.profitability_by_product.no_profitability_data_available_for_selected'
-                    | translate
-                }}
               </td>
             </tr>
           }
@@ -116,12 +107,12 @@
             <tr class="totals-row">
               <td>{{ 'reports.export.totals' | translate }}</td>
               <td class="text-center">{{ data.totals.unitsSold | vxNumber: '1.0-2' }}</td>
-              <td class="text-right">{{ data.totals.totalRevenue | vxMoney: data.currency }}</td>
-              <td class="text-right">{{ data.totals.totalCost | vxMoney: data.currency }}</td>
-              <td class="text-right font-semibold">
+              <td class="numeric">{{ data.totals.totalRevenue | vxMoney: data.currency }}</td>
+              <td class="numeric">{{ data.totals.totalCost | vxMoney: data.currency }}</td>
+              <td class="numeric font-semibold">
                 {{ data.totals.grossProfit | vxMoney: data.currency }}
               </td>
-              <td class="text-right font-semibold">
+              <td class="numeric font-semibold">
                 @if (data.totals.grossMargin === null) {
                   —
                 } @else {
@@ -132,6 +123,6 @@
           </tfoot>
         }
       </table>
-    </div>
+    </vx-table>
   }
 </div>

@@ -44,8 +44,8 @@
     <p class="ls__state-help">{{ 'fixed_assets.page.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table [appTableMenu]="assetsMenu" class="data-table">
+  <vx-table labelKey="fixed_assets.page.title">
+    <table [appTableMenu]="assetsMenu">
       <thead>
         <tr>
           <th>{{ 'fixed_assets.page.number' | translate }}</th>
@@ -90,7 +90,7 @@
         </tfoot>
       }
     </table>
-  </div>
+  </vx-table>
 
   <vx-pager
     listFooter

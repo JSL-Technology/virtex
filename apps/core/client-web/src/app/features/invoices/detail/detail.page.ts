@@ -40,6 +40,7 @@ import { IdentityDocumentsService } from '../../../core/api/identity-documents.s
 import { AiProvenanceBadgeComponent } from '../../ai/provenance/ai-provenance-badge.component';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** Each e-CF state's name and what it means for the person reading it. */
 const ECF_STATUS: Record<string, { label: string; hint: string }> = {
   PENDING: { label: 'invoices.ecf_status.pending', hint: 'invoices.ecf_status.pending_hint' },
@@ -58,7 +59,7 @@ const ECF_STATUS: Record<string, { label: string; hint: string }> = {
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
-  imports: [HasPermissionDirective, AiProvenanceBadgeComponent, TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
+  imports: [...VX_TABLE, HasPermissionDirective, AiProvenanceBadgeComponent, TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
     // a text link instead, while `angularx-qrcode` was already a dependency of the project.
     QRCodeComponent, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent,
     ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent, VxTabsComponent, InvoiceEmailDialogComponent],

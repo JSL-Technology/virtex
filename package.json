@@ -51,6 +51,7 @@
     "demo:tenant": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/demo-tenant.ts",
     "verify:localized-names": "node tools/i18n/verify-localized-names.mjs",
     "verify:form-a11y": "node tools/verify/form-a11y.mjs",
+    "verify:tables": "node tools/verify/tables.mjs",
     "verify:required-markers": "node tools/verify/required-markers.mjs",
     "verify:cron-exclusive": "node tools/verify/cron-exclusive.mjs",
     "verify:typescript-prose": "node tools/i18n/scan-typescript-prose.mjs --list",

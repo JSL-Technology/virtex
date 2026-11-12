@@ -62,8 +62,8 @@
     <p class="ls__state-help">{{ 'masters.currencies.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table [appSort]="table.sort" class="data-table">
+  <vx-table labelKey="masters.currencies.currencies">
+    <table [appSort]="table.sort">
       <thead>
         <tr>
           <th appSortHeader="name">{{ 'masters.currencies.currency_name' | translate }}</th>
@@ -87,5 +87,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

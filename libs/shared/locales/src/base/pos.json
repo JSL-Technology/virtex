@@ -1,8 +1,8 @@
 {
   "pos.accounting_setup_incomplete": {
-    "en": "The till cannot post this sale: configure the cash, bank, sales revenue and output tax accounts in Settings › Accounting.",
-    "es": "La caja no puede contabilizar esta venta: configura las cuentas de caja, banco, ingresos por ventas e ITBIS en Ajustes › Contabilidad.",
-    "pt": "O caixa não pode contabilizar esta venda: configure as contas de caixa, banco, receita de vendas e imposto em Configurações › Contabilidade."
+    "es": "La caja no puede contabilizar esta venta: configura las cuentas de caja, banco, ingresos por ventas e ITBIS en Configuración › Cuentas predeterminadas.",
+    "en": "The till cannot post this sale: configure the cash, bank, sales revenue and output tax accounts in Settings › Default accounts.",
+    "pt": "O caixa não pode contabilizar esta venda: configure as contas de caixa, banco, receita de vendas e imposto em Configurações › Contas predefinidas."
   },
   "pos.actions": {
     "es": "Acciones de la caja",
@@ -883,9 +883,9 @@
     "pt": "isento"
   },
   "pos.tax_needs_configuration": {
-    "es": "Este país calcula el impuesto por estado o municipio. Configúralo en Ajustes → Impuestos antes de cobrar.",
-    "en": "This country levies tax by state or municipality. Configure it under Settings → Taxes before charging.",
-    "pt": "Este país calcula o imposto por estado ou município. Configure-o em Configurações → Impostos antes de cobrar."
+    "es": "Este país calcula el impuesto por estado o municipio. Configúralo en Configuración › Jurisdicciones fiscales antes de cobrar.",
+    "en": "This country levies tax by state or municipality. Configure it under Settings › Tax jurisdictions before charging.",
+    "pt": "Este país calcula o imposto por estado ou município. Configure-o em Configurações › Jurisdições fiscais antes de cobrar."
   },
   "pos.taxes": {
     "es": "Impuestos",

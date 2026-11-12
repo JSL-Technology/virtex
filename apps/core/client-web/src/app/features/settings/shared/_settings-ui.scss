@@ -1,0 +1,109 @@
+// =============================================================================
+//  Configuración: patrones de interfaz comunes a todas sus páginas.
+// =============================================================================
+//  Una acción de fila, un control segmentado y un buscador: una sola forma de cada uno en las 25
+//  páginas (la tabla es `vx-table`). Antes cada página traía la suya (tablas dentro de tarjetas o sin ellas,
+//  acciones de fila como iconos, enlaces o un menú hecho a mano) y ninguna diferencia era una
+//  decisión (estándar v0.1, COMP-01). Se usan así:
+//
+//      @use 'app/features/settings/shared/settings-ui' as ui;
+//      .mi-accion { @include ui.link-button; }
+// =============================================================================
+@use 'assets/styles/design-system' as ds;
+
+//  Las tablas de la modal son `vx-table` con `frame="none"` (shared/components/table): sin caja
+//  alrededor —la cabecera hundida y las líneas entre filas bastan para leerlas—, y en un contenedor
+//  estrecho cada fila se apila como ficha «etiqueta: valor».
+
+//  La celda de acciones: la acción más frecuente como botón de texto y, si hay más, «Más acciones»
+//  (…), que abre el menú compartido de las tablas.
+@mixin row-actions {
+  white-space: nowrap;
+  text-align: right;
+
+  > * + * {
+    margin-inline-start: var(--space-2);
+  }
+}
+
+@mixin link-button {
+  @include ds.button-link;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+}
+
+@mixin icon-button {
+  @include ds.button-icon('sm');
+  vertical-align: middle;
+}
+
+//  Control segmentado: mide lo que sus opciones; en una pantalla estrecha se pliega a varias filas
+//  en lugar de recortar opciones.
+@mixin segmented {
+  display: inline-flex;
+  //  Dentro de una columna flexible no se estira: mide lo que sus opciones (COMP-01).
+  align-self: flex-start;
+  flex-wrap: wrap;
+  //  Las divisiones son el fondo que asoma por un hueco de 1px. Si las opciones no caben en una
+  //  línea (Usuarios en un teléfono), cada fila se estira a todo el ancho y el bloque sigue siendo
+  //  un rectángulo dividido, en lugar de una fila rota con un hueco al final.
+  gap: 1px;
+  max-width: 100%;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--border-default);
+  overflow: hidden;
+
+  button {
+    flex: 1 0 auto;
+    min-height: var(--control-height-md);
+    padding: 0 var(--space-3);
+    border: none;
+    background: var(--surface-base);
+    color: var(--content-secondary);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    @include ds.transition(background-color, color);
+
+    &:hover:not(.active) {
+      background: var(--surface-hover);
+      color: var(--content-primary);
+    }
+
+    @include ds.focus-ring-inset;
+
+    &.active {
+      background: var(--accent-solid);
+      color: var(--accent-on-solid);
+      font-weight: var(--font-semibold);
+    }
+  }
+}
+
+@mixin search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  lucide-icon {
+    position: absolute;
+    left: var(--space-3);
+    color: var(--content-tertiary);
+    pointer-events: none;
+  }
+
+  input {
+    @include ds.input-base;
+    padding-left: var(--space-10);
+  }
+}
+
+@mixin toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-end: var(--space-4);
+}

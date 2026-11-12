@@ -62,6 +62,8 @@ function periodGate(): PeriodGateRegistry {
  */
 const companyToday = (): string =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santo_Domingo' }).format(new Date());
+/** The company's year, from its own calendar: on 31 December after 20:00 the UTC year is already the next. */
+const companyYear = (): number => Number(companyToday().slice(0, 4));
 
 describeWithDb('inventory posting', () => {
   jest.setTimeout(120_000);
@@ -207,7 +209,7 @@ describeWithDb('inventory posting', () => {
       }),
     );
 
-    const year = new Date().getFullYear();
+    const year = companyYear();
     await dataSource.getRepository(AccountingPeriod).save([
       {
         organizationId,
@@ -223,7 +225,7 @@ describeWithDb('inventory posting', () => {
     (await balances.balancesAsOf({
       organizationId,
       ledgerId,
-      asOf: `${new Date().getFullYear()}-12-31`,
+      asOf: `${companyYear()}-12-31`,
     })).get(account[key]) ?? 0;
 
   const newProduct = (over: Partial<Product> = {}) => ({

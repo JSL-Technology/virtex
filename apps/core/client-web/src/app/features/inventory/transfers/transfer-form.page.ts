@@ -22,6 +22,7 @@ import { SaveStockTransfer, StockService, StockTransfer } from '../data/stock.se
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
 import { STOCK_DOCUMENT_TONE } from '../adjustments/adjustment-form.page';
 
+import { VX_TABLE } from '../../../shared/components/table';
 const todayIso = (): string => tenantToday();
 
 /** Origin and destination must differ: a transfer to the same place moves nothing. */
@@ -40,7 +41,7 @@ function distinctWarehouses(group: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-stock-transfer-form',
   standalone: true,
-  imports: [VxNumberInputDirective, 
+  imports: [...VX_TABLE, VxNumberInputDirective, 
     ReactiveFormsModule,
     LucideAngularModule,
     TranslateModule,

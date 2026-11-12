@@ -4,8 +4,8 @@
 //  LO QUE UNA PÁGINA DE LISTA SIGUE APORTANDO
 // =============================================================================
 //  `vx-list-shell` se queda con el marco —encabezado, recuento, búsqueda y los
-//  cuatro estados—. Lo que la página proyecta dentro sigue siendo suyo: la
-//  tabla, sus distintivos de estado y sus columnas de acciones.
+//  cuatro estados— y `vx-table` con la tabla. Lo que la página proyecta
+//  alrededor sigue siendo suyo: el paginador y el alta en línea.
 //
 //  Este parcial existe para que esas piezas se declaren una vez y no por
 //  herencia entre hojas de páginas sin relación. Antes, la lista de facturas se
@@ -14,38 +14,8 @@
 // =============================================================================
 
 @mixin list-page {
-  .table-container {
-    @include ds.surface-card;
-    overflow-x: auto;
-    padding: 0;
-  }
-
-  .data-table {
-    @include ds.data-table;
-  }
-
-  //  Columna de acciones: estrecha, sin envolver, y alineada a la derecha
-  //  porque es donde termina la lectura de la fila.
-  .actions-column {
-    width: 1%;
-    white-space: nowrap;
-    text-align: right;
-  }
-
-  .table-link {
-    //  A cell's only link is a target on its own, not text inside a sentence: 24px tall (QA M-09).
-    display: inline-flex;
-    align-items: center;
-    min-height: 24px;
-    color: var(--accent-solid);
-    text-decoration: none;
-
-    &:hover { text-decoration: underline; }
-    @include ds.focus-ring(2px);
-  }
-
-  .text-right { text-align: right; }
-  .text-center { text-align: center; }
+  //  La tabla —su marco, su cabecera, sus columnas numéricas y de acciones, su enlace— es de
+  //  `vx-table` (shared/components/table). Aquí queda lo que la página pone alrededor.
 
   //  Paginador. Estaba escrito palabra por palabra en dos hojas y a punto de
   //  estarlo en una tercera; la lista acotada es una propiedad del gesto, no de

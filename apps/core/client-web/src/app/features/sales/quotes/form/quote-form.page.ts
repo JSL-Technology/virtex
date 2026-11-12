@@ -30,6 +30,7 @@ import { QUOTE_TONE } from '../list/quotes.page';
 import { AiProvenanceBadgeComponent } from '../../../ai/provenance/ai-provenance-badge.component';
 import { InboundMailService } from '../../../inbound-mail/inbound-mail.service';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 const DEFAULT_VALIDITY_DAYS = 15;
 
 /**
@@ -44,7 +45,7 @@ const DEFAULT_VALIDITY_DAYS = 15;
 @Component({
   selector: 'app-quote-form-page',
   standalone: true,
-  imports: [VxNumberInputDirective, AiProvenanceBadgeComponent, 
+  imports: [...VX_TABLE, VxNumberInputDirective, AiProvenanceBadgeComponent, 
     VxBranchPickerComponent,
     ReactiveFormsModule,
     RouterLink,

@@ -1,59 +1,58 @@
 @if (hasTypes()) {
-  <!-- Read only without the edit permission: every control in the card at once. -->
-  <fieldset class="fx-readonly" [disabled]="readonly()">
-  <section class="card" aria-labelledby="emission-mode-title">
-    <div class="card__head">
-      @if (applies()) {
-        <h2 id="emission-mode-title" class="card__title">{{ 'settings.fiscal.mode.title' | translate }}</h2>
-        <p class="card__subtitle">{{ 'settings.fiscal.mode.subtitle' | translate }}</p>
-      } @else {
-        <h2 id="emission-mode-title" class="card__title">{{ 'settings.fiscal.status_title' | translate }}</h2>
-        <p class="card__subtitle">{{ 'settings.fiscal.status_subtitle' | translate }}</p>
-      }
-    </div>
-    <div class="card__body">
-      @if (applies()) {
-        <div class="mode-choices" role="radiogroup" aria-labelledby="emission-mode-title">
-          @for (choice of choices; track choice.value) {
-            <label class="mode-choice" [class.mode-choice--selected]="mode() === choice.value">
-              <input
-                type="radio"
-                name="fiscal-emission-mode"
-                [value]="choice.value"
-                [checked]="mode() === choice.value"
-                [disabled]="saving()"
-                (change)="select(choice.value)"
-              />
-              <span class="mode-choice__text">
-                <span class="mode-choice__title">{{ choice.titleKey | translate }}</span>
-                <span class="mode-choice__description">{{ choice.descriptionKey | translate: { authority: authority() } }}</span>
-              </span>
-            </label>
-          }
-        </div>
-      }
+  <vx-settings-group [titleKey]="applies() ? 'settings.fiscal.mode.title' : 'settings.fiscal.status_title'"
+    [descriptionKey]="applies() ? 'settings.fiscal.mode.subtitle' : 'settings.fiscal.status_subtitle'">
+    @if (applies()) {
+      <!-- Tres opciones, una elegida: cada una es una tarjeta seleccionable, como los planes. -->
+      <div class="mode-choices" role="radiogroup" [attr.aria-label]="'settings.fiscal.mode.title' | translate">
+        @for (choice of choices; track choice.value) {
+          <label class="mode-choice" [class.mode-choice--selected]="draft() === choice.value">
+            <input type="radio" name="fiscal-emission-mode" [value]="choice.value" [checked]="draft() === choice.value"
+              [disabled]="saving() || readonly()" (change)="select(choice.value)" />
+            <span class="mode-choice__text">
+              <span class="mode-choice__title">{{ choice.titleKey | translate }}</span>
+              <span class="mode-choice__description">{{ choice.descriptionKey | translate: { authority: authority() } }}</span>
+            </span>
+          </label>
+        }
+      </div>
+    }
 
-      <!-- What the invoice form will let the company issue right now, as the server sees it. -->
-      @if (context(); as state) {
-        <div class="issue-state" aria-live="polite">
-          @if (issuableNow().length) {
-            <p class="issue-state__lead">{{ 'settings.fiscal.mode.can_issue_now' | translate }}</p>
-            <ul class="issue-state__types">
-              @for (type of issuableNow(); track type.code) {
-                <li><vx-badge tone="ok" size="sm">{{ type.labelKey | translate }}</vx-badge></li>
-              }
-            </ul>
-          } @else {
-            <p class="issue-state__lead issue-state__lead--blocked">{{ 'settings.fiscal.mode.cannot_issue_yet' | translate }}</p>
+    <!-- Lo que el formulario de facturas dejará emitir ahora mismo, con la configuración guardada. -->
+    @if (context(); as state) {
+      <div class="issue-state" aria-live="polite">
+        @if (issuableNow().length) {
+          <p class="issue-state__lead">{{ 'settings.fiscal.mode.can_issue_now' | translate }}</p>
+          <ul class="issue-state__types" role="list">
+            @for (type of issuableNow(); track type.code) {
+              <li><vx-badge tone="ok" size="sm">{{ type.labelKey | translate }}</vx-badge></li>
+            }
+          </ul>
+        } @else {
+          <!-- Algo bloquea la emisión: un aviso de advertencia, el mismo de toda la modal (COL-01). -->
+          <vx-notice tone="warning">
+            <p class="issue-state__lead">{{ 'settings.fiscal.mode.cannot_issue_yet' | translate }}</p>
             <ul class="issue-state__missing">
               @for (gap of state.missing; track gap) {
-                <li>{{ gap | translate }}</li>
+                @let item = gapItem(gap);
+                <li>
+                  <span>{{ item.textKey | translate: item.params ?? {} }}</span>
+                  @if (item.actionKey) {
+                    @if (item.fragment) {
+                      <a class="issue-state__action" [routerLink]="[]" [fragment]="item.fragment">{{ item.actionKey | translate }}</a>
+                    } @else if (item.target && !readonly()) {
+                      <button type="button" class="issue-state__action" (click)="goTo(item.target)">{{ item.actionKey | translate }}</button>
+                    }
+                  }
+                </li>
               }
             </ul>
-          }
-        </div>
-      }
-    </div>
-  </section>
-  </fieldset>
+          </vx-notice>
+        }
+      </div>
+    }
+  </vx-settings-group>
+
+  @if (applies() && !readonly()) {
+    <vx-settings-save-bar [dirty]="dirty()" [saving]="saving()" (save)="save()" (discard)="draft.set(mode())" />
+  }
 }

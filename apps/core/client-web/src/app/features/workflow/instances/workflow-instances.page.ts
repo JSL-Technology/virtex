@@ -97,8 +97,8 @@ const SEARCH_DEBOUNCE_MS = 300;
         }
       </div>
 
-      <div class="table-container card">
-        <table class="data-table">
+      <vx-table labelKey="workflow_engine.nav.instances">
+        <table>
           <thead>
             <tr>
               <th scope="col">{{ 'workflow_engine.instances.process' | translate }}</th>
@@ -107,7 +107,7 @@ const SEARCH_DEBOUNCE_MS = 300;
               <th scope="col">{{ 'workflow_engine.instances.where' | translate }}</th>
               <th scope="col">{{ 'workflow_engine.instances.started_by' | translate }}</th>
               <th scope="col">{{ 'workflow_engine.instance.started' | translate }}</th>
-              <th scope="col" class="text-right">{{ 'workflow_engine.instances.duration' | translate }}</th>
+              <th scope="col" class="numeric">{{ 'workflow_engine.instances.duration' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -140,12 +140,12 @@ const SEARCH_DEBOUNCE_MS = 300;
                 </td>
                 <td>{{ run.startedByName || ('workflow_engine.instances.automatic' | translate) }}</td>
                 <td>{{ run.createdAt | vxDate: 'dateTime' }}</td>
-                <td class="text-right wfr__duration">{{ duration(run) }}</td>
+                <td class="numeric wfr__duration">{{ duration(run) }}</td>
               </tr>
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
 
       <vx-pager listFooter [page]="page()" [pageSize]="pageSize()" [total]="total()" (pageChange)="setPage($event)" (pageSizeChange)="setPageSize($event)" />
     </vx-list-shell>

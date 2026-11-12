@@ -11,6 +11,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 import { NotificationService } from '../../../core/services/notification';
 import { RecurringEntriesService, RecurringEntry } from '../data/recurring-entries.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * Recurring journal entries (audit H-21): the rent, the insurance amortisation, the accrual — each
  * with what it posts, how often, when it posts next and whether occurrences are waiting to catch
@@ -19,7 +20,7 @@ import { RecurringEntriesService, RecurringEntry } from '../data/recurring-entri
 @Component({
   selector: 'app-recurring-entries-page',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, HasPermissionDirective, RowLinkDirective],
+  imports: [...VX_TABLE, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, HasPermissionDirective, RowLinkDirective],
   templateUrl: './recurring-entries.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

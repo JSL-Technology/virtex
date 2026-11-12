@@ -1,39 +1,40 @@
-@use '../../../../../assets/styles/design-system' as ds;
+@use 'assets/styles/design-system' as ds;
 
-// Width and padding are the settings window's (`.sm-page`).
-.s-page { display: flex; flex-direction: column; gap: var(--space-5); }
-.s-header { padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.75rem; }
-.s-header__title { font-size: 1.375rem; font-weight: 700; color: var(--text-primary); margin-bottom: .25rem; }
-.s-header__subtitle { font-size: .875rem; color: var(--text-secondary); }
+//  Correo saliente. Los grupos los dibuja `vx-settings-group` y el guardado, la barra común; aquí
+//  solo quedan los campos y la vista previa.
 
-.mail__form { display: flex; flex-direction: column; gap: var(--space-4); }
-.mail__field { display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--text-sm); color: var(--text-secondary); }
-.mail__field > span { font-weight: 500; color: var(--text-primary); }
-.mail__input { @include ds.input-base; }
-.mail__invalid { color: var(--error-text); }
-.mail__warn {
-  // A consequence the reader has to act on: replies would reach nobody (CG-28).
+.s-page { display: block; }
+
+.mail__field {
   display: flex;
+  flex-direction: column;
   gap: var(--space-2);
-  margin-top: var(--space-1);
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--warning-border);
-  border-radius: var(--radius-md);
-  background: var(--warning-surface);
-  color: var(--warning-text);
-  font-weight: var(--font-medium);
+  //  Un nombre o una dirección de correo: el campo mide lo que el dato, no la página (FORM-02).
+  max-width: 28rem;
+  margin-block-end: var(--space-4);
+
+  &:last-child { margin-block-end: 0; }
 }
-.mail__error { color: var(--error-text); }
-.mail__hint { font-size: var(--text-sm); color: var(--text-secondary); }
+
+.mail__label { @include ds.field-label; }
+.mail__input { @include ds.input-base; }
+.mail__hint { @include ds.field-hint; margin: 0; }
+.mail__invalid { @include ds.field-error; }
 
 .mail__preview {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
-  background: var(--bg-card);
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+
+  dt { color: var(--content-secondary); }
+  dd { margin: 0; color: var(--content-primary); overflow-wrap: anywhere; }
 }
-.mail__preview-title { font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-2); }
-.mail__preview dl { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-1) var(--space-3); margin: 0 0 var(--space-2); font-size: var(--text-sm); }
-.mail__preview dt { color: var(--text-secondary); }
-.mail__preview dd { margin: 0; word-break: break-all; }
-.mail__actions { display: flex; justify-content: flex-end; gap: var(--space-2); }
+
+//  Desactivado con su motivo: sigue en el orden de tabulación para que el motivo se lea (COMP-02).
+:host ::ng-deep .is-disabled,
+.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

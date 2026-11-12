@@ -220,6 +220,17 @@
 
   &:hover:not(:disabled):not(:read-only) { border-color: var(--content-tertiary); }
 
+  //  Solo lectura: el dato se lee con contraste pleno (se selecciona y se copia, y el lector de
+  //  pantalla lo anuncia), pero el campo no se ofrece para escribir. Sin esto un campo de solo
+  //  lectura era idéntico a uno editable. Se usa el atributo y no `:read-only`, que también casa
+  //  con <select> y lo apagaría. Sigue enfocable, y con foco manda el borde de foco.
+  &[readonly]:not(:disabled) {
+    background-color: var(--surface-sunken);
+    cursor: default;
+
+    &:not(:focus) { border-color: var(--border-subtle); }
+  }
+
   &:focus-visible,
   &:focus {
     outline: none;
@@ -271,62 +282,11 @@
 // -----------------------------------------------------------------------------
 //  TABLAS DE DATOS
 // -----------------------------------------------------------------------------
-//  El componente central de un ERP. Antes había dos mixins `data-table` rivales
-//  en archivos distintos.
+//  No hay mixin de tabla: toda tabla es un `vx-table` (shared/components/table),
+//  que lleva su hoja de estilos. Había dos mixins `data-table` rivales y, con
+//  ellos, cinco aspectos de tabla distintos; `npm run verify:tables` impide que
+//  vuelva a aparecer un `@include` de tabla.
 // -----------------------------------------------------------------------------
-@mixin data-table {
-  width: 100%;
-  border-collapse: separate;   // `collapse` rompe los bordes de la cabecera fija
-  border-spacing: 0;
-  font-size: var(--text-sm);
-
-  th,
-  td {
-    padding: var(--space-3) var(--space-4);
-    text-align: left;
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  th {
-    position: sticky;
-    top: 0;
-    z-index: var(--z-sticky);
-
-    background-color: var(--surface-sunken);
-    color: var(--content-secondary);
-    font-size: var(--text-sm);
-    font-weight: var(--font-semibold);
-    // Written as the catalogue words them. Forced capitals turned «e-NCF» into «E-NCF» — the
-    // DGII's own spelling, wrong in the one column it names (QA U76) — and made every header shout.
-    white-space: nowrap;
-    border-bottom-color: var(--border-default);
-  }
-
-  tbody tr {
-    @include transition(background-color);
-
-    &:hover { background-color: var(--surface-hover); }
-    &[aria-selected='true'] { background-color: var(--surface-selected); }
-    &:last-child td { border-bottom: none; }
-  }
-
-  //  Importes: monoespaciado tabular y alineación a la derecha. En contabilidad
-  //  esto no es estética, es cómo se comparan cifras de un vistazo.
-  //  `text-right` and `num` too: the pages wrote those, and the `th, td { text-align: left }` above,
-  //  scoped with the table, outranked a page's own `.text-right` — so every amount column in the
-  //  product sat flush left with its header (QA U42).
-  .is-numeric,
-  td.numeric,
-  th.numeric,
-  td.text-right,
-  th.text-right,
-  td.num,
-  th.num {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: var(--font-numeric);
-  }
-}
 
 // -----------------------------------------------------------------------------
 //  INSIGNIAS DE ESTADO

@@ -9,11 +9,6 @@
     "en": "Calls",
     "pt": "Chamadas"
   },
-  "ai.admin.col_cost": {
-    "es": "Costo estimado (USD)",
-    "en": "Estimated cost (USD)",
-    "pt": "Custo estimado (USD)"
-  },
   "ai.admin.col_credits": {
     "es": "Créditos",
     "en": "Credits",
@@ -100,9 +95,9 @@
     "pt": "Ainda não foi executada."
   },
   "ai.admin.no_usage": {
-    "es": "Sin uso este mes.",
-    "en": "No use this month.",
-    "pt": "Sem uso neste mês."
+    "es": "Cuando alguien use una función de IA, aquí verás cuántas veces y cuánto costó.",
+    "en": "When someone uses an AI feature, you'll see here how often and what it cost.",
+    "pt": "Quando alguém usar uma função de IA, você verá aqui quantas vezes e quanto custou."
   },
   "ai.admin.pending": {
     "es": "Pendiente de revisar",
@@ -198,11 +193,6 @@
     "es": "Total estimado",
     "en": "Estimated total",
     "pt": "Total estimado"
-  },
-  "ai.admin.usage": {
-    "es": "Uso del mes por función",
-    "en": "This month's use by feature",
-    "pt": "Uso do mês por função"
   },
   "ai.admin.usage_feature.anomaly_narrative": {
     "es": "Explicación de anomalías",
@@ -339,11 +329,6 @@
     "en": "Largest order sent for approval",
     "pt": "Valor máximo para enviar para aprovação"
   },
-  "ai.agents.replenishment.no_limit": {
-    "es": "Sin límite",
-    "en": "No limit",
-    "pt": "Sem limite"
-  },
   "ai.agents.replenishment.ran": {
     "es": "El agente preparó {{count}} órdenes de compra.",
     "en": "The agent prepared {{count}} purchase orders.",
@@ -353,11 +338,6 @@
     "es": "El agente de reposición no pudo ejecutarse.",
     "en": "The replenishment agent could not run.",
     "pt": "O agente de reposição não pôde ser executado."
-  },
-  "ai.agents.replenishment.run_now": {
-    "es": "Ejecutar ahora",
-    "en": "Run now",
-    "pt": "Executar agora"
   },
   "ai.agents.replenishment.running": {
     "es": "Ejecutando…",
@@ -2524,11 +2504,6 @@
     "en": "This connection request is invalid or has expired. Start it again from the assistant.",
     "pt": "Esta solicitação de conexão é inválida ou expirou. Inicie-a novamente pelo assistente."
   },
-  "ai.mcp.no_agents": {
-    "es": "No hay agentes conectados.",
-    "en": "No agents are connected.",
-    "pt": "Não há agentes conectados."
-  },
   "ai.mcp.proposal_from_agent": {
     "es": "Un agente de IA externo preparó esta propuesta. Comprueba los datos antes de confirmarla: nada se crea hasta que lo hagas.",
     "en": "An external AI agent prepared this proposal. Check the details before confirming it: nothing is created until you do.",
@@ -2674,11 +2649,6 @@
     "en": "When the budget is reached, the AI features stop until the next period; the ERP keeps working. You are notified at 50, 80 and 100%.",
     "pt": "Ao atingir o orçamento, as funções de IA param até o próximo período; o ERP continua funcionando. Avisamos a 50, 80 e 100%."
   },
-  "ai.policy.daily_budget": {
-    "es": "Presupuesto diario en US$",
-    "en": "Daily budget in US$",
-    "pt": "Orçamento diário em US$"
-  },
   "ai.policy.feature.anomaly_narrative": {
     "es": "Explicar anomalías",
     "en": "Explaining anomalies",
@@ -2739,11 +2709,6 @@
     "en": "Sends product photos to a second provider (embeddings). Off by default; without it, duplicates are found by barcode and name.",
     "pt": "Envia as fotos dos produtos a um segundo provedor (embeddings). Desligado por padrão; sem isso, os duplicados são procurados por código de barras e nome."
   },
-  "ai.policy.intro": {
-    "es": "Decide qué datos salen hacia el proveedor de IA, qué funciones se usan, cuánto se puede gastar y cuánto tiempo se guardan las conversaciones. Todo el ERP funciona igual con la IA desactivada.",
-    "en": "Decide what data goes to the AI provider, which features are used, how much may be spent and how long conversations are kept. The whole ERP works the same with AI switched off.",
-    "pt": "Decida que dados vão para o provedor de IA, que funções se usam, quanto se pode gastar e por quanto tempo as conversas ficam guardadas. Todo o ERP funciona igual com a IA desativada."
-  },
   "ai.policy.language_models": {
     "es": "Usar modelos de lenguaje",
     "en": "Use language models",
@@ -2763,21 +2728,6 @@
     "es": "Los identificadores fiscales, correos, teléfonos y cuentas bancarias que leen las herramientas del asistente se envían enmascarados, salvo en la búsqueda que los necesita.",
     "en": "Tax identifiers, e-mails, phones and bank accounts the assistant's tools read are sent masked, except in the search that needs them.",
     "pt": "Identificadores fiscais, e-mails, telefones e contas bancárias lidos pelas ferramentas do assistente são enviados mascarados, exceto na busca que precisa deles."
-  },
-  "ai.policy.monthly_budget": {
-    "es": "Presupuesto mensual en US$ (máximo {{max}}; vacío = el predeterminado)",
-    "en": "Monthly budget in US$ (at most {{max}}; empty = the default)",
-    "pt": "Orçamento mensal em US$ (máximo {{max}}; vazio = o padrão)"
-  },
-  "ai.policy.no_daily_limit": {
-    "es": "Sin límite diario",
-    "en": "No daily limit",
-    "pt": "Sem limite diário"
-  },
-  "ai.policy.read_only": {
-    "es": "Solo lectura: cambiar esta configuración requiere el permiso «Configuración de la IA».",
-    "en": "Read only: changing these settings needs the \"AI settings\" permission.",
-    "pt": "Somente leitura: alterar esta configuração requer a permissão «Configuração da IA»."
   },
   "ai.policy.retention": {
     "es": "Conservación de conversaciones",
@@ -2813,16 +2763,6 @@
     "es": "Envío de datos al proveedor de IA",
     "en": "Sending data to the AI provider",
     "pt": "Envio de dados ao provedor de IA"
-  },
-  "ai.policy.spent": {
-    "es": "Gastado este mes: US$ {{spent}} de US$ {{budget}}",
-    "en": "Spent this month: US$ {{spent}} of US$ {{budget}}",
-    "pt": "Gasto este mês: US$ {{spent}} de US$ {{budget}}"
-  },
-  "ai.policy.title": {
-    "es": "Qué permite la empresa",
-    "en": "What the company allows",
-    "pt": "O que a empresa permite"
   },
   "ai.policy.unavailable": {
     "es": "No se pudo cargar la configuración de la IA.",
@@ -2948,6 +2888,11 @@
     "es": "Medidos con las recepciones del último año, del pedido a la recepción. Los puntos de reorden se calculan con estos plazos.",
     "en": "Measured from the last year's receipts, from order to receipt. Reorder points are sized with these lead times.",
     "pt": "Medidos com os recebimentos do último ano, do pedido ao recebimento. Os pontos de reposição são calculados com esses prazos."
+  },
+  "ai.predictions.lead_times_table": {
+    "es": "Plazos de entrega por proveedor",
+    "en": "Lead times by supplier",
+    "pt": "Prazos de entrega por fornecedor"
   },
   "ai.predictions.load_failed": {
     "es": "No se pudieron cargar las predicciones.",
@@ -3344,11 +3289,6 @@
     "en": "The artificial intelligence service is unavailable right now. Try again later or continue manually.",
     "pt": "O serviço de inteligência artificial não está disponível neste momento. Tente mais tarde ou continue manualmente."
   },
-  "ai.admin.runs_intro": {
-    "es": "Los trabajos programados del motor de IA. Es estado de operación, no un ajuste.",
-    "en": "The AI engine’s scheduled jobs. This is operational state, not a setting.",
-    "pt": "Os trabalhos agendados do motor de IA. É estado operacional, não uma configuração."
-  },
   "ai.admin.run_waiting": {
     "es": "En espera de que el motor de IA lo tome. Si no empieza en 30 minutos se da por fallido y podrás reintentarlo.",
     "en": "Waiting for the AI engine to pick it up. If it does not start within 30 minutes it is marked as failed and you can retry.",
@@ -3408,5 +3348,200 @@
     "es": "Sí, permitir",
     "en": "Yes, allow",
     "pt": "Sim, permitir"
+  },
+  "ai.mcp.endpoint_label": {
+    "es": "Dirección para conectar un agente",
+    "en": "Address to connect an agent",
+    "pt": "Endereço para conectar um agente"
+  },
+  "ai.mcp.copy_endpoint": {
+    "es": "Copiar la dirección",
+    "en": "Copy the address",
+    "pt": "Copiar o endereço"
+  },
+  "ai.mcp.endpoint_copied": {
+    "es": "Dirección copiada.",
+    "en": "Address copied.",
+    "pt": "Endereço copiado."
+  },
+  "ai.mcp.load_failed": {
+    "es": "No se pudo leer la lista de agentes conectados.",
+    "en": "The list of connected agents could not be read.",
+    "pt": "Não foi possível ler a lista de agentes conectados."
+  },
+  "ai.mcp.no_agents_title": {
+    "es": "Ningún agente conectado",
+    "en": "No agents connected",
+    "pt": "Nenhum agente conectado"
+  },
+  "ai.mcp.no_agents_description": {
+    "es": "Conecta uno desde tu asistente con la dirección de arriba; te pedirá permiso antes de actuar.",
+    "en": "Connect one from your assistant with the address above; it will ask for your permission before acting.",
+    "pt": "Conecte um a partir do seu assistente com o endereço acima; ele pedirá sua permissão antes de agir."
+  },
+  "ai.mcp.disconnect_title": {
+    "es": "¿Desconectar el agente?",
+    "en": "Disconnect the agent?",
+    "pt": "Desconectar o agente?"
+  },
+  "ai.mcp.disconnect_message": {
+    "es": "{{client}} dejará de poder leer tus datos y de proponer borradores.",
+    "en": "{{client}} will no longer be able to read your data or propose drafts.",
+    "pt": "{{client}} deixará de poder ler seus dados e de propor rascunhos."
+  },
+  "ai.mcp.disconnect_named": {
+    "es": "Desconectar {{client}}",
+    "en": "Disconnect {{client}}",
+    "pt": "Desconectar {{client}}"
+  },
+  "ai.admin.state.engine_offline": {
+    "es": "El motor de análisis está detenido",
+    "en": "The analytics engine is stopped",
+    "pt": "O motor de análise está parado"
+  },
+  "ai.admin.availability_description": {
+    "es": "Qué funciona hoy y, si algo no, por qué: el plan o el servidor.",
+    "en": "What works today and, if something doesn't, why: the plan or the server.",
+    "pt": "O que funciona hoje e, se algo não funciona, por quê: o plano ou o servidor."
+  },
+  "ai.admin.consumption": {
+    "es": "Consumo del mes",
+    "en": "This month's consumption",
+    "pt": "Consumo do mês"
+  },
+  "ai.admin.col_cost_estimated": {
+    "es": "Costo estimado",
+    "en": "Estimated cost",
+    "pt": "Custo estimado"
+  },
+  "ai.admin.no_usage_title": {
+    "es": "Sin uso este mes",
+    "en": "No use this month",
+    "pt": "Sem uso neste mês"
+  },
+  "ai.admin.activity_title": {
+    "es": "Actividad",
+    "en": "Activity",
+    "pt": "Atividade"
+  },
+  "ai.admin.activity_description": {
+    "es": "Las ejecuciones del motor, la bitácora de los agentes y las propuestas del asistente están en Análisis.",
+    "en": "The engine's runs, the agents' log and the assistant's proposals are in Analysis.",
+    "pt": "As execuções do motor, o registro dos agentes e as propostas do assistente estão em Análise."
+  },
+  "ai.admin.open_activity": {
+    "es": "Abrir la actividad de la IA",
+    "en": "Open the AI activity",
+    "pt": "Abrir a atividade da IA"
+  },
+  "ai.policy.sending_description": {
+    "es": "Qué datos salen hacia el proveedor del modelo y para qué. Todo el ERP funciona igual con la IA desactivada.",
+    "en": "Which data goes out to the model provider, and for what. The whole ERP works the same with the AI switched off.",
+    "pt": "Quais dados saem para o provedor do modelo e para quê. Todo o ERP funciona igual com a IA desativada."
+  },
+  "ai.policy.features_off": {
+    "es": "Activa «Usar modelos de lenguaje» para elegir funciones.",
+    "en": "Switch on “Use language models” to choose features.",
+    "pt": "Ative “Usar modelos de linguagem” para escolher funções."
+  },
+  "ai.policy.spent_month": {
+    "es": "Gastado este mes: {{spent}} de {{budget}}",
+    "en": "Spent this month: {{spent}} of {{budget}}",
+    "pt": "Gasto neste mês: {{spent}} de {{budget}}"
+  },
+  "ai.policy.monthly_budget_label": {
+    "es": "Presupuesto mensual (US$)",
+    "en": "Monthly budget (US$)",
+    "pt": "Orçamento mensal (US$)"
+  },
+  "ai.policy.monthly_budget_hint": {
+    "es": "Hasta {{max}}. Vacío: el predeterminado de la plataforma.",
+    "en": "Up to {{max}}. Empty: the platform's default.",
+    "pt": "Até {{max}}. Vazio: o padrão da plataforma."
+  },
+  "ai.policy.daily_budget_label": {
+    "es": "Presupuesto diario (US$)",
+    "en": "Daily budget (US$)",
+    "pt": "Orçamento diário (US$)"
+  },
+  "ai.policy.daily_budget_hint": {
+    "es": "Vacío: sin límite diario.",
+    "en": "Empty: no daily limit.",
+    "pt": "Vazio: sem limite diário."
+  },
+  "ai.policy.retention_range": {
+    "es": "Entre 1 y 3650 días.",
+    "en": "Between 1 and 3650 days.",
+    "pt": "Entre 1 e 3650 dias."
+  },
+  "ai.policy.retention_invalid": {
+    "es": "Los días que se guardan las conversaciones deben estar entre 1 y 3650.",
+    "en": "The days conversations are kept must be between 1 and 3650.",
+    "pt": "Os dias em que as conversas são guardadas devem estar entre 1 e 3650."
+  },
+  "ai.policy.budget_over_max": {
+    "es": "El presupuesto mensual no puede pasar de {{max}}.",
+    "en": "The monthly budget cannot exceed {{max}}.",
+    "pt": "O orçamento mensal não pode passar de {{max}}."
+  },
+  "ai.policy.confirm_send_unmask": {
+    "es": "Desde ahora, partes de los datos de la empresa saldrán hacia el proveedor del modelo, y los identificadores (RNC, cédulas, cuentas) irán sin enmascarar. El cambio queda auditado.",
+    "en": "From now on, parts of the company's data will go out to the model provider, and identifiers (tax IDs, ID cards, accounts) will go unmasked. The change is audited.",
+    "pt": "A partir de agora, partes dos dados da empresa sairão para o provedor do modelo, e os identificadores (CNPJ, documentos, contas) irão sem mascaramento. A alteração fica auditada."
+  },
+  "ai.policy.saved": {
+    "es": "Configuración de la IA guardada.",
+    "en": "AI settings saved.",
+    "pt": "Configuração da IA salva."
+  },
+  "ai.agents.saved": {
+    "es": "Configuración del agente guardada.",
+    "en": "Agent settings saved.",
+    "pt": "Configuração do agente salva."
+  },
+  "ai.agents.load_failed": {
+    "es": "No se pudo leer la configuración de los agentes.",
+    "en": "The agents' settings could not be read.",
+    "pt": "Não foi possível ler a configuração dos agentes."
+  },
+  "ai.agents.replenishment.limit_hint": {
+    "es": "En la moneda de la empresa. Vacío: sin límite.",
+    "en": "In the company's currency. Empty: no limit.",
+    "pt": "Na moeda da empresa. Vazio: sem limite."
+  },
+  "ai.activity.title": {
+    "es": "Actividad de la IA",
+    "en": "AI activity",
+    "pt": "Atividade da IA"
+  },
+  "ai.activity.subtitle": {
+    "es": "Lo que hizo la IA: las ejecuciones del motor, lo que prepararon los agentes, lo que propuso el asistente y cómo lo valoró tu equipo.",
+    "en": "What the AI did: the engine's runs, what the agents prepared, what the assistant proposed and how your team rated it.",
+    "pt": "O que a IA fez: as execuções do motor, o que os agentes prepararam, o que o assistente propôs e como sua equipe avaliou."
+  },
+  "ai.activity.run_replenishment": {
+    "es": "Ejecutar el agente de reposición",
+    "en": "Run the replenishment agent",
+    "pt": "Executar o agente de reposição"
+  },
+  "ai.activity.log_failed": {
+    "es": "No se pudo leer la actividad de los agentes.",
+    "en": "The agents' activity could not be read.",
+    "pt": "Não foi possível ler a atividade dos agentes."
+  },
+  "ai.activity.log_empty_title": {
+    "es": "Sin ejecuciones de agentes",
+    "en": "No agent runs",
+    "pt": "Sem execuções de agentes"
+  },
+  "ai.activity.copilot_empty_title": {
+    "es": "Sin propuestas del asistente",
+    "en": "No proposals from the assistant",
+    "pt": "Sem propostas do assistente"
+  },
+  "ai.activity.feedback_empty_title": {
+    "es": "Sin valoraciones",
+    "en": "No ratings",
+    "pt": "Sem avaliações"
   }
 }

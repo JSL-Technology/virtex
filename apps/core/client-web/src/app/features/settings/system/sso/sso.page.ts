@@ -1,9 +1,11 @@
-import { VxEmptyStateComponent } from '../../../../shared/components/feedback/empty-state.component';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { catchError, forkJoin, of } from 'rxjs';
+import { Ban, CircleCheck, Globe, KeyRound, LucideAngularModule, MoreHorizontal, Trash2 } from 'lucide-angular';
 import {
   SsoAdminService,
   SsoDomain,
@@ -12,8 +14,15 @@ import {
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
 import { NotificationService } from '../../../../core/services/notification';
+import { DialogService } from '../../../../core/services/dialog.service';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../../../shared/components/context-menu';
+import { VxEmptyStateComponent, VxErrorStateComponent, VxNoticeComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
+import { SettingsGroupComponent } from '../../shared';
+import { SettingsChanges, SettingsShellService } from '../../shell';
+import { Role, RolesService } from '../../data/roles.service';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * Per-organization enterprise SSO settings: manage verified email domains and OIDC identity
  * providers (Okta, Microsoft Entra, Google Workspace, Ping, Auth0, ...). A provider can only
@@ -22,7 +31,21 @@ import { VX_SORT, sortable } from '../../../../shared/components/sort';
 @Component({
   selector: 'app-sso-settings',
   standalone: true,
-  imports: [VxEmptyStateComponent, ...VX_SORT, CommonModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y, VxBadgeComponent],
+  imports: [...VX_TABLE, 
+    CommonModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    LucideAngularModule,
+    VxBadgeComponent,
+    VxEmptyStateComponent,
+    VxErrorStateComponent,
+    VxNoticeComponent,
+    VxSpinnerComponent,
+    SettingsGroupComponent,
+    ...VX_SORT,
+    ...VX_CONTEXT_MENU,
+    ...VX_FORM_A11Y,
+  ],
   templateUrl: './sso.page.html',
   styleUrls: ['./sso.page.scss'],
 })
@@ -36,12 +59,30 @@ export class SsoSettingsPage implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly api = inject(SsoAdminService);
   private readonly fb = inject(FormBuilder);
+  private readonly dialog = inject(DialogService);
+  private readonly rolesApi = inject(RolesService);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly MoreIcon = MoreHorizontal;
+  protected readonly GlobeIcon = Globe;
+  protected readonly KeyIcon = KeyRound;
+
+  /** Whether the person may change it; the window decides from the section's permission. */
+  protected readonly canEdit = computed(() => this.shell?.canEdit() ?? true);
 
   domains = signal<SsoDomain[]>([]);
   providers = signal<SsoIdentityProvider[]>([]);
-  loading = signal(false);
+  /** The page reads its data before showing anything about it; a failure is said with a retry. */
+  state = signal<'loading' | 'error' | 'ready'>('loading');
+  loadError = signal<string | null>(null);
+  /** The outcome of the last action, said once where the action was taken. */
   error = signal<string | null>(null);
   notice = signal<string | null>(null);
+  /** «Agregar dominio» stays enabled; an empty field is said under it, not with a grey button (COMP-02). */
+  domainError = signal<string | null>(null);
+  /** The company's roles, to choose the default one by name; null when they cannot be read. */
+  roles = signal<Role[] | null>(null);
 
   // Inline editing: the id of the provider currently being edited, or 'new', or null.
   editingProviderId = signal<string | null>(null);
@@ -59,25 +100,91 @@ export class SsoSettingsPage implements OnInit {
     defaultRoleId: [''],
   });
 
+  /** Verify a pending domain in sight; delete in the shared row menu. */
+  readonly domainsMenu: ListMenuConfig<SsoDomain> = {
+    resource: 'sso_domains',
+    row: (ctx) => {
+      const domain = ctx.entity as SsoDomain;
+      return [
+        {
+          id: 'danger',
+          items: [{ id: 'delete', label: 'settings.sso.delete', icon: Trash2, danger: true, visible: () => this.canEdit(), run: () => this.deleteDomain(domain) }],
+        },
+      ];
+    },
+  };
+
+  /** Edit in sight; switch on or off and delete in the shared row menu. */
+  readonly providersMenu: ListMenuConfig<SsoIdentityProvider> = {
+    resource: 'sso_providers',
+    row: (ctx) => {
+      const provider = ctx.entity as SsoIdentityProvider;
+      const blocked = !provider.enabled && !this.hasVerifiedDomain();
+      return [
+        {
+          id: 'state',
+          items: [
+            {
+              id: 'toggle',
+              // Disabled with its reason in the name itself, not a grey item that says nothing.
+              label: provider.enabled ? 'common.deactivate' : blocked ? 'settings.sso.activate_needs_domain' : 'common.activate',
+              icon: provider.enabled ? Ban : CircleCheck,
+              visible: () => this.canEdit(),
+              disabled: () => blocked,
+              run: () => this.toggleEnabled(provider),
+            },
+          ],
+        },
+        {
+          id: 'danger',
+          items: [{ id: 'delete', label: 'settings.sso.delete', icon: Trash2, danger: true, visible: () => this.canEdit(), run: () => this.deleteProvider(provider) }],
+        },
+      ];
+    },
+  };
+
+  /**
+   * A domain typed and not added, or a provider form open with edits: closing the window asks
+   * before dropping them (GUA-01). They are additions, not settings, so the question offers to
+   * discard or to keep editing — there is nothing for the window to save on their behalf.
+   */
+  private readonly domainDirty = signal(false);
+  private readonly providerDirty = signal(false);
+  private readonly changes: SettingsChanges = {
+    dirty: computed(() => this.domainDirty() || this.providerDirty()),
+    discard: () => {
+      this.domainForm.reset();
+      this.domainError.set(null);
+      this.cancelEdit();
+    },
+  };
+
   ngOnInit(): void {
+    this.domainForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.domainDirty.set(!!String(this.domainForm.value.domain ?? '').trim()));
+    this.providerForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.providerDirty.set(!!this.editingProviderId() && this.providerForm.dirty));
+    if (this.shell) {
+      this.shell.register(this.changes);
+      this.destroyRef.onDestroy(() => this.shell?.unregister(this.changes));
+    }
     this.refresh();
+    this.rolesApi
+      .getRoles()
+      .pipe(catchError(() => of(null)))
+      .subscribe((roles) => this.roles.set(roles && roles.length ? roles : null));
   }
 
   refresh(): void {
-    this.loading.set(true);
-    this.error.set(null);
-    this.api.listDomains().subscribe({
-      next: (d) => this.domains.set(d),
-      error: () => this.error.set('No se pudieron cargar los dominios.'),
-    });
-    this.api.listProviders().subscribe({
-      next: (p) => {
-        this.providers.set(p);
-        this.loading.set(false);
+    if (this.state() !== 'ready') this.state.set('loading');
+    this.loadError.set(null);
+    forkJoin({ domains: this.api.listDomains(), providers: this.api.listProviders() }).subscribe({
+      next: ({ domains, providers }) => {
+        this.domains.set(domains);
+        this.providers.set(providers);
+        this.state.set('ready');
       },
-      error: () => {
-        this.error.set('No se pudieron cargar los proveedores.');
-        this.loading.set(false);
+      error: (e) => {
+        this.loadError.set(this.errorText.httpErrorMessage(e, 'settings.sso.load_failed'));
+        this.state.set('error');
       },
     });
   }
@@ -85,12 +192,17 @@ export class SsoSettingsPage implements OnInit {
   // --- Domains ---
 
   addDomain(): void {
-    if (this.domainForm.invalid) return;
+    if (this.domainForm.invalid) {
+      this.domainError.set(this.translate.instant('settings.sso.domain_required'));
+      return;
+    }
+    this.domainError.set(null);
     this.clearMessages();
-    this.api.addDomain(this.domainForm.value.domain).subscribe({
+    this.api.addDomain(String(this.domainForm.value.domain).trim()).subscribe({
       next: () => {
         this.domainForm.reset();
-        this.notice.set('Dominio agregado. Publica el registro DNS TXT y verifícalo.');
+        this.domainDirty.set(false);
+        this.notice.set(this.translate.instant('settings.sso.domain_added'));
         this.refresh();
       },
       error: (e) => this.error.set(this.errorText.httpErrorMessage(e, 'errors.add_domain')),
@@ -101,24 +213,33 @@ export class SsoSettingsPage implements OnInit {
     this.clearMessages();
     this.api.verifyDomain(d.id).subscribe({
       next: () => {
-        this.notice.set(`Dominio ${d.domain} verificado.`);
+        this.notice.set(this.translate.instant('settings.sso.domain_verified_notice', { domain: d.domain }));
         this.refresh();
       },
       error: (e) => this.error.set(this.errorText.httpErrorMessage(e, 'errors.verify_domain')),
     });
   }
 
-  deleteDomain(d: SsoDomain): void {
+  async deleteDomain(d: SsoDomain): Promise<void> {
+    // Proportional confirmation: the domain's people stop going through the company's SSO (ACC-04).
+    const confirmed = await this.dialog.confirm({
+      title: 'settings.sso.delete_domain_title',
+      message: 'settings.sso.delete_domain_message',
+      messageParams: { domain: d.domain },
+      confirmText: 'settings.sso.delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
     this.clearMessages();
     this.api.deleteDomain(d.id).subscribe({
       next: () => this.refresh(),
-      error: () => this.error.set('No se pudo eliminar el dominio.'),
+      error: (e) => this.error.set(this.errorText.httpErrorMessage(e, 'settings.sso.delete_domain_failed')),
     });
   }
 
   copy(value: string): void {
     navigator.clipboard?.writeText(value).then(
-      () => this.notice.set('Copiado al portapapeles.'),
+      () => this.notice.set(this.translate.instant('settings.sso.copied')),
       () => undefined,
     );
   }
@@ -126,7 +247,7 @@ export class SsoSettingsPage implements OnInit {
   // --- Providers ---
 
   startNewProvider(): void {
-    this.providerForm.reset({ scopes: 'openid email profile' });
+    this.providerForm.reset({ scopes: 'openid email profile', defaultRoleId: '' });
     this.editingProviderId.set('new');
     this.clearMessages();
   }
@@ -146,11 +267,16 @@ export class SsoSettingsPage implements OnInit {
 
   cancelEdit(): void {
     this.editingProviderId.set(null);
+    this.providerDirty.set(false);
   }
 
   saveProvider(): void {
     const editing = this.editingProviderId();
-    if (!editing || this.providerForm.invalid) return;
+    if (!editing) return;
+    if (this.providerForm.invalid) {
+      this.providerForm.markAllAsTouched();
+      return;
+    }
     this.clearMessages();
 
     const raw = this.providerForm.value;
@@ -170,13 +296,13 @@ export class SsoSettingsPage implements OnInit {
 
     if (editing === 'new') {
       if (!raw.clientSecret) {
-        this.error.set('El client secret es obligatorio al crear un proveedor.');
+        this.error.set(this.translate.instant('settings.sso.secret_required'));
         return;
       }
       this.api.createProvider(base).subscribe({
         next: () => {
-          this.editingProviderId.set(null);
-          this.notice.set('Proveedor creado. Verifica un dominio y actívalo.');
+          this.cancelEdit();
+          this.notice.set(this.translate.instant('settings.sso.provider_created'));
           this.refresh();
         },
         error: (e) => this.error.set(this.errorText.httpErrorMessage(e, 'errors.create_sso_provider')),
@@ -184,8 +310,8 @@ export class SsoSettingsPage implements OnInit {
     } else {
       this.api.updateProvider(editing, base).subscribe({
         next: () => {
-          this.editingProviderId.set(null);
-          this.notice.set('Proveedor actualizado.');
+          this.cancelEdit();
+          this.notice.set(this.translate.instant('settings.sso.provider_updated'));
           this.refresh();
         },
         error: (e) => this.error.set(this.errorText.httpErrorMessage(e, 'errors.update_sso_provider')),
@@ -194,6 +320,7 @@ export class SsoSettingsPage implements OnInit {
   }
 
   toggleEnabled(p: SsoIdentityProvider): void {
+    if (!p.enabled && !this.hasVerifiedDomain()) return;
     this.clearMessages();
     this.api.updateProvider(p.id, { enabled: !p.enabled }).subscribe({
       next: () => this.refresh(),
@@ -201,16 +328,30 @@ export class SsoSettingsPage implements OnInit {
     });
   }
 
-  deleteProvider(p: SsoIdentityProvider): void {
+  async deleteProvider(p: SsoIdentityProvider): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'settings.sso.delete_provider_title',
+      message: 'settings.sso.delete_provider_message',
+      messageParams: { name: p.name },
+      confirmText: 'settings.sso.delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
     this.clearMessages();
     this.api.deleteProvider(p.id).subscribe({
       next: () => this.refresh(),
-      error: () => this.error.set('No se pudo eliminar el proveedor.'),
+      error: (e) => this.error.set(this.errorText.httpErrorMessage(e, 'settings.sso.delete_provider_failed')),
     });
   }
 
   hasVerifiedDomain(): boolean {
     return this.domains().some((d) => d.verified);
+  }
+
+  /** The default role by name; an id the list does not hold is shown as it is. */
+  roleName(id: string | null | undefined): string {
+    if (!id) return '';
+    return this.roles()?.find((role) => role.id === id)?.name ?? id;
   }
 
   private clearMessages(): void {

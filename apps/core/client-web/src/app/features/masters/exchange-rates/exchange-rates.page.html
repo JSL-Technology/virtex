@@ -188,8 +188,8 @@
     <p class="ls__state-help">{{ 'currencies.rates.empty_help' | translate }}</p>
   </div>
 
-  <div class="table-container card">
-    <table class="data-table">
+  <vx-table labelKey="currencies.rates.lookup_title">
+    <table>
       <thead>
         <tr>
           <th>{{ 'currencies.rates.date' | translate }}</th>
@@ -223,7 +223,7 @@
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 
   <vx-pager
     listFooter

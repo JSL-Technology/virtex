@@ -85,16 +85,16 @@
     </div>
   </div>
 
-  <div class="table-container card">
-    <table class="data-table">
+  <vx-table labelKey="accounting.general_ledger.general_ledger" layout="grid">
+    <table>
       <thead>
         <tr>
           <th>{{ 'accounting.general_ledger.date' | translate }}</th>
           <th>{{ 'accounting.general_ledger.reference' | translate }}</th>
           <th>{{ 'accounting.general_ledger.description' | translate }}</th>
-          <th class="text-right">{{ 'accounting.general_ledger.debit' | translate }}</th>
-          <th class="text-right">{{ 'accounting.general_ledger.credit' | translate }}</th>
-          <th class="text-right">{{ 'accounting.general_ledger.balance' | translate }}</th>
+          <th class="numeric">{{ 'accounting.general_ledger.debit' | translate }}</th>
+          <th class="numeric">{{ 'accounting.general_ledger.credit' | translate }}</th>
+          <th class="numeric">{{ 'accounting.general_ledger.balance' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -103,12 +103,12 @@
             <td>{{ line.date | vxDate: 'date' }}</td>
             <td>{{ line.reference }}</td>
             <td>{{ line.description }}</td>
-            <td class="text-right amount-cell"><vx-amount [value]="line.debit" /></td>
-            <td class="text-right amount-cell"><vx-amount [value]="line.credit" /></td>
-            <td class="text-right balance-cell"><vx-amount [value]="line.balance" /></td>
+            <td class="numeric amount-cell"><vx-amount [value]="line.debit" /></td>
+            <td class="numeric amount-cell"><vx-amount [value]="line.credit" /></td>
+            <td class="numeric balance-cell"><vx-amount [value]="line.balance" /></td>
           </tr>
         }
       </tbody>
     </table>
-  </div>
+  </vx-table>
 </vx-list-shell>

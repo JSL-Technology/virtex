@@ -141,7 +141,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSectionDef[] = [
   {
     id: 'subsidiaries', group: 'company', scope: 'company', icon: Database,
     labelKey: 'settings.sections_meta.subsidiaries.label', descriptionKey: 'settings.sections_meta.subsidiaries.description',
-    keywordsKey: 'settings.sections_meta.subsidiaries.keywords', viewPermission: 'settings:edit_company',
+    keywordsKey: 'settings.sections_meta.subsidiaries.keywords', viewPermission: 'settings:view_company', editPermission: 'settings:edit_company',
     load: () => import('../organization/subsidiaries/subsidiaries.page').then((m) => m.SubsidiariesPage),
   },
   {
@@ -153,7 +153,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSectionDef[] = [
   {
     id: 'smtp', group: 'company', scope: 'company', icon: Mail,
     labelKey: 'settings.sections_meta.smtp.label', descriptionKey: 'settings.sections_meta.smtp.description',
-    keywordsKey: 'settings.sections_meta.smtp.keywords', viewPermission: 'settings:edit_company',
+    keywordsKey: 'settings.sections_meta.smtp.keywords', viewPermission: 'settings:view_company', editPermission: 'settings:edit_company',
     load: () => import('../system/smtp/smtp.page').then((m) => m.SmtpSettingsPage),
   },
   {
@@ -167,13 +167,13 @@ export const SETTINGS_SECTIONS: readonly SettingsSectionDef[] = [
   {
     id: 'default-accounts', group: 'accounting', scope: 'company', icon: BookOpenCheck,
     labelKey: 'settings.sections_meta.default_accounts.label', descriptionKey: 'settings.sections_meta.default_accounts.description',
-    keywordsKey: 'settings.sections_meta.default_accounts.keywords', viewPermission: 'settings:edit_company', focusable: true,
+    keywordsKey: 'settings.sections_meta.default_accounts.keywords', viewPermission: 'settings:view_company', editPermission: 'settings:edit_company', focusable: true,
     load: () => import('../finance/default-accounts/default-accounts.page').then((m) => m.DefaultAccountsPage),
   },
   {
     id: 'accounting-policies', group: 'accounting', scope: 'company', icon: Scale,
     labelKey: 'settings.sections_meta.accounting_policies.label', descriptionKey: 'settings.sections_meta.accounting_policies.description',
-    keywordsKey: 'settings.sections_meta.accounting_policies.keywords', viewPermission: 'settings:edit_company', focusable: true,
+    keywordsKey: 'settings.sections_meta.accounting_policies.keywords', viewPermission: 'settings:view_company', editPermission: 'settings:edit_company', focusable: true,
     load: () => import('../finance/accounting-policies/accounting-policies.page').then((m) => m.AccountingPoliciesPage),
   },
   {
@@ -203,7 +203,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSectionDef[] = [
   {
     id: 'sequences', group: 'accounting', scope: 'company', icon: Hash,
     labelKey: 'settings.sections_meta.sequences.label', descriptionKey: 'settings.sections_meta.sequences.description',
-    keywordsKey: 'settings.sections_meta.sequences.keywords', viewPermission: 'settings:edit_company',
+    keywordsKey: 'settings.sections_meta.sequences.keywords', viewPermission: 'settings:view_company', editPermission: 'settings:edit_company',
     load: () => import('../operations/sequences/sequences.page').then((m) => m.SequenceSettingsPage),
   },
 
@@ -211,7 +211,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSectionDef[] = [
   {
     id: 'approvals', group: 'operations', scope: 'company', icon: Workflow,
     labelKey: 'settings.sections_meta.approvals.label', descriptionKey: 'settings.sections_meta.approvals.description',
-    keywordsKey: 'settings.sections_meta.approvals.keywords', viewPermission: 'workflows:manage',
+    keywordsKey: 'settings.sections_meta.approvals.keywords', viewPermission: 'workflows:view', editPermission: 'workflows:manage',
     load: () => import('../operations/approvals/approvals.page').then((m) => m.ApprovalPoliciesPage),
   },
 
@@ -243,13 +243,13 @@ export const SETTINGS_SECTIONS: readonly SettingsSectionDef[] = [
   {
     id: 'sso', group: 'admin', scope: 'admin', icon: KeyRound,
     labelKey: 'settings.sections_meta.sso.label', descriptionKey: 'settings.sections_meta.sso.description',
-    keywordsKey: 'settings.sections_meta.sso.keywords', viewPermission: 'settings:edit_company',
+    keywordsKey: 'settings.sections_meta.sso.keywords', viewPermission: 'settings:view_company', editPermission: 'settings:edit_company',
     load: () => import('../system/sso/sso.page').then((m) => m.SsoSettingsPage),
   },
   {
     id: 'integrations', group: 'admin', scope: 'admin', icon: Server,
     labelKey: 'settings.sections_meta.integrations.label', descriptionKey: 'settings.sections_meta.integrations.description',
-    keywordsKey: 'settings.sections_meta.integrations.keywords', viewPermission: 'settings:edit_company',
+    keywordsKey: 'settings.sections_meta.integrations.keywords', viewPermission: 'settings:view_company', editPermission: 'settings:edit_company',
     load: () => import('../system/integrations/integrations.page').then((m) => m.IntegrationSettingsPage),
   },
   {

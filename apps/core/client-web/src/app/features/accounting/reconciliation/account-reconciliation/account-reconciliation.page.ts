@@ -35,6 +35,7 @@ import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { NotificationService } from '../../../../core/services/notification';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * The bank reconciliation workbench.
  *
@@ -65,7 +66,7 @@ import { NotificationService } from '../../../../core/services/notification';
 @Component({
   selector: 'app-account-reconciliation-page',
   standalone: true,
-  imports: [
+  imports: [...VX_TABLE, 
     CommonModule,
     FormsModule,
     RouterLink,

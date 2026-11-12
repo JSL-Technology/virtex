@@ -1,3 +1,5 @@
+import { VxEmptyStateComponent, VxErrorStateComponent, VxSpinnerComponent } from '../../../../shared/components/feedback';
+import { ListOrdered } from 'lucide-angular';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
@@ -9,6 +11,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import { SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../../shell';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 interface DocumentSequenceRow {
   id: string;
   type: string;
@@ -31,7 +34,7 @@ interface DocumentSequenceRow {
 @Component({
   selector: 'app-sequence-settings-page',
   standalone: true,
-  imports: [TranslateModule, RouterLink, SettingsSaveBarComponent],
+  imports: [...VX_TABLE, TranslateModule, RouterLink, SettingsSaveBarComponent, VxSpinnerComponent, VxErrorStateComponent, VxEmptyStateComponent],
   templateUrl: './sequences.page.html',
   styleUrls: ['./sequences.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +51,7 @@ export class SequenceSettingsPage implements OnInit {
   readonly rows = signal<DocumentSequenceRow[]>([]);
   readonly loading = signal(true);
   readonly loadError = signal<string | null>(null);
+  protected readonly SequenceIcon = ListOrdered;
   readonly saving = signal(false);
   /** The server refused to show the numbering at all: retrying will not change that (CG-17). */
   readonly forbidden = signal(false);

@@ -8,6 +8,7 @@ import { composeKey } from '@virteex/shared/types';
 import { baseChartOptions, categoricalPalette } from '../../../core/utils/chart-theme';
 import { CopilotChart } from './copilot-api.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * A chart the copilot drew — in the panel, and on the dashboard once pinned.
  *
@@ -17,7 +18,7 @@ import { CopilotChart } from './copilot-api.service';
 @Component({
   selector: 'app-copilot-chart',
   standalone: true,
-  imports: [HighchartsChartComponent, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES],
+  imports: [...VX_TABLE, HighchartsChartComponent, TranslatePipe, LucideAngularModule, ...FORMAT_PIPES],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <figure class="cc" [attr.aria-label]="chart().title">
@@ -47,26 +48,28 @@ import { CopilotChart } from './copilot-api.service';
         </p>
         <details class="cc__table">
           <summary>{{ 'ai.copilot.chart.show_table' | translate }}</summary>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th></th>
-                @for (series of data.series; track series.name) {
-                  <th class="numeric">{{ series.name }}</th>
-                }
-              </tr>
-            </thead>
-            <tbody>
-              @for (category of data.categories; track $index; let i = $index) {
+          <vx-table [label]="chart().title" frame="none">
+            <table>
+              <thead>
                 <tr>
-                  <td>{{ category }}</td>
+                  <th></th>
                   @for (series of data.series; track series.name) {
-                    <td class="numeric">{{ series.values[i] | vxNumber: '1.0-2' }}</td>
+                    <th class="numeric">{{ series.name }}</th>
                   }
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @for (category of data.categories; track $index; let i = $index) {
+                  <tr>
+                    <td>{{ category }}</td>
+                    @for (series of data.series; track series.name) {
+                      <td class="numeric">{{ series.values[i] | vxNumber: '1.0-2' }}</td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </vx-table>
         </details>
       } @else {
         <p class="cc__unavailable" role="status">{{ k('ai.copilot.chart.unavailable', chart().unavailable ?? 'failed') | translate }}</p>

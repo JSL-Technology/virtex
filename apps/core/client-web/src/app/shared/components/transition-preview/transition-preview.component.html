@@ -31,7 +31,7 @@
     @for (ledger of ledgers(); track ledger.titleKey) {
       <div class="tp__block">
         <div class="tp__block-title">{{ ledger.titleKey | translate }}</div>
-        <div class="tp__table-wrap">
+        <vx-table labelKey="transition.effects">
           <table class="tp__table">
             <thead>
               <tr>
@@ -60,7 +60,7 @@
               </tr>
             </tfoot>
           </table>
-        </div>
+        </vx-table>
       </div>
     }
 

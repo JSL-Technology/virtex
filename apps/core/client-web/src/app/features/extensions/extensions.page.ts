@@ -1,6 +1,7 @@
 import { AuthService } from '../../core/services/auth';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { composeKey } from '@virteex/shared/types';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
@@ -12,6 +13,7 @@ import {
   ShieldCheck,
   RefreshCw,
   Loader,
+  MoreHorizontal,
 } from 'lucide-angular';
 import { ListShellComponent } from '../../shared/components/gestures';
 import {
@@ -23,7 +25,14 @@ import {
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { NotificationService } from '../../core/services/notification';
 import { VX_SORT, sortable } from '../../shared/components/sort';
+import { DialogService } from '../../core/services/dialog.service';
+import { ActiveOrganizationService } from '../../core/tenancy/active-organization.service';
+import { ListMenuConfig, VX_CONTEXT_MENU } from '../../shared/components/context-menu';
+import { VxBadgeComponent } from '../../shared/components/badge';
+import { VxEmptyStateComponent, VxErrorStateComponent, VxSpinnerComponent } from '../../shared/components/feedback';
+import { SettingsActionsDirective, SettingsShellService } from '../settings/shell';
 
+import { VX_TABLE } from '../../shared/components/table';
 /**
  * The extensions manager: install signed extensions into the tenant, grant them capabilities, run
  * them in the sandbox, and see the result.
@@ -35,13 +44,19 @@ import { VX_SORT, sortable } from '../../shared/components/sort';
 @Component({
   selector: 'app-extensions-page',
   standalone: true,
-  imports: [...VX_SORT, 
+  imports: [...VX_TABLE, ...VX_SORT, 
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
     TranslateModule,
     LucideAngularModule,
     ListShellComponent,
+    SettingsActionsDirective,
+    VxBadgeComponent,
+    VxEmptyStateComponent,
+    VxErrorStateComponent,
+    VxSpinnerComponent,
+    ...VX_CONTEXT_MENU,
     ...VX_FORM_A11Y,
   ],
   templateUrl: './extensions.page.html',
@@ -64,6 +79,32 @@ export class ExtensionsPage {
   protected readonly ShieldIcon = ShieldCheck;
   protected readonly RefreshIcon = RefreshCw;
   protected readonly LoaderIcon = Loader;
+  protected readonly MoreIcon = MoreHorizontal;
+  protected readonly k = composeKey;
+
+  private readonly dialog = inject(DialogService);
+  private readonly organization = inject(ActiveOrganizationService);
+  private readonly shell = inject(SettingsShellService, { optional: true });
+  /** The full manager, where extensions are registered and tried in the sandbox. */
+  readonly managerLink = this.organization.urlFor('/extensions');
+  /** Enabling and disabling take `extensions:manage`; in Settings the window decides from it. */
+  readonly canManage = computed(() => this.shell?.canEdit() ?? true);
+  /** The list was read at least once: a refresh keeps the table in place instead of a spinner. */
+  readonly loaded = signal(false);
+
+  /** Revoking is the platform's, and destructive: in the row's menu, asked first. */
+  readonly extensionsMenu: ListMenuConfig<ExtensionSummary> = {
+    resource: 'extensions',
+    row: (ctx) => {
+      const ext = ctx.entity as ExtensionSummary;
+      return [
+        {
+          id: 'danger',
+          items: [{ id: 'revoke', label: 'extensions.revoke', icon: Trash2, danger: true, visible: () => this.canRevoke(), run: () => this.revoke(ext) }],
+        },
+      ];
+    },
+  };
 
   private readonly auth = inject(AuthService);
   readonly extensions = signal<ExtensionSummary[]>([]);
@@ -115,6 +156,7 @@ export class ExtensionsPage {
       next: (list) => {
         this.extensions.set(list);
         this.loading.set(false);
+        this.loaded.set(true);
       },
       error: (err) => this.fail(err),
     });
@@ -158,10 +200,30 @@ export class ExtensionsPage {
       });
   }
 
-  toggleEnabled(ext: ExtensionSummary): void {
-    const current = this.consentByPlugin().get(ext.name);
+  isEnabled(ext: ExtensionSummary): boolean {
+    return this.consentByPlugin().get(ext.name)?.enabled ?? false;
+  }
+
+  /**
+   * Switching an extension on lets its code run with the capabilities granted to it, for the whole
+   * company: asked first, naming what it may use (ACC-04). Switching it off is never asked.
+   */
+  async toggleEnabled(ext: ExtensionSummary): Promise<void> {
+    if (!this.canManage()) return;
+    const enabling = !this.isEnabled(ext);
+    if (enabling) {
+      const capabilities = this.consentByPlugin().get(ext.name)?.grantedCapabilities ?? [];
+      const confirmed = await this.dialog.confirm({
+        title: 'extensions.enable_title',
+        message: capabilities.length ? 'extensions.enable_message' : 'extensions.enable_message_none',
+        messageParams: { name: ext.name, capabilities: capabilities.join(', ') },
+        confirmText: 'common.activate',
+        variant: 'warning',
+      });
+      if (!confirmed) return;
+    }
     this.service
-      .setConsent(ext.name, { enabled: !(current?.enabled ?? false) })
+      .setConsent(ext.name, { enabled: enabling })
       .subscribe({ next: () => this.refresh(), error: (err) => this.fail(err) });
   }
 
@@ -171,7 +233,15 @@ export class ExtensionsPage {
       .subscribe({ next: () => this.refresh(), error: (err) => this.fail(err) });
   }
 
-  revoke(ext: ExtensionSummary): void {
+  async revoke(ext: ExtensionSummary): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'extensions.revoke_title',
+      message: 'extensions.revoke_message',
+      messageParams: { name: ext.name },
+      confirmText: 'extensions.revoke',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
     this.service.revoke(ext.name).subscribe({
       next: () => this.refresh(),
       error: (err) => this.fail(err),

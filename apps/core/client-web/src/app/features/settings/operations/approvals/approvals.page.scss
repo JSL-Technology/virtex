@@ -1,40 +1,80 @@
-@use '../../../../../assets/styles/design-system' as ds;
+@use 'assets/styles/design-system' as ds;
+@use 'app/features/settings/shared/settings-ui' as ui;
 
-// Width and padding are the settings window's (`.sm-page`).
-.s-page { display: flex; flex-direction: column; gap: var(--space-5); }
-.s-header { padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.75rem; }
-.s-header__title { font-size: 1.375rem; font-weight: 700; color: var(--text-primary); margin-bottom: .25rem; }
-.s-header__subtitle { font-size: .875rem; color: var(--text-secondary); }
+//  Aprobaciones. Grupos, aviso, estados, tabla y menú de fila son los comunes de la modal.
 
-.ap__state { color: var(--text-secondary); margin-bottom: var(--space-4); }
-.ap__workflows { margin: 0 0 var(--space-4); padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--surface-sunken); font-size: var(--text-sm); color: var(--text-secondary); }
-.ap__state--error { color: var(--error-text); }
-.ap__hint, .ap__note { font-size: var(--text-sm); color: var(--text-secondary); }
-.ap__note { margin-top: var(--space-6); }
+.s-page { display: block; }
 
-.ap__editor {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-  margin-bottom: var(--space-6);
-  background: var(--bg-card);
+
+// ── Editor ───────────────────────────────────────────────────────────
+.ap__editor { display: block; }
+
+.ap__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-4);
+  margin-block-end: var(--space-6);
 }
-.ap__editor-title { font-size: var(--text-lg); font-weight: 600; margin-bottom: var(--space-3); }
-.ap__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: var(--space-3); }
-.ap__field { display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--text-sm); color: var(--text-secondary); }
-.ap__input { @include ds.input-base; }
-.ap__input--amount { max-width: 10rem; }
-.ap__steps-title { font-size: var(--text-base); font-weight: 600; margin-top: var(--space-4); }
-.ap__table { width: 100%; border-collapse: collapse; margin-top: var(--space-2); }
-.ap__table th, .ap__table td { padding: var(--space-2); text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
-.ap__table th { font-size: var(--text-xs); color: var(--text-secondary); }
-.ap__add-step { margin-top: var(--space-2); }
-.ap__problem { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--text-secondary); }
-.ap__actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
 
-.ap__list { list-style: none; padding: 0; margin: 0 0 var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
-.ap__card { border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); }
-.ap__card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-3); flex-wrap: wrap; }
-.ap__card-actions { display: flex; gap: var(--space-2); }
-.ap__type { display: block; font-size: var(--text-sm); color: var(--text-secondary); }
-.ap__chain { margin: var(--space-2) 0 0; padding-left: var(--space-5); font-size: var(--text-sm); color: var(--text-primary); }
+.ap__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+
+  > span { @include ds.field-label; }
+}
+
+.ap__input { @include ds.input-base; }
+.ap__input--amount { max-width: 10rem; @include ds.numeric; }
+
+.ap__order { @include ds.numeric; color: var(--content-secondary); }
+.ap__add-step { margin-top: var(--space-3); }
+.ap__problem { margin: var(--space-4) 0 0; font-size: var(--text-sm); color: var(--content-secondary); }
+
+.ap__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+// ── Lista ────────────────────────────────────────────────────────────
+.ap__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.ap__item {
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.ap__item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.ap__item-name { min-width: 0; }
+.ap__name { margin: 0; font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--content-primary); }
+.ap__type { margin: 0; font-size: var(--text-sm); color: var(--content-secondary); }
+
+.ap__chain {
+  margin: var(--space-2) 0 0;
+  padding-inline-start: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--content-primary);
+  @include ds.numeric;
+}
+
+.ap__hint { margin: var(--space-4) 0 0; font-size: var(--text-sm); color: var(--content-secondary); }
+.ap__note { margin: var(--space-6) 0 0; font-size: var(--text-sm); color: var(--content-secondary); }
+
+.row-actions { @include ui.row-actions; }
+.link-button { @include ui.link-button; }
+.icon-button { @include ui.icon-button; }

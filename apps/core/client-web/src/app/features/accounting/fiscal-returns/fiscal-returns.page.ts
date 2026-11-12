@@ -25,6 +25,7 @@ import {
 } from '../data/fiscal-returns.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** The markets whose periodic returns this product produces. */
 export type ReturnsMarket = 'DO' | 'MX' | 'OTHER';
 
@@ -57,7 +58,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 @Component({
   selector: 'app-fiscal-returns-page',
   standalone: true,
-  imports: [...VX_DATE, FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
+  imports: [...VX_TABLE, ...VX_DATE, FormsModule, ...VX_FORM_A11Y, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent],
   templateUrl: './fiscal-returns.page.html',
   styleUrls: ['../../../shared/styles/document-list.scss', './fiscal-returns.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

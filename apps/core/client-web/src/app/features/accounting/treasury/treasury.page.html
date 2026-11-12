@@ -30,7 +30,7 @@
     @if (cash.accounts.length === 0) {
       <p class="report-state">{{ 'treasury.no_bank_accounts_have_registered' | translate }}</p>
     } @else {
-      <div class="table-wrapper card">
+      <vx-table labelKey="treasury.cash_position" layout="grid">
         <table [appSort]="accountsTable.sort" class="cash-table">
           <thead>
             <tr>
@@ -82,7 +82,7 @@
             </tr>
           </tfoot>
         </table>
-      </div>
+      </vx-table>
 
       @if (hasSharedControlAccount()) {
         <p class="note">{{ 'treasury.several_bank_accounts_share_ledger_account' | translate }}</p>
@@ -93,7 +93,7 @@
     @if (transfers().length === 0) {
       <p class="report-state">{{ 'treasury.no_transfers_have_recorded' | translate }}</p>
     } @else {
-      <div class="table-wrapper card">
+      <vx-table labelKey="treasury.transfers_between_accounts" layout="grid">
         <table [appSort]="transfersTable.sort" class="cash-table">
           <thead>
             <tr>
@@ -124,7 +124,7 @@
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
       <!--
         The panel shows a page, not the history. Saying how many are not shown keeps a reader from
         taking the last visible row for the tenant's oldest transfer.

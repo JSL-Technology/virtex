@@ -1,9 +1,24 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { FiscalEmissionMode, InvoicingContext } from '../../../../core/services/invoices';
 import { NotificationService } from '../../../../core/services/notification';
 import { OrganizationSettingsService } from '../../data/organization-settings.service';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
+import { VxNoticeComponent } from '../../../../shared/components/feedback';
+import { SettingsGroupComponent } from '../../shared/settings-group.component';
+import { SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../../shell';
+
+/** A requirement the company still lacks, said with the page it is met on and a way to get there. */
+export interface GapItem {
+  textKey: string;
+  params?: Record<string, unknown>;
+  /** A section of the settings window, by its fragment. */
+  fragment?: string;
+  /** A control on this same page, by its id: the action scrolls to it and focuses it. */
+  target?: string;
+  actionKey?: string;
+}
 
 /** One choice of the emission mode, as the card presents it. */
 interface EmissionModeChoice {
@@ -24,7 +39,7 @@ interface EmissionModeChoice {
 @Component({
   selector: 'vx-emission-mode-card',
   standalone: true,
-  imports: [TranslateModule, VxBadgeComponent],
+  imports: [TranslateModule, RouterLink, VxBadgeComponent, VxNoticeComponent, SettingsGroupComponent, SettingsSaveBarComponent],
   templateUrl: './emission-mode-card.component.html',
   styleUrls: ['./emission-mode-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +47,7 @@ interface EmissionModeChoice {
 export class EmissionModeCardComponent {
   private readonly organizationSettings = inject(OrganizationSettingsService);
   private readonly notifications = inject(NotificationService);
+  private readonly shell = inject(SettingsShellService, { optional: true });
 
   /** What the invoice form will offer, as the server computes it. */
   readonly context = input<InvoicingContext | null>(null);
@@ -42,8 +58,18 @@ export class EmissionModeCardComponent {
   /** The mode was saved: whatever depends on it should be read again. */
   readonly changed = output<void>();
 
+  /** The mode in effect, as the server has it. */
   readonly mode = signal<FiscalEmissionMode>('BOTH');
+  /** The mode the form shows; sent with the save bar, like every other form of the window. */
+  readonly draft = signal<FiscalEmissionMode>('BOTH');
   readonly saving = signal(false);
+  readonly dirty = computed(() => this.draft() !== this.mode());
+
+  private readonly changes: SettingsChanges = {
+    dirty: this.dirty,
+    save: () => this.save(),
+    discard: () => this.draft.set(this.mode()),
+  };
 
   readonly choices: EmissionModeChoice[] = [
     { value: 'BOTH', titleKey: 'settings.fiscal.mode.both_title', descriptionKey: 'settings.fiscal.mode.both_description' },
@@ -77,6 +103,45 @@ export class EmissionModeCardComponent {
       this.loaded = true;
       untracked(() => this.loadMode());
     });
+    if (this.shell) {
+      this.shell.register(this.changes);
+      inject(DestroyRef).onDestroy(() => this.shell?.unregister(this.changes));
+    }
+  }
+
+  /**
+   * Each missing requirement in this market's words, with where it is met. The server says it in
+   * words fit for any screen and any country («… o Facturación electrónica, según tu país»); here
+   * the page is known, so the item names the place and takes the reader there (CONT-03).
+   */
+  gapItem(gap: string): GapItem {
+    switch (gap) {
+      case 'invoices.gaps.fiscal_sequence':
+        return { textKey: 'settings.fiscal.gap.range_any', target: 'range-type', actionKey: 'settings.fiscal.gap.register_range' };
+      case 'invoices.gaps.fiscal_sequence_electronic':
+        return { textKey: 'settings.fiscal.gap.range_e', target: 'range-type', actionKey: 'settings.fiscal.gap.register_range' };
+      case 'invoices.gaps.fiscal_sequence_traditional':
+        return { textKey: 'settings.fiscal.gap.range_b', target: 'range-type', actionKey: 'settings.fiscal.gap.register_range' };
+      case 'invoices.gaps.issuer_tax_id':
+        return {
+          textKey: 'settings.fiscal.gap.tax_id',
+          params: { label: this.context()?.taxIdLabel || '—' },
+          fragment: 'settings/profile',
+          actionKey: 'settings.sections_meta.profile.label',
+        };
+      case 'invoices.gaps.signing_certificate':
+        return { textKey: 'settings.fiscal.gap.certificate', target: 'cert-alias', actionKey: 'settings.fiscal.gap.upload_certificate' };
+      default:
+        return { textKey: gap };
+    }
+  }
+
+  /** Takes the reader to the control on this page where the requirement is met. */
+  goTo(id: string): void {
+    const element = document.getElementById(id);
+    if (!element) return;
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    element.focus({ preventScroll: true });
   }
 
   private loadMode(): void {
@@ -85,6 +150,7 @@ export class EmissionModeCardComponent {
         const mode = view.fields['fiscalEmissionMode'];
         if (mode === 'BOTH' || mode === 'ELECTRONIC' || mode === 'TRADITIONAL') {
           this.mode.set(mode);
+          this.draft.set(mode);
           this.modeChange.emit(mode);
         }
       },
@@ -92,24 +158,32 @@ export class EmissionModeCardComponent {
     });
   }
 
-  /** Change how the company issues. Saved at once: it is one choice, not a form. */
+  /** Choose how the company issues; it takes effect with «Guardar» in the save bar. */
   select(mode: FiscalEmissionMode): void {
-    if (mode === this.mode() || this.saving()) return;
-    const previous = this.mode();
-    this.mode.set(mode);
+    if (this.readonly() || this.saving()) return;
+    this.draft.set(mode);
+  }
+
+  save(): Promise<boolean> {
+    const mode = this.draft();
+    if (!this.dirty() || this.readonly()) return Promise.resolve(false);
     this.saving.set(true);
-    this.organizationSettings.update('fiscal', { fields: { fiscalEmissionMode: mode } }).subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.modeChange.emit(mode);
-        this.changed.emit();
-        this.notifications.showSuccess('settings.fiscal.mode.saved');
-      },
-      error: (err) => {
-        this.mode.set(previous);
-        this.saving.set(false);
-        this.notifications.showHttpError(err, 'settings.fiscal.mode.save_failed');
-      },
+    return new Promise((resolve) => {
+      this.organizationSettings.update('fiscal', { fields: { fiscalEmissionMode: mode } }).subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.mode.set(mode);
+          this.modeChange.emit(mode);
+          this.changed.emit();
+          this.notifications.showSuccess('settings.fiscal.mode.saved');
+          resolve(true);
+        },
+        error: (err) => {
+          this.saving.set(false);
+          this.notifications.showHttpError(err, 'settings.fiscal.mode.save_failed');
+          resolve(false);
+        },
+      });
     });
   }
 }

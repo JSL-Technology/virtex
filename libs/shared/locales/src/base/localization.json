@@ -95,9 +95,9 @@
     "pt": "Essa jurisdição não existe."
   },
   "localization.no_jurisdictions_registered_country_code_so": {
-    "es": "No hay jurisdicciones registradas para {{countryCode}}, así que no se cobra impuesto. Regístralas en Ajustes → Impuestos si tienes obligación de recaudar.",
-    "en": "No jurisdictions are registered for {{countryCode}}, so no tax is charged. Register them under Settings → Taxes if you are required to collect.",
-    "pt": "Não há jurisdições registradas para {{countryCode}}, então nenhum imposto é cobrado. Cadastre-as em Configurações → Impostos se você tiver obrigação de recolher."
+    "es": "No hay jurisdicciones registradas para {{countryCode}}, así que no se cobra impuesto. Regístralas en Configuración › Jurisdicciones fiscales si tienes obligación de recaudar.",
+    "en": "No jurisdictions are registered for {{countryCode}}, so no tax is charged. Register them under Settings › Tax jurisdictions if you are required to collect.",
+    "pt": "Não há jurisdições registradas para {{countryCode}}, então nenhum imposto é cobrado. Cadastre-as em Configurações › Jurisdições fiscais se você tiver obrigação de recolher."
   },
   "localization.no_tax_determination_provider_available_country": {
     "es": "No hay proveedor de determinación de impuestos para {{countryCode}}.",

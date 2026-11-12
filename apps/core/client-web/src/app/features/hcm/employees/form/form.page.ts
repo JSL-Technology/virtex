@@ -25,6 +25,7 @@ import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { refreshWhenStale } from '../../../../core/data/data-version.service';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * One person's record: who they are, what they are paid, and what leaving would cost.
  *
@@ -46,7 +47,7 @@ import { refreshWhenStale } from '../../../../core/data/data-version.service';
 @Component({
   selector: 'app-employee-form-page',
   standalone: true,
-  imports: [
+  imports: [...VX_TABLE, 
     CommonModule,
     ReactiveFormsModule,
     LucideAngularModule,

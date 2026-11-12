@@ -13,6 +13,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
 import { ChartOfAccountsApiService, MergePreview } from '../data/chart-of-accounts.service';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /**
  * Merging one account into another.
  *
@@ -37,7 +38,7 @@ import { ChartOfAccountsApiService, MergePreview } from '../data/chart-of-accoun
 @Component({
   selector: 'app-merge-accounts-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, VxAmountComponent],
+  imports: [...VX_TABLE, FormsModule, RouterLink, TranslateModule, LucideAngularModule, ...FORMAT_PIPES, ...VX_FORM_A11Y, ...VX_SELECT, VxAmountComponent],
   templateUrl: './merge-accounts.page.html',
   styleUrls: ['./merge-accounts.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

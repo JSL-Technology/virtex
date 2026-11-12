@@ -17,9 +17,10 @@ import { VX_SELECT } from '../../../../shared/components/select';
 import { TranslateModule, LocaleStore, VxCurrencyNamePipe, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
 import { CurrenciesService, Currency } from '../../../../core/api/currencies.service';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 @Component({
   selector: 'app-price-list-form-page',
-  imports: [VxNumberInputDirective, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent, VxCurrencyNamePipe],
+  imports: [...VX_TABLE, VxNumberInputDirective, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y, ...VX_SELECT, VxDateFieldComponent, VxCurrencyNamePipe],
   templateUrl: './price-list-form.page.html',
   styleUrls: ['./price-list-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

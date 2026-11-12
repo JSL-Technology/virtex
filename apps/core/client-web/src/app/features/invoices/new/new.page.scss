@@ -102,35 +102,11 @@
   margin-top: var(--space-8);
 }
 
-.table-container {
-  overflow-x: auto;
-  margin-bottom: var(--space-4);
-}
-
-.line-items-scroll {
-  overflow-x: auto;
-  // Room for a focus ring on the first and last inputs, which `overflow` would otherwise clip.
-  padding: 2px;
-  margin: -2px;
-}
-
-.line-items-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  th {
-    text-align: left;
-    padding: var(--space-3);
-    font-size: var(--text-xs);
-    font-weight: var(--font-semibold);
-    color: var(--color-text-secondary);
-    border-bottom: 1px solid var(--color-border);
-  }
-
+//  Las líneas son un `vx-table` (cabecera, cifras, desplazamiento lateral); aquí, su rejilla de
+//  campos: anchos fijos por columna y cada celda leída desde arriba.
+.inv-lines {
   td {
-    padding: var(--space-3);
     vertical-align: top;
-    border-bottom: 1px solid var(--color-border);
   }
 
   // Fixed layout so the widths below are what each column gets, whatever a cell contains: under
@@ -146,8 +122,6 @@
   .col-tax { width: 9%; }
   .col-amount { width: 12%; }
   .col-actions { width: 4%; }
-
-  th.text-right { text-align: right; }
 
   // QA A-09: in a narrow window the auto-layout table gave the article picker whatever width was
   // left over, which could be zero — the combobox was in the DOM but could not be clicked. The
@@ -165,7 +139,8 @@
   // The line's own figure, aligned with the inputs' text rather than the top of the cell.
   .line-amount {
     text-align: right;
-    padding-top: calc(var(--space-3) + (var(--control-height-md) - 1lh) / 2);
+    //  Alineada con el texto de los campos de su fila: la celda de un campo deja `--space-1` arriba.
+    padding-top: calc(var(--space-1) + (var(--control-height-md) - 1lh) / 2);
     font-weight: var(--font-medium);
     white-space: nowrap;
   }
@@ -575,32 +550,6 @@ select.form-control {
   display: block;
 }
 
-.invoice-items-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: var(--space-4);
-}
-
-.invoice-items-table th {
-  background-color: var(--color-surface-light);
-  padding: var(--space-3);
-  text-align: left;
-  font-weight: var(--font-semibold);
-  color: var(--color-text-secondary);
-  font-size: var(--text-xs);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.invoice-items-table td {
-  padding: var(--space-3);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.invoice-items-table .item-actions {
-  display: flex;
-  gap: var(--space-2);
-}
-
 .invoice-totals {
   margin-left: auto;
   width: 300px;
@@ -646,25 +595,6 @@ select.form-control {
   grid-template-columns: 1fr 1fr;
   gap: var(--space-6);
   margin-bottom: var(--space-8);
-}
-
-.invoice-items-preview {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: var(--space-8);
-}
-
-.invoice-items-preview th {
-  background-color: var(--surface-sunken);
-  padding: var(--space-3);
-  text-align: left;
-  font-weight: var(--font-semibold);
-  border-bottom: 1px solid var(--border-default);
-}
-
-.invoice-items-preview td {
-  padding: var(--space-3);
-  border-bottom: 1px solid var(--border-default);
 }
 
 .invoice-totals-preview {

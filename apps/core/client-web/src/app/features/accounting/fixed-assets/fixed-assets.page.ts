@@ -19,6 +19,7 @@ import { BranchesService } from '../../../core/tenancy/branches.service';
 import { FixedAsset, FixedAssetStatus, FixedAssetsService, hasBeenDepreciated } from '../data/fixed-assets.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
+import { VX_TABLE } from '../../../shared/components/table';
 export const FIXED_ASSET_TONE: Record<FixedAssetStatus, VxTone> = { IN_USE: 'ok', SOLD: 'neutral', DISPOSED: 'neutral' };
 
 /**
@@ -29,7 +30,7 @@ export const FIXED_ASSET_TONE: Record<FixedAssetStatus, VxTone> = { IN_USE: 'ok'
 @Component({
   selector: 'app-fixed-assets-page',
   standalone: true,
-  imports: [...VX_CONTEXT_MENU, 
+  imports: [...VX_TABLE, ...VX_CONTEXT_MENU, 
     FormsModule, ...VX_FORM_A11Y,
     RouterLink,
     TranslateModule,

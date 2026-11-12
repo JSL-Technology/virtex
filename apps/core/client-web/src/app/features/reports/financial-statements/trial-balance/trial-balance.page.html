@@ -75,7 +75,7 @@
     @if (data.rows.length === 0) {
       <p class="report-state">{{ 'reports.common.no_posted_movements_range' | translate }}</p>
     } @else {
-      <div class="table-wrapper card">
+      <vx-table labelKey="reports.trial_balance.trial_balance" layout="grid" stickyColumn>
         <table [appSort]="table.sort" class="trial-balance">
           <thead>
             <tr>
@@ -122,7 +122,7 @@
             </tr>
           </tfoot>
         </table>
-      </div>
+      </vx-table>
     }
   }
 </div>

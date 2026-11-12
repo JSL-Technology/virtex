@@ -54,8 +54,8 @@
         @if (lines.length === 0) {
           <p class="form-hint">{{ 'purchasing.receipts.nothing_outstanding' | translate: { number: current.number } }}</p>
         } @else {
-          <div class="table-wrapper">
-            <table class="lines-table" formArrayName="lines">
+          <vx-table labelKey="purchasing.receipts.what_arrived" frame="none">
+            <table formArrayName="lines">
               <thead>
                 <tr>
                   <th>{{ 'purchasing.receipts.description' | translate }}</th>
@@ -78,7 +78,7 @@
                 }
               </tbody>
             </table>
-          </div>
+          </vx-table>
           <button type="button" class="secondary-button add-line" (click)="receiveAll()">
             {{ 'purchasing.receipts.receive_all' | translate }}
           </button>

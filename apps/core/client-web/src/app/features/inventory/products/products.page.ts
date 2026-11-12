@@ -21,10 +21,11 @@ import { forkJoin } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { downloadCsv, reportFilename, toCsv } from '../../../core/export/csv-export';
 
+import { VX_TABLE } from '../../../shared/components/table';
 @Component({
   selector: 'app-products-page',
   standalone: true,
-  imports: [RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, HasPermissionDirective, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, ...VX_CONTEXT_MENU],
+  imports: [...VX_TABLE, RowLinkDirective, ...VX_SORT, CanOpenDirective, RouterLink, LucideAngularModule, HasPermissionDirective, TranslateModule, ...FORMAT_PIPES, ListShellComponent, VxBadgeComponent, VxAmountComponent, ...VX_CONTEXT_MENU],
   providers: [ListSelectionService],
   templateUrl: './products.page.html',
   styleUrls: ['./products.page.scss'],

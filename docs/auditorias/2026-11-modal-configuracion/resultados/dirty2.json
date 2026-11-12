@@ -1,0 +1,102 @@
+{
+  "smtp": {
+    "before": "",
+    "typed": " Prueba",
+    "dirty": {
+      "modalOpen": true,
+      "saveBar": null,
+      "autosave": null,
+      "confirm": []
+    },
+    "afterEscape": {
+      "modalOpen": false,
+      "saveBar": null,
+      "autosave": null,
+      "confirm": []
+    },
+    "reopenedValue": ""
+  },
+  "branding": {
+    "swatches": 6,
+    "dirty": {
+      "modalOpen": true,
+      "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+      "autosave": null,
+      "confirm": []
+    },
+    "afterEscape": {
+      "modalOpen": true,
+      "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+      "autosave": null,
+      "confirm": [
+        "Cambios sin guardar Hay cambios sin guardar en «Marca de la empresa». Cancelar Descartar Guardar"
+      ]
+    }
+  },
+  "ai": {
+    "before": "200",
+    "dirty": {
+      "modalOpen": true,
+      "saveBar": null,
+      "autosave": "Los cambios se guardan solos",
+      "confirm": []
+    },
+    "afterEscape": {
+      "modalOpen": false,
+      "saveBar": null,
+      "autosave": null,
+      "confirm": []
+    },
+    "reopenedValue": "200"
+  },
+  "regional": {
+    "options": 4,
+    "dirty": {
+      "modalOpen": true,
+      "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+      "autosave": null,
+      "confirm": []
+    },
+    "afterEscape": {
+      "modalOpen": true,
+      "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+      "autosave": null,
+      "confirm": [
+        "Cambios sin guardar Hay cambios sin guardar en «Formato regional». Cancelar Descartar Guardar"
+      ]
+    }
+  },
+  "security": {
+    "toggles": 1,
+    "dirty": {
+      "modalOpen": true,
+      "saveBar": null,
+      "autosave": null,
+      "confirm": [
+        "Exigir segundo factor Los miembros sin segundo factor tienen que configurarlo en su próximo inicio de sesión antes de seguir trabajando. ¿Activarlo? Cancelar Ac"
+      ]
+    },
+    "afterEscape": {
+      "modalOpen": true,
+      "saveBar": null,
+      "autosave": null,
+      "confirm": []
+    }
+  },
+  "policies": {
+    "dirty": {
+      "modalOpen": true,
+      "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+      "autosave": null,
+      "confirm": []
+    },
+    "afterEscape": {
+      "modalOpen": true,
+      "saveBar": "Tienes cambios sin guardar. Descartar Guardar cambios",
+      "autosave": null,
+      "confirm": [
+        "Cambios sin guardar Hay cambios sin guardar en «Políticas contables». Cancelar Descartar Guardar"
+      ]
+    }
+  }
+}

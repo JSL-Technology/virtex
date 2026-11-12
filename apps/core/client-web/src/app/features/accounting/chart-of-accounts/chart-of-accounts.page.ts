@@ -16,10 +16,11 @@ import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 
+import { VX_TABLE } from '../../../shared/components/table';
 @Component({
   selector: 'app-chart-of-accounts-page',
   standalone: true,
-  imports: [CanOpenDirective, FormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent],
+  imports: [...VX_TABLE, CanOpenDirective, FormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y, VxBadgeComponent, VxAmountComponent],
   templateUrl: './chart-of-accounts.page.html',
   styleUrls: ['./chart-of-accounts.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -222,10 +222,18 @@ th.text-right  { text-align: right; }
   .no-print { display: none !important; }
 }
 
-// Una fila que abre su registro (`tr[vxRowLink]`, QA B-02): toda la fila responde, no solo el
-// texto del enlace de la primera celda.
+// Una fila que abre su registro (`tr[appRowLink]`, QA B-02): toda la fila responde, no solo el
+// texto del enlace de la primera celda. El resaltado al pasar por encima es de `vx-table`.
 .vx-row-link {
   cursor: pointer;
+}
 
-  &:hover > td { background: var(--surface-hover); }
+// ── Marcador de obligatorio ────────────────────────────────────────────────
+//  Uno solo en toda la interfaz: el asterisco de `<span class="required">*</span>` junto a la
+//  etiqueta, en el color de error. Antes era rojo en unas pantallas y del color de la etiqueta en
+//  otras (estándar v0.1, FORM-01).
+.required {
+  margin-inline-start: 0.125rem;
+  color: var(--error-text);
+  font-weight: var(--font-semibold);
 }

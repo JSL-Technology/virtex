@@ -23,6 +23,7 @@ import {
 } from '../data/ai.service';
 import { ForecastChartComponent } from './forecast-chart.component';
 
+import { VX_TABLE } from '../../../shared/components/table';
 /** How each status reads: a risk is a danger, a reorder a warning, excess and dead stock information. */
 export const STATUS_TONE: Record<InventoryStatus, VxTone> = {
   STOCKOUT_RISK: 'danger',
@@ -45,7 +46,7 @@ export const STATUSES: InventoryStatus[] = ['STOCKOUT_RISK', 'REORDER', 'OVERSTO
 @Component({
   selector: 'app-ai-predictions-page',
   standalone: true,
-  imports: [
+  imports: [...VX_TABLE, 
     FormsModule,
     ...VX_FORM_A11Y,
     RouterLink,

@@ -5,6 +5,23 @@
 export const PLATFORM_PERMISSION_PREFIX = 'platform:';
 
 /**
+ * Permissions that another permission brings with it: changing something includes reading it.
+ *
+ * A read permission added after the fact (`settings:view_company`, `workflows:view`) would
+ * otherwise lock out every role written before it — a custom role that may edit the company's
+ * configuration, and was never ticked «view» because that box did not exist, would meet a 403 on
+ * opening the page it administers. Declared here, in the one matcher the API and the browser
+ * share, rather than copied into every stored role: nobody has to remember to tick both boxes,
+ * and the two sides cannot disagree about what a role may read.
+ *
+ * Only tenant permissions belong here; a platform permission is satisfied by itself alone.
+ */
+export const IMPLIED_PERMISSIONS: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  'settings:edit_company': ['settings:view_company'],
+  'workflows:manage': ['workflows:view'],
+});
+
+/**
  * Whether a set of held permissions satisfies every required one.
  *
  * `'*'` and prefix wildcards (`'sales:*'`) satisfy TENANT permissions only. A platform permission
@@ -34,6 +51,10 @@ export function hasPermission(
     return userPermissions.some((userPerm) => {
       // Exact match
       if (userPerm === req) {
+        return true;
+      }
+      // A permission that brings this one with it (editing implies reading).
+      if (IMPLIED_PERMISSIONS[userPerm]?.includes(req)) {
         return true;
       }
       // Wildcard match (e.g. 'sales:*' matches 'sales:create')

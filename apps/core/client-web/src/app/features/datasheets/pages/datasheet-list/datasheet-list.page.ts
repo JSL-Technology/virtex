@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Plus, FileSpreadsheet } from 'lucide-angular';
 import { ListShellComponent } from '../../../../shared/components/gestures';
 
+import { VX_TABLE } from '../../../../shared/components/table';
 /**
  * Las hojas de datos, listadas.
  *
@@ -25,7 +26,7 @@ import { ListShellComponent } from '../../../../shared/components/gestures';
 @Component({
   selector: 'app-datasheet-list',
   standalone: true,
-  imports: [RouterModule, TranslateModule, LucideAngularModule, ListShellComponent, ...FORMAT_PIPES],
+  imports: [...VX_TABLE, RouterModule, TranslateModule, LucideAngularModule, ListShellComponent, ...FORMAT_PIPES],
   styleUrl: './datasheet-list.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -46,8 +47,8 @@ import { ListShellComponent } from '../../../../shared/components/gestures';
         <span>{{ 'datasheets.new_document' | translate }}</span>
       </a>
 
-      <div class="table-container card">
-        <table class="data-table">
+      <vx-table labelKey="datasheets.title">
+        <table>
           <thead>
             <tr>
               <th>{{ 'datasheets.name' | translate }}</th>
@@ -70,7 +71,7 @@ import { ListShellComponent } from '../../../../shared/components/gestures';
             }
           </tbody>
         </table>
-      </div>
+      </vx-table>
     </vx-list-shell>
   `,
 })
