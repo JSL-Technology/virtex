@@ -57,6 +57,8 @@ export function neutralMarket(code: string): NeutralMarket {
       dueDay: null,
       prepareWith: PREPARE_WITH_LEDGERS,
       obligations: [],
+    // A market with no package of its own files nothing: there is no authority to file to.
+    filings: [],
       coverage: [{ capability: 'periodicReturns', ...notImplemented() }],
     },
     einvoicing: { required: false, regime: null, coverage: notImplemented() },

@@ -626,14 +626,6 @@
       "business_closure",
       "books_lost_or_stolen"
     ],
-    "fiscal_returns.kinds": [
-      "606",
-      "607",
-      "608",
-      "609",
-      "catalogo",
-      "balanza"
-    ],
     "fiscal_returns.states": [
       "missing",
       "overdue",
@@ -1085,6 +1077,16 @@
     "relationship_map.subtype": [
       "credit_note",
       "debit_note"
+    ],
+    "returns.mx.option.tipo_envio": [
+      "n",
+      "c"
+    ],
+    "returns.mx.option.tipo_solicitud": [
+      "af",
+      "fc",
+      "de",
+      "co"
     ],
     "saas.resources": [
       "invoices",

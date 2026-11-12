@@ -29,7 +29,7 @@ import { DataSource } from 'typeorm';
 
 import { AppModule } from '../../apps/backend/api/src/app/app.module';
 import { InvoicesService } from '../../apps/backend/api/src/app/invoices/invoices.service';
-import { ComplianceService } from '../../apps/backend/api/src/app/compliance/compliance.service';
+import { ReturnsService } from '../../apps/backend/api/src/app/compliance/returns/returns.service';
 import { CustomersService } from '../../apps/backend/api/src/app/customers/customers.service';
 import { LocalizationService } from '../../apps/backend/api/src/app/localization/services/localization.service';
 import { OrganizationsService } from '../../apps/backend/api/src/app/organizations/organizations.service';
@@ -76,7 +76,7 @@ async function main(): Promise<void> {
 
   const ds = app.get(DataSource);
   const invoices = app.get(InvoicesService);
-  const compliance = app.get(ComplianceService, { strict: false });
+  const returns = app.get(ReturnsService, { strict: false });
   // The ranges of every market, the Dominican NCF among them, through the settings endpoint's service.
   const fiscalRanges = app.get(FiscalRegimeSettingsService, { strict: false });
   const rangeExpiry = `${new Date().getFullYear() + 1}-12-31`;
@@ -507,7 +507,9 @@ async function main(): Promise<void> {
     [[toCancel.journalEntryId, cancelled.cancellationJournalEntryId], [cancelled.cancellationJournalEntryId, cancelled.cancellationCostJournalEntryId], orgId],
   );
   check('los asientos de anulación revierten la cuenta por cobrar y el costo', Math.abs(Number(reversal.receivable)) < 0.005 && reversal.entries === 2, `CxC neta ${reversal.receivable} · ${reversal.entries} asientos`);
-  const report608 = await compliance.generate608Report(orgId, Number(today.slice(0, 4)), Number(today.slice(5, 7)));
+  const report608 = (
+    await returns.generate(orgId, '608', { year: Number(today.slice(0, 4)), month: Number(today.slice(5, 7)) })
+  ).body;
   check('el 608 la declara con el código elegido', report608.split('\n').some((row) => row.startsWith(`${cancelled.fiscalNumber}|`) && row.endsWith('|04')), report608.split('\n').find((row) => row.startsWith(cancelled.fiscalNumber ?? '-')) ?? 'no está');
 
   // ── A withholding rate the buyer's regime does not justify is refused ───────

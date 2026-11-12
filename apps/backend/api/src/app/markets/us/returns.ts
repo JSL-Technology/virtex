@@ -17,6 +17,8 @@ export const returns: MarketReturns = {
   dueDay: null,
   prepareWith: PREPARE_WITH,
   obligations: [],
+  // No generator here: the product produces no return file for this market yet.
+  filings: [],
   coverage: [
     { capability: 'periodicReturns', ...notImplemented('Formularios 1099 y declaraciones estatales') },
   ],

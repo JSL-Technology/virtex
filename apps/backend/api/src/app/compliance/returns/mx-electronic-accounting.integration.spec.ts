@@ -25,7 +25,10 @@ import { AuditTrailService } from '../../audit/audit.service';
 import { AuditLog } from '../../audit/entities/audit-log.entity';
 import { AccountBalancesService } from '../../chart-of-accounts/account-balances.service';
 import { CreateJournalEntryDto } from '../../journal-entries/dto/create-journal-entry.dto';
-import { MexicanElectronicAccounting } from './mx-electronic-accounting';
+import { Organization as OrganizationEntity } from '../../organizations/entities/organization.entity';
+import { PurchaseFiscalRecordsRegistry } from '../../contracts/fiscal-records/purchase-fiscal-records.registry';
+import { ReturnDatasetFactory } from './return-dataset';
+import { ReturnsService } from './returns.service';
 
 /**
  * Mexico's electronic accounting: the three files of Anexo 24.
@@ -44,7 +47,7 @@ describeWithDb('Mexican electronic accounting', () => {
 
   let dataSource: DataSource;
   let entries: JournalEntriesService;
-  let accounting: MexicanElectronicAccounting;
+  let returns: ReturnsService;
 
   let organizationId: string;
   let generalJournalId: string;
@@ -68,7 +71,19 @@ describeWithDb('Mexican electronic accounting', () => {
     await dataSource.initialize();
 
     const balances = new AccountBalancesService(dataSource);
-    accounting = new MexicanElectronicAccounting(dataSource.manager, balances);
+    // The engine any market's return goes through, over this ledger: the Mexican documents are
+    // three filings of `markets/mx/returns/` and nothing here knows that.
+    const purchases = {
+      source: () => ({
+        sourceName: 'none',
+        fiscalDocuments: async () => [],
+        foreignPurchases: async () => [],
+      }),
+    } as unknown as PurchaseFiscalRecordsRegistry;
+    returns = new ReturnsService(
+      dataSource.getRepository(OrganizationEntity),
+      new ReturnDatasetFactory(dataSource, balances, purchases),
+    );
     entries = new JournalEntriesService(
       dataSource.getRepository(JournalEntry),
       dataSource.getRepository(JournalEntryAttachment),
@@ -188,7 +203,7 @@ describeWithDb('Mexican electronic accounting', () => {
 
   describe('Catálogo de cuentas', () => {
     it('maps every account onto its SAT grouping code, with its level and nature', async () => {
-      const xml = await accounting.catalogo({ organizationId, ...period });
+      const xml = (await returns.generate(organizationId, 'catalogo', period)).body;
 
       expect(xml).toContain('catalogocuentas:Catalogo');
       expect(xml).toContain('Version="1.3"');
@@ -214,7 +229,7 @@ describeWithDb('Mexican electronic accounting', () => {
 
       // The SAT rejects the upload; discovering that at the Buzón Tributario on the deadline is a
       // worse way to learn it. The message names how many and gives one example.
-      await expect(accounting.catalogo({ organizationId, ...period })).rejects.toMatchObject({
+      await expect(returns.generate(organizationId, 'catalogo', period)).rejects.toMatchObject({
         messageKey: 'compliance.count_account_have_no_sat_grouping',
       });
     });
@@ -222,7 +237,7 @@ describeWithDb('Mexican electronic accounting', () => {
     it('refuses to build anything for a taxpayer with no RFC', async () => {
       await dataSource.getRepository(Organization).update({ id: organizationId }, { taxId: null });
 
-      await expect(accounting.catalogo({ organizationId, ...period })).rejects.toMatchObject({
+      await expect(returns.generate(organizationId, 'catalogo', period)).rejects.toMatchObject({
         messageKey: 'compliance.organization_has_no_rfc_file_sat',
       });
     });
@@ -243,7 +258,7 @@ describeWithDb('Mexican electronic accounting', () => {
         { accountId: account['bank'], credit: 1_500 },
       ]);
 
-      const xml = await accounting.balanza({ organizationId, ...period });
+      const xml = (await returns.generate(organizationId, 'balanza', period)).body;
 
       expect(xml).toContain('BCE:Balanza');
       expect(xml).toContain('TipoEnvio="N"');
@@ -263,7 +278,7 @@ describeWithDb('Mexican electronic accounting', () => {
         { accountId: account['revenue'], credit: 4_000 },
       ]);
 
-      const xml = await accounting.balanza({ organizationId, ...period });
+      const xml = (await returns.generate(organizationId, 'balanza', period)).body;
 
       // Filing every account in the chart with four zeroes is a larger file that says less.
       expect(xml).not.toContain('NumCta="201.01"');
@@ -276,14 +291,10 @@ describeWithDb('Mexican electronic accounting', () => {
         { accountId: account['revenue'], credit: 1_000 },
       ]);
 
-      const ordinary = await accounting.balanza(
-        { organizationId, ...period },
-        { fechaModBal: '2026-07-15' },
-      );
-      const complementary = await accounting.balanza(
-        { organizationId, ...period },
-        { tipoEnvio: 'C', fechaModBal: '2026-07-15' },
-      );
+      const ordinary = (await returns.generate(organizationId, 'balanza', period, { fechaModBal: '2026-07-15' })).body;
+      const complementary = (
+        await returns.generate(organizationId, 'balanza', period, { tipoEnvio: 'C', fechaModBal: '2026-07-15' })
+      ).body;
 
       // The SAT rejects `FechaModBal` on an ordinary filing, which is why it is not simply always
       // written.
@@ -300,7 +311,7 @@ describeWithDb('Mexican electronic accounting', () => {
         { accountId: account['revenue'], credit: 4_000, description: 'Ingreso' },
       ]);
 
-      const xml = await accounting.polizas({ organizationId, ...period });
+      const xml = (await returns.generate(organizationId, 'polizas', period, { numOrden: 'ABC1234567/26' })).body;
 
       expect(xml).toContain('PLZ:Polizas');
       expect(xml).toContain('TipoSolicitud="AF"');
@@ -324,7 +335,7 @@ describeWithDb('Mexican electronic accounting', () => {
         { accountId: account['revenue'], credit: 2_000 },
       ]);
 
-      const xml = await accounting.polizas({ organizationId, ...period });
+      const xml = (await returns.generate(organizationId, 'polizas', period, { numOrden: 'ABC1234567/26' })).body;
 
       expect(xml).toContain('Concepto="Venta de junio"');
       expect(xml).not.toContain('Concepto="Venta de mayo"');
@@ -338,33 +349,45 @@ describeWithDb('Mexican electronic accounting', () => {
 
       // `NumOrden` belongs to the audits (AF, FC); `NumTramite` to a refund (DE) or an offset (CO).
       // Writing the wrong one, or both, is a rejected upload.
-      const audit = await accounting.polizas(
-        { organizationId, ...period },
-        { tipoSolicitud: 'AF', numOrden: 'ABC1234567/26', numTramite: 'IGNORADO' },
-      );
+      const audit = (
+        await returns.generate(organizationId, 'polizas', period, {
+          tipoSolicitud: 'AF',
+          numOrden: 'ABC1234567/26',
+          numTramite: 'IGNORADO',
+        })
+      ).body;
       expect(audit).toContain('NumOrden="ABC1234567/26"');
       expect(audit).not.toContain('NumTramite');
 
-      const refund = await accounting.polizas(
-        { organizationId, ...period },
-        { tipoSolicitud: 'DE', numTramite: 'TR-2026-9', numOrden: 'IGNORADO' },
-      );
+      const refund = (
+        await returns.generate(organizationId, 'polizas', period, {
+          tipoSolicitud: 'DE',
+          numTramite: 'TR-2026-9',
+          numOrden: 'IGNORADO',
+        })
+      ).body;
       expect(refund).toContain('NumTramite="TR-2026-9"');
       expect(refund).not.toContain('NumOrden');
 
       // A fiscalización compulsa is an audit: it answers an order, not a procedure.
-      const compulsa = await accounting.polizas(
-        { organizationId, ...period },
-        { tipoSolicitud: 'FC', numOrden: 'ABC1234567/26', numTramite: 'IGNORADO' },
-      );
+      const compulsa = (
+        await returns.generate(organizationId, 'polizas', period, {
+          tipoSolicitud: 'FC',
+          numOrden: 'ABC1234567/26',
+          numTramite: 'IGNORADO',
+        })
+      ).body;
       expect(compulsa).toContain('NumOrden="ABC1234567/26"');
       expect(compulsa).not.toContain('NumTramite');
 
       // A compensación is a procedure the taxpayer started: it answers its procedure number.
-      const offset = await accounting.polizas(
-        { organizationId, ...period },
-        { tipoSolicitud: 'CO', numTramite: 'CO123456789012', numOrden: 'IGNORADO' },
-      );
+      const offset = (
+        await returns.generate(organizationId, 'polizas', period, {
+          tipoSolicitud: 'CO',
+          numTramite: 'CO123456789012',
+          numOrden: 'IGNORADO',
+        })
+      ).body;
       expect(offset).toContain('NumTramite="CO123456789012"');
       expect(offset).not.toContain('NumOrden');
     });

@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
-import { ComplianceService } from './compliance.service';
-import { Invoice } from '../invoices/entities/invoice.entity';
+import { ReturnsService } from './returns/returns.service';
+import { ReturnDatasetFactory } from './returns/return-dataset';
 import { createTestOrganization, describeWithDb, dropTestOrganization, openTestDataSource } from '../common/database/testing/integration-db';
 
 /**
@@ -17,7 +17,7 @@ import { createTestOrganization, describeWithDb, dropTestOrganization, openTestD
 describeWithDb('DGII 607 / 608 against the real schema', () => {
   let ds: DataSource;
   let organizationId: string;
-  let service: ComplianceService;
+  let returns: ReturnsService;
   const CUSTOMER_RNC = '131246753';
   let report: (kind: '607' | '608') => Promise<string[]>;
 
@@ -69,18 +69,15 @@ describeWithDb('DGII 607 / 608 against the real schema', () => {
       [payment, issued],
     );
 
-    service = new ComplianceService(
-      ds.getRepository(Invoice),
+    returns = new ReturnsService(
       ds.getRepository('Organization'),
-      ds,
-      {} as never,
-      {} as never, // PurchaseFiscalRecordsRegistry: the 606/609 are not run here
+      new ReturnDatasetFactory(
+        ds,
+        {} as never, // AccountBalancesService: a sales return reads no ledger
+        {} as never, // PurchaseFiscalRecordsRegistry: the 606/609 are not run here
+      ),
     );
-    const generators = {
-      '607': () => service.generate607Report(org, 2026, 10),
-      '608': () => service.generate608Report(org, 2026, 10),
-    };
-    report = async (kind) => (await generators[kind]()).split('\n');
+    report = async (kind) => (await returns.generate(org, kind, { year: 2026, month: 10 })).body.split('\n');
   });
 
   afterAll(() => dropTestOrganization(ds, organizationId));
@@ -138,20 +135,17 @@ describeWithDb('DGII 607 / 608 against the real schema', () => {
 
   // FAC-CMP-03: a market without these formats is told so, with a 400 that names its country — never
   // a Dominican file, never a 500.
-  it('refuses the DGII formats to a company in another country, naming it', async () => {
+  it('does not file a DGII format for a company of another market, and says so', async () => {
     const ecuador = await createTestOrganization(ds, 'dgii-ec');
     try {
       await ds.query(`UPDATE organizations SET country = 'EC' WHERE id = $1`, [ecuador]);
-      // The country is checked before any data is read, so the purchases registry is never reached.
-      for (const generate of [
-        () => service.generate606Report(ecuador, 2026, 10),
-        () => service.generate607Report(ecuador, 2026, 10),
-        () => service.generate608Report(ecuador, 2026, 10),
-        () => service.generate609Report(ecuador, 2026, 10),
-      ]) {
-        await expect(generate()).rejects.toMatchObject({
-          messageKey: 'compliance.report_format_dgii_dominican_republic_filing',
-          status: 400,
+      // The market has no such filing, so nothing is read and nothing is built: a plausible-looking
+      // file that means nothing to the SRI is the worse answer, and it used to be produced until a
+      // country check was written by hand at the top of each format.
+      for (const code of ['606', '607', '608', '609']) {
+        await expect(returns.generate(ecuador, code, { year: 2026, month: 10 })).rejects.toMatchObject({
+          messageKey: 'compliance.return_not_filed_in_this_market',
+          status: 404,
         });
       }
     } finally {

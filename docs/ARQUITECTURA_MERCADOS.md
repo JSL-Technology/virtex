@@ -414,6 +414,48 @@ del documento (factura, líneas, cliente, organización) y `markets/` no depende
 negocio (§2.4). El paquete del mercado declara la **política** —si la ley lo exige, cómo se llama el
 régimen, qué cobertura tiene (`markets/<cc>/einvoicing.ts`)— y el adaptador la implementa.
 
+### 2.12 Declaraciones
+
+Una declaración es lo menos portable que publica una autoridad: el 606 de la DGII son veintitrés
+casillas separadas por barras en un orden fijo, la balanza del SAT es un XML validado contra su XSD
+con sus propios códigos agrupadores, y ni siquiera coinciden en qué es un período. No puede haber un
+generador genérico; lo que sí puede haber es un **motor** genérico —que sabe reunir los hechos de un
+período y nada de ninguna autoridad— y un generador por mercado que convierte esos hechos en el
+archivo de la suya.
+
+Así queda repartido:
+
+- el núcleo arma `ReturnDataset` (`compliance/returns/return-dataset.ts`): lo que la empresa emitió,
+  lo que recibió, lo que pagó al exterior, su catálogo de cuentas con el movimiento del período y sus
+  asientos, como datos planos y en el orden en que se leen. Cada parte se carga cuando un generador
+  la pide, así que el 606 nunca lee un asiento y la balanza nunca lee una factura;
+- cada mercado declara sus `filings` (`markets/<cc>/returns.ts` → `markets/<cc>/returns/`): el código
+  con el que su autoridad la llama, su etiqueta, su periodicidad, su tipo de archivo, si el
+  calendario la sigue mes a mes, qué le pide a la empresa además del período y cómo se construye;
+- el motor (`ReturnsService`) resuelve la declaración por el mercado de la empresa, comprueba esos
+  datos contra la propia declaración y entrega el archivo con el nombre que su autoridad le da.
+
+Antes, las cuatro declaraciones dominicanas eran cuatro métodos del módulo de ventas que leían
+`Repository<Invoice>`, cada uno con un `if (country !== 'DO')` escrito a mano arriba —porque sin él
+cualquier inquilino podía pedir un 607—, y los tres documentos mexicanos eran otros tres con su
+propia ruta. Agregar las declaraciones de Perú o de Chile era editar ese módulo; hoy es agregar un
+archivo al paquete de ese mercado.
+
+**Lo que no se adivina.** Un generador no lanza excepciones: devuelve el archivo o **devuelve el
+motivo** por el que no puede construirlo (`ReturnRefusal`), y el motor lo convierte en el error que
+el inquilino lee. Es la misma idea de siempre —un 606 con una compra que nadie clasificó, o con un
+proveedor sin RNC, lo rechaza la DGII entero— y enterarse al subirlo el día del vencimiento es peor
+que enterarse aquí. Cuántos registros declara el archivo lo dice el propio generador, que los
+construyó: contar líneas después de una cabecera funcionaba para un formato de texto y necesitaba un
+caso especial por documento XML, que es como el núcleo terminó conociendo los nombres de los
+elementos del SAT.
+
+**La pantalla.** Una sola, sin ramas por país: pide al servidor qué declara este mercado y dibuja el
+calendario con las que tienen vencimiento mensual, un panel aparte para las que la autoridad pide
+cuando audita o devuelve, y un campo por cada dato declarado —`CHOICE` con sus valores publicados,
+`DATE`, texto—. Llevaba la lista dentro (los cuatro formatos dominicanos, los tres documentos
+mexicanos y un `switch` entre ellos), así que un mercado nuevo no declaraba nada hasta editarla.
+
 ## 3. Cómo se agrega o se completa un mercado
 
 1. Copiar el paquete de un mercado con la misma cobertura y responder cada archivo. Por ejemplo,
@@ -481,7 +523,7 @@ eso se resuelve en el contrato, no con una rama.
 | 2 | Documentos y numeración: un adaptador genérico guiado por la política de numeración del mercado; fuera el `switch` de `FiscalAdapterFactory`; `ncf_sequences` → `fiscal_document_ranges`; motivos de ajuste canónicos en lugar de `ModificationCode`; tipos de nota de crédito y débito de todos los regímenes | ✅ Motor único con la política de cada mercado, rangos unificados con reglas comunes, consecutivo y serie en el documento, pantalla y API únicas (§2.8); motivos de ajuste canónicos traducidos por el mercado (§2.9). Los constructores de los seis regímenes que todavía no referencian el documento modificado son parte de la fase 3 |
 | 3 | Facturación electrónica: DO entra al buzón único (`fiscal_submissions`); los constructores quedan como adaptadores de régimen con un solo contrato; `ecf_lifecycle_messages` → `fiscal_document_events`; las variables `DGII_*` pasan a la configuración de transmisión del tenant | ✅ La DGII es un adaptador (`regimes/do/`), una sola tabla de envíos, un solo reconciliador, un solo estado y una sola pantalla; fuera la expresión regular del e-NCF de la entidad genérica; el canal lo declara cada régimen; `fiscal_document_events` con el veredicto como hecho y el código escrito por el mercado; los siete regímenes referencian el documento que la nota corrige, con el código del catálogo de su clase, y AFIP escribe el número que autoriza; ninguna variable del proceso decide el canal de un inquilino, en ningún régimen (§2.11) |
 | 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ✅ Columnas neutrales con migración exacta en los dos sentidos, `fiscal_attributes` validado contra la declaración del mercado, documento del proveedor comprobado por la regla de cada mercado, método de pago de la empresa en lugar de la «forma de pago» de una autoridad, formulario y ficha dibujados desde el paquete público del mercado (§2.10) |
-| 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ⏳ |
+| 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ✅ `ReturnDataset` con los hechos del período y `MarketReturnFiling` por mercado; los cuatro formatos de la DGII en `markets/do/returns/` y los tres documentos del SAT en `markets/mx/returns/`; una ruta (`/compliance/returns`), un calendario y un formulario de datos declarados; el motivo del rechazo lo devuelve el generador y el conteo de registros también (§2.12) |
 | 6 | Nómina: motor dominicano a `markets/do/payroll/`, registro de motores y sin `'DOP'` por omisión | ⏳ |
 | 7 | Cliente: sin ramas por país; pantallas guiadas por la definición pública del mercado | ⏳ |
 | 8 | Textos: base neutral y parches regionales para los 19 mercados, con prueba de completitud | ⏳ |

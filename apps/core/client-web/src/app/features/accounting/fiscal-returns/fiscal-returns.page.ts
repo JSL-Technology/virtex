@@ -15,18 +15,12 @@ import { CountryPackService } from '../../../core/api/country-pack.service';
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { saveFile } from '../../../core/api/data-transfer.service';
 import {
-  DGII_RETURNS,
   FiscalReturnFiling,
   FiscalReturnsService,
-  SAT_MONTHLY_RETURNS,
-  SatDocumentOptions,
-  TrackedReturn,
-  returnFileName,
+  ReturnFiling,
+  ReturnFilingOption,
 } from '../data/fiscal-returns.service';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-
-/** The markets whose periodic returns this product produces. */
-export type ReturnsMarket = 'DO' | 'MX' | 'OTHER';
 
 /**
  * Where one month's return stands, as the calendar colours it. `not_applicable` is a month before
@@ -77,7 +71,14 @@ export class FiscalReturnsPage implements OnInit {
 
   private readonly today = new Date();
 
-  readonly market = signal<ReturnsMarket | null>(null);
+  /**
+   * What this company's market files, as the server answers it.
+   *
+   * The page used to carry the list: the four Dominican formats, the three Mexican documents and a
+   * `switch` on the country between them, so a market the product gained filed nothing here until
+   * this file was edited too.
+   */
+  readonly available = signal<readonly ReturnFiling[]>([]);
 
   /**
    * The first day the company had anything to report (QA A-15). The calendar used to start every
@@ -102,29 +103,24 @@ export class FiscalReturnsPage implements OnInit {
   readonly error = signal<string | null>(null);
   /** The action in flight, as `kind:month:action`, so only its button shows progress. */
   readonly busy = signal<string | null>(null);
-  readonly selected = signal<{ kind: TrackedReturn; month: number } | null>(null);
+  readonly selected = signal<{ kind: string; month: number } | null>(null);
 
-  /** Balanza complementaria: the correction of a filed one. */
-  readonly complementary = signal(false);
-  readonly modifiedOn = signal('');
+  /** What each filing's own options are set to, keyed `code.option`. */
+  readonly optionValues = signal<Readonly<Record<string, string>>>({});
 
-  /** Pólizas, answered when the SAT asks for them. */
-  readonly polizasMonth = signal(this.today.getMonth() + 1);
-  readonly polizasRequest = signal<NonNullable<SatDocumentOptions['tipoSolicitud']>>('AF');
-  readonly polizasReference = signal('');
+  /** The month an on-request filing is asked for, keyed by its code. */
+  readonly requestMonths = signal<Readonly<Record<string, number>>>({});
 
   readonly canFile = computed(() => this.auth.hasPermissions(['accounting:close_period']));
 
-  readonly kinds = computed<readonly TrackedReturn[]>(() => {
-    switch (this.market()) {
-      case 'DO':
-        return DGII_RETURNS;
-      case 'MX':
-        return SAT_MONTHLY_RETURNS;
-      default:
-        return [];
-    }
-  });
+  /** The filings with a monthly deadline: the calendar's columns, in the market's own order. */
+  readonly kinds = computed(() => this.available().filter((filing) => filing.tracked));
+
+  /**
+   * The filings an authority asks for when it audits, refunds or offsets: each gets its own panel,
+   * because there is no month of theirs that is «not filed».
+   */
+  readonly onRequest = computed(() => this.available().filter((filing) => filing.periodicity === 'ON_REQUEST'));
 
   /** The months of the year that have begun: a future month has nothing to file yet. */
   readonly months = computed(() => {
@@ -143,8 +139,11 @@ export class FiscalReturnsPage implements OnInit {
   });
 
   readonly empty = computed(
-    () => !this.loading() && !this.error() && (this.market() === 'OTHER' || this.months().length === 0),
+    () => !this.loading() && !this.error() && (this.kinds().length === 0 || this.months().length === 0),
   );
+
+  /** Nothing is filed from here in this market: the reports to prepare the returns with instead. */
+  readonly filesNothing = computed(() => this.available().length === 0);
 
   readonly selectedFiling = computed(() => {
     const cell = this.selected();
@@ -155,31 +154,36 @@ export class FiscalReturnsPage implements OnInit {
   readonly changedCount = computed(() => this.filings().filter((filing) => filing.changedSinceSubmission).length);
 
   /**
-   * Which generator the market has comes from its country pack — not from a country name here — and
-   * where the calendar starts from the company's own history.
+   * What this market files comes from the server, and where the calendar starts from the company's
+   * own history.
    */
   ngOnInit(): void {
     forkJoin({
       pack: this.packReady$,
+      available: this.returns.available().pipe(catchError(() => of([] as ReturnFiling[]))),
       since: this.returns.activeSince().pipe(
         map((answer) => answer.activeSince),
         catchError(() => of(null)),
       ),
-    }).subscribe(({ pack, since }) => {
+    }).subscribe(({ pack, available, since }) => {
       if (!pack) {
         this.error.set('fiscal_returns.load_failed');
         this.loading.set(false);
         return;
       }
       this.activeSince.set(since);
-      const generator = pack.fiscalReturns.generator;
-      this.market.set(generator === 'DGII' ? 'DO' : generator === 'SAT' ? 'MX' : 'OTHER');
+      this.available.set(available);
+      this.requestMonths.set(
+        Object.fromEntries(
+          available.filter((filing) => filing.periodicity === 'ON_REQUEST').map((filing) => [filing.code, this.today.getMonth() + 1]),
+        ),
+      );
       this.load();
     });
   }
 
   load(): void {
-    if (this.market() === 'OTHER') {
+    if (this.filesNothing()) {
       this.loading.set(false);
       return;
     }
@@ -203,23 +207,23 @@ export class FiscalReturnsPage implements OnInit {
     this.load();
   }
 
-  select(kind: TrackedReturn, month: number): void {
+  select(kind: string, month: number): void {
     const current = this.selected();
     this.selected.set(current?.kind === kind && current.month === month ? null : { kind, month });
-    this.complementary.set(false);
-    this.modifiedOn.set('');
+    // Another cell, another filing: what was typed for the last one is not carried over.
+    this.optionValues.set({});
   }
 
-  isSelected(kind: TrackedReturn, month: number): boolean {
+  isSelected(kind: string, month: number): boolean {
     const current = this.selected();
     return current?.kind === kind && current.month === month;
   }
 
-  filingOf(kind: TrackedReturn, month: number): FiscalReturnFiling | null {
+  filingOf(kind: string, month: number): FiscalReturnFiling | null {
     return this.filings().find((filing) => filing.kind === kind && filing.month === month) ?? null;
   }
 
-  state(kind: TrackedReturn, month: number): CellState {
+  state(kind: string, month: number): CellState {
     const filing = this.filingOf(kind, month);
     if (filing?.status === 'SUBMITTED') return filing.changedSinceSubmission ? 'changed' : 'submitted';
     // Nothing to file for a month the company had not started — neutral, never «Overdue» (QA A-15).
@@ -234,7 +238,7 @@ export class FiscalReturnsPage implements OnInit {
     return since !== null && `${this.year()}-${pad(month)}` < since.slice(0, 7);
   }
 
-  tone(kind: TrackedReturn, month: number): VxTone {
+  tone(kind: string, month: number): VxTone {
     return STATE_TONE[this.state(kind, month)];
   }
 
@@ -253,26 +257,82 @@ export class FiscalReturnsPage implements OnInit {
     return this.busy() === `${kind}:${month}:${action}`;
   }
 
-  download(kind: TrackedReturn, month: number): void {
-    const options: SatDocumentOptions =
-      kind === 'balanza' && this.complementary()
-        ? { tipoEnvio: 'C', fechaModBal: this.modifiedOn() || undefined }
-        : {};
-    if (options.tipoEnvio === 'C' && !options.fechaModBal) {
-      this.notifications.showError('fiscal_returns.modified_on_required');
-      return;
-    }
-    this.run(kind, month, 'download', () =>
-      this.returns.download(kind, this.year(), month, options),
-      (blob) => {
-        saveFile({ blob, fileName: returnFileName(kind, this.year(), month) });
+  download(kind: string, month: number): void {
+    this.run(
+      kind,
+      month,
+      'download',
+      () => this.returns.download(kind, this.year(), month, this.optionsOf(kind)),
+      ({ blob, fileName }) => {
+        saveFile({ blob, fileName });
         this.load();
       },
       'fiscal_returns.download_failed',
     );
   }
 
-  check(kind: TrackedReturn, month: number): void {
+  // ── The options a filing declares ──────────────────────────────────────────
+
+  /** What this filing's options are set to, by the authority's own names for them. */
+  optionsOf(code: string): Record<string, string> {
+    const values = this.optionValues();
+    return Object.fromEntries(
+      this.optionsFor(code)
+        .map((option) => [option.name, values[`${code}.${option.name}`] ?? ''])
+        .filter(([, value]) => value),
+    );
+  }
+
+  /** The name of a filing, as its own market calls it. */
+  labelOf(code: string): string {
+    return this.available().find((filing) => filing.code === code)?.labelKey ?? code;
+  }
+
+  /** What a filing asks for beyond the period, as its market declares it. */
+  optionsFor(code: string): readonly ReturnFilingOption[] {
+    return this.available().find((filing) => filing.code === code)?.options ?? [];
+  }
+
+  /**
+   * The catalogue key for one of an option's published values.
+   *
+   * The authority writes its codes in upper case (`AF`, `C`); a catalogue leaf is lower case, as
+   * every composed family in this product is.
+   */
+  optionValueLabel(option: ReturnFilingOption, value: string): string {
+    return `${option.labelKey}.${value.toLowerCase()}`;
+  }
+
+  optionValue(code: string, option: ReturnFilingOption): string {
+    return this.optionValues()[`${code}.${option.name}`] ?? '';
+  }
+
+  setOption(code: string, option: ReturnFilingOption, value: string): void {
+    this.optionValues.update((values) => ({ ...values, [`${code}.${option.name}`]: value }));
+  }
+
+  requestMonth(code: string): number {
+    return this.requestMonths()[code] ?? this.today.getMonth() + 1;
+  }
+
+  setRequestMonth(code: string, month: number): void {
+    this.requestMonths.update((months) => ({ ...months, [code]: Number(month) }));
+  }
+
+  /** An on-request filing: its own month and its own options, with no cell in the calendar. */
+  downloadOnRequest(code: string): void {
+    const month = this.requestMonth(code);
+    this.run(
+      code,
+      month,
+      'download',
+      () => this.returns.download(code, this.year(), month, this.optionsOf(code)),
+      ({ blob, fileName }) => saveFile({ blob, fileName }),
+      'fiscal_returns.download_failed',
+    );
+  }
+
+  check(kind: string, month: number): void {
     this.run(kind, month, 'check', () => this.returns.check(kind, this.year(), month), (filing) => {
       this.replace(filing);
       this.notifications.showInfo(
@@ -282,7 +342,7 @@ export class FiscalReturnsPage implements OnInit {
     }, 'fiscal_returns.check_failed');
   }
 
-  async markSubmitted(kind: TrackedReturn, month: number): Promise<void> {
+  async markSubmitted(kind: string, month: number): Promise<void> {
     const reference = await this.dialog.prompt({
       title: 'fiscal_returns.submit_title',
       message: 'fiscal_returns.submit_message',
@@ -299,7 +359,7 @@ export class FiscalReturnsPage implements OnInit {
     }, 'fiscal_returns.submit_failed');
   }
 
-  async clearSubmission(kind: TrackedReturn, month: number): Promise<void> {
+  async clearSubmission(kind: string, month: number): Promise<void> {
     const confirmed = await this.dialog.confirm({
       title: 'fiscal_returns.clear_title',
       message: 'fiscal_returns.clear_message',
@@ -312,24 +372,6 @@ export class FiscalReturnsPage implements OnInit {
       this.replace(filing);
       this.notifications.showInfo('fiscal_returns.cleared');
     }, 'fiscal_returns.clear_failed');
-  }
-
-  downloadPolizas(): void {
-    const request = this.polizasRequest();
-    const reference = this.polizasReference().trim();
-    if (!reference) {
-      this.notifications.showError('fiscal_returns.polizas_reference_required');
-      return;
-    }
-    // The audits (AF, FC) answer an order number; a refund (DE) or an offset (CO), a procedure.
-    const options: SatDocumentOptions =
-      request === 'AF' || request === 'FC'
-        ? { tipoSolicitud: request, numOrden: reference }
-        : { tipoSolicitud: request, numTramite: reference };
-    const month = Number(this.polizasMonth());
-    this.run('polizas', month, 'download', () => this.returns.download('polizas', this.year(), month, options), (blob) =>
-      saveFile({ blob, fileName: returnFileName('polizas', this.year(), month) }),
-    'fiscal_returns.download_failed');
   }
 
   private replace(filing: FiscalReturnFiling): void {

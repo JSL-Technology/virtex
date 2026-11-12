@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
-import { ComplianceService } from './compliance.service';
-import { Invoice } from '../invoices/entities/invoice.entity';
+import { ReturnsService } from './returns/returns.service';
+import { ReturnDatasetFactory } from './returns/return-dataset';
 import { createTestOrganization, describeWithDb, dropTestOrganization, openTestDataSource } from '../common/database/testing/integration-db';
 
 /**
@@ -12,7 +12,7 @@ import { createTestOrganization, describeWithDb, dropTestOrganization, openTestD
 describeWithDb('607 / 608 include the tills, against the real schema', () => {
   let ds: DataSource;
   let organizationId: string;
-  let service: ComplianceService;
+  let returns: ReturnsService;
 
   beforeAll(async () => {
     ds = await openTestDataSource();
@@ -36,25 +36,26 @@ describeWithDb('607 / 608 include the tills, against the real schema', () => {
     await sale('B0200000101', 'PAID', null);
     await sale('B0200000102', 'CANCELLED', 'QA error de digitación');
 
-    service = new ComplianceService(
-      ds.getRepository(Invoice),
-      // By entity name: the classes belong to other modules (verify:boundaries).
+    returns = new ReturnsService(
+      // By entity name: the class belongs to another module (verify:boundaries).
       ds.getRepository('Organization'),
-      ds,
-      {} as never, // AccountBalancesService: not used by the 607/608
-      {} as never, // PurchaseFiscalRecordsRegistry: not used by the 607/608
+      new ReturnDatasetFactory(
+        ds,
+        {} as never, // AccountBalancesService: a sales return reads no ledger
+        {} as never, // PurchaseFiscalRecordsRegistry: nor any purchase
+      ),
     );
   });
 
   afterAll(() => dropTestOrganization(ds, organizationId));
 
   it('the 607 is generated and declares the paid ticket', async () => {
-    const report = await service.generate607Report(organizationId, 2026, 10);
+    const report = (await returns.generate(organizationId, '607', { year: 2026, month: 10 })).body;
     expect(report).toContain('B0200000101');
   });
 
   it('the 608 is generated and declares the voided ticket', async () => {
-    const report = await service.generate608Report(organizationId, 2026, 10);
+    const report = (await returns.generate(organizationId, '608', { year: 2026, month: 10 })).body;
     expect(report).toContain('B0200000102');
     expect(report).not.toContain('B0200000101');
   });

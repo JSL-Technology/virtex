@@ -1,8 +1,9 @@
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ComplianceService } from './compliance.service';
 import { ComplianceController } from './compliance.controller';
+import { ReturnsService } from './returns/returns.service';
+import { ReturnDatasetFactory } from './returns/return-dataset';
 import { FiscalReportFiling } from './entities/fiscal-report-filing.entity';
 import { FiscalReportFilingsService } from './fiscal-report-filings.service';
 import { Invoice } from '../invoices/entities/invoice.entity';
@@ -17,7 +18,7 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
   imports: [
     // Reading and exporting financial data is recorded; the interceptor lives in AuditModule.
     AuditModule,
-    // The 606 and 609 read purchases through `PurchaseFiscalRecordsRegistry` (ContractsModule,
+    // A purchases return reads purchases through `PurchaseFiscalRecordsRegistry` (ContractsModule,
     // global), not by registering Purchasing's entities here.
     TypeOrmModule.forFeature([
       Invoice,
@@ -25,13 +26,14 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
       FiscalReportFiling,
     ]),
     AuthModule,
-    // Mexico's electronic accounting reads the ledger through the same service the balance sheet
-    // does, so the filing and the statements cannot disagree.
+    // A bookkeeping filing reads the ledger through the same service the balance sheet does, so
+    // the file and the statements cannot disagree.
     ChartOfAccountsModule,
   ],
 
   controllers: [ComplianceController],
-  providers: [ComplianceService, FiscalReportFilingsService],
-  exports: [ComplianceService],
+  providers: [ReturnsService, ReturnDatasetFactory, FiscalReportFilingsService],
+  // The engine that builds any market's return, for a caller that needs one outside HTTP.
+  exports: [ReturnsService],
 })
 export class ComplianceModule {}

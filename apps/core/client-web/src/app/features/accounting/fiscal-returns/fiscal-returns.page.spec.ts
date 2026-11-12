@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { of } from 'rxjs';
 import { FiscalReturnsPage } from './fiscal-returns.page';
-import { FiscalReturnFiling, FiscalReturnsService, returnFileName } from '../data/fiscal-returns.service';
+import { FiscalReturnFiling, FiscalReturnsService, ReturnFiling } from '../data/fiscal-returns.service';
 import { signal } from '@angular/core';
 import { CountryPackService } from '../../../core/api/country-pack.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -26,6 +26,7 @@ describe('FiscalReturnsPage', () => {
   });
 
   let service: {
+    available: jest.Mock;
     filings: jest.Mock;
     activeSince: jest.Mock;
     download: jest.Mock;
@@ -33,6 +34,57 @@ describe('FiscalReturnsPage', () => {
     markSubmitted: jest.Mock;
     clearSubmission: jest.Mock;
   };
+
+  /** What a market declares it files, as the server answers it. */
+  const declared = (overrides: Partial<ReturnFiling> = {}): ReturnFiling => ({
+    code: '606',
+    labelKey: 'returns.do.606',
+    periodicity: 'MONTHLY',
+    mediaType: 'text/plain; charset=utf-8',
+    extension: 'txt',
+    tracked: true,
+    options: [],
+    ...overrides,
+  });
+
+  const DGII: readonly ReturnFiling[] = ['606', '607', '608', '609'].map((code) =>
+    declared({ code, labelKey: `returns.do.${code}` }),
+  );
+
+  const SAT: readonly ReturnFiling[] = [
+    declared({ code: 'catalogo', labelKey: 'returns.mx.catalogo', mediaType: 'application/xml', extension: 'xml' }),
+    declared({
+      code: 'balanza',
+      labelKey: 'returns.mx.balanza',
+      mediaType: 'application/xml',
+      extension: 'xml',
+      options: [
+        { name: 'tipoEnvio', labelKey: 'returns.mx.option.tipo_envio', kind: 'CHOICE', values: ['N', 'C'], required: false },
+        { name: 'fechaModBal', labelKey: 'returns.mx.option.fecha_mod_bal', kind: 'DATE', required: false },
+      ],
+    }),
+    declared({
+      code: 'polizas',
+      labelKey: 'returns.mx.polizas',
+      periodicity: 'ON_REQUEST',
+      tracked: false,
+      mediaType: 'application/xml',
+      extension: 'xml',
+      options: [
+        {
+          name: 'tipoSolicitud',
+          labelKey: 'returns.mx.option.tipo_solicitud',
+          kind: 'CHOICE',
+          values: ['AF', 'FC', 'DE', 'CO'],
+          required: false,
+        },
+        { name: 'numOrden', labelKey: 'returns.mx.option.num_orden', kind: 'TEXT', required: false },
+        { name: 'numTramite', labelKey: 'returns.mx.option.num_tramite', kind: 'TEXT', required: false },
+      ],
+    }),
+  ];
+
+  const FILES: Record<string, readonly ReturnFiling[]> = { DO: DGII, MX: SAT, CO: [], US: [] };
   let dialog: { prompt: jest.Mock; confirm: jest.Mock };
 
   /** The slice of the country pack this page reads (QA C-06): its return generator and due day. */
@@ -50,9 +102,10 @@ describe('FiscalReturnsPage', () => {
     activeSince = '2020-01-01',
   ) {
     service = {
+      available: jest.fn().mockReturnValue(of(FILES[country])),
       filings: jest.fn().mockReturnValue(of(rows)),
       activeSince: jest.fn().mockReturnValue(of({ activeSince })),
-      download: jest.fn().mockReturnValue(of(new Blob(['x']))),
+      download: jest.fn().mockReturnValue(of({ blob: new Blob(['x']), fileName: 'DGII_606_202503.txt' })),
       check: jest.fn(),
       markSubmitted: jest.fn(),
       clearSubmission: jest.fn(),
@@ -87,28 +140,28 @@ describe('FiscalReturnsPage', () => {
     return { page: fixture.componentInstance, fixture };
   }
 
-  it('shows the DGII formats for a Dominican company and loads the year', () => {
+  it('shows what the market declares it files, in its own order, and loads the year', () => {
     const { page } = create('DO');
-    expect(page.market()).toBe('DO');
-    expect(page.kinds()).toEqual(['606', '607', '608', '609']);
+    expect(page.kinds().map((filing) => filing.code)).toEqual(['606', '607', '608', '609']);
     expect(service.filings).toHaveBeenCalledWith(new Date().getFullYear());
   });
 
-  it('shows the SAT monthly documents for a Mexican company', () => {
+  it('puts the monthly documents in the calendar and the on-request one in its own panel', () => {
     const { page } = create('MX');
-    expect(page.kinds()).toEqual(['catalogo', 'balanza']);
+    expect(page.kinds().map((filing) => filing.code)).toEqual(['catalogo', 'balanza']);
+    expect(page.onRequest().map((filing) => filing.code)).toEqual(['polizas']);
   });
 
-  it('says so, rather than showing an empty calendar, in a market without returns', () => {
+  it('says so, rather than showing an empty calendar, in a market that files nothing from here', () => {
     const { page } = create('CO');
-    expect(page.market()).toBe('OTHER');
+    expect(page.filesNothing()).toBe(true);
     expect(page.empty()).toBe(true);
     expect(service.filings).not.toHaveBeenCalled();
   });
 
   it('offers the reports to prepare with, naming the country, where no generator exists (C-06)', () => {
     const { page, fixture } = create('US');
-    expect(page.market()).toBe('OTHER');
+    expect(page.filesNothing()).toBe(true);
     expect(page.prepareWith().map((report) => report.route)).toEqual(['/reports/financial-statements/trial-balance']);
     fixture.detectChanges();
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
@@ -180,37 +233,53 @@ describe('FiscalReturnsPage', () => {
     expect(service.markSubmitted).not.toHaveBeenCalled();
   });
 
-  it('downloads the complementary balanza with its modification date, and refuses one without', () => {
+  it('sends each filing the options its own market declared, and only those', () => {
     const { page } = create('MX');
     page.setYear(2025);
     page.select('balanza', 2);
-    page.complementary.set(true);
 
+    // Nothing typed: the file is asked for as the authority publishes it.
     page.download('balanza', 2);
-    expect(service.download).not.toHaveBeenCalled();
+    expect(service.download).toHaveBeenLastCalledWith('balanza', 2025, 2, {});
 
-    page.modifiedOn.set('2025-04-02');
+    const [tipoEnvio, fechaModBal] = page.optionsFor('balanza');
+    page.setOption('balanza', tipoEnvio, 'C');
+    page.setOption('balanza', fechaModBal, '2025-04-02');
     page.download('balanza', 2);
-    expect(service.download).toHaveBeenCalledWith('balanza', 2025, 2, { tipoEnvio: 'C', fechaModBal: '2025-04-02' });
+    expect(service.download).toHaveBeenLastCalledWith('balanza', 2025, 2, { tipoEnvio: 'C', fechaModBal: '2025-04-02' });
+
+    // Another cell, another filing: what was typed for the last one is not carried over.
+    page.select('catalogo', 2);
+    expect(page.optionsOf('balanza')).toEqual({});
   });
 
-  it('sends the order number for an audit and the procedure number for an offset', () => {
+  it('asks for an on-request filing by its own month and options', () => {
     const { page } = create('MX');
     page.setYear(2025);
-    page.polizasMonth.set(5);
-    page.polizasReference.set('ABC1234567/25');
+    page.setRequestMonth('polizas', 5);
+    const [request, order] = page.optionsFor('polizas');
+    page.setOption('polizas', request, 'FC');
+    page.setOption('polizas', order, 'ABC1234567/25');
 
-    page.polizasRequest.set('FC');
-    page.downloadPolizas();
-    expect(service.download).toHaveBeenLastCalledWith('polizas', 2025, 5, { tipoSolicitud: 'FC', numOrden: 'ABC1234567/25' });
+    page.downloadOnRequest('polizas');
 
-    page.polizasRequest.set('CO');
-    page.downloadPolizas();
-    expect(service.download).toHaveBeenLastCalledWith('polizas', 2025, 5, { tipoSolicitud: 'CO', numTramite: 'ABC1234567/25' });
+    expect(service.download).toHaveBeenLastCalledWith('polizas', 2025, 5, {
+      tipoSolicitud: 'FC',
+      numOrden: 'ABC1234567/25',
+    });
   });
 
-  it('names the files the way each authority expects them', () => {
-    expect(returnFileName('606', 2026, 8)).toBe('DGII_606_202608.txt');
-    expect(returnFileName('balanza', 2026, 8)).toBe('SAT_balanza_202608.xml');
+  it('saves the file under the name its authority gave it', () => {
+    const { page } = create('DO', [filing()]);
+    page.setYear(2025);
+    service.download.mockReturnValue(of({ blob: new Blob(['x']), fileName: 'DGII_606_202503.txt' }));
+    page.download('606', 3);
+    // The name travels with the file: how a return is called is its authority's convention.
+    expect(service.download).toHaveBeenCalledWith('606', 2025, 3, {});
+  });
+
+  it('names a filing by the label its own market declares', () => {
+    const { page } = create('MX');
+    expect(page.labelOf('balanza')).toBe('returns.mx.balanza');
   });
 });
