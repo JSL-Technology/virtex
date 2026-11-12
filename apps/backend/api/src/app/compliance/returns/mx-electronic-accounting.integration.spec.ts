@@ -25,7 +25,6 @@ import { AuditTrailService } from '../../audit/audit.service';
 import { AuditLog } from '../../audit/entities/audit-log.entity';
 import { AccountBalancesService } from '../../chart-of-accounts/account-balances.service';
 import { CreateJournalEntryDto } from '../../journal-entries/dto/create-journal-entry.dto';
-import { Organization as OrganizationEntity } from '../../organizations/entities/organization.entity';
 import { PurchaseFiscalRecordsRegistry } from '../../contracts/fiscal-records/purchase-fiscal-records.registry';
 import { ReturnDatasetFactory } from './return-dataset';
 import { ReturnsService } from './returns.service';
@@ -81,7 +80,8 @@ describeWithDb('Mexican electronic accounting', () => {
       }),
     } as unknown as PurchaseFiscalRecordsRegistry;
     returns = new ReturnsService(
-      dataSource.getRepository(OrganizationEntity),
+      // By entity name: the class belongs to another module (verify:boundaries).
+      dataSource.getRepository('Organization'),
       new ReturnDatasetFactory(dataSource, balances, purchases),
     );
     entries = new JournalEntriesService(

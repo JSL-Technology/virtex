@@ -456,6 +456,31 @@ cuando audita o devuelve, y un campo por cada dato declarado —`CHOICE` con sus
 `DATE`, texto—. Llevaba la lista dentro (los cuatro formatos dominicanos, los tres documentos
 mexicanos y un `switch` entre ellos), así que un mercado nuevo no declaraba nada hasta editarla.
 
+### 2.13 Nómina
+
+La nómina de un país es su ley: cuántos fondos hay, sobre qué base se calcula cada uno, qué tope y
+qué piso tiene, qué reduce la base del impuesto y cómo se grava el sueldo. El producto tenía esas
+reglas en un módulo propio (`jurisdictions/`) con una clase dominicana y un registro que las listaba
+a mano —el único lugar que sabía qué países existen—, y la moneda del período era `'DOP'` para
+todos: una nómina mexicana se guardaba en pesos dominicanos, y cada importe de la boleta, del mayor
+y de la declaración llevaba una moneda que nadie había elegido.
+
+Ahora:
+
+- el vocabulario del motor vive en el contrato del mercado (`markets/contracts/payroll.ts`):
+  `PayrollEngine`, los parámetros resueltos de un período, las bases que entran y el resultado que
+  sale, con los catálogos de contribuciones y los identificadores estatutarios que cada mercado
+  declara;
+- el motor dominicano vive en su paquete (`markets/do/payroll/`), como cualquier otra capacidad de
+  ese mercado, y sigue siendo **puro**: una función de `(bases, parámetros)`, con las tasas llegando
+  como datos versionados, que es lo que hace reproducible una boleta desde su propia foto;
+- el núcleo lo alcanza por el registro (`payrollEngineFor`, `computesPayroll`) y un mercado sin motor
+  **rechaza** la nómina en vez de calcularla con la ley de otro país;
+- la moneda del período es la del mercado cuya ley sigue la nómina (`profile.currency`).
+
+El módulo `jurisdictions/` desaparece: existía para romper un ciclo entre nómina y RR. HH., y un
+paquete de mercado no depende de ningún módulo del producto, así que no hay ciclo que romper.
+
 ## 3. Cómo se agrega o se completa un mercado
 
 1. Copiar el paquete de un mercado con la misma cobertura y responder cada archivo. Por ejemplo,
@@ -524,7 +549,7 @@ eso se resuelve en el contrato, no con una rama.
 | 3 | Facturación electrónica: DO entra al buzón único (`fiscal_submissions`); los constructores quedan como adaptadores de régimen con un solo contrato; `ecf_lifecycle_messages` → `fiscal_document_events`; las variables `DGII_*` pasan a la configuración de transmisión del tenant | ✅ La DGII es un adaptador (`regimes/do/`), una sola tabla de envíos, un solo reconciliador, un solo estado y una sola pantalla; fuera la expresión regular del e-NCF de la entidad genérica; el canal lo declara cada régimen; `fiscal_document_events` con el veredicto como hecho y el código escrito por el mercado; los siete regímenes referencian el documento que la nota corrige, con el código del catálogo de su clase, y AFIP escribe el número que autoriza; ninguna variable del proceso decide el canal de un inquilino, en ningún régimen (§2.11) |
 | 4 | Compras: columnas neutrales y `fiscal_attributes` en `vendor_bills` con migración de datos; validación del documento recibido por el mercado; formulario dinámico | ✅ Columnas neutrales con migración exacta en los dos sentidos, `fiscal_attributes` validado contra la declaración del mercado, documento del proveedor comprobado por la regla de cada mercado, método de pago de la empresa en lugar de la «forma de pago» de una autoridad, formulario y ficha dibujados desde el paquete público del mercado (§2.10) |
 | 5 | Declaraciones: registro de generadores; 606/607/608 y la contabilidad electrónica de MX como generadores de mercado sobre conjuntos de datos neutrales; API y pantalla genéricas | ✅ `ReturnDataset` con los hechos del período y `MarketReturnFiling` por mercado; los cuatro formatos de la DGII en `markets/do/returns/` y los tres documentos del SAT en `markets/mx/returns/`; una ruta (`/compliance/returns`), un calendario y un formulario de datos declarados; el motivo del rechazo lo devuelve el generador y el conteo de registros también (§2.12) |
-| 6 | Nómina: motor dominicano a `markets/do/payroll/`, registro de motores y sin `'DOP'` por omisión | ⏳ |
+| 6 | Nómina: motor dominicano a `markets/do/payroll/`, registro de motores y sin `'DOP'` por omisión | ✅ `PayrollEngine` en el contrato del mercado, motor dominicano en `markets/do/payroll/`, el núcleo lo alcanza por el registro y rechaza la nómina de un mercado sin motor; la moneda del período es la del mercado; fuera el módulo `jurisdictions/` (§2.13) |
 | 7 | Cliente: sin ramas por país; pantallas guiadas por la definición pública del mercado | ⏳ |
 | 8 | Textos: base neutral y parches regionales para los 19 mercados, con prueba de completitud | ⏳ |
 | 9 | Puerta de neutralidad en cero, con la lista permitida reducida a `markets/`, parches regionales y migraciones | ⏳ |

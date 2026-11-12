@@ -1,6 +1,6 @@
 import { PayrollCalculationService, RunPeriod } from './payroll-calculation.service';
-import { DO_CONTRIBUTION as C, DominicanRepublicStrategy } from '../../jurisdictions/dominican-republic.strategy';
-import { ResolvedParameters } from '../../jurisdictions/jurisdiction-strategy.interface';
+import { DO_CONTRIBUTION as C, DominicanPayrollEngine } from '../../markets/do/payroll/index';
+import { ResolvedParameters } from '../../markets/contracts';
 import { ConceptCalculation, ConceptType } from '../entities/payroll-concept.entity';
 import { PayslipLineKind } from '../entities/payslip-line.entity';
 import { ContributionBase } from '../entities/statutory-contribution.entity';
@@ -12,7 +12,7 @@ const ee = (slip: ComputedPayslip, code: string) =>
 
 describe('PayrollCalculationService', () => {
   const service = new PayrollCalculationService();
-  const strategy = new DominicanRepublicStrategy();
+  const strategy = new DominicanPayrollEngine();
   const period: RunPeriod = { countryCode: 'DO', periodStart: '2026-01-01', periodEnd: '2026-01-31' };
 
   const params: ResolvedParameters = {

@@ -78,6 +78,8 @@ const CONCEPTS: readonly PayrollConceptSeed[] = [
 /** United States: the company keeps its rates, starting from the federal defaults above. */
 export const payroll: MarketPayroll = {
   statutoryParameters: 'COMPANY',
+  // No engine: a payroll run is refused here rather than computed under another country's law.
+  engine: null,
   parameters: PARAMETERS,
   concepts: CONCEPTS,
   coverage: notImplemented(),

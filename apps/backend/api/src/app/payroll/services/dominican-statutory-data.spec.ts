@@ -3,8 +3,8 @@ import { PayrollParametersService } from './payroll-parameters.service';
 import { StatutoryContribution } from '../entities/statutory-contribution.entity';
 import { IncomeTaxBracket } from '../entities/income-tax-bracket.entity';
 import { StatutoryReference } from '../entities/statutory-reference.entity';
-import { DO_CONTRIBUTION as C, DominicanRepublicStrategy } from '../../jurisdictions/dominican-republic.strategy';
-import { StatutoryResult } from '../../jurisdictions/jurisdiction-strategy.interface';
+import { DO_CONTRIBUTION as C, DominicanPayrollEngine } from '../../markets/do/payroll/index';
+import { StatutoryResult } from '../../markets/contracts';
 
 const ee = (r: StatutoryResult, code: string) => r.contributions.find((c) => c.code === code)?.employeeAmount ?? 0;
 const er = (r: StatutoryResult, code: string) => r.contributions.find((c) => c.code === code)?.employerAmount ?? 0;
@@ -48,7 +48,7 @@ describeWithDb('Dominican statutory data as seeded', () => {
 
   it('caps AFP at 20 × the January 2026 figure, as the audit worked it (433,496)', async () => {
     const params = await parameters.resolve('DO', '2026-01-31');
-    const r = new DominicanRepublicStrategy().computeStatutory(
+    const r = new DominicanPayrollEngine().computeStatutory(
       { contributoryBase: 600000, taxableEarnings: 600000 },
       params,
     );
@@ -65,7 +65,7 @@ describeWithDb('Dominican statutory data as seeded', () => {
 
   it('caps SFS, AFP and SRL at 10, 20 and 4 times it', async () => {
     const params = await parameters.resolve('DO', '2026-08-31');
-    const r = new DominicanRepublicStrategy().computeStatutory(
+    const r = new DominicanPayrollEngine().computeStatutory(
       { contributoryBase: 150000, taxableEarnings: 150000 },
       params,
     );
@@ -78,7 +78,7 @@ describeWithDb('Dominican statutory data as seeded', () => {
 
   it('withholds nothing from the salario de Navidad (NOM-03)', async () => {
     const params = await parameters.resolve('DO', '2026-12-15');
-    const bonus = new DominicanRepublicStrategy().computeBonus({ bonusAmount: 30000 } as never, params);
+    const bonus = new DominicanPayrollEngine().computeBonus({ bonusAmount: 30000 } as never, params);
     expect(bonus.contributions).toEqual([]);
     expect(bonus.net).toBe(30000);
   });

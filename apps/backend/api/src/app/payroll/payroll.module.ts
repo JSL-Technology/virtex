@@ -16,7 +16,6 @@ import { IncomeTaxBracket } from './entities/income-tax-bracket.entity';
 import { StatutoryReference } from './entities/statutory-reference.entity';
 import { CompanyPayrollParameter } from './entities/company-payroll-parameter.entity';
 import { CompanyPayrollParametersService } from './services/company-payroll-parameters.service';
-import { JurisdictionsModule } from '../jurisdictions/jurisdictions.module';
 import { PayrollParametersService } from './services/payroll-parameters.service';
 import { PayrollParametersAdminService } from './services/payroll-parameters-admin.service';
 import { PayrollCalculationService } from './services/payroll-calculation.service';
@@ -57,7 +56,6 @@ import { PayrollController } from './payroll.controller';
     AuditModule,
     // The registry moved to a leaf so HCM can read a country's statutory identifiers without
     // importing all of payroll. Re-imported here so payroll's own consumers are unchanged.
-    JurisdictionsModule,
   ],
   controllers: [PayrollController],
   providers: [

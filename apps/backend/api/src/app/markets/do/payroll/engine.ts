@@ -1,16 +1,16 @@
-import { roundAmount } from '../common/money';
-import { ContributionBase } from './contribution-regime';
 import {
   BonusInput,
   BonusResult,
+  ContributionBase,
   ContributionConcept,
   ContributionResult,
-  PayrollJurisdictionStrategy,
+  PayrollEngine,
   ResolvedParameters,
   StatutoryIdentifierSpec,
   StatutoryInput,
   StatutoryResult,
-} from './jurisdiction-strategy.interface';
+} from '../../contracts';
+import { roundAmount } from '../../kit/money';
 
 /**
  * Dominican Republic payroll — SDSS contributions and DGII salaried income tax.
@@ -39,7 +39,7 @@ export const DO_CONTRIBUTION = Object.freeze({
   INFOTEP: 'INFOTEP',
 } as const);
 
-export class DominicanRepublicStrategy implements PayrollJurisdictionStrategy {
+export class DominicanPayrollEngine implements PayrollEngine {
   readonly countryCode = 'DO';
 
   /**

@@ -2,7 +2,6 @@ import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { ReturnsService } from './returns.service';
 import { GenerateReturnQueryDto, returnOptionsOf } from '../dto/return-query.dto';
-import type { Organization } from '../../organizations/entities/organization.entity';
 
 /**
  * The door every market's returns go through.
@@ -14,7 +13,7 @@ import type { Organization } from '../../organizations/entities/organization.ent
 describe('ReturnsService — one door for every market', () => {
   const organizationOf = (country: string) =>
     ({
-      findOne: jest.fn().mockResolvedValue({ id: 'org-1', country, taxId: '131190317', legalName: 'QA', fiscalProfile: {} } as Organization),
+      findOne: jest.fn().mockResolvedValue({ id: 'org-1', country, taxId: '131190317', legalName: 'QA', fiscalProfile: {} }),
     }) as never;
 
   const datasets = {

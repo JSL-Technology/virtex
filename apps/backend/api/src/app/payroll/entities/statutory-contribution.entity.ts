@@ -10,7 +10,7 @@ import { numericTransformer, numericTransformerNotNull } from '../../common/data
 // The base vocabulary lives with the jurisdiction strategies that define a country's statutory
 // rules, so the jurisdictions module needs no import of payroll. Re-exported here so the payroll
 // files that read it off the versioned rate table keep their import path.
-import { ContributionBase } from '../../jurisdictions/contribution-regime';
+import { ContributionBase } from '../../markets/contracts';
 
 export { ContributionBase };
 

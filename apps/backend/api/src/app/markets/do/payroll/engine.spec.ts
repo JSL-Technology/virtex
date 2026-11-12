@@ -1,6 +1,5 @@
-import { DO_CONTRIBUTION as C, DominicanRepublicStrategy } from './dominican-republic.strategy';
-import { ResolvedParameters, StatutoryResult } from './jurisdiction-strategy.interface';
-import { ContributionBase } from './contribution-regime';
+import { DO_CONTRIBUTION as C, DominicanPayrollEngine } from './index';
+import { ContributionBase, ResolvedParameters, StatutoryResult } from '../../contracts';
 
 /** One fund's share, by its code — the result is a list, not one column per Dominican fund. */
 const ee = (r: StatutoryResult, code: string) => r.contributions.find((c) => c.code === code)?.employeeAmount ?? 0;
@@ -12,8 +11,8 @@ const er = (r: StatutoryResult, code: string) => r.contributions.find((c) => c.c
  * The parameters are built explicitly (not read from the seed) so each case is deterministic and a
  * rate change in the seed never silently moves an assertion here.
  */
-describe('DominicanRepublicStrategy', () => {
-  const strategy = new DominicanRepublicStrategy();
+describe('DominicanPayrollEngine', () => {
+  const strategy = new DominicanPayrollEngine();
 
   const params: ResolvedParameters = {
     countryCode: 'DO',

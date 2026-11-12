@@ -21,7 +21,7 @@ import { Payslip } from '../entities/payslip.entity';
 import { PayslipLine } from '../entities/payslip-line.entity';
 import { PayrollConcept } from '../entities/payroll-concept.entity';
 import { PayrollInput } from '../entities/payroll-input.entity';
-import { JurisdictionRegistry } from '../../jurisdictions/jurisdiction-registry';
+import { computesPayroll, payrollEngineFor, marketFor } from '../../markets';
 import { TenantCountryResolver } from '../../shared/tenancy/tenant-country.resolver';
 import { PayrollParametersService } from './payroll-parameters.service';
 import {
@@ -101,7 +101,6 @@ export class PayrollRunService {
     private readonly dataSource: DataSource,
     private readonly parameters: PayrollParametersService,
     private readonly calculation: PayrollCalculationService,
-    private readonly registry: JurisdictionRegistry,
     private readonly tenantCountry: TenantCountryResolver,
     private readonly accounting: PayrollAccountingService,
     private readonly severance: SeveranceService,
@@ -182,7 +181,7 @@ export class PayrollRunService {
     if (country !== tenantCountry) {
       throw new BadRequestError('payroll.run_country_not_tenant_country', { p1: country, p2: tenantCountry });
     }
-    if (!this.registry.supports(country)) {
+    if (!computesPayroll(country)) {
       throw new BadRequestError('payroll.payroll_jurisdiction_p1_not_supported', { p1: country });
     }
     if (input.periodMonth < 1 || input.periodMonth > 12) {
@@ -229,7 +228,10 @@ export class PayrollRunService {
       runType,
       correctsRunId: input.correctsRunId ?? null,
       status: PayrollRunStatus.DRAFT,
-      currencyCode: 'DOP',
+      // The currency the country's wages are paid and filed in, from its own market package.
+      // `'DOP'` stood here: a Mexican run was stored in pesos dominicanos, and every amount on the
+      // payslip, in the ledger and in the filing carried a currency nobody had chosen.
+      currencyCode: payrollCurrency(country),
     });
     try {
       return await this.runs.save(run);
@@ -287,7 +289,10 @@ export class PayrollRunService {
     const run = await this.findRun(runId, organizationId);
     this.assertEditable(run);
 
-    const strategy = this.registry.forCountry(run.countryCode);
+    const strategy = payrollEngineFor(run.countryCode);
+    if (!strategy) {
+      throw new BadRequestError('payroll.payroll_jurisdiction_p1_not_supported', { p1: run.countryCode });
+    }
     const params = await this.parameters.resolve(run.countryCode, run.periodEnd);
 
     // Concept catalogue and the run's variable inputs, loaded once and shared across employees.
@@ -879,4 +884,18 @@ export class PayrollRunService {
     );
     await em.save(lines);
   }
+}
+
+/**
+ * The currency a country's payroll is paid and filed in: its market's own.
+ *
+ * A market whose payroll the product does not compute never reaches this — the run is refused when
+ * it is created — and one it does compute has a package, so there is no currency to invent here.
+ */
+function payrollCurrency(countryCode: string): string {
+  const currency = marketFor(countryCode).profile?.currency;
+  if (!currency) {
+    throw new BadRequestError('payroll.payroll_jurisdiction_p1_not_supported', { p1: countryCode });
+  }
+  return currency;
 }

@@ -6,9 +6,9 @@ import { ConceptCalculation, ConceptType } from '../entities/payroll-concept.ent
 import { PayslipLineKind } from '../entities/payslip-line.entity';
 import {
   ContributionResult,
-  PayrollJurisdictionStrategy,
+  PayrollEngine,
   ResolvedParameters,
-} from '../../jurisdictions/jurisdiction-strategy.interface';
+} from '../../markets/contracts';
 import type { PayslipContribution } from '../entities/payslip.entity';
 
 /**
@@ -117,7 +117,7 @@ export class PayrollCalculationService {
     employee: EmployeeCalculationInput,
     period: RunPeriod,
     params: ResolvedParameters,
-    strategy: PayrollJurisdictionStrategy,
+    strategy: PayrollEngine,
   ): ComputedPayslip {
     const { baseDays, workedDays } = this.proration(employee, period);
     const factor = baseDays > 0 ? workedDays / baseDays : 0;
@@ -295,7 +295,7 @@ export class PayrollCalculationService {
     employee: EmployeeCalculationInput,
     bonusAmount: number,
     params: ResolvedParameters,
-    strategy: PayrollJurisdictionStrategy,
+    strategy: PayrollEngine,
   ): ComputedPayslip {
     const gross = roundAmount(Math.max(0, bonusAmount));
     const bonus = strategy.computeBonus({ bonusAmount: gross }, params);
@@ -469,7 +469,7 @@ export class PayrollCalculationService {
   }
 
   /** The payslip-line name of a contribution, from the country's own catalogue. */
-  private conceptName(strategy: PayrollJurisdictionStrategy, code: string): string {
+  private conceptName(strategy: PayrollEngine, code: string): string {
     return strategy.contributionConcepts.find((concept) => concept.code === code)?.name ?? code;
   }
 }

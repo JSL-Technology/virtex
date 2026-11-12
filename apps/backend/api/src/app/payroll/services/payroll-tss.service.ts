@@ -8,7 +8,10 @@ import { Employee } from '../../hcm/entities/employee.entity';
 import { EmployeeCompensation } from '../../hcm/entities/employee-compensation.entity';
 import { PayrollRun, PayrollRunStatus } from '../entities/payroll-run.entity';
 import { Payslip } from '../entities/payslip.entity';
-import { DO_CONTRIBUTION } from '../../jurisdictions/dominican-republic.strategy';
+
+// The fund codes are written where they are read: this whole service is the TSS's own filing, and
+// it moves into `markets/do/` with the rest of the Dominican declarations. A module of the core does
+// not reach into a market's package (docs/ARQUITECTURA_MERCADOS.md §2.4).
 
 export interface TssNovedad {
   type: 'ALTA' | 'BAJA' | 'CAMBIO_SALARIO';
@@ -146,12 +149,12 @@ export class PayrollTssService {
       employeeName: s.employeeName,
       salarioCotizable: s.contributoryBase,
       // The TSS columns are the Dominican funds, read from the payslip's contributions by code.
-      afpEmployee: share(s, DO_CONTRIBUTION.AFP, 'employeeAmount'),
-      afpEmployer: share(s, DO_CONTRIBUTION.AFP, 'employerAmount'),
-      sfsEmployee: share(s, DO_CONTRIBUTION.SFS, 'employeeAmount'),
-      sfsEmployer: share(s, DO_CONTRIBUTION.SFS, 'employerAmount'),
-      srlEmployer: share(s, DO_CONTRIBUTION.SRL, 'employerAmount'),
-      infotepEmployer: share(s, DO_CONTRIBUTION.INFOTEP, 'employerAmount'),
+      afpEmployee: share(s, 'AFP', 'employeeAmount'),
+      afpEmployer: share(s, 'AFP', 'employerAmount'),
+      sfsEmployee: share(s, 'SFS', 'employeeAmount'),
+      sfsEmployer: share(s, 'SFS', 'employerAmount'),
+      srlEmployer: share(s, 'SRL', 'employerAmount'),
+      infotepEmployer: share(s, 'INFOTEP', 'employerAmount'),
     }));
 
     return {

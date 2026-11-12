@@ -1,6 +1,7 @@
 // Market package — see docs/ARQUITECTURA_MERCADOS.md. Every market has these same files.
 import type { MarketPayroll, PayrollConceptSeed } from '../contracts';
 import { implemented } from '../kit/coverage';
+import { payrollEngine } from './payroll/index';
 
 /**
  * Payroll concepts for the Dominican engine — the only jurisdiction with a payroll strategy.
@@ -26,6 +27,7 @@ const CONCEPTS: readonly PayrollConceptSeed[] = [
 /** Dominican Republic: the platform keeps the statutory rates; the payroll engine computes them. */
 export const payroll: MarketPayroll = {
   statutoryParameters: 'PLATFORM',
+  engine: payrollEngine,
   parameters: [],
   concepts: CONCEPTS,
   coverage: implemented('SDSS (AFP, SFS, SRL), INFOTEP e ISR asalariados'),

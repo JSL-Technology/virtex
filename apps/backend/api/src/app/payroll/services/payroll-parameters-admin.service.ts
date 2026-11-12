@@ -5,7 +5,7 @@ import { toIsoDate } from '../../common/dates';
 import { StatutoryContribution } from '../entities/statutory-contribution.entity';
 import { IncomeTaxBracket } from '../entities/income-tax-bracket.entity';
 import { StatutoryReference } from '../entities/statutory-reference.entity';
-import { JurisdictionRegistry } from '../../jurisdictions/jurisdiction-registry';
+import { computesPayroll, payrollEngineFor } from '../../markets';
 import { BadRequestError } from '../../i18n/localized.exception';
 import {
   ReplaceTaxScaleDto,
@@ -37,7 +37,6 @@ export class PayrollParametersAdminService {
     @InjectRepository(IncomeTaxBracket)
     private readonly brackets: Repository<IncomeTaxBracket>,
     private readonly dataSource: DataSource,
-    private readonly jurisdictions: JurisdictionRegistry,
   ) {}
 
   listContributions(countryCode: string): Promise<StatutoryContribution[]> {
@@ -54,10 +53,12 @@ export class PayrollParametersAdminService {
    */
   listConcepts(countryCode: string): Array<{ code: string; labelKey: string; bucket: string }> {
     const country = countryCode.toUpperCase();
-    if (!this.jurisdictions.supports(country)) return [];
-    return this.jurisdictions
-      .forCountry(country)
-      .contributionConcepts.map(({ code, labelKey, bucket }) => ({ code, labelKey, bucket }));
+    if (!computesPayroll(country)) return [];
+    return (payrollEngineFor(country)?.contributionConcepts ?? []).map(({ code, labelKey, bucket }) => ({
+      code,
+      labelKey,
+      bucket,
+    }));
   }
 
   listReferences(countryCode: string): Promise<StatutoryReference[]> {
@@ -79,7 +80,7 @@ export class PayrollParametersAdminService {
     const effectiveFrom = toIsoDate(dto.effectiveFrom);
     // The code must be one the country's law levies (audit 2026-11-07, JUR-01). A country with no
     // strategy cannot run payroll, so there is nothing a rate for it could feed.
-    const concepts = this.jurisdictions.forCountry(country).contributionConcepts;
+    const concepts = payrollEngineFor(country)?.contributionConcepts ?? [];
     if (!concepts.some((concept) => concept.code === dto.code)) {
       throw new BadRequestError('payroll.contribution_code_not_in_catalogue', {
         code: dto.code,
