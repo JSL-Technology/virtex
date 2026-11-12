@@ -31,7 +31,7 @@ import {
 import { LocalizationService } from '../../apps/backend/api/src/app/localization/services/localization.service';
 import { SaasService } from '../../apps/backend/api/src/app/saas/saas.service';
 import { User } from '../../apps/backend/api/src/app/users/entities/user.entity/user.entity';
-import { findTaxScheme } from '../../apps/backend/api/src/app/localization/fiscal/country-tax-schemes';
+import { taxSchemeFor } from '../../apps/backend/api/src/app/markets';
 import { purgeProbeAccounts } from './probe-cleanup';
 
 /** A tax id that passes each country's real check-digit algorithm. */
@@ -159,7 +159,7 @@ async function main() {
 
     // Brazil and the United States have no single national consumption tax to seed, and their
     // schemes say so; everywhere else a signup without taxes cannot issue a compliant document.
-    const expectsTaxes = !findTaxScheme(identity.country)?.configurationRequired;
+    const expectsTaxes = !taxSchemeFor(identity.country)?.configurationRequired;
     if (expectsTaxes) {
       check(`${identity.country}: taxes provisioned`, taxes >= 1, `${taxes} taxes`);
     } else {

@@ -22,13 +22,15 @@ import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
 import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
 import { PayVendorBillsDto } from './dto/pay-vendor-bills.dto';
 import { VoidVendorBillDto } from './dto/void-vendor-bill.dto';
+import { ReleaseMatchHoldDto } from './dto/release-match-hold.dto';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../security/principal';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
-import { RecordVendorBillNcfDto } from './dto/record-vendor-bill-ncf.dto';
+import { RecordSupplierFiscalNumberDto } from './dto/record-supplier-fiscal-number.dto';
+import { RecordPurchaseAttributesDto } from './dto/record-purchase-attributes.dto';
 
 @ApiTags('Accounts Payable')
 @ApiBearerAuth()
@@ -118,16 +120,34 @@ export class AccountsPayableController {
     );
   }
 
-  /** Record the NCF on a posted bill that has none — what the 606 asks for (QA R3-A04). */
-  @Post(':id/ncf')
+  /**
+   * Record the supplier's fiscal document number on a posted bill that has none — the repair a
+   * purchases return asks for (QA R3-A04), in whatever market the company is in.
+   */
+  @Post(':id/supplier-fiscal-number')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_EDIT)
-  recordNcf(
+  recordSupplierFiscalNumber(
     @Param('id', UuidParamPipe) id: string,
-    @Body() dto: RecordVendorBillNcfDto,
+    @Body() dto: RecordSupplierFiscalNumberDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.accountsPayableService.recordNcf(id, user.organizationId, dto.ncf);
+    return this.accountsPayableService.recordSupplierFiscalNumber(id, user.organizationId, dto.supplierFiscalNumber);
+  }
+
+  /**
+   * Answer what the market's authority asks about a purchase, on a bill already posted: the
+   * classification is often the accountant's at month end, not the entry clerk's.
+   */
+  @Patch(':id/fiscal-attributes')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_EDIT)
+  recordFiscalAttributes(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: RecordPurchaseAttributesDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.accountsPayableService.recordFiscalAttributes(id, user.organizationId, dto.fiscalAttributes);
   }
 
   @Post(':id/submit-for-approval')
@@ -146,6 +166,23 @@ export class AccountsPayableController {
       user.organizationId,
       user.id,
     );
+  }
+
+  /**
+   * Release a bill held by the three-way match, with the reason, and submit it (CMP-01). Not the
+   * person who submitted it.
+   */
+  @Post(':id/release-match-hold')
+  @Idempotent()
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_APPROVE)
+  @ApiOperation({ summary: 'Libera una factura retenida por el cotejo de tres vías y la envía a aprobación.' })
+  releaseMatchHold(
+    @Param('id', UuidParamPipe) id: string,
+    @Body() dto: ReleaseMatchHoldDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.accountsPayableService.releaseMatchHold(id, user.organizationId, user.id, dto.reason);
   }
 
   /**

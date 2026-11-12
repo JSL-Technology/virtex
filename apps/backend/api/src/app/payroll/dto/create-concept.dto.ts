@@ -21,12 +21,15 @@ import { ConceptCalculation, ConceptType } from '../entities/payroll-concept.ent
  * premium is a multiplier of the hourly wage — 1.35 for overtime, 2.0 for holidays — and nothing
  * in any labour code in this product's markets reaches 10.
  */
+/** The ceiling of a rate, by calculation — the concept's and, since NOM-05, a run input's too. */
+export const CONCEPT_RATE_LIMIT: Readonly<Partial<Record<ConceptCalculation, number>>> = {
+  [ConceptCalculation.PERCENTAGE]: 1,
+  [ConceptCalculation.HOURLY]: 10,
+};
+
 @ValidatorConstraint({ name: 'concept_rate', async: false })
 export class ConceptRateConstraint implements ValidatorConstraintInterface {
-  private static readonly LIMIT: Partial<Record<ConceptCalculation, number>> = {
-    [ConceptCalculation.PERCENTAGE]: 1,
-    [ConceptCalculation.HOURLY]: 10,
-  };
+  private static readonly LIMIT = CONCEPT_RATE_LIMIT;
 
   validate(rate: unknown, args: ValidationArguments): boolean {
     if (typeof rate !== 'number') return true;
@@ -72,7 +75,7 @@ export class CreateConceptDto {
 
   @IsBoolean()
   @IsOptional()
-  contributesToTss?: boolean;
+  contributesToSocialSecurity?: boolean;
 
   @IsUUID()
   @IsOptional()

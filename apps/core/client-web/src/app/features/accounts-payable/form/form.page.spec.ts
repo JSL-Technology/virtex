@@ -1,4 +1,5 @@
 import { of } from 'rxjs';
+import { FormGroup } from '@angular/forms';
 import { provideTestCountryPack } from '../../../core/api/country-pack.service.testing';
 import { PaymentMethodsService } from '../../../core/api/payment-methods.service';
 import { provideTestBranches } from '../../../core/tenancy/branches.service.testing';
@@ -286,9 +287,11 @@ describe('VendorBillFormPage', () => {
       taxWithheld: 540,
       incomeTaxWithheld: 1000,
       taxToCost: 200,
-      purchaseCategory: '02',
-      paymentForm: '02',
+      paymentMethodCode: 'TRANSFER',
     });
+    // What the market's authority asks about the purchase, by the keys the market declares: the
+    // test pack's market asks for its purchase classification and nothing else.
+    component.form.get('fiscalAttributes')?.get('purchaseCategory')?.setValue('09');
     component.lines.at(0).patchValue({
       product: 'Honorarios',
       quantity: 1,
@@ -304,8 +307,38 @@ describe('VendorBillFormPage', () => {
     expect(body.taxWithheld).toBe(540);
     expect(body.incomeTaxWithheld).toBe(1000);
     expect(body.taxToCost).toBe(200);
-    expect(body.purchaseCategory).toBe('02');
-    expect(body.paymentForm).toBe('02');
+    expect(body.fiscalAttributes).toEqual({ purchaseCategory: '09' });
+    expect(body.paymentMethodCode).toBe('TRANSFER');
+    request.flush({ id: 'bill-1' });
+  });
+
+  /**
+   * The purchase states what its own market's authority asks, and nothing else.
+   *
+   * There used to be a `purchaseCategory` control defaulted to the DGII's «06 Compras de
+   * mercancías» and an `isrRetentionType` the screen never showed, on every purchase of every
+   * market — so a Mexican or US company's bill carried a Dominican classification nobody chose and
+   * the purchases return filed it. The fields are the market's now: what it declares is asked for,
+   * what it does not declare cannot be sent.
+   */
+  it('asks only what the market declares, and defaults none of it', () => {
+    flushPickers();
+
+    // `protected`, so the template may read it and the public API does not grow for a test.
+    expect(component['fiscalFields']().map((field) => field.key)).toEqual(['purchaseCategory']);
+    const group = component.form.get('fiscalAttributes') as FormGroup;
+    expect(Object.keys(group.controls)).toEqual(['purchaseCategory']);
+    // Nothing is preselected: a classification nobody chose is not a classification.
+    expect(group.get('purchaseCategory')?.value).toBe('');
+
+    component.form.patchValue({ vendorId: 's1', date: '2026-03-15', dueDate: '2026-04-15' });
+    component.lines.at(0).patchValue({ product: 'Café', quantity: 1, unitPrice: 1000, expenseAccountId: 'a1' });
+    component.save();
+
+    const request = httpMock.expectOne(`${API}/accounts-payable`);
+    // Unanswered: the field is absent, the server takes the purchase, and the return names it
+    // rather than filing a guess.
+    expect(request.request.body.fiscalAttributes).toBeUndefined();
     request.flush({ id: 'bill-1' });
   });
 
@@ -338,8 +371,8 @@ describe('VendorBillFormPage', () => {
 
   /**
    * A bill read from the supplier's document is a suggestion. It fills only what nobody has typed,
-   * writes nothing that failed its check (an NCF of the wrong shape), and the file goes with the
-   * bill as its evidence.
+   * writes nothing that failed its market's check (a document number of the wrong shape), and the
+   * file goes with the bill as its evidence.
    */
   it('fills untouched fields from a read document, keeps the person\'s own, and saves the file with the bill', () => {
     flushPickers();
@@ -351,10 +384,27 @@ describe('VendorBillFormPage', () => {
       market: { countryCode: 'DO', generic: false, documentKind: 'NCF' },
       documentKind: 'invoice',
       supplier: { match: { id: 's1', name: 'Suplidora del Caribe', taxId: '131246753' }, name: 'Suplidora', taxId: '131246753', taxIdValid: true, registry: null },
-      bill: { ncf: 'B01-123', ncfModified: null, date: '2026-10-01', dueDate: '2026-10-31', currencyCode: 'DOP', paymentForm: '04', purchaseCategory: '06', taxAmount: 180, serviceCharge: null, subtotal: 1000, total: 1180 },
+      bill: {
+        supplierFiscalNumber: 'B01-123',
+        modifiedSupplierFiscalNumber: null,
+        date: '2026-10-01',
+        dueDate: '2026-10-31',
+        currencyCode: 'DOP',
+        paymentMethodCode: null,
+        fiscalAttributes: { purchaseCategory: '06' },
+        taxAmount: 180,
+        serviceCharge: null,
+        subtotal: 1000,
+        total: 1180,
+      },
       lines: [{ description: 'Café', quantity: 4, unitPrice: 250, total: 1000, productId: null, expenseAccountId: 'a1', matchedBy: 'history' }],
-      checks: { ncf: { status: 'invalid', error: 'format', type: null, warnings: [] }, arithmetic: [], duplicateBillId: null, sameFileBillId: null },
-      confidence: { supplier: 0.9, ncf: 0.4, dates: 0.9, amounts: 0.9, lines: 0.8 },
+      checks: {
+        supplierDocument: { status: 'invalid', error: 'format', type: null, warnings: [] },
+        arithmetic: [],
+        duplicateBillId: null,
+        sameFileBillId: null,
+      },
+      confidence: { supplier: 0.9, document: 0.4, dates: 0.9, amounts: 0.9, lines: 0.8 },
     };
     (component as any).keepAttachment({ ...capture.attachment, vendorBillId: null, fileSize: 10, createdAt: '' });
     component.capture.set(capture as any);
@@ -363,8 +413,10 @@ describe('VendorBillFormPage', () => {
     expect(component.form.get('vendorId')?.value).toBe('s1');
     expect(component.form.get('date')?.value).toBe('2026-10-02'); // typed by the person: kept
     expect(component.form.get('dueDate')?.value).toBe('2026-10-31');
-    expect(component.form.get('ncf')?.value).toBe(''); // failed its check: not written in
-    expect(component.captureNotes().map((note) => note.key)).toContain('accounts_payable.capture.ncf_error.format');
+    expect(component.form.get('supplierFiscalNumber')?.value).toBe(''); // failed its check: not written in
+    expect(component.captureNotes().map((note) => note.key)).toContain('accounts_payable.capture.document_error.format');
+    // A code the market does ask for is filled in, under the market's own key.
+    expect(component.form.get('fiscalAttributes')?.get('purchaseCategory')?.value).toBe('06');
     expect(component.confidenceOf('vendorId')).toBe(0.9);
     expect(component.confidenceOf('date')).toBeNull();
     expect(component.totals().total).toBe(1180);

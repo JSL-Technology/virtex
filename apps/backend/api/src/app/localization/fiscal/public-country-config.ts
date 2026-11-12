@@ -1,4 +1,4 @@
-import { AdministrativeDivision, CountryFiscalProfile, FiscalFieldSpec } from './country-profiles';
+import type { AdministrativeDivision, FiscalFieldSpec } from '../../markets';
 
 /**
  * What the signup form is told about a country, before anyone has an account.
@@ -87,6 +87,9 @@ export interface PublicCountryConfig {
    */
   marketStatus: 'available' | 'preview';
 
+  /** Whether payroll is computed for this market — disclosed before payment (JUR-02). */
+  payrollAvailable: boolean;
+
   /** Whether the form must ask company-versus-natural-person; see `TaxpayerKind`. */
   taxpayerKindRequired: boolean;
 
@@ -119,7 +122,9 @@ export interface TaxIdLookupResult {
 }
 
 /** Narrowing helper kept beside the type it narrows. */
-export type SupportedCountrySummary = Pick<
-  CountryFiscalProfile,
-  'countryCode' | 'name' | 'currency' | 'callingCode'
->;
+export interface SupportedCountrySummary {
+  countryCode: string;
+  name: string;
+  currency: string;
+  callingCode: string;
+}

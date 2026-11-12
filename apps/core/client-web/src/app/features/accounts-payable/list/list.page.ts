@@ -47,7 +47,7 @@ export class VendorBillsListPage implements OnInit {
             { id: 'submit', label: 'accounts_payable.detail.submit_approval', icon: Send, permission: 'accounts_payable:approve', visible: () => bill.status === 'DRAFT', run: () => ask('submit') },
             { id: 'pay', label: 'accounts_payable.detail.pay', icon: HandCoins, permission: 'accounts_payable:pay', visible: () => ['OPEN', 'PARTIALLY_PAID'].includes(bill.status) && Number(bill.balance) > 0, run: () => this.menuNavigation.open(`/accounts-payable/payments/new?billId=${bill.id}`, 'preview') },
             { id: 'debit-note', label: 'accounts_payable.detail.debit_note', icon: FileMinus, permission: 'accounts_payable:create', visible: () => ['OPEN', 'PARTIALLY_PAID'].includes(bill.status) && Number(bill.balance) > 0, run: () => this.menuNavigation.open(`/accounts-payable/debit-notes/new?billId=${bill.id}`, 'preview') },
-            { id: 'record-ncf', label: 'accounts_payable.detail.record_ncf', icon: FileCheck, permission: 'accounts_payable:edit', visible: () => !bill.ncf && !['DRAFT', 'VOID', 'REJECTED'].includes(bill.status), run: () => ask('record-ncf') },
+            { id: 'record-supplier-document', label: 'accounts_payable.detail.record_document', icon: FileCheck, permission: 'accounts_payable:edit', visible: () => !bill.supplierFiscalNumber && !['DRAFT', 'VOID', 'REJECTED'].includes(bill.status), run: () => ask('record-supplier-document') },
           ],
         },
         {

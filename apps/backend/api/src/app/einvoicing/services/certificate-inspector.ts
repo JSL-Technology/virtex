@@ -1,13 +1,13 @@
 import * as forge from 'node-forge';
 import { BadRequestError } from '../../i18n/localized.exception';
-import { TaxpayerKind, fiscalIdentifierLabel, validateTaxId } from '../../localization/contracts/tax-id.contract';
+import { TaxpayerKind, fiscalIdentifierLabel, validateTaxId } from '../../markets';
 import { CertificatePolicy } from '../contracts/certificate-policy';
 
 /**
  * What a signing certificate says about itself, read once when it is uploaded.
  *
  * A pure module — no I/O, no injection — so every rule below is tested directly against real
- * PKCS#12 files (`tools/fixtures/ecf-certificates`). Nothing here is about one country: the
+ * PKCS#12 files (`tools/fixtures/signing-certificates`). Nothing here is about one country: the
  * identifiers are matched against the company's own, and classified with the identity-document
  * catalogue of the company's market.
  */

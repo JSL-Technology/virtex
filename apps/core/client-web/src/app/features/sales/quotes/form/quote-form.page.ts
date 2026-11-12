@@ -6,7 +6,8 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 
-import { Observable, Subject, debounceTime, switchMap, tap, catchError, of } from 'rxjs';
+import { Observable, Subject, debounceTime, merge, switchMap, tap, catchError, of, map } from 'rxjs';
+import { PriceListsService } from '../../../masters/data/price-lists.service';
 import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
@@ -92,6 +93,9 @@ export class QuoteFormPage implements OnInit {
   private readonly locale = inject(LocaleStore);
   private readonly organization = inject(ActiveOrganizationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly priceListsApi = inject(PriceListsService);
+  /** Lines whose price follows the customer's price list (FAC-PL-01); see `onUnitPriceTyped`. */
+  private readonly repriceRequests = new Subject<void>();
   private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   @Input() id?: string;
@@ -199,6 +203,47 @@ export class QuoteFormPage implements OnInit {
       });
     this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.requestPreview());
 
+    //  Prices follow the customer's list: re-asked when the customer, currency or date moves, or a
+    //  line's quantity crosses a break — except on lines whose price someone typed.
+    merge(
+      this.form.get('customerId')!.valueChanges,
+      this.form.get('currencyCode')!.valueChanges,
+      this.form.get('issueDate')!.valueChanges,
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.repriceRequests.next());
+    this.repriceRequests
+      .pipe(
+        debounceTime(250),
+        switchMap(() => {
+          const { customerId, currencyCode, issueDate } = this.form.getRawValue();
+          const targets = this.lines.controls.filter((line) => line.get('productId')?.value && line.get('autoPrice')?.value);
+          if (targets.length === 0) return of(null);
+          return this.priceListsApi
+            .resolvePrices({
+              customerId,
+              currencyCode,
+              date: issueDate,
+              lines: targets.map((line) => ({ productId: line.get('productId')!.value as string, quantity: Number(line.get('quantity')!.value) || 1 })),
+            })
+            .pipe(
+              map((priced) => ({ targets, priced })),
+              catchError(() => of(null)),
+            );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((answer) => {
+        answer?.priced.forEach((priced, k) => {
+          const line = answer.targets[k];
+          if (!line.get('autoPrice')?.value || line.get('productId')?.value !== priced.productId) return;
+          line.patchValue({
+            ...(priced.price !== null ? { unitPrice: priced.price } : {}),
+            priceListName: priced.source === 'PRICE_LIST' ? priced.priceListName : '',
+          });
+        });
+      });
+
     if (this.id) {
       this.quotes.get(this.id).subscribe({
         next: (quote) => this.load(quote),
@@ -248,8 +293,11 @@ export class QuoteFormPage implements OnInit {
             description: item.productName ?? item.description,
             quantity: item.quantity,
             unitPrice: item.unitPrice ?? 0,
+            // A matched product takes the customer's list price, as the server would.
+            autoPrice: Boolean(item.productId),
           });
         }
+        this.repriceRequests.next();
         if (!order.items.length) this.addLine();
       },
       error: () => this.addLine(),
@@ -265,7 +313,7 @@ export class QuoteFormPage implements OnInit {
 
   addLine(): void {
     this.lines.push(
-      this.fb.group({
+      this.lineGroup({
         productId: [''],
         description: ['', [Validators.required, Validators.maxLength(500)]],
         quantity: [1, [Validators.required, Validators.min(0.000001)]],
@@ -273,6 +321,26 @@ export class QuoteFormPage implements OnInit {
         discountRate: [0, [Validators.min(0), Validators.max(0.999999)]],
       }),
     );
+  }
+
+  /**
+   * A line, plus two page-only controls that are never sent: whether its price follows the list
+   * and which list set it. A quantity change on a following line asks again (quantity breaks).
+   */
+  private lineGroup(controls: Record<string, unknown>, autoPrice = false): FormGroup {
+    const group = this.fb.group({ ...controls, autoPrice: [autoPrice], priceListName: [''] });
+    group
+      .get('quantity')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (group.get('autoPrice')?.value) this.repriceRequests.next();
+      });
+    return group;
+  }
+
+  /** A price typed by hand is the price: the list stops moving it. The server records both. */
+  onUnitPriceTyped(index: number): void {
+    this.lines.at(index).patchValue({ autoPrice: false, priceListName: '' }, { emitEvent: false });
   }
 
   removeLine(index: number): void {
@@ -285,8 +353,12 @@ export class QuoteFormPage implements OnInit {
     const line = this.lines.at(index);
     line.patchValue({
       description: line.value.description || product.name,
+      // The catalogue price at once, then the customer's list price when the server answers.
       unitPrice: Number((product as { price?: number }).price) || 0,
+      autoPrice: true,
+      priceListName: '',
     });
+    this.repriceRequests.next();
   }
 
   lineTax(index: number): number | null {
@@ -463,7 +535,7 @@ export class QuoteFormPage implements OnInit {
     this.lines.clear({ emitEvent: false });
     for (const line of quote.lines ?? []) {
       this.lines.push(
-        this.fb.group({
+        this.lineGroup({
           productId: [line.product?.id ?? ''],
           description: [line.description, [Validators.required, Validators.maxLength(500)]],
           quantity: [Number(line.quantity), [Validators.required, Validators.min(0.000001)]],

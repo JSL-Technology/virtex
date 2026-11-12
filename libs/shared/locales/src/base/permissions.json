@@ -609,11 +609,6 @@
     "en": "Treasury",
     "pt": "Tesouraria"
   },
-  "permissions.groups.tss": {
-    "en": "Social security",
-    "es": "Seguridad social",
-    "pt": "Segurança social"
-  },
   "permissions.groups.units_of_measure": {
     "es": "Unidades de medida",
     "en": "Units of measure",

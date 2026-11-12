@@ -1,4 +1,4 @@
-import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
+import { taxSchemeFor } from '../markets';
 import { TaxTreatment } from './entities/invoice-line-item.entity';
 import { allocate, roundToCurrency, sumInCurrency } from '../common/money';
 import { BadRequestError } from '../i18n/localized.exception';
@@ -21,7 +21,7 @@ export { roundToCurrency };
  * 1. **The rate still came from the client.** Checking a rate against a list cannot tell an exempt
  *    book from an evasive zero on a taxable good. The rate is now derived from the catalogue and
  *    the request may only select among treatments the item allows.
- * 2. **It knew nothing about the Dominican reduced rate.** `COUNTRY_TAX_SCHEMES.DO` lists 18 % and
+ * 2. **It knew nothing about the Dominican reduced rate.** The market's tax scheme lists 18 % and
  *    0 %, so a 16 % line — the rate the DGII's own `ITBIS2` bucket exists for, and which the e-CF
  *    builder already knew how to emit — was rejected. The scheme now carries every rate the regime
  *    levies, and the two components agree because they read the same table.
@@ -45,6 +45,12 @@ export interface TaxableLineInput {
   taxRate: number;
   /** Excise (ISC) rate as a fraction. */
   exciseRate?: number;
+  /**
+   * A fixed tax per unit, in the document's currency (FAC-TX-01): a specific excise per bottle or
+   * litre. Charged as `quantity × amount` beside the ad-valorem excise, and like it inside the
+   * consumption-tax base. Charged whatever the treatment: an exempt good can carry a specific tax.
+   */
+  exciseUnitAmount?: number;
   isService: boolean;
 }
 
@@ -63,6 +69,15 @@ export interface DocumentTaxInput {
    * levy.
    */
   tenantTaxRates?: readonly number[];
+  /**
+   * The national rates in force on the document's date, from `statutory_tax_rates` (audit
+   * 2026-11-07, LOC-06): `null` where the market has no national table, `[]` where nothing is in
+   * force on that date. When omitted (pure calculations with no date, the unit tests) the rates
+   * of the market's tax scheme — today's — apply; every document the service issues passes them.
+   */
+  statutoryTaxRates?: readonly number[] | null;
+  /** The document's date, named in the refusal when no rate is in force on it. */
+  taxDate?: string;
   lines: readonly TaxableLineInput[];
   /**
    * Commercial discount on the whole document, as a fraction of the post-line-discount subtotal.
@@ -150,12 +165,17 @@ const EPSILON = 1e-6;
 export function allowedTaxFractions(
   countryCode: string | null | undefined,
   tenantRates: readonly number[] = [],
+  statutoryRates?: readonly number[] | null,
 ): number[] | null {
-  const scheme = countryCode ? COUNTRY_TAX_SCHEMES[countryCode.toUpperCase()] : undefined;
+  const scheme = taxSchemeFor(countryCode);
   const fromScheme =
-    scheme && !scheme.configurationRequired && scheme.taxes.length > 0
-      ? scheme.taxes.map((t) => t.rate / 100)
-      : null;
+    statutoryRates !== undefined
+      ? statutoryRates === null || scheme?.configurationRequired
+        ? null
+        : [...statutoryRates]
+      : scheme && !scheme.configurationRequired && scheme.taxes.length > 0
+        ? scheme.taxes.map((t) => t.rate / 100)
+        : null;
 
   // A market whose base is sub-national constrains nothing on its own; if the tenant has stated
   // its own rates, those are the constraint.
@@ -179,10 +199,20 @@ export function assertAllowedTaxRate(
   countryCode: string | null | undefined,
   requestedFraction: number,
   tenantRates: readonly number[] = [],
+  statutoryRates?: readonly number[] | null,
+  taxDate?: string,
 ): void {
-  const allowed = allowedTaxFractions(countryCode, tenantRates);
+  const allowed = allowedTaxFractions(countryCode, tenantRates, statutoryRates);
   if (!allowed) return;
   if (allowed.some((rate) => Math.abs(rate - requestedFraction) < EPSILON)) return;
+  if (allowed.length === 0) {
+    // A date before every period recorded: there is no rate to validate against, so none is
+    // assumed (SP-03). The platform records the rate of that period, or the tenant states its own.
+    throw new BadRequestError('invoices.no_tax_rate_in_force_on_date', {
+      countryCode: countryCode ?? '—',
+      date: taxDate ?? '—',
+    });
+  }
 
   const list = allowed.map((rate) => `${(rate * 100).toFixed(2).replace(/\.00$/, '')}%`).join(', ');
   // A key, like every other refusal in this module. This one was a Spanish sentence built in the
@@ -228,18 +258,22 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
     if (effectiveRate < 0 || effectiveRate > 1) {
       throw new BadRequestError('invoices.tax_rate_must_expressed_fraction_between');
     }
-    assertAllowedTaxRate(input.countryCode, effectiveRate, input.tenantTaxRates);
+    assertAllowedTaxRate(input.countryCode, effectiveRate, input.tenantTaxRates, input.statutoryTaxRates, input.taxDate);
 
     const exciseRate = line.exciseRate ?? 0;
     if (exciseRate < 0 || exciseRate > 1) {
       throw new BadRequestError('invoices.tax_rate_must_expressed_fraction_between');
+    }
+    const exciseUnitAmount = line.exciseUnitAmount ?? 0;
+    if (!Number.isFinite(exciseUnitAmount) || exciseUnitAmount < 0) {
+      throw new BadRequestError('invoices.fixed_tax_amount_invalid');
     }
 
     const gross = round(line.quantity * line.unitPrice);
     const discountAmount = round(gross * discountRate);
     const lineSubtotal = round(gross - discountAmount);
 
-    return { line, gross, discountAmount, lineSubtotal, effectiveRate, exciseRate };
+    return { line, gross, discountAmount, lineSubtotal, effectiveRate, exciseRate, exciseUnitAmount };
   });
 
   const subtotal = sum(bases.map((base) => base.lineSubtotal));
@@ -264,7 +298,9 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
   const lines: ComputedLine[] = bases.map((base, index) => {
     const documentDiscountAmount = documentDiscountShares[index];
     const taxableBase = round(base.lineSubtotal - documentDiscountAmount);
-    const exciseAmount = round(taxableBase * base.exciseRate);
+    // The ad-valorem part on the discounted base; the specific part on the quantity, which no
+    // discount on the price reduces.
+    const exciseAmount = round(taxableBase * base.exciseRate + base.line.quantity * base.exciseUnitAmount);
     // Excise is part of the base the consumption tax is charged on, which is how the DGII computes
     // ITBIS on an item subject to ISC.
     const taxAmount = round((taxableBase + exciseAmount) * base.effectiveRate);

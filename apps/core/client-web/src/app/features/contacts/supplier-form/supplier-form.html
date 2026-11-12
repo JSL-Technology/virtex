@@ -91,5 +91,104 @@
         }
       </div>
     </section>
+
+    <!-- Condiciones comerciales (audit 2026-11-07, CMP-17). -->
+    <section class="form-section">
+      <h2 class="form-section__title">{{ 'masters.supplier_form.commercial_terms' | translate }}</h2>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="paymentTermDays">{{ 'masters.supplier_form.payment_term_days' | translate }}</label>
+          <input id="paymentTermDays" type="number" min="0" max="365" step="1" formControlName="paymentTermDays" />
+          <small class="field-hint">{{ 'masters.supplier_form.payment_term_days_hint' | translate }}</small>
+        </div>
+        <div class="form-field">
+          <label for="currencyCode">{{ 'masters.supplier_form.currency_code' | translate }}</label>
+          <input id="currencyCode" formControlName="currencyCode" maxlength="3" />
+        </div>
+        <div class="form-field">
+          <label for="defaultExpenseAccountId">{{ 'masters.supplier_form.default_expense_account' | translate }}</label>
+          <vx-select
+            inputId="defaultExpenseAccountId"
+            formControlName="defaultExpenseAccountId"
+            [search]="searchExpenseAccounts"
+            [resolveWith]="resolveAccount"
+            [displayWith]="accountLabel"
+            [valueWith]="accountId"
+            [ariaLabel]="'masters.supplier_form.default_expense_account' | translate"
+            placeholderKey="accounts_payable.form.select_account"
+          />
+        </div>
+        <div class="form-field">
+          <label for="status">{{ 'masters.supplier_form.status' | translate }}</label>
+          <select id="status" formControlName="status">
+            <option value="ACTIVE">{{ 'masters.supplier_form.status_active' | translate }}</option>
+            <option value="BLOCKED">{{ 'masters.supplier_form.status_blocked' | translate }}</option>
+          </select>
+        </div>
+        @if (supplierForm.get('status')?.value === 'BLOCKED') {
+          <div class="form-field">
+            <label for="blockedReason">{{ 'masters.supplier_form.blocked_reason' | translate }}</label>
+            <textarea id="blockedReason" formControlName="blockedReason" rows="2" required></textarea>
+            <small class="field-hint">{{ 'masters.supplier_form.blocked_hint' | translate }}</small>
+          </div>
+        }
+      </div>
+    </section>
+
+    @if (isEditMode()) {
+      <section class="form-section">
+        <h2 class="form-section__title">{{ 'masters.supplier_bank.title' | translate }}</h2>
+        <p class="field-hint">{{ 'masters.supplier_bank.hint' | translate }}</p>
+        @if (bankAccounts().length) {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{{ 'masters.supplier_bank.bank' | translate }}</th>
+                <th>{{ 'masters.supplier_bank.number' | translate }}</th>
+                <th>{{ 'masters.supplier_bank.type' | translate }}</th>
+                <th>{{ 'common.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (account of bankAccounts(); track account.id) {
+                <tr>
+                  <td>{{ account.bankName }}</td>
+                  <td>•••• {{ account.accountLast4 }}</td>
+                  <td>{{ (account.accountType === 'SAVINGS' ? 'masters.supplier_bank.savings' : 'masters.supplier_bank.checking') | translate }}</td>
+                  <td>
+                    @if (account.isDefault) {
+                      <span>{{ 'masters.supplier_bank.default' | translate }}</span>
+                    } @else {
+                      <button type="button" class="link-button" (click)="makeDefault(account.id)">{{ 'masters.supplier_bank.make_default' | translate }}</button>
+                    }
+                    <button type="button" class="link-button" (click)="removeBankAccount(account.id)">{{ 'masters.supplier_bank.remove' | translate }}</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="bankName">{{ 'masters.supplier_bank.bank' | translate }}</label>
+            <input id="bankName" [value]="bankDraft().bankName" (input)="patchBankDraft({ bankName: $any($event.target).value })" />
+          </div>
+          <div class="form-field">
+            <label for="bankAccountNumber">{{ 'masters.supplier_bank.number' | translate }}</label>
+            <input id="bankAccountNumber" autocomplete="off" [value]="bankDraft().accountNumber" (input)="patchBankDraft({ accountNumber: $any($event.target).value })" />
+          </div>
+          <div class="form-field">
+            <label for="bankAccountType">{{ 'masters.supplier_bank.type' | translate }}</label>
+            <select id="bankAccountType" [value]="bankDraft().accountType" (change)="patchBankDraft({ accountType: $any($event.target).value })">
+              <option value="CHECKING">{{ 'masters.supplier_bank.checking' | translate }}</option>
+              <option value="SAVINGS">{{ 'masters.supplier_bank.savings' | translate }}</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <button type="button" class="secondary-button" (click)="addBankAccount()">{{ 'masters.supplier_bank.add' | translate }}</button>
+          </div>
+        </div>
+      </section>
+    }
   </div>
 </vx-draft-shell>

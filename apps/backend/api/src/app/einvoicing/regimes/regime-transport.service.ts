@@ -2,6 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosError } from 'axios';
 import { FiscalTransmissionResult } from './fiscal-regime.types';
+import { externalEffectAllowed, ExternalEffect } from '../../config/external-effects';
+import { TransmissionConfigService } from '../services/transmission-config.service';
+import { publicOnlyHttpsAgent } from '../../common/net/outbound-address';
+
+const MAX_RESPONSE_BYTES = 5 * 1024 * 1024;
+const MAX_REQUEST_BYTES = 10 * 1024 * 1024;
 
 /**
  * Sending a signed document to the authority the tenant is registered with.
@@ -15,7 +21,8 @@ import { FiscalTransmissionResult } from './fiscal-regime.types';
  *
  * ## What is deliberately not here
  *
- * A hardcoded endpoint for any authority. Every one of these requires the taxpayer's own
+ * A hardcoded endpoint for any authority, or one shared by every tenant (FAC-EINV-04): the target
+ * is the tenant's own, from `TransmissionConfigService`. Every one of these requires the taxpayer's own
  * certificate and, in most cases, a homologation process the authority runs against that
  * taxpayer's own account before production traffic is accepted. So the endpoint, the credential
  * and the envelope come from the tenant's configuration, and a regime with none configured
@@ -28,60 +35,58 @@ import { FiscalTransmissionResult } from './fiscal-regime.types';
 @Injectable()
 export class RegimeTransportService {
   private readonly logger = new Logger(RegimeTransportService.name);
+  /** Connects only to public addresses, checked at connect time (no DNS rebinding). */
+  private readonly agent = publicOnlyHttpsAgent();
 
-  constructor(private readonly config: ConfigService) {}
-
-  /**
-   * The configuration a regime needs to transmit at all, read under its own prefix:
-   * `EINVOICE_MX_ENDPOINT`, `EINVOICE_CO_TOKEN`, and so on.
-   */
-  configurationFor(regimeCode: string): { endpoint?: string; credential?: string; soapAction?: string } {
-    const prefix = `EINVOICE_${regimeCode.toUpperCase()}`;
-    const token = this.config.get<string>(`${prefix}_TOKEN`);
-    const user = this.config.get<string>(`${prefix}_USERNAME`);
-    const password = this.config.get<string>(`${prefix}_PASSWORD`);
-
-    return {
-      endpoint: this.config.get<string>(`${prefix}_ENDPOINT`),
-      credential: token
-        ? `Bearer ${token}`
-        : user && password
-          ? `Basic ${Buffer.from(`${user}:${password}`).toString('base64')}`
-          : undefined,
-      soapAction: this.config.get<string>(`${prefix}_SOAP_ACTION`),
-    };
-  }
+  constructor(
+    private readonly config: ConfigService,
+    private readonly targets: TransmissionConfigService,
+  ) {}
 
   /**
    * Post the document and read the verdict.
    *
-   * A network failure is `PENDING`, never `REJECTED`: the authority may well have accepted it, and
-   * a taxpayer who reissues on a timeout ends with two fiscal documents for one sale — a worse
-   * problem than a status unknown for an hour.
+   * The endpoint and credential are the tenant's own (FAC-EINV-04). A network failure is
+   * `PENDING`, never `REJECTED`: the authority may well have accepted it, and a taxpayer who
+   * reissues on a timeout ends with two fiscal documents for one sale — a worse problem than a
+   * status unknown for an hour.
    */
   async send(
     regimeCode: string,
     payload: string,
-    options: { contentType: string; trackingKeys?: string[] },
+    options: { contentType: string; trackingKeys?: string[]; organizationId: string; purpose: 'submit' | 'status' },
   ): Promise<FiscalTransmissionResult> {
-    const { endpoint, credential, soapAction } = this.configurationFor(regimeCode);
-    if (!endpoint) {
+    const target = await this.targets.resolve(options.organizationId, regimeCode);
+    if (!target) {
       return {
         status: 'NOT_CONFIGURED',
         messages: [
-          `EINVOICE_${regimeCode.toUpperCase()}_ENDPOINT no está configurado; el documento queda ` +
-            'construido y firmado, sin transmitir.',
+          `La transmisión de ${regimeCode.toUpperCase()} no está configurada para la empresa (Ajustes › Facturación electrónica); ` +
+            'el documento queda construido y firmado, sin transmitir.',
         ],
       };
     }
+    if (!externalEffectAllowed(ExternalEffect.FiscalAuthority)) {
+      // Not transmitted, and said so: never an invented verdict (config/external-effects.ts).
+      return {
+        status: 'NOT_CONFIGURED',
+        messages: ['La comunicación con la autoridad fiscal está desactivada en este entorno (EXTERNAL_EFFECTS); el documento queda construido y firmado, sin transmitir.'],
+      };
+    }
 
+    const endpoint = options.purpose === 'status' ? target.statusEndpoint : target.endpoint;
     try {
       const response = await axios.post(endpoint, payload, {
         headers: {
           'Content-Type': options.contentType,
-          ...(credential ? { Authorization: credential } : {}),
-          ...(soapAction ? { SOAPAction: soapAction } : {}),
+          Authorization: target.authorization,
+          ...(target.soapAction ? { SOAPAction: target.soapAction } : {}),
         },
+        httpsAgent: this.agent,
+        // A redirect could lead off the checked host; the authority does not redirect a POST.
+        maxRedirects: 0,
+        maxContentLength: MAX_RESPONSE_BYTES,
+        maxBodyLength: MAX_REQUEST_BYTES,
         timeout: Number(this.config.get<string>('EINVOICE_TIMEOUT_MS') ?? 45_000),
         // The authority answers XML as often as JSON; parsing is the caller's business.
         responseType: 'text',

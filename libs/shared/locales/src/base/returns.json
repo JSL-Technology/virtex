@@ -1,0 +1,117 @@
+{
+  "returns.do.606": {
+    "es": "606 · Compras",
+    "en": "606 · Purchases",
+    "pt": "606 · Compras"
+  },
+  "returns.do.607": {
+    "es": "607 · Ventas",
+    "en": "607 · Sales",
+    "pt": "607 · Vendas"
+  },
+  "returns.do.608": {
+    "es": "608 · Anulados",
+    "en": "608 · Voided",
+    "pt": "608 · Anulados"
+  },
+  "returns.do.609": {
+    "es": "609 · Pagos al exterior",
+    "en": "609 · Payments abroad",
+    "pt": "609 · Pagamentos ao exterior"
+  },
+  "returns.do.novedades": {
+    "es": "Novedades TSS",
+    "en": "Social-security events (TSS)",
+    "pt": "Novidades TSS"
+  },
+  "returns.do.suir": {
+    "es": "SUIR · Autodeterminación TSS",
+    "en": "SUIR · Social-security self-assessment (TSS)",
+    "pt": "SUIR · Autodeterminação TSS"
+  },
+  "returns.do.tss_requires_approved_run": {
+    "es": "No hay una nómina aprobada del período: la autodeterminación declara lo que se pagó, no un cálculo en curso.",
+    "en": "No payroll run of the period has been approved: the self-assessment declares what was paid, not a calculation in progress.",
+    "pt": "Não há uma folha aprovada do período: a autodeterminação declara o que foi pago, não um cálculo em andamento."
+  },
+  "returns.mx.balanza": {
+    "es": "Balanza de comprobación",
+    "en": "Trial balance",
+    "pt": "Balancete de verificação"
+  },
+  "returns.mx.catalogo": {
+    "es": "Catálogo de cuentas",
+    "en": "Chart of accounts",
+    "pt": "Catálogo de contas"
+  },
+  "returns.mx.option.fecha_mod_bal": {
+    "es": "Fecha de modificación",
+    "en": "Date modified",
+    "pt": "Data de modificação"
+  },
+  "returns.mx.option.num_orden": {
+    "es": "Número de orden",
+    "en": "Order number",
+    "pt": "Número da ordem"
+  },
+  "returns.mx.option.num_tramite": {
+    "es": "Número de trámite",
+    "en": "Procedure number",
+    "pt": "Número do trâmite"
+  },
+  "returns.mx.option.tipo_envio": {
+    "es": "Tipo de envío",
+    "en": "Filing type",
+    "pt": "Tipo de envio"
+  },
+  "returns.mx.option.tipo_envio.c": {
+    "es": "C · Complementaria",
+    "en": "C · Complementary",
+    "pt": "C · Complementar"
+  },
+  "returns.mx.option.tipo_envio.n": {
+    "es": "N · Normal",
+    "en": "N · Ordinary",
+    "pt": "N · Normal"
+  },
+  "returns.mx.option.tipo_solicitud": {
+    "es": "Tipo de solicitud",
+    "en": "Kind of request",
+    "pt": "Tipo de solicitação"
+  },
+  "returns.mx.option.tipo_solicitud.af": {
+    "es": "AF · Acto de fiscalización",
+    "en": "AF · Audit",
+    "pt": "AF · Ato de fiscalização"
+  },
+  "returns.mx.option.tipo_solicitud.co": {
+    "es": "CO · Compensación",
+    "en": "CO · Offset",
+    "pt": "CO · Compensação"
+  },
+  "returns.mx.option.tipo_solicitud.de": {
+    "es": "DE · Devolución",
+    "en": "DE · Refund",
+    "pt": "DE · Devolução"
+  },
+  "returns.mx.option.tipo_solicitud.fc": {
+    "es": "FC · Fiscalización compulsa",
+    "en": "FC · Cross-check audit",
+    "pt": "FC · Fiscalização compulsa"
+  },
+  "returns.mx.polizas": {
+    "es": "Pólizas del período (a solicitud del SAT)",
+    "en": "Journal entries for the period (at the SAT’s request)",
+    "pt": "Lançamentos do período (a pedido do SAT)"
+  },
+  "returns.mx.polizas_order_required": {
+    "es": "Indica el número de orden de la solicitud «{{request}}»: el SAT rechaza un archivo de pólizas que no lo lleva.",
+    "en": "State the order number of the «{{request}}» request: the SAT rejects a journal-entries file without it.",
+    "pt": "Informe o número da ordem da solicitação «{{request}}»: o SAT rejeita um arquivo de lançamentos sem ele."
+  },
+  "returns.mx.polizas_procedure_required": {
+    "es": "Indica el número de trámite de la solicitud «{{request}}»: el SAT rechaza un archivo de pólizas que no lo lleva.",
+    "en": "State the procedure number of the «{{request}}» request: the SAT rejects a journal-entries file without it.",
+    "pt": "Informe o número do trâmite da solicitação «{{request}}»: o SAT rejeita um arquivo de lançamentos sem ele."
+  }
+}

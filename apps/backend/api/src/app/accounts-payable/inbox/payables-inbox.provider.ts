@@ -53,7 +53,7 @@ export class PayablesInboxProvider extends ModuleInboxPort implements OnModuleIn
           bill.status === VendorBillStatus.PENDING_APPROVAL
             ? 'inbox.payables.awaiting_approval'
             : 'inbox.payables.draft_bill',
-        titleParams: { number: bill.ncf ?? bill.id.slice(0, 8) },
+        titleParams: { number: bill.supplierFiscalNumber ?? bill.id.slice(0, 8) },
         route: `/accounts-payable/${bill.id}`,
         blockedSince: new Date(bill.date).toISOString(),
       })),

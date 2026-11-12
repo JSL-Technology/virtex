@@ -1,4 +1,9 @@
 {
+  "einvoicing.adjustment_reason_has_no_authority_code": {
+    "es": "El régimen de este mercado no tiene un código para el motivo «{{reason}}», así que la nota no puede transmitirse. Emítela con otro motivo o contacta a soporte.",
+    "en": "This market's regime has no code for the reason «{{reason}}», so the note cannot be transmitted. Issue it with another reason or contact support.",
+    "pt": "O regime deste mercado não tem um código para o motivo «{{reason}}», então a nota não pode ser transmitida. Emita-a com outro motivo ou contate o suporte."
+  },
   "einvoicing.ar.document_number_afip_expects_next_missing": {
     "es": "Falta el número de comprobante que AFIP espera a continuación.",
     "en": "The document number AFIP expects next is missing.",
@@ -179,11 +184,6 @@
     "en": "The organization has no NIT; an electronic invoice cannot be issued without one.",
     "pt": "A organização não tem NIT; a nota eletrônica não pode ser emitida sem ele."
   },
-  "einvoicing.do.authorized_range_ends_ends_you_cannot": {
-    "es": "El rango autorizado termina en {{endsAt}}; no puedes anular más allá de su límite.",
-    "en": "The authorized range ends at {{endsAt}}; you cannot void beyond its limit.",
-    "pt": "A faixa autorizada termina em {{endsAt}}; você não pode cancelar além desse limite."
-  },
   "einvoicing.do.buyer_legal_name_required_for_type": {
     "es": "un comprobante tipo {{type}} requiere la razón social del comprador",
     "en": "a type {{type}} document requires the buyer's legal name",
@@ -259,11 +259,6 @@
     "en": "the declared type ({{declared}}) does not match the one in the e-NCF ({{encoded}})",
     "pt": "o tipo declarado ({{declared}}) não coincide com o do e-NCF ({{encoded}})"
   },
-  "einvoicing.do.end_range_cannot_lower_than_start": {
-    "es": "El final del rango no puede ser menor que su inicio.",
-    "en": "The end of the range cannot be lower than its start.",
-    "pt": "O fim da faixa não pode ser menor que o início."
-  },
   "einvoicing.do.exchange_rate_must_greater_than_zero": {
     "es": "la tasa de cambio debe ser mayor que cero",
     "en": "the exchange rate must be greater than zero",
@@ -273,16 +268,6 @@
     "es": "un comprobante de exportación requiere identificar al comprador extranjero",
     "en": "an export document requires the foreign buyer to be identified",
     "pt": "um documento de exportação exige a identificação do comprador estrangeiro"
-  },
-  "einvoicing.do.invoice_has_no_electronic_ncf_assigned": {
-    "es": "La factura no tiene un e-NCF electrónico asignado.",
-    "en": "The invoice has no electronic e-NCF assigned.",
-    "pt": "A fatura não tem um e-NCF eletrônico atribuído."
-  },
-  "einvoicing.do.invoice_invoice_id_not_found": {
-    "es": "Factura {{invoiceId}} no encontrada.",
-    "en": "Invoice {{invoiceId}} was not found.",
-    "pt": "Fatura {{invoiceId}} não encontrada."
   },
   "einvoicing.do.issuer_legal_name_required": {
     "es": "la razón social del emisor es obligatoria",
@@ -329,6 +314,11 @@
     "en": "line {{line}}: the rate {{rate}} is not an ITBIS rate in force",
     "pt": "linha {{line}}: a alíquota {{rate}} não é uma alíquota de ITBIS vigente"
   },
+  "einvoicing.do.message_belongs_to_dgii_regime": {
+    "es": "Este mensaje es del régimen de comprobantes electrónicos de la DGII; la empresa no factura bajo ese régimen.",
+    "en": "This message belongs to the DGII's electronic-document regime; the company does not invoice under it.",
+    "pt": "Esta mensagem é do regime de documentos eletrônicos da DGII; a empresa não fatura sob esse regime."
+  },
   "einvoicing.do.modification_code_must_between": {
     "es": "el código de modificación debe estar entre 1 y 5",
     "en": "the modification code must be between 1 and 5",
@@ -348,11 +338,6 @@
     "es": "No hay una secuencia activa de {{type}} para esta organización.",
     "en": "There is no active {{type}} sequence for this organization.",
     "pt": "Não há sequência ativa de {{type}} para esta organização."
-  },
-  "einvoicing.do.organization_has_no_rnc_configured_fill": {
-    "es": "La organización no tiene RNC configurado. Complétalo en Ajustes → Empresa.",
-    "en": "The organization has no RNC configured. Fill it in under Settings → Company.",
-    "pt": "A organização não tem RNC configurado. Preencha-o em Configurações → Empresa."
   },
   "einvoicing.do.organization_not_found": {
     "es": "Organización no encontrada.",
@@ -404,20 +389,20 @@
     "en": "\"{{value}}\" is not in e-NCF format (E + 12 digits)",
     "pt": "\"{{value}}\" não está no formato de e-NCF (E + 12 dígitos)"
   },
-  "einvoicing.do.void_range_already_issued": {
-    "es": "Los e-NCF anteriores a {{current}} ya fueron emitidos y no pueden anularse por rango; emite una nota de crédito sobre el comprobante correspondiente.",
-    "en": "The e-NCFs before {{current}} were already issued and cannot be voided as a range; issue a credit note against the document instead.",
-    "pt": "Os e-NCF anteriores a {{current}} já foram emitidos e não podem ser anulados por faixa; emita uma nota de crédito sobre o documento correspondente."
-  },
-  "einvoicing.do.void_range_must_start_at_next": {
-    "es": "La anulación debe comenzar en el siguiente número disponible ({{current}}); anular un tramo intermedio dejaría números inalcanzables sin declarar.",
-    "en": "The void must start at the next available number ({{current}}); voiding a middle stretch would leave unreachable numbers undeclared.",
-    "pt": "A anulação deve começar no próximo número disponível ({{current}}); anular um trecho intermediário deixaria números inalcançáveis sem declarar."
-  },
   "einvoicing.document_document_has_no_fiscal_number": {
     "es": "El documento {{document}} no tiene número fiscal asignado. La numeración interna no sirve: la autoridad sólo reconoce el número del rango que autorizó.",
     "en": "Document {{document}} has no fiscal number assigned. The internal numbering will not do: the authority recognises only the number from the range it authorised.",
     "pt": "O documento {{document}} não tem número fiscal atribuído. A numeração interna não serve: a autoridade reconhece apenas o número da faixa que autorizou."
+  },
+  "einvoicing.document_has_no_fiscal_document_type": {
+    "es": "El documento {{document}} no tiene registrado el tipo de comprobante con el que se numeró, así que no puede construirse.",
+    "en": "Document {{document}} has no record of the document type it was numbered as, so it cannot be built.",
+    "pt": "O documento {{document}} não tem registrado o tipo de documento com que foi numerado, então não pode ser construído."
+  },
+  "einvoicing.document_type_not_built_by_regime": {
+    "es": "Este régimen todavía no construye el tipo de comprobante {{type}}; el documento no puede transmitirse.",
+    "en": "This regime does not build document type {{type}} yet; the document cannot be transmitted.",
+    "pt": "Este regime ainda não constrói o tipo de documento {{type}}; o documento não pode ser transmitido."
   },
   "einvoicing.ec.organization_has_no_ruc_sri_does": {
     "es": "La organización no tiene RUC; el SRI no acepta un comprobante sin él.",
@@ -429,20 +414,55 @@
     "en": "The SRI establishment and point of issue are missing.",
     "pt": "Faltam o estabelecimento e o ponto de emissão do SRI."
   },
-  "einvoicing.ecf_cert_encryption_key_not_configured": {
-    "es": "ECF_CERT_ENCRYPTION_KEY no está configurada (mínimo 16 caracteres). Es obligatoria para cifrar los certificados e-CF.",
-    "en": "ECF_CERT_ENCRYPTION_KEY is not configured (16 characters minimum). It is required to encrypt e-CF certificates.",
-    "pt": "ECF_CERT_ENCRYPTION_KEY não está configurada (mínimo de 16 caracteres). Ela é obrigatória para criptografar os certificados e-CF."
-  },
   "einvoicing.electronic_document_could_not_signed_detail": {
     "es": "No se pudo firmar el documento electrónico: {{detail}}",
     "en": "The electronic document could not be signed: {{detail}}",
     "pt": "Não foi possível assinar o documento eletrônico: {{detail}}"
   },
+  "einvoicing.emission_point_must_three_digits": {
+    "es": "El punto de emisión debe tener tres dígitos.",
+    "en": "The emission point must be three digits.",
+    "pt": "O ponto de emissão deve ter três dígitos."
+  },
+  "einvoicing.establishment_must_three_digits": {
+    "es": "El establecimiento debe tener tres dígitos.",
+    "en": "The establishment must be three digits.",
+    "pt": "O estabelecimento deve ter três dígitos."
+  },
+  "einvoicing.invoice_not_found": {
+    "es": "No se encontró la factura del documento electrónico.",
+    "en": "The electronic document's invoice was not found.",
+    "pt": "A fatura do documento eletrónico não foi encontrada."
+  },
+  "einvoicing.issued_numbers_unavailable": {
+    "es": "No se pueden comprobar los números ya emitidos, así que el rango no se registra. Inténtalo de nuevo o contacta a soporte.",
+    "en": "The numbers already issued cannot be checked, so the range is not registered. Try again or contact support.",
+    "pt": "Não é possível verificar os números já emitidos, então a faixa não é registrada. Tente novamente ou contate o suporte."
+  },
   "einvoicing.issuing_organization_not_found": {
     "es": "No se encontró la organización emisora del documento.",
     "en": "The issuing organization was not found.",
     "pt": "A organização emitente não foi encontrada."
+  },
+  "einvoicing.market_does_not_number_from_ranges": {
+    "es": "En este mercado el número fiscal no se toma de un rango autorizado: lo asigna {{authority}} o el documento no lleva uno. No hay rangos que registrar.",
+    "en": "In this market the fiscal number is not drawn from an authorised range: {{authority}} assigns it, or the document carries none. There are no ranges to register.",
+    "pt": "Neste mercado o número fiscal não é tirado de uma faixa autorizada: {{authority}} o atribui, ou o documento não leva um. Não há faixas a registrar."
+  },
+  "einvoicing.market_receives_no_document_events": {
+    "es": "La autoridad de {{country}} no recibe declaraciones sobre documentos de terceros, así que no hay nada que enviarle.",
+    "en": "The authority of {{country}} receives no declarations about other parties' documents, so there is nothing to send it.",
+    "pt": "A autoridade de {{country}} não recebe declarações sobre documentos de terceiros, portanto não há o que enviar."
+  },
+  "einvoicing.modified_document_has_no_authority_key": {
+    "es": "El documento que esta nota modifica no tiene identificador de su autoridad, y este régimen lo referencia por él: transmite primero el documento original y vuelve a emitir la nota.",
+    "en": "The document this note modifies has no identifier from its authority, and this regime references it by that identifier: transmit the original document first, then issue the note again.",
+    "pt": "O documento que esta nota modifica não tem identificador de sua autoridade, e este regime o referencia por ele: transmita primeiro o documento original e emita a nota novamente."
+  },
+  "einvoicing.modified_document_has_no_authority_number": {
+    "es": "El documento que esta nota modifica no tiene número de la autoridad, y este régimen lo referencia por número: transmite primero el documento original.",
+    "en": "The document this note modifies has no number from the authority, and this regime references it by number: transmit the original document first.",
+    "pt": "O documento que esta nota modifica não tem número da autoridade, e este regime o referencia por número: transmita primeiro o documento original."
   },
   "einvoicing.municipality_ibge_code_must_seven_digits": {
     "es": "El código IBGE del municipio debe tener siete dígitos.",
@@ -494,6 +514,11 @@
     "en": "There is no signed e-CF for this invoice.",
     "pt": "Não há um e-CF assinado para esta fatura."
   },
+  "einvoicing.note_must_name_the_document_it_modifies": {
+    "es": "La nota {{document}} no nombra el documento que modifica: la autoridad no puede recibirla así.",
+    "en": "Note {{document}} does not name the document it modifies: it cannot be filed this way.",
+    "pt": "A nota {{document}} não nomeia o documento que modifica: não pode ser enviada assim."
+  },
   "einvoicing.numeric_code_must_exactly_eight_digits": {
     "es": "El código numérico debe tener exactamente ocho dígitos: forma parte de la clave del documento y uno de siete rellenado a ocho produce una clave distinta de la que crees haber emitido.",
     "en": "The numeric code must be exactly eight digits: it is part of the document key, and a seven-digit code padded to eight produces a different key from the one you believe you issued.",
@@ -514,6 +539,31 @@
     "en": "The organization has no RUC; SUNAT does not accept a document without one.",
     "pt": "A organização não tem RUC; a SUNAT não aceita um comprovante sem ele."
   },
+  "einvoicing.pe.series_contradicts_document_type": {
+    "es": "La serie {{series}} no corresponde al tipo de comprobante {{type}}: una serie F es de factura y una serie B de boleta, y SUNAT rechaza el envío antes de leer el documento.",
+    "en": "Series {{series}} does not match document type {{type}}: an F series is a factura's and a B series a boleta's, and SUNAT rejects the submission before reading the document.",
+    "pt": "A série {{series}} não corresponde ao tipo de documento {{type}}: uma série F é de fatura e uma série B de boleta, e a SUNAT rejeita o envio antes de ler o documento."
+  },
+  "einvoicing.range_authorization_already_expired": {
+    "es": "La autorización venció el {{date}}: un rango vencido no puede registrarse para emitir.",
+    "en": "The authorisation expired on {{date}}: an expired range cannot be registered to issue from.",
+    "pt": "A autorização venceu em {{date}}: uma faixa vencida não pode ser registrada para emitir."
+  },
+  "einvoicing.range_exhausted_cannot_reactivate": {
+    "es": "El rango del tipo {{type}} ya no tiene números: reactivarlo retiraría el vigente y dejaría el tipo sin números que emitir.",
+    "en": "The type {{type}} range has no numbers left: reactivating it would retire the one in force and leave the type with nothing to issue from.",
+    "pt": "A faixa do tipo {{type}} não tem mais números: reativá-la retiraria a vigente e deixaria o tipo sem números para emitir."
+  },
+  "einvoicing.range_expired_cannot_reactivate": {
+    "es": "La autorización del rango del tipo {{type}} venció el {{date}}: reactivarlo retiraría el vigente y dejaría el tipo sin números que emitir.",
+    "en": "The authorisation of the type {{type}} range expired on {{date}}: reactivating it would retire the one in force and leave the type with nothing to issue from.",
+    "pt": "A autorização da faixa do tipo {{type}} venceu em {{date}}: reativá-la retiraria a vigente e deixaria o tipo sem números para emitir."
+  },
+  "einvoicing.range_expiry_date_required": {
+    "es": "Los rangos del tipo {{type}} vencen: indica la fecha de vencimiento de la autorización. Un documento numerado después de esa fecha es rechazado.",
+    "en": "Ranges of type {{type}} expire: state the authorisation's expiry date. A document numbered after that date is rejected.",
+    "pt": "As faixas do tipo {{type}} vencem: informe a data de vencimento da autorização. Um documento numerado depois dessa data é rejeitado."
+  },
   "einvoicing.range_from_not_valid_final_number": {
     "es": "El rango {{from}}–{{to}} no es válido: el número final no puede ser menor que el inicial.",
     "en": "The range {{from}}–{{to}} is not valid: the final number cannot be lower than the first.",
@@ -523,6 +573,36 @@
     "es": "No se encontró el rango indicado.",
     "en": "The range was not found.",
     "pt": "A faixa indicada não foi encontrada."
+  },
+  "einvoicing.range_numbers_already_issued": {
+    "es": "{{count}} documento(s) ya llevan números del tipo {{type}} entre {{startsAt}} y {{endsAt}}. Registrar el rango los volvería a emitir.",
+    "en": "{{count}} document(s) already carry numbers of type {{type}} between {{startsAt}} and {{endsAt}}. Registering the range would issue them again.",
+    "pt": "{{count}} documento(s) já levam números do tipo {{type}} entre {{startsAt}} e {{endsAt}}. Registrar a faixa os emitiria novamente."
+  },
+  "einvoicing.range_overlaps_registered": {
+    "es": "El rango {{startsAt}}–{{endsAt}} del tipo {{type}} se superpone con rangos ya registrados ({{ranges}}). Sus números pueden estar ya emitidos; registra solo números que la autoridad te haya autorizado y que nunca hayas usado.",
+    "en": "Range {{startsAt}}–{{endsAt}} of type {{type}} overlaps ranges already registered ({{ranges}}). Their numbers may already be issued; register only numbers the authority granted you and you have never used.",
+    "pt": "A faixa {{startsAt}}–{{endsAt}} do tipo {{type}} se sobrepõe a faixas já registradas ({{ranges}}). Seus números podem já ter sido emitidos; registre apenas números que a autoridade autorizou e que você nunca usou."
+  },
+  "einvoicing.range_stretch_already_issued": {
+    "es": "Los números anteriores a {{next}} ya fueron emitidos y no pueden anularse por tramo; emite una nota de crédito sobre el documento correspondiente.",
+    "en": "The numbers before {{next}} were already issued and cannot be voided as a stretch; issue a credit note against the document instead.",
+    "pt": "Os números anteriores a {{next}} já foram emitidos e não podem ser anulados por trecho; emita uma nota de crédito sobre o documento correspondente."
+  },
+  "einvoicing.range_stretch_beyond_end": {
+    "es": "El rango autorizado termina en {{endsAt}}; no puedes anular más allá de su límite.",
+    "en": "The authorised range ends at {{endsAt}}; you cannot void beyond its limit.",
+    "pt": "A faixa autorizada termina em {{endsAt}}; você não pode anular além desse limite."
+  },
+  "einvoicing.range_stretch_must_start_at_next": {
+    "es": "La anulación debe comenzar en el siguiente número sin emitir ({{next}}); anular un tramo intermedio dejaría números sin declarar.",
+    "en": "The void must start at the next unissued number ({{next}}); voiding a middle stretch would leave numbers undeclared.",
+    "pt": "A anulação deve começar no próximo número não emitido ({{next}}); anular um trecho intermediário deixaria números sem declarar."
+  },
+  "einvoicing.range_type_not_in_market_catalogue": {
+    "es": "El tipo de comprobante {{type}} no es uno de los que publica {{authority}}.",
+    "en": "Document type {{type}} is not one {{authority}} publishes.",
+    "pt": "O tipo de documento {{type}} não é um dos que {{authority}} publica."
   },
   "einvoicing.range_type_type_has_no_record": {
     "es": "El rango del tipo {{type}} no tiene registrado el material que la autoridad entrega con él (CAF o clave técnica). Cárgalo antes de emitir.",
@@ -535,29 +615,44 @@
     "pt": "O cliente destinatário não foi encontrado."
   },
   "einvoicing.series_series_does_not_match_document": {
-    "es": "La serie {{series}} no corresponde al tipo de comprobante {{type}}. Una serie F es factura y una serie B es boleta; SUNAT rechaza el envío antes de leer el documento.",
-    "en": "Series {{series}} does not match document type {{type}}. An F series is a factura and a B series a boleta; SUNAT rejects the submission before reading the document.",
-    "pt": "A série {{series}} não corresponde ao tipo de comprovante {{type}}. Uma série F é fatura e uma série B é boleta; a SUNAT rejeita o envio antes de ler o documento."
+    "es": "La serie «{{series}}» no es una que {{authority}} admita para el tipo de comprobante {{type}}. Revísala contra el acto que autorizó el rango: la autoridad rechaza todo documento numerado con una serie que no corresponde a su tipo.",
+    "en": "Series «{{series}}» is not one {{authority}} accepts for document type {{type}}. Check it against the act that authorised the range: the authority rejects every document numbered under a series that does not match its type.",
+    "pt": "A série «{{series}}» não é uma que {{authority}} aceite para o tipo de documento {{type}}. Confira-a com o ato que autorizou a faixa: a autoridade rejeita todo documento numerado com uma série que não corresponde ao seu tipo."
   },
-  "einvoicing.sri_emission_point_must_three_digits": {
-    "es": "El punto de emisión del SRI debe tener tres dígitos.",
-    "en": "The SRI emission point must be three digits.",
-    "pt": "O ponto de emissão do SRI deve ter três dígitos."
-  },
-  "einvoicing.sri_establishment_emission_point_missing_set": {
-    "es": "Falta el establecimiento y el punto de emisión del SRI. Configúralos en Ajustes → Fiscal antes de emitir.",
-    "en": "The SRI establishment and emission point are missing. Set them in Settings → Fiscal before issuing.",
-    "pt": "Faltam o estabelecimento e o ponto de emissão do SRI. Configure-os em Configurações → Fiscal antes de emitir."
-  },
-  "einvoicing.sri_establishment_must_three_digits": {
-    "es": "El establecimiento del SRI debe tener tres dígitos.",
-    "en": "The SRI establishment must be three digits.",
-    "pt": "O estabelecimento do SRI deve ter três dígitos."
+  "einvoicing.signing_cert_encryption_key_not_configured": {
+    "es": "SIGNING_CERT_ENCRYPTION_KEY no está configurada (mínimo 16 caracteres). Es obligatoria para cifrar los certificados de firma.",
+    "en": "SIGNING_CERT_ENCRYPTION_KEY is not configured (16 characters minimum). It is required to encrypt signing certificates.",
+    "pt": "SIGNING_CERT_ENCRYPTION_KEY não está configurada (mínimo de 16 caracteres). Ela é obrigatória para criptografar os certificados de assinatura."
   },
   "einvoicing.state_ibge_code_must_two_digits": {
     "es": "El código IBGE del estado debe tener dos dígitos.",
     "en": "The state IBGE code must be two digits.",
     "pt": "O código IBGE do estado deve ter dois dígitos."
+  },
+  "einvoicing.submission_already_decided": {
+    "es": "La autoridad ya dio su veredicto ({{status}}); no se puede reenviar.",
+    "en": "The authority has already given its verdict ({{status}}); it cannot be resent.",
+    "pt": "A autoridade já deu o seu veredicto ({{status}}); não pode ser reenviado."
+  },
+  "einvoicing.submission_not_found": {
+    "es": "No se encontró el envío del documento electrónico.",
+    "en": "The electronic document's submission was not found.",
+    "pt": "O envio do documento eletrónico não foi encontrado."
+  },
+  "einvoicing.transmission.basic_credential_format": {
+    "es": "Escribe la credencial como usuario:contraseña.",
+    "en": "Write the credential as user:password.",
+    "pt": "Escreva a credencial como utilizador:palavra-passe."
+  },
+  "einvoicing.transmission.credential_scheme_required": {
+    "es": "Indica si la credencial es un token o usuario y contraseña.",
+    "en": "Say whether the credential is a token or a user and password.",
+    "pt": "Indique se a credencial é um token ou utilizador e palavra-passe."
+  },
+  "einvoicing.transmission.endpoint_not_allowed": {
+    "es": "La dirección no está permitida ({{reason}}): debe ser HTTPS, en el puerto 443 u 8443, sin usuario en la URL y en una dirección pública.",
+    "en": "That address is not allowed ({{reason}}): it must be HTTPS, on port 443 or 8443, with no user in the URL, on a public address.",
+    "pt": "O endereço não é permitido ({{reason}}): deve ser HTTPS, na porta 443 ou 8443, sem utilizador no URL e num endereço público."
   },
   "einvoicing.unknown_message_type_kind_use_commercial": {
     "es": "Tipo de mensaje desconocido: {{kind}}. Usa COMMERCIAL_APPROVAL o SEQUENCE_VOID.",

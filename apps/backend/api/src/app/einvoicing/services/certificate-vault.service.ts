@@ -2,7 +2,7 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import * as forge from 'node-forge';
-import { EcfCertificate } from '../entities/ecf-certificate.entity';
+import { SigningCertificate } from '../entities/signing-certificate.entity';
 import { BadRequestError, InternalServerError } from '../../i18n/localized.exception';
 import { isDevLikeEnvironment } from '../../config/environment';
 import { CertificateFacts, inspectCertificate } from './certificate-inspector';
@@ -25,45 +25,68 @@ export type InspectedCertificate = LoadedCertificate & {
 };
 
 /**
- * Encrypts DGII signing certificates at rest and materializes their private key / X.509 in memory
+ * Encrypts signing certificates at rest and materializes their private key / X.509 in memory
  * only at signing time. Encryption is AES-256-GCM with a key derived (scrypt) from the configured
- * `ECF_CERT_ENCRYPTION_KEY`, so the database never stores the PKCS#12 bytes or its password in the
- * clear. This replaces the previous stub that hardcoded a fake `'---BEGIN PRIVATE KEY---...'`.
+ * `SIGNING_CERT_ENCRYPTION_KEY`, so the database never stores the PKCS#12 bytes or its password in
+ * the clear. This replaces the previous stub that hardcoded a fake `'---BEGIN PRIVATE KEY---...'`.
+ *
+ * ## The stored shape, and why it carries a version
+ *
+ * `v2:salt:iv:tag:data`, each part base64 — the same idiom as the payroll column transformer, which
+ * puts a key id in front of the ciphertext so the derivation can be changed without making every
+ * stored value unreadable. The salt is RANDOM PER RECORD: scrypt's salt is what stops one derived
+ * key covering the whole deployment, and a single constant for every tenant's certificate gave
+ * exactly that. A certificate written before this carries the legacy three-part form and is still
+ * read, under {@link LEGACY_SALT}; nothing is written under it again.
  */
 @Injectable()
 export class CertificateVaultService {
   private readonly logger = new Logger(CertificateVaultService.name);
-  private static readonly SALT = 'virteex.ecf.cert.v1';
+  private static readonly VERSION = 'v2';
+  private static readonly SALT_BYTES = 16;
   private static readonly IV_BYTES = 12;
 
   constructor(private readonly config: ConfigService) {}
 
-  private key(): Buffer {
-    const secret = this.config.get<string>('ECF_CERT_ENCRYPTION_KEY');
+  private secret(): string {
+    const secret = this.config.get<string>('SIGNING_CERT_ENCRYPTION_KEY');
     if (!secret || secret.length < 16) {
-      throw new InternalServerError('einvoicing.ecf_cert_encryption_key_not_configured');
+      throw new InternalServerError('einvoicing.signing_cert_encryption_key_not_configured');
     }
-    return crypto.scryptSync(secret, CertificateVaultService.SALT, 32);
+    return secret;
+  }
+
+  private key(salt: Buffer | string): Buffer {
+    return crypto.scryptSync(this.secret(), salt, 32);
   }
 
   encrypt(plaintext: Buffer | string): string {
+    const salt = crypto.randomBytes(CertificateVaultService.SALT_BYTES);
     const iv = crypto.randomBytes(CertificateVaultService.IV_BYTES);
-    const cipher = crypto.createCipheriv('aes-256-gcm', this.key(), iv);
+    const cipher = crypto.createCipheriv('aes-256-gcm', this.key(salt), iv);
     const data = Buffer.concat([
       cipher.update(typeof plaintext === 'string' ? Buffer.from(plaintext, 'utf8') : plaintext),
       cipher.final(),
     ]);
     const authTag = cipher.getAuthTag();
-    return [iv.toString('base64'), authTag.toString('base64'), data.toString('base64')].join(':');
+    return [
+      CertificateVaultService.VERSION,
+      salt.toString('base64'),
+      iv.toString('base64'),
+      authTag.toString('base64'),
+      data.toString('base64'),
+    ].join(':');
   }
 
   decrypt(payload: string): Buffer {
     const parts = payload.split(':');
-    if (parts.length !== 3) {
+    const [ivB64, tagB64, dataB64] =
+      parts.length === 3 ? parts : parts.length === 5 && parts[0] === CertificateVaultService.VERSION ? parts.slice(2) : [];
+    if (!ivB64 || !tagB64 || !dataB64) {
       throw new InternalServerError('einvoicing.certificate_encrypted_data_format_invalid');
     }
-    const [ivB64, tagB64, dataB64] = parts;
-    const decipher = crypto.createDecipheriv('aes-256-gcm', this.key(), Buffer.from(ivB64, 'base64'));
+    const salt = parts.length === 5 ? Buffer.from(parts[1], 'base64') : LEGACY_SALT;
+    const decipher = crypto.createDecipheriv('aes-256-gcm', this.key(salt), Buffer.from(ivB64, 'base64'));
     decipher.setAuthTag(Buffer.from(tagB64, 'base64'));
     return Buffer.concat([decipher.update(Buffer.from(dataB64, 'base64')), decipher.final()]);
   }
@@ -115,17 +138,28 @@ export class CertificateVaultService {
 
   /**
    * Whether a self-signed certificate may be used: only in a development or test process that
-   * opted in with `ECF_ALLOW_TEST_CERTIFICATES=true`. Configuration validation already refuses the
+   * opted in with `SIGNING_ALLOW_TEST_CERTIFICATES=true`. Configuration validation already refuses the
    * flag anywhere else; this checks the environment again so a forgotten flag can never be enough.
    */
   testCertificatesAllowed(): boolean {
-    return isDevLikeEnvironment() && String(this.config.get('ECF_ALLOW_TEST_CERTIFICATES')) === 'true';
+    return isDevLikeEnvironment() && String(this.config.get('SIGNING_ALLOW_TEST_CERTIFICATES')) === 'true';
   }
 
   /** Decrypts a stored certificate and returns its usable PEM material for signing. */
-  load(certificate: EcfCertificate): LoadedCertificate {
+  load(certificate: SigningCertificate): LoadedCertificate {
     const pfx = this.decrypt(certificate.encryptedPfx);
     const password = this.decrypt(certificate.encryptedPassword).toString('utf8');
     return this.parsePkcs12(pfx, password);
   }
 }
+
+/**
+ * The single salt every certificate was derived with before the versioned shape.
+ *
+ * FROZEN CIPHERTEXT INPUT, not vocabulary: its bytes are what `scrypt` was given, so a certificate
+ * stored under it stops decrypting the moment this string changes — the taxpayer would have to
+ * upload its PKCS#12 again. It is read-only: {@link CertificateVaultService.encrypt} never uses it.
+ * It reads `ecf` because the product's only electronic documents were one market's when it was
+ * written, which is exactly the coupling the market packages removed everywhere it was reversible.
+ */
+const LEGACY_SALT = 'virteex.ecf.cert.v1';

@@ -1,14 +1,13 @@
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ComplianceService } from './compliance.service';
 import { ComplianceController } from './compliance.controller';
-import { NcfSequence } from './entities/ncf-sequence.entity';
+import { ReturnsService } from './returns/returns.service';
+import { ReturnDatasetFactory } from './returns/return-dataset';
 import { FiscalReportFiling } from './entities/fiscal-report-filing.entity';
 import { FiscalReportFilingsService } from './fiscal-report-filings.service';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
-import { FiscalDocumentTypeDefinition } from '../localization/entities/fiscal-document-type-definition.entity';
 import { AuthModule } from '../auth/auth.module';
 import { AuditModule } from '../audit/audit.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
@@ -19,25 +18,22 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
   imports: [
     // Reading and exporting financial data is recorded; the interceptor lives in AuditModule.
     AuditModule,
-    // FiscalDocumentTypeDefinition: ComplianceService validates a requested comprobante code against
-    // the tenant's region's catalogue before provisioning a range, instead of against `NcfType` (C-03).
-    // The 606 and 609 read purchases through `PurchaseFiscalRecordsRegistry` (ContractsModule,
+    // A purchases return reads purchases through `PurchaseFiscalRecordsRegistry` (ContractsModule,
     // global), not by registering Purchasing's entities here.
     TypeOrmModule.forFeature([
-      NcfSequence,
       Invoice,
       Organization,
-      FiscalDocumentTypeDefinition,
       FiscalReportFiling,
     ]),
     AuthModule,
-    // Mexico's electronic accounting reads the ledger through the same service the balance sheet
-    // does, so the filing and the statements cannot disagree.
+    // A bookkeeping filing reads the ledger through the same service the balance sheet does, so
+    // the file and the statements cannot disagree.
     ChartOfAccountsModule,
   ],
 
   controllers: [ComplianceController],
-  providers: [ComplianceService, FiscalReportFilingsService],
-  exports: [ComplianceService],
+  providers: [ReturnsService, ReturnDatasetFactory, FiscalReportFilingsService],
+  // The engine that builds any market's return, for a caller that needs one outside HTTP.
+  exports: [ReturnsService],
 })
 export class ComplianceModule {}

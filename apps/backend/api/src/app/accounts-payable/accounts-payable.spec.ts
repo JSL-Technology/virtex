@@ -36,7 +36,7 @@ import {
   BankAccountType,
 } from '../treasury/entities/bank-account.entity';
 import { WithholdingResolverService } from '../invoices/services/withholding-resolver.service';
-import { TaxpayerType } from '../localization/fiscal/withholding-regimes';
+import { TaxpayerType } from '../markets';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
 import { VendorDebitNotesService } from './vendor-debit-notes.service';
@@ -553,8 +553,8 @@ describeWithDb('accounts payable', () => {
     it("refuses the same fiscal document twice outside the Dominican Republic too", async () => {
       // A CFDI UUID, a CUFE, a US invoice number: whatever the market calls it, one document.
       await dataSource.query(`UPDATE organizations SET country = 'US' WHERE id = $1`, [organizationId]);
-      await bill({ ncf: 'inv-2026-0042' });
-      await expect(bill({ ncf: 'INV 2026 0042', date: '2026-03-25' })).rejects.toMatchObject({
+      await bill({ supplierFiscalNumber: 'inv-2026-0042' });
+      await expect(bill({ supplierFiscalNumber: 'INV 2026 0042', date: '2026-03-25' })).rejects.toMatchObject({
         messageKey: 'accounts_payable.supplier_document_already_recorded',
       });
     });
@@ -592,6 +592,82 @@ describeWithDb('accounts payable', () => {
         } as CreateVendorBillDto,
         organizationId,
       );
+
+    describe("the supplier's commercial terms (CMP-17)", () => {
+      const plainBill = (extra: Partial<CreateVendorBillDto> = {}) =>
+        payables.create(
+          {
+            vendorId: individualVendorId,
+            date: '2026-02-01',
+            lines: [{ product: 'QA-terms', quantity: 1, unitPrice: 100 }],
+            servicesAmount: 100,
+            ...extra,
+          } as CreateVendorBillDto,
+          organizationId,
+        );
+
+      afterEach(async () => {
+        await dataSource.query(
+          `UPDATE suppliers SET status = 'ACTIVE', blocked_reason = NULL, payment_term_days = NULL, default_expense_account_id = NULL WHERE id = $1`,
+          [individualVendorId],
+        );
+      });
+
+      it('dates the bill from the payment terms and books a free line to the default expense account', async () => {
+        await dataSource.query(`UPDATE suppliers SET payment_term_days = 30, default_expense_account_id = $2 WHERE id = $1`, [
+          individualVendorId,
+          account['expense'],
+        ]);
+        const bill = await plainBill();
+        expect(String(bill.dueDate).slice(0, 10)).toBe('2026-03-03');
+        expect(bill.lines[0].expenseAccountId).toBe(account['expense']);
+      });
+
+      it('neither bills nor pays a blocked supplier', async () => {
+        await dataSource.query(`UPDATE suppliers SET status = 'BLOCKED', blocked_reason = 'QA: cuenta en disputa' WHERE id = $1`, [individualVendorId]);
+        await expect(plainBill({ dueDate: '2026-03-03' } as Partial<CreateVendorBillDto>)).rejects.toMatchObject({
+          messageKey: 'accounts_payable.supplier_blocked',
+        });
+      });
+    });
+
+    describe('the consumption tax is computed, not taken from the request (CMP-02)', () => {
+      const taxed = (extra: Partial<CreateVendorBillDto>, rate?: number) =>
+        payables.create(
+          {
+            vendorId: individualVendorId,
+            date: '2026-02-01',
+            dueDate: '2026-03-03',
+            lines: [{ product: 'QA-servicio', quantity: 1, unitPrice: 1_000, expenseAccountId: account['expense'], ...(rate === undefined ? {} : { taxRate: rate }) }],
+            servicesAmount: 1_000,
+            ...extra,
+          } as CreateVendorBillDto,
+          organizationId,
+        );
+
+      it('computes the tax from the line rate when none is stated', async () => {
+        const bill = await taxed({}, 0.18);
+        expect(bill.taxAmount).toBe(180);
+        const [line] = await dataSource.query(`SELECT tax_rate FROM vendor_bill_line WHERE "vendorBillId" = $1`, [bill.id]);
+        expect(Number(line.tax_rate)).toBe(0.18);
+      });
+
+      it('refuses 900 of ITBIS on 1,000 — the audit case — without a reason', async () => {
+        await expect(taxed({ taxAmount: 900 })).rejects.toMatchObject({ messageKey: 'accounts_payable.tax_amount_exceeds_highest_rate' });
+        await expect(taxed({ taxAmount: 900 }, 0.18)).rejects.toMatchObject({ messageKey: 'accounts_payable.tax_amount_differs_from_lines' });
+      });
+
+      it('refuses a line rate that is not in force on the bill date', async () => {
+        await expect(taxed({}, 0.17)).rejects.toMatchObject({ messageKey: 'accounts_payable.line_tax_rate_not_in_force' });
+      });
+
+      it("keeps the supplier's figure within a cent of rounding, and a larger one only with a recorded reason", async () => {
+        expect((await taxed({ taxAmount: 180.01 }, 0.18)).taxAmount).toBe(180.01);
+        const justified = await taxed({ taxAmount: 200, taxOverrideReason: 'QA: el proveedor facturó ITBIS sobre un cargo no desglosado' }, 0.18);
+        expect(justified.taxAmount).toBe(200);
+        expect(justified.taxOverrideReason).toContain('QA:');
+      });
+    });
 
     it('books the tax and the withholdings, not just the expense', async () => {
       const bill = await billWithTax();
@@ -1282,7 +1358,7 @@ describeWithDb('accounts payable', () => {
           taxAmount: 900,
           expenseAccountId: account['expense'],
           date: '2026-04-02',
-          ncf: 'b0400000001',
+          supplierFiscalNumber: 'b0400000001',
         },
         organizationId,
         ACTOR,
@@ -1290,7 +1366,7 @@ describeWithDb('accounts payable', () => {
 
       expect(note.number).toBe('ND-2026-000001');
       expect(note.date).toBe('2026-04-02');
-      expect(note.ncf).toBe('B0400000001');
+      expect(note.supplierFiscalNumber).toBe('B0400000001');
       expect(note.createdByUserId).toBe(ACTOR);
       expect(await signedBalance('taxReceivable', LATER)).toBe(900);
       expect(await signedBalance('expense', LATER)).toBe(5_000);

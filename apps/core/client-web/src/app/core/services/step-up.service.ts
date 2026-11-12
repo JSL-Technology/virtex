@@ -36,6 +36,7 @@ export enum StepUpScope {
   MANAGE_COMPENSATION = 'manage_compensation',
   MOVE_FUNDS = 'move_funds',
   MANAGE_BANK_ACCOUNTS = 'manage_bank_accounts',
+  MANAGE_FISCAL_CREDENTIALS = 'manage_fiscal_credentials',
 }
 
 /**
@@ -61,6 +62,7 @@ export const SINGLE_USE_SCOPES: ReadonlySet<StepUpScope> = new Set([
   StepUpScope.REBUILD_ANALYTICAL_VIEW,
   StepUpScope.MOVE_FUNDS,
   StepUpScope.MANAGE_BANK_ACCOUNTS,
+  StepUpScope.MANAGE_FISCAL_CREDENTIALS,
 ]);
 
 /**

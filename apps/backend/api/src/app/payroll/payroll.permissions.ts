@@ -38,6 +38,4 @@ export const PAYROLL_PERMISSIONS = {
   PAYROLL_PROCESS: 'payroll:process',
   PAYROLL_APPROVE: 'payroll:approve',
   PAYROLL_PAY: 'payroll:pay',
-  /** Generate and export the TSS files (Novedades, Autodeterminación, SUIR). */
-  TSS_EXPORT: 'tss:export',
 } as const;

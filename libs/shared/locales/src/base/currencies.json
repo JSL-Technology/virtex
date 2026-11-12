@@ -345,9 +345,9 @@
     "pt": "Fonte"
   },
   "currencies.rates.source_placeholder": {
-    "es": "Ej.: BCRD, DGII, banco",
+    "es": "Ej.: banco central, autoridad fiscal, banco",
     "en": "E.g. central bank, tax authority, bank",
-    "pt": "Ex.: banco central, receita, banco"
+    "pt": "Ex.: banco central, autoridade fiscal, banco"
   },
   "currencies.rates.subtitle": {
     "es": "Las tasas a las que se convierten los documentos: las de la empresa, que tienen prioridad, y las compartidas del mercado.",

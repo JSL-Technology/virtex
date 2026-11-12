@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CountryRegistrationStrategy } from './country-registration.strategy';
 import { ProfileRegistrationStrategy } from './profile-registration.strategy';
-import { findCountryProfile } from '../../../localization/fiscal/country-profiles';
+import { isKnownMarket } from '../../../markets';
 import { BadRequestError } from '../../../i18n/localized.exception';
 
 /**
@@ -21,7 +21,7 @@ export class RegistrationStrategyFactory {
   constructor(private readonly profileStrategy: ProfileRegistrationStrategy) {}
 
   getStrategy(countryCode: string): CountryRegistrationStrategy {
-    if (!findCountryProfile(countryCode)) {
+    if (!isKnownMarket(countryCode)) {
       throw new BadRequestError('auth.country_country_code_not_available_registration', { countryCode });
     }
     return this.profileStrategy;

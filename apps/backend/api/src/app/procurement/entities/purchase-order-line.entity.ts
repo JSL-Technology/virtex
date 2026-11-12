@@ -14,10 +14,9 @@ import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-own
  */
 @Entity('purchase_order_lines')
 @Index('IDX_purchase_order_lines_order', ['orderId'])
-@Check(
-  'CHK_purchase_order_lines_received_within_ordered',
-  '"received_quantity" >= 0 AND "received_quantity" <= "quantity"',
-)
+/** The upper bound — ordered plus the company's over-delivery tolerance — is a trigger (CMP-15). */
+@Index('IDX_purchase_order_lines_agreement_line', ['agreementLineId'], { where: '"agreement_line_id" IS NOT NULL' })
+@Check('CHK_purchase_order_lines_received_not_negative', '"received_quantity" >= 0')
 export class PurchaseOrderLine extends BaseEntity {
   @Column({ name: 'order_id', type: 'uuid' })
   orderId: string;
@@ -98,6 +97,14 @@ export class PurchaseOrderLine extends BaseEntity {
 
   @Column({ name: 'sort_order', type: 'int', default: 0 })
   sortOrder: number;
+
+  /** The agreement line this line draws on, for an order released against an agreement (CMP-15). */
+  @Column({ name: 'agreement_line_id', type: 'uuid', nullable: true })
+  agreementLineId: string | null;
+
+  @ManyToOne('PurchaseAgreementLine', { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'agreement_line_id', foreignKeyConstraintName: 'FK_purchase_order_lines_agreement_line' })
+  agreementLine?: unknown;
 
   // Tenant-owned: deleting the tenant deletes this row (see TenantOwned).
   @TenantOwned('FK_purchase_order_lines_organization')

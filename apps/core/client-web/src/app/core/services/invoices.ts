@@ -191,11 +191,44 @@ export interface CreateInvoiceDto {
   lineItems: CreateInvoiceLine[];
 }
 
+/**
+ * Why a note modifies the document it names, in the product's own terms. No authority code travels
+ * from here — each market writes its own for the reason — so the screen is the same everywhere.
+ */
+export const CREDIT_NOTE_REASONS = ['ANNULMENT', 'GOODS_RETURN', 'PRICE_REDUCTION', 'DETAIL_CORRECTION', 'OTHER'] as const;
+export const DEBIT_NOTE_REASONS = ['LATE_PAYMENT_INTEREST', 'ADDITIONAL_CHARGES', 'PRICE_INCREASE', 'PENALTY', 'OTHER'] as const;
+export type CreditNoteReason = (typeof CREDIT_NOTE_REASONS)[number];
+export type DebitNoteReason = (typeof DEBIT_NOTE_REASONS)[number];
+export type AdjustmentReason = CreditNoteReason | DebitNoteReason;
+
 export interface CreditNoteRequest {
+  /** Absent: the server derives it from what is credited — the whole document annuls it. */
+  adjustmentReason?: CreditNoteReason;
   reason?: string;
   items?: Array<{ lineId: string; quantity: number }>;
-  modificationCode?: '1' | '2' | '3' | '4' | '5';
   restockGoods?: boolean;
+}
+
+export interface DebitNoteRequest {
+  reason: DebitNoteReason;
+  description: string;
+  lines: Array<{
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    taxTreatment: 'TAXED' | 'ZERO_RATED' | 'EXEMPT';
+    taxRate?: number;
+    isService: boolean;
+  }>;
+}
+
+/** How this invoice can be cancelled in its market, as the server answers it. */
+export interface CancellationOptions {
+  route: 'VOID' | 'REPORT' | 'CREDIT_NOTE_ONLY' | 'AUTHORITY_EVENT';
+  authority: string;
+  reasons: Array<{ code: string; labelKey: string; legalBasis: string }>;
+  cancellable: boolean;
+  blockedBy: string | null;
 }
 
 export interface InvoiceQuery {
@@ -241,6 +274,10 @@ export interface InvoicingContext {
   baseCurrency: string;
   /** Rates the market levies, as fractions, standard rate first. */
   taxRates: number[];
+  /** Fixed taxes in force, with their amount per unit in the books' currency (FAC-TX-01). */
+  fixedTaxes?: Array<{ id: string; name: string; amount: number }>;
+  /** Whether the market's regime issues sales debit notes through the product (FAC-INV-05). */
+  debitNotes?: boolean;
   /** True where the tax base is sub-national and the tenant must configure it (US, Brazil). */
   taxRequiresConfiguration: boolean;
   /**
@@ -251,6 +288,8 @@ export interface InvoicingContext {
   taxModel?: 'NATIONAL_RATES' | 'BY_JURISDICTION';
   /** The states the company collects in, with their combined rate today, in a `BY_JURISDICTION` market. */
   registeredJurisdictions?: Array<{ stateCode: string; rate: number }>;
+  /** With no jurisdiction registered: issued untaxed (US) or refused until the tax is configured. */
+  untaxedWithoutRegistration?: boolean;
   fiscalDocumentTypes: FiscalDocumentTypeOption[];
   /** Which documents the company issues: traditional, electronic, or both. */
   emissionMode?: FiscalEmissionMode;
@@ -381,6 +420,29 @@ export class InvoicesService {
     const operation = `invoice:credit-note:${invoiceId}:${JSON.stringify(request)}`;
     return this.http
       .post<Invoice>(`${this.apiUrl}/${invoiceId}/credit-note`, request, {
+        headers: { 'Idempotency-Key': this.idempotency.keyFor(operation) },
+      })
+      .pipe(tap(() => this.idempotency.settle(operation)));
+  }
+
+  /** A charge added to an issued invoice (FAC-INV-05). */
+  createDebitNote(invoiceId: string, request: DebitNoteRequest): Observable<Invoice> {
+    const operation = `invoice:debit-note:${invoiceId}:${JSON.stringify(request)}`;
+    return this.http
+      .post<Invoice>(`${this.apiUrl}/${invoiceId}/debit-note`, request, {
+        headers: { 'Idempotency-Key': this.idempotency.keyFor(operation) },
+      })
+      .pipe(tap(() => this.idempotency.settle(operation)));
+  }
+
+  cancellationOptions(invoiceId: string): Observable<CancellationOptions> {
+    return this.http.get<CancellationOptions>(`${this.apiUrl}/${invoiceId}/cancellation`);
+  }
+
+  cancelInvoice(invoiceId: string, request: { reason: string; reasonCode?: string }): Observable<Invoice> {
+    const operation = `invoice:cancel:${invoiceId}:${JSON.stringify(request)}`;
+    return this.http
+      .post<Invoice>(`${this.apiUrl}/${invoiceId}/cancel`, request, {
         headers: { 'Idempotency-Key': this.idempotency.keyFor(operation) },
       })
       .pipe(tap(() => this.idempotency.settle(operation)));

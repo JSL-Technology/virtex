@@ -111,6 +111,12 @@ export enum StepUpScope {
    * redirects every payment that follows, so it is single-use.
    */
   MANAGE_BANK_ACCOUNTS = 'manage_bank_accounts',
+  /**
+   * Setting the credential the company signs its fiscal documents in with (a PAC token, the
+   * authority's user and password). Whoever holds it files documents with legal effect in the
+   * company's name, so it is single-use (FAC-EINV-04).
+   */
+  MANAGE_FISCAL_CREDENTIALS = 'manage_fiscal_credentials',
 }
 
 /**
@@ -141,6 +147,7 @@ export const SINGLE_USE_SCOPES: ReadonlySet<StepUpScope> = new Set([
   StepUpScope.REBUILD_ANALYTICAL_VIEW,
   StepUpScope.MOVE_FUNDS,
   StepUpScope.MANAGE_BANK_ACCOUNTS,
+  StepUpScope.MANAGE_FISCAL_CREDENTIALS,
 ]);
 
 /**

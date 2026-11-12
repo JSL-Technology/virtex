@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Supplier } from './entities/supplier.entity';
+import { Supplier, SupplierStatus } from './entities/supplier.entity';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
-import { DataSource } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
-import { NotFoundError, UnprocessableEntityError } from '../i18n/localized.exception';
+import { ConflictError, NotFoundError, UnprocessableEntityError } from '../i18n/localized.exception';
 import { IdentityDocumentService } from '../localization/services/identity-document.service';
 import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
 import { likeTerm } from '../common/database/search-term';
@@ -106,8 +106,10 @@ export class SuppliersService {
     // Before the transaction: a rejected tax id should not have held a lock or consumed the
     // plan-limit check on its way to failing.
     const identity = await this.resolveIdentityDocument(createSupplierDto, organizationId);
+    await this.assertCommercialTerms(this.dataSource.manager, organizationId, createSupplierDto);
 
     return this.dataSource.transaction(async (manager) => {
+      await this.assertTaxIdFree(manager, organizationId, identity.taxId ?? null, null);
       await this.saasService.enforceLimit(manager, organizationId, SaasResource.SUPPLIERS);
 
       const supplier = manager.create(Supplier, {
@@ -190,7 +192,14 @@ export class SuppliersService {
       updateSupplierDto.identityDocumentCountry !== undefined ||
       updateSupplierDto.country !== undefined;
 
+    await this.assertCommercialTerms(this.dataSource.manager, organizationId, {
+      ...updateSupplierDto,
+      status: updateSupplierDto.status ?? supplier.status,
+      blockedReason: updateSupplierDto.blockedReason !== undefined ? updateSupplierDto.blockedReason : supplier.blockedReason,
+    });
     const updatedSupplier = this.supplierRepository.merge(supplier, updateSupplierDto);
+    // Reactivating clears the reason: it described a block that no longer exists.
+    if (updatedSupplier.status === SupplierStatus.ACTIVE) updatedSupplier.blockedReason = null;
     if (identityTouched) {
       Object.assign(
         updatedSupplier,
@@ -208,7 +217,58 @@ export class SuppliersService {
         ),
       );
     }
-    return this.supplierRepository.save(updatedSupplier);
+    if (!identityTouched) return this.supplierRepository.save(updatedSupplier);
+    // In one transaction, so the lock taken by the check holds until the row is written.
+    return this.dataSource.transaction(async (manager) => {
+      await this.assertTaxIdFree(manager, organizationId, updatedSupplier.taxId ?? null, supplier.id);
+      return manager.save(updatedSupplier);
+    });
+  }
+
+  /**
+   * The commercial terms a supplier record may carry (audit 2026-11-07, CMP-17): the default
+   * expense account must be one of the tenant's postable accounts (404 otherwise, so another
+   * tenant's id is not confirmed to exist), and a block must say why.
+   */
+  private async assertCommercialTerms(
+    manager: EntityManager,
+    organizationId: string,
+    dto: Pick<CreateSupplierDto, 'defaultExpenseAccountId' | 'status' | 'blockedReason'>,
+  ): Promise<void> {
+    if (dto.defaultExpenseAccountId) {
+      const [account] = await manager.query(
+        `SELECT 1 FROM "accounts" WHERE "id" = $1 AND "organization_id" = $2 AND "isPostable"`,
+        [dto.defaultExpenseAccountId, organizationId],
+      );
+      if (!account) throw new NotFoundError('masters.supplier_form.expense_account_not_found');
+    }
+    if (dto.status === SupplierStatus.BLOCKED && !dto.blockedReason?.trim()) {
+      throw new UnprocessableEntityError('masters.supplier_form.blocked_reason_required');
+    }
+  }
+
+  /**
+   * One supplier per tax id (audit 2026-11-07, CMP-03): a second record for the same RNC splits the
+   * supplier's history and let its fiscal documents be recorded twice. `UQ_suppliers_org_tax_id_key`
+   * is the guarantee; this names the supplier that already holds it, under a lock so two
+   * concurrent creations cannot both pass.
+   */
+  private async assertTaxIdFree(
+    manager: EntityManager,
+    organizationId: string,
+    taxId: string | null,
+    exceptId: string | null,
+  ): Promise<void> {
+    const key = (taxId ?? '').replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+    if (!key) return;
+    await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`supplier-tax-id:${organizationId}:${key}`]);
+    const [existing] = await manager.query(
+      `SELECT "id", "name" FROM "suppliers" WHERE "organization_id" = $1 AND "tax_id_key" = $2 AND ($3::uuid IS NULL OR "id" <> $3::uuid) LIMIT 1`,
+      [organizationId, key, exceptId],
+    );
+    if (existing) {
+      throw new ConflictError('masters.supplier_form.tax_id_already_registered', { taxId: key, supplier: existing.name });
+    }
   }
 
   /**

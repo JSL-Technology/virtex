@@ -78,11 +78,11 @@ export class SalesCopilotTools implements OnModuleInit {
             input: {
               ...input,
               issue_date: dto.issueDate,
-              lines: dto.lines.map((line) => ({
+              lines: dto.lines.map((line, index) => ({
                 product_id: line.productId ?? null,
                 description: line.description ?? null,
                 quantity: line.quantity,
-                unit_price: line.unitPrice ?? null,
+                unit_price: computed.pricing[index]?.unitPrice ?? line.unitPrice ?? null,
                 discount_rate: line.discountRate ?? null,
               })),
             },
@@ -98,7 +98,7 @@ export class SalesCopilotTools implements OnModuleInit {
               lines: dto.lines.map((line, index) => ({
                 description: line.description,
                 quantity: line.quantity,
-                unitPrice: line.unitPrice,
+                unitPrice: computed.pricing[index]?.unitPrice ?? line.unitPrice,
                 subtotal: computed.lines[index]?.subtotal ?? null,
               })),
             },
@@ -138,7 +138,8 @@ export class SalesCopilotTools implements OnModuleInit {
           productId: opt(line, 'product_id'),
           description: opt<string>(line, 'description') ?? product?.name,
           quantity: line['quantity'],
-          unitPrice: opt<number>(line, 'unit_price') ?? product?.price,
+          // Null: the customer's price list, then the default list, then the catalogue (FAC-PL-01).
+          unitPrice: opt<number>(line, 'unit_price') ?? undefined,
           discountRate: opt(line, 'discount_rate'),
         };
       }),

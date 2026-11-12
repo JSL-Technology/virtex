@@ -40,7 +40,7 @@ def load(conn: psycopg.Connection, organization_id: str, params: model.Params, t
     payables = frame(
         conn,
         """SELECT id::text AS document_id, vendor_id::text AS party_id, vendor_name AS party_name,
-                  ncf AS number, due_date, balance_in_base_currency::float AS amount
+                  supplier_fiscal_number AS number, due_date, balance_in_base_currency::float AS amount
              FROM ai_src_posted_bills
             WHERE organization_id = %s AND balance > 0.005""",
         (org,),

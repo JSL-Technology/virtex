@@ -53,11 +53,12 @@ export class VendorDebitNote {
   reason: string;
 
   /**
-   * The supplier's own document for it, when there is one — in the Dominican Republic the credit
-   * note's NCF (type 04 / e-CF 34), which the 606 report pairs with the bill it modifies.
+   * The number on the supplier's own document for it, when there is one: the credit note they
+   * issued, which a purchases return pairs with the bill it modifies. Checked by the market's rule,
+   * as a bill's is (`MarketPurchases.receivedDocument`); it was `ncf`, the DGII's name for it.
    */
-  @Column({ type: 'varchar', length: 19, nullable: true })
-  ncf: string | null;
+  @Column({ name: 'supplier_fiscal_number', type: 'varchar', nullable: true })
+  supplierFiscalNumber: string | null;
 
   /** What the supplier is owed less, in the bill's currency, tax included. */
   @Column('decimal', { precision: 18, scale: 2, transformer: numericTransformerNotNull })

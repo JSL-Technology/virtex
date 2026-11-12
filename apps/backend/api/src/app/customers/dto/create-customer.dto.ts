@@ -8,13 +8,14 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   Length,
   Max,
   MaxLength,
   Min,
 } from 'class-validator';
 import { BlankToUndefined, IsPhoneLike } from '../../common/transformers/blank-to-undefined.transformer';
-import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
+import { TaxpayerType } from '../../markets';
 import { CustomerStatus } from '../entities/customer.entity';
 
 export class CreateCustomerDto {
@@ -154,4 +155,12 @@ export class CreateCustomerDto {
   @IsOptional()
   @IsEnum(CustomerStatus)
   status?: CustomerStatus;
+
+  /**
+   * The price list this customer buys at; `null` clears it and the default list for the
+   * document's currency applies (FAC-PL-01).
+   */
+  @IsOptional()
+  @IsUUID()
+  priceListId?: string | null;
 }

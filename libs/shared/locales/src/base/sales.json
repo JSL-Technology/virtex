@@ -337,6 +337,11 @@
     "en": "Number",
     "pt": "Número"
   },
+  "sales.quotes.price_from_list": {
+    "es": "Precio de la lista «{{list}}»",
+    "en": "Price from the «{{list}}» list",
+    "pt": "Preço da lista «{{list}}»"
+  },
   "sales.quotes.product": {
     "es": "Producto",
     "en": "Product",

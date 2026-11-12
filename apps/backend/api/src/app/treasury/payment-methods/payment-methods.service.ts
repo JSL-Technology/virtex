@@ -5,7 +5,7 @@ import { PaymentMethod } from '../entities/payment-method.entity';
 import { CreatePaymentMethodDto, UpdatePaymentMethodDto } from '../dto/payment-method.dto';
 import { ConflictError, ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
 import { TenantCountryResolver } from '../../shared/tenancy/tenant-country.resolver';
-import { countryPackFor } from '../../contracts/country-pack/country-pack';
+import { marketFor } from '../../markets';
 
 /**
  * The company's payment methods.
@@ -79,10 +79,10 @@ export class PaymentMethodsService {
    * fixes these codes for the 606» explains everything.
    */
   private async assertEditable(organizationId: string): Promise<void> {
-    const pack = countryPackFor(await this.tenantCountry.resolveOrNull(organizationId));
-    if (pack.paymentMethods.catalogue === 'AUTHORITY_FIXED') {
+    const { payments } = marketFor(await this.tenantCountry.resolveOrNull(organizationId));
+    if (payments.catalogue === 'AUTHORITY_FIXED') {
       throw new ForbiddenError('treasury.payment_methods_fixed_in_market', {
-        authority: pack.paymentMethods.authority ?? '',
+        authority: payments.authority ?? '',
       });
     }
   }

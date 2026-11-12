@@ -1,0 +1,6 @@
+{
+  "$note": "Country-specific vocabulary, branches and market-package imports outside the market packages (markets/<cc>/, einvoicing/regimes/<cc>/, localization/drivers/<cc>/). Only goes down. See country-neutrality.config.mjs. The plan's last phase (fase 9) took it from 639 to 1. What is left is ONE line and it cannot go: `LEGACY_SALT` in einvoicing/services/certificate-vault.service.ts is the scrypt salt every certificate was derived with before the versioned envelope. Its BYTES are an input to ciphertext already written, so changing the string makes a stored certificate undecryptable and the taxpayer has to upload its PKCS#12 again. It is read-only — encrypt() never uses it — and a new deployment never reaches it. It is counted on purpose: the gate reports what the code says, and an exception carved out for it would be an exception the next line could use too.",
+  "counts": {
+    "api/einvoicing|DO|term": 1
+  }
+}

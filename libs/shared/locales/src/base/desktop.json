@@ -1,8 +1,33 @@
 {
+  "desktop.about.detail": {
+    "es": "Versión {{version}} · Electron {{electron}} · compilación {{commit}}",
+    "en": "Version {{version}} · Electron {{electron}} · build {{commit}}",
+    "pt": "Versão {{version}} · Electron {{electron}} · compilação {{commit}}"
+  },
+  "desktop.menu.about": {
+    "es": "Acerca de Virtex Desktop",
+    "en": "About Virtex Desktop",
+    "pt": "Sobre o Virtex Desktop"
+  },
+  "desktop.menu.check_for_updates": {
+    "es": "Buscar actualizaciones…",
+    "en": "Check for updates…",
+    "pt": "Procurar atualizações…"
+  },
   "desktop.menu.go": {
     "es": "Ir",
     "en": "Go",
     "pt": "Ir"
+  },
+  "desktop.menu.help": {
+    "es": "Ayuda",
+    "en": "Help",
+    "pt": "Ajuda"
+  },
+  "desktop.menu.open_logs": {
+    "es": "Abrir la carpeta de registros",
+    "en": "Open the logs folder",
+    "pt": "Abrir a pasta de registos"
   },
   "desktop.menu.point_of_sale": {
     "es": "Punto de venta",
@@ -11,5 +36,65 @@
   },
   "desktop.menu.portal": {
     "literal": "Portal"
+  },
+  "desktop.update.check_failed": {
+    "es": "No se pudo comprobar si hay actualizaciones. Revisa tu conexión e inténtalo de nuevo.",
+    "en": "Could not check for updates. Check your connection and try again.",
+    "pt": "Não foi possível procurar atualizações. Verifique a ligação e tente novamente."
+  },
+  "desktop.update.later": {
+    "es": "Al cerrar la aplicación",
+    "en": "When I quit",
+    "pt": "Ao fechar a aplicação"
+  },
+  "desktop.update.managed_by_organization": {
+    "es": "Las actualizaciones de esta aplicación las gestiona tu organización.",
+    "en": "Updates for this application are managed by your organization.",
+    "pt": "As atualizações desta aplicação são geridas pela sua organização."
+  },
+  "desktop.update.mandatory_message": {
+    "es": "La versión {{version}} corrige un problema importante y es obligatoria. Guarda tu trabajo y reinicia para instalarla.",
+    "en": "Version {{version}} fixes an important problem and is required. Save your work and restart to install it.",
+    "pt": "A versão {{version}} corrige um problema importante e é obrigatória. Guarde o seu trabalho e reinicie para a instalar."
+  },
+  "desktop.update.ready_message": {
+    "es": "La versión {{version}} está descargada y verificada.",
+    "en": "Version {{version}} has been downloaded and verified.",
+    "pt": "A versão {{version}} foi transferida e verificada."
+  },
+  "desktop.update.ready_title": {
+    "es": "Actualización lista",
+    "en": "Update ready",
+    "pt": "Atualização pronta"
+  },
+  "desktop.update.remind_me": {
+    "es": "Recordármelo en unos minutos",
+    "en": "Remind me in a few minutes",
+    "pt": "Lembrar-me daqui a alguns minutos"
+  },
+  "desktop.update.restart_detail": {
+    "es": "Al reiniciar se cierra la aplicación. Si estás en medio de una venta o de un documento, termínalo primero.",
+    "en": "Restarting closes the application. If you are in the middle of a sale or a document, finish it first.",
+    "pt": "Reiniciar fecha a aplicação. Se estiver a meio de uma venda ou de um documento, termine-o primeiro."
+  },
+  "desktop.update.restart_now": {
+    "es": "Reiniciar ahora",
+    "en": "Restart now",
+    "pt": "Reiniciar agora"
+  },
+  "desktop.update.unavailable_in_this_build": {
+    "es": "Las actualizaciones automáticas no están disponibles en esta compilación.",
+    "en": "Automatic updates are not available in this build.",
+    "pt": "As atualizações automáticas não estão disponíveis nesta compilação."
+  },
+  "desktop.update.up_to_date": {
+    "es": "Tienes la última versión ({{version}}).",
+    "en": "You have the latest version ({{version}}).",
+    "pt": "Tem a versão mais recente ({{version}})."
+  },
+  "desktop.update.verification_failed": {
+    "es": "Se encontró una actualización, pero no superó la verificación de firma y no se instalará. El incidente quedó en el registro.",
+    "en": "An update was found, but it failed signature verification and will not be installed. The incident has been logged.",
+    "pt": "Foi encontrada uma atualização, mas não passou na verificação de assinatura e não será instalada. O incidente ficou registado."
   }
 }

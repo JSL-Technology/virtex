@@ -72,7 +72,7 @@
           }
           @if (read.checks.duplicateBillId; as duplicate) {
             <p class="bill-document__note bill-document__note--warning" role="alert">
-              {{ 'accounts_payable.capture.duplicate' | translate: { ncf: read.bill.ncf } }}
+              {{ 'accounts_payable.capture.duplicate' | translate: { document: read.bill.supplierFiscalNumber } }}
               <a [routerLink]="['/accounts-payable', duplicate]">{{ 'accounts_payable.capture.open_duplicate' | translate }}</a>
             </p>
           }
@@ -117,8 +117,8 @@
         </div>
 
         <div class="form-field">
-          <label for="ncf">{{ supplierNumberKey() | translate }}@if (confidenceOf('ncf'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
-          <input type="text" id="ncf" formControlName="ncf" autocomplete="off">
+          <label for="supplierFiscalNumber">{{ supplierNumberKey() | translate }}@if (confidenceOf('supplierFiscalNumber'); as c) {<span class="ai-badge" [title]="'ai.photo.suggested_hint' | translate">{{ 'ai.photo.suggested_badge' | translate: { confidence: (c | vxPercent) } }}</span>}</label>
+          <input type="text" id="supplierFiscalNumber" formControlName="supplierFiscalNumber" autocomplete="off" [placeholder]="supplierNumberExample()">
         </div>
 
         @if (asksSupplierInvoiceNumber()) {
@@ -156,14 +156,16 @@
 
         <vx-branch-picker class="form-field" inputId="branchId" formControlName="branchId" />
 
-        <div class="form-field">
-          <label for="paymentForm">{{ 'accounts_payable.form.payment_form' | translate }}</label>
-          <select id="paymentForm" formControlName="paymentForm">
-            @for (form of paymentForms(); track form.code) {
-              <option [value]="form.code">{{ form.code }} — {{ form.label ?? (form.labelKey ?? '' | translate) }}</option>
-            }
-          </select>
-        </div>
+        @if (paymentMethods().length) {
+          <div class="form-field">
+            <label for="paymentMethodCode">{{ 'accounts_payable.form.payment_form' | translate }}</label>
+            <select id="paymentMethodCode" formControlName="paymentMethodCode">
+              @for (method of paymentMethods(); track method.code) {
+                <option [value]="method.code">{{ method.code }} — {{ method.name }}</option>
+              }
+            </select>
+          </div>
+        }
       </div>
     </div>
 
@@ -258,15 +260,32 @@
       </div>
       @if (showFiscalDetail()) {
         <div class="card-body grid-form">
-          @if (purchaseClassification()) {
-          <div class="form-field">
-            <label for="purchaseCategory">{{ 'accounts_payable.form.type_goods_services' | translate }}</label>
-            <select id="purchaseCategory" formControlName="purchaseCategory">
-              @for (category of purchaseCategories; track category.code) {
-                <option [value]="category.code">{{ category.code }} — {{ category.labelKey | translate }}</option>
+          <!--
+            What this market's authority asks about the purchase: drawn from what the market
+            declares, so a market that asks for something else asks for it here with no change to
+            this screen, and one that asks for nothing shows nothing.
+          -->
+          @if (fiscalFields().length) {
+            <div formGroupName="fiscalAttributes" class="fiscal-attributes">
+              @for (field of fiscalFields(); track field.key) {
+                <div class="form-field">
+                  <label [attr.for]="'fiscal-' + field.key">{{ field.labelKey ? (field.labelKey | translate) : field.label }}</label>
+                  @if (field.type === 'select') {
+                    <select [id]="'fiscal-' + field.key" [formControlName]="field.key">
+                      <option value="">{{ 'accounts_payable.form.fiscal_attribute_unanswered' | translate }}</option>
+                      @for (option of field.options; track option.code) {
+                        <option [value]="option.code">{{ option.code }} — {{ option.labelKey ? (option.labelKey | translate) : option.label }}</option>
+                      }
+                    </select>
+                  } @else {
+                    <input type="text" [id]="'fiscal-' + field.key" [formControlName]="field.key" [placeholder]="field.example ?? ''" autocomplete="off">
+                  }
+                  @if (field.helpKey || field.help) {
+                    <p class="field-hint">{{ field.helpKey ? (field.helpKey | translate) : field.help }}</p>
+                  }
+                </div>
               }
-            </select>
-          </div>
+            </div>
           }
           <div class="form-field">
             <label for="taxAmount">{{ 'accounts_payable.form.tax_charged' | translate }}</label>

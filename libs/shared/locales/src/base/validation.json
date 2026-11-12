@@ -24,26 +24,6 @@
     "en": "The accounting period ID is required.",
     "pt": "O ID do período contábil é obrigatório."
   },
-  "validation.commercial_approval.issue_date_must_iso_date_yyyy": {
-    "es": "La fecha de emisión debe ser una fecha ISO (YYYY-MM-DD).",
-    "en": "The issue date must be an ISO date (YYYY-MM-DD).",
-    "pt": "A data de emissão deve ser uma data ISO (AAAA-MM-DD)."
-  },
-  "validation.commercial_approval.issuer_rnc_not_valid_format": {
-    "es": "El RNC del emisor no tiene un formato válido.",
-    "en": "The issuer's RNC is not in a valid format.",
-    "pt": "O RNC do emissor não está em um formato válido."
-  },
-  "validation.commercial_approval.ncf_must_followed_12_digits_example": {
-    "es": "El e-NCF debe tener el formato E + 12 dígitos (por ejemplo E310000000001).",
-    "en": "The e-NCF must be E followed by 12 digits (for example E310000000001).",
-    "pt": "O e-NCF deve ser E seguido de 12 dígitos (por exemplo E310000000001)."
-  },
-  "validation.commercial_approval.status_must_approved_rejected": {
-    "es": "El estado debe ser 1 (aprobado) o 2 (rechazado).",
-    "en": "The status must be 1 (approved) or 2 (rejected).",
-    "pt": "A situação deve ser 1 (aprovado) ou 2 (rejeitado)."
-  },
   "validation.constraints.array_max_size": {
     "es": "{{property}} no puede tener más de {{max}} elementos.",
     "en": "{{property}} cannot have more than {{max}} items.",
@@ -291,6 +271,26 @@
     "en": "{{property}} is not an allowed field.",
     "pt": "{{property}} não é um campo permitido."
   },
+  "validation.counterparty_verdict.document_number_format": {
+    "es": "El número del documento no tiene un formato válido.",
+    "en": "The document number is not in a valid format.",
+    "pt": "O número do documento não está em um formato válido."
+  },
+  "validation.counterparty_verdict.issue_date_format": {
+    "es": "La fecha de emisión debe ser una fecha ISO (YYYY-MM-DD).",
+    "en": "The issue date must be an ISO date (YYYY-MM-DD).",
+    "pt": "A data de emissão deve ser uma data ISO (AAAA-MM-DD)."
+  },
+  "validation.counterparty_verdict.issuer_tax_id_format": {
+    "es": "El identificador fiscal del emisor no tiene un formato válido.",
+    "en": "The issuer's tax identifier is not in a valid format.",
+    "pt": "O identificador fiscal do emissor não está em um formato válido."
+  },
+  "validation.counterparty_verdict.verdict_not_known": {
+    "es": "La respuesta debe ser aceptado o rechazado.",
+    "en": "The answer must be accepted or rejected.",
+    "pt": "A resposta deve ser aceito ou rejeitado."
+  },
   "validation.create_employee.health_fund_code_format": {
     "es": "El código del seguro de salud admite hasta 32 letras, dígitos o guiones.",
     "en": "The health insurer code accepts up to 32 letters, digits or hyphens.",
@@ -435,6 +435,11 @@
     "es": "Las valoraciones deben ser un arreglo.",
     "en": "The valuations must be an array.",
     "pt": "As valorações devem ser um array."
+  },
+  "validation.currency_code": {
+    "es": "Debe ser un código de moneda ISO 4217 de tres letras (p. ej. DOP, USD).",
+    "en": "Must be a three-letter ISO 4217 currency code (e.g. DOP, USD).",
+    "pt": "Deve ser um código de moeda ISO 4217 de três letras (p. ex. DOP, USD)."
   },
   "validation.email_change.email_address_cannot_empty": {
     "es": "El correo electrónico no puede estar vacío.",
@@ -1596,6 +1601,11 @@
     "en": "The report type is not supported.",
     "pt": "O tipo de relatório não é suportado."
   },
+  "validation.https_url_required": {
+    "es": "Debe ser una dirección https://.",
+    "en": "Must be an https:// address.",
+    "pt": "Deve ser um endereço https://."
+  },
   "validation.journal_entry_actions.reason_change_required": {
     "es": "Se requiere una razón para la modificación.",
     "en": "A reason for the change is required.",
@@ -1836,15 +1846,40 @@
     "en": "The line description cannot be empty.",
     "pt": "A descrição da linha não pode ficar vazia."
   },
-  "validation.provision_ncf_sequence.prefix_must_follow_dgii_series_format": {
-    "es": "El prefijo debe tener el formato de serie DGII, p. ej. B01 o E31.",
-    "en": "The prefix must follow the DGII series format, e.g. B01 or E31.",
-    "pt": "O prefixo deve seguir o formato de série da DGII, por exemplo B01 ou E31."
+  "validation.push.endpoint_not_a_push_service": {
+    "es": "La suscripción no apunta a un servicio de notificaciones de un navegador.",
+    "en": "The subscription does not point to a browser push service.",
+    "pt": "A subscrição não aponta para um serviço de notificações de um navegador."
   },
   "validation.reclassification_entry.ledger_id_ledger_id_required": {
     "es": "El ID del libro contable (ledgerId) es obligatorio.",
     "en": "The ledger ID (ledgerId) is required.",
     "pt": "O ID do livro contábil (ledgerId) é obrigatório."
+  },
+  "validation.regional_format.date_order": {
+    "es": "El orden de la fecha no es válido.",
+    "en": "The date order is not valid.",
+    "pt": "A ordem da data não é válida."
+  },
+  "validation.regional_format.date_separator": {
+    "es": "El separador de la fecha no es válido.",
+    "en": "The date separator is not valid.",
+    "pt": "O separador da data não é válido."
+  },
+  "validation.regional_format.first_day_of_week": {
+    "es": "El primer día de la semana no es válido.",
+    "en": "The first day of the week is not valid.",
+    "pt": "O primeiro dia da semana não é válido."
+  },
+  "validation.regional_format.number_format": {
+    "es": "El formato de número no es válido.",
+    "en": "The number format is not valid.",
+    "pt": "O formato de número não é válido."
+  },
+  "validation.regional_format.time_format": {
+    "es": "El formato de hora no es válido.",
+    "en": "The time format is not valid.",
+    "pt": "O formato de hora não é válido."
   },
   "validation.register_checkout.billing_period_not_valid": {
     "es": "El periodo de facturación no es válido.",
@@ -2095,30 +2130,5 @@
     "es": "El año está fuera del rango permitido.",
     "en": "The year is outside the allowed range.",
     "pt": "O ano está fora do intervalo permitido."
-  },
-  "validation.regional_format.date_order": {
-    "es": "El orden de la fecha no es válido.",
-    "en": "The date order is not valid.",
-    "pt": "A ordem da data não é válida."
-  },
-  "validation.regional_format.date_separator": {
-    "es": "El separador de la fecha no es válido.",
-    "en": "The date separator is not valid.",
-    "pt": "O separador da data não é válido."
-  },
-  "validation.regional_format.number_format": {
-    "es": "El formato de número no es válido.",
-    "en": "The number format is not valid.",
-    "pt": "O formato de número não é válido."
-  },
-  "validation.regional_format.time_format": {
-    "es": "El formato de hora no es válido.",
-    "en": "The time format is not valid.",
-    "pt": "O formato de hora não é válido."
-  },
-  "validation.regional_format.first_day_of_week": {
-    "es": "El primer día de la semana no es válido.",
-    "en": "The first day of the week is not valid.",
-    "pt": "O primeiro dia da semana não é válido."
   }
 }

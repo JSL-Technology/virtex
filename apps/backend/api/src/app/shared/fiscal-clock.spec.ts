@@ -1,10 +1,10 @@
 import {
   DEFAULT_FISCAL_TIME_ZONE,
-  dgiiDate,
-  dgiiTimestamp,
+  dayFirstDate,
+  dayFirstTimestamp,
   fiscalDate,
   isValidTimeZone,
-  isoToDgiiDate,
+  isoToDayFirstDate,
   organizationTimeZone,
 } from './fiscal-clock';
 
@@ -27,16 +27,16 @@ describe('fiscal-clock', () => {
   });
 
   it('formats DGII dates as DD-MM-YYYY', () => {
-    expect(dgiiDate('America/Santo_Domingo', lateAugustEvening)).toBe('31-08-2026');
+    expect(dayFirstDate('America/Santo_Domingo', lateAugustEvening)).toBe('31-08-2026');
   });
 
   it('formats FechaHoraFirma as DD-MM-YYYY HH:mm:ss in local time', () => {
-    expect(dgiiTimestamp('America/Santo_Domingo', lateAugustEvening)).toBe('31-08-2026 20:30:00');
+    expect(dayFirstTimestamp('America/Santo_Domingo', lateAugustEvening)).toBe('31-08-2026 20:30:00');
   });
 
   it('renders midnight as 00, never 24', () => {
     const midnight = new Date('2026-08-31T04:00:00Z'); // 00:00 in Santo Domingo
-    expect(dgiiTimestamp('America/Santo_Domingo', midnight)).toBe('31-08-2026 00:00:00');
+    expect(dayFirstTimestamp('America/Santo_Domingo', midnight)).toBe('31-08-2026 00:00:00');
   });
 
   it('follows daylight saving rather than a fixed offset', () => {
@@ -44,14 +44,14 @@ describe('fiscal-clock', () => {
     // wrong for half the year in exactly the markets this product sells into.
     const january = new Date('2026-01-15T12:00:00Z');
     const july = new Date('2026-07-15T12:00:00Z');
-    const janHour = dgiiTimestamp('America/Santiago', january).split(' ')[1].slice(0, 2);
-    const julHour = dgiiTimestamp('America/Santiago', july).split(' ')[1].slice(0, 2);
+    const janHour = dayFirstTimestamp('America/Santiago', january).split(' ')[1].slice(0, 2);
+    const julHour = dayFirstTimestamp('America/Santiago', july).split(' ')[1].slice(0, 2);
     expect(janHour).not.toBe(julHour);
   });
 
   it('re-renders an ISO date without moving it across a zone', () => {
-    expect(isoToDgiiDate('2026-08-31')).toBe('31-08-2026');
-    expect(isoToDgiiDate('2026-08-31T23:00:00.000Z')).toBe('31-08-2026');
+    expect(isoToDayFirstDate('2026-08-31')).toBe('31-08-2026');
+    expect(isoToDayFirstDate('2026-08-31T23:00:00.000Z')).toBe('31-08-2026');
   });
 
   describe('organizationTimeZone', () => {

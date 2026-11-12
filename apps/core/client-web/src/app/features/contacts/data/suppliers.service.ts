@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { Supplier } from '../../../core/models/supplier.model';
+import { Supplier, SupplierBankAccount } from '../../../core/models/supplier.model';
 
 export type CreateSupplierDto = Omit<Supplier, 'id' | 'organizationId' | 'createdAt' | 'updatedAt'>;
 export type UpdateSupplierDto = Partial<CreateSupplierDto>;
@@ -36,6 +36,26 @@ export class SuppliersService {
 
   createSupplier(supplier: CreateSupplierDto): Observable<Supplier> {
     return this.http.post<Supplier>(this.apiUrl, supplier);
+  }
+
+  listBankAccounts(id: string): Observable<SupplierBankAccount[]> {
+    return this.http.get<SupplierBankAccount[]>(`${this.apiUrl}/${id}/bank-accounts`);
+  }
+
+  /** Re-authenticates (step-up): changing where a supplier is paid is resolved by the interceptor. */
+  addBankAccount(
+    id: string,
+    account: { bankName: string; accountNumber: string; accountType: 'CHECKING' | 'SAVINGS'; accountHolder?: string | null; isDefault?: boolean },
+  ): Observable<SupplierBankAccount> {
+    return this.http.post<SupplierBankAccount>(`${this.apiUrl}/${id}/bank-accounts`, account);
+  }
+
+  makeDefaultBankAccount(id: string, accountId: string): Observable<SupplierBankAccount> {
+    return this.http.patch<SupplierBankAccount>(`${this.apiUrl}/${id}/bank-accounts/${accountId}`, { isDefault: true });
+  }
+
+  removeBankAccount(id: string, accountId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}/bank-accounts/${accountId}`);
   }
 
   updateSupplier(id: string, supplier: UpdateSupplierDto): Observable<Supplier> {

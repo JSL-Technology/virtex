@@ -84,7 +84,7 @@ export class DatasheetImportService {
         permission: PERMISSIONS.INVOICES_VIEW,
         columns: {
           numero: 'invoiceNumber',
-          ncf: 'fiscalNumber',
+          numero_fiscal: 'fiscalNumber',
           fecha: 'issueDate',
           vencimiento: 'dueDate',
           cliente: 'customerName',
@@ -131,7 +131,7 @@ export class DatasheetImportService {
         set: 'bills',
         permission: PERMISSIONS.ACCOUNTS_PAYABLE_VIEW,
         columns: {
-          ncf: 'ncf',
+          numero_fiscal: 'supplierFiscalNumber',
           fecha: 'date',
           vencimiento: 'dueDate',
           moneda: 'currencyCode',

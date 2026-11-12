@@ -479,7 +479,7 @@ export class JournalEntriesService {
         currencyCode as string,
         baseCurrency,
         toIsoDate(entryDate),
-        exchangeRate === undefined ? null : this.amount(exchangeRate, 'exchangeRate'),
+        exchangeRate === undefined || exchangeRate === null ? null : this.rate(exchangeRate),
       );
       rate = resolvedRate.rate;
     }
@@ -521,6 +521,7 @@ export class JournalEntriesService {
     const mappingRules = await this.mappingRulesBySource(manager, organizationId);
 
     const finalLines: JournalEntryLine[] = [];
+    const lineRateChecks = new Map<string, Promise<ResolvedRate>>();
     let convertedDebitCents = 0;
     let convertedCreditCents = 0;
 
@@ -558,10 +559,18 @@ export class JournalEntriesService {
         // currencies by construction. Those entries used to store no document amount at all, so
         // `foreignCurrencyBalancesAsOf` — what the period-end revaluation restates — never saw a
         // single bank transfer.
-        line.currencyCode = lineDto.currencyCode.toUpperCase();
-        line.foreignCurrencyDebit = lineDto.foreignCurrencyDebit ?? 0;
-        line.foreignCurrencyCredit = lineDto.foreignCurrencyCredit ?? 0;
-        line.exchangeRate = lineDto.exchangeRate;
+        //
+        // Those document amounts and the rate are checked, never stored as sent (audit 2026-11-07,
+        // FIN-JE-01; pattern SP-04): `{debit: 100, foreignCurrencyDebit: 1, exchangeRate: 999}` was
+        // accepted, and the revaluation then restated a dollar balance that never existed.
+        const checked = await this.checkLineCurrency(manager, organizationId, baseCurrency, toIsoDate(entryDate), lineDto, {
+          system: Boolean(context.systemReason),
+          rateCache: lineRateChecks,
+        });
+        line.currencyCode = checked.currencyCode;
+        line.foreignCurrencyDebit = checked.foreignDebit;
+        line.foreignCurrencyCredit = checked.foreignCredit;
+        line.exchangeRate = checked.rate ?? undefined;
       }
 
       convertedDebitCents += toCents(line.debit);
@@ -753,6 +762,105 @@ export class JournalEntriesService {
         systemReason: context.systemReason ?? null,
       },
     });
+  }
+
+  /**
+   * A stated exchange rate, at the six decimals the `exchange_rate` columns keep. It used to go
+   * through `amount()`, which rounds to cents: 58.4567 became 58.46, the tolerance check then
+   * compared the wrong number, and a rate below 0.005 (JPY→USD, COP→USD) rounded to 0 and was
+   * refused as non-positive (audit 2026-11-07, XF-09).
+   */
+  /**
+   * A line that states its own currency (FIN-JE-01). `debit`/`credit` are the ledger amounts and
+   * stay the caller's — only it knows at which of several rates a cross-currency transfer settled —
+   * but what the line says about the document is held to them:
+   *
+   *  - the document amount is on the same side as the ledger amount, and not negative;
+   *  - ledger = document × rate, to the cent; with no rate stated, the rate IS ledger ÷ document;
+   *  - a rate a person typed is within the tenant's tolerance of the published quote for the day,
+   *    exactly as the entry-level rate is. A system posting brings a rate the resolver already gave it;
+   *  - a line in the books' own currency carries the same amount at rate 1;
+   *  - a ledger amount with no document amount is a translation adjustment, which only the
+   *    revaluation writes: a person cannot post one.
+   */
+  private async checkLineCurrency(
+    manager: EntityManager,
+    organizationId: string,
+    baseCurrency: string,
+    date: string,
+    lineDto: CreateJournalEntryLineDto,
+    options: { system: boolean; rateCache: Map<string, Promise<ResolvedRate>> },
+  ): Promise<{ currencyCode: string; foreignDebit: number; foreignCredit: number; rate: number | null }> {
+    const currencyCode = (lineDto.currencyCode as string).toUpperCase();
+    const debitCents = toCents(lineDto.debit ?? 0);
+    const creditCents = toCents(lineDto.credit ?? 0);
+    const foreignDebit = lineDto.foreignCurrencyDebit ?? 0;
+    const foreignCredit = lineDto.foreignCurrencyCredit ?? 0;
+    const foreignCents = toCents(foreignDebit) + toCents(foreignCredit);
+    const ledgerCents = debitCents + creditCents;
+
+    if ((toCents(foreignDebit) > 0 && debitCents === 0) || (toCents(foreignCredit) > 0 && creditCents === 0)) {
+      throw new BadRequestError('journal_entries.line_currency_side_mismatch', { currency: currencyCode });
+    }
+
+    if (currencyCode === baseCurrency.toUpperCase()) {
+      if (toCents(foreignDebit) !== debitCents || toCents(foreignCredit) !== creditCents) {
+        throw new BadRequestError('journal_entries.line_currency_base_amount_mismatch', { currency: currencyCode });
+      }
+      return { currencyCode, foreignDebit, foreignCredit, rate: 1 };
+    }
+
+    if (foreignCents === 0) {
+      if (ledgerCents > 0 && !options.system) {
+        throw new BadRequestError('journal_entries.line_currency_amount_required', { currency: currencyCode });
+      }
+      const rate = lineDto.exchangeRate;
+      if (rate !== undefined && rate !== null && !(rate > 0)) {
+        throw new BadRequestError('journal_entries.positive_exchange_rate_required_foreign_currency');
+      }
+      return { currencyCode, foreignDebit: 0, foreignCredit: 0, rate: rate ?? null };
+    }
+
+    const stated = lineDto.exchangeRate;
+    const rate = stated !== undefined && stated !== null ? Number(stated) : ledgerCents / foreignCents;
+    if (!(rate > 0) || !Number.isFinite(rate)) {
+      throw new BadRequestError('journal_entries.positive_exchange_rate_required_foreign_currency');
+    }
+    // One cent of slack per side: the caller rounded the conversion to the minor unit.
+    const expectedDebit = toCents(convert(foreignDebit, rate));
+    const expectedCredit = toCents(convert(foreignCredit, rate));
+    if (Math.abs(expectedDebit - debitCents) > 1 || Math.abs(expectedCredit - creditCents) > 1) {
+      throw new BadRequestError('journal_entries.line_currency_amount_inconsistent', {
+        currency: currencyCode,
+        foreign: roundAmount(foreignCents / 100),
+        rate: roundAmount(rate, 6),
+        expected: roundAmount((expectedDebit + expectedCredit) / 100),
+        ledger: roundAmount(ledgerCents / 100),
+      });
+    }
+
+    if (!options.system) {
+      // Each distinct rate is checked once per entry, against the quote for the entry's date.
+      const key = `${currencyCode}:${roundAmount(rate, 6)}`;
+      let check = options.rateCache.get(key);
+      if (!check) {
+        check = this.rates.resolveForPosting(manager, organizationId, currencyCode, baseCurrency, date, roundAmount(rate, 6));
+        options.rateCache.set(key, check);
+      }
+      await check;
+    }
+    return { currencyCode, foreignDebit, foreignCredit, rate: roundAmount(rate, 6) };
+  }
+
+  private rate(value: unknown): number {
+    try {
+      return roundAmount(requireFiniteAmount(value, 'exchangeRate'), 6);
+    } catch (error) {
+      if (error instanceof MoneyError) {
+        throw new BadRequestError('journal_entries.amount_field_not_valid_number', { field: 'exchangeRate', detail: error.message });
+      }
+      throw error;
+    }
   }
 
   private amount(value: unknown, field: string): number {

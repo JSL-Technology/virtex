@@ -99,6 +99,21 @@
     "en": "The payment for invoice {{invoiceNumber}} ({{amount}}) exceeds its outstanding balance ({{balance}}).",
     "pt": "O pagamento da fatura {{invoiceNumber}} ({{amount}}) excede seu saldo em aberto ({{balance}})."
   },
+  "customers.price_list_assignment_forbidden": {
+    "es": "Asignar una lista de precios a un cliente requiere el permiso para editar listas de precios.",
+    "en": "Assigning a price list to a customer requires permission to edit price lists.",
+    "pt": "Atribuir uma lista de preços a um cliente exige a permissão para editar listas de preços."
+  },
+  "customers.price_list_not_found": {
+    "es": "La lista de precios indicada no existe.",
+    "en": "The price list given does not exist.",
+    "pt": "A lista de preços indicada não existe."
+  },
+  "customers.receipt_currency_differs_from_invoice": {
+    "es": "La factura {{invoiceNumber}} está en {{invoice}} y el cobro en {{receipt}}. Cóbrala con una cuenta en {{invoice}}.",
+    "en": "Invoice {{invoiceNumber}} is in {{invoice}} and the receipt in {{receipt}}. Collect it into an account in {{invoice}}.",
+    "pt": "A fatura {{invoiceNumber}} está em {{invoice}} e o recebimento em {{receipt}}. Receba-a numa conta em {{invoice}}."
+  },
   "customers.receipt_has_already_voided": {
     "es": "Este cobro ya fue anulado.",
     "en": "This receipt has already been voided.",

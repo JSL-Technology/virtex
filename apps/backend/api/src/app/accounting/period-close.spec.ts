@@ -70,6 +70,7 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
   let balances: AccountBalancesService;
   let reporting: FinancialReportingService;
   let closing: PeriodClosingService;
+  let revaluation: CurrencyRevaluationService;
   let yearEnd: YearEndCloseService;
 
   let organizationId: string;
@@ -144,7 +145,7 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
     // funcional del inquilino y resuelve su diario por código en vez de recibirlos hechos. El spec
     // se quedó con cuatro y dejó de compilar, así que el cierre de periodo —el proceso que este
     // archivo existe para proteger— no se ha ejecutado desde entonces.
-    const revaluation = new CurrencyRevaluationService(
+    revaluation = new CurrencyRevaluationService(
       entries,
       balances,
       rateResolver,
@@ -581,6 +582,58 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       asOf: '2026-02-28',
     });
     expect(revenue).toBe(-20_000);
+  });
+
+  it('revalues an open foreign-currency position at the closing rate, once (FINB-01)', async () => {
+    // A dollar balance on a monetary account, booked at 58 and restated at 60 on 31 January.
+    await dataSource.getRepository(OrganizationSettings).update({ organizationId }, { defaultCashId: account['cash'] });
+    await entries.create(
+      {
+        date: '2026-01-10',
+        description: 'Cobro en dólares',
+        journalId: generalJournalId,
+        lines: [
+          { accountId: account['cash'], debit: 5_800, credit: 0, currencyCode: 'USD', foreignCurrencyDebit: 100, foreignCurrencyCredit: 0, exchangeRate: 58 },
+          { accountId: account['revenue'], debit: 0, credit: 5_800 },
+        ],
+      } as CreateJournalEntryDto,
+      organizationId,
+      // Posted the way collections posts it: a system posting whose rate the module resolved. A
+      // person typing this line by hand is held to the day's published quote (FIN-JE-01).
+      { ...ctx, systemReason: 'Cobro en divisa' },
+    );
+    await dataSource.query(`INSERT INTO exchange_rate ("fromCurrency", "toCurrency", rate, date) VALUES ('USD', 'DOP', 60, '2026-01-31')`).catch(() => undefined);
+
+    const [first] = await revaluation.run('2026-01-31', organizationId);
+    expect(first).toMatchObject({ positions: 1, adjusted: 1 });
+    expect(await balances.balanceOf(account['cash'], { organizationId, ledgerId, asOf: '2026-01-31' })).toBe(6_000);
+    expect(await balances.balanceOf(account['forex'], { organizationId, ledgerId, asOf: '2026-01-31' })).toBe(-200); // a gain
+
+    // Running it again restates nothing: the adjustment moved the carrying amount of that currency.
+    const [second] = await revaluation.run('2026-01-31', organizationId);
+    expect(second).toMatchObject({ positions: 1, adjusted: 0 });
+  });
+
+  it('stops instead of skipping when a currency to revalue has no closing rate (FINB-01)', async () => {
+    await dataSource.getRepository(OrganizationSettings).update({ organizationId }, { defaultCashId: account['cash'] });
+    await entries.create(
+      {
+        date: '2026-02-10',
+        description: 'Cobro en francos',
+        journalId: generalJournalId,
+        lines: [
+          { accountId: account['cash'], debit: 650, credit: 0, currencyCode: 'CHF', foreignCurrencyDebit: 10, foreignCurrencyCredit: 0, exchangeRate: 65 },
+          { accountId: account['revenue'], debit: 0, credit: 650 },
+        ],
+      } as CreateJournalEntryDto,
+      organizationId,
+      // Posted the way collections posts it: a system posting whose rate the module resolved. A
+      // person typing this line by hand is held to the day's published quote (FIN-JE-01).
+      { ...ctx, systemReason: 'Cobro en divisa' },
+    );
+    await expect(revaluation.run('2026-02-28', organizationId)).rejects.toMatchObject({
+      messageKey: 'accounting.revaluation.closing_rate_missing',
+    });
   });
 
   it('refuses to close a period twice', async () => {

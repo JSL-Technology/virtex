@@ -6,7 +6,9 @@ import { CountryService, SupportedCountry } from '../../../../core/services/coun
 import { NotificationService } from '../../../../core/services/notification';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Building, Plus, X, Pencil } from 'lucide-angular';
-import { SubsidiariesService, Subsidiary, CreateSubsidiaryDto, UpdateSubsidiaryDto } from './subsidiaries.service';
+import { SubsidiariesService, Subsidiary, CreateSubsidiaryDto, UpdateSubsidiaryDto, LinkSubsidiaryDto } from './subsidiaries.service';
+import { AuthService } from '../../../../core/services/auth';
+import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { Observable, map } from 'rxjs';
 import { TranslateModule, accountNameOf, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
 import { Account, AccountType } from '../../../../core/models/account.model';
@@ -57,6 +59,68 @@ export class SubsidiariesPage implements OnInit {
   private fb = inject(FormBuilder);
   private readonly countryService = inject(CountryService);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
+  private readonly tenancy = inject(ActiveOrganizationService);
+
+  /** Linking an existing company (FINB-35). */
+  readonly linking = signal(false);
+  readonly savingLink = signal(false);
+  readonly linkForm = this.fb.group({
+    organizationId: ['', Validators.required],
+    ownership: [100, [Validators.required, Validators.min(0), Validators.max(100)]],
+    acquisitionDate: [''],
+    acquisitionCost: [null as number | null, Validators.min(0)],
+    investmentAccountId: [''],
+  });
+
+  /**
+   * The companies the person belongs to that are not this one nor already in the list. The server
+   * decides whether they administer it; this only avoids offering the obvious non-candidates.
+   */
+  protected linkCandidates(): Array<{ id: string; legalName: string }> {
+    const current = this.tenancy.organization()?.id;
+    const linked = new Set(this.subsidiaries().map((s) => s.subsidiaryOrganizationId));
+    return (this.auth.currentUser()?.organizations ?? [])
+      .filter((org) => org.id !== current && !linked.has(org.id))
+      .map((org) => ({ id: org.id, legalName: org.legalName ?? org.id }));
+  }
+
+  openLink(): void {
+    this.linkForm.reset({ organizationId: '', ownership: 100, acquisitionDate: '', acquisitionCost: null, investmentAccountId: '' });
+    this.linking.set(true);
+  }
+
+  closeLink(): void {
+    this.linking.set(false);
+  }
+
+  saveLink(): void {
+    if (this.linkForm.invalid) {
+      this.linkForm.markAllAsTouched();
+      return;
+    }
+    const value = this.linkForm.getRawValue();
+    const body: LinkSubsidiaryDto = {
+      organizationId: value.organizationId as string,
+      ownership: Number(value.ownership),
+      acquisitionDate: value.acquisitionDate || null,
+      acquisitionCost: value.acquisitionCost === null || (value.acquisitionCost as unknown) === '' ? null : Number(value.acquisitionCost),
+      investmentAccountId: value.investmentAccountId || null,
+    };
+    this.savingLink.set(true);
+    this.subsidiariesService.linkSubsidiary(body).subscribe({
+      next: () => {
+        this.savingLink.set(false);
+        this.notifications.showSuccess('settings.subsidiaries.linked');
+        this.closeLink();
+        this.loadSubsidiaries();
+      },
+      error: (error: unknown) => {
+        this.savingLink.set(false);
+        this.notifications.showHttpError(error, 'settings.subsidiaries.link_failed');
+      },
+    });
+  }
   /**
    * The example identifier for the country currently selected on the form.
    *

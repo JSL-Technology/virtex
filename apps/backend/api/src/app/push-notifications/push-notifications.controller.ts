@@ -1,11 +1,11 @@
-import { Controller, Post, Body, Delete, Req } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PushSubscription } from './entities/push-subscription.entity';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../security/principal';
 import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';
+import { SubscribePushDto, UnsubscribePushDto } from './dto/push-subscription.dto';
 
 @Controller('push')
 @AuthenticatedOnly(
@@ -18,25 +18,33 @@ export class PushNotificationsController {
     private readonly pushSubscriptionRepository: Repository<PushSubscription>,
   ) {}
 
+  /**
+   * Register this browser for the signed-in user.
+   *
+   * Keyed by (user, endpoint) and written with an upsert, never by a caller-supplied id: the previous
+   * `create({ ...body })` + `save()` treated an `id` in the body as "update that row", so any user
+   * could take over anyone's subscription (PLT-NOT-01). An endpoint already registered to ANOTHER
+   * user moves to this one: it identifies a browser, and that browser is now signed in as this user.
+   */
   @Post('subscribe')
-  async subscribe(
-    @Body() subscriptionDto: { endpoint: string; p256dh: string; auth: string },
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
-    const subscription = this.pushSubscriptionRepository.create({
-      ...subscriptionDto,
-      userId: user.id,
+  @HttpCode(HttpStatus.OK)
+  async subscribe(@Body() dto: SubscribePushDto, @CurrentUser() user: AuthenticatedUser) {
+    await this.pushSubscriptionRepository.manager.transaction(async (manager) => {
+      await manager.delete(PushSubscription, { endpoint: dto.endpoint });
+      await manager.insert(PushSubscription, {
+        endpoint: dto.endpoint,
+        p256dh: dto.keys.p256dh,
+        auth: dto.keys.auth,
+        userId: user.id,
+      });
     });
-    await this.pushSubscriptionRepository.save(subscription);
     return { success: true };
   }
 
   @Delete('unsubscribe')
-  async unsubscribe(
-    @Body() body: { endpoint: string },
-    @CurrentUser() user: AuthenticatedUser,
-    ) {
-    await this.pushSubscriptionRepository.delete({ endpoint: body.endpoint, userId: user.id });
+  @HttpCode(HttpStatus.OK)
+  async unsubscribe(@Body() dto: UnsubscribePushDto, @CurrentUser() user: AuthenticatedUser) {
+    await this.pushSubscriptionRepository.delete({ endpoint: dto.endpoint, userId: user.id });
     return { success: true };
   }
 }

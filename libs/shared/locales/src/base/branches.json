@@ -300,9 +300,9 @@
     "pt": "Nenhum"
   },
   "branches.settings.not_subsidiary": {
-    "es": "Una sucursal es esta misma empresa en otro lugar: mismo RNC/RUC, mismos libros. Una empresa distinta que te pertenece es una subsidiaria.",
+    "es": "Una sucursal es esta misma empresa en otro lugar: misma identificación fiscal, mismos libros. Una empresa distinta que te pertenece es una subsidiaria.",
     "en": "A branch is this same company in another place: same tax id, same books. A separate company you own is a subsidiary.",
-    "pt": "Uma filial é esta mesma empresa em outro local: mesmo CNPJ, mesmos livros. Uma empresa distinta que lhe pertence é uma subsidiária."
+    "pt": "Uma filial é esta mesma empresa em outro local: mesma identificação fiscal, mesmos livros. Uma empresa distinta que lhe pertence é uma subsidiária."
   },
   "branches.settings.phone": {
     "es": "Teléfono",

@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
-import { COUNTRY_TAX_SCHEMES } from '../country-tax-schemes';
+import { marketFor } from '../../../markets';
 import {
   TAX_DETERMINATION_PROVIDERS,
   TaxDetermination,
@@ -11,7 +11,7 @@ import { TenantJurisdictionProvider } from './tenant-jurisdiction.provider';
 /**
  * Which rate a sale bears, in the markets where no national rate exists.
  *
- * `COUNTRY_TAX_SCHEMES` marks the United States and Brazil `configurationRequired` because their
+ * The United States and Brazil tax by jurisdiction (`markets/<cc>/taxes.ts`, `model`) because their
  * base is sub-national, and `allowedTaxFractions` therefore constrained nothing for them — so the
  * rate arrived on the request and nothing checked it. A product sold in the United States charged
  * whatever number reached the API: no jurisdiction determination, no destination sourcing, no
@@ -41,12 +41,12 @@ export class TaxDeterminationService {
   /**
    * Whether this country's rate has to be determined rather than taken from a table.
    *
-   * The same flag that marks the country's scheme as needing configuration: there is no national
-   * rate to validate against, so the rate has to come from somewhere that knows the address.
+   * A market that taxes by jurisdiction has no national rate to validate against, so the rate has
+   * to come from somewhere that knows the address.
    */
   requiresDetermination(countryCode: string | null | undefined): boolean {
     if (!countryCode) return false;
-    return COUNTRY_TAX_SCHEMES[countryCode.toUpperCase()]?.configurationRequired === true;
+    return marketFor(countryCode).taxes.model === 'BY_JURISDICTION';
   }
 
   async determine(request: TaxDeterminationRequest): Promise<TaxDetermination> {
@@ -63,7 +63,20 @@ export class TaxDeterminationService {
       };
     }
 
-    const determination = await provider.determine(request);
+    let determination = await provider.determine(request);
+    // "No registration, no tax" is a rule of United States sales tax (nexus), not of tax in general.
+    // Brazil goes through the same tenant-jurisdiction provider, and with nothing configured it
+    // answered NO_NEXUS — so a Brazilian tenant invoiced at 0 % with no warning (audit 2026-11-07,
+    // LOC-01), where ICMS, ISS and PIS/COFINS are always due. Anywhere the scheme does not say
+    // otherwise, an unconfigured jurisdiction is something to fix before issuing, not a zero.
+    if (determination.outcome === 'NO_NEXUS' && marketFor(country).taxes.scheme.noRegistrationMeansNoTax !== true) {
+      determination = {
+        ...determination,
+        outcome: 'NOT_DETERMINABLE',
+        reasonKey: 'localization.tax_configuration_required_before_invoicing',
+        reasonParams: { countryCode: country },
+      };
+    }
     if (determination.outcome !== 'DETERMINED') {
       this.logger.warn(
         `Determinación de impuesto ${determination.outcome} para ${country}/` +

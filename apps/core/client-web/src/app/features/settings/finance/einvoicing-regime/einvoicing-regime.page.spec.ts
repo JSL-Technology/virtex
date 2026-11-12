@@ -1,13 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
 import { EinvoicingRegimePage } from './einvoicing-regime.page';
+import type { TenantCountryPackResponse } from '@virteex/shared/types';
+import { provideMutableTestCountryPack, testCountryPack } from '../../../../core/api/country-pack.service.testing';
 import {
   FiscalRange,
   FiscalRegimeSettings,
   MarketCoverage,
 } from '../../../../core/api/fiscal-settings.service';
+import { FiscalRangesCardComponent } from '../../fiscal/shared';
+import { By } from '@angular/platform-browser';
 import { environment } from '../../../../../environments/environment';
 
 /**
@@ -19,7 +22,8 @@ import { environment } from '../../../../../environments/environment';
  * nowhere for the tenant to go.
  *
  * What the tests below pin is the part that would fail quietly: which fields a market is asked
- * for, and that the CAF never comes back out of the API.
+ * for, and which kind of material its ranges carry. The ranges themselves are the shared card's
+ * (`fiscal-ranges-card.component.spec.ts`), the same in every market.
  */
 describe('EinvoicingRegimePage', () => {
   let fixture: ComponentFixture<EinvoicingRegimePage>;
@@ -28,6 +32,10 @@ describe('EinvoicingRegimePage', () => {
 
   const localization = `${environment.apiUrl}/localization`;
   const regime = `${environment.apiUrl}/einvoicing/regime`;
+  let transmission: Record<string, unknown> = {
+    countryCode: 'CL', transmissionEndpoint: null, statusEndpoint: null, soapAction: null,
+    credentialScheme: null, hasCredential: false, credentialUpdatedAt: null, configured: false,
+  };
 
   const coverageFor = (countryCode: string): MarketCoverage => ({
     countryCode,
@@ -46,14 +54,58 @@ describe('EinvoicingRegimePage', () => {
     validUntil: '2027-12-31',
     authorizationCode: 'CAF-2026-33',
     hasSecret: true,
-    secretKind: 'CAF_XML',
+    secretKind: 'AUTHORISED_FOLIOS',
+    runningLow: false,
+    expired: false,
     ...overrides,
   });
 
+  /**
+   * What each market declares about its regime, as the country pack publishes it.
+   *
+   * The page used to carry this itself, keyed by country code; the test therefore proved the
+   * client's own copy of the list rather than the market's declaration.
+   */
+  const REGIMES: Record<string, TenantCountryPackResponse['einvoicing']> = {
+    DO: { regime: 'DGII e-CF', required: true, channel: 'CERTIFICATE', settingsFields: [], rangeSecret: null },
+    EC: {
+      regime: 'SRI Comprobantes Electrónicos',
+      required: true,
+      channel: 'ENDPOINT',
+      settingsFields: ['establishment', 'emissionPoint', 'numericCode'],
+      rangeSecret: null,
+    },
+    BR: {
+      regime: 'NF-e',
+      required: true,
+      channel: 'ENDPOINT',
+      settingsFields: ['stateCode', 'municipalityCode', 'numericCode'],
+      rangeSecret: null,
+    },
+    CL: {
+      regime: 'SII DTE',
+      required: true,
+      channel: 'ENDPOINT',
+      settingsFields: ['activityCode', 'originComuna', 'originCity'],
+      rangeSecret: 'AUTHORISED_FOLIOS',
+    },
+    CO: { regime: 'DIAN Factura Electrónica', required: true, channel: 'ENDPOINT', settingsFields: ['resolutionNumber'], rangeSecret: 'TECHNICAL_KEY' },
+    PE: { regime: 'SUNAT CPE', required: true, channel: 'ENDPOINT', settingsFields: [], rangeSecret: null },
+    MX: { regime: 'CFDI 4.0', required: true, channel: 'ENDPOINT', settingsFields: [], rangeSecret: null },
+    AR: { regime: 'AFIP CAE', required: true, channel: 'ENDPOINT', settingsFields: [], rangeSecret: null },
+    // A market whose law has a regime the product does not operate: no channel to configure.
+    PA: { regime: 'DGI SFEP', required: true, channel: null, settingsFields: [], rangeSecret: null },
+    US: { regime: null, required: false, channel: null, settingsFields: [], rangeSecret: null },
+  };
+
+  const packs = provideMutableTestCountryPack();
+
   beforeEach(async () => {
+    // The pack outlives one test, so each starts from the same market and says which it wants.
+    packs.set(testCountryPack({ countryCode: 'DO', einvoicing: REGIMES['DO'] }));
     await TestBed.configureTestingModule({
       imports: [EinvoicingRegimePage],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), packs.provider],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EinvoicingRegimePage);
@@ -69,9 +121,11 @@ describe('EinvoicingRegimePage', () => {
     settings: FiscalRegimeSettings | null = null,
     ranges: FiscalRange[] = [],
   ) => {
+    // The market is what its own package declares: the page reads it, it does not keep a list.
+    packs.set(testCountryPack({ countryCode, einvoicing: REGIMES[countryCode] ?? REGIMES['US'] }));
     httpMock.expectOne((r) => r.url === `${localization}/fiscal-coverage`).flush(coverageFor(countryCode));
     httpMock.expectOne((r) => r.url === `${regime}/settings` && r.method === 'GET').flush(settings);
-    httpMock.expectOne((r) => r.url === `${regime}/ranges` && r.method === 'GET').flush(ranges);
+    httpMock.expectOne((r) => r.url === `${regime}/transmission` && r.method === 'GET').flush(transmission);
     httpMock.expectOne((r) => r.url === `${localization}/fiscal-document-types`).flush(documentTypes);
     // A market with one kind of document and no certificate on this screen's tests: the shared
     // cards (emission mode, certificate) have nothing further to ask for.
@@ -90,7 +144,15 @@ describe('EinvoicingRegimePage', () => {
       today: '2026-10-11',
     });
     fixture.detectChanges();
+    // A market with a regime shows the ranges card, which reads the ranges itself.
+    if (component.hasRegime()) {
+      httpMock.expectOne((r) => r.url === `${regime}/ranges` && r.method === 'GET').flush(ranges);
+      fixture.detectChanges();
+    }
   };
+
+  const card = (): FiscalRangesCardComponent =>
+    fixture.debugElement.query(By.directive(FiscalRangesCardComponent)).componentInstance as FiscalRangesCardComponent;
 
   const documentTypes = [
     { code: '33', labelKey: 'fiscal.cl.33', name: 'Factura Electrónica', sequenceFormat: null, expirationRequired: false, isElectronic: true, side: 'sales', isCreditNote: false, requiresBuyerTaxId: false },
@@ -147,63 +209,18 @@ describe('EinvoicingRegimePage', () => {
     saved.flush({ environment: 'PRODUCTION' });
   });
 
-  it('derives the secret kind from the market, so nobody has to know it is called CAF_XML', () => {
-    flush('CL');
-
-    component.rangeForm.patchValue({
-      documentType: '33',
-      startsAt: 1,
-      endsAt: 100,
-      secret: '<AUTORIZACION><CAF/></AUTORIZACION>',
-    });
-    component.registerRange();
-
-    const created = httpMock.expectOne((r) => r.url === `${regime}/ranges` && r.method === 'POST');
-    expect(created.request.body.secretKind).toBe('CAF_XML');
-    created.flush(range());
-
-    httpMock.expectOne((r) => r.url === `${regime}/ranges` && r.method === 'GET').flush([range()]);
-    // A new range can make a type issuable: what the company can issue is read again.
-    httpMock.expectOne((r) => r.url === `${environment.apiUrl}/invoices/context`);
-  });
-
-  it('refuses a range whose upper bound is below its lower one', () => {
-    flush('CL');
-
-    component.rangeForm.patchValue({ documentType: '33', startsAt: 100, endsAt: 1 });
-    component.registerRange();
-
-    httpMock.expectNone((r) => r.method === 'POST');
-  });
-
-  it('shows only whether the range carries authority material, never the material', () => {
+  it("hands the ranges card the material its market's ranges carry, and the market's types", () => {
     flush('CL', null, [range()]);
 
-    const text = fixture.nativeElement.textContent as string;
-    // A CAF read back through an API lets whoever reads it stamp documents in the taxpayer's name.
-    expect(text).toContain('settings.pages.einvoicing.has_secret');
-    expect(text).not.toContain('AUT-0001');
-    expect(component.ranges()[0].hasSecret).toBe(true);
+    // A tenant should not have to know that their CAF is called `AUTHORISED_FOLIOS` in this product.
+    expect(card().secretKind()).toBe('AUTHORISED_FOLIOS');
+    expect(card().documentTypes().map((type) => type.code)).toEqual(['33', '61']);
+    expect(card().ranges()).toHaveLength(1);
   });
 
-  it('warns before a range runs out, because a new one takes days to obtain', () => {
-    flush('CL', null, [range({ remaining: 12 })]);
-    expect(component.runningOut(component.ranges()[0])).toBe(true);
-    expect(fixture.nativeElement.textContent).toContain('settings.pages.einvoicing.running_out');
-  });
-
-  it('flags an expired authorisation however many numbers remain', () => {
-    flush('CL', null, [range({ validUntil: '2020-01-31', remaining: 900 })]);
-
-    // Numbers left is not the same as usable: the SII refuses a folio drawn from an expired CAF.
-    expect(component.expired(component.ranges()[0])).toBe(true);
-    expect(component.runningOut(component.ranges()[0])).toBe(false);
-  });
-
-  it('keeps a retired range in the list, because past documents were issued under it', () => {
-    flush('CL', null, [range({ isActive: false })]);
-    expect(component.ranges()).toHaveLength(1);
-    expect(fixture.nativeElement.textContent).toContain('settings.pages.einvoicing.retired');
+  it('asks for no authority material where the market issues none with its ranges', () => {
+    flush('EC');
+    expect(card().secretKind()).toBeNull();
   });
 
   it('renders stored nulls as empty fields rather than the string "null"', () => {
@@ -215,5 +232,40 @@ describe('EinvoicingRegimePage', () => {
     } as FiscalRegimeSettings);
 
     expect(component.settingsForm.controls.originComuna.value).toBe('');
+  });
+
+  describe('transmission (FAC-EINV-04)', () => {
+    it('never shows the stored credential, only that one is stored', () => {
+      transmission = { ...transmission, transmissionEndpoint: 'https://pac.example.com/stamp', credentialScheme: 'BEARER', hasCredential: true, configured: true };
+      try {
+        flush('MX');
+        expect(component.transmissionForm.getRawValue().credential).toBe('');
+        expect(fixture.nativeElement.textContent).toContain('settings.pages.einvoicing.transmission.credential_stored');
+      } finally {
+        transmission = { ...transmission, hasCredential: false, configured: false, transmissionEndpoint: null };
+      }
+    });
+
+    it('a blank credential keeps the stored one; a typed one replaces it', () => {
+      flush('MX');
+      component.transmissionForm.patchValue({ transmissionEndpoint: 'https://pac.example.com/stamp', credential: '' });
+      component.saveTransmission();
+      const kept = httpMock.expectOne((r) => r.url === `${regime}/transmission` && r.method === 'PUT');
+      expect('credential' in kept.request.body).toBe(false);
+      kept.flush({ ...transmission, configured: true });
+      httpMock.match(() => true);
+
+      component.transmissionForm.patchValue({ credential: 'nuevo-token' });
+      component.saveTransmission();
+      const replaced = httpMock.expectOne((r) => r.url === `${regime}/transmission` && r.method === 'PUT');
+      expect(replaced.request.body.credential).toBe('nuevo-token');
+    });
+
+    it('refuses an endpoint that is not HTTPS before asking the server', () => {
+      flush('MX');
+      component.transmissionForm.patchValue({ transmissionEndpoint: 'http://pac.example.com/stamp' });
+      component.saveTransmission();
+      httpMock.expectNone((r) => r.url === `${regime}/transmission` && r.method === 'PUT');
+    });
   });
 });

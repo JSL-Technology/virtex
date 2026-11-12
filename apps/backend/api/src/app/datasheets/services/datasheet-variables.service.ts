@@ -22,7 +22,7 @@ import { FinancialReportingService } from '../../financial-reporting/financial-r
 import { TreasuryService } from '../../treasury/treasury.service';
 import { ExchangeRateResolver } from '../../currencies/exchange-rate-resolver.service';
 import { FiscalCalendarService } from '../../accounting/fiscal-calendar.service';
-import { findTaxScheme } from '../../localization/fiscal/country-tax-schemes';
+import { taxSchemeFor } from '../../markets';
 import { roundAmount, sumAmounts } from '../../common/money';
 import { addDaysIso, toIsoDate } from '../../common/dates';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
@@ -350,7 +350,7 @@ export class DatasheetVariablesService {
           where: { id: org },
           select: ['id', 'country'],
         });
-        const scheme = findTaxScheme(organization?.country ?? '');
+        const scheme = taxSchemeFor(organization?.country);
         const standard = scheme?.taxes.find((tax) => tax.rate > 0);
         if (!standard) {
           // A country whose base is sub-national (US, BR) has no single national rate to state.

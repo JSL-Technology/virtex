@@ -30,7 +30,8 @@ export interface PolicyField {
   field: string;
   labelKey: string;
   helpKey?: string;
-  kind: 'integer' | 'percent' | 'select';
+  /** `basis-points`: shown and typed as a percentage, stored as an integer (250 = 2.5 %). */
+  kind: 'integer' | 'percent' | 'basis-points' | 'select';
   min?: number;
   max?: number;
   /** For `select`: the values and the catalogue prefix that names each. */
@@ -219,6 +220,17 @@ export class SettingsSectionComponent implements OnInit {
   }
 
   /** Whether a field currently differs from its default, so «Restore default» is worth offering. */
+  /** A basis-points policy as the percentage a person reads (250 → 2.5). */
+  protected percentFromBasisPoints(field: string): number | null {
+    const value = this.fieldValueOf(field);
+    return value === null || value === undefined || value === '' ? null : Number(value) / 100;
+  }
+
+  /** …and the percentage they type back as whole basis points, which is what the column holds. */
+  protected setBasisPoints(field: string, percent: unknown): void {
+    this.setField(field, percent === null || percent === '' || percent === undefined ? null : Math.round(Number(percent) * 100));
+  }
+
   protected differsFromDefault(field: string, kind: 'account' | 'field'): boolean {
     if (kind === 'account') {
       const fallback = this.defaultAccountOf(field);

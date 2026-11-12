@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { blankToNullTransformer } from '../../common/database/blank-to-null.transformer';
 import { TenantOwned, TenantRef } from '../../organizations/contracts/tenant-owned.contract';
-import type { PaymentSettlementKind } from '../../contracts/country-pack/country-pack';
+import type { PaymentSettlementKind } from '../../markets';
 
 /**
  * A way the company is paid or pays: cash, ACH, Zelle, a DGII «forma de pago».

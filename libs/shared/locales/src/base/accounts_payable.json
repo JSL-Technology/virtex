@@ -69,6 +69,11 @@
     "en": "Bill {{id}} is {{status}} and cannot take a payment.",
     "pt": "A fatura {{id}} está em {{status}} e não admite pagamentos."
   },
+  "accounts_payable.bill_not_on_match_hold": {
+    "es": "Esta factura no está retenida por el cotejo con la orden de compra.",
+    "en": "This bill is not held by the purchase-order match.",
+    "pt": "Esta fatura não está retida pela conferência com a ordem de compra."
+  },
   "accounts_payable.bill_price_difference_already_consumed": {
     "es": "No se puede anular: la mercancía «{{product}}» que esta factura revalorizó ya se vendió. Corrígela con una nota de débito.",
     "en": "Cannot void: the goods “{{product}}” this bill revalued have already been sold. Correct it with a debit note.",
@@ -109,15 +114,45 @@
     "en": "Attach photo or PDF",
     "pt": "Anexar foto ou PDF"
   },
+  "accounts_payable.capture.document_error.check_digit": {
+    "es": "El número de documento leído ({{document}}) no pasa su dígito verificador; no se llenó.",
+    "en": "The document number read ({{document}}) fails its check digit; it was not filled in.",
+    "pt": "O número do documento lido ({{document}}) não passa o dígito verificador; não foi preenchido."
+  },
+  "accounts_payable.capture.document_error.format": {
+    "es": "El número de documento leído ({{document}}) no tiene el formato que exige el mercado de la empresa; no se llenó.",
+    "en": "The document number read ({{document}}) is not in the format the company's market requires; it was not filled in.",
+    "pt": "O número do documento lido ({{document}}) não tem o formato exigido pelo mercado da empresa; não foi preenchido."
+  },
+  "accounts_payable.capture.document_error.unknown_type": {
+    "es": "El tipo de documento que indica el número leído ({{document}}) no existe en el catálogo de la autoridad; no se llenó.",
+    "en": "The document type the number read ({{document}}) states is not in the authority’s catalogue; it was not filled in.",
+    "pt": "O tipo de documento indicado pelo número lido ({{document}}) não existe no catálogo da autoridade; não foi preenchido."
+  },
   "accounts_payable.capture.document_unverified": {
-    "es": "Se copió el número de documento ({{ncf}}) tal como está impreso; en este mercado no tiene una verificación automática.",
-    "en": "The document number ({{ncf}}) was copied as printed; this market has no automatic check for it.",
-    "pt": "O número do documento ({{ncf}}) foi copiado como está impresso; neste mercado não há verificação automática."
+    "es": "Se copió el número de documento ({{document}}) tal como está impreso; en este mercado no tiene una verificación automática.",
+    "en": "The document number ({{document}}) was copied as printed; this market has no automatic check for it.",
+    "pt": "O número do documento ({{document}}) foi copiado como está impresso; neste mercado não há verificação automática."
+  },
+  "accounts_payable.capture.document_warning.credit_note_on_bill": {
+    "es": "{{document}} es una nota de crédito, no una factura.",
+    "en": "{{document}} is a credit note, not an invoice.",
+    "pt": "{{document}} é uma nota de crédito, não uma fatura."
+  },
+  "accounts_payable.capture.document_warning.no_tax_credit": {
+    "es": "{{document}} es un documento que no da derecho a crédito del impuesto al consumo.",
+    "en": "{{document}} is a document that carries no consumption-tax credit.",
+    "pt": "{{document}} é um documento que não dá direito a crédito do imposto sobre o consumo."
+  },
+  "accounts_payable.capture.document_warning.sales_only_type": {
+    "es": "{{document}} es un tipo que no se recibe en compras: verifica que se leyó bien.",
+    "en": "{{document}} is a type not received on purchases: check it was read correctly.",
+    "pt": "{{document}} é um tipo que não se recebe em compras: confirme que foi bem lido."
   },
   "accounts_payable.capture.duplicate": {
-    "es": "Ya registraste una factura de este proveedor con el NCF {{ncf}}.",
-    "en": "You already recorded a bill from this supplier with NCF {{ncf}}.",
-    "pt": "Já registou uma fatura deste fornecedor com o NCF {{ncf}}."
+    "es": "Ya registraste una factura de este proveedor con el documento {{document}}.",
+    "en": "You have already recorded a bill from this supplier with document {{document}}.",
+    "pt": "Você já registrou uma fatura deste fornecedor com o documento {{document}}."
   },
   "accounts_payable.capture.failed": {
     "es": "No se pudo leer el documento. Puedes llenar la factura a mano.",
@@ -135,9 +170,9 @@
     "pt": "O país da empresa não tem regras fiscais configuradas: o identificador e o número do documento não foram verificados."
   },
   "accounts_payable.capture.intro_attach": {
-    "es": "Adjunta la foto o el PDF de la factura: queda guardado con ella como evidencia para la DGII.",
-    "en": "Attach the photo or PDF of the invoice: it is kept with the bill as evidence for the DGII.",
-    "pt": "Anexe a foto ou o PDF da fatura: fica guardado com ela como evidência para a DGII."
+    "es": "Adjunta la foto o el PDF de la factura: queda guardado con ella como evidencia ante la autoridad fiscal.",
+    "en": "Attach the photo or PDF of the invoice: it is kept with the bill as evidence for the tax authority.",
+    "pt": "Anexe a foto ou o PDF da fatura: fica guardado com ela como evidência para a autoridade fiscal."
   },
   "accounts_payable.capture.intro_read": {
     "es": "Sube la foto o el PDF de la factura y llenaremos el formulario por ti. Revisa cada campo antes de guardar; el archivo queda guardado con la factura.",
@@ -148,36 +183,6 @@
     "es": "El documento es una nota de crédito: regístrala como nota, no como factura.",
     "en": "The document is a credit note: record it as a note, not as a bill.",
     "pt": "O documento é uma nota de crédito: registe-a como nota, não como fatura."
-  },
-  "accounts_payable.capture.ncf_error.check_digit": {
-    "es": "El número de documento leído ({{ncf}}) no pasa su dígito verificador; no se llenó.",
-    "en": "The document number read ({{ncf}}) fails its check digit; it was not filled in.",
-    "pt": "O número do documento lido ({{ncf}}) não passa o dígito verificador; não foi preenchido."
-  },
-  "accounts_payable.capture.ncf_error.format": {
-    "es": "El número de documento leído ({{ncf}}) no tiene el formato que exige el mercado de la empresa; no se llenó.",
-    "en": "The document number read ({{ncf}}) is not in the format the company's market requires; it was not filled in.",
-    "pt": "O número do documento lido ({{ncf}}) não tem o formato exigido pelo mercado da empresa; não foi preenchido."
-  },
-  "accounts_payable.capture.ncf_error.unknown_type": {
-    "es": "El tipo de comprobante del NCF leído ({{ncf}}) no existe; no se llenó.",
-    "en": "The comprobante type of the NCF read ({{ncf}}) does not exist; it was not filled in.",
-    "pt": "O tipo de comprovante do NCF lido ({{ncf}}) não existe; não foi preenchido."
-  },
-  "accounts_payable.capture.ncf_warning.credit_note_on_bill": {
-    "es": "{{ncf}} es una nota de crédito, no una factura.",
-    "en": "{{ncf}} is a credit note, not an invoice.",
-    "pt": "{{ncf}} é uma nota de crédito, não uma fatura."
-  },
-  "accounts_payable.capture.ncf_warning.no_tax_credit": {
-    "es": "{{ncf}} es una factura de consumo: no da crédito de ITBIS.",
-    "en": "{{ncf}} is a consumer invoice: it gives no ITBIS credit.",
-    "pt": "{{ncf}} é uma fatura de consumo: não dá crédito de ITBIS."
-  },
-  "accounts_payable.capture.ncf_warning.sales_only_type": {
-    "es": "{{ncf}} es un tipo que no se recibe en compras: verifica que se leyó bien.",
-    "en": "{{ncf}} is a type not received on purchases: check it was read correctly.",
-    "pt": "{{ncf}} é um tipo que não se recebe em compras: confirme que foi bem lido."
   },
   "accounts_payable.capture.not_a_bill": {
     "es": "El archivo no parece una factura de compra.",
@@ -220,9 +225,9 @@
     "pt": "Este mesmo ficheiro já é o documento de outra fatura."
   },
   "accounts_payable.capture.supplier_unknown": {
-    "es": "No tienes un proveedor con el RNC {{taxId}} ({{name}}).",
-    "en": "You have no supplier with RNC {{taxId}} ({{name}}).",
-    "pt": "Não tem nenhum fornecedor com o RNC {{taxId}} ({{name}})."
+    "es": "No tienes un proveedor con la identificación fiscal {{taxId}} ({{name}}).",
+    "en": "You have no supplier with tax ID {{taxId}} ({{name}}).",
+    "pt": "Não tem nenhum fornecedor com a identificação fiscal {{taxId}} ({{name}})."
   },
   "accounts_payable.capture.tax_id_invalid": {
     "es": "El identificador fiscal leído ({{taxId}}) no pasa la verificación: revísalo en el documento.",
@@ -273,11 +278,6 @@
     "es": "Nota de débito con ID \"{{id}}\" no encontrada.",
     "en": "Debit note \"{{id}}\" was not found.",
     "pt": "Nota de débito \"{{id}}\" não encontrada."
-  },
-  "accounts_payable.debit_note_ncf_invalid": {
-    "es": "El NCF del proveedor debe tener entre 11 y 19 letras mayúsculas o dígitos.",
-    "en": "The supplier’s NCF must be 11 to 19 capital letters or digits.",
-    "pt": "O NCF do fornecedor deve ter de 11 a 19 letras maiúsculas ou dígitos."
   },
   "accounts_payable.debit_note_posted_is_immutable": {
     "es": "Una nota de débito emitida no se modifica: ya está contabilizada y ya redujo el saldo de la factura. Anúlala y emite la correcta.",
@@ -379,16 +379,6 @@
     "en": "Could not load the debit note.",
     "pt": "Não foi possível carregar a nota de débito."
   },
-  "accounts_payable.debit_notes.ncf": {
-    "es": "NCF del proveedor",
-    "en": "Supplier’s NCF",
-    "pt": "NCF do fornecedor"
-  },
-  "accounts_payable.debit_notes.ncf_placeholder": {
-    "es": "NCF de la nota de crédito del proveedor (opcional)",
-    "en": "The supplier’s credit-note NCF (optional)",
-    "pt": "NCF da nota de crédito do fornecedor (opcional)"
-  },
   "accounts_payable.debit_notes.new": {
     "es": "Nueva nota de débito",
     "en": "New debit note",
@@ -463,6 +453,11 @@
     "es": "Proveedor",
     "en": "Supplier",
     "pt": "Fornecedor"
+  },
+  "accounts_payable.debit_notes.supplier_document": {
+    "es": "Documento del proveedor",
+    "en": "Supplier's document",
+    "pt": "Documento do fornecedor"
   },
   "accounts_payable.debit_notes.tax_amount": {
     "es": "Impuesto devuelto",
@@ -629,6 +624,16 @@
     "en": "Discount",
     "pt": "Desconto"
   },
+  "accounts_payable.detail.document_not_recorded": {
+    "es": "No se pudo registrar el documento.",
+    "en": "The document could not be recorded.",
+    "pt": "Não foi possível registrar o documento."
+  },
+  "accounts_payable.detail.document_recorded": {
+    "es": "Documento registrado.",
+    "en": "Document recorded.",
+    "pt": "Documento registrado."
+  },
   "accounts_payable.detail.due_date": {
     "es": "Fecha de vencimiento",
     "en": "Due date",
@@ -639,10 +644,55 @@
     "en": "Edit",
     "pt": "Editar"
   },
+  "accounts_payable.detail.fiscal_attributes": {
+    "es": "Datos que pide la autoridad",
+    "en": "What the authority asks",
+    "pt": "Dados que a autoridade exige"
+  },
+  "accounts_payable.detail.fiscal_attributes_missing": {
+    "es": "Falta un dato que la autoridad exige para esta compra: sin él la declaración no la puede incluir.",
+    "en": "Something the authority requires for this purchase is missing: the return cannot include it without it.",
+    "pt": "Falta um dado que a autoridade exige para esta compra: sem ele a declaração não pode incluí-la."
+  },
+  "accounts_payable.detail.fiscal_attributes_not_recorded": {
+    "es": "No se pudo registrar el dato.",
+    "en": "The answer could not be recorded.",
+    "pt": "Não foi possível registrar o dado."
+  },
+  "accounts_payable.detail.fiscal_attributes_recorded": {
+    "es": "Dato registrado en la compra.",
+    "en": "Recorded on the purchase.",
+    "pt": "Registrado na compra."
+  },
   "accounts_payable.detail.general_information": {
     "es": "Información general",
     "en": "General information",
     "pt": "Informações gerais"
+  },
+  "accounts_payable.detail.hold_not_released": {
+    "es": "No se pudo liberar la retención.",
+    "en": "The hold could not be released.",
+    "pt": "Não foi possível liberar a retenção."
+  },
+  "accounts_payable.detail.hold_price": {
+    "es": "{{description}}: precio facturado {{billed}} frente a {{expected}} de la orden.",
+    "en": "{{description}}: billed price {{billed}} against {{expected}} on the order.",
+    "pt": "{{description}}: preço faturado {{billed}} face a {{expected}} da ordem."
+  },
+  "accounts_payable.detail.hold_quantity": {
+    "es": "{{description}}: se facturan {{billed}} y hay {{expected}} recibidas sin facturar.",
+    "en": "{{description}}: {{billed}} billed, {{expected}} received and not yet billed.",
+    "pt": "{{description}}: faturadas {{billed}} e há {{expected}} recebidas por faturar."
+  },
+  "accounts_payable.detail.hold_released": {
+    "es": "Retención liberada; la factura siguió a aprobación.",
+    "en": "Hold released; the bill went on to approval.",
+    "pt": "Retenção liberada; a fatura seguiu para aprovação."
+  },
+  "accounts_payable.detail.hold_released_reason": {
+    "es": "Retención liberada:",
+    "en": "Hold released:",
+    "pt": "Retenção liberada:"
   },
   "accounts_payable.detail.invoice_lines": {
     "es": "Líneas de la factura",
@@ -664,16 +714,6 @@
     "en": "Item",
     "pt": "Descrição"
   },
-  "accounts_payable.detail.ncf_not_recorded": {
-    "en": "The NCF could not be recorded.",
-    "es": "No se pudo registrar el NCF.",
-    "pt": "Não foi possível registrar o NCF."
-  },
-  "accounts_payable.detail.ncf_recorded": {
-    "en": "NCF recorded.",
-    "es": "NCF registrado.",
-    "pt": "NCF registrado."
-  },
   "accounts_payable.detail.no_debit_notes": {
     "es": "Esta factura no tiene notas de débito.",
     "en": "This bill has no debit notes.",
@@ -683,6 +723,11 @@
     "es": "Todavía no se ha pagado nada contra esta factura.",
     "en": "Nothing has been paid against this bill yet.",
     "pt": "Ainda não foi pago nada contra esta fatura."
+  },
+  "accounts_payable.detail.on_hold_title": {
+    "es": "Retenida por el cotejo con la orden de compra: no se contabiliza ni se paga hasta que otra persona la libere.",
+    "en": "Held by the purchase-order match: it is not posted or paid until another person releases it.",
+    "pt": "Retida pela conferência com a ordem de compra: não é contabilizada nem paga até outra pessoa a liberar."
   },
   "accounts_payable.detail.outstanding_balance": {
     "es": "Saldo pendiente",
@@ -704,30 +749,55 @@
     "en": "Quantity",
     "pt": "Quantidade"
   },
-  "accounts_payable.detail.record_ncf": {
-    "en": "Record NCF",
-    "es": "Registrar NCF",
-    "pt": "Registrar NCF"
+  "accounts_payable.detail.record_document": {
+    "es": "Registrar documento",
+    "en": "Record document",
+    "pt": "Registrar documento"
   },
-  "accounts_payable.detail.record_ncf_message": {
-    "en": "Type the comprobante printed on the supplier’s bill. It is needed to deduct the ITBIS and for the 606.",
-    "es": "Escribe el comprobante que figura en la factura del proveedor. Es necesario para descontar el ITBIS y para el 606.",
-    "pt": "Digite o comprovante impresso na fatura do fornecedor. É necessário para deduzir o ITBIS e para o 606."
+  "accounts_payable.detail.record_document_message": {
+    "es": "Escribe el número del documento del proveedor tal como está impreso ({{example}}). Es necesario para descontar el impuesto y para las declaraciones de compras.",
+    "en": "Type the number on the supplier's document exactly as printed ({{example}}). It is needed to claim the tax and for the purchases returns.",
+    "pt": "Digite o número do documento do fornecedor exatamente como está impresso ({{example}}). É necessário para abater o imposto e para as declarações de compras."
   },
-  "accounts_payable.detail.record_ncf_placeholder": {
-    "en": "B0100000123",
-    "es": "B0100000123",
-    "pt": "B0100000123"
+  "accounts_payable.detail.record_document_placeholder": {
+    "es": "Número del documento",
+    "en": "Document number",
+    "pt": "Número do documento"
   },
-  "accounts_payable.detail.record_ncf_title": {
-    "en": "Record the supplier’s NCF",
-    "es": "Registrar el NCF del proveedor",
-    "pt": "Registrar o NCF do fornecedor"
+  "accounts_payable.detail.record_document_title": {
+    "es": "Registrar el documento del proveedor",
+    "en": "Record the supplier's document",
+    "pt": "Registrar o documento do fornecedor"
   },
-  "accounts_payable.detail.record_ncf_too_short": {
-    "en": "An NCF has at least 11 characters (B01 + 8 digits).",
-    "es": "Un NCF tiene al menos 11 caracteres (B01 + 8 dígitos).",
-    "pt": "Um NCF tem pelo menos 11 caracteres (B01 + 8 dígitos)."
+  "accounts_payable.detail.record_document_too_short": {
+    "en": "Type the number in full, exactly as printed on the supplier’s document.",
+    "es": "Escribe el número completo tal como está impreso en el documento del proveedor.",
+    "pt": "Digite o número completo, exatamente como está impresso no documento do fornecedor."
+  },
+  "accounts_payable.detail.release_hold": {
+    "es": "Liberar retención",
+    "en": "Release hold",
+    "pt": "Liberar retenção"
+  },
+  "accounts_payable.detail.release_hold_message": {
+    "es": "La factura no coincide con lo recibido o con el precio de la orden. Indica por qué se acepta: el motivo queda en la factura y luego sigue la aprobación.",
+    "en": "The bill does not match what was received or the order price. State why it is accepted: the reason stays on the bill, and approval follows.",
+    "pt": "A fatura não coincide com o recebido ou com o preço da ordem. Indique porque é aceite: o motivo fica na fatura e segue-se a aprovação."
+  },
+  "accounts_payable.detail.release_hold_placeholder": {
+    "es": "Motivo de la liberación",
+    "en": "Reason for the release",
+    "pt": "Motivo da liberação"
+  },
+  "accounts_payable.detail.release_hold_title": {
+    "es": "Liberar la factura retenida",
+    "en": "Release the held bill",
+    "pt": "Liberar a fatura retida"
+  },
+  "accounts_payable.detail.release_hold_too_short": {
+    "es": "Escribe un motivo de al menos 5 caracteres.",
+    "en": "Write a reason of at least 5 characters.",
+    "pt": "Escreva um motivo com pelo menos 5 caracteres."
   },
   "accounts_payable.detail.reversing_entry_posted_general_ledger": {
     "es": "Se registró el asiento de reversión en el libro mayor.",
@@ -822,6 +892,11 @@
     "en": "Expense account",
     "pt": "Conta de despesa"
   },
+  "accounts_payable.form.fiscal_attribute_unanswered": {
+    "es": "Sin indicar",
+    "en": "Not stated",
+    "pt": "Não informado"
+  },
   "accounts_payable.form.general_information": {
     "es": "Información general",
     "en": "General information",
@@ -892,11 +967,6 @@
     "en": "Service",
     "pt": "Serviço"
   },
-  "accounts_payable.form.ncf": {
-    "en": "Fiscal document no.",
-    "es": "N.º de comprobante fiscal",
-    "pt": "N.º do documento fiscal"
-  },
   "accounts_payable.form.net_payable": {
     "es": "Neto a pagar",
     "en": "Net payable",
@@ -965,6 +1035,11 @@
     "en": "Supplier",
     "pt": "Fornecedor"
   },
+  "accounts_payable.form.supplier_document_number": {
+    "en": "Fiscal document no.",
+    "es": "N.º de comprobante fiscal",
+    "pt": "N.º do documento fiscal"
+  },
   "accounts_payable.form.supplier_invoice_number": {
     "es": "N.º de factura del proveedor",
     "en": "Supplier invoice no.",
@@ -1013,11 +1088,6 @@
   "accounts_payable.form.total": {
     "literal": "Total"
   },
-  "accounts_payable.form.type_goods_services": {
-    "es": "Tipo de bienes y servicios",
-    "en": "Type of goods and services",
-    "pt": "Tipo de bens e serviços"
-  },
   "accounts_payable.form.withholdings": {
     "es": "Retenciones",
     "en": "Withholdings",
@@ -1038,10 +1108,45 @@
     "en": "The invoice to void, \"{{id}}\", was not found.",
     "pt": "A fatura a cancelar, \"{{id}}\", não foi encontrada."
   },
+  "accounts_payable.isr_retention_type.other": {
+    "es": "Otros",
+    "en": "Other",
+    "pt": "Outros"
+  },
+  "accounts_payable.isr_retention_type.other_income": {
+    "es": "Otras rentas",
+    "en": "Other income",
+    "pt": "Outras rendas"
+  },
+  "accounts_payable.isr_retention_type.presumed_income": {
+    "es": "Rentas presuntas",
+    "en": "Presumed income",
+    "pt": "Rendas presumidas"
+  },
+  "accounts_payable.isr_retention_type.rentals": {
+    "es": "Alquileres",
+    "en": "Rentals",
+    "pt": "Aluguéis"
+  },
+  "accounts_payable.isr_retention_type.service_fees": {
+    "es": "Honorarios por servicios",
+    "en": "Service fees",
+    "pt": "Honorários por serviços"
+  },
+  "accounts_payable.isr_retention_type.undeclared_movable_property": {
+    "es": "Bienes muebles no declarados",
+    "en": "Undeclared movable property",
+    "pt": "Bens móveis não declarados"
+  },
   "accounts_payable.line_product_not_inventory_item_requires": {
     "es": "La línea \"{{product}}\" no es de inventario y requiere una cuenta de gasto.",
     "en": "Line \"{{product}}\" is not an inventory item and requires an expense account.",
     "pt": "A linha \"{{product}}\" não é de estoque e exige uma conta de despesa."
+  },
+  "accounts_payable.line_tax_rate_not_in_force": {
+    "es": "La tasa {{rate}} no está vigente el {{date}}. Tasas vigentes: {{allowed}}.",
+    "en": "The rate {{rate}} is not in force on {{date}}. Rates in force: {{allowed}}.",
+    "pt": "A taxa {{rate}} não está em vigor em {{date}}. Taxas em vigor: {{allowed}}."
   },
   "accounts_payable.lines_existing_invoice_must_changed_through": {
     "es": "La modificación de las líneas de una factura existente debe hacerse a través de notas de crédito/débito.",
@@ -1121,40 +1226,10 @@
     "en": "The bill could not be saved as a draft; review it in the form.",
     "pt": "A fatura não pôde ser guardada como rascunho; reveja-a no formulário."
   },
-  "accounts_payable.ncf_already_recorded": {
-    "es": "El NCF {{ncf}} de {{supplier}} ya está registrado en otra factura.",
-    "en": "NCF {{ncf}} from {{supplier}} is already recorded on another bill.",
-    "pt": "O NCF {{ncf}} de {{supplier}} já está registado noutra fatura."
-  },
-  "accounts_payable.ncf_already_recorded_on_bill": {
-    "en": "This bill already carries NCF {{ncf}}. A declared comprobante is corrected by voiding the bill.",
-    "es": "Esta factura ya tiene el NCF {{ncf}}. Un comprobante declarado se corrige anulando la factura.",
-    "pt": "Esta fatura já tem o NCF {{ncf}}. Um comprovante declarado é corrigido anulando a fatura."
-  },
-  "accounts_payable.ncf_invalid_format": {
-    "es": "El NCF {{ncf}} no tiene el formato de la DGII: B + tipo + 8 dígitos (11 caracteres) o E + tipo + 10 dígitos (13).",
-    "en": "NCF {{ncf}} is not in the DGII format: B + type + 8 digits (11 characters) or E + type + 10 digits (13).",
-    "pt": "O NCF {{ncf}} não tem o formato da DGII: B + tipo + 8 dígitos (11 caracteres) ou E + tipo + 10 dígitos (13)."
-  },
-  "accounts_payable.ncf_record_only_posted_bills": {
-    "en": "A draft’s NCF is corrected by editing it; a voided or rejected bill is not changed.",
-    "es": "El NCF de un borrador se corrige editándolo; una factura anulada o rechazada no se modifica.",
-    "pt": "O NCF de um rascunho é corrigido editando-o; uma fatura anulada ou rejeitada não é alterada."
-  },
-  "accounts_payable.ncf_required_for_supplier_with_rnc": {
-    "en": "The bill from {{supplier}} needs its NCF: without it the ITBIS cannot be deducted nor reported in the 606. If the supplier is informal, record it without an RNC and issue a purchase voucher (B11).",
-    "es": "La factura de {{supplier}} necesita su NCF: sin él no se puede descontar el ITBIS ni declarar en el 606. Si el proveedor es informal, regístralo sin RNC y emite un comprobante de compras (B11).",
-    "pt": "A fatura de {{supplier}} precisa do NCF: sem ele não se pode deduzir o ITBIS nem declará-lo no 606. Se o fornecedor for informal, registre-o sem RNC e emita um comprovante de compras (B11)."
-  },
-  "accounts_payable.ncf_requires_supplier_tax_id": {
-    "es": "La factura con NCF {{ncf}} necesita el RNC o la cédula del proveedor {{supplier}}. Regístralo en la ficha del proveedor: el 606 identifica cada compra por él y la DGII rechaza las que no lo tienen.",
-    "en": "The bill with NCF {{ncf}} needs the RNC or cédula of supplier {{supplier}}. Record it on the supplier: the 606 identifies every purchase by it and the DGII rejects those without one.",
-    "pt": "A fatura com NCF {{ncf}} precisa do RNC ou da cédula do fornecedor {{supplier}}. Registre-o no cadastro do fornecedor: o 606 identifica cada compra por ele e a DGII rejeita as que não o têm."
-  },
-  "accounts_payable.ncf_unknown_type": {
-    "es": "El tipo de comprobante de {{ncf}} no existe en la DGII.",
-    "en": "The comprobante type of {{ncf}} does not exist at the DGII.",
-    "pt": "O tipo de comprovante de {{ncf}} não existe na DGII."
+  "accounts_payable.match_hold_release_requires_another_person": {
+    "es": "Quien envió la factura no puede liberar su retención: debe hacerlo otra persona con permiso de aprobación.",
+    "en": "Whoever submitted the bill cannot release its hold: another person with approval permission must.",
+    "pt": "Quem enviou a fatura não pode liberar a retenção: deve fazê-lo outra pessoa com permissão de aprovação."
   },
   "accounts_payable.no_default_ledger_has_configured_organization": {
     "es": "No se ha configurado un libro contable por defecto para la organización.",
@@ -1216,6 +1291,11 @@
     "en": "Choose at least one invoice and complete the payment details.",
     "pt": "Escolha ao menos uma fatura e preencha os dados do pagamento."
   },
+  "accounts_payable.payment.consumption_tax_withheld": {
+    "es": "Impuesto retenido",
+    "en": "Tax withheld",
+    "pt": "Imposto retido"
+  },
   "accounts_payable.payment.discount": {
     "es": "Descuento",
     "en": "Discount",
@@ -1235,11 +1315,6 @@
     "es": "Facturas a pagar",
     "en": "Invoices to pay",
     "pt": "Faturas a pagar"
-  },
-  "accounts_payable.payment.itbis_withheld": {
-    "es": "ITBIS retenido",
-    "en": "ITBIS withheld",
-    "pt": "ITBIS retido"
   },
   "accounts_payable.payment.line_settles_more_than_invoice_owes": {
     "es": "Alguna línea salda más de lo que la factura debe.",
@@ -1310,41 +1385,6 @@
     "es": "El pago {{number}} ya está anulado.",
     "en": "Payment {{number}} is already voided.",
     "pt": "O pagamento {{number}} já está anulado."
-  },
-  "accounts_payable.payment_form.barter": {
-    "es": "Permuta",
-    "en": "Barter",
-    "pt": "Permuta"
-  },
-  "accounts_payable.payment_form.card": {
-    "es": "Tarjeta",
-    "en": "Card",
-    "pt": "Cartão"
-  },
-  "accounts_payable.payment_form.cash": {
-    "es": "Efectivo",
-    "en": "Cash",
-    "pt": "Numerário"
-  },
-  "accounts_payable.payment_form.check_transfer": {
-    "es": "Cheque o transferencia",
-    "en": "Cheque or transfer",
-    "pt": "Cheque ou transferência"
-  },
-  "accounts_payable.payment_form.credit": {
-    "es": "Crédito",
-    "en": "Credit",
-    "pt": "Crédito"
-  },
-  "accounts_payable.payment_form.credit_note": {
-    "es": "Nota de crédito",
-    "en": "Credit note",
-    "pt": "Nota de crédito"
-  },
-  "accounts_payable.payment_form.mixed": {
-    "es": "Mixto",
-    "en": "Mixed",
-    "pt": "Misto"
   },
   "accounts_payable.payment_not_found": {
     "es": "El pago no existe.",
@@ -1571,6 +1611,16 @@
     "en": "There is already a bill from {{supplier}} dated {{date}} for {{total}} with no number to tell them apart. Enter the supplier's invoice number, or confirm it is a different document.",
     "pt": "Já existe uma fatura de {{supplier}} de {{date}} por {{total}} sem número que a distinga. Informe o número da fatura do fornecedor ou confirme que é um documento diferente."
   },
+  "accounts_payable.purchase_attributes_not_on_closed_bill": {
+    "es": "Una factura anulada o rechazada ya no se clasifica: no se declara.",
+    "en": "A voided or rejected bill is no longer classified: it is not declared.",
+    "pt": "Uma fatura anulada ou rejeitada não se classifica mais: ela não é declarada."
+  },
+  "accounts_payable.purchase_attributes_refused": {
+    "es": "{{authority}} necesita estos datos de la compra: {{fields}}. Complétalos en la factura.",
+    "en": "{{authority}} needs these details of the purchase: {{fields}}. Complete them on the bill.",
+    "pt": "{{authority}} precisa destes dados da compra: {{fields}}. Complete-os na fatura."
+  },
   "accounts_payable.purchase_category.asset_acquisitions": {
     "es": "Adquisiciones de activos",
     "en": "Asset acquisitions",
@@ -1676,6 +1726,11 @@
     "en": "Draft",
     "pt": "Rascunho"
   },
+  "accounts_payable.status.on_hold": {
+    "es": "Retenida por cotejo",
+    "en": "Held by match",
+    "pt": "Retida pela conferência"
+  },
   "accounts_payable.status.open": {
     "es": "Abierta",
     "en": "Open",
@@ -1711,10 +1766,40 @@
     "en": "The submitted total ({{received}}) does not match the one computed from the lines and taxes ({{expected}}).",
     "pt": "O total enviado ({{received}}) não corresponde ao calculado a partir das linhas e impostos ({{expected}})."
   },
+  "accounts_payable.supplier_blocked": {
+    "es": "El proveedor {{supplier}} está bloqueado: no se le registran facturas ni se le paga. Motivo: {{reason}}",
+    "en": "Supplier {{supplier}} is blocked: no bills are recorded or paid for it. Reason: {{reason}}",
+    "pt": "O fornecedor {{supplier}} está bloqueado: não se registam faturas nem se paga. Motivo: {{reason}}"
+  },
   "accounts_payable.supplier_document_already_recorded": {
-    "es": "El documento {{ncf}} de {{supplier}} ya está registrado.",
-    "en": "Document {{ncf}} from {{supplier}} is already recorded.",
-    "pt": "O documento {{ncf}} de {{supplier}} já está registrado."
+    "es": "El documento {{document}} de {{supplier}} ya está registrado.",
+    "en": "Document {{document}} from {{supplier}} is already recorded.",
+    "pt": "O documento {{document}} de {{supplier}} já está registrado."
+  },
+  "accounts_payable.supplier_document_already_recorded_on_bill": {
+    "es": "Esta factura ya tiene registrado el comprobante {{document}}. Un comprobante declarado se corrige anulando la factura, no sobrescribiéndolo.",
+    "en": "This bill already records document {{document}}. A declared document is corrected by voiding the bill, not by overwriting it.",
+    "pt": "Esta fatura já registra o documento {{document}}. Um documento declarado é corrigido anulando a fatura, não sobrescrevendo-o."
+  },
+  "accounts_payable.supplier_document_record_only_posted_bills": {
+    "es": "El número del comprobante del proveedor se registra sobre una factura ya contabilizada; en borrador se edita la factura.",
+    "en": "The supplier's document number is recorded on a bill already posted; on a draft, edit the bill.",
+    "pt": "O número do documento do fornecedor é registrado em uma fatura já contabilizada; em rascunho, edite a fatura."
+  },
+  "accounts_payable.supplier_document_refused": {
+    "es": "«{{document}}» no tiene la forma que {{authority}} exige para el comprobante del proveedor ({{reason}}). Cópialo como está impreso en el documento.",
+    "en": "«{{document}}» is not shaped the way {{authority}} requires for a supplier's document ({{reason}}). Copy it as printed on the document.",
+    "pt": "«{{document}}» não tem a forma que {{authority}} exige para o documento do fornecedor ({{reason}}). Copie-o como está impresso no documento."
+  },
+  "accounts_payable.supplier_document_required_for_registered_supplier": {
+    "es": "{{authority}} numera el comprobante del proveedor, y {{supplier}} está registrado ante ella: sin ese número la compra no se puede declarar ni deducir su impuesto.",
+    "en": "{{authority}} numbers the supplier's document, and {{supplier}} is registered with it: without that number the purchase cannot be declared nor its tax deducted.",
+    "pt": "{{authority}} numera o documento do fornecedor, e {{supplier}} está registrado nela: sem esse número a compra não pode ser declarada nem seu imposto deduzido."
+  },
+  "accounts_payable.supplier_document_requires_supplier_tax_id": {
+    "es": "El comprobante {{document}} lo emite {{authority}} a nombre del proveedor, así que {{supplier}} necesita su identificador fiscal registrado.",
+    "en": "Document {{document}} is issued by {{authority}} in the supplier's name, so {{supplier}} needs their tax identifier on file.",
+    "pt": "O documento {{document}} é emitido por {{authority}} em nome do fornecedor, então {{supplier}} precisa do identificador fiscal registrado."
   },
   "accounts_payable.supplier_id_not_found": {
     "es": "Proveedor con ID \"{{id}}\" no encontrado.",
@@ -1725,6 +1810,16 @@
     "es": "La factura {{number}} de {{supplier}} ya está registrada.",
     "en": "Invoice {{number}} from {{supplier}} is already recorded.",
     "pt": "A fatura {{number}} de {{supplier}} já está registrada."
+  },
+  "accounts_payable.tax_amount_differs_from_lines": {
+    "es": "El impuesto indicado ({{stated}}) no coincide con el que dan las tasas de las líneas ({{computed}}). Corrige las tasas o indica el motivo de la diferencia.",
+    "en": "The stated tax ({{stated}}) does not match what the line rates produce ({{computed}}). Correct the rates or state why they differ.",
+    "pt": "O imposto indicado ({{stated}}) não coincide com o das taxas das linhas ({{computed}}). Corrija as taxas ou indique o motivo da diferença."
+  },
+  "accounts_payable.tax_amount_exceeds_highest_rate": {
+    "es": "El impuesto indicado ({{stated}}) supera el máximo posible a la tasa más alta vigente ({{rate}}: {{ceiling}}). Indica la tasa de cada línea o el motivo.",
+    "en": "The stated tax ({{stated}}) exceeds the most it could be at the highest rate in force ({{rate}}: {{ceiling}}). State each line’s rate or the reason.",
+    "pt": "O imposto indicado ({{stated}}) excede o máximo possível à taxa mais alta em vigor ({{rate}}: {{ceiling}}). Indique a taxa de cada linha ou o motivo."
   },
   "accounts_payable.vendor_bill_id_not_found": {
     "es": "La factura de proveedor con ID \"{{id}}\" no fue encontrada.",

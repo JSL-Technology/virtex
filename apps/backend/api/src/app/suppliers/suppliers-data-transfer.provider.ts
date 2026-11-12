@@ -1,8 +1,9 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { DataTransferContext, DataTransferDataset } from '../contracts/data-transfer/data-transfer.contract';
 import { DataTransferRegistry } from '../contracts/data-transfer/data-transfer.registry';
+import { partyTemplateExample } from '../contracts/data-transfer/party-template-example';
 import { PERMISSIONS } from '../shared/permissions';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { Supplier } from './entities/supplier.entity';
@@ -19,16 +20,18 @@ export class SuppliersDataTransferProvider implements DataTransferDataset<Create
   readonly labelKey = 'data_transfer.datasets.suppliers';
   readonly viewPermission = PERMISSIONS.SUPPLIERS_VIEW;
   readonly columns = [
-    { key: 'nombre', property: 'name', required: true, example: 'Distribuidora Nacional SRL' },
-    { key: 'tax_id', property: 'taxId', example: '101-00000-1' },
-    { key: 'tipo_documento', property: 'identityDocumentTypeCode', example: 'RNC' },
-    { key: 'pais_documento', property: 'identityDocumentCountry', example: 'DO' },
+    // The identifier, its document code and the country come from the company's own market
+    // (`templateExample`); what is left here is a neutral placeholder, not another market's data.
+    { key: 'nombre', property: 'name', required: true, example: 'Distribuidora Ejemplo SRL' },
+    { key: 'tax_id', property: 'taxId' },
+    { key: 'tipo_documento', property: 'identityDocumentTypeCode' },
+    { key: 'pais_documento', property: 'identityDocumentCountry' },
     { key: 'tipo_contribuyente', property: 'taxpayerType', example: 'LEGAL_ENTITY' },
     { key: 'contacto', property: 'contactPerson', example: 'Luis Gómez' },
-    { key: 'correo', property: 'email', example: 'ventas@distribuidora.do' },
-    { key: 'telefono', property: 'phone', example: '+1 809 555 0200' },
-    { key: 'direccion', property: 'address', example: 'Calle 5 #12, Santiago' },
-    { key: 'pais', property: 'country', example: 'DO' },
+    { key: 'correo', property: 'email', example: 'ventas@ejemplo.test' },
+    { key: 'telefono', property: 'phone' },
+    { key: 'direccion', property: 'address', example: 'Calle 5 #12' },
+    { key: 'pais', property: 'country' },
   ] as const;
 
   readonly import = {
@@ -42,11 +45,13 @@ export class SuppliersDataTransferProvider implements DataTransferDataset<Create
     create: async (dto: CreateSupplierDto, context: DataTransferContext) => {
       await this.service.create(dto, context.organizationId);
     },
+    templateExample: (context: DataTransferContext) => partyTemplateExample(this.dataSource, context.organizationId),
   };
 
   constructor(
     private readonly registry: DataTransferRegistry,
     private readonly service: SuppliersService,
+    private readonly dataSource: DataSource,
     @InjectRepository(Supplier) private readonly suppliers: Repository<Supplier>,
   ) {}
 

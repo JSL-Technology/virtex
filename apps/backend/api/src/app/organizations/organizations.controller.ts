@@ -10,7 +10,7 @@ import { OrganizationProfileResponseDto } from './dto/organization-profile-respo
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { UpdateSecuritySettingsDto } from './dto/update-security-settings.dto';
 import { OrgSettingsService } from './services/org-settings.service';
-import { CreateSubsidiaryDto, UpdateSubsidiaryDto } from './dto/create-subsidiary.dto';
+import { CreateSubsidiaryDto, LinkSubsidiaryDto, UpdateSubsidiaryDto } from './dto/create-subsidiary.dto';
 import { Organization } from './entities/organization.entity';
 import { Post } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
@@ -233,6 +233,18 @@ export class OrganizationsController {
       createSubsidiaryDto,
       user.id,
     );
+  }
+
+  /**
+   * Bring an existing organization under this one — an acquisition (FINB-35). Same guards as
+   * creating one, and the service also requires that the caller administers the company linked.
+   */
+  @Post('subsidiaries/link')
+  @UseGuards(StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_ROLES)
+  @CheckPermissions(IsOrganizationOwnerPolicy)
+  linkSubsidiary(@CurrentUser() user: AuthenticatedUser, @Body() dto: LinkSubsidiaryDto) {
+    return this.organizationsService.linkSubsidiary(user.organizationId, dto, user.id);
   }
 
   /** The same ownership policy and step-up as creating one: it changes the consolidation. */

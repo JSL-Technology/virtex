@@ -22,24 +22,25 @@ import 'reflect-metadata';
 
 // The probe signs with a self-signed certificate it makes on the spot; the API accepts one only in
 // a development or test process that opts in (see `CertificateVaultService.testCertificatesAllowed`).
-process.env['ECF_ALLOW_TEST_CERTIFICATES'] = 'true';
+process.env['SIGNING_ALLOW_TEST_CERTIFICATES'] = 'true';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { DataSource } from 'typeorm';
 
 import { AppModule } from '../../apps/backend/api/src/app/app.module';
 import { InvoicesService } from '../../apps/backend/api/src/app/invoices/invoices.service';
-import { ComplianceService } from '../../apps/backend/api/src/app/compliance/compliance.service';
+import { ReturnsService } from '../../apps/backend/api/src/app/compliance/returns/returns.service';
 import { CustomersService } from '../../apps/backend/api/src/app/customers/customers.service';
 import { LocalizationService } from '../../apps/backend/api/src/app/localization/services/localization.service';
 import { OrganizationsService } from '../../apps/backend/api/src/app/organizations/organizations.service';
 import { StockLedgerService } from '../../apps/backend/api/src/app/inventory/stock-ledger.service';
 import { InventoryService } from '../../apps/backend/api/src/app/inventory/inventory.service';
 import { Product, ProductKind } from '../../apps/backend/api/src/app/inventory/entities/product.entity';
-import { NcfType } from '../../apps/backend/api/src/app/compliance/entities/ncf-sequence.entity';
+import { FiscalRegimeSettingsService } from '../../apps/backend/api/src/app/einvoicing/services/fiscal-regime-settings.service';
 import { InvoiceStatus } from '../../apps/backend/api/src/app/invoices/entities/invoice.entity';
+import { adjustmentCodeFor } from '../../apps/backend/api/src/app/markets';
 import { TaxTreatment } from '../../apps/backend/api/src/app/invoices/entities/invoice-line-item.entity';
-import { EcfCertificateService } from '../../apps/backend/api/src/app/einvoicing/services/ecf-certificate.service';
+import { SigningCertificateService } from '../../apps/backend/api/src/app/einvoicing/services/signing-certificate.service';
 import { runAsTenantJob } from '../../apps/backend/api/src/app/shared/tenancy/tenant-job';
 import { makeTestCertificate } from './support/test-certificate';
 
@@ -75,12 +76,15 @@ async function main(): Promise<void> {
 
   const ds = app.get(DataSource);
   const invoices = app.get(InvoicesService);
-  const compliance = app.get(ComplianceService, { strict: false });
+  const returns = app.get(ReturnsService, { strict: false });
+  // The ranges of every market, the Dominican NCF among them, through the settings endpoint's service.
+  const fiscalRanges = app.get(FiscalRegimeSettingsService, { strict: false });
+  const rangeExpiry = `${new Date().getFullYear() + 1}-12-31`;
   const customers = app.get(CustomersService, { strict: false });
   const localization = app.get(LocalizationService, { strict: false });
   const organizations = app.get(OrganizationsService, { strict: false });
   const ledger = app.get(StockLedgerService, { strict: false });
-  const certificates = app.get(EcfCertificateService, { strict: false });
+  const certificates = app.get(SigningCertificateService, { strict: false });
   const inventory = app.get(InventoryService, { strict: false });
 
   const stamp = Date.now();
@@ -122,29 +126,17 @@ async function main(): Promise<void> {
   check('un inquilino nuevo emite ambas series', readiness.emissionMode === 'BOTH');
 
   // ── Fiscal numbering, with its authorization window ─────────────────────────
-  await compliance.provisionNcfSequence(orgId, {
-    type: NcfType.E31, prefix: 'E31', startsAt: 1, endsAt: 100,
-    expiresAt: `${new Date().getFullYear() + 1}-12-31`,
-  });
-  await compliance.provisionNcfSequence(orgId, {
-    type: NcfType.E32, prefix: 'E32', startsAt: 1, endsAt: 100,
-    expiresAt: `${new Date().getFullYear() + 1}-12-31`,
-  });
-  await compliance.provisionNcfSequence(orgId, {
-    type: NcfType.E34, prefix: 'E34', startsAt: 1, endsAt: 100,
-    expiresAt: `${new Date().getFullYear() + 1}-12-31`,
-  });
+  await fiscalRanges.registerRange(orgId, { documentType: 'E31', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
+  await fiscalRanges.registerRange(orgId, { documentType: 'E32', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
+  await fiscalRanges.registerRange(orgId, { documentType: 'E34', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
 
   let overlapRejected = false;
   try {
-    await compliance.provisionNcfSequence(orgId, {
-      type: NcfType.E31, prefix: 'E31', startsAt: 50, endsAt: 150,
-      expiresAt: `${new Date().getFullYear() + 1}-12-31`,
-    });
+    await fiscalRanges.registerRange(orgId, { documentType: 'E31', startsAt: 50, endsAt: 150, validUntil: rangeExpiry });
   } catch {
     overlapRejected = true;
   }
-  check('un rango de e-NCF solapado es rechazado', overlapRejected);
+  check('un rango solapado es rechazado, como en cualquier mercado', overlapRejected);
 
   // An electronic document must also be signed. With ranges but no certificate the tenant is not
   // ready, and says exactly that: issuing would consume an e-NCF the DGII never receives.
@@ -237,14 +229,8 @@ async function main(): Promise<void> {
   // A company that issues serie B was told it could not invoice until it loaded a signing
   // certificate it does not need. With a live B range it is ready, and an invoice with no type
   // chosen is drawn from it.
-  await compliance.provisionNcfSequence(orgId, {
-    type: NcfType.B01, prefix: 'B01', startsAt: 1, endsAt: 100,
-    expiresAt: `${new Date().getFullYear() + 1}-12-31`,
-  });
-  await compliance.provisionNcfSequence(orgId, {
-    type: NcfType.B02, prefix: 'B02', startsAt: 1, endsAt: 100,
-    expiresAt: `${new Date().getFullYear() + 1}-12-31`,
-  });
+  await fiscalRanges.registerRange(orgId, { documentType: 'B01', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
+  await fiscalRanges.registerRange(orgId, { documentType: 'B02', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
   const traditionalReady = await invoices.invoicingContext(orgId);
   check(
     'con un rango B y sin certificado, el inquilino puede facturar',
@@ -265,10 +251,69 @@ async function main(): Promise<void> {
   );
   check('sin elegir tipo, sale un B01 al contribuyente', Boolean(traditional.fiscalNumber?.startsWith('B01')), traditional.fiscalNumber ?? 'sin NCF');
   const [traditionalSubmission] = await ds.query(
-    `SELECT count(*)::int AS n FROM ecf_submissions WHERE invoice_id = $1`, [traditional.id],
+    `SELECT count(*)::int AS n FROM fiscal_submissions WHERE invoice_id = $1`, [traditional.id],
   );
   check('un NCF tradicional no se transmite a la DGII', traditionalSubmission.n === 0);
   check('un NCF tradicional se contabiliza igual', Boolean(traditional.journalEntryId));
+
+  // ── A fixed tax is an amount per unit, not a rate (FAC-TX-01) ───────────────
+  const [fixedTax] = await ds.query(
+    `INSERT INTO taxes (name, rate, type, organization_id) VALUES ('Selectivo específico (sonda)', 50, 'Fijo', $1) RETURNING id`,
+    [orgId],
+  );
+  const [percentTax] = await ds.query(
+    `SELECT id FROM taxes WHERE organization_id = $1 AND type = 'Porcentaje' LIMIT 1`, [orgId],
+  );
+  // A product of its own, so the sales below do not move the stock and cost the later checks read.
+  const bottle = await productRepo.save(
+    productRepo.create({
+      name: `Licor ${stamp}`, price: 1000, cost: 400, stock: 0, organizationId: orgId,
+      kind: ProductKind.GOOD, taxTreatment: TaxTreatment.TAXED, taxRate: 0.18, unitOfMeasure: 'UND',
+    } as Partial<Product>),
+  );
+  await ds.transaction(async (manager) =>
+    ledger.move(manager, orgId, {
+      productId: bottle.id,
+      warehouseId: await ledger.resolveWarehouse(manager, orgId, {}),
+      quantity: 20,
+      unitCost: 400,
+      type: 'OPENING',
+      reference: 'Saldo inicial',
+      sourceType: 'verify_seed',
+      sourceId: null,
+    }),
+  );
+  let percentRefused = '';
+  try {
+    await inventory.update(bottle.id, { exciseTaxId: percentTax.id } as never, orgId);
+  } catch (error) {
+    percentRefused = (error as { messageKey?: string }).messageKey ?? 'rechazado';
+  }
+  check('un producto no puede llevar un impuesto porcentual como fijo', percentRefused === 'inventory.excise_tax_must_be_fixed', percentRefused || 'aceptado');
+  await inventory.update(bottle.id, { exciseTaxId: fixedTax.id } as never, orgId);
+  const withFixed = await invoices.create(
+    {
+      customerId: customer.id, issueDate: today, dueDate: today, currencyCode: 'DOP',
+      lineItems: [{ productId: bottle.id, quantity: 6 }],
+    } as never,
+    orgId,
+  );
+  const fixedLine = withFixed.lineItems[0];
+  check('el impuesto fijo se cobra por unidad: 6 × 50', Number(withFixed.excise) === 300 && Number(fixedLine.exciseUnitAmount) === 50, `selectivo ${withFixed.excise}, por unidad ${fixedLine.exciseUnitAmount}`);
+  check('y entra en la base del ITBIS: (6.000 + 300) × 18 %', Number(withFixed.tax) === 1134, String(withFixed.tax));
+  check('el total suma el selectivo', Number(withFixed.total) === 7434, String(withFixed.total));
+  await ds.query(`UPDATE taxes SET effective_to = '2000-12-31' WHERE id = $1`, [fixedTax.id]);
+  let staleRefused = '';
+  try {
+    await invoices.create(
+      { customerId: customer.id, issueDate: today, dueDate: today, currencyCode: 'DOP', issue: false, lineItems: [{ productId: bottle.id, quantity: 1 }] } as never,
+      orgId,
+    );
+  } catch (error) {
+    staleRefused = (error as { messageKey?: string }).messageKey ?? 'rechazado';
+  }
+  check('un impuesto fijo no vigente no se cobra ni se omite: se rechaza', staleRefused === 'invoices.fixed_tax_not_in_force', staleRefused || 'emitida');
+  await inventory.update(bottle.id, { exciseTaxId: null } as never, orgId);
 
   // A company that issues only electronic comprobantes cannot be handed a B by mistake.
   await ds.query(
@@ -368,10 +413,16 @@ async function main(): Promise<void> {
   // The transmission the document owes commits with it: an e-NCF never exists without a record of
   // whether the DGII has it. Whatever the immediate attempt did, the row is there.
   const [submission] = await ds.query(
-    `SELECT status FROM ecf_submissions WHERE invoice_id = $1 AND organization_id = $2`,
+    `SELECT status, country_code, regime, document_type FROM fiscal_submissions WHERE invoice_id = $1 AND organization_id = $2`,
     [issued.id, orgId],
   );
   check('el e-CF emitido tiene su registro de envío', Boolean(submission?.status), submission?.status ?? 'sin registro');
+  // One outbox for every market: the Dominican e-CF is a submission of the DGII regime in it.
+  check(
+    'el envío queda en el buzón único, como régimen de su mercado',
+    submission?.country_code === 'DO' && submission?.regime === 'DGII e-CF' && submission?.document_type === 'E31',
+    `${submission?.country_code ?? '—'} / ${submission?.regime ?? '—'} / ${submission?.document_type ?? '—'}`,
+  );
 
   // The claim the preview made, checked against what actually happened.
   if (previewSequence && previewSequence.kind === 'sequence') {
@@ -400,6 +451,66 @@ async function main(): Promise<void> {
     entriesAfter[0].n - entriesBefore[0].n <= 2,
     `antes ${entriesBefore[0].n}, después ${entriesAfter[0].n}`,
   );
+
+  // ── Debit notes and cancellation, as the market allows (FAC-INV-05) ─────────
+  await fiscalRanges.registerRange(orgId, { documentType: 'B03', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
+  await fiscalRanges.registerRange(orgId, { documentType: 'E33', startsAt: 1, endsAt: 100, validUntil: rangeExpiry });
+  const interest = { description: 'Intereses por mora', quantity: 1, unitPrice: 500, taxTreatment: TaxTreatment.TAXED, isService: true };
+  const traditionalDebit = await invoices.createDebitNote(
+    traditional.id,
+    { reason: 'LATE_PAYMENT_INTEREST', description: 'Intereses por pago tardío', lines: [interest] } as never,
+    orgId,
+  );
+  check('la nota de débito de un B01 sale como B03, con su motivo canónico', Boolean(traditionalDebit.fiscalNumber?.startsWith('B03')) && traditionalDebit.type === 'DEBIT_NOTE' && traditionalDebit.adjustmentReason === 'LATE_PAYMENT_INTEREST', `${traditionalDebit.fiscalNumber} · ${traditionalDebit.adjustmentReason}`);
+  check('y cobra lo que suma: 500 + 18 % = 590, pendiente de cobro', Number(traditionalDebit.total) === 590 && Number(traditionalDebit.balance) === 590 && traditionalDebit.status === 'Pending', `${traditionalDebit.total} / ${traditionalDebit.balance} / ${traditionalDebit.status}`);
+  const [debitPosted] = await ds.query(
+    `SELECT COALESCE(SUM(debit), 0)::float AS debit FROM journal_entry_lines WHERE journal_entry_id = $1`, [traditionalDebit.journalEntryId],
+  );
+  check('la nota de débito se contabiliza como una venta', Math.abs(Number(debitPosted?.debit) - 590) < 0.005, `debe ${debitPosted?.debit}`);
+  const exemptCharge = await invoices.createDebitNote(
+    traditional.id,
+    { reason: 'ADDITIONAL_CHARGES', description: 'Gastos de cobranza', lines: [{ ...interest, description: 'Gastos', unitPrice: 100, taxTreatment: TaxTreatment.EXEMPT }] } as never,
+    orgId,
+  );
+  check('el tratamiento fiscal de cada cargo es el que se indica, no uno supuesto', Number(exemptCharge.tax) === 0 && Number(exemptCharge.total) === 100, `ITBIS ${exemptCharge.tax}`);
+  const electronicDebit = await invoices.createDebitNote(
+    issued.id,
+    { reason: 'ADDITIONAL_CHARGES', description: 'Flete facturado después', lines: [{ ...interest, description: 'Flete', unitPrice: 200 }] } as never,
+    orgId,
+  );
+  const [electronicDebitSubmission] = await ds.query(`SELECT status FROM fiscal_submissions WHERE invoice_id = $1`, [electronicDebit.id]);
+  check('la de un E31 sale como E33 y queda por transmitir', Boolean(electronicDebit.fiscalNumber?.startsWith('E33')) && Boolean(electronicDebitSubmission), `${electronicDebit.fiscalNumber} · ${electronicDebitSubmission?.status ?? 'sin envío'}`);
+
+  const refusalOf = async (run: () => Promise<unknown>) => run().then(() => 'aceptado', (error) => (error as { messageKey?: string }).messageKey ?? String(error));
+  const electronicOptions = await invoices.cancellationOptions(issued.id, orgId);
+  check('un e-CF no se anula: la ruta es la nota de crédito', electronicOptions.route === 'CREDIT_NOTE_ONLY' && !electronicOptions.cancellable, `${electronicOptions.route} · ${electronicOptions.blockedBy}`);
+  check('y si se intenta, se rechaza diciendo por qué', (await refusalOf(() => invoices.cancel(issued.id, { reason: 'Error' } as never, orgId))) === 'invoices.cancellation_credit_note_only');
+  check('una factura con nota de débito no se anula', (await refusalOf(() => invoices.cancel(traditional.id, { reason: 'Error', reasonCode: '04' } as never, orgId))) === 'invoices.cancellation_only_untouched');
+
+  const stockBeforeSale = Number((await ds.query(`SELECT stock FROM products WHERE id = $1`, [bottle.id]))[0].stock);
+  const toCancel = await invoices.create(
+    { customerId: customer.id, issueDate: today, dueDate: today, currencyCode: 'DOP', fiscalDocumentType: 'B01', lineItems: [{ productId: bottle.id, quantity: 2 }] } as never,
+    orgId,
+  );
+  const traditionalOptions = await invoices.cancellationOptions(toCancel.id, orgId);
+  check('un B01 se anula y se reporta, con los motivos de la DGII', traditionalOptions.route === 'REPORT' && traditionalOptions.cancellable && traditionalOptions.reasons.length === 10, `${traditionalOptions.route} · ${traditionalOptions.reasons.length} motivos`);
+  check('sin motivo del catálogo, la anulación se rechaza', (await refusalOf(() => invoices.cancel(toCancel.id, { reason: 'Error en la información' } as never, orgId))) === 'invoices.cancellation_reason_code_required');
+  check('un motivo fuera del catálogo, también', (await refusalOf(() => invoices.cancel(toCancel.id, { reason: 'Error', reasonCode: '99' } as never, orgId))) === 'invoices.cancellation_reason_code_not_in_catalogue');
+  const cancelled = await invoices.cancel(toCancel.id, { reason: 'Error en la información del cliente', reasonCode: '04' } as never, orgId);
+  const stockAfterCancel = Number((await ds.query(`SELECT stock FROM products WHERE id = $1`, [bottle.id]))[0].stock);
+  check('la anulación deja la factura anulada y reportada, con su código', cancelled.status === 'Void' && cancelled.cancellationMode === 'REPORTED' && cancelled.cancellationReasonCode === '04', `${cancelled.status} · ${cancelled.cancellationMode} · ${cancelled.cancellationReasonCode}`);
+  check('y devuelve la mercancía al almacén', stockAfterCancel === stockBeforeSale, `antes ${stockBeforeSale}, después ${stockAfterCancel}`);
+  const [reversal] = await ds.query(
+    `SELECT
+       (SELECT COALESCE(SUM(debit - credit), 0)::float FROM journal_entry_lines WHERE journal_entry_id = ANY($1::uuid[]) AND account_id = (SELECT default_accounts_receivable_id FROM organization_settings WHERE organization_id = $3)) AS receivable,
+       (SELECT count(*)::int FROM journal_entries WHERE id = ANY($2::uuid[])) AS entries`,
+    [[toCancel.journalEntryId, cancelled.cancellationJournalEntryId], [cancelled.cancellationJournalEntryId, cancelled.cancellationCostJournalEntryId], orgId],
+  );
+  check('los asientos de anulación revierten la cuenta por cobrar y el costo', Math.abs(Number(reversal.receivable)) < 0.005 && reversal.entries === 2, `CxC neta ${reversal.receivable} · ${reversal.entries} asientos`);
+  const report608 = (
+    await returns.generate(orgId, '608', { year: Number(today.slice(0, 4)), month: Number(today.slice(5, 7)) })
+  ).body;
+  check('el 608 la declara con el código elegido', report608.split('\n').some((row) => row.startsWith(`${cancelled.fiscalNumber}|`) && row.endsWith('|04')), report608.split('\n').find((row) => row.startsWith(cancelled.fiscalNumber ?? '-')) ?? 'no está');
 
   // ── A withholding rate the buyer's regime does not justify is refused ───────
   //
@@ -497,11 +608,20 @@ async function main(): Promise<void> {
   // ── Credit notes accumulate ─────────────────────────────────────────────────
   const firstLine = issued.lineItems[0];
   const partial = await invoices.createCreditNote(
-    { invoiceId: issued.id, items: [{ lineId: firstLine.id, quantity: 1 }], reason: 'Devolución parcial' } as never,
+    {
+      invoiceId: issued.id,
+      items: [{ lineId: firstLine.id, quantity: 1 }],
+      reason: 'Devolución parcial',
+      adjustmentReason: 'GOODS_RETURN',
+    } as never,
     orgId,
   );
   check('la nota de crédito parcial se emite con su propio e-NCF', Boolean(partial.fiscalNumber?.startsWith('E34')),
     partial.fiscalNumber ?? 'sin e-NCF');
+  // El motivo se guarda en los términos del producto; el código de la autoridad lo escribe el mercado.
+  check('la nota de crédito guarda el motivo canónico que se le indicó',
+    partial.adjustmentReason === 'GOODS_RETURN' && adjustmentCodeFor('DO', partial.adjustmentReason, 'CREDIT_NOTE') === '3',
+    `${partial.adjustmentReason} → ${adjustmentCodeFor('DO', partial.adjustmentReason, 'CREDIT_NOTE')}`);
 
   const afterPartial = await invoices.findOne(issued.id, orgId);
   check('la nota parcial reduce el saldo de la factura', afterPartial.balance < issued.netReceivable,
@@ -518,11 +638,22 @@ async function main(): Promise<void> {
   }
   check('no se puede acreditar más de lo facturado', overCreditRejected);
 
+  // Sin indicar motivo, acreditar el resto anula la operación, y eso es lo que se guarda: la DGII
+  // lo lee como su código 1. Antes el producto guardaba ese 1 en la factura de cualquier mercado.
+  const annulling = await invoices.createCreditNote({ invoiceId: issued.id, reason: 'Operación anulada' } as never, orgId);
+  check('acreditar el total anula la operación y lo dice en términos del producto',
+    annulling.adjustmentReason === 'ANNULMENT' && adjustmentCodeFor('DO', annulling.adjustmentReason, 'CREDIT_NOTE') === '1',
+    `${annulling.adjustmentReason} → ${adjustmentCodeFor('DO', annulling.adjustmentReason, 'CREDIT_NOTE')}`);
+  const annulled = await invoices.findOne(issued.id, orgId);
+  check('y la factura queda anulada por la nota de crédito',
+    annulled.status === 'Void' && annulled.cancellationMode === 'CREDIT_NOTE',
+    `${annulled.status} · ${annulled.cancellationMode}`);
+
   // ── Fiscal type is selectable ───────────────────────────────────────────────
   const consumo = await invoices.create(
     {
       customerId: customer.id, issueDate: today, dueDate: today, currencyCode: 'DOP',
-      fiscalDocumentType: NcfType.E32,
+      fiscalDocumentType: 'E32',
       lineItems: [{ productId: good.id, quantity: 1 }],
     } as never,
     orgId,
@@ -589,6 +720,51 @@ async function main(): Promise<void> {
     check('y queda ligado al NIT de la empresa', stored.holderKind === 'company', `${stored.holderTaxId}`);
   } else {
     check('la región fiscal de Colombia existe', false);
+  }
+
+  // ── A market whose authority never sees the document: a commercial void (FAC-INV-05) ──
+  const usRegion = await localization.findRegionByCountryCode('US');
+  if (usRegion) {
+    const usOrg = await organizations.create({
+      planId: plan?.id,
+      subscriptionStatus: 'active',
+      subscriptionPeriodEnd: new Date(Date.now() + 30 * 24 * 3600_000),
+      legalName: `Probe Invoicing US ${stamp}`,
+      // An EIN carries no check digit: an IRS-assigned prefix (12) and seven digits unique to the run,
+      // so the probe can run again without colliding with the last one.
+      taxId: `12-${String(stamp % 10_000_000).padStart(7, '0')}`,
+      country: 'US',
+      fiscalRegionId: usRegion.id,
+      address: '100 Main St',
+      city: 'Austin',
+      phone: '5125550100',
+      email: `probe-us${stamp}@example.com`,
+    });
+    await localization.applyFiscalPackage(usOrg, ds.manager);
+    const usCustomer: { id: string } = await customers.create(
+      { companyName: 'Probe Customer LLC', email: `customer-us${stamp}@example.com`, phone: '5125550101', address: '1 Elm St', country: 'US' } as never,
+      usOrg.id,
+    );
+    const usToday = new Date().toISOString().slice(0, 10);
+    const usInvoice = await invoices.create(
+      { customerId: usCustomer.id, issueDate: usToday, dueDate: usToday, currencyCode: 'USD', lineItems: [{ description: 'Consulting', quantity: 2, unitPrice: 150, isService: true }] } as never,
+      usOrg.id,
+    );
+    check('en EE. UU. la factura se numera en el idioma de sus libros', usInvoice.invoiceNumber.startsWith('INV-') && !usInvoice.fiscalNumber, `${usInvoice.invoiceNumber} · ${usInvoice.fiscalNumber ?? 'sin número fiscal'}`);
+    const usOptions = await invoices.cancellationOptions(usInvoice.id, usOrg.id);
+    check('y se anula como documento comercial, sin catálogo de motivos', usOptions.route === 'VOID' && usOptions.cancellable && usOptions.reasons.length === 0, `${usOptions.route} · ${usOptions.reasons.length}`);
+    const usRefusal = await invoices.cancel(usInvoice.id, { reason: 'Billed twice', reasonCode: '04' } as never, usOrg.id).then(() => 'aceptado', (error) => (error as { messageKey?: string }).messageKey ?? String(error));
+    check('un código de motivo de otro país no cabe ahí', usRefusal === 'invoices.cancellation_reason_code_not_applicable', usRefusal);
+    const usVoided = await invoices.cancel(usInvoice.id, { reason: 'Billed twice' } as never, usOrg.id);
+    check('la anulación comercial revierte la factura', usVoided.status === 'Void' && usVoided.cancellationMode === 'VOID' && Boolean(usVoided.cancellationJournalEntryId), `${usVoided.status} · ${usVoided.cancellationMode}`);
+    const usDebit = await invoices.createDebitNote(
+      (await invoices.create({ customerId: usCustomer.id, issueDate: usToday, dueDate: usToday, currencyCode: 'USD', lineItems: [{ description: 'Consulting', quantity: 1, unitPrice: 150, isService: true }] } as never, usOrg.id)).id,
+      { reason: 'LATE_PAYMENT_INTEREST', description: 'Late fee', lines: [{ description: 'Late fee', quantity: 1, unitPrice: 25, taxTreatment: TaxTreatment.EXEMPT, isService: true }] } as never,
+      usOrg.id,
+    );
+    check('y una nota de débito es un documento comercial con su serie', usDebit.invoiceNumber.startsWith('DN-') && !usDebit.fiscalNumber && Number(usDebit.total) === 25, `${usDebit.invoiceNumber} · ${usDebit.total}`);
+  } else {
+    check('la región fiscal de EE. UU. existe', false);
   }
 
   console.log(

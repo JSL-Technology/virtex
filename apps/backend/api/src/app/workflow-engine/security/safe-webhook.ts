@@ -1,3 +1,4 @@
+import { isBlockedAddress } from '../../common/net/outbound-address';
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
 import { isDevLikeEnvironment } from '../../config/environment';
@@ -112,39 +113,4 @@ async function readCapped(response: Response, max: number): Promise<string> {
   return Buffer.concat(chunks).toString('utf8');
 }
 
-/** True for any address a tenant must never reach from the server. */
-export function isBlockedAddress(address: string): boolean {
-  const version = isIP(address);
-  if (version === 4) return isBlockedV4(address);
-  if (version === 6) {
-    const lower = address.toLowerCase();
-    // IPv4-mapped (::ffff:a.b.c.d) and IPv4-compatible forms carry a v4 address: check that one.
-    const mapped = /^(?:0*:)*(?:ffff:)?(\d+\.\d+\.\d+\.\d+)$/.exec(lower);
-    if (mapped) return isBlockedV4(mapped[1]);
-    if (lower === '::' || lower === '::1') return true;
-    const first = parseInt(lower.split(':')[0] || '0', 16);
-    if ((first & 0xfe00) === 0xfc00) return true; // fc00::/7 unique local
-    if ((first & 0xffc0) === 0xfe80) return true; // fe80::/10 link-local
-    if ((first & 0xffc0) === 0xfec0) return true; // fec0::/10 site-local (deprecated)
-    if ((first & 0xff00) === 0xff00) return true; // ff00::/8 multicast
-    if (lower.startsWith('64:ff9b:')) return true; // NAT64
-    if (lower.startsWith('2001:db8') || lower.startsWith('2001:0db8')) return true; // documentation
-    return false;
-  }
-  return true;
-}
-
-function isBlockedV4(address: string): boolean {
-  const [a, b, c] = address.split('.').map(Number);
-  if (a === 0 || a === 10 || a === 127) return true;
-  if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT
-  if (a === 169 && b === 254) return true; // link-local, cloud metadata
-  if (a === 172 && b >= 16 && b <= 31) return true;
-  if (a === 192 && b === 168) return true;
-  if (a === 192 && b === 0 && (c === 0 || c === 2)) return true; // IETF + documentation
-  if (a === 198 && (b === 18 || b === 19)) return true; // benchmarking
-  if (a === 198 && b === 51 && c === 100) return true; // documentation
-  if (a === 203 && b === 0 && c === 113) return true; // documentation
-  if (a >= 224) return true; // multicast + reserved + broadcast
-  return false;
-}
+export { isBlockedAddress } from '../../common/net/outbound-address';

@@ -18,7 +18,7 @@ import { InternalServerError } from '../../i18n/localized.exception';
 import { I18nService } from '../../i18n/i18n.service';
 import { DEFAULT_LANGUAGE, LanguageCode } from '@virteex/shared/types';
 import { seedTenantDefaults } from '../../database/seeds/tenant-defaults';
-import { languageOfCountry } from '../../localization/contracts/country-profile.contract';
+import { languageOfCountry, marketFor } from '../../markets';
 
 /**
  * Everything a tenant needs in order to record a transaction, created at the moment the tenant is.
@@ -89,15 +89,42 @@ export class TenantBookkeepingProvisioner {
     { code: 'CONCIL', nameKey: 'ledger.provisioning.journals.reconciliation', type: 'BANK' },
   ]);
 
-  /** Prefixes for the internal document numbering. Fiscal numbering (NCF) is separate. */
-  private static readonly SEQUENCES: ReadonlyArray<{ type: DocumentType; prefix: string }> =
-    Object.freeze([
-      { type: DocumentType.CUSTOMER_INVOICE, prefix: 'FAC-' },
-      { type: DocumentType.QUOTE, prefix: 'COT-' },
-      { type: DocumentType.CREDIT_NOTE, prefix: 'NC-' },
-      { type: DocumentType.VENDOR_BILL, prefix: 'FP-' },
-      { type: DocumentType.JOURNAL_ENTRY, prefix: 'AS-' },
-    ]);
+  /**
+   * Prefixes for the internal document numbering, in the language the books are kept in. They were
+   * Spanish for every market, so a company in Texas numbered its invoices «FAC-000001» and its
+   * journal entries «AS-». The fiscal numbering each authority assigns is separate, and every
+   * prefix stays editable per company.
+   */
+  private static sequencesFor(language: LanguageCode): ReadonlyArray<{ type: DocumentType; prefix: string }> {
+    const prefixes: Record<string, Record<DocumentType, string>> = {
+      es: {
+        [DocumentType.CUSTOMER_INVOICE]: 'FAC-',
+        [DocumentType.QUOTE]: 'COT-',
+        [DocumentType.CREDIT_NOTE]: 'NC-',
+        [DocumentType.DEBIT_NOTE]: 'ND-',
+        [DocumentType.VENDOR_BILL]: 'FP-',
+        [DocumentType.JOURNAL_ENTRY]: 'AS-',
+      },
+      en: {
+        [DocumentType.CUSTOMER_INVOICE]: 'INV-',
+        [DocumentType.QUOTE]: 'QT-',
+        [DocumentType.CREDIT_NOTE]: 'CN-',
+        [DocumentType.DEBIT_NOTE]: 'DN-',
+        [DocumentType.VENDOR_BILL]: 'BILL-',
+        [DocumentType.JOURNAL_ENTRY]: 'JE-',
+      },
+      pt: {
+        [DocumentType.CUSTOMER_INVOICE]: 'FAT-',
+        [DocumentType.QUOTE]: 'ORC-',
+        [DocumentType.CREDIT_NOTE]: 'NC-',
+        [DocumentType.DEBIT_NOTE]: 'ND-',
+        [DocumentType.VENDOR_BILL]: 'FC-',
+        [DocumentType.JOURNAL_ENTRY]: 'LC-',
+      },
+    };
+    const table = prefixes[language] ?? prefixes['es'];
+    return (Object.keys(table) as DocumentType[]).map((type) => ({ type, prefix: table[type] }));
+  }
 
   /**
    * Provision the operational bookkeeping of a tenant. Call AFTER the chart of accounts exists —
@@ -115,7 +142,7 @@ export class TenantBookkeepingProvisioner {
     const settings = await this.provisionSettings(organizationId, baseCurrency, manager);
     await this.provisionLedger(organizationId, baseCurrency, language, manager);
     await this.provisionJournals(organizationId, language, manager);
-    await this.provisionDocumentSequences(organizationId, manager);
+    await this.provisionDocumentSequences(organizationId, language, manager);
     await this.provisionAccountingPeriods(organizationId, new Date(), manager);
     await this.provisionDefaultWarehouse(organizationId, language, manager);
     // The customer, category, till and payroll lines a company works with from day one.
@@ -243,8 +270,8 @@ export class TenantBookkeepingProvisioner {
     settings.defaultEmployerContributionsExpenseAccountId ??=
       byRole.get(AccountRole.EMPLOYER_CONTRIBUTIONS_EXPENSE) ?? null;
     settings.defaultPayrollNetPayableAccountId ??= byRole.get(AccountRole.PAYROLL_NET_PAYABLE) ?? null;
-    settings.defaultAfpPayableAccountId ??= byRole.get(AccountRole.AFP_PAYABLE) ?? null;
-    settings.defaultSfsPayableAccountId ??= byRole.get(AccountRole.SFS_PAYABLE) ?? null;
+    settings.defaultPensionContributionsPayableAccountId ??= byRole.get(AccountRole.PENSION_CONTRIBUTIONS_PAYABLE) ?? null;
+    settings.defaultHealthContributionsPayableAccountId ??= byRole.get(AccountRole.HEALTH_CONTRIBUTIONS_PAYABLE) ?? null;
     settings.defaultCustomerAdvancesAccountId ??= byRole.get(AccountRole.CUSTOMER_ADVANCES) ?? null;
     settings.defaultGoodsReceivedNotInvoicedAccountId ??=
       byRole.get(AccountRole.GOODS_RECEIVED_NOT_INVOICED) ?? null;
@@ -252,7 +279,7 @@ export class TenantBookkeepingProvisioner {
       byRole.get(AccountRole.OPENING_BALANCE_EQUITY) ?? null;
     settings.defaultInventoryAdjustmentAccountId ??=
       byRole.get(AccountRole.INVENTORY_ADJUSTMENT) ?? null;
-    settings.defaultInfotepPayableAccountId ??= byRole.get(AccountRole.INFOTEP_PAYABLE) ?? null;
+    settings.defaultOtherPayrollContributionsPayableAccountId ??= byRole.get(AccountRole.OTHER_PAYROLL_CONTRIBUTIONS_PAYABLE) ?? null;
     settings.defaultPayrollTaxWithholdingPayableAccountId ??=
       byRole.get(AccountRole.PAYROLL_TAX_WITHHOLDING_PAYABLE) ?? null;
 
@@ -336,13 +363,14 @@ export class TenantBookkeepingProvisioner {
 
   private async provisionDocumentSequences(
     organizationId: string,
+    language: LanguageCode,
     manager: EntityManager,
   ): Promise<void> {
     const repo = manager.getRepository(DocumentSequence);
     const existing = await repo.find({ where: { organizationId }, select: ['type'] });
     const known = new Set(existing.map((s) => s.type));
 
-    const missing = TenantBookkeepingProvisioner.SEQUENCES.filter((s) => !known.has(s.type));
+    const missing = TenantBookkeepingProvisioner.sequencesFor(language).filter((s) => !known.has(s.type));
     if (missing.length === 0) return;
 
     await repo.save(
@@ -389,6 +417,11 @@ export class TenantBookkeepingProvisioner {
    * What stops this tenant from invoicing, as catalogue keys (`invoices.gaps.*`). Empty means ready.
    * Keys and not Spanish phrases: the list reaches readers in every language (QA A-17).
    */
+  private async leviesServiceCharge(organizationId: string, manager: EntityManager): Promise<boolean> {
+    const [organization] = await manager.query(`SELECT "country" FROM "organizations" WHERE "id" = $1`, [organizationId]);
+    return marketFor(organization?.country).taxes.serviceChargeRate > 0;
+  }
+
   async invoicingGaps(organizationId: string, manager: EntityManager): Promise<string[]> {
     const gaps: string[] = [];
 
@@ -413,7 +446,10 @@ export class TenantBookkeepingProvisioner {
       if (!settings.defaultTaxWithheldReceivableId) {
         gaps.push('invoices.gaps.tax_withheld_account');
       }
-      if (!settings.defaultServiceChargePayableId) {
+      // Only where the market levies a legal service charge (DO, CR): the opening chart no longer
+      // gives everyone a «Propina Legal» account (audit 2026-11-07, LOC-02), and a market with no
+      // charge must not be told it is missing one.
+      if (!settings.defaultServiceChargePayableId && (await this.leviesServiceCharge(organizationId, manager))) {
         gaps.push('invoices.gaps.service_charge_account');
       }
       if (!settings.defaultSalesDiscountsId) {

@@ -42,6 +42,8 @@ export interface Customer {
    * morning.
    */
   paymentTermDays?: number | null;
+  /** The price list this customer buys at; null: the default list for the currency (FAC-PL-01). */
+  priceListId?: string | null;
   totalBilled: number;
   createdAt: Date;
   updatedAt: Date;

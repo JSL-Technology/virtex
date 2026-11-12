@@ -43,7 +43,7 @@ const items = [
 ];
 
 describe('OrderMailHandler', () => {
-  it('turns a recognised customer\'s order into a draft quote at catalogue prices, for the account owner', async () => {
+  it('turns a recognised customer\'s order into a draft quote at the customer’s prices, for the account owner', async () => {
     const { handler, quotes } = build([{ id: 'c-1', name: 'Hotel Bávaro', ownerId: 'rep-1' }], items);
     const outcome = await handler.handle(message);
     expect(outcome).toEqual({ status: 'PROCESSED', records: [{ type: 'quote', id: 'q-1', label: 'COT-9', link: '/quotes/q-1/edit' }] });
@@ -51,8 +51,9 @@ describe('OrderMailHandler', () => {
     expect(org).toBe('org-1');
     expect(owner).toEqual({ id: 'rep-1' });
     expect(dto['lines']).toEqual([
-      { productId: 'p1', description: 'Café molido 500 g', quantity: 12, unitPrice: 320 },
-      { productId: 'p3', description: 'Azúcar refinada 45 kg', quantity: 2, unitPrice: 2100 },
+      // No unit price: the quote prices them from the customer's list, then the catalogue (FAC-PL-01).
+      { productId: 'p1', description: 'Café molido 500 g', quantity: 12 },
+      { productId: 'p3', description: 'Azúcar refinada 45 kg', quantity: 2 },
     ]);
     expect(dto['notes']).toContain('Ref. PO-77');
   });
@@ -72,10 +73,11 @@ describe('OrderMailHandler', () => {
     expect(await handler.handle(message)).toMatchObject({ status: 'REJECTED', reason: 'inbound_mail.not_an_order' });
   });
 
-  it('prices the quote from the catalogue, never from the e-mail', () => {
+  it('never prices the quote from the e-mail: the quote prices it (list, then catalogue)', () => {
     const dto = quoteFrom('c', { isOrder: true, items: [], requestedDate: null, customerReference: null, notes: 'urgente' }, [
       { description: 'x', quantity: 1, unit: null, product: { id: 'p', name: 'P', sku: null, barcode: null, price: 10 }, matchedBy: 'code' },
     ], message, new Date('2026-10-22T00:00:00Z'));
-    expect(dto).toMatchObject({ issueDate: '2026-10-22', expiryDate: '2026-11-06', lines: [{ unitPrice: 10 }] });
+    expect(dto).toMatchObject({ issueDate: '2026-10-22', expiryDate: '2026-11-06', lines: [{ productId: 'p', quantity: 1 }] });
+    expect(dto.lines[0].unitPrice).toBeUndefined();
   });
 });

@@ -11,10 +11,10 @@ import { certificatePolicyFor } from '../contracts/certificate-policy';
 import { BadRequestError } from '../../i18n/localized.exception';
 
 /**
- * Against the real PKCS#12 files a developer uploads (tools/fixtures/ecf-certificates), not
+ * Against the real PKCS#12 files a developer uploads (tools/fixtures/signing-certificates), not
  * hand-built objects: the extraction has to work on what a certification authority writes.
  */
-const FIXTURES = join(__dirname, '../../../../../../../tools/fixtures/ecf-certificates');
+const FIXTURES = join(__dirname, '../../../../../../../tools/fixtures/signing-certificates');
 
 function load(file: string, password = 'virtex-pruebas'): forge.pki.Certificate {
   const der = readFileSync(join(FIXTURES, file)).toString('binary');

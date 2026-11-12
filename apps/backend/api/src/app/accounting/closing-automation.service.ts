@@ -14,6 +14,8 @@ export interface PreClosingOutcome {
   /** False when the task was already claimed for this period, or had nothing to do. */
   performed: boolean;
   messageKey?: string;
+  /** For the revaluation: open foreign-currency positions found, and how many were restated. */
+  detail?: { positions: number; adjusted: number };
 }
 
 /**
@@ -86,8 +88,18 @@ export class ClosingAutomationService {
     }
 
     try {
-      await this.currencyRevaluationService.run(periodEnd, organizationId, undefined, manager);
-      outcomes.push({ task: 'currency-revaluation', ranAt: periodEnd, performed: true });
+      const results = await this.currencyRevaluationService.run(periodEnd, organizationId, undefined, manager);
+      const positions = results.reduce((sum, result) => sum + result.positions, 0);
+      const adjusted = results.reduce((sum, result) => sum + result.adjusted, 0);
+      // "Performed" means something was restated; a period with no foreign position says so
+      // instead of claiming a revaluation that did not happen (FINB-01).
+      outcomes.push({
+        task: 'currency-revaluation',
+        ranAt: periodEnd,
+        performed: adjusted > 0,
+        detail: { positions, adjusted },
+        ...(positions === 0 ? { messageKey: 'accounting.revaluation.no_foreign_positions' } : {}),
+      });
     } catch (error) {
       this.logger.error(
         `Revaluación de moneda fallida en el cierre de ${period.name}: ${(error as Error).message}`,

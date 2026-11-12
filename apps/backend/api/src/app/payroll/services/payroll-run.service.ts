@@ -16,12 +16,12 @@ import {
   EmployeeCompensation,
   PayFrequency,
 } from '../../hcm/entities/employee-compensation.entity';
-import { PayrollRun, PayrollRunStatus, PayrollRunType } from '../entities/payroll-run.entity';
+import { PayrollRun, PayrollRunStatus, PayrollRunType, PayrollRunWarning } from '../entities/payroll-run.entity';
 import { Payslip } from '../entities/payslip.entity';
 import { PayslipLine } from '../entities/payslip-line.entity';
 import { PayrollConcept } from '../entities/payroll-concept.entity';
 import { PayrollInput } from '../entities/payroll-input.entity';
-import { JurisdictionRegistry } from '../../jurisdictions/jurisdiction-registry';
+import { computesPayroll, payrollEngineFor, marketFor } from '../../markets';
 import { TenantCountryResolver } from '../../shared/tenancy/tenant-country.resolver';
 import { PayrollParametersService } from './payroll-parameters.service';
 import {
@@ -81,6 +81,9 @@ export type OwnPayslip = Omit<Payslip, 'run'> & {
   };
 };
 
+/** A variable input above this multiple of the monthly salary is flagged for the approver. */
+const UNUSUAL_INPUT_MULTIPLE = 1;
+
 @Injectable()
 export class PayrollRunService {
   private readonly logger = new Logger(PayrollRunService.name);
@@ -98,7 +101,6 @@ export class PayrollRunService {
     private readonly dataSource: DataSource,
     private readonly parameters: PayrollParametersService,
     private readonly calculation: PayrollCalculationService,
-    private readonly registry: JurisdictionRegistry,
     private readonly tenantCountry: TenantCountryResolver,
     private readonly accounting: PayrollAccountingService,
     private readonly severance: SeveranceService,
@@ -179,7 +181,7 @@ export class PayrollRunService {
     if (country !== tenantCountry) {
       throw new BadRequestError('payroll.run_country_not_tenant_country', { p1: country, p2: tenantCountry });
     }
-    if (!this.registry.supports(country)) {
+    if (!computesPayroll(country)) {
       throw new BadRequestError('payroll.payroll_jurisdiction_p1_not_supported', { p1: country });
     }
     if (input.periodMonth < 1 || input.periodMonth > 12) {
@@ -226,7 +228,10 @@ export class PayrollRunService {
       runType,
       correctsRunId: input.correctsRunId ?? null,
       status: PayrollRunStatus.DRAFT,
-      currencyCode: 'DOP',
+      // The currency the country's wages are paid and filed in, from its own market package.
+      // `'DOP'` stood here: a Mexican run was stored in pesos dominicanos, and every amount on the
+      // payslip, in the ledger and in the filing carried a currency nobody had chosen.
+      currencyCode: payrollCurrency(country),
     });
     try {
       return await this.runs.save(run);
@@ -284,7 +289,10 @@ export class PayrollRunService {
     const run = await this.findRun(runId, organizationId);
     this.assertEditable(run);
 
-    const strategy = this.registry.forCountry(run.countryCode);
+    const strategy = payrollEngineFor(run.countryCode);
+    if (!strategy) {
+      throw new BadRequestError('payroll.payroll_jurisdiction_p1_not_supported', { p1: run.countryCode });
+    }
     const params = await this.parameters.resolve(run.countryCode, run.periodEnd);
 
     // Concept catalogue and the run's variable inputs, loaded once and shared across employees.
@@ -300,6 +308,15 @@ export class PayrollRunService {
         : new Map<string, ComputedPayslip>();
 
     const calculated = await this.dataSource.transaction(async (em) => {
+      // The run is locked and its state read again inside the transaction (audit 2026-11-07,
+      // NOM-04): a calculation racing an approval rewrote the payslips of a run already approved,
+      // and the ledger was posted from the previous ones. Whichever arrives second now waits, then
+      // sees the other's outcome.
+      await this.lockRun(em, runId, organizationId);
+      const current = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
+      if (!current) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
+      this.assertEditable(current);
+
       // Clear a previous calculation so a recompute is a replacement, not an accumulation.
       const priorSlips = await em.find(Payslip, { where: { organizationId, runId }, select: ['id'] });
       if (priorSlips.length > 0) {
@@ -316,6 +333,7 @@ export class PayrollRunService {
       });
 
       const computed: ComputedPayslip[] = [];
+      const warnings: PayrollRunWarning[] = [];
       for (const employee of employees) {
         // Terminated inside the period is still handled (prorated); terminated before it is skipped.
         if (employee.terminationDate && employee.terminationDate < run.periodStart) continue;
@@ -359,9 +377,11 @@ export class PayrollRunService {
 
         computed.push(slip);
         await this.persistPayslip(em, run, slip);
+        warnings.push(...this.unusualInputs(slip, calcInput.monthlyBaseSalary, inputsByEmployee.get(employee.id) ?? []));
       }
 
       run.parameterSnapshot = params;
+      run.calculationWarnings = warnings;
       run.totalGross = sumAmounts(computed.map((c) => c.grossEarnings));
       run.totalEmployeeDeductions = sumAmounts(computed.map((c) => c.totalEmployeeDeductions));
       run.totalEmployerContributions = sumAmounts(computed.map((c) => c.totalEmployerContributions));
@@ -384,8 +404,14 @@ export class PayrollRunService {
    * The approver may not be the calculator. Posting is idempotent, so a retry after a partial
    * failure does not double the ledger.
    */
-  async approve(runId: string, organizationId: string, actorUserId: string): Promise<PayrollRun> {
+  async approve(
+    runId: string,
+    organizationId: string,
+    actorUserId: string,
+    options: { acknowledgeWarnings?: boolean } = {},
+  ): Promise<PayrollRun> {
     const approved = await this.dataSource.transaction(async (em) => {
+      await this.lockRun(em, runId, organizationId);
       const run = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
       if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
       if (run.status !== PayrollRunStatus.CALCULATED) {
@@ -393,6 +419,10 @@ export class PayrollRunService {
       }
       if (run.calculatedBy && run.calculatedBy === actorUserId) {
         throw new ForbiddenError('payroll.whoever_approves_payroll_cannot_whoever_calculated');
+      }
+      // An unusual variable input stops the approval until the approver says they saw it (NOM-05).
+      if ((run.calculationWarnings ?? []).length > 0 && !options.acknowledgeWarnings) {
+        throw new ConflictError('payroll.run_has_unusual_inputs', { count: run.calculationWarnings.length });
       }
 
       const payslips = await em.find(Payslip, { where: { organizationId, runId } });
@@ -434,6 +464,7 @@ export class PayrollRunService {
       throw new BadRequestError('payroll.paying_payroll_requires_selecting_bank_account');
     }
     const paid = await this.dataSource.transaction(async (em) => {
+      await this.lockRun(em, runId, organizationId);
       const run = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
       if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
       if (run.status !== PayrollRunStatus.APPROVED) {
@@ -508,12 +539,18 @@ export class PayrollRunService {
   }
 
   async cancel(runId: string, organizationId: string): Promise<PayrollRun> {
-    const run = await this.findRun(runId, organizationId);
-    if (run.status === PayrollRunStatus.APPROVED || run.status === PayrollRunStatus.PAID) {
-      throw new ConflictError('payroll.approved_run_cannot_cancelled_use_adjustment');
-    }
-    run.status = PayrollRunStatus.CANCELLED;
-    return this.runs.save(run);
+    // Under the run's lock, like every transition (NOM-04): a cancellation racing an approval
+    // could otherwise cancel a run whose entry had just been posted.
+    return this.dataSource.transaction(async (em) => {
+      await this.lockRun(em, runId, organizationId);
+      const run = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
+      if (!run) throw new NotFoundError('payroll.payroll_run_id_not_found', { id: runId });
+      if (run.status === PayrollRunStatus.APPROVED || run.status === PayrollRunStatus.PAID) {
+        throw new ConflictError('payroll.approved_run_cannot_cancelled_use_adjustment');
+      }
+      run.status = PayrollRunStatus.CANCELLED;
+      return em.save(run);
+    });
   }
 
   // ── Reads ────────────────────────────────────────────────────────────────────
@@ -592,6 +629,30 @@ export class PayrollRunService {
 
   // ── Internals ────────────────────────────────────────────────────────────────
 
+  /** `SELECT … FOR UPDATE` on the run: every state change of a run is serialised on it (NOM-04). */
+  private async lockRun(em: EntityManager, runId: string, organizationId: string): Promise<void> {
+    await em.query(`SELECT "id" FROM "payroll_runs" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`, [runId, organizationId]);
+  }
+
+  /**
+   * Variable inputs that pay more than the employee's whole monthly salary (NOM-05): legal, and
+   * unusual enough that the approver must see them. A commission of 3,000,000 on a salary of 60,000
+   * went through to the ledger with nobody told.
+   */
+  private unusualInputs(slip: ComputedPayslip, monthlyBaseSalary: number, inputs: PayrollInput[]): PayrollRunWarning[] {
+    const fromInputs = new Set(inputs.map((input) => input.conceptCode));
+    return slip.lines
+      .filter((line) => fromInputs.has(line.conceptCode) && monthlyBaseSalary > 0 && line.amount > monthlyBaseSalary * UNUSUAL_INPUT_MULTIPLE)
+      .map((line) => ({
+        kind: 'INPUT_ABOVE_MONTHLY_SALARY' as const,
+        employeeId: slip.employeeId,
+        employeeName: slip.employeeName,
+        conceptCode: line.conceptCode,
+        amount: line.amount,
+        monthlyBaseSalary,
+      }));
+  }
+
   private assertEditable(run: PayrollRun): void {
     if (run.status === PayrollRunStatus.APPROVED || run.status === PayrollRunStatus.PAID) {
       throw new ConflictError('payroll.run_approved_immutable_use_adjustment_run');
@@ -626,7 +687,7 @@ export class PayrollRunService {
       employeeIdentityMasked: this.maskIdentity(employee.identityDocument),
       // The TSS filing calls it the NSS; the employee record now calls it what every system calls
       // it. The Dominican name belongs to the Dominican report, which is this one.
-      employeeTssNss: employee.socialSecurityNumber ?? null,
+      employeeSocialSecurityNumber: employee.socialSecurityNumber ?? null,
       hireDate: employee.hireDate ?? null,
       terminationDate: employee.terminationDate ?? null,
       monthlyBaseSalary: this.toMonthly(compensation),
@@ -665,7 +726,7 @@ export class PayrollRunService {
         type: concept.type,
         calculation: concept.calculation,
         taxable: concept.taxable,
-        contributesToTss: concept.contributesToTss,
+        contributesToSocialSecurity: concept.contributesToSocialSecurity,
         amount: input.amount ?? undefined,
         rate: input.rate ?? concept.rate ?? undefined,
         quantity: input.quantity ?? undefined,
@@ -690,21 +751,17 @@ export class PayrollRunService {
       employeeId: s.employeeId,
       employeeName: s.employeeName,
       employeeIdentityMasked: s.employeeIdentityMasked,
-      employeeTssNss: s.employeeTssNss,
+      employeeSocialSecurityNumber: s.employeeSocialSecurityNumber,
       baseDays: s.baseDays,
       workedDays: s.workedDays,
       baseSalary: s.baseSalary,
       grossEarnings: s.grossEarnings,
-      tssBase: s.tssBase,
+      contributoryBase: s.contributoryBase,
       taxableBase: s.taxableBase,
-      afpEmployee: s.afpEmployee,
-      sfsEmployee: s.sfsEmployee,
+      statutoryContributions: s.statutoryContributions ?? [],
+      statutoryEmployeeContributions: s.statutoryEmployeeContributions,
+      statutoryEmployerContributions: s.statutoryEmployerContributions,
       incomeTax: s.incomeTax,
-      infotepEmployee: s.infotepEmployee,
-      afpEmployer: s.afpEmployer,
-      sfsEmployer: s.sfsEmployer,
-      srlEmployer: s.srlEmployer,
-      infotepEmployer: s.infotepEmployer,
       otherDeductions: s.otherDeductions,
       otherEmployerContributions: s.otherEmployerContributions,
       totalEmployeeDeductions: s.totalEmployeeDeductions,
@@ -720,16 +777,12 @@ export class PayrollRunService {
     return {
       ...shape,
       grossEarnings: 0,
-      tssBase: 0,
+      contributoryBase: 0,
       taxableBase: 0,
-      afpEmployee: 0,
-      sfsEmployee: 0,
+      statutoryContributions: [],
+      statutoryEmployeeContributions: 0,
+      statutoryEmployerContributions: 0,
       incomeTax: 0,
-      infotepEmployee: 0,
-      afpEmployer: 0,
-      sfsEmployer: 0,
-      srlEmployer: 0,
-      infotepEmployer: 0,
       otherDeductions: 0,
       otherEmployerContributions: 0,
       totalEmployeeDeductions: 0,
@@ -760,7 +813,7 @@ export class PayrollRunService {
   /**
    * Normalise a base salary to a monthly figure.
    *
-   * A run is a calendar month because AFP/SFS/ISR and the TSS filing are monthly, so a weekly or
+   * A run is a calendar month because the statutory contributions, the income tax and their filings are monthly, so a weekly or
    * biweekly *quoted* salary is converted to its monthly equivalent (52 or 26 pay periods a year over
    * 12 months) rather than run on its own cadence. The frequency describes how the amount is stated,
    * not a separate run schedule.
@@ -795,21 +848,17 @@ export class PayrollRunService {
       employeeId: slip.employeeId,
       employeeName: slip.employeeName,
       employeeIdentityMasked: slip.employeeIdentityMasked,
-      employeeTssNss: slip.employeeTssNss,
+      employeeSocialSecurityNumber: slip.employeeSocialSecurityNumber,
       baseDays: slip.baseDays,
       workedDays: slip.workedDays,
       baseSalary: slip.baseSalary,
       grossEarnings: slip.grossEarnings,
-      tssBase: slip.tssBase,
+      contributoryBase: slip.contributoryBase,
       taxableBase: slip.taxableBase,
-      afpEmployee: slip.afpEmployee,
-      sfsEmployee: slip.sfsEmployee,
+      statutoryContributions: slip.statutoryContributions ?? [],
+      statutoryEmployeeContributions: slip.statutoryEmployeeContributions,
+      statutoryEmployerContributions: slip.statutoryEmployerContributions,
       incomeTax: slip.incomeTax,
-      infotepEmployee: slip.infotepEmployee,
-      afpEmployer: slip.afpEmployer,
-      sfsEmployer: slip.sfsEmployer,
-      srlEmployer: slip.srlEmployer,
-      infotepEmployer: slip.infotepEmployer,
       otherDeductions: slip.otherDeductions,
       otherEmployerContributions: slip.otherEmployerContributions,
       totalEmployeeDeductions: slip.totalEmployeeDeductions,
@@ -835,4 +884,18 @@ export class PayrollRunService {
     );
     await em.save(lines);
   }
+}
+
+/**
+ * The currency a country's payroll is paid and filed in: its market's own.
+ *
+ * A market whose payroll the product does not compute never reaches this — the run is refused when
+ * it is created — and one it does compute has a package, so there is no currency to invent here.
+ */
+function payrollCurrency(countryCode: string): string {
+  const currency = marketFor(countryCode).profile?.currency;
+  if (!currency) {
+    throw new BadRequestError('payroll.payroll_jurisdiction_p1_not_supported', { p1: countryCode });
+  }
+  return currency;
 }

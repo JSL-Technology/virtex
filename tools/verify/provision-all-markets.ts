@@ -34,12 +34,14 @@ import { Organization } from '../../apps/backend/api/src/app/organizations/entit
 import { Tax } from '../../apps/backend/api/src/app/taxes/entities/tax.entity';
 import { Account } from '../../apps/backend/api/src/app/chart-of-accounts/entities/account.entity';
 import { AccountSegmentDefinition } from '../../apps/backend/api/src/app/chart-of-accounts/entities/account-segment-definition.entity';
-import { supportedCountryCodes } from '../../apps/backend/api/src/app/localization/fiscal/country-profiles';
-import { coaSegmentsFor } from '../../apps/backend/api/src/app/localization/fiscal/coa-builder';
 import {
-  findTaxScheme,
+  COUNTRY_SPECIFIC_COA_TERMS,
+  coaSegmentsFor,
+  languageOfCountry,
+  marketCodes,
   principalTaxName,
-} from '../../apps/backend/api/src/app/localization/fiscal/country-tax-schemes';
+  taxSchemeFor,
+} from '../../apps/backend/api/src/app/markets';
 
 async function main() {
   const app = await NestFactory.create(AppModule, new FastifyAdapter(), {
@@ -56,7 +58,7 @@ async function main() {
 
   const failures: string[] = [];
 
-  for (const code of supportedCountryCodes()) {
+  for (const code of marketCodes()) {
     const region = regions.find((r) => r.countryCode === code);
     if (!region) {
       failures.push(`${code}: no fiscal region`);
@@ -92,7 +94,7 @@ async function main() {
       .getRepository(AccountSegmentDefinition)
       .find({ where: { organizationId: org.id } });
 
-    const scheme = findTaxScheme(code)!;
+    const scheme = taxSchemeFor(code)!;
     const taxName = principalTaxName(code);
     // `Account.name` is a localised JSONB map (`{ es: '…' }`), not a string — the real service
     // converts it on write. The previous stub stored the raw string, which is one more way that
@@ -123,6 +125,23 @@ async function main() {
     if (misshaped.length > 0) {
       problems.push(`${misshaped.length} accounts with the wrong segment count`);
     }
+
+    // Content, not only counts (audit 2026-11-07, SP-02): the Dominican Republic's institutions
+    // reached every Spanish-speaking market's chart while this script reported 19 green rows. No
+    // account or tax of one market may carry another market's vocabulary.
+    const texts = [...accounts.map(nameOf), ...taxes.map((t) => String(t.name))];
+    for (const [owner, terms] of Object.entries(COUNTRY_SPECIFIC_COA_TERMS)) {
+      if (owner === code) continue;
+      const leaked = texts.filter((text) => terms.some((term) => term.test(text)));
+      if (leaked.length) problems.push(`${leaked.length} ${owner} term(s): ${leaked.slice(0, 3).join(' | ')}`);
+    }
+    // I18N-05: names are stored under the language the books are kept in.
+    const language = languageOfCountry(code);
+    const mislabelled = accounts.filter((a) => {
+      const value = a.name as unknown;
+      return value && typeof value === 'object' && language && !(language in (value as Record<string, string>));
+    });
+    if (mislabelled.length) problems.push(`${mislabelled.length} account names not under "${language}"`);
 
     const flag = problems.length ? `✗ ${problems.join('; ')}` : '✓';
     console.log(

@@ -2,6 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosError } from 'axios';
 import { FiscalTransmissionResult } from '../fiscal-regime.types';
+import { externalEffectAllowed, ExternalEffect } from '../../../config/external-effects';
+import { TransmissionConfigService } from '../../services/transmission-config.service';
+import { publicOnlyHttpsAgent } from '../../../common/net/outbound-address';
 
 /**
  * Stamping a CFDI — the step only an authorised PAC may perform.
@@ -27,40 +30,36 @@ import { FiscalTransmissionResult } from '../fiscal-regime.types';
 export class PacProvider {
   private readonly logger = new Logger(PacProvider.name);
 
-  constructor(private readonly config: ConfigService) {}
+  /** Connects only to public addresses, checked at connect time. */
+  private readonly agent = publicOnlyHttpsAgent();
 
-  /** Whether this tenant can stamp at all. */
-  configured(): boolean {
-    return Boolean(this.config.get<string>('PAC_STAMP_URL') && this.credential());
+  constructor(
+    private readonly config: ConfigService,
+    private readonly targets: TransmissionConfigService,
+  ) {}
+
+  /** Whether this tenant has its own PAC configured (FAC-EINV-04). */
+  configured(organizationId: string): Promise<boolean> {
+    return this.targets.isConfigured(organizationId, 'MX');
   }
 
-  private credential(): string | null {
-    const token = this.config.get<string>('PAC_API_TOKEN');
-    if (token) return `Bearer ${token}`;
-    const user = this.config.get<string>('PAC_USERNAME');
-    const password = this.config.get<string>('PAC_PASSWORD');
-    if (user && password) {
-      return `Basic ${Buffer.from(`${user}:${password}`).toString('base64')}`;
-    }
-    return null;
-  }
-
-  /**
-   * Send a sealed CFDI for stamping.
-   *
-   * A network failure is `PENDING`, not `REJECTED`: the PAC may well have stamped it, and a
-   * taxpayer who reissues on a timeout ends up with two comprobantes for one sale, which is a
-   * worse problem than a document whose status is unknown for an hour.
-   */
-  async stamp(sealedXml: string): Promise<FiscalTransmissionResult> {
-    const url = this.config.get<string>('PAC_STAMP_URL');
-    const credential = this.credential();
-    if (!url || !credential) {
+  async stamp(sealedXml: string, organizationId: string): Promise<FiscalTransmissionResult> {
+    const target = await this.targets.resolve(organizationId, 'MX');
+    if (!target) {
       return {
         status: 'NOT_CONFIGURED',
-        messages: ['PAC_STAMP_URL y las credenciales del PAC no están configuradas.'],
+        messages: ['El PAC de la empresa no está configurado (Ajustes › Facturación electrónica); el CFDI queda sellado, sin timbrar.'],
       };
     }
+    if (!externalEffectAllowed(ExternalEffect.FiscalAuthority)) {
+      // Not transmitted, and said so: never an invented verdict (config/external-effects.ts).
+      return {
+        status: 'NOT_CONFIGURED',
+        messages: ['La comunicación con el PAC está desactivada en este entorno (EXTERNAL_EFFECTS); el documento queda construido y firmado, sin transmitir.'],
+      };
+    }
+    const url = target.endpoint;
+    const credential = target.authorization;
 
     try {
       const response = await axios.post(
@@ -68,6 +67,9 @@ export class PacProvider {
         { xml: Buffer.from(sealedXml, 'utf8').toString('base64') },
         {
           headers: { Authorization: credential, 'Content-Type': 'application/json' },
+          httpsAgent: this.agent,
+          maxRedirects: 0,
+          maxContentLength: 5 * 1024 * 1024,
           timeout: Number(this.config.get<string>('PAC_TIMEOUT_MS') ?? 30_000),
         },
       );

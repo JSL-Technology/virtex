@@ -25,6 +25,11 @@ export interface DataTransferColumn {
   readonly required?: boolean;
   /** A sample value for the template's example row. */
   readonly example?: string;
+  /**
+   * Headers an earlier version of the template used, still read so a file written against one
+   * imports without being remapped by hand. Never written: the template carries {@link key}.
+   */
+  readonly aliases?: readonly string[];
 }
 
 export interface DataTransferContext {
@@ -64,6 +69,15 @@ export interface DataTransferImport<TDto extends object = object> {
    * balance, it is a wrong one.
    */
   createAll?(dtos: readonly TDto[], context: DataTransferContext): Promise<void>;
+  /**
+   * The example row the template carries, for the columns whose sample depends on the company's
+   * own market: the identifier and document number of its country, in that country's shape, and
+   * its own currency — not another country's, which is what a fixed sample can only be.
+   *
+   * Keyed by {@link DataTransferColumn.property}; a column left out keeps its
+   * {@link DataTransferColumn.example}. Absent: every sample is the same everywhere.
+   */
+  templateExample?(context: DataTransferContext): Promise<Record<string, string>>;
 }
 
 /** A problem {@link DataTransferImport.checkFile} found. */

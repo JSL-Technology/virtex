@@ -1,0 +1,198 @@
+<vx-list-shell
+  titleKey="consolidation.page.title"
+  subtitleKey="consolidation.page.subtitle"
+  [loading]="running()"
+  [error]="error()"
+  [empty]="false"
+  (reload)="runNow()"
+>
+  <div listFilters class="doc-filter">
+    <label for="cons-from">{{ 'consolidation.page.from' | translate }}</label>
+    <vx-date-field inputId="cons-from" [max]="to()" [ngModel]="from()" (ngModelChange)="from.set($event)" />
+  </div>
+  <div listFilters class="doc-filter">
+    <label for="cons-to">{{ 'consolidation.page.to' | translate }}</label>
+    <vx-date-field inputId="cons-to" [min]="from()" [ngModel]="to()" (ngModelChange)="to.set($event)" />
+  </div>
+  <div listFilters class="doc-filter">
+    <button type="button" class="primary-button" [disabled]="running()" (click)="runNow()">
+      {{ (running() ? 'consolidation.page.running' : 'consolidation.page.run') | translate }}
+    </button>
+  </div>
+
+  @if (result(); as r) {
+    <section class="cons-summary" aria-live="polite">
+      <div class="cons-tile">
+        <span>{{ 'consolidation.page.total_assets' | translate }}</span>
+        <strong>{{ r.balanceSheet.totalAssets | vxNumber: '1.2-2' }} {{ r.presentationCurrency }}</strong>
+      </div>
+      <div class="cons-tile">
+        <span>{{ 'consolidation.page.equity_parent' | translate }}</span>
+        <strong>{{ r.balanceSheet.equityAttributableToParent | vxNumber: '1.2-2' }}</strong>
+      </div>
+      <div class="cons-tile">
+        <span>{{ 'consolidation.page.nci' | translate }}</span>
+        <strong>{{ r.balanceSheet.nonControllingInterests | vxNumber: '1.2-2' }}</strong>
+      </div>
+      <div class="cons-tile">
+        <span>{{ 'consolidation.page.goodwill' | translate }}</span>
+        <strong>{{ r.balanceSheet.goodwill | vxNumber: '1.2-2' }}</strong>
+      </div>
+      <div class="cons-tile">
+        <span>{{ 'consolidation.page.translation_reserve' | translate }}</span>
+        <strong>{{ r.balanceSheet.accumulatedTranslationAdjustment | vxNumber: '1.2-2' }}</strong>
+      </div>
+      <div class="cons-tile">
+        <span>{{ 'consolidation.page.net_income' | translate }}</span>
+        <strong>{{ r.incomeStatement.netIncome | vxNumber: '1.2-2' }}</strong>
+      </div>
+      <div class="cons-tile" [class.cons-state--bad]="!r.balanceSheet.isBalanced" role="status">
+        <span>{{ 'consolidation.page.balance_check' | translate }}</span>
+        <strong>
+          {{ (r.balanceSheet.isBalanced ? 'consolidation.page.balanced' : 'consolidation.page.out_of_balance') | translate: { amount: (r.balanceSheet.outOfBalanceBy | vxNumber: '1.2-2') } }}
+        </strong>
+      </div>
+    </section>
+
+    @if (r.warnings.length) {
+      <section class="cons-section" aria-labelledby="cons-warnings-title">
+        <h2 id="cons-warnings-title">{{ 'consolidation.page.warnings' | translate }} ({{ r.warnings.length }})</h2>
+        <ul class="cons-warnings">
+          @for (w of r.warnings; track $index) {
+            <li>{{ w.detail }}</li>
+          }
+        </ul>
+      </section>
+    }
+
+    <section class="cons-section" aria-labelledby="cons-bs-title">
+      <h2 id="cons-bs-title">{{ 'consolidation.page.balance_sheet' | translate }}</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">{{ 'consolidation.page.account' | translate }}</th>
+            <th scope="col" class="numeric">{{ 'consolidation.page.amount' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (group of [r.balanceSheet.assets, r.balanceSheet.liabilities, r.balanceSheet.equity]; track $index) {
+            @for (line of group; track line.code) {
+              <tr>
+                <td>{{ line.code }} · {{ line.name | vxName }}</td>
+                <td class="numeric">{{ line.amount | vxNumber: '1.2-2' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">{{ 'consolidation.page.total_liabilities_equity' | translate }}</th>
+            <th class="numeric">{{ (r.balanceSheet.totalLiabilities + r.balanceSheet.totalEquity) | vxNumber: '1.2-2' }}</th>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <section class="cons-section" aria-labelledby="cons-is-title">
+      <h2 id="cons-is-title">{{ 'consolidation.page.income_statement' | translate }}</h2>
+      <table class="data-table">
+        <tbody>
+          @for (line of r.incomeStatement.revenue; track line.code) {
+            <tr><td>{{ line.code }} · {{ line.name | vxName }}</td><td class="numeric">{{ line.amount | vxNumber: '1.2-2' }}</td></tr>
+          }
+          @for (line of r.incomeStatement.expenses; track line.code) {
+            <tr><td>{{ line.code }} · {{ line.name | vxName }}</td><td class="numeric">-{{ line.amount | vxNumber: '1.2-2' }}</td></tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr><th scope="row">{{ 'consolidation.page.attributable_parent' | translate }}</th><th class="numeric">{{ r.incomeStatement.attributableToParent | vxNumber: '1.2-2' }}</th></tr>
+          <tr><th scope="row">{{ 'consolidation.page.attributable_nci' | translate }}</th><th class="numeric">{{ r.incomeStatement.attributableToNonControlling | vxNumber: '1.2-2' }}</th></tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <section class="cons-section" aria-labelledby="cons-elim-title">
+      <h2 id="cons-elim-title">{{ 'consolidation.page.eliminations' | translate }} ({{ r.eliminations.length }})</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">{{ 'consolidation.page.elimination' | translate }}</th>
+            <th scope="col">{{ 'consolidation.page.entry' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of r.eliminations; track $index) {
+            <tr>
+              <td>{{ e.description }}</td>
+              <td>
+                <ul class="cons-entries">
+                  @for (entry of e.entries; track $index) {
+                    <li>{{ side(entry) | translate }} {{ entry.label }}: {{ entry.amount | vxNumber: '1.2-2' }}</li>
+                  }
+                </ul>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="cons-section" aria-labelledby="cons-entities-title">
+      <h2 id="cons-entities-title">{{ 'consolidation.page.entities' | translate }}</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">{{ 'consolidation.page.entity' | translate }}</th>
+            <th scope="col">{{ 'consolidation.page.currency' | translate }}</th>
+            <th scope="col" class="numeric">{{ 'consolidation.page.ownership' | translate }}</th>
+            <th scope="col" class="numeric">{{ 'consolidation.page.closing_rate' | translate }}</th>
+            <th scope="col" class="numeric">{{ 'consolidation.page.equity' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entity of r.entities; track entity.organizationId) {
+            <tr>
+              <td>{{ entity.legalName }}</td>
+              <td>{{ entity.functionalCurrency }}</td>
+              <td class="numeric">{{ entity.ownership | vxNumber: '1.0-2' }} %</td>
+              <td class="numeric">{{ entity.rates.closing | vxNumber: '1.2-6' }}</td>
+              <td class="numeric">{{ entity.presented.equity | vxNumber: '1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+
+  <section class="cons-section" aria-labelledby="cons-runs-title">
+    <h2 id="cons-runs-title">{{ 'consolidation.page.runs' | translate }}</h2>
+    @if (runs().length === 0) {
+      <p>{{ 'consolidation.page.no_runs' | translate }}</p>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">{{ 'consolidation.page.period' | translate }}</th>
+            <th scope="col" class="numeric">{{ 'consolidation.page.total_assets' | translate }}</th>
+            <th scope="col" class="numeric">{{ 'consolidation.page.translation_reserve' | translate }}</th>
+            <th scope="col">{{ 'consolidation.page.balance_check' | translate }}</th>
+            <th scope="col">{{ 'consolidation.page.run_at' | translate }}</th>
+            <th scope="col"><span class="sr-only">{{ 'consolidation.page.open' | translate }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (run of runs(); track run.id) {
+            <tr>
+              <td>{{ run.startDate | vxDate: 'date' : true }} – {{ run.asOfDate | vxDate: 'date' : true }}</td>
+              <td class="numeric">{{ run.totalAssets | vxNumber: '1.2-2' }} {{ run.presentationCurrency }}</td>
+              <td class="numeric">{{ run.translationReserve | vxNumber: '1.2-2' }}</td>
+              <td>{{ (run.isBalanced ? 'consolidation.page.balanced_short' : 'consolidation.page.out_of_balance_short') | translate }}</td>
+              <td>{{ run.createdAt | vxDate: 'dateTime' }}</td>
+              <td><button type="button" class="link-button" (click)="open(run)">{{ 'consolidation.page.open' | translate }}</button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+</vx-list-shell>

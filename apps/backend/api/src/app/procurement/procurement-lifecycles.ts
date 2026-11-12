@@ -83,18 +83,26 @@ export const PURCHASE_ORDER_LIFECYCLE: DocumentLifecycle<PurchaseOrderStatus> = 
       next: [
         PurchaseOrderStatus.PARTIALLY_RECEIVED,
         PurchaseOrderStatus.RECEIVED,
+        PurchaseOrderStatus.CLOSED,
         PurchaseOrderStatus.CANCELLED,
       ],
     },
     {
       status: PurchaseOrderStatus.PARTIALLY_RECEIVED,
       labelKey: 'purchasing.orders.status_label.partially_received',
-      next: [PurchaseOrderStatus.RECEIVED, PurchaseOrderStatus.CANCELLED],
+      next: [PurchaseOrderStatus.RECEIVED, PurchaseOrderStatus.CLOSED, PurchaseOrderStatus.CANCELLED],
     },
     {
       status: PurchaseOrderStatus.RECEIVED,
       labelKey: 'purchasing.orders.status_label.received',
       next: [],
+    },
+    {
+      // Closed short (CMP-15): the balance will not come; received goods stay received.
+      status: PurchaseOrderStatus.CLOSED,
+      labelKey: 'purchasing.orders.status_label.closed',
+      next: [],
+      exceptional: true,
     },
     {
       status: PurchaseOrderStatus.CANCELLED,

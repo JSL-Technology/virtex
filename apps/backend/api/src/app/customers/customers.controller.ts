@@ -20,6 +20,7 @@ import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../security/principal';
 import { clampLimit } from '../common/database/search-term';
+import { hasPermission } from '@virteex/shared/util-auth';
 
 @Controller('customers')
 /**
@@ -31,7 +32,9 @@ export class CustomersController {
   @Post()
   @HasPermission(PERMISSIONS.CUSTOMERS_CREATE)
   create(@Body() createCustomerDto: CreateCustomerDto, @CurrentUser() user: AuthenticatedUser) {
-    return this.customersService.create(createCustomerDto, user.organizationId);
+    return this.customersService.create(createCustomerDto, user.organizationId, {
+      mayAssignPriceList: hasPermission(user.permissions ?? [], [PERMISSIONS.PRICE_LISTS_EDIT]),
+    });
   }
 
   /**
@@ -70,7 +73,9 @@ export class CustomersController {
     @Body() updateCustomerDto: UpdateCustomerDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.customersService.update(id, updateCustomerDto, user.organizationId);
+    return this.customersService.update(id, updateCustomerDto, user.organizationId, {
+      mayAssignPriceList: hasPermission(user.permissions ?? [], [PERMISSIONS.PRICE_LISTS_EDIT]),
+    });
   }
 
   @Get(':id/dependents')

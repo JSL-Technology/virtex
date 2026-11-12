@@ -1,5 +1,22 @@
 {
+  "desktop.about.detail": "Version {{version}} · Electron {{electron}} · build {{commit}}",
+  "desktop.menu.about": "About Virtex Desktop",
+  "desktop.menu.check_for_updates": "Check for updates…",
   "desktop.menu.go": "Go",
+  "desktop.menu.help": "Help",
+  "desktop.menu.open_logs": "Open the logs folder",
   "desktop.menu.point_of_sale": "Point of sale",
-  "desktop.menu.portal": "Portal"
+  "desktop.menu.portal": "Portal",
+  "desktop.update.check_failed": "Could not check for updates. Check your connection and try again.",
+  "desktop.update.later": "When I quit",
+  "desktop.update.managed_by_organization": "Updates for this application are managed by your organization.",
+  "desktop.update.mandatory_message": "Version {{version}} fixes an important problem and is required. Save your work and restart to install it.",
+  "desktop.update.ready_message": "Version {{version}} has been downloaded and verified.",
+  "desktop.update.ready_title": "Update ready",
+  "desktop.update.remind_me": "Remind me in a few minutes",
+  "desktop.update.restart_detail": "Restarting closes the application. If you are in the middle of a sale or a document, finish it first.",
+  "desktop.update.restart_now": "Restart now",
+  "desktop.update.unavailable_in_this_build": "Automatic updates are not available in this build.",
+  "desktop.update.up_to_date": "You have the latest version ({{version}}).",
+  "desktop.update.verification_failed": "An update was found, but it failed signature verification and will not be installed. The incident has been logged."
 }

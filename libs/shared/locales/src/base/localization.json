@@ -4,6 +4,26 @@
     "en": "The country \"{{countryCode}}\" is not available for registration yet.",
     "pt": "O país \"{{countryCode}}\" ainda não está disponível para cadastro."
   },
+  "localization.country_pack.purchase_attribute.isr_retention_type": {
+    "es": "Tipo de retención en ISR",
+    "en": "Kind of income-tax withholding",
+    "pt": "Tipo de retenção de imposto de renda"
+  },
+  "localization.country_pack.purchase_attribute.isr_retention_type_help": {
+    "es": "Solo cuando se le retuvo impuesto sobre la renta al proveedor.",
+    "en": "Only when income tax was withheld from the supplier.",
+    "pt": "Apenas quando foi retido imposto de renda do fornecedor."
+  },
+  "localization.country_pack.purchase_attribute.purchase_category": {
+    "es": "Tipo de bienes y servicios comprados",
+    "en": "Kind of goods and services bought",
+    "pt": "Tipo de bens e serviços comprados"
+  },
+  "localization.country_pack.purchase_attribute.purchase_category_help": {
+    "es": "Clasifica la compra para la declaración de compras. Sin este dato la declaración no se puede generar.",
+    "en": "Classifies the purchase for the purchases return. Without it the return cannot be produced.",
+    "pt": "Classifica a compra para a declaração de compras. Sem este dado a declaração não pode ser gerada."
+  },
   "localization.country_pack.reports.general_ledger": {
     "es": "Libro mayor",
     "en": "General ledger",
@@ -134,6 +154,11 @@
     "en": "The tax configuration for \"{{countryCode}}\" is not available.",
     "pt": "A configuração fiscal de \"{{countryCode}}\" não está disponível."
   },
+  "localization.tax_configuration_required_before_invoicing": {
+    "es": "Configura los impuestos de tu empresa en {{countryCode}} (Ajustes → Impuestos) antes de facturar: sin ellos la factura saldría sin el impuesto que corresponde.",
+    "en": "Set up your company's taxes in {{countryCode}} (Settings → Taxes) before invoicing: without them the invoice would carry none of the tax it owes.",
+    "pt": "Configure os tributos da sua empresa em {{countryCode}} (Configurações → Impostos) antes de faturar: sem eles a nota sairia sem o imposto devido."
+  },
   "localization.tax_region_fiscal_region_id_not": {
     "es": "Región fiscal con ID \"{{fiscalRegionId}}\" no encontrada.",
     "en": "Tax region \"{{fiscalRegionId}}\" was not found.",
@@ -148,6 +173,11 @@
     "es": "El régimen de retención indicado no existe.",
     "en": "That withholding regime does not exist.",
     "pt": "O regime de retenção indicado não existe."
+  },
+  "localization.withholding_regime_period_invalid": {
+    "es": "La vigencia del régimen termina antes de empezar. Revisa las fechas.",
+    "en": "The regime’s period ends before it starts. Check the dates.",
+    "pt": "A vigência do regime termina antes de começar. Reveja as datas."
   },
   "localization.you_not_registered_collect_state_code": {
     "es": "No estás registrado para recaudar en {{stateCode}} ({{countryCode}}), así que no se cobra impuesto en esta venta.",

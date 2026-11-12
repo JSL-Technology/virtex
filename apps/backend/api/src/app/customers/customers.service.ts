@@ -9,10 +9,11 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { DataSource } from 'typeorm';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
-import { NotFoundError, UnprocessableEntityError } from '../i18n/localized.exception';
+import { ForbiddenError, NotFoundError, UnprocessableEntityError } from '../i18n/localized.exception';
 import { IdentityDocumentService } from '../localization/services/identity-document.service';
 import { TenantCountryResolver } from '../shared/tenancy/tenant-country.resolver';
 import { likeTerm } from '../common/database/search-term';
+import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
 import { assertNoDependents, countDependents, DependentCount, DependentReference } from '../common/database/dependents';
 
 /**
@@ -128,13 +129,19 @@ export class CustomersService {
   async create(
     createCustomerDto: CreateCustomerDto,
     organizationId: string,
+    access: PriceListAccess = { mayAssignPriceList: true },
   ): Promise<Customer> {
+    assertMayAssignPriceList(access, createCustomerDto.priceListId ?? null, null);
     // Validated before the transaction opens: a rejected tax id should not have held a row lock
     // or consumed the plan-limit check on its way to failing.
     const identity = await this.resolveIdentityDocument(createCustomerDto, organizationId);
 
     const created = await this.dataSource.transaction(async (manager) => {
       await this.saasService.enforceLimit(manager, organizationId, SaasResource.CUSTOMERS);
+      await assertTenantOwns(manager, 'price_lists', createCustomerDto.priceListId, organizationId, {
+        errorKey: 'customers.price_list_not_found',
+        field: 'priceListId',
+      });
 
       const customer = manager.create(Customer, {
         ...createCustomerDto,
@@ -213,8 +220,18 @@ export class CustomersService {
     id: string,
     updateCustomerDto: UpdateCustomerDto,
     organizationId: string,
+    access: PriceListAccess = { mayAssignPriceList: true },
   ): Promise<Customer> {
     const customer = await this.findOne(id, organizationId);
+    if (updateCustomerDto.priceListId !== undefined) {
+      assertMayAssignPriceList(access, updateCustomerDto.priceListId, customer.priceListId ?? null);
+    }
+    // Answered here, not by the deferred same-tenant trigger at COMMIT, so a foreign or unknown
+    // list is a 404 on the field instead of a failed transaction.
+    await assertTenantOwns(this.dataSource.manager, 'price_lists', updateCustomerDto.priceListId, organizationId, {
+      errorKey: 'customers.price_list_not_found',
+      field: 'priceListId',
+    });
 
     // Re-validate when either half moves. Changing only the TYPE — correcting an RNC filed as a
     // cédula — has to re-check the value against the new rule, which a guard on `taxId` alone
@@ -283,4 +300,19 @@ export class CustomersService {
       await this.saasService.releaseUsage(manager, organizationId, SaasResource.CUSTOMERS);
     });
   }
+}
+/** Who may change which price list a customer buys at. */
+export interface PriceListAccess {
+  mayAssignPriceList: boolean;
+}
+
+/**
+ * A price list is a discount policy. Assigning one is `price_lists:edit`, not `customers:edit`:
+ * otherwise any seller who can correct a customer's phone number could also move that customer —
+ * or a friend's company — onto the wholesale prices. Sending the value the customer already has
+ * is not a change, so a form that echoes it back still saves.
+ */
+function assertMayAssignPriceList(access: PriceListAccess, requested: string | null, current: string | null): void {
+  if (access.mayAssignPriceList || (requested ?? null) === (current ?? null)) return;
+  throw new ForbiddenError('customers.price_list_assignment_forbidden');
 }

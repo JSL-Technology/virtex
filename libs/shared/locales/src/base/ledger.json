@@ -209,6 +209,16 @@
     "en": "Decrease on adjustment — {{product}}",
     "pt": "Saída por ajuste — {{product}}"
   },
+  "ledger.inventory.adjustment_revaluation_down": {
+    "es": "Revaluación de costo de inventario (baja)",
+    "en": "Inventory cost revaluation (decrease)",
+    "pt": "Reavaliação de custo de estoque (baixa)"
+  },
+  "ledger.inventory.adjustment_revaluation_up": {
+    "es": "Revaluación de costo de inventario (alza)",
+    "en": "Inventory cost revaluation (increase)",
+    "pt": "Reavaliação de custo de estoque (alta)"
+  },
   "ledger.inventory.adjustment_shortfall": {
     "es": "Faltante en ajuste de inventario",
     "en": "Shortfall found on stock adjustment",
@@ -259,11 +269,6 @@
     "en": "Opening balance",
     "pt": "Saldo inicial"
   },
-  "ledger.payroll.afp_payable": {
-    "es": "AFP por pagar (TSS)",
-    "en": "AFP payable (TSS)",
-    "pt": "AFP a pagar (TSS)"
-  },
   "ledger.payroll.bank_back": {
     "es": "Reingreso a banco por ajuste",
     "en": "Bank credit on payroll adjustment",
@@ -284,15 +289,15 @@
     "en": "Employer's contributions and benefits",
     "pt": "Contribuições patronais e benefícios"
   },
-  "ledger.payroll.infotep_payable": {
-    "es": "SRL/INFOTEP por pagar",
-    "en": "SRL/INFOTEP payable",
-    "pt": "SRL/INFOTEP a pagar"
+  "ledger.payroll.health_payable": {
+    "es": "Aportes de salud por pagar",
+    "en": "Health contributions payable",
+    "pt": "Contribuições de saúde a pagar"
   },
   "ledger.payroll.isr_payable": {
-    "es": "ISR retenido por pagar (DGII)",
-    "en": "ISR withheld, payable (DGII)",
-    "pt": "ISR retido a pagar (DGII)"
+    "es": "Impuesto sobre la renta retenido por pagar",
+    "en": "Income tax withheld, payable",
+    "pt": "Imposto de renda retido a pagar"
   },
   "ledger.payroll.net_adjusted": {
     "es": "Ajuste de pago de nómina",
@@ -309,6 +314,11 @@
     "en": "Net wages payable",
     "pt": "Vencimentos a pagar (líquido)"
   },
+  "ledger.payroll.other_contributions_payable": {
+    "es": "Otros aportes laborales por pagar",
+    "en": "Other payroll contributions payable",
+    "pt": "Outras contribuições trabalhistas a pagar"
+  },
   "ledger.payroll.other_deductions": {
     "es": "Otras deducciones por pagar",
     "en": "Other deductions payable",
@@ -319,6 +329,11 @@
     "en": "Payroll payment {{run}}",
     "pt": "Pagamento da folha {{run}}"
   },
+  "ledger.payroll.pension_payable": {
+    "es": "Aportes de pensión por pagar",
+    "en": "Pension contributions payable",
+    "pt": "Contribuições de previdência a pagar"
+  },
   "ledger.payroll.run": {
     "es": "Nómina {{run}}",
     "en": "Payroll {{run}}",
@@ -328,11 +343,6 @@
     "es": "Gasto de sueldos y salarios",
     "en": "Wages and salaries expense",
     "pt": "Gasto com vencimentos e salários"
-  },
-  "ledger.payroll.sfs_payable": {
-    "es": "SFS por pagar (TSS)",
-    "en": "SFS payable (TSS)",
-    "pt": "SFS a pagar (TSS)"
   },
   "ledger.pos.cash_in": {
     "es": "Efectivo cobrado en caja",
@@ -664,6 +674,11 @@
     "en": "Rounding difference on currency conversion",
     "pt": "Diferença de arredondamento na conversão de moeda"
   },
+  "ledger.sales.cancellation": {
+    "es": "Anulación de la factura {{number}}{{fiscal}} — {{customer}}",
+    "en": "Cancellation of invoice {{number}}{{fiscal}} — {{customer}}",
+    "pt": "Anulação da fatura {{number}}{{fiscal}} — {{customer}}"
+  },
   "ledger.sales.cost_of": {
     "es": "Costo de {{document}}",
     "en": "Cost of {{document}}",
@@ -733,15 +748,5 @@
     "es": "Retenciones practicadas al proveedor",
     "en": "Tax withheld from the supplier",
     "pt": "Retenções efetuadas ao fornecedor"
-  },
-  "ledger.inventory.adjustment_revaluation_up": {
-    "es": "Revaluación de costo de inventario (alza)",
-    "en": "Inventory cost revaluation (increase)",
-    "pt": "Reavaliação de custo de estoque (alta)"
-  },
-  "ledger.inventory.adjustment_revaluation_down": {
-    "es": "Revaluación de costo de inventario (baja)",
-    "en": "Inventory cost revaluation (decrease)",
-    "pt": "Reavaliação de custo de estoque (baixa)"
   }
 }

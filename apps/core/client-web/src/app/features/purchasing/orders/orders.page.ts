@@ -32,6 +32,7 @@ const STATUS_TONE: Record<PurchaseOrderStatus, VxTone> = {
   SENT: 'info',
   PARTIALLY_RECEIVED: 'warning',
   RECEIVED: 'ok',
+  CLOSED: 'neutral',
   CANCELLED: 'danger',
 };
 

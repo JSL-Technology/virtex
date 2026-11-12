@@ -4,6 +4,8 @@ import { Organization } from '../../../organizations/entities/organization.entit
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
+import { issuedDocumentType } from '../fiscal-number';
+import { ModifiedDocumentReference, requiredKey, requiredReasonCode } from '../modified-document';
 
 /**
  * CFDI 4.0 — the Mexican comprobante fiscal digital por internet.
@@ -39,6 +41,8 @@ export interface CfdiBuildInput {
   invoice: Invoice;
   organization: Organization;
   customer: Customer;
+  /** Set on a note: the comprobante it relates to, which the SAT reads by UUID. */
+  modifies?: ModifiedDocumentReference | null;
   /** From `organizations.fiscal_profile.regimenFiscal` — a `c_RegimenFiscal` code. */
   issuerRegime: string;
   /** The taxpayer's postal code, which is `LugarExpedicion`. */
@@ -82,6 +86,28 @@ export class CfdiBuilder {
     // Only on a document in a currency other than the peso, and the SAT wants the rate to the
     // peso — which is the rate the ledger already stored to convert it.
     if (currency !== 'MXN') root.att('TipoCambio', Number(invoice.exchangeRate ?? 1).toFixed(6));
+
+    // ── The comprobante this one relates to ────────────────────────────────────────────────
+    //
+    // A credit note is a CFDI de egreso and a debit note an ingreso, and in both cases the only
+    // thing that ties it to the sale it corrects is `CfdiRelacionados`: the UUID of the related
+    // comprobante, under a `TipoRelacion` from `c_TipoRelacion` stating what this document is with
+    // respect to it. The builder wrote neither (FAC-INV-05 / MP-10), so an egreso went to the SAT
+    // as an unrelated expense — stamped, and crediting nothing.
+    //
+    // Written before `Emisor` because the schema's sequence puts it there, and because the cadena
+    // original is projected in document order: in the wrong place it is both a schema error and a
+    // seal the PAC recomputes differently.
+    if (input.modifies) {
+      const relation = requiredReasonCode(input.modifies, invoice.adjustmentReason ?? 'OTHER');
+      root
+        .ele('cfdi:CfdiRelacionados')
+        .att('TipoRelacion', relation)
+        .ele('cfdi:CfdiRelacionado')
+        // By the UUID the PAC assigned when it stamped the related comprobante. A CFDI has no
+        // fiscal number to refer to: the UUID is its identity.
+        .att('UUID', requiredKey(input.modifies));
+    }
 
     root
       .ele('cfdi:Emisor')
@@ -194,6 +220,11 @@ export class CfdiBuilder {
   }
 
   private assertIssuable(input: CfdiBuildInput): void {
+    if (isNote(input.invoice) && !input.modifies) {
+      throw new BadRequestError('einvoicing.note_must_name_the_document_it_modifies', {
+        document: input.invoice.invoiceNumber ?? '',
+      });
+    }
     if (!input.organization.taxId?.trim()) {
       throw new BadRequestError('einvoicing.mx.organization_has_no_rfc_cfdi_cannot');
     }
@@ -217,14 +248,12 @@ export class CfdiBuilder {
 
   /** `I` ingreso, `E` egreso (a credit note is one), `T` traslado, `P` pago. */
   /**
-   * The authority's document-type code for this invoice.
-   *
-   * Public because the numbering adapter has to draw the number from the range authorised for
-   * THIS type, and it must reach that answer the same way the builder does. Two copies of the
-   * rule is how a document ends up numbered from the exenta range and built as an afecta.
+   * The authority's type the document was numbered as — recorded at issuance by the market's own
+   * rule (`markets/<cc>/documents.ts`), never decided again here: two copies of the rule is how a
+   * document ends up numbered from one range and built as another type.
    */
   documentType(invoice: Invoice): 'I' | 'E' {
-    return invoice.type === InvoiceType.CREDIT_NOTE ? 'E' : 'I';
+    return issuedDocumentType(invoice, ['I', 'E'] as const);
   }
 
   /**
@@ -286,3 +315,14 @@ export class CfdiBuilder {
 
 const CFDI_NS = 'http://www.sat.gob.mx/cfd/4';
 const XSI_NS = 'http://www.w3.org/2001/XMLSchema-instance';
+
+/**
+ * A note, in the only terms the CFDI leaves: `TipoDeComprobante` does not say so.
+ *
+ * An egreso is a credit note, but a debit note is an ingreso like any sale — the SAT tells them
+ * apart by the relation, not by the type — so the document's own kind is what decides whether a
+ * relation is required.
+ */
+function isNote(invoice: Invoice): boolean {
+  return invoice.type === InvoiceType.CREDIT_NOTE || invoice.type === InvoiceType.DEBIT_NOTE;
+}

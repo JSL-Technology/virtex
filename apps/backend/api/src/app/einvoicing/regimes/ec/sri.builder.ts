@@ -1,11 +1,12 @@
 import * as xmlbuilder from 'xmlbuilder';
-import { Invoice, InvoiceType } from '../../../invoices/entities/invoice.entity';
+import { Invoice } from '../../../invoices/entities/invoice.entity';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
-import { fiscalConsecutive } from '../fiscal-number';
+import { fiscalConsecutive, issuedDocumentType } from '../fiscal-number';
 import { buyerRegimeDocumentCode } from '../buyer-document';
+import { ModifiedDocumentReference, requiredNumber } from '../modified-document';
 
 /**
  * Ecuador — comprobante electrónico, SRI.
@@ -30,6 +31,8 @@ export interface SriBuildInput {
   invoice: Invoice;
   organization: Organization;
   customer: Customer;
+  /** Set on a nota de crédito/débito: the comprobante it modifies, which the SRI requires by name. */
+  modifies?: ModifiedDocumentReference | null;
   /** `1` pruebas, `2` producción. The SRI numbers them the opposite way round to Colombia. */
   environment: '1' | '2';
   /** Three digits each, assigned by the SRI: `001`, `001`. */
@@ -94,10 +97,17 @@ export class SriBuilder {
     const currency = invoice.currencyCode ?? 'USD';
     const amount = (value: number) => roundToCurrency(value, currency).toFixed(2);
 
+    // A nota de crédito and a nota de débito are comprobantes in their own right: their own root,
+    // their own info block, their own version, and their own fields for the document they modify.
+    // Both were written as a `factura`, so the SRI had nothing to tie the correction to, and the
+    // taxpayer had no way to prove which invoice a credit belonged to (FAC-INV-05 / MP-10).
+    const type = this.documentType(invoice);
+    const document = DOCUMENTS[type] ?? DOCUMENTS['01'];
+
     const root = xmlbuilder
-      .create('factura', { encoding: 'UTF-8' })
+      .create(document.root, { encoding: 'UTF-8' })
       .att('id', 'comprobante')
-      .att('version', '2.1.0');
+      .att('version', document.version);
 
     const info = root.ele('infoTributaria');
     info.ele('ambiente', {}, input.environment);
@@ -105,46 +115,120 @@ export class SriBuilder {
     info.ele('razonSocial', {}, organization.legalName);
     info.ele('ruc', {}, (organization.taxId ?? '').replace(/\D/g, ''));
     info.ele('claveAcceso', {}, accessKey);
-    info.ele('codDoc', {}, this.documentType(invoice));
+    info.ele('codDoc', {}, type);
     info.ele('estab', {}, input.establishment);
     info.ele('ptoEmi', {}, input.emissionPoint);
     info.ele('secuencial', {}, this.sequential(fiscalConsecutive(invoice)));
     info.ele('dirMatriz', {}, organization.address ?? '');
 
-    const infoFactura = root.ele('infoFactura');
-    infoFactura.ele('fechaEmision', {}, this.ddmmyyyySlashed(invoice.issueDate));
-    infoFactura.ele('obligadoContabilidad', {}, 'SI');
+    const head = root.ele(document.info);
+    head.ele('fechaEmision', {}, this.ddmmyyyySlashed(invoice.issueDate));
+    // The SRI orders this field differently in each comprobante: in a factura it precedes the
+    // buyer, in a note it follows them. The order is the schema, so writing it in one place for all
+    // three is a rejection on the two it does not fit.
+    if (document.kind === 'INVOICE') head.ele('obligadoContabilidad', {}, 'SI');
+    this.buyer(head, customer);
+    if (document.kind !== 'INVOICE') {
+      head.ele('obligadoContabilidad', {}, 'SI');
+
+      // ── What the note modifies, which the SRI asks for by name ─────────────────────────
+      //
+      // The type, the number and the date of the comprobante being corrected, all three mandatory.
+      const modifies = this.requireModified(input);
+      head.ele('codDocModificado', {}, modifies.documentType ?? '01');
+      head.ele('numDocModificado', {}, requiredNumber(modifies));
+      head.ele('fechaEmisionDocSustento', {}, this.ddmmyyyySlashed(modifies.issueDate));
+    }
+
+    head.ele('totalSinImpuestos', {}, amount(invoice.subtotal));
+
+    if (document.kind === 'INVOICE') {
+      head.ele('totalDescuento', {}, amount(invoice.discountTotal ?? 0));
+      this.taxTotals(head.ele('totalConImpuestos'), 'totalImpuesto', invoice, amount);
+      head.ele('propina', {}, amount(invoice.serviceCharge ?? 0));
+      head.ele('importeTotal', {}, amount(invoice.total));
+      head.ele('moneda', {}, 'DOLAR');
+    } else if (document.kind === 'CREDIT_NOTE') {
+      head.ele('valorModificacion', {}, amount(invoice.total));
+      head.ele('moneda', {}, 'DOLAR');
+      this.taxTotals(head.ele('totalConImpuestos'), 'totalImpuesto', invoice, amount);
+      // The motivo in words. The SRI publishes no catalogue of correction concepts — it asks why
+      // in a sentence — so the note carries what the issuer wrote and nothing is invented for them
+      // when they wrote nothing (the field is optional, and inventing a reason is worse than none).
+      const reason = this.reasonText(input);
+      if (reason) head.ele('motivo', {}, reason);
+    } else {
+      // A nota de débito states its taxes under `impuestos`, with the rate, and its total as
+      // `valorTotal`. Neither element exists in the other two comprobantes.
+      this.taxTotals(head.ele('impuestos'), 'impuesto', invoice, amount);
+      head.ele('valorTotal', {}, amount(invoice.total));
+    }
+
+    if (document.kind === 'DEBIT_NOTE') {
+      // A nota de débito has no `detalles`: what it charges for is stated as motivos, each with
+      // its own amount. *Verificar con contabilidad/legal*: the block is optional in the ficha
+      // técnica, so a note whose issuer wrote no reason carries none rather than an invented one.
+      const reason = this.reasonText(input);
+      if (reason) {
+        const motivo = root.ele('motivos').ele('motivo');
+        motivo.ele('razon', {}, reason);
+        motivo.ele('valor', {}, amount(invoice.total));
+      }
+    } else {
+      this.details(root, invoice, amount, document.itemCode);
+    }
+
+    return root.end({ pretty: false });
+  }
+
+  /** Who the comprobante is for: the same three fields, in the same order, in all of them. */
+  private buyer(head: xmlbuilder.XMLElement, customer: Customer): void {
     const buyerDocumentType = this.buyerDocumentType(customer);
-    infoFactura.ele('tipoIdentificacionComprador', {}, buyerDocumentType);
-    infoFactura.ele('razonSocialComprador', {}, customer.companyName);
+    head.ele('tipoIdentificacionComprador', {}, buyerDocumentType);
+    head.ele('razonSocialComprador', {}, customer.companyName);
     // A passport (`06`) is alphanumeric; only the numeric identifiers (RUC, cédula) are digit-only,
     // so the strip that canonicalises those must not be applied to a passport number.
-    infoFactura.ele(
+    head.ele(
       'identificacionComprador',
       {},
       buyerDocumentType === '06'
         ? (customer.taxId ?? '').trim()
         : (customer.taxId ?? '').replace(/\D/g, ''),
     );
-    infoFactura.ele('totalSinImpuestos', {}, amount(invoice.subtotal));
-    infoFactura.ele('totalDescuento', {}, amount(invoice.discountTotal ?? 0));
+  }
 
-    const totals = infoFactura.ele('totalConImpuestos');
-    const totalTax = totals.ele('totalImpuesto');
+  /**
+   * The document's tax, under the element name its own comprobante uses.
+   *
+   * A factura and a nota de crédito total it under `totalConImpuestos/totalImpuesto`; a nota de
+   * débito states it under `impuestos/impuesto`, which also carries the rate.
+   */
+  private taxTotals(
+    parent: xmlbuilder.XMLElement,
+    entry: 'totalImpuesto' | 'impuesto',
+    invoice: Invoice,
+    amount: (value: number) => string,
+  ): void {
+    const tax = parent.ele(entry);
     // Código `2` IVA; codigoPorcentaje `4` es 15 %, `2` 12 %, `0` 0 %.
-    totalTax.ele('codigo', {}, '2');
-    totalTax.ele('codigoPorcentaje', {}, this.ivaCode(invoice));
-    totalTax.ele('baseImponible', {}, amount(invoice.taxedTotal ?? invoice.subtotal));
-    totalTax.ele('valor', {}, amount(invoice.tax ?? 0));
+    tax.ele('codigo', {}, '2');
+    tax.ele('codigoPorcentaje', {}, this.ivaCode(invoice));
+    if (entry === 'impuesto') tax.ele('tarifa', {}, (this.ivaRate(invoice) * 100).toFixed(2));
+    tax.ele('baseImponible', {}, amount(invoice.taxedTotal ?? invoice.subtotal));
+    tax.ele('valor', {}, amount(invoice.tax ?? 0));
+  }
 
-    infoFactura.ele('propina', {}, amount(invoice.serviceCharge ?? 0));
-    infoFactura.ele('importeTotal', {}, amount(invoice.total));
-    infoFactura.ele('moneda', {}, 'DOLAR');
-
+  /** The lines, with the item-code element the comprobante's own version names. */
+  private details(
+    root: xmlbuilder.XMLElement,
+    invoice: Invoice,
+    amount: (value: number) => string,
+    itemCode: string,
+  ): void {
     const detalles = root.ele('detalles');
     for (const line of invoice.lineItems ?? []) {
       const detalle = detalles.ele('detalle');
-      detalle.ele('codigoPrincipal', {}, line.fiscalCodes?.['codigoPrincipal'] ?? '');
+      detalle.ele(itemCode, {}, line.fiscalCodes?.['codigoPrincipal'] ?? '');
       detalle.ele('descripcion', {}, line.description ?? '');
       detalle.ele('cantidad', {}, Number(line.quantity).toFixed(6));
       detalle.ele('precioUnitario', {}, Number(line.price ?? 0).toFixed(6));
@@ -158,20 +242,42 @@ export class SriBuilder {
       impuestos.ele('baseImponible', {}, amount(line.taxableBase ?? line.lineSubtotal ?? 0));
       impuestos.ele('valor', {}, amount(line.taxAmount ?? 0));
     }
-
-    return root.end({ pretty: false });
   }
 
-  /** `01` factura, `04` nota de crédito. */
+  /** What the issuer wrote on the note, trimmed to the length the SRI accepts. */
+  private reasonText(input: SriBuildInput): string {
+    return (input.modifies?.reasonText ?? '').trim().slice(0, 300);
+  }
+
   /**
-   * The authority's document-type code for this invoice.
+   * The root element of the comprobante this invoice becomes.
    *
-   * Public because the numbering adapter has to draw the number from the range authorised for
-   * THIS type, and it must reach that answer the same way the builder does. Two copies of the
-   * rule is how a document ends up numbered from the exenta range and built as an afecta.
+   * The signature is appended inside it, and a nota de crédito's root is not `factura`: signing
+   * one as though it were appends the `<Signature>` nowhere and the SRI refuses an unsigned
+   * comprobante.
+   */
+  rootElement(invoice: Invoice): string {
+    return (DOCUMENTS[this.documentType(invoice)] ?? DOCUMENTS['01']).root;
+  }
+
+  /** A note must name what it modifies: the SRI refuses one that does not, and so does this. */
+  private requireModified(input: SriBuildInput): ModifiedDocumentReference {
+    if (!input.modifies) {
+      throw new BadRequestError('einvoicing.note_must_name_the_document_it_modifies', {
+        document: input.invoice.invoiceNumber ?? '',
+      });
+    }
+    return input.modifies;
+  }
+
+  /** `01` factura, `04` nota de crédito, `05` nota de débito. */
+  /**
+   * The authority's type the document was numbered as — recorded at issuance by the market's own
+   * rule (`markets/<cc>/documents.ts`), never decided again here: two copies of the rule is how a
+   * document ends up numbered from one range and built as another type.
    */
   documentType(invoice: Invoice): string {
-    return invoice.type === InvoiceType.CREDIT_NOTE ? '04' : '01';
+    return issuedDocumentType(invoice, ['01', '04', '05']);
   }
 
   /**
@@ -189,10 +295,15 @@ export class SriBuilder {
 
   /** The SRI's `codigoPorcentaje` for the document's predominant rate. */
   private ivaCode(invoice: Invoice): string {
+    return this.ivaCodeForRate(this.ivaRate(invoice));
+  }
+
+  /** The rate the document's tax was computed at, as the nota de débito states it. */
+  private ivaRate(invoice: Invoice): number {
     const rates = (invoice.lineItems ?? [])
       .filter((line) => Number(line.taxAmount ?? 0) > 0)
       .map((line) => Number(line.taxRate ?? 0));
-    return this.ivaCodeForRate(rates[0] ?? 0);
+    return rates[0] ?? 0;
   }
 
   private ivaCodeForRate(rate: number): string {
@@ -230,3 +341,34 @@ export class SriBuilder {
     }
   }
 }
+
+/**
+ * Each SRI comprobante, as its own ficha técnica defines it.
+ *
+ * The three are not one document with a different code in `codDoc`: the root element, the info
+ * block, the schema version and even the element that carries an item's code differ, and a note
+ * additionally carries the comprobante it modifies. Writing all three as a `factura` is how a
+ * credit note went out with no reference to the invoice it credited.
+ *
+ * *Verificar con contabilidad/legal*: the SRI publishes a ficha técnica per comprobante, and these
+ * are the versions and element names they fix. `codDocModificado`, `numDocModificado` and
+ * `fechaEmisionDocSustento` are mandatory in both notes; the motivo is not.
+ */
+const DOCUMENTS: Readonly<
+  Record<
+    string,
+    {
+      root: string;
+      info: string;
+      version: string;
+      kind: 'INVOICE' | 'CREDIT_NOTE' | 'DEBIT_NOTE';
+      /** `codigoPrincipal` in the factura 2.1.0, `codigoInterno` in the nota de crédito 1.1.0. */
+      itemCode: string;
+    }
+  >
+> = {
+  '01': { root: 'factura', info: 'infoFactura', version: '2.1.0', kind: 'INVOICE', itemCode: 'codigoPrincipal' },
+  '04': { root: 'notaCredito', info: 'infoNotaCredito', version: '1.1.0', kind: 'CREDIT_NOTE', itemCode: 'codigoInterno' },
+  // A nota de débito has no `detalles` at all: its `motivos` say what it charges for.
+  '05': { root: 'notaDebito', info: 'infoNotaDebito', version: '1.0.0', kind: 'DEBIT_NOTE', itemCode: 'codigoInterno' },
+};

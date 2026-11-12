@@ -3,6 +3,8 @@ import { ClosingBlockerRegistry } from './closing-blockers/closing-blocker.regis
 import { DataTransferRegistry } from './data-transfer/data-transfer.registry';
 import { ApprovalSourceRegistry } from './approvals/approval-source.registry';
 import { PurchaseFiscalRecordsRegistry } from './fiscal-records/purchase-fiscal-records.registry';
+import { PayrollFiscalRecordsRegistry } from './fiscal-records/payroll-fiscal-records.registry';
+import { IssuedFiscalNumbersRegistry } from './fiscal-records/issued-fiscal-numbers.registry';
 import { CopilotToolRegistry } from './copilot/copilot-tools.contract';
 import { InboundMailHandlerRegistry } from './inbound-mail/inbound-mail.contract';
 import { CloseReadinessRegistry } from './closing/close-readiness.contract';
@@ -29,7 +31,7 @@ import { LedgerPostingRegistry } from './ledger-posting/ledger-posting.contract'
  */
 @Global()
 @Module({
-  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry],
-  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry],
+  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, PayrollFiscalRecordsRegistry, IssuedFiscalNumbersRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry],
+  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, PayrollFiscalRecordsRegistry, IssuedFiscalNumbersRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry],
 })
 export class ContractsModule {}

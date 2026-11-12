@@ -42,3 +42,23 @@ export const numericTransformerNotNull: ValueTransformer = {
     return Number.isFinite(parsed) ? parsed : 0;
   },
 };
+
+/**
+ * For a `NOT NULL` column whose database DEFAULT is not 0 — an exchange rate (DEFAULT 1), a
+ * multiplier, a tolerance (DEFAULT 0.02).
+ *
+ * `numericTransformerNotNull.to` turns an unset value into an explicit 0, and TypeORM only writes
+ * `DEFAULT` when the transformed value is `undefined`. So every settings row was created with
+ * `fx_rate_tolerance = 0` instead of 0.02, and every stated exchange rate that differed from the
+ * quote by a single unit of the sixth decimal was refused (audit 2026-11-07, XF-09). Here an unset
+ * value stays unset and the database applies its own default; an explicit `null` is still refused
+ * by the constraint rather than silently rewritten.
+ */
+export const numericTransformerWithDefault: ValueTransformer = {
+  to: (value: number | string | null | undefined): number | string | null | undefined => {
+    if (value === undefined) return undefined;
+    if (value === null) return null;
+    return typeof value === 'number' ? value : Number(value);
+  },
+  from: numericTransformerNotNull.from,
+};

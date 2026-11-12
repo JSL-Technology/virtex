@@ -16,6 +16,8 @@ describe('QuotesService', () => {
     lines: [
       { gross: 300, discountAmount: 30, subtotal: 270, documentDiscountAmount: 0, taxableBase: 270, taxAmount: 48.6, exciseAmount: 0, taxRate: 0.18, taxTreatment: 'TAXED', isService: false },
     ],
+    // How the preview priced each line: the unit price sent, against a list price of 220.
+    pricing: [{ unitPrice: 200, priceListId: 'pl-wholesale', listPrice: 220 }],
     subtotal: 270,
     discountTotal: 0,
     taxedTotal: 270,
@@ -110,6 +112,8 @@ describe('QuotesService', () => {
     );
     expect(saved).toMatchObject({ quoteNumber: 'COT-2026-000001', status: QuoteStatus.DRAFT, subtotal: 270, taxTotal: 48.6, total: 318.6, discountTotal: 30 });
     expect(saved.lines[0]).toMatchObject({ lineOrder: 0, description: 'Silla', quantity: 1.5, taxRate: 0.18, taxAmount: 48.6, lineTotal: 270 });
+    // FAC-PL-01: the line records the list it was typed over.
+    expect(saved.lines[0]).toMatchObject({ unitPrice: 200, priceListId: 'pl-wholesale', listPrice: 220 });
   });
 
   it('refuses a validity date before the issue date', async () => {

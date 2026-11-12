@@ -110,7 +110,7 @@ export class PayrollConceptsPage {
       calculation: draft.calculation,
       rate: draft.rate ?? undefined,
       taxable: draft.taxable,
-      contributesToTss: draft.contributesToTss,
+      contributesToSocialSecurity: draft.contributesToSocialSecurity,
       active: draft.active,
     };
 
@@ -183,7 +183,7 @@ function blank(): Partial<PayrollConcept> {
     calculation: 'FIXED',
     rate: null,
     taxable: true,
-    contributesToTss: true,
+    contributesToSocialSecurity: true,
     active: true,
   };
 }

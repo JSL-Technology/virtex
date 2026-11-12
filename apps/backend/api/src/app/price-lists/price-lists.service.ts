@@ -9,7 +9,7 @@ import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
 import { roundAmount } from '../common/money';
 
-type ItemInput = { productId: string; price: number };
+type ItemInput = { productId: string; price: number; minQuantity?: number };
 
 @Injectable()
 export class PriceListsService {
@@ -25,9 +25,12 @@ export class PriceListsService {
 
     return this.dataSource.transaction(async (manager) => {
       await this.assertItems(manager, items, organizationId);
+      const currency = priceListData.currency.trim().toUpperCase();
+      if (priceListData.isDefault) await this.clearDefault(manager, organizationId, currency);
       const priceList = manager.create(PriceList, {
         ...priceListData,
-        currency: priceListData.currency.trim().toUpperCase(),
+        currency,
+        isDefault: priceListData.isDefault ?? false,
         organizationId,
         items: this.toItems(items),
       } as never);
@@ -67,6 +70,7 @@ export class PriceListsService {
 
       Object.assign(priceList, priceListData);
       if (priceListData.currency) priceList.currency = priceListData.currency.trim().toUpperCase();
+      if (priceList.isDefault) await this.clearDefault(manager, organizationId, priceList.currency, priceList.id);
 
       if (items) {
         await this.assertItems(manager, items, organizationId);
@@ -85,13 +89,26 @@ export class PriceListsService {
     await this.priceListRepository.remove(priceList);
   }
 
-  /** Every product is this organization's, appears once, and has a non-negative price. */
+  /**
+   * One default per currency: the partial unique index enforces it, this keeps the request that
+   * moves the flag from failing on it. Locks the rows it clears, so two saves cannot both win.
+   */
+  private async clearDefault(manager: EntityManager, organizationId: string, currency: string, keepId?: string): Promise<void> {
+    await manager.query(
+      `UPDATE price_lists SET is_default = false, updated_at = now()
+        WHERE organization_id = $1 AND upper(currency) = $2 AND is_default AND ($3::uuid IS NULL OR id <> $3::uuid)`,
+      [organizationId, currency, keepId ?? null],
+    );
+  }
+
+  /** Every product is this organization's, each (product, minimum quantity) appears once. */
   private async assertItems(manager: EntityManager, items: ItemInput[], organizationId: string): Promise<void> {
-    const ids = items.map((item) => item.productId);
-    const duplicates = ids.filter((productId, index) => ids.indexOf(productId) !== index);
-    if (duplicates.length > 0) {
-      throw new BadRequestError('price_lists.duplicate_product', { productId: duplicates[0] });
+    const keys = items.map((item) => `${item.productId}@${Number(item.minQuantity ?? 1)}`);
+    const duplicate = keys.find((key, index) => keys.indexOf(key) !== index);
+    if (duplicate) {
+      throw new BadRequestError('price_lists.duplicate_product', { productId: duplicate.split('@')[0] });
     }
+    const ids = [...new Set(items.map((item) => item.productId))];
     await assertTenantOwns(manager, 'products', ids, organizationId, {
       errorKey: 'price_lists.product_not_found',
       field: 'items',
@@ -100,7 +117,11 @@ export class PriceListsService {
 
   private toItems(items: ItemInput[]): PriceListItem[] {
     return items.map((item) =>
-      Object.assign(new PriceListItem(), { productId: item.productId, price: roundAmount(item.price) }),
+      Object.assign(new PriceListItem(), {
+        productId: item.productId,
+        price: roundAmount(item.price, 6),
+        minQuantity: roundAmount(item.minQuantity ?? 1, 4),
+      }),
     );
   }
 

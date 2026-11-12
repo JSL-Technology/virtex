@@ -12,7 +12,7 @@ import { DocumentType } from '../../shared/document-sequences/entities/document-
 import { InvoicesService } from '../../invoices/invoices.service';
 import { CreateInvoiceDto } from '../../invoices/dto/create-invoice.dto';
 import { Invoice } from '../../invoices/entities/invoice.entity';
-import { ComputedDocument } from '../../invoices/sales-tax.engine';
+import type { PreviewedDocument } from '../../invoices/invoices.service';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import { ExchangeRateResolver } from '../../currencies/exchange-rate-resolver.service';
 import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
@@ -70,7 +70,7 @@ export class QuotesService {
   }
 
   /** What the quote comes to, without saving: the invoice engine on the quote's lines. */
-  async preview(dto: CreateQuoteDto, organizationId: string): Promise<ComputedDocument> {
+  async preview(dto: CreateQuoteDto, organizationId: string): Promise<PreviewedDocument> {
     this.assertDates(dto);
     return this.invoicesService.preview(this.asInvoice(dto), organizationId);
   }
@@ -342,15 +342,19 @@ export class QuotesService {
     } as CreateInvoiceDto;
   }
 
-  private applyComputation(quote: Quote, dto: CreateQuoteDto, computed: ComputedDocument, exchangeRate: number): void {
+  private applyComputation(quote: Quote, dto: CreateQuoteDto, computed: PreviewedDocument, exchangeRate: number): void {
     quote.lines = dto.lines.map((line, index) => {
       const result = computed.lines[index];
+      const priced = computed.pricing[index];
       return Object.assign(new QuoteLine(), {
         lineOrder: index,
         product: line.productId ? { id: line.productId } : null,
         description: line.description.trim(),
         quantity: line.quantity,
-        unitPrice: line.unitPrice,
+        // The price the preview settled on: the one sent, or the list's / catalogue's.
+        unitPrice: priced?.unitPrice ?? line.unitPrice ?? 0,
+        priceListId: priced?.priceListId ?? null,
+        listPrice: priced?.listPrice ?? null,
         discountRate: line.discountRate ?? 0,
         taxRate: result?.taxRate ?? 0,
         taxAmount: result?.taxAmount ?? 0,

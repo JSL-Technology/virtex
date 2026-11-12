@@ -10,6 +10,7 @@ import {
   UpsertFiscalRegimeSettingsDto,
 } from '../dto/fiscal-regime-settings.dto';
 import { BadRequestError } from '../../i18n/localized.exception';
+import { organizationToday } from '../../organizations/contracts/fiscal-today.contract';
 
 /** A range as it is safe to show: everything except the secret. */
 export interface FiscalRangeView {
@@ -26,6 +27,10 @@ export interface FiscalRangeView {
   /** Whether the range carries the material the authority issued with it, never the material. */
   hasSecret: boolean;
   secretKind: string | null;
+  /** In force with fewer than 50 numbers, or a tenth of the range, left. */
+  runningLow: boolean;
+  /** The authorisation lapsed, in the tenant's own calendar. */
+  expired: boolean;
 }
 
 /**
@@ -52,8 +57,8 @@ export class FiscalRegimeSettingsService {
     private readonly dataSource: DataSource,
   ) {}
 
-  /** The tenant's market, or a refusal: nothing here is meaningful without one. */
-  private async countryOf(organizationId: string): Promise<string> {
+  /** The tenant's market, uppercased: the key of its regime and of its settings row. */
+  async countryOf(organizationId: string): Promise<string> {
     const organization = await this.organizations.findOne({
       where: { id: organizationId },
       select: ['id', 'country'],
@@ -88,42 +93,22 @@ export class FiscalRegimeSettingsService {
    */
   async listRanges(organizationId: string): Promise<FiscalRangeView[]> {
     const countryCode = await this.countryOf(organizationId);
-    const rows = await this.ranges.find({
-      where: { organizationId, countryCode },
-      order: { isActive: 'DESC', documentType: 'ASC', startsAt: 'ASC' },
-    });
-
-    return rows.map((range) => ({
-      id: range.id,
-      documentType: range.documentType,
-      series: range.series,
-      startsAt: Number(range.startsAt),
-      endsAt: Number(range.endsAt),
-      currentSequence: Number(range.currentSequence),
-      remaining: Math.max(0, Number(range.endsAt) - Number(range.currentSequence)),
-      isActive: range.isActive,
-      validUntil: range.validUntil ?? null,
-      authorizationCode: range.authorizationCode ?? null,
-      // Whether there is one, never what it is. A CAF read back out of an API is a CAF that can
-      // be used to stamp documents in the taxpayer's name.
-      hasSecret: Boolean(range.encryptedSecret),
-      secretKind: range.secretKind ?? null,
-    }));
+    const [rows, today] = await Promise.all([
+      this.ranges.find({
+        where: { organizationId, countryCode },
+        order: { isActive: 'DESC', documentType: 'ASC', series: 'ASC', startsAt: 'ASC' },
+      }),
+      organizationToday(this.dataSource.manager, organizationId),
+    ]);
+    return rows.map((range) => this.viewOf(range, today));
   }
 
   /** Register a range the authority granted, superseding any active one for the same series. */
-  async registerRange(
-    organizationId: string,
-    dto: RegisterFiscalRangeDto,
-  ): Promise<FiscalRangeView> {
+  async registerRange(organizationId: string, dto: RegisterFiscalRangeDto): Promise<FiscalRangeView> {
     const countryCode = await this.countryOf(organizationId);
-
-    if (dto.secret && !dto.secretKind) {
-      throw new BadRequestError('einvoicing.you_supplied_secret_material_range_but');
-    }
-
-    const range = await this.dataSource.transaction((manager) =>
-      this.rangeService.register(manager, {
+    return this.dataSource.transaction(async (manager) => {
+      const today = await organizationToday(manager, organizationId);
+      const range = await this.rangeService.register(manager, {
         organizationId,
         countryCode,
         documentType: dto.documentType,
@@ -134,9 +119,30 @@ export class FiscalRegimeSettingsService {
         authorizationCode: dto.authorizationCode ?? null,
         secret: dto.secret ?? null,
         secretKind: dto.secretKind ?? null,
-      }),
-    );
+        today,
+      });
+      return this.viewOf(range, today);
+    });
+  }
 
+  /**
+   * Put a range back in force — retiring the one in force for its type and series — or retire it.
+   *
+   * Never a deletion: the row is the authorisation past documents were issued under, and deleting
+   * it destroys the only record of which permission covered which document, which is precisely
+   * what an inspection asks for.
+   */
+  async setRangeActive(organizationId: string, rangeId: string, isActive: boolean): Promise<FiscalRangeView> {
+    const countryCode = await this.countryOf(organizationId);
+    return this.dataSource.transaction(async (manager) => {
+      const today = await organizationToday(manager, organizationId);
+      const range = await this.rangeService.setActive(manager, { organizationId, countryCode, rangeId, isActive, today });
+      return this.viewOf(range, today);
+    });
+  }
+
+  private viewOf(range: FiscalDocumentRange, today: string): FiscalRangeView {
+    const health = this.rangeService.healthOf(range, today);
     return {
       id: range.id,
       documentType: range.documentType,
@@ -144,30 +150,16 @@ export class FiscalRegimeSettingsService {
       startsAt: Number(range.startsAt),
       endsAt: Number(range.endsAt),
       currentSequence: Number(range.currentSequence),
-      remaining: Math.max(0, Number(range.endsAt) - Number(range.currentSequence)),
+      remaining: health.remaining,
       isActive: range.isActive,
       validUntil: range.validUntil ?? null,
       authorizationCode: range.authorizationCode ?? null,
+      // Whether there is one, never what it is. A CAF read back out of an API is a CAF that can
+      // be used to stamp documents in the taxpayer's name.
       hasSecret: Boolean(range.encryptedSecret),
       secretKind: range.secretKind ?? null,
+      runningLow: health.runningLow,
+      expired: health.expired,
     };
-  }
-
-  /**
-   * Retire a range.
-   *
-   * Deactivation, never deletion. The row is the authorisation a past document was issued under,
-   * and deleting it destroys the only record of which permission covered which document — which is
-   * precisely what an inspection asks for.
-   */
-  async deactivateRange(organizationId: string, rangeId: string): Promise<void> {
-    const countryCode = await this.countryOf(organizationId);
-    const result = await this.ranges.update(
-      { id: rangeId, organizationId, countryCode },
-      { isActive: false },
-    );
-    if (!result.affected) {
-      throw new BadRequestError('einvoicing.range_not_found');
-    }
   }
 }

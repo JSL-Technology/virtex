@@ -1,16 +1,27 @@
 import { Organization } from '../../organizations/entities/organization.entity';
-import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
+import { TaxpayerType } from '../../markets';
 import {
   Check,
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
+// One supplier per tax id in an organization (audit 2026-11-07, CMP-03). `tax_id_key` is kept by a
+// trigger from `taxId` (letters and digits, upper case), so a dash or a space cannot make two.
+export enum SupplierStatus {
+  ACTIVE = 'ACTIVE',
+  BLOCKED = 'BLOCKED',
+}
+
+@Index('UQ_suppliers_org_tax_id_key', ['organizationId', 'taxIdKey'], { unique: true, where: '"tax_id_key" IS NOT NULL' })
+@Check('CHK_suppliers_payment_term_days', `"payment_term_days" IS NULL OR ("payment_term_days" >= 0 AND "payment_term_days" <= 365)`)
+@Check('CHK_suppliers_status', `"status" IN ('ACTIVE', 'BLOCKED')`)
 @Entity({ name: 'suppliers' })
 // Both halves of the document reference travel together: a code with no country cannot be
 // resolved — a "cédula" is eleven Luhn-checked digits in Santo Domingo and six to ten
@@ -122,4 +133,34 @@ export class Supplier {
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organization_id' })
   organization: Organization;
+
+  /** `taxId` normalized; written by the database trigger, never by the application. */
+  @Column({ name: 'tax_id_key', type: 'varchar', length: 40, nullable: true, insert: false, update: false, select: false })
+  taxIdKey?: string | null;
+
+  // ── Commercial terms (audit 2026-11-07, CMP-17) ─────────────────────────────
+
+  /** Days of credit the supplier gives; a bill's due date defaults from it. */
+  @Column({ name: 'payment_term_days', type: 'int', nullable: true })
+  paymentTermDays?: number | null;
+
+  /** The currency the supplier bills in; a bill with no currency takes it. */
+  @Column({ name: 'currency_code', type: 'varchar', length: 3, nullable: true })
+  currencyCode?: string | null;
+
+  /** Where a free expense line from this supplier goes when the line names no account. */
+  @Column({ name: 'default_expense_account_id', type: 'uuid', nullable: true })
+  defaultExpenseAccountId?: string | null;
+
+  // By name: the account is the chart-of-accounts module's (verify:boundaries).
+  @ManyToOne('Account', { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'default_expense_account_id', foreignKeyConstraintName: 'FK_suppliers_default_expense_account' })
+  defaultExpenseAccount?: unknown;
+
+  /** A BLOCKED supplier can be neither billed nor paid until it is reactivated. */
+  @Column({ type: 'varchar', length: 10, default: SupplierStatus.ACTIVE })
+  status: SupplierStatus;
+
+  @Column({ name: 'blocked_reason', type: 'text', nullable: true })
+  blockedReason?: string | null;
 }

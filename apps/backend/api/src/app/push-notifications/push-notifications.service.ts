@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as webpush from 'web-push';
+import { isTrustedPushEndpoint } from './push-endpoint';
 
 /**
  * Web push, configured at startup or disabled at startup — never half-configured.
@@ -41,6 +42,13 @@ export class PushNotificationsService {
   async sendPushNotification(subscription: webpush.PushSubscription, payload: unknown) {
     if (!this.enabled) {
       this.logger.debug('Web push is disabled; dropping notification.');
+      return;
+    }
+
+    // Re-checked at send time: a row stored before endpoints were validated must not become a way
+    // to make this server POST to an arbitrary URL.
+    if (!isTrustedPushEndpoint(subscription.endpoint)) {
+      this.logger.warn({ event: 'push_endpoint_refused' }, 'Refused to send a push notification to a non push-service endpoint.');
       return;
     }
 

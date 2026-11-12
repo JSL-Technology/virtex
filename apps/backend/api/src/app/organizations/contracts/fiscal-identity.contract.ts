@@ -1,5 +1,6 @@
 import { EntityManager } from 'typeorm';
 import { Organization } from '../entities/organization.entity';
+import { organizationTimeZone } from '../../shared/fiscal-clock';
 
 /** Who the company is before a tax authority: its market, its identifier and what kind of taxpayer. */
 export interface OrganizationFiscalIdentity {
@@ -10,6 +11,13 @@ export interface OrganizationFiscalIdentity {
   /** `company` or `individual`, where the market tells them apart. */
   taxpayerKind: string | null;
   legalName: string | null;
+  /**
+   * The fiscal data the market's authority required at registration (`organizations.fiscal_profile`):
+   * a VAT condition, a point of sale. What a market's numbering reads to decide a document's type.
+   */
+  fiscalProfile: Readonly<Record<string, string>>;
+  /** The company's fiscal time zone, in which its documents are dated. */
+  timeZone: string;
 }
 
 /**
@@ -24,7 +32,7 @@ export async function organizationFiscalIdentity(
 ): Promise<OrganizationFiscalIdentity | null> {
   const organization = await manager.findOne(Organization, {
     where: { id: organizationId },
-    select: ['id', 'country', 'taxId', 'taxpayerKind', 'legalName'],
+    select: ['id', 'country', 'taxId', 'taxpayerKind', 'legalName', 'fiscalProfile', 'timezone'],
   });
   if (!organization) return null;
   return {
@@ -32,5 +40,7 @@ export async function organizationFiscalIdentity(
     taxId: organization.taxId ?? null,
     taxpayerKind: organization.taxpayerKind ?? null,
     legalName: organization.legalName ?? null,
+    fiscalProfile: organization.fiscalProfile ?? {},
+    timeZone: organizationTimeZone(organization),
   };
 }

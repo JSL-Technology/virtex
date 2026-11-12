@@ -23,12 +23,14 @@ export function normaliseHeader(header: string): string {
 const sortedWords = (value: string) => value.split('_').filter(Boolean).sort().join('_');
 
 export function deterministicMapping(headers: string[], columns: readonly DataTransferColumn[]): ColumnMapping {
-  const keys = columns.map((column) => column.key);
   const mapping: ColumnMapping = {};
   const taken = new Set<string>();
+  // A header matches a column by its key, or by a header an earlier template used for it.
+  const named = (column: DataTransferColumn, norm: string) =>
+    [column.key, ...(column.aliases ?? [])].some((name) => name === norm || sortedWords(name) === sortedWords(norm));
   for (const header of headers) {
     const norm = normaliseHeader(header);
-    const match = keys.find((key) => !taken.has(key) && (key === norm || sortedWords(key) === sortedWords(norm)));
+    const match = columns.find((column) => !taken.has(column.key) && named(column, norm))?.key;
     mapping[header] = match ?? null;
     if (match) taken.add(match);
   }

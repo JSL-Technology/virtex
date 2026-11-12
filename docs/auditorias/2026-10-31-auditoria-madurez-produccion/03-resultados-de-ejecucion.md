@@ -109,7 +109,7 @@ Hallazgos de la carga:
 
 ## 9. Barrido de secretos
 
-- Archivos `.p12` versionados en `tools/fixtures/ecf-certificates/` (7 certificados de **prueba** generados por `tools/dev/generate-test-ecf-certificate.mjs`, usados por `verify:ecf`). Aceptable como fixtures si nunca se confían en producción; verificar con el equipo que no correspondan a contribuyentes reales (los nombres llevan RNC/RFC con formato real, p. ej. `test-ecf-do-131190317.p12`).
+- Archivos `.p12` versionados en `tools/fixtures/signing-certificates/` (7 certificados de **prueba** generados por `tools/dev/generate-test-ecf-certificate.mjs`, usados por `verify:ecf`). Aceptable como fixtures si nunca se confían en producción; verificar con el equipo que no correspondan a contribuyentes reales (los nombres llevan RNC/RFC con formato real, p. ej. `test-ecf-do-131190317.p12`).
 - `apps/core/client-web/src/environments/environment.ts:16` y `environment.development.ts:16`: **clave de API de Google Maps** (`AIza…`, valor enmascarado) y site key de reCAPTCHA v3 versionadas. La site key es pública por diseño; la de Maps es de cliente, pero debe estar restringida por referer y salir de configuración (verificar con el equipo).
 - No se encontraron claves privadas reales, `sk_live_`, `AKIA…` ni tokens de GitHub/Slack en archivos versionados. Las coincidencias de `BEGIN PRIVATE KEY` son texto en comentarios/informes (`certificate-vault.service.ts:26`, `AUDITORIA_TECNICA.md:159`) y un placeholder de spec en el historial.
 

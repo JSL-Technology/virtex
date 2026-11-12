@@ -1,15 +1,14 @@
 import * as crypto from 'crypto';
 import * as xmlbuilder from 'xmlbuilder';
-import { Invoice, InvoiceType } from '../../../invoices/entities/invoice.entity';
+import { Invoice } from '../../../invoices/entities/invoice.entity';
 import { Organization } from '../../../organizations/entities/organization.entity';
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
-import { fiscalNumber } from '../fiscal-number';
+import { fiscalNumber, issuedDocumentType } from '../fiscal-number';
 import { buyerRegimeDocumentCode } from '../buyer-document';
-import { regimeDocumentCode } from '../../../localization/fiscal/identity-document-catalogue';
-import { TaxpayerKind } from '../../../localization/fiscal/tax-id-validators';
-import { TaxpayerType } from '../../../localization/fiscal/withholding-regimes';
+import { TaxpayerKind, TaxpayerType, regimeDocumentCode } from '../../../markets';
+import { ModifiedDocumentReference, requiredNumber, requiredReasonCode } from '../modified-document';
 
 /**
  * Colombia — factura electrónica DIAN, UBL 2.1.
@@ -43,6 +42,8 @@ export interface DianBuildInput {
   invoice: Invoice;
   organization: Organization;
   customer: Customer;
+  /** Set on a nota crédito/débito: the document it corrects, and the DIAN's concepto for why. */
+  modifies?: ModifiedDocumentReference | null;
   /** Issued with the invoicing resolution; secret, and per taxpayer. */
   technicalKey: string;
   /** `1` producción, `2` pruebas. The CUFE differs between them, deliberately. */
@@ -60,15 +61,14 @@ export class DianBuilder {
   }
 
   /**
-   * The DIAN's document-type code.
+   * `01` factura de venta nacional, `91` nota crédito, `92` nota débito.
    *
-   * `01` factura de venta nacional, `91` nota crédito. Public because the numbering adapter draws
-   * the number from the range authorised for this type and has to reach the same answer the
-   * builder does — a note numbered from the invoice range is rejected on the resolution, not on
-   * the document.
+   * The authority's type the document was numbered as — recorded at issuance by the market's own
+   * rule (`markets/<cc>/documents.ts`), never decided again here: two copies of the rule is how a
+   * document ends up numbered from one range and built as another type.
    */
   documentType(invoice: Invoice): string {
-    return invoice.type === InvoiceType.CREDIT_NOTE ? '91' : '01';
+    return issuedDocumentType(invoice, ['01', '91', '92']);
   }
 
   /**
@@ -114,10 +114,17 @@ export class DianBuilder {
     const { invoice, organization, customer } = input;
     const currency = invoice.currencyCode ?? 'COP';
     const amount = (value: number) => roundToCurrency(value, currency).toFixed(2);
+    const type = this.documentType(invoice);
+
+    // A nota crédito and a nota débito are UBL documents of their own — `CreditNote` and
+    // `DebitNote`, each with its own namespace, its own type-code element and its own line
+    // element. They used to be written as an `Invoice` with a note's type code inside, which no
+    // validator accepts.
+    const document = DOCUMENTS[type] ?? DOCUMENTS['01'];
 
     const root = xmlbuilder
-      .create('Invoice', { encoding: 'UTF-8' })
-      .att('xmlns', UBL_INVOICE_NS)
+      .create(document.root, { encoding: 'UTF-8' })
+      .att('xmlns', document.ns)
       .att('xmlns:cac', CAC_NS)
       .att('xmlns:cbc', CBC_NS)
       .att('xmlns:ext', EXT_NS);
@@ -148,8 +155,9 @@ export class DianBuilder {
     root.ele('cbc:UUID', { schemeName: 'CUFE-SHA384' }, cufe);
     root.ele('cbc:IssueDate', {}, this.date(invoice.issueDate));
     root.ele('cbc:IssueTime', {}, this.time(invoice.issueDate));
-    // `01` factura de venta nacional; `91` nota crédito.
-    root.ele('cbc:InvoiceTypeCode', {}, this.documentType(invoice));
+    // `01` factura de venta nacional; `91` nota crédito; `92` nota débito, each under the element
+    // its own UBL document declares.
+    root.ele(document.typeCode, {}, type);
     root.ele('cbc:DocumentCurrencyCode', {}, currency);
     root.ele('cbc:LineCountNumeric', {}, String((invoice.lineItems ?? []).length));
 
@@ -185,6 +193,34 @@ export class DianBuilder {
       category.ele('cac:TaxScheme').ele('cbc:ID', {}, '01').up().ele('cbc:Name', {}, 'IVA');
     }
 
+    // ── A nota crédito is only intelligible beside the document it corrects ──────────────
+    //
+    // The DIAN asks for both halves and rejects a note that carries neither: `DiscrepancyResponse`
+    // says WHY (its concepto de corrección, from the market's own table), and `BillingReference`
+    // says WHICH document — by the number the DIAN authorised and by that document's CUFE, which
+    // is how the DIAN ties the two together.
+    //
+    // *Verificar con contabilidad/legal*: the conceptos are the DIAN's catálogo of «conceptos de
+    // corrección» (anexo técnico 1.8); `markets/co/documents.ts` declares the code for each reason
+    // and that mapping is what to confirm before filing.
+    if (input.modifies) {
+      const modifiedNumber = requiredNumber(input.modifies);
+      const discrepancy = root.ele('cac:DiscrepancyResponse');
+      discrepancy.ele('cbc:ReferenceID', {}, modifiedNumber);
+      discrepancy.ele('cbc:ResponseCode', {}, requiredReasonCode(input.modifies, invoice.adjustmentReason ?? 'OTHER'));
+      discrepancy.ele('cbc:Description', {}, input.modifies.reasonText ?? '');
+
+      const reference = root.ele('cac:BillingReference').ele('cac:InvoiceDocumentReference');
+      reference.ele('cbc:ID', {}, modifiedNumber);
+      // The CUFE of the referenced invoice, where the product transmitted it and recorded what the
+      // DIAN computed. Absent on an invoice issued before it was transmitted: the element is left
+      // out rather than filled with something that is not a CUFE.
+      if (input.modifies.documentKey) {
+        reference.ele('cbc:UUID', { schemeName: 'CUFE-SHA384' }, input.modifies.documentKey);
+      }
+      reference.ele('cbc:IssueDate', {}, input.modifies.issueDate);
+    }
+
     const monetary = root.ele('cac:LegalMonetaryTotal');
     monetary.ele('cbc:LineExtensionAmount', { currencyID: currency }, amount(invoice.subtotal));
     monetary.ele('cbc:TaxExclusiveAmount', { currencyID: currency }, amount(invoice.taxedTotal ?? invoice.subtotal));
@@ -192,9 +228,9 @@ export class DianBuilder {
     monetary.ele('cbc:PayableAmount', { currencyID: currency }, amount(invoice.total));
 
     for (const [index, line] of (invoice.lineItems ?? []).entries()) {
-      const invoiceLine = root.ele('cac:InvoiceLine');
+      const invoiceLine = root.ele(document.line);
       invoiceLine.ele('cbc:ID', {}, String(index + 1));
-      invoiceLine.ele('cbc:InvoicedQuantity', { unitCode: this.unitOf(line) }, String(line.quantity));
+      invoiceLine.ele(document.quantity, { unitCode: this.unitOf(line) }, String(line.quantity));
       invoiceLine.ele('cbc:LineExtensionAmount', { currencyID: currency }, amount(line.lineSubtotal ?? 0));
       const item = invoiceLine.ele('cac:Item');
       item.ele('cbc:Description', {}, line.description ?? '');
@@ -298,6 +334,19 @@ export class DianBuilder {
 }
 
 const UBL_INVOICE_NS = 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2';
+const UBL_CREDIT_NOTE_NS = 'urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2';
+const UBL_DEBIT_NOTE_NS = 'urn:oasis:names:specification:ubl:schema:xsd:DebitNote-2';
+
+/**
+ * Each DIAN document as UBL names it: the root, its namespace, the element that carries the type
+ * code, and the line element with its quantity. One table rather than three branches, because
+ * every one of them has to agree with the others or the document fails validation.
+ */
+const DOCUMENTS: Readonly<Record<string, { root: string; ns: string; typeCode: string; line: string; quantity: string }>> = {
+  '01': { root: 'Invoice', ns: UBL_INVOICE_NS, typeCode: 'cbc:InvoiceTypeCode', line: 'cac:InvoiceLine', quantity: 'cbc:InvoicedQuantity' },
+  '91': { root: 'CreditNote', ns: UBL_CREDIT_NOTE_NS, typeCode: 'cbc:CreditNoteTypeCode', line: 'cac:CreditNoteLine', quantity: 'cbc:CreditedQuantity' },
+  '92': { root: 'DebitNote', ns: UBL_DEBIT_NOTE_NS, typeCode: 'cbc:DebitNoteTypeCode', line: 'cac:DebitNoteLine', quantity: 'cbc:DebitedQuantity' },
+};
 const CAC_NS = 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2';
 const CBC_NS = 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2';
 const EXT_NS = 'urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2';

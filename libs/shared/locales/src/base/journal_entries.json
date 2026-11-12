@@ -264,6 +264,26 @@
     "en": "The journal already has {{count}} entry(ies): its type cannot change.",
     "pt": "O diário já tem {{count}} lançamento(s): seu tipo não pode mudar."
   },
+  "journal_entries.line_currency_amount_inconsistent": {
+    "es": "La línea en {{currency}} no cuadra: {{foreign}} a la tasa {{rate}} son {{expected}}, pero la línea registra {{ledger}}.",
+    "en": "The line in {{currency}} does not add up: {{foreign}} at rate {{rate}} is {{expected}}, but the line records {{ledger}}.",
+    "pt": "A linha em {{currency}} não bate: {{foreign}} à taxa {{rate}} são {{expected}}, mas a linha regista {{ledger}}."
+  },
+  "journal_entries.line_currency_amount_required": {
+    "es": "Una línea en {{currency}} debe indicar su importe en esa moneda. Solo la revaluación registra ajustes sin importe en divisa.",
+    "en": "A line in {{currency}} must state its amount in that currency. Only the revaluation records adjustments with no currency amount.",
+    "pt": "Uma linha em {{currency}} deve indicar o seu valor nessa moeda. Só a reavaliação regista ajustes sem valor em divisa."
+  },
+  "journal_entries.line_currency_base_amount_mismatch": {
+    "es": "Una línea en {{currency}}, la moneda de los libros, debe llevar el mismo importe en divisa y en contabilidad.",
+    "en": "A line in {{currency}}, the books currency, must carry the same currency and ledger amount.",
+    "pt": "Uma linha em {{currency}}, a moeda dos livros, deve ter o mesmo valor em divisa e na contabilidade."
+  },
+  "journal_entries.line_currency_side_mismatch": {
+    "es": "Una línea en {{currency}} tiene el importe en divisa del lado contrario a su importe contable.",
+    "en": "A line in {{currency}} has its currency amount on the opposite side to its ledger amount.",
+    "pt": "Uma linha em {{currency}} tem o valor em divisa do lado oposto ao seu valor contabilístico."
+  },
   "journal_entries.line_line_carries_both_debit_credit": {
     "es": "La línea {{line}} tiene débito y crédito a la vez. Una línea afecta un solo lado.",
     "en": "Line {{line}} carries both a debit and a credit. A line affects one side only.",

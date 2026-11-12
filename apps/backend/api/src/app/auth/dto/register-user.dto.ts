@@ -6,7 +6,7 @@ import {
     IsSupportedCountry,
     IsTaxIdValidForCountry,
 } from '../../common/validators/fiscal-profile.validator';
-import { TaxpayerKind } from '../../localization/fiscal/tax-id-validators';
+import { TaxpayerKind } from '../../markets';
 import { IsE164PhoneNumber } from '../../common/validators/is-e164-phone-number.validator';
 import {
     IsString,

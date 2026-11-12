@@ -30,12 +30,6 @@
         <span>{{ 'payroll.runs.pay' | translate }}</span>
       </button>
     }
-    @if (canExport()) {
-      <button type="button" class="secondary-button" (click)="downloadSuir()">
-        <lucide-icon [img]="ExportIcon" size="15" aria-hidden="true"></lucide-icon>
-        <span>{{ 'payroll.runs.export_suir' | translate }}</span>
-      </button>
-    }
     @if (canCancel()) {
       <button type="button" class="danger-button" [disabled]="busy()" (click)="cancel()">
         <lucide-icon [img]="CancelIcon" size="15" aria-hidden="true"></lucide-icon>
@@ -80,6 +74,24 @@
         earned, what reaches the bank, and what the company actually pays out including its own
         share.
       -->
+      @if (payrollRun.status === 'CALCULATED' && (payrollRun.calculationWarnings ?? []).length > 0) {
+        <!-- Lo inusual que encontró el cálculo: el aprobador lo ve antes de que salga el dinero (NOM-05). -->
+        <div class="banner-warning" role="alert">
+          <strong>{{ 'payroll.runs.warnings_title' | translate }}</strong>
+          <ul>
+            @for (warning of payrollRun.calculationWarnings ?? []; track $index) {
+              <li>
+                {{ 'payroll.runs.warning_input_above_salary' | translate: {
+                  employee: warning.employeeName,
+                  concept: warning.conceptCode,
+                  amount: (warning.amount | vxNumber: '1.2-2'),
+                  salary: (warning.monthlyBaseSalary | vxNumber: '1.2-2')
+                } }}
+              </li>
+            }
+          </ul>
+        </div>
+      }
       <section class="totals-row">
         <div class="total-card">
           <span class="total-card__label">{{ 'payroll.runs.gross' | translate }}</span>
@@ -166,6 +178,17 @@
                           [attr.aria-label]="'payroll.runs.amount_or_hours' | translate"
                           (input)="setInput(i, { quantity: +$any($event.target).value })"
                         />
+                      } @else if (calculationOf(input.conceptCode) === 'PERCENTAGE') {
+                        <!-- Un porcentaje del salario, como mucho el 100 %: la tasa del concepto, sustituida (NOM-05). -->
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          [value]="input.rate === null || input.rate === undefined ? '' : input.rate * 100"
+                          [attr.aria-label]="'payroll.runs.rate_percent' | translate"
+                          (input)="setInput(i, { rate: +$any($event.target).value / 100 })"
+                        />
                       } @else {
                         <input
                           type="number"
@@ -222,8 +245,7 @@
                 <tr>
                   <th appSortHeader="employeeName">{{ 'payroll.runs.employee' | translate }}</th>
                   <th appSortHeader="grossEarnings" class="numeric">{{ 'payroll.payslip.gross' | translate }}</th>
-                  <th appSortHeader="afpEmployee" class="numeric">{{ 'payroll.payslip.afp' | translate }}</th>
-                  <th appSortHeader="sfsEmployee" class="numeric">{{ 'payroll.payslip.sfs' | translate }}</th>
+                  <th appSortHeader="statutoryEmployeeContributions" class="numeric">{{ 'payroll.payslip.employee_contributions' | translate }}</th>
                   <th appSortHeader="incomeTax" class="numeric">{{ 'payroll.payslip.isr' | translate }}</th>
                   <th appSortHeader="netPay" class="numeric">{{ 'payroll.payslip.net' | translate }}</th>
                 </tr>
@@ -233,14 +255,13 @@
                   <tr class="is-clickable" (click)="togglePayslip(payslip.id)">
                     <td>{{ payslip.employeeName }}</td>
                     <td class="numeric"><vx-amount [value]="payslip.grossEarnings" /></td>
-                    <td class="numeric"><vx-amount [value]="payslip.afpEmployee" /></td>
-                    <td class="numeric"><vx-amount [value]="payslip.sfsEmployee" /></td>
+                    <td class="numeric"><vx-amount [value]="payslip.statutoryEmployeeContributions" /></td>
                     <td class="numeric"><vx-amount [value]="payslip.incomeTax" /></td>
                     <td class="numeric strong"><vx-amount [value]="payslip.netPay" /></td>
                   </tr>
                   @if (openPayslip() === payslip.id && payslip.lines?.length) {
                     <tr class="detail-row">
-                      <td colspan="6">
+                      <td colspan="5">
                         <table class="lines-table">
                           <tbody>
                             @for (line of payslip.lines!; track line.id) {

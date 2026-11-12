@@ -6,7 +6,7 @@ import * as puppeteer from 'puppeteer';
 import * as QRCode from 'qrcode';
 import { Invoice, InvoiceStatus, InvoiceType } from '../entities/invoice.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
-import { EcfSubmission } from '../../einvoicing/entities/ecf-submission.entity';
+import { FiscalSubmission } from '../../einvoicing/entities/fiscal-submission.entity';
 import { minorUnitsFor } from '../../currencies/currency-catalogue';
 import { InternalServerError } from '../../i18n/localized.exception';
 import {
@@ -23,19 +23,19 @@ import {
 } from '@virteex/shared/types';
 import { I18nService } from '../../i18n/i18n.service';
 import {
-  fiscalIdentifierLabel,
+  divisionName,
   findIdentityDocumentSpec,
-} from '../../localization/fiscal/identity-document-catalogue';
-import { languageOfCountry } from '../../localization/fiscal/country-language';
-import { fiscalDocumentTypesFor } from '../../localization/contracts/fiscal-document-types.contract';
-import { findCountryProfile } from '../../localization/contracts/country-profile.contract';
-import { divisionName } from '../../localization/contracts/administrative-divisions.contract';
+  fiscalDocumentTypesFor,
+  fiscalIdentifierLabel,
+  knownMarket,
+  languageOfCountry,
+} from '../../markets';
 
 /** Everything the template needs, resolved before rendering. */
 export interface InvoiceRenderContext {
   invoice: Invoice;
   organization: Organization;
-  submission?: EcfSubmission | null;
+  submission?: FiscalSubmission | null;
   /**
    * Overrides the language and locale the document is written in.
    *
@@ -201,7 +201,7 @@ export class InvoiceRendererService implements OnModuleDestroy {
     const { invoice, organization, submission } = context;
     const house = normaliseRegionalFormat(context.regionalFormat);
 
-    const qrDataUri = submission?.qrUrl ? await this.qrDataUri(submission.qrUrl) : null;
+    const qrDataUri = submission?.verificationUrl ? await this.qrDataUri(submission.verificationUrl) : null;
     const decimals = minorUnitsFor(invoice.currencyCode);
 
     /*
@@ -220,7 +220,11 @@ export class InvoiceRendererService implements OnModuleDestroy {
     const documentKind = this.documentKind(issuerCountry, invoice);
     const electronic = documentKind?.isElectronic === true;
     const issued = invoice.status !== InvoiceStatus.DRAFT && Boolean(invoice.issuedAt ?? invoice.fiscalNumber);
-    const authority = findCountryProfile(issuerCountry)?.fiscalAuthority ?? null;
+    const authority = knownMarket(issuerCountry)?.profile.fiscalAuthority ?? null;
+    // The issuer's market names its own consumption tax; the column used to read whatever the
+    // reader's regional patch said, so a Honduran invoice printed «Impuesto» for its ISV.
+    const taxColumnHeader =
+      knownMarket(issuerCountry)?.taxes.principalTaxName ?? this.i18n.translate('invoice.pdf.tax_column_header', language);
 
     // The buyer's document is named by ITS OWN row, resolved from what the customer record carries,
     // not from the issuer's profile — a Dominican tenant invoicing a Colombian customer must print
@@ -273,6 +277,7 @@ export class InvoiceRendererService implements OnModuleDestroy {
           ? this.i18n.translate(customerDoc.labelKey, language)
           : this.i18n.translate('invoices.detail.tax_id_generic', language)),
       title: this.i18n.translate(this.documentTitleKey(invoice), language),
+      taxColumnHeader,
       currencyCode: invoice.currencyCode,
       issueDate: formatDate(invoice.issueDate, locale, house),
       dueDate: formatDate(invoice.dueDate, locale, house),
@@ -291,14 +296,14 @@ export class InvoiceRendererService implements OnModuleDestroy {
           invoice.netReceivable !== invoice.total ? format(invoice.netReceivable) : null,
       },
       fiscal: {
-        ncf: invoice.fiscalNumber,
+        number: invoice.fiscalNumber,
         documentType: invoice.fiscalDocumentType,
         validUntil: invoice.fiscalNumberExpiresAt ? formatDate(invoice.fiscalNumberExpiresAt, locale, house) : null,
-        securityCode: submission?.securityCode ?? null,
+        securityCode: submission?.documentKey ?? null,
         signedAt: submission?.sentAt ? formatDateTime(submission.sentAt, locale, house) : null,
         status: submission?.status ?? null,
         qrDataUri,
-        qrUrl: submission?.qrUrl ?? null,
+        qrUrl: submission?.verificationUrl ?? null,
         // A draft is a document not yet issued. It used to be "has no fiscal number", which printed
         // the draft legend on every issued invoice of a market that assigns none (the United States,
         // or Mexico, where the PAC's UUID is the fiscal identity).

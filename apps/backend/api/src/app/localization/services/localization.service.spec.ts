@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { LocalizationService } from './localization.service';
-import { supportedCountryCodes } from '../fiscal/country-profiles';
-import { catalogueForCountry } from '../fiscal/identity-document-catalogue';
+import { TaxIdRegistryRegistry } from '../drivers/tax-id-registry-lookup';
+import { catalogueForCountry, marketCodes } from '../../markets';
 import { I18nService } from '../../i18n/i18n.service';
 
 /**
@@ -52,9 +52,10 @@ describe('LocalizationService — public country configuration', () => {
       documentTypeRepository as never,
       {} as never, // ChartOfAccountsService — not reached by these tests
       {} as never, // TaxesService
-      (overrides.doStrategy as never) ?? ({ getTaxIdDetails: jest.fn() } as never),
-      { getTaxIdDetails: jest.fn() } as never,
-      { getTaxIdDetails: jest.fn() } as never,
+      // The market's registry driver, reached through the registry the module assembles.
+      new TaxIdRegistryRegistry([
+        { countryCode: 'DO', ...((overrides.doStrategy as object) ?? { getTaxIdDetails: jest.fn() }) } as never,
+      ]) as never,
       {} as never, // TenantBookkeepingProvisioner — only reached when a tenant is provisioned
       // The real catalogue, not a stub: the public country config is asserted on for its
       // TRANSLATED labels, so a stub returning the key would make the test pass on a lie.
@@ -113,7 +114,7 @@ describe('LocalizationService — public country configuration', () => {
       const listed = makeService()
         .getSupportedCountries()
         .map((c) => c.countryCode);
-      expect(listed).toEqual(supportedCountryCodes());
+      expect(listed).toEqual([...marketCodes()]);
     });
   });
 

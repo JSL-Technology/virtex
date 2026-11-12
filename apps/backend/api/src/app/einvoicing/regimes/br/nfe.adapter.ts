@@ -1,3 +1,4 @@
+import { escapeXmlText } from '../xml-text';
 import { certificateRegimeFor } from '../../contracts/certificate-policy';
 import { Injectable } from '@nestjs/common';
 import { CertificateVaultService, LoadedCertificate } from '../../services/certificate-vault.service';
@@ -13,6 +14,7 @@ import {
 } from '../fiscal-regime.types';
 import { RegimeAdapterBase } from '../regime-adapter.base';
 import { NfeBuilder } from './nfe.builder';
+import { modifiedDocumentOf } from '../modified-document';
 
 /**
  * Brazil — NF-e 4.00, SEFAZ.
@@ -74,6 +76,9 @@ export class NfeRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
       invoice: context.invoice,
       organization,
       customer,
+      // A devolução or a complementar refers to the NF-e it corrects, by the chave de acesso that
+      // NF-e was built with and authorised under.
+      modifies: await modifiedDocumentOf(context.manager, context.invoice, 'BR'),
       stateCode: settings.stateCode,
       municipalityCode: settings.municipalityCode,
       // `1` produção, `2` homologação — and it is part of the chave de acesso, so building for the
@@ -93,8 +98,9 @@ export class NfeRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
     const range = await this.ranges.rangeContaining(context.manager, {
       organizationId: context.organizationId,
       countryCode: 'BR',
-      documentType: this.builder.documentType(),
+      documentType: this.builder.documentType(context.invoice),
       number: this.assignedNumber(context, this.regime),
+      series: context.invoice.fiscalSeries ?? undefined,
     });
     return range.series;
   }
@@ -122,10 +128,10 @@ export class NfeRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
 
   async transmit(
     document: SealedFiscalDocument,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
     const result = await this.transport.send('BR', document.payload, {
-      contentType: 'application/soap+xml',
+      organizationId: context.organizationId, purpose: 'submit', contentType: 'application/soap+xml',
       // `nProt` is the protocol number, which is the authorisation; `nRec` is the receipt of an
       // asynchronous batch, which still has to be looked up.
       trackingKeys: ['nProt', 'nRec'],
@@ -140,10 +146,10 @@ export class NfeRegimeAdapter extends RegimeAdapterBase implements FiscalRegimeA
 
   async checkStatus(
     trackingId: string,
-    _context: FiscalRegimeContext,
+    context: FiscalRegimeContext,
   ): Promise<FiscalTransmissionResult> {
-    return this.transport.send('BR', `<consSitNFe><chNFe>${trackingId}</chNFe></consSitNFe>`, {
-      contentType: 'application/soap+xml',
+    return this.transport.send('BR', `<consSitNFe><chNFe>${escapeXmlText(trackingId)}</chNFe></consSitNFe>`, {
+      organizationId: context.organizationId, purpose: 'status', contentType: 'application/soap+xml',
       trackingKeys: ['nProt'],
     });
   }

@@ -7,25 +7,18 @@ import type { OrganizationCreatedEvent } from '../accounting/handlers/organizati
 import { Organization } from './entities/organization.entity';
 import { OrganizationSubsidiary } from './entities/organization-subsidiary.entity';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
-import { CreateSubsidiaryDto, UpdateSubsidiaryDto } from './dto/create-subsidiary.dto';
+import { CreateSubsidiaryDto, LinkSubsidiaryDto, UpdateSubsidiaryDto } from './dto/create-subsidiary.dto';
 import { AccountSegmentsService } from '../chart-of-accounts/account-segments.service';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { LocalizationProvisioningPort } from '../localization/localization-provisioning.port';
 import { MembershipService } from './services/membership.service';
-import { coaSegmentsFor } from '../localization/fiscal/coa-builder';
-import { findCountryProfile } from '../localization/fiscal/country-profiles';
-import { TaxpayerKind } from '../localization/fiscal/tax-id-validators';
+import { TaxpayerKind, canonicalizeTaxId, coaSegmentsFor, fiscalIdentifierLabel, knownMarket, validateTaxId } from '../markets';
 import {
   nextFreeSlug,
   slugifyOrganizationName,
 } from '../shared/tenancy/organization-slug';
 import { stampTenantOnTransaction } from '../shared/tenancy/tenant-job';
-import {
-  canonicalizeTaxId,
-  fiscalIdentifierLabel,
-  validateTaxId,
-} from '../localization/fiscal/identity-document-catalogue';
 import { organizationTimeZone } from '../shared/fiscal-clock';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
@@ -94,8 +87,8 @@ export class OrganizationsService {
 
     if (identityTouched) {
       const country = (organization.country ?? '').trim().toUpperCase();
-      const profile = findCountryProfile(country);
-      if (!profile) {
+      const market = knownMarket(country);
+      if (!market) {
         throw new BadRequestError('organizations.country_country_not_available_yet', {
           country: organization.country ?? '',
         });
@@ -103,7 +96,7 @@ export class OrganizationsService {
       if (!organization.taxId?.trim()) {
         throw new BadRequestError('organizations.label_required_name', {
           label: fiscalIdentifierLabel(country),
-          name: profile.name,
+          name: market.profile.name,
         });
       }
       // The taxpayer kind selects the scheme, exactly as at registration: a US nine-digit value is
@@ -117,7 +110,7 @@ export class OrganizationsService {
       if (!validateTaxId(country, organization.taxId, kind)) {
         throw new BadRequestError('organizations.label_not_valid_name', {
           label: fiscalIdentifierLabel(country),
-          name: profile.name,
+          name: market.profile.name,
         });
       }
       // Store the canonical form and mark it verified, exactly as the other two doors do. The unique
@@ -180,6 +173,91 @@ export class OrganizationsService {
   }
 
   /**
+   * Put an existing organization under this one (FINB-35): an acquisition of a company that
+   * already keeps its books here.
+   *
+   * Refused unless the person administers BOTH companies — linking moves another tenant's books
+   * into this group's statements — and unless the structure stays a tree: not the parent itself,
+   * not one of its ancestors (a cycle would make every consolidation recurse), and not a company
+   * another parent controls today. The plan's subsidiary quota applies, as when creating one.
+   */
+  async linkSubsidiary(
+    parentOrganizationId: string,
+    dto: LinkSubsidiaryDto,
+    actorUserId: string,
+  ): Promise<OrganizationSubsidiary> {
+    const targetId = dto.organizationId;
+    if (targetId === parentOrganizationId) throw new BadRequestError('organizations.subsidiary_cannot_be_itself');
+
+    return this.organizationRepository.manager.transaction(async (manager) => {
+      const target = await manager.findOne(Organization, { where: { id: targetId }, select: ['id', 'legalName'] });
+      if (!target) throw new NotFoundError('organizations.subsidiary_not_found');
+
+      // Administrator of the company being linked, not just a member of it.
+      const [authority] = await manager.query(
+        `SELECT EXISTS (
+           SELECT 1 FROM user_organizations uo
+             JOIN user_roles ur ON ur.user_id = uo.user_id
+             JOIN roles r ON r.id = ur.role_id AND r.organization_id = uo.organization_id
+            WHERE uo.user_id = $1 AND uo.organization_id = $2 AND uo.suspended_at IS NULL
+              AND (r.name = 'ADMINISTRATOR' OR '*' = ANY(string_to_array(coalesce(r.permissions, ''), ',')))
+         ) AS ok`,
+        [actorUserId, targetId],
+      );
+      // Not found rather than forbidden: whether a company exists is not something to confirm.
+      if (!authority?.ok) throw new NotFoundError('organizations.subsidiary_not_found');
+
+      // Serialise structure changes so two links cannot together close a cycle.
+      await manager.query(`SELECT pg_advisory_xact_lock(hashtext('organization_subsidiaries'))`);
+
+      const [ancestor] = await manager.query(
+        `WITH RECURSIVE up(id) AS (
+           SELECT parent_organization_id FROM organization_subsidiaries WHERE subsidiary_organization_id = $1
+           UNION
+           SELECT s.parent_organization_id FROM organization_subsidiaries s JOIN up ON s.subsidiary_organization_id = up.id
+         ) SELECT EXISTS (SELECT 1 FROM up WHERE id = $2) AS cycle`,
+        [parentOrganizationId, targetId],
+      );
+      if (ancestor?.cycle) throw new BadRequestError('organizations.subsidiary_would_create_cycle');
+
+      const [controlled] = await manager.query(
+        `SELECT parent_organization_id FROM organization_subsidiaries
+          WHERE subsidiary_organization_id = $1 AND control_ended_on IS NULL`,
+        [targetId],
+      );
+      if (controlled?.parent_organization_id === parentOrganizationId) {
+        throw new ConflictError('organizations.subsidiary_already_linked');
+      }
+      if (controlled) throw new ConflictError('organizations.subsidiary_controlled_by_another_parent');
+
+      if (dto.investmentAccountId) {
+        const rows: { isPostable: boolean }[] = await manager.query(
+          `SELECT "isPostable" FROM "accounts" WHERE "id" = $1 AND "organization_id" = $2`,
+          [dto.investmentAccountId, parentOrganizationId],
+        );
+        if (!rows.length) throw new BadRequestError('organizations.subsidiary_investment_account_not_parent');
+        if (!rows[0].isPostable) throw new BadRequestError('organizations.subsidiary_investment_account_not_postable');
+      }
+
+      await this.saasService.enforceLimit(manager, parentOrganizationId, SaasResource.SUBSIDIARIES);
+
+      // The person who linked it must be able to act in it from the parent too.
+      await this.membershipService.grant(actorUserId, targetId, manager);
+
+      return manager.save(
+        manager.create(OrganizationSubsidiary, {
+          parentOrganizationId,
+          subsidiaryOrganizationId: targetId,
+          ownership: dto.ownership,
+          acquisitionDate: dto.acquisitionDate ?? null,
+          acquisitionCost: dto.acquisitionCost ?? null,
+          investmentAccountId: dto.investmentAccountId ?? null,
+        }),
+      );
+    });
+  }
+
+  /**
    * Create a subsidiary that is a usable tenant from the moment it exists.
    *
    * It previously created an `Organization` carrying a legal name, a tax id and a country and
@@ -203,12 +281,12 @@ export class OrganizationsService {
     createdByUserId: string,
   ): Promise<OrganizationSubsidiary> {
     const country = createSubsidiaryDto.country?.toUpperCase() ?? '';
-    const profile = findCountryProfile(country);
-    if (!profile) {
+    const market = knownMarket(country);
+    if (!market) {
       throw new BadRequestError('organizations.country_country_not_available_yet', { country: createSubsidiaryDto.country });
     }
     if (!validateTaxId(country, createSubsidiaryDto.taxId)) {
-      throw new BadRequestError('organizations.label_not_valid_name', { label: fiscalIdentifierLabel(country), name: profile.name });
+      throw new BadRequestError('organizations.label_not_valid_name', { label: fiscalIdentifierLabel(country), name: market.profile.name });
     }
 
     const taxId = canonicalizeTaxId(country, createSubsidiaryDto.taxId);

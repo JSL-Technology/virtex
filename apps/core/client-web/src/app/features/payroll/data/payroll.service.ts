@@ -34,6 +34,15 @@ export interface PayrollRun {
   approvedAt: string | null;
   paidAt: string | null;
   createdAt: string;
+  /** What the calculation found unusual; approving with any takes an explicit yes (NOM-05). */
+  calculationWarnings?: Array<{
+    kind: 'INPUT_ABOVE_MONTHLY_SALARY';
+    employeeId: string;
+    employeeName: string;
+    conceptCode: string;
+    amount: number;
+    monthlyBaseSalary: number;
+  }>;
 }
 
 export interface PayslipLine {
@@ -54,21 +63,18 @@ export interface Payslip {
   employeeId: string;
   employeeName: string;
   employeeIdentityMasked: string | null;
-  employeeTssNss: string | null;
+  employeeSocialSecurityNumber: string | null;
   baseDays: number;
   workedDays: number;
   baseSalary: number;
   grossEarnings: number;
-  tssBase: number;
+  contributoryBase: number;
   taxableBase: number;
-  afpEmployee: number;
-  sfsEmployee: number;
+  /** Every statutory contribution, by the country's catalogue code. */
+  statutoryContributions: PayslipContribution[];
+  statutoryEmployeeContributions: number;
+  statutoryEmployerContributions: number;
   incomeTax: number;
-  infotepEmployee: number;
-  afpEmployer: number;
-  sfsEmployer: number;
-  srlEmployer: number;
-  infotepEmployer: number;
   otherDeductions: number;
   otherEmployerContributions: number;
   totalEmployeeDeductions: number;
@@ -97,7 +103,7 @@ export interface PayrollConcept {
   calculation: ConceptCalculation;
   rate: number | null;
   taxable: boolean;
-  contributesToTss: boolean;
+  contributesToSocialSecurity: boolean;
   accountId: string | null;
   sortOrder: number;
   active: boolean;
@@ -114,8 +120,26 @@ export interface PayrollInput {
   note?: string | null;
 }
 
-/** AFP (pension), SFS (health), SRL (labour risk), INFOTEP (training levy). */
-export type ContributionRegime = 'AFP' | 'SFS' | 'SRL' | 'INFOTEP';
+/** One statutory contribution on a payslip. */
+export interface PayslipContribution {
+  code: string;
+  bucket: 'PENSION' | 'HEALTH' | 'OTHER';
+  appliedBase: number;
+  employeeRate: number;
+  employerRate: number;
+  employeeAmount: number;
+  employerAmount: number;
+}
+
+/**
+ * A contribution the tenant country's law levies, from its payroll strategy. The parameters screen
+ * offers these, not a fixed list of Dominican funds (audit 2026-11-07, JUR-01).
+ */
+export interface ContributionConcept {
+  code: string;
+  labelKey: string;
+  bucket: 'PENSION' | 'HEALTH' | 'OTHER';
+}
 /** What a rate is applied to: a capped salary, or the whole uncapped payroll. */
 export type ContributionBase = 'SALARY_CAPPED' | 'PAYROLL_UNCAPPED';
 export type StatutoryReferenceKey =
@@ -180,7 +204,7 @@ export type CompanyPayrollParameterInput = Pick<CompanyPayrollParameter, 'code' 
 export interface StatutoryContribution {
   id?: string;
   countryCode: string;
-  regime: ContributionRegime;
+  code: string;
   effectiveFrom: string;
   effectiveTo: string | null;
   /** Fractions, not percentages: 0.0287, never 2.87. */
@@ -277,8 +301,8 @@ export class PayrollService {
   }
 
   /** Posts the accounting entry. From here the run is immutable: a mistake takes an adjustment run. */
-  approve(id: string): Observable<PayrollRun> {
-    return this.http.post<PayrollRun>(`${this.apiUrl}/runs/${id}/approve`, {});
+  approve(id: string, acknowledgeWarnings = false): Observable<PayrollRun> {
+    return this.http.post<PayrollRun>(`${this.apiUrl}/runs/${id}/approve`, acknowledgeWarnings ? { acknowledgeWarnings: true } : {});
   }
 
   /** Pay an approved run from a treasury bank account (preferred) or its ledger account. */
@@ -334,6 +358,12 @@ export class PayrollService {
 
   // ── Statutory parameters ───────────────────────────────────────────────────
 
+  listContributionConcepts(country: string): Observable<ContributionConcept[]> {
+    return this.http.get<ContributionConcept[]>(`${this.apiUrl}/parameters/contribution-concepts`, {
+      params: new HttpParams().set('country', country),
+    });
+  }
+
   listContributions(country: string): Observable<StatutoryContribution[]> {
     return this.http.get<StatutoryContribution[]>(`${this.apiUrl}/parameters/contributions`, {
       params: new HttpParams().set('country', country),
@@ -384,23 +414,6 @@ export class PayrollService {
     brackets: { lowerAnnual: number; upperAnnual?: number | null; rate: number; accumulatedTax: number }[];
   }): Observable<IncomeTaxBracket[]> {
     return this.http.put<IncomeTaxBracket[]>(`${this.apiUrl}/parameters/tax-brackets`, body);
-  }
-
-  // ── TSS filings ────────────────────────────────────────────────────────────
-
-  novedades(year: number, month: number): Observable<unknown> {
-    return this.http.get(`${this.apiUrl}/tss/novedades`, {
-      params: new HttpParams().set('year', year).set('month', month),
-    });
-  }
-
-  autodeterminacion(runId: string): Observable<unknown> {
-    return this.http.get(`${this.apiUrl}/runs/${runId}/tss/autodeterminacion`);
-  }
-
-  /** The SUIR flat file, as text: what gets uploaded to the TSS portal. */
-  suir(runId: string): Observable<string> {
-    return this.http.get(`${this.apiUrl}/runs/${runId}/tss/suir`, { responseType: 'text' });
   }
 
   /** What a termination would cost, before anybody commits to it. */

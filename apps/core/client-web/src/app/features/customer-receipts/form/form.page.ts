@@ -113,7 +113,17 @@ export class CustomerReceiptFormPage implements OnInit {
     `${account.name} (${account.currencyCode})`;
   protected readonly bankAccountId = (account: BankAccount): string => account.id;
 
-  readonly openInvoices = signal<Invoice[]>([]);
+  /** Everything this customer still owes, in any currency. */
+  private readonly receivableInvoices = signal<Invoice[]>([]);
+  /**
+   * What this receipt can settle: the open invoices in the receipt's own currency. A dollar receipt
+   * against a peso invoice used to be offered here and applied one-for-one, booking a fictitious
+   * exchange gain (audit 2026-11-07, TES-01); the server now refuses it too.
+   */
+  readonly openInvoices = computed(() => {
+    const currency = this.currency();
+    return this.receivableInvoices().filter((invoice) => !currency || invoice.currencyCode === currency);
+  });
   readonly saving = signal(false);
   /** Recomputed on every keystroke, so the arithmetic is visible before it is committed. */
   readonly totals = signal({ applied: 0, unapplied: 0 });
@@ -204,8 +214,14 @@ export class CustomerReceiptFormPage implements OnInit {
    */
   onBankAccountChange(account: BankAccount | null): void {
     if (!account) return;
+    const changed = this.currency() !== account.currencyCode;
     this.form.patchValue({ currencyCode: account.currencyCode });
     this.currency.set(account.currencyCode);
+    // Lines chosen in the previous currency cannot be settled by this receipt.
+    if (changed && this.lines.length) {
+      this.lines.clear();
+      this.recomputeTotals();
+    }
     // What was on offer was the old currency's advance; keeping it would post a draw the server
     // will refuse.
     this.form.patchValue({ advanceApplied: 0 });
@@ -214,7 +230,7 @@ export class CustomerReceiptFormPage implements OnInit {
   /** Only what the customer still owes can be collected, so only that is offered. */
   onCustomerChange(customerId: string): void {
     this.lines.clear();
-    this.openInvoices.set([]);
+    this.receivableInvoices.set([]);
     this.advances.set([]);
     this.form.patchValue({ advanceApplied: 0 });
     this.customerChosen.set(!!customerId);
@@ -227,11 +243,19 @@ export class CustomerReceiptFormPage implements OnInit {
         const open = page.items
           .filter((invoice) => invoice.balance > 0 && COLLECTIBLE.includes(invoice.status))
           .sort((a, b) => (a.dueDate || a.issueDate).localeCompare(b.dueDate || b.issueDate));
-        this.openInvoices.set(open);
+        this.receivableInvoices.set(open);
 
         const preset = this.presetInvoiceId ? open.find((invoice) => invoice.id === this.presetInvoiceId) : null;
         this.presetInvoiceId = null;
         if (preset) {
+          // Collecting a specific invoice: receive it in that invoice's currency when an account can.
+          if (preset.currencyCode !== this.currency()) {
+            const account = this.bankAccounts().find((a) => a.isActive && a.currencyCode === preset.currencyCode);
+            if (account) {
+              this.form.patchValue({ bankAccountId: account.id });
+              this.onBankAccountChange(account);
+            }
+          }
           this.autoAllocate = false;
           this.pushLine(preset, preset.balance);
           if (!Number(this.form.get('amountReceived')?.value)) {
@@ -242,7 +266,7 @@ export class CustomerReceiptFormPage implements OnInit {
           this.allocate();
         }
       },
-      error: () => this.openInvoices.set([]),
+      error: () => this.receivableInvoices.set([]),
     });
 
     // Money the customer already left on account: it settles an invoice without them paying twice.

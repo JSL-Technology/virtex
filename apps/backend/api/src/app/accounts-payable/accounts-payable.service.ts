@@ -5,13 +5,13 @@ import { VendorBillLine, VendorBillLineNature } from './entities/vendor-bill-lin
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, IsNull, DataSource, EntityManager, FindOperator } from 'typeorm';
-import { VendorBill, VendorBillStatus } from './entities/vendor-bill.entity';
+import { MatchException, VendorBill, VendorBillStatus } from './entities/vendor-bill.entity';
 import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
 import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
 import { PayVendorBillsDto } from './dto/pay-vendor-bills.dto';
 import { PaymentBatch, PaymentBatchStatus } from './entities/payment-batch.entity';
 import { AccountingPostingPort, ModuleSlug } from '../journal-entries/accounting-posting.port';
-import { Supplier } from '../suppliers/entities/supplier.entity';
+import { Supplier, SupplierStatus } from '../suppliers/entities/supplier.entity';
 import { WithholdingResolverService } from '../invoices/services/withholding-resolver.service';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
@@ -46,8 +46,15 @@ import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.servi
 import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { toIsoDate } from '../common/dates';
-import { isValidDominicanTaxId } from '../localization/contracts/tax-id.contract';
-import { checkReceivedNcf } from '../localization/contracts/ncf.contract';
+import { statutoryTaxRatesOn } from '../localization/contracts/statutory-tax-rates.contract';
+import {
+  checkReceivedDocument,
+  fiscalAuthorityOf,
+  marketFor,
+  purchaseAttributesOf,
+  validatePurchaseAttributes,
+  validateTaxId,
+} from '../markets';
 import { VendorBillAttachment } from './entities/vendor-bill-attachment.entity';
 import { supplierInvoiceKey } from './supplier-invoice-key';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
@@ -226,7 +233,7 @@ export class AccountsPayableService {
         select: ['id', 'name', 'taxId'],
       });
       if (!supplier) throw new NotFoundError('accounts_payable.supplier_id_not_found', { id: dto.vendorId });
-      await this.assertFiscalIdentity(manager, organizationId, dto.ncf, supplier);
+      await this.assertFiscalIdentity(manager, organizationId, dto.supplierFiscalNumber, supplier);
     });
   }
 
@@ -239,18 +246,36 @@ export class AccountsPayableService {
     return this.dataSource.transaction(async (manager) => {
       const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
       const baseCurrency = settings?.baseCurrency ?? 'USD';
-      const currencyCode = (dto.currencyCode ?? baseCurrency).toUpperCase();
+
+      // The supplier's commercial terms (audit 2026-11-07, CMP-17): a blocked supplier is not
+      // billed; its currency, credit days and default expense account fill what the bill omits.
+      const terms = await manager.findOne(Supplier, {
+        where: { id: dto.vendorId, organizationId },
+        select: ['id', 'name', 'status', 'blockedReason', 'currencyCode', 'paymentTermDays', 'defaultExpenseAccountId'],
+      });
+      if (!terms) throw new NotFoundError('accounts_payable.supplier_id_not_found', { id: dto.vendorId });
+      if (terms.status === SupplierStatus.BLOCKED) {
+        throw new ConflictError('accounts_payable.supplier_blocked', { supplier: terms.name, reason: terms.blockedReason ?? '' });
+      }
+      const currencyCode = (dto.currencyCode ?? terms.currencyCode ?? baseCurrency).toUpperCase();
+      if (!dto.dueDate) {
+        const due = new Date(`${toIsoDate(dto.date)}T00:00:00.000Z`);
+        due.setUTCDate(due.getUTCDate() + (terms.paymentTermDays ?? 0));
+        billFields.dueDate = due.toISOString().slice(0, 10);
+      }
 
       // Line totals are recomputed, never trusted. The client used to supply `total` per line and
       // for the document, and both were stored verbatim — so the books recorded whatever the
       // caller said the arithmetic was.
       const lines = dto.lines.map((line) => ({
         ...line,
+        expenseAccountId: line.expenseAccountId ?? (line.productId ? undefined : terms.defaultExpenseAccountId ?? undefined),
         total: roundAmount(line.quantity * line.unitPrice),
       }));
       const subtotal = sumAmounts(lines.map((line) => line.total));
 
-      const taxAmount = dto.taxAmount ?? 0;
+      // The tax is computed on the server from the lines' rates (audit 2026-11-07, CMP-02).
+      const taxAmount = await this.resolvePurchaseTax(manager, organizationId, dto, lines, subtotal);
       const exciseAmount = dto.exciseAmount ?? 0;
       const otherTaxes = dto.otherTaxes ?? 0;
       const serviceCharge = dto.serviceCharge ?? 0;
@@ -273,7 +298,9 @@ export class AccountsPayableService {
       if (!supplier) {
         throw new NotFoundError('accounts_payable.supplier_id_not_found', { id: dto.vendorId });
       }
-      const ncf = await this.assertFiscalIdentity(manager, organizationId, dto.ncf, supplier);
+      const supplierFiscalNumber = await this.assertFiscalIdentity(manager, organizationId, dto.supplierFiscalNumber, supplier);
+      // A draft may still be missing an answer the authority wants; a key it never asks for is not.
+      const fiscalAttributes = await this.purchaseAttributes(manager, organizationId, dto.fiscalAttributes, { required: false });
 
       await this.assertPurchaseOrderLinks(manager, organizationId, dto, lines);
 
@@ -309,6 +336,7 @@ export class AccountsPayableService {
                 ? dto.incomeTaxWithheld / subtotal
                 : 0,
           withholdingOverrideReason: dto.withholdingOverrideReason,
+          documentDate: toIsoDate(dto.date),
         },
       );
 
@@ -332,7 +360,7 @@ export class AccountsPayableService {
 
       const invoiceKey = await this.assertSupplierDocumentUnique(manager, organizationId, supplier, {
         supplierInvoiceNumber: dto.supplierInvoiceNumber,
-        ncf: ncf ?? dto.ncf,
+        supplierFiscalNumber: supplierFiscalNumber ?? dto.supplierFiscalNumber,
         date: dto.date,
         currencyCode,
         total: expectedTotal,
@@ -352,7 +380,8 @@ export class AccountsPayableService {
       const bill = manager.create(VendorBill, {
         branchId: await resolveDocumentBranch(manager, organizationId, actorUserId, dto.branchId),
         ...billFields,
-        ncf: ncf ?? dto.ncf,
+        supplierFiscalNumber: supplierFiscalNumber ?? dto.supplierFiscalNumber ?? null,
+        fiscalAttributes,
         supplierInvoiceNumber: dto.supplierInvoiceNumber?.trim() || null,
         supplierInvoiceKey: invoiceKey,
         organizationId,
@@ -366,6 +395,7 @@ export class AccountsPayableService {
         goodsAmount,
         servicesAmount,
         taxAmount,
+        taxOverrideReason: dto.taxOverrideReason?.trim() || null,
         taxWithheld,
         incomeTaxWithheld,
         withholdingRegimeCodes: resolved.regimeCodes,
@@ -431,32 +461,61 @@ export class AccountsPayableService {
    * Outside the Dominican Republic the field is not a DGII comprobante and nothing here applies.
    */
   /**
-   * In the Dominican Republic a purchase from a supplier with an RNC is backed by that supplier's
-   * comprobante, or it cannot be reported in the 606 nor its ITBIS deducted (QA R3-A04): a bill
-   * posted without one took the tax as a credit, and the month's 606 then refused to generate with
-   * no way to repair it. An informal supplier (no RNC) is covered by the B11 the company issues.
+   * Where the market's authority numbers the supplier's document, a purchase from a supplier that
+   * authority knows is backed by that document, or it cannot be reported nor its tax deducted (QA
+   * R3-A04): a bill posted without one took the tax as a credit and the return then refused to
+   * generate, with no way to repair it. A supplier the authority does not know is covered by the
+   * document the company issues itself.
    */
-  private async assertNcfPresent(
+  private async assertSupplierDocumentPresent(
     manager: EntityManager,
     organizationId: string,
-    bill: Pick<VendorBill, 'ncf'> & { vendor?: Pick<Supplier, 'name' | 'taxId'> | null },
+    bill: Pick<VendorBill, 'supplierFiscalNumber'> & { vendor?: Pick<Supplier, 'name' | 'taxId'> | null },
   ): Promise<void> {
-    if (bill.ncf?.trim()) return;
+    if (bill.supplierFiscalNumber?.trim()) return;
     const [organization] = await manager.query('SELECT country FROM organizations WHERE id = $1', [organizationId]);
-    if ((organization?.country ?? '').toUpperCase() !== 'DO') return;
-    if (bill.vendor?.taxId && isValidDominicanTaxId(bill.vendor.taxId)) {
-      throw new BadRequestError('accounts_payable.ncf_required_for_supplier_with_rnc', {
+    const country = (organization?.country ?? '').toUpperCase() || null;
+    if (!marketFor(country).purchases.supplierFiscalNumber) return;
+    if (bill.vendor?.taxId && validateTaxId(country ?? '', bill.vendor.taxId)) {
+      throw new BadRequestError('accounts_payable.supplier_document_required_for_registered_supplier', {
         supplier: bill.vendor.name,
+        authority: fiscalAuthorityOf(country),
       });
     }
   }
 
   /**
-   * Record the supplier's NCF on a bill already posted without one — the repair the 606 asks for
-   * (QA R3-A04). Only when the bill has none: a recorded comprobante is corrected by voiding the
-   * bill, not by overwriting what was declared. The same checks as at entry apply.
+   * Answer, on a bill already posted, what this market's authority asks about the purchase — the
+   * repair a purchases return needs when whoever entered the bill was not the person who classifies
+   * it. Every answer the market asks for must be there, because the return reads them all.
+   *
+   * The bill's figures are not editable here: only what the authority asks about the purchase.
    */
-  async recordNcf(billId: string, organizationId: string, ncf: string): Promise<VendorBill> {
+  async recordFiscalAttributes(
+    billId: string,
+    organizationId: string,
+    values: Record<string, unknown>,
+  ): Promise<VendorBill> {
+    return this.dataSource.transaction(async (manager) => {
+      const bill = await manager.findOne(VendorBill, {
+        where: { id: billId, organizationId },
+        lock: { mode: 'pessimistic_write', tables: ['vendor_bills'] },
+      });
+      if (!bill) throw new NotFoundError('accounts_payable.vendor_bill_id_not_found', { id: billId });
+      if ([VendorBillStatus.VOID, VendorBillStatus.REJECTED].includes(bill.status)) {
+        throw new BadRequestError('accounts_payable.purchase_attributes_not_on_closed_bill');
+      }
+      bill.fiscalAttributes = await this.purchaseAttributes(manager, organizationId, values, { required: true });
+      return manager.save(VendorBill, bill);
+    });
+  }
+
+  /**
+   * Record the supplier's fiscal document number on a bill already posted without one — the repair
+   * a purchases return asks for (QA R3-A04). Only when the bill has none: a recorded document is
+   * corrected by voiding the bill, not by overwriting what was declared. The same checks as at entry.
+   */
+  async recordSupplierFiscalNumber(billId: string, organizationId: string, raw: string): Promise<VendorBill> {
     return this.dataSource.transaction(async (manager) => {
       const bill = await manager.findOne(VendorBill, {
         where: { id: billId, organizationId },
@@ -467,76 +526,192 @@ export class AccountsPayableService {
         throw new NotFoundError('accounts_payable.vendor_bill_id_not_found', { id: billId });
       }
       if ([VendorBillStatus.DRAFT, VendorBillStatus.VOID, VendorBillStatus.REJECTED].includes(bill.status)) {
-        throw new BadRequestError('accounts_payable.ncf_record_only_posted_bills');
+        throw new BadRequestError('accounts_payable.supplier_document_record_only_posted_bills');
       }
-      if (bill.ncf?.trim()) {
-        throw new ConflictError('accounts_payable.ncf_already_recorded_on_bill', { ncf: bill.ncf });
+      if (bill.supplierFiscalNumber?.trim()) {
+        throw new ConflictError('accounts_payable.supplier_document_already_recorded_on_bill', { document: bill.supplierFiscalNumber });
       }
-      const normalized = await this.assertFiscalIdentity(manager, organizationId, ncf, bill.vendor, bill.id);
-      bill.ncf = normalized ?? ncf.trim();
+      const normalized = await this.assertFiscalIdentity(manager, organizationId, raw, bill.vendor, bill.id);
+      bill.supplierFiscalNumber = normalized ?? raw.trim();
       return manager.save(VendorBill, bill);
     });
   }
 
+  /**
+   * The consumption tax on a purchase, computed — not taken from the request (audit 2026-11-07,
+   * CMP-02; pattern SP-04).
+   *
+   * A bill of 1,000 with `taxAmount: 900` was accepted and 900 of ITBIS went to the deductible
+   * credit and the 606. Now each line may state its rate, which must be a rate in force on the
+   * bill's date (the national table or the tenant's own catalogue); the tax is the sum of the lines.
+   * The figure the supplier printed may differ by rounding — a cent per line — and is kept, since
+   * it is the legal document. A larger difference needs a reason, recorded on the bill.
+   *
+   * With no rate on any line (a bill captured as totals), the stated tax cannot exceed the subtotal
+   * at the highest rate in force without a reason: that is the ceiling of any honest mix of rates.
+   */
+  private async resolvePurchaseTax(
+    manager: EntityManager,
+    organizationId: string,
+    dto: Pick<CreateVendorBillDto, 'taxAmount' | 'taxOverrideReason' | 'date'> & { lines: CreateVendorBillDto['lines'] },
+    lines: Array<{ total: number; taxRate?: number }>,
+    subtotal: number,
+  ): Promise<number> {
+    const date = toIsoDate(dto.date);
+    const [organization] = await manager.query('SELECT country FROM organizations WHERE id = $1', [organizationId]);
+    const statutory = await statutoryTaxRatesOn(manager, organization?.country ?? null, date);
+    const own: Array<{ rate: string }> = await manager.query(
+      `SELECT "rate" FROM "taxes"
+        WHERE "organization_id" = $1 AND "type" = 'Porcentaje'
+          AND ("effective_from" IS NULL OR "effective_from" <= $2::date)
+          AND ("effective_to" IS NULL OR "effective_to" >= $2::date)`,
+      [organizationId, date],
+    );
+    const allowed = [...new Set([...(statutory ?? []), ...own.map((row) => Number(row.rate) / 100)])];
+    const isAllowed = (rate: number) => allowed.length === 0 || allowed.some((a) => Math.abs(a - rate) < 1e-9);
+    const reason = dto.taxOverrideReason?.trim();
+    const tolerance = roundAmount(Math.max(1, lines.length) * 0.01);
+
+    const rated = lines.filter((line) => line.taxRate !== undefined && line.taxRate !== null);
+    if (rated.length > 0) {
+      for (const line of rated) {
+        if (!isAllowed(line.taxRate as number)) {
+          throw new BadRequestError('accounts_payable.line_tax_rate_not_in_force', {
+            rate: `${roundAmount((line.taxRate as number) * 100)}%`,
+            date,
+            allowed: allowed.map((a) => `${roundAmount(a * 100)}%`).join(', '),
+          });
+        }
+      }
+      const computed = sumAmounts(rated.map((line) => roundAmount(line.total * (line.taxRate as number))));
+      if (dto.taxAmount === undefined) return computed;
+      if (Math.abs(dto.taxAmount - computed) <= tolerance || reason) return dto.taxAmount;
+      throw new BadRequestError('accounts_payable.tax_amount_differs_from_lines', {
+        stated: dto.taxAmount,
+        computed,
+      });
+    }
+
+    const stated = dto.taxAmount ?? 0;
+    if (stated === 0 || allowed.length === 0 || reason) return stated;
+    const ceiling = roundAmount(subtotal * Math.max(...allowed));
+    if (stated > ceiling + tolerance) {
+      throw new BadRequestError('accounts_payable.tax_amount_exceeds_highest_rate', {
+        stated,
+        ceiling,
+        rate: `${roundAmount(Math.max(...allowed) * 100)}%`,
+      });
+    }
+    return stated;
+  }
+
+  /**
+   * The number on the supplier's document, checked by the rule of the company's own market, and
+   * recorded once.
+   *
+   * The check used to be `if (dominican) { …the DGII's shape… } else { uppercase and strip }`: only
+   * one market's documents were verified, and the message named the NCF to a Mexican or Brazilian
+   * tenant. Each market's rule is its own (`MarketPurchases.receivedDocument`), including the
+   * honest answer «this number has no published shape the product checks».
+   */
   private async assertFiscalIdentity(
     manager: EntityManager,
     organizationId: string,
-    ncf: string | null | undefined,
+    raw: string | null | undefined,
     supplier: Pick<Supplier, 'name' | 'taxId'> & { id?: string } | null | undefined,
     billId: string | null = null,
   ): Promise<string | null> {
-    if (!ncf?.trim()) return null;
+    if (!raw?.trim()) return null;
     const [organization] = await manager.query('SELECT country FROM organizations WHERE id = $1', [organizationId]);
-    const dominican = (organization?.country ?? '').toUpperCase() === 'DO';
+    const country = (organization?.country ?? '').toUpperCase() || null;
+    const authority = fiscalAuthorityOf(country);
 
-    // The field holds the market's identifier of the supplier's document — the NCF here, the CFDI
-    // UUID, the CUFE, the NF-e key or the plain invoice number elsewhere. Only the Dominican one
-    // has a format this product checks, but every one of them identifies ONE document, and the
-    // duplicate check used to run in the Dominican Republic only (AP-03).
-    let normalized: string;
-    if (dominican) {
-      const checked = checkReceivedNcf(ncf);
-      if (!checked.ok) {
-        throw new BadRequestError(
-          checked.error === 'format' ? 'accounts_payable.ncf_invalid_format' : 'accounts_payable.ncf_unknown_type',
-          { ncf: ncf.trim() },
-        );
-      }
-      if (checked.ncf.requiresSupplierTaxId && (!supplier?.taxId || !isValidDominicanTaxId(supplier.taxId))) {
-        throw new BadRequestError('accounts_payable.ncf_requires_supplier_tax_id', {
-          supplier: supplier?.name ?? '',
-          ncf: checked.ncf.normalized,
-        });
-      }
-      normalized = checked.ncf.normalized;
-    } else {
-      normalized = ncf.trim().toUpperCase().replace(/[\s-]/g, '');
+    const checked = checkReceivedDocument(country, raw);
+    if (checked.status === 'invalid') {
+      throw new BadRequestError('accounts_payable.supplier_document_refused', {
+        document: raw.trim(),
+        authority,
+        reason: checked.error ?? 'format',
+      });
     }
+    // A document the authority issues in the supplier's name cannot be filed for a supplier the
+    // company has not identified — and some are self-issued precisely because the counterparty has
+    // no local identifier (a Dominican B13 for a minor expense, a B17 for a payment abroad).
+    if (checked.requiresSupplierTaxId && !(supplier?.taxId && validateTaxId(country ?? '', supplier.taxId))) {
+      throw new BadRequestError('accounts_payable.supplier_document_requires_supplier_tax_id', {
+        supplier: supplier?.name ?? '',
+        document: checked.normalized ?? raw.trim(),
+        authority,
+      });
+    }
+    const normalized = checked.normalized ?? raw.trim();
 
-    if (supplier?.id) {
+    // One live bill per (issuer TAX ID, document number) — not per supplier record (audit
+    // 2026-11-07, CMP-03): two supplier records with the same tax id used to let the same document
+    // in twice, and the purchases return reported one purchase twice.
+    // `UQ_vendor_bills_issuer_fiscal_number` enforces the same rule in the database; this check is
+    // what turns it into a readable 409 before the insert.
+    const issuerKey = (supplier?.taxId ?? '').replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+    // Upper-cased here as the database trigger upper-cases the stored key: a market that keeps the
+    // number as printed can hand back mixed case, and a case-sensitive comparison would miss the
+    // duplicate this check exists to find.
+    const documentKey = normalized.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+    if (supplier?.id || issuerKey) {
       // Two people saving the same bill at once must not both pass the check: the second waits for
       // the first's transaction, then sees its row.
       await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
-        `vendor-bill-ncf:${organizationId}:${supplier.id}:${normalized}`,
+        `vendor-bill-document:${organizationId}:${issuerKey || supplier?.id}:${documentKey}`,
       ]);
       const [duplicate] = await manager.query(
-        `SELECT "id" FROM "vendor_bills"
-          WHERE "organization_id" = $1 AND "vendor_id" = $2
-            AND upper(regexp_replace(coalesce("ncf", ''), '[\\s-]', '', 'g')) = $3
-            AND "status" NOT IN ('VOID', 'REJECTED')
-            AND ($4::uuid IS NULL OR "id" <> $4::uuid)
+        `SELECT b."id" FROM "vendor_bills" b
+          WHERE b."organization_id" = $1
+            AND (CASE WHEN $2::text <> '' THEN b."issuer_tax_key" = $2 ELSE b."vendor_id" = $3::uuid END)
+            AND b."supplier_fiscal_key" = $4
+            AND b."status" NOT IN ('VOID', 'REJECTED')
+            AND ($5::uuid IS NULL OR b."id" <> $5::uuid)
           LIMIT 1`,
-        [organizationId, supplier.id, normalized, billId],
+        [organizationId, issuerKey, supplier?.id ?? null, documentKey, billId],
       );
       if (duplicate) {
-        throw new ConflictError(
-          dominican ? 'accounts_payable.ncf_already_recorded' : 'accounts_payable.supplier_document_already_recorded',
-          { ncf: normalized, supplier: supplier.name ?? '' },
-        );
+        throw new ConflictError('accounts_payable.supplier_document_already_recorded', {
+          document: normalized,
+          supplier: supplier?.name ?? '',
+        });
       }
     }
-    // Stored as typed outside the Dominican Republic: there is no canonical form to store.
-    return dominican ? normalized : null;
+    // Stored in the market's canonical form where it has one; as typed where the market keeps the
+    // number as printed, because there is no canonical form to store.
+    return checked.status === 'unverified' ? null : normalized;
+  }
+
+  /**
+   * What this market's authority asks about the purchase, checked against the market's own schema
+   * and kept to the keys it asks for (`MarketPurchases.fiscalAttributes`).
+   *
+   * These were three columns of DGII codes on every purchase of every market, and a market that
+   * asks for something else had nowhere to put it.
+   */
+  private async purchaseAttributes(
+    manager: EntityManager,
+    organizationId: string,
+    values: Record<string, unknown> | undefined,
+    { required }: { required: boolean },
+  ): Promise<Record<string, string>> {
+    const [organization] = await manager.query('SELECT country FROM organizations WHERE id = $1', [organizationId]);
+    const country = (organization?.country ?? '').toUpperCase() || null;
+    const stated = values ?? {};
+    // An answer may still be missing while whoever enters the bill is not the person who classifies
+    // it — that happens at month end, and {@link recordFiscalAttributes} is how it is answered then.
+    // What never waits is a key the market does not ask for: nothing arbitrary reaches the column,
+    // and a field a market stopped asking for stops being accepted.
+    const errors = validatePurchaseAttributes(country, stated).filter((error) => required || error.reason !== 'required');
+    if (errors.length > 0) {
+      throw new BadRequestError('accounts_payable.purchase_attributes_refused', {
+        authority: fiscalAuthorityOf(country),
+        fields: errors.map((error) => error.label).join(', '),
+      });
+    }
+    return purchaseAttributesOf(country, stated);
   }
 
   async update(
@@ -560,7 +735,7 @@ export class AccountsPayableService {
       throw new BadRequestError('accounts_payable.base_split_follows_lines');
     }
     // The branch is not merged as sent: a new one must be a branch the editor may use.
-    const { branchId, allowPossibleDuplicate: _allow, ...changes } = dto;
+    const { branchId, allowPossibleDuplicate: _allow, fiscalAttributes: statedAttributes, ...changes } = dto;
     const merged = this.vendorBillRepository.merge(bill, changes);
     if (changes.supplierInvoiceNumber !== undefined || changes.vendorId !== undefined) {
       merged.supplierInvoiceNumber = merged.supplierInvoiceNumber?.trim() || null;
@@ -568,11 +743,11 @@ export class AccountsPayableService {
         this.dataSource.manager,
         organizationId,
         { id: merged.vendorId, name: null },
-        { supplierInvoiceNumber: merged.supplierInvoiceNumber, ncf: merged.ncf, billId: bill.id },
+        { supplierInvoiceNumber: merged.supplierInvoiceNumber, supplierFiscalNumber: merged.supplierFiscalNumber, billId: bill.id },
       );
     }
-    // A corrected NCF (or a different supplier) is checked now, not first at submission.
-    if (changes.ncf !== undefined || changes.vendorId !== undefined) {
+    // A corrected document number (or a different supplier) is checked now, not at submission.
+    if (changes.supplierFiscalNumber !== undefined || changes.vendorId !== undefined) {
       const supplier = await this.dataSource.manager.findOne(Supplier, {
         where: { id: merged.vendorId, organizationId },
         select: ['id', 'name', 'taxId'],
@@ -580,7 +755,14 @@ export class AccountsPayableService {
       if (!supplier) {
         throw new NotFoundError('accounts_payable.supplier_id_not_found', { id: merged.vendorId });
       }
-      merged.ncf = (await this.assertFiscalIdentity(this.dataSource.manager, organizationId, merged.ncf, supplier, bill.id)) ?? merged.ncf;
+      merged.supplierFiscalNumber =
+        (await this.assertFiscalIdentity(this.dataSource.manager, organizationId, merged.supplierFiscalNumber, supplier, bill.id)) ??
+        merged.supplierFiscalNumber;
+    }
+    if (statedAttributes !== undefined) {
+      merged.fiscalAttributes = await this.purchaseAttributes(this.dataSource.manager, organizationId, statedAttributes, {
+        required: false,
+      });
     }
     merged.branchId = await reassignDocumentBranch(
       this.dataSource.manager,
@@ -619,8 +801,22 @@ export class AccountsPayableService {
         );
       }
       // Again here: a draft's supplier and NCF can both change after it was created.
-      await this.assertFiscalIdentity(manager, organizationId, bill.ncf, bill.vendor, bill.id);
-      await this.assertNcfPresent(manager, organizationId, bill);
+      await this.assertFiscalIdentity(manager, organizationId, bill.supplierFiscalNumber, bill.vendor, bill.id);
+      await this.assertSupplierDocumentPresent(manager, organizationId, bill);
+
+      // Three-way match (audit 2026-11-07, CMP-01): a bill that charges for goods not received, or
+      // at a price outside the order's tolerance, is HELD — not posted, not payable — instead of
+      // booked with no exception. Stock it would bring in has not arrived; a price nobody agreed
+      // is not owed. Release is someone else's decision, recorded with its reason.
+      if (!bill.matchReleasedAt) {
+        const exceptions = await this.threeWayMatchExceptions(manager, organizationId, bill);
+        if (exceptions.length > 0) {
+          bill.status = VendorBillStatus.ON_HOLD;
+          bill.matchExceptions = exceptions;
+          bill.matchHeldBy = actorUserId;
+          return manager.save(bill);
+        }
+      }
 
       for (const line of bill.lines) {
         if (!line.expenseAccountId) continue;
@@ -746,7 +942,7 @@ export class AccountsPayableService {
         key: 'ledger.purchase.bill',
         // Without an NCF the bill has no number of its own; it was described by eight characters of
         // its database id. The supplier and the date say which bill it is.
-        params: { number: bill.ncf ?? `${bill.vendor?.name ?? ''} ${toIsoDate(bill.date)}`.trim() },
+        params: { number: bill.supplierFiscalNumber ?? `${bill.vendor?.name ?? ''} ${toIsoDate(bill.date)}`.trim() },
       },
     });
 
@@ -899,7 +1095,7 @@ export class AccountsPayableService {
     // after commit, from an event handler whose failure was a log line — leaving an entry with no
     // stock behind it. Only what the bill itself brings in moves: the part matched against a
     // receipt is already on the shelf.
-    const reference = bill.supplierInvoiceNumber ?? bill.ncf ?? bill.id.slice(0, 8);
+    const reference = bill.supplierInvoiceNumber ?? bill.supplierFiscalNumber ?? bill.id.slice(0, 8);
     const billLinesForInventory = bill.lines
       .map((line) => ({
         productId: line.productId,
@@ -980,7 +1176,7 @@ export class AccountsPayableService {
     supplier: { id: string; name?: string | null },
     document: {
       supplierInvoiceNumber?: string | null;
-      ncf?: string | null;
+      supplierFiscalNumber?: string | null;
       date?: string;
       currencyCode?: string;
       total?: number;
@@ -1012,7 +1208,7 @@ export class AccountsPayableService {
       return key;
     }
 
-    if (document.ncf?.trim() || document.allowPossibleDuplicate || document.total === undefined) return null;
+    if (document.supplierFiscalNumber?.trim() || document.allowPossibleDuplicate || document.total === undefined) return null;
     await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
       `vendor-bill-unnumbered:${organizationId}:${supplier.id}:${document.date}:${document.currencyCode}:${toCents(document.total)}`,
     ]);
@@ -1130,6 +1326,95 @@ export class AccountsPayableService {
       }
       line.productId ??= ordered.productId ?? undefined;
     }
+  }
+
+  /**
+   * The discrepancies between a bill's purchase-order lines and what was received and agreed.
+   *
+   * QUANTITY: the line bills more than was received and not yet billed. PRICE: its unit price, in
+   * the bill's currency, departs from the order's by more than `apMatchPriceToleranceBps`. Read
+   * only — nothing is advanced here; posting does that, under its own locks.
+   */
+  private async threeWayMatchExceptions(
+    manager: EntityManager,
+    organizationId: string,
+    bill: VendorBill,
+  ): Promise<MatchException[]> {
+    const linked = (bill.lines ?? []).filter((line) => line.purchaseOrderLineId);
+    if (linked.length === 0) return [];
+    const settings = await manager.findOne(OrganizationSettings, {
+      where: { organizationId },
+      select: ['organizationId', 'apMatchPriceToleranceBps'],
+    });
+    const tolerance = Math.max(0, settings?.apMatchPriceToleranceBps ?? 200) / 10_000;
+    const billRate = Number(bill.exchangeRate) > 0 ? Number(bill.exchangeRate) : 1;
+    const exceptions: MatchException[] = [];
+    for (const line of linked) {
+      const orderLine = await manager
+        .createQueryBuilder(PurchaseOrderLine, 'line')
+        .innerJoinAndSelect('line.order', 'order')
+        .where('line.id = :id', { id: line.purchaseOrderLineId })
+        .andWhere('order.organizationId = :organizationId', { organizationId })
+        .setLock('pessimistic_read', undefined, ['line'])
+        .getOne();
+      if (!orderLine) continue;
+      const receivedNotBilled = Math.max(roundQuantity(orderLine.receivedQuantity - orderLine.billedQuantity), 0);
+      if (Number(line.quantity) - receivedNotBilled > 0.000001) {
+        exceptions.push({
+          kind: 'QUANTITY',
+          purchaseOrderLineId: orderLine.id,
+          description: orderLine.description,
+          billed: Number(line.quantity),
+          expected: receivedNotBilled,
+        });
+      }
+      const orderRate = Number(orderLine.order?.exchangeRate) > 0 ? Number(orderLine.order.exchangeRate) : 1;
+      const agreed = roundAmount((Number(orderLine.unitPrice) * orderRate) / billRate);
+      if (agreed > 0 && Math.abs(Number(line.unitPrice) - agreed) / agreed > tolerance + 1e-9) {
+        exceptions.push({
+          kind: 'PRICE',
+          purchaseOrderLineId: orderLine.id,
+          description: orderLine.description,
+          billed: Number(line.unitPrice),
+          expected: agreed,
+        });
+      }
+    }
+    return exceptions;
+  }
+
+  /**
+   * Release a bill the three-way match held, and submit it (CMP-01).
+   *
+   * Someone other than the person who submitted it decides, and says why — a partial shipment
+   * invoiced in advance by agreement, a price change accepted by purchasing. The decision and its
+   * reason stay on the bill; the bill then goes through approval as if it had matched.
+   */
+  async releaseMatchHold(
+    billId: string,
+    organizationId: string,
+    actorUserId: string,
+    reason: string,
+  ): Promise<VendorBill> {
+    const submitter = await this.dataSource.transaction(async (manager) => {
+      // The row alone: `FOR UPDATE` cannot be applied to the outer joins its relations produce.
+      await manager.query(`SELECT 1 FROM "vendor_bills" WHERE "id" = $1 AND "organization_id" = $2 FOR UPDATE`, [billId, organizationId]);
+      const bill = await manager.findOne(VendorBill, { where: { id: billId, organizationId } });
+      if (!bill) throw new NotFoundError('accounts_payable.vendor_bill_id_not_found', { id: billId });
+      if (bill.status !== VendorBillStatus.ON_HOLD) {
+        throw new ConflictError('accounts_payable.bill_not_on_match_hold');
+      }
+      if (bill.matchHeldBy && bill.matchHeldBy === actorUserId) {
+        throw new ForbiddenError('accounts_payable.match_hold_release_requires_another_person');
+      }
+      bill.matchReleasedBy = actorUserId;
+      bill.matchReleasedAt = new Date();
+      bill.matchReleaseReason = reason.trim();
+      bill.status = VendorBillStatus.DRAFT;
+      await manager.save(bill);
+      return bill.matchHeldBy ?? actorUserId;
+    });
+    return this.submitForApproval(billId, organizationId, submitter);
   }
 
   /**
@@ -1274,6 +1559,15 @@ export class AccountsPayableService {
         where: { id: In(billIds), organizationId },
       });
       const billsById = new Map(bills.map((bill) => [bill.id, bill]));
+      // A blocked supplier is not paid (audit 2026-11-07, CMP-17), whatever was billed before.
+      const blocked: Array<{ name: string; blocked_reason: string | null }> = await manager.query(
+        `SELECT DISTINCT s."name", s."blocked_reason" FROM "suppliers" s JOIN "vendor_bills" b ON b."vendor_id" = s."id"
+          WHERE b."id" = ANY($1::uuid[]) AND b."organization_id" = $2 AND s."status" = 'BLOCKED'`,
+        [billIds, organizationId],
+      );
+      if (blocked.length) {
+        throw new ConflictError('accounts_payable.supplier_blocked', { supplier: blocked[0].name, reason: blocked[0].blocked_reason ?? '' });
+      }
       // One branch may pay for another (a head office paying every store's suppliers), but only
       // bills the payer could open: a restricted person cannot settle a branch they cannot see.
       const payerScope = await loadBranchScope(manager, organizationId, actorUserId ?? null);
@@ -1789,7 +2083,7 @@ export class AccountsPayableService {
             manager,
             organizationId,
             {
-              reference: bill.supplierInvoiceNumber ?? bill.ncf ?? bill.id.slice(0, 8),
+              reference: bill.supplierInvoiceNumber ?? bill.supplierFiscalNumber ?? bill.id.slice(0, 8),
               sourceType: 'vendor_bill_void',
               sourceId: bill.id,
               date: toIsoDate(dto.reversalDate ?? new Date()),
@@ -1884,6 +2178,8 @@ const BILLABLE_ORDER_STATUSES: ReadonlySet<string> = new Set([
   PurchaseOrderStatus.SENT,
   PurchaseOrderStatus.PARTIALLY_RECEIVED,
   PurchaseOrderStatus.RECEIVED,
+  // Closed short: what was received is still owed to the supplier and billed (CMP-15).
+  PurchaseOrderStatus.CLOSED,
 ]);
 
 function assertOrderBillable(order: { number?: string | null; status?: string | null } | null | undefined): void {

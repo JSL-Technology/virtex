@@ -13,8 +13,8 @@ import {
 } from 'typeorm';
 import { Organization } from './organization.entity';
 import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
-import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
-import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { TaxpayerType } from '../../markets';
+import { numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import type { FiscalEmissionMode } from '../contracts/fiscal-emission-mode.contract';
 
 const DEFAULT_BASE_CURRENCY = 'USD' as const;
@@ -22,6 +22,7 @@ const DEFAULT_BASE_CURRENCY = 'USD' as const;
 @Index('ux_organization_settings_organization_id', ['organizationId'], { unique: true })
 // Declared here as well as in the migration, so the schema-drift check sees it.
 @Check('CK_organization_settings_fiscal_emission_mode', `"fiscal_emission_mode" IN ('BOTH', 'ELECTRONIC', 'TRADITIONAL')`)
+@Check('CHK_organization_settings_po_receipt_over_tolerance', '"po_receipt_over_tolerance_bps" BETWEEN 0 AND 5000')
 @Entity({ name: 'organization_settings' })
 export class OrganizationSettings {
   constructor(partial?: Partial<OrganizationSettings>) {
@@ -260,9 +261,10 @@ export class OrganizationSettings {
   //
   // Derived from the chart's account roles at provisioning, like every default above. A payroll run
   // debits salary expense and the employer's own social cost, and credits a distinct liability for
-  // each thing it owes to a different body — the net wage (to the employee), AFP and SFS (to the
-  // TSS), INFOTEP/SRL, and the ISR withheld (to the DGII) — so each has its own account and none is
-  // netted into another.
+  // each thing it owes to a different body — the net wage (to the employee), the pension and health
+  // funds, the other statutory levies, and the income tax withheld — so each has its own account and
+  // none is netted into another. The columns are named after the kind of fund (audit 2026-11-07,
+  // LOC-02/JUR-01); each country's strategy maps its own institutions onto them.
 
   @Column({ name: 'default_salary_expense_account_id', type: 'uuid', nullable: true })
   defaultSalaryExpenseAccountId: string | null = null;
@@ -273,14 +275,14 @@ export class OrganizationSettings {
   @Column({ name: 'default_payroll_net_payable_account_id', type: 'uuid', nullable: true })
   defaultPayrollNetPayableAccountId: string | null = null;
 
-  @Column({ name: 'default_afp_payable_account_id', type: 'uuid', nullable: true })
-  defaultAfpPayableAccountId: string | null = null;
+  @Column({ name: 'default_pension_contributions_payable_account_id', type: 'uuid', nullable: true })
+  defaultPensionContributionsPayableAccountId: string | null = null;
 
-  @Column({ name: 'default_sfs_payable_account_id', type: 'uuid', nullable: true })
-  defaultSfsPayableAccountId: string | null = null;
+  @Column({ name: 'default_health_contributions_payable_account_id', type: 'uuid', nullable: true })
+  defaultHealthContributionsPayableAccountId: string | null = null;
 
-  @Column({ name: 'default_infotep_payable_account_id', type: 'uuid', nullable: true })
-  defaultInfotepPayableAccountId: string | null = null;
+  @Column({ name: 'default_other_payroll_contributions_payable_account_id', type: 'uuid', nullable: true })
+  defaultOtherPayrollContributionsPayableAccountId: string | null = null;
 
   @Column({ name: 'default_payroll_tax_withholding_payable_account_id', type: 'uuid', nullable: true })
   defaultPayrollTaxWithholdingPayableAccountId: string | null = null;
@@ -353,9 +355,21 @@ export class OrganizationSettings {
     // Quoted: PostgreSQL stores a numeric default as the literal `0.02`, and an unquoted numeric
     // here makes TypeORM compare against `0.02` the number and see a difference that is not one.
     default: 0.02,
-    transformer: numericTransformerNotNull,
+    transformer: numericTransformerWithDefault,
   })
   fxRateTolerance!: number;
+
+  /**
+   * How far a supplier's unit price may depart from the purchase order before the bill is held,
+   * in basis points (200 = 2 %) (audit 2026-11-07, CMP-01). Integer on purpose: a fractional
+   * numeric default reads as schema drift.
+   */
+  @Column({ name: 'ap_match_price_tolerance_bps', type: 'int', default: 200 })
+  apMatchPriceToleranceBps!: number;
+
+  /** How far a delivery may exceed the ordered quantity, in basis points (CMP-15). 0: never. */
+  @Column({ name: 'po_receipt_over_tolerance_bps', type: 'int', default: 0 })
+  poReceiptOverToleranceBps!: number;
 
   /**
    * How stale a quote may be, in days, before a posting that would use it is refused.

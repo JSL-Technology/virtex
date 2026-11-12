@@ -375,6 +375,39 @@ for (const [prefix, values] of Object.entries(composed)) {
 }
 
 // ---------------------------------------------------------------------------
+// 6d. Every catalogue key a market DECLARES must exist.
+// ---------------------------------------------------------------------------
+/*
+ * The market catalogue (`apps/backend/api/src/app/markets/`) is data: a market declares the label
+ * of a field an authority asks for, of each of its coded options, of the number on a supplier's
+ * document. Those labels travel to the browser as `labelKey`/`helpKey` and are translated there.
+ *
+ * Check 6a cannot catch a mistake in one, because a key that NO catalogue defines is not an error
+ * there (most dotted strings in code are not keys). Here the shape is unambiguous — a declared
+ * `labelKey` is a key, always — so a key that is not defined is a dotted identifier on a screen,
+ * and it fails. A market that declares no key at all is fine: the label it carries is then its own
+ * words, which is what an authority's untranslated term should stay.
+ */
+const MARKETS_ROOT = `${ROOT}/apps/backend/api/src/app/markets`;
+const DECLARED_KEY = /\b(?:labelKey|helpKey|nameKey|titleKey|descriptionKey)\s*:\s*['"`]([^'"`]+)['"`]/g;
+for (const file of walk(MARKETS_ROOT, /\.ts$/)) {
+  if (/\.spec\.ts$/.test(file)) continue;
+  const text = fs.readFileSync(file, 'utf8');
+  for (const match of text.matchAll(DECLARED_KEY)) {
+    // The catalogue's own spelling: a key built from an authority's code (`fiscal.do.B01`) is
+    // looked up the way the runtime looks it up.
+    const key = normalizeKey(match[1]);
+    if (key in source) continue;
+    if (PLURAL_SUFFIXES.some((suffix) => `${key}_${suffix}` in source)) continue;
+    fail(
+      'market declares a key the catalogue does not define',
+      `${path.relative(ROOT, file)} declares ${match[1]}, which no base catalogue defines ` +
+        `(looked up as ${key}): the screen would print the key itself`,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
 // 7. Keys nothing references.
 // ---------------------------------------------------------------------------
 const allReferenced = new Set();

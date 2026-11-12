@@ -23,9 +23,9 @@ import { AuditLog } from '../audit/entities/audit-log.entity';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { FinancialReportingService } from '../financial-reporting/financial-reporting.service';
 import { ExchangeRate, ExchangeRateType } from '../currencies/entities/exchange-rate.entity';
-import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { ConsolidationMap } from './entities/consolidation-map.entity';
+import { ConsolidationRun } from './entities/consolidation-run.entity';
 import { IntercompanyTransaction } from '../intercompany/entities/intercompany-transaction.entity';
 import { ConsolidationService } from './consolidation.service';
 import { roundAmount } from '../common/money';
@@ -109,6 +109,7 @@ describeWithDb('group consolidation', () => {
       reporting,
       dataSource,
       new I18nService(),
+      dataSource.getRepository(ConsolidationRun),
     );
   });
 
@@ -481,5 +482,175 @@ describeWithDb('group consolidation', () => {
     await expect(
       consolidation.runConsolidation(subsidiaryId, '2026-12-31', '2026-01-01'),
     ).rejects.toThrow();
+  });
+
+  // ── FINB-30/31/32 (audit 2026-11-07): eliminations that change the figures ──────────────────
+
+  const lineAmount = (lines: { code: string; amount: number }[], code: string) => lines.find((l) => l.code === code)?.amount ?? 0;
+
+  /**
+   * The parent paid 12.000 USD on 31 Jan for 80 % of a subsidiary whose net assets were 600.000 CLP
+   * (12.000 USD at 1/50). Parent's share 9.600 → goodwill 2.400 USD at the historical rate, i.e.
+   * 120.000 CLP, which is 2.000 USD at the closing rate of 1/60 (NIC 21.47).
+   */
+  it('eliminates the investment against the equity acquired and presents goodwill at the closing rate', async () => {
+    await tradeBothCompanies();
+    await post(parentId, parentJournal.id, '2026-01-31', 'Adquisición', [
+      { accountId: parentAccount['investment'], debit: 12_000 },
+      { accountId: parentAccount['cash'], credit: 12_000 },
+    ]);
+    await dataSource
+      .getRepository(OrganizationSubsidiary)
+      .update({ parentOrganizationId: parentId, subsidiaryOrganizationId: subsidiaryId }, { acquisitionCost: 12_000 });
+
+    const result = await run();
+
+    expect(result.balanceSheet.isBalanced).toBe(true);
+    // The investment is gone from the group's assets: it was the subsidiary itself.
+    expect(lineAmount(result.balanceSheet.assets, '1601')).toBe(0);
+    expect(result.balanceSheet.goodwill).toBeCloseTo(2_000, 2);
+    // The subsidiary's capital is not group capital.
+    const capital = result.balanceSheet.equity.find((l) => l.code === '3101');
+    expect(capital?.contributions.map((c) => c.organizationId)).toEqual([parentId]);
+    const elimination = result.eliminations.find((e) => e.kind === 'INVESTMENT_IN_SUBSIDIARY');
+    expect(elimination?.amount).toBe(12_000);
+    expect(elimination?.entries.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('a purchase below the share of net assets is a gain, not negative goodwill', async () => {
+    await tradeBothCompanies();
+    await post(parentId, parentJournal.id, '2026-01-31', 'Adquisición', [
+      { accountId: parentAccount['investment'], debit: 9_000 },
+      { accountId: parentAccount['cash'], credit: 9_000 },
+    ]);
+    await dataSource
+      .getRepository(OrganizationSubsidiary)
+      .update({ parentOrganizationId: parentId, subsidiaryOrganizationId: subsidiaryId }, { acquisitionCost: 9_000 });
+
+    const result = await run();
+    expect(result.balanceSheet.isBalanced).toBe(true);
+    expect(result.balanceSheet.goodwill).toBe(0);
+    // 9.600 − 9.000 = 600 in profit, since the acquisition falls in the period (NIIF 3.34).
+    expect(lineAmount(result.incomeStatement.revenue, 'CONS-BPG')).toBeCloseTo(600, 2);
+  });
+
+  it('eliminates intercompany funding: the receivable and the payable, not the cash', async () => {
+    await tradeBothCompanies();
+    const parentSettings = await dataSource.getRepository(OrganizationSettings).findOneByOrFail({ organizationId: parentId });
+    const subSettings = await dataSource.getRepository(OrganizationSettings).findOneByOrFail({ organizationId: subsidiaryId });
+    await dataSource.getRepository(OrganizationSettings).update({ id: parentSettings.id }, { defaultIntercompanyReceivableAccountId: parentAccount['receivable'] });
+    await dataSource.getRepository(OrganizationSettings).update({ id: subSettings.id }, { defaultIntercompanyPayableAccountId: subAccount['payable'] });
+    const lent = await post(parentId, parentJournal.id, '2026-12-31', 'Préstamo a la subsidiaria', [
+      { accountId: parentAccount['receivable'], debit: 1_000 },
+      { accountId: parentAccount['cash'], credit: 1_000 },
+    ]);
+    const borrowed = await post(subsidiaryId, subJournal.id, '2026-12-31', 'Préstamo de la matriz', [
+      { accountId: subAccount['cash'], debit: 60_000 },
+      { accountId: subAccount['payable'], credit: 60_000 },
+    ]);
+    await dataSource.query(
+      `INSERT INTO intercompany_transactions (from_organization_id, to_organization_id, amount, currency, description, transaction_date, status,
+                                              from_account_id, to_account_id, source_journal_entry_id, destination_journal_entry_id)
+       VALUES ($1, $2, 1000, 'USD', 'QA préstamo', '2026-12-31', 'COMPLETED', $3, $4, $5, $6)`,
+      [parentId, subsidiaryId, parentAccount['cash'], subAccount['cash'], (lent as { id: string }).id, (borrowed as { id: string }).id],
+    );
+
+    const before = await run();
+    expect(before.balanceSheet.isBalanced).toBe(true);
+    // Receivables: parent 4.000 + subsidiary 300.000/60 = 5.000; the 1.000 lent is gone.
+    expect(lineAmount(before.balanceSheet.assets, '1201')).toBeCloseTo(9_000, 2);
+    expect(lineAmount(before.balanceSheet.liabilities, '2101')).toBeCloseTo(0, 2);
+    // The cash moved inside the group and stays where it is.
+    expect(lineAmount(before.balanceSheet.assets, '1101')).toBeGreaterThan(0);
+    expect(before.warnings.some((w) => w.code === 'INTRAGROUP_MISMATCH')).toBe(false);
+  });
+
+  it('eliminates a sale from the parent to the subsidiary: revenue, cost and the open balances', async () => {
+    await tradeBothCompanies();
+    await dataSource.query(`UPDATE organizations SET tax_id = CASE id WHEN $1 THEN '101010101' WHEN $2 THEN '76.123.456-7' END WHERE id IN ($1, $2)`, [parentId, subsidiaryId]);
+    await dataSource.query(`UPDATE organization_settings SET default_accounts_receivable_id = $2, default_sales_revenue_id = $3 WHERE organization_id = $1`, [parentId, parentAccount['receivable'], parentAccount['revenue']]);
+    await dataSource.query(`UPDATE organization_settings SET default_accounts_payable_id = $2 WHERE organization_id = $1`, [subsidiaryId, subAccount['payable']]);
+
+    // Parent: a 500 USD sale, on credit, to a customer that is the subsidiary.
+    await post(parentId, parentJournal.id, '2026-12-31', 'Venta a la subsidiaria', [
+      { accountId: parentAccount['receivable'], debit: 500 },
+      { accountId: parentAccount['revenue'], credit: 500 },
+    ]);
+    const [{ id: customerId }] = await dataSource.query(`INSERT INTO customers ("companyName", "taxId", organization_id) VALUES ('QA Subsidiaria', '761234567', $1) RETURNING id`, [parentId]);
+    await dataSource.query(
+      `INSERT INTO invoices (organization_id, "invoiceNumber", "customerName", "issueDate", "dueDate", subtotal, tax, total, balance,
+                             total_in_base_currency, version, customer_id, status, exchange_rate)
+       VALUES ($1, 'QA-IG-1', 'QA Subsidiaria', '2026-12-31', '2027-01-30', 500, 0, 500, 500, 500, 1, $2, 'Pending', 1)`,
+      [parentId, customerId],
+    );
+    // Subsidiary: the same purchase, 30.000 CLP, on credit, from a supplier that is the parent.
+    await post(subsidiaryId, subJournal.id, '2026-12-31', 'Compra a la matriz', [
+      { accountId: subAccount['expense'], debit: 30_000 },
+      { accountId: subAccount['payable'], credit: 30_000 },
+    ]);
+    const [{ id: supplierId }] = await dataSource.query(`INSERT INTO suppliers (name, "taxId", organization_id) VALUES ('QA Matriz', '101-01010-1', $1) RETURNING id`, [subsidiaryId]);
+    await dataSource.query(
+      `INSERT INTO vendor_bills (organization_id, vendor_id, date, "dueDate", total, balance, status, currency_code, exchange_rate, total_in_base_currency,
+                                 version, services_amount, goods_amount, tax_amount, tax_withheld, income_tax_withheld, tax_to_cost, tax_proportional,
+                                 excise_amount, other_taxes, service_charge, fiscal_attributes, payment_method_code, withholding_regime_codes)
+       VALUES ($1, $2, '2026-12-31', '2027-01-30', 30000, 30000, 'OPEN', 'CLP', 1, 30000, 1, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, '{}'::jsonb, 'TRANSFER', '{}')`,
+      [subsidiaryId, supplierId],
+    );
+
+    const without = await consolidation.runConsolidation(parentId, '2026-12-31', '2026-01-01');
+    expect(without.balanceSheet.isBalanced).toBe(true);
+    const sale = without.eliminations.find((e) => e.kind === 'INTRAGROUP_TRANSACTION');
+    expect(sale?.amount).toBeCloseTo(500, 2);
+    // Receivables: 4.000 + 5.000 from trading; the 500 owed by the subsidiary is gone.
+    expect(lineAmount(without.balanceSheet.assets, '1201')).toBeCloseTo(9_000, 2);
+    // Payables: the 30.000 CLP (500 USD at closing) owed to the parent is gone.
+    expect(lineAmount(without.balanceSheet.liabilities, '2101')).toBeCloseTo(0, 2);
+    // Revenue and cost both lose the 500, so the group's result does not move.
+    expect(lineAmount(without.incomeStatement.revenue, '4101')).toBeCloseTo(4_000 + roundAmount(300_000 * without.entities[1].rates.average), 0);
+    expect(lineAmount(without.incomeStatement.expenses, 'CONS-ICS')).toBeCloseTo(-500, 2);
+  });
+
+  it('keeps every run, with its headline figures, and lists them newest first (FINB-34)', async () => {
+    await tradeBothCompanies();
+    const first = await consolidation.runAndRecord(parentId, '2026-06-30', '2026-01-01', ACTOR);
+    const second = await consolidation.runAndRecord(parentId, '2026-12-31', '2026-01-01', ACTOR);
+    const runs = await consolidation.listRuns(parentId);
+    expect(runs.map((r) => r.id)).toEqual([second.runId, first.runId]);
+    expect(runs[0]).toMatchObject({ asOfDate: '2026-12-31', isBalanced: true, createdByUserId: ACTOR });
+    const stored = await consolidation.getRun(parentId, first.runId);
+    expect((stored.result as { period: unknown }).period).toEqual({ startDate: '2026-01-01', endDate: '2026-06-30' });
+    await expect(consolidation.getRun(subsidiaryId, first.runId)).rejects.toMatchObject({ messageKey: 'consolidation.run_not_found' });
+  });
+});
+
+describe('splitSubsidiaryEquity (worked example)', () => {
+  const { splitSubsidiaryEquity } = require('./group-eliminations') as typeof import('./group-eliminations');
+  const base = {
+    parentShare: 0.8,
+    equityAtAcquisitionFunctional: 600_000,
+    equityFunctional: 780_000,
+    equityPresented: 13_000, // 780.000 / 60
+    historicalRate: 1 / 50,
+    closingRate: 1 / 60,
+    averageSinceAcquisitionRate: 1 / 55,
+  };
+
+  it('splits the equity into the parts that add back to it', () => {
+    const split = splitSubsidiaryEquity({ ...base, acquisitionCost: 12_000 });
+    expect(split.parentShareAtAcquisition).toBe(9_600);
+    expect(split.nonControlling).toBe(2_600);
+    expect(split.goodwill).toBe(2_000);
+    expect(split.goodwillTranslation).toBe(-400);
+    expect(split.investmentEliminated).toBe(12_000);
+    expect(roundAmount(split.parentShareAtAcquisition + split.parentPostAcquisition + split.parentTranslation + split.nonControlling)).toBe(13_000);
+  });
+
+  it('assets and equity move by the same amount', () => {
+    for (const acquisitionCost of [12_000, 9_000, null]) {
+      const s = splitSubsidiaryEquity({ ...base, acquisitionCost });
+      const assetChange = roundAmount(-s.investmentEliminated + s.goodwill);
+      const equityChange = roundAmount(-s.parentShareAtAcquisition + s.goodwillTranslation + s.bargainPurchaseGain + s.uneliminatedPreAcquisition);
+      expect(assetChange).toBe(equityChange);
+    }
   });
 });

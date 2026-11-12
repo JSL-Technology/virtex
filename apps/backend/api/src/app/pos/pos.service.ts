@@ -7,7 +7,9 @@ import { PosShift, PosShiftStatus } from './entities/pos-shift.entity';
 import { PosPayment, PosSale, PosSaleItem, PosSaleStatus } from './entities/pos-sale.entity';
 import { InventoryService } from '../inventory/inventory.service';
 import { PosPostingService } from './pos-posting.service';
-import { ComplianceService } from '../compliance/compliance.service';
+import { FiscalAdapterFactory } from '../invoices/adapters/fiscal-adapter.factory';
+import type { FiscalNumberAssignment } from '../invoices/interfaces/fiscal-adapter.interface';
+import { PriceResolver, pickBreak } from '../price-lists/price-resolver.service';
 import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 import {
   SellableCatalogueItem,
@@ -18,7 +20,7 @@ import {
 } from '../inventory/contracts/sellable-product.contract';
 import { organizationBaseCurrency } from '../organizations/contracts/base-currency.contract';
 import { organizationFiscalIdentity } from '../organizations/contracts/fiscal-identity.contract';
-import { findTaxScheme } from '../localization/contracts/country-profile.contract';
+import { marketFor } from '../markets';
 import { OpenShiftDto } from './dto/open-shift.dto';
 import { CloseShiftDto } from './dto/close-shift.dto';
 import { ProcessSaleDto } from './dto/process-sale.dto';
@@ -42,6 +44,17 @@ const TENDER_METHODS = ['cash', 'card', 'transfer', 'other'] as const;
 type TenderMethod = (typeof TENDER_METHODS)[number];
 
 /** What a till needs to know about the company it sells for, before the first sale. */
+/**
+ * A till's catalogue item, with the default price list folded in: the unit price of a line is
+ * the price of the largest `priceBreaks` minimum its quantity reaches, else `cataloguePrice` —
+ * exactly what `processSale` charges.
+ */
+export interface PosCatalogueItem extends SellableCatalogueItem {
+  cataloguePrice: number;
+  priceBreaks: Array<{ minQuantity: number; price: number }>;
+  priceListId: string | null;
+}
+
 export interface PosContext {
   /** Printed on the ticket's header. */
   organization: { legalName: string | null; taxId: string | null; country: string | null };
@@ -111,7 +124,10 @@ export class PosService {
     private readonly inventory: InventoryService,
     private readonly dataSource: DataSource,
     private readonly postingService: PosPostingService,
-    private readonly compliance: ComplianceService,
+    /** The market's numbering: the receipt a till hands consumers, where the market has one. */
+    private readonly numbering: FiscalAdapterFactory,
+    /** The organization's default price list for its currency (FAC-PL-01). */
+    private readonly prices: PriceResolver,
   ) {}
 
   getActiveShift(organizationId: string, terminalId: string): Promise<PosShift | null> {
@@ -237,13 +253,25 @@ export class PosService {
       let goodsRevenue = 0;
       let servicesRevenue = 0;
       let costOfSale = 0;
-      for (const item of dto.items) {
+      // A till sale has no customer account, so it is priced at the default list for the base
+      // currency, on the organization's date — the same lookup the catalogue made (FAC-PL-01).
+      const listPrices = await this.prices.resolve(
+        organizationId,
+        {
+          currencyCode: await organizationBaseCurrency(manager, organizationId),
+          date: await organizationToday(manager, organizationId),
+        },
+        dto.items.map((item) => ({ productId: item.productId, quantity: item.quantity })),
+        manager,
+      );
+      for (const [itemIndex, item] of dto.items.entries()) {
         const product = await findSellableProduct(manager, organizationId, item.productId);
         if (!product) {
           throw new BadRequestError('pos.product_not_available', { productId: item.productId });
         }
 
-        const price = roundAmount(product.price);
+        const listed = listPrices[itemIndex];
+        const price = roundAmount(listed?.unitPrice ?? product.price);
         if (Math.abs(price - item.price) > AMOUNT_TOLERANCE) {
           throw new ConflictError('pos.prices_changed', { productId: product.id });
         }
@@ -271,6 +299,7 @@ export class PosService {
           productId: product.id,
           productName: product.name,
           price,
+          priceListId: listed?.priceListId ?? null,
           quantity: item.quantity,
           taxRate,
           lineSubtotal,
@@ -316,12 +345,14 @@ export class PosService {
         costOfSale: roundAmount(costOfSale),
       });
 
-      // The comprobante fiscal of a consumer sale. In the Dominican Republic a till ticket is a
-      // factura de consumo (B02) drawn from the company's authorised range; without one in force
-      // the ticket is not a fiscal document, as before, and says so.
-      const fiscal = await this.drawConsumerReceipt(manager, organizationId);
-      sale.fiscalNumber = fiscal?.ncf ?? null;
-      sale.fiscalDocumentType = fiscal?.type ?? null;
+      // The authority's receipt for a consumer sale, in a market whose consumers receive one from
+      // the till, drawn from the company's authorised range; without one in force the ticket is not
+      // a fiscal document, and says so.
+      const fiscal = await this.drawTillReceipt(manager, organizationId);
+      sale.fiscalNumber = fiscal?.fiscalNumber ?? null;
+      sale.fiscalDocumentType = fiscal?.documentType ?? null;
+      sale.fiscalSequence = fiscal?.sequence ?? null;
+      sale.fiscalSeries = fiscal?.series ?? null;
 
       // Posted in this transaction, so a sale exists in the books exactly when it exists on the
       // shelf and in the drawer.
@@ -366,25 +397,38 @@ export class PosService {
   }
 
   /**
-   * A consumer receipt number (B02) for a Dominican company that has a traditional range in force;
-   * null for any other market or when no range is registered.
+   * The receipt the market's authority requires a till to hand a consumer (`MarketNumbering.
+   * tillReceiptType`), drawn from the company's range for it; null in a market without one, when no
+   * range is in force, or when the company has no tax identifier for the receipt to name (QA R3-A11).
    */
-  private async drawConsumerReceipt(
-    manager: EntityManager,
-    organizationId: string,
-  ): Promise<{ ncf: string; type: string } | null> {
+  private async drawTillReceipt(manager: EntityManager, organizationId: string): Promise<FiscalNumberAssignment | null> {
     const organization = await organizationFiscalIdentity(manager, organizationId);
-    if (organization?.country !== 'DO') return null;
-    // A comprobante names its issuer; without the company's RNC it would be invalid (QA R3-A11).
-    if (!organization.taxId?.trim()) return null;
-    if (!(await this.compliance.findActiveSequence(organizationId, 'B02'))) return null;
-    const assigned = await this.compliance.getNextNcf(organizationId, 'B02', manager);
-    return { ncf: assigned.ncf, type: assigned.type };
+    const adapter = this.numbering.forCountry(organization?.country ?? null);
+    if (!adapter.assignTillReceiptNumber || !organization?.taxId?.trim()) return null;
+    return adapter.assignTillReceiptNumber({ organizationId, today: await organizationToday(manager, organizationId), manager });
   }
 
   /** The till's catalogue, priced and taxed as the server will charge it. */
-  catalogue(organizationId: string): Promise<SellableCatalogueItem[]> {
-    return listSellableCatalogue(this.dataSource.manager, organizationId);
+  async catalogue(organizationId: string): Promise<PosCatalogueItem[]> {
+    const manager = this.dataSource.manager;
+    const [items, currencyCode, date] = await Promise.all([
+      listSellableCatalogue(manager, organizationId),
+      organizationBaseCurrency(manager, organizationId),
+      organizationToday(manager, organizationId),
+    ]);
+    const list = await this.prices.applicableList(organizationId, { currencyCode, date }, manager);
+    const breaks = list ? await this.prices.breaks(list.id, items.map((item) => item.id), manager) : new Map();
+    return items.map((item) => {
+      const own = breaks.get(item.id) ?? [];
+      return {
+        ...item,
+        // What one unit costs, as the grid shows it; the ticket recomputes per quantity.
+        price: roundAmount(pickBreak(own, 1)?.price ?? item.price),
+        cataloguePrice: item.price,
+        priceBreaks: own,
+        priceListId: own.length ? list!.id : null,
+      };
+    });
   }
 
   /** Currency, standard rate and the company's fiscal identity, for the till and its tickets. */
@@ -404,7 +448,7 @@ export class PosService {
       },
       currency,
       standardTaxRate,
-      taxRequiresConfiguration: country ? findTaxScheme(country)?.configurationRequired ?? true : true,
+      taxRequiresConfiguration: marketFor(country).taxes.scheme.configurationRequired,
     };
   }
 

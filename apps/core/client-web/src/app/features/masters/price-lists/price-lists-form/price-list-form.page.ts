@@ -113,6 +113,7 @@ export class PriceListFormPage implements OnInit {
       validFrom: [today, Validators.required],
       validTo: [today, Validators.required],
       status: [PriceListStatus.DRAFT, Validators.required],
+      isDefault: [false],
       items: this.fb.array([], [Validators.required, Validators.minLength(1)]),
     },
       {
@@ -137,7 +138,7 @@ export class PriceListFormPage implements OnInit {
         
         this.lines.clear();
         priceList.items.forEach((item: PriceListItem) => {
-            this.lines.push(this.createLine(item.productId, item.price));
+            this.lines.push(this.createLine(item.productId, Number(item.price), Number(item.minQuantity ?? 1)));
         });
 
         this.isLoading.set(false);
@@ -153,10 +154,12 @@ export class PriceListFormPage implements OnInit {
     return this.priceListForm.get('items') as FormArray;
   }
 
-  createLine(productId = '', price = 0): FormGroup {
+  createLine(productId = '', price = 0, minQuantity = 1): FormGroup {
     return this.fb.group({
       productId: [productId, Validators.required],
-      price: [price, [Validators.required, Validators.min(0.01)]],
+      // From quantity: the same product may appear several times, one price per break.
+      minQuantity: [minQuantity, [Validators.required, Validators.min(0.0001)]],
+      price: [price, [Validators.required, Validators.min(0)]],
     });
   }
 
@@ -188,6 +191,7 @@ export class PriceListFormPage implements OnInit {
           validTo: 'masters.price_lists_form.valid_until',
           items: 'masters.price_lists_form.price_list_items',
           productId: 'masters.price_lists_form.product',
+          minQuantity: 'masters.price_lists_form.min_quantity',
           price: 'masters.price_lists_form.price',
         }),
       );

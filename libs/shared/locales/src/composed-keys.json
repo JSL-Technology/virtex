@@ -1,4 +1,5 @@
 {
+  "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",
   "$note": "Key families whose LEAF is composed at runtime from a value the API returned, so no scan for string literals can find them. Two tools need the same list and must not keep separate copies: verify-catalogues.mjs treats them as USED (without this it reports them dead, and pruning would delete exactly the keys whose absence is hardest to see -- the badge that renders a stored English word because its translation is gone), and translation-coverage.spec asserts every value exists in every language.\n\nValues are written as the SOURCE spells them -- SCREAMING_SNAKE for a TypeORM enum, camelCase for a DTO field, kebab for a coverage level -- and normalised to the catalogue's spelling by normalizeKey, exactly as the runtime does. An empty array means the domain is open (any permission name, any DTO property), so the family is only registered as used and its completeness cannot be checked.",
   "families": {
     "accounting.account_nature": [
@@ -90,12 +91,12 @@
       "lines_vs_subtotal",
       "subtotal_tax_vs_total"
     ],
-    "accounts_payable.capture.ncf_error": [
+    "accounts_payable.capture.document_error": [
       "format",
       "unknown_type",
       "check_digit"
     ],
-    "accounts_payable.capture.ncf_warning": [
+    "accounts_payable.capture.document_warning": [
       "no_tax_credit",
       "credit_note_on_bill",
       "sales_only_type"
@@ -113,6 +114,7 @@
     "accounts_payable.status": [
       "DRAFT",
       "PENDING_APPROVAL",
+      "ON_HOLD",
       "OPEN",
       "PARTIALLY_PAID",
       "PAID",
@@ -139,17 +141,6 @@
       "available",
       "not_in_plan",
       "provider_missing"
-    ],
-    "ai.policy.feature": [
-      "anomaly_narrative",
-      "bill_capture",
-      "column_mapping",
-      "compose",
-      "copilot",
-      "deep_analysis",
-      "order_intake",
-      "product_vision",
-      "reconcile_ambiguous"
     ],
     "ai.admin.usage_feature": [
       "anomaly_narrative",
@@ -185,6 +176,11 @@
       "SCHEDULED",
       "MANUAL",
       "WORKFLOW"
+    ],
+    "ai.agents.verdict": [
+      "UP",
+      "DOWN",
+      "REPORT"
     ],
     "ai.anomalies.category_label": [
       "sales",
@@ -404,12 +400,31 @@
       "name",
       "image"
     ],
+    "ai.policy.feature": [
+      "anomaly_narrative",
+      "bill_capture",
+      "column_mapping",
+      "compose",
+      "copilot",
+      "deep_analysis",
+      "order_intake",
+      "product_vision",
+      "reconcile_ambiguous"
+    ],
     "ai.predictions.status_label": [
       "STOCKOUT_RISK",
       "REORDER",
       "OVERSTOCK",
       "DEAD_STOCK",
       "OK"
+    ],
+    "ai.provenance.source": [
+      "AI_COPILOT",
+      "AI_CAPTURE",
+      "AI_AGENT",
+      "AI_RECONCILIATION",
+      "AI_MAIL",
+      "AI_MCP"
     ],
     "approvals.document_type": [
       "VENDOR_BILL",
@@ -595,34 +610,21 @@
     "fiscal.br": [],
     "fiscal.cl": [],
     "fiscal.co": [],
-    "fiscal.do": [
-      "B01",
-      "B02",
-      "B03",
-      "B04",
-      "B11",
-      "B15",
-      "E31",
-      "E32",
-      "E33",
-      "E34",
-      "E41",
-      "E43",
-      "E44",
-      "E45",
-      "E46",
-      "E47"
-    ],
+    "fiscal.do": [],
     "fiscal.ec": [],
     "fiscal.mx": [],
     "fiscal.pe": [],
-    "fiscal_returns.kinds": [
-      "606",
-      "607",
-      "608",
-      "609",
-      "catalogo",
-      "balanza"
+    "fiscal_reasons.do.invoice_cancellation": [
+      "deteriorated_preprinted",
+      "printing_errors_preprinted",
+      "defective_printing",
+      "information_correction",
+      "product_change",
+      "product_return",
+      "product_omission",
+      "ncf_sequence_errors",
+      "business_closure",
+      "books_lost_or_stolen"
     ],
     "fiscal_returns.states": [
       "missing",
@@ -652,6 +654,47 @@
       "TERMINATED"
     ],
     "identity_document": [],
+    "inbound_mail.bill_reason": [
+      "unknown_supplier",
+      "not_a_bill",
+      "possible_duplicate",
+      "document_number",
+      "arithmetic",
+      "unmatched_lines",
+      "no_total",
+      "rejected_by_rules"
+    ],
+    "inbound_mail.inbox_title": [
+      "BILLS",
+      "ORDERS"
+    ],
+    "inbound_mail.order_reason": [
+      "unknown_customer",
+      "unmatched_items",
+      "no_items",
+      "rejected_by_rules"
+    ],
+    "inbound_mail.purpose": [
+      "BILLS",
+      "ORDERS"
+    ],
+    "inbound_mail.purpose_help": [
+      "BILLS",
+      "ORDERS"
+    ],
+    "inbound_mail.record": [
+      "vendor_bill",
+      "quote"
+    ],
+    "inbound_mail.status": [
+      "RECEIVED",
+      "PROCESSING",
+      "PROCESSED",
+      "NEEDS_REVIEW",
+      "REJECTED",
+      "FAILED",
+      "DISMISSED"
+    ],
     "inventory.common.status": [
       "DRAFT",
       "POSTED",
@@ -666,6 +709,37 @@
       "ADJUSTMENT",
       "TRANSFER_OUT",
       "TRANSFER_IN"
+    ],
+    "invoices.adjustment_reason": [
+      "ANNULMENT",
+      "GOODS_RETURN",
+      "PRICE_REDUCTION",
+      "DETAIL_CORRECTION",
+      "LATE_PAYMENT_INTEREST",
+      "ADDITIONAL_CHARGES",
+      "PRICE_INCREASE",
+      "PENALTY",
+      "OTHER"
+    ],
+    "invoices.detail.regime.hint": [
+      "PENDING",
+      "NOT_CONFIGURED",
+      "SENT",
+      "CONTINGENCY",
+      "ACCEPTED",
+      "ACCEPTED_WITH_OBSERVATIONS",
+      "REJECTED",
+      "ERROR"
+    ],
+    "invoices.detail.regime.status": [
+      "PENDING",
+      "NOT_CONFIGURED",
+      "SENT",
+      "CONTINGENCY",
+      "ACCEPTED",
+      "ACCEPTED_WITH_OBSERVATIONS",
+      "REJECTED",
+      "ERROR"
     ],
     "invoices.email.tone": [
       "cordial",
@@ -859,11 +933,26 @@
       "VOID",
       "CANCELLED"
     ],
+    "purchasing.agreements.status": [
+      "DRAFT",
+      "ACTIVE",
+      "CLOSED",
+      "CANCELLED"
+    ],
+    "purchasing.landed_costs.method": [
+      "VALUE",
+      "QUANTITY",
+      "WEIGHT",
+      "VOLUME"
+    ],
     "purchasing.orders.status_label": [
       "DRAFT",
       "PENDING_APPROVAL",
       "APPROVED",
+      "SENT",
+      "PARTIALLY_RECEIVED",
       "RECEIVED",
+      "CLOSED",
       "CANCELLED"
     ],
     "purchasing.receipts.status": [
@@ -876,6 +965,17 @@
       "APPROVED",
       "REJECTED",
       "CONVERTED_TO_PO"
+    ],
+    "purchasing.rfqs.quote_status": [
+      "RECEIVED",
+      "AWARDED",
+      "DECLINED"
+    ],
+    "purchasing.rfqs.status": [
+      "DRAFT",
+      "SENT",
+      "AWARDED",
+      "CANCELLED"
     ],
     "recurring_entries.frequency": [
       "DAILY",
@@ -925,7 +1025,7 @@
       "sales_invoice",
       "customer_payment",
       "pos_sale",
-      "ecf_submission",
+      "fiscal_submission",
       "purchase_requisition",
       "purchase_order",
       "goods_receipt",
@@ -978,6 +1078,16 @@
       "credit_note",
       "debit_note"
     ],
+    "returns.mx.option.tipo_envio": [
+      "n",
+      "c"
+    ],
+    "returns.mx.option.tipo_solicitud": [
+      "af",
+      "fc",
+      "de",
+      "co"
+    ],
     "saas.resources": [
       "invoices",
       "users",
@@ -1006,12 +1116,17 @@
       "electronicInvoicing",
       "periodicReturns",
       "electronicAccounting",
-      "withholding"
+      "withholding",
+      "payroll",
+      "debitNotes",
+      "documentCancellation"
     ],
     "settings.fiscal.level": [
       "implemented",
       "needs-credentials",
-      "not-implemented"
+      "needs-configuration",
+      "not-implemented",
+      "not-applicable"
     ],
     "settings.pages.withholding.capability": [
       "accounting",
@@ -1019,12 +1134,35 @@
       "electronicInvoicing",
       "periodicReturns",
       "electronicAccounting",
-      "withholding"
+      "withholding",
+      "payroll"
     ],
     "settings.pages.withholding.coverage": [
       "implemented",
       "needs-credentials",
-      "not-implemented"
+      "needs-configuration",
+      "not-implemented",
+      "not-applicable"
+    ],
+    "settings.permission_names": [
+      "ai_settings_manage",
+      "ai_usage_view",
+      "audit_view_trail",
+      "billing_manage",
+      "billing_view",
+      "branches_manage",
+      "branches_view",
+      "extensions_manage",
+      "extensions_view",
+      "roles_edit",
+      "roles_view",
+      "settings_edit_branding",
+      "settings_edit_company",
+      "taxes_edit",
+      "taxes_view",
+      "users_edit",
+      "users_view",
+      "workflows_manage"
     ],
     "settings.profile.job_titles": [
       "ceo",
@@ -1033,6 +1171,11 @@
       "admin",
       "employee",
       "other"
+    ],
+    "settings.scope": [
+      "personal",
+      "company",
+      "admin"
     ],
     "settings.sections.rate_type": [
       "OFFICIAL",
@@ -1080,7 +1223,7 @@
       "customers",
       "dgii_report",
       "document_sequences",
-      "ecf_submission",
+      "fiscal_submission",
       "employee_compensation",
       "employee_pii",
       "fiscal_years",
@@ -1597,88 +1740,8 @@
       "host_unresolvable",
       "private_address",
       "method_not_allowed"
-    ],
-    "ai.provenance.source": [
-      "AI_COPILOT",
-      "AI_CAPTURE",
-      "AI_AGENT",
-      "AI_RECONCILIATION",
-      "AI_MAIL",
-      "AI_MCP"
-    ],
-    "ai.agents.verdict": [
-      "UP",
-      "DOWN",
-      "REPORT"
-    ],
-    "inbound_mail.inbox_title": [
-      "BILLS",
-      "ORDERS"
-    ],
-    "inbound_mail.purpose": [
-      "BILLS",
-      "ORDERS"
-    ],
-    "inbound_mail.purpose_help": [
-      "BILLS",
-      "ORDERS"
-    ],
-    "inbound_mail.status": [
-      "RECEIVED",
-      "PROCESSING",
-      "PROCESSED",
-      "NEEDS_REVIEW",
-      "REJECTED",
-      "FAILED",
-      "DISMISSED"
-    ],
-    "inbound_mail.record": [
-      "vendor_bill",
-      "quote"
-    ],
-    "inbound_mail.bill_reason": [
-      "unknown_supplier",
-      "not_a_bill",
-      "possible_duplicate",
-      "document_number",
-      "arithmetic",
-      "unmatched_lines",
-      "no_total",
-      "rejected_by_rules"
-    ],
-    "inbound_mail.order_reason": [
-      "unknown_customer",
-      "unmatched_items",
-      "no_items",
-      "rejected_by_rules"
-    ],
-    "settings.scope": [
-      "personal",
-      "company",
-      "admin"
-    ],
-    "settings.permission_names": [
-      "ai_settings_manage",
-      "ai_usage_view",
-      "audit_view_trail",
-      "billing_manage",
-      "billing_view",
-      "branches_manage",
-      "branches_view",
-      "extensions_manage",
-      "extensions_view",
-      "roles_edit",
-      "roles_view",
-      "settings_edit_branding",
-      "settings_edit_company",
-      "taxes_edit",
-      "taxes_view",
-      "users_edit",
-      "users_view",
-      "workflows_manage"
     ]
   },
-  "$not_keys_note": "Dotted lower_snake strings that are NOT catalogue keys, even though they look exactly like one. `user.<column>` is a TypeORM sort expression and `invoice.<field>` is a property path in a report query; both share a prefix with a real namespace, so the composed-family check would otherwise ask for them to be declared. 'sales' is here for a third reason: it is a PERMISSION prefix in permissions.util.ts, where 'sales.*' matches 'sales.create'.",
   "not_keys": [
     "ard",
     "cube",

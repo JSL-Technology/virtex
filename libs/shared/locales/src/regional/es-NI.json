@@ -1,0 +1,9 @@
+{
+  "$locale": "es-NI",
+  "$note": "Nicaragua. Solo las claves cuya redacción difiere del español neutro de América Latina; todo lo demás cae a base/. El nombre de un impuesto no está aquí: lo declara el paquete del mercado (markets/ni/taxes.ts, principalTaxName) y llega a la pantalla y al PDF desde ahí, así que no puede discrepar. Vocabulario a confirmar con un hablante del país.",
+  "hcm.employees.form.proportional_bonus": "Treceavo mes proporcional",
+  "hcm.employees.form.social_security_number": "Número INSS",
+  "payroll.runs.type_label.christmas_bonus": "Treceavo mes",
+  "settings.sections_meta.einvoicing_regime.keywords": "facturación electrónica dgi certificado",
+  "settings.sections_meta.profile.keywords": "empresa ruc razón social dirección"
+}

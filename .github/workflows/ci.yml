@@ -116,7 +116,7 @@ jobs:
 
       # The e-CF vault refuses to start without it, and the invoicing verifier exercises the
       # certificate round-trip.
-      ECF_CERT_ENCRYPTION_KEY: ci-ecf-cert-key-ci-ecf-cert-key
+      SIGNING_CERT_ENCRYPTION_KEY: ci-ecf-cert-key-ci-ecf-cert-key
 
     steps:
       # Pinned by commit: a tag can be moved to other code, a SHA cannot. Dependabot keeps these
@@ -140,6 +140,9 @@ jobs:
       - run: npm run verify:package-families
 
       - run: npm ci
+      # The desktop shell's installer runtime has its own manifest and lockfile (apps/desktop), so
+      # nothing from the monorepo can be packaged into it. Its tests need that tree installed.
+      - run: npm ci --prefix apps/desktop --ignore-scripts
 
       # The schema every step below reads has to exist.
       #
@@ -264,6 +267,13 @@ jobs:
       #                       Eran «los únicos dos» según un comentario, y había un tercero.
       #   session-revocation  todo validador de token de sesión consulta la lista de revocación.
       #                       El WebSocket tenía copia propia y era la copia la que divergía.
+      # The desktop shell's supply chain: Electron at or above the security baseline and inside the
+      # supported majors, no advisory in what the installer ships, and only time-boxed, documented
+      # acceptances in its build tooling (apps/desktop/security-baseline.json).
+      - name: npm run verify:desktop-supply-chain
+        if: ${{ !cancelled() }}
+        run: npm run verify:desktop-supply-chain
+
       - name: npm run verify:security
         if: ${{ !cancelled() }}
         run: npm run verify:security
@@ -333,6 +343,15 @@ jobs:
       - name: npm run verify:boundaries
         if: ${{ !cancelled() }}
         run: npm run verify:boundaries
+
+      # The product is sold across Latin America and the United States and must be native in each
+      # market. Country-specific vocabulary and `country === 'XX'` branches outside the regime
+      # adapters and the country data are how the next market gets another country's product:
+      # this ratchet freezes today's count and fails if it rises. Lowering it is free:
+      # `npm run verify:country-neutrality -- --update`.
+      - name: npm run verify:country-neutrality
+        if: ${{ !cancelled() }}
+        run: npm run verify:country-neutrality
 
       # Proves that a tenant's fiscal identity survives storage, and that two distinct taxpayers
       # no longer collide on the unique index over (tax_id, fiscal_region_id). The failure this

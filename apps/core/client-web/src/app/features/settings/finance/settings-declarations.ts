@@ -299,6 +299,24 @@ export const SECTION_DECLARATIONS: readonly SectionDeclaration[] = [
         ]
       }
     ],
-    policies: [],
+    // How strict purchasing is with what the supplier sends and bills (CMP-01, CMP-15).
+    policies: [
+      {
+        field: 'poReceiptOverToleranceBps',
+        labelKey: 'settings.sections.fields.po_receipt_over_tolerance',
+        helpKey: 'settings.sections.fields.po_receipt_over_tolerance_help',
+        kind: 'basis-points',
+        min: 0,
+        max: 5000
+      },
+      {
+        field: 'apMatchPriceToleranceBps',
+        labelKey: 'settings.sections.fields.ap_match_price_tolerance',
+        helpKey: 'settings.sections.fields.ap_match_price_tolerance_help',
+        kind: 'basis-points',
+        min: 0,
+        max: 5000
+      }
+    ],
   },
 ];

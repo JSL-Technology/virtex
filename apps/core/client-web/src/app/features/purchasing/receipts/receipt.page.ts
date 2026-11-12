@@ -134,6 +134,46 @@ export class GoodsReceiptPage implements OnInit {
     });
   }
 
+  /** Send part of one line back to the supplier (CMP-15): how many, and why. */
+  async returnLine(lineId: string, description: string, available: number): Promise<void> {
+    const receipt = this.receipt();
+    if (!receipt) return;
+    const quantityText = await this.dialog.prompt({
+      title: 'purchasing.receipts.return_title',
+      message: 'purchasing.receipts.return_quantity_message',
+      messageParams: { description, available },
+      placeholder: 'purchasing.receipts.return_quantity',
+      minLength: 1,
+      tooShort: 'purchasing.receipts.return_quantity_invalid',
+    });
+    const quantity = Number(String(quantityText ?? '').replace(',', '.'));
+    if (!quantityText) return;
+    if (!Number.isFinite(quantity) || quantity <= 0 || quantity > available) {
+      this.notifications.showError('purchasing.receipts.return_quantity_invalid');
+      return;
+    }
+    const reason = await this.dialog.prompt({
+      title: 'purchasing.receipts.return_title',
+      message: 'purchasing.receipts.return_reason_message',
+      placeholder: 'purchasing.receipts.void_reason',
+      minLength: 3,
+      tooShort: 'purchasing.receipts.void_reason_too_short',
+    });
+    if (!reason) return;
+    this.busy.set(true);
+    this.purchasing.returnGoods(receipt.id, [{ lineId, quantity }], reason.trim()).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.notifications.showSuccess('purchasing.receipts.return_done');
+        this.purchasing.receipt(receipt.id).subscribe((fresh) => this.receipt.set(fresh));
+      },
+      error: (error: unknown) => {
+        this.busy.set(false);
+        this.notifications.showHttpError(error, 'purchasing.receipts.return_failed');
+      },
+    });
+  }
+
   goToList(): void {
     void this.router.navigateByUrl(this.organization.urlFor('/purchasing/receipts'));
   }

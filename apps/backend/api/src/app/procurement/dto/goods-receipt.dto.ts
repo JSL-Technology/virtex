@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsDateString, IsIn, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsDateString, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
 import { GoodsReceiptStatus } from '../entities/purchase-order-receipt.entity';
 import { ReceivePurchaseOrderDto } from './purchase-order.dto';
 
@@ -65,4 +65,33 @@ export class VoidGoodsReceiptDto {
   @IsDateString()
   @IsOptional()
   reversalDate?: string;
+}
+
+/** One line of a return to the supplier (CMP-15). */
+export class ReturnLineDto {
+  @IsUUID()
+  lineId: string;
+
+  @IsNumber({ maxDecimalPlaces: 6 })
+  @Min(0.000001)
+  quantity: number;
+}
+
+/** Send part of a receipt back to the supplier (CMP-15). */
+export class ReturnGoodsDto {
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => ReturnLineDto)
+  lines: ReturnLineDto[];
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3, { message: 'validation.constraints.min_length|{"min":3}' })
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
+  reason: string;
+
+  @IsDateString()
+  @IsOptional()
+  date?: string;
 }

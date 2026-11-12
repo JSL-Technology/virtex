@@ -13,7 +13,9 @@ import {
   IsString,
   IsUUID,
   Length,
+  IsObject,
   MaxLength,
+  Max,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -59,6 +61,16 @@ class CreateVendorBillLineDto {
   @IsIn(Object.values(VendorBillLineNature))
   @IsOptional()
   nature?: VendorBillLineNature;
+
+  /**
+   * The consumption-tax rate of the line, as a fraction (0.18). It must be a rate in force on the
+   * bill's date; the bill's tax is computed from it (audit 2026-11-07, CMP-02).
+   */
+  @IsNumber({ maxDecimalPlaces: 6 })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @Max(1, { message: 'validation.constraints.max|{"max":1}' })
+  @IsOptional()
+  taxRate?: number;
 }
 
 export class CreateVendorBillDto {
@@ -89,8 +101,10 @@ export class CreateVendorBillDto {
   @IsDateString()
   date: string;
 
+  /** Omitted: the bill date plus the supplier's payment terms (CMP-17). */
   @IsDateString()
-  dueDate: string;
+  @IsOptional()
+  dueDate?: string;
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -112,13 +126,18 @@ export class CreateVendorBillDto {
   @Length(3, 3, { message: 'validation.constraints.length|{"min":3,"max":3}' })
   currencyCode?: string;
 
+  /**
+   * The number the authority assigned to the supplier's document, checked by the market's own rule
+   * (`MarketPurchases.receivedDocument`). It was `ncf`, the DGII's name for it, everywhere.
+   */
   @IsString()
   @IsOptional()
-  ncf?: string;
+  supplierFiscalNumber?: string;
 
+  /** The number of the supplier's document this one modifies, on a note they issued. */
   @IsString()
   @IsOptional()
-  ncfModified?: string;
+  modifiedSupplierFiscalNumber?: string;
 
   /** The number on the supplier's own document; one live bill per supplier and number. */
   @IsString()
@@ -172,6 +191,15 @@ export class CreateVendorBillDto {
   @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
   withholdingOverrideReason?: string;
 
+  /**
+   * Why the bill's tax differs from what its lines' rates produce (beyond rounding) — a supplier
+   * error being claimed, an exempt item the line does not show. Recorded on the bill (CMP-02).
+   */
+  @IsString()
+  @IsOptional()
+  @MaxLength(500, { message: 'validation.constraints.max_length|{"max":500}' })
+  taxOverrideReason?: string;
+
   /** Consumption tax that cannot be deducted and is carried to cost. */
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0, { message: 'validation.constraints.min|{"min":0}' })
@@ -216,17 +244,17 @@ export class CreateVendorBillDto {
   @IsOptional()
   servicesAmount?: number;
 
-  /** DGII 606 "Tipo de Bienes y Servicios Comprados". */
-  @IsString()
+  /**
+   * What this market's authority asks about the purchase, by the keys the market declares
+   * (`MarketPurchases.fiscalAttributes`). Checked against that schema in the service: a key the
+   * market does not ask for is refused, so nothing arbitrary reaches the column.
+   *
+   * Three fields here took DGII codes — the 606's kind of goods and services, its kind of
+   * income-tax withholding and its «forma de pago» — from a tenant of any market.
+   */
+  @IsObject()
   @IsOptional()
-  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
-  purchaseCategory?: string;
-
-  /** DGII 606 "Tipo de Retención en ISR". */
-  @IsString()
-  @IsOptional()
-  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
-  isrRetentionType?: string;
+  fiscalAttributes?: Record<string, unknown>;
 
   /**
    * The supplier's documents uploaded while the bill was entered (`POST /accounts-payable/capture`
@@ -238,9 +266,9 @@ export class CreateVendorBillDto {
   @IsOptional()
   attachmentIds?: string[];
 
-  /** DGII "Forma de Pago". */
+  /** Which of the company's payment methods settled it (`payment_methods.code`). */
   @IsString()
   @IsOptional()
-  @Length(2, 2, { message: 'validation.constraints.length|{"min":2,"max":2}' })
-  paymentForm?: string;
+  @MaxLength(20, { message: 'validation.constraints.max_length|{"max":20}' })
+  paymentMethodCode?: string;
 }

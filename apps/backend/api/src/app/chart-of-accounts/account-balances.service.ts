@@ -420,6 +420,39 @@ export class AccountBalancesService {
   }
 
   /**
+   * Open foreign-currency positions as at a date, per (account, currency).
+   *
+   * For every line that states its own currency: the balance in that currency (`foreign debit −
+   * foreign credit`) and what the ledger carries it at (`debit − credit`). A revaluation entry is
+   * tagged with the currency and no foreign amount, so it moves the carrying amount alone and the
+   * next revaluation restates only what has changed since.
+   *
+   * By (account, currency) rather than by account: a receivable holds peso and dollar invoices at
+   * once, and adding their document amounts together is a number in no currency at all.
+   */
+  async foreignPositionsAsOf(
+    scope: BalanceScope & { asOf: Date | string },
+    manager?: EntityManager,
+  ): Promise<Array<{ accountId: string; currencyCode: string; documentBalance: number; carryingAmount: number }>> {
+    const rows = await this.baseQuery(this.manager(manager), scope)
+      .andWhere('entry.date <= :asOf', { asOf: toIsoDate(scope.asOf) })
+      .andWhere('line.currencyCode IS NOT NULL')
+      .select('line.accountId', 'accountId')
+      .addSelect('UPPER(line.currencyCode)', 'currencyCode')
+      .addSelect('COALESCE(SUM(COALESCE(line.foreignCurrencyDebit, 0) - COALESCE(line.foreignCurrencyCredit, 0)), 0)', 'documentBalance')
+      .addSelect('COALESCE(SUM(valuation.debit - valuation.credit), 0)', 'carryingAmount')
+      .groupBy('line.accountId')
+      .addGroupBy('UPPER(line.currencyCode)')
+      .getRawMany<{ accountId: string; currencyCode: string; documentBalance: string; carryingAmount: string }>();
+    return rows.map((row) => ({
+      accountId: row.accountId,
+      currencyCode: row.currencyCode,
+      documentBalance: Number(row.documentBalance),
+      carryingAmount: Number(row.carryingAmount),
+    }));
+  }
+
+  /**
    * Net income over an interval, signed as `revenue − expenses`.
    *
    * Positive is a profit. This is the figure a closing entry moves to retained earnings and the

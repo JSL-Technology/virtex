@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Post,
-  Patch,
   Delete,
   Body,
   Param,
@@ -11,16 +10,10 @@ import {
   ParseIntPipe,
   Res,
 } from '@nestjs/common';
-import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
-import { ComplianceService } from './compliance.service';
-import { ProvisionNcfSequenceDto } from './dto/provision-ncf-sequence.dto';
-import { MexicanAccountingQueryDto } from './dto/mexican-accounting-query.dto';
+import { GenerateReturnQueryDto, returnOptionsOf } from './dto/return-query.dto';
 import { FiscalReportFilingsQueryDto, MarkFiscalReportSubmittedDto } from './dto/fiscal-report-filing.dto';
-import {
-  FilingPeriod,
-  FiscalReportFilingsService,
-  isTrackedFiscalReport,
-} from './fiscal-report-filings.service';
+import { FilingPeriod, FiscalReportFilingsService } from './fiscal-report-filings.service';
+import { ReturnsService } from './returns/returns.service';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
@@ -31,124 +24,69 @@ import { AuditAccessInterceptor } from '../audit/audit-access.interceptor';
 import { AuditAccess } from '../audit/audit-access.decorator';
 import { ActionType } from '../audit/entities/audit-log.entity';
 
-type ReportKind = '606' | '607' | '608' | '609';
-
 /**
- * Dominican Republic fiscal compliance: NCF/e-NCF range provisioning and the DGII periodic returns.
+ * The periodic fiscal returns a market's authority receives. The ranges a document is numbered from
+ * are every market's, in `einvoicing/regime/ranges`.
  */
 @Controller('compliance')
 @UseInterceptors(AuditAccessInterceptor)
 export class ComplianceController {
   constructor(
-    private readonly complianceService: ComplianceService,
+    private readonly returns: ReturnsService,
     private readonly filings: FiscalReportFilingsService,
   ) {}
 
-  @Post('ncf-sequences')
-  @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
-  provisionSequence(
-    @Body() dto: ProvisionNcfSequenceDto,
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
-    if (dto.endsAt < dto.startsAt) {
-      throw new BadRequestError('compliance.ending_number_cannot_lower_than_starting');
-    }
-    return this.complianceService.provisionNcfSequence(user.organizationId, dto);
-  }
-
-  @Get('ncf-sequences')
-  @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
-  listSequences(@CurrentUser() user: AuthenticatedUser) {
-    return this.complianceService.listNcfSequences(user.organizationId);
-  }
-
-  /** Activate or retire a registered range without deleting its history. */
-  @Patch('ncf-sequences/:id')
-  @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
-  setSequenceActive(
-    @Param('id', UuidParamPipe) id: string,
-    @Body('isActive') isActive: boolean,
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
-    return this.complianceService.setSequenceActive(user.organizationId, id, Boolean(isActive));
+  /**
+   * What this company's market files, and what each filing asks for.
+   *
+   * The screen that offers the returns reads this: it used to carry one list of Dominican formats
+   * and another of Mexican documents, so a market the product gained filed nothing until the
+   * client was edited too (docs/ARQUITECTURA_MERCADOS.md, fase 5).
+   */
+  @Get('returns')
+  @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  availableReturns(@CurrentUser() user: AuthenticatedUser) {
+    return this.returns.available(user.organizationId);
   }
 
   /**
-   * The four DGII "formatos de envío", on one route.
+   * One return of one period, as its authority receives it.
    *
-   * Only the 607 and 606 were reachable before, and the 608 (voided comprobantes) did not exist at
-   * all — leaving a taxpayer unable to declare an annulled fiscal number.
+   * One route for every market: which filings exist, what they are called, what they carry and
+   * what they refuse is the market's (`markets/<cc>/returns.ts`). A code this market does not file
+   * answers 404 rather than an empty file.
    */
-  @Get('reports/:kind')
+  @Get('returns/:code')
   @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
   // A fiscal return is a file that leaves the product carrying every sale or purchase of a month,
   // with counterparties and tax ids. Who took a copy, and of which period, is a question a tenant
   // under audit will be asked and could not previously answer.
-  @AuditAccess({ entity: 'dgii_report', action: ActionType.EXPORT, identifiers: ['kind', 'year', 'month'] })
-  async downloadReport(
-    @Param('kind') kind: string,
-    @Query('year', ParseIntPipe) year: number,
-    @Query('month', ParseIntPipe) month: number,
+  @AuditAccess({ entity: 'fiscal_return', action: ActionType.EXPORT, identifiers: ['code', 'year', 'month'] })
+  async downloadReturn(
+    @Param('code') code: string,
+    @Query() query: GenerateReturnQueryDto,
     @CurrentUser() user: AuthenticatedUser,
     @Res() res: Response,
   ) {
-    const report = this.assertKind(kind);
-    this.assertPeriod(year, month);
-
-    const body = await this.generate(report, user.organizationId, year, month);
-    await this.filings.recordGeneration(
-      { organizationId: user.organizationId, kind: report, year, month },
-      body,
-      user.id,
+    const generated = await this.returns.generate(
+      user.organizationId,
+      code,
+      { year: query.year, month: query.month, ledgerId: query.ledgerId },
+      returnOptionsOf(query),
+      user.permissions ?? [],
     );
-    const fileName = `DGII_${report}_${year}${String(month).padStart(2, '0')}.txt`;
-    res
-      .header('Content-Type', 'text/plain; charset=utf-8')
-      .header('Content-Disposition', `attachment; filename="${fileName}"`)
-      .send(body);
-  }
-
-  /**
-   * Mexico's electronic accounting: `catalogo`, `balanza` or `polizas`, as XML.
-   *
-   * A separate route from the Dominican `reports/:kind` because these are XML documents with their
-   * own parameters — a complementary Balanza carries the date it corrects, a Pólizas file carries
-   * the audit or refund number it answers — and folding four query strings into one route to
-   * share a path segment would make both harder to read.
-   *
-   * The files are unsigned: sealing them with the taxpayer's FIEL and filing them through the
-   * Buzón Tributario is the accountant's step. Saying so here is better than a file this product
-   * claimed to have sealed and had not.
-   */
-  @Get('mx/electronic-accounting/:document')
-  @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
-  @AuditAccess({
-    entity: 'mx_electronic_accounting',
-    action: ActionType.EXPORT,
-    identifiers: ['document', 'year', 'month'],
-  })
-  async downloadMexicanAccounting(
-    @Param('document') document: string,
-    @Query() query: MexicanAccountingQueryDto,
-    @CurrentUser() user: AuthenticatedUser,
-    @Res() res: Response,
-  ) {
-    const period = {
-      organizationId: user.organizationId,
-      year: query.year,
-      month: query.month,
-    };
-    this.assertPeriod(query.year, query.month);
-
-    const xml = await this.generateMexican(document, period, query);
-    if (isTrackedFiscalReport(document)) {
-      await this.filings.recordGeneration({ ...period, kind: document }, xml, user.id);
+    if (generated.tracked) {
+      await this.filings.recordGeneration(
+        { organizationId: user.organizationId, kind: generated.code, year: query.year, month: query.month },
+        generated.body,
+        generated.records,
+        user.id,
+      );
     }
-    const stamp = `${query.year}${String(query.month).padStart(2, '0')}`;
     res
-      .header('Content-Type', 'application/xml; charset=utf-8')
-      .header('Content-Disposition', `attachment; filename="SAT_${document}_${stamp}.xml"`)
-      .send(xml);
+      .header('Content-Type', generated.mediaType)
+      .header('Content-Disposition', `attachment; filename="${generated.fileName}"`)
+      .send(generated.body);
   }
 
   // ── Filing calendar ────────────────────────────────────────────────────────
@@ -182,12 +120,9 @@ export class ComplianceController {
     @Param('month', ParseIntPipe) month: number,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    const period = this.filingPeriod(kind, year, month, user);
-    const body =
-      period.kind === 'catalogo' || period.kind === 'balanza'
-        ? await this.generateMexican(period.kind, period, { year, month })
-        : await this.generate(period.kind, user.organizationId, year, month);
-    return this.filings.recordGeneration(period, body, user.id);
+    const period = await this.filingPeriod(kind, year, month, user);
+    const generated = await this.returns.generate(user.organizationId, kind, { year, month }, {}, user.permissions ?? []);
+    return this.filings.recordGeneration(period, generated.body, generated.records, user.id);
   }
 
   /**
@@ -199,84 +134,45 @@ export class ComplianceController {
    */
   @Post('filings/:kind/:year/:month/submission')
   @HasPermission(PERMISSIONS.ACCOUNTING_CLOSE_PERIOD)
-  markSubmitted(
+  async markSubmitted(
     @Param('kind') kind: string,
     @Param('year', ParseIntPipe) year: number,
     @Param('month', ParseIntPipe) month: number,
     @Body() dto: MarkFiscalReportSubmittedDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.filings.markSubmitted(this.filingPeriod(kind, year, month, user), dto.reference, user.id);
+    return this.filings.markSubmitted(await this.filingPeriod(kind, year, month, user), dto.reference, user.id);
   }
 
   /** Undo a filing declared by mistake. */
   @Delete('filings/:kind/:year/:month/submission')
   @HasPermission(PERMISSIONS.ACCOUNTING_CLOSE_PERIOD)
-  clearSubmission(
+  async clearSubmission(
     @Param('kind') kind: string,
     @Param('year', ParseIntPipe) year: number,
     @Param('month', ParseIntPipe) month: number,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.filings.clearSubmission(this.filingPeriod(kind, year, month, user));
+    return this.filings.clearSubmission(await this.filingPeriod(kind, year, month, user));
   }
 
-  private filingPeriod(kind: string, year: number, month: number, user: AuthenticatedUser): FilingPeriod {
-    if (!isTrackedFiscalReport(kind)) {
-      throw new BadRequestError('compliance.fiscal_report_kind_not_tracked', { kind });
-    }
-    this.assertPeriod(year, month);
-    return { organizationId: user.organizationId, kind, year, month };
-  }
-
-  private generateMexican(
-    document: string,
-    period: { organizationId: string; year: number; month: number },
-    query: MexicanAccountingQueryDto,
-  ): Promise<string> {
-    switch (document) {
-      case 'catalogo':
-        return this.complianceService.generateMexicanCatalogo(period);
-      case 'balanza':
-        return this.complianceService.generateMexicanBalanza(period, {
-          tipoEnvio: query.tipoEnvio,
-          fechaModBal: query.fechaModBal,
-        });
-      case 'polizas':
-        return this.complianceService.generateMexicanPolizas(period, {
-          tipoSolicitud: query.tipoSolicitud,
-          numOrden: query.numOrden,
-          numTramite: query.numTramite,
-        });
-      default:
-        throw new BadRequestError('compliance.document_not_electronic_accounting_document_available', {
-          document,
-          available: 'catalogo, balanza, polizas',
-        });
-    }
-  }
-
-  private generate(
-    kind: ReportKind,
-    organizationId: string,
+  /**
+   * The period of a tracked filing.
+   *
+   * What is tracked is the market's answer, not a list in this module: a filing its authority asks
+   * for on demand has no monthly deadline to show «not filed» against.
+   */
+  private async filingPeriod(
+    kind: string,
     year: number,
     month: number,
-  ): Promise<string> {
-    switch (kind) {
-      case '607':
-        return this.complianceService.generate607Report(organizationId, year, month);
-      case '606':
-        return this.complianceService.generate606Report(organizationId, year, month);
-      case '608':
-        return this.complianceService.generate608Report(organizationId, year, month);
-      case '609':
-        return this.complianceService.generate609Report(organizationId, year, month);
+    user: AuthenticatedUser,
+  ): Promise<FilingPeriod> {
+    this.assertPeriod(year, month);
+    if (!(await this.returns.isTracked(user.organizationId, kind))) {
+      throw new BadRequestError('compliance.fiscal_report_kind_not_tracked', { kind });
     }
-  }
-
-  private assertKind(kind: string): ReportKind {
-    if (kind === '606' || kind === '607' || kind === '608' || kind === '609') return kind;
-    throw new BadRequestError('compliance.format_kind_not_recognised_available_formats', { kind });
+    return { organizationId: user.organizationId, kind, year, month };
   }
 
   private assertPeriod(year: number, month: number): void {

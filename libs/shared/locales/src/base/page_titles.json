@@ -69,6 +69,11 @@
     "en": "Approvals",
     "pt": "Aprovações"
   },
+  "page_titles.audit_adjustment": {
+    "es": "Ajuste de auditoría",
+    "en": "Audit adjustment",
+    "pt": "Ajuste de auditoria"
+  },
   "page_titles.audit_adjustment_new": {
     "es": "Nuevo ajuste de auditoría",
     "en": "New audit adjustment",
@@ -379,6 +384,11 @@
     "en": "Journals",
     "pt": "Diários"
   },
+  "page_titles.landed_costs": {
+    "es": "Costos de importación",
+    "en": "Landed costs",
+    "pt": "Custos de importação"
+  },
   "page_titles.ledger_edit": {
     "es": "Editar libro contable",
     "en": "Edit ledger",
@@ -494,6 +504,11 @@
     "en": "Profitability by product",
     "pt": "Rentabilidade por produto"
   },
+  "page_titles.purchase_agreements": {
+    "es": "Acuerdos de compra",
+    "en": "Purchase agreements",
+    "pt": "Acordos de compra"
+  },
   "page_titles.purchase_order_edit": {
     "es": "Orden de compra",
     "en": "Purchase order",
@@ -523,6 +538,11 @@
     "es": "Requisiciones de compra",
     "en": "Purchase requisitions",
     "pt": "Requisições de compra"
+  },
+  "page_titles.purchase_rfqs": {
+    "es": "Solicitudes de cotización",
+    "en": "Requests for quotation",
+    "pt": "Pedidos de cotação"
   },
   "page_titles.quote": {
     "es": "Cotización",
@@ -693,10 +713,5 @@
     "es": "Almacenes",
     "en": "Warehouses",
     "pt": "Depósitos"
-  },
-  "page_titles.audit_adjustment": {
-    "es": "Ajuste de auditoría",
-    "en": "Audit adjustment",
-    "pt": "Ajuste de auditoria"
   }
 }

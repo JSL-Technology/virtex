@@ -104,6 +104,16 @@
     "en": "The {{label}} is required for {{name}}.",
     "pt": "O {{label}} é obrigatório para {{name}}."
   },
+  "organizations.logo_file_required": {
+    "es": "Elige el archivo del logo.",
+    "en": "Choose the logo file.",
+    "pt": "Escolha o arquivo do logotipo."
+  },
+  "organizations.logo_type_not_allowed": {
+    "es": "El logo debe ser una imagen PNG, JPEG o WebP.",
+    "en": "The logo must be a PNG, JPEG or WebP image.",
+    "pt": "O logotipo deve ser uma imagem PNG, JPEG ou WebP."
+  },
   "organizations.mail_settings.no_email": {
     "es": "Tu usuario no tiene correo electrónico al que enviar la prueba.",
     "en": "Your user has no e-mail address to send the test to.",
@@ -174,10 +184,25 @@
     "en": "That settings section does not exist.",
     "pt": "Essa seção da configuração não existe."
   },
+  "organizations.subsidiary_already_linked": {
+    "es": "Esa empresa ya es subsidiaria de esta.",
+    "en": "That company is already a subsidiary of this one.",
+    "pt": "Essa empresa já é subsidiária desta."
+  },
+  "organizations.subsidiary_cannot_be_itself": {
+    "es": "Una empresa no puede ser subsidiaria de sí misma.",
+    "en": "A company cannot be its own subsidiary.",
+    "pt": "Uma empresa não pode ser subsidiária de si mesma."
+  },
   "organizations.subsidiary_control_ends_before_acquisition": {
     "es": "El fin del control no puede ser anterior a la adquisición.",
     "en": "Control cannot end before the acquisition.",
     "pt": "O fim do controle não pode ser anterior à aquisição."
+  },
+  "organizations.subsidiary_controlled_by_another_parent": {
+    "es": "Esa empresa está controlada por otra matriz. Registra primero el fin de ese control.",
+    "en": "That company is controlled by another parent. Record the end of that control first.",
+    "pt": "Essa empresa é controlada por outra matriz. Registe primeiro o fim desse controlo."
   },
   "organizations.subsidiary_country_code": {
     "es": "Indica el país de la subsidiaria con su código ISO de dos letras (por ejemplo, DO).",
@@ -199,6 +224,11 @@
     "en": "That company is not a subsidiary of yours.",
     "pt": "Essa empresa não é subsidiária da sua."
   },
+  "organizations.subsidiary_would_create_cycle": {
+    "es": "Esa empresa ya está por encima de esta en el grupo: vincularla crearía un ciclo.",
+    "en": "That company is already above this one in the group: linking it would create a cycle.",
+    "pt": "Essa empresa já está acima desta no grupo: vinculá-la criaria um ciclo."
+  },
   "organizations.tax_configuration_country_not_available_right": {
     "es": "La configuración fiscal de ese país no está disponible en este momento.",
     "en": "The tax configuration for that country is not available right now.",
@@ -208,15 +238,5 @@
     "es": "No tienes acceso a esa organización.",
     "en": "You do not have access to that organization.",
     "pt": "Você não tem acesso a essa organização."
-  },
-  "organizations.logo_type_not_allowed": {
-    "es": "El logo debe ser una imagen PNG, JPEG o WebP.",
-    "en": "The logo must be a PNG, JPEG or WebP image.",
-    "pt": "O logotipo deve ser uma imagem PNG, JPEG ou WebP."
-  },
-  "organizations.logo_file_required": {
-    "es": "Elige el archivo del logo.",
-    "en": "Choose the logo file.",
-    "pt": "Escolha o arquivo do logotipo."
   }
 }

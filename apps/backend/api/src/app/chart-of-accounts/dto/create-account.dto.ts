@@ -1,5 +1,6 @@
 
 import {
+  Matches,
   IsString,
   IsNotEmpty,
   MaxLength,
@@ -65,6 +66,20 @@ export class CreateAccountDto {
   @IsBoolean() @IsOptional() isSystemAccount?: boolean = false;
   @IsBoolean() @IsOptional() isMultiCurrency?: boolean = false;
 
+  /**
+   * The currency an account is designated in (a dollar bank account's ledger account), ISO 4217.
+   * Informative and used for display; the revaluation works per (account, currency) from the lines
+   * themselves, so a receivable in several currencies needs no designation.
+   */
+  @IsOptional() @Matches(/^[A-Z]{3}$/) currency?: string;
+
+
+  /**
+   * The authority's grouping code (Mexico's SAT «código agrupador»), required by electronic
+   * accounting catalogues. The opening plan fills it where the country pack declares one.
+   */
+  @IsOptional() @IsString() @MaxLength(20, { message: 'validation.constraints.max_length|{"max":20}' })
+  fiscalGroupingCode?: string;
 
   @IsDateString() @IsOptional() effectiveFrom?: string;
   @IsDateString() @IsOptional() effectiveTo?: string;

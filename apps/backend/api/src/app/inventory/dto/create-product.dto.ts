@@ -112,6 +112,21 @@ export class CreateProductDto {
   @IsOptional()
   taxRate?: number;
 
+  /**
+   * Ad-valorem excise (ISC) as a fraction. The entity had it and the list duplicated it, but the DTO
+   * did not: «Duplicar» sent it and was refused by the whitelist.
+   */
+  @IsNumber({ maxDecimalPlaces: 6 })
+  @Min(0, { message: 'validation.constraints.min|{"min":0}' })
+  @Max(1, { message: 'validation.product.tax_rate_is_a_fraction' })
+  @IsOptional()
+  exciseRate?: number;
+
+  /** A FIXED tax of the tenant's catalogue charged per unit (FAC-TX-01); `null` removes it. */
+  @IsUUID('4', { message: 'validation.constraints.is_uuid' })
+  @IsOptional()
+  exciseTaxId?: string | null;
+
   /** The code on the packaging. Digits, letters and dashes: what a scanner reads, nothing else. */
   @IsString()
   @IsOptional()

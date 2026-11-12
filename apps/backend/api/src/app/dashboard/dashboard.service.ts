@@ -1,4 +1,5 @@
 import { LEDGER_STATUSES_SQL } from '../contracts/accounting/ledger-statuses.contract';
+import { AccountRole } from '../contracts/accounting/account-role.contract';
 
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -63,6 +64,26 @@ export class DashboardService {
       asOf,
     });
 
+    // Income-statement figures cover the fiscal year to date, never "since the tenant was created":
+    // a margin or a ROE over every year at once describes no period anyone reports on (audit
+    // 2026-11-07, IA-B04). Closing entries are left out so a closed year does not net to zero.
+    const today = asOf.toISOString().slice(0, 10);
+    const [fiscalYear] = await this.dataSource.query(
+      `SELECT to_char(start_date, 'YYYY-MM-DD') AS start FROM fiscal_years
+        WHERE organization_id = $1 AND start_date <= $2 AND end_date >= $2
+        ORDER BY start_date DESC LIMIT 1`,
+      [organizationId, today],
+    );
+    const periodFrom: string = fiscalYear?.start ?? `${today.slice(0, 4)}-01-01`;
+    const movements = await this.accountBalances.movements({
+      organizationId,
+      ledgerId: defaultLedger.id,
+      from: periodFrom,
+      to: today,
+      excludeClosingEntries: true,
+    });
+    const activity = new Map(movements.map((m) => [m.accountId, roundAmount(m.debit - m.credit)]));
+
     let totalAssets = 0;
     let currentAssets = 0;
     let totalLiabilities = 0;
@@ -70,9 +91,14 @@ export class DashboardService {
     let totalEquity = 0;
     let revenue = 0;
     let expenses = 0;
+    let operatingRevenue = 0;
+    let costOfSales = 0;
+    let operatingExpenses = 0;
+    let depreciation = 0;
 
     for (const account of accounts) {
-      const signed = balances.get(account.id) ?? 0;
+      const isResult = account.type === AccountType.REVENUE || account.type === AccountType.EXPENSE;
+      const signed = isResult ? activity.get(account.id) ?? 0 : balances.get(account.id) ?? 0;
       if (signed === 0) continue;
       const natural = toNaturalAmount(account.type, signed);
 
@@ -92,15 +118,24 @@ export class DashboardService {
           break;
         case AccountType.REVENUE:
           revenue += natural;
+          if (account.category === AccountCategory.OPERATING_REVENUE) operatingRevenue += natural;
           break;
         case AccountType.EXPENSE:
           expenses += natural;
+          if (account.category === AccountCategory.COST_OF_GOODS_SOLD) costOfSales += natural;
+          else if (account.category === AccountCategory.OPERATING_EXPENSE) operatingExpenses += natural;
+          if (account.systemRole === AccountRole.DEPRECIATION_EXPENSE) depreciation += natural;
           break;
       }
     }
 
     const netIncome = roundAmount(revenue - expenses);
     const workingCapital = roundAmount(currentAssets - currentLiabilities);
+    // Operating EBITDA: operating result before depreciation. Interest and income tax sit in the
+    // non-operating categories, so they are outside it by construction; it used to be the NET income
+    // itself, published under the EBITDA label (IA-B01).
+    const operatingIncome = roundAmount(operatingRevenue - costOfSales - operatingExpenses);
+    const ebitda = roundAmount(operatingIncome + depreciation);
 
     return {
       totalAssets: roundAmount(totalAssets),
@@ -110,7 +145,11 @@ export class DashboardService {
       totalEquity: roundAmount(totalEquity),
       revenue: roundAmount(revenue),
       netIncome,
-      workingCapital
+      workingCapital,
+      operatingIncome,
+      depreciation: roundAmount(depreciation),
+      ebitda,
+      period: { from: periodFrom, to: today },
     };
   }
 
@@ -192,10 +231,14 @@ export class DashboardService {
 
 
 
-    const { netIncome } = await this.getFinancialMetrics(organizationId);
+    const { ebitda, operatingIncome, depreciation, period } = await this.getFinancialMetrics(organizationId);
 
     const result = {
-      ebitda: parseFloat(netIncome.toFixed(2)),
+      ebitda,
+      operatingIncome,
+      depreciation,
+      periodFrom: period.from,
+      periodTo: period.to,
       date: new Date(),
     };
 

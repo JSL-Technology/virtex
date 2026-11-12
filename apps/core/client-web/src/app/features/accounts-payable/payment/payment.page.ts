@@ -188,7 +188,7 @@ export class VendorPaymentPage implements OnInit {
    * 5,000.00» (QA M-07); the line fell back to a slice of the bill's UUID.
    */
   billReference(bill: VendorBill): string {
-    return bill.ncf || this.format.date(bill.date);
+    return bill.supplierFiscalNumber || this.format.date(bill.date);
   }
 
   addBill(bill: VendorBill): void {
@@ -196,7 +196,7 @@ export class VendorPaymentPage implements OnInit {
     this.lines.push(
       this.fb.group({
         vendorBillId: [bill.id],
-        // `ncf` and the vendor relation, not `billNumber`/`vendorName` — neither of which the
+        // the supplier's document number and the vendor relation, not `billNumber`/`vendorName` — neither of which the
         // API returns. Both columns rendered blank in the payment picker.
         billNumber: [this.billReference(bill)],
         vendorName: [bill.vendor?.name ?? ''],

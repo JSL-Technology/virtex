@@ -21,7 +21,7 @@ describe('hiring with a starting salary', () => {
     save: jest.fn(async (row: Record<string, unknown>) => ({ id: 'emp-0', ...row })),
     manager: { transaction: jest.fn((work: (m: typeof manager) => unknown) => work(manager)) },
   };
-  const service = new HcmService(employeeRepository as never, {} as never, {} as never, {} as never, {} as never, {} as never);
+  const service = new HcmService(employeeRepository as never, {} as never, {} as never, {} as never, {} as never);
   // Identity and statutory checks have their own suites; here they pass.
   Object.assign(service as unknown as Record<string, unknown>, {
     resolveIdentityDocument: jest.fn(async () => ({ identityDocument: null })),

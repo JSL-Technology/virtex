@@ -489,6 +489,68 @@ describeWithDb('customer collections', () => {
     expect(await signedBalance('forex')).toBe(-2_000);
   });
 
+  it('refuses a receipt in one currency against an invoice in another (TES-01)', async () => {
+    await dataSource.getRepository(ExchangeRate).save({
+      fromCurrency: FOREIGN,
+      toCurrency: 'DOP',
+      rate: 60,
+      date: new Date('2026-05-15T00:00:00.000Z'),
+    });
+    // A dollar receipt applied to a peso invoice used to relieve it one-for-one and book the gap
+    // as an exchange "gain". Nothing may be posted.
+    const before = await signedBalance('bank');
+    const pesos = await openInvoice(200);
+    await expect(
+      receipts.create(
+        {
+          customerId,
+          paymentDate: '2026-05-21',
+          bankAccountId,
+          amountReceived: 200,
+          currencyCode: FOREIGN,
+          lines: [{ invoiceId: pesos.id, amount: 200 }],
+        },
+        organizationId,
+        ACTOR,
+      ),
+    ).rejects.toMatchObject({ messageKey: 'customers.receipt_currency_differs_from_invoice' });
+    expect(await signedBalance('bank')).toBe(before);
+  });
+
+  it('records the foreign amount on the bank and receivable lines (TES-02)', async () => {
+    await dataSource.getRepository(ExchangeRate).save({
+      fromCurrency: FOREIGN,
+      toCurrency: 'DOP',
+      rate: 60,
+      date: new Date('2026-05-15T00:00:00.000Z'),
+    });
+    const invoice = await openInvoice(300, { currencyCode: FOREIGN, exchangeRate: 58 });
+    const receipt = await receipts.create(
+      {
+        customerId,
+        paymentDate: '2026-05-20',
+        bankAccountId,
+        amountReceived: 300,
+        currencyCode: FOREIGN,
+        lines: [{ invoiceId: invoice.id, amount: 300 }],
+      },
+      organizationId,
+      ACTOR,
+    );
+    const lines: Array<{ currency_code: string | null; fd: string; fc: string; debit: string; credit: string }> = await dataSource.query(
+      `SELECT l.currency_code, l.foreign_currency_debit AS fd, l.foreign_currency_credit AS fc, l.debit, l.credit
+         FROM journal_entry_lines l
+         JOIN customer_payments p ON p.journal_entry_id = l.journal_entry_id
+        WHERE p.id = $1 AND l.currency_code IS NOT NULL
+        ORDER BY l.debit DESC`,
+      [receipt.id],
+    );
+    expect(lines.map((l) => [l.currency_code, Number(l.fd), Number(l.fc)])).toEqual([
+      [FOREIGN, 300, 0], // the bank received 300 in the foreign currency
+      [FOREIGN, 0, 300], // and 300 of foreign receivable was relieved
+    ]);
+  });
+
   it('reverses a bounced cheque and puts the balance back', async () => {
     const invoice = await openInvoice(10_000);
     const receipt = await receipts.create(

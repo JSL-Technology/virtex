@@ -2660,6 +2660,21 @@
     "en": "The Retained Earnings account is not configured for the organization.",
     "pt": "A conta de Lucros Acumulados não está configurada para a organização."
   },
+  "accounting.revaluation.closing_rate_missing": {
+    "es": "No hay tasa de cierre de {{currencies}} a {{ledgerCurrency}} al {{date}}. Regístrala antes de cerrar: hay saldos en esa moneda que revaluar.",
+    "en": "There is no closing rate from {{currencies}} to {{ledgerCurrency}} on {{date}}. Record it before closing: there are balances in that currency to revalue.",
+    "pt": "Não há taxa de fecho de {{currencies}} para {{ledgerCurrency}} em {{date}}. Registe-a antes de fechar: há saldos nessa moeda a reavaliar."
+  },
+  "accounting.revaluation.forex_account_missing": {
+    "es": "Configura la cuenta de diferencia cambiaria antes de cerrar: hay saldos en moneda extranjera que revaluar en {{ledger}}.",
+    "en": "Set the exchange difference account before closing: there are foreign-currency balances to revalue in {{ledger}}.",
+    "pt": "Configure a conta de diferenças cambiais antes de fechar: há saldos em moeda estrangeira a reavaliar em {{ledger}}."
+  },
+  "accounting.revaluation.no_foreign_positions": {
+    "es": "Sin saldos en moneda extranjera que revaluar.",
+    "en": "No foreign-currency balances to revalue.",
+    "pt": "Sem saldos em moeda estrangeira a reavaliar."
+  },
   "accounting.segment_configuration.add_level": {
     "es": "Agregar nivel",
     "en": "Add level",

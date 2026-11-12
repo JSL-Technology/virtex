@@ -65,4 +65,12 @@ export class StatutoryReference {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  /** The law, decree or resolution that sets this value — what an accountant confirms it against (SP-03). */
+  @Column({ name: 'legal_basis', type: 'text', nullable: true })
+  legalBasis: string | null;
+
+  /** When the instrument was published in the official gazette, where known. */
+  @Column({ name: 'published_on', type: 'date', nullable: true })
+  publishedOn: string | null;
 }

@@ -1,4 +1,4 @@
-import { Provider, computed, signal } from '@angular/core';
+import { Provider, WritableSignal, computed, signal } from '@angular/core';
 import type { TenantCountryPackResponse } from '@virteex/shared/types';
 import { CountryPackService } from './country-pack.service';
 
@@ -9,11 +9,42 @@ export const DOMINICAN_TEST_PACK: TenantCountryPackResponse = {
   documents: {
     fiscalNumbering: true,
     supplierFiscalNumber: true,
-    supplierDocumentNumberKey: 'accounts_payable.form.ncf',
+    supplierDocumentNumberKey: 'localization.country_pack.supplier_document.ncf',
+    supplierDocumentExample: 'B0100000001',
     purchaseClassification: true,
   },
+  purchases: {
+    fiscalAttributes: [
+      {
+        key: 'purchaseCategory',
+        // The market's own wording travels in `labelKey`; this fallback is only read when a
+        // market declares no key, and the catalogue is where interface text belongs.
+        label: 'Kind of goods and services bought',
+        labelKey: 'localization.country_pack.purchase_attribute.purchase_category',
+        help: null,
+        helpKey: 'localization.country_pack.purchase_attribute.purchase_category_help',
+        required: true,
+        type: 'select',
+        multiple: false,
+        options: [
+          { code: '06', label: 'Merchandise purchases', labelKey: 'accounts_payable.purchase_category.merchandise_purchases' },
+          { code: '09', label: 'Extraordinary expenses', labelKey: 'accounts_payable.purchase_category.extraordinary_expenses' },
+        ],
+        pattern: null,
+        example: null,
+      },
+    ],
+  },
   withholding: { applies: true },
-  taxes: { model: 'NATIONAL_RATES', nameKey: 'invoices.new.tax_column_header' },
+  einvoicing: {
+    regime: 'DGII e-CF',
+    required: true,
+    // The DGII publishes its own endpoints and authenticates with the taxpayer's certificate.
+    channel: 'CERTIFICATE',
+    settingsFields: [],
+    rangeSecret: null,
+  },
+  taxes: { model: 'NATIONAL_RATES', nameKey: 'invoices.new.tax_column_header', principalName: 'Impuesto' },
   paymentMethods: { catalogue: 'AUTHORITY_FIXED', authority: 'DGII' },
   payroll: { statutoryParameters: 'PLATFORM' },
   fiscalReturns: { generator: 'DGII', dueDay: 15, prepareWith: [] },
@@ -21,6 +52,11 @@ export const DOMINICAN_TEST_PACK: TenantCountryPackResponse = {
   divisionLabel: 'Provincia',
   divisions: [],
 };
+
+/** Another market's pack, for a test about a market that is not the Dominican Republic. */
+export function testCountryPack(overrides: Partial<TenantCountryPackResponse>): TenantCountryPackResponse {
+  return { ...DOMINICAN_TEST_PACK, ...overrides };
+}
 
 /**
  * A `CountryPackService` for page tests: the company's market, by default the Dominican Republic.
@@ -30,11 +66,31 @@ export const DOMINICAN_TEST_PACK: TenantCountryPackResponse = {
  * is passes the pack it wants.
  */
 export function provideTestCountryPack(pack: TenantCountryPackResponse | null = DOMINICAN_TEST_PACK): Provider {
-  const state = signal<TenantCountryPackResponse | null>(pack);
-  const stub: Pick<CountryPackService, 'pack' | 'withholding' | 'fiscalNumbering'> = {
+  return providePackState(signal<TenantCountryPackResponse | null>(pack));
+}
+
+/**
+ * The same, over a pack the test can change: for a page whose behaviour is the market's, exercised
+ * market by market without rebuilding the testing module.
+ */
+export function provideMutableTestCountryPack(): {
+  provider: Provider;
+  set: (pack: TenantCountryPackResponse | null) => void;
+} {
+  const state = signal<TenantCountryPackResponse | null>(DOMINICAN_TEST_PACK);
+  return { provider: providePackState(state), set: (pack) => state.set(pack) };
+}
+
+function providePackState(state: WritableSignal<TenantCountryPackResponse | null>): Provider {
+  const stub: Pick<
+    CountryPackService,
+    'pack' | 'withholding' | 'fiscalNumbering' | 'purchaseFiscalFields' | 'einvoicingRegime'
+  > = {
     pack: state.asReadonly(),
     withholding: computed(() => state()?.withholding.applies ?? false),
     fiscalNumbering: computed(() => state()?.documents.fiscalNumbering ?? false),
+    purchaseFiscalFields: computed(() => state()?.purchases.fiscalAttributes ?? []),
+    einvoicingRegime: computed(() => state()?.einvoicing ?? null),
   };
   return { provide: CountryPackService, useValue: stub };
 }

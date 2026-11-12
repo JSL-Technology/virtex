@@ -1,9 +1,6 @@
 import { IsBoolean, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, MinLength } from 'class-validator';
 import { PartialType } from '@nestjs/swagger';
-import {
-  PAYMENT_SETTLEMENT_KINDS,
-  PaymentSettlementKind,
-} from '../../contracts/country-pack/country-pack';
+import { PAYMENT_SETTLEMENT_KINDS, type PaymentSettlementKind } from '../../markets';
 
 export class CreatePaymentMethodDto {
   /** What documents record. Letters, digits, `_` and `-`; stored upper case. */

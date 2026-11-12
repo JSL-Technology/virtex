@@ -3,10 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { PriceList } from '../../../core/models/price-list.model';
+import { PriceList, PricedLine, ResolvePricesRequest } from '../../../core/models/price-list.model';
 
 export type CreatePriceListDto = Omit<PriceList, 'id' | 'organizationId' | 'createdAt' | 'updatedAt' | 'items'> & {
-  items: { productId: string; price: number }[];
+  items: { productId: string; price: number; minQuantity?: number }[];
 };
 export type UpdatePriceListDto = Partial<CreatePriceListDto>;
 
@@ -29,6 +29,19 @@ export class PriceListsService {
 
   updatePriceList(id: string, priceList: UpdatePriceListDto): Observable<PriceList> {
     return this.http.patch<PriceList>(`${this.apiUrl}/${id}`, priceList);
+  }
+
+  /**
+   * The price each line of a document being composed will carry: the customer's list, the
+   * default list for the currency, then the catalogue. Behind `products:view` on the server.
+   */
+  resolvePrices(request: ResolvePricesRequest): Observable<PricedLine[]> {
+    return this.http.post<PricedLine[]>(`${this.apiUrl}/resolve`, {
+      ...request,
+      customerId: request.customerId || undefined,
+      currencyCode: request.currencyCode || undefined,
+      date: request.date || undefined,
+    });
   }
 
   deletePriceList(id: string): Observable<void> {

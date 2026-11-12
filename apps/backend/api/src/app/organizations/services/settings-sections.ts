@@ -119,7 +119,8 @@ export const SETTINGS_SECTIONS = {
       defaultInventoryAdjustmentAccountId: 'EXPENSE',
       defaultGoodsReceivedNotInvoicedAccountId: 'LIABILITY',
     },
-    fields: {},
+    // Purchasing tolerances, in basis points (CMP-01, CMP-15). The column CHECK bounds them too.
+    fields: { poReceiptOverToleranceBps: intField(0, 5000), apMatchPriceToleranceBps: intField(0, 5000) },
   },
 } as const satisfies Record<string, SettingsSection>;
 

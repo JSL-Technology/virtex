@@ -91,6 +91,8 @@
                 <th class="numeric">{{ 'purchasing.receipts.value' | translate }}</th>
                 <th class="numeric">{{ 'purchasing.receipts.billed_on_order' | translate }}</th>
                 <th>{{ 'purchasing.receipts.stock' | translate }}</th>
+                <th class="numeric">{{ 'purchasing.receipts.returned' | translate }}</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -104,6 +106,15 @@
                     {{ line.billedOnOrder === null ? '—' : (line.billedOnOrder | vxNumber: '1.0-6') }} / {{ line.ordered === null ? '—' : (line.ordered | vxNumber: '1.0-6') }}
                   </td>
                   <td>{{ (line.stocked ? 'purchasing.receipts.stocked' : 'purchasing.receipts.not_stocked') | translate }}</td>
+                  <td class="numeric">{{ (line.returnedQuantity ?? 0) | vxNumber: '1.0-6' }}</td>
+                  <td>
+                    @if (doc.status === 'POSTED' && line.quantity - (line.returnedQuantity ?? 0) > 0) {
+                      <button *appHasPermission="'procurement:manage'" type="button" class="link-button" [disabled]="busy()"
+                        (click)="returnLine(line.lineId, line.description, line.quantity - (line.returnedQuantity ?? 0))">
+                        {{ 'purchasing.receipts.return' | translate }}
+                      </button>
+                    }
+                  </td>
                 </tr>
               }
             </tbody>

@@ -181,6 +181,18 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       entityKeyFn: () => 'contabilidad:partner-ledger',
       load: () => import('../../../features/accounting/partner-ledger/partner-ledger.page').then((m) => m.PartnerLedgerPage),
     },
+    // Group consolidation (audit 2026-11-07, FINB-33): the engine had no screen. Behind the plan
+    // capability on the server (`group_consolidation`) as well as the permission.
+    {
+      path: 'consolidation',
+      kind: WindowKind.LIST,
+      permission: 'financials:consolidate',
+      titleKey: 'consolidation.page.title',
+      icon: 'GitMerge',
+      entityKeyFn: () => 'contabilidad:consolidation',
+      menu: { group: 'analysis', labelKey: 'consolidation.page.title' },
+      load: () => import('../../../features/accounting/consolidation/consolidation.page').then((m) => m.ConsolidationPage),
+    },
     // Recurring entries and entry templates (audit H-21): the server scheduled and stored them;
     // no screen listed, created, paused or used one.
     {

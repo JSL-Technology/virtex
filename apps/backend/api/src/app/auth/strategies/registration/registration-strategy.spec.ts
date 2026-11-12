@@ -3,7 +3,7 @@ import { RegistrationStrategyFactory } from './registration-strategy.factory';
 import { ProfileRegistrationStrategy } from './profile-registration.strategy';
 import { RegisterUserDto } from '../../dto/register-user.dto';
 import { LocalizationService } from '../../../localization/services/localization.service';
-import { supportedCountryCodes, findCountryProfile } from '../../../localization/fiscal/country-profiles';
+import { knownMarket, marketCodes } from '../../../markets';
 
 /**
  * The country a tenant registers under decides everything downstream: which check digit is
@@ -34,7 +34,7 @@ describe('Registration strategy', () => {
     }) as RegisterUserDto;
 
   describe('factory', () => {
-    it.each(supportedCountryCodes())('resolves a strategy for %s', (code) => {
+    it.each([...marketCodes()])('resolves a strategy for %s', (code) => {
       expect(factory.getStrategy(code)).toBe(strategy);
     });
 
@@ -83,14 +83,14 @@ describe('Registration strategy', () => {
 
     it('requires a postal code where the country requires one', async () => {
       // United States sales tax is destination-based: no ZIP, no rate.
-      expect(findCountryProfile('US')!.address.postalCodeRequired).toBe(true);
+      expect(knownMarket('US')?.profile.address.postalCodeRequired).toBe(true);
       await expect(
         strategy.validate(dto({ countryCode: 'US', taxId: '12-3456789', state: 'TX', postalCode: '' })),
       ).rejects.toThrow(BadRequestException);
     });
 
     it('does not require a postal code where the country does not', async () => {
-      expect(findCountryProfile('DO')!.address.postalCodeRequired).toBe(false);
+      expect(knownMarket('DO')?.profile.address.postalCodeRequired).toBe(false);
       await expect(strategy.validate(dto({ postalCode: undefined }))).resolves.toBeUndefined();
     });
 
