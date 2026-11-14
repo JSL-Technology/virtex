@@ -5,7 +5,7 @@ import { LanguageCode, matchLanguage } from '@virtex/shared/types';
 import { AI_RUN_FINDINGS, AiRunFindingsEvent } from '../../contracts/ai-insights/ai-run-findings.contract';
 import { AI_REPORT_READY, AiReportReadyEvent } from '../../contracts/ai-insights/ai-report-ready.contract';
 import { AI_BUDGET_THRESHOLD, AiBudgetThresholdEvent } from '../../contracts/ai-insights/ai-budget.contract';
-import { AI_PERMISSIONS } from '../../shared/ai.permissions';
+import { AI_PERMISSIONS } from '../../shared/permissions/ai.permissions';
 import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { NotificationsService } from '../notifications.service';
 import { holdsAll, loadMembersAccess } from '../../roles/contracts/member-access.contract';

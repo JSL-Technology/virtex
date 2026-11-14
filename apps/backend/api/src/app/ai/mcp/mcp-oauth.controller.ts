@@ -12,7 +12,7 @@ import { CurrentUser } from '../../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../security/principal';
 import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { ForbiddenError } from '../../i18n/localized.exception';
-import { AI_PERMISSIONS } from '../../shared/ai.permissions';
+import { AI_PERMISSIONS } from '../../shared/permissions/ai.permissions';
 import { EntitlementsPort } from '../../saas/contracts/entitlements.contract';
 import { AuthorizeParams, McpOAuthService, OAuthError } from './mcp-oauth.service';
 import { publicOrigin } from './mcp-urls';

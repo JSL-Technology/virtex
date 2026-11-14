@@ -14,6 +14,7 @@ import { PaymentLikelihoodRegistry } from './ai/payment-likelihood.contract';
 import { DuplicateSourceRegistry } from './data-quality/duplicate-sources.contract';
 import { ReorderSuggestionRegistry } from './ai/reorder-suggestions.contract';
 import { LedgerPostingRegistry } from './ledger-posting/ledger-posting.contract';
+import { SearchSourceRegistry } from './search/search-source.contract';
 
 /**
  * Los contratos por los que dos módulos se hablan sin conocerse.
@@ -31,7 +32,7 @@ import { LedgerPostingRegistry } from './ledger-posting/ledger-posting.contract'
  */
 @Global()
 @Module({
-  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, PayrollFiscalRecordsRegistry, IssuedFiscalNumbersRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry],
-  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, PayrollFiscalRecordsRegistry, IssuedFiscalNumbersRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry],
+  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, PayrollFiscalRecordsRegistry, IssuedFiscalNumbersRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry, SearchSourceRegistry],
+  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, PayrollFiscalRecordsRegistry, IssuedFiscalNumbersRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry, SearchSourceRegistry],
 })
 export class ContractsModule {}

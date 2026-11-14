@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { SearchController } from './search.controller';
 import { SearchService } from './search.service';
-import { InvoicesModule } from '../invoices/invoices.module';
-import { InventoryModule } from '../inventory/inventory.module';
-import { CustomersModule } from '../customers/customers.module';
 
+/**
+ * Imports no business module, by design: what can be searched registers itself
+ * (`contracts/search`), and `ContractsModule` is global. The three imports that used to be here —
+ * invoices, inventory, customers — were two of the module cycles the boundary check reports.
+ */
 @Module({
-  imports: [InvoicesModule, InventoryModule, CustomersModule],
   controllers: [SearchController],
   providers: [SearchService],
 })

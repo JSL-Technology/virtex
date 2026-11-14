@@ -29,6 +29,7 @@ import { ProductImage } from './entities/product-image.entity';
 import { ProductPriceHistory } from './entities/product-price-history.entity';
 import { ProductImagesService } from './product-images.service';
 import { ProductCatalogPort } from './contracts/product-catalog.contract';
+import { ProductsSearchSource } from './products-search.source';
 
 @Module({
   imports: [
@@ -51,7 +52,9 @@ import { ProductCatalogPort } from './contracts/product-catalog.contract';
   ],
   // The stock controller first: its literal paths must win over the catalogue's `inventory/:id`.
   controllers: [StockController, InventoryController, ProductCategoriesController],
-  providers: [ProductsDuplicatesSource, InventoryCopilotTools, 
+  providers: [
+    // Makes this module searchable without the search knowing it (contracts/search).
+    ProductsSearchSource,ProductsDuplicatesSource, InventoryCopilotTools, 
     InventoryService,
     ProductsDataTransferProvider,
     InventoryPostingService,

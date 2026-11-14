@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CopilotToolRegistry, opt, s } from '../../contracts/copilot/copilot-tools.contract';
-import { AI_PERMISSIONS } from '../../shared/ai.permissions';
+import { AI_PERMISSIONS } from '../../shared/permissions/ai.permissions';
 import { hasPermission } from '@virtex/shared/util-auth';
 import { ForecastingService } from '../forecasting/forecasting.service';
 import { AnomaliesService } from '../anomalies/anomalies.service';

@@ -31,6 +31,7 @@ import { WithholdingModule } from '../localization/fiscal/withholding.module';
 import { SalesInboxProvider } from './inbox/sales-inbox.provider';
 
 import { MailModule } from '../mail/mail.module';
+import { InvoicesSearchSource } from './invoices-search.source';
 @Module({
   imports: [
     // Sending an invoice to the customer by e-mail (QA A-09).
@@ -61,7 +62,9 @@ import { MailModule } from '../mail/mail.module';
     SharedModule,
   ],
   controllers: [InvoicesController],
-  providers: [InvoicesCopilotTools, 
+  providers: [
+    // Makes this module searchable without the search knowing it (contracts/search).
+    InvoicesSearchSource,InvoicesCopilotTools, 
     SalesInboxProvider,
     InvoicesDataTransferProvider,
     SalesLinesDataTransferProvider,

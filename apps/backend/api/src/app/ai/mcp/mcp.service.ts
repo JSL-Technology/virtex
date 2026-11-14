@@ -9,7 +9,7 @@ import { EntitlementsPort } from '../../saas/contracts/entitlements.contract';
 import { loadMemberAccess } from '../../roles/contracts/member-access.contract';
 import { withTenant } from '../../shared/tenancy/tenant-job';
 import { isLocalizedError } from '../../i18n/localized.exception';
-import { AI_PERMISSIONS } from '../../shared/ai.permissions';
+import { AI_PERMISSIONS } from '../../shared/permissions/ai.permissions';
 import { CopilotService } from '../copilot/copilot.service';
 import { AiSettingsService } from '../settings/ai-settings.service';
 import { McpOAuthService, McpScope, ResolvedToken } from './mcp-oauth.service';
