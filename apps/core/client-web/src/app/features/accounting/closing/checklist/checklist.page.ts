@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import { AppLinkPipe } from '../../../../core/tenancy/app-link.pipe';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -47,6 +48,8 @@ export class ChecklistPage {
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(DialogService);
   private readonly notifications = inject(NotificationService);
+  /** Today in the COMPANY's calendar: in UTC the last day of the month is already over by 20:00 here. */
+  private readonly locale = inject(LocaleStore);
 
   protected readonly CompletedIcon = CheckCircle;
   protected readonly CloseIcon = Lock;
@@ -148,17 +151,23 @@ export class ChecklistPage {
   async closePeriod(): Promise<void> {
     const period = this.selectedPeriod();
     if (!period || !this.closable()) return;
+
+    // A period that has not ended yet is a different question, and it is asked as one: closing it
+    // early means no operation in the rest of it can be recorded at all. The server refuses it
+    // without this acknowledgement (FIN-AC-02), so the screen asks for it here instead of letting
+    // the request come back as a refusal.
+    const early = period.endDate >= this.locale.today();
     const confirmed = await this.dialog.confirm({
-      title: 'accounting.periods.close_confirm_title',
-      message: 'accounting.periods.close_confirm_message',
-      messageParams: { period: period.name },
+      title: early ? 'accounting.periods.close_early_confirm_title' : 'accounting.periods.close_confirm_title',
+      message: early ? 'accounting.periods.close_early_confirm_message' : 'accounting.periods.close_confirm_message',
+      messageParams: { period: period.name, endDate: period.endDate },
       confirmText: 'accounting.periods.close_confirm_action',
       variant: 'warning',
     });
     if (!confirmed) return;
 
     this.closing.set(true);
-    this.periodsApi.close(period.id).subscribe({
+    this.periodsApi.close(period.id, early).subscribe({
       next: () => {
         this.closing.set(false);
         this.load();

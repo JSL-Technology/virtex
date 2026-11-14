@@ -2070,6 +2070,11 @@
     "en": "Accounting period \"{{name}}\" has been closed.",
     "pt": "O período contábil \"{{name}}\" foi encerrado."
   },
+  "accounting.period_has_not_ended_yet": {
+    "es": "{{name}} termina el {{endDate}} y todavía no ha terminado. Cerrarlo ahora impide registrar cualquier operación del resto del período; confirma el cierre anticipado si es lo que quieres.",
+    "en": "{{name}} ends on {{endDate}} and has not ended yet. Closing it now stops every operation in the rest of the period from being recorded; confirm the early close if that is what you want.",
+    "pt": "{{name}} termina em {{endDate}} e ainda não terminou. Fechá-lo agora impede registar qualquer operação no resto do período; confirme o fecho antecipado se é isso que pretende."
+  },
   "accounting.period_not_closed": {
     "es": "El período no está cerrado.",
     "en": "The period is not closed.",
@@ -2114,6 +2119,16 @@
     "es": "¿Cerrar el período?",
     "en": "Close the period?",
     "pt": "Encerrar o período?"
+  },
+  "accounting.periods.close_early_confirm_message": {
+    "es": "{{period}} termina el {{endDate}}. Si lo cierras ahora, no vas a poder registrar ninguna operación del resto del período: ni ventas, ni pagos, ni nómina. Reabrirlo queda auditado.",
+    "en": "{{period}} ends on {{endDate}}. If you close it now, no operation in the rest of the period can be recorded: no sales, no payments, no payroll. Reopening it is audited.",
+    "pt": "{{period}} termina em {{endDate}}. Se o fechar agora, nenhuma operação do resto do período poderá ser registada: nem vendas, nem pagamentos, nem folha. Reabri-lo fica auditado."
+  },
+  "accounting.periods.close_early_confirm_title": {
+    "es": "¿Cerrar un período que no ha terminado?",
+    "en": "Close a period that has not ended?",
+    "pt": "Fechar um período que não terminou?"
   },
   "accounting.periods.close_failed": {
     "es": "No se pudo cerrar {{period}}.",

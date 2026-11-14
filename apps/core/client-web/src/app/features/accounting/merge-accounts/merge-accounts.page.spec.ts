@@ -22,9 +22,12 @@ describe('MergeAccountsPage', () => {
   const preview = (over: Partial<MergePreview> = {}): MergePreview => ({
     source: { id: 'a-1', code: '1101', name: { es: 'Caja chica' }, type: 'ASSET', postedBalance: 150 },
     destination: { id: 'a-2', code: '1102', name: { es: 'Caja general' }, type: 'ASSET', postedBalance: 900 },
-    linesToMove: 12,
+    // Two drafts move; ten posted lines stay and their balance is reclassified.
+    linesToMove: 2,
     linesInClosedPeriods: 0,
     childAccountsToMove: 0,
+    postedLinesKept: 10,
+    reclassifiedAmount: 150,
     blockers: [],
     warnings: [],
     ...over,
@@ -63,7 +66,10 @@ describe('MergeAccountsPage', () => {
     expect(request.request.params.get('sourceAccountId')).toBe('a-1');
     expect(request.request.params.get('destinationAccountId')).toBe('a-2');
     request.flush(preview());
-    expect(page.preview()?.linesToMove).toBe(12);
+    // What the merge moves, and what it leaves: a posted line is history and stays where it is.
+    expect(page.preview()?.linesToMove).toBe(2);
+    expect(page.preview()?.postedLinesKept).toBe(10);
+    expect(page.preview()?.reclassifiedAmount).toBe(150);
   });
 
   it('does not offer the merge while the server would refuse it', () => {

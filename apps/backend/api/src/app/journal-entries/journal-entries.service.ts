@@ -199,11 +199,12 @@ export class JournalEntriesService {
     createDto: CreateJournalEntryDto,
     organizationId: string,
     context: PostingContext = SYSTEM,
+    options: { tagsFromLedger?: boolean } = {},
   ): Promise<JournalEntry> {
     const replayed = await this.findByIdempotencyKey(manager, organizationId, context);
     if (replayed) return replayed;
 
-    const prepared = await this.prepare(manager, createDto, organizationId, context);
+    const prepared = await this.prepare(manager, createDto, organizationId, context, options);
     return this.markPosted(manager, prepared.entry, organizationId, context);
   }
 
@@ -267,7 +268,7 @@ export class JournalEntriesService {
     createDto: CreateJournalEntryDto,
     organizationId: string,
     context: PostingContext,
-    options: { reversal?: boolean } = {},
+    options: { tagsFromLedger?: boolean } = {},
   ): Promise<{ entry: JournalEntry; totalDebit: number }> {
     const { lines, date, journalId, currencyCode, exchangeRate, ledgerId: requestedLedgerId, ...entryData } =
       createDto;
@@ -444,9 +445,15 @@ export class JournalEntriesService {
       });
     }
 
-    // Dimension tags name an active dimension and one of its active values. A reversal carries
-    // the original's tags as they were — a value retired since must not stop a void.
-    if (!options.reversal) {
+    // Dimension tags name an active dimension and one of its active values.
+    //
+    // `tagsFromLedger` says the tags on these lines were COPIED from entries already in the
+    // ledger: a reversal carries the original's, and the year-end close carries those of the
+    // balances it is closing. Neither may be re-validated — a dimension value retired since the
+    // original posting must not stop a void, and it must not stop a close — and neither needs the
+    // mandatory-rule check, because a tag that came out of the ledger is a stronger guarantee than
+    // the rule that let it in.
+    if (!options.tagsFromLedger) {
       const tags = await normaliseDimensionTags(manager, organizationId, normalizedLines);
       normalizedLines.forEach((line, index) => {
         line.dimensions = tags[index];
@@ -1281,7 +1288,7 @@ export class JournalEntriesService {
       reversalDto,
       organizationId,
       { ...context, systemReason: context.systemReason ?? 'reversal' },
-      { reversal: true },
+      { tagsFromLedger: true },
     );
     prepared.entry.reversesEntryId = original.id;
     const reversal = await this.markPosted(

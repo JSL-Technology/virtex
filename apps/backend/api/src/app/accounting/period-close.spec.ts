@@ -15,6 +15,9 @@ import {
   AccountType,
 } from '../chart-of-accounts/enums/account-enums';
 import { AccountingPeriod, PeriodStatus } from './entities/accounting-period.entity';
+import { Dimension } from '../dimensions/entities/dimension.entity';
+import { DimensionValue } from '../dimensions/entities/dimension-value.entity';
+import { DimensionRule } from '../dimensions/entities/dimension-rule.entity';
 import {
   JournalEntry,
   JournalEntryStatus,
@@ -465,6 +468,82 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
   });
 
   /**
+   * The annual close with analytical accounting on (FIN-AC-01).
+   *
+   * It did not work at all. `readiness` answered `canClose: true` and the close answered 400:
+   * `journal_entries.account_code_p2_requires_mandatory_dimension`, because the closing entry had
+   * one untagged line per account and a mandatory dimension rule refused it. The only way out of
+   * the product was to delete the rule. And where no rule existed, the close still left the profit
+   * and loss BY COST CENTRE untouched: a single line of 100 does not cancel 60 on one centre and
+   * 40 on another.
+   *
+   * The close now works by (account × dimension combination), so the rule is satisfied by
+   * construction and every centre returns to zero.
+   */
+  it('closes the year of a tenant with a mandatory dimension rule, centre by centre', async () => {
+    const dimension = await dataSource.getRepository(Dimension).save(
+      dataSource.getRepository(Dimension).create({ organizationId, name: 'Centro de costo', isActive: true }),
+    );
+    for (const value of ['A', 'B']) {
+      await dataSource.getRepository(DimensionValue).save(
+        dataSource.getRepository(DimensionValue).create({ dimensionId: dimension.id, value, isActive: true }),
+      );
+    }
+    // Mandatory on the expense account: every line that touches it must say which centre it is.
+    await dataSource.getRepository(DimensionRule).save(
+      dataSource.getRepository(DimensionRule).create({
+        accountId: account['expense'],
+        dimensionId: dimension.id,
+        isRequired: true,
+      }),
+    );
+
+    const tagged = (code: string) => ({ 'Centro de costo': code });
+    await post('2026-01-10', 'Venta', [
+      { accountId: account['cash'], debit: 20_000 },
+      { accountId: account['revenue'], credit: 20_000 },
+    ]);
+    await entries.create(
+      {
+        date: '2026-01-15',
+        description: 'Gasto por centro',
+        journalId: generalJournalId,
+        lines: [
+          { accountId: account['expense'], debit: 6_000, credit: 0, dimensions: tagged('A') },
+          { accountId: account['expense'], debit: 4_000, credit: 0, dimensions: tagged('B') },
+          { accountId: account['cash'], debit: 0, credit: 10_000 },
+        ],
+      } as CreateJournalEntryDto,
+      organizationId,
+      ctx,
+    );
+
+    await closing.closePeriod(januaryId, organizationId, ACTOR);
+    await closing.closePeriod(februaryId, organizationId, ACTOR);
+
+    // It used to throw here.
+    await expect(yearEnd.closeFiscalYear({ fiscalYearId }, organizationId, ACTOR)).resolves.toMatchObject({
+      status: FiscalYearStatus.CLOSED,
+    });
+
+    const expenseIn = (dimensions?: Record<string, string>) =>
+      balances.balanceOf(account['expense'], { organizationId, ledgerId, asOf: '2026-02-28', dimensions });
+
+    // Every centre back to zero, not just the total.
+    await expect(expenseIn(tagged('A'))).resolves.toBe(0);
+    await expect(expenseIn(tagged('B'))).resolves.toBe(0);
+    await expect(expenseIn()).resolves.toBe(0);
+
+    // And the result landed in retained earnings, attributed to the centre that produced it:
+    // 20 000 of revenue with no centre, 6 000 and 4 000 of expense with one each.
+    const retainedIn = (dimensions?: Record<string, string>) =>
+      balances.balanceOf(account['retained'], { organizationId, ledgerId, asOf: '2026-02-28', dimensions });
+    await expect(retainedIn(tagged('A'))).resolves.toBe(6_000);
+    await expect(retainedIn(tagged('B'))).resolves.toBe(4_000);
+    await expect(retainedIn()).resolves.toBe(-10_000);
+  });
+
+  /**
    * The annual-close screen asks before it offers the button (QA M-09): what is in the way, and
    * what the close will move to retained earnings.
    */
@@ -634,6 +713,39 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
     await expect(revaluation.run('2026-02-28', organizationId)).rejects.toMatchObject({
       messageKey: 'accounting.revaluation.closing_rate_missing',
     });
+  });
+
+  /**
+   * A period that has not ended is not ready to close (FIN-AC-02).
+   *
+   * There was no check: «Noviembre 2026» closed on the 7th of November, and December closed
+   * before it began. A month closed early refuses every posting in the rest of it — each sale,
+   * payment and payroll entry — and nothing said so.
+   */
+  it('refuses to close a period that has not ended, and closes it when asked explicitly', async () => {
+    // A period whose end is in the future, in this tenant's own calendar.
+    const [future] = await dataSource.getRepository(AccountingPeriod).save([
+      {
+        organizationId,
+        name: 'Período por venir',
+        startDate: '2099-01-01' as unknown as Date,
+        endDate: '2099-01-31' as unknown as Date,
+        status: PeriodStatus.OPEN,
+      },
+    ]);
+
+    await expect(closing.closePeriod(future.id, organizationId, ACTOR)).rejects.toMatchObject({
+      messageKey: 'accounting.period_has_not_ended_yet',
+    });
+
+    // The reason to do it anyway exists — a company that stops trading mid month — so it is a
+    // door, said out loud by whoever walks through it. Periods still close in order, so the ones
+    // before it close first: the new rule is one more condition, not a way round the others.
+    await closing.closePeriod(januaryId, organizationId, ACTOR);
+    await closing.closePeriod(februaryId, organizationId, ACTOR);
+    await expect(
+      closing.closePeriod(future.id, organizationId, ACTOR, { closeBeforeItEnds: true }),
+    ).resolves.toMatchObject({ status: PeriodStatus.CLOSED });
   });
 
   it('refuses to close a period twice', async () => {

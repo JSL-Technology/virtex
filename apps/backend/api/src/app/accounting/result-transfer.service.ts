@@ -182,7 +182,10 @@ export class ResultTransferService {
 
     // The interval's own movement, excluding any closing entry already in it — so re-running after
     // a reopen closes what is genuinely left rather than the original result all over again.
-    const movements = await this.balances.movements(
+    // Split by the dimension combination each balance was posted under, so the close returns the
+    // profit and loss to zero BY COMBINATION and not only in total. A tenant with no dimensions
+    // gets one row per account, exactly as before: there is no branch (FIN-AC-01).
+    const movements = await this.balances.movementsByDimension(
       {
         organizationId,
         ledgerId: defaultLedger.id,
@@ -207,6 +210,8 @@ export class ResultTransferService {
     });
 
     const lines: CreateJournalEntryLineDto[] = [];
+    /** The net result of each dimension combination, in cents, in the order first seen. */
+    const resultByDimension = new Map<string, { dimensions: Record<string, string> | null; cents: number }>();
     let resultCents = 0;
 
     for (const movement of movements) {
@@ -219,9 +224,19 @@ export class ResultTransferService {
         debit,
         credit,
         description: words.closingLine,
+        // The tags of the balance being closed. They came out of the ledger, so the posting path
+        // carries them as they are (`tagsFromLedger`): a dimension value retired during the year
+        // must not stop the close, and a mandatory rule on the account is satisfied by
+        // construction rather than needing an exception carved into the validation.
+        ...(movement.dimensions ? { dimensions: movement.dimensions } : {}),
         valuations: [{ ledgerId: defaultLedger.id, debit, credit }],
       });
       resultCents += toCents(signedBalance);
+
+      const key = JSON.stringify(movement.dimensions ?? null);
+      const slot = resultByDimension.get(key) ?? { dimensions: movement.dimensions, cents: 0 };
+      slot.cents += toCents(signedBalance);
+      resultByDimension.set(key, slot);
     }
 
     if (lines.length === 0) {
@@ -229,20 +244,27 @@ export class ResultTransferService {
       return null;
     }
 
-    // `resultCents` is the sum of the signed profit-and-loss balances. Revenue is negative and
-    // expense positive, so a profit is a negative sum; retained earnings takes the opposite side of
-    // the lines above, which is exactly `closingSideFor` on the negated total. Computed in cents,
-    // so the entry balances by construction rather than by a formula that has to agree with it.
-    const retained = closingSideFor(-roundAmount(resultCents / 100));
-    lines.push({
-      accountId: settings.defaultRetainedEarningsAccountId,
-      debit: retained.debit,
-      credit: retained.credit,
-      description: words.retained,
-      valuations: [
-        { ledgerId: defaultLedger.id, debit: retained.debit, credit: retained.credit },
-      ],
-    });
+    // Retained earnings takes the opposite side, ONE LINE PER COMBINATION. Revenue is negative and
+    // expense positive, so a profit is a negative sum, and `closingSideFor` on the negated figure
+    // is that side. Per combination rather than once in total, because that is what makes the
+    // result accounts of each cost centre net to zero — the point of closing by dimension at all —
+    // and it attributes the year's result to the centre that produced it. Computed in cents, so
+    // the entry balances by construction and the per-combination lines add up to the total without
+    // a rounding reconciliation.
+    for (const slot of resultByDimension.values()) {
+      if (slot.cents === 0) continue;
+      const retained = closingSideFor(-roundAmount(slot.cents / 100));
+      lines.push({
+        accountId: settings.defaultRetainedEarningsAccountId,
+        debit: retained.debit,
+        credit: retained.credit,
+        description: words.retained,
+        ...(slot.dimensions ? { dimensions: slot.dimensions } : {}),
+        valuations: [
+          { ledgerId: defaultLedger.id, debit: retained.debit, credit: retained.credit },
+        ],
+      });
+    }
 
     const closingDate: IsoDate = toIsoDate(range.to);
     const entry = await this.journalEntriesService.createWithManager(
@@ -256,6 +278,8 @@ export class ResultTransferService {
       } satisfies CreateJournalEntryDto,
       organizationId,
       { actorUserId, systemReason: 'result-transfer' },
+      // The tags on these lines were copied from the balances being closed.
+      { tagsFromLedger: true },
     );
 
     this.logger.log(

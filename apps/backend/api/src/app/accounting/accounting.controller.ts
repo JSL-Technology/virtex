@@ -157,7 +157,7 @@ export class AccountingController {
   @HasPermission(PERMISSIONS.ACCOUNTING_CLOSE_PERIOD)
   @ApiOperation({ summary: 'Cierra un período contable general.' })
   @ApiResponse({ status: 200, description: 'Período cerrado exitosamente.' })
-  @ApiResponse({ status: 400, description: 'El período ya está cerrado o tiene asientos en borrador.' })
+  @ApiResponse({ status: 400, description: 'El período ya está cerrado, no ha terminado todavía, o tiene asientos en borrador.' })
   @ApiResponse({ status: 403, description: 'Permisos insuficientes.' })
   @ApiResponse({ status: 404, description: 'Período no encontrado.' })
   async closePeriod(
@@ -168,6 +168,7 @@ export class AccountingController {
       closePeriodDto.periodId,
       user.organizationId,
       user.id,
+      { closeBeforeItEnds: closePeriodDto.closeBeforeItEnds === true },
     );
     return {
       messageKey: 'accounting.period_closed',
