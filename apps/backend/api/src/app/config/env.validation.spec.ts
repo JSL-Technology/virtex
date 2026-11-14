@@ -270,6 +270,45 @@ describe('environment validation', () => {
     });
   });
 
+  describe('the switches a deployment may not flip', () => {
+    /**
+     * Fourteen variables were read straight from `process.env` in the services that use them, so
+     * the schema — the one description of what a deployment can set — did not know they existed.
+     * Two of them decide whether an extension's code is scanned before it is admitted and whether
+     * it is signed with a key that survives a restart, and neither had any production guard.
+     */
+    it('refuses a deployment that would sign extensions with a throwaway key', () => {
+      const { error } = check({ ...productionEnv(), ALLOW_EPHEMERAL_PLUGIN_KEYS: 'true' });
+      expect(error?.message).toContain('ALLOW_EPHEMERAL_PLUGIN_KEYS');
+    });
+
+    it('lets a development checkout use one, because nothing else can sign locally', () => {
+      const { error, value } = check({ NODE_ENV: 'development', ALLOW_EPHEMERAL_PLUGIN_KEYS: 'true' });
+      expect(error).toBeUndefined();
+      expect(value.ALLOW_EPHEMERAL_PLUGIN_KEYS).toBe(true);
+    });
+
+    it('scans an extension before admitting it unless a deployment says otherwise on purpose', () => {
+      // Unset in a deployment is `required`: an extension the scanner could not reach is refused.
+      expect(check(productionEnv()).value.PLUGIN_DAST_MODE).toBe('required');
+      // A development checkout has no scanner to reach.
+      expect(check({ NODE_ENV: 'development' }).value.PLUGIN_DAST_MODE).toBe('best-effort');
+      // And a mode the pipeline does not know is a typo, not a third behaviour.
+      expect(check({ ...productionEnv(), PLUGIN_DAST_MODE: 'skip' }).error?.message).toContain('PLUGIN_DAST_MODE');
+    });
+
+    it('starts protected: the unprotected-bootstrap door is shut unless it is opened by name', () => {
+      expect(check(productionEnv()).value.DEPLOY_ALLOW_UNPROTECTED_BOOTSTRAP).toBe(false);
+      expect(check({ ...productionEnv(), DEPLOY_ALLOW_UNPROTECTED_BOOTSTRAP: 'true' }).value.DEPLOY_ALLOW_UNPROTECTED_BOOTSTRAP).toBe(true);
+    });
+
+    it('bills its own subscriptions in a real currency code', () => {
+      expect(check(productionEnv()).value.SAAS_BASE_CURRENCY).toBe('USD');
+      expect(check({ ...productionEnv(), SAAS_BASE_CURRENCY: 'dop' }).value.SAAS_BASE_CURRENCY).toBe('DOP');
+      expect(check({ ...productionEnv(), SAAS_BASE_CURRENCY: 'DOLLAR' }).error?.message).toContain('SAAS_BASE_CURRENCY');
+    });
+  });
+
   describe('storage credentials follow the driver actually in use', () => {
     it('does not ask for AWS credentials when the local driver is selected', () => {
       const { error, value } = check(productionEnv());

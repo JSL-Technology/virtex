@@ -12,8 +12,11 @@ describe('TenantIsolationCheck', () => {
     process.env['NODE_ENV'] = originalEnv;
   });
 
-  const check = (query: jest.Mock) =>
-    new TenantIsolationCheck({ options: { type: 'postgres' }, query } as never);
+  /** `bootstrapping` is the one deployment door, read from the validated configuration. */
+  const check = (query: jest.Mock, bootstrapping = false) =>
+    new TenantIsolationCheck({ options: { type: 'postgres' }, query } as never, {
+      get: () => bootstrapping,
+    } as never);
 
   const enforcing = { user: 'virtex_app', bypasses: false, policies: 120, exempt: 0 };
 

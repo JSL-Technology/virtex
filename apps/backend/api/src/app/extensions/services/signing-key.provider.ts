@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import { isDevLikeEnvironment } from '../../config/environment';
 
@@ -25,6 +26,14 @@ export class SigningKeyProvider {
   private readonly logger = new Logger(SigningKeyProvider.name);
   private keys: SigningKeys | null = null;
 
+  /**
+   * Read through `ConfigService`, not from `process.env`: the keys and the escape hatch are
+   * declared in `config/env.validation.ts` like everything else a deployment can set, and
+   * `ALLOW_EPHEMERAL_PLUGIN_KEYS` is now refused outright outside development — the schema does
+   * not let a deployment ask for a signing key that stops verifying at the next restart.
+   */
+  constructor(private readonly config: ConfigService) {}
+
   getKeys(): SigningKeys {
     if (this.keys) return this.keys;
     this.keys = this.resolveKeys();
@@ -36,7 +45,7 @@ export class SigningKeyProvider {
   }
 
   private resolveKeys(): SigningKeys {
-    const bundle = process.env['MARKETPLACE_SIGNING_KEYS'];
+    const bundle = this.config.get<string>('MARKETPLACE_SIGNING_KEYS');
     if (bundle) {
       try {
         const parsed = JSON.parse(bundle) as Partial<SigningKeys>;
@@ -48,8 +57,8 @@ export class SigningKeyProvider {
       }
     }
 
-    const priv = process.env['MARKETPLACE_SIGNING_PRIVATE_KEY'];
-    const pub = process.env['MARKETPLACE_SIGNING_PUBLIC_KEY'];
+    const priv = this.config.get<string>('MARKETPLACE_SIGNING_PRIVATE_KEY');
+    const pub = this.config.get<string>('MARKETPLACE_SIGNING_PUBLIC_KEY');
     if (priv && pub) {
       return { private: priv, public: pub };
     }
@@ -64,7 +73,7 @@ export class SigningKeyProvider {
       );
     }
 
-    if (process.env['ALLOW_EPHEMERAL_PLUGIN_KEYS'] === 'true') {
+    if (this.config.get<boolean>('ALLOW_EPHEMERAL_PLUGIN_KEYS') === true) {
       this.logger.warn(
         'Generating ephemeral extension signing keys — for local development only. ' +
           'Extensions signed now will not verify after a restart.',

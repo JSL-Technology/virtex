@@ -159,6 +159,22 @@ const ZERO_DECIMAL_CURRENCIES: ReadonlySet<string> = new Set([
 ]);
 
 /** How many minor units make one unit of `currency`. 1 for zero-decimal currencies, else 100. */
+/**
+ * The platform's own billing currency: what a market with no local price is quoted and charged in.
+ *
+ * Read here rather than in the service, because this file IS the configuration layer for the
+ * subscription plans and is the one place in the module that reads the environment. `SaasService`
+ * exposes it statically — it is a process-wide fact, not tenant state — and a static cannot inject
+ * `ConfigService`, so putting the read in the service would have been a second door to the
+ * environment inside a class that already has the first.
+ *
+ * `config/env.validation.ts` declares it (`SAAS_BASE_CURRENCY`), defaults it to `USD` and
+ * uppercases it, so what arrives here is already a three-letter code.
+ */
+export function saasBaseCurrency(): string {
+  return process.env['SAAS_BASE_CURRENCY'] || 'USD';
+}
+
 export function minorUnitFactor(currency: string): number {
   return ZERO_DECIMAL_CURRENCIES.has((currency ?? '').toUpperCase()) ? 1 : 100;
 }

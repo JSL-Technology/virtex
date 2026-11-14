@@ -12,6 +12,14 @@ dominios nuevos):
 
 Detalle y criterios del merge en [docs/MERGE_FROM_SPECIAL_ENIGMA.md](docs/MERGE_FROM_SPECIAL_ENIGMA.md).
 
+## Cómo se escribe código aquí
+
+Las reglas que el repositorio ya no admite, cada una con la puerta de CI que la sostiene y el
+defecto del que salió: [docs/ESTANDAR_DE_INGENIERIA.md](docs/ESTANDAR_DE_INGENIERIA.md). Léelo antes
+de deducir qué es «correcto» a partir del código que ya existe —algunas partes son anteriores a su
+regla, y la regla es la puerta, no el ejemplo. Cómo se añade o se completa un mercado:
+[docs/ARQUITECTURA_MERCADOS.md](docs/ARQUITECTURA_MERCADOS.md).
+
 ## Ejecutar en local
 
 Necesitas Postgres y Redis. Nada más: con `NODE_ENV` sin definir o en `development`, la API genera

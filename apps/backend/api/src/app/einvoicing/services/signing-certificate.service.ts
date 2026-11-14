@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as forge from 'node-forge';
 import { loadTrustAnchors, verifyCertificateChain } from './certificate-trust';
 import { isDevLikeEnvironment } from '../../config/environment';
@@ -52,14 +53,23 @@ export class SigningCertificateService {
     @InjectRepository(SigningCertificate)
     private readonly repo: Repository<SigningCertificate>,
     private readonly vault: CertificateVaultService,
+    private readonly config: ConfigService,
   ) {}
 
   private readonly anchors = new Map<string, forge.pki.Certificate[]>();
 
-  /** The configured trust anchors of a market, read once. */
+  /**
+   * The configured trust anchors of a market, read once.
+   *
+   * Through `ConfigService`, not `process.env`: `SIGNING_TRUSTED_CA_BUNDLE_<CC>` is a deployment's
+   * input like any other, and reading the raw environment here bypassed the validated
+   * configuration and made the service untestable without mutating the process.
+   */
   private anchorsFor(country: string): forge.pki.Certificate[] {
     const key = country.toUpperCase();
-    if (!this.anchors.has(key)) this.anchors.set(key, loadTrustAnchors(key, (name) => process.env[name]));
+    if (!this.anchors.has(key)) {
+      this.anchors.set(key, loadTrustAnchors(key, (name) => this.config.get<string>(name)));
+    }
     return this.anchors.get(key) ?? [];
   }
 

@@ -13,7 +13,7 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { ConfigService } from '@nestjs/config';
 import { SaasResource } from './enums/saas-resource.enum';
 import { QuotaPeriod } from './enums/quota-period.enum';
-import { SAAS_PLANS, minorUnitFactor, type PlanConfig } from './saas.config';
+import { SAAS_PLANS, minorUnitFactor, saasBaseCurrency, type PlanConfig } from './saas.config';
 import type { BillingPeriod } from './enums/billing-period.enum';
 import {
   SaasLimitReachedException,
@@ -257,7 +257,7 @@ export class SaasService implements OnModuleInit {
 
   /** The platform's base currency: what a market with no local price is quoted and charged in. */
   static baseCurrency(): string {
-    return (process.env['SAAS_BASE_CURRENCY'] || 'USD').toUpperCase();
+    return saasBaseCurrency();
   }
 
   /** The configured amount for a plan in a currency, in that currency's minor units. */

@@ -1,4 +1,5 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { isDevLikeEnvironment } from '../../config/environment';
@@ -47,7 +48,10 @@ import { CLASSIFIED_TABLE_NAMES } from './tenant-table-classification';
 export class TenantIsolationCheck implements OnApplicationBootstrap {
   private readonly logger = new Logger(TenantIsolationCheck.name);
 
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly config: ConfigService,
+  ) {}
 
   /**
    * Instaladas no es lo mismo que suficientes.
@@ -178,7 +182,7 @@ export class TenantIsolationCheck implements OnApplicationBootstrap {
       // la correcta desde dentro. Todo funciona […] y nadie se entera hasta que alguien ve datos
       // de otra empresa».
       const bootstrapping =
-        (process.env['DEPLOY_ALLOW_UNPROTECTED_BOOTSTRAP'] ?? '').toLowerCase() === 'true';
+        this.config.get<boolean>('DEPLOY_ALLOW_UNPROTECTED_BOOTSTRAP') === true;
 
       if (isDevLikeEnvironment() || bootstrapping) {
         this.logger.error(

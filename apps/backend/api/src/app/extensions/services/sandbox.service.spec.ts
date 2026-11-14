@@ -20,9 +20,13 @@ describe('SandboxService', () => {
   const validSbom = { bomFormat: 'CycloneDX', specVersion: '1.4', components: [] };
 
   beforeAll(() => {
-    process.env.ALLOW_EPHEMERAL_PLUGIN_KEYS = 'true';
-    keys = new SigningKeyProvider();
-    admission = new PluginAdmissionService(keys);
+    // The validated configuration, as the schema would hand it over: ephemeral signing keys are
+    // a development-only switch and `ConfigService` is where a service reads one.
+    const config = {
+      get: (name: string) => ({ ALLOW_EPHEMERAL_PLUGIN_KEYS: true, PLUGIN_DAST_MODE: 'best-effort' })[name],
+    } as never;
+    keys = new SigningKeyProvider(config);
+    admission = new PluginAdmissionService(keys, config);
     sandbox = new SandboxService(keys);
   });
 

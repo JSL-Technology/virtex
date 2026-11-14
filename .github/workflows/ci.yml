@@ -353,6 +353,24 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:country-neutrality
 
+      # The product is called virtex. A single typo in a scaffold had spread to 729 places — the
+      # TypeScript path alias, the package name, environment variables, the test and CI databases,
+      # i18n keys — and a name that is right in some places and wrong in others breaks every tool
+      # that matches on it. The misspellings are banned outright; a line that must NAME one to
+      # explain it says so with `product-name-allow`.
+      - name: npm run verify:product-name
+        if: ${{ !cancelled() }}
+        run: npm run verify:product-name
+
+      # `config/env.validation.ts` is the complete description of what a deployment can set: the
+      # name, the shape, the default, and what is refused outside development. Fourteen variables
+      # were read straight from `process.env`, so the schema did not know they existed: a misspelt
+      # name was silent, the defaults lived in four files, and two of them decide whether an
+      # extension's code is scanned and whether it is signed with a key that survives a restart.
+      - name: npm run verify:env-schema
+        if: ${{ !cancelled() }}
+        run: npm run verify:env-schema
+
       # A refusal reaches the browser as a KEY, never as a sentence: the API answers
       # `{ statusCode, code, messageKey, params }` and the reader's own catalogue words it. A
       # `throw new BadRequestException('La naturaleza de la cuenta…')` breaks that twice over — the

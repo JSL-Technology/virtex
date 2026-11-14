@@ -357,6 +357,60 @@ export const envValidation = Joi.object({
   // applies in every process.
   EINVOICE_TIMEOUT_MS: Joi.number().integer().positive().optional(),
 
+  // ── Extensions: admission pipeline and marketplace signing ────────────────
+  //
+  // Declared here, like everything else a deployment can set. They were read straight from
+  // `process.env` in the services that use them, so the schema — the one description of what a
+  // deployment's inputs are — did not know they existed: a misspelt name was silent, the defaults
+  // lived in four different files, and two of them are switches that decide whether code is
+  // scanned and whether an extension is signed with a key that survives a restart.
+  //
+  // Static and dynamic analysis of an extension's code before it is admitted. Without a URL the
+  // step is skipped, which is why the MODE matters: `required` (the default outside development)
+  // refuses an extension the scanner could not reach, `best-effort` admits it.
+  SONAR_HOST_URL: Joi.string().uri().optional(),
+  SONAR_TOKEN: Joi.string().allow('').optional(),
+  PLUGIN_DAST_URL: Joi.string().uri().allow('').optional(),
+  PLUGIN_DAST_TOKEN: Joi.string().allow('').optional(),
+  PLUGIN_DAST_MODE: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.string().valid('required', 'best-effort').default('best-effort'),
+    // A deployment may still say `best-effort` on purpose; what it may not do is end up there by
+    // leaving the variable unset.
+    otherwise: Joi.string().valid('required', 'best-effort').default('required'),
+  }),
+  // The policy engine the admission pipeline evaluates its rules with.
+  OPA_BIN: Joi.string().optional(),
+  PLUGIN_OPA_POLICY: Joi.string().optional(),
+  // The keys the marketplace signs an admitted extension with, and the sandbox verifies before
+  // running it. MANDATORY outside development: `signing-key.provider.ts` refuses to start without
+  // them, because an unsigned extension running in the sandbox is arbitrary code in the tenant's
+  // process. Either the bundle, or the pair.
+  MARKETPLACE_SIGNING_KEYS: Joi.string().optional(),
+  MARKETPLACE_SIGNING_PRIVATE_KEY: Joi.string().optional(),
+  MARKETPLACE_SIGNING_PUBLIC_KEY: Joi.string().optional(),
+  // Generate a throwaway signing pair at boot. Development and test only, and refused elsewhere:
+  // an extension signed with it stops verifying at the next restart, so a deployment that carried
+  // this would admit extensions nothing could check afterwards.
+  ALLOW_EPHEMERAL_PLUGIN_KEYS: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.boolean().truthy('true').falsy('false').default(false),
+    otherwise: Joi.boolean().truthy('true').falsy('false').valid(false).default(false),
+  }),
+
+  // ── Operational doors ─────────────────────────────────────────────────────
+  //
+  // Start with NO row-level isolation policies in the database. The first deployment, before the
+  // migrations have run, is a legitimate case and this is how it is allowed: deliberately, by
+  // name, rather than as the default behaviour — a database without isolation is indistinguishable
+  // from a correct one from inside, and nobody finds out until somebody sees another company's
+  // data (`shared/tenancy/tenant-isolation.check.ts`).
+  DEPLOY_ALLOW_UNPROTECTED_BOOTSTRAP: Joi.boolean().truthy('true').falsy('false').default(false),
+  // Where the development SMS provider writes the messages it does not send.
+  SMS_OUTBOX_DIR: Joi.string().optional(),
+  // The currency the platform bills its own subscriptions in — the product's, not a tenant's.
+  SAAS_BASE_CURRENCY: Joi.string().uppercase().length(3).default('USD'),
+
   // RS256 keys: required in production, optional in development (ephemeral key is generated).
   RS_PRIVATE_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),
   RS_PUBLIC_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),
