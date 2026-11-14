@@ -8,9 +8,9 @@ import { BillingService } from '../../../../../core/services/billing';
 import { annualSavingPercent, formatPlanPrice, type BillingPeriod } from '../../../../../core/models/plan.model';
 import { CountryService } from '../../../../../core/services/country.service';
 import { LanguageService } from '../../../../../core/services/language';
-import { TranslateModule, translateOrLiteral } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, translateOrLiteral } from '@virtex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /**
  * One bullet on a plan card.

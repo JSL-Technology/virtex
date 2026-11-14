@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { LucideAngularModule, AlertCircle, RefreshCw, Check, Bell } from 'lucide-angular';
 import { CountryService, SupportedCountry } from '../../../core/services/country.service';
 import { CountryNamesService } from '../../../core/i18n/countries';
@@ -14,7 +14,7 @@ import { CountryFlagComponent } from '../../../shared/components/country-flag/co
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
 import { NotificationService } from '../../../core/services/notification';
 import { environment } from '../../../../environments/environment';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** One choice on the picker. */
 interface CountryChoice {

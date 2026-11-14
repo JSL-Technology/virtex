@@ -1,7 +1,7 @@
 # Diseño: Eliminación de Dependencias Circulares y Preparación para Microservicios
 
 **Fecha:** 2026-05-28  
-**Proyecto:** Virteex ERP SaaS — Backend NestJS Monorepo  
+**Proyecto:** Virtex ERP SaaS — Backend NestJS Monorepo  
 **Estado:** Aprobado
 
 ---

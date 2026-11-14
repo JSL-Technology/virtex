@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, FormatService } from '@virtex/shared/ui-i18n';
 import { ExternalLink, LucideAngularModule, MessageSquareText } from 'lucide-angular';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { NotificationService } from '../../../core/services/notification';

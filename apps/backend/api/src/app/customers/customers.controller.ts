@@ -20,7 +20,7 @@ import { HasPermission } from '../security/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../security/principal';
 import { clampLimit } from '../common/database/search-term';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 
 @Controller('customers')
 /**

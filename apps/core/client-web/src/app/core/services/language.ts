@@ -8,8 +8,8 @@ import {
   LocaleContextContract,
   SUPPORTED_LANGUAGES,
   matchLanguage,
-} from '@virteex/shared/types';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+} from '@virtex/shared/types';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import { UsersService } from '../api/users.service';
 
 /**

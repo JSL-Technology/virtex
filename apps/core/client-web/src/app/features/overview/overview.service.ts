@@ -23,7 +23,7 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth';
 import { requiredPermissionsFor } from '../../core/modules/module-manifest';
 import { resolveRoute } from '../../core/modules/module-registry';
-import { FormatService } from '@virteex/shared/ui-i18n';
+import { FormatService } from '@virtex/shared/ui-i18n';
 
 /**
  * The workspace home page's data.

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, AlertCircle, CheckCircle, Circle, Lock, RefreshCw } from 'lucide-angular';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { AuthService } from '../../../../core/services/auth';
 import { DialogService } from '../../../../core/services/dialog.service';
 import { NotificationService } from '../../../../core/services/notification';

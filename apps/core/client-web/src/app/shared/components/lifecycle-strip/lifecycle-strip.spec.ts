@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
-import { DocumentLifecycle } from '@virteex/shared/types';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
+import { DocumentLifecycle } from '@virtex/shared/types';
 import { DocumentLifecycleService } from '../../../core/lifecycle/document-lifecycle.service';
 import { VxLifecycleStripComponent } from './index';
 

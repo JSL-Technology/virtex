@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, QueryFailedError, Repository } from 'typeorm';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { PosShift, PosShiftStatus } from './entities/pos-shift.entity';
 import { PosPayment, PosSale, PosSaleItem, PosSaleStatus } from './entities/pos-sale.entity';
 import { InventoryService } from '../inventory/inventory.service';

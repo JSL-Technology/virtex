@@ -114,6 +114,11 @@
     "en": "The certificate is self-signed: it was not issued by a certification authority the tax authority ({{authority}}) recognises, so documents signed with it would be rejected.",
     "pt": "O certificado é autoassinado: não foi emitido por uma autoridade certificadora reconhecida pela autoridade fiscal ({{authority}}), portanto os documentos assinados com ele seriam rejeitados."
   },
+  "einvoicing.certificate.stored_in_a_retired_format": {
+    "es": "Este certificado se guardó con un formato de cifrado retirado. Vuelve a subir el archivo .p12 con su contraseña.",
+    "en": "This certificate was stored with a retired encryption format. Upload the .p12 file and its password again.",
+    "pt": "Este certificado foi guardado com um formato de cifragem retirado. Carregue novamente o arquivo .p12 e a sua senha."
+  },
   "einvoicing.certificate.trust_store_not_configured": {
     "es": "Este servidor aún no tiene configuradas las entidades de certificación que acepta {{authority}}, así que no puede comprobar el certificado. Avisa al soporte.",
     "en": "This server does not yet have the certification authorities {{authority}} accepts configured, so it cannot check the certificate. Tell support.",
@@ -653,6 +658,16 @@
     "es": "La dirección no está permitida ({{reason}}): debe ser HTTPS, en el puerto 443 u 8443, sin usuario en la URL y en una dirección pública.",
     "en": "That address is not allowed ({{reason}}): it must be HTTPS, on port 443 or 8443, with no user in the URL, on a public address.",
     "pt": "O endereço não é permitido ({{reason}}): deve ser HTTPS, na porta 443 ou 8443, sem utilizador no URL e num endereço público."
+  },
+  "einvoicing.transport.authority_not_contacted": {
+    "es": "No se intentó contactar a la autoridad fiscal: la comunicación con autoridades está desactivada en este entorno. El documento queda pendiente de transmisión.",
+    "en": "The tax authority was not contacted: communication with authorities is switched off in this environment. The document is left pending transmission.",
+    "pt": "A autoridade fiscal não foi contactada: a comunicação com autoridades está desativada neste ambiente. O documento fica pendente de transmissão."
+  },
+  "einvoicing.transport.authority_unreachable": {
+    "es": "No se pudo contactar a la autoridad fiscal. El documento queda pendiente y se reintenta automáticamente.",
+    "en": "The tax authority could not be reached. The document is left pending and is retried automatically.",
+    "pt": "Não foi possível contactar a autoridade fiscal. O documento fica pendente e é reenviado automaticamente."
   },
   "einvoicing.unknown_message_type_kind_use_commercial": {
     "es": "Tipo de mensaje desconocido: {{kind}}. Usa COMMERCIAL_APPROVAL o SEQUENCE_VOID.",

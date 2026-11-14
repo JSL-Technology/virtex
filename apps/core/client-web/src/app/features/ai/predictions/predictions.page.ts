@@ -3,9 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { LucideAngularModule, RefreshCw, ChevronDown, ChevronRight } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { composeKey } from '@virteex/shared/types';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { composeKey } from '@virtex/shared/types';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';

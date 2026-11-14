@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import {
   ForbiddenError,
   NotFoundError,

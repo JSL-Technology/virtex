@@ -1,5 +1,5 @@
 import { EntityManager } from 'typeorm';
-import { LanguageCode } from '@virteex/shared/types';
+import { LanguageCode } from '@virtex/shared/types';
 import { organizationBaseCurrency } from '../organizations/contracts/base-currency.contract';
 import { organizationFiscalIdentity } from '../organizations/contracts/fiscal-identity.contract';
 

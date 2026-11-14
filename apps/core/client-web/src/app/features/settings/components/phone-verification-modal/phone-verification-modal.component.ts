@@ -2,12 +2,12 @@
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, signal, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { LucideAngularModule, Phone, Check } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth';
 import { NotificationService } from '../../../../core/services/notification';
 import { IntlPhoneInputComponent } from '../../../../shared/components/intl-phone-input/intl-phone-input.component';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
 import { VxSpinnerComponent } from '../../../../shared/components/feedback';
 

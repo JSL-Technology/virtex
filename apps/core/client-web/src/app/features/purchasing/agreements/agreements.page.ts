@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SELECT } from '../../../shared/components/select';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';

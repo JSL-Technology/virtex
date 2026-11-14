@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, ScanSearch } from 'lucide-angular';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
+import { FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
 import { NotificationService } from '../../../core/services/notification';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { DataQualityApiService, DuplicateEntityType, DuplicateList, DuplicateStatus, DuplicateSuggestion } from './data-quality.service';

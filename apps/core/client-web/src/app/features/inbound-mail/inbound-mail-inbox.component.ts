@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, si
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Mail, RotateCcw, X } from 'lucide-angular';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
+import { FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
 import { VxBadgeComponent, VxTone } from '../../shared/components/badge/badge.component';
 import { InboundMailPurpose, InboundMailService, InboundMessage, InboundMessageStatus } from './inbound-mail.service';
 

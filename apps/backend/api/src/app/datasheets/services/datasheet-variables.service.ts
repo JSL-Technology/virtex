@@ -1,4 +1,4 @@
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';

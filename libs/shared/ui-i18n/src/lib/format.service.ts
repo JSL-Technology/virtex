@@ -7,7 +7,7 @@ import {
   NUMBER_FORMAT_SYMBOLS,
   withNumberSymbols,
   writeNumericDate,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 import { LocaleStore } from './locale.store';
 
 /**

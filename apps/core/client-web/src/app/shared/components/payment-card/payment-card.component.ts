@@ -1,4 +1,4 @@
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { CardBrand, cardBrandLabel, normalizeCardBrand, VxCardBrandComponent } from '../card-brand';
 

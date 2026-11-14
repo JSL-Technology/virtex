@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { SUPPORTED_LOCALES } from '@virteex/shared/types';
+import { SUPPORTED_LOCALES } from '@virtex/shared/types';
 import { allMarkets } from './index';
 
 /**

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
 import { LucideAngularModule, Plus, Save, Trash2 } from 'lucide-angular';
 import { catchError, forkJoin, of } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, LocaleStore, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, LocaleStore, tenantToday } from '@virtex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 import {
   CompanyParameterKind,

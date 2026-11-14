@@ -20,7 +20,7 @@ import {
   normaliseRegionalFormat,
   withDateFormat,
   withNumberSymbols,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 import { I18nService } from '../../i18n/i18n.service';
 import {
   divisionName,

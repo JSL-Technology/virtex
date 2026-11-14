@@ -6,7 +6,7 @@ textos (`libs/shared/locales`) y puertas de CI.
 
 ## 1. Contexto
 
-Virteex se vende en 19 mercados: República Dominicana, México, Colombia, Perú, Chile, Ecuador,
+Virtex se vende en 19 mercados: República Dominicana, México, Colombia, Perú, Chile, Ecuador,
 Argentina, Brasil, Estados Unidos, Uruguay, Paraguay, Bolivia, Venezuela, Panamá, Costa Rica,
 Guatemala, El Salvador, Honduras y Nicaragua. Cada uno debe verse y comportarse como un producto
 nativo de ese país, incluido su idioma.

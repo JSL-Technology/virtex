@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Observable, forkJoin, map } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SELECT } from '../../../shared/components/select';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';

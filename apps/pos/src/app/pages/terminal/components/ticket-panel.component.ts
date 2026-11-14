@@ -19,11 +19,11 @@ import {
   Lock,
   Eraser,
 } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { AuthService } from '../../../core/auth.service';
 import { lineTotal } from '../../../domain/cart';
 import { TillStore } from '../../../state/till.store';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /**
  * The open ticket: who it is for, what is on it, what it comes to — and, while the till has no

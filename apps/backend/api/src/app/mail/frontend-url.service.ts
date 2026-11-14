@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DEFAULT_LANGUAGE, matchLanguage } from '@virteex/shared/types';
+import { DEFAULT_LANGUAGE, matchLanguage } from '@virtex/shared/types';
 
 /**
  * Builds links into the web client.

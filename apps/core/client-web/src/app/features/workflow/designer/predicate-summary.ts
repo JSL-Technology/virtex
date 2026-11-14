@@ -1,5 +1,5 @@
 import { TranslateService } from '@ngx-translate/core';
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 import { PredicateOp, UNARY_OPS, WorkflowPredicate } from '../data/workflow.service';
 
 const SYMBOLS: Partial<Record<PredicateOp, string>> = { eq: '=', ne: '≠', gt: '>', gte: '≥', lt: '<', lte: '≤' };

@@ -1700,6 +1700,11 @@
     "en": "Sales",
     "pt": "Vendas"
   },
+  "accounting.ledger.account_merge_reclassification": {
+    "es": "Reclasificación por fusión de la cuenta {{source}} en {{destination}}",
+    "en": "Reclassification from merging account {{source}} into {{destination}}",
+    "pt": "Reclassificação por fusão da conta {{source}} em {{destination}}"
+  },
   "accounting.ledger_form.cancel": {
     "es": "Cancelar",
     "en": "Cancel",
@@ -1935,6 +1940,11 @@
     "en": "Posted balance",
     "pt": "Saldo contabilizado"
   },
+  "accounting.merge_tool.posted_lines_kept": {
+    "es": "{{count}} línea(s) ya contabilizada(s) se quedan en la cuenta de origen: no se reescribe historia.",
+    "en": "{{count}} posted line(s) stay on the source account: history is not rewritten.",
+    "pt": "{{count}} linha(s) já contabilizada(s) permanecem na conta de origem: o histórico não é reescrito."
+  },
   "accounting.merge_tool.reason": {
     "es": "Motivo",
     "en": "Reason",
@@ -1944,6 +1954,11 @@
     "es": "Queda en la pista de auditoría de la cuenta.",
     "en": "Recorded in the account's audit trail.",
     "pt": "Fica registrado na trilha de auditoria da conta."
+  },
+  "accounting.merge_tool.reclassification_entry": {
+    "es": "El saldo contabilizado se traslada con un asiento de reclasificación con fecha de hoy.",
+    "en": "The posted balance is moved with a reclassification entry dated today.",
+    "pt": "O saldo contabilizado é transferido com um lançamento de reclassificação datado de hoje."
   },
   "accounting.merge_tool.search_code_name": {
     "es": "Buscar por código o nombre",

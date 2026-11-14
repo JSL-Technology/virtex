@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { CopilotUser } from '../../contracts/copilot/copilot-tools.contract';
 import { AccessAuditPort } from '../../contracts/audit/access-audit.contract';
 import { EntitlementsPort } from '../../saas/contracts/entitlements.contract';

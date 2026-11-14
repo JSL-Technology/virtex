@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
@@ -10,7 +10,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { DepreciationRunResult, FixedAssetsService } from '../data/fixed-assets.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** The month that just ended: what a run is usually for. */
 export function previousMonth(today = new Date()): string {

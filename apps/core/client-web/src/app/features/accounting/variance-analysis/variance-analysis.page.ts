@@ -3,12 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, ArrowUp, ArrowDown } from 'lucide-angular';
 
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { NotificationService } from '../../../core/services/notification';
 import { BudgetsService, VarianceLine, VarianceReport, isFavourable } from '../data/budgets.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 

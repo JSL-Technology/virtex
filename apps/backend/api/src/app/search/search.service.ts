@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { InvoicesService } from '../invoices/invoices.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { CustomersService } from '../customers/customers.service';

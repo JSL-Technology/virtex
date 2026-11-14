@@ -1,5 +1,5 @@
 
-import type { RegionalFormat } from '@virteex/shared/types';
+import type { RegionalFormat } from '@virtex/shared/types';
 import {
   Check,
   Entity,

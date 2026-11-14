@@ -9,7 +9,7 @@ import { SessionService, UserSession } from '../../../../core/services/session.s
 import { NotificationService } from '../../../../core/services/notification';
 import { finalize } from 'rxjs/operators';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { VxSpinnerComponent } from '../../../../shared/components/feedback';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
 import { environment } from '../../../../../environments/environment';

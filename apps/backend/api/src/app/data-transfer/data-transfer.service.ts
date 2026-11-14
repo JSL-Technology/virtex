@@ -1,6 +1,6 @@
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import * as ExcelJS from 'exceljs';

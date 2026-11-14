@@ -14,8 +14,8 @@ import {
   EyeOff,
   Building2,
 } from 'lucide-angular';
-import { TranslateModule, resolveErrorKey } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, resolveErrorKey } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { environment } from '../../../environments/environment';
 import { AuthService, SignInOutcome } from '../../core/auth.service';
 

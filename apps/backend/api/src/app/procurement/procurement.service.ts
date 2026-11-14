@@ -13,7 +13,7 @@ import { Page, resolvePaging, toPage } from '../common/pagination';
 import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbering/document-numbers';
 import { organizationToday } from '../organizations/contracts/fiscal-today.contract';
 import { roundAmount, toCents } from '../common/money';
-import { canTransition } from '@virteex/shared/types';
+import { canTransition } from '@virtex/shared/types';
 import { REQUISITION_LIFECYCLE } from './procurement-lifecycles';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { APPROVAL_DECIDED, APPROVAL_REQUESTED, ApprovalDecidedEvent, ApprovalRequestedEvent } from '../workflows/events/approval.events';

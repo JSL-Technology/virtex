@@ -3,7 +3,7 @@ import { handleDocumentIntents } from '../../../core/navigation/document-intent.
 import { Router, RouterLink } from '@angular/router';
 
 import { Ban, LucideAngularModule } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { DocumentShellComponent } from '../../../shared/components/gestures';
 import { VxBranchLabelComponent } from '../../../shared/components/branch-picker';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';

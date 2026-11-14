@@ -11,7 +11,7 @@ import {
   RegionalFormat,
   mergeRegionalFormats,
   normaliseRegionalFormat,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 
 /**
  * Which language THIS request is answered in.

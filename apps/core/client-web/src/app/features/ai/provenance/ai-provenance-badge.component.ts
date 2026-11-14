@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { TranslatePipe } from '@ngx-translate/core';
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 import { environment } from '../../../../environments/environment';
 import { VxBadgeComponent } from '../../../shared/components/badge/badge.component';
 

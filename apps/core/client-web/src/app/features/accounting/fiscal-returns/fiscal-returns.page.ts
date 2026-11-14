@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { Observable, catchError, filter, forkJoin, map, of, take } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { AuthService } from '../../../core/services/auth';
@@ -20,7 +20,7 @@ import {
   ReturnFiling,
   ReturnFilingOption,
 } from '../data/fiscal-returns.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /**
  * Where one month's return stands, as the calendar colours it. `not_applicable` is a month before

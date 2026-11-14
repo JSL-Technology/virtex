@@ -51,7 +51,7 @@ import { strongPasswordValidator } from '../../../shared/validators/password.val
 import { catchError, of } from 'rxjs';
 import { phoneLikeValidator } from '../../../shared/validators/phone-like.validator';
 import { toE164 } from '../../../shared/utils/phone.util';
-import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virtex/shared/ui-i18n';
 import { PasswordStrengthComponent } from '../../../shared/components/password-strength/password-strength.component';
 
 /** «Nueva» y «Confirmar» coinciden. El error vive en el grupo para poder decirlo junto a ambos. */
@@ -60,7 +60,7 @@ const passwordsMatchValidator: ValidatorFn = (group: AbstractControl): Validatio
   const confirm = group.get('confirmPassword')?.value;
   return next && confirm && next !== confirm ? { passwordsMismatch: true } : null;
 };
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { SettingsChanges, SettingsSaveBarComponent, SettingsShellService } from '../shell';
 
 // Typed Form Interface

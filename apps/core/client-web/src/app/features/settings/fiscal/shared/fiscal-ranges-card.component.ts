@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { FiscalEmissionMode } from '../../../../core/services/invoices';
 import { NotificationService } from '../../../../core/services/notification';
 import { FiscalDocumentTypeView, FiscalRange, FiscalSettingsService } from '../../data/fiscal-settings.service';

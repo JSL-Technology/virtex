@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output, si
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Sparkles } from 'lucide-angular';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { composeKey } from '@virteex/shared/types';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { composeKey } from '@virtex/shared/types';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
 import { InvoicesService, MessageTone } from '../../../../core/services/invoices';
 import { NotificationService } from '../../../../core/services/notification';

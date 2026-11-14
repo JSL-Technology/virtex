@@ -65,9 +65,14 @@ export interface MergePreviewAccount {
 export interface MergePreview {
   source: MergePreviewAccount;
   destination: MergePreviewAccount;
+  /** Lines the merge repoints: the unposted ones only. A posted line is history. */
   linesToMove: number;
   linesInClosedPeriods: number;
   childAccountsToMove: number;
+  /** Lines that stay on the source because they are posted; their balance is reclassified. */
+  postedLinesKept: number;
+  /** What the reclassification entry moves to the destination. Zero means no entry is posted. */
+  reclassifiedAmount: number;
   /** Translation keys of every reason the server would refuse the merge. */
   blockers: string[];
   /** Translation keys of consequences to accept knowingly. */

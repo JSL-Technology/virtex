@@ -1,5 +1,5 @@
 import { Provider, WritableSignal, computed, signal } from '@angular/core';
-import type { TenantCountryPackResponse } from '@virteex/shared/types';
+import type { TenantCountryPackResponse } from '@virtex/shared/types';
 import { CountryPackService } from './country-pack.service';
 
 /** The Dominican pack: what the forms were written for, and what their tests assume. */

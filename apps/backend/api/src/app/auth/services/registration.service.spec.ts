@@ -1,4 +1,4 @@
-import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
+import { LEGAL_DOCUMENTS } from '@virtex/shared/types';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { RegisterCheckoutDto } from '../dto/register-checkout.dto';

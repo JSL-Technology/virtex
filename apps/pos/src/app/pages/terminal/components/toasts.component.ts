@@ -7,7 +7,7 @@ import {
   Info,
   X,
 } from 'lucide-angular';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { ToastService } from '../../../core/toast.service';
 
 @Component({

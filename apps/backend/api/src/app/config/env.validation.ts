@@ -72,7 +72,7 @@ const requiredForS3 = () =>
  * down; this applies it early enough for the process to actually reach that code.
  */
 export const devSecret = (name: string): string =>
-  crypto.createHash('sha256').update(`virteex-dev-only:${name}`).digest('hex');
+  crypto.createHash('sha256').update(`virtex-dev-only:${name}`).digest('hex');
 
 /**
  * Placeholder values that indicate a secret was shipped rather than chosen.
@@ -403,7 +403,7 @@ export const envValidation = Joi.object({
   REDIS_PASSWORD: Joi.string().optional(),
   // Declared so Joi coerces it; see the DB_SSL note above for why a bare string flag is a hazard.
   REDIS_TLS: Joi.boolean().default(false),
-  REDIS_NAMESPACE: Joi.string().default('virteex'),
+  REDIS_NAMESPACE: Joi.string().default('virtex'),
 
   /**
    * Rate limiting (one configuration, AppModule). Counted per person per company when signed in,
@@ -431,7 +431,7 @@ export const envValidation = Joi.object({
   MAIL_PASSWORD: optionalInDev(),
   MAIL_FROM_ADDRESS: Joi.when('NODE_ENV', {
     is: DEV_LIKE,
-    // The product is Virtex: the sender read «no-reply@virteex.local» to every recipient (CG-30).
+    // The product is Virtex: the sender read «no-reply@virtex.local» to every recipient (CG-30).
     then: Joi.string().email().default('no-reply@virtex.local'),
     otherwise: Joi.string().email().required(),
   }),

@@ -2,8 +2,8 @@ import { Injectable, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, distinctUntilChanged, of, switchMap } from 'rxjs';
-import type { CountryPackFiscalField, TenantCountryPackResponse } from '@virteex/shared/types';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import type { CountryPackFiscalField, TenantCountryPackResponse } from '@virtex/shared/types';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import { environment } from '../../../environments/environment';
 
 /**

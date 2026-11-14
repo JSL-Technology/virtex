@@ -6,8 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, X } from 'lucide-angular';
 import { InvoicesService, Invoice } from '../../../../core/services/invoices';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/components/feedback';

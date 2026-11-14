@@ -15,7 +15,7 @@ import {
   RegionalFormat,
   mergeRegionalFormats,
   normaliseRegionalFormat,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 
 /**
  * The one place that knows what language and locale this session is in.

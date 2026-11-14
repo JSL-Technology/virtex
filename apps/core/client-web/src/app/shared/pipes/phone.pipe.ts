@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import { formatInternational, formatNational, regionForE164 } from '../utils/phone.util';
 
 /**

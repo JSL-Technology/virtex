@@ -9,9 +9,9 @@ import { LucideAngularModule, Plus, ChevronDown, ChevronRight, Edit, Trash, File
 import { Account, AccountType } from '../../../core/models/account.model';
 import { FlattenedAccount } from '../../../core/models/flattened-account.model';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { CanOpenDirective } from '../../../core/modules/can-open.directive';

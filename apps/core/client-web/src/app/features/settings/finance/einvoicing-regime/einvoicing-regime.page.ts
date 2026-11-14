@@ -28,8 +28,8 @@ import {
 } from '../../fiscal/shared';
 import { CountryPackService } from '../../../../core/api/country-pack.service';
 import { NotificationService } from '../../../../core/services/notification';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { RouterLink } from '@angular/router';
 
 /**

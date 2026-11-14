@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, FileText } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { Payslip, PayrollService } from '../../../core/api/payroll.service';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, OnInit, com
 import { FormsModule } from '@angular/forms';
 
 import { Observable, map, of, throwError } from 'rxjs';
-import { TranslateModule, accountNameOf, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { TranslateModule, accountNameOf, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
 import { VX_SELECT } from '../../../shared/components/select';
 import { PercentInputDirective } from '../../../shared/directives/percent-input.directive';
 import { AccountingService } from '../../../core/api/accounting.service';
@@ -17,7 +17,7 @@ import {
   SettingsSectionPatch,
   SettingsSectionView,
 } from '../data/organization-settings.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** A group of default accounts, as one block of the screen. */
 export interface AccountGroup {

@@ -4,7 +4,7 @@ import { of, throwError } from 'rxjs';
 import { CustomerQuickCreateComponent } from './customer-quick-create.component';
 import { CustomersService } from '../data/customers.service';
 import { IdentityDocumentsService } from '../../../core/api/identity-documents.service';
-import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virtex/shared/ui-i18n';
 import { TRANSLATE_STORE_PROVIDERS, apiError, useCatalogue } from '../../../../testing/api-errors';
 import { provideTranslateService } from '@ngx-translate/core';
 

@@ -10,8 +10,8 @@ import {
   tap,
   finalize,
 } from 'rxjs';
-import { LocaleContextContract } from '@virteex/shared/types';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { LocaleContextContract } from '@virtex/shared/types';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import { environment } from '../../environments/environment';
 import { canAccessPos, canOperatePos, canSupervisePos } from './access';
 import { recaptchaToken$ } from './recaptcha';

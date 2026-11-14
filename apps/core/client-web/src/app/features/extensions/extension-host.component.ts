@@ -15,7 +15,7 @@ import {
   extensionApiPrefixes,
   extensionMayRead,
   normalizeExtensionApiPath,
-} from '@virteex/shared/util-auth';
+} from '@virtex/shared/util-auth';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { NotificationService } from '../../core/services/notification';

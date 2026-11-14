@@ -3,7 +3,7 @@ import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, EntityManager } from 'typeorm';
-import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
+import { LEGAL_DOCUMENTS } from '@virtex/shared/types';
 import * as argon2 from 'argon2';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GoogleRecaptchaValidator } from '@nestlab/google-recaptcha';

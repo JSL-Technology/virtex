@@ -8,7 +8,7 @@ import type {
   OrganizationContract,
   RoleContract,
   UserStatusValue,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 
 export class OrganizationResponseDto implements OrganizationContract {
   @ApiProperty()
@@ -99,7 +99,7 @@ export class RoleResponseDto implements RoleContract {
  * Serialised representation of a user.
  *
  * `implements AuthUserContract` is the point of this class: the contract lives in
- * `@virteex/shared/types` and the frontend `User` interface extends the same declaration, so a
+ * `@virtex/shared/types` and the frontend `User` interface extends the same declaration, so a
  * field that exists on one side and not the other is now a compile error.
  *
  * Previously this DTO omitted `roles`, `avatarUrl`, `phone`, `jobTitle`, `department`,

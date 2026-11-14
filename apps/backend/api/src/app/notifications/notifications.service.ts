@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, IsNull, Repository } from 'typeorm';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { BadRequestError } from '../i18n/localized.exception';
-import { LanguageCode, matchLanguage } from '@virteex/shared/types';
+import { LanguageCode, matchLanguage } from '@virtex/shared/types';
 import { I18nService } from '../i18n/i18n.service';
 import { currentLanguage } from '../i18n/request-locale';
 import { Notification } from './entities/notification.entity';

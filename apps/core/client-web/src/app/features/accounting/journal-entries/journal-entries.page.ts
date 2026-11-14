@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, MoreHorizontal, PlusCircle, RotateCw, Undo2 } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 
-import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virtex/shared/ui-i18n';
 import {
   JournalEntriesApiService,
   JournalEntry,

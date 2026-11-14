@@ -1,8 +1,8 @@
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import {
   CopyPlus,
   Download,

@@ -10,7 +10,7 @@ import { SubsidiariesService, Subsidiary, CreateSubsidiaryDto, UpdateSubsidiaryD
 import { AuthService } from '../../../../core/services/auth';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';
 import { Observable, map } from 'rxjs';
-import { TranslateModule, accountNameOf, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { TranslateModule, accountNameOf, FORMAT_PIPES, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
 import { Account, AccountType } from '../../../../core/models/account.model';
 import { ChartOfAccountsApiService } from '../../../accounting/data/chart-of-accounts.service';
 import { VX_SELECT } from '../../../../shared/components/select';
@@ -18,7 +18,7 @@ import { VxDateFieldComponent } from '../../../../shared/components/date';
 import { VxBadgeComponent } from '../../../../shared/components/badge';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxDialogComponent } from '../../../../shared/components/dialog';
 import { VxSpinnerComponent, VxEmptyStateComponent } from '../../../../shared/components/feedback';
 

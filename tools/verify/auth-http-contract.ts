@@ -1,4 +1,4 @@
-import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
+import { LEGAL_DOCUMENTS } from '@virtex/shared/types';
 /**
  * Executable proof of the authentication surface, over real HTTP, against a real Postgres.
  *

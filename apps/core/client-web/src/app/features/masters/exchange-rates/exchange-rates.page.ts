@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { LucideAngularModule, PlusCircle, Trash2, Upload } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VxPagerComponent } from '../../../shared/components/pager';

@@ -47,7 +47,7 @@ export interface AddCompanyPayload {
 }
 import { readCsrfCookie } from '../auth/csrf-token';
 import { ReturnUrlService } from '../auth/return-url';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageService } from './language';
 import { ActivityTrackerService } from './activity-tracker.service';

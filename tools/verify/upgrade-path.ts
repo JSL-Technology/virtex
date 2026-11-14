@@ -33,7 +33,7 @@ import { DataSource, MigrationInterface } from 'typeorm';
 
 import { AppDataSource } from '../../apps/backend/api/src/app/database/data-source';
 
-const PROBE_DB = process.env['UPGRADE_PROBE_DB'] ?? 'virteex_upgrade_probe';
+const PROBE_DB = process.env['UPGRADE_PROBE_DB'] ?? 'virtex_upgrade_probe';
 const ORG_ID = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
 
 const options = AppDataSource.options as { host?: string; port?: number; username?: string; password?: string; database?: string };

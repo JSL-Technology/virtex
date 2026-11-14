@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 
 export interface Recipient {
   id: string;

@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LEGAL_DOCUMENTS, LegalDocumentEdition, LegalDocumentId, matchLanguage } from '@virteex/shared/types';
+import { LEGAL_DOCUMENTS, LegalDocumentEdition, LegalDocumentId, matchLanguage } from '@virtex/shared/types';
 import { MarketWaitlistEntry } from './market-waitlist.entity';
 import { MarketWaitlistDto } from './dto/market-waitlist.dto';
 

@@ -1,6 +1,6 @@
 import { EnvironmentProviders, inject, provideEnvironmentInitializer } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import { LanguageService } from '../services/language';
 
 /**

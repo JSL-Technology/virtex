@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { LocaleStore, VxCurrencyNamePipe } from '@virteex/shared/ui-i18n';
+import { LocaleStore, VxCurrencyNamePipe } from '@virtex/shared/ui-i18n';
 
 /** QA M4: the currency pickers named every currency in Spanish whatever the reader's language. */
 describe('vxCurrencyName', () => {

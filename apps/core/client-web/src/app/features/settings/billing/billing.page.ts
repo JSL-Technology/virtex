@@ -1,5 +1,5 @@
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { translateOrLiteral, FormatService } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { translateOrLiteral, FormatService } from '@virtex/shared/ui-i18n';
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, CreditCard, Download, CheckCircle, Info, Zap, ExternalLink, AlertTriangle, RefreshCw, Settings } from 'lucide-angular';
@@ -9,7 +9,7 @@ import { StepUpService, StepUpScope } from '../../../core/services/step-up.servi
 import { formatPlanPrice, minorUnitFactorFor } from '../../../core/models/plan.model';
 import { LanguageService } from '../../../core/services/language';
 import { TranslateService } from '@ngx-translate/core';
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 import { VxSpinnerComponent } from '../../../shared/components/feedback';
 import { VxPaymentCardComponent } from '../../../shared/components/payment-card';
 

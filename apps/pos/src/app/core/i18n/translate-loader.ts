@@ -6,12 +6,12 @@ import {
   DEFAULT_LANGUAGE,
   LanguageCode,
   isLanguageCode,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 import {
   LocaleStore,
   RegionalCatalogue,
   applyRegionalCatalogue,
-} from '@virteex/shared/ui-i18n';
+} from '@virtex/shared/ui-i18n';
 import spanish from '../../../assets/i18n/es.json';
 import regionalOverrides from '../../../assets/i18n/regional.json';
 

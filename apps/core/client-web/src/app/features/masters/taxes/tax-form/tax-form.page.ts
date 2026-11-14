@@ -7,8 +7,8 @@ import { TaxType, taxTypeLabel } from '../../../../core/models/tax.model';
 
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
-import { TranslateModule, LocaleStore, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
+import { TranslateModule, LocaleStore, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 @Component({
   selector: 'app-tax-form-page',

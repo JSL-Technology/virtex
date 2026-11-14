@@ -3,8 +3,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { InvoicesService } from '../../../core/services/invoices';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule, Image, ScanBarcode, Sparkles, X } from 'lucide-angular';
@@ -23,7 +23,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, applyServerFieldErrors, draftProblems } from '../../../shared/components/gestures';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { UnitOfMeasure, UnitsOfMeasureService } from '../../masters/data/units-of-measure.service';
 
 /** The form's controls and their label keys: what the problem summary names. */

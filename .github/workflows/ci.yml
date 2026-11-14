@@ -31,7 +31,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: virteex_ci
+          POSTGRES_DB: virtex_ci
         ports:
           - 5432:5432
         options: >-
@@ -59,7 +59,7 @@ jobs:
       DB_PORT: '5432'
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
-      DB_NAME: virteex_ci
+      DB_NAME: virtex_ci
       DB_SSL: 'false'
 
       # `virtex_app` (the role `verify:rls` connects as to prove the policies) is created with
@@ -87,7 +87,7 @@ jobs:
       MAIL_HOST: localhost
       MAIL_PORT: '1025'
       MAIL_FROM_ADDRESS: ci@example.com
-      MAIL_FROM_NAME: Virteex CI
+      MAIL_FROM_NAME: Virtex CI
 
       JWT_SECRET: ci-secret-ci-secret-ci-secret-ci-secret
       JWT_REFRESH_SECRET: ci-refresh-ci-refresh-ci-refresh-ci-refresh
@@ -148,7 +148,7 @@ jobs:
       #
       # `synchronize` is off everywhere on purpose, and nothing else in this job creates tables —
       # so the integration suites and every `verify:*` script that touches the database were
-      # running against an EMPTY `virteex_ci`. Running the migrations here is also the only thing
+      # running against an EMPTY `virtex_ci`. Running the migrations here is also the only thing
       # that proves they still apply cleanly from nothing, which is exactly what a deploy does.
       # Two migrations sharing a timestamp run in a machine-dependent order. Checked before they run.
       - run: npm run verify:migration-identities
@@ -310,8 +310,8 @@ jobs:
         working-directory: apps/ai-engine
         env:
           NIXTLA_NUMBA_CACHE: '1'
-          AI_ENGINE_TEST_ADMIN_DSN: host=localhost port=5432 dbname=virteex_ci user=postgres password=postgres
-          AI_ENGINE_TEST_ENGINE_DSN: host=localhost port=5432 dbname=virteex_ci user=virtex_ai_engine password=ci-ai-engine-db-password
+          AI_ENGINE_TEST_ADMIN_DSN: host=localhost port=5432 dbname=virtex_ci user=postgres password=postgres
+          AI_ENGINE_TEST_ENGINE_DSN: host=localhost port=5432 dbname=virtex_ci user=virtex_ai_engine password=ci-ai-engine-db-password
         run: .venv/bin/python -m pytest -W ignore
 
       - name: tenant isolation holds through the application
@@ -352,6 +352,15 @@ jobs:
       - name: npm run verify:country-neutrality
         if: ${{ !cancelled() }}
         run: npm run verify:country-neutrality
+
+      # A refusal reaches the browser as a KEY, never as a sentence: the API answers
+      # `{ statusCode, code, messageKey, params }` and the reader's own catalogue words it. A
+      # `throw new BadRequestException('La naturaleza de la cuenta…')` breaks that twice over — the
+      # reader gets Spanish whatever language they chose, and the wording cannot change without a
+      # release. This fails on any raw Nest exception carrying prose.
+      - name: npm run verify:localized-errors
+        if: ${{ !cancelled() }}
+        run: npm run verify:localized-errors
 
       # Proves that a tenant's fiscal identity survives storage, and that two distinct taxpayers
       # no longer collide on the unique index over (tax_id, fiscal_region_id). The failure this

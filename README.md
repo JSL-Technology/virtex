@@ -1,4 +1,4 @@
-# Virteex
+# Virtex
 
 Además de los ~55 módulos ERP, se consolidaron desde `special-enigma` (sin microservicios ni
 dominios nuevos):
@@ -20,9 +20,9 @@ arranca sin `.env` y sin credenciales de terceros.
 
 ```bash
 # 1. Infraestructura (o usa tus propias instancias)
-docker run -d --name virteex-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16
-docker run -d --name virteex-redis -p 6379:6379 redis:7
-docker exec virteex-db psql -U postgres -c 'CREATE DATABASE erp'
+docker run -d --name virtex-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16
+docker run -d --name virtex-redis -p 6379:6379 redis:7
+docker exec virtex-db psql -U postgres -c 'CREATE DATABASE erp'
 
 # 2. Esquema (obligatorio: la API aborta al arrancar si las tablas no existen)
 npm run migration:run

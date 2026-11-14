@@ -6,7 +6,7 @@ import {
 } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import { environment } from '../../environments/environment';
 import type { CatalogueItem } from '../core/pos-api.service';
 import { ToastService } from '../core/toast.service';

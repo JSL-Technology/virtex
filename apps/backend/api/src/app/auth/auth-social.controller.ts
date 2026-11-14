@@ -12,8 +12,8 @@ import {
   Ip,
   Headers,
   UseGuards,
-  UnauthorizedException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import type { HttpResponse as Response, HttpRequest as Request } from '../common/http/http.types';
 import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
@@ -30,7 +30,7 @@ import { Public } from '../security/decorators/public.decorator';
 import { SsoDiscoverDto } from './dto/sso-discover.dto';
 import { FrontendUrlService } from '../mail/frontend-url.service';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
-import { BadRequestError } from '../i18n/localized.exception';
+import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception';
 
 /**
  * Federated sign-in: consumer social login (Google / Microsoft) and per-tenant enterprise SSO.
@@ -45,6 +45,8 @@ import { BadRequestError } from '../i18n/localized.exception';
 @AllowInactiveSubscription()
 @Controller('auth')
 export class AuthSocialController {
+  private readonly logger = new Logger(AuthSocialController.name);
+
   constructor(
     private readonly authFacade: AuthFacade,
     private readonly cookieService: CookieService,
@@ -128,7 +130,11 @@ export class AuthSocialController {
     try {
       const query = (req.query ?? {}) as Record<string, string>;
       if (query.error) {
-        throw new UnauthorizedException(query.error_description || query.error);
+        // The provider's own text is NOT forwarded: it is written by a third party, in a language
+        // nobody chose, and it lands in a browser. It goes to the log; the reader gets a sentence
+        // of ours, with the provider's machine code as the one piece worth showing.
+        this.logger.warn(`${provider}: el proveedor rechazó la autenticación (${query.error}): ${query.error_description ?? '—'}`);
+        throw new UnauthorizedError('auth.identity_provider_refused', { provider, reason: String(query.error) });
       }
 
       const tx = this.oauthStateService.readTransaction(req);
@@ -279,7 +285,11 @@ export class AuthSocialController {
     try {
       const query = (req.query ?? {}) as Record<string, string>;
       if (query.error) {
-        throw new UnauthorizedException(query.error_description || query.error);
+        // The provider's own text is NOT forwarded: it is written by a third party, in a language
+        // nobody chose, and it lands in a browser. It goes to the log; the reader gets a sentence
+        // of ours, with the provider's machine code as the one piece worth showing.
+        this.logger.warn(`SSO ${idpId}: el proveedor rechazó la autenticación (${query.error}): ${query.error_description ?? '—'}`);
+        throw new UnauthorizedError('auth.identity_provider_refused', { provider: idpId, reason: String(query.error) });
       }
       const tx = this.oauthStateService.readTransaction(req);
       if (tx.flow !== `sso:${idpId}`) {

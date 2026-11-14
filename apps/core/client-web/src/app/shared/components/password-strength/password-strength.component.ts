@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { LucideAngularModule, Check, X } from 'lucide-angular';
 import {
   PASSWORD_MAX_LENGTH,

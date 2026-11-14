@@ -34,8 +34,8 @@ describe('StepUpGuard', () => {
       {
         secret: AuthConfig.JWT_STEP_UP_SECRET,
         expiresIn: '5m',
-        issuer: 'virteex-api',
-        audience: 'virteex-step-up',
+        issuer: 'virtex-api',
+        audience: 'virtex-step-up',
       },
     );
 

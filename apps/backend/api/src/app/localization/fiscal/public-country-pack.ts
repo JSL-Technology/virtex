@@ -1,4 +1,4 @@
-import type { CountryPackFiscalField, FiscalReturnGenerator, TenantCountryPackResponse } from '@virteex/shared/types';
+import type { CountryPackFiscalField, FiscalReturnGenerator, TenantCountryPackResponse } from '@virtex/shared/types';
 import { type FiscalFieldSpec, marketFor } from '../../markets';
 
 /**

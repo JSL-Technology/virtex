@@ -6,7 +6,7 @@ import { DataSource, Repository } from 'typeorm';
 import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { TenantCurrencyPort } from '../../i18n/ports/tenant-currency.port';
-import { RegionalFormat, normaliseRegionalFormat } from '@virteex/shared/types';
+import { RegionalFormat, normaliseRegionalFormat } from '@virtex/shared/types';
 
 /**
  * The tenant's functional currency for the session's locale context (QA A-12).

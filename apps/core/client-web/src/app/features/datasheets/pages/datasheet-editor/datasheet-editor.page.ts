@@ -4,7 +4,7 @@ import { NotificationService } from '../../../../core/services/notification';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Save, RefreshCw, Database, FileSpreadsheet } from 'lucide-angular';
 import { DatasheetGridComponent } from '../../components/datasheet-grid.component';
@@ -12,7 +12,7 @@ import { DatasheetSidebarComponent } from '../../components/datasheet-sidebar.co
 import { DatasheetVariablesService } from '../../services/datasheet-variables.service';
 import { firstValueFrom } from 'rxjs';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 @Component({
   selector: 'app-datasheet-editor',

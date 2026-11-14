@@ -4,7 +4,7 @@ import { AppLinkPipe } from '../../../../core/tenancy/app-link.pipe';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, AlertTriangle, Calendar, CheckCircle2, FileDown, RefreshCw } from 'lucide-angular';
 
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { StatementExportService } from '../../../../core/export/statement-export.service';
 import {
   FinancialReportingService,

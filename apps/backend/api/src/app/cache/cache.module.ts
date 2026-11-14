@@ -57,13 +57,13 @@ import { AtomicCacheService } from './atomic-cache.service';
         // the same instance by mistake — cannot collide on `user_session:` or `2fa_pending:`.
         //
         // Keyv applies the namespace and `@keyv/redis` applies it again as a Redis key prefix, so
-        // a stored key reads `virteex::virteex:user_session:<id>`. That is the library's own
+        // a stored key reads `virtex::virtex:user_session:<id>`. That is the library's own
         // convention and it is left alone; written here so anyone reading keys during an incident
         // recognises the shape instead of assuming a bug.
         const store = new KeyvRedis(url);
         const keyv = new Keyv({
           store,
-          namespace: configService.get<string>('REDIS_NAMESPACE', 'virteex'),
+          namespace: configService.get<string>('REDIS_NAMESPACE', 'virtex'),
         });
 
         // Keyv surfaces connection failures as an 'error' event. Unhandled, it takes the process

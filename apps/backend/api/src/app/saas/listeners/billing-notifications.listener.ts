@@ -5,12 +5,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { PERMISSIONS } from '../../shared/permissions';
 import { NotificationsService } from '../../notifications/notifications.service';
 import { MailService } from '../../mail/mail.service';
 import { SaasResource } from '../enums/saas-resource.enum';
-import { DEFAULT_LANGUAGE, matchLanguage } from '@virteex/shared/types';
+import { DEFAULT_LANGUAGE, matchLanguage } from '@virtex/shared/types';
 
 interface PaymentFailedEvent {
   organizationId: string;

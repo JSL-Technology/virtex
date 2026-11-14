@@ -5,7 +5,7 @@ import {
   output,
 } from '@angular/core';
 import { LucideAngularModule, Trash2 } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { cartTotals } from '../../../domain/cart';
 import { ParkedTicket, TillStore } from '../../../state/till.store';
 import { DialogComponent } from './dialog.component';

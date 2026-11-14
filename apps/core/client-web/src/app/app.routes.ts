@@ -10,7 +10,7 @@ import { RouteRedirectorComponent } from './core/components/route-redirector/rou
 import { languageInitGuard } from './core/guards/language-init.guard';
 import { languageRedirectGuard } from './core/guards/language-redirect.guard';
 import { CountryGuard } from './core/guards/country.guard';
-import { isLanguageCode } from '@virteex/shared/types';
+import { isLanguageCode } from '@virtex/shared/types';
 import { buildModuleRoutes, resolveRoute } from './core/modules/module-registry';
 import { organizationRouteGuard } from './core/tenancy/organization-route.guard';
 

@@ -10,7 +10,7 @@ import { Ban, FileCheck, FileMinus, HandCoins, LucideAngularModule, MoreHorizont
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
@@ -18,7 +18,7 @@ import { CanOpenDirective } from '../../../core/modules/can-open.directive';
 import { VX_SORT, sortable } from '../../../shared/components/sort';
 import { RowLinkDirective } from '../../../shared/directives/row-link.directive';
 import { InboundMailInboxComponent } from '../../inbound-mail/inbound-mail-inbox.component';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 @Component({
   selector: 'app-vendor-bills-list-page',

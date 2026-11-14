@@ -1,7 +1,7 @@
-import { TranslateModule, VxDatePipe } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxDatePipe } from '@virtex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 import { LucideAngularModule, Workflow } from 'lucide-angular';
 import { VxBadgeComponent } from '../../../../shared/components/badge/badge.component';
 import { definitionStatusKey, definitionStatusTone, eventFieldLabel, eventLabel } from '../../data/workflow-labels';

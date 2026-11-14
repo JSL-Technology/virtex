@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { Ban, CheckCircle, LucideAngularModule, PlusCircle, RotateCw } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
@@ -14,7 +14,7 @@ import { RowLinkDirective } from '../../../shared/directives/row-link.directive'
 import { NotificationService } from '../../../core/services/notification';
 import { InventoryAdjustment, StockDocumentStatus, StockService } from '../data/stock.service';
 import { STOCK_DOCUMENT_TONE } from './adjustment-form.page';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** Inventory adjustments: drafts waiting to be posted, and what was posted, newest first. */
 @Component({

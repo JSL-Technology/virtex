@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, AlertTriangle, Calendar, FileDown, RefreshCw } from 'lucide-angular';
 
-import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, tenantToday } from '@virtex/shared/ui-i18n';
 import { StatementExportService } from '../../../../core/export/statement-export.service';
 import {
   BalanceSheetReport,
   FinancialReportingService,
 } from '../../../../core/api/financial-reporting.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 import { VxDimensionFilterComponent } from '../../../accounting/dimensions/dimension-filter.component';
 import { VxDateFieldComponent } from '../../../../shared/components/date';

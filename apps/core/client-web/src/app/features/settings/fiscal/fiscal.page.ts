@@ -9,8 +9,8 @@ import {
   MarketCoverage,
 } from '../../../core/api/fiscal-settings.service';
 import { EmissionModeCardComponent, FiscalRangesCardComponent, SigningCertificateCardComponent } from './shared';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 
 /**

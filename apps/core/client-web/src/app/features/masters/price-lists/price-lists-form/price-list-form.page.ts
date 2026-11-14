@@ -11,10 +11,10 @@ import { PriceListItem, PriceListStatus } from '../../../../core/models/price-li
 
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxDateFieldComponent, dateOrder } from '../../../../shared/components/date';
 import { VX_SELECT } from '../../../../shared/components/select';
-import { TranslateModule, LocaleStore, VxCurrencyNamePipe, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore, VxCurrencyNamePipe, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
 import { CurrenciesService, Currency } from '../../../../core/api/currencies.service';
 
 @Component({

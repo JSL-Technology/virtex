@@ -5,7 +5,7 @@ import * as crypto from 'crypto';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { UserCacheService } from '../modules/user-cache.service';
 import { MembershipService } from '../../organizations/services/membership.service';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { AuthenticatedUser } from '../../security/principal';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
 

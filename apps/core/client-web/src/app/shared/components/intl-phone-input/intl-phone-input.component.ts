@@ -1,5 +1,5 @@
 import { visitorRegion } from '../../../core/i18n/visitor-region';
-import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore } from '@virtex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
   Component,

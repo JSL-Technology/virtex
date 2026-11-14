@@ -1,4 +1,4 @@
-import type { LanguageCode } from '@virteex/shared/types';
+import type { LanguageCode } from '@virtex/shared/types';
 
 /**
  * The outbound mail queue.

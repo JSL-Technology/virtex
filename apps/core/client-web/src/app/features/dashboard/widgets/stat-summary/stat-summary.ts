@@ -5,8 +5,8 @@ import { LucideAngularModule, DollarSign, Receipt, Package, Users, BarChart3, Tr
 
 import { catchError, of, shareReplay } from 'rxjs';
 import { DashboardApiService, DashboardSummary } from '../../../../core/api/dashboard-api.service';
-import { TranslateModule, FormatService } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
+import { TranslateModule, FormatService } from '@virtex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
 
 /** Which of the four headline figures this instance shows. */
 export type SummaryStat = 'sales-today' | 'pending-invoices' | 'low-stock' | 'active-customers';

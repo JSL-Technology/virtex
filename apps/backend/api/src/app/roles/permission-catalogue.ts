@@ -1,5 +1,5 @@
 import { ALL_PERMISSIONS } from '../shared/permissions';
-import { composeKey } from '@virteex/shared/types';
+import { composeKey } from '@virtex/shared/types';
 
 /**
  * The permission list, as something a person can read.

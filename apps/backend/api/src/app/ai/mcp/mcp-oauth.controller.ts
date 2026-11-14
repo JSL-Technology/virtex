@@ -4,7 +4,7 @@ import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { Public } from '../../security/decorators/public.decorator';
 import { SkipCsrf } from '../../security/decorators/skip-csrf.decorator';
 import { HasPermission } from '../../security/decorators/permissions.decorator';

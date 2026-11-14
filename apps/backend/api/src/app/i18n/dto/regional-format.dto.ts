@@ -11,7 +11,7 @@ import {
   TimeFormat,
   WEEK_STARTS,
   WeekStart,
-} from '@virteex/shared/types';
+} from '@virtex/shared/types';
 
 /**
  * One level of `RegionalFormat`, as a request body: the company's default or a person's own.

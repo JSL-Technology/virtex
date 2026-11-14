@@ -637,7 +637,7 @@
     "en": "The country is required.",
     "pt": "O país é obrigatório."
   },
-  "settings.company_profile.ej_virteex_corp": {
+  "settings.company_profile.ej_virtex_corp": {
     "es": "Ej. Virtex Corp S.A.",
     "en": "e.g. Virtex corp inc.",
     "pt": "Ex.: Virtex corp ltda."
@@ -5070,7 +5070,7 @@
     "en": "Consolidation details",
     "pt": "Dados de consolidação"
   },
-  "settings.subsidiaries.ej_virteex_latam": {
+  "settings.subsidiaries.ej_virtex_latam": {
     "es": "Ej. Virtex Latam S.A.",
     "en": "e.g. Virtex latam inc.",
     "pt": "Ex.: Virtex latam ltda."

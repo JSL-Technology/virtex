@@ -9,7 +9,7 @@ import {
   TrialBalanceReport,
 } from '../api/financial-reporting.service';
 import { ProfitabilityReport } from '../api/profitability.service';
-import { accountNameOf } from '@virteex/shared/ui-i18n';
+import { accountNameOf } from '@virtex/shared/ui-i18n';
 import { CsvValue, downloadCsv, reportFilename, toCsv } from './csv-export';
 import { GeneralLedger } from '../models/general-ledger.model';
 

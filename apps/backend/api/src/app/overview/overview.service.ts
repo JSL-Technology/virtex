@@ -9,7 +9,7 @@ import {
   AccountingPeriod,
   PeriodStatus,
 } from '../accounting/entities/accounting-period.entity';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { PERMISSIONS } from '../shared/permissions';
 import {
   ActivityItemDto,

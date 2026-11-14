@@ -23,7 +23,7 @@ import { organizationToday } from '../organizations/contracts/fiscal-today.contr
 import { ProcurementService } from './procurement.service';
 import { roundAmount, toCents } from '../common/money';
 import { toIsoDate } from '../common/dates';
-import { canTransition } from '@virteex/shared/types';
+import { canTransition } from '@virtex/shared/types';
 import { PURCHASE_ORDER_LIFECYCLE } from './procurement-lifecycles';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { BUSINESS_EVENTS } from '../contracts/business-events/business-events.contract';

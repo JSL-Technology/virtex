@@ -1,5 +1,5 @@
 import { handleDocumentIntents } from '../../../../core/navigation/document-intent.service';
-import { TranslateModule, FormatService, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FormatService, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';

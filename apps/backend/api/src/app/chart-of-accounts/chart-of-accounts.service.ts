@@ -27,13 +27,16 @@ import { ActionType } from '../audit/entities/audit-log.entity';
 import { AccountHistory } from './entities/account-history.entity';
 import { AccountSegmentDefinition } from './entities/account-segment-definition.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
+import { FiscalYear, FiscalYearStatus } from '../accounting/entities/fiscal-year.entity';
+import { toIsoDate } from '../common/dates';
+import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
 import { JournalEntryLineValuation } from '../journal-entries/entities/journal-entry-line-valuation.entity';
 import { MergeAccountsDto } from './dto/merge-accounts.dto';
 import { AccountHierarchyVersion } from './entities/account-hierarchy-version.entity';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
 import { likeTerm } from '../common/database/search-term';
-import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType } from '@virteex/shared/types';
+import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType } from '@virtex/shared/types';
 
 export interface MergePreviewAccount {
   id: string;
@@ -47,9 +50,17 @@ export interface MergePreviewAccount {
 export interface MergePreview {
   source: MergePreviewAccount;
   destination: MergePreviewAccount;
+  /** Lines the merge repoints: the unposted ones only. A posted line is history. */
   linesToMove: number;
   linesInClosedPeriods: number;
   childAccountsToMove: number;
+  /** Lines that STAY on the source because they are posted; their balance is reclassified. */
+  postedLinesKept: number;
+  /**
+   * What the reclassification entry will move from the source to the destination: the source's
+   * posted balance. Zero means no entry is posted at all.
+   */
+  reclassifiedAmount: number;
   /** Translation keys of every reason the merge would be refused. Empty means it may proceed. */
   blockers: string[];
   /** Translation keys of consequences the person should accept knowingly. */
@@ -86,6 +97,42 @@ export class ChartOfAccountsService {
         allowed: (ACCOUNT_CATEGORIES_BY_TYPE as Record<string, readonly string[]>)[type]?.join(', ') ?? '',
       });
     }
+  }
+
+  /**
+   * When an account becomes valid, where nobody said: the first day of the oldest fiscal year the
+   * tenant still has open — not today (FIN-COA-01).
+   *
+   * `effective_from` is what keeps a retired or reclassified account out of the periods it does not
+   * belong to, and the column defaults to `CURRENT_DATE`. That default made every account of the
+   * opening chart valid from the day the company signed up, so a company that signed up in November
+   * could not post its opening balances, nor anything else from the year already under way: the
+   * temporal guard answered 403 on account 1110 for a journal entry dated the 2nd. It bit every
+   * account created after day one, too — an accountant adds a tax account precisely because
+   * something has to be posted to it, and that something is usually already dated.
+   *
+   * The oldest OPEN year, not the current one: a tenant whose previous year is still open is
+   * entitled to post in it. Where there is no fiscal calendar yet — provisioning writes the chart
+   * before the first year exists — the first day of the current year in the tenant's own time zone,
+   * which is the year `TenantBookkeepingProvisioner` is about to open.
+   */
+  static async defaultEffectiveFrom(manager: EntityManager, organizationId: string): Promise<string> {
+    const oldestOpen = await manager
+      .getRepository(FiscalYear)
+      .createQueryBuilder('year')
+      .select('MIN(year.startDate)', 'start')
+      .where('year.organizationId = :organizationId', { organizationId })
+      .andWhere('year.status = :status', { status: FiscalYearStatus.OPEN })
+      .getRawOne<{ start: string | Date | null }>();
+    if (oldestOpen?.start) return toIsoDate(oldestOpen.start);
+
+    // Read as columns, not as the entity: `markets/` and the ledger must not depend on the
+    // identity module (verify:boundaries), and the time zone is all that is needed here.
+    const [organization] = await manager.query<Array<{ country: string | null; timezone: string | null }>>(
+      `SELECT "country", "timezone" FROM "organizations" WHERE "id" = $1`,
+      [organizationId],
+    );
+    return `${fiscalDate(organizationTimeZone(organization)).slice(0, 4)}-01-01`;
   }
 
   async create(
@@ -177,10 +224,10 @@ export class ChartOfAccountsService {
       : normalNature;
 
     if (expectedNature !== accountData.nature) {
-      throw new BadRequestException(
+      throw new BadRequestError(
         createAccountDto.isContraAccount
-          ? 'Una cuenta de naturaleza contraria debe llevar la naturaleza opuesta a la de su tipo.'
-          : 'La naturaleza de la cuenta no corresponde a su tipo. Si es una cuenta de naturaleza contraria (depreciación acumulada, provisiones, devoluciones), márcala como tal.',
+          ? 'chart_of_accounts.contra_account_needs_opposite_nature'
+          : 'chart_of_accounts.nature_does_not_match_type',
       );
     }
 
@@ -197,11 +244,11 @@ export class ChartOfAccountsService {
     if (description) {
       entityData.description = typeof description === 'string' ? { [language]: description } : description;
     }
-    if (effectiveFrom) {
-      entityData.effectiveFrom = new Date(effectiveFrom);
-    }
+    entityData.effectiveFrom = effectiveFrom
+      ? (effectiveFrom as unknown as Date)
+      : ((await ChartOfAccountsService.defaultEffectiveFrom(manager, organizationId)) as unknown as Date);
     if (effectiveTo) {
-      entityData.effectiveTo = new Date(effectiveTo);
+      entityData.effectiveTo = effectiveTo as unknown as Date;
     }
 
     const account = manager.create(Account, entityData);
@@ -437,14 +484,21 @@ export class ChartOfAccountsService {
    * What a merge of `sourceAccountId` into `destinationAccountId` would do, and whether it may.
    *
    * The wizard used to answer this with invented figures — «42 transactions, balance 1,500.75» —
-   * for every pair of accounts. A merge rewrites the account of every line on the source, closed
-   * periods included, so the person confirming it needs the real count, the real balances and the
-   * reasons it would be refused, before anything is queued.
+   * for every pair of accounts, and the server learnt of a refusal only when it tried to perform
+   * it. Worse, what it promised was not what a merge may do: it said every line would move, and a
+   * posted line cannot (FIN-COA-02). The job tried anyway, the immutability triggers refused it,
+   * and the merge of any account with a single posted movement failed after telling the person it
+   * had started.
    *
-   * Blockers are the server's refusals, stated in advance; `merge` enforces the same list. The
-   * one warning is the consequence that is legal but irreversible in practice: lines in closed
-   * periods move, so statements already issued for those periods would read differently if
-   * regenerated.
+   * So this now describes what actually happens, from the tenant's own ledger:
+   *
+   *  - `linesToMove` — the UNPOSTED lines, which are repointed because a draft is not history;
+   *  - `postedLinesKept` — the posted ones, which stay where they are, for ever;
+   *  - `reclassifiedAmount` — the source's posted balance, which a dated reclassification entry
+   *    moves to the destination, so the source reads zero and the destination reads the combined
+   *    figure without a single posted row being rewritten.
+   *
+   * Blockers are the server's refusals, stated in advance; `merge` enforces the same list.
    */
   async previewMerge(
     sourceAccountId: string,
@@ -479,14 +533,18 @@ export class ChartOfAccountsService {
     if (!destination.isActive) blockers.push('chart_of_accounts.merge_destination_inactive');
 
     const warnings: string[] = [];
-    if (sourceMovements.linesInClosedPeriods > 0) warnings.push('chart_of_accounts.merge_moves_closed_periods');
+    // What a merge does to the ledger, said before it is run rather than discovered afterwards:
+    // the posted lines stay where they are and their balance is moved by a dated entry.
+    if (sourceMovements.postedLines > 0) warnings.push('chart_of_accounts.merge_reclassifies_posted_balance');
 
     return {
       source: this.mergeSide(source, sourceMovements.postedBalance),
       destination: this.mergeSide(destination, destinationMovements.postedBalance),
-      linesToMove: sourceMovements.lines,
+      linesToMove: sourceMovements.unpostedLines,
       linesInClosedPeriods: sourceMovements.linesInClosedPeriods,
       childAccountsToMove: childAccounts,
+      postedLinesKept: sourceMovements.postedLines,
+      reclassifiedAmount: sourceMovements.postedBalance,
       blockers,
       warnings,
     };

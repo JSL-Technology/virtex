@@ -33,11 +33,15 @@ export type InspectedCertificate = LoadedCertificate & {
  * ## The stored shape, and why it carries a version
  *
  * `v2:salt:iv:tag:data`, each part base64 — the same idiom as the payroll column transformer, which
- * puts a key id in front of the ciphertext so the derivation can be changed without making every
+ * puts a version in front of the ciphertext so the derivation can change without making every
  * stored value unreadable. The salt is RANDOM PER RECORD: scrypt's salt is what stops one derived
- * key covering the whole deployment, and a single constant for every tenant's certificate gave
- * exactly that. A certificate written before this carries the legacy three-part form and is still
- * read, under {@link LEGACY_SALT}; nothing is written under it again.
+ * key covering the whole deployment, and the single constant this replaced gave exactly that.
+ *
+ * There is no legacy branch. The one-constant form (`iv:tag:data`) was derived from a salt that
+ * carried the product's old, misspelled name, and a certificate stored under it is refused with a
+ * message that says what to do: upload the PKCS#12 again. A compatibility path kept for ciphertext
+ * nobody can decrypt without the old string would be a worse answer than an honest refusal — and
+ * the string itself is exactly the kind of thing that must not survive a rename.
  */
 @Injectable()
 export class CertificateVaultService {
@@ -80,12 +84,16 @@ export class CertificateVaultService {
 
   decrypt(payload: string): Buffer {
     const parts = payload.split(':');
-    const [ivB64, tagB64, dataB64] =
-      parts.length === 3 ? parts : parts.length === 5 && parts[0] === CertificateVaultService.VERSION ? parts.slice(2) : [];
-    if (!ivB64 || !tagB64 || !dataB64) {
+    if (parts.length === 3) {
+      // The shape written before the envelope was versioned. Its key came from a global constant
+      // that no longer exists, so this is a dead record, not a decryption failure.
+      throw new BadRequestError('einvoicing.certificate.stored_in_a_retired_format');
+    }
+    const [version, saltB64, ivB64, tagB64, dataB64] = parts;
+    if (parts.length !== 5 || version !== CertificateVaultService.VERSION || !saltB64 || !ivB64 || !tagB64 || !dataB64) {
       throw new InternalServerError('einvoicing.certificate_encrypted_data_format_invalid');
     }
-    const salt = parts.length === 5 ? Buffer.from(parts[1], 'base64') : LEGACY_SALT;
+    const salt = Buffer.from(saltB64, 'base64');
     const decipher = crypto.createDecipheriv('aes-256-gcm', this.key(salt), Buffer.from(ivB64, 'base64'));
     decipher.setAuthTag(Buffer.from(tagB64, 'base64'));
     return Buffer.concat([decipher.update(Buffer.from(dataB64, 'base64')), decipher.final()]);
@@ -152,14 +160,3 @@ export class CertificateVaultService {
     return this.parsePkcs12(pfx, password);
   }
 }
-
-/**
- * The single salt every certificate was derived with before the versioned shape.
- *
- * FROZEN CIPHERTEXT INPUT, not vocabulary: its bytes are what `scrypt` was given, so a certificate
- * stored under it stops decrypting the moment this string changes — the taxpayer would have to
- * upload its PKCS#12 again. It is read-only: {@link CertificateVaultService.encrypt} never uses it.
- * It reads `ecf` because the product's only electronic documents were one market's when it was
- * written, which is exactly the coupling the market packages removed everywhere it was reversible.
- */
-const LEGACY_SALT = 'virteex.ecf.cert.v1';

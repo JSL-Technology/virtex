@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { Landmark, LucideAngularModule, PlusCircle, Trash2 } from 'lucide-angular';
 
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { Bank, ReferenceBanksStatus, TreasuryService } from '../../../core/api/treasury.service';
 import { CountryNamesService } from '../../../core/i18n/countries';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';

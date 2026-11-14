@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, ChevronRight, CheckCircle2 } from 'lucide-angular';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { DatasheetImportService, ImportModule } from '../services/datasheet-import.service';
 import { firstValueFrom } from 'rxjs';
 

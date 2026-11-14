@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core';
-import { TranslateModule, LocaleStore } from '@virteex/shared/ui-i18n';
-import { RegionalFormat, normaliseRegionalFormat } from '@virteex/shared/types';
+import { TranslateModule, LocaleStore } from '@virtex/shared/ui-i18n';
+import { RegionalFormat, normaliseRegionalFormat } from '@virtex/shared/types';
 import { RegionalFormatService } from '../../../core/services/regional-format.service';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';

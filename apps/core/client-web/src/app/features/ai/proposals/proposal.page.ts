@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, TriangleAlert } from 'lucide-angular';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { composeKey } from '@virteex/shared/types';
+import { FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { composeKey } from '@virtex/shared/types';
 import { NotificationService } from '../../../core/services/notification';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 import { CopilotApiService, CopilotProposal } from '../copilot/copilot-api.service';

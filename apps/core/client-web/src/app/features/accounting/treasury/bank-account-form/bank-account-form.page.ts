@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
 import { Bank, TreasuryService } from '../../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../../core/api/chart-of-accounts.service';
 import { CurrenciesService } from '../../../../core/api/currencies.service';
@@ -13,7 +13,7 @@ import { Account } from '../../../../core/models/account.model';
 import { moneyLedgerAccounts } from '../../../../core/services/account-selection';
 import { bicValidator, ibanValidator } from '../../../../shared/validators/bank-identifiers.validator';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxDateFieldComponent } from '../../../../shared/components/date';
 
 /**

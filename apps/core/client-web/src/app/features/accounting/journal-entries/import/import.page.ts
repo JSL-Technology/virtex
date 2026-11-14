@@ -10,8 +10,8 @@ import {
   JournalEntries,
 } from '../../../../core/services/journal-entries';
 import { NotificationService } from '../../../../core/services/notification';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../../shared/components/amount';
 
 /**

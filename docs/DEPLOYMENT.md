@@ -1,6 +1,6 @@
 # Deployment
 
-How a Virteex environment is built from source. Everything here is executable — if a step in this
+How a Virtex environment is built from source. Everything here is executable — if a step in this
 document does not work, the step is wrong, not the reader.
 
 ## What changed and why it matters

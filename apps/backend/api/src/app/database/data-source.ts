@@ -53,7 +53,7 @@ export const AppDataSource = new DataSource({
     process.env['DB_MIGRATION_USERNAME'] || process.env['DB_USERNAME'] || 'postgres',
   password:
     process.env['DB_MIGRATION_PASSWORD'] || process.env['DB_PASSWORD'] || 'postgres',
-  // Must match `env.validation.ts`'s development default. It said `virteex` while the API said
+  // Must match `env.validation.ts`'s development default. It said `virtex` while the API said
   // `erp`, so following the README exactly — create `erp`, then `npm run migration:run` — ran the
   // migrations against a database that does not exist, and the API then aborted on a schema that
   // was never created. That is the very failure the README's troubleshooting section describes.

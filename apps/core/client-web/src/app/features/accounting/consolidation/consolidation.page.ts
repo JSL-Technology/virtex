@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, FORMAT_PIPES, VxLocalizedNamePipe, tenantToday } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, VxLocalizedNamePipe, tenantToday } from '@virtex/shared/ui-i18n';
 import { VX_DATE } from '../../../shared/components/date';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { NotificationService } from '../../../core/services/notification';
 import { ConsolidationApiService, ConsolidatedStatements, ConsolidationRunSummary } from './consolidation.service';

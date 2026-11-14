@@ -8,8 +8,8 @@ import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 
 import { Observable, Subject, debounceTime, merge, switchMap, tap, catchError, of, map } from 'rxjs';
 import { PriceListsService } from '../../../masters/data/price-lists.service';
-import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES, LocaleStore, VxNumberInputDirective } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
 import { VxAmountComponent } from '../../../../shared/components/amount';

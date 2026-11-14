@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { SettingsActionsDirective } from '../../shell';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { LucideAngularModule, Building2, Network, Plus, Check } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth';
 import { ActiveOrganizationService } from '../../../../core/tenancy/active-organization.service';

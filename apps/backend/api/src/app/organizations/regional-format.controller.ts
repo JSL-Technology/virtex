@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Put } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { normaliseRegionalFormat, RegionalFormat } from '@virteex/shared/types';
+import { normaliseRegionalFormat, RegionalFormat } from '@virtex/shared/types';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
 import { HasPermission } from '../security/decorators/permissions.decorator';
 import { AuthenticatedOnly } from '../security/decorators/authenticated-only.decorator';

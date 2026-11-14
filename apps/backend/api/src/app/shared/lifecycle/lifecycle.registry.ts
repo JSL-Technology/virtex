@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { DocumentLifecycle } from '@virteex/shared/types';
+import { DocumentLifecycle } from '@virtex/shared/types';
 
 /**
  * Los ciclos de vida declarados, por tipo de documento.

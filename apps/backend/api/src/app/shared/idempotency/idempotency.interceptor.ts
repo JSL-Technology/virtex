@@ -12,7 +12,7 @@ import { tap } from 'rxjs/operators';
 import { createHash } from 'crypto';
 import { IdempotencyRecord } from './idempotency-record.entity';
 import { BadRequestError, ConflictError } from '../../i18n/localized.exception';
-import { AuthenticatedRequest } from '@virteex/shared/util-auth';
+import { AuthenticatedRequest } from '@virtex/shared/util-auth';
 
 /**
  * Makes a retry safe by remembering the first attempt.

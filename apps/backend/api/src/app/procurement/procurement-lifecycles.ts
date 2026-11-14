@@ -1,4 +1,4 @@
-import { DocumentLifecycle } from '@virteex/shared/types';
+import { DocumentLifecycle } from '@virtex/shared/types';
 import { PurchaseOrderStatus } from './entities/purchase-order.entity';
 import { PurchaseRequisitionStatus } from './entities/purchase-requisition.entity';
 

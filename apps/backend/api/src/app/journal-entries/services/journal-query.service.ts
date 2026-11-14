@@ -43,6 +43,13 @@ export interface AccountMovementSummary {
   /** Posted debit − credit, base currency. */
   postedBalance: number;
   linesInClosedPeriods: number;
+  /**
+   * Lines on entries that are in the ledger. History: they are never rewritten, so a merge leaves
+   * them where they are and moves the BALANCE with a reclassification entry instead.
+   */
+  postedLines: number;
+  /** Lines on entries that are not in the ledger yet (draft, pending approval). Not history. */
+  unpostedLines: number;
 }
 
 export interface AccountMovementCount {
@@ -378,15 +385,20 @@ export class JournalQueryService {
             AND entry.date BETWEEN period.start_date AND period.end_date))`,
         'closedLines',
       )
+      .addSelect(`COUNT(line.id) FILTER (WHERE entry.status IN (:...ledgerStatuses))`, 'postedLines')
       .where('line.accountId = :accountId', { accountId })
       .andWhere('entry.organizationId = :organizationId', { organizationId })
       .setParameter('ledgerStatuses', LEDGER_STATUSES)
-      .getRawOne<{ lines: string; balance: string; closedLines: string }>();
+      .getRawOne<{ lines: string; balance: string; closedLines: string; postedLines: string }>();
 
+    const lines = Number(row?.lines ?? 0);
+    const postedLines = Number(row?.postedLines ?? 0);
     return {
-      lines: Number(row?.lines ?? 0),
+      lines,
       postedBalance: Number(row?.balance ?? 0),
       linesInClosedPeriods: Number(row?.closedLines ?? 0),
+      postedLines,
+      unpostedLines: lines - postedLines,
     };
   }
 

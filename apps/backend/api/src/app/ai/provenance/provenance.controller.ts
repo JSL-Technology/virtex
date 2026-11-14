@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DataSource } from 'typeorm';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 import { AuthenticatedOnly } from '../../security/decorators/authenticated-only.decorator';
 import { CurrentUser } from '../../security/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../security/principal';

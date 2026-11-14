@@ -1,4 +1,4 @@
-import { TranslateModule, VxPluralKeyPipe } from '@virteex/shared/ui-i18n';
+import { TranslateModule, VxPluralKeyPipe } from '@virtex/shared/ui-i18n';
 import {
   ChangeDetectionStrategy,
   Component,

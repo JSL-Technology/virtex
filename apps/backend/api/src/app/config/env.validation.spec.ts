@@ -21,9 +21,9 @@ const check = (env: Record<string, string>) =>
 const productionEnv = (): Record<string, string> => ({
   NODE_ENV: 'production',
   ...Object.fromEntries(CRYPTOGRAPHIC_SECRETS.map((k) => [k, 'x'.repeat(64)])),
-  WEBAUTHN_RP_ID: 'app.virteex.com',
-  FRONTEND_URL: 'https://app.virteex.com',
-  CORS_ORIGIN: 'https://app.virteex.com',
+  WEBAUTHN_RP_ID: 'app.virtex.com',
+  FRONTEND_URL: 'https://app.virtex.com',
+  CORS_ORIGIN: 'https://app.virtex.com',
   STRIPE_PRICE_STARTER: 'price_starter',
   STRIPE_PRICE_PRO: 'price_pro',
   STRIPE_PRICE_ENTERPRISE: 'price_ent',
@@ -32,9 +32,9 @@ const productionEnv = (): Record<string, string> => ({
   RS_PRIVATE_KEY: '-----BEGIN PRIVATE KEY-----',
   RS_PUBLIC_KEY: '-----BEGIN PUBLIC KEY-----',
   DB_HOST: 'db.internal',
-  DB_USERNAME: 'virteex',
+  DB_USERNAME: 'virtex',
   DB_PASSWORD: 'hunter2',
-  DB_NAME: 'virteex',
+  DB_NAME: 'virtex',
   RECAPTCHA_V3_SECRET_KEY: 'recaptcha_secret',
   // Redis is not optional: the shared cache carries the revoked-session denylist, the pending-2FA
   // session, the single-use step-up markers and the SaaS counters.
@@ -44,7 +44,7 @@ const productionEnv = (): Record<string, string> => ({
   MAIL_HOST: 'smtp.internal',
   MAIL_USER: 'postmaster',
   MAIL_PASSWORD: 'hunter2',
-  MAIL_FROM_ADDRESS: 'no-reply@virteex.com',
+  MAIL_FROM_ADDRESS: 'no-reply@virtex.com',
   MAIL_FROM_NAME: 'Virtex',
 });
 
@@ -265,7 +265,7 @@ describe('environment validation', () => {
     });
 
     it('requires a real hostname for the passkey relying party', () => {
-      const { error } = check({ ...productionEnv(), WEBAUTHN_RP_ID: 'https://app.virteex.com' });
+      const { error } = check({ ...productionEnv(), WEBAUTHN_RP_ID: 'https://app.virtex.com' });
       expect(error?.details.map((d) => d.context?.key)).toContain('WEBAUTHN_RP_ID');
     });
   });

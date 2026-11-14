@@ -1,6 +1,6 @@
 import { CountryService } from '../../../core/services/country.service';
 import { handleDocumentIntents } from '../../../core/navigation/document-intent.service';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import { Component, ChangeDetectionStrategy, HostListener, Input, signal, inject, OnInit, effect, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
@@ -18,18 +18,18 @@ import { LucideAngularModule } from 'lucide-angular';
 import { AdjustmentReason, CancellationOptions, CREDIT_NOTE_REASONS, CreditNoteReason, CreditNoteRequest, DEBIT_NOTE_REASONS, DebitNoteReason, DebitNoteRequest, Invoice, InvoiceLineItem, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
 import { EinvoicingService, FiscalSubmissionView } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
-import { translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { translateOrLiteral } from '@virtex/shared/ui-i18n';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { saveAs } from 'file-saver';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { AuthService } from '../../../core/services/auth';
 import { InvoiceEmailDialogComponent } from '../components/invoice-email-dialog/invoice-email-dialog.component';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 import { TransitionPreviewComponent } from '../../../shared/components/transition-preview/transition-preview.component';
 import { TransitionPreview } from '../../../shared/components/transition-preview/transition-preview.model';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
@@ -89,7 +89,7 @@ export class InvoiceDetailPage implements OnInit {
   /**
    * The issuer shown on the printed preview: the signed-in tenant, not a constant.
    *
-   * The header used to be four catalogue keys holding a made-up company — "VIRTEEX ERP", "Calle
+   * The header used to be four catalogue keys holding a made-up company — "VIRTEX ERP", "Calle
    * Principal #123", "RNC: 1-31-12345-6" — which meant every customer's on-screen invoice named
    * somebody else's business, and those five lines of sample data were queued for translation into
    * three languages. The address and phone are not on `OrganizationContract`, so they are simply

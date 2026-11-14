@@ -2,7 +2,7 @@ import { provideTestCountryPack } from '../../../core/api/country-pack.service.t
 import { PaymentMethodsService } from '../../../core/api/payment-methods.service';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { of } from 'rxjs';
 import { VendorDebitNoteFormPage } from './debit-note-form.page';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';

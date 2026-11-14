@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { LocaleStore } from '@virtex/shared/ui-i18n';
 import { VxAmountComponent } from './index';
 
 @Component({

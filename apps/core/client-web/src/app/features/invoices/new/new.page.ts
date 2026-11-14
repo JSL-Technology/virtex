@@ -14,7 +14,7 @@ import { Observable, Subject, catchError, debounceTime, merge, of, switchMap, ta
 import { PriceListsService } from '../../masters/data/price-lists.service';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { translateOrLiteral, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
+import { translateOrLiteral, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
@@ -36,10 +36,10 @@ import { InvoiceSelectionDialogComponent } from '../components/invoice-selection
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VX_SELECT } from '../../../shared/components/select';
 import { CustomerQuickCreateComponent } from '../../contacts/customer-quick-create/customer-quick-create.component';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { VxAmountComponent } from '../../../shared/components/amount';
 import { VxTabsComponent, VxTab } from '../../../shared/components/tabs';
 import { VxDateFieldComponent, dateOrder } from '../../../shared/components/date';

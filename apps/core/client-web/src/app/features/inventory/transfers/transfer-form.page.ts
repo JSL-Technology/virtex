@@ -6,8 +6,8 @@ import { Router } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 
 import { Observable, catchError, map, of } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { TranslateModule, FORMAT_PIPES, VxNumberInputDirective, tenantToday } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../shared/components/badge';
 import { VxDateFieldComponent } from '../../../shared/components/date';

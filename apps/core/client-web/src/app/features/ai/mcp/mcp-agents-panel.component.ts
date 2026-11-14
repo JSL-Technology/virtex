@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { AuthService } from '../../../core/services/auth';
 import { NotificationService } from '../../../core/services/notification';
 import { McpGrant, McpService } from './mcp.service';

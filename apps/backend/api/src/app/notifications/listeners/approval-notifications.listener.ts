@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { DataSource } from 'typeorm';
-import { LanguageCode, composeKey, matchLanguage } from '@virteex/shared/types';
+import { LanguageCode, composeKey, matchLanguage } from '@virtex/shared/types';
 import {
   APPROVAL_DECIDED,
   APPROVAL_REQUESTED,

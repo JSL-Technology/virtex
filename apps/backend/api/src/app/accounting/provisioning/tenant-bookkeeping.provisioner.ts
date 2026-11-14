@@ -16,7 +16,7 @@ import {
 } from '../../shared/document-sequences/entities/document-sequence.entity';
 import { InternalServerError } from '../../i18n/localized.exception';
 import { I18nService } from '../../i18n/i18n.service';
-import { DEFAULT_LANGUAGE, LanguageCode } from '@virteex/shared/types';
+import { DEFAULT_LANGUAGE, LanguageCode } from '@virtex/shared/types';
 import { seedTenantDefaults } from '../../database/seeds/tenant-defaults';
 import { languageOfCountry, marketFor } from '../../markets';
 

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { RouterLink } from '@angular/router';
 
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxBadgeComponent } from '../../../shared/components/badge';
 import { VxAmountComponent } from '../../../shared/components/amount';

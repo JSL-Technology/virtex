@@ -1,4 +1,4 @@
-import { VirtexMissingTranslationHandler, resetMissingTranslationLog } from '@virteex/shared/ui-i18n';
+import { VirtexMissingTranslationHandler, resetMissingTranslationLog } from '@virtex/shared/ui-i18n';
 
 /**
  * QA M-17: «Draft», «ADMINISTRATOR» in a Spanish screen — keys composed from an upper-case API

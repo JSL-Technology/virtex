@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
 import { NotificationService } from '../../../core/services/notification';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { ReCaptchaV3Service, RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha-19';
 import { recaptchaToken$ } from '../../../core/auth/recaptcha-token';
 import { environment } from '../../../../environments/environment';
@@ -19,7 +19,7 @@ import { BrandLogo } from '../../../shared/components/brand-logo/brand-logo';
 // H4 FIX: single source of truth for password rules, mirrored from the backend policy
 // (min 12 / max 72 / upper + lower + (digit OR symbol)). Removes the divergent local validator.
 import { strongPasswordValidator } from '../../../shared/validators/password.validator';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 const passwordMatchValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const password = group.get('password')?.value;

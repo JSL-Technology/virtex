@@ -17,7 +17,7 @@ import type { Organization } from '../../../organizations/entities/organization.
 import { Role } from '../../../roles/entities/role.entity';
 import { Passkey } from '../passkey.entity';
 import { UserSecurity } from '../user-security.entity';
-import type { LanguageCode, RegionalFormat } from '@virteex/shared/types';
+import type { LanguageCode, RegionalFormat } from '@virtex/shared/types';
 
 export enum UserStatus {
   PENDING = 'PENDING',

@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { Observable } from 'rxjs';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { VX_SELECT } from '../../../shared/components/select';
@@ -14,7 +14,7 @@ import { Product } from '../../../core/models/product.model';
 import { STOCK_MOVEMENT_TYPES, StockMovementRow, StockMovementSort, StockMovementType, StockService } from '../data/stock.service';
 import { TableSort, VX_SORT } from '../../../shared/components/sort';
 import { Warehouse, WarehousesService } from '../../masters/data/warehouses.service';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** Where a movement's source document opens, when it has a screen of its own. */
 const SOURCE_ROUTES: Record<string, (id: string) => string> = {

@@ -1,4 +1,4 @@
-import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES, accountNameOf } from '@virtex/shared/ui-i18n';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, FileDown } from 'lucide-angular';
@@ -11,7 +11,7 @@ import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.s
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { VxPagerComponent } from '../../../shared/components/pager';
 import { DatasetExportService } from '../../../core/export/dataset-export';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /**
  * The journal, entry by entry, with every line shown.

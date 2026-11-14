@@ -1,4 +1,4 @@
-import { LEGAL_DOCUMENTS } from '@virteex/shared/types';
+import { LEGAL_DOCUMENTS } from '@virtex/shared/types';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RegisterPage } from './register.page';
@@ -13,7 +13,7 @@ import { CountryService } from '../../../core/services/country.service';
 import { MockCountryService, US_CONFIG } from '../../../../testing/country.service.mock';
 import { LanguageService } from '../../../core/services/language';
 import { TranslateLoader, provideTranslateLoader } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { UsersService } from '../../../core/api/users.service';
 import { GeoLocationService } from '../../../core/services/geo-location.service';
 import { ConfigService, RegistrationOptions } from '../../../shared/services/config.service';

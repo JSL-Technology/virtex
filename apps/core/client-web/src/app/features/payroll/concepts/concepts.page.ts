@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Plus, Pencil, Trash2 } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 import { ListShellComponent } from '../../../shared/components/gestures';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { NotificationService } from '../../../core/services/notification';
 import { DialogService } from '../../../core/services/dialog.service';
 import {

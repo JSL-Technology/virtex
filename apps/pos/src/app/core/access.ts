@@ -1,4 +1,4 @@
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 
 /**
  * Who may do what at the till. The server enforces every one of these on its own routes; the till

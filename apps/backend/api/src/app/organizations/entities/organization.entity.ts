@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColum
 import { OrganizationSubsidiary } from './organization-subsidiary.entity';
 import { Plan } from '../../saas/entities/plan.entity';
 import { FiscalRegion } from '../../localization/entities/fiscal-region.entity';
-import type { LanguageCode } from '@virteex/shared/types';
+import type { LanguageCode } from '@virtex/shared/types';
 import { blankToNullTransformer } from '../../common/database/blank-to-null.transformer';
 
 @Entity('organizations')

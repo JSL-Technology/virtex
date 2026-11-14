@@ -98,7 +98,7 @@ export class KeyManagementService implements OnModuleInit {
    */
   private assertKeyPairMatches(privateKeyPem: string, publicKeyPem: string, kid: string): void {
     try {
-      const probe = Buffer.from('virteex-key-selfcheck');
+      const probe = Buffer.from('virtex-key-selfcheck');
       const signature = crypto.sign('sha256', probe, privateKeyPem);
       if (!crypto.verify('sha256', probe, publicKeyPem, signature)) {
         throw new Error('signature did not verify');

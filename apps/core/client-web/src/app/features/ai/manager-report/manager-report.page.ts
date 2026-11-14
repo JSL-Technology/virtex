@@ -4,8 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, Printer, Sparkles } from 'lucide-angular';
 import { Subscription, timer } from 'rxjs';
-import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { FORMAT_PIPES } from '@virtex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 import { NotificationService } from '../../../core/services/notification';
 import { ManagerReport, ManagerReportService, ManagerReportSummary } from './manager-report.service';
 

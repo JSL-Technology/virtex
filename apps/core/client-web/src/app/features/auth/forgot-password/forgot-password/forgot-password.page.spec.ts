@@ -9,7 +9,7 @@ import { ReCaptchaV3Service } from 'ng-recaptcha-19';
 import { of, Observable } from 'rxjs';
 import { LanguageService } from '../../../../core/services/language';
 import { TranslateLoader, provideTranslateLoader } from '@ngx-translate/core';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../../components/auth-button/auth-button.component';

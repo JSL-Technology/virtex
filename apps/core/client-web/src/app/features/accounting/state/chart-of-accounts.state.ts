@@ -6,7 +6,7 @@ import { TreeService } from '../../../core/services/tree';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { NotificationService } from '../../../core/services/notification';
 import { AccountType } from '../../../core/models/account.model';
-import { accountNameFor } from '@virteex/shared/ui-i18n';
+import { accountNameFor } from '@virtex/shared/ui-i18n';
 type Sort = { field: keyof FlattenedAccount; direction: 'asc' | 'desc' };
 type Filters = { status: 'ALL' | 'ACTIVE' | 'INACTIVE'; type: 'ALL' | AccountType; };
 

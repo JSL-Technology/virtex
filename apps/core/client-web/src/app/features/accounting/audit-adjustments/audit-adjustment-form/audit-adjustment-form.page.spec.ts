@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@virteex/shared/ui-i18n';
+import { TranslateModule } from '@virtex/shared/ui-i18n';
 import { AuditAdjustmentFormPage } from './audit-adjustment-form.page';
 import { AuditAdjustmentsService } from '../../../../core/api/audit-adjustments.service';
 import { FiscalYearsService } from '../../../../core/api/fiscal-years.service';

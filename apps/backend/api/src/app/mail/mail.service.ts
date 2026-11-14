@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
 import { Queue } from 'bullmq';
-import { DEFAULT_LANGUAGE, LanguageCode, matchLanguage } from '@virteex/shared/types';
+import { DEFAULT_LANGUAGE, LanguageCode, matchLanguage } from '@virtex/shared/types';
 import { User } from '../users/entities/user.entity/user.entity';
 import { currentLanguage } from '../i18n/request-locale';
 import { FrontendUrlService } from './frontend-url.service';

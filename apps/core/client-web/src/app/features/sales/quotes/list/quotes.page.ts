@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { RouterLink } from '@angular/router';
 import { Ban, CheckCircle, Copy, FileText, LucideAngularModule, PlusCircle, RotateCw, Send, XCircle } from 'lucide-angular';
 import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 import { ListShellComponent } from '../../../../shared/components/gestures';
 import { VxBadgeComponent, VxTone } from '../../../../shared/components/badge';
 import { CanOpenDirective } from '../../../../core/modules/can-open.directive';
@@ -17,7 +17,7 @@ import { Quote, QuoteStatus, QuotesService } from '../data/quotes.service';
 import { RowLinkDirective } from '../../../../shared/directives/row-link.directive';
 import { VX_SORT, sortable } from '../../../../shared/components/sort';
 import { InboundMailInboxComponent } from '../../../inbound-mail/inbound-mail-inbox.component';
-import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+import { VX_FORM_A11Y } from '@virtex/shared/ui-a11y';
 
 /** The colour each state carries. Expired overrides the stored state: it is what matters. */
 export const QUOTE_TONE: Record<QuoteStatus, VxTone> = {

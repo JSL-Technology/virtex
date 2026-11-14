@@ -1,6 +1,6 @@
 import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor, Optional } from '@nestjs/common';
 import { Observable, mergeMap } from 'rxjs';
-import { LanguageCode, RegionalFormat } from '@virteex/shared/types';
+import { LanguageCode, RegionalFormat } from '@virtex/shared/types';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { buildLocaleContext, currentLanguage, preferenceLanguage, setRequestLocale } from './request-locale';
 import { I18nService } from './i18n.service';

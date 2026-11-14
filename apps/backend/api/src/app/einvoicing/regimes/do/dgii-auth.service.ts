@@ -1,4 +1,5 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { ServiceUnavailableError } from '../../../i18n/localized.exception';
 import axios, { AxiosError } from 'axios';
 import FormData from 'form-data';
 import { DgiiConfigService } from './dgii-config.service';
@@ -109,18 +110,20 @@ export class DgiiAuthService {
     }
   }
 
-  private transportError(action: string, err: unknown): ServiceUnavailableException {
+  private transportError(action: string, err: unknown): ServiceUnavailableError {
     // Refused by the external-effects switch: nothing left this process. It surfaces as "not
     // transmitted, retry later" — the same state as an outage — never as a DGII verdict.
     if (err instanceof ExternalEffectDisabledError) {
       this.logger.warn(`No se intentó ${action}: la comunicación con autoridades fiscales está desactivada en este proceso (EXTERNAL_EFFECTS).`);
-      return new ServiceUnavailableException(`No se intentó ${action}: comunicación con la DGII desactivada en este entorno.`);
+      return new ServiceUnavailableError('einvoicing.transport.authority_not_contacted');
     }
     const ax = err as AxiosError;
     const detail = ax?.response
       ? `HTTP ${ax.response.status}`
       : ax?.code || (err as Error)?.message || 'error desconocido';
+    // The detail is for whoever reads the log. What the reader is told is that the authority could
+    // not be reached, which is the only part of this they can act on: the outbox retries it.
     this.logger.error(`Fallo al ${action} ante la DGII: ${detail}`);
-    return new ServiceUnavailableException(`No se pudo ${action} ante la DGII (${detail}).`);
+    return new ServiceUnavailableError('einvoicing.transport.authority_unreachable');
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
-import { hasPermission } from '@virteex/shared/util-auth';
+import { hasPermission } from '@virtex/shared/util-auth';
 
 /**
  * The copilot's tools, contributed by the modules that own the data.

@@ -20,7 +20,7 @@ import { Title } from '@angular/platform-browser';
 import { A11yModule } from '@angular/cdk/a11y';
 import { TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, ArrowLeft, Search, X, Lock, CheckCircle2 } from 'lucide-angular';
-import { TranslateModule, LocaleStore, FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { TranslateModule, LocaleStore, FORMAT_PIPES } from '@virtex/shared/ui-i18n';
 
 import { AuthService } from '../../../core/services/auth';
 import { DialogService } from '../../../core/services/dialog.service';
