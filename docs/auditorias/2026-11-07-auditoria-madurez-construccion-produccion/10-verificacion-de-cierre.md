@@ -2,7 +2,7 @@
 
 Cada identificador que aparece en los MD de la auditoría (`docs/auditorias/2026-11-07-auditoria-madurez-construccion-produccion/`), con la línea que lo define (cita del MD) y su estado verificado contra el código y los commits de la rama `ccr-f710ff5b-8ijix4`.
 
-**Respuesta: no está todo resuelto.** De 413 identificadores: 74 resuelto, 15 parcial, 298 pendiente, 10 informativo, 16 no es hallazgo.
+**Respuesta: no está todo resuelto.** De 413 identificadores: 75 resuelto, 15 parcial, 297 pendiente, 10 informativo, 16 no es hallazgo.
 
 ## Resumen por severidad
 
@@ -10,13 +10,13 @@ Cada identificador que aparece en los MD de la auditoría (`docs/auditorias/2026
 |---|---|---|---|---|---|
 | Crítica | 13 | 0 | 0 | 0 | 0 |
 | Alta | 39 | 10 | 0 | 67 | 2 |
-| Media | 21 | 3 | 0 | 148 | 0 |
+| Media | 22 | 3 | 0 | 147 | 0 |
 | Baja | 1 | 0 | 0 | 69 | 0 |
 | — | 0 | 2 | 0 | 14 | 24 |
 
 Método: los identificadores se extrajeron con una expresión regular sobre todos los MD; la severidad, de la línea que define cada uno (en las filas de tablas de ejes puede ser la severidad del eje y no la del hallazgo: revisar la cita). «Resuelto» exige un commit y una comprobación en el código (archivo/prueba citados); «Parcial» lista lo que falta.
 
-## RESUELTO (74)
+## RESUELTO (75)
 
 | ID | Sev. | Cita del MD | Commit | Evidencia de la solución |
 |---|---|---|---|---|
@@ -81,6 +81,7 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | FINB-34 | Media | `modulos/consolidation.md:50` — **FINB-34** · eje 2 · Media · `consolidation.service.ts:365-372, 592-595`: todo el patrimonio a tasa histórica de adquisición (incluye resultados posteriores), promedio = media sim… | 958cf094 | Lo posterior a la adquisición se convierte al promedio desde la adquisición (no al histórico); la diferencia de conversión se acumula por corrida en `consolidation_runs` (migración 1789460000000, solo inserción). El promedio sigue siendo la media de cierres mensuales, aproximación que NIC 21.22 permite. |
 | FINB-35 | Media | `modulos/consolidation.md:52` — **FINB-35** · eje 1 · Media · `organizations.service.ts:200-288`: solo se pueden crear subsidiarias nuevas; no se puede vincular una organización existente (adquisición). M.… | 958cf094 | `OrganizationsService.linkSubsidiary` + `POST /organizations/subsidiaries/link` (step-up, propietario, administrador de ambas empresas, sin ciclos ni doble control, cupo del plan) y diálogo en Ajustes › Subsidiarias; `subsidiary-link.spec.ts`. |
 | I18N-02 | Media | `modulos/i18n.md:57` — - **I18N-02** · i18n · eje 3 · multi-país · **Media** (también LOC-04). Términos DO en la base es; detalle en la ficha localization. Esfuerzo S.… | aeabe621, 96754204 | Igual que LOC-04. |
+| IAM-P3 | Media | `modulos/saas-payment.md:52` — - **IAM-P3** · payment/eje 2,7 · integridad · **media** · `stripe-payment.adapter.ts:653-700`. La idempotencia es un `findOne` y luego `save` dentro de la transacción (READ COMMITT… | 2b022ecc | `stripe-payment.adapter.ts`: el evento se reclama con `INSERT … ON CONFLICT ("id") DO NOTHING` antes del trabajo, y cada evento lee la suscripción como Stripe la tiene en ese momento, no el payload congelado, lo que cubre los eventos fuera de orden. El estado se escribe por `BillingStateService` para todas las empresas de la suscripción, y la caché se invalida después del commit. `billing-state.integration.spec.ts` (contra PostgreSQL como `virtex_app`): dos entregas simultáneas del mismo evento → ambas responden y queda una sola fila de historia por empresa; con la idempotencia anterior una de las dos se rechaza por la PK. `stripe-payment.adapter.spec.ts` (33 pruebas). Hallazgos del mismo módulo cerrados en el mismo commit: el cambio de plan del proveedor no llegaba al producto, una segunda suscripción en cada cambio de plan, historia de planes vacía y gracia que se reabría. |
 | IAM-T2 | Media | `modulos/multi-tenencia.md:43` — - **IAM-T2** · multi-tenencia/eje 2 · integridad de datos · **media** (defensa en profundidad incompleta, no fuga real) · `database/same-tenant-references.spec.ts:56`. La FK `FK_cu… | 4b930dfc | Migración `1789410000000-SameTenantGuardCustomerPortal.ts` (`SELECT virtex_install_same_tenant_guards()`); `same-tenant-references.spec.ts` en verde. |
 | JUR-02 | Media | `modulos/jurisdictions-geo.md:60` — - **JUR-02** · payroll/fiscal-coverage · eje 3 · documentación/producto · **Media**. `fiscal-coverage.ts` no declara la capacidad «payroll», así que la falta de nómina fuera de DO … | 96754204 | `fiscal-coverage.ts`: capacidad `payroll` en todos los mercados (DO `implemented`, resto `not-implemented`), `payrollImplemented`; `payroll-coverage.spec.ts` la contrasta con `JurisdictionRegistry` en los 19 mercados; `PublicCountryConfig.payrollAvailable` y aviso en el paso de configuración del registro (antes de pagar); el texto que listaba la nómina como disponible en todos los países se corrigió. En vivo: `/localization/config/MX` → `payrollAvailable:false`, DO → `true`. |
 | LOC-04 | Media | `modulos/localization.md:83` — **LOC-04** · i18n/localization · eje 3 · *multi-país (terminología DO por defecto)* · **Media**… | aeabe621, 96754204 | 31 claves genéricas neutras en es/en/pt con el término dominicano en `regional/es-DO.json` (aeabe621); `ledger.payroll.*`, `payroll.payslip.isr`, `payroll.payslip.afp/sfs` y `invoices.gaps.fiscal_sequence*` neutros (96754204). Barrido: fuera de los flujos solo DO no queda ITBIS/RNC/TSS/AFP/SFS/INFOTEP en la base. |
@@ -113,9 +114,9 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | FE-CI-07 | Media | `modulos/ci-cd-infra.md:57` — - **FE-CI-07** — eje 8 · seguridad · **Media** · CI. `npm audit` (128 vulns, 15 high: node-forge ≤1.4.0, @angular/router, electron…) no es gate; CodeQL falla sin bloquear. Esfuerzo… | 017fa1d5, 4b930dfc | Corregidas las vulnerabilidades altas citadas de node-forge y electron; puerta de auditoría solo para el escritorio (`tools/desktop/audit-gate.mjs`). | `npm audit` no es una puerta para el monorepo completo; @angular/router y el resto siguen sin revisar. |
 | MP-07 | Media | `13-evaluacion-multipais.md:100` — **MP-07** · eje 1 · Multi-país · **Media** — Numeración interna no nativa.… | df61b60e | Las series de `document_sequences` de una empresa nueva se nombran en el idioma de sus libros (INV-/QT-/CN-/DN-/BILL-/JE-, FAC-/COT-/NC-/ND-/FP-/AS-, FAT-/ORC-/NC-/ND-/FC-/LC-); verify:invoicing: la empresa de EE. UU. numera INV-00000001 y DN-00000001. | Los documentos numerados en código (PO, REQ, GR, PAY, RFQ, AJ, TR, ND, AF, DEV, CTR) siguen con prefijo fijo. |
 | SP-01 | — | `00-resumen-ejecutivo.md:22` — 7. **Patrón dominante: "construido pero no conectado"** (SP-01): estados comparativos, listas de precios, revaluación, consolidación, landed cost, manufactura y `/metrics`. Seis ba… | 7e3640e0, e87dd8a0, f43ade93, 08c85dfe | Conectados, cada uno con su evidencia: listas de precios en factura, cotización y POS (FAC-PL-01); revaluación cambiaria por rol de cuenta (FINB-01); regímenes de factura electrónica por el outbox `fiscal_submissions` (FAC-EINV-01); costos de importación aplicados a recepciones (CMP-21). | Siguen construidos pero no conectados: estados comparativos (FIN-FR-01), ubicaciones/bins (INV-23), consolidación, intercompañía, manufactura, proyectos y customer-service sin pantalla (INVT-01), manufactura sin mover inventario (INV-20), `sales_cube_view` (IA-B05), `/metrics` (PLT-OBS-01). |
-| SP-11 | — | `04-plataforma-transversal.md:12` — \| Suscripción SaaS y pagos \| `saas-payment.md` \| 55 (48–62) \| 50 \| **No listo** \| Causa raíz de FAC-INV-01: el control de cupo aborta la transacción del documento. Los límites de p… | 8b1ee726 | La causa raíz citada (FAC-INV-01) está corregida. | El resto del módulo saas-payment (IAM-P2/P3/P4) sigue pendiente. |
+| SP-11 | — | `04-plataforma-transversal.md:12` — \| Suscripción SaaS y pagos \| `saas-payment.md` \| 55 (48–62) \| 50 \| **No listo** \| Causa raíz de FAC-INV-01: el control de cupo aborta la transacción del documento. Los límites de p… | 8b1ee726, 2b022ecc | La causa raíz citada (FAC-INV-01) está corregida, y también IAM-P3 (idempotencia y orden de los webhooks). | Del módulo saas-payment siguen pendientes IAM-P2 (alerta si un despliegue arranca con el proveedor simulado) e IAM-P4 (límite de usuarios al invitar, fallar cerrado ante un recurso no declarado). |
 
-## PENDIENTE (298)
+## PENDIENTE (297)
 
 | ID | Sev. | Cita del MD |
 |---|---|---|
@@ -258,7 +259,6 @@ Método: los identificadores se extrajeron con una expresión regular sobre todo
 | IAM-O2 | Media | `modulos/organizations.md:49` — - **IAM-O2** · organizations/eje 8 · pruebas · **media** · El ataque cross-tenant de sucursal (GET/PATCH/DELETE `/organizations/branches/217c7e1c…` desde qa-do-b) **no se pudo ejecutar** porque el thr… |
 | IAM-O3 | Media | `modulos/organizations.md:50` — - **IAM-O3** · organizations/eje 5 · higiene · media · `logs/boundaries-report.log`: ciclos configuración↔identidad y configuración↔plataforma. Impacto: deuda técnica. Esfuerzo: M.… |
 | IAM-P2 | Media | `modulos/saas-payment.md:51` — - **IAM-P2** · payment/eje 1 · funcionalidad simulada (controlada) · **media** · `payment-provider.ts:28-29`, `env.validation.ts:485-495`. Si no hay `STRIPE_SECRET_KEY`, el proveedor por defecto es `s… |
-| IAM-P3 | Media | `modulos/saas-payment.md:52` — - **IAM-P3** · payment/eje 2,7 · integridad · **media** · `stripe-payment.adapter.ts:653-700`. La idempotencia es un `findOne` y luego `save` dentro de la transacción (READ COMMITTED). Dos entregas si… |
 | IAM-P4 | Media | `modulos/saas-payment.md:53` — - **IAM-P4** · saas/eje 1 · funcionalidad · **media** · `GET /saas/usage`: qa-do-a está en users 2/2 (plan starter). No verifiqué si `POST /users/invite` rechaza en servidor al superar el límite (requ… |
 | IAM-R3 | Media | `modulos/roles-permisos.md:50` — - **IAM-R3** · roles-permisos/eje 6 · Categoría: calidad · Sev: media · Ubicación: proyecto api (lint). 522 warnings (175 `no-explicit-any`). Qué está mal: deuda que erosiona el type-safety del contro… |
 | IAM-S1 | Media | `modulos/security-onboarding.md:46` — - **IAM-S1** · onboarding/eje 8 · seguridad · **media** · `config/env.validation.ts:445-452`. `RECAPTCHA_DISABLED` vale `false` por defecto en producción, pero un `true` explícito **se acepta** en pro… |
