@@ -450,6 +450,15 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:invoicing
 
+      # Proves a new company can keep, reorganise and close its books: the chart is valid from the
+      # start of the open fiscal year (not from the signup date), merging an account moves its
+      # balance by reclassification and never rewrites a posted line, the annual close works with a
+      # mandatory dimension rule and returns every cost centre to zero, and a period that has not
+      # ended does not close by accident. Through the real queue, worker and posting path.
+      - name: npm run verify:ledger
+        if: ${{ !cancelled() }}
+        run: npm run verify:ledger
+
       # Buying keeps the inventory account and the kardex describing the same value: a bill against
       # an unapproved order is refused, its goods move in its own transaction, and a price that
       # differs from the order revalues the stock on hand instead of only the account (AP-05).

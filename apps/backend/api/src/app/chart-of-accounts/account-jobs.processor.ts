@@ -106,10 +106,18 @@ export class AccountJobsProcessor extends WorkerHost {
         // source is squared off against the destination for exactly what it carries, so the source
         // reads zero and the destination reads the combined figure. The lines behind both stay
         // where they were posted, and every statement already issued still reads the same.
+        //
+        // BY DIMENSION COMBINATION, each pair of lines carrying the tags of the balance it moves.
+        // One untagged lump would lose the analytical attribution — both cost centres would keep
+        // their balances on the retired account while the destination received an unattributed
+        // total — and a mandatory dimension rule on either account would refuse the entry. The
+        // tags came out of the ledger, so they travel as they are (`tagsFromLedger`).
         await this.progress(job, userId, 60, 'chart_of_accounts.reclassifying_posted_balance');
-        const balance = roundAmount((await this.journalQuery.summarizeAccountMovements(sourceAccountId, organizationId)).postedBalance);
+        const slices = (await this.journalQuery.postedBalanceByDimension(sourceAccountId, organizationId, manager))
+          .map((slice) => ({ ...slice, balance: roundAmount(slice.balance) }))
+          .filter((slice) => slice.balance !== 0);
         let reclassificationId: string | null = null;
-        if (balance !== 0) {
+        if (slices.length > 0) {
           const [organization] = await manager.query<Array<{ country: string | null; timezone: string | null }>>(
             `SELECT "country", "timezone" FROM "organizations" WHERE "id" = $1`,
             [organizationId],
@@ -120,7 +128,6 @@ export class AccountJobsProcessor extends WorkerHost {
               params: { source: sourceAccount.code, destination: destAccount.code },
             },
           });
-          const amount = Math.abs(balance);
           const posted = await this.ledger.post(
             manager,
             organizationId,
@@ -128,11 +135,15 @@ export class AccountJobsProcessor extends WorkerHost {
               journalCode: 'GENERAL',
               date: fiscalDate(organizationTimeZone(organization)),
               description: words.description,
-              lines: [
-                // A net debit on the source is cleared with a credit, and the other way round.
-                { accountId: sourceAccountId, debit: balance < 0 ? amount : 0, credit: balance > 0 ? amount : 0 },
-                { accountId: destinationAccountId, debit: balance > 0 ? amount : 0, credit: balance < 0 ? amount : 0 },
-              ],
+              lines: slices.flatMap((slice) => {
+                const amount = Math.abs(slice.balance);
+                const tags = slice.dimensions ? { dimensions: slice.dimensions } : {};
+                return [
+                  // A net debit on the source is cleared with a credit, and the other way round.
+                  { accountId: sourceAccountId, debit: slice.balance < 0 ? amount : 0, credit: slice.balance > 0 ? amount : 0, ...tags },
+                  { accountId: destinationAccountId, debit: slice.balance > 0 ? amount : 0, credit: slice.balance < 0 ? amount : 0, ...tags },
+                ];
+              }),
             },
             {
               actorUserId: userId,
@@ -140,10 +151,11 @@ export class AccountJobsProcessor extends WorkerHost {
               // The queue retries three times; the entry is posted once.
               idempotencyKey: `account-merge:${job.id}`,
               module: 'general-ledger',
+              tagsFromLedger: true,
             },
           );
           reclassificationId = posted.id;
-          this.logger.log(`Job ${job.id}: reclasificación ${posted.id} por ${amount}.`);
+          this.logger.log(`Job ${job.id}: reclasificación ${posted.id} en ${slices.length} combinación(es) de dimensiones.`);
         }
 
         await this.progress(job, userId, 90, 'chart_of_accounts.deactivating_source_account_recalculating_balances');

@@ -7,9 +7,14 @@
  * It used to be: each area declared its permissions next to its controllers and this barrel merged
  * the nine. The barrel lives in `shared/`, which is PLATFORM, and platform may not depend on a
  * business module — that is its entire definition (`module-boundaries.config.mjs`). So one file
- * created seven of the fourteen module cycles the boundary check reported: plataforma ↔ ventas,
- * ↔ inventario, ↔ contabilidad, ↔ finanzas, ↔ rrhh, ↔ reportes and part of ↔ identidad. Six of
- * those pairs had no other reason to be coupled at all.
+ * put an import from platform into seven business domains: ventas, inventario, contabilidad,
+ * finanzas, rrhh, reportes and identidad.
+ *
+ * Measured, step by step, on the commit before the move: taking the catalogue out of the business
+ * folders closed three module cycles on its own — plataforma ↔ finanzas, ↔ rrhh and ↔ reportes,
+ * the pairs that had no other reason to be coupled at all (14 → 11, and 1178 → 1161 boundary
+ * violations). The other four pairs had further edges of their own and closed, or will, with
+ * those.
  *
  * A permission is not business logic. It is a word three different layers have to agree on: the
  * guard that resolves it (platform), the roles screen that enumerates it (`buildPermissionCatalogue`),

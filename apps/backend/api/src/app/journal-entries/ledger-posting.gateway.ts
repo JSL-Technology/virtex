@@ -83,6 +83,7 @@ export class LedgerPostingGatewayImpl implements LedgerPostingGateway, OnModuleI
       systemReason: context.systemReason,
       idempotencyKey: context.idempotencyKey,
       module: context.module ? MODULES[context.module] : undefined,
+      tagsFromLedger: context.tagsFromLedger,
     };
   }
 }

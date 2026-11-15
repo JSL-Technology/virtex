@@ -277,9 +277,8 @@ export class ResultTransferService {
         entryType: JournalEntryType.CLOSING_ENTRY,
       } satisfies CreateJournalEntryDto,
       organizationId,
-      { actorUserId, systemReason: 'result-transfer' },
       // The tags on these lines were copied from the balances being closed.
-      { tagsFromLedger: true },
+      { actorUserId, systemReason: 'result-transfer', tagsFromLedger: true },
     );
 
     this.logger.log(

@@ -43,6 +43,7 @@
     "verify:form-a11y": "node tools/verify/form-a11y.mjs",
     "verify:identity-writes": "node tools/verify/identity-writes.mjs",
     "verify:invoicing": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/invoicing-lifecycle.ts",
+    "verify:ledger": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/ledger-close.ts",
     "verify:localized-errors": "node tools/verify/localized-errors.mjs",
     "verify:localized-names": "node tools/i18n/verify-localized-names.mjs",
     "verify:markets": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/provision-all-markets.ts",

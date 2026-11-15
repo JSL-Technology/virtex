@@ -20,6 +20,8 @@ export interface LedgerPostingLine {
   debit: number;
   credit: number;
   description?: string;
+  /** Analytical tags, by dimension name. Validated like any entry's unless `tagsFromLedger`. */
+  dimensions?: Record<string, string>;
 }
 
 export interface LedgerPostingRequest {
@@ -40,6 +42,13 @@ export interface LedgerPostingContext {
   /** The same key posts once, however many times the caller retries. */
   idempotencyKey?: string;
   module?: LedgerPostingModule;
+  /**
+   * The lines' dimension tags were copied from entries already in the ledger — an account merge
+   * reclassifying a balance carries the tags that balance was posted under. They are then carried
+   * as they are: not re-validated against today's catalogue, and not checked against mandatory
+   * rules, which a tag that came out of the ledger satisfies by construction.
+   */
+  tagsFromLedger?: boolean;
 }
 
 /** Words in the books' language, from catalogue keys. */

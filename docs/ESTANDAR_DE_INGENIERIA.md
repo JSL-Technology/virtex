@@ -115,6 +115,7 @@ verdad contra PostgreSQL y recorren un caso completo:
 | `verify:provisioning` | Todo registro produce un inquilino que puede llevar libros. |
 | `verify:invoicing` | Un inquilino nuevo emite, contabiliza y acredita. |
 | `verify:purchasing` | Comprar mantiene el mayor y el kárdex de acuerdo. |
+| `verify:ledger` | Una empresa nueva lleva, reorganiza y cierra sus libros: vigencia del plan, fusión sin reescribir historia, cierre con contabilidad analítica. |
 | `verify:fiscal-identity` | La identidad fiscal sobrevive al almacenamiento. |
 | `verify:ecf` | El documento electrónico se construye, valida y firma. |
 | `verify:rls-runtime` | El aislamiento rige a través de la aplicación. |

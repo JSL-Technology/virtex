@@ -52,6 +52,12 @@ export interface AccountMovementSummary {
   unpostedLines: number;
 }
 
+/** One dimension combination's share of an account's posted balance (debit − credit). */
+export interface AccountBalanceSlice {
+  dimensions: Record<string, string> | null;
+  balance: number;
+}
+
 export interface AccountMovementCount {
   accountId: string;
   count: number;
@@ -400,6 +406,40 @@ export class JournalQueryService {
       postedLines,
       unpostedLines: lines - postedLines,
     };
+  }
+
+  /**
+   * The posted balance of an account, split by the dimension combination it was posted under.
+   *
+   * What an account merge reclassifies: moving the balance as ONE untagged lump would lose its
+   * analytical attribution — 60 of cost centre A and 40 of B would arrive at the destination as an
+   * unattributed 100 while both centres kept their balances on the retired account — and a
+   * mandatory dimension rule on either account would refuse the entry outright. The same defect
+   * the year-end close had (FIN-AC-01), so the same answer: one slice per combination.
+   *
+   * `jsonb` normalises key order, so `{a,b}` and `{b,a}` are one group. Slices that net to zero
+   * are left out; an account with no dimensions answers a single slice with `dimensions: null`.
+   */
+  async postedBalanceByDimension(
+    accountId: string,
+    organizationId: string,
+    manager?: EntityManager,
+  ): Promise<AccountBalanceSlice[]> {
+    const rows = await (manager ?? this.dataSource.manager)
+      .getRepository(JournalEntryLine)
+      .createQueryBuilder('line')
+      .innerJoin('line.journalEntry', 'entry')
+      .select('line.dimensions', 'dimensions')
+      .addSelect('COALESCE(SUM(line.debit - line.credit), 0)', 'balance')
+      .where('line.accountId = :accountId', { accountId })
+      .andWhere('entry.organizationId = :organizationId', { organizationId })
+      .andWhere('entry.status IN (:...ledgerStatuses)', { ledgerStatuses: LEDGER_STATUSES })
+      .groupBy('line.dimensions')
+      .getRawMany<{ dimensions: Record<string, string> | null; balance: string }>();
+
+    return rows
+      .map((row) => ({ dimensions: row.dimensions ?? null, balance: Number(row.balance) }))
+      .filter((slice) => Math.round(slice.balance * 100) !== 0);
   }
 
   // ── Closing checklist ─────────────────────────────────────────────────────────────────────────

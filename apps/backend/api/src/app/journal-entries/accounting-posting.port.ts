@@ -35,6 +35,21 @@ export interface PostingContext {
    * account, which is the bank's own figure on that date (its initial reconciliation, REC-01).
    */
   reconciledAccountIds?: readonly string[];
+  /**
+   * The dimension tags on these lines were COPIED from entries already in the ledger.
+   *
+   * A reversal carries the original's tags, the year-end close carries those of the balances it
+   * closes, and an account merge carries those of the balance it reclassifies. None of them may be
+   * re-validated — a dimension value retired since the original posting must not stop a void, a
+   * close or a merge — and none needs the mandatory-rule check, because a tag that came out of the
+   * ledger is a stronger guarantee than the rule that let it in.
+   *
+   * In the context, not a separate argument: the cross-module posting contract
+   * (`contracts/ledger-posting`) transports a context and nothing else, and a flag that only one
+   * of the two posting paths could express would be the next place an entry was refused for the
+   * wrong reason.
+   */
+  tagsFromLedger?: boolean;
 }
 
 /**
