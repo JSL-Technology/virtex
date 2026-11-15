@@ -300,7 +300,6 @@ export class SuppliersService {
       // Same rule as customers (QA C-03): a supplier named on bills or orders stays.
       await assertNoDependents(manager, supplier.id, SUPPLIER_DEPENDENTS, 'suppliers.delete_blocked');
       await manager.remove(Supplier, supplier);
-      await this.saasService.releaseUsage(manager, organizationId, SaasResource.SUPPLIERS);
     });
   }
 }

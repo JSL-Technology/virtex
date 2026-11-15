@@ -1,6 +1,6 @@
 {
   "generatedFrom": "tools/verify/module-boundaries.mjs",
-  "total": 1143,
+  "total": 1141,
   "byRule": {
     "private-import": 439,
     "private-import:spec": 232,
@@ -8,7 +8,7 @@
     "forbidden-dependency:spec": 91,
     "module-cycle": 7,
     "foreign-entity-registration": 26,
-    "cross-module-transaction": 115,
+    "cross-module-transaction": 113,
     "forward-ref": 29
   },
   "counts": {
@@ -135,14 +135,14 @@
     "cross-module-transaction|compras|configuracion": 1,
     "cross-module-transaction|compras|contabilidad": 12,
     "cross-module-transaction|compras|inventario": 9,
-    "cross-module-transaction|compras|identidad": 3,
+    "cross-module-transaction|compras|identidad": 2,
     "cross-module-transaction|configuracion|contabilidad": 3,
     "cross-module-transaction|identidad|plataforma": 1,
     "cross-module-transaction|identidad|configuracion": 2,
     "cross-module-transaction|ventas|contabilidad": 16,
     "cross-module-transaction|plataforma|identidad": 2,
     "cross-module-transaction|ventas|plataforma": 7,
-    "cross-module-transaction|ventas|identidad": 6,
+    "cross-module-transaction|ventas|identidad": 5,
     "cross-module-transaction|contabilidad|identidad": 2,
     "cross-module-transaction|inventario|contabilidad": 3,
     "cross-module-transaction|inventario|identidad": 1,

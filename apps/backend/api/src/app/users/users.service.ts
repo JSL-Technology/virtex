@@ -415,10 +415,6 @@ export class UsersService extends UserProfilePort {
       await replaceRolesInOrganization(manager, id, organizationId, []);
       const fresh = await manager.findOne(User, { where: { id }, select: ['id', 'organizationId'] });
 
-      // The seat goes back to the tenant. `USERS` is a LIFETIME quota, so without this a tenant
-      // that removed somebody could never replace them: the counter measured hires, not staff.
-      await this.saasService.releaseUsage(manager, organizationId, SaasResource.USERS);
-
       const stillBelongsSomewhere = await manager.count(UserOrganization, { where: { userId: id } });
       if (stillBelongsSomewhere === 0) {
         // Nothing else refers to this person; the identity itself goes.

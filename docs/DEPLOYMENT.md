@@ -176,6 +176,21 @@ invoice.payment_failed
 Put its signing secret in `STRIPE_WEBHOOK_SECRET`. Plans and their limits are provisioned by
 migration, so no seeding flag is involved; the Stripe price ids belong in `STRIPE_PRICE_*`.
 
+Changing plan from inside the product opens Stripe's own confirmation of a **subscription update**
+(a customer-portal session with `flow_data.type = subscription_update_confirm`: the customer sees
+the upcoming invoice and the proration before agreeing). It runs on the customer portal, so
+configure the portal (Stripe dashboard → Settings → Billing → Customer portal) to let customers
+switch between the catalogue's prices, and try a plan change in Stripe's test mode before going
+live: CI runs without Stripe and does not exercise it. A company with no subscription in force is
+sent to Checkout instead.
+
+Two signals on `/metrics` deserve an alert in every environment that is not a developer's machine:
+
+| Alert when | Meaning |
+|---|---|
+| `payment_provider_info{provider="simulated"} == 1` | This process grants subscriptions without charging. The configuration refuses it outside `NODE_ENV=development\|test`, so it means a deployment was started with the wrong `NODE_ENV`. |
+| `increase(saas_webhook_failure_total[15m]) > 0` | Stripe deliveries are failing (`reason`: `rejected` — bad signature or payload; `unavailable` — the gateway is not configured; `failed` — the processing itself). Stripe redelivers for days, so a failure that repeats is a subscription the product is not following. |
+
 ## 7. AI platform
 
 Everything here is optional: without it every screen works by hand, and the AI-assisted parts

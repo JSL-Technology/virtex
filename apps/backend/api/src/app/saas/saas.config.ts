@@ -186,10 +186,10 @@ export const SAAS_CONFIG = {
 /**
  * Every plan declares a limit for every metered resource.
  *
- * `enforceLimit` returns early when a plan has no `PlanLimit` row for the resource it is asked
- * about — so a resource missing from a plan is unlimited on that plan, silently. That is the
- * failure mode this list has to avoid, and `saas-entitlements.spec.ts` asserts the completeness
- * rather than leaving it to review.
+ * `enforceLimit` and `checkLimit` REFUSE a resource a plan has no `PlanLimit` row for — they fail
+ * closed, so a forgotten entry stops the feature rather than giving it away. That makes a missing
+ * entry an outage instead of a leak, and `saas-entitlements.spec.ts` asserts the completeness so it
+ * is neither.
  */
 export const SAAS_PLANS: PlanConfig[] = [
   {

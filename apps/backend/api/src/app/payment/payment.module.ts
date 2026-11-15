@@ -8,7 +8,9 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { WebhookEvent } from './entities/webhook-event.entity';
 import { StripePaymentAdapter } from './adapters/stripe-payment.adapter';
 import { SimulatedPaymentAdapter } from './adapters/simulated-payment.adapter';
-import { resolvePaymentProvider } from './payment-provider';
+import { choosePaymentGateway } from './payment-provider';
+import { MetricsModule } from '../metrics/metrics.module';
+import { MetricsService } from '../metrics/metrics.service';
 import { AuthModule } from '../auth/auth.module';
 import { AuditModule } from '../audit/audit.module';
 import { RegistrationPaymentPort } from '../auth/ports/registration-payment.port';
@@ -21,6 +23,7 @@ import { PaymentGateway } from './payment-gateway.port';
     TypeOrmModule.forFeature([Organization, WebhookEvent]),
     forwardRef(() => AuthModule),
     forwardRef(() => AuditModule),
+    MetricsModule,
   ],
   controllers: [PaymentController],
   providers: [
@@ -37,12 +40,13 @@ import { PaymentGateway } from './payment-gateway.port';
     // `stripe` outside development and test.
     {
       provide: PaymentGateway,
-      inject: [ConfigService, StripePaymentAdapter, SimulatedPaymentAdapter],
+      inject: [ConfigService, StripePaymentAdapter, SimulatedPaymentAdapter, MetricsService],
       useFactory: (
         config: ConfigService,
         stripe: StripePaymentAdapter,
         simulated: SimulatedPaymentAdapter,
-      ) => (resolvePaymentProvider(config) === 'simulated' ? simulated : stripe),
+        metrics: MetricsService,
+      ) => choosePaymentGateway<PaymentGateway>(config, { stripe, simulated }, metrics.paymentProviderInfo),
     }
   ],
   exports: [PaymentService, RegistrationPaymentPort]

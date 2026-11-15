@@ -1,8 +1,4 @@
 export class SaasCacheKeyFactory {
-  static usageCounter(orgId: string, resource: string, period: string): string {
-    return `usage_counter:${orgId}:${resource}:${period}`;
-  }
-
   static limitVersion(orgId: string): string {
     return `org_limit_version:${orgId}`;
   }

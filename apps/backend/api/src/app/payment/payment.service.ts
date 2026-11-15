@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Organization } from '../organizations/entities/organization.entity';
@@ -7,6 +7,7 @@ import type { BillingPeriod } from '../saas/enums/billing-period.enum';
 import { BadRequestError, ForbiddenError } from '../i18n/localized.exception';
 import { BillingStateService } from './billing-state.service';
 import { overviewFromRecord } from './billing-overview';
+import { MetricsService } from '../metrics/metrics.service';
 import {
   type BillingInvoice,
   type BillingOverview,
@@ -33,6 +34,7 @@ export class PaymentService extends RegistrationPaymentPort {
     private readonly billingState: BillingStateService,
     private readonly dataSource: DataSource,
     @InjectRepository(Organization) private readonly organizations: Repository<Organization>,
+    private readonly metrics: MetricsService,
   ) {
     super();
   }
@@ -57,8 +59,20 @@ export class PaymentService extends RegistrationPaymentPort {
     return this.gateway.voidOrphanedSubscription(subscriptionId, reason);
   }
 
-  handleWebhook(signature: string, payload: Buffer): Promise<WebhookResult> {
-    return this.gateway.handleWebhook(payload, signature);
+  async handleWebhook(signature: string, payload: Buffer): Promise<WebhookResult> {
+    try {
+      return await this.gateway.handleWebhook(payload, signature);
+    } catch (error) {
+      this.metrics.webhookFailureCounter.labels(PaymentService.failureReason(error)).inc();
+      throw error;
+    }
+  }
+
+  /** Why a delivery was not processed: refused as sent, the gateway unavailable, or a failure. */
+  private static failureReason(error: unknown): 'rejected' | 'unavailable' | 'failed' {
+    const status = error instanceof HttpException ? error.getStatus() : 500;
+    if (status === HttpStatus.SERVICE_UNAVAILABLE) return 'unavailable';
+    return status >= 400 && status < 500 ? 'rejected' : 'failed';
   }
 
   /** Buy a subscription when none is in force, change the one in force otherwise. */

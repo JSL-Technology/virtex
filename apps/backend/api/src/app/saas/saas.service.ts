@@ -407,11 +407,6 @@ export class SaasService implements OnModuleInit {
       return 'unknown_period';
   }
 
-  async setUsageRedis(organizationId: string, resource: SaasResource, periodKey: string, value: number): Promise<void> {
-      const cacheKey = SaasCacheKeyFactory.usageCounter(organizationId, resource, periodKey);
-      await this.cacheManager.set(cacheKey, value, 24 * 3600 * 1000);
-  }
-
   /**
    * `enforceLimit` in a transaction of its own — for a caller in another module, which must not
    * hand this one its `EntityManager` (see `EntitlementsPort.consume`).
@@ -467,6 +462,11 @@ export class SaasService implements OnModuleInit {
        return;
     }
 
+    if (limitDef.period === QuotaPeriod.LIFETIME) {
+      await this.enforceLifetimeLimit(manager, organizationId, resource, limitDef, increment);
+      return;
+    }
+
     const periodKey = this.getPeriodKey(limitDef.period, org);
     const allowOverage = limitDef.allowOverage;
     const isUnlimited = limitDef.isUnlimited || limitDef.limit === -1;
@@ -490,8 +490,7 @@ export class SaasService implements OnModuleInit {
     // Invalidate, never write, from inside the caller's transaction. The issue preview runs this in
     // a transaction it always rolls back, and a decision written here outlived it: with the count
     // misread, a preview cached «limit reached» and refused the real issue that followed. A miss is
-    // always right — the guard re-reads the committed count. (The Redis usage counter is not
-    // written here for the same reason; nothing reads it, and the reconciliation job keeps it.)
+    // always right — the guard re-reads the committed count.
     if (!result.limitReached) {
         try {
             await this.cacheManager.del(cacheKey);
@@ -509,7 +508,7 @@ export class SaasService implements OnModuleInit {
     if (result.limitReached) {
         // Ensure cache is blocked
         await this.cacheManager.set(cacheKey, false, 5 * 60 * 1000);
-        this.metricsService.limitHitCounter.labels(organizationId, resource).inc();
+        this.metricsService.limitHitCounter.labels(resource).inc();
         this.emitLimitReachedEvent(organizationId, resource, result.count, limitDef.limit);
         throw new SaasLimitReachedException(resource);
     } else {
@@ -549,69 +548,72 @@ export class SaasService implements OnModuleInit {
   }
 
   /**
-   * Release a unit of a metered resource, so the quota reflects what exists rather than what has
-   * ever been created.
+   * A lifetime quota — members, customers, suppliers, subsidiaries — is a count of what EXISTS, so
+   * it is decided by counting what exists.
    *
-   * Only meaningful for `LIFETIME` quotas — a monthly counter is a volume of activity in a
-   * period, and deleting an invoice does not un-issue it. Calling it for a monthly resource is a
-   * no-op by design rather than an error, so callers do not have to know the period.
+   * It was decided by a counter, which started at zero whatever the tenant already had: the owner
+   * every signup creates was never counted, and in the development database 6 of 7 organizations
+   * with members had no counter at all. So a Starter tenant with two seats could add two members on
+   * top of its owner, and stayed over its plan until the nightly job overwrote the counter — a job
+   * that, connected as the application's role and with no tenant in context, counted zero customers
+   * and zero suppliers under the row-level policies. A deletion then had to «release» a unit by
+   * hand, and every path that forgot to left the tenant permanently short.
    *
-   * Failures are logged and swallowed: refusing to delete a customer because a counter could not
-   * be decremented would be a worse outcome than a counter that reconciliation will correct.
+   * Counted in the caller's transaction, after a transaction-scoped advisory lock on the tenant and
+   * the resource: two concurrent creations queue on the lock, and the second counts the first's row
+   * once it has committed, so the last unit cannot be taken twice. Deleting a row gives the unit back
+   * by itself.
    */
-  async releaseUsage(
+  private async enforceLifetimeLimit(
     manager: EntityManager,
     organizationId: string,
     resource: SaasResource,
-    decrement = 1,
+    limitDef: PlanLimit,
+    increment: number,
   ): Promise<void> {
-    try {
-      const org = await manager.findOne(Organization, {
-        where: { id: organizationId },
-        relations: ['plan', 'plan.limits'],
-      });
-      const limitDef = org?.plan?.limits?.find((l) => l.resource === resource);
-      if (!limitDef || limitDef.period !== QuotaPeriod.LIFETIME) return;
+    if (limitDef.isUnlimited || limitDef.limit === -1) return;
+    if (!manager.queryRunner?.isTransactionActive) {
+      throw new Error(
+        'A lifetime quota is decided inside the transaction that creates the row: outside one, two creations could both take the last unit.',
+      );
+    }
 
-      const periodKey = this.getPeriodKey(limitDef.period, org as Organization);
-      const count = await this.usageMetricRepository.decrementUsage(
-        manager,
-        organizationId,
-        resource,
-        periodKey,
-        decrement,
-      );
-      await this.setUsageRedis(organizationId, resource, periodKey, count);
-    } catch (error) {
+    await manager.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, [`saas-quota:${organizationId}:${resource}`]);
+    const existing = await this.countExisting(manager, organizationId, resource);
+    if (existing === null) {
+      // A lifetime quota with nothing to count cannot be decided; refusing is the safe answer.
       this.logger.error(
-        { event: 'usage_release_failed', organizationId, resource },
-        `Could not release quota: ${(error as Error).message}`,
+        { event: 'saas_lifetime_quota_without_source', organizationId, resource },
+        '[BILLING] A lifetime quota has no row source to count; refusing the metered operation.',
       );
+      throw new SaasNoPlanException(organizationId);
+    }
+
+    const after = existing + increment;
+    if (after > limitDef.limit) {
+      this.emitLimitReachedEvent(organizationId, resource, existing, limitDef.limit);
+      if (!limitDef.allowOverage) {
+        this.metricsService.limitHitCounter.labels(resource).inc();
+        throw new SaasLimitReachedException(resource);
+      }
+      return;
+    }
+    const percentage = after / limitDef.limit;
+    if (percentage >= 0.8) {
+      this.emitLimitWarningEvent(organizationId, resource, after, limitDef.limit, percentage);
     }
   }
 
-  /**
-   * Recount a lifetime quota from the rows that actually exist and write that number back.
-   *
-   * The nightly job only ever reconciled Redis against the database, which corrected the cache
-   * and never the counter. Anything that created or removed a record outside the metered path —
-   * a rolled-back transaction, a restored backup, a bulk import — left the quota permanently
-   * wrong in a direction the customer cannot fix.
-   */
-  async recountLifetimeUsage(
-    manager: EntityManager,
+  /** How many of a lifetime resource exist, counted on `runner`; `null` when there is no source. */
+  private async countExisting(
+    runner: Pick<EntityManager, 'query'> | DataSource,
     organizationId: string,
-    resource: SaasResource,
-    actual: number,
-  ): Promise<void> {
-    await this.usageMetricRepository.setUsage(
-      manager,
-      organizationId,
-      resource,
-      QuotaPeriod.LIFETIME,
-      actual,
-    );
-    await this.setUsageRedis(organizationId, resource, QuotaPeriod.LIFETIME, actual);
+    resource: string,
+  ): Promise<number | null> {
+    const source = LIFETIME_USAGE_SOURCES.find((candidate) => candidate.resource === resource);
+    if (!source) return null;
+    const rows: Array<{ n: number | string }> = await runner.query(source.sql, [organizationId]);
+    return Number(rows?.[0]?.n ?? 0);
   }
 
   /**
@@ -628,8 +630,7 @@ export class SaasService implements OnModuleInit {
     const windowed = PERIOD_USAGE_SOURCES.find((source) => source.resource === resource);
     try {
       if (period === QuotaPeriod.LIFETIME && lifetime) {
-        const rows = await this.dataSource.query(lifetime.sql, [organizationId]);
-        return Number(rows?.[0]?.n ?? 0);
+        return this.countExisting(this.dataSource, organizationId, resource);
       }
       if (period === QuotaPeriod.MONTHLY && windowed) {
         const { from, to } = this.quotaWindow(org);
@@ -702,10 +703,14 @@ export class SaasService implements OnModuleInit {
 
         const metric = metricMap.get(`${limit.resource}:${periodKey}`);
         const counted = await this.countedUsage(organizationId, org, limit.resource, limit.period);
-        // The counter is what enforcement reads; the count is what exists. Shown as the larger of
-        // the two, so the screen neither under-reports activity the counter missed nor hides a
-        // counter that is ahead of the rows (QA M-10: «0/∞» with real data).
-        const used = Math.max(metric ? metric.count : 0, counted ?? 0);
+        // A lifetime quota is what exists, exactly what enforcement counts. A monthly quota is
+        // enforced on its counter; it is shown as the larger of the counter and the period's rows,
+        // so the screen neither under-reports activity the counter missed nor hides a counter that
+        // is ahead of the rows (QA M-10: «0/∞» with real data).
+        const used =
+          limit.period === QuotaPeriod.LIFETIME
+            ? counted ?? 0
+            : Math.max(metric ? metric.count : 0, counted ?? 0);
 
         usageData.push({
             resource: limit.resource,
@@ -775,8 +780,15 @@ export class SaasService implements OnModuleInit {
         return limitDef.isEnabled;
     }
 
-    if (limitDef.limit === -1) return true;
+    if (limitDef.limit === -1 || limitDef.isUnlimited) return true;
     if (limitDef.allowOverage) return true;
+
+    if (limitDef.period === QuotaPeriod.LIFETIME) {
+        // What exists, counted the way enforcement counts it — and not cached: a deletion frees the
+        // unit at once, and a cached «no» would keep refusing it.
+        const existing = await this.countExisting(this.dataSource, organizationId, resource);
+        return existing !== null && existing + increment <= limitDef.limit;
+    }
 
     const period = this.getPeriodKey(limitDef.period, org);
 

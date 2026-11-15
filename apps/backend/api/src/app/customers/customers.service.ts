@@ -297,7 +297,6 @@ export class CustomersService {
       // refuses as well (ON DELETE RESTRICT); this check is what tells the reader why.
       await assertNoDependents(manager, customer.id, CUSTOMER_DEPENDENTS, 'customers.delete_blocked');
       await manager.remove(Customer, customer);
-      await this.saasService.releaseUsage(manager, organizationId, SaasResource.CUSTOMERS);
     });
   }
 }
