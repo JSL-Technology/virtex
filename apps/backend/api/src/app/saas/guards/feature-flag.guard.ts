@@ -3,8 +3,19 @@ import { Reflector } from '@nestjs/core';
 import { SaasService } from '../saas.service';
 import type { SaasFeatureKey } from '../saas.config';
 import { ForbiddenError } from '../../i18n/localized.exception';
+import { planFeatureLabelKey } from '@virtex/shared/types';
 
 export const FEATURE_FLAG_KEY = 'feature_flag';
+
+/**
+ * The refusal for a capability the plan does not include. The feature travels as its name's
+ * catalogue key, in a list, which the client renders in the reader's language — not as the
+ * identifier (`ai_anomalies`) the reader used to be shown (IA-02). `featureKey` stays for a client
+ * that acts on which feature it was.
+ */
+export function featureNotInPlan(featureKey: SaasFeatureKey): ForbiddenError {
+  return new ForbiddenError('saas.feature_disabled', { feature: [planFeatureLabelKey(featureKey)], featureKey });
+}
 
 /**
  * Gate a route on a plan capability.
@@ -45,7 +56,7 @@ export class FeatureFlagGuard implements CanActivate {
 
     const isEnabled = await this.saasService.checkFeature(user.organizationId, featureKey);
     if (!isEnabled) {
-        throw new ForbiddenError('saas.feature_disabled', { featureKey });
+      throw featureNotInPlan(featureKey as SaasFeatureKey);
     }
 
     return true;

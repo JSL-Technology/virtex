@@ -1,3 +1,4 @@
+import { AuthService } from '../../../core/services/auth';
 import { VX_DATE } from '../../../shared/components/date';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -49,6 +50,13 @@ export class CollectionsPage implements OnInit {
   private readonly api = inject(CollectionsApiService);
   private readonly notifications = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
+  private readonly auth = inject(AuthService);
+
+  /**
+   * Whether the assistant may write the note: collections is on every plan, the note is on the
+   * plans that include `ai_collections` (TES-13). Without it the button is not offered.
+   */
+  readonly canCompose = computed(() => this.auth.hasFeature('ai_collections'));
 
   protected readonly RefreshIcon = RefreshCw;
   protected readonly AiIcon = Sparkles;
@@ -132,7 +140,7 @@ export class CollectionsPage implements OnInit {
     if (switching) {
       this.tone.set(item.suggestedTone ?? 'formal');
       this.message.set('');
-      this.to.set(item.email ?? '');
+      this.to.set(item.addresses[0] ?? '');
       this.draftId.set(null);
       this.resetLog();
     }
@@ -145,7 +153,8 @@ export class CollectionsPage implements OnInit {
           this.draftId.set(draft.id);
           this.message.set(draft.message ?? '');
           if (draft.tone) this.tone.set(draft.tone);
-          if (draft.recipient) this.to.set(draft.recipient);
+          // Only an address still on the customer: a contact removed since is not offered.
+          if (draft.recipient && item.addresses.includes(draft.recipient)) this.to.set(draft.recipient);
         }
       },
       error: () => this.activities.set([]),

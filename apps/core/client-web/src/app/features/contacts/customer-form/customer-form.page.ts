@@ -166,6 +166,10 @@ export class CustomerFormPage implements OnInit {
       paymentTerms: [''],
       paymentTermDays: [null as number | null],
       priceListId: [{ value: '', disabled: !this.canAssignPriceList }],
+      //  Si los recordatorios automáticos de la empresa le llegan. Un organismo público que paga en
+      //  su calendario, o una cuenta que lleva una persona: se le saca del calendario y se le
+      //  recuerda a mano.
+      automaticReminders: [true],
     });
     if (this.canViewPriceLists) {
       this.priceListsApi.getPriceLists().pipe(catchError(() => of([] as PriceList[]))).subscribe((lists) =>

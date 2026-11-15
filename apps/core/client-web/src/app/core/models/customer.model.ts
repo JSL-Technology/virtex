@@ -44,6 +44,8 @@ export interface Customer {
   paymentTermDays?: number | null;
   /** The price list this customer buys at; null: the default list for the currency (FAC-PL-01). */
   priceListId?: string | null;
+  /** Whether the company's automatic payment reminders go to this customer. */
+  automaticReminders?: boolean;
   totalBilled: number;
   createdAt: Date;
   updatedAt: Date;

@@ -54,6 +54,11 @@
     "en": "The account could not be deleted.",
     "pt": "Não foi possível excluir a conta."
   },
+  "core.tabs.not_in_plan": {
+    "es": "«{{feature}}» no está incluida en el plan de tu empresa.",
+    "en": "“{{feature}}” is not included in your company's plan.",
+    "pt": "«{{feature}}» não está incluído no plano da sua empresa."
+  },
   "core.tabs.save_your_changes_from_view_itself": {
     "es": "Guarda los cambios desde la propia vista antes de cerrar.",
     "en": "Save your changes from the view itself before closing it.",

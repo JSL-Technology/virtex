@@ -157,7 +157,7 @@
           }
         </dl>
 
-        <ng-container *appHasPermission="'ai_collections:act'">
+        <ng-container *appHasPermission="'collections:act'">
           <section class="co__block">
             <h3 class="co__h3">
               <lucide-icon [img]="SendIcon" size="16" aria-hidden="true"></lucide-icon>
@@ -175,14 +175,25 @@
                   }
                 </select>
               </label>
-              <button type="button" class="secondary-button" [disabled]="composing()" (click)="compose()">
-                <lucide-icon [img]="AiIcon" size="16" aria-hidden="true"></lucide-icon>
-                <span>{{ (composing() ? 'collections.composing' : 'collections.compose') | translate }}</span>
-              </button>
+              @if (canCompose()) {
+                <button type="button" class="secondary-button" [disabled]="composing()" (click)="compose()">
+                  <lucide-icon [img]="AiIcon" size="16" aria-hidden="true"></lucide-icon>
+                  <span>{{ (composing() ? 'collections.composing' : 'collections.compose') | translate }}</span>
+                </button>
+              }
             </div>
+            <!-- Only the customer's own addresses: a new one is added to the customer first (TES-21). -->
             <label class="field">
               <span>{{ 'collections.to' | translate }}</span>
-              <input type="email" [ngModel]="to()" (ngModelChange)="to.set($event)" maxlength="320" />
+              @if (item.addresses.length) {
+                <select [ngModel]="to()" (ngModelChange)="to.set($event)">
+                  @for (address of item.addresses; track address) {
+                    <option [value]="address">{{ address }}</option>
+                  }
+                </select>
+              } @else {
+                <span class="co__muted">{{ 'collections.no_customer_address' | translate }}</span>
+              }
             </label>
             <label class="field">
               <span>{{ 'collections.note' | translate }}</span>
@@ -262,7 +273,7 @@
                     @if (activity.status === 'DRAFT') {
                       <vx-badge size="sm" tone="draft">{{ 'collections.has_draft' | translate }}</vx-badge>
                     }
-                    <span class="co__muted">{{ activity.occurredAt | vxDate: 'medium' }}@if (activity.userName) { · {{ activity.userName }} }</span>
+                    <span class="co__muted">{{ activity.occurredAt | vxDate: 'medium' }}@if (activity.userName) { · {{ activity.userName }} } @else if (activity.scheduleStep !== null) { · {{ 'collections.by_schedule' | translate }} }</span>
                   </span>
                   @if (activity.outcome) {
                     <span>{{ k('collections.outcome_option', activity.outcome) | translate }}</span>

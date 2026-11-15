@@ -1,4 +1,5 @@
 import { Type } from '@angular/core';
+import type { SaasFeatureKey } from '@virtex/shared/types';
 
 /**
  * A module declares itself once.
@@ -96,6 +97,14 @@ export interface ModuleRoute {
    * a door the server will slam.
    */
   permission: string;
+
+  /**
+   * The plan capability the window needs, when it is one a plan sells as a step up — AI,
+   * consolidation, single sign-on. Without it the window is not offered, and opened by its address
+   * it says it is not in the plan rather than failing with the API's 403 (IA-01, IA-02). What every
+   * plan includes declares none. The API still decides (`@CheckFeature`).
+   */
+  feature?: SaasFeatureKey;
 
   /** Lazily loaded component. The same loader serves the router and the window host. */
   load: () => Promise<Type<unknown>>;

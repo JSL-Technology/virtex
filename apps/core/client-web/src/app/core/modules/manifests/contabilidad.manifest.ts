@@ -187,6 +187,8 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       path: 'consolidation',
       kind: WindowKind.LIST,
       permission: 'financials:consolidate',
+      // On the plans that include group consolidation, as the API (`@CheckFeature`).
+      feature: 'group_consolidation',
       titleKey: 'consolidation.page.title',
       icon: 'GitMerge',
       entityKeyFn: () => 'contabilidad:consolidation',

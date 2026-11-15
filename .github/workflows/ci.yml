@@ -466,6 +466,14 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:purchasing
 
+      # A company on the entry plan has collections: the session says what its plan includes, the
+      # assistant's note is the one part behind the AI feature, a reminder goes only to an address
+      # on the customer, and the reminder schedule sends each step once (SP-11). Mail goes to the
+      # development outbox; nothing leaves the runner.
+      - name: npm run verify:collections
+        if: ${{ !cancelled() }}
+        run: npm run verify:collections
+
       # Nx Cloud's self-healing. It needs an Nx Cloud workspace, and without one it can only fail —
       # which turned every run red after every other step had passed. The token is scoped to this
       # step alone rather than the job: `npm ci` runs third-party install scripts, and a secret in

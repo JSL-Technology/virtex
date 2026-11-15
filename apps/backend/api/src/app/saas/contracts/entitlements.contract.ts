@@ -1,6 +1,9 @@
 import { SaasResource } from '../enums/saas-resource.enum';
+import type { SaasFeatureKey } from '../saas.config';
 
-export { CheckFeature } from '../guards/feature-flag.guard';
+export { CheckFeature, featureNotInPlan } from '../guards/feature-flag.guard';
+// Whether a company is in service: what a job acting on its behalf asks before it acts.
+export { inService } from '../plan-change';
 export { SaasResource } from '../enums/saas-resource.enum';
 export type { SaasFeatureKey } from '../saas.config';
 
@@ -15,6 +18,9 @@ export type { SaasFeatureKey } from '../saas.config';
 export abstract class EntitlementsPort {
   /** Fails closed: no plan, or no row for the feature, answers `false`. */
   abstract checkFeature(organizationId: string, featureKey: string): Promise<boolean>;
+
+  /** Every capability the plan grants, in catalogue order. Fails closed: no plan, none. */
+  abstract features(organizationId: string): Promise<SaasFeatureKey[]>;
 
   /**
    * Consume `increment` of `resource`, or throw the plan-limit error. In its own transaction, so the

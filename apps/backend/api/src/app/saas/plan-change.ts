@@ -41,6 +41,23 @@ export const SubscriptionStanding = {
   UNSETTLED: new Set<string>(['incomplete', 'unpaid', 'paused']),
 } as const;
 
+/**
+ * Whether a company is in service: a subscription in force, or a grace period that has not ended.
+ *
+ * The one rule both doors apply — `SubscriptionActiveGuard` for a request, and every job that acts
+ * on a company's behalf without one (the payment reminders its customers receive): a company whose
+ * subscription lapsed must not keep e-mailing its customers from a product it no longer has.
+ */
+export function inService(
+  organization: { subscriptionStatus: string | null; gracePeriodEnd: Date | string | null },
+  now: Date = new Date(),
+): boolean {
+  if (!organization.subscriptionStatus) return false;
+  if (SubscriptionStanding.IN_FORCE.has(organization.subscriptionStatus)) return true;
+  const graceEnd = organization.gracePeriodEnd ? new Date(organization.gracePeriodEnd) : null;
+  return Boolean(graceEnd && graceEnd > now);
+}
+
 /** Statuses in which the customer is back in good standing: an open dunning window closes. */
 const GOOD_STANDING = new Set<string>(['active', 'trialing']);
 /** Statuses that open the dunning window when none is running. */

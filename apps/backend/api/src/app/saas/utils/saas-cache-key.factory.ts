@@ -7,8 +7,9 @@ export class SaasCacheKeyFactory {
     return `plan_limit_check:${orgId}:${version}:${resource}`;
   }
 
-  static featureFlag(orgId: string, featureKey: string): string {
-    return `feature_flag:${orgId}:${featureKey}`;
+  /** Every capability the organization's plan grants, under one key per cache generation. */
+  static planFeatures(orgId: string, version: number | string): string {
+    return `plan_features:${orgId}:${version}`;
   }
 
   static warningDebounce(orgId: string, resource: string): string {

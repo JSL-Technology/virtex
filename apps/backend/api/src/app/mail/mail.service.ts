@@ -60,8 +60,10 @@ export class MailService {
    * the callers that must know (signup verification, password reset) still find out. What no
    * longer reaches them is an SMTP failure, which is the queue's business.
    */
-  private async enqueue(job: MailJob): Promise<void> {
-    await this.mailQueue.add(job.template, job, MAIL_JOB_OPTIONS);
+  private async enqueue(job: MailJob, options: { jobId?: string } = {}): Promise<void> {
+    // A caller that must not send the same e-mail twice names the job: BullMQ adds nothing for an
+    // id it already holds, so a retried hand-off does not become a second e-mail.
+    await this.mailQueue.add(job.template, job, options.jobId ? { ...MAIL_JOB_OPTIONS, jobId: options.jobId } : MAIL_JOB_OPTIONS);
   }
 
   /**
@@ -279,6 +281,8 @@ export class MailService {
     message?: string | null;
     pdf?: Buffer | null;
     identity?: MailIdentity;
+    /** Names the queued job (no `:`, BullMQ's separator), so the same reminder is queued once. */
+    jobId?: string;
   }): Promise<void> {
     const language = matchLanguage(params.language) ?? currentLanguage() ?? DEFAULT_LANGUAGE;
     await this.enqueue({
@@ -313,7 +317,7 @@ export class MailService {
             ],
           }
         : {}),
-    });
+    }, { jobId: params.jobId });
   }
 
   /**

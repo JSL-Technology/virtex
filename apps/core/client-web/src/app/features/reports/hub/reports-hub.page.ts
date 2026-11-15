@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@virtex/shared/ui-i18n';
-import { requiredPermissionsFor } from '../../../core/modules/module-manifest';
+import { canAccess } from '../../../core/modules/route-access';
 import { MODULES, buildMenu } from '../../../core/modules/module-registry';
 import { AuthService } from '../../../core/services/auth';
 import { ActiveOrganizationService } from '../../../core/tenancy/active-organization.service';
@@ -40,7 +40,8 @@ export class ReportsHubPage {
           .filter((section) => section.group === 'analysis')
           .flatMap((section) => section.entries)
           .filter((entry) => entry.path !== '/reports')
-          .filter((entry) => this.auth.hasPermissions(requiredPermissionsFor(entry.permission)))
+          // The hub offers what the menu offers: the permission and the plan (`canAccess`, IA-02).
+          .filter((entry) => canAccess(this.auth, entry))
           .map((entry) => ({ labelKey: entry.labelKey, link: this.organization.urlFor(entry.path) })),
       }))
       .filter((group) => group.reports.length > 0);

@@ -56,11 +56,12 @@ export class PinnedChartsComponent implements OnInit {
 
   readonly charts = signal<CopilotChart[]>([]);
   readonly busy = signal<string | null>(null);
-  private readonly allowed = computed(() => this.auth.hasPermissions(['ai_copilot:use']));
+  // The permission and the plan: a company whose plan has no assistant is not asked at all — the
+  // request answered 403 on every overview load, an error in the console of every page (IA-01).
+  private readonly allowed = computed(() => this.auth.hasPermissions(['ai_copilot:use']) && this.auth.hasFeature('ai_assistant'));
 
   ngOnInit(): void {
     if (!this.allowed()) return;
-    // A plan without the assistant answers 403; the section simply does not appear.
     this.api.pinnedCharts().subscribe({ next: (charts) => this.charts.set(charts), error: () => this.charts.set([]) });
   }
 

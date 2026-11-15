@@ -1,5 +1,6 @@
 
 import {
+  IsBoolean,
   IsEmail,
   IsEnum,
   IsInt,
@@ -163,4 +164,9 @@ export class CreateCustomerDto {
   @IsOptional()
   @IsUUID()
   priceListId?: string | null;
+
+  /** Whether the company's automatic payment reminders go to this customer (default: they do). */
+  @IsOptional()
+  @IsBoolean({ message: 'validation.constraints.is_boolean' })
+  automaticReminders?: boolean;
 }

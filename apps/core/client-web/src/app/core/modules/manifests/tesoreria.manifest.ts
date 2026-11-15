@@ -31,6 +31,8 @@ export const TESORERIA_MODULE: ModuleManifest = {
       path: 'treasury/cash-flow',
       kind: WindowKind.OVERVIEW,
       permission: 'ai_cashflow:view',
+      // On the plans that include the projected cash flow (IA-02).
+      feature: 'ai_cashflow',
       titleKey: 'page_titles.ai_cashflow',
       icon: 'TrendingUp',
       entityKeyFn: () => 'tesoreria:ai-cashflow',

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 import { AiAssistPort } from '../contracts/ai/ai-assist.contract';
 import { PaymentLikelihoodRegistry } from '../contracts/ai/payment-likelihood.contract';
+import { EntitlementsPort, featureNotInPlan } from '../saas/contracts/entitlements.contract';
 import { BadRequestError, NotFoundError, ServiceUnavailableError } from '../i18n/localized.exception';
 import { Invoice, InvoiceStatus } from '../invoices/entities/invoice.entity';
 import { InvoicesService } from '../invoices/invoices.service';
@@ -24,6 +25,8 @@ export interface CollectionsWorklistItem {
   customerId: string;
   customerName: string;
   email: string | null;
+  /** Where a reminder for this invoice may go: the customer's address, then its contacts'. */
+  addresses: string[];
   phone: string | null;
   issueDate: string;
   dueDate: string;
@@ -86,6 +89,7 @@ export class CollectionsService {
     private readonly mail: MailService,
     private readonly likelihood: PaymentLikelihoodRegistry,
     private readonly ai: AiAssistPort,
+    private readonly entitlements: EntitlementsPort,
   ) {}
 
   // ── the worklist ─────────────────────────────────────────────────────────
@@ -101,6 +105,7 @@ export class CollectionsService {
       .getRepository(Invoice)
       .createQueryBuilder('invoice')
       .leftJoinAndSelect('invoice.customer', 'customer')
+      .leftJoinAndSelect('customer.contacts', 'contact')
       .where('invoice.organizationId = :organizationId', { organizationId })
       .andWhere('invoice.status IN (:...statuses)', { statuses: [InvoiceStatus.PENDING, InvoiceStatus.PARTIALLY_PAID] })
       .andWhere('invoice.balance > 0');
@@ -144,6 +149,7 @@ export class CollectionsService {
         customerId: invoice.customerId,
         customerName: invoice.customer?.companyName ?? invoice.customerName,
         email: invoice.customer?.email ?? null,
+        addresses: customerAddresses(invoice),
         phone: invoice.customer?.phone || null,
         issueDate: toIsoDate(invoice.issueDate),
         dueDate: toIsoDate(invoice.dueDate ?? invoice.issueDate),
@@ -205,15 +211,25 @@ export class CollectionsService {
     );
   }
 
-  /** Everything done with a customer, across their invoices, newest first. */
-  async activitiesForCustomer(organizationId: string, customerId: string) {
-    return this.withAuthors(
-      await this.activities.find({
-        where: { organizationId, customerId },
-        order: { occurredAt: 'DESC' },
-        take: 200,
-      }),
-    );
+  /**
+   * Everything done with a customer, across their invoices, newest first — on the invoices of the
+   * person's branches. Without the scope, someone limited to one branch read here the calls,
+   * promises and reminders on invoices the worklist and the invoice timeline hide from them.
+   */
+  async activitiesForCustomer(organizationId: string, actorUserId: string | null, customerId: string) {
+    const scope = await loadBranchScope(this.dataSource.manager, organizationId, actorUserId);
+    const query = this.activities
+      .createQueryBuilder('activity')
+      .where('activity.organizationId = :organizationId', { organizationId })
+      .andWhere('activity.customerId = :customerId', { customerId })
+      .orderBy('activity.occurredAt', 'DESC')
+      .take(200);
+    if (scope.allowed) {
+      query
+        .innerJoin(Invoice, 'invoice', 'invoice.id = activity.invoiceId AND invoice.organizationId = activity.organizationId')
+        .andWhere('invoice.branchId IN (:...allowedBranches)', { allowedBranches: scope.allowed });
+    }
+    return this.withAuthors(await query.getMany());
   }
 
   /** Record a call, a promise or a note. A call that ends in a promise records the promise too. */
@@ -252,6 +268,11 @@ export class CollectionsService {
    * invoice's, given to the model as facts; an answer stating any other is refused by `compose`.
    */
   async composeReminder(organizationId: string, user: { id: string | null; firstName?: string | null }, invoiceId: string, tone: MessageTone) {
+    // Checked here, not only on the route: the copilot and the workflow step reach this too, and the
+    // workflow step wrote assistant notes for a company whose plan has no AI collections.
+    if (!(await this.entitlements.checkFeature(organizationId, 'ai_collections'))) {
+      throw featureNotInPlan('ai_collections');
+    }
     if (!this.ai.available()) throw new ServiceUnavailableError('collections.ai_not_available');
     const invoice = await this.openInvoice(organizationId, user.id, invoiceId);
     const { context } = await this.invoices.renderContext(invoice.id, organizationId);
@@ -298,6 +319,7 @@ export class CollectionsService {
     draft: { tone?: MessageTone | null; message?: string | null; to?: string | null },
   ): Promise<CollectionActivity> {
     const invoice = await this.openInvoice(organizationId, userId, invoiceId);
+    const recipient = draft.to?.trim() ? this.recipientFor(invoice, draft.to) : customerAddresses(invoice)[0] ?? null;
     return this.dataSource.transaction(async (manager) => {
       await manager.update(
         CollectionActivity,
@@ -315,7 +337,7 @@ export class CollectionsService {
           userId,
           tone: draft.tone ?? null,
           message: draft.message?.trim().slice(0, 2000) || null,
-          recipient: draft.to?.trim() || invoice.customer?.email || null,
+          recipient,
         }),
       );
     });
@@ -329,8 +351,8 @@ export class CollectionsService {
   }
 
   /**
-   * Send the reminder: from the company's identity, to the customer's address (or the one given),
-   * in the invoice's language, with the invoice attached — and record that it was sent.
+   * Send the reminder: from the company's identity, to an address on the customer's record, in the
+   * invoice's language, with the invoice attached — and record that it was sent.
    */
   async sendReminder(
     organizationId: string,
@@ -346,35 +368,16 @@ export class CollectionsService {
       });
       if (!draft) throw new NotFoundError('collections.draft_not_found');
     }
-    const to = options.to?.trim() || draft?.recipient || invoice.customer?.email || null;
+    // A draft's address is checked again: the contact it named may have been removed since.
+    const to = this.recipientFor(invoice, options.to?.trim() || draft?.recipient || null);
     if (!to) throw new BadRequestError('invoices.customer_has_no_email');
     const message = (options.message ?? draft?.message ?? '').trim().slice(0, 2000) || null;
 
-    const { context } = await this.invoices.renderContext(invoice.id, organizationId);
-    const summary = this.renderer.emailSummary(context);
-    const today = await organizationToday(this.dataSource.manager, organizationId);
-    let pdf: Buffer | null = null;
-    if (options.attachInvoice !== false) {
-      try {
-        pdf = await this.renderer.renderPdf(context);
-      } catch (error) {
-        // The reminder states the figures itself; a renderer outage must not stop it.
-        this.logger.warn(`Recordatorio de ${invoice.id} sin PDF adjunto: ${(error as Error).message}`);
-      }
-    }
-    const identity = await this.invoices.senderIdentity(organizationId);
-    await this.mail.sendPaymentReminder({
-      identity: { senderName: identity.senderName, replyTo: identity.replyTo ?? sender.email ?? null, copyTo: identity.copyTo },
+    await this.deliverReminder(organizationId, invoice, {
       to,
-      language: summary.language,
-      invoiceNumber: invoice.fiscalNumber ?? invoice.invoiceNumber,
-      customerName: invoice.customer?.contactPerson?.trim() || invoice.customer?.companyName || '',
-      companyName: context.organization.legalName,
-      balance: summary.balance,
-      dueDate: summary.dueDate,
-      overdue: daysBetween(invoice.dueDate ?? invoice.issueDate, today) > 0,
       message,
-      pdf,
+      replyTo: sender.email ?? null,
+      attachInvoice: options.attachInvoice !== false,
     });
 
     const sent = draft
@@ -395,6 +398,62 @@ export class CollectionsService {
     return { queued: true, to, activityId: saved.id };
   }
 
+  /**
+   * Queue the reminder e-mail: from the company's identity, in the invoice's language, the figures
+   * stated by the template itself, the note (when there is one) below them, the invoice attached.
+   * Shared by the reminder a person sends and the one the schedule sends.
+   */
+  async deliverReminder(
+    organizationId: string,
+    invoice: Invoice,
+    options: { to: string; message: string | null; replyTo?: string | null; attachInvoice?: boolean; jobId?: string },
+  ): Promise<void> {
+    const { context } = await this.invoices.renderContext(invoice.id, organizationId);
+    const summary = this.renderer.emailSummary(context);
+    const today = await organizationToday(this.dataSource.manager, organizationId);
+    let pdf: Buffer | null = null;
+    if (options.attachInvoice !== false) {
+      try {
+        pdf = await this.renderer.renderPdf(context);
+      } catch (error) {
+        // The reminder states the figures itself; a renderer outage must not stop it.
+        this.logger.warn(`Recordatorio de ${invoice.id} sin PDF adjunto: ${(error as Error).message}`);
+      }
+    }
+    const identity = await this.invoices.senderIdentity(organizationId);
+    await this.mail.sendPaymentReminder({
+      identity: { senderName: identity.senderName, replyTo: identity.replyTo ?? options.replyTo ?? null, copyTo: identity.copyTo },
+      to: options.to,
+      language: summary.language,
+      invoiceNumber: invoice.fiscalNumber ?? invoice.invoiceNumber,
+      customerName: invoice.customer?.contactPerson?.trim() || invoice.customer?.companyName || '',
+      companyName: context.organization.legalName,
+      balance: summary.balance,
+      dueDate: summary.dueDate,
+      overdue: daysBetween(invoice.dueDate ?? invoice.issueDate, today) > 0,
+      message: options.message,
+      pdf,
+      jobId: options.jobId,
+    });
+  }
+
+  /**
+   * Where a reminder may go: an address on the customer's record — its own e-mail or one of its
+   * contacts'. Null when the customer has none.
+   *
+   * `to` used to be any well-formed address, so whoever could send reminders could send an invoice,
+   * its balance and its PDF to anyone (TES-21). A new address is added to the customer first, which
+   * takes the customer permission and leaves the customer's own audit trail.
+   */
+  recipientFor(invoice: Invoice, requested: string | null | undefined): string | null {
+    const addresses = customerAddresses(invoice);
+    const wanted = requested?.trim().toLowerCase();
+    if (!wanted) return addresses[0] ?? null;
+    const match = addresses.find((address) => address.toLowerCase() === wanted);
+    if (!match) throw new BadRequestError('collections.recipient_not_on_customer');
+    return match;
+  }
+
   // ── internals ────────────────────────────────────────────────────────────
 
   /** An invoice of this company, within the person's branches, still owed (unless told otherwise). */
@@ -406,7 +465,8 @@ export class CollectionsService {
   ): Promise<Invoice> {
     const invoice = await this.dataSource.getRepository(Invoice).findOne({
       where: { id: invoiceId, organizationId },
-      relations: ['customer'],
+      // The contacts are the addresses a reminder may go to (`recipientFor`).
+      relations: ['customer', 'customer.contacts'],
     });
     if (!invoice) throw new NotFoundError('collections.invoice_not_found');
     if (actorUserId) {
@@ -423,8 +483,13 @@ export class CollectionsService {
     return roundAmount(currency === baseCurrency ? Number(invoice.balance) : convert(invoice.balance, Number(invoice.exchangeRate) || 1));
   }
 
-  /** Per invoice: last contact, open promise, broken promises and the open draft. */
-  private async historyFor(organizationId: string, invoiceIds: string[], today: string) {
+  /**
+   * Per invoice: last contact, open promise, broken promises, the open draft, how the last call
+   * ended, and the last step of the reminder schedule sent. What the worklist ranks by and what the
+   * schedule waits on are read from this one place, so the two cannot disagree about whether a
+   * promise is still in date.
+   */
+  async historyFor(organizationId: string, invoiceIds: string[], today: string): Promise<Map<string, InvoiceHistory>> {
     const result = new Map<string, InvoiceHistory>();
     for (let start = 0; start < invoiceIds.length; start += 500) {
       const rows = await this.activities.find({
@@ -438,6 +503,11 @@ export class CollectionsService {
           entry.draftReminderId = row.id;
         } else if (row.kind !== 'NOTE') {
           entry.lastContact = { kind: row.kind, occurredAt: row.occurredAt, outcome: row.outcome };
+          if (row.kind === 'CALL') entry.lastCallOutcome = row.outcome;
+          if (row.scheduleStep === null) entry.lastPersonContactAt = row.occurredAt;
+          if (row.scheduleStep !== null && (entry.lastScheduleStep === null || row.scheduleStep > entry.lastScheduleStep)) {
+            entry.lastScheduleStep = row.scheduleStep;
+          }
           if (row.kind === 'PROMISE' && row.promisedDate) {
             if (daysBetween(row.promisedDate, today) > PROMISE_GRACE_DAYS) {
               entry.brokenPromises += 1;
@@ -470,23 +540,56 @@ export class CollectionsService {
   }
 }
 
-interface InvoiceHistory {
+export interface InvoiceHistory {
   lastContact: { kind: string; occurredAt: Date; outcome: string | null } | null;
   openPromise: { date: string; amount: number | null } | null;
   brokenPromises: number;
   draftReminderId: string | null;
+  /** How the most recent call ended; `disputed` means the customer contests the invoice. */
+  lastCallOutcome: string | null;
+  /** The latest step of the reminder schedule sent for the invoice; null when none has been. */
+  lastScheduleStep: number | null;
+  /**
+   * When a person last called, reminded or took a promise. The schedule's own reminders are left
+   * out: steps a day apart are the company's choice, a person's call the day before is not.
+   */
+  lastPersonContactAt: Date | null;
 }
 
-function emptyHistory(): InvoiceHistory {
-  return { lastContact: null, openPromise: null, brokenPromises: 0, draftReminderId: null };
+/** The customer's own address first, then its contacts' — the primary contact before the rest. */
+export function customerAddresses(invoice: Invoice): string[] {
+  const customer = invoice.customer;
+  if (!customer) return [];
+  const contacts = [...(customer.contacts ?? [])].sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const address of [customer.email, ...contacts.map((contact) => contact.email)]) {
+    const value = address?.trim();
+    if (!value || seen.has(value.toLowerCase())) continue;
+    seen.add(value.toLowerCase());
+    out.push(value);
+  }
+  return out;
 }
 
-function toIsoDate(value: string | Date): string {
+export function emptyHistory(): InvoiceHistory {
+  return {
+    lastContact: null,
+    openPromise: null,
+    brokenPromises: 0,
+    draftReminderId: null,
+    lastCallOutcome: null,
+    lastScheduleStep: null,
+    lastPersonContactAt: null,
+  };
+}
+
+export function toIsoDate(value: string | Date): string {
   return typeof value === 'string' ? value.slice(0, 10) : value.toISOString().slice(0, 10);
 }
 
 /** Whole days from `from` to `to` (both ISO dates); positive when `to` is later. */
-function daysBetween(from: string | Date, to: string): number {
+export function daysBetween(from: string | Date, to: string): number {
   const a = Date.parse(`${toIsoDate(from)}T00:00:00Z`);
   const b = Date.parse(`${to}T00:00:00Z`);
   return Math.round((b - a) / 86_400_000);

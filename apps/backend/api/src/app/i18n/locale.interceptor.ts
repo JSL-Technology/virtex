@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor, Optional } from '@nestjs/common';
 import { Observable, mergeMap } from 'rxjs';
 import { LanguageCode, RegionalFormat } from '@virtex/shared/types';
-import { UserResponseDto } from '../auth/dto/user-response.dto';
+import { UserResponseDto, serializedUsersIn } from '../auth/dto/user-response.dto';
 import { buildLocaleContext, currentLanguage, preferenceLanguage, setRequestLocale } from './request-locale';
 import { I18nService } from './i18n.service';
 import { TenantCurrencyPort } from './ports/tenant-currency.port';
@@ -64,7 +64,7 @@ export class LocaleInterceptor implements NestInterceptor {
 
   /** Stamp the tenant's locale context on every serialised user in the response. */
   private async stamp(body: unknown, language: LanguageCode): Promise<unknown> {
-    const users = usersIn(body);
+    const users = serializedUsersIn(body);
     if (users.length === 0) return body;
     const defaults = await this.tenantDefaults(users);
     for (const user of users) this.withContext(user, language, defaults);
@@ -147,23 +147,4 @@ export class LocaleInterceptor implements NestInterceptor {
     });
     return user;
   }
-}
-
-/**
- * The serialised users in a response, one level deep.
- *
- * One level is enough for every shape the API actually returns — the DTO itself, `{ user }`,
- * and `{ data: User[] }` — and a full deep walk over an arbitrary payload would be a cost paid
- * on every request to catch a case that does not exist.
- */
-function usersIn(body: unknown): UserResponseDto[] {
-  if (body === null || typeof body !== 'object') return [];
-  if (body instanceof UserResponseDto) return [body];
-  const values = Array.isArray(body) ? body : Object.values(body as Record<string, unknown>);
-  const users: UserResponseDto[] = [];
-  for (const value of values) {
-    if (value instanceof UserResponseDto) users.push(value);
-    else if (Array.isArray(value)) for (const item of value) if (item instanceof UserResponseDto) users.push(item);
-  }
-  return users;
 }

@@ -30,8 +30,11 @@ export interface PolicyField {
   field: string;
   labelKey: string;
   helpKey?: string;
-  /** `basis-points`: shown and typed as a percentage, stored as an integer (250 = 2.5 %). */
-  kind: 'integer' | 'percent' | 'basis-points' | 'select';
+  /**
+   * `basis-points`: shown and typed as a percentage, stored as an integer (250 = 2.5 %).
+   * `toggle`: a yes/no. `days`: a list of whole days, typed comma-separated (`-3, 1, 7`).
+   */
+  kind: 'integer' | 'percent' | 'basis-points' | 'select' | 'toggle' | 'days';
   min?: number;
   max?: number;
   /** For `select`: the values and the catalogue prefix that names each. */
@@ -161,10 +164,30 @@ export class SettingsSectionComponent implements OnInit {
     const saved = this.view()?.fields[field];
     this.fieldEdits.update((edits) => {
       const next = { ...edits };
-      if (value === saved) delete next[field];
+      // By value: a list typed again with the same days is not a change.
+      if (sameValue(value, saved)) delete next[field];
       else next[field] = value;
       return next;
     });
+  }
+
+  /** A `days` policy as the person reads it: `-3, 1, 7`. */
+  protected daysText(field: string): string {
+    const value = this.fieldValueOf(field);
+    return Array.isArray(value) ? value.join(', ') : '';
+  }
+
+  /**
+   * …and what they type back, as the list of whole days the column holds. A word that is not a
+   * whole number is sent as it is and refused by the API with the rule it broke.
+   */
+  protected setDays(field: string, text: string): void {
+    const days = String(text ?? '')
+      .replace(/\u2212/g, '-')
+      .split(/[\s,;]+/)
+      .filter((token) => token.length > 0)
+      .map((token) => (/^-?\d+$/.test(token) ? Number(token) : token));
+    this.setField(field, days);
   }
 
   protected setBaseCurrency(code: string): void {
@@ -191,7 +214,8 @@ export class SettingsSectionComponent implements OnInit {
     const patch: SettingsSectionPatch = {};
     if (Object.keys(this.accountEdits()).length) patch.accounts = this.accountEdits();
     if (Object.keys(this.fieldEdits()).length) patch.fields = this.fieldEdits();
-    if (this.baseCurrencyEdit()) patch.baseCurrency = this.baseCurrencyEdit()!;
+    const baseCurrency = this.baseCurrencyEdit();
+    if (baseCurrency) patch.baseCurrency = baseCurrency;
     this.saving.set(true);
     return new Promise((resolve) => {
       this.api.update(this.section(), patch).subscribe({
@@ -234,7 +258,7 @@ export class SettingsSectionComponent implements OnInit {
   protected differsFromDefault(field: string, kind: 'account' | 'field'): boolean {
     if (kind === 'account') {
       const fallback = this.defaultAccountOf(field);
-      return Boolean(fallback) && this.accountIdOf(field) !== fallback!.id;
+      return fallback !== null && this.accountIdOf(field) !== fallback.id;
     }
     const fallback = this.defaultFieldOf(field);
     return fallback !== null && fallback !== undefined && String(this.fieldValueOf(field) ?? '') !== String(fallback);
@@ -309,4 +333,12 @@ export class SettingsSectionComponent implements OnInit {
   protected refLabel(account: SettingsAccountRef): string {
     return `${account.code} — ${accountNameOf(account.name as never)}`;
   }
+}
+
+/** Two policy values are the same when they hold the same thing: lists by their items. */
+function sameValue(a: unknown, b: unknown): boolean {
+  if (Array.isArray(a) || Array.isArray(b)) {
+    return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((item, index) => item === b[index]);
+  }
+  return a === b;
 }

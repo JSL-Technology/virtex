@@ -150,6 +150,7 @@
   "core.session_idle.title": "¿Sigues ahí?",
   "core.state.account_deleted_successfully": "Cuenta eliminada correctamente.",
   "core.state.failed_delete_account": "No se pudo eliminar la cuenta.",
+  "core.tabs.not_in_plan": "«{{feature}}» no está incluida en el plan de tu empresa.",
   "core.tabs.save_your_changes_from_view_itself": "Guarda los cambios desde la propia vista antes de cerrar.",
   "core.tabs.you_do_not_have_permission_open": "No tienes permiso para abrir este módulo.",
   "core.tabs.you_have_reached_maximum_max_tabs": "Has alcanzado el máximo de {{maxTabs}} pestañas. Cierra alguna para continuar.",

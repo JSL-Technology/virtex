@@ -354,11 +354,6 @@
     "en": "Projected cash flow (AI)",
     "pt": "Fluxo de caixa projetado (IA)"
   },
-  "permissions.groups.ai_collections": {
-    "es": "Cobranza inteligente (IA)",
-    "en": "Smart collections (AI)",
-    "pt": "Cobrança inteligente (IA)"
-  },
   "permissions.groups.ai_copilot": {
     "es": "Asistente del ERP (IA)",
     "en": "ERP assistant (AI)",
@@ -433,6 +428,11 @@
     "es": "Plan de cuentas",
     "en": "Chart of accounts",
     "pt": "Plano de contas"
+  },
+  "permissions.groups.collections": {
+    "es": "Cobranza",
+    "en": "Collections",
+    "pt": "Cobrança"
   },
   "permissions.groups.crm": {
     "es": "Oportunidades de venta",

@@ -8,8 +8,8 @@ import { provideRouter } from '@angular/router';
 describe('InvoiceDetailPage', () => {
   let component: InvoiceDetailPage;
   let fixture: ComponentFixture<InvoiceDetailPage>;
-  let mockInvoicesService: any;
-  let mockNotificationService: any;
+  let mockInvoicesService: Partial<Record<keyof InvoicesService, jest.Mock>>;
+  let mockNotificationService: Partial<Record<keyof NotificationService, jest.Mock>>;
 
   beforeEach(async () => {
     mockInvoicesService = {
@@ -73,7 +73,7 @@ describe('InvoiceDetailPage', () => {
     mockInvoicesService.createCreditNote = jest.fn().mockReturnValue(of({ invoiceNumber: 'NC-1' }));
     mockNotificationService.showSuccess = jest.fn();
 
-    component.createCreditNote('1');
+    component.createCreditNote();
     expect(component.creditReasons).toContain('GOODS_RETURN');
     // A debit note's reason explains a charge added: a credit note is not offered one.
     expect(component.creditReasons).not.toContain('LATE_PAYMENT_INTEREST');

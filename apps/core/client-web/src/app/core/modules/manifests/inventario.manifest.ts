@@ -49,6 +49,8 @@ export const INVENTARIO_MODULE: ModuleManifest = {
       path: 'predictions',
       kind: WindowKind.LIST,
       permission: 'ai_forecasts:view',
+      // On the plans that include demand forecasting (IA-02).
+      feature: 'ai_forecasting',
       titleKey: 'page_titles.ai_predictions',
       icon: 'TrendingUp',
       entityKeyFn: () => 'inventario:ai-predictions',

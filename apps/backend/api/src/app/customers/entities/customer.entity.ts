@@ -277,6 +277,14 @@ export class Customer {
   @Column({ name: 'is_final_consumer', type: 'boolean', default: false })
   isFinalConsumer: boolean;
 
+  /**
+   * Whether the company's automatic payment reminders go to this customer. A government body that
+   * pays on its own calendar, a key account handled by a person: the company takes them out of the
+   * schedule and keeps reminding them by hand.
+   */
+  @Column({ name: 'automatic_reminders', type: 'boolean', default: true })
+  automaticReminders: boolean;
+
   @Column({ name: 'payment_term_days', type: 'int', nullable: true })
   paymentTermDays?: number | null;
 

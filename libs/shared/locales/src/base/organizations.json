@@ -174,6 +174,16 @@
     "en": "It must be a number between {{min}} and {{max}}.",
     "pt": "Deve ser um número entre {{min}} e {{max}}."
   },
+  "organizations.settings.reminder_days_count": {
+    "es": "Indica entre 1 y {{max}} días de recordatorio.",
+    "en": "Give between 1 and {{max}} reminder days.",
+    "pt": "Informe entre 1 e {{max}} dias de lembrete."
+  },
+  "organizations.settings.reminder_days_range": {
+    "es": "Cada día de recordatorio debe ser un número entero entre {{min}} (antes del vencimiento) y {{max}} (después).",
+    "en": "Each reminder day must be a whole number between {{min}} (before the due date) and {{max}} (after it).",
+    "pt": "Cada dia de lembrete deve ser um número inteiro entre {{min}} (antes do vencimento) e {{max}} (depois)."
+  },
   "organizations.settings.unknown_field": {
     "es": "Esta sección no configura «{{field}}».",
     "en": "This section does not configure “{{field}}”.",
@@ -183,6 +193,11 @@
     "es": "Esa sección de la configuración no existe.",
     "en": "That settings section does not exist.",
     "pt": "Essa seção da configuração não existe."
+  },
+  "organizations.settings.yes_or_no": {
+    "es": "Debe ser sí o no.",
+    "en": "It must be yes or no.",
+    "pt": "Deve ser sim ou não."
   },
   "organizations.subsidiary_already_linked": {
     "es": "Esa empresa ya es subsidiaria de esta.",

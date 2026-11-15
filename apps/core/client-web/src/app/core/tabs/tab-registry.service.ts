@@ -61,8 +61,17 @@ export class TabRegistryService {
 
   /** May the user open this window? UX only; the backend stays the authority. */
   canOpen(definition: TabDefinition): boolean {
-    if (!definition.permissions?.length) return true;
-    return this.auth.hasPermissions(definition.permissions);
+    return this.denial(definition) === null;
+  }
+
+  /**
+   * Why the window cannot be opened: the role (`permission`), the company's plan (`plan`), or
+   * nothing. The same order as `accessDenial`, which the menu applies to the same declaration.
+   */
+  denial(definition: TabDefinition): 'permission' | 'plan' | null {
+    if (definition.permissions?.length && !this.auth.hasPermissions(definition.permissions)) return 'permission';
+    if (definition.feature && !this.auth.hasFeature(definition.feature)) return 'plan';
+    return null;
   }
 
   getRouteParams(pattern: string, route: string): Record<string, string> {
@@ -102,6 +111,7 @@ export class TabRegistryService {
       // `authenticated` means "any signed-in user"; it is not a grantable permission, so it must
       // not be handed to hasPermissions() — which would deny it for everyone.
       permissions: requiredPermissionsFor(route.permission),
+      feature: route.feature,
       entityKeyFn: route.entityKeyFn ?? (() => `module:${path}`),
       titleFn: route.titleFn,
       data: route.data,

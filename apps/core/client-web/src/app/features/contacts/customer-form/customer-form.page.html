@@ -176,6 +176,16 @@
             </small>
           </div>
 
+          <div class="form-field">
+            <label class="checkbox-field" for="automaticReminders">
+              <input type="checkbox" id="automaticReminders" formControlName="automaticReminders" aria-describedby="automaticReminders-hint" />
+              <span>{{ 'contacts.customer_form.automatic_reminders' | translate }}</span>
+            </label>
+            <small id="automaticReminders-hint" class="field-hint">
+              {{ 'contacts.customer_form.automatic_reminders_hint' | translate }}
+            </small>
+          </div>
+
           @if (canViewPriceLists) {
             <div class="form-field">
               <label for="priceListId">{{ 'contacts.customer_form.price_list' | translate }}</label>

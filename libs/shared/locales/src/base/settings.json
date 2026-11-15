@@ -717,6 +717,11 @@
     "en": "Year-end closing",
     "pt": "Fechamento do exercício"
   },
+  "settings.declarations.collections": {
+    "es": "Cobranza",
+    "en": "Collections",
+    "pt": "Cobrança"
+  },
   "settings.declarations.currency": {
     "es": "Moneda y tipos de cambio",
     "en": "Currency and exchange rates",
@@ -2840,6 +2845,16 @@
     "en": "How far a supplier bill price may depart from the order price before the bill is held for review.",
     "pt": "Quanto o preço da fatura do fornecedor pode afastar-se do preço da ordem antes de ser retida para revisão."
   },
+  "settings.sections.fields.automatic_reminders": {
+    "es": "Enviar recordatorios de pago automáticos",
+    "en": "Send automatic payment reminders",
+    "pt": "Enviar lembretes de pagamento automáticos"
+  },
+  "settings.sections.fields.automatic_reminders_help": {
+    "es": "Cada factura abierta recibe un recordatorio por correo en los días indicados abajo, desde la dirección de la empresa. No se envía si el cliente prometió pagar, si alguien lo contactó en los últimos tres días o si la factura está en disputa.",
+    "en": "Each open invoice gets an e-mail reminder on the days set below, from the company's address. None is sent while the customer has promised to pay, if someone contacted them in the last three days, or while the invoice is disputed.",
+    "pt": "Cada fatura em aberto recebe um lembrete por e-mail nos dias indicados abaixo, a partir do endereço da empresa. Nenhum é enviado se o cliente prometeu pagar, se alguém o contatou nos últimos três dias ou se a fatura está em disputa."
+  },
   "settings.sections.fields.bank": {
     "es": "Banco",
     "en": "Bank",
@@ -3044,6 +3059,16 @@
     "es": "El impuesto pagado en compras que puedes descontar.",
     "en": "Tax paid on purchases that you can credit.",
     "pt": "O imposto pago em compras que pode ser compensado."
+  },
+  "settings.sections.fields.reminder_days": {
+    "es": "Días del recordatorio, desde el vencimiento",
+    "en": "Reminder days, from the due date",
+    "pt": "Dias do lembrete, a partir do vencimento"
+  },
+  "settings.sections.fields.reminder_days_help": {
+    "es": "Separados por comas. Un número negativo es antes del vencimiento: «-3, 1, 7, 15, 30» avisa tres días antes y recuerda al día siguiente, a la semana, a los quince días y al mes.",
+    "en": "Separated by commas. A negative number is before the due date: “-3, 1, 7, 15, 30” gives notice three days before, then reminds the day after, a week, fifteen days and a month after.",
+    "pt": "Separados por vírgulas. Um número negativo é antes do vencimento: “-3, 1, 7, 15, 30” avisa três dias antes e lembra no dia seguinte, após uma semana, quinze dias e um mês."
   },
   "settings.sections.fields.retained_earnings_account": {
     "es": "Resultados acumulados",
@@ -3379,6 +3404,21 @@
     "es": "Marca de la empresa",
     "en": "Company brand",
     "pt": "Marca da empresa"
+  },
+  "settings.sections_meta.collections.description": {
+    "es": "Si los recordatorios de pago salen solos y en qué días, contados desde el vencimiento.",
+    "en": "Whether payment reminders go out on their own, and on which days from the due date.",
+    "pt": "Se os lembretes de pagamento saem sozinhos e em quais dias, contados a partir do vencimento."
+  },
+  "settings.sections_meta.collections.keywords": {
+    "es": "cobranza recordatorios automáticos vencimiento facturas vencidas correo",
+    "en": "collections automatic reminders dunning due date overdue invoices email",
+    "pt": "cobrança lembretes automáticos vencimento faturas vencidas e-mail"
+  },
+  "settings.sections_meta.collections.label": {
+    "es": "Cobranza",
+    "en": "Collections",
+    "pt": "Cobrança"
   },
   "settings.sections_meta.default_accounts.description": {
     "es": "Las cuentas en que se contabiliza cada operación: ventas, compras, bancos, impuestos, inventario, moneda, cierre e intercompañía. Un solo guardado.",

@@ -150,6 +150,7 @@
   "core.session_idle.title": "Are you still there?",
   "core.state.account_deleted_successfully": "Account deleted.",
   "core.state.failed_delete_account": "The account could not be deleted.",
+  "core.tabs.not_in_plan": "“{{feature}}” is not included in your company's plan.",
   "core.tabs.save_your_changes_from_view_itself": "Save your changes from the view itself before closing it.",
   "core.tabs.you_do_not_have_permission_open": "You do not have permission to open this module.",
   "core.tabs.you_have_reached_maximum_max_tabs": "You have reached the maximum of {{maxTabs}} tabs. Close one to continue.",

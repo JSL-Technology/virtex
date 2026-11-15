@@ -1,5 +1,6 @@
 
 import type { RegionalFormat } from '@virtex/shared/types';
+import { DEFAULT_REMINDER_DAYS, REMINDER_DAY_MAX, REMINDER_DAY_MIN, REMINDER_STEPS_MAX } from '../../contracts/collections/reminder-schedule.contract';
 import {
   Check,
   Entity,
@@ -26,6 +27,10 @@ const DEFAULT_BASE_CURRENCY = 'USD' as const;
 @Check('CHK_organization_settings_po_receipt_over_tolerance', '"po_receipt_over_tolerance_bps" BETWEEN 0 AND 5000')
 @Check('CHK_organization_settings_budget_control_mode', `"budget_control_mode" IN ('block', 'warn', 'none')`)
 @Check('CHK_organization_settings_budget_tolerance', '"budget_tolerance_bps" BETWEEN 0 AND 5000')
+@Check(
+  'CHK_organization_settings_reminder_days',
+  `cardinality("collections_reminder_days") BETWEEN 1 AND ${REMINDER_STEPS_MAX} AND ${REMINDER_DAY_MIN} <= ALL ("collections_reminder_days") AND ${REMINDER_DAY_MAX} >= ALL ("collections_reminder_days")`,
+)
 @Entity({ name: 'organization_settings' })
 export class OrganizationSettings {
   constructor(partial?: Partial<OrganizationSettings>) {
@@ -385,6 +390,19 @@ export class OrganizationSettings {
   /** How far past its line a posting may go before the control acts, in basis points. 0: not at all. */
   @Column({ name: 'budget_tolerance_bps', type: 'int', default: 0 })
   budgetToleranceBps!: number;
+
+  /**
+   * Whether payment reminders go out on their own, on `collectionsReminderDays` (TES-13).
+   *
+   * Off until the company turns it on: e-mail to its customers is the company's decision, not a
+   * default the product makes for it.
+   */
+  @Column({ name: 'collections_automatic_reminders', type: 'boolean', default: false })
+  collectionsAutomaticReminders!: boolean;
+
+  /** The days, from an invoice's due date, a reminder goes out on (`reminder-schedule.contract`). */
+  @Column({ name: 'collections_reminder_days', type: 'int', array: true, default: `{${DEFAULT_REMINDER_DAYS.join(',')}}` })
+  collectionsReminderDays!: number[];
 
   /**
    * How stale a quote may be, in days, before a posting that would use it is refused.

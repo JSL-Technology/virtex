@@ -21,7 +21,7 @@ import {
 
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth';
-import { requiredPermissionsFor } from '../../core/modules/module-manifest';
+import { canAccess } from '../../core/modules/route-access';
 import { resolveRoute } from '../../core/modules/module-registry';
 import { FormatService } from '@virtex/shared/ui-i18n';
 
@@ -71,7 +71,7 @@ export class OverviewService {
   getQuickActions(): QuickAction[] {
     return this.quickActions.filter((action) => {
       const resolved = resolveRoute(action.route);
-      return !!resolved && this.auth.hasPermissions(requiredPermissionsFor(resolved.entry.route.permission));
+      return !!resolved && canAccess(this.auth, resolved.entry.route);
     });
   }
 

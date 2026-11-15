@@ -20,12 +20,15 @@ import { AI_RATE_LIMIT, TenantRateLimit, TenantRateLimitGuard } from '../shared/
 /**
  * Sales › Collections. Reading needs the receivables permission as well as collections': the
  * worklist is the receivables book, ranked.
+ *
+ * Collections is part of every plan. The class carried `@CheckFeature('ai_collections')`, so a
+ * company on the entry plan could not see who owed it money, log a call or send a reminder it wrote
+ * itself (TES-13). The one AI route — the assistant writing the note — keeps the feature.
  */
 @ApiTags('Collections')
 @ApiBearerAuth()
 @Controller('collections')
-@HasPermission(PERMISSIONS.AI_COLLECTIONS_VIEW, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
-@CheckFeature('ai_collections')
+@HasPermission(PERMISSIONS.COLLECTIONS_VIEW, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
 export class CollectionsController {
   constructor(private readonly collections: CollectionsService) {}
 
@@ -42,22 +45,23 @@ export class CollectionsController {
 
   @Get('customers/:customerId/activities')
   customerActivities(@Param('customerId', UuidParamPipe) customerId: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.collections.activitiesForCustomer(user.organizationId, customerId);
+    return this.collections.activitiesForCustomer(user.organizationId, user.id, customerId);
   }
 
   @Post('activities')
-  @HasPermission(PERMISSIONS.AI_COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
+  @HasPermission(PERMISSIONS.COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
   @ApiOperation({ summary: 'Record a call, a payment promise or a note.' })
   log(@CurrentUser() user: AuthenticatedUser, @Body() dto: LogCollectionActivityDto) {
     return this.collections.log(user.organizationId, user.id, dto);
   }
 
   /** The assistant's note for a reminder, for the person to edit. Sends nothing. */
+  @CheckFeature('ai_collections')
   @TenantRateLimit(AI_RATE_LIMIT)
   @UseGuards(TenantRateLimitGuard)
   @Post('invoices/:invoiceId/reminder/compose')
   @HttpCode(HttpStatus.OK)
-  @HasPermission(PERMISSIONS.AI_COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
+  @HasPermission(PERMISSIONS.COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 20, ttl: 60_000 } })
   compose(
@@ -69,7 +73,7 @@ export class CollectionsController {
   }
 
   @Post('invoices/:invoiceId/reminder/draft')
-  @HasPermission(PERMISSIONS.AI_COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
+  @HasPermission(PERMISSIONS.COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
   saveDraft(
     @Param('invoiceId', UuidParamPipe) invoiceId: string,
     @Body() dto: SaveReminderDraftDto,
@@ -80,7 +84,7 @@ export class CollectionsController {
 
   @Post('invoices/:invoiceId/reminder/send')
   @HttpCode(HttpStatus.ACCEPTED)
-  @HasPermission(PERMISSIONS.AI_COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
+  @HasPermission(PERMISSIONS.COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
   @UseGuards(ThrottlerGuard)
   // Renders a PDF and queues mail on every call.
   @Throttle({ default: { limit: 20, ttl: 60_000 } })
@@ -94,7 +98,7 @@ export class CollectionsController {
 
   @Delete('drafts/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @HasPermission(PERMISSIONS.AI_COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
+  @HasPermission(PERMISSIONS.COLLECTIONS_ACT, PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
   async cancelDraft(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     await this.collections.cancelDraft(user.organizationId, user.id, id);
   }

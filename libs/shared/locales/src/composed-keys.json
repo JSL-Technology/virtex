@@ -1745,6 +1745,19 @@
       "host_unresolvable",
       "private_address",
       "method_not_allowed"
+    ],
+    "saas.features": [
+      "group_consolidation",
+      "enterprise_sso",
+      "ai_vision",
+      "ai_forecasting",
+      "ai_anomalies",
+      "ai_assistant",
+      "ai_cashflow",
+      "ai_reconciliation",
+      "ai_collections",
+      "ai_manager_reports",
+      "ai_agents"
     ]
   },
   "not_keys": [

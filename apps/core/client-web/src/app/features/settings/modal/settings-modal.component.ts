@@ -257,9 +257,10 @@ export class SettingsModalComponent implements AfterViewInit {
    */
   private async confirmLeave(): Promise<boolean> {
     if (!this.shell.dirty()) return true;
+    const section = this.current();
     const decision = await this.dialog.confirmClose({
       message: 'settings.shell.unsaved_message',
-      messageParams: { section: this.current() ? this.translate.instant(this.current()!.labelKey) : '' },
+      messageParams: { section: section ? this.translate.instant(section.labelKey) : '' },
       allowSave: this.shell.canSave(),
     });
     if (decision === 'cancel') return false;
@@ -269,6 +270,8 @@ export class SettingsModalComponent implements AfterViewInit {
   }
 
   private applies(section: SettingsSectionDef): boolean {
+    // A section for a capability the company's plan does not include is not offered (IA-02).
+    if (section.feature && !this.auth.hasFeature(section.feature)) return false;
     const country = this.country();
     // Unknown market: show both country-specific variants rather than hide the right one.
     if (!country) return true;

@@ -13,7 +13,7 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { ConfigService } from '@nestjs/config';
 import { SaasResource } from './enums/saas-resource.enum';
 import { QuotaPeriod } from './enums/quota-period.enum';
-import { SAAS_PLANS, minorUnitFactor, saasBaseCurrency, type PlanConfig } from './saas.config';
+import { SAAS_FEATURE_KEYS, SAAS_PLANS, minorUnitFactor, saasBaseCurrency, type PlanConfig, type SaasFeatureKey } from './saas.config';
 import type { BillingPeriod } from './enums/billing-period.enum';
 import {
   SaasLimitReachedException,
@@ -179,14 +179,14 @@ export class SaasService implements OnModuleInit {
             }
         }
 
-        const configFeatureKeys = pConfig.features.map(f => f.featureKey);
-        const featuresToRemove = existingFeatures.filter(f => !configFeatureKeys.includes(f.featureKey));
+        const configFeatureKeys = new Set<string>(pConfig.features.map((f) => f.featureKey));
+        const featuresToRemove = existingFeatures.filter((f) => !configFeatureKeys.has(f.featureKey));
         if (featuresToRemove.length > 0) {
             await this.featureRepository.remove(featuresToRemove);
         }
 
-        // No cache sweep is needed here: `checkFeature` keys its answer by the organization's
-        // cache generation, so `clearOrganizationCache` invalidates it for that tenant, and the
+        // No cache sweep is needed here: `features` keys its answer by the organization's cache
+        // generation, so `clearOrganizationCache` invalidates it for that tenant, and the
         // 60-second TTL bounds the window after a seed changes a plan globally.
     }
 
@@ -519,32 +519,38 @@ export class SaasService implements OnModuleInit {
   }
 
   /**
-   * Whether a plan grants a capability. Fails CLOSED, like `enforceLimit`.
+   * Whether a plan grants a capability. Fails CLOSED, like `enforceLimit`: no plan, or no row for
+   * the feature, answers `false`.
+   */
+  async checkFeature(organizationId: string, featureKey: string): Promise<boolean> {
+    return (await this.features(organizationId)).includes(featureKey as SaasFeatureKey);
+  }
+
+  /**
+   * Every capability the organization's plan grants, in catalogue order — what the session tells
+   * the client it may offer, and what `checkFeature` answers from.
    *
    * Keyed by the organization's cache generation, which every plan change bumps once it commits
    * (`applyPlan`'s callers call `clearOrganizationCache`), so a new plan takes effect immediately
    * rather than at TTL expiry. Keyed without it, an upgrade left the customer refused for up to a
-   * minute after paying.
+   * minute after paying. One entry per company rather than one per feature: the session needs all
+   * of them on every load.
    */
-  async checkFeature(organizationId: string, featureKey: string): Promise<boolean> {
-     const versionKey = SaasCacheKeyFactory.limitVersion(organizationId);
-     const version = (await this.cacheManager.get<number>(versionKey)) || 0;
-     const cacheKey = `${SaasCacheKeyFactory.featureFlag(organizationId, featureKey)}:${version}`;
-     const cached = await this.cacheManager.get<boolean>(cacheKey);
-     if (cached !== undefined) return cached;
+  async features(organizationId: string): Promise<SaasFeatureKey[]> {
+    const version = (await this.cacheManager.get<number>(SaasCacheKeyFactory.limitVersion(organizationId))) || 0;
+    const cacheKey = SaasCacheKeyFactory.planFeatures(organizationId, version);
+    const cached = await this.cacheManager.get<SaasFeatureKey[]>(cacheKey);
+    if (Array.isArray(cached)) return cached;
 
-     const org = await this.orgRepository.findOne({
-         where: { id: organizationId },
-         relations: ['plan', 'plan.features']
-     });
+    const org = await this.orgRepository.findOne({
+      where: { id: organizationId },
+      relations: ['plan', 'plan.features'],
+    });
+    const granted = new Set((org?.plan?.features ?? []).filter((feature) => feature.isEnabled).map((feature) => feature.featureKey));
+    const features = SAAS_FEATURE_KEYS.filter((key) => granted.has(key));
 
-     if (!org || !org.plan) return false;
-
-     const feature = org.plan.features.find(f => f.featureKey === featureKey);
-     const isEnabled = feature ? feature.isEnabled : false;
-
-     await this.cacheManager.set(cacheKey, isEnabled, 60 * 1000);
-     return isEnabled;
+    await this.cacheManager.set(cacheKey, features, 60 * 1000);
+    return features;
   }
 
   /**

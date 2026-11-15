@@ -93,6 +93,16 @@
                   <span aria-hidden="true">%</span>
                 </span>
               }
+              @case ('toggle') {
+                <input type="checkbox" class="ss__check" [id]="'ss-' + policy.field" [disabled]="!canEdit()"
+                  [ngModel]="fieldValueOf(policy.field) === true" [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setField(policy.field, $event === true)" />
+              }
+              @case ('days') {
+                <input type="text" inputmode="text" class="ss__input" [id]="'ss-' + policy.field" [disabled]="!canEdit()"
+                  [ngModel]="daysText(policy.field)" [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
+                  (ngModelChange)="setDays(policy.field, $event)" />
+              }
               @case ('percent') {
                 <span class="ss__unit">
                   <input type="number" appPercent class="ss__input ss__input--short" [id]="'ss-' + policy.field" [disabled]="!canEdit()"

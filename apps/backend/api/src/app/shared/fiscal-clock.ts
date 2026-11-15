@@ -58,6 +58,11 @@ export function fiscalDate(timeZone: string, at: Date = new Date()): string {
   return `${p['year']}-${p['month']}-${p['day']}`;
 }
 
+/** The hour of the day (0–23) on the company's clock: what «nine in the morning» means for it. */
+export function localHour(timeZone: string, at: Date = new Date()): number {
+  return Number(parts(at, timeZone)['hour']);
+}
+
 /** `DD-MM-YYYY`: the day-first date several authorities' documents are written in. */
 export function dayFirstDate(timeZone: string, at: Date = new Date()): string {
   const p = parts(at, timeZone);

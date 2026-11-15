@@ -1,7 +1,7 @@
 import { Directive, computed, inject, input } from '@angular/core';
 import { AuthService } from '../services/auth';
 import { pathWithoutOrganization } from '../tenancy/active-organization.service';
-import { requiredPermissionsFor } from './module-manifest';
+import { canAccess } from './route-access';
 import { resolveRoute } from './module-registry';
 
 /**
@@ -45,7 +45,7 @@ export class CanOpenDirective {
     if (!target) return true;
     const match = resolveRoute(pathWithoutOrganization(target));
     if (!match) return true;
-    return this.auth.hasPermissions(requiredPermissionsFor(match.entry.route.permission));
+    return canAccess(this.auth, match.entry.route);
   });
 }
 

@@ -13,7 +13,7 @@ import {
 } from '../../../core/services/invoice-status';
 import { FormsModule } from '@angular/forms';
 // Se importa ActivatedRoute para acceder a los parámetros de la URL.
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AdjustmentReason, CancellationOptions, CREDIT_NOTE_REASONS, CreditNoteReason, CreditNoteRequest, DEBIT_NOTE_REASONS, DebitNoteReason, DebitNoteRequest, Invoice, InvoiceLineItem, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
 import { EinvoicingService, FiscalSubmissionView } from '../../../core/services/einvoicing';
@@ -271,13 +271,13 @@ export class InvoiceDetailPage implements OnInit {
     ready: () => this.invoice()?.id === this.id(),
     actions: {
       issue: () => this.previewIssue(),
-      collect: () => this.collect(this.invoice()!),
+      collect: () => this.withInvoice((invoice) => this.collect(invoice)),
       email: () => this.emailInvoice(),
       pdf: () => this.downloadPdf(),
       print: () => this.printInvoice(),
       duplicate: () => this.handleCopyTo(),
-      'credit-note': () => this.createCreditNote(this.id()),
-      void: () => this.voidInvoice(this.invoice()!),
+      'credit-note': () => this.createCreditNote(),
+      void: () => this.withInvoice((invoice) => this.voidInvoice(invoice)),
       'delete-draft': () => this.discardDraft(),
     },
   });
@@ -462,7 +462,8 @@ export class InvoiceDetailPage implements OnInit {
 
   /** The send dialog: to whom, and a personal note the assistant can draft. */
   readonly isEmailOpen = signal(false);
-  readonly canComposeEmail = computed(() => this.auth.hasPermissions(['ai_copilot:use']));
+  // The note is the assistant's: the permission, and a plan that includes it (`ai_assistant`).
+  readonly canComposeEmail = computed(() => this.auth.hasPermissions(['ai_copilot:use']) && this.auth.hasFeature('ai_assistant'));
 
   /** Send the document to the customer, with its PDF attached. */
   emailInvoice(): void {
@@ -704,6 +705,12 @@ export class InvoiceDetailPage implements OnInit {
     );
   }
 
+  /** Runs a toolbar action on the invoice on screen, once it has loaded; before that, does nothing. */
+  private withInvoice(action: (invoice: Invoice) => void): void {
+    const invoice = this.invoice();
+    if (invoice) action(invoice);
+  }
+
   /**
    * Opens a receipt for this invoice with the customer, the invoice and its balance already filled
    * in (QA C-03): collecting used to require finding the receipts page, whose «New» button did
@@ -739,7 +746,7 @@ export class InvoiceDetailPage implements OnInit {
    * It used a native `prompt()` with a Spanish sentence written in the code, credited the whole
    * balance whatever was meant, and was not reachable from the screen at all (QA A-09).
    */
-  createCreditNote(_invoiceId: string): void {
+  createCreditNote(): void {
     this.creditQuantities.set({});
     this.creditReason.set('');
     this.creditAdjustmentReason.set('GOODS_RETURN');

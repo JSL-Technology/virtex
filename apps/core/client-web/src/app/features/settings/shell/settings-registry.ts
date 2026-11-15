@@ -1,5 +1,7 @@
 import { Type } from '@angular/core';
+import type { SaasFeatureKey } from '@virtex/shared/types';
 import {
+  BellRing,
   BookOpenCheck,
   Building,
   Building2,
@@ -62,6 +64,8 @@ export interface SettingsSectionDef {
   countries?: readonly string[];
   /** Hidden for companies of these countries. */
   exceptCountries?: readonly string[];
+  /** Shown only when the company's plan includes this capability (single sign-on is Enterprise's). */
+  feature?: SaasFeatureKey;
   /** Inputs for the section's component — one component may serve two sections. */
   inputs?: Record<string, unknown>;
   /** The component takes a `focus` input: the group to bring into view (old ids lead there). */
@@ -209,6 +213,12 @@ export const SETTINGS_SECTIONS: readonly SettingsSectionDef[] = [
 
   // ── Operations ─────────────────────────────────────────────────────────────────────────────
   {
+    id: 'collections', group: 'operations', scope: 'company', icon: BellRing,
+    labelKey: 'settings.sections_meta.collections.label', descriptionKey: 'settings.sections_meta.collections.description',
+    keywordsKey: 'settings.sections_meta.collections.keywords', viewPermission: 'settings:edit_company',
+    load: () => import('../operations/collections/collections-settings.page').then((m) => m.CollectionsSettingsPage),
+  },
+  {
     id: 'approvals', group: 'operations', scope: 'company', icon: Workflow,
     labelKey: 'settings.sections_meta.approvals.label', descriptionKey: 'settings.sections_meta.approvals.description',
     keywordsKey: 'settings.sections_meta.approvals.keywords', viewPermission: 'workflows:manage',
@@ -241,7 +251,7 @@ export const SETTINGS_SECTIONS: readonly SettingsSectionDef[] = [
     load: () => import('../system/security/security.page').then((m) => m.SecuritySettingsPage),
   },
   {
-    id: 'sso', group: 'admin', scope: 'admin', icon: KeyRound,
+    id: 'sso', group: 'admin', scope: 'admin', icon: KeyRound, feature: 'enterprise_sso',
     labelKey: 'settings.sections_meta.sso.label', descriptionKey: 'settings.sections_meta.sso.description',
     keywordsKey: 'settings.sections_meta.sso.keywords', viewPermission: 'settings:edit_company',
     load: () => import('../system/sso/sso.page').then((m) => m.SsoSettingsPage),

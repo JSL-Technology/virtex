@@ -30,6 +30,7 @@
     "verify:body-dto": "node tools/verify/body-dto.mjs",
     "verify:boot": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/boot-module-graph.ts",
     "verify:boundaries": "node tools/verify/module-boundaries.mjs",
+    "verify:collections": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/collections-plan.ts",
     "verify:country-neutrality": "node tools/verify/country-neutrality.mjs",
     "verify:cron-exclusive": "node tools/verify/cron-exclusive.mjs",
     "verify:crypto": "node tools/verify/crypto-single-derivation.mjs",

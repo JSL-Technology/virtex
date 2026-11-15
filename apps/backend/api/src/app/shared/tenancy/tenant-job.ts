@@ -63,7 +63,8 @@ export function withTenant<T>(dataSource: DataSource, organizationId: string, wo
  * nothing. `organizations` is the directory of tenants and has no policy, so it can be listed
  * without a context; everything else happens inside `runAsTenantJob`.
  *
- * One tenant failing never stops the others; the failure is handed to `onError`.
+ * One tenant failing never stops the others; the failure is handed to `onError`. The application
+ * shutting down does: once the data source is closed, the loop ends.
  *
  * @param only restricts the run to these tenants (tests, or a job retried for one company).
  */
@@ -80,6 +81,10 @@ export async function forEachTenant(
         (row: { id: string }) => row.id,
       );
   for (const organizationId of ids) {
+    // The application is shutting down and its connections are gone: every company left would fail
+    // the same way, one line each — thousands, on a database with thousands of companies — and keep
+    // the shutdown waiting. Stop; the next run starts from the first company again.
+    if (!dataSource.isInitialized) return;
     try {
       await runAsTenantJob(dataSource, organizationId, () => work(organizationId));
     } catch (error) {

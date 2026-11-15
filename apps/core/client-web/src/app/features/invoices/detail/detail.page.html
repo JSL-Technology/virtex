@@ -234,7 +234,7 @@
       -->
       <div class="draft-actions credit-actions__buttons">
         @if (canCredit(inv) && mayCredit()) {
-          <button type="button" class="secondary-button" [disabled]="documentBusy()" (click)="createCreditNote(inv.id)">
+          <button type="button" class="secondary-button" [disabled]="documentBusy()" (click)="createCreditNote()">
             {{ 'invoices.detail.credit_note' | translate }}
           </button>
         }

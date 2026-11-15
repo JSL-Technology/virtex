@@ -4,7 +4,7 @@ import type { HttpRequest as Request } from '../../common/http/http.types';
 import { IS_PUBLIC_KEY } from '../../security/decorators/public.decorator';
 import { ALLOW_INACTIVE_SUBSCRIPTION_KEY } from '../decorators/allow-inactive-subscription.decorator';
 import { ForbiddenError } from '../../i18n/localized.exception';
-import { SubscriptionStanding } from '../plan-change';
+import { inService } from '../plan-change';
 
 /**
  * Refuse work for a tenant whose subscription is not in good standing.
@@ -39,8 +39,6 @@ export class SubscriptionActiveGuard implements CanActivate {
    * `unpaid`, `canceled`, `incomplete` and `incomplete_expired` are terminal or pre-payment and do
    * not.
    */
-  private static readonly ALLOWED_STATUSES: ReadonlySet<string> = SubscriptionStanding.IN_FORCE;
-
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -91,14 +89,9 @@ export class SubscriptionActiveGuard implements CanActivate {
       throw new ForbiddenError('saas.subscription_required');
     }
 
-    if (SubscriptionActiveGuard.ALLOWED_STATUSES.has(status)) {
-      return true;
-    }
-
-    // A grace period explicitly granted by an operator outlives the status, and is the one way a
-    // lapsed tenant keeps working — deliberately, with an end date, rather than by accident.
-    const graceEnd = organization.gracePeriodEnd ? new Date(organization.gracePeriodEnd) : null;
-    if (graceEnd && graceEnd > new Date()) {
+    // In force, or inside a grace period explicitly granted — which outlives the status, and is the
+    // one way a lapsed tenant keeps working: deliberately, with an end date, rather than by accident.
+    if (inService({ subscriptionStatus: status, gracePeriodEnd: organization.gracePeriodEnd ?? null })) {
       return true;
     }
 

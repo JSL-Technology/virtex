@@ -25,6 +25,8 @@ export const WORKSPACE_MODULE: ModuleManifest = {
       path: 'oauth/consent',
       kind: WindowKind.OVERVIEW,
       permission: 'ai_copilot:use',
+      // An external agent acts through the assistant: on the plans that include it.
+      feature: 'ai_assistant',
       titleKey: 'page_titles.mcp_consent',
       icon: 'ShieldCheck',
       entityKeyFn: () => 'workspace:mcp-consent',
@@ -35,6 +37,8 @@ export const WORKSPACE_MODULE: ModuleManifest = {
       path: 'ai/proposals/:id',
       kind: WindowKind.DOCUMENT,
       permission: 'ai_copilot:use',
+      // A draft the assistant proposed: on the plans that include it.
+      feature: 'ai_assistant',
       titleKey: 'page_titles.ai_proposal',
       icon: 'Sparkles',
       entityKeyFn: (p) => `workspace:ai-proposal:${p['id']}`,

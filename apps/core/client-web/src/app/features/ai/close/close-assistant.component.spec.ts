@@ -26,7 +26,7 @@ describe('CloseAssistantComponent', () => {
     };
     TestBed.configureTestingModule({
       imports: [CloseAssistantComponent],
-      providers: [provideRouter([]), { provide: CloseAssistantService, useValue: api }, { provide: AuthService, useValue: { hasPermissions: () => true } }],
+      providers: [provideRouter([]), { provide: CloseAssistantService, useValue: api }, { provide: AuthService, useValue: { hasPermissions: () => true, hasFeature: () => true } }],
     });
     const fixture = TestBed.createComponent(CloseAssistantComponent);
     fixture.componentRef.setInput('periodId', 'p1');

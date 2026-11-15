@@ -344,3 +344,31 @@ export const SECTION_DECLARATIONS: readonly SectionDeclaration[] = [
     ],
   },
 ];
+
+/**
+ * Collections: the payment reminders that go out on their own (TES-13). Its own page under
+ * «Operaciones» rather than a block of the accounting policies — it is about the company's
+ * customers, not its books.
+ */
+export const COLLECTIONS_DECLARATION: SectionDeclaration = {
+  section: 'collections',
+  anchor: 'collections',
+  titleKey: 'settings.declarations.collections',
+  groups: [],
+  policies: [
+    {
+      field: 'collectionsAutomaticReminders',
+      labelKey: 'settings.sections.fields.automatic_reminders',
+      helpKey: 'settings.sections.fields.automatic_reminders_help',
+      kind: 'toggle',
+    },
+    {
+      field: 'collectionsReminderDays',
+      labelKey: 'settings.sections.fields.reminder_days',
+      helpKey: 'settings.sections.fields.reminder_days_help',
+      kind: 'days',
+      min: -60,
+      max: 365,
+    },
+  ],
+};
