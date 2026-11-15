@@ -15,6 +15,7 @@ import { DuplicateSourceRegistry } from './data-quality/duplicate-sources.contra
 import { ReorderSuggestionRegistry } from './ai/reorder-suggestions.contract';
 import { LedgerPostingRegistry } from './ledger-posting/ledger-posting.contract';
 import { SearchSourceRegistry } from './search/search-source.contract';
+import { BudgetControlRegistry } from './budget-control/budget-control.contract';
 
 /**
  * Los contratos por los que dos módulos se hablan sin conocerse.
@@ -32,7 +33,7 @@ import { SearchSourceRegistry } from './search/search-source.contract';
  */
 @Global()
 @Module({
-  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, PayrollFiscalRecordsRegistry, IssuedFiscalNumbersRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry, SearchSourceRegistry],
-  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, PayrollFiscalRecordsRegistry, IssuedFiscalNumbersRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry, SearchSourceRegistry],
+  providers: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, PayrollFiscalRecordsRegistry, IssuedFiscalNumbersRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry, SearchSourceRegistry, BudgetControlRegistry],
+  exports: [ClosingBlockerRegistry, DataTransferRegistry, ApprovalSourceRegistry, PurchaseFiscalRecordsRegistry, PayrollFiscalRecordsRegistry, IssuedFiscalNumbersRegistry, CopilotToolRegistry, CashPositionRegistry, PaymentLikelihoodRegistry, DuplicateSourceRegistry, ReorderSuggestionRegistry, InboundMailHandlerRegistry, CloseReadinessRegistry, LedgerPostingRegistry, PeriodGateRegistry, SearchSourceRegistry, BudgetControlRegistry],
 })
 export class ContractsModule {}

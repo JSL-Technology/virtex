@@ -1177,6 +1177,11 @@
       "company",
       "admin"
     ],
+    "settings.sections.budget_control_mode": [
+      "block",
+      "warn",
+      "none"
+    ],
     "settings.sections.rate_type": [
       "OFFICIAL",
       "MARKET",

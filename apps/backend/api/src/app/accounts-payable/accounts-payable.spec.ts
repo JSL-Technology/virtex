@@ -149,7 +149,9 @@ describeWithDb('accounts payable', () => {
       // posición del DataSource.
       afterCommit,
       { startApprovalProcess: jest.fn().mockResolvedValue(null), announcePending: jest.fn() } as never,
-      { checkBudget: jest.fn().mockResolvedValue({ isExceeded: false }) } as never,
+      // Within budget: what the company's control decides is the budgeting module's, through `BudgetControlRegistry`,
+      // tested in budgets.spec.ts against the real control.
+      { enforce: jest.fn().mockResolvedValue({ isExceeded: false }) } as never,
       testExchangeRateResolver(dataSource),
       balances,
       // The real resolver, not a stub: what is withheld from a supplier follows from the

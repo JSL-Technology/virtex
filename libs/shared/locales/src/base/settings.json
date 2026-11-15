@@ -707,6 +707,11 @@
     "en": "Sales, purchases, cash and banks",
     "pt": "Vendas, compras, caixa e bancos"
   },
+  "settings.declarations.budgets": {
+    "es": "Control presupuestario",
+    "en": "Budget control",
+    "pt": "Controle orçamentário"
+  },
   "settings.declarations.closing": {
     "es": "Cierre del ejercicio",
     "en": "Year-end closing",
@@ -2760,6 +2765,21 @@
     "en": "You can still change it: it locks with the first entry.",
     "pt": "Você ainda pode mudá-la: ela é bloqueada com o primeiro lançamento."
   },
+  "settings.sections.budget_control_mode.block": {
+    "es": "Rechazarlo",
+    "en": "Refuse it",
+    "pt": "Recusá-lo"
+  },
+  "settings.sections.budget_control_mode.none": {
+    "es": "Solo medirlo",
+    "en": "Only measure it",
+    "pt": "Apenas medi-lo"
+  },
+  "settings.sections.budget_control_mode.warn": {
+    "es": "Contabilizarlo y avisar",
+    "en": "Post it and warn",
+    "pt": "Lançá-lo e avisar"
+  },
   "settings.sections.choose_account": {
     "es": "Busca una cuenta",
     "en": "Search an account",
@@ -2829,6 +2849,26 @@
     "es": "Comisiones bancarias",
     "en": "Bank fees",
     "pt": "Tarifas bancárias"
+  },
+  "settings.sections.fields.budget_control_mode": {
+    "es": "Cuando un asiento supera su presupuesto",
+    "en": "When an entry goes over its budget",
+    "pt": "Quando um lançamento ultrapassa o orçamento"
+  },
+  "settings.sections.fields.budget_control_mode_help": {
+    "es": "Se aplica a los presupuestos de gasto e inversión. Un presupuesto de ingresos es una meta: se mide y nunca detiene un asiento.",
+    "en": "Applies to expense and investment budgets. A revenue budget is a target: it is measured and never stops an entry.",
+    "pt": "Aplica-se aos orçamentos de despesa e investimento. Um orçamento de receita é uma meta: é medido e nunca impede um lançamento."
+  },
+  "settings.sections.fields.budget_tolerance": {
+    "es": "Tolerancia sobre el presupuesto",
+    "en": "Tolerance over the budget",
+    "pt": "Tolerância sobre o orçamento"
+  },
+  "settings.sections.fields.budget_tolerance_help": {
+    "es": "Cuánto puede pasar un asiento de su línea antes de que el control actúe.",
+    "en": "How far an entry may go past its line before the control acts.",
+    "pt": "Quanto um lançamento pode ultrapassar sua linha antes de o controle agir."
   },
   "settings.sections.fields.cash": {
     "es": "Caja",

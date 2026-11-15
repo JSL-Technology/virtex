@@ -32,7 +32,6 @@ import { StorageService } from '../storage/storage.service';
 import { JournalEntryAttachment } from './entities/journal-entry-attachment.entity';
 import { ModuleSlug } from './accounting-posting.port';
 import { resolvePostingPeriod } from '../accounting/period-status';
-import { BudgetControlService } from '../budgets/budget-control.service';
 import { toIsoDate } from '../common/dates';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
@@ -79,6 +78,7 @@ import { I18nService } from '../i18n/i18n.service';
 import { PostingContext } from './accounting-posting.port';
 import { JOURNAL_ENTRY_LIST_SORT, JournalEntryListSort } from './dto/journal-entry-list-query.dto';
 import { describeEntryOrigin } from './entry-origin';
+import { BudgetControlRegistry, budgetLimitsPosting } from '../contracts/budget-control/budget-control.contract';
 export { PostingContext } from './accounting-posting.port';
 
 const SYSTEM: PostingContext = { actorUserId: null, systemReason: 'system' };
@@ -106,7 +106,7 @@ export class JournalEntriesService {
      * absent the budget is simply not consulted, which is the behaviour every path had before.
      */
     @Optional()
-    private readonly budgetControl?: BudgetControlService,
+    private readonly budgetControl?: BudgetControlRegistry,
     /**
      * The narrative on a system-generated entry, in the tenant's books language.
      *
@@ -1017,28 +1017,21 @@ export class JournalEntriesService {
       if (!account) continue;
       // A budget on revenue, a liability or equity is a target, not a limit (FINB-20): it used to
       // consume «in the account's natural sense», so selling more than budgeted refused the sale.
-      if (!BudgetControlService.limitsPosting(account.type)) continue;
+      if (!budgetLimitsPosting(account.type)) continue;
 
       // Spending is a debit to an expense or an asset; a credit to one gives budget back, and only
       // the consuming direction is checked.
       const consumed = line.debit - line.credit;
       if (consumed <= 0) continue;
 
-      const check = await this.budgetControl.checkBudget(
-        organizationId,
-        line.accountId,
-        consumed,
-        entryDate,
-        line.dimensions,
+      // Refused, let through with a warning, or only measured — the company's budget control
+      // decides, the same way for the journal and for a supplier bill.
+      await this.budgetControl.enforce(
         manager,
+        organizationId,
+        { accountId: line.accountId, amount: consumed, date: entryDate, dimensions: line.dimensions },
+        { refusalKey: 'journal_entries.entry_exceeds_budget_detail', source: 'journal', actorUserId: context.actorUserId ?? null },
       );
-
-      if (check.isExceeded) {
-        throw new ForbiddenError('journal_entries.entry_exceeds_budget_detail', {
-          detail: check.messageKey,
-          ...(check.messageParams ?? {}),
-        });
-      }
     }
   }
 

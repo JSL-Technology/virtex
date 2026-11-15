@@ -24,6 +24,9 @@ import { Budget } from './entities/budget.entity';
 import { BudgetLine } from './entities/budget-line.entity';
 import { BudgetControlService } from './budget-control.service';
 import { BudgetsService } from './budgets.service';
+import { AfterCommitService } from '../shared/after-commit/after-commit.service';
+import { BUDGET_EXCEEDED, type BudgetExceededEvent } from '../contracts/business-events/budget.events';
+import { BudgetControlRegistry } from '../contracts/budget-control/budget-control.contract';
 
 /**
  * Budget control.
@@ -41,6 +44,12 @@ describeWithDb('budget control', () => {
   let entries: JournalEntriesService;
   let control: BudgetControlService;
   let budgets: BudgetsService;
+  let afterCommit: AfterCommitService;
+  let registry: BudgetControlRegistry;
+  /** What budget control announces, as the notifications listener would receive it. */
+  const budgetEvents = new EventEmitter2();
+  const announced: BudgetExceededEvent[] = [];
+  budgetEvents.on(BUDGET_EXCEEDED, (event: BudgetExceededEvent) => announced.push(event));
 
   let organizationId: string;
   let ledgerId: string;
@@ -65,11 +74,18 @@ describeWithDb('budget control', () => {
     });
     await dataSource.initialize();
 
+    // The real after-commit hook and the real contract, so a warning is published only once the
+    // posting commits, and the journal reaches the control the way it does in the application.
+    afterCommit = new AfterCommitService(dataSource);
+    afterCommit.onModuleInit();
+    registry = new BudgetControlRegistry(afterCommit, budgetEvents);
     control = new BudgetControlService(
       dataSource.getRepository(Budget),
       dataSource.getRepository(JournalEntryLine),
       dataSource.getRepository(Ledger),
+      registry,
     );
+    control.onModuleInit();
     budgets = new BudgetsService(
       dataSource.getRepository(Budget),
       dataSource.getRepository(JournalEntryLine),
@@ -92,7 +108,7 @@ describeWithDb('budget control', () => {
       new JournalEntryNumberingService(),
       new AuditTrailService(dataSource.getRepository(AuditLog)),
       testExchangeRateResolver(dataSource),
-      control,
+      registry,
     );
   });
 
@@ -102,6 +118,7 @@ describeWithDb('budget control', () => {
 
   beforeEach(async () => {
     approvalRequired = false;
+    announced.length = 0;
     const org = await dataSource.getRepository(Organization).save(
       dataSource.getRepository(Organization).create({
         legalName: `Presupuesto ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -172,6 +189,13 @@ describeWithDb('budget control', () => {
   afterEach(async () => {
     await dataSource.getRepository(Organization).delete({ id: organizationId });
   });
+
+  /** The company's budget control, as its settings screen would leave it. */
+  const controlSettings = (mode: 'block' | 'warn' | 'none', toleranceBps = 0) =>
+    dataSource.query(
+      `UPDATE organization_settings SET budget_control_mode = $2, budget_tolerance_bps = $3 WHERE organization_id = $1`,
+      [organizationId, mode, toleranceBps],
+    );
 
   /** A budget for one month with one line on the marketing expense account. */
   async function budgetOf(
@@ -347,6 +371,73 @@ describeWithDb('budget control', () => {
     await budgetOf('2026-03', 1_000);
     const check = await control.checkBudget(organizationId, account['expense'], 1_500, '2026-03-20');
     expect(check.isExceeded).toBe(true);
+  });
+
+  /**
+   * FINB-20, the second half: the control is the company's to set — refuse, warn or only measure —
+   * with a tolerance. It used to be a hard block with nothing to configure.
+   */
+  describe('the company decides what an over-budget posting does', () => {
+    it('a tolerance lets a posting go that far past its line, and no further', async () => {
+      await controlSettings('block', 1_000); // 10 %
+      await budgetOf('2026-03', 1_000);
+
+      await expect(spend('2026-03-05', 1_050)).resolves.toBeDefined();
+      await expect(spend('2026-03-10', 100)).rejects.toMatchObject({ messageKey: 'journal_entries.entry_exceeds_budget_detail' });
+    });
+
+    it('warn posts it, and tells whoever looks after budgets once it has committed', async () => {
+      await controlSettings('warn');
+      await budgetOf('2026-03', 1_000);
+
+      await expect(spend('2026-03-05', 1_500)).resolves.toBeDefined();
+      expect(announced).toEqual([
+        expect.objectContaining({
+          organizationId,
+          period: '2026-03',
+          accountId: account['expense'],
+          budgeted: 1_000,
+          actual: 1_500,
+          amount: 1_500,
+          source: 'journal',
+          actorUserId: ACTOR,
+        }),
+      ]);
+    });
+
+    it('warn announces nothing for a posting that rolled back', async () => {
+      await controlSettings('warn');
+      await budgetOf('2026-03', 1_000);
+
+      await expect(
+        dataSource.transaction(async (manager) => {
+          await registry.enforce(
+            manager,
+            organizationId,
+            { accountId: account['expense'], amount: 5_000, date: '2026-03-05' },
+            { refusalKey: 'journal_entries.entry_exceeds_budget_detail', source: 'journal', actorUserId: ACTOR },
+          );
+          throw new Error('the posting failed after the check');
+        }),
+      ).rejects.toThrow('the posting failed after the check');
+      expect(announced).toEqual([]);
+    });
+
+    it('none only measures: the posting goes through and nobody is told', async () => {
+      await controlSettings('none');
+      await budgetOf('2026-03', 1_000);
+
+      await expect(spend('2026-03-05', 9_000)).resolves.toBeDefined();
+      expect(announced).toEqual([]);
+      const check = await control.checkBudget(organizationId, account['expense'], 0, '2026-03-20');
+      expect(check).toMatchObject({ isExceeded: false, actualAmount: 9_000, variance: -8_000 });
+    });
+
+    it('block is what a company that never set it gets', async () => {
+      await budgetOf('2026-03', 1_000);
+      await expect(spend('2026-03-05', 1_001)).rejects.toMatchObject({ messageKey: 'journal_entries.entry_exceeds_budget_detail' });
+      expect(announced).toEqual([]);
+    });
   });
 
   /**

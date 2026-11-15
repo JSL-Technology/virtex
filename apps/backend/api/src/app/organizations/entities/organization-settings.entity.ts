@@ -16,6 +16,7 @@ import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity
 import { TaxpayerType } from '../../markets';
 import { numericTransformerWithDefault } from '../../common/database/numeric.transformer';
 import type { FiscalEmissionMode } from '../contracts/fiscal-emission-mode.contract';
+import type { BudgetControlMode } from '../../contracts/accounting/budget-control.contract';
 
 const DEFAULT_BASE_CURRENCY = 'USD' as const;
 
@@ -23,6 +24,8 @@ const DEFAULT_BASE_CURRENCY = 'USD' as const;
 // Declared here as well as in the migration, so the schema-drift check sees it.
 @Check('CK_organization_settings_fiscal_emission_mode', `"fiscal_emission_mode" IN ('BOTH', 'ELECTRONIC', 'TRADITIONAL')`)
 @Check('CHK_organization_settings_po_receipt_over_tolerance', '"po_receipt_over_tolerance_bps" BETWEEN 0 AND 5000')
+@Check('CHK_organization_settings_budget_control_mode', `"budget_control_mode" IN ('block', 'warn', 'none')`)
+@Check('CHK_organization_settings_budget_tolerance', '"budget_tolerance_bps" BETWEEN 0 AND 5000')
 @Entity({ name: 'organization_settings' })
 export class OrganizationSettings {
   constructor(partial?: Partial<OrganizationSettings>) {
@@ -370,6 +373,18 @@ export class OrganizationSettings {
   /** How far a delivery may exceed the ordered quantity, in basis points (CMP-15). 0: never. */
   @Column({ name: 'po_receipt_over_tolerance_bps', type: 'int', default: 0 })
   poReceiptOverToleranceBps!: number;
+
+  /**
+   * What a posting past its budget line does (FINB-20): `block` refuses it, `warn` lets it through
+   * and tells whoever looks after budgets, `none` only measures it. It was always a hard block, with
+   * nothing to configure.
+   */
+  @Column({ name: 'budget_control_mode', type: 'varchar', length: 5, default: 'block' })
+  budgetControlMode!: BudgetControlMode;
+
+  /** How far past its line a posting may go before the control acts, in basis points. 0: not at all. */
+  @Column({ name: 'budget_tolerance_bps', type: 'int', default: 0 })
+  budgetToleranceBps!: number;
 
   /**
    * How stale a quote may be, in days, before a posting that would use it is refused.

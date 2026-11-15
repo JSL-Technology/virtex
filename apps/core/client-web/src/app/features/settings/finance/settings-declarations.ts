@@ -248,6 +248,30 @@ export const SECTION_DECLARATIONS: readonly SectionDeclaration[] = [
     ],
   },
   {
+    section: 'budgets',
+    anchor: 'budgets',
+    titleKey: 'settings.declarations.budgets',
+    groups: [],
+    policies: [
+      {
+        field: 'budgetControlMode',
+        labelKey: 'settings.sections.fields.budget_control_mode',
+        helpKey: 'settings.sections.fields.budget_control_mode_help',
+        kind: 'select',
+        options: ['block', 'warn', 'none'],
+        optionPrefix: 'settings.sections.budget_control_mode.'
+      },
+      {
+        field: 'budgetToleranceBps',
+        labelKey: 'settings.sections.fields.budget_tolerance',
+        helpKey: 'settings.sections.fields.budget_tolerance_help',
+        kind: 'basis-points',
+        min: 0,
+        max: 5000
+      }
+    ],
+  },
+  {
     section: 'intercompany',
     anchor: 'intercompany',
     titleKey: 'settings.declarations.intercompany',

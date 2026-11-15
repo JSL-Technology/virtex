@@ -2,6 +2,7 @@ import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity
 import { AccountRole } from '../../contracts/accounting/account-role.contract';
 import { OrganizationSettings } from '../entities/organization-settings.entity';
 import { FISCAL_EMISSION_MODES } from '../contracts/fiscal-emission-mode.contract';
+import { BUDGET_CONTROL_MODES } from '../../contracts/accounting/budget-control.contract';
 
 /**
  * The organization's settings, by the section of «Configuración» that edits them (QA M-09).
@@ -111,6 +112,12 @@ export const SETTINGS_SECTIONS = {
       defaultIntercompanyPayableAccountId: 'LIABILITY',
     },
     fields: {},
+  },
+  budgets: {
+    accounts: {},
+    // What a posting past its budget line does, and how far past it may go first (FINB-20). The
+    // column CHECKs bound them too.
+    fields: { budgetControlMode: enumField(BUDGET_CONTROL_MODES), budgetToleranceBps: intField(0, 5000) },
   },
   inventory: {
     accounts: {

@@ -29,7 +29,6 @@ import {
 } from '../journal-entries/dto/create-journal-entry.dto';
 import { WorkflowsService } from '../workflows/workflows.service';
 import { DocumentTypeForApproval } from '../workflows/entities/approval-policy.entity';
-import { BudgetControlService } from '../budgets/budget-control.service';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { resolveAccountByRole } from './payables-accounts';
@@ -59,6 +58,7 @@ import { VendorBillAttachment } from './entities/vendor-bill-attachment.entity';
 import { supplierInvoiceKey } from './supplier-invoice-key';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
 import { addToAgingRow, agingRowsAndTotals, daysPastDue, emptyAgingRow, type AgingReport, type AgingRow } from '../shared/statements/aging-report';
+import { BudgetControlRegistry } from '../contracts/budget-control/budget-control.contract';
 
 /** Quantities carry six decimals, like the order lines they are matched against. */
 const roundQuantity = (value: number): number => Math.round(value * 1e6) / 1e6;
@@ -102,7 +102,7 @@ export class AccountsPayableService {
     private readonly eventEmitter: EventEmitter2,
     private readonly afterCommit: AfterCommitService,
     private readonly workflowsService: WorkflowsService,
-    private readonly budgetControlService: BudgetControlService,
+    private readonly budgetControl: BudgetControlRegistry,
     private readonly exchangeRates: ExchangeRateResolver,
     /**
      * The general ledger's own view of what is owed, so the ageing can be tied to its control
@@ -761,18 +761,13 @@ export class AccountsPayableService {
 
       for (const line of bill.lines) {
         if (!line.expenseAccountId) continue;
-        const budgetCheck = await this.budgetControlService.checkBudget(
+        // In this transaction, so a concurrent posting cannot slip between the check and the bill.
+        await this.budgetControl.enforce(
+          manager,
           organizationId,
-          line.expenseAccountId,
-          line.total,
-          new Date(`${toIsoDate(bill.date)}T00:00:00.000Z`),
+          { accountId: line.expenseAccountId, amount: line.total, date: toIsoDate(bill.date) },
+          { refusalKey: 'accounts_payable.budget_control_failed_message', source: 'vendor_bill', actorUserId },
         );
-        if (budgetCheck.isExceeded) {
-          throw new ForbiddenError('accounts_payable.budget_control_failed_message', {
-            detail: budgetCheck.messageKey,
-            ...(budgetCheck.messageParams ?? {}),
-          });
-        }
       }
 
       const approvalRequest = await this.workflowsService.startApprovalProcess(
