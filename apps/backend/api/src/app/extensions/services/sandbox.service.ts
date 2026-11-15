@@ -6,6 +6,15 @@ import * as ipaddr from 'ipaddr.js';
 import { PLUGIN_POLICY } from '../config/plugin-policy.config';
 import { SigningKeyProvider } from './signing-key.provider';
 
+/** The `isolated-vm` module, typed by its own declarations. */
+type IsolatedVm = typeof import('isolated-vm');
+type Isolate = InstanceType<IsolatedVm['Isolate']>;
+// `Context` has a private constructor, so its instance type is read off the prototype.
+type IsolateContext = IsolatedVm['Context']['prototype'];
+
+/** The message of whatever was thrown, which in an isolate is not always an `Error`. */
+const messageOf = (thrown: unknown): string => (thrown instanceof Error ? thrown.message : String(thrown));
+
 /** Every address a hostname resolves to, in one call, in the order the resolver returned them. */
 const lookupAll = (hostname: string): Promise<Array<{ address: string; family: number }>> =>
   dnsLookup(hostname, { all: true, verbatim: true });
@@ -26,9 +35,18 @@ export interface SandboxResult {
   };
 }
 
+/** What a syscall answers the isolate: serialised to JSON on its way back across the boundary. */
+interface SyscallResult {
+  ok: boolean;
+  /** The fetched body: the only syscall that returns data is `fetch`, and it returns text. */
+  result?: string;
+  error?: string;
+}
+
 interface SyscallEnvelope {
   op: string;
-  payload: any;
+  /** Untrusted until the syscall's own handler has validated it. */
+  payload: unknown;
 }
 
 /**
@@ -58,20 +76,36 @@ export class SandboxService {
   private readonly DEFAULT_TIMEOUT_MS = PLUGIN_POLICY.limits.timeoutMs || 1000;
   private readonly logger = new Logger(SandboxService.name);
 
-  // Typed as `any` on purpose: the native addon is optional at build/boot time.
-  private ivm: any = null;
+  /**
+   * The native addon, once loaded. It is optional at build and boot time — a host without it runs
+   * everything but extensions — so it is loaded on first use with `import()`, never at the top of
+   * the module, where a missing addon would stop the whole API from starting.
+   *
+   * Typed with the addon's own declarations. It was `any`, loaded with `require`, which meant every
+   * call into the isolate — the memory limit, the timeout, the copies across the boundary — was
+   * unchecked by the compiler in the one place where a mistake runs untrusted code.
+   */
+  private ivm: IsolatedVm | null = null;
 
   constructor(private readonly signingKeys: SigningKeyProvider) {}
 
-  private loadIvm(): any {
+  /** `{ url: string }`, or null: a syscall payload is untrusted until it has the shape it claims. */
+  private static urlOf(payload: unknown): string | null {
+    if (typeof payload !== 'object' || payload === null) return null;
+    const url = (payload as { url?: unknown }).url;
+    return typeof url === 'string' && url.length > 0 ? url : null;
+  }
+
+  private async loadIvm(): Promise<IsolatedVm> {
     if (this.ivm) return this.ivm;
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      this.ivm = require('isolated-vm');
+      // A CommonJS addon (`export =`): `import()` hands it back as the namespace's `default`.
+      const loaded: { default?: IsolatedVm } & Partial<IsolatedVm> = await import('isolated-vm');
+      this.ivm = loaded.default ?? (loaded as IsolatedVm);
       return this.ivm;
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error(
-        `isolated-vm is not available (${err?.message}). Extension execution is disabled on this host.`,
+        `isolated-vm is not available (${(err as Error)?.message}). Extension execution is disabled on this host.`,
       );
       throw new Error(
         'Extension sandbox unavailable: the isolated-vm native addon failed to load.',
@@ -86,15 +120,15 @@ export class SandboxService {
    */
   async runWasm(wasmBuffer: Buffer, timeout = this.DEFAULT_TIMEOUT_MS): Promise<SandboxResult> {
     const start = Date.now();
-    let ivm: any;
+    let ivm: IsolatedVm;
     try {
-      ivm = this.loadIvm();
-    } catch (err: any) {
-      return { success: false, logs: [], error: String(err?.message ?? err), executionTimeMs: 0 };
+      ivm = await this.loadIvm();
+    } catch (err: unknown) {
+      return { success: false, logs: [], error: messageOf(err), executionTimeMs: 0 };
     }
 
-    let isolate: any = null;
-    let context: any = null;
+    let isolate: Isolate | null = null;
+    let context: IsolateContext | null = null;
     const logs: string[] = [];
 
     try {
@@ -103,7 +137,7 @@ export class SandboxService {
       const jail = context.global;
       jail.setSync('global', jail.derefInto());
 
-      const logRef = new ivm.Reference((val: any) => {
+      const logRef = new ivm.Reference((val: unknown) => {
         logs.push(String(val));
       });
       jail.setSync('__logRaw', logRef);
@@ -137,11 +171,11 @@ export class SandboxService {
       );
 
       return { success: true, logs, executionTimeMs: Date.now() - start };
-    } catch (err: any) {
+    } catch (err: unknown) {
       return {
         success: false,
         logs,
-        error: `Hardened Wasm Error: ${err.message}`,
+        error: `Hardened Wasm Error: ${messageOf(err)}`,
         executionTimeMs: Date.now() - start,
       };
     } finally {
@@ -166,15 +200,15 @@ export class SandboxService {
       };
     }
 
-    let ivm: any;
+    let ivm: IsolatedVm;
     try {
-      ivm = this.loadIvm();
-    } catch (err: any) {
-      return { success: false, logs: [], error: String(err?.message ?? err), executionTimeMs: 0 };
+      ivm = await this.loadIvm();
+    } catch (err: unknown) {
+      return { success: false, logs: [], error: messageOf(err), executionTimeMs: 0 };
     }
 
-    let isolate: any = null;
-    let context: any = null;
+    let isolate: Isolate | null = null;
+    let context: IsolateContext | null = null;
     const logs: string[] = [];
     let egressCount = 0;
 
@@ -193,8 +227,8 @@ export class SandboxService {
             capabilities,
           );
           return JSON.stringify(res);
-        } catch (e: any) {
-          return JSON.stringify({ ok: false, error: e.message });
+        } catch (e: unknown) {
+          return JSON.stringify({ ok: false, error: messageOf(e) });
         }
       });
       jail.setSync('__syscallRaw', syscallRef);
@@ -236,14 +270,14 @@ export class SandboxService {
         executionTimeMs: Date.now() - start,
         metrics: { memoryBytes: memoryUsage, egressCount },
       };
-    } catch (err: any) {
+    } catch (err: unknown) {
       const memoryUsage = isolate ? isolate.getHeapStatisticsSync().total_heap_size : 0;
       return {
         success: false,
         logs,
         error: String(err),
         executionTimeMs: Date.now() - start,
-        forensicData: { code, stack: err?.stack || String(err), memoryUsage },
+        forensicData: { code, stack: err instanceof Error && err.stack ? err.stack : String(err), memoryUsage },
         metrics: { memoryBytes: memoryUsage, egressCount },
       };
     } finally {
@@ -256,21 +290,27 @@ export class SandboxService {
     envelope: SyscallEnvelope,
     logs: string[],
     capabilities: string[] = [],
-  ): Promise<{ ok: boolean; result?: any; error?: string }> {
+  ): Promise<SyscallResult> {
     switch (envelope.op) {
       case 'log':
         if (logs.length < 100) logs.push(String(envelope.payload));
         return { ok: true };
-      case 'fetch':
+      case 'fetch': {
         if (!capabilities.includes('egress:http')) {
           return { ok: false, error: 'Security Exception: Plugin missing "egress:http" capability.' };
         }
+        // The payload comes from the extension's own code — untrusted by definition — and it was
+        // typed `any`, so `payload.url` reached the fetch unchecked: an object, a number or a
+        // missing field went straight to the network layer. It is checked here, at the boundary.
+        const url = SandboxService.urlOf(envelope.payload);
+        if (!url) return { ok: false, error: 'Invalid http.fetch payload: expected { url: string }.' };
         try {
-          const result = await this.doSecureFetch(envelope.payload.url);
+          const result = await this.doSecureFetch(url);
           return { ok: true, result };
-        } catch (e: any) {
-          return { ok: false, error: e.message };
+        } catch (e: unknown) {
+          return { ok: false, error: messageOf(e) };
         }
+      }
       default:
         return { ok: false, error: 'Unknown op' };
     }

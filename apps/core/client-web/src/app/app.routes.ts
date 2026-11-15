@@ -84,21 +84,12 @@ export const APP_ROUTES: Routes = [
       ),
   },
 
-  // 2. Payment Routes (public, no :lang prefix). Declared before the authenticated
-  // shell so its `**` child never captures them.
-  {
-    path: 'payment',
-    children: [
-      {
-        path: 'success',
-        loadComponent: () => import('./features/payment/components/payment-success/payment-success.component').then(m => m.PaymentSuccessComponent)
-      },
-      {
-        path: 'cancel',
-        loadComponent: () => import('./features/payment/components/payment-cancel/payment-cancel.component').then(m => m.PaymentCancelComponent)
-      }
-    ]
-  },
+  // 2. Former payment outcome pages. No provider was ever sent to them — a checkout returns to
+  // `/settings/billing`, a signup to its own confirmation — so they answered nothing; an old link
+  // lands where billing actually lives. Declared before the authenticated shell so its `**` child
+  // never captures them.
+  { path: 'payment/success', redirectTo: 'settings/billing', pathMatch: 'full' },
+  { path: 'payment/cancel', redirectTo: 'settings/billing', pathMatch: 'full' },
 
   // 2b. Legal pages without a language (`/terms`, `/privacy`, `/security`, `/contact`).
   // They were linked from every public footer and fell through to the sign-in page (QA C-08).
@@ -154,14 +145,10 @@ export const APP_ROUTES: Routes = [
                     (m) => m.CheckoutCompletePage
                 ),
             },
-            {
-                path: 'plan-selection',
-                title: 'auth.titles.plan',
-                loadComponent: () =>
-                import('./features/payment/components/plan-selection/plan-selection.component').then(
-                    (m) => m.PlanSelectionComponent
-                ),
-            },
+            // A plan is chosen before signing in in the signup's own plan step. The separate page
+            // that used to live here called an endpoint that needs a signed-in administrator, so
+            // its one button could only fail.
+            { path: 'plan-selection', redirectTo: 'register', pathMatch: 'full' },
             // Armazón persistente: acceso, recuperación y restablecimiento
             // comparten lienzo y lámina; al navegar solo cambia el contenido
             // interior, con una transición suave.

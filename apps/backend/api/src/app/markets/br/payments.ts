@@ -16,4 +16,6 @@ export const payments: MarketPayments = {
     paymentMethod('04', 'ledger.provisioning.payment_methods.debit_card', 'DEBIT_CARD', '04'),
     paymentMethod('02', 'ledger.provisioning.payment_methods.check', 'CHECK', '02'),
   ],
+  // Stripe offers a boleto only when asked: without it a Brazilian company could pay by card alone.
+  subscriptionCheckout: { stripe: ['card', 'boleto'] },
 };

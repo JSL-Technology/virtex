@@ -20,4 +20,6 @@ export const payments: MarketPayments = {
   catalogue: 'EDITABLE',
   authority: null,
   defaults: PAYMENT_METHODS,
+  // ACH debit, which Stripe offers only when asked.
+  subscriptionCheckout: { stripe: ['card', 'us_bank_account'] },
 };

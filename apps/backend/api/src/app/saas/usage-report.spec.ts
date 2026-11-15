@@ -31,7 +31,7 @@ describe('SaaS usage report', () => {
     {} as never, {} as never, {} as never,
     { findOne: jest.fn(async () => org) } as never,
     usageRepository as never,
-    {} as never, { get: jest.fn() } as never, { emit: jest.fn() } as never, {} as never,
+    { get: jest.fn() } as never, { emit: jest.fn() } as never, {} as never,
     { query } as never,
     {} as never, {} as never, {} as never,
   );

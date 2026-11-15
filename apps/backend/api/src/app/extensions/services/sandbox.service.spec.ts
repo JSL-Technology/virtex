@@ -70,6 +70,27 @@ describe('SandboxService', () => {
     expect(result.logs.join(' ') + (result.error ?? '')).toContain('egress:http');
   });
 
+  /**
+   * The syscall boundary does not trust the payload's shape.
+   *
+   * `fetch` inside the isolate is a shim that sends `{ url }`, but the shim is not the boundary:
+   * `__syscall` itself is on the isolate's global object, so an extension can call it with any
+   * payload it likes. It was typed `any` on the host side and `payload.url` went to the network
+   * layer unchecked — an object, a number, a missing field. It is refused before anything is
+   * fetched, even with the egress capability granted.
+   */
+  it.each([
+    ['a number', '{ url: 42 }'],
+    ['an object', '{ url: { href: "https://api.taxjar.com/" } }'],
+    ['no url at all', '{ href: "https://api.taxjar.com/" }'],
+    ['not an object', '"https://api.taxjar.com/"'],
+  ])('refuses a fetch syscall whose payload is %s, before fetching anything', async (_label, payload) => {
+    const code = `const answer = JSON.parse(await __syscall('fetch', ${payload})); log(answer.ok + ' ' + answer.error);`;
+    const validation = await admission.validatePlugin({ name: 'test', code, sbom: validSbom });
+    const result = await sandbox.run(code, validation.signature, 1000, ['egress:http']);
+    expect(result.logs.join(' ')).toContain('false Invalid http.fetch payload');
+  });
+
   it('runs a valid WebAssembly module', async () => {
     const wasmBuffer = Buffer.from([
       0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,

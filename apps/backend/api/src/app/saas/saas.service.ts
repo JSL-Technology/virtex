@@ -1,6 +1,6 @@
 import { LIFETIME_USAGE_SOURCES, PERIOD_USAGE_SOURCES } from './usage-sources';
 import { monthlyQuotaWindow } from './quota-window';
-import { Injectable, OnModuleInit, Logger, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager, DataSource } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -23,11 +23,18 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UsageMetricRepository } from './repositories/usage-metric.repository';
 import { OrganizationSubscriptionHistory } from '../organizations/entities/organization-subscription-history.entity';
+import { actAsTenantWithin } from '../shared/tenancy/tenant-job';
+import type { PlanChange } from './plan-change';
 import { MetricsService } from '../metrics/metrics.service';
 import { SaasCacheKeyFactory } from './utils/saas-cache-key.factory';
 import { knownMarket } from '../markets';
 import { UserCacheService } from '../auth/modules/user-cache.service';
 import type { ResourceQuota } from './contracts/entitlements.contract';
+
+/** One row of the usage report: a metered quota, or a capability the plan includes or not. */
+export type UsageRow =
+  | { resource: string; type: 'numeric'; used: number; limit: number; isUnlimited: boolean; period: QuotaPeriod }
+  | { resource: string; type: 'boolean'; isEnabled: boolean; used: null; limit: null };
 
 @Injectable()
 export class SaasService implements OnModuleInit {
@@ -42,7 +49,6 @@ export class SaasService implements OnModuleInit {
     @InjectRepository(PlanFeature) private featureRepository: Repository<PlanFeature>,
     @InjectRepository(Organization) private orgRepository: Repository<Organization>,
     @InjectRepository(UsageMetric) private usageRepository: Repository<UsageMetric>,
-    @InjectRepository(OrganizationSubscriptionHistory) private subscriptionHistoryRepository: Repository<OrganizationSubscriptionHistory>,
     private configService: ConfigService,
     private eventEmitter: EventEmitter2,
     private usageMetricRepository: UsageMetricRepository,
@@ -297,40 +303,61 @@ export class SaasService implements OnModuleInit {
     return this.planRepository.findOne({ where: { slug }, relations: ['limits', 'features'] });
   }
 
-  async changePlan(organizationId: string, newPlanSlug: string, userId?: string, reason = 'upgrade'): Promise<void> {
-      await this.dataSource.transaction(async (manager) => {
-          const org = await manager.findOne(Organization, { where: { id: organizationId }, relations: ['plan'] });
-          if (!org) {
-              throw new Error('Organization not found');
-          }
+  /**
+   * The plan a payment-provider price bills, or `null` when it bills none of ours.
+   *
+   * What the customer is charged is the price on their subscription, so that — not the plan name a
+   * checkout carried in its metadata — is what decides the plan. One lookup, shared by the webhook,
+   * the browser's return and the plan change, so they cannot disagree about what a price buys.
+   */
+  async planForPrice(priceId: string | null | undefined): Promise<Plan | null> {
+    if (!priceId) return null;
+    return this.planRepository.findOne({
+      where: [{ monthlyPriceId: priceId }, { annualPriceId: priceId }],
+    });
+  }
 
-          const newPlan = await manager.findOne(Plan, { where: { slug: newPlanSlug } });
-          if (!newPlan) {
-              throw new Error('Plan not found');
-          }
+  /**
+   * The one way an organization's plan changes.
+   *
+   * Seven places assigned `organization.plan` — the paid signup, the development grant, a
+   * subsidiary's creation, the browser's return from checkout, two webhook handlers and the
+   * simulated provider — and none wrote `organization_subscription_history`; only a method nothing
+   * called did. So the table that answers «what was this customer on, and since when» was empty in
+   * every environment, while plans kept changing.
+   *
+   * Runs in the CALLER's transaction, so the plan and its history row commit together with whatever
+   * moved them: the subscription fields, the webhook's idempotency record. The history row is
+   * written as the organization it belongs to — the table is isolated per tenant, and a webhook has
+   * no tenant, so the insert was refused by the row-level policy. Invalidating the cache is the
+   * caller's job, AFTER the commit: done inside the transaction, a concurrent read caches the old
+   * plan again before the new one is visible.
+   *
+   * @returns whether the plan changed. Assigning the plan an organization already has writes
+   *   nothing, so the browser's return and the webhook can both apply the same checkout.
+   */
+  async applyPlan(manager: EntityManager, organization: Organization, plan: Plan, change: PlanChange): Promise<boolean> {
+    const previousPlanId = organization.planId ?? null;
+    organization.plan = plan;
+    if (previousPlanId === plan.id) return false;
 
-          if (org.plan && org.plan.id === newPlan.id) {
-              return;
-          }
+    organization.planId = plan.id;
+    await manager.update(Organization, { id: organization.id }, { planId: plan.id });
+    await actAsTenantWithin(manager, organization.id, () =>
+      manager.insert(OrganizationSubscriptionHistory, {
+        organizationId: organization.id,
+        previousPlanId,
+        newPlanId: plan.id,
+        reason: change.reason,
+        changedBy: change.changedBy ?? null,
+      }),
+    );
 
-          const previousPlan = org.plan;
-
-          org.plan = newPlan;
-          await manager.save(org);
-
-          const history = this.subscriptionHistoryRepository.create({
-              organizationId: org.id,
-              previousPlanId: previousPlan?.id,
-              newPlanId: newPlan.id,
-              changedBy: userId,
-              reason: reason
-          });
-
-          await manager.save(history);
-          await this.clearOrganizationCache(organizationId);
-
-          this.logger.log(`Organization ${organizationId} changed plan from ${previousPlan?.slug ?? 'none'} to ${newPlan.slug}`);
-      });
+    this.logger.log(
+      { event: 'plan_changed', organizationId: organization.id, previousPlanId, newPlanId: plan.id, reason: change.reason },
+      `Organization ${organization.id} moved to plan ${plan.slug} (${change.reason}).`,
+    );
+    return true;
   }
 
   /**
@@ -495,9 +522,10 @@ export class SaasService implements OnModuleInit {
   /**
    * Whether a plan grants a capability. Fails CLOSED, like `enforceLimit`.
    *
-   * Keyed by the organization's cache generation so a plan change through `changePlan` — which
-   * calls `clearOrganizationCache` — takes effect immediately rather than at TTL expiry. Keyed
-   * without it, an upgrade left the customer refused for up to a minute after paying.
+   * Keyed by the organization's cache generation, which every plan change bumps once it commits
+   * (`applyPlan`'s callers call `clearOrganizationCache`), so a new plan takes effect immediately
+   * rather than at TTL expiry. Keyed without it, an upgrade left the customer refused for up to a
+   * minute after paying.
    */
   async checkFeature(organizationId: string, featureKey: string): Promise<boolean> {
      const versionKey = SaasCacheKeyFactory.limitVersion(organizationId);
@@ -631,7 +659,7 @@ export class SaasService implements OnModuleInit {
     return periodEnd;
   }
 
-  async getUsage(organizationId: string) {
+  async getUsage(organizationId: string): Promise<UsageRow[]> {
     const org = await this.orgRepository.findOne({
         where: { id: organizationId },
         relations: ['plan', 'plan.limits']
@@ -651,7 +679,7 @@ export class SaasService implements OnModuleInit {
     const metricMap = new Map<string, UsageMetric>();
     metrics.forEach(m => metricMap.set(`${m.resource}:${m.period}`, m));
 
-    const usageData = [];
+    const usageData: UsageRow[] = [];
 
     for (const limit of org.plan.limits) {
         if (limit.valueType === LimitType.BOOLEAN) {

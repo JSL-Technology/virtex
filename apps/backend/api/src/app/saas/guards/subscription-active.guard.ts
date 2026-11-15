@@ -4,6 +4,7 @@ import type { HttpRequest as Request } from '../../common/http/http.types';
 import { IS_PUBLIC_KEY } from '../../security/decorators/public.decorator';
 import { ALLOW_INACTIVE_SUBSCRIPTION_KEY } from '../decorators/allow-inactive-subscription.decorator';
 import { ForbiddenError } from '../../i18n/localized.exception';
+import { SubscriptionStanding } from '../plan-change';
 
 /**
  * Refuse work for a tenant whose subscription is not in good standing.
@@ -38,11 +39,7 @@ export class SubscriptionActiveGuard implements CanActivate {
    * `unpaid`, `canceled`, `incomplete` and `incomplete_expired` are terminal or pre-payment and do
    * not.
    */
-  private static readonly ALLOWED_STATUSES: ReadonlySet<string> = new Set([
-    'active',
-    'trialing',
-    'past_due',
-  ]);
+  private static readonly ALLOWED_STATUSES: ReadonlySet<string> = SubscriptionStanding.IN_FORCE;
 
   constructor(private readonly reflector: Reflector) {}
 

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import CircuitBreaker = require('opossum');
+import CircuitBreaker from 'opossum';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { UsersService } from '../../users/users.service';

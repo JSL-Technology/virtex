@@ -41,6 +41,9 @@
                     @if (sub.managedBy === 'platform') {
                     <p class="info-card__muted">{{ 'settings.billing.managed_by_platform' | translate }}</p>
                     }
+                    @if (billedThrough(); as parent) {
+                    <p class="info-card__muted">{{ 'billing.billed_through_parent' | translate: { name: parent.name } }}</p>
+                    }
                     } @else {
                     <div class="plan-status">{{ 'settings.billing.no_active_subscription' | translate }}</div>
                     }
@@ -60,7 +63,9 @@
                 <span class="info-card__label">{{ 'settings.billing.payment_method' | translate }}</span>
             </div>
             <div class="info-card__body">
-                @if (overview()?.paymentMethod; as pm) {
+                @if (billedThrough(); as parent) {
+                <p class="info-card__muted">{{ 'billing.payment_method_of_parent' | translate: { name: parent.name } }}</p>
+                } @else if (overview()?.paymentMethod; as pm) {
                 <vx-payment-card
                     class="payment-card-visual"
                     [brand]="pm.brand"
@@ -131,7 +136,8 @@
     </div>
     }
 
-    <!-- Plan Selection -->
+    <!-- Plan Selection: the paying company's to change, not a company billed through it -->
+    @if (!billedThrough()) {
     <div class="billing-section">
         <div class="billing-section__header">
             <h2 class="billing-section__title">{{ (hasActiveSubscription() ? 'settings.billing.change_plan' : 'settings.billing.choose_plan') | translate }}</h2>
@@ -212,13 +218,9 @@
             <div class="plan-change-banner">
                 <div class="plan-change-banner__info">
                     <lucide-icon [img]="InfoIcon" size="16"></lucide-icon>
-                    @if (hasActiveSubscription()) {
-                    <span>{{ 'settings.billing.switch_plan' | translate }} <strong>{{ selectedPlan() }}</strong> {{ 'settings.billing.you_will_redirected_stripe_secure_portal' | translate }}</span>
-                    } @else {
-                    <span>{{ 'settings.billing.selected_plan' | translate }} <strong>{{ selectedPlan() }}</strong>{{ 'settings.billing.you_will_redirected_stripe_complete_payment' | translate }}</span>
-                    }
+                    <span>{{ (hasActiveSubscription() ? 'billing.plan_change.change_notice' : 'billing.plan_change.subscribe_notice') | translate: { plan: selectedPlanName() } }}</span>
                 </div>
-                <button class="btn-primary btn-checkout" (click)="startCheckout()" [disabled]="isRedirecting()">
+                <button class="btn-primary btn-checkout" (click)="confirmPlanChange()" [disabled]="isRedirecting()">
                     @if (isRedirecting()) {
                         <vx-spinner size="sm" />
                         <span>{{ 'settings.billing.redirecting' | translate }}</span>
@@ -241,6 +243,8 @@
         }
     </div>
 
+    }
+
     <!-- Billing History -->
     @if (invoices().length > 0) {
     <div class="billing-section">
@@ -262,7 +266,7 @@
                     @for (inv of invoices(); track inv.id) {
                     <tr>
                         <td class="history-date">{{ formatDate(inv.date) }}</td>
-                        <td>{{ inv.description }}</td>
+                        <td>{{ invoiceDescription(inv) }}</td>
                         <td class="history-amount">{{ formatInvoiceAmount(inv) }}</td>
                         <td>
                             @if (inv.status === 'paid') {

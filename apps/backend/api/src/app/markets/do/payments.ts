@@ -21,4 +21,6 @@ export const payments: MarketPayments = {
   catalogue: 'AUTHORITY_FIXED',
   authority: 'DGII',
   defaults: AUTHORITY_PAYMENT_FORMS,
+  // The provider's default methods for the currency and country.
+  subscriptionCheckout: {},
 };

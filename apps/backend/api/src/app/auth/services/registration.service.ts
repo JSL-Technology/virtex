@@ -1,10 +1,9 @@
 
-import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, EntityManager } from 'typeorm';
 import { LEGAL_DOCUMENTS } from '@virtex/shared/types';
-import * as argon2 from 'argon2';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GoogleRecaptchaValidator } from '@nestlab/google-recaptcha';
 import { JwtService } from '@nestjs/jwt';
@@ -34,6 +33,8 @@ import { UserCacheService } from '../modules/user-cache.service';
 import { canonicalizeTaxId, normalizeFiscalFields } from '../../markets';
 import { RegistrationPaymentPort } from '../ports/registration-payment.port';
 import { BadRequestError, ConflictError, ForbiddenError, InternalServerError } from '../../i18n/localized.exception';
+import { SaasService } from '../../saas/saas.service';
+import { PlanChangeReason } from '../../saas/plan-change';
 
 /** Subscription facts captured from Stripe when a pending registration is completed. */
 export interface CompletedSubscriptionInfo {
@@ -119,6 +120,7 @@ export class RegistrationService {
     // fulfills it. No forwardRef needed because PaymentModule is not imported by AuthModule anymore.
     private readonly paymentService: RegistrationPaymentPort,
     private readonly userCacheService: UserCacheService,
+    private readonly saasService: SaasService,
   ) {}
 
   /**
@@ -486,8 +488,7 @@ export class RegistrationService {
     const periodEnd = new Date();
     periodEnd.setFullYear(periodEnd.getFullYear() + 1);
 
-    organization.plan = plan;
-    organization.planId = plan.id;
+    await this.saasService.applyPlan(manager, organization, plan, { reason: PlanChangeReason.PLATFORM_GRANT });
     organization.subscriptionStatus = 'active';
     organization.subscriptionPeriodStart = new Date();
     organization.subscriptionPeriodEnd = periodEnd;
@@ -966,8 +967,10 @@ export class RegistrationService {
         );
         throw new InternalServerError('auth.your_plan_could_not_activated_your', { pendingId });
       }
-      organization.plan = plan;
-      organization.planId = plan.id;
+      await this.saasService.applyPlan(manager, organization, plan, {
+        reason: PlanChangeReason.REGISTRATION,
+        changedBy: user.id,
+      });
       await manager.save(organization);
 
       await this.recordConsent(pending, user.id, organization.id, manager);

@@ -29,6 +29,7 @@ import { RegistrationPaymentPort } from '../ports/registration-payment.port';
 import { ConfigService } from '@nestjs/config';
 import { UserCacheService } from '../modules/user-cache.service';
 import { expectLocalizedError } from '../../i18n/testing/expect-localized-error';
+import { SaasService } from '../../saas/saas.service';
 
 describe('RegistrationService', () => {
   let service: RegistrationService;
@@ -131,6 +132,7 @@ describe('RegistrationService', () => {
         // Repairing a tenant drops the cached principals of its members, or the entitlement it
         // just wrote stays invisible until the cache expires. Nothing here asserts on it.
         { provide: UserCacheService, useValue: { clearOrganizationMembers: jest.fn() } },
+        { provide: SaasService, useValue: { applyPlan: jest.fn(async () => true) } },
         { provide: ConfigService, useValue: { get: jest.fn(() => false) } },
       ],
     }).compile();

@@ -175,9 +175,9 @@
     "pt": "Continuar para o pagamento"
   },
   "settings.billing.continue_to_portal": {
-    "es": "Continuar al portal",
-    "en": "Continue to the portal",
-    "pt": "Continuar para o portal"
+    "es": "Revisar y confirmar el cambio",
+    "en": "Review and confirm the change",
+    "pt": "Revisar e confirmar a mudança"
   },
   "settings.billing.current_plan_heading": {
     "es": "Plan actual",
@@ -304,20 +304,10 @@
     "en": "Resource usage",
     "pt": "Uso de recursos"
   },
-  "settings.billing.selected_plan": {
-    "es": "Plan seleccionado:",
-    "en": "Selected plan:",
-    "pt": "Plano selecionado:"
-  },
   "settings.billing.status": {
     "es": "Estado",
     "en": "Status",
     "pt": "Situação"
-  },
-  "settings.billing.switch_plan": {
-    "es": "Para cambiar al plan",
-    "en": "To switch to the plan",
-    "pt": "Para mudar para o plano"
   },
   "settings.billing.try_again": {
     "es": "Reintentar",
@@ -338,16 +328,6 @@
     "es": "Aún no tienes un plan contratado. Elige uno más abajo para comenzar.",
     "en": "You do not have a plan yet. Choose one below to get started.",
     "pt": "Você ainda não contratou um plano. Escolha um abaixo para começar."
-  },
-  "settings.billing.you_will_redirected_stripe_complete_payment": {
-    "es": ". Serás redirigido a Stripe para completar el pago de forma segura.",
-    "en": ". You will be redirected to Stripe to complete the payment securely.",
-    "pt": ". Você será redirecionado à Stripe para concluir o pagamento com segurança."
-  },
-  "settings.billing.you_will_redirected_stripe_secure_portal": {
-    "es": "serás redirigido al portal seguro de Stripe.",
-    "en": "you will be redirected to Stripe's secure portal.",
-    "pt": "você será redirecionado ao portal seguro da Stripe."
   },
   "settings.branding.accent_colour": {
     "es": "Color de acento",

@@ -1,7 +1,6 @@
 {
-  "count": 31,
+  "count": 30,
   "files": {
-    "apps/core/client-web/src/app/core/services/billing.ts": 1,
     "apps/core/client-web/src/app/core/services/dashboard.ts": 13,
     "apps/core/client-web/src/app/features/dashboard/widgets/ar-aging-chart/ar-aging-chart.ts": 5,
     "apps/core/client-web/src/app/features/datasheets/components/datasheet-chart.component.ts": 1,

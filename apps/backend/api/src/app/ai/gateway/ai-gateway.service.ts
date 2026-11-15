@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import Anthropic from '@anthropic-ai/sdk';
-import CircuitBreaker = require('opossum');
+import CircuitBreaker from 'opossum';
 import { createHash } from 'node:crypto';
 import { AiRequest, AiRequestStatus } from '../entities/ai-request.entity';
 import { withTenant } from '../../shared/tenancy/tenant-job';

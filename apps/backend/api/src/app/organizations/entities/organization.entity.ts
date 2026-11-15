@@ -133,10 +133,17 @@ export class Organization {
   @JoinColumn({ name: 'fiscal_region_id', foreignKeyConstraintName: 'FK_organizations_fiscal_region' })
   fiscalRegion: FiscalRegion;
 
-  @Column({ type: 'varchar', name: 'stripe_customer_id', nullable: true })
+  /** The payment provider's customer this organization is billed as. */
+  @Index('IDX_organizations_external_customer_id', { where: '"external_customer_id" IS NOT NULL' })
+  @Column({ type: 'varchar', name: 'external_customer_id', nullable: true })
   externalCustomerId: string | null;
 
-  @Column({ type: 'varchar', name: 'stripe_subscription_id', nullable: true })
+  /**
+   * The provider's subscription that bills it. Shared by the companies created under it, which are
+   * billed through their parent — so a billing change is applied to every organization carrying it.
+   */
+  @Index('IDX_organizations_external_subscription_id', { where: '"external_subscription_id" IS NOT NULL' })
+  @Column({ type: 'varchar', name: 'external_subscription_id', nullable: true })
   externalSubscriptionId: string | null;
 
   @Column({ type: 'varchar', name: 'subscription_status', nullable: true })

@@ -15,4 +15,6 @@ export const payments: MarketPayments = {
     paymentMethod('48', 'ledger.provisioning.payment_methods.credit_card', 'CREDIT_CARD', '48'),
     paymentMethod('CREDITO', 'ledger.provisioning.payment_methods.on_account', 'CREDIT'),
   ],
+  // The provider's default methods for the currency and country.
+  subscriptionCheckout: {},
 };

@@ -83,6 +83,15 @@ guarda de producción de ningún tipo.
 | Una columna `numeric` se declara con su transformador: nunca llega como `string` a una suma. | `verify:numeric-transformers` |
 | Toda tabla con dueño lleva política de aislamiento por empresa, y el aislamiento se comprueba **a través de la aplicación**, no solo en la base. | `verify:rls`, `verify:rls-runtime`, `verify:tenant-scope` |
 | Historia contabilizada no se reescribe: lo que ya está en el mayor se corrige con un asiento, no con un `UPDATE`. | triggers de inmutabilidad + `account-merge.integration.spec.ts` |
+| El plan de una empresa cambia por una sola puerta, `SaasService.applyPlan`, que deja su fila de historia en la misma transacción. El estado de facturación lo escribe solo `BillingStateService`, para **todas** las empresas que factura una suscripción; la caché se invalida después del commit, nunca dentro. | `verify:plan-writes` + `billing-state.integration.spec.ts` |
+| Una fila de un inquilino escrita dentro de una unidad de trabajo que no es la suya (un webhook, un cambio que alcanza a un grupo) se escribe con `actAsTenantWithin`, que devuelve a la transacción el contexto que tenía. | `billing-state.integration.spec.ts` (como `virtex_app`) |
+
+**De dónde vienen las dos últimas.** Siete sitios asignaban el plan y ninguno dejaba historia:
+la tabla que responde «en qué plan estaba este cliente, y desde cuándo» estaba vacía en todos los
+entornos. El webhook que debía mover el plan cuando el cliente lo cambiaba en el proveedor no lo
+hacía: el proveedor cobraba Pro y el producto aplicaba Starter. Cada manejador actualizaba UNA empresa
+de un grupo que comparte suscripción. Y el cambio de plan desde la aplicación compraba una segunda
+suscripción junto a la primera, que seguía cobrando.
 
 ## 7. Superficie HTTP
 

@@ -49,7 +49,7 @@ export function neutralMarket(code: string): NeutralMarket {
       numbering: NO_FISCAL_NUMBERING,
     },
     purchases: { supplierFiscalNumber: false, purchaseClassification: false, receivedDocument: SUPPLIER_INVOICE_NUMBER, fiscalAttributes: [] },
-    payments: { catalogue: 'EDITABLE', authority: null, defaults: GENERIC_PAYMENT_METHODS },
+    payments: { catalogue: 'EDITABLE', authority: null, defaults: GENERIC_PAYMENT_METHODS, subscriptionCheckout: {} },
     accounting: NEUTRAL_ACCOUNTING,
     payroll: PAYROLL_NOT_IMPLEMENTED,
     returns: {

@@ -6,6 +6,7 @@ import { BadRequestError } from '../../../i18n/localized.exception';
 import { buyerRegimeDocumentCode } from '../buyer-document';
 import { issuedDocumentType } from '../fiscal-number';
 import { ModifiedDocumentReference } from '../modified-document';
+import * as forge from 'node-forge';
 
 /**
  * Argentina — AFIP, WSFEv1.
@@ -332,7 +333,6 @@ export function signLoginTicket(
   certificatePem: string,
   privateKeyPem: string,
 ): string {
-  const forge = require('node-forge') as typeof import('node-forge');
   const p7 = forge.pkcs7.createSignedData();
   p7.content = forge.util.createBuffer(ticketXml, 'utf8');
   p7.addCertificate(certificatePem);

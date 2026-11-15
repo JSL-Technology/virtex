@@ -15,4 +15,6 @@ export const payments: MarketPayments = {
     paymentMethod('28', 'ledger.provisioning.payment_methods.debit_card', 'DEBIT_CARD', '28'),
     paymentMethod('99', 'ledger.provisioning.payment_methods.to_be_defined', 'CREDIT', '99'),
   ],
+  // OXXO, for the companies that pay in cash; Stripe does not offer it unasked.
+  subscriptionCheckout: { stripe: ['card', 'oxxo'] },
 };

@@ -12,6 +12,8 @@ import { resolvePaymentProvider } from './payment-provider';
 import { AuthModule } from '../auth/auth.module';
 import { AuditModule } from '../audit/audit.module';
 import { RegistrationPaymentPort } from '../auth/ports/registration-payment.port';
+import { BillingStateService } from './billing-state.service';
+import { PaymentGateway } from './payment-gateway.port';
 
 @Module({
   imports: [
@@ -29,10 +31,12 @@ import { RegistrationPaymentPort } from '../auth/ports/registration-payment.port
     stripeProvider,
     StripePaymentAdapter,
     SimulatedPaymentAdapter,
+    // The one writer of billing state, shared by both adapters.
+    BillingStateService,
     // One gateway per process, chosen once at boot. `resolvePaymentProvider` only ever answers
     // `stripe` outside development and test.
     {
-      provide: 'PAYMENT_GATEWAY',
+      provide: PaymentGateway,
       inject: [ConfigService, StripePaymentAdapter, SimulatedPaymentAdapter],
       useFactory: (
         config: ConfigService,

@@ -51,9 +51,22 @@ export type PaymentMethodCatalogueOwnership =
   /** The tenant adds, renames and retires methods; the seeded ones are only a starting point. */
   | 'EDITABLE';
 
+/** The payment providers a market can say something to. */
+export type SubscriptionPaymentProvider = 'stripe';
+
 export interface MarketPayments {
   catalogue: PaymentMethodCatalogueOwnership;
   /** Whose catalogue the codes are, where the authority publishes one. */
   authority: string | null;
   defaults: readonly PaymentMethodSeed[];
+  /**
+   * How a company in this market pays for ITS OWN subscription to the product: per provider, the
+   * method identifiers its subscription checkout offers.
+   *
+   * Empty where the provider's default for the currency and the country is right. A market lists
+   * methods only where the one its companies pay with must be asked for by name — a bank slip, a
+   * cash voucher, a bank debit — or the checkout is a card-only funnel in a market that does not
+   * pay by card. This used to be a table of country codes inside the payment adapter.
+   */
+  subscriptionCheckout: Readonly<Partial<Record<SubscriptionPaymentProvider, readonly string[]>>>;
 }

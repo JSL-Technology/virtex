@@ -21,6 +21,8 @@ import {
 import { stampTenantOnTransaction } from '../shared/tenancy/tenant-job';
 import { organizationTimeZone } from '../shared/fiscal-clock';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
+import { Plan } from '../saas/entities/plan.entity';
+import { PlanChangeReason } from '../saas/plan-change';
 
 @Injectable()
 export class OrganizationsService {
@@ -327,8 +329,8 @@ export class OrganizationsService {
           fiscalRegionId: region.id,
           taxIdVerifiedAt: new Date(),
           // Billed through the parent. Copied rather than left null because the entitlement guard
-          // reads these fields on every request the subsidiary serves.
-          planId: parent.planId,
+          // reads these fields on every request the subsidiary serves. The plan is applied below,
+          // through the one door that records it.
           subscriptionStatus: parent.subscriptionStatus,
           subscriptionPeriodEnd: parent.subscriptionPeriodEnd,
           gracePeriodEnd: parent.gracePeriodEnd,
@@ -338,6 +340,16 @@ export class OrganizationsService {
         },
         manager,
       );
+
+      if (parent.planId) {
+        const plan = await manager.findOne(Plan, { where: { id: parent.planId } });
+        if (plan) {
+          await this.saasService.applyPlan(manager, savedOrg, plan, {
+            reason: PlanChangeReason.BILLED_THROUGH_PARENT,
+            changedBy: createdByUserId,
+          });
+        }
+      }
 
       // Chart of accounts and taxes, in the same transaction that created the books they belong
       // to. A subsidiary without them is exactly the empty tenant a signup used to produce.

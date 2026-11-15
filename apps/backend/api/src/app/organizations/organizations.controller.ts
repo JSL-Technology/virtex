@@ -1,24 +1,19 @@
 
-import { Controller, Get, Body, Patch, UseGuards, Put, Param } from '@nestjs/common';
+import { Controller, Get, Body, Patch, UseGuards, Param, Post, Ip, Headers, Res, HttpCode, HttpStatus } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
 import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { CheckPermissions } from '../security/decorators/check-permissions.decorator';
 import { IsOrganizationOwnerPolicy } from '../auth/policies/is-organization-owner.policy';
 import { CurrentUser } from '../security/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity/user.entity';
 import { OrganizationProfileResponseDto } from './dto/organization-profile-response.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { UpdateSecuritySettingsDto } from './dto/update-security-settings.dto';
 import { OrgSettingsService } from './services/org-settings.service';
 import { CreateSubsidiaryDto, LinkSubsidiaryDto, UpdateSubsidiaryDto } from './dto/create-subsidiary.dto';
-import { Organization } from './entities/organization.entity';
-import { Post } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { OrganizationResponseDto } from '../auth/dto/user-response.dto';
 import { StepUpGuard } from '../auth/guards/step-up.guard';
 import { StepUp } from '../auth/decorators/step-up.decorator';
 import { StepUpScope } from '../auth/enums/step-up-scope.enum';
-import { Ip, Headers, Res, HttpCode, HttpStatus, ForbiddenException } from '@nestjs/common';
 import type { HttpResponse as Response } from '../common/http/http.types';
 import { MembershipService } from './services/membership.service';
 import { SwitchOrganizationDto } from './dto/switch-organization.dto';
@@ -147,9 +142,9 @@ export class OrganizationsController {
     'requires organization ownership.',
   )
   async getProfile(@CurrentUser() user: AuthenticatedUser) {
-    // Serialised, not returned raw. The entity carries `stripe_customer_id` and
-    // `stripe_subscription_id`, which OrganizationResponseDto excludes on purpose — this endpoint
-    // handed both to any authenticated member of the organization.
+    // Serialised, not returned raw. The entity carries the payment provider's customer and
+    // subscription ids, which OrganizationResponseDto excludes on purpose — this endpoint handed
+    // both to any authenticated member of the organization.
     const organization = await this.organizationsService.findOne(user.organizationId);
     // The profile shape, not the header: it carries the address and the rest of what signup
     // collected, which the header deliberately leaves out (QA A-02).

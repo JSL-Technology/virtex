@@ -7,4 +7,6 @@ export const payments: MarketPayments = {
   catalogue: 'EDITABLE',
   authority: null,
   defaults: GENERIC_PAYMENT_METHODS,
+  // The provider's default methods for the currency and country.
+  subscriptionCheckout: {},
 };

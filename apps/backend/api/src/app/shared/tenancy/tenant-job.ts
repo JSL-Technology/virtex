@@ -116,3 +116,47 @@ export async function stampTenantOnTransaction(
 ): Promise<void> {
   await manager.query(`SELECT set_config('app.current_organization', $1, true)`, [organizationId]);
 }
+
+/**
+ * Runs `work` inside the caller's transaction AS `organizationId`, then gives the transaction back
+ * the context it had.
+ *
+ * For a write that belongs to one tenant inside a unit of work that is not that tenant's: a payment
+ * webhook has no tenant at all, and a billing change reaches every company billed through one
+ * subscription, writing a row for each of them in a single transaction. `stampTenantOnTransaction`
+ * leaves the transaction acting as the last company it named; this puts back whatever was there,
+ * so the caller's next statement runs exactly as it would have.
+ *
+ * The setting is transaction-local, so this refuses to run outside a transaction: there it would
+ * last one statement, and the write after it would run with no tenant — or with the session's.
+ * If `work` fails the transaction is rolled back with the setting, so nothing is restored by hand.
+ */
+export async function actAsTenantWithin<T>(
+  manager: EntityManager,
+  organizationId: string,
+  work: () => Promise<T>,
+): Promise<T> {
+  if (!manager.queryRunner?.isTransactionActive) {
+    throw new Error(
+      'actAsTenantWithin runs in the caller\'s transaction: outside one, a transaction-local setting lasts a single statement.',
+    );
+  }
+  const [{ previous }]: Array<{ previous: string | null }> = await manager.query(
+    `SELECT current_setting('app.current_organization', true) AS previous`,
+  );
+  const restore = () =>
+    manager.query(`SELECT set_config('app.current_organization', $1, true)`, [previous ?? '']);
+
+  await manager.query(`SELECT set_config('app.current_organization', $1, true)`, [organizationId]);
+  let result: T;
+  try {
+    result = await work();
+  } catch (error) {
+    // A database error has already aborted the transaction and the setting dies with it; a plain
+    // one leaves the transaction usable, and the caller must not continue as somebody else.
+    await restore().catch(() => undefined);
+    throw error;
+  }
+  await restore();
+  return result;
+}
