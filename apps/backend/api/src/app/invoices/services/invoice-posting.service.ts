@@ -21,6 +21,7 @@ import { LedgerLookupService } from '../../accounting/services/ledger-lookup.ser
 import { JournalLookupService } from '../../journal-entries/services/journal-lookup.service';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import type { Ledger } from '../../accounting/entities/ledger.entity';
+import type { SystemJournalCode } from '../../contracts/ledger-posting/system-journals';
 
 /**
  * Turns a sales document into a balanced ledger entry.
@@ -430,7 +431,7 @@ export class InvoicePostingService {
     return ledger;
   }
 
-  private async requireJournal(organizationId: string, code: string, manager: EntityManager) {
+  private async requireJournal(organizationId: string, code: SystemJournalCode, manager: EntityManager) {
     const journal = await this.journalLookup.findByCode(organizationId, code, manager);
     if (!journal) {
       throw new BadRequestError('invoices.no_journal_code_organization_create_under', { code });

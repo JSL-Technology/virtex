@@ -15,6 +15,26 @@ type IsolateContext = IsolatedVm['Context']['prototype'];
 /** The message of whatever was thrown, which in an isolate is not always an `Error`. */
 const messageOf = (thrown: unknown): string => (thrown instanceof Error ? thrown.message : String(thrown));
 
+/** A plugin's log is bounded: so many lines, each so long. Beyond that it is a flood, not a trail. */
+const MAX_LOG_LINES = 100;
+const MAX_LOG_LINE_LENGTH = 2_000;
+
+/**
+ * Record one line of a plugin's log, as it is written.
+ *
+ * The one appender both runners use. JavaScript plugins logged through an asynchronous syscall
+ * nobody awaited: a line written just before the plugin returned was still in flight when `run`
+ * handed back the log and disposed of the isolate, so the END of a plugin's log — usually the line
+ * that says what it did — was kept or lost depending on load. The Wasm runner logged synchronously
+ * but without any limit. Both call this synchronously now, so the log is complete, in order, and
+ * bounded the same way.
+ */
+function appendLog(logs: string[], value: unknown): void {
+  if (logs.length >= MAX_LOG_LINES) return;
+  const line = String(value);
+  logs.push(line.length > MAX_LOG_LINE_LENGTH ? `${line.slice(0, MAX_LOG_LINE_LENGTH)}…` : line);
+}
+
 /** Every address a hostname resolves to, in one call, in the order the resolver returned them. */
 const lookupAll = (hostname: string): Promise<Array<{ address: string; family: number }>> =>
   dnsLookup(hostname, { all: true, verbatim: true });
@@ -137,9 +157,7 @@ export class SandboxService {
       const jail = context.global;
       jail.setSync('global', jail.derefInto());
 
-      const logRef = new ivm.Reference((val: unknown) => {
-        logs.push(String(val));
-      });
+      const logRef = new ivm.Reference((val: unknown) => appendLog(logs, val));
       jail.setSync('__logRaw', logRef);
 
       const wasmUint8 = new Uint8Array(wasmBuffer);
@@ -221,26 +239,25 @@ export class SandboxService {
       const syscallRef = new ivm.Reference(async (op: string, payloadJson: string) => {
         try {
           if (op === 'fetch') egressCount++;
-          const res = await this.handleSyscall(
-            { op, payload: JSON.parse(payloadJson) },
-            logs,
-            capabilities,
-          );
+          const res = await this.handleSyscall({ op, payload: JSON.parse(payloadJson) }, capabilities);
           return JSON.stringify(res);
         } catch (e: unknown) {
           return JSON.stringify({ ok: false, error: messageOf(e) });
         }
       });
       jail.setSync('__syscallRaw', syscallRef);
+      // Synchronous: the line is recorded before `log` returns (see `appendLog`).
+      const logRef = new ivm.Reference((message: string) => appendLog(logs, message));
+      jail.setSync('__logRaw', logRef);
 
       context.evalSync(`
         const syscallRef = __syscallRaw;
+        const logRef = __logRaw;
         global.__syscall = (op, payload) => {
           return syscallRef.apply(undefined, [op, JSON.stringify(payload)], { result: { promise: true, copy: true } });
         };
         global.log = (...args) => {
-          const msg = args.map(String).join(' ');
-          __syscall('log', msg);
+          logRef.applySync(undefined, [args.map(String).join(' ')]);
         };
         global._fetch = async (url) => {
           const resJson = await __syscall('fetch', { url });
@@ -286,15 +303,8 @@ export class SandboxService {
     }
   }
 
-  private async handleSyscall(
-    envelope: SyscallEnvelope,
-    logs: string[],
-    capabilities: string[] = [],
-  ): Promise<SyscallResult> {
+  private async handleSyscall(envelope: SyscallEnvelope, capabilities: string[] = []): Promise<SyscallResult> {
     switch (envelope.op) {
-      case 'log':
-        if (logs.length < 100) logs.push(String(envelope.payload));
-        return { ok: true };
       case 'fetch': {
         if (!capabilities.includes('egress:http')) {
           return { ok: false, error: 'Security Exception: Plugin missing "egress:http" capability.' };

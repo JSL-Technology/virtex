@@ -1,5 +1,4 @@
 import { DataSource } from 'typeorm';
-import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { testExchangeRateResolver } from '../currencies/exchange-rate-resolver.testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Organization } from '../organizations/entities/organization.entity';
@@ -317,6 +316,40 @@ describeWithDb('budget control', () => {
   });
 
   /**
+   * FINB-20. A revenue budget is a target. The journal consumed it «in the account's natural
+   * sense», so booking more sales than budgeted answered 403 `entry_exceeds_budget_detail`: selling
+   * more than planned stopped the books. It is measured, and never refused.
+   */
+  it('never refuses a sale for being above the revenue budget', async () => {
+    await budgetOf('2026-03', 10_000, { accountKey: 'revenue' });
+
+    await expect(
+      entries.create(
+        {
+          date: '2026-03-10',
+          description: 'Venta por encima de lo presupuestado',
+          journalId,
+          lines: [
+            { accountId: account['cash'], debit: 20_000, credit: 0 },
+            { accountId: account['revenue'], debit: 0, credit: 20_000 },
+          ],
+        } as unknown as CreateJournalEntryDto,
+        organizationId,
+        ctx,
+      ),
+    ).resolves.toBeDefined();
+
+    const check = await control.checkBudget(organizationId, account['revenue'], 5_000, '2026-03-20');
+    expect(check).toMatchObject({ isExceeded: false, messageKey: 'budgets.target_not_a_limit', budgetedAmount: 10_000 });
+  });
+
+  it('still refuses spending above an expense budget', async () => {
+    await budgetOf('2026-03', 1_000);
+    const check = await control.checkBudget(organizationId, account['expense'], 1_500, '2026-03-20');
+    expect(check.isExceeded).toBe(true);
+  });
+
+  /**
    * The control reaches the journal, not only accounts payable.
    *
    * `checkBudget` had exactly one caller — submitting a supplier bill — so the same expense typed
@@ -549,9 +582,38 @@ describeWithDb('budget control', () => {
         actualAmount: 1_300,
         difference: 700,
         consumedRatio: 0.65,
-        months: { '2026-03': 1_000, '2026-04': 1_000 },
+        unbudgetedActual: 0,
+        months: { '2026-03': { budgeted: 1_000, actual: 400 }, '2026-04': { budgeted: 1_000, actual: 900 } },
       });
-      expect(report.totals).toEqual({ budgeted: 2_000, actual: 1_300, difference: 700 });
+      expect(report.totals).toEqual({ budgeted: 2_000, actual: 1_300, difference: 700, unbudgetedActual: 0 });
+    });
+
+    /**
+     * FINB-21. With only November budgeted, a January–December variance set November's target
+     * against eleven months of postings and reported a 1,364 % over-run. The budget is compared with
+     * the months it budgets; the rest of the range is reported beside it, not hidden and not mixed in.
+     */
+    it('compares a budget only with the months it budgets, and shows the rest of the range apart', async () => {
+      await budgets.create({ name: 'Marzo', period: '2026-03', lines: lines() }, organizationId);
+      await spend('2026-01-15', 700);
+      await spend('2026-02-20', 900);
+      await spend('2026-03-05', 400);
+
+      const report = await budgets.variance(organizationId, { fromPeriod: '2026-01', toPeriod: '2026-12' });
+
+      expect(report.lines[0]).toMatchObject({
+        budgetedAmount: 1_000,
+        actualAmount: 400,
+        difference: 600,
+        consumedRatio: 0.4,
+        unbudgetedActual: 1_600,
+        months: {
+          '2026-01': { budgeted: null, actual: 700 },
+          '2026-02': { budgeted: null, actual: 900 },
+          '2026-03': { budgeted: 1_000, actual: 400 },
+        },
+      });
+      expect(report.totals).toEqual({ budgeted: 1_000, actual: 400, difference: 600, unbudgetedActual: 1_600 });
     });
   });
 });

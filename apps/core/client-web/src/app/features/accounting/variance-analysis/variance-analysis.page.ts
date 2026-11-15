@@ -23,6 +23,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
  * Two rules kept from before: whether a difference is good news comes from the account's TYPE
  * (over budget on income is good, on expense it is bad) — never from its name — and amounts are
  * money in the ledger's currency.
+ *
+ * A line's budget is compared with what was posted in the months it budgets; what was posted in the
+ * other months of the range has its own column (FINB-21). Adding it to the actual set one month's
+ * target against a year of postings.
  */
 @Component({
   selector: 'app-variance-analysis-page',

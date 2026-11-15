@@ -419,10 +419,20 @@
     "en": "Depreciation journal",
     "pt": "Diário de depreciação"
   },
+  "ledger.provisioning.journals.fixed_assets": {
+    "es": "Diario de activos fijos",
+    "en": "Fixed assets journal",
+    "pt": "Diário de ativo imobilizado"
+  },
   "ledger.provisioning.journals.general": {
     "es": "Diario general",
     "en": "General journal",
     "pt": "Diário geral"
+  },
+  "ledger.provisioning.journals.inflation_adjustment": {
+    "es": "Diario de ajuste por inflación",
+    "en": "Inflation adjustment journal",
+    "pt": "Diário de correção monetária"
   },
   "ledger.provisioning.journals.payments": {
     "es": "Diario de pagos",

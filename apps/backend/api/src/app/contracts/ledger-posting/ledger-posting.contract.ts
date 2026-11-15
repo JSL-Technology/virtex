@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
+import type { SystemJournalCode } from './system-journals';
 
 /**
  * Posting to the general ledger, for modules that must not depend on accounting's insides.
@@ -25,8 +26,8 @@ export interface LedgerPostingLine {
 }
 
 export interface LedgerPostingRequest {
-  /** The journal by its code (`VENTAS`, `GENERAL`); the gateway resolves it for the company. */
-  journalCode: string;
+  /** One of the journals every company has (`SYSTEM_JOURNALS`); the gateway resolves it for the company. */
+  journalCode: SystemJournalCode;
   /** The entry's date, `YYYY-MM-DD`, in the company's calendar. */
   date: string;
   description: string;

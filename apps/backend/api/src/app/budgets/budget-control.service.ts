@@ -99,6 +99,7 @@ export class BudgetControlService {
       };
     }
 
+
     const ledger = await em.findOne(Ledger, {
       where: { organizationId, isDefault: true },
     });
@@ -148,6 +149,21 @@ export class BudgetControlService {
 
     const currentActual = roundAmount(natural);
     const budgetedAmount = Number(budgetLine.amount);
+
+    // A budget on revenue, a liability or equity is a target, not a ceiling: selling more than
+    // budgeted is the good outcome, and refusing to book the sale was the control turned upside
+    // down (FINB-20). It is measured — how far it is from being met — and never refused.
+    if (!BudgetControlService.limitsPosting(budgetLine.account?.type)) {
+      return {
+        isExceeded: false,
+        messageKey: 'budgets.target_not_a_limit',
+        budgetName: budget.name,
+        budgetedAmount,
+        actualAmount: currentActual,
+        variance: roundAmount(budgetedAmount - currentActual),
+      };
+    }
+
     const projected = roundAmount(currentActual + amount);
 
     if (projected > budgetedAmount) {
@@ -178,6 +194,18 @@ export class BudgetControlService {
       actualAmount: currentActual,
       variance: roundAmount(budgetedAmount - currentActual),
     };
+  }
+
+  /**
+   * Whether a budget on this kind of account is a LIMIT a posting can exceed.
+   *
+   * Budget control limits what the company spends or invests: expenses, and the assets it buys.
+   * A budget on revenue, a liability or equity is a target, measured but never a reason to refuse
+   * a posting. One rule, asked by every caller — the journal, accounts payable — so they cannot
+   * disagree about which budgets stop a posting.
+   */
+  static limitsPosting(type: AccountType | undefined | null): boolean {
+    return type === AccountType.EXPENSE || type === AccountType.ASSET;
   }
 
   /** Revenue and liability budgets are read in credit sense; everything else in debit sense. */

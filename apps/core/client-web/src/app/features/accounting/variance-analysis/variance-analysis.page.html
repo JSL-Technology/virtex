@@ -32,6 +32,7 @@
           <th appSortHeader="actualAmount" class="numeric">{{ 'budgets.variance.actual' | translate }}</th>
           <th appSortHeader="difference" class="numeric">{{ 'budgets.variance.difference' | translate }}</th>
           <th appSortHeader="consumedRatio" class="numeric">{{ 'budgets.variance.consumed' | translate }}</th>
+          <th appSortHeader="unbudgetedActual" class="numeric" [title]="'budgets.variance.outside_budget_hint' | translate">{{ 'budgets.variance.outside_budget' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -46,6 +47,7 @@
               <span class="sr-only">{{ (favourable(line) ? 'budgets.variance.favourable' : 'budgets.variance.unfavourable') | translate }}</span>
             </td>
             <td class="numeric">{{ line.consumedRatio === null ? '—' : (line.consumedRatio | vxPercent) }}</td>
+            <td class="numeric">{{ line.unbudgetedActual === 0 ? '—' : (line.unbudgetedActual | vxNumber: '1.2-2') }}</td>
           </tr>
         }
       </tbody>
@@ -57,6 +59,7 @@
             <th class="numeric">{{ r.totals.actual | vxNumber: '1.2-2' }}</th>
             <th class="numeric">{{ r.totals.difference | vxNumber: '1.2-2' }}</th>
             <th></th>
+            <th class="numeric">{{ r.totals.unbudgetedActual | vxNumber: '1.2-2' }}</th>
           </tr>
         </tfoot>
       }

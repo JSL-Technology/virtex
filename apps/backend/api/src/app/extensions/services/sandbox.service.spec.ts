@@ -91,6 +91,31 @@ describe('SandboxService', () => {
     expect(result.logs.join(' ')).toContain('false Invalid http.fetch payload');
   });
 
+  /**
+   * A plugin's log is complete and in order.
+   *
+   * `log` was an asynchronous syscall nobody awaited, so the lines a plugin wrote just before it
+   * returned were still in flight when `run` handed back the log and disposed of the isolate: the
+   * end of the log — usually what the plugin did — was kept or lost depending on load.
+   */
+  it('keeps every line a plugin logs right before it returns, in order', async () => {
+    const code = `for (let i = 0; i < 50; i++) log('line ' + i);`;
+    const validation = await admission.validatePlugin({ name: 'test', code, sbom: validSbom });
+    const result = await sandbox.run(code, validation.signature, 1000, []);
+    expect(result.success).toBe(true);
+    expect(result.logs).toEqual(Array.from({ length: 50 }, (_, i) => `line ${i}`));
+  });
+
+  it('bounds the log: a hundred lines, each of at most two thousand characters', async () => {
+    const code = `log('x'.repeat(5000)); for (let i = 0; i < 200; i++) log('line ' + i);`;
+    const validation = await admission.validatePlugin({ name: 'test', code, sbom: validSbom });
+    const result = await sandbox.run(code, validation.signature, 1000, []);
+    expect(result.logs).toHaveLength(100);
+    expect(result.logs[0]).toHaveLength(2_001);
+    expect(result.logs[0].endsWith('…')).toBe(true);
+    expect(result.logs[99]).toBe('line 98');
+  });
+
   it('runs a valid WebAssembly module', async () => {
     const wasmBuffer = Buffer.from([
       0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,

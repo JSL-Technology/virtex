@@ -23,6 +23,7 @@ import { allocateDocumentNumber, DOCUMENT_SEQUENCE_SCOPE } from '../shared/numbe
 import { roundAmount, toCents } from '../common/money';
 import { endOfMonthIso, previousDay, startOfMonthIso, yearOf, type IsoDate } from '../common/dates';
 import { remainingSchedule, ScheduledCharge } from './depreciation-schedule';
+import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 
 /** The asset's depreciation board: what has been charged, and what remains to be. */
 export interface FixedAssetSchedule {
@@ -331,8 +332,7 @@ export class FixedAssetsService {
 
       const ledger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!ledger) throw new BadRequestError('fixed_assets.no_default_ledger_has_configured_organization');
-      const journal = await this.journalLookup.findByCode(organizationId, 'ACT-FIJOS', manager);
-      if (!journal) throw new BadRequestError('fixed_assets.fixed_assets_journal_act_fijos_not');
+      const journal = await this.journalLookup.requireByCode(organizationId, SYSTEM_JOURNALS.fixedAssets.code, manager);
 
       const label = `${asset.number} ${asset.name}`;
       const words = await this.narrative.describeAll(manager, organizationId, {

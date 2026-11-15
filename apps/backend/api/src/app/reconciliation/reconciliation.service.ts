@@ -57,6 +57,7 @@ import { ReconciliationAccountSettings } from './entities/reconciliation-account
 import { ReconciliationAutoOutcome } from './entities/reconciliation-auto-outcome.entity';
 import { CALIBRATION_DAYS, calibrate } from './autopilot';
 import { predictBankLine, trainBankLineModel } from './bank-line-classifier';
+import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 
 /** A ledger line offered as a counterpart, with why it was offered. */
 export interface MatchCandidate {
@@ -1747,7 +1748,7 @@ export class ReconciliationService {
     if (!ledger) {
       throw new BadRequestError('reconciliation.no_default_ledger_has_configured_organization');
     }
-    const journal = await manager.findOneBy(Journal, { organizationId, code: 'CONCIL' });
+    const journal = await manager.findOneBy(Journal, { organizationId, code: SYSTEM_JOURNALS.reconciliation.code });
     if (!journal) {
       throw new BadRequestError('reconciliation.reconciliation_journal_concil_not_found');
     }

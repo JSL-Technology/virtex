@@ -58,69 +58,10 @@ import {
 import { VendorBillAttachment } from './entities/vendor-bill-attachment.entity';
 import { supplierInvoiceKey } from './supplier-invoice-key';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, reassignDocumentBranch, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
+import { addToAgingRow, agingRowsAndTotals, daysPastDue, emptyAgingRow, type AgingReport, type AgingRow } from '../shared/statements/aging-report';
 
-export interface AgingBucket {
-  label: string;
-  from: number;
-  to: number | null;
-  amount: number;
-}
-
-export interface AgingRow {
-  partyId: string;
-  partyName: string;
-  current: number;
-  buckets: AgingBucket[];
-  total: number;
-}
-
-/**
- * The ageing ladder, plus the one figure that makes it auditable.
- *
- * ## Why the reconciliation line is here
- *
- * The ageing converted each open document at the rate it was **booked** at, while the control
- * account in the general ledger is restated at the closing rate by the period-end revaluation. So
- * from the first revaluation onwards the two disagreed, by a growing amount, with nothing anywhere
- * that would show it — and reconciling the subledger against its control account is the basic
- * substantiation an auditor asks for.
- *
- * Two changes fix it. The balance in the books' currency is now converted at the rate **as of the
- * reporting date**, which is what the revaluation restates it to; and the report states the control
- * account's own balance beside its own total, so the difference is a number on the page rather than
- * something somebody has to discover.
- */
-export interface AgingReport {
-  asOfDate: string;
-  /** The currency every figure below is in: the books'. */
-  currencyCode: string;
-  rows: AgingRow[];
-  totals: { current: number; buckets: AgingBucket[]; total: number };
-  /** The control account's balance in the general ledger, on the same date. */
-  controlAccountBalance: number;
-  /** `total − controlAccountBalance`. Anything but zero is a subledger that needs investigating. */
-  controlAccountDifference: number;
-  /**
-   * False when the report covers only some branches — a branch was asked for, or the reader is
-   * limited to some. The general ledger has no branch dimension, so the control-account tie-out
-   * only means something for the whole company; a partial report must not present the gap between
-   * one store's documents and the company's ledger as a difference to investigate.
-   */
-  coversWholeCompany: boolean;
-  /** Documents whose currency has no rate on file for the reporting date, and are therefore held at the booked rate. */
-  unconvertedDocuments: number;
-}
-
-/** The standard ageing ladder. Days past due, oldest bucket open-ended. */
 /** Quantities carry six decimals, like the order lines they are matched against. */
 const roundQuantity = (value: number): number => Math.round(value * 1e6) / 1e6;
-
-const AGING_BUCKETS: { label: string; from: number; to: number | null }[] = [
-  { label: '1-30', from: 1, to: 30 },
-  { label: '31-60', from: 31, to: 60 },
-  { label: '61-90', from: 61, to: 90 },
-  { label: '90+', from: 91, to: null },
-];
 
 /**
  * Supplier invoices: recording them, approving them, paying them, and ageing what is left.
@@ -1910,46 +1851,23 @@ export class AccountsPayableService {
       }
     }
 
-    const cutoff = new Date(`${asOfDate}T00:00:00.000Z`).getTime();
     const byVendor = new Map<string, AgingRow>();
 
     for (const bill of bills) {
       if (toCents(bill.balance) === 0) continue;
-      const due = new Date(`${toIsoDate(bill.dueDate)}T00:00:00.000Z`).getTime();
-      const daysOverdue = Math.floor((cutoff - due) / 86_400_000);
+      const daysOverdue = daysPastDue(toIsoDate(bill.dueDate), asOfDate);
 
       const currency = (bill.currencyCode ?? baseCurrency).toUpperCase();
       const closingRate = currency === baseCurrency ? 1 : closingRates.get(currency);
       if (currency !== baseCurrency && closingRate === undefined) unconvertedDocuments += 1;
       const amount = convert(bill.balance, closingRate ?? (Number(bill.exchangeRate) || 1));
 
-      const row =
-        byVendor.get(bill.vendorId) ??
-        ({
-          partyId: bill.vendorId,
-          partyName: bill.vendor?.name ?? bill.vendorId,
-          current: 0,
-          buckets: AGING_BUCKETS.map((bucket) => ({ ...bucket, amount: 0 })),
-          total: 0,
-        } satisfies AgingRow);
-
-      if (daysOverdue <= 0) {
-        row.current = roundAmount(row.current + amount);
-      } else {
-        const bucket =
-          row.buckets.find(
-            (candidate) =>
-              daysOverdue >= candidate.from &&
-              (candidate.to === null || daysOverdue <= candidate.to),
-          ) ?? row.buckets[row.buckets.length - 1];
-        bucket.amount = roundAmount(bucket.amount + amount);
-      }
-      row.total = roundAmount(row.total + amount);
+      const row = byVendor.get(bill.vendorId) ?? emptyAgingRow(bill.vendorId, bill.vendor?.name ?? bill.vendorId);
+      addToAgingRow(row, daysOverdue, amount);
       byVendor.set(bill.vendorId, row);
     }
 
-    const rows = [...byVendor.values()].sort((a, b) => b.total - a.total);
-    const total = sumAmounts(rows.map((row) => row.total));
+    const { rows, totals } = agingRowsAndTotals(byVendor.values());
 
     // The general ledger's own figure for the same thing, so the two can be compared on the page.
     const controlAccountBalance = await this.payablesControlBalance(
@@ -1963,18 +1881,11 @@ export class AccountsPayableService {
       currencyCode: baseCurrency,
       controlAccountBalance,
       // Signed: positive means the subledger claims more is owed than the ledger records.
-      controlAccountDifference: roundAmount(total - controlAccountBalance),
+      controlAccountDifference: roundAmount(totals.total - controlAccountBalance),
       coversWholeCompany: Object.keys(branchFilter).length === 0,
       unconvertedDocuments,
       rows,
-      totals: {
-        current: sumAmounts(rows.map((row) => row.current)),
-        buckets: AGING_BUCKETS.map((bucket, index) => ({
-          ...bucket,
-          amount: sumAmounts(rows.map((row) => row.buckets[index].amount)),
-        })),
-        total,
-      },
+      totals,
     };
   }
 

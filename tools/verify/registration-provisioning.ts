@@ -33,6 +33,7 @@ import { SaasService } from '../../apps/backend/api/src/app/saas/saas.service';
 import { User } from '../../apps/backend/api/src/app/users/entities/user.entity/user.entity';
 import { taxSchemeFor } from '../../apps/backend/api/src/app/markets';
 import { purgeProbeAccounts } from './probe-cleanup';
+import { SYSTEM_JOURNALS } from '../../apps/backend/api/src/app/contracts/ledger-posting/system-journals';
 
 /** A tax id that passes each country's real check-digit algorithm. */
 const FISCAL_IDENTITIES: ReadonlyArray<{ country: string; taxId: string; kind: string }> = [
@@ -156,6 +157,28 @@ async function main() {
       String(org?.subscription_status),
     );
     check(`${identity.country}: fiscal identity verified`, Boolean(org?.tax_id_verified_at));
+
+    // Every journal the product posts to, from the one catalogue the services name them through.
+    // Five times a service looked up a journal no signup created — BANCOS, DEPREC, CIERRE, CONCIL,
+    // ACT-FIJOS — and the operation failed on every company (FINB-10).
+    const journalCodes = new Set(
+      (await ds.query(`SELECT code FROM journals WHERE organization_id = $1`, [orgId])).map((row: { code: string }) => row.code),
+    );
+    const missingJournals = Object.values(SYSTEM_JOURNALS)
+      .map((journal) => journal.code)
+      .filter((code) => !journalCodes.has(code));
+    check(`${identity.country}: every system journal provisioned`, missingJournals.length === 0, missingJournals.join(', ') || 'none missing');
+
+    // The plan the signup paid for is in the plan history, written by the one door that changes it.
+    const history: Array<{ reason: string; new_plan_id: string; changed_by: string | null }> = await ds.query(
+      `SELECT reason, new_plan_id, changed_by FROM organization_subscription_history WHERE organization_id = $1`,
+      [orgId],
+    );
+    check(
+      `${identity.country}: plan history records the signup`,
+      history.length === 1 && history[0].reason === 'registration' && history[0].new_plan_id === org?.plan_id && history[0].changed_by === user.id,
+      JSON.stringify(history),
+    );
 
     // Brazil and the United States have no single national consumption tax to seed, and their
     // schemes say so; everywhere else a signup without taxes cannot issue a compliant document.

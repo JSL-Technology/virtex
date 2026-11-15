@@ -22,6 +22,7 @@ import { roundAmount, toCents } from '../common/money';
 import { toIsoDate, type IsoDate } from '../common/dates';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
+import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 
 /**
  * The entry that closes profit and loss into retained earnings.
@@ -79,7 +80,7 @@ export class ResultTransferService {
   ): Promise<{ retainedEarnings: boolean; closingJournal: boolean; defaultLedger: boolean }> {
     const [settings, closingJournal, defaultLedger] = await Promise.all([
       manager.findOneBy(OrganizationSettings, { organizationId }),
-      manager.findOneBy(Journal, { organizationId, code: 'CIERRE' }),
+      manager.findOneBy(Journal, { organizationId, code: SYSTEM_JOURNALS.closing.code }),
       manager.findOneBy(Ledger, { organizationId, isDefault: true }),
     ]);
     return {
@@ -155,7 +156,7 @@ export class ResultTransferService {
 
     const closingJournal = await manager.findOneBy(Journal, {
       organizationId,
-      code: 'CIERRE',
+      code: SYSTEM_JOURNALS.closing.code,
     });
     if (!closingJournal) {
       throw new BadRequestError('accounting.closing_journal_cierre_not_found_create');

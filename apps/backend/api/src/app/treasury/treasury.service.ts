@@ -34,6 +34,7 @@ import { FiscalCalendarService } from '../accounting/fiscal-calendar.service';
 import { Page, resolvePaging, toPage } from '../common/pagination';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { I18nService } from '../i18n/i18n.service';
+import { SYSTEM_JOURNALS } from '../contracts/ledger-posting/system-journals';
 
 export interface CashPositionRow {
   bankAccountId: string;
@@ -256,7 +257,7 @@ export class TreasuryService {
       throw new BadRequestError('treasury.no_default_ledger_has_configured_organization');
     }
 
-    const journal = await manager.findOneBy(Journal, { organizationId, code: 'BANCOS' });
+    const journal = await manager.findOneBy(Journal, { organizationId, code: SYSTEM_JOURNALS.banks.code });
     if (!journal) {
       throw new BadRequestError('treasury.banks_journal_bancos_not_found');
     }
@@ -532,7 +533,7 @@ export class TreasuryService {
 
       const bankJournal = await manager.findOneBy(Journal, {
         organizationId,
-        code: 'BANCOS',
+        code: SYSTEM_JOURNALS.banks.code,
       });
       if (!bankJournal) {
         throw new BadRequestError('treasury.banks_journal_bancos_not_found');

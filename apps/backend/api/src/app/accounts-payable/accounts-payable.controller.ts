@@ -31,6 +31,7 @@ import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 import { RecordSupplierFiscalNumberDto } from './dto/record-supplier-fiscal-number.dto';
 import { RecordPurchaseAttributesDto } from './dto/record-purchase-attributes.dto';
+import { AgingQueryDto } from '../shared/statements/aging-query.dto';
 
 @ApiTags('Accounts Payable')
 @ApiBearerAuth()
@@ -74,14 +75,9 @@ export class AccountsPayableController {
   @Get('aging')
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VIEW)
   @ApiOperation({ summary: 'Antigüedad de saldos por proveedor.' })
-  @ApiQuery({ name: 'asOfDate', required: false, type: String })
-  aging(
-    @CurrentUser() user: AuthenticatedUser,
-    @Query('asOfDate') asOfDate?: string,
-    @Query('branchId', new ParseUUIDPipe({ optional: true })) branchId?: string,
-  ) {
-    return this.accountsPayableService.aging(user.organizationId, asOfDate ?? new Date(), {
-      branchId,
+  aging(@CurrentUser() user: AuthenticatedUser, @Query() query: AgingQueryDto) {
+    return this.accountsPayableService.aging(user.organizationId, query.asOfDate ?? new Date(), {
+      branchId: query.branchId,
       actorUserId: user.id,
     });
   }

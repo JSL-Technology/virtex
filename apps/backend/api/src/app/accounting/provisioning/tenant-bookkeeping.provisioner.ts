@@ -19,6 +19,7 @@ import { I18nService } from '../../i18n/i18n.service';
 import { DEFAULT_LANGUAGE, LanguageCode } from '@virtex/shared/types';
 import { seedTenantDefaults } from '../../database/seeds/tenant-defaults';
 import { languageOfCountry, marketFor } from '../../markets';
+import { SYSTEM_JOURNALS } from '../../contracts/ledger-posting/system-journals';
 
 /**
  * Everything a tenant needs in order to record a transaction, created at the moment the tenant is.
@@ -64,30 +65,7 @@ export class TenantBookkeepingProvisioner {
     code: string;
     nameKey: string;
     type: JournalType;
-  }> = Object.freeze([
-    { code: 'VENTAS', nameKey: 'ledger.provisioning.journals.sales', type: 'SALES' },
-    { code: 'COMPRAS', nameKey: 'ledger.provisioning.journals.purchases', type: 'PURCHASES' },
-    { code: 'COBROS', nameKey: 'ledger.provisioning.journals.collections', type: 'BANK' },
-    { code: 'PAGOS', nameKey: 'ledger.provisioning.journals.payments', type: 'BANK' },
-    // `BANCOS` is what `TreasuryService` looks up for the opening entry of a bank account and for
-    // transfers between accounts. It was missing from this list, so both refused with "The Banks
-    // journal (BANCOS) was not found" on every tenant the product has ever created — the one
-    // journal no tenant had, and the only two treasury operations that need it. The unit tests
-    // did not catch it because they insert the journal themselves instead of provisioning a
-    // tenant, which is exactly the gap this list exists to close.
-    { code: 'BANCOS', nameKey: 'ledger.provisioning.journals.banks', type: 'BANK' },
-    { code: 'CAJA', nameKey: 'ledger.provisioning.journals.cash', type: 'CASH' },
-    { code: 'NOMINA', nameKey: 'ledger.provisioning.journals.payroll', type: 'GENERAL' },
-    { code: 'GENERAL', nameKey: 'ledger.provisioning.journals.general', type: 'GENERAL' },
-    // The same gap BANCOS had, three more times (QA C-06). `DepreciationService` looks up DEPREC
-    // on every period close, `ResultTransferService`/`AdjustmentsService` look up CIERRE for the
-    // year-end result transfer, and `ReconciliationService` looks up CONCIL when a rule posts an
-    // adjustment. None was provisioned, so no period of a freshly created company could be closed:
-    // the close answered 500 and the screen said nothing.
-    { code: 'DEPREC', nameKey: 'ledger.provisioning.journals.depreciation', type: 'GENERAL' },
-    { code: 'CIERRE', nameKey: 'ledger.provisioning.journals.closing', type: 'GENERAL' },
-    { code: 'CONCIL', nameKey: 'ledger.provisioning.journals.reconciliation', type: 'BANK' },
-  ]);
+  }> = Object.freeze(Object.values(SYSTEM_JOURNALS));
 
   /**
    * Prefixes for the internal document numbering, in the language the books are kept in. They were

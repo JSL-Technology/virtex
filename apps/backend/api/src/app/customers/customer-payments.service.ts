@@ -33,29 +33,17 @@ import {
 import {
   BadRequestError,
   ConflictError,
-  ForbiddenError,
   NotFoundError,
 } from '../i18n/localized.exception';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
-import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
+import { convert, roundAmount, toCents } from '../common/money';
 import {
   AccountBalancesService,
   toIsoDate,
 } from '../chart-of-accounts/account-balances.service';
-import {
-  AgingBucket,
-  AgingReport,
-  AgingRow,
-} from '../accounts-payable/accounts-payable.service';
+import { addToAgingRow, agingRowsAndTotals, daysPastDue, emptyAgingRow, type AgingReport, type AgingRow } from '../shared/statements/aging-report';
 import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { applyBranchScope, assertDocumentInScope, loadBranchScope, resolveDocumentBranch } from '../organizations/contracts/branch.contract';
-
-const AGING_BUCKETS: { label: string; from: number; to: number | null }[] = [
-  { label: '1-30', from: 1, to: 30 },
-  { label: '31-60', from: 31, to: 60 },
-  { label: '61-90', from: 61, to: 90 },
-  { label: '90+', from: 91, to: null },
-];
 
 /**
  * Collections from customers.
@@ -135,39 +123,6 @@ export class CustomerPaymentsService {
   // ───────────────────────────────────────────────────────────────────────────
   // Read contracts for other modules
   // ───────────────────────────────────────────────────────────────────────────
-
-  /**
-   * How much has been collected against each of the given invoices, valued in one ledger and
-   * measured at the receivables control account.
-   *
-   * This lives here — not in the reports module that consumes it — because {@link CustomerPaymentLine},
-   * the row that ties a receipt to the invoice it settles, is this module's table. A report that
-   * needs the figure asks for it through this method; it does not reach into the entity, which is
-   * what the `no-restricted-imports` boundary on `reports/**` forbids. The invoice ids are assumed
-   * to be tenant-scoped by the caller, exactly as the ageing query that used to inline this was.
-   */
-  async paidAmountsByInvoice(
-    invoiceIds: string[],
-    arAccountId: string,
-    ledgerId: string,
-  ): Promise<Map<string, number>> {
-    if (invoiceIds.length === 0) return new Map();
-
-    const rows = await this.dataSource
-      .getRepository(CustomerPaymentLine)
-      .createQueryBuilder('line')
-      .innerJoin('line.payment', 'payment')
-      .innerJoin('payment.journalEntry', 'je')
-      .innerJoin('je.lines', 'je_line', 'je_line.accountId = :arAccountId', { arAccountId })
-      .innerJoin('je_line.valuations', 'valuation')
-      .where('line.invoiceId IN (:...invoiceIds)', { invoiceIds })
-      .andWhere('valuation.ledgerId = :ledgerId', { ledgerId })
-      .select(['line.invoiceId as "invoiceId"', 'SUM(valuation.credit) as "paidAmount"'])
-      .groupBy('line.invoiceId')
-      .getRawMany<{ invoiceId: string; paidAmount: string }>();
-
-    return new Map(rows.map((row) => [row.invoiceId, parseFloat(row.paidAmount)]));
-  }
 
   // ───────────────────────────────────────────────────────────────────────────
   // Recording a collection
@@ -808,14 +763,11 @@ export class CustomerPaymentsService {
       }
     }
 
-    const cutoff = new Date(`${asOfDate}T00:00:00.000Z`).getTime();
     const byCustomer = new Map<string, AgingRow>();
 
     for (const invoice of invoices) {
       if (toCents(invoice.balance) === 0) continue;
-      const dueDate = invoice.dueDate ?? invoice.issueDate;
-      const due = new Date(`${toIsoDate(dueDate)}T00:00:00.000Z`).getTime();
-      const daysOverdue = Math.floor((cutoff - due) / 86_400_000);
+      const daysOverdue = daysPastDue(toIsoDate(invoice.dueDate ?? invoice.issueDate), asOfDate);
 
       const currency = (invoice.currencyCode ?? baseCurrency).toUpperCase();
       const closingRate = currency === baseCurrency ? 1 : closingRates.get(currency);
@@ -824,32 +776,12 @@ export class CustomerPaymentsService {
 
       const row =
         byCustomer.get(invoice.customerId) ??
-        ({
-          partyId: invoice.customerId,
-          partyName:
-            invoice.customer?.companyName ?? invoice.customerName ?? invoice.customerId,
-          current: 0,
-          buckets: AGING_BUCKETS.map((bucket) => ({ ...bucket, amount: 0 })),
-          total: 0,
-        } satisfies AgingRow);
-
-      if (daysOverdue <= 0) {
-        row.current = roundAmount(row.current + amount);
-      } else {
-        const bucket =
-          row.buckets.find(
-            (candidate) =>
-              daysOverdue >= candidate.from &&
-              (candidate.to === null || daysOverdue <= candidate.to),
-          ) ?? row.buckets[row.buckets.length - 1];
-        bucket.amount = roundAmount(bucket.amount + amount);
-      }
-      row.total = roundAmount(row.total + amount);
+        emptyAgingRow(invoice.customerId, invoice.customer?.companyName ?? invoice.customerName ?? invoice.customerId);
+      addToAgingRow(row, daysOverdue, amount);
       byCustomer.set(invoice.customerId, row);
     }
 
-    const rows = [...byCustomer.values()].sort((a, b) => b.total - a.total);
-    const total = sumAmounts(rows.map((row) => row.total));
+    const { rows, totals } = agingRowsAndTotals(byCustomer.values());
     const controlAccountBalance = await this.receivablesControlBalance(
       organizationId,
       settings,
@@ -861,18 +793,11 @@ export class CustomerPaymentsService {
       currencyCode: baseCurrency,
       controlAccountBalance,
       // Signed: positive means the subledger claims more is collectible than the ledger records.
-      controlAccountDifference: roundAmount(total - controlAccountBalance),
+      controlAccountDifference: roundAmount(totals.total - controlAccountBalance),
       coversWholeCompany: Object.keys(branchFilter).length === 0,
       unconvertedDocuments,
       rows,
-      totals: {
-        current: sumAmounts(rows.map((row) => row.current)),
-        buckets: AGING_BUCKETS.map((bucket, index) => ({
-          ...bucket,
-          amount: sumAmounts(rows.map((row) => row.buckets[index].amount)),
-        })),
-        total: sumAmounts(rows.map((row) => row.total)),
-      },
+      totals,
     };
   }
 

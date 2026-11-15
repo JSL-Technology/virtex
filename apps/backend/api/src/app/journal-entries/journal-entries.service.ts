@@ -1015,14 +1015,13 @@ export class JournalEntriesService {
     for (const line of lines) {
       const account = accountMap.get(line.accountId);
       if (!account) continue;
+      // A budget on revenue, a liability or equity is a target, not a limit (FINB-20): it used to
+      // consume «in the account's natural sense», so selling more than budgeted refused the sale.
+      if (!BudgetControlService.limitsPosting(account.type)) continue;
 
-      // The movement in the account's natural sense. A credit to an expense account gives budget
-      // back; only the consuming direction is checked.
-      const creditNatured =
-        account.type === AccountType.REVENUE ||
-        account.type === AccountType.LIABILITY ||
-        account.type === AccountType.EQUITY;
-      const consumed = creditNatured ? line.credit - line.debit : line.debit - line.credit;
+      // Spending is a debit to an expense or an asset; a credit to one gives budget back, and only
+      // the consuming direction is checked.
+      const consumed = line.debit - line.credit;
       if (consumed <= 0) continue;
 
       const check = await this.budgetControl.checkBudget(

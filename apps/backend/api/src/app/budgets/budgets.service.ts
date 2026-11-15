@@ -32,11 +32,18 @@ export interface BudgetVarianceLine {
   accountType: AccountType | null;
   dimensions: Record<string, string>;
   budgetedAmount: number;
+  /** What was posted to the line in the months it has a budget for: what the budget is compared with. */
   actualAmount: number;
   difference: number;
   consumedRatio: number | null;
-  /** What was budgeted for the line, month by month. */
-  months: Record<string, number>;
+  /**
+   * What was posted to the line in the months of the range it has NO budget for. Not part of the
+   * comparison — a month nobody budgeted is not an over-spend of another month's budget — and not
+   * hidden either: it is spending nobody planned.
+   */
+  unbudgetedActual: number;
+  /** Month by month: what was budgeted (`null` where nothing was) and what was posted. */
+  months: Record<string, { budgeted: number | null; actual: number }>;
 }
 
 export interface BudgetVarianceReport {
@@ -44,7 +51,7 @@ export interface BudgetVarianceReport {
   ledger: { id: string; name: string; currency: string } | null;
   budgets: Array<{ id: string; name: string; period: string }>;
   lines: BudgetVarianceLine[];
-  totals: { budgeted: number; actual: number; difference: number };
+  totals: { budgeted: number; actual: number; difference: number; unbudgetedActual: number };
 }
 
 @Injectable()
@@ -174,8 +181,13 @@ export class BudgetsService {
 
   /**
    * Budget against actuals over a run of months, across every budget in it, by account (and
-   * dimension) — the variance analysis. Months without a budget contribute their actuals for the
-   * budgeted accounts and nothing to the target, which is exactly what an over-spend looks like.
+   * dimension) — the variance analysis.
+   *
+   * Compared month by month. A line's budget is set against what was posted in the months it HAS a
+   * budget for; what was posted in the other months of the range is reported beside it as
+   * `unbudgetedActual`. It used to be added to the actual: with only November budgeted, a January
+   * to December variance set November's 2,500 against eleven months of postings — 34,098 — and
+   * called it a 1,364 % over-run (FINB-21).
    */
   async variance(organizationId: string, query: BudgetVarianceQueryDto): Promise<BudgetVarianceReport> {
     if (query.fromPeriod > query.toPeriod) {
@@ -218,7 +230,7 @@ export class BudgetsService {
     }
 
     const accountIds = [...new Set([...buckets.values()].map((bucket) => bucket.accountId))];
-    const actuals = new Map<string, number>();
+    const actuals = new Map<string, Map<string, number>>();
     if (accountIds.length) {
       const q = this.journalEntryLineRepository
         .createQueryBuilder('line')
@@ -233,27 +245,49 @@ export class BudgetsService {
         .select([
           'line.accountId AS "accountId"',
           'line.dimensions AS "dimensions"',
+          `to_char(entry.date, 'YYYY-MM') AS "period"`,
           'COALESCE(SUM(valuation.debit - valuation.credit), 0) AS "amount"',
         ])
         .groupBy('line.accountId')
         .addGroupBy('line.dimensions')
-        .getRawMany<{ accountId: string; dimensions: Record<string, string> | null; amount: string }>();
-      for (const row of rows) actuals.set(key(row.accountId, row.dimensions), Number(row.amount));
+        .addGroupBy(`to_char(entry.date, 'YYYY-MM')`)
+        .getRawMany<{ accountId: string; dimensions: Record<string, string> | null; period: string; amount: string }>();
+      for (const row of rows) {
+        const byMonth = actuals.get(key(row.accountId, row.dimensions)) ?? new Map<string, number>();
+        byMonth.set(row.period, roundAmount((byMonth.get(row.period) ?? 0) + Number(row.amount)));
+        actuals.set(key(row.accountId, row.dimensions), byMonth);
+      }
     }
 
     let budgeted = 0;
     let actual = 0;
+    let unbudgeted = 0;
     const lines = [...buckets.values()]
       .sort((a, b) => String(a.accountCode ?? '').localeCompare(String(b.accountCode ?? '')))
-      .map((bucket) => {
-        const signed = actuals.get(key(bucket.accountId, bucket.dimensions)) ?? 0;
+      .map((bucket): BudgetVarianceLine => {
         const creditNatured =
           bucket.accountType === AccountType.REVENUE ||
           bucket.accountType === AccountType.LIABILITY ||
           bucket.accountType === AccountType.EQUITY;
-        const actualAmount = roundAmount(creditNatured ? -signed : signed);
+        // In the account's natural sense, month by month.
+        const posted = new Map(
+          [...(actuals.get(key(bucket.accountId, bucket.dimensions)) ?? new Map<string, number>())].map(
+            ([period, signed]) => [period, roundAmount(creditNatured ? -signed : signed)] as const,
+          ),
+        );
+        const months: BudgetVarianceLine['months'] = {};
+        let actualAmount = 0;
+        let unbudgetedActual = 0;
+        for (const period of new Set([...Object.keys(bucket.months), ...posted.keys()])) {
+          const inMonth = posted.get(period) ?? 0;
+          const target = bucket.months[period];
+          months[period] = { budgeted: target ?? null, actual: inMonth };
+          if (target === undefined) unbudgetedActual = roundAmount(unbudgetedActual + inMonth);
+          else actualAmount = roundAmount(actualAmount + inMonth);
+        }
         budgeted = roundAmount(budgeted + bucket.budgeted);
         actual = roundAmount(actual + actualAmount);
+        unbudgeted = roundAmount(unbudgeted + unbudgetedActual);
         return {
           accountId: bucket.accountId,
           accountCode: bucket.accountCode ?? null,
@@ -264,7 +298,8 @@ export class BudgetsService {
           actualAmount,
           difference: roundAmount(bucket.budgeted - actualAmount),
           consumedRatio: bucket.budgeted === 0 ? null : roundAmount(actualAmount / bucket.budgeted, 4),
-          months: bucket.months,
+          unbudgetedActual,
+          months: Object.fromEntries(Object.entries(months).sort(([a], [b]) => a.localeCompare(b))),
         };
       });
 
@@ -273,7 +308,7 @@ export class BudgetsService {
       ledger: ledger ? { id: ledger.id, name: ledger.name, currency: ledger.currency } : null,
       budgets: budgets.map((budget) => ({ id: budget.id, name: budget.name, period: budget.period })),
       lines,
-      totals: { budgeted, actual, difference: roundAmount(budgeted - actual) },
+      totals: { budgeted, actual, difference: roundAmount(budgeted - actual), unbudgetedActual: unbudgeted },
     };
   }
 
