@@ -17,6 +17,7 @@ import {
   allMarkets,
   fiscalIdentifierFor,
   isKnownMarket,
+  baseCurrencyOf,
   knownMarket,
   payrollImplemented,
   requiresStatutoryPlanImport,
@@ -38,8 +39,6 @@ import { InternalServerError, NotFoundError } from '../../i18n/localized.excepti
 import { I18nService } from '../../i18n/i18n.service';
 import { currentLanguage } from '../../i18n/request-locale';
 
-/** Fallback when a country profile carries no currency; every shipped profile does. */
-const DEFAULT_BASE_CURRENCY = 'USD';
 
 @Injectable()
 export class LocalizationService extends LocalizationProvisioningPort implements OnModuleInit {
@@ -485,8 +484,7 @@ export class LocalizationService extends LocalizationProvisioningPort implements
     // none of which existed for any tenant, which is why the first invoice always failed. The
     // provisioner runs in this same transaction, so a tenant is either able to keep books or is
     // not created at all.
-    const baseCurrency =
-      knownMarket(region.countryCode)?.profile.currency ?? DEFAULT_BASE_CURRENCY;
+    const baseCurrency = baseCurrencyOf(region.countryCode);
     await this.bookkeeping.provision(
       organization,
       baseCurrency,

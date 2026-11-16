@@ -33,6 +33,19 @@ export function languageOfCountry(countryCode: string | null | undefined): Books
 }
 
 /**
+ * The currency a company of this country keeps its books in when nothing else says so: its
+ * market's. For a country the product is not sold in, the US dollar — the currency the region's
+ * cross-border reporting is most often translated into — which the company can change before it
+ * posts anything. One rule for signup and for reprovisioning; each used to carry its own copy.
+ */
+export function baseCurrencyOf(countryCode: string | null | undefined): string {
+  return knownMarket(countryCode)?.profile.currency ?? FALLBACK_BASE_CURRENCY;
+}
+
+/** The base currency of a company whose country is not a market of the product. */
+export const FALLBACK_BASE_CURRENCY = 'USD';
+
+/**
  * Every name a default customer has been seeded under, so a backfill can tell the row provisioning
  * created from one a person named.
  */

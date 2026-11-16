@@ -1,5 +1,7 @@
 /**
- * Executable proof that a company can import a chart of accounts through the product (FIN-COA-05).
+ * Executable proof that a company can import a chart of accounts through the product (FIN-COA-05),
+ * map its accounts between ledgers only over its own accounts (FIN-AC-05), and reprovision its
+ * bookkeeping without changing a healthy one (FIN-AC-06).
  *
  * ## What this exists to stop from happening again
  *
@@ -271,6 +273,59 @@ async function main() {
     'the export writes the same columns the import reads, imported accounts included',
     exported.statusCode === 200 && exportedHeader.replace(/;/g, ',') === HEADER && exported.body.includes('5961'),
     exportedHeader,
+  );
+
+  // ── FIN-AC-05: a ledger mapping names the company's own accounts ─────────────────────────
+  const local = await server.inject({
+    method: 'POST',
+    url: '/api/v1/accounting/ledgers',
+    payload: { name: 'QA Libro local', currency: 'DOP' },
+    remoteAddress,
+    headers,
+  });
+  const localLedger = JSON.parse(local.body) as { id?: string };
+  const [primary] = await chart<{ id: string }>(`SELECT id FROM ledgers WHERE organization_id = $1 AND is_default`, [organizationId]);
+  const [ownAccount] = await chart<{ id: string }>(`SELECT id FROM accounts WHERE organization_id = $1 AND code = '5961'`, [organizationId]);
+  // An account of another company: any one outside this tenant, read with the owner's connection.
+  const [foreignAccount] = await ds.query(`SELECT id FROM accounts WHERE organization_id <> $1 LIMIT 1`, [organizationId]);
+  const mapping = (sourceAccountId: string, multiplier = 1) =>
+    server.inject({
+      method: 'POST',
+      url: '/api/v1/accounting/ledger-mappings',
+      payload: { sourceLedgerId: primary.id, targetLedgerId: localLedger.id, mappings: [{ sourceAccountId, parentAccountId: ownAccount.id, multiplier }] },
+      remoteAddress,
+      headers,
+    });
+  if (foreignAccount) {
+    const refusedMapping = await mapping(foreignAccount.id);
+    check(
+      'a mapping rule over another company’s account is refused, naming the rule',
+      refusedMapping.statusCode === 400 && JSON.parse(refusedMapping.body).messageKey === 'accounting.ledger_mapping_account_not_found',
+      `${refusedMapping.statusCode} ${refusedMapping.body.slice(0, 140)}`,
+    );
+  }
+  const negative = await mapping(ownAccount.id, -1);
+  check('and so is a negative factor, which would make every posting on the account fail', negative.statusCode === 400, String(negative.statusCode));
+  const accepted = await mapping(ownAccount.id, 0.5);
+  check('a rule over its own account is stored', accepted.statusCode === 201 || accepted.statusCode === 200, `${local.statusCode} · ${accepted.statusCode} ${accepted.body.slice(0, 100)}`);
+
+  // ── FIN-AC-06: reprovisioning a healthy company changes nothing and leaves no gap ─────────
+  const shape = async () =>
+    JSON.stringify(
+      await chart(
+        `SELECT (SELECT count(*)::int FROM journals WHERE organization_id = $1) AS journals,
+                (SELECT count(*)::int FROM accounting_periods WHERE organization_id = $1) AS periods,
+                (SELECT count(*)::int FROM ledgers WHERE organization_id = $1) AS ledgers,
+                (SELECT count(*)::int FROM ledger_mapping_rules WHERE organization_id = $1) AS rules`,
+        [organizationId],
+      ),
+    );
+  const beforeReprovision = await shape();
+  const reprovision = await server.inject({ method: 'POST', url: '/api/v1/accounting/reprovision', remoteAddress, headers });
+  check(
+    'reprovisioning a healthy company leaves no invoicing gap and changes nothing',
+    reprovision.statusCode === 200 && JSON.stringify(JSON.parse(reprovision.body).gaps) === '[]' && (await shape()) === beforeReprovision,
+    `${reprovision.statusCode} ${reprovision.body.slice(0, 120)} · ${beforeReprovision}`,
   );
 
   await app.close();

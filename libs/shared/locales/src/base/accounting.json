@@ -1860,6 +1860,21 @@
     "en": "The mapping between ledger \"{{source}}\" and \"{{target}}\" has been updated.",
     "pt": "O mapeamento entre o livro \"{{source}}\" e \"{{target}}\" foi atualizado."
   },
+  "accounting.ledger_mapping_account_not_found": {
+    "es": "La regla {{line}} nombra una cuenta que no es de esta empresa.",
+    "en": "Rule {{line}} names an account that does not belong to this company.",
+    "pt": "A regra {{line}} indica uma conta que não é desta empresa."
+  },
+  "accounting.ledger_mapping_same_ledger": {
+    "es": "Una regla de mapeo lleva los importes de un libro a otro distinto: el libro de origen y el de destino no pueden ser el mismo.",
+    "en": "A mapping rule carries amounts from one ledger to another: the source and the target ledger cannot be the same.",
+    "pt": "Uma regra de mapeamento leva os valores de um livro a outro: o livro de origem e o de destino não podem ser o mesmo."
+  },
+  "accounting.ledger_mapping_source_repeated": {
+    "es": "La regla {{line}} repite la cuenta de origen de la regla {{first}}: entre dos libros, cada cuenta se mapea una sola vez.",
+    "en": "Rule {{line}} repeats the source account of rule {{first}}: between two ledgers, each account is mapped once.",
+    "pt": "A regra {{line}} repete a conta de origem da regra {{first}}: entre dois livros, cada conta é mapeada uma única vez."
+  },
   "accounting.merge_tool.account": {
     "es": "Cuenta",
     "en": "Account",
