@@ -37,7 +37,6 @@ import { JournalEntriesModule } from './journal-entries/journal-entries.module';
 import { AccountingModule } from './accounting/accounting.module';
 import { ConsolidationModule } from './consolidation/consolidation.module';
 import { AnalyticalReportingModule } from './analytical-reporting/analytical-reporting.module';
-import { CoaImportModule } from './chart-of-accounts/import/coa-import.module';
 import { CustomerServiceModule } from './customer-service/customer-service.module';
 import { TreasuryModule } from './treasury/treasury.module';
 import { IntercompanyModule } from './intercompany/intercompany.module';
@@ -344,7 +343,6 @@ import { LifecycleModule } from './shared/lifecycle/lifecycle.module';
     TreasuryModule,
     IntercompanyModule,
     AnalyticalReportingModule,
-    CoaImportModule,
     CustomerServiceModule,
     InventoryModule,
     CustomersModule,

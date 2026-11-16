@@ -3,7 +3,6 @@ export const ACCOUNTING_PERMISSIONS = {
   CHART_OF_ACCOUNTS_CREATE: 'coa:create',
   CHART_OF_ACCOUNTS_EDIT: 'coa:edit',
   CHART_OF_ACCOUNTS_MERGE: 'coa:merge',
-  CHART_OF_ACCOUNTS_IMPORT: 'coa:import',
 
   JOURNAL_ENTRIES_VIEW: 'journal_entries:view',
   JOURNAL_ENTRIES_CREATE: 'journal_entries:create',

@@ -74,6 +74,11 @@
     "en": "The file could not be read: {{detail}}",
     "pt": "Não foi possível ler o arquivo: {{detail}}"
   },
+  "data_transfer.hints.chart_of_accounts": {
+    "es": "Cada fila es una cuenta. El código sigue la estructura de segmentos de la empresa, separados por «-», y la cuenta padre —en el archivo o ya en el plan— es una cuenta de agrupación del mismo tipo. Una cuenta de la que cuelga otra fila es de agrupación aunque no se diga; la naturaleza sale del tipo (la contraria en una contracuenta) y el tratamiento cambiario, del tipo y del rol. Cada rol va en una sola cuenta. El archivo entra completo o no entra.",
+    "en": "Each row is an account. The code follows the company's segment structure, separated by «-», and the parent account — in the file or already in the chart — is a summary account of the same type. An account another row hangs from is a summary account even if the file does not say so; the nature comes from the type (the opposite one for a contra account) and the foreign-currency treatment from the type and the role. Each role goes on one account only. The file is imported whole or not at all.",
+    "pt": "Cada linha é uma conta. O código segue a estrutura de segmentos da empresa, separados por «-», e a conta pai — no arquivo ou já no plano — é uma conta de agrupamento do mesmo tipo. Uma conta da qual outra linha depende é de agrupamento mesmo que não se diga; a natureza vem do tipo (a contrária numa conta redutora) e o tratamento cambial, do tipo e do papel. Cada papel vai numa única conta. O arquivo entra inteiro ou não entra."
+  },
   "data_transfer.hints.opening_balances": {
     "es": "Un archivo es un solo asiento de apertura: una fila por cuenta, todas con la misma fecha, y los débitos deben igualar los créditos al centavo. Las cuentas por cobrar, por pagar, el inventario y los bancos no se cargan aquí: sus saldos salen de las facturas abiertas, las facturas de proveedor abiertas, las existencias y el saldo inicial de cada cuenta bancaria.",
     "en": "One file is a single opening entry: one row per account, all with the same date, and debits must equal credits to the cent. Receivables, payables, inventory and bank accounts are not loaded here: their balances come from open invoices, open supplier bills, stock on hand and each bank account’s opening balance.",

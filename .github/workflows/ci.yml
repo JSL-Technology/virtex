@@ -474,6 +474,20 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:collections
 
+      # A chart of accounts imports through the product, whole or not at all: «Importar» opened a
+      # dataset that only exported, and «false» in a spreadsheet cell was true. Over the real HTTP
+      # API of a fresh company — template, a validation that refuses by line and column, a commit,
+      # the tree and the export — and again as `virtex_app`, so every write meets row-level security.
+      - name: npm run verify:chart-import
+        if: ${{ !cancelled() }}
+        run: npm run verify:chart-import
+      - name: npm run verify:chart-import (como virtex_app)
+        if: ${{ !cancelled() }}
+        run: npm run verify:chart-import
+        env:
+          DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
+
       # Nx Cloud's self-healing. It needs an Nx Cloud workspace, and without one it can only fail —
       # which turned every run red after every other step had passed. The token is scoped to this
       # step alone rather than the job: `npm ci` runs third-party install scripts, and a secret in

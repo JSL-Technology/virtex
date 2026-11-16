@@ -113,16 +113,11 @@ import { JournalQueryService } from './services/journal-query.service';
     JournalsController,
     AdjustmentsController,
   ],
-  // `FileParserService` is exported because `CoaImportService` injects it and reaches it through
-  // this module. It was provided here and not exported, so `CoaImportModule` could not resolve
-  // it and the application refused to start — `Nest can't resolve dependencies of the
-  // CoaImportService (…, ?, …)`.
   exports: [
     JournalEntriesService,
     // Also export the port so subledgers can inject it by the abstract-class token.
     AccountingPostingPort,
     JournalEntryNumberingService,
-    FileParserService,
     LedgerNarrativeService,
     // `AuditAdjustmentsService` posts an approved audit adjustment through this service. It could
     // not reach it while the service was provided here and not exported — one of the reasons the
