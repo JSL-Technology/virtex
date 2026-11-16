@@ -3,13 +3,13 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import type { FxTreatment } from '@virtex/shared/types';
 import {
   Account,
   AccountCategory,
   AccountNature,
   AccountType,
   CashFlowCategory,
-  RequiredDimension,
 } from '../../../core/models/account.model';
 
 export interface CreateAccountDto {
@@ -29,16 +29,14 @@ export interface CreateAccountDto {
     incomeStatementCategory?: string;
     cashFlowCategory?: CashFlowCategory;
   };
-  rules?: {
-    requiresReconciliation?: boolean;
-    isCashOrBank?: boolean;
-    allowsIntercompany?: boolean;
-    isFxRevaluation?: boolean;
-    requiredDimensions?: RequiredDimension[];
-  };
+  /** Omitted: the server's default for the account's type and role. */
+  fxTreatment?: FxTreatment;
+  /** ISO 4217, or null for lines in any currency. */
+  currency?: string | null;
 }
 
-export type UpdateAccountDto = Partial<CreateAccountDto>;
+/** Every change to an account is recorded in its history with the reason for it. */
+export type UpdateAccountDto = Partial<Omit<CreateAccountDto, 'segments'>> & { reasonForChange: string };
 
 export interface AccountSegmentDefinition {
   id?: string;

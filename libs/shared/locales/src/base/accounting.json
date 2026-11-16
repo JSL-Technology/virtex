@@ -74,11 +74,6 @@
     "en": "Advanced settings",
     "pt": "Configurações avançadas"
   },
-  "accounting.account_form.allows_intercompany_transactions": {
-    "es": "Permite transacciones intercompañía",
-    "en": "Allows intercompany transactions",
-    "pt": "Permite transações intercompany"
-  },
   "accounting.account_form.balance_sheet_category": {
     "es": "Categoría de balance general",
     "en": "Balance sheet category",
@@ -89,11 +84,6 @@
     "en": "Cancel",
     "pt": "Cancelar"
   },
-  "accounting.account_form.cash_bank_account": {
-    "es": "Es cuenta de caja o banco",
-    "en": "Cash or bank account",
-    "pt": "Conta de caixa ou banco"
-  },
   "accounting.account_form.cash_flow_category": {
     "es": "Categoría de flujo de efectivo",
     "en": "Cash flow category",
@@ -103,11 +93,6 @@
     "es": "Categoría",
     "en": "Category",
     "pt": "Categoria"
-  },
-  "accounting.account_form.chart_version": {
-    "es": "Versión del catálogo",
-    "en": "Chart version",
-    "pt": "Versão do plano"
   },
   "accounting.account_form.configure_segments": {
     "es": "Configurar segmentos",
@@ -128,6 +113,11 @@
     "es": "Moneda y revaluación",
     "en": "Currency and revaluation",
     "pt": "Moeda e reavaliação"
+  },
+  "accounting.account_form.currency_summary_note": {
+    "es": "Una cuenta de agrupación no recibe movimientos: la moneda y el tratamiento cambiario se definen en sus subcuentas.",
+    "en": "A summary account takes no postings: the currency and the foreign-currency treatment are set on its sub-accounts.",
+    "pt": "Uma conta de agrupamento não recebe lançamentos: a moeda e o tratamento cambial são definidos nas suas subcontas."
   },
   "accounting.account_form.current_assets": {
     "es": "Ej: activos circulantes",
@@ -184,13 +174,13 @@
     "en": "Monetary items — banks, receivables and payables, loans — are revalued at each close; inventory, fixed assets, advances, revenue and expenses stay at the rate of their day (IAS 21).",
     "pt": "Itens monetários — bancos, contas a receber e a pagar, empréstimos — são reavaliados no fechamento; estoque, imobilizado, adiantamentos, receitas e despesas ficam à taxa do seu dia (IAS 21)."
   },
-  "accounting.account_form.fx_treatment_option.HISTORICAL": {
+  "accounting.account_form.fx_treatment_option.historical": {
     "es": "Queda a la tasa histórica",
     "en": "Kept at the historical rate",
     "pt": "Mantida à taxa histórica"
   },
-  "accounting.account_form.fx_treatment_option.REVALUED": {
-    "es": "Se revalúa al tipo de cambio de cierre",
+  "accounting.account_form.fx_treatment_option.revalued": {
+    "es": "Se revalúa a la tasa de cierre",
     "en": "Revalued at the closing rate",
     "pt": "Reavaliada à taxa de fechamento"
   },
@@ -198,11 +188,6 @@
     "es": "General",
     "en": "General",
     "pt": "Geral"
-  },
-  "accounting.account_form.hierarchy_type": {
-    "es": "Tipo de jerarquía",
-    "en": "Hierarchy type",
-    "pt": "Tipo de hierarquia"
   },
   "accounting.account_form.income_statement_category": {
     "es": "Categoría de estado de resultados",
@@ -244,11 +229,6 @@
     "en": "Postable account (accepts transactions)",
     "pt": "Conta analítica (aceita lançamentos)"
   },
-  "accounting.account_form.posting_rules": {
-    "es": "Reglas de contabilización",
-    "en": "Posting rules",
-    "pt": "Regras de contabilização"
-  },
   "accounting.account_form.reason_for_change": {
     "es": "Motivo del cambio",
     "en": "Reason for the change",
@@ -259,25 +239,10 @@
     "en": "It is recorded in the account history together with the previous and the new value.",
     "pt": "Fica registrado no histórico da conta junto com o valor anterior e o novo."
   },
-  "accounting.account_form.required_dimensions": {
-    "es": "Dimensiones requeridas",
-    "en": "Required dimensions",
-    "pt": "Dimensões obrigatórias"
-  },
   "accounting.account_form.required_dimensions_elsewhere": {
     "es": "Las dimensiones obligatorias de la cuenta se definen en Contabilidad › Dimensiones.",
     "en": "The account's required dimensions are set in Accounting › Dimensions.",
     "pt": "As dimensões obrigatórias da conta são definidas em Contabilidade › Dimensões."
-  },
-  "accounting.account_form.requires_reconciliation": {
-    "es": "Requiere reconciliación",
-    "en": "Requires reconciliation",
-    "pt": "Exige conciliação"
-  },
-  "accounting.account_form.rules": {
-    "es": "Reglas",
-    "en": "Rules",
-    "pt": "Regras"
   },
   "accounting.account_form.save_account": {
     "es": "Guardar cuenta",
@@ -298,16 +263,6 @@
     "es": "Seleccionar tipo...",
     "en": "Select a type...",
     "pt": "Selecionar tipo..."
-  },
-  "accounting.account_form.set_restrictions_specific_behaviour_account": {
-    "es": "Establece restricciones y comportamientos específicos para esta cuenta.",
-    "en": "Set restrictions and specific behaviour for this account.",
-    "pt": "Defina restrições e comportamentos específicos para esta conta."
-  },
-  "accounting.account_form.subject_exchange_rate_revaluation": {
-    "es": "Aplica revaluación por tipo de cambio",
-    "en": "Subject to exchange-rate revaluation",
-    "pt": "Sujeita a reavaliação cambial"
   },
   "accounting.account_form.title_edit": {
     "es": "Editar cuenta contable",
@@ -700,6 +655,11 @@
     "en": "Inactive",
     "pt": "Inativa"
   },
+  "accounting.chart_of_accounts.load_failed": {
+    "es": "No se pudo cargar el plan de cuentas.",
+    "en": "The chart of accounts could not be loaded.",
+    "pt": "Não foi possível carregar o plano de contas."
+  },
   "accounting.chart_of_accounts.new_account": {
     "es": "Nueva cuenta",
     "en": "New account",
@@ -781,12 +741,12 @@
     "pt": "Não há saldos em moeda estrangeira a reavaliar no fechamento."
   },
   "accounting.checklist.items.revaluation_rates_missing": {
-    "es": "Falta el tipo de cambio de cierre de {{missing}}: sin él, el cierre no puede revaluar sus saldos.",
+    "es": "Falta la tasa de cierre de {{missing}}: sin ella, el cierre no puede revaluar esos saldos.",
     "en": "The closing rate for {{missing}} is missing: without it, the close cannot revalue those balances.",
     "pt": "Falta a taxa de fechamento de {{missing}}: sem ela, o fechamento não pode reavaliar esses saldos."
   },
   "accounting.checklist.items.revaluation_ready": {
-    "es": "El cierre revalúa {{count}} saldos en moneda extranjera ({{currencies}}) al tipo de cambio de cierre.",
+    "es": "El cierre revalúa {{count}} saldos en moneda extranjera ({{currencies}}) a la tasa de cierre.",
     "en": "The close revalues {{count}} foreign-currency balances ({{currencies}}) at the closing rate.",
     "pt": "O fechamento reavalia {{count}} saldos em moeda estrangeira ({{currencies}}) à taxa de fechamento."
   },

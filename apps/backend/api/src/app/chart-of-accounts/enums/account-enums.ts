@@ -78,9 +78,4 @@ export enum CashFlowCategory {
     NONE = 'NONE',
 }
 
-export enum HierarchyType {
-    LEGAL = 'LEGAL',
-    MANAGEMENT = 'MANAGEMENT',
-    FISCAL = 'FISCAL',
-}
 export { AccountRole } from '../../contracts/accounting/account-role.contract';

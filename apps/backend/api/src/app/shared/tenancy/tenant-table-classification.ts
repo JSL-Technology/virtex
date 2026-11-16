@@ -106,6 +106,14 @@ export const INHERITED_TENANT_TABLES: readonly InheritedTenantTable[] = [
  */
 export const RETIRED_TENANT_TABLES: readonly UnscopedTableRef[] = [
   { table: 'stock_items', why: 'Nunca escrita; sustituida por stock_levels en StockByWarehouse1789009300000.' },
+  {
+    table: 'accounts_closure',
+    why: 'Cierre de TypeORM que solo guardaba cada cuenta como su propio ancestro; la jerarquía es parent_id (AccountFxTreatmentAndHierarchy1789750000000).',
+  },
+  {
+    table: 'dimension_values_closure',
+    why: 'Cierre mantenido y no leído por nada; eliminada en AccountFxTreatmentAndHierarchy1789750000000.',
+  },
 ];
 
 interface UnscopedTableRef {

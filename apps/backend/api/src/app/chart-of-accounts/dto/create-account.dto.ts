@@ -9,7 +9,6 @@ import {
   IsUUID,
   IsBoolean,
   ValidateNested,
-  IsObject,
   IsArray,
   ArrayMinSize,
   IsDateString,
@@ -23,7 +22,6 @@ import {
   AccountNature,
   AccountRole,
   CashFlowCategory,
-  HierarchyType,
 } from '../enums/account-enums';
 
 class StatementMappingDto {

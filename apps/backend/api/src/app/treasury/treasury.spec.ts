@@ -379,6 +379,78 @@ describeWithDb('treasury', () => {
       expect(updated.glAccountId).toBe(account['bankDop']);
     });
 
+    /**
+     * A dollar bank account's ledger account takes dollars only (FIN-AC-03). It is locked to the
+     * bank's currency and marked as money, so the close restates it; the posting refuses any other
+     * currency on it, and no other bank account can bring a second one.
+     */
+    describe('its ledger account, locked to its currency', () => {
+      const dollars = (over: Record<string, unknown> = {}) =>
+        openAccount({ name: 'Reservas USD', accountNumber: '7900000001', currencyCode: 'USD', glAccountId: account['bankUsd'], ...over } as never);
+
+      /** A movement on `accountId` against cash, as treasury posts one. */
+      const post = async (accountId: string, line: Record<string, unknown> = {}) => {
+        const journal = await dataSource.getRepository(Journal).findOneByOrFail({ organizationId, code: 'BANCOS' });
+        return dataSource.transaction((manager) =>
+          entries.createWithManager(
+            manager,
+            {
+              date: '2026-03-05',
+              description: 'Depósito',
+              journalId: journal.id,
+              lines: [
+                { accountId, debit: 5_875, credit: 0, valuations: [{ ledgerId, debit: 5_875, credit: 0 }], ...line },
+                { accountId: account['equity'], debit: 0, credit: 5_875, valuations: [{ ledgerId, debit: 0, credit: 5_875 }] },
+              ],
+            } as never,
+            organizationId,
+            { actorUserId: ACTOR, systemReason: 'test' },
+          ),
+        );
+      };
+
+      it('marks it as money in the bank’s currency, and refuses a line in another currency', async () => {
+        await dollars();
+        await expect(dataSource.getRepository(Account).findOneByOrFail({ id: account['bankUsd'] })).resolves.toMatchObject({
+          currency: 'USD',
+          fxTreatment: 'REVALUED',
+        });
+
+        await expect(post(account['bankUsd'])).rejects.toMatchObject({
+          messageKey: 'journal_entries.line_currency_differs_from_account',
+          params: { code: '1103', accountCurrency: 'USD', lineCurrency: 'DOP' },
+        });
+        await expect(
+          post(account['bankUsd'], { currencyCode: 'USD', foreignCurrencyDebit: 100, foreignCurrencyCredit: 0, exchangeRate: 58.75 }),
+        ).resolves.toBeDefined();
+      });
+
+      it('will not give it a second currency through another bank account', async () => {
+        await dollars();
+        await expect(dollars({ name: 'Reservas EUR', accountNumber: '7900000002', currencyCode: 'EUR' })).rejects.toMatchObject({
+          messageKey: 'treasury.ledger_account_currency_differs',
+          params: { code: '1103', accountCurrency: 'USD', currency: 'EUR' },
+        });
+
+        // A bank account opened before ledger accounts were locked counts all the same.
+        await dataSource.query(`UPDATE accounts SET currency = NULL WHERE id = $1`, [account['bankUsd']]);
+        await expect(dollars({ name: 'Reservas EUR', accountNumber: '7900000002', currencyCode: 'EUR' })).rejects.toMatchObject({
+          messageKey: 'treasury.ledger_account_shared_across_currencies',
+          params: { code: '1103', currency: 'USD' },
+        });
+      });
+
+      it('will not lock one that already holds lines in another currency', async () => {
+        await post(account['cash']);
+        await expect(
+          openAccount({ name: 'Caja USD', accountNumber: '7900000003', currencyCode: 'USD', glAccountId: account['cash'] } as never),
+        ).rejects.toMatchObject({
+          messageKey: 'treasury.ledger_account_holds_other_currencies',
+          params: { code: '1101', currency: 'USD' },
+        });
+      });
+    });
+
     it('does not find another tenant\'s bank account', async () => {
       const saved = await openAccount();
       const other = await dataSource.getRepository(Organization).save(
@@ -574,6 +646,10 @@ describeWithDb('treasury', () => {
         organizationId,
         ACTOR,
       );
+      // A bank account opened before ledger accounts were locked to their currency: its ledger
+      // account takes lines in any currency, which is how a line like the one below got there.
+      // New ones are locked (FIN-AC-03), and the posting refuses a peso line on a dollar account.
+      await dataSource.query(`UPDATE accounts SET currency = NULL WHERE id = $1`, [account['bankUsd']]);
 
       const journal = await dataSource
         .getRepository(Journal)

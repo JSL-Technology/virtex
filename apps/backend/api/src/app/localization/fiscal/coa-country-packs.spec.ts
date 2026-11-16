@@ -49,6 +49,41 @@ describe('chart-of-accounts country packs', () => {
     it('opens a service-charge account only where the profile levies one', () => {
       expect(Boolean(byRole(country, AccountRole.SERVICE_CHARGE_PAYABLE))).toBe(marketFor(country).taxes.serviceChargeRate > 0);
     });
+
+    /**
+     * Each account states how its foreign-currency balances are measured (FIN-AC-03, IAS 21.23):
+     * money restated at the closing rate, everything else at the rate of its day.
+     */
+    it('revalues the money and nothing else, and keeps the unrealised differences apart', () => {
+      const accounts = flatten(buildCountryCoaTemplate(country));
+      const treatment = (role: AccountRole) => byRole(country, role)?.fxTreatment;
+
+      for (const role of [AccountRole.CASH, AccountRole.BANK, AccountRole.ACCOUNTS_RECEIVABLE, AccountRole.ACCOUNTS_PAYABLE, AccountRole.TAX_PAYABLE]) {
+        expect([role, treatment(role)]).toEqual([role, 'REVALUED']);
+      }
+      // An advance settled by delivering goods is not money (IFRIC 22), nor is stock.
+      expect(treatment(AccountRole.CUSTOMER_ADVANCES)).toBe('HISTORICAL');
+      expect(treatment(AccountRole.INVENTORY)).toBe('HISTORICAL');
+      // Only balance-sheet accounts are revalued, and no heading: it carries no balance of its own.
+      expect(accounts.filter((a) => a.fxTreatment === 'REVALUED' && !['ASSET', 'LIABILITY'].includes(a.type))).toEqual([]);
+      expect(accounts.filter((a) => !a.isPostable && a.fxTreatment !== 'HISTORICAL')).toEqual([]);
+
+      // Where the period-end revaluation posts, apart from the realised differences.
+      const unrealised = byRole(country, AccountRole.UNREALIZED_FOREX_GAIN_LOSS);
+      expect(unrealised).toMatchObject({ isPostable: true, fxTreatment: 'HISTORICAL' });
+      expect(unrealised?.segments).not.toEqual(byRole(country, AccountRole.FOREX_GAIN_LOSS)?.segments);
+    });
+
+    it('hangs every account under a heading of its own type', () => {
+      const check = (nodes: AccountTemplateDto[], parent: AccountTemplateDto | null): void => {
+        for (const node of nodes) {
+          const code = node.segments.join('-');
+          if (parent) expect([code, node.type, parent.isPostable]).toEqual([code, parent.type, false]);
+          check(node.children ?? [], node);
+        }
+      };
+      check(buildCountryCoaTemplate(country), null);
+    });
   });
 
   it('keeps the Dominican institutions in the Dominican plan', () => {

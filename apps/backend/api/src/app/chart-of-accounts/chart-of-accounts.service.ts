@@ -35,7 +35,13 @@ import { AccountHierarchyVersion } from './entities/account-hierarchy-version.en
 import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
 import { likeTerm } from '../common/database/search-term';
-import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType, isFxTreatmentAllowedForType, type FxTreatment } from '@virtex/shared/types';
+import {
+  ACCOUNT_CATEGORIES_BY_TYPE,
+  isCategoryAllowedForType,
+  isFxTreatmentAllowedForType,
+  summaryAccountFxSettingsFit,
+  type FxTreatment,
+} from '@virtex/shared/types';
 import { findCurrency } from '../currencies/currency-catalogue';
 import { defaultFxTreatment } from '../contracts/accounting/fx-treatment.contract';
 
@@ -101,16 +107,24 @@ export class ChartOfAccountsService {
   }
 
   /**
-   * An account's foreign-currency settings (FIN-AC-03): a known ISO 4217 currency, and a revalued
+   * An account's foreign-currency settings (FIN-AC-03): a known ISO 4217 currency, a revalued
    * treatment only on a balance-sheet account — restating an expense «in dollars» would invent an
-   * exchange difference on a cost paid at the rate of its day (IAS 21.23).
+   * exchange difference on a cost paid at the rate of its day (IAS 21.23) — and neither on a summary
+   * account, which takes no lines for them to describe.
    */
-  static assertCurrencySettings(type: string, fxTreatment: FxTreatment, currency: string | null): void {
+  static assertCurrencySettings(
+    account: { code: string; type: string; isPostable: boolean },
+    fxTreatment: FxTreatment,
+    currency: string | null,
+  ): void {
     if (currency && !findCurrency(currency)) {
       throw new BadRequestError('chart_of_accounts.currency_unknown', { currency });
     }
-    if (!isFxTreatmentAllowedForType(type, fxTreatment)) {
-      throw new BadRequestError('chart_of_accounts.revalued_only_balance_sheet', { type });
+    if (!isFxTreatmentAllowedForType(account.type, fxTreatment)) {
+      throw new BadRequestError('chart_of_accounts.revalued_only_balance_sheet', { type: account.type });
+    }
+    if (!summaryAccountFxSettingsFit(account.isPostable, fxTreatment, currency)) {
+      throw new BadRequestError('chart_of_accounts.summary_account_has_no_currency', { code: account.code });
     }
   }
 
@@ -254,8 +268,14 @@ export class ChartOfAccountsService {
     }
 
     const currency = createAccountDto.currency ? createAccountDto.currency.toUpperCase() : null;
-    const fxTreatment = createAccountDto.fxTreatment ?? defaultFxTreatment(accountData.type, createAccountDto.systemRole);
-    ChartOfAccountsService.assertCurrencySettings(accountData.type, fxTreatment, currency);
+    const isPostable = createAccountDto.isPostable ?? false;
+    const fxTreatment =
+      createAccountDto.fxTreatment ?? defaultFxTreatment(accountData.type, createAccountDto.systemRole, isPostable);
+    ChartOfAccountsService.assertCurrencySettings(
+      { code: segmentValues.join('-'), type: accountData.type, isPostable },
+      fxTreatment,
+      currency,
+    );
 
     const segmentDefinitions = await manager.find(AccountSegmentDefinition, {
       where: { organizationId },
@@ -466,15 +486,25 @@ export class ChartOfAccountsService {
       if (updateAccountDto.category && updateAccountDto.category !== account.category) {
         ChartOfAccountsService.assertCategoryFitsType(account.type, updateAccountDto.category);
       }
-      if (updateAccountDto.fxTreatment !== undefined || updateAccountDto.currency !== undefined) {
+      const isPostable = updateAccountDto.isPostable ?? account.isPostable;
+      // Becoming a summary account, its own currency settings go: its sub-accounts carry them.
+      if (!isPostable && account.isPostable) {
+        updateAccountDto.fxTreatment ??= 'HISTORICAL';
+        if (updateAccountDto.currency === undefined) updateAccountDto.currency = null;
+      }
+      if (
+        updateAccountDto.fxTreatment !== undefined ||
+        updateAccountDto.currency !== undefined ||
+        updateAccountDto.isPostable !== undefined
+      ) {
         const currency =
           updateAccountDto.currency === undefined ? (account.currency ?? null) : updateAccountDto.currency ? updateAccountDto.currency.toUpperCase() : null;
         const fxTreatment = updateAccountDto.fxTreatment ?? account.fxTreatment;
-        ChartOfAccountsService.assertCurrencySettings(account.type, fxTreatment, currency);
+        ChartOfAccountsService.assertCurrencySettings({ code: account.code, type: account.type, isPostable }, fxTreatment, currency);
         if (currency && currency !== (account.currency ?? null)) {
           await ChartOfAccountsService.assertCurrencyFitsMovements(manager, organizationId, account, currency);
         }
-        updateAccountDto.currency = currency;
+        if (updateAccountDto.currency !== undefined) updateAccountDto.currency = currency;
       }
       // A summary account carries no balance of its own, and an account with sub-accounts is one.
       if (updateAccountDto.isPostable === false && account.isPostable) {

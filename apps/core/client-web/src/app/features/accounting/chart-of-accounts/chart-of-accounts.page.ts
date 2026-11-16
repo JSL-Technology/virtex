@@ -4,7 +4,7 @@ import { Component, inject, ChangeDetectionStrategy, OnInit, effect, linkedSigna
 import { DialogService } from '../../../core/services/dialog.service';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
+import { ChartOfAccountsStateService } from '../state/chart-of-accounts.state';
 import { LucideAngularModule, Plus, ChevronDown, ChevronRight, Edit, Trash, FileDown, FileUp, GitMerge, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-angular';
 import { Account, AccountType } from '../../../core/models/account.model';
 import { FlattenedAccount } from '../../../core/models/flattened-account.model';

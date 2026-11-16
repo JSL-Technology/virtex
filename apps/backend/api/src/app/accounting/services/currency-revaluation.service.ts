@@ -249,11 +249,12 @@ export class CurrencyRevaluationService {
       ? open(await this.balances.foreignPositionsAsOf({ organizationId, ledgerId: ledger.id, accountIds: revalued, asOf: periodEnd }, em))
       : [];
     const currencies = [...new Set(positions.map((position) => position.currencyCode))].sort();
-    const rateType = await this.exchangeRateResolver.rateTypeFor(organizationId, em);
+    // Published rates, read on their own: a lookup does not belong to the caller's transaction.
+    const rateType = await this.exchangeRateResolver.rateTypeFor(organizationId);
     const missingRates: string[] = [];
     for (const currency of currencies) {
       try {
-        await this.exchangeRateResolver.rateFor(currency, ledgerCurrency, periodEnd, em, rateType);
+        await this.exchangeRateResolver.rateFor(currency, ledgerCurrency, periodEnd, undefined, rateType);
       } catch {
         missingRates.push(currency);
       }

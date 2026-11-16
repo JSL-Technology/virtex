@@ -264,6 +264,11 @@
     "en": "Account {{code}} has lines: a summary account carries no balance of its own. Reclassify its balance to a sub-account first.",
     "pt": "A conta {{code}} tem lançamentos: uma conta de agrupamento não tem saldo próprio. Reclassifique o saldo para uma subconta antes."
   },
+  "chart_of_accounts.summary_account_has_no_currency": {
+    "es": "La cuenta {{code}} es de agrupación: no recibe movimientos, así que no tiene moneda propia ni se revalúa. Defínelo en sus subcuentas.",
+    "en": "Account {{code}} is a summary account: it takes no lines, so it has no currency of its own and is not revalued. Set both on its sub-accounts.",
+    "pt": "A conta {{code}} é de agrupamento: não recebe lançamentos, então não tem moeda própria nem é reavaliada. Defina isso nas suas subcontas."
+  },
   "chart_of_accounts.system_accounts_cannot_deactivated": {
     "es": "Las cuentas del sistema no pueden ser desactivadas.",
     "en": "System accounts cannot be deactivated.",

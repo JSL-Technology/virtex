@@ -62,8 +62,19 @@ export class BankAccountFormPage implements OnInit {
   readonly saving = signal(false);
   /** Every account in the chart, for the two pickers that each take their own slice of it. */
   private readonly allAccounts = signal<Account[]>([]);
-  /** Money accounts: where the bank account's movements are posted. */
-  readonly postableAccounts = computed(() => moneyLedgerAccounts(this.allAccounts()));
+  /** The currency the form names, for the ledger accounts that can carry it. */
+  private readonly currency = signal('');
+  /**
+   * Money accounts that can carry the bank account's currency: where its movements are posted. One
+   * locked to another currency is not offered — a dollar account's ledger account takes only
+   * dollars, and the server refuses the pair (`treasury.ledger_account_currency_differs`).
+   */
+  readonly postableAccounts = computed(() => {
+    const currency = this.currency();
+    return moneyLedgerAccounts(this.allAccounts()).filter(
+      (account) => !account.currency || !currency || account.currency === currency,
+    );
+  });
   readonly currencyCodes = signal<string[]>([]);
   /**
    * What the opening balance's counterpart can be: equity, normally opening-balance equity.
@@ -110,6 +121,15 @@ export class BankAccountFormPage implements OnInit {
 
     // Choosing a catalogue bank fills the institution's name and BIC, as the server will.
     this.form.get('bankId')?.valueChanges.subscribe((bankId: string) => this.applyBank(bankId));
+
+    // A ledger account locked to another currency no longer fits once the currency changes.
+    this.form.get('currencyCode')?.valueChanges.subscribe((currency: string) => {
+      this.currency.set(currency ?? '');
+      const ledger = this.form.get('glAccountId');
+      if (ledger?.value && ledger.enabled && !this.postableAccounts().some((account) => account.id === ledger.value)) {
+        ledger.setValue('');
+      }
+    });
     this.treasury.listBanks().subscribe({
       next: (all) => {
         this.banks.set(all.filter((bank) => bank.isActive || bank.id === this.form.get('bankId')?.value));

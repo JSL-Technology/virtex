@@ -183,18 +183,22 @@
               }
             </div>
             <!-- Only the customer's own addresses: a new one is added to the customer first (TES-21). -->
-            <label class="field">
-              <span>{{ 'collections.to' | translate }}</span>
-              @if (item.addresses.length) {
+            @if (item.addresses.length) {
+              <label class="field">
+                <span>{{ 'collections.to' | translate }}</span>
                 <select [ngModel]="to()" (ngModelChange)="to.set($event)">
                   @for (address of item.addresses; track address) {
                     <option [value]="address">{{ address }}</option>
                   }
                 </select>
-              } @else {
+              </label>
+            } @else {
+              <!-- No control to label: the customer has no address to send to. -->
+              <div class="field">
+                <span>{{ 'collections.to' | translate }}</span>
                 <span class="co__muted">{{ 'collections.no_customer_address' | translate }}</span>
-              }
-            </label>
+              </div>
+            }
             <label class="field">
               <span>{{ 'collections.note' | translate }}</span>
               <textarea rows="6" maxlength="2000" [ngModel]="message()" (ngModelChange)="message.set($event)" [placeholder]="'collections.note_placeholder' | translate"></textarea>

@@ -51,6 +51,17 @@ describe('BankAccountFormPage', () => {
       systemRole: 'ACCOUNTS_RECEIVABLE',
     },
     {
+      // A dollar bank account's ledger account: locked to dollars, it takes no other currency.
+      id: 'gl5',
+      code: '1103',
+      name: { es: 'Banco en dólares', en: 'Bank in dollars' },
+      type: 'ASSET',
+      isPostable: true,
+      isActive: true,
+      systemRole: 'BANK',
+      currency: 'USD',
+    },
+    {
       // Postable and active, but an expense: a bank account is not an expense account.
       id: 'gl4',
       code: '5101',
@@ -123,6 +134,23 @@ describe('BankAccountFormPage', () => {
     // A summary account cannot be posted to; the server refuses it, so it is never offered. Nor
     // is a postable account that is not money: a bank account's ledger account is cash or bank.
     expect(component.postableAccounts().map((a) => a.id)).toEqual(['gl1']);
+    httpMock.verify();
+  });
+
+  it('offers only the ledger accounts that can carry the bank account’s currency', async () => {
+    await build(null);
+    // The books' currency by default: the account locked to dollars does not fit a peso account.
+    expect(component.form.get('currencyCode')?.value).toBe('DOP');
+    expect(component.postableAccounts().map((a) => a.id)).toEqual(['gl1']);
+
+    component.form.get('currencyCode')?.setValue('USD');
+    expect(component.postableAccounts().map((a) => a.id)).toEqual(['gl1', 'gl5']);
+
+    // Chosen, and then the currency changes: a ledger account that no longer fits is cleared,
+    // not sent to be refused.
+    component.form.get('glAccountId')?.setValue('gl5');
+    component.form.get('currencyCode')?.setValue('DOP');
+    expect(component.form.get('glAccountId')?.value).toBe('');
     httpMock.verify();
   });
 

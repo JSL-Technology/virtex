@@ -34,6 +34,8 @@ export * from '../enums/account-enums';
 // Only money held or owed is restated (IAS 21.23): see `fx-treatment.contract.ts`.
 @Check('CHK_accounts_revalued_balance_sheet', `"fx_treatment" = 'HISTORICAL' OR "type" IN ('ASSET', 'LIABILITY')`)
 @Check('CHK_accounts_currency_code', `"currency" IS NULL OR "currency" ~ '^[A-Z]{3}$'`)
+// A summary account takes no lines: it has no currency of its own and nothing to revalue.
+@Check('CHK_accounts_summary_has_no_currency', `"isPostable" OR ("fx_treatment" = 'HISTORICAL' AND "currency" IS NULL)`)
 // One account per operational role per tenant: the automatic postings resolve a role to exactly one
 // account, and two candidates would make the choice arbitrary.
 /**
@@ -179,7 +181,12 @@ export class Account {
    * Null: lines in any currency. Set when a bank account is created on the account, or by hand
    * while the account has no lines in another currency.
    */
-  @Column({ length: 3, nullable: true })
+  @Column({
+    type: 'varchar',
+    length: 3,
+    nullable: true,
+    comment: 'Moneda ISO 4217 de la cuenta: todo movimiento en ella va en esta moneda. Nula: cualquier moneda.',
+  })
   currency?: string | null;
 
   @Column({ default: false, name: 'is_inflation_adjustable' })

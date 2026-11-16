@@ -128,6 +128,11 @@ export const SECTION_DECLARATIONS: readonly SectionDeclaration[] = [
             field: 'defaultForexGainLossAccountId',
             labelKey: 'settings.sections.fields.forex_gain_loss_account',
             helpKey: 'settings.sections.fields.forex_gain_loss_account_help'
+          },
+          {
+            field: 'defaultUnrealizedForexGainLossAccountId',
+            labelKey: 'settings.sections.fields.unrealized_forex_gain_loss_account',
+            helpKey: 'settings.sections.fields.unrealized_forex_gain_loss_account_help'
           }
         ]
       }

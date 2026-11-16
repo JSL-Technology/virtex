@@ -1,6 +1,6 @@
 /**
  * Executable proof that a new company can keep, reorganise and close its books
- * (audit 2026-11-07: FIN-COA-01, FIN-COA-02, FIN-AC-01, FIN-AC-02).
+ * (audit 2026-11-07: FIN-COA-01, FIN-COA-02, FIN-COA-04, FIN-COA-05, FIN-AC-01, FIN-AC-02, FIN-AC-03).
  *
  * ## What this exists to stop from happening again
  *
@@ -15,6 +15,11 @@
  *    untouched because one untagged line cannot cancel two centres.
  *  - A period could be closed before it had ended, which refuses every posting in the rest of it,
  *    with no warning.
+ *  - A revenue account was accepted under the assets, and a sub-account under an account with a
+ *    balance; the subtree endpoint answered with the account itself.
+ *  - The period-end revaluation guessed which accounts were money, restated customer advances,
+ *    and posted the unrealised differences with the realised ones; a dollar bank account's ledger
+ *    account took peso lines.
  *
  * This drives the REAL application — the queue, the worker, the posting path, the triggers —
  * against a real database with a QA tenant, and then asks the ledger what it holds. The unit and
@@ -40,6 +45,11 @@ import { TemporalValidityGuard } from '../../apps/backend/api/src/app/financial-
 import { Dimension } from '../../apps/backend/api/src/app/dimensions/entities/dimension.entity';
 import { DimensionValue } from '../../apps/backend/api/src/app/dimensions/entities/dimension-value.entity';
 import { DimensionRule } from '../../apps/backend/api/src/app/dimensions/entities/dimension-rule.entity';
+import { TreasuryService } from '../../apps/backend/api/src/app/treasury/treasury.service';
+import { BankAccountType } from '../../apps/backend/api/src/app/treasury/entities/bank-account.entity';
+import { ClosingChecklistService } from '../../apps/backend/api/src/app/accounting/closing-checklist.service';
+import { CurrencyRevaluationService } from '../../apps/backend/api/src/app/accounting/services/currency-revaluation.service';
+import { ExchangeRateResolver } from '../../apps/backend/api/src/app/currencies/exchange-rate-resolver.service';
 
 const failures: string[] = [];
 function check(label: string, ok: boolean, detail = ''): void {
@@ -293,6 +303,8 @@ async function main(): Promise<void> {
     `A ${retainedA} · B ${retainedB} · total ${retainedTotal}`,
   );
 
+  await foreignCurrencyAndHierarchy(app);
+
   await app.close();
   if (failures.length > 0) {
     console.error(`\n${failures.length} comprobación(es) fallaron:`);
@@ -301,6 +313,179 @@ async function main(): Promise<void> {
   }
   console.log('\nUNA EMPRESA NUEVA LLEVA, REORGANIZA Y CIERRA SUS LIBROS');
   process.exit(0);
+}
+
+/**
+ * FIN-COA-04, FIN-COA-05 and FIN-AC-03, on a company of their own: its dollar position must not
+ * reach the twelve closes above, which would then need a closing rate for every month.
+ */
+async function foreignCurrencyAndHierarchy(app: Awaited<ReturnType<typeof NestFactory.create>>): Promise<void> {
+  const ds = app.get(DataSource);
+  const organizations = app.get(OrganizationsService, { strict: false });
+  const localization = app.get(LocalizationService, { strict: false });
+  const chart = app.get(ChartOfAccountsService, { strict: false });
+  const balances = app.get(AccountBalancesService, { strict: false });
+  const entries = app.get(JournalEntriesService, { strict: false });
+  const treasury = app.get(TreasuryService, { strict: false });
+  const checklist = app.get(ClosingChecklistService, { strict: false });
+  const revaluation = app.get(CurrencyRevaluationService, { strict: false });
+  const rates = app.get(ExchangeRateResolver, { strict: false });
+
+  const stamp = Date.now();
+  const actor = '00000000-0000-4000-8000-000000000001';
+  const region = await localization.findRegionByCountryCode('DO');
+  const [plan] = await ds.query(`SELECT id FROM "saas_plans" ORDER BY "monthly_price" DESC NULLS LAST LIMIT 1`);
+  const org = await organizations.create({
+    planId: plan?.id,
+    subscriptionStatus: 'active',
+    subscriptionPeriodEnd: new Date(Date.now() + 30 * 24 * 3600_000),
+    legalName: `QA Sonda Divisas ${stamp}`,
+    country: 'DO',
+    fiscalRegionId: region!.id,
+    address: 'Av. 27 de Febrero 100',
+    city: 'Santo Domingo',
+    state: '01',
+    phone: '8095550104',
+    email: `qa-divisas${stamp}@example.com`,
+  });
+  await localization.applyFiscalPackage(org, ds.manager);
+  const orgId = org.id;
+  const one = async (sql: string, params: unknown[]) => (await ds.query(sql, params))[0];
+
+  // ── FIN-COA-05 / FIN-COA-04: one tree, each branch of one type ──────────────────────────────
+  const assets = await one(
+    `SELECT id, code FROM accounts WHERE organization_id = $1 AND type = 'ASSET' AND NOT "isPostable" AND parent_id IS NULL ORDER BY code LIMIT 1`,
+    [orgId],
+  );
+  const bank = await one(`SELECT id, code, parent_id AS "parentId" FROM accounts WHERE organization_id = $1 AND system_role = 'BANK'`, [orgId]);
+  const draft = (code: string, type: AccountType, category: AccountCategory, nature: AccountNature, parentId: string) =>
+    ({ segments: [code], name: `QA ${code}`, type, category, nature, parentId, isPostable: true }) as never;
+  check(
+    'una cuenta de ingresos bajo los activos se rechaza, con el motivo',
+    (await refusal(() => chart.create(draft('1171', AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, AccountNature.CREDIT, assets.id), orgId))) ===
+      'chart_of_accounts.child_type_differs_from_parent',
+  );
+  check(
+    'una subcuenta bajo una cuenta que recibe movimientos se rechaza',
+    (await refusal(() => chart.create(draft('1199', AccountType.ASSET, AccountCategory.CURRENT_ASSET, AccountNature.DEBIT, bank.id), orgId))) ===
+      'chart_of_accounts.parent_takes_postings',
+  );
+  const writer = await ds
+    .query(
+      `INSERT INTO accounts (organization_id, code, name, type, category, nature, "isPostable", version, parent_id)
+       VALUES ($1, '1172', '{"es":"QA"}'::jsonb, 'REVENUE', 'OPERATING_REVENUE', 'CREDIT', true, 1, $2)`,
+      [orgId, assets.id],
+    )
+    .then(
+      () => null,
+      (error: { constraint?: string }) => error.constraint ?? 'otro error',
+    );
+  check('la base de datos lo rechaza también a cualquier otro escritor', writer === 'CHK_accounts_child_type_matches_parent', String(writer));
+  const children = await chart.findChildrenOf(assets.id, orgId);
+  check(
+    'el árbol responde con las subcuentas de una cuenta, no con ella misma',
+    children.length > 0 && children.every((child) => child.parentId === assets.id && child.id !== assets.id),
+    `${assets.code}: ${children.map((child) => child.code).join(', ')}`,
+  );
+
+  // ── FIN-AC-03: money is restated, everything else stays at the rate of its day ──────────────
+  const [treatments] = await ds.query(
+    `SELECT count(*) FILTER (WHERE system_role IN ('CASH', 'BANK', 'ACCOUNTS_RECEIVABLE', 'ACCOUNTS_PAYABLE') AND fx_treatment = 'REVALUED')::int AS money,
+            count(*) FILTER (WHERE system_role IN ('CASH', 'BANK', 'ACCOUNTS_RECEIVABLE', 'ACCOUNTS_PAYABLE'))::int AS "moneyRoles",
+            max(fx_treatment) FILTER (WHERE system_role = 'CUSTOMER_ADVANCES') AS advances,
+            count(*) FILTER (WHERE fx_treatment = 'REVALUED' AND (type::text NOT IN ('ASSET', 'LIABILITY') OR NOT "isPostable"))::int AS wrong
+       FROM accounts WHERE organization_id = $1`,
+    [orgId],
+  );
+  check(
+    'el plan aprovisionado revalúa el dinero, deja los anticipos de clientes a su tasa y no revalúa resultados ni grupos',
+    treatments.money === treatments.moneyRoles && treatments.advances === 'HISTORICAL' && treatments.wrong === 0,
+    `${treatments.money}/${treatments.moneyRoles} cuentas de dinero · anticipos ${treatments.advances} · ${treatments.wrong} mal`,
+  );
+  const [settings] = await ds.query(
+    `SELECT default_unrealized_forex_gain_loss_account_id AS unrealized, default_forex_gain_loss_account_id AS realized
+       FROM organization_settings WHERE organization_id = $1`,
+    [orgId],
+  );
+  check(
+    'la diferencia no realizada tiene su propia cuenta, aparte de la realizada',
+    Boolean(settings.unrealized) && settings.unrealized !== settings.realized,
+  );
+
+  // A dollar bank account: its ledger account is locked to dollars and marked as money.
+  const ledgerAccount = await chart.create(draft('1198', AccountType.ASSET, AccountCategory.CURRENT_ASSET, AccountNature.DEBIT, bank.parentId), orgId);
+  await treasury.createBankAccount(
+    { name: 'QA Banco en dólares', accountType: BankAccountType.CHECKING, currencyCode: 'USD', glAccountId: ledgerAccount.id } as never,
+    orgId,
+    actor,
+  );
+  const locked = await one(`SELECT currency, fx_treatment AS "fxTreatment" FROM accounts WHERE id = $1`, [ledgerAccount.id]);
+  check('su cuenta contable queda en dólares y se revalúa', locked.currency === 'USD' && locked.fxTreatment === 'REVALUED', JSON.stringify(locked));
+
+  const [{ id: journalId }] = await ds.query(`SELECT id FROM journals WHERE organization_id = $1 AND code = 'GENERAL'`, [orgId]);
+  const [january] = await ds.query(
+    `SELECT p.id, to_char(p.start_date, 'YYYY-MM-DD') AS start, to_char(p.end_date, 'YYYY-MM-DD') AS "end"
+       FROM accounting_periods p JOIN fiscal_years y ON y.organization_id = p.organization_id AND y.status = 'OPEN'
+      WHERE p.organization_id = $1 AND p.start_date = y.start_date`,
+    [orgId],
+  );
+  const cash = await one(`SELECT id FROM accounts WHERE organization_id = $1 AND system_role = 'CASH'`, [orgId]);
+  const move = (date: string, debit: Record<string, unknown>, credit: Record<string, unknown>) =>
+    entries.create(
+      { date, description: 'QA movimiento en dólares', journalId, lines: [debit, credit] } as unknown as CreateJournalEntryDto,
+      orgId,
+      // Posted as treasury posts a foreign receipt: a system posting whose rate the module resolved.
+      { actorUserId: actor, systemReason: 'QA cobro en divisa' },
+    );
+  const deposit = `${january.start.slice(0, 8)}10`;
+  check(
+    'un asiento en pesos sobre esa cuenta se rechaza',
+    (await refusal(() =>
+      move(deposit, { accountId: ledgerAccount.id, debit: 5_800, credit: 0 }, { accountId: cash.id, debit: 0, credit: 5_800 }),
+    )) === 'journal_entries.line_currency_differs_from_account',
+  );
+  await move(
+    deposit,
+    { accountId: ledgerAccount.id, debit: 5_800, credit: 0, currencyCode: 'USD', foreignCurrencyDebit: 100, foreignCurrencyCredit: 0, exchangeRate: 58 },
+    { accountId: cash.id, debit: 0, credit: 5_800 },
+  );
+
+  // The closing rate of January: the published one if there is one, else a QA one, removed after.
+  const rateType = await rates.rateTypeFor(orgId);
+  let insertedRateId: string | null = null;
+  let closingRate = await rates.rateFor('USD', 'DOP', january.end, undefined, rateType).catch(() => null);
+  if (closingRate === null) {
+    [{ id: insertedRateId }] = await ds.query(
+      `INSERT INTO exchange_rate ("fromCurrency", "toCurrency", rate, date, rate_type) VALUES ('USD', 'DOP', 60, $1, $2) RETURNING id`,
+      [january.end, rateType],
+    );
+    closingRate = 60;
+  }
+  const items = await checklist.getChecklist(january.id, orgId);
+  const line = items.find((item) => item.id === 'currency-revaluation');
+  check(
+    'la lista de cierre dice qué revaluará el cierre, de la misma cuenta que hará',
+    line?.descriptionKey === 'accounting.checklist.items.revaluation_ready' && line.params?.['currencies'] === 'USD',
+    `${line?.descriptionKey} · ${JSON.stringify(line?.params)}`,
+  );
+
+  await revaluation.run(january.end, orgId);
+  const [ledger] = await ds.query(`SELECT id FROM ledgers WHERE organization_id = $1 AND is_default`, [orgId]);
+  const at = (accountId: string) => balances.balanceOf(accountId, { organizationId: orgId, ledgerId: ledger.id, asOf: january.end });
+  const restated = Math.round(100 * closingRate * 100) / 100;
+  const [bankBalance, unrealizedBalance, realizedBalance] = await Promise.all([at(ledgerAccount.id), at(settings.unrealized), at(settings.realized)]);
+  check(
+    'el cierre reexpresa el saldo en dólares a la tasa de cierre',
+    near(bankBalance, restated),
+    `${bankBalance} = 100 USD × ${closingRate}`,
+  );
+  check(
+    'y lleva la diferencia a la cuenta no realizada, no a la realizada',
+    near(unrealizedBalance, -(restated - 5_800)) && near(realizedBalance, 0),
+    `no realizada ${unrealizedBalance} · realizada ${realizedBalance}`,
+  );
+
+  if (insertedRateId) await ds.query(`DELETE FROM exchange_rate WHERE id = $1`, [insertedRateId]);
 }
 
 main().catch((error) => {

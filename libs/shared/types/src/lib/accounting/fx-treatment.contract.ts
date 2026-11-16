@@ -34,7 +34,23 @@ export function isFxTreatmentAllowedForType(type: string | null | undefined, tre
  * the asset accounts with no operational role are prepaid expenses, property and intangibles, all
  * non-monetary. The person creating the account is shown the choice, and the period close lists
  * foreign-currency balances held at their historical rate for review.
+ *
+ * A summary account takes no postings — its sub-accounts carry its balance — so it has no
+ * treatment of its own, and is recorded `HISTORICAL` ({@link summaryAccountFxSettingsFit}).
  */
-export function defaultFxTreatmentForType(type: string | null | undefined): FxTreatment {
-  return type === 'LIABILITY' ? 'REVALUED' : 'HISTORICAL';
+export function defaultFxTreatmentForType(type: string | null | undefined, isPostable = true): FxTreatment {
+  return isPostable && type === 'LIABILITY' ? 'REVALUED' : 'HISTORICAL';
+}
+
+/**
+ * Whether a summary account's foreign-currency settings are the ones it can have: none. Revaluing
+ * it, or locking it to a currency, would describe lines it never takes. The database holds the
+ * same rule (`CHK_accounts_summary_has_no_currency`).
+ */
+export function summaryAccountFxSettingsFit(
+  isPostable: boolean,
+  fxTreatment: FxTreatment,
+  currency: string | null | undefined,
+): boolean {
+  return isPostable || (fxTreatment === 'HISTORICAL' && !currency);
 }

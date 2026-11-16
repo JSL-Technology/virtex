@@ -1,13 +1,13 @@
 {
   "generatedFrom": "tools/verify/module-boundaries.mjs",
-  "total": 1128,
+  "total": 1127,
   "byRule": {
     "private-import": 433,
     "private-import:spec": 232,
     "forbidden-dependency": 199,
     "forbidden-dependency:spec": 91,
     "module-cycle": 5,
-    "foreign-entity-registration": 26,
+    "foreign-entity-registration": 25,
     "cross-module-transaction": 113,
     "forward-ref": 29
   },
@@ -118,9 +118,9 @@
     "foreign-entity-registration|reportes|inventario": 1,
     "foreign-entity-registration|reportes|compras": 2,
     "foreign-entity-registration|reportes|finanzas": 1,
-    "foreign-entity-registration|reportes|contabilidad": 2,
     "foreign-entity-registration|ventas|configuracion": 1,
     "foreign-entity-registration|reportes|configuracion": 1,
+    "foreign-entity-registration|reportes|contabilidad": 1,
     "foreign-entity-registration|plataforma|identidad": 1,
     "cross-module-transaction|contabilidad|configuracion": 8,
     "cross-module-transaction|contabilidad|plataforma": 5,
