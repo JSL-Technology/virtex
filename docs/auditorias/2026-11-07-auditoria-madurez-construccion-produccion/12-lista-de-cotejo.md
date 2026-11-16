@@ -2,7 +2,7 @@
 
 Todos los hallazgos de los MD de la auditoría, con su estado en [`10-verificacion-de-cierre.md`](10-verificacion-de-cierre.md). ✅ = resuelto y verificado · ❌ = parcial o pendiente (en los parciales se indica lo que falta).
 
-**92 de 387 resueltos; 295 por corregir** (13 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
+**94 de 387 resueltos; 293 por corregir** (13 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
 
 Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de la ficha citada. La evidencia es la registrada en el informe de cierre (`herramientas/informe-cierre.mjs`, mapa `M`): commit y qué se comprobó. Cada commit citado se comprueba contra el repositorio al generar esta lista.
 
@@ -10,8 +10,8 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 |---|---|---|
 | Crítica | 13 | 0 |
 | Alta | 46 | 70 |
-| Media | 31 | 141 |
-| Baja | 1 | 69 |
+| Media | 32 | 140 |
+| Baja | 2 | 68 |
 | — | 1 | 15 |
 
 ## Severidad crítica (13)
@@ -198,7 +198,6 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | FE-SH-04 | apps/core/client-web/project.json:79-80. Bundle inicial 2,00 MB > 1,60 MB; el budget es solo aviso (error a 4 MB) → CI no lo frena. exceljs se importa estáticamente en features/invoices/det… | Sin corrección registrada. | `modulos/frontend-shell.md:53` |
 | ❌ | FE-SH-05 | páginas collections, inventory/predictions, reports/manager-report, reports/anomalies, accounting/treasury/cash-flow, settings sso/integrations/ai. Funciones no incluidas en el plan aparece… | Sin corrección registrada. | `modulos/frontend-shell.md:54` |
 | ❌ | FE-SH-06 | overview/dashboard. La página de inicio no conoce los permisos: para un miembro hace 13 peticiones 403 (/dashboard/kpi/*, /dashboard/alerts, /accounting/current-period) y registra ERROR Htt… | Sin corrección registrada. | `modulos/frontend-shell.md:55` |
-| ❌ | FIN-AC-06 | accounting · Eje 4 · Arquitectura · Media | Sin corrección registrada. | `modulos/accounting.md:77` |
 | ❌ | FIN-AR-02 | Vista materializada única para todos los tenants creada por DDL en runtime (synchronizeView), con columnas derivadas de nombres de dimensiones de todos los clientes; fuera del control de mi… | Sin corrección registrada. | `modulos/financial-reporting.md:64` |
 | ❌ | FIN-DIM-01 | Filtros por valor padre no incluyen hijos (ADM devuelve 10 de 20). Ubicación: filtro de dimensión en financial-reporting.service.ts (igualdad JSONB). Forma correcta: expandir con dimension_… | Sin corrección registrada. | `modulos/dimensions.md:43` |
 | ❌ | FIN-DIM-02 | Dimensión referida por nombre en JSONB (journal_entry_lines.dimensions), sin integridad referencial; impide renombrar y obliga a contar uso por texto. Esfuerzo: M. | Sin corrección registrada. | `modulos/dimensions.md:45` |
@@ -303,8 +302,9 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ✅ | FAC-PL-02 | roundAmount(item.price) trunca a 2 decimales; probado 900.123456→900.12. Forma correcta: precisión de precio unitario igual a la del documento (6). Riesgo operativo. S. | Commit `7e3640e0`. `price-lists.service.ts`: `roundAmount(item.price, 6)`; columna `numeric(18,6)`. | `modulos/price-lists.md:56` |
 | ✅ | FAC-PL-03 | "no-currency!!" aceptado (201). Validar contra catálogo de monedas del tenant. S. | Commit `7e3640e0`. `dto/create-price-list.dto.ts`: `@Matches(/^[A-Za-z]{3}$/)` (`validation.currency_code`). | `modulos/price-lists.md:57` |
 | ✅ | FIN-AC-02 | accounting · Eje 2 · Integridad · Media | Commit `c54e1273`. `closePeriod` rechaza un período cuyo fin no ha llegado (`accounting.period_has_not_ended_yet`), en el calendario del inquilino, salvo confirmación explícita `closeBeforeItEnds`; la pantalla de cierre pregunta antes de enviar, con lo que implica. `period-clos… | `modulos/accounting.md:62` |
+| ✅ | FIN-AC-06 | accounting · Eje 4 · Arquitectura · Media | Commit `623a79b0`. `BookkeepingReprovisioningService.reprovision` (el controlador solo delega), con `baseCurrencyOf(país)` en `markets` como única regla de moneda base por defecto para el alta y el reaprovisionamiento. `bookkeeping-reprovisioning.service.spec.ts` (2). verify:ch… | `modulos/accounting.md:77` |
 | ✅ | FIN-COA-04 | chart-of-accounts · Eje 1/4 · Bug · Media | Commit `849d7715`, `5dbad9d6`. Fuera `accounts_closure` (cada cuenta era su propio único ancestro) y `dimension_values_closure` (mantenida y no leída): la jerarquía es `parent_id`, indexada, leída con CTE recursivas; `tree/children` responde con las subcuentas. Reversión probada (reconstru… | `modulos/chart-of-accounts.md:75` |
-| ✅ | FIN-COA-05 | chart-of-accounts · Eje 2 · Integridad · Media | Commit `849d7715`, `5dbad9d6`. El padre es una cuenta de agrupación del mismo tipo y el árbol no tiene ciclos: en el servicio con mensaje (tipo distinto, padre imputable, ciclo, agrupación con movimientos) y en el disparador `accounts_hierarchy_rules` para todo otro escritor, que comprueba… | `modulos/chart-of-accounts.md:78` |
+| ✅ | FIN-COA-05 | chart-of-accounts · Eje 2 · Integridad · Media | Commit `849d7715`, `5dbad9d6`, `d639a985`. El padre es una cuenta de agrupación del mismo tipo y el árbol no tiene ciclos: en el servicio con mensaje (tipo distinto, padre imputable, ciclo, agrupación con movimientos) y en el disparador `accounts_hierarchy_rules` para todo otro escritor, que comprueba… | `modulos/chart-of-accounts.md:78` |
 | ✅ | FINB-02 | organization_settings.fx_rate_tolerance = 0.000000 en tenant nuevo (consulta SQL): cualquier tasa bancaria declarada distinta a la oficial se rechaza (exchange-rate-resolver.service.ts:278-… | Commit `a3f55f52`. Mismo arreglo que XF-09: `fx_rate_tolerance` vuelve a tomar el DEFAULT 0,02; el verificador `numeric-transformers` detecta la regresión. | `modulos/currencies.md:45` |
 | ✅ | FINB-34 | consolidation.service.ts:365-372, 592-595: todo el patrimonio a tasa histórica de adquisición (incluye resultados posteriores), promedio = media simple de cierres mensuales; CTA no persisti… | Commit `958cf094`. Lo posterior a la adquisición se convierte al promedio desde la adquisición (no al histórico); la diferencia de conversión se acumula por corrida en `consolidation_runs` (migración 1789460000000, solo inserción). El promedio sigue siendo la media de cierres m… | `modulos/consolidation.md:50` |
 | ✅ | FINB-35 | organizations.service.ts:200-288: solo se pueden crear subsidiarias nuevas; no se puede vincular una organización existente (adquisición). M. | Commit `958cf094`. `OrganizationsService.linkSubsidiary` + `POST /organizations/subsidiaries/link` (step-up, propietario, administrador de ambas empresas, sin ciclos ni doble control, cupo del plan) y diálogo en Ajustes › Subsidiarias; `subsidiary-link.spec.ts`. | `modulos/consolidation.md:52` |
@@ -351,7 +351,6 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | FE-SET-05 | zona horaria de la empresa no editable por PATCH /organizations/profile (400 whitelist) y no localicé otra sección que la edite (grep timezone en features/settings: solo billing/billing.pag… | Sin corrección registrada. | `modulos/settings.md:53` |
 | ❌ | FE-SH-07 | componentes >800 l. (workflow-designer 1.397, auth.ts 1.015, AP form 893, invoice new 884, invoice detail 846) y 480 warnings. M. | Sin corrección registrada. | `modulos/frontend-shell.md:56` |
 | ❌ | FE-SH-08 | features/accounts-payable/form/form.page.ts:129 y core/services/accounts-payable.ts:221-245: catálogos DGII 606 en el cliente y fallback a etiqueta NCF cuando el pack no llegó. S. | Sin corrección registrada. | `modulos/frontend-shell.md:57` |
-| ❌ | FIN-AC-05 | Seguridad (defensa en profundidad): ledger-mapping.service.ts:60-70 inserta sourceAccountId/targetAccountId sin verificar que sean del tenant; lo detiene el trigger BD tg_same_tenant_* (400… | Sin corrección registrada. | `modulos/accounting.md:74` |
 | ❌ | FIN-COA-06 | i18n: Tenant US: name = {"es":"Assets"} — texto inglés en la clave es. Esfuerzo: S. | Sin corrección registrada. | `modulos/chart-of-accounts.md:81` |
 | ❌ | FIN-DIM-03 | Regex ASCII de nombre rechaza "Región", "Año". Esfuerzo: S. | Sin corrección registrada. | `modulos/dimensions.md:47` |
 | ❌ | FIN-FR-02 | Flujo de efectivo repite la misma cuenta (1130) en dos filas (−50.000,33 y +30.000) en lugar de su variación neta. Esfuerzo: S. | Sin corrección registrada. | `modulos/financial-reporting.md:68` |
@@ -403,6 +402,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | XF-04 | invoices (NC): Qué está mal: la NC debita 4100 Ingresos por ventas en lugar de 4300 Descuentos y devoluciones (la cuenta existe con system_role SALES_DISCOUNTS). Las ventas netas cuadran, p… | Sin corrección registrada. | `06-flujos-cruzados.md:231` |
 | ❌ | XF-06 | el tenant US numera sus facturas FAC-00000002 (abreviatura española) y guarda los nombres ingleses del plan de cuentas bajo la clave es ({"es":"Accounts Receivable"}). | Sin corrección registrada. | `06-flujos-cruzados.md:243` |
 | ❌ | XF-10 | GET /customers devuelve defaultSalesAccountId, pero PATCH {defaultSalesAccountId} → 400 whitelist_validation. No se puede configurar por API, así que no se pudo probar la cuenta por defecto… | Sin corrección registrada. | `06-flujos-cruzados.md:225` |
+| ✅ | FIN-AC-05 | Seguridad (defensa en profundidad): ledger-mapping.service.ts:60-70 inserta sourceAccountId/targetAccountId sin verificar que sean del tenant; lo detiene el trigger BD tg_same_tenant_* (400… | Commit `623a79b0`. `LedgerMappingService.assertMappingsFit`: cada cuenta de las reglas es de la empresa y cada origen aparece una vez, con el número de regla en el mensaje, antes de reemplazar las reglas; libro sobre sí mismo rechazado; multiplicador positivo en el DTO (uno neg… | `modulos/accounting.md:74` |
 | ✅ | I18N-05 | i18n: i18n: ## 7. Camino mínimo | Commit `aeabe621`. `chart-of-accounts.service.ts` (`booksLanguage`: nombre guardado bajo el idioma de los libros o del país; la edición conserva las otras traducciones), `principalTaxName` en portugués para BR, migración 1789470000000 (re-clave de BR/US), `verify:markets` compr… | `modulos/i18n.md:60` |
 
 ## Severidad no indicada (patrones y transversales) (16)
