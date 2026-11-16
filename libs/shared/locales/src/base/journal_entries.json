@@ -279,6 +279,11 @@
     "en": "A line in {{currency}}, the books currency, must carry the same currency and ledger amount.",
     "pt": "Uma linha em {{currency}}, a moeda dos livros, deve ter o mesmo valor em divisa e na contabilidade."
   },
+  "journal_entries.line_currency_differs_from_account": {
+    "es": "La cuenta {{account}} solo admite movimientos en {{accountCurrency}}; esta línea está en {{lineCurrency}}.",
+    "en": "Account {{account}} takes lines in {{accountCurrency}} only; this line is in {{lineCurrency}}.",
+    "pt": "A conta {{account}} só aceita lançamentos em {{accountCurrency}}; esta linha está em {{lineCurrency}}."
+  },
   "journal_entries.line_currency_side_mismatch": {
     "es": "Una línea en {{currency}} tiene el importe en divisa del lado contrario a su importe contable.",
     "en": "A line in {{currency}} has its currency amount on the opposite side to its ledger amount.",

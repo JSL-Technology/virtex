@@ -2936,9 +2936,9 @@
     "pt": "Mínimo legal usual: 5 a 10 anos conforme o país."
   },
   "settings.sections.fields.forex_gain_loss_account": {
-    "es": "Diferencial cambiario",
-    "en": "Foreign exchange gain or loss",
-    "pt": "Variação cambial"
+    "es": "Diferencia cambiaria realizada",
+    "en": "Realized exchange difference",
+    "pt": "Variação cambial realizada"
   },
   "settings.sections.fields.forex_gain_loss_account_help": {
     "es": "Recibe la diferencia entre la tasa de la factura y la del cobro o pago.",
@@ -3134,6 +3134,16 @@
     "es": "Decide qué retenciones te aplican tus clientes.",
     "en": "Decides which withholdings your customers apply to you.",
     "pt": "Define quais retenções seus clientes aplicam a você."
+  },
+  "settings.sections.fields.unrealized_forex_gain_loss_account": {
+    "es": "Diferencia cambiaria no realizada",
+    "en": "Unrealized exchange difference",
+    "pt": "Variação cambial não realizada"
+  },
+  "settings.sections.fields.unrealized_forex_gain_loss_account_help": {
+    "es": "Recibe la revaluación de cierre de los saldos en moneda extranjera. Vacía: va a la diferencia realizada.",
+    "en": "Receives the period-end revaluation of foreign-currency balances. Empty: it goes to the realized difference.",
+    "pt": "Recebe a reavaliação de fechamento dos saldos em moeda estrangeira. Vazia: vai para a variação realizada."
   },
   "settings.sections.go_chart_of_accounts": {
     "es": "Catálogo de cuentas",

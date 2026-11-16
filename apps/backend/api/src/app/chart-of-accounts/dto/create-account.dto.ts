@@ -13,7 +13,9 @@ import {
   IsArray,
   ArrayMinSize,
   IsDateString,
+  IsIn,
 } from 'class-validator';
+import { FX_TREATMENTS, type FxTreatment } from '@virtex/shared/types';
 import { Type } from 'class-transformer';
 import {
   AccountType,
@@ -21,7 +23,6 @@ import {
   AccountNature,
   AccountRole,
   CashFlowCategory,
-  RequiredDimension,
   HierarchyType,
 } from '../enums/account-enums';
 
@@ -29,16 +30,6 @@ class StatementMappingDto {
   @IsString() @IsOptional() balanceSheetCategory?: string;
   @IsString() @IsOptional() incomeStatementCategory?: string;
   @IsEnum(CashFlowCategory) @IsOptional() cashFlowCategory?: CashFlowCategory;
-}
-
-class RulesDto {
-  @IsBoolean() @IsOptional() requiresReconciliation?: boolean;
-  @IsBoolean() @IsOptional() isCashOrBank?: boolean;
-  @IsBoolean() @IsOptional() allowsIntercompany?: boolean;
-  @IsBoolean() @IsOptional() isFxRevaluation?: boolean;
-  @IsEnum(RequiredDimension, { each: true })
-  @IsOptional()
-  requiredDimensions?: RequiredDimension[];
 }
 
 export class CreateAccountDto {
@@ -64,14 +55,23 @@ export class CreateAccountDto {
   @IsEnum(AccountRole) @IsOptional() systemRole?: AccountRole;
 
   @IsBoolean() @IsOptional() isSystemAccount?: boolean = false;
-  @IsBoolean() @IsOptional() isMultiCurrency?: boolean = false;
 
   /**
-   * The currency an account is designated in (a dollar bank account's ledger account), ISO 4217.
-   * Informative and used for display; the revaluation works per (account, currency) from the lines
-   * themselves, so a receivable in several currencies needs no designation.
+   * How the account's foreign-currency balances are measured at a period end (IAS 21): restated at
+   * the closing rate, or kept at their historical rate. Omitted: from the account's role and type
+   * (`defaultFxTreatment`). Only balance-sheet accounts can be revalued.
    */
-  @IsOptional() @Matches(/^[A-Z]{3}$/) currency?: string;
+  @IsOptional()
+  @IsIn(FX_TREATMENTS, { message: 'validation.constraints.is_in' })
+  fxTreatment?: FxTreatment;
+
+  /**
+   * The account's currency, ISO 4217: every line on it is in this currency (a dollar bank account's
+   * ledger account takes only dollars, a peso one only pesos). Null: lines in any currency.
+   */
+  @IsOptional()
+  @Matches(/^[A-Z]{3}$/, { message: 'validation.constraints.currency_code' })
+  currency?: string | null;
 
 
   /**
@@ -89,8 +89,4 @@ export class CreateAccountDto {
   @Type(() => StatementMappingDto)
   statementMapping?: StatementMappingDto;
 
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => RulesDto)
-  rules?: RulesDto;
 }

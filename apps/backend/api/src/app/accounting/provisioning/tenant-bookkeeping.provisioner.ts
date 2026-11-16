@@ -238,6 +238,7 @@ export class TenantBookkeepingProvisioner {
     settings.defaultBankId ??= byRole.get(AccountRole.BANK) ?? null;
     settings.defaultRetainedEarningsAccountId ??= byRole.get(AccountRole.RETAINED_EARNINGS) ?? null;
     settings.defaultForexGainLossAccountId ??= byRole.get(AccountRole.FOREX_GAIN_LOSS) ?? null;
+    settings.defaultUnrealizedForexGainLossAccountId ??= byRole.get(AccountRole.UNREALIZED_FOREX_GAIN_LOSS) ?? null;
     settings.defaultDepreciationExpenseAccountId ??= byRole.get(AccountRole.DEPRECIATION_EXPENSE) ?? null;
     settings.defaultAccumulatedDepreciationAccountId ??= byRole.get(AccountRole.ACCUMULATED_DEPRECIATION) ?? null;
     settings.defaultInflationAdjustmentAccountId ??= byRole.get(AccountRole.INFLATION_ADJUSTMENT) ?? null;

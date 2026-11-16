@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DataSource, EntityManager } from 'typeorm';
-import { Account } from '../../chart-of-accounts/entities/account.entity';
+import { DataSource, EntityManager, In } from 'typeorm';
+import { Account, AccountType } from '../../chart-of-accounts/entities/account.entity';
 import { ExchangeRateResolver } from '../../currencies/exchange-rate-resolver.service';
 import { AccountingPostingPort } from '../../journal-entries/accounting-posting.port';
 import { OrgSettingsService } from '../../organizations/services/org-settings.service';
@@ -102,10 +102,10 @@ export class CurrencyRevaluationService {
    *
    *  - Positions are read per (account, currency) from the lines that state a currency, so one
    *    receivable holding peso and dollar invoices is restated per currency.
-   *  - Only monetary accounts are restated (IAS 21.23): bank and cash, receivables and payables,
-   *    customer advances, intercompany balances — by the role the organization settings give them
-   *    or the bank accounts that post to them — plus any account flagged `isMultiCurrency`.
-   *    Inventory or a fixed asset bought in dollars stays at its historical rate.
+   *  - Only monetary accounts are restated (IAS 21.23): those the chart marks `REVALUED` — bank and
+   *    cash, receivables and payables, loans, accruals by default — while inventory, property, a
+   *    prepayment or a customer advance (IFRIC 22) bought or received in dollars stays at its
+   *    historical rate.
    *  - Each adjustment line carries the currency and no foreign amount: it moves the carrying
    *    amount only, so the next revaluation restates just what changed since.
    *  - A position that needs restating without a closing rate, or with no forex account
@@ -181,15 +181,19 @@ export class CurrencyRevaluationService {
       return { ledgerId: ledger.id, positions: positions.length, adjusted: 0 };
     }
 
-    // Configuration, only read: through the owner's own connection, not this transaction.
+    // Configuration, only read: through the owner's own connection, not this transaction. The
+    // unrealised differences go to their own account when the company has one (IAS 21 keeps them
+    // apart from the realised ones, and so do SAP, Dynamics 365 and NetSuite); a company provisioned
+    // before the two were separated posts both to its exchange-difference account.
     const settings = await this.orgSettings.getForOrg(organizationId);
-    if (!settings?.defaultForexGainLossAccountId) {
+    const forexAccountId = settings?.defaultUnrealizedForexGainLossAccountId ?? settings?.defaultForexGainLossAccountId;
+    if (!forexAccountId) {
       throw new UnprocessableEntityError('accounting.revaluation.forex_account_missing', { ledger: ledger.name });
     }
     const netAmount = roundAmount(Math.abs(netAdjustmentCents) / 100);
     const gain = netAdjustmentCents > 0;
     revaluationLines.push({
-      accountId: settings.defaultForexGainLossAccountId,
+      accountId: forexAccountId,
       debit: gain ? 0 : netAmount,
       credit: gain ? netAmount : 0,
       description: await this.narrative.describe(
@@ -218,25 +222,84 @@ export class CurrencyRevaluationService {
     return { ledgerId: ledger.id, positions: positions.length, adjusted: revaluationLines.length - 1 };
   }
 
-  /** Monetary accounts: by role in the organization settings, the bank accounts' ledgers, and flagged ones. */
-  private async monetaryAccountIds(organizationId: string, manager: EntityManager): Promise<string[]> {
-    const settings = await this.orgSettings.getForOrg(organizationId);
-    const byRole = [
-      settings?.defaultAccountsReceivableId,
-      settings?.defaultAccountsPayableId,
-      settings?.defaultCustomerAdvancesAccountId,
-      settings?.defaultCashId,
-      settings?.defaultBankId,
-      settings?.defaultIntercompanyReceivableAccountId,
-      settings?.defaultIntercompanyPayableAccountId,
-    ];
-    const banks: Array<{ id: string }> = await manager.query(
-      `SELECT DISTINCT gl_account_id AS id FROM bank_accounts WHERE organization_id = $1 AND gl_account_id IS NOT NULL`,
-      [organizationId],
-    );
-    const flagged = await manager.find(Account, { where: { organizationId, isMultiCurrency: true }, select: { id: true } });
-    return [...new Set([...byRole, ...banks.map((b) => b.id), ...flagged.map((a) => a.id)].filter((id): id is string => Boolean(id)))];
+  /**
+   * What the period-end revaluation will find, without posting anything — for the close checklist,
+   * so what it says and what the close does are one computation.
+   *
+   * `positions` are the open foreign-currency balances on revalued accounts, which the close
+   * restates; `missingRates` the currencies among them with no closing rate, which stop the close.
+   * `historical` are foreign-currency balances on balance-sheet accounts held at their historical
+   * rate: right for inventory, property or an advance, wrong for money — listed for the accountant
+   * to review, since only they can tell which an account is.
+   */
+  async outlook(periodEndDate: Date | string, organizationId: string, manager?: EntityManager): Promise<RevaluationOutlook> {
+    const em = manager ?? this.dataSource.manager;
+    const periodEnd = toIsoDate(periodEndDate);
+    const ledger =
+      (await em.findOne(Ledger, { where: { organizationId, isDefault: true } })) ??
+      (await em.findOne(Ledger, { where: { organizationId }, order: { createdAt: 'ASC' } }));
+    const empty: RevaluationOutlook = { positions: 0, currencies: [], missingRates: [], historical: [] };
+    if (!ledger) return empty;
+    const ledgerCurrency = (ledger.currency ?? '').toUpperCase();
+    const open = (rows: Array<{ accountId: string; currencyCode: string; documentBalance: number }>) =>
+      rows.filter((row) => row.currencyCode !== ledgerCurrency && row.documentBalance !== 0);
+
+    const revalued = await this.monetaryAccountIds(organizationId, em);
+    const positions = revalued.length
+      ? open(await this.balances.foreignPositionsAsOf({ organizationId, ledgerId: ledger.id, accountIds: revalued, asOf: periodEnd }, em))
+      : [];
+    const currencies = [...new Set(positions.map((position) => position.currencyCode))].sort();
+    const rateType = await this.exchangeRateResolver.rateTypeFor(organizationId, em);
+    const missingRates: string[] = [];
+    for (const currency of currencies) {
+      try {
+        await this.exchangeRateResolver.rateFor(currency, ledgerCurrency, periodEnd, em, rateType);
+      } catch {
+        missingRates.push(currency);
+      }
+    }
+
+    const historicalAccounts = await em.find(Account, {
+      where: { organizationId, fxTreatment: 'HISTORICAL', type: In([AccountType.ASSET, AccountType.LIABILITY]) },
+      select: { id: true, code: true },
+    });
+    const codes = new Map(historicalAccounts.map((account) => [account.id, account.code]));
+    const historical = historicalAccounts.length
+      ? open(
+          await this.balances.foreignPositionsAsOf(
+            { organizationId, ledgerId: ledger.id, accountIds: [...codes.keys()], asOf: periodEnd },
+            em,
+          ),
+        ).map((position) => ({ code: codes.get(position.accountId) as string, currency: position.currencyCode }))
+      : [];
+    historical.sort((a, b) => a.code.localeCompare(b.code) || a.currency.localeCompare(b.currency));
+
+    return { positions: positions.length, currencies, missingRates, historical };
   }
+
+  /**
+   * The accounts whose foreign-currency balances are restated: those the chart marks `REVALUED`
+   * (`fx-treatment.contract.ts`). One source — it used to be inferred here from the settings' roles,
+   * the bank accounts posting to an account and a flag, and nothing showed the result anywhere.
+   */
+  async monetaryAccountIds(organizationId: string, manager: EntityManager): Promise<string[]> {
+    const accounts = await manager.find(Account, {
+      where: { organizationId, fxTreatment: 'REVALUED' },
+      select: { id: true },
+    });
+    return accounts.map((account) => account.id);
+  }
+}
+
+export interface RevaluationOutlook {
+  /** Open foreign-currency balances on revalued accounts at the period end. */
+  positions: number;
+  /** Their currencies. */
+  currencies: string[];
+  /** Currencies among them with no closing rate: the close cannot restate them. */
+  missingRates: string[];
+  /** Foreign-currency balances on balance-sheet accounts held at their historical rate. */
+  historical: Array<{ code: string; currency: string }>;
 }
 
 export interface RevaluationResult {

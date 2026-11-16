@@ -4,7 +4,6 @@ import { languageOfCountry } from '../markets';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Repository,
-  TreeRepository,
   EntityManager,
   In,
   DataSource,
@@ -36,7 +35,9 @@ import { AccountHierarchyVersion } from './entities/account-hierarchy-version.en
 import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
 import { likeTerm } from '../common/database/search-term';
-import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType } from '@virtex/shared/types';
+import { ACCOUNT_CATEGORIES_BY_TYPE, isCategoryAllowedForType, isFxTreatmentAllowedForType, type FxTreatment } from '@virtex/shared/types';
+import { findCurrency } from '../currencies/currency-catalogue';
+import { defaultFxTreatment } from '../contracts/accounting/fx-treatment.contract';
 
 export interface MergePreviewAccount {
   id: string;
@@ -73,7 +74,7 @@ export class ChartOfAccountsService {
 
   constructor(
     @InjectRepository(Account)
-    private readonly accountRepository: TreeRepository<Account>,
+    private readonly accountRepository: Repository<Account>,
     @InjectRepository(AccountHistory)
     private readonly accountHistoryRepository: Repository<AccountHistory>,
     private readonly dataSource: DataSource,
@@ -96,6 +97,64 @@ export class ChartOfAccountsService {
         type,
         allowed: (ACCOUNT_CATEGORIES_BY_TYPE as Record<string, readonly string[]>)[type]?.join(', ') ?? '',
       });
+    }
+  }
+
+  /**
+   * An account's foreign-currency settings (FIN-AC-03): a known ISO 4217 currency, and a revalued
+   * treatment only on a balance-sheet account — restating an expense «in dollars» would invent an
+   * exchange difference on a cost paid at the rate of its day (IAS 21.23).
+   */
+  static assertCurrencySettings(type: string, fxTreatment: FxTreatment, currency: string | null): void {
+    if (currency && !findCurrency(currency)) {
+      throw new BadRequestError('chart_of_accounts.currency_unknown', { currency });
+    }
+    if (!isFxTreatmentAllowedForType(type, fxTreatment)) {
+      throw new BadRequestError('chart_of_accounts.revalued_only_balance_sheet', { type });
+    }
+  }
+
+  /**
+   * An account given a currency must not already hold lines in another: its currency would be
+   * false about its own balance. Lines with no currency are in the books' currency.
+   */
+  private static async assertCurrencyFitsMovements(
+    manager: EntityManager,
+    organizationId: string,
+    account: Pick<Account, 'id' | 'code'>,
+    currency: string,
+  ): Promise<void> {
+    const [row] = await manager.query(
+      `SELECT EXISTS (
+         SELECT 1 FROM journal_entry_lines l
+          WHERE l.account_id = $1
+            AND upper(coalesce(l.currency_code,
+                  (SELECT s.base_currency FROM organization_settings s WHERE s.organization_id = $2))) <> $3
+       ) AS conflicts`,
+      [account.id, organizationId, currency],
+    );
+    if (row?.conflicts) {
+      throw new BadRequestError('chart_of_accounts.currency_conflicts_with_movements', { code: account.code, currency });
+    }
+  }
+
+  /**
+   * Where an account may hang (FIN-COA-05): under a summary account of its own type. A revenue
+   * account under assets, or a sub-account under one that takes postings, makes every total by
+   * hierarchy a mix of things that do not add up. The `accounts_hierarchy_rules` trigger holds the
+   * same line for every other writer.
+   */
+  private static assertParentFits(parent: Pick<Account, 'code' | 'type' | 'isPostable'>, child: { code: string; type: string }): void {
+    if (parent.type !== child.type) {
+      throw new BadRequestError('chart_of_accounts.child_type_differs_from_parent', {
+        code: child.code,
+        type: child.type,
+        parent: parent.code,
+        parentType: parent.type,
+      });
+    }
+    if (parent.isPostable) {
+      throw new BadRequestError('chart_of_accounts.parent_takes_postings', { code: child.code, parent: parent.code });
     }
   }
 
@@ -164,6 +223,14 @@ export class ChartOfAccountsService {
     return /^[a-z]{2}$/.test(language) ? language : 'es';
   }
 
+  /** `1101 · Caja general`: the account as a person reads it, in the books' language. */
+  private static async label(manager: EntityManager, organizationId: string, account: Pick<Account, 'code' | 'name'>): Promise<string> {
+    const language = await ChartOfAccountsService.booksLanguage(manager, organizationId);
+    const names = account.name ?? {};
+    const name = names[language] ?? Object.values(names).find(Boolean) ?? '';
+    return name ? `${account.code} · ${name}` : account.code;
+  }
+
   async createInTransaction(
     createAccountDto: CreateAccountDto,
     organizationId: string,
@@ -181,6 +248,14 @@ export class ChartOfAccountsService {
       errorKey: 'chart_of_accounts.parent_account_not_found',
       field: 'parentId',
     });
+    if (parentId) {
+      const parent = await manager.findOneOrFail(Account, { where: { id: parentId, organizationId } });
+      ChartOfAccountsService.assertParentFits(parent, { code: segmentValues.join('-'), type: accountData.type });
+    }
+
+    const currency = createAccountDto.currency ? createAccountDto.currency.toUpperCase() : null;
+    const fxTreatment = createAccountDto.fxTreatment ?? defaultFxTreatment(accountData.type, createAccountDto.systemRole);
+    ChartOfAccountsService.assertCurrencySettings(accountData.type, fxTreatment, currency);
 
     const segmentDefinitions = await manager.find(AccountSegmentDefinition, {
       where: { organizationId },
@@ -236,6 +311,8 @@ export class ChartOfAccountsService {
     const language = await ChartOfAccountsService.booksLanguage(manager, organizationId);
     const entityData: Partial<Account> = {
       ...restOfDto,
+      fxTreatment,
+      currency,
       organizationId,
       parentId: parentId || null,
       code: fullCode,
@@ -364,7 +441,7 @@ export class ChartOfAccountsService {
     userId: string,
   ): Promise<Account> {
     return this.dataSource.transaction(async (manager) => {
-      const accountRepo = manager.getTreeRepository(Account);
+      const accountRepo = manager.getRepository(Account);
       const historyRepo = manager.getRepository(AccountHistory);
       const hierarchyRepo = manager.getRepository(AccountHierarchyVersion);
 
@@ -388,6 +465,26 @@ export class ChartOfAccountsService {
       }
       if (updateAccountDto.category && updateAccountDto.category !== account.category) {
         ChartOfAccountsService.assertCategoryFitsType(account.type, updateAccountDto.category);
+      }
+      if (updateAccountDto.fxTreatment !== undefined || updateAccountDto.currency !== undefined) {
+        const currency =
+          updateAccountDto.currency === undefined ? (account.currency ?? null) : updateAccountDto.currency ? updateAccountDto.currency.toUpperCase() : null;
+        const fxTreatment = updateAccountDto.fxTreatment ?? account.fxTreatment;
+        ChartOfAccountsService.assertCurrencySettings(account.type, fxTreatment, currency);
+        if (currency && currency !== (account.currency ?? null)) {
+          await ChartOfAccountsService.assertCurrencyFitsMovements(manager, organizationId, account, currency);
+        }
+        updateAccountDto.currency = currency;
+      }
+      // A summary account carries no balance of its own, and an account with sub-accounts is one.
+      if (updateAccountDto.isPostable === false && account.isPostable) {
+        if (await this.journalQuery.hasMovementsForAccount(id, manager)) {
+          throw new BadRequestError('chart_of_accounts.summary_account_cannot_have_movements', { code: account.code });
+        }
+      }
+      if (updateAccountDto.isPostable === true && !account.isPostable) {
+        const [child] = await manager.find(Account, { where: { parentId: id, organizationId }, take: 1, select: { id: true } });
+        if (child) throw new BadRequestError('chart_of_accounts.account_with_subaccounts_cannot_post', { code: account.code });
       }
 
       const { reasonForChange, parentId, segments, ...accountDataDto } =
@@ -420,10 +517,16 @@ export class ChartOfAccountsService {
           errorKey: 'chart_of_accounts.parent_account_not_found',
           field: 'parentId',
         });
-        if (parentId) await this.assertNotOwnDescendant(manager, id, parentId, organizationId);
+        if (parentId) {
+          await this.assertNotOwnDescendant(manager, id, parentId, organizationId);
+          const parent = await manager.findOneOrFail(Account, { where: { id: parentId, organizationId } });
+          ChartOfAccountsService.assertParentFits(parent, { code: account.code, type: account.type });
+        }
         const hasMovements = await this.journalQuery.hasMovementsForAccount(id, manager);
         if (hasMovements) {
-          throw new BadRequestError('chart_of_accounts.hierarchy_account_p1_cannot_changed_because', { p1: account.name['es'] });
+          throw new BadRequestError('chart_of_accounts.hierarchy_account_p1_cannot_changed_because', {
+            p1: await ChartOfAccountsService.label(manager, organizationId, account),
+          });
         }
 
         const hierarchyVersion = hierarchyRepo.create({
@@ -651,7 +754,7 @@ export class ChartOfAccountsService {
   async deactivate(
     id: string,
     organizationId: string,
-  ): Promise<{ message: string; account: Account }> {
+  ): Promise<{ messageKey: string; messageParams: Record<string, string>; account: Account }> {
     const account = await this.findOne(id, organizationId);
     if (account.isSystemAccount) {
       throw new BadRequestError('chart_of_accounts.system_accounts_cannot_deactivated');
@@ -665,8 +768,11 @@ export class ChartOfAccountsService {
     }
     account.isActive = false;
     const deactivatedAccount = await this.accountRepository.save(account);
+    // A key and its parameters: `LocaleInterceptor` writes the sentence in the reader's language. It
+    // was a Spanish sentence built here, with the Spanish name, for every reader.
     return {
-      message: `La cuenta "${deactivatedAccount.name['es']}" ha sido desactivada.`,
+      messageKey: 'chart_of_accounts.account_deactivated',
+      messageParams: { account: await ChartOfAccountsService.label(this.accountRepository.manager, organizationId, deactivatedAccount) },
       account: deactivatedAccount,
     };
   }
@@ -688,8 +794,14 @@ export class ChartOfAccountsService {
     parentId: string,
     organizationId: string,
   ): Promise<Account[]> {
-    const parent = await this.findOne(parentId, organizationId);
-    return this.accountRepository.findDescendants(parent, { depth: 1 });
+    // The direct sub-accounts, read from `parent_id`: the closure table this used answered with the
+    // account itself (FIN-COA-04).
+    await this.findOne(parentId, organizationId);
+    return this.accountRepository.find({
+      where: { organizationId, parentId },
+      relations: ['segments'],
+      order: { code: 'ASC' },
+    });
   }
 
   async batchDeactivate(

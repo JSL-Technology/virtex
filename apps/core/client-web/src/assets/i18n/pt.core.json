@@ -723,6 +723,7 @@
   "validation.constraints.array_not_empty": "{{property}} não pode ficar vazio.",
   "validation.constraints.bic": "{{property}} não é um código SWIFT/BIC válido (8 ou 11 caracteres).",
   "validation.constraints.country_code": "O código de país deve ter exatamente 2 letras (ISO 3166-1 alfa-2).",
+  "validation.constraints.currency_code": "Deve ser um código de moeda ISO 4217 de três letras, como USD.",
   "validation.constraints.dimension_name": "Só pode conter letras, números, sublinhados e espaços.",
   "validation.constraints.fallback": "{{message}}",
   "validation.constraints.iban": "{{property}} não é um IBAN válido (verifique os dígitos de controle).",

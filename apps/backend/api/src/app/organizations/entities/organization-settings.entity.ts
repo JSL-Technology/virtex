@@ -243,8 +243,17 @@ export class OrganizationSettings {
   @Column({ name: 'default_inventory_adjustment_account_id', type: 'uuid', nullable: true })
   defaultInventoryAdjustmentAccountId: string | null = null;
 
+  /** Exchange differences realised on settlement (`AccountRole.FOREX_GAIN_LOSS`). */
   @Column({ name: 'default_forex_gain_loss_account_id', type: 'uuid', nullable: true })
   defaultForexGainLossAccountId: string | null = null;
+
+  /**
+   * Where the period-end revaluation posts the unrealised differences
+   * (`AccountRole.UNREALIZED_FOREX_GAIN_LOSS`). Empty: it posts to the realised account above, as
+   * every company provisioned before the two were separated does.
+   */
+  @Column({ name: 'default_unrealized_forex_gain_loss_account_id', type: 'uuid', nullable: true })
+  defaultUnrealizedForexGainLossAccountId: string | null = null;
 
   /**
    * Where bank charges land.

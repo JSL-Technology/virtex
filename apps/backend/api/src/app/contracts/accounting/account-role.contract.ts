@@ -85,7 +85,15 @@ export enum AccountRole {
   INVENTORY_ADJUSTMENT = 'INVENTORY_ADJUSTMENT',
   ACCUMULATED_DEPRECIATION = 'ACCUMULATED_DEPRECIATION',
   DEPRECIATION_EXPENSE = 'DEPRECIATION_EXPENSE',
+  /** Exchange differences realised when a foreign-currency document is settled. */
   FOREX_GAIN_LOSS = 'FOREX_GAIN_LOSS',
+  /**
+   * Exchange differences not yet realised: the period-end revaluation of monetary balances (IAS
+   * 21.23(a)). Kept apart from the realised ones, as SAP, Dynamics 365 and NetSuite keep them: they
+   * reverse as rates move, some jurisdictions tax them differently, and a reader of the statements
+   * needs to know which part of the result was cash.
+   */
+  UNREALIZED_FOREX_GAIN_LOSS = 'UNREALIZED_FOREX_GAIN_LOSS',
   INFLATION_ADJUSTMENT = 'INFLATION_ADJUSTMENT',
 
   // ── Payroll ─────────────────────────────────────────────────────────────────

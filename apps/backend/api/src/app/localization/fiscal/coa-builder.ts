@@ -1,3 +1,4 @@
+import { defaultFxTreatment } from '../../contracts/accounting/fx-treatment.contract';
 import {
   AccountCategory,
   AccountNature,
@@ -131,7 +132,8 @@ const ES = {
   depreciationExpense: 'Gasto por Depreciación',
   professional: 'Honorarios Profesionales',
   financial: 'Gastos Financieros',
-  forex: 'Diferencia Cambiaria',
+  forex: 'Diferencia Cambiaria Realizada',
+  unrealizedForex: 'Diferencia Cambiaria No Realizada',
   inflation: 'Resultado por Exposición a la Inflación',
   otherExpenses: 'Otros Gastos',
 };
@@ -181,7 +183,8 @@ const PT: typeof ES = {
   depreciationExpense: 'Despesa de Depreciação',
   professional: 'Honorários Profissionais',
   financial: 'Despesas Financeiras',
-  forex: 'Variação Cambial',
+  forex: 'Variação Cambial Realizada',
+  unrealizedForex: 'Variação Cambial Não Realizada',
   inflation: 'Resultado da Exposição à Inflação',
   otherExpenses: 'Outras Despesas',
 };
@@ -231,7 +234,8 @@ const EN: typeof ES = {
   depreciationExpense: 'Depreciation Expense',
   professional: 'Professional Fees',
   financial: 'Interest and Bank Charges',
-  forex: 'Foreign Exchange Gain or Loss',
+  forex: 'Realized Foreign Exchange Gain or Loss',
+  unrealizedForex: 'Unrealized Foreign Exchange Gain or Loss',
   inflation: 'Inflation Adjustment Result',
   otherExpenses: 'Other Expenses',
 };
@@ -270,6 +274,7 @@ function group(
     nature,
     isContraAccount: nature !== normalNatureFor(type),
     isPostable: false,
+    fxTreatment: 'HISTORICAL',
     children,
   };
 }
@@ -292,6 +297,8 @@ function leaf(
     isContraAccount: resolvedNature !== normalNatureFor(type),
     isPostable: true,
     systemRole: role,
+    // Monetary or not, from the account's role and type (`fx-treatment.contract.ts`).
+    fxTreatment: defaultFxTreatment(type, role),
   };
 }
 
@@ -431,6 +438,8 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
       leaf(code, { code: '5600', name: t.professional }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
       leaf(code, { code: '5700', name: t.financial }, AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, D),
       leaf(code, { code: '5750', name: t.forex, role: AccountRole.FOREX_GAIN_LOSS }, AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, D),
+      // The period-end revaluation's own account: unrealised differences kept apart (IAS 21).
+      leaf(code, { code: '5755', name: t.unrealizedForex, role: AccountRole.UNREALIZED_FOREX_GAIN_LOSS }, AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, D),
       leaf(code, { code: '5760', name: t.inflation, role: AccountRole.INFLATION_ADJUSTMENT }, AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, D),
       leaf(code, { code: '5900', name: t.otherExpenses }, AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, D),
     ]),

@@ -86,7 +86,8 @@ export const SETTINGS_SECTIONS = {
     fields: { defaultPaymentTermDays: intField(0, 365) },
   },
   currencies: {
-    accounts: { defaultForexGainLossAccountId: null },
+    // Realised on settlement, and unrealised at a period end (IAS 21): kept apart.
+    accounts: { defaultForexGainLossAccountId: null, defaultUnrealizedForexGainLossAccountId: null },
     fields: {
       exchangeRateType: enumField(Object.values(ExchangeRateType)),
       fxRateMaxAgeDays: intField(0, 90),
@@ -180,6 +181,7 @@ export const DEFAULT_ACCOUNT_ROLES: Partial<Record<AccountField, AccountRole>> =
   defaultAccumulatedDepreciationAccountId: AccountRole.ACCUMULATED_DEPRECIATION,
   defaultInflationAdjustmentAccountId: AccountRole.INFLATION_ADJUSTMENT,
   defaultForexGainLossAccountId: AccountRole.FOREX_GAIN_LOSS,
+  defaultUnrealizedForexGainLossAccountId: AccountRole.UNREALIZED_FOREX_GAIN_LOSS,
   defaultSalesTaxId: AccountRole.TAX_PAYABLE,
   defaultPurchaseTaxId: AccountRole.TAX_RECEIVABLE,
   defaultTaxWithheldReceivableId: AccountRole.WITHHOLDING_RECEIVABLE,

@@ -24,6 +24,11 @@
     "en": "The account code (its segments) cannot be changed.",
     "pt": "O código da conta (seus segmentos) não pode ser alterado."
   },
+  "chart_of_accounts.account_deactivated": {
+    "es": "La cuenta {{account}} quedó desactivada.",
+    "en": "Account {{account}} was deactivated.",
+    "pt": "A conta {{account}} foi desativada."
+  },
   "chart_of_accounts.account_id_not_found": {
     "es": "Cuenta contable con ID \"{{id}}\" no encontrada.",
     "en": "Account \"{{id}}\" was not found.",
@@ -44,6 +49,11 @@
     "en": "The account type cannot be changed.",
     "pt": "O tipo de conta não pode ser alterado."
   },
+  "chart_of_accounts.account_with_subaccounts_cannot_post": {
+    "es": "La cuenta {{code}} tiene subcuentas: es de agrupación y no recibe movimientos.",
+    "en": "Account {{code}} has sub-accounts: it is a summary account and takes no postings.",
+    "pt": "A conta {{code}} tem subcontas: é de agrupamento e não recebe lançamentos."
+  },
   "chart_of_accounts.both_accounts_must_postable_merged": {
     "es": "Ambas cuentas deben permitir contabilización para poder ser fusionadas.",
     "en": "Both accounts must be postable to be merged.",
@@ -54,6 +64,11 @@
     "en": "The category does not match the account type. For that type choose one of: {{allowed}}.",
     "pt": "A categoria não corresponde ao tipo de conta. Para esse tipo escolha uma destas: {{allowed}}."
   },
+  "chart_of_accounts.child_type_differs_from_parent": {
+    "es": "La cuenta {{code}} ({{type}}) no puede ir bajo {{parent}}, que es de tipo {{parentType}}.",
+    "en": "Account {{code}} ({{type}}) cannot sit under {{parent}}, which is of type {{parentType}}.",
+    "pt": "A conta {{code}} ({{type}}) não pode ficar sob {{parent}}, que é do tipo {{parentType}}."
+  },
   "chart_of_accounts.consistency_error_parent_account_parent_code": {
     "es": "Error de consistencia: La cuenta padre '{{parentCode}}' para la cuenta '{{p2}}' no fue encontrada. La transacción será revertida.",
     "en": "Consistency error: the parent account '{{parentCode}}' for account '{{p2}}' was not found. The transaction will be rolled back.",
@@ -63,6 +78,16 @@
     "es": "Una cuenta de naturaleza contraria debe llevar la naturaleza opuesta a la de su tipo.",
     "en": "A contra account must carry the opposite nature to its type.",
     "pt": "Uma conta de natureza contrária deve ter a natureza oposta à do seu tipo."
+  },
+  "chart_of_accounts.currency_conflicts_with_movements": {
+    "es": "La cuenta {{code}} ya tiene movimientos en otra moneda: no puede quedar solo en {{currency}}.",
+    "en": "Account {{code}} already has lines in another currency: it cannot become {{currency}}-only.",
+    "pt": "A conta {{code}} já tem lançamentos em outra moeda: não pode ficar só em {{currency}}."
+  },
+  "chart_of_accounts.currency_unknown": {
+    "es": "{{currency}} no es una moneda conocida.",
+    "en": "{{currency}} is not a known currency.",
+    "pt": "{{currency}} não é uma moeda conhecida."
   },
   "chart_of_accounts.deactivating_source_account_recalculating_balances": {
     "es": "Desactivando cuenta de origen y recalculando saldos...",
@@ -189,6 +214,11 @@
     "en": "An account cannot sit under itself or one of its sub-accounts.",
     "pt": "Uma conta não pode depender de si mesma nem de uma das suas subcontas."
   },
+  "chart_of_accounts.parent_takes_postings": {
+    "es": "La cuenta {{code}} no puede ir bajo {{parent}}: {{parent}} recibe movimientos. Conviértela antes en cuenta de agrupación.",
+    "en": "Account {{code}} cannot sit under {{parent}}: {{parent}} takes postings. Make it a summary account first.",
+    "pt": "A conta {{code}} não pode ficar sob {{parent}}: {{parent}} recebe lançamentos. Converta-a antes em conta de agrupamento."
+  },
   "chart_of_accounts.reassigning_child_accounts": {
     "es": "Reasignando cuentas hijas...",
     "en": "Reassigning child accounts...",
@@ -203,6 +233,11 @@
     "es": "Reclasificando el saldo contabilizado…",
     "en": "Reclassifying the posted balance…",
     "pt": "Reclassificando o saldo contabilizado…"
+  },
+  "chart_of_accounts.revalued_only_balance_sheet": {
+    "es": "Solo una cuenta de activo o de pasivo se revalúa al cierre: un saldo de tipo {{type}} queda a la tasa de su día.",
+    "en": "Only an asset or liability account is revalued at a period end: a {{type}} balance stays at the rate of its day.",
+    "pt": "Só uma conta de ativo ou de passivo é reavaliada no fechamento: um saldo do tipo {{type}} fica à taxa do seu dia."
   },
   "chart_of_accounts.segment_name_value_value_must_length": {
     "es": "El segmento '{{name}}' (valor: {{value}}) debe tener una longitud de {{length}} caracteres.",
@@ -223,6 +258,11 @@
     "es": "Iniciando la fusión de cuentas...",
     "en": "Starting the account merge...",
     "pt": "Iniciando a fusão de contas..."
+  },
+  "chart_of_accounts.summary_account_cannot_have_movements": {
+    "es": "La cuenta {{code}} tiene movimientos: una cuenta de agrupación no tiene saldo propio. Reclasifica su saldo a una subcuenta antes.",
+    "en": "Account {{code}} has lines: a summary account carries no balance of its own. Reclassify its balance to a sub-account first.",
+    "pt": "A conta {{code}} tem lançamentos: uma conta de agrupamento não tem saldo próprio. Reclassifique o saldo para uma subconta antes."
   },
   "chart_of_accounts.system_accounts_cannot_deactivated": {
     "es": "Las cuentas del sistema no pueden ser desactivadas.",

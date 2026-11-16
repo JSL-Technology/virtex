@@ -29,6 +29,21 @@
     "en": "Account created successfully.",
     "pt": "Conta criada com sucesso."
   },
+  "accounting.account_form.account_currency": {
+    "es": "Moneda de la cuenta",
+    "en": "Account currency",
+    "pt": "Moeda da conta"
+  },
+  "accounting.account_form.account_currency_any": {
+    "es": "Cualquier moneda",
+    "en": "Any currency",
+    "pt": "Qualquer moeda"
+  },
+  "accounting.account_form.account_currency_help": {
+    "es": "Si eliges una, todos los movimientos de la cuenta deben ser en esa moneda: la de un banco en dólares, solo dólares.",
+    "en": "If you choose one, every line on the account must be in that currency: a dollar bank account's, dollars only.",
+    "pt": "Se escolher uma, todos os lançamentos da conta devem ser nessa moeda: a de um banco em dólares, só dólares."
+  },
   "accounting.account_form.account_name": {
     "es": "Nombre de la cuenta",
     "en": "Account name",
@@ -109,6 +124,11 @@
     "en": "To create accounts you must first define your organization's level (segment) structure.",
     "pt": "Para criar contas contábeis, primeiro defina a estrutura de níveis (segmentos) da sua organização."
   },
+  "accounting.account_form.currency_and_revaluation": {
+    "es": "Moneda y revaluación",
+    "en": "Currency and revaluation",
+    "pt": "Moeda e reavaliação"
+  },
   "accounting.account_form.current_assets": {
     "es": "Ej: activos circulantes",
     "en": "e.g. Current assets",
@@ -153,6 +173,26 @@
     "es": "Mapeo de estados financieros",
     "en": "Financial statement mapping",
     "pt": "Mapeamento das demonstrações financeiras"
+  },
+  "accounting.account_form.fx_treatment": {
+    "es": "Tratamiento de saldos en moneda extranjera",
+    "en": "Treatment of foreign-currency balances",
+    "pt": "Tratamento de saldos em moeda estrangeira"
+  },
+  "accounting.account_form.fx_treatment_help": {
+    "es": "Las partidas monetarias —bancos, cuentas por cobrar y por pagar, préstamos— se revalúan al cierre; inventario, activos fijos, anticipos, ingresos y gastos quedan a la tasa de su día (NIC 21).",
+    "en": "Monetary items — banks, receivables and payables, loans — are revalued at each close; inventory, fixed assets, advances, revenue and expenses stay at the rate of their day (IAS 21).",
+    "pt": "Itens monetários — bancos, contas a receber e a pagar, empréstimos — são reavaliados no fechamento; estoque, imobilizado, adiantamentos, receitas e despesas ficam à taxa do seu dia (IAS 21)."
+  },
+  "accounting.account_form.fx_treatment_option.HISTORICAL": {
+    "es": "Queda a la tasa histórica",
+    "en": "Kept at the historical rate",
+    "pt": "Mantida à taxa histórica"
+  },
+  "accounting.account_form.fx_treatment_option.REVALUED": {
+    "es": "Se revalúa al tipo de cambio de cierre",
+    "en": "Revalued at the closing rate",
+    "pt": "Reavaliada à taxa de fechamento"
   },
   "accounting.account_form.general": {
     "es": "General",
@@ -223,6 +263,11 @@
     "es": "Dimensiones requeridas",
     "en": "Required dimensions",
     "pt": "Dimensões obrigatórias"
+  },
+  "accounting.account_form.required_dimensions_elsewhere": {
+    "es": "Las dimensiones obligatorias de la cuenta se definen en Contabilidad › Dimensiones.",
+    "en": "The account's required dimensions are set in Accounting › Dimensions.",
+    "pt": "As dimensões obrigatórias da conta são definidas em Contabilidade › Dimensões."
   },
   "accounting.account_form.requires_reconciliation": {
     "es": "Requiere reconciliación",
@@ -690,15 +735,20 @@
     "en": "Checklist name",
     "pt": "Nome da lista"
   },
-  "accounting.checklist.items.currency_revaluation": {
-    "es": "Ejecutar la revaluación de moneda extranjera para el cierre del período.",
-    "en": "Run the foreign-currency revaluation for the period close.",
-    "pt": "Execute a reavaliação cambial para o fechamento do período."
+  "accounting.checklist.historical_fx_note": {
+    "es": "Correcto para inventario, activos fijos o anticipos. Si alguna es dinero por cobrar, pagar o en banco, márcala como revaluable en el plan de cuentas.",
+    "en": "Right for inventory, fixed assets or advances. If any is money held, receivable or payable, mark its account as revalued in the chart of accounts.",
+    "pt": "Correto para estoque, ativo imobilizado ou adiantamentos. Se alguma for dinheiro a receber, a pagar ou em banco, marque-a como reavaliável no plano de contas."
   },
   "accounting.checklist.items.fixed_assets_depreciation": {
     "es": "Ejecutar la depreciación de activos fijos del período.",
     "en": "Run the fixed-asset depreciation for the period.",
     "pt": "Execute a depreciação do ativo imobilizado do período."
+  },
+  "accounting.checklist.items.historical_fx_balances": {
+    "es": "{{count}} saldos en moneda extranjera quedan a la tasa histórica: {{accounts}}.",
+    "en": "{{count}} foreign-currency balances stay at their historical rate: {{accounts}}.",
+    "pt": "{{count}} saldos em moeda estrangeira ficam à taxa histórica: {{accounts}}."
   },
   "accounting.checklist.items.pending_accrual_reversals": {
     "es": "Devengos pendientes de revertir de períodos anteriores: {{count}}",
@@ -724,6 +774,21 @@
     "es": "No se pudo comprobar el módulo «{{provider}}»; revísalo manualmente antes de cerrar.",
     "en": "Could not check the “{{provider}}” module; review it by hand before closing.",
     "pt": "Não foi possível verificar o módulo «{{provider}}»; revise-o manualmente antes de fechar."
+  },
+  "accounting.checklist.items.revaluation_nothing": {
+    "es": "No hay saldos en moneda extranjera que revaluar al cierre.",
+    "en": "There are no foreign-currency balances to revalue at the close.",
+    "pt": "Não há saldos em moeda estrangeira a reavaliar no fechamento."
+  },
+  "accounting.checklist.items.revaluation_rates_missing": {
+    "es": "Falta el tipo de cambio de cierre de {{missing}}: sin él, el cierre no puede revaluar sus saldos.",
+    "en": "The closing rate for {{missing}} is missing: without it, the close cannot revalue those balances.",
+    "pt": "Falta a taxa de fechamento de {{missing}}: sem ela, o fechamento não pode reavaliar esses saldos."
+  },
+  "accounting.checklist.items.revaluation_ready": {
+    "es": "El cierre revalúa {{count}} saldos en moneda extranjera ({{currencies}}) al tipo de cambio de cierre.",
+    "en": "The close revalues {{count}} foreign-currency balances ({{currencies}}) at the closing rate.",
+    "pt": "O fechamento reavalia {{count}} saldos em moeda estrangeira ({{currencies}}) à taxa de fechamento."
   },
   "accounting.checklist.items.unapproved_vendor_bills": {
     "es": "Verificar y procesar todas las facturas de proveedor en borrador o pendientes de aprobación.",

@@ -572,6 +572,20 @@ export class JournalEntriesService {
         line.exchangeRate = checked.rate ?? undefined;
       }
 
+      // An account with a currency takes lines in that currency only (FIN-AC-03): a peso bank
+      // account's ledger account does not take a dollar entry, nor a dollar one a peso entry. The
+      // audit posted dollars onto a peso account and nothing objected.
+      const account = accountMap.get(lineDto.accountId);
+      const lineCurrency = (line.currencyCode ?? baseCurrency).toUpperCase();
+      if (account?.currency && account.currency.toUpperCase() !== lineCurrency) {
+        throw new BadRequestError('journal_entries.line_currency_differs_from_account', {
+          code: account.code,
+          account: this.accountLabel(account),
+          accountCurrency: account.currency.toUpperCase(),
+          lineCurrency,
+        });
+      }
+
       convertedDebitCents += toCents(line.debit);
       convertedCreditCents += toCents(line.credit);
 

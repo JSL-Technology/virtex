@@ -49,6 +49,11 @@
     "en": "The country code must be exactly 2 letters (ISO 3166-1 alpha-2).",
     "pt": "O código de país deve ter exatamente 2 letras (ISO 3166-1 alfa-2)."
   },
+  "validation.constraints.currency_code": {
+    "es": "Debe ser un código de moneda ISO 4217 de tres letras, como USD.",
+    "en": "It must be a three-letter ISO 4217 currency code, such as USD.",
+    "pt": "Deve ser um código de moeda ISO 4217 de três letras, como USD."
+  },
   "validation.constraints.dimension_name": {
     "es": "Solo puede contener letras, números, guiones bajos y espacios.",
     "en": "It may only contain letters, numbers, underscores and spaces.",
