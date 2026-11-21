@@ -1,8 +1,8 @@
-# Lista de cotejo de hallazgos (2026-11-16)
+# Lista de cotejo de hallazgos (2026-11-21)
 
 Todos los hallazgos de los MD de la auditoría, con su estado en [`10-verificacion-de-cierre.md`](10-verificacion-de-cierre.md). ✅ = resuelto y verificado · ❌ = parcial o pendiente (en los parciales se indica lo que falta).
 
-**94 de 387 resueltos; 293 por corregir** (13 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
+**99 de 387 resueltos; 288 por corregir** (13 parciales). Aparte, 26 identificadores no son hallazgos (informativos o referencias) y se listan al final.
 
 Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de la ficha citada. La evidencia es la registrada en el informe de cierre (`herramientas/informe-cierre.mjs`, mapa `M`): commit y qué se comprobó. Cada commit citado se comprueba contra el repositorio al generar esta lista.
 
@@ -10,8 +10,8 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 |---|---|---|
 | Crítica | 13 | 0 |
 | Alta | 46 | 70 |
-| Media | 32 | 140 |
-| Baja | 2 | 68 |
+| Media | 33 | 139 |
+| Baja | 6 | 64 |
 | — | 1 | 15 |
 
 ## Severidad crítica (13)
@@ -202,7 +202,6 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | FIN-DIM-01 | Filtros por valor padre no incluyen hijos (ADM devuelve 10 de 20). Ubicación: filtro de dimensión en financial-reporting.service.ts (igualdad JSONB). Forma correcta: expandir con dimension_… | Sin corrección registrada. | `modulos/dimensions.md:43` |
 | ❌ | FIN-DIM-02 | Dimensión referida por nombre en JSONB (journal_entry_lines.dimensions), sin integridad referencial; impide renombrar y obliga a contar uso por texto. Esfuerzo: M. | Sin corrección registrada. | `modulos/dimensions.md:45` |
 | ❌ | FIN-FR-03 | Un solo formato IFRS para los 19 países; sin estados en formato oficial (DO, MX, CO…). Esfuerzo: L. | Sin corrección registrada. | `modulos/financial-reporting.md:70` |
-| ❌ | FIN-JE-02 | POST con fecha 2027-03-01 (hoy 2026-11-07) → 201 y crea silenciosamente el ejercicio 2027 y sus 12 períodos (fiscal_years 2027 OPEN). Sin límite ni advertencia de fecha futura; un error de… | Sin corrección registrada. | `modulos/journal-entries.md:63` |
 | ❌ | FINB-05 | exchange-rates.service.ts:246, 287-297, 369 (upsert/delete por criterio no disparan el subscriber). Alta, import y borrado de tasas no dejan rastro en audit_logs. S. | Sin corrección registrada. | `modulos/currencies.md:51` |
 | ❌ | FINB-11 | depreciation-schedule.ts:201-216. SYD con vida 18 meses: 12×100, 5×50 y 350 en el último mes (años = ceil(18/12) reparte el año 2 en 12 meses). DDB 12 meses: último mes 134,58 frente a 26,9… | Sin corrección registrada. | `modulos/fixed-assets.md:59` |
 | ❌ | FINB-12 | depreciation-schedule.ts:148-152, fixed-assets.service.ts:318. Convención fija de mes completo: alta el 31-01 deprecia enero completo (166,67); el mes de la baja nunca se deprecia. Sin opci… | Sin corrección registrada. | `modulos/fixed-assets.md:61` |
@@ -305,6 +304,7 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ✅ | FIN-AC-06 | accounting · Eje 4 · Arquitectura · Media | Commit `623a79b0`. `BookkeepingReprovisioningService.reprovision` (el controlador solo delega), con `baseCurrencyOf(país)` en `markets` como única regla de moneda base por defecto para el alta y el reaprovisionamiento. `bookkeeping-reprovisioning.service.spec.ts` (2). verify:ch… | `modulos/accounting.md:77` |
 | ✅ | FIN-COA-04 | chart-of-accounts · Eje 1/4 · Bug · Media | Commit `849d7715`, `5dbad9d6`. Fuera `accounts_closure` (cada cuenta era su propio único ancestro) y `dimension_values_closure` (mantenida y no leída): la jerarquía es `parent_id`, indexada, leída con CTE recursivas; `tree/children` responde con las subcuentas. Reversión probada (reconstru… | `modulos/chart-of-accounts.md:75` |
 | ✅ | FIN-COA-05 | chart-of-accounts · Eje 2 · Integridad · Media | Commit `849d7715`, `5dbad9d6`, `d639a985`. El padre es una cuenta de agrupación del mismo tipo y el árbol no tiene ciclos: en el servicio con mensaje (tipo distinto, padre imputable, ciclo, agrupación con movimientos) y en el disparador `accounts_hierarchy_rules` para todo otro escritor, que comprueba… | `modulos/chart-of-accounts.md:78` |
+| ✅ | FIN-JE-02 | POST con fecha 2027-03-01 (hoy 2026-11-07) → 201 y crea silenciosamente el ejercicio 2027 y sus 12 períodos (fiscal_years 2027 OPEN). Sin límite ni advertencia de fecha futura; un error de… | Commit `1c81cbfb`. `organization_settings.max_future_posting_days` (31 por defecto, 0–366, en Configuración › Cierre; CHECK en la BD; migración `1789760000000-FuturePostingHorizon`) y `postingHorizon` en `accounting/period-status.ts`: `resolvePostingPeriod` rechaza con 422 `acc… | `modulos/journal-entries.md:63` |
 | ✅ | FINB-02 | organization_settings.fx_rate_tolerance = 0.000000 en tenant nuevo (consulta SQL): cualquier tasa bancaria declarada distinta a la oficial se rechaza (exchange-rate-resolver.service.ts:278-… | Commit `a3f55f52`. Mismo arreglo que XF-09: `fx_rate_tolerance` vuelve a tomar el DEFAULT 0,02; el verificador `numeric-transformers` detecta la regresión. | `modulos/currencies.md:45` |
 | ✅ | FINB-34 | consolidation.service.ts:365-372, 592-595: todo el patrimonio a tasa histórica de adquisición (incluye resultados posteriores), promedio = media simple de cierres mensuales; CTA no persisti… | Commit `958cf094`. Lo posterior a la adquisición se convierte al promedio desde la adquisición (no al histórico); la diferencia de conversión se acumula por corrida en `consolidation_runs` (migración 1789460000000, solo inserción). El promedio sigue siendo la media de cierres m… | `modulos/consolidation.md:50` |
 | ✅ | FINB-35 | organizations.service.ts:200-288: solo se pueden crear subsidiarias nuevas; no se puede vincular una organización existente (adquisición). M. | Commit `958cf094`. `OrganizationsService.linkSubsidiary` + `POST /organizations/subsidiaries/link` (step-up, propietario, administrador de ambas empresas, sin ciclos ni doble control, cupo del plan) y diálogo en Ajustes › Subsidiarias; `subsidiary-link.spec.ts`. | `modulos/consolidation.md:52` |
@@ -351,12 +351,8 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | FE-SET-05 | zona horaria de la empresa no editable por PATCH /organizations/profile (400 whitelist) y no localicé otra sección que la edite (grep timezone en features/settings: solo billing/billing.pag… | Sin corrección registrada. | `modulos/settings.md:53` |
 | ❌ | FE-SH-07 | componentes >800 l. (workflow-designer 1.397, auth.ts 1.015, AP form 893, invoice new 884, invoice detail 846) y 480 warnings. M. | Sin corrección registrada. | `modulos/frontend-shell.md:56` |
 | ❌ | FE-SH-08 | features/accounts-payable/form/form.page.ts:129 y core/services/accounts-payable.ts:221-245: catálogos DGII 606 en el cliente y fallback a etiqueta NCF cuando el pack no llegó. S. | Sin corrección registrada. | `modulos/frontend-shell.md:57` |
-| ❌ | FIN-COA-06 | i18n: Tenant US: name = {"es":"Assets"} — texto inglés en la clave es. Esfuerzo: S. | Sin corrección registrada. | `modulos/chart-of-accounts.md:81` |
 | ❌ | FIN-DIM-03 | Regex ASCII de nombre rechaza "Región", "Año". Esfuerzo: S. | Sin corrección registrada. | `modulos/dimensions.md:47` |
 | ❌ | FIN-FR-02 | Flujo de efectivo repite la misma cuenta (1130) en dos filas (−50.000,33 y +30.000) en lugar de su variación neta. Esfuerzo: S. | Sin corrección registrada. | `modulos/financial-reporting.md:68` |
-| ❌ | FIN-JE-03 | journal-entries · Eje 4 · Arquitectura · Baja | Sin corrección registrada. | `modulos/journal-entries.md:69` |
-| ❌ | FIN-JE-04 | Contrato API: Reglas de negocio (período cerrado, cuenta no vigente) responden 403 (accounting.transaction_date_falls_accounting_period_name), que el cliente confunde con falta de permiso.… | Sin corrección registrada. | `modulos/journal-entries.md:72` |
-| ❌ | FIN-JE-05 | Validación: Importes como texto ("debit":"100") se aceptan (201, GENERAL-2026-000002) pese a @IsNumber: hay coerción implícita. No es incorrecto contablemente, pero el contrato no es estric… | Sin corrección registrada. | `modulos/journal-entries.md:75` |
 | ❌ | FINB-04 | exchange-rates.service.ts:298: messageKey sin messageParams → respuesta literal {{imported}}. S. | Sin corrección registrada. | `modulos/currencies.md:49` |
 | ❌ | FINB-06 | exchange-rate-resolver.service.ts:195-203: sin tasa OFFICIAL cae a MARKET con solo logger.warn (queda rateType en el asiento, lo cual mitiga). Exponer advertencia al usuario. S. | Sin corrección registrada. | `modulos/currencies.md:53` |
 | ❌ | FINB-17 | asientos de baja con system_reason NULL; depreciación previa a la baja genera un asiento por activo (DEPREC-2026-000005/6 el mismo día). S. | Sin corrección registrada. | `modulos/fixed-assets.md:69` |
@@ -403,6 +399,10 @@ Generado con `herramientas/lista-cotejo.mjs`; la descripción es un extracto de 
 | ❌ | XF-06 | el tenant US numera sus facturas FAC-00000002 (abreviatura española) y guarda los nombres ingleses del plan de cuentas bajo la clave es ({"es":"Accounts Receivable"}). | Sin corrección registrada. | `06-flujos-cruzados.md:243` |
 | ❌ | XF-10 | GET /customers devuelve defaultSalesAccountId, pero PATCH {defaultSalesAccountId} → 400 whitelist_validation. No se puede configurar por API, así que no se pudo probar la cuenta por defecto… | Sin corrección registrada. | `06-flujos-cruzados.md:225` |
 | ✅ | FIN-AC-05 | Seguridad (defensa en profundidad): ledger-mapping.service.ts:60-70 inserta sourceAccountId/targetAccountId sin verificar que sean del tenant; lo detiene el trigger BD tg_same_tenant_* (400… | Commit `623a79b0`. `LedgerMappingService.assertMappingsFit`: cada cuenta de las reglas es de la empresa y cada origen aparece una vez, con el número de regla en el mensaje, antes de reemplazar las reglas; libro sobre sí mismo rechazado; multiplicador positivo en el DTO (uno neg… | `modulos/accounting.md:74` |
+| ✅ | FIN-COA-06 | i18n: Tenant US: name = {"es":"Assets"} — texto inglés en la clave es. Esfuerzo: S. | Commit `aeabe621`. Resuelto por I18N-05: el nombre se guarda bajo el idioma de los libros de la empresa (`booksLanguage`) y la migración `1789470000000` re-claveó las cuentas existentes de BR y US. Comprobado sobre los datos de desarrollo el 2026-11-21: 0 cuentas sin la clave d… | `modulos/chart-of-accounts.md:81` |
+| ✅ | FIN-JE-03 | journal-entries · Eje 4 · Arquitectura · Baja | Commit `1c81cbfb`. Crear, editar, revertir y crear la reversión responden el asiento leído tras confirmar, con la misma consulta que `GET /journal-entries/:id` (`asRead` en el controlador): ya no la entidad intermedia con `lines[].journalEntry` en `Draft`. El interceptor de ide… | `modulos/journal-entries.md:69` |
+| ✅ | FIN-JE-04 | Contrato API: Reglas de negocio (período cerrado, cuenta no vigente) responden 403 (accounting.transaction_date_falls_accounting_period_name), que el cliente confunde con falta de permiso.… | Commit `1c81cbfb`. Las negativas de negocio pasan de 403 a 409, conflicto de estado (período o módulo cerrado, cuenta bloqueada, líneas conciliadas, asiento generado, reapertura de ejercicio o período: `journal-entries.service.ts`, `period-status.ts`, `period-closing.service.ts… | `modulos/journal-entries.md:72` |
+| ✅ | FIN-JE-05 | Validación: Importes como texto ("debit":"100") se aceptan (201, GENERAL-2026-000002) pese a @IsNumber: hay coerción implícita. No es incorrecto contablemente, pero el contrato no es estric… | Commit `1c81cbfb`. `@StrictNumber()` (`common/transformers/strict-number.transformer.ts`) valida el valor tal como llegó, sin la conversión implícita, en los siete importes del asiento (debe y haber, en divisa, tasa, valoraciones): `"debit": "100"` → 400 `debit_transaction_curr… | `modulos/journal-entries.md:75` |
 | ✅ | I18N-05 | i18n: i18n: ## 7. Camino mínimo | Commit `aeabe621`. `chart-of-accounts.service.ts` (`booksLanguage`: nombre guardado bajo el idioma de los libros o del país; la edición conserva las otras traducciones), `principalTaxName` en portugués para BR, migración 1789470000000 (re-clave de BR/US), `verify:markets` compr… | `modulos/i18n.md:60` |
 
 ## Severidad no indicada (patrones y transversales) (16)
