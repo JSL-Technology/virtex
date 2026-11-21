@@ -119,7 +119,7 @@ export const SETTINGS_SECTIONS = {
   },
   closing: {
     accounts: { defaultRetainedEarningsAccountId: 'EQUITY' },
-    fields: { fiscalArchiveAfterYears: intField(5, 30) },
+    fields: { fiscalArchiveAfterYears: intField(5, 30), maxFuturePostingDays: intField(0, 366) },
   },
   intercompany: {
     accounts: {

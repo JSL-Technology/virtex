@@ -27,6 +27,7 @@ const DEFAULT_BASE_CURRENCY = 'USD' as const;
 @Check('CHK_organization_settings_po_receipt_over_tolerance', '"po_receipt_over_tolerance_bps" BETWEEN 0 AND 5000')
 @Check('CHK_organization_settings_budget_control_mode', `"budget_control_mode" IN ('block', 'warn', 'none')`)
 @Check('CHK_organization_settings_budget_tolerance', '"budget_tolerance_bps" BETWEEN 0 AND 5000')
+@Check('CHK_organization_settings_max_future_posting_days', '"max_future_posting_days" BETWEEN 0 AND 366')
 @Check(
   'CHK_organization_settings_reminder_days',
   `cardinality("collections_reminder_days") BETWEEN 1 AND ${REMINDER_STEPS_MAX} AND ${REMINDER_DAY_MIN} <= ALL ("collections_reminder_days") AND ${REMINDER_DAY_MAX} >= ALL ("collections_reminder_days")`,
@@ -328,6 +329,17 @@ export class OrganizationSettings {
 
   @Column({ name: 'fiscal_archive_after_years', type: 'int', default: 5 })
   fiscalArchiveAfterYears!: number;
+
+  /**
+   * How many days ahead of the company's today a posting may be dated (FIN-JE-02).
+   *
+   * There was no limit: an entry dated 2027-03-01, keyed on 2026-11-07, was posted — and opened the
+   * whole 2027 fiscal year and its twelve periods to receive it — so a mistyped year did not just
+   * misdate an entry, it changed the calendar. Never less than the end of the current period, so a
+   * month-end accrual or depreciation can always be dated at the period's end.
+   */
+  @Column({ name: 'max_future_posting_days', type: 'int', default: 31 })
+  maxFuturePostingDays!: number;
 
   // ── Outgoing mail identity ────────────────────────────────────────────────
   //

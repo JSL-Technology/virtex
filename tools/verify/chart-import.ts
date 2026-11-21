@@ -15,26 +15,8 @@
  * asks the database what the chart holds. Run it as the application role too
  * (`DB_USERNAME=virtex_app`): every write here goes through row-level security.
  */
-import 'reflect-metadata';
-import { NestFactory } from '@nestjs/core';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import { ValidationPipe } from '@nestjs/common';
-import fastifyCookie from '@fastify/cookie';
-import fastifyMultipart from '@fastify/multipart';
 import { DataSource } from 'typeorm';
-import * as argon2 from 'argon2';
-
-import { AppModule } from '../../apps/backend/api/src/app/app.module';
-import { LocalizationService } from '../../apps/backend/api/src/app/localization/services/localization.service';
-import { RegistrationService } from '../../apps/backend/api/src/app/auth/services/registration.service';
-import { I18nService } from '../../apps/backend/api/src/app/i18n/i18n.service';
-import { localizedValidationExceptionFactory } from '../../apps/backend/api/src/app/i18n/validation-messages';
-import {
-  PendingRegistration,
-  PendingRegistrationStatus,
-} from '../../apps/backend/api/src/app/auth/entities/pending-registration.entity';
-import { runAsTenantJob } from '../../apps/backend/api/src/app/shared/tenancy/tenant-job';
-import { purgeProbeAccounts } from './probe-cleanup';
+import { bootApplication, qaCompanySession } from './support/qa-company-session';
 
 const failures: string[] = [];
 const check = (label: string, ok: boolean, detail = '') => {
@@ -42,25 +24,7 @@ const check = (label: string, ok: boolean, detail = '') => {
   if (!ok) failures.push(label);
 };
 
-/** A Dominican RNC with its DGII check digit (the probe needs a valid, unused one). */
-function dominicanRnc(prefix: string): string {
-  const weights = [7, 9, 8, 6, 5, 4, 3, 2];
-  const base = prefix.padStart(8, '0').slice(0, 8);
-  const sum = base.split('').reduce((acc, d, i) => acc + Number(d) * weights[i], 0);
-  const remainder = sum % 11;
-  const digit = remainder === 0 ? 2 : remainder === 1 ? 1 : 11 - remainder;
-  return `${base}${digit}`;
-}
 
-function cookiesOf(raw: string | string[] | undefined): Record<string, string> {
-  const jar: Record<string, string> = {};
-  for (const line of Array.isArray(raw) ? raw : raw ? [raw] : []) {
-    const [pair] = line.split(';');
-    const index = pair.indexOf('=');
-    jar[pair.slice(0, index).trim()] = pair.slice(index + 1).trim();
-  }
-  return jar;
-}
 
 const HEADER =
   'codigo,nombre,tipo,categoria,naturaleza,cuenta_padre,admite_movimientos,activa,contracuenta,moneda,tratamiento_cambiario,rol,codigo_agrupador,descripcion';
@@ -93,91 +57,21 @@ function multipart(fileName: string, content: string): { payload: string; header
 }
 
 async function main() {
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), { logger: ['error'] });
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-      transformOptions: { enableImplicitConversion: true },
-      exceptionFactory: localizedValidationExceptionFactory(app.get(I18nService)),
-    }),
-  );
-  await app.register(fastifyCookie);
-  await app.register(fastifyMultipart, { limits: { fileSize: 10 * 1024 * 1024 }, attachFieldsToBody: true });
-  app.setGlobalPrefix('api/v1');
-  await app.init();
-  await app.getHttpAdapter().getInstance().ready();
-  const server = app.getHttpAdapter().getInstance();
+  const app = await bootApplication();
   const ds = app.get(DataSource);
-
-  // One source address per run: the login throttler is real (see `auth-http-contract.ts`).
-  const stamp = Date.now();
-  const remoteAddress = `127.${(stamp >> 16) & 0xff}.${(stamp >> 8) & 0xff}.${stamp & 0xff}`;
-  await purgeProbeAccounts(ds);
-
-  // ── A company, through the path a paid signup takes ──────────────────────────────────────
-  const email = `qa-plan-${stamp}@example.test`;
-  const password = 'QaPlanCuentas!2026';
-  const region = await app.get(LocalizationService).findRegionByCountryCode('DO');
-  if (!region) throw new Error('No hay región fiscal DO sembrada.');
-  const pendingRepo = ds.getRepository(PendingRegistration);
-  const pending = await pendingRepo.save(
-    pendingRepo.create({
-      email,
-      firstName: 'QA',
-      lastName: 'Plan',
-      phone: null,
-      phoneVerified: false,
-      passwordHash: await argon2.hash(password, { type: argon2.argon2id }),
-      organizationName: `QA-PLAN ${stamp}`,
-      taxId: dominicanRnc(String(13300000 + (stamp % 600000))),
-      taxpayerKind: 'company',
-      fiscalProfile: {},
-      fiscalRegionId: region.id,
-      industry: 'technology',
-      companySize: '1-10',
-      address: 'Calle QA 2',
-      city: 'Santo Domingo',
-      state: '32',
-      postalCode: '10101',
-      countryCode: 'DO',
-      planSlug: 'pro',
-      status: PendingRegistrationStatus.PENDING,
-      expiresAt: new Date(Date.now() + 3_600_000),
-    } as never),
-  );
-  const owner = await app.get(RegistrationService).completePendingRegistration(pending.id, {
-    customerId: `cus_qa_${stamp}`,
-    subscriptionId: `sub_qa_${stamp}`,
-    status: 'active',
-    currentPeriodEnd: new Date(Date.now() + 30 * 24 * 3_600_000),
-  });
-  const organizationId = (owner as unknown as { organizationId: string }).organizationId;
+  const company = await qaCompanySession(app, 'Plan');
+  const organizationId = company.organizationId;
   check('a company is provisioned', Boolean(organizationId), organizationId);
-
-  const login = await server.inject({ method: 'POST', url: '/api/v1/auth/login', payload: { email, password }, remoteAddress });
-  check('its owner signs in', login.statusCode === 200, String(login.statusCode));
-  const jar = cookiesOf(login.headers['set-cookie'] as string[] | undefined);
-  const csrf = jar['XSRF-TOKEN'] ?? jar['__Host-XSRF-TOKEN'];
-  const cookie = Object.entries(jar).map(([name, value]) => `${name}=${value}`).join('; ');
-  const headers = { cookie, 'x-xsrf-token': csrf };
+  check('its owner signs in', company.signedIn);
   const upload = (mode: 'validate' | 'commit', content: string) => {
     const body = multipart('plan.csv', content);
-    return server.inject({
-      method: 'POST',
-      url: `/api/v1/data-transfer/imports?dataset=chart_of_accounts&mode=${mode}`,
-      payload: body.payload,
-      remoteAddress,
-      headers: { ...headers, ...body.headers },
-    });
+    return company.call('POST', `/api/v1/data-transfer/imports?dataset=chart_of_accounts&mode=${mode}`, body.payload, body.headers);
   };
-  const chart = <T = Record<string, string>>(sql: string, params: unknown[] = []): Promise<T[]> =>
-    runAsTenantJob(ds, organizationId, () => ds.query(sql, params));
+  const chart = company.query;
   const count = async () => Number((await chart(`SELECT count(*)::int AS n FROM accounts WHERE organization_id = $1`, [organizationId]))[0].n);
 
   // ── The dataset is offered for import, with its hint ─────────────────────────────────────
-  const datasets = await server.inject({ method: 'GET', url: '/api/v1/data-transfer/datasets', remoteAddress, headers });
+  const datasets = await company.call('GET', '/api/v1/data-transfer/datasets');
   const offered = (JSON.parse(datasets.body) as Array<{ id: string; importable: boolean; hintKey: string | null }>).find(
     (dataset) => dataset.id === 'chart_of_accounts',
   );
@@ -188,7 +82,7 @@ async function main() {
   );
 
   // The template's example row: a free code under one of the company's own headings.
-  const template = await server.inject({ method: 'GET', url: '/api/v1/data-transfer/datasets/chart_of_accounts/template', remoteAddress, headers });
+  const template = await company.call('GET', '/api/v1/data-transfer/datasets/chart_of_accounts/template');
   const [headingRow] = await chart(
     `SELECT p.code FROM accounts p JOIN accounts c ON c.parent_id = p.id
       WHERE p.organization_id = $1 AND p.type = 'EXPENSE' AND NOT p."isPostable"
@@ -257,17 +151,11 @@ async function main() {
 
   // ── The tree and the export see it ──────────────────────────────────────────────────────
   const [heading] = await chart(`SELECT id FROM accounts WHERE organization_id = $1 AND code = '5960'`, [organizationId]);
-  const children = await server.inject({ method: 'GET', url: `/api/v1/chart-of-accounts/tree/children/${heading.id}`, remoteAddress, headers });
+  const children = await company.call('GET', `/api/v1/chart-of-accounts/tree/children/${heading.id}`);
   const childCodes = (JSON.parse(children.body) as Array<{ code: string }>).map((child) => child.code);
   check('the tree answers with the imported sub-accounts', children.statusCode === 200 && childCodes.join(',') === '5961,5962', childCodes.join(','));
 
-  const exported = await server.inject({
-    method: 'POST',
-    url: '/api/v1/data-transfer/exports',
-    payload: { dataset: 'chart_of_accounts', format: 'csv' },
-    remoteAddress,
-    headers,
-  });
+  const exported = await company.call('POST', '/api/v1/data-transfer/exports', { dataset: 'chart_of_accounts', format: 'csv' });
   const [exportedHeader = ''] = csvLines(exported.body);
   check(
     'the export writes the same columns the import reads, imported accounts included',
@@ -276,26 +164,14 @@ async function main() {
   );
 
   // ── FIN-AC-05: a ledger mapping names the company's own accounts ─────────────────────────
-  const local = await server.inject({
-    method: 'POST',
-    url: '/api/v1/accounting/ledgers',
-    payload: { name: 'QA Libro local', currency: 'DOP' },
-    remoteAddress,
-    headers,
-  });
+  const local = await company.call('POST', '/api/v1/accounting/ledgers', { name: 'QA Libro local', currency: 'DOP' });
   const localLedger = JSON.parse(local.body) as { id?: string };
   const [primary] = await chart<{ id: string }>(`SELECT id FROM ledgers WHERE organization_id = $1 AND is_default`, [organizationId]);
   const [ownAccount] = await chart<{ id: string }>(`SELECT id FROM accounts WHERE organization_id = $1 AND code = '5961'`, [organizationId]);
   // An account of another company: any one outside this tenant, read with the owner's connection.
   const [foreignAccount] = await ds.query(`SELECT id FROM accounts WHERE organization_id <> $1 LIMIT 1`, [organizationId]);
   const mapping = (sourceAccountId: string, multiplier = 1) =>
-    server.inject({
-      method: 'POST',
-      url: '/api/v1/accounting/ledger-mappings',
-      payload: { sourceLedgerId: primary.id, targetLedgerId: localLedger.id, mappings: [{ sourceAccountId, parentAccountId: ownAccount.id, multiplier }] },
-      remoteAddress,
-      headers,
-    });
+    company.call('POST', '/api/v1/accounting/ledger-mappings', { sourceLedgerId: primary.id, targetLedgerId: localLedger.id, mappings: [{ sourceAccountId, parentAccountId: ownAccount.id, multiplier }] });
   if (foreignAccount) {
     const refusedMapping = await mapping(foreignAccount.id);
     check(
@@ -321,7 +197,7 @@ async function main() {
       ),
     );
   const beforeReprovision = await shape();
-  const reprovision = await server.inject({ method: 'POST', url: '/api/v1/accounting/reprovision', remoteAddress, headers });
+  const reprovision = await company.call('POST', '/api/v1/accounting/reprovision');
   check(
     'reprovisioning a healthy company leaves no invoicing gap and changes nothing',
     reprovision.statusCode === 200 && JSON.stringify(JSON.parse(reprovision.body).gaps) === '[]' && (await shape()) === beforeReprovision,

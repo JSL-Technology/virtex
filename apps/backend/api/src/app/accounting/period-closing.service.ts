@@ -35,11 +35,7 @@ import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { ClosingAutomationService } from './closing-automation.service';
 import { FiscalYear, FiscalYearStatus } from './entities/fiscal-year.entity';
-import {
-  BadRequestError,
-  ForbiddenError,
-  NotFoundError,
-} from '../i18n/localized.exception';
+import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 import { LocalizedMessage } from '../i18n/localized-message';
 import { assertTenantOwns } from '../shared/tenancy/tenant-ownership';
 import { fiscalDate, organizationTimeZone, type TimeZoneBearingOrganization } from '../shared/fiscal-clock';
@@ -322,7 +318,7 @@ export class PeriodClosingService {
     // No fiscal year on record is not an error: a tenant may run periods without declaring years,
     // and the annual close is what creates the requirement, not the other way round.
     if (year && year.status !== FiscalYearStatus.OPEN) {
-      throw new ForbiddenError('accounting.fiscal_year_from_closed_reopen_before', {
+      throw new ConflictError('accounting.fiscal_year_from_closed_reopen_before', {
         from: toIsoDate(year.startDate),
         to: toIsoDate(year.endDate),
       });
@@ -382,7 +378,7 @@ export class PeriodClosingService {
         order: { startDate: 'ASC' },
       });
       if (laterClosed) {
-        throw new ForbiddenError('accounting.period_cannot_reopened_because_following_period');
+        throw new ConflictError('accounting.period_cannot_reopened_because_following_period');
       }
 
       // Open it first. The reversal below is a posting, and a posting into a closed period is

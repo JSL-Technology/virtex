@@ -2250,6 +2250,11 @@
     "en": "Open",
     "pt": "Aberto"
   },
+  "accounting.posting_date_beyond_horizon": {
+    "es": "La fecha {{date}} queda más allá de lo que la empresa admite contabilizar por adelantado: hasta el {{limit}} ({{days}} días desde hoy, o el fin del período en curso). Si la fecha es correcta, amplía el plazo en Configuración › Cierre.",
+    "en": "The date {{date}} is further ahead than the company allows postings to be dated: up to {{limit}} ({{days}} days from today, or the end of the current period). If the date is right, extend the limit in Settings › Closing.",
+    "pt": "A data {{date}} está além do que a empresa admite lançar antecipadamente: até {{limit}} ({{days}} dias a partir de hoje, ou o fim do período em curso). Se a data estiver certa, amplie o prazo em Configurações › Fechamento."
+  },
   "accounting.reconciliation.account_auto_confirm": {
     "es": "Confirmar sin una persona en esta cuenta",
     "en": "Confirm without a person on this account",

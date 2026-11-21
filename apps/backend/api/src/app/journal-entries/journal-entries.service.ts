@@ -52,12 +52,7 @@ import {
   FastifyFile,
   toUploadableFile,
 } from '../common/interfaces/fastify-file.interface';
-import {
-  BadRequestError,
-  ConflictError,
-  ForbiddenError,
-  NotFoundError,
-} from '../i18n/localized.exception';
+import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 import {
   MoneyError,
   convert,
@@ -408,7 +403,7 @@ export class JournalEntriesService {
         );
       }
       if (account.isBlockedForPosting) {
-        throw new ForbiddenError(
+        throw new ConflictError(
           'journal_entries.account_code_p2_locked_new_transactions',
           { code: account.code, p2: this.accountLabel(account) },
         );
@@ -437,7 +432,7 @@ export class JournalEntriesService {
       .getOne();
 
     if (locked) {
-      throw new ForbiddenError('accounting.account_code_locked_transactions_period_name', {
+      throw new ConflictError('accounting.account_code_locked_transactions_period_name', {
         code: locked.account?.code ?? locked.accountId,
         name: period.name,
       });
@@ -1240,7 +1235,7 @@ export class JournalEntriesService {
       throw new BadRequestError('journal_entries.entry_has_already_reversed');
     }
     if (original.lines.some((line) => line.isReconciled)) {
-      throw new ForbiddenError(
+      throw new ConflictError(
         'journal_entries.entry_containing_reconciled_lines_cannot_reversed',
       );
     }
@@ -1401,12 +1396,12 @@ export class JournalEntriesService {
       // The accounting of a document is corrected from the document (see `entry-origin.ts`).
       const origin = describeEntryOrigin(original);
       if (origin.locked) {
-        throw new ForbiddenError('journal_entries.generated_entry_correct_from_source', {
+        throw new ConflictError('journal_entries.generated_entry_correct_from_source', {
           reason: origin.reason,
         });
       }
       if (original.lines.some((line) => line.isReconciled)) {
-        throw new ForbiddenError(
+        throw new ConflictError(
           'journal_entries.entry_containing_reconciled_lines_cannot_modified',
         );
       }

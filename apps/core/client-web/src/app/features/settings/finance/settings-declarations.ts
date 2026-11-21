@@ -249,6 +249,14 @@ export const SECTION_DECLARATIONS: readonly SectionDeclaration[] = [
         kind: 'integer',
         min: 5,
         max: 30
+      },
+      {
+        field: 'maxFuturePostingDays',
+        labelKey: 'settings.sections.fields.max_future_posting_days',
+        helpKey: 'settings.sections.fields.max_future_posting_days_help',
+        kind: 'integer',
+        min: 0,
+        max: 366
       }
     ],
   },

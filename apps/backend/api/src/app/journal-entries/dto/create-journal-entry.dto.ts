@@ -16,6 +16,7 @@ import {
   IsObject,
   IsDefined,
 } from 'class-validator';
+import { StrictNumber } from '../../common/transformers/strict-number.transformer';
 import { JournalEntryType } from '../entities/journal-entry.entity';
 
 class LineValuationDto {
@@ -23,11 +24,13 @@ class LineValuationDto {
   @IsNotEmpty({ message: 'validation.create_journal_entry.ledger_id_ledger_id_required_every' })
   ledgerId: string;
 
+  @StrictNumber()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.debit_must_valid_number' })
   @IsDefined({ message: 'validation.create_journal_entry.debit_field_required' })
   @Min(0, { message: 'validation.create_journal_entry.debit_cannot_negative' })
   debit: number;
 
+  @StrictNumber()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.credit_must_valid_number' })
   @IsDefined({ message: 'validation.create_journal_entry.credit_field_required' })
   @Min(0, { message: 'validation.create_journal_entry.credit_cannot_negative' })
@@ -40,11 +43,13 @@ export class CreateJournalEntryLineDto {
   @IsNotEmpty({ message: 'validation.create_journal_entry.account_id_account_id_required' })
   accountId: string;
 
+  @StrictNumber()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.debit_transaction_currency_must_number' })
   @IsDefined({ message: 'validation.create_journal_entry.debit_field_required' })
   @Min(0, { message: 'validation.create_journal_entry.debit_cannot_negative' })
   debit: number;
 
+  @StrictNumber()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.credit_transaction_currency_must_number' })
   @IsDefined({ message: 'validation.create_journal_entry.credit_field_required' })
   @Min(0, { message: 'validation.create_journal_entry.credit_cannot_negative' })
@@ -83,16 +88,19 @@ export class CreateJournalEntryLineDto {
   @Length(3, 3, { message: 'validation.create_journal_entry.currency_code_must_exactly_characters' })
   currencyCode?: string;
 
+  @StrictNumber()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.debit_transaction_currency_must_number' })
   @IsOptional()
   @Min(0, { message: 'validation.create_journal_entry.debit_cannot_negative' })
   foreignCurrencyDebit?: number;
 
+  @StrictNumber()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'validation.create_journal_entry.credit_transaction_currency_must_number' })
   @IsOptional()
   @Min(0, { message: 'validation.create_journal_entry.credit_cannot_negative' })
   foreignCurrencyCredit?: number;
 
+  @StrictNumber()
   @IsNumber({}, { message: 'validation.create_journal_entry.exchange_rate_must_number' })
   @IsOptional()
   @Min(0, { message: 'validation.create_journal_entry.exchange_rate_cannot_negative' })

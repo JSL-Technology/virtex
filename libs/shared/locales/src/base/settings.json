@@ -3020,6 +3020,16 @@
     "en": "Receives shortages, surpluses and cost revaluations.",
     "pt": "Recebe faltas, sobras e reavaliações de custo."
   },
+  "settings.sections.fields.max_future_posting_days": {
+    "es": "Días hacia adelante para contabilizar",
+    "en": "Days ahead a posting may be dated",
+    "pt": "Dias à frente para lançar"
+  },
+  "settings.sections.fields.max_future_posting_days_help": {
+    "es": "Hasta cuántos días después de hoy puede fecharse un asiento, y nunca menos que el fin del período en curso. Evita que un año mal tecleado contabilice en el futuro y abra un ejercicio entero.",
+    "en": "How many days after today a posting may be dated, and never less than the end of the current period. Keeps a mistyped year from posting into the future and opening a whole fiscal year.",
+    "pt": "Até quantos dias depois de hoje um lançamento pode ser datado, e nunca menos que o fim do período em curso. Evita que um ano digitado errado lance no futuro e abra um exercício inteiro."
+  },
   "settings.sections.fields.opening_balance_equity_account": {
     "es": "Patrimonio de apertura",
     "en": "Opening balance equity",

@@ -1,8 +1,9 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
-import { ForbiddenError } from '../../i18n/localized.exception';
+import { UnprocessableEntityError } from '../../i18n/localized.exception';
 import { toIsoDate } from '../../common/dates';
+import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 
 /**
  * An entry may not touch an account outside the window the account is valid in.
@@ -46,26 +47,33 @@ export class TemporalValidityGuard implements CanActivate {
       return true;
     }
 
-    const accounts = await this.dataSource.getRepository(Account).find({
-      where: { id: In(accountIds), organizationId },
-      select: ['id', 'code', 'effectiveFrom', 'effectiveTo'],
-    });
+    // Under its own tenant connection, because a guard has none: `TenantConnectionInterceptor` is an
+    // `APP_INTERCEPTOR`, and every interceptor runs after every guard. Read on a pooled connection,
+    // the accounts sat behind the row-level policies with no company set and none came back — so,
+    // connected as the application role, every journal entry was refused as touching «an account
+    // that is not this company's». `verify:journal-api`, run as `virtex_app`, is what found it.
+    const accounts = await runAsTenantJob(this.dataSource, organizationId, () =>
+      this.dataSource.getRepository(Account).find({
+        where: { id: In(accountIds), organizationId },
+        select: ['id', 'code', 'effectiveFrom', 'effectiveTo'],
+      }),
+    );
 
     const found = new Set(accounts.map((account) => account.id));
     const foreign = accountIds.find((id) => !found.has(id));
     if (foreign) {
-      throw new ForbiddenError('financial_reporting.account_not_in_this_company');
+      throw new UnprocessableEntityError('financial_reporting.account_not_in_this_company');
     }
 
     for (const account of accounts) {
       if (account.effectiveFrom && transactionDate < toIsoDate(account.effectiveFrom)) {
-        throw new ForbiddenError('financial_reporting.account_code_not_valid_until_effective', {
+        throw new UnprocessableEntityError('financial_reporting.account_code_not_valid_until_effective', {
           code: account.code,
           effectiveFrom: toIsoDate(account.effectiveFrom),
         });
       }
       if (account.effectiveTo && transactionDate > toIsoDate(account.effectiveTo)) {
-        throw new ForbiddenError('financial_reporting.account_code_expired_effective', {
+        throw new UnprocessableEntityError('financial_reporting.account_code_expired_effective', {
           code: account.code,
           effectiveTo: toIsoDate(account.effectiveTo),
         });

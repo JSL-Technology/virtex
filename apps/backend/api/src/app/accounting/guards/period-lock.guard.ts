@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { AccountingPeriod, ModuleSlug } from '../entities/accounting-period.entity';
 import { AccountPeriodLock } from '../entities/account-period-lock.entity';
-import { ForbiddenError } from '../../i18n/localized.exception';
+import { ConflictError } from '../../i18n/localized.exception';
 import { resolvePostingPeriod } from '../period-status';
 import { runAsTenantJob } from '../../shared/tenancy/tenant-job';
 
@@ -111,7 +111,7 @@ export class PeriodLockGuard implements CanActivate {
         .getOne();
 
       if (lockedAccount) {
-        throw new ForbiddenError('accounting.account_code_locked_transactions_period_name', {
+        throw new ConflictError('accounting.account_code_locked_transactions_period_name', {
           code: lockedAccount.account?.code ?? lockedAccount.accountId,
           name: period.name,
         });

@@ -306,6 +306,9 @@ describeWithDb('the accounting core', () => {
           status: FiscalYearStatus.OPEN,
         }),
       );
+      // The dates are fixed and today is not: allow postings a year ahead, so January 2027 is
+      // within the horizon whenever this runs (FIN-JE-02) — the series is what is under test.
+      await dataSource.getRepository(OrganizationSettings).update({ organizationId }, { maxFuturePostingDays: 366 });
 
       const december = await post('2026-12-15', 'Antes de fin de año', [
         { accountId: account['cash'], debit: 100 },

@@ -320,8 +320,9 @@ export class ChartOfAccountsDataTransferProvider implements DataTransferDataset<
           WHERE c.organization_id = $1 AND c."isPostable" AND c.type = 'EXPENSE' AND c.category = 'OPERATING_EXPENSE'
        ),
        heading AS (
-         SELECT parent_id FROM operating WHERE parent_id IS NOT NULL
-          GROUP BY parent_id ORDER BY count(*) DESC, parent_id LIMIT 1
+         -- The heading with most of them; on a tie, the first by code — never an id's order.
+         SELECT o.parent_id FROM operating o JOIN accounts h ON h.id = o.parent_id
+          GROUP BY o.parent_id, h.code ORDER BY count(*) DESC, h.code LIMIT 1
        )
        SELECT max(o.code) AS code, p.code AS "parentCode"
          FROM operating o JOIN heading h ON h.parent_id = o.parent_id JOIN accounts p ON p.id = o.parent_id

@@ -474,6 +474,19 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run verify:collections
 
+      # The journal-entry API contract, over HTTP: amounts are numbers, the create answers what a read
+      # answers (and a replay the same), a date past the company's horizon is refused and opens no
+      # fiscal year, and a closed period is a 409 — not a 403 the client reads as a missing permission.
+      - name: npm run verify:journal-api
+        if: ${{ !cancelled() }}
+        run: npm run verify:journal-api
+      - name: npm run verify:journal-api (como virtex_app)
+        if: ${{ !cancelled() }}
+        run: npm run verify:journal-api
+        env:
+          DB_USERNAME: virtex_app
+          DB_PASSWORD: ${{ env.APP_DB_PASSWORD }}
+
       # A chart of accounts imports through the product, whole or not at all: «Importar» opened a
       # dataset that only exported, and «false» in a spreadsheet cell was true. Over the real HTTP
       # API of a fresh company — template, a validation that refuses by line and column, a commit,
